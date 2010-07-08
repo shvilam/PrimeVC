@@ -102,7 +102,7 @@ class LayoutTest extends Skin < LayoutTest >
 			new VerticalFloatAlgorithm( Vertical.top )
 		);
 	//*/
-	//*/	
+	/*/	
 		fixedTiles = new FixedTileAlgorithm();
 		fixedTiles.maxTilesInDirection	= 3;
 	//	fixedTiles.startDirection		= Direction.vertical;
@@ -110,7 +110,7 @@ class LayoutTest extends Skin < LayoutTest >
 		fixedTiles.verticalDirection	= Vertical.top;
 		layoutGroup.algorithm = fixedTiles;
 	//*/
-	/*/	
+	//*/	
 		dynamicTiles = new DynamicTileAlgorithm();
 	//	dynamicTiles.startDirection			= Direction.vertical;
 	//	dynamicTiles.horizontalDirection	= Horizontal.left;
