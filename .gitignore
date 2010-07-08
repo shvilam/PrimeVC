@@ -1,0 +1,10 @@
+.DS_Store
+Thumb.db
+
+/build/environment.sh
+/assets
+/bin-debug
+/bin-release
+/generated-src
+
+/tests/test.swf

@@ -1,0 +1,2 @@
+export MXMLC_OPTIMIZER="C:/Files/FlexSDK/lib/optimizer.jar -load-config C:/Files/FlexSDK/frameworks/flex-config.xml"
+export MXMLC="C:/Files/FlexSDK/bin/mxmlc.exe"

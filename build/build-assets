@@ -1,0 +1,45 @@
+#!bash
+
+PRJROOT="."
+if [[ $# -eq 1 ]]; then
+	PRJROOT=$1
+fi;
+
+if [[ ! -f ${PRJROOT}/build/environment.sh ]]; then
+	echo "There's no environment file configured. This is needed to compile the asset classes."
+else
+	if  test ${PRJROOT}/assets/DebugAssets.as -nt ${PRJROOT}/assets/debug-assets.swf  ||  test ${PRJROOT}/assets/Assets.as -nt ${PRJROOT}/assets/assets.swf ; then
+		echo "compiling asset-swf's"
+		
+		source ${PRJROOT}/build/environment.sh
+		
+		"$MXMLC" \
+			-compiler.source-path ${PRJROOT}/src ${PRJROOT}/libs ${PRJROOT}/libs/as3-flexless \
+			-compiler.as3 \
+			-debug=false \
+			-verbose-stacktraces=false \
+			-compiler.optimize \
+			-output ${PRJROOT}/assets/assets.swf \
+			${PRJROOT}/assets/Assets.as &&
+
+		"$MXMLC" \
+			-compiler.source-path ${PRJROOT}/src ${PRJROOT}/libs ${PRJROOT}/libs/as3-flexless \
+			-compiler.as3 \
+			-output ${PRJROOT}/assets/debug-assets.swf \
+			${PRJROOT}/assets/DebugAssets.as &&
+		
+		echo "generating classes"
+		
+		if [[ -d ${PRJROOT}/generated-src ]]; then
+			rm -R ${PRJROOT}/generated-src
+		fi;
+		
+		haxe --gen-hx-classes ${PRJROOT}/assets/debug-assets.swf &&
+		mv hxclasses ${PRJROOT}/generated-src
+		rm ${PRJROOT}/generated-src/Assets.hx
+		rm ${PRJROOT}/generated-src/DebugAssets.hx
+		
+		# Cleanup
+	#	rm -R ${PRJROOT}/hxclasses
+	fi;
+fi;

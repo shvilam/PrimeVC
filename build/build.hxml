@@ -1,0 +1,12 @@
+-lib feffects
+-D Full
+#-D MonsterTrace
+-D FlashTrace
+-swf-version 10
+-swf-header 1000:750:31:FFFFFF
+-main primevc.Main
+-cp generated-src
+-cp src
+-cp skins/flair
+-debug
+-swf bin-debug/app.swf

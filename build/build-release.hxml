@@ -1,0 +1,15 @@
+-D Release
+-exclude build/release-exclude.txt
+--no-traces
+
+-swf10 tmp.swf
+-swf-header 1000:750:31
+
+--flash-strict
+-cp generated-src
+-cp src
+-cp skins/flair
+-lib feffects
+-main primevc.Main
+
+-swf-version 10

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ -f build/environment.sh ]; then
+	source build/environment.sh
+
+	java -jar scripts/tdsi.jar -finalize true -dead-code-elimination true -input tmp.swf -output tmp_tdsi.swf
+	"$MXMLC_OPTIMIZER" tmp_tdsi.swf -output tmp.swf
+	rm tmp_tdsi.swf
+fi;
