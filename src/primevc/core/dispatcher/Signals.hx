@@ -1,6 +1,6 @@
 package primevc.core.dispatcher;
  import primevc.core.IDisposable;
-  using primevc.utils.TypeUtil;
+ import primevc.utils.TypeUtil;
 
 /**
  * A group of dispatchers.
@@ -27,7 +27,7 @@ class Signals implements IUnbindable<Dynamic>, implements IDisposable, implement
 		
 		for(field in T.getInstanceFields(T.getClass(this))) {
 			f = R.field(this, field);
-			if (f.is(IUnbindable))
+			if (TypeUtil.is(f, IUnbindable))
 				count += f.unbind(listener, handler);
 		}
 		return count;
