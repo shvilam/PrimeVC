@@ -164,38 +164,4 @@ class ConstrainedRect implements IDisposable
 		setTop(top);
 		setBottom(bottom);
 	}
-	
-	/*
-	private inline function setBottom (v:Int)
-	{
-		bottomBoundary	= _bottom.value = v;
-		var newY:Int	= v - height - getVerPadding();
-		
-		if (y != newY)
-			y = newY;
-		
-		return bottomBoundary;
-	}
-	
-	
-	private inline function setLeft (v:Int)
-	{
-		leftBoundary = _left.value = v;
-		if (x != leftBoundary)
-			x = leftBoundary;
-		
-		return leftBoundary;
-	}
-	
-	
-	private inline function setRight (v:Int)
-	{
-		rightBoundary	= _right.value = v;
-		var newX:Int	= v - width - getHorPadding();
-		
-		if (x != newX)
-			x = newX;
-		
-		return rightBoundary;
-	}*/
 }

@@ -42,11 +42,6 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 	private inline function setDirection (v) {
 		if (v != direction) {
 			direction = v;
-			switch (v) {
-				case Vertical.top:		apply = applyTopToBottom;
-				case Vertical.center:	apply = applyCentered;
-				case Vertical.bottom:	apply = applyBottomToTop;
-			}
 			algorithmChanged.send();
 		}
 		return v;
@@ -107,6 +102,16 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 		}
 		
 		setGroupHeight(height);
+	}
+	
+	
+	public inline function apply ()
+	{
+		switch (direction) {
+			case Vertical.top:		applyTopToBottom();
+			case Vertical.center:	applyCentered();
+			case Vertical.bottom:	applyBottomToTop();
+		}
 	}
 	
 	

@@ -8,6 +8,7 @@ package cases;
  import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.Skin;
+ import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.algorithms.circle.HorizontalCircleAlgorithm;
  import primevc.gui.layout.algorithms.circle.VerticalCircleAlgorithm;
  import primevc.gui.layout.algorithms.directions.Direction;
@@ -66,22 +67,14 @@ class LayoutTest extends Skin < LayoutTest >
 		super();
 	}
 	
-	private var layoutGroup (getLayoutGroup, null)	: LayoutGroup;
+	public var layoutGroup (getLayoutGroup, null)	: LayoutGroup;
 		private inline function getLayoutGroup ()	{ return layout.as( LayoutGroup ); }
-	
-	
-	override private function createChildren ()
-	{
-		trace("createChildren of " + name);
-		for ( i in 0...10 )
-			addTile();
-	}
 	
 	
 	override private function createBehaviours ()
 	{
 	//	behaviours.add( new ClippedLayoutBehaviour(this) );
-		addTile.on( userEvents.mouse.click, this );
+		behaviours.add( cast new TileGroupBehaviour(this) );
 	}
 	
 	
@@ -92,7 +85,7 @@ class LayoutTest extends Skin < LayoutTest >
 		layout.y = 10;
 		layout.padding = new Box(10);
 	//	layout.maintainAspectRatio = true;
-	//	layout.sizeConstraint = new SizeConstraint(300, 400, 200, 800);
+		layout.sizeConstraint = new SizeConstraint(300, 600, 200, 800);
 	//	layout.sizeConstraint = new SizeConstraint(300, Number.NOT_SET, 200, Number.NOT_SET);
 	
 		trace("createLayout of " + name);
@@ -113,8 +106,8 @@ class LayoutTest extends Skin < LayoutTest >
 	//*/	
 		dynamicTiles = new DynamicTileAlgorithm();
 	//	dynamicTiles.startDirection			= Direction.vertical;
-	//	dynamicTiles.horizontalDirection	= Horizontal.left;
-	//	dynamicTiles.verticalDirection		= Vertical.top;
+		dynamicTiles.horizontalDirection	= Horizontal.right;
+		dynamicTiles.verticalDirection		= Vertical.bottom;
 		layoutGroup.algorithm = dynamicTiles;
 	/*/
 	
@@ -129,8 +122,8 @@ class LayoutTest extends Skin < LayoutTest >
 	//*/	
 	//	layoutGroup.algorithm.childHeight		= 60;
 	//	layoutGroup.algorithm.childWidth		= 60;
-		layoutGroup.width	= 400;
-		layoutGroup.height	= 400;
+	//	layoutGroup.width	= 400;
+	//	layoutGroup.height	= 400;
 		
 		redraw.on( layout.events.sizeChanged, this );
 	}
@@ -142,10 +135,10 @@ class LayoutTest extends Skin < LayoutTest >
 		var g = graphics;
 		trace("redraw "+name+": "+l.width+", "+l.height);
 		g.clear();
-	//	g.beginFill( 0xaaaaaa );
-	//	g.drawRect( 0, 0, l.width, l.height );
-		g.beginFill( 0xaaaa00, .7 );
-		g.drawEllipse( 0, 0, l.width, l.height );
+		g.beginFill( 0xaaaaaa );
+		g.drawRect( 0, 0, l.width, l.height );
+	//	g.beginFill( 0xaaaa00, .7 );
+	//	g.drawEllipse( 0, 0, l.width, l.height );
 		g.endFill();
 		
 		if (fixedTiles != null)
@@ -177,24 +170,6 @@ class LayoutTest extends Skin < LayoutTest >
 			}
 		}
 	}
-	
-	
-	public function addTile ()
-	{
-		var num = numChildren;
-		var child = new Tile("Tile" + num);
-		layoutGroup.children.add( child.layout );
-	//	child.behaviours.add( new DragBehaviour( child ) );
-		addChild( child );
-	}
-	
-	
-	/*private function updateSecondChild ()
-	{
-		var child = getChildAt( 1 ).as( Tile );
-		child.layout.width += 3;
-		layout.validate();
-	}*/
 }
 
 
@@ -232,7 +207,7 @@ class Tile extends Skin < Tile >
 	override private function createLayout () {
 		layout			= new LayoutClient();
 		layout.width	= 60 + Std.int(80 * Math.random());
-		layout.height	= 60 + Std.int(40 * Math.random());
+		layout.height	= 30 + Std.int(40 * Math.random());
 	}
 	
 	
@@ -246,19 +221,63 @@ class Tile extends Skin < Tile >
 }
 
 
+
+
+class TileGroupBehaviour extends BehaviourBase <LayoutTest>
+{
+	override private function init () 
+	{
+		addTile.on( target.userEvents.mouse.click, this );
+		createBeginTiles.onceOn( target.skinState.initialized.entering, this );
+	}
+	
+	private function createBeginTiles () {
+		for ( i in 0...10 )
+			addTile();
+	}
+
+
+	private function addTile (?event:MouseState)
+	{
+		if (event != null && event.target != target)
+			return;
+		
+		var num = target.numChildren;
+		var child = new Tile("Tile" + num);
+		child.doubleClickEnabled = true;
+		target.layoutGroup.children.add( child.layout );
+	//	child.behaviours.add( new TileBehaviour( child ) );
+		removeTile.onceOn( child.userEvents.mouse.doubleClick, this );
+		target.addChild( child );
+	}
+	
+	
+	private function removeTile (event:MouseState)
+	{
+		var tile:Tile = event.target.as(Tile);
+		target.layoutGroup.children.remove( tile.layout );
+		target.removeChild( tile );
+		tile.dispose();
+	}
+}
+
+
+
+
 class TileBehaviour extends BehaviourBase <Tile>
 {
 	override private function init () {
-		resize.on( target.userEvents.mouse.rollOver, this );
+	//	resize.on( target.userEvents.mouse.rollOver, this );
+	//	remove.on( target.userEvents.mouse.doubleClick, this );
 	}
 	
 	
 	override private function reset () {
-		target.userEvents.mouse.rollOver.unbind( this );
+		target.userEvents.mouse.unbind( this );
 	}
 	
 	
-	private function resize (e) {
+	private function resize () {
 		trace("resize");
 		target.layout.width += 5;
 	}

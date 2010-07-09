@@ -70,6 +70,19 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	}
 	
 	
+	public function removeList (list)
+	{
+		var index = lists.indexOf(list);
+		
+		//check if list isn't the first list
+		if (index > 0)
+			lists.getItemAt(index - 1).nextList = list.nextList;
+		
+		lists.remove(list);
+		list.dispose();
+	}
+	
+	
 	//
 	// LIST MANIPULATION METHODS
 	//

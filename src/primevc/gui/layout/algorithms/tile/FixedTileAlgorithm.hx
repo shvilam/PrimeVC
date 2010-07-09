@@ -325,13 +325,6 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	}
 	
 	
-/*	public function applyBoth () : Void
-	{
-		columns.validate();
-		rows.validate();
-	}
-*/	
-	
 	override private function invalidate (shouldbeResetted:Bool = true) : Void
 	{
 		if (shouldbeResetted) {

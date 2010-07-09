@@ -49,11 +49,6 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	{
 		if (v != direction) {
 			direction = v;
-			switch (v) {
-				case Horizontal.left:		apply = applyLeftToRight;
-				case Horizontal.center:		apply = applyCentered;
-				case Horizontal.right:		apply = applyRightToLeft;
-			}
 			algorithmChanged.send();
 		}
 		return v;
@@ -102,7 +97,7 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	/**
 	 * Method will return the total width of all the children.
 	 */
-	public inline function measureHorizontal ()
+	public function measureHorizontal ()
 	{
 		var width:Int	= halfWidth = 0;
 		
@@ -128,30 +123,38 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 		
 		setGroupWidth(width);
 	}
+
+
+	public inline function apply ()
+	{
+		switch (direction) {
+			case Horizontal.left:		applyLeftToRight();
+			case Horizontal.center:		applyCentered();
+			case Horizontal.right:		applyRightToLeft();
+		}
+	}
 	
 	
 	private inline function applyLeftToRight () : Void
 	{
-		if (group.children.length == 0)
-			return;
-		
-		trace("applyLeftToRight for " + group);
-		var next = getLeftStartValue();
-		
-		//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
-		if (childWidth.notSet())
+		if (group.children.length > 0)
 		{
-			for (child in group.children) {
-				trace(child +".left = " + next);
-				child.bounds.left	= next;
-				next				= child.bounds.right;
-			}
-		} 
-		else
-		{
-			for (child in group.children) {
-				child.bounds.left	 = next;
-				next				+= childWidth;
+			var next = getLeftStartValue();
+		
+			//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
+			if (childWidth.notSet())
+			{
+				for (child in group.children) {
+					child.bounds.left	= next;
+					next				= child.bounds.right;
+				}
+			} 
+			else
+			{
+				for (child in group.children) {
+					child.bounds.left	 = next;
+					next				+= childWidth;
+				}
 			}
 		}
 	}
@@ -159,42 +162,42 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	
 	private inline function applyCentered () : Void
 	{
-		if (group.children.length == 0)
-			return;
-		
-		var i:Int = 0;
-		var evenPos:Int, oddPos:Int;
-		evenPos = oddPos = halfWidth + getLeftStartValue();
-		
-		//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
-		if (childWidth.notSet())
+		if (group.children.length > 0)
 		{
-			for (child in group.children) {
-				if (i % 2 == 0) {
-					//even
-					child.bounds.right	= evenPos;
-					evenPos				= child.bounds.left;
-				} else {
-					//odd
-					child.bounds.left	= oddPos;
-					oddPos				= child.bounds.right;
+			var i:Int = 0;
+			var evenPos:Int, oddPos:Int;
+			evenPos = oddPos = halfWidth + getLeftStartValue();
+		
+			//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
+			if (childWidth.notSet())
+			{
+				for (child in group.children) {
+					if (i % 2 == 0) {
+						//even
+						child.bounds.right	= evenPos;
+						evenPos				= child.bounds.left;
+					} else {
+						//odd
+						child.bounds.left	= oddPos;
+						oddPos				= child.bounds.right;
+					}
+					i++;
 				}
-				i++;
 			}
-		}
-		else
-		{
-			for (child in group.children) {
-				if (i % 2 == 0) {
-					//even
-					child.bounds.right	 = evenPos;
-					evenPos				-= childWidth;
-				} else {
-					//odd
-					child.bounds.left	 = oddPos;
-					oddPos				+= childWidth;
+			else
+			{
+				for (child in group.children) {
+					if (i % 2 == 0) {
+						//even
+						child.bounds.right	 = evenPos;
+						evenPos				-= childWidth;
+					} else {
+						//odd
+						child.bounds.left	 = oddPos;
+						oddPos				+= childWidth;
+					}
+					i++;
 				}
-				i++;
 			}
 		}
 	}
@@ -202,25 +205,27 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	
 	private inline function applyRightToLeft () : Void
 	{
-		if (group.children.length == 0)
-			return;
-		
-		var next = getRightStartValue();
-		
-		//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
-		if (childWidth.notSet())
+		if (group.children.length > 0)
 		{
-			for (child in group.children) {
-				child.bounds.right	= next;
-				next				= child.bounds.left;
+			var next = getRightStartValue();
+			trace("apply right to left "+next + " for "+group + "; width: "+group.width);
+			trace(group);
+		
+			//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
+			if (childWidth.notSet())
+			{
+				for (child in group.children) {
+					child.bounds.right	= next;
+					next				= child.bounds.left;
+				}
 			}
-		}
-		else
-		{
-			next -= childWidth;
-			for (child in group.children) {
-				child.bounds.left	= next;
-				next				= child.bounds.left - childWidth;
+			else
+			{
+				next -= childWidth;
+				for (child in group.children) {
+					child.bounds.left	= next;
+					next				= child.bounds.left - childWidth;
+				}
 			}
 		}
 	}

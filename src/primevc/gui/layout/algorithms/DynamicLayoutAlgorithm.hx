@@ -36,7 +36,6 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 		super();
 		this.horAlgorithm	= horAlgorithm;
 		this.verAlgorithm	= verAlgorithm;
-		apply = applyBoth;
 	}
 	
 	
@@ -70,14 +69,14 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 	public function measureVertical ()		{ verAlgorithm.measureVertical(); }
 	
 	
-	public inline function applyBoth ()
+ 	public function apply ()
 	{
 		horAlgorithm.apply();
 		verAlgorithm.apply();
 	}
 	
 	
-	public inline function isInvalid (changes:Int) : Bool
+	public function isInvalid (changes:Int) : Bool
 	{
 		return horAlgorithm.isInvalid(changes) || verAlgorithm.isInvalid(changes);
 	}

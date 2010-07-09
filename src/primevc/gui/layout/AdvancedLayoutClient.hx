@@ -96,25 +96,23 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	
 	
 	override private function setWidth (v:Int) {
-		trace("setWidth "+v);
-		super.setWidth(v);
+		var newV = super.setWidth(v);
 		
 		//set the explicitWidth property if height is set directly and there's no measuredWidth
 		if (measuredWidth != v && explicitWidth != v)
-			explicitWidth = width;
+			explicitWidth = newV;
 		
-		return v;
+		return newV;
 	}
 	
 	
 	override private function setHeight (v:Int) {
-		trace("setHeight "+v);
-		super.setHeight(v);
+		var newV = super.setHeight(v);
 		
 		//set the explicitHeight property if height is set directly and there's no measuredHeight
 		if (measuredHeight != v && explicitHeight != v)
-			explicitHeight = height;
+			explicitHeight = newV;
 		
-		return height;
+		return newV;
 	}
 }

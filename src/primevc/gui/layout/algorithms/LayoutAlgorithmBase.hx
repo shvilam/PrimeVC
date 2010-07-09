@@ -20,7 +20,6 @@ class LayoutAlgorithmBase implements IDisposable
 	public var childHeight				(default, setChildHeight)	: Int;
 	
 	public var algorithmChanged 		(default, null)				: Signal0;
-	public var apply					(default, null)				: Void -> Void;
 	public var group					(default, setGroup)			: ILayoutGroup<LayoutClient>;
 	
 	

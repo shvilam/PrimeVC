@@ -95,7 +95,7 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 	private function applyPosition ()
 	{
 		var l = target.layout;
-		trace("applyPosition " + target.name + " / " + l + " - size " + l.width + ", " + l.height + "; pos: " + l.x + ", " + l.y);
+		trace("applyPosition " + target.name + " / " + l + " - pos: " + l.x + ", " + l.y + " - old pos "+target.x+", "+target.y);
 	//	target.width	= l.width;
 	//	target.height	= l.height;
 		target.x		= l.x;

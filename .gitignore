@@ -1,5 +1,6 @@
 .DS_Store
 Thumb.db
+*.tmproj
 
 /build/environment.sh
 /assets

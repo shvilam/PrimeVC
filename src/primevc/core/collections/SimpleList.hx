@@ -57,6 +57,9 @@ class SimpleList <DataType> implements IList <DataType>
 	
 	public function dispose ()
 	{
+		if (events == null)
+			return;
+		
 		removeAll();
 		events.dispose();
 		events	= null;
@@ -171,7 +174,6 @@ class SimpleList <DataType> implements IList <DataType>
 		
 		if (pos == 0)
 		{
-		//	trace("insert "+item+" at beginning");
 			//add at beginning of list
 			if (first != null) {
 				first.prev	= cell;
@@ -185,7 +187,6 @@ class SimpleList <DataType> implements IList <DataType>
 		}
 		else if (pos >= length)
 		{
-		//	trace("insert "+item+"  at end");
 			//add at the end of the list
 			last.next	= cell;
 			cell.prev	= last;
@@ -194,7 +195,6 @@ class SimpleList <DataType> implements IList <DataType>
 		}
 		else
 		{
-		//	trace("insert "+item+"  at position "+pos);
 			//insert item in the middle
 			cell.next			= getCellAt(pos);
 			cell.prev			= cell.next.prev;
@@ -329,6 +329,7 @@ class SimpleListIterator <DataType> #if (flash9 || cpp) implements haxe.rtti.Gen
 	public inline function next () : DataType
 	{
 		var c = current;
+	//	trace("simplelistitr.next "+current.data);
 		current = current.next;
 		return c.data;
 	}

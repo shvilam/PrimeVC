@@ -43,11 +43,6 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 	{
 		if (v != direction) {
 			direction = v;
-			switch (v) {
-				case Horizontal.left:		apply = applyLeftToRight;
-				case Horizontal.center:		apply = applyCentered;
-				case Horizontal.right:		apply = applyRightToLeft;
-			}
 			algorithmChanged.send();
 		}
 		return v;
@@ -111,6 +106,16 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 		}
 		
 		setGroupWidth(width);
+	}
+	
+	
+	public inline function apply ()
+	{
+		switch (direction) {
+			case Horizontal.left:		applyLeftToRight();
+			case Horizontal.center:		applyCentered();
+			case Horizontal.right:		applyRightToLeft();
+		}
 	}
 	
 	

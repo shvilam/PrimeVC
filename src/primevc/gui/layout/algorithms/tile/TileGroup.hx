@@ -61,7 +61,8 @@ class TileGroup <ChildType:LayoutClient> extends LayoutClient, implements ILayou
 	public inline function childInvalidated (childChanges:Int) : Bool
 	{
 		var r = false;
-		if (childChanges.has(LayoutFlags.LIST_CHANGED) || (algorithm != null && algorithm.isInvalid(childChanges))) {
+		if (childChanges.has(LayoutFlags.LIST_CHANGED) || (algorithm != null && algorithm.isInvalid(childChanges)))
+		{
 			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
 			r = true;
 		}
@@ -74,6 +75,7 @@ class TileGroup <ChildType:LayoutClient> extends LayoutClient, implements ILayou
 		if (changes == 0)
 			return;
 		
+		trace(this+".measure "+readChanges());
 		measureHorizontal();
 		measureVertical();
 	}
@@ -87,7 +89,6 @@ class TileGroup <ChildType:LayoutClient> extends LayoutClient, implements ILayou
 		Assert.that(algorithm != null);
 		
 		for (child in children) {
-			trace("measure hor " + child + " - "+child.readChanges() + " - measure? "+childInvalidated(child.changes));
 			if (childInvalidated(child.changes))
 				child.measureHorizontal();
 		}
@@ -122,7 +123,6 @@ class TileGroup <ChildType:LayoutClient> extends LayoutClient, implements ILayou
 		
 		algorithm.group = cast this;
 		algorithm.apply();
-		trace("validated " + readChanges());
 		changes = 0;
 	}
 	
@@ -181,9 +181,4 @@ class TileGroup <ChildType:LayoutClient> extends LayoutClient, implements ILayou
 		if (bounds.left != 0)	child.bounds.left	= bounds.left;
 		if (bounds.top != 0)	child.bounds.top	= bounds.top;
 	}
-	
-	
-#if debug
-	override public function toString() { return "TileGroup"; }
-#end
 }

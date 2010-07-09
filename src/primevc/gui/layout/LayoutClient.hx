@@ -96,6 +96,7 @@ class LayoutClient implements ILayoutClient
 			relative = null;
 		}
 		
+		sizeConstraint = null;		//do not dispose him. Sizeconstraints instances can be used across several clients.
 		_width	= null;
 		_height	= null;
 		bounds	= null;
@@ -104,7 +105,6 @@ class LayoutClient implements ILayoutClient
 		parent	= null;
 		padding	= null;
 		
-		sizeConstraint = null;		//do not dispose him. Sizeconstraints instances can be used across several clients. 
 	}
 	
 	
@@ -239,7 +239,7 @@ class LayoutClient implements ILayoutClient
 	
 	
 	//
-	// SIZE SETTERS
+	// SIZE GETTERS / SETTERS
 	//
 	
 	private inline function getWidth ()		:Int { return _width.value; }
@@ -248,14 +248,13 @@ class LayoutClient implements ILayoutClient
 	
 	private function setWidth (v:Int) : Int
 	{
-		var oldW		= width;
+		var oldW		= _width.value;
 		_width.value	= v;
 		
-		if (width != oldW)
+		if (_width.value != oldW)
 		{
-			var newH:Int	= maintainAspectRatio ? Std.int(width / aspectRatio) : height;
-			width			= _width.value;
-			bounds.width	= width + getHorPadding();
+			var newH:Int	= maintainAspectRatio ? Std.int(_width.value / aspectRatio) : height;
+			bounds.width	= _width.value + getHorPadding();
 			
 			if (maintainAspectRatio && newH != height) {
 				height = newH; //will trigger the height constraints
@@ -263,20 +262,19 @@ class LayoutClient implements ILayoutClient
 			
 			invalidate( Flags.WIDTH_CHANGED );
 		}
-		return width;
+		return _width.value;
 	}
 	
 	
 	private function setHeight (v:Int) : Int
 	{
-		var oldH		= height;
+		var oldH		= _height.value;
 		_height.value	= v;
 		
-		if (height != oldH)
+		if (_height.value != oldH)
 		{
-			var newW:Int	= maintainAspectRatio ? Std.int(height * aspectRatio) : width;	
-			height			= _height.value;
-			bounds.height	= height + getVerPadding();
+			var newW:Int	= maintainAspectRatio ? Std.int(_height.value * aspectRatio) : width;	
+			bounds.height	= _height.value + getVerPadding();
 			
 			if (maintainAspectRatio && newW != width) {
 				width = newW; //will trigger the width constraints
@@ -284,7 +282,7 @@ class LayoutClient implements ILayoutClient
 			
 			invalidate( Flags.HEIGHT_CHANGED );
 		}
-		return height;
+		return _height.value;
 	}
 	
 	
@@ -341,7 +339,7 @@ class LayoutClient implements ILayoutClient
 	 * class. The SizeConstraint is meant for constrainting the size values by
 	 * defining a min and max value for the width and the height.
 	 */
-	private inline function setSizeConstraint (v)
+	private inline function setSizeConstraint (v:SizeConstraint)
 	{
 		if (sizeConstraint != null) {
 			_width.constraint = null;
@@ -352,6 +350,7 @@ class LayoutClient implements ILayoutClient
 		}
 		
 		sizeConstraint = v;
+		invalidateSizeConstraint();
 		
 		if (sizeConstraint != null) {
 			_width.constraint = sizeConstraint.width;
@@ -359,11 +358,19 @@ class LayoutClient implements ILayoutClient
 			
 			_width.validateValue.on( sizeConstraint.width.change, this );
 			_height.validateValue.on( sizeConstraint.height.change, this );
+			invalidateSizeConstraint.on( sizeConstraint.width.change, this );
+			invalidateSizeConstraint.on( sizeConstraint.height.change, this );
 			
-			_width.validateValue();
-			_height.validateValue();
+			//force size constraints to run for the first time
+			setWidth( width );
+			setHeight( height );
 		}
 		return v;
+	}
+	
+	
+	private inline function invalidateSizeConstraint () {
+		invalidate( Flags.SIZE_CONSTRAINT_CHANGED );
 	}
 	
 	

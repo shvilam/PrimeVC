@@ -15,6 +15,13 @@ class BalancingList <DataType> extends SimpleList <DataType>
 	public var maxLists	: Int;
 	
 	
+	override public function dispose ()
+	{
+		nextList = null;
+		super.dispose();
+	}
+	
+	
 	override public function add (item:DataType, pos:Int = -1) : DataType
 	{
 		if (pos < length)

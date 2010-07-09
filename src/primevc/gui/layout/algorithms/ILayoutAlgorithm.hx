@@ -17,10 +17,6 @@ interface ILayoutAlgorithm implements IDisposable
 	 */
 	public var algorithmChanged (default, null)				: Signal0;
 	public var group			(default, setGroup)			: ILayoutGroup<LayoutClient>;
-	/**
-	 * Method will apply it's layout algorithm on the given target.
-	 */
-	public var apply 			(default, null)				: Void -> Void;
 	
 	
 	/**
@@ -54,4 +50,9 @@ interface ILayoutAlgorithm implements IDisposable
 	
 	public function measureHorizontal ()					: Void;
 	public function measureVertical ()					 	: Void;
+	
+	/**
+	 * Method will apply it's layout algorithm on the given target.
+	 */
+	public function apply ()								: Void;
 }
