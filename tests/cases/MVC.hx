@@ -10,12 +10,32 @@ import primevc.mvc.Model;
 import primevc.mvc.Mediator;
 import primevc.mvc.View;
 import primevc.mvc.Proxy;
+import primevc.mvc.EditProxy;
 
+import primevc.mvc.traits.IValueObject;
+import primevc.mvc.traits.IEditableValueObject;
+import primevc.mvc.traits.IEditEnabledValueObject;
 
-class UserVO
-{ // normaal gesproken gegenereerd.
-	var name : /*Bindable*/ String;
+interface IUserVO implements IValueObject
+{
+	var name (default,null) : String;
 }
+
+interface IUserEVO implements IEditEnabledValueObject
+{
+	public var name (default,default) : String;
+}
+
+class UserVO implements IUserVO, implements IUserEVO, implements IEditableValueObject<IUserEVO>
+{ // normaal gesproken gegenereerd.
+	public var name (default,default) : String;
+	
+	public function asEditable() : IUserEVO {return this;}
+	public function commitEdit() : Void;
+	public function cancelEdit() : Void;
+}
+
+
 
 typedef UserProxyEvents = {
 	var loggedIn (default,null) : ISender1<UserVO>;
@@ -26,7 +46,7 @@ class UserSignals extends Signals
 	var loggedIn : Signal1<UserVO>;
 }
 
-class UserProxy extends Proxy<UserVO, UserProxyEvents>
+class UserProxy extends EditProxy<IUserVO, UserVO, IUserEVO, UserProxyEvents>
 {
 	
 	public function login(name:String, pass:String) {

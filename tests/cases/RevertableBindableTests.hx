@@ -23,9 +23,10 @@ class RevertableBindableTests extends haxe.unit.TestCase
 			b = new RevertableBindable<String>("two");
 		
 		a.pair(b);
+	#if debug
 		assertTrue(a.isBoundTo(b));
 		assertTrue(b.isBoundTo(a));
-		
+	#end
 		b.value = "three";
 		
 		assertEquals("three", a.value);

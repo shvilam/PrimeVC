@@ -1,2 +1,2 @@
-export MXMLC_OPTIMIZER="C:/Files/FlexSDK/lib/optimizer.jar -load-config C:/Files/FlexSDK/frameworks/flex-config.xml"
-export MXMLC="C:/Files/FlexSDK/bin/mxmlc.exe"
+export MXMLC_OPTIMIZER="/Applications/Adobe/Adobe Flash Builder 4/sdks/3.5.0/bin/optimizer"
+export MXMLC="/Applications/Adobe/Adobe Flash Builder 4/sdks/3.5.0/bin/mxmlc"

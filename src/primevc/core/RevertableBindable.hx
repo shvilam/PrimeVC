@@ -1,9 +1,36 @@
+/*
+ * Copyright (c) 2010, The PrimeVC Project Contributors
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *   - Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   - Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE PRIMEVC PROJECT CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE PRIMVC PROJECT CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ *
+ *
+ * Authors:
+ *  Danny Wilson	<danny @ onlinetouch.nl>
+ */
 package primevc.core;
  import primevc.core.IDisposable;
  import primevc.core.Bindable;
  import primevc.core.dispatcher.Signal1;
  import haxe.FastList;
-  using primevc.utils.Bind;
   using primevc.utils.BitUtil;
 
 /**
@@ -16,6 +43,12 @@ package primevc.core;
  * 
  * The default behaviour is to only dispatch/propagate _valid_ changes
  * when: _not_ in, or leaving; edit-mode.
+ * 
+ * The value can only change when in edit-mode (by calling beginEdit()),
+ * or directly through set(). When setting 'this.value' is tried while not
+ * in edit-mode, the new value is discarded. Additionally when compiled in
+ * debug-mode an assertion exception is thrown.
+ * 
  * 
  * @creation-date	Jun 18, 2010
  * @author			Danny Wilson
@@ -33,12 +66,24 @@ class RevertableBindable <DataType> extends Bindable<DataType>//, implements hax
 	public var shadowValue (default,null) : DataType;
 	
 	
-	override private function setValue (newValue:DataType) : DataType
+	/**
+	 * Sets value directly, without the requirement to be in edit mode.
+	 */
+	public function set(newValue:DataType) : Void
 	{
-		if (newValue == this.value) return newValue;
-		// ---
-		
 		var f = flags;
+		this.flags |= IN_EDITMODE
+		this.value = newValue;
+		this.flags = f;
+	}
+	
+	override private function setValue (newValue:DataType) : DataType
+	{	
+		var f = flags;
+		Assert.that(f.has(RevertableBindableFlags.IN_EDITMODE));
+		
+		if (f.hasNone(RevertableBindableFlags.IN_EDITMODE) || newValue == this.value) return newValue;
+		// ---
 		
 		if (f.has(MAKE_SHADOW_COPY)) {
 			f ^= MAKE_SHADOW_COPY;
