@@ -2,9 +2,10 @@
 Thumb.db
 
 /build/environment.sh
-/assets
 /bin-debug
 /bin-release
 /generated-src
 
+/assets/assets.swf
+/assets/debug-assets.swf
 /tests/test.swf
