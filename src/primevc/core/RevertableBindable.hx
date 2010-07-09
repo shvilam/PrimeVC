@@ -44,6 +44,12 @@ package primevc.core;
  * The default behaviour is to only dispatch/propagate _valid_ changes
  * when: _not_ in, or leaving; edit-mode.
  * 
+ * The value can only change when in edit-mode (by calling beginEdit()),
+ * or directly through set(). When setting 'this.value' is tried while not
+ * in edit-mode, the new value is discarded. Additionally when compiled in
+ * debug-mode an assertion exception is thrown.
+ * 
+ * 
  * @creation-date	Jun 18, 2010
  * @author			Danny Wilson
  */
@@ -60,12 +66,24 @@ class RevertableBindable <DataType> extends Bindable<DataType>//, implements hax
 	public var shadowValue (default,null) : DataType;
 	
 	
-	override private function setValue (newValue:DataType) : DataType
+	/**
+	 * Sets value directly, without the requirement to be in edit mode.
+	 */
+	public function set(newValue:DataType) : Void
 	{
-		if (newValue == this.value) return newValue;
-		// ---
-		
 		var f = flags;
+		this.flags |= IN_EDITMODE
+		this.value = newValue;
+		this.flags = f;
+	}
+	
+	override private function setValue (newValue:DataType) : DataType
+	{	
+		var f = flags;
+		Assert.that(f.has(RevertableBindableFlags.IN_EDITMODE));
+		
+		if (f.hasNone(RevertableBindableFlags.IN_EDITMODE) || newValue == this.value) return newValue;
+		// ---
 		
 		if (f.has(MAKE_SHADOW_COPY)) {
 			f ^= MAKE_SHADOW_COPY;

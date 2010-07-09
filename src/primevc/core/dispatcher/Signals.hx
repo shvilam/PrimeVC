@@ -31,7 +31,7 @@ package primevc.core.dispatcher;
  import primevc.utils.TypeUtil;
 
 /**
- * A group of dispatchers.
+ * A group of signal dispatchers.
  * 
  * @author Danny Wilson
  * @creation-date jun 10, 2010
