@@ -1,17 +1,18 @@
 #!bash
-
-PRJROOT="."
-if [[ $# -eq 1 ]]; then
-	PRJROOT=$1
-fi;
+BUILDSCRIPTDIR="`dirname $0`";
+PRJROOT="${BUILDSCRIPTDIR}/.."
 
 if [[ ! -f ${PRJROOT}/build/environment.sh ]]; then
-	echo "There's no environment file configured. This is needed to compile the asset classes."
+	echo "There's no environment file configured. Copy 'environment.sh.template' to 'environment.sh' and edit it."
 else
-	if  test ${PRJROOT}/assets/DebugAssets.as -nt ${PRJROOT}/assets/debug-assets.swf  ||  test ${PRJROOT}/assets/Assets.as -nt ${PRJROOT}/assets/assets.swf ; then
-		echo "compiling asset-swf's"
+	if [[ ! -f ${PRJROOT}/assets/debug-assets.swf ]]  ||  test ${PRJROOT}/assets/DebugAssets.as -nt ${PRJROOT}/assets/debug-assets.swf  ||  test ${PRJROOT}/assets/Assets.as -nt ${PRJROOT}/assets/assets.swf ; then
+		echo "[mxmlc]  Compiling asset SWFs"
 		
 		source ${PRJROOT}/build/environment.sh
+		
+		if [[ -d ${PRJROOT}/generated-src ]]; then
+			rm -R ${PRJROOT}/generated-src
+		fi;
 		
 		"$MXMLC" \
 			-compiler.source-path ${PRJROOT}/src ${PRJROOT}/libs ${PRJROOT}/libs/as3-flexless \
@@ -28,11 +29,7 @@ else
 			-output ${PRJROOT}/assets/debug-assets.swf \
 			${PRJROOT}/assets/DebugAssets.as &&
 		
-		echo "generating classes"
-		
-		if [[ -d ${PRJROOT}/generated-src ]]; then
-			rm -R ${PRJROOT}/generated-src
-		fi;
+		echo "[haXe]   Generating extern classes" &&
 		
 		haxe --gen-hx-classes ${PRJROOT}/assets/debug-assets.swf &&
 		mv hxclasses ${PRJROOT}/generated-src
