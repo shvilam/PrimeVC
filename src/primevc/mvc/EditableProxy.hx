@@ -28,31 +28,35 @@
  */
 package primevc.mvc;
  import primevc.mvc.traits.IValueObject;
+ import primevc.mvc.traits.IEditableValueObject;
+ import primevc.mvc.traits.IEditEnabledValueObject;
 
 /**
- * A Proxy manages a portion of the Model. Usually it manages a single value-object.
- * It exposes methods and properties to allow other MVC-actors to manipulate it.
- * 
- * A Proxy does not know anything outside of it's own world, and does not respond to signals.
- * It however does send signals, for example when the value-object changes.
+ * A proxy that allows mediators to edit the VO managed by the proxy.
  * 
  * @author Danny Wilson
- * @creation-date Jun 22, 2010
+ * @creation-date Jul 09, 2010
  */
-class Proxy
+class EditableProxy
   < ReadOnlyVO : IValueObject,
- 	VOType : (/* ReadOnlyVO, /* DOESNT COMPILE @#^$ */ IValueObject),
- 	EventsTypedef
+	VOType : (/* ReadOnlyVO, /* DOESNT COMPILE @#^$ */ IEditableValueObject<EditEnabledVOType>),
+	EditEnabledVOType : (/* ReadOnlyVO, /* ALSO DOESNT COMPILE */ IEditEnabledValueObject),
+	EventsTypedef
   >
+  extends Proxy<ReadOnlyVO, VOType, EventsTypedef>
 {
-	public var data	  (default,null) : ReadOnlyVO;
-	public var events (default,null) : EventsTypedef;
+	public function beginEdit() : EditEnabledVOType
+	{
+		return vo.asEditable();
+	}
 	
-	private var vo : VOType;
+	public function commitEdit() : Void
+	{
+		vo.commitEdit();
+	}
 	
-	public function new( _events : EventsTypedef )
-	{	
-		Assert.that(_events != null);
-		this.events = _events;
+	public function cancelEdit() : Void
+	{
+		vo.cancelEdit();
 	}
 }
