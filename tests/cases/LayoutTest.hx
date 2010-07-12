@@ -85,7 +85,7 @@ class LayoutTest extends Skin < LayoutTest >
 		layout.y = 10;
 		layout.padding = new Box(10);
 	//	layout.maintainAspectRatio = true;
-		layout.sizeConstraint = new SizeConstraint(300, 600, 200, 800);
+		layout.sizeConstraint = new SizeConstraint(500, 800, 200, 800);
 	//	layout.sizeConstraint = new SizeConstraint(300, Number.NOT_SET, 200, Number.NOT_SET);
 	
 		trace("createLayout of " + name);
@@ -105,9 +105,9 @@ class LayoutTest extends Skin < LayoutTest >
 	//*/
 	//*/	
 		dynamicTiles = new DynamicTileAlgorithm();
-	//	dynamicTiles.startDirection			= Direction.vertical;
-		dynamicTiles.horizontalDirection	= Horizontal.right;
-		dynamicTiles.verticalDirection		= Vertical.bottom;
+		dynamicTiles.startDirection			= Direction.vertical;
+	//	dynamicTiles.horizontalDirection	= Horizontal.right;
+	//	dynamicTiles.verticalDirection		= Vertical.bottom;
 		layoutGroup.algorithm = dynamicTiles;
 	/*/
 	
@@ -183,30 +183,38 @@ class Tile extends Skin < Tile >
 		this.name = name;
 		super();
 		color	= Math.round( Math.random() * 0xffffff );
-		redraw.on( layout.events.sizeChanged, this );
+		normallity.on( layout.events.sizeChanged, this );
 	}
 	
 	
-	public function redraw ()
+	public function redraw (useColor:UInt = 0)
 	{
+		if (useColor == 0)
+			useColor = color;
+		
 		var l = layout.bounds;
 		var g = graphics;
 		trace("redraw " + name + ": " + l.width + ", " + l.height);
 		g.clear();
-		g.beginFill( color, .4 );
+		g.beginFill( useColor, .4 );
 		g.drawRect( 0, 0, l.width, l.height );
 		g.endFill();
 	}
 	
+	private function highlight ()	{ redraw( 0xffffff); }
+	private function normallity ()	{ redraw(color); }
+	
 	
 	override private function createBehaviours () {
 	//	behaviours.add( cast new TileBehaviour( this ) );
+		highlight.on( userEvents.mouse.rollOver, this );
+		normallity.on( userEvents.mouse.rollOut, this );
 	}
 	
 	
 	override private function createLayout () {
 		layout			= new LayoutClient();
-		layout.width	= 60 + Std.int(80 * Math.random());
+		layout.width	= 50 + Std.int(150 * Math.random());
 		layout.height	= 30 + Std.int(40 * Math.random());
 	}
 	
@@ -214,10 +222,15 @@ class Tile extends Skin < Tile >
 	override private function createChildren () {
 		textField = new TextField();
 		textField.text = name;
+		textField.autoSize = flash.text.TextFieldAutoSize.LEFT;
 		textField.setTextFormat( new TextFormat("Verdana", 15, 0x00 ) );
 		textField.mouseEnabled = false;
 		addChild( textField );
 	}
+	
+#if debug
+	override public function toString() { return name; }
+#end
 }
 
 
@@ -232,7 +245,7 @@ class TileGroupBehaviour extends BehaviourBase <LayoutTest>
 	}
 	
 	private function createBeginTiles () {
-		for ( i in 0...10 )
+		for ( i in 0...4 )
 			addTile();
 	}
 
@@ -255,6 +268,7 @@ class TileGroupBehaviour extends BehaviourBase <LayoutTest>
 	private function removeTile (event:MouseState)
 	{
 		var tile:Tile = event.target.as(Tile);
+		trace("removeTile "+tile);
 		target.layoutGroup.children.remove( tile.layout );
 		target.removeChild( tile );
 		tile.dispose();

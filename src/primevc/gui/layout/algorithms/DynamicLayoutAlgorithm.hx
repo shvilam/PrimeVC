@@ -187,21 +187,23 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 	}
 	
 	
-	private inline function setHorizontalDirection (v:Horizontal)
+	private function setHorizontalDirection (v:Horizontal)
 	{
 		if (v != horizontalDirection) {
 			horizontalDirection		= v;
 			horAlgorithm.direction	= v;
+			invalidate(false);
 		}
 		return v;
 	}
 	
 	
-	private inline function setVerticalDirection (v:Vertical)
+	private function setVerticalDirection (v:Vertical)
 	{
 		if (v != verticalDirection) {
 			verticalDirection		= v;
 			verAlgorithm.direction	= v;
+			invalidate(false);
 		}
 		return v;
 	}

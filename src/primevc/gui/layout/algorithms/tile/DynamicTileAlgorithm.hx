@@ -31,8 +31,11 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.core.collections.ChainedList;
  import primevc.core.collections.SimpleList;
  import primevc.core.geom.constraints.SizeConstraint;
+ import primevc.core.geom.Box;
  import primevc.gui.layout.LayoutGroup;
  import primevc.gui.layout.algorithms.directions.Direction;
+ import primevc.gui.layout.algorithms.directions.Horizontal;
+ import primevc.gui.layout.algorithms.directions.Vertical;
  import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
  import primevc.gui.layout.algorithms.float.VerticalFloatAlgorithm;
  import primevc.gui.layout.algorithms.tile.TileGroup;
@@ -90,36 +93,40 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	private var childSizeConstraint			: SizeConstraint;
 	private var childAlgorithm				: ILayoutAlgorithm;
-	
+	private var childPadding				: Box;
 	
 	
 	private function createTileMap ()
 	{
 		Assert.that( group.is( LayoutGroup ), "group should be an LayoutGroup" );
 		
-		childSizeConstraint = new SizeConstraint();
+		childSizeConstraint			= new SizeConstraint();
 		
-		tileCollection		= cast new ChainedListCollection <LayoutClient>();
-		tileGroups			= new TileGroup<TileGroup<LayoutClient>>();
-		tileGroups.padding	= group.padding;
-		var children		= group.children;
+		tileCollection				= cast new ChainedListCollection <LayoutClient>();
+		tileGroups					= new TileGroup<TileGroup<LayoutClient>>();
+		tileGroups.padding			= group.padding;
+		tileGroups.sizeConstraint	= group.sizeConstraint;
 		
-		if (startDirection == Direction.horizontal)
+		var children = group.children;
+		
+		if (startDirection == Direction.horizontal) {
 			tileGroups.algorithm = verAlgorithm;
-		else
+			if (group.padding != null)
+				childPadding = new Box( 0, group.padding.left, 0, group.padding.right );
+		} else {
 			tileGroups.algorithm = horAlgorithm;
+			if (group.padding != null)
+				childPadding = new Box( group.padding.top, 0, group.padding.bottom, 0 );
+		}
 		
 		addTileGroup();
 		for (child in children)
 			tileCollection.add(child);
-		
-		trace(""+tileCollection);
 	}
 	
 	
 	private inline function addTileGroup (childList:ChainedList<LayoutClient> = null)
 	{
-		trace("add new tileGroup");
 		if (childList == null)
 			childList = new ChainedList<LayoutClient>();
 		
@@ -127,6 +134,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		var group					= group.as(LayoutGroup);
 		tileGroup.algorithm			= childAlgorithm;
 		tileGroup.sizeConstraint	= childSizeConstraint;
+		tileGroup.padding			= childPadding;
 		
 		if (startDirection == Direction.horizontal)
 		{
@@ -141,9 +149,6 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 #if debug	else	throw "group should have an explicitHeight/maxHeight to use the dynamic-tile-algorithm";	#end	
 		}
 		
-#if debug
-		tileGroup.name = "row" + tileGroups.children.length;
-#end	
 		tileCollection.addList( childList );
 		tileGroups.children.add( tileGroup );	
 	}
@@ -151,7 +156,6 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	private inline function removeTileGroup (tileGroup:TileGroup<LayoutClient>)
 	{
-		trace("remove group "+tileGroup);
 		tileCollection.removeList( cast tileGroup.children );
 		tileGroups.children.remove( tileGroup );
 		tileGroup.dispose();
@@ -228,6 +232,8 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 					childSizeConstraint.height.min = group.sizeConstraint.height.min;
 					childSizeConstraint.height.max = group.sizeConstraint.height.max;
 				}
+				
+				tileGroups.sizeConstraint = group.sizeConstraint;
 			}
 		}
 		
@@ -268,8 +274,6 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 					addTileGroup( children.nextList );
 				}
 			}
-			
-			trace(""+tileCollection);
 		}
 		
 		if (startDirection == horizontal)
@@ -306,11 +310,14 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	override public function apply ()
 	{
-		tileGroups.validate();
-	//	verAlgorithm.apply();
-		
 		for (row in tileGroups)
 			row.validate();
+	/*	
+		if (group.padding != null) {
+			if (startDirection == Direction.horizontal && horizontalDirection == Horizontal.left)
+				tileGroups.x = group.padding.left;
+		}*/
+		tileGroups.validate();
 	}
 	
 	
@@ -322,12 +329,14 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	override private function setStartDirection (v)
 	{
-		if (v != startDirection) {
+		if (v != startDirection)
+		{
 			startDirection = v;
 			if (startDirection == Direction.horizontal)
-				childAlgorithm = new DynamicRowAlgorithm();
+				childAlgorithm = new DynamicRowAlgorithm( horizontalDirection );
 			else
-				childAlgorithm = new DynamicColumnAlgorithm();
+				childAlgorithm = new DynamicColumnAlgorithm( verticalDirection );
+			
 			invalidate( true );
 		}
 		return v;
@@ -355,6 +364,28 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		}
 		return v;
 	}
+	
+	
+	override private function setHorizontalDirection (v:Horizontal)
+	{
+		if (v != horizontalDirection) {
+			super.setHorizontalDirection(v);
+			if (childAlgorithm != null && childAlgorithm.is(DynamicRowAlgorithm))
+				childAlgorithm.as(DynamicRowAlgorithm).direction = v;
+		}
+		return v;
+	}
+	
+	
+	override private function setVerticalDirection (v:Vertical)
+	{
+		if (v != verticalDirection) {
+			super.setVerticalDirection(v);
+			if (childAlgorithm != null && childAlgorithm.is(DynamicColumnAlgorithm))
+				childAlgorithm.as(DynamicColumnAlgorithm).direction = v;
+		}
+		return v;
+	}
 }
 
 
@@ -370,7 +401,6 @@ private class DynamicRowAlgorithm extends HorizontalFloatAlgorithm
 		
 		if ( group.changes.has(LayoutFlags.LIST_CHANGED) || group.changes.has(LayoutFlags.CHILDREN_INVALIDATED) )
 		{
-			trace("checking group "+group+ "for changes.");
 			var groupSize		= group.width;
 			var fullChildNum	= -1;			//counter to count all the children that didn't fit in the group
 			
@@ -379,9 +409,8 @@ private class DynamicRowAlgorithm extends HorizontalFloatAlgorithm
 			for (child in children)
 			{
 				//check if the child will still fit in this row
-				if (fullChildNum >= 0 || groupSize < child.bounds.width) {
-					trace("group "+group + " is full. "+child+" won't fit in here ("+groupSize+" vs "+child.bounds.width+")");
-					
+				if (fullChildNum >= 0 || groupSize < child.bounds.width)
+				{
 					//move child to the next list
 					fullChildNum++;
 					children.moveItemToNextList( child, fullChildNum );
@@ -389,6 +418,20 @@ private class DynamicRowAlgorithm extends HorizontalFloatAlgorithm
 				else
 				{
 					//add child to row
+					groupSize -= child.bounds.width;
+				}
+			}
+			
+			//try to add children from the next list to this lsit
+			if (fullChildNum == -1 && children.nextList != null && children.nextList.length > 0)
+			{
+				for (child in children.nextList)
+				{
+					if (groupSize < child.bounds.width)
+						break;
+					
+					children.nextList.remove(child);
+					children.add( child );
 					groupSize -= child.bounds.width;
 				}
 			}
@@ -406,7 +449,6 @@ private class DynamicColumnAlgorithm extends VerticalFloatAlgorithm
 		
 		if ( group.changes.has(LayoutFlags.LIST_CHANGED) || group.changes.has(LayoutFlags.CHILDREN_INVALIDATED) )
 		{
-			trace("checking group "+group+ "for changes.");
 			var groupSize		= group.height;
 			var fullChildNum	= -1;				//counter to count all the children that didn't fit in the group
 			
@@ -415,9 +457,8 @@ private class DynamicColumnAlgorithm extends VerticalFloatAlgorithm
 			for (child in children)
 			{
 				//check if the child will still fit in this row
-				if (fullChildNum >= 0 || groupSize < child.bounds.width) {
-					trace("group "+group + " is full. "+child+" won't fit in here ("+groupSize+" vs "+child.bounds.width+")");
-					
+				if (fullChildNum >= 0 || groupSize < child.bounds.height)
+				{
 					//move child to the next list
 					fullChildNum++;
 					children.moveItemToNextList( child, fullChildNum );
@@ -425,7 +466,21 @@ private class DynamicColumnAlgorithm extends VerticalFloatAlgorithm
 				else
 				{
 					//add child to row
-					groupSize -= child.bounds.width;
+					groupSize -= child.bounds.height;
+				}
+			}
+
+			//try to add children from the next list to this lsit
+			if (fullChildNum == -1 && children.nextList != null && children.nextList.length > 0)
+			{
+				for (child in children.nextList)
+				{
+					if (groupSize < child.bounds.height)
+						break;
+
+					children.nextList.remove(child);
+					children.add( child );
+					groupSize -= child.bounds.height;
 				}
 			}
 		}

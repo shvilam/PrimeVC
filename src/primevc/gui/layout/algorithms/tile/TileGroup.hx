@@ -103,7 +103,6 @@ class TileGroup <ChildType:LayoutClient> extends LayoutClient, implements ILayou
 		if (changes == 0)
 			return;
 		
-		trace(this+".measure "+readChanges());
 		measureHorizontal();
 		measureVertical();
 	}
@@ -201,7 +200,7 @@ class TileGroup <ChildType:LayoutClient> extends LayoutClient, implements ILayou
 	
 	private function algorithmChangedHandler ()							{ invalidate( LayoutFlags.ALGORITHM_CHANGED ); }
 	private function invalidateChildList ()								{ invalidate( LayoutFlags.LIST_CHANGED ); }
-	private function childRemovedHandler (child:ChildType, pos:Int)		{ child.parent = null; }
+	private function childRemovedHandler (child:ChildType, pos:Int)		{ if (child != null) { child.parent = null; } }
 	
 	private function childAddedHandler (child:ChildType, pos:Int)
 	{

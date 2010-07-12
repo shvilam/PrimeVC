@@ -328,7 +328,7 @@ class LayoutClient implements ILayoutClient
 	
 	private inline function setParent (v)
 	{
-		if (parent != null)
+		if (parent != null && parent.states != null)
 			parent.states.change.unbind( this );
 		
 		parent = v;

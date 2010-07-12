@@ -236,8 +236,6 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 		if (group.children.length > 0)
 		{
 			var next = getRightStartValue();
-			trace("apply right to left "+next + " for "+group + "; width: "+group.width);
-			trace(group);
 		
 			//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
 			if (childWidth.notSet())
