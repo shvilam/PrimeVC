@@ -238,4 +238,11 @@ class RelativeLayout implements IDisposable
 		}
 		return v;
 	}
+	
+	
+#if debug
+	public function toString () {
+		return "RelativeLayout - t: "+top+"; r: "+right+"; b: "+bottom+"; l: "+left+"; hCenter: "+hCenter+"; vCenter: "+vCenter;
+	}
+#end
 }

@@ -1,26 +1,30 @@
 package cases;
  import flash.text.TextField;
  import flash.text.TextFormat;
- import primevc.core.geom.Box;
  import primevc.core.geom.constraints.SizeConstraint;
+ import primevc.core.geom.Box;
+ import primevc.core.geom.Point;
  import primevc.core.Number;
  import primevc.gui.behaviours.DragBehaviour;
  import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourBase;
+ import primevc.gui.core.ISkin;
  import primevc.gui.core.Skin;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.algorithms.circle.HorizontalCircleAlgorithm;
  import primevc.gui.layout.algorithms.circle.VerticalCircleAlgorithm;
  import primevc.gui.layout.algorithms.directions.Direction;
- import primevc.gui.layout.algorithms.DynamicLayoutAlgorithm;
  import primevc.gui.layout.algorithms.directions.Horizontal;
  import primevc.gui.layout.algorithms.directions.Vertical;
  import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
  import primevc.gui.layout.algorithms.float.VerticalFloatAlgorithm;
+ import primevc.gui.layout.algorithms.relative.RelativeAlgorithm;
  import primevc.gui.layout.algorithms.tile.DynamicTileAlgorithm;
  import primevc.gui.layout.algorithms.tile.FixedTileAlgorithm;
+ import primevc.gui.layout.algorithms.DynamicLayoutAlgorithm;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutGroup;
+ import primevc.gui.layout.RelativeLayout;
  import primevc.gui.states.LayoutStates;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
@@ -37,9 +41,10 @@ class LayoutTest extends Skin < LayoutTest >
 	static var monster = new nl.demonsters.debugger.MonsterDebugger(flash.Lib.current);
 	
 	static function doTrace (v : Dynamic, ?infos : haxe.PosInfos) {
-		var length	= infos.fileName.length - 3; // remove .hx
-		var color	= infos.fileName.charCodeAt(0) * infos.fileName.charCodeAt( length >> 1 ) * infos.fileName.charCodeAt( length - 1 );
-		nl.demonsters.debugger.MonsterDebugger.trace(infos.fileName +':' + infos.lineNumber +'\t -> ' + infos.methodName, v, color);
+		var name	= infos.className.split(".").pop(); //infos.fileName;
+		var length	= name.length; // - 3; // remove .hx
+		var color	= name.charCodeAt(0) * name.charCodeAt( length >> 1 ) * name.charCodeAt( length - 1 );
+		nl.demonsters.debugger.MonsterDebugger.trace(name +':' + infos.lineNumber +'\t -> ' + infos.methodName, v, color);
 	}
 #end
 
@@ -54,22 +59,84 @@ class LayoutTest extends Skin < LayoutTest >
 		
 	//	haxe.Log.trace	= doTrace;
 		
-		var inst = new LayoutTest("Parent");
+		var inst = new LayoutTest();
 		stage.addChild( inst );		//will trigger the createLayout method
 	}
 	
 	
-	private var fixedTiles		: FixedTileAlgorithm;
-	private var dynamicTiles	: DynamicTileAlgorithm;
 	
-	public function new (name) {
-		this.name = name;
-		super();
-	}
+	
 	
 	public var layoutGroup (getLayoutGroup, null)	: LayoutGroup;
 		private inline function getLayoutGroup ()	{ return layout.as( LayoutGroup ); }
 	
+	
+	
+	public function new ()
+	{
+		super();
+		name = "ResizableBox";
+		redraw.on( layout.events.sizeChanged, this );
+	}
+	
+	override private function createLayout ()
+	{
+		layout = new LayoutGroup();
+		layout.width	= 400;
+		layout.height	= 500;
+		layoutGroup.algorithm = new RelativeAlgorithm();
+	}
+	
+	
+	override private function createBehaviours ()
+	{
+		behaviours.add( new ResizeFromCornerBehaviour(this) );
+	}
+	
+	
+	override private function createChildren ()
+	{
+		trace("create children");
+		var tiles		= new TileGroup();
+		var relProps	= tiles.layout.relative = new RelativeLayout();
+		relProps.left	= 10;
+		relProps.right	= 50;
+		relProps.top	= 40;
+		relProps.bottom	= 40;
+		
+		layoutGroup.children.add( tiles.layout );
+		addChild(tiles);
+	}
+	
+	
+	public function redraw ()
+	{
+		var l = layout.bounds;
+		var g = graphics;
+		trace("redraw " + name + ": " + l.width + ", " + l.height);
+		g.clear();
+		g.lineStyle(3, 0x00, 1);
+	//	g.beginFill( 0x00 );
+		g.drawRect( 0, 0, l.width, l.height );
+	//	g.endFill();
+	}
+}
+
+
+class TileGroup extends Skin < Tile >
+{
+	private var fixedTiles		: FixedTileAlgorithm;
+	private var dynamicTiles	: DynamicTileAlgorithm;
+	
+	public var layoutGroup (getLayoutGroup, null)	: LayoutGroup;
+		private inline function getLayoutGroup ()	{ return layout.as( LayoutGroup ); }
+	
+	
+	public function new ()
+	{
+		name = "TilesOwner";
+		super();
+	}
 	
 	override private function createBehaviours ()
 	{
@@ -81,11 +148,12 @@ class LayoutTest extends Skin < LayoutTest >
 	override private function createLayout ()
 	{
 		layout = new LayoutGroup();
+	//	layout.name = name + "Layout";
 		layout.x = 50;
 		layout.y = 10;
 		layout.padding = new Box(10);
 	//	layout.maintainAspectRatio = true;
-		layout.sizeConstraint = new SizeConstraint(500, 800, 200, 800);
+	//	layout.sizeConstraint = new SizeConstraint(500, 800, 200, 800);
 	//	layout.sizeConstraint = new SizeConstraint(300, Number.NOT_SET, 200, Number.NOT_SET);
 	
 		trace("createLayout of " + name);
@@ -103,7 +171,7 @@ class LayoutTest extends Skin < LayoutTest >
 		fixedTiles.verticalDirection	= Vertical.top;
 		layoutGroup.algorithm = fixedTiles;
 	//*/
-	//*/	
+//	/*/	
 		dynamicTiles = new DynamicTileAlgorithm();
 		dynamicTiles.startDirection			= Direction.vertical;
 	//	dynamicTiles.horizontalDirection	= Horizontal.right;
@@ -122,6 +190,7 @@ class LayoutTest extends Skin < LayoutTest >
 	//*/	
 	//	layoutGroup.algorithm.childHeight		= 60;
 	//	layoutGroup.algorithm.childWidth		= 60;
+		
 	//	layoutGroup.width	= 400;
 	//	layoutGroup.height	= 400;
 		
@@ -235,8 +304,40 @@ class Tile extends Skin < Tile >
 
 
 
+class Button extends Skin < Button >
+{
+	public function new ()
+	{	
+		name = "button";
+		super();
+		redraw.on( layout.events.sizeChanged, this );
+	}
+	
+	override private function createLayout ()
+	{
+		layout			= new LayoutClient();
+	//	layout.name		= name + "Layout";
+		layout.width	= 40;
+		layout.height	= 40;
+	}
+	
 
-class TileGroupBehaviour extends BehaviourBase <LayoutTest>
+	public function redraw ()
+	{
+		var l = layout.bounds;
+		var g = graphics;
+		trace("redraw " + name + ": " + l.width + ", " + l.height);
+		g.clear();
+		g.beginFill( 0x00 );
+		g.drawRect( 0, 0, l.width, l.height );
+		g.endFill();
+	}
+}
+
+
+
+
+class TileGroupBehaviour extends BehaviourBase <TileGroup>
 {
 	override private function init () 
 	{
@@ -296,3 +397,75 @@ class TileBehaviour extends BehaviourBase <Tile>
 		target.layout.width += 5;
 	}
 }
+
+
+
+class ResizeFromCornerBehaviour extends BehaviourBase <ISkin>
+{
+	private var startLocation	: Point;
+	private var dragBtn			: Button;
+	
+	
+	override private function init () {
+		createBtn.onceOn( target.skinState.initialized.entering, this );
+	}
+	
+	
+	override private function reset () {
+	}
+	
+	
+	private function createBtn () {
+		trace("create button!");
+		var l		= new RelativeLayout();
+		l.bottom	= 3;
+		l.right		= 3;
+		
+		dragBtn		= new Button();
+		dragBtn.layout.relative = l;
+		
+		startResize.on( dragBtn.userEvents.mouse.down, this );
+		
+		target.addChild(dragBtn);
+		target.layout.as(LayoutGroup).children.add( dragBtn.layout );
+	}
+	
+	
+	private function startResize (mouse:MouseState)
+	{
+		trace("startResize");
+		if (startLocation != null)
+			return;
+		
+	//	dragBtn.startDrag();
+	//	stopResize.on( dragBtn.userEvents.mouse.up, this );
+		dragBtn.stage.addEventListener( flash.events.MouseEvent.MOUSE_UP, stopResize );
+		doResize.on( dragBtn.userEvents.mouse.move, this );
+		
+		startLocation = mouse.stage;
+	}
+	
+	
+	private function stopResize (e)
+	{
+		trace("stopResize");
+//		dragBtn.stopDrag();
+		dragBtn.stage.removeEventListener( flash.events.MouseEvent.MOUSE_UP, stopResize );
+		dragBtn.userEvents.mouse.unbind(this);
+		startResize.on( dragBtn.userEvents.mouse.down, this );
+		startLocation = null;
+	}
+	
+	
+	private function doResize (mouse:MouseState)
+	{
+		var diff = mouse.stage.subtract( startLocation );
+		
+		target.layout.width += Std.int( diff.x );
+		target.layout.height += Std.int( diff.y );
+		
+		startLocation = mouse.stage;
+	}
+}
+
+

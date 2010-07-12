@@ -128,10 +128,10 @@ class LayoutClient implements ILayoutClient
 		_width	= null;
 		_height	= null;
 		bounds	= null;
+		padding	= null;
 		states	= null;
 		events	= null;
 		parent	= null;
-		padding	= null;
 		
 	}
 	
@@ -158,7 +158,7 @@ class LayoutClient implements ILayoutClient
 	{
 		changes = changes.set(change);
 		
-		if (changes == 0)
+		if (changes == 0 || states.current ==  null)
 			return;
 		
 		if (states.is(LayoutStates.measuring) || states.is(LayoutStates.validating)) {
@@ -193,14 +193,14 @@ class LayoutClient implements ILayoutClient
 	
 	
 	public function measureHorizontal () {
-	//	if (changes.has(Flags.WIDTH_CHANGED))
-	//		bounds.width = width + getHorPadding();
+		if (changes.has(Flags.WIDTH_CHANGED))
+			bounds.setWidth( width + getHorPadding() );
 	}
 	
 	
 	public function measureVertical () {
-	//	if (changes.has(Flags.HEIGHT_CHANGED))
-	//		bounds.height = height + getVerPadding();
+		if (changes.has(Flags.HEIGHT_CHANGED))
+			bounds.setHeight( height + getVerPadding() );
 	}
 	
 	
@@ -282,7 +282,7 @@ class LayoutClient implements ILayoutClient
 		if (_width.value != oldW)
 		{
 			var newH:Int	= maintainAspectRatio ? Std.int(_width.value / aspectRatio) : height;
-			bounds.width	= _width.value + getHorPadding();
+		//	bounds.width	= _width.value + getHorPadding();
 			
 			if (maintainAspectRatio && newH != height) {
 				height = newH; //will trigger the height constraints
@@ -302,7 +302,7 @@ class LayoutClient implements ILayoutClient
 		if (_height.value != oldH)
 		{
 			var newW:Int	= maintainAspectRatio ? Std.int(_height.value * aspectRatio) : width;	
-			bounds.height	= _height.value + getVerPadding();
+		//	bounds.height	= _height.value + getVerPadding();
 			
 			if (maintainAspectRatio && newW != width) {
 				width = newW; //will trigger the width constraints
@@ -328,14 +328,16 @@ class LayoutClient implements ILayoutClient
 	
 	private inline function setParent (v)
 	{
-		if (parent != null && parent.states != null)
-			parent.states.change.unbind( this );
+		if (parent != v)
+		{
+			if (parent != null && parent.states != null)
+				parent.states.change.unbind( this );
 		
-		parent = v;
+			parent = v;
 		
-		if (parent != null)
-			handleParentStateChange.on( parent.states.change, this );
-		
+			if (parent != null)
+				handleParentStateChange.on( parent.states.change, this );
+		}
 		return v;
 	}
 	
@@ -369,29 +371,32 @@ class LayoutClient implements ILayoutClient
 	 */
 	private inline function setSizeConstraint (v:SizeConstraint)
 	{
-		if (sizeConstraint != null) {
-			_width.constraint = null;
-			_height.constraint = null;
+		if (sizeConstraint != v)
+		{
+			if (sizeConstraint != null) {
+				_width.constraint = null;
+				_height.constraint = null;
 			
-			sizeConstraint.width.change.unbind(this);
-			sizeConstraint.height.change.unbind(this);
-		}
+				sizeConstraint.width.change.unbind(this);
+				sizeConstraint.height.change.unbind(this);
+			}
 		
-		sizeConstraint = v;
-		invalidateSizeConstraint();
+			sizeConstraint = v;
+			invalidateSizeConstraint();
 		
-		if (sizeConstraint != null) {
-			_width.constraint = sizeConstraint.width;
-			_height.constraint = sizeConstraint.height;
+			if (sizeConstraint != null) {
+				_width.constraint = sizeConstraint.width;
+				_height.constraint = sizeConstraint.height;
 			
-			_width.validateValue.on( sizeConstraint.width.change, this );
-			_height.validateValue.on( sizeConstraint.height.change, this );
-			invalidateSizeConstraint.on( sizeConstraint.width.change, this );
-			invalidateSizeConstraint.on( sizeConstraint.height.change, this );
+				_width.validateValue.on( sizeConstraint.width.change, this );
+				_height.validateValue.on( sizeConstraint.height.change, this );
+				invalidateSizeConstraint.on( sizeConstraint.width.change, this );
+				invalidateSizeConstraint.on( sizeConstraint.height.change, this );
 			
-			//force size constraints to run for the first time
-			setWidth( width );
-			setHeight( height );
+				//force size constraints to run for the first time
+				setWidth( width );
+				setHeight( height );
+			}
 		}
 		return v;
 	}
@@ -420,13 +425,14 @@ class LayoutClient implements ILayoutClient
 	
 	private inline function setRelative (v:RelativeLayout)
 	{
-		if (relative != null) {
-			relative.changed.unbind( this );
-		}
+		if (relative != v)
+		{
+			if (relative != null)
+				relative.changed.unbind( this );
 		
-		relative = v;
-		if (relative != null) {
-			handleRelativeChange.on( relative.changed, this );
+			relative = v;
+			if (relative != null)
+				handleRelativeChange.on( relative.changed, this );
 		}
 		return v;
 	}

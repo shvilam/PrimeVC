@@ -133,7 +133,6 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		var tileGroup				= new TileGroup<LayoutClient>( childList );
 		var group					= group.as(LayoutGroup);
 		tileGroup.algorithm			= childAlgorithm;
-		tileGroup.sizeConstraint	= childSizeConstraint;
 		tileGroup.padding			= childPadding;
 		
 		if (startDirection == Direction.horizontal)
@@ -206,9 +205,6 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	override public function measure () : Void
 	{
-		if (group.children.length == 0)
-			return;
-		
 		var group = group.as(LayoutGroup);
 		
 		//
@@ -216,6 +212,9 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		//
 		if (tileCollection == null)
 			createTileMap();
+		
+		if (group.children.length == 0)
+			return;
 		
 		//
 		// APPLY CHANGES IN SIZE CONSTRAINT ALSO ON THE CHILDREN

@@ -50,8 +50,8 @@ class ConstrainedRect implements IDisposable
 	public var centerX			(getCenterX, setCenterX)		: Int;
 	public var centerY			(getCenterY, setCenterY)		: Int;
 	
-	public var width			(default, setWidth)				: Int;
-	public var height			(default, setHeight)			: Int;
+	public var width			(default, null)					: Int;
+	public var height			(default, null)					: Int;
 	
 	
 	public function new (top = 0, right = 0, bottom = 0, left = 0) 
@@ -88,14 +88,14 @@ class ConstrainedRect implements IDisposable
 	private inline function getCenterY ()	{ return top + Std.int(height * .5); }
 	
 	
-	private inline function setWidth (v:Int) {
+	public inline function setWidth (v:Int) {
 		width				= v;
 		props.right.value	= left + width;
 		return v;
 	}
 	
 	
-	private inline function setHeight (v:Int) {
+	public inline function setHeight (v:Int) {
 		height				= v;
 		props.bottom.value	= top + height;
 		return v;

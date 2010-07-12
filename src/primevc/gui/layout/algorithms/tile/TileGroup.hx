@@ -114,7 +114,7 @@ class TileGroup <ChildType:LayoutClient> extends LayoutClient, implements ILayou
 			return;
 		
 		Assert.that(algorithm != null);
-		
+		trace("measure horzontal "+children);
 		for (child in children) {
 			if (childInvalidated(child.changes))
 				child.measureHorizontal();

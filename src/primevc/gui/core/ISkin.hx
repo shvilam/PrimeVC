@@ -47,12 +47,12 @@ interface ISkin implements ISprite, implements IDisposable //, implements ILayou
 {
 	public var userEvents		(default, null)		: UserEvents;
 	public var displayEvents	(default, null)		: DisplayEvents;
+	public var skinState		(default, null)		: SkinStates;
 	
 //	public var owner			(default, setOwner) : OwnerClass;
 	public var layout			(default, null)		: LayoutClient;
 	
 	public var behaviours		: FastList < IBehaviour <ISkin> >;
-	public var skinState		: SkinStates;
 	
 	
 	public function init ()					: Void;
