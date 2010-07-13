@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.display;
- import primevc.core.geom.Matrix2D;
+ import primevc.gui.graphics.IDrawable;
 
 
 /**
@@ -36,9 +36,6 @@ package primevc.gui.display;
  * @creation-date	Jun 14, 2010
  * @author			Ruben Weijers
  */
-interface IShape implements IDisplayObject
+interface IShape implements IDisplayObject, implements IDrawable
 {
-#if flash9
-	var graphics (default,null) : flash.display.Graphics;
-#end
 }

@@ -24,41 +24,23 @@
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.dispatcher;
- import primevc.core.IDisposable;
- import primevc.utils.TypeUtil;
+package primevc.gui.graphics;
+
 
 /**
- * A group of signal dispatchers.
- * 
- * @author Danny Wilson
- * @creation-date jun 10, 2010
+ * @author Ruben Weijers
+ * @creation-date Jul 13, 2010
  */
-class Signals implements IUnbindable<Dynamic>, implements IDisposable, implements haxe.Public
+interface IDrawable
 {
-	public function dispose()
-	{
-		var f, R = Reflect, T = Type;
-		trace("dispose "+this);
-		for(field in T.getInstanceFields(T.getClass(this))) {
-			f = R.field(this, field);
-			if (TypeUtil.is(f, IDisposable))
-				f.dispose();
-		}
-	}
+#if flash9
+	var graphics (default,null) : flash.display.Graphics;
+#end
 	
-	public function unbind( listener : Dynamic, ?handler : Dynamic ) : Int
-	{
-		var f, count = 0, R = Reflect, T = Type;
-		
-		trace("unbind "+this);
-		for(field in T.getInstanceFields(T.getClass(this))) {
-			f = R.field(this, field);
-			if (TypeUtil.is(f, IUnbindable))
-				count += f.unbind(listener, handler);
-		}
-		return count;
-	}
+	/**
+	 * Method to render the graphics in this object.
+	 */
+	function render () : Void;
 }

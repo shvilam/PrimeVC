@@ -39,10 +39,10 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
  import primevc.gui.layout.algorithms.float.VerticalFloatAlgorithm;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
- import primevc.gui.layout.ILayoutGroup;
+ import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutFlags;
- import primevc.gui.layout.LayoutGroup;
+ import primevc.gui.layout.LayoutContainer;
  import primevc.utils.FastArray;
  import primevc.utils.IntMath;
   using primevc.utils.BitUtil;
@@ -95,19 +95,19 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	
 	
 	/**
-	 * Rows is a TileGroup containing a reference to each row (also TileGroup).
+	 * Rows is a TileContainer containing a reference to each row (also TileContainer).
 	 * The rows property is responsible for setting the correct y position of
 	 * each row.
 	 * 
-	 * rows (TileGroup)
+	 * rows (TileContainer)
 	 * 	-> children (ListCollection)
-	 * 		-> row0 (TileGroup)
+	 * 		-> row0 (TileContainer)
 	 * 			-> children (ChainedList)
-	 * 		-> row1 (TileGroup)
+	 * 		-> row1 (TileContainer)
 	 * 			-> children (ChainedList)
 	 * 		-> etc.
 	 */
-	public var rows					(default, null)		: TileGroup < TileGroup < LayoutClient > >;
+	public var rows					(default, null)		: TileContainer < TileContainer < LayoutClient > >;
 	/**
 	 * HorizontalMap is a collection of the children properties of all rows. 
 	 * Defining them in a ChainedListCollection makes it easy to let the 
@@ -126,19 +126,19 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	
 	
 	/**
-	 * Columns is a TileGroup containing a reference to each column (also TileGroup).
+	 * Columns is a TileContainer containing a reference to each column (also TileContainer).
 	 * The columns property is responsible for setting the correct x position of
 	 * each column.
 	 * 
-	 * columns (TileGroup)
+	 * columns (TileContainer)
 	 * 	-> children (ListCollection)
-	 * 		-> column0 (TileGroup)
+	 * 		-> column0 (TileContainer)
 	 * 			-> children (ChainedList)
-	 * 		-> column1 (TileGroup)
+	 * 		-> column1 (TileContainer)
 	 * 			-> children (ChainedList)
 	 * 		-> etc.
 	 */
-	public var columns				(default, null)		: TileGroup < TileGroup < LayoutClient > >;
+	public var columns				(default, null)		: TileContainer < TileContainer < LayoutClient > >;
 	/**
 	 * VerticalMap is a collection of the children properties of all columns. 
 	 * Defining them in a ChainedListCollection makes it easy to let the 
@@ -192,11 +192,11 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 		horizontalMap		= cast new ChainedListCollection <LayoutClient>(maxTilesInDirection);
 		verticalMap			= cast new BalancingListCollection <LayoutClient>(maxTilesInDirection);
 		
-		rows				= new TileGroup<TileGroup<LayoutClient>>();
+		rows				= new TileContainer<TileContainer<LayoutClient>>();
 		rows.algorithm		= verAlgorithm;
 		rows.padding		= group.padding;
 		
-		columns				= new TileGroup<TileGroup<LayoutClient>>();
+		columns				= new TileContainer<TileContainer<LayoutClient>>();
 		columns.algorithm	= horAlgorithm;
 		columns.padding		= group.padding;
 		
@@ -204,15 +204,15 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 		{
 			var curRows	= childLen < maxTilesInDirection ? 1 : childLen.divCeil( maxTilesInDirection );
 			
-			//1. create a TileGroup for each row
+			//1. create a TileContainer for each row
 			for (i in 0...curRows)
 				addRow(childHorAlgorithm);
 			
-			//2. create a TileGroup for each column
+			//2. create a TileContainer for each column
 			for ( i in 0...maxTilesInDirection )
 			{
 				var columnChildren	= new BalancingList<LayoutClient>();
-				var column			= new TileGroup<LayoutClient>( columnChildren );
+				var column			= new TileContainer<LayoutClient>( columnChildren );
 				column.algorithm	= childVerAlgorithm;
 				verticalMap.addList( columnChildren );
 				columns.children.add( column );
@@ -233,7 +233,7 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	private inline function addRow (childAlg:ILayoutAlgorithm)
 	{
 		var rowChildren	= new ChainedList<LayoutClient>( maxTilesInDirection );
-		var row			= new TileGroup<LayoutClient>( rowChildren);
+		var row			= new TileContainer<LayoutClient>( rowChildren);
 		row.algorithm	= childAlg;
 		horizontalMap.addList( rowChildren );
 		rows.children.add( row );	

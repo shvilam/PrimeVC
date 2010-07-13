@@ -29,7 +29,7 @@
 package primevc.gui.layout.algorithms;
  import primevc.core.dispatcher.Signal0;
  import primevc.core.IDisposable;
- import primevc.gui.layout.ILayoutGroup;
+ import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutClient;
 
 
@@ -44,7 +44,7 @@ interface ILayoutAlgorithm implements IDisposable
 	 * been changed and the layout needs to be validated again.
 	 */
 	public var algorithmChanged (default, null)				: Signal0;
-	public var group			(default, setGroup)			: ILayoutGroup<LayoutClient>;
+	public var group			(default, setGroup)			: ILayoutContainer<LayoutClient>;
 	
 	
 	/**

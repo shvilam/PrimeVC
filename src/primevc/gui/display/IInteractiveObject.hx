@@ -27,16 +27,21 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.display;
- 
+ import primevc.gui.events.UserEvents;
 
-/**
- * @creation-date	Jun 14, 2010
- * @author			Ruben Weijers
- */
+
+interface IInteractiveObject
+{
+	var userEvents		(default, null)				: UserEvents;
+	
 #if flash9
-typedef GraphicsOwner = {
-	var graphics : flash.display.Graphics;
-}
+	
+	var doubleClickEnabled							: Bool;
+	var mouseEnabled								: Bool;
+	var tabEnabled									: Bool;
+	var tabIndex									: Int;
+	
 #else
-error
+	var mouseEnabled	(default, setEnabled)		: Bool;
 #end
+}

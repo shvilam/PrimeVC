@@ -31,7 +31,7 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.core.collections.ArrayList;
  import primevc.core.Number;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
- import primevc.gui.layout.ILayoutGroup;
+ import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.LayoutStates;
@@ -42,13 +42,13 @@ package primevc.gui.layout.algorithms.tile;
  
 
 /**
- * Group of tiles within a tile layout. Behaves as a LayoutGroup but without 
- * the properties of AdvancedLayoutGroup.
+ * Group of tiles within a tile layout. Behaves as a LayoutContainer but without 
+ * the properties of AdvancedLayoutContainer.
  * 
  * @creation-date	Jun 30, 2010
  * @author			Ruben Weijers
  */
-class TileGroup <ChildType:LayoutClient> extends LayoutClient, implements ILayoutGroup <ChildType>
+class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements ILayoutContainer <ChildType>
 {
 	public var algorithm	(default, setAlgorithm)			: ILayoutAlgorithm;
 	public var children		(default, null)					: IList<ChildType>;
@@ -114,7 +114,7 @@ class TileGroup <ChildType:LayoutClient> extends LayoutClient, implements ILayou
 			return;
 		
 		Assert.that(algorithm != null);
-		trace("measure horzontal "+children);
+		
 		for (child in children) {
 			if (childInvalidated(child.changes))
 				child.measureHorizontal();
@@ -208,4 +208,9 @@ class TileGroup <ChildType:LayoutClient> extends LayoutClient, implements ILayou
 		if (bounds.left != 0)	child.bounds.left	= bounds.left;
 		if (bounds.top != 0)	child.bounds.top	= bounds.top;
 	}
+
+	
+#if debug
+	override public function toString () { return "LayoutTileContainer( "+super.toString() + " )"; }
+#end
 }

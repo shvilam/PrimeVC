@@ -52,7 +52,7 @@ class LayoutClient implements ILayoutClient
 	public var changes 				(default, setChanges)				: Int;
 	public var includeInLayout		(default, setIncludeInLayout)		: Bool;
 	
-	public var parent				(default, setParent)				: ILayoutGroup<Dynamic>;
+	public var parent				(default, setParent)				: ILayoutContainer<Dynamic>;
 	public var events				(default, null)						: LayoutEvents;
 	
 	public var bounds				(default, null)						: ConstrainedRect;
@@ -376,7 +376,7 @@ class LayoutClient implements ILayoutClient
 			if (sizeConstraint != null) {
 				_width.constraint = null;
 				_height.constraint = null;
-			
+				
 				sizeConstraint.width.change.unbind(this);
 				sizeConstraint.height.change.unbind(this);
 			}

@@ -97,7 +97,7 @@ class ArrayList <DataType> implements IList <DataType>
 	}
 	
 	
-	public function add (item:DataType, pos:Int = -1) : DataType
+	public inline function add (item:DataType, pos:Int = -1) : DataType
 	{
 		pos = list.insertAt(item, pos);
 		events.added.send( item, pos );

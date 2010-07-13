@@ -73,7 +73,7 @@ interface ILayoutClient implements IDisposable
 	 * the client can let the parent know when it's size or position has
 	 * changed wich could result in revalidating the parents layout.
 	 */
-	public var parent (default, setParent)					: ILayoutGroup<Dynamic>;
+	public var parent (default, setParent)					: ILayoutContainer<Dynamic>;
 	
 	
 	//

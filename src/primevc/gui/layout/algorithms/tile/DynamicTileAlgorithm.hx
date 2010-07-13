@@ -32,13 +32,13 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.core.collections.SimpleList;
  import primevc.core.geom.constraints.SizeConstraint;
  import primevc.core.geom.Box;
- import primevc.gui.layout.LayoutGroup;
+ import primevc.gui.layout.LayoutContainer;
  import primevc.gui.layout.algorithms.directions.Direction;
  import primevc.gui.layout.algorithms.directions.Horizontal;
  import primevc.gui.layout.algorithms.directions.Vertical;
  import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
  import primevc.gui.layout.algorithms.float.VerticalFloatAlgorithm;
- import primevc.gui.layout.algorithms.tile.TileGroup;
+ import primevc.gui.layout.algorithms.tile.TileContainer;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutFlags;
@@ -62,19 +62,19 @@ package primevc.gui.layout.algorithms.tile;
 class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 {
 	/**
-	 * tileGroups is a TileGroup containing a reference to each TileGroup
+	 * tileGroups is a TileContainer containing a reference to each TileContainer
 	 * The tileGroups property is responsible for setting the correct x or y 
 	 * position of each tilegroup.
 	 * 
-	 * tileGroups (TileGroup)
+	 * tileGroups (TileContainer)
 	 * 	-> children (ListCollection)
-	 * 		-> tileGroup0 (TileGroup)
+	 * 		-> tileGroup0 (TileContainer)
 	 * 			-> children (ChainedList)
-	 * 		-> tileGroup1 (TileGroup)
+	 * 		-> tileGroup1 (TileContainer)
 	 * 			-> children (ChainedList)
 	 * 		-> etc.
 	 */
-	public var tileGroups (default, null)	: TileGroup < TileGroup < LayoutClient > >;
+	public var tileGroups (default, null)	: TileContainer < TileContainer < LayoutClient > >;
 	/**
 	 * HorizontalMap is a collection of the children properties of all tileGroups. 
 	 * Defining them in a ChainedListCollection makes it easy to let the 
@@ -98,12 +98,12 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	private function createTileMap ()
 	{
-		Assert.that( group.is( LayoutGroup ), "group should be an LayoutGroup" );
+		Assert.that( group.is( LayoutContainer ), "group should be an LayoutContainer" );
 		
 		childSizeConstraint			= new SizeConstraint();
 		
 		tileCollection				= cast new ChainedListCollection <LayoutClient>();
-		tileGroups					= new TileGroup<TileGroup<LayoutClient>>();
+		tileGroups					= new TileContainer<TileContainer<LayoutClient>>();
 		tileGroups.padding			= group.padding;
 		tileGroups.sizeConstraint	= group.sizeConstraint;
 		
@@ -119,19 +119,19 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 				childPadding = new Box( group.padding.top, 0, group.padding.bottom, 0 );
 		}
 		
-		addTileGroup();
+		addTileContainer();
 		for (child in children)
 			tileCollection.add(child);
 	}
 	
 	
-	private inline function addTileGroup (childList:ChainedList<LayoutClient> = null)
+	private inline function addTileContainer (childList:ChainedList<LayoutClient> = null)
 	{
 		if (childList == null)
 			childList = new ChainedList<LayoutClient>();
 		
-		var tileGroup				= new TileGroup<LayoutClient>( childList );
-		var group					= group.as(LayoutGroup);
+		var tileGroup				= new TileContainer<LayoutClient>( childList );
+		var group					= group.as(LayoutContainer);
 		tileGroup.algorithm			= childAlgorithm;
 		tileGroup.padding			= childPadding;
 		
@@ -153,7 +153,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	}
 	
 	
-	private inline function removeTileGroup (tileGroup:TileGroup<LayoutClient>)
+	private inline function removeTileContainer (tileGroup:TileContainer<LayoutClient>)
 	{
 		tileCollection.removeList( cast tileGroup.children );
 		tileGroups.children.remove( tileGroup );
@@ -205,7 +205,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	override public function measure () : Void
 	{
-		var group = group.as(LayoutGroup);
+		var group = group.as(LayoutContainer);
 		
 		//
 		//create a new tile map if it removed
@@ -260,7 +260,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 				
 				if (children.length == 0) {
 				//	if (groupItr.hasNext())
-					removeTileGroup( tileGroup );
+					removeTileContainer( tileGroup );
 					continue;
 				}
 				
@@ -270,7 +270,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 				if (!hasNext && children.nextList != null) {
 					//A chained list is added by the previous measure method.
 					//Create a tile group for the list.
-					addTileGroup( children.nextList );
+					addTileContainer( children.nextList );
 				}
 			}
 		}
@@ -403,7 +403,7 @@ private class DynamicRowAlgorithm extends HorizontalFloatAlgorithm
 			var groupSize		= group.width;
 			var fullChildNum	= -1;			//counter to count all the children that didn't fit in the group
 			
-			//TileGroups children are changed.
+			//TileContainers children are changed.
 			//Check the group to see if the width is bigger then the maxWidth
 			for (child in children)
 			{
@@ -451,7 +451,7 @@ private class DynamicColumnAlgorithm extends VerticalFloatAlgorithm
 			var groupSize		= group.height;
 			var fullChildNum	= -1;				//counter to count all the children that didn't fit in the group
 			
-			//TileGroups children are changed.
+			//TileContainers children are changed.
 			//Check the group to see if the width is bigger then the maxWidth
 			for (child in children)
 			{

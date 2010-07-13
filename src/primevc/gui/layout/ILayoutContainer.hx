@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2010, The PrimeVC Project Contributors
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
@@ -24,41 +24,35 @@
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.dispatcher;
- import primevc.core.IDisposable;
- import primevc.utils.TypeUtil;
+package primevc.gui.layout;
+ import primevc.core.collections.IList;
+ import primevc.gui.layout.algorithms.ILayoutAlgorithm;
+
 
 /**
- * A group of signal dispatchers.
- * 
- * @author Danny Wilson
- * @creation-date jun 10, 2010
+ * @since	mar 19, 2010
+ * @author	Ruben Weijers
  */
-class Signals implements IUnbindable<Dynamic>, implements IDisposable, implements haxe.Public
+interface ILayoutContainer <ChildType:LayoutClient> implements ILayoutClient
 {
-	public function dispose()
-	{
-		var f, R = Reflect, T = Type;
-		trace("dispose "+this);
-		for(field in T.getInstanceFields(T.getClass(this))) {
-			f = R.field(this, field);
-			if (TypeUtil.is(f, IDisposable))
-				f.dispose();
-		}
-	}
+	public var algorithm (default, setAlgorithm)				: ILayoutAlgorithm;
+	/**
+	 * Method that is called by a child of the layoutgroup to let the group
+	 * know that the child is changed. The layoutgroup can than decide, based 
+	 * on the used algorithm, if the group should be invalidated as well or
+	 * if the change in the child is not important.
+	 * 
+	 * @param	change		integer containing the change flags of the child
+	 * 			that is changed
+	 * @return	true if the change invalidates the parent as well, otherwise 
+	 * 			false
+	 */
+	public function childInvalidated (childChanges:Int)			: Bool;
 	
-	public function unbind( listener : Dynamic, ?handler : Dynamic ) : Int
-	{
-		var f, count = 0, R = Reflect, T = Type;
-		
-		trace("unbind "+this);
-		for(field in T.getInstanceFields(T.getClass(this))) {
-			f = R.field(this, field);
-			if (TypeUtil.is(f, IUnbindable))
-				count += f.unbind(listener, handler);
-		}
-		return count;
-	}
+	/**
+	 * List with all the children of the group
+	 */
+	public var children	(default, null)							: IList<ChildType>;
 }

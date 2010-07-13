@@ -47,12 +47,6 @@ package primevc.gui.layout.algorithms.relative;
  */
 class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 {
-	public function new ()
-	{
-		super();
-	}
-	
-	
 	public function isInvalid (changes:Int)
 	{
 		return changes.has( LayoutFlags.WIDTH_CHANGED ) 
@@ -63,12 +57,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 	}
 	
 	
-	public function measure ()
-	{
-		
-	}
-	
-	
+	public function measure () {}
 	public function measureHorizontal () {}
 	public function measureVertical () {}
 	
@@ -86,6 +75,8 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 			
 			childProps	= child.relative;
 			childBounds	= child.bounds;
+			
+			
 			
 			//
 			//apply horizontal

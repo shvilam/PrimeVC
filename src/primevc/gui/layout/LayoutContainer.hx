@@ -43,7 +43,7 @@ private typedef Flags = LayoutFlags;
  * @since	mar 20, 2010
  * @author	Ruben Weijers
  */
-class LayoutGroup extends AdvancedLayoutClient, implements ILayoutGroup<LayoutClient>, implements IAdvancedLayoutClient
+class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<LayoutClient>, implements IAdvancedLayoutClient
 {
 	public var algorithm	(default, setAlgorithm)		: ILayoutAlgorithm;
 	public var children		(default, null)				: IList<LayoutClient>;

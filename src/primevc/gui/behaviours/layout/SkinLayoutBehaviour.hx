@@ -47,7 +47,7 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 {
 	override private function init ()
 	{
-		if (target.parent == null) {
+		if (target.displayList == null) {
 			target.init	.onceOn( target.displayEvents.addedToStage, this );
 			initLayout	.onceOn( target.skinState.constructed.entering, this );
 		}

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2010, The PrimeVC Project Contributors
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
@@ -26,33 +26,69 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.layout;
- import primevc.core.collections.IList;
- import primevc.gui.layout.algorithms.ILayoutAlgorithm;
+package primevc.gui.display;
+ import primevc.gui.events.DisplayEvents;
+ import primevc.gui.events.UserEvents;
+
+
+private typedef TargetType = 
+	#if			flash9		flash.display.Stage;
+	#else if	js			Window;
+	#else					IDisplayObjectContainer;
+	#end
 
 
 /**
- * @since	mar 19, 2010
- * @author	Ruben Weijers
+ * Window is wrapper class for the stage. It provides each Sprite and Shape 
+ * with the ability to talk with the stage in a platform-indepedent way.
+ * 
+ * @author Ruben Weijers
+ * @creation-date Jul 13, 2010
  */
-interface ILayoutGroup <ChildType:LayoutClient> implements ILayoutClient
+class Window implements IDisplayContainer, implements IInteractiveObject
 {
-	public var algorithm (default, setAlgorithm)				: ILayoutAlgorithm;
-	/**
-	 * Method that is called by a child of the layoutgroup to let the group
-	 * know that the child is changed. The layoutgroup can than decide, based 
-	 * on the used algorithm, if the group should be invalidated as well or
-	 * if the change in the child is not important.
-	 * 
-	 * @param	change		integer containing the change flags of the child
-	 * 			that is changed
-	 * @return	true if the change invalidates the parent as well, otherwise 
-	 * 			false
-	 */
-	public function childInvalidated (childChanges:Int)			: Bool;
+	private var target			(default, null)		: TargetType;
+	public var children			(default, null)		: DisplayList;
 	
-	/**
-	 * List with all the children of the group
-	 */
-	public var children	(default, null)							: IList<ChildType>;
+	public var displayEvents	(default, null)		: DisplayEvents;
+	public var userEvents		(default, null)		: UserEvents;
+	
+	
+	public function new (target:TargetType)
+	{
+		this.target		= target;
+		children		= new DisplayList( target );
+		displayEvents	= new DisplayEvents( target );
+		userEvents		= new UserEvents( target );
+	}
+	
+	
+	public function dispose ()
+	{
+		if (displayEvents == null)
+			return;
+		
+		children.dispose();
+		displayEvents.dispose();
+		userEvents.dispose();
+		
+		children		= null;
+		displayEvents	= null;
+		userEvents		= null;
+	}
+	
+	
+	//
+	// IINTERACTIVE OBJECT PROPERTIES
+	//
+	
+	public var doubleClickEnabled	: Bool;
+	public var mouseEnabled			: Bool;
+	public var tabEnabled			: Bool;
+	public var tabIndex				: Int;
+	
+	
+#if debug
+	public inline function toString () { return "Window"; }
+#end
 }
