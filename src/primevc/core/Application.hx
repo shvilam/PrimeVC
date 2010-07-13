@@ -26,39 +26,59 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.avm2;
- import primevc.gui.display.IShape;
- import primevc.gui.events.DisplayEvents;
- 
+package primevc.core;
+ import primevc.gui.display.Window;
+
 
 /**
- * AVM2 Shape implementation
+ * Class description
  * 
- * @creation-date	Jun 11, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Jul 13, 2010
  */
-class Shape extends flash.display.Shape, implements IShape
+class Application
 {
-	/**
-	 * The displaylist to which this sprite belongs.
-	 */
-	public var displayList		(default, default)		: DisplayList;
-	public var displayEvents	(default, null)			: DisplayEvents;
-	
-	
-	public function new() 
+	public static inline function startup (ApplicationType:Class<Application>)
 	{
-		super();
-		displayEvents = new DisplayEvents( this );
-	}
-	
-	
-	public function dispose()
-	{
-		if (displayEvents == null)
-			return;		// already disposed
+#if ( MonsterTrace )
+		haxe.Log.trace = doTrace;
+#end
+		trace("started " + ApplicationType + "!");
 		
-		displayEvents.dispose();
-		displayEvents	= null;
+#if flash9
+		var stage		= flash.Lib.current.stage;
+		stage.scaleMode	= flash.display.StageScaleMode.NO_SCALE;
+		Type.createInstance( ApplicationType, [stage] );
+#else
+		Type.createInstance( ApplicationType, null );
+#end
 	}
+	
+	
+	public var window	(default, null)	: Window;
+	
+	
+	public function new ( target )
+	{
+		window = new Window( target );
+	}
+	
+	
+	
+	
+	//
+	// MONSTERDEBUGGER SUPPORT
+	//
+	
+	
+#if MonsterTrace
+	static var monster = new nl.demonsters.debugger.MonsterDebugger(flash.Lib.current);
+
+	static function doTrace (v : Dynamic, ?infos : haxe.PosInfos) {
+		var name	= infos.className.split(".").pop(); //infos.fileName;
+		var length	= name.length; // - 3; // remove .hx
+		var color	= name.charCodeAt(0) * name.charCodeAt( length >> 1 ) * name.charCodeAt( length - 1 );
+		nl.demonsters.debugger.MonsterDebugger.trace(name +':' + infos.lineNumber +'\t -> ' + infos.methodName, v, color);
+	}
+#end
 }

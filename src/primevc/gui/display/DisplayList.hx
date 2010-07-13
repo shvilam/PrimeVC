@@ -47,11 +47,13 @@ typedef DisplayList =
  */
 class DisplayListImpl extends ArrayList <IDisplayObject>
 {
+	public var window		(default, setWindow)		: Window;
 	public var mouseEnabled (default, setMouseEnabled)	: Bool;
-	public var tabEnabled (default, setTabEnabled)		: Bool;
+	public var tabEnabled	(default, setTabEnabled)	: Bool;
 	
 	private inline function setMouseEnabled (v)	{ return mouseEnabled = v; }
 	private inline function setTabEnabled (v)	{ return tabEnabled = v; }
+	private inline function setWindow (v)		{ return window = v; }
 }
 
 #end

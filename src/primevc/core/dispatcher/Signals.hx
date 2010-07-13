@@ -41,7 +41,7 @@ class Signals implements IUnbindable<Dynamic>, implements IDisposable, implement
 	public function dispose()
 	{
 		var f, R = Reflect, T = Type;
-		trace("dispose "+this);
+		
 		for(field in T.getInstanceFields(T.getClass(this))) {
 			f = R.field(this, field);
 			if (TypeUtil.is(f, IDisposable))
@@ -53,7 +53,6 @@ class Signals implements IUnbindable<Dynamic>, implements IDisposable, implement
 	{
 		var f, count = 0, R = Reflect, T = Type;
 		
-		trace("unbind "+this);
 		for(field in T.getInstanceFields(T.getClass(this))) {
 			f = R.field(this, field);
 			if (TypeUtil.is(f, IUnbindable))

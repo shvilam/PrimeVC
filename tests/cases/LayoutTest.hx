@@ -4,6 +4,7 @@ package cases;
  import primevc.core.geom.constraints.SizeConstraint;
  import primevc.core.geom.Box;
  import primevc.core.geom.Point;
+ import primevc.core.Application;
  import primevc.core.Number;
  import primevc.gui.behaviours.DragBehaviour;
  import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
@@ -30,46 +31,33 @@ package cases;
   using primevc.utils.TypeUtil;
 
 /**
- * Description
- * 
+ * @creation-date	Jul 13, 2010
+ * @author			Ruben Weijers
+ */
+class LayoutTest extends Application
+{
+	public static function main () { Application.startup( LayoutTest ); }
+	
+	public function new (target)
+	{
+		super(target);
+		var skin = new LayoutAppSkin();
+		trace("window: "+window);
+		trace("children "+window.children);
+		window.children.add( skin );
+	}
+}
+
+
+
+/**
  * @creation-date	Jun 15, 2010
  * @author			Ruben Weijers
  */
-class LayoutTest extends Skin < LayoutTest >
+class LayoutAppSkin extends Skin < LayoutTest >
 {
-#if MonsterTrace
-	static var monster = new nl.demonsters.debugger.MonsterDebugger(flash.Lib.current);
-	
-	static function doTrace (v : Dynamic, ?infos : haxe.PosInfos) {
-		var name	= infos.className.split(".").pop(); //infos.fileName;
-		var length	= name.length; // - 3; // remove .hx
-		var color	= name.charCodeAt(0) * name.charCodeAt( length >> 1 ) * name.charCodeAt( length - 1 );
-		nl.demonsters.debugger.MonsterDebugger.trace(name +':' + infos.lineNumber +'\t -> ' + infos.methodName, v, color);
-	}
-#end
-
-	public static function main ()
-	{
-#if ( MonsterTrace )
-		haxe.Log.trace = doTrace;
-#end
-		trace("started!");
-		var stage		= flash.Lib.current.stage;
-		stage.scaleMode	= flash.display.StageScaleMode.NO_SCALE;
-		
-	//	haxe.Log.trace	= doTrace;
-		
-		var inst = new LayoutTest();
-		stage.addChild( inst );		//will trigger the createLayout method
-	}
-	
-	
-	
-	
-	
 	public var layoutGroup (getLayoutGroup, null)	: LayoutContainer;
 		private inline function getLayoutGroup ()	{ return layout.as( LayoutContainer ); }
-	
 	
 	
 	public function new ()
@@ -90,6 +78,7 @@ class LayoutTest extends Skin < LayoutTest >
 	
 	override private function createBehaviours ()
 	{
+		behaviours.add( new ClippedLayoutBehaviour(this) );
 		behaviours.add( new ResizeFromCornerBehaviour(this) );
 	}
 	
@@ -98,11 +87,11 @@ class LayoutTest extends Skin < LayoutTest >
 	{
 		trace("create children");
 		var tiles		= new TileList();
-	/*	var relProps	= tiles.layout.relative = new RelativeLayout();
+		var relProps	= tiles.layout.relative = new RelativeLayout();
 		relProps.left	= 10;
 		relProps.right	= 50;
 		relProps.top	= 40;
-		relProps.bottom	= 40;*/
+		relProps.bottom	= 40;
 		
 		layoutGroup.children.add( tiles.layout );
 		children.add(tiles);
@@ -142,7 +131,7 @@ class TileList extends Skin < Tile >
 	
 	override private function createBehaviours ()
 	{
-	//	behaviours.add( new ClippedLayoutBehaviour(this) );
+		behaviours.add( new ClippedLayoutBehaviour(this) );
 		behaviours.add( cast new TileListBehaviour(this) );
 	}
 	
@@ -439,14 +428,14 @@ class ResizeFromCornerBehaviour extends BehaviourBase <ISkin>
 	
 	private function startResize (mouse:MouseState)
 	{
-		trace("startResize");
+		trace("startResize ");
 		if (startLocation != null)
 			return;
 		
 	//	dragBtn.startDrag();
-	//	stopResize.on( dragBtn.userEvents.mouse.up, this );
-		dragBtn.stage.addEventListener( flash.events.MouseEvent.MOUSE_UP, stopResize );
-		doResize.on( dragBtn.userEvents.mouse.move, this );
+		dragBtn.userEvents.mouse.down.unbind( this );
+		stopResize	.on( dragBtn.displayList.window.userEvents.mouse.up, this );
+		doResize	.on( dragBtn.displayList.window.userEvents.mouse.move, this );
 		
 		startLocation = mouse.stage;
 	}
@@ -456,8 +445,10 @@ class ResizeFromCornerBehaviour extends BehaviourBase <ISkin>
 	{
 		trace("stopResize");
 //		dragBtn.stopDrag();
-		dragBtn.stage.removeEventListener( flash.events.MouseEvent.MOUSE_UP, stopResize );
-		dragBtn.userEvents.mouse.unbind(this);
+		
+		dragBtn.displayList.window.userEvents.mouse.up	.unbind(this);
+		dragBtn.displayList.window.userEvents.mouse		.unbind(this);
+		
 		startResize.on( dragBtn.userEvents.mouse.down, this );
 		startLocation = null;
 	}

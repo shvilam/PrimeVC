@@ -58,7 +58,6 @@ class SpriteImpl implements ISprite
 	public var displayList		(default, default)				: DisplayList;
 	public var children			(default, null)					: DisplayList;
 	
-	public var window			(default, setWindow)			: Window;
 	public var userEvents		(default, null)					: UserEvents;
 	public var displayEvents	(default, null)					: DisplayEvents;
 	

@@ -33,7 +33,9 @@ package primevc.avm2;
  import primevc.core.collections.IList;
  import primevc.core.events.ListEvents;
  import primevc.core.IDisposable;
+ import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
+ import primevc.gui.display.Window;
   using primevc.utils.TypeUtil;
 
 
@@ -52,12 +54,18 @@ class DisplayList implements IList <ChildType>
 	public var events		(default, null)				: ListEvents < ChildType >;
 	public var length		(getLength, never)			: Int;
 	
+	/**
+	 * Wrapper object for the stage.
+	 */
+	public var window		(default, setWindow)		: Window;
+	
 	public var mouseEnabled	(default, setMouseEnabled)	: Bool;
 	public var tabEnabled	(default, setTabEnabled)	: Bool;
 	
 	
 	public function new ( target:DisplayObjectContainer )
 	{
+		Assert.notEqual( target, null, "No target given");
 		this.target = target;
 		events = new ListEvents();
 	}
@@ -69,6 +77,7 @@ class DisplayList implements IList <ChildType>
 		events.dispose();
 		events	= null;
 		target	= null;
+		window	= null;
 	}
 	
 	
@@ -88,6 +97,18 @@ class DisplayList implements IList <ChildType>
 	private inline function setMouseEnabled (v)		{ return mouseEnabled = target.mouseChildren = v; }
 	private inline function setTabEnabled (v)		{ return tabEnabled = target.tabChildren = v; }
 	
+	
+	private function setWindow (v)
+	{
+		if (window != v)
+		{
+			window = v;
+			for (child in this)
+				if (child.is(IDisplayContainer))
+					child.as(IDisplayContainer).children.window = v;
+		}
+		return v;
+	}
 	
 	
 	//
@@ -113,8 +134,12 @@ class DisplayList implements IList <ChildType>
 			if (child.displayList != null && child.displayList != this)
 				child.displayList.remove(item);
 			
-			child.displayList	= this;
-			child.window		= target.as(IDisplayObject).window;
+			child.displayList = this;
+			
+			if (child.is(IDisplayContainer))
+				child.as(IDisplayContainer).children.window = window;
+		//	if		(target.is(IDisplayObject))		child.window = target.as(IDisplayObject).window;
+		//	else if	(target.is(Window))				child.window = target.as(Window);
 		}
 		
 		item = target.addChildAt( item, pos );
@@ -130,7 +155,7 @@ class DisplayList implements IList <ChildType>
 		if (item.is(IDisplayObject)) {
 			var child = item.as(IDisplayObject);
 			child.displayList	= null;
-			child.window		= null;
+		//	child.window		= null;
 		}
 		
 		var pos = indexOf(item);
@@ -176,8 +201,8 @@ class DisplayListIterator
 	}
 	
 	
-	public function rewind () { current = 0; }
-	public function forward () { current = list.length; }
+	public inline function rewind () { current = 0; }
+	public inline function forward () { current = list.length; }
 	
 	
 	public inline function hasNext () { return current < list.length; }

@@ -29,6 +29,8 @@
 package primevc.gui.display;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEvents;
+ import primevc.gui.layout.algorithms.relative.RelativeAlgorithm;
+ import primevc.gui.layout.LayoutContainer;
 
 
 private typedef TargetType = 
@@ -50,16 +52,26 @@ class Window implements IDisplayContainer, implements IInteractiveObject
 	private var target			(default, null)		: TargetType;
 	public var children			(default, null)		: DisplayList;
 	
+	public var layout			(default, null)		: LayoutContainer;
+	
 	public var displayEvents	(default, null)		: DisplayEvents;
 	public var userEvents		(default, null)		: UserEvents;
 	
 	
 	public function new (target:TargetType)
 	{
-		this.target		= target;
-		children		= new DisplayList( target );
-		displayEvents	= new DisplayEvents( target );
-		userEvents		= new UserEvents( target );
+		this.target			= target;
+		children			= new DisplayList( target );
+		children.window		= this;
+		displayEvents		= new DisplayEvents( target );
+		userEvents			= new UserEvents( target );
+		
+		layout				= new LayoutContainer();
+		layout.algorithm	= new RelativeAlgorithm();
+#if flash9
+		layout.width		= target.stageWidth;
+		layout.height		= target.stageHeight;
+#end
 	}
 	
 	

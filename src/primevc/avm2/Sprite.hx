@@ -31,7 +31,6 @@ package primevc.avm2;
  import primevc.core.IDisposable;
  import primevc.gui.display.ISprite;
  import primevc.gui.display.DisplayList;
- import primevc.gui.display.Window;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEvents;
   using primevc.utils.TypeUtil;
@@ -55,10 +54,6 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	 */
 	public var children			(default, null)			: DisplayList;
 	
-	/**
-	 * Wrapper object for the stage.
-	 */
-	public var window			(default, setWindow)	: Window;
 	public var userEvents		(default, null)			: UserEvents;
 	public var displayEvents	(default, null)			: DisplayEvents;
 	
@@ -88,43 +83,8 @@ class Sprite extends flash.display.Sprite, implements ISprite
 		userEvents		= null;
 		displayEvents	= null;
 		displayList		= null;
-		window			= null;
 	}
 	
 	
 	public function render () {}
-	
-	
-	//
-	// GETTERS / SETTERS
-	//
-	
-	private function setWindow (v) {
-		return window = v;
-	}
-	
-	
-	/*public function attachTo(target:DisplayObjectContainer)
-	{
-		target.addChild(this);
-	}*/
-	
-	
-	
-/*	public inline function resizeScrollRect (newWidth:Float, newHeight:Float)
-	{
-		var rect			= scrollRect == null ? new flash.geom.Rectangle() : scrollRect;
-		rect.width			= newWidth;
-		rect.height			= newHeight;
-		scrollRect			= rect;
-	}
-	
-	
-	public inline function moveScrollRect (?newX:Float = 0, ?newY:Float = 0)
-	{
-		var rect			= scrollRect == null ? new flash.geom.Rectangle() : scrollRect;
-		rect.x				= newX;
-		rect.y				= newY;
-		scrollRect			= rect;
-	}*/
 }

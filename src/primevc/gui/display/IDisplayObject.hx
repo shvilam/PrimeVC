@@ -40,7 +40,6 @@ package primevc.gui.display;
 interface IDisplayObject implements IDisposable
 {
 	var displayEvents	(default, null)			: DisplayEvents;
-	var window			(default, setWindow)	: Window;
 	var displayList		(default, default)		: DisplayList;
 	
 #if flash9

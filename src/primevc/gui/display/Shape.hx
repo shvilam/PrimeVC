@@ -51,7 +51,6 @@ typedef Shape =
 class ShapeImpl implements IShape
 {
 	public var displayList		(default, default)				: DisplayList;
-	public var window			(default, setWindow)			: Window;
 	public var displayEvents	(default, null)					: IDisplayEvents;
 	
 	public var transform		(default,null)					: Matrix2D;

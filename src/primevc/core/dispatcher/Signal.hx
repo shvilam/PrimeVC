@@ -68,7 +68,6 @@ class Signal <FunctionSignature> extends ListNode<Wire<FunctionSignature>>, impl
 		
 		var b = this.n, count = 0;
 		
-		trace("unbinding signal "+this+" from "+listener+"."+handler);
 		while (b != null) {
 			var x = ListNode.next(b);
 			if( b.isBoundTo(listener, handler) ) {
@@ -77,7 +76,6 @@ class Signal <FunctionSignature> extends ListNode<Wire<FunctionSignature>>, impl
 			}
 			b = x;
 		}
-		trace("counted "+count);
 		return count;
 	}
 	
@@ -86,7 +84,6 @@ class Signal <FunctionSignature> extends ListNode<Wire<FunctionSignature>>, impl
 	 */
 	public function dispose()
 	{
-		trace(this+".dispose()");
 		var b = this.n;
 		while(b != null) {
 			var x = ListNode.next(b);
