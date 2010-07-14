@@ -70,7 +70,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 		
 		for (child in group.children)
 		{
-			if (child.relative == null)
+			if (child.relative == null || !child.includeInLayout)
 				continue;
 			
 			childProps	= child.relative;

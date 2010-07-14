@@ -115,7 +115,7 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 		if (childWidth.notSet())
 		{
 			for (child in group.children)
-				if (child.bounds.width > width)
+				if (child.includeInLayout && child.bounds.width > width)
 					width = child.bounds.width;
 		}
 		
@@ -131,6 +131,9 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 		{
 			var i:Int = 0;
 			for (child in group.children) {
+				if (!child.includeInLayout)
+					continue;
+				
 				height += child.bounds.height;
 				
 				//only count even children
@@ -170,6 +173,9 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 			if (childHeight.notSet())
 			{
 				for (child in group.children) {
+					if (!child.includeInLayout)
+						continue;
+					
 					child.bounds.top	= next;
 					next				= child.bounds.bottom;
 				}
@@ -177,6 +183,9 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 			else
 			{
 				for (child in group.children) {
+					if (!child.includeInLayout)
+						continue;
+					
 					child.bounds.top	 = next;
 					next				+= childHeight;
 				}
@@ -196,7 +205,11 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 			//use 2 loops for algorithms with and without a fixed child-height. This is faster than doing the if statement inside the loop!
 			if (childHeight.notSet())
 			{
-				for (child in group.children) {
+				for (child in group.children)
+				{
+					if (!child.includeInLayout)
+						continue;
+					
 					if (i % 2 == 0) {
 						//even
 						child.bounds.bottom	= evenPos;
@@ -211,7 +224,11 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 			}
 			else
 			{
-				for (child in group.children) {
+				for (child in group.children)
+				{
+					if (!child.includeInLayout)
+						continue;
+					
 					if (i % 2 == 0) {
 						//even
 						child.bounds.bottom	 = evenPos;
@@ -238,6 +255,9 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 			if (childHeight.notSet())
 			{
 				for (child in group.children) {
+					if (!child.includeInLayout)
+						continue;
+					
 					child.bounds.bottom	= next;
 					next				= child.bounds.top;
 				}
@@ -246,6 +266,9 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 			{
 				next -= childHeight;
 				for (child in group.children) {
+					if (!child.includeInLayout)
+						continue;
+					
 					child.bounds.top	= next;
 					next				= child.bounds.top - childHeight;
 				}

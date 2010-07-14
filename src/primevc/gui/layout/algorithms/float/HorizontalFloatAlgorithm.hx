@@ -114,7 +114,7 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 		if (childHeight.notSet())
 		{
 			for (child in group.children)
-				if (child.bounds.height > height)
+				if (child.includeInLayout && child.bounds.height > height)
 					height = child.bounds.height;
 		}
 		
@@ -134,6 +134,9 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 			var i:Int = 0;
 			
 			for (child in group.children) {
+				if (!child.includeInLayout)
+					continue;
+				
 				width += child.bounds.width;
 				
 				//only count even children
@@ -173,6 +176,9 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 			if (childWidth.notSet())
 			{
 				for (child in group.children) {
+					if (!child.includeInLayout)
+						continue;
+					
 					child.bounds.left	= next;
 					next				= child.bounds.right;
 				}
@@ -180,6 +186,9 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 			else
 			{
 				for (child in group.children) {
+					if (!child.includeInLayout)
+						continue;
+					
 					child.bounds.left	 = next;
 					next				+= childWidth;
 				}
@@ -200,6 +209,9 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 			if (childWidth.notSet())
 			{
 				for (child in group.children) {
+					if (!child.includeInLayout)
+						continue;
+					
 					if (i % 2 == 0) {
 						//even
 						child.bounds.right	= evenPos;
@@ -215,6 +227,9 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 			else
 			{
 				for (child in group.children) {
+					if (!child.includeInLayout)
+						continue;
+					
 					if (i % 2 == 0) {
 						//even
 						child.bounds.right	 = evenPos;
@@ -241,6 +256,9 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 			if (childWidth.notSet())
 			{
 				for (child in group.children) {
+					if (!child.includeInLayout)
+						continue;
+					
 					child.bounds.right	= next;
 					next				= child.bounds.left;
 				}
@@ -249,6 +267,9 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 			{
 				next -= childWidth;
 				for (child in group.children) {
+					if (!child.includeInLayout)
+						continue;
+					
 					child.bounds.left	= next;
 					next				= child.bounds.left - childWidth;
 				}

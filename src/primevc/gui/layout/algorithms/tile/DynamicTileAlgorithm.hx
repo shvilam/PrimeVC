@@ -121,7 +121,8 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		
 		addTileContainer();
 		for (child in children)
-			tileCollection.add(child);
+			if (child.includeInLayout)
+				tileCollection.add(child);
 	}
 	
 	
@@ -163,9 +164,9 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	}
 	
 	
-	private function updateMapsAfterRemove (client, pos) : Void
+	private function updateMapsAfterRemove (client:LayoutClient, pos:Int) : Void
 	{
-		if (tileCollection == null)
+		if (tileCollection == null || !client.includeInLayout)
 			return;
 		
 		tileCollection.remove(client);
@@ -174,7 +175,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	private function updateMapsAfterAdd (client:LayoutClient, pos:Int) : Void
 	{
-		if (tileCollection == null)
+		if (tileCollection == null || !client.includeInLayout)
 			return;
 		
 		//reset boundary properties
@@ -184,9 +185,9 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	}
 	
 	
-	private function updateMapsAfterMove (client, oldPos, newPos)
+	private function updateMapsAfterMove (client:LayoutClient, oldPos:Int, newPos:Int)
 	{
-		if (tileCollection == null)
+		if (tileCollection == null || !client.includeInLayout)
 			return;
 		
 		tileCollection.move(client, newPos, oldPos);

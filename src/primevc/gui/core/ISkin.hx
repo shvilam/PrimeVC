@@ -31,8 +31,6 @@ package primevc.gui.core;
  import primevc.core.IDisposable;
  import primevc.gui.behaviours.IBehaviour;
  import primevc.gui.display.ISprite;
- import primevc.gui.events.DisplayEvents;
- import primevc.gui.events.UserEvents;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.SkinStates;
 
@@ -43,7 +41,7 @@ package primevc.gui.core;
  * @author Ruben Weijers
  * @creation-date Jun 08, 2010
  */
-interface ISkin implements ISprite, implements IDisposable //, implements ILayoutOwner
+interface ISkin implements ISprite, implements IDisposable
 {
 	public var skinState		(default, null)		: SkinStates;
 	

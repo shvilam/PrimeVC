@@ -227,6 +227,9 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 			
 			//3. add all the children to the rows and columns
 			for (child in children) {
+				if (!child.includeInLayout)
+					continue;
+				
 				horizontalMap.add(child);
 				verticalMap.add(child);
 			}
@@ -271,9 +274,9 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	}
 	
 	
-	private function updateMapsAfterRemove (client, pos) : Void
+	private function updateMapsAfterRemove (client:LayoutClient, pos:Int) : Void
 	{
-		if (horizontalMap == null || verticalMap == null)
+		if (horizontalMap == null || verticalMap == null || !client.includeInLayout)
 			return;
 		
 		horizontalMap.remove(client);
@@ -283,7 +286,7 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	
 	private function updateMapsAfterAdd (client:LayoutClient, pos:Int) : Void
 	{
-		if (horizontalMap == null || verticalMap == null)
+		if (horizontalMap == null || verticalMap == null || !client.includeInLayout)
 			return;
 		
 		//reset boundary properties
@@ -301,9 +304,9 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	}
 	
 	
-	private function updateMapsAfterMove (client, oldPos, newPos)
+	private function updateMapsAfterMove (client:LayoutClient, oldPos:Int, newPos:Int)
 	{
-		if (horizontalMap == null || verticalMap == null)
+		if (horizontalMap == null || verticalMap == null || !client.includeInLayout)
 			return;
 		
 		horizontalMap.move(client, newPos, oldPos);

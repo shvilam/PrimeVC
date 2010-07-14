@@ -108,7 +108,7 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 		if (childHeight.notSet())
 		{
 			for (child in group.children)
-				if (child.bounds.height > height)
+				if (child.includeInLayout && child.bounds.height > height)
 					height = child.bounds.height;
 		}
 		
@@ -126,7 +126,8 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 		if (childWidth.notSet())
 		{
 			for (child in group.children)
-				width += child.bounds.width;
+				if (child.includeInLayout)
+					width += child.bounds.width;
 		}
 		else
 		{
@@ -159,6 +160,9 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 			var start			= getLeftStartValue() + radius;
 			
 			for (child in group.children) {
+				if (!child.includeInLayout)
+					continue;
+				
 				angle	= (childAngle * i);
 				pos		= start + Std.int( radius * Math.cos(angle + startRadians) );
 				
