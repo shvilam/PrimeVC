@@ -47,5 +47,6 @@ class DisplayEvents extends DisplaySignals
 		addedToStage		= new FlashSignal0( target, Event.ADDED_TO_STAGE );
 		removedFromStage	= new FlashSignal0( target, Event.REMOVED_FROM_STAGE );
 		enterFrame			= new FlashSignal0( target, Event.ENTER_FRAME );
+		render				= new FlashSignal0( target, Event.RENDER );
 	}
 }

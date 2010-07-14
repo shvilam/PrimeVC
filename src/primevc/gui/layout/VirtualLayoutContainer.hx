@@ -26,40 +26,33 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.geom;
- import primevc.core.Bindable;
- import primevc.core.IDisposable;
+package primevc.gui.layout;
+
 
 
 /**
- * Description
+ * LayoutContainer without a display-object owning the layout-container. This
+ * means that the position of the container should be added to the position of
+ * all it's children.
  * 
- * @creation-date	Jun 29, 2010
- * @author			Ruben Weijers
+ * @example
+ * 		var box		= new VirtualLayoutContainer();
+ * 		var tile1	= new Tile();
+ * 		var tile2	= new Tile();
+ * 		box.children.add( tile1.layout );
+ * 		box.children.add( tile2.layout);
+ * 
+ * 		tile1.layout.x = 50;
+ * 		tile2.layout.y = 120;
+ *		box.x = 300;
+ *		box.y = 10;
+ * 
+ *	 - the x of tile1 should now be tile1.layout.x + box.x = 350
+ *	 - the y of tile1 should now be tile1.layout.y + box.y = 10
+ *	 - the x of tile2 should now be tile2.layout.x + box.x = 300
+ *	 - the y of tile2 should now be tile2.layout.y + box.y = 130
+ * 
+ * @author Ruben Weijers
+ * @creation-date Jul 14, 2010
  */
-class BindablePoint extends IntPoint, implements IDisposable
-{
-	public var xProp (default, null)	: Bindable < Int >;
-	public var yProp (default, null)	: Bindable < Int >;
-	
-	
-	public function new (x = 0, y = 0)
-	{
-		xProp = new Bindable<Int>(x);
-		yProp = new Bindable<Int>(y);
-		super(x, y);
-	}
-	
-	
-	public function dispose () {
-		xProp.dispose();
-		yProp.dispose();
-		xProp = yProp = null;
-	}
-	
-	
-	override private function getX ()	{ return xProp.value; }
-	override private function setX (v)	{ return xProp.value = v; }
-	override private function getY ()	{ return yProp.value; }
-	override private function setY (v)	{ return yProp.value = v; }
-}
+class VirtualLayoutContainer extends LayoutContainer {}

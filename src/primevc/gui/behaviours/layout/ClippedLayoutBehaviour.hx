@@ -82,7 +82,7 @@ class ClippedLayoutBehaviour extends BehaviourBase < ISkin >
 	
 	private function updateScrollRect ()
 	{
-		var l:LayoutContainer	= target.layout.as(LayoutContainer);
+		var l				= target.layout.as(LayoutContainer);
 		var r				= target.scrollRect;
 		r.x					= l.scrollX;
 		r.y					= l.scrollY;

@@ -45,8 +45,6 @@ package primevc.gui.core;
  */
 interface ISkin implements ISprite, implements IDisposable //, implements ILayoutOwner
 {
-	public var userEvents		(default, null)		: UserEvents;
-	public var displayEvents	(default, null)		: DisplayEvents;
 	public var skinState		(default, null)		: SkinStates;
 	
 //	public var owner			(default, setOwner) : OwnerClass;

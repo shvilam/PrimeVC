@@ -26,6 +26,7 @@ package cases;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.layout.RelativeLayout;
+ import primevc.gui.layout.VirtualLayoutContainer;
  import primevc.gui.states.LayoutStates;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
@@ -73,8 +74,9 @@ class LayoutAppSkin extends Skin < LayoutTest >
 #if debug
 		layout.name = name + "Layout";
 #end
-		layout.width	= 400;
+		layout.width	= 600;
 		layout.height	= 500;
+		layout.padding	= new Box( 5 );
 		layoutGroup.algorithm = new RelativeAlgorithm();
 	}
 	
@@ -89,15 +91,40 @@ class LayoutAppSkin extends Skin < LayoutTest >
 	override private function createChildren ()
 	{
 		trace("create children");
-		var tiles		= new TileList();
-		var relProps	= tiles.layout.relative = new RelativeLayout();
-		relProps.left	= 10;
-		relProps.right	= 50;
-		relProps.top	= 40;
-		relProps.bottom	= 40;
+		var frame1				= new Frame();
+		frame1.layout.height	= 100;
+		frame1.layout.relative	= new RelativeLayout( 5, 5, -100000, 5 );
 		
-		layoutGroup.children.add( tiles.layout );
-		children.add(tiles);
+		var frame2				= new TileList();
+		frame2.layout.width		= 400;
+		frame2.layout.relative	= new RelativeLayout( frame1.layout.bounds.bottom + 5, -100000, 5, 5 );
+		
+		var frame3				= new Frame();
+		frame3.layout.width		= 200;
+		frame3.layout.height	= 200;
+		
+		var frame4				= new Frame();
+		frame4.layout.width		= 200;
+		frame4.layout.height	= 200;
+	//	frame4.layout.relative	= new RelativeLayout( frame3.layout.bounds.bottom + 5, 5, 5, frame2.layout.bounds.right + 5 );
+		
+		var box					= new VirtualLayoutContainer();
+		box.relative			= new RelativeLayout( frame1.layout.bounds.bottom + 5, 5, 5, frame2.layout.bounds.right + 5 );
+		var a = new VerticalFloatAlgorithm();
+		a.direction = Vertical.bottom;
+		box.algorithm			= a;
+		
+		layoutGroup.children.add( frame1.layout );
+		layoutGroup.children.add( frame2.layout );
+		layoutGroup.children.add( box );
+		
+		box.children.add( frame3.layout );
+		box.children.add( frame4.layout );
+		
+		children.add(frame2);
+		children.add(frame1);
+		children.add(frame3);
+		children.add(frame4);
 	}
 	
 	
@@ -109,7 +136,7 @@ class LayoutAppSkin extends Skin < LayoutTest >
 		g.clear();
 		g.lineStyle(3, 0x00, 1);
 	//	g.beginFill( 0x00 );
-		g.drawRect( 0, 0, l.width, l.height );
+		g.drawRect( 3, 3, l.width - 6, l.height - 6 );
 	//	g.endFill();
 	}
 }
@@ -117,7 +144,7 @@ class LayoutAppSkin extends Skin < LayoutTest >
 
 
 
-class TileList extends Skin < Tile >
+class TileList extends Frame
 {
 	private var fixedTiles		: FixedTileAlgorithm;
 	private var dynamicTiles	: DynamicTileAlgorithm;
@@ -169,9 +196,9 @@ class TileList extends Skin < Tile >
 	//*/
 	//*/	
 		dynamicTiles = new DynamicTileAlgorithm();
-		dynamicTiles.startDirection			= Direction.horizontal;
+		dynamicTiles.startDirection			= Direction.vertical;
 		dynamicTiles.horizontalDirection	= Horizontal.right;
-	//	dynamicTiles.verticalDirection		= Vertical.bottom;
+		dynamicTiles.verticalDirection		= Vertical.bottom;
 		layoutGroup.algorithm = dynamicTiles;
 	/*/
 	
@@ -194,7 +221,7 @@ class TileList extends Skin < Tile >
 	}
 	
 	
-	override public function render ()
+/*	override public function render ()
 	{
 		var l = layout.bounds;
 		var g = graphics;
@@ -234,7 +261,7 @@ class TileList extends Skin < Tile >
 				count++;
 			}
 		}
-	}
+	}*/
 }
 
 
@@ -258,14 +285,21 @@ class Tile extends Skin < Tile >
 	
 	override public function render ()
 	{
-		var useColor = isHovered ? 0xffffff : color;
 		var l		 = layout.bounds;
 		var g		 = graphics;
 		
 		trace("render " + name + ": " + l.width + ", " + l.height);
 		g.clear();
-		g.beginFill( useColor, .4 );
-		g.drawRect( 0, 0, l.width, l.height );
+		
+		if (isHovered) {
+			g.lineStyle( 2, color );
+			g.beginFill( 0xffffff, 0 );
+			g.drawRect( 2, 2, l.width - 4, l.height - 4 );
+		} else {
+			g.beginFill( color, .4 );
+			g.drawRect( 0, 0, l.width, l.height );
+		}
+		
 		g.endFill();
 	}
 	
@@ -338,6 +372,46 @@ class Button extends Skin < Button >
 		g.endFill();
 	}
 }
+
+
+
+
+
+class Frame extends Skin < Box >
+{	
+	private var color : UInt;
+	
+	public function new ()
+	{	
+		name = "frame";
+		super();
+		color = Math.round( Math.random() * 0xffffff );
+		render.on( layout.events.sizeChanged, this );
+	}
+	
+	
+	override private function createLayout ()
+	{
+		layout = new LayoutClient();
+#if debug
+		layout.name	= name + "Frame";
+#end
+	}
+	
+	
+	override public function render ()
+	{
+		var l = layout.bounds;
+		var g = graphics;
+		trace("render " + name + ": " + l.width + ", " + l.height);
+		g.clear();
+		g.beginFill(0xffffff, 0);
+		g.lineStyle(3, color, 1);
+		g.drawRect( 3, 3, l.width - 6, l.height - 6 );
+		g.endFill();
+	}
+}
+
 
 
 

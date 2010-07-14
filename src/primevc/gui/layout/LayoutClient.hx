@@ -36,6 +36,7 @@ package primevc.gui.layout;
  import primevc.gui.states.LayoutStates;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
+  using primevc.utils.TypeUtil;
 
 
 private typedef Flags = LayoutFlags;
@@ -106,8 +107,10 @@ class LayoutClient implements ILayoutClient
 		_width	= new ConstrainedInt();
 		_height	= new ConstrainedInt();
 		
-		setX.on( bounds.props.left.change, this );
-		setY.on( bounds.props.top.change, this );
+		setX		.on( bounds.props.left.change, this );
+		setY		.on( bounds.props.top.change, this );
+		updateWidth	.on( bounds.size.xProp.change, this );
+		updateHeight.on( bounds.size.yProp.change, this );
 	}
 	
 	
@@ -222,6 +225,23 @@ class LayoutClient implements ILayoutClient
 	}
 	
 	
+	public inline function getHorPosition () {
+		var pos : Int = x;
+		if (parent.is(VirtualLayoutContainer))
+			pos += parent.getHorPosition();
+		return pos;
+	}
+	
+	
+	public inline function getVerPosition ()
+	{
+		var pos : Int = y;
+		if (parent.is(VirtualLayoutContainer))
+			pos += parent.getVerPosition();
+		return pos;
+	}
+	
+	
 	
 	//
 	// GETTERS / SETTERS
@@ -236,6 +256,14 @@ class LayoutClient implements ILayoutClient
 	//
 	// BOUNDARY SETTERS
 	//
+	
+	
+	private inline function updateWidth (v) {
+		width = v - getHorPadding();
+	}
+	private inline function updateHeight (v) {
+		height = v - getVerPadding();
+	}
 	
 	
 	
@@ -282,7 +310,7 @@ class LayoutClient implements ILayoutClient
 		if (_width.value != oldW)
 		{
 			var newH:Int	= maintainAspectRatio ? Std.int(_width.value / aspectRatio) : height;
-		//	bounds.width	= _width.value + getHorPadding();
+			bounds.setWidth( _width.value + getHorPadding() );
 			
 			if (maintainAspectRatio && newH != height) {
 				height = newH; //will trigger the height constraints
@@ -302,7 +330,7 @@ class LayoutClient implements ILayoutClient
 		if (_height.value != oldH)
 		{
 			var newW:Int	= maintainAspectRatio ? Std.int(_height.value * aspectRatio) : width;	
-		//	bounds.height	= _height.value + getVerPadding();
+			bounds.setHeight( _height.value + getVerPadding() );
 			
 			if (maintainAspectRatio && newW != width) {
 				width = newW; //will trigger the width constraints

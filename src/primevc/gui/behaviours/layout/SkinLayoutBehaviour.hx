@@ -123,10 +123,10 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 	private function applyPosition ()
 	{
 		var l = target.layout;
-		trace("applyPosition " + target.name + " / " + l + " - pos: " + l.x + ", " + l.y + " - old pos "+target.x+", "+target.y);
+		trace("applyPosition " + target.name + " / " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y);
 	//	target.width	= l.width;
 	//	target.height	= l.height;
-		target.x		= l.x;
-		target.y		= l.y;
+		target.x		= l.getHorPosition();
+		target.y		= l.getVerPosition();
 	}
 }

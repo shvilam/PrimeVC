@@ -48,4 +48,5 @@ class DisplaySignals extends Signals
 	var addedToStage		(default,null) : Signal0;
 	var removedFromStage	(default,null) : Signal0;
 	var enterFrame			(default,null) : Signal0;
+	var render				(default,null) : Signal0;
 }

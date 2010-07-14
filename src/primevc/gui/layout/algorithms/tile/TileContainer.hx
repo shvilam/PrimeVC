@@ -103,7 +103,9 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 		if (changes == 0)
 			return;
 		
+#if debug
 		children.name = name;
+#end
 		measureHorizontal();
 		measureVertical();
 	}

@@ -102,6 +102,29 @@ interface ILayoutClient implements IDisposable
 	 */
 	public function invalidate ( change:Int )	: Void;
 	
+	/**
+	 * Method will return the x coordinate that a DisplayObject can use
+	 * to positionate itself. The method will check if the clients parent is a
+	 * VirtualLayoutContainer. If that's true, it will at the parent's position
+	 * to the returned x coordinate.
+	 * 
+	 * This method will not affect the x property of the client itself.
+	 * 
+	 * @see primevc.gui.layout.VirtualLayoutContainer
+	 */
+	public function getHorPosition ()			: Int;
+	/**
+	 * Method will return the y coordinate that a DisplayObject can use
+	 * to positionate itself. The method will check if the clients parent is a
+	 * VirtualLayoutContainer. If that's true, it will at the parent's position
+	 * to the returned y coordinates.
+	 * 
+	 * This method will not affect the y property of the client itself.
+	 * 
+	 * @see primevc.gui.layout.VirtualLayoutContainer
+	 */
+	public function getVerPosition ()			: Int;
+	
 	private function resetProperties ()			: Void;
 	
 	

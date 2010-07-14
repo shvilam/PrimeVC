@@ -28,6 +28,7 @@
  */
 package primevc.core.geom.constraints;
  import primevc.core.geom.BindableBox;
+ import primevc.core.geom.BindablePoint;
  import primevc.core.IDisposable;
   using primevc.utils.Bind;
 
@@ -50,27 +51,28 @@ class ConstrainedRect implements IDisposable
 	public var centerX			(getCenterX, setCenterX)		: Int;
 	public var centerY			(getCenterY, setCenterY)		: Int;
 	
-	public var width			(default, null)					: Int;
-	public var height			(default, null)					: Int;
+	public var size				(default, null)					: BindablePoint;
+	public var width			(getWidth, setWidth)			: Int;
+	public var height			(getHeight, setHeight)			: Int;
 	
 	
 	public function new (top = 0, right = 0, bottom = 0, left = 0) 
 	{
-		props = new BindableBox();
+		props		= new BindableBox();
+		size		= new BindablePoint(right - left, bottom - top);
 		this.top	= top;
 		this.right	= right;
 		this.bottom	= bottom;
 		this.left	= left;
-		
-		this.height	= bottom - top;
-		this.width	= right - left;
 	}
 	
 	
 	public function dispose ()
 	{
 		props.dispose();
+		size.dispose();
 		props		= null;
+		size		= null;
 		constraint	= null;
 	}
 	
@@ -86,18 +88,20 @@ class ConstrainedRect implements IDisposable
 	private inline function getBottom ()	{ return props.bottom.value; }
 	private inline function getCenterX ()	{ return left + Std.int(width * .5); }
 	private inline function getCenterY ()	{ return top + Std.int(height * .5); }
+	private inline function getWidth ()		{ return size.x; }
+	private inline function getHeight ()	{ return size.y; }
 	
 	
 	public inline function setWidth (v:Int) {
-		width				= v;
-		props.right.value	= left + width;
+		size.x				= v;
+		props.right.value	= left + size.x;
 		return v;
 	}
 	
 	
 	public inline function setHeight (v:Int) {
-		height				= v;
-		props.bottom.value	= top + height;
+		size.y				= v;
+		props.bottom.value	= top + size.y;
 		return v;
 	}
 	

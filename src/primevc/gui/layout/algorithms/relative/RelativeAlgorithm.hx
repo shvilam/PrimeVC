@@ -84,7 +84,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 			
 			if (childProps.left.isSet() && childProps.right.isSet()) {
 				child.bounds.left	= padding.left + childProps.left;
-				child.width			= group.bounds.right - padding.right - childProps.right - childProps.left;
+				child.bounds.width	= group.bounds.right - padding.right - padding.left - childProps.right - childProps.left;
 			}
 			else if (childProps.left.isSet())		child.bounds.left	= padding.left + childProps.left;
 			else if (childProps.right.isSet())		child.bounds.right	= group.bounds.right - padding.right - childProps.right;
@@ -98,7 +98,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 			
 			if (childProps.top.isSet() && childProps.bottom.isSet()) {
 				child.bounds.top	= padding.top + childProps.top;
-				child.height		= group.bounds.bottom - padding.bottom - childProps.bottom - childProps.top;
+				child.bounds.height	= group.bounds.bottom - padding.bottom - padding.top - childProps.bottom - childProps.top;
 			}
 			else if (childProps.top.isSet())		child.bounds.top	= padding.top + childProps.top;
 			else if (childProps.bottom.isSet())		child.bounds.bottom	= group.bounds.bottom - padding.bottom - childProps.bottom;
