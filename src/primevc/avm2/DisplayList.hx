@@ -75,9 +75,9 @@ class DisplayList implements IList <ChildType>
 	{
 		removeAll();
 		events.dispose();
+		window	= null;
 		events	= null;
 		target	= null;
-		window	= null;
 	}
 	
 	
@@ -178,7 +178,9 @@ class DisplayList implements IList <ChildType>
 	}
 
 #if debug
-	public inline function toString () { return "DisplayList( "+length+" ) of " + target; }
+	public var name : String;
+	
+	public inline function toString () { return name + "DisplayList( "+length+" ) of " + target; }
 #end
 }
 
@@ -192,23 +194,17 @@ class DisplayList implements IList <ChildType>
  */
 class DisplayListIterator
 {
-	private var list (default, null)	: DisplayList;
-	public var current 					: Int;
+	private var list 	: DisplayList;
+	public var current	: Int;
 	
+	public function new (list:DisplayList)	{ this.list = list; }
 	
-	public function new (list:DisplayList) {
-		this.list = list;
-	}
+	public inline function rewind ()		{ current = 0; }
+	public inline function forward ()		{ current = list.length; }
 	
+	public inline function hasNext ()		{ return current < list.length; }
+	public inline function hasPrev ()		{ return current > 0; }
 	
-	public inline function rewind () { current = 0; }
-	public inline function forward () { current = list.length; }
-	
-	
-	public inline function hasNext () { return current < list.length; }
-	public inline function hasPrev () { return current > 0; }
-	
-	
-	public inline function next () { return list.getItemAt(current++); }
-	public inline function prev () { return list.getItemAt(current--); }
+	public inline function next ()			{ return list.getItemAt(current++); }
+	public inline function prev ()			{ return list.getItemAt(current--); }
 }

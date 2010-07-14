@@ -34,6 +34,7 @@ package primevc.gui.layout;
  import primevc.gui.states.LayoutStates;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
+  using primevc.utils.IntUtil;
 
 
 private typedef Flags = LayoutFlags;
@@ -93,6 +94,11 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	{
 		if (changes == 0 || states.is(LayoutStates.measuring))
 			return;
+		
+		if ((explicitWidth.isSet() && explicitWidth <= 0) || (explicitHeight.isSet() && explicitHeight <= 0)) {
+			trace(this + ".ignore measure.. size is negative "+explicitWidth+", "+explicitHeight);
+			return;
+		}
 		
 		states.current = LayoutStates.measuring;
 		

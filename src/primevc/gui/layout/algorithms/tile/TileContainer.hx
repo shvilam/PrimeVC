@@ -86,7 +86,7 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 	}
 	
 	
-	public inline function childInvalidated (childChanges:Int) : Bool
+	public function childInvalidated (childChanges:Int) : Bool
 	{
 		var r = false;
 		if (childChanges.has(LayoutFlags.LIST_CHANGED) || (algorithm != null && algorithm.isInvalid(childChanges)))
@@ -103,6 +103,7 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 		if (changes == 0)
 			return;
 		
+		children.name = name;
 		measureHorizontal();
 		measureVertical();
 	}
@@ -115,10 +116,9 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 		
 		Assert.that(algorithm != null);
 		
-		for (child in children) {
+		for (child in children)
 			if (childInvalidated(child.changes))
 				child.measureHorizontal();
-		}
 		
 		algorithm.group = cast this;
 		algorithm.measureHorizontal();
@@ -132,10 +132,10 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 			return;
 		
 		Assert.that(algorithm != null);
-		
-		for (child in children)
+		for (child in children) {
 			if (childInvalidated(child.changes))
 				child.measureVertical();
+		}
 		
 		algorithm.group = cast this;
 		algorithm.measureVertical();
@@ -211,6 +211,6 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 
 	
 #if debug
-	override public function toString () { return "LayoutTileContainer( "+super.toString() + " )"; }
+	override public function toString () { return "LayoutTileContainer( "+super.toString() + " ) - "+children; }
 #end
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 bash build/build-assets
-haxe build-release.hxml
+haxe build/build-release.hxml
 bash build/optimize-build
 
 mv tmp.swf bin-release/app.swf

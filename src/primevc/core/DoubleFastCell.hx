@@ -47,7 +47,8 @@ class DoubleFastCell <T> #if (flash9 || cpp) implements haxe.rtti.Generic #end
 		this.next = next;
 	}
 	
-	
-//	public function toString () { return data; }
-	
+
+#if debug
+	public function toString () { return data+"Cell"; }
+#end
 }

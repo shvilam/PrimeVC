@@ -94,7 +94,7 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 	}
 	
 	
-	private function removeEnterFrameBinding ()
+	private inline function removeEnterFrameBinding ()
 	{
 		if (enterFrameBinding != null) {
 			enterFrameBinding.dispose();

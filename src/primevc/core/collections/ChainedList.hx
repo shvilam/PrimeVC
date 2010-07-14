@@ -147,15 +147,17 @@ class ChainedList <DataType> extends SimpleList <DataType>
 	
 	
 #if debug
-	public function toString()
+	override public function toString()
 	{
 		var items = [];
 		var i = 0;
 		for (item in this) {
+			Assert.that(item != null, "item on "+i+" in "+name+" cannot be null!");
 			items.push( "[ " + i + " ] = " + item );
 			i++;
 		}
-		return "ChainedList("+items.length+")\n" + items.join("\n");
+		Assert.equal( items.length, length, "Length of "+name+" is invalid! ");
+		return name + "ChainedList( "+items.length+" / " + length + " )\n" + items.join("\n")+"\n";
 	}
 #end
 }

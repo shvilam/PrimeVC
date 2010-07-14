@@ -61,15 +61,18 @@ class LayoutAppSkin extends Skin < LayoutTest >
 	
 	
 	public function new ()
-	{
-		super();
+	{	
 		name = "ResizableBox";
+		super();
 		render.on( layout.events.sizeChanged, this );
 	}
 	
 	override private function createLayout ()
 	{
 		layout = new LayoutContainer();
+#if debug
+		layout.name = name + "Layout";
+#end
 		layout.width	= 400;
 		layout.height	= 500;
 		layoutGroup.algorithm = new RelativeAlgorithm();
@@ -139,9 +142,11 @@ class TileList extends Skin < Tile >
 	override private function createLayout ()
 	{
 		layout = new LayoutContainer();
-	//	layout.name = name + "Layout";
-		layout.x = 50;
-		layout.y = 10;
+#if debug
+		layout.name = name + "Layout";
+#end
+	//	layout.x = 50;
+	//	layout.y = 10;
 		layout.padding = new Box(30);
 	//	layout.maintainAspectRatio = true;
 	//	layout.sizeConstraint = new SizeConstraint(500, 800, 200, 800);
@@ -162,10 +167,10 @@ class TileList extends Skin < Tile >
 		fixedTiles.verticalDirection	= Vertical.top;
 		layoutGroup.algorithm = fixedTiles;
 	//*/
-//	/*/	
+	//*/	
 		dynamicTiles = new DynamicTileAlgorithm();
-		dynamicTiles.startDirection			= Direction.vertical;
-	//	dynamicTiles.horizontalDirection	= Horizontal.right;
+		dynamicTiles.startDirection			= Direction.horizontal;
+		dynamicTiles.horizontalDirection	= Horizontal.right;
 	//	dynamicTiles.verticalDirection		= Vertical.bottom;
 		layoutGroup.algorithm = dynamicTiles;
 	/*/
@@ -277,6 +282,9 @@ class Tile extends Skin < Tile >
 	
 	override private function createLayout () {
 		layout			= new LayoutClient();
+#if debug
+		layout.name = name + "Layout";
+#end
 		layout.width	= 50 + Std.int(150 * Math.random());
 		layout.height	= 30 + Std.int(40 * Math.random());
 	}
@@ -311,7 +319,9 @@ class Button extends Skin < Button >
 	override private function createLayout ()
 	{
 		layout			= new LayoutClient();
-	//	layout.name		= name + "Layout";
+#if debug
+		layout.name = name + "Layout";
+#end
 		layout.width	= 40;
 		layout.height	= 40;
 	}
@@ -428,9 +438,9 @@ class ResizeFromCornerBehaviour extends BehaviourBase <ISkin>
 	
 	private function startResize (mouse:MouseState)
 	{
-		trace("startResize ");
 		if (startLocation != null)
 			return;
+		trace("startResize ");
 		
 	//	dragBtn.startDrag();
 		dragBtn.userEvents.mouse.down.unbind( this );

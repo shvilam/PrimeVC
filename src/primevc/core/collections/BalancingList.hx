@@ -118,7 +118,7 @@ class BalancingList <DataType> extends SimpleList <DataType>
 	
 	
 #if debug
-	public function toString()
+	override public function toString()
 	{
 		var items = [];
 		var i = 0;
@@ -126,7 +126,7 @@ class BalancingList <DataType> extends SimpleList <DataType>
 			items.push( "[ " + i + " ] = " + item ); // Type.getClassName(Type.getClass(item)));
 			i++;
 		}
-		return "BalancingList" + listNum + " ("+items.length+")\n" + items.join("\n");
+		return name + "BalancingList" + listNum + " ("+items.length+")\n" + items.join("\n");
 	}
 #end
 }

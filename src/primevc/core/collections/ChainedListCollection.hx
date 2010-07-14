@@ -336,6 +336,8 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	
 	
 #if debug
+	public var name : String;
+
 	public function toString ()
 	{
 		var str = "";

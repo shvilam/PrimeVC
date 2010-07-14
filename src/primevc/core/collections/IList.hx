@@ -97,4 +97,9 @@ interface IList <DataType> implements IDisposable
 	
 	public function getItemAt (pos:Int) : DataType;
 	public function iterator () : Iterator <DataType>;
+	
+	
+#if debug
+	public var name : String;
+#end
 }

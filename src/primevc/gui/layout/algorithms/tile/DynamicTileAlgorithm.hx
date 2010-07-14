@@ -134,7 +134,9 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		var group					= group.as(LayoutContainer);
 		tileGroup.algorithm			= childAlgorithm;
 		tileGroup.padding			= childPadding;
-		
+#if debug
+		tileGroup.name				= "row" + tileGroups.children.length;
+#end
 		if (startDirection == Direction.horizontal)
 		{
 			if		(group.explicitWidth.isSet())		tileGroup.width = group.explicitWidth;
@@ -205,7 +207,8 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	override public function measure () : Void
 	{
-		var group = group.as(LayoutContainer);
+		var group			= group.as(LayoutContainer);
+		var measureGroups	= false;
 		
 		//
 		//create a new tile map if it removed
@@ -237,19 +240,23 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		}
 		
 		//resize all rows
-		else if (group.changes.has(LayoutFlags.WIDTH_CHANGED) && startDirection == horizontal && group.explicitWidth.isSet())
+		else if (group.changes.has(LayoutFlags.WIDTH_CHANGED) && startDirection == horizontal && group.explicitWidth.isSet()) {
+			measureGroups = true;
 			for (tileGroup in tileGroups)
 				tileGroup.width = group.explicitWidth;
+		}
 		
 		//resize all columns
-		else if (group.changes.has(LayoutFlags.HEIGHT_CHANGED) && startDirection == vertical && group.explicitHeight.isSet())
+		else if (group.changes.has(LayoutFlags.HEIGHT_CHANGED) && startDirection == vertical && group.explicitHeight.isSet()) {
+			measureGroups = true;
 			for (tileGroup in tileGroups)
 				tileGroup.height = group.explicitHeight;
+		}
 		
 		//
 		// Check if children are added, removed or moved in the list
 		//
-		if (group.changes.has(LayoutFlags.LIST_CHANGED))
+		if (group.changes.has(LayoutFlags.LIST_CHANGED) || measureGroups)
 		{
 			var groupItr = tileGroups.iterator();
 			
@@ -398,44 +405,59 @@ private class DynamicRowAlgorithm extends HorizontalFloatAlgorithm
 	{
 		var children:ChainedList<LayoutClient> = cast group.children;
 		
-		if ( group.changes.has(LayoutFlags.LIST_CHANGED) || group.changes.has(LayoutFlags.CHILDREN_INVALIDATED) )
+	//	if (children.length < 2)
+	//		return;
+		
+		if ( !group.changes.has(LayoutFlags.LIST_CHANGED) && !group.changes.has(LayoutFlags.CHILDREN_INVALIDATED) && !group.changes.has(LayoutFlags.WIDTH_CHANGED) )
+			return;
+		
+		var groupSize		= group.width;
+		var fullChildNum	= -1;			//counter to count all the children that didn't fit in the group
+		
+		//TileContainers children are changed.
+		//Check the group to see if the width is bigger then the maxWidth
+		for (child in children)
 		{
-			var groupSize		= group.width;
-			var fullChildNum	= -1;			//counter to count all the children that didn't fit in the group
-			
-			//TileContainers children are changed.
-			//Check the group to see if the width is bigger then the maxWidth
-			for (child in children)
+			//check if the child will still fit in this row
+			if (fullChildNum >= 0 || groupSize < child.bounds.width)
 			{
-				//check if the child will still fit in this row
-				if (fullChildNum >= 0 || groupSize < child.bounds.width)
-				{
-					//move child to the next list
+				//move child to the next list
+				if (children.length > 1) {
 					fullChildNum++;
 					children.moveItemToNextList( child, fullChildNum );
 				}
-				else
-				{
-					//add child to row
-					groupSize -= child.bounds.width;
-				}
 			}
-			
-			//try to add children from the next list to this lsit
-			if (fullChildNum == -1 && children.nextList != null && children.nextList.length > 0)
+			else
 			{
-				for (child in children.nextList)
-				{
-					if (groupSize < child.bounds.width)
-						break;
-					
-					children.nextList.remove(child);
-					children.add( child );
-					groupSize -= child.bounds.width;
-				}
+				//add child to row
+				groupSize -= child.bounds.width;
+			}
+		}
+		
+		//try to add children from the next list to this lsit
+		if (fullChildNum == -1 && children.nextList != null && children.nextList.length > 0)
+		{
+			for (child in children.nextList)
+			{
+				if (groupSize < child.bounds.width)
+					break;
+				
+				children.nextList.remove(child);
+				children.add( child );
+				groupSize -= child.bounds.width;
 			}
 		}
 	}
+	
+	
+#if debug
+	override public function toString ()
+	{
+		var start	= direction == Horizontal.left ? "left" : "right";
+		var end		= direction == Horizontal.left ? "right" : "left";
+		return "floatRow " + start + " -> " + end;
+	}
+#end
 }
 
 
@@ -446,42 +468,57 @@ private class DynamicColumnAlgorithm extends VerticalFloatAlgorithm
 	{
 		var children:ChainedList<LayoutClient> = cast group.children;
 		
-		if ( group.changes.has(LayoutFlags.LIST_CHANGED) || group.changes.has(LayoutFlags.CHILDREN_INVALIDATED) )
+	//	if (children.length < 2)
+	//		return;
+		
+		if ( !group.changes.has(LayoutFlags.LIST_CHANGED) && !group.changes.has(LayoutFlags.CHILDREN_INVALIDATED) && !group.changes.has(LayoutFlags.HEIGHT_CHANGED) )
+			return;
+		
+		var groupSize		= group.height;
+		var fullChildNum	= -1;				//counter to count all the children that didn't fit in the group
+		
+		//TileContainers children are changed.
+		//Check the group to see if the width is bigger then the maxWidth
+		for (child in children)
 		{
-			var groupSize		= group.height;
-			var fullChildNum	= -1;				//counter to count all the children that didn't fit in the group
-			
-			//TileContainers children are changed.
-			//Check the group to see if the width is bigger then the maxWidth
-			for (child in children)
+			//check if the child will still fit in this row
+			if (fullChildNum >= 0 || groupSize < child.bounds.height)
 			{
-				//check if the child will still fit in this row
-				if (fullChildNum >= 0 || groupSize < child.bounds.height)
-				{
-					//move child to the next list
-					fullChildNum++;
+				//move child to the next list
+				fullChildNum++;
+				
+				if (children.length > 1)
 					children.moveItemToNextList( child, fullChildNum );
-				}
-				else
-				{
-					//add child to row
-					groupSize -= child.bounds.height;
-				}
 			}
-
-			//try to add children from the next list to this lsit
-			if (fullChildNum == -1 && children.nextList != null && children.nextList.length > 0)
+			else
 			{
-				for (child in children.nextList)
-				{
-					if (groupSize < child.bounds.height)
-						break;
+				//add child to row
+				groupSize -= child.bounds.height;
+			}
+		}
 
-					children.nextList.remove(child);
-					children.add( child );
-					groupSize -= child.bounds.height;
-				}
+		//try to add children from the next list to this lsit
+		if (fullChildNum == -1 && children.nextList != null && children.nextList.length > 0)
+		{
+			for (child in children.nextList)
+			{
+				if (groupSize < child.bounds.height)
+					break;
+
+				children.nextList.remove(child);
+				children.add( child );
+				groupSize -= child.bounds.height;
 			}
 		}
 	}
+	
+	
+#if debug
+	override public function toString ()
+	{
+		var start	= direction == Vertical.top ? "top" : "bottom";
+		var end		= direction == Vertical.top ? "bottom" : "top";
+		return "floatColumn " + start + " -> " + end;
+	}
+#end
 }
