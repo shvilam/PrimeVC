@@ -1,6 +1,8 @@
 package cases;
+#if debug
  import flash.text.TextField;
  import flash.text.TextFormat;
+#end
  import primevc.core.geom.constraints.SizeConstraint;
  import primevc.core.geom.Box;
  import primevc.core.geom.Point;
@@ -25,6 +27,7 @@ package cases;
  import primevc.gui.layout.algorithms.DynamicLayoutAlgorithm;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutContainer;
+ import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.RelativeLayout;
  import primevc.gui.layout.VirtualLayoutContainer;
  import primevc.gui.states.LayoutStates;
@@ -67,7 +70,6 @@ class LayoutAppSkin extends Skin < LayoutTest >
 #if debug
 		id = "ResizableBox";
 #end
-	//	render.on( layout.events.sizeChanged, this );
 	}
 	
 	override private function createLayout ()
@@ -86,9 +88,9 @@ class LayoutAppSkin extends Skin < LayoutTest >
 		behaviours.add( new ResizeFromCornerBehaviour(this) );
 	}
 	
+	
 	override private function createChildren ()
 	{
-		trace("create children");
 		var frame1						= new TileList();
 		var frame1Alg					= new FixedTileAlgorithm();
 		frame1Alg.maxTilesInDirection	= 5;
@@ -115,20 +117,21 @@ class LayoutAppSkin extends Skin < LayoutTest >
 		frame3.layout.percentHeight		= 60;
 		
 		var frame4						= new Frame();
-		frame4.layout.percentWidth		= 33;
+		frame4.layout.percentWidth		= 50;
 		frame4.layout.percentHeight		= 100;
 		
 		var frame5						= new Frame();
-		frame5.layout.percentWidth		= 33;
+		frame5.layout.percentWidth		= LayoutFlags.FILL;
 		frame5.layout.percentHeight		= 100;
 		
 		var frame6						= new Frame();
-		frame6.layout.percentWidth		= 33;
+		frame6.layout.percentWidth		= LayoutFlags.FILL;
 		frame6.layout.percentHeight		= 100;
 		
 		var frame7						= new Frame();
 		frame7.layout.percentWidth		= 60;
 		frame7.layout.percentHeight		= 5;
+		frame7.layout.sizeConstraint	= new SizeConstraint(100, 400, 50, 200);
 		
 		var frame8						= new Frame();
 		frame8.layout.percentWidth		= 100;
@@ -225,96 +228,8 @@ class TileList extends Frame
 	override private function createLayout ()
 	{
 		layout = new LayoutContainer();
-	//	layout.x = 50;
-	//	layout.y = 10;
 		layout.padding = new Box(30);
-	//	layout.maintainAspectRatio = true;
-	//	layout.sizeConstraint = new SizeConstraint(500, 800, 200, 800);
-	//	layout.sizeConstraint = new SizeConstraint(300, Number.NOT_SET, 200, Number.NOT_SET);
-		
-		trace("createLayout of " + this);
-	/*/
-		layoutGroup.algorithm = new DynamicLayoutAlgorithm(
-			new HorizontalFloatAlgorithm( Horizontal.center ),
-			new VerticalFloatAlgorithm( Vertical.top )
-		);
-	//*/
-	/*/	
-		fixedTiles = new FixedTileAlgorithm();
-		fixedTiles.maxTilesInDirection	= 3;
-	//	fixedTiles.startDirection		= Direction.vertical;
-		fixedTiles.horizontalDirection	= Horizontal.left;
-		fixedTiles.verticalDirection	= Vertical.top;
-		layoutGroup.algorithm = fixedTiles;
-	//*/
-	/*/
-		dynamicTiles = new DynamicTileAlgorithm();
-		dynamicTiles.startDirection			= Direction.vertical;
-		dynamicTiles.horizontalDirection	= Horizontal.right;
-		dynamicTiles.verticalDirection		= Vertical.bottom;
-		layoutGroup.algorithm = dynamicTiles;
-	/*/
-	
-	//*/
-	//	layoutGroup.algorithm = new VerticalFloatAlgorithm( Vertical.center );
-	//	layoutGroup.algorithm = new HorizontalFloatAlgorithm( Horizontal.center );
-	/*/	
-		layoutGroup.algorithm = new DynamicLayoutAlgorithm(
-			new HorizontalCircleAlgorithm( Horizontal.left ),
-			new VerticalCircleAlgorithm( Vertical.top )
-		);
-	//*/	
-	//	layoutGroup.algorithm.childHeight		= 60;
-	//	layoutGroup.algorithm.childWidth		= 60;
-		
-	//	layoutGroup.width	= 400;
-	//	layoutGroup.height	= 400;
-		
-	//	render.on( layout.events.sizeChanged, this );
 	}
-	
-	
-/*	override public function render ()
-	{
-		var l = layout.bounds;
-		var g = graphics;
-		trace("render "+id+": "+l.width+", "+l.height);
-		g.clear();
-		g.beginFill( 0xaaaaaa );
-		g.drawRect( 0, 0, l.width, l.height );
-	//	g.beginFill( 0xaaaa00, .7 );
-	//	g.drawEllipse( 0, 0, l.width, l.height );
-		g.endFill();
-		
-		if (fixedTiles != null)
-		{
-			//draw rows
-			var count:Int = 0;
-			for (row in fixedTiles.rows) {
-				var color	= count % 2 == 0 ? 0xeeeeee : 0xcccccc;
-				l			= row.bounds;
-				var w		= l.width == 0 ? fixedTiles.rows.bounds.width + 30 : l.width;
-				var h		= l.height == 0 ? fixedTiles.rows.bounds.height + 30 : l.height;
-				g.beginFill( color, 0.6 );
-				g.drawRect( l.left, l.top, w, h );
-				g.endFill();
-				count++;
-			}
-			
-			//draw columns
-			count = 0;
-			for (column in fixedTiles.columns) {
-				var color	= count % 2 == 0 ? 0xddffff : 0xccdddd;
-				l			= column.bounds;
-				var w		= l.width == 0 ? fixedTiles.columns.bounds.width + 30 : l.width;
-				var h		= l.height == 0 ? fixedTiles.columns.bounds.height + 30 : l.height;
-				g.beginFill( color, .6 );
-				g.drawRect( l.left, l.top, w, h );
-				g.endFill();
-				count++;
-			}
-		}
-	}*/
 }
 
 
@@ -322,7 +237,9 @@ class TileList extends Frame
 
 class Tile extends Skin < Tile >
 {
+#if debug
 	public var textField	: TextField;
+#end
 	private var color		: UInt;
 	private var isHovered	: Bool;
 	
@@ -331,7 +248,6 @@ class Tile extends Skin < Tile >
 		isHovered	= false;
 		color		= Math.round( Math.random() * 0xffffff );
 		super();
-	//	render.on( layout.events.sizeChanged, this );
 	}
 	
 	
@@ -403,8 +319,10 @@ class Button extends Tile
 
 
 class Frame extends Skin < Box >
-{	
+{
+#if debug
 	public var textField	: TextField;
+#end
 	private var color 		: UInt;
 	
 	public function new ()

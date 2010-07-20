@@ -32,8 +32,10 @@ package primevc.gui.layout;
  import primevc.core.geom.Box;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.states.LayoutStates;
+ import primevc.utils.FastArray;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
+  using primevc.utils.IntMath;
   using primevc.utils.IntUtil;
 
 
@@ -187,13 +189,32 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	
 	private inline function setWidthPercentages (width:Int)
 	{
+		var fillingChildren = FastArrayUtil.create();
+		var fillingWidth	= width;
+		
 		for (child in children)
 		{
-			if ((changes.has(LayoutFlags.WIDTH_CHANGED) || child.changes.has(LayoutFlags.WIDTH_CHANGED))
+			if (changes.has(LayoutFlags.WIDTH_CHANGED) && child.percentWidth == LayoutFlags.FILL)
+			{
+				fillingChildren.push(child);
+				continue;
+			}
+			else if ((changes.has(LayoutFlags.WIDTH_CHANGED) || child.changes.has(LayoutFlags.WIDTH_CHANGED))
 			 		&& child.percentWidth > 0 
 					&& child.percentWidth != LayoutFlags.FILL
 				) {
 				child.bounds.width = Std.int(width * child.percentWidth / 100);
+			}
+			
+			fillingWidth -= child.bounds.width;
+		}
+		
+		//check if there are any children with a percentage of FILL and give them the width that is left over
+		if (fillingChildren.length > 0)
+		{
+			var widthPerChild = fillingWidth.divFloor( fillingChildren.length );
+			for (child in fillingChildren) {
+				child.bounds.width = widthPerChild;
 			}
 		}
 	}
@@ -201,12 +222,32 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	
 	private inline function setHeightPercentages (height:Int)
 	{
-		for (child in children) {
-			if ((changes.has(LayoutFlags.HEIGHT_CHANGED) || child.changes.has(LayoutFlags.HEIGHT_CHANGED))
+		var fillingChildren = FastArrayUtil.create();
+		var fillingHeight	= height;
+		
+		for (child in children)
+		{
+			if (changes.has(LayoutFlags.HEIGHT_CHANGED) && child.percentHeight == LayoutFlags.FILL)
+			{
+				fillingChildren.push(child);
+				continue;
+			}
+			else if ((changes.has(LayoutFlags.HEIGHT_CHANGED) || child.changes.has(LayoutFlags.HEIGHT_CHANGED))
 					&& child.percentHeight > 0
 					&& child.percentHeight != LayoutFlags.FILL
-				) {
+				)
+			{
 				child.bounds.height = Std.int(height * child.percentHeight / 100);
+			}
+			
+			fillingHeight -= child.bounds.height;
+		}
+		
+		if (fillingChildren.length > 0)
+		{
+			var heightPerChild = fillingHeight.divFloor( fillingChildren.length );
+			for (child in fillingChildren) {
+				child.bounds.height = heightPerChild;
 			}
 		}
 	}
