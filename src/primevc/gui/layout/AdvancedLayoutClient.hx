@@ -43,6 +43,8 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 		super(validateOnPropertyChange);
 		explicitWidth	= Number.NOT_SET;
 		explicitHeight	= Number.NOT_SET;
+		measuredWidth	= Number.NOT_SET;
+		measuredHeight	= Number.NOT_SET;
 	}
 	
 	
@@ -50,8 +52,8 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	{
 		explicitWidth	= Number.NOT_SET;
 		explicitHeight	= Number.NOT_SET;
-		measuredWidth	= 0;
-		measuredHeight	= 0;
+		measuredWidth	= Number.NOT_SET;
+		measuredHeight	= Number.NOT_SET;
 		
 		super.resetProperties();
 	}
@@ -79,9 +81,9 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	// GETTERS / SETTERS
 	//
 	
-	private inline function setExplicitWidth (v:Int) {
+	private inline function setExplicitWidth (v:Int)
+	{
 		if (explicitWidth != v) {
-			trace("setExplicitWidth "+v);
 			explicitWidth = v;
 			if (v != Number.NOT_SET)
 				explicitWidth = width = v;		//setWidth can trigger a size constraint..
@@ -90,9 +92,9 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	}
 	
 	
-	private inline function setExplicitHeight (v:Int) {
+	private inline function setExplicitHeight (v:Int)
+	{
 		if (explicitHeight != v) {
-			trace("setExplicitHeight "+v);
 			explicitHeight = v;
 			if (v != Number.NOT_SET)
 				explicitHeight = height = v;	//setHeight can trigger a size constraint
@@ -101,9 +103,9 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	}
 	
 	
-	private inline function setMeasuredWidth (v:Int) {
+	private inline function setMeasuredWidth (v:Int)
+	{
 		if (measuredWidth != v) {
-			trace("setMeasuredWidth " + measuredWidth +" -> " + v);
 			measuredWidth = v;
 			if (explicitWidth == Number.NOT_SET)
 				measuredWidth = width = v;		//setWidth can trigger a size constraint..
@@ -112,9 +114,9 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	}
 	
 	
-	private inline function setMeasuredHeight (v:Int) {
+	private inline function setMeasuredHeight (v:Int)
+	{
 		if (measuredHeight != v) {
-			trace("setMeasuredHeight " + measuredHeight +" -> " + v);
 			measuredHeight = v;
 			if (explicitHeight == Number.NOT_SET)
 				measuredHeight = height = v;	//setHeight can trigger a size constraint
@@ -123,26 +125,25 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	}
 	
 	
-	override private function setWidth (v:Int) {
-		trace("setWidth "+v);
-		super.setWidth(v);
+	override private function setWidth (v:Int)
+	{
+		var newV = super.setWidth(v);
 		
 		//set the explicitWidth property if height is set directly and there's no measuredWidth
 		if (measuredWidth != v && explicitWidth != v)
-			explicitWidth = width;
+			explicitWidth = newV;
 		
-		return v;
+		return newV;
 	}
 	
 	
-	override private function setHeight (v:Int) {
-		trace("setHeight "+v);
-		super.setHeight(v);
-		
+	override private function setHeight (v:Int)
+	{
+		var newV = super.setHeight(v);
 		//set the explicitHeight property if height is set directly and there's no measuredHeight
 		if (measuredHeight != v && explicitHeight != v)
-			explicitHeight = height;
+			explicitHeight = newV;
 		
-		return height;
+		return newV;
 	}
 }

@@ -27,9 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.display;
- import flash.geom.Point;
  import primevc.core.IDisposable;
  import primevc.core.geom.Matrix2D;
+ import primevc.core.geom.Point;
  import primevc.gui.events.DisplayEvents;
  
 
@@ -39,12 +39,13 @@ package primevc.gui.display;
  */
 interface IDisplayObject implements IDisposable
 {
-	var displayEvents (default, null)	: DisplayEvents;
+	var displayEvents	(default, null)			: DisplayEvents;
+	var displayList		(default, default)		: DisplayList;
 	
 #if flash9
 	var filters					: Array < Dynamic >;
 	var name					: String;
-	var parent(default,null)	: flash.display.DisplayObjectContainer;
+//	var parent(default,null)	: flash.display.DisplayObjectContainer;
 //	var stage (default,null)	: flash.display.Stage;
 	var scrollRect				: flash.geom.Rectangle;
 	var transform				: flash.geom.Transform; //Matrix2D;
@@ -76,7 +77,7 @@ interface IDisplayObject implements IDisposable
 	#end
 	
 #else
-	var parent		(default, null)						: ISprite;
+//	var parent		(default, null)						: ISprite;
 	var visible		(getVisibility, setVisibility)		: Bool;
 	var transform	(default, null)						: Matrix2D;
 	

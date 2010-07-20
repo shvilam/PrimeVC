@@ -26,27 +26,22 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.layout;
- 
+package primevc.gui.display;
+ import primevc.gui.events.UserEvents;
 
-/**
- * Every class that wants to make use of the layout-framework should
- * implement this interface. It doesn't matter if this is a display-object
- * or a graphical object.
- *
- * @creation-date	Jun 14, 2010
- * @author			Ruben Weijers
- */
-interface ILayoutOwner 
+
+interface IInteractiveObject
 {
-	public var width	: Float;
-	public var height	: Float;
-	public var x		: Float;
-	public var y		: Float;
+	var userEvents		(default, null)				: UserEvents;
 	
-	/**
-	 * Method to notifiy the layout-owner that properties of the layout are
-	 * changed. This way the owner can update it's graphics.
-	 */
-//	public function invalidateDisplay();
+#if flash9
+	
+	var doubleClickEnabled							: Bool;
+	var mouseEnabled								: Bool;
+	var tabEnabled									: Bool;
+	var tabIndex									: Int;
+	
+#else
+	var mouseEnabled	(default, setEnabled)		: Bool;
+#end
 }

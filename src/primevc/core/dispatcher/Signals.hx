@@ -44,7 +44,7 @@ class Signals implements IUnbindable<Dynamic>, implements IDisposable, implement
 		
 		for(field in T.getInstanceFields(T.getClass(this))) {
 			f = R.field(this, field);
-			if (f.is(IDisposable))
+			if (TypeUtil.is(f, IDisposable))
 				f.dispose();
 		}
 	}

@@ -71,11 +71,6 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 	{
 		if (v != direction) {
 			direction = v;
-			switch (v) {
-				case Horizontal.left:		apply = applyLeftToRight;
-				case Horizontal.center:		apply = applyCentered;
-				case Horizontal.right:		apply = applyRightToLeft;
-			}
 			algorithmChanged.send();
 		}
 		return v;
@@ -113,7 +108,7 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 		if (childHeight.notSet())
 		{
 			for (child in group.children)
-				if (child.bounds.height > height)
+				if (child.includeInLayout && child.bounds.height > height)
 					height = child.bounds.height;
 		}
 		
@@ -131,7 +126,8 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 		if (childWidth.notSet())
 		{
 			for (child in group.children)
-				width += child.bounds.width;
+				if (child.includeInLayout)
+					width += child.bounds.width;
 		}
 		else
 		{
@@ -139,6 +135,16 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 		}
 		
 		setGroupWidth(width);
+	}
+	
+	
+	public inline function apply ()
+	{
+		switch (direction) {
+			case Horizontal.left:		applyLeftToRight();
+			case Horizontal.center:		applyCentered();
+			case Horizontal.right:		applyRightToLeft();
+		}
 	}
 	
 	
@@ -154,10 +160,13 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 			var start			= getLeftStartValue() + radius;
 			
 			for (child in group.children) {
+				if (!child.includeInLayout)
+					continue;
+				
 				angle	= (childAngle * i);
 				pos		= start + Std.int( radius * Math.cos(angle + startRadians) );
 				
-				trace("PI: " + Math.PI + ", angle " + angle+ "; childAngle: "+childAngle+"; start: "+startRadians);
+			//	trace("PI: " + Math.PI + ", angle " + angle+ "; childAngle: "+childAngle+"; start: "+startRadians);
 				var halfChildWidth	= Std.int( child.bounds.width * .5 );
 				var doCenter		= pos.isWithin( radius - halfChildWidth, radius + halfChildWidth );
 				

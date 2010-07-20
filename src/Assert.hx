@@ -72,8 +72,8 @@ class Assert
 			"Assertion failed: " + var1 + " != " + var2+"; msg: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber
 			#if flash9 ) #end;
 		}
-		else
-			trace(pos.className + "::" + pos.lineNumber+": "+var1+" == "+var2);
+	//	else
+	//		trace(pos.className + "::" + pos.lineNumber+": "+var1+" == "+var2);
 		#end
 	}
 	
@@ -87,8 +87,8 @@ class Assert
 			"Assertion failed: " + var1 + " == " + var2+"; msg: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber
 			#if flash9 ) #end;
 		}
-		else
-			trace(pos.className + "::" + pos.lineNumber+": "+var1+" != "+var2);
+	//	else
+	//		trace(pos.className + "::" + pos.lineNumber+": "+var1+" != "+var2);
 		#end
 	}
 }

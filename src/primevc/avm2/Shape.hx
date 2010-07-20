@@ -39,7 +39,11 @@ package primevc.avm2;
  */
 class Shape extends flash.display.Shape, implements IShape
 {
-	public var displayEvents	: DisplayEvents;
+	/**
+	 * The displaylist to which this sprite belongs.
+	 */
+	public var displayList		(default, default)		: DisplayList;
+	public var displayEvents	(default, null)			: DisplayEvents;
 	
 	
 	public function new() 
@@ -55,6 +59,6 @@ class Shape extends flash.display.Shape, implements IShape
 			return;		// already disposed
 		
 		displayEvents.dispose();
-		displayEvents = null;
-	}	
+		displayEvents	= null;
+	}
 }

@@ -43,6 +43,13 @@ class BalancingList <DataType> extends SimpleList <DataType>
 	public var maxLists	: Int;
 	
 	
+	override public function dispose ()
+	{
+		nextList = null;
+		super.dispose();
+	}
+	
+	
 	override public function add (item:DataType, pos:Int = -1) : DataType
 	{
 		if (pos < length)
@@ -111,7 +118,7 @@ class BalancingList <DataType> extends SimpleList <DataType>
 	
 	
 #if debug
-	public function toString()
+	override public function toString()
 	{
 		var items = [];
 		var i = 0;
@@ -119,7 +126,7 @@ class BalancingList <DataType> extends SimpleList <DataType>
 			items.push( "[ " + i + " ] = " + item ); // Type.getClassName(Type.getClass(item)));
 			i++;
 		}
-		return "BalancingList" + listNum + " ("+items.length+")\n" + items.join("\n");
+		return name + "BalancingList" + listNum + " ("+items.length+")\n" + items.join("\n");
 	}
 #end
 }

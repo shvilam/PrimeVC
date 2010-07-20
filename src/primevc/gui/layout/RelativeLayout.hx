@@ -139,15 +139,15 @@ class RelativeLayout implements IDisposable
 	public var bottom				(default, setBottom)			: Int;
 	
 	
-	public function new () 
+	public function new ( top:Int = -100000, right:Int = -100000, bottom:Int = -100000, left:Int = -100000 )
 	{
-		changed	= new Signal0();
-		hCenter	= Number.NOT_SET;
-		vCenter	= Number.NOT_SET;
-		left	= Number.NOT_SET;
-		right	= Number.NOT_SET;
-		bottom	= Number.NOT_SET;
-		top		= Number.NOT_SET;
+		this.changed	= new Signal0();
+		this.hCenter	= Number.NOT_SET;
+		this.vCenter	= Number.NOT_SET;
+		this.top		= (top == -100000)		? Number.NOT_SET : top;
+		this.right		= (right == -100000)	? Number.NOT_SET : right;
+		this.bottom		= (bottom == -100000)	? Number.NOT_SET : bottom;
+		this.left		= (left == -100000)		? Number.NOT_SET : left;
 	}
 	
 	
@@ -238,4 +238,11 @@ class RelativeLayout implements IDisposable
 		}
 		return v;
 	}
+	
+	
+#if debug
+	public function toString () {
+		return "RelativeLayout - t: "+top+"; r: "+right+"; b: "+bottom+"; l: "+left+"; hCenter: "+hCenter+"; vCenter: "+vCenter;
+	}
+#end
 }

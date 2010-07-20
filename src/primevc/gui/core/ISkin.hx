@@ -31,8 +31,6 @@ package primevc.gui.core;
  import primevc.core.IDisposable;
  import primevc.gui.behaviours.IBehaviour;
  import primevc.gui.display.ISprite;
- import primevc.gui.events.DisplayEvents;
- import primevc.gui.events.UserEvents;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.SkinStates;
 
@@ -43,19 +41,18 @@ package primevc.gui.core;
  * @author Ruben Weijers
  * @creation-date Jun 08, 2010
  */
-interface ISkin implements ISprite, implements IDisposable //, implements ILayoutOwner
+interface ISkin implements ISprite, implements IDisposable
 {
-	public var userEvents		(default, null)		: UserEvents;
-	public var displayEvents	(default, null)		: DisplayEvents;
+	public var skinState		(default, null)		: SkinStates;
 	
 //	public var owner			(default, setOwner) : OwnerClass;
 	public var layout			(default, null)		: LayoutClient;
 	
 	public var behaviours		: FastList < IBehaviour <ISkin> >;
-	public var skinState		: SkinStates;
 	
 	
 	public function init ()					: Void;
+	
 	private function createLayout ()		: Void;
 	private function createStates ()		: Void;
 	private function createBehaviours ()	: Void;

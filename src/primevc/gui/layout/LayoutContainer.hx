@@ -32,8 +32,11 @@ package primevc.gui.layout;
  import primevc.core.geom.Box;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.states.LayoutStates;
+ import primevc.utils.FastArray;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
+  using primevc.utils.IntMath;
+  using primevc.utils.IntUtil;
 
 
 private typedef Flags = LayoutFlags;
@@ -43,7 +46,7 @@ private typedef Flags = LayoutFlags;
  * @since	mar 20, 2010
  * @author	Ruben Weijers
  */
-class LayoutGroup extends AdvancedLayoutClient, implements ILayoutGroup<LayoutClient>, implements IAdvancedLayoutClient
+class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<LayoutClient>, implements IAdvancedLayoutClient
 {
 	public var algorithm	(default, setAlgorithm)		: ILayoutAlgorithm;
 	public var children		(default, null)				: IList<LayoutClient>;
@@ -91,10 +94,17 @@ class LayoutGroup extends AdvancedLayoutClient, implements ILayoutGroup<LayoutCl
 	
 	override public function measure ()
 	{
-		if (changes == 0 || states.is(LayoutStates.measuring))
+		if (changes == 0)
+			return;
+		
+		if ((explicitWidth.isSet() && explicitWidth <= 0) || (explicitHeight.isSet() && explicitHeight <= 0))
 			return;
 		
 		states.current = LayoutStates.measuring;
+		
+		//set percentage size for children if there's a explicit size
+		if (explicitWidth.isSet())		setWidthPercentages(explicitWidth);
+		if (explicitHeight.isSet())		setHeightPercentages(explicitHeight);
 		
 		for (child in children)
 			child.measure();
@@ -132,6 +142,30 @@ class LayoutGroup extends AdvancedLayoutClient, implements ILayoutGroup<LayoutCl
 	//
 	
 	
+	override private function setWidth (v:Int)
+	{
+		var oldV = width;
+		var newV = super.setWidth(v);
+		
+		if (newV != oldV && isValidating)
+			setWidthPercentages(newV);
+		
+		return newV;
+	}
+	
+	
+	override private function setHeight (v:Int)
+	{
+		var oldV = height;
+		var newV = super.setHeight(v);
+		
+		if (newV != oldV && isValidating)
+			setHeightPercentages(newV);
+		
+		return newV;
+	}
+	
+	
 	private inline function setAlgorithm (v:ILayoutAlgorithm)
 	{
 		if (v != algorithm)
@@ -151,6 +185,73 @@ class LayoutGroup extends AdvancedLayoutClient, implements ILayoutGroup<LayoutCl
 		}
 		return v;
 	}
+	
+	
+	private inline function setWidthPercentages (width:Int)
+	{
+		var fillingChildren = FastArrayUtil.create();
+		var fillingWidth	= width;
+		
+		for (child in children)
+		{
+			if (changes.has(LayoutFlags.WIDTH_CHANGED) && child.percentWidth == LayoutFlags.FILL)
+			{
+				fillingChildren.push(child);
+				continue;
+			}
+			else if ((changes.has(LayoutFlags.WIDTH_CHANGED) || child.changes.has(LayoutFlags.WIDTH_CHANGED))
+			 		&& child.percentWidth > 0 
+					&& child.percentWidth != LayoutFlags.FILL
+				) {
+				child.bounds.width = Std.int(width * child.percentWidth / 100);
+			}
+			
+			fillingWidth -= child.bounds.width;
+		}
+		
+		//check if there are any children with a percentage of FILL and give them the width that is left over
+		if (fillingChildren.length > 0)
+		{
+			var widthPerChild = fillingWidth.divFloor( fillingChildren.length );
+			for (child in fillingChildren) {
+				child.bounds.width = widthPerChild;
+			}
+		}
+	}
+	
+	
+	private inline function setHeightPercentages (height:Int)
+	{
+		var fillingChildren = FastArrayUtil.create();
+		var fillingHeight	= height;
+		
+		for (child in children)
+		{
+			if (changes.has(LayoutFlags.HEIGHT_CHANGED) && child.percentHeight == LayoutFlags.FILL)
+			{
+				fillingChildren.push(child);
+				continue;
+			}
+			else if ((changes.has(LayoutFlags.HEIGHT_CHANGED) || child.changes.has(LayoutFlags.HEIGHT_CHANGED))
+					&& child.percentHeight > 0
+					&& child.percentHeight != LayoutFlags.FILL
+				)
+			{
+				child.bounds.height = Std.int(height * child.percentHeight / 100);
+			}
+			
+			fillingHeight -= child.bounds.height;
+		}
+		
+		if (fillingChildren.length > 0)
+		{
+			var heightPerChild = fillingHeight.divFloor( fillingChildren.length );
+			for (child in fillingChildren) {
+				child.bounds.height = heightPerChild;
+			}
+		}
+	}
+	
 	
 	
 	//

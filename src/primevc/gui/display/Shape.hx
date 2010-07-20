@@ -35,9 +35,11 @@ typedef Shape =
 	#elseif	js		primevc.js  .Shape;
 	#else			ShapeImpl
 
-import primevc.gui.events.IDisplayEvents;
-import primevc.core.geom.Matrix2D;
-import primevc.gui.events.DisplayEvents;
+
+
+ import primevc.gui.events.IDisplayEvents;
+ import primevc.core.geom.Matrix2D;
+ import primevc.gui.events.DisplayEvents;
 
 
 /**
@@ -48,9 +50,9 @@ import primevc.gui.events.DisplayEvents;
  */
 class ShapeImpl implements IShape
 {
+	public var displayList		(default, default)				: DisplayList;
 	public var displayEvents	(default, null)					: IDisplayEvents;
 	
-	public var parent			(default,null)					: ISprite;
 	public var transform		(default,null)					: Matrix2D;
 	public var maxWidth			(getMaxWidth,never)				: Float;
 	public var visible			(getVisibility, setVisibility)	: Bool;
@@ -69,6 +71,8 @@ class ShapeImpl implements IShape
 		events = new DisplayEvents( this );
 	}
 	
+	public function render () {}
+	
 	private inline function getVisibility()			{ return _visible; }
 	private inline function setVisibility(v:Bool)	{ return _visible = v; }
 	
@@ -80,12 +84,21 @@ class ShapeImpl implements IShape
 	{
 		displayEvents.dispose();
 		displayEvents	= null;
-		parent			= null;
+		displayList		= null;
+		window			= null;
 	}
 	
 	private var _visible:Bool;
 	private inline function getMaxWidth() { return 1024; }
 	
+	
+	//
+	// GETTERS / SETTERS
+	//
+	
+	private function setWindow (v) {
+		return window = v;
+	}
 }
 
 #end

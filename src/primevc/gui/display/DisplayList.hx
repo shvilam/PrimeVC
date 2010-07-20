@@ -27,16 +27,33 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.display;
- 
+
+
+typedef DisplayList = 
+	#if		flash9	primevc.avm2.DisplayList;
+	#elseif	flash8	primevc.avm1.DisplayList;
+	#elseif	js		primevc.js  .DisplayList;
+	#else			DisplayListImpl
+
+
+ import primevc.core.collections.ArrayList;
+
 
 /**
- * @creation-date	Jun 14, 2010
- * @author			Ruben Weijers
+ * Class to add children to the specific DisplayObjectContainer
+ * 
+ * @author Ruben Weijers
+ * @creation-date Jul 13, 2010
  */
-#if flash9
-typedef GraphicsOwner = {
-	var graphics : flash.display.Graphics;
+class DisplayListImpl extends ArrayList <IDisplayObject>
+{
+	public var window		(default, setWindow)		: Window;
+	public var mouseEnabled (default, setMouseEnabled)	: Bool;
+	public var tabEnabled	(default, setTabEnabled)	: Bool;
+	
+	private inline function setMouseEnabled (v)	{ return mouseEnabled = v; }
+	private inline function setTabEnabled (v)	{ return tabEnabled = v; }
+	private inline function setWindow (v)		{ return window = v; }
 }
-#else
-error
+
 #end

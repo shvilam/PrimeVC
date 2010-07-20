@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2010, The PrimeVC Project Contributors
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
@@ -27,32 +27,51 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout;
- import primevc.core.collections.IList;
- import primevc.gui.layout.algorithms.ILayoutAlgorithm;
+
 
 
 /**
- * @since	mar 19, 2010
- * @author	Ruben Weijers
+ * LayoutContainer without a display-object owning the layout-container. This
+ * means that the position of the container should be added to the position of
+ * all it's children.
+ * 
+ * @example
+ * 		var box		= new VirtualLayoutContainer();
+ * 		var tile1	= new Tile();
+ * 		var tile2	= new Tile();
+ * 		box.children.add( tile1.layout );
+ * 		box.children.add( tile2.layout);
+ * 
+ * 		tile1.layout.x = 50;
+ * 		tile2.layout.y = 120;
+ *		box.x = 300;
+ *		box.y = 10;
+ * 
+ *	 - the x of tile1 should now be tile1.layout.x + box.x = 350
+ *	 - the y of tile1 should now be tile1.layout.y + box.y = 10
+ *	 - the x of tile2 should now be tile2.layout.x + box.x = 300
+ *	 - the y of tile2 should now be tile2.layout.y + box.y = 130
+ * 
+ * @author Ruben Weijers
+ * @creation-date Jul 14, 2010
  */
-interface ILayoutGroup <ChildType:LayoutClient> implements ILayoutClient
+class VirtualLayoutContainer extends LayoutContainer
 {
-	public var algorithm (default, setAlgorithm)				: ILayoutAlgorithm;
-	/**
-	 * Method that is called by a child of the layoutgroup to let the group
-	 * know that the child is changed. The layoutgroup can than decide, based 
-	 * on the used algorithm, if the group should be invalidated as well or
-	 * if the change in the child is not important.
-	 * 
-	 * @param	change		integer containing the change flags of the child
-	 * 			that is changed
-	 * @return	true if the change invalidates the parent as well, otherwise 
-	 * 			false
-	 */
-	public function childInvalidated (childChanges:Int)			: Bool;
+#if debug
+	public function new ()
+	{
+		super();
+		name = "VirtualLayoutContainer";
+	}
+#end
 	
-	/**
-	 * List with all the children of the group
-	 */
-	public var children	(default, null)							: IList<ChildType>;
+	
+	override public function invalidate (change)
+	{
+		super.invalidate(change);
+		
+		if (change == LayoutFlags.X_CHANGED || change == LayoutFlags.Y_CHANGED)
+			for (child in children)
+				child.invalidate(change);
+	}
 }

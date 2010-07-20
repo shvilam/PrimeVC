@@ -26,19 +26,21 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.layout.algorithms.tile;
- import primevc.gui.layout.LayoutClient;
- 
+package primevc.gui.graphics;
+
 
 /**
- * Dynamic tile-group will try to place as
- * 
- * @creation-date	Jul 8, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Jul 13, 2010
  */
-class DynamicTileGroup <ChildType:LayoutClient> extends TileGroup <ChildType>
+interface IDrawable
 {
-	public var next : DynamicTileGroup < ChildType >;
+#if flash9
+	var graphics (default,null) : flash.display.Graphics;
+#end
 	
-	
+	/**
+	 * Method to render the graphics in this object.
+	 */
+	function render () : Void;
 }

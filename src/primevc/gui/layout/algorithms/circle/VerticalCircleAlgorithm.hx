@@ -70,11 +70,6 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 	private inline function setDirection (v) {
 		if (v != direction) {
 			direction = v;
-			switch (v) {
-				case Vertical.top:		apply = applyTopToBottom;
-				case Vertical.center:	apply = applyCentered;
-				case Vertical.bottom:	apply = applyBottomToTop;
-			}
 			algorithmChanged.send();
 		}
 		return v;
@@ -112,7 +107,7 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 		if (childWidth.notSet())
 		{
 			for (child in group.children)
-				if (child.bounds.width > width)
+				if (child.includeInLayout && child.bounds.width > width)
 					width = child.bounds.width;
 		}
 		
@@ -127,7 +122,8 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 		if (childHeight.notSet())
 		{
 			for (child in group.children)
-				height += child.bounds.height;
+				if (child.includeInLayout)
+					height += child.bounds.height;
 		}
 		else
 		{
@@ -135,6 +131,16 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 		}
 		
 		setGroupHeight(height);
+	}
+	
+	
+	public inline function apply ()
+	{
+		switch (direction) {
+			case Vertical.top:		applyTopToBottom();
+			case Vertical.center:	applyCentered();
+			case Vertical.bottom:	applyBottomToTop();
+		}
 	}
 	
 	
@@ -149,11 +155,15 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 			var pos:Int			= 0;
 			var start			= getTopStartValue() + radius;
 			
-			for (child in group.children) {
+			for (child in group.children)
+			{
+				if (!child.includeInLayout)
+					continue;
+				
 				angle	= (childAngle * i);
 				pos		= start + Std.int( radius * Math.sin(angle + startRadians) );
 				
-				trace("pos: " + pos + " - halfH: " + radius + " - PI: " + Math.PI + ", angle " + angle+ "; childAngle: "+childAngle+"; start: "+startRadians);
+			//	trace("pos: " + pos + " - halfH: " + radius + " - PI: " + Math.PI + ", angle " + angle+ "; childAngle: "+childAngle+"; start: "+startRadians);
 				var halfChildHeight	= Std.int( child.bounds.height * .5 );
 				var doCenter		= pos.isWithin( radius - halfChildHeight, radius + halfChildHeight );
 				

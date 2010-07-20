@@ -402,6 +402,7 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 		}
 		return str;
 	}*/
+	public var name : String;
 	
 	public function toString ()
 	{

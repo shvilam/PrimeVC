@@ -25,6 +25,7 @@
  *
  * Authors:
  *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.display;
 
@@ -38,97 +39,80 @@ typedef Sprite =
 	#elseif	js		primevc.js  .Sprite;
 	#else			SpriteImpl
 
-import primevc.gui.events.DisplayEvents;
-import primevc.gui.events.IUserEvents;
-import primevc.core.geom.Matrix2D;
-import primevc.core.geom.Rectangle;
-import primevc.gui.events.UserEvents;
+
+ import primevc.gui.events.DisplayEvents;
+ import primevc.gui.events.IUserEvents;
+ import primevc.core.geom.Matrix2D;
+ import primevc.core.geom.Rectangle;
+ import primevc.gui.events.UserEvents;
 
 /**
  * Mock implementation of Sprite
  * 
  * @author			Danny Wilson
+ * @author			Ruben Weijers
  * @creation-date	unknown
  */
 class SpriteImpl implements ISprite
 {
-	public var userEvents	(default, null)					: IUserEvents;
-	public var displayEvents (default, null)				: DisplayEvents;
+	public var displayList		(default, default)				: DisplayList;
+	public var children			(default, null)					: DisplayList;
 	
-	public var dropTarget	(default, null)					: IDisplayObject;
-	public var parent		(default, null)					: ISprite;
+	public var userEvents		(default, null)					: UserEvents;
+	public var displayEvents	(default, null)					: DisplayEvents;
 	
-	public var transform	(default,null)					: Matrix2D;
-	public var visible		(getVisibility, setVisibility)	: Bool;
-	public var numChildren	(getNumChildren, never)			: Int;
+	public var dropTarget		(default, null)					: IDisplayObject;
+	public var parent			(default, null)					: ISprite;
 	
-	public var mouseEnabled	(getEnabled, setEnabled)		: Bool;
-		private inline function getEnabled ()				{ return mouseEnabled; }
-		private inline function setEnabled (v:Bool)			{ return mouseEnabled = v; }
-	
-	public var alpha		(default, setAlpha)				: Float;
-		private inline function setAlpha(a:Float)			{ return alpha = a; }	
-	
-	public var x			(getX,			setX)			: Float;
-	public var y			(getY,			setY)			: Float;
-	public var width		(getWidth,		setWidth)		: Float;
-	public var height		(getHeight,		setHeight)		: Float;
-	
+	public var transform		(default,null)					: Matrix2D;
+	public var visible			(getVisibility, setVisibility)	: Bool;
 	private var _visible:Bool;
-	private var children:Array < ISprite >;
+	
+	public var mouseEnabled		(getEnabled, setEnabled)		: Bool;
+		private inline function getEnabled ()					{ return mouseEnabled; }
+		private inline function setEnabled (v:Bool)				{ return mouseEnabled = v; }
+	
+	public var alpha			(default, setAlpha)				: Float;
+		private inline function setAlpha(a:Float)				{ return alpha = a; }	
+	
+	public var x				(getX,			setX)			: Float;
+	public var y				(getY,			setY)			: Float;
+	public var width			(getWidth,		setWidth)		: Float;
+	public var height			(getHeight,		setHeight)		: Float;
+	
 	
 	
 	
 	public function new()
 	{
-		children = [];
-		userEvents		= new UserEvents();
-		displayEvents	= new DisplayEvents();
-	}
-	
-	public inline function addChild(child:ISprite)
-	{
-		child.parent = this;
-		children.push(child);
+		children		= new DisplayList( this );
+		userEvents		= new UserEvents( this );
+		displayEvents	= new DisplayEvents( this );
 	}
 	
 	
-	public inline function addChildAt(child:ISprite, depth:Int)
-	{
-		child.parent = this;
-		
-		var a = children.slice(0, depth);
-		a.push(child);
-		a.concat(children.slice(depth));
-		children = a;
-	}
-	
-	
-	public inline function getChildIndex(child:ISprite)
-	{
-		var idx = -1;
-		for (i in 0 ... children.length) if (children[i] == child) {
-			idx = i;
-			break;
-		}
-		Assert.that(idx != -1, "argument not a child of this sprite");
-		return idx;
-	}
-	
-	
-	public inline function swapChildren(a:Sprite, b:Sprite) : Void
-	{
-		var ai = getChildIndex(a);
-		var bi = getChildIndex(b);
-		children[ai] = b;
-		children[bi] = a;
-	}
+	public function render () {}
 	
 	
 	public inline function dispose() : Void
 	{
-		parent = null;
-		children = null;
+		displayEvents.dispose();
+		userEvents.dispose();
+		children.dispose();
+		
+		children		= null;
+		window			= null;
+		displayList		= null;
+		displayEvents	= null;
+	}
+
+
+	//
+	// GETTERS / SETTERS
+	//
+
+	private function setWindow (v) {
+		return window = v;
 	}
 	
 	
@@ -146,6 +130,5 @@ class SpriteImpl implements ISprite
 	
 	private inline function getVisibility()			{ return _visible; }
 	private inline function setVisibility(v:Bool)	{ return _visible = v; }
-	private inline function getNumChildren()		{ return children.length; }
 }
 #end

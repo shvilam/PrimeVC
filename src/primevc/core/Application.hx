@@ -26,40 +26,71 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.geom;
- import primevc.core.Bindable;
- import primevc.core.IDisposable;
+package primevc.core;
+ import primevc.gui.display.Window;
 
 
 /**
- * Description
+ * Class description
  * 
- * @creation-date	Jun 29, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Jul 13, 2010
  */
-class BindablePoint extends IntPoint, implements IDisposable
+class Application
 {
-	public var xProp (default, null)	: Bindable < Int >;
-	public var yProp (default, null)	: Bindable < Int >;
-	
-	
-	public function new (x = 0, y = 0)
+		
+	public static inline function startup (ApplicationType:Class<Application>)
 	{
-		xProp = new Bindable<Int>(x);
-		yProp = new Bindable<Int>(y);
-		super(x, y);
+#if (debug && MonsterTrace)
+		haxe.Log.trace = doTrace;
+#end
+#if debug
+		trace("started " + ApplicationType + "!");
+#end
+		
+#if flash9
+		var stage		= flash.Lib.current.stage;
+		stage.scaleMode	= flash.display.StageScaleMode.NO_SCALE;
+		Type.createInstance( ApplicationType, [stage] );
+#else
+		Type.createInstance( ApplicationType, null );
+#end
 	}
 	
 	
-	public function dispose () {
-		xProp.dispose();
-		yProp.dispose();
-		xProp = yProp = null;
+	public var window	(default, null)	: Window;
+	
+	
+	public function new ( target )
+	{
+		window = new Window( target );
 	}
 	
 	
-	override private function getX ()	{ return xProp.value; }
-	override private function setX (v)	{ return xProp.value = v; }
-	override private function getY ()	{ return yProp.value; }
-	override private function setY (v)	{ return yProp.value = v; }
+	
+	
+	//
+	// MONSTERDEBUGGER SUPPORT
+	//
+	
+#if (debug && MonsterTrace)
+	private static inline function getClassName (infos : haxe.PosInfos) : String {
+		return infos.className.split(".").pop(); //infos.fileName;
+	}
+	
+	
+	private static inline function getTraceColor (name:String) : Int {
+		var length	= name.length; // - 3; // remove .hx
+		return name.charCodeAt(0) * name.charCodeAt( length >> 1 ) * name.charCodeAt( length - 1 );
+	}
+	
+
+	static var monster = new nl.demonsters.debugger.MonsterDebugger(flash.Lib.current);
+
+	static function doTrace (v : Dynamic, ?infos : haxe.PosInfos) {
+		var name	= getClassName( infos );
+		var color	= getTraceColor( name );
+		nl.demonsters.debugger.MonsterDebugger.trace(name +':' + infos.lineNumber +'\t -> ' + infos.methodName, v, color);
+	}
+#end
 }

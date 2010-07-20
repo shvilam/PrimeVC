@@ -25,16 +25,14 @@
  *
  * Authors:
  *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.avm2;
  import primevc.core.IDisposable;
  import primevc.gui.display.ISprite;
+ import primevc.gui.display.DisplayList;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEvents;
- 
- import flash.display.DisplayObjectContainer;
- import flash.display.InteractiveObject;
- 
   using primevc.utils.TypeUtil;
 
  
@@ -42,16 +40,28 @@ package primevc.avm2;
  * AVM2 sprite implementation
  * 
  * @author	Danny Wilson
+ * @author	Ruben Weijers
  */
 class Sprite extends flash.display.Sprite, implements ISprite
 {
-	public var userEvents (default, null)		: UserEvents;
-	public var displayEvents (default, null)	: DisplayEvents;
+	/**
+	 * The displaylist to which this sprite belongs.
+	 */
+	public var displayList		(default, default)		: DisplayList;
+	
+	/**
+	 * List with all the children of the sprite
+	 */
+	public var children			(default, null)			: DisplayList;
+	
+	public var userEvents		(default, null)			: UserEvents;
+	public var displayEvents	(default, null)			: DisplayEvents;
 	
 	
 	public function new()
 	{
 		super();
+		children		= new DisplayList( this );
 		userEvents		= new UserEvents( this );
 		displayEvents	= new DisplayEvents( this );
 	}
@@ -62,46 +72,19 @@ class Sprite extends flash.display.Sprite, implements ISprite
 		if (userEvents == null)
 			return;		// already disposed
 		
+		children.dispose();
 		userEvents.dispose();
 		displayEvents.dispose();
+		
+		if (displayList != null)
+			displayList.remove(this);
+		
+		children		= null;
 		userEvents		= null;
 		displayEvents	= null;
-		
-		for (i in 0 ... numChildren)
-		{
-			var child = getChildAt(0);
-			if (child.is(IDisposable))
-				cast(child, IDisposable).dispose();
-			
-			if (child.parent != null)
-				child.parent.removeChild( child );		//just to be sure
-		}
-		
-		if (parent != null)
-			parent.removeChild(this);
+		displayList		= null;
 	}
 	
 	
-	public function attachTo(target:DisplayObjectContainer)
-	{
-		target.addChild(this);
-	}
-	
-	
-/*	public inline function resizeScrollRect (newWidth:Float, newHeight:Float)
-	{
-		var rect			= scrollRect == null ? new flash.geom.Rectangle() : scrollRect;
-		rect.width			= newWidth;
-		rect.height			= newHeight;
-		scrollRect			= rect;
-	}
-	
-	
-	public inline function moveScrollRect (?newX:Float = 0, ?newY:Float = 0)
-	{
-		var rect			= scrollRect == null ? new flash.geom.Rectangle() : scrollRect;
-		rect.x				= newX;
-		rect.y				= newY;
-		scrollRect			= rect;
-	}*/
+	public function render () {}
 }

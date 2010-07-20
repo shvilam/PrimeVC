@@ -2,14 +2,15 @@
 -exclude build/release-exclude.txt
 --no-traces
 
--swf10 tmp.swf
--swf-header 1000:750:31
+-swf9 tmp.swf
+-swf-version 10
+-swf-header 1000:750:25
 
 --flash-strict
 -cp generated-src
 -cp src
 -cp skins/flair
+#-cp tests/
 -lib feffects
 -main primevc.Main
-
--swf-version 10
+#-main cases.LayoutTest

@@ -30,17 +30,17 @@ package primevc.gui.behaviours.layout;
  import primevc.core.geom.Rectangle;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.ISkin;
- import primevc.gui.layout.LayoutGroup;
+ import primevc.gui.layout.LayoutContainer;
  import primevc.gui.states.LayoutStates;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
  
 
 /**
- * Clipped layout behaviour will clip a skin that contains a LayoutGroup to the
+ * Clipped layout behaviour will clip a skin that contains a LayoutContainer to the
  * given width and height properties. All children that will fall outside of
  * the layout are not visible (unless the scrollX and scrollY properties of the
- * LayoutGroup is changed.
+ * LayoutContainer is changed.
  * 
  * @creation-date	Jun 25, 2010
  * @author			Ruben Weijers
@@ -73,7 +73,7 @@ class ClippedLayoutBehaviour extends BehaviourBase < ISkin >
 		if (target.layout == null)
 			return;
 		
-		Assert.that(target.layout.is(LayoutGroup), "LayoutObject should be a LayoutGroup");
+		Assert.that(target.layout.is(LayoutContainer), "LayoutObject should be a LayoutContainer");
 		
 		target.scrollRect = new Rectangle();
 		updateScrollRect.on( target.layout.events.sizeChanged, this );
@@ -82,7 +82,7 @@ class ClippedLayoutBehaviour extends BehaviourBase < ISkin >
 	
 	private function updateScrollRect ()
 	{
-		var l:LayoutGroup	= target.layout.as(LayoutGroup);
+		var l				= target.layout.as(LayoutContainer);
 		var r				= target.scrollRect;
 		r.x					= l.scrollX;
 		r.y					= l.scrollY;

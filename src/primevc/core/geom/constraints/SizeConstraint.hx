@@ -27,7 +27,8 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.geom.constraints;
-import primevc.core.Number;
+ import primevc.core.IDisposable;
+ import primevc.core.Number;
  
 
 /**
@@ -36,7 +37,7 @@ import primevc.core.Number;
  * @creation-date	Jun 19, 2010
  * @author			Ruben Weijers
  */
-class SizeConstraint //implements IConstraint <Dynamic>
+class SizeConstraint implements IDisposable //implements IConstraint <Dynamic>
 {
 	public var width (default, null)	: IntConstraint;
 	public var height (default, null)	: IntConstraint;
@@ -46,5 +47,26 @@ class SizeConstraint //implements IConstraint <Dynamic>
 	{
 		width	= new IntConstraint(minW, maxW);
 		height	= new IntConstraint(minH, maxH);
+	}
+	
+	
+	public function reset ()
+	{
+		width.min = Number.INT_MIN;
+		width.max = Number.INT_MAX;
+		height.min = Number.INT_MIN;
+		height.max = Number.INT_MAX;
+	}
+	
+	
+	public function dispose ()
+	{
+		if (width == null)
+			return;
+		
+		width.dispose();
+		height.dispose();
+		width = null;
+		height = null;
 	}
 }

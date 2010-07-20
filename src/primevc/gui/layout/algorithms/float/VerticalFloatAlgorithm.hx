@@ -76,11 +76,6 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 	private inline function setDirection (v:Vertical) {
 		if (v != direction) {
 			direction = v;
-			switch (v) {
-				case Vertical.top:		apply = applyTopToBottom;
-				case Vertical.center:	apply = applyCentered;
-				case Vertical.bottom:	apply = applyBottomToTop;
-			}
 			algorithmChanged.send();
 		}
 		return v;
@@ -120,7 +115,7 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 		if (childWidth.notSet())
 		{
 			for (child in group.children)
-				if (child.bounds.width > width)
+				if (child.includeInLayout && child.bounds.width > width)
 					width = child.bounds.width;
 		}
 		
@@ -128,21 +123,34 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 	}
 	
 	
-	public inline function measureVertical ()
+	public function measureVertical ()
 	{
 		var height:Int = halfHeight = 0;
 		
 		if (childHeight.notSet())
 		{
+			var percentHeight:Float = 0;
 			var i:Int = 0;
+			
 			for (child in group.children) {
-				height += child.bounds.height;
+				if (!child.includeInLayout)
+					continue;
+				
+				if (child.percentHeight > 0)
+					percentHeight += child.percentHeight;
+				else
+					height += child.bounds.height;
 				
 				//only count even children
 				if (i % 2 == 0)
 					halfHeight += child.bounds.height;
-				
 				i++;
+			}
+			
+			if (percentHeight > 0)
+			{
+				var groupHeight = group.is(AdvancedLayoutClient) ? group.as(AdvancedLayoutClient).explicitHeight : group.height;
+				height += Std.int( groupHeight * percentHeight / 100 );
 			}
 		}
 		else
@@ -153,29 +161,44 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 		
 		setGroupHeight(height);
 	}
-	
+
+
+	public inline function apply ()
+	{
+		switch (direction) {
+			case Vertical.top:		applyTopToBottom();
+			case Vertical.center:	applyCentered();
+			case Vertical.bottom:	applyBottomToTop();
+		}
+	}
 	
 	
 	private inline function applyTopToBottom () : Void
 	{
-		if (group.children.length == 0)
-			return;
-		
-		var next = getTopStartValue();
-		
-		//use 2 loops for algorithms with and without a fixed child-height. This is faster than doing the if statement inside the loop!
-		if (childHeight.notSet())
+		if (group.children.length > 0)
 		{
-			for (child in group.children) {
-				child.bounds.top	= next;
-				next				= child.bounds.bottom;
+			var next = getTopStartValue();
+		
+			//use 2 loops for algorithms with and without a fixed child-height. This is faster than doing the if statement inside the loop!
+			if (childHeight.notSet())
+			{
+				for (child in group.children) {
+					if (!child.includeInLayout)
+						continue;
+					
+					child.bounds.top	= next;
+					next				= child.bounds.bottom;
+				}
 			}
-		}
-		else
-		{
-			for (child in group.children) {
-				child.bounds.top	 = next;
-				next				+= childHeight;
+			else
+			{
+				for (child in group.children) {
+					if (!child.includeInLayout)
+						continue;
+					
+					child.bounds.top	 = next;
+					next				+= childHeight;
+				}
 			}
 		}
 	}
@@ -183,42 +206,50 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 	
 	private inline function applyCentered () : Void
 	{
-		if (group.children.length == 0)
-			return;
-		
-		var i:Int = 0;
-		var evenPos:Int, oddPos:Int;
-		evenPos = oddPos = halfHeight + getTopStartValue();
-		
-		//use 2 loops for algorithms with and without a fixed child-height. This is faster than doing the if statement inside the loop!
-		if (childHeight.notSet())
+		if (group.children.length > 0)
 		{
-			for (child in group.children) {
-				if (i % 2 == 0) {
-					//even
-					child.bounds.bottom	= evenPos;
-					evenPos				= child.bounds.top;
-				} else {
-					//odd
-					child.bounds.top	= oddPos;
-					oddPos				= child.bounds.bottom;
+			var i:Int = 0;
+			var evenPos:Int, oddPos:Int;
+			evenPos = oddPos = halfHeight + getTopStartValue();
+		
+			//use 2 loops for algorithms with and without a fixed child-height. This is faster than doing the if statement inside the loop!
+			if (childHeight.notSet())
+			{
+				for (child in group.children)
+				{
+					if (!child.includeInLayout)
+						continue;
+					
+					if (i % 2 == 0) {
+						//even
+						child.bounds.bottom	= evenPos;
+						evenPos				= child.bounds.top;
+					} else {
+						//odd
+						child.bounds.top	= oddPos;
+						oddPos				= child.bounds.bottom;
+					}
+					i++;
 				}
-				i++;
 			}
-		}
-		else
-		{
-			for (child in group.children) {
-				if (i % 2 == 0) {
-					//even
-					child.bounds.bottom	 = evenPos;
-					evenPos				-= childHeight;
-				} else {
-					//odd
-					child.bounds.top	 = oddPos;
-					oddPos				+= childHeight;
+			else
+			{
+				for (child in group.children)
+				{
+					if (!child.includeInLayout)
+						continue;
+					
+					if (i % 2 == 0) {
+						//even
+						child.bounds.bottom	 = evenPos;
+						evenPos				-= childHeight;
+					} else {
+						//odd
+						child.bounds.top	 = oddPos;
+						oddPos				+= childHeight;
+					}
+					i++;
 				}
-				i++;
 			}
 		}
 	}
@@ -226,25 +257,31 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 	
 	private inline function applyBottomToTop () : Void
 	{
-		if (group.children.length == 0)
-			return;
-		
-		var next = getBottomStartValue();
-		
-		//use 2 loops for algorithms with and without a fixed child-height. This is faster than doing the if statement inside the loop!
-		if (childHeight.notSet())
+		if (group.children.length > 0)
 		{
-			for (child in group.children) {
-				child.bounds.bottom	= next;
-				next				= child.bounds.top;
+			var next = getBottomStartValue();
+		
+			//use 2 loops for algorithms with and without a fixed child-height. This is faster than doing the if statement inside the loop!
+			if (childHeight.notSet())
+			{
+				for (child in group.children) {
+					if (!child.includeInLayout)
+						continue;
+					
+					child.bounds.bottom	= next;
+					next				= child.bounds.top;
+				}
 			}
-		}
-		else
-		{
-			next -= childHeight;
-			for (child in group.children) {
-				child.bounds.top	= next;
-				next				= child.bounds.top - childHeight;
+			else
+			{
+				next -= childHeight;
+				for (child in group.children) {
+					if (!child.includeInLayout)
+						continue;
+					
+					child.bounds.top	= next;
+					next				= child.bounds.top - childHeight;
+				}
 			}
 		}
 	}
@@ -283,7 +320,7 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 	{
 		var start = direction == Vertical.top ? "top" : "bottom";
 		var end = direction == Vertical.top ? "bottom" : "top";
-		return "float.ver ( " + start + " -> " + end + " ) ";
+		return group + ".Float.ver ( " + start + " -> " + end + " ) ";
 	}
 #end
 }

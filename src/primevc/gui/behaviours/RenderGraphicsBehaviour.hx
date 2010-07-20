@@ -26,40 +26,71 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.geom;
- import primevc.core.Bindable;
- import primevc.core.IDisposable;
+package primevc.gui.behaviours;
+ import primevc.core.dispatcher.Wire;
+ import primevc.gui.core.ISkin;
+  using primevc.utils.Bind;
 
 
 /**
- * Description
+ * Class description
  * 
- * @creation-date	Jun 29, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Jul 16, 2010
  */
-class BindablePoint extends IntPoint, implements IDisposable
+class RenderGraphicsBehaviour extends BehaviourBase < ISkin >
 {
-	public var xProp (default, null)	: Bindable < Int >;
-	public var yProp (default, null)	: Bindable < Int >;
+	private var renderBinding : Wire <Dynamic>;
 	
 	
-	public function new (x = 0, y = 0)
+	override private function init ()
 	{
-		xProp = new Bindable<Int>(x);
-		yProp = new Bindable<Int>(y);
-		super(x, y);
+		if (target.skinState.current == target.skinState.initialized)
+			initGraphics();
+		else
+			initGraphics.onceOn( target.skinState.initialized.entering, this );
 	}
 	
 	
-	public function dispose () {
-		xProp.dispose();
-		yProp.dispose();
-		xProp = yProp = null;
+	override private function reset ()
+	{
+		
 	}
 	
 	
-	override private function getX ()	{ return xProp.value; }
-	override private function setX (v)	{ return xProp.value = v; }
-	override private function getY ()	{ return yProp.value; }
-	override private function setY (v)	{ return yProp.value = v; }
+	private inline function initGraphics ()
+	{
+	//	trace("init render behaviour "+target+" in "+target.skinState.current);
+		if (target.layout != null) {
+#if flash9
+			invalidateWindow.on( target.layout.events.sizeChanged, this );
+#else
+			renderTarget.on( target.layout.events.sizeChanged, this );
+#end
+		}
+	}
+	
+	
+	private function invalidateWindow ()
+	{
+		if (target.displayList == null)
+			return;
+		
+	//	trace("invalidateWindow "+target);
+		target.displayList.window.invalidate();
+		renderBinding = renderTarget.on( target.displayEvents.render, this );
+	//	target.render.on( target.displayEvents.enterFrame, this );
+	}
+	
+	
+	private function renderTarget ()
+	{
+		if (renderBinding != null) {
+			renderBinding.dispose();
+			renderBinding = null;
+		}
+		trace("render "+target+" size: "+target.layout.bounds.width+", "+target.layout.bounds.height);
+		target.displayEvents.render.unbind( this );
+		target.render();
+	}
 }

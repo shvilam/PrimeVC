@@ -97,7 +97,7 @@ class ArrayList <DataType> implements IList <DataType>
 	}
 	
 	
-	public function add (item:DataType, pos:Int = -1) : DataType
+	public inline function add (item:DataType, pos:Int = -1) : DataType
 	{
 		pos = list.insertAt(item, pos);
 		events.added.send( item, pos );
@@ -137,6 +137,8 @@ class ArrayList <DataType> implements IList <DataType>
 	
 	
 #if debug
+	public var name : String;
+	
 	public function toString()
 	{
 		var items = [];
@@ -145,7 +147,7 @@ class ArrayList <DataType> implements IList <DataType>
 			items.push( "[ " + i + " ] = " + item ); // Type.getClassName(Type.getClass(item)));
 			i++;
 		}
-		return "ArrayCollection ("+items.length+")\n" + items.join("\n");
+		return name + "ArrayList ("+items.length+")\n" + items.join("\n");
 	}
 #end
 }

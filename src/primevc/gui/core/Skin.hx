@@ -29,6 +29,7 @@
 package primevc.gui.core;
  import haxe.FastList;
  import primevc.gui.behaviours.layout.SkinLayoutBehaviour;
+ import primevc.gui.behaviours.RenderGraphicsBehaviour;
  import primevc.gui.behaviours.IBehaviour;
  import primevc.gui.display.Sprite;
  import primevc.gui.layout.LayoutClient;
@@ -47,9 +48,9 @@ class Skin <OwnerClass> extends Sprite, implements ISkin //<OwnerClass>
 {
 	public var layout			(default, null)		: LayoutClient;
 	public var owner			(default, setOwner) : OwnerClass;
+	public var skinState		(default, null)		: SkinStates;
 	
 	public var behaviours		: FastList < IBehaviour <ISkin> >;
-	public var skinState		: SkinStates;
 	
 	
 	public function new()
@@ -59,6 +60,7 @@ class Skin <OwnerClass> extends Sprite, implements ISkin //<OwnerClass>
 		skinState		= new SkinStates();
 		
 		behaviours		= new FastList< IBehaviour <ISkin> > ();
+		behaviours.add( new RenderGraphicsBehaviour (this) );
 		behaviours.add( new SkinLayoutBehaviour (this) );
 		
 		createStates();
@@ -127,4 +129,20 @@ class Skin <OwnerClass> extends Sprite, implements ISkin //<OwnerClass>
 		while (!behaviours.isEmpty())
 			behaviours.pop().dispose();
 	}
+	
+	
+#if debug
+	public var id (default, setId) : String;
+	
+	private inline function setId (v) {
+		id = name = v;
+		if (layout != null)
+			layout.name = name + "Layout";
+		return v;
+	}
+
+#if debug
+	override public function toString() { return id; }
+#end
+#end
 }

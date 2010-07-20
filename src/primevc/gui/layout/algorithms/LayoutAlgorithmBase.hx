@@ -31,7 +31,7 @@ package primevc.gui.layout.algorithms;
  import primevc.core.Number;
  import primevc.core.IDisposable;
  import primevc.gui.layout.AdvancedLayoutClient;
- import primevc.gui.layout.ILayoutGroup;
+ import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutClient;
   using primevc.utils.TypeUtil;
  
@@ -48,8 +48,7 @@ class LayoutAlgorithmBase implements IDisposable
 	public var childHeight				(default, setChildHeight)	: Int;
 	
 	public var algorithmChanged 		(default, null)				: Signal0;
-	public var apply					(default, null)				: Void -> Void;
-	public var group					(default, setGroup)			: ILayoutGroup<LayoutClient>;
+	public var group					(default, setGroup)			: ILayoutContainer<LayoutClient>;
 	
 	
 	public function new()
@@ -101,8 +100,11 @@ class LayoutAlgorithmBase implements IDisposable
 	
 	private inline function setGroupHeight (h:Int)
 	{
-		if (group.is(AdvancedLayoutClient))
-			group.as(AdvancedLayoutClient).measuredHeight = h;
+		if (group.is(AdvancedLayoutClient)) {
+			var container = group.as(AdvancedLayoutClient);
+			if (container.explicitHeight != h)
+				container.measuredHeight = h;
+		}
 		else
 			group.height = h;
 	}
@@ -110,8 +112,11 @@ class LayoutAlgorithmBase implements IDisposable
 	
 	private inline function setGroupWidth (w:Int)
 	{
-		if (group.is(AdvancedLayoutClient))
-			group.as(AdvancedLayoutClient).measuredWidth = w;
+		if (group.is(AdvancedLayoutClient)) {
+			var container = group.as(AdvancedLayoutClient);
+			if (container.explicitWidth != w)
+				container.measuredWidth = w;
+		}
 		else
 			group.width = w;
 	}

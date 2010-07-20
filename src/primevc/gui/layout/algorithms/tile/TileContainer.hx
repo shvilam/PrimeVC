@@ -31,7 +31,7 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.core.collections.ArrayList;
  import primevc.core.Number;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
- import primevc.gui.layout.ILayoutGroup;
+ import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.LayoutStates;
@@ -42,13 +42,13 @@ package primevc.gui.layout.algorithms.tile;
  
 
 /**
- * Group of tiles within a tile layout. Behaves as a LayoutGroup but without 
- * the properties of AdvancedLayoutGroup.
+ * Group of tiles within a tile layout. Behaves as a LayoutContainer but without 
+ * the properties of AdvancedLayoutContainer.
  * 
  * @creation-date	Jun 30, 2010
  * @author			Ruben Weijers
  */
-class TileGroup <ChildType:LayoutClient> extends LayoutClient, implements ILayoutGroup <ChildType>
+class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements ILayoutContainer <ChildType>
 {
 	public var algorithm	(default, setAlgorithm)			: ILayoutAlgorithm;
 	public var children		(default, null)					: IList<ChildType>;
@@ -86,10 +86,11 @@ class TileGroup <ChildType:LayoutClient> extends LayoutClient, implements ILayou
 	}
 	
 	
-	public inline function childInvalidated (childChanges:Int) : Bool
+	public function childInvalidated (childChanges:Int) : Bool
 	{
 		var r = false;
-		if (childChanges.has(LayoutFlags.LIST_CHANGED) || (algorithm != null && algorithm.isInvalid(childChanges))) {
+		if (childChanges.has(LayoutFlags.LIST_CHANGED) || (algorithm != null && algorithm.isInvalid(childChanges)))
+		{
 			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
 			r = true;
 		}
@@ -102,6 +103,9 @@ class TileGroup <ChildType:LayoutClient> extends LayoutClient, implements ILayou
 		if (changes == 0)
 			return;
 		
+#if debug
+		children.name = name;
+#end
 		measureHorizontal();
 		measureVertical();
 	}
@@ -114,11 +118,9 @@ class TileGroup <ChildType:LayoutClient> extends LayoutClient, implements ILayou
 		
 		Assert.that(algorithm != null);
 		
-		for (child in children) {
-			trace("measure hor " + child + " - "+child.readChanges() + " - measure? "+childInvalidated(child.changes));
+		for (child in children)
 			if (childInvalidated(child.changes))
 				child.measureHorizontal();
-		}
 		
 		algorithm.group = cast this;
 		algorithm.measureHorizontal();
@@ -132,10 +134,10 @@ class TileGroup <ChildType:LayoutClient> extends LayoutClient, implements ILayou
 			return;
 		
 		Assert.that(algorithm != null);
-		
-		for (child in children)
+		for (child in children) {
 			if (childInvalidated(child.changes))
 				child.measureVertical();
+		}
 		
 		algorithm.group = cast this;
 		algorithm.measureVertical();
@@ -150,7 +152,6 @@ class TileGroup <ChildType:LayoutClient> extends LayoutClient, implements ILayou
 		
 		algorithm.group = cast this;
 		algorithm.apply();
-		trace("validated " + readChanges());
 		changes = 0;
 	}
 	
@@ -201,7 +202,7 @@ class TileGroup <ChildType:LayoutClient> extends LayoutClient, implements ILayou
 	
 	private function algorithmChangedHandler ()							{ invalidate( LayoutFlags.ALGORITHM_CHANGED ); }
 	private function invalidateChildList ()								{ invalidate( LayoutFlags.LIST_CHANGED ); }
-	private function childRemovedHandler (child:ChildType, pos:Int)		{ child.parent = null; }
+	private function childRemovedHandler (child:ChildType, pos:Int)		{ if (child != null) { child.parent = null; } }
 	
 	private function childAddedHandler (child:ChildType, pos:Int)
 	{
@@ -209,9 +210,9 @@ class TileGroup <ChildType:LayoutClient> extends LayoutClient, implements ILayou
 		if (bounds.left != 0)	child.bounds.left	= bounds.left;
 		if (bounds.top != 0)	child.bounds.top	= bounds.top;
 	}
-	
+
 	
 #if debug
-	override public function toString() { return "TileGroup"; }
+	override public function toString () { return "LayoutTileContainer( "+super.toString() + " ) - "+children; }
 #end
 }
