@@ -52,6 +52,7 @@ interface ISkin implements ISprite, implements IDisposable
 	
 	
 	public function init ()					: Void;
+	
 	private function createLayout ()		: Void;
 	private function createStates ()		: Void;
 	private function createBehaviours ()	: Void;

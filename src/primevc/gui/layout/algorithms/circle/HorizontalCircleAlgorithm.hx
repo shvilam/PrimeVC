@@ -166,7 +166,7 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 				angle	= (childAngle * i);
 				pos		= start + Std.int( radius * Math.cos(angle + startRadians) );
 				
-				trace("PI: " + Math.PI + ", angle " + angle+ "; childAngle: "+childAngle+"; start: "+startRadians);
+			//	trace("PI: " + Math.PI + ", angle " + angle+ "; childAngle: "+childAngle+"; start: "+startRadians);
 				var halfChildWidth	= Std.int( child.bounds.width * .5 );
 				var doCenter		= pos.isWithin( radius - halfChildWidth, radius + halfChildWidth );
 				

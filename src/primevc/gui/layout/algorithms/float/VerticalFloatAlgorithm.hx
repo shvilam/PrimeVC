@@ -129,18 +129,28 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 		
 		if (childHeight.notSet())
 		{
+			var percentHeight:Float = 0;
 			var i:Int = 0;
+			
 			for (child in group.children) {
 				if (!child.includeInLayout)
 					continue;
 				
-				height += child.bounds.height;
+				if (child.percentHeight > 0)
+					percentHeight += child.percentHeight;
+				else
+					height += child.bounds.height;
 				
 				//only count even children
 				if (i % 2 == 0)
 					halfHeight += child.bounds.height;
-				
 				i++;
+			}
+			
+			if (percentHeight > 0)
+			{
+				var groupHeight = group.is(AdvancedLayoutClient) ? group.as(AdvancedLayoutClient).explicitHeight : group.height;
+				height += Std.int( groupHeight * percentHeight / 100 );
 			}
 		}
 		else
@@ -310,7 +320,7 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 	{
 		var start = direction == Vertical.top ? "top" : "bottom";
 		var end = direction == Vertical.top ? "bottom" : "top";
-		return "float.ver ( " + start + " -> " + end + " ) ";
+		return group + ".Float.ver ( " + start + " -> " + end + " ) ";
 	}
 #end
 }

@@ -4,7 +4,7 @@
 
 -swf9 tmp.swf
 -swf-version 10
--swf-header 1000:750:31
+-swf-header 1000:750:25
 
 --flash-strict
 -cp generated-src

@@ -48,7 +48,7 @@ interface ILayoutClient implements IDisposable
 	/**
 	 * Flags of properties that are changed
 	 */
-	public var changes (default, setChanges)				: Int;
+	public var changes						(default, setChanges)			: Int;
 	/**
 	 * Flag indicating if the layout should be automaticly revalidated when a 
 	 * property, such as height or width, is changed.
@@ -59,21 +59,23 @@ interface ILayoutClient implements IDisposable
 	 * 
 	 * @default false
 	 */
-	public var validateOnPropertyChange						: Bool;
+	public var validateOnPropertyChange										: Bool;
 	
 	
 	/**
 	 * Flag indicating if this client should be included within the layout
 	 * @default	true
 	 */
-	public var includeInLayout(default, setIncludeInLayout)	: Bool;
+	public var includeInLayout				(default, setIncludeInLayout)	: Bool;
 	
 	/**
 	 * Layout-group to which this client belongs. By setting this property,
 	 * the client can let the parent know when it's size or position has
 	 * changed wich could result in revalidating the parents layout.
 	 */
-	public var parent (default, setParent)					: ILayoutContainer<Dynamic>;
+	public var parent						(default, setParent)			: ILayoutContainer<Dynamic>;
+	
+	public var isValidating					(getIsValidating, never)		: Bool;
 	
 	
 	//
@@ -164,17 +166,40 @@ interface ILayoutClient implements IDisposable
 	//
 	
 	/**
-	 * Propertie will return the explicitWidth when it's set and otherwise the
-	 * measuredWidth.
-	 * Setting this property will set the explicitWidth.
+	 * Width of the LayoutClient. Changing the width will also change the width
+	 * property in 'bounds'.
 	 */
 	public var width (getWidth, setWidth)			: Int;
 	/**
-	 * Propertie will return the explicitHeight when it's set and otherwise the
-	 * measuredHeight.
-	 * Setting this property will set the explicitHeight.
+	 * Width of the LayoutClient. Changing the width will also change the height
+	 * property in 'bounds'.
 	 */
 	public var height (getHeight, setHeight)		: Int;
+	
+	/**
+	 * If percent width is set, the width of the layoutclient will be 
+	 * calculated by the width of the parent layoutContainer. This property
+	 * also allow an object to fill up the available space by setting the 
+	 * property to LayoutFlags.FILL.
+	 * 
+	 * The width of the percentWidth will be calculated when the layoutclient
+	 * is measured.
+	 * 
+	 * @default		0
+	 */
+	public var percentWidth			(default, setPercentWidth)			: Float;
+	/**
+	 * If percent height is set, the height of the layoutclient will be 
+	 * calculated by the height of the parent layoutContainer. This property
+	 * also allow an object to fill up the available space by setting the 
+	 * property to LayoutFlags.FILL.
+	 * 
+	 * The height of the percentHeight will be calculated when the layoutclient
+	 * is measured.
+	 * 
+	 * @default		0
+	 */
+	public var percentHeight		(default, setPercentHeight)			: Float;
 	
 	/**
 	 * Padding is the distance between the content of the layout and the rest
@@ -183,7 +208,7 @@ interface ILayoutClient implements IDisposable
 	 * The property contains 4 values to define the padding for each side of 
 	 * the layout.
 	 * 
-	 * The x&y properties contain the position of the content, the properties
+	 * The x and y properties contain the position of the content, the properties
 	 * bottom and right contain the position including the padding.
 	 * 
 	 * For example.
@@ -194,7 +219,7 @@ interface ILayoutClient implements IDisposable
 	 * 		- y			60
 	 * 		- padding	{ 10, 10, 10, 10 }
 	 * 
-	 * The left, right, top and bottom properties should then be:
+	 * The left, right, top and bottom properties of the bounds should then be:
 	 * 		- left:		50
 	 * 		- top:		60
 	 * 		- right:	470 (400 + 50 + 20)
@@ -211,4 +236,9 @@ interface ILayoutClient implements IDisposable
 	public var y		(default, setY)			: Int;
 	
 	public var bounds	(default, null)			: ConstrainedRect;
+	
+	
+#if debug
+	public function readChanges () : String;
+#end
 }

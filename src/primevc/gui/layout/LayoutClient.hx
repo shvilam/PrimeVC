@@ -32,10 +32,12 @@ package primevc.gui.layout;
  import primevc.core.geom.constraints.ConstrainedRect;
  import primevc.core.geom.constraints.SizeConstraint;
  import primevc.core.states.SimpleStateMachine;
+ import primevc.core.Number;
  import primevc.gui.events.LayoutEvents;
  import primevc.gui.states.LayoutStates;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
+  using primevc.utils.IntUtil;
   using primevc.utils.TypeUtil;
 
 
@@ -68,6 +70,7 @@ class LayoutClient implements ILayoutClient
 	
 	
 	public var states				(default, null)						: SimpleStateMachine < LayoutStates >;
+	public var isValidating			(getIsValidating, never)			: Bool;
 	
 	
 	//
@@ -83,6 +86,8 @@ class LayoutClient implements ILayoutClient
 	public var height				(getHeight, setHeight)				: Int;
 		private var _height 		(default, null)						: ConstrainedInt;
 	
+	public var percentWidth			(default, setPercentWidth)			: Float;
+	public var percentHeight		(default, setPercentHeight)			: Float;
 	
 	public var padding				(default, setPadding)				: Box;
 	
@@ -98,7 +103,7 @@ class LayoutClient implements ILayoutClient
 		name = "LayoutClient" + counter++;
 #end
 		this.validateOnPropertyChange	= validateOnPropertyChange;
-		(untyped this).includeInLayout	= true;
+	//	(untyped this).includeInLayout	= true;
 		maintainAspectRatio				= false;
 		
 		states	= new SimpleStateMachine( LayoutStates.validated );
@@ -107,10 +112,17 @@ class LayoutClient implements ILayoutClient
 		_width	= new ConstrainedInt();
 		_height	= new ConstrainedInt();
 		
+		percentWidth	= 0;
+		percentHeight	= 0;
+		includeInLayout	= true;
+		
 		setX		.on( bounds.props.left.change, this );
 		setY		.on( bounds.props.top.change, this );
 		updateWidth	.on( bounds.size.xProp.change, this );
 		updateHeight.on( bounds.size.yProp.change, this );
+		
+		changes = changes.set(Flags.X_CHANGED);
+		changes = changes.set(Flags.Y_CHANGED);
 	}
 	
 	
@@ -127,7 +139,9 @@ class LayoutClient implements ILayoutClient
 			relative = null;
 		}
 		
-		sizeConstraint = null;		//do not dispose him. Sizeconstraints instances can be used across several clients.
+		sizeConstraint	= null;		//do not dispose him. Sizeconstraints instances can be used across several clients.
+		percentWidth	= 0;
+		percentHeight	= 0;
 		_width	= null;
 		_height	= null;
 		bounds	= null;
@@ -164,10 +178,8 @@ class LayoutClient implements ILayoutClient
 		if (changes == 0 || states.current ==  null)
 			return;
 		
-		if (states.is(LayoutStates.measuring) || states.is(LayoutStates.validating)) {
-			measure();
+		if (isValidating)
 			return;
-		}
 		
 		if (parent == null || !parent.childInvalidated(changes))
 		{
@@ -195,13 +207,15 @@ class LayoutClient implements ILayoutClient
 	}
 	
 	
-	public function measureHorizontal () {
+	public function measureHorizontal ()
+	{
 		if (changes.has(Flags.WIDTH_CHANGED))
 			bounds.setWidth( width + getHorPadding() );
 	}
 	
 	
-	public function measureVertical () {
+	public function measureVertical ()
+	{
 		if (changes.has(Flags.HEIGHT_CHANGED))
 			bounds.setHeight( height + getVerPadding() );
 	}
@@ -251,19 +265,21 @@ class LayoutClient implements ILayoutClient
 	private inline function getVerPadding() : Int	{ return padding == null ? 0 : padding.top + padding.bottom; }
 	
 	
+	private inline function getIsValidating () : Bool {
+		var validating = states.is(LayoutStates.measuring) || states.is(LayoutStates.validating);
+		if (!validating && parent != null)
+			validating = parent.isValidating;
+		return validating;
+	}
+	
 	
 	
 	//
 	// BOUNDARY SETTERS
 	//
 	
-	
-	private inline function updateWidth (v) {
-		width = v - getHorPadding();
-	}
-	private inline function updateHeight (v) {
-		height = v - getVerPadding();
-	}
+	private inline function updateWidth (v:Int)		{ width = v - getHorPadding(); }
+	private inline function updateHeight (v:Int)	{ height = v - getVerPadding(); }
 	
 	
 	
@@ -298,8 +314,8 @@ class LayoutClient implements ILayoutClient
 	// SIZE GETTERS / SETTERS
 	//
 	
-	private inline function getWidth ()		:Int { return _width.value; }
-	private inline function getHeight ()	:Int { return _height.value; }
+	private inline function getWidth ()		: Int { return _width.value; }
+	private inline function getHeight ()	: Int { return _height.value; }
 	
 	
 	private function setWidth (v:Int) : Int
@@ -312,9 +328,8 @@ class LayoutClient implements ILayoutClient
 			var newH:Int	= maintainAspectRatio ? Std.int(_width.value / aspectRatio) : height;
 			bounds.setWidth( _width.value + getHorPadding() );
 			
-			if (maintainAspectRatio && newH != height) {
+			if (maintainAspectRatio && newH != height)
 				height = newH; //will trigger the height constraints
-			}
 			
 			invalidate( Flags.WIDTH_CHANGED );
 		}
@@ -332,15 +347,35 @@ class LayoutClient implements ILayoutClient
 			var newW:Int	= maintainAspectRatio ? Std.int(_height.value * aspectRatio) : width;	
 			bounds.setHeight( _height.value + getVerPadding() );
 			
-			if (maintainAspectRatio && newW != width) {
+			if (maintainAspectRatio && newW != width)
 				width = newW; //will trigger the width constraints
-			}
 			
 			invalidate( Flags.HEIGHT_CHANGED );
 		}
 		return _height.value;
 	}
 	
+	
+	private inline function setPercentWidth (v)
+	{
+		if (v != percentWidth)
+		{
+			percentWidth = v;
+			invalidate( Flags.WIDTH_CHANGED );
+		}
+		return v;
+	}
+	
+	
+	private inline function setPercentHeight (v)
+	{
+		if (v != percentHeight)
+		{
+			percentHeight = v;
+			invalidate( Flags.HEIGHT_CHANGED );
+		}
+		return v;
+	}
 	
 	
 	
@@ -401,9 +436,10 @@ class LayoutClient implements ILayoutClient
 	{
 		if (sizeConstraint != v)
 		{
-			if (sizeConstraint != null) {
-				_width.constraint = null;
-				_height.constraint = null;
+			if (sizeConstraint != null)
+			{
+				_width.constraint	= null;
+				_height.constraint	= null;
 				
 				sizeConstraint.width.change.unbind(this);
 				sizeConstraint.height.change.unbind(this);
@@ -412,9 +448,10 @@ class LayoutClient implements ILayoutClient
 			sizeConstraint = v;
 			invalidateSizeConstraint();
 		
-			if (sizeConstraint != null) {
-				_width.constraint = sizeConstraint.width;
-				_height.constraint = sizeConstraint.height;
+			if (sizeConstraint != null)
+			{
+				_width.constraint	= sizeConstraint.width;
+				_height.constraint	= sizeConstraint.height;
 			
 				_width.validateValue.on( sizeConstraint.width.change, this );
 				_height.validateValue.on( sizeConstraint.height.change, this );
@@ -488,21 +525,26 @@ class LayoutClient implements ILayoutClient
 	
 	
 #if debug
-	public function readChanges ()
+	public inline function readChanges ()
 	{
-		var output = [];
+		var output	= [];
+		var result	= "none";
 		
-		if (changes.has( Flags.WIDTH_CHANGED ))			output.push("width");
-		if (changes.has( Flags.HEIGHT_CHANGED ))		output.push("height");
-		if (changes.has( Flags.X_CHANGED ))				output.push("x");
-		if (changes.has( Flags.Y_CHANGED ))				output.push("y");
-		if (changes.has( Flags.INCLUDE_CHANGED ))		output.push("include_in_layout");
-		if (changes.has( Flags.RELATIVE_CHANGED ))		output.push("relative_properties");
-		if (changes.has( Flags.LIST_CHANGED ))			output.push("list");
-		if (changes.has( Flags.CHILDREN_INVALIDATED ))	output.push("children_invalidated");
-		if (changes.has( Flags.ALGORITHM_CHANGED ))		output.push("algorithm");
-		
-		return "changes: "+output.join(", ");
+		if (changes > 0)
+		{
+			if (changes.has( Flags.WIDTH_CHANGED ))				output.push("width");
+			if (changes.has( Flags.HEIGHT_CHANGED ))			output.push("height");
+			if (changes.has( Flags.X_CHANGED ))					output.push("x");
+			if (changes.has( Flags.Y_CHANGED ))					output.push("y");
+			if (changes.has( Flags.INCLUDE_CHANGED ))			output.push("include_in_layout");
+			if (changes.has( Flags.RELATIVE_CHANGED ))			output.push("relative_properties");
+			if (changes.has( Flags.LIST_CHANGED ))				output.push("list");
+			if (changes.has( Flags.CHILDREN_INVALIDATED ))		output.push("children_invalidated");
+			if (changes.has( Flags.ALGORITHM_CHANGED ))			output.push("algorithm");
+			if (changes.has( Flags.SIZE_CONSTRAINT_CHANGED ))	output.push("size constraint");
+			result = output.join(", ");
+		}
+		return "changes: " + result;
 	}
 	
 	public static var counter:Int = 0;

@@ -90,6 +90,16 @@ class Window implements IDisplayContainer, implements IInteractiveObject
 	}
 	
 	
+	public function invalidate ()
+	{
+#if flash9
+		target.invalidate();
+#end
+		displayEvents.render.send();
+	}
+	
+	
+	
 	//
 	// IINTERACTIVE OBJECT PROPERTIES
 	//

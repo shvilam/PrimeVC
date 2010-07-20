@@ -88,11 +88,13 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 	 */
 	private var writeTo : FastList<IBindable<DataType>>;
 	
-	public function new( val:DataType )
+	
+	public function new (val:DataType)
 	{
 		change = new Signal1();
 		value  = val;
 	}
+	
 	
 	public function dispose ()
 	{
@@ -137,6 +139,7 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 		return newValue;
 	}
 	
+	
 	/**
 	 * Makes sure this.value is (and remains) equal
 	 * to otherBindable's value.
@@ -153,6 +156,7 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 		untyped otherBindable.keepUpdated(this);
 	}
 	
+	
 	private inline function registerBoundTo(otherBindable)
 	{
 		if (boundTo == null)
@@ -160,6 +164,7 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 		
 		addToBoundList(boundTo, otherBindable);
 	}
+	
 	
 	private inline function addToBoundList<T>(list:FastList<T>, otherBindable:T)
 	{
@@ -174,6 +179,7 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 		if (list != null)
 			list.add(otherBindable);
 	}
+	
 	
 	/**
 	 * @see IBindableReadonly
@@ -192,6 +198,7 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 		addToBoundList(writeTo, otherBindable);
 	}
 	
+	
 	/** 
 	 * Makes sure this Bindable and otherBindable always have the same value.
 	 * 
@@ -204,6 +211,7 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 		untyped otherBindable.keepUpdated(this);
 		keepUpdated(otherBindable);
 	}
+	
 	
 	/**
 	 * @see IBindableReadonly
@@ -228,6 +236,9 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 		return removed;
 	}
 }
+
+
+
 
 class BindableTools
 {

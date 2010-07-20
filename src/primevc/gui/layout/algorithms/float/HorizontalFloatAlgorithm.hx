@@ -127,23 +127,33 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	 */
 	public function measureHorizontal ()
 	{
-		var width:Int	= halfWidth = 0;
+		var width:Int = halfWidth = 0;
 		
 		if (childWidth.notSet())
 		{
+			var percentWidth:Float = 0;
 			var i:Int = 0;
 			
 			for (child in group.children) {
 				if (!child.includeInLayout)
 					continue;
 				
-				width += child.bounds.width;
+				if (child.percentHeight > 0)
+					percentWidth += child.percentWidth;
+				else
+					width += child.bounds.width;
 				
 				//only count even children
 				if (i % 2 == 0)
 					halfWidth += child.bounds.width;
 				
 				i++;
+			}
+
+			if (percentWidth > 0)
+			{
+				var groupWidth = group.is(AdvancedLayoutClient) ? group.as(AdvancedLayoutClient).explicitWidth : group.width;
+				width += Std.int( groupWidth * percentWidth / 100 );
 			}
 		}
 		else
@@ -311,7 +321,7 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	{
 		var start	= direction == Horizontal.left ? "left" : "right";
 		var end		= direction == Horizontal.left ? "right" : "left";
-		return "float.hor " + start + " -> " + end;
+		return group + ".Float.hor " + start + " -> " + end;
 	}
 #end
 }

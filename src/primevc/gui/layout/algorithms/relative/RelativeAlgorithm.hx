@@ -47,7 +47,7 @@ package primevc.gui.layout.algorithms.relative;
  */
 class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 {
-	public function isInvalid (changes:Int)
+	public inline function isInvalid (changes:Int)
 	{
 		return changes.has( LayoutFlags.WIDTH_CHANGED ) 
 				|| changes.has( LayoutFlags.HEIGHT_CHANGED )
@@ -57,9 +57,32 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 	}
 	
 	
-	public function measure () {}
-	public function measureHorizontal () {}
-	public function measureVertical () {}
+	public inline function measure ()
+	{
+		var childProps	: RelativeLayout;
+		var childBounds	: ConstrainedRect;
+		var padding = group.padding;
+		
+		
+		for (child in group.children)
+		{
+			if (child.relative == null || !child.includeInLayout)
+				continue;
+			
+			childProps	= child.relative;
+			childBounds	= child.bounds;
+			
+			if (childProps.left.isSet() && childProps.right.isSet())
+				child.bounds.width	= group.bounds.right - padding.right - padding.left - childProps.right - childProps.left;
+			
+			if (childProps.top.isSet() && childProps.bottom.isSet())
+				child.bounds.height	= group.bounds.bottom - padding.bottom - padding.top - childProps.bottom - childProps.top;
+		}
+	}
+	
+	
+	public inline function measureHorizontal () {}
+	public inline function measureVertical () {}
 	
 	
 	public function apply ()
@@ -77,16 +100,11 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 			childBounds	= child.bounds;
 			
 			
-			
 			//
 			//apply horizontal
 			//
 			
-			if (childProps.left.isSet() && childProps.right.isSet()) {
-				child.bounds.left	= padding.left + childProps.left;
-				child.bounds.width	= group.bounds.right - padding.right - padding.left - childProps.right - childProps.left;
-			}
-			else if (childProps.left.isSet())		child.bounds.left	= padding.left + childProps.left;
+			if		(childProps.left.isSet())		child.bounds.left	= padding.left + childProps.left;
 			else if (childProps.right.isSet())		child.bounds.right	= group.bounds.right - padding.right - childProps.right;
 			else if (childProps.hCenter.isSet())	child.bounds.left	= Std.int( ( group.bounds.width - child.bounds.width ) * .5 );		
 			
@@ -96,13 +114,17 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 			//apply vertical
 			//
 			
-			if (childProps.top.isSet() && childProps.bottom.isSet()) {
-				child.bounds.top	= padding.top + childProps.top;
-				child.bounds.height	= group.bounds.bottom - padding.bottom - padding.top - childProps.bottom - childProps.top;
-			}
-			else if (childProps.top.isSet())		child.bounds.top	= padding.top + childProps.top;
+			if		(childProps.top.isSet())		child.bounds.top	= padding.top + childProps.top;
 			else if (childProps.bottom.isSet())		child.bounds.bottom	= group.bounds.bottom - padding.bottom - childProps.bottom;
 			else if (childProps.vCenter.isSet())	child.bounds.top	= Std.int( ( group.bounds.height - child.bounds.height ) * .5 );
 		}
 	}
+
+
+#if debug
+	public function toString ()
+	{
+		return group + ".RelativeAlgorithm ( " + group.bounds.width + " -> " + group.bounds.height + " ) ";
+	}
+#end
 }

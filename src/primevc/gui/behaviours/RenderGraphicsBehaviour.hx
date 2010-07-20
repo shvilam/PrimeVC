@@ -26,52 +26,71 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.layout;
-
+package primevc.gui.behaviours;
+ import primevc.core.dispatcher.Wire;
+ import primevc.gui.core.ISkin;
+  using primevc.utils.Bind;
 
 
 /**
- * LayoutContainer without a display-object owning the layout-container. This
- * means that the position of the container should be added to the position of
- * all it's children.
- * 
- * @example
- * 		var box		= new VirtualLayoutContainer();
- * 		var tile1	= new Tile();
- * 		var tile2	= new Tile();
- * 		box.children.add( tile1.layout );
- * 		box.children.add( tile2.layout);
- * 
- * 		tile1.layout.x = 50;
- * 		tile2.layout.y = 120;
- *		box.x = 300;
- *		box.y = 10;
- * 
- *	 - the x of tile1 should now be tile1.layout.x + box.x = 350
- *	 - the y of tile1 should now be tile1.layout.y + box.y = 10
- *	 - the x of tile2 should now be tile2.layout.x + box.x = 300
- *	 - the y of tile2 should now be tile2.layout.y + box.y = 130
+ * Class description
  * 
  * @author Ruben Weijers
- * @creation-date Jul 14, 2010
+ * @creation-date Jul 16, 2010
  */
-class VirtualLayoutContainer extends LayoutContainer
+class RenderGraphicsBehaviour extends BehaviourBase < ISkin >
 {
-#if debug
-	public function new ()
+	private var renderBinding : Wire <Dynamic>;
+	
+	
+	override private function init ()
 	{
-		super();
-		name = "VirtualLayoutContainer";
+		if (target.skinState.current == target.skinState.initialized)
+			initGraphics();
+		else
+			initGraphics.onceOn( target.skinState.initialized.entering, this );
 	}
-#end
 	
 	
-	override public function invalidate (change)
+	override private function reset ()
 	{
-		super.invalidate(change);
 		
-		if (change == LayoutFlags.X_CHANGED || change == LayoutFlags.Y_CHANGED)
-			for (child in children)
-				child.invalidate(change);
+	}
+	
+	
+	private inline function initGraphics ()
+	{
+	//	trace("init render behaviour "+target+" in "+target.skinState.current);
+		if (target.layout != null) {
+#if flash9
+			invalidateWindow.on( target.layout.events.sizeChanged, this );
+#else
+			renderTarget.on( target.layout.events.sizeChanged, this );
+#end
+		}
+	}
+	
+	
+	private function invalidateWindow ()
+	{
+		if (target.displayList == null)
+			return;
+		
+	//	trace("invalidateWindow "+target);
+		target.displayList.window.invalidate();
+		renderBinding = renderTarget.on( target.displayEvents.render, this );
+	//	target.render.on( target.displayEvents.enterFrame, this );
+	}
+	
+	
+	private function renderTarget ()
+	{
+		if (renderBinding != null) {
+			renderBinding.dispose();
+			renderBinding = null;
+		}
+		trace("render "+target+" size: "+target.layout.bounds.width+", "+target.layout.bounds.height);
+		target.displayEvents.render.unbind( this );
+		target.render();
 	}
 }

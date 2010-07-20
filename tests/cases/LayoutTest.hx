@@ -62,20 +62,19 @@ class LayoutAppSkin extends Skin < LayoutTest >
 	
 	
 	public function new ()
-	{	
-		name = "ResizableBox";
+	{
 		super();
-		render.on( layout.events.sizeChanged, this );
+#if debug
+		id = "ResizableBox";
+#end
+	//	render.on( layout.events.sizeChanged, this );
 	}
 	
 	override private function createLayout ()
 	{
 		layout = new LayoutContainer();
-#if debug
-		layout.name = name + "Layout";
-#end
-		layout.width	= 600;
-		layout.height	= 500;
+		layout.width	= 800;
+		layout.height	= 650;
 		layout.padding	= new Box( 5 );
 		layoutGroup.algorithm = new RelativeAlgorithm();
 	}
@@ -87,44 +86,102 @@ class LayoutAppSkin extends Skin < LayoutTest >
 		behaviours.add( new ResizeFromCornerBehaviour(this) );
 	}
 	
-	
 	override private function createChildren ()
 	{
 		trace("create children");
-		var frame1				= new Frame();
-		frame1.layout.height	= 100;
-		frame1.layout.relative	= new RelativeLayout( 5, 5, -100000, 5 );
+		var frame1						= new TileList();
+		var frame1Alg					= new FixedTileAlgorithm();
+		frame1Alg.maxTilesInDirection	= 5;
+		frame1Alg.startDirection		= Direction.vertical;
+		frame1Alg.horizontalDirection	= Horizontal.right;
+		frame1Alg.verticalDirection		= Vertical.bottom;
+		frame1.layoutGroup.algorithm	= frame1Alg;
+		frame1.layout.height			= 100;
+		frame1.layout.relative			= new RelativeLayout( 5, 5, -100000, 5 );
 		
 		var frame2				= new TileList();
-		frame2.layout.width		= 400;
-		frame2.layout.relative	= new RelativeLayout( frame1.layout.bounds.bottom + 5, -100000, 5, 5 );
+		var frame2Alg			= new DynamicLayoutAlgorithm(
+			new HorizontalCircleAlgorithm( Horizontal.left ),
+			new VerticalCircleAlgorithm( Vertical.top )
+		);
+		frame2.layout.relative			= new RelativeLayout( frame1.layout.bounds.bottom + 5, -100000, 5, 5 );
+		frame2.layout.percentWidth		= 58;
+		frame2.layoutGroup.algorithm	= frame2Alg;
 		
-		var frame3				= new Frame();
-		frame3.layout.width		= 200;
-		frame3.layout.height	= 200;
+		var frame3						= new TileList();
+		var frame3Alg					= new DynamicTileAlgorithm();
+		frame3.layoutGroup.algorithm	= frame3Alg;
+		frame3.layout.percentWidth		= 100;
+		frame3.layout.percentHeight		= 60;
 		
-		var frame4				= new Frame();
-		frame4.layout.width		= 200;
-		frame4.layout.height	= 200;
-	//	frame4.layout.relative	= new RelativeLayout( frame3.layout.bounds.bottom + 5, 5, 5, frame2.layout.bounds.right + 5 );
+		var frame4						= new Frame();
+		frame4.layout.percentWidth		= 33;
+		frame4.layout.percentHeight		= 100;
 		
-		var box					= new VirtualLayoutContainer();
-		box.relative			= new RelativeLayout( frame1.layout.bounds.bottom + 5, 5, 5, frame2.layout.bounds.right + 5 );
-		var a = new VerticalFloatAlgorithm();
-		a.direction = Vertical.bottom;
-		box.algorithm			= a;
+		var frame5						= new Frame();
+		frame5.layout.percentWidth		= 33;
+		frame5.layout.percentHeight		= 100;
+		
+		var frame6						= new Frame();
+		frame6.layout.percentWidth		= 33;
+		frame6.layout.percentHeight		= 100;
+		
+		var frame7						= new Frame();
+		frame7.layout.percentWidth		= 60;
+		frame7.layout.percentHeight		= 5;
+		
+		var frame8						= new Frame();
+		frame8.layout.percentWidth		= 100;
+		frame8.layout.percentHeight		= 20;
+		
+		
+		var box1				= new VirtualLayoutContainer();
+		var box1Alg				= new VerticalFloatAlgorithm();
+		box1Alg.direction		= Vertical.bottom;
+		box1.relative			= new RelativeLayout( frame1.layout.bounds.bottom + 5, 5, 5, -100000 );
+		box1.percentWidth		= 40;
+		box1.algorithm			= box1Alg;
+		
+		var box2				= new VirtualLayoutContainer();
+		box2.algorithm			= new HorizontalFloatAlgorithm();
+		box2.percentWidth		= 100;
+		box2.percentHeight	 	= 15;
+		
+#if debug
+		frame1.id = "frame1";
+		frame2.id = "frame2";
+		frame3.id = "frame3";
+		frame4.id = "frame4";
+		frame5.id = "frame5";
+		frame6.id = "frame6";
+		frame7.id = "frame7";
+		frame8.id = "frame8";
+		
+		box1.name	= "VirtualMainBox";
+		box2.name	= "VirtualSubBox";
+#end
 		
 		layoutGroup.children.add( frame1.layout );
 		layoutGroup.children.add( frame2.layout );
-		layoutGroup.children.add( box );
+		layoutGroup.children.add( box1 );
 		
-		box.children.add( frame3.layout );
-		box.children.add( frame4.layout );
+		box1.children.add( frame3.layout );
+		box1.children.add( box2 );
+		box1.children.add( frame7.layout );
+		box1.children.add( frame8.layout );
+		
+		box2.children.add( frame4.layout );
+		box2.children.add( frame5.layout );
+		box2.children.add( frame6.layout );
 		
 		children.add(frame2);
 		children.add(frame1);
 		children.add(frame3);
 		children.add(frame4);
+		children.add(frame5);
+		children.add(frame6);
+		children.add(frame7);
+		children.add(frame8);
 	}
 	
 	
@@ -132,12 +189,9 @@ class LayoutAppSkin extends Skin < LayoutTest >
 	{
 		var l = layout.bounds;
 		var g = graphics;
-		trace("render " + name + ": " + l.width + ", " + l.height);
 		g.clear();
 		g.lineStyle(3, 0x00, 1);
-	//	g.beginFill( 0x00 );
 		g.drawRect( 3, 3, l.width - 6, l.height - 6 );
-	//	g.endFill();
 	}
 }
 
@@ -155,8 +209,10 @@ class TileList extends Frame
 	
 	public function new ()
 	{
-		name = "TilesOwner";
 		super();
+#if debug
+		id = "TilesOwner";
+#end
 	}
 	
 	override private function createBehaviours ()
@@ -169,17 +225,14 @@ class TileList extends Frame
 	override private function createLayout ()
 	{
 		layout = new LayoutContainer();
-#if debug
-		layout.name = name + "Layout";
-#end
 	//	layout.x = 50;
 	//	layout.y = 10;
 		layout.padding = new Box(30);
 	//	layout.maintainAspectRatio = true;
 	//	layout.sizeConstraint = new SizeConstraint(500, 800, 200, 800);
 	//	layout.sizeConstraint = new SizeConstraint(300, Number.NOT_SET, 200, Number.NOT_SET);
-	
-		trace("createLayout of " + name);
+		
+		trace("createLayout of " + this);
 	/*/
 		layoutGroup.algorithm = new DynamicLayoutAlgorithm(
 			new HorizontalFloatAlgorithm( Horizontal.center ),
@@ -194,7 +247,7 @@ class TileList extends Frame
 		fixedTiles.verticalDirection	= Vertical.top;
 		layoutGroup.algorithm = fixedTiles;
 	//*/
-	//*/	
+	/*/
 		dynamicTiles = new DynamicTileAlgorithm();
 		dynamicTiles.startDirection			= Direction.vertical;
 		dynamicTiles.horizontalDirection	= Horizontal.right;
@@ -214,10 +267,10 @@ class TileList extends Frame
 	//	layoutGroup.algorithm.childHeight		= 60;
 	//	layoutGroup.algorithm.childWidth		= 60;
 		
-		layoutGroup.width	= 400;
-		layoutGroup.height	= 400;
+	//	layoutGroup.width	= 400;
+	//	layoutGroup.height	= 400;
 		
-		render.on( layout.events.sizeChanged, this );
+	//	render.on( layout.events.sizeChanged, this );
 	}
 	
 	
@@ -225,7 +278,7 @@ class TileList extends Frame
 	{
 		var l = layout.bounds;
 		var g = graphics;
-		trace("render "+name+": "+l.width+", "+l.height);
+		trace("render "+id+": "+l.width+", "+l.height);
 		g.clear();
 		g.beginFill( 0xaaaaaa );
 		g.drawRect( 0, 0, l.width, l.height );
@@ -273,13 +326,12 @@ class Tile extends Skin < Tile >
 	private var color		: UInt;
 	private var isHovered	: Bool;
 	
-	public function new (name)
+	public function new ()
 	{
 		isHovered	= false;
-		this.name	= name;
+		color		= Math.round( Math.random() * 0xffffff );
 		super();
-		color	= Math.round( Math.random() * 0xffffff );
-		render.on( layout.events.sizeChanged, this );
+	//	render.on( layout.events.sizeChanged, this );
 	}
 	
 	
@@ -288,7 +340,6 @@ class Tile extends Skin < Tile >
 		var l		 = layout.bounds;
 		var g		 = graphics;
 		
-		trace("render " + name + ": " + l.width + ", " + l.height);
 		g.clear();
 		
 		if (isHovered) {
@@ -296,7 +347,7 @@ class Tile extends Skin < Tile >
 			g.beginFill( 0xffffff, 0 );
 			g.drawRect( 2, 2, l.width - 4, l.height - 4 );
 		} else {
-			g.beginFill( color, .4 );
+			g.beginFill( color, .7 );
 			g.drawRect( 0, 0, l.width, l.height );
 		}
 		
@@ -316,14 +367,11 @@ class Tile extends Skin < Tile >
 	
 	override private function createLayout () {
 		layout			= new LayoutClient();
-#if debug
-		layout.name = name + "Layout";
-#end
-		layout.width	= 50 + Std.int(150 * Math.random());
-		layout.height	= 30 + Std.int(40 * Math.random());
+		layout.width	= 20; //50 + Std.int(150 * Math.random());
+		layout.height	= 20; //30 + Std.int(40 * Math.random());
 	}
 	
-	
+#if debug
 	override private function createChildren () {
 		textField = new TextField();
 		textField.text = name;
@@ -332,44 +380,21 @@ class Tile extends Skin < Tile >
 		textField.mouseEnabled = false;
 		children.add( textField );
 	}
-	
-#if debug
-	override public function toString() { return name; }
 #end
 }
 
 
 
 
-class Button extends Skin < Button >
+class Button extends Tile
 {
 	public function new ()
-	{	
-		name = "button";
+	{
 		super();
-		render.on( layout.events.sizeChanged, this );
-	}
-	
-	override private function createLayout ()
-	{
-		layout			= new LayoutClient();
+		color = 0x00;
 #if debug
-		layout.name = name + "Layout";
+		id = "button";
 #end
-		layout.width	= 40;
-		layout.height	= 40;
-	}
-	
-
-	override public function render ()
-	{
-		var l = layout.bounds;
-		var g = graphics;
-		trace("render " + name + ": " + l.width + ", " + l.height);
-		g.clear();
-		g.beginFill( 0x00 );
-		g.drawRect( 0, 0, l.width, l.height );
-		g.endFill();
 	}
 }
 
@@ -379,31 +404,41 @@ class Button extends Skin < Button >
 
 class Frame extends Skin < Box >
 {	
-	private var color : UInt;
+	public var textField	: TextField;
+	private var color 		: UInt;
 	
 	public function new ()
-	{	
-		name = "frame";
+	{
 		super();
+#if debug
+		id = "frame";
+#end
 		color = Math.round( Math.random() * 0xffffff );
-		render.on( layout.events.sizeChanged, this );
 	}
 	
 	
 	override private function createLayout ()
 	{
 		layout = new LayoutClient();
-#if debug
-		layout.name	= name + "Frame";
-#end
 	}
+
+	
+#if debug
+	override private function createChildren () {
+		textField = new TextField();
+		textField.text = name;
+		textField.autoSize = flash.text.TextFieldAutoSize.LEFT;
+		textField.setTextFormat( new TextFormat("Verdana", 15, 0x00 ) );
+		textField.mouseEnabled = false;
+		children.add( textField );
+	}
+#end
 	
 	
 	override public function render ()
 	{
 		var l = layout.bounds;
 		var g = graphics;
-		trace("render " + name + ": " + l.width + ", " + l.height);
 		g.clear();
 		g.beginFill(0xffffff, 0);
 		g.lineStyle(3, color, 1);
@@ -425,7 +460,7 @@ class TileListBehaviour extends BehaviourBase <TileList>
 	}
 	
 	private function createBeginTiles () {
-		for ( i in 0...4 )
+		for ( i in 0...150 )
 			addTile();
 	}
 
@@ -436,7 +471,10 @@ class TileListBehaviour extends BehaviourBase <TileList>
 			return;
 		
 		var num = target.numChildren;
-		var child = new Tile("Tile" + num);
+		var child = new Tile();
+#if debug
+		child.id = "Tile" + num;
+#end
 		child.doubleClickEnabled = true;
 		target.layoutGroup.children.add( child.layout );
 	//	child.behaviours.add( new TileBehaviour( child ) );
@@ -514,9 +552,11 @@ class ResizeFromCornerBehaviour extends BehaviourBase <ISkin>
 	{
 		if (startLocation != null)
 			return;
+		haxe.Log.clear();
 		trace("startResize ");
 		
-	//	dragBtn.startDrag();
+		dragBtn.layout.includeInLayout = false;
+		dragBtn.startDrag();
 		dragBtn.userEvents.mouse.down.unbind( this );
 		stopResize	.on( dragBtn.displayList.window.userEvents.mouse.up, this );
 		doResize	.on( dragBtn.displayList.window.userEvents.mouse.move, this );
@@ -525,13 +565,14 @@ class ResizeFromCornerBehaviour extends BehaviourBase <ISkin>
 	}
 	
 	
-	private function stopResize (e)
+	private function stopResize (mouse:MouseState)
 	{
 		trace("stopResize");
-//		dragBtn.stopDrag();
-		
+		dragBtn.stopDrag();
+		dragBtn.layout.includeInLayout = true;
+	//	doResize( mouse );
 		dragBtn.displayList.window.userEvents.mouse.up	.unbind(this);
-		dragBtn.displayList.window.userEvents.mouse		.unbind(this);
+		dragBtn.displayList.window.userEvents.mouse.move.unbind(this);
 		
 		startResize.on( dragBtn.userEvents.mouse.down, this );
 		startLocation = null;

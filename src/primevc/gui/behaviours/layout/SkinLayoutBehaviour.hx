@@ -45,6 +45,15 @@ package primevc.gui.behaviours.layout;
  */
 class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 {
+	/**
+	 * Reference to the last used enterFrame binding. If the state of a 
+	 * layoutclient changes to parentInvalidated, this enterFrame binding
+	 * should be removed.
+	 */
+	private var enterFrameBinding	: Wire <Dynamic>;
+	private var renderBinding		: Wire <Dynamic>;
+	
+	
 	override private function init ()
 	{
 		if (target.displayList == null) {
@@ -64,13 +73,6 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 			target.layout.states.change.unbind( this );
 	}
 	
-	
-	/**
-	 * Reference to the last used enterFrame binding. If the state of a 
-	 * layoutclient changes to parentInvalidated, this enterFrame binding
-	 * should be removed.
-	 */
-	private var enterFrameBinding : Wire <Dynamic>;
 	
 	private function layoutStateChangeHandler (oldState:LayoutStates, newState:LayoutStates)
 	{
@@ -113,15 +115,34 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 			return;
 		
 		layoutStateChangeHandler.on( target.layout.states.change, this );
+#if flash9
+		invalidateWindow		.on( target.layout.events.posChanged, this );
+#else
 		applyPosition			.on( target.layout.events.posChanged, this );
+#end
 		
 		//trigger the event handler for the current state as well
 		layoutStateChangeHandler( null, target.layout.states.current );
 	}
 	
 	
+	private inline function invalidateWindow ()
+	{
+		if (target.displayList == null)
+			return;
+		
+		trace("invalidateWindow "+target);
+		target.displayList.window.invalidate();
+		renderBinding = applyPosition.on( target.displayEvents.render, this );
+	}
+	
+	
 	private function applyPosition ()
 	{
+		if (renderBinding != null) {
+			renderBinding.dispose();
+			renderBinding = null;
+		}
 		var l = target.layout;
 		trace("applyPosition " + target.name + " / " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y);
 	//	target.width	= l.width;

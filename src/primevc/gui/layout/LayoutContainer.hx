@@ -92,15 +92,17 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	
 	override public function measure ()
 	{
-		if (changes == 0 || states.is(LayoutStates.measuring))
+		if (changes == 0)
 			return;
 		
-		if ((explicitWidth.isSet() && explicitWidth <= 0) || (explicitHeight.isSet() && explicitHeight <= 0)) {
-			trace(this + ".ignore measure.. size is negative "+explicitWidth+", "+explicitHeight);
+		if ((explicitWidth.isSet() && explicitWidth <= 0) || (explicitHeight.isSet() && explicitHeight <= 0))
 			return;
-		}
 		
 		states.current = LayoutStates.measuring;
+		
+		//set percentage size for children if there's a explicit size
+		if (explicitWidth.isSet())		setWidthPercentages(explicitWidth);
+		if (explicitHeight.isSet())		setHeightPercentages(explicitHeight);
 		
 		for (child in children)
 			child.measure();
@@ -138,6 +140,30 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	//
 	
 	
+	override private function setWidth (v:Int)
+	{
+		var oldV = width;
+		var newV = super.setWidth(v);
+		
+		if (newV != oldV && isValidating)
+			setWidthPercentages(newV);
+		
+		return newV;
+	}
+	
+	
+	override private function setHeight (v:Int)
+	{
+		var oldV = height;
+		var newV = super.setHeight(v);
+		
+		if (newV != oldV && isValidating)
+			setHeightPercentages(newV);
+		
+		return newV;
+	}
+	
+	
 	private inline function setAlgorithm (v:ILayoutAlgorithm)
 	{
 		if (v != algorithm)
@@ -157,6 +183,34 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		}
 		return v;
 	}
+	
+	
+	private inline function setWidthPercentages (width:Int)
+	{
+		for (child in children)
+		{
+			if ((changes.has(LayoutFlags.WIDTH_CHANGED) || child.changes.has(LayoutFlags.WIDTH_CHANGED))
+			 		&& child.percentWidth > 0 
+					&& child.percentWidth != LayoutFlags.FILL
+				) {
+				child.bounds.width = Std.int(width * child.percentWidth / 100);
+			}
+		}
+	}
+	
+	
+	private inline function setHeightPercentages (height:Int)
+	{
+		for (child in children) {
+			if ((changes.has(LayoutFlags.HEIGHT_CHANGED) || child.changes.has(LayoutFlags.HEIGHT_CHANGED))
+					&& child.percentHeight > 0
+					&& child.percentHeight != LayoutFlags.FILL
+				) {
+				child.bounds.height = Std.int(height * child.percentHeight / 100);
+			}
+		}
+	}
+	
 	
 	
 	//

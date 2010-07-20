@@ -100,8 +100,11 @@ class LayoutAlgorithmBase implements IDisposable
 	
 	private inline function setGroupHeight (h:Int)
 	{
-		if (group.is(AdvancedLayoutClient))
-			group.as(AdvancedLayoutClient).measuredHeight = h;
+		if (group.is(AdvancedLayoutClient)) {
+			var container = group.as(AdvancedLayoutClient);
+			if (container.explicitHeight != h)
+				container.measuredHeight = h;
+		}
 		else
 			group.height = h;
 	}
@@ -109,8 +112,11 @@ class LayoutAlgorithmBase implements IDisposable
 	
 	private inline function setGroupWidth (w:Int)
 	{
-		if (group.is(AdvancedLayoutClient))
-			group.as(AdvancedLayoutClient).measuredWidth = w;
+		if (group.is(AdvancedLayoutClient)) {
+			var container = group.as(AdvancedLayoutClient);
+			if (container.explicitWidth != w)
+				container.measuredWidth = w;
+		}
 		else
 			group.width = w;
 	}

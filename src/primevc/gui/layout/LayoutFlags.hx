@@ -37,34 +37,41 @@ package primevc.gui.layout;
  */
 class LayoutFlags 
 {
-	public static inline var WIDTH_CHANGED				= 1;
-	public static inline var HEIGHT_CHANGED				= 2;
-	public static inline var X_CHANGED					= 4;
-	public static inline var Y_CHANGED					= 8;
+	public static inline var WIDTH_CHANGED				: Int = 1;
+	public static inline var HEIGHT_CHANGED				: Int = 2;
+	public static inline var X_CHANGED					: Int = 4;
+	public static inline var Y_CHANGED					: Int = 8;
 	/**
 	 * Flag indicating the includeInLayout property has changed
 	 */
-	public static inline var INCLUDE_CHANGED			= 16;
+	public static inline var INCLUDE_CHANGED			: Int = 16;
 	/**
 	 * The relative property or properties of the relative object are changed.
 	 */
-	public static inline var RELATIVE_CHANGED			= 32;
+	public static inline var RELATIVE_CHANGED			: Int = 32;
 	/**
 	 * Flag indicating that when the list with children of a layoutgroup have 
 	 * changed.
 	 */
-	public static inline var LIST_CHANGED				= 64;
+	public static inline var LIST_CHANGED				: Int = 64;
 	/**
 	 * Flag indicating that the children of the layout algorithm have changed.
 	 */
-	public static inline var CHILDREN_INVALIDATED		= 128;
+	public static inline var CHILDREN_INVALIDATED		: Int = 128;
 	/**
 	 * Flag indicating that a property of the layout algorithm is changed and
 	 * the layout needs to be validated again.
 	 */
-	public static inline var ALGORITHM_CHANGED			= 256;
+	public static inline var ALGORITHM_CHANGED			: Int = 256;
 	/**
 	 * Flag indicating that the size-constraint of the layout-client is changed
 	 */
-	public static inline var SIZE_CONSTRAINT_CHANGED	= 512;
+	public static inline var SIZE_CONSTRAINT_CHANGED	: Int = 512;
+	
+	
+	/**
+	 * Property is not meant as a flag but to incicate that a layout-client.
+	 * percentage property is set to fill the left space
+	 */
+	public static inline var FILL						: Int = 2147483647;
 }

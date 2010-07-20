@@ -38,12 +38,15 @@ package primevc.core;
  */
 class Application
 {
+		
 	public static inline function startup (ApplicationType:Class<Application>)
 	{
-#if ( MonsterTrace )
+#if (debug && MonsterTrace)
 		haxe.Log.trace = doTrace;
 #end
+#if debug
 		trace("started " + ApplicationType + "!");
+#end
 		
 #if flash9
 		var stage		= flash.Lib.current.stage;
@@ -70,14 +73,23 @@ class Application
 	// MONSTERDEBUGGER SUPPORT
 	//
 	
+#if (debug && MonsterTrace)
+	private static inline function getClassName (infos : haxe.PosInfos) : String {
+		return infos.className.split(".").pop(); //infos.fileName;
+	}
 	
-#if MonsterTrace
+	
+	private static inline function getTraceColor (name:String) : Int {
+		var length	= name.length; // - 3; // remove .hx
+		return name.charCodeAt(0) * name.charCodeAt( length >> 1 ) * name.charCodeAt( length - 1 );
+	}
+	
+
 	static var monster = new nl.demonsters.debugger.MonsterDebugger(flash.Lib.current);
 
 	static function doTrace (v : Dynamic, ?infos : haxe.PosInfos) {
-		var name	= infos.className.split(".").pop(); //infos.fileName;
-		var length	= name.length; // - 3; // remove .hx
-		var color	= name.charCodeAt(0) * name.charCodeAt( length >> 1 ) * name.charCodeAt( length - 1 );
+		var name	= getClassName( infos );
+		var color	= getTraceColor( name );
 		nl.demonsters.debugger.MonsterDebugger.trace(name +':' + infos.lineNumber +'\t -> ' + infos.methodName, v, color);
 	}
 #end

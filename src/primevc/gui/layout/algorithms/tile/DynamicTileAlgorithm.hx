@@ -211,6 +211,8 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		var group			= group.as(LayoutContainer);
 		var measureGroups	= false;
 		
+		trace(group+".measure - "+group.readChanges() + " - startDirection: "+startDirection+"; explicitWidth: "+group.explicitWidth+"; measuredWidth: "+group.measuredWidth);
+		
 		//
 		//create a new tile map if it removed
 		//
@@ -242,6 +244,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		
 		//resize all rows
 		else if (group.changes.has(LayoutFlags.WIDTH_CHANGED) && startDirection == horizontal && group.explicitWidth.isSet()) {
+			trace("group width has changed! "+group);
 			measureGroups = true;
 			for (tileGroup in tileGroups)
 				tileGroup.width = group.explicitWidth;
@@ -249,6 +252,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		
 		//resize all columns
 		else if (group.changes.has(LayoutFlags.HEIGHT_CHANGED) && startDirection == vertical && group.explicitHeight.isSet()) {
+			trace("group height has changed! "+group);
 			measureGroups = true;
 			for (tileGroup in tileGroups)
 				tileGroup.height = group.explicitHeight;
@@ -260,7 +264,8 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		if (group.changes.has(LayoutFlags.LIST_CHANGED) || measureGroups)
 		{
 			var groupItr = tileGroups.iterator();
-			
+			trace("group list is changed!");
+			trace(tileGroups);
 			//check each tileGroup for changes in the list or in the width of the children
 			for (tileGroup in groupItr)
 			{
@@ -415,6 +420,7 @@ private class DynamicRowAlgorithm extends HorizontalFloatAlgorithm
 		var groupSize		= group.width;
 		var fullChildNum	= -1;			//counter to count all the children that didn't fit in the group
 		
+		trace(group+".measuring - "+group.width);
 		//TileContainers children are changed.
 		//Check the group to see if the width is bigger then the maxWidth
 		for (child in children)
@@ -422,6 +428,7 @@ private class DynamicRowAlgorithm extends HorizontalFloatAlgorithm
 			//check if the child will still fit in this row
 			if (fullChildNum >= 0 || groupSize < child.bounds.width)
 			{
+				trace(group+" is full "+groupSize+"; nextChild: "+child.bounds.width);
 				//move child to the next list
 				if (children.length > 1) {
 					fullChildNum++;
