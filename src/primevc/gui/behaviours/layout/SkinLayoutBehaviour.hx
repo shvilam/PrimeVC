@@ -131,7 +131,7 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 		if (target.displayList == null)
 			return;
 		
-		trace("invalidateWindow "+target);
+	//	trace("invalidateWindow "+target);
 		target.displayList.window.invalidate();
 		renderBinding = applyPosition.on( target.displayEvents.render, this );
 	}

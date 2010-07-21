@@ -156,10 +156,7 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 		invalidate(false);
 		
 		if (horAlgorithm != null) {
-			horAlgorithm.group			= group;
-			horAlgorithm.childWidth		= childWidth;
-			horAlgorithm.childHeight	= childHeight;
-			
+			horAlgorithm.group = group;
 			algorithmChanged.send.on( horAlgorithm.algorithmChanged, this );
 		}
 		return v;
@@ -177,10 +174,7 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 		invalidate(false);
 		
 		if (verAlgorithm != null) {
-			verAlgorithm.group			= group;
-			verAlgorithm.childWidth		= childWidth;
-			verAlgorithm.childHeight	= childHeight;
-			
+			verAlgorithm.group = group;
 			algorithmChanged.send.on( verAlgorithm.algorithmChanged, this );
 		}
 		return v;
@@ -205,25 +199,6 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 			verAlgorithm.direction	= v;
 			invalidate(false);
 		}
-		return v;
-	}
-	
-	
-	override private function setChildWidth (v)
-	{
-		v = super.setChildWidth(v);
-		
-		if (horAlgorithm != null)	horAlgorithm.childWidth = v;
-		if (verAlgorithm != null)	verAlgorithm.childWidth = v;
-		return v;
-	}
-	
-	
-	override private function setChildHeight (v)
-	{
-		v = super.setChildHeight(v);
-		if (horAlgorithm != null)	horAlgorithm.childHeight = v;
-		if (verAlgorithm != null)	verAlgorithm.childHeight = v;
 		return v;
 	}
 }

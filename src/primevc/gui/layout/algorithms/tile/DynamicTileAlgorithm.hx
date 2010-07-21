@@ -135,6 +135,8 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		var group					= group.as(LayoutContainer);
 		tileGroup.algorithm			= childAlgorithm;
 		tileGroup.padding			= childPadding;
+		tileGroup.childWidth		= group.childWidth;
+		tileGroup.childHeight		= group.childHeight;
 #if debug
 		tileGroup.name				= "row" + tileGroups.children.length;
 #end

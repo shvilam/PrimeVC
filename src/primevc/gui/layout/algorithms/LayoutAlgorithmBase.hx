@@ -28,7 +28,6 @@
  */
 package primevc.gui.layout.algorithms;
  import primevc.core.dispatcher.Signal0;
- import primevc.core.Number;
  import primevc.core.IDisposable;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.ILayoutContainer;
@@ -44,9 +43,6 @@ package primevc.gui.layout.algorithms;
  */
 class LayoutAlgorithmBase implements IDisposable
 {
-	public var childWidth				(default, setChildWidth)	: Int;
-	public var childHeight				(default, setChildHeight)	: Int;
-	
 	public var algorithmChanged 		(default, null)				: Signal0;
 	public var group					(default, setGroup)			: ILayoutContainer<LayoutClient>;
 	
@@ -54,8 +50,6 @@ class LayoutAlgorithmBase implements IDisposable
 	public function new()
 	{
 		algorithmChanged	= new Signal0();
-		childWidth			= Number.NOT_SET;
-		childHeight			= Number.NOT_SET;
 	}
 	
 	
@@ -73,28 +67,6 @@ class LayoutAlgorithmBase implements IDisposable
 	private function setGroup (v)
 	{
 		return group = v;
-	}
-	
-	
-	private function setChildWidth (v)
-	{
-		if (v != childWidth)
-		{
-			childWidth = v;
-			algorithmChanged.send();
-		}
-		return v;
-	}
-	
-	
-	private function setChildHeight (v)
-	{
-		if (v != childHeight)
-		{
-			childHeight = v;
-			algorithmChanged.send();
-		}
-		return v;
 	}
 	
 	

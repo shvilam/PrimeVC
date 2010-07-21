@@ -37,7 +37,7 @@ package primevc.gui.layout;
  */
 interface ILayoutContainer <ChildType:LayoutClient> implements ILayoutClient
 {
-	public var algorithm (default, setAlgorithm)				: ILayoutAlgorithm;
+	public var algorithm			(default, setAlgorithm)		: ILayoutAlgorithm;
 	/**
 	 * Method that is called by a child of the layoutgroup to let the group
 	 * know that the child is changed. The layoutgroup can than decide, based 
@@ -54,5 +54,21 @@ interface ILayoutContainer <ChildType:LayoutClient> implements ILayoutClient
 	/**
 	 * List with all the children of the group
 	 */
-	public var children	(default, null)							: IList<ChildType>;
+	public var children				(default, null)				: IList<ChildType>;
+	
+	
+	/**
+	 * The maximum width of each child. Their orignal width will be ignored if
+	 * the child is bigger then this number (it won't get resized).
+	 * 
+	 * @default		Number.NOT_SET
+	 */
+	public var childWidth			(default, setChildWidth)	: Int;
+	/**
+	 * The maximum height of each child. Their orignal height will be ignored if
+	 * the child is heigher then this number (it won't get resized).
+	 * 
+	 * @default		Number.NOT_SET
+	 */
+	public var childHeight			(default, setChildHeight)	: Int;
 }

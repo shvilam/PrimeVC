@@ -185,6 +185,7 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	 */
 	public function createTileMap () : Void
 	{
+		trace(this + ".createTileMap!");
 		var children		= group.children;
 		var childLen:Int	= children.length;
 		var childNum:Int	= 0;
@@ -219,6 +220,8 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 			{
 				var columnChildren	= new BalancingList<LayoutClient>();
 				var column			= new TileContainer<LayoutClient>( columnChildren );
+				column.childWidth	= group.childWidth;
+				column.childHeight	= group.childHeight;
 				column.algorithm	= childVerAlgorithm;
 #if debug		column.name			= "column"+columns.children.length;		#end
 				verticalMap.addList( columnChildren );
@@ -244,6 +247,8 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	{
 		var rowChildren	= new ChainedList<LayoutClient>( maxTilesInDirection );
 		var row			= new TileContainer<LayoutClient>( rowChildren);
+		row.childWidth	= group.childWidth;
+		row.childHeight	= group.childHeight;
 #if debug
 		row.name		= "row"+rows.children.length;
 #end
@@ -324,6 +329,7 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	override public function measure () : Void
 	{
 		Assert.that( maxTilesInDirection.isSet(), "maxTilesInDirection should have been set" );
+		trace(this+".measure ");
 		
 		if (group.children.length == 0)
 			return;

@@ -86,7 +86,7 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 	 */
 	public inline function isInvalid (changes:Int)	: Bool
 	{
-		return changes.has( LayoutFlags.HEIGHT_CHANGED ) && childHeight.notSet();
+		return changes.has( LayoutFlags.HEIGHT_CHANGED ) && group.childHeight.notSet();
 	}
 	
 	
@@ -102,9 +102,9 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 	
 	public inline function measureHorizontal ()
 	{
-		var width:Int = childWidth;
+		var width:Int = group.childWidth;
 		
-		if (childWidth.notSet())
+		if (group.childWidth.notSet())
 		{
 			for (child in group.children)
 				if (child.includeInLayout && child.bounds.width > width)
@@ -119,7 +119,7 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 	{
 		var height:Int = 0;
 		
-		if (childHeight.notSet())
+		if (group.childHeight.notSet())
 		{
 			for (child in group.children)
 				if (child.includeInLayout)
@@ -127,7 +127,7 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 		}
 		else
 		{
-			height = childHeight * (group.children.length.divCeil(2) + 1);
+			height = group.childHeight * (group.children.length.divCeil(2) + 1);
 		}
 		
 		setGroupHeight(height);

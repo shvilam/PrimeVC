@@ -53,11 +53,16 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 	public var algorithm	(default, setAlgorithm)			: ILayoutAlgorithm;
 	public var children		(default, null)					: IList<ChildType>;
 	
+	public var childWidth	(default, setChildWidth)		: Int;
+	public var childHeight	(default, setChildHeight)		: Int;
+	
 	
 	public function new( list:IList<ChildType> = null )
 	{
 		super();
 		children	= list == null ? new ArrayList<ChildType>() : list;
+		childWidth	= Number.NOT_SET;
+		childHeight	= Number.NOT_SET;
 		
 		childAddedHandler.on( children.events.added, this );
 		childRemovedHandler.on( children.events.removed, this );
@@ -89,6 +94,7 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 	public function childInvalidated (childChanges:Int) : Bool
 	{
 		var r = false;
+		algorithm.group = cast this;
 		if (childChanges.has(LayoutFlags.LIST_CHANGED) || (algorithm != null && algorithm.isInvalid(childChanges)))
 		{
 			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
@@ -189,6 +195,28 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 				algorithmChangedHandler.on( algorithm.algorithmChanged, this );
 				algorithm.group = cast this;
 			}
+		}
+		return v;
+	}
+
+
+	private inline function setChildWidth (v)
+	{
+		if (v != childWidth)
+		{
+			childWidth = v;
+			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
+		}
+		return v;
+	}
+
+
+	private inline function setChildHeight (v)
+	{
+		if (v != childHeight)
+		{
+			childHeight = v;
+			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
 		}
 		return v;
 	}

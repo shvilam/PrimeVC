@@ -240,5 +240,6 @@ interface ILayoutClient implements IDisposable
 	
 #if debug
 	public function readChanges () : String;
+	public var name:String;
 #end
 }
