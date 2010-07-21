@@ -87,7 +87,7 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 	 */
 	public inline function isInvalid (changes:Int)	: Bool
 	{
-		return changes.has( LayoutFlags.WIDTH_CHANGED ) && childWidth.notSet();
+		return changes.has( LayoutFlags.WIDTH_CHANGED ) && group.childWidth.notSet();
 	}
 	
 	
@@ -103,9 +103,9 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 	
 	public inline function measureVertical ()
 	{
-		var height:Int = childHeight;
+		var height:Int = group.childHeight;
 		
-		if (childHeight.notSet())
+		if (group.childHeight.notSet())
 		{
 			for (child in group.children)
 				if (child.includeInLayout && child.bounds.height > height)
@@ -123,7 +123,7 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 	{
 		var width:Int = 0;
 		
-		if (childWidth.notSet())
+		if (group.childWidth.notSet())
 		{
 			for (child in group.children)
 				if (child.includeInLayout)
@@ -131,7 +131,7 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 		}
 		else
 		{
-			width = childWidth * (group.children.length.divCeil(2) + 1);
+			width = group.childWidth * (group.children.length.divCeil(2) + 1);
 		}
 		
 		setGroupWidth(width);

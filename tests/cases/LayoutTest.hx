@@ -91,9 +91,9 @@ class LayoutAppSkin extends Skin < LayoutTest >
 	
 	override private function createChildren ()
 	{
-		var frame1						= new TileList();
+		var frame1						= new TileList( true );
 		var frame1Alg					= new FixedTileAlgorithm();
-		frame1Alg.maxTilesInDirection	= 5;
+		frame1Alg.maxTilesInDirection	= 4;
 		frame1Alg.startDirection		= Direction.vertical;
 		frame1Alg.horizontalDirection	= Horizontal.right;
 		frame1Alg.verticalDirection		= Vertical.bottom;
@@ -101,16 +101,16 @@ class LayoutAppSkin extends Skin < LayoutTest >
 		frame1.layout.height			= 100;
 		frame1.layout.relative			= new RelativeLayout( 5, 5, -100000, 5 );
 		
-		var frame2				= new TileList();
-		var frame2Alg			= new DynamicLayoutAlgorithm(
+		var frame2						= new TileList(true);
+		var frame2Alg					= new DynamicLayoutAlgorithm(
 			new HorizontalCircleAlgorithm( Horizontal.left ),
 			new VerticalCircleAlgorithm( Vertical.top )
 		);
+		frame2.layoutGroup.algorithm	= frame2Alg;
 		frame2.layout.relative			= new RelativeLayout( frame1.layout.bounds.bottom + 5, -100000, 5, 5 );
 		frame2.layout.percentWidth		= 58;
-		frame2.layoutGroup.algorithm	= frame2Alg;
 		
-		var frame3						= new TileList();
+		var frame3						= new TileList(true);
 		var frame3Alg					= new DynamicTileAlgorithm();
 		frame3.layoutGroup.algorithm	= frame3Alg;
 		frame3.layout.percentWidth		= 100;
@@ -205,13 +205,15 @@ class TileList extends Frame
 {
 	private var fixedTiles		: FixedTileAlgorithm;
 	private var dynamicTiles	: DynamicTileAlgorithm;
+	public var dynamicSizes		: Bool;
 	
 	public var layoutGroup (getLayoutGroup, null)	: LayoutContainer;
 		private inline function getLayoutGroup ()	{ return layout.as( LayoutContainer ); }
 	
 	
-	public function new ()
-	{
+	public function new (?dynamicSizes = false)
+	{	
+		this.dynamicSizes = dynamicSizes;
 		super();
 #if debug
 		id = "TilesOwner";
@@ -229,6 +231,11 @@ class TileList extends Frame
 	{
 		layout = new LayoutContainer();
 		layout.padding = new Box(30);
+		
+		if (!dynamicSizes) {
+			layoutGroup.childWidth	= 20;
+			layoutGroup.childHeight	= 20;
+		}
 	}
 }
 
@@ -242,11 +249,13 @@ class Tile extends Skin < Tile >
 #end
 	private var color		: UInt;
 	private var isHovered	: Bool;
+	private var dynamicSize	: Bool;
 	
-	public function new ()
+	public function new (?dynamicSize = false)
 	{
 		isHovered	= false;
 		color		= Math.round( Math.random() * 0xffffff );
+		this.dynamicSize	= dynamicSize;
 		super();
 	}
 	
@@ -263,7 +272,7 @@ class Tile extends Skin < Tile >
 			g.beginFill( 0xffffff, 0 );
 			g.drawRect( 2, 2, l.width - 4, l.height - 4 );
 		} else {
-			g.beginFill( color, .7 );
+			g.beginFill( color );
 			g.drawRect( 0, 0, l.width, l.height );
 		}
 		
@@ -275,7 +284,6 @@ class Tile extends Skin < Tile >
 	
 	
 	override private function createBehaviours () {
-	//	behaviours.add( cast new TileBehaviour( this ) );
 		highlight.on( userEvents.mouse.rollOver, this );
 		normallity.on( userEvents.mouse.rollOut, this );
 	}
@@ -283,8 +291,13 @@ class Tile extends Skin < Tile >
 	
 	override private function createLayout () {
 		layout			= new LayoutClient();
-		layout.width	= 20; //50 + Std.int(150 * Math.random());
-		layout.height	= 20; //30 + Std.int(40 * Math.random());
+		if (dynamicSize) {
+			layout.width	= 20 + Std.int(30 * Math.random());
+			layout.height	= 20 + Std.int(30 * Math.random());
+		} else {
+			layout.width	= 20;
+			layout.height	= 20;
+		}
 	}
 	
 #if debug
@@ -389,13 +402,12 @@ class TileListBehaviour extends BehaviourBase <TileList>
 			return;
 		
 		var num = target.numChildren;
-		var child = new Tile();
+		var child = new Tile(target.dynamicSizes);
 #if debug
 		child.id = "Tile" + num;
 #end
 		child.doubleClickEnabled = true;
 		target.layoutGroup.children.add( child.layout );
-	//	child.behaviours.add( new TileBehaviour( child ) );
 		removeTile.onceOn( child.userEvents.mouse.doubleClick, this );
 		target.children.add( child );
 	}
@@ -404,32 +416,8 @@ class TileListBehaviour extends BehaviourBase <TileList>
 	private function removeTile (event:MouseState)
 	{
 		var tile:Tile = event.target.as(Tile);
-		trace("removeTile "+tile);
 		target.layoutGroup.children.remove( tile.layout );
-	//	target.removeChild( tile );
 		tile.dispose();
-	}
-}
-
-
-
-
-class TileBehaviour extends BehaviourBase <Tile>
-{
-	override private function init () {
-	//	resize.on( target.userEvents.mouse.rollOver, this );
-	//	remove.on( target.userEvents.mouse.doubleClick, this );
-	}
-	
-	
-	override private function reset () {
-		target.userEvents.mouse.unbind( this );
-	}
-	
-	
-	private function resize () {
-		trace("resize");
-		target.layout.width += 5;
 	}
 }
 

@@ -93,7 +93,7 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	 */
 	public inline function isInvalid (changes:Int)	: Bool
 	{
-		return changes.has( LayoutFlags.WIDTH_CHANGED ) && childWidth.notSet();
+		return changes.has( LayoutFlags.WIDTH_CHANGED ) && group.childWidth.notSet();
 	}
 	
 	
@@ -109,10 +109,11 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	
 	public inline function measureVertical ()
 	{
-		var height:Int = childHeight;
+		var height:Int = group.childHeight;
 		
-		if (childHeight.notSet())
+		if (group.childHeight.notSet())
 		{
+			height = 0;
 			for (child in group.children)
 				if (child.includeInLayout && child.bounds.height > height)
 					height = child.bounds.height;
@@ -129,7 +130,7 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	{
 		var width:Int = halfWidth = 0;
 		
-		if (childWidth.notSet())
+		if (group.childWidth.notSet())
 		{
 			var percentWidth:Float = 0;
 			var i:Int = 0;
@@ -158,8 +159,8 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 		}
 		else
 		{
-			width		= childWidth * group.children.length;
-			halfWidth	= childWidth * group.children.length.divCeil(2);
+			width		= group.childWidth * group.children.length;
+			halfWidth	= group.childWidth * group.children.length.divCeil(2);
 		}
 		
 		setGroupWidth(width);
@@ -183,7 +184,7 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 			var next = getLeftStartValue();
 		
 			//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
-			if (childWidth.notSet())
+			if (group.childWidth.notSet())
 			{
 				for (child in group.children) {
 					if (!child.includeInLayout)
@@ -200,7 +201,7 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 						continue;
 					
 					child.bounds.left	 = next;
-					next				+= childWidth;
+					next				+= group.childWidth;
 				}
 			}
 		}
@@ -216,7 +217,7 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 			evenPos = oddPos = halfWidth + getLeftStartValue();
 		
 			//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
-			if (childWidth.notSet())
+			if (group.childWidth.notSet())
 			{
 				for (child in group.children) {
 					if (!child.includeInLayout)
@@ -243,11 +244,11 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 					if (i % 2 == 0) {
 						//even
 						child.bounds.right	 = evenPos;
-						evenPos				-= childWidth;
+						evenPos				-= group.childWidth;
 					} else {
 						//odd
 						child.bounds.left	 = oddPos;
-						oddPos				+= childWidth;
+						oddPos				+= group.childWidth;
 					}
 					i++;
 				}
@@ -263,7 +264,7 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 			var next = getRightStartValue();
 		
 			//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
-			if (childWidth.notSet())
+			if (group.childWidth.notSet())
 			{
 				for (child in group.children) {
 					if (!child.includeInLayout)
@@ -275,13 +276,13 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 			}
 			else
 			{
-				next -= childWidth;
+				next -= group.childWidth;
 				for (child in group.children) {
 					if (!child.includeInLayout)
 						continue;
 					
 					child.bounds.left	= next;
-					next				= child.bounds.left - childWidth;
+					next				= child.bounds.left - group.childWidth;
 				}
 			}
 		}

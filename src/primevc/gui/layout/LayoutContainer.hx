@@ -30,6 +30,7 @@ package primevc.gui.layout;
  import primevc.core.collections.ArrayList;
  import primevc.core.collections.IList;
  import primevc.core.geom.Box;
+ import primevc.core.Number;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.states.LayoutStates;
  import primevc.utils.FastArray;
@@ -51,12 +52,18 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	public var algorithm	(default, setAlgorithm)		: ILayoutAlgorithm;
 	public var children		(default, null)				: IList<LayoutClient>;
 	
+	public var childWidth	(default, setChildWidth)	: Int;
+	public var childHeight	(default, setChildHeight)	: Int;
+	
 	
 	public function new ()
 	{
 		super();
 		padding		= new Box(0, 0);
 		children	= new ArrayList<LayoutClient>();
+		
+		childWidth	= Number.NOT_SET;
+		childHeight	= Number.NOT_SET;
 		
 		childAddedHandler.on( children.events.added, this );
 		childRemovedHandler.on( children.events.removed, this );
@@ -250,6 +257,28 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 				child.bounds.height = heightPerChild;
 			}
 		}
+	}
+
+
+	private inline function setChildWidth (v)
+	{
+		if (v != childWidth)
+		{
+			childWidth = v;
+			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
+		}
+		return v;
+	}
+
+
+	private inline function setChildHeight (v)
+	{
+		if (v != childHeight)
+		{
+			childHeight = v;
+			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
+		}
+		return v;
 	}
 	
 	

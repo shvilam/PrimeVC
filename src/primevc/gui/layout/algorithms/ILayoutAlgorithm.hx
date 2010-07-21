@@ -48,23 +48,6 @@ interface ILayoutAlgorithm implements IDisposable
 	
 	
 	/**
-	 * The maximum width of each child. Their orignal width will be ignored if
-	 * the child is bigger then this number (it won't get resized).
-	 * 
-	 * @default		Number.NOT_SET
-	 */
-	public var childWidth		(default, setChildWidth)	: Int;
-	/**
-	 * The maximum height of each child. Their orignal height will be ignored if
-	 * the child is heigher then this number (it won't get resized).
-	 * 
-	 * @default		Number.NOT_SET
-	 */
-	public var childHeight		(default, setChildHeight)	: Int;
-	
-	
-	
-	/**
 	 * Method indicating if the size is invalidated or not.
 	 */
 	public function isInvalid (changes:Int)					: Bool;
