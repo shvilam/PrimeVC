@@ -44,7 +44,8 @@ private typedef TargetType =
  * Window is wrapper class for the stage. It provides each Sprite and Shape 
  * with the ability to talk with the stage in a platform-indepedent way.
  * 
- * @author Ruben Weijers
+ * @author Ruben Weijer
+ * s
  * @creation-date Jul 13, 2010
  */
 class Window implements IDisplayContainer, implements IInteractiveObject
@@ -66,12 +67,12 @@ class Window implements IDisplayContainer, implements IInteractiveObject
 		displayEvents		= new DisplayEvents( target );
 		userEvents			= new UserEvents( target );
 		
-		layout				= new LayoutContainer();
-		layout.algorithm	= new RelativeAlgorithm();
 #if flash9
-		layout.width		= target.stageWidth;
-		layout.height		= target.stageHeight;
+		layout				= new primevc.avm2.layout.StageLayout( target );
+#else
+		layout				= new LayoutContainer();
 #end
+		layout.algorithm	= new RelativeAlgorithm();
 	}
 	
 	

@@ -26,40 +26,45 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.core;
- import haxe.FastList;
- import primevc.core.IDisposable;
- import primevc.gui.behaviours.IBehaviour;
- import primevc.gui.display.ISprite;
- import primevc.gui.layout.LayoutClient;
- import primevc.gui.states.SkinStates;
+package primevc.gui.events;
+ import primevc.core.dispatcher.Signals;
+ import primevc.core.dispatcher.Signal1;
+ import primevc.gui.behaviours.dragdrop.DragSource;
 
 
 /**
- * Interface for a skin.
+ * Event-signals which are fired when an object is being dragged and dropped.
  * 
  * @author Ruben Weijers
- * @creation-date Jun 08, 2010
+ * @creation-date Jul 21, 2010
  */
-interface ISkin implements ISprite, implements IDisposable
+class DragEvents extends Signals
 {
-	public var skinState		(default, null)		: SkinStates;
 	
-//	public var owner			(default, setOwner) : OwnerClass;
-	public var layout			(default, null)		: LayoutClient;
+	/**
+	 * Dispatched by the object that is being dragged when a drag operation
+	 * starts.
+	 */
+	var start		(default, null)		: Signal1<DragSource>;
 	
-	public var behaviours		: FastList < IBehaviour <Dynamic> >;
+	/**
+	 * Dispatched by the object that is being dragged when a drag operation is
+	 * completed and dropped in a dropTarget.
+	 */
+	var complete	(default, null)		: Signal1<DragSource>;
+	
+	/**
+	 * Dispatched when the drag operation is canceled. This could happen when
+	 * the user releases the dragged object while it's not on a droptarget or
+	 * when the user presses the [esc] key.
+	 */
+	var exit		(default, null)		: Signal1<DragSource>;
 	
 	
-	public function init ()					: Void;
-	
-	private function createLayout ()		: Void;
-	private function createStates ()		: Void;
-	private function createBehaviours ()	: Void;
-	private function createChildren ()		: Void;
-	
-	private function removeStates ()		: Void;
-	private function removeBehaviours ()	: Void;
-	private function removeChildren ()		: Void;
-	
+	public function new ()
+	{
+		start		= new Signal1();
+		complete	= new Signal1();
+		exit		= new Signal1();
+	}
 }

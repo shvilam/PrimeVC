@@ -26,40 +26,41 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours;
- import primevc.gui.core.ISkin;
-  using primevc.utils.Bind;
- 
+package primevc.gui.behaviours.dragdrop;
+ import primevc.gui.display.DisplayList;
+
 
 /**
- * Behaviour which will an UI-element draggable.
+ * DragSource contains all the information about an object that is currenly
+ * dragged.
  * 
- * @creation-date	Jul 8, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Jul 21, 2010
  */
-class DragBehaviour extends BehaviourBase <ISkin>
+class DragSource
 {
-	override private function init ()
+	public var target							: IDraggable;
+	
+	/**
+	 * Displaylist in which the target used to be when the drag operation 
+	 * started.
+	 */
+	public var origDisplayList	(default, null)	: DisplayList;
+	
+	/**
+	 * Depth on which the target was in the displaylist when the drag-operation
+	 * started.
+	 */
+	public var origDepth		(default, null)	: Int;
+	
+	
+	public function new (newTarget)
 	{
-		startDrag.on( target.userEvents.mouse.down, this );
-		stopDrag.on( target.userEvents.mouse.up, this );
-	}
-	
-	
-	override private function reset ()
-	{
-		target.userEvents.mouse.unbind( this );
-	}
-	
-	
-	private function startDrag ()
-	{
-		target.startDrag();
-	}
-	
-	
-	private function stopDrag ()
-	{
-		target.stopDrag();
+		target			= newTarget;
+		
+		if (target.displayList != null) {
+			origDisplayList	= target.displayList;
+			origDepth		= target.displayList.indexOf(cast target);
+		}
 	}
 }

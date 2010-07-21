@@ -26,40 +26,44 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.core;
- import haxe.FastList;
- import primevc.core.IDisposable;
- import primevc.gui.behaviours.IBehaviour;
- import primevc.gui.display.ISprite;
- import primevc.gui.layout.LayoutClient;
- import primevc.gui.states.SkinStates;
+package primevc.gui.events;
+ import primevc.core.dispatcher.Signals;
+ import primevc.core.dispatcher.Signal1;
+ import primevc.gui.behaviours.dragdrop.DragSource;
+
 
 
 /**
- * Interface for a skin.
+ * Events used for objects that accept an object to be dragged in
  * 
  * @author Ruben Weijers
- * @creation-date Jun 08, 2010
+ * @creation-date Jul 21, 2010
  */
-interface ISkin implements ISprite, implements IDisposable
+class DropTargetEvents extends Signals
 {
-	public var skinState		(default, null)		: SkinStates;
+	/**
+	 * Dispatched by the target on which the dragged item is dropped on the
+	 * DropTarget.
+	 */
+	var drop	(default, null) : Signal1 <DragSource>;
 	
-//	public var owner			(default, setOwner) : OwnerClass;
-	public var layout			(default, null)		: LayoutClient;
+	/**
+	 * Dispatched by an object when a IDraggable object is moved over it and
+	 * it's allowed to be dropped on the DropTarget.
+	 */
+	var over	(default, null) : Signal1 <DragSource>;
 	
-	public var behaviours		: FastList < IBehaviour <Dynamic> >;
+	/**
+	 * Dispatched by the DropTarget when an allowed IDraggable object is
+	 * moved out of the DropTarget.
+	 */
+	var out		(default, null) : Signal1 <DragSource>;
 	
 	
-	public function init ()					: Void;
-	
-	private function createLayout ()		: Void;
-	private function createStates ()		: Void;
-	private function createBehaviours ()	: Void;
-	private function createChildren ()		: Void;
-	
-	private function removeStates ()		: Void;
-	private function removeBehaviours ()	: Void;
-	private function removeChildren ()		: Void;
-	
+	public function new ()
+	{
+		drop	= new Signal1();
+		over	= new Signal1();
+		out		= new Signal1();
+	}
 }

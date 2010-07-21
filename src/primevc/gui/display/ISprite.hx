@@ -40,8 +40,7 @@ package primevc.gui.display;
 interface ISprite implements IDisplayContainer, 
 	implements IInteractiveObject, 
 	implements IDisplayObject,
-	implements IDrawable, 
-	implements IDraggable
+	implements IDrawable
 {
 #if flash9
 	var buttonMode														: Bool;

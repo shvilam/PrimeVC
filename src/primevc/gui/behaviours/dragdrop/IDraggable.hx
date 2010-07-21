@@ -26,8 +26,10 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.display;
+package primevc.gui.behaviours.dragdrop;
  import primevc.core.geom.Rectangle;
+ import primevc.gui.display.ISprite;
+ import primevc.gui.events.DragEvents;
 
 
 /**
@@ -36,14 +38,17 @@ package primevc.gui.display;
  * @author Ruben Weijers
  * @creation-date Jul 13, 2010
  */
-interface IDraggable
+interface IDraggable implements ISprite
 {
-	function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) 		: Void;
-	function stopDrag()													: Void;
+	public var dragEvents		(default, null)									: DragEvents;
+	
+	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) 		: Void;
+	public function stopDrag()													: Void;
+	
 	
 #if flash9
-	var dropTarget		(default,null)									: flash.display.DisplayObject;
+	public var dropTarget		(default, null)									: flash.display.DisplayObject;
 #else
-	var dropTarget		(default, null)									: IDisplayObject;
+	public var dropTarget		(default, null)									: IDisplayObject;
 #end
 }

@@ -56,21 +56,35 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 	
 	override private function init ()
 	{
-		if (target.displayList == null) {
-			target.init	.onceOn( target.displayEvents.addedToStage, this );
-			initLayout	.onceOn( target.skinState.constructed.entering, this );
-		}
+		if (target.layout == null)
+			return;
+		
+		layoutStateChangeHandler.on( target.layout.states.change, this );
+#if flash9
+		invalidateWindow		.on( target.layout.events.posChanged, this );
+#else
+		applyPosition			.on( target.layout.events.posChanged, this );
+#end
+		
+		//trigger the event handler for the current state as well
+		layoutStateChangeHandler( null, target.layout.states.current );
 	}
 	
 	
 	override private function reset ()
 	{
-		//unbind the addedToStage eventlistener in case the skin is never added to the stage
-		target.displayEvents.unbind( this );
-		target.skinState.constructed.entering.unbind( this );
+		removeEnterFrameBinding();
 		
-		if (target.layout != null)
-			target.layout.states.change.unbind( this );
+		if (renderBinding != null) {
+			renderBinding.dispose();
+			renderBinding = null;
+		}
+		
+		if (target.layout == null)
+			return;
+		
+		target.layout.states.change.unbind( this );
+		target.layout.events.posChanged.unbind( this );
 	}
 	
 	
@@ -105,27 +119,6 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 	}
 	
 	
-	/**
-	 * Method is called when the skin is constructed. The skin should now have 
-	 * a layout object.
-	 */
-	private function initLayout ()
-	{
-		if (target.layout == null)
-			return;
-		
-		layoutStateChangeHandler.on( target.layout.states.change, this );
-#if flash9
-		invalidateWindow		.on( target.layout.events.posChanged, this );
-#else
-		applyPosition			.on( target.layout.events.posChanged, this );
-#end
-		
-		//trigger the event handler for the current state as well
-		layoutStateChangeHandler( null, target.layout.states.current );
-	}
-	
-	
 	private inline function invalidateWindow ()
 	{
 		if (target.displayList == null)
@@ -144,7 +137,7 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 			renderBinding = null;
 		}
 		var l = target.layout;
-		trace("applyPosition " + target.name + " / " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y);
+	//	trace("applyPosition " + target.name + " / " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y);
 	//	target.width	= l.width;
 	//	target.height	= l.height;
 		target.x		= l.getHorPosition();

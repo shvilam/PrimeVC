@@ -2,7 +2,7 @@ package cases;
 #if debug
  import flash.text.TextField;
  import flash.text.TextFormat;
- import com.elad.optimize.memory.FrameStats;
+// import com.elad.optimize.memory.FrameStats;
 #end
  import primevc.core.geom.constraints.SizeConstraint;
  import primevc.core.geom.Box;
@@ -10,10 +10,12 @@ package cases;
  import primevc.core.Application;
  import primevc.core.Number;
  import primevc.gui.behaviours.dragdrop.DragBehaviour;
+ import primevc.gui.behaviours.dragdrop.IDraggable;
  import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.ISkin;
  import primevc.gui.core.Skin;
+ import primevc.gui.events.DragEvents;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.algorithms.circle.HorizontalCircleAlgorithm;
  import primevc.gui.layout.algorithms.circle.VerticalCircleAlgorithm;
@@ -43,30 +45,30 @@ class LayoutTest extends Application
 {
 	public static function main () { Application.startup( LayoutTest ); }
 	
-#if debug
+/*#if debug
 	private var frameStats : FrameStats;
-#end
+#end*/
 	
 	public function new (target)
 	{
 		super(target);
 		var skin = new LayoutAppSkin();
 		window.children.add( skin );
-#if debug
+/*#if debug
 		frameStats = new FrameStats(skin);
 		window.children.add( frameStats );
 		moveFrameStats.on( window.layout.events.sizeChanged, this );
 		moveFrameStats();
-#end
+#end*/
 	}
 	
-
+/*
 #if debug
 	private function moveFrameStats ()
 	{
 		frameStats.x = window.layout.width - FrameStats.WIDTH;
 	}
-#end
+#end*/
 }
 
 
@@ -240,7 +242,7 @@ class TileList extends Frame
 	override private function createBehaviours ()
 	{
 		behaviours.add( new ClippedLayoutBehaviour(this) );
-		behaviours.add( cast new TileListBehaviour(this) );
+		behaviours.add( new TileListBehaviour(this) );
 	}
 	
 	
@@ -259,7 +261,7 @@ class TileList extends Frame
 
 
 
-class Tile extends Skin < Tile >
+class Tile extends Skin < Tile >, implements IDraggable
 {
 #if debug
 	public var textField	: TextField;
@@ -268,12 +270,16 @@ class Tile extends Skin < Tile >
 	private var isHovered	: Bool;
 	private var dynamicSize	: Bool;
 	
+	public var dragEvents	: DragEvents;
+	
+	
 	public function new (?dynamicSize = false)
 	{
-		isHovered	= false;
-		color		= Math.round( Math.random() * 0xffffff );
+		isHovered			= false;
+		color				= Math.round( Math.random() * 0xffffff );
 		this.dynamicSize	= dynamicSize;
 		super();
+		dragEvents			= new DragEvents();
 	}
 	
 	
@@ -301,6 +307,7 @@ class Tile extends Skin < Tile >
 	
 	
 	override private function createBehaviours () {
+		behaviours.add( new DragBehaviour(this) );
 		highlight.on( userEvents.mouse.rollOver, this );
 		normallity.on( userEvents.mouse.rollOut, this );
 	}

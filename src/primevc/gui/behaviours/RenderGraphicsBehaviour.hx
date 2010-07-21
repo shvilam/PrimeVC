@@ -45,31 +45,27 @@ class RenderGraphicsBehaviour extends BehaviourBase < ISkin >
 	
 	override private function init ()
 	{
-		if (target.skinState.current == target.skinState.initialized)
-			initGraphics();
-		else
-			initGraphics.onceOn( target.skinState.initialized.entering, this );
+			if (target.layout == null)
+				return;
+			
+#if flash9	invalidateWindow.on( target.layout.events.sizeChanged, this );
+#else		renderTarget.on( target.layout.events.sizeChanged, this );
+#end
 	}
 	
 	
 	override private function reset ()
 	{
+		if (target.layout == null)
+			return;
 		
-	}
-	
-	
-	private inline function initGraphics ()
-	{
-	//	trace("init render behaviour "+target+" in "+target.skinState.current);
-		if (target.layout != null) {
-#if flash9
-			invalidateWindow.on( target.layout.events.sizeChanged, this );
-#else
-			renderTarget.on( target.layout.events.sizeChanged, this );
-#end
+		target.layout.events.sizeChanged.unbind(this);
+		if (renderBinding != null) {
+			renderBinding.dispose();
+			renderBinding = null;
 		}
 	}
-	
+		
 	
 	private function invalidateWindow ()
 	{
@@ -89,7 +85,7 @@ class RenderGraphicsBehaviour extends BehaviourBase < ISkin >
 			renderBinding.dispose();
 			renderBinding = null;
 		}
-		trace("render "+target+" size: "+target.layout.bounds.width+", "+target.layout.bounds.height);
+	//	trace("render "+target+" size: "+target.layout.bounds.width+", "+target.layout.bounds.height);
 		target.displayEvents.render.unbind( this );
 		target.render();
 	}
