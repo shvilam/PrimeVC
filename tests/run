@@ -7,7 +7,7 @@ MINPARAMS=1
 
 TestClass=${1//\//.}
 FPS=5
-WIDTH=700
+WIDTH=1200
 HEIGHT=900
 EXTRA=""
 DEBUG=""

@@ -4,6 +4,7 @@
 -cp ../src
 -cp ../generated-src
 -cp ../skins/flair
+-cp ../libs
 -cp ./
 -swf-header 600:900:5:FFFFFF
 #-debug

@@ -2,13 +2,14 @@ package cases;
 #if debug
  import flash.text.TextField;
  import flash.text.TextFormat;
+ import com.elad.optimize.memory.FrameStats;
 #end
  import primevc.core.geom.constraints.SizeConstraint;
  import primevc.core.geom.Box;
  import primevc.core.geom.Point;
  import primevc.core.Application;
  import primevc.core.Number;
- import primevc.gui.behaviours.DragBehaviour;
+ import primevc.gui.behaviours.dragdrop.DragBehaviour;
  import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.ISkin;
@@ -42,14 +43,30 @@ class LayoutTest extends Application
 {
 	public static function main () { Application.startup( LayoutTest ); }
 	
+#if debug
+	private var frameStats : FrameStats;
+#end
+	
 	public function new (target)
 	{
 		super(target);
 		var skin = new LayoutAppSkin();
-		trace("window: "+window);
-		trace("children "+window.children);
 		window.children.add( skin );
+#if debug
+		frameStats = new FrameStats(skin);
+		window.children.add( frameStats );
+		moveFrameStats.on( window.layout.events.sizeChanged, this );
+		moveFrameStats();
+#end
 	}
+	
+
+#if debug
+	private function moveFrameStats ()
+	{
+		frameStats.x = window.layout.width - FrameStats.WIDTH;
+	}
+#end
 }
 
 
@@ -391,7 +408,7 @@ class TileListBehaviour extends BehaviourBase <TileList>
 	}
 	
 	private function createBeginTiles () {
-		for ( i in 0...150 )
+		for ( i in 0...15 )
 			addTile();
 	}
 

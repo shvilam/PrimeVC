@@ -26,47 +26,43 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.utils;
- 
+package primevc.avm2.layout;
+ import flash.display.Stage;
+ import primevc.gui.layout.LayoutContainer;
+
 
 /**
- * @creation-date	Jun 17, 2010
- * @author			Ruben Weijers
+ * LayoutClient implementation for the flash stage. Class will monitor the stage
+ * size and fire resize events when the stage is resized.
+ * 
+ * @author Ruben Weijers
+ * @creation-date Jul 21, 2010
  */
-class FloatUtil 
+class StageLayout extends LayoutContainer
 {
-	/**
-	 * Helper function which will return the float-value of the first parameter 
-	 * as long as it is between the min and max values.
-	 * 
-	 * @param	value
-	 * @param	min
-	 * @param	max
-	 */
-	public static inline function within (value:Float, min:Float, max:Float) : Float {
-		if (value < min)		value = min;
-		else if (value > max)	value = max;
-		return value;
+	private var stage	: Stage;
+	
+	public function new (target:Stage)
+	{
+		stage	= target;
+		super();
+		
+		stage.addEventListener( "resize", stageResizeHandler );
+		stageResizeHandler();
 	}
 	
 	
-	/**
-	 * Helper function to check of the given value is between the min and max 
-	 * value.
-	 * 
-	 * @param	value
-	 * @param	min
-	 * @param	max
-	 * @return	true or false
-	 */
-	public static inline function isWithin (value:Float, min:Float, max:Float) : Bool {
-		return value >= min && value <= max;
+	override public function dispose ()
+	{	
+		stage.removeEventListener( "resize", stageResizeHandler );
+		stage = null;
+		super.dispose();
 	}
 	
 	
-	public static inline function round (value:Float, precision:Int = 0) : Float {
-		value = value * Math.pow(10, precision);
-		value = Math.round( value ) / Math.pow(10, precision);
-		return value;
+	private function stageResizeHandler (?event) {
+		width	= stage.stageWidth;
+		height	= stage.stageHeight;
+		events.sizeChanged.send();
 	}
 }

@@ -8,5 +8,6 @@
 -cp generated-src
 -cp src
 -cp skins/flair
+-cp libs
 -debug
 -swf bin-debug/app.swf

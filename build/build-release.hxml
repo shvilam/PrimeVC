@@ -10,6 +10,7 @@
 -cp generated-src
 -cp src
 -cp skins/flair
+-cp libs
 #-cp tests/
 -lib feffects
 -main primevc.Main
