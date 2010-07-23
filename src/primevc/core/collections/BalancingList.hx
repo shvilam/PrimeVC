@@ -104,7 +104,7 @@ class BalancingList <DataType> extends SimpleList <DataType>
 	}
 	
 	
-	public function swapAtDepth (newItem:DataType, toDepth:Int)
+	public inline function swapAtDepth (newItem:DataType, toDepth:Int)
 	{
 		var curCell		= getCellAt(toDepth);
 		var oldData		= curCell.data;

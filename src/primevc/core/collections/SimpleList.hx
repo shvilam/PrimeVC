@@ -99,9 +99,9 @@ class SimpleList <DataType> implements IList <DataType>
 	}
 	
 	
-	public function iterator () : Iterator < DataType > {
-		return new SimpleListIterator<DataType>(this);
-	}
+	public function iterator () : Iterator <DataType>	{ return getTypedIterator(); }
+	public inline function getTypedIterator ()			{ return new SimpleListIterator<DataType>(this); }
+
 	
 	
 	/**
@@ -143,13 +143,8 @@ class SimpleList <DataType> implements IList <DataType>
 		if (curPos == newPos)
 			return item;
 		
-		if (curPos < newPos) {
-			insertAt( item, newPos );
-			removeItem( item );
-		} else {
-			removeItem( item );
-			insertAt( item, newPos );
-		}
+		removeItem( item );
+		insertAt( item, newPos );
 		
 		events.moved.send( item, curPos, newPos );
 		return item;
@@ -324,7 +319,16 @@ class SimpleList <DataType> implements IList <DataType>
 	
 #if debug
 	public var name : String;
-	public function toString () { return name; }
+	public function toString()
+	{
+		var items = [];
+		var i = 0;
+		for (item in this) {
+			items.push( "[ " + i + " ] = " + item ); // Type.getClassName(Type.getClass(item)));
+			i++;
+		}
+		return name + "SimpleList ("+items.length+")\n" + items.join("\n");
+	}
 #end
 }
 

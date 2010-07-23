@@ -74,14 +74,9 @@ class ArrayList <DataType> implements IList <DataType>
 	}
 	
 	
-	private inline function getLength () {
-		return list.length;
-	}
-	
-	
-	public function iterator () : Iterator <DataType> {
-		return new FastArrayIterator<DataType>(list);
-	}
+	private inline function getLength ()				{ return list.length; }
+	public function iterator () : Iterator <DataType>	{ return getTypedIterator(); }
+	public inline function getTypedIterator ()			{ return new FastArrayIterator<DataType>(list); }
 	
 	
 	/**
@@ -92,7 +87,7 @@ class ArrayList <DataType> implements IList <DataType>
 	 * @return
 	 */
 	public inline function getItemAt (pos:Int) : DataType {
-		var i:UInt = pos < 0 ? length + pos : pos;
+		var i:Int = pos < 0 ? length + pos : pos;
 		return list[i];
 	}
 	

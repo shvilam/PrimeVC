@@ -40,22 +40,23 @@ class FastArrayIterator <DataType>
 	#if (flash9 || cpp) implements haxe.rtti.Generic #end
 {
 	private var list (default, null)	: FastArray<DataType>;
-	public var current 					: UInt;
+	public var current 					: Int;
 	
 	
 	public function new (list:FastArray<DataType>) {
 		this.list = list;
+		rewind();
 	}
 	
 	
-	public function rewind () { current = 0; }
-	public function forward () { current = list.length; }
+	public inline function rewind ()	{ current = 0; }
+	public inline function forward ()	{ current = list.length - 1; }
 	
 	
-	public inline function hasNext () { return current < list.length; }
-	public inline function hasPrev () { return current > 0; }
+	public inline function hasNext ()	{ return current < Std.int( list.length ); }		// <- Vector.length is defined as UInt, but since haXe damns it to implement UInt, we have to cast it :-(
+	public inline function hasPrev ()	{ return current >= 0; }
 	
 	
-	public inline function next () { return list[current++]; }
-	public inline function prev () { return list[current--]; }
+	public inline function next ()		{ return list[current++]; }
+	public inline function prev ()		{ return list[current--]; }
 }

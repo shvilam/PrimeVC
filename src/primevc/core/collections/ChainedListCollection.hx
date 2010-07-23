@@ -136,15 +136,13 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 		if (curPos == -1)
 			curPos = indexOf( item );
 		
+		if (newPos > (length - 1))
+			newPos = length - 1;
+		
 		if (curPos != newPos)
 		{
-			if (curPos < newPos) {
-				insertAt( item, newPos );
-				removeItem( item );
-			} else {
-				removeItem( item );
-				insertAt( item, newPos );
-			}
+			removeItem( item );
+			insertAt( item, newPos );
 			
 			events.moved.send( item, curPos, newPos );
 		}
@@ -190,13 +188,13 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	 * @param	pos
 	 * @return	position where the cell is inserted
 	 */
-	private function insertAt (item:DataType, pos:Int = -1) : Int
+	private inline function insertAt (item:DataType, pos:Int = -1) : Int
 	{
 		//1. create a new list if the current lastlist is filled
 		if (lists.length == 0 || lists.getItemAt(lists.length - 1).length == maxPerList)
 			addList( new ChainedList<DataType>() );
 		
-		if (pos < 0)
+		if (pos < 0 || pos > length)
 			pos = length;
 		
 		//2. find corrent list to add item in
@@ -247,10 +245,8 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	}
 	
 	
-	public inline function iterator () : Iterator <DataType>
-	{
-		return new ChainedListCollectionIterator<DataType>(this);
-	}
+	public function iterator () : Iterator <DataType>	{ return getTypedIterator(); }
+	public inline function getTypedIterator ()			{ return new ChainedListCollectionIterator<DataType>(this); }
 	
 	
 	private inline function getListForPosition (globalPos:Int) : ChainedList<DataType> {
@@ -342,11 +338,13 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	{
 		var str = "";
 		var j = 0;
+		var i = 0;
 		var rows = [];
 		for (list in lists) {
 			var items = [];
 			for (item in list) {
-				items.push( "[ " + item + " ]" );
+				items.push( "[ " + i + " = " + item + " ]" );
+				i++;
 			}
 			rows.push( "row" + j + " - " + items.join(" ") + " ( "+list.length+" )" );
 			j++;
