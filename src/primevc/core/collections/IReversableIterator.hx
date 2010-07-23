@@ -27,36 +27,15 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.collections;
- import primevc.utils.FastArray;
 
 
 /**
- * Description
- * 
- * @creation-date	Jul 1, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Jul 23, 2010
  */
-class FastArrayIterator <DataType> implements IReversableIterator <DataType>
-	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
+interface IReversableIterator <DataType> implements IIterator <DataType>
 {
-	private var target (default, null)	: FastArray<DataType>;
-	public var current 					: Int;
-	
-	
-	public function new (target:FastArray<DataType>) {
-		this.target = target;
-		rewind();
-	}
-	
-	
-	public inline function rewind ()	{ current = 0; }
-	public inline function forward ()	{ current = target.length - 1; }
-	
-	
-	public inline function hasNext ()	{ return current < Std.int( target.length ); }		// <- Vector.length is defined as UInt, but since haXe damns it to implement UInt, we have to cast it :-(
-	public inline function hasPrev ()	{ return current >= 0; }
-	
-	
-	public inline function next ()		{ return target[current++]; }
-	public inline function prev ()		{ return target[current--]; }
+	public function forward ()	: Void;
+	public function hasPrev ()	: Bool;
+	public function prev ()		: DataType;
 }

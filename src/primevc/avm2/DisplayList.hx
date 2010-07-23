@@ -31,6 +31,7 @@ package primevc.avm2;
  import flash.display.DisplayObject;
  import primevc.core.collections.FastArrayIterator;
  import primevc.core.collections.IList;
+ import primevc.core.collections.IReversableIterator;
  import primevc.core.events.ListEvents;
  import primevc.core.IDisposable;
  import primevc.gui.display.IDisplayContainer;
@@ -39,7 +40,8 @@ package primevc.avm2;
   using primevc.utils.TypeUtil;
 
 
-private typedef ChildType = DisplayObject;
+private typedef TargetChildType	= DisplayObject;
+private typedef ChildType		= IDisplayObject;
 
 
 /**
@@ -50,24 +52,38 @@ private typedef ChildType = DisplayObject;
  */
 class DisplayList implements IList <ChildType>
 {
+	/**
+	 * Target display-object. This display-object will be controlled by the
+	 * DisplayList instance.
+	 */
 	public var target		(default, null)				: DisplayObjectContainer;
+	/**
+	 * Owner contains a reference to the object that created this displaylist
+	 * instance. Normally this reference is the same as the target property
+	 * but the DisplayObject will in some cases be a different object than
+	 * the owner.
+	 */
+	public var owner		(default, null)				: IDisplayContainer;
+	
 	public var events		(default, null)				: ListEvents < ChildType >;
 	public var length		(getLength, never)			: Int;
-	
-	/**
-	 * Wrapper object for the stage.
-	 */
-	public var window		(default, setWindow)		: Window;
 	
 	public var mouseEnabled	(default, setMouseEnabled)	: Bool;
 	public var tabEnabled	(default, setTabEnabled)	: Bool;
 	
 	
-	public function new ( target:DisplayObjectContainer )
+	public function new ( target:DisplayObjectContainer, ?owner:IDisplayContainer )
 	{
 		Assert.notEqual( target, null, "No target given");
-		this.target = target;
-		events = new ListEvents();
+		
+		if (owner == null && target.is(IDisplayContainer))
+			owner = target.as(IDisplayContainer);
+		
+		Assert.notEqual( owner, null, "Owner object can't be null." );
+		
+		this.target	= target;
+		this.owner	= owner;
+		events		= new ListEvents();
 	}
 	
 	
@@ -75,17 +91,17 @@ class DisplayList implements IList <ChildType>
 	{
 		removeAll();
 		events.dispose();
-		window	= null;
 		events	= null;
 		target	= null;
+		owner	= null;
 	}
 	
 	
 	public inline function removeAll ()
 	{
 		for (child in this)
-			if (child.is(IDisposable))
-				child.as(IDisposable).dispose();
+			if (child != null)		//<- is needed for children that are not IDisplayObjects!
+				child.dispose();
 	}
 	
 	
@@ -94,21 +110,8 @@ class DisplayList implements IList <ChildType>
 	// GETTERS / SETTERS
 	//
 	
-	private inline function setMouseEnabled (v)		{ return mouseEnabled = target.mouseChildren = v; }
-	private inline function setTabEnabled (v)		{ return tabEnabled = target.tabChildren = v; }
-	
-	
-	private function setWindow (v)
-	{
-		if (window != v)
-		{
-			window = v;
-			for (child in this)
-				if (child.is(IDisplayContainer))
-					child.as(IDisplayContainer).children.window = v;
-		}
-		return v;
-	}
+	private inline function setMouseEnabled (v)		{ return mouseEnabled	= target.mouseChildren = v; }
+	private inline function setTabEnabled (v)		{ return tabEnabled		= target.tabChildren = v; }
 	
 	
 	//
@@ -116,33 +119,25 @@ class DisplayList implements IList <ChildType>
 	//
 
 	public inline function iterator		() : Iterator <ChildType>	{ return new DisplayListIterator(this); }
-	public inline function getItemAt	(pos:Int)					{ return target.getChildAt(pos); }
-	public inline function has			(item:ChildType)			{ return target.contains(item); } 
-	public inline function indexOf		(item:ChildType)			{ return target.getChildIndex(item); }
+	public inline function getItemAt	(pos:Int)					{ return target.getChildAt( pos ).as( ChildType ); }
+	public inline function has			(item:ChildType)			{ return target.contains( item.as( TargetChildType ) ); } 
+	public inline function indexOf		(item:ChildType)			{ return target.getChildIndex( item.as( TargetChildType ) ); }
 	private inline function getLength	()							{ return target.numChildren; }
 	
 	
 	public inline function add (item:ChildType, pos:Int = -1) : ChildType
 	{
 		Assert.that(pos <= length, "Index to add child is to high! "+pos+" instead of max "+length);
-		if (pos < 0 || pos > length)
-			pos = length;
+		if		(pos > length)	pos = length;
+		else if (pos < 0)		pos = length; // -pos;
 		
 		//make sure that if the child is in another displaylist, it will fire an remove event when the child is removed.
-		if (item.is(IDisplayObject)) {
-			var child = item.as(IDisplayObject);
-			if (child.displayList != null && child.displayList != this)
-				child.displayList.remove(item);
-			
-			child.displayList = this;
-			
-			if (child.is(IDisplayContainer))
-				child.as(IDisplayContainer).children.window = window;
-		//	if		(target.is(IDisplayObject))		child.window = target.as(IDisplayObject).window;
-		//	else if	(target.is(Window))				child.window = target.as(Window);
-		}
+		if (item.container != null && item.container != owner) 
+			item.container.children.remove(item);
 		
-		item = target.addChildAt( item, pos );
+		target.addChildAt( item.as( TargetChildType ), pos );
+		
+		item.container = owner;
 		events.added.send( item, pos );
 		return item;
 	}
@@ -152,14 +147,10 @@ class DisplayList implements IList <ChildType>
 	{
 		Assert.that( has(item), "remove: Child "+item+" is not in "+this );
 		
-		if (item.is(IDisplayObject)) {
-			var child = item.as(IDisplayObject);
-			child.displayList	= null;
-		//	child.window		= null;
-		}
-		
 		var pos = indexOf(item);
-		target.removeChild(item);
+		target.removeChild(item.as( TargetChildType ));
+		item.container = null;
+		
 		events.removed.send( item, pos );
 		return item;
 	}
@@ -167,12 +158,12 @@ class DisplayList implements IList <ChildType>
 	
 	public inline function move (item:ChildType, newPos:Int, curPos:Int = -1) : ChildType
 	{
-		if (curPos == -1)
+		if (curPos == -1 && has(item))
 			curPos = indexOf(item);
 		
 		Assert.that( curPos >= 0, "Child to move is not in this DisplayList: "+item );
 		
-		target.addChildAt( item, newPos );
+		target.addChildAt( item.as( TargetChildType ), newPos );
 		events.moved.send( item, curPos, newPos );
 		return item;
 	}
@@ -192,18 +183,18 @@ class DisplayList implements IList <ChildType>
  * @author Ruben Weijers
  * @creation-date Jul 13, 2010
  */
-class DisplayListIterator
+class DisplayListIterator implements IReversableIterator <ChildType>
 {
 	private var list 	: DisplayList;
 	public var current	: Int;
 	
-	public function new (list:DisplayList)	{ this.list = list; }
+	public function new (list:DisplayList)	{ this.list = list; rewind(); }
 	
 	public inline function rewind ()		{ current = 0; }
 	public inline function forward ()		{ current = list.length; }
 	
 	public inline function hasNext ()		{ return current < list.length; }
-	public inline function hasPrev ()		{ return current > 0; }
+	public inline function hasPrev ()		{ return current >= 0; }
 	
 	public inline function next ()			{ return list.getItemAt(current++); }
 	public inline function prev ()			{ return list.getItemAt(current--); }

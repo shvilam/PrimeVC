@@ -133,11 +133,9 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	
 	public inline function move (item:DataType, newPos:Int, curPos:Int = -1) : DataType
 	{
-		if (curPos == -1)
-			curPos = indexOf( item );
-		
-		if (newPos > (length - 1))
-			newPos = length - 1;
+		if		(curPos == -1)				curPos = indexOf( item );
+		if		(newPos > (length - 1))		newPos = length - 1;
+		else if (newPos < 0)				newPos = length - newPos;
 		
 		if (curPos != newPos)
 		{
@@ -363,7 +361,8 @@ class ChainedListCollection <DataType> implements IList <DataType>,
  * @creation-date	Jun 30, 2010
  * @author			Ruben Weijers
  */
-class ChainedListCollectionIterator <DataType> #if (flash9 || cpp) implements haxe.rtti.Generic #end
+class ChainedListCollectionIterator <DataType> implements IIterator <DataType>
+	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	private var target			(default, null)					: ChainedListCollection<DataType>;
 	private var currentList 	(default, setCurrentList)		: ChainedList<DataType>;
@@ -374,6 +373,11 @@ class ChainedListCollectionIterator <DataType> #if (flash9 || cpp) implements ha
 	public function new (target:ChainedListCollection<DataType>) 
 	{
 		this.target	= target;
+		rewind();
+	}
+	
+	
+	public inline function rewind () {
 		currentPos	= 0;
 		currentList	= target.lists.getItemAt(0);
 	}

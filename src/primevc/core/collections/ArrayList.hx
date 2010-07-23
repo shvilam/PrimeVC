@@ -111,8 +111,9 @@ class ArrayList <DataType> implements IList <DataType>
 	
 	public inline function move (item:DataType, newPos:Int, curPos:Int = -1) : DataType
 	{
-		if (curPos == -1)
-			curPos = list.indexOf(item);
+		if		(curPos == -1)				curPos = indexOf( item );
+		if		(newPos > (length - 1))		newPos = length - 1;
+		else if (newPos < 0)				newPos = length - newPos;
 		
 		if (curPos != newPos && list.move(item, newPos))
 			events.moved.send( item, curPos, newPos );

@@ -135,18 +135,19 @@ class SimpleList <DataType> implements IList <DataType>
 	}
 	
 	
-	public function move (item:DataType, newPos:Int, curPos:Int = -1) : DataType
+	public inline function move (item:DataType, newPos:Int, curPos:Int = -1) : DataType
 	{
-		if (curPos == -1)
-			curPos = indexOf(item);
+		if		(curPos == -1)				curPos = indexOf( item );
+		if		(newPos > (length - 1))		newPos = length - 1;
+		else if (newPos < 0)				newPos = length - newPos;
 		
-		if (curPos == newPos)
-			return item;
-		
-		removeItem( item );
-		insertAt( item, newPos );
-		
-		events.moved.send( item, curPos, newPos );
+		if (curPos != newPos)
+		{
+			removeItem( item );
+			insertAt( item, newPos );
+			
+			events.moved.send( item, curPos, newPos );
+		}
 		return item;
 	}
 	
@@ -341,7 +342,8 @@ class SimpleList <DataType> implements IList <DataType>
  * @creation-date	Jun 29, 2010
  * @author			Ruben Weijers
  */
-class SimpleListIterator <DataType> #if (flash9 || cpp) implements haxe.rtti.Generic #end
+class SimpleListIterator <DataType> implements IReversableIterator <DataType>
+	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	private var list (default, null)	: SimpleList<DataType>;
 	public var current (default, null)	: DoubleFastCell<DataType>;

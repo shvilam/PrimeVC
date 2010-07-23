@@ -284,11 +284,9 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 	 */
 	private inline function moveItem (item:DataType, newPos:Int, curPos:Int = -1) : Int
 	{
-		if (curPos == -1)
-			curPos = indexOf(item);
-		
-		if (newPos > (length - 1))
-			newPos = length - 1;
+		if		(curPos == -1)				curPos = indexOf( item );
+		if		(newPos > (length - 1))		newPos = length - 1;
+		else if (newPos < 0)				newPos = length - newPos;
 		
 		if (newPos != curPos)
 		{
@@ -443,7 +441,8 @@ class BalancingListCollection <DataType> implements IList <DataType>,
  * @creation-date	Jul 1, 2010
  * @author			Ruben Weijers
  */
-class BalancingListCollectionIterator <DataType> #if (flash9 || cpp) implements haxe.rtti.Generic #end
+class BalancingListCollectionIterator <DataType> implements IReversableIterator <DataType>
+	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	private var target			(default, null) : BalancingListCollection<DataType>;
 	private var currentListNum	: Int;
