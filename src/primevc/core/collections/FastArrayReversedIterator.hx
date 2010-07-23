@@ -27,15 +27,27 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.collections;
+ import primevc.utils.FastArray;
 
 
 /**
- * @author Ruben Weijers
- * @creation-date Jul 23, 2010
+ * Description
+ * 
+ * @creation-date	Jul 23, 2010
+ * @author			Ruben Weijers
  */
-interface IReversableIterator <DataType> implements IIterator <DataType>
+class FastArrayReversedIterator <DataType> implements IIterator <DataType>
+	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
-	public function forward ()	: Void;
-	public function hasPrev ()	: Bool;
-	public function prev ()		: DataType;
+	private var target (default, null)	: FastArray<DataType>;
+	public var current 					: Int;
+	
+	
+	public function new (target:FastArray<DataType>) {
+		this.target = target;
+		rewind();
+	}
+	public inline function rewind ()	{ current = target.length - 1; }
+	public inline function hasNext ()	{ return current >= 0; }
+	public inline function next ()		{ return target[current--]; }
 }

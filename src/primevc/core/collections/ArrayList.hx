@@ -74,9 +74,10 @@ class ArrayList <DataType> implements IList <DataType>
 	}
 	
 	
-	private inline function getLength ()				{ return list.length; }
-	public function iterator () : Iterator <DataType>	{ return getTypedIterator(); }
-	public inline function getTypedIterator ()			{ return new FastArrayIterator<DataType>(list); }
+	private inline function getLength ()									{ return list.length; }
+	public function iterator () : Iterator <DataType>						{ return getForwardIterator(); }
+	public function getForwardIterator () : IIterator <DataType>		{ return new FastArrayForwardIterator<DataType>(list); }
+	public function getReversedIterator () : IIterator <DataType>	{ return new FastArrayReversedIterator<DataType>(list); }
 	
 	
 	/**

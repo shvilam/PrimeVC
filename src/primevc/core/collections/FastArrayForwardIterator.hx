@@ -36,7 +36,7 @@ package primevc.core.collections;
  * @creation-date	Jul 1, 2010
  * @author			Ruben Weijers
  */
-class FastArrayIterator <DataType> implements IReversableIterator <DataType>
+class FastArrayForwardIterator <DataType> implements IIterator <DataType>
 	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	private var target (default, null)	: FastArray<DataType>;
@@ -44,19 +44,11 @@ class FastArrayIterator <DataType> implements IReversableIterator <DataType>
 	
 	
 	public function new (target:FastArray<DataType>) {
-		this.target = target;
+		this.target	= target;
 		rewind();
 	}
 	
-	
 	public inline function rewind ()	{ current = 0; }
-	public inline function forward ()	{ current = target.length - 1; }
-	
-	
 	public inline function hasNext ()	{ return current < Std.int( target.length ); }		// <- Vector.length is defined as UInt, but since haXe damns it to implement UInt, we have to cast it :-(
-	public inline function hasPrev ()	{ return current >= 0; }
-	
-	
 	public inline function next ()		{ return target[current++]; }
-	public inline function prev ()		{ return target[current--]; }
 }

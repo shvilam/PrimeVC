@@ -95,8 +95,10 @@ interface IList <DataType> implements IDisposable
 	// ITERATION METHODS
 	//
 	
-	public function getItemAt (pos:Int) : DataType;
-	public function iterator () : Iterator <DataType>;
+	public function getItemAt (pos:Int)			: DataType;
+	public function iterator ()					: Iterator <DataType>;
+	public function getForwardIterator ()		: IIterator <DataType>;
+	public function getReversedIterator ()		: IIterator <DataType>;
 	
 	
 #if debug

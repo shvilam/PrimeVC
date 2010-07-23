@@ -29,9 +29,8 @@
 package primevc.avm2;
  import flash.display.DisplayObjectContainer;
  import flash.display.DisplayObject;
- import primevc.core.collections.FastArrayIterator;
+ import primevc.core.collections.IIterator;
  import primevc.core.collections.IList;
- import primevc.core.collections.IReversableIterator;
  import primevc.core.events.ListEvents;
  import primevc.core.IDisposable;
  import primevc.gui.display.IDisplayContainer;
@@ -118,7 +117,10 @@ class DisplayList implements IList <ChildType>
 	// LIST METHODS
 	//
 
-	public inline function iterator		() : Iterator <ChildType>	{ return new DisplayListIterator(this); }
+	public function iterator () : Iterator <ChildType>				{ return getForwardIterator(); }
+	public function getForwardIterator () : IIterator <ChildType>	{ return new DisplayListForwardIterator(this); }
+	public function getReversedIterator () : IIterator <ChildType>	{ return new DisplayListReversedIterator(this); }
+	
 	public inline function getItemAt	(pos:Int)					{ return target.getChildAt( pos ).as( ChildType ); }
 	public inline function has			(item:ChildType)			{ return target.contains( item.as( TargetChildType ) ); } 
 	public inline function indexOf		(item:ChildType)			{ return target.getChildIndex( item.as( TargetChildType ) ); }
@@ -183,19 +185,32 @@ class DisplayList implements IList <ChildType>
  * @author Ruben Weijers
  * @creation-date Jul 13, 2010
  */
-class DisplayListIterator implements IReversableIterator <ChildType>
+class DisplayListForwardIterator implements IIterator <ChildType>
 {
 	private var list 	: DisplayList;
 	public var current	: Int;
 	
 	public function new (list:DisplayList)	{ this.list = list; rewind(); }
-	
 	public inline function rewind ()		{ current = 0; }
-	public inline function forward ()		{ current = list.length; }
-	
 	public inline function hasNext ()		{ return current < list.length; }
-	public inline function hasPrev ()		{ return current >= 0; }
-	
 	public inline function next ()			{ return list.getItemAt(current++); }
-	public inline function prev ()			{ return list.getItemAt(current--); }
+}
+
+
+
+/**
+ * Iterator for displaylist
+ * 
+ * @author Ruben Weijers
+ * @creation-date Jul 23, 2010
+ */
+class DisplayListReversedIterator implements IIterator <ChildType>
+{
+	private var list 	: DisplayList;
+	public var current	: Int;
+
+	public function new (list:DisplayList)	{ this.list = list; rewind(); }
+	public inline function rewind ()		{ current = list.length; }
+	public inline function hasNext ()		{ return current >= 0; }
+	public inline function next ()			{ return list.getItemAt(current--); }
 }

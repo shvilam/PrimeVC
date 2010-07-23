@@ -99,8 +99,9 @@ class SimpleList <DataType> implements IList <DataType>
 	}
 	
 	
-	public function iterator () : Iterator <DataType>	{ return getTypedIterator(); }
-	public inline function getTypedIterator ()			{ return new SimpleListIterator<DataType>(this); }
+	public function iterator () : Iterator <DataType>				{ return getForwardIterator(); }
+	public function getForwardIterator () : IIterator <DataType>	{ return new SimpleListForwardIterator<DataType>(this); }
+	public function getReversedIterator () : IIterator <DataType>	{ return new SimpleListReversedIterator<DataType>(this); }
 
 	
 	
@@ -342,38 +343,55 @@ class SimpleList <DataType> implements IList <DataType>
  * @creation-date	Jun 29, 2010
  * @author			Ruben Weijers
  */
-class SimpleListIterator <DataType> implements IReversableIterator <DataType>
+class SimpleListForwardIterator <DataType> implements IIterator <DataType>
 	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	private var list (default, null)	: SimpleList<DataType>;
 	public var current (default, null)	: DoubleFastCell<DataType>;
 	
+	public function new (list:SimpleList<DataType>) 
+	{
+		this.list = list;
+		rewind();
+	}
 	
+	public inline function rewind ()	{ current = list.first; }
+	public inline function hasNext () 	{ return current != null; }
+	public inline function next () : DataType
+	{
+		var c = current;
+		current = current.next;
+		return c.data;
+	}
+}
+
+
+
+
+/**
+ * Iterate object for the SimpleList implementation
+ * 
+ * @creation-date	Jul 23, 2010
+ * @author			Ruben Weijers
+ */
+class SimpleListReversedIterator <DataType> implements IIterator <DataType>
+	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
+{
+	private var list (default, null)	: SimpleList<DataType>;
+	public var current (default, null)	: DoubleFastCell<DataType>;
+
 	public function new (list:SimpleList<DataType>) 
 	{
 		this.list	= list;
 		rewind();
 	}
 	
-	
-	public inline function rewind ()			{ current = list.first; }
-	public inline function forward ()			{ current = list.last; }
-	public inline function hasNext () : Bool	{ return current != null; }
-	public inline function hasPrev () : Bool	{ return current != null; }
-	
-	
-	public inline function prev () : DataType
-	{
-		var c = current;
-		current = current.prev;
-		return c.data;
-	}
-	
-	
+	public inline function rewind ()	{ current = list.last; }
+	public inline function hasNext ()	{ return current != null; }
 	public inline function next () : DataType
 	{
 		var c = current;
-		current = current.next;
+		current = current.prev;
 		return c.data;
 	}
 }

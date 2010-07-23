@@ -243,8 +243,9 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	}
 	
 	
-	public function iterator () : Iterator <DataType>	{ return getTypedIterator(); }
-	public inline function getTypedIterator ()			{ return new ChainedListCollectionIterator<DataType>(this); }
+	public function iterator () : Iterator <DataType>						{ return getForwardIterator(); }
+	public inline function getForwardIterator () : IIterator <DataType>		{ return new ChainedListCollectionIterator<DataType>(this); }
+	public inline function getReversedIterator () : IIterator <DataType>	{ return new ChainedListCollectionIterator<DataType>(this); }
 	
 	
 	private inline function getListForPosition (globalPos:Int) : ChainedList<DataType> {
