@@ -94,6 +94,15 @@ class SimpleList <DataType> implements IList <DataType>
 	}
 	
 	
+	public function clone () : IList<DataType>
+	{
+		var l = new SimpleList<DataType>();
+		for (child in this)
+			l.insertAt(child);
+		return l;
+	}
+	
+	
 	private inline function getLength () {
 		return _length;
 	}
@@ -130,7 +139,8 @@ class SimpleList <DataType> implements IList <DataType>
 		if (item != null)
 		{
 			var itemPos = removeItem( item );
-			events.removed.send( item, itemPos );
+			if (itemPos > -1)
+				events.removed.send( item, itemPos );
 		}
 		return item;
 	}

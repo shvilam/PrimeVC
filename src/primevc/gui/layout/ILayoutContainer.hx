@@ -71,4 +71,8 @@ interface ILayoutContainer <ChildType:LayoutClient> implements ILayoutClient
 	 * @default		Number.NOT_SET
 	 */
 	public var childHeight			(default, setChildHeight)	: Int;
+	
+	
+	public var scrollX				: Int;
+	public var scrollY				: Int;
 }

@@ -26,44 +26,66 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.events;
- import primevc.core.dispatcher.Signals;
- import primevc.core.dispatcher.Signal1;
- import primevc.gui.behaviours.drag.DragSource;
-
+package primevc.gui.input;
+ import primevc.gui.display.Window;
+ import primevc.gui.events.MouseEvents;
 
 
 /**
- * Events used for objects that accept an object to be dragged in
+ * Class that will represent the mouse-cursor.
  * 
  * @author Ruben Weijers
- * @creation-date Jul 21, 2010
+ * @creation-date Jul 22, 2010
  */
-class DropTargetEvents extends Signals
+class Mouse //implements IInputDevice 
 {
-	/**
-	 * Dispatched by the target on which the dragged item is dropped on the
-	 * DropTarget.
-	 */
-	var drop	(default, null) : Signal1 <DragSource>;
+	public var x		(getX, never)	: Float;
+	public var y		(getY, never)	: Float;
 	
-	/**
-	 * Dispatched by an object when a IDraggable object is moved over it and
-	 * it's allowed to be dropped on the DropTarget.
-	 */
-	var over	(default, null) : Signal1 <DragSource>;
-	
-	/**
-	 * Dispatched by the DropTarget when an allowed IDraggable object is
-	 * moved out of the DropTarget.
-	 */
-	var out		(default, null) : Signal1 <DragSource>;
+	private var window	(default, null)	: Window;
+	public var events	(default, null)	: MouseEvents;
 	
 	
-	public function new ()
+	public function new (window)
 	{
-		drop	= new Signal1();
-		over	= new Signal1();
-		out		= new Signal1();
+		this.window = window;
+		events		= window.userEvents.mouse;
+	}
+	
+	
+	public inline function show ()
+	{
+#if (flash9 || air)
+		flash.ui.Mouse.show();
+#end
+	}
+	
+	
+	public inline function hide ()
+	{
+#if (flash9 || air)
+		flash.ui.Mouse.hide();
+#end
+	}
+	
+	
+	
+	//
+	// GETTERS / SETTERS
+	//
+	
+	private inline function getX ()
+	{
+#if (flash9 || air)
+		return window.target.mouseX;
+#end
+	}
+	
+	
+	private inline function getY ()
+	{
+#if (flash9 || air)
+		return window.target.mouseY;
+#end
 	}
 }

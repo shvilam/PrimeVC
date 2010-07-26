@@ -30,6 +30,7 @@ package primevc.gui.layout.algorithms.relative;
 // import primevc.core.Number;
  import primevc.core.geom.constraints.ConstrainedRect;
  import primevc.core.geom.Box;
+ import primevc.core.geom.Point;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
  import primevc.gui.layout.LayoutFlags;
@@ -47,6 +48,10 @@ package primevc.gui.layout.algorithms.relative;
  */
 class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 {
+	private var measurePreparedHor : Bool;
+	private var measurePreparedVer : Bool;
+	
+	
 	public inline function isInvalid (changes:Int)
 	{
 		return changes.has( LayoutFlags.WIDTH_CHANGED ) 
@@ -57,35 +62,58 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 	}
 	
 	
-	public inline function measure ()
+	override public function prepareMeasure ()
 	{
-		var childProps	: RelativeLayout;
-		var childBounds	: ConstrainedRect;
-		var padding = group.padding;
-		
-		
-		for (child in group.children)
+		if (!measurePrepared)
 		{
-			if (child.relative == null || !child.includeInLayout)
-				continue;
+			if (group.measuredHorizontal && !measurePreparedHor)
+			{
+				for (child in group.children) {
+					if (child.relative == null || !child.includeInLayout)
+						continue;
+					
+					if (child.relative.left.isSet() && child.relative.right.isSet())
+						child.bounds.width	= group.width - child.relative.right - child.relative.left;
+				}
+				
+				measurePreparedHor = true;
+			}
 			
-			childProps	= child.relative;
-			childBounds	= child.bounds;
 			
-			if (childProps.left.isSet() && childProps.right.isSet())
-				child.bounds.width	= group.bounds.right - padding.right - padding.left - childProps.right - childProps.left;
+			if (group.measuredVertical && !measurePreparedVer)
+			{
+				for (child in group.children) {
+					if (child.relative == null || !child.includeInLayout)
+						continue;
+					
+					if (child.relative.top.isSet() && child.relative.bottom.isSet())
+						child.bounds.height	= group.height - child.relative.bottom - child.relative.top;
+				}
+				
+				measurePreparedVer = true;
+			}
 			
-			if (childProps.top.isSet() && childProps.bottom.isSet())
-				child.bounds.height	= group.bounds.bottom - padding.bottom - padding.top - childProps.bottom - childProps.top;
+			if (measurePreparedVer && measurePreparedHor)
+				measurePrepared = true;
 		}
 	}
 	
 	
-	public inline function measureHorizontal () {}
-	public inline function measureVertical () {}
+	public inline function measure () {
+		measureHorizontal();
+		measureVertical();
+	}
+	public inline function measureHorizontal () {
+		if (!measurePrepared)
+			prepareMeasure();
+	}
+	public inline function measureVertical () {
+		if (!measurePrepared)
+			prepareMeasure();
+	}
 	
 	
-	public function apply ()
+	public inline function apply ()
 	{
 		var childProps	: RelativeLayout;
 		var childBounds	: ConstrainedRect;
@@ -105,9 +133,8 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 			//
 			
 			if		(childProps.left.isSet())		child.bounds.left	= padding.left + childProps.left;
-			else if (childProps.right.isSet())		child.bounds.right	= group.bounds.right - padding.right - childProps.right;
-			else if (childProps.hCenter.isSet())	child.bounds.left	= Std.int( ( group.bounds.width - child.bounds.width ) * .5 );		
-			
+			else if (childProps.right.isSet())		child.bounds.right	= group.bounds.width - padding.right - childProps.right;
+			else if (childProps.hCenter.isSet())	child.bounds.left	= Std.int( ( group.bounds.width - child.bounds.width ) * .5 );			
 			
 			
 			//
@@ -115,9 +142,24 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 			//
 			
 			if		(childProps.top.isSet())		child.bounds.top	= padding.top + childProps.top;
-			else if (childProps.bottom.isSet())		child.bounds.bottom	= group.bounds.bottom - padding.bottom - childProps.bottom;
+			else if (childProps.bottom.isSet())		child.bounds.bottom	= group.bounds.height - padding.bottom - childProps.bottom;
 			else if (childProps.vCenter.isSet())	child.bounds.top	= Std.int( ( group.bounds.height - child.bounds.height ) * .5 );
 		}
+		
+		measurePrepared		= false;
+		measurePreparedHor	= false;
+		measurePreparedVer	= false;
+	}
+	
+	
+	/**
+	 * When the relative algorithm is used, the position of an object doesn't
+	 * have any influence on the depth. That's why the algorithm will always 
+	 * return the position at the end of the child-list.
+	 */
+	public inline function getDepthForPosition (pos:Point) : Int
+	{
+		return group.children.length;
 	}
 
 

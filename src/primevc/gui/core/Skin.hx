@@ -51,7 +51,7 @@ class Skin <OwnerClass> extends Sprite, implements ISkin //<OwnerClass>
 	public var owner			(default, setOwner) : OwnerClass;
 	public var skinState		(default, null)		: SkinStates;
 	
-	public var behaviours		: FastList < IBehaviour <Dynamic> >;
+	public var behaviours		(default, null)		: FastList < IBehaviour <Dynamic> >;
 	
 	
 	public function new()

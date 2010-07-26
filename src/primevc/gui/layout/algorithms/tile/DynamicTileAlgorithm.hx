@@ -32,6 +32,7 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.core.collections.SimpleList;
  import primevc.core.geom.constraints.SizeConstraint;
  import primevc.core.geom.Box;
+ import primevc.core.geom.Point;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.layout.algorithms.directions.Direction;
  import primevc.gui.layout.algorithms.directions.Horizontal;
@@ -98,6 +99,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	private function createTileMap ()
 	{
+		trace(this + ".createTileMap");
 		Assert.that( group.is( LayoutContainer ), "group should be an LayoutContainer" );
 		
 		childSizeConstraint			= new SizeConstraint();
@@ -203,63 +205,74 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	//
 	
 	
+	private var groupSizeChanged:Bool;
+	
 	override public function isInvalid (changes:Int) : Bool {
 		return super.isInvalid(changes) || changes.has( LayoutFlags.SIZE_CONSTRAINT_CHANGED );
 	}
 	
 	
-	override public function measure () : Void
+	
+	override public function prepareMeasure () : Void
 	{
-		var group			= group.as(LayoutContainer);
-		var measureGroups	= false;
-		
-		//
-		//create a new tile map if it removed
-		//
-		if (tileCollection == null)
-			createTileMap();
-		
-		if (group.children.length == 0)
-			return;
-		
-		//
-		// APPLY CHANGES IN SIZE CONSTRAINT ALSO ON THE CHILDREN
-		//
-		if (group.changes.has(LayoutFlags.SIZE_CONSTRAINT_CHANGED))
+		if (!measurePrepared)
 		{
-			if (group.sizeConstraint == null) {
-				childSizeConstraint.reset();
-			} else {
-				if (startDirection == horizontal) {
-					childSizeConstraint.width.min = group.sizeConstraint.width.min;
-					childSizeConstraint.width.max = group.sizeConstraint.width.max;
+			var group			= group.as(LayoutContainer);
+			groupSizeChanged	= group.changes.has(LayoutFlags.LIST_CHANGED);
+		
+			//
+			//create a new tile map if it removed
+			//
+			if (tileCollection == null)
+				createTileMap();
+		
+			if (group.children.length == 0)
+				return;
+		
+			//
+			// APPLY CHANGES IN SIZE CONSTRAINT ALSO ON THE CHILDREN
+			//
+			if (group.changes.has(LayoutFlags.SIZE_CONSTRAINT_CHANGED))
+			{
+				if (group.sizeConstraint == null) {
+					childSizeConstraint.reset();
 				} else {
-					childSizeConstraint.height.min = group.sizeConstraint.height.min;
-					childSizeConstraint.height.max = group.sizeConstraint.height.max;
-				}
+					if (startDirection == horizontal) {
+						childSizeConstraint.width.min = group.sizeConstraint.width.min;
+						childSizeConstraint.width.max = group.sizeConstraint.width.max;
+					} else {
+						childSizeConstraint.height.min = group.sizeConstraint.height.min;
+						childSizeConstraint.height.max = group.sizeConstraint.height.max;
+					}
 				
-				tileGroups.sizeConstraint = group.sizeConstraint;
+					tileGroups.sizeConstraint = group.sizeConstraint;
+				}
+			}
+		
+			//resize all rows
+			else if (group.changes.has(LayoutFlags.WIDTH_CHANGED) && startDirection == horizontal && group.explicitWidth.isSet()) {
+				groupSizeChanged = true;
+				for (tileGroup in tileGroups)
+					tileGroup.width = group.explicitWidth;
+			}
+		
+			//resize all columns
+			else if (group.changes.has(LayoutFlags.HEIGHT_CHANGED) && startDirection == vertical && group.explicitHeight.isSet()) {
+				groupSizeChanged = true;
+				for (tileGroup in tileGroups)
+					tileGroup.height = group.explicitHeight;
 			}
 		}
-		
-		//resize all rows
-		else if (group.changes.has(LayoutFlags.WIDTH_CHANGED) && startDirection == horizontal && group.explicitWidth.isSet()) {
-			measureGroups = true;
-			for (tileGroup in tileGroups)
-				tileGroup.width = group.explicitWidth;
-		}
-		
-		//resize all columns
-		else if (group.changes.has(LayoutFlags.HEIGHT_CHANGED) && startDirection == vertical && group.explicitHeight.isSet()) {
-			measureGroups = true;
-			for (tileGroup in tileGroups)
-				tileGroup.height = group.explicitHeight;
-		}
-		
+		super.prepareMeasure();
+	}
+	
+	
+	private inline function measureGroups ()
+	{	
 		//
 		// Check if children are added, removed or moved in the list
 		//
-		if (group.changes.has(LayoutFlags.LIST_CHANGED) || measureGroups)
+		if (groupSizeChanged)
 		{
 			var groupItr = tileGroups.iterator();
 			//check each tileGroup for changes in the list or in the width of the children
@@ -282,17 +295,18 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 					addTileContainer( children.nextList );
 				}
 			}
+			
+			groupSizeChanged = false;
 		}
-		
-		if (startDirection == horizontal)
-			measureVertical();
-		else
-			measureHorizontal();
 	}
 	
 	
 	override public function measureHorizontal ()
 	{
+		if (startDirection != horizontal)
+			return;
+		
+		measureGroups();
 		tileGroups.measureHorizontal();
 		setGroupWidth(tileGroups.width);
 	}
@@ -300,6 +314,10 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	override public function measureVertical ()
 	{
+		if (startDirection != vertical)
+			return;
+		
+		measureGroups();
 		tileGroups.measureVertical();
 		setGroupHeight(tileGroups.height);
 	}
@@ -326,6 +344,31 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 				tileGroups.x = group.padding.left;
 		}*/
 		tileGroups.validate();
+		measurePrepared = false;
+	}
+	
+	
+
+	override public function getDepthForPosition (pos:Point) {
+		var depth:Int	= 0;
+		var rowNum		= tileGroups.algorithm.getDepthForPosition( pos );
+		trace("rowNum "+rowNum);
+		
+		if (rowNum > 0)
+		{
+			var i = 0;
+			for (child in tileGroups.children)
+			{
+				if (i == rowNum)
+					break;
+				depth += child.children.length;
+				i++;
+			}
+		}
+		
+		var row	 = tileGroups.children.getItemAt( rowNum );
+		depth	+= row.algorithm.getDepthForPosition( pos );
+		return depth;
 	}
 	
 	
@@ -394,6 +437,14 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		}
 		return v;
 	}
+	
+	
+#if debug
+	public function toString ()
+	{
+		return group+".DynamicTileAlgorithm";
+	}
+#end
 }
 
 

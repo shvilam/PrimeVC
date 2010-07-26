@@ -37,7 +37,6 @@ typedef Shape =
 
 
 
- import primevc.gui.events.IDisplayEvents;
  import primevc.core.geom.Matrix2D;
  import primevc.gui.events.DisplayEvents;
 
@@ -50,8 +49,10 @@ typedef Shape =
  */
 class ShapeImpl implements IShape
 {
-	public var displayList		(default, default)				: DisplayList;
-	public var displayEvents	(default, null)					: IDisplayEvents;
+//	public var displayList		(default, default)				: DisplayList;
+	public var displayEvents	(default, null)					: DisplayEvents;
+	public var container		(default, setContainer)			: IDisplayContainer;
+	public var window			(default, setWindow)			: Window;
 	
 	public var transform		(default,null)					: Matrix2D;
 	public var maxWidth			(getMaxWidth,never)				: Float;
@@ -96,7 +97,13 @@ class ShapeImpl implements IShape
 	// GETTERS / SETTERS
 	//
 	
-	private function setWindow (v) {
+	private inline function setContainer (v) {
+		container	= v;
+		window		= container.window;
+		return v;
+	}
+	
+	private inline function setWindow (v) {
 		return window = v;
 	}
 }

@@ -118,6 +118,15 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 	}
 	
 	
+	public function clone () : IList < DataType >
+	{
+		var l = new BalancingListCollection<DataType>(maxLists);
+		for (child in this)
+			l.insertAt(child);
+		return l;
+	}
+	
+	
 	//
 	// ILISTCOLLECTION METHODS
 	//

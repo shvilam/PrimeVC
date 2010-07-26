@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms.circle;
+ import primevc.core.geom.Point;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.algorithms.directions.Horizontal;
  import primevc.gui.layout.algorithms.IHorizontalAlgorithm;
@@ -145,6 +146,7 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 			case Horizontal.center:		applyCentered();
 			case Horizontal.right:		applyRightToLeft();
 		}
+		measurePrepared = false;
 	}
 	
 	
@@ -183,6 +185,10 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 	private inline function applyCentered ()	: Void		{ applyCircle( -Math.PI / 2 ); }	//- 90 degrees
 	private inline function applyRightToLeft () : Void		{ applyCircle( -Math.PI ); }		//-180 degrees
 	
+	
+	public inline function getDepthForPosition (pos:Point) {
+		return group.children.length;
+	}
 	
 	
 	

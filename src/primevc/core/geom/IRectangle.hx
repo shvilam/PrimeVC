@@ -26,20 +26,17 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.components;
- import primevc.gui.core.UIComponent;
+package primevc.core.geom;
 
 
 /**
  * @author Ruben Weijers
- * @creation-date Jun 07, 2010
+ * @creation-date Jul 25, 2010
  */
-class Checkbox extends UIComponent
+interface IRectangle 
 {
-	public function new ()
-	{
-		super();
-		
-		behaviours.add(  );
-	}
+	public var left		(getLeft, setLeft)		: Int;
+	public var right	(getRight, setRight)	: Int;
+	public var top		(getTop, setTop)		: Int;
+	public var bottom	(getBottom, setBottom)	: Int;
 }

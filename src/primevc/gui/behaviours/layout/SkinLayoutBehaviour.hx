@@ -62,12 +62,13 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 		layoutStateChangeHandler.on( target.layout.states.change, this );
 #if flash9
 		invalidateWindow		.on( target.layout.events.posChanged, this );
+	//	invalidateWindow		.on( target.layout.events.sizeChanged, this );
 #else
 		applyPosition			.on( target.layout.events.posChanged, this );
 #end
 		
 		//trigger the event handler for the current state as well
-		layoutStateChangeHandler( null, target.layout.states.current );
+	//	layoutStateChangeHandler( null, target.layout.states.current );
 	}
 	
 	
@@ -85,6 +86,7 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 		
 		target.layout.states.change.unbind( this );
 		target.layout.events.posChanged.unbind( this );
+	//	target.layout.events.sizeChanged.unbind( this );
 	}
 	
 	
@@ -121,11 +123,11 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 	
 	private inline function invalidateWindow ()
 	{
-		if (target.displayList == null)
+		if (target.container == null)
 			return;
 		
 	//	trace("invalidateWindow "+target);
-		target.displayList.window.invalidate();
+		target.window.invalidate();
 		renderBinding = applyPosition.on( target.displayEvents.render, this );
 	}
 	
@@ -137,7 +139,7 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 			renderBinding = null;
 		}
 		var l = target.layout;
-	//	trace("applyPosition " + target.name + " / " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y);
+	//	trace("applyPosition " + target.name + " / " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y+" - noVirPos: "+l.bounds.left+", "+l.bounds.top);
 	//	target.width	= l.width;
 	//	target.height	= l.height;
 		target.x		= l.getHorPosition();

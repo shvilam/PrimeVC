@@ -48,7 +48,7 @@ interface ISkin implements ISprite, implements IDisposable
 //	public var owner			(default, setOwner) : OwnerClass;
 	public var layout			(default, null)		: LayoutClient;
 	
-	public var behaviours		: FastList < IBehaviour <Dynamic> >;
+	public var behaviours		(default, null)		: FastList < IBehaviour <Dynamic> >;
 	
 	
 	public function init ()					: Void;

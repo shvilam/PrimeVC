@@ -56,6 +56,9 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 	public var childWidth	(default, setChildWidth)		: Int;
 	public var childHeight	(default, setChildHeight)		: Int;
 	
+	public var scrollX		: Int;
+	public var scrollY		: Int;
+	
 	
 	public function new( list:IList<ChildType> = null )
 	{
@@ -86,9 +89,7 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 	}
 	
 	
-	public function iterator () {
-		return children.iterator();
-	}
+	public function iterator () { return children.iterator(); }
 	
 	
 	public function childInvalidated (childChanges:Int) : Bool

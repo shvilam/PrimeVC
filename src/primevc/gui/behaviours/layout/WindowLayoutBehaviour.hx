@@ -26,61 +26,71 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.avm2;
- import primevc.gui.display.IShape;
- import primevc.gui.events.DisplayEvents;
- import primevc.gui.display.IDisplayContainer;
+package primevc.gui.behaviours.layout;
+ import primevc.core.dispatcher.Wire;
+ import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.display.Window;
- 
+ import primevc.gui.states.LayoutStates;
+  using primevc.utils.Bind;
+
 
 /**
- * AVM2 Shape implementation
- * 
- * @creation-date	Jun 11, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Jul 26, 2010
  */
-class Shape extends flash.display.Shape, implements IShape
+class WindowLayoutBehaviour extends BehaviourBase < Window >
 {
-	public var container		(default, setContainer)	: IDisplayContainer;
-	public var window			(default, setWindow)	: Window;
-	public var displayEvents	(default, null)			: DisplayEvents;
-	
-	
-	public function new() 
+	/**
+	 * Reference to the last used enterFrame binding. If the state of a 
+	 * layoutclient changes to parentInvalidated, this enterFrame binding
+	 * should be removed.
+	 */
+	private var enterFrameBinding	: Wire <Dynamic>;
+
+
+	override private function init ()
 	{
-		super();
-		displayEvents = new DisplayEvents( this );
+		if (target.layout == null)
+			return;
+
+		layoutStateChangeHandler.on( target.layout.states.change, this );
+		
+		//trigger the event handler for the current state as well
+		layoutStateChangeHandler( null, target.layout.states.current );
 	}
-	
-	
-	public function dispose()
+
+
+	override private function reset ()
 	{
-		if (displayEvents == null)
-			return;		// already disposed
+		removeEnterFrameBinding();
 		
-		if (container != null)
-			container.children.remove(this);
-		
-		displayEvents.dispose();
-		displayEvents	= null;
-		container		= null;
-		window			= null;
+		if (target.layout == null)
+			return;
+
+		target.layout.states.change.unbind( this );
 	}
-	
-	
-	
-	//
-	// GETTERS / SETTERS
-	//
-	
-	private inline function setContainer (v) {
-		container	= v;
-		window		= container.window;
-		return v;
+
+
+	private function layoutStateChangeHandler (oldState:LayoutStates, newState:LayoutStates)
+	{
+		switch (newState) {
+			case LayoutStates.invalidated:
+				enterFrameBinding = target.layout.measure.onceOn( target.displayEvents.enterFrame, this );
+
+			case LayoutStates.measuring:
+				removeEnterFrameBinding();
+			
+			case LayoutStates.validated:
+				removeEnterFrameBinding();
+		}
 	}
-	
-	
-	private inline function setWindow (v) {
-		return window = v;
+
+
+	private inline function removeEnterFrameBinding ()
+	{
+		if (enterFrameBinding != null) {
+			enterFrameBinding.dispose();
+			enterFrameBinding = null;
+		}
 	}
 }

@@ -69,11 +69,11 @@ class RenderGraphicsBehaviour extends BehaviourBase < ISkin >
 	
 	private function invalidateWindow ()
 	{
-		if (target.displayList == null)
+		if (target.container == null)
 			return;
 		
 	//	trace("invalidateWindow "+target);
-		target.displayList.window.invalidate();
+		target.window.invalidate();
 		renderBinding = renderTarget.on( target.displayEvents.render, this );
 	//	target.render.on( target.displayEvents.enterFrame, this );
 	}

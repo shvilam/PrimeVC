@@ -28,6 +28,7 @@
  */
 package primevc.gui.layout.algorithms;
  import primevc.core.dispatcher.Signal0;
+ import primevc.core.geom.Point;
  import primevc.core.IDisposable;
  import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutClient;
@@ -51,6 +52,14 @@ interface ILayoutAlgorithm implements IDisposable
 	 * Method indicating if the size is invalidated or not.
 	 */
 	public function isInvalid (changes:Int)					: Bool;
+	
+	/**
+	 * Method to prepare the algorithm to measure. This method can be used to
+	 * set properties that are needed for both the meausureHorizontal method 
+	 * and the meausureVertical method.
+	 */
+	public function prepareMeasure ()						: Void;
+	
 	/**
 	 * Method will measure the given target according to the algorithms
 	 * rules. The result of the measuring should be put in 
@@ -66,4 +75,11 @@ interface ILayoutAlgorithm implements IDisposable
 	 * Method will apply it's layout algorithm on the given target.
 	 */
 	public function apply ()								: Void;
+	
+	
+	/**
+	 * Method will return the depth that belongs to the given coordinates.
+	 * The depth of an object depends on the type of algorithm that is used.
+	 */
+	public function getDepthForPosition	(pos:Point)			: Int;
 }

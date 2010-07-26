@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms.float;
+ import primevc.core.geom.Point;
  import primevc.gui.layout.algorithms.directions.Vertical;
  import primevc.gui.layout.algorithms.IVerticalAlgorithm;
  import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
@@ -129,28 +130,21 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 		
 		if (group.childHeight.notSet())
 		{
-			var percentHeight:Float = 0;
 			var i:Int = 0;
 			
 			for (child in group.children) {
 				if (!child.includeInLayout)
 					continue;
 				
-				if (child.percentHeight > 0)
-					percentHeight += child.percentHeight;
-				else
+				if (child.bounds.height.isSet())
+				{
 					height += child.bounds.height;
 				
-				//only count even children
-				if (i % 2 == 0)
-					halfHeight += child.bounds.height;
+					//only count even children
+					if (i % 2 == 0)
+						halfHeight += child.bounds.height;
+				}
 				i++;
-			}
-			
-			if (percentHeight > 0)
-			{
-				var groupHeight = group.is(AdvancedLayoutClient) ? group.as(AdvancedLayoutClient).explicitHeight : group.height;
-				height += Std.int( groupHeight * percentHeight / 100 );
 			}
 		}
 		else
@@ -170,6 +164,7 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 			case Vertical.center:	applyCentered();
 			case Vertical.bottom:	applyBottomToTop();
 		}
+		measurePrepared = false;
 	}
 	
 	
@@ -260,7 +255,7 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 		if (group.children.length > 0)
 		{
 			var next = getBottomStartValue();
-		
+			
 			//use 2 loops for algorithms with and without a fixed child-height. This is faster than doing the if statement inside the loop!
 			if (group.childHeight.notSet())
 			{
@@ -284,6 +279,142 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 				}
 			}
 		}
+	}
+
+
+	/**
+	 * 
+	 */
+	public inline function getDepthForPosition (pos:Point) : Int
+	{
+		return switch (direction) {
+			case Vertical.top:		getDepthForPositionTtB(pos);
+			case Vertical.center:	getDepthForPositionC(pos);
+			case Vertical.bottom:	getDepthForPositionBtT(pos);
+		}
+	}
+
+
+	private inline function getDepthForPositionTtB (pos:Point) : Int
+	{
+		var depth:Int	= 0;
+		var posY:Int	= Std.int( pos.y + group.scrollY );
+
+		if (group.childHeight.isSet())
+		{
+			depth = posY.divRound(group.childHeight);
+		}
+		else
+		{
+			//if pos <= 0, the depth will be 0
+			if (posY > 0)
+			{
+				//check if it's smart to start searching at the end or at the beginning..
+				var groupHeight = group.height;
+				if (group.is(AdvancedLayoutClient))
+					groupHeight = IntMath.min( group.as(AdvancedLayoutClient).measuredHeight, group.as(AdvancedLayoutClient).explicitHeight );
+				
+				var halfH = groupHeight * .5;
+
+				if (posY < halfH) {
+					//start at beginning
+					for (child in group.children) {
+						if (child.includeInLayout && posY <= child.bounds.centerY)
+							break;
+
+						depth++;
+					}
+				}
+				else
+				{
+					//start at end
+					var itr		= group.children.getReversedIterator();
+					var depth	= group.children.length;
+					while (itr.hasNext()) {
+						var child = itr.next();
+						if (child.includeInLayout && posY >= child.bounds.centerY)
+							break;
+
+						depth--;
+					}
+				}
+			}
+
+		}
+		return depth;
+	}
+
+
+	private inline function getDepthForPositionC (pos:Point) : Int
+	{
+		var depth:Int	= 0;
+		var posY:Int	= Std.int( pos.y + group.scrollY );
+		var length		= group.children.length;
+
+		if (posY < halfHeight)
+		{
+			if (length % 2 == 1)
+				length -= 1;
+
+			var topDepth	= getDepthForPositionTtB(pos);
+			depth			= length - (2 * topDepth);
+		}
+		else
+		{
+			var bottomDepth	= getDepthForPositionBtT(pos);
+			depth			= length - (2 * bottomDepth);
+		}
+		return depth;
+	}
+
+
+	private inline function getDepthForPositionBtT (pos:Point) : Int
+	{
+		var depth:Int	= 0;
+		var posY:Int	= Std.int( pos.y + group.scrollY );
+
+		if (group.childHeight.isSet())
+		{
+			depth = group.children.length - posY.divRound(group.childHeight);
+		}
+		else
+		{
+			var groupHeight = group.height;
+			if (group.is(AdvancedLayoutClient))
+				groupHeight = IntMath.min( group.as(AdvancedLayoutClient).measuredHeight, group.as(AdvancedLayoutClient).explicitHeight );
+			
+			//if pos <= 0, the depth will be 0
+			if (posY > groupHeight)
+			{
+				//check if it's smart to start searching at the end or at the beginning..
+				var halfH = groupHeight * .5;
+
+				if (posY < halfH) {
+					//start at beginning
+					for (child in group.children) {
+						if (child.includeInLayout && posY <= child.bounds.centerY)
+							break;
+
+						depth++;
+					}
+				}
+				else
+				{
+					//start at end
+					var itr		= group.children.getReversedIterator();
+					var depth	= group.children.length;
+					while (itr.hasNext()) {
+						var child = itr.next();
+						if (child.includeInLayout && posY >= child.bounds.centerY)
+							break;
+
+						depth--;
+					}
+				}
+			}
+
+		}
+		return depth;
 	}
 	
 	

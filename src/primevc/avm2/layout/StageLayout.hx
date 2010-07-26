@@ -44,8 +44,8 @@ class StageLayout extends LayoutContainer
 	
 	public function new (target:Stage)
 	{
-		stage	= target;
-		super();
+		stage = target;
+		super(stage.stageWidth, stage.stageHeight);
 		
 		stage.addEventListener( "resize", stageResizeHandler );
 		stageResizeHandler();

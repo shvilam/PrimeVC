@@ -69,7 +69,7 @@ class MouseSignals extends Signals
 		In Flash 9+ this is a proxy to flash.events.MouseEvent.ROLL_OVER */
 	var rollOver	(default,null) : MouseSignal;
 	/** Fires when a mouse moves out of the hitarea of the interactive object.
-		In Flash 9+ this is a proxy to flash.events.MouseEvent.ROLL_OVER */
+		In Flash 9+ this is a proxy to flash.events.MouseEvent.ROLL_OUT */
 	var rollOut		(default,null) : MouseSignal;
 	/** Fires when a mouse scrollwheel is used. */
 	var scroll		(default,null) : MouseSignal;

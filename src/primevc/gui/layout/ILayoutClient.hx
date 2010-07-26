@@ -155,9 +155,11 @@ interface ILayoutClient implements IDisposable
 	// EVENTS
 	//
 	
-	public var events	(default, null)			: LayoutEvents;
+	public var events				(default, null)						: LayoutEvents;
 	
-	public var states	(default, null)			: SimpleStateMachine < LayoutStates >;
+	public var states				(default, null)						: SimpleStateMachine < LayoutStates >;
+	public var measuredHorizontal	(default, null)						: Bool;
+	public var measuredVertical		(default, null)						: Bool;
 	
 	
 	
@@ -239,7 +241,7 @@ interface ILayoutClient implements IDisposable
 	
 	
 #if debug
-	public function readChanges () : String;
+	public function readChanges (changes:Int = -1) : String;
 	public var name:String;
 #end
 }

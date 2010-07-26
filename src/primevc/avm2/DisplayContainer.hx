@@ -26,29 +26,26 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours.dragdrop;
- import primevc.core.geom.Rectangle;
- import primevc.gui.display.ISprite;
- import primevc.gui.events.DragEvents;
+package primevc.avm2;
+ import flash.display.DisplayObjectContainer;
+ import primevc.gui.display.IDisplayContainer;
+ import primevc.gui.display.DisplayList;
 
 
 /**
- * Interface describing objects that can be dragged around.
+ * IDisplayContainer implementation for flash.
  * 
  * @author Ruben Weijers
- * @creation-date Jul 13, 2010
+ * @creation-date Jul 22, 2010
  */
-interface IDraggable implements ISprite
+class DisplayContainer extends DisplayObjectContainer, implements IDisplayContainer 
 {
-	public var dragEvents		(default, null)									: DragEvents;
-	
-	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) 		: Void;
-	public function stopDrag()													: Void;
+	var children	(default, null)	: DisplayList;
 	
 	
-#if flash9
-	public var dropTarget		(default, null)									: flash.display.DisplayObject;
-#else
-	public var dropTarget		(default, null)									: IDisplayObject;
-#end
+	public function new ()
+	{
+		super();
+		children = new DisplayList();
+	}
 }

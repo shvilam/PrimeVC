@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms.float;
+ import primevc.core.geom.Point;
  import primevc.gui.layout.algorithms.directions.Horizontal;
  import primevc.gui.layout.algorithms.IHorizontalAlgorithm;
  import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
@@ -132,29 +133,21 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 		
 		if (group.childWidth.notSet())
 		{
-			var percentWidth:Float = 0;
 			var i:Int = 0;
 			
 			for (child in group.children) {
 				if (!child.includeInLayout)
 					continue;
 				
-				if (child.percentHeight > 0)
-					percentWidth += child.percentWidth;
-				else
+				if (child.bounds.width.isSet())
+				{
 					width += child.bounds.width;
 				
-				//only count even children
-				if (i % 2 == 0)
-					halfWidth += child.bounds.width;
-				
+					//only count even children
+					if (i % 2 == 0)
+						halfWidth += child.bounds.width;
+				}
 				i++;
-			}
-
-			if (percentWidth > 0)
-			{
-				var groupWidth = group.is(AdvancedLayoutClient) ? group.as(AdvancedLayoutClient).explicitWidth : group.width;
-				width += Std.int( groupWidth * percentWidth / 100 );
 			}
 		}
 		else
@@ -174,6 +167,7 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 			case Horizontal.center:		applyCentered();
 			case Horizontal.right:		applyRightToLeft();
 		}
+		measurePrepared = false;
 	}
 	
 	
@@ -286,6 +280,141 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 				}
 			}
 		}
+	}
+
+
+	/**
+	 * 
+	 */
+	public inline function getDepthForPosition (pos:Point) : Int
+	{
+		return switch (direction) {
+			case Horizontal.left:		getDepthForPositionLtR(pos);
+			case Horizontal.center:		getDepthForPositionC(pos);
+			case Horizontal.right:		getDepthForPositionRtL(pos);
+		}
+	}
+	
+	
+	private inline function getDepthForPositionLtR (pos:Point) : Int
+	{
+		var depth:Int	= 0;
+		var posX:Int	= Std.int( pos.x + group.scrollX );
+		
+		if (group.childWidth.isSet())
+		{
+			depth = posX.divRound(group.childWidth);
+		}
+		else
+		{
+			//if pos <= 0, the depth will be 0
+			if (posX > 0)
+			{
+				//check if it's smart to start searching at the end or at the beginning..
+				var groupWidth = group.width;
+				if (group.is(AdvancedLayoutClient))
+					groupWidth = IntMath.min( group.as(AdvancedLayoutClient).measuredWidth, group.as(AdvancedLayoutClient).explicitWidth );
+				
+				var halfW = groupWidth * .5;
+				
+				if (posX < halfW) {
+					//start at beginning
+					for (child in group.children) {
+						if (child.includeInLayout && posX <= child.bounds.centerX)
+							break;
+						
+						depth++;
+					}
+				}
+				else
+				{
+					//start at end
+					var itr	= group.children.getReversedIterator();
+					depth	= group.children.length;
+					while (itr.hasNext()) {
+						var child = itr.next();
+						if (child.includeInLayout && posX >= child.bounds.centerX)
+							break;
+						
+						depth--;
+					}
+				}
+			}
+		}
+		return depth;
+	}
+
+
+	private inline function getDepthForPositionC (pos:Point) : Int
+	{
+		var depth:Int	= 0;
+		var posX:Int	= Std.int( pos.x + group.scrollX );
+		var length		= group.children.length;
+		
+		if (posX < halfWidth)
+		{
+			if (length % 2 == 1)
+				length -= 1;
+			
+			var leftDepth	= getDepthForPositionLtR(pos);
+			depth			= length - (2 * leftDepth);
+		}
+		else
+		{
+			var rightDepth	= getDepthForPositionRtL(pos);
+			depth			= length - (2 * rightDepth);
+		}
+		return depth;
+	}
+	
+	
+	private inline function getDepthForPositionRtL (pos:Point) : Int
+	{
+		var depth:Int	= 0;
+		var posX:Int	= Std.int( pos.x + group.scrollX );
+
+		if (group.childWidth.isSet())
+		{
+			depth = group.children.length - posX.divRound(group.childWidth);
+		}
+		else
+		{
+			var groupWidth = group.width;
+			if (group.is(AdvancedLayoutClient))
+				groupWidth = IntMath.min( group.as(AdvancedLayoutClient).measuredWidth, group.as(AdvancedLayoutClient).explicitWidth );
+			
+			//if pos <= 0, the depth will be 0
+			if (posX > groupWidth)
+			{
+				//check if it's smart to start searching at the end or at the beginning..
+				var halfW = groupWidth * .5;
+
+				if (posX < halfW) {
+					//start at beginning
+					for (child in group.children) {
+						if (child.includeInLayout && posX <= child.bounds.centerX)
+							break;
+
+						depth++;
+					}
+				}
+				else
+				{
+					//start at end
+					var itr		= group.children.getReversedIterator();
+					var depth	= group.children.length;
+					while (itr.hasNext()) {
+						var child = itr.next();
+						if (child.includeInLayout && posX >= child.bounds.centerX)
+							break;
+
+						depth--;
+					}
+				}
+			}
+
+		}
+		return depth;
 	}
 	
 	

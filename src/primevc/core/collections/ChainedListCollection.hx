@@ -80,6 +80,15 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	}
 	
 	
+	public function clone () : IList < DataType >
+	{
+		var l = new ChainedListCollection<DataType>(maxPerList);
+		for (child in this)
+			l.insertAt(child);
+		return l;
+	}
+	
+	
 	
 	//
 	// ILISTCOLLECTION METHODS

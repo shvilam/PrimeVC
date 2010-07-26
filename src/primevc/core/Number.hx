@@ -44,6 +44,9 @@ class Number
 	public static inline var INT_MIN:Int		= -2147483648;
 	public static inline var INT_MAX:Int		=  2147483647;
 	
+	public static inline var UINT_MIN:UInt		=  0;
+	public static inline var UINT_MAX:UInt		=  -1; //4294967295;		//<-- not working, since value is seen as Float
+	
 	/**
 	 * Value defining an undefined Int. Is needed since there's no value like
 	 * Math.NaN for integers..

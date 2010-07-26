@@ -33,6 +33,7 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.core.collections.ChainedList;
  import primevc.core.collections.IList;
  import primevc.core.collections.IListCollection;
+ import primevc.core.geom.Point;
  import primevc.core.Number;
  import primevc.core.RangeIterator;
  import primevc.gui.layout.algorithms.directions.Direction;
@@ -326,16 +327,21 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	//
 	
 	
+	override public function prepareMeasure ()
+	{
+		if (group.children.length > 0 && !measurePrepared && (horizontalMap == null || verticalMap == null))
+			createTileMap();
+		
+		super.prepareMeasure();
+	}
+	
+	
 	override public function measure () : Void
 	{
 		Assert.that( maxTilesInDirection.isSet(), "maxTilesInDirection should have been set" );
-		trace(this+".measure ");
 		
 		if (group.children.length == 0)
 			return;
-		
-		if (horizontalMap == null || verticalMap == null)
-			createTileMap();
 		
 		measureHorizontal();
 		measureVertical();
@@ -375,6 +381,7 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	override private function invalidate (shouldbeResetted:Bool = true) : Void
 	{
 		if (shouldbeResetted) {
+		//	trace(this + ".invalidated: resetTileMap!");
 			horizontalMap = verticalMap = null;
 			rows = columns = null;
 		}

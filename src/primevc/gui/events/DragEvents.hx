@@ -29,7 +29,7 @@
 package primevc.gui.events;
  import primevc.core.dispatcher.Signals;
  import primevc.core.dispatcher.Signal1;
- import primevc.gui.behaviours.dragdrop.DragSource;
+ import primevc.gui.behaviours.drag.DragSource;
 
 
 /**

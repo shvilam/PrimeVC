@@ -96,6 +96,12 @@ class DisplayList implements IList <ChildType>
 	}
 	
 	
+	public inline function clone () : IList <ChildType>
+	{
+		return new DisplayList( target, owner );
+	}
+	
+	
 	public inline function removeAll ()
 	{
 		for (child in this)

@@ -29,6 +29,7 @@
 package primevc.core.geom.constraints;
  import primevc.core.geom.BindableBox;
  import primevc.core.geom.BindablePoint;
+ import primevc.core.geom.IRectangle;
  import primevc.core.IDisposable;
   using primevc.utils.Bind;
 
@@ -39,7 +40,7 @@ package primevc.core.geom.constraints;
  * @creation-date	Jun 21, 2010
  * @author			Ruben Weijers
  */
-class ConstrainedRect implements IDisposable
+class ConstrainedRect implements IRectangle, implements IDisposable
 {
 	public var constraint		(default, setConstraint)		: BindableBox;
 	public var props			(default, null)					: BindableBox;
@@ -48,8 +49,8 @@ class ConstrainedRect implements IDisposable
 	public var bottom			(getBottom, setBottom)			: Int;
 	public var left				(getLeft, setLeft)				: Int;
 	public var right			(getRight, setRight)			: Int;
-	public var centerX			(getCenterX, setCenterX)		: Int;
-	public var centerY			(getCenterY, setCenterY)		: Int;
+	public var centerX			(getCenterX, setCenterX)		: Float;
+	public var centerY			(getCenterY, setCenterY)		: Float;
 	
 	public var size				(default, null)					: BindablePoint;
 	public var width			(getWidth, setWidth)			: Int;
@@ -86,8 +87,8 @@ class ConstrainedRect implements IDisposable
 	private inline function getRight ()		{ return props.right.value; }
 	private inline function getTop ()		{ return props.top.value; }
 	private inline function getBottom ()	{ return props.bottom.value; }
-	private inline function getCenterX ()	{ return left + Std.int(width * .5); }
-	private inline function getCenterY ()	{ return top + Std.int(height * .5); }
+	private inline function getCenterX ()	{ return left + (width * .5); }
+	private inline function getCenterY ()	{ return top + (height * .5); }
 	private inline function getWidth ()		{ return size.x; }
 	private inline function getHeight ()	{ return size.y; }
 	
@@ -155,14 +156,14 @@ class ConstrainedRect implements IDisposable
 	}
 	
 	
-	private inline function setCenterX (v:Int) {
-		left = v - Std.int(width * .5);
+	private inline function setCenterX (v:Float) {
+		left = Std.int(v - (width * .5));
 		return centerX;
 	}
 	
 	
-	private inline function setCenterY (v:Int) {
-		top = v - Std.int(height * .5);
+	private inline function setCenterY (v:Float) {
+		top = Std.int(v - (height * .5));
 		return centerY;
 	}
 	

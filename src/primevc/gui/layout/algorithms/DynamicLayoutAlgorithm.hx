@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms;
+ import primevc.core.geom.Point;
  import primevc.gui.layout.algorithms.directions.Direction;
  import primevc.gui.layout.algorithms.directions.Horizontal;
  import primevc.gui.layout.algorithms.directions.Vertical;
@@ -83,6 +84,17 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 	//
 	
 	
+	override public function prepareMeasure ()
+	{
+		if (!measurePrepared)
+		{
+			horAlgorithm.prepareMeasure();
+			verAlgorithm.prepareMeasure();
+		}
+		super.prepareMeasure();
+	}
+	
+	
 	public function measure ()
 	{
 		if (group.children.length == 0)
@@ -101,6 +113,7 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 	{
 		horAlgorithm.apply();
 		verAlgorithm.apply();
+		measurePrepared = false;
 	}
 	
 	
@@ -113,6 +126,10 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 	private function invalidate (shouldbeResetted:Bool = true) : Void
 	{
 		algorithmChanged.send();
+	}
+
+	public function getDepthForPosition (pos:Point) {
+		return group.children.length;
 	}
 	
 	

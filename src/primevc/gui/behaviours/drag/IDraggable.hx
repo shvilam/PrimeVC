@@ -26,44 +26,29 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.events;
- import primevc.core.dispatcher.Signals;
- import primevc.core.dispatcher.Signal1;
- import primevc.gui.behaviours.drag.DragSource;
-
+package primevc.gui.behaviours.drag;
+ import primevc.core.geom.Rectangle;
+ import primevc.gui.display.ISprite;
+ import primevc.gui.events.DragEvents;
 
 
 /**
- * Events used for objects that accept an object to be dragged in
+ * Interface describing objects that can be dragged around.
  * 
  * @author Ruben Weijers
- * @creation-date Jul 21, 2010
+ * @creation-date Jul 13, 2010
  */
-class DropTargetEvents extends Signals
+interface IDraggable implements ISprite
 {
-	/**
-	 * Dispatched by the target on which the dragged item is dropped on the
-	 * DropTarget.
-	 */
-	var drop	(default, null) : Signal1 <DragSource>;
+	public var dragEvents		(default, null)									: DragEvents;
 	
-	/**
-	 * Dispatched by an object when a IDraggable object is moved over it and
-	 * it's allowed to be dropped on the DropTarget.
-	 */
-	var over	(default, null) : Signal1 <DragSource>;
-	
-	/**
-	 * Dispatched by the DropTarget when an allowed IDraggable object is
-	 * moved out of the DropTarget.
-	 */
-	var out		(default, null) : Signal1 <DragSource>;
+	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) 		: Void;
+	public function stopDrag()													: Void;
 	
 	
-	public function new ()
-	{
-		drop	= new Signal1();
-		over	= new Signal1();
-		out		= new Signal1();
-	}
+#if flash9
+	public var dropTarget		(default, null)									: flash.display.DisplayObject;
+#else
+	public var dropTarget		(default, null)									: IDisplayObject;
+#end
 }

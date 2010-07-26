@@ -55,14 +55,13 @@ typedef Sprite =
  */
 class SpriteImpl implements ISprite
 {
-	public var displayList		(default, default)				: DisplayList;
+//	public var displayList		(default, null)					: DisplayList;
 	public var children			(default, null)					: DisplayList;
+	public var container		(default, setContainer)			: IDisplayContainer;
+	public var window			(default, setWindow)			: Window;
 	
 	public var userEvents		(default, null)					: UserEvents;
 	public var displayEvents	(default, null)					: DisplayEvents;
-	
-	public var dropTarget		(default, null)					: IDisplayObject;
-	public var parent			(default, null)					: ISprite;
 	
 	public var transform		(default,null)					: Matrix2D;
 	public var visible			(getVisibility, setVisibility)	: Bool;
@@ -110,14 +109,6 @@ class SpriteImpl implements ISprite
 	//
 	// GETTERS / SETTERS
 	//
-
-	private function setWindow (v) {
-		return window = v;
-	}
-	
-	
-	public function startDrag(?lockCenter:Bool, ?bounds:Rectangle) : Void;
-	public function stopDrag () : Void;
 	
 	private inline function getX ()					{ return x; }
 	private inline function getY ()					{ return y; }
@@ -130,5 +121,26 @@ class SpriteImpl implements ISprite
 	
 	private inline function getVisibility()			{ return _visible; }
 	private inline function setVisibility(v:Bool)	{ return _visible = v; }
+	
+	
+	private inline function setContainer (v)
+	{
+		container	= v;
+		window		= container.window;
+		return v;
+	}
+	
+	
+	private inline function setWindow (v)
+	{
+		if (window != v)
+		{
+			window = v;
+			for (child in children)
+				if (child != null)
+					child.window = v;
+		}
+		return v;
+	}
 }
 #end

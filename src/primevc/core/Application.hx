@@ -41,10 +41,10 @@ class Application
 		
 	public static inline function startup (ApplicationType:Class<Application>)
 	{
-#if (debug && MonsterTrace)
-		haxe.Log.trace = doTrace;
-#end
 #if debug
+	#if MonsterTrace
+		haxe.Log.trace	= doTrace;
+	#end
 		trace("started " + ApplicationType + "!");
 #end
 		
@@ -63,17 +63,28 @@ class Application
 	
 	public function new ( target )
 	{
-		window = new Window( target );
+		window = new Window( target, this );
+#if debug
+	#if MonsterTrace
+		clearTraces = nl.demonsters.debugger.MonsterDebugger.clearTraces;
+	#else
+		clearTraces = haxe.Log.clear;
+	#end
+#end
 	}
 	
 	
 	
 	
 	//
-	// MONSTERDEBUGGER SUPPORT
+	// MONSTERDEBUGGER / TRACE SUPPORT
 	//
 	
-#if (debug && MonsterTrace)
+#if debug
+	public var clearTraces : Void -> Void;
+	
+	
+	#if MonsterTrace
 	private static inline function getClassName (infos : haxe.PosInfos) : String {
 		return infos.className.split(".").pop(); //infos.fileName;
 	}
@@ -81,7 +92,7 @@ class Application
 	
 	private static inline function getTraceColor (name:String) : Int {
 		var length	= name.length; // - 3; // remove .hx
-		return name.charCodeAt(0) * name.charCodeAt( length >> 1 ) * name.charCodeAt( length - 1 );
+		return name.charCodeAt(2) * name.charCodeAt( length >> 1 ) * name.charCodeAt( length - 1 );
 	}
 	
 
@@ -92,5 +103,6 @@ class Application
 		var color	= getTraceColor( name );
 		nl.demonsters.debugger.MonsterDebugger.trace(name +':' + infos.lineNumber +'\t -> ' + infos.methodName, v, color);
 	}
+	#end
 #end
 }

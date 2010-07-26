@@ -28,6 +28,7 @@
  */
 package primevc.core.collections;
  import primevc.core.events.ListEvents;
+ import primevc.core.IClonable;
  import primevc.core.IDisposable;
  
 
@@ -37,7 +38,7 @@ package primevc.core.collections;
  * @creation-date	Jun 29, 2010
  * @author			Ruben Weijers
  */
-interface IList <DataType> implements IDisposable
+interface IList <DataType> implements IClonable<IList<DataType>>, implements IDisposable
 {
 	public var events		(default, null)									: ListEvents <DataType>;
 	public var length		(getLength, never)								: Int;

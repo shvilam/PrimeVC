@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms.circle;
+ import primevc.core.geom.Point;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.algorithms.directions.Vertical;
  import primevc.gui.layout.algorithms.IVerticalAlgorithm;
@@ -141,6 +142,7 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 			case Vertical.center:	applyCentered();
 			case Vertical.bottom:	applyBottomToTop();
 		}
+		measurePrepared = false;
 	}
 	
 	
@@ -180,6 +182,10 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 	private inline function applyCentered ()	: Void		{ applyCircle( -Math.PI / 2 ); }	//- 90 degrees
 	private inline function applyBottomToTop () : Void		{ applyCircle( -Math.PI ); }		//-180 degrees
 	
+	
+	public inline function getDepthForPosition (pos:Point) {
+		return group.children.length;
+	}
 	
 	
 	

@@ -27,8 +27,13 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.display;
+ import haxe.FastList;
+ import primevc.core.Application;
+ import primevc.gui.behaviours.layout.WindowLayoutBehaviour;
+ import primevc.gui.behaviours.IBehaviour;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEvents;
+ import primevc.gui.input.Mouse;
  import primevc.gui.layout.algorithms.relative.RelativeAlgorithm;
  import primevc.gui.layout.LayoutContainer;
 
@@ -50,22 +55,34 @@ private typedef TargetType =
  */
 class Window implements IDisplayContainer, implements IInteractiveObject
 {
-	private var target			(default, null)		: TargetType;
+	/**
+	 * Target is the original, platform-specific, root object. Although this
+	 * property is set as public, it's not recommended to use this property
+	 * directly!
+	 */
+	public var target			(default, null)		: TargetType;
 	public var children			(default, null)		: DisplayList;
+	public var window			(default, setWindow): Window;
+	public var application		(default, null)		: Application;
 	
 	public var layout			(default, null)		: LayoutContainer;
 	
 	public var displayEvents	(default, null)		: DisplayEvents;
 	public var userEvents		(default, null)		: UserEvents;
 	
+	public var mouse			(default, null)		: Mouse;
+	public var behaviours		(default, null)		: FastList < IBehaviour <Dynamic> >;
 	
-	public function new (target:TargetType)
+	
+	public function new (target:TargetType, app:Application)
 	{
 		this.target			= target;
-		children			= new DisplayList( target );
-		children.window		= this;
+		children			= new DisplayList( target, this );
+		window				= this;
+		application			= app;
 		displayEvents		= new DisplayEvents( target );
 		userEvents			= new UserEvents( target );
+		mouse				= new Mouse( this );
 		
 #if flash9
 		layout				= new primevc.avm2.layout.StageLayout( target );
@@ -73,6 +90,12 @@ class Window implements IDisplayContainer, implements IInteractiveObject
 		layout				= new LayoutContainer();
 #end
 		layout.algorithm	= new RelativeAlgorithm();
+		
+		behaviours			= new FastList< IBehaviour<Dynamic> > ();
+		behaviours.add( new WindowLayoutBehaviour (this) );
+		
+		for (behaviour in behaviours)
+			behaviour.initialize();
 	}
 	
 	
@@ -81,6 +104,9 @@ class Window implements IDisplayContainer, implements IInteractiveObject
 		if (displayEvents == null)
 			return;
 		
+		for (behaviour in behaviours)
+			behaviour.dispose();
+		
 		children.dispose();
 		displayEvents.dispose();
 		userEvents.dispose();
@@ -88,6 +114,7 @@ class Window implements IDisplayContainer, implements IInteractiveObject
 		children		= null;
 		displayEvents	= null;
 		userEvents		= null;
+		behaviours		= null;
 	}
 	
 	
@@ -110,6 +137,16 @@ class Window implements IDisplayContainer, implements IInteractiveObject
 	public var tabEnabled			: Bool;
 	public var tabIndex				: Int;
 	
+	
+	//
+	// GETTERS / SETTERS
+	//
+	
+	
+	
+	private inline function setWindow (v) {
+		return window = this;
+	}
 	
 #if debug
 	public inline function toString () { return "Window"; }

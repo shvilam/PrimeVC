@@ -26,22 +26,26 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours.dragdrop;
+package primevc.gui.behaviours.drag;
  import primevc.core.geom.Point;
  import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.core.ISkin;
+ import primevc.gui.display.IDisplayObject;
  import primevc.gui.events.KeyboardEvents;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
  
 
 /**
- * Behaviour which will an UI-element draggable.
+ * Behaviour which will add drag-and-drop functionality to an object.
+ * The given target object needs to implement the interface IDraggable.
+ * 
+ * To drop an item in a sprite, this sprite needs to implement the interface
+ * IDropTarget.
  * 
  * @creation-date	Jul 8, 2010
  * @author			Ruben Weijers
  */
-class DragBehaviour extends BehaviourBase <IDraggable>
+class DragDropBehaviour extends BehaviourBase <IDraggable>
 {
 	private var dragSource	: DragSource;
 	private var copyTarget	: Bool;
@@ -63,9 +67,15 @@ class DragBehaviour extends BehaviourBase <IDraggable>
 	override private function reset () : Void
 	{
 		target.userEvents.mouse.down.unbind( this );
-		target.displayList.window.userEvents.mouse.up.unbind( this );
-		target.displayList.window.userEvents.key.down.unbind( this );
-		dragSource = null;
+		target.window.mouse.events.up.unbind( this );
+		target.window.mouse.events.move.unbind( this );
+		target.window.userEvents.key.down.unbind( this );
+		
+		if (dragSource != null) {
+			target.stopDrag();
+			dragSource.dispose();
+			dragSource = null;
+		}
 	}
 	
 	
@@ -75,43 +85,82 @@ class DragBehaviour extends BehaviourBase <IDraggable>
 		
 #if flash9
 		//move item to correct location
-		var pos		= new Point(target.x, target.y);
-		pos			= target.as(flash.display.DisplayObject).parent.localToGlobal(pos);
-		target.x	= pos.x;
-		target.y	= pos.y;
-		var w = target.displayList.window;
-		w.children.add( cast target );
+		var pos			= target.container.as(IDisplayObject).localToGlobal( dragSource.origPosition );
+		target.visible	= false;
+		target.x		= pos.x;
+		target.y		= pos.y;
+		target.window.children.add( cast target );
+		target.visible	= true;
 #end
 		
+		//start dragging and fire events
 		target.startDrag();
+		target.dragEvents.start.send(dragSource);
 		
 		//set event handlers
 		target.userEvents.mouse.down.unbind( this );
-		stopDrag.on( target.displayList.window.userEvents.mouse.up, this );
-		handleKeyPress.on( target.displayList.window.userEvents.key.down, this );
+		stopDrag		.on( target.window.mouse.events.up, this );
+		checkDropTarget	.on( target.window.mouse.events.move, this );
+		handleKeyPress	.on( target.window.userEvents.key.down, this );
 	}
 	
 	
 	private inline function stopDrag () : Void
 	{
-		target.stopDrag();
-		dragSource.origDisplayList.add( cast target, dragSource.origDepth );
-		dragSource = null;
+		if (dragSource.dropTarget != null)
+		{
+#if flash9
+			var pos		= new Point(target.x, target.y);
+			pos			= dragSource.dropTarget.globalToLocal( pos );
+			dragSource.dropPosition = pos;
+#end
+			//notify the dragged item that the drag-operation is completed
+			target.dragEvents.complete.send(dragSource);
+			
+			//notify the dragSource that an item is dropped
+			dragSource.dropTarget.dragEvents.drop.send(dragSource);
+		}
+		else
+		{
+			//restore to old location
+			target.visible	= false;
+			target.x		= dragSource.origPosition.x;
+			target.y		= dragSource.origPosition.y;
+			dragSource.origContainer.children.add( target, dragSource.origDepth );
+			target.visible	= true;
+			
+			//notifiy the dragged item that the drag-operation is canceled
+			target.dragEvents.exit.send( dragSource );
+		}
 		
-		target.displayList.window.userEvents.mouse.up.unbind( this );
-		target.displayList.window.userEvents.key.down.unbind( this );
+		reset();
+		//listen to mouse down event again
 		startDrag.on( target.userEvents.mouse.down, this );
 	}
 	
 	
 	private inline function cancelDrag () : Void
 	{
-		if (target.is(ISkin)) {
-			var layout = target.as(ISkin).layout;
-			target.x = layout.x;
-			target.y = layout.y;
-		}
+		dragSource.dropTarget = null;
 		stopDrag();
+	}
+	
+	
+	private function checkDropTarget () : Void
+	{
+		var curDropTarget = target.dropTarget.as(IDropTarget);
+		if (curDropTarget == null && (dragSource.dropTarget == null || !dragSource.target.isObjectOn( dragSource.dropTarget ))) {
+			dragSource.dropTarget = null;
+			return;
+		}
+		//make sure the new droptarget isn't the same as the previous droptarget
+		if (curDropTarget == dragSource.dropTarget || curDropTarget == null)
+			return;
+		
+		//check if the drag is allowed over the current dropTarget
+		if (curDropTarget.isDropAllowed(dragSource)) {
+			dragSource.dropTarget = curDropTarget;
+		}
 	}
 	
 	

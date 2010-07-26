@@ -57,7 +57,7 @@ class FastArrayUtil
 	public static inline function insertAt<T>( list:FastArray<T>, item:T, pos:Int ) : Int
 	{
 		var newPos:Int = 0;
-		if (pos < 0)
+		if (pos < 0 || pos == Std.int(list.length))
 		{
 			newPos = list.push( item ) - 1;
 		}
@@ -68,8 +68,11 @@ class FastArrayUtil
 				pos = len;
 			
 			//move all items in the list one place down
-			for (i in (list.length + 1)...pos)
+			var i = list.length;
+			while ( i > pos ) {
 				list[i] = list[i - 1];
+				i--;
+			}
 			
 			list[pos] = item;
 			newPos = pos;
@@ -78,7 +81,7 @@ class FastArrayUtil
 	}
 	
 	
-	public static inline function move<T>( list:FastArray<T>, item:T, newPos:Int ) : Bool
+	public static function move<T>( list:FastArray<T>, item:T, newPos:Int ) : Bool
 	{
 		var curPos:Int = list.indexOf(item);
 		
@@ -88,8 +91,12 @@ class FastArrayUtil
 		if (curPos != newPos)
 		{
 			if (curPos > newPos) {
-				for (i in newPos...curPos)
+			//	for (i in newPos...curPos)
+				var i = newPos;
+				while ( i > curPos ) {
 					list[i] = list[i - 1];
+					i--;
+				}
 				
 				list[newPos] = item;
 			} else {
