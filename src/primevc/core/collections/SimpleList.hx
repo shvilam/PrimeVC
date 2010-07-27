@@ -365,8 +365,10 @@ class SimpleListForwardIterator <DataType> implements IIterator <DataType>
 		rewind();
 	}
 	
-	public inline function rewind ()	{ current = list.first; }
-	public inline function hasNext () 	{ return current != null; }
+	public inline function setCurrent (val:Dynamic)	{ current = val; }
+	public inline function rewind ()				{ current = list.first; }
+	public inline function hasNext () 				{ return current != null; }
+	
 	public inline function next () : DataType
 	{
 		var c = current;
@@ -396,8 +398,10 @@ class SimpleListReversedIterator <DataType> implements IIterator <DataType>
 		rewind();
 	}
 	
-	public inline function rewind ()	{ current = list.last; }
-	public inline function hasNext ()	{ return current != null; }
+	public inline function setCurrent (val:Dynamic)	{ current = val; }
+	public inline function rewind ()				{ current = list.last; }
+	public inline function hasNext ()				{ return current != null; }
+	
 	public inline function next () : DataType
 	{
 		var c = current;

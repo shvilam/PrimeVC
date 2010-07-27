@@ -377,7 +377,7 @@ class ChainedListCollectionIterator <DataType> implements IIterator <DataType>
 	private var target			(default, null)					: ChainedListCollection<DataType>;
 	private var currentList 	(default, setCurrentList)		: ChainedList<DataType>;
 	private var listIterator	: Iterator<DataType>;
-	public var currentPos		: Int;
+	private var current			: Int;
 	
 	
 	public function new (target:ChainedListCollection<DataType>) 
@@ -387,15 +387,20 @@ class ChainedListCollectionIterator <DataType> implements IIterator <DataType>
 	}
 	
 	
+	public inline function setCurrent (val:Dynamic) {
+		current = val;
+	}
+	
+	
 	public inline function rewind () {
-		currentPos	= 0;
+		current		= 0;
 		currentList	= target.lists.getItemAt(0);
 	}
 	
 	
 	public inline function hasNext () : Bool
 	{
-		return currentPos < target.length;
+		return current < target.length;
 	}
 	
 	
@@ -412,7 +417,7 @@ class ChainedListCollectionIterator <DataType> implements IIterator <DataType>
 			}
 		}
 		
-		currentPos++;
+		current++;
 		return nextItem;
 	}
 	

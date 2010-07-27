@@ -126,7 +126,7 @@ class ArrayList <DataType> implements IList <DataType>
 		if		(newPos > (length - 1))		newPos = length - 1;
 		else if (newPos < 0)				newPos = length - newPos;
 		
-		if (curPos != newPos && list.move(item, newPos))
+		if (curPos != newPos && list.move(item, newPos, curPos))
 			events.moved.send( item, curPos, newPos );
 		
 		return item;

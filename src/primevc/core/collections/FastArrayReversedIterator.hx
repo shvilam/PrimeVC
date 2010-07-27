@@ -40,14 +40,15 @@ class FastArrayReversedIterator <DataType> implements IIterator <DataType>
 	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	private var target (default, null)	: FastArray<DataType>;
-	public var current 					: Int;
+	private var current 				: Int;
 	
 	
 	public function new (target:FastArray<DataType>) {
 		this.target = target;
 		rewind();
 	}
-	public inline function rewind ()	{ current = target.length - 1; }
-	public inline function hasNext ()	{ return current >= 0; }
-	public inline function next ()		{ return target[current--]; }
+	public inline function setCurrent (val:Dynamic)	{ current = val; }
+	public inline function rewind ()				{ current = target.length - 1; }
+	public inline function hasNext ()				{ return current >= 0; }
+	public inline function next ()					{ return target[current--]; }
 }

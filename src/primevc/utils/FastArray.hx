@@ -81,26 +81,26 @@ class FastArrayUtil
 	}
 	
 	
-	public static function move<T>( list:FastArray<T>, item:T, newPos:Int ) : Bool
+	public static inline function move<T>( list:FastArray<T>, item:T, newPos:Int, curPos:Int = -1 ) : Bool
 	{
-		var curPos:Int = list.indexOf(item);
+		if (curPos == -1)
+			curPos = list.indexOf(item);
 		
 		if (newPos > list.length)		throw "Position is bigger then the list length";
 		if (curPos < 0)					throw "Item is not part of list so cannot be moved";
-			
+		
 		if (curPos != newPos)
 		{
 			if (curPos > newPos) {
-			//	for (i in newPos...curPos)
-				var i = newPos;
-				while ( i > curPos ) {
+				var i = curPos;
+				while ( i > newPos ) {
 					list[i] = list[i - 1];
 					i--;
 				}
 				
 				list[newPos] = item;
 			} else {
-				for (i in newPos...curPos)
+				for (i in curPos...newPos)
 					list[i] = list[i + 1];
 				
 				list[newPos] = item;

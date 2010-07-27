@@ -1,4 +1,5 @@
 package cases;
+ import primevc.core.collections.ArrayList;
  import primevc.core.collections.BalancingListCollection;
  import primevc.core.collections.ChainedListCollection;
  import primevc.core.collections.SimpleList;
@@ -18,50 +19,50 @@ class CollectionTest
 		
 		
 		//
-		// TEST LIST COLLECTION
+		// TEST SIMPLE LIST
 		//
 		trace("START SIMPLE-LIST");
 		var tile1:Tile, tile2:Tile, tile3:Tile;
-		var list = new SimpleList<Tile>();
-		Assert.equal(list.length, 0);
+		var slist = new SimpleList<Tile>();
+		Assert.equal(slist.length, 0);
 		
-		list.add( tile1 = tile = new Tile() );
-		Assert.equal(list.length, 1);
-		Assert.equal(list.first.data, tile);
-		Assert.equal(list.last.data, tile);
-		Assert.equal(list.last.prev, null);
-		Assert.equal(list.last.next, null);
+		slist.add( tile1 = tile = new Tile() );
+		Assert.equal(slist.length, 1);
+		Assert.equal(slist.first.data, tile);
+		Assert.equal(slist.last.data, tile);
+		Assert.equal(slist.last.prev, null);
+		Assert.equal(slist.last.next, null);
 		
-		list.add( tile2 = tile = new Tile() );
-		Assert.equal(list.length, 2);
-		Assert.notEqual(list.first.data, tile);
-		Assert.equal(list.first.data, tile1);
-		Assert.equal(list.last.data, tile);
+		slist.add( tile2 = tile = new Tile() );
+		Assert.equal(slist.length, 2);
+		Assert.notEqual(slist.first.data, tile);
+		Assert.equal(slist.first.data, tile1);
+		Assert.equal(slist.last.data, tile);
 		
-		Assert.equal(list.first.prev, null);
-		Assert.equal(list.first.next, list.last);
-		Assert.equal(list.last.data, tile);
-		Assert.equal(list.last.prev, list.first);
-		Assert.equal(list.last.next, null);
+		Assert.equal(slist.first.prev, null);
+		Assert.equal(slist.first.next, slist.last);
+		Assert.equal(slist.last.data, tile);
+		Assert.equal(slist.last.prev, slist.first);
+		Assert.equal(slist.last.next, null);
 		
-		list.add( tile3 = tile = new Tile(), 1 );
-		Assert.equal(list.length, 3);
+		slist.add( tile3 = tile = new Tile(), 1 );
+		Assert.equal(slist.length, 3);
 		
-		Assert.notEqual(list.last.data, tile);
-		Assert.equal(list.first.data, tile1);
-		Assert.equal(list.last.data, tile2);
-		Assert.equal(list.first.next.data, tile3);
-		Assert.equal(list.last.prev.data, tile3);
+		Assert.notEqual(slist.last.data, tile);
+		Assert.equal(slist.first.data, tile1);
+		Assert.equal(slist.last.data, tile2);
+		Assert.equal(slist.first.next.data, tile3);
+		Assert.equal(slist.last.prev.data, tile3);
 		
-		Assert.equal(list.first.prev, null);
-		Assert.equal(list.first.next, list.last.prev);
-		Assert.equal(list.first.next.next, list.last);
-		Assert.equal(list.first.next.prev, list.first);
-		Assert.equal(list.last.next, null);
+		Assert.equal(slist.first.prev, null);
+		Assert.equal(slist.first.next, slist.last.prev);
+		Assert.equal(slist.first.next.next, slist.last);
+		Assert.equal(slist.first.next.prev, slist.first);
+		Assert.equal(slist.last.next, null);
 		
 		//test iterator
 		var current = tile1;
-		for (item in list) {
+		for (item in slist) {
 			Assert.equal(current, item);
 			if (current == tile1)		current = tile3;
 			else if (current == tile3)	current = tile2;
@@ -71,29 +72,84 @@ class CollectionTest
 		// test moving items around
 		//
 		
-		trace(list);
+		trace(slist);
 		
-		//test moving items higher in the list
+		//test moving items higher in the slist
 		trace("moving item up: "+tile1+" to 2");
-		list.move(tile1, 2);
-		trace(list);
-		Assert.equal( list.first.data,		tile3 );
-		Assert.equal( list.last.data,		tile1 );
-		Assert.equal( list.first.next.data,	tile2 );
-		Assert.equal( list.last.next,		null );
-		Assert.equal( list.last.prev.data,	tile2 );
+		slist.move(tile1, 2);
+		trace(slist);
+		Assert.equal( slist.first.data,		tile3 );
+		Assert.equal( slist.last.data,		tile1 );
+		Assert.equal( slist.first.next.data,	tile2 );
+		Assert.equal( slist.last.next,		null );
+		Assert.equal( slist.last.prev.data,	tile2 );
 		
-		//test moving items lower in the list
+		//test moving items lower in the slist
 		trace("moving item down: "+tile1+" to 0");
-		list.move(tile1, 0);
-		trace(list);
-		Assert.equal( list.first.data,		tile1 );
-		Assert.equal( list.last.data,		tile2 );
-		Assert.equal( list.first.next.data,	tile3 );
-		Assert.equal( list.last.next,		null );
-		Assert.equal( list.last.prev.data,	tile3 );
+		slist.move(tile1, 0);
+		trace(slist);
+		Assert.equal( slist.first.data,		tile1 );
+		Assert.equal( slist.last.data,		tile2 );
+		Assert.equal( slist.first.next.data,	tile3 );
+		Assert.equal( slist.last.next,		null );
+		Assert.equal( slist.last.prev.data,	tile3 );
 		
 		trace("END SIMPLE LIST\n\n");
+		
+		
+		//
+		// TEST ARRAY LIST
+		//
+		trace("START ARRAY-LIST");
+		var alist = new ArrayList<Tile>();
+		Assert.equal(alist.length, 0);
+		
+		alist.add( tile1 = tile = new Tile() );
+		Assert.equal(alist.length, 1);
+		Assert.equal(alist.getItemAt(0), tile);
+		
+		alist.add( tile2 = tile = new Tile() );
+		Assert.equal(alist.length, 2);
+		Assert.equal(alist.getItemAt(0), tile1);
+		Assert.equal(alist.getItemAt(1), tile2);
+		
+		alist.add( tile3 = tile = new Tile(), 1 );
+		Assert.equal(alist.length, 3);
+		Assert.equal(alist.getItemAt(0), tile1);
+		Assert.equal(alist.getItemAt(1), tile3);
+		Assert.equal(alist.getItemAt(2), tile2);
+		
+		//test iterator
+		var current = tile1;
+		for (item in alist) {
+			Assert.equal(current, item);
+			if (current == tile1)		current = tile3;
+			else if (current == tile3)	current = tile2;
+		}
+		
+		//
+		// test moving items around
+		//
+		
+		trace(alist);
+		
+		//test moving items higher in the alist
+		trace("moving item up: "+tile1+" to 2");
+		alist.move(tile1, 2);
+		trace(alist);
+		Assert.equal(alist.getItemAt(0), tile3);
+		Assert.equal(alist.getItemAt(1), tile2);
+		Assert.equal(alist.getItemAt(2), tile1);
+		
+		//test moving items lower in the alist
+		trace("moving item down: "+tile1+" to 0");
+		alist.move(tile1, 0);
+		trace(alist);
+		Assert.equal(alist.getItemAt(0), tile1);
+		Assert.equal(alist.getItemAt(1), tile3);
+		Assert.equal(alist.getItemAt(2), tile2);
+		
+		trace("END ARRAY LIST\n\n");
 		
 		
 		
@@ -115,7 +171,7 @@ class CollectionTest
 		chained.add( tile = new Tile() );
 		chained.add( tile = new Tile() );
 		chained.add( tile = new Tile() );
-		iterateList(chained);
+		
 		Assert.equal(chained.indexOf( tile ), 3 );
 		Assert.equal(chained.length, 4);
 		Assert.equal(chained.lists.length, 1);
@@ -128,8 +184,6 @@ class CollectionTest
 		Assert.equal(chained.lists.getItemAt(0).length, 4);
 		Assert.equal(chained.lists.getItemAt(1).length, 2);
 		Assert.equal(chained.lists.length, 2);
-		
-		iterateList(chained);
 		
 		Assert.equal(chained.lists.getItemAt(0).getItemAt(0).id, 0);
 		Assert.equal(chained.lists.getItemAt(0).getItemAt(1).id, 1);
@@ -301,20 +355,6 @@ class CollectionTest
 		//*/
 		
 		trace("TEST FINISHED!");
-	}
-	
-	
-	public static inline function iterateList (lists:ChainedListCollection<Tile>) {
-		
-	//	trace("\niterating through items " + lists.length);
-		
-		var pos = 0;
-		for (item in lists) {
-	//		trace("list[" + pos + "] = " + item);
-			pos++;
-		}
-		
-	//	trace("finished iterating through items\n");
 	}
 }
 

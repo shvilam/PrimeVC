@@ -35,7 +35,8 @@ package primevc.core.collections;
  */
 interface IIterator <DataType>
 {
-	public function rewind ()	: Void;
-	public function hasNext ()	: Bool;
-	public function next ()		: DataType;
+	public function setCurrent	(newPos:Dynamic)	: Void;
+	public function rewind ()						: Void;
+	public function hasNext ()						: Bool;
+	public function next ()							: DataType;
 }
