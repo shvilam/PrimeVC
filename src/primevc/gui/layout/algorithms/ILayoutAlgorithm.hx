@@ -76,10 +76,12 @@ interface ILayoutAlgorithm implements IDisposable
 	 */
 	public function apply ()								: Void;
 	
-	
 	/**
 	 * Method will return the depth that belongs to the given coordinates.
 	 * The depth of an object depends on the type of algorithm that is used.
+	 * 
+	 * Before calling this method, the method 'removeStartPosFromPoint' should
+	 * be called to make sure the point is valid within the algorithms.
 	 */
 	public function getDepthForPosition	(pos:Point)			: Int;
 }

@@ -30,6 +30,7 @@ package primevc.gui.behaviours.drag;
  import primevc.core.IDisposable;
  import primevc.core.geom.Point;
  import primevc.gui.display.IDisplayContainer;
+ import primevc.gui.layout.LayoutClient;
   using primevc.utils.TypeUtil;
 
 
@@ -61,6 +62,7 @@ class DragSource implements IDisposable
 	 */
 	public var origPosition		(default, null)				: Point;
 	
+	public var layout			(default, null)				: LayoutClient;
 	
 	
 	/**
@@ -81,6 +83,7 @@ class DragSource implements IDisposable
 		target			= newTarget;
 		dropTarget		= newTarget.container.as(IDropTarget);
 		origPosition	= new Point(target.x, target.y);
+		layout			= new LayoutClient( Std.int(target.width), Std.int(target.height) );
 		
 		origContainer	= target.container;
 		origDepth		= target.container.children.indexOf(target);

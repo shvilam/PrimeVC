@@ -238,6 +238,7 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 		child.parent = this;
 		if (bounds.left != 0)	child.bounds.left	= bounds.left;
 		if (bounds.top != 0)	child.bounds.top	= bounds.top;
+	//	trace(name+".childAddedHandler "+child+"; bounds: "+bounds+"; child.bounds: "+child.bounds);
 	}
 
 	

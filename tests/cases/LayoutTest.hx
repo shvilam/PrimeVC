@@ -103,8 +103,8 @@ class LayoutAppSkin extends Skin < LayoutTest >
 		layout = new LayoutContainer();
 	//	layout.width	= 800;
 	//	layout.height	= 650;
-		layout.percentWidth		= 90;
-		layout.percentHeight	= 90;
+		layout.relative			= new RelativeLayout( 5, 5, 5 );
+		layout.percentWidth		= 70;
 		layout.padding	= new Box( 5 );
 		layoutGroup.algorithm = new RelativeAlgorithm();
 	}
@@ -122,14 +122,14 @@ class LayoutAppSkin extends Skin < LayoutTest >
 		var frame0						= new TileList( true );
 		frame0.layoutGroup.algorithm	= new VerticalFloatAlgorithm();
 		frame0.layout.percentHeight		= 100;
-		frame0.layout.width				= 150;
+	//	frame0.layout.width				= 150;
 		
 		var frame1						= new TileList( true );
 		frame1.layoutGroup.algorithm	= new HorizontalFloatAlgorithm();
 		frame1.layout.height			= 60;
 		frame1.layout.relative			= new RelativeLayout( 5, 5, -100000, 5 );
 		
-		var frame2						= new TileList(true);
+		var frame2						= new TileList( true );
 		frame2.layoutGroup.algorithm	= new DynamicLayoutAlgorithm(
 			new HorizontalCircleAlgorithm( Horizontal.left ),
 			new VerticalCircleAlgorithm( Vertical.top )
@@ -137,7 +137,7 @@ class LayoutAppSkin extends Skin < LayoutTest >
 		frame2.layout.relative			= new RelativeLayout( frame1.layout.bounds.bottom + 5, -100000, 5, 5 );
 		frame2.layout.percentWidth		= 58;
 		
-		var frame3						= new TileList(true, true);
+		var frame3						= new TileList( true );
 		frame3.layoutGroup.algorithm	= new DynamicTileAlgorithm();
 		frame3.layout.percentWidth		= 100;
 		frame3.layout.percentHeight		= 60;
@@ -159,7 +159,7 @@ class LayoutAppSkin extends Skin < LayoutTest >
 		frame7.layout.percentHeight		= 5;
 	//	frame7.layout.sizeConstraint	= new SizeConstraint(100, 400, 50, 200);
 		
-		var frame8						= new TileList(true);
+		var frame8						= new TileList( true );
 		var frame8Alg					= new FixedTileAlgorithm();
 		frame8Alg.maxTilesInDirection	= 2;
 		frame8Alg.startDirection		= Direction.vertical;
@@ -490,7 +490,9 @@ class TileList extends Frame, implements IDropTarget
 				l.width, // - l.padding.left - l.padding.right, 
 				l.height //- l.padding.top - l.padding.bottom
 			);
+			
 			g.endFill();
+			
 		}
 	}
 
@@ -522,13 +524,16 @@ class TileListBehaviour extends BehaviourBase <TileList>
 {
 	override private function init () 
 	{
-	//	addTile				.on( target.userEvents.mouse.click, this );
-		addDroppedTile		.on( target.dragEvents.drop, this );
-		addTileToLayout		.on( target.children.events.added, this );
-		removeTileFromLayout.on( target.children.events.removed, this );
-		moveTileInLayout	.on( target.children.events.moved, this );
+	//	addTile					.on( target.userEvents.mouse.click, this );
+		dragOverHandler			.on( target.dragEvents.over, this );
+		removeTmpTileFromLayout	.on( target.dragEvents.out, this );
 		
-		for ( i in 0...25 )
+		addDroppedTile			.on( target.dragEvents.drop, this );
+		addTileToLayout			.on( target.children.events.added, this );
+		removeTileFromLayout	.on( target.children.events.removed, this );
+		moveTileInLayout		.on( target.children.events.moved, this );
+		
+		for ( i in 0...19 )
 			addTile();
 	}
 	
@@ -565,20 +570,25 @@ class TileListBehaviour extends BehaviourBase <TileList>
 
 	private function addDroppedTile (droppedItem:DragSource) : Void
 	{
+		removeTmpTileFromLayout(droppedItem);
 		var tile = droppedItem.target.as(Tile);
 		
 		trace(target + ".addDroppedTile "+droppedItem);
 		
-		var pos = target.children.length;
+	//	droppedItem.dropPosition.x += droppedItem.target.width * .5;
+	//	droppedItem.dropPosition.y += droppedItem.target.height * .5;
+		var depth = target.children.length;
 		if (target.layoutGroup.algorithm != null)
-			pos = target.layoutGroup.algorithm.getDepthForPosition( droppedItem.dropPosition );
+			depth = target.layoutGroup.algorithm.getDepthForPosition( droppedItem.dropPosition );
 		
-		trace("drop depth = "+pos);
+		trace("drop depth = "+depth);
 		
 		if (droppedItem.origContainer != target || !target.children.has(tile))
-			target.children.add( tile, pos );
+			target.children.add( tile, depth );
 		else
-			target.children.move( tile, pos );
+			target.children.move( tile, depth );
+		
+		trace(target.layoutGroup.children);
 	}
 
 
@@ -612,6 +622,49 @@ class TileListBehaviour extends BehaviourBase <TileList>
 		
 	//	trace(target + ".moveTileInLayout "+child+": " + oldPos + " -> "+newPos);
 		target.layoutGroup.children.move( child.as(Tile).layout, newPos );
+	}
+	
+	
+	private var draggedItem: DragSource;
+	
+	private function dragOverHandler (source:DragSource) {
+		draggedItem = source;
+		updateListAfterMouseMove.on( target.window.mouse.events.move, this );
+	}
+	
+	
+	private function removeTmpTileFromLayout (source:DragSource) {
+		target.window.mouse.events.move.unbind( this );
+		target.layoutGroup.children.remove( source.layout );
+		draggedItem = null;
+	}
+	
+	private function updateListAfterMouseMove (mouseObject:MouseState) {
+		var tile		= draggedItem.target.as(Tile);
+		var newDepth	= target.children.length;
+		var dragPos		= target.globalToLocal( new Point( tile.x, tile.y ) );
+		var curDepth	= target.layoutGroup.children.indexOf(draggedItem.layout);
+		
+		if (target.layoutGroup.algorithm != null)
+			newDepth = target.layoutGroup.algorithm.getDepthForPosition( dragPos );
+		
+		//lower with one if the object should be placed at the end of the list, and is already there
+		if (curDepth > -1 && newDepth == target.children.length)
+			newDepth -= 1;
+		
+		if (curDepth == -1) {
+			trace("add layout object");
+			target.layoutGroup.children.add( draggedItem.layout, newDepth );
+			trace(target.layoutGroup.children);
+		}
+		else if (curDepth != newDepth){
+			trace("move layout object");
+			target.layoutGroup.children.move( draggedItem.layout, newDepth, curDepth );
+			trace(target.layoutGroup.children);
+		}
+		else {
+			trace("doNothing");
+		}
 	}
 }
 

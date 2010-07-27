@@ -350,13 +350,16 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	
 	override public function measureHorizontal ()
 	{
-		var w:Int;
-		if (startDirection == Direction.horizontal) {
-			columns.measureHorizontal();
-			w = rows.width = columns.width;
-		} else {
-			rows.measureHorizontal();
-			w = columns.width = rows.width;
+		var w:Int = 0;
+		
+		if (group.children.length > 0) {
+			if (startDirection == Direction.horizontal) {
+				columns.measureHorizontal();
+				w = rows.width = columns.width;
+			} else {
+				rows.measureHorizontal();
+				w = columns.width = rows.width;
+			}
 		}
 		
 		setGroupWidth(w);
@@ -365,13 +368,15 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	
 	override public function measureVertical ()
 	{
-		var h:Int;
-		if (startDirection == Direction.horizontal) {
-			rows.measureVertical();
-			h = columns.height = rows.height;
-		} else {
-			columns.measureVertical();
-			h = rows.height = columns.height;
+		var h:Int = 0;
+		if (group.children.length > 0) {
+			if (startDirection == Direction.horizontal) {
+				rows.measureVertical();
+				h = columns.height = rows.height;
+			} else {
+				columns.measureVertical();
+				h = rows.height = columns.height;
+			}	
 		}
 		
 		setGroupHeight(h);

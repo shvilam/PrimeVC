@@ -401,8 +401,8 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 				else
 				{
 					//start at end
-					var itr		= group.children.getReversedIterator();
-					var depth	= group.children.length;
+					var itr	= group.children.getReversedIterator();
+					depth	= group.children.length;
 					while (itr.hasNext()) {
 						var child = itr.next();
 						if (child.includeInLayout && posX >= child.bounds.centerX)
@@ -451,7 +451,7 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	{
 		var start	= direction == Horizontal.left ? "left" : "right";
 		var end		= direction == Horizontal.left ? "right" : "left";
-		return group + ".Float.hor " + start + " -> " + end;
+		return group.name + ".Float.hor " + start + " -> " + end;
 	}
 #end
 }

@@ -33,8 +33,10 @@ package primevc.gui.layout.algorithms.circle;
  import primevc.gui.layout.algorithms.IHorizontalAlgorithm;
  import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
  import primevc.gui.layout.LayoutFlags;
+ import primevc.utils.Formulas;
  import primevc.utils.IntMath;
   using primevc.utils.BitUtil;
+  using primevc.utils.Formulas;
   using primevc.utils.IntMath;
   using primevc.utils.IntUtil;
   using primevc.utils.TypeUtil;
@@ -48,13 +50,23 @@ package primevc.gui.layout.algorithms.circle;
  */
 class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizontalAlgorithm
 {
-	public var direction (default, setDirection)	: Horizontal;
+	public var direction	(default, setDirection)	: Horizontal;
+	
+	/**
+	 * isEllipse defines if the circle that is drawn can be an ellipse or should
+	 * always be a complete circle (by using the same radius for both hor and
+	 * vertical).
+	 * 
+	 * @default		true
+	 */
+	public var isEllipse	(default, null)			: Bool;
 	
 	
-	public function new ( ?direction )
+	public function new ( ?direction, ?isEllipse:Bool = true )
 	{
 		super();
-		this.direction = direction == null ? Horizontal.left : direction;
+		this.direction	= direction == null ? Horizontal.left : direction;
+		this.isEllipse	= isEllipse;
 	}
 	
 	
@@ -150,25 +162,23 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 	}
 	
 	
-	private inline function applyCircle (startRadians)
+	private inline function applyCircle (startRadians:Float)
 	{
 		if (group.children.length > 0)
 		{
-			var childAngle		= (360 / group.children.length) * (Math.PI / 180);		//in radians
+			var childAngle		= (360 / group.children.length).degreesToRadians();
 			var angle:Float		= 0;
-			var radius:Int		= Std.int( group.width * .5 );
+			var radius:Int		= getRadius();
 			var i:Int			= 0;
 			var pos:Int			= 0;
-			var start			= getLeftStartValue() + radius;
+			var start			= getLeftStartValue() + getRadius();
 			
 			for (child in group.children) {
 				if (!child.includeInLayout)
 					continue;
 				
-				angle	= (childAngle * i);
-				pos		= start + Std.int( radius * Math.cos(angle + startRadians) );
-				
-			//	trace("PI: " + Math.PI + ", angle " + angle+ "; childAngle: "+childAngle+"; start: "+startRadians);
+				angle	= (childAngle * i) + startRadians;
+				pos		= start + Std.int( radius * Math.cos(angle) );
 				var halfChildWidth	= Std.int( child.bounds.width * .5 );
 				var doCenter		= pos.isWithin( radius - halfChildWidth, radius + halfChildWidth );
 				
@@ -187,7 +197,18 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 	
 	
 	public inline function getDepthForPosition (pos:Point) {
-		return group.children.length;
+		var childAngle		= (360 / group.children.length).degreesToRadians();
+		var posX:Float		= Math.max(0, pos.x - getLeftStartValue()) - getRadius();
+		var radius:Float	= getRadius();
+		var startRadians	= switch (direction) {
+			case Horizontal.left:		0;
+			case Horizontal.center:		-Math.PI / 2;
+			case Horizontal.right:		-Math.PI;
+		}
+		
+		//the formula of applyCircle reversed..
+		var itemRadians = Math.acos(posX / radius) - startRadians;
+		return Std.int( Math.round( itemRadians / childAngle ) ) + 1;
 	}
 	
 	
@@ -196,25 +217,18 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 	// START VALUES
 	//
 	
-	private inline function getLeftStartValue ()	: Int
+	private inline function getLeftStartValue () : Int
 	{
 		var left:Int = 0;
 		if (group.padding != null)
-			left = group.padding.left;
+			left += group.padding.left;
 		
 		return left;
 	}
-	
-	
-	private inline function getRightStartValue ()	: Int
-	{
-		var w = group.width;
-		if (group.is(AdvancedLayoutClient))
-			w = IntMath.max(group.as(AdvancedLayoutClient).measuredWidth, w);
-		
-		if (group.padding != null)
-			w += group.padding.left; // + group.padding.right;
-		return w;
+
+
+	private inline function getRadius () : Int {
+		return isEllipse ? Std.int( group.width * .5 ) : Std.int( Math.round( Formulas.getCircleRadius(group.width, group.height) ) );
 	}
 	
 	

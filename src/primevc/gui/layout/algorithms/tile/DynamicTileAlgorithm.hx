@@ -43,6 +43,7 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutFlags;
+ import primevc.utils.IntMath;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.IntUtil;
@@ -182,9 +183,6 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		if (tileCollection == null || !client.includeInLayout)
 			return;
 		
-		//reset boundary properties
-		client.bounds.left	= 0;
-		client.bounds.top	= 0;
 		tileCollection.add(client, pos);
 	}
 	
@@ -268,7 +266,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	
 	private inline function measureGroups ()
-	{	
+	{
 		//
 		// Check if children are added, removed or moved in the list
 		//
@@ -307,7 +305,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 			return;
 		
 		measureGroups();
-		tileGroups.measureHorizontal();
+		tileGroups.measure();
 		setGroupWidth(tileGroups.width);
 	}
 	
@@ -318,7 +316,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 			return;
 		
 		measureGroups();
-		tileGroups.measureVertical();
+		tileGroups.measure();
 		setGroupHeight(tileGroups.height);
 	}
 	
@@ -338,11 +336,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	{
 		for (row in tileGroups)
 			row.validate();
-	/*	
-		if (group.padding != null) {
-			if (startDirection == Direction.horizontal && horizontalDirection == Horizontal.left)
-				tileGroups.x = group.padding.left;
-		}*/
+		
 		tileGroups.validate();
 		measurePrepared = false;
 	}
@@ -351,23 +345,33 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 
 	override public function getDepthForPosition (pos:Point) {
 		var depth:Int	= 0;
+		trace("groups algorithm = "+tileGroups.algorithm+"; pos: "+pos);
 		var rowNum		= tileGroups.algorithm.getDepthForPosition( pos );
 		trace("rowNum "+rowNum);
 		
-		if (rowNum > 0)
+		if (rowNum == tileGroups.children.length)
 		{
-			var i = 0;
-			for (child in tileGroups.children)
-			{
-				if (i == rowNum)
-					break;
-				depth += child.children.length;
-				i++;
-			}
+			depth = tileCollection.length;
 		}
+		else
+		{
+			if (rowNum > 0)
+			{
+				var i = 0;
+				for (tileGroup in tileGroups.children)
+				{
+					if (i == rowNum)
+						break;
+					depth += tileGroup.children.length;
+					i++;
+				}
+			}
 		
-		var row	 = tileGroups.children.getItemAt( rowNum );
-		depth	+= row.algorithm.getDepthForPosition( pos );
+			trace("counted children = "+depth+" in "+rowNum+" rows");
+			var row	 = tileGroups.children.getItemAt( rowNum );
+			depth	+= row.algorithm.getDepthForPosition( pos );
+		}
+		trace("final depth = "+depth);
 		return depth;
 	}
 	

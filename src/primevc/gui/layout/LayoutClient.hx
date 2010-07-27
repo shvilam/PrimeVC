@@ -109,7 +109,7 @@ class LayoutClient implements ILayoutClient
 		maintainAspectRatio				= false;
 		
 		events	= new LayoutEvents();
-		bounds	= new ConstrainedRect();
+		bounds	= new ConstrainedRect(0, newWidth + getHorPadding(), newHeight + getVerPadding(), 0);
 		_width	= new ConstrainedInt( newWidth );
 		_height	= new ConstrainedInt( newHeight );
 		

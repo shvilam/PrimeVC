@@ -87,9 +87,10 @@ class DragDropBehaviour extends BehaviourBase <IDraggable>
 		//move item to correct location
 		var pos			= target.container.as(IDisplayObject).localToGlobal( dragSource.origPosition );
 		target.visible	= false;
+		target.window.children.add( cast target );
 		target.x		= pos.x;
 		target.y		= pos.y;
-		target.window.children.add( cast target );
+		trace("startDrag "+pos);
 		target.visible	= true;
 #end
 		

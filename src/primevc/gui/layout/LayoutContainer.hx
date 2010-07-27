@@ -296,10 +296,22 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	
 	private function algorithmChangedHandler ()							{ invalidate( LayoutFlags.ALGORITHM_CHANGED ); }
 	private function invalidateChildList ()								{ invalidate( LayoutFlags.LIST_CHANGED ); }
-	private function childRemovedHandler (child:LayoutClient, pos:Int)	{ child.parent = null; }
+	
+	
+	private function childRemovedHandler (child:LayoutClient, pos:Int)	{
+		child.parent		= null;
+		//reset boundary properties without validating
+		child.bounds.left	= 0;
+		child.bounds.top	= 0;
+		child.changes		= 0;
+	}
+	
+	
 	private function childAddedHandler (child:LayoutClient, pos:Int)	{
 		child.parent = this;
-		child.bounds.left	= padding.left;
-		child.bounds.top	= padding.top;
+		
+		//check first if the bound properties are zero. If they are not, they can have been set by a tile-container
+		if (child.bounds.left == 0)		child.bounds.left	= padding.left;
+		if (child.bounds.top == 0)		child.bounds.top	= padding.top;
 	}
 }

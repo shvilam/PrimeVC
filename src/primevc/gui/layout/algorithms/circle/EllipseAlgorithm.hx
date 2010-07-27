@@ -26,18 +26,20 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.layout.algorithms;
- import primevc.gui.layout.algorithms.directions.Vertical;
- 
+package primevc.gui.layout.algorithms.circle;
+
+
 
 /**
- * Interface to make sure that a given algorithm is meant for vertical
- * layouting.
- *
- * @creation-date	Jun 24, 2010
- * @author			Ruben Weijers
+ * Class to place items in a circle for both horizontal and vertical purpose.
+ * It's also possible to combine HorizontalCircleAlgorithm and 
+ * VerticalCircleAlgorithm, but getDepthForPosition won't work as well as it
+ * will be with this class.
+ * 
+ * @author Ruben Weijers
+ * @creation-date Jul 27, 2010
  */
-interface IVerticalAlgorithm implements ILayoutAlgorithm
+class EllipseAlgorithm extends AlgorithmBase
 {
-	public var direction			(default, setDirection)	: Vertical;
+	
 }

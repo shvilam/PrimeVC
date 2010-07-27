@@ -31,6 +31,7 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.algorithms.directions.Direction;
  import primevc.gui.layout.algorithms.directions.Horizontal;
  import primevc.gui.layout.algorithms.directions.Vertical;
+ import primevc.utils.IntMath;
   using primevc.utils.Bind;
  
 
@@ -129,7 +130,14 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 	}
 
 	public function getDepthForPosition (pos:Point) {
-		return group.children.length;
+		var depthHor = horAlgorithm.getDepthForPosition(pos);
+		var depthVer = verAlgorithm.getDepthForPosition(pos);
+		var depth = IntMath.max( depthHor, depthVer );
+		
+		if (depthHor <= 0)	depth = group.children.length - (depthVer - 1);
+		if (depthVer <= 0)	depth = group.children.length - (depthHor - 1);
+		trace("getDepthForPosition "+pos + " = "+depthHor+", "+depthVer + " = "+depth);
+		return depth;
 	}
 	
 	

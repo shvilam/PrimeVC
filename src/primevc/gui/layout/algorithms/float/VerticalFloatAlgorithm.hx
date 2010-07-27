@@ -299,7 +299,7 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 	{
 		var depth:Int	= 0;
 		var posY:Int	= Std.int( pos.y + group.scrollY );
-
+		
 		if (group.childHeight.isSet())
 		{
 			depth = posY.divRound(group.childHeight);
@@ -315,7 +315,6 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 					groupHeight = IntMath.min( group.as(AdvancedLayoutClient).measuredHeight, group.as(AdvancedLayoutClient).explicitHeight );
 				
 				var halfH = groupHeight * .5;
-
 				if (posY < halfH) {
 					//start at beginning
 					for (child in group.children) {
@@ -328,8 +327,8 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 				else
 				{
 					//start at end
-					var itr		= group.children.getReversedIterator();
-					var depth	= group.children.length;
+					var itr	= group.children.getReversedIterator();
+					depth	= group.children.length;
 					while (itr.hasNext()) {
 						var child = itr.next();
 						if (child.includeInLayout && posY >= child.bounds.centerY)
@@ -401,8 +400,8 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 				else
 				{
 					//start at end
-					var itr		= group.children.getReversedIterator();
-					var depth	= group.children.length;
+					var itr	= group.children.getReversedIterator();
+					depth	= group.children.length;
 					while (itr.hasNext()) {
 						var child = itr.next();
 						if (child.includeInLayout && posY >= child.bounds.centerY)
@@ -451,7 +450,7 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 	{
 		var start = direction == Vertical.top ? "top" : "bottom";
 		var end = direction == Vertical.top ? "bottom" : "top";
-		return group + ".Float.ver ( " + start + " -> " + end + " ) ";
+		return group.name + ".Float.ver ( " + start + " -> " + end + " ) ";
 	}
 #end
 }
