@@ -134,9 +134,8 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 		var depthVer = verAlgorithm.getDepthForPosition(pos);
 		var depth = IntMath.max( depthHor, depthVer );
 		
-		if (depthHor <= 0)	depth = group.children.length - (depthVer - 1);
-		if (depthVer <= 0)	depth = group.children.length - (depthHor - 1);
-		trace("getDepthForPosition "+pos + " = "+depthHor+", "+depthVer + " = "+depth);
+		if (depthHor <= 0)	depth = 1 + group.children.length - (depthVer - 1);
+		if (depthVer <= 0)	depth = 1 + group.children.length - (depthHor - 1);
 		return depth;
 	}
 	

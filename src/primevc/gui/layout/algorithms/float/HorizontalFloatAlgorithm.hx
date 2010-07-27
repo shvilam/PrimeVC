@@ -300,7 +300,6 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	{
 		var depth:Int	= 0;
 		var posX:Int	= Std.int( pos.x + group.scrollX );
-		
 		if (group.childWidth.isSet())
 		{
 			depth = posX.divRound(group.childWidth);

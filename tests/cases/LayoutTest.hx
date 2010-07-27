@@ -101,8 +101,6 @@ class LayoutAppSkin extends Skin < LayoutTest >
 	override private function createLayout ()
 	{
 		layout = new LayoutContainer();
-	//	layout.width	= 800;
-	//	layout.height	= 650;
 		layout.relative			= new RelativeLayout( 5, 5, 5 );
 		layout.percentWidth		= 70;
 		layout.padding	= new Box( 5 );
@@ -112,8 +110,7 @@ class LayoutAppSkin extends Skin < LayoutTest >
 	
 	override private function createBehaviours ()
 	{
-	//	behaviours.add( new ClippedLayoutBehaviour(this) );
-	//	behaviours.add( new ResizeFromCornerBehaviour(this) );
+		behaviours.add( new ClippedLayoutBehaviour(this) );
 	}
 	
 	
@@ -130,17 +127,19 @@ class LayoutAppSkin extends Skin < LayoutTest >
 		frame1.layout.relative			= new RelativeLayout( 5, 5, -100000, 5 );
 		
 		var frame2						= new TileList( true );
-		frame2.layoutGroup.algorithm	= new DynamicLayoutAlgorithm(
-			new HorizontalCircleAlgorithm( Horizontal.left ),
-			new VerticalCircleAlgorithm( Vertical.top )
-		);
+		var frame2Alg					= new FixedTileAlgorithm();
+		frame2Alg.maxTilesInDirection	= 10;
+		frame2Alg.startDirection		= Direction.vertical;
+	//	frame2Alg.horizontalDirection	= Horizontal.right;
+	//	frame2Alg.verticalDirection		= Vertical.bottom;
+		frame2.layoutGroup.algorithm	= frame2Alg;
 		frame2.layout.relative			= new RelativeLayout( frame1.layout.bounds.bottom + 5, -100000, 5, 5 );
 		frame2.layout.percentWidth		= 58;
 		
 		var frame3						= new TileList( true );
 		frame3.layoutGroup.algorithm	= new DynamicTileAlgorithm();
 		frame3.layout.percentWidth		= 100;
-		frame3.layout.percentHeight		= 60;
+		frame3.layout.percentHeight		= 40;
 		
 		var frame4						= new Frame();
 		frame4.layout.percentWidth		= 50;
@@ -160,19 +159,17 @@ class LayoutAppSkin extends Skin < LayoutTest >
 	//	frame7.layout.sizeConstraint	= new SizeConstraint(100, 400, 50, 200);
 		
 		var frame8						= new TileList( true );
-		var frame8Alg					= new FixedTileAlgorithm();
-		frame8Alg.maxTilesInDirection	= 2;
-		frame8Alg.startDirection		= Direction.vertical;
-		frame8Alg.horizontalDirection	= Horizontal.right;
-		frame8Alg.verticalDirection		= Vertical.bottom;
-		frame8.layoutGroup.algorithm	= frame8Alg;
 		frame8.layout.percentWidth		= 100;
-		frame8.layout.percentHeight		= 20;
+		frame8.layout.percentHeight		= 40;
+		frame8.layoutGroup.algorithm	= new DynamicLayoutAlgorithm(
+			new HorizontalCircleAlgorithm( Horizontal.left ),
+			new VerticalCircleAlgorithm( Vertical.top )
+		);
 		
-		var box0						= new Frame();
-		box0.layoutGroup.algorithm		= new RelativeAlgorithm();
-		box0.layout.percentWidth		= LayoutFlags.FILL;
-		box0.layout.percentHeight		= 100;
+		var box0				= new VirtualLayoutContainer();
+		box0.algorithm			= new RelativeAlgorithm();
+		box0.percentWidth		= LayoutFlags.FILL;
+		box0.percentHeight		= 100;
 		
 		var box1				= new VirtualLayoutContainer();
 		var box1Alg				= new VerticalFloatAlgorithm();
@@ -197,7 +194,7 @@ class LayoutAppSkin extends Skin < LayoutTest >
 		frame7.id = "frame7";
 		frame8.id = "frame8";
 		
-		box0.id	= "box0";
+		box0.name	= "box0";
 		box1.name	= "box1";
 		box2.name	= "box2";
 #end
@@ -205,11 +202,11 @@ class LayoutAppSkin extends Skin < LayoutTest >
 		layoutGroup.algorithm = new HorizontalFloatAlgorithm();
 		
 		layoutGroup.children.add( frame0.layout );
-		layoutGroup.children.add( box0.layout );
+		layoutGroup.children.add( box0 );
 		
-		box0.layoutGroup.children.add( frame1.layout );
-		box0.layoutGroup.children.add( frame2.layout );
-		box0.layoutGroup.children.add( box1 );
+		box0.children.add( frame1.layout );
+		box0.children.add( frame2.layout );
+		box0.children.add( box1 );
 		
 		box1.children.add( frame3.layout );
 		box1.children.add( box2 );
@@ -221,15 +218,14 @@ class LayoutAppSkin extends Skin < LayoutTest >
 		box2.children.add( frame6.layout );
 		
 		children.add(frame0, 0);
-		children.add(box0, 1);
-		box0.children.add(frame2, 1);
-		box0.children.add(frame1, 2);
-		box0.children.add(frame3, 3);
-		box0.children.add(frame4, 4);
-		box0.children.add(frame5, 5);
-		box0.children.add(frame6, 6);
-		box0.children.add(frame7, 7);
-		box0.children.add(frame8, 8);
+		children.add(frame2, 1);
+		children.add(frame1, 2);
+		children.add(frame3, 3);
+		children.add(frame4, 4);
+		children.add(frame5, 5);
+		children.add(frame6, 6);
+		children.add(frame7, 7);
+		children.add(frame8, 8);
 	}
 	
 	
@@ -652,19 +648,10 @@ class TileListBehaviour extends BehaviourBase <TileList>
 		if (curDepth > -1 && newDepth == target.children.length)
 			newDepth -= 1;
 		
-		if (curDepth == -1) {
-			trace("add layout object");
+		if (curDepth == -1)
 			target.layoutGroup.children.add( draggedItem.layout, newDepth );
-			trace(target.layoutGroup.children);
-		}
-		else if (curDepth != newDepth){
-			trace("move layout object");
+		else if (curDepth != newDepth)
 			target.layoutGroup.children.move( draggedItem.layout, newDepth, curDepth );
-			trace(target.layoutGroup.children);
-		}
-		else {
-			trace("doNothing");
-		}
 	}
 }
 

@@ -296,8 +296,8 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 			return;
 		
 		//reset boundary properties
-		client.bounds.left	= 0;
-		client.bounds.top	= 0;
+	//	client.bounds.left	= 0;
+	//	client.bounds.top	= 0;
 		
 		if (horizontalMap.length % maxTilesInDirection == 0) {
 			if (startDirection == horizontal)		addRow(childHorAlgorithm);
@@ -386,12 +386,27 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	override private function invalidate (shouldbeResetted:Bool = true) : Void
 	{
 		if (shouldbeResetted) {
-		//	trace(this + ".invalidated: resetTileMap!");
 			horizontalMap = verticalMap = null;
 			rows = columns = null;
 		}
 		
 		super.invalidate(shouldbeResetted);
+	}
+
+
+
+	override public function getDepthForPosition (pos:Point)
+	{
+		var depth:Int = 0;
+		var rowNum = rows.algorithm.getDepthForPosition( pos );
+		if (rowNum < rows.children.length)
+		{
+			depth  = maxTilesInDirection * rowNum;
+			depth += columns.algorithm.getDepthForPosition( pos );
+		}
+		else
+			 depth = horizontalMap.length;
+		return depth;
 	}
 	
 	

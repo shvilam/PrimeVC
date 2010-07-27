@@ -291,7 +291,7 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 	 * @param	item
 	 * @return	new position for the item
 	 */
-	private function moveItem (item:DataType, newPos:Int, curPos:Int = -1) : Int
+	private inline function moveItem (item:DataType, newPos:Int, curPos:Int = -1) : Int
 	{
 		if		(curPos == -1)				curPos = indexOf( item );
 		if		(newPos > (length - 1))		newPos = length - 1;

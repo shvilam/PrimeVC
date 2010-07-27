@@ -343,11 +343,10 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	
 
-	override public function getDepthForPosition (pos:Point) {
+	override public function getDepthForPosition (pos:Point)
+	{
 		var depth:Int	= 0;
-		trace("groups algorithm = "+tileGroups.algorithm+"; pos: "+pos);
 		var rowNum		= tileGroups.algorithm.getDepthForPosition( pos );
-		trace("rowNum "+rowNum);
 		
 		if (rowNum == tileGroups.children.length)
 		{
@@ -366,12 +365,11 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 					i++;
 				}
 			}
-		
-			trace("counted children = "+depth+" in "+rowNum+" rows");
+			
 			var row	 = tileGroups.children.getItemAt( rowNum );
+			row.algorithm.group = row;		//<-- important! will otherwise measure with wrong row
 			depth	+= row.algorithm.getDepthForPosition( pos );
 		}
-		trace("final depth = "+depth);
 		return depth;
 	}
 	
