@@ -117,18 +117,18 @@ class LayoutAppSkin extends Skin < LayoutTest >
 	override private function createChildren ()
 	{
 		var frame0						= new TileList( true );
-		frame0.layoutGroup.algorithm	= new VerticalFloatAlgorithm();
+		frame0.layoutGroup.algorithm	= new VerticalFloatAlgorithm( Vertical.center );
 		frame0.layout.percentHeight		= 100;
 	//	frame0.layout.width				= 150;
 		
 		var frame1						= new TileList( true );
-		frame1.layoutGroup.algorithm	= new HorizontalFloatAlgorithm();
+		frame1.layoutGroup.algorithm	= new HorizontalFloatAlgorithm( Horizontal.center );
 		frame1.layout.height			= 60;
 		frame1.layout.relative			= new RelativeLayout( 5, 5, -100000, 5 );
 		
-		var frame2						= new TileList( true );
+		var frame2						= new TileList( true, true, 150 );
 		var frame2Alg					= new FixedTileAlgorithm();
-		frame2Alg.maxTilesInDirection	= 10;
+		frame2Alg.maxTilesInDirection	= 15;
 		frame2Alg.startDirection		= Direction.vertical;
 	//	frame2Alg.horizontalDirection	= Horizontal.right;
 	//	frame2Alg.verticalDirection		= Vertical.bottom;
@@ -433,15 +433,17 @@ class TileList extends Frame, implements IDropTarget
 {
 	public var dragEvents				: DropTargetEvents;
 	public var allowDropFromOtherLists	: Bool;
-
+	public var tilesToCreate			: Int;
+	
 	private var fixedTiles		: FixedTileAlgorithm;
 	private var dynamicTiles	: DynamicTileAlgorithm;
 	public var dynamicSizes		: Bool;
 	public var draggedOver		: Bool;
 
 
-	public function new (dynamicSizes = false, allowDropFromOtherLists = true)
+	public function new (dynamicSizes = false, allowDropFromOtherLists = true, tilesToCreate:Int = 25)
 	{	
+		this.tilesToCreate				= tilesToCreate;
 		this.dynamicSizes				= dynamicSizes;
 		this.allowDropFromOtherLists	= allowDropFromOtherLists;
 		dragEvents	= new DropTargetEvents();
@@ -520,7 +522,7 @@ class TileListBehaviour extends BehaviourBase <TileList>
 {
 	override private function init () 
 	{
-	//	addTile					.on( target.userEvents.mouse.click, this );
+		addTile					.on( target.userEvents.mouse.doubleClick, this );
 		dragOverHandler			.on( target.dragEvents.over, this );
 		removeTmpTileFromLayout	.on( target.dragEvents.out, this );
 		
@@ -529,14 +531,16 @@ class TileListBehaviour extends BehaviourBase <TileList>
 		removeTileFromLayout	.on( target.children.events.removed, this );
 		moveTileInLayout		.on( target.children.events.moved, this );
 		
-		for ( i in 0...19 )
+		target.doubleClickEnabled = true;
+		
+		for ( i in 0...target.tilesToCreate )
 			addTile();
 	}
 	
 	
 	override private function reset ()
 	{
-		target.userEvents.mouse.click.unbind(this);
+		target.userEvents.mouse.doubleClick.unbind(this);
 		target.dragEvents.drop.unbind(this);
 		target.children.events.added.unbind(this);
 		target.children.events.removed.unbind(this);
@@ -544,47 +548,29 @@ class TileListBehaviour extends BehaviourBase <TileList>
 	}
 
 
-	private function addTile (?event:MouseState)
+	private function addTile ()
 	{
-		if (event != null && event.target != target)
-			return;
-		
 		var num		= target.numChildren;
 		var child	= new Tile(target.dynamicSizes);
-	//	child.doubleClickEnabled = true;
-	//	removeTile.onceOn( child.userEvents.mouse.doubleClick, this );
 		target.children.add( child );
-	}
-	
-	
-	private function removeTile (event:MouseState)
-	{
-		var tile:Tile = event.target.as(Tile);
-		tile.dispose();	//<- will call parent.remove and layout.parent.remove :-)
 	}
 
 
 	private function addDroppedTile (droppedItem:DragSource) : Void
 	{
 		removeTmpTileFromLayout(droppedItem);
-		var tile = droppedItem.target.as(Tile);
+		var tile	= droppedItem.target.as(Tile);
+		var depth	= target.children.length;
 		
-		trace(target + ".addDroppedTile "+droppedItem);
-		
-	//	droppedItem.dropPosition.x += droppedItem.target.width * .5;
-	//	droppedItem.dropPosition.y += droppedItem.target.height * .5;
-		var depth = target.children.length;
 		if (target.layoutGroup.algorithm != null)
 			depth = target.layoutGroup.algorithm.getDepthForPosition( droppedItem.dropPosition );
 		
-		trace("drop depth = "+depth);
+		trace(target + ".addDroppedTile "+droppedItem+" on "+depth+" in "+target.name);
 		
 		if (droppedItem.origContainer != target || !target.children.has(tile))
 			target.children.add( tile, depth );
 		else
 			target.children.move( tile, depth );
-		
-		trace(target.layoutGroup.children);
 	}
 
 
@@ -595,7 +581,6 @@ class TileListBehaviour extends BehaviourBase <TileList>
 		var tile	= child.as(Tile);
 		var layout	= target.layoutGroup;
 		
-	//	trace(target + ".addTileToLayout "+child+": " + pos);
 		if (layout.children.has(tile.layout))
 			layout.children.move(tile.layout, pos);
 		else
@@ -607,7 +592,6 @@ class TileListBehaviour extends BehaviourBase <TileList>
 		if (!child.is(Tile))
 			return;
 		
-	//	trace(target + ".removeTileFromLayout "+child+": " + pos);
 		target.layoutGroup.children.remove( child.as(Tile).layout );
 	}
 	
@@ -616,9 +600,9 @@ class TileListBehaviour extends BehaviourBase <TileList>
 		if (!child.is(Tile))
 			return;
 		
-	//	trace(target + ".moveTileInLayout "+child+": " + oldPos + " -> "+newPos);
 		target.layoutGroup.children.move( child.as(Tile).layout, newPos );
 	}
+	
 	
 	
 	private var draggedItem: DragSource;
@@ -697,8 +681,6 @@ class ResizeFromCornerBehaviour extends BehaviourBase <ISkin>
 	
 	private function startResize ()
 	{
-		haxe.Log.clear();
-		trace("startResize ");
 		lastMousePos = new Point( target.window.mouse.x, target.window.mouse.y );
 		
 		dragBtn.dragEvents.start.unbind(this);

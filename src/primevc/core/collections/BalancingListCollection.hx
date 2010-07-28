@@ -243,8 +243,9 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 		
 		var listPos = getListNumForPosition(pos);
 		
-		if (lists.length <= listPos)
+		if (lists.length <= listPos) {
 			addList( new BalancingList<DataType>() );
+		}
 		
 		//1. find corrent list to add item in
 		var targetList	= lists.getItemAt(listPos);

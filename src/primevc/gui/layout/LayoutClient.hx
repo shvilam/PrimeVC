@@ -123,7 +123,7 @@ class LayoutClient implements ILayoutClient
 		updateHeight.on( bounds.size.yProp.change, this );
 		
 		changes				= changes.set(Flags.X_CHANGED | Flags.Y_CHANGED | Flags.WIDTH_CHANGED | Flags.HEIGHT_CHANGED);
-		states				= new SimpleStateMachine( LayoutStates.validated );
+		states				= new SimpleStateMachine<LayoutStates>( LayoutStates.validated );
 		measuredVertical	= false;
 		measuredHorizontal	= false;
 	}
@@ -531,8 +531,9 @@ class LayoutClient implements ILayoutClient
 	}
 	
 	
-	private function handleParentStateChange (oldState, newState)
+	private function handleParentStateChange (oldState:LayoutStates, newState:LayoutStates)
 	{
+		Assert.notEqual(newState, null, "newstate cannot be null; oldstate: "+oldState);
 		switch (newState) {
 			case LayoutStates.invalidated:
 				states.current = LayoutStates.parent_invalidated;

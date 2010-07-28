@@ -118,4 +118,13 @@ class MouseState extends KeyModState
 			default:	MouseButton.Other((flags & 0xFF00) >> 8);
 		}
 	}
+	
+	
+#if debug
+	public var owner : MouseSignal;
+	
+	public function toString () {
+		return "MouseState of "+owner+"; pos: "+local;
+	}
+#end
 }

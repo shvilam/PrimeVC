@@ -348,20 +348,22 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 	{
 		var depth:Int	= 0;
 		var posY:Int	= Std.int( pos.y + group.scrollY );
-		var length		= group.children.length;
+		var groupHeight = group.height;
+		if (group.is(AdvancedLayoutClient))
+			groupHeight = IntMath.min( group.as(AdvancedLayoutClient).measuredHeight, group.as(AdvancedLayoutClient).explicitHeight );
+		
+		var halfH = groupHeight * .5;
+		
+		for (child in group.children) {
+			if (child.includeInLayout 
+				&& (
+						(posY <= child.bounds.centerY && posY >= halfH)
+					||	(posY >= child.bounds.centerY && posY <= halfH)
+				)
+			)
+				break;
 
-		if (posY < halfHeight)
-		{
-			if (length % 2 == 1)
-				length -= 1;
-
-			var topDepth	= getDepthForPositionTtB(pos);
-			depth			= length - (2 * topDepth);
-		}
-		else
-		{
-			var bottomDepth	= getDepthForPositionBtT(pos);
-			depth			= length - (2 * bottomDepth);
+			depth++;
 		}
 		return depth;
 	}
@@ -382,16 +384,18 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 			if (group.is(AdvancedLayoutClient))
 				groupHeight = IntMath.min( group.as(AdvancedLayoutClient).measuredHeight, group.as(AdvancedLayoutClient).explicitHeight );
 			
-			//if pos <= 0, the depth will be 0
-			if (posY > groupHeight)
+			//if pos <= 0, the depth will be at the end of the list
+			if (posY <= 0)
+				depth = group.children.length;
+			else if (posY < groupHeight)
 			{
 				//check if it's smart to start searching at the end or at the beginning..
 				var halfH = groupHeight * .5;
 
-				if (posY < halfH) {
+				if (posY > halfH) {
 					//start at beginning
 					for (child in group.children) {
-						if (child.includeInLayout && posY <= child.bounds.centerY)
+						if (child.includeInLayout && posY >= child.bounds.centerY)
 							break;
 
 						depth++;
@@ -404,7 +408,7 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 					depth	= group.children.length;
 					while (itr.hasNext()) {
 						var child = itr.next();
-						if (child.includeInLayout && posY >= child.bounds.centerY)
+						if (child.includeInLayout && posY <= child.bounds.centerY)
 							break;
 
 						depth--;

@@ -43,6 +43,7 @@ package primevc.core.states;
  * @author			Ruben Weijers
  */
 class SimpleStateMachine <StateType> implements IDisposable
+	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	public var current		(default, setCurrent)	: StateType;
 	public var defaultState	(default, setDefault)	: StateType;

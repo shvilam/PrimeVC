@@ -135,7 +135,10 @@ class DisplayList implements IList <ChildType>
 	
 	public inline function add (item:ChildType, pos:Int = -1) : ChildType
 	{
-		Assert.that(pos <= length, "Index to add child is to high! "+pos+" instead of max "+length);
+		if (pos > length) {
+			trace(childrenToString());
+			Assert.that(pos <= length, "Index to add child is to high! "+pos+" instead of max "+length);
+		}
 		if		(pos > length)	pos = length;
 		else if (pos < 0)		pos = length; // -pos;
 		
@@ -179,6 +182,15 @@ class DisplayList implements IList <ChildType>
 #if debug
 	public var name : String;
 	
+	public function childrenToString () {
+		var items = [];
+		var i = 0;
+		for (curChild in this) {
+			items.push( "[ " + i + " ] = " + curChild );
+			i++;
+		}
+		return name + "DisplayList ("+items.length+")\n" + items.join("\n");
+	}
 	public inline function toString () { return name + "DisplayList( "+length+" ) of " + target; }
 #end
 }

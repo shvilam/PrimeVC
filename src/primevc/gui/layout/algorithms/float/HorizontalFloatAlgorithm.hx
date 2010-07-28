@@ -342,26 +342,28 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 		}
 		return depth;
 	}
-
-
+	
+	
 	private inline function getDepthForPositionC (pos:Point) : Int
 	{
 		var depth:Int	= 0;
 		var posX:Int	= Std.int( pos.x + group.scrollX );
-		var length		= group.children.length;
-		
-		if (posX < halfWidth)
-		{
-			if (length % 2 == 1)
-				length -= 1;
-			
-			var leftDepth	= getDepthForPositionLtR(pos);
-			depth			= length - (2 * leftDepth);
-		}
-		else
-		{
-			var rightDepth	= getDepthForPositionRtL(pos);
-			depth			= length - (2 * rightDepth);
+		var groupWidth = group.width;
+		if (group.is(AdvancedLayoutClient))
+			groupWidth = IntMath.min( group.as(AdvancedLayoutClient).measuredWidth, group.as(AdvancedLayoutClient).explicitWidth );
+
+		var halfW = groupWidth * .5;
+
+		for (child in group.children) {
+			if (child.includeInLayout 
+				&& (
+						(posX <= child.bounds.centerX && posX >= halfW)
+					||	(posX >= child.bounds.centerX && posX <= halfW)
+				)
+			)
+				break;
+
+			depth++;
 		}
 		return depth;
 	}
@@ -371,7 +373,7 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	{
 		var depth:Int	= 0;
 		var posX:Int	= Std.int( pos.x + group.scrollX );
-
+		
 		if (group.childWidth.isSet())
 		{
 			depth = group.children.length - posX.divRound(group.childWidth);
@@ -382,18 +384,21 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 			if (group.is(AdvancedLayoutClient))
 				groupWidth = IntMath.min( group.as(AdvancedLayoutClient).measuredWidth, group.as(AdvancedLayoutClient).explicitWidth );
 			
-			//if pos <= 0, the depth will be 0
-			if (posX > groupWidth)
+			//if pos <= 0, the depth will be at the end of the list
+			if (posX <= 0)
+				depth = group.children.length;
+			
+			else if (posX < groupWidth)
 			{
 				//check if it's smart to start searching at the end or at the beginning..
 				var halfW = groupWidth * .5;
 
-				if (posX < halfW) {
+				if (posX > halfW) {
 					//start at beginning
 					for (child in group.children) {
-						if (child.includeInLayout && posX <= child.bounds.centerX)
+						if (child.includeInLayout && posX >= child.bounds.centerX)
 							break;
-
+						
 						depth++;
 					}
 				}
@@ -404,7 +409,7 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 					depth	= group.children.length;
 					while (itr.hasNext()) {
 						var child = itr.next();
-						if (child.includeInLayout && posX >= child.bounds.centerX)
+						if (child.includeInLayout && posX <= child.bounds.centerX)
 							break;
 
 						depth--;

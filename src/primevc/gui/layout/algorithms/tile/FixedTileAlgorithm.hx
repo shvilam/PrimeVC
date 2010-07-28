@@ -197,15 +197,15 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 		rows				= new TileContainer<TileContainer<LayoutClient>>();
 		rows.algorithm		= verAlgorithm;
 		rows.padding		= group.padding;
-#if debug
-		rows.name			= "Rows";
-#end
 		
 		columns				= new TileContainer<TileContainer<LayoutClient>>();
 		columns.algorithm	= horAlgorithm;
 		columns.padding		= group.padding;
 #if debug
-		rows.name			= "Columns";
+		rows.name			= "RowsContainer";
+		columns.name		= "ColumnsContainer";
+		horizontalMap.name	= "RowsList";
+		verticalMap.name	= "ColumnsList";
 #end
 		
 		if (childLen != 0)
@@ -224,7 +224,8 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 				column.childWidth	= group.childWidth;
 				column.childHeight	= group.childHeight;
 				column.algorithm	= childVerAlgorithm;
-#if debug		column.name			= "column"+columns.children.length;		#end
+#if debug		column.name			= "column"+columns.children.length;			#end				
+#if debug		columnChildren.name	= "columnList"+columns.children.length;		#end
 				verticalMap.addList( columnChildren );
 				columns.children.add( column );
 			}
@@ -287,6 +288,7 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 		
 		horizontalMap.remove(client);
 		verticalMap.remove(client);
+	//	validateMaps();
 	}
 	
 	
@@ -307,6 +309,7 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 		
 		horizontalMap.add(client, pos);
 		verticalMap.add(client, pos);
+	//	validateMaps();
 	}
 	
 	
@@ -317,8 +320,27 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 		
 		horizontalMap.move(client, newPos, oldPos);
 		verticalMap.move(client, newPos, oldPos);
+	//	validateMaps();
 	}
 	
+	
+	private inline function validateMaps ()
+	{
+#if debug
+		var len = horizontalMap.length;
+		
+		for (i in 0...len)
+		{
+			var hChild = horizontalMap.getItemAt(i);
+			var vChild = verticalMap.getItemAt(i);
+			if (hChild != vChild) {
+				trace(horizontalMap);
+				trace(verticalMap);
+				Assert.equal(hChild, vChild, "children at "+i+" should be equal");
+			}
+		}
+#end
+	}
 	
 	
 	

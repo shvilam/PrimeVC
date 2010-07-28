@@ -62,7 +62,6 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 		layoutStateChangeHandler.on( target.layout.states.change, this );
 #if flash9
 		invalidateWindow		.on( target.layout.events.posChanged, this );
-	//	invalidateWindow		.on( target.layout.events.sizeChanged, this );
 #else
 		applyPosition			.on( target.layout.events.posChanged, this );
 #end
@@ -86,7 +85,6 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 		
 		target.layout.states.change.unbind( this );
 		target.layout.events.posChanged.unbind( this );
-	//	target.layout.events.sizeChanged.unbind( this );
 	}
 	
 	
@@ -94,7 +92,8 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 	{
 		switch (newState) {
 			case LayoutStates.invalidated:
-				enterFrameBinding = target.layout.measure.onceOn( target.displayEvents.enterFrame, this );
+				if (enterFrameBinding == null)
+					enterFrameBinding = target.layout.measure.onceOn( target.displayEvents.enterFrame, this );
 			
 			case LayoutStates.measuring:
 				removeEnterFrameBinding();
@@ -134,14 +133,15 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 	
 	private function applyPosition ()
 	{
-		if (renderBinding != null) {
-			renderBinding.dispose();
-			renderBinding = null;
-		}
+		if (renderBinding == null)
+			return;
+		
+		renderBinding.dispose();
+		renderBinding = null;
+		
 		var l = target.layout;
 	//	trace("applyPosition " + target.name + " / " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y+" - noVirPos: "+l.bounds.left+", "+l.bounds.top);
-	//	target.width	= l.width;
-	//	target.height	= l.height;
+		
 		target.x		= l.getHorPosition();
 		target.y		= l.getVerPosition();
 	}
