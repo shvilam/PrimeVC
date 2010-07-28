@@ -47,7 +47,7 @@ class WindowLayoutBehaviour extends BehaviourBase < Window >
 	 */
 	private var enterFrameBinding	: Wire <Dynamic>;
 
-
+	
 	override private function init ()
 	{
 		if (target.layout == null)
@@ -75,7 +75,8 @@ class WindowLayoutBehaviour extends BehaviourBase < Window >
 	{
 		switch (newState) {
 			case LayoutStates.invalidated:
-				enterFrameBinding = target.layout.measure.onceOn( target.displayEvents.enterFrame, this );
+				if (enterFrameBinding == null)
+					enterFrameBinding = measure.onceOn( target.displayEvents.enterFrame, this );
 
 			case LayoutStates.measuring:
 				removeEnterFrameBinding();
@@ -83,6 +84,12 @@ class WindowLayoutBehaviour extends BehaviourBase < Window >
 			case LayoutStates.validated:
 				removeEnterFrameBinding();
 		}
+	}
+	
+	
+	private function measure () {
+		removeEnterFrameBinding();
+		target.layout.measure();
 	}
 
 

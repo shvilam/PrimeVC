@@ -26,68 +26,9 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours;
- import primevc.core.dispatcher.Wire;
- import primevc.gui.core.ISkin;
-  using primevc.utils.Bind;
+package primevc.gui.layout;
 
 
-/**
- * Class description
- * 
- * @author Ruben Weijers
- * @creation-date Jul 16, 2010
- */
-class RenderGraphicsBehaviour extends BehaviourBase < ISkin >
-{
-	private var renderBinding : Wire <Dynamic>;
-	
-	
-	override private function init ()
-	{
-			if (target.layout == null)
-				return;
-			
-#if flash9	invalidateWindow.on( target.layout.events.sizeChanged, this );
-#else		renderTarget.on( target.layout.events.sizeChanged, this );
-#end
-	}
-	
-	
-	override private function reset ()
-	{
-		if (target.layout == null)
-			return;
-		
-		target.layout.events.sizeChanged.unbind(this);
-		if (renderBinding != null) {
-			renderBinding.dispose();
-			renderBinding = null;
-		}
-	}
-		
-	
-	private function invalidateWindow ()
-	{
-		if (target.container == null)
-			return;
-		
-	//	trace("invalidateWindow "+target);
-		target.window.invalidate();
-		renderBinding = renderTarget.on( target.displayEvents.render, this );
-	//	target.render.on( target.displayEvents.enterFrame, this );
-	}
-	
-	
-	private function renderTarget ()
-	{
-		if (renderBinding == null)
-			return;
-		
-		renderBinding.dispose();
-		renderBinding = null;
-	//	trace("render "+target+" size: "+target.layout.bounds.width+", "+target.layout.bounds.height);
-		target.displayEvents.render.unbind( this );
-		target.render();
-	}
-}
+typedef LayoutContainerOwner = {
+	var layoutGroup (getLayoutGroup, null) : LayoutContainer;
+};

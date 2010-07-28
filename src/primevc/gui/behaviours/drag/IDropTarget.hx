@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.drag;
+ import primevc.core.geom.Point;
  import primevc.gui.display.ISprite;
  import primevc.gui.events.DropTargetEvents;
 
@@ -50,4 +51,11 @@ interface IDropTarget implements ISprite
 	 * container.
 	 */
 	public function isDropAllowed (draggedItem:DragSource) : Bool;
+	
+	
+	/**
+	 * Method which should return the depth of a dropped item with the given
+	 * coordinates.
+	 */
+	public function getDepthForPosition (pos:Point) : Int;
 }

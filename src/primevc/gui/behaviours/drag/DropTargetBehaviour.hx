@@ -26,68 +26,42 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours;
- import primevc.core.dispatcher.Wire;
- import primevc.gui.core.ISkin;
+package primevc.gui.behaviours.drag;
+ import primevc.gui.behaviours.BehaviourBase;
   using primevc.utils.Bind;
 
 
 /**
- * Class description
+ * Behaviour which will add an dropped item on the right child-depth an on the
+ * right position.
  * 
  * @author Ruben Weijers
- * @creation-date Jul 16, 2010
+ * @creation-date Jul 28, 2010
  */
-class RenderGraphicsBehaviour extends BehaviourBase < ISkin >
+class DropTargetBehaviour extends BehaviourBase <IDropTarget>
 {
-	private var renderBinding : Wire <Dynamic>;
-	
-	
 	override private function init ()
 	{
-			if (target.layout == null)
-				return;
-			
-#if flash9	invalidateWindow.on( target.layout.events.sizeChanged, this );
-#else		renderTarget.on( target.layout.events.sizeChanged, this );
-#end
+		addDroppedChild.on( target.dragEvents.drop, this );
 	}
 	
 	
 	override private function reset ()
-	{
-		if (target.layout == null)
-			return;
-		
-		target.layout.events.sizeChanged.unbind(this);
-		if (renderBinding != null) {
-			renderBinding.dispose();
-			renderBinding = null;
-		}
+	{	
+		target.dragEvents.drop.unbind(this);
 	}
-		
-	
-	private function invalidateWindow ()
+
+
+	private function addDroppedChild (droppedItem:DragSource) : Void
 	{
-		if (target.container == null)
-			return;
+		var newChild	= droppedItem.target;
+		var depth		= target.children.length;
+		depth			= target.getDepthForPosition( droppedItem.dropPosition );
+		trace(target + ".addDroppedTile "+newChild+" on "+depth+" in "+target.name);
 		
-	//	trace("invalidateWindow "+target);
-		target.window.invalidate();
-		renderBinding = renderTarget.on( target.displayEvents.render, this );
-	//	target.render.on( target.displayEvents.enterFrame, this );
-	}
-	
-	
-	private function renderTarget ()
-	{
-		if (renderBinding == null)
-			return;
-		
-		renderBinding.dispose();
-		renderBinding = null;
-	//	trace("render "+target+" size: "+target.layout.bounds.width+", "+target.layout.bounds.height);
-		target.displayEvents.render.unbind( this );
-		target.render();
+		if (droppedItem.origContainer != target || !target.children.has(newChild))
+			target.children.add( newChild, depth );
+		else
+			target.children.move( newChild, depth );
 	}
 }

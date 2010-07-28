@@ -93,7 +93,7 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 		switch (newState) {
 			case LayoutStates.invalidated:
 				if (enterFrameBinding == null)
-					enterFrameBinding = target.layout.measure.onceOn( target.displayEvents.enterFrame, this );
+					enterFrameBinding = measure.onceOn( target.displayEvents.enterFrame, this );
 			
 			case LayoutStates.measuring:
 				removeEnterFrameBinding();
@@ -108,6 +108,12 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 			case LayoutStates.validated:
 				removeEnterFrameBinding();
 		}
+	}
+
+
+	private function measure () {
+		removeEnterFrameBinding();
+		target.layout.measure();
 	}
 	
 	

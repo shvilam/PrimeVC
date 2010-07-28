@@ -70,7 +70,7 @@ class BalancingList <DataType> extends SimpleList <DataType>
 			return item;
 		}
 		else
-		{		
+		{
 			return super.add(item, pos);
 		}
 	}

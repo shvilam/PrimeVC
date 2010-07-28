@@ -68,12 +68,12 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		childWidth			= Number.NOT_SET;
 		childHeight			= Number.NOT_SET;
 		
-		childAddedHandler.on( children.events.added, this );
-		childRemovedHandler.on( children.events.removed, this );
+		childAddedHandler	.on( children.events.added, this );
+		childRemovedHandler	.on( children.events.removed, this );
 		
-		invalidateChildList.on( children.events.added, this );
-		invalidateChildList.on( children.events.moved, this );
-		invalidateChildList.on( children.events.removed, this );
+		invalidateChildList	.on( children.events.added, this );
+		invalidateChildList	.on( children.events.moved, this );
+		invalidateChildList	.on( children.events.removed, this );
 		super(newWidth, newHeight);
 	}
 	
@@ -99,7 +99,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	public inline function childInvalidated (childChanges:Int) : Bool
 	{
 		var r = false;
-		if (algorithm != null && algorithm.isInvalid(childChanges)) {
+		if (!isValidating && algorithm != null && algorithm.isInvalid(childChanges)) {
 			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
 			r = true;
 		}

@@ -82,7 +82,7 @@ class DragDropBehaviour extends BehaviourBase <IDraggable>
 	private function startDrag () : Void
 	{
 		dragSource = new DragSource(target);
-		
+		target.window.application.clearTraces();
 #if flash9
 		//move item to correct location
 		var pos			= target.container.as(IDisplayObject).localToGlobal( dragSource.origPosition );
