@@ -27,48 +27,33 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.scroll;
- import primevc.core.geom.IntPoint;
+ import primevc.gui.core.ISkin;
+ import primevc.gui.display.IDisplayObject;
+ import primevc.gui.events.KeyModState;
  import primevc.gui.events.MouseEvents;
-  using Math;
-  using Std;
+ import primevc.gui.layout.IScrollableLayout;
+  using primevc.utils.TypeUtil;
+
 
 
 /**
- * Behaviour to scroll in the target by moving the mouse.
+ * Defines some methods that are used by most scroll classes.
  * 
  * @author Ruben Weijers
- * @creation-date Jul 28, 2010
+ * @creation-date Jul 29, 2010
  */
-class MouseMoveScrollBehaviour extends MouseScrollBehaviourBase
+class ScrollHelper
 {
-	override private function calculateScroll (mouseObj:MouseState)
+	public static inline function getLocalMouse (target:ISkin, mouseObj:MouseState)
 	{
-		var scrollHor = scrollLayout.horScrollable();
-		var scrollVer = scrollLayout.verScrollable();
+		var mousePos = (mouseObj.target != target.container.as(TargetType))
+							? target.container.as(IDisplayObject).globalToLocal(mouseObj.stage)
+							: mouseObj.local;
 		
-		if (!scrollHor && !scrollVer)
-			return;
+		var scrollLayout = target.layout.as( IScrollableLayout );
 		
-		var mousePos	= ScrollHelper.getLocalMouse(target, mouseObj);
-		var scrollPos	= new IntPoint();
-		
-		//horScroll
-		if (scrollHor) {
-			var percentX	 = ( mousePos.x / scrollLayout.explicitWidth ).max(0).min(1);
-			scrollPos.x		 = ( scrollLayout.scrollableWidth * percentX ).round().int();
-		//	trace("scrollX: "+layoutGroup.scrollX+"; sW: "+scrollableW+"; eW: "+layoutGroup.explicitWidth+"; mW: "+layoutGroup.measuredWidth+"; mX: "+mousePos.x+"; pX "+percentX+"; horP: "+layoutGroup.getHorPosition()+"; x: "+target.x);
-		}
-		
-		//verScroll
-		if (scrollVer) {
-			var percentY	 = ( mousePos.y / scrollLayout.explicitHeight ).min(1).max(0);
-			scrollPos.y		 = ( scrollLayout.scrollableHeight * percentY ).round().int();
-		//	trace("scrollY: "+layoutGroup.scrollY+"; sH: "+scrollableH+"; eW: "+layoutGroup.explicitHeight+"; mW: "+layoutGroup.measuredHeight+"; mY: "+mousePos.y+"; stageMY: "+mouseObject.stage.y+"; pY "+percentY);
-		}
-		
-		scrollPos = scrollLayout.validateScrollPosition( scrollPos );
-		
-		if (!scrollPos.isEqualTo( scrollLayout.scrollPos ))
-			scrollLayout.scrollPos.setTo( scrollPos );
+		mousePos.x -= scrollLayout.getHorPosition() + scrollLayout.padding.left;
+		mousePos.y -= scrollLayout.getVerPosition() + scrollLayout.padding.top;
+		return mousePos;
 	}
 }

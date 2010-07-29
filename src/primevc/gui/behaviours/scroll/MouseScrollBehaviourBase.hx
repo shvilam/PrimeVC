@@ -30,8 +30,6 @@ package primevc.gui.behaviours.scroll;
  import primevc.core.dispatcher.Wire;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.ISkin;
- import primevc.gui.display.IDisplayObject;
- import primevc.gui.events.KeyModState;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.IScrollableLayout;
   using primevc.utils.Bind;
@@ -105,17 +103,5 @@ class MouseScrollBehaviourBase extends BehaviourBase <ISkin>
 #if debug
 		throw "Method calculateScrollPosition should be overwritten";
 #end
-	}
-	
-	
-	private inline function getLocalMousePosition (mouseObj:MouseState)
-	{
-		var mousePos = (mouseObj.target != target.container.as(TargetType))
-							? target.container.as(IDisplayObject).globalToLocal(mouseObj.stage)
-							: mouseObj.local;
-		
-		mousePos.x -= scrollLayout.getHorPosition() + scrollLayout.padding.left;
-		mousePos.y -= scrollLayout.getVerPosition() + scrollLayout.padding.top;
-		return mousePos;
 	}
 }

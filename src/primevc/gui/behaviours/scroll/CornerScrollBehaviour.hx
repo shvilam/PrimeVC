@@ -95,7 +95,7 @@ class CornerScrollBehaviour extends MouseScrollBehaviourBase
 		if (!scrollHor && !scrollVer)
 			return;
 		
-		var mousePos = getLocalMousePosition(mouseObj);
+		var mousePos = ScrollHelper.getLocalMouse(target, mouseObj);
 		
 		if (scrollSpeed == null)
 			scrollSpeed	= new IntPoint();

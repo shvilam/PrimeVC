@@ -32,8 +32,6 @@ package primevc.gui.behaviours.scroll;
  import primevc.gui.behaviours.drag.DragHelper;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.ISkin;
- import primevc.gui.display.IDisplayObject;
- import primevc.gui.events.KeyModState;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.IScrollableLayout;
   using primevc.utils.Bind;
@@ -50,7 +48,7 @@ package primevc.gui.behaviours.scroll;
  */
 class DragScrollBehaviour extends BehaviourBase <ISkin>
 {
-	private var scrollLayout		: IScrollableLayout;
+	private var scrollLayout	: IScrollableLayout;
 	private var lastMousePos	: Point;
 	private var dragHelper		: DragHelper;
 	private var moveBinding		: Wire < Dynamic >;
@@ -105,11 +103,11 @@ class DragScrollBehaviour extends BehaviourBase <ISkin>
 			return;
 		
 		if (lastMousePos == null) {
-			lastMousePos = getLocalMousePosition(mouseObj);
+			lastMousePos = ScrollHelper.getLocalMouse(target, mouseObj);
 			return;
 		}
 		
-		var mousePos		= getLocalMousePosition(mouseObj);
+		var mousePos		= ScrollHelper.getLocalMouse(target, mouseObj);
 		var mouseDiff		= lastMousePos.subtract(mousePos);
 		var newScrollPos	= scrollLayout.scrollPos.clone();
 		
@@ -119,17 +117,5 @@ class DragScrollBehaviour extends BehaviourBase <ISkin>
 		lastMousePos = mousePos;
 		newScrollPos = scrollLayout.validateScrollPosition( newScrollPos );
 		scrollLayout.scrollPos.setTo( newScrollPos );
-	}
-	
-	
-	private inline function getLocalMousePosition (mouseObj:MouseState)
-	{
-		var mousePos = (mouseObj.target != target.container.as(TargetType))
-							? target.container.as(IDisplayObject).globalToLocal(mouseObj.stage)
-							: mouseObj.local;
-		
-		mousePos.x -= scrollLayout.getHorPosition() + scrollLayout.padding.left;
-		mousePos.y -= scrollLayout.getVerPosition() + scrollLayout.padding.top;
-		return mousePos;
 	}
 }
