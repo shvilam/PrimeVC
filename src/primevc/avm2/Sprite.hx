@@ -111,8 +111,8 @@ class Sprite extends flash.display.Sprite, implements ISprite
 			
 			if (container != null) {
 				//if the container property is set and the sprite is not yet in the container, add the sprite to the container
-				if (!container.children.has(this))
-					container.children.add(this);
+			//	if (!container.children.has(this))
+			//		container.children.add(this);
 				
 				window = container.window;
 			}

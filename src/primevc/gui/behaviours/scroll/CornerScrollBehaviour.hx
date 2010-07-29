@@ -51,38 +51,35 @@ class CornerScrollBehaviour extends MouseScrollBehaviourBase
 	private var scrollBinding	: Wire < Dynamic >;
 	
 	
+	override private function reset () {
+		super.reset();
+		scrollBinding.dispose();
+		scrollBinding	= null;
+		scrollSpeed		= null;
+	}
+	
+	override private function createBindings ()
+	{
+		super.createBindings();
+		scrollBinding = scroll.on( target.displayEvents.enterFrame, this );
+		scrollBinding.disable();
+	}
+	
+	
 	override private function deactivateScrolling ()
 	{
-		scrollSpeed = null;
-		removeScrollBinding();
+		scrollBinding.disable();
 		super.deactivateScrolling();
-	}
-	
-	
-	private inline function addScrollBinding ()
-	{
-		if (scrollBinding == null)
-			scrollBinding = scroll.on( target.displayEvents.enterFrame, this );
-	}
-	
-	
-	private inline function removeScrollBinding ()
-	{
-		if (scrollBinding != null) {
-			scrollBinding.dispose();
-			scrollBinding = null;
-		}
 	}
 	
 	
 	private function scroll ()
 	{
 		var scrollPos	= scrollLayout.scrollPos.add( scrollSpeed );
-	//	trace(target+".enterFrame; speed: "+scrollSpeed+"; scroll: "+scrollLayout.scrollPos + "; newScroll: "+scrollPos);
 		scrollPos		= scrollLayout.validateScrollPosition( scrollPos );
 		
 		if (scrollPos.isEqualTo( scrollLayout.scrollPos )) {
-			removeScrollBinding();
+			scrollBinding.disable();
 			return;
 		}
 		
@@ -132,6 +129,6 @@ class CornerScrollBehaviour extends MouseScrollBehaviourBase
 		}
 		
 		if (scrollSpeed.x != 0 || scrollSpeed.y != 0)
-			addScrollBinding();
+			scrollBinding.enable();
 	}
 }

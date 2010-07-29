@@ -146,9 +146,8 @@ class DisplayList implements IList <ChildType>
 		if (item.container != null && item.container != owner) 
 			item.container.children.remove(item);
 		
-		target.addChildAt( item.as( TargetChildType ), pos );
-		
 		item.container = owner;
+		target.addChildAt( item.as( TargetChildType ), pos );
 		events.added.send( item, pos );
 		return item;
 	}

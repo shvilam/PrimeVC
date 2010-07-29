@@ -27,10 +27,11 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.drag;
+ import primevc.core.dispatcher.Wire;
  import primevc.core.geom.Point;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.display.IDisplayObject;
- import primevc.gui.events.KeyboardEvents;
+ import primevc.gui.events.MouseEvents;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
  
@@ -49,6 +50,8 @@ class DragDropBehaviour extends BehaviourBase <IDraggable>
 {
 	private var dragSource	: DragSource;
 	private var copyTarget	: Bool;
+	private var dragHelper	: DragHelper;
+	private var moveBinding	: Wire < Dynamic >;
 	
 	
 	public function new (target, copyTarget = false)
@@ -60,17 +63,23 @@ class DragDropBehaviour extends BehaviourBase <IDraggable>
 	
 	override private function init () : Void
 	{
-		startDrag.on( target.userEvents.mouse.down, this );
+		dragHelper	= new DragHelper( target, startDrag, stopDrag, cancelDrag );
+		moveBinding	= checkDropTarget.on( target.window.mouse.events.move, this );
+		moveBinding.disable();
 	}
 	
 	
 	override private function reset () : Void
 	{
-		target.userEvents.mouse.down.unbind( this );
-		target.window.mouse.events.up.unbind( this );
-		target.window.mouse.events.move.unbind( this );
-		target.window.userEvents.key.down.unbind( this );
-		
+		disposeDragSource();
+		dragHelper.dispose();
+		moveBinding.dispose();
+		moveBinding	= null;
+		dragHelper	= null;
+	}
+	
+	
+	private inline function disposeDragSource () {
 		if (dragSource != null) {
 			target.stopDrag();
 			dragSource.dispose();
@@ -79,10 +88,9 @@ class DragDropBehaviour extends BehaviourBase <IDraggable>
 	}
 	
 	
-	private function startDrag () : Void
+	private function startDrag (mouseObj:MouseState) : Void
 	{
 		dragSource = new DragSource(target);
-		target.window.application.clearTraces();
 #if flash9
 		//move item to correct location
 		var pos			= target.container.as(IDisplayObject).localToGlobal( dragSource.origPosition );
@@ -90,23 +98,17 @@ class DragDropBehaviour extends BehaviourBase <IDraggable>
 		target.window.children.add( cast target );
 		target.x		= pos.x;
 		target.y		= pos.y;
-		trace("startDrag "+pos+" - "+dragSource.origPosition);
 		target.visible	= true;
 #end
 		
 		//start dragging and fire events
 		target.startDrag();
 		target.dragEvents.start.send(dragSource);
-		
-		//set event handlers
-		target.userEvents.mouse.down.unbind( this );
-		stopDrag		.on( target.window.mouse.events.up, this );
-		checkDropTarget	.on( target.window.mouse.events.move, this );
-		handleKeyPress	.on( target.window.userEvents.key.down, this );
+		moveBinding.enable();
 	}
 	
 	
-	private inline function stopDrag () : Void
+	private inline function stopDrag (mouseObj:MouseState) : Void
 	{
 		if (dragSource.dropTarget != null)
 		{
@@ -134,16 +136,15 @@ class DragDropBehaviour extends BehaviourBase <IDraggable>
 			target.dragEvents.exit.send( dragSource );
 		}
 		
-		reset();
-		//listen to mouse down event again
-		startDrag.on( target.userEvents.mouse.down, this );
+		moveBinding.disable();
+		disposeDragSource();
 	}
 	
 	
-	private inline function cancelDrag () : Void
+	private inline function cancelDrag (mouseObj:MouseState) : Void
 	{
 		dragSource.dropTarget = null;
-		stopDrag();
+		stopDrag(mouseObj);
 	}
 	
 	
@@ -162,14 +163,5 @@ class DragDropBehaviour extends BehaviourBase <IDraggable>
 		if (curDropTarget.isDropAllowed(dragSource)) {
 			dragSource.dropTarget = curDropTarget;
 		}
-	}
-	
-	
-	private function handleKeyPress (state:KeyboardState) : Void
-	{
-#if flash9
-		if (state.keyCode() == flash.ui.Keyboard.ESCAPE)
-			cancelDrag();
-#end
 	}
 }

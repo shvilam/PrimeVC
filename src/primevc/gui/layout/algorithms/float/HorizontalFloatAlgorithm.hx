@@ -301,8 +301,8 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	{
 		var depth:Int	= 0;
 		var posX:Int	= pos.x.int();
-		if (group.is(IScrollableLayout))
-			posX += group.as(IScrollableLayout).scrollPos.x;
+	//	if (group.is(IScrollableLayout))
+	//		posX += group.as(IScrollableLayout).scrollPos.x;
 		
 		
 		if (group.childWidth.isSet())
@@ -353,8 +353,8 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	{
 		var depth:Int	= 0;
 		var posX:Int	= pos.x.int();
-		if (group.is(IScrollableLayout))
-			posX += group.as(IScrollableLayout).scrollPos.x;
+	//	if (group.is(IScrollableLayout))
+	//		posX += group.as(IScrollableLayout).scrollPos.x;
 		
 		var groupWidth	= group.width;
 		if (group.is(AdvancedLayoutClient))
@@ -381,8 +381,8 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	{
 		var depth:Int	= 0;
 		var posX:Int	= pos.x.int();
-		if (group.is(IScrollableLayout))
-			posX += group.as(IScrollableLayout).scrollPos.x;
+	//	if (group.is(IScrollableLayout))
+	//		posX += group.as(IScrollableLayout).scrollPos.x;
 		
 		if (group.childWidth.isSet())
 		{

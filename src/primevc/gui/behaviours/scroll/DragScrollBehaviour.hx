@@ -28,6 +28,8 @@
  */
 package primevc.gui.behaviours.scroll;
  import primevc.core.dispatcher.Wire;
+ import primevc.core.geom.Point;
+ import primevc.gui.behaviours.drag.DragHelper;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.ISkin;
  import primevc.gui.display.IDisplayObject;
@@ -36,75 +38,87 @@ package primevc.gui.behaviours.scroll;
  import primevc.gui.layout.IScrollableLayout;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
-
+  using Math;
+  using Std;
 
 
 /**
- * Base class for scrolling behaviours that react on the mouseposition.
+ * Behaviour to scroll by dragging the object.
  * 
  * @author Ruben Weijers
  * @creation-date Jul 29, 2010
  */
-class MouseScrollBehaviourBase extends BehaviourBase <ISkin>
+class DragScrollBehaviour extends BehaviourBase <ISkin>
 {
 	private var scrollLayout		: IScrollableLayout;
-	private var activateBinding		: Wire < Dynamic >;
-	private var deactivateBinding	: Wire < Dynamic >;
-	private var calcScrollBinding	: Wire < Dynamic >;
+	private var lastMousePos	: Point;
+	private var dragHelper		: DragHelper;
+	private var moveBinding		: Wire < Dynamic >;
 	
 	
 	override private function init ()
 	{
 		Assert.that( target.layout.is(IScrollableLayout), "target.layout of "+target+" must be a IScrollableLayout" );
-		scrollLayout = target.layout.as(IScrollableLayout);
-		createBindings();
+		
+		scrollLayout	= target.layout.as(IScrollableLayout);
+		dragHelper		= new DragHelper( target, activateScrolling, deactivateScrolling, dragAndScroll );
+		moveBinding		= dragAndScroll.on( target.window.mouse.events.move, this );
+		moveBinding.disable();
 	}
 	
 	
 	override private function reset ()
 	{
-		scrollLayout = null;
-		calcScrollBinding.dispose();
-		activateBinding.dispose();
-		deactivateBinding.dispose();
-		activateBinding		= null;
-		deactivateBinding	= null;
-		calcScrollBinding	= null;
+		dragHelper.dispose();
+		moveBinding.dispose();
+		
+		scrollLayout	= null;
+		lastMousePos	= null;
+		dragHelper		= null;
+		moveBinding		= null;
 	}
 	
 	
-	private function createBindings () {
-		activateBinding		= activateScrolling		.on( target.userEvents.mouse.rollOver, this );
-		deactivateBinding	= deactivateScrolling	.on( target.userEvents.mouse.rollOut, this );
-		calcScrollBinding	= calculateScroll		.on( target.container.userEvents.mouse.move, this );
-		deactivateBinding.disable();
-		calcScrollBinding.disable();
-	}
-
-
-	private function activateScrolling (mouseObj:MouseState) {
+	private function activateScrolling (mouseObj:MouseState)
+	{
 		if (target.scrollRect == null)
 			return;
 		
-		activateBinding.disable();
-		deactivateBinding.enable();
-		calcScrollBinding.enable();
+		moveBinding.enable();
+		dragAndScroll(mouseObj);
+	}
+
+
+	private function deactivateScrolling (mouseObj:MouseState)
+	{
+		moveBinding.disable();
+		lastMousePos = null;
+	}
+	
+	
+	private function dragAndScroll (mouseObj:MouseState)
+	{
+		var scrollHor = scrollLayout.horScrollable();
+		var scrollVer = scrollLayout.verScrollable();
 		
-		calculateScroll( mouseObj );
-	}
-
-
-	private function deactivateScrolling () {
-		calcScrollBinding.disable();
-		deactivateBinding.disable();
-		activateBinding.enable();
-	}
-	
-	
-	private function calculateScroll (mouseObj:MouseState) {
-#if debug
-		throw "Method calculateScrollPosition should be overwritten";
-#end
+		if (!scrollHor && !scrollVer)
+			return;
+		
+		if (lastMousePos == null) {
+			lastMousePos = getLocalMousePosition(mouseObj);
+			return;
+		}
+		
+		var mousePos		= getLocalMousePosition(mouseObj);
+		var mouseDiff		= lastMousePos.subtract(mousePos);
+		var newScrollPos	= scrollLayout.scrollPos.clone();
+		
+		if (scrollHor)	newScrollPos.x += mouseDiff.x.round().int();
+		if (scrollVer)	newScrollPos.y += mouseDiff.y.round().int();
+		
+		lastMousePos = mousePos;
+		newScrollPos = scrollLayout.validateScrollPosition( newScrollPos );
+		scrollLayout.scrollPos.setTo( newScrollPos );
 	}
 	
 	

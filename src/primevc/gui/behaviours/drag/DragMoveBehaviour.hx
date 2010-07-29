@@ -29,8 +29,7 @@
 package primevc.gui.behaviours.drag;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.ISkin;
- import primevc.gui.events.KeyboardEvents;
-  using primevc.utils.Bind;
+ import primevc.gui.events.MouseEvents;
   using primevc.utils.TypeUtil;
 
 
@@ -46,32 +45,24 @@ package primevc.gui.behaviours.drag;
 class DragMoveBehaviour extends BehaviourBase < IDraggable >
 {
 	private var dragSource	: DragSource;
+	private var dragHelper	: DragHelper;
 	
 	
 	override private function init () : Void
 	{
-		startDrag.on( target.userEvents.mouse.down, this );
+		dragHelper = new DragHelper( target, startDrag, stopDrag, cancelDrag );
 	}
 	
 	
 	override private function reset () : Void
 	{
-		target.userEvents.mouse.down.unbind( this );
-		target.window.mouse.events.up.unbind( this );
-		target.window.userEvents.key.down.unbind( this );
-		
-		if (dragSource != null) {
-			target.stopDrag();
-			dragSource.dispose();
-			dragSource = null;
-			
-			if (target.is(ISkin))
-				target.as(ISkin).layout.includeInLayout = true;
-		}
+		dragHelper.dispose();
+		dragHelper = null;
+		disposeDragSource();
 	}
 	
 	
-	private function startDrag () : Void
+	private function startDrag (mouseObj:MouseState) : Void
 	{
 		dragSource = new DragSource(target);
 		
@@ -81,38 +72,33 @@ class DragMoveBehaviour extends BehaviourBase < IDraggable >
 		//start dragging and fire events
 		target.startDrag();
 		target.dragEvents.start.send(dragSource);
-		
-		//set event handlers
-		target.userEvents.mouse.down.unbind( this );
-		stopDrag		.on( target.window.mouse.events.up, this );
-		handleKeyPress	.on( target.window.userEvents.key.down, this );
 	}
 	
 	
-	private inline function stopDrag () : Void
+	private function stopDrag (mouseObj:MouseState) : Void
 	{
 		target.dragEvents.complete.send(dragSource);
-		reset();
-		startDrag.on( target.userEvents.mouse.down, this );
+		disposeDragSource();
 	}
 	
 	
-	private inline function cancelDrag () : Void
+	private function cancelDrag (mouseObj:MouseState) : Void
 	{	
 		target.dragEvents.exit.send( dragSource );
 		target.x = dragSource.origPosition.x;
 		target.y = dragSource.origPosition.y;
-		
-		reset();
-		startDrag.on( target.userEvents.mouse.down, this );
+		disposeDragSource();
 	}
 	
 	
-	private function handleKeyPress (state:KeyboardState) : Void
-	{
-#if flash9
-		if (state.keyCode() == flash.ui.Keyboard.ESCAPE)
-			cancelDrag();
-#end
+	private inline function disposeDragSource () {
+		if (dragSource != null) {
+			target.stopDrag();
+			dragSource.dispose();
+			dragSource = null;
+			
+			if (target.is(ISkin))
+				target.as(ISkin).layout.includeInLayout = true;
+		}
 	}
 }

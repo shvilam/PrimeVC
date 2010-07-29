@@ -21,6 +21,7 @@ package cases;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.behaviours.scroll.CornerScrollBehaviour;
  import primevc.gui.behaviours.scroll.MouseMoveScrollBehaviour;
+ import primevc.gui.behaviours.scroll.DragScrollBehaviour;
  import primevc.gui.core.ISkin;
  import primevc.gui.core.Skin;
  import primevc.gui.display.IDisplayObject;
@@ -384,7 +385,7 @@ class Frame extends Skin < Box >
 	public var textField	: TextField;
 #end
 	private var color 		: UInt;
-
+	
 	public var layoutGroup (getLayoutGroup, null)	: LayoutContainer;
 		private inline function getLayoutGroup ()	{ return layout.as( LayoutContainer ); }
 	
@@ -465,8 +466,9 @@ class TileList extends Frame, implements IDropTarget
 		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
 		behaviours.add( new DropTargetBehaviour(this) );
 		behaviours.add( new ShowDragGapBehaviour(this) );
-		behaviours.add( new MouseMoveScrollBehaviour(this) );
+	//	behaviours.add( new MouseMoveScrollBehaviour(this) );
 	//	behaviours.add( new CornerScrollBehaviour(this) );
+		behaviours.add( new DragScrollBehaviour(this) );
 		dragOverHandler.on( dragEvents.over, this );
 		dragOutHandler.on( dragEvents.out, this );
 		addTile.on( userEvents.mouse.doubleClick, this );
