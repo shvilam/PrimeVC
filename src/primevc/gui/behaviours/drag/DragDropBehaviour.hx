@@ -29,7 +29,6 @@
 package primevc.gui.behaviours.drag;
  import primevc.core.dispatcher.Wire;
  import primevc.core.geom.Point;
- import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.events.MouseEvents;
   using primevc.utils.Bind;
@@ -46,24 +45,22 @@ package primevc.gui.behaviours.drag;
  * @creation-date	Jul 8, 2010
  * @author			Ruben Weijers
  */
-class DragDropBehaviour extends BehaviourBase <IDraggable>
+class DragDropBehaviour extends DragBehaviourBase
 {
-	private var dragSource	: DragSource;
 	private var copyTarget	: Bool;
-	private var dragHelper	: DragHelper;
 	private var moveBinding	: Wire < Dynamic >;
 	
 	
-	public function new (target, copyTarget = false)
+	public function new (target, ?dragBounds, ?copyTarget = false)
 	{
+		super(target, dragBounds);
 		this.copyTarget = copyTarget;
-		super(target);
 	}
 	
 	
 	override private function init () : Void
 	{
-		dragHelper	= new DragHelper( target, startDrag, stopDrag, cancelDrag );
+		super.init();
 		moveBinding	= checkDropTarget.on( target.window.mouse.events.move, this );
 		moveBinding.disable();
 	}
@@ -71,24 +68,13 @@ class DragDropBehaviour extends BehaviourBase <IDraggable>
 	
 	override private function reset () : Void
 	{
-		disposeDragSource();
-		dragHelper.dispose();
+		super.reset();
 		moveBinding.dispose();
 		moveBinding	= null;
-		dragHelper	= null;
 	}
 	
 	
-	private inline function disposeDragSource () {
-		if (dragSource != null) {
-			target.stopDrag();
-			dragSource.dispose();
-			dragSource = null;
-		}
-	}
-	
-	
-	private function startDrag (mouseObj:MouseState) : Void
+	override private function startDrag (mouseObj:MouseState) : Void
 	{
 		dragSource = new DragSource(target);
 #if flash9
@@ -108,8 +94,9 @@ class DragDropBehaviour extends BehaviourBase <IDraggable>
 	}
 	
 	
-	private inline function stopDrag (mouseObj:MouseState) : Void
+	override private function stopDrag (mouseObj:MouseState) : Void
 	{
+		target.stopDrag();
 		if (dragSource.dropTarget != null)
 		{
 #if flash9
@@ -141,7 +128,7 @@ class DragDropBehaviour extends BehaviourBase <IDraggable>
 	}
 	
 	
-	private inline function cancelDrag (mouseObj:MouseState) : Void
+	override private function cancelDrag (mouseObj:MouseState) : Void
 	{
 		dragSource.dropTarget = null;
 		stopDrag(mouseObj);

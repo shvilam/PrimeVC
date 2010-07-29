@@ -117,8 +117,8 @@ class LayoutClient implements ILayoutClient
 		percentHeight	= 0;
 		includeInLayout	= true;
 		
-		setX		.on( bounds.props.left.change, this );
-		setY		.on( bounds.props.top.change, this );
+		setX		.on( bounds.leftProp.change, this );
+		setY		.on( bounds.topProp.change, this );
 		updateWidth	.on( bounds.size.xProp.change, this );
 		updateHeight.on( bounds.size.yProp.change, this );
 		
@@ -217,7 +217,7 @@ class LayoutClient implements ILayoutClient
 	public function measureHorizontal ()
 	{
 		if (changes.has(Flags.WIDTH_CHANGED))
-			bounds.setWidth( width + getHorPadding() );
+			bounds.width = width + getHorPadding();
 		
 		measuredHorizontal = true;
 	}
@@ -226,7 +226,7 @@ class LayoutClient implements ILayoutClient
 	public function measureVertical ()
 	{
 		if (changes.has(Flags.HEIGHT_CHANGED))
-			bounds.setHeight( height + getVerPadding() );
+			bounds.height = height + getVerPadding();
 		
 		measuredVertical = true;
 	}
@@ -342,7 +342,7 @@ class LayoutClient implements ILayoutClient
 		if (_width.value != oldW)
 		{
 			var newH:Int	= maintainAspectRatio ? Std.int(_width.value / aspectRatio) : height;
-			bounds.setWidth( _width.value + getHorPadding() );
+			bounds.width 	= _width.value + getHorPadding();
 			
 			if (maintainAspectRatio && newH != height)
 				height = newH; //will trigger the height constraints
@@ -361,7 +361,7 @@ class LayoutClient implements ILayoutClient
 		if (_height.value != oldH)
 		{
 			var newW:Int	= maintainAspectRatio ? Std.int(_height.value * aspectRatio) : width;	
-			bounds.setHeight( _height.value + getVerPadding() );
+			bounds.height	= _height.value + getVerPadding();
 			
 			if (maintainAspectRatio && newW != width)
 				width = newW; //will trigger the width constraints

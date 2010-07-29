@@ -71,8 +71,8 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 		invalidateChildList.on( children.events.moved, this );
 		invalidateChildList.on( children.events.removed, this );
 		
-		setHorChildPosition.on( bounds.props.left.change, this );
-		setVerChildPosition.on( bounds.props.top.change, this );
+		setHorChildPosition.on( bounds.leftProp.change, this );
+		setVerChildPosition.on( bounds.topProp.change, this );
 	}
 	
 	

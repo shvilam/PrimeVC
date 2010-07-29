@@ -379,6 +379,64 @@ class DragButton extends Button, implements IDraggable
 
 
 
+class DragThumb extends Skin <DragThumb>
+{	
+	public var direction	: Direction;
+	
+	
+	public function new (direction:Direction)
+	{
+		this.direction = direction;
+		super();
+	}
+	
+	
+	override private function createLayout ()
+	{
+		layout = new LayoutClient();
+		if (direction == Direction.horizontal)
+			layout.relative = new RelativeLayout( 2, -100000, 2 );
+		else
+			layout.relative = new RelativeLayout( -100000, 2, -100000, 2 );
+	}
+	
+	
+	override public function render ()
+	{
+		var g = graphics;
+		var l = layout.bounds;
+		g.beginFill( 0x00aadd );
+		g.drawRoundRect( l.left, l.top, l.width, l.height, 5 );
+		g.endFill();
+	}
+}
+
+
+
+
+class ScrollBar extends Skin < ScrollBar >
+{
+	private var dragThumb	: DragThumb;
+//	private var track		: ISprite;
+	public var direction	: Direction;
+	
+	
+	public function new (direction:Direction)
+	{
+		this.direction = direction;
+		super();
+	}
+	
+	
+	override private function createChildren ()
+	{
+		dragThumb = new DragThumb( direction );
+	}
+}
+
+
+
+
 class Frame extends Skin < Box >
 {
 #if debug

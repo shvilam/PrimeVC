@@ -27,51 +27,66 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.drag;
- import primevc.gui.core.ISkin;
+ import primevc.core.geom.Rectangle;
+ import primevc.core.IDisposable;
+ import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.events.MouseEvents;
   using primevc.utils.TypeUtil;
 
-
 /**
- * Behaviour will add drag-and-move behaviour to the given target. 
- * Drag-and-move is an action in which the target can be dragged around and
- * by dragging it around it will be moved
+ * Base class for dragging classes.
  * 
  * @author Ruben Weijers
- * @creation-date Jul 22, 2010
+ * @creation-date Jul 29, 2010
  */
-class DragMoveBehaviour extends DragBehaviourBase
+class DragBehaviourBase extends BehaviourBase <IDraggable>
 {
-	override private function startDrag (mouseObj:MouseState) : Void
+	private var dragSource	: DragSource;
+	private var dragHelper	: DragHelper;
+	private var dragBounds	: Rectangle;
+	
+	
+	public function new (target, ?dragBounds:Rectangle)
 	{
-		dragSource = new DragSource(target);
-		
-		if (target.is(ISkin))
-			target.as(ISkin).layout.includeInLayout = false;
-		
-		//start dragging and fire events
-		target.startDrag( false, dragBounds );
-		target.dragEvents.start.send(dragSource);
+		super(target);
+		this.dragBounds = dragBounds;
 	}
 	
 	
-	override private function stopDrag (mouseObj:MouseState) : Void
+	override private function init () : Void
 	{
-		super.stopDrag(mouseObj);
-		if (target.is(ISkin))
-			target.as(ISkin).layout.includeInLayout = true;
+		dragHelper = new DragHelper( target, startDrag, stopDrag, cancelDrag );
 	}
 	
 	
-	override private function cancelDrag (mouseObj:MouseState) : Void
+	override private function reset () : Void
+	{
+		dragHelper.dispose();
+		dragHelper = null;
+		disposeDragSource();
+		if (dragBounds.is(IDisposable))
+			dragBounds.as(IDisposable).dispose();
+		dragBounds = null;
+	}
+	
+	
+	private function startDrag (mouseObj:MouseState) : Void	{}
+	private function cancelDrag (mouseObj:MouseState) : Void {}
+
+
+	private function stopDrag (mouseObj:MouseState) : Void
 	{	
 		target.stopDrag();
-		target.dragEvents.exit.send( dragSource );
-		target.x = dragSource.origPosition.x;
-		target.y = dragSource.origPosition.y;
+		target.dragEvents.complete.send(dragSource);
 		disposeDragSource();
-		
-		if (target.is(ISkin))
-			target.as(ISkin).layout.includeInLayout = true;
+	}
+
+
+	private inline function disposeDragSource ()
+	{
+		if (dragSource != null) {
+			dragSource.dispose();
+			dragSource = null;
+		}
 	}
 }

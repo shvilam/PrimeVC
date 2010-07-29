@@ -26,52 +26,50 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours.drag;
- import primevc.gui.core.ISkin;
- import primevc.gui.events.MouseEvents;
-  using primevc.utils.TypeUtil;
+package primevc.core.geom;
+ import primevc.core.geom.constraints.ContrainedRect;
+ import primevc.core.IDisposable;
 
 
 /**
- * Behaviour will add drag-and-move behaviour to the given target. 
- * Drag-and-move is an action in which the target can be dragged around and
- * by dragging it around it will be moved
+ * Rectangle Proxy is a Rectangle with Float properties that will keep itself
+ * in sync with an BindableBox (which will have integers).
+ * 
+ * This is usefull when an object is dragged and needs to stay within the 
+ * boundaries of another object.
  * 
  * @author Ruben Weijers
- * @creation-date Jul 22, 2010
+ * @creation-date Jul 29, 2010
  */
-class DragMoveBehaviour extends DragBehaviourBase
+class RectangleProxy extends Rectangle, implements IDisposable
 {
-	override private function startDrag (mouseObj:MouseState) : Void
+	private var originalRect (default, null)	: ContrainedRect;
+	
+	
+	public function new ( originalRect:ContrainedRect )
 	{
-		dragSource = new DragSource(target);
+		super( originalBounds.left, originalBounds.top, originalBounds.width, originalBounds.height );
+		this.originalRect = originalRect;
 		
-		if (target.is(ISkin))
-			target.as(ISkin).layout.includeInLayout = false;
-		
-		//start dragging and fire events
-		target.startDrag( false, dragBounds );
-		target.dragEvents.start.send(dragSource);
+		updateLeft	.on( originalRect.leftProp.change );
+		updateRight	.on( originalRect.rightProp.change );
+		updateTop	.on( originalRect.topProp.change );
+		updateBottom.on( originalRect.bottomProp.change );
 	}
 	
 	
-	override private function stopDrag (mouseObj:MouseState) : Void
+	public function dispose ()
 	{
-		super.stopDrag(mouseObj);
-		if (target.is(ISkin))
-			target.as(ISkin).layout.includeInLayout = true;
+		super.dispose();
+		originalRect.leftProp	.change.unbind( this );
+		originalRect.rightProp	.change.unbind( this );
+		originalRect.topProp	.change.unbind( this );
+		originalRect.bottomProp	.change.unbind( this );
 	}
 	
 	
-	override private function cancelDrag (mouseObj:MouseState) : Void
-	{	
-		target.stopDrag();
-		target.dragEvents.exit.send( dragSource );
-		target.x = dragSource.origPosition.x;
-		target.y = dragSource.origPosition.y;
-		disposeDragSource();
-		
-		if (target.is(ISkin))
-			target.as(ISkin).layout.includeInLayout = true;
-	}
+	private inline function updateLeft (v:Int)		{ left		= v; }
+	private inline function updateRight (v:Int)		{ right		= v; }
+	private inline function updateTop (v:Int)		{ top		= v; }
+	private inline function updateBottom (v:Int)	{ bottom	= v; }
 }
