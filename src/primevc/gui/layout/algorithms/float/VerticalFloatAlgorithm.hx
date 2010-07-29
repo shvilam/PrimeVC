@@ -38,6 +38,7 @@ package primevc.gui.layout.algorithms.float;
   using primevc.utils.IntMath;
   using primevc.utils.IntUtil;
   using primevc.utils.TypeUtil;
+  using Std;
 
 
 /**
@@ -298,7 +299,9 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 	private inline function getDepthForPositionTtB (pos:Point) : Int
 	{
 		var depth:Int	= 0;
-		var posY:Int	= Std.int( pos.y + group.scrollY );
+		var posY:Int	= pos.y.int();
+	//	if (group.is(IScrollableLayout))
+	//		posY += group.as(IScrollableLayout).scrollPos.y;
 		
 		if (group.childHeight.isSet())
 		{
@@ -347,10 +350,13 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 	private inline function getDepthForPositionC (pos:Point) : Int
 	{
 		var depth:Int	= 0;
-		var posY:Int	= Std.int( pos.y + group.scrollY );
-		var groupHeight = group.height;
+		var posY:Int	= pos.y.int();
+	//	if (group.is(IScrollableLayout))
+	//		posY += group.as(IScrollableLayout).scrollPos.y;
+		
+		var groupHeight	= group.height;
 		if (group.is(AdvancedLayoutClient))
-			groupHeight = IntMath.min( group.as(AdvancedLayoutClient).measuredHeight, group.as(AdvancedLayoutClient).explicitHeight );
+			groupHeight	= IntMath.min( group.as(AdvancedLayoutClient).measuredHeight, group.as(AdvancedLayoutClient).explicitHeight );
 		
 		var halfH = groupHeight * .5;
 		
@@ -372,7 +378,9 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 	private inline function getDepthForPositionBtT (pos:Point) : Int
 	{
 		var depth:Int	= 0;
-		var posY:Int	= Std.int( pos.y + group.scrollY );
+		var posY:Int	= pos.y.int();
+	//	if (group.is(IScrollableLayout))
+	//		posY += group.as(IScrollableLayout).scrollPos.y;
 
 		if (group.childHeight.isSet())
 		{

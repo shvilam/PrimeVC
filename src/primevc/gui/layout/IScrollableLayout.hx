@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2010, The PrimeVC Project Contributors
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
@@ -27,48 +27,45 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout;
- import primevc.core.collections.IList;
- import primevc.gui.layout.algorithms.ILayoutAlgorithm;
+ import primevc.core.geom.BindablePoint;
+ import primevc.core.geom.IntPoint;
 
 
 /**
- * @since	mar 19, 2010
- * @author	Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Jul 29, 2010
  */
-interface ILayoutContainer <ChildType:LayoutClient> implements ILayoutClient
+interface IScrollableLayout implements ILayoutContainer <LayoutClient>, implements IAdvancedLayoutClient
 {
-	public var algorithm			(default, setAlgorithm)		: ILayoutAlgorithm;
 	/**
-	 * Method that is called by a child of the layoutgroup to let the group
-	 * know that the child is changed. The layoutgroup can than decide, based 
-	 * on the used algorithm, if the group should be invalidated as well or
-	 * if the change in the child is not important.
-	 * 
-	 * @param	change		integer containing the change flags of the child
-	 * 			that is changed
-	 * @return	true if the change invalidates the parent as well, otherwise 
-	 * 			false
+	 * horizontal and vertical scroll position
 	 */
-	public function childInvalidated (childChanges:Int)			: Bool;
+	public var scrollPos			(default, null)					: BindablePoint;
 	
 	/**
-	 * List with all the children of the group
+	 * The total width of the container that is invisible and can be scrolled
 	 */
-	public var children				(default, null)				: IList<ChildType>;
+	public var scrollableWidth		(getScrollableWidth, never)		: Int;
+	
+	/**
+	 * The total height of the container that is invisible and can be scrolled
+	 */
+	public var scrollableHeight		(getScrollableHeight, never)	: Int;
 	
 	
 	/**
-	 * The maximum width of each child. Their orignal width will be ignored if
-	 * the child is bigger then this number (it won't get resized).
-	 * 
-	 * @default		Number.NOT_SET
+	 * Method will return if the container is horizontal scrollable
 	 */
-	public var childWidth			(default, setChildWidth)	: Int;
+	public function horScrollable			()				: Bool;
 	/**
-	 * The maximum height of each child. Their orignal height will be ignored if
-	 * the child is heigher then this number (it won't get resized).
-	 * 
-	 * @default		Number.NOT_SET
+	 * Method will return if the container is vertical scrollable
 	 */
-	public var childHeight			(default, setChildHeight)	: Int;
+	public function verScrollable			()				: Bool;
+	
+	/**
+	 * Method will tell if the coordinates of the given point are valid values
+	 * for the scrollposition or not. If the coordinates are invalid it will
+	 * change them to valid positions.
+	 */
+	public function validateScrollPosition	(pos:IntPoint)	: IntPoint;
 }

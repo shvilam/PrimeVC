@@ -131,8 +131,8 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 	
 	public inline function measureVertical ()
 	{
-		var height:Int = 0;
-		
+		var height:Int = group.height;
+	/*	
 		if (group.childHeight.notSet())
 		{
 			for (child in group.children)
@@ -143,7 +143,7 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 		{
 			height = group.childHeight * (group.children.length.divCeil(2) + 1);
 		}
-		
+		*/
 		setGroupHeight(height);
 	}
 	

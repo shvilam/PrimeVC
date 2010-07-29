@@ -65,9 +65,6 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 #else
 		applyPosition			.on( target.layout.events.posChanged, this );
 #end
-		
-		//trigger the event handler for the current state as well
-	//	layoutStateChangeHandler( null, target.layout.states.current );
 	}
 	
 	

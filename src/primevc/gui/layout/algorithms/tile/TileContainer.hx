@@ -50,14 +50,11 @@ package primevc.gui.layout.algorithms.tile;
  */
 class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements ILayoutContainer <ChildType>
 {
-	public var algorithm	(default, setAlgorithm)			: ILayoutAlgorithm;
-	public var children		(default, null)					: IList<ChildType>;
+	public var algorithm	(default, setAlgorithm)		: ILayoutAlgorithm;
+	public var children		(default, null)				: IList<ChildType>;
 	
-	public var childWidth	(default, setChildWidth)		: Int;
-	public var childHeight	(default, setChildHeight)		: Int;
-	
-	public var scrollX		: Int;
-	public var scrollY		: Int;
+	public var childWidth	(default, setChildWidth)	: Int;
+	public var childHeight	(default, setChildHeight)	: Int;
 	
 	
 	public function new( list:IList<ChildType> = null )

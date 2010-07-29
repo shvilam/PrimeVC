@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2010, The PrimeVC Project Contributors
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
@@ -26,49 +26,44 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.layout;
- import primevc.core.collections.IList;
- import primevc.gui.layout.algorithms.ILayoutAlgorithm;
+package primevc.utils;
+
 
 
 /**
- * @since	mar 19, 2010
- * @author	Ruben Weijers
+ * FloatMath contains Mathematical methods for floats. The methods in this class
+ * are meant to be used through 'use primevc.utils.FloatMath' and will mostly
+ * copy behaviour from the Math class.
+ * 
+ * @example
+ * 		FloatMath:		(5.5 * 10).max(50);			-> 50
+ * 		Math:			Math.min( 5.5 * 10, 50 )	-> 50
+ * 
+ * @author Ruben Weijers
+ * @creation-date Jul 29, 2010
  */
-interface ILayoutContainer <ChildType:LayoutClient> implements ILayoutClient
+class FloatMath
 {
-	public var algorithm			(default, setAlgorithm)		: ILayoutAlgorithm;
 	/**
-	 * Method that is called by a child of the layoutgroup to let the group
-	 * know that the child is changed. The layoutgroup can than decide, based 
-	 * on the used algorithm, if the group should be invalidated as well or
-	 * if the change in the child is not important.
-	 * 
-	 * @param	change		integer containing the change flags of the child
-	 * 			that is changed
-	 * @return	true if the change invalidates the parent as well, otherwise 
-	 * 			false
+	 * Returns the biggest float of the two given floats
+	 * @param	var1
+	 * @param	var2
+	 * @return	biggest float
 	 */
-	public function childInvalidated (childChanges:Int)			: Bool;
-	
-	/**
-	 * List with all the children of the group
-	 */
-	public var children				(default, null)				: IList<ChildType>;
+	public static inline function max (var1:Float, var2:Float) : Float 
+	{
+		return var1 > var2 ? var1 : var2;
+	}
 	
 	
 	/**
-	 * The maximum width of each child. Their orignal width will be ignored if
-	 * the child is bigger then this number (it won't get resized).
-	 * 
-	 * @default		Number.NOT_SET
+	 * Returns the smallest float of the two given floats
+	 * @param	var1
+	 * @param	var2
+	 * @return	smallest float
 	 */
-	public var childWidth			(default, setChildWidth)	: Int;
-	/**
-	 * The maximum height of each child. Their orignal height will be ignored if
-	 * the child is heigher then this number (it won't get resized).
-	 * 
-	 * @default		Number.NOT_SET
-	 */
-	public var childHeight			(default, setChildHeight)	: Int;
+	public static inline function min (var1:Float, var2:Float) : Float
+	{
+		return var1 < var2 ? var1 : var2;
+	}
 }

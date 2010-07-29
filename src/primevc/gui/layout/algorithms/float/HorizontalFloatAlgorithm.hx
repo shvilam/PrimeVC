@@ -38,6 +38,7 @@ package primevc.gui.layout.algorithms.float;
   using primevc.utils.IntMath;
   using primevc.utils.IntUtil;
   using primevc.utils.TypeUtil;
+  using Std;
  
 
 /**
@@ -299,7 +300,11 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	private inline function getDepthForPositionLtR (pos:Point) : Int
 	{
 		var depth:Int	= 0;
-		var posX:Int	= Std.int( pos.x + group.scrollX );
+		var posX:Int	= pos.x.int();
+		if (group.is(IScrollableLayout))
+			posX += group.as(IScrollableLayout).scrollPos.x;
+		
+		
 		if (group.childWidth.isSet())
 		{
 			depth = posX.divRound(group.childWidth);
@@ -347,10 +352,13 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	private inline function getDepthForPositionC (pos:Point) : Int
 	{
 		var depth:Int	= 0;
-		var posX:Int	= Std.int( pos.x + group.scrollX );
-		var groupWidth = group.width;
+		var posX:Int	= pos.x.int();
+		if (group.is(IScrollableLayout))
+			posX += group.as(IScrollableLayout).scrollPos.x;
+		
+		var groupWidth	= group.width;
 		if (group.is(AdvancedLayoutClient))
-			groupWidth = IntMath.min( group.as(AdvancedLayoutClient).measuredWidth, group.as(AdvancedLayoutClient).explicitWidth );
+			groupWidth	= IntMath.min( group.as(AdvancedLayoutClient).measuredWidth, group.as(AdvancedLayoutClient).explicitWidth );
 
 		var halfW = groupWidth * .5;
 
@@ -372,7 +380,9 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	private inline function getDepthForPositionRtL (pos:Point) : Int
 	{
 		var depth:Int	= 0;
-		var posX:Int	= Std.int( pos.x + group.scrollX );
+		var posX:Int	= pos.x.int();
+		if (group.is(IScrollableLayout))
+			posX += group.as(IScrollableLayout).scrollPos.x;
 		
 		if (group.childWidth.isSet())
 		{

@@ -19,6 +19,8 @@ package cases;
  import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
  import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
  import primevc.gui.behaviours.BehaviourBase;
+ import primevc.gui.behaviours.scroll.CornerScrollBehaviour;
+ import primevc.gui.behaviours.scroll.MouseMoveScrollBehaviour;
  import primevc.gui.core.ISkin;
  import primevc.gui.core.Skin;
  import primevc.gui.display.IDisplayObject;
@@ -103,7 +105,7 @@ class LayoutAppSkin extends Skin < LayoutTest >
 	{
 		layout = new LayoutContainer();
 		layout.relative			= new RelativeLayout( 5, 5, 5 );
-		layout.percentWidth		= 70;
+		layout.percentWidth		= 50;
 		layout.padding	= new Box( 5 );
 		layoutGroup.algorithm = new RelativeAlgorithm();
 	}
@@ -442,7 +444,7 @@ class TileList extends Frame, implements IDropTarget
 	public var draggedOver		: Bool;
 
 
-	public function new (dynamicSizes = false, allowDropFromOtherLists = true, tilesToCreate:Int = 25)
+	public function new (dynamicSizes = false, allowDropFromOtherLists = true, tilesToCreate:Int = 50)
 	{	
 		this.tilesToCreate				= tilesToCreate;
 		this.dynamicSizes				= dynamicSizes;
@@ -463,6 +465,8 @@ class TileList extends Frame, implements IDropTarget
 		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
 		behaviours.add( new DropTargetBehaviour(this) );
 		behaviours.add( new ShowDragGapBehaviour(this) );
+		behaviours.add( new MouseMoveScrollBehaviour(this) );
+	//	behaviours.add( new CornerScrollBehaviour(this) );
 		dragOverHandler.on( dragEvents.over, this );
 		dragOutHandler.on( dragEvents.out, this );
 		addTile.on( userEvents.mouse.doubleClick, this );

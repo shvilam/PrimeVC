@@ -29,7 +29,9 @@
 package primevc.gui.layout;
  import primevc.core.collections.ArrayList;
  import primevc.core.collections.IList;
+ import primevc.core.geom.BindablePoint;
  import primevc.core.geom.Box;
+ import primevc.core.geom.IntPoint;
  import primevc.core.Number;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.states.LayoutStates;
@@ -48,22 +50,24 @@ private typedef Flags = LayoutFlags;
  * @since	mar 20, 2010
  * @author	Ruben Weijers
  */
-class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<LayoutClient>, implements IAdvancedLayoutClient
+class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<LayoutClient>, implements IAdvancedLayoutClient, implements IScrollableLayout
 {
-	public var algorithm	(default, setAlgorithm)		: ILayoutAlgorithm;
-	public var children		(default, null)				: IList<LayoutClient>;
+	public var algorithm			(default, setAlgorithm)			: ILayoutAlgorithm;
+	public var children				(default, null)					: IList<LayoutClient>;
 	
-	public var childWidth	(default, setChildWidth)	: Int;
-	public var childHeight	(default, setChildHeight)	: Int;
+	public var childWidth			(default, setChildWidth)		: Int;
+	public var childHeight			(default, setChildHeight)		: Int;
 	
-	public var scrollX		: Int;
-	public var scrollY		: Int;
+	public var scrollPos			(default, null)					: BindablePoint;
+	public var scrollableWidth		(getScrollableWidth, never)		: Int;
+	public var scrollableHeight		(getScrollableHeight, never)	: Int;
 	
 	
 	public function new (newWidth:Int = 0, newHeight:Int = 0)
 	{
 		padding				= new Box(0, 0);
 		children			= new ArrayList<LayoutClient>();
+		scrollPos			= new BindablePoint();
 		
 		childWidth			= Number.NOT_SET;
 		childHeight			= Number.NOT_SET;
@@ -286,6 +290,22 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
 		}
 		return v;
+	}
+	
+	
+	
+	//
+	// ISCROLLABLE LAYOUT IMPLEMENTATION
+	//
+	
+	public inline function horScrollable ()							{ return explicitWidth.isSet() && measuredWidth > explicitWidth; }
+	public inline function verScrollable ()							{ return explicitHeight.isSet() && measuredHeight > explicitHeight; }
+	public inline function getScrollableWidth ()					{ return measuredWidth - explicitWidth; }
+	public inline function getScrollableHeight ()					{ return measuredHeight - explicitHeight; }
+	public inline function validateScrollPosition (pos:IntPoint) {
+		if (horScrollable())	pos.x = pos.x.within( 0, scrollableWidth );
+		if (verScrollable())	pos.y = pos.y.within( 0, scrollableHeight );
+		return pos;
 	}
 	
 	

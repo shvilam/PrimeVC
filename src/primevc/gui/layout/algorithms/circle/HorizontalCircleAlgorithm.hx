@@ -36,6 +36,7 @@ package primevc.gui.layout.algorithms.circle;
  import primevc.utils.Formulas;
  import primevc.utils.IntMath;
   using primevc.utils.BitUtil;
+  using primevc.utils.FloatMath;
   using primevc.utils.Formulas;
   using primevc.utils.IntMath;
   using primevc.utils.IntUtil;
@@ -134,9 +135,8 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 	 */
 	public inline function measureHorizontal ()
 	{
-		var width:Int = 0;
-		
-		if (group.childWidth.notSet())
+		var width:Int = group.width;
+	/*	if (group.childWidth.notSet())
 		{
 			for (child in group.children)
 				if (child.includeInLayout)
@@ -146,7 +146,7 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 		{
 			width = group.childWidth * (group.children.length.divCeil(2) + 1);
 		}
-		
+		*/
 		setGroupWidth(width);
 	}
 	
@@ -198,7 +198,7 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 	
 	public inline function getDepthForPosition (pos:Point) {
 		var childAngle		= (360 / group.children.length).degreesToRadians();
-		var posX:Float		= Math.max(0, pos.x - getLeftStartValue()) - getRadius();
+		var posX:Float		= (pos.x - getLeftStartValue()).min(0) - getRadius();
 		var radius:Float	= getRadius();
 		var startRadians	= switch (direction) {
 			case Horizontal.left:		0;

@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.geom;
+ import primevc.core.IClonable;
  
 
 /**
@@ -35,7 +36,7 @@ package primevc.core.geom;
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
-class IntPoint
+class IntPoint implements IClonable <IntPoint>
 {
 	public var x (getX, setX)	: Int;
 	public var y (getY, setY)	: Int;
@@ -48,8 +49,47 @@ class IntPoint
 	}
 	
 	
+	public function clone () {
+		return new IntPoint( x, y );
+	}
+	
+	
 	private function getX()		{ return x; }
 	private function setX(v)	{ return x = v; }
 	private function getY()		{ return y; }
 	private function setY(v)	{ return y = v; }
+	
+	
+	public inline function subtract (v:IntPoint) {
+		return new IntPoint(
+			x - v.x,
+			y - v.y
+		);
+	}
+	
+	
+	public inline function add (v:IntPoint) {
+		return new IntPoint(
+			x + v.x,
+			y + v.y
+		);
+	}
+	
+	
+	public inline function isEqualTo (v:IntPoint) : Bool {
+		return x == v.x && y == v.y;
+	}
+	
+	
+	public inline function setTo (v:IntPoint) : Void {
+		x = v.x;
+		y = v.y;
+	}
+	
+	
+#if debug
+	public inline function toString () {
+		return "IntPoint( "+x+", "+y+" )";
+	}
+#end
 }
