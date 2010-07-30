@@ -26,36 +26,26 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.collections;
- import primevc.utils.FastArray;
+package primevc.avm2;
+ import flash.display.DisplayObjectContainer;
+ import primevc.gui.display.IDisplayContainer;
+ import primevc.gui.display.DisplayList;
 
 
 /**
- * Description
+ * IDisplayContainer implementation for flash.
  * 
- * @creation-date	Jul 1, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Jul 22, 2010
  */
-class FastArrayIterator <DataType> 
-	#if (flash9 || cpp) implements haxe.rtti.Generic #end
+class DisplayContainer extends DisplayObjectContainer, implements IDisplayContainer 
 {
-	private var list (default, null)	: FastArray<DataType>;
-	public var current 					: UInt;
+	var children	(default, null)	: DisplayList;
 	
 	
-	public function new (list:FastArray<DataType>) {
-		this.list = list;
+	public function new ()
+	{
+		super();
+		children = new DisplayList();
 	}
-	
-	
-	public function rewind () { current = 0; }
-	public function forward () { current = list.length; }
-	
-	
-	public inline function hasNext () { return current < list.length; }
-	public inline function hasPrev () { return current > 0; }
-	
-	
-	public inline function next () { return list[current++]; }
-	public inline function prev () { return list[current--]; }
 }

@@ -80,6 +80,15 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	}
 	
 	
+	public function clone () : IList < DataType >
+	{
+		var l = new ChainedListCollection<DataType>(maxPerList);
+		for (child in this)
+			l.insertAt(child);
+		return l;
+	}
+	
+	
 	
 	//
 	// ILISTCOLLECTION METHODS
@@ -133,18 +142,14 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	
 	public inline function move (item:DataType, newPos:Int, curPos:Int = -1) : DataType
 	{
-		if (curPos == -1)
-			curPos = indexOf( item );
+		if		(curPos == -1)				curPos = indexOf( item );
+		if		(newPos > (length - 1))		newPos = length - 1;
+		else if (newPos < 0)				newPos = length - newPos;
 		
 		if (curPos != newPos)
 		{
-			if (curPos < newPos) {
-				insertAt( item, newPos );
-				removeItem( item );
-			} else {
-				removeItem( item );
-				insertAt( item, newPos );
-			}
+			removeItem( item );
+			insertAt( item, newPos );
 			
 			events.moved.send( item, curPos, newPos );
 		}
@@ -190,13 +195,13 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	 * @param	pos
 	 * @return	position where the cell is inserted
 	 */
-	private function insertAt (item:DataType, pos:Int = -1) : Int
+	private inline function insertAt (item:DataType, pos:Int = -1) : Int
 	{
 		//1. create a new list if the current lastlist is filled
 		if (lists.length == 0 || lists.getItemAt(lists.length - 1).length == maxPerList)
 			addList( new ChainedList<DataType>() );
 		
-		if (pos < 0)
+		if (pos < 0 || pos > length)
 			pos = length;
 		
 		//2. find corrent list to add item in
@@ -247,10 +252,9 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	}
 	
 	
-	public inline function iterator () : Iterator <DataType>
-	{
-		return new ChainedListCollectionIterator<DataType>(this);
-	}
+	public function iterator () : Iterator <DataType>						{ return getForwardIterator(); }
+	public inline function getForwardIterator () : IIterator <DataType>		{ return new ChainedListCollectionIterator<DataType>(this); }
+	public inline function getReversedIterator () : IIterator <DataType>	{ return new ChainedListCollectionIterator<DataType>(this); }
 	
 	
 	private inline function getListForPosition (globalPos:Int) : ChainedList<DataType> {
@@ -342,11 +346,13 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	{
 		var str = "";
 		var j = 0;
+		var i = 0;
 		var rows = [];
 		for (list in lists) {
 			var items = [];
 			for (item in list) {
-				items.push( "[ " + item + " ]" );
+				items.push( "[ " + i + " = " + item + " ]" );
+				i++;
 			}
 			rows.push( "row" + j + " - " + items.join(" ") + " ( "+list.length+" )" );
 			j++;
@@ -365,25 +371,36 @@ class ChainedListCollection <DataType> implements IList <DataType>,
  * @creation-date	Jun 30, 2010
  * @author			Ruben Weijers
  */
-class ChainedListCollectionIterator <DataType> #if (flash9 || cpp) implements haxe.rtti.Generic #end
+class ChainedListCollectionIterator <DataType> implements IIterator <DataType>
+	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	private var target			(default, null)					: ChainedListCollection<DataType>;
 	private var currentList 	(default, setCurrentList)		: ChainedList<DataType>;
 	private var listIterator	: Iterator<DataType>;
-	public var currentPos		: Int;
+	private var current			: Int;
 	
 	
 	public function new (target:ChainedListCollection<DataType>) 
 	{
 		this.target	= target;
-		currentPos	= 0;
+		rewind();
+	}
+	
+	
+	public inline function setCurrent (val:Dynamic) {
+		current = val;
+	}
+	
+	
+	public inline function rewind () {
+		current		= 0;
 		currentList	= target.lists.getItemAt(0);
 	}
 	
 	
 	public inline function hasNext () : Bool
 	{
-		return currentPos < target.length;
+		return current < target.length;
 	}
 	
 	
@@ -400,7 +417,7 @@ class ChainedListCollectionIterator <DataType> #if (flash9 || cpp) implements ha
 			}
 		}
 		
-		currentPos++;
+		current++;
 		return nextItem;
 	}
 	

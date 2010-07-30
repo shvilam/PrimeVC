@@ -27,12 +27,12 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.components;
- import primevc.gui.behaviours.Behaviour;
- import primevc.gui.core.UIComponent;
+ import primevc.gui.behaviours.BehaviourBase;
+ import primevc.gui.core.ISkin;
  import primevc.gui.states.ButtonStates;
 
 
-typedef ButtonObject = { >UIComponent,
+typedef ButtonObject = { >ISkin,
 	var buttonStates : ButtonStates;
 }
 
@@ -44,7 +44,7 @@ typedef ButtonObject = { >UIComponent,
  * @creation-date	Jun 10, 2010
  * @author			Ruben Weijers
  */
-class ButtonBehaviour extends Behaviour < ButtonObject >
+class ButtonBehaviour extends BehaviourBase < ButtonObject >
 {
 	override private function init ()
 	{

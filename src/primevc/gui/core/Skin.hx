@@ -34,7 +34,8 @@ package primevc.gui.core;
  import primevc.gui.display.Sprite;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.SkinStates;
- 
+  using primevc.utils.Bind;
+
 
 /**
  * Base Skin class.
@@ -50,16 +51,18 @@ class Skin <OwnerClass> extends Sprite, implements ISkin //<OwnerClass>
 	public var owner			(default, setOwner) : OwnerClass;
 	public var skinState		(default, null)		: SkinStates;
 	
-	public var behaviours		: FastList < IBehaviour <ISkin> >;
+	public var behaviours		(default, null)		: FastList < IBehaviour <Dynamic> >;
 	
 	
 	public function new()
 	{
 		super();
+		init.onceOn( displayEvents.addedToStage, this );
+		
 		visible			= false;
 		skinState		= new SkinStates();
 		
-		behaviours		= new FastList< IBehaviour <ISkin> > ();
+		behaviours		= new FastList< IBehaviour<Dynamic> > ();
 		behaviours.add( new RenderGraphicsBehaviour (this) );
 		behaviours.add( new SkinLayoutBehaviour (this) );
 		
@@ -73,6 +76,7 @@ class Skin <OwnerClass> extends Sprite, implements ISkin //<OwnerClass>
 	
 	public function init ()
 	{
+		initBehaviours();
 		createChildren();
 		visible = true;
 		skinState.current = skinState.initialized; 
@@ -117,32 +121,39 @@ class Skin <OwnerClass> extends Sprite, implements ISkin //<OwnerClass>
 	//
 	
 	//TODO RUBEN - enable Assert.abstract
-	private function createLayout ()		: Void; //	{ Assert.abstract(); }
-	private function createStates ()		: Void; //	{ Assert.abstract(); }
-	private function createBehaviours ()	: Void; //	{ Assert.abstract(); }
-	private function createChildren ()		: Void; //	{ Assert.abstract(); }
+	private function createLayout ()			: Void; //	{ Assert.abstract(); }
+	private function createStates ()			: Void; //	{ Assert.abstract(); }
+	private function createBehaviours ()		: Void; //	{ Assert.abstract(); }
+	private function createChildren ()			: Void; //	{ Assert.abstract(); }
 	
-	private function removeStates ()		: Void; //	{ Assert.abstract(); }
-	private function removeChildren ()		: Void; //	{ Assert.abstract(); }
-	private function removeBehaviours ()	: Void
+	private function removeStates ()			: Void; //	{ Assert.abstract(); }
+	private function removeChildren ()			: Void; //	{ Assert.abstract(); }
+	private inline function removeBehaviours ()	: Void
 	{
 		while (!behaviours.isEmpty())
 			behaviours.pop().dispose();
+	}
+	
+	private inline function initBehaviours ()	: Void
+	{
+		for (behaviour in behaviours)
+			behaviour.initialize();
 	}
 	
 	
 #if debug
 	public var id (default, setId) : String;
 	
-	private inline function setId (v) {
+	
+	private inline function setId (v)
+	{
 		id = name = v;
 		if (layout != null)
 			layout.name = name + "Layout";
 		return v;
 	}
-
-#if debug
+	
+	
 	override public function toString() { return id; }
-#end
 #end
 }

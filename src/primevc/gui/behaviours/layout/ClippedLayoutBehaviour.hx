@@ -31,7 +31,6 @@ package primevc.gui.behaviours.layout;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.ISkin;
  import primevc.gui.layout.LayoutContainer;
- import primevc.gui.states.LayoutStates;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
  
@@ -47,49 +46,62 @@ package primevc.gui.behaviours.layout;
  */
 class ClippedLayoutBehaviour extends BehaviourBase < ISkin >
 {
+	private var layoutContainer : LayoutContainer;
+	
+	
+	/**
+	 * Method will add signal-listeners to the layout object of the target to 
+	 * listen for changes in the size of the layout. If the size changes, it 
+	 * will adjust the scrollRect of the target.
+	 */
 	override private function init ()
 	{
-		//can only listen to changes in the layout when the layout object is created
-		initLayout.onceOn( target.skinState.constructed.entering, this );
+		if (target.layout == null)
+			return;
+	
+		Assert.that(target.layout.is(LayoutContainer), "LayoutObject should be a LayoutContainer");
+		layoutContainer		= target.layout.as(LayoutContainer);
+		target.scrollRect	= new Rectangle();
+		
+		updateScrollRect.on( target.layout.events.sizeChanged, this );
+		updateScrollX.on( layoutContainer.scrollPos.xProp.change, this );
+		updateScrollY.on( layoutContainer.scrollPos.yProp.change, this );
 	}
 	
 	
 	override private function reset ()
 	{
-		target.skinState.constructed.entering.unbind(this);
-		
 		if (target.layout != null)
 			target.layout.events.sizeChanged.unbind(this);
-	}
-	
-	
-	/**
-	 * Method will add signal-listeners to the layout object of the target to listen
-	 * to changes in the size of the layout. If the size changes, it will adjust
-	 * the scrollRect of the target.
-	 */
-	private function initLayout ()
-	{
-		if (target.layout == null)
-			return;
 		
-		Assert.that(target.layout.is(LayoutContainer), "LayoutObject should be a LayoutContainer");
-		
-		target.scrollRect = new Rectangle();
-		updateScrollRect.on( target.layout.events.sizeChanged, this );
+		layoutContainer.scrollPos.xProp.change.unbind( this );
+		layoutContainer.scrollPos.yProp.change.unbind( this );
+		target.scrollRect	= null;
+		layoutContainer		= null;
 	}
 	
 	
 	private function updateScrollRect ()
 	{
-		var l				= target.layout.as(LayoutContainer);
-		var r				= target.scrollRect;
-		r.x					= l.scrollX;
-		r.y					= l.scrollY;
-		r.width				= l.bounds.width;
-		r.height			= l.bounds.height;
+		var r		= target.scrollRect;
+	//	r.x			= layoutContainer.scrollX;
+	//	r.y			= layoutContainer.scrollY;
+		r.width		= layoutContainer.bounds.width;
+		r.height	= layoutContainer.bounds.height;
 		
-		trace("updated scrollRect " + r);
+	//	trace("updated scrollRect " + r);
+		target.scrollRect = r;
+	}
+
+
+	private function updateScrollX () {
+		var r	= target.scrollRect;
+		r.x		= layoutContainer.scrollPos.x;
+		target.scrollRect = r;
+	}
+	private function updateScrollY () {
+		var r	= target.scrollRect;
+		r.y		= layoutContainer.scrollPos.y;
 		target.scrollRect = r;
 	}
 }

@@ -49,6 +49,7 @@ class MouseSignal extends Signal1<MouseState>, implements IWireWatcher<MouseHand
 	var event:String;
 	var clickCount:Int;
 	
+	
 	public function new (d:InteractiveObject, e:String, cc:Int)
 	{
 		super();
@@ -57,20 +58,30 @@ class MouseSignal extends Signal1<MouseState>, implements IWireWatcher<MouseHand
 		this.clickCount = cc;
 	}
 	
+	
 	public function wireEnabled	(wire:Wire<MouseHandler>) : Void {
 		Assert.that(n != null);
 		if ( n.next() == null) // First wire connected
 			eventDispatcher.addEventListener(event, dispatch);
 	}
 	
+	
 	public function wireDisabled	(wire:Wire<MouseHandler>) : Void {
 		if (n == null) // No more wires connected
 			eventDispatcher.removeEventListener(event, dispatch);
 	}
 	
+	
 	private function dispatch(e:MouseEvent) {
-		send( stateFromFlashEvent(e, clickCount) );
+#if debug
+			var state = stateFromFlashEvent(e, clickCount);
+			state.owner = this;
+			send( state );
+#else
+			send( stateFromFlashEvent(e, clickCount) );
+#end
 	}
+	
 	
 	static public function stateFromFlashEvent( e, clickCount:Int ) : MouseState
 	{
@@ -94,8 +105,14 @@ class MouseSignal extends Signal1<MouseState>, implements IWireWatcher<MouseHand
 		flags = //TODO: Implement AIR support
 #else error
 #end
-		
 		return new MouseState(flags, e.target, new Point(e.localX, e.localY), new Point(e.stageX, e.stageY));
 	}
+
+
+#if debug
+	public function toString () {
+		return "MouseSignal[ "+event+" ]";
+	}
+#end
 }
 

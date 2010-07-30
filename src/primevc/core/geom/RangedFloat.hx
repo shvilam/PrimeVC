@@ -52,12 +52,14 @@ class RangedFloat //< NumberType:Float > implements haxe.rtti.Generic
 	}
 	
 	
-	private inline function setValue (v:Float) {
+	private inline function setValue (v:Float)
+	{
 		return value = v.within( min, max );
 	}
 	
 	
-	private inline function setMin (v:Float) {
+	private inline function setMin (v:Float)
+	{
 		Assert.that( Math.isNaN(min) || v < min, "v: "+v+"; min: "+min );
 		if (v != min)
 		{
@@ -69,7 +71,8 @@ class RangedFloat //< NumberType:Float > implements haxe.rtti.Generic
 	}
 	
 	
-	private inline function setMax (v:Float) {
+	private inline function setMax (v:Float)
+	{
 		Assert.that( Math.isNaN(max) || v > max, "v: "+v+"; max: "+max );
 		if (v == max)
 		{

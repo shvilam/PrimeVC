@@ -37,12 +37,23 @@ package primevc.gui.behaviours;
  */
 class BehaviourBase < TargetType > implements IBehaviour < TargetType >
 {
-	public var target (default, setTarget)	: TargetType;
+	public var target			(default, setTarget)	: TargetType;
+	private var initialized		: Bool;
 	
-	public function new( newTarget:TargetType )		{ target = newTarget; }
-	public function dispose ()						{ reset(); target = null; }
-	private function init()							{ Assert.abstract(); }
-	private function reset()						{ Assert.abstract(); }
+	public function new( newTarget:TargetType )			{ initialized = false; target = newTarget; }
+	public function dispose ()							{ reset(); target = null; }
+	private function init()								{ Assert.abstract(); }
+	private function reset()							{ Assert.abstract(); }
+	
+	
+	public inline function initialize ()
+	{
+		if (!initialized)
+		{
+			init();
+			initialized = true;
+		}
+	}
 	
 	
 	private inline function setTarget (newTarget:TargetType) : TargetType
@@ -52,7 +63,7 @@ class BehaviourBase < TargetType > implements IBehaviour < TargetType >
 		
 		target = newTarget;
 		
-		if (target != null)
+		if (target != null && initialized)
 			init();
 		
 		return target;

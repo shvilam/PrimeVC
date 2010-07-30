@@ -30,6 +30,7 @@ package primevc.gui.display;
  import primevc.core.IDisposable;
  import primevc.core.geom.Matrix2D;
  import primevc.core.geom.Point;
+ import primevc.gui.display.Window;
  import primevc.gui.events.DisplayEvents;
  
 
@@ -39,8 +40,22 @@ package primevc.gui.display;
  */
 interface IDisplayObject implements IDisposable
 {
-	var displayEvents	(default, null)			: DisplayEvents;
-	var displayList		(default, default)		: DisplayList;
+	var displayEvents	(default, null)					: DisplayEvents;
+	
+	/**
+	 * Reference to the object in which this displayobject is placed. It 
+	 * behaves like the 'parent' property in as3.
+	 */
+	var container		(default, setContainer)			: IDisplayContainer;
+	
+	/**
+	 * Wrapper object for the stage.
+	 */
+	var window			(default, setWindow)			: Window;
+	
+	
+	function isObjectOn (otherObj:IDisplayObject)	: Bool;
+	
 	
 #if flash9
 	var filters					: Array < Dynamic >;

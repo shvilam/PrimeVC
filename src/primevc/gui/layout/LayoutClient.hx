@@ -70,6 +70,9 @@ class LayoutClient implements ILayoutClient
 	
 	
 	public var states				(default, null)						: SimpleStateMachine < LayoutStates >;
+	public var measuredHorizontal	(default, null)						: Bool;
+	public var measuredVertical		(default, null)						: Bool;
+	
 	public var isValidating			(getIsValidating, never)			: Bool;
 	
 	
@@ -97,37 +100,41 @@ class LayoutClient implements ILayoutClient
 	//
 	
 	
-	public function new (validateOnPropertyChange = false)
+	public function new (newWidth:Int = 0, newHeight:Int = 0, validateOnPropertyChange = false)
 	{
 #if debug
 		name = "LayoutClient" + counter++;
 #end
 		this.validateOnPropertyChange	= validateOnPropertyChange;
-	//	(untyped this).includeInLayout	= true;
 		maintainAspectRatio				= false;
 		
-		states	= new SimpleStateMachine( LayoutStates.validated );
 		events	= new LayoutEvents();
-		bounds	= new ConstrainedRect();
-		_width	= new ConstrainedInt();
-		_height	= new ConstrainedInt();
+		bounds	= new ConstrainedRect(0, newWidth + getHorPadding(), newHeight + getVerPadding(), 0);
+		_width	= new ConstrainedInt( newWidth );
+		_height	= new ConstrainedInt( newHeight );
 		
 		percentWidth	= 0;
 		percentHeight	= 0;
 		includeInLayout	= true;
 		
-		setX		.on( bounds.props.left.change, this );
-		setY		.on( bounds.props.top.change, this );
+		setX		.on( bounds.leftProp.change, this );
+		setY		.on( bounds.topProp.change, this );
 		updateWidth	.on( bounds.size.xProp.change, this );
 		updateHeight.on( bounds.size.yProp.change, this );
 		
-		changes = changes.set(Flags.X_CHANGED);
-		changes = changes.set(Flags.Y_CHANGED);
+		changes				= changes.set(Flags.X_CHANGED | Flags.Y_CHANGED | Flags.WIDTH_CHANGED | Flags.HEIGHT_CHANGED);
+		states				= new SimpleStateMachine<LayoutStates>( LayoutStates.validated );
+		measuredVertical	= false;
+		measuredHorizontal	= false;
 	}
 	
 	
 	public function dispose ()
 	{
+		//remove the layoutclient from the parents layout.
+		if (parent != null && parent.children.has(this))
+			parent.children.remove(this);
+		
 		_width.dispose();
 		_height.dispose();
 		bounds.dispose();
@@ -175,7 +182,7 @@ class LayoutClient implements ILayoutClient
 	{
 		changes = changes.set(change);
 		
-		if (changes == 0 || states.current ==  null)
+		if (changes == 0 || states == null || states.current == null)
 			return;
 		
 		if (isValidating)
@@ -198,8 +205,8 @@ class LayoutClient implements ILayoutClient
 			return;
 		
 		states.current = LayoutStates.measuring;
-		measureHorizontal();
-		measureVertical();
+		if (!measuredHorizontal)	measureHorizontal();
+		if (!measuredVertical)		measureVertical();
 		
 		//auto validate when there is no parent or when the parent isn't invalidated
 		if (parent == null || parent.changes == 0)
@@ -210,14 +217,18 @@ class LayoutClient implements ILayoutClient
 	public function measureHorizontal ()
 	{
 		if (changes.has(Flags.WIDTH_CHANGED))
-			bounds.setWidth( width + getHorPadding() );
+			bounds.width = width + getHorPadding();
+		
+		measuredHorizontal = true;
 	}
 	
 	
 	public function measureVertical ()
 	{
 		if (changes.has(Flags.HEIGHT_CHANGED))
-			bounds.setHeight( height + getVerPadding() );
+			bounds.height = height + getVerPadding();
+		
+		measuredVertical = true;
 	}
 	
 	
@@ -236,6 +247,9 @@ class LayoutClient implements ILayoutClient
 		
 		states.current	= LayoutStates.validated;
 		changes			= 0;
+		
+		measuredHorizontal	= false;
+		measuredVertical	= false;
 	}
 	
 	
@@ -243,6 +257,7 @@ class LayoutClient implements ILayoutClient
 		var pos : Int = x;
 		if (parent.is(VirtualLayoutContainer))
 			pos += parent.getHorPosition();
+		
 		return pos;
 	}
 	
@@ -252,6 +267,7 @@ class LayoutClient implements ILayoutClient
 		var pos : Int = y;
 		if (parent.is(VirtualLayoutContainer))
 			pos += parent.getVerPosition();
+		
 		return pos;
 	}
 	
@@ -326,7 +342,7 @@ class LayoutClient implements ILayoutClient
 		if (_width.value != oldW)
 		{
 			var newH:Int	= maintainAspectRatio ? Std.int(_width.value / aspectRatio) : height;
-			bounds.setWidth( _width.value + getHorPadding() );
+			bounds.width 	= _width.value + getHorPadding();
 			
 			if (maintainAspectRatio && newH != height)
 				height = newH; //will trigger the height constraints
@@ -345,7 +361,7 @@ class LayoutClient implements ILayoutClient
 		if (_height.value != oldH)
 		{
 			var newW:Int	= maintainAspectRatio ? Std.int(_height.value * aspectRatio) : width;	
-			bounds.setHeight( _height.value + getVerPadding() );
+			bounds.height	= _height.value + getVerPadding();
 			
 			if (maintainAspectRatio && newW != width)
 				width = newW; //will trigger the width constraints
@@ -515,8 +531,9 @@ class LayoutClient implements ILayoutClient
 	}
 	
 	
-	private function handleParentStateChange (oldState, newState)
+	private function handleParentStateChange (oldState:LayoutStates, newState:LayoutStates)
 	{
+		Assert.notEqual(newState, null, "newstate cannot be null; oldstate: "+oldState);
 		switch (newState) {
 			case LayoutStates.invalidated:
 				states.current = LayoutStates.parent_invalidated;
@@ -525,8 +542,11 @@ class LayoutClient implements ILayoutClient
 	
 	
 #if debug
-	public inline function readChanges ()
+	public inline function readChanges (changes:Int = -1)
 	{
+		if (changes == -1)
+			changes = this.changes;
+		
 		var output	= [];
 		var result	= "none";
 		
@@ -546,6 +566,25 @@ class LayoutClient implements ILayoutClient
 		}
 		return "changes: " + result;
 	}
+	
+	
+	public inline function readChange (change:Int)
+	{
+		return switch (change) {
+			case Flags.WIDTH_CHANGED:				"width";
+			case Flags.HEIGHT_CHANGED:				"height";
+			case Flags.X_CHANGED:					"x";
+			case Flags.Y_CHANGED:					"y";
+			case Flags.INCLUDE_CHANGED:				"include_in_layout";
+			case Flags.RELATIVE_CHANGED:			"relative_properties";
+			case Flags.LIST_CHANGED:				"list";
+			case Flags.CHILDREN_INVALIDATED:		"children_invalidated";
+			case Flags.ALGORITHM_CHANGED:			"algorithm";
+			case Flags.SIZE_CONSTRAINT_CHANGED:		"size constraint";
+			default:								"unkown("+change+")";
+		}
+	}
+	
 	
 	public static var counter:Int = 0;
 	public var name:String;

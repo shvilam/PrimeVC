@@ -26,20 +26,42 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.components;
- import primevc.gui.core.UIComponent;
+package primevc.gui.behaviours.drag;
+ import primevc.gui.behaviours.BehaviourBase;
+  using primevc.utils.Bind;
 
 
 /**
+ * Behaviour which will add an dropped item on the right child-depth an on the
+ * right position.
+ * 
  * @author Ruben Weijers
- * @creation-date Jun 07, 2010
+ * @creation-date Jul 28, 2010
  */
-class Checkbox extends UIComponent
+class DropTargetBehaviour extends BehaviourBase <IDropTarget>
 {
-	public function new ()
+	override private function init ()
 	{
-		super();
+		addDroppedChild.on( target.dragEvents.drop, this );
+	}
+	
+	
+	override private function reset ()
+	{	
+		target.dragEvents.drop.unbind(this);
+	}
+
+
+	private function addDroppedChild (droppedItem:DragSource) : Void
+	{
+		var newChild	= droppedItem.target;
+		var depth		= target.children.length;
+		depth			= target.getDepthForPosition( droppedItem.dropPosition );
+		trace(target + ".addDroppedTile "+newChild+" on "+depth+" in "+target.name);
 		
-		behaviours.add(  );
+		if (droppedItem.origContainer != target || !target.children.has(newChild))
+			target.children.add( newChild, depth );
+		else
+			target.children.move( newChild, depth );
 	}
 }

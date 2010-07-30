@@ -27,13 +27,16 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms.circle;
+ import primevc.core.geom.Point;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.algorithms.directions.Vertical;
  import primevc.gui.layout.algorithms.IVerticalAlgorithm;
  import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
  import primevc.gui.layout.LayoutFlags;
+ import primevc.utils.Formulas;
  import primevc.utils.IntMath;
   using primevc.utils.BitUtil;
+  using primevc.utils.Formulas;
   using primevc.utils.IntMath;
   using primevc.utils.IntUtil;
   using primevc.utils.TypeUtil;
@@ -49,11 +52,22 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 {
 	public var direction	(default, setDirection)		: Vertical;
 	
+	/**
+	 * isEllipse defines if the circle that is drawn can be an ellipse or should
+	 * always be a complete circle (by using the same radius for both hor and
+	 * vertical).
+	 * 
+	 * @default		true
+	 */
+	public var isEllipse	(default, null)				: Bool;
 	
-	public function new ( ?direction )
+	
+	
+	public function new ( ?direction, ?isEllipse:Bool = true )
 	{
 		super();
-		this.direction = direction == null ? Vertical.top : direction;
+		this.direction	= direction == null ? Vertical.top : direction;
+		this.isEllipse	= isEllipse;
 	}
 	
 	
@@ -117,8 +131,8 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 	
 	public inline function measureVertical ()
 	{
-		var height:Int = 0;
-		
+		var height:Int = group.height;
+	/*	
 		if (group.childHeight.notSet())
 		{
 			for (child in group.children)
@@ -129,7 +143,7 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 		{
 			height = group.childHeight * (group.children.length.divCeil(2) + 1);
 		}
-		
+		*/
 		setGroupHeight(height);
 	}
 	
@@ -141,6 +155,7 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 			case Vertical.center:	applyCentered();
 			case Vertical.bottom:	applyBottomToTop();
 		}
+		measurePrepared = false;
 	}
 	
 	
@@ -148,22 +163,21 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 	{
 		if (group.children.length > 0)
 		{
-			var childAngle		= (360 / group.children.length) * (Math.PI / 180);		//in radians
+			var childAngle		= (360 / group.children.length).degreesToRadians();
 			var angle:Float		= 0;
-			var radius:Int		= Std.int( group.height * .5 );
+			var radius:Int		= getRadius();
 			var i:Int			= 0;
 			var pos:Int			= 0;
-			var start			= getTopStartValue() + radius;
+			var start			= getTopStartValue() + getRadius();
 			
 			for (child in group.children)
 			{
 				if (!child.includeInLayout)
 					continue;
 				
-				angle	= (childAngle * i);
-				pos		= start + Std.int( radius * Math.sin(angle + startRadians) );
+				angle	= (childAngle * i) + startRadians;
+				pos		= start + Std.int( radius * Math.sin(angle) );
 				
-			//	trace("pos: " + pos + " - halfH: " + radius + " - PI: " + Math.PI + ", angle " + angle+ "; childAngle: "+childAngle+"; start: "+startRadians);
 				var halfChildHeight	= Std.int( child.bounds.height * .5 );
 				var doCenter		= pos.isWithin( radius - halfChildHeight, radius + halfChildHeight );
 				
@@ -181,6 +195,22 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 	private inline function applyBottomToTop () : Void		{ applyCircle( -Math.PI ); }		//-180 degrees
 	
 	
+	public inline function getDepthForPosition (pos:Point)
+	{
+		var childAngle		= (360 / group.children.length).degreesToRadians();
+		var posY:Float		= Math.max(0, pos.y - getTopStartValue()) - getRadius();
+		var radius:Float	= getRadius();
+		var startRadians	= switch (direction) {
+			case Vertical.top:	   	0;
+			case Vertical.center:	-Math.PI / 2;
+			case Vertical.bottom:	-Math.PI;
+		}
+		
+		//the formula of applyCircle reversed..
+		var itemRadians = Math.asin(posY / radius) - startRadians;
+		return Std.int( Math.round( itemRadians / childAngle ) ) + 1;
+	}
+	
 	
 	
 	//
@@ -191,21 +221,16 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 	{
 		var top:Int = 0;
 		if (group.padding != null)
-			top = group.padding.top;
+			top += group.padding.top;
 		
 		return top;
 	}
 	
 	
-	private inline function getBottomStartValue ()	: Int	{
-		var h:Int = group.height;
-		if (group.is(AdvancedLayoutClient))
-			h = IntMath.max(group.as(AdvancedLayoutClient).measuredHeight, h);
-		
-		if (group.padding != null)
-			h += group.padding.top; // + group.padding.bottom;
-		
-		return h;
+	private inline function getRadius () : Int {
+		return isEllipse ?
+			Std.int( group.height * .5 ) : 
+			Std.int( Math.round( Formulas.getCircleRadius(group.width, group.height) ) );
 	}
 	
 	

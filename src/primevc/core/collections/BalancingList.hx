@@ -52,15 +52,16 @@ class BalancingList <DataType> extends SimpleList <DataType>
 	
 	override public function add (item:DataType, pos:Int = -1) : DataType
 	{
-		if (pos < length)
+		if (nextList != null && pos < length)
 		{
 			//if this list is the last list, raise the depth with one since the nextlist is gonna be the first list
+			var nextListPos = pos;
 			if (listNum == maxLists)
-				pos++;
+				nextListPos++;
 			
 			//move the item who is currently at the position 'pos' to the next list
 			var curCell = getCellAt(pos);
-			nextList.add(curCell.data, pos);
+			nextList.add(curCell.data, nextListPos);
 			events.removed.send( curCell.data, pos );
 			
 			//set the item in the current cell
@@ -69,7 +70,7 @@ class BalancingList <DataType> extends SimpleList <DataType>
 			return item;
 		}
 		else
-		{		
+		{
 			return super.add(item, pos);
 		}
 	}
@@ -80,7 +81,7 @@ class BalancingList <DataType> extends SimpleList <DataType>
 		var depth		= indexOf(item);
 		var nextDepth	= listNum == maxLists ? depth + 1 : depth;
 		
-		if (nextDepth < nextList.length)
+		if (nextList != null && nextDepth < nextList.length)
 		{
 			var cell		= getCellAt(depth);
 			//move the item at this depth from the nextlist to this list if the removed item isn't the last item.
@@ -104,7 +105,7 @@ class BalancingList <DataType> extends SimpleList <DataType>
 	}
 	
 	
-	public function swapAtDepth (newItem:DataType, toDepth:Int)
+	public inline function swapAtDepth (newItem:DataType, toDepth:Int)
 	{
 		var curCell		= getCellAt(toDepth);
 		var oldData		= curCell.data;

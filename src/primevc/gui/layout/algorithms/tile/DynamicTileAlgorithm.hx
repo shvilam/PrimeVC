@@ -32,6 +32,7 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.core.collections.SimpleList;
  import primevc.core.geom.constraints.SizeConstraint;
  import primevc.core.geom.Box;
+ import primevc.core.geom.Point;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.layout.algorithms.directions.Direction;
  import primevc.gui.layout.algorithms.directions.Horizontal;
@@ -42,6 +43,7 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutFlags;
+ import primevc.utils.IntMath;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.IntUtil;
@@ -98,6 +100,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	private function createTileMap ()
 	{
+		trace(this + ".createTileMap");
 		Assert.that( group.is( LayoutContainer ), "group should be an LayoutContainer" );
 		
 		childSizeConstraint			= new SizeConstraint();
@@ -180,9 +183,6 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		if (tileCollection == null || !client.includeInLayout)
 			return;
 		
-		//reset boundary properties
-		client.bounds.left	= 0;
-		client.bounds.top	= 0;
 		tileCollection.add(client, pos);
 	}
 	
@@ -203,71 +203,76 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	//
 	
 	
+	private var groupSizeChanged:Bool;
+	
 	override public function isInvalid (changes:Int) : Bool {
 		return super.isInvalid(changes) || changes.has( LayoutFlags.SIZE_CONSTRAINT_CHANGED );
 	}
 	
 	
-	override public function measure () : Void
+	
+	override public function prepareMeasure () : Void
 	{
-		var group			= group.as(LayoutContainer);
-		var measureGroups	= false;
-		
-		trace(group+".measure - "+group.readChanges() + " - startDirection: "+startDirection+"; explicitWidth: "+group.explicitWidth+"; measuredWidth: "+group.measuredWidth);
-		
-		//
-		//create a new tile map if it removed
-		//
-		if (tileCollection == null)
-			createTileMap();
-		
-		if (group.children.length == 0)
-			return;
-		
-		//
-		// APPLY CHANGES IN SIZE CONSTRAINT ALSO ON THE CHILDREN
-		//
-		if (group.changes.has(LayoutFlags.SIZE_CONSTRAINT_CHANGED))
+		if (!measurePrepared)
 		{
-			if (group.sizeConstraint == null) {
-				childSizeConstraint.reset();
-			} else {
-				if (startDirection == horizontal) {
-					childSizeConstraint.width.min = group.sizeConstraint.width.min;
-					childSizeConstraint.width.max = group.sizeConstraint.width.max;
+			var group			= group.as(LayoutContainer);
+			groupSizeChanged	= group.changes.has(LayoutFlags.LIST_CHANGED);
+		
+			//
+			//create a new tile map if it removed
+			//
+			if (tileCollection == null)
+				createTileMap();
+		
+			if (group.children.length == 0)
+				return;
+		
+			//
+			// APPLY CHANGES IN SIZE CONSTRAINT ALSO ON THE CHILDREN
+			//
+			if (group.changes.has(LayoutFlags.SIZE_CONSTRAINT_CHANGED))
+			{
+				if (group.sizeConstraint == null) {
+					childSizeConstraint.reset();
 				} else {
-					childSizeConstraint.height.min = group.sizeConstraint.height.min;
-					childSizeConstraint.height.max = group.sizeConstraint.height.max;
-				}
+					if (startDirection == horizontal) {
+						childSizeConstraint.width.min = group.sizeConstraint.width.min;
+						childSizeConstraint.width.max = group.sizeConstraint.width.max;
+					} else {
+						childSizeConstraint.height.min = group.sizeConstraint.height.min;
+						childSizeConstraint.height.max = group.sizeConstraint.height.max;
+					}
 				
-				tileGroups.sizeConstraint = group.sizeConstraint;
+					tileGroups.sizeConstraint = group.sizeConstraint;
+				}
+			}
+		
+			//resize all rows
+			else if (group.changes.has(LayoutFlags.WIDTH_CHANGED) && startDirection == horizontal && group.explicitWidth.isSet()) {
+				groupSizeChanged = true;
+				for (tileGroup in tileGroups)
+					tileGroup.width = group.explicitWidth;
+			}
+		
+			//resize all columns
+			else if (group.changes.has(LayoutFlags.HEIGHT_CHANGED) && startDirection == vertical && group.explicitHeight.isSet()) {
+				groupSizeChanged = true;
+				for (tileGroup in tileGroups)
+					tileGroup.height = group.explicitHeight;
 			}
 		}
-		
-		//resize all rows
-		else if (group.changes.has(LayoutFlags.WIDTH_CHANGED) && startDirection == horizontal && group.explicitWidth.isSet()) {
-			trace("group width has changed! "+group);
-			measureGroups = true;
-			for (tileGroup in tileGroups)
-				tileGroup.width = group.explicitWidth;
-		}
-		
-		//resize all columns
-		else if (group.changes.has(LayoutFlags.HEIGHT_CHANGED) && startDirection == vertical && group.explicitHeight.isSet()) {
-			trace("group height has changed! "+group);
-			measureGroups = true;
-			for (tileGroup in tileGroups)
-				tileGroup.height = group.explicitHeight;
-		}
-		
+		super.prepareMeasure();
+	}
+	
+	
+	private inline function measureGroups ()
+	{
 		//
 		// Check if children are added, removed or moved in the list
 		//
-		if (group.changes.has(LayoutFlags.LIST_CHANGED) || measureGroups)
+		if (groupSizeChanged)
 		{
 			var groupItr = tileGroups.iterator();
-			trace("group list is changed!");
-			trace(tileGroups);
 			//check each tileGroup for changes in the list or in the width of the children
 			for (tileGroup in groupItr)
 			{
@@ -288,25 +293,30 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 					addTileContainer( children.nextList );
 				}
 			}
+			
+			groupSizeChanged = false;
 		}
-		
-		if (startDirection == horizontal)
-			measureVertical();
-		else
-			measureHorizontal();
 	}
 	
 	
 	override public function measureHorizontal ()
 	{
-		tileGroups.measureHorizontal();
+		if (startDirection != horizontal)
+			return;
+		
+		measureGroups();
+		tileGroups.measure();
 		setGroupWidth(tileGroups.width);
 	}
 	
 	
 	override public function measureVertical ()
 	{
-		tileGroups.measureVertical();
+		if (startDirection != vertical)
+			return;
+		
+		measureGroups();
+		tileGroups.measure();
 		setGroupHeight(tileGroups.height);
 	}
 	
@@ -326,12 +336,41 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	{
 		for (row in tileGroups)
 			row.validate();
-	/*	
-		if (group.padding != null) {
-			if (startDirection == Direction.horizontal && horizontalDirection == Horizontal.left)
-				tileGroups.x = group.padding.left;
-		}*/
+		
 		tileGroups.validate();
+		measurePrepared = false;
+	}
+	
+	
+
+	override public function getDepthForPosition (pos:Point)
+	{
+		var depth:Int	= 0;
+		var rowNum		= tileGroups.algorithm.getDepthForPosition( pos );
+		
+		if (rowNum == tileGroups.children.length)
+		{
+			depth = tileCollection.length;
+		}
+		else
+		{
+			if (rowNum > 0)
+			{
+				var i = 0;
+				for (tileGroup in tileGroups.children)
+				{
+					if (i == rowNum)
+						break;
+					depth += tileGroup.children.length;
+					i++;
+				}
+			}
+			
+			var row	 = tileGroups.children.getItemAt( rowNum );
+			row.algorithm.group = row;		//<-- important! will otherwise measure with wrong row
+			depth	+= row.algorithm.getDepthForPosition( pos );
+		}
+		return depth;
 	}
 	
 	
@@ -400,6 +439,14 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		}
 		return v;
 	}
+	
+	
+#if debug
+	public function toString ()
+	{
+		return group+".DynamicTileAlgorithm";
+	}
+#end
 }
 
 
@@ -422,7 +469,6 @@ private class DynamicRowAlgorithm extends HorizontalFloatAlgorithm
 		var groupSize		= group.width;
 		var fullChildNum	= -1;			//counter to count all the children that didn't fit in the group
 		
-		trace(group+".measuring - "+group.width);
 		//TileContainers children are changed.
 		//Check the group to see if the width is bigger then the maxWidth
 		for (child in children)
@@ -430,7 +476,6 @@ private class DynamicRowAlgorithm extends HorizontalFloatAlgorithm
 			//check if the child will still fit in this row
 			if (fullChildNum >= 0 || groupSize < child.bounds.width)
 			{
-				trace(group+" is full "+groupSize+"; nextChild: "+child.bounds.width);
 				//move child to the next list
 				if (children.length > 1) {
 					fullChildNum++;

@@ -26,24 +26,17 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.display;
- import primevc.core.geom.Rectangle;
+package primevc.core.geom;
 
 
 /**
- * Interface describing objects that can be dragged around.
- * 
  * @author Ruben Weijers
- * @creation-date Jul 13, 2010
+ * @creation-date Jul 25, 2010
  */
-interface IDraggable
+interface IRectangle 
 {
-	function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) 		: Void;
-	function stopDrag()													: Void;
-	
-#if flash9
-	var dropTarget		(default,null)									: flash.display.DisplayObject;
-#else
-	var dropTarget		(default, null)									: IDisplayObject;
-#end
+	public var left		(getLeft, setLeft)		: Int;
+	public var right	(getRight, setRight)	: Int;
+	public var top		(getTop, setTop)		: Int;
+	public var bottom	(getBottom, setBottom)	: Int;
 }

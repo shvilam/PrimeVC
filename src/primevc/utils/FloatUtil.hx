@@ -62,4 +62,11 @@ class FloatUtil
 	public static inline function isWithin (value:Float, min:Float, max:Float) : Bool {
 		return value >= min && value <= max;
 	}
+	
+	
+	public static inline function round (value:Float, precision:Int = 0) : Float {
+		value = value * Math.pow(10, precision);
+		value = Math.round( value ) / Math.pow(10, precision);
+		return value;
+	}
 }

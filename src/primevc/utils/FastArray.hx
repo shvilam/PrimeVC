@@ -57,7 +57,7 @@ class FastArrayUtil
 	public static inline function insertAt<T>( list:FastArray<T>, item:T, pos:Int ) : Int
 	{
 		var newPos:Int = 0;
-		if (pos < 0)
+		if (pos < 0 || pos == Std.int(list.length))
 		{
 			newPos = list.push( item ) - 1;
 		}
@@ -68,8 +68,11 @@ class FastArrayUtil
 				pos = len;
 			
 			//move all items in the list one place down
-			for (i in (list.length + 1)...pos)
+			var i = list.length;
+			while ( i > pos ) {
 				list[i] = list[i - 1];
+				i--;
+			}
 			
 			list[pos] = item;
 			newPos = pos;
@@ -78,22 +81,26 @@ class FastArrayUtil
 	}
 	
 	
-	public static inline function move<T>( list:FastArray<T>, item:T, newPos:Int ) : Bool
+	public static inline function move<T>( list:FastArray<T>, item:T, newPos:Int, curPos:Int = -1 ) : Bool
 	{
-		var curPos:Int = list.indexOf(item);
+		if (curPos == -1)
+			curPos = list.indexOf(item);
 		
 		if (newPos > list.length)		throw "Position is bigger then the list length";
 		if (curPos < 0)					throw "Item is not part of list so cannot be moved";
-			
+		
 		if (curPos != newPos)
 		{
 			if (curPos > newPos) {
-				for (i in newPos...curPos)
+				var i = curPos;
+				while ( i > newPos ) {
 					list[i] = list[i - 1];
+					i--;
+				}
 				
 				list[newPos] = item;
 			} else {
-				for (i in newPos...curPos)
+				for (i in curPos...newPos)
 					list[i] = list[i + 1];
 				
 				list[newPos] = item;

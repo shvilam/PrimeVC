@@ -29,6 +29,8 @@
 package primevc.avm2;
  import primevc.gui.display.IShape;
  import primevc.gui.events.DisplayEvents;
+ import primevc.gui.display.IDisplayContainer;
+ import primevc.gui.display.Window;
  
 
 /**
@@ -39,10 +41,8 @@ package primevc.avm2;
  */
 class Shape extends flash.display.Shape, implements IShape
 {
-	/**
-	 * The displaylist to which this sprite belongs.
-	 */
-	public var displayList		(default, default)		: DisplayList;
+	public var container		(default, setContainer)	: IDisplayContainer;
+	public var window			(default, setWindow)	: Window;
 	public var displayEvents	(default, null)			: DisplayEvents;
 	
 	
@@ -58,7 +58,29 @@ class Shape extends flash.display.Shape, implements IShape
 		if (displayEvents == null)
 			return;		// already disposed
 		
+		if (container != null)
+			container.children.remove(this);
+		
 		displayEvents.dispose();
 		displayEvents	= null;
+		container		= null;
+		window			= null;
+	}
+	
+	
+	
+	//
+	// GETTERS / SETTERS
+	//
+	
+	private inline function setContainer (v) {
+		container	= v;
+		window		= container.window;
+		return v;
+	}
+	
+	
+	private inline function setWindow (v) {
+		return window = v;
 	}
 }

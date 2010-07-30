@@ -7,14 +7,14 @@ MINPARAMS=1
 
 TestClass=${1//\//.}
 FPS=5
-WIDTH=700
+WIDTH=1200
 HEIGHT=900
 EXTRA=""
 DEBUG=""
 NOTRACES=""
 
 #parse arguments
-while getopts "tde:af:gr:sw:xh:i" OptionName
+while getopts "dte:af:gr:sw:xh:i" OptionName
 	do
 		case $OptionName in
 			d ) DEBUG="-debug";;

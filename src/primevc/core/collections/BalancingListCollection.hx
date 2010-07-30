@@ -84,7 +84,7 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 	 * TODO: create a setter for this property and rebalance all the lists 
 	 * when this number is changed.
 	 */
-	public var maxLists		(default, default)			: UInt;
+	public var maxLists		(default, default)			: Int;
 	
 	/**
 	 * The position of the list that is currently the longest
@@ -115,6 +115,15 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 		lists.removeAll();
 		lists	= null;
 		events	= null;
+	}
+	
+	
+	public function clone () : IList < DataType >
+	{
+		var l = new BalancingListCollection<DataType>(maxLists);
+		for (child in this)
+			l.insertAt(child);
+		return l;
 	}
 	
 	
@@ -234,8 +243,9 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 		
 		var listPos = getListNumForPosition(pos);
 		
-		if (lists.length <= listPos)
+		if (lists.length <= listPos) {
 			addList( new BalancingList<DataType>() );
+		}
 		
 		//1. find corrent list to add item in
 		var targetList	= lists.getItemAt(listPos);
@@ -284,32 +294,39 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 	 */
 	private inline function moveItem (item:DataType, newPos:Int, curPos:Int = -1) : Int
 	{
-		if (curPos == -1)
-			curPos = indexOf(item);
+		if		(curPos == -1)				curPos = indexOf( item );
+		if		(newPos > (length - 1))		newPos = length - 1;
+		else if (newPos < 0)				newPos = length - newPos;
 		
 		if (newPos != curPos)
 		{
 			var oldListPos	= getListNumForPosition(curPos);
 			var oldDepth	= calculateItemDepth(curPos);
-			var itr			= lists.iterator().as(FastArrayIterator);
-			itr.current		= oldListPos;
-			var lastList	= lists.getItemAt(oldListPos).as(BalancingList);	//last list that was swapped
-			var lastDepth	= oldDepth;											//last depth on which was swapped
+			var lastList	= lists.getItemAt(oldListPos);		//last list that was swapped
+			var lastDepth	= oldDepth;												//last depth on which was swapped
 			var curDepth	= oldDepth;
 			
 			if (newPos > curPos)
 			{
 				//loop forward through lists
 				var steps = newPos - curPos;
+				
+				//rewind iterator with one (since the item is already in the current list)
+				var itr			= lists.getForwardIterator();
+				itr.setCurrent( oldListPos );
+				if (!itr.hasNext())
+					itr.rewind();
+				itr.next();
+				
 				for ( i in 0...steps ) {
 					if (!itr.hasNext()) {
 						itr.rewind();
 						curDepth++;
 					}
 					
-					var curList = itr.next().as(BalancingList);
-					item		= cast curList.swapAtDepth( cast item, curDepth );
-					item		= cast lastList.swapAtDepth( cast item, lastDepth );
+					var curList = itr.next();
+					item		= curList.swapAtDepth( item, curDepth );
+					item		= lastList.swapAtDepth( item, lastDepth );
 					
 					lastList	= curList;
 					lastDepth	= curDepth;
@@ -320,15 +337,23 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 				//loop backwards through lists
 				var steps = curPos - newPos;
 				
+				//rewind iterator with one (since the item is already in the current list)
+				var itr			= lists.getReversedIterator();
+				itr.setCurrent( oldListPos );
+				if (!itr.hasNext())
+					itr.rewind();
+				
+				itr.next();
+				
 				for ( i in 0...steps ) {
-					if (!itr.hasPrev()) {
-						itr.forward();
+					if (!itr.hasNext()) {
+						itr.rewind();
 						curDepth--;
 					}
 					
-					var curList	= itr.prev().as(BalancingList);
-					item		= cast curList.swapAtDepth( cast item, curDepth );
-					item		= cast lastList.swapAtDepth( cast item, lastDepth );
+					var curList	= itr.next();
+					item		= curList.swapAtDepth( item, curDepth );
+					item		= lastList.swapAtDepth( item, lastDepth );
 					
 					lastList	= curList;
 					lastDepth	= curDepth;
@@ -350,10 +375,9 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 	}
 	
 	
-	public function iterator () : Iterator <DataType>
-	{
-		return new BalancingListCollectionIterator<DataType>(this);
-	}
+	public function iterator () : Iterator <DataType>				{ return getForwardIterator(); }
+	public function getForwardIterator () : IIterator <DataType>	{ return new BalancingListCollectionForwardIterator<DataType>(this); }
+	public function getReversedIterator () : IIterator <DataType>	{ return new BalancingListCollectionReversedIterator<DataType>(this); }
 	
 	
 	
@@ -412,7 +436,7 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 		for (list in lists) {
 			var items = new Array();
 			for (item in list) {
-				items.push( "[ " + item + " ]" );
+				items.push( "[ " + indexOf(item) + " = " + item + " ]" );
 			}
 			columns.push( "column" + j + " - " + items.join(" ") + " ( "+list.length+" )" );
 			j++;
@@ -430,30 +454,41 @@ class BalancingListCollection <DataType> implements IList <DataType>,
  * @creation-date	Jul 1, 2010
  * @author			Ruben Weijers
  */
-class BalancingListCollectionIterator <DataType> #if (flash9 || cpp) implements haxe.rtti.Generic #end
+class BalancingListCollectionForwardIterator <DataType> implements IIterator <DataType>
+	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	private var target			(default, null) : BalancingListCollection<DataType>;
-	private var currentListNum	: UInt;
-	private var currentDepth	: UInt;
-	public var currentPos		: Int;
+	private var currentListNum	: Int;
+	private var currentDepth	: Int;
+	private var current			: Int;
 	
 	
 	public function new (target:BalancingListCollection<DataType>) 
 	{
 		this.target		= target;
+		rewind();
+	}
+	
+	
+	public inline function setCurrent (val:Dynamic)	{
+		current = val;
+	}
+	
+	
+	public inline function rewind () {
 		currentDepth	= 0;
-		currentPos		= 0;
+		current			= 0;
 		currentListNum	= 0;
 	}
 	
 	
 	public inline function hasNext () : Bool
 	{
-		return currentPos < target.length;
+		return current < target.length;
 	}
 	
 	
-	public function next () : DataType
+	public inline function next () : DataType
 	{
 		if (currentListNum >= target.maxLists) {
 			currentListNum = 0;
@@ -462,8 +497,65 @@ class BalancingListCollectionIterator <DataType> #if (flash9 || cpp) implements 
 		
 		var item = target.lists.getItemAt(currentListNum).getItemAt(currentDepth);
 		currentListNum++;
-		currentPos++;
+		current++;
 		
+		return item;
+	}
+}
+
+
+
+/**
+ * Iterator for the BalancingListCollection.
+ * 
+ * @creation-date	Jul 23, 2010
+ * @author			Ruben Weijers
+ */
+class BalancingListCollectionReversedIterator <DataType> implements IIterator <DataType>
+	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
+{
+	private var target			(default, null) : BalancingListCollection<DataType>;
+	private var currentListNum	: Int;
+	private var currentDepth	: Int;
+	private var current			: Int;
+	
+	
+	public function new (target:BalancingListCollection<DataType>) 
+	{
+		this.target		= target;
+		rewind();
+	}
+	
+	
+	public inline function setCurrent (val:Dynamic)	{
+		current = val;
+	}
+	
+	
+	public inline function rewind () {
+		currentListNum	= target.maxLists - 1;
+		currentDepth	= target.lists.length - 1;
+		current			= target.length;
+	}
+	
+	
+	public inline function hasNext () : Bool
+	{
+		return current > 0;
+	}
+	
+	
+	public inline function next () : DataType
+	{
+		if (currentListNum <= 0) {
+			currentListNum = target.maxLists - 1;
+			currentDepth--;
+		}
+
+		var item = target.lists.getItemAt(currentListNum).getItemAt(currentDepth);
+		currentListNum--;
+		current--;
+
 		return item;
 	}
 }

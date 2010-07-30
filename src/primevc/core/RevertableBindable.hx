@@ -71,11 +71,12 @@ class RevertableBindable <DataType> extends Bindable<DataType>//, implements hax
 	 */
 	public function set(newValue:DataType) : Void
 	{
-		var f = flags;
-		this.flags |= IN_EDITMODE
-		this.value = newValue;
-		this.flags = f;
+		var f	 = flags;
+		flags	|= IN_EDITMODE;
+		value	 = newValue;
+		flags	 = f;
 	}
+	
 	
 	override private function setValue (newValue:DataType) : DataType
 	{	

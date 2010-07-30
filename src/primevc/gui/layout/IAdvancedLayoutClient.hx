@@ -42,7 +42,4 @@ interface IAdvancedLayoutClient implements ILayoutClient
 	
 	public var measuredWidth	(default, setMeasuredWidth) 	: Int;
 	public var measuredHeight	(default, setMeasuredHeight)	: Int;
-	
-	public var scrollX			: Int;
-	public var scrollY			: Int;
 }

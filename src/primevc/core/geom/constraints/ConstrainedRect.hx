@@ -29,27 +29,28 @@
 package primevc.core.geom.constraints;
  import primevc.core.geom.BindableBox;
  import primevc.core.geom.BindablePoint;
- import primevc.core.IDisposable;
   using primevc.utils.Bind;
 
 
 /**
- * Description
+ * A ConstrainedRect is a rectrangle (not a box) which can have constraints
+ * on it's coordinate-properties. This way the rectange will never be bigger
+ * than the constrained-size.
+ * 
+ * The difference between a Rectangle and a Box is that the coordinates in a
+ * box don't have any relation to each other where they do in a rectangle.
+ * When the top is changed, this will also change the bottom property (since
+ * the height of the rectangle is changed) etc.
  * 
  * @creation-date	Jun 21, 2010
  * @author			Ruben Weijers
  */
-class ConstrainedRect implements IDisposable
+class ConstrainedRect extends BindableBox
 {
 	public var constraint		(default, setConstraint)		: BindableBox;
-	public var props			(default, null)					: BindableBox;
 	
-	public var top				(getTop, setTop)				: Int;
-	public var bottom			(getBottom, setBottom)			: Int;
-	public var left				(getLeft, setLeft)				: Int;
-	public var right			(getRight, setRight)			: Int;
-	public var centerX			(getCenterX, setCenterX)		: Int;
-	public var centerY			(getCenterY, setCenterY)		: Int;
+	public var centerX			(getCenterX, setCenterX)		: Float;
+	public var centerY			(getCenterY, setCenterY)		: Float;
 	
 	public var size				(default, null)					: BindablePoint;
 	public var width			(getWidth, setWidth)			: Int;
@@ -58,111 +59,97 @@ class ConstrainedRect implements IDisposable
 	
 	public function new (top = 0, right = 0, bottom = 0, left = 0) 
 	{
-		props		= new BindableBox();
-		size		= new BindablePoint(right - left, bottom - top);
-		this.top	= top;
-		this.right	= right;
-		this.bottom	= bottom;
-		this.left	= left;
+		size = new BindablePoint(right - left, bottom - top);
+		super( top, right, bottom, left);
 	}
 	
 	
-	public function dispose ()
+	override public function dispose ()
 	{
-		props.dispose();
+		super.dispose();
 		size.dispose();
-		props		= null;
 		size		= null;
 		constraint	= null;
 	}
 	
 	
-	public function toString () {
-		return "left " + left + "; right: " + right + "; top: " + top + "; bottom: " + bottom + "; width: " + width + "; height: " + height;
-	}
-	
-	
-	private inline function getLeft ()		{ return props.left.value; }
-	private inline function getRight ()		{ return props.right.value; }
-	private inline function getTop ()		{ return props.top.value; }
-	private inline function getBottom ()	{ return props.bottom.value; }
-	private inline function getCenterX ()	{ return left + Std.int(width * .5); }
-	private inline function getCenterY ()	{ return top + Std.int(height * .5); }
+	private inline function getCenterX ()	{ return left + (width * .5); }
+	private inline function getCenterY ()	{ return top + (height * .5); }
 	private inline function getWidth ()		{ return size.x; }
 	private inline function getHeight ()	{ return size.y; }
 	
 	
-	public inline function setWidth (v:Int) {
-		size.x				= v;
-		props.right.value	= left + size.x;
+	private inline function setWidth (v:Int) {
+		size.x			= v;
+		rightProp.value	= left + size.x;
 		return v;
 	}
 	
 	
-	public inline function setHeight (v:Int) {
+	private inline function setHeight (v:Int) {
 		size.y				= v;
-		props.bottom.value	= top + size.y;
+		bottomProp.value	= top + size.y;
 		return v;
 	}
 	
 	
-	private inline function setTop (v:Int) {
-		if (constraint != null && v < constraint.top.value)
-			v = constraint.top.value;
+	override private function setTop (v:Int) {
+		if (constraint != null && v < constraint.top)
+			v = constraint.top;
 		
 		if (v != top) {
-			props.top.value		= v;
-			props.bottom.value	= v + height;
+			topProp.value		= v;
+			bottomProp.value	= v + height;
 		}
 		return v;
 	}
 	
 	
-	private inline function setBottom (v:Int) {
-		if (constraint != null && v > constraint.bottom.value)
-			v = constraint.bottom.value;
+	override private function setBottom (v:Int) {
+		if (constraint != null && v > constraint.bottom)
+			v = constraint.bottom;
 		
 		if (v != bottom) {
-			props.bottom.value	= v;
-			props.top.value		= v - height;
+			bottomProp.value	= v;
+			topProp.value		= v - height;
 		}
 		
 		return v;
 	}
 	
 	
-	private inline function setLeft (v:Int) {
-		if (constraint != null && v < constraint.left.value)
-			v = constraint.left.value;
+	override private function setLeft (v:Int) {
+		if (constraint != null && v < constraint.left)
+			v = constraint.left;
 		
 		if (v != left) {
-			props.left.value	= v;
-			props.right.value	= v + width;
+			leftProp.value	= v;
+			rightProp.value	= v + width;
 		}
 		return v;
 	}
 	
 	
-	private inline function setRight (v:Int) {
-		if (constraint != null && v > constraint.right.value)
-			v = constraint.right.value;
+	override private function setRight (v:Int) {
+		if (constraint != null && v > constraint.right)
+			v = constraint.right;
 		
 		if (v != right) {
-			props.right.value	= v;
-			props.left.value	= v - width;
+			rightProp.value	= v;
+			leftProp.value	= v - width;
 		}
 		return v;
 	}
 	
 	
-	private inline function setCenterX (v:Int) {
-		left = v - Std.int(width * .5);
+	private inline function setCenterX (v:Float) {
+		left = Std.int(v - (width * .5));
 		return centerX;
 	}
 	
 	
-	private inline function setCenterY (v:Int) {
-		top = v - Std.int(height * .5);
+	private inline function setCenterY (v:Float) {
+		top = Std.int(v - (height * .5));
 		return centerY;
 	}
 	
@@ -170,19 +157,19 @@ class ConstrainedRect implements IDisposable
 	
 	public inline function setConstraint (v) {
 		if (constraint != null) {
-			constraint.left		.change.unbind( this );
-			constraint.right	.change.unbind( this );
-			constraint.top		.change.unbind( this );
-			constraint.bottom	.change.unbind( this );
+			constraint.leftProp		.change.unbind( this );
+			constraint.rightProp	.change.unbind( this );
+			constraint.topProp		.change.unbind( this );
+			constraint.bottomProp	.change.unbind( this );
 		}
 		
 		constraint = v;
 		
 		if (constraint != null) {
-			validateConstraints.on( constraint.left		.change, this );
-			validateConstraints.on( constraint.right	.change, this );
-			validateConstraints.on( constraint.top		.change, this );
-			validateConstraints.on( constraint.bottom	.change, this );
+			validateConstraints.on( constraint.leftProp		.change, this );
+			validateConstraints.on( constraint.rightProp	.change, this );
+			validateConstraints.on( constraint.topProp		.change, this );
+			validateConstraints.on( constraint.bottomProp	.change, this );
 			validateConstraints();
 		}
 		return v;
@@ -196,4 +183,11 @@ class ConstrainedRect implements IDisposable
 		setTop(top);
 		setBottom(bottom);
 	}
+
+
+#if debug
+	override public function toString () {
+		return super.toString() + "; width: " + width + "; height: " + height;
+	}
+#end
 }

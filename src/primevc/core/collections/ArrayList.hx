@@ -74,14 +74,20 @@ class ArrayList <DataType> implements IList <DataType>
 	}
 	
 	
-	private inline function getLength () {
-		return list.length;
+	public inline function clone () : IList < DataType >
+	{
+		var l = new ArrayList<DataType>();
+		for (child in this)
+			l.list.insertAt(child, l.length);
+		
+		return l;
 	}
 	
 	
-	public function iterator () : Iterator <DataType> {
-		return new FastArrayIterator<DataType>(list);
-	}
+	private inline function getLength ()							{ return list.length; }
+	public function iterator () : Iterator <DataType>				{ return getForwardIterator(); }
+	public function getForwardIterator () : IIterator <DataType>	{ return new FastArrayForwardIterator<DataType>(list); }
+	public function getReversedIterator () : IIterator <DataType>	{ return new FastArrayReversedIterator<DataType>(list); }
 	
 	
 	/**
@@ -92,7 +98,7 @@ class ArrayList <DataType> implements IList <DataType>
 	 * @return
 	 */
 	public inline function getItemAt (pos:Int) : DataType {
-		var i:UInt = pos < 0 ? length + pos : pos;
+		var i:Int = pos < 0 ? length + pos : pos;
 		return list[i];
 	}
 	
@@ -116,10 +122,11 @@ class ArrayList <DataType> implements IList <DataType>
 	
 	public inline function move (item:DataType, newPos:Int, curPos:Int = -1) : DataType
 	{
-		if (curPos == -1)
-			curPos = list.indexOf(item);
+		if		(curPos == -1)				curPos = indexOf( item );
+		if		(newPos > (length - 1))		newPos = length - 1;
+		else if (newPos < 0)				newPos = length - newPos;
 		
-		if (curPos != newPos && list.move(item, newPos))
+		if (curPos != newPos && list.move(item, newPos, curPos))
 			events.moved.send( item, curPos, newPos );
 		
 		return item;

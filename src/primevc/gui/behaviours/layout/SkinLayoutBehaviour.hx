@@ -56,21 +56,32 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 	
 	override private function init ()
 	{
-		if (target.displayList == null) {
-			target.init	.onceOn( target.displayEvents.addedToStage, this );
-			initLayout	.onceOn( target.skinState.constructed.entering, this );
-		}
+		if (target.layout == null)
+			return;
+		
+		layoutStateChangeHandler.on( target.layout.states.change, this );
+#if flash9
+		invalidateWindow		.on( target.layout.events.posChanged, this );
+#else
+		applyPosition			.on( target.layout.events.posChanged, this );
+#end
 	}
 	
 	
 	override private function reset ()
 	{
-		//unbind the addedToStage eventlistener in case the skin is never added to the stage
-		target.displayEvents.unbind( this );
-		target.skinState.constructed.entering.unbind( this );
+		removeEnterFrameBinding();
 		
-		if (target.layout != null)
-			target.layout.states.change.unbind( this );
+		if (renderBinding != null) {
+			renderBinding.dispose();
+			renderBinding = null;
+		}
+		
+		if (target.layout == null)
+			return;
+		
+		target.layout.states.change.unbind( this );
+		target.layout.events.posChanged.unbind( this );
 	}
 	
 	
@@ -78,7 +89,8 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 	{
 		switch (newState) {
 			case LayoutStates.invalidated:
-				enterFrameBinding = target.layout.measure.onceOn( target.displayEvents.enterFrame, this );
+				if (enterFrameBinding == null)
+					enterFrameBinding = measure.onceOn( target.displayEvents.enterFrame, this );
 			
 			case LayoutStates.measuring:
 				removeEnterFrameBinding();
@@ -94,6 +106,12 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 				removeEnterFrameBinding();
 		}
 	}
+
+
+	private function measure () {
+		removeEnterFrameBinding();
+		target.layout.measure();
+	}
 	
 	
 	private inline function removeEnterFrameBinding ()
@@ -105,48 +123,28 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 	}
 	
 	
-	/**
-	 * Method is called when the skin is constructed. The skin should now have 
-	 * a layout object.
-	 */
-	private function initLayout ()
-	{
-		if (target.layout == null)
-			return;
-		
-		layoutStateChangeHandler.on( target.layout.states.change, this );
-#if flash9
-		invalidateWindow		.on( target.layout.events.posChanged, this );
-#else
-		applyPosition			.on( target.layout.events.posChanged, this );
-#end
-		
-		//trigger the event handler for the current state as well
-		layoutStateChangeHandler( null, target.layout.states.current );
-	}
-	
-	
 	private inline function invalidateWindow ()
 	{
-		if (target.displayList == null)
+		if (target.container == null)
 			return;
 		
 	//	trace("invalidateWindow "+target);
-		target.displayList.window.invalidate();
+		target.window.invalidate();
 		renderBinding = applyPosition.on( target.displayEvents.render, this );
 	}
 	
 	
 	private function applyPosition ()
 	{
-		if (renderBinding != null) {
-			renderBinding.dispose();
-			renderBinding = null;
-		}
+		if (renderBinding == null)
+			return;
+		
+		renderBinding.dispose();
+		renderBinding = null;
+		
 		var l = target.layout;
-		trace("applyPosition " + target.name + " / " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y);
-	//	target.width	= l.width;
-	//	target.height	= l.height;
+	//	trace("applyPosition " + target.name + " / " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y+" - noVirPos: "+l.bounds.left+", "+l.bounds.top);
+		
 		target.x		= l.getHorPosition();
 		target.y		= l.getVerPosition();
 	}

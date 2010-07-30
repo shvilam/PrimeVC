@@ -43,17 +43,17 @@ class LayoutEvents extends Signals
 	 * Event that is called when the size of a layout is changed after the
 	 * layout is validated.
 	 */
-	public var sizeChanged (default, null)	: Signal0;
+	public var sizeChanged (default, null)		: Signal0;
 	/**
-	 * Event that is called when the position of a layouyt is changed after the
+	 * Event that is called when the position of a layout is changed after the
 	 * layout is validated.
 	 */
-	public var posChanged (default, null)	: Signal0;
+	public var posChanged (default, null)		: Signal0;
 	
 	
 	public function new() 
 	{
-		sizeChanged		= new Signal0();
-		posChanged		= new Signal0();
+		sizeChanged			= new Signal0();
+		posChanged			= new Signal0();
 	}
 }

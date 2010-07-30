@@ -40,16 +40,4 @@ package primevc.gui.layout.algorithms;
 interface IVerticalAlgorithm implements ILayoutAlgorithm
 {
 	public var direction			(default, setDirection)	: Vertical;
-	
-	/**
-	 * Flag defining if the algorithm should find the biggest
-	 * width as well or just measure the height.
-	 * 
-	 * Getting the biggest width is usefull when a vertical layout algorithm
-	 * is used standalone. By turning the boolean to false you can use it in 
-	 * combination with a horizontal algorithm.
-	 * 
-	 * @default true
-	 */
-//	public var measureHighestWidth : Bool;
 }

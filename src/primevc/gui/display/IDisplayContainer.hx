@@ -36,9 +36,11 @@ package primevc.gui.display;
  * @author Ruben Weijers
  * @creation-date Jul 13, 2010
  */
-interface IDisplayContainer
+interface IDisplayContainer implements IInteractiveObject
 {
-	var children	(default, null)	: DisplayList;
+	var children	(default, null)			: DisplayList;
+	var window		(default, setWindow)	: Window;
+}
 /*	
 	function swapChildrenAt (index1:Int, index2:Int)					: Void;
 	
@@ -79,6 +81,5 @@ interface IDisplayContainer
 	
 	function removeChild (child:ISprite)								: ISprite;
 	function removeChildAt (index:Int)									: ISprite;
-	
-#end*/
 }
+#end*/

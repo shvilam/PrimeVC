@@ -38,11 +38,11 @@ import primevc.core.Number;
  */
 class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClient
 {
-	public function new (validateOnPropertyChange = false)
+	public function new (newWidth:Int = 0, newHeight:Int = 0, validateOnPropertyChange = false)
 	{
-		super(validateOnPropertyChange);
-		explicitWidth	= Number.NOT_SET;
-		explicitHeight	= Number.NOT_SET;
+		super(newWidth, newHeight, validateOnPropertyChange);
+		explicitWidth	= newWidth > 0 ? newWidth : Number.NOT_SET;
+		explicitHeight	= newHeight > 0 ? newHeight : Number.NOT_SET;
 		measuredWidth	= Number.NOT_SET;
 		measuredHeight	= Number.NOT_SET;
 	}
@@ -57,11 +57,6 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 		
 		super.resetProperties();
 	}
-	
-	
-	
-	public var scrollX			: Int;
-	public var scrollY			: Int;
 	
 	
 	

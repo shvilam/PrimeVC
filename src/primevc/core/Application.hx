@@ -38,59 +38,79 @@ package primevc.core;
  */
 class Application
 {
-		
-	public static inline function startup (ApplicationType:Class<Application>)
-	{
-#if (debug && MonsterTrace)
-		haxe.Log.trace = doTrace;
-#end
-#if debug
-		trace("started " + ApplicationType + "!");
-#end
-		
-#if flash9
-		var stage		= flash.Lib.current.stage;
-		stage.scaleMode	= flash.display.StageScaleMode.NO_SCALE;
-		Type.createInstance( ApplicationType, [stage] );
-#else
-		Type.createInstance( ApplicationType, null );
-#end
-	}
-	
-	
 	public var window	(default, null)	: Window;
 	
 	
 	public function new ( target )
 	{
-		window = new Window( target );
+		window = new Window( target, this );
+	}
+	
+	
+	
+	
+	
+	
+	//
+	// STARTUP METHODS
+	//
+	
+	
+	public static inline function startup (ApplicationType:Class<Application>)
+	{
+#if debug
+	#if (MonsterTrace && flash9)
+		haxe.Log.trace	= doTrace;
+	#end
+		trace("started " + ApplicationType + "!");
+#end
+
+#if flash9
+		var stage		= flash.Lib.current.stage;
+		stage.scaleMode	= flash.display.StageScaleMode.NO_SCALE;
+		var app = Type.createInstance( ApplicationType, [stage] );
+#else
+		var app = Type.createInstance( ApplicationType, null );
+#end
+
+#if debug
+		app.clearTraces = 
+			#if MonsterTrace	nl.demonsters.debugger.MonsterDebugger.clearTraces;
+			#else				haxe.Log.clear;	#end
+#end
 	}
 	
 	
 	
 	
 	//
-	// MONSTERDEBUGGER SUPPORT
+	// MONSTERDEBUGGER / TRACE SUPPORT
 	//
 	
-#if (debug && MonsterTrace)
-	private static inline function getClassName (infos : haxe.PosInfos) : String {
-		return infos.className.split(".").pop(); //infos.fileName;
-	}
+#if debug
+	public var clearTraces : Void -> Void;
 	
 	
-	private static inline function getTraceColor (name:String) : Int {
-		var length	= name.length; // - 3; // remove .hx
-		return name.charCodeAt(0) * name.charCodeAt( length >> 1 ) * name.charCodeAt( length - 1 );
-	}
+	#if (MonsterTrace && flash9)
+	
+		private static inline function getClassName (infos : haxe.PosInfos) : String {
+			return infos.className.split(".").pop(); //infos.fileName;
+		}
+	
+	
+		private static inline function getTraceColor (name:String) : Int {
+			var length	= name.length; // - 3; // remove .hx
+			return name.charCodeAt(0) * name.charCodeAt( length >> 1 ) * name.charCodeAt( length - 1 );
+		}
 	
 
-	static var monster = new nl.demonsters.debugger.MonsterDebugger(flash.Lib.current);
+		static var monster = new nl.demonsters.debugger.MonsterDebugger(flash.Lib.current);
 
-	static function doTrace (v : Dynamic, ?infos : haxe.PosInfos) {
-		var name	= getClassName( infos );
-		var color	= getTraceColor( name );
-		nl.demonsters.debugger.MonsterDebugger.trace(name +':' + infos.lineNumber +'\t -> ' + infos.methodName, v, color);
-	}
+		static function doTrace (v : Dynamic, ?infos : haxe.PosInfos) {
+			var name	= getClassName( infos );
+			var color	= getTraceColor( name );
+			nl.demonsters.debugger.MonsterDebugger.trace(name +':' + infos.lineNumber +'\t -> ' + infos.methodName, v, color);
+		}
+	#end
 #end
 }

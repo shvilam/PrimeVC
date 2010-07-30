@@ -28,9 +28,12 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.avm2;
- import primevc.core.IDisposable;
+ import flash.display.DisplayObject;
  import primevc.gui.display.ISprite;
  import primevc.gui.display.DisplayList;
+ import primevc.gui.display.IDisplayContainer;
+ import primevc.gui.display.IDisplayObject;
+ import primevc.gui.display.Window;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEvents;
   using primevc.utils.TypeUtil;
@@ -45,20 +48,19 @@ package primevc.avm2;
 class Sprite extends flash.display.Sprite, implements ISprite
 {
 	/**
-	 * The displaylist to which this sprite belongs.
-	 */
-	public var displayList		(default, default)		: DisplayList;
-	
-	/**
 	 * List with all the children of the sprite
 	 */
 	public var children			(default, null)			: DisplayList;
+	
+	public var window			(default, setWindow)	: Window;
+	public var container		(default, setContainer)	: IDisplayContainer;
 	
 	public var userEvents		(default, null)			: UserEvents;
 	public var displayEvents	(default, null)			: DisplayEvents;
 	
 	
-	public function new()
+	
+	public function new ()
 	{
 		super();
 		children		= new DisplayList( this );
@@ -67,7 +69,7 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	}
 	
 	
-	public function dispose()
+	public function dispose ()
 	{
 		if (userEvents == null)
 			return;		// already disposed
@@ -76,15 +78,66 @@ class Sprite extends flash.display.Sprite, implements ISprite
 		userEvents.dispose();
 		displayEvents.dispose();
 		
-		if (displayList != null)
-			displayList.remove(this);
+		if (container != null)
+			container.children.remove(this);
 		
+		window			= null;
 		children		= null;
 		userEvents		= null;
 		displayEvents	= null;
-		displayList		= null;
 	}
 	
 	
 	public function render () {}
+	
+	
+	public inline function isObjectOn (otherObj:IDisplayObject) : Bool {
+		return otherObj == null ? false : otherObj.as(DisplayObject).hitTestObject( this.as(DisplayObject) );
+	}
+	
+	
+	
+	
+	//
+	// GETTERS / SETTERS
+	//
+	
+	private inline function setContainer (newV:IDisplayContainer)
+	{
+		if (container != newV)
+		{
+			var oldV	= container;
+			container	= newV;
+			
+			if (container != null) {
+				//if the container property is set and the sprite is not yet in the container, add the sprite to the container
+			//	if (!container.children.has(this))
+			//		container.children.add(this);
+				
+				window = container.window;
+			}
+			
+			//if the container prop is set to null, remove the sprite from it's previous container and set the window prop to null.
+			else if (oldV != null) {
+				if (oldV.children.has(this))
+					oldV.children.remove(this);
+				
+				window = null;
+			}
+		}
+		return newV;
+	}
+	
+	
+	private inline function setWindow (v)
+	{
+		if (window != v)
+		{
+			window = v;
+			for (child in children)
+				if (child != null)
+					child.window = v;
+		}
+		return v;
+	}
 }

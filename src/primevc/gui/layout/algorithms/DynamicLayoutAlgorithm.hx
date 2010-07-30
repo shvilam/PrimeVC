@@ -27,9 +27,11 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms;
+ import primevc.core.geom.Point;
  import primevc.gui.layout.algorithms.directions.Direction;
  import primevc.gui.layout.algorithms.directions.Horizontal;
  import primevc.gui.layout.algorithms.directions.Vertical;
+ import primevc.utils.IntMath;
   using primevc.utils.Bind;
  
 
@@ -83,6 +85,17 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 	//
 	
 	
+	override public function prepareMeasure ()
+	{
+		if (!measurePrepared)
+		{
+			horAlgorithm.prepareMeasure();
+			verAlgorithm.prepareMeasure();
+		}
+		super.prepareMeasure();
+	}
+	
+	
 	public function measure ()
 	{
 		if (group.children.length == 0)
@@ -101,6 +114,7 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 	{
 		horAlgorithm.apply();
 		verAlgorithm.apply();
+		measurePrepared = false;
 	}
 	
 	
@@ -113,6 +127,16 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 	private function invalidate (shouldbeResetted:Bool = true) : Void
 	{
 		algorithmChanged.send();
+	}
+
+	public function getDepthForPosition (pos:Point) {
+		var depthHor = horAlgorithm.getDepthForPosition(pos);
+		var depthVer = verAlgorithm.getDepthForPosition(pos);
+		var depth = IntMath.max( depthHor, depthVer );
+		
+		if (depthHor <= 0)	depth = 1 + group.children.length - (depthVer - 1);
+		if (depthVer <= 0)	depth = 1 + group.children.length - (depthHor - 1);
+		return depth;
 	}
 	
 	
