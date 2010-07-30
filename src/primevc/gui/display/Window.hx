@@ -36,6 +36,7 @@ package primevc.gui.display;
  import primevc.gui.input.Mouse;
  import primevc.gui.layout.algorithms.relative.RelativeAlgorithm;
  import primevc.gui.layout.LayoutContainer;
+ import primevc.gui.traits.IInteractive;
 
 
 private typedef TargetType = 
@@ -53,7 +54,7 @@ private typedef TargetType =
  * s
  * @creation-date Jul 13, 2010
  */
-class Window implements IDisplayContainer, implements IInteractiveObject
+class Window implements IDisplayContainer, implements IInteractive
 {
 	/**
 	 * Target is the original, platform-specific, root object. Although this

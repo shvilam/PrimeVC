@@ -26,25 +26,46 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.display;
- import primevc.core.geom.Matrix2D;
- import primevc.gui.traits.IDrawable;
- import primevc.gui.traits.IInteractive;
+package primevc.gui.traits;
+ import primevc.core.IDisposable;
+ import primevc.gui.events.DisplayEvents;
 
 
 /**
- * Sprite interface for every platform.
- *
- * @creation-date	Jun 11, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Jul 30, 2010
  */
-interface ISprite implements IDisplayContainer, 
-	implements IInteractive, 
-	implements IDisplayObject,
-	implements IDrawable
+interface IDisplayable implements IDisposable
 {
+	var displayEvents	(default, null)					: DisplayEvents;
+	
+	
 #if flash9
-	var buttonMode														: Bool;
-	var useHandCursor													: Bool;
+	var alpha					: Float;
+	var visible					: Bool;
+	
+	var height					: Float;
+	var width					: Float;
+	var x						: Float;
+	var y						: Float;
+	var rotation				: Float;
+	
+	var scaleX					: Float;
+	var scaleY					: Float;
+	
+	#if flash10
+	var rotationX				: Float;
+	var rotationY				: Float;
+	var rotationZ				: Float;
+	var scaleZ					: Float;
+	var z						: Float;
+	#end
+#else
+	var visible		(getVisibility, setVisibility)		: Bool;
+	var alpha		(getAlpha,		setAlpha)			: Float;
+	var x			(getX,			setX)				: Float;
+	var y			(getY,			setY)				: Float;
+	var width		(getWidth,		setWidth)			: Float;
+	var height		(getHeight,		setHeight)			: Float;
 #end
 }

@@ -26,22 +26,21 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.display;
- import primevc.gui.events.UserEvents;
+package primevc.gui.traits;
 
 
-interface IInteractiveObject
+/**
+ * @author Ruben Weijers
+ * @creation-date Jul 13, 2010
+ */
+interface IDrawable
 {
-	var userEvents		(default, null)				: UserEvents;
-	
 #if flash9
-	
-	var doubleClickEnabled							: Bool;
-	var mouseEnabled								: Bool;
-	var tabEnabled									: Bool;
-	var tabIndex									: Int;
-	
-#else
-	var mouseEnabled	(default, setEnabled)		: Bool;
+	var graphics (default,null) : flash.display.Graphics;
 #end
+	
+	/**
+	 * Method to render the graphics in this object.
+	 */
+	function render () : Void;
 }
