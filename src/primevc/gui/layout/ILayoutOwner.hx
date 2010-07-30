@@ -26,39 +26,14 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.core;
- import haxe.FastList;
- import primevc.core.IDisposable;
- import primevc.gui.behaviours.IBehaviour;
- import primevc.gui.layout.LayoutClient;
- import primevc.gui.states.SkinStates;
+package primevc.gui.layout;
 
 
 /**
- * Interface for a skin.
- * 
  * @author Ruben Weijers
- * @creation-date Jun 08, 2010
+ * @creation-date Jul 30, 2010
  */
-interface ISkin implements IDisposable
+interface ILayoutOwner
 {
-	public var skinState		(default, null)		: SkinStates;
-	
-//	public var owner			(default, setOwner) : OwnerClass;
-	public var layout			(default, null)		: LayoutClient;
-	
-	public var behaviours		(default, null)		: FastList < IBehaviour <Dynamic> >;
-	
-	
-	public function init ()					: Void;
-	
-	private function createLayout ()		: Void;
-	private function createStates ()		: Void;
-	private function createBehaviours ()	: Void;
-	private function createChildren ()		: Void;
-	
-	private function removeStates ()		: Void;
-	private function removeBehaviours ()	: Void;
-	private function removeChildren ()		: Void;
-	
+	var layout (default, null) : LayoutClient;
 }

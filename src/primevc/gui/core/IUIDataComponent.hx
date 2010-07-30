@@ -27,38 +27,15 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
- import haxe.FastList;
- import primevc.core.IDisposable;
- import primevc.gui.behaviours.IBehaviour;
- import primevc.gui.layout.LayoutClient;
- import primevc.gui.states.SkinStates;
-
+ 
 
 /**
- * Interface for a skin.
- * 
- * @author Ruben Weijers
- * @creation-date Jun 08, 2010
+ * UIComponent interface with data property.
+ *
+ * @creation-date	Jun 17, 2010
+ * @author			Ruben Weijers
  */
-interface ISkin implements IDisposable
+interface IUIDataComponent <DataProxyType> implements IUIComponent
 {
-	public var skinState		(default, null)		: SkinStates;
-	
-//	public var owner			(default, setOwner) : OwnerClass;
-	public var layout			(default, null)		: LayoutClient;
-	
-	public var behaviours		(default, null)		: FastList < IBehaviour <Dynamic> >;
-	
-	
-	public function init ()					: Void;
-	
-	private function createLayout ()		: Void;
-	private function createStates ()		: Void;
-	private function createBehaviours ()	: Void;
-	private function createChildren ()		: Void;
-	
-	private function removeStates ()		: Void;
-	private function removeBehaviours ()	: Void;
-	private function removeChildren ()		: Void;
-	
+	public var data (default, setData)	: DataProxyType;
 }
