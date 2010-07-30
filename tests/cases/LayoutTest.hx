@@ -413,11 +413,24 @@ class DragThumb extends Skin <DragThumb>
 
 
 
+class DragTrack extends Skin <DragTrack>
+{
+	override private function createLayout ()
+	{
+		layout = new LayoutClient();
+		layout.relative = new RelativeLayout( 3, 3, 3, 3 );
+	}
+}
+
+
 
 class ScrollBar extends Skin < ScrollBar >
 {
+	public var layoutGroup (getLayoutGroup, never)	: LayoutContainer;
+		private inline function getLayoutGroup ()	{ return layout.as( LayoutContainer ); }
+	
 	private var dragThumb	: DragThumb;
-//	private var track		: ISprite;
+	private var track		: DragTrack;
 	public var direction	: Direction;
 	
 	
@@ -428,9 +441,30 @@ class ScrollBar extends Skin < ScrollBar >
 	}
 	
 	
+	override private function createLayout ()
+	{
+		layout = new LayoutContainer();
+		
+		var size:Int = 50;
+		if (direction == Direction.horizontal) {
+	//		layout.relative = new RelativeLayout( target.layout.height )
+		}
+		layoutGroup
+	}
+	
+	
 	override private function createChildren ()
 	{
-		dragThumb = new DragThumb( direction );
+		track		= new DragTrack();
+		dragThumb	= new DragThumb( direction );
+		
+		dragThumb.behaviours.add( new DragMoveBehaviour(dragThumb, track.layout.bounds) );
+		
+		layoutGroup.children.add( track.layout );
+		layoutGroup.children.add( dragThumb.layout );
+		
+		children.add( track );
+		children.add( dragThumb );
 	}
 }
 
@@ -444,7 +478,7 @@ class Frame extends Skin < Box >
 #end
 	private var color 		: UInt;
 	
-	public var layoutGroup (getLayoutGroup, null)	: LayoutContainer;
+	public var layoutGroup (getLayoutGroup, never)	: LayoutContainer;
 		private inline function getLayoutGroup ()	{ return layout.as( LayoutContainer ); }
 	
 
