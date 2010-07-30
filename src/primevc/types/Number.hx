@@ -26,7 +26,7 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core;
+package primevc.types;
  
 
 /**
@@ -35,7 +35,7 @@ package primevc.core;
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
-class Number 
+class Number
 {
 	//floats can actually be a lot bigger (64 bit) but this will work for now
 	public static inline var FLOAT_MIN:Float	= -2147483648;

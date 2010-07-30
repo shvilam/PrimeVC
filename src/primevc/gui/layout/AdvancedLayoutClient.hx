@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout;
-import primevc.core.Number;
+import primevc.types.Number;
  
 
 /**

@@ -32,7 +32,7 @@ package primevc.gui.layout;
  import primevc.core.geom.BindablePoint;
  import primevc.core.geom.Box;
  import primevc.core.geom.IntPoint;
- import primevc.core.Number;
+ import primevc.types.Number;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.states.LayoutStates;
  import primevc.utils.FastArray;

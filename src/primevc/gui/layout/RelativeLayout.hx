@@ -29,7 +29,7 @@
 package primevc.gui.layout;
  import primevc.core.dispatcher.Signal0;
  import primevc.core.IDisposable;
- import primevc.core.Number;
+ import primevc.types.Number;
 
 
 /**

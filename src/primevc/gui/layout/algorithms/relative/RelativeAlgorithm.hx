@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms.relative;
-// import primevc.core.Number;
+// import primevc.types.Number;
  import primevc.core.geom.constraints.ConstrainedRect;
  import primevc.core.geom.Box;
  import primevc.core.geom.Point;

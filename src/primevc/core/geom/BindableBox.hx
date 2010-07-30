@@ -29,7 +29,7 @@
 package primevc.core.geom;
  import primevc.core.Bindable;
  import primevc.core.IDisposable;
- import primevc.core.Number;
+ import primevc.types.Number;
 
 
 /**

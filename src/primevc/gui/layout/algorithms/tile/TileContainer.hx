@@ -29,7 +29,7 @@
 package primevc.gui.layout.algorithms.tile;
  import primevc.core.collections.IList;
  import primevc.core.collections.ArrayList;
- import primevc.core.Number;
+ import primevc.types.Number;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutFlags;

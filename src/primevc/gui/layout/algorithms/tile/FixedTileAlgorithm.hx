@@ -34,7 +34,7 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.core.collections.IList;
  import primevc.core.collections.IListCollection;
  import primevc.core.geom.Point;
- import primevc.core.Number;
+ import primevc.types.Number;
  import primevc.core.RangeIterator;
  import primevc.gui.layout.algorithms.directions.Direction;
  import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
