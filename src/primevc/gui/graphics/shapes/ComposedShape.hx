@@ -26,46 +26,68 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics.borders;
- import primevc.core.geom.IRectangle;
- import primevc.gui.graphics.fills.GradientFill;
- import primevc.gui.traits.IDrawable;
-  using primevc.utils.RectangleUtil;
+package primevc.gui.graphics.shapes;
+ import primevc.gui.graphics.GraphicFlags;
+ import primevc.utils.FastArray;
+  using primevc.utils.FastArray;
 
 
 /**
- * GradientBorder implementation
+ * A composed fill is a composition of multiple shapes that will be rendered
+ * in the same render cycle on the same target.
  * 
  * @author Ruben Weijers
- * @creation-date Jul 31, 2010
+ * @creation-date Aug 01, 2010
  */
-class GradientBorder extends BorderBase <GradientFill>
+class ComposedShape extends ShapeBase 
 {
-	private var lastBounds		: IRectangle;
-	private var lastMatrix		: Matrix2D;
+	public var children (default, null)		: FastArray < IShape >;
 	
 	
-	override public function begin (target:IDrawable, ?bounds:IRectangle) : Void;
+	public function new (?layout, ?fill, ?border)
 	{
-		changes = 0;
-#if flash9
-		if (matrix == null || bounds != lastBounds || !bounds.isEqualTo(lastBounds))
-			lastMatrix = fill.createMatrix();
+		super(layout, fill, border);
+		children = FastArrayUtil.create();
+	}
+	
+	
+	override public function dispose ()
+	{
+		for (child in children)
+			child.dispose();
 		
-		//TODO: MORE EFFICIENT TO CACHE THIS? MEMORY vs. SPEED
-		var colors	= new Array();
-		var alphas	= new Array();
-		var ratios	= new Array();
-		
-		for (fill in fills) {
-			colors.push( fill.color.rgb() );
-			alphas.push( fill.color.alpha() );
-			ratios.push( fill.position );
-		}
-		
-		target.graphics.lineStyle( weight, 0, 1, pixelHinting, LineScaleMode.NORMAL, getFlashCaps(), getFlashJoints() );
-		target.graphics.lineGradientStyle( fill.getFlashGradientType(), colors, alphas, ratios, matrix );
-#end
-		lastBounds = bounds.clone();
+		children = null;
+		super.dispose();
+	}
+	
+	
+	//
+	// ISHAPE METHODS
+	//
+	
+	override private function drawShape (target, x, y, width, height) : Void
+	{
+		for (child in children)
+			child.draw(target);
+	}
+
+
+
+	//
+	// LIST METHODS
+	//
+
+	public inline function add ( child:IShape, depth:Int = -1 )
+	{
+		children.insertAt( child, depth );
+		child.parent = this;
+		invalidate( GraphicFlags.SHAPE_CHANGED );
+	}
+
+
+	public inline function remove ( child:IShape )
+	{
+		children.remove(child);
+		invalidate( GraphicFlags.SHAPE_CHANGED );
 	}
 }

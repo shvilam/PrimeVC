@@ -26,46 +26,36 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics.borders;
- import primevc.core.geom.IRectangle;
- import primevc.gui.graphics.fills.GradientFill;
+package primevc.gui.graphics.shapes;
+ import primevc.gui.graphics.borders.IBorder;
+ import primevc.gui.graphics.fills.IFill;
+ import primevc.gui.graphics.IGraphicElement;
+ import primevc.gui.layout.LayoutClient;
  import primevc.gui.traits.IDrawable;
-  using primevc.utils.RectangleUtil;
 
 
 /**
- * GradientBorder implementation
- * 
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-class GradientBorder extends BorderBase <GradientFill>
+interface IShape extends IGraphicElement
 {
-	private var lastBounds		: IRectangle;
-	private var lastMatrix		: Matrix2D;
+	public var fill		(default, setFill)		: IFill;
+	public var border	(default, setBorder)	: IBorder;
+	public var layout	(default, setLayout)	: LayoutClient;
 	
 	
-	override public function begin (target:IDrawable, ?bounds:IRectangle) : Void;
-	{
-		changes = 0;
-#if flash9
-		if (matrix == null || bounds != lastBounds || !bounds.isEqualTo(lastBounds))
-			lastMatrix = fill.createMatrix();
-		
-		//TODO: MORE EFFICIENT TO CACHE THIS? MEMORY vs. SPEED
-		var colors	= new Array();
-		var alphas	= new Array();
-		var ratios	= new Array();
-		
-		for (fill in fills) {
-			colors.push( fill.color.rgb() );
-			alphas.push( fill.color.alpha() );
-			ratios.push( fill.position );
-		}
-		
-		target.graphics.lineStyle( weight, 0, 1, pixelHinting, LineScaleMode.NORMAL, getFlashCaps(), getFlashJoints() );
-		target.graphics.lineGradientStyle( fill.getFlashGradientType(), colors, alphas, ratios, matrix );
-#end
-		lastBounds = bounds.clone();
-	}
+	/**
+	* @param	target
+	* target in which the shape will be drawn
+	* 
+	* @param	useCoordinates
+	 * Flag indicating if the draw method should also use the coordinates of the
+	 * layoutclient.
+	 * 
+	 * If a shape is directly drawn into a IDrawable element, this is not the 
+	 * case. If a shape is part of a composition of shapes, then the shape 
+	 * should respect the coordinates of the LayoutClient.
+	 */
+	public function draw (target:IDrawable, ?useCoordinates:Bool = false) : Void;
 }

@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.borders;
-
+ import primevc.gui.graphics.fills.BitmapFill;
 
 
 /**
@@ -40,6 +40,7 @@ class BitmapBorder extends BorderBase < BitmapFill >
 {
 	override public function begin (target:IDrawable, ?bounds:IRectangle) : Void;
 	{
+		changes = 0;
 #if flash10
 		target.graphics.lineStyle( weight, 0, 1, pixelHinting, LineScaleMode.NORMAL, getFlashCaps(), getFlashJoints() );
 		target.graphics.lineBitmapStyle( fill.bitmap.data, fill.matrix, fill.repeat, fill.smooth );

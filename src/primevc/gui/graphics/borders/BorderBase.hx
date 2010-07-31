@@ -71,7 +71,9 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	}
 	
 	
-	public function begin (target, ?bounds)	{}
+	public function begin (target, ?bounds)	{
+		Assert.that(false, "Method should be overwritten.");
+	}
 	
 	
 	public function end (target)

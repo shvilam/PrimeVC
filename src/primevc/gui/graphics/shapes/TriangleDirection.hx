@@ -26,80 +26,14 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics.fills;
- import primevc.gui.graphics.GraphicElement;
- import primevc.gui.graphics.GraphicFlags;
- import primevc.utils.FastArray;
-  using primevc.utils.FastArray;
+package primevc.gui.graphics.shapes;
 
 
 
 /**
- * A complex is a fill that exists of multiple other fills so that a shape
- * can be filled multiple times in one render cycle.
- * 
- * @author Ruben Weijers
- * @creation-date Jul 31, 2010
+ * which direction is the arrow pointing to
  */
-class ComplexFill extends GraphicElement, implements IFill 
-{
-	public var fills	(default, null)		: FastArray <IFill>;
-	
-	
-	public function new ()
-	{
-		super();
-		fills = FastArrayUtil.create();
-	}
-	
-	
-	override public function dispose ()
-	{
-		for (fill in fills)
-			fill.dispose();
-		
-		fills = null;
-		super.dispose();
-	}
-	
-	
-	//
-	// IFILL METHODS
-	//
-	
-	public inline function begin (target, ?bounds)
-	{
-		changes = 0;
-		for (fill in fills)
-			fill.begin(target, bounds);
-		
-	}
-	
-	
-	public inline function end (target)
-	{
-		for (fill in fills)
-			fill.endFill(target);
-	}
-	
-	
-	
-	//
-	// LIST METHODS
-	//
-
-	public inline function add ( fill:IFill, depth:Int = -1 )
-	{
-		fills.insertAt( fill, depth );
-		fill.parent = this;
-		invalidate( GraphicFlags.FILL_CHANGED );
-	}
-
-
-	public inline function remove ( fill:IFill )
-	{
-		fills.remove(fill);
-		fill.dispose();
-		invalidate( GraphicFlags.FILL_CHANGED );
-	}
+enum TriangleDirection {
+	TopCenter; BottomCenter; LeftCenter; RightCenter;
+	TopLeftCorner; TopRightCorner; BottomLeftCorner; BottomRightCorner;
 }

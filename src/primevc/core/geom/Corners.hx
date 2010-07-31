@@ -26,46 +26,34 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics.borders;
- import primevc.core.geom.IRectangle;
- import primevc.gui.graphics.fills.GradientFill;
- import primevc.gui.traits.IDrawable;
-  using primevc.utils.RectangleUtil;
+package primevc.core.geom;
+ import primevc.core.traits.IClonable;
+ import primevc.types.Number;
+  using primevc.utils.FloatUtil;
 
 
 /**
- * GradientBorder implementation
+ * Object describing the corners of a rectangle
  * 
  * @author Ruben Weijers
- * @creation-date Jul 31, 2010
+ * @creation-date Aug 01, 2010
  */
-class GradientBorder extends BorderBase <GradientFill>
+class Corners implements IClonable
 {
-	private var lastBounds		: IRectangle;
-	private var lastMatrix		: Matrix2D;
+	public var topLeft		: Float;
+	public var topRight		: Float;
+	public var bottomLeft	: Float;
+	public var bottomRight	: Float;
 	
 	
-	override public function begin (target:IDrawable, ?bounds:IRectangle) : Void;
+	public function new ( ?topLeft:Float = 0, ?topRight:Float = Number.FLOAT_NOT_SET, ?bottomLeft:Float = Number.FLOAT_NOT_SET, ?bottomRight:Float = Number.FLOAT_NOT_SET )
 	{
-		changes = 0;
-#if flash9
-		if (matrix == null || bounds != lastBounds || !bounds.isEqualTo(lastBounds))
-			lastMatrix = fill.createMatrix();
-		
-		//TODO: MORE EFFICIENT TO CACHE THIS? MEMORY vs. SPEED
-		var colors	= new Array();
-		var alphas	= new Array();
-		var ratios	= new Array();
-		
-		for (fill in fills) {
-			colors.push( fill.color.rgb() );
-			alphas.push( fill.color.alpha() );
-			ratios.push( fill.position );
-		}
-		
-		target.graphics.lineStyle( weight, 0, 1, pixelHinting, LineScaleMode.NORMAL, getFlashCaps(), getFlashJoints() );
-		target.graphics.lineGradientStyle( fill.getFlashGradientType(), colors, alphas, ratios, matrix );
-#end
-		lastBounds = bounds.clone();
+		this.topLeft		= topLeft;
+		this.topRight		= topRight.isSet()		? this.topLeft : topRight;
+		this.bottomLeft		= bottomLeft.isSet()	? this.topLeft : bottomLeft;
+		this.bottomRight	= bottomRight.isSet()	? this.topRight : bottomRight;
 	}
+	
+	
+	public function clone () : IClonable { return new Corners( topLeft, topRight, bottomLeft, bottomRight ); }
 }

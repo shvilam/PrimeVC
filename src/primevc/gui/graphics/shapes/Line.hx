@@ -26,46 +26,21 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics.borders;
- import primevc.core.geom.IRectangle;
- import primevc.gui.graphics.fills.GradientFill;
- import primevc.gui.traits.IDrawable;
-  using primevc.utils.RectangleUtil;
+package primevc.gui.graphics.shapes;
+
 
 
 /**
- * GradientBorder implementation
- * 
  * @author Ruben Weijers
- * @creation-date Jul 31, 2010
+ * @creation-date Aug 01, 2010
  */
-class GradientBorder extends BorderBase <GradientFill>
+class Line extends ShapeBase
 {
-	private var lastBounds		: IRectangle;
-	private var lastMatrix		: Matrix2D;
-	
-	
-	override public function begin (target:IDrawable, ?bounds:IRectangle) : Void;
+	override private function drawShape (target, x, y, width, height) : Void
 	{
-		changes = 0;
 #if flash9
-		if (matrix == null || bounds != lastBounds || !bounds.isEqualTo(lastBounds))
-			lastMatrix = fill.createMatrix();
-		
-		//TODO: MORE EFFICIENT TO CACHE THIS? MEMORY vs. SPEED
-		var colors	= new Array();
-		var alphas	= new Array();
-		var ratios	= new Array();
-		
-		for (fill in fills) {
-			colors.push( fill.color.rgb() );
-			alphas.push( fill.color.alpha() );
-			ratios.push( fill.position );
-		}
-		
-		target.graphics.lineStyle( weight, 0, 1, pixelHinting, LineScaleMode.NORMAL, getFlashCaps(), getFlashJoints() );
-		target.graphics.lineGradientStyle( fill.getFlashGradientType(), colors, alphas, ratios, matrix );
+		target.graphics.moveTo( x, y );
+		target.graphics.lineTo( x + width, y + height );
 #end
-		lastBounds = bounds.clone();
 	}
 }

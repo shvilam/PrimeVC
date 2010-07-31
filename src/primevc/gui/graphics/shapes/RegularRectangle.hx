@@ -26,46 +26,51 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics.borders;
- import primevc.core.geom.IRectangle;
- import primevc.gui.graphics.fills.GradientFill;
- import primevc.gui.traits.IDrawable;
-  using primevc.utils.RectangleUtil;
+package primevc.gui.graphics.shapes;
+ import primevc.core.geom.Corners;
+ import primevc.gui.graphics.GraphicFlags;
 
 
 /**
- * GradientBorder implementation
- * 
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-class GradientBorder extends BorderBase <GradientFill>
+class RegularRectangle extends ShapeBase
 {
-	private var lastBounds		: IRectangle;
-	private var lastMatrix		: Matrix2D;
+	public var corners		(default, setCorners)	: Corners;
 	
 	
-	override public function begin (target:IDrawable, ?bounds:IRectangle) : Void;
+	public function new (?layout, ?fill, ?border, ?corners:Corners)
 	{
-		changes = 0;
+		super(layout, fill, border);
+		this.corners = corners;
+	}
+	
+	
+	override private function drawShape (target, x, y, width, height) : Void
+	{
 #if flash9
-		if (matrix == null || bounds != lastBounds || !bounds.isEqualTo(lastBounds))
-			lastMatrix = fill.createMatrix();
-		
-		//TODO: MORE EFFICIENT TO CACHE THIS? MEMORY vs. SPEED
-		var colors	= new Array();
-		var alphas	= new Array();
-		var ratios	= new Array();
-		
-		for (fill in fills) {
-			colors.push( fill.color.rgb() );
-			alphas.push( fill.color.alpha() );
-			ratios.push( fill.position );
-		}
-		
-		target.graphics.lineStyle( weight, 0, 1, pixelHinting, LineScaleMode.NORMAL, getFlashCaps(), getFlashJoints() );
-		target.graphics.lineGradientStyle( fill.getFlashGradientType(), colors, alphas, ratios, matrix );
+		if (corners == null)
+			target.graphics.drawRect( x, y, width, height );
+		else
+			target.graphics.drawRoundRectComplex(
+				x, y, width, height, 
+				corners.topLeft, corners.topRight, corners.bottomLeft, corners.bottomRight
+			);
 #end
-		lastBounds = bounds.clone();
+	}
+	
+	
+	//
+	// SETTERS
+	//
+	
+	private inline function setCorners (v:Corners)
+	{
+		if (v != corners) {
+			corners = v;
+			invalidate( GraphicFlags.SHAPE_CHANGED );
+		}
+		return v;
 	}
 }
