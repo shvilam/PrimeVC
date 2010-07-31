@@ -26,18 +26,15 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics;
-
+package primevc.gui.graphics.borders;
 
 
 /**
- * Collection of all available flags.
- * 
- * @author Ruben Weijers
- * @creation-date Jul 31, 2010
+ * @author	Ruben Weijers
+ * @since	jul 31, 2010
  */
-class GraphicFlags
-{
-	public static inline var FILL_CHANGED : Int			= 1;
-	public static inline var BORDER_CHANGED : Int		= 2;
+enum CapsStyles {
+	NoCaps;
+	RoundCaps;
+	SquareCaps;
 }

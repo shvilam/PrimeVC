@@ -26,18 +26,29 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics;
+package primevc.gui.graphics.borders;
+ import primevc.core.geom.IRectangle;
+ import primevc.gui.graphics.fill.SolidFill;
+ import primevc.gui.traits.IDrawable;
+  using primevc.utils.Color;
 
+#if flash9
+ import flash.display.LineScaleMode;
+#end
 
 
 /**
- * Collection of all available flags.
+ * Solid Border implementation.
  * 
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-class GraphicFlags
+class SolidBorder extends BorderBase <SolidFill>
 {
-	public static inline var FILL_CHANGED : Int			= 1;
-	public static inline var BORDER_CHANGED : Int		= 2;
+	override public function begin (target:IDrawable, ?bounds:IRectangle) : Void;
+	{
+#if flash9
+		target.graphics.lineStyle( weight, fill.color.rgb(), fill.alpha(), pixelHinting, LineScaleMode.NORMAL, getFlashCaps(), getFlashJoints() );
+#end
+	}
 }

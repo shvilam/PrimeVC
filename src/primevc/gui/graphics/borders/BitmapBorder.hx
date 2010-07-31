@@ -26,18 +26,23 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics;
+package primevc.gui.graphics.borders;
 
 
 
 /**
- * Collection of all available flags.
+ * BitmapBorder implementation. Only for flash10
  * 
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-class GraphicFlags
+class BitmapBorder extends BorderBase < BitmapFill >
 {
-	public static inline var FILL_CHANGED : Int			= 1;
-	public static inline var BORDER_CHANGED : Int		= 2;
+	override public function begin (target:IDrawable, ?bounds:IRectangle) : Void;
+	{
+#if flash10
+		target.graphics.lineStyle( weight, 0, 1, pixelHinting, LineScaleMode.NORMAL, getFlashCaps(), getFlashJoints() );
+		target.graphics.lineBitmapStyle( fill.bitmap.data, fill.matrix, fill.repeat, fill.smooth );
+#end
+	}
 }

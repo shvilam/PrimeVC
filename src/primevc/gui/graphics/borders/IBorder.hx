@@ -26,18 +26,32 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics;
-
+package primevc.gui.graphics.borders;
+ import primevc.core.geom.IRectangle;
+ import primevc.gui.graphics.fills.IFill;
+ import primevc.gui.graphics.IGraphicElement;
+ import primevc.gui.traits.IDrawable;
 
 
 /**
- * Collection of all available flags.
- * 
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-class GraphicFlags
+interface IBorder <FillType:IFill> extends IGraphicElement 
 {
-	public static inline var FILL_CHANGED : Int			= 1;
-	public static inline var BORDER_CHANGED : Int		= 2;
+	public var weight		(default, setWeight)		: Float;
+	public var fill			(default, setFill)			: FillType;
+	/**
+	 * The capsstyle that is used at the end of lines
+	 */
+	public var caps			(default, setCaps)			: CapsStyles;
+	/**
+	 * The jointstyle that is used at angles
+	 */
+	public var joint		(default, setJoint)			: JointStyles;
+	public var pixelHinting	(default, setPixelHinting)	: Bool;
+	
+	
+	public function begin (target:IDrawable, ?bounds:IRectangle) : Void;
+	public function end (target:IDrawable) : Void;
 }

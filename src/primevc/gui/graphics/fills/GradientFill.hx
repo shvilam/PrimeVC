@@ -153,8 +153,8 @@ class GradientFill implements IFill
 		Assert.that( fills.length >= 2, "There should be at least be two fills in an gradient.");
 			
 #if flash9
-		if (matrix == null || bounds != lastBounds || !bounds.isEqualTo(lastBounds))
-			createMatrix();
+		if (lastMatrix == null || bounds != lastBounds || !bounds.isEqualTo(lastBounds))
+			lastMatrix = createMatrix();
 		
 		//TODO: MORE EFFICIENT TO CACHE THIS? MEMORY vs. SPEED
 		var colors	= new Array();
@@ -167,14 +167,7 @@ class GradientFill implements IFill
 			ratios.push( fill.position );
 		}
 		
-		var flashType		= type == lineair ? flash.display.GradientType.LINEAR : flash.display.GradientType.RADIAL;
-		var spreadMethod	= switch (spread) {
-			case normal:	flash.display.SpreadMethod.PAD;
-			case reflect:	flash.display.SpreadMethod.REFLECT;
-			case repeat:	flash.display.SpreadMethod.REPEAT;
-		}
-		
-		target.graphics.beginGradientFill( flashType, colors, alphas, ratios, matrix, spreadMethod, "rgb",  );
+		target.graphics.beginGradientFill( getFlashType(), colors, alphas, ratios, lastMatrix, getSpreadMethod(), "rgb",  );
 #end
 	}
 	
@@ -187,11 +180,25 @@ class GradientFill implements IFill
 	}
 	
 	
-	private inline function createMatrix (bounds:IRectangle) : Void
+	public inline function createMatrix (bounds:IRectangle) : Matrix2D
 	{
-		matrix = new Matrix2D();
-		matrix.createGradientBox( bounds.width, bounds.height, rotation.degreesToRadians() );
+		var m = new Matrix2D();
+		m.createGradientBox( bounds.width, bounds.height, rotation.degreesToRadians() );
 		lastBounds = bounds.clone();
+		return m;
+	}
+	
+	
+	public inline function getFlashType () {
+		return type == lineair ? flash.display.GradientType.LINEAR : flash.display.GradientType.RADIAL;
+	}
+	
+	public inline function getSpreadMethod () {
+		return switch (spread) {
+			case normal:	flash.display.SpreadMethod.PAD;
+			case reflect:	flash.display.SpreadMethod.REFLECT;
+			case repeat:	flash.display.SpreadMethod.REPEAT;
+		}
 	}
 	
 	
