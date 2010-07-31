@@ -26,45 +26,33 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.geom;
- import primevc.core.Bindable;
- import primevc.core.IDisposable;
+package primevc.avm2.events;
+private typedef ErrorSignal		= primevc.avm2.events.ErrorSignal;		// override import
+private typedef ProgressSignal	= primevc.avm2.events.ProgressSignal;	// override import
+ import flash.display.LoaderInfo;
+ import flash.events.ErrorEvent;
+ import flash.events.Event;
+ import flash.events.ProgressEvent;
+ import primevc.gui.events.LoaderEvents;
+
+
 
 
 /**
- * Description
+ * AVM2 implementation of loader-events.
  * 
- * @creation-date	Jun 29, 2010
- * @author			Ruben Weijers
+ * @see	primevc.gui.events.LoaderEvents
+ * @author Ruben Weijers
+ * @creation-date Jul 31, 2010
  */
-class BindablePoint extends IntPoint, implements IDisposable
+class LoaderEvents extends LoaderSignals
 {
-	public var xProp (default, null)	: Bindable < Int >;
-	public var yProp (default, null)	: Bindable < Int >;
-	
-	
-	public function new (x = 0, y = 0)
+	public function new (target:LoaderInfo)
 	{
-		xProp = new Bindable<Int>(x);
-		yProp = new Bindable<Int>(y);
-		super(x, y);
+		started		= new FlashSignal0( target, 	Event.OPEN );
+		progress	= new ProgressSignal( target,	ProgressEvent.PROGRESS );
+		loaded		= new FlashSignal0( target,		Event.COMPLETE );
+		unloaded	= new FlashSignal0( target,		Event.UNLOAD );
+		error		= new ErrorSignal( target,		ErrorEvent.IO_ERROR );
 	}
-	
-	
-	public function dispose () {
-		xProp.dispose();
-		yProp.dispose();
-		xProp = yProp = null;
-	}
-	
-	
-	override public function clone () : IntPoint {
-		return new BindablePoint( x, y );
-	}
-	
-	
-	override private function getX ()	{ return xProp.value; }
-	override private function setX (v)	{ return xProp.value = v; }
-	override private function getY ()	{ return yProp.value; }
-	override private function setY (v)	{ return yProp.value = v; }
 }

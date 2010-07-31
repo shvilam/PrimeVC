@@ -26,45 +26,80 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.geom;
- import primevc.core.Bindable;
- import primevc.core.IDisposable;
+package primevc.gui.graphics.fills;
+ import primevc.gui.graphics.GraphicElement;
+ import primevc.gui.graphics.GraphicFlags;
+ import primevc.utils.FastArray;
+  using primevc.utils.FastArray;
+
 
 
 /**
- * Description
+ * A complex is a fill that exists of multiple other fills so that a shape
+ * can be filled multiple times in one render cycle.
  * 
- * @creation-date	Jun 29, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Jul 31, 2010
  */
-class BindablePoint extends IntPoint, implements IDisposable
+class ComplexFill extends GraphicElement, implements IFill 
 {
-	public var xProp (default, null)	: Bindable < Int >;
-	public var yProp (default, null)	: Bindable < Int >;
+	public var fills	(default, null)		: FastArray <IFill>;
 	
 	
-	public function new (x = 0, y = 0)
+	public function new ()
 	{
-		xProp = new Bindable<Int>(x);
-		yProp = new Bindable<Int>(y);
-		super(x, y);
+		super();
+		fills = FastArrayUtil.create();
 	}
 	
 	
-	public function dispose () {
-		xProp.dispose();
-		yProp.dispose();
-		xProp = yProp = null;
+	override public function dispose ()
+	{
+		for (fill in fills)
+			fill.dispose();
+		
+		fills = null;
+		super.dispose();
 	}
 	
 	
-	override public function clone () : IntPoint {
-		return new BindablePoint( x, y );
+	//
+	// IFILL METHODS
+	//
+	
+	public inline function begin (target, ?bounds)
+	{
+		changes = 0;
+		for (fill in fills)
+			fill.begin(target, bounds);
+		
 	}
 	
 	
-	override private function getX ()	{ return xProp.value; }
-	override private function setX (v)	{ return xProp.value = v; }
-	override private function getY ()	{ return yProp.value; }
-	override private function setY (v)	{ return yProp.value = v; }
+	public inline function end (target)
+	{
+		for (fill in fills)
+			fill.endFill(target);
+	}
+	
+	
+	
+	//
+	// LIST METHODS
+	//
+
+	public inline function add ( fill:IFill, depth:Int = -1 )
+	{
+		fills.insertAt( fill, depth );
+		fill.parent = this;
+		invalidate( GraphicFlags.FILL_CHANGED );
+	}
+
+
+	public inline function remove ( fill:IFill )
+	{
+		fills.remove(fill);
+		fill.dispose();
+		invalidate( GraphicFlags.FILL_CHANGED );
+	}
 }

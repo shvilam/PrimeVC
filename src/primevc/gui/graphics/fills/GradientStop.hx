@@ -26,45 +26,48 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.geom;
- import primevc.core.Bindable;
- import primevc.core.IDisposable;
+package primevc.gui.graphics.fills;
+ import primevc.gui.graphics.GraphicElement;
+ import primevc.gui.graphics.GraphicFlags;
+ import primevc.types.RGBA;
 
 
 /**
- * Description
+ * Defines a color-position in a gradient.
  * 
- * @creation-date	Jun 29, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Jul 30, 2010
  */
-class BindablePoint extends IntPoint, implements IDisposable
+class GradientStop extends GraphicElement
 {
-	public var xProp (default, null)	: Bindable < Int >;
-	public var yProp (default, null)	: Bindable < Int >;
+	public var color		(default, setColor)		: RGBA;
+	public var position		(default, setPosition)	: Int;
 	
 	
-	public function new (x = 0, y = 0)
+	public function new (color:RGBA, position:Int)
 	{
-		xProp = new Bindable<Int>(x);
-		yProp = new Bindable<Int>(y);
-		super(x, y);
+		super();
+		this.color		= color;
+		this.position	= position;
 	}
 	
 	
-	public function dispose () {
-		xProp.dispose();
-		yProp.dispose();
-		xProp = yProp = null;
+	private inline function setColor (v:RGBA)
+	{
+		if (v != color) {
+			color = v;
+			invalidate( GraphicFlags.COLOR_CHANGED );
+		}
+		return v;
 	}
 	
 	
-	override public function clone () : IntPoint {
-		return new BindablePoint( x, y );
+	private inline function setPosition (v:Int)
+	{
+		if (v != position) {
+			position = v;
+			invalidate( GraphicFlags.GRADIENT_POSITION_CHANGED );
+		}
+		return v;
 	}
-	
-	
-	override private function getX ()	{ return xProp.value; }
-	override private function setX (v)	{ return xProp.value = v; }
-	override private function getY ()	{ return yProp.value; }
-	override private function setY (v)	{ return yProp.value = v; }
 }

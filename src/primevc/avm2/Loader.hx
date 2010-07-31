@@ -26,45 +26,56 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.geom;
- import primevc.core.Bindable;
+package primevc.avm2;
+ import flash.utils.ByteArray;
+ import primevc.avm2.events.LoaderEvents;
  import primevc.core.IDisposable;
+ import primevc.gui.display.IDisplayObject;
 
 
-/**
- * Description
- * 
- * @creation-date	Jun 29, 2010
- * @author			Ruben Weijers
- */
-class BindablePoint extends IntPoint, implements IDisposable
+typedef FlashLoader = flash.display.Loader;
+
+
+class Loader implements IDisposable
 {
-	public var xProp (default, null)	: Bindable < Int >;
-	public var yProp (default, null)	: Bindable < Int >;
+	public var events		(default, null)				: LoaderEvents;
+	
+	public var bytes		(getBytes, never)			: ByteArray;
+	public var bytesLoaded	(getBytesLoaded, never)		: UInt;
+	public var bytesTotal	(getBytesTotal, never)		: UInt;
+	public var isLoaded		(getIsLoaded, never)		: Bool;
+	
+	public var content		(getContent, never)			: IDisplayObject;
+	
+	private var loader		: FlashLoader;
 	
 	
-	public function new (x = 0, y = 0)
+	public function new ()
 	{
-		xProp = new Bindable<Int>(x);
-		yProp = new Bindable<Int>(y);
-		super(x, y);
+		loader	= new FlashLoader();
+		events	= new LoaderEvents( loader.contentLoaderInfo );
 	}
 	
 	
-	public function dispose () {
-		xProp.dispose();
-		yProp.dispose();
-		xProp = yProp = null;
+	public function dispose ()
+	{
+		loader.unloadAndStop();
+		events.dispose();
+		loader = null;
+		events = null;
 	}
 	
 	
-	override public function clone () : IntPoint {
-		return new BindablePoint( x, y );
+	//
+	// GETTERS / SETTERS
+	//
+	
+	private inline function getBytes ()				{ return loader.contentLoaderInfo.bytes; }
+	private inline function getBytesLoaded ()		{ return loader.contentLoaderInfo.bytesLoaded; }
+	private inline function getBytesTotal ()		{ return loader.contentLoaderInfo.bytesTotal; }
+	private inline function getContent ()			{ return loader.contentLoaderInfo.content; }
+	
+	private inline function getIsLoaded () {
+		return bytesTotal > 0 && bytesLoaded >= bytesTotal;
 	}
-	
-	
-	override private function getX ()	{ return xProp.value; }
-	override private function setX (v)	{ return xProp.value = v; }
-	override private function getY ()	{ return yProp.value; }
-	override private function setY (v)	{ return yProp.value = v; }
 }

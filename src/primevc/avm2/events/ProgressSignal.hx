@@ -26,45 +26,50 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.geom;
- import primevc.core.Bindable;
- import primevc.core.IDisposable;
+package primevc.avm2.events;
+ import flash.events.IEventDispatcher;
+ import flash.events.ProgressEvent;
+ import primevc.core.dispatcher.IWireWatcher;
+ import primevc.core.dispatcher.Signal2;
+ import primevc.core.dispatcher.Wire;
+ import primevc.core.ListNode;
+ import primevc.gui.events.LoaderEvents;
+
 
 
 /**
- * Description
+ * AVM2 Loader Progress Signal implementation
  * 
- * @creation-date	Jun 29, 2010
- * @author			Ruben Weijers
+ * Parameter 1: loaded bytes
+ * Parameter 2: total bytes
+ * 
+ * @author Ruben Weijers
+ * @creation-date Jul 31, 2010
  */
-class BindablePoint extends IntPoint, implements IDisposable
+class ProgressSignal extends Signal2<UInt, UInt>, implements IWireWatcher < ProgressHandler > 
 {
-	public var xProp (default, null)	: Bindable < Int >;
-	public var yProp (default, null)	: Bindable < Int >;
-	
-	
-	public function new (x = 0, y = 0)
+	var eventDispatcher:IEventDispatcher;
+	var event:String;
+
+
+	public function new (d:IEventDispatcher, e:String)
 	{
-		xProp = new Bindable<Int>(x);
-		yProp = new Bindable<Int>(y);
-		super(x, y);
+		super();
+		this.eventDispatcher = d;
+		this.event = e;
 	}
-	
-	
-	public function dispose () {
-		xProp.dispose();
-		yProp.dispose();
-		xProp = yProp = null;
+
+	public function wireEnabled (wire:Wire<ProgressHandler>) : Void {
+		Assert.that(n != null);
+		if (ListNode.next(n) == null) // First wire connected
+			eventDispatcher.addEventListener(event, dispatch);
 	}
-	
-	
-	override public function clone () : IntPoint {
-		return new BindablePoint( x, y );
+
+	public function wireDisabled	(wire:Wire<ProgressHandler>) : Void {
+		if (n == null) // No more wires connected
+			eventDispatcher.removeEventListener(event, dispatch);
 	}
-	
-	
-	override private function getX ()	{ return xProp.value; }
-	override private function setX (v)	{ return xProp.value = v; }
-	override private function getY ()	{ return yProp.value; }
-	override private function setY (v)	{ return yProp.value = v; }
-}
+
+	private function dispatch(e:ProgressEvent) {
+		send(e.bytesLoaded, e.bytesTotal);
+	}

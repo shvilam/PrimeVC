@@ -78,6 +78,12 @@ class BindableBox implements IRectangle, implements IDisposable
 	}
 	
 	
+	public function clone () : IRectangle
+	{
+		return new BindableBox( top, right, bottom, left );
+	}
+	
+	
 	
 	//
 	// GETTERS / SETTERS

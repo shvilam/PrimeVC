@@ -26,45 +26,18 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.geom;
- import primevc.core.Bindable;
- import primevc.core.IDisposable;
+package primevc.gui.graphics.fills;
+ import primevc.core.geom.IRectangle;
+ import primevc.gui.graphics.IGraphicElement;
+ import primevc.gui.traits.IDrawable;
 
 
 /**
- * Description
- * 
- * @creation-date	Jun 29, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Jul 30, 2010
  */
-class BindablePoint extends IntPoint, implements IDisposable
+interface IFill extends IGraphicElement 
 {
-	public var xProp (default, null)	: Bindable < Int >;
-	public var yProp (default, null)	: Bindable < Int >;
-	
-	
-	public function new (x = 0, y = 0)
-	{
-		xProp = new Bindable<Int>(x);
-		yProp = new Bindable<Int>(y);
-		super(x, y);
-	}
-	
-	
-	public function dispose () {
-		xProp.dispose();
-		yProp.dispose();
-		xProp = yProp = null;
-	}
-	
-	
-	override public function clone () : IntPoint {
-		return new BindablePoint( x, y );
-	}
-	
-	
-	override private function getX ()	{ return xProp.value; }
-	override private function setX (v)	{ return xProp.value = v; }
-	override private function getY ()	{ return yProp.value; }
-	override private function setY (v)	{ return yProp.value = v; }
+	public function begin (target:IDrawable, ?bounds:IRectangle) : Void;
+	public function end (target:IDrawable) : Void;
 }

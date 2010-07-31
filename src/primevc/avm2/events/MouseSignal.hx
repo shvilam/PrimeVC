@@ -27,14 +27,14 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.avm2.events;
- import primevc .gui.events.MouseEvents;
- import primevc .gui.events.KeyModState;
- import primevc.core.geom.Point;
- import primevc.core.dispatcher.Wire;
- import primevc.core.dispatcher.Signal1;
- import primevc.core.dispatcher.IWireWatcher;
- import flash.events.MouseEvent;
  import flash.display.InteractiveObject;
+ import flash.events.MouseEvent;
+ import primevc.core.dispatcher.IWireWatcher;
+ import primevc.core.dispatcher.Signal1;
+ import primevc.core.dispatcher.Wire;
+ import primevc.core.geom.Point;
+ import primevc.gui.events.KeyModState;
+ import primevc.gui.events.MouseEvents;
   using primevc.core.ListNode;
 
 /**

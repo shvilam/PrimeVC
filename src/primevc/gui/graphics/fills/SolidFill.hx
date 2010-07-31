@@ -26,14 +26,54 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core;
+package primevc.gui.graphics.fills;
+ import primevc.gui.graphics.GraphicElement;
+ import primevc.gui.graphics.GraphicFlags;
+ import primevc.types.RGBA;
+  using primevc.utils.Color;
 
 
 /**
+ * Solid fill for a graphic element
+ * 
  * @author Ruben Weijers
- * @creation-date Jul 26, 2010
+ * @creation-date Jul 30, 2010
  */
-interface IClonable <ClassType>
+class SolidFill extends GraphicElement, implements IFill
 {
-	public function clone () : ClassType;
+	public var color (default, setColor)	: RGBA;
+	
+	
+	public function new ( color:RGBA )
+	{
+		super();
+		this.color = color;
+	}
+	
+	
+	public inline function begin (target, ?bounds)
+	{
+		changes = 0;
+#if flash9
+		target.graphics.beginFill( color.rgb(), color.alpha() );
+#end
+	}
+	
+	
+	public inline function end (target)
+	{
+#if flash9
+		target.graphics.endFill();
+#end
+	}
+	
+	
+	private inline function setColor (v:RGBA)
+	{
+		if (color != v) {
+			this.color = v;
+			invalidate( GraphicFlags.FILL_CHANGED );
+		}
+		return v;
+	}
 }

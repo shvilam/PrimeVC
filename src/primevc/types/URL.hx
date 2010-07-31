@@ -178,11 +178,11 @@ class URL
 		return string = s.toString();
 	}
 	
-	#if flash9
+#if flash9
 	public inline function toRequest() {
 		return new flash.net.URLRequest(this.string);
 	}
-	#end
+#end
 	
 	public function parse(str:String) : URL
 	{

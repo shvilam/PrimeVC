@@ -26,45 +26,54 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.geom;
- import primevc.core.Bindable;
- import primevc.core.IDisposable;
+package primevc.gui.events;
+ import primevc.core.dispatcher.Signal0;
+ import primevc.core.dispatcher.Signals; 
+
+
+typedef LoaderEvents = 
+	#if		flash9	primevc.avm2.events.LoaderEvents;
+	#elseif	flash8	primevc.avm1.events.LoaderEvents;
+	#elseif	js		primevc.js  .events.LoaderEvents;
+	#else	error	#end
+
+
+typedef ErrorHandler	= String -> Void;
+typedef ProgressHandler	= UInt -> UInt -> Void;
+typedef ErrorSignal		= primevc.core.dispatcher.INotifier< ErrorHandler >;
+typedef ProgressSignal	= primevc.core.dispatcher.INotifier< ProgressHandler >;
 
 
 /**
- * Description
+ * Cross-platform loader events
  * 
- * @creation-date	Jun 29, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Jul 31, 2010
  */
-class BindablePoint extends IntPoint, implements IDisposable
+class LoaderSignals extends Signals
 {
-	public var xProp (default, null)	: Bindable < Int >;
-	public var yProp (default, null)	: Bindable < Int >;
+	/**
+	 * Dispatched when a load operation has started
+	 */
+	var started		(default, null) : Signal0;
 	
+	/**
+	 * Dispatched when data is received in a download process
+	 */
+	var progress	(default, null) : ProgressSignal;
 	
-	public function new (x = 0, y = 0)
-	{
-		xProp = new Bindable<Int>(x);
-		yProp = new Bindable<Int>(y);
-		super(x, y);
-	}
+	/**
+	 * Dispatched when data is loaded completly
+	 */
+	var loaded		(default, null) : Signal0;
 	
+	/**
+	 * Dispatched when data in a loader object is unloaded
+	 */
+	var unloaded	(default, null) : Signal0;
 	
-	public function dispose () {
-		xProp.dispose();
-		yProp.dispose();
-		xProp = yProp = null;
-	}
-	
-	
-	override public function clone () : IntPoint {
-		return new BindablePoint( x, y );
-	}
-	
-	
-	override private function getX ()	{ return xProp.value; }
-	override private function setX (v)	{ return xProp.value = v; }
-	override private function getY ()	{ return yProp.value; }
-	override private function setY (v)	{ return yProp.value = v; }
+	/**
+	 * Dispatched when an error occured during the loading
+	 */
+	var error		(default, null) : ErrorSignal;
 }

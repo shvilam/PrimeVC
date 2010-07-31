@@ -26,45 +26,39 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.geom;
- import primevc.core.Bindable;
- import primevc.core.IDisposable;
+package primevc.gui.graphics;
+  using primevc.utils.BitUtil;
+
 
 
 /**
- * Description
+ * Base class for all graphic elements.
  * 
- * @creation-date	Jun 29, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Jul 31, 2010
  */
-class BindablePoint extends IntPoint, implements IDisposable
+class GraphicElement implements IGraphicElement 
 {
-	public var xProp (default, null)	: Bindable < Int >;
-	public var yProp (default, null)	: Bindable < Int >;
+	public var changes (default, null)		: UInt;
+	public var parent						: IGraphicElement;
 	
 	
-	public function new (x = 0, y = 0)
+	public function new ()
 	{
-		xProp = new Bindable<Int>(x);
-		yProp = new Bindable<Int>(y);
-		super(x, y);
+		
 	}
 	
 	
-	public function dispose () {
-		xProp.dispose();
-		yProp.dispose();
-		xProp = yProp = null;
+	public function dispose ()
+	{
+		parent = null;
 	}
 	
 	
-	override public function clone () : IntPoint {
-		return new BindablePoint( x, y );
+	public inline function invalidate (change:UInt) : Void
+	{
+		changes = changes.set(change);
+		if (parent != null)
+			parent.invalidate( change );
 	}
-	
-	
-	override private function getX ()	{ return xProp.value; }
-	override private function setX (v)	{ return xProp.value = v; }
-	override private function getY ()	{ return yProp.value; }
-	override private function setY (v)	{ return yProp.value = v; }
 }

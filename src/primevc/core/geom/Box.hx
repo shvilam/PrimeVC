@@ -40,6 +40,7 @@ class Box implements IRectangle
 	public var top		(getTop, setTop)		: Int;
 	public var bottom	(getBottom, setBottom)	: Int;
 	
+	
 	public function new ( top:Int = 0, right:Int = -100, bottom:Int = -100, left:Int = -100 )
 	{
 		this.top	= top;
@@ -47,6 +48,12 @@ class Box implements IRectangle
 		this.bottom	= (bottom == -100) ? this.top : bottom;
 		this.left	= (left == -100) ? this.right : left;
 	}
+	
+	
+	public function clone () : IRectangle {
+		return new Box( top, right, bottom, left );
+	}
+	
 	
 	public function toString ()
 	{
