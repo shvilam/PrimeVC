@@ -69,8 +69,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		children			= new ArrayList<LayoutClient>();
 		scrollPos			= new BindablePoint();
 		
-		childWidth			= Number.NOT_SET;
-		childHeight			= Number.NOT_SET;
+		childWidth			= Number.INT_NOT_SET;
+		childHeight			= Number.INT_NOT_SET;
 		
 		childAddedHandler	.on( children.events.added, this );
 		childRemovedHandler	.on( children.events.removed, this );
@@ -148,7 +148,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 				if (explicitWidth.isSet())
 					fillingChildren.push( child );
 				
-				child.width = Number.NOT_SET;
+				child.width = Number.INT_NOT_SET;
 			}
 			
 			//measure children with explicitWidth and no percentage size
@@ -197,7 +197,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 				if (explicitHeight.isSet())
 					fillingChildren.push( child );
 				
-				child.height = Number.NOT_SET;
+				child.height = Number.INT_NOT_SET;
 			}
 			
 			else if (checkIfChildGetsPercentageHeight(child, explicitHeight))

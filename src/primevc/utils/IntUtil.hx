@@ -66,11 +66,11 @@ class IntUtil
 	
 	
 	public static inline function notSet (value:Int) : Bool {
-		return value == Number.NOT_SET;
+		return value == Number.INT_NOT_SET;
 	}
 	
 	
 	public static inline function isSet (value:Int) : Bool {
-		return value != Number.NOT_SET;
+		return value != Number.INT_NOT_SET;
 	}
 }

@@ -81,14 +81,14 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	 * The maximum width of each tile. Their orignal width will be ignored if
 	 * the tile is bigger then this number (it won't get resized).
 	 * 
-	 * @default		Number.NOT_SET
+	 * @default		Number.INT_NOT_SET
 	 */
 //	public var tileWidth			(default, setTileWidth)					: Int;
 	/**
 	 * The maximum height of each tile. Their orignal height will be ignored if
 	 * the tile is heigher then this number (it won't get resized).
 	 * 
-	 * @default		Number.NOT_SET
+	 * @default		Number.INT_NOT_SET
 	 */
 //	public var tileHeight			(default, setTileHeight)				: Int;
 	

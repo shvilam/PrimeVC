@@ -61,8 +61,8 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 	{
 		super();
 		children	= list == null ? new ArrayList<ChildType>() : list;
-		childWidth	= Number.NOT_SET;
-		childHeight	= Number.NOT_SET;
+		childWidth	= Number.INT_NOT_SET;
+		childHeight	= Number.INT_NOT_SET;
 		
 		childAddedHandler.on( children.events.added, this );
 		childRemovedHandler.on( children.events.removed, this );

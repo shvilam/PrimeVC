@@ -69,4 +69,14 @@ class FloatUtil
 		value = Math.round( value ) / Math.pow(10, precision);
 		return value;
 	}
+
+
+	public static inline function notSet (value:Float) : Bool {
+		return value == Number.FLOAT_NOT_SET;
+	}
+
+
+	public static inline function isSet (value:Float) : Bool {
+		return value != Number.FLOAT_NOT_SET;
+	}
 }
