@@ -27,8 +27,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.fills;
+ import primevc.core.geom.IRectangle;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
+ import primevc.gui.traits.IDrawable;
  import primevc.types.RGBA;
   using primevc.utils.Color;
 
@@ -51,7 +53,7 @@ class SolidFill extends GraphicElement, implements IFill
 	}
 	
 	
-	public inline function begin (target, ?bounds)
+	public inline function begin (target:IDrawable, ?bounds:IRectangle)
 	{
 		changes = 0;
 #if flash9
@@ -60,7 +62,7 @@ class SolidFill extends GraphicElement, implements IFill
 	}
 	
 	
-	public inline function end (target)
+	public inline function end (target:IDrawable)
 	{
 #if flash9
 		target.graphics.endFill();

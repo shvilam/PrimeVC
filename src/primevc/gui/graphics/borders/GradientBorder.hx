@@ -45,7 +45,7 @@ class GradientBorder extends BorderBase <GradientFill>
 	private var lastMatrix		: Matrix2D;
 	
 	
-	override public function begin (target:IDrawable, ?bounds:IRectangle) : Void;
+	override public function begin (target:IDrawable, ?bounds:IRectangle) : Voida
 	{
 		changes = 0;
 #if flash9
@@ -63,7 +63,7 @@ class GradientBorder extends BorderBase <GradientFill>
 			ratios.push( fill.position );
 		}
 		
-		target.graphics.lineStyle( weight, 0, 1, pixelHinting, LineScaleMode.NORMAL, getFlashCaps(), getFlashJoints() );
+		target.graphics.lineStyle( weight, 0, 1, pixelHinting, LineScaleMode.NORMAL, caps, joint );
 		target.graphics.lineGradientStyle( fill.getFlashGradientType(), colors, alphas, ratios, matrix );
 #end
 		lastBounds = bounds.clone();

@@ -27,6 +27,8 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.borders;
+ import flash.display.CapsStyle;
+ import flash.display.JointStyle;
  import primevc.core.geom.IRectangle;
  import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.IGraphicElement;
@@ -37,18 +39,18 @@ package primevc.gui.graphics.borders;
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-interface IBorder <FillType:IFill> extends IGraphicElement 
+interface IBorder <FillType:IFill> implements IGraphicElement 
 {
 	public var weight		(default, setWeight)		: Float;
 	public var fill			(default, setFill)			: FillType;
 	/**
 	 * The capsstyle that is used at the end of lines
 	 */
-	public var caps			(default, setCaps)			: CapsStyles;
+	public var caps			(default, setCaps)			: CapsStyle;
 	/**
 	 * The jointstyle that is used at angles
 	 */
-	public var joint		(default, setJoint)			: JointStyles;
+	public var joint		(default, setJoint)			: JointStyle;
 	public var pixelHinting	(default, setPixelHinting)	: Bool;
 	
 	

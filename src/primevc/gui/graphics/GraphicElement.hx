@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics;
+ import haxe.FastList;
   using primevc.utils.BitUtil;
 
 
@@ -45,7 +46,7 @@ class GraphicElement implements IGraphicElement
 	 * List with graphic-elements that want to be notified when values in this
 	 * instance changes
 	 */
-	public var listeners (defalt, null)		: FastList< IGraphicElement >;
+	public var listeners (default, null)	: FastList< IGraphicElement >;
 	
 	
 	public function new ()

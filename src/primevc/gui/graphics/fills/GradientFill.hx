@@ -31,24 +31,11 @@ package primevc.gui.graphics.fills;
  import primevc.core.geom.Matrix2D;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
+ import primevc.gui.traits.IDrawable;
  import primevc.utils.FastArray;
   using primevc.utils.FastArray;
   using primevc.utils.RectangleUtil;
   using primevc.utils.Formulas;
-
-
-enum GradientType {
-	linear;
-	radial;
-}
-
-
-enum SpreadMethod {
-	normal;
-	reflect;
-	repeat;
-}
-
 
 
 /**
@@ -148,7 +135,7 @@ class GradientFill implements IFill
 	// FILL METHODS
 	//
 	
-	public inline function begin (target, ?bounds:IRectangle)
+	public inline function begin (target:IDrawable, ?bounds:IRectangle)
 	{
 		Assert.that( fills.length >= 2, "There should be at least be two fills in an gradient.");
 			
@@ -172,7 +159,7 @@ class GradientFill implements IFill
 	}
 	
 	
-	public inline function end (target)
+	public inline function end (target:IDrawable)
 	{
 #if flash9
 		target.graphics.endFill();

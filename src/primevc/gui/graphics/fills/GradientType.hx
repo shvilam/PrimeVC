@@ -26,15 +26,10 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics.borders;
+package primevc.gui.graphics.fills;
 
 
-/**
- * @author	Ruben Weijers
- * @since	jul 31, 2010
- */
-enum CapsStyles {
-	NoCaps;
-	RoundCaps;
-	SquareCaps;
+enum GradientType {
+	linear;
+	radial;
 }

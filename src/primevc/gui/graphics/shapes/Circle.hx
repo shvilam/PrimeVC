@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.shapes;
+ import primevc.gui.traits.IDrawable;
  import primevc.utils.Formulas;
 
 
@@ -38,7 +39,7 @@ package primevc.gui.graphics.shapes;
  */
 class Circle extends ShapeBase
 {
-	override private function drawShape (target, x, y, width, height) : Void
+	override private function drawShape (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
 	{
 		var radius = Formulas.getRadius( width, height );
 #if flash9

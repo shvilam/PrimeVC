@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.utils;
+  using Math;
  
 
 /**
@@ -66,17 +67,17 @@ class FloatUtil
 	
 	public static inline function round (value:Float, precision:Int = 0) : Float {
 		value = value * Math.pow(10, precision);
-		value = Math.round( value ) / Math.pow(10, precision);
+		value = value.round() / Math.pow(10, precision);
 		return value;
 	}
 
 
 	public static inline function notSet (value:Float) : Bool {
-		return value == Number.FLOAT_NOT_SET;
+		return value.isNaN();
 	}
 
 
 	public static inline function isSet (value:Float) : Bool {
-		return value != Number.FLOAT_NOT_SET;
+		return !value.isNaN();
 	}
 }

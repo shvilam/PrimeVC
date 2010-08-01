@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.shapes;
+ import primevc.gui.traits.IDrawable;
 
 
 
@@ -36,7 +37,7 @@ package primevc.gui.graphics.shapes;
  */
 class Ellipse extends ShapeBase
 {
-	override private function drawShape (target, x, y, width, height) : Void
+	override private function drawShape (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
 	{
 #if flash9
 		target.graphics.drawEllipse( x, y, width, height );

@@ -27,8 +27,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.fills;
+ import primevc.core.geom.IRectangle;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
+ import primevc.gui.traits.IDrawable;
  import primevc.utils.FastArray;
   using primevc.utils.FastArray;
 
@@ -67,7 +69,7 @@ class ComposedFill extends GraphicElement, implements IFill
 	// IFILL METHODS
 	//
 	
-	public inline function begin (target, ?bounds)
+	public inline function begin (target:IDrawable, ?bounds:IRectangle)
 	{
 		changes = 0;
 		for (fill in fills)
@@ -76,7 +78,7 @@ class ComposedFill extends GraphicElement, implements IFill
 	}
 	
 	
-	public inline function end (target)
+	public inline function end (target:IDrawable)
 	{
 		for (fill in fills)
 			fill.endFill(target);

@@ -38,7 +38,7 @@ package primevc.core.geom;
  * @author Ruben Weijers
  * @creation-date Aug 01, 2010
  */
-class Corners implements IClonable
+class Corners implements IClonable < Corners >
 {
 	public var topLeft		: Float;
 	public var topRight		: Float;
@@ -46,7 +46,7 @@ class Corners implements IClonable
 	public var bottomRight	: Float;
 	
 	
-	public function new ( ?topLeft:Float = 0, ?topRight:Float = Number.FLOAT_NOT_SET, ?bottomLeft:Float = Number.FLOAT_NOT_SET, ?bottomRight:Float = Number.FLOAT_NOT_SET )
+	public function new ( ?topLeft:Float = 0, ?topRight:Float = Number.INT_NOT_SET, ?bottomLeft:Float = Number.INT_NOT_SET, ?bottomRight:Float = Number.INT_NOT_SET )
 	{
 		this.topLeft		= topLeft;
 		this.topRight		= topRight.isSet()		? this.topLeft : topRight;
@@ -55,5 +55,5 @@ class Corners implements IClonable
 	}
 	
 	
-	public function clone () : IClonable { return new Corners( topLeft, topRight, bottomLeft, bottomRight ); }
+	public function clone () : Corners { return new Corners( topLeft, topRight, bottomLeft, bottomRight ); }
 }

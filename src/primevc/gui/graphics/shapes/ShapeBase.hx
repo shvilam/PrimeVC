@@ -46,11 +46,11 @@ package primevc.gui.graphics.shapes;
 class ShapeBase extends GraphicElement, implements IShape
 {
 	public var fill		(default, setFill)		: IFill;
-	public var border	(default, setBorder)	: IBorder;
+	public var border	(default, setBorder)	: IBorder <IFill>;
 	public var layout	(default, setLayout)	: LayoutClient;
 	
 	
-	public function new (?layout:LayoutClient, ?fill:IFill, ?border:IBorder)
+	public function new (?layout:LayoutClient, ?fill:IFill, ?border:IBorder <IFill>)
 	{
 		super();
 		this.layout	= layout;
@@ -61,20 +61,20 @@ class ShapeBase extends GraphicElement, implements IShape
 	
 	public function draw (target:IDrawable, ?useCoordinates:Bool = false) : Void
 	{
-		Assert.notNull(layaut);
+		Assert.notNull(layout);
 		changes = 0;
-		
-		if (border != null)		border.begin();
-		if (fill != null)		fill.begin();
 		
 		var l = layout.bounds;
 		var x = useCoordinates ? l.left : 0;
 		var y = useCoordinates ? l.top : 0;
 		
+		if (border != null)		border.begin(target, l);
+		if (fill != null)		fill.begin(target, l);
+		
 		drawShape( target, x, y, l.width, l.height );
 		
-		if (border != null)		border.end();
-		if (fill != null)		fill.end();
+		if (border != null)		border.end(target);
+		if (fill != null)		fill.end(target);
 	}
 	
 	
@@ -105,7 +105,7 @@ class ShapeBase extends GraphicElement, implements IShape
 	}
 	
 	
-	private inline function setBorder (v:IBorder)
+	private inline function setBorder (v)
 	{
 		if (v != border)
 		{

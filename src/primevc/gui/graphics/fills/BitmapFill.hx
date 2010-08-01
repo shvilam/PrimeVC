@@ -27,9 +27,11 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.fills;
+ import primevc.core.geom.IRectangle;
  import primevc.core.geom.Matrix2D;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
+ import primevc.gui.traits.IDrawable;
  import primevc.types.Bitmap;
 
 
@@ -136,7 +138,7 @@ class BitmapFill extends GraphicElement, implements IFill
 	// IFILL METHODS
 	//
 	
-	public inline function begin (target, ?bounds)
+	public inline function begin (target:IDrawable, ?bounds:IRectangle)
 	{
 		changes = 0;
 		
@@ -149,7 +151,7 @@ class BitmapFill extends GraphicElement, implements IFill
 	}
 	
 	
-	public inline function end (target)
+	public inline function end (target:IDrawable)
 	{
 		if (bitmap.state.is(BitmapState.loaded))
 		{

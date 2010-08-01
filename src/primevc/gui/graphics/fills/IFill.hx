@@ -36,7 +36,7 @@ package primevc.gui.graphics.fills;
  * @author Ruben Weijers
  * @creation-date Jul 30, 2010
  */
-interface IFill extends IGraphicElement 
+interface IFill implements IGraphicElement 
 {
 	public function begin (target:IDrawable, ?bounds:IRectangle) : Void;
 	public function end (target:IDrawable) : Void;

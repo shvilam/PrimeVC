@@ -38,10 +38,10 @@ package primevc.gui.graphics.shapes;
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-interface IShape extends IGraphicElement
+interface IShape implements IGraphicElement
 {
 	public var fill		(default, setFill)		: IFill;
-	public var border	(default, setBorder)	: IBorder;
+	public var border	(default, setBorder)	: IBorder <IFill>;
 	public var layout	(default, setLayout)	: LayoutClient;
 	
 	

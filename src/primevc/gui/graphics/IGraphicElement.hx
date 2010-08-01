@@ -34,10 +34,10 @@ package primevc.gui.graphics;
  * @author Ruben Weijers
  * @creation-date Jul 30, 2010
  */
-interface IGraphicElement extends IDisposable
+interface IGraphicElement implements IDisposable
 {
 	public var changes (default, null)			: UInt;
 	
-	public var parent							: IGraphicElement;
+	public var listeners (default, null)		: haxe.FastList< IGraphicElement >;
 	public function invalidate (change:UInt)	: Void;
 }

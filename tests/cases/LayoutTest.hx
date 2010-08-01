@@ -28,6 +28,9 @@ package cases;
  import primevc.gui.events.DragEvents;
  import primevc.gui.events.DropTargetEvents;
  import primevc.gui.events.MouseEvents;
+ import primevc.gui.graphics.borders.SolidBorder;
+ import primevc.gui.graphics.fills.SolidFill;
+ import primevc.gui.graphics.shapes.RegularRectangle;
  import primevc.gui.layout.algorithms.circle.HorizontalCircleAlgorithm;
  import primevc.gui.layout.algorithms.circle.VerticalCircleAlgorithm;
  import primevc.gui.layout.algorithms.directions.Direction;
@@ -44,6 +47,7 @@ package cases;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.RelativeLayout;
  import primevc.gui.layout.VirtualLayoutContainer;
+ import primevc.utils.Color;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
@@ -253,12 +257,13 @@ class Button extends Skin < Tile >
 	private var textField		: TextField;
 #end
 	private var color			: UInt;
-	private var isHovered		: Bool;
+	private var fill			: SolidFill;
+	private var graphic			: RegularRectangle;
 	
 	
 	public function new ()
 	{
-		isHovered	= false;
+		color		= 0xaaaaa;
 		super();
 #if debug
 		num			= counter++;
@@ -270,26 +275,14 @@ class Button extends Skin < Tile >
 	
 	override public function render ()
 	{
-		var l		 = layout.bounds;
 		var g		 = graphics;
-		
 		g.clear();
-		
-		if (isHovered) {
-			g.lineStyle( 2, color );
-			g.beginFill( 0xffffff, 0 );
-			g.drawRect( 2, 2, l.width - 4, l.height - 4 );
-		} else {
-			g.beginFill( color );
-			g.drawRect( 0, 0, l.width, l.height );
-		}
-		
-		g.endFill();
+		graphic.draw(this);
 	}
 	
 	
-	private function highlight ()	{ isHovered = true; render(); }
-	private function normallity ()	{ isHovered = false; render(); }
+	private function highlight ()	{ fill.color = 0xaaaaaa; render(); }
+	private function normallity ()	{ fill.color = color; render(); }
 	
 	
 	override private function createBehaviours ()
@@ -301,7 +294,15 @@ class Button extends Skin < Tile >
 	
 	override private function createLayout ()
 	{
-		layout = new LayoutClient(20, 20);
+		layout	= new LayoutClient(20, 20);
+		createGraphics();
+	}
+	
+	
+	private function createGraphics ()
+	{	
+		fill	= new SolidFill( color );
+		graphic = new RegularRectangle( layout, fill );
 	}
 	
 #if (debug && flash9)
@@ -328,7 +329,7 @@ class Tile extends Button, implements IDraggable
 	
 	public function new (?dynamicSize = false)
 	{		
-		color = Math.round( Math.random() * 0xffffff );
+		color = Color.random();
 		this.dynamicSize = dynamicSize;
 		super();
 #if debug
@@ -340,9 +341,10 @@ class Tile extends Button, implements IDraggable
 
 	override private function createLayout ()
 	{
-		if (dynamicSize)
+		if (dynamicSize) {
 			layout = new LayoutClient(20 + Std.int(30 * Math.random()), Std.int(20 + 30 * Math.random()));
-		else
+			createGraphics();
+		} else
 			super.createLayout();
 	}
 	

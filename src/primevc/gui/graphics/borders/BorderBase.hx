@@ -27,9 +27,13 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.borders;
+ import flash.display.CapsStyle;
+ import flash.display.JointStyle;
+ import primevc.core.geom.IRectangle;
  import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
+ import primevc.gui.traits.IDrawable;
 
 
 /**
@@ -45,22 +49,22 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	/**
 	 * The capsstyle that is used at the end of lines
 	 */
-	public var caps			(default, setCaps)			: CapsStyles;
+	public var caps			(default, setCaps)			: CapsStyle;
 	/**
 	 * The jointstyle that is used at angles
 	 */
-	public var joint		(default, setJoint)			: JointStyles;
+	public var joint		(default, setJoint)			: JointStyle;
 	public var pixelHinting	(default, setPixelHinting)	: Bool;
 	
 	
 	
-	public function new ( fill:FillType, weight:Float , caps:CapsStyles = null, joint:JointStyles = null )
+	public function new ( fill:FillType, weight:Float , caps:CapsStyle = null, joint:JointStyle = null )
 	{
 		super();
 		this.fill	= fill;
 		this.weight	= weight;
-		this.caps	= caps != null ? caps : NoCaps;
-		this.joint	= joint != null ? joint : RoundJoint;
+		this.caps	= caps != null ? caps : CapsStyle.NONE;
+		this.joint	= joint != null ? joint : JointStyle.ROUND;
 	}
 	
 	
@@ -71,12 +75,12 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	}
 	
 	
-	public function begin (target, ?bounds)	{
+	public function begin (target:IDrawable, ?bounds:IRectangle) {
 		Assert.that(false, "Method should be overwritten.");
 	}
 	
 	
-	public function end (target)
+	public function end (target:IDrawable)
 	{
 #if flash9
 		target.graphics.lineStyle( 0, 0 , 0 );
@@ -89,27 +93,6 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	//
 	// GETTERS / SETTERS
 	//
-	
-	private inline function getFlashCaps () : String
-	{
-		return switch (caps) {
-			case NoCaps:		"none"; // CapsStyle.NONE;
-			case RoundCaps:		"round"; // CapsStyle.ROUND;
-			case SquareCaps:	"square"; // CapsStyle.SQUARE;
-			default:			null;
-		}
-	}
-	
-	
-	private inline function getFlashJoints () : String
-	{
-		return switch (joint) {
-			case MiterJoint:	"mitter"; // JointStyle.MITER;
-			case RoundJoint:	"round"; // JointStyle.ROUND;
-			case BevelJoint:	"bevel"; // JointStyle.BEVEL;
-			default:			null;
-		}
-	}
 	
 	
 	private inline function setWeight (v:Float)
@@ -138,7 +121,7 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	}
 
 
-	private inline function setCaps (v:CapsStyles)
+	private inline function setCaps (v:CapsStyle)
 	{
 		if (v != caps) {
 			caps = v;
@@ -148,10 +131,20 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	}
 
 
-	private inline function setJoint (v:JointStyles)
+	private inline function setJoint (v:JointStyle)
 	{
 		if (v != joint) {
 			joint = v;
+			invalidate( GraphicFlags.BORDER_CHANGED );
+		}
+		return v;
+	}
+
+
+	private inline function setPixelHinting (v:Bool)
+	{
+		if (v != pixelHinting) {
+			pixelHinting = v;
 			invalidate( GraphicFlags.BORDER_CHANGED );
 		}
 		return v;

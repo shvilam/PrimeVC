@@ -29,6 +29,7 @@
 package primevc.gui.graphics.shapes;
  import primevc.core.geom.Corners;
  import primevc.gui.graphics.GraphicFlags;
+ import primevc.gui.traits.IDrawable;
 
 
 /**
@@ -47,7 +48,7 @@ class RegularRectangle extends ShapeBase
 	}
 	
 	
-	override private function drawShape (target, x, y, width, height) : Void
+	override private function drawShape (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
 	{
 #if flash9
 		if (corners == null)
