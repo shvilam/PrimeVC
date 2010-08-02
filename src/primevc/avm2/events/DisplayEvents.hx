@@ -29,8 +29,6 @@
 package primevc.avm2.events;
  import flash.display.DisplayObject;
  import flash.events.Event;
- import primevc.core.dispatcher.Signal0;
- import primevc.core.dispatcher.Signals;
  import primevc.gui.events.DisplayEvents;
 
 

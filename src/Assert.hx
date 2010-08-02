@@ -67,7 +67,7 @@ class Assert
 	{
 		#if debug
 		if (var1 != var2) {
-			trace(pos.className + "::" + pos.lineNumber+": "+var1+" should be "+var2);
+			trace(pos.className + "::" + pos.lineNumber+": "+var1+" should be "+var2+"; "+msg);
 			throw #if flash9 new Error( #end
 			"Assertion failed: " + var1 + " != " + var2+"; msg: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber
 			#if flash9 ) #end;
@@ -82,7 +82,7 @@ class Assert
 	{
 		#if debug
 		if (var1 == var2) {
-			trace(pos.className + "::" + pos.lineNumber+": "+var1+" should not be "+var2);
+			trace(pos.className + "::" + pos.lineNumber+": "+var1+" should not be "+var2+"; "+msg);
 			throw #if flash9 new Error( #end
 			"Assertion failed: " + var1 + " == " + var2+"; msg: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber
 			#if flash9 ) #end;

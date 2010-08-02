@@ -134,4 +134,53 @@ class FastArrayUtil
 	public static inline function has<T>( list:FastArray<T>, item:T ) : Bool {
 		return list.indexOf( item ) >= 0;
 	}
+	
+/*	
+	public static inline function insert<T> ( list:FastArray<T>, arg0:T, ?arg1:T, ?arg2:T, ?arg3:T, ?arg4:T, ?arg5:T, ?arg6:T, ?arg7:T, ?arg8:T, ?arg9:T, ?arg10:T, ?arg11:T )
+	{
+		list.push( arg0 );
+		
+		if (arg1 != null) {
+			list.push(arg1);
+			if (arg2 != null)
+			{
+				list.push(arg2);
+				if (arg3 != null)
+				{
+					list.push(arg3);
+					if (arg4 != null)
+					{
+						list.push(arg4);
+						if (arg5 != null)
+						{
+							list.push(arg5);
+							if (arg6 != null)
+							{
+								list.push(arg6);
+								if (arg7 != null)
+								{
+									list.push(arg7);
+									if (arg8 != null)
+									{
+										list.push(arg8);
+										if (arg9 != null)
+										{
+											list.push(arg9);
+											if (arg10 != null)
+											{
+												list.push(arg10);
+												if (arg11 != null)
+													list.push(arg11);
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	*/
 }

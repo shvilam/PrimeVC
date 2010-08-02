@@ -29,7 +29,7 @@
 package primevc.gui.layout;
  import primevc.core.dispatcher.Signal0;
  import primevc.core.IDisposable;
- import primevc.core.Number;
+ import primevc.types.Number;
 
 
 /**
@@ -87,7 +87,7 @@ class RelativeLayout implements IDisposable
 	 * Will make the center of the layout be placed at 10px right from the 
 	 * center of the parent.
 	 * 
-	 * @default		Number.NOT_SET
+	 * @default		Number.INT_NOT_SET
 	 */
 	public var hCenter		(default, setHCenter)	: Int;
 	
@@ -101,7 +101,7 @@ class RelativeLayout implements IDisposable
 	 * Will make the center of the layout be placed at 10px below the 
 	 * center of the parent.
 	 * 
-	 * @default		Number.NOT_SET
+	 * @default		Number.INT_NOT_SET
 	 */
 	public var vCenter		(default, setVCenter)	: Int;
 	
@@ -116,25 +116,25 @@ class RelativeLayout implements IDisposable
 	 * Property defines the relative left position in relation with the parent.
 	 * @example		
 	 * 		client.relative.left = 10;	//left side of client will be 10px from the left side of the parent
-	 * @default		Number.NOT_SET
+	 * @default		Number.INT_NOT_SET
 	 */
 	public var left					(default, setLeft)				: Int;
 	/**
 	 * Property defines the relative right position in relation with the parent.
 	 * @see			primevc.gui.layout.RelativeLayout#left
-	 * @default		Number.NOT_SET
+	 * @default		Number.INT_NOT_SET
 	 */
 	public var right				(default, setRight)				: Int;
 	/**
 	 * Property defines the relative top position in relation with the parent.
 	 * @see			primevc.gui.layout.RelativeLayout#left
-	 * @default		Number.NOT_SET
+	 * @default		Number.INT_NOT_SET
 	 */
 	public var top					(default, setTop)				: Int;
 	/**
 	 * Property defines the relative bottom position in relation with the parent.
 	 * @see			primevc.gui.layout.RelativeLayout#left
-	 * @default		Number.NOT_SET
+	 * @default		Number.INT_NOT_SET
 	 */
 	public var bottom				(default, setBottom)			: Int;
 	
@@ -142,12 +142,12 @@ class RelativeLayout implements IDisposable
 	public function new ( top:Int = -100000, right:Int = -100000, bottom:Int = -100000, left:Int = -100000 )
 	{
 		this.changed	= new Signal0();
-		this.hCenter	= Number.NOT_SET;
-		this.vCenter	= Number.NOT_SET;
-		this.top		= (top == -100000)		? Number.NOT_SET : top;
-		this.right		= (right == -100000)	? Number.NOT_SET : right;
-		this.bottom		= (bottom == -100000)	? Number.NOT_SET : bottom;
-		this.left		= (left == -100000)		? Number.NOT_SET : left;
+		this.hCenter	= Number.INT_NOT_SET;
+		this.vCenter	= Number.INT_NOT_SET;
+		this.top		= (top == -100000)		? Number.INT_NOT_SET : top;
+		this.right		= (right == -100000)	? Number.INT_NOT_SET : right;
+		this.bottom		= (bottom == -100000)	? Number.INT_NOT_SET : bottom;
+		this.left		= (left == -100000)		? Number.INT_NOT_SET : left;
 	}
 	
 	
@@ -165,8 +165,8 @@ class RelativeLayout implements IDisposable
 	
 	private function setHCenter (v) {
 		//unset left and right
-		if (v != Number.NOT_SET)
-			left = right = Number.NOT_SET;
+		if (v != Number.INT_NOT_SET)
+			left = right = Number.INT_NOT_SET;
 		
 		if (v != hCenter) {
 			hCenter = v;
@@ -178,8 +178,8 @@ class RelativeLayout implements IDisposable
 	
 	private function setVCenter (v) {
 		//unset top and bottom
-		if (v != Number.NOT_SET)
-			top = bottom = Number.NOT_SET;
+		if (v != Number.INT_NOT_SET)
+			top = bottom = Number.INT_NOT_SET;
 		
 		if (v != vCenter) {
 			vCenter = v;
@@ -192,8 +192,8 @@ class RelativeLayout implements IDisposable
 	
 	
 	private inline function setLeft (v) {
-		if (v != Number.NOT_SET)
-			hCenter = Number.NOT_SET;
+		if (v != Number.INT_NOT_SET)
+			hCenter = Number.INT_NOT_SET;
 		
 		if (v != left) {
 			left = v;
@@ -204,8 +204,8 @@ class RelativeLayout implements IDisposable
 	}
 	
 	private inline function setRight (v) {
-		if (v != Number.NOT_SET)
-			hCenter = Number.NOT_SET;
+		if (v != Number.INT_NOT_SET)
+			hCenter = Number.INT_NOT_SET;
 		
 		if (v != right) {
 			right = v;
@@ -216,8 +216,8 @@ class RelativeLayout implements IDisposable
 	}
 	
 	private inline function setTop (v) {
-		if (v != Number.NOT_SET)
-			vCenter = Number.NOT_SET;
+		if (v != Number.INT_NOT_SET)
+			vCenter = Number.INT_NOT_SET;
 		
 		if (v != top) {
 			top = v;
@@ -228,8 +228,8 @@ class RelativeLayout implements IDisposable
 	}
 	
 	private inline function setBottom (v) {
-		if (v != Number.NOT_SET)
-			vCenter = Number.NOT_SET;
+		if (v != Number.INT_NOT_SET)
+			vCenter = Number.INT_NOT_SET;
 		
 		if (v != bottom) {
 			bottom = v;

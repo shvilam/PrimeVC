@@ -26,30 +26,21 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core;
- 
+package primevc.gui.traits;
+
 
 /**
- * Defines the min and max values of integers
- * 
- * @creation-date	Jun 17, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Jul 13, 2010
  */
-class Number 
+interface IDrawable
 {
-	//floats can actually be a lot bigger (64 bit) but this will work for now
-	public static inline var FLOAT_MIN:Float	= -2147483648;
-	public static inline var FLOAT_MAX:Float	=  2147483647;
-	
-	public static inline var INT_MIN:Int		= -2147483648;
-	public static inline var INT_MAX:Int		=  2147483647;
-	
-	public static inline var UINT_MIN:UInt		=  0;
-	public static inline var UINT_MAX:UInt		=  -1; //4294967295;		//<-- not working, since value is seen as Float
+#if flash9
+	var graphics (default,null) : flash.display.Graphics;
+#end
 	
 	/**
-	 * Value defining an undefined Int. Is needed since there's no value like
-	 * Math.NaN for integers..
+	 * Method to render the graphics in this object.
 	 */
-	public static inline var NOT_SET:Int		=  -2147483648;
+	function render () : Void;
 }

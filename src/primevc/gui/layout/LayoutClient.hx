@@ -32,7 +32,7 @@ package primevc.gui.layout;
  import primevc.core.geom.constraints.ConstrainedRect;
  import primevc.core.geom.constraints.SizeConstraint;
  import primevc.core.states.SimpleStateMachine;
- import primevc.core.Number;
+ import primevc.types.Number;
  import primevc.gui.events.LayoutEvents;
  import primevc.gui.states.LayoutStates;
   using primevc.utils.Bind;

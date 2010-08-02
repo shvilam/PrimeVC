@@ -26,21 +26,56 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics;
+package primevc.gui.graphics.fills;
+ import primevc.core.geom.IRectangle;
+ import primevc.gui.graphics.GraphicElement;
+ import primevc.gui.graphics.GraphicFlags;
+ import primevc.gui.traits.IDrawable;
+ import primevc.types.RGBA;
+  using primevc.utils.Color;
 
 
 /**
+ * Solid fill for a graphic element
+ * 
  * @author Ruben Weijers
- * @creation-date Jul 13, 2010
+ * @creation-date Jul 30, 2010
  */
-interface IDrawable
+class SolidFill extends GraphicElement, implements IFill
 {
-#if flash9
-	var graphics (default,null) : flash.display.Graphics;
-#end
+	public var color (default, setColor)	: RGBA;
 	
-	/**
-	 * Method to render the graphics in this object.
-	 */
-	function render () : Void;
+	
+	public function new ( color:RGBA )
+	{
+		super();
+		this.color = color;
+	}
+	
+	
+	public inline function begin (target:IDrawable, ?bounds:IRectangle)
+	{
+		changes = 0;
+#if flash9
+		target.graphics.beginFill( color.rgb(), color.alpha() );
+#end
+	}
+	
+	
+	public inline function end (target:IDrawable)
+	{
+#if flash9
+		target.graphics.endFill();
+#end
+	}
+	
+	
+	private inline function setColor (v:RGBA)
+	{
+		if (color != v) {
+			this.color = v;
+			invalidate( GraphicFlags.FILL_CHANGED );
+		}
+		return v;
+	}
 }

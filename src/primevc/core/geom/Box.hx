@@ -33,12 +33,13 @@ package primevc.core.geom;
  * @since	mar 22, 2010
  * @author	Ruben Weijers
  */
-class Box implements IRectangle
+class Box implements IBox
 {
 	public var left		(getLeft, setLeft)		: Int;
 	public var right	(getRight, setRight)	: Int;
 	public var top		(getTop, setTop)		: Int;
 	public var bottom	(getBottom, setBottom)	: Int;
+	
 	
 	public function new ( top:Int = 0, right:Int = -100, bottom:Int = -100, left:Int = -100 )
 	{
@@ -47,6 +48,12 @@ class Box implements IRectangle
 		this.bottom	= (bottom == -100) ? this.top : bottom;
 		this.left	= (left == -100) ? this.right : left;
 	}
+	
+	
+	public function clone () : IBox {
+		return new Box( top, right, bottom, left );
+	}
+	
 	
 	public function toString ()
 	{
