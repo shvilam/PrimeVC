@@ -28,8 +28,17 @@ package cases;
  import primevc.gui.events.DragEvents;
  import primevc.gui.events.DropTargetEvents;
  import primevc.gui.events.MouseEvents;
+ import primevc.gui.graphics.borders.BitmapBorder;
+ import primevc.gui.graphics.borders.GradientBorder;
  import primevc.gui.graphics.borders.SolidBorder;
+ import primevc.gui.graphics.fills.BitmapFill;
+ import primevc.gui.graphics.fills.ComposedFill;
  import primevc.gui.graphics.fills.SolidFill;
+ import primevc.gui.graphics.shapes.Circle;
+ import primevc.gui.graphics.shapes.ComposedShape;
+ import primevc.gui.graphics.shapes.Ellipse;
+ import primevc.gui.graphics.shapes.Line;
+ import primevc.gui.graphics.shapes.Triangle;
  import primevc.gui.graphics.shapes.RegularRectangle;
  import primevc.gui.layout.algorithms.circle.HorizontalCircleAlgorithm;
  import primevc.gui.layout.algorithms.circle.VerticalCircleAlgorithm;
@@ -49,6 +58,7 @@ package cases;
  import primevc.gui.layout.VirtualLayoutContainer;
  import primevc.utils.Color;
   using primevc.utils.Bind;
+  using primevc.utils.Color;
   using primevc.utils.TypeUtil;
 
 /**
@@ -275,7 +285,8 @@ class Button extends Skin < Tile >
 	
 	override public function render ()
 	{
-		var g		 = graphics;
+	//	trace("color: "+color);
+		var g = graphics;
 		g.clear();
 		graphic.draw(this);
 	}
@@ -295,7 +306,6 @@ class Button extends Skin < Tile >
 	override private function createLayout ()
 	{
 		layout	= new LayoutClient(20, 20);
-		createGraphics();
 	}
 	
 	
@@ -308,6 +318,7 @@ class Button extends Skin < Tile >
 #if (debug && flash9)
 	override private function createChildren ()
 	{
+		createGraphics();
 		textField = new TextField();
 		textField.text = ""+num;
 		textField.autoSize = flash.text.TextFieldAutoSize.LEFT;
@@ -328,10 +339,10 @@ class Tile extends Button, implements IDraggable
 	
 	
 	public function new (?dynamicSize = false)
-	{		
-		color = Color.random();
+	{
 		this.dynamicSize = dynamicSize;
 		super();
+		color = Color.random();
 #if debug
 		id = "tile" + num;
 #end

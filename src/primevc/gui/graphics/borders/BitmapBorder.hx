@@ -44,7 +44,7 @@ class BitmapBorder extends BorderBase < BitmapFill >
 	{
 		changes = 0;
 #if flash10
-		target.graphics.lineStyle( weight, 0, 1, pixelHinting, LineScaleMode.NORMAL, caps, joint );
+		target.graphics.lineStyle( weight, 0, 1, pixelHinting, flash.display.LineScaleMode.NORMAL, caps, joint );
 		target.graphics.lineBitmapStyle( fill.bitmap.data, fill.matrix, fill.repeat, fill.smooth );
 #end
 	}

@@ -44,7 +44,7 @@ class Color
 	/**
 	 * Returns a random color with an alpha value that is always 0xFF
 	 */
-	public static inline function random () : RGBA						{ return (Math.random() * WHITE).int() | RGBAUtil.ALPHA_MASK; }
+	public static inline function random () : RGBA						{ return RGBAUtil.ALPHA_MASK | ((Math.random() * WHITE).int() << 8); }
 
 	/**
 	 * Blends to RGBA colors together.

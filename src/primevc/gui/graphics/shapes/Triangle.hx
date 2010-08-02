@@ -30,6 +30,8 @@ package primevc.gui.graphics.shapes;
  import primevc.core.geom.IntPoint;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.traits.IDrawable;
+  using primevc.utils.FastArray;
+  using Std;
 
 
 /**
@@ -40,27 +42,31 @@ class Triangle extends ShapeBase
 {
 	public var direction (default, setDirection)	: TriangleDirection;
 	
+	private var a		: IntPoint; 
+	private var b		: IntPoint;
+	private var c		: IntPoint;
+	
 	
 	public function new (?layout, ?fill, ?border, ?direction:TriangleDirection)
 	{
 		super(layout, fill, border);
 		this.direction = direction;
+		a = new IntPoint();
+		b = new IntPoint();
+		c = new IntPoint();
 	}
 	
 	
 	override private function drawShape (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
 	{
 #if flash9
-		var a:IntPoint = new IntPoint(), 
-			b:IntPoint = new IntPoint(), 
-			c:IntPoint = new IntPoint();
-		
+		var a = a, b = b, c = c;
 		switch (direction) {
 			case LeftCenter:
 				a.x = x + width;
 				a.y = y;
 				b.x = x;
-				b.y = (y + height) * .5;
+				b.y = ((y + height) * .5).int();
 				c.x = a.x;
 				c.y = y + height;
 		
@@ -68,7 +74,7 @@ class Triangle extends ShapeBase
 				a.x = x;
 				a.y = y;
 				b.x = x + width;
-				b.y = (y + height) * .5;
+				b.y = ((y + height) * .5).int();
 				c.x = x;
 				c.y = y + height;
 		
@@ -77,13 +83,13 @@ class Triangle extends ShapeBase
 				a.y = y;
 				b.x = x + width;
 				b.y = y;
-				c.x = (x + width) * .5;
+				c.x = ((x + width) * .5).int();
 				c.y = y + height;
 		
 			case TopCenter:
 				a.x = x;
 				a.y = height;
-				b.x = (x + width) * .5;
+				b.x = ((x + width) * .5).int();
 				b.y = y;
 				c.x = x + width;
 				c.y = y + height;
@@ -121,9 +127,11 @@ class Triangle extends ShapeBase
 				c.y = y + height;
 		}
 		
-	#if flash10
-		target.graphics.drawTriangles( new flash.Vector<Float>( a.x, a.y, b.x, b.y, c.x, c.y ) );
-	#else
+//	#if flash10
+	//	var vertices : flash.Vector<Float> = [a.x, a.y];
+	//	vertices.insert( cast a.x, cast a.y, cast b.x, cast b.y, cast c.x, cast c.y );
+	//	target.graphics.drawTriangles( vertices );
+	#if flash9
 		target.graphics.moveTo( a.x, a.y );
 		target.graphics.lineTo( b.x, b.y );
 		target.graphics.lineTo( c.x, c.y );

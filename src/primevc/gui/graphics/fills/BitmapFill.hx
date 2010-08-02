@@ -33,6 +33,7 @@ package primevc.gui.graphics.fills;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.traits.IDrawable;
  import primevc.types.Bitmap;
+  using primevc.utils.Bind;
 
 
 /**
@@ -142,7 +143,7 @@ class BitmapFill extends GraphicElement, implements IFill
 	{
 		changes = 0;
 		
-		if (bitmap.state.is(BitmapState.loaded))
+		if (bitmap.state.is(BitmapStates.loaded))
 		{
 #if flash9
 			target.graphics.beginBitmapFill( bitmap.data, matrix, repeat, smooth );
@@ -153,7 +154,7 @@ class BitmapFill extends GraphicElement, implements IFill
 	
 	public inline function end (target:IDrawable)
 	{
-		if (bitmap.state.is(BitmapState.loaded))
+		if (bitmap.state.is(BitmapStates.loaded))
 		{
 #if flash9
 			target.graphics.endFill();

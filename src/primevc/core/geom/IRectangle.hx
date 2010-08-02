@@ -27,17 +27,14 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.geom;
- import primevc.core.traits.IClonable;
 
 
 /**
  * @author Ruben Weijers
  * @creation-date Jul 25, 2010
  */
-interface IRectangle implements IClonable <IRectangle>
+interface IRectangle implements IBox
 {
-	public var left		(getLeft, setLeft)		: Int;
-	public var right	(getRight, setRight)	: Int;
-	public var top		(getTop, setTop)		: Int;
-	public var bottom	(getBottom, setBottom)	: Int;
+	public var width	(getWidth, setWidth)	: Int;
+	public var height	(getHeight, setHeight)	: Int;
 }

@@ -42,7 +42,7 @@ package primevc.core.geom;
  * @creation-date	Jun 21, 2010
  * @author			Ruben Weijers
  */
-class BindableBox implements IRectangle, implements IDisposable
+class BindableBox implements IBox, implements IDisposable
 {
 	public var top			(getTop, setTop)		: Int;
 	public var bottom		(getBottom, setBottom)	: Int;
@@ -78,7 +78,7 @@ class BindableBox implements IRectangle, implements IDisposable
 	}
 	
 	
-	public function clone () : IRectangle
+	public function clone () : IBox
 	{
 		return new BindableBox( top, right, bottom, left );
 	}

@@ -39,6 +39,6 @@ package primevc.utils;
 class RectangleUtil
 {
 	public static inline function isEqualTo (r1:IRectangle, r2:IRectangle) : Bool {
-		return r1.x != r2.x || r1.y != r2.y || r1.width != r2.width || r1.height != r2.height;
+		return r1.left != r2.left || r1.top != r2.top || r1.right != r2.right || r1.bottom != r2.bottom;
 	}
 }

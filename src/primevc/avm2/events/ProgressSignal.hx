@@ -73,3 +73,4 @@ class ProgressSignal extends Signal2<UInt, UInt>, implements IWireWatcher < Prog
 	private function dispatch(e:ProgressEvent) {
 		send(e.bytesLoaded, e.bytesTotal);
 	}
+}

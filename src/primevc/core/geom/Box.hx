@@ -33,7 +33,7 @@ package primevc.core.geom;
  * @since	mar 22, 2010
  * @author	Ruben Weijers
  */
-class Box implements IRectangle
+class Box implements IBox
 {
 	public var left		(getLeft, setLeft)		: Int;
 	public var right	(getRight, setRight)	: Int;
@@ -50,7 +50,7 @@ class Box implements IRectangle
 	}
 	
 	
-	public function clone () : IRectangle {
+	public function clone () : IBox {
 		return new Box( top, right, bottom, left );
 	}
 	

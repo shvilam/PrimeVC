@@ -33,9 +33,17 @@ package primevc.gui.graphics.fills;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.traits.IDrawable;
  import primevc.utils.FastArray;
+  using primevc.utils.Color;
   using primevc.utils.FastArray;
   using primevc.utils.RectangleUtil;
   using primevc.utils.Formulas;
+  using primevc.utils.TypeUtil;
+
+#if flash9
+ import flash.display.InterpolationMethod;
+
+typedef FlashGradientType = flash.display.GradientType;
+#end
 
 
 /**
@@ -44,11 +52,11 @@ package primevc.gui.graphics.fills;
  * @author Ruben Weijers
  * @creation-date Jul 30, 2010
  */
-class GradientFill implements IFill 
+class GradientFill extends GraphicElement, implements IFill 
 {
-	public var fills			(default, null)			: FastArray <GradientStop>;
+	public var gradientStops	(default, null)			: FastArray <GradientStop>;
 	public var type				(default, setType)		: GradientType;
-	public var spread			(default, setSpread		: SpreadMethod;
+	public var spread			(default, setSpread)	: SpreadMethod;
 	public var focalPointRatio	(default, setFocalP)	: Float;
 	
 	/**
@@ -60,24 +68,24 @@ class GradientFill implements IFill
 	private var lastMatrix		: Matrix2D;
 	
 	
-	public function new (type:GradientType = lineair, spread:SpreadMethod = normal, focalPointRatio:Float = 0)
+	public function new (type:GradientType = null, spread:SpreadMethod = null, focalPointRatio:Float = 0)
 	{
 		super();
-		this.type				= type;
-		this.spread				= spread;
+		this.type				= type == null ? GradientType.linear : type;
+		this.spread				= spread == null ? SpreadMethod.normal : spread;
 		this.focalPointRatio	= focalPointRatio;
-		fills					= FastArrayUtil.create();
+		gradientStops			= FastArrayUtil.create();
 	}
 	
 	
 	override public function dispose ()
 	{
-		for (fill in fills)
+		for (fill in gradientStops)
 			fill.dispose();
 		
-		fills		= null;
-		lastBounds	= null;
-		lastMatrix	= null;
+		gradientStops	= null;
+		lastBounds		= null;
+		lastMatrix		= null;
 		
 		super.dispose();
 	}
@@ -91,7 +99,7 @@ class GradientFill implements IFill
 	private inline function setRotation ( v:Int )
 	{
 		if (v != rotation) {
-			matrix		= null;
+			lastMatrix	= null;
 			rotation	= v;
 			invalidate( GraphicFlags.FILL_CHANGED );
 		}
@@ -137,24 +145,24 @@ class GradientFill implements IFill
 	
 	public inline function begin (target:IDrawable, ?bounds:IRectangle)
 	{
-		Assert.that( fills.length >= 2, "There should be at least be two fills in an gradient.");
+		Assert.that( gradientStops.length >= 2, "There should be at least be two fills in an gradient.");
 			
 #if flash9
 		if (lastMatrix == null || bounds != lastBounds || !bounds.isEqualTo(lastBounds))
-			lastMatrix = createMatrix();
+			lastMatrix = createMatrix(bounds);
 		
 		//TODO: MORE EFFICIENT TO CACHE THIS? MEMORY vs. SPEED
 		var colors	= new Array();
 		var alphas	= new Array();
 		var ratios	= new Array();
 		
-		for (fill in fills) {
+		for (fill in gradientStops) {
 			colors.push( fill.color.rgb() );
 			alphas.push( fill.color.alpha() );
 			ratios.push( fill.position );
 		}
 		
-		target.graphics.beginGradientFill( getFlashType(), colors, alphas, ratios, lastMatrix, getSpreadMethod(), "rgb",  );
+		target.graphics.beginGradientFill( getFlashType(), colors, alphas, ratios, lastMatrix, getSpreadMethod(), InterpolationMethod.RGB, focalPointRatio  );
 #end
 	}
 	
@@ -171,13 +179,15 @@ class GradientFill implements IFill
 	{
 		var m = new Matrix2D();
 		m.createGradientBox( bounds.width, bounds.height, rotation.degreesToRadians() );
-		lastBounds = bounds.clone();
+		lastBounds = bounds.clone().as(IRectangle);
 		return m;
 	}
 	
-	
-	public inline function getFlashType () {
-		return type == lineair ? flash.display.GradientType.LINEAR : flash.display.GradientType.RADIAL;
+
+#if flash9
+	public inline function getFlashType () : FlashGradientType
+	{
+		return (type == GradientType.linear) ? FlashGradientType.LINEAR : FlashGradientType.RADIAL;
 	}
 	
 	public inline function getSpreadMethod () {
@@ -187,6 +197,7 @@ class GradientFill implements IFill
 			case repeat:	flash.display.SpreadMethod.REPEAT;
 		}
 	}
+#end
 	
 	
 	
@@ -196,15 +207,16 @@ class GradientFill implements IFill
 	
 	public inline function add ( fill:GradientStop, depth:Int = -1 )
 	{
-		fills.insertAt( fill, depth );
-		fill.parent = this;
+		gradientStops.insertAt( fill, depth );
+		fill.listeners.add(this);
 		invalidate( GraphicFlags.FILL_CHANGED );
 	}
 	
 	
 	public inline function remove ( fill:GradientStop )
 	{
-		fills.remove(fill);
+		gradientStops.remove(fill);
+		fill.listeners.remove(this);
 		fill.dispose();
 		invalidate( GraphicFlags.FILL_CHANGED );
 	}

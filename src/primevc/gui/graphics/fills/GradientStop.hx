@@ -56,7 +56,7 @@ class GradientStop extends GraphicElement
 	{
 		if (v != color) {
 			color = v;
-			invalidate( GraphicFlags.COLOR_CHANGED );
+			invalidate( GraphicFlags.FILL_CHANGED );
 		}
 		return v;
 	}
@@ -66,7 +66,7 @@ class GradientStop extends GraphicElement
 	{
 		if (v != position) {
 			position = v;
-			invalidate( GraphicFlags.GRADIENT_POSITION_CHANGED );
+			invalidate( GraphicFlags.FILL_CHANGED );
 		}
 		return v;
 	}

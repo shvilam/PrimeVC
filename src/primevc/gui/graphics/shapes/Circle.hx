@@ -41,7 +41,7 @@ class Circle extends ShapeBase
 {
 	override private function drawShape (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
 	{
-		var radius = Formulas.getRadius( width, height );
+		var radius = Formulas.getCircleRadius( width, height );
 #if flash9
 		target.graphics.drawCircle(x, y, radius);
 #end

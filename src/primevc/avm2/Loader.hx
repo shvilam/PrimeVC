@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.avm2;
+ import flash.net.URLRequest;
  import flash.utils.ByteArray;
  import primevc.avm2.events.LoaderEvents;
  import primevc.core.IDisposable;
@@ -66,6 +67,12 @@ class Loader implements IDisposable
 	}
 	
 	
+	public inline function load (v:URLRequest)		{ return loader.load(v); }
+	public inline function unload ()				{ return loader.unload(); }
+	public inline function close ()					{ return loader.close(); }
+	
+	
+	
 	//
 	// GETTERS / SETTERS
 	//
@@ -73,7 +80,7 @@ class Loader implements IDisposable
 	private inline function getBytes ()				{ return loader.contentLoaderInfo.bytes; }
 	private inline function getBytesLoaded ()		{ return loader.contentLoaderInfo.bytesLoaded; }
 	private inline function getBytesTotal ()		{ return loader.contentLoaderInfo.bytesTotal; }
-	private inline function getContent ()			{ return loader.contentLoaderInfo.content; }
+	private inline function getContent ()			{ return cast loader.contentLoaderInfo.content; }
 	
 	private inline function getIsLoaded () {
 		return bytesTotal > 0 && bytesLoaded >= bytesTotal;

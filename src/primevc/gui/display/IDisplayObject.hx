@@ -38,6 +38,7 @@ package primevc.gui.display;
  * @author			Ruben Weijers
  */
 interface IDisplayObject implements IDisplayable
+	#if flash9 ,implements flash.display.IBitmapDrawable #end
 {
 	/**
 	 * Reference to the object in which this displayobject is placed. It 

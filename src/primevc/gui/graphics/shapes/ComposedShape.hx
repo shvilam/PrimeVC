@@ -81,13 +81,14 @@ class ComposedShape extends ShapeBase
 	public inline function add ( child:IShape, depth:Int = -1 )
 	{
 		children.insertAt( child, depth );
-		child.parent = this;
+		child.listeners.add(this);
 		invalidate( GraphicFlags.SHAPE_CHANGED );
 	}
 
 
 	public inline function remove ( child:IShape )
 	{
+		child.listeners.add(this);
 		children.remove(child);
 		invalidate( GraphicFlags.SHAPE_CHANGED );
 	}
