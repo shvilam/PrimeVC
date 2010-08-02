@@ -26,22 +26,36 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.display;
- import primevc.gui.events.UserEvents;
+package primevc.gui.graphics.shapes;
+ import primevc.gui.graphics.borders.IBorder;
+ import primevc.gui.graphics.fills.IFill;
+ import primevc.gui.graphics.IGraphicElement;
+ import primevc.gui.layout.LayoutClient;
+ import primevc.gui.traits.IDrawable;
 
 
-interface IInteractiveObject
+/**
+ * @author Ruben Weijers
+ * @creation-date Jul 31, 2010
+ */
+interface IShape implements IGraphicElement
 {
-	var userEvents		(default, null)				: UserEvents;
+	public var fill		(default, setFill)		: IFill;
+	public var border	(default, setBorder)	: IBorder <IFill>;
+	public var layout	(default, setLayout)	: LayoutClient;
 	
-#if flash9
 	
-	var doubleClickEnabled							: Bool;
-	var mouseEnabled								: Bool;
-	var tabEnabled									: Bool;
-	var tabIndex									: Int;
-	
-#else
-	var mouseEnabled	(default, setEnabled)		: Bool;
-#end
+	/**
+	* @param	target
+	* target in which the shape will be drawn
+	* 
+	* @param	useCoordinates
+	 * Flag indicating if the draw method should also use the coordinates of the
+	 * layoutclient.
+	 * 
+	 * If a shape is directly drawn into a IDrawable element, this is not the 
+	 * case. If a shape is part of a composition of shapes, then the shape 
+	 * should respect the coordinates of the LayoutClient.
+	 */
+	public function draw (target:IDrawable, ?useCoordinates:Bool = false) : Void;
 }

@@ -3,7 +3,7 @@ package cases;
  import primevc.core.geom.BindableBox;
  import primevc.core.geom.constraints.SizeConstraint;
  import primevc.core.geom.RangedFloat;
- import primevc.core.Number;
+ import primevc.types.Number;
  import primevc.gui.events.LayoutEvents;
  import primevc.gui.layout.LayoutClient;
   using primevc.utils.BitUtil;

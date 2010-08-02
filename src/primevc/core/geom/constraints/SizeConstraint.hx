@@ -28,7 +28,7 @@
  */
 package primevc.core.geom.constraints;
  import primevc.core.IDisposable;
- import primevc.core.Number;
+ import primevc.types.Number;
  
 
 /**

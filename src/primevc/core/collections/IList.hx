@@ -28,7 +28,7 @@
  */
 package primevc.core.collections;
  import primevc.core.events.ListEvents;
- import primevc.core.IClonable;
+ import primevc.core.traits.IClonable;
  import primevc.core.IDisposable;
  
 

@@ -58,6 +58,11 @@ class BindablePoint extends IntPoint, implements IDisposable
 	}
 	
 	
+	override public function clone () : IntPoint {
+		return new BindablePoint( x, y );
+	}
+	
+	
 	override private function getX ()	{ return xProp.value; }
 	override private function setX (v)	{ return xProp.value = v; }
 	override private function getY ()	{ return yProp.value; }

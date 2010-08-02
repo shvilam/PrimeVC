@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout;
-import primevc.core.Number;
+import primevc.types.Number;
  
 
 /**
@@ -41,19 +41,19 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	public function new (newWidth:Int = 0, newHeight:Int = 0, validateOnPropertyChange = false)
 	{
 		super(newWidth, newHeight, validateOnPropertyChange);
-		explicitWidth	= newWidth > 0 ? newWidth : Number.NOT_SET;
-		explicitHeight	= newHeight > 0 ? newHeight : Number.NOT_SET;
-		measuredWidth	= Number.NOT_SET;
-		measuredHeight	= Number.NOT_SET;
+		explicitWidth	= newWidth > 0 ? newWidth : Number.INT_NOT_SET;
+		explicitHeight	= newHeight > 0 ? newHeight : Number.INT_NOT_SET;
+		measuredWidth	= Number.INT_NOT_SET;
+		measuredHeight	= Number.INT_NOT_SET;
 	}
 	
 	
 	override private function resetProperties () : Void
 	{
-		explicitWidth	= Number.NOT_SET;
-		explicitHeight	= Number.NOT_SET;
-		measuredWidth	= Number.NOT_SET;
-		measuredHeight	= Number.NOT_SET;
+		explicitWidth	= Number.INT_NOT_SET;
+		explicitHeight	= Number.INT_NOT_SET;
+		measuredWidth	= Number.INT_NOT_SET;
+		measuredHeight	= Number.INT_NOT_SET;
 		
 		super.resetProperties();
 	}
@@ -80,7 +80,7 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	{
 		if (explicitWidth != v) {
 			explicitWidth = v;
-			if (v != Number.NOT_SET)
+			if (v != Number.INT_NOT_SET)
 				explicitWidth = width = v;		//setWidth can trigger a size constraint..
 		}
 		return explicitWidth;
@@ -91,7 +91,7 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	{
 		if (explicitHeight != v) {
 			explicitHeight = v;
-			if (v != Number.NOT_SET)
+			if (v != Number.INT_NOT_SET)
 				explicitHeight = height = v;	//setHeight can trigger a size constraint
 		}
 		return explicitHeight;
@@ -102,7 +102,7 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	{
 		if (measuredWidth != v) {
 			measuredWidth = v;
-			if (explicitWidth == Number.NOT_SET)
+			if (explicitWidth == Number.INT_NOT_SET)
 				measuredWidth = width = v;		//setWidth can trigger a size constraint..
 		}
 		return measuredWidth;
@@ -113,7 +113,7 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	{
 		if (measuredHeight != v) {
 			measuredHeight = v;
-			if (explicitHeight == Number.NOT_SET)
+			if (explicitHeight == Number.INT_NOT_SET)
 				measuredHeight = height = v;	//setHeight can trigger a size constraint
 		}
 		return measuredHeight;

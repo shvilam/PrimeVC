@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.geom;
- import primevc.core.IClonable;
+ import primevc.core.traits.IClonable;
  
 
 /**

@@ -29,7 +29,7 @@
 package primevc.core.geom;
  import primevc.core.Bindable;
  import primevc.core.IDisposable;
- import primevc.core.Number;
+ import primevc.types.Number;
 
 
 /**
@@ -42,7 +42,7 @@ package primevc.core.geom;
  * @creation-date	Jun 21, 2010
  * @author			Ruben Weijers
  */
-class BindableBox implements IRectangle, implements IDisposable
+class BindableBox implements IBox, implements IDisposable
 {
 	public var top			(getTop, setTop)		: Int;
 	public var bottom		(getBottom, setBottom)	: Int;
@@ -75,6 +75,12 @@ class BindableBox implements IRectangle, implements IDisposable
 		bottomProp.dispose();
 		
 		leftProp = rightProp = topProp = bottomProp = null;
+	}
+	
+	
+	public function clone () : IBox
+	{
+		return new BindableBox( top, right, bottom, left );
 	}
 	
 	

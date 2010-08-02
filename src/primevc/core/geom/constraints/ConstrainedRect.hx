@@ -29,6 +29,7 @@
 package primevc.core.geom.constraints;
  import primevc.core.geom.BindableBox;
  import primevc.core.geom.BindablePoint;
+ import primevc.core.geom.IRectangle;
   using primevc.utils.Bind;
 
 
@@ -45,7 +46,7 @@ package primevc.core.geom.constraints;
  * @creation-date	Jun 21, 2010
  * @author			Ruben Weijers
  */
-class ConstrainedRect extends BindableBox
+class ConstrainedRect extends BindableBox, implements IRectangle
 {
 	public var constraint		(default, setConstraint)		: BindableBox;
 	

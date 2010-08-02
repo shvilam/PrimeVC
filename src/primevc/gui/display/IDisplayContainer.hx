@@ -27,59 +27,15 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.display;
-#if flash9
- import flash.display.DisplayObject;
-#end
+ import primevc.gui.traits.IInteractive;
 
 
 /**
  * @author Ruben Weijers
  * @creation-date Jul 13, 2010
  */
-interface IDisplayContainer implements IInteractiveObject
+interface IDisplayContainer implements IInteractive
 {
 	var children	(default, null)			: DisplayList;
 	var window		(default, setWindow)	: Window;
 }
-/*	
-	function swapChildrenAt (index1:Int, index2:Int)					: Void;
-	
-#if flash9
-	
-	var mouseChildren		(default, default)							: Bool;
-	var tabChildren			(default, default)							: Bool;
-	var numChildren			(default,null)								: Int;
-	
-	function addChild (child:DisplayObject)								: DisplayObject;
-	function addChildAt (child:DisplayObject, index:Int)				: DisplayObject;
-	
-	function contains (child:DisplayObject)								: Bool;
-	function getChildAt (index:Int)										: DisplayObject;
-	function getChildIndex (child:DisplayObject)						: Int;
-	
-	function removeChild (child:DisplayObject)							: DisplayObject;
-	function removeChildAt (index:Int)									: DisplayObject;
-	
-	function setChildIndex (child:DisplayObject, index:Int)				: Void;
-	
-	function swapChildren (child1:DisplayObject, child2:DisplayObject)	: Void;
-	
-#else
-	
-	var numChildren		(getNumChildren, never)							: Int;
-	
-	function addChild(child:ISprite)									: ISprite;
-	function addChildAt(child:ISprite, depth:Int)						: ISprite;
-	
-	function contains (child:ISprite)									: Bool;
-	function getChildAt (index:Int)										: ISprite;
-	function getChildIndex(child:ISprite)								: Int;
-	
-	function swapChildren(a:ISprite, b:ISprite)							: Void;
-	
-	function setChildIndex (child:DisplayObject, index:Int)				: Void;
-	
-	function removeChild (child:ISprite)								: ISprite;
-	function removeChildAt (index:Int)									: ISprite;
-}
-#end*/

@@ -37,7 +37,7 @@ typedef Sprite =
 	#if		flash9	primevc.avm2.Sprite;
 	#elseif	flash8	primevc.avm1.Sprite;
 	#elseif	js		primevc.js  .Sprite;
-	#else			SpriteImpl
+	#else			SpriteImpl;
 
 
  import primevc.gui.events.DisplayEvents;

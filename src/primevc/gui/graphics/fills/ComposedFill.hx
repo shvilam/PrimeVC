@@ -26,14 +26,83 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core;
+package primevc.gui.graphics.fills;
+ import primevc.core.geom.IRectangle;
+ import primevc.gui.graphics.GraphicElement;
+ import primevc.gui.graphics.GraphicFlags;
+ import primevc.gui.traits.IDrawable;
+ import primevc.utils.FastArray;
+  using primevc.utils.FastArray;
+
 
 
 /**
+ * A composed-fill is a fill that exists of multiple other fills so that a shape
+ * can be filled multiple times in one render cycle.
+ * 
  * @author Ruben Weijers
- * @creation-date Jul 26, 2010
+ * @creation-date Jul 31, 2010
  */
-interface IClonable <ClassType>
+class ComposedFill extends GraphicElement, implements IFill 
 {
-	public function clone () : ClassType;
+	public var fills	(default, null)		: FastArray <IFill>;
+	
+	
+	public function new ()
+	{
+		super();
+		fills = FastArrayUtil.create();
+	}
+	
+	
+	override public function dispose ()
+	{
+		for (fill in fills)
+			fill.dispose();
+		
+		fills = null;
+		super.dispose();
+	}
+	
+	
+	//
+	// IFILL METHODS
+	//
+	
+	public inline function begin (target:IDrawable, ?bounds:IRectangle)
+	{
+		changes = 0;
+		for (fill in fills)
+			fill.begin(target, bounds);
+		
+	}
+	
+	
+	public inline function end (target:IDrawable)
+	{
+		for (fill in fills)
+			fill.end(target);
+	}
+	
+	
+	
+	//
+	// LIST METHODS
+	//
+
+	public inline function add ( fill:IFill, depth:Int = -1 )
+	{
+		fills.insertAt( fill, depth );
+		fill.listeners.add(this);
+		invalidate( GraphicFlags.FILL_CHANGED );
+	}
+
+
+	public inline function remove ( fill:IFill )
+	{
+		fills.remove(fill);
+		fill.listeners.remove(this);
+		fill.dispose();
+		invalidate( GraphicFlags.FILL_CHANGED );
+	}
 }

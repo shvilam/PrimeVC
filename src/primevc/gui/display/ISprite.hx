@@ -28,7 +28,8 @@
  */
 package primevc.gui.display;
  import primevc.core.geom.Matrix2D;
- import primevc.gui.graphics.IDrawable;
+ import primevc.gui.traits.IDrawable;
+ import primevc.gui.traits.IInteractive;
 
 
 /**
@@ -38,7 +39,7 @@ package primevc.gui.display;
  * @author			Ruben Weijers
  */
 interface ISprite implements IDisplayContainer, 
-	implements IInteractiveObject, 
+	implements IInteractive, 
 	implements IDisplayObject,
 	implements IDrawable
 {
