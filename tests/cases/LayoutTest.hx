@@ -378,9 +378,9 @@ class DragButton extends Button, implements IDraggable
 
 
 
-
+/*
 class DragThumb extends Skin <DragThumb>
-{	
+{ 
 	public var direction	: Direction;
 	
 	
@@ -468,7 +468,7 @@ class ScrollBar extends Skin < ScrollBar >
 	}
 }
 
-
+*/
 
 
 class Frame extends Skin < Box >
