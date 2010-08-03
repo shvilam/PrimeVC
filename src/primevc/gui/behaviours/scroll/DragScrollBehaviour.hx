@@ -31,9 +31,9 @@ package primevc.gui.behaviours.scroll;
  import primevc.core.geom.Point;
  import primevc.gui.behaviours.drag.DragHelper;
  import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.core.ISkin;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.IScrollableLayout;
+ import primevc.gui.traits.IScrollable;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
   using Math;
@@ -46,7 +46,7 @@ package primevc.gui.behaviours.scroll;
  * @author Ruben Weijers
  * @creation-date Jul 29, 2010
  */
-class DragScrollBehaviour extends BehaviourBase <ISkin>
+class DragScrollBehaviour extends BehaviourBase <IScrollable>
 {
 	private var scrollLayout	: IScrollableLayout;
 	private var lastMousePos	: Point;
@@ -56,9 +56,9 @@ class DragScrollBehaviour extends BehaviourBase <ISkin>
 	
 	override private function init ()
 	{
-		Assert.that( target.layout.is(IScrollableLayout), "target.layout of "+target+" must be a IScrollableLayout" );
+		Assert.that( target.scrollableLayout != null, "target.layout of "+target+" must be a IScrollableLayout" );
 		
-		scrollLayout	= target.layout.as(IScrollableLayout);
+		scrollLayout	= target.scrollableLayout;
 		dragHelper		= new DragHelper( target, activateScrolling, deactivateScrolling, dragAndScroll );
 		moveBinding		= dragAndScroll.on( target.window.mouse.events.move, this );
 		moveBinding.disable();

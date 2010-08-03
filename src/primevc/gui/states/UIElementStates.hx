@@ -26,26 +26,44 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.display;
- import primevc.core.geom.Matrix2D;
- import primevc.gui.traits.IDrawable;
- import primevc.gui.traits.IDisplayable;
- import primevc.gui.traits.IInteractive;
+package primevc.gui.states;
+ import primevc.core.states.AutoFiniteStateMachine;
+ import primevc.core.states.IState;
 
 
 /**
- * Sprite interface for every platform.
- *
- * @creation-date	Jun 11, 2010
- * @author			Ruben Weijers
+ * States that describe what a UIElement has done and is doing
+ * 
+ * @author Ruben Weijers
+ * @creation-date Jun 07, 2010
  */
-interface ISprite 
-		implements IDisplayContainer
-	,	implements IInteractive
-	,	implements IDisplayable
+class UIElementStates extends AutoFiniteStateMachine
 {
-#if flash9
-	var buttonMode														: Bool;
-	var useHandCursor													: Bool;
-#end
+	/**
+	 * Default state when the component hasn't done anything.
+	 */
+	public var empty		: IState;
+	/**
+	 * Component is constructed when:
+	 *  - states are created
+	 *  - behaviours are created
+	 */
+	public var constructed	: IState;
+	/**
+	 * Component is initialized when:
+	 *  - skin is created
+	 *  - children are created
+	 */
+	public var initialized	: IState;
+	/**
+	 * State is set when the component is disposed.
+	 */
+	public var disposed		: IState;
+	
+	
+	public function new ()
+	{
+		super();
+		defaultState = empty;
+	}
 }

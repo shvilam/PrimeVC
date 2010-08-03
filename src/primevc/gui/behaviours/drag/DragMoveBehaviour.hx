@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.drag;
- import primevc.gui.core.ISkin;
+ import primevc.gui.traits.ILayoutable;
  import primevc.gui.events.MouseEvents;
   using primevc.utils.TypeUtil;
 
@@ -46,8 +46,8 @@ class DragMoveBehaviour extends DragBehaviourBase
 	{
 		dragSource = new DragSource(target);
 		
-		if (target.is(ISkin))
-			target.as(ISkin).layout.includeInLayout = false;
+		if (target.is(ILayoutable))
+			target.as(ILayoutable).layout.includeInLayout = false;
 		
 		//start dragging and fire events
 		target.startDrag( false, dragBounds );
@@ -58,8 +58,8 @@ class DragMoveBehaviour extends DragBehaviourBase
 	override private function stopDrag (mouseObj:MouseState) : Void
 	{
 		super.stopDrag(mouseObj);
-		if (target.is(ISkin))
-			target.as(ISkin).layout.includeInLayout = true;
+		if (target.is(ILayoutable))
+			target.as(ILayoutable).layout.includeInLayout = true;
 	}
 	
 	
@@ -71,7 +71,7 @@ class DragMoveBehaviour extends DragBehaviourBase
 		target.y = dragSource.origPosition.y;
 		disposeDragSource();
 		
-		if (target.is(ISkin))
-			target.as(ISkin).layout.includeInLayout = true;
+		if (target.is(ILayoutable))
+			target.as(ILayoutable).layout.includeInLayout = true;
 	}
 }

@@ -29,10 +29,12 @@
 package primevc.gui.behaviours.drag;
  import primevc.core.dispatcher.Wire;
  import primevc.core.geom.Point;
- import primevc.gui.display.IDisplayObject;
  import primevc.gui.events.MouseEvents;
+ import primevc.gui.traits.IDisplayable;
+ import primevc.gui.traits.IDropTarget;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
+  using Std;
  
 
 /**
@@ -79,7 +81,7 @@ class DragDropBehaviour extends DragBehaviourBase
 		dragSource = new DragSource(target);
 #if flash9
 		//move item to correct location
-		var pos			= target.container.as(IDisplayObject).localToGlobal( dragSource.origPosition );
+		var pos			= target.container.as(IDisplayable).localToGlobal( dragSource.origPosition );
 		target.visible	= false;
 		target.window.children.add( cast target );
 		target.x		= pos.x;
@@ -100,9 +102,12 @@ class DragDropBehaviour extends DragBehaviourBase
 		if (dragSource.dropTarget != null)
 		{
 #if flash9
+			var rect	= dragSource.dragRectangle;
 			var pos		= new Point(target.x, target.y);
 			pos			= dragSource.dropTarget.globalToLocal( pos );
-			dragSource.dropPosition = pos;
+			rect.left	= pos.x.int();
+			rect.top	= pos.y.int();
+			dragSource.dropBounds = rect;
 #end
 			//notify the dragged item that the drag-operation is completed
 			target.dragEvents.complete.send(dragSource);

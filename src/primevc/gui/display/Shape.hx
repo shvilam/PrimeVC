@@ -39,6 +39,7 @@ typedef Shape =
 
  import primevc.core.geom.Matrix2D;
  import primevc.gui.events.DisplayEvents;
+ import primevc.gui.traits.IDisplayable;
 
 
 /**
@@ -47,7 +48,7 @@ typedef Shape =
  * @creation-date	Jun 14, 2010
  * @author			Ruben Weijers
  */
-class ShapeImpl implements IShape
+class ShapeImpl implements IDisplayable
 {
 //	public var displayList		(default, default)				: DisplayList;
 	public var displayEvents	(default, null)					: DisplayEvents;

@@ -42,7 +42,7 @@ package primevc.gui.graphics.shapes;
  */
 class ComposedShape extends ShapeBase 
 {
-	public var children (default, null)		: FastArray < IShape >;
+	public var children (default, null)		: FastArray < IGraphicShape >;
 	
 	
 	public function new (?layout, ?fill, ?border)
@@ -69,7 +69,7 @@ class ComposedShape extends ShapeBase
 	override private function drawShape (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
 	{
 		for (child in children)
-			child.draw(target);
+			child.draw(target, true);
 	}
 
 
@@ -78,7 +78,7 @@ class ComposedShape extends ShapeBase
 	// LIST METHODS
 	//
 
-	public inline function add ( child:IShape, depth:Int = -1 )
+	public inline function add ( child:IGraphicShape, depth:Int = -1 )
 	{
 		children.insertAt( child, depth );
 		child.listeners.add(this);
@@ -86,7 +86,7 @@ class ComposedShape extends ShapeBase
 	}
 
 
-	public inline function remove ( child:IShape )
+	public inline function remove ( child:IGraphicShape )
 	{
 		child.listeners.add(this);
 		children.remove(child);

@@ -50,14 +50,8 @@ class SkinStates extends AutoFiniteStateMachine
 	 * State when the constructor is finished
 	 */
 	public var constructed			: IState;
-	
 	/**
-	 * State of component when the displayObject is added to the stage and the
-	 * children of the skin are created.
-	 */
-	public var initialized			: IState;
-	/**
-	 * State si set when the component is disposed.
+	 * State is set when the component is disposed.
 	 */
 	public var disposed				: IState;
 	
@@ -69,7 +63,6 @@ class SkinStates extends AutoFiniteStateMachine
 		
 		Assert.that( empty != null );
 		Assert.that( constructed != null );
-		Assert.that( initialized != null );
 		Assert.that( disposed != null );
 	}
 }

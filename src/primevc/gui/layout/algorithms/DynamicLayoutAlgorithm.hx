@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms;
- import primevc.core.geom.Point;
+ import primevc.core.geom.IRectangle;
  import primevc.gui.layout.algorithms.directions.Direction;
  import primevc.gui.layout.algorithms.directions.Horizontal;
  import primevc.gui.layout.algorithms.directions.Vertical;
@@ -128,14 +128,16 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 	{
 		algorithmChanged.send();
 	}
-
-	public function getDepthForPosition (pos:Point) {
-		var depthHor = horAlgorithm.getDepthForPosition(pos);
-		var depthVer = verAlgorithm.getDepthForPosition(pos);
+	
+	
+	public function getDepthForBounds (bounds:IRectangle)
+	{
+		var depthHor = horAlgorithm.getDepthForBounds(bounds);
+		var depthVer = verAlgorithm.getDepthForBounds(bounds);
 		var depth = IntMath.max( depthHor, depthVer );
 		
-		if (depthHor <= 0)	depth = 1 + group.children.length - (depthVer - 1);
-		if (depthVer <= 0)	depth = 1 + group.children.length - (depthHor - 1);
+		if (depthHor < 0)	depth = group.children.length - (depthVer);
+		if (depthVer < 0)	depth = group.children.length - (depthHor);
 		return depth;
 	}
 	

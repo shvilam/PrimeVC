@@ -26,42 +26,29 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.states;
- import primevc.core.states.AutoFiniteStateMachine;
- import primevc.core.states.IState;
+package primevc.gui.traits;
+ import primevc.core.geom.Rectangle;
+ import primevc.gui.display.ISprite;
+ import primevc.gui.events.DragEvents;
 
 
 /**
- * States that describe what a component is doing.
+ * Interface describing objects that can be dragged around.
  * 
  * @author Ruben Weijers
- * @creation-date Jun 07, 2010
+ * @creation-date Jul 13, 2010
  */
-class UIComponentStates extends AutoFiniteStateMachine
+interface IDraggable implements ISprite
 {
-	/**
-	 * Component is constructed when:
-	 *  - states are created
-	 *  - behaviours are set
-	 *  - skin is created
-	 *  - children are created
-	 */
-	public var constructed	: IState;
-	/**
-	 * State of component when data is set.
-	 * This state can only be reached when the componentstate
-	 * is constructed.
-	 */
-	public var initialized	: IState;
-	/**
-	 * State si set when the component is disposed.
-	 */
-	public var disposed		: IState;
+	public var dragEvents		(default, null)									: DragEvents;
+	
+	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) 		: Void;
+	public function stopDrag()													: Void;
 	
 	
-	public function new ()
-	{
-		super();
-		defaultState = constructed;
-	}
+#if flash9
+	public var dropTarget		(default, null)									: flash.display.DisplayObject;
+#else
+	public var dropTarget		(default, null)									: IDisplayable;
+#end
 }

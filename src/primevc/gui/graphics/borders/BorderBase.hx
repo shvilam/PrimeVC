@@ -55,16 +55,22 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	 */
 	public var joint		(default, setJoint)			: JointStyle;
 	public var pixelHinting	(default, setPixelHinting)	: Bool;
+	/**
+	 * Should this border be drawn on the inside of the parent shape (true) or
+	 * on the outside of the parentshape.
+	 */
+	public var innerBorder	(default, setInnerBorder)	: Bool;
 	
 	
 	
-	public function new ( fill:FillType, weight:Float , caps:CapsStyle = null, joint:JointStyle = null )
+	public function new ( fill:FillType, weight:Float, innerBorder:Bool = false, caps:CapsStyle = null, joint:JointStyle = null )
 	{
 		super();
-		this.fill	= fill;
-		this.weight	= weight;
-		this.caps	= caps != null ? caps : CapsStyle.NONE;
-		this.joint	= joint != null ? joint : JointStyle.ROUND;
+		this.fill			= fill;
+		this.weight			= weight;
+		this.caps			= caps != null ? caps : CapsStyle.NONE;
+		this.joint			= joint != null ? joint : JointStyle.ROUND;
+		this.innerBorder	= innerBorder;
 	}
 	
 	
@@ -76,7 +82,7 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	
 	
 	public function begin (target:IDrawable, ?bounds:IRectangle) {
-		Assert.that(false, "Method should be overwritten.");
+		Assert.abstract();
 	}
 	
 	
@@ -145,6 +151,16 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	{
 		if (v != pixelHinting) {
 			pixelHinting = v;
+			invalidate( GraphicFlags.BORDER_CHANGED );
+		}
+		return v;
+	}
+
+
+	private inline function setInnerBorder (v:Bool)
+	{
+		if (v != innerBorder) {
+			innerBorder = v;
 			invalidate( GraphicFlags.BORDER_CHANGED );
 		}
 		return v;

@@ -27,20 +27,33 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.traits;
+ import primevc.core.Bindable;
+ import primevc.gui.graphics.shapes.IGraphicShape;
 
 
 /**
  * @author Ruben Weijers
  * @creation-date Jul 13, 2010
  */
-interface IDrawable
+interface IDrawable 
+	  implements IDisplayable
+	, implements ILayoutable
 {
+	/**
+	 * Object containing graphical data. One object will be enough in general
+	 * since it can be a ComposedShape that contains multiple shapes.
+	 */
+	public var graphicData		(default, null)		: Bindable < IGraphicShape >;
+	
 #if flash9
-	var graphics (default,null) : flash.display.Graphics;
+	public var graphics			(default, null)		: flash.display.Graphics;
 #end
+	
+	private function createGraphics ()				: Void;
+	private function removeGraphics ()				: Void;
 	
 	/**
 	 * Method to render the graphics in this object.
 	 */
-	function render () : Void;
+	public function render ()						: Void;
 }

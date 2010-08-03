@@ -28,7 +28,6 @@
  */
 package primevc.gui.display;
 
-
 typedef DisplayList = 
 	#if		flash9	primevc.avm2.DisplayList;
 	#elseif	flash8	primevc.avm1.DisplayList;
@@ -37,6 +36,7 @@ typedef DisplayList =
 
 
  import primevc.core.collections.ArrayList;
+ import primevc.gui.traits.IDisplayable;
 
 
 /**
@@ -45,7 +45,7 @@ typedef DisplayList =
  * @author Ruben Weijers
  * @creation-date Jul 13, 2010
  */
-class DisplayListImpl extends ArrayList <IDisplayObject>
+class DisplayListImpl extends ArrayList <IDisplayable>
 {
 	public var window		(default, setWindow)		: Window;
 	public var mouseEnabled (default, setMouseEnabled)	: Bool;

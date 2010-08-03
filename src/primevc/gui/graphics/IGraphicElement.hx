@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics;
+ import haxe.FastList;
  import primevc.core.IDisposable;
 
 
@@ -38,6 +39,10 @@ interface IGraphicElement implements IDisposable
 {
 	public var changes (default, null)			: UInt;
 	
-	public var listeners (default, null)		: haxe.FastList< IGraphicElement >;
+	/**
+	 * List with graphic-elements that want to be notified when values in this
+	 * instance changes
+	 */
+	public var listeners (default, null)		: FastList< IGraphicElement >;
 	public function invalidate (change:UInt)	: Void;
 }

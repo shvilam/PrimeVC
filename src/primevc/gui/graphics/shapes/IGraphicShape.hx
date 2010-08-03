@@ -26,43 +26,43 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.display;
- import primevc.core.geom.Matrix2D;
- import primevc.core.geom.Point;
- import primevc.gui.display.Window;
- import primevc.gui.traits.IDisplayable;
- 
+package primevc.gui.graphics.shapes;
+ import primevc.core.dispatcher.Signal0;
+ import primevc.core.geom.IRectangle;
+ import primevc.gui.graphics.borders.IBorder;
+ import primevc.gui.graphics.fills.IFill;
+ import primevc.gui.graphics.IGraphicElement;
+ import primevc.gui.traits.IDrawable;
+
 
 /**
- * @creation-date	Jun 14, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Jul 31, 2010
  */
-interface IDisplayObject implements IDisplayable
-	#if flash9 ,implements flash.display.IBitmapDrawable #end
+interface IGraphicShape implements IGraphicElement
 {
+	public var fill			(default, setFill)		: IFill;
+	public var border		(default, setBorder)	: IBorder <IFill>;
+	public var layout		(default, setLayout)	: IRectangle; //LayoutClient;
+	
 	/**
-	 * Reference to the object in which this displayobject is placed. It 
-	 * behaves like the 'parent' property in as3.
+	 * Signal to notify other objects than IGraphicElement of changes within
+	 * the shape.
 	 */
-	var container		(default, setContainer)			: IDisplayContainer;
-
+	public var changeEvent	(default, null)			: Signal0;
+	
+	
 	/**
-	 * Wrapper object for the stage.
+	* @param	target
+	* target in which the shape will be drawn
+	* 
+	* @param	useCoordinates
+	 * Flag indicating if the draw method should also use the coordinates of the
+	 * layoutclient.
+	 * 
+	 * If a shape is directly drawn into a IDrawable element, this is not the 
+	 * case. If a shape is part of a composition of shapes, then the shape 
+	 * should respect the coordinates of the LayoutClient.
 	 */
-	var window			(default, setWindow)			: Window;
-	
-	function isObjectOn (otherObj:IDisplayObject)	: Bool;
-	
-	
-#if flash9
-	var filters					: Array < Dynamic >;
-	var name					: String;
-	var scrollRect				: flash.geom.Rectangle;
-	var transform				: flash.geom.Transform; //Matrix2D;
-	
-	function globalToLocal (point : Point) : Point;
-	function localToGlobal (point : Point) : Point;
-#else
-	var transform	(default, null)						: Matrix2D;
-#end
+	public function draw (target:IDrawable, ?useCoordinates:Bool = false) : Void;
 }

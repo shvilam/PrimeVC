@@ -26,29 +26,22 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours.drag;
- import primevc.core.geom.Rectangle;
- import primevc.gui.display.ISprite;
- import primevc.gui.events.DragEvents;
+package primevc.gui.core;
+ import primevc.gui.layout.IScrollableLayout;
+ import primevc.gui.layout.LayoutContainer;
+  using primevc.utils.TypeUtil;
 
 
 /**
- * Interface describing objects that can be dragged around.
- * 
  * @author Ruben Weijers
- * @creation-date Jul 13, 2010
+ * @creation-date Aug 02, 2010
  */
-interface IDraggable implements ISprite
+class UIContainer <DataType> extends UIDataComponent <DataType>, implements IUIContainer 
 {
-	public var dragEvents		(default, null)									: DragEvents;
-	
-	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) 		: Void;
-	public function stopDrag()													: Void;
+	public var layoutContainer	(getLayoutContainer, never)		: LayoutContainer;
+	public var scrollableLayout	(getScrollableLayout, never)	: IScrollableLayout;
 	
 	
-#if flash9
-	public var dropTarget		(default, null)									: flash.display.DisplayObject;
-#else
-	public var dropTarget		(default, null)									: IDisplayObject;
-#end
+	private inline function getLayoutContainer () 	{ return layout.as(LayoutContainer); }
+	private inline function getScrollableLayout () 	{ return layout.as(IScrollableLayout); }
 }

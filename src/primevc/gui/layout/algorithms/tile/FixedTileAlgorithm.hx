@@ -33,7 +33,7 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.core.collections.ChainedList;
  import primevc.core.collections.IList;
  import primevc.core.collections.IListCollection;
- import primevc.core.geom.Point;
+ import primevc.core.geom.IRectangle;
  import primevc.types.Number;
  import primevc.core.RangeIterator;
  import primevc.gui.layout.algorithms.directions.Direction;
@@ -417,14 +417,14 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 
 
 
-	override public function getDepthForPosition (pos:Point)
+	override public function getDepthForBounds (bounds:IRectangle)
 	{
 		var depth:Int = 0;
-		var rowNum = rows.algorithm.getDepthForPosition( pos );
+		var rowNum = rows.algorithm.getDepthForBounds( bounds );
 		if (rowNum < rows.children.length)
 		{
 			depth  = maxTilesInDirection * rowNum;
-			depth += columns.algorithm.getDepthForPosition( pos );
+			depth += columns.algorithm.getDepthForBounds( bounds );
 		}
 		else
 			 depth = horizontalMap.length;

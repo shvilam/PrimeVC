@@ -27,63 +27,38 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
- import haxe.FastList;
- import primevc.gui.behaviours.layout.SkinLayoutBehaviour;
- import primevc.gui.behaviours.RenderGraphicsBehaviour;
- import primevc.gui.behaviours.IBehaviour;
- import primevc.gui.display.Sprite;
- import primevc.gui.layout.LayoutClient;
+ import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.states.SkinStates;
-  using primevc.utils.Bind;
 
 
 /**
  * Base Skin class.
  * 
- * TODO Ruben: explain the difference between UIComponent en Skin
- * 
  * @creation-date	Jun 14, 2010
  * @author			Ruben Weijers
  */
-class Skin <OwnerClass> extends Sprite, implements ISkin //<OwnerClass>
+class Skin <OwnerClass:IUIComponent> implements ISkin
 {
-	public var layout			(default, null)		: LayoutClient;
 	public var owner			(default, setOwner) : OwnerClass;
 	public var skinState		(default, null)		: SkinStates;
-	
-	public var behaviours		(default, null)		: FastList < IBehaviour <Dynamic> >;
+	public var behaviours		(default, null)		: BehaviourList;
 	
 	
 	public function new()
 	{
-		super();
-		init.onceOn( displayEvents.addedToStage, this );
-		
-		visible			= false;
 		skinState		= new SkinStates();
-		
-		behaviours		= new FastList< IBehaviour<Dynamic> > ();
-		behaviours.add( new RenderGraphicsBehaviour (this) );
-		behaviours.add( new SkinLayoutBehaviour (this) );
+		behaviours		= new BehaviourList();
 		
 		createStates();
 		createBehaviours();
-		createLayout();
+		createGraphics();
+		createChildren();
 		
 		skinState.current = skinState.constructed;
 	}
 	
 	
-	public function init ()
-	{
-		initBehaviours();
-		createChildren();
-		visible = true;
-		skinState.current = skinState.initialized; 
-	}
-	
-	
-	override public function dispose ()
+	public function dispose ()
 	{
 		if (behaviours == null)
 			return;
@@ -92,14 +67,8 @@ class Skin <OwnerClass> extends Sprite, implements ISkin //<OwnerClass>
 		removeBehaviours();
 		removeStates();
 		
-		if (layout != null)
-			layout.dispose();
-		
-		behaviours	= null;
-		layout		= null;
 		owner		= null;
-		
-		super.dispose();
+		skinState	= null;
 	}
 	
 	
@@ -109,8 +78,12 @@ class Skin <OwnerClass> extends Sprite, implements ISkin //<OwnerClass>
 	// GETTERS / SETTERS
 	//
 	
-	private function setOwner (newOwner) {
-		return this.owner = newOwner;
+	private function setOwner (newOwner)
+	{
+		this.owner = newOwner;
+		if (newOwner != null && skinState.current == skinState.constructed)
+			createChildren();
+		return newOwner;
 	}
 	
 	
@@ -121,39 +94,18 @@ class Skin <OwnerClass> extends Sprite, implements ISkin //<OwnerClass>
 	//
 	
 	//TODO RUBEN - enable Assert.abstract
-	private function createLayout ()			: Void; //	{ Assert.abstract(); }
 	private function createStates ()			: Void; //	{ Assert.abstract(); }
 	private function createBehaviours ()		: Void; //	{ Assert.abstract(); }
+	private function createGraphics ()			: Void; //	{ Assert.abstract(); }
 	private function createChildren ()			: Void; //	{ Assert.abstract(); }
+	public function childrenCreated ()			: Void;
 	
 	private function removeStates ()			: Void; //	{ Assert.abstract(); }
 	private function removeChildren ()			: Void; //	{ Assert.abstract(); }
-	private inline function removeBehaviours ()	: Void
+	
+	private inline function removeBehaviours ()
 	{
-		while (!behaviours.isEmpty())
-			behaviours.pop().dispose();
+		behaviours.dispose();
+		behaviours = null;
 	}
-	
-	private inline function initBehaviours ()	: Void
-	{
-		for (behaviour in behaviours)
-			behaviour.initialize();
-	}
-	
-	
-#if debug
-	public var id (default, setId) : String;
-	
-	
-	private inline function setId (v)
-	{
-		id = name = v;
-		if (layout != null)
-			layout.name = name + "Layout";
-		return v;
-	}
-	
-	
-	override public function toString() { return id; }
-#end
 }

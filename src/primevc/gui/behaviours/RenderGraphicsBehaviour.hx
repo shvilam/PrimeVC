@@ -28,7 +28,7 @@
  */
 package primevc.gui.behaviours;
  import primevc.core.dispatcher.Wire;
- import primevc.gui.core.ISkin;
+ import primevc.gui.traits.IDrawable;
   using primevc.utils.Bind;
 
 
@@ -38,19 +38,24 @@ package primevc.gui.behaviours;
  * @author Ruben Weijers
  * @creation-date Jul 16, 2010
  */
-class RenderGraphicsBehaviour extends BehaviourBase < ISkin >
+class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >
 {
-	private var renderBinding : Wire <Dynamic>;
+	private var renderBinding	: Wire <Dynamic>;
+	private var graphicsBinding	: Wire <Dynamic>;
 	
 	
 	override private function init ()
 	{
-			if (target.layout == null)
-				return;
-			
+		Assert.that( target.layout != null );
+		
 #if flash9	invalidateWindow.on( target.layout.events.sizeChanged, this );
-#else		renderTarget.on( target.layout.events.sizeChanged, this );
-#end
+#else		renderTarget.on( target.layout.events.sizeChanged, this );		#end
+		
+		
+		updateGraphicBinding.on( target.graphicData.change, this );
+		
+		if (target.graphicData != null)
+			updateGraphicBinding();
 	}
 	
 	
@@ -64,17 +69,39 @@ class RenderGraphicsBehaviour extends BehaviourBase < ISkin >
 			renderBinding.dispose();
 			renderBinding = null;
 		}
+		
+		if (graphicsBinding != null) {
+			graphicsBinding.dispose();
+			graphicsBinding = null;
+		}
+	}
+	
+	
+	/**
+	 * Event handler which is called when the graphicData property of the target
+	 * changes.
+	 */
+	private inline function updateGraphicBinding ()
+	{
+		if (graphicsBinding != null)
+			graphicsBinding.dispose();
+		
+		if (target.graphicData.value != null)
+		{
+#if flash9	graphicsBinding = invalidateWindow.on( target.graphicData.value.changeEvent, this );
+#else		graphicsBinding = renderTarget.on( target.graphicData.value.changeEvent, this );			#end
+		}
 	}
 		
 	
 	private function invalidateWindow ()
 	{
-		if (target.container == null)
+		if (target.window == null || renderBinding != null)
 			return;
 		
-	//	trace("invalidateWindow "+target);
-		target.window.invalidate();
+	//	trace("invalidateWindow "+target);	
 		renderBinding = renderTarget.on( target.displayEvents.render, this );
+		target.window.invalidate();
 	//	target.render.on( target.displayEvents.enterFrame, this );
 	}
 	
@@ -87,7 +114,6 @@ class RenderGraphicsBehaviour extends BehaviourBase < ISkin >
 		renderBinding.dispose();
 		renderBinding = null;
 	//	trace("render "+target+" size: "+target.layout.bounds.width+", "+target.layout.bounds.height);
-		target.displayEvents.render.unbind( this );
 		target.render();
 	}
 }

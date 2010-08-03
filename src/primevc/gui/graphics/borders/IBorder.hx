@@ -53,6 +53,12 @@ interface IBorder <FillType:IFill> implements IGraphicElement
 	public var joint		(default, setJoint)			: JointStyle;
 	public var pixelHinting	(default, setPixelHinting)	: Bool;
 	
+	/**
+	 * Should this border be drawn on the inside of the parent shape (true) or
+	 * on the outside of the parentshape.
+	 */
+	public var innerBorder	(default, setInnerBorder)	: Bool;
+	
 	
 	public function begin (target:IDrawable, ?bounds:IRectangle) : Void;
 	public function end (target:IDrawable) : Void;

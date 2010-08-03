@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms.circle;
- import primevc.core.geom.Point;
+ import primevc.core.geom.IRectangle;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.algorithms.directions.Horizontal;
  import primevc.gui.layout.algorithms.IHorizontalAlgorithm;
@@ -36,9 +36,7 @@ package primevc.gui.layout.algorithms.circle;
  import primevc.utils.Formulas;
  import primevc.utils.IntMath;
   using primevc.utils.BitUtil;
-  using primevc.utils.FloatMath;
   using primevc.utils.Formulas;
-  using primevc.utils.IntMath;
   using primevc.utils.IntUtil;
   using primevc.utils.TypeUtil;
  
@@ -196,9 +194,10 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 	private inline function applyRightToLeft () : Void		{ applyCircle( -Math.PI ); }		//-180 degrees
 	
 	
-	public inline function getDepthForPosition (pos:Point) {
+	public inline function getDepthForBounds (bounds:IRectangle)
+	{
 		var childAngle		= (360 / group.children.length).degreesToRadians();
-		var posX:Float		= (pos.x - getLeftStartValue()).min(0) - getRadius();
+		var posX:Float		= IntMath.max(0, bounds.left - getLeftStartValue()) - getRadius();
 		var radius:Float	= getRadius();
 		var startRadians	= switch (direction) {
 			case Horizontal.left:		0;
@@ -208,7 +207,7 @@ class HorizontalCircleAlgorithm extends LayoutAlgorithmBase, implements IHorizon
 		
 		//the formula of applyCircle reversed..
 		var itemRadians = Math.acos(posX / radius) - startRadians;
-		return Std.int( Math.round( itemRadians / childAngle ) ) + 1;
+		return Std.int( Math.round( itemRadians / childAngle ) );
 	}
 	
 	

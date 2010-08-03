@@ -26,36 +26,25 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics.shapes;
- import primevc.gui.graphics.borders.IBorder;
- import primevc.gui.graphics.fills.IFill;
- import primevc.gui.graphics.IGraphicElement;
- import primevc.gui.layout.LayoutClient;
- import primevc.gui.traits.IDrawable;
+package primevc.gui.traits;
+ import primevc.gui.behaviours.BehaviourList;
 
 
 /**
  * @author Ruben Weijers
- * @creation-date Jul 31, 2010
+ * @creation-date Aug 02, 2010
  */
-interface IShape implements IGraphicElement
+interface IBehaving
 {
-	public var fill		(default, setFill)		: IFill;
-	public var border	(default, setBorder)	: IBorder <IFill>;
-	public var layout	(default, setLayout)	: LayoutClient;
-	
+	public var behaviours		(default, null)		: BehaviourList;
 	
 	/**
-	* @param	target
-	* target in which the shape will be drawn
-	* 
-	* @param	useCoordinates
-	 * Flag indicating if the draw method should also use the coordinates of the
-	 * layoutclient.
-	 * 
-	 * If a shape is directly drawn into a IDrawable element, this is not the 
-	 * case. If a shape is part of a composition of shapes, then the shape 
-	 * should respect the coordinates of the LayoutClient.
+	 * After constructing the states, the behaviours will be created.
+	 * Overwrite this method to define all the behaviours of the component.
 	 */
-	public function draw (target:IDrawable, ?useCoordinates:Bool = false) : Void;
+	private function createBehaviours ()			: Void;
+	/**
+	 * Implement this method to clean-up the behaviours of the component
+	 */
+	private function removeBehaviours ()			: Void;
 }

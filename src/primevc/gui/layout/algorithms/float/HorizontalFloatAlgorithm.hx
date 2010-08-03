@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms.float;
- import primevc.core.geom.Point;
+ import primevc.core.geom.IRectangle;
  import primevc.gui.layout.algorithms.directions.Horizontal;
  import primevc.gui.layout.algorithms.IHorizontalAlgorithm;
  import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
@@ -287,20 +287,21 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	/**
 	 * 
 	 */
-	public inline function getDepthForPosition (pos:Point) : Int
+	public inline function getDepthForBounds (bounds:IRectangle) : Int
 	{
 		return switch (direction) {
-			case Horizontal.left:		getDepthForPositionLtR(pos);
-			case Horizontal.center:		getDepthForPositionC(pos);
-			case Horizontal.right:		getDepthForPositionRtL(pos);
+			case Horizontal.left:		getDepthForBoundsLtR(bounds);
+			case Horizontal.center:		getDepthForBoundsC(bounds);
+			case Horizontal.right:		getDepthForBoundsRtL(bounds);
 		}
 	}
 	
 	
-	private inline function getDepthForPositionLtR (pos:Point) : Int
+	private inline function getDepthForBoundsLtR (bounds:IRectangle) : Int
 	{
 		var depth:Int	= 0;
-		var posX:Int	= pos.x.int();
+		var posX:Int	= bounds.left;
+		var centerX:Int	= bounds.left + (bounds.width * .5).int();
 	//	if (group.is(IScrollableLayout))
 	//		posX += group.as(IScrollableLayout).scrollPos.x;
 		
@@ -317,14 +318,15 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 				//check if it's smart to start searching at the end or at the beginning..
 				var groupWidth = group.width;
 				if (group.is(AdvancedLayoutClient))
-					groupWidth = IntMath.min( group.as(AdvancedLayoutClient).measuredWidth, group.as(AdvancedLayoutClient).explicitWidth );
+					groupWidth = IntMath.max( 0, group.as(AdvancedLayoutClient).measuredWidth );
 				
 				var halfW = groupWidth * .5;
 				
 				if (posX < halfW) {
 					//start at beginning
 					for (child in group.children) {
-						if (child.includeInLayout && posX <= child.bounds.centerX)
+					//	trace("comparing "+centerX+ " <= "+child.bounds.right+"; && " +centerX +" > "+child.bounds.left+"; centerX "+child.bounds.centerX);
+						if (child.includeInLayout && centerX <= child.bounds.right && centerX >= child.bounds.left)
 							break;
 						
 						depth++;
@@ -337,7 +339,8 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 					depth	= group.children.length;
 					while (itr.hasNext()) {
 						var child = itr.next();
-						if (child.includeInLayout && posX >= child.bounds.centerX)
+						trace("comparing "+child+"; "+bounds.right+ " <= "+child.bounds.right+" && " +centerX +" >= "+child.bounds.left+"; centerX "+child.bounds.centerX);
+						if (child.includeInLayout && centerX >= child.bounds.right)
 							break;
 						
 						depth--;
@@ -349,24 +352,25 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	}
 	
 	
-	private inline function getDepthForPositionC (pos:Point) : Int
+	private inline function getDepthForBoundsC (bounds:IRectangle) : Int
 	{
 		var depth:Int	= 0;
-		var posX:Int	= pos.x.int();
+		var posX:Int	= bounds.left;
+		var centerX:Int	= bounds.left + (bounds.width * .5).int();
 	//	if (group.is(IScrollableLayout))
 	//		posX += group.as(IScrollableLayout).scrollPos.x;
 		
 		var groupWidth	= group.width;
 		if (group.is(AdvancedLayoutClient))
-			groupWidth	= IntMath.min( group.as(AdvancedLayoutClient).measuredWidth, group.as(AdvancedLayoutClient).explicitWidth );
+			groupWidth	= IntMath.max( 0, group.as(AdvancedLayoutClient).measuredWidth );
 
 		var halfW = groupWidth * .5;
 
 		for (child in group.children) {
 			if (child.includeInLayout 
 				&& (
-						(posX <= child.bounds.centerX && posX >= halfW)
-					||	(posX >= child.bounds.centerX && posX <= halfW)
+						(centerX <= child.bounds.right && centerX >= halfW)
+					||	(centerX >= child.bounds.right && centerX <= halfW)
 				)
 			)
 				break;
@@ -377,10 +381,11 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	}
 	
 	
-	private inline function getDepthForPositionRtL (pos:Point) : Int
+	private inline function getDepthForBoundsRtL (bounds:IRectangle) : Int
 	{
 		var depth:Int	= 0;
-		var posX:Int	= pos.x.int();
+		var posX:Int	= bounds.left;
+		var centerX:Int	= bounds.left + (bounds.width * .5).int();
 	//	if (group.is(IScrollableLayout))
 	//		posX += group.as(IScrollableLayout).scrollPos.x;
 		
@@ -391,22 +396,28 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 		else
 		{
 			var groupWidth = group.width;
+			var emptyWidth = 0;
 			if (group.is(AdvancedLayoutClient))
-				groupWidth = IntMath.min( group.as(AdvancedLayoutClient).measuredWidth, group.as(AdvancedLayoutClient).explicitWidth );
+			{
+				groupWidth	= IntMath.max( 0, group.as(AdvancedLayoutClient).measuredWidth );
+				//check if there's any width left. This happens when there's an explicitWidth set.
+				emptyWidth	= IntMath.max( 0, group.width - groupWidth );
+			}
 			
-			//if pos <= 0, the depth will be at the end of the list
-			if (posX <= 0)
+			//if pos <= emptyWidth, the depth will be at the end of the list
+			if (posX <= emptyWidth)
 				depth = group.children.length;
 			
-			else if (posX < groupWidth)
+			//if bounds.right < maximum group width, then the depth is at the beginning of the list
+			else if (bounds.right < IntMath.max(group.width, groupWidth))
 			{
 				//check if it's smart to start searching at the end or at the beginning..
 				var halfW = groupWidth * .5;
 
-				if (posX > halfW) {
+				if (posX > (emptyWidth + halfW)) {
 					//start at beginning
 					for (child in group.children) {
-						if (child.includeInLayout && posX >= child.bounds.centerX)
+						if (child.includeInLayout && centerX >= child.bounds.left)
 							break;
 						
 						depth++;
@@ -416,10 +427,10 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 				{
 					//start at end
 					var itr	= group.children.getReversedIterator();
-					depth	= group.children.length;
+					depth	= group.children.length - 1;
 					while (itr.hasNext()) {
 						var child = itr.next();
-						if (child.includeInLayout && posX <= child.bounds.centerX)
+						if (child.includeInLayout && centerX <= child.bounds.right)
 							break;
 
 						depth--;

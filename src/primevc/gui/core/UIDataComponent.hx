@@ -27,40 +27,78 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
- import primevc.gui.display.ISprite;
- import primevc.gui.traits.ISkinnable;
+ import primevc.core.Bindable;
  
 
 /**
- * Interface for UIComponent
- *
- * @creation-date	Jun 10, 2010
+ * UIDataComponent is an UIComponent with a bindable data property of the given
+ * type. The DataComponent will default create a bindable object of the 
+ * requested type which can be used to update other values in the component.
+ * 
+ * It's possible to change or read the value of the bindable directly by calling
+ *  v = component.value; and component.value = newValue;
+ * 
+ * @see				primevc.gui.core.UIComponent
+ * @see				primevc.gui.core.IUIComponent
+ * 
+ * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
-interface IUIComponent
-		implements ISprite
-	,	implements IUIElement
-	,	implements ISkinnable
+class UIDataComponent <DataProxyType> extends UIComponent, implements IUIDataComponent <DataProxyType>
 {
-	/**
-	 * This is the first method that will be runned by the constructor.
-	 * Overwrite this method to instantiate the states of the component.
-	 */
-	private function createStates ()				: Void;
-	/**
-	 * After creating the behaviours, the component can also create child UIComponents.
-	 * These components can be added by callig the addChild method. This will
-	 * on default also add the skin of the child as child to the parent skin.
-	 */
-	private function createChildren ()				: Void;
+	public var data (default, setData)		: Bindable < DataProxyType >;
+	public var value (getValue, setValue)	: DataProxyType;
 	
 	
-	/**
-	 * Implement this method to clean-up the states of the component
-	 */
-	private function removeStates ()				: Void;
-	/**
-	 * Implement this method to clean-up the children of the component
-	 */
-	private function removeChildren ()				: Void;
+	public function new ()
+	{
+		super();
+		data = new Bindable < DataProxyType >();
+	}
+	
+	
+	override public function dispose ()
+	{
+		if (data != null) {
+			data.dispose();
+			data = null;
+		}
+		super.dispose();
+	}
+	
+	
+	//
+	// METHODS
+	//
+	
+	override private function init ()
+	{
+		super.init();
+		initData();
+	}
+	
+	
+	private function initData ()
+	{
+		
+	}
+	
+	
+	
+	//
+	// GETTERS / SETTERS
+	//
+	
+	private inline function setData (newData:Bindable < DataProxyType >)
+	{
+		data = newData;
+		if (state.current == state.initialized && data != null)
+			initData();
+		
+		return data;
+	}
+	
+	
+	private inline function getValue () : DataProxyType	{ return data.value; }
+	private inline function setValue (v:DataProxyType)	{ return data.value = v; }
 }

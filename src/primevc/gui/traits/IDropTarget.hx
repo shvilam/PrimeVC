@@ -26,9 +26,37 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.layout;
+package primevc.gui.traits;
+ import primevc.core.geom.IRectangle;
+ import primevc.gui.behaviours.drag.DragSource;
+ import primevc.gui.core.IUIContainer;
+ import primevc.gui.events.DropTargetEvents;
 
 
-typedef LayoutContainerOwner = {
-	var layoutGroup (getLayoutGroup, null) : LayoutContainer;
-};
+/**
+ * Interface describing objects that can accapt objects to be dropped in.
+ * 
+ * @author Ruben Weijers
+ * @creation-date Jul 22, 2010
+ */
+interface IDropTarget implements IUIContainer
+{
+	/**
+	 * Eventgroup which will dispatch events when an IDraggable object is 
+	 * interacting with this IDropTarget.
+	 */
+	public var dragEvents	: DropTargetEvents;
+	
+	/**
+	 * Method to check if an IDraggable-item is allowed to drop on this
+	 * container.
+	 */
+	public function isDropAllowed (draggedItem:DragSource) : Bool;
+	
+	
+	/**
+	 * Method which should return the depth of a dropped item with the given
+	 * coordinates.
+	 */
+	public function getDepthForBounds (bounds:IRectangle) : Int;
+}

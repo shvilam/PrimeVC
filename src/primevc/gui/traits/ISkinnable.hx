@@ -26,16 +26,25 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.display;
- import primevc.gui.graphics.IDrawable;
+package primevc.gui.traits;
+ import primevc.gui.core.ISkin;
 
 
 /**
- * Describes the properties of a shape
- *
- * @creation-date	Jun 14, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Aug 02, 2010
  */
-interface IShape implements IDisplayObject, implements IDrawable
+interface ISkinnable implements IDisplayable
 {
+	public var skin		(default, setSkin)	: ISkin;
+	
+	/**
+	 * Factory method for creating the default skin of this UIComponent.
+	 * After creating the child componentns, the skin will be created.
+	 */
+	private function createSkin ()			: Void;
+	/**
+	 * Implement this method to clean-up the skin of the component
+	 */
+	private function removeSkin ()			: Void;
 }

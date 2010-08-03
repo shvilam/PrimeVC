@@ -26,27 +26,16 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours;
- import primevc.gui.core.IUIComponentBase;
-  using primevc.utils.Bind;
- 
+package primevc.gui.traits;
+ import primevc.gui.layout.LayoutClient;
+
 
 /**
- * Description
- * 
- * @creation-date	Jun 10, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Aug 02, 2010
  */
-class ComponentBehaviour extends BehaviourBase < IUIComponentBase >
+interface ILayoutable
 {
-	override private function init ()
-	{
-		target.init.on( target.componentState.initialized.entering, target );
-	}
-	
-	
-	override private function reset ()
-	{
-		target.componentState.initialized.entering.unbind( target );
-	}
+	public var layout (default, null)	: LayoutClient;
+	private function createLayout ()	: Void;
 }

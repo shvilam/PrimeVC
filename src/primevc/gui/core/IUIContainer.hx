@@ -26,26 +26,16 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.display;
- import primevc.core.geom.Matrix2D;
- import primevc.gui.traits.IDrawable;
- import primevc.gui.traits.IDisplayable;
- import primevc.gui.traits.IInteractive;
+package primevc.gui.core;
+ import primevc.gui.layout.LayoutContainer;
+ import primevc.gui.traits.IScrollable;
 
 
 /**
- * Sprite interface for every platform.
- *
- * @creation-date	Jun 11, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Aug 02, 2010
  */
-interface ISprite 
-		implements IDisplayContainer
-	,	implements IInteractive
-	,	implements IDisplayable
+interface IUIContainer implements IUIComponent, implements IScrollable
 {
-#if flash9
-	var buttonMode														: Bool;
-	var useHandCursor													: Bool;
-#end
+	public var layoutContainer (getLayoutContainer, never) : LayoutContainer;
 }

@@ -26,21 +26,48 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.layout.algorithms.relative;
- import primevc.gui.layout.algorithms.IHorizontalAlgorithm;
- import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
- 
+package primevc.gui.behaviours;
+ import haxe.FastList;
+ import primevc.core.IDisposable;
+
+
+private typedef BehaviourType = IBehaviour<Dynamic>;
 
 /**
- * Description
+ * List with all available behaviours
  * 
- * @creation-date	Jun 24, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Aug 02, 2010
  */
-class RelativeHorizontalAlgorithm extends LayoutAlgorithmBase, implements IHorizontalAlgorithm
+class BehaviourList implements IDisposable
 {
-	public function new() 
+	private var list : FastList <BehaviourType>;
+	
+	
+	public function new ()
 	{
-		
+		list = new FastList<BehaviourType>();
 	}
+	
+	
+	public inline function removeAll ()
+	{
+		while (!list.isEmpty()) {
+			var b:BehaviourType = list.pop();
+			if (b != null)
+				b.dispose();
+		}
+	}
+	
+	
+	public inline function init ()
+	{
+		for (behaviour in list)
+			behaviour.initialize();
+	}
+	
+	
+	public inline function dispose ()					{ removeAll(); list = null; }
+	public inline function add (v:BehaviourType)		{ return list.add(v); }
+	public inline function remove (v:BehaviourType)		{ return list.remove(v); }
 }

@@ -26,26 +26,27 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.display;
- import primevc.core.geom.Matrix2D;
- import primevc.gui.traits.IDrawable;
- import primevc.gui.traits.IDisplayable;
- import primevc.gui.traits.IInteractive;
-
+package primevc.gui.core;
+ import primevc.core.Bindable;
+ 
 
 /**
- * Sprite interface for every platform.
+ * UIComponent interface with data property.
  *
- * @creation-date	Jun 11, 2010
+ * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
-interface ISprite 
-		implements IDisplayContainer
-	,	implements IInteractive
-	,	implements IDisplayable
+interface IUIDataComponent <DataProxyType> implements IUIComponent
 {
-#if flash9
-	var buttonMode														: Bool;
-	var useHandCursor													: Bool;
-#end
+	public var data (default, setData)		: Bindable < DataProxyType >;
+	public var value (getValue, setValue)	: DataProxyType;
+	
+	
+	/**
+	 * Method in which childcomponents can be bind to the data of the component.
+	 * This method can be called on two moments:
+	 * 		- component has created children and the data is already set
+	 * 		- data is set and the component-state is already initialized
+	 */
+	private function initData()				: Void;
 }

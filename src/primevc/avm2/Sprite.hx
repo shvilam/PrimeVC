@@ -32,10 +32,10 @@ package primevc.avm2;
  import primevc.gui.display.ISprite;
  import primevc.gui.display.DisplayList;
  import primevc.gui.display.IDisplayContainer;
- import primevc.gui.display.IDisplayObject;
  import primevc.gui.display.Window;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEvents;
+ import primevc.gui.traits.IDisplayable;
   using primevc.utils.TypeUtil;
 
  
@@ -88,10 +88,7 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	}
 	
 	
-	public function render () {}
-	
-	
-	public inline function isObjectOn (otherObj:IDisplayObject) : Bool {
+	public inline function isObjectOn (otherObj:IDisplayable) : Bool {
 		return otherObj == null ? false : otherObj.as(DisplayObject).hitTestObject( this.as(DisplayObject) );
 	}
 	

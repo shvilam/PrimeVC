@@ -57,6 +57,13 @@ class Triangle extends ShapeBase
 	}
 	
 	
+	override public function dispose ()
+	{
+		a = b = c = null;
+		super.dispose();
+	}
+	
+	
 	override private function drawShape (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
 	{
 #if flash9

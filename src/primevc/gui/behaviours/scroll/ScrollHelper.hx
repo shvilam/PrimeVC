@@ -27,11 +27,11 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.scroll;
- import primevc.gui.core.ISkin;
- import primevc.gui.display.IDisplayObject;
- import primevc.gui.events.KeyModState;
+ import primevc.gui.events.KeyModState;		// <= needed for typedef TargetType
  import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.IScrollableLayout;
+ import primevc.gui.traits.IDisplayable;
+ import primevc.gui.traits.IScrollable;
   using primevc.utils.TypeUtil;
 
 
@@ -44,14 +44,13 @@ package primevc.gui.behaviours.scroll;
  */
 class ScrollHelper
 {
-	public static inline function getLocalMouse (target:ISkin, mouseObj:MouseState)
+	public static inline function getLocalMouse (target:IScrollable, mouseObj:MouseState)
 	{
 		var mousePos = (mouseObj.target != target.container.as(TargetType))
-							? target.container.as(IDisplayObject).globalToLocal(mouseObj.stage)
+							? target.container.as(IDisplayable).globalToLocal(mouseObj.stage)
 							: mouseObj.local;
 		
-		var scrollLayout = target.layout.as( IScrollableLayout );
-		
+		var scrollLayout = target.scrollableLayout;
 		mousePos.x -= scrollLayout.getHorPosition() + scrollLayout.padding.left;
 		mousePos.y -= scrollLayout.getVerPosition() + scrollLayout.padding.top;
 		return mousePos;
