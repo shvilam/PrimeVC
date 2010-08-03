@@ -32,7 +32,7 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.core.collections.SimpleList;
  import primevc.core.geom.constraints.SizeConstraint;
  import primevc.core.geom.Box;
- import primevc.core.geom.Point;
+ import primevc.core.geom.IRectangle;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.layout.algorithms.directions.Direction;
  import primevc.gui.layout.algorithms.directions.Horizontal;
@@ -343,10 +343,10 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	
 
-	override public function getDepthForPosition (pos:Point)
+	override public function getDepthForBounds (bounds:IRectangle)
 	{
 		var depth:Int	= 0;
-		var rowNum		= tileGroups.algorithm.getDepthForPosition( pos );
+		var rowNum		= tileGroups.algorithm.getDepthForBounds( bounds );
 		
 		if (rowNum == tileGroups.children.length)
 		{
@@ -368,7 +368,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 			
 			var row	 = tileGroups.children.getItemAt( rowNum );
 			row.algorithm.group = row;		//<-- important! will otherwise measure with wrong row
-			depth	+= row.algorithm.getDepthForPosition( pos );
+			depth	+= row.algorithm.getDepthForBounds( bounds );
 		}
 		return depth;
 	}

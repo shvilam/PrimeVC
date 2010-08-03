@@ -34,7 +34,6 @@ package primevc.avm2;
  import primevc.core.events.ListEvents;
  import primevc.core.IDisposable;
  import primevc.gui.display.IDisplayContainer;
- import primevc.gui.display.Window;
  import primevc.gui.traits.IDisplayable;
   using primevc.utils.TypeUtil;
 

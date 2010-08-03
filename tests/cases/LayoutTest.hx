@@ -7,7 +7,7 @@ package cases;
  import primevc.core.geom.constraints.SizeConstraint;
  import primevc.core.geom.Box;
  import primevc.core.geom.IntPoint;
- import primevc.core.geom.Point;
+ import primevc.core.geom.IRectangle;
  import primevc.core.Application;
  import primevc.gui.behaviours.drag.DragDropBehaviour;
  import primevc.gui.behaviours.drag.DragMoveBehaviour;
@@ -47,10 +47,10 @@ package cases;
  import primevc.gui.layout.algorithms.directions.Vertical;
  import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
  import primevc.gui.layout.algorithms.float.VerticalFloatAlgorithm;
- import primevc.gui.layout.algorithms.relative.RelativeAlgorithm;
  import primevc.gui.layout.algorithms.tile.DynamicTileAlgorithm;
  import primevc.gui.layout.algorithms.tile.FixedTileAlgorithm;
  import primevc.gui.layout.algorithms.DynamicLayoutAlgorithm;
+ import primevc.gui.layout.algorithms.RelativeAlgorithm;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.layout.LayoutFlags;
@@ -607,8 +607,8 @@ class TileList extends Frame, implements IDropTarget
 	public inline function isDropAllowed (draggedItem:DragSource) : Bool {
 		return (draggedItem.target.is(Tile) && (allowDropFromOtherLists || this == draggedItem.origContainer));
 	}
-	public inline function getDepthForPosition (pos:Point) : Int {
-		return layoutContainer.algorithm.getDepthForPosition(pos);
+	public inline function getDepthForBounds (bounds:IRectangle) : Int {
+		return layoutContainer.algorithm.getDepthForBounds(bounds);
 	}
 	
 	private function dragOverHandler ()	{ fill.color = color.setAlpha(.3.uint()); }

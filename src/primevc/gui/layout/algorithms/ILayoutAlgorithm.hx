@@ -28,7 +28,7 @@
  */
 package primevc.gui.layout.algorithms;
  import primevc.core.dispatcher.Signal0;
- import primevc.core.geom.Point;
+ import primevc.core.geom.IRectangle;
  import primevc.core.IDisposable;
  import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutClient;
@@ -83,5 +83,5 @@ interface ILayoutAlgorithm implements IDisposable
 	 * Before calling this method, the method 'removeStartPosFromPoint' should
 	 * be called to make sure the point is valid within the algorithms.
 	 */
-	public function getDepthForPosition	(pos:Point)			: Int;
+	public function getDepthForBounds (bounds:IRectangle)	: Int;
 }

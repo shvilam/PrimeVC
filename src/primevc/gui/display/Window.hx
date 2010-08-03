@@ -34,7 +34,7 @@ package primevc.gui.display;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEvents;
  import primevc.gui.input.Mouse;
- import primevc.gui.layout.algorithms.relative.RelativeAlgorithm;
+ import primevc.gui.layout.algorithms.RelativeAlgorithm;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.traits.IInteractive;
 

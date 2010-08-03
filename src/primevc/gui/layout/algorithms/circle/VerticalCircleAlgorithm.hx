@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms.circle;
- import primevc.core.geom.Point;
+ import primevc.core.geom.IRectangle;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.algorithms.directions.Vertical;
  import primevc.gui.layout.algorithms.IVerticalAlgorithm;
@@ -37,7 +37,6 @@ package primevc.gui.layout.algorithms.circle;
  import primevc.utils.IntMath;
   using primevc.utils.BitUtil;
   using primevc.utils.Formulas;
-  using primevc.utils.IntMath;
   using primevc.utils.IntUtil;
   using primevc.utils.TypeUtil;
  
@@ -195,10 +194,10 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 	private inline function applyBottomToTop () : Void		{ applyCircle( -Math.PI ); }		//-180 degrees
 	
 	
-	public inline function getDepthForPosition (pos:Point)
+	public inline function getDepthForBounds (bounds:IRectangle)
 	{
 		var childAngle		= (360 / group.children.length).degreesToRadians();
-		var posY:Float		= Math.max(0, pos.y - getTopStartValue()) - getRadius();
+		var posY:Float		= IntMath.max(0, bounds.top - getTopStartValue()) - getRadius();
 		var radius:Float	= getRadius();
 		var startRadians	= switch (direction) {
 			case Vertical.top:	   	0;
@@ -208,7 +207,7 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 		
 		//the formula of applyCircle reversed..
 		var itemRadians = Math.asin(posY / radius) - startRadians;
-		return Std.int( Math.round( itemRadians / childAngle ) ) + 1;
+		return Std.int( Math.round( itemRadians / childAngle ) );
 	}
 	
 	

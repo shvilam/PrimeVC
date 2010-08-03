@@ -34,6 +34,7 @@ package primevc.gui.behaviours.drag;
  import primevc.gui.traits.IDropTarget;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
+  using Std;
  
 
 /**
@@ -101,9 +102,12 @@ class DragDropBehaviour extends DragBehaviourBase
 		if (dragSource.dropTarget != null)
 		{
 #if flash9
+			var rect	= dragSource.dragRectangle;
 			var pos		= new Point(target.x, target.y);
 			pos			= dragSource.dropTarget.globalToLocal( pos );
-			dragSource.dropPosition = pos;
+			rect.left	= pos.x.int();
+			rect.top	= pos.y.int();
+			dragSource.dropBounds = rect;
 #end
 			//notify the dragged item that the drag-operation is completed
 			target.dragEvents.complete.send(dragSource);

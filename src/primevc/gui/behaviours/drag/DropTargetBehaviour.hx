@@ -29,6 +29,7 @@
 package primevc.gui.behaviours.drag;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.traits.IDropTarget;
+ import primevc.utils.IntMath;
   using primevc.utils.Bind;
 
 
@@ -48,7 +49,7 @@ class DropTargetBehaviour extends BehaviourBase <IDropTarget>
 	
 	
 	override private function reset ()
-	{	
+	{
 		target.dragEvents.drop.unbind(this);
 	}
 
@@ -56,8 +57,7 @@ class DropTargetBehaviour extends BehaviourBase <IDropTarget>
 	private function addDroppedChild (droppedItem:DragSource) : Void
 	{
 		var newChild	= droppedItem.target;
-		var depth		= target.children.length;
-		depth			= target.getDepthForPosition( droppedItem.dropPosition );
+		var depth		= IntMath.min( target.children.length, target.getDepthForBounds( droppedItem.dropBounds ) );
 		trace(target + ".addDroppedTile "+newChild+" on "+depth+" in "+target.name);
 		
 		if (droppedItem.origContainer != target || !target.children.has(newChild))

@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.traits;
- import primevc.core.geom.Point;
+ import primevc.core.geom.IRectangle;
  import primevc.gui.behaviours.drag.DragSource;
  import primevc.gui.core.IUIContainer;
  import primevc.gui.events.DropTargetEvents;
@@ -58,5 +58,5 @@ interface IDropTarget implements IUIContainer
 	 * Method which should return the depth of a dropped item with the given
 	 * coordinates.
 	 */
-	public function getDepthForPosition (pos:Point) : Int;
+	public function getDepthForBounds (bounds:IRectangle) : Int;
 }

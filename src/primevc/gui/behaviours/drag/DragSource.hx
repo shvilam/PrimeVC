@@ -29,11 +29,14 @@
 package primevc.gui.behaviours.drag;
  import primevc.core.IDisposable;
  import primevc.core.geom.Point;
+ import primevc.core.geom.IntRectangle;
+ import primevc.core.geom.IRectangle;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.traits.IDraggable;
  import primevc.gui.traits.IDropTarget;
   using primevc.utils.TypeUtil;
+  using Std;
 
 
 /**
@@ -64,8 +67,17 @@ class DragSource implements IDisposable
 	 */
 	public var origPosition		(default, null)				: Point;
 	
+	/**
+	 * Layout object of the target
+	 */
 	public var layout			(default, null)				: LayoutClient;
 	
+	/**
+	 * Rectangle indicating the boundaries of the dragged object in the global
+	 * coordinate-space. x-y coordinates won't update automaticly unless the
+	 * ShowDragGapBehaviour is used.
+	 */
+	public var dragRectangle	(default, null)				: IRectangle;
 	
 	/**
 	 * The current dropTarget. Property will only be set if it allows the target
@@ -77,7 +89,7 @@ class DragSource implements IDisposable
 	 * Location on which the item is dropped. Location is already converted
 	 * to the coordinates of the dropTarget.
 	 */
-	public var dropPosition									: Point;
+	public var dropBounds									: IRectangle;
 	
 	
 	public function new (newTarget)
@@ -85,7 +97,8 @@ class DragSource implements IDisposable
 		target			= newTarget;
 		dropTarget		= newTarget.container.as(IDropTarget);
 		origPosition	= new Point(target.x, target.y);
-		layout			= new LayoutClient( Std.int(target.width), Std.int(target.height) );
+		layout			= new LayoutClient( target.width.int(), target.height.int() );
+		dragRectangle	= new IntRectangle( target.x.int(), target.y.int(), layout.width, layout.height );
 		
 		origContainer	= target.container;
 		origDepth		= target.container.children.indexOf(target);
@@ -95,8 +108,9 @@ class DragSource implements IDisposable
 	public function dispose ()
 	{
 		target			= null;
+		dragRectangle	= null;
 		dropTarget		= null;
-		dropPosition	= null;
+		dropBounds		= null;
 		origContainer	= null;
 		origPosition	= null;
 	}

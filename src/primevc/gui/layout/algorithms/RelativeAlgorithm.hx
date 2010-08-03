@@ -26,11 +26,10 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.layout.algorithms.relative;
-// import primevc.types.Number;
+package primevc.gui.layout.algorithms;
  import primevc.core.geom.constraints.ConstrainedRect;
  import primevc.core.geom.Box;
- import primevc.core.geom.Point;
+ import primevc.core.geom.IRectangle;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
  import primevc.gui.layout.LayoutFlags;
@@ -157,7 +156,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 	 * have any influence on the depth. That's why the algorithm will always 
 	 * return the position at the end of the child-list.
 	 */
-	public inline function getDepthForPosition (pos:Point) : Int
+	public inline function getDepthForBounds (bounds:IRectangle) : Int
 	{
 		return group.children.length;
 	}

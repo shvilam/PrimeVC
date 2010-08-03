@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms.float;
- import primevc.core.geom.Point;
+ import primevc.core.geom.IRectangle;
  import primevc.gui.layout.algorithms.directions.Vertical;
  import primevc.gui.layout.algorithms.IVerticalAlgorithm;
  import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
@@ -286,20 +286,21 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 	/**
 	 * 
 	 */
-	public inline function getDepthForPosition (pos:Point) : Int
+	public inline function getDepthForBounds (bounds:IRectangle) : Int
 	{
 		return switch (direction) {
-			case Vertical.top:		getDepthForPositionTtB(pos);
-			case Vertical.center:	getDepthForPositionC(pos);
-			case Vertical.bottom:	getDepthForPositionBtT(pos);
+			case Vertical.top:		getDepthForBoundsTtB(bounds);
+			case Vertical.center:	getDepthForBoundsC(bounds);
+			case Vertical.bottom:	getDepthForBoundsBtT(bounds);
 		}
 	}
 
 
-	private inline function getDepthForPositionTtB (pos:Point) : Int
+	private inline function getDepthForBoundsTtB (bounds:IRectangle) : Int
 	{
 		var depth:Int	= 0;
-		var posY:Int	= pos.y.int();
+		var posY:Int	= bounds.top;
+		var centerY:Int	= bounds.top + (bounds.height * .5).int();
 	//	if (group.is(IScrollableLayout))
 	//		posY += group.as(IScrollableLayout).scrollPos.y;
 		
@@ -315,13 +316,13 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 				//check if it's smart to start searching at the end or at the beginning..
 				var groupHeight = group.height;
 				if (group.is(AdvancedLayoutClient))
-					groupHeight = IntMath.min( group.as(AdvancedLayoutClient).measuredHeight, group.as(AdvancedLayoutClient).explicitHeight );
+					groupHeight = IntMath.max( 0, group.as(AdvancedLayoutClient).measuredHeight );
 				
 				var halfH = groupHeight * .5;
 				if (posY < halfH) {
 					//start at beginning
 					for (child in group.children) {
-						if (child.includeInLayout && posY <= child.bounds.centerY)
+						if (child.includeInLayout && centerY <= child.bounds.bottom && centerY >= child.bounds.top)
 							break;
 
 						depth++;
@@ -334,7 +335,7 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 					depth	= group.children.length;
 					while (itr.hasNext()) {
 						var child = itr.next();
-						if (child.includeInLayout && posY >= child.bounds.centerY)
+						if (child.includeInLayout && centerY >= child.bounds.bottom)
 							break;
 
 						depth--;
@@ -347,24 +348,25 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 	}
 
 
-	private inline function getDepthForPositionC (pos:Point) : Int
+	private inline function getDepthForBoundsC (bounds:IRectangle) : Int
 	{
 		var depth:Int	= 0;
-		var posY:Int	= pos.y.int();
+		var posY:Int	= bounds.top;
+		var centerY:Int	= bounds.top + (bounds.height * .5).int();
 	//	if (group.is(IScrollableLayout))
 	//		posY += group.as(IScrollableLayout).scrollPos.y;
 		
 		var groupHeight	= group.height;
 		if (group.is(AdvancedLayoutClient))
-			groupHeight	= IntMath.min( group.as(AdvancedLayoutClient).measuredHeight, group.as(AdvancedLayoutClient).explicitHeight );
+			groupHeight	= IntMath.max( 0, group.as(AdvancedLayoutClient).measuredHeight );
 		
 		var halfH = groupHeight * .5;
 		
 		for (child in group.children) {
 			if (child.includeInLayout 
 				&& (
-						(posY <= child.bounds.centerY && posY >= halfH)
-					||	(posY >= child.bounds.centerY && posY <= halfH)
+						(centerY <= child.bounds.bottom && centerY >= halfH)
+					||	(centerY >= child.bounds.bottom && centerY <= halfH)
 				)
 			)
 				break;
@@ -375,13 +377,13 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 	}
 
 
-	private inline function getDepthForPositionBtT (pos:Point) : Int
+	private inline function getDepthForBoundsBtT (bounds:IRectangle) : Int
 	{
 		var depth:Int	= 0;
-		var posY:Int	= pos.y.int();
+		var posY:Int	= bounds.top;
+		var centerY:Int	= bounds.top + (bounds.height * .5).int();
 	//	if (group.is(IScrollableLayout))
 	//		posY += group.as(IScrollableLayout).scrollPos.y;
-
 		if (group.childHeight.isSet())
 		{
 			depth = group.children.length - posY.divRound(group.childHeight);
@@ -389,21 +391,28 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 		else
 		{
 			var groupHeight = group.height;
+			var emptyHeight	= 0;
 			if (group.is(AdvancedLayoutClient))
-				groupHeight = IntMath.min( group.as(AdvancedLayoutClient).measuredHeight, group.as(AdvancedLayoutClient).explicitHeight );
+			{
+				groupHeight = IntMath.max( 0, group.as(AdvancedLayoutClient).measuredHeight );
+				//check if there's any width left. This happens when there's an explicitWidth set.
+				emptyHeight	= IntMath.max( 0, group.height - groupHeight );
+			}
 			
-			//if pos <= 0, the depth will be at the end of the list
-			if (posY <= 0)
+			//if pos <= emptyHeight, the depth will be at the end of the list
+			if (posY <= emptyHeight)
 				depth = group.children.length;
-			else if (posY < groupHeight)
+			
+			//if bounds.bottom < maximum group height, then the depth is at the beginning of the list
+			else if (bounds.right < IntMath.max(group.height, groupHeight))
 			{
 				//check if it's smart to start searching at the end or at the beginning..
 				var halfH = groupHeight * .5;
 
-				if (posY > halfH) {
+				if (posY > (emptyHeight + halfH)) {
 					//start at beginning
 					for (child in group.children) {
-						if (child.includeInLayout && posY >= child.bounds.centerY)
+						if (child.includeInLayout && centerY >= child.bounds.top)
 							break;
 
 						depth++;
@@ -413,10 +422,10 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 				{
 					//start at end
 					var itr	= group.children.getReversedIterator();
-					depth	= group.children.length;
+					depth	= group.children.length - 1;
 					while (itr.hasNext()) {
 						var child = itr.next();
-						if (child.includeInLayout && posY <= child.bounds.centerY)
+						if (child.includeInLayout && centerY <= child.bounds.bottom)
 							break;
 
 						depth--;
