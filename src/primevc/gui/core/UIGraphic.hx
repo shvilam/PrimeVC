@@ -27,17 +27,98 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
+ import primevc.core.Bindable;
+ import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
+ import primevc.gui.behaviours.BehaviourList;
+ import primevc.gui.behaviours.RenderGraphicsBehaviour;
  import primevc.gui.display.Shape;
+ import primevc.gui.graphics.shapes.IGraphicShape;
+ import primevc.gui.layout.LayoutClient;
+ import primevc.gui.states.UIElementStates;
+  using primevc.utils.Bind;
 
 
 /**
  * @author Ruben Weijers
  * @creation-date Aug 02, 2010
  */
-class UIGraphic extends Shape, implements IUIElement <Dynamic>
+class UIGraphic extends Shape, implements IUIElement
 {
+	public var behaviours		(default, null)		: BehaviourList;
+	public var layout			(default, null)		: LayoutClient;
+	public var state			(default, null)		: UIElementStates;
+	public var graphicData		(default, null)		: Bindable < IGraphicShape >;
+	
+	
 	public function new ()
 	{
 		super();
+		visible = false;
+		init.onceOn( displayEvents.addedToStage, this );
+		
+		state			= new UIElementStates();
+		behaviours		= new BehaviourList();
+		graphicData		= new Bindable < IGraphicShape > ();
+		
+		//add default behaviours
+		behaviours.add( new RenderGraphicsBehaviour(this) );
+		behaviours.add( new ValidateLayoutBehaviour(this) );
+		
+		createBehaviours();
+		createLayout();
+		
+		state.current = state.constructed;
 	}
+	
+	
+	
+	//
+	// METHODS
+	//
+	
+	
+	private function init ()
+	{
+		behaviours.init();
+		
+		//overwrite the graphics of the skin with custom graphics (or do nothing if the method isn't overwritten)
+		createGraphics();
+		
+		//finish initializing
+		visible = true;
+		state.current = state.initialized;
+	}
+	
+	
+	public inline function render () : Void
+	{
+		if (graphicData.value != null)
+		{
+			graphics.clear();
+			graphicData.value.draw(this, false);
+		}
+	}
+	
+	
+	private inline function removeBehaviours ()
+	{
+		behaviours.dispose();
+		behaviours = null;
+	}
+	
+	
+	private function createLayout () : Void
+	{
+		layout = new LayoutClient();
+	}
+	
+	
+	
+	//
+	// ABSTRACT METHODS
+	//
+	
+	private function createBehaviours ()	: Void; //	{ Assert.abstract(); }
+	private function createGraphics ()		: Void		{ Assert.abstract(); }
+	private function removeGraphics ()		: Void; //	{ Assert.abstract(); }
 }

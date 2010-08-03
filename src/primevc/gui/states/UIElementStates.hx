@@ -32,12 +32,12 @@ package primevc.gui.states;
 
 
 /**
- * States that describe what a component is doing.
+ * States that describe what a UIElement has done and is doing
  * 
  * @author Ruben Weijers
  * @creation-date Jun 07, 2010
  */
-class UIComponentStates extends AutoFiniteStateMachine
+class UIElementStates extends AutoFiniteStateMachine
 {
 	/**
 	 * Default state when the component hasn't done anything.

@@ -28,7 +28,6 @@
  */
 package primevc.gui.core;
  import primevc.gui.display.ISprite;
- import primevc.gui.states.UIComponentStates;
  import primevc.gui.traits.ISkinnable;
  
 
@@ -43,9 +42,6 @@ interface IUIComponent
 	,	implements IUIElement
 	,	implements ISkinnable
 {
-	public var state	(default, null)		: UIComponentStates;
-	
-	
 	/**
 	 * This is the first method that will be runned by the constructor.
 	 * Overwrite this method to instantiate the states of the component.

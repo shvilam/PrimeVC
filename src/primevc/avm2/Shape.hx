@@ -27,11 +27,13 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.avm2;
- import primevc.gui.display.IShape;
+ import flash.display.DisplayObject;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.Window;
- 
+ import primevc.gui.traits.IDisplayable;
+  using primevc.utils.TypeUtil;
+
 
 /**
  * AVM2 Shape implementation
@@ -39,7 +41,7 @@ package primevc.avm2;
  * @creation-date	Jun 11, 2010
  * @author			Ruben Weijers
  */
-class Shape extends flash.display.Shape, implements IShape
+class Shape extends flash.display.Shape, implements IDisplayable
 {
 	public var container		(default, setContainer)	: IDisplayContainer;
 	public var window			(default, setWindow)	: Window;
@@ -65,6 +67,11 @@ class Shape extends flash.display.Shape, implements IShape
 		displayEvents	= null;
 		container		= null;
 		window			= null;
+	}
+
+
+	public inline function isObjectOn (otherObj:IDisplayable) : Bool {
+		return otherObj == null ? false : otherObj.as(DisplayObject).hitTestObject( this.as(DisplayObject) );
 	}
 	
 	

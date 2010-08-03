@@ -71,7 +71,7 @@ class UIDataComponent <DataProxyType> extends UIComponent, implements IUIDataCom
 	// METHODS
 	//
 	
-	override public function init ()
+	override private function init ()
 	{
 		super.init();
 		initData();

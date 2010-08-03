@@ -34,7 +34,7 @@ package primevc.gui.core;
  import primevc.gui.display.Sprite;
  import primevc.gui.graphics.shapes.IGraphicShape;
  import primevc.gui.layout.LayoutClient;
- import primevc.gui.states.UIComponentStates;
+ import primevc.gui.states.UIElementStates;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
@@ -67,7 +67,7 @@ package primevc.gui.core;
 class UIComponent extends Sprite, implements IUIComponent
 {
 	public var behaviours		(default, null)			: BehaviourList;
-	public var state			(default, null)			: UIComponentStates;
+	public var state			(default, null)			: UIElementStates;
 	public var skin				(default, setSkin)		: ISkin;
 	public var layout			(default, null)			: LayoutClient;
 	public var graphicData		(default, null)			: Bindable < IGraphicShape >;
@@ -76,10 +76,10 @@ class UIComponent extends Sprite, implements IUIComponent
 	private function new ()
 	{
 		super();
-		init.onceOn( displayEvents.addedToStage, this );
 		visible = false;
+		init.onceOn( displayEvents.addedToStage, this );
 		
-		state			= new UIComponentStates();
+		state			= new UIElementStates();
 		behaviours		= new BehaviourList();
 		graphicData		= new Bindable < IGraphicShape > ();
 		
@@ -95,7 +95,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	}
 
 
-	public function init ()
+	private function init ()
 	{
 		behaviours.init();
 		
@@ -153,34 +153,6 @@ class UIComponent extends Sprite, implements IUIComponent
 	}
 	
 	
-	public inline function render () : Void
-	{
-		if (graphicData.value != null)
-		{
-			graphics.clear();
-			graphicData.value.draw(this, false);
-		}
-	}
-	
-	
-	
-	//
-	// SETTERS / GETTERS
-	//
-	
-	
-	private function setSkin (newSkin)
-	{
-		skin = newSkin;
-		
-		if (skin != null && skin.is(Skin)) {
-			cast(skin, Skin<Dynamic>).owner = this;
-		}
-		
-		return skin;
-	}
-	
-	
 	
 	//
 	// METHODS
@@ -198,7 +170,34 @@ class UIComponent extends Sprite, implements IUIComponent
 	{
 		skin = null;
 	}
-	
+
+
+	public inline function render () : Void
+	{
+		if (graphicData.value != null)
+		{
+			graphics.clear();
+			graphicData.value.draw(this, false);
+		}
+	}
+
+
+
+	//
+	// SETTERS / GETTERS
+	//
+
+
+	private function setSkin (newSkin)
+	{
+		skin = newSkin;
+
+		if (skin != null && skin.is(Skin)) {
+			cast(skin, Skin<Dynamic>).owner = this;
+		}
+
+		return skin;
+	}
 	
 	
 	

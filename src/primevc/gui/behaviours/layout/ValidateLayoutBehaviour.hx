@@ -29,7 +29,7 @@
 package primevc.gui.behaviours.layout;
  import primevc.core.dispatcher.Wire;
  import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.core.UIComponent;
+ import primevc.gui.core.IUIElement;
  import primevc.gui.states.LayoutStates;
   using primevc.utils.Bind;
  
@@ -41,7 +41,7 @@ package primevc.gui.behaviours.layout;
  * @creation-date	Jun 14, 2010
  * @author			Ruben Weijers
  */
-class ValidateLayoutBehaviour extends BehaviourBase < UIComponent >
+class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >
 {
 	/**
 	 * Reference to the last used enterFrame binding. If the state of a 

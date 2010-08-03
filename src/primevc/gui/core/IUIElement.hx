@@ -28,6 +28,7 @@
  */
 package primevc.gui.core;
  import primevc.core.IDisposable;
+ import primevc.gui.states.UIElementStates;
  import primevc.gui.traits.IBehaving;
  import primevc.gui.traits.IDisplayable;
  import primevc.gui.traits.IDrawable;
@@ -45,5 +46,5 @@ interface IUIElement
 	,	implements IDisplayable
 	,	implements IDisposable
 {
-	
+	public var state	(default, null)	: UIElementStates;	
 }
