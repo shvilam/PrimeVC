@@ -26,36 +26,22 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours.drag;
- import primevc.core.geom.Point;
- import primevc.gui.display.ISprite;
- import primevc.gui.events.DropTargetEvents;
+package primevc.gui.core;
+ import primevc.gui.layout.IScrollableLayout;
+ import primevc.gui.layout.LayoutContainer;
+  using primevc.utils.TypeUtil;
 
 
 /**
- * Interface describing objects that can accapt objects to be dropped in.
- * 
  * @author Ruben Weijers
- * @creation-date Jul 22, 2010
+ * @creation-date Aug 02, 2010
  */
-interface IDropTarget implements ISprite
+class UIContainer <DataType> extends UIDataComponent <DataType>, implements IUIContainer 
 {
-	/**
-	 * Eventgroup which will dispatch events when an IDraggable object is 
-	 * interacting with this IDropTarget.
-	 */
-	public var dragEvents	: DropTargetEvents;
-	
-	/**
-	 * Method to check if an IDraggable-item is allowed to drop on this
-	 * container.
-	 */
-	public function isDropAllowed (draggedItem:DragSource) : Bool;
+	public var layoutContainer	(getLayoutContainer, never)		: LayoutContainer;
+	public var scrollableLayout	(getScrollableLayout, never)	: IScrollableLayout;
 	
 	
-	/**
-	 * Method which should return the depth of a dropped item with the given
-	 * coordinates.
-	 */
-	public function getDepthForPosition (pos:Point) : Int;
+	private inline function getLayoutContainer () 	{ return layout.as(LayoutContainer); }
+	private inline function getScrollableLayout () 	{ return layout.as(IScrollableLayout); }
 }

@@ -28,6 +28,9 @@
  */
 package primevc.gui.graphics.shapes;
  import primevc.core.geom.Corners;
+ import primevc.core.geom.IRectangle;
+ import primevc.gui.graphics.borders.IBorder;
+ import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.traits.IDrawable;
 
@@ -41,10 +44,17 @@ class RegularRectangle extends ShapeBase
 	public var corners		(default, setCorners)	: Corners;
 	
 	
-	public function new (?layout, ?fill, ?border, ?corners:Corners)
+	public function new (?layout:IRectangle, ?fill:IFill, ?border:IBorder<IFill>, ?corners:Corners)
 	{
 		super(layout, fill, border);
 		this.corners = corners;
+	}
+	
+	
+	override public function dispose ()
+	{
+		corners = null;
+		super.dispose();
 	}
 	
 	

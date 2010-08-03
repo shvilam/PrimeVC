@@ -89,7 +89,7 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 	private var writeTo : FastList<IBindable<DataType>>;
 	
 	
-	public function new (val:DataType)
+	public function new (?val:DataType)
 	{
 		change = new Signal1();
 		value  = val;

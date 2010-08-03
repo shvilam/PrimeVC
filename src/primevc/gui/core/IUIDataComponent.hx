@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
+ import primevc.core.Bindable;
  
 
 /**
@@ -37,5 +38,15 @@ package primevc.gui.core;
  */
 interface IUIDataComponent <DataProxyType> implements IUIComponent
 {
-	public var data (default, setData)	: DataProxyType;
+	public var data (default, setData)		: Bindable < DataProxyType >;
+	public var value (getValue, setValue)	: DataProxyType;
+	
+	
+	/**
+	 * Method in which childcomponents can be bind to the data of the component.
+	 * This method can be called on two moments:
+	 * 		- component has created children and the data is already set
+	 * 		- data is set and the component-state is already initialized
+	 */
+	private function initData()				: Void;
 }

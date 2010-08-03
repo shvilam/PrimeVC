@@ -29,10 +29,12 @@
 package primevc.gui.behaviours.drag;
  import primevc.core.geom.Point;
  import primevc.gui.behaviours.BehaviourBase;
+ import primevc.gui.core.IUIContainer;
  import primevc.gui.events.MouseEvents;
- import primevc.gui.layout.LayoutContainerOwner;
  import primevc.gui.layout.LayoutContainer;
+ import primevc.gui.traits.IDropTarget;
   using primevc.utils.Bind;
+  using primevc.utils.TypeUtil;
 
 
 /**
@@ -50,13 +52,7 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 
 	override private function init ()
 	{
-		var o:LayoutContainerOwner = cast target;
-		if (o.layoutGroup == null) {
-#if debug	throw "target "+target+" must be a LayoutContainerOwner"; #end
-			return;
-		}
-		
-		layoutGroup = o.layoutGroup;
+		layoutGroup = target.layoutContainer;
 		dragOverHandler			.on( target.dragEvents.over, this );
 		removeTmpTileFromLayout	.on( target.dragEvents.out, this );
 		removeTmpTileFromLayout	.on( target.dragEvents.drop, this );

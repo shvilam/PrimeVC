@@ -31,6 +31,7 @@ package primevc.gui.behaviours.drag;
  import primevc.core.IDisposable;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.events.MouseEvents;
+ import primevc.gui.traits.IDraggable;
   using primevc.utils.TypeUtil;
 
 /**

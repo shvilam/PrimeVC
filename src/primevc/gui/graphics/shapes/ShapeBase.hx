@@ -27,13 +27,17 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.shapes;
+ import haxe.FastList;
+ import primevc.core.dispatcher.Signal0;
  import primevc.core.geom.IRectangle;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.fills.IFill;
- import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
- import primevc.gui.layout.LayoutClient;
+ import primevc.gui.graphics.IGraphicElement;
  import primevc.gui.traits.IDrawable;
+  using primevc.utils.BitUtil;
+  using Math;
+  using Std;
 
 
 
@@ -43,19 +47,50 @@ package primevc.gui.graphics.shapes;
  * @author Ruben Weijers
  * @creation-date Aug 01, 2010
  */
-class ShapeBase extends GraphicElement, implements IShape
+class ShapeBase implements IGraphicShape
 {
-	public var fill		(default, setFill)		: IFill;
-	public var border	(default, setBorder)	: IBorder <IFill>;
-	public var layout	(default, setLayout)	: LayoutClient;
+	public var changes		(default, null)			: UInt;
+	public var listeners	(default, null)			: FastList< IGraphicElement >;
+	public var changeEvent	(default, null)			: Signal0;
+	
+	public var fill			(default, setFill)		: IFill;
+	public var border		(default, setBorder)	: IBorder <IFill>;
+	public var layout		(default, setLayout)	: IRectangle;
 	
 	
-	public function new (?layout:LayoutClient, ?fill:IFill, ?border:IBorder <IFill>)
+	public function new (?layout:IRectangle, ?fill:IFill, ?border:IBorder <IFill>)
 	{
-		super();
+		listeners	= new FastList< IGraphicElement >();
 		this.layout	= layout;
 		this.fill	= fill;
 		this.border	= border;
+		changeEvent	= new Signal0();
+		changes		= 0;
+	}
+	
+	
+	public function dispose ()
+	{
+		if (border != null)	border.dispose();
+		if (fill != null)	fill.dispose();
+		
+		changeEvent.dispose();
+		changeEvent	= null;
+		listeners	= null;
+		border		= null;
+		fill		= null;
+		layout		= null;
+	}
+	
+	
+	public inline function invalidate (change:UInt) : Void
+	{
+		changes = changes.set(change);
+		for (listener in listeners)
+			listener.invalidate( change );
+		
+		if (changeEvent != null)
+			changeEvent.send();
 	}
 	
 	
@@ -64,23 +99,38 @@ class ShapeBase extends GraphicElement, implements IShape
 		Assert.notNull(layout);
 		changes = 0;
 		
-		var l = layout.bounds;
+		var l = layout;
 		var x = useCoordinates ? l.left : 0;
 		var y = useCoordinates ? l.top : 0;
+		var w = l.width;
+		var h = l.height;
 		
-		if (border != null)		border.begin(target, l);
-		if (fill != null)		fill.begin(target, l);
+		if (border != null) {
+			border.begin(target, l);
+			if (border.innerBorder) {
+				x += border.weight.ceil().int();
+				y += border.weight.ceil().int();
+				w -= (border.weight * 2).ceil().int();
+				h -= (border.weight * 2).ceil().int();
+			}
+		}
+		if (fill != null)
+			fill.begin(target, l);
 		
-		drawShape( target, x, y, l.width, l.height );
+		drawShape( target, x, y, w, h );
 		
 		if (border != null)		border.end(target);
 		if (fill != null)		fill.end(target);
 	}
 	
 	
+	
+	/**
+	 * Method to overwrite in sub-shape-clases
+	 */
 	private function drawShape (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
 	{
-		Assert.that(false, "Method 'drawShape' should be overwritten.");
+		Assert.abstract();
 	}
 	
 	
@@ -122,7 +172,7 @@ class ShapeBase extends GraphicElement, implements IShape
 	}
 	
 	
-	private inline function setLayout (v:LayoutClient)
+	private inline function setLayout (v:IRectangle)
 	{
 		if (v != layout)
 		{

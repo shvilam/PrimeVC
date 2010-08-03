@@ -50,9 +50,7 @@ class WindowLayoutBehaviour extends BehaviourBase < Window >
 	
 	override private function init ()
 	{
-		if (target.layout == null)
-			return;
-
+		Assert.that(target.layout != null, "Layout of "+target+" can't be null for "+this);
 		layoutStateChangeHandler.on( target.layout.states.change, this );
 		
 		//trigger the event handler for the current state as well

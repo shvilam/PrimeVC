@@ -31,7 +31,7 @@ package primevc.avm2;
  import flash.utils.ByteArray;
  import primevc.avm2.events.LoaderEvents;
  import primevc.core.IDisposable;
- import primevc.gui.display.IDisplayObject;
+ import primevc.gui.traits.IDisplayable;
 
 
 typedef FlashLoader = flash.display.Loader;
@@ -46,7 +46,7 @@ class Loader implements IDisposable
 	public var bytesTotal	(getBytesTotal, never)		: UInt;
 	public var isLoaded		(getIsLoaded, never)		: Bool;
 	
-	public var content		(getContent, never)			: IDisplayObject;
+	public var content		(getContent, never)			: IDisplayable;
 	
 	private var loader		: FlashLoader;
 	

@@ -26,9 +26,16 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.layout;
+package primevc.gui.traits;
+ import primevc.gui.layout.LayoutClient;
 
 
-typedef LayoutContainerOwner = {
-	var layoutGroup (getLayoutGroup, null) : LayoutContainer;
-};
+/**
+ * @author Ruben Weijers
+ * @creation-date Aug 02, 2010
+ */
+interface ILayoutable
+{
+	public var layout (default, null)	: LayoutClient;
+	private function createLayout ()	: Void;
+}

@@ -28,6 +28,7 @@
  */
 package primevc.gui.behaviours.drag;
  import primevc.gui.behaviours.BehaviourBase;
+ import primevc.gui.traits.IDropTarget;
   using primevc.utils.Bind;
 
 

@@ -31,6 +31,8 @@ package primevc.gui.behaviours.drag;
  import primevc.core.geom.Point;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.layout.LayoutClient;
+ import primevc.gui.traits.IDraggable;
+ import primevc.gui.traits.IDropTarget;
   using primevc.utils.TypeUtil;
 
 

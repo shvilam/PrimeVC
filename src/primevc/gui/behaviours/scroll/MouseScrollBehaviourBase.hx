@@ -29,9 +29,9 @@
 package primevc.gui.behaviours.scroll;
  import primevc.core.dispatcher.Wire;
  import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.core.ISkin;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.IScrollableLayout;
+ import primevc.gui.traits.IScrollable;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
@@ -43,7 +43,7 @@ package primevc.gui.behaviours.scroll;
  * @author Ruben Weijers
  * @creation-date Jul 29, 2010
  */
-class MouseScrollBehaviourBase extends BehaviourBase <ISkin>
+class MouseScrollBehaviourBase extends BehaviourBase <IScrollable>
 {
 	private var scrollLayout		: IScrollableLayout;
 	private var activateBinding		: Wire < Dynamic >;
@@ -53,8 +53,8 @@ class MouseScrollBehaviourBase extends BehaviourBase <ISkin>
 	
 	override private function init ()
 	{
-		Assert.that( target.layout.is(IScrollableLayout), "target.layout of "+target+" must be a IScrollableLayout" );
-		scrollLayout = target.layout.as(IScrollableLayout);
+		Assert.that( target.scrollableLayout != null, "target.layout of "+target+" must be a IScrollableLayout" );
+		scrollLayout = target.scrollableLayout;
 		createBindings();
 	}
 	

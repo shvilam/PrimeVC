@@ -26,26 +26,37 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.display;
- import primevc.core.geom.Matrix2D;
- import primevc.gui.traits.IDrawable;
- import primevc.gui.traits.IDisplayable;
- import primevc.gui.traits.IInteractive;
+package primevc.gui.traits;
+ import primevc.core.geom.Point;
+ import primevc.gui.behaviours.drag.DragSource;
+ import primevc.gui.core.IUIContainer;
+ import primevc.gui.events.DropTargetEvents;
 
 
 /**
- * Sprite interface for every platform.
- *
- * @creation-date	Jun 11, 2010
- * @author			Ruben Weijers
+ * Interface describing objects that can accapt objects to be dropped in.
+ * 
+ * @author Ruben Weijers
+ * @creation-date Jul 22, 2010
  */
-interface ISprite 
-		implements IDisplayContainer
-	,	implements IInteractive
-	,	implements IDisplayable
+interface IDropTarget implements IUIContainer
 {
-#if flash9
-	var buttonMode														: Bool;
-	var useHandCursor													: Bool;
-#end
+	/**
+	 * Eventgroup which will dispatch events when an IDraggable object is 
+	 * interacting with this IDropTarget.
+	 */
+	public var dragEvents	: DropTargetEvents;
+	
+	/**
+	 * Method to check if an IDraggable-item is allowed to drop on this
+	 * container.
+	 */
+	public function isDropAllowed (draggedItem:DragSource) : Bool;
+	
+	
+	/**
+	 * Method which should return the depth of a dropped item with the given
+	 * coordinates.
+	 */
+	public function getDepthForPosition (pos:Point) : Int;
 }

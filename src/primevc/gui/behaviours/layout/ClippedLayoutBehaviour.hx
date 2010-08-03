@@ -29,7 +29,7 @@
 package primevc.gui.behaviours.layout;
  import primevc.core.geom.Rectangle;
  import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.core.ISkin;
+ import primevc.gui.core.IUIContainer;
  import primevc.gui.layout.LayoutContainer;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
@@ -44,7 +44,7 @@ package primevc.gui.behaviours.layout;
  * @creation-date	Jun 25, 2010
  * @author			Ruben Weijers
  */
-class ClippedLayoutBehaviour extends BehaviourBase < ISkin >
+class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 {
 	private var layoutContainer : LayoutContainer;
 	
@@ -56,11 +56,8 @@ class ClippedLayoutBehaviour extends BehaviourBase < ISkin >
 	 */
 	override private function init ()
 	{
-		if (target.layout == null)
-			return;
-	
-		Assert.that(target.layout.is(LayoutContainer), "LayoutObject should be a LayoutContainer");
-		layoutContainer		= target.layout.as(LayoutContainer);
+		Assert.that(target.layoutContainer != null, "Layout of "+target+" can't be null for "+this);
+		layoutContainer		= target.layoutContainer;
 		target.scrollRect	= new Rectangle();
 		
 		updateScrollRect.on( target.layout.events.sizeChanged, this );
@@ -94,12 +91,16 @@ class ClippedLayoutBehaviour extends BehaviourBase < ISkin >
 	}
 
 
-	private function updateScrollX () {
+	private function updateScrollX ()
+	{
 		var r	= target.scrollRect;
 		r.x		= layoutContainer.scrollPos.x;
 		target.scrollRect = r;
 	}
-	private function updateScrollY () {
+	
+	
+	private function updateScrollY ()
+	{
 		var r	= target.scrollRect;
 		r.y		= layoutContainer.scrollPos.y;
 		target.scrollRect = r;

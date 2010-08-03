@@ -28,10 +28,10 @@
  */
 package primevc.gui.behaviours.layout;
  import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.core.ISkin;
- import primevc.gui.display.IDisplayObject;
- import primevc.gui.layout.LayoutContainerOwner;
+ import primevc.gui.core.IUIContainer;
  import primevc.gui.layout.LayoutContainer;
+ import primevc.gui.traits.IDisplayable;
+ import primevc.gui.traits.ILayoutable;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
@@ -52,20 +52,16 @@ package primevc.gui.behaviours.layout;
  * @author Ruben Weijers
  * @creation-date Jul 28, 2010
  */
-class AutoChangeLayoutChildlistBehaviour extends BehaviourBase <ISkin>
+class AutoChangeLayoutChildlistBehaviour extends BehaviourBase < IUIContainer >
 {
 	private var layoutGroup	: LayoutContainer;
 	
 	
 	override private function init ()
 	{
-		var o:LayoutContainerOwner = cast target;
-		if (o.layoutGroup == null) {
-#if debug	throw "target "+target+" must be a LayoutContainerOwner"; #end
-			return;
-		}
+		Assert.that(target.layoutContainer != null, "Layout of "+target+" can't be null for "+this);
+		layoutGroup = target.layoutContainer;
 		
-		layoutGroup = o.layoutGroup;
 		addedHandler	.on( target.children.events.added, this );
 		removedHandler	.on( target.children.events.removed, this );
 		movedHandler	.on( target.children.events.moved, this );
@@ -81,18 +77,18 @@ class AutoChangeLayoutChildlistBehaviour extends BehaviourBase <ISkin>
 	}
 	
 	
-	private function addedHandler (child:IDisplayObject, pos:Int) {
-		if (child.is(ISkin))	addTileToLayout( child.as(ISkin), pos );
+	private function addedHandler (child:IDisplayable, pos:Int) {
+		if (child.is(ILayoutable))	addChildToLayout( child.as(ILayoutable), pos );
 	}
-	private function movedHandler (child:IDisplayObject, newPos:Int, oldPos:Int) {
-		if (child.is(ISkin))	moveTileInLayout( child.as(ISkin), newPos, oldPos );
+	private function movedHandler (child:IDisplayable, newPos:Int, oldPos:Int) {
+		if (child.is(ILayoutable))	moveChildInLayout( child.as(ILayoutable), newPos, oldPos );
 	}
-	private function removedHandler (child:IDisplayObject, pos:Int) {
-		if (child.is(ISkin))	removeTileFromLayout( child.as(ISkin) );
+	private function removedHandler (child:IDisplayable, pos:Int) {
+		if (child.is(ILayoutable))	removeChildFromLayout( child.as(ILayoutable) );
 	}
 	
 	
-	private inline function addTileToLayout (child:ISkin, pos:Int)
+	private inline function addChildToLayout (child:ILayoutable, pos:Int)
 	{
 		var curPos = layoutGroup.children.indexOf(child.layout);
 		if (curPos != -1)
@@ -102,12 +98,12 @@ class AutoChangeLayoutChildlistBehaviour extends BehaviourBase <ISkin>
 	}
 	
 	
-	private inline function removeTileFromLayout (child:ISkin) {
+	private inline function removeChildFromLayout (child:ILayoutable) {
 		layoutGroup.children.remove( child.layout );
 	}
 	
 	
-	private inline function moveTileInLayout (child:ISkin, newPos:Int, oldPos:Int) {
+	private inline function moveChildInLayout (child:ILayoutable, newPos:Int, oldPos:Int) {
 		layoutGroup.children.move( child.layout, newPos, oldPos );
 	}
 }

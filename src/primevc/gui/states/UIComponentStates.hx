@@ -40,21 +40,23 @@ package primevc.gui.states;
 class UIComponentStates extends AutoFiniteStateMachine
 {
 	/**
+	 * Default state when the component hasn't done anything.
+	 */
+	public var empty		: IState;
+	/**
 	 * Component is constructed when:
 	 *  - states are created
-	 *  - behaviours are set
-	 *  - skin is created
-	 *  - children are created
+	 *  - behaviours are created
 	 */
 	public var constructed	: IState;
 	/**
-	 * State of component when data is set.
-	 * This state can only be reached when the componentstate
-	 * is constructed.
+	 * Component is initialized when:
+	 *  - skin is created
+	 *  - children are created
 	 */
 	public var initialized	: IState;
 	/**
-	 * State si set when the component is disposed.
+	 * State is set when the component is disposed.
 	 */
 	public var disposed		: IState;
 	
@@ -62,6 +64,6 @@ class UIComponentStates extends AutoFiniteStateMachine
 	public function new ()
 	{
 		super();
-		defaultState = constructed;
+		defaultState = empty;
 	}
 }

@@ -27,37 +27,210 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
- 
+ import primevc.core.Bindable;
+ import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
+ import primevc.gui.behaviours.BehaviourList;
+ import primevc.gui.behaviours.RenderGraphicsBehaviour;
+ import primevc.gui.display.Sprite;
+ import primevc.gui.graphics.shapes.IGraphicShape;
+ import primevc.gui.layout.LayoutClient;
+ import primevc.gui.states.UIComponentStates;
+  using primevc.utils.Bind;
+  using primevc.utils.TypeUtil;
+
 
 /**
- * UIComponent defines the data property.
+ * UIComponent defines the basic behaviour of a UIComponent without data.
+ *
+ * These include the default states of a component, the way it
+ * should change between states and a helper function to create a new skin.
  * 
- * @see				primevc.gui.core.UIComponentBase
- * @see				primevc.gui.core.IUIComponentBase
+ * To create a component, extend UIComponent and override the 
+ * following methods:
+ * 	- createStates
+ * 	- createBehaviours
+ *  - createChildren
+ *  - createSkin
+ *  - removeStates
+ *  - removeSkin
+ *  - removeChildren
  * 
- * @creation-date	Jun 17, 2010
- * @author			Ruben Weijers
+ * Non of these methods need to call their super methods because they
+ * are empty.
+ *  
+ * When any behaviours outside of "public var behaviours" are defined,
+ * the removeBehaviours() method should be overridden.
+ * 
+ * @author Ruben Weijers
+ * @creation-date Jun 07, 2010
  */
-class UIComponent <DataProxyType> extends UIComponentBase, implements IUIComponent <DataProxyType>
+class UIComponent extends Sprite, implements IUIComponent
 {
-	public var data (default, setData)	: DataProxyType;
+	public var behaviours		(default, null)			: BehaviourList;
+	public var state			(default, null)			: UIComponentStates;
+	public var skin				(default, setSkin)		: ISkin;
+	public var layout			(default, null)			: LayoutClient;
+	public var graphicData		(default, null)			: Bindable < IGraphicShape >;
 	
 	
-	private function setData (newData)
+	private function new ()
 	{
-		data = newData;
-		if (skin != null && data != null)
-			componentState.current = componentState.initialized;
-		return data;
+		super();
+		init.onceOn( displayEvents.addedToStage, this );
+		visible = false;
+		
+		state			= new UIComponentStates();
+		behaviours		= new BehaviourList();
+		graphicData		= new Bindable < IGraphicShape > ();
+		
+		//add default behaviours
+		behaviours.add( new RenderGraphicsBehaviour(this) );
+		behaviours.add( new ValidateLayoutBehaviour(this) );
+		
+		createStates();
+		createBehaviours();
+		createLayout();
+		
+		state.current = state.constructed;
+	}
+
+
+	public function init ()
+	{
+		behaviours.init();
+		
+		//create a skin (if there is one defined for this component) and it's children
+		createSkin();
+		//overwrite the graphics of the skin with custom graphics (or do nothing if the method isn't overwritten)
+		createGraphics();
+		//create the children of this component after the skin has created it's children
+		createChildren();
+		
+		//notify the skin that the children of the UIComponent are created
+		if (skin != null)
+			skin.childrenCreated();
+		
+		//finish initializing
+		visible = true;
+		state.current = state.initialized; 
 	}
 	
 	
-	override private function setSkin (newSkin) {
-		newSkin = super.setSkin(newSkin);
+	override public function dispose ()
+	{
+		if (state == null)
+			return;
 		
-		if (newSkin != null && data != null)
-			componentState.current = componentState.initialized;
+		removeChildren();
 		
-		return newSkin;
+		//Change the state to disposed before the behaviours are removed.
+		//This way a behaviour is still able to respond to the disposed
+		//state.
+		state.current = state.disposed;
+		removeBehaviours();
+		removeStates();
+		
+		state.dispose();
+		
+		if (layout != null)
+			layout.dispose();
+		
+		if (graphicData != null)
+		{
+			if (graphicData.value != null)
+				graphicData.value.dispose();
+			
+			graphicData.dispose();
+			graphicData = null;
+		}
+		
+		state			= null;
+		behaviours		= null;
+		skin			= null;
+		layout			= null;
+		
+		super.dispose();
 	}
+	
+	
+	public inline function render () : Void
+	{
+		if (graphicData.value != null)
+		{
+			graphics.clear();
+			graphicData.value.draw(this, false);
+		}
+	}
+	
+	
+	
+	//
+	// SETTERS / GETTERS
+	//
+	
+	
+	private function setSkin (newSkin)
+	{
+		skin = newSkin;
+		
+		if (skin != null && skin.is(Skin)) {
+			cast(skin, Skin<Dynamic>).owner = this;
+		}
+		
+		return skin;
+	}
+	
+	
+	
+	//
+	// METHODS
+	//
+	
+	
+	private inline function removeBehaviours ()
+	{
+		behaviours.dispose();
+		behaviours = null;
+	}
+	
+	
+	private inline function removeSkin ()
+	{
+		skin = null;
+	}
+	
+	
+	
+	
+	//
+	// ABSTRACT METHODS
+	//
+	
+	private function createStates ()		: Void; //	{ Assert.abstract(); }
+	private function createBehaviours ()	: Void; //	{ Assert.abstract(); }
+	private function createLayout ()		: Void		{ Assert.abstract(); }
+	private function createGraphics ()		: Void; //	{ Assert.abstract(); }
+	private function createSkin ()			: Void; //	{ Assert.abstract(); }
+	private function createChildren ()		: Void		{ Assert.abstract(); }
+	
+	private function removeStates ()		: Void; //	{ Assert.abstract(); }
+	private function removeGraphics ()		: Void; //	{ Assert.abstract(); }
+	private function removeChildren ()		: Void		{ Assert.abstract(); }
+	
+	
+#if debug
+	public var id (default, setId) : String;
+	
+	
+	private inline function setId (v)
+	{
+		id = name = v;
+		if (layout != null)
+			layout.name = name + "Layout";
+		return v;
+	}
+	
+	
+	override public function toString() { return id; }
+#end
 }

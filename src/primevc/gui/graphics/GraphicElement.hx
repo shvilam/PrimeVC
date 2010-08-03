@@ -40,13 +40,8 @@ package primevc.gui.graphics;
  */
 class GraphicElement implements IGraphicElement 
 {
-	public var changes (default, null)		: UInt;
-	
-	/**
-	 * List with graphic-elements that want to be notified when values in this
-	 * instance changes
-	 */
-	public var listeners (default, null)	: FastList< IGraphicElement >;
+	public var changes		(default, null)	: UInt;
+	public var listeners	(default, null)	: FastList< IGraphicElement >;
 	
 	
 	public function new ()

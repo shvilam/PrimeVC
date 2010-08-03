@@ -26,43 +26,29 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.display;
- import primevc.core.geom.Matrix2D;
- import primevc.core.geom.Point;
- import primevc.gui.display.Window;
- import primevc.gui.traits.IDisplayable;
- 
+package primevc.gui.traits;
+ import primevc.core.geom.Rectangle;
+ import primevc.gui.display.ISprite;
+ import primevc.gui.events.DragEvents;
+
 
 /**
- * @creation-date	Jun 14, 2010
- * @author			Ruben Weijers
+ * Interface describing objects that can be dragged around.
+ * 
+ * @author Ruben Weijers
+ * @creation-date Jul 13, 2010
  */
-interface IDisplayObject implements IDisplayable
-	#if flash9 ,implements flash.display.IBitmapDrawable #end
+interface IDraggable implements ISprite
 {
-	/**
-	 * Reference to the object in which this displayobject is placed. It 
-	 * behaves like the 'parent' property in as3.
-	 */
-	var container		(default, setContainer)			: IDisplayContainer;
-
-	/**
-	 * Wrapper object for the stage.
-	 */
-	var window			(default, setWindow)			: Window;
+	public var dragEvents		(default, null)									: DragEvents;
 	
-	function isObjectOn (otherObj:IDisplayObject)	: Bool;
+	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) 		: Void;
+	public function stopDrag()													: Void;
 	
 	
 #if flash9
-	var filters					: Array < Dynamic >;
-	var name					: String;
-	var scrollRect				: flash.geom.Rectangle;
-	var transform				: flash.geom.Transform; //Matrix2D;
-	
-	function globalToLocal (point : Point) : Point;
-	function localToGlobal (point : Point) : Point;
+	public var dropTarget		(default, null)									: flash.display.DisplayObject;
 #else
-	var transform	(default, null)						: Matrix2D;
+	public var dropTarget		(default, null)									: IDisplayable;
 #end
 }

@@ -30,11 +30,11 @@ package primevc.gui.behaviours.drag;
  import haxe.Timer;
  import primevc.core.dispatcher.Wire;
  import primevc.core.IDisposable;
- import primevc.gui.display.IDisplayObject;
  import primevc.gui.display.ISprite;
  import primevc.gui.events.KeyboardEvents;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.input.Mouse;
+ import primevc.gui.traits.IDraggable;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
@@ -113,7 +113,7 @@ class DragHelper implements IDisposable
 	
 	private function startTimer (mouseObj:MouseState)
 	{
-		var mouseTarget = mouseObj.target.as(IDisplayObject);
+		var mouseTarget = mouseObj.target.as(ISprite);
 		if (mouseTarget != null && mouseTarget != target && mouseTarget.is(IDraggable))
 			return;
 		

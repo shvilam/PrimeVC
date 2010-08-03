@@ -26,29 +26,43 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours.drag;
- import primevc.core.geom.Rectangle;
- import primevc.gui.display.ISprite;
- import primevc.gui.events.DragEvents;
+package primevc.gui.graphics.shapes;
+ import primevc.core.dispatcher.Signal0;
+ import primevc.core.geom.IRectangle;
+ import primevc.gui.graphics.borders.IBorder;
+ import primevc.gui.graphics.fills.IFill;
+ import primevc.gui.graphics.IGraphicElement;
+ import primevc.gui.traits.IDrawable;
 
 
 /**
- * Interface describing objects that can be dragged around.
- * 
  * @author Ruben Weijers
- * @creation-date Jul 13, 2010
+ * @creation-date Jul 31, 2010
  */
-interface IDraggable implements ISprite
+interface IGraphicShape implements IGraphicElement
 {
-	public var dragEvents		(default, null)									: DragEvents;
+	public var fill			(default, setFill)		: IFill;
+	public var border		(default, setBorder)	: IBorder <IFill>;
+	public var layout		(default, setLayout)	: IRectangle; //LayoutClient;
 	
-	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) 		: Void;
-	public function stopDrag()													: Void;
+	/**
+	 * Signal to notify other objects than IGraphicElement of changes within
+	 * the shape.
+	 */
+	public var changeEvent	(default, null)			: Signal0;
 	
 	
-#if flash9
-	public var dropTarget		(default, null)									: flash.display.DisplayObject;
-#else
-	public var dropTarget		(default, null)									: IDisplayObject;
-#end
+	/**
+	* @param	target
+	* target in which the shape will be drawn
+	* 
+	* @param	useCoordinates
+	 * Flag indicating if the draw method should also use the coordinates of the
+	 * layoutclient.
+	 * 
+	 * If a shape is directly drawn into a IDrawable element, this is not the 
+	 * case. If a shape is part of a composition of shapes, then the shape 
+	 * should respect the coordinates of the LayoutClient.
+	 */
+	public function draw (target:IDrawable, ?useCoordinates:Bool = false) : Void;
 }

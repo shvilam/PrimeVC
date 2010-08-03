@@ -26,14 +26,24 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.layout;
+package primevc.gui.core;
+ import primevc.core.IDisposable;
+ import primevc.gui.traits.IBehaving;
+ import primevc.gui.traits.IDisplayable;
+ import primevc.gui.traits.IDrawable;
+ import primevc.gui.traits.ILayoutable;
 
 
 /**
  * @author Ruben Weijers
- * @creation-date Jul 30, 2010
+ * @creation-date Aug 02, 2010
  */
-interface ILayoutOwner
+interface IUIElement
+		implements IDrawable
+	,	implements ILayoutable
+	,	implements IBehaving
+	,	implements IDisplayable
+	,	implements IDisposable
 {
-	var layout (default, null) : LayoutClient;
+	
 }

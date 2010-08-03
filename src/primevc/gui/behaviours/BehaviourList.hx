@@ -27,26 +27,47 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours;
- import primevc.gui.core.IUIComponentBase;
-  using primevc.utils.Bind;
- 
+ import haxe.FastList;
+ import primevc.core.IDisposable;
+
+
+private typedef BehaviourType = IBehaviour<Dynamic>;
 
 /**
- * Description
+ * List with all available behaviours
  * 
- * @creation-date	Jun 10, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Aug 02, 2010
  */
-class ComponentBehaviour extends BehaviourBase < IUIComponentBase >
+class BehaviourList implements IDisposable
 {
-	override private function init ()
+	private var list : FastList <BehaviourType>;
+	
+	
+	public function new ()
 	{
-		target.init.on( target.componentState.initialized.entering, target );
+		list = new FastList<BehaviourType>();
 	}
 	
 	
-	override private function reset ()
+	public inline function removeAll ()
 	{
-		target.componentState.initialized.entering.unbind( target );
+		while (!list.isEmpty()) {
+			var b:BehaviourType = list.pop();
+			if (b != null)
+				b.dispose();
+		}
 	}
+	
+	
+	public inline function init ()
+	{
+		for (behaviour in list)
+			behaviour.initialize();
+	}
+	
+	
+	public inline function dispose ()					{ removeAll(); list = null; }
+	public inline function add (v:BehaviourType)		{ return list.add(v); }
+	public inline function remove (v:BehaviourType)		{ return list.remove(v); }
 }

@@ -27,38 +27,67 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
- import haxe.FastList;
  import primevc.core.IDisposable;
- import primevc.gui.behaviours.IBehaviour;
- import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.SkinStates;
+ import primevc.gui.traits.IBehaving;
 
 
 /**
  * Interface for a skin.
  * 
+ * Order of execution of methods of a skin:
+ * 	- IUIComponent creates skin
+ * 	- ISkin->constructor
+ * 		- createStates()
+ * 		- createChildren()
+ * 	- IUIComponent.createChildren()
+ * 	- IUIComponent -> ISkin.setupSkin()
+ * 
  * @author Ruben Weijers
- * @creation-date Jun 08, 2010
+ * @creation-date Aug 03, 2010
  */
-interface ISkin implements IDisposable
+interface ISkin 
+		implements IBehaving
+	,	implements IDisposable
 {
-	public var skinState		(default, null)		: SkinStates;
-	
+	public var skinState		(default, null)		: SkinStates;	
 //	public var owner			(default, setOwner) : OwnerClass;
-	public var layout			(default, null)		: LayoutClient;
-	
-	public var behaviours		(default, null)		: FastList < IBehaviour <Dynamic> >;
 	
 	
-	public function init ()					: Void;
-	
-	private function createLayout ()		: Void;
+	/**
+	 * Method for adding extra state objects to the skin
+	 */
 	private function createStates ()		: Void;
-	private function createBehaviours ()	: Void;
+	
+	/**
+	 * Creates the default graphical data of a UIComponent
+	 */
+	private function createGraphics ()		: Void;
+	
+	/**
+	 * A skin can have children, despite the fact that it isn't a IDisplayable 
+	 * object. It will add it's children to the child-list of it's owner.
+	 * After this method, the owner will creates it's children.
+	 */
 	private function createChildren ()		: Void;
 	
+	/**
+	 * This method is called after the owner has created it's children. It can 
+	 * be used e.g. to place them in a different container or change their 
+	 * depts or values.
+	 */
+	public function childrenCreated ()		: Void;
+	
+	
+	/**
+	 * Dispose method for all the extra states that where created for this skin.
+	 */
 	private function removeStates ()		: Void;
-	private function removeBehaviours ()	: Void;
+	
+	/**
+	 * Dispose all the children of this skin. This can happen when the owner 
+	 * is disposed or when the owner changes it's skin.
+	 */
 	private function removeChildren ()		: Void;
 	
 }

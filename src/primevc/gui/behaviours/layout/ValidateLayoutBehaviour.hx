@@ -29,21 +29,19 @@
 package primevc.gui.behaviours.layout;
  import primevc.core.dispatcher.Wire;
  import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.core.ISkin;
+ import primevc.gui.core.UIComponent;
  import primevc.gui.states.LayoutStates;
   using primevc.utils.Bind;
  
 
 /**
- * Class defines the default skin behaviour.
- * It will do the following things:
- * 	- trigger skin.createChildren when the skin is added to the stage
- *  - trigger layout.validate on a 'enterFrame event' when the layout is invalidated
+ * Instance will trigger layout.validate on a 'enterFrame event' when the 
+ * layout is invalidated.
  * 
  * @creation-date	Jun 14, 2010
  * @author			Ruben Weijers
  */
-class SkinLayoutBehaviour extends BehaviourBase < ISkin >
+class ValidateLayoutBehaviour extends BehaviourBase < UIComponent >
 {
 	/**
 	 * Reference to the last used enterFrame binding. If the state of a 
@@ -56,9 +54,7 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 	
 	override private function init ()
 	{
-		if (target.layout == null)
-			return;
-		
+		Assert.that(target.layout != null, "Layout of "+target+" can't be null for "+this);
 		layoutStateChangeHandler.on( target.layout.states.change, this );
 #if flash9
 		invalidateWindow		.on( target.layout.events.posChanged, this );
@@ -128,9 +124,9 @@ class SkinLayoutBehaviour extends BehaviourBase < ISkin >
 		if (target.container == null)
 			return;
 		
-	//	trace("invalidateWindow "+target);
-		target.window.invalidate();
+	//	trace("invalidateWindow "+target);	
 		renderBinding = applyPosition.on( target.displayEvents.render, this );
+		target.window.invalidate();
 	}
 	
 	
