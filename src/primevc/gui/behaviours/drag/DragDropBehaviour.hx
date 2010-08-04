@@ -86,6 +86,7 @@ class DragDropBehaviour extends DragBehaviourBase
 		target.window.children.add( cast target );
 		target.x		= pos.x;
 		target.y		= pos.y;
+		trace("startDraggin "+target+"; origPos: "+dragSource.origPosition+"; newPosition: "+pos);
 		target.visible	= true;
 #end
 		

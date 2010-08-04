@@ -186,7 +186,6 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	 */
 	public function createTileMap () : Void
 	{
-		trace(this + ".createTileMap!");
 		var children		= group.children;
 		var childLen:Int	= children.length;
 		var childNum:Int	= 0;
@@ -326,7 +325,7 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	
 	private inline function validateMaps ()
 	{
-#if debug
+#if (debug && debugLayout)
 		var len = horizontalMap.length;
 		
 		for (i in 0...len)

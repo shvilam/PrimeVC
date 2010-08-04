@@ -51,7 +51,6 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >
 #if flash9	invalidateWindow.on( target.layout.events.sizeChanged, this );
 #else		renderTarget.on( target.layout.events.sizeChanged, this );		#end
 		
-		
 		updateGraphicBinding.on( target.graphicData.change, this );
 		
 		if (target.graphicData.value != null)
@@ -65,6 +64,7 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >
 			return;
 		
 		target.layout.events.sizeChanged.unbind(this);
+		
 		if (renderBinding != null) {
 			renderBinding.dispose();
 			renderBinding = null;
@@ -83,37 +83,39 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >
 	 */
 	private inline function updateGraphicBinding ()
 	{
-		if (graphicsBinding != null)
+		if (graphicsBinding != null) {
 			graphicsBinding.dispose();
+			graphicsBinding = null;
+		}
 		
 		if (target.graphicData.value != null)
 		{
 #if flash9	graphicsBinding = invalidateWindow.on( target.graphicData.value.changeEvent, this );
 #else		graphicsBinding = renderTarget.on( target.graphicData.value.changeEvent, this );			#end
 		}
+		
+		if (graphicsBinding != null && renderBinding == null)
+		{
+			renderBinding = renderTarget.on( target.displayEvents.render, this );
+			renderBinding.disable();
+		}
 	}
 		
 	
 	private function invalidateWindow ()
 	{
-		if (target.window == null || renderBinding != null || target.graphicData.value == null)
+		if (target.window == null || target.graphicData.value == null)
 			return;
 		
-		trace("invalidateWindow "+target);	
-		renderBinding = renderTarget.on( target.displayEvents.render, this );
+		renderBinding.enable();
 		target.window.invalidate();
-	//	target.render.on( target.displayEvents.enterFrame, this );
 	}
 	
 	
 	private function renderTarget ()
 	{
-		if (renderBinding == null)
-			return;
-		
-		renderBinding.dispose();
-		renderBinding = null;
-		trace("render "+target+" size: "+target.layout.bounds.width+", "+target.layout.bounds.height);
+		renderBinding.disable();
+	//	trace("render "+target+" size: "+target.layout.bounds.width+", "+target.layout.bounds.height);
 		target.graphics.clear();
 		target.graphicData.value.draw( target, false );
 	}

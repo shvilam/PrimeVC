@@ -71,8 +71,8 @@ class DragBehaviourBase extends BehaviourBase <IDraggable>
 	}
 	
 	
-	private function startDrag (mouseObj:MouseState) : Void	{}
-	private function cancelDrag (mouseObj:MouseState) : Void {}
+	private function startDrag (mouseObj:MouseState) : Void	{ Assert.abstract(); }
+	private function cancelDrag (mouseObj:MouseState) : Void { Assert.abstract(); }
 
 
 	private function stopDrag (mouseObj:MouseState) : Void

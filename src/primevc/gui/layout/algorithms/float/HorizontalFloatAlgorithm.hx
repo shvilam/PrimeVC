@@ -302,9 +302,6 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 		var depth:Int	= 0;
 		var posX:Int	= bounds.left;
 		var centerX:Int	= bounds.left + (bounds.width * .5).int();
-	//	if (group.is(IScrollableLayout))
-	//		posX += group.as(IScrollableLayout).scrollPos.x;
-		
 		
 		if (group.childWidth.isSet())
 		{
@@ -321,11 +318,9 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 					groupWidth = IntMath.max( 0, group.as(AdvancedLayoutClient).measuredWidth );
 				
 				var halfW = groupWidth * .5;
-				
 				if (posX < halfW) {
 					//start at beginning
 					for (child in group.children) {
-					//	trace("comparing "+centerX+ " <= "+child.bounds.right+"; && " +centerX +" > "+child.bounds.left+"; centerX "+child.bounds.centerX);
 						if (child.includeInLayout && centerX <= child.bounds.right && centerX >= child.bounds.left)
 							break;
 						
@@ -339,7 +334,6 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 					depth	= group.children.length;
 					while (itr.hasNext()) {
 						var child = itr.next();
-						trace("comparing "+child+"; "+bounds.right+ " <= "+child.bounds.right+" && " +centerX +" >= "+child.bounds.left+"; centerX "+child.bounds.centerX);
 						if (child.includeInLayout && centerX >= child.bounds.right)
 							break;
 						
@@ -357,8 +351,6 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 		var depth:Int	= 0;
 		var posX:Int	= bounds.left;
 		var centerX:Int	= bounds.left + (bounds.width * .5).int();
-	//	if (group.is(IScrollableLayout))
-	//		posX += group.as(IScrollableLayout).scrollPos.x;
 		
 		var groupWidth	= group.width;
 		if (group.is(AdvancedLayoutClient))
@@ -386,8 +378,6 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 		var depth:Int	= 0;
 		var posX:Int	= bounds.left;
 		var centerX:Int	= bounds.left + (bounds.width * .5).int();
-	//	if (group.is(IScrollableLayout))
-	//		posX += group.as(IScrollableLayout).scrollPos.x;
 		
 		if (group.childWidth.isSet())
 		{

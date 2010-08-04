@@ -125,7 +125,7 @@ class LayoutApp extends UIContainer <Dynamic>
 		
 		var frame2							= new TileList( "frame2", true, true, 150 );
 		var frame2Alg						= new FixedTileAlgorithm();
-		frame2Alg.maxTilesInDirection		= 15;
+		frame2Alg.maxTilesInDirection		= 16;
 		frame2Alg.startDirection			= Direction.vertical;
 	//	frame2Alg.horizontalDirection		= Horizontal.right;
 	//	frame2Alg.verticalDirection			= Vertical.bottom;
@@ -290,6 +290,7 @@ class Tile extends Button, implements IDraggable
 {	
 	private var dynamicSize					: Bool;
 	public var dragEvents (default, null)	: DragEvents;
+	public var isDragging					: Bool;
 	
 	
 	public function new (?dynamicSize = false)
@@ -324,6 +325,7 @@ class Tile extends Button, implements IDraggable
 class DragButton extends Button, implements IDraggable
 {
 	public var dragEvents (default, null)	: DragEvents;
+	public var isDragging					: Bool;
 	
 	
 	public function new ()
@@ -449,7 +451,7 @@ class Frame extends UIContainer < String >
 #if (debug && flash9)
 	override private function createChildren () {
 		textField = new TextField();
-		textField.text = name;
+		textField.text = id.value;
 		textField.autoSize = flash.text.TextFieldAutoSize.LEFT;
 		textField.setTextFormat( new TextFormat("Verdana", 15, 0x00 ) );
 		textField.mouseEnabled = false;
@@ -513,6 +515,7 @@ class TileList extends Frame, implements IDropTarget
 	
 	override private function createChildren ()
 	{
+		super.createChildren();
 		for ( i in 0...tilesToCreate )
 			addTile();
 	}
