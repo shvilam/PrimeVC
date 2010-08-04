@@ -29,7 +29,7 @@
 package primevc.gui.behaviours.layout;
  import primevc.core.dispatcher.Wire;
  import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.display.Window;
+ import primevc.gui.core.UIWindow;
  import primevc.gui.states.LayoutStates;
   using primevc.utils.Bind;
 
@@ -38,7 +38,7 @@ package primevc.gui.behaviours.layout;
  * @author Ruben Weijers
  * @creation-date Jul 26, 2010
  */
-class WindowLayoutBehaviour extends BehaviourBase < Window >
+class WindowLayoutBehaviour extends BehaviourBase < UIWindow >
 {
 	/**
 	 * Reference to the last used enterFrame binding. If the state of a 

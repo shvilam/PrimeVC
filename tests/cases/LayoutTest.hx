@@ -25,6 +25,7 @@ package cases;
  import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIDataComponent;
  import primevc.gui.core.UIGraphic;
+ import primevc.gui.core.UIWindow;
  import primevc.gui.events.DragEvents;
  import primevc.gui.events.DropTargetEvents;
  import primevc.gui.events.MouseEvents;
@@ -67,35 +68,18 @@ package cases;
  * @creation-date	Jul 13, 2010
  * @author			Ruben Weijers
  */
-class LayoutTest extends Application
+class LayoutTest
 {
-	public static function main () { Application.startup( LayoutTest ); }
-	
-/*#if debug
-	private var frameStats : FrameStats;
-#end*/
-	
-	public function new (target)
+	public static function main () { Application.startup( LayoutTestWindow ); }
+}
+
+class LayoutTestWindow extends UIWindow
+{
+	override private function createChildren ()
 	{
-		super(target);
-		var skin = new LayoutApp();
-		window.layout.children.add( skin.layout );
-		window.children.add( skin );
-/*#if debug
-		frameStats = new FrameStats(skin);
-		window.children.add( frameStats );
-		moveFrameStats.on( window.layout.events.sizeChanged, this );
-		moveFrameStats();
-#end*/
+		var app = new LayoutApp();
+		children.add( app );
 	}
-	
-/*
-#if debug
-	private function moveFrameStats ()
-	{
-		frameStats.x = window.layout.width - FrameStats.WIDTH;
-	}
-#end*/
 }
 
 
