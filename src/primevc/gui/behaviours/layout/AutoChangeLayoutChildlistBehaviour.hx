@@ -28,8 +28,9 @@
  */
 package primevc.gui.behaviours.layout;
  import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.core.IUIContainer;
+ import primevc.gui.display.IDisplayContainer;
  import primevc.gui.layout.LayoutContainer;
+ import primevc.gui.layout.LayoutClient;
  import primevc.gui.traits.IDisplayable;
  import primevc.gui.traits.ILayoutable;
   using primevc.utils.Bind;
@@ -37,30 +38,31 @@ package primevc.gui.behaviours.layout;
 
 
 /**
- * Behaviour to automaticly update the layoutGroup of a Skin when the display-
- * list of this skin changes.
+ * Behaviour to automaticly update the layoutGroup of a component when the 
+ * displaylist of the component changes.
  * 
- * LayoutObjects of the children of the skin will be added, moved and removed
+ * LayoutObjects of the children of the component will be added, moved and removed
  * at the same depths as they are placed in the displayList.
  * 
  * For example: 
- * 		skinObj.children.add( someSkin, 3 );
+ * 		uiObj.children.add( someSkin, 3 );
  * 
- * Will cause the layout of someSkin to be added in the layoutGroup of skinObj
- * on depth 3 (skinObj.layoutGroup.children.add(someSkin.layout, 3);).
+ * Will cause the layout of someSkin to be added in the layoutGroup of uiObj
+ * on depth 3 (uiObj.layoutGroup.children.add(someSkin.layout, 3);).
  * 
  * @author Ruben Weijers
  * @creation-date Jul 28, 2010
  */
-class AutoChangeLayoutChildlistBehaviour extends BehaviourBase < IUIContainer >
+class AutoChangeLayoutChildlistBehaviour extends BehaviourBase < IDisplayContainer >
 {
 	private var layoutGroup	: LayoutContainer;
 	
 	
 	override private function init ()
 	{
-		Assert.that(target.layoutContainer != null, "Layout of "+target+" can't be null for "+this);
-		layoutGroup = target.layoutContainer;
+		Assert.that(target.is(ILayoutable), "Target must be "+target+" must be ILayoutable");
+		Assert.that(target.as(ILayoutable).layout.is(LayoutContainer), "Layout of "+target+" must be ILayoutContainer");
+		layoutGroup = target.as(ILayoutable).layout.as(LayoutContainer);
 		
 		addedHandler	.on( target.children.events.added, this );
 		removedHandler	.on( target.children.events.removed, this );

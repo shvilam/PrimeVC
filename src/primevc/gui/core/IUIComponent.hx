@@ -48,9 +48,8 @@ interface IUIComponent
 	 */
 	private function createStates ()				: Void;
 	/**
-	 * After creating the behaviours, the component can also create child UIComponents.
-	 * These components can be added by callig the addChild method. This will
-	 * on default also add the skin of the child as child to the parent skin.
+	 * After creating the behaviours, the component can also create child 
+	 * UIComponents.
 	 */
 	private function createChildren ()				: Void;
 	
