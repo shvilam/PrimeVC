@@ -508,7 +508,7 @@ class Frame extends UIContainer < String >
 /*
 
 class UIList <ListType:IList, RenderType:IUIElement> extends UIContainer < ListType >
-{
+{ 
 	
 }
 */
