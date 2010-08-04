@@ -28,9 +28,9 @@
  */
 package primevc.gui.core;
  import primevc.core.IDisposable;
+ import primevc.gui.display.IDisplayObject;
  import primevc.gui.states.UIElementStates;
  import primevc.gui.traits.IBehaving;
- import primevc.gui.traits.IDisplayable;
  import primevc.gui.traits.IDrawable;
  import primevc.gui.traits.IIdentifiable;
  import primevc.gui.traits.ILayoutable;
@@ -40,11 +40,11 @@ package primevc.gui.core;
  * @author Ruben Weijers
  * @creation-date Aug 02, 2010
  */
-interface IUIElement
-		implements IDrawable
+interface IUIElement	
+		implements IDisplayObject
+	,	implements IDrawable
 	,	implements ILayoutable
 	,	implements IBehaving
-	,	implements IDisplayable
 	,	implements IIdentifiable
 	,	implements IDisposable
 {

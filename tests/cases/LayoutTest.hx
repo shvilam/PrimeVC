@@ -119,7 +119,7 @@ class LayoutApp extends UIContainer <Dynamic>
 	//	frame0.layout.width					= 150;
 		
 		var frame1							= new TileList( "frame1", true );
-		frame1.layoutContainer.algorithm	= new HorizontalFloatAlgorithm( Horizontal.right );
+		frame1.layoutContainer.algorithm	= new HorizontalFloatAlgorithm( Horizontal.left );
 		frame1.layout.height				= 60;
 		frame1.layout.relative				= new RelativeLayout( 5, 5, -100000, 5 );
 		
@@ -238,9 +238,11 @@ class Button extends UIDataComponent < String >
 	public function new (?id:String = "button")
 	{
 		color		= 0xaaaaaa;
-		super(id);
 #if debug
 		num			= counter++;
+		super(id + num);
+#else
+		super(id);
 #end
 	}
 	
@@ -293,7 +295,7 @@ class Tile extends Button, implements IDraggable
 	public function new (?dynamicSize = false)
 	{
 		this.dynamicSize = dynamicSize;
-		super("tile" + num);
+		super("tile");
 		color = Color.random();
 		dragEvents = new DragEvents();
 	}

@@ -88,6 +88,13 @@ class WindowLayoutBehaviour extends BehaviourBase < UIWindow >
 	private function measure () {
 		removeEnterFrameBinding();
 		target.layout.measure();
+		
+#if flash9
+		if (target.graphicData.value != null) {
+			target.bgShape.width	= target.layout.width;
+			target.bgShape.height	= target.layout.height;
+		}
+#end
 	}
 
 

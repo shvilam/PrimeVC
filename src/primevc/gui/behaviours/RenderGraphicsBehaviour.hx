@@ -54,7 +54,7 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >
 		
 		updateGraphicBinding.on( target.graphicData.change, this );
 		
-		if (target.graphicData != null)
+		if (target.graphicData.value != null)
 			updateGraphicBinding();
 	}
 	
@@ -96,10 +96,10 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >
 	
 	private function invalidateWindow ()
 	{
-		if (target.window == null || renderBinding != null)
+		if (target.window == null || renderBinding != null || target.graphicData.value == null)
 			return;
 		
-	//	trace("invalidateWindow "+target);	
+		trace("invalidateWindow "+target);	
 		renderBinding = renderTarget.on( target.displayEvents.render, this );
 		target.window.invalidate();
 	//	target.render.on( target.displayEvents.enterFrame, this );
@@ -113,7 +113,8 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >
 		
 		renderBinding.dispose();
 		renderBinding = null;
-	//	trace("render "+target+" size: "+target.layout.bounds.width+", "+target.layout.bounds.height);
-		target.render();
+		trace("render "+target+" size: "+target.layout.bounds.width+", "+target.layout.bounds.height);
+		target.graphics.clear();
+		target.graphicData.value.draw( target, false );
 	}
 }

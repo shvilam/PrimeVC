@@ -55,5 +55,5 @@ interface IDrawable
 	/**
 	 * Method to render the graphics in this object.
 	 */
-	public function render ()						: Void;
+//	public function render ()						: Void;
 }

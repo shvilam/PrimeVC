@@ -175,17 +175,6 @@ class UIComponent extends Sprite, implements IUIComponent
 	}
 
 
-	public inline function render () : Void
-	{
-		if (graphicData.value != null)
-		{
-			graphics.clear();
-			graphicData.value.draw(this, false);
-		}
-	}
-
-
-
 	//
 	// SETTERS / GETTERS
 	//

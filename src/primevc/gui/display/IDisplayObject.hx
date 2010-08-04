@@ -26,33 +26,41 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours.scroll;
- import primevc.gui.display.IDisplayObject;
- import primevc.gui.events.KeyModState;		// <= needed for typedef TargetType
- import primevc.gui.events.MouseEvents;
- import primevc.gui.layout.IScrollableLayout;
- import primevc.gui.traits.IScrollable;
-  using primevc.utils.TypeUtil;
-
+package primevc.gui.display;
+ import primevc.core.geom.Point;
+ import primevc.gui.traits.IDisplayable;
+ import primevc.gui.traits.IPositionable;
+ import primevc.gui.traits.ISizeable;
 
 
 /**
- * Defines some methods that are used by most scroll classes.
- * 
  * @author Ruben Weijers
- * @creation-date Jul 29, 2010
+ * @creation-date Aug 04, 2010
  */
-class ScrollHelper
+interface IDisplayObject 
+				implements IDisplayable
+			,	implements IPositionable
+			,	implements ISizeable
+#if flash9  ,	implements flash.display.IBitmapDrawable #end
 {
-	public static inline function getLocalMouse (target:IScrollable, mouseObj:MouseState)
-	{
-		var mousePos = (mouseObj.target != target.container.as(TargetType))
-							? target.container.as(IDisplayObject).globalToLocal(mouseObj.stage)
-							: mouseObj.local;
-		
-		var scrollLayout = target.scrollableLayout;
-		mousePos.x -= scrollLayout.getHorPosition() + scrollLayout.padding.left;
-		mousePos.y -= scrollLayout.getVerPosition() + scrollLayout.padding.top;
-		return mousePos;
-	}
+	
+	function isObjectOn (otherObj:IDisplayObject)		: Bool;
+	
+	
+#if flash9
+	var alpha					: Float;
+	var visible					: Bool;
+	
+	var filters					: Array < Dynamic >;
+	var name					: String;
+	var scrollRect				: flash.geom.Rectangle;
+	var transform				: flash.geom.Transform; //Matrix2D;
+	
+	function globalToLocal (point : Point) : Point;
+	function localToGlobal (point : Point) : Point;
+#else
+	var visible		(getVisibility, setVisibility)		: Bool;
+	var alpha		(getAlpha,		setAlpha)			: Float;
+	var transform	(default, null)						: primevc.core.geom.Matrix2D;
+#end
 }

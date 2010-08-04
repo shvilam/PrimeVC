@@ -49,33 +49,49 @@ typedef DocumentType =
  * @author Ruben Weijers
  * @creation-date Jul 13, 2010
  */
-class Window implements IDisplayContainer, implements IInteractive
+class Window
+		implements IDisplayContainer
+	,	implements IInteractive
 {
+	
+	public var application		(default, null)			: Application;
+	
+	//
+	// IDISPLAYCONTAINER PROPERTIES
+	//
+	
 	/**
 	 * Target is the original, platform-specific, root object. Although this
 	 * property is set as public, it's not recommended to use this property
 	 * directly!
 	 */
-	public var target			(default, null)		: DocumentType;
-	public var children			(default, null)		: DisplayList;
-	public var window			(default, setWindow): Window;
-	public var application		(default, null)		: Application;
+	public var target			(default, null)			: DocumentType;
+	public var children			(default, null)			: DisplayList;
 	
-	public var displayEvents	(default, null)		: DisplayEvents;
-	public var userEvents		(default, null)		: UserEvents;
+	//
+	// IDISPLAYABLE PROPERTIES
+	//
 	
-	public var mouse			(default, null)		: Mouse;
+	public var window			(default, setWindow)	: Window;
+	public var container		(default, setContainer)	: IDisplayContainer;
+	public var displayEvents	(default, null)			: DisplayEvents;
+	
+	public var userEvents		(default, null)			: UserEvents;
+	public var mouse			(default, null)			: Mouse;
+	
+	
 	
 	
 	public function new (target:DocumentType, app:Application)
 	{
-		this.target			= target;
-		children			= new DisplayList( target, this );
-		window				= this;
-		application			= app;
-		displayEvents		= new DisplayEvents( target );
-		userEvents			= new UserEvents( target );
-		mouse				= new Mouse( this );
+		this.target		= target;
+		window			= this;
+		application		= app;
+		
+		children		= new DisplayList( target, this );
+		displayEvents	= new DisplayEvents( target );
+		userEvents		= new UserEvents( target );
+		mouse			= new Mouse( this );
 	}
 	
 	
@@ -123,6 +139,11 @@ class Window implements IDisplayContainer, implements IInteractive
 	private inline function setWindow (v) {
 		return window = this;
 	}
+	
+	private inline function setContainer (v) {
+		return null;
+	}
+	
 	
 #if debug
 	public inline function toString () { return "Window"; }

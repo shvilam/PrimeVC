@@ -93,16 +93,6 @@ class UIGraphic extends Shape, implements IUIElement
 	}
 	
 	
-	public inline function render () : Void
-	{
-		if (graphicData.value != null)
-		{
-			graphics.clear();
-			graphicData.value.draw(this, false);
-		}
-	}
-	
-	
 	private inline function removeBehaviours ()
 	{
 		behaviours.dispose();

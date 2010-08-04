@@ -26,33 +26,27 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours.scroll;
- import primevc.gui.display.IDisplayObject;
- import primevc.gui.events.KeyModState;		// <= needed for typedef TargetType
- import primevc.gui.events.MouseEvents;
- import primevc.gui.layout.IScrollableLayout;
- import primevc.gui.traits.IScrollable;
-  using primevc.utils.TypeUtil;
-
+package primevc.gui.traits;
 
 
 /**
- * Defines some methods that are used by most scroll classes.
- * 
  * @author Ruben Weijers
- * @creation-date Jul 29, 2010
+ * @creation-date Aug 04, 2010
  */
-class ScrollHelper
+interface ISizeable
 {
-	public static inline function getLocalMouse (target:IScrollable, mouseObj:MouseState)
-	{
-		var mousePos = (mouseObj.target != target.container.as(TargetType))
-							? target.container.as(IDisplayObject).globalToLocal(mouseObj.stage)
-							: mouseObj.local;
-		
-		var scrollLayout = target.scrollableLayout;
-		mousePos.x -= scrollLayout.getHorPosition() + scrollLayout.padding.left;
-		mousePos.y -= scrollLayout.getVerPosition() + scrollLayout.padding.top;
-		return mousePos;
-	}
+#if flash9
+	var height					: Float;
+	var width					: Float;
+	
+	var scaleX					: Float;
+	var scaleY					: Float;
+	
+	#if flash10
+	var scaleZ					: Float;
+	#end
+#else
+	var width		(getWidth,		setWidth)			: Float;
+	var height		(getHeight,		setHeight)			: Float;
+#end
 }
