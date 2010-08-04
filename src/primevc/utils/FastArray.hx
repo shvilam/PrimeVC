@@ -135,6 +135,20 @@ class FastArrayUtil
 		return list.indexOf( item ) >= 0;
 	}
 	
+	
+#if debug
+	public static inline function asString<T>( list:FastArray<T> )
+	{
+		var items:FastArray<String> = FastArrayUtil.create();
+		var i = 0;
+		for (item in list) {
+			items.push( "[ " + i + " ] = " + item );
+			i++;
+		}
+		return "FastArray ("+items.length+")\n" + items.join("\n");
+	}
+#end
+	
 /*	
 	public static inline function insert<T> ( list:FastArray<T>, arg0:T, ?arg1:T, ?arg2:T, ?arg3:T, ?arg4:T, ?arg5:T, ?arg6:T, ?arg7:T, ?arg8:T, ?arg9:T, ?arg10:T, ?arg11:T )
 	{

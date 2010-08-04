@@ -68,14 +68,17 @@ class UIComponent extends Sprite, implements IUIComponent
 {
 	public var behaviours		(default, null)			: BehaviourList;
 	public var state			(default, null)			: UIElementStates;
+	public var id				(default, null)			: Bindable < String >;
+	
 	public var skin				(default, setSkin)		: ISkin;
 	public var layout			(default, null)			: LayoutClient;
 	public var graphicData		(default, null)			: Bindable < IGraphicShape >;
 	
 	
-	private function new ()
+	private function new (?id:String)
 	{
 		super();
+		this.id	= new Bindable<String>(id);
 		visible = false;
 		init.onceOn( displayEvents.addedToStage, this );
 		
@@ -218,18 +221,6 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	
 #if debug
-	public var id (default, setId) : String;
-	
-	
-	private inline function setId (v)
-	{
-		id = name = v;
-		if (layout != null)
-			layout.name = name + "Layout";
-		return v;
-	}
-	
-	
-	override public function toString() { return id; }
+	override public function toString() { return id.value; }
 #end
 }

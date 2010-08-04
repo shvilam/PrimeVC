@@ -26,27 +26,15 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.core;
- import primevc.core.IDisposable;
- import primevc.gui.states.UIElementStates;
- import primevc.gui.traits.IBehaving;
- import primevc.gui.traits.IDisplayable;
- import primevc.gui.traits.IDrawable;
- import primevc.gui.traits.IIdentifiable;
- import primevc.gui.traits.ILayoutable;
+package primevc.gui.traits;
+ import primevc.core.Bindable;
 
 
 /**
  * @author Ruben Weijers
- * @creation-date Aug 02, 2010
+ * @creation-date Aug 04, 2010
  */
-interface IUIElement
-		implements IDrawable
-	,	implements ILayoutable
-	,	implements IBehaving
-	,	implements IDisplayable
-	,	implements IIdentifiable
-	,	implements IDisposable
+interface IIdentifiable
 {
-	public var state	(default, null)	: UIElementStates;	
+	public var id	(default, null)		: Bindable < String >;
 }

@@ -108,8 +108,7 @@ class LayoutApp extends UIContainer <Dynamic>
 {
 	public function new ()
 	{
-		super();
-		id = "LayoutApp";
+		super("LayoutApp");
 	}
 	
 	override private function createLayout ()
@@ -130,17 +129,17 @@ class LayoutApp extends UIContainer <Dynamic>
 	
 	override private function createChildren ()
 	{
-		var frame0							= new TileList( true );
+		var frame0							= new TileList( "frame0", true );
 		frame0.layoutContainer.algorithm	= new VerticalFloatAlgorithm( Vertical.bottom );
 		frame0.layout.percentHeight			= 100;
 	//	frame0.layout.width					= 150;
 		
-		var frame1							= new TileList( true );
+		var frame1							= new TileList( "frame1", true );
 		frame1.layoutContainer.algorithm	= new HorizontalFloatAlgorithm( Horizontal.right );
 		frame1.layout.height				= 60;
 		frame1.layout.relative				= new RelativeLayout( 5, 5, -100000, 5 );
 		
-		var frame2							= new TileList( true, true, 150 );
+		var frame2							= new TileList( "frame2", true, true, 150 );
 		var frame2Alg						= new FixedTileAlgorithm();
 		frame2Alg.maxTilesInDirection		= 15;
 		frame2Alg.startDirection			= Direction.vertical;
@@ -150,29 +149,29 @@ class LayoutApp extends UIContainer <Dynamic>
 		frame2.layout.relative				= new RelativeLayout( frame1.layout.bounds.bottom + 5, -100000, 5, 5 );
 		frame2.layout.percentWidth			= 58;
 		
-		var frame3							= new TileList( true );
+		var frame3							= new TileList( "frame3", true );
 		frame3.layoutContainer.algorithm	= new DynamicTileAlgorithm();
 		frame3.layout.percentWidth			= 100;
 		frame3.layout.percentHeight			= 40;
 		
-		var frame4							= new Frame();
+		var frame4							= new Frame("frame4");
 		frame4.layout.percentWidth			= 50;
 		frame4.layout.percentHeight			= 100;
 		
-		var frame5							= new Frame();
+		var frame5							= new Frame("frame5");
 		frame5.layout.percentWidth			= LayoutFlags.FILL;
 		frame5.layout.percentHeight			= 100;
 		
-		var frame6							= new Frame();
+		var frame6							= new Frame("frame6");
 		frame6.layout.percentWidth			= LayoutFlags.FILL;
 		frame6.layout.percentHeight			= 100;
 		
-		var frame7							= new Frame();
+		var frame7							= new Frame("frame7");
 		frame7.layout.percentWidth			= 60;
 		frame7.layout.percentHeight			= 5;
 	//	frame7.layout.sizeConstraint	= new SizeConstraint(100, 400, 50, 200);
 		
-		var frame8							= new TileList( true );
+		var frame8							= new TileList( "frame8", true );
 		frame8.layout.percentWidth			= 100;
 		frame8.layout.percentHeight			= 40;
 		frame8.layoutContainer.algorithm	= new DynamicLayoutAlgorithm(
@@ -196,18 +195,8 @@ class LayoutApp extends UIContainer <Dynamic>
 		box2.algorithm			= new HorizontalFloatAlgorithm();
 		box2.percentWidth		= 100;
 		box2.percentHeight	 	= 15;
-		
+
 #if debug
-		frame0.id = "frame0";
-		frame1.id = "frame1";
-		frame2.id = "frame2";
-		frame3.id = "frame3";
-		frame4.id = "frame4";
-		frame5.id = "frame5";
-		frame6.id = "frame6";
-		frame7.id = "frame7";
-		frame8.id = "frame8";
-		
 		box0.name	= "box0";
 		box1.name	= "box1";
 		box2.name	= "box2";
@@ -262,14 +251,12 @@ class Button extends UIDataComponent < String >
 	private var fill			: SolidFill;
 	
 	
-	public function new ()
+	public function new (?id:String = "button")
 	{
 		color		= 0xaaaaaa;
-		super();
+		super(id);
 #if debug
 		num			= counter++;
-		if (id == null)
-			id = "button";
 #end
 	}
 	
@@ -322,11 +309,8 @@ class Tile extends Button, implements IDraggable
 	public function new (?dynamicSize = false)
 	{
 		this.dynamicSize = dynamicSize;
-		super();
+		super("tile" + num);
 		color = Color.random();
-#if debug
-		id = "tile" + num;
-#end
 		dragEvents = new DragEvents();
 	}
 
@@ -468,15 +452,6 @@ class Frame extends UIContainer < String >
 #end
 	private var color 		: UInt;
 	private var fill		: SolidFill;
-	
-
-	public function new ()
-	{
-		super();
-#if debug
-		id = "frame";
-#end
-	}
 
 
 	override private function createLayout ()
@@ -524,7 +499,7 @@ class TileList extends Frame, implements IDropTarget
 	public var dynamicSizes		: Bool;
 
 
-	public function new (dynamicSizes = false, allowDropFromOtherLists = true, tilesToCreate:Int = 50)
+	public function new (id:String = null, dynamicSizes = false, allowDropFromOtherLists = true, tilesToCreate:Int = 50)
 	{	
 		this.tilesToCreate				= tilesToCreate;
 		this.dynamicSizes				= dynamicSizes;
@@ -532,10 +507,7 @@ class TileList extends Frame, implements IDropTarget
 		doubleClickEnabled				= true;
 		
 		dragEvents	= new DropTargetEvents();
-		super();
-#if debug
-		id = "TilesOwner";
-#end
+		super(id);
 	}
 
 	override private function createBehaviours ()
