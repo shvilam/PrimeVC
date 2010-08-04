@@ -29,17 +29,13 @@
 package primevc.gui.display;
  import haxe.FastList;
  import primevc.core.Application;
- import primevc.gui.behaviours.layout.WindowLayoutBehaviour;
- import primevc.gui.behaviours.IBehaviour;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEvents;
  import primevc.gui.input.Mouse;
- import primevc.gui.layout.algorithms.RelativeAlgorithm;
- import primevc.gui.layout.LayoutContainer;
  import primevc.gui.traits.IInteractive;
 
 
-private typedef TargetType = 
+typedef DocumentType = 
 	#if			flash9		flash.display.Stage;
 	#else if	js			Window;
 	#else					IDisplayObjectContainer;
@@ -50,8 +46,7 @@ private typedef TargetType =
  * Window is wrapper class for the stage. It provides each Sprite and Shape 
  * with the ability to talk with the stage in a platform-indepedent way.
  * 
- * @author Ruben Weijer
- * s
+ * @author Ruben Weijers
  * @creation-date Jul 13, 2010
  */
 class Window implements IDisplayContainer, implements IInteractive
@@ -61,21 +56,18 @@ class Window implements IDisplayContainer, implements IInteractive
 	 * property is set as public, it's not recommended to use this property
 	 * directly!
 	 */
-	public var target			(default, null)		: TargetType;
+	public var target			(default, null)		: DocumentType;
 	public var children			(default, null)		: DisplayList;
 	public var window			(default, setWindow): Window;
 	public var application		(default, null)		: Application;
-	
-	public var layout			(default, null)		: LayoutContainer;
 	
 	public var displayEvents	(default, null)		: DisplayEvents;
 	public var userEvents		(default, null)		: UserEvents;
 	
 	public var mouse			(default, null)		: Mouse;
-	public var behaviours		(default, null)		: FastList < IBehaviour <Dynamic> >;
 	
 	
-	public function new (target:TargetType, app:Application)
+	public function new (target:DocumentType, app:Application)
 	{
 		this.target			= target;
 		children			= new DisplayList( target, this );
@@ -84,19 +76,6 @@ class Window implements IDisplayContainer, implements IInteractive
 		displayEvents		= new DisplayEvents( target );
 		userEvents			= new UserEvents( target );
 		mouse				= new Mouse( this );
-		
-#if flash9
-		layout				= new primevc.avm2.layout.StageLayout( target );
-#else
-		layout				= new LayoutContainer();
-#end
-		layout.algorithm	= new RelativeAlgorithm();
-		
-		behaviours			= new FastList< IBehaviour<Dynamic> > ();
-		behaviours.add( new WindowLayoutBehaviour (this) );
-		
-		for (behaviour in behaviours)
-			behaviour.initialize();
 	}
 	
 	
@@ -105,9 +84,6 @@ class Window implements IDisplayContainer, implements IInteractive
 		if (displayEvents == null)
 			return;
 		
-		for (behaviour in behaviours)
-			behaviour.dispose();
-		
 		children.dispose();
 		displayEvents.dispose();
 		userEvents.dispose();
@@ -115,7 +91,6 @@ class Window implements IDisplayContainer, implements IInteractive
 		children		= null;
 		displayEvents	= null;
 		userEvents		= null;
-		behaviours		= null;
 	}
 	
 	
