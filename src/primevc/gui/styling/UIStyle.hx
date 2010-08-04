@@ -26,42 +26,20 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.core;
- import primevc.gui.behaviours.LoadStyleBehaviour;
- import primevc.gui.layout.IScrollableLayout;
- import primevc.gui.layout.LayoutContainer;
- import primevc.gui.styling.UIStyle;
- import primevc.gui.traits.IStylable;
-  using primevc.utils.TypeUtil;
+package primevc.gui.styling;
+
 
 
 /**
+ * Class contains the style-data for a specifig UIElement
+ * 
  * @author Ruben Weijers
- * @creation-date Aug 02, 2010
+ * @creation-date Aug 04, 2010
  */
-class UIContainer <DataType> extends UIDataComponent <DataType>, implements IUIContainer, implements IStylable
+class UIStyle // implements IStyleData
 {
-	public var layoutContainer	(getLayoutContainer, never)		: LayoutContainer;
-	public var scrollableLayout	(getScrollableLayout, never)	: IScrollableLayout;
-	
-	private inline function getLayoutContainer () 	{ return layout.as(LayoutContainer); }
-	private inline function getScrollableLayout () 	{ return layout.as(IScrollableLayout); }
-	
-	
-	//
-	// ISTYLEABLE IMPLEMENTATION
-	//
-	
-	public var style (default, setStyle)	: UIStyle;
-	
-	override private function createBehaviours ()
+	public function new ()
 	{
-		behaviours.add( new LoadStyleBehaviour( this ) );
-	}
-	
-	
-	private inline function setStyle (v:UIStyle)
-	{
-		return style = v;
+		
 	}
 }

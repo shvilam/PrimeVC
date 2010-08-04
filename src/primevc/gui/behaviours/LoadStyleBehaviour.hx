@@ -26,79 +26,51 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.core;
- import primevc.core.Bindable;
- 
+package primevc.gui.behaviours;
+ import primevc.gui.styling.UIStyle;
+ import primevc.gui.traits.IStylable;
+ import primevc.utils.FastArray;
+  using primevc.utils.FastArray;
+  using Type;
+
 
 /**
- * UIDataComponent is an UIComponent with a bindable data property of the given
- * type. The DataComponent will default create a bindable object of the 
- * requested type which can be used to update other values in the component.
- * 
- * It's possible to change or read the value of the bindable directly by calling
- *  v = component.value; and component.value = newValue;
- * 
- * @see				primevc.gui.core.UIComponent
- * @see				primevc.gui.core.IUIComponent
- * 
- * @creation-date	Jun 17, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Aug 04, 2010
  */
-class UIDataComponent <DataProxyType> extends UIComponent, implements IUIDataComponent <DataProxyType>
+class LoadStyleBehaviour extends BehaviourBase < IStylable >
 {
-	public var data (default, setData)		: Bindable < DataProxyType >;
-	public var value (getValue, setValue)	: DataProxyType;
+	private var inheritanceList	: FastArray < String >;
 	
-	
-	public function new (id:String = null)
-	{
-		super(id);
-		data = new Bindable < DataProxyType >();
-	}
-	
-	
-	override public function dispose ()
-	{
-		if (data != null) {
-			data.dispose();
-			data = null;
-		}
-		super.dispose();
-	}
-	
-	
-	//
-	// METHODS
-	//
 	
 	override private function init ()
-	{
-		super.init();
-		initData();
+	{	
+		var start = flash.Lib.getTimer();
+		
+		//create empty style object
+		target.style = new UIStyle();
+		
+		//list all super-classes
+		inheritanceList			= FastArrayUtil.create();
+		var c:Class<Dynamic>	= target.getClass();
+		
+		while (c != null)
+		{
+			inheritanceList.push( c.getClassName() );
+			c = c.getSuperClass();
+		}
+		
+		//
+		
+		
+		var dur = flash.Lib.getTimer() - start;
+		trace(inheritanceList.asString());
+		trace("duration: "+dur+" ms");
 	}
 	
 	
-	private function initData ()
+	override private function reset ()
 	{
 		
 	}
-	
-	
-	
-	//
-	// GETTERS / SETTERS
-	//
-	
-	private inline function setData (newData:Bindable < DataProxyType >)
-	{
-		data = newData;
-		if (state.current == state.initialized && data != null)
-			initData();
-		
-		return data;
-	}
-	
-	
-	private inline function getValue () : DataProxyType	{ return data.value; }
-	private inline function setValue (v:DataProxyType)	{ return data.value = v; }
 }
