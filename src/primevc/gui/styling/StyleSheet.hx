@@ -26,32 +26,87 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
+package primevc.gui.styling;
+
 #if flash9
- import primevc.core.Bindable;
- import primevc.gui.graphics.shapes.IGraphicShape;
-#end
+ import primevc.core.IDisposable;
+ import primevc.gui.styling.declarations.UIElementStyle;
+ import primevc.gui.traits.IStylable;
+  using Type;
+
 
 
 /**
+ * StyleSheet contains all style objects that are used through the application
+ * and is generally filled by loading a file with objects.
+ * 
  * @author Ruben Weijers
- * @creation-date Jul 13, 2010
+ * @creation-date Aug 05, 2010
  */
-interface IDrawable 
-	  implements IDisplayable
-	, implements ILayoutable
+class StyleSheet implements IDisposable
 {
-#if flash9
-	/**
-	 * Object containing graphical data. One object will be enough in general
-	 * since it can be a ComposedShape that contains multiple shapes.
-	 */
-	public var graphicData		(default, null)		: Bindable < IGraphicShape >;
+	private var styleContainer		: StyleContainer;
 	
-	public var graphics			(default, null)		: flash.display.Graphics;
+	
+	public function new ()
+	{
+	}
+	
+	
+	public function dispose ()
+	{
+		unloadStyles();
+	}
+	
+	
+	public inline function loadStyles (styleClass:Class<Dynamic>)
+	{
+		unloadStyles();
+		styleContainer = Type.createInstance( styleClass, null );
+	}
+	
+	
+	public inline function unloadStyles ()
+	{
+		if (styleContainer != null)
+		{
+			styleContainer.dispose();
+			styleContainer = null;
+		}
+	}
+	
+	
+	
+	public inline function getStyleFor ( obj:IStylable ) : UIElementStyle
+	{
+		//list 
+		var c:Class<Dynamic>	= obj.getClass();
+		return new UIElementStyle();
+		/*
+		while (c != null)
+		{
+			if (typeSelectors[c.getClassName()])
+			inheritanceList.push( c.getClassName() );
+			c = c.getSuperClass();
+		}
+		
+		* {
+			backgroundcolor: #ffff;
+		}
+		EeenButotn {
+			backgroundcolor
+		}
+		
+		
+		
+		
+		EEnButton implemets IStyleable
+		*/
+	}
+}
 
-	private function createGraphics ()				: Void;
-	private function removeGraphics ()				: Void;
+#else
+
+class StyleSheet {}
 
 #end
-}

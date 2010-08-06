@@ -26,20 +26,11 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling;
+package primevc.gui.text;
 
 
-
-/**
- * Class contains the style-data for a specifig UIElement
- * 
- * @author Ruben Weijers
- * @creation-date Aug 04, 2010
- */
-class UIStyle // implements IStyleData
-{
-	public function new ()
-	{
-		
-	}
+enum FontStyle {
+	normal;
+	italic;
+	oblique;
 }

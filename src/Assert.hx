@@ -28,7 +28,7 @@
  */
 
 #if flash9
-import flash.Error;
+import flash.errors.Error;
 #end
 
 class Assert

@@ -26,32 +26,59 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
-#if flash9
- import primevc.core.Bindable;
- import primevc.gui.graphics.shapes.IGraphicShape;
-#end
+package primevc.gui.styling.declarations;
+ import primevc.gui.graphics.borders.IBorder;
+ import primevc.gui.graphics.fills.IFill;
 
 
 /**
+ * Class holding all style properties for the graphics.
+ * 
  * @author Ruben Weijers
- * @creation-date Jul 13, 2010
+ * @creation-date Aug 05, 2010
  */
-interface IDrawable 
-	  implements IDisplayable
-	, implements ILayoutable
+class GraphicStyleDeclarations extends StyleDeclarationBase < GraphicStyleDeclarations >
 {
-#if flash9
-	/**
-	 * Object containing graphical data. One object will be enough in general
-	 * since it can be a ComposedShape that contains multiple shapes.
-	 */
-	public var graphicData		(default, null)		: Bindable < IGraphicShape >;
+	public var background			(getBackground, null)	: IFill;
+	public var border				(getBorder,		null)	: IBorder<IFill>;
 	
-	public var graphics			(default, null)		: flash.display.Graphics;
-
-	private function createGraphics ()				: Void;
-	private function removeGraphics ()				: Void;
-
-#end
+	
+	public function new (background:IFill = null, border:IBorder<IFill> = null)
+	{
+		super();
+		this.background	= background;
+		this.border		= border;
+	}
+	
+	
+	override public function dispose ()
+	{
+		if ((untyped this).background != null)	background.dispose();
+		if ((untyped this).border != null)		border.dispose();
+		
+		background	= null;
+		border		= null;
+		super.dispose();
+	}
+	
+	
+	
+	//
+	// GETTERS
+	//
+	
+	private function getBackground ()
+	{
+		if		(background != null)		return background;
+		else if (superInherited != null)	return superInherited.background;
+		else								return null;
+	}
+	
+	
+	private function getBorder ()
+	{
+		if		(border != null)			return border;
+		else if (superInherited != null)	return superInherited.border;
+		else								return null;
+	}
 }

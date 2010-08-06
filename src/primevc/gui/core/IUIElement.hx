@@ -31,9 +31,11 @@ package primevc.gui.core;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.states.UIElementStates;
  import primevc.gui.traits.IBehaving;
- import primevc.gui.traits.IDrawable;
  import primevc.gui.traits.IIdentifiable;
  import primevc.gui.traits.ILayoutable;
+#if flash9
+ import primevc.gui.traits.IDrawable;
+#end
 
 
 /**
@@ -41,12 +43,12 @@ package primevc.gui.core;
  * @creation-date Aug 02, 2010
  */
 interface IUIElement	
-		implements IDisplayObject
-	,	implements IDrawable
-	,	implements ILayoutable
-	,	implements IBehaving
-	,	implements IIdentifiable
-	,	implements IDisposable
+				implements IDisplayObject
+#if flash9	,	implements IDrawable	#end
+			,	implements ILayoutable
+			,	implements IBehaving
+			,	implements IIdentifiable
+			,	implements IDisposable
 {
 	public var state	(default, null)	: UIElementStates;	
 }

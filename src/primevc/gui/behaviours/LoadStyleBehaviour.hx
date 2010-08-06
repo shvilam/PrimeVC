@@ -40,7 +40,7 @@ package primevc.gui.behaviours;
  */
 class LoadStyleBehaviour extends BehaviourBase < IStylable >
 {
-	private var inheritanceList	: FastArray < String >;
+/*	private var inheritanceList	: FastArray < String >;
 	
 	
 	override private function init ()
@@ -56,6 +56,7 @@ class LoadStyleBehaviour extends BehaviourBase < IStylable >
 		
 		while (c != null)
 		{
+			c != 
 			inheritanceList.push( c.getClassName() );
 			c = c.getSuperClass();
 		}
@@ -72,5 +73,5 @@ class LoadStyleBehaviour extends BehaviourBase < IStylable >
 	override private function reset ()
 	{
 		
-	}
+	}*/
 }
