@@ -26,43 +26,67 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.display;
- import primevc.core.geom.Point;
- import primevc.gui.traits.IDisplayable;
- import primevc.gui.traits.IPositionable;
- import primevc.gui.traits.IScaleable;
+package primevc.gui.effects;
  import primevc.gui.traits.ISizeable;
+ import primevc.types.Number;
+  using primevc.utils.FloatUtil;
 
 
 /**
+ * Animate effect for resizing the width and/or height of the given target.
+ * 
  * @author Ruben Weijers
- * @creation-date Aug 04, 2010
+ * @creation-date Aug 31, 2010
  */
-interface IDisplayObject 
-				implements IDisplayable
-			,	implements IPositionable
-			,	implements IScaleable
-			,	implements ISizeable
-#if flash9  ,	implements flash.display.IBitmapDrawable #end
+class ResizeEffect extends Effect < ISizeable, ResizeEffect >
 {
+	public var startW	: Float;
+	public var startH	: Float;
+	public var endW		: Float;
+	public var endH		: Float;
 	
-	function isObjectOn (otherObj:IDisplayObject)		: Bool;
+	
+	override public function clone ()
+	{
+		var n = new ResizeEffect( target, duration, duration, easing );
+		n.endW = endW;
+		n.endH = endH;
+		return n;
+	}
+	
+
+	override private function tweenUpdater ( tweenPos:Float )
+	{
+		if (endW.isSet())	target.width	= ( endW * tweenPos ) + ( startW * (1 - tweenPos) );
+		if (endH.isSet())	target.height	= ( endH * tweenPos ) + ( startH * (1 - tweenPos) );
+	}
 	
 	
-#if flash9
-	var alpha					: Float;
-	var visible					: Bool;
+	override private function calculateTweenStartPos () : Float
+	{
+		if		(endW.notSet() && endH.notSet())	return 1;
+		else if (endH.notSet())						return (target.width  - startW) / (endW - startW);
+		else if (endW.notSet())						return (target.height - startH) / (endH - startH);
+		else										return Math.min(
+			(target.width  - startW) / (endW - startW),
+			(target.height - startH) / (endH - startH)
+		);
+	}
 	
-	var filters					: Array < Dynamic >;
-	var name					: String;
-	var scrollRect				: flash.geom.Rectangle;
-	var transform				: flash.geom.Transform; //Matrix2D;
 	
-	function globalToLocal (point : Point) : Point;
-	function localToGlobal (point : Point) : Point;
-#else
-	var visible		(getVisibility, setVisibility)		: Bool;
-	var alpha		(getAlpha,		setAlpha)			: Float;
-	var transform	(default, null)						: primevc.core.geom.Matrix2D;
-#end
+	override private function setTarget ( v )
+	{
+		if (v == null)
+		{
+			startW = startH = endW = endH = Number.FLOAT_NOT_SET;
+		}
+		else if (v != target)
+		{
+			startW	= target.width;
+			startH	= target.height;
+			endW	= Number.FLOAT_NOT_SET;
+			endH	= Number.FLOAT_NOT_SET;
+		}
+		return super.setTarget( v );
+	}
 }

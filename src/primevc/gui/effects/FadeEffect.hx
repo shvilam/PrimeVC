@@ -26,16 +26,49 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.layout.algorithms.directions;
- 
+package primevc.gui.effects;
+ import primevc.gui.display.IDisplayObject;
+
 
 /**
- * @creation-date	Jun 28, 2010
- * @author			Ruben Weijers
+ * Effect to fade a DisplayObject from one alpha value to another.
+ * 
+ * @author Ruben Weijers
+ * @creation-date Aug 31, 2010
  */
-
-enum Horizontal {
-	left;
-	center;
-	right;
+class FadeEffect extends Effect < IDisplayObject, FadeEffect >
+{
+	private var startValue	: Float;
+	private var endValue	: Float;
+	
+	
+	public function new( target, duration:Int = 350, delay:Int = 0, easing:Easing = null, startValue:Float = 0, endValue:Float = 1 )
+	{
+		super( target, duration, delay, easing );
+		hideFiltersDuringEffect	= false;
+		this.startValue			= startValue;
+		this.endValue			= endValue;
+	}
+	
+	
+	override public function clone ()
+	{
+		return new FadeEffect( target, duration, duration, easing, startValue, endValue );
+	}
+	
+	
+	/**
+	 * Method which will perform the transformation from visible to hidden.
+	 * Needs to be overwritten by SubClasses
+	 */
+	override private function tweenUpdater ( tweenPos:Float )
+	{
+		target.alpha = ( endValue * tweenPos ) + ( startValue * ( 1 - tweenPos ) );
+	}
+	
+	
+	override private function calculateTweenStartPos () : Float
+	{
+		return (target.alpha - startValue) / (endValue - startValue);
+	}
 }

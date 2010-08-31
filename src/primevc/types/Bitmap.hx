@@ -194,7 +194,7 @@ class Bitmap implements IDisposable
 			d.draw( loader.content );
 			setData( d );
 		}
-		catch (e:flash.Error) {
+		catch (e:flash.errors.Error) {
 			throw "Loading bitmap error. Check policy settings. "+e.message;
 			state.current = empty;
 		}

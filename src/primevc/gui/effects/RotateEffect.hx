@@ -26,16 +26,67 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.layout.algorithms.directions;
- 
+package primevc.gui.effects;
+ import primevc.gui.traits.IPositionable;
+ import primevc.types.Number;
+  using primevc.utils.FloatUtil;
+
+
 
 /**
- * Description
+ * Animates the rotation of the target
  * 
- * @creation-date	Jun 28, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Aug 31, 2010
  */
-enum Direction {
-	vertical;
-	horizontal;
+class RotateEffect extends Effect < IPositionable, RotateEffect >
+{
+	/**
+	 * rotation start-value
+	 */
+	public var startValue			: Float;
+	/**
+	 * rotation end-value
+	 */
+	public var endValue				: Float;
+	
+	
+	public function new (target, duration:Int = 350, delay:Int = 0, easing:Easing = null, endV:Float = 1)
+	{
+		super(target, duration, delay, easing);
+		endValue = endV;
+	}
+	
+	
+	override public function clone ()
+	{
+		return new RotateEffect(target, duration, delay, easing, endValue);
+	}
+
+
+	override private function tweenUpdater ( tweenPos:Float )
+	{
+		target.rotation = ( endValue * tweenPos ) + ( startValue * (1 - tweenPos) );
+	}
+
+
+	override private function calculateTweenStartPos () : Float
+	{
+		return (target.rotation - startValue) / (endValue - startValue);
+	}
+
+
+	override private function setTarget ( v )
+	{
+		if (v == null)
+		{
+			startValue = endValue = Number.FLOAT_NOT_SET;
+		}
+		else if (v != target)
+		{
+			startValue	= target.rotation;
+			endValue	= Number.FLOAT_NOT_SET;
+		}
+		return super.setTarget( v );
+	}
 }

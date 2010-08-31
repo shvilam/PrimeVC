@@ -26,20 +26,75 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
+package primevc.gui.effects;
+  using primevc.utils.Bind;
 
 
 /**
+ * Effect to play multiple effects after each other.
+ * 
  * @author Ruben Weijers
- * @creation-date Aug 04, 2010
+ * @creation-date Aug 31, 2010
  */
-interface ISizeable
+class SequenceEffect extends CompositeEffect < SequenceEffect >
 {
-#if flash9
-	var height					: Float;
-	var width					: Float;
-#else
-	var width		(getWidth,		setWidth)			: Float;
-	var height		(getHeight,		setHeight)			: Float;
-#end
+	override private function getCompositeDuration ()
+	{
+		var d = 0;
+		for (effect in effects)		d += effect.duration;
+		return d;
+	}
+
+
+	override private function playWithEffect ()
+	{
+		stopDelay();
+		stopTween();
+		
+		if (effects.length == 0) {
+			onTweenReady();
+			return;
+		}
+		
+		//play all effects directly with tween
+		var len:Int		= effects.length;
+		var prevEffect	= effects[ isReverted ? len - 1 : 0 ];
+		for (i in 1...len)
+		{
+			var curEffect = effects[ isReverted ? len - i : i ];
+			curEffect.playWithEffect.onceOn( prevEffect.ended, this );
+			prevEffect = curEffect;
+		}
+		
+		lastChildReadyHandler.onceOn( prevEffect.ended, this );
+	}
+
+
+	override private function playWithoutEffect ()
+	{
+		stopDelay();
+		stopTween();
+		
+		if (effects.length == 0) {
+			onTweenReady();
+			return;
+		}
+		
+		//play all effects directly with tween
+		var len:Int		= effects.length;
+		var prevEffect	= effects[ isReverted ? len - 1 : 0 ];
+		for (i in 1...len)
+		{
+			var curEffect = effects[ isReverted ? len - i : i ];
+			curEffect.playWithoutEffect.onceOn( prevEffect.ended, this );
+			prevEffect = curEffect;
+		}
+
+		lastChildReadyHandler.onceOn( prevEffect.ended, this );
+	}
+	
+	
+	private function lastChildReadyHandler () {
+		onTweenReady();
+	}
 }

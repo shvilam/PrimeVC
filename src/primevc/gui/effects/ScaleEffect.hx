@@ -26,43 +26,74 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.display;
- import primevc.core.geom.Point;
- import primevc.gui.traits.IDisplayable;
- import primevc.gui.traits.IPositionable;
+package primevc.gui.effects;
  import primevc.gui.traits.IScaleable;
- import primevc.gui.traits.ISizeable;
+ import primevc.types.Number;
+  using primevc.utils.FloatUtil;
 
 
 /**
+ * Animation class for changing the scaleX and/or scaleY of the target.
+ * 
  * @author Ruben Weijers
- * @creation-date Aug 04, 2010
+ * @creation-date Aug 31, 2010
  */
-interface IDisplayObject 
-				implements IDisplayable
-			,	implements IPositionable
-			,	implements IScaleable
-			,	implements ISizeable
-#if flash9  ,	implements flash.display.IBitmapDrawable #end
+class ScaleEffect extends Effect < IScaleable, ScaleEffect >
 {
+	public var startX	: Float;
+	public var startY	: Float;
+	public var endX		: Float;
+	public var endY		: Float;
 	
-	function isObjectOn (otherObj:IDisplayObject)		: Bool;
 	
-	
+	override public function clone ()
+	{
+		var n = new ScaleEffect( target, duration, duration, easing );
+		n.endX = endX;
+		n.endY = endY;
+		return n;
+	}
+
+	override private function tweenUpdater ( tweenPos:Float )
+	{
 #if flash9
-	var alpha					: Float;
-	var visible					: Bool;
-	
-	var filters					: Array < Dynamic >;
-	var name					: String;
-	var scrollRect				: flash.geom.Rectangle;
-	var transform				: flash.geom.Transform; //Matrix2D;
-	
-	function globalToLocal (point : Point) : Point;
-	function localToGlobal (point : Point) : Point;
+		if (endX.isSet())	target.scaleX = ( endX * tweenPos ) + ( startX * (1 - tweenPos) );
+		if (endY.isSet())	target.scaleY = ( endY * tweenPos ) + ( startY * (1 - tweenPos) );
+#end
+	}
+
+
+	override private function calculateTweenStartPos () : Float
+	{
+#if flash9
+		if		(endX.notSet() && endY.notSet())	return 1;
+		else if (endY.notSet())						return (target.scaleX - startX) / (endX - startX);
+		else if (endX.notSet())						return (target.scaleY - startY) / (endY - startY);
+		else										return Math.min(
+			(target.scaleX - startX) / (endX - startX),
+			(target.scaleY - startY) / (endY - startY)
+		);
 #else
-	var visible		(getVisibility, setVisibility)		: Bool;
-	var alpha		(getAlpha,		setAlpha)			: Float;
-	var transform	(default, null)						: primevc.core.geom.Matrix2D;
+		return 1;
+#end
+	}
+
+
+#if flash9
+	override private function setTarget ( v )
+	{
+		if (v == null)
+		{
+			startX = startY = endX = endY = Number.FLOAT_NOT_SET;
+		}
+		else if (v != target)
+		{
+			startX	= target.scaleX;
+			startY	= target.scaleY;
+			endX	= Number.FLOAT_NOT_SET;
+			endY	= Number.FLOAT_NOT_SET;
+		}
+		return super.setTarget( v );
+	}
 #end
 }

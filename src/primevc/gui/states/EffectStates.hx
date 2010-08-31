@@ -26,20 +26,13 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
+package primevc.gui.states;
 
 
-/**
- * @author Ruben Weijers
- * @creation-date Aug 04, 2010
- */
-interface ISizeable
-{
-#if flash9
-	var height					: Float;
-	var width					: Float;
-#else
-	var width		(getWidth,		setWidth)			: Float;
-	var height		(getHeight,		setHeight)			: Float;
-#end
+enum EffectStates {
+	empty;			//default state when the effect is created but can't be played (not enough properties or no target)
+	initialized;	//effect is ready and has a target but is never played
+	waiting;		//effect is waiting for the delayTimer to finish
+	playing;		//effect is playing
+	finished;		//effect is finished
 }

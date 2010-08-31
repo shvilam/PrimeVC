@@ -27,10 +27,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms;
+ import primevc.core.geom.space.Direction;
+ import primevc.core.geom.space.Horizontal;
+ import primevc.core.geom.space.Vertical;
  import primevc.core.geom.IRectangle;
- import primevc.gui.layout.algorithms.directions.Direction;
- import primevc.gui.layout.algorithms.directions.Horizontal;
- import primevc.gui.layout.algorithms.directions.Vertical;
  import primevc.utils.IntMath;
   using primevc.utils.Bind;
  

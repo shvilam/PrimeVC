@@ -26,23 +26,21 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.layout.algorithms.directions;
- 
+package primevc.gui.traits;
+
 
 /**
- * @creation-date	Jun 28, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Aug 31, 2010
  */
-enum Position {
-	topLeft;
-	topCenter;
-	topRight;
-	
-	middleLeft;
-	middleCenter;
-	middleRight;
-	
-	bottomLeft;
-	bottomCenter;
-	bottomRight;
+interface IScaleable
+{	
+#if flash9
+	var scaleX					: Float;
+	var scaleY					: Float;
+
+	#if flash10
+	var scaleZ					: Float;
+	#end
+#end
 }

@@ -26,14 +26,16 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics.shapes;
-
+package primevc.core.geom.space;
 
 
 /**
- * which direction is the arrow pointing to
+ * @creation-date	Aug 31, 2010
+ * @author			Ruben Weijers
  */
-enum TriangleDirection {
-	TopCenter; BottomCenter; LeftCenter; RightCenter;
-	TopLeftCorner; TopRightCorner; BottomLeftCorner; BottomRightCorner;
+enum MoveDirection {
+	LeftToRight;
+	RightToLeft;
+	TopToBottom;
+	BottomToTop;
 }

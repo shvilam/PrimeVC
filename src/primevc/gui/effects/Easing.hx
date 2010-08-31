@@ -26,20 +26,8 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
+package primevc.gui.effects;
 
 
-/**
- * @author Ruben Weijers
- * @creation-date Aug 04, 2010
- */
-interface ISizeable
-{
-#if flash9
-	var height					: Float;
-	var width					: Float;
-#else
-	var width		(getWidth,		setWidth)			: Float;
-	var height		(getHeight,		setHeight)			: Float;
-#end
-}
+
+typedef Easing = Float -> Float -> Float -> Float -> Float;

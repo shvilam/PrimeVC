@@ -26,20 +26,26 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
+package primevc.core.geom.space;
+ import primevc.core.geom.IntPoint;
 
 
 /**
- * @author Ruben Weijers
- * @creation-date Aug 04, 2010
+ * @creation-date	Jun 28, 2010
+ * @author			Ruben Weijers
  */
-interface ISizeable
-{
-#if flash9
-	var height					: Float;
-	var width					: Float;
-#else
-	var width		(getWidth,		setWidth)			: Float;
-	var height		(getHeight,		setHeight)			: Float;
-#end
+enum Position {
+	TopLeft;
+	TopCenter;
+	TopRight;
+	
+	MiddleLeft;
+	MiddleCenter;
+	MiddleRight;
+	
+	BottomLeft;
+	BottomCenter;
+	BottomRight;
+	
+	Custom( point:IntPoint );
 }
