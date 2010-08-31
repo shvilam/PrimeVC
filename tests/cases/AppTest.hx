@@ -26,50 +26,58 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.core;
- import primevc.gui.layout.IScrollableLayout;
+package cases;
+ import primevc.core.Application;
+ import primevc.gui.core.UIContainer;
+ import primevc.gui.core.UIWindow;
+ import primevc.gui.graphics.fills.SolidFill;
+ import primevc.gui.graphics.shapes.RegularRectangle;
+ import primevc.gui.layout.algorithms.RelativeAlgorithm;
  import primevc.gui.layout.LayoutContainer;
-  using primevc.utils.TypeUtil;
+ import primevc.gui.layout.RelativeLayout;
 
-#if flash9
-/* 
- import primevc.gui.behaviours.LoadStyleBehaviour;
- import primevc.gui.styling.StyleDeclaration;
- import primevc.gui.traits.IStylable;*/
-#end
 
 
 /**
+ * Class description
+ * 
  * @author Ruben Weijers
- * @creation-date Aug 02, 2010
+ * @creation-date Aug 30, 2010
  */
-class UIContainer <DataType> extends UIDataComponent <DataType>
-			, implements IUIContainer/*
-#if flash9	, implements IStylable		#end*/
+class AppTest
 {
-	public var layoutContainer	(getLayoutContainer, never)		: LayoutContainer;
-	public var scrollableLayout	(getScrollableLayout, never)	: IScrollableLayout;
-	
-	private inline function getLayoutContainer () 	{ return layout.as(LayoutContainer); }
-	private inline function getScrollableLayout () 	{ return layout.as(IScrollableLayout); }
-	
-	
-#if flash9
-	//
-	// ISTYLEABLE IMPLEMENTATION
-	//
-	
-/*	public var style (default, setStyle)	: StyleDeclaration;
-	
-	override private function createBehaviours ()
+	public static function main () { Application.startup( AppTestWindow ); }
+}
+
+class AppTestWindow extends UIWindow
+{
+	override private function createChildren ()
 	{
-		behaviours.add( new LoadStyleBehaviour( this ) );
+		var app = new Editor();
+		children.add( app );
+	}
+}
+
+
+
+class Editor extends UIContainer <Dynamic>
+{
+	override private function createLayout ()
+	{
+		layout						= new LayoutContainer();
+		layout.relative				= new RelativeLayout( 0, 0, 0, 0 );
+		layoutContainer.algorithm	= new RelativeAlgorithm();
 	}
 	
 	
-	private inline function setStyle (v:StyleDeclaration)
+	override private function createChildren ()
 	{
-		return style = v;
-	}*/
-#end
+		
+	}
+	
+	
+	override private function createGraphics ()
+	{
+		graphicData.value = new RegularRectangle( layout.bounds, new SolidFill(0xff000aa) );
+	}
 }

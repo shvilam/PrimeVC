@@ -44,6 +44,10 @@ class StyleContainer extends UIElementStyle, implements IDisposable
 	private var styleNameSelectors	: TypedDictionary < String, UIElementStyle >;
 	private var idSelectors			: TypedDictionary < String, UIElementStyle >;
 	
+	private var globalFills			: TypedDictionary < String, IFill >;
+	private var globalBorders		: TypedDictionary < String, IBorder<IFill> >;
+	private var globalColors		: TypedDictionary < String, RGBA >;
+	
 	
 	public function new ()
 	{
@@ -52,6 +56,11 @@ class StyleContainer extends UIElementStyle, implements IDisposable
 		styleNameSelectors	= new TypedDictionary();
 		idSelectors			= new TypedDictionary();
 		
+		globalFills			= new TypedDictionary();
+		globalBorders		= new TypedDictionary();
+		globalColors		= new TypedDictionary();
+		
+		createGlobals();
 		createTypeSelectors();
 		createStyleNameSelectors();
 		createIdSelectors();
@@ -66,6 +75,7 @@ class StyleContainer extends UIElementStyle, implements IDisposable
 	}
 	
 	
+	private function creatGlobals ()				: Void {}
 	private function createTypeSelectors ()			: Void { Assert.abstract(); }
 	private function createStyleNameSelectors ()	: Void { Assert.abstract(); }
 	private function createIdSelectors ()			: Void { Assert.abstract(); }

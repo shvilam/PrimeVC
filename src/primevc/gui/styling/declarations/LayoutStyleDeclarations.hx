@@ -58,11 +58,11 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	
 	
 	public function new (
-		percentW:Float			= Number.INT_NOT_SET,
-		percentH:Float			= Number.INT_NOT_SET,
 		rel:RelativeLayout		= null,
 		padding:Box				= null,
 		alg:ILayoutAlgorithm	= null,
+		percentW:Float			= Number.INT_NOT_SET,
+		percentH:Float			= Number.INT_NOT_SET,
 		width:Int				= Number.INT_NOT_SET,
 		height:Int				= Number.INT_NOT_SET,
 		rotation:Float			= Number.INT_NOT_SET,
@@ -109,6 +109,7 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	private function getRelative ()
 	{
 		if		(relative != null)				return relative;
+		else if (extendedStyle != null)			return extendedStyle.relative;
 		else if	(superInherited != null)		return superInherited.relative;
 		else									return null;
 	}
@@ -117,6 +118,7 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	private function getAlgorithm ()
 	{
 		if		(algorithm != null)				return algorithm;
+		else if (extendedStyle != null)			return extendedStyle.algorithm;
 		else if	(superInherited != null)		return superInherited.algorithm;
 		else									return null;
 	}
@@ -125,6 +127,7 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	private function getPadding ()
 	{
 		if		(padding != null)				return padding;
+		else if (extendedStyle != null)			return extendedStyle.padding;
 		else if (superInherited != null)		return superInherited.padding;
 		else									return null;
 	}
@@ -133,6 +136,7 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	private function getWidth ()
 	{
 		if		(width.isSet())					return width;
+		else if (extendedStyle != null)			return extendedStyle.width;
 		else if (superInherited != null)		return superInherited.width;
 		else									return Number.INT_NOT_SET;
 	}
@@ -141,6 +145,7 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	private function getHeight ()
 	{
 		if		(height.isSet())				return height;
+		else if (extendedStyle != null)			return extendedStyle.height;
 		else if (superInherited != null)		return superInherited.height;
 		else									return Number.INT_NOT_SET;
 	}
@@ -149,6 +154,7 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	private function getPercentWidth ()
 	{
 		if		(percentWidth.isSet())			return percentWidth;
+		else if (extendedStyle != null)			return extendedStyle.percentWidth;
 		else if (superInherited != null)		return superInherited.percentWidth;
 		else									return Number.FLOAT_NOT_SET;
 	}
@@ -157,6 +163,7 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	private function getPercentHeight ()
 	{
 		if		(percentHeight.isSet())			return percentHeight;
+		else if (extendedStyle != null)			return extendedStyle.percentHeight;
 		else if (superInherited != null)		return superInherited.percentHeight;
 		else									return Number.FLOAT_NOT_SET;
 	}
@@ -165,6 +172,7 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	private function getRotation ()
 	{
 		if		(rotation.isSet())				return rotation;
+		else if (extendedStyle != null)			return extendedStyle.rotation;
 		else if (superInherited != null)		return superInherited.rotation;
 		else									return Number.FLOAT_NOT_SET;
 	}
@@ -173,6 +181,7 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	private function getMaintainAspect ()
 	{
 		if		(maintainAspectRatio != null)	return maintainAspectRatio;
+		else if (extendedStyle != null)			return extendedStyle.maintainAspectRatio;
 		else if (superInherited != null)		return superInherited.maintainAspectRatio;
 		else									return null;
 	}

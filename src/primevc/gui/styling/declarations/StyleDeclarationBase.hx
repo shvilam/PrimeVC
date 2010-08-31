@@ -41,6 +41,7 @@ class StyleDeclarationBase <DeclarationType> implements IStyleDeclaration <Decla
 {
 	public var nestingInherited		(default, setNestingInherited)		: DeclarationType;
 	public var superInherited		(default, setSuperInherited)		: DeclarationType;
+	public var extendedStyle		(default, setExtendedStyle)			: DeclarationType;
 	
 	
 	public function new () {}
@@ -50,6 +51,7 @@ class StyleDeclarationBase <DeclarationType> implements IStyleDeclaration <Decla
 	{
 		nestingInherited	= null;
 		superInherited		= null;
+		extendedStyle		= null;
 	}
 	
 	
@@ -62,5 +64,11 @@ class StyleDeclarationBase <DeclarationType> implements IStyleDeclaration <Decla
 	private inline function setSuperInherited (v)
 	{
 		return this.superInherited = v;
+	}
+
+
+	private inline function setExtendedStyle (v)
+	{
+		return this.extendedStyle = v;
 	}
 }

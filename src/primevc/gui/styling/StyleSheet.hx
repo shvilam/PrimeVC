@@ -59,10 +59,10 @@ class StyleSheet implements IDisposable
 	}
 	
 	
-	public inline function loadStyles (styleClass:Class<Dynamic>)
+	public inline function loadStyles (styleClass:Class<StyleContainer>)
 	{
 		unloadStyles();
-		styleContainer = Type.createInstance( styleClass, null );
+		styleContainer = Type.createInstance( styleClass, [] );
 	}
 	
 	

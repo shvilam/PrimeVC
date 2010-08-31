@@ -70,6 +70,7 @@ class GraphicStyleDeclarations extends StyleDeclarationBase < GraphicStyleDeclar
 	private function getBackground ()
 	{
 		if		(background != null)		return background;
+		else if (extendedStyle != null)		return extendedStyle.background;
 		else if (superInherited != null)	return superInherited.background;
 		else								return null;
 	}
@@ -78,6 +79,7 @@ class GraphicStyleDeclarations extends StyleDeclarationBase < GraphicStyleDeclar
 	private function getBorder ()
 	{
 		if		(border != null)			return border;
+		else if (extendedStyle != null)		return extendedStyle.border;
 		else if (superInherited != null)	return superInherited.border;
 		else								return null;
 	}

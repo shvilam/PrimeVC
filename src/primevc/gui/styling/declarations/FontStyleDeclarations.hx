@@ -88,6 +88,7 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 	private function getSize ()
 	{
 		if		(size.isSet())				return size;
+		else if (extendedStyle != null)		return extendedStyle.size;
 		else if (nestingInherited != null)	return nestingInherited.size;
 		else if (superInherited != null)	return superInherited.size;
 		else								return Number.INT_NOT_SET;
@@ -97,6 +98,7 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 	private function getFamily ()
 	{
 		if		(family != null)			return family;
+		else if (extendedStyle != null)		return extendedStyle.family;
 		else if (nestingInherited != null)	return nestingInherited.family;
 		else if (superInherited != null)	return superInherited.family;
 		else								return null;
@@ -106,6 +108,7 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 	private function getColor ()
 	{
 		if		(color != null)				return color;
+		else if (extendedStyle != null)		return extendedStyle.color;
 		else if (nestingInherited != null)	return nestingInherited.color;
 		else if (superInherited != null)	return superInherited.color;
 		else								return null;
@@ -115,6 +118,7 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 	private function getAlign ()
 	{
 		if		(align != null)				return align;
+		else if (extendedStyle != null)		return extendedStyle.align;
 		else if (nestingInherited != null)	return nestingInherited.align;
 		else if (superInherited != null)	return superInherited.align;
 		else								return null;
@@ -124,6 +128,7 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 	private function getWeight ()
 	{
 		if		(weight != null)			return weight;
+		else if (extendedStyle != null)		return extendedStyle.weight;
 		else if (nestingInherited != null)	return nestingInherited.weight;
 		else if (superInherited != null)	return superInherited.weight;
 		else								return null;
@@ -133,6 +138,7 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 	private function getStyle ()
 	{
 		if		(style != null)				return style;
+		else if (extendedStyle != null)		return extendedStyle.style;
 		else if (nestingInherited != null)	return nestingInherited.style;
 		else if (superInherited != null)	return superInherited.style;
 		else								return null;

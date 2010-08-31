@@ -96,4 +96,13 @@ interface IStyleDeclaration <DeclarationType> implements IDisposable
 	 * trace( objB.style.fill );	//output:	SolidFill( 0xfff000 );
 	 */
 	public var superInherited		(default, null)		: DeclarationType;
+	
+	
+	/**
+	 * Style object with properties that should also be copied into this style
+	 * object.
+	 * All values of the given style that are not declared in this style should
+	 * be copied.
+	 */
+	public var extendedStyle		(default, null)		: DeclarationType;
 }

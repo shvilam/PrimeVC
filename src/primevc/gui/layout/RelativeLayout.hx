@@ -28,6 +28,7 @@
  */
 package primevc.gui.layout;
  import primevc.core.dispatcher.Signal0;
+ import primevc.core.geom.IBox;
  import primevc.core.IDisposable;
  import primevc.types.Number;
 
@@ -54,7 +55,7 @@ package primevc.gui.layout;
  * @creation-date	Jun 22, 2010
  * @author			Ruben Weijers
  */
-class RelativeLayout implements IDisposable
+class RelativeLayout implements IBox, implements IDisposable
 {
 	/**
 	 * Flag indicating if the relative-properties are enabled or disabled.
@@ -118,25 +119,25 @@ class RelativeLayout implements IDisposable
 	 * 		client.relative.left = 10;	//left side of client will be 10px from the left side of the parent
 	 * @default		Number.INT_NOT_SET
 	 */
-	public var left					(default, setLeft)				: Int;
+	public var left					(getLeft, setLeft)				: Int;
 	/**
 	 * Property defines the relative right position in relation with the parent.
 	 * @see			primevc.gui.layout.RelativeLayout#left
 	 * @default		Number.INT_NOT_SET
 	 */
-	public var right				(default, setRight)				: Int;
+	public var right				(getRight, setRight)			: Int;
 	/**
 	 * Property defines the relative top position in relation with the parent.
 	 * @see			primevc.gui.layout.RelativeLayout#left
 	 * @default		Number.INT_NOT_SET
 	 */
-	public var top					(default, setTop)				: Int;
+	public var top					(getTop, setTop)				: Int;
 	/**
 	 * Property defines the relative bottom position in relation with the parent.
 	 * @see			primevc.gui.layout.RelativeLayout#left
 	 * @default		Number.INT_NOT_SET
 	 */
-	public var bottom				(default, setBottom)			: Int;
+	public var bottom				(getBottom, setBottom)			: Int;
 	
 	
 	public function new ( top:Int = -100000, right:Int = -100000, bottom:Int = -100000, left:Int = -100000 )
@@ -158,10 +159,27 @@ class RelativeLayout implements IDisposable
 	}
 	
 	
+	public inline function clone () : IBox
+	{
+		var n = new RelativeLayout( top, right, bottom, left );
+		n.vCenter = vCenter;
+		n.hCenter = hCenter;
+		return n;
+	}
+	
+	
 	
 	//
 	// GETTERS / SETTERS
 	//
+	
+	
+	private inline function getLeft ()		{ return left; }
+	private inline function getRight ()		{ return right; }
+	private inline function getTop ()		{ return top; }
+	private inline function getBottom ()	{ return bottom; }
+	
+	
 	
 	private function setHCenter (v) {
 		//unset left and right

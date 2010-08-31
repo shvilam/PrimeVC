@@ -84,6 +84,7 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 	private function getSkin ()
 	{
 		if		(skin != null)				return skin;
+		else if (extendedStyle != null)		return extendedStyle.skin;
 		else if (superInherited != null)	return superInherited.skin;
 		else								return null;
 	}
@@ -92,6 +93,7 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 	private function getLayout ()
 	{
 		if		(layout != null)			return layout;
+		else if (extendedStyle != null)		return extendedStyle.layout;
 		else if (superInherited != null)	return superInherited.layout;
 		else								return null;
 	}
@@ -100,6 +102,7 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 	private function getFont ()
 	{
 		if		(font != null)				return font;
+		else if (extendedStyle != null)		return extendedStyle.font;
 		else if (nestingInherited != null)	return nestingInherited.font;
 		else if (superInherited != null)	return superInherited.font;
 		else								return null;
@@ -109,6 +112,7 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 	private function getGraphics ()
 	{
 		if		(graphics != null)			return graphics;
+		else if (extendedStyle != null)		return extendedStyle.graphics;
 		else if (superInherited != null)	return superInherited.graphics;
 		else								return null;
 	}
