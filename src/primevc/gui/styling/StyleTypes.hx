@@ -26,32 +26,31 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
-#if flash9
- import primevc.core.Bindable;
- import primevc.gui.graphics.shapes.IGraphicShape;
-#end
+package primevc.gui.styling;
 
 
 /**
  * @author Ruben Weijers
- * @creation-date Jul 13, 2010
+ * @creation-date Aug 05, 2010
  */
-interface IDrawable 
-	  implements IDisplayable
-	, implements ILayoutable
+class StyleTypes
 {
-#if flash9
-	/**
-	 * Object containing graphical data. One object will be enough in general
-	 * since it can be a ComposedShape that contains multiple shapes.
-	 */
-	public var graphicData		(default, null)		: Bindable < IGraphicShape >;
 	
-	public var graphics			(default, null)		: flash.display.Graphics;
-
-	private function createGraphics ()				: Void;
-	private function removeGraphics ()				: Void;
-
-#end
+	/**
+	 * Styles declared to match with a value from IStyleable.styleNames
+	 * Equal to css ".stylename" rule.
+	 */
+	public inline static var STYLENAME_SELECTOR	: UInt = 1;
+	
+	/**
+	 * Styles declared to match with IStyleable class-types (the packagename + classname)
+	 * Equal to css "H1" rule.
+	 */
+	public inline static var TYPE_SELECTOR		: UInt = 2;
+	
+	/**
+	 * Styles declared with the id of a IStyleable classes
+	 * Equal to css "#idname" rule.
+	 */
+	public inline static var ID_SELECTOR		: UInt = 4;
 }

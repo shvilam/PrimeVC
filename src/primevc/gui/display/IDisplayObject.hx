@@ -26,32 +26,41 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
-#if flash9
- import primevc.core.Bindable;
- import primevc.gui.graphics.shapes.IGraphicShape;
-#end
+package primevc.gui.display;
+ import primevc.core.geom.Point;
+ import primevc.gui.traits.IDisplayable;
+ import primevc.gui.traits.IPositionable;
+ import primevc.gui.traits.ISizeable;
 
 
 /**
  * @author Ruben Weijers
- * @creation-date Jul 13, 2010
+ * @creation-date Aug 04, 2010
  */
-interface IDrawable 
-	  implements IDisplayable
-	, implements ILayoutable
+interface IDisplayObject 
+				implements IDisplayable
+			,	implements IPositionable
+			,	implements ISizeable
+#if flash9  ,	implements flash.display.IBitmapDrawable #end
 {
-#if flash9
-	/**
-	 * Object containing graphical data. One object will be enough in general
-	 * since it can be a ComposedShape that contains multiple shapes.
-	 */
-	public var graphicData		(default, null)		: Bindable < IGraphicShape >;
 	
-	public var graphics			(default, null)		: flash.display.Graphics;
-
-	private function createGraphics ()				: Void;
-	private function removeGraphics ()				: Void;
-
+	function isObjectOn (otherObj:IDisplayObject)		: Bool;
+	
+	
+#if flash9
+	var alpha					: Float;
+	var visible					: Bool;
+	
+	var filters					: Array < Dynamic >;
+	var name					: String;
+	var scrollRect				: flash.geom.Rectangle;
+	var transform				: flash.geom.Transform; //Matrix2D;
+	
+	function globalToLocal (point : Point) : Point;
+	function localToGlobal (point : Point) : Point;
+#else
+	var visible		(getVisibility, setVisibility)		: Bool;
+	var alpha		(getAlpha,		setAlpha)			: Float;
+	var transform	(default, null)						: primevc.core.geom.Matrix2D;
 #end
 }

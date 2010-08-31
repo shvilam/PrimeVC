@@ -26,32 +26,59 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
+package primevc.gui.styling;
+
 #if flash9
- import primevc.core.Bindable;
- import primevc.gui.graphics.shapes.IGraphicShape;
-#end
+ import flash.utils.TypedDictionary;
+ import primevc.core.IDisposable;
+ import primevc.gui.styling.declarations.UIElementStyle;
 
 
 /**
  * @author Ruben Weijers
- * @creation-date Jul 13, 2010
+ * @creation-date Aug 05, 2010
  */
-interface IDrawable 
-	  implements IDisplayable
-	, implements ILayoutable
+class StyleContainer extends UIElementStyle, implements IDisposable
 {
-#if flash9
-	/**
-	 * Object containing graphical data. One object will be enough in general
-	 * since it can be a ComposedShape that contains multiple shapes.
-	 */
-	public var graphicData		(default, null)		: Bindable < IGraphicShape >;
+	private var typeSelectors		: TypedDictionary < String, UIElementStyle >;
+	private var styleNameSelectors	: TypedDictionary < String, UIElementStyle >;
+	private var idSelectors			: TypedDictionary < String, UIElementStyle >;
 	
-	public var graphics			(default, null)		: flash.display.Graphics;
-
-	private function createGraphics ()				: Void;
-	private function removeGraphics ()				: Void;
+	private var globalFills			: TypedDictionary < String, IFill >;
+	private var globalBorders		: TypedDictionary < String, IBorder<IFill> >;
+	private var globalColors		: TypedDictionary < String, RGBA >;
+	
+	
+	public function new ()
+	{
+		super();
+		typeSelectors		= new TypedDictionary();
+		styleNameSelectors	= new TypedDictionary();
+		idSelectors			= new TypedDictionary();
+		
+		globalFills			= new TypedDictionary();
+		globalBorders		= new TypedDictionary();
+		globalColors		= new TypedDictionary();
+		
+		createGlobals();
+		createTypeSelectors();
+		createStyleNameSelectors();
+		createIdSelectors();
+	}
+	
+	
+	override public function dispose ()
+	{
+		typeSelectors		= null;
+		styleNameSelectors	= null;
+		idSelectors			= null;
+	}
+	
+	
+	private function creatGlobals ()				: Void {}
+	private function createTypeSelectors ()			: Void { Assert.abstract(); }
+	private function createStyleNameSelectors ()	: Void { Assert.abstract(); }
+	private function createIdSelectors ()			: Void { Assert.abstract(); }
+}
 
 #end
-}

@@ -29,8 +29,8 @@
 package primevc.gui.behaviours.drag;
  import primevc.core.dispatcher.Wire;
  import primevc.core.geom.Point;
+ import primevc.gui.display.IDisplayObject;
  import primevc.gui.events.MouseEvents;
- import primevc.gui.traits.IDisplayable;
  import primevc.gui.traits.IDropTarget;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
@@ -81,11 +81,12 @@ class DragDropBehaviour extends DragBehaviourBase
 		dragSource = new DragSource(target);
 #if flash9
 		//move item to correct location
-		var pos			= target.container.as(IDisplayable).localToGlobal( dragSource.origPosition );
+		var pos			= target.container.as(IDisplayObject).localToGlobal( dragSource.origPosition );
 		target.visible	= false;
 		target.window.children.add( cast target );
 		target.x		= pos.x;
 		target.y		= pos.y;
+		trace("startDraggin "+target+"; origPos: "+dragSource.origPosition+"; newPosition: "+pos);
 		target.visible	= true;
 #end
 		

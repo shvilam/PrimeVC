@@ -30,8 +30,8 @@ package primevc.avm2;
  import flash.display.DisplayObject;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.display.IDisplayContainer;
+ import primevc.gui.display.IDisplayObject;
  import primevc.gui.display.Window;
- import primevc.gui.traits.IDisplayable;
   using primevc.utils.TypeUtil;
 
 
@@ -41,7 +41,7 @@ package primevc.avm2;
  * @creation-date	Jun 11, 2010
  * @author			Ruben Weijers
  */
-class Shape extends flash.display.Shape, implements IDisplayable
+class Shape extends flash.display.Shape, implements IDisplayObject
 {
 	public var container		(default, setContainer)	: IDisplayContainer;
 	public var window			(default, setWindow)	: Window;
@@ -70,7 +70,7 @@ class Shape extends flash.display.Shape, implements IDisplayable
 	}
 
 
-	public inline function isObjectOn (otherObj:IDisplayable) : Bool {
+	public inline function isObjectOn (otherObj:IDisplayObject) : Bool {
 		return otherObj == null ? false : otherObj.as(DisplayObject).hitTestObject( this.as(DisplayObject) );
 	}
 	

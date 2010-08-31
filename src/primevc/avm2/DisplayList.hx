@@ -34,12 +34,12 @@ package primevc.avm2;
  import primevc.core.events.ListEvents;
  import primevc.core.IDisposable;
  import primevc.gui.display.IDisplayContainer;
- import primevc.gui.traits.IDisplayable;
+ import primevc.gui.display.IDisplayObject;
   using primevc.utils.TypeUtil;
 
 
 private typedef TargetChildType	= DisplayObject;
-private typedef ChildType		= IDisplayable;
+private typedef ChildType		= IDisplayObject;
 
 
 /**

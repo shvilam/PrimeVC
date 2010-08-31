@@ -28,15 +28,25 @@
  */
 package primevc.gui.core;
  import primevc.core.Application;
+ import primevc.core.Bindable;
  import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
  import primevc.gui.behaviours.layout.WindowLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
+ import primevc.gui.behaviours.RenderGraphicsBehaviour;
  import primevc.gui.display.Window;
+ import primevc.gui.graphics.shapes.IGraphicShape;
  import primevc.gui.layout.algorithms.RelativeAlgorithm;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.layout.LayoutClient;
+ import primevc.gui.traits.IBehaving;
+ import primevc.gui.traits.IDrawable;
+ import primevc.gui.traits.IIdentifiable;
  import primevc.gui.traits.ILayoutable;
   using primevc.utils.TypeUtil;
+
+#if flash9
+ import primevc.gui.display.Shape;
+#end
 
 
 /**
@@ -45,23 +55,56 @@ package primevc.gui.core;
  * @author Ruben Weijers
  * @creation-date Aug 04, 2010
  */
-class UIWindow extends Window, implements ILayoutable 
+class UIWindow extends Window		
+	,	implements IBehaving
+	,	implements IDrawable
+	,	implements IIdentifiable
+	,	implements ILayoutable
 {
 	public var layout			(default, null)					: LayoutClient;
-	public var behaviours		(default, null)					: BehaviourList;
 	public var layoutContainer	(getLayoutContainer, never)		: LayoutContainer;
+	
+	public var behaviours		(default, null)					: BehaviourList;
+	public var id				(default, null)					: Bindable < String >;
+	public var graphicData		(default, null)					: Bindable < IGraphicShape >;
+	
+#if flash9
+	/**
+	 * Shape to draw the background graphics in. Stage doesn't have a Graphics
+	 * property.
+	 */
+	public var bgShape			: Shape;
+	/**
+	 * Reference to bgShape.graphics.. Needed for compatibility with IDrawable
+	 */
+	public var graphics			(default, null)					: flash.display.Graphics;
+#end
+	
 	
 	
 	public function new (target:DocumentType, app:Application)
 	{
 		super(target, app);
 		
-		behaviours = new BehaviourList();
-		behaviours.add( new WindowLayoutBehaviour(this) );
-		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
+		id				= new Bindable<String>();
+		behaviours		= new BehaviourList();
+		graphicData		= new Bindable < IGraphicShape > ();
 		
+		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
+		behaviours.add( new RenderGraphicsBehaviour(this) );
+		behaviours.add( new WindowLayoutBehaviour(this) );
+		
+#if flash9
+		bgShape		= new Shape();
+		graphics	= bgShape.graphics;
+		children.add(bgShape);
+#end
+		createBehaviours();
 		createLayout();
+		
 		behaviours.init();
+		
+		createGraphics();
 		createChildren();
 	}
 
@@ -80,7 +123,14 @@ class UIWindow extends Window, implements ILayoutable
 	}
 	
 	
-	private function createLayout ()
+	private inline function removeBehaviours ()
+	{
+		behaviours.dispose();
+		behaviours = null;
+	}
+	
+	
+	private inline function createLayout ()
 	{
 		layout =	#if flash9	new primevc.avm2.layout.StageLayout( target );
 					#else		new LayoutContainer();	#end
@@ -88,12 +138,21 @@ class UIWindow extends Window, implements ILayoutable
 	}
 	
 	
+	//
+	// ABSTRACT METHODS
+	//
 	
-	/**
-	 * After creating the behaviours, the window can also create child 
-	 * UIComponents.
-	 */
-	private function createChildren ()				: Void;
+	private function createBehaviours ()	: Void;
+	private function createChildren ()		: Void;
+	private function createGraphics ()		: Void;
+	private function removeGraphics ()		: Void;
 	
-	private inline function getLayoutContainer () 	{ return layout.as(LayoutContainer); }
+	
+	//
+	// GETTERS / SETTERS
+	//
+	
+	private inline function getLayoutContainer () {
+		return layout.as(LayoutContainer);
+	}
 }

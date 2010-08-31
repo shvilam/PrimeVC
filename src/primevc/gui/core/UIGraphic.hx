@@ -45,14 +45,17 @@ package primevc.gui.core;
 class UIGraphic extends Shape, implements IUIElement
 {
 	public var behaviours		(default, null)		: BehaviourList;
-	public var layout			(default, null)		: LayoutClient;
+	public var id				(default, null)		: Bindable < String >;
 	public var state			(default, null)		: UIElementStates;
+	
+	public var layout			(default, null)		: LayoutClient;
 	public var graphicData		(default, null)		: Bindable < IGraphicShape >;
 	
 	
-	public function new ()
+	public function new (?id:String)
 	{
 		super();
+		this.id	= new Bindable<String>(id);
 		visible = false;
 		init.onceOn( displayEvents.addedToStage, this );
 		
@@ -90,16 +93,6 @@ class UIGraphic extends Shape, implements IUIElement
 	}
 	
 	
-	public inline function render () : Void
-	{
-		if (graphicData.value != null)
-		{
-			graphics.clear();
-			graphicData.value.draw(this, false);
-		}
-	}
-	
-	
 	private inline function removeBehaviours ()
 	{
 		behaviours.dispose();
@@ -121,4 +114,9 @@ class UIGraphic extends Shape, implements IUIElement
 	private function createBehaviours ()	: Void; //	{ Assert.abstract(); }
 	private function createGraphics ()		: Void		{ Assert.abstract(); }
 	private function removeGraphics ()		: Void; //	{ Assert.abstract(); }
+	
+	
+#if debug
+	override public function toString() { return id.value; }
+#end
 }

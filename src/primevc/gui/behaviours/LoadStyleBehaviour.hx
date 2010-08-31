@@ -26,32 +26,52 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
-#if flash9
- import primevc.core.Bindable;
- import primevc.gui.graphics.shapes.IGraphicShape;
-#end
+package primevc.gui.behaviours;
+ import primevc.gui.styling.UIStyle;
+ import primevc.gui.traits.IStylable;
+ import primevc.utils.FastArray;
+  using primevc.utils.FastArray;
+  using Type;
 
 
 /**
  * @author Ruben Weijers
- * @creation-date Jul 13, 2010
+ * @creation-date Aug 04, 2010
  */
-interface IDrawable 
-	  implements IDisplayable
-	, implements ILayoutable
+class LoadStyleBehaviour extends BehaviourBase < IStylable >
 {
-#if flash9
-	/**
-	 * Object containing graphical data. One object will be enough in general
-	 * since it can be a ComposedShape that contains multiple shapes.
-	 */
-	public var graphicData		(default, null)		: Bindable < IGraphicShape >;
+/*	private var inheritanceList	: FastArray < String >;
 	
-	public var graphics			(default, null)		: flash.display.Graphics;
-
-	private function createGraphics ()				: Void;
-	private function removeGraphics ()				: Void;
-
-#end
+	
+	override private function init ()
+	{	
+		var start = flash.Lib.getTimer();
+		
+		//create empty style object
+		target.style = new UIStyle();
+		
+		//list all super-classes
+		inheritanceList			= FastArrayUtil.create();
+		var c:Class<Dynamic>	= target.getClass();
+		
+		while (c != null)
+		{
+			c != 
+			inheritanceList.push( c.getClassName() );
+			c = c.getSuperClass();
+		}
+		
+		//
+		
+		
+		var dur = flash.Lib.getTimer() - start;
+		trace(inheritanceList.asString());
+		trace("duration: "+dur+" ms");
+	}
+	
+	
+	override private function reset ()
+	{
+		
+	}*/
 }

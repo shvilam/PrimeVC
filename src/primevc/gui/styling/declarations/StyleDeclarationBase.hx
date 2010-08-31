@@ -26,32 +26,49 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
-#if flash9
- import primevc.core.Bindable;
- import primevc.gui.graphics.shapes.IGraphicShape;
-#end
+package primevc.gui.styling.declarations;
+
 
 
 /**
+ * Base class for style declarations
+ * 
  * @author Ruben Weijers
- * @creation-date Jul 13, 2010
+ * @creation-date Aug 05, 2010
  */
-interface IDrawable 
-	  implements IDisplayable
-	, implements ILayoutable
+class StyleDeclarationBase <DeclarationType> implements IStyleDeclaration <DeclarationType>
+	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
-#if flash9
-	/**
-	 * Object containing graphical data. One object will be enough in general
-	 * since it can be a ComposedShape that contains multiple shapes.
-	 */
-	public var graphicData		(default, null)		: Bindable < IGraphicShape >;
+	public var nestingInherited		(default, setNestingInherited)		: DeclarationType;
+	public var superInherited		(default, setSuperInherited)		: DeclarationType;
+	public var extendedStyle		(default, setExtendedStyle)			: DeclarationType;
 	
-	public var graphics			(default, null)		: flash.display.Graphics;
+	
+	public function new () {}
+	
+	
+	public function dispose ()
+	{
+		nestingInherited	= null;
+		superInherited		= null;
+		extendedStyle		= null;
+	}
+	
+	
+	private inline function setNestingInherited (v)
+	{
+		return this.nestingInherited = v;
+	}
+	
+	
+	private inline function setSuperInherited (v)
+	{
+		return this.superInherited = v;
+	}
 
-	private function createGraphics ()				: Void;
-	private function removeGraphics ()				: Void;
 
-#end
+	private inline function setExtendedStyle (v)
+	{
+		return this.extendedStyle = v;
+	}
 }

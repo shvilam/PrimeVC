@@ -235,6 +235,13 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 		
 		return removed;
 	}
+	
+	
+#if debug
+	public inline function toString () {
+		return cast(value, String);
+	}
+#end
 }
 
 

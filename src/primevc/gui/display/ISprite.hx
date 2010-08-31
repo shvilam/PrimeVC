@@ -27,9 +27,6 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.display;
- import primevc.core.geom.Matrix2D;
- import primevc.gui.traits.IDrawable;
- import primevc.gui.traits.IDisplayable;
  import primevc.gui.traits.IInteractive;
 
 
@@ -42,7 +39,7 @@ package primevc.gui.display;
 interface ISprite 
 		implements IDisplayContainer
 	,	implements IInteractive
-	,	implements IDisplayable
+	,	implements IDisplayObject
 {
 #if flash9
 	var buttonMode														: Bool;

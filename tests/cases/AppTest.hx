@@ -26,32 +26,58 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
-#if flash9
- import primevc.core.Bindable;
- import primevc.gui.graphics.shapes.IGraphicShape;
-#end
+package cases;
+ import primevc.core.Application;
+ import primevc.gui.core.UIContainer;
+ import primevc.gui.core.UIWindow;
+ import primevc.gui.graphics.fills.SolidFill;
+ import primevc.gui.graphics.shapes.RegularRectangle;
+ import primevc.gui.layout.algorithms.RelativeAlgorithm;
+ import primevc.gui.layout.LayoutContainer;
+ import primevc.gui.layout.RelativeLayout;
+
 
 
 /**
+ * Class description
+ * 
  * @author Ruben Weijers
- * @creation-date Jul 13, 2010
+ * @creation-date Aug 30, 2010
  */
-interface IDrawable 
-	  implements IDisplayable
-	, implements ILayoutable
+class AppTest
 {
-#if flash9
-	/**
-	 * Object containing graphical data. One object will be enough in general
-	 * since it can be a ComposedShape that contains multiple shapes.
-	 */
-	public var graphicData		(default, null)		: Bindable < IGraphicShape >;
+	public static function main () { Application.startup( AppTestWindow ); }
+}
+
+class AppTestWindow extends UIWindow
+{
+	override private function createChildren ()
+	{
+		var app = new Editor();
+		children.add( app );
+	}
+}
+
+
+
+class Editor extends UIContainer <Dynamic>
+{
+	override private function createLayout ()
+	{
+		layout						= new LayoutContainer();
+		layout.relative				= new RelativeLayout( 0, 0, 0, 0 );
+		layoutContainer.algorithm	= new RelativeAlgorithm();
+	}
 	
-	public var graphics			(default, null)		: flash.display.Graphics;
-
-	private function createGraphics ()				: Void;
-	private function removeGraphics ()				: Void;
-
-#end
+	
+	override private function createChildren ()
+	{
+		
+	}
+	
+	
+	override private function createGraphics ()
+	{
+		graphicData.value = new RegularRectangle( layout.bounds, new SolidFill(0xff000aa) );
+	}
 }

@@ -28,30 +28,24 @@
  */
 package primevc.gui.traits;
 #if flash9
- import primevc.core.Bindable;
- import primevc.gui.graphics.shapes.IGraphicShape;
+ import primevc.gui.styling.declarations.UIElementStyle;
 #end
 
 
 /**
  * @author Ruben Weijers
- * @creation-date Jul 13, 2010
+ * @creation-date Aug 04, 2010
  */
-interface IDrawable 
-	  implements IDisplayable
-	, implements ILayoutable
+interface IStylable implements IIdentifiable
 {
 #if flash9
-	/**
-	 * Object containing graphical data. One object will be enough in general
-	 * since it can be a ComposedShape that contains multiple shapes.
-	 */
-	public var graphicData		(default, null)		: Bindable < IGraphicShape >;
+	public var style (default, setStyle)			: UIElementStyle;
 	
-	public var graphics			(default, null)		: flash.display.Graphics;
-
-	private function createGraphics ()				: Void;
-	private function removeGraphics ()				: Void;
-
+	/**
+	 * String containing all the css-classes that the IStyleable should use. 
+	 * It's possible to add more than one styleName by putting them in comma-
+	 * seperated. 
+	 */
+	public var styleNames (default, setStyleNames)	: String;
 #end
 }

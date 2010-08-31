@@ -51,51 +51,51 @@ class WindowLayoutBehaviour extends BehaviourBase < UIWindow >
 	override private function init ()
 	{
 		Assert.that(target.layout != null, "Layout of "+target+" can't be null for "+this);
-		layoutStateChangeHandler.on( target.layout.states.change, this );
 		
+		enterFrameBinding = measure.on( target.displayEvents.enterFrame, this );
+		enterFrameBinding.disable();
+		
+		layoutStateChangeHandler.on( target.layout.state.change, this );
 		//trigger the event handler for the current state as well
-		layoutStateChangeHandler( null, target.layout.states.current );
+		layoutStateChangeHandler( null, target.layout.state.current );
 	}
 
 
 	override private function reset ()
 	{
-		removeEnterFrameBinding();
+		if (enterFrameBinding != null) {
+			enterFrameBinding.dispose();
+			enterFrameBinding = null;
+		}
 		
 		if (target.layout == null)
 			return;
-
-		target.layout.states.change.unbind( this );
+		
+		target.layout.state.change.unbind( this );
 	}
 
 
 	private function layoutStateChangeHandler (oldState:LayoutStates, newState:LayoutStates)
 	{
+	//	trace(target+".layoutStateChangeHandler "+oldState+" -> "+newState);
 		switch (newState) {
-			case LayoutStates.invalidated:
-				if (enterFrameBinding == null)
-					enterFrameBinding = measure.onceOn( target.displayEvents.enterFrame, this );
-
-			case LayoutStates.measuring:
-				removeEnterFrameBinding();
-			
-			case LayoutStates.validated:
-				removeEnterFrameBinding();
+			case LayoutStates.invalidated:		enterFrameBinding.enable();
+			case LayoutStates.measuring:		enterFrameBinding.disable();
+			case LayoutStates.validated:		enterFrameBinding.disable();
 		}
 	}
 	
 	
 	private function measure () {
-		removeEnterFrameBinding();
+	//	trace(target+".enterFrame measure");
+		enterFrameBinding.disable();
 		target.layout.measure();
-	}
-
-
-	private inline function removeEnterFrameBinding ()
-	{
-		if (enterFrameBinding != null) {
-			enterFrameBinding.dispose();
-			enterFrameBinding = null;
+		
+#if flash9
+		if (target.graphicData.value != null) {
+			target.bgShape.width	= target.layout.width;
+			target.bgShape.height	= target.layout.height;
 		}
+#end
 	}
 }

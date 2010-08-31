@@ -31,17 +31,45 @@ package primevc.gui.core;
  import primevc.gui.layout.LayoutContainer;
   using primevc.utils.TypeUtil;
 
+#if flash9
+/* 
+ import primevc.gui.behaviours.LoadStyleBehaviour;
+ import primevc.gui.styling.StyleDeclaration;
+ import primevc.gui.traits.IStylable;*/
+#end
+
 
 /**
  * @author Ruben Weijers
  * @creation-date Aug 02, 2010
  */
-class UIContainer <DataType> extends UIDataComponent <DataType>, implements IUIContainer 
+class UIContainer <DataType> extends UIDataComponent <DataType>
+			, implements IUIContainer/*
+#if flash9	, implements IStylable		#end*/
 {
 	public var layoutContainer	(getLayoutContainer, never)		: LayoutContainer;
 	public var scrollableLayout	(getScrollableLayout, never)	: IScrollableLayout;
 	
-	
 	private inline function getLayoutContainer () 	{ return layout.as(LayoutContainer); }
 	private inline function getScrollableLayout () 	{ return layout.as(IScrollableLayout); }
+	
+	
+#if flash9
+	//
+	// ISTYLEABLE IMPLEMENTATION
+	//
+	
+/*	public var style (default, setStyle)	: StyleDeclaration;
+	
+	override private function createBehaviours ()
+	{
+		behaviours.add( new LoadStyleBehaviour( this ) );
+	}
+	
+	
+	private inline function setStyle (v:StyleDeclaration)
+	{
+		return style = v;
+	}*/
+#end
 }

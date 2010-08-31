@@ -95,9 +95,25 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	}
 	
 	
+	
+	
 	//
 	// LAYOUT METHODS
 	//
+	
+	
+	override public function invalidate (change:Int)
+	{
+		var wasInvalid = isInvalidated;
+		super.invalidate(change);
+		
+		if (!wasInvalid && isInvalidated) {
+			//loop through child list to find children who are also invalidated and change their state to parent_invalidated
+			for (child in children)
+				if (child.isInvalidated)
+					child.state.current = LayoutStates.parent_invalidated;
+		}
+	}
 	
 	
 	public inline function childInvalidated (childChanges:Int) : Bool
@@ -231,7 +247,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		if (changes == 0 || !isValidating)
 			return;
 		
-		states.current = LayoutStates.validating;
+		state.current = LayoutStates.validating;
 		
 		if (algorithm != null)
 			algorithm.apply();
