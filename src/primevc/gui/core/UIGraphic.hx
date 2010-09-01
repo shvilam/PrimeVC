@@ -32,9 +32,11 @@ package primevc.gui.core;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
  import primevc.gui.display.Shape;
+ import primevc.gui.effects.UIElementEffects;
  import primevc.gui.graphics.shapes.IGraphicShape;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.UIElementStates;
+  using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
 
 
@@ -47,6 +49,7 @@ class UIGraphic extends Shape, implements IUIElement
 	public var behaviours		(default, null)		: BehaviourList;
 	public var id				(default, null)		: Bindable < String >;
 	public var state			(default, null)		: UIElementStates;
+	public var effects			(default, default)	: UIElementEffects;
 	
 	public var layout			(default, null)		: LayoutClient;
 	public var graphicData		(default, null)		: Bindable < IGraphicShape >;
@@ -104,6 +107,19 @@ class UIGraphic extends Shape, implements IUIElement
 	{
 		layout = new LayoutClient();
 	}
+	
+	
+	
+	//
+	// ACTIONS (actual methods performed by UIElementActions util)
+	//
+
+	public inline function show ()						{ this.doShow(); }
+	public inline function hide ()						{ this.doHide(); }
+	public inline function move (x:Float, y:Float)		{ this.doMove(x, y); }
+	public inline function resize (w:Float, h:Float)	{ this.doResize(w, h); }
+	public inline function rotate (v:Float)				{ this.doRotate(v); }
+	public inline function scale (sx:Float, sy:Float)	{ this.doScale(sx, sy); }
 	
 	
 	

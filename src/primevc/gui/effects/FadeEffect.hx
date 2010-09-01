@@ -28,6 +28,8 @@
  */
 package primevc.gui.effects;
  import primevc.gui.display.IDisplayObject;
+ import primevc.types.Number;
+  using primevc.utils.FloatUtil;
 
 
 /**
@@ -38,23 +40,61 @@ package primevc.gui.effects;
  */
 class FadeEffect extends Effect < IDisplayObject, FadeEffect >
 {
-	private var startValue	: Float;
-	private var endValue	: Float;
+	
+	/**
+	 * The startvalue that will be used during the calculations when the effect
+	 * is playing.
+	 * The value will be the 'startValue' property when this is set and 
+	 * otherwise the original alpha value of the target.
+	 */
+	private var _startValue	: Float;
+	
+	/**
+	 * Explicit start alpha value. If this value is not set, the effect will 
+	 * use the current alpha of the displayobject.
+	 * @default		Number.FLOAT_NOT_SET
+	 */
+	public var startValue	: Float;
+	/**
+	 * Explicit alpha value of the animation at the end.
+	 * @default		Number.FLOAT_NOT_SET
+	 */
+	public var endValue		: Float;
 	
 	
-	public function new( target, duration:Int = 350, delay:Int = 0, easing:Easing = null, startValue:Float = 0, endValue:Float = 1 )
+	public function new( target = null, duration:Int = 350, delay:Int = 0, easing:Easing = null, endValue:Float = 1, ?startValue:Float )
 	{
 		super( target, duration, delay, easing );
 		hideFiltersDuringEffect	= false;
-		this.startValue			= startValue;
+		this.startValue			= (startValue == null) ? Number.FLOAT_NOT_SET : startValue;
 		this.endValue			= endValue;
 	}
 	
 	
 	override public function clone ()
 	{
-		return new FadeEffect( target, duration, duration, easing, startValue, endValue );
+		return new FadeEffect( target, duration, duration, easing, endValue, startValue );
 	}
+
+
+	override public function setValues ( v:EffectProperties ) 
+	{
+		switch (v) {
+			case alpha(from, to):
+				startValue	= from;
+				endValue	= to;
+			default:
+				return;
+		}
+	}
+
+
+	override private function initStartValues ()
+	{
+		if (startValue.isSet())		_startValue = startValue;
+		else						_startValue = target.alpha;
+	}
+	
 	
 	
 	/**
@@ -63,12 +103,12 @@ class FadeEffect extends Effect < IDisplayObject, FadeEffect >
 	 */
 	override private function tweenUpdater ( tweenPos:Float )
 	{
-		target.alpha = ( endValue * tweenPos ) + ( startValue * ( 1 - tweenPos ) );
+		target.alpha = ( endValue * tweenPos ) + ( _startValue * ( 1 - tweenPos ) );
 	}
 	
 	
 	override private function calculateTweenStartPos () : Float
 	{
-		return (target.alpha - startValue) / (endValue - startValue);
+		return (target.alpha - _startValue) / (endValue - _startValue);
 	}
 }

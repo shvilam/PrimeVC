@@ -40,25 +40,89 @@ package primevc.gui.effects;
  */
 class ScaleEffect extends Effect < IScaleable, ScaleEffect >
 {
+	/**
+	 * Auto or explicit scaleX value to begin the effect with.
+	 */
+	private var _startX	: Float;
+	/**
+	 * Auto or explicit scaleY value to begin the effect with.
+	 */
+	private var _startY	: Float;
+	
+	/**
+	 * Explicit scaleX value. By setting this value, the effect will ignore 
+	 * the real target.scaleX value when the effect starts.
+	 * @default		Number.FLOAT_NOT_SET
+	 */
 	public var startX	: Float;
+	/**
+	 * Explicit scaleY value. By setting this value, the effect will ignore 
+	 * the real target.scaleY value when the effect starts.
+	 * @default		Number.FLOAT_NOT_SET
+	 */
 	public var startY	: Float;
+	
+	/**
+	 * End value of the scaleX property.
+	 * @default		Number.FLOAT_NOT_SET
+	 */
 	public var endX		: Float;
+	/**
+	 * End value of the scaleY property.
+	 * @default		Number.FLOAT_NOT_SET
+	 */
 	public var endY		: Float;
+	
+	
+	public function new (target = null, duration:Int = 350, delay:Int = 0, easing:Easing = null, ?endX:Float, ?endY:Float)
+	{
+		super(target, duration, delay, easing);
+		startX		= startY = Number.FLOAT_NOT_SET;
+		this.endX	= (endX != null) ? endX : Number.FLOAT_NOT_SET;
+		this.endY	= (endY != null) ? endY : Number.FLOAT_NOT_SET;
+	}
+	
+	private inline function isXChanged () : Bool	{ return endX.isSet() && _startX != endX; }
+	private inline function isYChanged () : Bool	{ return endY.isSet() && _startY != endY; }
 	
 	
 	override public function clone ()
 	{
-		var n = new ScaleEffect( target, duration, duration, easing );
-		n.endX = endX;
-		n.endY = endY;
+		var n = new ScaleEffect( target, duration, duration, easing, endX, endY );
+		n.startX	= startX;
+		n.startY	= startY;
 		return n;
 	}
 
+
+	override public function setValues ( v:EffectProperties ) 
+	{
+		switch (v) {
+			case scale(fromSx, fromSy, toSx, toSy):
+				startX	= fromSx;
+				startY	= fromSy;
+				endX	= toSx;
+				endY	= toSy;
+			default:
+				return;
+		}
+	}
+	
+	
+	override private function initStartValues ()
+	{
+		if (startX.isSet())	_startX = startX;
+		else				_startX = target.scaleX;
+		if (startY.isSet())	_startY = startY;
+		else				_startY = target.scaleY;
+	}
+	
+	
 	override private function tweenUpdater ( tweenPos:Float )
 	{
 #if flash9
-		if (endX.isSet())	target.scaleX = ( endX * tweenPos ) + ( startX * (1 - tweenPos) );
-		if (endY.isSet())	target.scaleY = ( endY * tweenPos ) + ( startY * (1 - tweenPos) );
+		if (isXChanged())	target.scaleX = ( endX * tweenPos ) + ( _startX * (1 - tweenPos) );
+		if (isYChanged())	target.scaleY = ( endY * tweenPos ) + ( _startY * (1 - tweenPos) );
 #end
 	}
 
@@ -66,34 +130,15 @@ class ScaleEffect extends Effect < IScaleable, ScaleEffect >
 	override private function calculateTweenStartPos () : Float
 	{
 #if flash9
-		if		(endX.notSet() && endY.notSet())	return 1;
-		else if (endY.notSet())						return (target.scaleX - startX) / (endX - startX);
-		else if (endX.notSet())						return (target.scaleY - startY) / (endY - startY);
-		else										return Math.min(
-			(target.scaleX - startX) / (endX - startX),
-			(target.scaleY - startY) / (endY - startY)
-		);
+		return if		(!isXChanged() && !isYChanged())	1;
+		  else if (!isYChanged())							(target.scaleX - _startX) / (endX - _startX);
+		  else if (!isXChanged())							(target.scaleY - _startY) / (endY - _startY);
+		  else												Math.min(
+					(target.scaleX - _startX) / (endX - _startX),
+					(target.scaleY - _startY) / (endY - _startY)
+				);
 #else
 		return 1;
 #end
 	}
-
-
-#if flash9
-	override private function setTarget ( v )
-	{
-		if (v == null)
-		{
-			startX = startY = endX = endY = Number.FLOAT_NOT_SET;
-		}
-		else if (v != target)
-		{
-			startX	= target.scaleX;
-			startY	= target.scaleY;
-			endX	= Number.FLOAT_NOT_SET;
-			endY	= Number.FLOAT_NOT_SET;
-		}
-		return super.setTarget( v );
-	}
-#end
 }

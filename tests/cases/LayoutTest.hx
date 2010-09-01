@@ -7,6 +7,7 @@ package cases;
  import primevc.core.geom.constraints.SizeConstraint;
  import primevc.core.geom.space.Direction;
  import primevc.core.geom.space.Horizontal;
+ import primevc.core.geom.space.Position;
  import primevc.core.geom.space.Vertical;
  import primevc.core.geom.Box;
  import primevc.core.geom.IntPoint;
@@ -30,13 +31,16 @@ package cases;
  import primevc.gui.core.UIGraphic;
  import primevc.gui.core.UIWindow;
  import primevc.gui.effects.AnchorScaleEffect;
+ import primevc.gui.effects.EffectProperties;
  import primevc.gui.effects.FadeEffect;
  import primevc.gui.effects.MoveEffect;
  import primevc.gui.effects.ParallelEffect;
  import primevc.gui.effects.ResizeEffect;
  import primevc.gui.effects.RotateEffect;
+ import primevc.gui.effects.SetAction;
  import primevc.gui.effects.ScaleEffect;
  import primevc.gui.effects.SequenceEffect;
+ import primevc.gui.effects.UIElementEffects;
  import primevc.gui.effects.WipeEffect;
  import primevc.gui.events.DragEvents;
  import primevc.gui.events.DropTargetEvents;
@@ -68,6 +72,7 @@ package cases;
  import primevc.gui.layout.VirtualLayoutContainer;
  import primevc.gui.traits.IDropTarget;
  import primevc.gui.traits.IDraggable;
+ import primevc.types.Number;
  import primevc.utils.Color;
   using primevc.utils.Bind;
   using primevc.utils.Color;
@@ -293,6 +298,85 @@ class Button extends UIDataComponent < String >
 }
 
 
+class TileFadeMoveEffect extends SequenceEffect
+{
+	private var fadeIn		: FadeEffect;
+	private var fadeOut		: FadeEffect;
+	private var setAction	: SetAction;
+	
+	override public function init ()
+	{
+		add( fadeOut	= new FadeEffect(null, 200, 0, null, 1, 0) );
+		add( setAction	= new SetAction() );
+		add( fadeIn		= new FadeEffect(null, 200, 0, null, 0, 1) );
+	}
+	
+	override public function setValues (v:EffectProperties)
+	{
+		setAction.setValues(v);
+	}
+}
+
+class TileMoveScaleEffect extends ParallelEffect
+{
+	private var move		: MoveEffect;
+	private var scaleCol	: SequenceEffect;
+	private var scaleIn		: ScaleEffect;
+	private var scaleOut	: ScaleEffect;
+	
+	
+	override public function init ()
+	{
+		add( move				= new MoveEffect(null, 600) );
+		add( scaleCol			= new SequenceEffect() );
+		scaleCol.add( scaleIn	= new ScaleEffect(null, 300) );
+		scaleCol.add( scaleOut	= new ScaleEffect(null, 300) );
+		
+		scaleIn.endX	= scaleIn.endY	= 2;
+		scaleOut.endX	= scaleOut.endY	= 1;
+	}
+	
+	override public function setValues (v:EffectProperties)
+	{
+		move.setValues(v);
+	}
+}
+
+
+class TileRotateFadeScaleMoveEffect extends SequenceEffect
+{
+	private var move		: MoveEffect;
+	private var rotate1		: RotateEffect;
+	private var rotate2		: RotateEffect;
+	private var fadeIn		: FadeEffect;
+	private var fadeOut		: FadeEffect;
+	private var scaleIn		: ScaleEffect;
+	private var scaleOut	: ScaleEffect;
+	private var prlIn		: ParallelEffect;
+	private var prlOut		: ParallelEffect;
+	
+	override public function init ()
+	{
+		add( prlIn			= new ParallelEffect() );
+		add( prlOut			= new ParallelEffect() );
+		
+		prlIn.add( fadeOut	= new FadeEffect(null, 150, 0, null, .7) );
+		prlIn.add( move		= new MoveEffect(null, 800, 0, null) );
+		prlIn.add( scaleIn	= new ScaleEffect(null, 800, 0, null, 2, 2) );
+	//	prlIn.add( scaleIn	= new AnchorScaleEffect(null, 500, 0, null, Position.MiddleCenter, 2.5) );
+		prlIn.add( rotate1	= new RotateEffect(null, 800, 0, null, 360 * Math.random()) );
+		
+		prlOut.add( fadeIn	= new FadeEffect(null, 500, 0, null, 1) );
+		prlOut.add( scaleOut= new ScaleEffect(null, 500, 0, null, 1, 1) );
+	//	prlOut.add( scaleOut= new AnchorScaleEffect(null, 500, 0, null, Position.MiddleCenter, 1) );
+		prlOut.add( rotate2	= new RotateEffect(null, 500, 0, null, 0) );
+	}
+	
+	override public function setValues (v:EffectProperties)
+	{
+		move.setValues(v);
+	}
+}
 
 
 class Tile extends Button, implements IDraggable
@@ -306,8 +390,14 @@ class Tile extends Button, implements IDraggable
 	{
 		this.dynamicSize = dynamicSize;
 		super("tile");
-		color = Color.random();
-		dragEvents = new DragEvents();
+		color		= Color.random();
+		dragEvents	= new DragEvents();
+		
+		effects			= new UIElementEffects( this );
+	//	effects.move	= new TileFadeMoveEffect();
+	//	effects.move	= new MoveEffect();
+	//	effects.move	= new TileMoveScaleEffect();
+		effects.move	= new TileRotateFadeScaleMoveEffect();
 	}
 
 

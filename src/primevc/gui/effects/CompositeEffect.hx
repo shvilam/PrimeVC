@@ -46,11 +46,21 @@ class CompositeEffect < ClassName > extends Effect < Dynamic, ClassName >
 	public var compositeDuration	(getCompositeDuration, never)	: Int;
 	
 	
-	public function new (target, duration:Int = 350, delay:Int = 0, easing:Easing = null)
-	{
-		super(target, duration, delay, easing);
+	public function new (target = null, duration:Int = 350, delay:Int = 0, easing:Easing = null)
+	{	
 		effects = FastArrayUtil.create();
+		super(target, duration, delay, easing);
+		init();
 	}
+	
+	
+	/**
+	 * Method to fill the CompositeEffect with child-effects. Overwrite this
+	 * method when you're extending ParallelEffect or SequenceEffect.
+	 */
+	public function init () {}
+	override private function initStartValues () {}
+	override public function setValues (v:EffectProperties) {}
 	
 	
 	override public function dispose ()

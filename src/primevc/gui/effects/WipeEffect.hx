@@ -49,53 +49,79 @@ class WipeEffect extends Effect < IDisplayObject, WipeEffect >
 	 * @default		MoveDirection.LeftToRight
 	 */
 	public var direction			: MoveDirection;
+	
+	/**
+	 * start x/y position that will be used during the effect. The startValue
+	 * will be used when it's set, otherwise the effect will calculate the
+	 * default start-value based on the direction of the wipe.
+	 */
+	private var _startValue			: Float;
+	
+	/**
+	 * Explicit startValue of the object
+	 * @default		Number.FLOAT_NOT_SET
+	 */
 	public var startValue			: Float;
+	/**
+	 * final x/y position that will be used during the effect. The endValue
+	 * will be used when it's set, otherwise the effect will calculate the
+	 * default end-value based on the direction of the wipe.
+	 */
+	private var _endValue			: Float;
+	/**
+	 * Explicit endValue of the object
+	 * @default		Number.FLOAT_NOT_SET
+	 */
 	public var endValue				: Float;
 	
 	
-	public function new (target, duration:Int = 350, delay:Int = 0, easing:Easing = null, direction:MoveDirection = null)
+	public function new (target = null, duration:Int = 350, delay:Int = 0, easing:Easing = null, direction:MoveDirection = null, ?startValue:Float, ?endValue)
 	{
 		super(target, duration, delay, easing);
-		this.direction	= direction == null ? LeftToRight : direction;
-		startValue		= Number.FLOAT_NOT_SET;
-		endValue		= Number.FLOAT_NOT_SET;
+		this.direction	= direction == null		? LeftToRight			: direction;
+		this.startValue	= startValue == null	? Number.FLOAT_NOT_SET	: startValue;
+		this.endValue	= endValue == null		? Number.FLOAT_NOT_SET	: endValue;
 	}
 	
 	
 	override public function clone ()
 	{
-		return new WipeEffect( target, duration, delay, easing, direction );
+		return new WipeEffect( target, duration, delay, easing, direction, startValue, endValue );
 	}
-
-
+	
+	
+	override public function setValues (v:EffectProperties) {}
+	
+	
 #if flash9
-	override public function play ( ?withEffect:Bool = true, ?directly:Bool = false ) : Void
+	override private function initStartValues ()
 	{
-	//	hideFilters();
 		var t = target;
 		if (t.scrollRect == null)
 			t.scrollRect = new Rectangle( 0, 0, t.width, t.height );
 
-		if (endValue.notSet())
-			endValue = 0;
+		if (endValue.notSet())	_endValue = 0;
+		else					_endValue = endValue;
 
 		if (startValue.notSet() || startValue == endValue) {
-			startValue = switch (direction) {
+			_startValue = switch (direction) {
 				case TopToBottom:	 t.scrollRect.height;
 				case BottomToTop:	-t.scrollRect.height;
 				case LeftToRight:	 t.scrollRect.width;
 				case RightToLeft:	-t.scrollRect.width;
 			}
 		}
-
-		super.play( withEffect, directly );
+		else
+		{
+			_startValue = startValue;
+		}
 	}
 
 
 	override private function tweenUpdater ( tweenPos:Float )
 	{
 		var rect			= target.scrollRect;
-		var newVal:Float	= ( endValue * tweenPos ) + ( startValue * (1 - tweenPos) );
+		var newVal:Float	= ( _endValue * tweenPos ) + ( _startValue * (1 - tweenPos) );
 
 		switch (direction) {
 			case TopToBottom, BottomToTop:	rect.y = newVal;
@@ -113,7 +139,7 @@ class WipeEffect extends Effect < IDisplayObject, WipeEffect >
 			case LeftToRight, RightToLeft:	target.scrollRect.x;
 		}
 
-		return (curValue - startValue) / (endValue - startValue);
+		return (curValue - _startValue) / (_endValue - _startValue);
 	}	
 #end
 }

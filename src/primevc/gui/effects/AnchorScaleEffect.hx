@@ -30,6 +30,9 @@ package primevc.gui.effects;
  import primevc.core.geom.space.Position;
  import primevc.core.geom.Point;
  import primevc.gui.display.IDisplayObject;
+ import primevc.gui.states.EffectStates;
+ import primevc.types.Number;
+  using primevc.utils.FloatUtil;
   using Std;
 
 
@@ -63,7 +66,11 @@ class AnchorScaleEffect extends Effect < IDisplayObject, AnchorScaleEffect >
 	
 	
 	/**
-	 * ScaleX and ScaleY start-value
+	 * Auto or explicit scale value to begin the effect with.
+	 */
+	private var _startValue			: Float;
+	/**
+	 * Explicit ScaleX and ScaleY start-value
 	 */
 	public var startValue			: Float;
 	/**
@@ -72,19 +79,19 @@ class AnchorScaleEffect extends Effect < IDisplayObject, AnchorScaleEffect >
 	public var endValue				: Float;
 	
 	
-	public function new (target, duration:Int = 350, delay:Int = 0, easing:Easing = null, position:Position = null, startV:Float = 0, endV:Float = 1)
+	public function new (target = null, duration:Int = 350, delay:Int = 0, easing:Easing = null, position:Position = null, ?endV:Float, ?startV:Float)
 	{
 		super(target, duration, delay, easing);
-		zoomPosition	= position != null ? position : TopLeft;
 		anchorPoint		= new Point();
-		startValue		= startV;
-		endValue		= endV;
+		zoomPosition	= position != null	? position				: TopLeft;
+		startValue		= startV == null	? Number.FLOAT_NOT_SET	: startV;
+		endValue		= endV == null		? Number.FLOAT_NOT_SET	: endV;
 	}
 	
 	
 	override public function clone ()
 	{
-		return new AnchorScaleEffect(target, duration, delay, easing, zoomPosition, startValue, endValue);
+		return new AnchorScaleEffect(target, duration, delay, easing, zoomPosition, endValue, startValue);
 	}
 	
 	
@@ -94,6 +101,9 @@ class AnchorScaleEffect extends Effect < IDisplayObject, AnchorScaleEffect >
 		zoomPosition	= null;
 		super.dispose();
 	}
+	
+	
+	override public function setValues (v:EffectProperties) {}
 	
 	
 #if flash9
@@ -129,6 +139,16 @@ class AnchorScaleEffect extends Effect < IDisplayObject, AnchorScaleEffect >
 #end
 	
 	
+	override private function initStartValues ()
+	{
+		if (state == EffectStates.initialized)
+			posBeforeTween = new Point( target.x, target.y );
+		
+		if (startValue.isSet())	_startValue = startValue;
+		else					_startValue = target.scaleX;
+	}
+	
+	
 	override private function tweenUpdater ( tweenPos:Float )
 	{
 #if flash9
@@ -152,7 +172,7 @@ class AnchorScaleEffect extends Effect < IDisplayObject, AnchorScaleEffect >
 #end
 	}
 	
-	
+/*	
 	override private function setTarget (newTarget)
 	{
 		if (target == newTarget)
@@ -162,5 +182,5 @@ class AnchorScaleEffect extends Effect < IDisplayObject, AnchorScaleEffect >
 		else if	(target != newTarget)	posBeforeTween = new Point( newTarget.x, newTarget.y );
 		
 		return super.setTarget(newTarget);
-	}
+	}*/
 }

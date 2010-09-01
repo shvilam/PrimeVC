@@ -111,7 +111,7 @@ class Effect < TargetType, ClassName > implements IDisposable, implements IClona
 	
 	
 	
-	public function new( newTarget:TargetType, newDuration:Int = 350, newDelay:Int = 0, newEasing:Easing = null ) 
+	public function new( newTarget:TargetType = null, newDuration:Int = 350, newDelay:Int = 0, newEasing:Easing = null ) 
 	{
 		target		= newTarget;
 		duration	= newDuration;
@@ -145,12 +145,32 @@ class Effect < TargetType, ClassName > implements IDisposable, implements IClona
 	}
 	
 	
-	public function clone () : ClassName
-	{
-		Assert.abstract();
-		return null;
-	}
+	public function clone ()						: ClassName { Assert.abstract(); return null; }
 	
+	/**
+	 * Method to set the explicit start and end values of the effect
+	 * @see	EffectProperties
+	 */
+	public function setValues( v:EffectProperties ) : Void		{ Assert.abstract(); }
+	/**
+	 * Method that is called before the effect is started to choose if the 
+	 * effect should use the target's original value or if it should use the
+	 * explicit value.
+	 * The explicitvalue will be choosen when it is set.
+	 */
+	private function initStartValues()				: Void		{ Assert.abstract(); }
+	/**
+	 * Method which will perform the transformation from visible to hidden.
+	 * Needs to be overwritten by subclasses.
+	 */
+	private function tweenUpdater( tweenPos:Float )	: Void		{ Assert.abstract(); }
+	/**
+	 * Method will calculate the start position for the play tween. When the 
+	 * target for example already has an alpha of 0.4, the start position
+	 * won't be '0' but 0.4. The tween-duration will also be 40% smaller.
+	 * @return	Float between 0 and 1
+	 */
+	private function calculateTweenStartPos ()		: Float		{ Assert.abstract(); return 0; }
 	
 	
 	
@@ -169,7 +189,7 @@ class Effect < TargetType, ClassName > implements IDisposable, implements IClona
 	 */
 	public function play ( withEffect:Bool = true, directly:Bool = false ) : Void
 	{
-		if (state == EffectStates.waiting || !directly || state == EffectStates.empty)
+		if ((state == EffectStates.waiting && !directly) || state == EffectStates.empty)
 			return;
 		
 		stopDelay();
@@ -223,6 +243,7 @@ class Effect < TargetType, ClassName > implements IDisposable, implements IClona
 	private function playWithEffect ()
 	{
 		//calculate the tweens end and start position
+		initStartValues();
 		var calcStartPos	= calculateTweenStartPos();
 		var startPos		= isReverted ? 1.0 : 0.0;
 		var endPos			= isReverted ? 0.0 : 1.0;
@@ -271,22 +292,6 @@ class Effect < TargetType, ClassName > implements IDisposable, implements IClona
 		tweenUpdater( isReverted ? 0 : 1 );
 		onTweenReady();
 	}
-	
-	
-	/**
-	 * Method which will perform the transformation from visible to hidden.
-	 * Needs to be overwritten by subclasses.
-	 */
-	private function tweenUpdater ( tweenPos:Float )	: Void	{ Assert.abstract(); }
-	
-	
-	/**
-	 * Method will calculate the start position for the play tween. When the 
-	 * target for example already has an alpha of 0.4, the start position
-	 * won't be '0' but 0.4. The tween-duration will also be 40% smaller.
-	 * @return	Float between 0 and 1
-	 */
-	private function calculateTweenStartPos ()			: Float { Assert.abstract(); return 0; }
 	
 	
 	private function onTweenReady ( ?tweenPos:Float )

@@ -26,49 +26,14 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.core;
- import primevc.core.IDisposable;
- import primevc.gui.display.IDisplayObject;
- import primevc.gui.effects.UIElementEffects;
- import primevc.gui.states.UIElementStates;
- import primevc.gui.traits.IBehaving;
- import primevc.gui.traits.IIdentifiable;
- import primevc.gui.traits.ILayoutable;
-#if flash9
- import primevc.gui.traits.IDrawable;
-#end
+package primevc.gui.effects;
 
 
-/**
- * @author Ruben Weijers
- * @creation-date Aug 02, 2010
- */
-interface IUIElement	
-				implements IDisplayObject
-#if flash9	,	implements IDrawable	#end
-			,	implements ILayoutable
-			,	implements IBehaving
-			,	implements IIdentifiable
-			,	implements IDisposable
-{
-	public var state	(default, null)		: UIElementStates;
-	
-	/**
-	 * Collection of effects that are defined for this UIElement. The 
-	 * UIElementEffects object won't be created by an UIElement but has to be
-	 * set the first time an effect is added to the UIElement.
-	 */
-	public var effects	(default, default)	: UIElementEffects;
-	
-	
-	//
-	// ACTIONS
-	//
-	
-	public function move (newX:Float, newY:Float)	: Void;
-	public function resize (newW:Float, newH:Float)	: Void;
-	public function rotate (newV:Float)				: Void;
-	public function scale (newX:Float, newY:Float)	: Void;
-	public function show ()							: Void;
-	public function hide ()							: Void;
+enum EffectProperties {
+	alpha( from:Float, to:Float );
+	rotation( from:Float, to:Float );
+	size( fromW:Float, fromH:Float, toW:Float, toH:Float );
+	position( fromX:Float, fromY:Float, toX:Float, toY:Float );
+	scale( fromSx:Float, fromSy:Float, toSx:Float, toSy:Float );
+	any( propName:String, from:Dynamic, to:Dynamic );
 }

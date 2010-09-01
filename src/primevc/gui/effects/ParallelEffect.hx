@@ -45,6 +45,12 @@ class ParallelEffect extends CompositeEffect < ParallelEffect >
 	private var playingEffects : Int;
 	
 	
+	override public function clone ()
+	{
+		return new ParallelEffect( target, duration, delay, easing );
+	}
+	
+	
 	override public function add (effect)
 	{
 		super.add(effect);

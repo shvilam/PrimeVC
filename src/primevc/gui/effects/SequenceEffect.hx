@@ -38,6 +38,12 @@ package primevc.gui.effects;
  */
 class SequenceEffect extends CompositeEffect < SequenceEffect >
 {
+	override public function clone ()
+	{
+		return new SequenceEffect( target, duration, delay, easing );
+	}
+	
+	
 	override private function getCompositeDuration ()
 	{
 		var d = 0;
@@ -58,7 +64,8 @@ class SequenceEffect extends CompositeEffect < SequenceEffect >
 		
 		//play all effects directly with tween
 		var len:Int		= effects.length;
-		var prevEffect	= effects[ isReverted ? len - 1 : 0 ];
+		var firstEffect	= effects[ isReverted ? len - 1 : 0 ];
+		var prevEffect	= firstEffect;
 		for (i in 1...len)
 		{
 			var curEffect = effects[ isReverted ? len - i : i ];
@@ -67,6 +74,7 @@ class SequenceEffect extends CompositeEffect < SequenceEffect >
 		}
 		
 		lastChildReadyHandler.onceOn( prevEffect.ended, this );
+		firstEffect.playWithEffect();
 	}
 
 
@@ -82,7 +90,8 @@ class SequenceEffect extends CompositeEffect < SequenceEffect >
 		
 		//play all effects directly with tween
 		var len:Int		= effects.length;
-		var prevEffect	= effects[ isReverted ? len - 1 : 0 ];
+		var firstEffect	= effects[ isReverted ? len - 1 : 0 ];
+		var prevEffect	= firstEffect;
 		for (i in 1...len)
 		{
 			var curEffect = effects[ isReverted ? len - i : i ];
@@ -91,6 +100,7 @@ class SequenceEffect extends CompositeEffect < SequenceEffect >
 		}
 
 		lastChildReadyHandler.onceOn( prevEffect.ended, this );
+		firstEffect.playWithoutEffect();
 	}
 	
 	
