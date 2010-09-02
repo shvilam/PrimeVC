@@ -28,6 +28,7 @@
  */
 package primevc.core.geom;
  import primevc.core.traits.IClonable;
+  using Std;
  
 
 /**
@@ -38,6 +39,10 @@ package primevc.core.geom;
  */
 class IntPoint implements IClonable <IntPoint>
 {
+	public static inline function fromFloat (x:Float, y:Float)	: IntPoint	{ return new IntPoint( x.int(), y.int() ); }
+	public static inline function fromPoint (p:Point)			: IntPoint	{ return new IntPoint( p.x.int(), p.y.int() ); }
+	
+	
 	public var x (getX, setX)	: Int;
 	public var y (getY, setY)	: Int;
 	

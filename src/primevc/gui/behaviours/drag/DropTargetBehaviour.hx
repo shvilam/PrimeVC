@@ -58,7 +58,10 @@ class DropTargetBehaviour extends BehaviourBase <IDropTarget>
 	{
 		var newChild	= droppedItem.target;
 		var depth		= IntMath.min( target.children.length, target.getDepthForBounds( droppedItem.dropBounds ) );
-		trace(target + ".addDroppedTile "+newChild+" on "+depth+" in "+target.name);
+	//	trace(target + ".addDroppedTile "+newChild+" on "+depth+" in "+target.name);
+		
+		newChild.x = droppedItem.dragRectangle.left;
+		newChild.y = droppedItem.dragRectangle.top;
 		
 		if (droppedItem.origContainer != target || !target.children.has(newChild))
 			target.children.add( newChild, depth );

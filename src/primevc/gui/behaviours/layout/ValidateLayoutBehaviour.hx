@@ -131,8 +131,14 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >
 	{
 		renderBinding.disable();
 		var l = target.layout;
+		
+		if (target.effects == null || target.effects.move == null)
+		{
 	//	trace("applyPosition " + target.id + " / " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y);
-		target.x		= l.getHorPosition();
-		target.y		= l.getVerPosition();
+			target.x		= l.getHorPosition();
+			target.y		= l.getVerPosition();
+		}/* else {
+			target.effects.playMove( l.getHorPosition(), l.getVerPosition() );
+		}*/
 	}
 }

@@ -26,20 +26,14 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
+package primevc.gui.effects;
 
 
-/**
- * @author Ruben Weijers
- * @creation-date Aug 04, 2010
- */
-interface ISizeable
-{
-#if flash9
-	var height					: Float;
-	var width					: Float;
-#else
-	var width		(getWidth,		setWidth)			: Float;
-	var height		(getHeight,		setHeight)			: Float;
-#end
+enum EffectProperties {
+	alpha( from:Float, to:Float );
+	rotation( from:Float, to:Float );
+	size( fromW:Float, fromH:Float, toW:Float, toH:Float );
+	position( fromX:Float, fromY:Float, toX:Float, toY:Float );
+	scale( fromSx:Float, fromSy:Float, toSx:Float, toSy:Float );
+	any( propName:String, from:Dynamic, to:Dynamic );
 }

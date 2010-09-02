@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms.tile;
- import primevc.gui.layout.algorithms.directions.Direction;
+ import primevc.core.geom.space.Direction;
  import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
  import primevc.gui.layout.algorithms.float.VerticalFloatAlgorithm;
  import primevc.gui.layout.algorithms.DynamicLayoutAlgorithm;

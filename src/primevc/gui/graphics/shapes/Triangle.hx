@@ -28,6 +28,7 @@
  */
 package primevc.gui.graphics.shapes;
  import primevc.core.geom.IntPoint;
+ import primevc.core.geom.space.Position;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.traits.IDrawable;
   using primevc.utils.FastArray;
@@ -40,14 +41,14 @@ package primevc.gui.graphics.shapes;
  */
 class Triangle extends ShapeBase
 {
-	public var direction (default, setDirection)	: TriangleDirection;
+	public var direction (default, setDirection)	: Position;
 	
 	private var a		: IntPoint; 
 	private var b		: IntPoint;
 	private var c		: IntPoint;
 	
 	
-	public function new (?layout, ?fill, ?border, ?direction:TriangleDirection)
+	public function new (?layout, ?fill, ?border, ?direction:Position)
 	{
 		super(layout, fill, border);
 		this.direction = direction;
@@ -69,63 +70,72 @@ class Triangle extends ShapeBase
 #if flash9
 		var a = a, b = b, c = c;
 		switch (direction) {
-			case LeftCenter:
-				a.x = x + width;
-				a.y = y;
-				b.x = x;
-				b.y = ((y + height) * .5).int();
-				c.x = a.x;
-				c.y = y + height;
-		
-			case RightCenter:
-				a.x = x;
-				a.y = y;
-				b.x = x + width;
-				b.y = ((y + height) * .5).int();
-				c.x = x;
-				c.y = y + height;
-		
-			case BottomCenter:
+			case Custom(p):
+			case TopLeft:
 				a.x = x;
 				a.y = y;
 				b.x = x + width;
 				b.y = y;
-				c.x = ((x + width) * .5).int();
+				c.x = x;
 				c.y = y + height;
 		
 			case TopCenter:
 				a.x = x;
 				a.y = height;
-				b.x = ((x + width) * .5).int();
+				b.x = x + (width * .5).int();
 				b.y = y;
 				c.x = x + width;
 				c.y = y + height;
 			
-			case TopLeftCorner:
-				a.x = x;
-				a.y = y;
-				b.x = x + width;
-				b.y = y;
-				c.x = x;
-				c.y = y + height;
-			
-			case TopRightCorner:
+			case TopRight:
 				a.x = x + width;
 				a.y = y;
 				b.x = x + width;
 				b.y = y + height;
 				c.x = x;
 				c.y = y;
+
+			case MiddleLeft:
+				a.x = x;
+				a.y = y + (height * .5).int();
+				b.x = x + width;
+				b.y = y;
+				c.x = a.x;
+				c.y = y + height;
 			
-			case BottomLeftCorner:
+			case MiddleCenter:
+				a.x = x + width;
+				a.y = y;
+				b.x = x;
+				b.y = y + (height * .5).int();
+				c.x = a.x;
+				c.y = y + height;
+
+			case MiddleRight:
+				a.x = x;
+				a.y = y;
+				b.x = x + width;
+				b.y = y + (height * .5).int();
+				c.x = x;
+				c.y = y + height;
+			
+			case BottomLeft:
 				a.x = x;
 				a.y = y + height;
 				b.x = x + width;
 				b.y = y + height;
 				c.x = x;
 				c.y = y;
+		
+			case BottomCenter:
+				a.x = x;
+				a.y = y;
+				b.x = x + width;
+				b.y = y;
+				c.x = x + (width * .5).int();
+				c.y = y + height;
 			
-			case BottomRightCorner:
+			case BottomRight:
 				a.x = x + width;
 				a.y = y + height;
 				b.x = x + width;
@@ -148,7 +158,7 @@ class Triangle extends ShapeBase
 	}
 	
 	
-	private inline function setDirection (v:TriangleDirection)
+	private inline function setDirection (v:Position)
 	{
 		if (v != direction) {
 			direction = v;

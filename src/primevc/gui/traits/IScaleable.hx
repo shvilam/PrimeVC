@@ -26,14 +26,21 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics.shapes;
-
+package primevc.gui.traits;
 
 
 /**
- * which direction is the arrow pointing to
+ * @author Ruben Weijers
+ * @creation-date Aug 31, 2010
  */
-enum TriangleDirection {
-	TopCenter; BottomCenter; LeftCenter; RightCenter;
-	TopLeftCorner; TopRightCorner; BottomLeftCorner; BottomRightCorner;
+interface IScaleable
+{	
+#if flash9
+	var scaleX					: Float;
+	var scaleY					: Float;
+
+	#if flash10
+	var scaleZ					: Float;
+	#end
+#end
 }

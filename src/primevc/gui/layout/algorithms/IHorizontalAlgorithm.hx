@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms;
- import primevc.gui.layout.algorithms.directions.Horizontal;
+ import primevc.core.geom.space.Horizontal;
  
 
 /**

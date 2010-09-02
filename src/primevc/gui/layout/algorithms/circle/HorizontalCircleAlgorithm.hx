@@ -27,9 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms.circle;
+ import primevc.core.geom.space.Horizontal;
  import primevc.core.geom.IRectangle;
  import primevc.gui.layout.AdvancedLayoutClient;
- import primevc.gui.layout.algorithms.directions.Horizontal;
  import primevc.gui.layout.algorithms.IHorizontalAlgorithm;
  import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
  import primevc.gui.layout.LayoutFlags;

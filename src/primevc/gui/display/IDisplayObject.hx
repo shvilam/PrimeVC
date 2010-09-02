@@ -30,6 +30,7 @@ package primevc.gui.display;
  import primevc.core.geom.Point;
  import primevc.gui.traits.IDisplayable;
  import primevc.gui.traits.IPositionable;
+ import primevc.gui.traits.IScaleable;
  import primevc.gui.traits.ISizeable;
 
 
@@ -40,6 +41,7 @@ package primevc.gui.display;
 interface IDisplayObject 
 				implements IDisplayable
 			,	implements IPositionable
+			,	implements IScaleable
 			,	implements ISizeable
 #if flash9  ,	implements flash.display.IBitmapDrawable #end
 {
