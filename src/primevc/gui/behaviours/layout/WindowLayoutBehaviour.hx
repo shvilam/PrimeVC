@@ -52,6 +52,10 @@ class WindowLayoutBehaviour extends BehaviourBase < UIWindow >
 	{
 		Assert.that(target.layout != null, "Layout of "+target+" can't be null for "+this);
 		
+#if debug
+		target.layout.name = target.id.value+"Layout";
+#end
+		
 		enterFrameBinding = measure.on( target.displayEvents.enterFrame, this );
 		enterFrameBinding.disable();
 		

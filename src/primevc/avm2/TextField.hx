@@ -45,13 +45,37 @@ package primevc.avm2;
  * @creation-date Sep 02, 2010
  */
 class TextField extends flash.text.TextField, implements ITextField 
-{
-	public var container		(default, setContainer)	: IDisplayContainer;
-	public var window			(default, setWindow)	: Window;
+{	
+	/**
+	 * The padding to be added to textWidth to get the width
+	 * of a TextField that can display the text without clipping.
+	 */ 
+	public static inline var TEXT_WIDTH_PADDING:Int = 5;
+
+	/**
+	 * The padding to be added to textHeight to get the height
+	 * of a TextField that can display the text without clipping.
+	 */ 
+	public static inline var TEXT_HEIGHT_PADDING:Int = 4;
 	
-	public var displayEvents	(default, null)			: DisplayEvents;
-	public var textEvents		(default, null)			: TextEvents;
-	public var userEvents		(default, null)			: UserEvents;
+	
+	public var container		(default, setContainer)		: IDisplayContainer;
+	public var window			(default, setWindow)		: Window;
+	
+	public var displayEvents	(default, null)				: DisplayEvents;
+	public var textEvents		(default, null)				: TextEvents;
+	public var userEvents		(default, null)				: UserEvents;
+	
+	
+	/**
+	 * Returns the textWidth + TEXT_WIDTH_PADDING
+	 */
+	public var realTextWidth	(getRealTextWidth, never)	: Float;
+	/**
+	 * Returns the textHeight + TEXT_HEIGHT_PADDING
+	 */
+	public var realTextHeight	(getRealTextHeight, never)	: Float;
+	
 	
 	
 	public function new () 
@@ -104,4 +128,8 @@ class TextField extends flash.text.TextField, implements ITextField
 	{
 		return window = v;
 	}
+	
+	
+	private inline function getRealTextWidth ()		{ return textWidth + TEXT_WIDTH_PADDING; }
+	private inline function getRealTextHeight ()	{ return textHeight + TEXT_HEIGHT_PADDING; }
 }

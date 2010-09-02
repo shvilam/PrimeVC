@@ -27,15 +27,21 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
+#if flash9
+ import flash.text.TextFieldAutoSize;
+#end
  import primevc.core.Bindable;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.display.TextField;
  import primevc.gui.effects.UIElementEffects;
+ import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.UIElementStates;
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
+  using primevc.utils.TypeUtil;
+  using Std;
 
 
 /**
@@ -46,11 +52,11 @@ package primevc.gui.core;
  */
 class UITextField extends TextField, implements IUIElement 
 {
-	public var id			(default, null)		: Bindable < String >;
-	public var behaviours	(default, null)		: BehaviourList;
-	public var effects		(default, default)	: UIElementEffects;
-	public var layout		(default, null)		: LayoutClient;
-	public var state		(default, null)		: UIElementStates;
+	public var id			(default, null)			: Bindable < String >;
+	public var behaviours	(default, null)			: BehaviourList;
+	public var effects		(default, default)		: UIElementEffects;
+	public var layout		(default, null)			: LayoutClient;
+	public var state		(default, null)			: UIElementStates;
 	
 	
 	public function new (?id:String)
@@ -120,9 +126,30 @@ class UITextField extends TextField, implements IUIElement
 
 	private function createLayout () : Void
 	{
-		layout = new LayoutClient();
+		layout = new AdvancedLayoutClient();
+		updateSize();
+		updateSize.on( textEvents.change, this );
 	}
 	
+	
+	public inline function setText (v:String)		: Void		{ text		= v; updateSize(); }
+	public inline function setHtmlText (v:String)	: Void		{ htmlText	= v; updateSize(); }
+	/*
+#if flash9
+	public inline function setAutoSize (v:TextFieldAutoSize)
+	{
+		if (v != autoSize)
+		{
+			autoSize = v;
+			switch (v)
+			{
+				case TextFieldAutoSize.NONE:
+			}
+		}
+		return v;
+	}
+#end
+	*/
 	
 	
 	//
@@ -138,6 +165,19 @@ class UITextField extends TextField, implements IUIElement
 	
 	
 	private function createBehaviours ()	: Void;
+	
+	
+	//
+	// EVENTHANDLERS
+	//
+	
+	private function updateSize ()
+	{
+		trace(this+".updateSize "+textWidth+", "+textHeight);
+		var l = layout.as(AdvancedLayoutClient);
+		l.measuredWidth		= realTextWidth.int();
+		l.measuredHeight	= realTextHeight.int();
+	}
 	
 	
 #if debug

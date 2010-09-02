@@ -86,7 +86,7 @@ class UIWindow extends Window
 	{
 		super(target, app);
 		
-		id				= new Bindable<String>();
+		id				= new Bindable<String>("UIWindow");
 		behaviours		= new BehaviourList();
 		graphicData		= new Bindable < IGraphicShape > ();
 		

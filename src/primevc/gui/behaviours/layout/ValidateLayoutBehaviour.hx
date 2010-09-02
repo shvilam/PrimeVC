@@ -56,6 +56,10 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >
 	{
 		Assert.that(target.layout != null, "Layout of "+target+" can't be null for "+this);
 		
+#if debug
+		target.layout.name = target.id.value+"Layout";
+#end
+		
 		enterFrameBinding	= measure.on( target.displayEvents.enterFrame, this );
 		renderBinding		= applyPosition.on( target.displayEvents.render, this );
 		enterFrameBinding.disable();
