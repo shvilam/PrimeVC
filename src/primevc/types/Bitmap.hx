@@ -29,8 +29,8 @@
 package primevc.types;
  import primevc.core.states.SimpleStateMachine;
  import primevc.core.IDisposable;
+ import primevc.gui.display.IDisplayObject;
  import primevc.gui.display.Loader;
- import primevc.gui.traits.IDisplayable;
   using primevc.utils.Bind;
 
 
@@ -150,7 +150,7 @@ class Bitmap implements IDisposable
 	
 #if flash9
 	
-	public inline function loadDisplayable (v:IDisplayable, ?transform:Matrix2D)
+	public inline function loadDisplayObject (v:IDisplayObject, ?transform:Matrix2D)
 	{
 		var d = new BitmapData( v.width.int(), v.height.int(), true, 0 );
 		d.draw( v, transform );
@@ -173,7 +173,7 @@ class Bitmap implements IDisposable
 	public inline function loadClass (v:Class<DisplayObject>)
 	{
 		var i = untyped __new__(v);
-		loadDisplayable(i);
+		loadDisplayObject(i);
 	}
 #end
 
@@ -194,7 +194,7 @@ class Bitmap implements IDisposable
 			d.draw( loader.content );
 			setData( d );
 		}
-		catch (e:flash.Error) {
+		catch (e:flash.errors.Error) {
 			throw "Loading bitmap error. Check policy settings. "+e.message;
 			state.current = empty;
 		}
@@ -226,10 +226,10 @@ class Bitmap implements IDisposable
 	
 	
 #if flash9
-	public static inline function fromDisplayable (v:IDisplayable, ?transform:Matrix2D) : Bitmap
+	public static inline function fromDisplayObject (v:IDisplayObject, ?transform:Matrix2D) : Bitmap
 	{
 		var b = new Bitmap();
-		b.loadDisplayable(v, transform);
+		b.loadDisplayObject(v, transform);
 		return b;
 	}
 	

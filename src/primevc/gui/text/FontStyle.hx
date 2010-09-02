@@ -26,16 +26,11 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.layout.algorithms.directions;
- 
+package primevc.gui.text;
 
-/**
- * Description
- * 
- * @creation-date	Jun 28, 2010
- * @author			Ruben Weijers
- */
-enum Direction {
-	vertical;
-	horizontal;
+
+enum FontStyle {
+	normal;
+	italic;
+	oblique;
 }

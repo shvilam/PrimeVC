@@ -27,8 +27,6 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.traits;
- import primevc.core.geom.Matrix2D;
- import primevc.core.geom.Point;
  import primevc.core.IDisposable;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.Window;
@@ -39,9 +37,7 @@ package primevc.gui.traits;
  * @author Ruben Weijers
  * @creation-date Jul 30, 2010
  */
-interface IDisplayable 
-					implements IDisposable	
-	#if flash9  ,	implements flash.display.IBitmapDrawable #end
+interface IDisplayable implements IDisposable	
 {
 	var displayEvents	(default, null)					: DisplayEvents;
 	
@@ -54,46 +50,4 @@ interface IDisplayable
 	 * Wrapper object for the stage.
 	 */
 	var window			(default, setWindow)			: Window;
-	
-	
-	function isObjectOn (otherObj:IDisplayable)		: Bool;
-
-#if flash9
-	var alpha					: Float;
-	var visible					: Bool;
-	
-	var height					: Float;
-	var width					: Float;
-	var x						: Float;
-	var y						: Float;
-	var rotation				: Float;
-	
-	var scaleX					: Float;
-	var scaleY					: Float;
-	
-	var filters					: Array < Dynamic >;
-	var name					: String;
-	var scrollRect				: flash.geom.Rectangle;
-	var transform				: flash.geom.Transform; //Matrix2D;
-
-	function globalToLocal (point : Point) : Point;
-	function localToGlobal (point : Point) : Point;
-
-	#if flash10
-	var rotationX				: Float;
-	var rotationY				: Float;
-	var rotationZ				: Float;
-	var scaleZ					: Float;
-	var z						: Float;
-	#end
-#else
-	var visible		(getVisibility, setVisibility)		: Bool;
-	var alpha		(getAlpha,		setAlpha)			: Float;
-	var x			(getX,			setX)				: Float;
-	var y			(getY,			setY)				: Float;
-	var width		(getWidth,		setWidth)			: Float;
-	var height		(getHeight,		setHeight)			: Float;
-	
-	var transform	(default, null)						: Matrix2D;
-#end
 }

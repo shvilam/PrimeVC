@@ -1,3 +1,4 @@
+-lib feffects
 -swf-lib ../assets/debug-assets.swf
 -swf-version 10
 -swf9 test.swf

@@ -69,11 +69,12 @@ class LayoutClient implements ILayoutClient
 	private var aspectRatio			(default, default)					: Float;
 	
 	
-	public var states				(default, null)						: SimpleStateMachine < LayoutStates >;
+	public var state				(default, null)						: SimpleStateMachine < LayoutStates >;
 	public var measuredHorizontal	(default, null)						: Bool;
 	public var measuredVertical		(default, null)						: Bool;
 	
 	public var isValidating			(getIsValidating, never)			: Bool;
+	public var isInvalidated		(getIsInvalidated, never)			: Bool;
 	
 	
 	//
@@ -123,7 +124,7 @@ class LayoutClient implements ILayoutClient
 		updateHeight.on( bounds.size.yProp.change, this );
 		
 		changes				= changes.set(Flags.X_CHANGED | Flags.Y_CHANGED | Flags.WIDTH_CHANGED | Flags.HEIGHT_CHANGED);
-		states				= new SimpleStateMachine<LayoutStates>( LayoutStates.validated );
+		state				= new SimpleStateMachine<LayoutStates>( LayoutStates.validated );
 		measuredVertical	= false;
 		measuredHorizontal	= false;
 	}
@@ -138,7 +139,7 @@ class LayoutClient implements ILayoutClient
 		_width.dispose();
 		_height.dispose();
 		bounds.dispose();
-		states.dispose();
+		state.dispose();
 		events.dispose();
 		
 		if (relative != null) {
@@ -153,7 +154,7 @@ class LayoutClient implements ILayoutClient
 		_height	= null;
 		bounds	= null;
 		padding	= null;
-		states	= null;
+		state	= null;
 		events	= null;
 		parent	= null;
 		
@@ -182,19 +183,23 @@ class LayoutClient implements ILayoutClient
 	{
 		changes = changes.set(change);
 		
-		if (changes == 0 || states == null || states.current == null)
+		if (changes == 0 || state == null || state.current == null)
 			return;
 		
 		if (isValidating)
 			return;
 		
-		if (parent == null || !parent.childInvalidated(changes))
+		if (!state.is(LayoutStates.parent_invalidated))
 		{
-			if (!states.is(LayoutStates.parent_invalidated))
-				states.current = LayoutStates.invalidated;
-			
-			if (validateOnPropertyChange && (parent == null || !parent.validateOnPropertyChange))
-				measure();
+			if (parent != null && (parent.isInvalidated || parent.childInvalidated(changes))) {
+				state.current = LayoutStates.parent_invalidated;
+			}
+			else {
+				state.current = LayoutStates.invalidated;
+				
+				if (validateOnPropertyChange && (parent == null || !parent.validateOnPropertyChange))
+					measure();
+			}
 		}
 	}
 	
@@ -204,7 +209,7 @@ class LayoutClient implements ILayoutClient
 		if (changes == 0)
 			return;
 		
-		states.current = LayoutStates.measuring;
+		state.current = LayoutStates.measuring;
 		if (!measuredHorizontal)	measureHorizontal();
 		if (!measuredVertical)		measureVertical();
 		
@@ -237,7 +242,7 @@ class LayoutClient implements ILayoutClient
 		if (changes == 0)
 			return;
 		
-		states.current = LayoutStates.validating;
+		state.current = LayoutStates.validating;
 		
 		if (changes.has(Flags.WIDTH_CHANGED) || changes.has(Flags.HEIGHT_CHANGED))
 			events.sizeChanged.send();
@@ -245,7 +250,7 @@ class LayoutClient implements ILayoutClient
 		if (changes.has(Flags.X_CHANGED) || changes.has(Flags.Y_CHANGED))
 			events.posChanged.send();
 		
-		states.current	= LayoutStates.validated;
+		state.current	= LayoutStates.validated;
 		changes			= 0;
 		
 		measuredHorizontal	= false;
@@ -282,10 +287,15 @@ class LayoutClient implements ILayoutClient
 	
 	
 	private inline function getIsValidating () : Bool {
-		var validating = states.is(LayoutStates.measuring) || states.is(LayoutStates.validating);
+		var validating = state.is(LayoutStates.measuring) || state.is(LayoutStates.validating);
 		if (!validating && parent != null)
 			validating = parent.isValidating;
 		return validating;
+	}
+	
+	
+	private inline function getIsInvalidated () : Bool {
+		return state == null ? false : state.is(LayoutStates.invalidated) || state.is(LayoutStates.parent_invalidated);
 	}
 	
 	
@@ -409,13 +419,13 @@ class LayoutClient implements ILayoutClient
 	{
 		if (parent != v)
 		{
-			if (parent != null && parent.states != null)
-				parent.states.change.unbind( this );
+		//	if (parent != null && parent.state != null)
+		//		parent.state.change.unbind( this );
 		
 			parent = v;
 		
-			if (parent != null)
-				handleParentStateChange.on( parent.states.change, this );
+		//	if (parent != null)
+		//		handleParentStateChange.on( parent.state.change, this );
 		}
 		return v;
 	}
@@ -530,15 +540,15 @@ class LayoutClient implements ILayoutClient
 		invalidate(Flags.RELATIVE_CHANGED);
 	}
 	
-	
+	/*
 	private function handleParentStateChange (oldState:LayoutStates, newState:LayoutStates)
 	{
 		Assert.notEqual(newState, null, "newstate cannot be null; oldstate: "+oldState);
 		switch (newState) {
 			case LayoutStates.invalidated:
-				states.current = LayoutStates.parent_invalidated;
+				state.current = LayoutStates.parent_invalidated;
 		}
-	}
+	}*/
 	
 	
 #if debug

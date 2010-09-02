@@ -29,17 +29,13 @@
 package primevc.gui.display;
  import haxe.FastList;
  import primevc.core.Application;
- import primevc.gui.behaviours.layout.WindowLayoutBehaviour;
- import primevc.gui.behaviours.IBehaviour;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEvents;
  import primevc.gui.input.Mouse;
- import primevc.gui.layout.algorithms.RelativeAlgorithm;
- import primevc.gui.layout.LayoutContainer;
  import primevc.gui.traits.IInteractive;
 
 
-private typedef TargetType = 
+typedef DocumentType = 
 	#if			flash9		flash.display.Stage;
 	#else if	js			Window;
 	#else					IDisplayObjectContainer;
@@ -50,53 +46,52 @@ private typedef TargetType =
  * Window is wrapper class for the stage. It provides each Sprite and Shape 
  * with the ability to talk with the stage in a platform-indepedent way.
  * 
- * @author Ruben Weijer
- * s
+ * @author Ruben Weijers
  * @creation-date Jul 13, 2010
  */
-class Window implements IDisplayContainer, implements IInteractive
+class Window
+		implements IDisplayContainer
+	,	implements IInteractive
 {
+	
+	public var application		(default, null)			: Application;
+	
+	//
+	// IDISPLAYCONTAINER PROPERTIES
+	//
+	
 	/**
 	 * Target is the original, platform-specific, root object. Although this
 	 * property is set as public, it's not recommended to use this property
 	 * directly!
 	 */
-	public var target			(default, null)		: TargetType;
-	public var children			(default, null)		: DisplayList;
-	public var window			(default, setWindow): Window;
-	public var application		(default, null)		: Application;
+	public var target			(default, null)			: DocumentType;
+	public var children			(default, null)			: DisplayList;
 	
-	public var layout			(default, null)		: LayoutContainer;
+	//
+	// IDISPLAYABLE PROPERTIES
+	//
 	
-	public var displayEvents	(default, null)		: DisplayEvents;
-	public var userEvents		(default, null)		: UserEvents;
+	public var window			(default, setWindow)	: Window;
+	public var container		(default, setContainer)	: IDisplayContainer;
+	public var displayEvents	(default, null)			: DisplayEvents;
 	
-	public var mouse			(default, null)		: Mouse;
-	public var behaviours		(default, null)		: FastList < IBehaviour <Dynamic> >;
+	public var userEvents		(default, null)			: UserEvents;
+	public var mouse			(default, null)			: Mouse;
 	
 	
-	public function new (target:TargetType, app:Application)
+	
+	
+	public function new (target:DocumentType, app:Application)
 	{
-		this.target			= target;
-		children			= new DisplayList( target, this );
-		window				= this;
-		application			= app;
-		displayEvents		= new DisplayEvents( target );
-		userEvents			= new UserEvents( target );
-		mouse				= new Mouse( this );
+		this.target		= target;
+		window			= this;
+		application		= app;
 		
-#if flash9
-		layout				= new primevc.avm2.layout.StageLayout( target );
-#else
-		layout				= new LayoutContainer();
-#end
-		layout.algorithm	= new RelativeAlgorithm();
-		
-		behaviours			= new FastList< IBehaviour<Dynamic> > ();
-		behaviours.add( new WindowLayoutBehaviour (this) );
-		
-		for (behaviour in behaviours)
-			behaviour.initialize();
+		children		= new DisplayList( target, this );
+		displayEvents	= new DisplayEvents( target );
+		userEvents		= new UserEvents( target );
+		mouse			= new Mouse( this );
 	}
 	
 	
@@ -105,9 +100,6 @@ class Window implements IDisplayContainer, implements IInteractive
 		if (displayEvents == null)
 			return;
 		
-		for (behaviour in behaviours)
-			behaviour.dispose();
-		
 		children.dispose();
 		displayEvents.dispose();
 		userEvents.dispose();
@@ -115,7 +107,6 @@ class Window implements IDisplayContainer, implements IInteractive
 		children		= null;
 		displayEvents	= null;
 		userEvents		= null;
-		behaviours		= null;
 	}
 	
 	
@@ -148,6 +139,11 @@ class Window implements IDisplayContainer, implements IInteractive
 	private inline function setWindow (v) {
 		return window = this;
 	}
+	
+	private inline function setContainer (v) {
+		return null;
+	}
+	
 	
 #if debug
 	public inline function toString () { return "Window"; }

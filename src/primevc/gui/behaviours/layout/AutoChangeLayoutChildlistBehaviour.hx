@@ -28,39 +28,55 @@
  */
 package primevc.gui.behaviours.layout;
  import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.core.IUIContainer;
+ import primevc.gui.display.IDisplayContainer;
+ import primevc.gui.display.IDisplayObject;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.traits.IDisplayable;
+ import primevc.gui.traits.IDraggable;
  import primevc.gui.traits.ILayoutable;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
 
 /**
- * Behaviour to automaticly update the layoutGroup of a Skin when the display-
- * list of this skin changes.
+ * Behaviour to automaticly update the layoutGroup of a component when the 
+ * displaylist of the component changes.
  * 
- * LayoutObjects of the children of the skin will be added, moved and removed
+ * LayoutObjects of the children of the component will be added, moved and removed
  * at the same depths as they are placed in the displayList.
  * 
  * For example: 
- * 		skinObj.children.add( someSkin, 3 );
+ * 		uiObj.children.add( someSkin, 3 );
  * 
- * Will cause the layout of someSkin to be added in the layoutGroup of skinObj
- * on depth 3 (skinObj.layoutGroup.children.add(someSkin.layout, 3);).
+ * Will cause the layout of someSkin to be added in the layoutGroup of uiObj
+ * on depth 3 (uiObj.layoutGroup.children.add(someSkin.layout, 3);).
  * 
  * @author Ruben Weijers
  * @creation-date Jul 28, 2010
  */
-class AutoChangeLayoutChildlistBehaviour extends BehaviourBase < IUIContainer >
+class AutoChangeLayoutChildlistBehaviour extends BehaviourBase < IDisplayContainer >
 {
-	private var layoutGroup	: LayoutContainer;
+	private var layoutGroup		: LayoutContainer;
+	
+	/**
+	 * Number indicating the difference between the number of children the
+	 * target and the childList of the layout on the moment that this behaviour
+	 * is initialized.
+	 * 
+	 * This number makes sure that if a child is added on depth 3 and the 
+	 * countDifference is 2 that the layout of the child will be added on depth
+	 * 2.
+	 */
+	private var countDifference	: Int;
 	
 	
 	override private function init ()
 	{
-		Assert.that(target.layoutContainer != null, "Layout of "+target+" can't be null for "+this);
-		layoutGroup = target.layoutContainer;
+		Assert.that(target.is(ILayoutable), "Target must be "+target+" must be ILayoutable");
+		Assert.that(target.as(ILayoutable).layout.is(LayoutContainer), "Layout of "+target+" must be ILayoutContainer");
+		layoutGroup = target.as(ILayoutable).layout.as(LayoutContainer);
+		
+		countDifference = target.children.length - layoutGroup.children.length;
 		
 		addedHandler	.on( target.children.events.added, this );
 		removedHandler	.on( target.children.events.removed, this );
@@ -77,13 +93,23 @@ class AutoChangeLayoutChildlistBehaviour extends BehaviourBase < IUIContainer >
 	}
 	
 	
-	private function addedHandler (child:IDisplayable, pos:Int) {
+	private function addedHandler (child:IDisplayObject, pos:Int)
+	{
+		if (child.is(IDraggable) && child.as(IDraggable).isDragging)
+			return;
+		
 		if (child.is(ILayoutable))	addChildToLayout( child.as(ILayoutable), pos );
 	}
-	private function movedHandler (child:IDisplayable, newPos:Int, oldPos:Int) {
+	
+	
+	private function movedHandler (child:IDisplayObject, newPos:Int, oldPos:Int)
+	{
 		if (child.is(ILayoutable))	moveChildInLayout( child.as(ILayoutable), newPos, oldPos );
 	}
-	private function removedHandler (child:IDisplayable, pos:Int) {
+	
+	
+	private function removedHandler (child:IDisplayObject, pos:Int)
+	{
 		if (child.is(ILayoutable))	removeChildFromLayout( child.as(ILayoutable) );
 	}
 	
@@ -91,10 +117,13 @@ class AutoChangeLayoutChildlistBehaviour extends BehaviourBase < IUIContainer >
 	private inline function addChildToLayout (child:ILayoutable, pos:Int)
 	{
 		var curPos = layoutGroup.children.indexOf(child.layout);
-		if (curPos != -1)
-			layoutGroup.children.move(child.layout, pos, curPos);
-		else
-			layoutGroup.children.add( child.layout, pos );
+		pos -= countDifference;
+		
+		if (pos != curPos)
+		{
+			if (curPos != -1)	layoutGroup.children.move(child.layout, pos, curPos);
+			else				layoutGroup.children.add( child.layout, pos );
+		}
 	}
 	
 	
@@ -104,6 +133,8 @@ class AutoChangeLayoutChildlistBehaviour extends BehaviourBase < IUIContainer >
 	
 	
 	private inline function moveChildInLayout (child:ILayoutable, newPos:Int, oldPos:Int) {
+		oldPos -= countDifference;	
+		newPos -= countDifference;
 		layoutGroup.children.move( child.layout, newPos, oldPos );
 	}
 }

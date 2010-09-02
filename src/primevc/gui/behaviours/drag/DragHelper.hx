@@ -130,9 +130,13 @@ class DragHelper implements IDisposable
 	private function stopDrag (mouseObj:MouseState)
 	{
 		if (isDragging) {
+			if (target.is(IDraggable))
+				target.as(IDraggable).isDragging = false;
+			
 			stopHandler( mouseObj );
 			isDragging = false;
 		}
+		trace("stopDrag \n\n");
 		timer.stop();
 		mouseDownBinding.enable();
 		mouseUpBinding	.disable();
@@ -147,10 +151,14 @@ class DragHelper implements IDisposable
 	private function startDragHandler ()
 	{
 #if debug			
-		target.window.application.clearTraces();
+	//	target.window.application.clearTraces();
 #end	
-		trace("startDrag "+lastMouseObj.local);
+		trace("\n\nstartDrag "+lastMouseObj.local);
 		isDragging = true;
+		
+		if (target.is(IDraggable))
+			target.as(IDraggable).isDragging = true;
+		
 		startHandler( lastMouseObj );
 		
 		mouseDownBinding.disable();

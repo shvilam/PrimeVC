@@ -26,16 +26,58 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.layout.algorithms.directions;
- 
+package cases;
+ import primevc.core.Application;
+ import primevc.gui.core.UIContainer;
+ import primevc.gui.core.UIWindow;
+ import primevc.gui.graphics.fills.SolidFill;
+ import primevc.gui.graphics.shapes.RegularRectangle;
+ import primevc.gui.layout.algorithms.RelativeAlgorithm;
+ import primevc.gui.layout.LayoutContainer;
+ import primevc.gui.layout.RelativeLayout;
+
+
 
 /**
- * @creation-date	Jun 28, 2010
- * @author			Ruben Weijers
+ * Class description
+ * 
+ * @author Ruben Weijers
+ * @creation-date Aug 30, 2010
  */
+class AppTest
+{
+	public static function main () { Application.startup( AppTestWindow ); }
+}
 
-enum Horizontal {
-	left;
-	center;
-	right;
+class AppTestWindow extends UIWindow
+{
+	override private function createChildren ()
+	{
+		var app = new Editor();
+		children.add( app );
+	}
+}
+
+
+
+class Editor extends UIContainer <Dynamic>
+{
+	override private function createLayout ()
+	{
+		layout						= new LayoutContainer();
+		layout.relative				= new RelativeLayout( 0, 0, 0, 0 );
+		layoutContainer.algorithm	= new RelativeAlgorithm();
+	}
+	
+	
+	override private function createChildren ()
+	{
+		
+	}
+	
+	
+	override private function createGraphics ()
+	{
+		graphicData.value = new RegularRectangle( layout.bounds, new SolidFill(0xff000aa) );
+	}
 }

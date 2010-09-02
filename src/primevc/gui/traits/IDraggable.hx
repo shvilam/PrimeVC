@@ -41,6 +41,7 @@ package primevc.gui.traits;
 interface IDraggable implements ISprite
 {
 	public var dragEvents		(default, null)									: DragEvents;
+	public var isDragging		: Bool;
 	
 	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) 		: Void;
 	public function stopDrag()													: Void;

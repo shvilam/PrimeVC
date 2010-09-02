@@ -33,10 +33,10 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.core.collections.ChainedList;
  import primevc.core.collections.IList;
  import primevc.core.collections.IListCollection;
+ import primevc.core.geom.space.Direction;
  import primevc.core.geom.IRectangle;
  import primevc.types.Number;
  import primevc.core.RangeIterator;
- import primevc.gui.layout.algorithms.directions.Direction;
  import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
  import primevc.gui.layout.algorithms.float.VerticalFloatAlgorithm;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
@@ -186,7 +186,6 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	 */
 	public function createTileMap () : Void
 	{
-		trace(this + ".createTileMap!");
 		var children		= group.children;
 		var childLen:Int	= children.length;
 		var childNum:Int	= 0;
@@ -326,7 +325,7 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	
 	private inline function validateMaps ()
 	{
-#if debug
+#if (debug && debugLayout)
 		var len = horizontalMap.length;
 		
 		for (i in 0...len)

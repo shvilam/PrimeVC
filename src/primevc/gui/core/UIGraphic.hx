@@ -32,9 +32,11 @@ package primevc.gui.core;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
  import primevc.gui.display.Shape;
+ import primevc.gui.effects.UIElementEffects;
  import primevc.gui.graphics.shapes.IGraphicShape;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.UIElementStates;
+  using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
 
 
@@ -45,14 +47,18 @@ package primevc.gui.core;
 class UIGraphic extends Shape, implements IUIElement
 {
 	public var behaviours		(default, null)		: BehaviourList;
-	public var layout			(default, null)		: LayoutClient;
+	public var id				(default, null)		: Bindable < String >;
 	public var state			(default, null)		: UIElementStates;
+	public var effects			(default, default)	: UIElementEffects;
+	
+	public var layout			(default, null)		: LayoutClient;
 	public var graphicData		(default, null)		: Bindable < IGraphicShape >;
 	
 	
-	public function new ()
+	public function new (?id:String)
 	{
 		super();
+		this.id	= new Bindable<String>(id);
 		visible = false;
 		init.onceOn( displayEvents.addedToStage, this );
 		
@@ -90,16 +96,6 @@ class UIGraphic extends Shape, implements IUIElement
 	}
 	
 	
-	public inline function render () : Void
-	{
-		if (graphicData.value != null)
-		{
-			graphics.clear();
-			graphicData.value.draw(this, false);
-		}
-	}
-	
-	
 	private inline function removeBehaviours ()
 	{
 		behaviours.dispose();
@@ -115,10 +111,28 @@ class UIGraphic extends Shape, implements IUIElement
 	
 	
 	//
+	// ACTIONS (actual methods performed by UIElementActions util)
+	//
+
+	public inline function show ()						{ this.doShow(); }
+	public inline function hide ()						{ this.doHide(); }
+	public inline function move (x:Float, y:Float)		{ this.doMove(x, y); }
+	public inline function resize (w:Float, h:Float)	{ this.doResize(w, h); }
+	public inline function rotate (v:Float)				{ this.doRotate(v); }
+	public inline function scale (sx:Float, sy:Float)	{ this.doScale(sx, sy); }
+	
+	
+	
+	//
 	// ABSTRACT METHODS
 	//
 	
 	private function createBehaviours ()	: Void; //	{ Assert.abstract(); }
 	private function createGraphics ()		: Void		{ Assert.abstract(); }
 	private function removeGraphics ()		: Void; //	{ Assert.abstract(); }
+	
+	
+#if debug
+	override public function toString() { return id.value; }
+#end
 }

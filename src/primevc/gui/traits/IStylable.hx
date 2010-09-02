@@ -26,23 +26,26 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.layout.algorithms.directions;
- 
+package primevc.gui.traits;
+#if flash9
+ import primevc.gui.styling.declarations.UIElementStyle;
+#end
+
 
 /**
- * @creation-date	Jun 28, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Aug 04, 2010
  */
-enum Position {
-	topLeft;
-	topCenter;
-	topRight;
+interface IStylable implements IIdentifiable
+{
+#if flash9
+	public var style (default, setStyle)			: UIElementStyle;
 	
-	middleLeft;
-	middleCenter;
-	middleRight;
-	
-	bottomLeft;
-	bottomCenter;
-	bottomRight;
+	/**
+	 * String containing all the css-classes that the IStyleable should use. 
+	 * It's possible to add more than one styleName by putting them in comma-
+	 * seperated. 
+	 */
+	public var styleNames (default, setStyleNames)	: String;
+#end
 }

@@ -30,7 +30,6 @@ package primevc.gui.graphics.borders;
  import flash.display.CapsStyle;
  import flash.display.JointStyle;
  import primevc.core.geom.IRectangle;
- import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.IGraphicElement;
  import primevc.gui.traits.IDrawable;
 
@@ -39,7 +38,7 @@ package primevc.gui.graphics.borders;
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-interface IBorder <FillType:IFill> implements IGraphicElement 
+interface IBorder <FillType> implements IGraphicElement 
 {
 	public var weight		(default, setWeight)		: Float;
 	public var fill			(default, setFill)			: FillType;

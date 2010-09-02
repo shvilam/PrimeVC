@@ -41,9 +41,9 @@ class Application
 	public var window	(default, null)	: Window;
 	
 	
-	public function new ( target )
+	public function new ( target:DocumentType, windowClass:Class<Window> )
 	{
-		window = new Window( target, this );
+		window = Type.createInstance( windowClass, [ target, this ] );
 	}
 	
 	
@@ -56,21 +56,24 @@ class Application
 	//
 	
 	
-	public static inline function startup (ApplicationType:Class<Application>)
+	public static function startup (?windowClass:Class<Window>, ?applicationClass:Class<Application>)
 	{
+		if (windowClass == null)		windowClass			= Window;
+		if (applicationClass == null)	applicationClass	= Application;
+		
 #if debug
 	#if (MonsterTrace && flash9)
 		haxe.Log.trace	= doTrace;
 	#end
-		trace("started " + ApplicationType + "!");
+		trace("started " + applicationClass + ", "+windowClass+".");
 #end
-
+		
 #if flash9
 		var stage		= flash.Lib.current.stage;
 		stage.scaleMode	= flash.display.StageScaleMode.NO_SCALE;
-		var app = Type.createInstance( ApplicationType, [stage] );
+		var app = Type.createInstance( applicationClass, [stage, windowClass] );
 #else
-		var app = Type.createInstance( ApplicationType, null );
+		var app = Type.createInstance( applicationClass, [null, windowClass] );
 #end
 
 #if debug

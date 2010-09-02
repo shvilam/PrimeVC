@@ -27,8 +27,8 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms.float;
+ import primevc.core.geom.space.Vertical;
  import primevc.core.geom.IRectangle;
- import primevc.gui.layout.algorithms.directions.Vertical;
  import primevc.gui.layout.algorithms.IVerticalAlgorithm;
  import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
  import primevc.gui.layout.AdvancedLayoutClient;
@@ -301,8 +301,6 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 		var depth:Int	= 0;
 		var posY:Int	= bounds.top;
 		var centerY:Int	= bounds.top + (bounds.height * .5).int();
-	//	if (group.is(IScrollableLayout))
-	//		posY += group.as(IScrollableLayout).scrollPos.y;
 		
 		if (group.childHeight.isSet())
 		{
@@ -342,7 +340,6 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 					}
 				}
 			}
-
 		}
 		return depth;
 	}
@@ -353,8 +350,6 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 		var depth:Int	= 0;
 		var posY:Int	= bounds.top;
 		var centerY:Int	= bounds.top + (bounds.height * .5).int();
-	//	if (group.is(IScrollableLayout))
-	//		posY += group.as(IScrollableLayout).scrollPos.y;
 		
 		var groupHeight	= group.height;
 		if (group.is(AdvancedLayoutClient))
@@ -382,8 +377,7 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 		var depth:Int	= 0;
 		var posY:Int	= bounds.top;
 		var centerY:Int	= bounds.top + (bounds.height * .5).int();
-	//	if (group.is(IScrollableLayout))
-	//		posY += group.as(IScrollableLayout).scrollPos.y;
+		
 		if (group.childHeight.isSet())
 		{
 			depth = group.children.length - posY.divRound(group.childHeight);

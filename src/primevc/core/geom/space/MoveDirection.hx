@@ -26,15 +26,16 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.layout.algorithms.directions;
- 
+package primevc.core.geom.space;
+
 
 /**
- * @creation-date	Jun 28, 2010
+ * @creation-date	Aug 31, 2010
  * @author			Ruben Weijers
  */
-enum Vertical {
-	top;
-	center;
-	bottom;
+enum MoveDirection {
+	LeftToRight;
+	RightToLeft;
+	TopToBottom;
+	BottomToTop;
 }

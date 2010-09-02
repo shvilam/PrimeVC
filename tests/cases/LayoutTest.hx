@@ -5,6 +5,10 @@ package cases;
 // import com.elad.optimize.memory.FrameStats;
 #end
  import primevc.core.geom.constraints.SizeConstraint;
+ import primevc.core.geom.space.Direction;
+ import primevc.core.geom.space.Horizontal;
+ import primevc.core.geom.space.Position;
+ import primevc.core.geom.space.Vertical;
  import primevc.core.geom.Box;
  import primevc.core.geom.IntPoint;
  import primevc.core.geom.IRectangle;
@@ -25,6 +29,19 @@ package cases;
  import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIDataComponent;
  import primevc.gui.core.UIGraphic;
+ import primevc.gui.core.UIWindow;
+ import primevc.gui.effects.AnchorScaleEffect;
+ import primevc.gui.effects.EffectProperties;
+ import primevc.gui.effects.FadeEffect;
+ import primevc.gui.effects.MoveEffect;
+ import primevc.gui.effects.ParallelEffect;
+ import primevc.gui.effects.ResizeEffect;
+ import primevc.gui.effects.RotateEffect;
+ import primevc.gui.effects.SetAction;
+ import primevc.gui.effects.ScaleEffect;
+ import primevc.gui.effects.SequenceEffect;
+ import primevc.gui.effects.UIElementEffects;
+ import primevc.gui.effects.WipeEffect;
  import primevc.gui.events.DragEvents;
  import primevc.gui.events.DropTargetEvents;
  import primevc.gui.events.MouseEvents;
@@ -42,9 +59,6 @@ package cases;
  import primevc.gui.graphics.shapes.RegularRectangle;
  import primevc.gui.layout.algorithms.circle.HorizontalCircleAlgorithm;
  import primevc.gui.layout.algorithms.circle.VerticalCircleAlgorithm;
- import primevc.gui.layout.algorithms.directions.Direction;
- import primevc.gui.layout.algorithms.directions.Horizontal;
- import primevc.gui.layout.algorithms.directions.Vertical;
  import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
  import primevc.gui.layout.algorithms.float.VerticalFloatAlgorithm;
  import primevc.gui.layout.algorithms.tile.DynamicTileAlgorithm;
@@ -58,6 +72,7 @@ package cases;
  import primevc.gui.layout.VirtualLayoutContainer;
  import primevc.gui.traits.IDropTarget;
  import primevc.gui.traits.IDraggable;
+ import primevc.types.Number;
  import primevc.utils.Color;
   using primevc.utils.Bind;
   using primevc.utils.Color;
@@ -67,35 +82,18 @@ package cases;
  * @creation-date	Jul 13, 2010
  * @author			Ruben Weijers
  */
-class LayoutTest extends Application
+class LayoutTest
 {
-	public static function main () { Application.startup( LayoutTest ); }
-	
-/*#if debug
-	private var frameStats : FrameStats;
-#end*/
-	
-	public function new (target)
+	public static function main () { Application.startup( LayoutTestWindow ); }
+}
+
+class LayoutTestWindow extends UIWindow
+{
+	override private function createChildren ()
 	{
-		super(target);
-		var skin = new LayoutApp();
-		window.layout.children.add( skin.layout );
-		window.children.add( skin );
-/*#if debug
-		frameStats = new FrameStats(skin);
-		window.children.add( frameStats );
-		moveFrameStats.on( window.layout.events.sizeChanged, this );
-		moveFrameStats();
-#end*/
+		var app = new LayoutApp();
+		children.add( app );
 	}
-	
-/*
-#if debug
-	private function moveFrameStats ()
-	{
-		frameStats.x = window.layout.width - FrameStats.WIDTH;
-	}
-#end*/
 }
 
 
@@ -108,8 +106,7 @@ class LayoutApp extends UIContainer <Dynamic>
 {
 	public function new ()
 	{
-		super();
-		id = "LayoutApp";
+		super("LayoutApp");
 	}
 	
 	override private function createLayout ()
@@ -130,19 +127,19 @@ class LayoutApp extends UIContainer <Dynamic>
 	
 	override private function createChildren ()
 	{
-		var frame0							= new TileList( true );
+		var frame0							= new TileList( "frame0", true );
 		frame0.layoutContainer.algorithm	= new VerticalFloatAlgorithm( Vertical.bottom );
 		frame0.layout.percentHeight			= 100;
 	//	frame0.layout.width					= 150;
 		
-		var frame1							= new TileList( true );
-		frame1.layoutContainer.algorithm	= new HorizontalFloatAlgorithm( Horizontal.right );
+		var frame1							= new TileList( "frame1", true );
+		frame1.layoutContainer.algorithm	= new HorizontalFloatAlgorithm( Horizontal.left );
 		frame1.layout.height				= 60;
 		frame1.layout.relative				= new RelativeLayout( 5, 5, -100000, 5 );
 		
-		var frame2							= new TileList( true, true, 150 );
+		var frame2							= new TileList( "frame2", true, true, 150 );
 		var frame2Alg						= new FixedTileAlgorithm();
-		frame2Alg.maxTilesInDirection		= 15;
+		frame2Alg.maxTilesInDirection		= 16;
 		frame2Alg.startDirection			= Direction.vertical;
 	//	frame2Alg.horizontalDirection		= Horizontal.right;
 	//	frame2Alg.verticalDirection			= Vertical.bottom;
@@ -150,29 +147,29 @@ class LayoutApp extends UIContainer <Dynamic>
 		frame2.layout.relative				= new RelativeLayout( frame1.layout.bounds.bottom + 5, -100000, 5, 5 );
 		frame2.layout.percentWidth			= 58;
 		
-		var frame3							= new TileList( true );
+		var frame3							= new TileList( "frame3", true );
 		frame3.layoutContainer.algorithm	= new DynamicTileAlgorithm();
 		frame3.layout.percentWidth			= 100;
 		frame3.layout.percentHeight			= 40;
 		
-		var frame4							= new Frame();
+		var frame4							= new Frame("frame4");
 		frame4.layout.percentWidth			= 50;
 		frame4.layout.percentHeight			= 100;
 		
-		var frame5							= new Frame();
+		var frame5							= new Frame("frame5");
 		frame5.layout.percentWidth			= LayoutFlags.FILL;
 		frame5.layout.percentHeight			= 100;
 		
-		var frame6							= new Frame();
+		var frame6							= new Frame("frame6");
 		frame6.layout.percentWidth			= LayoutFlags.FILL;
 		frame6.layout.percentHeight			= 100;
 		
-		var frame7							= new Frame();
+		var frame7							= new Frame("frame7");
 		frame7.layout.percentWidth			= 60;
 		frame7.layout.percentHeight			= 5;
 	//	frame7.layout.sizeConstraint	= new SizeConstraint(100, 400, 50, 200);
 		
-		var frame8							= new TileList( true );
+		var frame8							= new TileList( "frame8", true );
 		frame8.layout.percentWidth			= 100;
 		frame8.layout.percentHeight			= 40;
 		frame8.layoutContainer.algorithm	= new DynamicLayoutAlgorithm(
@@ -196,18 +193,8 @@ class LayoutApp extends UIContainer <Dynamic>
 		box2.algorithm			= new HorizontalFloatAlgorithm();
 		box2.percentWidth		= 100;
 		box2.percentHeight	 	= 15;
-		
+
 #if debug
-		frame0.id = "frame0";
-		frame1.id = "frame1";
-		frame2.id = "frame2";
-		frame3.id = "frame3";
-		frame4.id = "frame4";
-		frame5.id = "frame5";
-		frame6.id = "frame6";
-		frame7.id = "frame7";
-		frame8.id = "frame8";
-		
 		box0.name	= "box0";
 		box1.name	= "box1";
 		box2.name	= "box2";
@@ -262,14 +249,14 @@ class Button extends UIDataComponent < String >
 	private var fill			: SolidFill;
 	
 	
-	public function new ()
+	public function new (?id:String = "button")
 	{
 		color		= 0xaaaaaa;
-		super();
 #if debug
 		num			= counter++;
-		if (id == null)
-			id = "button";
+		super(id + num);
+#else
+		super(id);
 #end
 	}
 	
@@ -311,23 +298,110 @@ class Button extends UIDataComponent < String >
 }
 
 
+class TileFadeMoveEffect extends SequenceEffect
+{
+	private var fadeIn		: FadeEffect;
+	private var fadeOut		: FadeEffect;
+	private var setAction	: SetAction;
+	
+	override public function init ()
+	{
+		add( fadeOut	= new FadeEffect(null, 200, 0, null, 1, 0) );
+		add( setAction	= new SetAction() );
+		add( fadeIn		= new FadeEffect(null, 200, 0, null, 0, 1) );
+	}
+	
+	override public function setValues (v:EffectProperties)
+	{
+		setAction.setValues(v);
+	}
+}
+
+class TileMoveScaleEffect extends ParallelEffect
+{
+	private var move		: MoveEffect;
+	private var scaleCol	: SequenceEffect;
+	private var scaleIn		: ScaleEffect;
+	private var scaleOut	: ScaleEffect;
+	
+	
+	override public function init ()
+	{
+		add( move				= new MoveEffect(null, 600) );
+		add( scaleCol			= new SequenceEffect() );
+		scaleCol.add( scaleIn	= new ScaleEffect(null, 300) );
+		scaleCol.add( scaleOut	= new ScaleEffect(null, 300) );
+		
+		scaleIn.endX	= scaleIn.endY	= 2;
+		scaleOut.endX	= scaleOut.endY	= 1;
+	}
+	
+	override public function setValues (v:EffectProperties)
+	{
+		move.setValues(v);
+	}
+}
+
+
+
+typedef Eff = feffects.easing.Elastic;
+
+
+class TileRotateFadeScaleMoveEffect extends SequenceEffect
+{
+	private var move		: MoveEffect;
+	private var rotate1		: RotateEffect;
+	private var rotate2		: RotateEffect;
+	private var fadeIn		: FadeEffect;
+	private var fadeOut		: FadeEffect;
+	private var scaleIn		: ScaleEffect;
+	private var scaleOut	: ScaleEffect;
+	private var prlIn		: ParallelEffect;
+	private var prlOut		: ParallelEffect;
+	
+	override public function init ()
+	{
+		add( prlIn			= new ParallelEffect() );
+		add( prlOut			= new ParallelEffect() );
+		
+		prlIn.add( fadeOut	= new FadeEffect(null, 1500, 0, Eff.easeInOut, .7) );
+		prlIn.add( move		= new MoveEffect(null, 8000, 0, Eff.easeInOut) );
+		prlIn.add( scaleIn	= new ScaleEffect(null, 8000, 0, Eff.easeInOut, 2, 2) );
+	//	prlIn.add( scaleIn	= new AnchorScaleEffect(null, 500, 0, null, Position.MiddleCenter, 2.5) );
+		prlIn.add( rotate1	= new RotateEffect(null, 8000, 0, Eff.easeInOut, 360 * Math.random()) );
+		
+		prlOut.add( fadeIn	= new FadeEffect(null, 5000, 0, null, 1) );
+		prlOut.add( scaleOut= new ScaleEffect(null, 5000, 0, Eff.easeInOut, 1, 1) );
+	//	prlOut.add( scaleOut= new AnchorScaleEffect(null, 500, 0, null, Position.MiddleCenter, 1) );
+		prlOut.add( rotate2	= new RotateEffect(null, 5000, 0, Eff.easeInOut, 0) );
+	}
+	
+	override public function setValues (v:EffectProperties)
+	{
+		move.setValues(v);
+	}
+}
 
 
 class Tile extends Button, implements IDraggable
 {	
 	private var dynamicSize					: Bool;
 	public var dragEvents (default, null)	: DragEvents;
+	public var isDragging					: Bool;
 	
 	
 	public function new (?dynamicSize = false)
 	{
 		this.dynamicSize = dynamicSize;
-		super();
-		color = Color.random();
-#if debug
-		id = "tile" + num;
-#end
-		dragEvents = new DragEvents();
+		super("tile");
+		color		= Color.random();
+		dragEvents	= new DragEvents();
+		
+		effects			= new UIElementEffects( this );
+	//	effects.move	= new TileFadeMoveEffect();
+		effects.move	= new MoveEffect(null, 1000, 0, Eff.easeOut);
+	//	effects.move	= new TileMoveScaleEffect();
+	//	effects.move	= new TileRotateFadeScaleMoveEffect();
 	}
 
 
@@ -354,6 +428,7 @@ class Tile extends Button, implements IDraggable
 class DragButton extends Button, implements IDraggable
 {
 	public var dragEvents (default, null)	: DragEvents;
+	public var isDragging					: Bool;
 	
 	
 	public function new ()
@@ -468,15 +543,6 @@ class Frame extends UIContainer < String >
 #end
 	private var color 		: UInt;
 	private var fill		: SolidFill;
-	
-
-	public function new ()
-	{
-		super();
-#if debug
-		id = "frame";
-#end
-	}
 
 
 	override private function createLayout ()
@@ -488,7 +554,7 @@ class Frame extends UIContainer < String >
 #if (debug && flash9)
 	override private function createChildren () {
 		textField = new TextField();
-		textField.text = name;
+		textField.text = id.value;
 		textField.autoSize = flash.text.TextFieldAutoSize.LEFT;
 		textField.setTextFormat( new TextFormat("Verdana", 15, 0x00 ) );
 		textField.mouseEnabled = false;
@@ -524,7 +590,7 @@ class TileList extends Frame, implements IDropTarget
 	public var dynamicSizes		: Bool;
 
 
-	public function new (dynamicSizes = false, allowDropFromOtherLists = true, tilesToCreate:Int = 50)
+	public function new (id:String = null, dynamicSizes = false, allowDropFromOtherLists = true, tilesToCreate:Int = 50)
 	{	
 		this.tilesToCreate				= tilesToCreate;
 		this.dynamicSizes				= dynamicSizes;
@@ -532,10 +598,7 @@ class TileList extends Frame, implements IDropTarget
 		doubleClickEnabled				= true;
 		
 		dragEvents	= new DropTargetEvents();
-		super();
-#if debug
-		id = "TilesOwner";
-#end
+		super(id);
 	}
 
 	override private function createBehaviours ()
@@ -555,6 +618,7 @@ class TileList extends Frame, implements IDropTarget
 	
 	override private function createChildren ()
 	{
+		super.createChildren();
 		for ( i in 0...tilesToCreate )
 			addTile();
 	}

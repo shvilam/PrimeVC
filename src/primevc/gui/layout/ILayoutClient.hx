@@ -76,6 +76,7 @@ interface ILayoutClient implements IDisposable
 	public var parent						(default, setParent)			: ILayoutContainer<Dynamic>;
 	
 	public var isValidating					(getIsValidating, never)		: Bool;
+	public var isInvalidated				(getIsInvalidated, never)		: Bool;
 	
 	
 	//
@@ -157,7 +158,7 @@ interface ILayoutClient implements IDisposable
 	
 	public var events				(default, null)						: LayoutEvents;
 	
-	public var states				(default, null)						: SimpleStateMachine < LayoutStates >;
+	public var state				(default, null)						: SimpleStateMachine < LayoutStates >;
 	public var measuredHorizontal	(default, null)						: Bool;
 	public var measuredVertical		(default, null)						: Bool;
 	
