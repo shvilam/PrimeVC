@@ -27,11 +27,26 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.avm2.events;
+private typedef TextSignal = primevc.avm2.events.TextSignal;		// override import
+ import flash.events.Event;
+ import flash.events.TextEvent;
+ import primevc.gui.events.TextEvents;
+
+
 
 /**
- * AVM2 ErrorSignal implementation
+ * AVM2 text-event implementation.
  * 
  * @author Ruben Weijers
- * @creation-date Jul 31, 2010
+ * @creation-date Sep 02, 2010
  */
-typedef ErrorSignal = TextSignal;
+class TextEvents extends TextSignals
+{
+	public function new (eventDispatcher)
+	{
+		change		= new FlashSignal0 (eventDispatcher, Event.CHANGE );
+		link		= new TextSignal (	eventDispatcher, TextEvent.LINK );
+		scroll		= new FlashSignal0 (eventDispatcher, Event.SCROLL );
+		textInput	= new TextSignal (	eventDispatcher, TextEvent.TEXT_INPUT );
+	}
+}

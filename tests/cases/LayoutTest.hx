@@ -29,6 +29,7 @@ package cases;
  import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIDataComponent;
  import primevc.gui.core.UIGraphic;
+ import primevc.gui.core.UITextField;
  import primevc.gui.core.UIWindow;
  import primevc.gui.effects.AnchorScaleEffect;
  import primevc.gui.effects.EffectProperties;
@@ -297,7 +298,7 @@ class Button extends UIDataComponent < String >
 #end
 }
 
-
+/*
 class TileFadeMoveEffect extends SequenceEffect
 {
 	private var fadeIn		: FadeEffect;
@@ -381,7 +382,7 @@ class TileRotateFadeScaleMoveEffect extends SequenceEffect
 		move.setValues(v);
 	}
 }
-
+*/
 
 class Tile extends Button, implements IDraggable
 {	
@@ -399,7 +400,7 @@ class Tile extends Button, implements IDraggable
 		
 		effects			= new UIElementEffects( this );
 	//	effects.move	= new TileFadeMoveEffect();
-		effects.move	= new MoveEffect(null, 1000, 0, Eff.easeOut);
+		effects.move	= new MoveEffect(null, 400); //, 0, Eff.easeOut);
 	//	effects.move	= new TileMoveScaleEffect();
 	//	effects.move	= new TileRotateFadeScaleMoveEffect();
 	}

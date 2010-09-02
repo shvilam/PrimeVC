@@ -27,11 +27,47 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.avm2.events;
+ import flash.events.IEventDispatcher;
+ import flash.events.TextEvent;
+ import primevc.core.dispatcher.IWireWatcher;
+ import primevc.core.dispatcher.Signal1;
+ import primevc.core.dispatcher.Wire;
+ import primevc.core.ListNode;
+ import primevc.gui.events.TextEvents;
+
+
 
 /**
- * AVM2 ErrorSignal implementation
+ * AVM2 TextSignal implementation
  * 
  * @author Ruben Weijers
- * @creation-date Jul 31, 2010
+ * @creation-date Sep 02, 2010
  */
-typedef ErrorSignal = TextSignal;
+class TextSignal extends Signal1 <String>, implements IWireWatcher < TextHandler > 
+{
+	var eventDispatcher:IEventDispatcher;
+	var event:String;
+
+
+	public function new (d:IEventDispatcher, e:String)
+	{
+		super();
+		this.eventDispatcher = d;
+		this.event = e;
+	}
+
+	public function wireEnabled (wire:Wire<TextHandler>) : Void {
+		Assert.that(n != null);
+		if (ListNode.next(n) == null) // First wire connected
+			eventDispatcher.addEventListener(event, dispatch);
+	}
+
+	public function wireDisabled	(wire:Wire<TextHandler>) : Void {
+		if (n == null) // No more wires connected
+			eventDispatcher.removeEventListener(event, dispatch);
+	}
+
+	private function dispatch(e:TextEvent) {
+		send(e.text);
+	}
+}

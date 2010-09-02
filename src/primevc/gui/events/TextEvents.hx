@@ -26,12 +26,31 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.avm2.events;
+package primevc.gui.events;
+ import primevc.core.dispatcher.Signal0;
+ import primevc.core.dispatcher.Signals;
+
+
+typedef TextEvents = 
+	#if		flash9	primevc.avm2.events.TextEvents;
+	#elseif	flash8	primevc.avm1.events.TextEvents;
+	#elseif	js		primevc.js  .events.TextEvents;
+	#else	error	#end
+
+
+typedef TextHandler	= String -> Void;
+typedef TextSignal  = primevc.core.dispatcher.INotifier<TextHandler>;
 
 /**
- * AVM2 ErrorSignal implementation
+ * Cross-platform text events.
  * 
  * @author Ruben Weijers
- * @creation-date Jul 31, 2010
+ * @creation-date Sep 02, 2010
  */
-typedef ErrorSignal = TextSignal;
+class TextSignals extends Signals, implements haxe.Public 
+{
+	public var change		(default,null) : Signal0;
+	public var link			(default,null) : TextSignal;
+	public var scroll		(default,null) : Signal0;
+	public var textInput	(default,null) : TextSignal;
+}

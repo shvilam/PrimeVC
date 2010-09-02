@@ -28,30 +28,38 @@
  */
 package primevc.avm2;
  import flash.display.DisplayObject;
- import primevc.gui.events.DisplayEvents;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
+ import primevc.gui.display.ITextField;
  import primevc.gui.display.Window;
+ import primevc.gui.events.DisplayEvents;
+ import primevc.gui.events.TextEvents;
+ import primevc.gui.events.UserEvents;
   using primevc.utils.TypeUtil;
 
 
 /**
- * AVM2 Shape implementation
+ * PrimeVC AVM2 TextField implementation
  * 
- * @creation-date	Jun 11, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Sep 02, 2010
  */
-class Shape extends flash.display.Shape, implements IDisplayObject
+class TextField extends flash.text.TextField, implements ITextField 
 {
 	public var container		(default, setContainer)	: IDisplayContainer;
 	public var window			(default, setWindow)	: Window;
+	
 	public var displayEvents	(default, null)			: DisplayEvents;
+	public var textEvents		(default, null)			: TextEvents;
+	public var userEvents		(default, null)			: UserEvents;
 	
 	
 	public function new () 
 	{
 		super();
-		displayEvents = new DisplayEvents( this );
+		displayEvents	= new DisplayEvents( this );
+		textEvents		= new TextEvents( this );
+		userEvents		= new UserEvents( this );
 	}
 	
 	
@@ -64,7 +72,11 @@ class Shape extends flash.display.Shape, implements IDisplayObject
 			container.children.remove(this);
 		
 		displayEvents.dispose();
+		textEvents.dispose();
+		userEvents.dispose();
 		displayEvents	= null;
+		textEvents		= null;
+		userEvents		= null;
 		container		= null;
 		window			= null;
 	}
@@ -80,14 +92,16 @@ class Shape extends flash.display.Shape, implements IDisplayObject
 	// GETTERS / SETTERS
 	//
 	
-	private inline function setContainer (v) {
+	private inline function setContainer (v)
+	{
 		container	= v;
 		window		= container.window;
 		return v;
 	}
 	
 	
-	private inline function setWindow (v) {
+	private inline function setWindow (v)
+	{
 		return window = v;
 	}
 }

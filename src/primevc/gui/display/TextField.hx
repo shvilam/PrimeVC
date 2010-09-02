@@ -26,12 +26,15 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.avm2.events;
+package primevc.gui.display;
 
-/**
- * AVM2 ErrorSignal implementation
- * 
+
+/*
  * @author Ruben Weijers
- * @creation-date Jul 31, 2010
+ * @creation-date Sep 02, 2010
  */
-typedef ErrorSignal = TextSignal;
+typedef TextField = 
+	#if		flash9	primevc.avm2.TextField;
+	#elseif	flash8	primevc.avm1.TextField;
+	#elseif	js		primevc.js  .TextField;
+	#else	error;	#end

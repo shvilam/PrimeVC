@@ -34,9 +34,6 @@ package primevc.gui.core;
  import primevc.gui.traits.IBehaving;
  import primevc.gui.traits.IIdentifiable;
  import primevc.gui.traits.ILayoutable;
-#if flash9
- import primevc.gui.traits.IDrawable;
-#end
 
 
 /**
@@ -45,7 +42,6 @@ package primevc.gui.core;
  */
 interface IUIElement	
 				implements IDisplayObject
-#if flash9	,	implements IDrawable	#end
 			,	implements ILayoutable
 			,	implements IBehaving
 			,	implements IIdentifiable

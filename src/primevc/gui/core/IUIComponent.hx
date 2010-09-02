@@ -29,6 +29,9 @@
 package primevc.gui.core;
  import primevc.gui.display.ISprite;
  import primevc.gui.traits.ISkinnable;
+#if flash9
+ import primevc.gui.traits.IDrawable;
+#end
  
 
 /**
@@ -38,9 +41,10 @@ package primevc.gui.core;
  * @author			Ruben Weijers
  */
 interface IUIComponent
-		implements ISprite
-	,	implements IUIElement
-	,	implements ISkinnable
+				implements ISprite
+			,	implements IUIElement
+			,	implements ISkinnable
+#if flash9	,	implements IDrawable	#end
 {
 	/**
 	 * This is the first method that will be runned by the constructor.
