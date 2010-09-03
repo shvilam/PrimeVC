@@ -132,8 +132,25 @@ class UITextField extends TextField, implements IUIElement
 	}
 	
 	
-	public inline function setText (v:String)		: Void		{ text		= v; updateSize(); }
-	public inline function setHtmlText (v:String)	: Void		{ htmlText	= v; updateSize(); }
+	public inline function setText (v:String) : Void
+	{
+		trace(this+".setText "+v);
+		if (v == null)
+			v = "";
+		
+		text = v;
+		updateSize();
+	}
+	
+	
+	public inline function setHtmlText (v:String) : Void
+	{
+		if (v == null)
+			v = "";
+		
+		htmlText = v;
+		updateSize();
+	}
 	/*
 #if flash9
 	public inline function setAutoSize (v:TextFieldAutoSize)

@@ -27,18 +27,15 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms.circle;
+ import primevc.core.geom.space.Horizontal;
  import primevc.core.geom.space.Vertical;
  import primevc.core.geom.IRectangle;
- import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.algorithms.IVerticalAlgorithm;
- import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
- import primevc.gui.layout.LayoutFlags;
+ import primevc.gui.layout.algorithms.VerticalBaseAlgorithm;
  import primevc.utils.Formulas;
  import primevc.utils.IntMath;
-  using primevc.utils.BitUtil;
   using primevc.utils.Formulas;
   using primevc.utils.IntUtil;
-  using primevc.utils.TypeUtil;
  
 
 /**
@@ -47,10 +44,8 @@ package primevc.gui.layout.algorithms.circle;
  * @creation-date	Jul 7, 2010
  * @author			Ruben Weijers
  */
-class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalAlgorithm
+class VerticalCircleAlgorithm extends VerticalBaseAlgorithm, implements IVerticalAlgorithm
 {
-	public var direction	(default, setDirection)		: Vertical;
-	
 	/**
 	 * isEllipse defines if the circle that is drawn can be an ellipse or should
 	 * always be a complete circle (by using the same radius for both hor and
@@ -61,31 +56,10 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 	public var isEllipse	(default, null)				: Bool;
 	
 	
-	
-	public function new ( ?direction, ?isEllipse:Bool = true )
+	public function new ( ?direction:Vertical, ?horizontal:Horizontal = null, ?isEllipse:Bool = true )
 	{
-		super();
-		this.direction	= direction == null ? Vertical.top : direction;
+		super(direction, horizontal);
 		this.isEllipse	= isEllipse;
-	}
-	
-	
-	
-	//
-	// GETTERS / SETTERS
-	//
-	
-	/**
-	 * Setter for direction property. Method will change the apply method based
-	 * on the given direction. After that it will dispatch a 'directionChanged'
-	 * signal.
-	 */
-	private inline function setDirection (v) {
-		if (v != direction) {
-			direction = v;
-			algorithmChanged.send();
-		}
-		return v;
 	}
 	
 	
@@ -93,14 +67,6 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 	//
 	// LAYOUT
 	//
-	
-	/**
-	 * Method indicating if the size is invalidated or not.
-	 */
-	public inline function isInvalid (changes:Int)	: Bool
-	{
-		return changes.has( LayoutFlags.HEIGHT_CHANGED ) && group.childHeight.notSet();
-	}
 	
 	
 	public inline function measure ()
@@ -110,21 +76,6 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 		
 		measureHorizontal();
 		measureVertical();
-	}
-	
-	
-	public inline function measureHorizontal ()
-	{
-		var width:Int = group.childWidth;
-		
-		if (group.childWidth.notSet())
-		{
-			for (child in group.children)
-				if (child.includeInLayout && child.bounds.width > width)
-					width = child.bounds.width;
-		}
-		
-		setGroupWidth(width);
 	}
 	
 	
@@ -147,14 +98,14 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 	}
 	
 	
-	public inline function apply ()
+	override public function apply ()
 	{
 		switch (direction) {
 			case Vertical.top:		applyTopToBottom();
 			case Vertical.center:	applyCentered();
 			case Vertical.bottom:	applyBottomToTop();
 		}
-		measurePrepared = false;
+		super.apply();
 	}
 	
 	
@@ -215,16 +166,6 @@ class VerticalCircleAlgorithm extends LayoutAlgorithmBase, implements IVerticalA
 	//
 	// START VALUES
 	//
-	
-	private inline function getTopStartValue ()		: Int
-	{
-		var top:Int = 0;
-		if (group.padding != null)
-			top += group.padding.top;
-		
-		return top;
-	}
-	
 	
 	private inline function getRadius () : Int {
 		return isEllipse ?

@@ -15,3 +15,4 @@
 -lib feffects
 -main primevc.Main
 #-main cases.LayoutTest
+#-main cases.ComponentsTest

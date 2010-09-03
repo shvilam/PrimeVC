@@ -27,75 +27,36 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
- import primevc.gui.core.UIDataComponent;
- import primevc.gui.core.UITextField;
- import primevc.gui.layout.AdvancedLayoutClient;
-  using primevc.utils.Bind;
-  using primevc.utils.TypeUtil;
+ import primevc.gui.graphics.borders.SolidBorder;
+ import primevc.gui.graphics.fills.SolidFill;
+ import primevc.gui.graphics.shapes.RegularRectangle;
+
 
 
 /**
- * Label is a UIComponent which will display a textfield with the given text.
- * 
- * Options of the Label component
- * 		- truncate text when the width or height reach a certain value
- * 		- skinnable
- * 		- graphics drawable
- * 		- in flash10 full implementation of the text-layout framework
- * 		- autogrowing if height or width aren't defined and the text value 
- * 			changes.
+ * InputField component
  * 
  * @author Ruben Weijers
- * @creation-date Sep 02, 2010
+ * @creation-date Sep 03, 2010
  */
-class Label extends UIDataComponent < String >
+class InputField extends Label
 {
-	private var field	: UITextField;
-	
-	
-	public function new (id:String = null, ?value:String)
+	override private function createGraphics ()
 	{
-		super(id, value);
-	}
-	
-	
-	override private function initData ()
-	{
-		field.setText.on( data.change, this );
-		field.setText( value );
+		graphicData.value = new RegularRectangle(
+			layout.bounds,
+			new SolidFill( 0xffffffff ),
+			cast new SolidBorder( new SolidFill(0xff000000), 1 )
+		);
 	}
 	
 	
 	override private function createChildren ()
 	{
-		field = new UITextField("labelField");
+		super.createChildren();
 #if flash9
-		field.autoSize			= flash.text.TextFieldAutoSize.LEFT;
-		field.selectable		= false;
-		field.mouseWheelEnabled	= false;
+		field.type			= flash.text.TextFieldType.INPUT;
+		field.selectable	= true;
 #end
-		field.layout.validateOnPropertyChange = true;
-		
-		updateSize.on( field.layout.events.sizeChanged, this );
-		children.add( field );
-	}
-	
-	
-	override private function createLayout ()
-	{
-		layout = new AdvancedLayoutClient();
-	}
-	
-	
-	//
-	// EVENTHANDLERS
-	//
-	
-	private function updateSize ()
-	{
-		trace(this+".updateSize "+field.layout.width+", "+field.layout.height);
-		var l = layout.as(AdvancedLayoutClient);
-		l.measuredWidth		= field.layout.width;
-		l.measuredHeight	= field.layout.height;
 	}
 }

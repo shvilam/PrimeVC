@@ -29,12 +29,10 @@
 package primevc.gui.layout.algorithms.float;
  import primevc.core.geom.space.Horizontal;
  import primevc.core.geom.IRectangle;
+ import primevc.gui.layout.algorithms.HorizontalBaseAlgorithm;
  import primevc.gui.layout.algorithms.IHorizontalAlgorithm;
- import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
  import primevc.gui.layout.AdvancedLayoutClient;
- import primevc.gui.layout.LayoutFlags;
  import primevc.utils.IntMath;
-  using primevc.utils.BitUtil;
   using primevc.utils.IntMath;
   using primevc.utils.IntUtil;
   using primevc.utils.TypeUtil;
@@ -47,10 +45,8 @@ package primevc.gui.layout.algorithms.float;
  * @creation-date	Jun 24, 2010
  * @author			Ruben Weijers
  */
-class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizontalAlgorithm
+class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHorizontalAlgorithm
 {
-	public var direction			(default, setDirection)	: Horizontal;
-	
 	/**
 	 * Measured point of the right side of the middlest child (rounded above) 
 	 * when the direction is center.
@@ -58,70 +54,13 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	private var halfWidth			: Int;
 	
 	
-	public function new ( ?direction )
-	{
-		super();
-		this.direction = direction == null ? Horizontal.left : direction;
-	}
-	
-	
-	
-	//
-	// GETTERS / SETTERS
-	//
-	
-	/**
-	 * Setter for direction property. Method will change the apply method based
-	 * on the given direction. After that it will dispatch a 'directionChanged'
-	 * signal.
-	 */
-	private inline function setDirection (v:Horizontal)
-	{
-		if (v != direction) {
-			direction = v;
-			algorithmChanged.send();
-		}
-		return v;
-	}
-	
-	
-	
-	//
-	// LAYOUT
-	//
-	
-	/**
-	 * Method indicating if the size is invalidated or not.
-	 */
-	public inline function isInvalid (changes:Int)	: Bool
-	{
-		return changes.has( LayoutFlags.WIDTH_CHANGED ) && group.childWidth.notSet();
-	}
-	
-	
 	public inline function measure ()
 	{
 		if (group.children.length == 0)
 			return;
-		
+
 		measureHorizontal();
 		measureVertical();
-	}
-	
-	
-	public inline function measureVertical ()
-	{
-		var height:Int = group.childHeight;
-		
-		if (group.childHeight.notSet())
-		{
-			height = 0;
-			for (child in group.children)
-				if (child.includeInLayout && child.bounds.height > height)
-					height = child.bounds.height;
-		}
-		
-		setGroupHeight(height);
 	}
 	
 	
@@ -161,14 +100,14 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	}
 
 
-	public inline function apply ()
+	override public function apply ()
 	{
 		switch (direction) {
 			case Horizontal.left:		applyLeftToRight();
 			case Horizontal.center:		applyCentered();
 			case Horizontal.right:		applyRightToLeft();
 		}
-		measurePrepared = false;
+		super.apply();
 	}
 	
 	
@@ -430,34 +369,6 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 
 		}
 		return depth;
-	}
-	
-	
-	
-	
-	//
-	// START VALUES
-	//
-	
-	private inline function getLeftStartValue ()	: Int
-	{
-		var left:Int = 0;
-		if (group.padding != null)
-			left = group.padding.left;
-		
-		return left;
-	}
-	
-	
-	private inline function getRightStartValue ()	: Int
-	{
-		var w = group.width;
-		if (group.is(AdvancedLayoutClient))
-			w = IntMath.max(group.as(AdvancedLayoutClient).measuredWidth, w);
-		
-		if (group.padding != null)
-			w += group.padding.left; // + group.padding.right;
-		return w;
 	}
 	
 	
