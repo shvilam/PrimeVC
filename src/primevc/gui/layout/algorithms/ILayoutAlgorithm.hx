@@ -54,11 +54,11 @@ interface ILayoutAlgorithm implements IDisposable
 	public function isInvalid (changes:Int)					: Bool;
 	
 	/**
-	 * Method to prepare the algorithm to measure. This method can be used to
-	 * set properties that are needed for both the meausureHorizontal method 
-	 * and the meausureVertical method.
+	 * Method to prepare the algorithm to validate. This method can be used to
+	 * set properties that are needed for both the validateHorizontal method 
+	 * and the validateVertical method.
 	 */
-	public function prepareMeasure ()						: Void;
+	public function prepareValidate ()						: Void;
 	
 	/**
 	 * Method will measure the given target according to the algorithms
@@ -66,10 +66,10 @@ interface ILayoutAlgorithm implements IDisposable
 	 * 		Layoutgroup.MeasuredWidth
 	 * 		Layoutgroup.MeasuredHeight
 	 */
-	public function measure ()								: Void;
+	public function validate ()								: Void;
 	
-	public function measureHorizontal ()					: Void;
-	public function measureVertical ()					 	: Void;
+	public function validateHorizontal ()					: Void;
+	public function validateVertical ()					 	: Void;
 	
 	/**
 	 * Method will apply it's layout algorithm on the given target.

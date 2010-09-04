@@ -26,19 +26,54 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.states;
- 
+package primevc.gui.traits;
+
 
 /**
- * enum with the states of a layout client
+ * Interface describes how changes in properties won't directly affect other
+ * properties. The consequence of a changed property will be applied in 
+ * validate.
  * 
- * @creation-date	Jun 22, 2010
- * @author			Ruben Weijers
+ * @example
+ * 		label.value = "new value";
+ * 		The width of the label will be changed after validate is called. 
+ * 			Changing the width while the label isn't on the stage won't 
+ * 			influence the width.
+ * 
+ * @author Ruben Weijers
+ * @creation-date Sep 03, 2010
  */
-enum LayoutStates {
-	invalidated;
-	parent_invalidated;
-	measuring;
-	validating;
-	validated;
+interface IInvalidating
+{
+	/**
+	 * Flags of properties that are changed
+	 */
+	public var changes							: UInt;
+	
+	/**
+	 * Invalidate will add the given change flag to the list with invalidated
+	 * properties.
+	 * It will in most cases add an eventlistener to an enter-frame event to
+	 * validate all the changed properties.
+	 */
+	public function invalidate ( change:UInt )	: Void;
+	
+	/**
+	 * Method to update all the properties that have changed.
+	 */
+	public function validate ()					: Void;
+	
+#if debug
+	
+	/**
+	 * Method will return a textual version of all change flags.
+	 * @param	changes		flags property to use. If it's -1, the classes 
+	 * 						'changes' will be used.
+	 */
+	public function readChanges (changes:UInt = -1)	: String;
+	/**
+	 * Method will return a textual version of the given change flag
+	 */
+	public function readChange (change:UInt)		: String;
+#end
 }

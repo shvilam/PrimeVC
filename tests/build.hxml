@@ -2,7 +2,7 @@
 -swf-lib ../assets/debug-assets.swf
 -swf-version 10
 -swf9 test.swf
--cp ../libs/flash
+-cp ../libs
 -cp ../src
 -cp ../generated-src
 -cp ../skins/flair
@@ -10,4 +10,5 @@
 -swf-header 600:900:5:FFFFFF
 #-debug
 -D network-sandbox
+-D stats
 #——flash—strict

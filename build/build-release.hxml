@@ -2,7 +2,7 @@
 -exclude build/release-exclude.txt
 --no-traces
 
--swf9 tmp.swf
+-swf9 build/tmp.swf
 -swf-version 10
 -swf-header 1000:750:25
 
@@ -15,3 +15,4 @@
 -lib feffects
 -main primevc.Main
 #-main cases.LayoutTest
+#-main cases.ComponentsTest

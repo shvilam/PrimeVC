@@ -48,14 +48,14 @@ class Shape extends flash.display.Shape, implements IDisplayObject
 	public var displayEvents	(default, null)			: DisplayEvents;
 	
 	
-	public function new() 
+	public function new () 
 	{
 		super();
 		displayEvents = new DisplayEvents( this );
 	}
 	
 	
-	public function dispose()
+	public function dispose ()
 	{
 		if (displayEvents == null)
 			return;		// already disposed

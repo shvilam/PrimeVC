@@ -1,0 +1,33 @@
+#!/bin/bash
+
+MINPARAMS=1
+
+TestClass=${1//\//.}
+FPS=25
+WIDTH=1200
+HEIGHT=900
+EXTRA=""
+
+#parse arguments
+while getopts "dte:af:gr:sw:xh:i" OptionName
+	do
+		case $OptionName in
+			e ) EXTRA=${OPTARG};;
+			r ) FPS=${OPTARG};;				#frame rate
+			f ) TestClass=${OPTARG//\//.};;		#class
+			w ) WIDTH=${OPTARG};;				#width
+			h ) HEIGHT=${OPTARG};;				#height
+			* ) echo "unkown argument";;
+	esac
+done
+
+TestClass=${TestClass%.hx}
+#echo $TestClass
+
+bash ../build/build-assets &&
+echo "assets build"
+haxe build-release.hxml ${EXTRA} -main $TestClass -swf-header $WIDTH:$HEIGHT:$FPS:FFFFFF &&
+echo "release build"
+bash ../build/optimize-build ../tests/test.swf &&
+echo "build optimized"
+open test.swf

@@ -1,9 +1,12 @@
 #!/bin/bash
 
+INPUT=${1}
+OUTPUT=build/tmp_tdsi.swf
+
 if [ -f build/environment.sh ]; then
 	source build/environment.sh
 
-	java -jar build/tdsi.jar -finalize true -dead-code-elimination true -input tmp.swf -output tmp_tdsi.swf
-	"$MXMLC_OPTIMIZER" tmp_tdsi.swf -output tmp.swf
-	rm tmp_tdsi.swf
+	java -jar build/tdsi.jar -finalize true -dead-code-elimination true -input $INPUT -output $OUTPUT
+	"$MXMLC_OPTIMIZER" $OUTPUT -output $INPUT
+	rm $OUTPUT
 fi;

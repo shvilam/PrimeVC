@@ -36,6 +36,9 @@ package primevc.gui.core;
  import primevc.gui.graphics.shapes.IGraphicShape;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.UIElementStates;
+#if flash9
+ import primevc.gui.traits.IDrawable;
+#end
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
 
@@ -44,7 +47,9 @@ package primevc.gui.core;
  * @author Ruben Weijers
  * @creation-date Aug 02, 2010
  */
-class UIGraphic extends Shape, implements IUIElement
+class UIGraphic extends Shape
+			,	implements IUIElement
+#if flash9	,	implements IDrawable	#end
 {
 	public var behaviours		(default, null)		: BehaviourList;
 	public var id				(default, null)		: Bindable < String >;
@@ -74,6 +79,39 @@ class UIGraphic extends Shape, implements IUIElement
 		createLayout();
 		
 		state.current = state.constructed;
+	}
+
+
+	override public function dispose ()
+	{
+		if (state == null)
+			return;
+		
+		//Change the state to disposed before the behaviours are removed.
+		//This way a behaviour is still able to respond to the disposed
+		//state.
+		state.current = state.disposed;
+		removeBehaviours();
+
+		state.dispose();
+
+		if (layout != null)
+			layout.dispose();
+		
+		if (graphicData != null)
+		{
+			if (graphicData.value != null)
+				graphicData.value.dispose();
+
+			graphicData.dispose();
+			graphicData = null;
+		}
+
+		state			= null;
+		behaviours		= null;
+		layout			= null;
+
+		super.dispose();
 	}
 	
 	

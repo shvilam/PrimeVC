@@ -50,6 +50,7 @@ class LayoutAlgorithmBase implements IDisposable
 	public function new()
 	{
 		algorithmChanged	= new Signal0();
+		validatePrepared	= false;
 	}
 	
 	
@@ -88,8 +89,8 @@ class LayoutAlgorithmBase implements IDisposable
 	}
 	
 	
-	private var measurePrepared : Bool;
-	public function prepareMeasure () {
-		measurePrepared = true;
+	private var validatePrepared : Bool;
+	public function prepareValidate () {
+		validatePrepared = true;
 	}
 }
