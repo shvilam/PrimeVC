@@ -53,9 +53,15 @@ class Label extends UIDataComponent < String >
 	private var field	: UITextField;
 	
 	
-	public function new (id:String = null, ?value:String)
+	override public function dispose ()
 	{
-		super(id, value);
+		if (field != null)
+		{
+			children.remove(field);
+			field.dispose();
+			field = null;
+		}
+		super.dispose();
 	}
 	
 	
@@ -76,6 +82,7 @@ class Label extends UIDataComponent < String >
 #end
 		field.layout.validateOnPropertyChange = true;
 		
+		updateValue.on( field.textEvents.change, this );
 		updateSize.on( field.layout.events.sizeChanged, this );
 		children.add( field );
 	}
@@ -93,9 +100,14 @@ class Label extends UIDataComponent < String >
 	
 	private function updateSize ()
 	{
-		trace(this+".updateSize "+field.layout.width+", "+field.layout.height);
 		var l = layout.as(AdvancedLayoutClient);
 		l.measuredWidth		= field.layout.width;
 		l.measuredHeight	= field.layout.height;
+	}
+	
+	
+	private function updateValue ()
+	{
+		value = field.text;
 	}
 }

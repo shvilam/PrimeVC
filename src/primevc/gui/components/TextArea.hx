@@ -27,36 +27,52 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
- import primevc.gui.graphics.borders.SolidBorder;
- import primevc.gui.graphics.fills.SolidFill;
- import primevc.gui.graphics.shapes.RegularRectangle;
-
+ import primevc.gui.core.UIContainer;
+ import primevc.gui.core.UITextField;
+  using primevc.utils.IntUtil;
 
 
 /**
- * InputField component
+ * TextArea component displays a multiline textfield and adds the posibility
+ * to divide the text of the component in multiple columns.
  * 
  * @author Ruben Weijers
  * @creation-date Sep 03, 2010
  */
-class InputField extends Label
+class TextArea extends UIContainer < String >
 {
-	override private function createGraphics ()
+	private static inline var MAX_COLUMNS	: Int = 40;
+	
+	/**
+	 * Vector with all column fields
+	 */
+	private var fields : FastArray < UITextField >;
+	
+	/**
+	 * Number of columns in this TextArea
+	 * @default	1
+	 */
+	public var columns	(default, setColumns)	: Int;
+	
+	
+	public function new (id:String = null, ?value:String, ?columns:Int = 1)
 	{
-		graphicData.value = new RegularRectangle(
-			layout.bounds,
-			new SolidFill( 0xffffffff ),
-			cast new SolidBorder( new SolidFill(0x000000ff), 1 )
-		);
+		super(id, value);
+		this.columns = columns;
 	}
 	
 	
-	override private function createChildren ()
+	//
+	// GETTERS / SETTERS
+	//
+	
+	private inline function setColumns (v:Int)
 	{
-		super.createChildren();
-#if flash9
-		field.type			= flash.text.TextFieldType.INPUT;
-		field.selectable	= true;
-#end
+		v = v.within( 1, MAX_COLUMNS );
+		if (v != columns) {
+			columns = v;
+			invalidate( Flags.COLUMNS_CHANGED );
+		}
+		return v;
 	}
 }
