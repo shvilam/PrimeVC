@@ -26,26 +26,54 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.avm2;
- import flash.display.DisplayObjectContainer;
- import primevc.gui.display.IDisplayContainer;
- import primevc.gui.display.DisplayList;
+package primevc.core.events;
+ import primevc.core.dispatcher.Signal0;
+ import primevc.core.dispatcher.Signals; 
+
+
+typedef LoaderEvents = 
+	#if		flash9	primevc.avm2.events.LoaderEvents;
+	#elseif	flash8	primevc.avm1.events.LoaderEvents;
+	#elseif	js		primevc.js  .events.LoaderEvents;
+	#else	error	#end
+
+
+typedef ErrorHandler	= String -> Void;
+typedef ProgressHandler	= UInt -> UInt -> Void;
+typedef ErrorSignal		= primevc.core.dispatcher.INotifier< ErrorHandler >;
+typedef ProgressSignal	= primevc.core.dispatcher.INotifier< ProgressHandler >;
 
 
 /**
- * IDisplayContainer implementation for flash.
+ * Cross-platform loader events
  * 
  * @author Ruben Weijers
- * @creation-date Jul 22, 2010
+ * @creation-date Jul 31, 2010
  */
-class DisplayContainer extends DisplayObjectContainer, implements IDisplayContainer 
+class LoaderSignals extends Signals
 {
-	var children	(default, null)	: DisplayList;
+	/**
+	 * Dispatched when a load operation has started
+	 */
+	var started		(default, null) : Signal0;
 	
+	/**
+	 * Dispatched when data is received in a download process
+	 */
+	var progress	(default, null) : ProgressSignal;
 	
-	public function new ()
-	{
-		super();
-		children = new DisplayList();
-	}
+	/**
+	 * Dispatched when data is loaded completly
+	 */
+	var loaded		(default, null) : Signal0;
+	
+	/**
+	 * Dispatched when data in a loader object is unloaded
+	 */
+	var unloaded	(default, null) : Signal0;
+	
+	/**
+	 * Dispatched when an error occured during the loading
+	 */
+	var error		(default, null) : ErrorSignal;
 }

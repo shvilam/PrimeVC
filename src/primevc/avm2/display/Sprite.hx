@@ -24,91 +24,74 @@
  *
  *
  * Authors:
+ *  Danny Wilson	<danny @ onlinetouch.nl>
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.avm2;
+package primevc.avm2.display;
  import flash.display.DisplayObject;
+ import primevc.gui.display.ISprite;
+ import primevc.gui.display.DisplayList;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
- import primevc.gui.display.ITextField;
  import primevc.gui.display.Window;
  import primevc.gui.events.DisplayEvents;
- import primevc.gui.events.TextEvents;
  import primevc.gui.events.UserEvents;
   using primevc.utils.TypeUtil;
 
-
+ 
 /**
- * PrimeVC AVM2 TextField implementation
+ * AVM2 sprite implementation
  * 
- * @author Ruben Weijers
- * @creation-date Sep 02, 2010
+ * @author	Danny Wilson
+ * @author	Ruben Weijers
  */
-class TextField extends flash.text.TextField, implements ITextField 
-{	
+class Sprite extends flash.display.Sprite, implements ISprite
+{
 	/**
-	 * The padding to be added to textWidth to get the width
-	 * of a TextField that can display the text without clipping.
-	 */ 
-	public static inline var TEXT_WIDTH_PADDING:Int = 5;
-
-	/**
-	 * The padding to be added to textHeight to get the height
-	 * of a TextField that can display the text without clipping.
-	 */ 
-	public static inline var TEXT_HEIGHT_PADDING:Int = 4;
-	
-	
-	public var container		(default, setContainer)		: IDisplayContainer;
-	public var window			(default, setWindow)		: Window;
-	
-	public var displayEvents	(default, null)				: DisplayEvents;
-	public var textEvents		(default, null)				: TextEvents;
-	public var userEvents		(default, null)				: UserEvents;
-	
-	
-	/**
-	 * Returns the textWidth + TEXT_WIDTH_PADDING
+	 * List with all the children of the sprite
 	 */
-	public var realTextWidth	(getRealTextWidth, never)	: Float;
-	/**
-	 * Returns the textHeight + TEXT_HEIGHT_PADDING
-	 */
-	public var realTextHeight	(getRealTextHeight, never)	: Float;
+	public var children			(default, null)			: DisplayList;
+	
+	public var window			(default, setWindow)	: Window;
+	public var container		(default, setContainer)	: IDisplayContainer;
+	
+	public var userEvents		(default, null)			: UserEvents;
+	public var displayEvents	(default, null)			: DisplayEvents;
 	
 	
 	
-	public function new () 
+	public function new ()
 	{
 		super();
-		displayEvents	= new DisplayEvents( this );
-		textEvents		= new TextEvents( this );
+		children		= new DisplayList( this );
 		userEvents		= new UserEvents( this );
+		displayEvents	= new DisplayEvents( this );
 	}
 	
 	
 	public function dispose ()
 	{
-		if (displayEvents == null)
+		if (userEvents == null)
 			return;		// already disposed
+		
+		children.dispose();
+		userEvents.dispose();
+		displayEvents.dispose();
 		
 		if (container != null)
 			container.children.remove(this);
 		
-		displayEvents.dispose();
-		textEvents.dispose();
-		userEvents.dispose();
-		displayEvents	= null;
-		textEvents		= null;
-		userEvents		= null;
-		container		= null;
 		window			= null;
+		children		= null;
+		userEvents		= null;
+		displayEvents	= null;
 	}
-
-
+	
+	
 	public inline function isObjectOn (otherObj:IDisplayObject) : Bool {
 		return otherObj == null ? false : otherObj.as(DisplayObject).hitTestObject( this.as(DisplayObject) );
 	}
+	
 	
 	
 	
@@ -116,20 +99,42 @@ class TextField extends flash.text.TextField, implements ITextField
 	// GETTERS / SETTERS
 	//
 	
-	private inline function setContainer (v)
+	private inline function setContainer (newV:IDisplayContainer)
 	{
-		container	= v;
-		window		= container.window;
-		return v;
+		if (container != newV)
+		{
+			var oldV	= container;
+			container	= newV;
+			
+			if (container != null) {
+				//if the container property is set and the sprite is not yet in the container, add the sprite to the container
+			//	if (!container.children.has(this))
+			//		container.children.add(this);
+				
+				window = container.window;
+			}
+			
+			//if the container prop is set to null, remove the sprite from it's previous container and set the window prop to null.
+			else if (oldV != null) {
+				if (oldV.children.has(this))
+					oldV.children.remove(this);
+				
+				window = null;
+			}
+		}
+		return newV;
 	}
 	
 	
 	private inline function setWindow (v)
 	{
-		return window = v;
+		if (window != v)
+		{
+			window = v;
+			for (child in children)
+				if (child != null)
+					child.window = v;
+		}
+		return v;
 	}
-	
-	
-	private inline function getRealTextWidth ()		{ return textWidth + TEXT_WIDTH_PADDING; }
-	private inline function getRealTextHeight ()	{ return textHeight + TEXT_HEIGHT_PADDING; }
 }

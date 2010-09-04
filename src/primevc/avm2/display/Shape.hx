@@ -26,54 +26,68 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.events;
- import primevc.core.dispatcher.Signal0;
- import primevc.core.dispatcher.Signals; 
-
-
-typedef LoaderEvents = 
-	#if		flash9	primevc.avm2.events.LoaderEvents;
-	#elseif	flash8	primevc.avm1.events.LoaderEvents;
-	#elseif	js		primevc.js  .events.LoaderEvents;
-	#else	error	#end
-
-
-typedef ErrorHandler	= String -> Void;
-typedef ProgressHandler	= UInt -> UInt -> Void;
-typedef ErrorSignal		= primevc.core.dispatcher.INotifier< ErrorHandler >;
-typedef ProgressSignal	= primevc.core.dispatcher.INotifier< ProgressHandler >;
+package primevc.avm2.display;
+ import flash.display.DisplayObject;
+ import primevc.gui.events.DisplayEvents;
+ import primevc.gui.display.IDisplayContainer;
+ import primevc.gui.display.IDisplayObject;
+ import primevc.gui.display.Window;
+  using primevc.utils.TypeUtil;
 
 
 /**
- * Cross-platform loader events
+ * AVM2 Shape implementation
  * 
- * @author Ruben Weijers
- * @creation-date Jul 31, 2010
+ * @creation-date	Jun 11, 2010
+ * @author			Ruben Weijers
  */
-class LoaderSignals extends Signals
+class Shape extends flash.display.Shape, implements IDisplayObject
 {
-	/**
-	 * Dispatched when a load operation has started
-	 */
-	var started		(default, null) : Signal0;
+	public var container		(default, setContainer)	: IDisplayContainer;
+	public var window			(default, setWindow)	: Window;
+	public var displayEvents	(default, null)			: DisplayEvents;
 	
-	/**
-	 * Dispatched when data is received in a download process
-	 */
-	var progress	(default, null) : ProgressSignal;
 	
-	/**
-	 * Dispatched when data is loaded completly
-	 */
-	var loaded		(default, null) : Signal0;
+	public function new () 
+	{
+		super();
+		displayEvents = new DisplayEvents( this );
+	}
 	
-	/**
-	 * Dispatched when data in a loader object is unloaded
-	 */
-	var unloaded	(default, null) : Signal0;
 	
-	/**
-	 * Dispatched when an error occured during the loading
-	 */
-	var error		(default, null) : ErrorSignal;
+	public function dispose ()
+	{
+		if (displayEvents == null)
+			return;		// already disposed
+		
+		if (container != null)
+			container.children.remove(this);
+		
+		displayEvents.dispose();
+		displayEvents	= null;
+		container		= null;
+		window			= null;
+	}
+
+
+	public inline function isObjectOn (otherObj:IDisplayObject) : Bool {
+		return otherObj == null ? false : otherObj.as(DisplayObject).hitTestObject( this.as(DisplayObject) );
+	}
+	
+	
+	
+	//
+	// GETTERS / SETTERS
+	//
+	
+	private inline function setContainer (v) {
+		container	= v;
+		window		= container.window;
+		return v;
+	}
+	
+	
+	private inline function setWindow (v) {
+		return window = v;
+	}
 }

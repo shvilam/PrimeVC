@@ -26,53 +26,50 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.avm2;
- import flash.display.DisplayObject;
- import primevc.gui.events.DisplayEvents;
- import primevc.gui.display.IDisplayContainer;
+package primevc.avm2.display;
+ import flash.net.URLRequest;
+ import flash.utils.ByteArray;
+ import primevc.avm2.events.LoaderEvents;
+ import primevc.core.IDisposable;
  import primevc.gui.display.IDisplayObject;
- import primevc.gui.display.Window;
-  using primevc.utils.TypeUtil;
 
 
-/**
- * AVM2 Shape implementation
- * 
- * @creation-date	Jun 11, 2010
- * @author			Ruben Weijers
- */
-class Shape extends flash.display.Shape, implements IDisplayObject
+typedef FlashLoader = flash.display.Loader;
+
+
+class Loader implements IDisposable
 {
-	public var container		(default, setContainer)	: IDisplayContainer;
-	public var window			(default, setWindow)	: Window;
-	public var displayEvents	(default, null)			: DisplayEvents;
+	public var events		(default, null)				: LoaderEvents;
+	
+	public var bytes		(getBytes, never)			: ByteArray;
+	public var bytesLoaded	(getBytesLoaded, never)		: UInt;
+	public var bytesTotal	(getBytesTotal, never)		: UInt;
+	public var isLoaded		(getIsLoaded, never)		: Bool;
+	
+	public var content		(getContent, never)			: IDisplayObject;
+	
+	private var loader		: FlashLoader;
 	
 	
-	public function new () 
+	public function new ()
 	{
-		super();
-		displayEvents = new DisplayEvents( this );
+		loader	= new FlashLoader();
+		events	= new LoaderEvents( loader.contentLoaderInfo );
 	}
 	
 	
 	public function dispose ()
 	{
-		if (displayEvents == null)
-			return;		// already disposed
-		
-		if (container != null)
-			container.children.remove(this);
-		
-		displayEvents.dispose();
-		displayEvents	= null;
-		container		= null;
-		window			= null;
+		loader.unloadAndStop();
+		events.dispose();
+		loader = null;
+		events = null;
 	}
-
-
-	public inline function isObjectOn (otherObj:IDisplayObject) : Bool {
-		return otherObj == null ? false : otherObj.as(DisplayObject).hitTestObject( this.as(DisplayObject) );
-	}
+	
+	
+	public inline function load (v:URLRequest)		{ return loader.load(v); }
+	public inline function unload ()				{ return loader.unload(); }
+	public inline function close ()					{ return loader.close(); }
 	
 	
 	
@@ -80,14 +77,12 @@ class Shape extends flash.display.Shape, implements IDisplayObject
 	// GETTERS / SETTERS
 	//
 	
-	private inline function setContainer (v) {
-		container	= v;
-		window		= container.window;
-		return v;
-	}
+	private inline function getBytes ()				{ return loader.contentLoaderInfo.bytes; }
+	private inline function getBytesLoaded ()		{ return loader.contentLoaderInfo.bytesLoaded; }
+	private inline function getBytesTotal ()		{ return loader.contentLoaderInfo.bytesTotal; }
+	private inline function getContent ()			{ return cast loader.contentLoaderInfo.content; }
 	
-	
-	private inline function setWindow (v) {
-		return window = v;
+	private inline function getIsLoaded () {
+		return bytesTotal > 0 && bytesLoaded >= bytesTotal;
 	}
 }

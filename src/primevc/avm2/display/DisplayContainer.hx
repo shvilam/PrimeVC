@@ -26,33 +26,26 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.avm2.events;
-private typedef ErrorSignal		= primevc.avm2.events.ErrorSignal;		// override import
-private typedef ProgressSignal	= primevc.avm2.events.ProgressSignal;	// override import
- import flash.events.IEventDispatcher;
- import flash.events.IOErrorEvent;
- import flash.events.Event;
- import flash.events.ProgressEvent;
- import primevc.core.events.LoaderEvents;
-
-
+package primevc.avm2.display;
+ import flash.display.DisplayObjectContainer;
+ import primevc.gui.display.IDisplayContainer;
+ import primevc.gui.display.DisplayList;
 
 
 /**
- * AVM2 implementation of loader-events.
+ * IDisplayContainer implementation for flash.
  * 
- * @see	primevc.gui.events.LoaderEvents
  * @author Ruben Weijers
- * @creation-date Jul 31, 2010
+ * @creation-date Jul 22, 2010
  */
-class LoaderEvents extends LoaderSignals
+class DisplayContainer extends DisplayObjectContainer, implements IDisplayContainer 
 {
-	public function new (target:IEventDispatcher)
+	var children	(default, null)	: DisplayList;
+	
+	
+	public function new ()
 	{
-		started		= new FlashSignal0( target, 	Event.OPEN );
-		progress	= new ProgressSignal( target,	ProgressEvent.PROGRESS );
-		loaded		= new FlashSignal0( target,		Event.COMPLETE );
-		unloaded	= new FlashSignal0( target,		Event.UNLOAD );
-		error		= new ErrorSignal( target,		IOErrorEvent.IO_ERROR );
+		super();
+		children = new DisplayList();
 	}
 }

@@ -30,5 +30,5 @@ package primevc.gui.display;
 
 
 typedef Loader = 
-	#if		flash9	primevc.avm2.Loader;
+	#if		flash9	primevc.avm2.display.Loader;
 	#else			throw "loader not implemented";	#end

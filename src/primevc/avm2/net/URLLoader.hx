@@ -26,49 +26,52 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.avm2;
- import flash.net.URLRequest;
- import flash.utils.ByteArray;
- import primevc.avm2.events.LoaderEvents;
+package primevc.avm2.net;
+ import flash.net.URLLoaderDataFormat;
+ import primevc.core.events.LoaderEvents;
  import primevc.core.IDisposable;
- import primevc.gui.display.IDisplayObject;
+ import primevc.types.URL;
 
 
-typedef FlashLoader = flash.display.Loader;
-
-
-class Loader implements IDisposable
+/**
+ * AVM2 URLLoader implementation
+ * 
+ * @author Ruben Weijers
+ * @creation-date Sep 04, 2010
+ */
+class URLLoader implements IDisposable
 {
-	public var events		(default, null)				: LoaderEvents;
+	public var events		(default, null)					: LoaderEvents;
+	public var bytesLoaded	(getBytesLoaded, never)			: UInt;
+	public var bytesTotal	(getBytesTotal, never)			: UInt;
+	public var isLoaded		(getIsLoaded, never)			: Bool;
+	public var data			(getData, never)				: Dynamic;
+	public var dataFormat	(getDataFormat, setDataFormat)	: URLLoaderDataFormat;
 	
-	public var bytes		(getBytes, never)			: ByteArray;
-	public var bytesLoaded	(getBytesLoaded, never)		: UInt;
-	public var bytesTotal	(getBytesTotal, never)		: UInt;
-	public var isLoaded		(getIsLoaded, never)		: Bool;
-	
-	public var content		(getContent, never)			: IDisplayObject;
-	
-	private var loader		: FlashLoader;
+	private var loader		: flash.net.URLLoader;
 	
 	
-	public function new ()
-	{
-		loader	= new FlashLoader();
-		events	= new LoaderEvents( loader.contentLoaderInfo );
+	public function new (?url:URL)
+	{	
+		loader	= new flash.net.URLLoader();
+		events	= new LoaderEvents(loader);
+		
+		if (url != null)
+			load( url );
 	}
 	
 	
 	public function dispose ()
 	{
-		loader.unloadAndStop();
+		close();
 		events.dispose();
-		loader = null;
-		events = null;
+		events	= null;
+		loader	= null;
 	}
 	
 	
-	public inline function load (v:URLRequest)		{ return loader.load(v); }
-	public inline function unload ()				{ return loader.unload(); }
+	
+	public inline function load (v:URL)				{ return loader.load(v.toRequest()); }
 	public inline function close ()					{ return loader.close(); }
 	
 	
@@ -77,10 +80,11 @@ class Loader implements IDisposable
 	// GETTERS / SETTERS
 	//
 	
-	private inline function getBytes ()				{ return loader.contentLoaderInfo.bytes; }
-	private inline function getBytesLoaded ()		{ return loader.contentLoaderInfo.bytesLoaded; }
-	private inline function getBytesTotal ()		{ return loader.contentLoaderInfo.bytesTotal; }
-	private inline function getContent ()			{ return cast loader.contentLoaderInfo.content; }
+	private inline function getBytesLoaded ()		{ return loader.bytesLoaded; }
+	private inline function getBytesTotal ()		{ return loader.bytesTotal; }
+	private inline function getData ()				{ return loader.data; }
+	private inline function getDataFormat ()		{ return loader.dataFormat; }
+	private inline function setDataFormat (v)		{ return loader.dataFormat  = v; }
 	
 	private inline function getIsLoaded () {
 		return bytesTotal > 0 && bytesLoaded >= bytesTotal;
