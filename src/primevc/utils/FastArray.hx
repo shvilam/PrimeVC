@@ -124,10 +124,20 @@ class FastArrayUtil
 	
 	public static inline function remove < T > (list:FastArray<T>, item:T) : Bool {
 		var pos = list.indexOf(item);
-		if (pos >= 0) {
-			list.splice(pos, 1);
+		
+		if (pos >= 0)
+		{
+			if		(pos == 0)						list.shift();
+			else if	(pos == (list.length - 1))		list.pop();
+			else									list.splice(pos, 1);
 		}
 		return pos >= 0;
+	}
+	
+	
+	public static inline function removeAll <T> (list:FastArray<T>) : Void {
+		while (list.length > 0)
+			list.pop();
 	}
 	
 	

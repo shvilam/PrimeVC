@@ -58,9 +58,7 @@ class ArrayList <DataType> implements IList <DataType>
 	
 	public inline function removeAll ()
 	{
-		while (list.length > 0)
-			list.pop();
-		
+		FastArrayUtil.removeAll(list);
 		events.reset.send();
 	}
 	

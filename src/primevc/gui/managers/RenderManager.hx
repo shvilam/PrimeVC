@@ -26,67 +26,46 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours.layout;
- import primevc.core.dispatcher.Wire;
- import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.core.UIWindow;
- import primevc.gui.states.ValidateStates;
+package primevc.gui.managers;
+ import primevc.gui.display.Window;
+ import primevc.gui.traits.IRenderable;
   using primevc.utils.Bind;
 
 
 /**
+ * Manager obj to queue the rendering of all IRenderable's until a render event
+ * is fired.
+ * 
  * @author Ruben Weijers
- * @creation-date Jul 26, 2010
+ * @creation-date Sep 03, 2010
  */
-class WindowLayoutBehaviour extends BehaviourBase < UIWindow >
+class RenderManager extends QueueManager < IRenderable, Window >
 {
-	override private function init ()
+	public function new (owner)
 	{
-		Assert.that(target.layout != null, "Layout of "+target+" can't be null for "+this);
-		
-#if debug
-		target.layout.name = target.id.value+"Layout";
-#end
-		
-		layoutStateChangeHandler.on( target.layout.state.change, this );
-		//trigger the event handler for the current state as well
-		layoutStateChangeHandler( null, target.layout.state.current );
-		
-#if flash9
-		updateBgSize.on( target.layout.events.sizeChanged, this );
-#end
+		super(owner);
+		updateQueueBinding = renderQueue.on( owner.displayEvents.render, this );
+		updateQueueBinding.disable();
 	}
-
-
-	override private function reset ()
-	{
-		if (target.layout == null)
-			return;
-		
-		target.invalidationManager.remove( target.layout );
-		target.layout.state.change.unbind( this );
-	}
-
 	
-	private function layoutStateChangeHandler (oldState:ValidateStates, newState:ValidateStates)
+	
+	override private function enableBinding ()
 	{
-	//	trace(target+".layoutStateChangeHandler "+oldState+" -> "+newState);
-		switch (newState) {
-			case ValidateStates.invalidated:
-				target.invalidationManager.add(target.layout);
+		if (!updateQueueBinding.isEnabled())
+			owner.invalidate();
+		
+		super.enableBinding();
+	}
+	
+	
+	private function renderQueue ()
+	{
+		var item:IRenderable;
+		while (queue.length > 0) {
+			item = queue.pop();
+			item.render();
 		}
+		
+		updateQueueBinding.disable();
 	}
-	
-	
-#if flash9
-	private function updateBgSize ()
-	{
-		if (target.graphicData.value != null)
-		{
-			var l = target.layout;
-			target.bgShape.width	= l.width;
-			target.bgShape.height	= l.height;
-		}
-	}	
-#end
 }

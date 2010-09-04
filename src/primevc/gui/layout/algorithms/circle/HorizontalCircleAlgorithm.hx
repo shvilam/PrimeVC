@@ -69,20 +69,20 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 	//
 	
 	
-	public inline function measure ()
+	public inline function validate ()
 	{
 		if (group.children.length == 0)
 			return;
 		
-		measureHorizontal();
-		measureVertical();
+		validateHorizontal();
+		validateVertical();
 	}
 	
 	
 	/**
 	 * Method will return the total width of all the children.
 	 */
-	public inline function measureHorizontal ()
+	public inline function validateHorizontal ()
 	{
 		var width:Int = group.width;
 	/*	if (group.childWidth.notSet())

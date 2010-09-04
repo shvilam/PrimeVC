@@ -69,17 +69,17 @@ class VerticalCircleAlgorithm extends VerticalBaseAlgorithm, implements IVertica
 	//
 	
 	
-	public inline function measure ()
+	public inline function validate ()
 	{
 		if (group.children.length == 0)
 			return;
 		
-		measureHorizontal();
-		measureVertical();
+		validateHorizontal();
+		validateVertical();
 	}
 	
 	
-	public inline function measureVertical ()
+	public inline function validateVertical ()
 	{
 		var height:Int = group.height;
 	/*	

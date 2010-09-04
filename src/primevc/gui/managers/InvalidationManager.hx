@@ -26,67 +26,51 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours.layout;
- import primevc.core.dispatcher.Wire;
- import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.core.UIWindow;
- import primevc.gui.states.ValidateStates;
+package primevc.gui.managers;
+ import primevc.gui.display.Window;
+ import primevc.gui.traits.IInvalidating;
   using primevc.utils.Bind;
 
 
 /**
+ * Manager object which can be called by every IInvalidating object. When an
+ * IInvalidating object calls InvalidationManager.invalidate( obj ), the
+ * manager will add the object to a queue of objects and starts listening for
+ * the next ENTER_FRAME event (flash).
+ * 
+ * When an ENTER_FRAME event comes, the manager will loop through the queue of
+ * invalid objects and call their 'validate' method.
+ * 
  * @author Ruben Weijers
- * @creation-date Jul 26, 2010
+ * @creation-date Sep 03, 2010
  */
-class WindowLayoutBehaviour extends BehaviourBase < UIWindow >
+class InvalidationManager extends QueueManager < IInvalidating, Window >
 {
-	override private function init ()
+	public function new (owner:Window)
 	{
-		Assert.that(target.layout != null, "Layout of "+target+" can't be null for "+this);
+		super(owner);
 		
-#if debug
-		target.layout.name = target.id.value+"Layout";
-#end
-		
-		layoutStateChangeHandler.on( target.layout.state.change, this );
-		//trigger the event handler for the current state as well
-		layoutStateChangeHandler( null, target.layout.state.current );
-		
-#if flash9
-		updateBgSize.on( target.layout.events.sizeChanged, this );
-#end
+		updateQueueBinding = validateQueue.on( owner.displayEvents.enterFrame, this );
+		updateQueueBinding.disable();
 	}
-
-
-	override private function reset ()
-	{
-		if (target.layout == null)
-			return;
-		
-		target.invalidationManager.remove( target.layout );
-		target.layout.state.change.unbind( this );
-	}
-
 	
-	private function layoutStateChangeHandler (oldState:ValidateStates, newState:ValidateStates)
+	
+	//
+	// VALIDATION METHODS
+	//
+	
+	/**
+	 * Method is called after an enterFrame event and will validate every obj
+	 * in the queue.
+	 */
+	private function validateQueue ()
 	{
-	//	trace(target+".layoutStateChangeHandler "+oldState+" -> "+newState);
-		switch (newState) {
-			case ValidateStates.invalidated:
-				target.invalidationManager.add(target.layout);
+		var item:IInvalidating;
+		while (queue.length > 0) {
+			item = queue.pop();
+			item.validate();
 		}
+		
+		disableBinding();
 	}
-	
-	
-#if flash9
-	private function updateBgSize ()
-	{
-		if (target.graphicData.value != null)
-		{
-			var l = target.layout;
-			target.bgShape.width	= l.width;
-			target.bgShape.height	= l.height;
-		}
-	}	
-#end
 }

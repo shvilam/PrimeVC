@@ -113,7 +113,7 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 	}
 
 
-	public inline function measureHorizontal ()
+	public inline function validateHorizontal ()
 	{
 		var width:Int = group.childWidth;
 
@@ -135,7 +135,7 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 			case Horizontal.center:	applyHorizontalCenter();
 			case Horizontal.right:	applyHorizontalRight();
 		}
-		measurePrepared = false;
+		validatePrepared = false;
 	}
 	
 

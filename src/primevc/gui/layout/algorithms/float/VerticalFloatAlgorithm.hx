@@ -63,17 +63,17 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	/**
 	 * Method will return the total height of all the children.
 	 */
-	public inline function measure ()
+	public inline function validate ()
 	{
 		if (group.children.length == 0)
 			return;
 		
-		measureHorizontal();
-		measureVertical();
+		validateHorizontal();
+		validateVertical();
 	}
 	
 	
-	public function measureVertical ()
+	public function validateVertical ()
 	{
 		var height:Int = halfHeight = 0;
 		

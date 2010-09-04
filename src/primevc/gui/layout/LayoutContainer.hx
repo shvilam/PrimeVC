@@ -34,7 +34,7 @@ package primevc.gui.layout;
  import primevc.core.geom.IntPoint;
  import primevc.types.Number;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
- import primevc.gui.states.LayoutStates;
+ import primevc.gui.states.ValidateStates;
  import primevc.utils.FastArray;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
@@ -111,7 +111,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 			//loop through child list to find children who are also invalidated and change their state to parent_invalidated
 			for (child in children)
 				if (child.isInvalidated)
-					child.state.current = LayoutStates.parent_invalidated;
+					child.state.current = ValidateStates.parent_invalidated;
 		}
 	}
 	
@@ -143,9 +143,9 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	}
 	
 	
-	override public function measureHorizontal ()
+	override public function validateHorizontal ()
 	{
-		if (measuredHorizontal)
+		if (validatedHorizontal)
 			return;
 		
 		if (explicitWidth.isSet() && explicitWidth <= 0)
@@ -153,10 +153,10 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		
 		var fillingChildren	= FastArrayUtil.create();
 		var childrenWidth	= 0;
-		measuredHorizontal	= true;
+		validatedHorizontal	= true;
 		
 		if (algorithm != null)
-			algorithm.prepareMeasure();
+			algorithm.prepareValidate();
 		
 		for (child in children)
 		{
@@ -173,7 +173,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 			
 			//measure children
 			if (child.percentWidth != LayoutFlags.FILL && child.includeInLayout) {
-				child.measureHorizontal();
+				child.validateHorizontal();
 				childrenWidth += child.bounds.width;
 			}
 		}
@@ -183,18 +183,18 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 			var sizePerChild = (width - childrenWidth).divFloor( fillingChildren.length );
 			for (child in fillingChildren) {
 				child.bounds.width = sizePerChild;
-				child.measureHorizontal();
+				child.validateHorizontal();
 			}
 		}
 		
 		if (algorithm != null)
-			algorithm.measureHorizontal();
+			algorithm.validateHorizontal();
 	}
 	
 	
-	override public function measureVertical ()
+	override public function validateVertical ()
 	{
-		if (measuredVertical)
+		if (validatedVertical)
 			return;
 		
 		if (explicitHeight.isSet() && explicitHeight <= 0)
@@ -202,10 +202,10 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		
 		var fillingChildren	= FastArrayUtil.create();
 		var childrenHeight	= 0;
-		measuredVertical	= true;
+		validatedVertical	= true;
 		
 		if (algorithm != null)
-			algorithm.prepareMeasure();
+			algorithm.prepareValidate();
 		
 		for (child in children)
 		{
@@ -221,7 +221,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 			
 			//measure children
 			if (child.percentHeight != LayoutFlags.FILL && child.includeInLayout) {
-				child.measureVertical();
+				child.validateVertical();
 				childrenHeight += child.bounds.height;
 			}
 		}
@@ -231,31 +231,29 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 			var sizePerChild = (height - childrenHeight).divFloor( fillingChildren.length );
 			for (child in fillingChildren) {
 				child.bounds.height = sizePerChild;
-				child.measureVertical();
+				child.validateVertical();
 			}
 		}
 		
-		super.measureVertical();
+		super.validateVertical();
 		
 		if (algorithm != null)
-			algorithm.measureVertical();
+			algorithm.validateVertical();
 	}
 	
 	
-	override public function validate ()
+	override public function validated ()
 	{
 		if (changes == 0 || !isValidating)
 			return;
-		
-		state.current = LayoutStates.validating;
 		
 		if (algorithm != null)
 			algorithm.apply();
 		
 		for (child in children)
-			child.validate();
+			child.validated();
 		
-		super.validate();
+		super.validated();
 	}
 	
 	

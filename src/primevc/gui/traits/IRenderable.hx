@@ -26,67 +26,25 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours.layout;
- import primevc.core.dispatcher.Wire;
- import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.core.UIWindow;
- import primevc.gui.states.ValidateStates;
-  using primevc.utils.Bind;
+package primevc.gui.traits;
 
 
 /**
+ * Interface for objects that will draw or change properties on the screen.
+ * Methods allow the object to queue the rendering until the next RENDER event.
+ * 
  * @author Ruben Weijers
- * @creation-date Jul 26, 2010
+ * @creation-date Sep 03, 2010
  */
-class WindowLayoutBehaviour extends BehaviourBase < UIWindow >
+interface IRenderable
 {
-	override private function init ()
-	{
-		Assert.that(target.layout != null, "Layout of "+target+" can't be null for "+this);
-		
-#if debug
-		target.layout.name = target.id.value+"Layout";
-#end
-		
-		layoutStateChangeHandler.on( target.layout.state.change, this );
-		//trigger the event handler for the current state as well
-		layoutStateChangeHandler( null, target.layout.state.current );
-		
-#if flash9
-		updateBgSize.on( target.layout.events.sizeChanged, this );
-#end
-	}
-
-
-	override private function reset ()
-	{
-		if (target.layout == null)
-			return;
-		
-		target.invalidationManager.remove( target.layout );
-		target.layout.state.change.unbind( this );
-	}
-
-	
-	private function layoutStateChangeHandler (oldState:ValidateStates, newState:ValidateStates)
-	{
-	//	trace(target+".layoutStateChangeHandler "+oldState+" -> "+newState);
-		switch (newState) {
-			case ValidateStates.invalidated:
-				target.invalidationManager.add(target.layout);
-		}
-	}
-	
-	
-#if flash9
-	private function updateBgSize ()
-	{
-		if (target.graphicData.value != null)
-		{
-			var l = target.layout;
-			target.bgShape.width	= l.width;
-			target.bgShape.height	= l.height;
-		}
-	}	
-#end
+	/**
+	 * Sends a request to the RenderManager to get a render action.
+	 */
+	public function requestRender ()					: Void;
+	/**
+	 * Perform render action. Don't call this method, this is done by the 
+	 * RenderManager. To request a rendering, call the requestRender method.
+	 */
+	public function render ()							: Void;
 }

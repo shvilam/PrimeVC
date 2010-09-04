@@ -26,67 +26,87 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours.layout;
+package primevc.gui.managers;
  import primevc.core.dispatcher.Wire;
- import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.core.UIWindow;
- import primevc.gui.states.ValidateStates;
-  using primevc.utils.Bind;
+ import primevc.core.IDisposable;
+ import primevc.utils.FastArray;
+  using primevc.utils.FastArray;
 
 
 /**
+ * Base class for managers who work with a queue like InvalidationManager and
+ * RenderManager.
+ * 
  * @author Ruben Weijers
- * @creation-date Jul 26, 2010
+ * @creation-date Sep 03, 2010
  */
-class WindowLayoutBehaviour extends BehaviourBase < UIWindow >
-{
-	override private function init ()
-	{
-		Assert.that(target.layout != null, "Layout of "+target+" can't be null for "+this);
-		
-#if debug
-		target.layout.name = target.id.value+"Layout";
-#end
-		
-		layoutStateChangeHandler.on( target.layout.state.change, this );
-		//trigger the event handler for the current state as well
-		layoutStateChangeHandler( null, target.layout.state.current );
-		
-#if flash9
-		updateBgSize.on( target.layout.events.sizeChanged, this );
-#end
-	}
-
-
-	override private function reset ()
-	{
-		if (target.layout == null)
-			return;
-		
-		target.invalidationManager.remove( target.layout );
-		target.layout.state.change.unbind( this );
-	}
-
+class QueueManager < ChildType, OwnerType >
+		implements IDisposable
+//	,	implements haxe.rtti.Generic
+{	
+	/**
+	 * Reference to the object that owns the object
+	 */
+	private var owner				: OwnerType;
 	
-	private function layoutStateChangeHandler (oldState:ValidateStates, newState:ValidateStates)
+	/**
+	 * Queue with objects that need to be updated on the next 
+	 * updateQueueBinding call.
+	 */
+	private var queue				: FastArray < ChildType >;
+	
+	/**
+	 * Binding reference to the wire that will apply the update to the queue
+	 * of objects
+	 */
+	private var updateQueueBinding	: Wire <Dynamic>;
+	
+	
+	public function new (owner:OwnerType)
 	{
-	//	trace(target+".layoutStateChangeHandler "+oldState+" -> "+newState);
-		switch (newState) {
-			case ValidateStates.invalidated:
-				target.invalidationManager.add(target.layout);
-		}
+		this.owner		= owner;
+		queue			= FastArrayUtil.create();
 	}
 	
 	
-#if flash9
-	private function updateBgSize ()
+	public function dispose ()
 	{
-		if (target.graphicData.value != null)
-		{
-			var l = target.layout;
-			target.bgShape.width	= l.width;
-			target.bgShape.height	= l.height;
-		}
-	}	
-#end
+		if (updateQueueBinding != null)
+			updateQueueBinding.dispose();
+		
+		queue.removeAll();
+		updateQueueBinding = null;
+		owner	= null;
+		queue	= null;
+	}
+	
+	
+	//
+	// VALIDATION METHODS
+	//
+	
+	
+	private function enableBinding ()	{ updateQueueBinding.enable(); }
+	private function disableBinding ()	{ if (queue.length == 0) updateQueueBinding.disable(); }
+	
+	
+	/**
+	 * Add's an obj to the queue with objects
+	 */
+	public function add ( obj:ChildType )
+	{
+		queue.push( obj );
+		enableBinding();
+	}
+	
+	
+	
+	/**
+	 * Removed an object from the queue with objects
+	 */
+	public inline function remove ( obj:ChildType )
+	{
+		queue.remove(obj);
+		disableBinding();
+	}
 }

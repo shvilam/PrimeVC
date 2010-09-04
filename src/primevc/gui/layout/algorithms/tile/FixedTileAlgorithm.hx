@@ -348,37 +348,37 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	//
 	
 	
-	override public function prepareMeasure ()
+	override public function prepareValidate ()
 	{
-		if (group.children.length > 0 && !measurePrepared && (horizontalMap == null || verticalMap == null))
+		if (group.children.length > 0 && !validatePrepared && (horizontalMap == null || verticalMap == null))
 			createTileMap();
 		
-		super.prepareMeasure();
+		super.prepareValidate();
 	}
 	
 	
-	override public function measure () : Void
+	override public function validate () : Void
 	{
 		Assert.that( maxTilesInDirection.isSet(), "maxTilesInDirection should have been set" );
 		
 		if (group.children.length == 0)
 			return;
 		
-		measureHorizontal();
-		measureVertical();
+		validateHorizontal();
+		validateVertical();
 	}
 	
 	
-	override public function measureHorizontal ()
+	override public function validateHorizontal ()
 	{
 		var w:Int = 0;
 		
 		if (group.children.length > 0) {
 			if (startDirection == Direction.horizontal) {
-				columns.measureHorizontal();
+				columns.validateHorizontal();
 				w = rows.width = columns.width;
 			} else {
-				rows.measureHorizontal();
+				rows.validateHorizontal();
 				w = columns.width = rows.width;
 			}
 		}
@@ -387,15 +387,15 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	}
 	
 	
-	override public function measureVertical ()
+	override public function validateVertical ()
 	{
 		var h:Int = 0;
 		if (group.children.length > 0) {
 			if (startDirection == Direction.horizontal) {
-				rows.measureVertical();
+				rows.validateVertical();
 				h = columns.height = rows.height;
 			} else {
-				columns.measureVertical();
+				columns.validateVertical();
 				h = rows.height = columns.height;
 			}	
 		}

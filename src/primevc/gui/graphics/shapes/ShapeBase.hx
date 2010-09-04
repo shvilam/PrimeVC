@@ -85,12 +85,15 @@ class ShapeBase implements IGraphicShape
 	
 	public inline function invalidate (change:UInt) : Void
 	{
-		changes = changes.set(change);
-		for (listener in listeners)
-			listener.invalidate( change );
-		
-		if (changeEvent != null)
-			changeEvent.send();
+		if (listeners != null)
+		{
+			changes = changes.set(change);
+			for (listener in listeners)
+				listener.invalidate( change );
+			
+			if (changeEvent != null)
+				changeEvent.send();
+		}	
 	}
 	
 	

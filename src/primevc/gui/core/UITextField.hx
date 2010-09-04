@@ -134,7 +134,6 @@ class UITextField extends TextField, implements IUIElement
 	
 	public inline function setText (v:String) : Void
 	{
-		trace(this+".setText "+v);
 		if (v == null)
 			v = "";
 		
@@ -190,7 +189,6 @@ class UITextField extends TextField, implements IUIElement
 	
 	private function updateSize ()
 	{
-		trace(this+".updateSize "+textWidth+", "+textHeight);
 		var l = layout.as(AdvancedLayoutClient);
 		l.measuredWidth		= realTextWidth.int();
 		l.measuredHeight	= realTextHeight.int();

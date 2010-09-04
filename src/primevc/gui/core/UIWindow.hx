@@ -33,11 +33,14 @@ package primevc.gui.core;
  import primevc.gui.behaviours.layout.WindowLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
+ import primevc.gui.display.Stage;
  import primevc.gui.display.Window;
  import primevc.gui.graphics.shapes.IGraphicShape;
  import primevc.gui.layout.algorithms.RelativeAlgorithm;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.layout.LayoutClient;
+ import primevc.gui.managers.InvalidationManager;
+ import primevc.gui.managers.RenderManager;
  import primevc.gui.traits.IBehaving;
  import primevc.gui.traits.IDrawable;
  import primevc.gui.traits.IIdentifiable;
@@ -61,34 +64,39 @@ class UIWindow extends Window
 	,	implements IIdentifiable
 	,	implements ILayoutable
 {
-	public var layout			(default, null)					: LayoutClient;
-	public var layoutContainer	(getLayoutContainer, never)		: LayoutContainer;
+	public var layout				(default, null)					: LayoutClient;
+	public var layoutContainer		(getLayoutContainer, never)		: LayoutContainer;
 	
-	public var behaviours		(default, null)					: BehaviourList;
-	public var id				(default, null)					: Bindable < String >;
-	public var graphicData		(default, null)					: Bindable < IGraphicShape >;
+	public var behaviours			(default, null)					: BehaviourList;
+	public var id					(default, null)					: Bindable < String >;
+	public var graphicData			(default, null)					: Bindable < IGraphicShape >;
 	
 #if flash9
 	/**
 	 * Shape to draw the background graphics in. Stage doesn't have a Graphics
 	 * property.
 	 */
-	public var bgShape			: Shape;
+	public var bgShape				: Shape;
 	/**
 	 * Reference to bgShape.graphics.. Needed for compatibility with IDrawable
 	 */
-	public var graphics			(default, null)					: flash.display.Graphics;
+	public var graphics				(default, null)					: flash.display.Graphics;
 #end
 	
+	public var renderManager		(default, null)					: RenderManager;
+	public var invalidationManager	(default, null)					: InvalidationManager;
 	
 	
-	public function new (target:DocumentType, app:Application)
+	public function new (target:Stage, app:Application)
 	{
 		super(target, app);
 		
-		id				= new Bindable<String>("UIWindow");
-		behaviours		= new BehaviourList();
-		graphicData		= new Bindable < IGraphicShape > ();
+		id					= new Bindable<String>("UIWindow");
+		renderManager		= new RenderManager(this);
+		invalidationManager	= new InvalidationManager(this);
+		
+		behaviours			= new BehaviourList();
+		graphicData			= new Bindable < IGraphicShape > ();
 		
 		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
 		behaviours.add( new RenderGraphicsBehaviour(this) );
@@ -116,8 +124,13 @@ class UIWindow extends Window
 		
 		behaviours.dispose();
 		layout.dispose();
-		behaviours		= null;
-		layout			= null;
+		invalidationManager.dispose();
+		renderManager.dispose();
+		
+		behaviours			= null;
+		layout				= null;
+		invalidationManager	= null;
+		renderManager		= null;
 		
 		super.dispose();
 	}

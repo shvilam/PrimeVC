@@ -35,13 +35,6 @@ package primevc.gui.display;
  import primevc.gui.traits.IInteractive;
 
 
-typedef DocumentType = 
-	#if			flash9		flash.display.Stage;
-	#else if	js			Window;
-	#else					IDisplayObjectContainer;
-	#end
-
-
 /**
  * Window is wrapper class for the stage. It provides each Sprite and Shape 
  * with the ability to talk with the stage in a platform-indepedent way.
@@ -65,7 +58,7 @@ class Window
 	 * property is set as public, it's not recommended to use this property
 	 * directly!
 	 */
-	public var target			(default, null)			: DocumentType;
+	public var target			(default, null)			: Stage;
 	public var children			(default, null)			: DisplayList;
 	
 	//
@@ -82,7 +75,7 @@ class Window
 	
 	
 	
-	public function new (target:DocumentType, app:Application)
+	public function new (target:Stage, app:Application)
 	{
 		this.target		= target;
 		window			= this;

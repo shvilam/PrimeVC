@@ -47,8 +47,8 @@ package primevc.gui.layout.algorithms;
  */
 class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 {
-	private var measurePreparedHor : Bool;
-	private var measurePreparedVer : Bool;
+	private var validatePreparedHor : Bool;
+	private var validatePreparedVer : Bool;
 	
 	
 	public inline function isInvalid (changes:Int)
@@ -61,11 +61,11 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 	}
 	
 	
-	override public function prepareMeasure ()
+	override public function prepareValidate ()
 	{
-		if (!measurePrepared)
+		if (!validatePrepared)
 		{
-			if (group.measuredHorizontal && !measurePreparedHor)
+			if (group.validatedHorizontal && !validatePreparedHor)
 			{
 				for (child in group.children) {
 					if (child.relative == null || !child.includeInLayout)
@@ -75,11 +75,11 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 						child.bounds.width	= group.width - child.relative.right - child.relative.left;
 				}
 				
-				measurePreparedHor = true;
+				validatePreparedHor = true;
 			}
 			
 			
-			if (group.measuredVertical && !measurePreparedVer)
+			if (group.validatedVertical && !validatePreparedVer)
 			{
 				for (child in group.children) {
 					if (child.relative == null || !child.includeInLayout)
@@ -89,26 +89,26 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 						child.bounds.height	= group.height - child.relative.bottom - child.relative.top;
 				}
 				
-				measurePreparedVer = true;
+				validatePreparedVer = true;
 			}
 			
-			if (measurePreparedVer && measurePreparedHor)
-				measurePrepared = true;
+			if (validatePreparedVer && validatePreparedHor)
+				validatePrepared = true;
 		}
 	}
 	
 	
-	public inline function measure () {
-		measureHorizontal();
-		measureVertical();
+	public inline function validate () {
+		validateHorizontal();
+		validateVertical();
 	}
-	public inline function measureHorizontal () {
-		if (!measurePrepared)
-			prepareMeasure();
+	public inline function validateHorizontal () {
+		if (!validatePrepared)
+			prepareValidate();
 	}
-	public inline function measureVertical () {
-		if (!measurePrepared)
-			prepareMeasure();
+	public inline function validateVertical () {
+		if (!validatePrepared)
+			prepareValidate();
 	}
 	
 	
@@ -145,9 +145,9 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 			else if (childProps.vCenter.isSet())	child.bounds.top	= Std.int( ( group.bounds.height - child.bounds.height ) * .5 );
 		}
 		
-		measurePrepared		= false;
-		measurePreparedHor	= false;
-		measurePreparedVer	= false;
+		validatePrepared	= false;
+		validatePreparedHor	= false;
+		validatePreparedVer	= false;
 	}
 	
 	

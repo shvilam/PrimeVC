@@ -100,7 +100,6 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	private function createTileMap ()
 	{
-		trace(this + ".createTileMap");
 		Assert.that( group.is( LayoutContainer ), "group should be an LayoutContainer" );
 		
 		childSizeConstraint			= new SizeConstraint();
@@ -211,9 +210,9 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	
 	
-	override public function prepareMeasure () : Void
+	override public function prepareValidate () : Void
 	{
-		if (!measurePrepared)
+		if (!validatePrepared)
 		{
 			var group			= group.as(LayoutContainer);
 			groupSizeChanged	= group.changes.has(LayoutFlags.LIST_CHANGED);
@@ -261,11 +260,11 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 					tileGroup.height = group.explicitHeight;
 			}
 		}
-		super.prepareMeasure();
+		super.prepareValidate();
 	}
 	
 	
-	private inline function measureGroups ()
+	private inline function validateGroups ()
 	{
 		//
 		// Check if children are added, removed or moved in the list
@@ -285,10 +284,10 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 				}
 				
 				var hasNext = children.nextList != null;
-				tileGroup.measure();
+				tileGroup.validate();
 				
 				if (!hasNext && children.nextList != null) {
-					//A chained list is added by the previous measure method.
+					//A chained list is added by the previous validate method.
 					//Create a tile group for the list.
 					addTileContainer( children.nextList );
 				}
@@ -299,24 +298,24 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	}
 	
 	
-	override public function measureHorizontal ()
+	override public function validateHorizontal ()
 	{
 		if (startDirection != horizontal)
 			return;
 		
-		measureGroups();
-		tileGroups.measure();
+		validateGroups();
+		tileGroups.validate();
 		setGroupWidth(tileGroups.width);
 	}
 	
 	
-	override public function measureVertical ()
+	override public function validateVertical ()
 	{
 		if (startDirection != vertical)
 			return;
 		
-		measureGroups();
-		tileGroups.measure();
+		validateGroups();
+		tileGroups.validate();
 		setGroupHeight(tileGroups.height);
 	}
 	
@@ -335,10 +334,10 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	override public function apply ()
 	{
 		for (row in tileGroups)
-			row.validate();
+			row.validated();
 		
-		tileGroups.validate();
-		measurePrepared = false;
+		tileGroups.validated();
+		validatePrepared = false;
 	}
 	
 	
@@ -367,7 +366,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 			}
 			
 			var row	 = tileGroups.children.getItemAt( rowNum );
-			row.algorithm.group = row;		//<-- important! will otherwise measure with wrong row
+			row.algorithm.group = row;		//<-- important! will otherwise validate with wrong row
 			depth	+= row.algorithm.getDepthForBounds( bounds );
 		}
 		return depth;
@@ -456,10 +455,9 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
  */
 private class DynamicRowAlgorithm extends HorizontalFloatAlgorithm
 {
-	override public function measureHorizontal ()
+	override public function validateHorizontal ()
 	{
 		var children:ChainedList<LayoutClient> = cast group.children;
-		
 	//	if (children.length < 2)
 	//		return;
 		
@@ -519,7 +517,7 @@ private class DynamicRowAlgorithm extends HorizontalFloatAlgorithm
 
 private class DynamicColumnAlgorithm extends VerticalFloatAlgorithm
 {
-	override public function measureVertical ()
+	override public function validateVertical ()
 	{
 		var children:ChainedList<LayoutClient> = cast group.children;
 		

@@ -85,36 +85,36 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 	//
 	
 	
-	override public function prepareMeasure ()
+	override public function prepareValidate ()
 	{
-		if (!measurePrepared)
+		if (!validatePrepared)
 		{
-			horAlgorithm.prepareMeasure();
-			verAlgorithm.prepareMeasure();
+			horAlgorithm.prepareValidate();
+			verAlgorithm.prepareValidate();
 		}
-		super.prepareMeasure();
+		super.prepareValidate();
 	}
 	
 	
-	public function measure ()
+	public function validate ()
 	{
 		if (group.children.length == 0)
 			return;
 		
-		measureHorizontal();
-		measureVertical();
+		validateHorizontal();
+		validateVertical();
 	}
 	
 	
-	public function measureHorizontal ()	{ horAlgorithm.measureHorizontal(); }
-	public function measureVertical ()		{ verAlgorithm.measureVertical(); }
+	public function validateHorizontal ()	{ horAlgorithm.validateHorizontal(); }
+	public function validateVertical ()		{ verAlgorithm.validateVertical(); }
 	
 	
  	public function apply ()
 	{
 		horAlgorithm.apply();
 		verAlgorithm.apply();
-		measurePrepared = false;
+		validatePrepared = false;
 	}
 	
 	

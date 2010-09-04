@@ -26,71 +26,12 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.layout.algorithms;
- import primevc.core.dispatcher.Signal0;
- import primevc.core.IDisposable;
- import primevc.gui.layout.AdvancedLayoutClient;
- import primevc.gui.layout.ILayoutContainer;
- import primevc.gui.layout.LayoutClient;
-  using primevc.utils.TypeUtil;
- 
+package primevc.gui.display;
 
-/**
- * Base class for algorithms
- * 
- * @creation-date	Jun 24, 2010
- * @author			Ruben Weijers
- */
-class LayoutAlgorithmBase implements IDisposable
-{
-	public var algorithmChanged 		(default, null)				: Signal0;
-	public var group					(default, setGroup)			: ILayoutContainer<LayoutClient>;
-	
-	
-	public function new()
-	{
-		algorithmChanged	= new Signal0();
-		validatePrepared	= false;
-	}
-	
-	
-	public function dispose ()
-	{
-		algorithmChanged.dispose();
-		algorithmChanged	= null;
-	}
-	
-	
-	//
-	// GETTERS / SETTERS
-	//
-	
-	private function setGroup (v)
-	{
-		return group = v;
-	}
-	
-	
-	private inline function setGroupHeight (h:Int)
-	{
-		if (group.is(AdvancedLayoutClient))
-			group.as(AdvancedLayoutClient).measuredHeight = h;
-		else
-			group.height = h;
-	}
-	
-	
-	private inline function setGroupWidth (w:Int)
-	{
-		if (group.is(AdvancedLayoutClient))
-			group.as(AdvancedLayoutClient).measuredWidth = w;
-		else
-			group.width = w;
-	}
-	
-	
-	private var validatePrepared : Bool;
-	public function prepareValidate () {
-		validatePrepared = true;
-	}
-}
+
+typedef Stage = 
+	#if			flash9		flash.display.Stage;
+	#else if	js			Window;
+	#else					IDisplayObjectContainer;
+	#end
+

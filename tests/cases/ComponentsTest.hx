@@ -71,8 +71,8 @@ class ComponentsApp extends UIContainer <Dynamic>
 	{
 		//create label
 		label	= new Label("testLabel", "Test tekst");
-		input	= new InputField("testInput");
-	//	label.data.pair( input.data );
+		input	= new InputField("testInput", "other text");
+		label.data.pair( input.data );
 		
 		children.add(label);
 		children.add(input);

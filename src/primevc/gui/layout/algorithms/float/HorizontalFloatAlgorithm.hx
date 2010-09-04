@@ -54,20 +54,20 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	private var halfWidth			: Int;
 	
 	
-	public inline function measure ()
+	public inline function validate ()
 	{
 		if (group.children.length == 0)
 			return;
 
-		measureHorizontal();
-		measureVertical();
+		validateHorizontal();
+		validateVertical();
 	}
 	
 	
 	/**
 	 * Method will return the total width of all the children.
 	 */
-	public function measureHorizontal ()
+	public function validateHorizontal ()
 	{
 		var width:Int = halfWidth = 0;
 		
