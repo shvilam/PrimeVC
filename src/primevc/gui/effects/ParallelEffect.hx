@@ -26,16 +26,89 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.layout.algorithms.directions;
- 
+package primevc.gui.effects;
+ import primevc.utils.IntMath;
+  using primevc.utils.Bind;
+
 
 /**
- * @creation-date	Jun 28, 2010
- * @author			Ruben Weijers
+ * Effect to play multiple effects at the same time.
+ * 
+ * @author Ruben Weijers
+ * @creation-date Aug 31, 2010
  */
+class ParallelEffect extends CompositeEffect < ParallelEffect >
+{
+	/**
+	 * Number of effects that are currently playing.
+	 */
+	private var playingEffects : Int;
+	
+	
+	override public function clone ()
+	{
+		return new ParallelEffect( target, duration, delay, easing );
+	}
+	
+	
+	override public function add (effect)
+	{
+		super.add(effect);
+		lowerChildPlayCount.on( effect.ended, this );
+	}
+	
+	
+	override private function getCompositeDuration ()
+	{
+		var d = 0;
+		for (effect in effects)		d = IntMath.max(d, effect.duration);
+		return d;
+	}
+	
+	
+	//
+	// EFFECT CONTROLS
+	//
+	
+	override public function stop ()
+	{
+		super.stop();
+		playingEffects = 0;
+	}
+	
+	
+	override private function playWithEffect ()
+	{
+		stopDelay();
+		stopTween();
+		playingEffects = effects.length;
+		
+		//play all effects directly with tween
+		for (effect in effects)		effect.play( true, true );
+	}
+	
+	
+	override private function playWithoutEffect ()
+	{
+		stopDelay();
+		stopTween();
+		playingEffects = effects.length;
+		
+		//play all effects directly without tween
+		for (effect in effects)		effect.play( false, true );
+	}
 
-enum Horizontal {
-	left;
-	center;
-	right;
+
+
+	//
+	// EVENTHANDLERS
+	//
+
+	private function lowerChildPlayCount () : Void
+	{
+		if (--playingEffects <= 0) {
+			onTweenReady();
+			playingEffects = 0;
+		}
+	}
 }

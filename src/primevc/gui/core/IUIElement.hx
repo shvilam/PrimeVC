@@ -29,6 +29,7 @@
 package primevc.gui.core;
  import primevc.core.IDisposable;
  import primevc.gui.display.IDisplayObject;
+ import primevc.gui.effects.UIElementEffects;
  import primevc.gui.states.UIElementStates;
  import primevc.gui.traits.IBehaving;
  import primevc.gui.traits.IIdentifiable;
@@ -50,5 +51,24 @@ interface IUIElement
 			,	implements IIdentifiable
 			,	implements IDisposable
 {
-	public var state	(default, null)	: UIElementStates;	
+	public var state	(default, null)		: UIElementStates;
+	
+	/**
+	 * Collection of effects that are defined for this UIElement. The 
+	 * UIElementEffects object won't be created by an UIElement but has to be
+	 * set the first time an effect is added to the UIElement.
+	 */
+	public var effects	(default, default)	: UIElementEffects;
+	
+	
+	//
+	// ACTIONS
+	//
+	
+	public function move (newX:Float, newY:Float)	: Void;
+	public function resize (newW:Float, newH:Float)	: Void;
+	public function rotate (newV:Float)				: Void;
+	public function scale (newX:Float, newY:Float)	: Void;
+	public function show ()							: Void;
+	public function hide ()							: Void;
 }

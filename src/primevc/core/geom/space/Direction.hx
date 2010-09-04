@@ -26,20 +26,14 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
+package primevc.core.geom.space;
 
 
 /**
- * @author Ruben Weijers
- * @creation-date Aug 04, 2010
+ * @creation-date	Jun 28, 2010
+ * @author			Ruben Weijers
  */
-interface ISizeable
-{
-#if flash9
-	var height					: Float;
-	var width					: Float;
-#else
-	var width		(getWidth,		setWidth)			: Float;
-	var height		(getHeight,		setHeight)			: Float;
-#end
+enum Direction {
+	vertical;
+	horizontal;
 }
