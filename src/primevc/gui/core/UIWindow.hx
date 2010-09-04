@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
+#if (flash9 && stats)
+ import net.hires.debug.Stats;
+#end
  import primevc.core.Application;
  import primevc.core.Bindable;
  import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
@@ -114,6 +117,10 @@ class UIWindow extends Window
 		
 		createGraphics();
 		createChildren();
+
+#if (flash9 && stats)
+		children.add( new Stats() );
+#end
 	}
 
 

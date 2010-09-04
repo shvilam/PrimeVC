@@ -366,16 +366,16 @@ class TileRotateFadeScaleMoveEffect extends SequenceEffect
 		add( prlIn			= new ParallelEffect() );
 		add( prlOut			= new ParallelEffect() );
 		
-		prlIn.add( fadeOut	= new FadeEffect(null, 1500, 0, Eff.easeInOut, .7) );
-		prlIn.add( move		= new MoveEffect(null, 8000, 0, Eff.easeInOut) );
-		prlIn.add( scaleIn	= new ScaleEffect(null, 8000, 0, Eff.easeInOut, 2, 2) );
+		prlIn.add( fadeOut	= new FadeEffect(null, 150, 0, Eff.easeInOut, .7) );
+		prlIn.add( move		= new MoveEffect(null, 800, 0, Eff.easeInOut) );
+		prlIn.add( scaleIn	= new ScaleEffect(null, 800, 0, Eff.easeInOut, 2, 2) );
 	//	prlIn.add( scaleIn	= new AnchorScaleEffect(null, 500, 0, null, Position.MiddleCenter, 2.5) );
-		prlIn.add( rotate1	= new RotateEffect(null, 8000, 0, Eff.easeInOut, 360 * Math.random()) );
+		prlIn.add( rotate1	= new RotateEffect(null, 800, 0, Eff.easeInOut, 360 * Math.random()) );
 		
-		prlOut.add( fadeIn	= new FadeEffect(null, 5000, 0, null, 1) );
-		prlOut.add( scaleOut= new ScaleEffect(null, 5000, 0, Eff.easeInOut, 1, 1) );
+		prlOut.add( fadeIn	= new FadeEffect(null, 500, 0, null, 1) );
+		prlOut.add( scaleOut= new ScaleEffect(null, 500, 0, Eff.easeInOut, 1, 1) );
 	//	prlOut.add( scaleOut= new AnchorScaleEffect(null, 500, 0, null, Position.MiddleCenter, 1) );
-		prlOut.add( rotate2	= new RotateEffect(null, 5000, 0, Eff.easeInOut, 0) );
+		prlOut.add( rotate2	= new RotateEffect(null, 500, 0, Eff.easeInOut, 0) );
 	}
 	
 	override public function setValues (v:EffectProperties)
