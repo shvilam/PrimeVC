@@ -181,5 +181,9 @@ class StringColorUtil
 	/**
 	 * Converts a hexadecimal string to a RGBA value
 	 */
-	public static inline function rgba (v:String) : RGBA				{ return v.parseInt().validate(); }
+	public static inline function rgba (v:String) : RGBA {
+		if (v.length == 3)
+			v += v;
+		return ("0x"+v).parseInt().validate();
+	}
 }

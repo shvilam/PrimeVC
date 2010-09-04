@@ -29,9 +29,12 @@
 package primevc.gui.styling;
 
 #if flash9
- import flash.utils.TypedDictionary;
  import primevc.core.IDisposable;
+ import primevc.gui.graphics.borders.IBorder;
+ import primevc.gui.graphics.fills.IFill;
  import primevc.gui.styling.declarations.UIElementStyle;
+ import primevc.types.RGBA;
+ import Hash;
 
 
 /**
@@ -40,25 +43,25 @@ package primevc.gui.styling;
  */
 class StyleContainer extends UIElementStyle, implements IDisposable
 {
-	private var typeSelectors		: TypedDictionary < String, UIElementStyle >;
-	private var styleNameSelectors	: TypedDictionary < String, UIElementStyle >;
-	private var idSelectors			: TypedDictionary < String, UIElementStyle >;
+	public var typeSelectors		(default, null) : Hash < UIElementStyle >;
+	public var styleNameSelectors	(default, null) : Hash < UIElementStyle >;
+	public var idSelectors			(default, null) : Hash < UIElementStyle >;
 	
-	private var globalFills			: TypedDictionary < String, IFill >;
-	private var globalBorders		: TypedDictionary < String, IBorder<IFill> >;
-	private var globalColors		: TypedDictionary < String, RGBA >;
+	public var globalFills			(default, null) : Hash < IFill >;
+	public var globalBorders		(default, null) : Hash < IBorder<IFill> >;
+	public var globalColors			(default, null) : Hash < RGBA >;
 	
 	
 	public function new ()
 	{
 		super();
-		typeSelectors		= new TypedDictionary();
-		styleNameSelectors	= new TypedDictionary();
-		idSelectors			= new TypedDictionary();
+		typeSelectors		= new Hash();
+		styleNameSelectors	= new Hash();
+		idSelectors			= new Hash();
 		
-		globalFills			= new TypedDictionary();
-		globalBorders		= new TypedDictionary();
-		globalColors		= new TypedDictionary();
+		globalFills			= new Hash();
+		globalBorders		= new Hash();
+		globalColors		= new Hash();
 		
 		createGlobals();
 		createTypeSelectors();
@@ -75,10 +78,10 @@ class StyleContainer extends UIElementStyle, implements IDisposable
 	}
 	
 	
-	private function creatGlobals ()				: Void {}
-	private function createTypeSelectors ()			: Void { Assert.abstract(); }
-	private function createStyleNameSelectors ()	: Void { Assert.abstract(); }
-	private function createIdSelectors ()			: Void { Assert.abstract(); }
+	private function createGlobals ()				: Void {}
+	private function createTypeSelectors ()			: Void {} // Assert.abstract(); }
+	private function createStyleNameSelectors ()	: Void {} // Assert.abstract(); }
+	private function createIdSelectors ()			: Void {} // Assert.abstract(); }
 }
 
 #end

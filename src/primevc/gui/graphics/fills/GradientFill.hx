@@ -175,6 +175,7 @@ class GradientFill extends GraphicElement, implements IFill
 	}
 	
 	
+#if flash9
 	public inline function createMatrix (bounds:IRectangle) : Matrix2D
 	{
 		var m = new Matrix2D();
@@ -182,6 +183,7 @@ class GradientFill extends GraphicElement, implements IFill
 		lastBounds = bounds.clone().as(IRectangle);
 		return m;
 	}
+#end
 	
 
 #if flash9

@@ -44,12 +44,12 @@ package primevc.gui.styling.declarations;
  */
 class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations >
 {
-	public var size		(getSize,	null)		: Int;
-	public var family	(getFamily,	null)		: String;
-	public var color	(getColor,	null)		: Null<RGBA>;
-	public var align	(getAlign,	null)		: TextAlign;
-	public var weight	(getWeight, null)		: FontWeight;
-	public var style	(getStyle,	null)		: FontStyle;
+	public var size		(getSize,	setSize)	: Int;
+	public var family	(getFamily,	setFamily)	: String;
+	public var color	(getColor,	setColor)	: Null<RGBA>;
+	public var align	(getAlign,	setAlign)	: TextAlign;
+	public var weight	(getWeight, setWeight)	: FontWeight;
+	public var style	(getStyle,	setStyle)	: FontStyle;
 	
 	
 	public function new (
@@ -143,4 +143,16 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 		else if (superInherited != null)	return superInherited.style;
 		else								return null;
 	}
+	
+	
+	//
+	// SETTERS
+	//
+	
+	private inline function setSize (v)		{ return size = v; }
+	private inline function setFamily (v)	{ return family = v; }
+	private inline function setColor (v)	{ return color = v; }
+	private inline function setAlign (v)	{ return align = v; }
+	private inline function setWeight (v)	{ return weight = v; }
+	private inline function setStyle (v)	{ return style = v; }
 }
