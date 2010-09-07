@@ -27,14 +27,14 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IInvalidatable;
 
 
 /**
  * @author Ruben Weijers
  * @creation-date Aug 05, 2010
  */
-interface IStyleDeclaration <DeclarationType> implements IDisposable
+interface IStyleDeclaration <DeclarationType> implements IInvalidatable
 {
 	
 	/**
@@ -79,7 +79,7 @@ interface IStyleDeclaration <DeclarationType> implements IDisposable
 	 * Reference to other style-object of whom this style is inheriting when
 	 * the requested property is not in this declaration.
 	 * 
-	 * The 'superInherited' property is used to get style-information of a 
+	 * The 'superStyle' property is used to get style-information of a 
 	 * super-class of the described class.
 	 * 
 	 * @example
@@ -95,7 +95,7 @@ interface IStyleDeclaration <DeclarationType> implements IDisposable
 	 * trace( objA.style.fill );	//output:	SolidFill( 0xfff000 );
 	 * trace( objB.style.fill );	//output:	SolidFill( 0xfff000 );
 	 */
-	public var superInherited		(default, null)		: DeclarationType;
+	public var superStyle			(default, null)		: DeclarationType;
 	
 	
 	/**

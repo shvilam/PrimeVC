@@ -82,6 +82,38 @@ class StyleContainer extends UIElementStyle, implements IDisposable
 	private function createTypeSelectors ()			: Void {} // Assert.abstract(); }
 	private function createStyleNameSelectors ()	: Void {} // Assert.abstract(); }
 	private function createIdSelectors ()			: Void {} // Assert.abstract(); }
+	
+	
+#if debug
+	override public function toString ()
+	{
+		var css = "";
+		
+		css += "\n/** ID STYLES **/";
+		css += hashToCssString( idSelectors, "#" );
+		
+		css += "\n\n/** CLASS STYLES **/";
+		css += hashToCssString( styleNameSelectors, "." );
+		
+		css += "\n\n/** ELEMENT STYLES **/";
+		css += hashToCssString( typeSelectors, "" );
+		
+		return css;
+	}
+	
+	
+	private inline function hashToCssString (hash:Hash<UIElementStyle>, keyPrefix:String = "") : String
+	{
+		var css = "";
+		var keys = hash.keys();
+		while (keys.hasNext()) {
+			var key = keys.next();
+			var val = hash.get(key);
+			css += "\n" + keyPrefix + key + " " + val;
+		}
+		return css;
+	}
+#end
 }
 
 #end

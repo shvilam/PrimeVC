@@ -27,12 +27,16 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
+ import primevc.gui.styling.StyleFlags;
  import primevc.gui.text.FontStyle;
  import primevc.gui.text.FontWeight;
  import primevc.gui.text.TextAlign;
  import primevc.types.Number;
  import primevc.types.RGBA;
   using primevc.utils.IntUtil;
+#if debug
+  using primevc.utils.Color;
+#end
 
 
 /**
@@ -90,7 +94,7 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 		if		(size.isSet())				return size;
 		else if (extendedStyle != null)		return extendedStyle.size;
 		else if (nestingInherited != null)	return nestingInherited.size;
-		else if (superInherited != null)	return superInherited.size;
+		else if (superStyle != null)		return superStyle.size;
 		else								return Number.INT_NOT_SET;
 	}
 	
@@ -100,7 +104,7 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 		if		(family != null)			return family;
 		else if (extendedStyle != null)		return extendedStyle.family;
 		else if (nestingInherited != null)	return nestingInherited.family;
-		else if (superInherited != null)	return superInherited.family;
+		else if (superStyle != null)		return superStyle.family;
 		else								return null;
 	}
 	
@@ -110,7 +114,7 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 		if		(color != null)				return color;
 		else if (extendedStyle != null)		return extendedStyle.color;
 		else if (nestingInherited != null)	return nestingInherited.color;
-		else if (superInherited != null)	return superInherited.color;
+		else if (superStyle != null)		return superStyle.color;
 		else								return null;
 	}
 	
@@ -120,7 +124,7 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 		if		(align != null)				return align;
 		else if (extendedStyle != null)		return extendedStyle.align;
 		else if (nestingInherited != null)	return nestingInherited.align;
-		else if (superInherited != null)	return superInherited.align;
+		else if (superStyle != null)		return superStyle.align;
 		else								return null;
 	}
 	
@@ -130,7 +134,7 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 		if		(weight != null)			return weight;
 		else if (extendedStyle != null)		return extendedStyle.weight;
 		else if (nestingInherited != null)	return nestingInherited.weight;
-		else if (superInherited != null)	return superInherited.weight;
+		else if (superStyle != null)		return superStyle.weight;
 		else								return null;
 	}
 	
@@ -140,7 +144,7 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 		if		(style != null)				return style;
 		else if (extendedStyle != null)		return extendedStyle.style;
 		else if (nestingInherited != null)	return nestingInherited.style;
-		else if (superInherited != null)	return superInherited.style;
+		else if (superStyle != null)		return superStyle.style;
 		else								return null;
 	}
 	
@@ -149,10 +153,82 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 	// SETTERS
 	//
 	
-	private inline function setSize (v)		{ return size = v; }
-	private inline function setFamily (v)	{ return family = v; }
-	private inline function setColor (v)	{ return color = v; }
-	private inline function setAlign (v)	{ return align = v; }
-	private inline function setWeight (v)	{ return weight = v; }
-	private inline function setStyle (v)	{ return style = v; }
+	private inline function setSize (v)
+	{
+		if (v != size) {
+			size = v;
+			invalidate( StyleFlags.FONT_SIZE );
+		}
+		return v;
+	}
+	
+	
+	private inline function setFamily (v)
+	{
+		if (v != family) {
+			family = v;
+			invalidate( StyleFlags.FONT_FAMILY );
+		}
+		return v;
+	}
+	
+	
+	private inline function setColor (v)
+	{
+		if (v != color) {
+			color = v;
+			invalidate( StyleFlags.FONT_COLOR );
+		}
+		return v;
+	}
+	
+	
+	private inline function setAlign (v)
+	{
+		if (v != align) {
+			align = v;
+			invalidate( StyleFlags.FONT_ALIGN );
+		}
+		return v;
+	}
+	
+	
+	private inline function setWeight (v)
+	{
+		if (v != weight) {
+			weight = v;
+			invalidate( StyleFlags.FONT_WEIGHT );
+		}
+		return v;
+	}
+	
+	
+	private inline function setStyle (v)
+	{
+		if (v != style) {
+			style = v;
+			invalidate( StyleFlags.FONT_STYLE );
+		}
+		return v;
+	}
+	
+
+#if debug
+	public function toString ()
+	{
+		var css = [];
+
+		if (size.isSet())		css.push("font-size: " + size + "px");
+		if (family != null)		css.push("font-family: "+family);
+		if (color != null)		css.push("color: "+color.string());
+		if (align != null)		css.push("text-align: "+align);
+		if (weight != null)		css.push("font-weight: "+weight);
+		if (style != null)		css.push("font-style: "+style);
+		
+		if (css.length > 0)
+			return "\n\t" + css.join(";\n\t") + ";";
+		else
+			return "";
+	}
+#end
 }

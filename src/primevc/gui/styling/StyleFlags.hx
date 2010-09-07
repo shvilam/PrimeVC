@@ -26,61 +26,32 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
- import primevc.core.traits.Invalidatable;
- import primevc.gui.styling.StyleFlags;
+package primevc.gui.styling;
+
 
 
 /**
- * Base class for style declarations
- * 
  * @author Ruben Weijers
- * @creation-date Aug 05, 2010
+ * @creation-date Sep 05, 2010
  */
-class StyleDeclarationBase <DeclarationType> extends Invalidatable
-					,	implements IStyleDeclaration <DeclarationType>
-#if (flash9 || cpp)	,	implements haxe.rtti.Generic #end
+class StyleFlags
 {
-	public var nestingInherited		(default, setNestingInherited)	: DeclarationType;
-	public var superStyle			(default, setSuperStyle)		: DeclarationType;
-	public var extendedStyle		(default, setExtendedStyle)		: DeclarationType;
+	public static inline var NESTING_STYLE		: UInt = 1;
+	public static inline var SUPER_STYLE		: UInt = 2;
+	public static inline var EXTENDED_STYLE		: UInt = 4;
 	
+	public static inline var SKIN				: UInt = 8;
+	public static inline var LAYOUT				: UInt = 16;
+	public static inline var FONT				: UInt = 32;
+	public static inline var GRAPHICS			: UInt = 64;
 	
-	override public function dispose ()
-	{
-		nestingInherited	= null;
-		superStyle			= null;
-		extendedStyle		= null;
-		super.dispose();
-	}
+	public static inline var FONT_SIZE			: UInt = 128;
+	public static inline var FONT_FAMILY		: UInt = 256;
+	public static inline var FONT_COLOR			: UInt = 512;
+	public static inline var FONT_ALIGN			: UInt = 1024;
+	public static inline var FONT_WEIGHT		: UInt = 2048;
+	public static inline var FONT_STYLE			: UInt = 4096;
 	
-	
-	private inline function setNestingInherited (v)
-	{
-		if (v != nestingInherited) {
-			nestingInherited = v;
-			invalidate( StyleFlags.NESTING_STYLE );
-		}
-		return v;
-	}
-	
-	
-	private inline function setSuperStyle (v)
-	{
-		if (v != superStyle) {
-			superStyle = v;
-			invalidate( StyleFlags.SUPER_STYLE );
-		}
-		return v;
-	}
-
-
-	private inline function setExtendedStyle (v)
-	{
-		if (v != extendedStyle) {
-			extendedStyle = v;
-			invalidate( StyleFlags.EXTENDED_STYLE );
-		}
-		return v;
-	}
+	public static inline var GRAPHICS_BG		: UInt = 8192;
+	public static inline var GRAPHICS_BORDER	: UInt = 16384;
 }

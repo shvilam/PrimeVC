@@ -27,14 +27,14 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.utils;
-
+  using primevc.utils.ERegUtil;
 
 
 /**
  * @author Ruben Weijers
  * @creation-date Sep 04, 2010
  */
-class ERegUtil
+class ERegUtil extends EReg
 {
 	public static inline function matchAll (expr:EReg, str:String, f:EReg -> Void) : Void
 	{
@@ -46,4 +46,56 @@ class ERegUtil
 			str = expr.matchedRight();
 		}
 	}
+	
+	
+	public static inline function test (expr:EReg, str:String, ?pos:haxe.PosInfos) : Bool
+	{
+		var success		= expr.match(str);
+		var hasResults	= expr.result != null && expr.result.length > 0 && expr.matched(0) == str;
+		if (!hasResults)
+			success = false;
+		
+		if (!success) {
+			trace(pos.fileName + ":" + pos.lineNumber+"; Assertion failed: '"+str+"'"+(hasResults ? " is not matched with '"+expr.matched(0)+"'" : " not matched"));
+			trace(expr.resultToString());
+			throw "Error";
+		} else {
+			trace(pos.fileName + ":" + pos.lineNumber+"; Assertion success: '"+expr.matched(0)+"' is correct");
+		}
+		
+		return success;
+	}
+	
+	
+	public static inline function testWrong (expr:EReg, str:String, ?pos:haxe.PosInfos) : Bool
+	{
+		var success		= !expr.match(str) || expr.result == null || expr.result.length == 0 || expr.matched(0) != str;
+		var hasResults	= expr.result != null && expr.result.length > 0;
+		
+		if (!success) {
+			trace(pos.fileName + ":" + pos.lineNumber+"; Assertion failed: '"+str+"'"+ (hasResults ? " is matched with '"+expr.matched(0)+"'" : ""));
+			trace(expr.resultToString());
+			throw "Error";
+		} else {
+			trace(pos.fileName + ":" + pos.lineNumber+"; Assertion success: '"+str + "' is not matched");
+		}
+		
+		return success;
+	}
+	
+	
+	public static inline function resultToString (expr:EReg) : String
+	{
+		var output = "";
+		if (expr.result != null && expr.result.length > 0) {
+			for (i in 0...expr.result.length)
+				output += "\n[ "+i+" ] = "+expr.matched(i);
+		}
+		else
+			output = "No result matched or expression not yet called.";
+		return output;
+	}
+	
+	
+	public static inline function getExpression (expr:EReg) { return expr.r; }
 }

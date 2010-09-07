@@ -110,7 +110,7 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	{
 		if		(relative != null)				return relative;
 		else if (extendedStyle != null)			return extendedStyle.relative;
-		else if	(superInherited != null)		return superInherited.relative;
+		else if	(superStyle != null)			return superStyle.relative;
 		else									return null;
 	}
 	
@@ -119,7 +119,7 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	{
 		if		(algorithm != null)				return algorithm;
 		else if (extendedStyle != null)			return extendedStyle.algorithm;
-		else if	(superInherited != null)		return superInherited.algorithm;
+		else if	(superStyle != null)			return superStyle.algorithm;
 		else									return null;
 	}
 	
@@ -128,7 +128,7 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	{
 		if		(padding != null)				return padding;
 		else if (extendedStyle != null)			return extendedStyle.padding;
-		else if (superInherited != null)		return superInherited.padding;
+		else if (superStyle != null)			return superStyle.padding;
 		else									return null;
 	}
 	
@@ -137,7 +137,7 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	{
 		if		(width.isSet())					return width;
 		else if (extendedStyle != null)			return extendedStyle.width;
-		else if (superInherited != null)		return superInherited.width;
+		else if (superStyle != null)			return superStyle.width;
 		else									return Number.INT_NOT_SET;
 	}
 	
@@ -146,7 +146,7 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	{
 		if		(height.isSet())				return height;
 		else if (extendedStyle != null)			return extendedStyle.height;
-		else if (superInherited != null)		return superInherited.height;
+		else if (superStyle != null)			return superStyle.height;
 		else									return Number.INT_NOT_SET;
 	}
 	
@@ -155,7 +155,7 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	{
 		if		(percentWidth.isSet())			return percentWidth;
 		else if (extendedStyle != null)			return extendedStyle.percentWidth;
-		else if (superInherited != null)		return superInherited.percentWidth;
+		else if (superStyle != null)			return superStyle.percentWidth;
 		else									return Number.FLOAT_NOT_SET;
 	}
 	
@@ -164,7 +164,7 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	{
 		if		(percentHeight.isSet())			return percentHeight;
 		else if (extendedStyle != null)			return extendedStyle.percentHeight;
-		else if (superInherited != null)		return superInherited.percentHeight;
+		else if (superStyle != null)			return superStyle.percentHeight;
 		else									return Number.FLOAT_NOT_SET;
 	}
 	
@@ -173,7 +173,7 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	{
 		if		(rotation.isSet())				return rotation;
 		else if (extendedStyle != null)			return extendedStyle.rotation;
-		else if (superInherited != null)		return superInherited.rotation;
+		else if (superStyle != null)			return superStyle.rotation;
 		else									return Number.FLOAT_NOT_SET;
 	}
 	
@@ -182,7 +182,20 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	{
 		if		(maintainAspectRatio != null)	return maintainAspectRatio;
 		else if (extendedStyle != null)			return extendedStyle.maintainAspectRatio;
-		else if (superInherited != null)		return superInherited.maintainAspectRatio;
+		else if (superStyle != null)			return superStyle.maintainAspectRatio;
 		else									return null;
 	}
+	
+	
+#if debug
+	public function toString ()
+	{
+		var css = [];
+		
+		if (css.length > 0)
+			return "\n\t" + css.join(";\n\t") + ";";
+		else
+			return "";
+	}
+#end
 }

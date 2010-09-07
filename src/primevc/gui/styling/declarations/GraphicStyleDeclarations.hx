@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
+ import primevc.gui.styling.StyleFlags;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.fills.IFill;
 
@@ -39,8 +40,8 @@ package primevc.gui.styling.declarations;
  */
 class GraphicStyleDeclarations extends StyleDeclarationBase < GraphicStyleDeclarations >
 {
-	public var background			(getBackground, null)	: IFill;
-	public var border				(getBorder,		null)	: IBorder<IFill>;
+	public var background			(getBackground, setBackground)	: IFill;
+	public var border				(getBorder,		setBorder)		: IBorder<IFill>;
 	
 	
 	public function new (background:IFill = null, border:IBorder<IFill> = null)
@@ -69,18 +70,58 @@ class GraphicStyleDeclarations extends StyleDeclarationBase < GraphicStyleDeclar
 	
 	private function getBackground ()
 	{
-		if		(background != null)		return background;
-		else if (extendedStyle != null)		return extendedStyle.background;
-		else if (superInherited != null)	return superInherited.background;
-		else								return null;
+		if		(background != null)	return background;
+		else if (extendedStyle != null)	return extendedStyle.background;
+		else if (superStyle != null)	return superStyle.background;
+		else							return null;
 	}
 	
 	
 	private function getBorder ()
 	{
-		if		(border != null)			return border;
-		else if (extendedStyle != null)		return extendedStyle.border;
-		else if (superInherited != null)	return superInherited.border;
-		else								return null;
+		if		(border != null)		return border;
+		else if (extendedStyle != null)	return extendedStyle.border;
+		else if (superStyle != null)	return superStyle.border;
+		else							return null;
 	}
+	
+	
+	//
+	// SETTERS
+	//
+	
+	private inline function setBackground (v)
+	{
+		if (v != background) {
+			background = v;
+			invalidate( StyleFlags.GRAPHICS_BG );
+		}
+		return v;
+	}
+	
+	
+	private inline function setBorder (v)
+	{
+		if (v != border) {
+			border = v;
+			invalidate( StyleFlags.GRAPHICS_BORDER );
+		}
+		return v;
+	}
+
+
+#if debug
+	public function toString ()
+	{
+		var css = [];
+
+		if (background != null)	css.push("background: " + background);
+		if (border != null)		css.push("border: "+border);
+
+		if (css.length > 0)
+			return "\n\t" + css.join(";\n\t") + ";";
+		else
+			return "";
+	}
+#end
 }

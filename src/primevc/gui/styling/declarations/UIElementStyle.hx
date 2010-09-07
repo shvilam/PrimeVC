@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
+ import primevc.gui.styling.StyleFlags;
  import primevc.gui.core.ISkin;
 
 
@@ -38,10 +39,10 @@ package primevc.gui.styling.declarations;
  */
 class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 {
-	public var skin			(getSkin,		null)	: ISkin;
-	public var layout		(getLayout,		null)	: LayoutStyleDeclarations;
-	public var font			(getFont,		null)	: FontStyleDeclarations;
-	public var graphics		(getGraphics,	null)	: GraphicStyleDeclarations;
+	public var skin			(getSkin,		setSkin)		: ISkin;
+	public var layout		(getLayout,		setLayout)		: LayoutStyleDeclarations;
+	public var font			(getFont,		setFont)		: FontStyleDeclarations;
+	public var graphics		(getGraphics,	setGraphics)	: GraphicStyleDeclarations;
 	
 	
 	public function new (
@@ -80,22 +81,21 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 	// GETTERS
 	//
 	
-	
 	private function getSkin ()
 	{
-		if		(skin != null)				return skin;
-		else if (extendedStyle != null)		return extendedStyle.skin;
-		else if (superInherited != null)	return superInherited.skin;
-		else								return null;
+		if		(skin != null)			return skin;
+		else if (extendedStyle != null)	return extendedStyle.skin;
+		else if (superStyle != null)	return superStyle.skin;
+		else							return null;
 	}
 	
 	
 	private function getLayout ()
 	{
-		if		(layout != null)			return layout;
-		else if (extendedStyle != null)		return extendedStyle.layout;
-		else if (superInherited != null)	return superInherited.layout;
-		else								return null;
+		if		(layout != null)		return layout;
+		else if (extendedStyle != null)	return extendedStyle.layout;
+		else if (superStyle != null)	return superStyle.layout;
+		else							return null;
 	}
 	
 	
@@ -104,16 +104,74 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 		if		(font != null)				return font;
 		else if (extendedStyle != null)		return extendedStyle.font;
 		else if (nestingInherited != null)	return nestingInherited.font;
-		else if (superInherited != null)	return superInherited.font;
+		else if (superStyle != null)		return superStyle.font;
 		else								return null;
 	}
 
 
 	private function getGraphics ()
 	{
-		if		(graphics != null)			return graphics;
-		else if (extendedStyle != null)		return extendedStyle.graphics;
-		else if (superInherited != null)	return superInherited.graphics;
-		else								return null;
+		if		(graphics != null)		return graphics;
+		else if (extendedStyle != null)	return extendedStyle.graphics;
+		else if (superStyle != null)	return superStyle.graphics;
+		else							return null;
 	}
+	
+	//
+	// SETTERS
+	//
+	
+	private inline function setSkin (v)
+	{
+		if (v != skin) {
+			skin = v;
+			invalidate( StyleFlags.SKIN );
+		}
+		return v;
+	}
+	
+	
+	private inline function setLayout (v)
+	{
+		if (v != layout) {
+			layout = v;
+			invalidate( StyleFlags.LAYOUT );
+		}
+		return v;
+	}
+	
+	
+	private inline function setFont (v)
+	{
+		if (v != font) {
+			font = v;
+			invalidate( StyleFlags.FONT );
+		}
+		return v;
+	}
+	
+	
+	private inline function setGraphics (v)
+	{
+		if (v != graphics) {
+			graphics = v;
+			invalidate( StyleFlags.GRAPHICS );
+		}
+		return v;
+	}
+
+
+#if debug
+	public function toString ()
+	{
+		var css = "";
+		
+		if (skin != null)		css += "\tskin: " + skin + ";\n";
+		if (layout != null)		css += layout;
+		if (font != null)		css += font;
+		if (graphics != null)	css += graphics;
+		
+		return "{\n" + css + "\n}";
+	}
+#end
 }
