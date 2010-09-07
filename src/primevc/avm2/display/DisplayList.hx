@@ -26,7 +26,7 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.avm2;
+package primevc.avm2.display;
  import flash.display.DisplayObjectContainer;
  import flash.display.DisplayObject;
  import primevc.core.collections.IIterator;

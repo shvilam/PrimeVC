@@ -6,17 +6,19 @@ TestClass=${1//\//.}
 FPS=25
 WIDTH=1200
 HEIGHT=900
+RESOURCE=""
 EXTRA=""
 
 #parse arguments
-while getopts "dte:af:gr:sw:xh:i" OptionName
+while getopts "dte:af:gr:sw:xh:iy:z" OptionName
 	do
 		case $OptionName in
 			e ) EXTRA=${OPTARG};;
-			r ) FPS=${OPTARG};;				#frame rate
-			f ) TestClass=${OPTARG//\//.};;		#class
-			w ) WIDTH=${OPTARG};;				#width
-			h ) HEIGHT=${OPTARG};;				#height
+			r ) FPS=${OPTARG};;						#frame rate
+			f ) TestClass=${OPTARG//\//.};;			#class
+			w ) WIDTH=${OPTARG};;					#width
+			h ) HEIGHT=${OPTARG};;					#height
+			y ) RESOURCE="-resource ${OPTARG}";;	#resource files
 			* ) echo "unkown argument";;
 	esac
 done
@@ -26,7 +28,7 @@ TestClass=${TestClass%.hx}
 
 bash ../build/build-assets &&
 echo "assets build"
-haxe build-release.hxml ${EXTRA} -main $TestClass -swf-header $WIDTH:$HEIGHT:$FPS:FFFFFF &&
+haxe build-release.hxml ${EXTRA} -main $TestClass -swf-header $WIDTH:$HEIGHT:$FPS:FFFFFF ${RESOURCE}  &&
 echo "release build"
 bash ../build/optimize-build ../tests/test.swf &&
 echo "build optimized"

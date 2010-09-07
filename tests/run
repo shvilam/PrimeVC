@@ -15,7 +15,7 @@ NOTRACES=""
 RESOURCE=""
 
 #parse arguments
-while getopts "dte:af:gr:sw:xh:y:zi" OptionName
+while getopts "dte:af:gr:sw:xh:iy:z" OptionName
 	do
 		case $OptionName in
 			d ) DEBUG="-debug";;
