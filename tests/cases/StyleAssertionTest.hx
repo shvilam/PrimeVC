@@ -148,7 +148,7 @@ Style {
 	}
 	border: 1px solid @red;
 	color: #fff;
-	background-color:	gradient( lineair, 0% 40px 100% 90deg, #ffff00ff, #00ff0faa, #f0fa3677 );
+	background-color:	gradient( linear, 0% 40px 100% 90deg, #ffff00ff, #00ff0faa, #f0fa3677 );
 	background-image:	Assets(HAPPY_SMILEY), url(sad_smiley.jpg);
 	background-repeat:	REPEAT_X, REPEAT_NONE;
 	layout = {

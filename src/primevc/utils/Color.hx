@@ -184,6 +184,9 @@ class StringColorUtil
 	public static inline function rgba (v:String) : RGBA {
 		if (v.length == 3)
 			v += v;
+		if (v.length == 6)
+			v += "FF";
+		
 		return ("0x"+v).parseInt().validate();
 	}
 }

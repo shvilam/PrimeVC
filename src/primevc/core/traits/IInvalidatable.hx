@@ -26,64 +26,23 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics.fills;
- import primevc.core.geom.IRectangle;
- import primevc.gui.graphics.GraphicElement;
- import primevc.gui.graphics.GraphicFlags;
- import primevc.gui.traits.IDrawable;
- import primevc.types.RGBA;
-  using primevc.utils.Color;
+package primevc.core.traits;
+ import haxe.FastList;
+ import primevc.core.IDisposable;
 
 
 /**
- * Solid fill for a graphic element
- * 
  * @author Ruben Weijers
  * @creation-date Jul 30, 2010
  */
-class SolidFill extends GraphicElement, implements IFill
+interface IInvalidatable implements IDisposable
 {
-	public var color (default, setColor)	: RGBA;
+	public var changes (default, null)			: UInt;
 	
-	
-	public function new ( color:RGBA )
-	{
-		super();
-		this.color = color;
-	}
-	
-	
-	public inline function begin (target:IDrawable, ?bounds:IRectangle)
-	{
-		changes = 0;
-#if flash9
-		target.graphics.beginFill( color.rgb(), color.alpha() );
-#end
-	}
-	
-	
-	public inline function end (target:IDrawable)
-	{
-#if flash9
-		target.graphics.endFill();
-#end
-	}
-	
-	
-	private inline function setColor (v:RGBA)
-	{
-		if (color != v) {
-			this.color = v;
-			invalidate( GraphicFlags.FILL_CHANGED );
-		}
-		return v;
-	}
-	
-	
-#if debug
-	public function toString ()
-	{
-		return color.string();
-	}
-#end
+	/**
+	 * List with IInvalidatables that want to be notified when values in this
+	 * instance changes
+	 */
+	public var listeners (default, null)		: FastList< IInvalidatable >;
+	public function invalidate (change:UInt)	: Void;
 }

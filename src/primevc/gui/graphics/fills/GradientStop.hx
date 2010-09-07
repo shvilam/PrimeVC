@@ -30,6 +30,11 @@ package primevc.gui.graphics.fills;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.types.RGBA;
+#if debug
+  using primevc.utils.Color;
+  using Math;
+  using Std;
+#end
 
 
 /**
@@ -70,4 +75,12 @@ class GradientStop extends GraphicElement
 		}
 		return v;
 	}
+	
+	
+#if debug
+	public function toString ()
+	{
+		return color.string() + " " + ((position / 255) * 100).round().int() + "%";
+	}
+#end
 }

@@ -68,6 +68,18 @@ class Bitmap implements IDisposable
 	public var state (default, null)	: SimpleStateMachine < BitmapStates >;
 	private var loader					: Loader;
 	
+	/**
+	 * URL of the loaded bitmap (if it's loaded from an external image).
+	 * Used for internal caching of bitmaps.
+	 */
+	public var url (default, null)		: String;
+	
+	/**
+	 * Class of the current bitmap (if it's loaded from a class).
+	 * Used for internal caching of bitmaps.
+	 */
+	public var asset (default, null)	: Class <DisplayObject>;
+	
 	
 	public function new ()
 	{
@@ -76,17 +88,28 @@ class Bitmap implements IDisposable
 	
 	
 	public function dispose ()
-	{	
+	{
+		disposeLoader();
 		state.dispose();
-		
-		if (loader != null)
-			loader.dispose();
-		
+		asset	= null;
+		url		= null;
 		data	= null;
 		state	= null;
 		loader	= null;
 	}
 	
+	
+	private inline function disposeLoader ()
+	{
+		if (loader != null) {
+			if (state.is(loading))
+				loader.close();
+			
+			loader.dispose();
+			loader = null;
+			state.current = empty;
+		}
+	}
 	
 	
 #if flash9
@@ -94,7 +117,7 @@ class Bitmap implements IDisposable
 	{
 		if (v != data) {
 			data = v;
-			state.current = v == null ? empty : loaded;
+			state.current = v == null ? empty : ready;
 		}
 		return v;
 	}
@@ -108,7 +131,7 @@ class Bitmap implements IDisposable
 			data = v;
 			
 			if (data != null)
-				state.current = loaded;
+				state.current = ready;
 		}
 		return v;
 	}
@@ -126,25 +149,44 @@ class Bitmap implements IDisposable
 	}
 	
 	
-	public inline function loadString (v:String)
+	/**
+	 * Method will set the given URI as uri that should be loaded next time
+	 * but holds off with the loading itself. This comes in handy when a bitmap
+	 * should get loaded at the moment that it's used for the first time.
+	 */
+	public inline function setString (v:String)
 	{
-		if (loader != null) {
-			if (state.is(loading))
-				loader.close();
-			
-			loader.dispose();
+		if (v != url)
+		{
+			disposeLoader();
+			state.current = loadable;
+			asset	= null;
+			url		= v;
+			loader	= new Loader();
+			disposeLoader.onceOn( loader.events.error, this );
+			handleLoadError.onceOn( loader.events.error, this );
+			setLoadedData.onceOn( loader.events.loaded, this );
 		}
-		
-		state.current = loading;
-		loader = new Loader();
-		setLoadedData.onceOn( loader.events.loaded, this );
-		
-#if flash9
-		loader.load( new flash.net.URLRequest(v) );
-#else
-		loader.load( v );
-#end
-		
+	}
+	
+	
+	/**
+	 * LoadString with call setString with the given url and then try to load
+	 * the url.
+	 * If there's no parameter given, it will try to load the current 'url' 
+	 * value.
+	 */
+	public inline function loadString (?v:String)
+	{
+		if (v != url || (v == null && url != null))
+		{
+			if (v != null)
+				setString(v);
+			
+			state.current = loading;
+#if flash9	loader.load( new flash.net.URLRequest(url) );
+#else		loader.load( url ); #end
+		}
 	}
 	
 	
@@ -172,8 +214,12 @@ class Bitmap implements IDisposable
 	
 	public inline function loadClass (v:Class<DisplayObject>)
 	{
-		var i = untyped __new__(v);
-		loadDisplayObject(i);
+		if (v != asset)
+		{
+			asset	= v;
+			url		= null;
+			loadDisplayObject(untyped __new__(v));
+		}
 	}
 #end
 
@@ -192,16 +238,20 @@ class Bitmap implements IDisposable
 		try {
 			var d = new BitmapData( loader.content.width.int(), loader.content.height.int(), true, 0x00000000 );
 			d.draw( loader.content );
+			disposeLoader();
 			setData( d );
 		}
 		catch (e:flash.errors.Error) {
 			throw "Loading bitmap error. Check policy settings. "+e.message;
-			state.current = empty;
+			disposeLoader();
 		}
-		
-		loader.dispose();
-		loader = null;
 #end
+	}
+	
+	
+	private inline function handleLoadError (err:String) : Void
+	{
+		trace("Bitmap load-error: "+err);
 	}
 	
 	
@@ -257,12 +307,22 @@ class Bitmap implements IDisposable
 		return b;
 	}
 #end
+
+
+#if debug
+	public function toString () {
+		return		 if (url != null)	"url( "+url+" )";
+				else if (asset != null)	"Class( "+asset+" )";
+				else					"Bitmap()";
+	}
+#end
 }
 
 
 
 enum BitmapStates {
-	empty;
-	loading;
-	loaded;
+	empty;		//there's no data in the Bitmap
+	loadable;	//a loader object is created but not loaded yet
+	loading;	//the loader is loading an external resource
+	ready;		//the bitmap is filled with bitmap-data
 }

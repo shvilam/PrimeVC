@@ -43,4 +43,12 @@ class Ellipse extends ShapeBase
 		target.graphics.drawEllipse( x, y, width, height );
 #end
 	}
+	
+	
+#if debug
+	public function toString ()
+	{
+		return "ellipse";
+	}
+#end
 }

@@ -1,20 +1,50 @@
 UIComponent {
 	float: left;
 	text-align: center;
+	color: rgba(50, 12, 200,0.1);
 }
 
 Label {
 	font-weight: bold;
+	background-color: rgba(80, 255, 90, 0.89);
+	background-color: #fffd460a;
+	background-color: #ffa;
+	background-image: url(../images/test.png) no-repeat;
+	text-align: left;
+/*	background-image: Class(nl.onlinetouch.Aap) repeat-both;*/
 }
 
 
 TextArea {
+	background-color: linear-gradient( 90deg, #aaa, #000000aa );
+	background-color: #ffad97f0;
 	
+	background-size ?
+	background-position ?
+	background-origin ?
+	
+	column-count:	4;
+	column-gap:		20px;
+	column-width:	120px;
+	column-rule:	1px solid #aaa;
+	
+	resize: horizontal / vertical / both / none;	/* makes a textfield resizable in the right bottom corner */
+	
+	box-sizing:	content-box /*(box model)*/
+				border-box /*(padding and border will render inside box)*/;
+	
+	transform:	scale( 0.1 - 2 )
+				rotate( [x]deg )
+				translate( [x]px, [y]px )
+				skew( [x]deg, [y]deg );
+				
+	word-wrap:		break-word;
+	text-shadow:	;
 }
 
 
 .eenVeld {
-	
+	background-color: radial-gradient( -1, #aaa, #000 40px, 0xadfc67f0, repeat );
 }
 
 

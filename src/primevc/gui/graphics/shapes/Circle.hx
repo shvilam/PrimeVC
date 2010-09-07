@@ -46,4 +46,12 @@ class Circle extends ShapeBase
 		target.graphics.drawCircle(x, y, radius);
 #end
 	}
+	
+	
+#if debug
+	public function toString ()
+	{
+		return "circle";
+	}
+#end
 }

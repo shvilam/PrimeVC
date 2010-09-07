@@ -27,22 +27,13 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics;
- import haxe.FastList;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IInvalidatable;
 
 
 /**
  * @author Ruben Weijers
  * @creation-date Jul 30, 2010
  */
-interface IGraphicElement implements IDisposable
+interface IGraphicElement implements IInvalidatable
 {
-	public var changes (default, null)			: UInt;
-	
-	/**
-	 * List with graphic-elements that want to be notified when values in this
-	 * instance changes
-	 */
-	public var listeners (default, null)		: FastList< IGraphicElement >;
-	public function invalidate (change:UInt)	: Void;
 }

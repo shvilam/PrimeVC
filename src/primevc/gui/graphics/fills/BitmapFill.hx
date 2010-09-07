@@ -81,7 +81,7 @@ class BitmapFill extends GraphicElement, implements IFill
 			bitmap = v;
 			
 			if (bitmap != null) {
-				if (bitmap.state.is(BitmapStates.loaded))
+				if (bitmap.state.is(BitmapStates.ready))
 					invalidate( GraphicFlags.FILL_CHANGED );
 				
 				handleBitmapStateChange.on( bitmap.state.change, this );
@@ -128,7 +128,7 @@ class BitmapFill extends GraphicElement, implements IFill
 	private inline function handleBitmapStateChange (oldState:BitmapStates, newState:BitmapStates)
 	{
 		switch (newState) {
-			case BitmapStates.loaded:	invalidate( GraphicFlags.FILL_CHANGED );
+			case BitmapStates.ready:	invalidate( GraphicFlags.FILL_CHANGED );
 			case BitmapStates.empty:	invalidate( GraphicFlags.FILL_CHANGED );
 		}
 	}
@@ -143,22 +143,32 @@ class BitmapFill extends GraphicElement, implements IFill
 	{
 		changes = 0;
 		
-		if (bitmap.state.is(BitmapStates.loaded))
+		if (bitmap.state.is(BitmapStates.ready))
 		{
 #if flash9
 			target.graphics.beginBitmapFill( bitmap.data, matrix, repeat, smooth );
 #end
 		}
+		else if (bitmap.state.is(BitmapStates.loadable))
+			bitmap.loadString();
 	}
 	
 	
 	public inline function end (target:IDrawable)
 	{
-		if (bitmap.state.is(BitmapStates.loaded))
+		if (bitmap.state.is(BitmapStates.ready))
 		{
 #if flash9
 			target.graphics.endFill();
 #end
 		}
 	}
+	
+	
+#if debug
+	public function toString ()
+	{
+		return "BitmapFill( " + bitmap + ", " + smooth + ", " + repeat + " )";
+	}
+#end
 }

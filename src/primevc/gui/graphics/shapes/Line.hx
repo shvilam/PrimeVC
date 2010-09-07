@@ -44,4 +44,12 @@ class Line extends ShapeBase
 		target.graphics.lineTo( x + width, y + height );
 #end
 	}
+	
+	
+#if debug
+	public function toString ()
+	{
+		return "line";
+	}
+#end
 }

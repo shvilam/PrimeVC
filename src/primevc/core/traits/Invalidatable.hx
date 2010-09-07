@@ -26,64 +26,41 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics.fills;
- import primevc.core.geom.IRectangle;
- import primevc.gui.graphics.GraphicElement;
- import primevc.gui.graphics.GraphicFlags;
- import primevc.gui.traits.IDrawable;
- import primevc.types.RGBA;
-  using primevc.utils.Color;
+package primevc.core.traits;
+ import haxe.FastList;
+ import primevc.core.IDisposable;
+  using primevc.utils.BitUtil;
+
 
 
 /**
- * Solid fill for a graphic element
+ * Base class to allow simple invalidation on objects.
  * 
  * @author Ruben Weijers
- * @creation-date Jul 30, 2010
+ * @creation-date Jul 31, 2010
  */
-class SolidFill extends GraphicElement, implements IFill
+class Invalidatable implements IInvalidatable
 {
-	public var color (default, setColor)	: RGBA;
+	public var changes		(default, null)	: UInt;
+	public var listeners	(default, null)	: FastList< IInvalidatable >;
 	
 	
-	public function new ( color:RGBA )
+	public function new ()
 	{
-		super();
-		this.color = color;
+		listeners = new FastList< IInvalidatable >();
 	}
 	
 	
-	public inline function begin (target:IDrawable, ?bounds:IRectangle)
+	public function dispose ()
 	{
-		changes = 0;
-#if flash9
-		target.graphics.beginFill( color.rgb(), color.alpha() );
-#end
+		listeners = null;
 	}
 	
 	
-	public inline function end (target:IDrawable)
+	public inline function invalidate (change:UInt) : Void
 	{
-#if flash9
-		target.graphics.endFill();
-#end
+		changes = changes.set(change);
+		for (listener in listeners)
+			listener.invalidate( change );
 	}
-	
-	
-	private inline function setColor (v:RGBA)
-	{
-		if (color != v) {
-			this.color = v;
-			invalidate( GraphicFlags.FILL_CHANGED );
-		}
-		return v;
-	}
-	
-	
-#if debug
-	public function toString ()
-	{
-		return color.string();
-	}
-#end
 }

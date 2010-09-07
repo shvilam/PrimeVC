@@ -68,12 +68,13 @@ class GradientFill extends GraphicElement, implements IFill
 	private var lastMatrix		: Matrix2D;
 	
 	
-	public function new (type:GradientType = null, spread:SpreadMethod = null, focalPointRatio:Float = 0)
+	public function new (type:GradientType = null, spread:SpreadMethod = null, focalPointRatio:Float = 0, rotation:Int = 0)
 	{
 		super();
 		this.type				= type == null ? GradientType.linear : type;
 		this.spread				= spread == null ? SpreadMethod.normal : spread;
 		this.focalPointRatio	= focalPointRatio;
+		this.rotation			= rotation;
 		gradientStops			= FastArrayUtil.create();
 	}
 	
@@ -222,4 +223,15 @@ class GradientFill extends GraphicElement, implements IFill
 		fill.dispose();
 		invalidate( GraphicFlags.FILL_CHANGED );
 	}
+	
+#if debug
+	public function toString ()
+	{
+		var colorStr = gradientStops.join(", ");
+		if (type == GradientType.linear)
+			return "linear-gradient( " + rotation + "deg, " + colorStr + ", " + spread + " )";
+		else
+			return "radial-gradient( " + focalPointRatio + ", " + colorStr + ", " + spread + " )";
+	}
+#end
 }

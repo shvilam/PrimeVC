@@ -92,4 +92,12 @@ class ComposedShape extends ShapeBase
 		children.remove(child);
 		invalidate( GraphicFlags.SHAPE_CHANGED );
 	}
+
+
+#if debug
+	public function toString ()
+	{
+		return "composed( " + children.join(", ") + " )";
+	}
+#end
 }

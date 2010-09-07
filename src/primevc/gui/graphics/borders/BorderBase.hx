@@ -165,4 +165,12 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 		}
 		return v;
 	}
+	
+	
+#if debug
+	public function toString ()
+	{
+		return fill + " " + weight + "px";
+	}
+#end
 }

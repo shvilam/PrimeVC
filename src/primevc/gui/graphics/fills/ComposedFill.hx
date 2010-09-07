@@ -105,4 +105,13 @@ class ComposedFill extends GraphicElement, implements IFill
 		fill.dispose();
 		invalidate( GraphicFlags.FILL_CHANGED );
 	}
+	
+	
+	
+#if debug
+	public function toString ()
+	{
+		return fills.join(", ");
+	}
+#end
 }

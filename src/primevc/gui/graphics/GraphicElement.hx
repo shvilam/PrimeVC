@@ -28,6 +28,7 @@
  */
 package primevc.gui.graphics;
  import haxe.FastList;
+ import primevc.core.traits.Invalidatable;
   using primevc.utils.BitUtil;
 
 
@@ -38,28 +39,6 @@ package primevc.gui.graphics;
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-class GraphicElement implements IGraphicElement 
+class GraphicElement extends Invalidatable, implements IGraphicElement 
 {
-	public var changes		(default, null)	: UInt;
-	public var listeners	(default, null)	: FastList< IGraphicElement >;
-	
-	
-	public function new ()
-	{
-		listeners = new FastList< IGraphicElement >();
-	}
-	
-	
-	public function dispose ()
-	{
-		listeners = null;
-	}
-	
-	
-	public inline function invalidate (change:UInt) : Void
-	{
-		changes = changes.set(change);
-		for (listener in listeners)
-			listener.invalidate( change );
-	}
 }

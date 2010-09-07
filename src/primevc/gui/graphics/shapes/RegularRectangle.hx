@@ -84,4 +84,12 @@ class RegularRectangle extends ShapeBase
 		}
 		return v;
 	}
+
+
+#if debug
+	public function toString ()
+	{
+		return "rectangle";
+	}
+#end
 }

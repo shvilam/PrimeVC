@@ -166,4 +166,12 @@ class Triangle extends ShapeBase
 		}
 		return v;
 	}
+
+
+#if debug
+	public function toString ()
+	{
+		return "triangle";
+	}
+#end
 }
