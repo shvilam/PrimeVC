@@ -27,6 +27,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
+ import primevc.gui.graphics.borders.BitmapBorder;
+ import primevc.gui.graphics.borders.GradientBorder;
+ import primevc.gui.graphics.borders.IBorder;
+ import primevc.gui.graphics.borders.SolidBorder;
  import primevc.gui.graphics.fills.BitmapFill;
  import primevc.gui.graphics.fills.ComposedFill;
  import primevc.gui.graphics.fills.GradientFill;
@@ -69,83 +73,108 @@ package primevc.gui.styling;
  */
 class CSSParser
 {
-	public static inline var R_WHITESPACE		: String = "\\s"; //"\n\r\t ";
-	public static inline var R_WS				: String = "[" + R_WHITESPACE + "]*";	//can have any kind of whitespace
-	public static inline var R_WS_MUST			: String = "[" + R_WHITESPACE + "]+";	//must have at least one whitespace charater
-	public static inline var R_PROPERTY_NAME	: String = "a-z0-9-";
-	public static inline var R_PROPERTY_VALUE	: String = R_WHITESPACE + "a-z0-9#.,:)(/\"'-";
-	public static inline var R_BLOCK_VALUE		: String = R_PROPERTY_VALUE + ":;";
+	public static inline var R_WHITESPACE			: String = "\\s"; //"\n\r\t ";
+	public static inline var R_WS					: String = "[" + R_WHITESPACE + "]*";	//can have any kind of whitespace
+	public static inline var R_WS_MUST				: String = "[" + R_WHITESPACE + "]+";	//must have at least one whitespace charater
+	public static inline var R_SPACE				: String = "[ \\t]*";					//can have none, one or more tab/space charater
+	public static inline var R_SPACE_MUST			: String = "[ \\t]+";					//must have at least one tab/space charater
+	public static inline var R_PROPERTY_NAME		: String = "a-z0-9-";
+	public static inline var R_PROPERTY_VALUE		: String = R_WHITESPACE + "a-z0-9%#.,:)(/\"'-";
+	public static inline var R_BLOCK_VALUE			: String = R_PROPERTY_VALUE + ":;";
 	
-	public static inline var R_HEX_VALUE		: String = "0-9a-f";
-	public static inline var R_HEX_EXPR			: String = "(0x|#)(["+R_HEX_VALUE+"]{8}|["+R_HEX_VALUE+"]{6}|["+R_HEX_VALUE+"]{3})";
-	public static inline var R_RGBA_EXPR		: String = "(rgba)" + R_WS + "[(]((" + R_WS + R_DEC_OCTET + R_WS + "," + R_WS + "){3})((0[.][0-9]+)|0|1)" + R_WS + "[)]";
-	public static inline var R_COLOR_EXPR		: String = "("+R_HEX_EXPR+")|("+R_RGBA_EXPR+")";
-	public static inline var R_GRADIENT_POS		: String = "([0-9]+)(px|%)";
-	public static inline var R_GRADIENT_COLOR	: String = "("+R_COLOR_EXPR+")("+R_WS_MUST+R_GRADIENT_POS+")?";
-	public static inline var R_GRADIENT_SPREAD	: String = "pad|reflect|repeat";
+	public static inline var R_HEX_VALUE			: String = "0-9a-f";
+	public static inline var R_HEX_EXPR				: String = "(0x|#)(["+R_HEX_VALUE+"]{8}|["+R_HEX_VALUE+"]{6}|["+R_HEX_VALUE+"]{3})";
+	public static inline var R_RGBA_EXPR			: String = "(rgba)" + R_WS + "[(]((" + R_WS + R_DEC_OCTET + R_WS + "," + R_WS + "){3})((0[.][0-9]+)|0|1)" + R_WS + "[)]";
+	public static inline var R_COLOR_EXPR			: String = "("+R_HEX_EXPR+")|("+R_RGBA_EXPR+")";
 	
-	public static inline var R_DOMAIN_LABEL		: String = "[a-z]([a-z0-9-]*[a-z0-9])?";
-	public static inline var R_CLASS_EXPR		: String = "(" + R_DOMAIN_LABEL + ")([.]" + R_DOMAIN_LABEL + ")*";
+	public static inline var R_RELATIVE_UNITS		: String = "px|ex|em";
+	public static inline var R_ABSOLUTE_UNITS		: String = "in|cm|mm|pt|pc";
+	public static inline var R_UNITS				: String = "(" + R_RELATIVE_UNITS + "|" + R_ABSOLUTE_UNITS + ")"; // + "|%";
 	
-	public static inline var R_ROTATION			: String = "([-]?[0-9]+)deg";
-	public static inline var R_WORDWRAP			: String = "off|normal|break-word";
+	public static inline var R_SIMPLE_UNIT_VALUE	: String = R_FLOAT_VALUE + "[%a-z]+";			//matches floating points with a posible unit (flash player will crash if we make the search complexer...)
+	
+	public static inline var R_INT_VALUE			: String = "([0-9]+)";
+	public static inline var R_FLOAT_VALUE			: String = "([0-9]+|([0-9]*[.][0-9]+))";
+	public static inline var R_INT_UNIT_VALUE		: String = "(0|(" + R_INT_VALUE + R_UNITS + "))";
+	public static inline var R_FLOAT_UNIT_VALUE		: String = "(0|(" + R_FLOAT_VALUE + R_UNITS + "))";
+	public static inline var R_PERC_VALUE			: String = "(" + R_FLOAT_VALUE + "%)";
+	public static inline var R_FLOAT_GROUP_VALUE	: String = R_FLOAT_UNIT_VALUE + "(" + R_SPACE + R_FLOAT_UNIT_VALUE + ")?(" + R_SPACE + R_FLOAT_UNIT_VALUE + ")?(" + R_SPACE + R_FLOAT_UNIT_VALUE + ")?";
+	
+	public static inline var R_SIMPLE_GRADIENT_COLOR: String = "(" + R_COLOR_EXPR + ")(" + R_SPACE_MUST + R_SIMPLE_UNIT_VALUE + ")?";
+	public static inline var R_GRADIENT_COLOR		: String = "(" + R_COLOR_EXPR + ")(" + R_SPACE_MUST + "(0|" + R_FLOAT_UNIT_VALUE + "|" + R_PERC_VALUE + "))?";
+	public static inline var R_GRADIENT_SPREAD		: String = "pad|reflect|repeat";
+	
+	public static inline var R_DOMAIN_LABEL			: String = "[a-z]([a-z0-9-]*[a-z0-9])?";
+	public static inline var R_CLASS_EXPR			: String = "(" + R_DOMAIN_LABEL + ")([.]" + R_DOMAIN_LABEL + ")*";
+	
+	public static inline var R_ROTATION				: String = "([-]?[0-9]+)deg";
+	public static inline var R_WORDWRAP				: String = "off|normal|break-word";
 	
 	
 	//
 	//URI Regexp
 	//@see http://labs.apache.org/webarch/uri/rfc/rfc3986.html
 	//
-	public static inline var R_URI_SCHEME		: String = "[a-z][a-z0-9+.-]+";										//"file|http|https|ftp|ldap|news|telnet"
-	public static inline var R_URI_USERINFO		: String = "[a-z0-9_-]+(:.+)?";										//match username and optional the password
-	public static inline var R_URI_DNS			: String = "(" + R_DOMAIN_LABEL + ")([.]" + R_DOMAIN_LABEL + ")+";
-	public static inline var R_DEC_OCTET		: String = "([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])";			//matches a number from 0 - 255
-	public static inline var R_URI_IPV4			: String = "(" + R_DEC_OCTET + "[.]){3}" + R_DEC_OCTET;
-	public static inline var R_URI_IPV6			: String = "((" + R_HEX_VALUE + "){4}){5}";							//TODO: not sure how to implement the full IPv6 range.. this just covers 60 bits
-	public static inline var R_URI_HOST			: String = "(" + R_URI_DNS + "|" + R_URI_IPV4 + "|" + R_URI_IPV6 + "|localhost)";
-	public static inline var R_URI_PORT			: String = "[0-9]{1,4}|[0-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9{2}|655[0-2][0-9]|6553[0-5]]";	//port range from 0 - 65535
-	public static inline var R_URI_AUTHORITY	: String = "(" + R_URI_USERINFO + "@)?(" + R_URI_HOST + ")(:(" + R_URI_PORT + "))?";
-	public static inline var R_URI_NAME			: String = "[a-z][a-z0-9+%_,-]*";
-	public static inline var R_URI_FOLDERNAME	: String = "(" + R_URI_NAME + ")|([.]{1,2})";
-	public static inline var R_URI_FILENAME		: String = R_URI_NAME + "[.][a-z0-9]+";
-	public static inline var R_URI_PATH			: String = "((" + R_URI_FOLDERNAME + ")/)*((" + R_URI_FILENAME + ")|(" + R_URI_FOLDERNAME + ")/?)";		//match path with optional filename at the end
-	public static inline var R_URI_QUERY_VALUE	: String = "[a-z][a-z0-9+.?/_%-]*";
-	public static inline var R_URI_QUERY_VAR	: String = "((" + R_URI_QUERY_VALUE + "=" + R_URI_QUERY_VALUE + ")|(" + R_URI_QUERY_VALUE + "))";
-	public static inline var R_URI_QUERY		: String = "[?]" + R_URI_QUERY_VAR + "(&" + R_URI_QUERY_VAR + ")*";
-	public static inline var R_URI_FRAGMENT		: String = "#(" + R_URI_QUERY_VALUE + ")+";
-	public static inline var R_URI_EXPR			: String = "((" + R_URI_SCHEME + ")://)?(" + R_URI_AUTHORITY + ")(/" + R_URI_PATH + ")?(" + R_URI_QUERY + ")?(" + R_URI_FRAGMENT + ")?";
+	public static inline var R_URI_SCHEME			: String = "[a-z][a-z0-9+.-]+";										//"file|http|https|ftp|ldap|news|telnet"
+	public static inline var R_URI_USERINFO			: String = "[a-z0-9_-]+(:.+)?";										//match username and optional the password
+	public static inline var R_URI_DNS				: String = "(" + R_DOMAIN_LABEL + ")([.]" + R_DOMAIN_LABEL + ")+";
+	public static inline var R_DEC_OCTET			: String = "([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])";			//matches a number from 0 - 255
+	public static inline var R_URI_IPV4				: String = "(" + R_DEC_OCTET + "[.]){3}" + R_DEC_OCTET;
+	public static inline var R_URI_IPV6				: String = "((" + R_HEX_VALUE + "){4}){5}";							//TODO: not sure how to implement the full IPv6 range.. this just covers 60 bits
+	public static inline var R_URI_HOST				: String = "(" + R_URI_DNS + "|" + R_URI_IPV4 + "|" + R_URI_IPV6 + "|localhost)";
+	public static inline var R_URI_PORT				: String = "[0-9]{1,4}|[0-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9{2}|655[0-2][0-9]|6553[0-5]]";	//port range from 0 - 65535
+	public static inline var R_URI_AUTHORITY		: String = "(" + R_URI_USERINFO + "@)?(" + R_URI_HOST + ")(:(" + R_URI_PORT + "))?";
+	public static inline var R_URI_NAME				: String = "[a-z][a-z0-9+%_,-]*";
+	public static inline var R_URI_FOLDERNAME		: String = "(" + R_URI_NAME + ")|([.]{1,2})";
+	public static inline var R_URI_FILENAME			: String = R_URI_NAME + "[.][a-z0-9]+";
+	public static inline var R_URI_PATH				: String = "((" + R_URI_FOLDERNAME + ")/)*((" + R_URI_FILENAME + ")|(" + R_URI_FOLDERNAME + ")/?)";		//match path with optional filename at the end
+	public static inline var R_URI_QUERY_VALUE		: String = "[a-z][a-z0-9+.?/_%-]*";
+	public static inline var R_URI_QUERY_VAR		: String = "((" + R_URI_QUERY_VALUE + "=" + R_URI_QUERY_VALUE + ")|(" + R_URI_QUERY_VALUE + "))";
+	public static inline var R_URI_QUERY			: String = "[?]" + R_URI_QUERY_VAR + "(&" + R_URI_QUERY_VAR + ")*";
+	public static inline var R_URI_FRAGMENT			: String = "#(" + R_URI_QUERY_VALUE + ")+";
+	public static inline var R_URI_EXPR				: String = "((" + R_URI_SCHEME + ")://)?(" + R_URI_AUTHORITY + ")(/" + R_URI_PATH + ")?(" + R_URI_QUERY + ")?(" + R_URI_FRAGMENT + ")?";
 	
 	
 	/**
 	 * Greedy stupid URI/file matcher
 	 * R_URI_EXPR took to much time
 	 */
-	public static inline var R_URI_PRETENDER	: String = "['\"]?([a-z0-9/&%.#+=\\;:$@?_-]+)['\"]?";
-	public static inline var R_FILE_EXPR		: String = R_URI_PATH;
+	public static inline var R_URI_PRETENDER		: String = "['\"]?([a-z0-9/&%.#+=\\;:$@?_-]+)['\"]?";
+	public static inline var R_FILE_EXPR			: String = R_URI_PATH;
 	
 	
-	public static inline var R_BG_REPEAT_EXPR	: String = "repeat-all|no-repeat";
+	public static inline var R_BG_REPEAT_EXPR		: String = "repeat-all|no-repeat";
 	
 	
 	
 	/**
 	 * container with all the style blocks
 	 */
-	private var styles				: StyleContainer;
+	private var styles					: StyleContainer;
 	/**
 	 * block that is currently handled by the parser
 	 */
-	private var currentBlock		: UIElementStyle;
+	private var currentBlock			: UIElementStyle;
 	
 	
-	public var blockExpr			(default, null) : EReg;
-	public var propExpr				(default, null) : EReg;
-	public var intValExpr			(default, null) : EReg;
-	public var colorValExpr			(default, null) : EReg;
-	public var linGradientExpr		(default, null) : EReg;
-	public var radGradientExpr		(default, null) : EReg;
-	public var gradientColorExpr	(default, null) : EReg;
-	public var gradientStopExpr		(default, null) : EReg;
-	public var bgImageExpr			(default, null) : EReg;
+	public var blockExpr				(default, null) : EReg;
+	public var propExpr					(default, null) : EReg;
+	
+	public var percValExpr				(default, null) : EReg;		//should match [float]%
+	public var intValExpr				(default, null) : EReg;		//should match [int]
+	public var intUnitValExpr			(default, null) : EReg;		//should match [int]unit
+	public var floatValExpr				(default, null) : EReg;		//should match [float]
+	public var floatUnitValExpr			(default, null) : EReg;		//should match [float]unit
+	public var floatUnitGroupValExpr	(default, null) : EReg;		//should match [float]unit <[float]unit>? <[float]unit>? <[float]unit>?
+	
+	public var colorValExpr				(default, null) : EReg;
+	public var linGradientExpr			(default, null) : EReg;
+	public var radGradientExpr			(default, null) : EReg;
+	public var gradientColorExpr		(default, null) : EReg;
+//	public var gradientStopExpr			(default, null) : EReg;
+	public var imageURIExpr				(default, null) : EReg;
+	public var imageClassExpr			(default, null) : EReg;
+	
 	
 	
 	public function new (styles:StyleContainer)
@@ -169,43 +198,48 @@ class CSSParser
 			+ "[" + R_WHITESPACE + "]*([" + R_PROPERTY_VALUE + "]+)[" + R_WHITESPACE + "]*;"	//match property value
 			, "im");
 		
-		intValExpr			= new EReg("([0-9]+[ a-z]*)", "i");
-		colorValExpr		= new EReg("^"+R_COLOR_EXPR+"$", "i");
-		linGradientExpr		= new EReg(
+		intValExpr				= new EReg("([0-9]+)", "i");
+		intUnitValExpr			= new EReg(R_INT_UNIT_VALUE, "i");
+		percValExpr				= new EReg(R_PERC_VALUE, "i");
+		floatValExpr			= new EReg(R_FLOAT_VALUE, "i");
+		floatUnitValExpr		= new EReg(R_FLOAT_UNIT_VALUE, "i");
+		floatUnitGroupValExpr	= new EReg(R_FLOAT_GROUP_VALUE, "i");
+		
+		colorValExpr			= new EReg("^"+R_COLOR_EXPR+"$", "i");
+		
+		
+		linGradientExpr = new EReg(
 				  "(linear-gradient)"+R_WS+"[(]"					//match linear gradient		(1 = type)
 				+ R_WS+"("+R_ROTATION+")"							//match rotation			(3 = degrees)
-				+ "(("+R_WS+","+R_WS+R_GRADIENT_COLOR+"){2,})"		//match colors				(4 = colors)
+				+ "(("+R_WS+","+R_WS+R_SIMPLE_GRADIENT_COLOR+"){2,})"		//match colors				(4 = colors)
 				+ "("+R_WS+","+R_WS+"("+R_GRADIENT_SPREAD+"))?"		//match spread method		(21 = method)
 			    + R_WS+"[)]", "im");
 		
-		radGradientExpr		= new EReg(
+		radGradientExpr = new EReg(
 				  "(radial-gradient)"+R_WS+"[(]"					//match radial gradient		(1 = type)
 				+ R_WS+"([-]?(0?[.][0-9]+|0|1))"					//match focal point			(2 = radial-point)
-				+ "(("+R_WS+","+R_WS+R_GRADIENT_COLOR+"){2,})"		//match colors				(4 = colors)
+				+ "(("+R_WS+","+R_WS+R_SIMPLE_GRADIENT_COLOR+"){2,})"		//match colors				(4 = colors)
 				+ "("+R_WS+","+R_WS+"("+R_GRADIENT_SPREAD+"))?"		//match spread method		(21 = method)
 			    + R_WS+"[)]", "im");
 		
-		gradientColorExpr	= new EReg(R_GRADIENT_COLOR, "i");
-		gradientStopExpr	= new EReg(R_GRADIENT_POS, "i");
+		gradientColorExpr = new EReg(R_GRADIENT_COLOR, "i");
 		
-		bgImageExpr			= new EReg(
-			  "("
-				+ "("
-					+ "(url)"										//match url opener			3
-					+ R_WS+"[(]"									//match opening '('
-					+ R_WS+"['\"]?"									//match possible opening ' or "
-		//			+ R_WS+"(("+R_FILE_EXPR+")|("+R_URI_EXPR+"))"	//match the url content		4 = local file. 19 = URI
-					+ R_WS+"("+R_URI_PRETENDER+")"					//match the url content		4 = local file. 19 = URI
-					+ R_WS+"['\"]?"									//match possible closing ' or "
-					+ R_WS+"[)]"									//match closing ')'
-				+ ")|("
-					+ "(Class)"										//match Class opener		6
-					+ R_WS+"[(]"									//match opening '('
-					+ R_WS+"("+R_CLASS_EXPR+")"						//match the class content	7
-					+ R_WS+"[)]"									//match closing ')'
-				+ ")"
-			+ ")"
-			+ "["+R_WHITESPACE+"]*("+R_BG_REPEAT_EXPR+")?"						//match possible repeat value
+		imageURIExpr = new EReg(
+				  "(url)"										//match url opener				1
+				+ R_WS+"[(]"									//match opening '('
+				+ R_WS+"['\"]?"									//match possible opening ' or "
+		//		+ R_WS+"(("+R_FILE_EXPR+")|("+R_URI_EXPR+"))"	//match the url content			4 = local file. 19 = URI
+				+ R_WS+"("+R_URI_PRETENDER+")"					//match the url content			2 
+				+ R_WS+"['\"]?"									//match possible closing ' or "
+				+ R_WS+"[)]"									//match closing ')'
+				+ "("+R_WS_MUST+"("+R_BG_REPEAT_EXPR+"))?"		//match possible repeat value	5
+			, "im");
+		imageClassExpr = new EReg(
+			  	"(Class)"										//match Class opener			1
+				+ R_WS+"[(]"									//match opening '('
+				+ R_WS+"("+R_CLASS_EXPR+")"						//match the class content		2
+				+ R_WS+"[)]"									//match closing ')'
+				+ "("+R_WS_MUST+"("+R_BG_REPEAT_EXPR+"))?"		//match possible repeat value	8
 			, "im");
 	}
 	
@@ -291,15 +325,15 @@ class CSSParser
 			//
 			
 		//	case "font":						createFontBlock();			parseAndSetFont(val);
-			case "font-size":					createFontBlock();			currentBlock.font.size			= parseInt( val );				//inherit, font-size
+			case "font-size":					createFontBlock();			currentBlock.font.size			= parseUnitInt( val );			//inherit, font-size
 			case "font-family":					createFontBlock();			currentBlock.font.family		= val;							//inherit, font-name
 			case "color":						createFontBlock();			currentBlock.font.color			= parseColor( val );			//inherit, color-values
 			case "font-weight":					createFontBlock();			currentBlock.font.weight		= parseFontWeight( val );		//normal, bold, bolder, lighter
 			case "font-style":					createFontBlock();			currentBlock.font.style			= parseFontStyle( val );		//inherit, normal, italic, oblique
-			case "letter-spacing":				createFontBlock();			currentBlock.font.letterSpacing	= parseInt( val );				//inherit, normal, [length]
+			case "letter-spacing":				createFontBlock();			currentBlock.font.letterSpacing	= parseUnitFloat( val );		//inherit, normal, [length]
 			case "text-align":					createFontBlock();			currentBlock.font.align			= parseTextAlign( val );		//inherit, left, center, right, justify
 			case "text-decoration":				createFontBlock();			currentBlock.font.decoration	= parseTextDecoration( val );	//inherit, none, underline
-			case "text-indent":					createFontBlock();			currentBlock.font.indent		= parseInt( val );
+			case "text-indent":					createFontBlock();			currentBlock.font.indent		= parseUnitFloat( val );
 			case "text-transform":				createFontBlock();			currentBlock.font.transform		= parseTextTransform( val );	//inherit, none, capitalize, uppercase, lowercase
 			
 			
@@ -309,8 +343,7 @@ class CSSParser
 			
 		//	case "background":					parseAndSetBackground( val );
 			case "background-color":			setBackground( parseColorFill( val ) );		// #fff, 0xfff, #fffddd, 0xfff000, #ffddeeaa, 0xffddeeaa, rgba(255,255,255,0.9)
-			case "background-image":			setBackground( parseBgImage( val ) );		// url( www.rubenw.nl/img.jpg ), class( package.of.Asset ) <background-repeat>
-		//	case "background-repeat":			setBitmapRepeat( parseBgRepeat(val) );		// repeat-all, no-repeat
+			case "background-image":			setBackground( parseImage( val ) );			// url( www.rubenw.nl/img.jpg ), class( package.of.Asset ) <background-repeat>
 			
 			
 			//
@@ -318,19 +351,18 @@ class CSSParser
 			//
 			
 		//	case "border":						parseAndSetBorder( val );
-		//	case "border-color":				parseAndSetBorderColor( val );
-		//	case "border-image":
-		//	case "border-image-source":			parseAndSetBorderImage( val );
-		//	case "border-image-repeat":			parseAndSetBorderImageRepeat( val );
+			case "border-color":				setBorderFill( parseColorFill( val ) );
+			case "border-image":
+			case "border-image-source":			setBorderFill( parseImage( val ) );
 			
 		//	case "border-style":				parseAndSetBorderStyle( val );		//none, solid, dashed, dotted
-		//	case "border-width":				parseAndSetBorderWidth( val );
+	/*		case "border-width":				parseAndSetBorderWidth( val );
 			
-		//	case "border-radius":				createShapeBlock();			currentBlock.shape.corners			= parseBorderRadius( val );		//[x]px <[x]px> <[x]px> <[x]px>
-		//	case "border-top-left-radius":		createShapeBlock();			parseAndSetBorderTopLeftRadius( val );
-		//	case "border-top-right-radius":		createShapeBlock();			parseAndSetBorderTopRightRadius( val );
-		//	case "border-bottom-left-radius":	createShapeBlock();			parseAndSetBorderBottomLeftRadius( val );
-		//	case "border-bottom-right-radius":	createShapeBlock();			parseAndSetBorderBottomRightRadius( val );
+			case "border-radius":				createShapeBlock();			currentBlock.shape.corners			= parseBorderRadius( val );		//[t]px <[r]px> <[b]px> <[l]px>
+			case "border-top-left-radius":		createShapeBlock();			parseAndSetBorderTopLeftRadius( val );
+			case "border-top-right-radius":		createShapeBlock();			parseAndSetBorderTopRightRadius( val );
+			case "border-bottom-left-radius":	createShapeBlock();			parseAndSetBorderBottomLeftRadius( val );
+			case "border-bottom-right-radius":	createShapeBlock();			parseAndSetBorderBottomRightRadius( val );*/
 			
 			
 			//
@@ -341,14 +373,15 @@ class CSSParser
 		//	case "cursor":			// auto, move, help, pointer, wait, text, n-resize, ne-resize, e-resize, se-resize, s-resize, sw-resize, w-resize, nw-resize, url(..)
 		//	case "visibility":		// visible, hidden
 		//	case "opacity":			// alpha value of entire element
+		//	case "resize":			// horizontal / vertical / both / none;	/* makes a textfield resizable in the right bottom corner */
 		
 		
 			// textfield properties
 		//	case "word-wrap":					createFontBlock();			currentBlock.font.wordwrap		= parseWordWrap( val );
 		//	case "column-count":				createFontBlock();			currentBlock.font.columnCount	= parseInt( val );
-		//	case "column-gap":					createLayoutBlock();		currentBlock.layout.columnGap	= parseInt( val );
-		//	case "column-width":				createLayoutBlock();		currentBlock.layout.childWidth	= parseInt( val );
-		
+		//	case "column-gap":					createLayoutBlock();		currentBlock.layout.columnGap	= parseUnitInt( val );
+		//	case "column-width":				createLayoutBlock();		currentBlock.layout.childWidth	= parseUnitInt( val );
+			
 			
 			//
 			// iconing elements
@@ -361,27 +394,27 @@ class CSSParser
 			// layout properties
 			//
 			
-		//	case "width":						createLayoutBlock();		currentBlock.layout.width			= parseIntOrPercentage( val );
-		//	case "height":						createLayoutBlock();		currentBlock.layout.height			= parseIntOrPercentage( val );
-		//	case "min-width":					createLayoutBlock();		currentBlock.layout.minWidth		= parseInt( val );
-		//	case "min-height":					createLayoutBlock();		currentBlock.layout.minHeight		= parseInt( val );
-		//	case "max-width":					createLayoutBlock();		currentBlock.layout.maxWidth		= parseInt( val );
-		//	case "max-height":					createLayoutBlock();		currentBlock.layout.maxHeight		= parseInt( val );
+		//	case "width":						createLayoutBlock();		parseAndSetWidth();
+		//	case "height":						createLayoutBlock();		parseAndSetHeight();
+		//	case "min-width":					createLayoutBlock();		currentBlock.layout.minWidth		= paseUnitInt( val );
+		//	case "min-height":					createLayoutBlock();		currentBlock.layout.minHeight		= paseUnitInt( val );
+		//	case "max-width":					createLayoutBlock();		currentBlock.layout.maxWidth		= paseUnitInt( val );
+		//	case "max-height":					createLayoutBlock();		currentBlock.layout.maxHeight		= paseUnitInt( val );
 			
-		//	case "child-width":					createLayoutBlock();		currentBlock.layout.childWidth		= parseInt( val );
-		//	case "child-height":				createLayoutBlock();		currentBlock.layout.childHeight		= parseInt( val );
+		//	case "child-width":					createLayoutBlock();		currentBlock.layout.childWidth		= paseUnitInt( val );
+		//	case "child-height":				createLayoutBlock();		currentBlock.layout.childHeight		= paseUnitInt( val );
 			
 		//	case "relative":					createLayoutBlock();		parseAndSetRelativeProperties( val );
-		//	case "left":						createRelativeBlock();		currentBlock.layout.relative.left	= parseInt( val );
-		//	case "right":						createRelativeBlock();		currentBlock.layout.relative.right	= parseInt( val );
-		//	case "top":							createRelativeBlock();		currentBlock.layout.relative.top	= parseInt( val );
-		//	case "bottom":						createRelativeBlock();		currentBlock.layout.relative.bottom	= parseInt( val );
-		//	case "h-center":					createRelativeBlock();		currentBlock.layout.relative.hCenter= parseInt( val );
-		//	case "v-center":					createRelativeBlock();		currentBlock.layout.relative.vCenter= parseInt( val );
+		//	case "left":						createRelativeBlock();		currentBlock.layout.relative.left	= paseUnitInt( val );
+		//	case "right":						createRelativeBlock();		currentBlock.layout.relative.right	= paseUnitInt( val );
+		//	case "top":							createRelativeBlock();		currentBlock.layout.relative.top	= paseUnitInt( val );
+		//	case "bottom":						createRelativeBlock();		currentBlock.layout.relative.bottom	= paseUnitInt( val );
+		//	case "h-center":					createRelativeBlock();		currentBlock.layout.relative.hCenter= paseUnitInt( val );
+		//	case "v-center":					createRelativeBlock();		currentBlock.layout.relative.vCenter= paseUnitInt( val );
 			
 		//	case "position":					//absolute and relative supported (=includeInLayout)
 		//	case "algorithm":					createLayoutBlock();		currentBlock.layout.algorithm		= parseLayoutAlgorithm( val );
-		//	case "transform":					createLayoutBlock();		currentBlock.layout.transform		= parseTransform( val );
+		//	case "transform":					createLayoutBlock();		currentBlock.layout.transform		= parseTransform( val );	//scale( 0.1 - 2 ) / 	rotate( [x]deg ) translate( [x]px, [y]px ) skew( [x]deg, [y]deg )
 		//	case "rotation":
 		//	case "rotation-point":
 		
@@ -451,6 +484,7 @@ class CSSParser
 			case "background-attachment":	//scroll, fixed, local
 			case "background-position":
 			case "background-size":			//<length>,<percentage>|auto|{1,2}cover|contain
+			case "background-repeat":		// repeat-all, no-repeat
 			
 			case "corner-shaping":
 			case "corner-clipping":
@@ -461,6 +495,7 @@ class CSSParser
 			case "border-image-slice":
 			case "border-image-width":
 			case "border-image-outset":
+			case "border-image-repeat":
 			
 			case "outline":
 			case "outline-style":
@@ -475,7 +510,7 @@ class CSSParser
 			case "animation-iteration-count":
 			case "animation-play-state":
 			
-			case "box-sizing":				//currentBlock.layout.sizing		= parseBoxSizing (val);
+			case "box-sizing":				//currentBlock.layout.sizing		= parseBoxSizing (val); //content-box /*(box model)*/, border-box /*(padding and border will render inside box)*/
 			case "z-index":
 			case "margin":
 			case "margin-top":
@@ -528,8 +563,9 @@ class CSSParser
 	
 	
 	
+	
 	//
-	// FONT METHODS
+	// GENERAL UNIT CONVERSION METHODS
 	//
 	
 	/**
@@ -540,6 +576,38 @@ class CSSParser
 	{
 		return (intValExpr.match(v)) ? intValExpr.matched(1).parseInt() : Number.INT_NOT_SET;
 	}
+	
+	
+	private inline function parseFloat (v:String) : Float
+	{
+		return (floatValExpr.match(v)) ? floatValExpr.matched(1).parseFloat() : Number.FLOAT_NOT_SET;
+	}
+	
+	
+	private inline function parseUnitInt (v:String) : Int
+	{
+		return (floatUnitValExpr.match(v)) ? floatUnitValExpr.matched(1).parseInt() : Number.INT_NOT_SET;
+	}
+	
+	
+	private inline function parseUnitFloat(v:String) : Float
+	{
+		return (floatUnitValExpr.match(v)) ? floatUnitValExpr.matched(1).parseFloat() : Number.FLOAT_NOT_SET;
+	}
+	
+	
+	private inline function parsePercentage (v:String) : Float
+	{
+		return (percValExpr.match(v)) ? percValExpr.matched(1).parseFloat() : Number.FLOAT_NOT_SET;
+	}
+	
+	
+	
+	
+	
+	//
+	// FONT METHODS
+	//
 	
 	
 	/**
@@ -642,7 +710,7 @@ class CSSParser
 	
 	
 	//
-	// GRAPHICS METHODS
+	// FILL METHODS
 	//
 	
 	
@@ -770,16 +838,24 @@ class CSSParser
 			//add colors
 			if (colorsStr != null)
 			{
+			//	trace("FOUND COLORS!! "+colorsStr);
 				while (true)
 				{
 					if ( !gradientColorExpr.match(colorsStr) )
 						break;
 					
 					var pos = -1;
-					if (gradientColorExpr.matched(5) != null)	pos = gradientColorExpr.matched(5).parseInt();
-					if (gradientColorExpr.matched(6) == "%")	pos = ((pos / 100) * 255).int();
+					if (gradientColorExpr.matched(16) != null) {
+						//match px,pt,em etc value
+						pos = gradientColorExpr.matched(16).parseInt();
+					}
+					else if (gradientColorExpr.matched(20) != null)	{
+						//match percent value
+						var a = gradientColorExpr.matched(20).parseFloat();
+						pos = ((a / 100) * 255).int();
+					}
 					
-					gr.add( new GradientStop( gradientColorExpr.matched(3).rgba(), pos ) );
+					gr.add( new GradientStop( gradientColorExpr.matched(4).rgba(), pos ) );
 					colorsStr = gradientColorExpr.matchedRight();
 				}
 				
@@ -806,36 +882,38 @@ class CSSParser
 	}
 	
 	
-	private inline function parseBgImage (v:String) : IFill
+	private inline function parseImage (v:String) : IFill
 	{
-		var fill:IFill = null;
-		if (bgImageExpr.match(v))
-		{
-			trace("BACKGROUND IMAGE FOUND "+v);
-			trace(bgImageExpr.resultToString());
-			
-			var bmp = new Bitmap();
-			if (bgImageExpr.matched(3) != null)
-				bmp.setString( bgImageExpr.matched(4) );
-			
-		//	bmp.loadClass( cast bgImageExpr.matched(7).resolveClass() );
-			
-			var bmpFill = new BitmapFill( bmp );
-			
-			//do stuff
-			
-			fill = bmpFill;
-		}
-		else
-			trace("no-bg-image-match");
+		var fill:IFill	= null;
+		var bmp:Bitmap	= null;
+		var repeatStr	= "";
 		
-		return null;
+		if (imageURIExpr.match(v))
+		{	
+			repeatStr	= imageURIExpr.matched(5);
+			bmp			= new Bitmap();
+			bmp.setString( imageURIExpr.matched(2) );
+		}
+		else if (imageClassExpr.match(v))
+		{	
+			repeatStr	= imageURIExpr.matched(8);
+			bmp			= new Bitmap();
+			bmp.setClass( cast imageClassExpr.matched(2).resolveClass() );
+		}
+		
+		if (bmp != null)
+			fill = new BitmapFill( bmp, null, parseRepeatImage(repeatStr), false );
+		
+		return fill;
 	}
 	
 	
-	private inline function parseBgRepeat (v:String) : Void
+	private inline function parseRepeatImage (v:String) : Bool
 	{
-		
+		return switch (v.trim().toLowerCase()) {
+			default:			true;
+			case "no-repeat":	false;
+		}
 	}
 	
 	
@@ -846,5 +924,75 @@ class CSSParser
 			case "reflect":	SpreadMethod.reflect;
 			case "repeat":	SpreadMethod.repeat;
 		};
+	}
+	
+	
+	
+	
+	
+	//
+	// BORDER METHODS
+	//
+	
+	
+	private inline function parseAndSetBorder (v:String) : Void
+	{
+		
+	}
+	
+	
+	private inline function setBorderFill (newFill:IFill) : Void
+	{
+		if (newFill != null)
+		{
+			var t = currentBlock;
+			
+			//create correct border type
+			if (t.border == null)
+			{
+				if		(newFill.is(SolidFill))		t.border = cast new SolidBorder( newFill.as( SolidFill ) );
+				else if	(newFill.is(GradientFill))	t.border = cast new GradientBorder( newFill.as( GradientFill ) );
+				else if	(newFill.is(BitmapFill))	t.border = cast new BitmapBorder( newFill.as( BitmapFill ) );
+#if debug		else	throw "Fill type not supported for border";		#end
+			}
+			else
+			{
+				//copy settings from old border and create a new border bases on the new fill type
+				if (newFill.is(SolidFill))
+				{
+					if (t.border.is(SolidBorder))		t.border.fill	= newFill;
+					else								t.border		= copyBorderSettingsTo( t.border, cast new SolidBorder( newFill.as(SolidFill) ) );
+				}
+				else if (newFill.is(GradientFill))
+				{
+					if (t.border.is(GradientBorder))	t.border.fill	= newFill;
+					else								t.border		= copyBorderSettingsTo( t.border, cast new GradientBorder( newFill.as(GradientFill) ) );
+				}
+				else if (newFill.is(BitmapFill))
+				{
+					if (t.border.is(BitmapBorder))		t.border.fill	= newFill;
+					else								t.border		= copyBorderSettingsTo( t.border, cast new BitmapBorder( newFill.as(BitmapFill) ) );
+				}
+			}
+		}
+	}
+	
+	
+	
+	/**
+	 * Method will copy the properties that the two borders share from the 
+	 * 'from' obj to the 'to' obj, except for the fill-property.
+	 */
+	private inline function copyBorderSettingsTo (from:IBorder<IFill>, to:IBorder<IFill>) : IBorder<IFill>
+	{
+		if (from != null && to != null)
+		{
+			to.caps			= from.caps;
+			to.innerBorder	= from.innerBorder;
+			to.joint		= from.joint;
+			to.pixelHinting	= from.pixelHinting;
+			to.weight		= from.weight;
+		}
+		return to;
 	}
 }

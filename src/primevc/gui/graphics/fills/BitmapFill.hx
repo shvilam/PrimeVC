@@ -50,11 +50,13 @@ class BitmapFill extends GraphicElement, implements IFill
 	public var repeat	(default, setRepeat)	: Bool;
 	
 	
-	public function new (bitmap:Bitmap, ?matrix:Matrix2D = null)
+	public function new (bitmap:Bitmap, matrix:Matrix2D = null, repeat:Bool = true, smooth:Bool = false)
 	{
 		super();
 		this.bitmap = bitmap;
 		this.matrix	= matrix;
+		this.repeat = repeat;
+		this.smooth	= smooth;
 	}
 	
 	
@@ -150,7 +152,7 @@ class BitmapFill extends GraphicElement, implements IFill
 #end
 		}
 		else if (bitmap.state.is(BitmapStates.loadable))
-			bitmap.loadString();
+			bitmap.load();
 	}
 	
 	

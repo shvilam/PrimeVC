@@ -63,7 +63,7 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	
 	
 	
-	public function new ( fill:FillType, weight:Float, innerBorder:Bool = false, caps:CapsStyle = null, joint:JointStyle = null )
+	public function new ( fill:FillType, weight:Float = 1, innerBorder:Bool = false, caps:CapsStyle = null, joint:JointStyle = null )
 	{
 		super();
 		this.fill			= fill;

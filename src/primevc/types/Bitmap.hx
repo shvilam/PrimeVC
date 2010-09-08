@@ -112,6 +112,13 @@ class Bitmap implements IDisposable
 	}
 	
 	
+	public inline function load ()
+	{
+		if (url != null)			loadString();
+		else if (asset != null)		loadClass();
+	}
+	
+	
 #if flash9
 	private inline function setData (v:BitmapData)
 	{
@@ -212,14 +219,23 @@ class Bitmap implements IDisposable
 	}
 	
 	
-	public inline function loadClass (v:Class<DisplayObject>)
+	public inline function loadClass (?v:Class<DisplayObject>)
 	{
-		if (v != asset)
+		if (v != asset || (v == null && asset != null))
 		{
-			asset	= v;
-			url		= null;
+			if (v != null)
+				setClass(v);
+			
 			loadDisplayObject(untyped __new__(v));
 		}
+	}
+	
+	
+	public inline function setClass (v:Class<DisplayObject>)
+	{
+		state.current = loadable;
+		asset	= v;
+		url		= null;
 	}
 #end
 

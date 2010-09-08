@@ -383,7 +383,7 @@ class LayoutClient implements ILayoutClient
 		if (v != percentWidth)
 		{
 			percentWidth = v;
-			invalidate( Flags.WIDTH );
+			invalidate( Flags.WIDTH | Flags.PERCENT_WIDTH );
 		}
 		return v;
 	}
@@ -394,7 +394,7 @@ class LayoutClient implements ILayoutClient
 		if (v != percentHeight)
 		{
 			percentHeight = v;
-			invalidate( Flags.HEIGHT );
+			invalidate( Flags.HEIGHT | Flags.PERCENT_HEIGHT );
 		}
 		return v;
 	}
@@ -405,7 +405,7 @@ class LayoutClient implements ILayoutClient
 	{
 		if (padding != v) {
 			padding = v;
-			invalidate( Flags.HEIGHT | Flags.WIDTH );
+			invalidate( Flags.HEIGHT | Flags.WIDTH | Flags.PADDING );
 		}
 		return padding;
 	}

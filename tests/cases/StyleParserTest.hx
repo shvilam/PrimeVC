@@ -75,7 +75,7 @@ class StyleParserTest
 		"radial-gradient ( 0, #fff 50p , #000 81 )",
 	];
 	
-	public static inline var CORRECT_BG_IMAGE		= [
+	public static inline var CORRECT_URI_IMAGE		= [
 		"url(img.jpg		)",
 		"url( test/img.jpg)",
 		"url( 'test/img.jpg')",
@@ -83,22 +83,27 @@ class StyleParserTest
 		"url(	http://img.hier.server.adr/username/img.jpg )",
 		"url( http://img.hier.server.adr/username/img.jpg ) no-repeat",
 		"url(http://img.hier.server.adr/username/img.jpg) repeat-all",
+	];
+	public static inline var INCORRECT_URI_IMAGE	= [
+		"url(http://img.hier.server.adr/username/img.jpg) ietsAnders",
+		"url()",
+		"url('')",
+		'url("")',
+	];
+	
+	public static inline var CORRECT_CLASS_IMAGE	= [
 		"class(Img)",
 		"class(nl.onlinetouch.skins.flair.ImageSkin)",
 		"class(nl.ImageSkin) repeat-all",
 		"class(nl.ImageSkin) no-repeat",
 		"class( 		nl.onlinetouch.skins.flair.ImageSkin)"
 	];
-	
-	public static inline var INCORRECT_BG_IMAGE		= [
-		"url(http://img.hier.server.adr/username/img.jpg) ietsAnders",
-		"url()",
-		"url('')",
-		'url("")',
+	public static inline var INCORRECT_CLASS_IMAGE	= [
 		"class()",
 		"class('aap')",
 		"class(nl/onlinetouch/ImageSKins)"
 	];
+	
 	
 	
 	public static function main ()
@@ -154,34 +159,64 @@ class StyleParserTest
 		//
 		// TEST BG GRADIENT
 		//
+		//*
 		trace("\n\nTESTING BG-LINEAR-GRADIENT REGEX");
 		var expr = parser.linGradientExpr;
 		testRegexp(expr, CORRECT_LGRADIENTS, true);
 		testRegexp(expr, CORRECT_RGRADIENTS, false);
 		testRegexp(expr, INCORRECT_LGRADIENTS, false);
-		
+		//*/
 		trace("\n\nTESTING BG-RADIAL-GRADIENT REGEX");
 		var expr = parser.radGradientExpr;
 		testRegexp(expr, CORRECT_RGRADIENTS, true);
 		testRegexp(expr, CORRECT_LGRADIENTS, false);
 		testRegexp(expr, INCORRECT_RGRADIENTS, false);
+		//*/
 		
 		//
 		// TEST BG IMAGE REGEX
 		//
-		trace("\n\nTESTING BG-IMAGE REGEX");
-		var expr = parser.bgImageExpr;
-		testRegexp(expr, CORRECT_BG_IMAGE, true);
-		testRegexp(expr, INCORRECT_BG_IMAGE, false);
+		trace("\n\nTESTING IMAGE URI REGEX");
+		var expr = parser.imageURIExpr;
+		testRegexp(expr, CORRECT_URI_IMAGE, true);
+		testRegexp(expr, INCORRECT_URI_IMAGE, false);
+		testRegexp(expr, CORRECT_CLASS_IMAGE, false);
+		
+		trace("\n\nTESTING IMAGE CLASS REGEX");
+		var expr = parser.imageClassExpr;
+		testRegexp(expr, CORRECT_CLASS_IMAGE, true);
+		testRegexp(expr, INCORRECT_CLASS_IMAGE, false);
+		testRegexp(expr, CORRECT_URI_IMAGE, false);
 		
 		/*
 		var expr = parser.linGradientExpr;
-		expr.test(CORRECT_LGRADIENTS[2]);
+		expr.test(CORRECT_LGRADIENTS[9]);
 		trace(expr.resultToString());
-		
+		//*/
+		/*
 		var expr = parser.radGradientExpr;
 		expr.test(CORRECT_RGRADIENTS[2]);
-		trace(expr.resultToString());*/
+		trace(expr.resultToString());
+		//*/
+		/*
+		var expr = parser.imageURIExpr;
+		expr.test(CORRECT_URI_IMAGE[5]);
+		trace(expr.resultToString());
+		//*/
+		/*
+		var expr = parser.imageClassExpr;
+		expr.test(CORRECT_CLASS_IMAGE[2]);
+		trace(expr.resultToString());
+		//*/
+		/*
+		var expr = parser.gradientColorExpr;
+		expr.test( "#fff000 50px" );
+		trace(expr.resultToString());
+		expr.test( "#fff 10.4%" );
+		trace(expr.resultToString());
+		expr.testWrong( "0xfff000 10.4" );
+		trace(expr.resultToString());
+		//*/
 	}
 	
 	
