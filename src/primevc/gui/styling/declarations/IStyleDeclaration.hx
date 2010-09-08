@@ -99,10 +99,19 @@ interface IStyleDeclaration <DeclarationType> implements IInvalidatable
 	
 	
 	/**
-	 * Style object with properties that should also be copied into this style
+	 * Style object which was declared for the same property, only before..
 	 * object.
-	 * All values of the given style that are not declared in this style should
-	 * be copied.
+	 * 
+	 * @example
+	 * Button, Label {
+	 * 		font-size: 10px;
+	 * }
+	 * Button {
+	 * 		font-family: Verdana;
+	 * }
+	 * 
+	 * buttonStyle.font.size = 10;
+	 * buttonStyle.font.family -> buttonStyle.font.extendedStyle.family = "Verdana";
 	 */
 	public var extendedStyle		(default, null)		: DeclarationType;
 }

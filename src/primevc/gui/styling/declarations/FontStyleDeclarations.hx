@@ -27,16 +27,16 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
- import primevc.gui.styling.StyleFlags;
  import primevc.gui.text.FontStyle;
  import primevc.gui.text.FontWeight;
  import primevc.gui.text.TextAlign;
+ import primevc.gui.text.TextDecoration;
+ import primevc.gui.text.TextTransform;
  import primevc.types.Number;
  import primevc.types.RGBA;
+  using primevc.utils.FloatUtil;
   using primevc.utils.IntUtil;
-#if debug
   using primevc.utils.Color;
-#end
 
 
 /**
@@ -48,39 +48,57 @@ package primevc.gui.styling.declarations;
  */
 class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations >
 {
-	public var size		(getSize,	setSize)	: Int;
-	public var family	(getFamily,	setFamily)	: String;
-	public var color	(getColor,	setColor)	: Null<RGBA>;
-	public var align	(getAlign,	setAlign)	: TextAlign;
-	public var weight	(getWeight, setWeight)	: FontWeight;
-	public var style	(getStyle,	setStyle)	: FontStyle;
+	public var size				(getSize,			setSize)			: Int;
+	public var family			(getFamily,			setFamily)			: String;
+	public var color			(getColor,			setColor)			: Null<RGBA>;
+	public var weight			(getWeight,			setWeight)			: FontWeight;
+	public var style			(getStyle,			setStyle)			: FontStyle;
+	/**
+	 * @default	0
+	 */
+	public var letterSpacing	(getLetterSpacing,	setLetterSpacing)	: Float;
+	public var align			(getAlign,			setAlign)			: TextAlign;
+	public var decoration		(getDecoration,		setDecoration)		: TextDecoration;
+	public var indent			(getIndent,			setIndent)			: Float;
+	public var transform		(getTransform,		setTransform)		: TextTransform;
 	
 	
 	public function new (
-		size:Int			= Number.INT_NOT_SET,
-		family:String		= null,
-		color:RGBA			= null,
-		align:TextAlign		= null,
-		weight:FontWeight	= null,
-		style:FontStyle		= null
+		size:Int					= Number.INT_NOT_SET,
+		family:String				= null,
+		color:RGBA					= null,
+		align:TextAlign				= null,
+		weight:FontWeight			= null,
+		style:FontStyle				= null,
+		letterSpacing:Float			= Number.FLOAT_MIN,
+		align:TextAlign				= null,
+		decoration:TextDecoration	= null,
+		indent:Float				= Number.FLOAT_MIN,
+		transform:TextTransform		= null
 	)
 	{
 		super();
-		this.size	= size;
-		this.family	= family;
-		this.color	= color;
-		this.align	= align;
-		this.weight	= weight;
-		this.style	= null;
+		this.size			= size;
+		this.family			= family;
+		this.color			= color;
+		this.weight			= weight;
+		this.style			= null;
+		this.letterSpacing	= letterSpacing == Number.FLOAT_MIN ? Number.FLOAT_NOT_SET : letterSpacing;
+		this.align			= align;
+		this.decoration		= decoration;
+		this.indent			= indent == Number.FLOAT_MIN ? Number.FLOAT_NOT_SET : indent;
+		this.transform		= transform;
 	}
 	
 	
 	override public function dispose ()
 	{
-		family	= null;
-		align	= null;
-		weight	= null;
-		style	= null;
+		family		= null;
+		align		= null;
+		weight		= null;
+		style		= null;
+		decoration	= null;
+		transform	= null;
 		super.dispose();
 	}
 	
@@ -147,6 +165,48 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 		else if (superStyle != null)		return superStyle.style;
 		else								return null;
 	}
+
+
+	private function getLetterSpacing ()
+	{
+		if		(letterSpacing.isSet())		return letterSpacing;
+		else if (extendedStyle != null)		return extendedStyle.letterSpacing;
+		else if (nestingInherited != null)	return nestingInherited.letterSpacing;
+		else if (superStyle != null)		return superStyle.letterSpacing;
+		else								return Number.INT_NOT_SET;
+	}
+	
+	
+	private function getDecoration ()
+	{
+		if		(decoration != null)		return decoration;
+		else if (extendedStyle != null)		return extendedStyle.decoration;
+		else if (nestingInherited != null)	return nestingInherited.decoration;
+		else if (superStyle != null)		return superStyle.decoration;
+		else								return null;
+	}
+	
+	
+	private function getIndent ()
+	{
+		if		(indent.isSet())			return indent;
+		else if (extendedStyle != null)		return extendedStyle.indent;
+		else if (nestingInherited != null)	return nestingInherited.indent;
+		else if (superStyle != null)		return superStyle.indent;
+		else								return Number.INT_NOT_SET;
+	}
+	
+	
+	private function getTransform ()
+	{
+		if		(transform != null)			return transform;
+		else if (extendedStyle != null)		return extendedStyle.transform;
+		else if (nestingInherited != null)	return nestingInherited.transform;
+		else if (superStyle != null)		return superStyle.transform;
+		else								return null;
+	}
+	
+	
 	
 	
 	//
@@ -157,7 +217,7 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 	{
 		if (v != size) {
 			size = v;
-			invalidate( StyleFlags.FONT_SIZE );
+			invalidate( FontFlags.SIZE );
 		}
 		return v;
 	}
@@ -167,27 +227,20 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 	{
 		if (v != family) {
 			family = v;
-			invalidate( StyleFlags.FONT_FAMILY );
+			invalidate( FontFlags.FAMILY );
 		}
 		return v;
 	}
 	
 	
-	private inline function setColor (v)
+	private inline function setColor (v:Null<RGBA>)
 	{
+		if (v != null)
+			v = v.validate();
+		
 		if (v != color) {
 			color = v;
-			invalidate( StyleFlags.FONT_COLOR );
-		}
-		return v;
-	}
-	
-	
-	private inline function setAlign (v)
-	{
-		if (v != align) {
-			align = v;
-			invalidate( StyleFlags.FONT_ALIGN );
+			invalidate( FontFlags.COLOR );
 		}
 		return v;
 	}
@@ -197,7 +250,7 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 	{
 		if (v != weight) {
 			weight = v;
-			invalidate( StyleFlags.FONT_WEIGHT );
+			invalidate( FontFlags.WEIGHT );
 		}
 		return v;
 	}
@@ -207,10 +260,61 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 	{
 		if (v != style) {
 			style = v;
-			invalidate( StyleFlags.FONT_STYLE );
+			invalidate( FontFlags.STYLE );
 		}
 		return v;
 	}
+	
+	
+	private inline function setLetterSpacing (v)
+	{
+		if (v != letterSpacing) {
+			letterSpacing = v;
+			invalidate( FontFlags.LETTER_SPACING );
+		}
+		return v;
+	}
+	
+	
+	private inline function setAlign (v)
+	{
+		if (v != align) {
+			align = v;
+			invalidate( FontFlags.ALIGN );
+		}
+		return v;
+	}
+	
+	
+	private inline function setDecoration (v)
+	{
+		if (v != decoration) {
+			decoration = v;
+			invalidate( FontFlags.DECORATION );
+		}
+		return v;
+	}
+	
+	
+	private inline function setIndent (v)
+	{
+		if (v != indent) {
+			indent = v;
+			invalidate( FontFlags.INDENT );
+		}
+		return v;
+	}
+	
+	
+	private inline function setTransform (v)
+	{
+		if (v != transform) {
+			transform = v;
+			invalidate( FontFlags.TRANSFORM );
+		}
+		return v;
+	}
+	
 	
 
 #if debug
@@ -218,12 +322,16 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 	{
 		var css = [];
 
-		if (size.isSet())		css.push("font-size: " + size + "px");
-		if (family != null)		css.push("font-family: "+family);
-		if (color != null)		css.push("color: "+color.string());
-		if (align != null)		css.push("text-align: "+align);
-		if (weight != null)		css.push("font-weight: "+weight);
-		if (style != null)		css.push("font-style: "+style);
+		if (size.isSet())			css.push("font-size: " 		+ size + "px");
+		if (family != null)			css.push("font-family: "	+family);
+		if (color != null)			css.push("color: "			+color.string());
+		if (weight != null)			css.push("font-weight: "	+weight);
+		if (style != null)			css.push("font-style: "		+style);
+		if (letterSpacing.isSet())	css.push("letter-spacing: "	+letterSpacing);
+		if (align != null)			css.push("text-align: "		+align);
+		if (decoration != null)		css.push("text-decoration: "+decoration);
+		if (indent.isSet())			css.push("text-indent: "	+indent);
+		if (transform != null)		css.push("text-transform: "	+transform);
 		
 		if (css.length > 0)
 			return "\n\t" + css.join(";\n\t") + ";";

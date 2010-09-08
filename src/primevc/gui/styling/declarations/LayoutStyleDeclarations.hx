@@ -29,6 +29,7 @@
 package primevc.gui.styling.declarations;
  import primevc.core.geom.Box;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
+ import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.RelativeLayout;
  import primevc.types.Number;
   using primevc.utils.IntUtil;
@@ -44,17 +45,22 @@ package primevc.gui.styling.declarations;
  */
 class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarations>
 {
-	public var relative				(getRelative,		null)	: RelativeLayout;
-	public var algorithm			(getAlgorithm,		null)	: ILayoutAlgorithm;
-	public var padding				(getPadding,		null)	: Box;
+	public var relative				(getRelative,		setRelative)		: RelativeLayout;
+	public var algorithm			(getAlgorithm,		setAlgorithm)		: ILayoutAlgorithm;
+	public var padding				(getPadding,		setPadding)			: Box;
 	
-	public var width				(getWidth,			null)	: Int;
-	public var height				(getHeight,			null)	: Int;
-	public var percentWidth			(getPercentWidth,	null)	: Float;
-	public var percentHeight		(getPercentHeight,	null)	: Float;
-	public var rotation				(getRotation,		null)	: Float;
+	public var width				(getWidth,			setWidth)			: Int;
+	public var maxWidth				(getMaxWidth,		setMaxWidth)		: Int;
+	public var minWidth				(getMinWidth,		setMinWidth)		: Int;
+	public var percentWidth			(getPercentWidth,	setPercentWidth)	: Float;
 	
-	public var maintainAspectRatio	(getMaintainAspect,	null)	: Null< Bool >;
+	public var height				(getHeight,			setHeight)			: Int;
+	public var maxHeight			(getMaxHeight,		setMaxHeight)		: Int;
+	public var minHeight			(getMinHeight,		setMinHeight)		: Int;
+	public var percentHeight		(getPercentHeight,	setPercentHeight)	: Float;
+	
+	public var rotation				(getRotation,		setRotation)		: Float;
+	public var maintainAspectRatio	(getMaintainAspect,	setMaintainAspect)	: Null< Bool >;
 	
 	
 	public function new (
@@ -142,11 +148,20 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	}
 	
 	
-	private function getHeight ()
+	private function getMaxWidth ()
 	{
-		if		(height.isSet())				return height;
-		else if (extendedStyle != null)			return extendedStyle.height;
-		else if (superStyle != null)			return superStyle.height;
+		if		(maxWidth.isSet())				return maxWidth;
+		else if (extendedStyle != null)			return extendedStyle.maxWidth;
+		else if (superStyle != null)			return superStyle.maxWidth;
+		else									return Number.INT_NOT_SET;
+	}
+	
+	
+	private function getMinWidth ()
+	{
+		if		(minWidth.isSet())				return minWidth;
+		else if (extendedStyle != null)			return extendedStyle.minWidth;
+		else if (superStyle != null)			return superStyle.minWidth;
 		else									return Number.INT_NOT_SET;
 	}
 	
@@ -157,6 +172,33 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 		else if (extendedStyle != null)			return extendedStyle.percentWidth;
 		else if (superStyle != null)			return superStyle.percentWidth;
 		else									return Number.FLOAT_NOT_SET;
+	}
+	
+	
+	private function getHeight ()
+	{
+		if		(height.isSet())				return height;
+		else if (extendedStyle != null)			return extendedStyle.height;
+		else if (superStyle != null)			return superStyle.height;
+		else									return Number.INT_NOT_SET;
+	}
+	
+	
+	private function getMaxHeight ()
+	{
+		if		(maxHeight.isSet())				return maxHeight;
+		else if (extendedStyle != null)			return extendedStyle.maxHeight;
+		else if (superStyle != null)			return superStyle.maxHeight;
+		else									return Number.INT_NOT_SET;
+	}
+	
+	
+	private function getMinHeight ()
+	{
+		if		(minHeight.isSet())				return minHeight;
+		else if (extendedStyle != null)			return extendedStyle.minHeight;
+		else if (superStyle != null)			return superStyle.minHeight;
+		else									return Number.INT_NOT_SET;
 	}
 	
 	
@@ -184,6 +226,142 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 		else if (extendedStyle != null)			return extendedStyle.maintainAspectRatio;
 		else if (superStyle != null)			return superStyle.maintainAspectRatio;
 		else									return null;
+	}
+	
+	
+	
+	//
+	// SETTERS
+	//
+	
+	
+	private inline function setRelative (v)
+	{
+		if (v != relative) {
+			relative = v;
+			invalidate( LayoutFlags.RELATIVE );
+		}
+		return v;
+	}
+	
+	
+	private inline function setAlgorithm (v)
+	{
+		if (v != algorithm) {
+			algorithm = v;
+			invalidate( LayoutFlags.ALGORITHM );
+		}
+		return v;
+	}
+	
+	
+	private inline function setPadding (v)
+	{
+		if (v != padding) {
+			padding = v;
+			invalidate( LayoutFlags.PADDING );
+		}
+		return v;
+	}
+	
+	
+	private inline function setWidth (v)
+	{
+		if (v != width) {
+			width = v;
+			invalidate( LayoutFlags.WIDTH );
+		}
+		return v;
+	}
+	
+	
+	private inline function setMaxWidth (v)
+	{
+		if (v != maxWidth) {
+			maxWidth = v;
+			invalidate( LayoutFlags.MAX_WIDTH );
+		}
+		return v;
+	}
+	
+	
+	private inline function setMinWidth (v)
+	{
+		if (v != minWidth) {
+			minWidth = v;
+			invalidate( LayoutFlags.MIN_WIDTH );
+		}
+		return v;
+	}
+	
+	
+	private inline function setPercentWidth (v)
+	{
+		if (v != percentWidth) {
+			percentWidth = v;
+			invalidate( LayoutFlags.PERCENT_WIDTH );
+		}
+		return v;
+	}
+	
+	
+	private inline function setHeight (v)
+	{
+		if (v != height) {
+			height = v;
+			invalidate( LayoutFlags.HEIGHT );
+		}
+		return v;
+	}
+	
+	
+	private inline function setMaxHeight (v)
+	{
+		if (v != maxHeight) {
+			maxHeight = v;
+			invalidate( LayoutFlags.MAX_HEIGHT );
+		}
+		return v;
+	}
+	
+	
+	private inline function setMinHeight (v)
+	{
+		if (v != minHeight) {
+			minHeight = v;
+			invalidate( LayoutFlags.MIN_HEIGHT );
+		}
+		return v;
+	}
+	
+	
+	private inline function setPercentHeight (v)
+	{
+		if (v != percentHeight) {
+			percentHeight = v;
+			invalidate( LayoutFlags.PERCENT_HEIGHT );
+		}
+		return v;
+	}
+	
+	
+	private inline function setRotation (v)
+	{
+		if (v != rotation) {
+			rotation = v;
+			invalidate( LayoutFlags.ROTATION );
+		}
+		return v;
+	}
+	
+	
+	private inline function setMaintainAspect (v)
+	{
+		if (v != maintainAspectRatio) {
+			maintainAspectRatio = v;
+			invalidate( LayoutFlags.MAINTAIN_ASPECT );
+		}
+		return v;
 	}
 	
 	

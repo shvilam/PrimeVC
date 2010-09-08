@@ -27,59 +27,24 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
- import primevc.core.traits.Invalidatable;
+
 
 
 /**
- * Base class for style declarations
- * 
  * @author Ruben Weijers
- * @creation-date Aug 05, 2010
+ * @creation-date Sep 08, 2010
  */
-class StyleDeclarationBase <DeclarationType> extends Invalidatable
-					,	implements IStyleDeclaration <DeclarationType>
-#if (flash9 || cpp)	,	implements haxe.rtti.Generic #end
+class FontFlags
 {
-	public var nestingInherited		(default, setNestingInherited)	: DeclarationType;
-	public var superStyle			(default, setSuperStyle)		: DeclarationType;
-	public var extendedStyle		(default, setExtendedStyle)		: DeclarationType;
+	public static inline var SIZE			: UInt = 1;
+	public static inline var FAMILY			: UInt = 2;
+	public static inline var COLOR			: UInt = 4;
+	public static inline var WEIGHT			: UInt = 8;
+	public static inline var STYLE			: UInt = 16;
 	
-	
-	override public function dispose ()
-	{
-		nestingInherited	= null;
-		superStyle			= null;
-		extendedStyle		= null;
-		super.dispose();
-	}
-	
-	
-	private inline function setNestingInherited (v)
-	{
-		if (v != nestingInherited) {
-			nestingInherited = v;
-			invalidate( StyleFlags.NESTING_STYLE );
-		}
-		return v;
-	}
-	
-	
-	private inline function setSuperStyle (v)
-	{
-		if (v != superStyle) {
-			superStyle = v;
-			invalidate( StyleFlags.SUPER_STYLE );
-		}
-		return v;
-	}
-
-
-	private inline function setExtendedStyle (v)
-	{
-		if (v != extendedStyle) {
-			extendedStyle = v;
-			invalidate( StyleFlags.EXTENDED_STYLE );
-		}
-		return v;
-	}
+	public static inline var LETTER_SPACING	: UInt = 32;
+	public static inline var ALIGN			: UInt = 64;
+	public static inline var DECORATION		: UInt = 128;
+	public static inline var INDENT			: UInt = 256;
+	public static inline var TRANSFORM		: UInt = 512;	
 }

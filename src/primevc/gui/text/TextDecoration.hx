@@ -26,60 +26,14 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
- import primevc.core.traits.Invalidatable;
+package primevc.gui.text;
 
 
 /**
- * Base class for style declarations
- * 
  * @author Ruben Weijers
- * @creation-date Aug 05, 2010
+ * @creation-date Sep 08, 2010
  */
-class StyleDeclarationBase <DeclarationType> extends Invalidatable
-					,	implements IStyleDeclaration <DeclarationType>
-#if (flash9 || cpp)	,	implements haxe.rtti.Generic #end
-{
-	public var nestingInherited		(default, setNestingInherited)	: DeclarationType;
-	public var superStyle			(default, setSuperStyle)		: DeclarationType;
-	public var extendedStyle		(default, setExtendedStyle)		: DeclarationType;
-	
-	
-	override public function dispose ()
-	{
-		nestingInherited	= null;
-		superStyle			= null;
-		extendedStyle		= null;
-		super.dispose();
-	}
-	
-	
-	private inline function setNestingInherited (v)
-	{
-		if (v != nestingInherited) {
-			nestingInherited = v;
-			invalidate( StyleFlags.NESTING_STYLE );
-		}
-		return v;
-	}
-	
-	
-	private inline function setSuperStyle (v)
-	{
-		if (v != superStyle) {
-			superStyle = v;
-			invalidate( StyleFlags.SUPER_STYLE );
-		}
-		return v;
-	}
-
-
-	private inline function setExtendedStyle (v)
-	{
-		if (v != extendedStyle) {
-			extendedStyle = v;
-			invalidate( StyleFlags.EXTENDED_STYLE );
-		}
-		return v;
-	}
+enum TextDecoration {
+	none;
+	underline;
 }

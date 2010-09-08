@@ -104,8 +104,13 @@ class StyleParserTest
 	public static function main ()
 	{
 		var test = new StyleParserTest();
-	//	test.parse();
+		var startT	= flash.Lib.getTimer();
 		test.executeUnitTests();
+		var secondT	= flash.Lib.getTimer();
+		test.parse();
+		var endT	= flash.Lib.getTimer();
+		
+		trace("\n\nunit-tests: "+(secondT - startT)+"ms\nparsing: "+(endT - secondT)+"ms");
 	}
 	
 	private var parser	: CSSParser;
@@ -123,11 +128,8 @@ class StyleParserTest
 	
 	public function parse ()
 	{
-		trace("start");
-		var startT	= flash.Lib.getTimer();
+		trace("=============== PARSING ==================");
 		parser.parse(haxe.Resource.getString("stylesheet"));
-		
-		trace("finished in ("+(flash.Lib.getTimer() - startT)+" ms)");
 		trace(styles);
 	}
 	
@@ -172,14 +174,14 @@ class StyleParserTest
 		testRegexp(expr, CORRECT_BG_IMAGE, true);
 		testRegexp(expr, INCORRECT_BG_IMAGE, false);
 		
-		
+		/*
 		var expr = parser.linGradientExpr;
 		expr.test(CORRECT_LGRADIENTS[2]);
 		trace(expr.resultToString());
 		
 		var expr = parser.radGradientExpr;
 		expr.test(CORRECT_RGRADIENTS[2]);
-		trace(expr.resultToString());
+		trace(expr.resultToString());*/
 	}
 	
 	

@@ -27,59 +27,19 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
- import primevc.core.traits.Invalidatable;
+
 
 
 /**
- * Base class for style declarations
+ * Class holding all style properties for effects.
  * 
  * @author Ruben Weijers
- * @creation-date Aug 05, 2010
+ * @creation-date Sep 07, 2010
  */
-class StyleDeclarationBase <DeclarationType> extends Invalidatable
-					,	implements IStyleDeclaration <DeclarationType>
-#if (flash9 || cpp)	,	implements haxe.rtti.Generic #end
+class EffectStyleDeclarations extends StyleDeclarationBase < EffectStyleDeclarations >
 {
-	public var nestingInherited		(default, setNestingInherited)	: DeclarationType;
-	public var superStyle			(default, setSuperStyle)		: DeclarationType;
-	public var extendedStyle		(default, setExtendedStyle)		: DeclarationType;
-	
-	
-	override public function dispose ()
+	public function new ()
 	{
-		nestingInherited	= null;
-		superStyle			= null;
-		extendedStyle		= null;
-		super.dispose();
-	}
-	
-	
-	private inline function setNestingInherited (v)
-	{
-		if (v != nestingInherited) {
-			nestingInherited = v;
-			invalidate( StyleFlags.NESTING_STYLE );
-		}
-		return v;
-	}
-	
-	
-	private inline function setSuperStyle (v)
-	{
-		if (v != superStyle) {
-			superStyle = v;
-			invalidate( StyleFlags.SUPER_STYLE );
-		}
-		return v;
-	}
-
-
-	private inline function setExtendedStyle (v)
-	{
-		if (v != extendedStyle) {
-			extendedStyle = v;
-			invalidate( StyleFlags.EXTENDED_STYLE );
-		}
-		return v;
+		super();
 	}
 }

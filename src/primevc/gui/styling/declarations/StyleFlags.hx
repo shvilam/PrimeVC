@@ -27,59 +27,25 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
- import primevc.core.traits.Invalidatable;
+
 
 
 /**
- * Base class for style declarations
- * 
  * @author Ruben Weijers
- * @creation-date Aug 05, 2010
+ * @creation-date Sep 05, 2010
  */
-class StyleDeclarationBase <DeclarationType> extends Invalidatable
-					,	implements IStyleDeclaration <DeclarationType>
-#if (flash9 || cpp)	,	implements haxe.rtti.Generic #end
+class StyleFlags
 {
-	public var nestingInherited		(default, setNestingInherited)	: DeclarationType;
-	public var superStyle			(default, setSuperStyle)		: DeclarationType;
-	public var extendedStyle		(default, setExtendedStyle)		: DeclarationType;
+	public static inline var NESTING_STYLE		: UInt = 1;
+	public static inline var SUPER_STYLE		: UInt = 2;
+	public static inline var EXTENDED_STYLE		: UInt = 4;
 	
+	public static inline var SKIN				: UInt = 8;
+	public static inline var LAYOUT				: UInt = 16;
+	public static inline var FONT				: UInt = 32;
 	
-	override public function dispose ()
-	{
-		nestingInherited	= null;
-		superStyle			= null;
-		extendedStyle		= null;
-		super.dispose();
-	}
-	
-	
-	private inline function setNestingInherited (v)
-	{
-		if (v != nestingInherited) {
-			nestingInherited = v;
-			invalidate( StyleFlags.NESTING_STYLE );
-		}
-		return v;
-	}
-	
-	
-	private inline function setSuperStyle (v)
-	{
-		if (v != superStyle) {
-			superStyle = v;
-			invalidate( StyleFlags.SUPER_STYLE );
-		}
-		return v;
-	}
-
-
-	private inline function setExtendedStyle (v)
-	{
-		if (v != extendedStyle) {
-			extendedStyle = v;
-			invalidate( StyleFlags.EXTENDED_STYLE );
-		}
-		return v;
-	}
+	public static inline var BACKGROUND			: UInt = 64;
+	public static inline var BORDER				: UInt = 128;
+	public static inline var EFFECTS			: UInt = 256;
+	public static inline var FILTERS			: UInt = 512;
 }

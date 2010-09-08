@@ -35,14 +35,19 @@ package primevc.gui.styling;
  import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.fills.SolidFill;
  import primevc.gui.graphics.fills.SpreadMethod;
+ import primevc.gui.layout.algorithms.ILayoutAlgorithm;
+ import primevc.gui.layout.RelativeLayout;
+ import primevc.gui.styling.declarations.EffectStyleDeclarations;
+ import primevc.gui.styling.declarations.FilterStyleDeclarations;
  import primevc.gui.styling.declarations.FontStyleDeclarations;
- import primevc.gui.styling.declarations.GraphicStyleDeclarations;
  import primevc.gui.styling.declarations.LayoutStyleDeclarations;
  import primevc.gui.styling.declarations.UIElementStyle;
  import primevc.gui.styling.StyleContainer;
  import primevc.gui.text.FontStyle;
  import primevc.gui.text.FontWeight;
  import primevc.gui.text.TextAlign;
+ import primevc.gui.text.TextDecoration;
+ import primevc.gui.text.TextTransform;
  import primevc.types.Bitmap;
  import primevc.types.Number;
  import primevc.types.RGBA;
@@ -83,6 +88,8 @@ class CSSParser
 	public static inline var R_CLASS_EXPR		: String = "(" + R_DOMAIN_LABEL + ")([.]" + R_DOMAIN_LABEL + ")*";
 	
 	public static inline var R_ROTATION			: String = "([-]?[0-9]+)deg";
+	public static inline var R_WORDWRAP			: String = "off|normal|break-word";
+	
 	
 	//
 	//URI Regexp
@@ -279,21 +286,207 @@ class CSSParser
 		trace("handleMatchedProperty "+name+" = "+val);
 		switch (name)
 		{
-			//font properties
-			case "font-size":			createFontBlock(); currentBlock.font.size	= parseInt(val);
-			case "font-family":			createFontBlock(); currentBlock.font.family	= val;
-			case "color":				createFontBlock(); currentBlock.font.color	= parseColor(val);
-			case "text-align":			createFontBlock(); currentBlock.font.align	= parseTextAlign(val);
-			case "font-weight":			createFontBlock(); currentBlock.font.weight	= parseFontWeight(val);
-			case "font-style":			createFontBlock(); currentBlock.font.style	= parseFontStyle(val);
+			//
+			// font properties
+			//
 			
-			//graphic properties
-			case "background":			parseBackground(val);
-			case "background-color":	parseColorFill(val);
-			case "background-image":	parseBgImage(val);
-			case "background-repeat":	parseBgRepeat(val);
+		//	case "font":						createFontBlock();			parseAndSetFont(val);
+			case "font-size":					createFontBlock();			currentBlock.font.size			= parseInt( val );				//inherit, font-size
+			case "font-family":					createFontBlock();			currentBlock.font.family		= val;							//inherit, font-name
+			case "color":						createFontBlock();			currentBlock.font.color			= parseColor( val );			//inherit, color-values
+			case "font-weight":					createFontBlock();			currentBlock.font.weight		= parseFontWeight( val );		//normal, bold, bolder, lighter
+			case "font-style":					createFontBlock();			currentBlock.font.style			= parseFontStyle( val );		//inherit, normal, italic, oblique
+			case "letter-spacing":				createFontBlock();			currentBlock.font.letterSpacing	= parseInt( val );				//inherit, normal, [length]
+			case "text-align":					createFontBlock();			currentBlock.font.align			= parseTextAlign( val );		//inherit, left, center, right, justify
+			case "text-decoration":				createFontBlock();			currentBlock.font.decoration	= parseTextDecoration( val );	//inherit, none, underline
+			case "text-indent":					createFontBlock();			currentBlock.font.indent		= parseInt( val );
+			case "text-transform":				createFontBlock();			currentBlock.font.transform		= parseTextTransform( val );	//inherit, none, capitalize, uppercase, lowercase
 			
-			//layout properties
+			
+			//
+			// fill properties
+			//
+			
+		//	case "background":					parseAndSetBackground( val );
+			case "background-color":			setBackground( parseColorFill( val ) );		// #fff, 0xfff, #fffddd, 0xfff000, #ffddeeaa, 0xffddeeaa, rgba(255,255,255,0.9)
+			case "background-image":			setBackground( parseBgImage( val ) );		// url( www.rubenw.nl/img.jpg ), class( package.of.Asset ) <background-repeat>
+		//	case "background-repeat":			setBitmapRepeat( parseBgRepeat(val) );		// repeat-all, no-repeat
+			
+			
+			//
+			// border properties
+			//
+			
+		//	case "border":						parseAndSetBorder( val );
+		//	case "border-color":				parseAndSetBorderColor( val );
+		//	case "border-image":
+		//	case "border-image-source":			parseAndSetBorderImage( val );
+		//	case "border-image-repeat":			parseAndSetBorderImageRepeat( val );
+			
+		//	case "border-style":				parseAndSetBorderStyle( val );		//none, solid, dashed, dotted
+		//	case "border-width":				parseAndSetBorderWidth( val );
+			
+		//	case "border-radius":				createShapeBlock();			currentBlock.shape.corners			= parseBorderRadius( val );		//[x]px <[x]px> <[x]px> <[x]px>
+		//	case "border-top-left-radius":		createShapeBlock();			parseAndSetBorderTopLeftRadius( val );
+		//	case "border-top-right-radius":		createShapeBlock();			parseAndSetBorderTopRightRadius( val );
+		//	case "border-bottom-left-radius":	createShapeBlock();			parseAndSetBorderBottomLeftRadius( val );
+		//	case "border-bottom-right-radius":	createShapeBlock();			parseAndSetBorderBottomRightRadius( val );
+			
+			
+			//
+			// component properties
+			//
+			
+		//	case "skin":			// class(package.Class)
+		//	case "cursor":			// auto, move, help, pointer, wait, text, n-resize, ne-resize, e-resize, se-resize, s-resize, sw-resize, w-resize, nw-resize, url(..)
+		//	case "visibility":		// visible, hidden
+		//	case "opacity":			// alpha value of entire element
+		
+		
+			// textfield properties
+		//	case "word-wrap":					createFontBlock();			currentBlock.font.wordwrap		= parseWordWrap( val );
+		//	case "column-count":				createFontBlock();			currentBlock.font.columnCount	= parseInt( val );
+		//	case "column-gap":					createLayoutBlock();		currentBlock.layout.columnGap	= parseInt( val );
+		//	case "column-width":				createLayoutBlock();		currentBlock.layout.childWidth	= parseInt( val );
+		
+			
+			//
+			// iconing elements
+			//
+			
+		//	case "icon":
+			
+			
+			//
+			// layout properties
+			//
+			
+		//	case "width":						createLayoutBlock();		currentBlock.layout.width			= parseIntOrPercentage( val );
+		//	case "height":						createLayoutBlock();		currentBlock.layout.height			= parseIntOrPercentage( val );
+		//	case "min-width":					createLayoutBlock();		currentBlock.layout.minWidth		= parseInt( val );
+		//	case "min-height":					createLayoutBlock();		currentBlock.layout.minHeight		= parseInt( val );
+		//	case "max-width":					createLayoutBlock();		currentBlock.layout.maxWidth		= parseInt( val );
+		//	case "max-height":					createLayoutBlock();		currentBlock.layout.maxHeight		= parseInt( val );
+			
+		//	case "child-width":					createLayoutBlock();		currentBlock.layout.childWidth		= parseInt( val );
+		//	case "child-height":				createLayoutBlock();		currentBlock.layout.childHeight		= parseInt( val );
+			
+		//	case "relative":					createLayoutBlock();		parseAndSetRelativeProperties( val );
+		//	case "left":						createRelativeBlock();		currentBlock.layout.relative.left	= parseInt( val );
+		//	case "right":						createRelativeBlock();		currentBlock.layout.relative.right	= parseInt( val );
+		//	case "top":							createRelativeBlock();		currentBlock.layout.relative.top	= parseInt( val );
+		//	case "bottom":						createRelativeBlock();		currentBlock.layout.relative.bottom	= parseInt( val );
+		//	case "h-center":					createRelativeBlock();		currentBlock.layout.relative.hCenter= parseInt( val );
+		//	case "v-center":					createRelativeBlock();		currentBlock.layout.relative.vCenter= parseInt( val );
+			
+		//	case "position":					//absolute and relative supported (=includeInLayout)
+		//	case "algorithm":					createLayoutBlock();		currentBlock.layout.algorithm		= parseLayoutAlgorithm( val );
+		//	case "transform":					createLayoutBlock();		currentBlock.layout.transform		= parseTransform( val );
+		//	case "rotation":
+		//	case "rotation-point":
+		
+		//	case "padding":
+		//	case "padding-top":
+		//	case "padding-bottom":
+		//	case "padding-right":
+		//	case "padding-left":
+			
+		//	case "clip":		// auto, rect([t],[r],[b],[l])	--> specifies the area of an absolutly positioned box that should be visible == scrollrect size?
+		//	case "overflow":	// visible, hidden, scroll-mouse-move, drag-scroll, corner-scroll
+			
+			
+			//
+			// transition properties
+			//
+			
+		//	case "move-transition":				createEffectsBlock();	// < effect( <duration>ms/s, <ease>, <delay>ms, reverted  ) | other-transition, ... > 
+		//	case "resize-transition":			createEffectsBlock();
+		//	case "rotate-transition":			createEffectsBlock();
+		//	case "scale-transition":			createEffectsBlock();
+		//	case "show-transition":				createEffectsBlock();
+		//	case "hide-transition":				createEffectsBlock();
+		//	case "transition":		// <property> <animation-name>	property: move, resize, rotate, scale, show, hide
+			
+			
+			//
+			// animation properties
+			//
+			
+		//	case "animation":			// <name> <type> effect( <duration>ms/s, <ease>, <delay>ms, reverted  ) 
+		//	case "animation-delay":
+		//	case "animation-direction":
+		//	case "animation-duration":
+		//	case "animation-name":
+		//	case "animation-timing-function":	
+			
+			
+			
+			//
+			//filter properties
+			//
+			
+		//	case "box-shadow":					// <color> <size> <inset?>
+		//	case "filter":						createFiltersBlock();
+			
+			
+			
+			//
+			// unsupported properties
+			//
+			
+			case "font-variant":			//inherit, normal, small-caps
+			case "text-shadow":
+			case "line-height":
+			case "word-spacing":
+			case "vertical-align":
+			case "white-space":
+			
+			case "list-style":
+			case "list-style-image":
+			case "list-style-position":
+			case "list-style-type":
+			
+			case "background-clip":			//border-box, padding-box, content-box
+			case "background-origin":		//border-box, padding-box, content-box
+			case "background-attachment":	//scroll, fixed, local
+			case "background-position":
+			case "background-size":			//<length>,<percentage>|auto|{1,2}cover|contain
+			
+			case "corner-shaping":
+			case "corner-clipping":
+			case "border-top":
+			case "border-bottom":
+			case "border-left":
+			case "border-right":
+			case "border-image-slice":
+			case "border-image-width":
+			case "border-image-outset":
+			
+			case "outline":
+			case "outline-style":
+			case "outline-color":
+			case "outline-width":
+			
+			/** quite impossible to implement to orignal transition doc if there are 8 diffent transition types... :-S **/
+			case "transition-property":
+			case "transition-duration":
+			case "transition-timing-function":
+			case "transition-delay":
+			case "animation-iteration-count":
+			case "animation-play-state":
+			
+			case "box-sizing":				//currentBlock.layout.sizing		= parseBoxSizing (val);
+			case "z-index":
+			case "margin":
+			case "margin-top":
+			case "margin-bottom":
+			case "margin-right":
+			case "margin-left":
+			case "float":
+			case "clear":
+			case "display":
+			
+				trace(name+" is not yet supported");
 		}
 	}
 	
@@ -305,70 +498,38 @@ class CSSParser
 	}
 	
 	
-	/**
-	 * Method will set the given fill property in the current style block.
-	 * If the current fill is not set or is of the same type as the new fill,
-	 * the new fill will be set in the style block and overwrite the old value.
-	 * 
-	 * If the old-fill is of a different type, the method will create a 
-	 * ComposedFill and will insert the old-fill an new fill in the 
-	 * composedfill.
-	 * In a composedfill, it will always try to first set the BitmapFill and
-	 * then the rest of the fills.
-	 */
-	private inline function setGraphicsFill (newFill:IFill) : Void
+	private inline function createLayoutBlock () : Void
 	{
-		if (currentBlock.graphics == null)
-			currentBlock.graphics = new GraphicStyleDeclarations();
-		
-		if ( currentBlock.graphics.background == null || currentBlock.graphics.background.is( newFill.getClass() ) )
-		{
-			currentBlock.graphics.background = newFill;
-		}
-		else if (!currentBlock.graphics.background.is(ComposedFill))
-		{
-			var curFill		= currentBlock.graphics.background;
-			var compFill	= new ComposedFill();
-			
-			//bitmap fill always has to be the first element in a composed fill
-			if (newFill.is( BitmapFill ))
-			{
-				compFill.add( newFill );
-				compFill.add( curFill );
-			}
-			else
-			{	
-				compFill.add( curFill );
-				compFill.add( newFill );
-			}
-			
-			currentBlock.graphics.background = compFill;
-		}
-		else
-		{
-			var compFill = currentBlock.graphics.background.as(ComposedFill);
-			
-			if (newFill.is(BitmapFill))
-			{
-				//remove old bitmap fill (if any)
-				for (curFill in compFill.fills) {
-					if (curFill.is(BitmapFill))
-						compFill.remove(curFill);
-				}
-				//add bitmap as first fill
-				compFill.add(newFill, 0);
-			}
-			else
-			{
-				//add fill at the end of the fill list
-				compFill.add(newFill);
-			}
-		}
+		if (currentBlock.layout == null)
+			currentBlock.layout = new LayoutStyleDeclarations();
+	}
+
+
+	private inline function createEffectsBlock () : Void
+	{
+		if (currentBlock.effects == null)
+			currentBlock.effects = new EffectStyleDeclarations();
+	}
+
+
+	private inline function createFiltersBlock () : Void
+	{
+		if (currentBlock.filters == null)
+			currentBlock.filters = new FilterStyleDeclarations();
 	}
 	
 	
+	private inline function createRelativeBlock () : Void
+	{
+		createLayoutBlock();
+		if (currentBlock.layout.relative == null)
+			currentBlock.layout.relative = new RelativeLayout();
+	}
+	
+	
+	
 	//
-	// FONT PARSE METHODS
+	// FONT METHODS
 	//
 	
 	/**
@@ -383,11 +544,14 @@ class CSSParser
 	
 	/**
 	 * Method parses a color value like #aaa000 or 0xaaa000 to a RGBA value
+	 * If the value is 'inherit', the method will return null.
 	 */
-	private inline function parseColor (v:String) : RGBA
+	private inline function parseColor (v:String) : Null < RGBA >
 	{
-		var clr:RGBA = 0x00;
-		if (colorValExpr.match(v.trim()))
+		var clr:Null< RGBA > = null;
+		
+		v = v.trim().toLowerCase();
+		if (v != "inherit" && colorValExpr.match(v))
 		{
 			if (colorValExpr.matched(3) != null)
 			{
@@ -408,41 +572,152 @@ class CSSParser
 	
 	private inline function parseTextAlign (v:String) : TextAlign
 	{
-		return switch (v.trim()) {
+		return switch (v.trim().toLowerCase()) {
 			default:		TextAlign.left;
 			case "center":	TextAlign.center;
 			case "right":	TextAlign.right;
+			case "jusitfy":	TextAlign.justify;
+			case "inherit":	null;
 		}
 	}
 
 
 	private inline function parseFontWeight (v:String) : FontWeight
 	{
-		return switch (v.trim()) {
+		return switch (v.trim().toLowerCase()) {
 		default:			FontWeight.normal;
 			case "bold":	FontWeight.bold;
 			case "bolder":	FontWeight.bolder;
 			case "lighter":	FontWeight.lighter;
+			case "inherit":	null;
 		}
 	}
 
 
 	private inline function parseFontStyle (v:String) : FontStyle
 	{
-		return switch (v.trim()) {
+		return switch (v.trim().toLowerCase()) {
 			default:		FontStyle.normal;
 			case "italic":	FontStyle.italic;
 			case "oblique":	FontStyle.oblique;
+			case "inherit":	null;
+		}
+	}
+	
+	
+	private inline function parseWordWrap (v:String) : Bool
+	{
+		return v.trim().toLowerCase() == "off" ? false : true;
+	}
+	
+	
+	/**
+	 * Interprets the values: inherit, none, underline
+	 */
+	private inline function parseTextDecoration (v:String) : TextDecoration
+	{
+		return switch (v.trim().toLowerCase()) {
+			default:			TextDecoration.none;
+			case "underline":	TextDecoration.underline;
+			case "inherit":		null;
+		}
+	}
+	
+	
+	/**
+	 * Interprets the values: inherit, none, capitalize, uppercase, lowercase
+	 */
+	private inline function parseTextTransform (v:String) : TextTransform
+	{
+		return switch (v.trim().toLowerCase()) {
+			default:			TextTransform.none;
+			case "capitalize":	TextTransform.capitalize;
+			case "uppercase":	TextTransform.uppercase;
+			case "lowercase":	TextTransform.lowercase;
+			case "inherit":		null;
 		}
 	}
 	
 	
 	
+	
 	//
-	// FILLS PARSE METHODS
+	// GRAPHICS METHODS
 	//
 	
-	private inline function parseBackground (v:String) : Void
+	
+	/**
+	 * Method will set the given fill property in the current style block.
+	 * If the current fill is not set or is of the same type as the new fill,
+	 * the new fill will be set in the style block and overwrite the old value.
+	 * 
+	 * If the old-fill is of a different type, the method will create a 
+	 * ComposedFill and will insert the old-fill an new fill in the 
+	 * composedfill.
+	 * In a composedfill, it will always try to first set the BitmapFill and
+	 * then the rest of the fills.
+	 */
+	private inline function setBackground(newFill:IFill) : Void
+	{
+		if (newFill != null)
+		{
+			//
+			//there is no background yet or the current background is of the same type as the new background (=replace it)
+			//
+			if ( currentBlock.background == null || currentBlock.background.is( newFill.getClass() ) )
+			{
+				currentBlock.background = newFill;
+			}
+			//
+			//there is already another background property, but it's not a composed fill yet
+			//
+			else if (!currentBlock.background.is(ComposedFill))
+			{
+				var curFill		= currentBlock.background;
+				var compFill	= new ComposedFill();
+				
+				//bitmap fill always has to be the first element in a composed fill
+				if (newFill.is( BitmapFill ))
+				{
+					compFill.add( newFill );
+					compFill.add( curFill );
+				}
+				else
+				{	
+					compFill.add( curFill );
+					compFill.add( newFill );
+				}
+				
+				currentBlock.background = compFill;
+			}
+			//
+			//there is already an composed fill background property specified. Let's add the newFill to this composed fill.
+			//
+			else
+			{
+				var compFill = currentBlock.background.as(ComposedFill);
+			
+				if (newFill.is(BitmapFill))
+				{
+					//remove old bitmap fill (if any)
+					for (curFill in compFill.fills) {
+						if (curFill.is(BitmapFill))
+							compFill.remove(curFill);
+					}
+					//add bitmap as first fill
+					compFill.add(newFill, 0);
+				}
+				else
+				{
+					//add fill at the end of the fill list
+					compFill.add(newFill);
+				}
+			}
+		}
+	}
+	
+	
+	private inline function parseAndSetBackground (v:String) : Void
 	{
 		
 	}
@@ -474,7 +749,7 @@ class CSSParser
 	 * 		- reflect	(repeat gradient and reverse every odd repeat)
 	 * 		- repeat	(repeat gradient)
 	 */
-	private function parseColorFill (v:String) : Void
+	private inline function parseColorFill (v:String) : IFill
 	{
 		var fill:IFill = null;
 		
@@ -527,14 +802,13 @@ class CSSParser
 			fill = new SolidFill(parseColor(v));
 		}
 		
-		//add fill to styleBlock
-		if (fill != null)
-			setGraphicsFill(fill);
+		return fill;
 	}
 	
 	
-	private function parseBgImage (v:String) : Void
+	private inline function parseBgImage (v:String) : IFill
 	{
+		var fill:IFill = null;
 		if (bgImageExpr.match(v))
 		{
 			trace("BACKGROUND IMAGE FOUND "+v);
@@ -546,10 +820,16 @@ class CSSParser
 			
 		//	bmp.loadClass( cast bgImageExpr.matched(7).resolveClass() );
 			
-			var fill = new BitmapFill( bmp );
+			var bmpFill = new BitmapFill( bmp );
+			
+			//do stuff
+			
+			fill = bmpFill;
 		}
 		else
 			trace("no-bg-image-match");
+		
+		return null;
 	}
 	
 	
