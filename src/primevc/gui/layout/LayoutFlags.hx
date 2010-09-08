@@ -37,41 +37,54 @@ package primevc.gui.layout;
  */
 class LayoutFlags 
 {
-	public static inline var WIDTH_CHANGED				: Int = 1;
-	public static inline var HEIGHT_CHANGED				: Int = 2;
-	public static inline var X_CHANGED					: Int = 4;
-	public static inline var Y_CHANGED					: Int = 8;
+	public static inline var WIDTH					: UInt = 1;
+	public static inline var HEIGHT					: UInt = 2;
+	public static inline var X						: UInt = 4;
+	public static inline var Y						: UInt = 8;
 	/**
 	 * Flag indicating the includeInLayout property has changed
 	 */
-	public static inline var INCLUDE_CHANGED			: Int = 16;
+	public static inline var INCLUDE				: UInt = 16;
 	/**
 	 * The relative property or properties of the relative object are changed.
 	 */
-	public static inline var RELATIVE_CHANGED			: Int = 32;
+	public static inline var RELATIVE				: UInt = 32;
 	/**
 	 * Flag indicating that when the list with children of a layoutgroup have 
 	 * changed.
 	 */
-	public static inline var LIST_CHANGED				: Int = 64;
+	public static inline var LIST					: UInt = 64;
 	/**
 	 * Flag indicating that the children of the layout algorithm have changed.
 	 */
-	public static inline var CHILDREN_INVALIDATED		: Int = 128;
+	public static inline var CHILDREN_INVALIDATED	: UInt = 128;
 	/**
 	 * Flag indicating that a property of the layout algorithm is changed and
 	 * the layout needs to be validated again.
 	 */
-	public static inline var ALGORITHM_CHANGED			: Int = 256;
+	public static inline var ALGORITHM				: UInt = 256;
 	/**
-	 * Flag indicating that the size-constraint of the layout-client is changed
+	 * Flag indicating that the size-constraUInt of the layout-client is changed
 	 */
-	public static inline var SIZE_CONSTRAINT_CHANGED	: Int = 512;
+	public static inline var SIZE_CONSTRAINT		: UInt = 512;
+	
+	public static inline var MAX_WIDTH				: UInt = 1024;
+	public static inline var MIN_WIDTH				: UInt = 2048;
+	public static inline var PERCENT_WIDTH			: UInt = 4096;
+	
+	public static inline var MAX_HEIGHT				: UInt = 8192;
+	public static inline var MIN_HEIGHT				: UInt = 16384;
+	public static inline var PERCENT_HEIGHT			: UInt = 32768;
+	
+	public static inline var PADDING				: UInt = 65536;
+	public static inline var MAINTAIN_ASPECT		: UInt = 131072;
+	public static inline var ROTATION				: UInt = 262144;
+	
 	
 	
 	/**
 	 * Property is not meant as a flag but to incicate that a layout-client.
 	 * percentage property is set to fill the left space
 	 */
-	public static inline var FILL						: Int = 2147483647;
+	public static inline var FILL					: UInt = 2147483647;
 }

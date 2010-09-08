@@ -93,7 +93,7 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 	{
 		var r = false;
 		algorithm.group = cast this;
-		if (childChanges.has(LayoutFlags.LIST_CHANGED) || (algorithm != null && algorithm.isInvalid(childChanges)))
+		if (childChanges.has(LayoutFlags.LIST) || (algorithm != null && algorithm.isInvalid(childChanges)))
 		{
 			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
 			r = true;
@@ -187,7 +187,7 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 			}
 			
 			algorithm = v;
-			invalidate( LayoutFlags.ALGORITHM_CHANGED );
+			invalidate( LayoutFlags.ALGORITHM );
 			
 			if (algorithm != null) {
 				algorithmChangedHandler.on( algorithm.algorithmChanged, this );
@@ -226,8 +226,8 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 	// EVENT HANDLERS
 	//
 	
-	private function algorithmChangedHandler ()							{ invalidate( LayoutFlags.ALGORITHM_CHANGED ); }
-	private function invalidateChildList ()								{ invalidate( LayoutFlags.LIST_CHANGED ); }
+	private function algorithmChangedHandler ()							{ invalidate( LayoutFlags.ALGORITHM ); }
+	private function invalidateChildList ()								{ invalidate( LayoutFlags.LIST ); }
 //	private function childRemovedHandler (child:ChildType, pos:Int)		{ if (child != null) { child.parent = null; } }
 	
 	private function childAddedHandler (child:ChildType, pos:Int)

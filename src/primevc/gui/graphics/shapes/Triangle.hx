@@ -162,7 +162,7 @@ class Triangle extends ShapeBase
 	{
 		if (v != direction) {
 			direction = v;
-			invalidate( GraphicFlags.SHAPE_CHANGED );
+			invalidate( GraphicFlags.SHAPE );
 		}
 		return v;
 	}

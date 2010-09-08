@@ -105,7 +105,7 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	{
 		if (v != weight) {
 			weight = v;
-			invalidate( GraphicFlags.BORDER_CHANGED );
+			invalidate( GraphicFlags.BORDER );
 		}
 		return v;
 	}
@@ -121,7 +121,7 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 			if (fill != null)
 				fill.listeners.add(this);
 			
-			invalidate( GraphicFlags.BORDER_CHANGED );
+			invalidate( GraphicFlags.BORDER );
 		}
 		return v;
 	}
@@ -131,7 +131,7 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	{
 		if (v != caps) {
 			caps = v;
-			invalidate( GraphicFlags.BORDER_CHANGED );
+			invalidate( GraphicFlags.BORDER );
 		}
 		return v;
 	}
@@ -141,7 +141,7 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	{
 		if (v != joint) {
 			joint = v;
-			invalidate( GraphicFlags.BORDER_CHANGED );
+			invalidate( GraphicFlags.BORDER );
 		}
 		return v;
 	}
@@ -151,7 +151,7 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	{
 		if (v != pixelHinting) {
 			pixelHinting = v;
-			invalidate( GraphicFlags.BORDER_CHANGED );
+			invalidate( GraphicFlags.BORDER );
 		}
 		return v;
 	}
@@ -161,7 +161,7 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	{
 		if (v != innerBorder) {
 			innerBorder = v;
-			invalidate( GraphicFlags.BORDER_CHANGED );
+			invalidate( GraphicFlags.BORDER );
 		}
 		return v;
 	}

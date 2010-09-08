@@ -82,7 +82,7 @@ class ComposedShape extends ShapeBase
 	{
 		children.insertAt( child, depth );
 		child.listeners.add(this);
-		invalidate( GraphicFlags.SHAPE_CHANGED );
+		invalidate( GraphicFlags.SHAPE );
 	}
 
 
@@ -90,7 +90,7 @@ class ComposedShape extends ShapeBase
 	{
 		child.listeners.add(this);
 		children.remove(child);
-		invalidate( GraphicFlags.SHAPE_CHANGED );
+		invalidate( GraphicFlags.SHAPE );
 	}
 
 

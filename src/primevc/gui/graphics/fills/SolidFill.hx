@@ -74,7 +74,7 @@ class SolidFill extends GraphicElement, implements IFill
 	{
 		if (color != v) {
 			this.color = v;
-			invalidate( GraphicFlags.FILL_CHANGED );
+			invalidate( GraphicFlags.FILL );
 		}
 		return v;
 	}

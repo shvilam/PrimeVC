@@ -71,7 +71,7 @@ class TextArea extends UIContainer < String >
 		v = v.within( 1, MAX_COLUMNS );
 		if (v != columns) {
 			columns = v;
-			invalidate( Flags.COLUMNS_CHANGED );
+			invalidate( Flags.COLUMNS );
 		}
 		return v;
 	}

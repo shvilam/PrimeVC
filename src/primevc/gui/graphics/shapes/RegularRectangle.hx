@@ -80,7 +80,7 @@ class RegularRectangle extends ShapeBase
 	{
 		if (v != corners) {
 			corners = v;
-			invalidate( GraphicFlags.SHAPE_CHANGED );
+			invalidate( GraphicFlags.SHAPE );
 		}
 		return v;
 	}

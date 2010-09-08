@@ -94,7 +94,7 @@ class ComposedFill extends GraphicElement, implements IFill
 	{
 		fills.insertAt( fill, depth );
 		fill.listeners.add(this);
-		invalidate( GraphicFlags.FILL_CHANGED );
+		invalidate( GraphicFlags.FILL );
 	}
 
 
@@ -103,7 +103,7 @@ class ComposedFill extends GraphicElement, implements IFill
 		fills.remove(fill);
 		fill.listeners.remove(this);
 		fill.dispose();
-		invalidate( GraphicFlags.FILL_CHANGED );
+		invalidate( GraphicFlags.FILL );
 	}
 	
 	

@@ -128,7 +128,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	
 	
 	private inline function checkIfChildGetsPercentageWidth (child:LayoutClient, widthToUse:Int) : Bool {
-		return (changes.has(LayoutFlags.WIDTH_CHANGED) || child.changes.has(LayoutFlags.WIDTH_CHANGED))
+		return (changes.has(LayoutFlags.WIDTH) || child.changes.has(LayoutFlags.WIDTH))
 					&& child.percentWidth > 0
 					&& child.percentWidth != LayoutFlags.FILL
 					&& widthToUse.isSet();
@@ -136,7 +136,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	
 	
 	private inline function checkIfChildGetsPercentageHeight (child:LayoutClient, heightToUse:Int) : Bool {
-		return (changes.has(LayoutFlags.HEIGHT_CHANGED) || child.changes.has(LayoutFlags.HEIGHT_CHANGED))
+		return (changes.has(LayoutFlags.HEIGHT) || child.changes.has(LayoutFlags.HEIGHT))
 					&& child.percentHeight > 0
 					&& child.percentHeight != LayoutFlags.FILL
 					&& heightToUse.isSet();
@@ -274,7 +274,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 			}
 			
 			algorithm = v;
-			invalidate( LayoutFlags.ALGORITHM_CHANGED );
+			invalidate( LayoutFlags.ALGORITHM );
 			
 			if (algorithm != null) {
 				algorithm.group = this;
@@ -328,8 +328,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	// EVENT HANDLERS
 	//
 	
-	private function algorithmChangedHandler ()							{ invalidate( LayoutFlags.ALGORITHM_CHANGED ); }
-	private function invalidateChildList ()								{ invalidate( LayoutFlags.LIST_CHANGED ); }
+	private function algorithmChangedHandler ()							{ invalidate( LayoutFlags.ALGORITHM ); }
+	private function invalidateChildList ()								{ invalidate( LayoutFlags.LIST ); }
 	
 	
 	private function childRemovedHandler (child:LayoutClient, pos:Int)	{

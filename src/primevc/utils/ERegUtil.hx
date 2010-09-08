@@ -47,7 +47,7 @@ class ERegUtil extends EReg
 		}
 	}
 	
-	
+#if debug	
 	public static inline function test (expr:EReg, str:String, ?pos:haxe.PosInfos) : Bool
 	{
 		var success		= expr.match(str);
@@ -98,4 +98,5 @@ class ERegUtil extends EReg
 	
 	
 	public static inline function getExpression (expr:EReg) { return expr.r; }
+#end
 }

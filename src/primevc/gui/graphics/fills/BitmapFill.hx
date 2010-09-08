@@ -82,7 +82,7 @@ class BitmapFill extends GraphicElement, implements IFill
 			
 			if (bitmap != null) {
 				if (bitmap.state.is(BitmapStates.ready))
-					invalidate( GraphicFlags.FILL_CHANGED );
+					invalidate( GraphicFlags.FILL );
 				
 				handleBitmapStateChange.on( bitmap.state.change, this );
 			}
@@ -95,7 +95,7 @@ class BitmapFill extends GraphicElement, implements IFill
 	{
 		if (v != matrix) {
 			matrix = v;
-			invalidate( GraphicFlags.FILL_CHANGED );
+			invalidate( GraphicFlags.FILL );
 		}
 		return v;
 	}
@@ -105,7 +105,7 @@ class BitmapFill extends GraphicElement, implements IFill
 	{
 		if (v != smooth) {
 			smooth = v;
-			invalidate( GraphicFlags.FILL_CHANGED );
+			invalidate( GraphicFlags.FILL );
 		}
 		return v;
 	}
@@ -115,7 +115,7 @@ class BitmapFill extends GraphicElement, implements IFill
 	{
 		if (v != repeat) {
 			repeat = v;
-			invalidate( GraphicFlags.FILL_CHANGED );
+			invalidate( GraphicFlags.FILL );
 		}
 		return v;
 	}
@@ -128,8 +128,8 @@ class BitmapFill extends GraphicElement, implements IFill
 	private inline function handleBitmapStateChange (oldState:BitmapStates, newState:BitmapStates)
 	{
 		switch (newState) {
-			case BitmapStates.ready:	invalidate( GraphicFlags.FILL_CHANGED );
-			case BitmapStates.empty:	invalidate( GraphicFlags.FILL_CHANGED );
+			case BitmapStates.ready:	invalidate( GraphicFlags.FILL );
+			case BitmapStates.empty:	invalidate( GraphicFlags.FILL );
 		}
 	}
 	

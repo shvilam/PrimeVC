@@ -102,7 +102,7 @@ class GradientFill extends GraphicElement, implements IFill
 		if (v != rotation) {
 			lastMatrix	= null;
 			rotation	= v;
-			invalidate( GraphicFlags.FILL_CHANGED );
+			invalidate( GraphicFlags.FILL );
 		}
 		return v;
 	}
@@ -112,7 +112,7 @@ class GradientFill extends GraphicElement, implements IFill
 	{
 		if (v != type) {
 			type = v;
-			invalidate( GraphicFlags.FILL_CHANGED );
+			invalidate( GraphicFlags.FILL );
 		}
 		return v;
 	}
@@ -122,7 +122,7 @@ class GradientFill extends GraphicElement, implements IFill
 	{
 		if (v != spread) {
 			spread = v;
-			invalidate( GraphicFlags.FILL_CHANGED );
+			invalidate( GraphicFlags.FILL );
 		}
 		return v;
 	}
@@ -132,7 +132,7 @@ class GradientFill extends GraphicElement, implements IFill
 	{
 		if (v != focalPointRatio) {
 			focalPointRatio = v;
-			invalidate( GraphicFlags.FILL_CHANGED );
+			invalidate( GraphicFlags.FILL );
 		}
 		return v;
 	}
@@ -212,7 +212,7 @@ class GradientFill extends GraphicElement, implements IFill
 	{
 		gradientStops.insertAt( fill, depth );
 		fill.listeners.add(this);
-		invalidate( GraphicFlags.FILL_CHANGED );
+		invalidate( GraphicFlags.FILL );
 	}
 	
 	
@@ -221,7 +221,7 @@ class GradientFill extends GraphicElement, implements IFill
 		gradientStops.remove(fill);
 		fill.listeners.remove(this);
 		fill.dispose();
-		invalidate( GraphicFlags.FILL_CHANGED );
+		invalidate( GraphicFlags.FILL );
 	}
 	
 #if debug

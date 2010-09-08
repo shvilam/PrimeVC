@@ -152,7 +152,7 @@ class ShapeBase implements IGraphicShape
 			if (fill != null)
 				fill.listeners.add(this);
 
-			invalidate( GraphicFlags.FILL_CHANGED );
+			invalidate( GraphicFlags.FILL );
 		}
 		return v;
 	}
@@ -169,7 +169,7 @@ class ShapeBase implements IGraphicShape
 			if (border != null)
 				border.listeners.add(this);
 
-			invalidate( GraphicFlags.BORDER_CHANGED );
+			invalidate( GraphicFlags.BORDER );
 		}
 		return v;
 	}
@@ -180,7 +180,7 @@ class ShapeBase implements IGraphicShape
 		if (v != layout)
 		{
 			layout = v;
-			invalidate( GraphicFlags.LAYOUT_CHANGED );
+			invalidate( GraphicFlags.LAYOUT );
 		}
 		return v;
 	}

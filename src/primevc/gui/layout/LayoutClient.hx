@@ -123,7 +123,7 @@ class LayoutClient implements ILayoutClient
 		updateWidth	.on( bounds.size.xProp.change, this );
 		updateHeight.on( bounds.size.yProp.change, this );
 		
-		changes				= changes.set(Flags.X_CHANGED | Flags.Y_CHANGED | Flags.WIDTH_CHANGED | Flags.HEIGHT_CHANGED);
+		changes				= changes.set(Flags.X | Flags.Y | Flags.WIDTH | Flags.HEIGHT);
 		state				= new SimpleStateMachine<ValidateStates>( ValidateStates.validated );
 		validatedVertical	= false;
 		validatedHorizontal	= false;
@@ -222,7 +222,7 @@ class LayoutClient implements ILayoutClient
 	
 	public function validateHorizontal ()
 	{
-		if (changes.has(Flags.WIDTH_CHANGED))
+		if (changes.has(Flags.WIDTH))
 			bounds.width = width + getHorPadding();
 		
 		validatedHorizontal = true;
@@ -231,7 +231,7 @@ class LayoutClient implements ILayoutClient
 	
 	public function validateVertical ()
 	{
-		if (changes.has(Flags.HEIGHT_CHANGED))
+		if (changes.has(Flags.HEIGHT))
 			bounds.height = height + getVerPadding();
 		
 		validatedVertical = true;
@@ -243,10 +243,10 @@ class LayoutClient implements ILayoutClient
 		if (changes == 0)
 			return;
 		
-		if (changes.has(Flags.WIDTH_CHANGED) || changes.has(Flags.HEIGHT_CHANGED))
+		if (changes.has(Flags.WIDTH) || changes.has(Flags.HEIGHT))
 			events.sizeChanged.send();
 		
-		if (changes.has(Flags.X_CHANGED) || changes.has(Flags.Y_CHANGED))
+		if (changes.has(Flags.X) || changes.has(Flags.Y))
 			events.posChanged.send();
 		
 		state.current	= ValidateStates.validated;
@@ -314,7 +314,7 @@ class LayoutClient implements ILayoutClient
 		bounds.left = v;
 		if (x != bounds.left) {
 			x = bounds.left;
-			invalidate( Flags.X_CHANGED );
+			invalidate( Flags.X );
 		}
 		return x;
 	}
@@ -325,7 +325,7 @@ class LayoutClient implements ILayoutClient
 		bounds.top = v;
 		if (y != bounds.top) {
 			y = bounds.top;
-			invalidate( Flags.Y_CHANGED );
+			invalidate( Flags.Y );
 		}
 		return y;
 	}
@@ -353,7 +353,7 @@ class LayoutClient implements ILayoutClient
 			if (maintainAspectRatio && newH != height)
 				height = newH; //will trigger the height constraints
 			
-			invalidate( Flags.WIDTH_CHANGED );
+			invalidate( Flags.WIDTH );
 		}
 		return _width.value;
 	}
@@ -372,7 +372,7 @@ class LayoutClient implements ILayoutClient
 			if (maintainAspectRatio && newW != width)
 				width = newW; //will trigger the width constraints
 			
-			invalidate( Flags.HEIGHT_CHANGED );
+			invalidate( Flags.HEIGHT );
 		}
 		return _height.value;
 	}
@@ -383,7 +383,7 @@ class LayoutClient implements ILayoutClient
 		if (v != percentWidth)
 		{
 			percentWidth = v;
-			invalidate( Flags.WIDTH_CHANGED );
+			invalidate( Flags.WIDTH );
 		}
 		return v;
 	}
@@ -394,7 +394,7 @@ class LayoutClient implements ILayoutClient
 		if (v != percentHeight)
 		{
 			percentHeight = v;
-			invalidate( Flags.HEIGHT_CHANGED );
+			invalidate( Flags.HEIGHT );
 		}
 		return v;
 	}
@@ -405,7 +405,7 @@ class LayoutClient implements ILayoutClient
 	{
 		if (padding != v) {
 			padding = v;
-			invalidate( Flags.HEIGHT_CHANGED | Flags.WIDTH_CHANGED );
+			invalidate( Flags.HEIGHT | Flags.WIDTH );
 		}
 		return padding;
 	}
@@ -431,7 +431,7 @@ class LayoutClient implements ILayoutClient
 	{
 		if (includeInLayout != v) {
 			includeInLayout = v;
-			invalidate( Flags.INCLUDE_CHANGED );
+			invalidate( Flags.INCLUDE );
 		}
 		return includeInLayout;
 	}	
@@ -483,7 +483,7 @@ class LayoutClient implements ILayoutClient
 	
 	
 	private inline function invalidateSizeConstraint () {
-		invalidate( Flags.SIZE_CONSTRAINT_CHANGED );
+		invalidate( Flags.SIZE_CONSTRAINT );
 	}
 	
 	
@@ -526,7 +526,7 @@ class LayoutClient implements ILayoutClient
 	
 	private function handleRelativeChange ()
 	{
-		invalidate(Flags.RELATIVE_CHANGED);
+		invalidate(Flags.RELATIVE);
 	}
 	
 	/*
@@ -551,16 +551,16 @@ class LayoutClient implements ILayoutClient
 		
 		if (changes > 0)
 		{
-			if (changes.has( Flags.WIDTH_CHANGED ))				output.push("width");
-			if (changes.has( Flags.HEIGHT_CHANGED ))			output.push("height");
-			if (changes.has( Flags.X_CHANGED ))					output.push("x");
-			if (changes.has( Flags.Y_CHANGED ))					output.push("y");
-			if (changes.has( Flags.INCLUDE_CHANGED ))			output.push("include_in_layout");
-			if (changes.has( Flags.RELATIVE_CHANGED ))			output.push("relative_properties");
-			if (changes.has( Flags.LIST_CHANGED ))				output.push("list");
-			if (changes.has( Flags.CHILDREN_INVALIDATED ))		output.push("children_invalidated");
-			if (changes.has( Flags.ALGORITHM_CHANGED ))			output.push("algorithm");
-			if (changes.has( Flags.SIZE_CONSTRAINT_CHANGED ))	output.push("size constraint");
+			if (changes.has( Flags.WIDTH ))					output.push("width");
+			if (changes.has( Flags.HEIGHT ))				output.push("height");
+			if (changes.has( Flags.X ))						output.push("x");
+			if (changes.has( Flags.Y ))						output.push("y");
+			if (changes.has( Flags.INCLUDE ))				output.push("include_in_layout");
+			if (changes.has( Flags.RELATIVE ))				output.push("relative_properties");
+			if (changes.has( Flags.LIST ))					output.push("list");
+			if (changes.has( Flags.CHILDREN_INVALIDATED ))	output.push("children_invalidated");
+			if (changes.has( Flags.ALGORITHM ))				output.push("algorithm");
+			if (changes.has( Flags.SIZE_CONSTRAINT ))		output.push("size constraint");
 			result = output.join(", ");
 		}
 		return "changes: " + result;
@@ -570,17 +570,17 @@ class LayoutClient implements ILayoutClient
 	public inline function readChange (change:Int)
 	{
 		return switch (change) {
-			case Flags.WIDTH_CHANGED:				"width";
-			case Flags.HEIGHT_CHANGED:				"height";
-			case Flags.X_CHANGED:					"x";
-			case Flags.Y_CHANGED:					"y";
-			case Flags.INCLUDE_CHANGED:				"include_in_layout";
-			case Flags.RELATIVE_CHANGED:			"relative_properties";
-			case Flags.LIST_CHANGED:				"list";
-			case Flags.CHILDREN_INVALIDATED:		"children_invalidated";
-			case Flags.ALGORITHM_CHANGED:			"algorithm";
-			case Flags.SIZE_CONSTRAINT_CHANGED:		"size constraint";
-			default:								"unkown("+change+")";
+			case Flags.WIDTH:					"width";
+			case Flags.HEIGHT:					"height";
+			case Flags.X:						"x";
+			case Flags.Y:						"y";
+			case Flags.INCLUDE:					"include_in_layout";
+			case Flags.RELATIVE:				"relative_properties";
+			case Flags.LIST:					"list";
+			case Flags.CHILDREN_INVALIDATED:	"children_invalidated";
+			case Flags.ALGORITHM:				"algorithm";
+			case Flags.SIZE_CONSTRAINT:			"size constraint";
+			default:							"unkown("+change+")";
 		}
 	}
 	

@@ -3,6 +3,7 @@ package cases;
  import primevc.core.geom.Box;
  import primevc.core.geom.constraints.SizeConstraint;
  import primevc.gui.layout.LayoutClient;
+ import primevc.gui.layout.LayoutFlags;
   using primevc.utils.BitUtil;
  
 
@@ -233,52 +234,52 @@ class LayoutAssertions
 		Assert.equal( layout.changes, 0 );
 		
 		layout.width = 300;
-		Assert.that( layout.changes.has( LayoutClient.WIDTH_CHANGED ) );
-		Assert.notThat( layout.changes.has( LayoutClient.HEIGHT_CHANGED ) );
-		Assert.notThat( layout.changes.has( LayoutClient.X_CHANGED ) );
-		Assert.notThat( layout.changes.has( LayoutClient.Y_CHANGED ) );
+		Assert.that( layout.changes.has( LayoutFlags.WIDTH ) );
+		Assert.notThat( layout.changes.has( LayoutFlags.HEIGHT ) );
+		Assert.notThat( layout.changes.has( LayoutFlags.X ) );
+		Assert.notThat( layout.changes.has( LayoutFlags.Y ) );
 		
 		layout.height = 500;
-		Assert.that( layout.changes.has( LayoutClient.WIDTH_CHANGED ) );
-		Assert.that( layout.changes.has( LayoutClient.HEIGHT_CHANGED ) );
-		Assert.notThat( layout.changes.has( LayoutClient.X_CHANGED ) );
-		Assert.notThat( layout.changes.has( LayoutClient.Y_CHANGED ) );
+		Assert.that( layout.changes.has( LayoutFlags.WIDTH ) );
+		Assert.that( layout.changes.has( LayoutFlags.HEIGHT ) );
+		Assert.notThat( layout.changes.has( LayoutFlags.X ) );
+		Assert.notThat( layout.changes.has( LayoutFlags.Y ) );
 		
 		layout.x = 40;
-		Assert.that( layout.changes.has( LayoutClient.WIDTH_CHANGED ) );
-		Assert.that( layout.changes.has( LayoutClient.HEIGHT_CHANGED ) );
-		Assert.that( layout.changes.has( LayoutClient.X_CHANGED ) );
-		Assert.notThat( layout.changes.has( LayoutClient.Y_CHANGED ) );
+		Assert.that( layout.changes.has( LayoutFlags.WIDTH ) );
+		Assert.that( layout.changes.has( LayoutFlags.HEIGHT ) );
+		Assert.that( layout.changes.has( LayoutFlags.X ) );
+		Assert.notThat( layout.changes.has( LayoutFlags.Y ) );
 		
 		layout.y = 40;
-		Assert.that( layout.changes.has( LayoutClient.WIDTH_CHANGED ) );
-		Assert.that( layout.changes.has( LayoutClient.HEIGHT_CHANGED ) );
-		Assert.that( layout.changes.has( LayoutClient.X_CHANGED ) );
-		Assert.that( layout.changes.has( LayoutClient.Y_CHANGED ) );
+		Assert.that( layout.changes.has( LayoutFlags.WIDTH ) );
+		Assert.that( layout.changes.has( LayoutFlags.HEIGHT ) );
+		Assert.that( layout.changes.has( LayoutFlags.X ) );
+		Assert.that( layout.changes.has( LayoutFlags.Y ) );
 		
 		layout.measure();
 		Assert.equal( layout.changes, 0 );
 		
 		layout.bounds.left = 50;
-		Assert.notThat( layout.changes.has( LayoutClient.WIDTH_CHANGED ) );
-		Assert.notThat( layout.changes.has( LayoutClient.HEIGHT_CHANGED ) );
-		Assert.that( layout.changes.has( LayoutClient.X_CHANGED ) );
-		Assert.notThat( layout.changes.has( LayoutClient.Y_CHANGED ) );
+		Assert.notThat( layout.changes.has( LayoutFlags.WIDTH ) );
+		Assert.notThat( layout.changes.has( LayoutFlags.HEIGHT ) );
+		Assert.that( layout.changes.has( LayoutFlags.X ) );
+		Assert.notThat( layout.changes.has( LayoutFlags.Y ) );
 		
 		layout.bounds.bottom = 900;
-		Assert.notThat( layout.changes.has( LayoutClient.WIDTH_CHANGED ) );
-		Assert.notThat( layout.changes.has( LayoutClient.HEIGHT_CHANGED ) );
-		Assert.that( layout.changes.has( LayoutClient.X_CHANGED ) );
-		Assert.that( layout.changes.has( LayoutClient.Y_CHANGED ) );
+		Assert.notThat( layout.changes.has( LayoutFlags.WIDTH ) );
+		Assert.notThat( layout.changes.has( LayoutFlags.HEIGHT ) );
+		Assert.that( layout.changes.has( LayoutFlags.X ) );
+		Assert.that( layout.changes.has( LayoutFlags.Y ) );
 		
 		layout.measure();
 		Assert.equal( layout.changes, 0 );
 		
 		layout.height = 500;
-		Assert.notThat( layout.changes.has( LayoutClient.WIDTH_CHANGED ) );
-		Assert.notThat( layout.changes.has( LayoutClient.HEIGHT_CHANGED ) );
-		Assert.notThat( layout.changes.has( LayoutClient.X_CHANGED ) );
-		Assert.notThat( layout.changes.has( LayoutClient.Y_CHANGED ) );
+		Assert.notThat( layout.changes.has( LayoutFlags.WIDTH ) );
+		Assert.notThat( layout.changes.has( LayoutFlags.HEIGHT ) );
+		Assert.notThat( layout.changes.has( LayoutFlags.X ) );
+		Assert.notThat( layout.changes.has( LayoutFlags.Y ) );
 		
 		trace("finish unit test");
 	}
