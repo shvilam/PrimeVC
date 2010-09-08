@@ -31,6 +31,9 @@ package primevc.gui.layout;
  import primevc.core.geom.IBox;
  import primevc.core.IDisposable;
  import primevc.types.Number;
+#if debug
+  using primevc.utils.IntUtil;
+#end
 
 
 /**
@@ -261,6 +264,35 @@ class RelativeLayout implements IBox, implements IDisposable
 #if debug
 	public function toString () {
 		return "RelativeLayout - t: "+top+"; r: "+right+"; b: "+bottom+"; l: "+left+"; hCenter: "+hCenter+"; vCenter: "+vCenter;
+	}
+	
+	public function toCSSString () {
+		var css = [];
+		var str = "";
+		
+		if (top.isSet())	css.push( top + "px" );
+		else				css.push( "none" );
+		if (right.isSet())	css.push( right + "px" );
+		else				css.push( "none" );
+		if (bottom.isSet())	css.push( bottom + "px" );
+		else				css.push( "none" );
+		if (left.isSet())	css.push( left + "px" );
+		else				css.push( "none" );
+		
+		str = css.join(" ");
+		css = [];
+		
+		if (hCenter.isSet())	css.push( hCenter + "px")
+		else					css.push( "none");
+		if (vCenter.isSet())	css.push( vCenter + "px")
+		else					css.push( "none");
+		
+		if (str != "")
+			str += ", ";
+		
+		str += css.join(" ");
+		
+		return str;
 	}
 #end
 }

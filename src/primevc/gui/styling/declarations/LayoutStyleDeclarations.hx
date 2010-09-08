@@ -370,6 +370,23 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	{
 		var css = [];
 		
+		if (padding != null)				css.push("padding: " + padding);
+		if (algorithm != null)				css.push("algorithm: " + algorithm);
+		if (relative != null)				css.push("relative: " + relative.toCSSString());
+		
+		if (width.isSet())					css.push("width: " + width + "px");
+		if (percentWidth.isSet())			css.push("width: " + percentWidth + "%");
+		if (minWidth.isSet())				css.push("min-width: " + minWidth + "px");
+		if (maxWidth.isSet())				css.push("max-width: " + maxWidth + "px");
+		
+		if (height.isSet())					css.push("height: " + height + "px");
+		if (percentHeight.isSet())			css.push("height: " + percentHeight + "%");
+		if (minHeight.isSet())				css.push("min-height: " + minHeight + "px");
+		if (maxHeight.isSet())				css.push("max-height: " + maxHeight + "px");
+		
+		if (rotation.isSet())				css.push("rotation: " + rotation + "degr");
+		if (maintainAspectRatio != null)	css.push("maintainAspectRatio: " + (maintainAspectRatio ? "true" : "false"));
+		
 		if (css.length > 0)
 			return "\n\t" + css.join(";\n\t") + ";";
 		else

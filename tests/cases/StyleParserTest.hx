@@ -7,6 +7,21 @@ package cases;
 
 class StyleParserTest
 {
+	public static inline var CORRECT_INTS			= [ "1", "12456789", '35561', '-5789' ];
+	public static inline var INCORRECT_INTS			= [ '.123', '-0.12' ];																			//APPLY INCORRECT_FLOATS ALSO ON INTS
+	
+	public static inline var CORRECT_FLOATS			= [ '.123', '0.1', '-0.12' ];																	//APPLY CORRECT_INTS ALSO ON FLOATS
+	public static inline var INCORRECT_FLOATS		= [ '.1234', '12345.789012345', "abc", '&', '!', '@', '#', '$', '%', '1.', '.', '*', '(', ')', '_', '-', '+', '=', '?', '/' ];
+	
+	public static inline var CORRECT_UNIT_INTS		= [ "12px", "0", "2513em", "-1pt", "2ex", "3in", "4cm", "-5mm", "6pc" ];
+	public static inline var INCORRECT_UNIT_INTS	= [ "0.123px", ".12px", "5%", "12 px" ];														//APPLY INCORRECT_UNIT_FLOATS AND CORRECT_INTS ALSO ON INTS
+	
+	public static inline var CORRECT_UNIT_FLOATS	= [ "12.578px", "-12.578px", ".12ex" ];																				//APPLY CORRECT_UNIT_INTS ALSO ON UNIT_FLOATS
+	public static inline var INCORRECT_UNIT_FLOATS	= [ "12.5789px", "px", "em", "pt", "ex", "in", "cm", "mm", "pc", "12%", "12 px", "12	em" ];	//APPLY CORRECT_FLOATS ALSO ON UNIT_FLOATS
+	
+	public static inline var CORRECT_PERCENTAGES	= [ "1%", "1234%", "0.123%", "1050.4%", "-5%" ];
+	public static inline var INCORRECT_PERCENTAGES	= [ "12.5789px", "%", "px", "5 %", ".1234%" ];
+	
 	public static inline var CORRECT_COLORS			= [
 		"#aaa", 
 		"#aaa000", 
@@ -115,11 +130,13 @@ class StyleParserTest
 		test.parse();
 		var endT	= flash.Lib.getTimer();
 		
-		trace("\n\nunit-tests: "+(secondT - startT)+"ms\nparsing: "+(endT - secondT)+"ms");
+		trace("\n\nunit-tests: "+(secondT - startT)+"ms ("+test.correctTests+" / " + test.totalTests +")\nparsing: "+(endT - secondT)+"ms");
 	}
 	
-	private var parser	: CSSParser;
-	private var styles	: StyleContainer;
+	private var parser			: CSSParser;
+	private var styles			: StyleContainer;
+	public var correctTests		: Int;
+	public var totalTests		: Int;
 	
 	
 	public function new ()
@@ -142,8 +159,74 @@ class StyleParserTest
 	public function executeUnitTests ()
 	{
 	//	testURIs();
+		totalTests		= 0;
+		correctTests	= 0;
+		testSimpleProperties();
 		testBgProperties();
 	}
+	
+	
+	private inline function testSimpleProperties ()
+	{
+		//
+		// TEST INTS
+		//
+		trace("\n\nTESTING INT VALUE REGEX");
+		var expr = parser.intValExpr;
+		testRegexp(expr, CORRECT_INTS, true);
+		testRegexp(expr, INCORRECT_INTS, false);
+		testRegexp(expr, CORRECT_FLOATS, false);
+		testRegexp(expr, INCORRECT_FLOATS, false);
+		
+		//
+		// TEST FLOATS
+		//
+		trace("\n\nTESTING FLOAT VALUE REGEX");
+		var expr = parser.floatValExpr;
+		testRegexp(expr, CORRECT_FLOATS, true);
+		testRegexp(expr, CORRECT_INTS, true);
+		testRegexp(expr, INCORRECT_FLOATS, false);
+		
+		//
+		// TEST UNIT INTS
+		//
+		trace("\n\nTESTING UNIT INTS REGEX");
+		var expr = parser.intUnitValExpr;
+		testRegexp(expr, CORRECT_UNIT_INTS, true);
+		testRegexp(expr, INCORRECT_UNIT_INTS, false);
+		testRegexp(expr, INCORRECT_UNIT_FLOATS, false);
+		testRegexp(expr, CORRECT_INTS, false);
+		testRegexp(expr, CORRECT_FLOATS, false);
+		
+		//
+		// TEST UNIT FLOATS
+		//
+		trace("\n\nTESTING UNIT FLOATS REGEX");
+		var expr = parser.floatUnitValExpr;
+		testRegexp(expr, CORRECT_UNIT_FLOATS, true);
+		testRegexp(expr, CORRECT_UNIT_INTS, true);
+		testRegexp(expr, INCORRECT_UNIT_FLOATS, false);
+		testRegexp(expr, CORRECT_FLOATS, false);
+		testRegexp(expr, INCORRECT_FLOATS, false);
+		
+		//
+		// TEST PERCENTAGE VALUES
+		//
+		trace("\n\nTESTING PERCENTAGE REGEX");
+		var expr = parser.percValExpr;
+		testRegexp(expr, CORRECT_PERCENTAGES, true);
+		testRegexp(expr, INCORRECT_PERCENTAGES, false);
+		testRegexp(expr, CORRECT_INTS, false);
+		testRegexp(expr, INCORRECT_INTS, false);
+		testRegexp(expr, CORRECT_FLOATS, false);
+		testRegexp(expr, INCORRECT_FLOATS, false);
+		
+		
+		//
+		// TEST FLOAT GROUP
+		//
+	}
+	
 	
 	
 	private inline function testBgProperties ()
@@ -189,6 +272,21 @@ class StyleParserTest
 		testRegexp(expr, CORRECT_URI_IMAGE, false);
 		
 		/*
+		var expr = parser.percValExpr;
+		expr.test(CORRECT_PERCENTAGES[3]);
+		trace(expr.resultToString());
+		//*/
+		/*
+		var expr = parser.intUnitValExpr;
+		expr.test(CORRECT_UNIT_INTS[0]);
+		trace(expr.resultToString());
+		//*/
+		/*
+		var expr = parser.floatUnitValExpr;
+		expr.test(CORRECT_UNIT_FLOATS[0]);
+		trace(expr.resultToString());
+		//*/
+		/*
 		var expr = parser.linGradientExpr;
 		expr.test(CORRECT_LGRADIENTS[9]);
 		trace(expr.resultToString());
@@ -223,11 +321,17 @@ class StyleParserTest
 	private inline function testRegexp( expr:EReg, values:Array<String>, isCorrect) : Void
 	{
 		if (isCorrect)
-			for (value in values)
-				expr.test(value);
+			for (value in values) {
+				if (expr.test(value))
+					correctTests++;
+				totalTests++;
+			}
 		else
-			for (value in values)
-				expr.testWrong(value);
+			for (value in values) {
+				if (expr.testWrong(value))
+					correctTests++;
+				totalTests++;
+			}
 	}
 	
 	

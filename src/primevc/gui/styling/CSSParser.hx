@@ -93,8 +93,8 @@ class CSSParser
 	
 	public static inline var R_SIMPLE_UNIT_VALUE	: String = R_FLOAT_VALUE + "[%a-z]+";			//matches floating points with a posible unit (flash player will crash if we make the search complexer...)
 	
-	public static inline var R_INT_VALUE			: String = "([0-9]+)";
-	public static inline var R_FLOAT_VALUE			: String = "([0-9]+|([0-9]*[.][0-9]+))";
+	public static inline var R_INT_VALUE			: String = "([-]?[0-9]+)";
+	public static inline var R_FLOAT_VALUE			: String = "([-]?(([0-9]*[.][0-9]{1,3})|[0-9]+))";
 	public static inline var R_INT_UNIT_VALUE		: String = "(0|(" + R_INT_VALUE + R_UNITS + "))";
 	public static inline var R_FLOAT_UNIT_VALUE		: String = "(0|(" + R_FLOAT_VALUE + R_UNITS + "))";
 	public static inline var R_PERC_VALUE			: String = "(" + R_FLOAT_VALUE + "%)";
@@ -198,7 +198,7 @@ class CSSParser
 			+ "[" + R_WHITESPACE + "]*([" + R_PROPERTY_VALUE + "]+)[" + R_WHITESPACE + "]*;"	//match property value
 			, "im");
 		
-		intValExpr				= new EReg("([0-9]+)", "i");
+		intValExpr				= new EReg(R_INT_VALUE, "i");
 		intUnitValExpr			= new EReg(R_INT_UNIT_VALUE, "i");
 		percValExpr				= new EReg(R_PERC_VALUE, "i");
 		floatValExpr			= new EReg(R_FLOAT_VALUE, "i");
@@ -356,13 +356,13 @@ class CSSParser
 			case "border-image-source":			setBorderFill( parseImage( val ) );
 			
 		//	case "border-style":				parseAndSetBorderStyle( val );		//none, solid, dashed, dotted
-	/*		case "border-width":				parseAndSetBorderWidth( val );
+		//	case "border-width":				parseAndSetBorderWidth( val );
 			
-			case "border-radius":				createShapeBlock();			currentBlock.shape.corners			= parseBorderRadius( val );		//[t]px <[r]px> <[b]px> <[l]px>
-			case "border-top-left-radius":		createShapeBlock();			parseAndSetBorderTopLeftRadius( val );
-			case "border-top-right-radius":		createShapeBlock();			parseAndSetBorderTopRightRadius( val );
-			case "border-bottom-left-radius":	createShapeBlock();			parseAndSetBorderBottomLeftRadius( val );
-			case "border-bottom-right-radius":	createShapeBlock();			parseAndSetBorderBottomRightRadius( val );*/
+		//	case "border-radius":				createShapeBlock();			currentBlock.shape.corners			= parseBorderRadius( val );		//[t]px <[r]px> <[b]px> <[l]px>
+		//	case "border-top-left-radius":		createShapeBlock();			parseAndSetBorderTopLeftRadius( val );
+		//	case "border-top-right-radius":		createShapeBlock();			parseAndSetBorderTopRightRadius( val );
+		//	case "border-bottom-left-radius":	createShapeBlock();			parseAndSetBorderBottomLeftRadius( val );
+		//	case "border-bottom-right-radius":	createShapeBlock();			parseAndSetBorderBottomRightRadius( val );
 			
 			
 			//
@@ -379,8 +379,8 @@ class CSSParser
 			// textfield properties
 		//	case "word-wrap":					createFontBlock();			currentBlock.font.wordwrap		= parseWordWrap( val );
 		//	case "column-count":				createFontBlock();			currentBlock.font.columnCount	= parseInt( val );
-		//	case "column-gap":					createLayoutBlock();		currentBlock.layout.columnGap	= parseUnitInt( val );
-		//	case "column-width":				createLayoutBlock();		currentBlock.layout.childWidth	= parseUnitInt( val );
+		//	case "column-gap":					createLayoutBlock();		currentBlock.layout.columnGap	= parseUnitFloat( val );
+		//	case "column-width":				createLayoutBlock();		currentBlock.layout.childWidth	= parseUnitFloat( val );
 			
 			
 			//
@@ -396,21 +396,21 @@ class CSSParser
 			
 		//	case "width":						createLayoutBlock();		parseAndSetWidth();
 		//	case "height":						createLayoutBlock();		parseAndSetHeight();
-		//	case "min-width":					createLayoutBlock();		currentBlock.layout.minWidth		= paseUnitInt( val );
-		//	case "min-height":					createLayoutBlock();		currentBlock.layout.minHeight		= paseUnitInt( val );
-		//	case "max-width":					createLayoutBlock();		currentBlock.layout.maxWidth		= paseUnitInt( val );
-		//	case "max-height":					createLayoutBlock();		currentBlock.layout.maxHeight		= paseUnitInt( val );
+			case "min-width":					createLayoutBlock();		currentBlock.layout.minWidth		= parseUnitInt( val );
+			case "min-height":					createLayoutBlock();		currentBlock.layout.minHeight		= parseUnitInt( val );
+			case "max-width":					createLayoutBlock();		currentBlock.layout.maxWidth		= parseUnitInt( val );
+			case "max-height":					createLayoutBlock();		currentBlock.layout.maxHeight		= parseUnitInt( val );
 			
-		//	case "child-width":					createLayoutBlock();		currentBlock.layout.childWidth		= paseUnitInt( val );
-		//	case "child-height":				createLayoutBlock();		currentBlock.layout.childHeight		= paseUnitInt( val );
+	//		case "child-width":					createLayoutBlock();		currentBlock.layout.childWidth		= parseUnitInt( val );
+	//		case "child-height":				createLayoutBlock();		currentBlock.layout.childHeight		= parseUnitInt( val );
 			
 		//	case "relative":					createLayoutBlock();		parseAndSetRelativeProperties( val );
-		//	case "left":						createRelativeBlock();		currentBlock.layout.relative.left	= paseUnitInt( val );
-		//	case "right":						createRelativeBlock();		currentBlock.layout.relative.right	= paseUnitInt( val );
-		//	case "top":							createRelativeBlock();		currentBlock.layout.relative.top	= paseUnitInt( val );
-		//	case "bottom":						createRelativeBlock();		currentBlock.layout.relative.bottom	= paseUnitInt( val );
-		//	case "h-center":					createRelativeBlock();		currentBlock.layout.relative.hCenter= paseUnitInt( val );
-		//	case "v-center":					createRelativeBlock();		currentBlock.layout.relative.vCenter= paseUnitInt( val );
+			case "left":						createRelativeBlock();		currentBlock.layout.relative.left	= parseUnitInt( val );
+			case "right":						createRelativeBlock();		currentBlock.layout.relative.right	= parseUnitInt( val );
+			case "top":							createRelativeBlock();		currentBlock.layout.relative.top	= parseUnitInt( val );
+			case "bottom":						createRelativeBlock();		currentBlock.layout.relative.bottom	= parseUnitInt( val );
+			case "h-center":					createRelativeBlock();		currentBlock.layout.relative.hCenter= parseUnitInt( val );
+			case "v-center":					createRelativeBlock();		currentBlock.layout.relative.vCenter= parseUnitInt( val );
 			
 		//	case "position":					//absolute and relative supported (=includeInLayout)
 		//	case "algorithm":					createLayoutBlock();		currentBlock.layout.algorithm		= parseLayoutAlgorithm( val );
@@ -418,11 +418,11 @@ class CSSParser
 		//	case "rotation":
 		//	case "rotation-point":
 		
-		//	case "padding":
-		//	case "padding-top":
-		//	case "padding-bottom":
-		//	case "padding-right":
-		//	case "padding-left":
+		//	case "padding":						createLayoutBlock();		parseAndSetPadding( val );
+		//	case "padding-top":					createPaddingBlock();		currentBlock.layout.padding.top		= parseUnitFloat( val );
+		//	case "padding-bottom":				createPaddingBlock();		currentBlock.layout.padding.bottom	= parseUnitFloat( val );
+		//	case "padding-right":				createPaddingBlock();		currentBlock.layout.padding.right	= parseUnitFloat( val );
+		//	case "padding-left":				createPaddingBlock();		currentBlock.layout.padding.left	= parseUnitFloat( val );
 			
 		//	case "clip":		// auto, rect([t],[r],[b],[l])	--> specifies the area of an absolutly positioned box that should be visible == scrollrect size?
 		//	case "overflow":	// visible, hidden, scroll-mouse-move, drag-scroll, corner-scroll
@@ -586,19 +586,19 @@ class CSSParser
 	
 	private inline function parseUnitInt (v:String) : Int
 	{
-		return (floatUnitValExpr.match(v)) ? floatUnitValExpr.matched(1).parseInt() : Number.INT_NOT_SET;
+		return (floatUnitValExpr.match(v)) ? floatUnitValExpr.matched(3).parseInt() : Number.INT_NOT_SET;
 	}
 	
 	
 	private inline function parseUnitFloat(v:String) : Float
 	{
-		return (floatUnitValExpr.match(v)) ? floatUnitValExpr.matched(1).parseFloat() : Number.FLOAT_NOT_SET;
+		return (floatUnitValExpr.match(v)) ? floatUnitValExpr.matched(3).parseFloat() : Number.FLOAT_NOT_SET;
 	}
 	
 	
 	private inline function parsePercentage (v:String) : Float
 	{
-		return (percValExpr.match(v)) ? percValExpr.matched(1).parseFloat() : Number.FLOAT_NOT_SET;
+		return (percValExpr.match(v)) ? percValExpr.matched(2).parseFloat() : Number.FLOAT_NOT_SET;
 	}
 	
 	
@@ -851,7 +851,7 @@ class CSSParser
 					}
 					else if (gradientColorExpr.matched(20) != null)	{
 						//match percent value
-						var a = gradientColorExpr.matched(20).parseFloat();
+						var a = gradientColorExpr.matched(21).parseFloat();
 						pos = ((a / 100) * 255).int();
 					}
 					
