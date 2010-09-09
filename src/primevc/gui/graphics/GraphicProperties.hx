@@ -26,14 +26,14 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics.shapes;
+package primevc.gui.graphics;
  import haxe.FastList;
  import primevc.core.dispatcher.Signal0;
  import primevc.core.geom.IRectangle;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.fills.IFill;
+ import primevc.gui.graphics.shapes.IGraphicShape;
  import primevc.gui.graphics.GraphicFlags;
- import primevc.gui.graphics.IGraphicElement;
  import primevc.gui.traits.IDrawable;
   using primevc.utils.BitUtil;
   using Math;
@@ -42,25 +42,32 @@ package primevc.gui.graphics.shapes;
 
 
 /**
- * Base class for shapes
+ * Collection of a fill, border, layout and shape object.
+ * Object can fire an event when a property in one of these objects is changed.
  * 
  * @author Ruben Weijers
- * @creation-date Aug 01, 2010
+ * @creation-date Sep 09, 2010
  */
-class ShapeBase implements IGraphicShape
+class GraphicProperties implements IGraphicElement
 {
 	public var changes		(default, null)			: UInt;
 	public var listeners	(default, null)			: FastList< IGraphicElement >;
+	/**
+	 * Signal to notify other objects than IGraphicElement of changes within
+	 * the shape.
+	 */
 	public var changeEvent	(default, null)			: Signal0;
-	
+
 	public var fill			(default, setFill)		: IFill;
-	public var border		(default, setBorder)	: IBorder <IFill>;
+	public var border		(default, setBorder)	: IBorder < IFill >;
+	public var shape		(default, setShape)		: IGraphicShape;
 	public var layout		(default, setLayout)	: IRectangle;
 	
 	
-	public function new (?layout:IRectangle, ?fill:IFill, ?border:IBorder <IFill>)
+	public function new (shape:IGraphicShape = null, layout:IRectangle = null, fill:IFill = null, border:IBorder <IFill> = null)
 	{
 		listeners	= new FastList< IGraphicElement >();
+		this.shape	= shape;
 		this.layout	= layout;
 		this.fill	= fill;
 		this.border	= border;
@@ -82,7 +89,7 @@ class ShapeBase implements IGraphicShape
 		layout		= null;
 	}
 	
-	
+
 	public inline function invalidate (change:UInt) : Void
 	{
 		if (listeners != null)
@@ -90,26 +97,39 @@ class ShapeBase implements IGraphicShape
 			changes = changes.set(change);
 			for (listener in listeners)
 				listener.invalidate( change );
-			
+
 			if (changeEvent != null)
 				changeEvent.send();
 		}	
 	}
 	
 	
+	/**
+	* @param	target
+	* target in which the graphics will be drawn
+	* 
+	* @param	useCoordinates
+	 * Flag indicating if the draw method should also use the coordinates of the
+	 * layoutclient.
+	 * 
+	 * If a shape is directly drawn into a IDrawable element, this is not the 
+	 * case. If a shape is part of a composition of shapes, then the shape 
+	 * should respect the coordinates of the LayoutClient.
+	 */
 	public function draw (target:IDrawable, ?useCoordinates:Bool = false) : Void
 	{
 		Assert.notNull(layout);
-		changes = 0;
+		Assert.notNull(shape);
 		
+		changes = 0;
+
 		var l = layout;
 		var x = useCoordinates ? l.left : 0;
 		var y = useCoordinates ? l.top : 0;
 		var w = l.width;
 		var h = l.height;
-		
+
 		if (border != null) {
-			border.begin(target, l);
 			if (border.innerBorder) {
 				x += border.weight.ceil().int();
 				y += border.weight.ceil().int();
@@ -117,29 +137,47 @@ class ShapeBase implements IGraphicShape
 				h -= (border.weight * 2).ceil().int();
 			}
 		}
-		if (fill != null)
-			fill.begin(target, l);
 		
-		drawShape( target, x, y, w, h );
-		
+		beginDraw( target );
+		shape.draw( target, x, y, w, h );
+		endDraw( target );
+	}
+	
+	
+	private inline function beginDraw (target:IDrawable)
+	{
+		if (border != null)		border.begin(target, layout);
+		if (fill != null)		fill.begin(target, layout);
+	}
+	
+	private inline function endDraw (target:IDrawable)
+	{
 		if (border != null)		border.end(target);
 		if (fill != null)		fill.end(target);
 	}
-	
-	
-	
-	/**
-	 * Method to overwrite in sub-shape-clases
-	 */
-	private function drawShape (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
-	{
-		Assert.abstract();
-	}
-	
-	
+
+
 	//
 	// GETTERS / SETTERS
 	//
+	
+	
+	private inline function setShape (v:IGraphicShape)
+	{
+		if (v != shape)
+		{
+			if (shape != null)
+				shape.listeners.remove(this);
+
+			shape = v;
+			if (shape != null)
+				shape.listeners.add(this);
+
+			invalidate( GraphicFlags.SHAPE );
+		}
+		return v;
+	}
+	
 	
 	private inline function setFill (v:IFill)
 	{
@@ -156,8 +194,8 @@ class ShapeBase implements IGraphicShape
 		}
 		return v;
 	}
-	
-	
+
+
 	private inline function setBorder (v)
 	{
 		if (v != border)
@@ -173,8 +211,8 @@ class ShapeBase implements IGraphicShape
 		}
 		return v;
 	}
-	
-	
+
+
 	private inline function setLayout (v:IRectangle)
 	{
 		if (v != layout)

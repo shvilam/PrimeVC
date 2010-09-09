@@ -30,6 +30,7 @@ package primevc.gui.styling.declarations;
  import primevc.gui.core.ISkin;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.fills.IFill;
+ import primevc.gui.graphics.shapes.IGraphicShape;
 
 
 /**
@@ -43,6 +44,7 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 	public var skin			(getSkin,		setSkin)		: Class < ISkin >;
 	public var background	(getBackground, setBackground)	: IFill;
 	public var border		(getBorder,		setBorder)		: IBorder<IFill>;
+	public var shape		(getShape,		setShape)		: IGraphicShape;
 	
 	public var layout		(getLayout,		setLayout)		: LayoutStyleDeclarations;
 	public var font			(getFont,		setFont)		: FontStyleDeclarations;
@@ -54,6 +56,7 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 	public function new (
 		layout		: LayoutStyleDeclarations = null,
 		font		: FontStyleDeclarations = null,
+		shape		: IGraphicShape = null,
 		background	: IFill = null,
 		border		: IBorder < IFill > = null,
 		skin		: Class< ISkin > = null,
@@ -64,6 +67,7 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 		super();
 		this.layout		= layout;
 		this.font		= font;
+		this.shape		= shape;
 		this.background	= background;
 		this.border		= border;
 		this.skin		= skin;
@@ -75,6 +79,7 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 	override public function dispose ()
 	{
 	//	if ((untyped this).skin != null)		skin.dispose();
+		if ((untyped this).shape != null)		shape.dispose();
 		if ((untyped this).background != null)	background.dispose();
 		if ((untyped this).border != null)		border.dispose();
 		if ((untyped this).layout != null)		layout.dispose();
@@ -83,6 +88,7 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 		if ((untyped this).filters != null)		filters.dispose();
 		
 		skin		= null;
+		shape		= null;
 		background	= null;
 		border		= null;
 		layout		= null;
@@ -104,6 +110,15 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 		if		(skin != null)			return skin;
 		else if (extendedStyle != null)	return extendedStyle.skin;
 		else if (superStyle != null)	return superStyle.skin;
+		else							return null;
+	}
+	
+	
+	private function getShape ()
+	{
+		if		(shape != null)			return shape;
+		else if (extendedStyle != null)	return extendedStyle.shape;
+		else if (superStyle != null)	return superStyle.shape;
 		else							return null;
 	}
 	
@@ -176,6 +191,16 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 		}
 		return v;
 	}
+
+
+	private inline function setShape (v)
+	{
+		if (v != shape) {
+			shape = v;
+			invalidate( StyleFlags.SHAPE );
+		}
+		return v;
+	}
 	
 	
 	private inline function setLayout (v)
@@ -244,6 +269,7 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 		var css = "";
 		
 		if (skin != null)		css += "\tskin: " + skin + ";";
+		if (shape != null)		css += "\n\shape: " + shape + ";";
 		if (background != null)	css += "\n\tbackground: " + background + ";";
 		if (border != null)		css += "\n\tborder: "+ border + ";";
 		if (layout != null)		css += layout;

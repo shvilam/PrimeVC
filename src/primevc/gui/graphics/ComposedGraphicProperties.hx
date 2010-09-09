@@ -26,8 +26,7 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics.shapes;
- import primevc.gui.graphics.GraphicFlags;
+package primevc.gui.graphics;
  import primevc.gui.traits.IDrawable;
  import primevc.utils.FastArray;
   using primevc.utils.FastArray;
@@ -38,16 +37,16 @@ package primevc.gui.graphics.shapes;
  * in the same render cycle on the same target.
  * 
  * @author Ruben Weijers
- * @creation-date Aug 01, 2010
+ * @creation-date Sep 9, 2010
  */
-class ComposedShape extends ShapeBase 
+class ComposedGraphicProperties extends GraphicProperties
 {
-	public var children (default, null)		: FastArray < IGraphicShape >;
+	public var children (default, null)		: FastArray < GraphicProperties >;
 	
 	
-	public function new (?layout, ?fill, ?border)
+	public function new (layout = null, fill = null, border = null)
 	{
-		super(layout, fill, border);
+		super(shape, layout, fill, border);
 		children = FastArrayUtil.create();
 	}
 	
@@ -62,14 +61,14 @@ class ComposedShape extends ShapeBase
 	}
 	
 	
-	//
-	// ISHAPE METHODS
-	//
-	
-	override private function drawShape (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
+	override public function draw (target:IDrawable, ?useCoordinates:Bool = false) : Void
 	{
+		beginDraw(target);
+		
 		for (child in children)
 			child.draw(target, true);
+		
+		endDraw(target);
 	}
 
 
@@ -78,19 +77,19 @@ class ComposedShape extends ShapeBase
 	// LIST METHODS
 	//
 
-	public inline function add ( child:IGraphicShape, depth:Int = -1 )
+	public inline function add ( child:GraphicProperties, depth:Int = -1 )
 	{
 		children.insertAt( child, depth );
 		child.listeners.add(this);
-		invalidate( GraphicFlags.SHAPE );
+		invalidate( GraphicFlags.PROPERTIES );
 	}
 
 
-	public inline function remove ( child:IGraphicShape )
+	public inline function remove ( child:GraphicProperties )
 	{
 		child.listeners.add(this);
 		children.remove(child);
-		invalidate( GraphicFlags.SHAPE );
+		invalidate( GraphicFlags.PROPERTIES );
 	}
 
 

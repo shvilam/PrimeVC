@@ -27,10 +27,6 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.shapes;
- import primevc.core.dispatcher.Signal0;
- import primevc.core.geom.IRectangle;
- import primevc.gui.graphics.borders.IBorder;
- import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.IGraphicElement;
  import primevc.gui.traits.IDrawable;
 
@@ -41,28 +37,5 @@ package primevc.gui.graphics.shapes;
  */
 interface IGraphicShape implements IGraphicElement
 {
-	public var fill			(default, setFill)		: IFill;
-	public var border		(default, setBorder)	: IBorder <IFill>;
-	public var layout		(default, setLayout)	: IRectangle; //LayoutClient;
-	
-	/**
-	 * Signal to notify other objects than IGraphicElement of changes within
-	 * the shape.
-	 */
-	public var changeEvent	(default, null)			: Signal0;
-	
-	
-	/**
-	* @param	target
-	* target in which the shape will be drawn
-	* 
-	* @param	useCoordinates
-	 * Flag indicating if the draw method should also use the coordinates of the
-	 * layoutclient.
-	 * 
-	 * If a shape is directly drawn into a IDrawable element, this is not the 
-	 * case. If a shape is part of a composition of shapes, then the shape 
-	 * should respect the coordinates of the LayoutClient.
-	 */
-	public function draw (target:IDrawable, ?useCoordinates:Bool = false) : Void;
+	public function draw (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void;
 }

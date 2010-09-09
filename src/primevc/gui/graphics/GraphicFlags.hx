@@ -42,4 +42,5 @@ class GraphicFlags
 	public static inline var BORDER		: Int = 2;
 	public static inline var SHAPE		: Int = 4;
 	public static inline var LAYOUT		: Int = 8;
+	public static inline var PROPERTIES	: Int = 16;
 }

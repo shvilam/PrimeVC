@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.shapes;
+ import primevc.gui.graphics.GraphicElement;
  import primevc.gui.traits.IDrawable;
 
 
@@ -35,9 +36,9 @@ package primevc.gui.graphics.shapes;
  * @author Ruben Weijers
  * @creation-date Aug 01, 2010
  */
-class Line extends ShapeBase
+class Line extends GraphicElement
 {
-	override private function drawShape (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
+	public inline function draw (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
 	{
 #if flash9
 		target.graphics.moveTo( x, y );

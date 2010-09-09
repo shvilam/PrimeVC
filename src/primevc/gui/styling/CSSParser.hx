@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
+ import primevc.core.geom.Corners;
  import primevc.gui.graphics.borders.BitmapBorder;
  import primevc.gui.graphics.borders.GradientBorder;
  import primevc.gui.graphics.borders.IBorder;
@@ -39,6 +40,11 @@ package primevc.gui.styling;
  import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.fills.SolidFill;
  import primevc.gui.graphics.fills.SpreadMethod;
+ import primevc.gui.graphics.shapes.Circle;
+ import primevc.gui.graphics.shapes.Ellipse;
+ import primevc.gui.graphics.shapes.Line;
+ import primevc.gui.graphics.shapes.RegularRectangle;
+ import primevc.gui.graphics.shapes.Triangle;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.RelativeLayout;
  import primevc.gui.styling.declarations.EffectStyleDeclarations;
@@ -342,8 +348,8 @@ class CSSParser
 			//
 			
 		//	case "background":					parseAndSetBackground( val );
-			case "background-color":			setBackground( parseColorFill( val ) );		// #fff, 0xfff, #fffddd, 0xfff000, #ffddeeaa, 0xffddeeaa, rgba(255,255,255,0.9)
-			case "background-image":			setBackground( parseImage( val ) );			// url( www.rubenw.nl/img.jpg ), class( package.of.Asset ) <background-repeat>
+			case "background-color":			setBackground( parseColorFill( val ) );				// #fff, 0xfff, #fffddd, 0xfff000, #ffddeeaa, 0xffddeeaa, rgba(255,255,255,0.9)
+			case "background-image":			setBackground( parseImage( val ) );					// url( www.rubenw.nl/img.jpg ), class( package.of.Asset ) <background-repeat>
 			
 			
 			//
@@ -355,14 +361,14 @@ class CSSParser
 			case "border-image":
 			case "border-image-source":			setBorderFill( parseImage( val ) );
 			
-		//	case "border-style":				parseAndSetBorderStyle( val );		//none, solid, dashed, dotted
-		//	case "border-width":				parseAndSetBorderWidth( val );
+		//	case "border-style":				parseAndSetBorderStyle( val );						//none, solid, dashed, dotted
+			case "border-width":				setBorderWidth( parseUnitFloat( val ) );
 			
-		//	case "border-radius":				createShapeBlock();			currentBlock.shape.corners			= parseBorderRadius( val );		//[t]px <[r]px> <[b]px> <[l]px>
-		//	case "border-top-left-radius":		createShapeBlock();			parseAndSetBorderTopLeftRadius( val );
-		//	case "border-top-right-radius":		createShapeBlock();			parseAndSetBorderTopRightRadius( val );
-		//	case "border-bottom-left-radius":	createShapeBlock();			parseAndSetBorderBottomLeftRadius( val );
-		//	case "border-bottom-right-radius":	createShapeBlock();			parseAndSetBorderBottomRightRadius( val );
+		//	case "border-radius":				parseAndSetBorderRadius( val );						//[t]px <[r]px> <[b]px> <[l]px>
+			case "border-top-left-radius":		setBorderTopLeftRadius( parseUnitFloat( val ) );
+			case "border-top-right-radius":		setBorderTopRightRadius( parseUnitFloat( val ) );
+			case "border-bottom-left-radius":	setBorderBottomLeftRadius( parseUnitFloat( val ) );
+			case "border-bottom-right-radius":	setBorderBottomRightRadius( parseUnitFloat( val ) );
 			
 			
 			//
@@ -978,6 +984,17 @@ class CSSParser
 	}
 	
 	
+	private inline function setBorderWidth (weight:Float) : Void
+	{
+		if (currentBlock.border != null)
+			currentBlock.border = null;
+		else {
+			currentBlock.border = cast new SolidBorder( null );
+			currentBlock.border.weight = weight;
+		}
+	}
+	
+	
 	
 	/**
 	 * Method will copy the properties that the two borders share from the 
@@ -994,5 +1011,58 @@ class CSSParser
 			to.weight		= from.weight;
 		}
 		return to;
+	}
+	
+	
+	
+	//
+	// BORDER RADIUS METHODS
+	//
+	
+	
+	private inline function setBorderTopLeftRadius (v:Float) : Void
+	{
+		var corners = getCorners();
+		if (corners != null)
+			corners.topLeft = v;
+	}
+	
+	
+	private inline function setBorderTopRightRadius (v:Float) : Void
+	{
+		var corners = getCorners();
+		if (corners != null)
+			corners.topRight = v;
+	}
+	
+	
+	private inline function setBorderBottomLeftRadius (v:Float) : Void
+	{
+		var corners = getCorners();
+		if (corners != null)
+			corners.bottomLeft = v;
+	}
+	
+	
+	private inline function setBorderBottomRightRadius (v:Float) : Void
+	{
+		var corners = getCorners();
+		if (corners != null)
+			corners.bottomRight = v;
+	}
+	
+	
+	private inline function getCorners () : Corners
+	{
+		var r:Corners = null;
+		if (currentBlock.shape != null && currentBlock.shape.is(RegularRectangle))
+		{
+			var shape = currentBlock.shape.as(RegularRectangle);
+			if (shape.corners == null)
+				shape.corners = new Corners();
+			
+			r = shape.corners;
+		}
+		return r;
 	}
 }

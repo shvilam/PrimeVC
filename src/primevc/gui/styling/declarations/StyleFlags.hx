@@ -44,8 +44,9 @@ class StyleFlags
 	public static inline var LAYOUT				: UInt = 16;
 	public static inline var FONT				: UInt = 32;
 	
-	public static inline var BACKGROUND			: UInt = 64;
-	public static inline var BORDER				: UInt = 128;
-	public static inline var EFFECTS			: UInt = 256;
-	public static inline var FILTERS			: UInt = 512;
+	public static inline var SHAPE				: UInt = 64;
+	public static inline var BACKGROUND			: UInt = 128;
+	public static inline var BORDER				: UInt = 256;
+	public static inline var EFFECTS			: UInt = 512;
+	public static inline var FILTERS			: UInt = 1024;
 }

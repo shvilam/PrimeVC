@@ -27,9 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics;
- import haxe.FastList;
  import primevc.core.traits.Invalidatable;
-  using primevc.utils.BitUtil;
 
 
 

@@ -29,6 +29,7 @@
 package primevc.gui.graphics.shapes;
  import primevc.core.geom.IntPoint;
  import primevc.core.geom.space.Position;
+ import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.traits.IDrawable;
   using primevc.utils.FastArray;
@@ -39,7 +40,7 @@ package primevc.gui.graphics.shapes;
  * @author Ruben Weijers
  * @creation-date Aug 01, 2010
  */
-class Triangle extends ShapeBase
+class Triangle extends GraphicElement
 {
 	public var direction (default, setDirection)	: Position;
 	
@@ -48,9 +49,9 @@ class Triangle extends ShapeBase
 	private var c		: IntPoint;
 	
 	
-	public function new (?layout, ?fill, ?border, ?direction:Position)
+	public function new (?direction:Position)
 	{
-		super(layout, fill, border);
+		super();
 		this.direction = direction;
 		a = new IntPoint();
 		b = new IntPoint();
@@ -61,11 +62,12 @@ class Triangle extends ShapeBase
 	override public function dispose ()
 	{
 		a = b = c = null;
+		direction = null;
 		super.dispose();
 	}
 	
 	
-	override private function drawShape (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
+	public inline function draw (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
 	{
 #if flash9
 		var a = a, b = b, c = c;
