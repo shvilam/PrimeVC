@@ -40,7 +40,7 @@ package primevc.gui.graphics.shapes;
  * @author Ruben Weijers
  * @creation-date Aug 01, 2010
  */
-class Triangle extends GraphicElement
+class Triangle extends GraphicElement, implements IGraphicShape
 {
 	public var direction (default, setDirection)	: Position;
 	

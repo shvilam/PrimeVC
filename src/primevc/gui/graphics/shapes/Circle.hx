@@ -38,7 +38,7 @@ package primevc.gui.graphics.shapes;
  * @author Ruben Weijers
  * @creation-date Aug 01, 2010
  */
-class Circle extends GraphicElement
+class Circle extends GraphicElement, implements IGraphicShape
 {
 	public function draw (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
 	{

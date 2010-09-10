@@ -53,11 +53,12 @@ package cases;
  import primevc.gui.graphics.fills.ComposedFill;
  import primevc.gui.graphics.fills.SolidFill;
  import primevc.gui.graphics.shapes.Circle;
- import primevc.gui.graphics.shapes.ComposedShape;
+// import primevc.gui.graphics.shapes.ComposedShape;
  import primevc.gui.graphics.shapes.Ellipse;
  import primevc.gui.graphics.shapes.Line;
  import primevc.gui.graphics.shapes.Triangle;
  import primevc.gui.graphics.shapes.RegularRectangle;
+ import primevc.gui.graphics.GraphicProperties;
  import primevc.gui.layout.algorithms.circle.HorizontalCircleAlgorithm;
  import primevc.gui.layout.algorithms.circle.VerticalCircleAlgorithm;
  import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
@@ -234,7 +235,12 @@ class LayoutApp extends UIContainer <Dynamic>
 	
 	override private function createGraphics ()
 	{
-		graphicData.value = new RegularRectangle( layout.bounds, null, cast new SolidBorder( new SolidFill(0x00), 1 ) );
+		graphicData.value = new GraphicProperties (
+			new RegularRectangle(),
+			layout.bounds, 
+			null, 
+			cast new SolidBorder( new SolidFill(0x00), 1 )
+		);
 	}
 }
 
@@ -283,7 +289,7 @@ class Button extends UIDataComponent < String >
 	override private function createGraphics ()
 	{	
 		fill = new SolidFill( color );
-		graphicData.value = new RegularRectangle( layout.bounds, fill );
+		graphicData.value = new GraphicProperties( new RegularRectangle(), layout.bounds, fill );
 	}
 	
 #if (debug && flash9)
@@ -569,7 +575,7 @@ class Frame extends UIContainer < String >
 	{
 		color	= Color.random();
 		fill	= new SolidFill(0xFFFFFFFF);
-		graphicData.value = new RegularRectangle( layout.bounds, fill, cast new SolidBorder( new SolidFill(color), 3, true ) );
+		graphicData.value = new GraphicProperties( new RegularRectangle(), layout.bounds, fill, cast new SolidBorder( new SolidFill(color), 3, true ) );
 	}
 }
 

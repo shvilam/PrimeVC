@@ -30,6 +30,7 @@ package primevc.gui.graphics;
  import haxe.FastList;
  import primevc.core.dispatcher.Signal0;
  import primevc.core.geom.IRectangle;
+ import primevc.core.traits.IInvalidatable;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.shapes.IGraphicShape;
@@ -51,7 +52,7 @@ package primevc.gui.graphics;
 class GraphicProperties implements IGraphicElement
 {
 	public var changes		(default, null)			: UInt;
-	public var listeners	(default, null)			: FastList< IGraphicElement >;
+	public var listeners	(default, null)			: FastList< IInvalidatable >;
 	/**
 	 * Signal to notify other objects than IGraphicElement of changes within
 	 * the shape.
@@ -66,7 +67,7 @@ class GraphicProperties implements IGraphicElement
 	
 	public function new (shape:IGraphicShape = null, layout:IRectangle = null, fill:IFill = null, border:IBorder <IFill> = null)
 	{
-		listeners	= new FastList< IGraphicElement >();
+		listeners	= new FastList< IInvalidatable >();
 		this.shape	= shape;
 		this.layout	= layout;
 		this.fill	= fill;
