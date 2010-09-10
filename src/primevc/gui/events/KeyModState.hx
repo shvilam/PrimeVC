@@ -34,7 +34,7 @@ typedef TargetType		=
 	#if		flash9	flash.display.DisplayObject;
 	#elseif	flash8	MovieClip;
 	#elseif	js		DomElement;
-	#else	error	#end
+	#else	Void;	#end
 
 /**
  * Base class for UI state messages with key-modifiers.

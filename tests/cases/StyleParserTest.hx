@@ -22,6 +22,9 @@ class StyleParserTest
 	public static inline var CORRECT_PERCENTAGES	= [ "1%", "1234%", "0.123%", "1050.4%", "-5%" ];
 	public static inline var INCORRECT_PERCENTAGES	= [ "12.5789px", "%", "px", "5 %", ".1234%" ];
 	
+	public static inline var CORRECT_UNIT_GROUP		= [ "2px 1em", "1.34cm 1in 2.84px", "41pc 0 20px 1in", "2px 5px 0", "0 0 3px 4px", "-1.1px -2.210px -3.321px -4.4px" ];
+	public static inline var INCORRECT_UNIT_GROUP	= [ "2px 1", "1px 4px 3px 2px 1px", "2 px 2 px" ];
+	
 	public static inline var CORRECT_COLORS			= [
 		"#aaa", 
 		"#aaa000", 
@@ -124,13 +127,13 @@ class StyleParserTest
 	public static function main ()
 	{
 		var test = new StyleParserTest();
-		var startT	= flash.Lib.getTimer();
+	//	var startT	= flash.Lib.getTimer();
 		test.executeUnitTests();
-		var secondT	= flash.Lib.getTimer();
+	//	var secondT	= flash.Lib.getTimer();
 		test.parse();
-		var endT	= flash.Lib.getTimer();
+	//	var endT	= flash.Lib.getTimer();
 		
-		trace("\n\nunit-tests: "+(secondT - startT)+"ms ("+test.correctTests+" / " + test.totalTests +")\nparsing: "+(endT - secondT)+"ms");
+	//	trace("\n\nunit-tests: "+(secondT - startT)+"ms ("+test.correctTests+" / " + test.totalTests +")\nparsing: "+(endT - secondT)+"ms");
 	}
 	
 	private var parser			: CSSParser;
@@ -221,10 +224,20 @@ class StyleParserTest
 		testRegexp(expr, CORRECT_FLOATS, false);
 		testRegexp(expr, INCORRECT_FLOATS, false);
 		
-		
 		//
 		// TEST FLOAT GROUP
 		//
+		trace("\n\nTESTING FLOAT UNIT REGEX");
+		var expr = parser.floatUnitGroupValExpr;
+		testRegexp(expr, CORRECT_UNIT_GROUP, true);
+		testRegexp(expr, CORRECT_UNIT_FLOATS, true);
+		testRegexp(expr, CORRECT_UNIT_INTS, true);
+		testRegexp(expr, INCORRECT_UNIT_GROUP, false);
+		testRegexp(expr, CORRECT_INTS, false);
+		testRegexp(expr, CORRECT_FLOATS, false);
+		testRegexp(expr, INCORRECT_INTS, false);
+		testRegexp(expr, INCORRECT_FLOATS, false);
+		testRegexp(expr, INCORRECT_UNIT_FLOATS, false);
 	}
 	
 	
@@ -313,6 +326,11 @@ class StyleParserTest
 		expr.test( "#fff 10.4%" );
 		trace(expr.resultToString());
 		expr.testWrong( "0xfff000 10.4" );
+		trace(expr.resultToString());
+		//*/
+		/*
+		var expr = parser.floatUnitGroupValExpr;
+		expr.test(CORRECT_UNIT_GROUP[0]);
 		trace(expr.resultToString());
 		//*/
 	}

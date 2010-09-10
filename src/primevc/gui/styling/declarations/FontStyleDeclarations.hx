@@ -64,29 +64,29 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 	
 	
 	public function new (
-		size:Int					= Number.INT_NOT_SET,
+	//	size:Int					= Number.INT_NOT_SET,
 		family:String				= null,
 		color:RGBA					= null,
 		align:TextAlign				= null,
 		weight:FontWeight			= null,
 		style:FontStyle				= null,
-		letterSpacing:Float			= Number.FLOAT_MIN,
+	//	letterSpacing:Float			= Number.FLOAT_MIN,
 		align:TextAlign				= null,
 		decoration:TextDecoration	= null,
-		indent:Float				= Number.FLOAT_MIN,
+	//	indent:Float				= Number.FLOAT_MIN,
 		transform:TextTransform		= null
 	)
 	{
 		super();
-		this.size			= size;
+	//	this.size			= size;
 		this.family			= family;
 		this.color			= color;
 		this.weight			= weight;
 		this.style			= null;
-		this.letterSpacing	= letterSpacing == Number.FLOAT_MIN ? Number.FLOAT_NOT_SET : letterSpacing;
+	//	this.letterSpacing	= letterSpacing == Number.FLOAT_MIN ? Number.FLOAT_NOT_SET : letterSpacing;
 		this.align			= align;
 		this.decoration		= decoration;
-		this.indent			= indent == Number.FLOAT_MIN ? Number.FLOAT_NOT_SET : indent;
+	//	this.indent			= indent == Number.FLOAT_MIN ? Number.FLOAT_NOT_SET : indent;
 		this.transform		= transform;
 	}
 	

@@ -269,7 +269,7 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 		var css = "";
 		
 		if (skin != null)		css += "\tskin: " + skin + ";";
-		if (shape != null)		css += "\n\shape: " + shape + ";";
+		if (shape != null)		css += "\n\tshape: " + shape + ";";
 		if (background != null)	css += "\n\tbackground: " + background + ";";
 		if (border != null)		css += "\n\tborder: "+ border + ";";
 		if (layout != null)		css += layout;

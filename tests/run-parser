@@ -1,0 +1,35 @@
+#!/bin/bash
+# script to build and run the css-parser
+
+BUILDSCRIPTDIR="`dirname $0`";
+PRJROOT="${BUILDSCRIPTDIR}/.."
+
+MINPARAMS=1
+StyleSheet=$1
+MainFile="cases/StyleParserTest.hx"
+MainClass=${MainFile//\//.}
+MainClass=${MainClass%.hx}
+Parser="CSSParser.n"
+Force=false
+
+#parse arguments
+while getopts "s:tf" OptionName
+	do
+		case $OptionName in
+			s ) StyleSheet=${OPTARG};;
+			f ) Force=true;;
+	esac
+done
+
+#echo ${MainFile}
+#echo ${MainClass}
+#echo ${StyleSheet}
+
+if ${Force} || [[ ! -f ${Parser} ]]  ||  test ${MainFile} -nt ${Parser}  ||  test ${StyleSheet} -nt ${Parser} ; then
+	echo "Compiling parser"
+	
+	haxe build-parser.hxml -main ${MainClass} -neko ${Parser} -resource ${StyleSheet}@stylesheet &&
+	neko ${Parser}
+else
+	neko ${Parser}
+fi;

@@ -54,6 +54,21 @@ class FastArrayUtil
 	}
 	
 	
+#if !flash10
+	public static inline function indexOf<T> ( list:FastArray<T>, item:T, ?startPos:Int = 0 ) : Int
+	{
+		var pos:Int = -1;
+		for (i in startPos...list.length) {
+			if (list[i] == item) {
+				pos = i;
+				break;
+			}
+		}
+		return pos;
+	}
+#end
+	
+	
 	public static inline function insertAt<T>( list:FastArray<T>, item:T, pos:Int ) : Int
 	{
 		var newPos:Int = 0;

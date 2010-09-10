@@ -26,34 +26,11 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.geom;
- import primevc.core.traits.IClonable;
- import primevc.types.Number;
-  using primevc.utils.FloatUtil;
+package primevc.neko.events;
+ import primevc.gui.events.MouseEvents;
 
 
-/**
- * Object describing the corners of a rectangle
- * 
- * @author Ruben Weijers
- * @creation-date Aug 01, 2010
- */
-class Corners implements IClonable < Corners >
+class MouseEvents extends MouseSignals
 {
-	public var topLeft		: Float;
-	public var topRight		: Float;
-	public var bottomLeft	: Float;
-	public var bottomRight	: Float;
 	
-	
-	public function new ( ?topLeft:Float = 0, ?topRight:Float = Number.INT_NOT_SET, ?bottomRight:Float = Number.INT_NOT_SET, ?bottomLeft:Float = Number.INT_NOT_SET )
-	{
-		this.topLeft		= topLeft;
-		this.topRight		= topRight.isSet()		? this.topLeft : topRight;
-		this.bottomLeft		= bottomLeft.isSet()	? this.topLeft : bottomLeft;
-		this.bottomRight	= bottomRight.isSet()	? this.topRight : bottomRight;
-	}
-	
-	
-	public function clone () : Corners { return new Corners( topLeft, topRight, bottomRight, bottomLeft ); }
 }

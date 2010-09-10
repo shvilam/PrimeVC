@@ -38,8 +38,8 @@ package primevc.gui.traits;
  * @creation-date Jul 13, 2010
  */
 interface IDrawable 
-	  implements IDisplayable
-	, implements ILayoutable
+			  implements ILayoutable
+#if flash9	, implements IDisplayable	#end
 {
 #if flash9
 	/**

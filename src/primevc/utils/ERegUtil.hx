@@ -34,7 +34,7 @@ package primevc.utils;
  * @author Ruben Weijers
  * @creation-date Sep 04, 2010
  */
-class ERegUtil extends EReg
+class ERegUtil #if flash9 extends EReg #end
 {
 	public static inline function matchAll (expr:EReg, str:String, f:EReg -> Void) : Void
 	{
@@ -50,14 +50,23 @@ class ERegUtil extends EReg
 #if debug	
 	public static inline function test (expr:EReg, str:String, ?pos:haxe.PosInfos) : Bool
 	{
+	#if flash9
 		var success		= expr.match(str);
 		var hasResults	= expr.result != null && expr.result.length > 0 && expr.matched(0) == str;
+	#else
+		var hasResults	= false;
+		var success		= expr.match(str);
+		try {
+			hasResults	= success && expr.matched(0) == str;
+		}
+		catch (e:Dynamic) {}
+	#end
 		if (!hasResults)
 			success = false;
 		
 		if (!success) {
 			trace(pos.fileName + ":" + pos.lineNumber+"; Assertion failed: '"+str+"'"+(hasResults ? " is not matched with '"+expr.matched(0)+"'" : " not matched"));
-			trace(expr.resultToString());
+#if flash9	trace(expr.resultToString());	#end
 			throw "Error";
 		} else {
 			trace(pos.fileName + ":" + pos.lineNumber+"; Assertion success: '"+expr.matched(0)+"' is correct");
@@ -69,12 +78,21 @@ class ERegUtil extends EReg
 	
 	public static inline function testWrong (expr:EReg, str:String, ?pos:haxe.PosInfos) : Bool
 	{
+	#if flash9
 		var success		= !expr.match(str) || expr.result == null || expr.result.length == 0 || expr.matched(0) != str;
 		var hasResults	= expr.result != null && expr.result.length > 0;
-		
+	#else
+		var hasResults	= false;
+		var success		= !expr.match(str) || expr.matched(0) != str;
+		try {
+			hasResults	= success && expr.matched(0) == str;
+		}
+		catch (e:Dynamic) {}
+	#end
+	
 		if (!success) {
 			trace(pos.fileName + ":" + pos.lineNumber+"; Assertion failed: '"+str+"'"+ (hasResults ? " is matched with '"+expr.matched(0)+"'" : ""));
-			trace(expr.resultToString());
+#if flash9	trace(expr.resultToString());	#end
 			throw "Error";
 		} else {
 			trace(pos.fileName + ":" + pos.lineNumber+"; Assertion success: '"+str + "' is not matched");
@@ -84,6 +102,7 @@ class ERegUtil extends EReg
 	}
 	
 	
+	#if flash9
 	public static inline function resultToString (expr:EReg) : String
 	{
 		var output = "";
@@ -96,7 +115,8 @@ class ERegUtil extends EReg
 		return output;
 	}
 	
-	
 	public static inline function getExpression (expr:EReg) { return expr.r; }
+	
+	#end
 #end
 }

@@ -27,8 +27,6 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.borders;
- import flash.display.CapsStyle;
- import flash.display.JointStyle;
  import primevc.core.geom.IRectangle;
  import primevc.gui.graphics.IGraphicElement;
  import primevc.gui.traits.IDrawable;

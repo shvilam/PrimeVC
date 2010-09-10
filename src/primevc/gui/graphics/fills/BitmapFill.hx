@@ -62,9 +62,13 @@ class BitmapFill extends GraphicElement, implements IFill
 	
 	override public function dispose ()
 	{
-		bitmap.dispose();
-		untyped bitmap = null;
-		matrix = null;
+		if (bitmap != null) {
+			bitmap.dispose();
+		//	untyped bitmap = null;
+		}
+		if (matrix != null)
+			untyped matrix = null;
+		
 		super.dispose();
 	}
 	

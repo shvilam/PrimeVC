@@ -29,8 +29,6 @@
 package primevc.types;
  import primevc.core.states.SimpleStateMachine;
  import primevc.core.IDisposable;
- import primevc.gui.display.IDisplayObject;
- import primevc.gui.display.Loader;
   using primevc.utils.Bind;
 
 
@@ -38,6 +36,8 @@ package primevc.types;
  import flash.display.BitmapData;
  import flash.display.DisplayObject;
  import primevc.core.geom.Matrix2D;
+ import primevc.gui.display.IDisplayObject;
+ import primevc.gui.display.Loader;
   using	Std;
 
 
@@ -62,11 +62,11 @@ class Bitmap implements IDisposable
 	 * Bitmapdata of the given source
 	 */
 	public var data (default, null)		: BitmapData;
+	private var loader					: Loader;
 #else
 	public var data (default, null)		: Dynamic;
 #end
 	public var state (default, null)	: SimpleStateMachine < BitmapStates >;
-	private var loader					: Loader;
 	
 	/**
 	 * URL of the loaded bitmap (if it's loaded from an external image).
@@ -78,7 +78,11 @@ class Bitmap implements IDisposable
 	 * Class of the current bitmap (if it's loaded from a class).
 	 * Used for internal caching of bitmaps.
 	 */
+#if flash9
 	public var asset (default, null)	: Class <DisplayObject>;
+#else
+	public var asset (default, null)	: Class <Dynamic>;
+#end
 	
 	
 	public function new ()
@@ -95,12 +99,12 @@ class Bitmap implements IDisposable
 		url		= null;
 		data	= null;
 		state	= null;
-		loader	= null;
 	}
 	
 	
 	private inline function disposeLoader ()
 	{
+#if flash9
 		if (loader != null) {
 			if (state.is(loading))
 				loader.close();
@@ -109,6 +113,7 @@ class Bitmap implements IDisposable
 			loader = null;
 			state.current = empty;
 		}
+#end
 	}
 	
 	
@@ -169,10 +174,12 @@ class Bitmap implements IDisposable
 			state.current = loadable;
 			asset	= null;
 			url		= v;
+#if flash9
 			loader	= new Loader();
 			disposeLoader.onceOn( loader.events.error, this );
 			handleLoadError.onceOn( loader.events.error, this );
 			setLoadedData.onceOn( loader.events.loaded, this );
+#end
 		}
 	}
 	
@@ -189,10 +196,10 @@ class Bitmap implements IDisposable
 		{
 			if (v != null)
 				setString(v);
-			
+#if flash9
 			state.current = loading;
-#if flash9	loader.load( new flash.net.URLRequest(url) );
-#else		loader.load( url ); #end
+			loader.load( new flash.net.URLRequest(url) );
+#end
 		}
 	}
 	
@@ -230,14 +237,29 @@ class Bitmap implements IDisposable
 		}
 	}
 	
+#else
 	
+	public inline function loadClass (?v:Class<Dynamic>)
+	{
+		if (v != asset || (v == null && asset != null))
+		{
+			if (v != null)
+				setClass(v);
+		}
+	}
+
+#end
+
+#if flash9
 	public inline function setClass (v:Class<DisplayObject>)
+#else
+	public inline function setClass (v:Class<Dynamic>)
+#end
 	{
 		state.current = loadable;
 		asset	= v;
 		url		= null;
 	}
-#end
 
 	
 	
@@ -247,10 +269,10 @@ class Bitmap implements IDisposable
 	
 	private inline function setLoadedData ()
 	{
+#if flash9
 		if (loader == null || !loader.isLoaded)
 			return;
-		
-#if flash9
+
 		try {
 			var d = new BitmapData( loader.content.width.int(), loader.content.height.int(), true, 0x00000000 );
 			d.draw( loader.content );
@@ -315,14 +337,18 @@ class Bitmap implements IDisposable
 		return b;
 	}
 	
-	
+#end
+
+#if flash9
 	public static inline function fromClass (v:Class<DisplayObject>) : Bitmap
+#else
+	public static inline function fromClass (v:Class<Dynamic>) : Bitmap
+#end
 	{
 		var b = new Bitmap();
 		b.loadClass(v);
 		return b;
 	}
-#end
 
 
 #if debug

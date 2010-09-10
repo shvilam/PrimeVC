@@ -2,6 +2,7 @@
 Thumb.db
 *.tmproj
 *.tmbuild
+*.n
 
 /build/environment.sh
 /bin-debug

@@ -27,8 +27,6 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
-
-#if flash9
  import primevc.core.IDisposable;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.fills.IFill;
@@ -115,5 +113,3 @@ class StyleContainer extends UIElementStyle, implements IDisposable
 	}
 #end
 }
-
-#end

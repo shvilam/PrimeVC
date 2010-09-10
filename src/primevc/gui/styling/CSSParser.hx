@@ -204,48 +204,48 @@ class CSSParser
 			+ "[" + R_WHITESPACE + "]*([" + R_PROPERTY_VALUE + "]+)[" + R_WHITESPACE + "]*;"	//match property value
 			, "im");
 		
-		intValExpr				= new EReg(R_INT_VALUE, "i");
-		intUnitValExpr			= new EReg(R_INT_UNIT_VALUE, "i");
-		percValExpr				= new EReg(R_PERC_VALUE, "i");
-		floatValExpr			= new EReg(R_FLOAT_VALUE, "i");
-		floatUnitValExpr		= new EReg(R_FLOAT_UNIT_VALUE, "i");
-		floatUnitGroupValExpr	= new EReg(R_FLOAT_GROUP_VALUE, "i");
+		intValExpr				= new EReg(R_INT_VALUE, "i");				//1 = value
+		intUnitValExpr			= new EReg(R_INT_UNIT_VALUE, "i");			//3 = value, 4 = unit
+		percValExpr				= new EReg(R_PERC_VALUE, "i");				//2 = value
+		floatValExpr			= new EReg(R_FLOAT_VALUE, "i");				//1 = value
+		floatUnitValExpr		= new EReg(R_FLOAT_UNIT_VALUE, "i");		//3 = value, 6 = unit
+		floatUnitGroupValExpr	= new EReg(R_FLOAT_GROUP_VALUE, "i");		//1 = prop1 ( 3 = val, 6 = unit ), 8 = prop2 ( 10 = val, 13 = unit ), 15 = prop3 ( 17 = val, 20 = unit ), 22 = prop4 ( 24 = val, 27 = unit )
 		
 		colorValExpr			= new EReg("^"+R_COLOR_EXPR+"$", "i");
 		
 		
 		linGradientExpr = new EReg(
-				  "(linear-gradient)"+R_WS+"[(]"					//match linear gradient		(1 = type)
-				+ R_WS+"("+R_ROTATION+")"							//match rotation			(3 = degrees)
+				  "(linear-gradient)"+R_WS+"[(]"							//match linear gradient		(1 = type)
+				+ R_WS+"("+R_ROTATION+")"									//match rotation			(3 = degrees)
 				+ "(("+R_WS+","+R_WS+R_SIMPLE_GRADIENT_COLOR+"){2,})"		//match colors				(4 = colors)
-				+ "("+R_WS+","+R_WS+"("+R_GRADIENT_SPREAD+"))?"		//match spread method		(21 = method)
+				+ "("+R_WS+","+R_WS+"("+R_GRADIENT_SPREAD+"))?"				//match spread method		(21 = method)
 			    + R_WS+"[)]", "im");
 		
 		radGradientExpr = new EReg(
-				  "(radial-gradient)"+R_WS+"[(]"					//match radial gradient		(1 = type)
-				+ R_WS+"([-]?(0?[.][0-9]+|0|1))"					//match focal point			(2 = radial-point)
+				  "(radial-gradient)"+R_WS+"[(]"							//match radial gradient		(1 = type)
+				+ R_WS+"([-]?(0?[.][0-9]+|0|1))"							//match focal point			(2 = radial-point)
 				+ "(("+R_WS+","+R_WS+R_SIMPLE_GRADIENT_COLOR+"){2,})"		//match colors				(4 = colors)
-				+ "("+R_WS+","+R_WS+"("+R_GRADIENT_SPREAD+"))?"		//match spread method		(21 = method)
+				+ "("+R_WS+","+R_WS+"("+R_GRADIENT_SPREAD+"))?"				//match spread method		(21 = method)
 			    + R_WS+"[)]", "im");
 		
 		gradientColorExpr = new EReg(R_GRADIENT_COLOR, "i");
 		
 		imageURIExpr = new EReg(
-				  "(url)"										//match url opener				1
-				+ R_WS+"[(]"									//match opening '('
-				+ R_WS+"['\"]?"									//match possible opening ' or "
-		//		+ R_WS+"(("+R_FILE_EXPR+")|("+R_URI_EXPR+"))"	//match the url content			4 = local file. 19 = URI
-				+ R_WS+"("+R_URI_PRETENDER+")"					//match the url content			2 
-				+ R_WS+"['\"]?"									//match possible closing ' or "
-				+ R_WS+"[)]"									//match closing ')'
-				+ "("+R_WS_MUST+"("+R_BG_REPEAT_EXPR+"))?"		//match possible repeat value	5
+				  "(url)"													//match url opener				1
+				+ R_WS+"[(]"												//match opening '('
+				+ R_WS+"['\"]?"												//match possible opening ' or "
+		//		+ R_WS+"(("+R_FILE_EXPR+")|("+R_URI_EXPR+"))"				//match the url content			4 = local file. 19 = URI
+				+ R_WS+"("+R_URI_PRETENDER+")"								//match the url content			2 
+				+ R_WS+"['\"]?"												//match possible closing ' or "
+				+ R_WS+"[)]"												//match closing ')'
+				+ "("+R_WS_MUST+"("+R_BG_REPEAT_EXPR+"))?"					//match possible repeat value	5
 			, "im");
 		imageClassExpr = new EReg(
-			  	"(Class)"										//match Class opener			1
-				+ R_WS+"[(]"									//match opening '('
-				+ R_WS+"("+R_CLASS_EXPR+")"						//match the class content		2
-				+ R_WS+"[)]"									//match closing ')'
-				+ "("+R_WS_MUST+"("+R_BG_REPEAT_EXPR+"))?"		//match possible repeat value	8
+			  	"(Class)"													//match Class opener			1
+				+ R_WS+"[(]"												//match opening '('
+				+ R_WS+"("+R_CLASS_EXPR+")"									//match the class content		2
+				+ R_WS+"[)]"												//match closing ')'
+				+ "("+R_WS_MUST+"("+R_BG_REPEAT_EXPR+"))?"					//match possible repeat value	8
 			, "im");
 	}
 	
@@ -364,7 +364,7 @@ class CSSParser
 		//	case "border-style":				parseAndSetBorderStyle( val );						//none, solid, dashed, dotted
 			case "border-width":				setBorderWidth( parseUnitFloat( val ) );
 			
-		//	case "border-radius":				parseAndSetBorderRadius( val );						//[t]px <[r]px> <[b]px> <[l]px>
+			case "border-radius":				parseAndSetBorderRadius( val );						//[top-left]px <[top-right]px> <[bottom-right]px> <[bottom-left]px>
 			case "border-top-left-radius":		setBorderTopLeftRadius( parseUnitFloat( val ) );
 			case "border-top-right-radius":		setBorderTopRightRadius( parseUnitFloat( val ) );
 			case "border-bottom-left-radius":	setBorderBottomLeftRadius( parseUnitFloat( val ) );
@@ -1018,6 +1018,61 @@ class CSSParser
 	//
 	// BORDER RADIUS METHODS
 	//
+	
+	
+	/**
+	 * Parses the border-radius with max 4 values:
+	 * 		1. top-left
+	 * 		2. top-right
+	 * 		3. bottom-right
+	 * 		4. bottom-left
+	 * 
+	 * If bottom-left is omitted, bottom-left will be equal to top-right.
+	 * 		1. top-left
+	 * 		2. top-right 		= bottom-left
+	 * 		3. bottom-right
+	 * 
+	 * If bottom-right is ommited as well, bottom-right will be equal to top-left.
+	 * 		1. top-left 		= bottom-right
+	 * 		2. top-right 		= bottom-left
+	 * 
+	 * If top-rigth is ommitted as well, top-right will be equal to top-left.
+	 * 		1. top-left 		= top-right = bottom-right = bottom-left
+	 * 
+	 * Border radius does not yet support different values for horizontal and 
+	 * vertical radius.
+	 * 
+	 * @see http://www.w3.org/TR/css3-background/#the-border-radius
+	 */
+	private inline function parseAndSetBorderRadius (v:String) : Void
+	{
+		var expr = floatUnitGroupValExpr;
+		
+		if (expr.match(v))
+		{
+			if (currentBlock.shape != null && currentBlock.shape.is(RegularRectangle))
+			{
+				var shape = currentBlock.shape.as(RegularRectangle);
+				
+				var topLeft		= expr.matched(3).parseFloat();
+				var topRight	= expr.matched( 8) != null ? expr.matched(10).parseFloat() : topLeft;
+				var bottomRight	= expr.matched(15) != null ? expr.matched(17).parseFloat() : topLeft;
+				var bottomLeft	= expr.matched(22) != null ? expr.matched(24).parseFloat() : topRight;
+				
+				if (shape.corners == null)
+				{
+					shape.corners = new Corners( topLeft, topRight, bottomRight, bottomLeft );
+				}
+				else
+				{
+					shape.corners.topLeft		= topLeft;
+					shape.corners.topRight		= topRight;
+					shape.corners.bottomRight	= bottomRight;
+					shape.corners.bottomLeft	= bottomLeft;
+				}
+			}
+		}
+	}
 	
 	
 	private inline function setBorderTopLeftRadius (v:Float) : Void
