@@ -66,19 +66,11 @@ class IntUtil
 	
 	
 	public static inline function notSet (value:Int) : Bool {
-#if neko
-		return value == null || value == Number.INT_NOT_SET;
-#else
 		return value == Number.INT_NOT_SET;
-#end
 	}
 	
 	
 	public static inline function isSet (value:Int) : Bool {
-#if neko
-		return value != null && value != Number.INT_NOT_SET;
-#else
 		return value != Number.INT_NOT_SET;
-#end
 	}
 }

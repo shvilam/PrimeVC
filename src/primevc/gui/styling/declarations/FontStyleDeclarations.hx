@@ -34,6 +34,7 @@ package primevc.gui.styling.declarations;
  import primevc.gui.text.TextTransform;
  import primevc.types.Number;
  import primevc.types.RGBA;
+ import primevc.utils.IntUtil;
   using primevc.utils.FloatUtil;
   using primevc.utils.IntUtil;
   using primevc.utils.Color;
@@ -70,10 +71,10 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 		align:TextAlign				= null,
 		weight:FontWeight			= null,
 		style:FontStyle				= null,
-		letterSpacing:Float			= Number.FLOAT_MIN,
+		letterSpacing:Float			= Number.INT_NOT_SET,
 		align:TextAlign				= null,
 		decoration:TextDecoration	= null,
-		indent:Float				= Number.FLOAT_MIN,
+		indent:Float				= Number.INT_NOT_SET,
 		transform:TextTransform		= null
 	)
 	{
@@ -83,10 +84,10 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 		this.color			= color;
 		this.weight			= weight;
 		this.style			= null;
-		this.letterSpacing	= letterSpacing == Number.FLOAT_MIN ? Number.FLOAT_NOT_SET : letterSpacing;
+		this.letterSpacing	= letterSpacing == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : letterSpacing;
 		this.align			= align;
 		this.decoration		= decoration;
-		this.indent			= indent == Number.FLOAT_MIN ? Number.FLOAT_NOT_SET : indent;
+		this.indent			= indent == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : indent;
 		this.transform		= transform;
 	}
 	
@@ -322,12 +323,12 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 	{
 		var css = [];
 
-		if (size.isSet())			css.push("font-size: " 		+ size + "px");
+		if (IntUtil.isSet((untyped this).size))			css.push("font-size: " 		+ size + "px");
 		if (family != null)			css.push("font-family: "	+family);
 		if (color != null)			css.push("color: "			+color.string());
 		if (weight != null)			css.push("font-weight: "	+weight);
 		if (style != null)			css.push("font-style: "		+style);
-		if (letterSpacing.isSet())	css.push("letter-spacing: "	+letterSpacing);
+		if (letterSpacing != null)	css.push("letter-spacing: "	+letterSpacing);
 		if (align != null)			css.push("text-align: "		+align);
 		if (decoration != null)		css.push("text-decoration: "+decoration);
 		if (indent.isSet())			css.push("text-indent: "	+indent);

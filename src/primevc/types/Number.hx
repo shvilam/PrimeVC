@@ -56,6 +56,6 @@ class Number
 	 * Value defining an undefined Int. Is needed since there's no value like
 	 * Math.NaN for integers..
 	 */
-	public static inline var INT_NOT_SET:Int		=  INT_MIN;
+	public static inline var INT_NOT_SET:Int		=  #if flash9 INT_MIN #else null #end;
 	public static inline var FLOAT_NOT_SET:Float	=  Math.NaN;
 }
