@@ -11,4 +11,5 @@
 #-debug
 -D network-sandbox
 -D stats
+#--no-inline
 #——flash—strict

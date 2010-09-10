@@ -3,6 +3,7 @@ package cases;
  import primevc.gui.styling.CSSParser;
  import primevc.gui.styling.StyleContainer;
   using primevc.utils.ERegUtil;
+  using Std;
 
 
 class StyleParserTest
@@ -126,15 +127,21 @@ class StyleParserTest
 	
 	public static function main ()
 	{
-		var test = new StyleParserTest();
-	//	var startT	= flash.Lib.getTimer();
+		var test	= new StyleParserTest();
+		var startT	= haxe.Timer.stamp();
 		test.executeUnitTests();
-	//	var secondT	= flash.Lib.getTimer();
+		var secondT	= haxe.Timer.stamp();
 		test.parse();
-	//	var endT	= flash.Lib.getTimer();
+		var endT	= haxe.Timer.stamp();
 		
-	//	trace("\n\nunit-tests: "+(secondT - startT)+"ms ("+test.correctTests+" / " + test.totalTests +")\nparsing: "+(endT - secondT)+"ms");
+		trace("\n\nunit-tests: "+secToMs(secondT - startT)+"ms ("+test.correctTests+" / " + test.totalTests +")\nparsing: "+secToMs(endT - secondT)+"ms");
 	}
+	
+	
+	public static inline function secToMs (sec:Float) : Int {
+		return (sec * 1000).int();
+	}
+	
 	
 	private var parser			: CSSParser;
 	private var styles			: StyleContainer;

@@ -143,15 +143,15 @@ class RelativeLayout implements IBox, implements IDisposable
 	public var bottom				(getBottom, setBottom)			: Int;
 	
 	
-	public function new ( top:Int = -100000, right:Int = -100000, bottom:Int = -100000, left:Int = -100000 )
+	public function new ( top:Int = Number.INT_NOT_SET, right:Int = Number.INT_NOT_SET, bottom:Int = Number.INT_NOT_SET, left:Int = Number.INT_NOT_SET )
 	{
 		this.changed	= new Signal0();
 		this.hCenter	= Number.INT_NOT_SET;
 		this.vCenter	= Number.INT_NOT_SET;
-		this.top		= (top == -100000)		? Number.INT_NOT_SET : top;
-		this.right		= (right == -100000)	? Number.INT_NOT_SET : right;
-		this.bottom		= (bottom == -100000)	? Number.INT_NOT_SET : bottom;
-		this.left		= (left == -100000)		? Number.INT_NOT_SET : left;
+		this.top		= top;
+		this.right		= right;
+		this.bottom		= bottom;
+		this.left		= left;
 	}
 	
 	

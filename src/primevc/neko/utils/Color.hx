@@ -172,7 +172,9 @@ class Color
 	/**
 	 * Converts a RGBA value to a hexadecimal string. 
 	 */
-	public static inline function string (v:RGBA) : String			{ return "0x"+v.color.hex(6) + v.a.hex(2); }
+	public static inline function string (v:RGBA) : String			{ return rgbaToString(v); }
+	public static inline function rgbaToString (v:RGBA) : String	{ return "0x"+v.color.hex(6) + v.a.hex(2); }
+	public static inline function uintToString (v:UInt) : String	{ return "0x"+v.hex(6); }
 	/**
 	 * Converts a hexadecimal string to a RGBA value
 	 */
