@@ -32,8 +32,7 @@ package primevc.gui.styling.declarations;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.RelativeLayout;
  import primevc.types.Number;
-  using primevc.utils.IntUtil;
-  using primevc.utils.FloatUtil;
+  using primevc.utils.NumberUtil;
 
 
 

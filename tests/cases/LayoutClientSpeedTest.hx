@@ -7,7 +7,7 @@ package cases;
  import primevc.gui.events.LayoutEvents;
  import primevc.gui.layout.LayoutClient;
   using primevc.utils.BitUtil;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
  
 
 /**

@@ -34,9 +34,8 @@ package primevc.gui.styling.declarations;
  import primevc.gui.text.TextTransform;
  import primevc.types.Number;
  import primevc.types.RGBA;
- import primevc.utils.IntUtil;
-  using primevc.utils.IntUtil;
-  using primevc.utils.FloatUtil;
+ import primevc.utils.NumberUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.Color;
 
 

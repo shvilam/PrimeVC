@@ -31,17 +31,12 @@ package primevc.utils;
  
 
 /**
- * README!!
- * When you use this utility in combination with FloatUtil, make sure you define
- * IntUtil first, and then FloatUtil:
+ * Quick convenience utilities for integers.
  * 
- *  using primevc.utils.IntUtil;
- *  using primevc.utils.FloatUtil;
- *
  * @creation-date	Jun 21, 2010
  * @author			Ruben Weijers
  */
-class IntUtil 
+class IntUtil
 {
 	/**
 	 * Helper function which will return the int-value of the first parameter 
@@ -74,4 +69,53 @@ class IntUtil
 	
 	public static inline function notSet (value:Int) : Bool	{ return value == Number.INT_NOT_SET; }
 	public static inline function isSet (value:Int) : Bool	{ return value != Number.INT_NOT_SET; }
+}
+
+
+/**
+ * Quick convenience utilities for floating point numbers.
+ *
+ * @creation-date	Jun 17, 2010
+ * @author			Ruben Weijers
+ */
+class FloatUtil
+{
+	/**
+	 * Helper function which will return the float-value of the first parameter 
+	 * as long as it is between the min and max values.
+	 * 
+	 * @param	value
+	 * @param	min
+	 * @param	max
+	 */
+	public static inline function within (value:Float, min:Float, max:Float) : Float {
+		if (value < min)		value = min;
+		else if (value > max)	value = max;
+		return value;
+	}
+	
+	
+	/**
+	 * Helper function to check of the given value is between the min and max 
+	 * value.
+	 * 
+	 * @param	value
+	 * @param	min
+	 * @param	max
+	 * @return	true or false
+	 */
+	public static inline function isWithin (value:Float, min:Float, max:Float) : Bool {
+		return value >= min && value <= max;
+	}
+	
+	
+	public static inline function round (value:Float, precision:Int = 0) : Float {
+		value = value * Math.pow(10, precision);
+		value = Math.round(value) / Math.pow(10, precision);
+		return value;
+	}
+
+
+	public static inline function notSet (value:Float) : Bool	{ return !isSet(value); }
+	public static inline function isSet  (value:Float) : Bool	{ return #if !flash9 value != null && #end (value == value /* false if NaN */); }
 }

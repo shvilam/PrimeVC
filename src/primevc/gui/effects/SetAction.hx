@@ -28,7 +28,7 @@
  */
 package primevc.gui.effects;
  import primevc.gui.core.IUIElement;
-  using primevc.utils.FloatUtil;
+  using primevc.utils.NumberUtil;
 
 
 /**

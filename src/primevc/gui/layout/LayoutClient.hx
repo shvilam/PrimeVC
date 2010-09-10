@@ -37,7 +37,7 @@ package primevc.gui.layout;
  import primevc.gui.states.ValidateStates;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 

@@ -34,7 +34,7 @@ package primevc.gui.layout.algorithms.float;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.utils.IntMath;
   using primevc.utils.IntMath;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
   using Std;
 

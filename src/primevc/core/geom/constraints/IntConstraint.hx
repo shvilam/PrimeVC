@@ -31,7 +31,7 @@ package primevc.core.geom.constraints;
  import primevc.core.Bindable;
  import primevc.types.Number;
  import primevc.utils.IntMath;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
 
 
 /**

@@ -35,7 +35,7 @@ package primevc.gui.layout.algorithms.circle;
  import primevc.utils.Formulas;
  import primevc.utils.IntMath;
   using primevc.utils.Formulas;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
  
 
 /**
