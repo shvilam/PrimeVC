@@ -56,8 +56,10 @@ class BitUtil
 	 * Returns an UInt with the bits set in 'flag' added to 'bits'.
 	 */
 	public static inline function set (bits:UInt, flag:UInt) : UInt {
+#if neko
 		Assert.that(bits != null);
 		Assert.that(flag != null);
+#end
 		return bits |= flag;
 	}
 	
