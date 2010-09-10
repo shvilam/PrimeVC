@@ -29,7 +29,7 @@
 package primevc.gui.effects;
  import primevc.gui.display.IDisplayObject;
  import primevc.types.Number;
-  using primevc.utils.FloatUtil;
+  using primevc.utils.NumberUtil;
 
 
 /**

@@ -29,7 +29,7 @@
 package primevc.gui.components;
  import primevc.gui.core.UIContainer;
  import primevc.gui.core.UITextField;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
 
 
 /**

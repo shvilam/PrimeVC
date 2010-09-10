@@ -31,7 +31,7 @@ package primevc.gui.effects;
  import primevc.core.geom.Rectangle;
  import primevc.gui.display.IDisplayObject;
  import primevc.types.Number;
-  using primevc.utils.FloatUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 

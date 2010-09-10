@@ -29,7 +29,7 @@
 package primevc.neko.utils;
  import primevc.types.RGBA;
   using primevc.neko.utils.Color;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
 //  using Math;
   using Std;
   using StringTools;

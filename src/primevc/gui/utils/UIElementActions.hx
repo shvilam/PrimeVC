@@ -29,7 +29,7 @@
 package primevc.gui.utils;
  import primevc.core.IDisposable;
  import primevc.gui.core.IUIElement;
-  using primevc.utils.FloatUtil;
+  using primevc.utils.NumberUtil;
   using Std;
 
 

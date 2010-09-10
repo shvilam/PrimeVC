@@ -32,7 +32,7 @@ package primevc.gui.layout;
  import primevc.core.IDisposable;
  import primevc.types.Number;
 #if debug
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
 #end
 
 
