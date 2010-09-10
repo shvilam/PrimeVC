@@ -38,7 +38,7 @@ package primevc.gui.core;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
  import primevc.gui.display.Stage;
  import primevc.gui.display.Window;
- import primevc.gui.graphics.shapes.IGraphicShape;
+ import primevc.gui.graphics.GraphicProperties;
  import primevc.gui.layout.algorithms.RelativeAlgorithm;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.layout.LayoutClient;
@@ -72,7 +72,7 @@ class UIWindow extends Window
 	
 	public var behaviours			(default, null)					: BehaviourList;
 	public var id					(default, null)					: Bindable < String >;
-	public var graphicData			(default, null)					: Bindable < IGraphicShape >;
+	public var graphicData			(default, null)					: Bindable < GraphicProperties >;
 	
 #if flash9
 	/**
@@ -99,7 +99,7 @@ class UIWindow extends Window
 		invalidationManager	= new InvalidationManager(this);
 		
 		behaviours			= new BehaviourList();
-		graphicData			= new Bindable < IGraphicShape > ();
+		graphicData			= new Bindable < GraphicProperties > ();
 		
 		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
 		behaviours.add( new RenderGraphicsBehaviour(this) );

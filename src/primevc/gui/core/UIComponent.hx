@@ -33,7 +33,7 @@ package primevc.gui.core;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
  import primevc.gui.display.Sprite;
  import primevc.gui.effects.UIElementEffects;
- import primevc.gui.graphics.shapes.IGraphicShape;
+ import primevc.gui.graphics.GraphicProperties;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.UIElementStates;
   using primevc.gui.utils.UIElementActions;
@@ -75,7 +75,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	public var skin				(default, setSkin)		: ISkin;
 	public var layout			(default, null)			: LayoutClient;
-	public var graphicData		(default, null)			: Bindable < IGraphicShape >;
+	public var graphicData		(default, null)			: Bindable < GraphicProperties >;
 	
 	
 	private function new (?id:String)
@@ -87,7 +87,7 @@ class UIComponent extends Sprite, implements IUIComponent
 		
 		state			= new UIElementStates();
 		behaviours		= new BehaviourList();
-		graphicData		= new Bindable < IGraphicShape > ();
+		graphicData		= new Bindable < GraphicProperties > ();
 		
 		//add default behaviours
 		behaviours.add( new RenderGraphicsBehaviour(this) );

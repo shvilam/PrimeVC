@@ -36,7 +36,7 @@ package primevc.gui.graphics.shapes;
  * @author Ruben Weijers
  * @creation-date Aug 01, 2010
  */
-class Line extends GraphicElement
+class Line extends GraphicElement, implements IGraphicShape
 {
 	public inline function draw (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
 	{

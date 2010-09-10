@@ -29,7 +29,7 @@
 package primevc.gui.traits;
 #if flash9
  import primevc.core.Bindable;
- import primevc.gui.graphics.shapes.IGraphicShape;
+ import primevc.gui.graphics.GraphicProperties;
 #end
 
 
@@ -46,7 +46,7 @@ interface IDrawable
 	 * Object containing graphical data. One object will be enough in general
 	 * since it can be a ComposedShape that contains multiple shapes.
 	 */
-	public var graphicData		(default, null)		: Bindable < IGraphicShape >;
+	public var graphicData		(default, null)		: Bindable < GraphicProperties >;
 	
 	public var graphics			(default, null)		: flash.display.Graphics;
 

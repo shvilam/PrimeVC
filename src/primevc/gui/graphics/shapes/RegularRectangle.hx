@@ -37,7 +37,7 @@ package primevc.gui.graphics.shapes;
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-class RegularRectangle extends GraphicElement
+class RegularRectangle extends GraphicElement, implements IGraphicShape
 {
 	public var corners		(default, setCorners)	: Corners;
 	
