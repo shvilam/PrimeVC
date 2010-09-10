@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
+ import primevc.core.geom.Box;
  import primevc.core.geom.Corners;
  import primevc.gui.graphics.borders.BitmapBorder;
  import primevc.gui.graphics.borders.GradientBorder;
@@ -426,11 +427,11 @@ class CSSParser
 		//	case "rotation":
 		//	case "rotation-point":
 		
-		//	case "padding":						createLayoutBlock();		parseAndSetPadding( val );
-		//	case "padding-top":					createPaddingBlock();		currentBlock.layout.padding.top		= parseUnitFloat( val );
-		//	case "padding-bottom":				createPaddingBlock();		currentBlock.layout.padding.bottom	= parseUnitFloat( val );
-		//	case "padding-right":				createPaddingBlock();		currentBlock.layout.padding.right	= parseUnitFloat( val );
-		//	case "padding-left":				createPaddingBlock();		currentBlock.layout.padding.left	= parseUnitFloat( val );
+			case "padding":						parseAndSetPadding( val );
+			case "padding-top":					createPaddingBlock();		currentBlock.layout.padding.top		= parseUnitInt( val );
+			case "padding-bottom":				createPaddingBlock();		currentBlock.layout.padding.bottom	= parseUnitInt( val );
+			case "padding-right":				createPaddingBlock();		currentBlock.layout.padding.right	= parseUnitInt( val );
+			case "padding-left":				createPaddingBlock();		currentBlock.layout.padding.left	= parseUnitInt( val );
 			
 		//	case "clip":		// auto, rect([t],[r],[b],[l])	--> specifies the area of an absolutly positioned box that should be visible == scrollrect size?
 		//	case "overflow":	// visible, hidden, scroll-mouse-move, drag-scroll, corner-scroll
@@ -569,6 +570,13 @@ class CSSParser
 			currentBlock.layout.relative = new RelativeLayout();
 	}
 	
+	
+	private inline function createPaddingBlock () : Void
+	{
+		createLayoutBlock();
+		if (currentBlock.layout.padding == null)
+			currentBlock.layout.padding = new Box();
+	}
 	
 	
 	
@@ -1038,7 +1046,7 @@ class CSSParser
 	 * 		1. top-left 		= bottom-right
 	 * 		2. top-right 		= bottom-left
 	 * 
-	 * If top-rigth is ommitted as well, top-right will be equal to top-left.
+	 * If top-right is ommitted as well, top-right will be equal to top-left.
 	 * 		1. top-left 		= top-right = bottom-right = bottom-left
 	 * 
 	 * Border radius does not yet support different values for horizontal and 
@@ -1177,6 +1185,56 @@ class CSSParser
 			{
 				createLayoutBlock();
 				currentBlock.layout.percentHeight = ph;
+			}
+		}
+	}
+	
+	
+	/**
+	 * Parses the padding with max 4 values:
+	 * 		1. top
+	 * 		2. right
+	 * 		3. bottom
+	 * 		4. left
+	 * 
+	 * If left is omitted, left will be equal to right.
+	 * 		1. top
+	 * 		2. right	= left
+	 * 		3. bottom
+	 * 
+	 * If bottom is ommited as well, bottom will be equal to top.
+	 * 		1. top 		= bottom
+	 * 		2. right	= left
+	 * 
+	 * If right is ommitted as well, right will be equal to top.
+	 * 		1. top 		= right = bottom = left
+	 * 
+	 * @see http://www.w3.org/TR/CSS2/box.html#padding-properties
+	 */
+	private inline function parseAndSetPadding (v:String) : Void
+	{
+		var expr = floatUnitGroupValExpr;
+		
+		if (expr.match(v))
+		{
+			createLayoutBlock();
+			
+			var top		= expr.matched(3).parseInt();
+			var right	= expr.matched( 8) != null ? expr.matched(10).parseInt() : top;
+			var bottom	= expr.matched(15) != null ? expr.matched(17).parseInt() : top;
+			var left	= expr.matched(22) != null ? expr.matched(24).parseInt() : right;
+			
+			if (currentBlock.layout.padding == null)
+			{
+				currentBlock.layout.padding = new Box( top, right, bottom, left );
+			}
+			else
+			{
+				var p		= currentBlock.layout.padding;
+				p.top		= top;
+				p.right		= right;
+				p.bottom	= bottom;
+				p.left		= left;
 			}
 		}
 	}

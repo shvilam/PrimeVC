@@ -27,6 +27,8 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.geom;
+ import primevc.types.Number;
+  using primevc.utils.IntUtil;
 
 
 /**
@@ -41,24 +43,16 @@ class Box implements IBox
 	public var bottom	(getBottom, setBottom)	: Int;
 	
 	
-	public function new ( top:Int = 0, right:Int = -100, bottom:Int = -100, left:Int = -100 )
+	public function new ( top:Int = 0, right:Int = Number.INT_NOT_SET, bottom:Int = Number.INT_NOT_SET, left:Int = Number.INT_NOT_SET )
 	{
 		this.top	= top;
-		this.right	= (right == -100) ? this.top : right;
-		this.bottom	= (bottom == -100) ? this.top : bottom;
-		this.left	= (left == -100) ? this.right : left;
+		this.right	= (right.notSet()) ? this.top : right;
+		this.bottom	= (bottom.notSet()) ? this.top : bottom;
+		this.left	= (left.notSet()) ? this.right : left;
 	}
 	
 	
-	public function clone () : IBox {
-		return new Box( top, right, bottom, left );
-	}
-	
-	
-	public function toString ()
-	{
-		return "t: " + top + "; r: " + right + "; b: " + bottom + "; l: " + left + ";";
-	}
+	public function clone () : IBox			{ return new Box( top, right, bottom, left ); }
 	
 	private inline function getLeft ()		{ return left; }
 	private inline function getRight ()		{ return right; }
@@ -68,4 +62,20 @@ class Box implements IBox
 	private inline function setRight (v)	{ return this.right = v; }
 	private inline function setTop (v)		{ return this.top = v; }
 	private inline function setBottom (v)	{ return this.bottom = v; }
+	
+	
+#if debug
+	public function toString ()
+	{
+		var css = "";
+		if (left != right)		css = getCSSValue(left);
+		if (bottom != top)		css = getCSSValue(bottom) + " " + css;
+		if (right != top)		css = getCSSValue(right) + " " + css;
+		
+		return StringTools.trim(getCSSValue(top) + " " + css);
+	}
+	
+	
+	private inline function getCSSValue (v:Int) { return v == 0 ? "0" : v + "px"; }
+#end
 }

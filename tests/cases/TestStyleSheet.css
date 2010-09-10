@@ -44,6 +44,7 @@ TextArea {
 	border-color: #f00;
 	border-width: 3px;
 	border-radius: 5px 2px;
+	padding: 4px 3px;
 }
 
 
