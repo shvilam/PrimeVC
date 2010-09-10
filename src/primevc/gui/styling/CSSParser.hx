@@ -66,8 +66,7 @@ package primevc.gui.styling;
   using primevc.utils.Bind;
   using primevc.utils.Color;
   using primevc.utils.ERegUtil;
-  using primevc.utils.IntUtil;
-  using primevc.utils.FloatUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.IntMath;
   using primevc.utils.TypeUtil;
   using Std;
@@ -154,6 +153,11 @@ class CSSParser
 	
 	public static inline var R_BG_REPEAT_EXPR		: String = "repeat-all|no-repeat";
 	
+	public static inline var R_FONT_STYLE_EXPR		: String = "normal|italic|oblique|inherit";
+	public static inline var R_FONT_WEIGHT_EXPR		: String = "normal|bold|bolder|lighter|inherit";
+	public static inline var R_GENERIC_FONT_FAMILIES: String = "serif|sans[-]serif|monospace|cursive|fantasy";
+	public static inline var R_FONT_FAMILY_EXPR		: String = "("+R_GENERIC_FONT_FAMILIES+")|([a-z]+)|(['\"]([a-z0-9+.,+/\\ _-]+)['\"])";
+	
 	
 	
 	/**
@@ -183,6 +187,9 @@ class CSSParser
 //	public var gradientStopExpr			(default, null) : EReg;
 	public var imageURIExpr				(default, null) : EReg;
 	public var imageClassExpr			(default, null) : EReg;
+	public var fontFamilyExpr			(default, null) : EReg;
+	public var fontWeightExpr			(default, null) : EReg;
+	public var fontStyleExpr			(default, null) : EReg;
 	
 	
 	
@@ -215,7 +222,9 @@ class CSSParser
 		floatUnitGroupValExpr	= new EReg(R_FLOAT_GROUP_VALUE, "i");		//1 = prop1 ( 3 = val, 6 = unit ), 8 = prop2 ( 10 = val, 13 = unit ), 15 = prop3 ( 17 = val, 20 = unit ), 22 = prop4 ( 24 = val, 27 = unit )
 		
 		colorValExpr			= new EReg("^"+R_COLOR_EXPR+"$", "i");
-		
+		fontFamilyExpr			= new EReg("("+R_FONT_FAMILY_EXPR+")", "i");
+		fontWeightExpr			= new EReg("("+R_FONT_WEIGHT_EXPR+")", "i");
+		fontStyleExpr			= new EReg("("+R_FONT_STYLE_EXPR+")", "i");
 		
 		linGradientExpr = new EReg(
 				  "(linear-gradient)"+R_WS+"[(]"							//match linear gradient		(1 = type)
@@ -333,9 +342,9 @@ class CSSParser
 			// font properties
 			//
 			
-		//	case "font":						createFontBlock();			parseAndSetFont(val);
-			case "font-size":					createFontBlock();			currentBlock.font.size			= parseUnitInt( val );			//inherit, font-size
-			case "font-family":					createFontBlock();			currentBlock.font.family		= val;							//inherit, font-name
+	//		case "font":						parseAndSetFont(val);				// [[ <font-style> || <font-weight> || <font-size> ]]? <font-family>
+			case "font-size":					parseAndSetFontSize( val );			//inherit, font-size
+			case "font-family":					parseAndSetFontFamily( val );		//inherit, font-name
 			case "color":						createFontBlock();			currentBlock.font.color			= parseColor( val );			//inherit, color-values
 			case "font-weight":					createFontBlock();			currentBlock.font.weight		= parseFontWeight( val );		//normal, bold, bolder, lighter
 			case "font-style":					createFontBlock();			currentBlock.font.style			= parseFontStyle( val );		//inherit, normal, italic, oblique
@@ -413,7 +422,7 @@ class CSSParser
 			case "child-width":					createLayoutBlock();		currentBlock.layout.childWidth		= parseUnitInt( val );
 			case "child-height":				createLayoutBlock();		currentBlock.layout.childHeight		= parseUnitInt( val );
 			
-		//	case "relative":					createLayoutBlock();		parseAndSetRelativeProperties( val );
+			case "relative":					parseAndSetRelativeProperties( val );			// [top]px <[right]px> <[bottom]px> <[left]px>
 			case "left":						createRelativeBlock();		currentBlock.layout.relative.left	= parseUnitInt( val );
 			case "right":						createRelativeBlock();		currentBlock.layout.relative.right	= parseUnitInt( val );
 			case "top":							createRelativeBlock();		currentBlock.layout.relative.top	= parseUnitInt( val );
@@ -427,7 +436,7 @@ class CSSParser
 		//	case "rotation":
 		//	case "rotation-point":
 		
-			case "padding":						parseAndSetPadding( val );
+			case "padding":						parseAndSetPadding( val );						// [top]px <[right]px> <[bottom]px> <[left]px>
 			case "padding-top":					createPaddingBlock();		currentBlock.layout.padding.top		= parseUnitInt( val );
 			case "padding-bottom":				createPaddingBlock();		currentBlock.layout.padding.bottom	= parseUnitInt( val );
 			case "padding-right":				createPaddingBlock();		currentBlock.layout.padding.right	= parseUnitInt( val );
@@ -618,14 +627,6 @@ class CSSParser
 	}
 	
 	
-	
-	
-	
-	//
-	// FONT METHODS
-	//
-	
-	
 	/**
 	 * Method parses a color value like #aaa000 or 0xaaa000 to a RGBA value
 	 * If the value is 'inherit', the method will return null.
@@ -651,6 +652,43 @@ class CSSParser
 		}
 		
 		return clr;
+	}
+
+
+
+
+
+	//
+	// FONT METHODS
+	//
+	
+	private inline function parseAndSetFontSize (val:String) : Void
+	{
+		var v = parseUnitInt( val );
+		if (v.isSet()) {
+			createFontBlock();
+			currentBlock.font.size = v;
+		}
+	}
+	
+	
+	/**
+	 * @see		http://www.w3.org/TR/CSS2/fonts.html#propdef-font-family
+	 */
+	private inline function parseAndSetFontFamily (val:String) : Void
+	{
+		var isFam	= fontFamilyExpr.match(val);
+		
+		//make sure the font-family doesn't match font-weight or font-style properties
+		if (isFam) {
+			val		= fontFamilyExpr.matched(1);
+			isFam	= !fontWeightExpr.match(val) && !fontStyleExpr.match(val);
+		}
+		
+		if (isFam) {
+			createFontBlock();
+			currentBlock.font.family = val;
+		}
 	}
 	
 	
@@ -1235,6 +1273,39 @@ class CSSParser
 				p.right		= right;
 				p.bottom	= bottom;
 				p.left		= left;
+			}
+		}
+	}
+	
+	
+	
+	/**
+	 * @see CSSParser.parseAndSetPadding
+	 */
+	private inline function parseAndSetRelativeProperties (v:String) : Void
+	{
+		var expr = floatUnitGroupValExpr;
+		
+		if (expr.match(v))
+		{
+			createLayoutBlock();
+			
+			var top		= expr.matched(3).parseInt();
+			var right	= expr.matched( 8) != null ? expr.matched(10).parseInt() : top;
+			var bottom	= expr.matched(15) != null ? expr.matched(17).parseInt() : top;
+			var left	= expr.matched(22) != null ? expr.matched(24).parseInt() : right;
+			
+			if (currentBlock.layout.relative == null)
+			{
+				currentBlock.layout.relative = new RelativeLayout( top, right, bottom, left );
+			}
+			else
+			{
+				var r		= currentBlock.layout.relative;
+				r.top		= top;
+				r.right		= right;
+				r.bottom	= bottom;
+				r.left		= left;
 			}
 		}
 	}

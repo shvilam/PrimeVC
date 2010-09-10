@@ -123,6 +123,13 @@ class StyleParserTest
 		"class(nl/onlinetouch/ImageSKins)"
 	];
 	
+	public static inline var CORRECT_FONT_FAMILIES	= [
+		"verdana", "VeRdAnA", "sans", "sans-serif", "monospace", "cursive", "fantasy", "'New Century Schoolbook'", "'Verdana8'", '"My Own Font"', '"Courier-New"'
+	];
+	public static inline var INCORRECT_FONT_FAMILIES= [
+		"New Century Schoolbook", "Verdana8", 'Zapf-Chancery', "8px", /*"bold", "italic", "large",*/ "''", ""
+	];
+	
 	
 	
 	public static function main ()
@@ -173,6 +180,7 @@ class StyleParserTest
 		correctTests	= 0;
 		testSimpleProperties();
 		testBgProperties();
+		testFontProperties();
 	}
 	
 	
@@ -340,6 +348,18 @@ class StyleParserTest
 		expr.test(CORRECT_UNIT_GROUP[0]);
 		trace(expr.resultToString());
 		//*/
+	}
+	
+	
+	private inline function testFontProperties ()
+	{
+		//
+		// TEST FONT-FAMILY
+		//
+		trace("\n\nTESTING FONT-FAMILY REGEX");
+		var expr = parser.fontFamilyExpr;
+		testRegexp(expr, CORRECT_FONT_FAMILIES, true);
+		testRegexp(expr, INCORRECT_FONT_FAMILIES, false);
 	}
 	
 	

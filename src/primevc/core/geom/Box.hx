@@ -28,7 +28,7 @@
  */
 package primevc.core.geom;
  import primevc.types.Number;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
 
 
 /**
