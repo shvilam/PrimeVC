@@ -407,8 +407,8 @@ class CSSParser
 			case "max-width":					createLayoutBlock();		currentBlock.layout.maxWidth		= parseUnitInt( val );
 			case "max-height":					createLayoutBlock();		currentBlock.layout.maxHeight		= parseUnitInt( val );
 			
-	//		case "child-width":					createLayoutBlock();		currentBlock.layout.childWidth		= parseUnitInt( val );
-	//		case "child-height":				createLayoutBlock();		currentBlock.layout.childHeight		= parseUnitInt( val );
+			case "child-width":					createLayoutBlock();		currentBlock.layout.childWidth		= parseUnitInt( val );
+			case "child-height":				createLayoutBlock();		currentBlock.layout.childHeight		= parseUnitInt( val );
 			
 		//	case "relative":					createLayoutBlock();		parseAndSetRelativeProperties( val );
 			case "left":						createRelativeBlock();		currentBlock.layout.relative.left	= parseUnitInt( val );

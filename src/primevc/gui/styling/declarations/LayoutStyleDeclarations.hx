@@ -59,6 +59,9 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	public var minHeight			(getMinHeight,		setMinHeight)		: Int;
 	public var percentHeight		(getPercentHeight,	setPercentHeight)	: Float;
 	
+	public var childWidth			(getChildWidth,		setChildWidth)		: Int;
+	public var childHeight			(getChildHeight,	setChildHeight)		: Int;
+	
 	public var rotation				(getRotation,		setRotation)		: Float;
 	public var maintainAspectRatio	(getMaintainAspect,	setMaintainAspect)	: Null< Bool >;
 	
@@ -71,6 +74,8 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 		percentH:Float			= Number.INT_NOT_SET,
 		width:Int				= Number.INT_NOT_SET,
 		height:Int				= Number.INT_NOT_SET,
+		childWidth:Int			= Number.INT_NOT_SET,
+		childHeight:Int			= Number.INT_NOT_SET,
 		rotation:Float			= Number.INT_NOT_SET,
 		maintainAspect:Bool 	= null
 	)
@@ -84,6 +89,8 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 		this.percentHeight		= percentH == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentH;
 		this.width				= width;
 		this.height				= height;
+		this.childWidth			= childWidth;
+		this.childHeight		= childHeight;
 		this.rotation			= rotation == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : rotation;
 		maintainAspectRatio		= maintainAspect;
 	}
@@ -101,6 +108,8 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 		percentHeight	= Number.FLOAT_NOT_SET;
 		width			= Number.INT_NOT_SET;
 		height			= Number.INT_NOT_SET;
+		childWidth		= Number.INT_NOT_SET;
+		childHeight		= Number.INT_NOT_SET;
 		rotation		= Number.FLOAT_NOT_SET;
 		
 		super.dispose();
@@ -208,6 +217,24 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 		else if (extendedStyle != null)			return extendedStyle.percentHeight;
 		else if (superStyle != null)			return superStyle.percentHeight;
 		else									return Number.FLOAT_NOT_SET;
+	}
+	
+	
+	private function getChildWidth ()
+	{
+		if		(childWidth.isSet())			return childWidth;
+		else if (extendedStyle != null)			return extendedStyle.childWidth;
+		else if (superStyle != null)			return superStyle.childWidth;
+		else									return Number.INT_NOT_SET;
+	}
+	
+	
+	private function getChildHeight ()
+	{
+		if		(childHeight.isSet())			return childHeight;
+		else if (extendedStyle != null)			return extendedStyle.childHeight;
+		else if (superStyle != null)			return superStyle.childHeight;
+		else									return Number.INT_NOT_SET;
 	}
 	
 	
@@ -340,6 +367,25 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 		if (v != percentHeight) {
 			percentHeight = v;
 			invalidate( LayoutFlags.PERCENT_HEIGHT );
+		}
+		return v;
+	}
+	
+	private inline function setChildWidth (v)
+	{
+		if (v != childWidth) {
+			childWidth = v;
+			invalidate( LayoutFlags.CHILD_WIDTH );
+		}
+		return v;
+	}
+	
+	
+	private inline function setChildHeight (v)
+	{
+		if (v != childHeight) {
+			childHeight = v;
+			invalidate( LayoutFlags.CHILD_HEIGHT );
 		}
 		return v;
 	}
