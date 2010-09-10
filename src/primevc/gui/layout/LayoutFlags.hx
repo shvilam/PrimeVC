@@ -80,6 +80,8 @@ class LayoutFlags
 	public static inline var MAINTAIN_ASPECT		: UInt = 131072;
 	public static inline var ROTATION				: UInt = 262144;
 	
+	public static inline var CHILD_WIDTH			: UInt = 524288;
+	public static inline var CHILD_HEIGHT			: UInt = 1048576;
 	
 	
 	/**

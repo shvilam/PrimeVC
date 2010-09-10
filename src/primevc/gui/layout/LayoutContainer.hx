@@ -290,6 +290,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		if (v != childWidth)
 		{
 			childWidth = v;
+			invalidate( LayoutFlags.CHILD_WIDTH );
 			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
 		}
 		return v;
@@ -301,6 +302,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		if (v != childHeight)
 		{
 			childHeight = v;
+			invalidate( LayoutFlags.CHILD_HEIGHT );
 			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
 		}
 		return v;
