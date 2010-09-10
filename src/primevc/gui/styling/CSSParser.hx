@@ -65,6 +65,8 @@ package primevc.gui.styling;
   using primevc.utils.Bind;
   using primevc.utils.Color;
   using primevc.utils.ERegUtil;
+  using primevc.utils.IntUtil;
+  using primevc.utils.FloatUtil;
   using primevc.utils.IntMath;
   using primevc.utils.TypeUtil;
   using Std;
@@ -400,8 +402,8 @@ class CSSParser
 			// layout properties
 			//
 			
-		//	case "width":						createLayoutBlock();		parseAndSetWidth();
-		//	case "height":						createLayoutBlock();		parseAndSetHeight();
+			case "width":						parseAndSetWidth( val );
+			case "height":						parseAndSetHeight( val );
 			case "min-width":					createLayoutBlock();		currentBlock.layout.minWidth		= parseUnitInt( val );
 			case "min-height":					createLayoutBlock();		currentBlock.layout.minHeight		= parseUnitInt( val );
 			case "max-width":					createLayoutBlock();		currentBlock.layout.maxWidth		= parseUnitInt( val );
@@ -1119,5 +1121,63 @@ class CSSParser
 			r = shape.corners;
 		}
 		return r;
+	}
+	
+	
+	
+	//
+	// LAYOUT METHODS
+	//
+	
+	
+	/**
+	 * Method will parse the given width and set the value in the layout object.
+	 * Parsing is done in a separate method since the with can be a 
+	 * percent-value and an absolute value. In the LayoutObject these two 
+	 * values are stored in two different variables.
+	 */
+	private inline function parseAndSetWidth (v:String) : Void
+	{
+		var w:Int = parseUnitInt(v);
+		if (w.isSet())
+		{
+			createLayoutBlock();
+			currentBlock.layout.width = w;
+		}
+		else
+		{
+			var pw:Float = parsePercentage(v);
+			if (pw.isSet())
+			{
+				createLayoutBlock();
+				currentBlock.layout.percentWidth = pw;
+			}
+		}
+	}
+	
+	
+	/**
+	 * Method will parse the given height and set the value in the layout object.
+	 * Parsing is done in a separate method since the with can be a 
+	 * percent-value and an absolute value. In the LayoutObject these two 
+	 * values are stored in two different variables.
+	 */
+	private inline function parseAndSetHeight (v:String) : Void
+	{
+		var h:Int = parseUnitInt(v);
+		if (h.isSet())
+		{
+			createLayoutBlock();
+			currentBlock.layout.height = h;
+		}
+		else
+		{
+			var ph:Float = parsePercentage(v);
+			if (ph.isSet())
+			{
+				createLayoutBlock();
+				currentBlock.layout.percentHeight = ph;
+			}
+		}
 	}
 }
