@@ -78,15 +78,15 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 	)
 	{
 		super();
-	//	this.size			= size;
+		this.size			= size;
 		this.family			= family;
 		this.color			= color;
 		this.weight			= weight;
 		this.style			= null;
-	//	this.letterSpacing	= letterSpacing == Number.FLOAT_MIN ? Number.FLOAT_NOT_SET : letterSpacing;
+		this.letterSpacing	= letterSpacing == Number.FLOAT_MIN ? Number.FLOAT_NOT_SET : letterSpacing;
 		this.align			= align;
 		this.decoration		= decoration;
-	//	this.indent			= indent == Number.FLOAT_MIN ? Number.FLOAT_NOT_SET : indent;
+		this.indent			= indent == Number.FLOAT_MIN ? Number.FLOAT_NOT_SET : indent;
 		this.transform		= transform;
 	}
 	

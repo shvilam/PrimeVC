@@ -41,28 +41,28 @@ class BitUtil
 	/**
 	 * Checks if any of the bits in 'flag' are set.
 	 */
-	public static inline function has (bits:Int, flag:Int) : Bool {
+	public static inline function has (bits:UInt, flag:UInt) : Bool {
 		return (bits & flag) != 0;
 	}
 	
 	/**
 	 * Checks if none of the bits in 'flag' are set.
 	 */
-	public static inline function hasNone (bits:Int, flag:Int) : Bool {
+	public static inline function hasNone (bits:UInt, flag:UInt) : Bool {
 		return (bits & flag) == 0;
 	}
 	
 	/**
-	 * Returns an Int with the bits set in 'flag' added to 'bits'.
+	 * Returns an UInt with the bits set in 'flag' added to 'bits'.
 	 */
-	public static inline function set (bits:Int, flag:Int) : Int {
+	public static inline function set (bits:UInt, flag:UInt) : UInt {
 		return bits |= flag;
 	}
 	
 	/**
-	 * Returns an Int with the bits set in 'flag' removed from 'bits'.
+	 * Returns an UInt with the bits set in 'flag' removed from 'bits'.
 	 */
-	public static inline function unset (bits:Int, flag:Int) : Int {
+	public static inline function unset (bits:UInt, flag:UInt) : UInt {
 		//is faster and better predictable than the commented code since there's one if statement less (6 ms faster on 7.000.000 iterations)
 		return bits &= 0xffffffff ^ flag; // has(bits, flag) ? bits ^= flag : bits;
 	}
