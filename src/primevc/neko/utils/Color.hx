@@ -44,14 +44,25 @@ package primevc.neko.utils;
  */
 class Color
 {
-	public static inline var BLACK		: UInt	= 0x000000;
-	public static inline var WHITE		: UInt	= 0xFFFFFF;
+	public static inline var BLACK					: UInt	= 0x000000;
+	public static inline var WHITE					: UInt	= 0xFFFFFF;
+	public static inline var ALPHA_MASK				: UInt = 0xFF;
+	public static inline var COLOR_MASK				: UInt = 0xFFFFFF;
+	public static inline var RED_MASK				: UInt = 0xFF0000;
+	public static inline var GREEN_MASK				: UInt = 0x00FF00;
+	public static inline var BLUE_MASK				: UInt = 0x0000FF;
+
+	public static inline var INVERTED_ALPHA_MASK	: UInt = 0x00;
+	public static inline var INVERTED_COLOR_MASK	: UInt = 0x000000;
+	public static inline var INVERTED_RED_MASK		: UInt = 0x00FFFF;
+	public static inline var INVERTED_GREEN_MASK 	: UInt = 0xFF00FF;
+	public static inline var INVERTED_BLUE_MASK		: UInt = 0xFFFF00;
 
 
 	/**
 	 * Returns a random color with an alpha value that is always 0xFF
 	 */
-	public static inline function random () : RGBA						{ return {color: (Math.random() * WHITE).int(), a: RGBAUtil.ALPHA_MASK}; }
+	public static inline function random () : RGBA						{ return {color: (Math.random() * WHITE).int(), a: ALPHA_MASK}; }
 
 	/**
 	 * Blends to RGBA colors together.
@@ -79,24 +90,8 @@ class Color
 	public static inline function create (r:UInt = 0, g:UInt = 0, b:UInt = 0, a:UInt = 0xFF) : RGBA {
 		return {color: ( r << 16 | g << 8 | b ), a: a }.validate();
 	}
-}
-
-
-class RGBAUtil
-{
-	public static inline var ALPHA_MASK				: UInt = 0xFF;
-	public static inline var COLOR_MASK				: UInt = 0xFFFFFF;
-	public static inline var RED_MASK				: UInt = 0xFF0000;
-	public static inline var GREEN_MASK				: UInt = 0x00FF00;
-	public static inline var BLUE_MASK				: UInt = 0x0000FF;
-
-	public static inline var INVERTED_ALPHA_MASK	: UInt = 0x00;
-	public static inline var INVERTED_COLOR_MASK	: UInt = 0x000000;
-	public static inline var INVERTED_RED_MASK		: UInt = 0x00FFFF;
-	public static inline var INVERTED_GREEN_MASK 	: UInt = 0xFF00FF;
-	public static inline var INVERTED_BLUE_MASK		: UInt = 0xFFFF00;
-
-
+	
+	
 	/**
 	 * Returns the alpha value of a RGBA object as a UInt.
 	 */
@@ -161,12 +156,8 @@ class RGBAUtil
 		var a = v.alpha();
 		return Color.create(r, g, b, a);
 	}
-}
-
-
-
-class FloatColorUtil
-{	
+	
+	
 	/**
 	 * Converts two bytes to a Float. Only one color channel should be given as input.
 	 */
@@ -176,12 +167,8 @@ class FloatColorUtil
 	 * Converts the given float (0-1) to a uint.
 	 */
 	public static inline function uint (v:Float) : UInt				{ return (v * 255).int().validate8Bit(); }
-}
-
-
-
-class StringColorUtil
-{	
+	
+	
 	/**
 	 * Converts a RGBA value to a hexadecimal string. 
 	 */
@@ -189,8 +176,9 @@ class StringColorUtil
 	/**
 	 * Converts a hexadecimal string to a RGBA value
 	 */
-	public static inline function rgba (v:String) : RGBA {
-		var a		= RGBAUtil.ALPHA_MASK;
+	public static inline function rgba (v:String) : RGBA
+	{
+		var a		= ALPHA_MASK;
 		var rgb:UInt= 0;
 		
 		if		(v.length == 3)		v += v;
