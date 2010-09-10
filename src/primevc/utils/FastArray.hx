@@ -48,8 +48,10 @@ class FastArrayUtil
 	{
 #if flash10
 		return new flash.Vector<T>(size, fixed);
-#else
+#elseif flash
 		return untyped __new__(Array, size);
+#elseif neko
+		return untyped Array.new1(neko.NativeArray.alloc(size), size);
 #end
 	}
 	

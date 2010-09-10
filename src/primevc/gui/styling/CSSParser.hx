@@ -959,7 +959,7 @@ class CSSParser
 				if		(newFill.is(SolidFill))		t.border = cast new SolidBorder( newFill.as( SolidFill ) );
 				else if	(newFill.is(GradientFill))	t.border = cast new GradientBorder( newFill.as( GradientFill ) );
 				else if	(newFill.is(BitmapFill))	t.border = cast new BitmapBorder( newFill.as( BitmapFill ) );
-#if debug		else	throw "Fill type not supported for border";		#end
+#if debug		else	throw "Fill type: "+Std.string(newFill)+" not supported for border";	#end
 			}
 			else
 			{

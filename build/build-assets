@@ -15,7 +15,7 @@ else
 		fi;
 		
 		"$MXMLC" \
-			-compiler.source-path ${PRJROOT}/src ${PRJROOT}/libs ${PRJROOT}/libs/as3-flexless \
+			-compiler.source-path "${PRJROOT}/src" "${PRJROOT}/libs/macmousewheel" "${PRJROOT}/libs/monsterdebugger" "${PRJROOT}/libs/as3-flexless" \
 			-compiler.as3 \
 			-debug=false \
 			-verbose-stacktraces=false \
@@ -24,7 +24,7 @@ else
 			${PRJROOT}/assets/Assets.as &&
 
 		"$MXMLC" \
-			-compiler.source-path ${PRJROOT}/src ${PRJROOT}/libs ${PRJROOT}/libs/as3-flexless \
+			-compiler.source-path "${PRJROOT}/src" "${PRJROOT}/libs/macmousewheel" "${PRJROOT}/libs/monsterdebugger" "${PRJROOT}/libs/as3-flexless" \
 			-compiler.as3 \
 			-output ${PRJROOT}/assets/debug-assets.swf \
 			${PRJROOT}/assets/DebugAssets.as &&

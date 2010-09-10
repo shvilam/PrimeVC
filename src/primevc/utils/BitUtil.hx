@@ -56,6 +56,8 @@ class BitUtil
 	 * Returns an Int with the bits set in 'flag' added to 'bits'.
 	 */
 	public static inline function set (bits:Int, flag:Int) : Int {
+		Assert.that(bits != null);
+		Assert.that(flag != null);
 		return bits |= flag;
 	}
 	

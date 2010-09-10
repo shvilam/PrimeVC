@@ -28,7 +28,7 @@ done
 if ${Force} || [[ ! -f ${Parser} ]]  ||  test ${MainFile} -nt ${Parser}  ||  test ${StyleSheet} -nt ${Parser} ; then
 	echo "Compiling parser"
 	
-	haxe build-parser.hxml -main ${MainClass} -neko ${Parser} -resource ${StyleSheet}@stylesheet &&
+	haxe build-parser.hxml --no-inline -main ${MainClass} -neko ${Parser} -resource ${StyleSheet}@stylesheet &&
 	neko ${Parser}
 else
 	neko ${Parser}

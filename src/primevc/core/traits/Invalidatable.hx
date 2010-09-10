@@ -47,6 +47,7 @@ class Invalidatable implements IInvalidatable
 	
 	public function new ()
 	{
+		changes   = 0;
 		listeners = new FastList< IInvalidatable >();
 	}
 	
