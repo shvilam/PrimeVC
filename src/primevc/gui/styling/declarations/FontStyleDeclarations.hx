@@ -35,8 +35,8 @@ package primevc.gui.styling.declarations;
  import primevc.types.Number;
  import primevc.types.RGBA;
  import primevc.utils.IntUtil;
-  using primevc.utils.FloatUtil;
   using primevc.utils.IntUtil;
+  using primevc.utils.FloatUtil;
   using primevc.utils.Color;
 
 
@@ -322,8 +322,8 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 	public function toString ()
 	{
 		var css = [];
-
-		if (IntUtil.isSet((untyped this).size))			css.push("font-size: " 		+ size + "px");
+		
+		if (size.isSet())			css.push("font-size: " 		+ size + "px");
 		if (family != null)			css.push("font-family: "	+family);
 		if (color != null)			css.push("color: "			+color.string());
 		if (weight != null)			css.push("font-weight: "	+weight);

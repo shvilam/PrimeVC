@@ -31,6 +31,13 @@ package primevc.utils;
  
 
 /**
+ * README!!
+ * When you use this utility in combination with FloatUtil, make sure you define
+ * IntUtil first, and then FloatUtil:
+ * 
+ *  using primevc.utils.IntUtil;
+ *  using primevc.utils.FloatUtil;
+ *
  * @creation-date	Jun 21, 2010
  * @author			Ruben Weijers
  */
@@ -65,12 +72,6 @@ class IntUtil
 	}
 	
 	
-	public static inline function notSet (value:Int) : Bool {
-		return value == Number.INT_NOT_SET;
-	}
-	
-	
-	public static inline function isSet (value:Int) : Bool {
-		return value != Number.INT_NOT_SET;
-	}
+	public static inline function notSet (value:Int) : Bool	{ return value == Number.INT_NOT_SET; }
+	public static inline function isSet (value:Int) : Bool	{ return value != Number.INT_NOT_SET; }
 }

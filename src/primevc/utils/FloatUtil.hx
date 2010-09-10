@@ -31,6 +31,13 @@ package primevc.utils;
  
 
 /**
+ * README!!
+ * When you use this utility in combination with IntUtil, make sure you define
+ * IntUtil first, and then FloatUtil:
+ * 
+ *  using primevc.utils.IntUtil;
+ *  using primevc.utils.FloatUtil;
+ * 
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
@@ -72,12 +79,6 @@ class FloatUtil
 	}
 
 
-	public static inline function notSet (value:Float) : Bool {
-		return value.isNaN();
-	}
-
-
-	public static inline function isSet (value:Float) : Bool {
-		return !value.isNaN();
-	}
+	public static inline function notSet (value:Float) : Bool	{ return value.isNaN(); }
+	public static inline function isSet (value:Float) : Bool	{ return !value.isNaN(); }
 }
