@@ -430,6 +430,9 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 		if (minHeight.isSet())				css.push("min-height: " + minHeight + "px");
 		if (maxHeight.isSet())				css.push("max-height: " + maxHeight + "px");
 		
+		if (childWidth.isSet())				css.push("child-width: " + childWidth + "px");
+		if (childHeight.isSet())			css.push("child-height: " + childHeight + "px");
+		
 		if (rotation.isSet())				css.push("rotation: " + rotation + "degr");
 		if (maintainAspectRatio != null)	css.push("maintainAspectRatio: " + (maintainAspectRatio ? "true" : "false"));
 		

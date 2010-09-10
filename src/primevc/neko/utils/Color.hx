@@ -180,16 +180,16 @@ class Color
 	 */
 	public static inline function rgba (v:String) : RGBA
 	{
-		var a		= ALPHA_MASK;
-		var rgb:UInt= 0;
+		var a = ALPHA_MASK;
 		
-		if		(v.length == 3)		v += v;
-		if		(v.length == 6)		rgb = v.parseInt();
-		else if (v.length == 8) {
-			rgb = v.substr(0, 6).parseInt();
+		if (v.length == 3)
+			v += v;
+		else if (v.length == 8)
+		{
 			a = v.substr(6).parseInt();
+			v = v.substr(0, 6);
 		}
 		
-		return {color: rgb, a: a }.validate();
+		return {color: ("0x"+v).parseInt(), a: a }.validate();
 	}
 }
