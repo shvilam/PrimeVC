@@ -342,12 +342,12 @@ class CSSParser
 			// font properties
 			//
 			
-			case "font":						parseAndSetFont(val);				// [[ <font-style> || <font-weight> || <font-size> ]]? <font-family>
-			case "font-size":					parseAndSetFontSize( val );			//inherit, font-size
-			case "font-family":					parseAndSetFontFamily( val );		//inherit, font-name
-			case "color":						createFontBlock();			currentBlock.font.color			= parseColor( val );			//inherit, color-values
-			case "font-weight":					parseAndSetFontWeight( val );		//normal, bold, bolder, lighter
-			case "font-style":					parseAndSetFontStyle( val );		//inherit, normal, italic, oblique
+			case "font":						parseAndSetFont(val);																		// [[ <font-style> || <font-weight> || <font-size> ]]? <font-family>
+			case "font-size":					parseAndSetFontSize( val );																	//inherit, font-size
+			case "font-family":					parseAndSetFontFamily( val );																//inherit, font-name
+			case "color":						if (isColor(val)) { createFontBlock(); currentBlock.font.color = parseColor( val ); }		//inherit, color-values
+			case "font-weight":					parseAndSetFontWeight( val );																//normal, bold, bolder, lighter
+			case "font-style":					parseAndSetFontStyle( val );																//inherit, normal, italic, oblique
 			case "letter-spacing":				createFontBlock();			currentBlock.font.letterSpacing	= parseUnitFloat( val );		//inherit, normal, [length]
 			case "text-align":					createFontBlock();			currentBlock.font.align			= parseTextAlign( val );		//inherit, left, center, right, justify
 			case "text-decoration":				createFontBlock();			currentBlock.font.decoration	= parseTextDecoration( val );	//inherit, none, underline
@@ -359,24 +359,24 @@ class CSSParser
 			// fill properties
 			//
 			
-			case "background":					parseAndSetBackground( val );						// <background-color> <background-image>
-			case "background-color":			parseAndSetBackgroundColor( val );					// #fff, 0xfff, #fffddd, 0xfff000, #ffddeeaa, 0xffddeeaa, rgba(255,255,255,0.9)
-			case "background-image":			parseAndSetBackgroundImage( val );					// url( www.rubenw.nl/img.jpg ), class( package.of.Asset ) <background-repeat>
+			case "background":					parseAndSetBackground( val );		// <background-color> <background-image>
+			case "background-color":			parseAndSetBackgroundColor( val );	// #fff, 0xfff, #fffddd, 0xfff000, #ffddeeaa, 0xffddeeaa, rgba(255,255,255,0.9)
+			case "background-image":			parseAndSetBackgroundImage( val );	// url( www.rubenw.nl/img.jpg ), class( package.of.Asset ) <background-repeat>
 			
 			
 			//
 			// border properties
 			//
 			
-			case "border":						parseAndSetBorder( val );							// <border-color> <border-width> <border-image> <border-style>
+			case "border":						parseAndSetBorder( val );			// <border-color> <border-width> <border-image> <border-style>
 			case "border-color":				parseAndSetBorderColor( val );
 			case "border-image":
 			case "border-image-source":			parseAndSetBorderImage( val );
 			
-		//	case "border-style":				parseAndSetBorderStyle( val );						//none, solid, dashed, dotted
+		//	case "border-style":				parseAndSetBorderStyle( val );		//none, solid, dashed, dotted
 			case "border-width":				parseAndSetBorderWidth( val );
 			
-			case "border-radius":				parseAndSetBorderRadius( val );						//[top-left]px <[top-right]px> <[bottom-right]px> <[bottom-left]px>
+			case "border-radius":				parseAndSetBorderRadius( val );		//[top-left]px <[top-right]px> <[bottom-right]px> <[bottom-left]px>
 			case "border-top-left-radius":		setBorderTopLeftRadius( parseUnitFloat( val ) );
 			case "border-top-right-radius":		setBorderTopRightRadius( parseUnitFloat( val ) );
 			case "border-bottom-left-radius":	setBorderBottomLeftRadius( parseUnitFloat( val ) );
@@ -414,33 +414,33 @@ class CSSParser
 			
 			case "width":						parseAndSetWidth( val );
 			case "height":						parseAndSetHeight( val );
-			case "min-width":					createLayoutBlock();		currentBlock.layout.minWidth		= parseUnitInt( val );
-			case "min-height":					createLayoutBlock();		currentBlock.layout.minHeight		= parseUnitInt( val );
-			case "max-width":					createLayoutBlock();		currentBlock.layout.maxWidth		= parseUnitInt( val );
-			case "max-height":					createLayoutBlock();		currentBlock.layout.maxHeight		= parseUnitInt( val );
+			case "min-width":					if (isUnitInt(val))	{ createLayoutBlock();		currentBlock.layout.minWidth		= parseUnitInt( val ); }
+			case "min-height":					if (isUnitInt(val))	{ createLayoutBlock();		currentBlock.layout.minHeight		= parseUnitInt( val ); }
+			case "max-width":					if (isUnitInt(val))	{ createLayoutBlock();		currentBlock.layout.maxWidth		= parseUnitInt( val ); }
+			case "max-height":					if (isUnitInt(val))	{ createLayoutBlock();		currentBlock.layout.maxHeight		= parseUnitInt( val ); }
 			
-			case "child-width":					createLayoutBlock();		currentBlock.layout.childWidth		= parseUnitInt( val );
-			case "child-height":				createLayoutBlock();		currentBlock.layout.childHeight		= parseUnitInt( val );
+			case "child-width":					if (isUnitInt(val))	{ createLayoutBlock();		currentBlock.layout.childWidth		= parseUnitInt( val ); }
+			case "child-height":				if (isUnitInt(val))	{ createLayoutBlock();		currentBlock.layout.childHeight		= parseUnitInt( val ); }
 			
 			case "relative":					parseAndSetRelativeProperties( val );			// [top]px <[right]px> <[bottom]px> <[left]px>
-			case "left":						createRelativeBlock();		currentBlock.layout.relative.left	= parseUnitInt( val );
-			case "right":						createRelativeBlock();		currentBlock.layout.relative.right	= parseUnitInt( val );
-			case "top":							createRelativeBlock();		currentBlock.layout.relative.top	= parseUnitInt( val );
-			case "bottom":						createRelativeBlock();		currentBlock.layout.relative.bottom	= parseUnitInt( val );
-			case "h-center":					createRelativeBlock();		currentBlock.layout.relative.hCenter= parseUnitInt( val );
-			case "v-center":					createRelativeBlock();		currentBlock.layout.relative.vCenter= parseUnitInt( val );
+			case "left":						if (isUnitInt(val))	{ createRelativeBlock();		currentBlock.layout.relative.left	= parseUnitInt( val ); }
+			case "right":						if (isUnitInt(val))	{ createRelativeBlock();		currentBlock.layout.relative.right	= parseUnitInt( val ); }
+			case "top":							if (isUnitInt(val))	{ createRelativeBlock();		currentBlock.layout.relative.top	= parseUnitInt( val ); }
+			case "bottom":						if (isUnitInt(val))	{ createRelativeBlock();		currentBlock.layout.relative.bottom	= parseUnitInt( val ); }
+			case "h-center":					if (isUnitInt(val))	{ createRelativeBlock();		currentBlock.layout.relative.hCenter= parseUnitInt( val ); }
+			case "v-center":					if (isUnitInt(val))	{ createRelativeBlock();		currentBlock.layout.relative.vCenter= parseUnitInt( val ); }
 			
-		//	case "position":					//absolute and relative supported (=includeInLayout)
+			case "position":					parseAndSetPosition(val);						//absolute and relative supported (=includeInLayout)
 		//	case "algorithm":					createLayoutBlock();		currentBlock.layout.algorithm		= parseLayoutAlgorithm( val );
 		//	case "transform":					createLayoutBlock();		currentBlock.layout.transform		= parseTransform( val );	//scale( 0.1 - 2 ) / 	rotate( [x]deg ) translate( [x]px, [y]px ) skew( [x]deg, [y]deg )
 		//	case "rotation":
 		//	case "rotation-point":
 		
 			case "padding":						parseAndSetPadding( val );						// [top]px <[right]px> <[bottom]px> <[left]px>
-			case "padding-top":					createPaddingBlock();		currentBlock.layout.padding.top		= parseUnitInt( val );
-			case "padding-bottom":				createPaddingBlock();		currentBlock.layout.padding.bottom	= parseUnitInt( val );
-			case "padding-right":				createPaddingBlock();		currentBlock.layout.padding.right	= parseUnitInt( val );
-			case "padding-left":				createPaddingBlock();		currentBlock.layout.padding.left	= parseUnitInt( val );
+			case "padding-top":					if (isUnitInt(val))	{ createPaddingBlock();		currentBlock.layout.padding.top		= parseUnitInt( val ); }
+			case "padding-bottom":				if (isUnitInt(val))	{ createPaddingBlock();		currentBlock.layout.padding.bottom	= parseUnitInt( val ); }
+			case "padding-right":				if (isUnitInt(val))	{ createPaddingBlock();		currentBlock.layout.padding.right	= parseUnitInt( val ); }
+			case "padding-left":				if (isUnitInt(val))	{ createPaddingBlock();		currentBlock.layout.padding.left	= parseUnitInt( val ); }
 			
 		//	case "clip":		// auto, rect([t],[r],[b],[l])	--> specifies the area of an absolutly positioned box that should be visible == scrollrect size?
 		//	case "overflow":	// visible, hidden, scroll-mouse-move, drag-scroll, corner-scroll
@@ -590,7 +590,7 @@ class CSSParser
 	
 	
 	//
-	// GENERAL UNIT CONVERSION METHODS
+	// GENERAL UNIT CONVERSION / MATCH METHODS
 	//
 	
 	/**
@@ -625,6 +625,16 @@ class CSSParser
 	{
 		return (percValExpr.match(v)) ? percValExpr.matched(2).parseFloat() : Number.FLOAT_NOT_SET;
 	}
+	
+	
+	private inline function isInt (v:String) : Bool			{ return intValExpr.match(v); }
+	private inline function isFloat (v:String) : Bool		{ return floatValExpr.match(v); }
+	private inline function isUnitInt (v:String) : Bool		{ return floatUnitValExpr.match(v); }
+	private inline function isUnitFloat (v:String) : Bool	{ return floatUnitValExpr.match(v); }
+	private inline function isPercentage (v:String) : Bool	{ return percValExpr.match(v); }
+	private inline function isColor (v:String) : Bool		{ return v.trim().toLowerCase() != "inherit" && colorValExpr.match(v); }
+	
+	
 	
 	
 	/**
@@ -1360,6 +1370,21 @@ class CSSParser
 				r.right		= right;
 				r.bottom	= bottom;
 				r.left		= left;
+			}
+		}
+	}
+	
+	
+	private inline function parseAndSetPosition (v:String) : Void
+	{
+		v = v.trim().toLowerCase();
+		
+		if (v == "absolute" || v == "relative")
+		{
+			createLayoutBlock();
+			currentBlock.layout.includeInLayout = switch (v) {
+				case "absolute":	false;
+				case "relative":	true;
 			}
 		}
 	}

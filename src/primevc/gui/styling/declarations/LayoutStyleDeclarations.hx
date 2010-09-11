@@ -44,25 +44,27 @@ package primevc.gui.styling.declarations;
  */
 class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarations>
 {
-	public var relative				(getRelative,		setRelative)		: RelativeLayout;
-	public var algorithm			(getAlgorithm,		setAlgorithm)		: ILayoutAlgorithm;
-	public var padding				(getPadding,		setPadding)			: Box;
+	public var relative				(getRelative,			setRelative)		: RelativeLayout;
+	public var algorithm			(getAlgorithm,			setAlgorithm)		: ILayoutAlgorithm;
+	public var padding				(getPadding,			setPadding)			: Box;
 	
-	public var width				(getWidth,			setWidth)			: Int;
-	public var maxWidth				(getMaxWidth,		setMaxWidth)		: Int;
-	public var minWidth				(getMinWidth,		setMinWidth)		: Int;
-	public var percentWidth			(getPercentWidth,	setPercentWidth)	: Float;
+	public var width				(getWidth,				setWidth)			: Int;
+	public var maxWidth				(getMaxWidth,			setMaxWidth)		: Int;
+	public var minWidth				(getMinWidth,			setMinWidth)		: Int;
+	public var percentWidth			(getPercentWidth,		setPercentWidth)	: Float;
 	
-	public var height				(getHeight,			setHeight)			: Int;
-	public var maxHeight			(getMaxHeight,		setMaxHeight)		: Int;
-	public var minHeight			(getMinHeight,		setMinHeight)		: Int;
-	public var percentHeight		(getPercentHeight,	setPercentHeight)	: Float;
+	public var height				(getHeight,				setHeight)			: Int;
+	public var maxHeight			(getMaxHeight,			setMaxHeight)		: Int;
+	public var minHeight			(getMinHeight,			setMinHeight)		: Int;
+	public var percentHeight		(getPercentHeight,		setPercentHeight)	: Float;
 	
-	public var childWidth			(getChildWidth,		setChildWidth)		: Int;
-	public var childHeight			(getChildHeight,	setChildHeight)		: Int;
+	public var childWidth			(getChildWidth,			setChildWidth)		: Int;
+	public var childHeight			(getChildHeight,		setChildHeight)		: Int;
 	
-	public var rotation				(getRotation,		setRotation)		: Float;
-	public var maintainAspectRatio	(getMaintainAspect,	setMaintainAspect)	: Null< Bool >;
+	public var rotation				(getRotation,			setRotation)		: Float;
+	public var maintainAspectRatio	(getMaintainAspect,		setMaintainAspect)	: Null< Bool >;
+	
+	public var includeInLayout		(getIncludeInLayout,	setIncludeInLayout)	: Null< Bool >;
 	
 	
 	public function new (
@@ -76,6 +78,7 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 		childWidth:Int			= Number.INT_NOT_SET,
 		childHeight:Int			= Number.INT_NOT_SET,
 		rotation:Float			= Number.INT_NOT_SET,
+		include:Bool			= null,
 		maintainAspect:Bool 	= null
 	)
 	{
@@ -91,7 +94,9 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 		this.childWidth			= childWidth;
 		this.childHeight		= childHeight;
 		this.rotation			= rotation == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : rotation;
+		
 		maintainAspectRatio		= maintainAspect;
+		includeInLayout			= include;
 	}
 	
 	
@@ -100,6 +105,8 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 		if ((untyped this).relative != null)	relative.dispose();
 		if ((untyped this).algorithm != null)	algorithm.dispose();
 		
+		maintainAspectRatio = null;
+		includeInLayout	= null;
 		relative		= null;
 		algorithm		= null;
 		padding			= null;
@@ -243,6 +250,15 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 		else if (extendedStyle != null)			return extendedStyle.rotation;
 		else if (superStyle != null)			return superStyle.rotation;
 		else									return Number.FLOAT_NOT_SET;
+	}
+
+
+	private function getIncludeInLayout ()
+	{
+		if		(includeInLayout != null)		return includeInLayout;
+		else if (extendedStyle != null)			return extendedStyle.includeInLayout;
+		else if (superStyle != null)			return superStyle.includeInLayout;
+		else									return null;
 	}
 	
 	
@@ -398,6 +414,16 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 		}
 		return v;
 	}
+
+
+	private inline function setIncludeInLayout (v)
+	{
+		if (v != includeInLayout) {
+			includeInLayout = v;
+			invalidate( LayoutFlags.INCLUDE );
+		}
+		return v;
+	}
 	
 	
 	private inline function setMaintainAspect (v)
@@ -433,6 +459,7 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 		if (childHeight.isSet())			css.push("child-height: " + childHeight + "px");
 		
 		if (rotation.isSet())				css.push("rotation: " + rotation + "degr");
+		if (includeInLayout != null)		css.push("position: " + (maintainAspectRatio ? "relative" : "absolute"));
 		if (maintainAspectRatio != null)	css.push("maintainAspectRatio: " + (maintainAspectRatio ? "true" : "false"));
 		
 		if (css.length > 0)
