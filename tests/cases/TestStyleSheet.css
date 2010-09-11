@@ -36,6 +36,7 @@ TextArea {
 
 
 .eenVeld {
+	font: 12px bold italic Verdana;
 	width: 50px;
 	height: 10%;
 	child-width: 3em;

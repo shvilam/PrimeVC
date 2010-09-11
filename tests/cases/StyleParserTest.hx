@@ -123,12 +123,12 @@ class StyleParserTest
 		"class(nl/onlinetouch/ImageSKins)"
 	];
 	
-	public static inline var CORRECT_FONT_FAMILIES	= [
-		"verdana", "VeRdAnA", "sans", "sans-serif", "monospace", "cursive", "fantasy", "'New Century Schoolbook'", "'Verdana8'", '"My Own Font"', '"Courier-New"'
-	];
-	public static inline var INCORRECT_FONT_FAMILIES= [
-		"New Century Schoolbook", "Verdana8", 'Zapf-Chancery', "8px", /*"bold", "italic", "large",*/ "''", ""
-	];
+	public static inline var CORRECT_FONT_FAMILIES	= [ "verdana", "VeRdAnA", "sans", "sans-serif", "monospace", "cursive", "fantasy", "'New Century Schoolbook'", "'Verdana8'", '"My Own Font"', '"Courier-New"' ];
+	public static inline var INCORRECT_FONT_FAMILIES= [ "New Century Schoolbook", "Verdana8", 'Zapf-Chancery', "8px", /*"bold", "italic", "large",*/ "''", "" ];
+	public static inline var CORRECT_FONT_WEIGHT	= [ "normal", "BOLD", "lighter", "bolder", "inherit" ];
+	public static inline var INCORRECT_FONT_WEIGHT	= [ "norml", "bld", "bolder4", "", "'bold'" ];
+	public static inline var CORRECT_FONT_STYLE		= [ "normal", "italic", "oblique", "inherit" ];
+	public static inline var INCORRECT_FONT_STYLE	= [ "bold", "bolder", "lighter" ];
 	
 	
 	
@@ -360,6 +360,17 @@ class StyleParserTest
 		var expr = parser.fontFamilyExpr;
 		testRegexp(expr, CORRECT_FONT_FAMILIES, true);
 		testRegexp(expr, INCORRECT_FONT_FAMILIES, false);
+		
+		trace("\n\nTESTING FONT-WEIGHT REGEX");
+		var expr = parser.fontWeightExpr;
+		testRegexp(expr, CORRECT_FONT_WEIGHT, true);
+		testRegexp(expr, INCORRECT_FONT_WEIGHT, false);
+		
+		trace("\n\nTESTING FONT-STYLE REGEX");
+		var expr = parser.fontStyleExpr;
+		testRegexp(expr, CORRECT_FONT_STYLE, true);
+		testRegexp(expr, INCORRECT_FONT_STYLE, false);
+		testRegexp(expr, INCORRECT_FONT_WEIGHT, false);
 	}
 	
 	

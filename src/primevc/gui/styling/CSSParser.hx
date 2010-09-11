@@ -154,7 +154,7 @@ class CSSParser
 	public static inline var R_BG_REPEAT_EXPR		: String = "repeat-all|no-repeat";
 	
 	public static inline var R_FONT_STYLE_EXPR		: String = "normal|italic|oblique|inherit";
-	public static inline var R_FONT_WEIGHT_EXPR		: String = "normal|bold|bolder|lighter|inherit";
+	public static inline var R_FONT_WEIGHT_EXPR		: String = "normal|bolder|bold|lighter|inherit";
 	public static inline var R_GENERIC_FONT_FAMILIES: String = "serif|sans[-]serif|monospace|cursive|fantasy";
 	public static inline var R_FONT_FAMILY_EXPR		: String = "("+R_GENERIC_FONT_FAMILIES+")|([a-z]+)|(['\"]([a-z0-9+.,+/\\ _-]+)['\"])";
 	
@@ -342,12 +342,12 @@ class CSSParser
 			// font properties
 			//
 			
-	//		case "font":						parseAndSetFont(val);				// [[ <font-style> || <font-weight> || <font-size> ]]? <font-family>
+			case "font":						parseAndSetFont(val);				// [[ <font-style> || <font-weight> || <font-size> ]]? <font-family>
 			case "font-size":					parseAndSetFontSize( val );			//inherit, font-size
 			case "font-family":					parseAndSetFontFamily( val );		//inherit, font-name
 			case "color":						createFontBlock();			currentBlock.font.color			= parseColor( val );			//inherit, color-values
-			case "font-weight":					createFontBlock();			currentBlock.font.weight		= parseFontWeight( val );		//normal, bold, bolder, lighter
-			case "font-style":					createFontBlock();			currentBlock.font.style			= parseFontStyle( val );		//inherit, normal, italic, oblique
+			case "font-weight":					parseAndSetFontWeight( val );		//normal, bold, bolder, lighter
+			case "font-style":					parseAndSetFontStyle( val );		//inherit, normal, italic, oblique
 			case "letter-spacing":				createFontBlock();			currentBlock.font.letterSpacing	= parseUnitFloat( val );		//inherit, normal, [length]
 			case "text-align":					createFontBlock();			currentBlock.font.align			= parseTextAlign( val );		//inherit, left, center, right, justify
 			case "text-decoration":				createFontBlock();			currentBlock.font.decoration	= parseTextDecoration( val );	//inherit, none, underline
@@ -662,36 +662,28 @@ class CSSParser
 	// FONT METHODS
 	//
 	
-	private inline function parseAndSetFontSize (val:String) : Void
+	
+	private inline function parseAndSetFont (v:String) : Void
+	{	
+		v = parseAndSetFontStyle(v);
+		v = parseAndSetFontWeight(v);
+		v = parseAndSetFontSize(v);
+		v = parseAndSetFontFamily(v);
+	}
+	
+	
+	private inline function parseAndSetFontSize (val:String) : String
 	{
 		var v = parseUnitInt( val );
 		if (v.isSet()) {
 			createFontBlock();
 			currentBlock.font.size = v;
+			val = floatUnitValExpr.replace(val, "");
 		}
+		return val;
 	}
-	
-	
-	/**
-	 * @see		http://www.w3.org/TR/CSS2/fonts.html#propdef-font-family
-	 */
-	private inline function parseAndSetFontFamily (val:String) : Void
-	{
-		var isFam	= fontFamilyExpr.match(val);
-		
-		//make sure the font-family doesn't match font-weight or font-style properties
-		if (isFam) {
-			val		= fontFamilyExpr.matched(1);
-			isFam	= !fontWeightExpr.match(val) && !fontStyleExpr.match(val);
-		}
-		
-		if (isFam) {
-			createFontBlock();
-			currentBlock.font.family = val;
-		}
-	}
-	
-	
+
+
 	private inline function parseTextAlign (v:String) : TextAlign
 	{
 		return switch (v.trim().toLowerCase()) {
@@ -702,28 +694,78 @@ class CSSParser
 			case "inherit":	null;
 		}
 	}
-
-
-	private inline function parseFontWeight (v:String) : FontWeight
+	
+	
+	/**
+	 * @see		http://www.w3.org/TR/CSS2/fonts.html#propdef-font-family
+	 * @return 	val without the matched font-family
+	 */
+	private inline function parseAndSetFontFamily (val:String) : String
 	{
-		return switch (v.trim().toLowerCase()) {
-		default:			FontWeight.normal;
-			case "bold":	FontWeight.bold;
-			case "bolder":	FontWeight.bolder;
-			case "lighter":	FontWeight.lighter;
-			case "inherit":	null;
+		var isFam	= fontFamilyExpr.match(val);
+		var fam		= "";
+		
+		//make sure the font-family doesn't match font-weight or font-style properties
+		if (isFam) {
+			fam		= fontFamilyExpr.matched(1);
+			isFam	= !fontWeightExpr.match(fam) && !fontStyleExpr.match(fam);
 		}
+		
+		if (isFam) {
+			createFontBlock();
+			currentBlock.font.family = fam;
+			val = val.replace(fam, "");
+		}
+		return val;
 	}
 
-
-	private inline function parseFontStyle (v:String) : FontStyle
+	
+	/**
+	 * Matches the font-weight in the given string and sets it in the font
+	 * style property of the current block.
+	 * Method will return the input-string without the mathed weight.
+	 */
+	private inline function parseAndSetFontWeight (v:String) : String
 	{
-		return switch (v.trim().toLowerCase()) {
-			default:		FontStyle.normal;
-			case "italic":	FontStyle.italic;
-			case "oblique":	FontStyle.oblique;
-			case "inherit":	null;
+		if (fontWeightExpr.match(v))
+		{
+			createFontBlock();
+			currentBlock.font.weight = 
+				switch (fontWeightExpr.matched(1).toLowerCase()) {
+					default:		FontWeight.normal;
+					case "bold":	FontWeight.bold;
+					case "bolder":	FontWeight.bolder;
+					case "lighter":	FontWeight.lighter;
+					case "inherit":	null;
+				}
+			
+			v = fontWeightExpr.replace(v, "");
 		}
+		return v;
+	}
+
+	
+	/**
+	 * Matches the font-style in the given string and sets it in the font
+	 * style property of the current block.
+	 * Method will return the input-string without the mathed style.
+	 */
+	private inline function parseAndSetFontStyle (v:String) : String
+	{
+		if (fontStyleExpr.match(v))
+		{
+			createFontBlock();
+			currentBlock.font.style =
+			 	switch (fontStyleExpr.matched(1).toLowerCase()) {
+					default:		FontStyle.normal;
+					case "italic":	FontStyle.italic;
+					case "oblique":	FontStyle.oblique;
+					case "inherit":	null;
+				}
+			
+			v = fontStyleExpr.replace(v, "");
+		}
+		return v;
 	}
 	
 	
