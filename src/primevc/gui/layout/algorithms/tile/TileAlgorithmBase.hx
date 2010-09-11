@@ -49,7 +49,7 @@ class TileAlgorithmBase extends DynamicLayoutAlgorithm
 	public var startDirection			(default, setStartDirection)		: Direction;
 	
 	
-	public function new() 
+	public function new( ?startDir:Direction ) 
 	{
 		super(
 			new HorizontalFloatAlgorithm(),
@@ -58,7 +58,7 @@ class TileAlgorithmBase extends DynamicLayoutAlgorithm
 		
 		horizontalDirection	= horAlgorithm.direction;
 		verticalDirection	= verAlgorithm.direction;
-		startDirection		= Direction.horizontal;
+		startDirection		= startDir == null ? Direction.horizontal : startDir;
 	}
 	
 	

@@ -47,6 +47,7 @@ TextArea {
 	border-radius: 5px 2px;
 	padding: 4px 3px;
 	position: absolute;
+	algorithm: float-hor( right );
 }
 
 

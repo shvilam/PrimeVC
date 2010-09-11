@@ -161,9 +161,9 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	private var childVerAlgorithm	: VerticalFloatAlgorithm;
 	
 	
-	public function new() 
+	public function new( ?startDir:Direction ) 
 	{
-		super();
+		super( startDir );
 		maxTilesInDirection	= 4;
 		childHorAlgorithm	= new HorizontalFloatAlgorithm( horizontalDirection );
 		childVerAlgorithm	= new VerticalFloatAlgorithm( verticalDirection );

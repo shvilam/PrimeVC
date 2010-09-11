@@ -383,9 +383,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 #if debug
 	public function toString ()
 	{
-		var start = direction == Vertical.top ? "top" : "bottom";
-		var end = direction == Vertical.top ? "bottom" : "top";
-		return group.name + ".Float.ver ( " + start + " -> " + end + " ) ";
+		return "float-ver (" + direction + ", " + horizontal + ")"; // + start + " -> " + end;
 	}
 #end
 }

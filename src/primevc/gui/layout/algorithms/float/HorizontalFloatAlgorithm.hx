@@ -375,9 +375,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 #if debug
 	public function toString ()
 	{
-		var start	= direction == Horizontal.left ? "left" : "right";
-		var end		= direction == Horizontal.left ? "right" : "left";
-		return group.name + ".Float.hor " + start + " -> " + end;
+		return "float-hor (" + direction + ", " + vertical + ")";
 	}
 #end
 }

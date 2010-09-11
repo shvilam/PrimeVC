@@ -27,6 +27,8 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
+ import primevc.core.geom.space.Horizontal;
+ import primevc.core.geom.space.Vertical;
  import primevc.core.geom.Box;
  import primevc.core.geom.Corners;
  import primevc.gui.graphics.borders.BitmapBorder;
@@ -46,7 +48,15 @@ package primevc.gui.styling;
  import primevc.gui.graphics.shapes.Line;
  import primevc.gui.graphics.shapes.RegularRectangle;
  import primevc.gui.graphics.shapes.Triangle;
+ import primevc.gui.layout.algorithms.circle.HorizontalCircleAlgorithm;
+ import primevc.gui.layout.algorithms.circle.VerticalCircleAlgorithm;
+ import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
+ import primevc.gui.layout.algorithms.float.VerticalFloatAlgorithm;
+ import primevc.gui.layout.algorithms.tile.DynamicTileAlgorithm;
+ import primevc.gui.layout.algorithms.tile.FixedTileAlgorithm;
+ import primevc.gui.layout.algorithms.DynamicLayoutAlgorithm;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
+ import primevc.gui.layout.algorithms.RelativeAlgorithm;
  import primevc.gui.layout.RelativeLayout;
  import primevc.gui.styling.declarations.EffectStyleDeclarations;
  import primevc.gui.styling.declarations.FilterStyleDeclarations;
@@ -244,20 +254,20 @@ class CSSParser
 		
 		imageURIExpr = new EReg(
 				  "(url)"													//match url opener				1
-				+ R_WS+"[(]"												//match opening '('
-				+ R_WS+"['\"]?"												//match possible opening ' or "
+				+ R_SPACE+"[(]"												//match opening '('
+				+ R_SPACE+"['\"]?"											//match possible opening ' or "
 		//		+ R_WS+"(("+R_FILE_EXPR+")|("+R_URI_EXPR+"))"				//match the url content			4 = local file. 19 = URI
-				+ R_WS+"("+R_URI_PRETENDER+")"								//match the url content			2 
-				+ R_WS+"['\"]?"												//match possible closing ' or "
-				+ R_WS+"[)]"												//match closing ')'
-				+ "("+R_WS_MUST+"("+R_BG_REPEAT_EXPR+"))?"					//match possible repeat value	5
+				+ R_SPACE+"("+R_URI_PRETENDER+")"							//match the url content			2 
+				+ R_SPACE+"['\"]?"											//match possible closing ' or "
+				+ R_SPACE+"[)]"												//match closing ')'
+				+ "("+R_SPACE_MUST+"("+R_BG_REPEAT_EXPR+"))?"				//match possible repeat value	5
 			, "im");
 		imageClassExpr = new EReg(
 			  	"(Class)"													//match Class opener			1
-				+ R_WS+"[(]"												//match opening '('
-				+ R_WS+"("+R_CLASS_EXPR+")"									//match the class content		2
-				+ R_WS+"[)]"												//match closing ')'
-				+ "("+R_WS_MUST+"("+R_BG_REPEAT_EXPR+"))?"					//match possible repeat value	8
+				+ R_SPACE+"[(]"												//match opening '('
+				+ R_SPACE+"("+R_CLASS_EXPR+")"								//match the class content		2
+				+ R_SPACE+"[)]"												//match closing ')'
+				+ "("+R_SPACE_MUST+"("+R_BG_REPEAT_EXPR+"))?"				//match possible repeat value	8
 			, "im");
 	}
 	
@@ -431,7 +441,7 @@ class CSSParser
 			case "v-center":					if (isUnitInt(val))	{ createRelativeBlock();		currentBlock.layout.relative.vCenter= parseUnitInt( val ); }
 			
 			case "position":					parseAndSetPosition(val);						//absolute and relative supported (=includeInLayout)
-		//	case "algorithm":					createLayoutBlock();		currentBlock.layout.algorithm		= parseLayoutAlgorithm( val );
+			case "algorithm":					parseAndSetAlgorithm(val);
 		//	case "transform":					createLayoutBlock();		currentBlock.layout.transform		= parseTransform( val );	//scale( 0.1 - 2 ) / 	rotate( [x]deg ) translate( [x]px, [y]px ) skew( [x]deg, [y]deg )
 		//	case "rotation":
 		//	case "rotation-point":
@@ -1382,10 +1392,88 @@ class CSSParser
 		if (v == "absolute" || v == "relative")
 		{
 			createLayoutBlock();
-			currentBlock.layout.includeInLayout = switch (v) {
-				case "absolute":	false;
-				case "relative":	true;
-			}
+			currentBlock.layout.includeInLayout = v == "relative";
+		}
+	}
+	
+	
+	/**
+	 * Checks if the given string contains a layout algorithm and parses the
+	 * properties of the algorithm to a algorithm instance.
+	 * If an algorithm is found, the value will be set in 
+	 * LayoutStyleDeclarations.algorithm.
+	 * 
+	 * Supported algorithms are:
+	 * 		+ float-hor ( [[ direction ]], [[ ver-pos ]]? )			(ver-pos defines how the children should be positioned vertical)
+	 * 		+ float-ver ( [[ direction ]], [[ hor-pos ]]? )			(hor-pos defines how the children should be positioned horizontal)
+	 * 		+ float ( [[ hor-dir ]], [[ ver-dir ]] )
+	 * 		
+	 * 		+ circle ( [[ hor-dir ]], [[ ver-dir ]] )				(circle will always keep the same width and height dimensions)
+	 * 		+ ellipse ( [[ hor-dir ]], [[ ver-dir ]] )				(ellipse will use the width and the height of the target object)
+	 * 		+ hor-circle (( [[ direction ]], [[ ver-pos ]]? ))
+	 * 		+ ver-circle (( [[ direction ]], [[ hor-pos ]]? ))
+	 * 		+ hor-ellipse (( [[ direction ]], [[ ver-pos ]]? ))
+	 * 		+ ver-ellipse (( [[ direction ]], [[ hor-pos ]]? ))
+	 * 		
+	 * 		+ dynamic( [[ hor-algorithm ]], [[ ver-algorithm ]] )
+	 * 		+ relative
+	 * 
+	 * 		+ dynamic-tile ( [[ start-direction ]] )
+	 * 		+ fixed-tile ( [[ start-direction ]] )
+	 * 
+	 * 		+ inherit
+	 * 		+ none
+	 */
+	private inline function parseAndSetAlgorithm (v:String) : Void
+	{
+		var algorithm:ILayoutAlgorithm = null;
+		var v = v.trim().toLowerCase();
+		
+		var R_HOR_DIR		= "(left|center|right)";
+		var R_VER_DIR		= "(top|center|bottom)";
+		var R_DIRECTIONS	= "(horizontal|vertical)";
+		
+		var floatHorExpr	= new EReg("float-hor" + R_SPACE + "([(]" + R_SPACE + R_HOR_DIR + "(" + R_SPACE + "," + R_SPACE + R_VER_DIR + ")?" + R_SPACE + "[)])?", "i");	//2 = hor-dir, 4 = ver-dir
+		var floatVerExpr	= new EReg("float-ver" + R_SPACE + "([(]" + R_SPACE + R_VER_DIR + "(" + R_SPACE + "," + R_SPACE + R_HOR_DIR + ")?" + R_SPACE + "[)])?", "i");	//2 = ver-dir, 4 = hor-dir
+		var floatExpr		= new EReg("float" + R_SPACE + "([(]" + R_SPACE + R_HOR_DIR + "(" + R_SPACE + "," + R_SPACE + R_VER_DIR + ")?" + R_SPACE + "[)])?", "i");		//2 = hor-dir, 4 = ver-dir
+		
+		if		(v == "relative")			algorithm = new RelativeAlgorithm ();
+		else if	(v == "none")				algorithm = null;						//FIXME -> none and inherit are the same now. none is not implemented yet..
+		else if	(v == "inherit")			algorithm = null;
+		
+		else if (floatHorExpr.match(v))		algorithm = new HorizontalFloatAlgorithm ( parseHorDirection( floatHorExpr.matched(2) ), parseVerDirection( floatHorExpr.matched(4) ) );
+		else if (floatVerExpr.match(v))		algorithm = new VerticalFloatAlgorithm ( parseVerDirection( floatVerExpr.matched(2) ), parseHorDirection( floatVerExpr.matched(4) ) );
+		else if (floatExpr.match(v))		algorithm = new DynamicLayoutAlgorithm (
+																new HorizontalFloatAlgorithm ( parseHorDirection( floatExpr.matched(2) ) ), 
+																new VerticalFloatAlgorithm ( parseVerDirection( floatExpr.matched(4) ) )
+														);
+		
+		if (algorithm != null)
+		{
+			createLayoutBlock();
+			currentBlock.layout.algorithm = algorithm;
+		}
+	}
+	
+	
+	private inline function parseHorDirection (v:String) : Horizontal
+	{
+		return switch (v) {
+			default:		Horizontal.left;
+			case "center":	Horizontal.center;
+			case "right":	Horizontal.right;
+			case null:		null;
+		}
+	}
+
+
+	private inline function parseVerDirection (v:String) : Vertical
+	{
+		return switch (v) {
+			default:		Vertical.top;
+			case "center":	Vertical.center;
+			case "bottom":	Vertical.bottom;
+			case null:		null;
 		}
 	}
 }
