@@ -368,13 +368,13 @@ class CSSParser
 			// border properties
 			//
 			
-		//	case "border":						parseAndSetBorder( val );
-			case "border-color":				setBorderFill( parseColorFill( val ) );
+			case "border":						parseAndSetBorder( val );							// <border-color> <border-width> <border-image> <border-style>
+			case "border-color":				parseAndSetBorderColor( val );
 			case "border-image":
-			case "border-image-source":			setBorderFill( parseImage( val ) );
+			case "border-image-source":			parseAndSetBorderImage( val );
 			
 		//	case "border-style":				parseAndSetBorderStyle( val );						//none, solid, dashed, dotted
-			case "border-width":				setBorderWidth( parseUnitFloat( val ) );
+			case "border-width":				parseAndSetBorderWidth( val );
 			
 			case "border-radius":				parseAndSetBorderRadius( val );						//[top-left]px <[top-right]px> <[bottom-right]px> <[bottom-left]px>
 			case "border-top-left-radius":		setBorderTopLeftRadius( parseUnitFloat( val ) );
@@ -888,16 +888,8 @@ class CSSParser
 	}
 	
 	
-	private inline function parseAndSetBackgroundColor (v:String) : Void
-	{
-		setBackground( parseColorFill( v ) );
-	}
-	
-	
-	private inline function parseAndSetBackgroundImage (v:String) : Void
-	{
-		setBackground( parseImage( v ) );
-	}
+	private inline function parseAndSetBackgroundColor (v:String) : Void	{ setBackground( parseColorFill( v ) ); }
+	private inline function parseAndSetBackgroundImage (v:String) : Void	{ setBackground( parseImage( v ) ); }
 	
 	
 	/**
@@ -1046,8 +1038,15 @@ class CSSParser
 	
 	private inline function parseAndSetBorder (v:String) : Void
 	{
-		
+		parseAndSetBorderColor(v);
+		parseAndSetBorderImage(v);
+		parseAndSetBorderWidth(v);
 	}
+	
+	
+	private inline function parseAndSetBorderImage (v:String) : Void	{ setBorderFill( parseImage( v ) ); }
+	private inline function parseAndSetBorderColor (v:String) : Void	{ setBorderFill( parseColorFill( v ) ); }
+	private inline function parseAndSetBorderWidth (v:String) : Void	{ setBorderWidth( parseUnitFloat( v ) ); }
 	
 	
 	private inline function setBorderFill (newFill:IFill) : Void
