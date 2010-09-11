@@ -359,9 +359,9 @@ class CSSParser
 			// fill properties
 			//
 			
-		//	case "background":					parseAndSetBackground( val );
-			case "background-color":			setBackground( parseColorFill( val ) );				// #fff, 0xfff, #fffddd, 0xfff000, #ffddeeaa, 0xffddeeaa, rgba(255,255,255,0.9)
-			case "background-image":			setBackground( parseImage( val ) );					// url( www.rubenw.nl/img.jpg ), class( package.of.Asset ) <background-repeat>
+			case "background":					parseAndSetBackground( val );						// <background-color> <background-image>
+			case "background-color":			parseAndSetBackgroundColor( val );					// #fff, 0xfff, #fffddd, 0xfff000, #ffddeeaa, 0xffddeeaa, rgba(255,255,255,0.9)
+			case "background-image":			parseAndSetBackgroundImage( val );					// url( www.rubenw.nl/img.jpg ), class( package.of.Asset ) <background-repeat>
 			
 			
 			//
@@ -883,7 +883,20 @@ class CSSParser
 	
 	private inline function parseAndSetBackground (v:String) : Void
 	{
-		
+		parseAndSetBackgroundColor( v );
+		parseAndSetBackgroundImage( v );
+	}
+	
+	
+	private inline function parseAndSetBackgroundColor (v:String) : Void
+	{
+		setBackground( parseColorFill( v ) );
+	}
+	
+	
+	private inline function parseAndSetBackgroundImage (v:String) : Void
+	{
+		setBackground( parseImage( v ) );
 	}
 	
 	
