@@ -383,7 +383,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 #if debug
 	public function toString ()
 	{
-		return "float-ver (" + direction + ", " + horizontal + ")"; // + start + " -> " + end;
+		return "float-ver (" + direction + ", " + horizontal + ")";
 	}
 #end
 }

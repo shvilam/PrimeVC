@@ -441,9 +441,9 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	
 #if debug
-	public function toString ()
+	override public function toString ()
 	{
-		return group+".DynamicTileAlgorithm";
+		return "DynamicTileAlgorithm";
 	}
 #end
 }

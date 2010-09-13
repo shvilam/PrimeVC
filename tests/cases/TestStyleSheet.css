@@ -25,6 +25,8 @@ TextArea {
 	column-rule:	1px solid #aaa;
 	word-wrap:		break-word;
 	
+	algorithm:		circle( left, top );
+	
 	min-width: 50px;
 	min-height: 10px;
 	max-height: 20em;

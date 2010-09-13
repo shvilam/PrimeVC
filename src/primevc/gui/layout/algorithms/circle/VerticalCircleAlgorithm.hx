@@ -177,9 +177,7 @@ class VerticalCircleAlgorithm extends VerticalBaseAlgorithm, implements IVertica
 #if debug
 	public function toString ()
 	{
-		var start = direction == Vertical.top ? "top" : "bottom";
-		var end = direction == Vertical.top ? "bottom" : "top";
-		return "circle.ver ( " + start + " -> " + end + " ) ";
+		return "ver-circle (" + direction + ", " + horizontal + ")";
 	}
 #end
 }

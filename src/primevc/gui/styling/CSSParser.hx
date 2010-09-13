@@ -168,6 +168,9 @@ class CSSParser
 	public static inline var R_GENERIC_FONT_FAMILIES: String = "serif|sans[-]serif|monospace|cursive|fantasy";
 	public static inline var R_FONT_FAMILY_EXPR		: String = "("+R_GENERIC_FONT_FAMILIES+")|([a-z]+)|(['\"]([a-z0-9+.,+/\\ _-]+)['\"])";
 	
+	public static inline var R_HOR_DIR				: String = "(left|center|right)";
+	public static inline var R_VER_DIR				: String = "(top|center|bottom)";
+	public static inline var R_DIRECTIONS			: String = "(horizontal|vertical)";
 	
 	
 	/**
@@ -200,6 +203,18 @@ class CSSParser
 	public var fontFamilyExpr			(default, null) : EReg;
 	public var fontWeightExpr			(default, null) : EReg;
 	public var fontStyleExpr			(default, null) : EReg;
+	
+	public var floatHorExpr				(default, null)	: EReg;
+	public var floatVerExpr				(default, null)	: EReg;
+	public var floatExpr				(default, null)	: EReg;
+	
+	public var horCircleExpr			(default, null)	: EReg;
+	public var verCircleExpr			(default, null)	: EReg;
+	public var circleExpr				(default, null)	: EReg;
+	
+	public var horEllipseExpr			(default, null)	: EReg;
+	public var verEllipseExpr			(default, null)	: EReg;
+	public var ellipseExpr				(default, null)	: EReg;
 	
 	
 	
@@ -269,6 +284,30 @@ class CSSParser
 				+ R_SPACE+"[)]"												//match closing ')'
 				+ "("+R_SPACE_MUST+"("+R_BG_REPEAT_EXPR+"))?"				//match possible repeat value	8
 			, "im");
+		
+		
+		var horLayoutEnding = R_SPACE
+		 	+ "([(]" + R_SPACE + R_HOR_DIR 									//2 = hor-dir
+			+ "(" + R_SPACE + "," + R_SPACE + R_VER_DIR + ")?" 				//4 - ver-dir
+			+ R_SPACE + "[)])?";
+		
+		var verLayoutEnding = R_SPACE
+		 	+ "([(]" + R_SPACE + R_VER_DIR 									//2 = ver-dir
+			+ "(" + R_SPACE + "," + R_SPACE + R_HOR_DIR + ")?" 				//4 - hor-dir
+			+ R_SPACE + "[)])?";
+		
+		
+		floatHorExpr	= new EReg( "float-hor" + horLayoutEnding, "i");
+		floatVerExpr	= new EReg( "float-ver" + verLayoutEnding, "i");
+		floatExpr		= new EReg( "float" + horLayoutEnding, "i");
+		
+		horCircleExpr	= new EReg( "hor-circle" + horLayoutEnding, "i");	
+		verCircleExpr	= new EReg( "ver-circle" + verLayoutEnding, "i");
+		circleExpr		= new EReg( "circle" + horLayoutEnding, "i");
+		
+		horEllipseExpr	= new EReg( "hor-ellipse" + horLayoutEnding, "i");
+		verEllipseExpr	= new EReg( "ver-ellipse" + verLayoutEnding, "i");
+		ellipseExpr		= new EReg( "ellipse" + horLayoutEnding, "i");
 	}
 	
 	
@@ -441,7 +480,7 @@ class CSSParser
 			case "v-center":					if (isUnitInt(val))	{ createRelativeBlock();		currentBlock.layout.relative.vCenter= parseUnitInt( val ); }
 			
 			case "position":					parseAndSetPosition(val);						//absolute and relative supported (=includeInLayout)
-			case "algorithm":					parseAndSetAlgorithm(val);
+			case "algorithm":					parseAndSetLayoutAlgorithm(val);
 		//	case "transform":					createLayoutBlock();		currentBlock.layout.transform		= parseTransform( val );	//scale( 0.1 - 2 ) / 	rotate( [x]deg ) translate( [x]px, [y]px ) skew( [x]deg, [y]deg )
 		//	case "rotation":
 		//	case "rotation-point":
@@ -1424,29 +1463,48 @@ class CSSParser
 	 * 		+ inherit
 	 * 		+ none
 	 */
-	private inline function parseAndSetAlgorithm (v:String) : Void
+	private inline function parseAndSetLayoutAlgorithm (v:String) : Void
 	{
 		var algorithm:ILayoutAlgorithm = null;
 		var v = v.trim().toLowerCase();
-		
-		var R_HOR_DIR		= "(left|center|right)";
-		var R_VER_DIR		= "(top|center|bottom)";
-		var R_DIRECTIONS	= "(horizontal|vertical)";
-		
-		var floatHorExpr	= new EReg("float-hor" + R_SPACE + "([(]" + R_SPACE + R_HOR_DIR + "(" + R_SPACE + "," + R_SPACE + R_VER_DIR + ")?" + R_SPACE + "[)])?", "i");	//2 = hor-dir, 4 = ver-dir
-		var floatVerExpr	= new EReg("float-ver" + R_SPACE + "([(]" + R_SPACE + R_VER_DIR + "(" + R_SPACE + "," + R_SPACE + R_HOR_DIR + ")?" + R_SPACE + "[)])?", "i");	//2 = ver-dir, 4 = hor-dir
-		var floatExpr		= new EReg("float" + R_SPACE + "([(]" + R_SPACE + R_HOR_DIR + "(" + R_SPACE + "," + R_SPACE + R_VER_DIR + ")?" + R_SPACE + "[)])?", "i");		//2 = hor-dir, 4 = ver-dir
 		
 		if		(v == "relative")			algorithm = new RelativeAlgorithm ();
 		else if	(v == "none")				algorithm = null;						//FIXME -> none and inherit are the same now. none is not implemented yet..
 		else if	(v == "inherit")			algorithm = null;
 		
+		//
+		// match floating layout
+		//
+		
 		else if (floatHorExpr.match(v))		algorithm = new HorizontalFloatAlgorithm ( parseHorDirection( floatHorExpr.matched(2) ), parseVerDirection( floatHorExpr.matched(4) ) );
 		else if (floatVerExpr.match(v))		algorithm = new VerticalFloatAlgorithm ( parseVerDirection( floatVerExpr.matched(2) ), parseHorDirection( floatVerExpr.matched(4) ) );
 		else if (floatExpr.match(v))		algorithm = new DynamicLayoutAlgorithm (
-																new HorizontalFloatAlgorithm ( parseHorDirection( floatExpr.matched(2) ) ), 
-																new VerticalFloatAlgorithm ( parseVerDirection( floatExpr.matched(4) ) )
-														);
+			new HorizontalFloatAlgorithm ( parseHorDirection( floatExpr.matched(2) ) ), 
+			new VerticalFloatAlgorithm ( parseVerDirection( floatExpr.matched(4) ) )
+		);
+		
+		//
+		//match circle layout
+		//
+		
+		else if (horCircleExpr.match(v))	algorithm = new HorizontalCircleAlgorithm ( parseHorDirection( horCircleExpr.matched(2) ), parseVerDirection( horCircleExpr.matched(4) ), false );
+		else if (verCircleExpr.match(v))	algorithm = new VerticalCircleAlgorithm ( parseVerDirection( verCircleExpr.matched(2) ), parseHorDirection( verCircleExpr.matched(4) ), false );
+		else if (circleExpr.match(v))		algorithm = new DynamicLayoutAlgorithm (
+			new HorizontalCircleAlgorithm ( parseHorDirection( circleExpr.matched(2) ), null, false ), 
+			new VerticalCircleAlgorithm ( parseVerDirection( circleExpr.matched(4) ), null, false )
+		);
+		
+		//
+		//match ellipse layout
+		//
+		
+		else if (horEllipseExpr.match(v))	algorithm = new HorizontalCircleAlgorithm ( parseHorDirection( horEllipseExpr.matched(2) ), parseVerDirection( horEllipseExpr.matched(4) ) );
+		else if (verEllipseExpr.match(v))	algorithm = new VerticalCircleAlgorithm ( parseVerDirection( verEllipseExpr.matched(2) ), parseHorDirection( verEllipseExpr.matched(4) ) );
+		else if (ellipseExpr.match(v))		algorithm = new DynamicLayoutAlgorithm (
+			new HorizontalCircleAlgorithm ( parseHorDirection( horEllipseExpr.matched(2) ) ), 
+			new VerticalCircleAlgorithm ( parseVerDirection( horEllipseExpr.matched(4) ) )
+		);
+		
 		
 		if (algorithm != null)
 		{

@@ -123,13 +123,33 @@ class StyleParserTest
 		"class(nl/onlinetouch/ImageSKins)"
 	];
 	
-	public static inline var CORRECT_FONT_FAMILIES	= [ "verdana", "VeRdAnA", "sans", "sans-serif", "monospace", "cursive", "fantasy", "'New Century Schoolbook'", "'Verdana8'", '"My Own Font"', '"Courier-New"' ];
-	public static inline var INCORRECT_FONT_FAMILIES= [ "New Century Schoolbook", "Verdana8", 'Zapf-Chancery', "8px", /*"bold", "italic", "large",*/ "''", "" ];
-	public static inline var CORRECT_FONT_WEIGHT	= [ "normal", "BOLD", "lighter", "bolder", "inherit" ];
-	public static inline var INCORRECT_FONT_WEIGHT	= [ "norml", "bld", "bolder4", "", "'bold'" ];
-	public static inline var CORRECT_FONT_STYLE		= [ "normal", "italic", "oblique", "inherit" ];
-	public static inline var INCORRECT_FONT_STYLE	= [ "bold", "bolder", "lighter" ];
+	public static inline var CORRECT_FONT_FAMILIES		= [ "verdana", "VeRdAnA", "sans", "sans-serif", "monospace", "cursive", "fantasy", "'New Century Schoolbook'", "'Verdana8'", '"My Own Font"', '"Courier-New"' ];
+	public static inline var INCORRECT_FONT_FAMILIES	= [ "New Century Schoolbook", "Verdana8", 'Zapf-Chancery', "8px", /*"bold", "italic", "large",*/ "''", "" ];
+	public static inline var CORRECT_FONT_WEIGHT		= [ "normal", "BOLD", "lighter", "bolder", "inherit" ];
+	public static inline var INCORRECT_FONT_WEIGHT		= [ "norml", "bld", "bolder4", "", "'bold'" ];
+	public static inline var CORRECT_FONT_STYLE			= [ "normal", "italic", "oblique", "inherit" ];
+	public static inline var INCORRECT_FONT_STYLE		= [ "bold", "bolder", "lighter" ];
 	
+	public static inline var CORRECT_FLOAT_HOR			= [ "float-hor", "float-hor( left, bottom )", "float-hor (right)", "float-hor (center, center)", "float-hor(right,top)" ];
+	public static inline var CORRECT_FLOAT_VER			= [ "float-ver", "float-ver( top, right )", "float-ver (bottom)", "float-ver (center, center)", "float-ver(center,left)" ];
+	public static inline var CORRECT_LAYOUT_FLOAT		= [ "float", "float( right, top )", "float (left)", "float (center, center)", "float (center,bottom)" ];
+	public static inline var INCORRECT_FLOAT_HOR		= [ "float-ver", "float-hor()", "float-hor('left')", "float-hor(top)", "float-hor(bottom)", "float-hor(right, )" ];
+	public static inline var INCORRECT_FLOAT_VER		= [ "float-hor", "float-ver()", "float-ver('top')", "float-ver(left)", "float-ver(right)", "float-ver(bottom, )" ];
+	public static inline var INCORRECT_LAYOUT_FLOAT		= [ "float-hor", "float-ver", "float()", "float('left')", "float(top)", "float(bottom)", "float(left, )" ];
+	
+	public static inline var CORRECT_HOR_CIRCLE			= [ "hor-circle", "hor-circle( left, bottom )", "hor-circle (right)", "hor-circle (center, center)", "hor-circle(right,top)" ];
+	public static inline var CORRECT_VER_CIRCLE			= [ "ver-circle", "ver-circle( top, right )", "ver-circle (bottom)", "ver-circle (center, center)", "ver-circle(center,left)" ];
+	public static inline var CORRECT_LAYOUT_CIRCLE		= [ "circle", "circle( right, top )", "circle (left)", "circle (center, center)", "circle (center,bottom)" ];
+	public static inline var INCORRECT_HOR_CIRCLE		= [ "ver-circle", "hor-circle()", "hor-circle('left')", "hor-circle(top)", "hor-circle(bottom)", "hor-circle(right, )" ];
+	public static inline var INCORRECT_VER_CIRCLE		= [ "hor-circle", "ver-circle()", "ver-circle('top')", "ver-circle(left)", "ver-circle(right)", "ver-circle(bottom, )" ];
+	public static inline var INCORRECT_LAYOUT_CIRCLE	= [ "ver-circle", "hor-circle", "circle()", "circle('left')", "circle(top)", "circle(bottom)", "circle(left, )" ];
+	
+	public static inline var CORRECT_HOR_ELLIPSE		= [ "hor-ellipse", "hor-ellipse( left, bottom )", "hor-ellipse (right)", "hor-ellipse (center, center)", "hor-ellipse(right,top)" ];
+	public static inline var CORRECT_VER_ELLIPSE		= [ "ver-ellipse", "ver-ellipse( top, right )", "ver-ellipse (bottom)", "ver-ellipse (center, center)", "ver-ellipse(center,left)" ];
+	public static inline var CORRECT_LAYOUT_ELLIPSE		= [ "ellipse", "ellipse( right, top )", "ellipse (left)", "ellipse (center, center)", "ellipse (center,bottom)" ];
+	public static inline var INCORRECT_HOR_ELLIPSE		= [ "ver-ellipse", "hor-ellipse()", "hor-ellipse('left')", "hor-ellipse(top)", "hor-ellipse(bottom)", "hor-ellipse(right, )" ];
+	public static inline var INCORRECT_VER_ELLIPSE		= [ "hor-ellipse", "ver-ellipse()", "ver-ellipse('top')", "ver-ellipse(left)", "ver-ellipse(right)", "ver-ellipse(bottom, )" ];
+	public static inline var INCORRECT_LAYOUT_ELLIPSE	= [ "hor-ellipse", "ver-ellipse", "ellipse()", "ellipse('left')", "ellipse(top)", "ellipse(bottom)", "ellipse(left, )" ];
 	
 	
 	public static function main ()
@@ -181,6 +201,7 @@ class StyleParserTest
 		testSimpleProperties();
 		testBgProperties();
 		testFontProperties();
+		testLayoutProperties();
 	}
 	
 	
@@ -371,6 +392,134 @@ class StyleParserTest
 		testRegexp(expr, CORRECT_FONT_STYLE, true);
 		testRegexp(expr, INCORRECT_FONT_STYLE, false);
 		testRegexp(expr, INCORRECT_FONT_WEIGHT, false);
+	}
+	
+	
+	private inline function testLayoutProperties ()
+	{
+		//
+		// TEST LAYOUT ALGORITHM
+		//
+		trace("\n\nTESTING FLOAT-HORIZONTAL REGEX");
+		var expr = parser.floatHorExpr;
+		testRegexp(expr, CORRECT_FLOAT_HOR, true);
+		testRegexp(expr, INCORRECT_FLOAT_HOR, false);
+		testRegexp(expr, CORRECT_FLOAT_VER, false);
+		testRegexp(expr, CORRECT_HOR_CIRCLE, false);
+		testRegexp(expr, CORRECT_VER_CIRCLE, false);
+		testRegexp(expr, CORRECT_HOR_ELLIPSE, false);
+		testRegexp(expr, CORRECT_VER_ELLIPSE, false);
+		testRegexp(expr, CORRECT_LAYOUT_FLOAT, false);
+		testRegexp(expr, CORRECT_LAYOUT_CIRCLE, false);
+		testRegexp(expr, CORRECT_LAYOUT_ELLIPSE, false);
+		
+		trace("\n\nTESTING FLOAT-VERTICAL REGEX");
+		var expr = parser.floatVerExpr;
+		testRegexp(expr, CORRECT_FLOAT_VER, true);
+		testRegexp(expr, INCORRECT_FLOAT_VER, false);
+		testRegexp(expr, CORRECT_FLOAT_HOR, false);
+		testRegexp(expr, CORRECT_HOR_CIRCLE, false);
+		testRegexp(expr, CORRECT_VER_CIRCLE, false);
+		testRegexp(expr, CORRECT_HOR_ELLIPSE, false);
+		testRegexp(expr, CORRECT_VER_ELLIPSE, false);
+		testRegexp(expr, CORRECT_LAYOUT_FLOAT, false);
+		testRegexp(expr, CORRECT_LAYOUT_CIRCLE, false);
+		testRegexp(expr, CORRECT_LAYOUT_ELLIPSE, false);
+		
+		trace("\n\nTESTING FLOAT REGEX");
+		var expr = parser.floatExpr;
+		testRegexp(expr, CORRECT_LAYOUT_FLOAT, true);
+		testRegexp(expr, INCORRECT_LAYOUT_FLOAT, false);
+		testRegexp(expr, CORRECT_FLOAT_HOR, false);
+		testRegexp(expr, CORRECT_FLOAT_VER, false);
+		testRegexp(expr, CORRECT_HOR_CIRCLE, false);
+		testRegexp(expr, CORRECT_VER_CIRCLE, false);
+		testRegexp(expr, CORRECT_HOR_ELLIPSE, false);
+		testRegexp(expr, CORRECT_VER_ELLIPSE, false);
+		testRegexp(expr, CORRECT_LAYOUT_CIRCLE, false);
+		testRegexp(expr, CORRECT_LAYOUT_ELLIPSE, false);
+		
+		
+		
+		trace("\n\nTESTING HORIZONTAL-CIRCLE REGEX");
+		var expr = parser.horCircleExpr;
+		testRegexp(expr, CORRECT_HOR_CIRCLE, true);
+		testRegexp(expr, INCORRECT_HOR_CIRCLE, false);
+		testRegexp(expr, CORRECT_VER_CIRCLE, false);
+		testRegexp(expr, CORRECT_FLOAT_HOR, false);
+		testRegexp(expr, CORRECT_FLOAT_VER, false);
+		testRegexp(expr, CORRECT_HOR_ELLIPSE, false);
+		testRegexp(expr, CORRECT_VER_ELLIPSE, false);
+		testRegexp(expr, CORRECT_LAYOUT_FLOAT, false);
+		testRegexp(expr, CORRECT_LAYOUT_CIRCLE, false);
+		testRegexp(expr, CORRECT_LAYOUT_ELLIPSE, false);
+		
+		trace("\n\nTESTING VERTICAL-CIRCLE REGEX");
+		var expr = parser.verCircleExpr;
+		testRegexp(expr, CORRECT_VER_CIRCLE, true);
+		testRegexp(expr, INCORRECT_VER_CIRCLE, false);
+		testRegexp(expr, CORRECT_HOR_CIRCLE, false);
+		testRegexp(expr, CORRECT_FLOAT_HOR, false);
+		testRegexp(expr, CORRECT_FLOAT_VER, false);
+		testRegexp(expr, CORRECT_HOR_ELLIPSE, false);
+		testRegexp(expr, CORRECT_VER_ELLIPSE, false);
+		testRegexp(expr, CORRECT_LAYOUT_FLOAT, false);
+		testRegexp(expr, CORRECT_LAYOUT_CIRCLE, false);
+		testRegexp(expr, CORRECT_LAYOUT_ELLIPSE, false);
+		
+		trace("\n\nTESTING CIRCLE REGEX");
+		var expr = parser.circleExpr;
+		testRegexp(expr, CORRECT_LAYOUT_CIRCLE, true);
+		testRegexp(expr, INCORRECT_LAYOUT_CIRCLE, false);
+		testRegexp(expr, CORRECT_HOR_CIRCLE, false);
+		testRegexp(expr, CORRECT_VER_CIRCLE, false);
+		testRegexp(expr, CORRECT_FLOAT_HOR, false);
+		testRegexp(expr, CORRECT_FLOAT_VER, false);
+		testRegexp(expr, CORRECT_HOR_ELLIPSE, false);
+		testRegexp(expr, CORRECT_VER_ELLIPSE, false);
+		testRegexp(expr, CORRECT_LAYOUT_FLOAT, false);
+		testRegexp(expr, CORRECT_LAYOUT_ELLIPSE, false);
+		
+		
+		
+		trace("\n\nTESTING HORIZONTAL-ELLIPSE REGEX");
+		var expr = parser.horEllipseExpr;
+		testRegexp(expr, CORRECT_HOR_ELLIPSE, true);
+		testRegexp(expr, INCORRECT_HOR_ELLIPSE, false);
+		testRegexp(expr, CORRECT_VER_ELLIPSE, false);
+		testRegexp(expr, CORRECT_HOR_CIRCLE, false);
+		testRegexp(expr, CORRECT_VER_CIRCLE, false);
+		testRegexp(expr, CORRECT_FLOAT_HOR, false);
+		testRegexp(expr, CORRECT_FLOAT_VER, false);
+		testRegexp(expr, CORRECT_LAYOUT_FLOAT, false);
+		testRegexp(expr, CORRECT_LAYOUT_CIRCLE, false);
+		testRegexp(expr, CORRECT_LAYOUT_ELLIPSE, false);
+		
+		trace("\n\nTESTING VERTICAL-ELLIPSE REGEX");
+		var expr = parser.verEllipseExpr;
+		testRegexp(expr, CORRECT_VER_ELLIPSE, true);
+		testRegexp(expr, INCORRECT_VER_ELLIPSE, false);
+		testRegexp(expr, CORRECT_HOR_ELLIPSE, false);
+		testRegexp(expr, CORRECT_HOR_CIRCLE, false);
+		testRegexp(expr, CORRECT_VER_CIRCLE, false);
+		testRegexp(expr, CORRECT_FLOAT_HOR, false);
+		testRegexp(expr, CORRECT_FLOAT_VER, false);
+		testRegexp(expr, CORRECT_LAYOUT_FLOAT, false);
+		testRegexp(expr, CORRECT_LAYOUT_CIRCLE, false);
+		testRegexp(expr, CORRECT_LAYOUT_ELLIPSE, false);
+		
+		trace("\n\nTESTING ELLIPSE REGEX");
+		var expr = parser.ellipseExpr;
+		testRegexp(expr, CORRECT_LAYOUT_ELLIPSE, true);
+		testRegexp(expr, INCORRECT_LAYOUT_ELLIPSE, false);
+		testRegexp(expr, CORRECT_HOR_ELLIPSE, false);
+		testRegexp(expr, CORRECT_VER_ELLIPSE, false);
+		testRegexp(expr, CORRECT_HOR_CIRCLE, false);
+		testRegexp(expr, CORRECT_VER_CIRCLE, false);
+		testRegexp(expr, CORRECT_FLOAT_HOR, false);
+		testRegexp(expr, CORRECT_FLOAT_VER, false);
+		testRegexp(expr, CORRECT_LAYOUT_FLOAT, false);
+		testRegexp(expr, CORRECT_LAYOUT_CIRCLE, false);
 	}
 	
 	

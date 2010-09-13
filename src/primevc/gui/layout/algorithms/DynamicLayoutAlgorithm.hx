@@ -227,4 +227,12 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 		}
 		return v;
 	}
+	
+	
+#if debug
+	public function toString ()
+	{
+		return "dynamic ( " + horAlgorithm + ", " + verAlgorithm + " )";
+	}
+#end
 }

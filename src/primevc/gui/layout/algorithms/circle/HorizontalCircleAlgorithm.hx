@@ -176,9 +176,7 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 #if debug
 	public function toString ()
 	{
-		var start	= direction == Horizontal.left ? "left" : "right";
-		var end		= direction == Horizontal.left ? "right" : "left";
-		return "circle.hor " + start + " -> " + end;
+		return "ver-circle (" + direction + ", " + vertical + ")";
 	}
 #end
 }
