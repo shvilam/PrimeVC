@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
+ import primevc.core.geom.space.Direction;
  import primevc.core.geom.space.Horizontal;
  import primevc.core.geom.space.Vertical;
  import primevc.core.geom.Box;
@@ -172,6 +173,8 @@ class CSSParser
 	public static inline var R_VER_DIR				: String = "(top|center|bottom)";
 	public static inline var R_DIRECTIONS			: String = "(horizontal|vertical)";
 	
+	public static inline var R_COMMA				: String = R_SPACE + "," + R_SPACE;
+	
 	
 	/**
 	 * container with all the style blocks
@@ -216,6 +219,8 @@ class CSSParser
 	public var verEllipseExpr			(default, null)	: EReg;
 	public var ellipseExpr				(default, null)	: EReg;
 	
+	public var dynamicTileExpr			(default, null) : EReg;
+	public var fixedTileExpr			(default, null) : EReg;
 	
 	
 	public function new (styles:StyleContainer)
@@ -254,15 +259,15 @@ class CSSParser
 		linGradientExpr = new EReg(
 				  "(linear-gradient)"+R_WS+"[(]"							//match linear gradient		(1 = type)
 				+ R_WS+"("+R_ROTATION+")"									//match rotation			(3 = degrees)
-				+ "(("+R_WS+","+R_WS+R_SIMPLE_GRADIENT_COLOR+"){2,})"		//match colors				(4 = colors)
-				+ "("+R_WS+","+R_WS+"("+R_GRADIENT_SPREAD+"))?"				//match spread method		(21 = method)
+				+ "((" + R_COMMA + R_SIMPLE_GRADIENT_COLOR+"){2,})"			//match colors				(4 = colors)
+				+ "(" + R_COMMA + "("+R_GRADIENT_SPREAD+"))?"				//match spread method		(21 = method)
 			    + R_WS+"[)]", "im");
 		
 		radGradientExpr = new EReg(
 				  "(radial-gradient)"+R_WS+"[(]"							//match radial gradient		(1 = type)
 				+ R_WS+"([-]?(0?[.][0-9]+|0|1))"							//match focal point			(2 = radial-point)
-				+ "(("+R_WS+","+R_WS+R_SIMPLE_GRADIENT_COLOR+"){2,})"		//match colors				(4 = colors)
-				+ "("+R_WS+","+R_WS+"("+R_GRADIENT_SPREAD+"))?"				//match spread method		(21 = method)
+				+ "((" + R_COMMA + R_SIMPLE_GRADIENT_COLOR+"){2,})"			//match colors				(4 = colors)
+				+ "(" + R_COMMA + "("+R_GRADIENT_SPREAD+"))?"				//match spread method		(21 = method)
 			    + R_WS+"[)]", "im");
 		
 		gradientColorExpr = new EReg(R_GRADIENT_COLOR, "i");
@@ -285,15 +290,14 @@ class CSSParser
 				+ "("+R_SPACE_MUST+"("+R_BG_REPEAT_EXPR+"))?"				//match possible repeat value	8
 			, "im");
 		
-		
 		var horLayoutEnding = R_SPACE
 		 	+ "([(]" + R_SPACE + R_HOR_DIR 									//2 = hor-dir
-			+ "(" + R_SPACE + "," + R_SPACE + R_VER_DIR + ")?" 				//4 - ver-dir
+			+ "(" + R_COMMA + R_VER_DIR + ")?" 								//4 - ver-dir
 			+ R_SPACE + "[)])?";
 		
 		var verLayoutEnding = R_SPACE
 		 	+ "([(]" + R_SPACE + R_VER_DIR 									//2 = ver-dir
-			+ "(" + R_SPACE + "," + R_SPACE + R_HOR_DIR + ")?" 				//4 - hor-dir
+			+ "(" + R_COMMA + R_HOR_DIR + ")?" 								//4 - hor-dir
 			+ R_SPACE + "[)])?";
 		
 		
@@ -308,6 +312,30 @@ class CSSParser
 		horEllipseExpr	= new EReg( "hor-ellipse" + horLayoutEnding, "i");
 		verEllipseExpr	= new EReg( "ver-ellipse" + verLayoutEnding, "i");
 		ellipseExpr		= new EReg( "ellipse" + horLayoutEnding, "i");
+		
+		dynamicTileExpr	= new EReg(
+			  "dynamic-tile"
+			+ "("
+				+ R_SPACE + "[(]" + R_SPACE + R_DIRECTIONS					// 3 = start-direction
+				+ "(" + R_COMMA + R_HOR_DIR									// 5 = horizontal direction
+					+ "(" + R_COMMA + R_VER_DIR + ")?"						// 7 = vertical direction
+			 		+ ")?"
+				+ R_SPACE + "[)]"
+			+ ")?"
+			, "i");
+		
+		fixedTileExpr	= new EReg(
+			  "fixed-tile"
+			+ "("
+				+ R_SPACE + "[(]" + R_SPACE + R_DIRECTIONS					// 3 = start-direction
+				+ "(" + R_COMMA + R_INT_VALUE								// 5 = number of rows or columns (depending on the start-direction)
+					+ "(" + R_COMMA + R_HOR_DIR								// 7 = horizontal direction
+						+ "(" + R_COMMA + R_VER_DIR + ")?"					// 9 = vertical direction
+			 		+ ")?"	
+		 		+ ")?"
+				+ R_SPACE + "[)]"
+			+ ")?"
+			, "i");
 	}
 	
 	
@@ -1457,9 +1485,9 @@ class CSSParser
 	 * 		+ dynamic( [[ hor-algorithm ]], [[ ver-algorithm ]] )
 	 * 		+ relative
 	 * 
-	 * 		+ dynamic-tile ( [[ start-direction ]] )
-	 * 		+ fixed-tile ( [[ start-direction ]] )
-	 * 
+	 * 		+ dynamic-tile ( [[ start-direction ]], [[ hor-dir]]?, [[ ver-dir ]]? )
+	 * 		+ fixed-tile ( [[ start-direction ]], [[ rows/columns ]], [[ hor-dir]]?, [[ ver-dir ]]? )
+	 * 		
 	 * 		+ inherit
 	 * 		+ none
 	 */
@@ -1505,11 +1533,45 @@ class CSSParser
 			new VerticalCircleAlgorithm ( parseVerDirection( horEllipseExpr.matched(4) ) )
 		);
 		
+		//
+		//match dynamic
+		//
 		
+		
+		//
+		// tile layouts
+		//
+		
+		else if (dynamicTileExpr.match(v)) {
+			var tileAlg = new DynamicTileAlgorithm( parseDirection( dynamicTileExpr.matched( 3 ) ) );
+			tileAlg.horizontalDirection	= parseHorDirection( dynamicTileExpr.matched( 5 ) );
+			tileAlg.verticalDirection	= parseVerDirection( dynamicTileExpr.matched( 7 ) );
+			algorithm = tileAlg;
+		}
+		else if (fixedTileExpr.match(v)) {
+			var tileAlg = new FixedTileAlgorithm( parseDirection( fixedTileExpr.matched( 3 ) ) );
+			tileAlg.maxTilesInDirection	= fixedTileExpr.matched( 5 ).parseInt();
+			tileAlg.horizontalDirection	= parseHorDirection( fixedTileExpr.matched( 5 ) );
+			tileAlg.verticalDirection	= parseVerDirection( fixedTileExpr.matched( 7 ) );
+			algorithm = tileAlg;
+		}
+		
+		
+		//insert the found algorithm in the layout-style-block
 		if (algorithm != null)
 		{
 			createLayoutBlock();
 			currentBlock.layout.algorithm = algorithm;
+		}
+	}
+	
+	
+	private inline function parseDirection (v:String) : Direction
+	{
+		return switch (v) {
+			default:			Direction.horizontal;
+			case "vertical":	Direction.vertical;
+			case null:			null;
 		}
 	}
 	

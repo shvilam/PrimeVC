@@ -151,6 +151,12 @@ class StyleParserTest
 	public static inline var INCORRECT_VER_ELLIPSE		= [ "hor-ellipse", "ver-ellipse()", "ver-ellipse('top')", "ver-ellipse(left)", "ver-ellipse(right)", "ver-ellipse(bottom, )" ];
 	public static inline var INCORRECT_LAYOUT_ELLIPSE	= [ "hor-ellipse", "ver-ellipse", "ellipse()", "ellipse('left')", "ellipse(top)", "ellipse(bottom)", "ellipse(left, )" ];
 	
+	public static inline var CORRECT_FIXED_TILE			= [ "fixed-tile", "fixed-tile( horizontal )", "fixed-tile (vertical)", "fixed-tile( horizontal, 25 )", "fixed-tile(vertical,5,left)", "fixed-tile(vertical,5,right,bottom)", "fixed-tile	( vertical , 50 , center , top )" ];
+	public static inline var INCORRECT_FIXED_TILE		= [ "fixed-tile()", "fixed-tile (diagonal)", "fixed-tile ('vertical')", "fixed-tile( horizontal, left )", "fixed-tile(vertical,top)", "fixed-tile(vertical,5,bottom)" ];
+	
+	public static inline var CORRECT_DYN_TILE			= [ "dynamic-tile", "dynamic-tile( horizontal )", "dynamic-tile (vertical)", "dynamic-tile( horizontal, left )", "dynamic-tile(vertical,left,bottom)", "dynamic-tile(vertical,right,bottom)", "dynamic-tile	( vertical   , center , top )" ];
+	public static inline var INCORRECT_DYN_TILE			= [ "dynamic-tile()", "dynamic-tile (diagonal)", "dynamic-tile ('vertical')", "dynamic-tile( horizontal, top )", "dynamic-tile(vertical,bottom)", "dynamic-tile(vertical,5,bottom)" ];
+	
 	
 	public static function main ()
 	{
@@ -520,6 +526,36 @@ class StyleParserTest
 		testRegexp(expr, CORRECT_FLOAT_VER, false);
 		testRegexp(expr, CORRECT_LAYOUT_FLOAT, false);
 		testRegexp(expr, CORRECT_LAYOUT_CIRCLE, false);
+		
+		trace("\n\nTESTING DYNAMIC TILE REGEX");
+		var expr = parser.dynamicTileExpr;
+		testRegexp(expr, CORRECT_DYN_TILE, true);
+		testRegexp(expr, INCORRECT_DYN_TILE, false);
+		testRegexp(expr, CORRECT_FIXED_TILE, false);
+		testRegexp(expr, CORRECT_HOR_ELLIPSE, false);
+		testRegexp(expr, CORRECT_VER_ELLIPSE, false);
+		testRegexp(expr, CORRECT_HOR_CIRCLE, false);
+		testRegexp(expr, CORRECT_VER_CIRCLE, false);
+		testRegexp(expr, CORRECT_FLOAT_HOR, false);
+		testRegexp(expr, CORRECT_FLOAT_VER, false);
+		testRegexp(expr, CORRECT_LAYOUT_FLOAT, false);
+		testRegexp(expr, CORRECT_LAYOUT_CIRCLE, false);
+		testRegexp(expr, CORRECT_LAYOUT_ELLIPSE, false);
+		
+		trace("\n\nTESTING FIXED TILE REGEX");
+		var expr = parser.fixedTileExpr;
+		testRegexp(expr, CORRECT_FIXED_TILE, true);
+		testRegexp(expr, INCORRECT_FIXED_TILE, false);
+		testRegexp(expr, CORRECT_DYN_TILE, false);
+		testRegexp(expr, CORRECT_HOR_ELLIPSE, false);
+		testRegexp(expr, CORRECT_VER_ELLIPSE, false);
+		testRegexp(expr, CORRECT_HOR_CIRCLE, false);
+		testRegexp(expr, CORRECT_VER_CIRCLE, false);
+		testRegexp(expr, CORRECT_FLOAT_HOR, false);
+		testRegexp(expr, CORRECT_FLOAT_VER, false);
+		testRegexp(expr, CORRECT_LAYOUT_FLOAT, false);
+		testRegexp(expr, CORRECT_LAYOUT_CIRCLE, false);
+		testRegexp(expr, CORRECT_LAYOUT_ELLIPSE, false);
 	}
 	
 	
