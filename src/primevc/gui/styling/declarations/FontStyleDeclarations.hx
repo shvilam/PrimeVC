@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.gui.text.FontStyle;
  import primevc.gui.text.FontWeight;
  import primevc.gui.text.TextAlign;
@@ -67,7 +70,6 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 		size:Int					= Number.INT_NOT_SET,
 		family:String				= null,
 		color:RGBA					= null,
-		align:TextAlign				= null,
 		weight:FontWeight			= null,
 		style:FontStyle				= null,
 		letterSpacing:Float			= Number.INT_NOT_SET,
@@ -337,6 +339,14 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 			return "\n\t" + css.join(";\n\t") + ";";
 		else
 			return "";
+	}
+#end
+
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ size, family, color, weight, style, letterSpacing, align, decoration, indent, transform ] );
+		super.toCode(code);
 	}
 #end
 }

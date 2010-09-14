@@ -27,7 +27,6 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.shapes;
- import primevc.gui.graphics.GraphicElement;
  import primevc.gui.traits.IDrawable;
 
 
@@ -36,7 +35,7 @@ package primevc.gui.graphics.shapes;
  * @author Ruben Weijers
  * @creation-date Aug 01, 2010
  */
-class Ellipse extends GraphicElement, implements IGraphicShape
+class Ellipse extends ShapeBase, implements IGraphicShape
 {
 	public inline function draw (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
 	{

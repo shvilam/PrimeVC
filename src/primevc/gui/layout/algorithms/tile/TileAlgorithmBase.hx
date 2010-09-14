@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms.tile;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.core.geom.space.Direction;
  import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
  import primevc.gui.layout.algorithms.float.VerticalFloatAlgorithm;
@@ -75,4 +78,14 @@ class TileAlgorithmBase extends DynamicLayoutAlgorithm
 		}
 		return v;
 	}
+	
+	
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ startDirection ] );
+		code.setProp( this, "horizontalDirection", horizontalDirection );
+		code.setProp( this, "verticalDirection", verticalDirection );
+	}
+#end
 }

@@ -27,9 +27,11 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.shapes;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.core.geom.IntPoint;
  import primevc.core.geom.space.Position;
- import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.traits.IDrawable;
   using primevc.utils.FastArray;
@@ -40,7 +42,7 @@ package primevc.gui.graphics.shapes;
  * @author Ruben Weijers
  * @creation-date Aug 01, 2010
  */
-class Triangle extends GraphicElement, implements IGraphicShape
+class Triangle extends ShapeBase, implements IGraphicShape
 {
 	public var direction (default, setDirection)	: Position;
 	
@@ -174,6 +176,13 @@ class Triangle extends GraphicElement, implements IGraphicShape
 	public function toString ()
 	{
 		return "triangle";
+	}
+#end
+
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ direction ] );
 	}
 #end
 }

@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.fills;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.core.geom.IRectangle;
  import primevc.core.geom.Matrix2D;
  import primevc.gui.graphics.GraphicElement;
@@ -175,6 +178,12 @@ class BitmapFill extends GraphicElement, implements IFill
 	public function toString ()
 	{
 		return "BitmapFill( " + bitmap + ", " + smooth + ", " + repeat + " )";
+	}
+#end
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ bitmap, matrix, repeat, smooth ] );
 	}
 #end
 }

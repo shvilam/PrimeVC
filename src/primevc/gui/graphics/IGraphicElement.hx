@@ -28,12 +28,15 @@
  */
 package primevc.gui.graphics;
  import primevc.core.traits.IInvalidatable;
+ import primevc.tools.generator.ICodeFormattable;
 
 
 /**
  * @author Ruben Weijers
  * @creation-date Jul 30, 2010
  */
-interface IGraphicElement implements IInvalidatable
+interface IGraphicElement 
+				implements IInvalidatable
+#if neko	,	implements ICodeFormattable		#end
 {
 }

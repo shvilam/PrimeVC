@@ -26,27 +26,19 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
- import primevc.core.traits.IIdentifiable;
-#if flash9
- import primevc.gui.styling.declarations.UIElementStyle;
-#end
+package primevc.tools.generator;
 
 
 /**
  * @author Ruben Weijers
- * @creation-date Aug 04, 2010
+ * @creation-date Sep 13, 2010
  */
-interface IStylable implements IIdentifiable
+interface ICodeGenerator
 {
-#if flash9
-	public var style (default, setStyle)			: UIElementStyle;
+	public function construct (obj:ICodeFormattable, ?args:Array<Dynamic>)					: Void;
+	public function setAction (obj:ICodeFormattable, name:String, ?args:Array<Dynamic>)		: Void;
+	public function setProp (obj:ICodeFormattable, name:String, value:Dynamic)				: Void;
 	
-	/**
-	 * String containing all the css-classes that the IStyleable should use. 
-	 * It's possible to add more than one styleName by putting them in comma-
-	 * seperated. 
-	 */
-	public var styleNames (default, setStyleNames)	: String;
-#end
+	private function formatArguments (args:Array<Dynamic>)									: String;
+	private function formatValue (value:Dynamic)											: String;
 }

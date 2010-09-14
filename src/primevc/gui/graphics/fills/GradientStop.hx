@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.fills;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.types.RGBA;
@@ -81,6 +84,12 @@ class GradientStop extends GraphicElement
 	public function toString ()
 	{
 		return color.string() + " " + ((position / 255) * 100).round().int() + "%";
+	}
+#end
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ color, position ] );
 	}
 #end
 }

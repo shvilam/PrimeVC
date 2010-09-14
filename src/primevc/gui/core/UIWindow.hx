@@ -30,6 +30,7 @@ package primevc.gui.core;
 #if (flash9 && stats)
  import net.hires.debug.Stats;
 #end
+ import primevc.core.traits.IIdentifiable;
  import primevc.core.Application;
  import primevc.core.Bindable;
  import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
@@ -46,7 +47,6 @@ package primevc.gui.core;
  import primevc.gui.managers.RenderManager;
  import primevc.gui.traits.IBehaving;
  import primevc.gui.traits.IDrawable;
- import primevc.gui.traits.IIdentifiable;
  import primevc.gui.traits.ILayoutable;
   using primevc.utils.TypeUtil;
 

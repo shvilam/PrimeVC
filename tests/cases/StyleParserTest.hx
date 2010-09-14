@@ -2,6 +2,7 @@ package cases;
 // import primevc.core.net.URLLoader;
  import primevc.gui.styling.CSSParser;
  import primevc.gui.styling.StyleContainer;
+ import primevc.tools.generator.HaxeCodeGenerator;
   using primevc.utils.ERegUtil;
   using Std;
 
@@ -165,9 +166,11 @@ class StyleParserTest
 		test.executeUnitTests();
 		var secondT	= haxe.Timer.stamp();
 		test.parse();
+		var thirdT	= haxe.Timer.stamp();
+		test.generate();
 		var endT	= haxe.Timer.stamp();
 		
-		trace("\n\nunit-tests: "+secToMs(secondT - startT)+"ms ("+test.correctTests+" / " + test.totalTests +")\nparsing: "+secToMs(endT - secondT)+"ms");
+		trace("\n\nunit-tests: "+secToMs(secondT - startT)+"ms ("+test.correctTests+" / " + test.totalTests +")\nparsing: "+secToMs(thirdT - secondT)+"ms\ngenerating: "+secToMs(endT - thirdT)+"ms");
 	}
 	
 	
@@ -178,14 +181,17 @@ class StyleParserTest
 	
 	private var parser			: CSSParser;
 	private var styles			: StyleContainer;
+	private var generator		: HaxeCodeGenerator;
+	
 	public var correctTests		: Int;
 	public var totalTests		: Int;
 	
 	
 	public function new ()
 	{
-		styles	= new StyleContainer();
-		parser	= new CSSParser(styles);
+		styles		= new StyleContainer();
+		parser		= new CSSParser(styles);
+		generator	= new HaxeCodeGenerator();
 		
 	//	throw parser.gradientExpr.getExpression();
 	}
@@ -196,6 +202,14 @@ class StyleParserTest
 		trace("=============== PARSING ==================");
 		parser.parse(haxe.Resource.getString("stylesheet"));
 		trace(styles);
+	}
+	
+	
+	public function generate ()
+	{
+		trace("============ GENERATE CODE ===============");
+		generator.generate(styles);
+		trace(generator.flush());
 	}
 	
 	

@@ -31,6 +31,9 @@ package primevc.gui.styling.declarations;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.shapes.IGraphicShape;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
 
 
 /**
@@ -278,6 +281,14 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 		if (filters != null)	css += filters;
 		
 		return "{\n" + css + "\n}";
+	}
+#end
+
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct(this, [ layout, font, shape, background, border, skin, effects, filters ]);
+		super.toCode(code);
 	}
 #end
 }

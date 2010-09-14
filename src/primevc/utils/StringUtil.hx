@@ -26,15 +26,38 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
- import primevc.core.Bindable;
+package primevc.utils;
+  using Std;
+  using StringTools;
+  using String;
+
 
 
 /**
  * @author Ruben Weijers
- * @creation-date Aug 04, 2010
+ * @creation-date Sep 14, 2010
  */
-interface IIdentifiable
+class StringUtil
 {
-	public var id	(default, null)		: Bindable < String >;
+	/**
+	 * Method generates a UUID string
+	 * 
+	 * UUID format
+	 * xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+	 * 
+	 * x = any hexadecimal character
+	 * y = 8,9,a,b
+	 */
+	public static inline function createUUID () : String
+	{
+		return randomHexStr(0xffff) + randomHexStr(0xffff) 					//first 8 chars	(xxxxxxxx)
+				+ "-" + randomHexStr(0xffff) 								//next 4 chars (xxxx)
+				+ "-4" + randomHexStr(0xfff) 								//next 4 chars (4xxx)
+				+ "-" + randomChar('89AB', 4) + randomHexStr(0xfff) 		//next 4 chars (yxxx)
+				+ "-" + randomHexStr(0xffffff)	+ randomHexStr(0xffffff);	//next 12 chars (xxxxxxxxxxxx)
+	}
+	
+	
+	private static inline function randomHexStr (val:Int)		{ return val.random().hex(); }
+	private static inline function randomChar(s:String, l:Int)	{ return s.charAt( Std.random( l ) ); }
 }

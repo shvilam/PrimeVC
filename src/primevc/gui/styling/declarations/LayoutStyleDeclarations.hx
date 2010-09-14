@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.core.geom.Box;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.LayoutFlags;
@@ -443,7 +446,7 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 		
 		if (padding != null)				css.push("padding: " + padding);
 		if (algorithm != null)				css.push("algorithm: " + algorithm);
-		if (relative != null)				css.push("relative: " + relative.toCSSString());
+		if (relative != null)				css.push("relative: " + relative.toCSS());
 		
 		if (width.isSet())					css.push("width: " + width + "px");
 		if (percentWidth.isSet())			css.push("width: " + percentWidth + "%");
@@ -466,6 +469,15 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 			return "\n\t" + css.join(";\n\t") + ";";
 		else
 			return "";
+	}
+#end
+
+
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ relative, padding, algorithm, percentWidth, percentHeight, width, height, childWidth, childHeight, rotation, includeInLayout, maintainAspectRatio ] );
+		super.toCode(code);
 	}
 #end
 }

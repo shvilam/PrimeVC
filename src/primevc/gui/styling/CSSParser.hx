@@ -342,12 +342,17 @@ class CSSParser
 	/**
 	 * Find style blocks
 	 */
-	public inline function parse (styleString:String) : Void
+	public function parse (styleString:String) : Void
 	{
 		trace("parse");
-		styleString = removeComments(styleString);
-		trace(styleString);
-		blockExpr.matchAll(styleString, handleMatchedBlock);
+		try {
+			styleString = removeComments(styleString);
+			trace(styleString);
+			blockExpr.matchAll(styleString, handleMatchedBlock);
+		}
+		catch (e:Dynamic) {
+			trace("ERROR - "+e);
+		}
 	}
 	
 	
@@ -398,7 +403,7 @@ class CSSParser
 	/**
 	 * Method to find all the style properties in one style block
 	 */
-	private inline function parseBlock (content:String) : Void
+	private function parseBlock (content:String) : Void
 	{
 		trace("parseBlock "+content);
 		propExpr.matchAll(content, handleMatchedProperty);
@@ -718,7 +723,7 @@ class CSSParser
 	 * Method parses a color value like #aaa000 or 0xaaa000 to a RGBA value
 	 * If the value is 'inherit', the method will return null.
 	 */
-	private inline function parseColor (v:String) : Null < RGBA >
+	private function parseColor (v:String) : Null < RGBA >
 	{
 		var clr:Null< RGBA > = null;
 		
@@ -750,7 +755,7 @@ class CSSParser
 	//
 	
 	
-	private inline function parseAndSetFont (v:String) : Void
+	private function parseAndSetFont (v:String) : Void
 	{	
 		v = parseAndSetFontStyle(v);
 		v = parseAndSetFontWeight(v);
@@ -759,7 +764,7 @@ class CSSParser
 	}
 	
 	
-	private inline function parseAndSetFontSize (val:String) : String
+	private function parseAndSetFontSize (val:String) : String
 	{
 		var v = parseUnitInt( val );
 		if (v.isSet()) {
@@ -908,7 +913,7 @@ class CSSParser
 	 * In a composedfill, it will always try to first set the BitmapFill and
 	 * then the rest of the fills.
 	 */
-	private inline function setBackground(newFill:IFill) : Void
+	private function setBackground(newFill:IFill) : Void
 	{
 		if (newFill != null)
 		{
@@ -1005,7 +1010,7 @@ class CSSParser
 	 * 		- reflect	(repeat gradient and reverse every odd repeat)
 	 * 		- repeat	(repeat gradient)
 	 */
-	private inline function parseColorFill (v:String) : IFill
+	private function parseColorFill (v:String) : IFill
 	{
 		var fill:IFill = null;
 		
@@ -1070,7 +1075,7 @@ class CSSParser
 	}
 	
 	
-	private inline function parseImage (v:String) : IFill
+	private function parseImage (v:String) : IFill
 	{
 		var fill:IFill	= null;
 		var bmp:Bitmap	= null;
@@ -1136,7 +1141,7 @@ class CSSParser
 	private inline function parseAndSetBorderWidth (v:String) : Void	{ setBorderWidth( parseUnitFloat( v ) ); }
 	
 	
-	private inline function setBorderFill (newFill:IFill) : Void
+	private function setBorderFill (newFill:IFill) : Void
 	{
 		if (newFill != null)
 		{
@@ -1173,7 +1178,7 @@ class CSSParser
 	}
 	
 	
-	private inline function setBorderWidth (weight:Float) : Void
+	private function setBorderWidth (weight:Float) : Void
 	{
 		if (currentBlock.border != null)
 			currentBlock.border = null;
@@ -1233,7 +1238,7 @@ class CSSParser
 	 * 
 	 * @see http://www.w3.org/TR/css3-background/#the-border-radius
 	 */
-	private inline function parseAndSetBorderRadius (v:String) : Void
+	private function parseAndSetBorderRadius (v:String) : Void
 	{
 		var expr = floatUnitGroupValExpr;
 		
@@ -1323,7 +1328,7 @@ class CSSParser
 	 * percent-value and an absolute value. In the LayoutObject these two 
 	 * values are stored in two different variables.
 	 */
-	private inline function parseAndSetWidth (v:String) : Void
+	private function parseAndSetWidth (v:String) : Void
 	{
 		var w:Int = parseUnitInt(v);
 		if (w.isSet())
@@ -1349,7 +1354,7 @@ class CSSParser
 	 * percent-value and an absolute value. In the LayoutObject these two 
 	 * values are stored in two different variables.
 	 */
-	private inline function parseAndSetHeight (v:String) : Void
+	private function parseAndSetHeight (v:String) : Void
 	{
 		var h:Int = parseUnitInt(v);
 		if (h.isSet())
@@ -1390,7 +1395,7 @@ class CSSParser
 	 * 
 	 * @see http://www.w3.org/TR/CSS2/box.html#padding-properties
 	 */
-	private inline function parseAndSetPadding (v:String) : Void
+	private function parseAndSetPadding (v:String) : Void
 	{
 		var expr = floatUnitGroupValExpr;
 		
@@ -1423,7 +1428,7 @@ class CSSParser
 	/**
 	 * @see CSSParser.parseAndSetPadding
 	 */
-	private inline function parseAndSetRelativeProperties (v:String) : Void
+	private function parseAndSetRelativeProperties (v:String) : Void
 	{
 		var expr = floatUnitGroupValExpr;
 		
@@ -1491,7 +1496,7 @@ class CSSParser
 	 * 		+ inherit
 	 * 		+ none
 	 */
-	private inline function parseAndSetLayoutAlgorithm (v:String) : Void
+	private function parseAndSetLayoutAlgorithm (v:String) : Void
 	{
 		var algorithm:ILayoutAlgorithm = null;
 		var v = v.trim().toLowerCase();

@@ -27,6 +27,11 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.geom;
+#if neko
+ import primevc.tools.generator.ICodeFormattable;
+ import primevc.tools.generator.ICodeGenerator;
+ import primevc.utils.StringUtil;
+#end
  import primevc.types.Number;
   using primevc.utils.NumberUtil;
 
@@ -35,16 +40,25 @@ package primevc.core.geom;
  * @since	mar 22, 2010
  * @author	Ruben Weijers
  */
-class Box implements IBox
+class Box
+				implements IBox
+#if neko	,	implements ICodeFormattable		#end
 {
 	public var left		(getLeft, setLeft)		: Int;
 	public var right	(getRight, setRight)	: Int;
 	public var top		(getTop, setTop)		: Int;
 	public var bottom	(getBottom, setBottom)	: Int;
 	
+#if neko
+	public var uuid		(default, null)			: String;
+#end
+	
 	
 	public function new ( top:Int = 0, right:Int = Number.INT_NOT_SET, bottom:Int = Number.INT_NOT_SET, left:Int = Number.INT_NOT_SET )
 	{
+#if neko
+		this.uuid	= StringUtil.createUUID();
+#end
 		this.top	= top;
 		this.right	= (right.notSet()) ? this.top : right;
 		this.bottom	= (bottom.notSet()) ? this.top : bottom;
@@ -77,5 +91,12 @@ class Box implements IBox
 	
 	
 	private inline function getCSSValue (v:Int) { return v == 0 ? "0" : v + "px"; }
+#end
+
+#if neko
+	public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ top, right, bottom, left ] );
+	}
 #end
 }

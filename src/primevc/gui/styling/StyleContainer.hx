@@ -34,13 +34,25 @@ package primevc.gui.styling;
  import primevc.types.RGBA;
  import Hash;
 
+#if neko
+ import primevc.tools.generator.ICodeFormattable;
+ import primevc.tools.generator.ICodeGenerator;
+ import primevc.utils.StringUtil;
+#end
+
 
 /**
  * @author Ruben Weijers
  * @creation-date Aug 05, 2010
  */
-class StyleContainer extends UIElementStyle, implements IDisposable
+class StyleContainer 
+				implements IDisposable	
+#if neko	,	implements ICodeFormattable		#end
 {
+#if neko
+	public var uuid					(default, null) : String;
+#end
+	
 	public var typeSelectors		(default, null) : Hash < UIElementStyle >;
 	public var styleNameSelectors	(default, null) : Hash < UIElementStyle >;
 	public var idSelectors			(default, null) : Hash < UIElementStyle >;
@@ -52,7 +64,9 @@ class StyleContainer extends UIElementStyle, implements IDisposable
 	
 	public function new ()
 	{
-		super();
+#if neko
+		uuid = StringUtil.createUUID();
+#end
 		typeSelectors		= new Hash();
 		styleNameSelectors	= new Hash();
 		idSelectors			= new Hash();
@@ -68,7 +82,7 @@ class StyleContainer extends UIElementStyle, implements IDisposable
 	}
 	
 	
-	override public function dispose ()
+	public function dispose ()
 	{
 		typeSelectors		= null;
 		styleNameSelectors	= null;
@@ -83,7 +97,7 @@ class StyleContainer extends UIElementStyle, implements IDisposable
 	
 	
 #if debug
-	override public function toString ()
+	public function toString ()
 	{
 		var css = "";
 		
@@ -110,6 +124,25 @@ class StyleContainer extends UIElementStyle, implements IDisposable
 			css += "\n" + keyPrefix + key + " " + val;
 		}
 		return css;
+	}
+#end
+
+#if neko
+	public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this );
+		
+		var keys = typeSelectors.keys();
+		for (key in keys)
+			code.setAction(this, "typeSelectors.set", [ key, typeSelectors.get(key) ]);
+		
+		keys = styleNameSelectors.keys();
+		for (key in keys)
+			code.setAction(this, "styleNameSelectors.set", [ key, styleNameSelectors.get(key) ]);
+		
+		keys = idSelectors.keys();
+		for (key in keys)
+			code.setAction(this, "idSelectors.set", [ key, idSelectors.get(key) ]);
 	}
 #end
 }

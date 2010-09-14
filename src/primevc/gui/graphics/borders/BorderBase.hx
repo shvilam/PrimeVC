@@ -32,6 +32,9 @@ package primevc.gui.graphics.borders;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.traits.IDrawable;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
 
 
 /**
@@ -61,7 +64,7 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	
 	
 	
-	public function new ( fill:FillType, weight:Float = 1, innerBorder:Bool = false, caps:CapsStyle = null, joint:JointStyle = null )
+	public function new ( fill:FillType, weight:Float = 1, innerBorder:Bool = false, caps:CapsStyle = null, joint:JointStyle = null, pixelHinting:Bool = false )
 	{
 		super();
 		this.fill			= fill;
@@ -69,6 +72,7 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 		this.caps			= caps != null ? caps : CapsStyle.NONE;
 		this.joint			= joint != null ? joint : JointStyle.ROUND;
 		this.innerBorder	= innerBorder;
+		this.pixelHinting	= pixelHinting;
 	}
 	
 	
@@ -169,6 +173,12 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	public function toString ()
 	{
 		return fill + " " + weight + "px";
+	}
+#end
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ fill, weight, innerBorder, caps, joint, pixelHinting ] );
 	}
 #end
 }

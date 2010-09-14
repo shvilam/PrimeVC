@@ -36,6 +36,8 @@ package primevc.gui.graphics;
  import primevc.gui.graphics.shapes.IGraphicShape;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.traits.IDrawable;
+ import primevc.tools.generator.ICodeGenerator;
+ import primevc.utils.StringUtil;
   using primevc.utils.BitUtil;
   using Math;
   using Std;
@@ -51,6 +53,8 @@ package primevc.gui.graphics;
  */
 class GraphicProperties implements IGraphicElement
 {
+	public var uuid			(default, null)			: String;
+	
 	public var changes		(default, null)			: UInt;
 	public var listeners	(default, null)			: FastList< IInvalidatable >;
 	/**
@@ -66,7 +70,8 @@ class GraphicProperties implements IGraphicElement
 	
 	
 	public function new (shape:IGraphicShape = null, layout:IRectangle = null, fill:IFill = null, border:IBorder <IFill> = null)
-	{
+	{	
+		uuid		= StringUtil.createUUID();
 		listeners	= new FastList< IInvalidatable >();
 		this.shape	= shape;
 		this.layout	= layout;
@@ -88,6 +93,7 @@ class GraphicProperties implements IGraphicElement
 		border		= null;
 		fill		= null;
 		layout		= null;
+		uuid		= null;
 	}
 	
 
@@ -223,4 +229,12 @@ class GraphicProperties implements IGraphicElement
 		}
 		return v;
 	}
+	
+	
+#if neko
+	public function toCode (code:ICodeGenerator)
+	{
+		code.construct(this, [ shape, layout, fill, border ]);
+	}
+#end
 }

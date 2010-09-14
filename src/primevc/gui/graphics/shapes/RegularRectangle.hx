@@ -28,16 +28,18 @@
  */
 package primevc.gui.graphics.shapes;
  import primevc.core.geom.Corners;
- import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.traits.IDrawable;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
 
 
 /**
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-class RegularRectangle extends GraphicElement, implements IGraphicShape
+class RegularRectangle extends ShapeBase, implements IGraphicShape
 {
 	public var corners		(default, setCorners)	: Corners;
 	
@@ -88,6 +90,13 @@ class RegularRectangle extends GraphicElement, implements IGraphicShape
 	public function toString ()
 	{
 		return "rectangle";
+	}
+#end
+
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ corners ] );
 	}
 #end
 }

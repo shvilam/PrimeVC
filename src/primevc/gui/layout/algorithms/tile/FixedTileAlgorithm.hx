@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms.tile;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.core.collections.BalancingListCollection;
  import primevc.core.collections.BalancingList;
  import primevc.core.collections.ChainedListCollection;
@@ -479,4 +482,13 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 		}
 		return v;
 	}
+	
+	
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		super.toCode(code);
+		code.setProp( this, "maxTilesInDirection", maxTilesInDirection);
+	}
+#end
 }

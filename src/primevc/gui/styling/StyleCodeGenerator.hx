@@ -26,27 +26,26 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
- import primevc.core.traits.IIdentifiable;
-#if flash9
- import primevc.gui.styling.declarations.UIElementStyle;
-#end
+package primevc.gui.styling;
+
 
 
 /**
+ * Class to generate haxe code from existing IWritable style-objects.
+ * 
  * @author Ruben Weijers
- * @creation-date Aug 04, 2010
+ * @creation-date Sep 13, 2010
  */
-interface IStylable implements IIdentifiable
+class StyleCodeGenerator
 {
-#if flash9
-	public var style (default, setStyle)			: UIElementStyle;
+	public function new ()
+	{
+		
+	}
 	
-	/**
-	 * String containing all the css-classes that the IStyleable should use. 
-	 * It's possible to add more than one styleName by putting them in comma-
-	 * seperated. 
-	 */
-	public var styleNames (default, setStyleNames)	: String;
-#end
+	
+	public function generate (styleObj:)
+	{
+		
+	}
 }

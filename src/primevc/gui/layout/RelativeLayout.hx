@@ -27,13 +27,16 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout;
+#if neko
+ import primevc.tools.generator.ICodeFormattable;
+ import primevc.tools.generator.ICodeGenerator;
+ import primevc.utils.StringUtil;
+#end
  import primevc.core.dispatcher.Signal0;
  import primevc.core.geom.IBox;
  import primevc.core.IDisposable;
  import primevc.types.Number;
-#if debug
   using primevc.utils.NumberUtil;
-#end
 
 
 /**
@@ -58,8 +61,16 @@ package primevc.gui.layout;
  * @creation-date	Jun 22, 2010
  * @author			Ruben Weijers
  */
-class RelativeLayout implements IBox, implements IDisposable
+class RelativeLayout 
+				implements IBox
+			,	implements IDisposable
+#if neko	,	implements ICodeFormattable		#end
 {
+	
+#if neko
+	public var uuid					(default, null)	: String;
+#end
+	
 	/**
 	 * Flag indicating if the relative-properties are enabled or disabled.
 	 * When the value is false, it will still be possible to change the
@@ -145,6 +156,10 @@ class RelativeLayout implements IBox, implements IDisposable
 	
 	public function new ( top:Int = Number.INT_NOT_SET, right:Int = Number.INT_NOT_SET, bottom:Int = Number.INT_NOT_SET, left:Int = Number.INT_NOT_SET )
 	{
+#if neko
+		this.uuid		= StringUtil.createUUID();
+#end
+		this.enabled	= true;
 		this.changed	= new Signal0();
 		this.hCenter	= Number.INT_NOT_SET;
 		this.vCenter	= Number.INT_NOT_SET;
@@ -159,6 +174,9 @@ class RelativeLayout implements IBox, implements IDisposable
 	{
 		changed.dispose();
 		changed = null;
+#if neko
+		uuid	= null;
+#end
 	}
 	
 	
@@ -266,7 +284,9 @@ class RelativeLayout implements IBox, implements IDisposable
 		return "RelativeLayout - t: "+top+"; r: "+right+"; b: "+bottom+"; l: "+left+"; hCenter: "+hCenter+"; vCenter: "+vCenter;
 	}
 	
-	public function toCSSString () {
+	
+	public function toCSS ()
+	{
 		var css = [];
 		var str = "";
 		
@@ -293,6 +313,17 @@ class RelativeLayout implements IBox, implements IDisposable
 		str += css.join(" ");
 		
 		return str;
+	}
+#end
+
+#if neko
+	public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ top, right, bottom, left ] );
+		
+		if (hCenter.isSet())	code.setProp( this, "hCenter", hCenter );
+		if (vCenter.isSet())	code.setProp( this, "vCenter", vCenter );
+		if (!enabled)			code.setProp( this, "enabled", enabled );
 	}
 #end
 }

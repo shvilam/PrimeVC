@@ -43,6 +43,10 @@ package primevc.types;
 
 typedef FlashBitmap = flash.display.Bitmap;
 
+#elseif neko
+ import primevc.tools.generator.ICodeFormattable;
+ import primevc.tools.generator.ICodeGenerator;
+ import primevc.utils.StringUtil;
 #end
 
 
@@ -55,7 +59,9 @@ typedef FlashBitmap = flash.display.Bitmap;
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-class Bitmap implements IDisposable
+class Bitmap
+				implements IDisposable
+#if neko	,	implements ICodeFormattable		#end
 {
 #if flash9
 	/**
@@ -66,6 +72,11 @@ class Bitmap implements IDisposable
 #else
 	public var data (default, null)		: Dynamic;
 #end
+
+#if neko
+	public var uuid (default, null)		: String;
+#end
+	
 	public var state (default, null)	: SimpleStateMachine < BitmapStates >;
 	
 	/**
@@ -87,7 +98,10 @@ class Bitmap implements IDisposable
 	
 	public function new ()
 	{
-		state = new SimpleStateMachine < BitmapStates >(empty);
+		state	= new SimpleStateMachine < BitmapStates >(empty);
+#if neko
+		uuid	= StringUtil.createUUID();
+#end
 	}
 	
 	
@@ -99,6 +113,9 @@ class Bitmap implements IDisposable
 		url		= null;
 		data	= null;
 		state	= null;
+#if neko
+		uuid	= null;
+#end
 	}
 	
 	
@@ -356,6 +373,16 @@ class Bitmap implements IDisposable
 		return		 if (url != null)	"url( "+url+" )";
 				else if (asset != null)	"Class( "+asset+" )";
 				else					"Bitmap()";
+	}
+#end
+
+#if neko
+	public function toCode (code:ICodeGenerator)
+	{
+		code.construct(this);
+		if (url != null)	code.setAction(this, "setString", [url]);
+		if (asset != null)	code.setAction(this, "setClass", [asset]);
+		if (data != null)	code.setProp(this, "data", data);
 	}
 #end
 }

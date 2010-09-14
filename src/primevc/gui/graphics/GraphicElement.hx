@@ -28,6 +28,10 @@
  */
 package primevc.gui.graphics;
  import primevc.core.traits.Invalidatable;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+ import primevc.utils.StringUtil;
+#end
 
 
 
@@ -39,4 +43,24 @@ package primevc.gui.graphics;
  */
 class GraphicElement extends Invalidatable, implements IGraphicElement 
 {
+#if neko
+	public var uuid (default, null)	: String;
+	
+	
+	public function new ()
+	{
+		super();
+		uuid = StringUtil.createUUID();
+	}
+	
+	
+	override public function dispose ()
+	{
+		uuid = null;
+		super.dispose();
+	}
+	
+	
+	public function toCode (code:ICodeGenerator) { Assert.abstract(); }
+#end
 }

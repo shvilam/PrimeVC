@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
 
 
 
@@ -42,4 +45,13 @@ class EffectStyleDeclarations extends StyleDeclarationBase < EffectStyleDeclarat
 	{
 		super();
 	}
+
+
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this );
+		super.toCode(code);
+	}
+#end
 }

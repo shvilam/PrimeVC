@@ -162,7 +162,7 @@ class RGBAUtil
 
 
 class FloatColorUtil
-{	
+{
 	/**
 	 * Converts two bytes to a Float. Only one color channel should be given as input.
 	 */

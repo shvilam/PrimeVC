@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.fills;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.core.geom.IRectangle;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
@@ -112,6 +115,14 @@ class ComposedFill extends GraphicElement, implements IFill
 	public function toString ()
 	{
 		return fills.join(", ");
+	}
+#end
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this );
+		for (fill in fills)
+			code.setAction(this, "add", [ fill ]);
 	}
 #end
 }

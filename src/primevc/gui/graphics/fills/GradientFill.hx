@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.fills;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.core.geom.IRectangle;
  import primevc.core.geom.Matrix2D;
  import primevc.gui.graphics.GraphicElement;
@@ -232,6 +235,14 @@ class GradientFill extends GraphicElement, implements IFill
 			return "linear-gradient( " + rotation + "deg, " + colorStr + ", " + spread + " )";
 		else
 			return "radial-gradient( " + focalPointRatio + ", " + colorStr + ", " + spread + " )";
+	}
+#end
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ type, spread, focalPointRatio, rotation ] );
+		for (stop in gradientStops)
+			code.setAction( this, "add", [ stop ] );
 	}
 #end
 }

@@ -28,6 +28,11 @@
  */
 package primevc.gui.styling.declarations;
  import primevc.core.traits.Invalidatable;
+#if neko
+ import primevc.tools.generator.ICodeFormattable;
+ import primevc.tools.generator.ICodeGenerator;
+#end
+ import primevc.utils.StringUtil;
 
 
 /**
@@ -38,15 +43,26 @@ package primevc.gui.styling.declarations;
  */
 class StyleDeclarationBase <DeclarationType> extends Invalidatable
 					,	implements IStyleDeclaration <DeclarationType>
-#if (flash9 || cpp)	,	implements haxe.rtti.Generic #end
+#if neko			,	implements ICodeFormattable		#end
+#if (flash9 || cpp)	,	implements haxe.rtti.Generic	#end
 {
 	public var nestingInherited		(default, setNestingInherited)	: DeclarationType;
 	public var superStyle			(default, setSuperStyle)		: DeclarationType;
 	public var extendedStyle		(default, setExtendedStyle)		: DeclarationType;
 	
+	public var uuid					(default, null)					: String;
+	
+	
+	public function new ()
+	{
+		super();
+		uuid = StringUtil.createUUID();
+	}
+	
 	
 	override public function dispose ()
 	{
+		uuid				= null;
 		nestingInherited	= null;
 		superStyle			= null;
 		extendedStyle		= null;
@@ -82,4 +98,14 @@ class StyleDeclarationBase <DeclarationType> extends Invalidatable
 		}
 		return v;
 	}
+	
+	
+#if neko
+	public function toCode (code:ICodeGenerator)
+	{
+		if (nestingInherited != null)	code.setProp( this, "nestingInherited", nestingInherited );
+		if (superStyle != null)			code.setProp( this, "superStyle", superStyle );
+		if (extendedStyle != null)		code.setProp( this, "extendedStyle", extendedStyle );
+	}
+#end
 }

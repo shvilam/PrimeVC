@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.core.geom.space.Horizontal;
  import primevc.core.geom.space.Vertical;
  import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
@@ -228,4 +231,12 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 			w += group.padding.left; // + group.padding.right;
 		return w;
 	}
+
+
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ direction, vertical ] );
+	}
+#end
 }

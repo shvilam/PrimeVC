@@ -134,10 +134,9 @@ class DisplayList implements IList <ChildType>
 	
 	public inline function add (item:ChildType, pos:Int = -1) : ChildType
 	{
-		if (pos > length) {
-			trace(childrenToString());
+		if (pos > length)
 			Assert.that(pos <= length, "Index to add child is to high! "+pos+" instead of max "+length);
-		}
+		
 		if		(pos > length)	pos = length;
 		else if (pos < 0)		pos = length; // -pos;
 		

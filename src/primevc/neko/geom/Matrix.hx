@@ -26,27 +26,47 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
- import primevc.core.traits.IIdentifiable;
-#if flash9
- import primevc.gui.styling.declarations.UIElementStyle;
-#end
+package primevc.neko.geom;
+ import primevc.utils.StringUtil;
+ import primevc.tools.generator.ICodeFormattable;
+ import primevc.tools.generator.ICodeGenerator;
 
 
 /**
+ * Neko implementation for primevc.core.geom.Matrix2D
+ * 
  * @author Ruben Weijers
- * @creation-date Aug 04, 2010
+ * @creation-date Sep 14, 2010
+ * @see http://livedocs.adobe.com/flash/9.0/ActionScriptLangRefV3/flash/geom/Matrix.html
  */
-interface IStylable implements IIdentifiable
+class Matrix implements ICodeFormattable
 {
-#if flash9
-	public var style (default, setStyle)			: UIElementStyle;
+	public var a	: Float;
+	public var b	: Float;
+	public var c	: Float;
+	public var d 	: Float;
+	public var tx	: Float;
+	public var ty	: Float;
 	
-	/**
-	 * String containing all the css-classes that the IStyleable should use. 
-	 * It's possible to add more than one styleName by putting them in comma-
-	 * seperated. 
-	 */
-	public var styleNames (default, setStyleNames)	: String;
+	public var uuid	(default, null) : String;
+	
+	
+	public function new (a, b, c, d, tx, ty)
+	{
+		uuid = StringUtil.createUUID();
+		this.a = a;
+		this.b = b;
+		this.c = c;
+		this.d = d;
+		this.tx = tx;
+		this.ty = ty;
+	}
+	
+	
+#if neko
+	public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ a, b, c, d, tx, ty ] );
+	}
 #end
 }
