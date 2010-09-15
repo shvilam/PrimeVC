@@ -1,5 +1,4 @@
 #!/bin/bash
-
 INPUT=${1}
 OUTPUT=build/tmp_tdsi.swf
 

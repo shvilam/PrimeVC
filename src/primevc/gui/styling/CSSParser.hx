@@ -344,10 +344,10 @@ class CSSParser
 	 */
 	public function parse (styleString:String) : Void
 	{
-		trace("parse");
+	//	trace("parse");
 		try {
 			styleString = removeComments(styleString);
-			trace(styleString);
+		//	trace(styleString);
 			blockExpr.matchAll(styleString, handleMatchedBlock);
 		}
 		catch (e:Dynamic) {
@@ -382,7 +382,7 @@ class CSSParser
 	private function handleMatchedBlock (expr:EReg) : Void
 	{
 		var name = expr.matched(3);
-		trace("handleMatchedBlock for "+name);
+	//	trace("handleMatchedBlock for "+name);
 		
 		//find the correct list to add the entry in
 		var list = 
@@ -405,7 +405,7 @@ class CSSParser
 	 */
 	private function parseBlock (content:String) : Void
 	{
-		trace("parseBlock "+content);
+	//	trace("parseBlock "+content);
 		propExpr.matchAll(content, handleMatchedProperty);
 	}
 	
@@ -417,7 +417,7 @@ class CSSParser
 	{
 		var name	= expr.matched(1).trim();
 		var val		= expr.matched(2).trim();
-		trace("handleMatchedProperty "+name+" = "+val);
+	//	trace("handleMatchedProperty "+name+" = "+val);
 		switch (name)
 		{
 			//

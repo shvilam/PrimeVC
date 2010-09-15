@@ -45,22 +45,49 @@ class HaxeCodeGenerator implements ICodeGenerator
 	private var output		: StringBuf;
 	private var varMap		: Hash < String >;
 	private var varCounter	: Int;
+	private var linePrefix	: String;
+	
+	public var tabSize		(default, setTabSize) : Int;
 	
 	
-	public function new () {}
+	public function new (?tabSize = 0) {
+		this.tabSize = tabSize;
+	}
 	
 	
-	public function generate (startObj:ICodeFormattable) : Void
+	private inline function setTabSize (size:Int) : Int
+	{
+		if (tabSize != size) {
+			tabSize = size;
+			
+			linePrefix = "";
+			for (i in 0...size)
+				linePrefix += "\t";
+		}
+		return size;
+	}
+	
+	
+	public inline function start () : Void
 	{
 		output		= new StringBuf();
 		varMap		= new Hash();
 		varCounter	= 0;
+	}
+	
+	
+	public function generate (startObj:ICodeFormattable) : Void
+	{
+		start();
 		startObj.toCode(this);
 	}
 	
 	
 	public function flush () : String
 	{
+		if (output == null)
+			return "";
+		
 		var str	= output.toString();
 		output	= null;
 		varMap	= null;
@@ -73,9 +100,17 @@ class HaxeCodeGenerator implements ICodeGenerator
 	}
 	
 	
-	public function setAction ( obj:ICodeFormattable, name:String, ?args:Array<Dynamic>) : Void {
+	public function setAction ( obj:ICodeFormattable, name:String, ?args:Array<Dynamic>) : Void
+	{
+		Assert.notNull( obj );
 		Assert.that( varMap.exists( obj.uuid ) );
 		addLine( getVar(obj) + "." + name + "(" + formatArguments(args) +");" );
+	}
+	
+	
+	public function setSelfAction (name:String, ?args:Array<Dynamic>) : Void
+	{
+		addLine( "this." + name + "(" + formatArguments(args) +");" );
 	}
 	
 	
@@ -100,7 +135,6 @@ class HaxeCodeGenerator implements ICodeGenerator
 	
 	private function formatValue (v:Dynamic) : String
 	{
-		trace("formatting "+v);
 		if		(v == null)						return "null";
 		else if (isColor(v))					return Color.string(v);
 		else if (Std.is( v, ICodeFormattable ))	return getVar(v);
@@ -109,7 +143,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 		else if (Std.is( v, Float ))			return Std.string(v);
 		else if (Std.is( v, Bool ))				return v ? "true" : "false";
 		else if (null != Type.getEnum(v))		return getEnumName(v);
-	//	else									throw "unknown value type: " + v;
+		else									throw "unknown value type: " + v;
 		return "";
 	}
 	
@@ -117,7 +151,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 	private inline function isColor (v:Dynamic)					: Bool		{ return Reflect.hasField(v, "color") && Reflect.hasField(v, "a"); }
 	private inline function getClassName (obj:ICodeFormattable)	: String	{ return Type.getClass(obj).getClassName(); }
 	private inline function getEnumName (obj:Dynamic)			: String	{ return Type.getEnum( obj ).getEnumName() + "." + obj; }
-	private inline function addLine( line:String)				: Void		{ output.add( "\n" + line ); }
+	private inline function addLine( line:String)				: Void		{ output.add( "\n" + linePrefix + line ); }
 	private inline function getVar (obj:ICodeFormattable)		: String	{ return varMap.exists( obj.uuid ) ? varMap.get( obj.uuid ) : createVarName( obj ); }
 	
 	

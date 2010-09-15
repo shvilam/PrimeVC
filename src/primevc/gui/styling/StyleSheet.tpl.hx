@@ -26,26 +26,30 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling;
+package ;
+ import primevc.gui.styling.StyleContainer;
 
 
 
 /**
- * Class to generate haxe code from existing IWritable style-objects.
- * 
- * @author Ruben Weijers
- * @creation-date Sep 13, 2010
+ * This class is a template for generating StyleSheet classes
  */
-class StyleCodeGenerator
+class Style extends StyleContainer
 {
-	public function new ()
+	override private function createTypeSelectors () : Void
 	{
-		
+		//typeSelectors
 	}
 	
 	
-	public function generate (styleObj:)
+	override private function createStyleNameSelectors () : Void
 	{
-		
+		//styleNameSelectors
+	}
+	
+	
+	override private function createIdSelectors () : Void
+	{
+		//idSelectors
 	}
 }

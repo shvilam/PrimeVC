@@ -47,7 +47,7 @@ class ERegUtil #if flash9 extends EReg #end
 		}
 	}
 	
-#if debug	
+#if debug
 	public static inline function test (expr:EReg, str:String, ?pos:haxe.PosInfos) : Bool
 	{
 	#if flash9
@@ -69,7 +69,7 @@ class ERegUtil #if flash9 extends EReg #end
 #if flash9	trace(expr.resultToString());	#end
 			throw "Error";
 		} else {
-			trace(pos.fileName + ":" + pos.lineNumber+"; Assertion success: '"+expr.matched(0)+"' is correct");
+#if debug	trace(pos.fileName + ":" + pos.lineNumber+"; Assertion success: '"+expr.matched(0)+"' is correct");		#end
 		}
 		
 		return success;
@@ -95,7 +95,7 @@ class ERegUtil #if flash9 extends EReg #end
 #if flash9	trace(expr.resultToString());	#end
 			throw "Error";
 		} else {
-			trace(pos.fileName + ":" + pos.lineNumber+"; Assertion success: '"+str + "' is not matched");
+#if debug	trace(pos.fileName + ":" + pos.lineNumber+"; Assertion success: '"+str + "' is not matched");		#end
 		}
 		
 		return success;

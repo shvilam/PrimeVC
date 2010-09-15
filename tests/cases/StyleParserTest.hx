@@ -199,22 +199,31 @@ class StyleParserTest
 	
 	public function parse ()
 	{
+#if debug
 		trace("=============== PARSING ==================");
 		parser.parse(haxe.Resource.getString("stylesheet"));
 		trace(styles);
+#else
+		parser.parse(haxe.Resource.getString("stylesheet"));
+#end
 	}
 	
 	
 	public function generate ()
 	{
+#if debug
 		trace("============ GENERATE CODE ===============");
 		generator.generate(styles);
 		trace(generator.flush());
+#else
+		generator.generate(styles);
+#end
 	}
 	
 	
 	public function executeUnitTests ()
 	{
+#if debug
 	//	testURIs();
 		totalTests		= 0;
 		correctTests	= 0;
@@ -222,9 +231,10 @@ class StyleParserTest
 		testBgProperties();
 		testFontProperties();
 		testLayoutProperties();
+#end
 	}
 	
-	
+#if debug
 	private inline function testSimpleProperties ()
 	{
 		//
@@ -671,6 +681,7 @@ class StyleParserTest
 		expr.testWrong( "test." );
 		expr.testWrong( "test" );*/
 	}
+#end
 }
 
 /*

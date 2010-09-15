@@ -4,10 +4,13 @@
 -D FlashTrace
 -swf-version 10
 -swf-header 1000:750:31:FFFFFF
--main primevc.Main
--cp libs/flash
+#-main primevc.Main
+-cp libs/flash9
+-cp libs/hiresStats
+-cp libs/macmousewheel
+-cp libs/monsterdebugger
 -cp generated-src
 -cp src
--cp skins/flair
--debug
+#-cp skins/flair
+#-debug
 -swf bin-debug/app.swf

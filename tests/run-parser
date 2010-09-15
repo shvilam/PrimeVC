@@ -9,14 +9,16 @@ StyleSheet=$1
 MainFile="cases/StyleParserTest.hx"
 Force=false
 Resource=""
+Debug=""
 
 #parse arguments
-while getopts "n:ms:tf" OptionName
+while getopts "n:ms:tfd" OptionName
 	do
 		case $OptionName in
 			n ) MainFile=${OPTARG};;
 			s ) StyleSheet=${OPTARG};;
 			f ) Force=true;;
+			d ) Debug="-debug";;
 	esac
 done
 
@@ -35,7 +37,7 @@ fi;
 if ${Force} || [[ ! -f ${Parser} ]]  ||  test ${MainFile} -nt ${Parser}  ||  test ${StyleSheet} -nt ${Parser} ; then
 	echo "Compiling parser"
 	
-	haxe build-parser.hxml -main ${MainClass} -neko ${Parser} ${Resource} --no-inline &&
+	haxe build-parser.hxml -main ${MainClass} -neko ${Parser} ${Resource} --no-inline ${Debug} &&
 	neko ${Parser}
 else
 	neko ${Parser}

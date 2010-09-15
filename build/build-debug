@@ -1,7 +1,42 @@
 #!/bin/bash
-bash build/build-assets
-haxe build.hxml
-bash build/optimize-build
 
-mv tmp.swf bin-debug/app.swf
-open bin-debug/app.swf
+BUILDSCRIPTDIR="`dirname $0`";
+PRJROOT="${BUILDSCRIPTDIR}/.."
+
+MINPARAMS=1
+Style="flair"
+MainClass="primevc.Main"
+
+#parse arguments
+while getopts "a:bs:td" OptionName
+	do
+		case $OptionName in
+			a ) MainClass=${OPTARG};;	#main class
+			s ) Style=${OPTARG};;	#style name
+			d ) Debug=true;;
+	esac
+done
+
+Style=skins/${Style}
+
+echo "==================== BUILD DEBUG ===================="
+
+if [[ $MainClass -eq "" ]] ; then
+	echo "Error: Mainclass is not specified"
+else
+	echo "Main: ${MainClass}"
+	echo "Style: ${Style}"
+	echo "Debugging: ${Debug:-false}"
+	
+	echo "1. BUILDING ASSETS" &&
+	bash ${PRJROOT}/build/build-assets &&
+	echo "2. BUILDING STYLES" &&
+	bash ${PRJROOT}/build/build-styles -s ${Style} ${Debug:+-d} &&
+	echo "3. COMPILING SWF" &&
+	haxe ${PRJROOT}/build/build.hxml -main $MainClass ${Debug:+-debug} -cp ${Style} &&
+	echo "4. OPTIMIZING BUILD" &&
+	bash ${PRJROOT}/build/optimize-build &&
+
+	mv ${PRJROOT}/tmp.swf ${PRJROOT}/bin-debug/app.swf &&
+	open ${PRJROOT}/bin-debug/app.swf
+fi;
