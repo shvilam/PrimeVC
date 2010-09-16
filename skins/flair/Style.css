@@ -36,7 +36,6 @@ TextArea {
 	v-center: 0;
 }
 
-
 .eenVeld {
 	font: 12px bold italic Verdana;
 	width: 50px;
@@ -52,5 +51,8 @@ TextArea {
 	algorithm: float-hor( right );
 }
 
+TextArea .eenVeld {
+	width: 40px;
+}
 
 #idable {}

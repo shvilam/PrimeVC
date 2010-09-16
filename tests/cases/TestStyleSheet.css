@@ -37,6 +37,12 @@ TextArea {
 }
 
 
+TextArea .eenVeld {
+	height: 40px;
+}
+
+
+
 .eenVeld {
 	font: 12px bold italic Verdana;
 	width: 50px;

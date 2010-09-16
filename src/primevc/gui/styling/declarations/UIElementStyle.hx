@@ -68,6 +68,7 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 	)
 	{
 		super();
+		init();
 		this.layout		= layout;
 		this.font		= font;
 		this.shape		= shape;
@@ -77,6 +78,9 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 		this.effects	= effects;
 		this.filters	= filters;
 	}
+	
+	
+	private function init () : Void;
 	
 	
 	override public function dispose ()

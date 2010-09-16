@@ -99,6 +99,8 @@ class CSSParser
 	public static inline var R_SPACE_MUST			: String = "[ \\t]+";					//must have at least one tab/space charater
 	public static inline var R_PROPERTY_NAME		: String = "a-z0-9-";
 	public static inline var R_PROPERTY_VALUE		: String = R_WHITESPACE + "a-z0-9%#.,:)(/\"'-";
+	
+	public static inline var R_BLOCK_NAME			: String = "([.#]?)([a-z]+)";
 	public static inline var R_BLOCK_VALUE			: String = R_PROPERTY_VALUE + ":;";
 	
 	public static inline var R_HEX_VALUE			: String = "0-9a-f";
@@ -233,7 +235,7 @@ class CSSParser
 	private inline function init ()
 	{
 		blockExpr = new EReg(
-			  "(^([.#]?)([a-z]+))"			//match style selectors containing .name, #name or name
+			  "(^" + R_BLOCK_NAME+")"			//match style selectors containing .name, #name or name
 			+ "[" + R_WHITESPACE + "]*{"	//match opening of a block
 			+ "([" + R_BLOCK_VALUE + "]*)"	//match content of a block
 			+ "[" + R_WHITESPACE + "]*}"	//match closing of a block
@@ -349,6 +351,8 @@ class CSSParser
 			styleString = removeComments(styleString);
 		//	trace(styleString);
 			blockExpr.matchAll(styleString, handleMatchedBlock);
+			trace("css parsed:");
+			trace(styles);
 		}
 		catch (e:Dynamic) {
 			trace("ERROR - "+e);
@@ -382,7 +386,7 @@ class CSSParser
 	private function handleMatchedBlock (expr:EReg) : Void
 	{
 		var name = expr.matched(3);
-	//	trace("handleMatchedBlock for "+name);
+		trace("handleMatchedBlock for "+name);
 		
 		//find the correct list to add the entry in
 		var list = 
