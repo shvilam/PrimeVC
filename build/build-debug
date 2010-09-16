@@ -21,7 +21,7 @@ Style=skins/${Style}
 
 echo "==================== BUILD DEBUG ===================="
 
-if [[ $MainClass -eq "" ]] ; then
+if [[ ${MainClass} == "" ]] ; then
 	echo "Error: Mainclass is not specified"
 else
 	echo "Main: ${MainClass}"
@@ -31,7 +31,7 @@ else
 	echo "1. BUILDING ASSETS" &&
 	bash ${PRJROOT}/build/build-assets &&
 	echo "2. BUILDING STYLES" &&
-	bash ${PRJROOT}/build/build-styles -s ${Style} ${Debug:+-d} &&
+	bash ${PRJROOT}/build/build-styles -s ${Style} ${Debug:+-d} ${Debug:+-f} &&
 	echo "3. COMPILING SWF" &&
 	haxe ${PRJROOT}/build/build.hxml -main $MainClass ${Debug:+-debug} -cp ${Style} &&
 	echo "4. OPTIMIZING BUILD" &&

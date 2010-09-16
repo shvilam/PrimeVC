@@ -71,18 +71,18 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	
 	
 	public function new (
-		rel:RelativeLayout		= null,
-		padding:Box				= null,
-		alg:ILayoutAlgorithm	= null,
-		percentW:Float			= Number.INT_NOT_SET,
-		percentH:Float			= Number.INT_NOT_SET,
-		width:Int				= Number.INT_NOT_SET,
-		height:Int				= Number.INT_NOT_SET,
-		childWidth:Int			= Number.INT_NOT_SET,
-		childHeight:Int			= Number.INT_NOT_SET,
-		rotation:Float			= Number.INT_NOT_SET,
-		include:Bool			= null,
-		maintainAspect:Bool 	= null
+		rel:RelativeLayout			= null,
+		padding:Box					= null,
+		alg:ILayoutAlgorithm		= null,
+		percentW:Float				= Number.INT_NOT_SET,
+		percentH:Float				= Number.INT_NOT_SET,
+		width:Int					= Number.INT_NOT_SET,
+		height:Int					= Number.INT_NOT_SET,
+		childWidth:Int				= Number.INT_NOT_SET,
+		childHeight:Int				= Number.INT_NOT_SET,
+		rotation:Float				= Number.INT_NOT_SET,
+		include:Null<Bool>			= null,
+		maintainAspect:Null<Bool> 	= null
 	)
 	{
 		super();

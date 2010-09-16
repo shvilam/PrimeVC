@@ -39,7 +39,7 @@ class Style extends StyleContainer
 	override private function createTypeSelectors () : Void
 	{
 		//typeSelectors
-		var fontStyleDeclarations1 = new primevc.gui.styling.declarations.FontStyleDeclarations( null, null, null, primevc.gui.text.FontWeight.bold, null, null, primevc.gui.text.TextAlign.left, null, null, null );
+		var fontStyleDeclarations1 = new primevc.gui.styling.declarations.FontStyleDeclarations( primevc.types.Number.INT_NOT_SET, null, null, primevc.gui.text.FontWeight.bold, null, primevc.types.Number.INT_NOT_SET, primevc.gui.text.TextAlign.left, null, primevc.types.Number.INT_NOT_SET, null );
 		var composedFill2 = new primevc.gui.graphics.fills.ComposedFill(  );
 		var bitmap4 = new primevc.types.Bitmap(  );
 		bitmap4.setString("../images/test.png");
@@ -49,11 +49,12 @@ class Style extends StyleContainer
 		composedFill2.add(solidFill5);
 		var uIElementStyle0 = new primevc.gui.styling.declarations.UIElementStyle( null, fontStyleDeclarations1, null, composedFill2, null, null, null, null );
 		this.typeSelectors.set("Label", uIElementStyle0);
-		var relativeLayout8 = new primevc.gui.layout.RelativeLayout( 10, 400, null, null );
+		var relativeLayout8 = new primevc.gui.layout.RelativeLayout( primevc.types.Number.INT_NOT_SET, 400, primevc.types.Number.INT_NOT_SET, 0 );
+		relativeLayout8.vCenter = 0;
 		var horizontalCircleAlgorithm10 = new primevc.gui.layout.algorithms.circle.HorizontalCircleAlgorithm( primevc.core.geom.space.Horizontal.left, null );
 		var verticalCircleAlgorithm11 = new primevc.gui.layout.algorithms.circle.VerticalCircleAlgorithm( primevc.core.geom.space.Vertical.top, null );
 		var dynamicLayoutAlgorithm9 = new primevc.gui.layout.algorithms.DynamicLayoutAlgorithm( horizontalCircleAlgorithm10, verticalCircleAlgorithm11 );
-		var layoutStyleDeclarations7 = new primevc.gui.styling.declarations.LayoutStyleDeclarations( relativeLayout8, null, dynamicLayoutAlgorithm9, nan, nan, null, null, null, null, nan, null, null );
+		var layoutStyleDeclarations7 = new primevc.gui.styling.declarations.LayoutStyleDeclarations( relativeLayout8, null, dynamicLayoutAlgorithm9, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, null, null );
 		var composedFill12 = new primevc.gui.graphics.fills.ComposedFill(  );
 		var gradientFill13 = new primevc.gui.graphics.fills.GradientFill( primevc.gui.graphics.fills.GradientType.linear, primevc.gui.graphics.fills.SpreadMethod.normal, 0, 90 );
 		var gradientStop14 = new primevc.gui.graphics.fills.GradientStop( 0xAAAAAAFF, 0 );
@@ -69,7 +70,7 @@ class Style extends StyleContainer
 		composedFill12.add(solidFill18);
 		var uIElementStyle6 = new primevc.gui.styling.declarations.UIElementStyle( layoutStyleDeclarations7, null, null, composedFill12, null, null, null, null );
 		this.typeSelectors.set("TextArea", uIElementStyle6);
-		var fontStyleDeclarations20 = new primevc.gui.styling.declarations.FontStyleDeclarations( null, null, 0x320CC819, null, null, null, primevc.gui.text.TextAlign.center, null, null, null );
+		var fontStyleDeclarations20 = new primevc.gui.styling.declarations.FontStyleDeclarations( primevc.types.Number.INT_NOT_SET, null, 0x320CC819, null, null, primevc.types.Number.INT_NOT_SET, primevc.gui.text.TextAlign.center, null, primevc.types.Number.INT_NOT_SET, null );
 		var uIElementStyle19 = new primevc.gui.styling.declarations.UIElementStyle( null, fontStyleDeclarations20, null, null, null, null, null, null );
 		this.typeSelectors.set("UIComponent", uIElementStyle19);
 	}
@@ -80,8 +81,8 @@ class Style extends StyleContainer
 		//styleNameSelectors
 		var box2 = new primevc.core.geom.Box( 4, 3, 4, 3 );
 		var horizontalFloatAlgorithm3 = new primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm( primevc.core.geom.space.Horizontal.right, null );
-		var layoutStyleDeclarations1 = new primevc.gui.styling.declarations.LayoutStyleDeclarations( null, box2, horizontalFloatAlgorithm3, nan, 10, 50, null, 3, 400, nan, false, null );
-		var fontStyleDeclarations4 = new primevc.gui.styling.declarations.FontStyleDeclarations( 12, "Verdana", null, primevc.gui.text.FontWeight.bold, primevc.gui.text.FontStyle.italic, null, null, null, null, null );
+		var layoutStyleDeclarations1 = new primevc.gui.styling.declarations.LayoutStyleDeclarations( null, box2, horizontalFloatAlgorithm3, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, 50, 0, 3, 400, primevc.types.Number.INT_NOT_SET, false, null );
+		var fontStyleDeclarations4 = new primevc.gui.styling.declarations.FontStyleDeclarations( 12, "Verdana", null, primevc.gui.text.FontWeight.bold, primevc.gui.text.FontStyle.italic, primevc.types.Number.INT_NOT_SET, null, null, primevc.types.Number.INT_NOT_SET, null );
 		var gradientFill5 = new primevc.gui.graphics.fills.GradientFill( primevc.gui.graphics.fills.GradientType.radial, primevc.gui.graphics.fills.SpreadMethod.normal, -1, 0 );
 		var gradientStop6 = new primevc.gui.graphics.fills.GradientStop( 0xAAAAAAFF, 0 );
 		gradientFill5.add(gradientStop6);

@@ -69,7 +69,7 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 	public function new (
 		size:Int					= Number.INT_NOT_SET,
 		family:String				= null,
-		color:RGBA					= null,
+		color:Null<RGBA>			= null,
 		weight:FontWeight			= null,
 		style:FontStyle				= null,
 		letterSpacing:Float			= Number.INT_NOT_SET,
@@ -329,7 +329,7 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 		if (color != null)			css.push("color: "			+color.string());
 		if (weight != null)			css.push("font-weight: "	+weight);
 		if (style != null)			css.push("font-style: "		+style);
-		if (letterSpacing != null)	css.push("letter-spacing: "	+letterSpacing);
+		if (letterSpacing.isSet())	css.push("letter-spacing: "	+letterSpacing);
 		if (align != null)			css.push("text-align: "		+align);
 		if (decoration != null)		css.push("text-decoration: "+decoration);
 		if (indent.isSet())			css.push("text-indent: "	+indent);

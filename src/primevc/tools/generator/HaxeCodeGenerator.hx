@@ -29,6 +29,7 @@
 package primevc.tools.generator;
  import primevc.types.RGBA;
  import primevc.utils.Color;
+ import primevc.utils.NumberUtil;
   using Std;
   using Type;
 
@@ -96,7 +97,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 	
 	
 	public function construct (obj:ICodeFormattable, ?args:Array<Dynamic>) : Void {
-		addLine( "var " + createVarName(obj, false) + " = new " + getClassName(obj) + "( " + formatArguments( args ) + " );" );
+		addLine( "var " + createVarName(obj, false) + " = new " + getClassName(obj) + "( " + formatArguments( args, true ) + " );" );
 	}
 	
 	
@@ -120,24 +121,25 @@ class HaxeCodeGenerator implements ICodeGenerator
 	}
 	
 	
-	private function formatArguments (args:Array<Dynamic>) : String
+	private function formatArguments (args:Array<Dynamic>, isConstructor:Bool = false) : String
 	{
 		if (args == null)
 			return "";
 		
 		var newArgs = [];
 		for (arg in args)
-			newArgs.push( formatValue(arg) );
+			newArgs.push( formatValue(arg, isConstructor) );
 		
 		return newArgs.join(", ");
 	}
 	
 	
-	private function formatValue (v:Dynamic) : String
+	private function formatValue (v:Dynamic, isConstructor:Bool = false) : String
 	{
-		if		(v == null)						return "null";
-		else if (isColor(v))					return Color.string(v);
+		if		(isColor(v))					return Color.string(v);
 		else if (Std.is( v, ICodeFormattable ))	return getVar(v);
+		else if (isUndefinedNumber(v))			return (Std.is( v, Int ) || isConstructor) ? "primevc.types.Number.INT_NOT_SET" : "primevc.types.Number.FLOAT_NOT_SET";
+		else if (v == null)						return "null";
 		else if (Std.is( v, String ))			return '"' + v + '"';
 		else if (Std.is( v, Int ))				return Std.string(v);
 		else if (Std.is( v, Float ))			return Std.string(v);
@@ -153,6 +155,19 @@ class HaxeCodeGenerator implements ICodeGenerator
 	private inline function getEnumName (obj:Dynamic)			: String	{ return Type.getEnum( obj ).getEnumName() + "." + obj; }
 	private inline function addLine( line:String)				: Void		{ output.add( "\n" + linePrefix + line ); }
 	private inline function getVar (obj:ICodeFormattable)		: String	{ return varMap.exists( obj.uuid ) ? varMap.get( obj.uuid ) : createVarName( obj ); }
+	
+	
+	private inline function isUndefinedNumber (v:Dynamic) : Bool
+	{
+		var isUndef = false;
+		if (Std.is(v, Int) || Std.is(v, Float))
+		{
+			if		(v == null)			isUndef = true;
+			else if (Std.is(v, Int))	isUndef = IntUtil.notSet( cast v );
+			else if (Std.is(v, Float))	isUndef = FloatUtil.notSet( cast v );
+		}
+		return isUndef;
+	}
 	
 	
 	private function createVarName (obj:ICodeFormattable, constructObj:Bool = true) : String

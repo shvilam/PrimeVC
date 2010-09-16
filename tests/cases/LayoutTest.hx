@@ -95,6 +95,7 @@ class LayoutTestWindow extends UIWindow
 	{
 		var app = new LayoutApp();
 		children.add( app );
+		new Style();
 	}
 }
 

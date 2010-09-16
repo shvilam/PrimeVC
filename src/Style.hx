@@ -26,19 +26,19 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.tools.generator;
+package ;
+ import primevc.gui.styling.StyleContainer;
+
 
 
 /**
- * @author Ruben Weijers
- * @creation-date Sep 13, 2010
+ * Empty class to simulate a skin-style-sheet
  */
-interface ICodeGenerator
+class Style extends StyleContainer
 {
-	public function construct (obj:ICodeFormattable, ?args:Array<Dynamic>)					: Void;
-	public function setAction (obj:ICodeFormattable, name:String, ?args:Array<Dynamic>)		: Void;
-	public function setProp (obj:ICodeFormattable, name:String, value:Dynamic)				: Void;
-	
-	private function formatArguments (args:Array<Dynamic>, isConstructor:Bool = false)		: String;
-	private function formatValue (value:Dynamic, isConstructor:Bool = false)				: String;
+	public function new ()
+	{
+		super();
+		trace("empty style");
+	}
 }

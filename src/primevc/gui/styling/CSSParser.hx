@@ -693,13 +693,21 @@ class CSSParser
 	
 	private inline function parseUnitInt (v:String) : Int
 	{
-		return (floatUnitValExpr.match(v)) ? floatUnitValExpr.matched(3).parseInt() : Number.INT_NOT_SET;
+		var n = Number.INT_NOT_SET;
+		if (floatUnitValExpr.match(v))
+			n = floatUnitValExpr.matched(3) != null ? floatUnitValExpr.matched(3).parseInt() : 0;
+		
+		return n;
 	}
 	
 	
 	private inline function parseUnitFloat(v:String) : Float
 	{
-		return (floatUnitValExpr.match(v)) ? floatUnitValExpr.matched(3).parseFloat() : Number.FLOAT_NOT_SET;
+		var n = Number.FLOAT_NOT_SET;
+		if (floatUnitValExpr.match(v))
+			n = floatUnitValExpr.matched(3) != null ? floatUnitValExpr.matched(3).parseFloat() : 0;
+
+		return n;
 	}
 	
 	
