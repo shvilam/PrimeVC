@@ -1,7 +1,7 @@
 package cases;
 #if debug
- import flash.text.TextField;
  import flash.text.TextFormat;
+ import primevc.gui.display.TextField;
 // import com.elad.optimize.memory.FrameStats;
 #end
  import primevc.core.geom.constraints.SizeConstraint;
@@ -81,7 +81,7 @@ package cases;
   using primevc.utils.TypeUtil;
 
 /**
- * @creation-date	Jul 13, 2010
+ * @creation-date	Sep 16, 2010
  * @author			Ruben Weijers
  */
 class GlobalTest
@@ -93,8 +93,9 @@ class GlobalTestWindow extends UIWindow
 {
 	override private function createChildren ()
 	{
-		var app = new LayoutApp();
+		var app = new GlobalApp();
 		children.add( app );
+		new Style();
 	}
 }
 
@@ -104,11 +105,11 @@ class GlobalTestWindow extends UIWindow
  * @creation-date	Jun 15, 2010
  * @author			Ruben Weijers
  */
-class LayoutApp extends UIContainer <Dynamic>
+class GlobalApp extends UIContainer <Dynamic>
 {
 	public function new ()
 	{
-		super("LayoutApp");
+		super("GlobalApp");
 	}
 	
 	
@@ -138,7 +139,7 @@ class LayoutApp extends UIContainer <Dynamic>
 		var frame1							= new TileList( "frame1", true );
 		frame1.layoutContainer.algorithm	= new HorizontalFloatAlgorithm( Horizontal.left );
 		frame1.layout.height				= 60;
-		frame1.layout.relative				= new RelativeLayout( 5, 5, -100000, 5 );
+		frame1.layout.relative				= new RelativeLayout( 5, 5, Number.INT_NOT_SET, 5 );
 		
 		var frame2							= new TileList( "frame2", true, true, 150 );
 		var frame2Alg						= new FixedTileAlgorithm();
@@ -147,7 +148,7 @@ class LayoutApp extends UIContainer <Dynamic>
 	//	frame2Alg.horizontalDirection		= Horizontal.right;
 	//	frame2Alg.verticalDirection			= Vertical.bottom;
 		frame2.layoutContainer.algorithm	= frame2Alg;
-		frame2.layout.relative				= new RelativeLayout( frame1.layout.bounds.bottom + 5, -100000, 5, 5 );
+		frame2.layout.relative				= new RelativeLayout( frame1.layout.bounds.bottom + 5, Number.INT_NOT_SET, 5, 5 );
 		frame2.layout.percentWidth			= 58;
 		
 		var frame3							= new TileList( "frame3", true );
@@ -188,7 +189,7 @@ class LayoutApp extends UIContainer <Dynamic>
 		var box1				= new VirtualLayoutContainer();
 		var box1Alg				= new VerticalFloatAlgorithm();
 		box1Alg.direction		= Vertical.bottom;
-		box1.relative			= new RelativeLayout( frame1.layout.bounds.bottom + 5 /*TOP*/, 5/*RIGHT*/, 5/*BOTTOM*/, -100000/*BOTTOM*/ );
+		box1.relative			= new RelativeLayout( frame1.layout.bounds.bottom + 5 /*TOP*/, 5/*RIGHT*/, 5/*BOTTOM*/, Number.INT_NOT_SET/*BOTTOM*/ );
 		box1.percentWidth		= 40;
 		box1.algorithm			= box1Alg;
 		
@@ -300,96 +301,12 @@ class Button extends UIDataComponent < String >
 		textField.autoSize = flash.text.TextFieldAutoSize.LEFT;
 		textField.setTextFormat( new TextFormat("Verdana", 15, 0x00 ) );
 		textField.mouseEnabled = false;
-		addChild( textField );
+		children.add( textField );
 	}
 #end
 }
 
-/*
-class TileFadeMoveEffect extends SequenceEffect
-{
-	private var fadeIn		: FadeEffect;
-	private var fadeOut		: FadeEffect;
-	private var setAction	: SetAction;
-	
-	override public function init ()
-	{
-		add( fadeOut	= new FadeEffect(null, 200, 0, null, 1, 0) );
-		add( setAction	= new SetAction() );
-		add( fadeIn		= new FadeEffect(null, 200, 0, null, 0, 1) );
-	}
-	
-	override public function setValues (v:EffectProperties)
-	{
-		setAction.setValues(v);
-	}
-}
 
-class TileMoveScaleEffect extends ParallelEffect
-{
-	private var move		: MoveEffect;
-	private var scaleCol	: SequenceEffect;
-	private var scaleIn		: ScaleEffect;
-	private var scaleOut	: ScaleEffect;
-	
-	
-	override public function init ()
-	{
-		add( move				= new MoveEffect(null, 600) );
-		add( scaleCol			= new SequenceEffect() );
-		scaleCol.add( scaleIn	= new ScaleEffect(null, 300) );
-		scaleCol.add( scaleOut	= new ScaleEffect(null, 300) );
-		
-		scaleIn.endX	= scaleIn.endY	= 2;
-		scaleOut.endX	= scaleOut.endY	= 1;
-	}
-	
-	override public function setValues (v:EffectProperties)
-	{
-		move.setValues(v);
-	}
-}
-
-
-
-typedef Eff = feffects.easing.Elastic;
-
-
-class TileRotateFadeScaleMoveEffect extends SequenceEffect
-{
-	private var move		: MoveEffect;
-	private var rotate1		: RotateEffect;
-	private var rotate2		: RotateEffect;
-	private var fadeIn		: FadeEffect;
-	private var fadeOut		: FadeEffect;
-	private var scaleIn		: ScaleEffect;
-	private var scaleOut	: ScaleEffect;
-	private var prlIn		: ParallelEffect;
-	private var prlOut		: ParallelEffect;
-	
-	override public function init ()
-	{
-		add( prlIn			= new ParallelEffect() );
-		add( prlOut			= new ParallelEffect() );
-		
-		prlIn.add( fadeOut	= new FadeEffect(null, 150, 0, Eff.easeInOut, .7) );
-		prlIn.add( move		= new MoveEffect(null, 800, 0, Eff.easeInOut) );
-		prlIn.add( scaleIn	= new ScaleEffect(null, 800, 0, Eff.easeInOut, 2, 2) );
-	//	prlIn.add( scaleIn	= new AnchorScaleEffect(null, 500, 0, null, Position.MiddleCenter, 2.5) );
-		prlIn.add( rotate1	= new RotateEffect(null, 800, 0, Eff.easeInOut, 360 * Math.random()) );
-		
-		prlOut.add( fadeIn	= new FadeEffect(null, 500, 0, null, 1) );
-		prlOut.add( scaleOut= new ScaleEffect(null, 500, 0, Eff.easeInOut, 1, 1) );
-	//	prlOut.add( scaleOut= new AnchorScaleEffect(null, 500, 0, null, Position.MiddleCenter, 1) );
-		prlOut.add( rotate2	= new RotateEffect(null, 500, 0, Eff.easeInOut, 0) );
-	}
-	
-	override public function setValues (v:EffectProperties)
-	{
-		move.setValues(v);
-	}
-}
-*/
 
 class Tile extends Button, implements IDraggable
 {	
@@ -455,95 +372,6 @@ class DragButton extends Button, implements IDraggable
 
 
 
-/*
-class DragThumb extends UIComponent
-{ 
-	public var direction	: Direction;
-	
-	
-	public function new (direction:Direction)
-	{
-		this.direction = direction;
-		super();
-	}
-	
-	
-	override private function createLayout ()
-	{
-		layout = new LayoutClient();
-		if (direction == Direction.horizontal)
-			layout.relative = new RelativeLayout( 2, -100000, 2 );
-		else
-			layout.relative = new RelativeLayout( -100000, 2, -100000, 2 );
-	}
-	
-	
-	override public function render ()
-	{
-		var g = graphics;
-		var l = layout.bounds;
-		g.beginFill( 0x00aadd );
-		g.drawRoundRect( l.left, l.top, l.width, l.height, 5 );
-		g.endFill();
-	}
-}
-
-
-
-class DragTrack extends UIComponent
-{
-	override private function createLayout ()
-	{
-		layout = new LayoutClient();
-		layout.relative = new RelativeLayout( 3, 3, 3, 3 );
-	}
-}
-
-
-
-class ScrollBar extends UIComponent
-{
-	private var dragThumb	: DragThumb;
-	private var track		: DragTrack;
-	public var direction	: Direction;
-	
-	
-	public function new (direction:Direction)
-	{
-		this.direction = direction;
-		super();
-	}
-	
-	
-	override private function createLayout ()
-	{
-		layout = new LayoutContainer();
-		
-		var size:Int = 50;
-		if (direction == Direction.horizontal) {
-	//		layout.relative = new RelativeLayout( target.layout.height )
-		}
-	}
-	
-	
-	override private function createChildren ()
-	{
-		track		= new DragTrack();
-		dragThumb	= new DragThumb( direction );
-		
-		dragThumb.behaviours.add( new DragMoveBehaviour(dragThumb, track.layout.bounds) );
-		
-		layoutGroup.children.add( track.layout );
-		layoutGroup.children.add( dragThumb.layout );
-		
-		children.add( track );
-		children.add( dragThumb );
-	}
-}
-*/
-
-
-
 class Frame extends UIContainer < String >
 {
 #if debug
@@ -579,13 +407,6 @@ class Frame extends UIContainer < String >
 	}
 }
 
-/*
-
-class UIList <ListType:IList, RenderType:IUIElement> extends UIContainer < ListType >
-{ 
-	
-}
-*/
 
 class TileList extends Frame, implements IDropTarget
 {
@@ -643,26 +464,6 @@ class TileList extends Frame, implements IDropTarget
 		}
 	}
 	
-	/*
-	override public function render () {
-		super.render();
-		
-		if (draggedOver) {
-			var l = layout;
-			var g = graphics;
-			g.beginFill(color, .3);
-			g.drawRect( 
-				l.padding.left, 
-				l.padding.top,
-				l.width, // - l.padding.left - l.padding.right, 
-				l.height //- l.padding.top - l.padding.bottom
-			);
-			
-			g.endFill();
-			
-		}
-	}
-	*/
 
 	private function addTile ()
 	{
@@ -686,86 +487,3 @@ class TileList extends Frame, implements IDropTarget
 	private function dragOverHandler ()	{ fill.color = color.setAlpha(.3.uint()); }
 	private function dragOutHandler ()	{ fill.color = 0xffffffff; }
 }
-
-
-
-
-/*
-class ResizeFromCornerBehaviour extends BehaviourBase <ISkin>
-{
-	private var dragBtn			: DragButton;
-	private var startSize		: IntPoint;
-	private var lastMousePos	: Point;
-	
-	
-	override private function init () {
-		var l		= new RelativeLayout();
-		l.bottom	= 3;
-		l.right		= 3;
-		
-		dragBtn = new DragButton();
-		dragBtn.layout.includeInLayout = false;
-		dragBtn.layout.relative = l;
-		
-		startResize.on( dragBtn.dragEvents.start, this );
-		target.children.add(dragBtn);
-		target.layout.as(LayoutContainer).children.add( dragBtn.layout );
-	}
-	
-	
-	override private function reset ()
-	{
-		dragBtn.dragEvents.start.unbind(this);
-		dragBtn.dragEvents.complete.unbind(this);
-		dragBtn.dragEvents.exit.unbind(this);
-		dragBtn.window.mouse.events.move.unbind(this);
-		
-		dragBtn.dispose();
-		dragBtn			= null;
-		startSize		= null;
-		lastMousePos	= null;
-	}
-	
-	
-	private function startResize ()
-	{
-		lastMousePos = new Point( target.window.mouse.x, target.window.mouse.y );
-		
-		dragBtn.dragEvents.start.unbind(this);
-		stopResize	.on( dragBtn.dragEvents.complete, this );
-		cancelResize.on( dragBtn.dragEvents.exit, this );
-		doResize	.on( dragBtn.window.mouse.events.move, this );
-	}
-	
-	
-	private function stopResize ()
-	{
-		lastMousePos = null;
-		dragBtn.dragEvents.complete.unbind(this);
-		dragBtn.dragEvents.exit.unbind(this);
-		dragBtn.window.mouse.events.move.unbind(this);
-		startResize.on( dragBtn.dragEvents.start, this );
-	}
-	
-	
-	private function cancelResize ()
-	{
-		lastMousePos			= null;
-		target.layout.width		= startSize.x;
-		target.layout.height	= startSize.y;
-		
-		dragBtn.dragEvents.complete.unbind(this);
-		dragBtn.dragEvents.exit.unbind(this);
-		dragBtn.window.mouse.events.move.unbind(this);
-		startResize.on( dragBtn.dragEvents.start, this );
-	}
-	
-	
-	private function doResize (mouseState:MouseState)
-	{
-		var delta = mouseState.stage.subtract( lastMousePos );
-		target.layout.width += Std.int( delta.x );
-		target.layout.height += Std.int( delta.y );
-		lastMousePos = mouseState.stage;
-	}
-}*/
