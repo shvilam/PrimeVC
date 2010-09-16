@@ -1,7 +1,8 @@
 package cases;
 #if debug
- import flash.text.TextField;
+// import flash.text.TextField;
  import flash.text.TextFormat;
+ import primevc.gui.display.TextField;
 // import com.elad.optimize.memory.FrameStats;
 #end
  import primevc.core.geom.constraints.SizeConstraint;
@@ -138,7 +139,7 @@ class LayoutApp extends UIContainer <Dynamic>
 		var frame1							= new TileList( "frame1", true );
 		frame1.layoutContainer.algorithm	= new HorizontalFloatAlgorithm( Horizontal.left );
 		frame1.layout.height				= 60;
-		frame1.layout.relative				= new RelativeLayout( 5, 5, -100000, 5 );
+		frame1.layout.relative				= new RelativeLayout( 5, 5, Number.INT_NOT_SET, 5 );
 		
 		var frame2							= new TileList( "frame2", true, true, 150 );
 		var frame2Alg						= new FixedTileAlgorithm();
@@ -147,7 +148,7 @@ class LayoutApp extends UIContainer <Dynamic>
 	//	frame2Alg.horizontalDirection		= Horizontal.right;
 	//	frame2Alg.verticalDirection			= Vertical.bottom;
 		frame2.layoutContainer.algorithm	= frame2Alg;
-		frame2.layout.relative				= new RelativeLayout( frame1.layout.bounds.bottom + 5, -100000, 5, 5 );
+		frame2.layout.relative				= new RelativeLayout( frame1.layout.bounds.bottom + 5, Number.INT_NOT_SET, 5, 5 );
 		frame2.layout.percentWidth			= 58;
 		
 		var frame3							= new TileList( "frame3", true );
@@ -188,7 +189,7 @@ class LayoutApp extends UIContainer <Dynamic>
 		var box1				= new VirtualLayoutContainer();
 		var box1Alg				= new VerticalFloatAlgorithm();
 		box1Alg.direction		= Vertical.bottom;
-		box1.relative			= new RelativeLayout( frame1.layout.bounds.bottom + 5 /*TOP*/, 5/*RIGHT*/, 5/*BOTTOM*/, -100000/*BOTTOM*/ );
+		box1.relative			= new RelativeLayout( frame1.layout.bounds.bottom + 5 /*TOP*/, 5/*RIGHT*/, 5/*BOTTOM*/, Number.INT_NOT_SET/*BOTTOM*/ );
 		box1.percentWidth		= 40;
 		box1.algorithm			= box1Alg;
 		
@@ -300,7 +301,7 @@ class Button extends UIDataComponent < String >
 		textField.autoSize = flash.text.TextFieldAutoSize.LEFT;
 		textField.setTextFormat( new TextFormat("Verdana", 15, 0x00 ) );
 		textField.mouseEnabled = false;
-		addChild( textField );
+		children.add( textField );
 	}
 #end
 }
@@ -472,9 +473,9 @@ class DragThumb extends UIComponent
 	{
 		layout = new LayoutClient();
 		if (direction == Direction.horizontal)
-			layout.relative = new RelativeLayout( 2, -100000, 2 );
+			layout.relative = new RelativeLayout( 2, Number.INT_NOT_SET, 2 );
 		else
-			layout.relative = new RelativeLayout( -100000, 2, -100000, 2 );
+			layout.relative = new RelativeLayout( Number.INT_NOT_SET, 2, Number.INT_NOT_SET, 2 );
 	}
 	
 	

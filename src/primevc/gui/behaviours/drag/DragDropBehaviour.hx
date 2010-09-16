@@ -143,11 +143,14 @@ class DragDropBehaviour extends DragBehaviourBase
 	
 	private function checkDropTarget () : Void
 	{
-		var curDropTarget = target.dropTarget.as(IDropTarget);
-		if (curDropTarget == null && (dragSource.dropTarget == null || !dragSource.target.isObjectOn( dragSource.dropTarget ))) {
-			dragSource.dropTarget = null;
+		if (target.dropTarget == null || !target.dropTarget.is(IDropTarget)) {
+			if (dragSource.dropTarget == null || !dragSource.target.isObjectOn( dragSource.dropTarget ))
+				dragSource.dropTarget = null;
 			return;
 		}
+		
+		var curDropTarget = target.dropTarget.as(IDropTarget);
+		
 		//make sure the new droptarget isn't the same as the previous droptarget
 		if (curDropTarget == dragSource.dropTarget || curDropTarget == null)
 			return;
