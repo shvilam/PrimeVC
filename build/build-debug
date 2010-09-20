@@ -6,13 +6,14 @@ PRJROOT="${BUILDSCRIPTDIR}/.."
 MINPARAMS=1
 Style="flair"
 MainClass="primevc.Main"
+OUTPUT="bin-debug/app.swf"
 
 #parse arguments
 while getopts "a:bs:td" OptionName
 	do
 		case $OptionName in
 			a ) MainClass=${OPTARG};;	#main class
-			s ) Style=${OPTARG};;	#style name
+			s ) Style=${OPTARG};;		#style name
 			d ) Debug=true;;
 	esac
 done
@@ -33,10 +34,10 @@ else
 	echo "2. BUILDING STYLES" &&
 	bash ${PRJROOT}/build/build-styles -s ${Style} ${Debug:+-d} ${Debug:+-f} &&
 	echo "3. COMPILING SWF" &&
-	haxe ${PRJROOT}/build/build.hxml -main $MainClass ${Debug:+-debug} -cp ${Style} &&
+	haxe ${PRJROOT}/build/build.hxml -swf $OUTPUT -main $MainClass ${Debug:+-debug} -cp ${Style} -cp tests &&
 	echo "4. OPTIMIZING BUILD" &&
-	bash ${PRJROOT}/build/optimize-build &&
+	bash ${PRJROOT}/build/optimize-build $OUTPUT &&
 
-	mv ${PRJROOT}/tmp.swf ${PRJROOT}/bin-debug/app.swf &&
-	open ${PRJROOT}/bin-debug/app.swf
+	#mv ${PRJROOT}/tmp.swf ${PRJROOT}/bin-debug/app.swf &&
+	open $OUTPUT
 fi;

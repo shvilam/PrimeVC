@@ -2,8 +2,7 @@
 -swf-lib ../assets/debug-assets.swf
 -swf-version 10
 -swf9 test.swf
--cp ../libs
--cp ../libs/flash9
+-cp ../libs/haxe
 -cp ../libs/hiresStats
 -cp ../libs/macmousewheel
 -cp ../libs/monsterdebugger

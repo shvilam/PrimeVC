@@ -1,6 +1,6 @@
 #-lib feffects
 #-cp ../libs
--cp libs/neko
+-cp libs/haxe/neko
 -cp src
 #-cp ../generated-src
 #-cp ../skins/flair
