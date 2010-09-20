@@ -227,8 +227,9 @@ class GradientFill extends GraphicElement, implements IFill
 		invalidate( GraphicFlags.FILL );
 	}
 	
-#if debug
-	public function toString ()
+	
+#if (debug || neko)
+	override public function toCSS (prefix:String = "")
 	{
 		var colorStr = gradientStops.join(", ");
 		if (type == GradientType.linear)

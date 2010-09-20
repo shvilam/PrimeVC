@@ -45,7 +45,20 @@ class EffectStyleDeclarations extends StyleDeclarationBase < EffectStyleDeclarat
 	{
 		super();
 	}
-
+	
+	
+#if (neko || debug)
+	override public function toCSS (prefix:String = "")
+	{
+		return super.toCSS(prefix);
+	}
+	
+	
+	public function isEmpty ()
+	{
+		return false;
+	}
+#end
 
 #if neko
 	override public function toCode (code:ICodeGenerator)

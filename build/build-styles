@@ -25,14 +25,14 @@ done
 StyleFile=${Style}/Style.css
 
 #echo "MainFile: ${MainFile}"
-#echo "Main: ${MainClass}"
-#echo "Style: ${StyleFile}"
-#echo "Debugging? ${Debug:-false}"
+echo "Main: ${MainClass}"
+echo "Style: ${StyleFile}"
+echo "Debugging? ${Debug:-false}"
 
 #create parser if the source files have changed
 if ${Force} || [[ ! -f ${Parser} ]]  ||  test ${MainFile} -nt ${Parser}  ; then  # ||  test ${StyleFile} -nt ${Parser} ; then
 	echo "Compiling parser"
-	haxe ${PRJROOT}/build/build-cssparser.hxml -main ${MainClass} -neko ${Parser} --no-inline ${Debug}
+	haxe ${PRJROOT}/build/build-cssparser.hxml -main ${MainClass} -neko ${Parser} --no-inline ${Debug} ${Debug:---no-traces}
 fi;
 
 #compile css

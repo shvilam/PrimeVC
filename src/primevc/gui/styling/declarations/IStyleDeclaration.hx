@@ -28,13 +28,20 @@
  */
 package primevc.gui.styling.declarations;
  import primevc.core.traits.IInvalidatable;
+ import primevc.tools.generator.ICSSFormattable;
+#if neko
+ import primevc.tools.generator.ICodeFormattable;
+#end
 
 
 /**
  * @author Ruben Weijers
  * @creation-date Aug 05, 2010
  */
-interface IStyleDeclaration <DeclarationType> implements IInvalidatable
+interface IStyleDeclaration <DeclarationType>
+				implements IInvalidatable	
+			,	implements ICSSFormattable
+#if neko	,	implements ICodeFormattable		#end
 {
 	
 	/**

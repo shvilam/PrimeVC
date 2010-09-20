@@ -47,32 +47,54 @@ class Style extends StyleContainer
 		composedFill2.add(bitmapFill3);
 		var solidFill5 = new primevc.gui.graphics.fills.SolidFill( 0xFFAFFAFF );
 		composedFill2.add(solidFill5);
-		var uIElementStyle0 = new primevc.gui.styling.declarations.UIElementStyle( null, fontStyleDeclarations1, null, composedFill2, null, null, null, null );
-		this.typeSelectors.set("Label", uIElementStyle0);
-		var relativeLayout8 = new primevc.gui.layout.RelativeLayout( primevc.types.Number.INT_NOT_SET, 400, primevc.types.Number.INT_NOT_SET, 0 );
-		relativeLayout8.vCenter = 0;
-		var horizontalCircleAlgorithm10 = new primevc.gui.layout.algorithms.circle.HorizontalCircleAlgorithm( primevc.core.geom.space.Horizontal.left, null );
-		var verticalCircleAlgorithm11 = new primevc.gui.layout.algorithms.circle.VerticalCircleAlgorithm( primevc.core.geom.space.Vertical.top, null );
-		var dynamicLayoutAlgorithm9 = new primevc.gui.layout.algorithms.DynamicLayoutAlgorithm( horizontalCircleAlgorithm10, verticalCircleAlgorithm11 );
-		var layoutStyleDeclarations7 = new primevc.gui.styling.declarations.LayoutStyleDeclarations( relativeLayout8, null, dynamicLayoutAlgorithm9, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, null, null );
-		var composedFill12 = new primevc.gui.graphics.fills.ComposedFill(  );
-		var gradientFill13 = new primevc.gui.graphics.fills.GradientFill( primevc.gui.graphics.fills.GradientType.linear, primevc.gui.graphics.fills.SpreadMethod.normal, 0, 90 );
-		var gradientStop14 = new primevc.gui.graphics.fills.GradientStop( 0xAAAAAAFF, 0 );
-		gradientFill13.add(gradientStop14);
-		var gradientStop15 = new primevc.gui.graphics.fills.GradientStop( 0xDDDDDDFF, 85 );
-		gradientFill13.add(gradientStop15);
-		var gradientStop16 = new primevc.gui.graphics.fills.GradientStop( 0xEEEEEEFF, 170 );
-		gradientFill13.add(gradientStop16);
-		var gradientStop17 = new primevc.gui.graphics.fills.GradientStop( 0xFFFFFFFF, 255 );
-		gradientFill13.add(gradientStop17);
-		composedFill12.add(gradientFill13);
-		var solidFill18 = new primevc.gui.graphics.fills.SolidFill( 0xFFAD9700 );
-		composedFill12.add(solidFill18);
-		var uIElementStyle6 = new primevc.gui.styling.declarations.UIElementStyle( layoutStyleDeclarations7, null, null, composedFill12, null, null, null, null );
-		this.typeSelectors.set("TextArea", uIElementStyle6);
-		var fontStyleDeclarations20 = new primevc.gui.styling.declarations.FontStyleDeclarations( primevc.types.Number.INT_NOT_SET, null, 0x320CC819, null, null, primevc.types.Number.INT_NOT_SET, primevc.gui.text.TextAlign.center, null, primevc.types.Number.INT_NOT_SET, null );
-		var uIElementStyle19 = new primevc.gui.styling.declarations.UIElementStyle( null, fontStyleDeclarations20, null, null, null, null, null, null );
-		this.typeSelectors.set("UIComponent", uIElementStyle19);
+		var uIContainerStyle0 = new primevc.gui.styling.declarations.UIContainerStyle( null, fontStyleDeclarations1, null, composedFill2, null, null, null, null );
+		var styleContainer6 = new primevc.gui.styling.StyleContainer(  );
+		uIContainerStyle0.children = styleContainer6;
+		this.typeSelectors.set("Label", uIContainerStyle0);
+		var relativeLayout9 = new primevc.gui.layout.RelativeLayout( primevc.types.Number.INT_NOT_SET, 400, primevc.types.Number.INT_NOT_SET, 0 );
+		relativeLayout9.vCenter = 0;
+		var horizontalCircleAlgorithm11 = new primevc.gui.layout.algorithms.circle.HorizontalCircleAlgorithm( primevc.core.geom.space.Horizontal.left, null );
+		var verticalCircleAlgorithm12 = new primevc.gui.layout.algorithms.circle.VerticalCircleAlgorithm( primevc.core.geom.space.Vertical.top, null );
+		var dynamicLayoutAlgorithm10 = new primevc.gui.layout.algorithms.DynamicLayoutAlgorithm( horizontalCircleAlgorithm11, verticalCircleAlgorithm12 );
+		var layoutStyleDeclarations8 = new primevc.gui.styling.declarations.LayoutStyleDeclarations( relativeLayout9, null, dynamicLayoutAlgorithm10, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, null, null );
+		layoutStyleDeclarations8.minWidth = 50;
+		layoutStyleDeclarations8.minHeight = 10;
+		layoutStyleDeclarations8.maxHeight = 20;
+		var composedFill13 = new primevc.gui.graphics.fills.ComposedFill(  );
+		var gradientFill14 = new primevc.gui.graphics.fills.GradientFill( primevc.gui.graphics.fills.GradientType.linear, primevc.gui.graphics.fills.SpreadMethod.normal, 0, 90 );
+		var gradientStop15 = new primevc.gui.graphics.fills.GradientStop( 0xAAAAAAFF, 0 );
+		gradientFill14.add(gradientStop15);
+		var gradientStop16 = new primevc.gui.graphics.fills.GradientStop( 0xDDDDDDFF, 85 );
+		gradientFill14.add(gradientStop16);
+		var gradientStop17 = new primevc.gui.graphics.fills.GradientStop( 0xEEEEEEFF, 170 );
+		gradientFill14.add(gradientStop17);
+		var gradientStop18 = new primevc.gui.graphics.fills.GradientStop( 0xFFFFFFFF, 255 );
+		gradientFill14.add(gradientStop18);
+		composedFill13.add(gradientFill14);
+		var solidFill19 = new primevc.gui.graphics.fills.SolidFill( 0xFFAD9700 );
+		composedFill13.add(solidFill19);
+		var uIContainerStyle7 = new primevc.gui.styling.declarations.UIContainerStyle( layoutStyleDeclarations8, null, null, composedFill13, null, null, null, null );
+		var styleContainer20 = new primevc.gui.styling.StyleContainer(  );
+		var uIContainerStyle21 = new primevc.gui.styling.declarations.UIContainerStyle( null, null, null, null, null, null, null, null );
+		var styleContainer22 = new primevc.gui.styling.StyleContainer(  );
+		var uIContainerStyle23 = new primevc.gui.styling.declarations.UIContainerStyle( null, null, null, null, null, null, null, null );
+		var styleContainer24 = new primevc.gui.styling.StyleContainer(  );
+		var layoutStyleDeclarations26 = new primevc.gui.styling.declarations.LayoutStyleDeclarations( null, null, null, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, 40, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, primevc.types.Number.INT_NOT_SET, null, null );
+		var uIContainerStyle25 = new primevc.gui.styling.declarations.UIContainerStyle( layoutStyleDeclarations26, null, null, null, null, null, null, null );
+		var styleContainer27 = new primevc.gui.styling.StyleContainer(  );
+		uIContainerStyle25.children = styleContainer27;
+		styleContainer24.styleNameSelectors.set("eenVeld", uIContainerStyle25);
+		uIContainerStyle23.children = styleContainer24;
+		styleContainer22.typeSelectors.set("Aap", uIContainerStyle23);
+		uIContainerStyle21.children = styleContainer22;
+		styleContainer20.typeSelectors.set("Button", uIContainerStyle21);
+		uIContainerStyle7.children = styleContainer20;
+		this.typeSelectors.set("TextArea", uIContainerStyle7);
+		var fontStyleDeclarations29 = new primevc.gui.styling.declarations.FontStyleDeclarations( primevc.types.Number.INT_NOT_SET, null, 0x320CC819, null, null, primevc.types.Number.INT_NOT_SET, primevc.gui.text.TextAlign.center, null, primevc.types.Number.INT_NOT_SET, null );
+		var uIContainerStyle28 = new primevc.gui.styling.declarations.UIContainerStyle( null, fontStyleDeclarations29, null, null, null, null, null, null );
+		var styleContainer30 = new primevc.gui.styling.StyleContainer(  );
+		uIContainerStyle28.children = styleContainer30;
+		this.typeSelectors.set("UIComponent", uIContainerStyle28);
 	}
 	
 	
@@ -96,15 +118,19 @@ class Style extends StyleContainer
 		gradientFill5.add(gradientStop10);
 		var gradientStop11 = new primevc.gui.graphics.fills.GradientStop( 0xABCDEF00, 254 );
 		gradientFill5.add(gradientStop11);
-		var uIElementStyle0 = new primevc.gui.styling.declarations.UIElementStyle( layoutStyleDeclarations1, fontStyleDeclarations4, null, gradientFill5, null, null, null, null );
-		this.styleNameSelectors.set("eenVeld", uIElementStyle0);
+		var uIContainerStyle0 = new primevc.gui.styling.declarations.UIContainerStyle( layoutStyleDeclarations1, fontStyleDeclarations4, null, gradientFill5, null, null, null, null );
+		var styleContainer12 = new primevc.gui.styling.StyleContainer(  );
+		uIContainerStyle0.children = styleContainer12;
+		this.styleNameSelectors.set("eenVeld", uIContainerStyle0);
 	}
 	
 	
 	override private function createIdSelectors () : Void
 	{
 		//idSelectors
-		var uIElementStyle0 = new primevc.gui.styling.declarations.UIElementStyle( null, null, null, null, null, null, null, null );
-		this.idSelectors.set("idable", uIElementStyle0);
+		var uIContainerStyle0 = new primevc.gui.styling.declarations.UIContainerStyle( null, null, null, null, null, null, null, null );
+		var styleContainer1 = new primevc.gui.styling.StyleContainer(  );
+		uIContainerStyle0.children = styleContainer1;
+		this.idSelectors.set("idable", uIContainerStyle0);
 	}
 }

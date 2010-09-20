@@ -32,6 +32,7 @@ package primevc.core.geom;
  import primevc.tools.generator.ICodeGenerator;
  import primevc.utils.StringUtil;
 #end
+ import primevc.tools.generator.ICSSFormattable;
  import primevc.types.Number;
   using primevc.utils.NumberUtil;
 
@@ -42,6 +43,7 @@ package primevc.core.geom;
  */
 class Box
 				implements IBox
+			,	implements ICSSFormattable
 #if neko	,	implements ICodeFormattable		#end
 {
 	public var left		(getLeft, setLeft)		: Int;
@@ -78,8 +80,17 @@ class Box
 	private inline function setBottom (v)	{ return this.bottom = v; }
 	
 	
-#if debug
-	public function toString ()
+#if (debug || neko)
+	public function isEmpty () : Bool
+	{
+		return top.notSet()
+			&& left.notSet()
+			&& bottom.notSet()
+			&& right.notSet();
+	}
+	
+	
+	public function toCSS (prefix:String = "") : String
 	{
 		var css = "";
 		if (left != right)		css = getCSSValue(left);

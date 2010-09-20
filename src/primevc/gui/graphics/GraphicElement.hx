@@ -63,4 +63,10 @@ class GraphicElement extends Invalidatable, implements IGraphicElement
 	
 	public function toCode (code:ICodeGenerator) { Assert.abstract(); }
 #end
+
+
+#if (neko || debug)
+	public function toString ()							{ return toCSS(); }
+	public function toCSS (prefix:String = "") : String	{ Assert.abstract(); return ""; }
+#end
 }

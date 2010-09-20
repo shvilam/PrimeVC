@@ -80,8 +80,8 @@ class GradientStop extends GraphicElement
 	}
 	
 	
-#if debug
-	public function toString ()
+#if (debug || neko)
+	override public function toCSS (prefix:String = "")
 	{
 		return color.string() + " " + ((position / 255) * 100).round().int() + "%";
 	}

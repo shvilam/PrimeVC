@@ -46,8 +46,8 @@ class Line extends ShapeBase, implements IGraphicShape
 	}
 	
 	
-#if debug
-	public function toString ()
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String
 	{
 		return "line";
 	}

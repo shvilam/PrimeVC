@@ -162,8 +162,8 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 	}
 
 
-#if debug
-	public function toString ()
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String
 	{
 		return group + ".RelativeAlgorithm ( " + group.bounds.width + " -> " + group.bounds.height + " ) ";
 	}

@@ -104,6 +104,11 @@ class LayoutAlgorithmBase
 	public function prepareValidate ()	{ validatePrepared = true; }
 	
 	
+#if (neko || debug)
+	public function toString ()							{ return toCSS(); }
+	public function toCSS (prefix:String = "") : String	{ Assert.abstract(); return ""; }
+#end
+	
 #if neko
 	public function toCode (code:ICodeGenerator)
 	{

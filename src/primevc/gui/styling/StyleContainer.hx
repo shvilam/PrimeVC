@@ -30,9 +30,13 @@ package primevc.gui.styling;
  import primevc.core.IDisposable;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.fills.IFill;
- import primevc.gui.styling.declarations.UIElementStyle;
+ import primevc.gui.styling.declarations.UIContainerStyle;
+ import primevc.tools.generator.ICSSFormattable;
  import primevc.types.RGBA;
  import Hash;
+#if debug
+  using StringTools;
+#end
 
 #if neko
  import primevc.tools.generator.ICodeFormattable;
@@ -46,16 +50,17 @@ package primevc.gui.styling;
  * @creation-date Aug 05, 2010
  */
 class StyleContainer 
-				implements IDisposable	
+				implements IDisposable
+			,	implements ICSSFormattable
 #if neko	,	implements ICodeFormattable		#end
 {
 #if neko
 	public var uuid					(default, null) : String;
 #end
 	
-	public var typeSelectors		(default, null) : Hash < UIElementStyle >;
-	public var styleNameSelectors	(default, null) : Hash < UIElementStyle >;
-	public var idSelectors			(default, null) : Hash < UIElementStyle >;
+	public var typeSelectors		(default, null) : Hash < UIContainerStyle >;
+	public var styleNameSelectors	(default, null) : Hash < UIContainerStyle >;
+	public var idSelectors			(default, null) : Hash < UIContainerStyle >;
 	
 	public var globalFills			(default, null) : Hash < IFill >;
 	public var globalBorders		(default, null) : Hash < IBorder<IFill> >;
@@ -96,32 +101,52 @@ class StyleContainer
 	private function createIdSelectors ()			: Void {} // Assert.abstract(); }
 	
 	
-#if debug
-	public function toString ()
+#if (debug || neko)
+	public function toString ()		{ return toCSS(); }
+	
+	
+	public function isEmpty ()
+	{
+		return !idSelectors.iterator().hasNext() && !styleNameSelectors.iterator().hasNext() && !typeSelectors.iterator().hasNext();
+	}
+	
+
+	public function toCSS (namePrefix:String = "")
 	{
 		var css = "";
 		
-		css += "\n/** ID STYLES **/";
-		css += hashToCssString( idSelectors, "#" );
+		if (idSelectors.iterator().hasNext()) {
+		//	css += "\n/** ID STYLES **/";
+			css += hashToCSSString( namePrefix, idSelectors, "#" );
+		}
 		
-		css += "\n\n/** CLASS STYLES **/";
-		css += hashToCssString( styleNameSelectors, "." );
+		if (styleNameSelectors.iterator().hasNext()) {
+		//	css += "\n\n/** CLASS STYLES **/";
+			css += hashToCSSString( namePrefix, styleNameSelectors, "." );
+		}
 		
-		css += "\n\n/** ELEMENT STYLES **/";
-		css += hashToCssString( typeSelectors, "" );
+		if (typeSelectors.iterator().hasNext()) {
+		//	css += "\n\n/** ELEMENT STYLES **/";
+			css += hashToCSSString( namePrefix, typeSelectors, "" );
+		}
 		
 		return css;
 	}
 	
 	
-	private inline function hashToCssString (hash:Hash<UIElementStyle>, keyPrefix:String = "") : String
+	private  function hashToCSSString (namePrefix:String, hash:Hash<UIContainerStyle>, keyPrefix:String = "") : String
 	{
 		var css = "";
 		var keys = hash.keys();
 		while (keys.hasNext()) {
 			var key = keys.next();
 			var val = hash.get(key);
-			css += "\n" + keyPrefix + key + " " + val;
+			var name = (namePrefix + " " + keyPrefix + key).trim();
+			
+			if (!val.isEmpty())
+				css += "\n" + name + " " + val.toCSS( name );
+			if (!val.children.isEmpty())
+				css += "\n" + val.children.toCSS( name );
 		}
 		return css;
 	}

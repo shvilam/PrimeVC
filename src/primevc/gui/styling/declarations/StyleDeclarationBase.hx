@@ -29,7 +29,6 @@
 package primevc.gui.styling.declarations;
  import primevc.core.traits.Invalidatable;
 #if neko
- import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICodeGenerator;
 #end
  import primevc.utils.StringUtil;
@@ -43,7 +42,6 @@ package primevc.gui.styling.declarations;
  */
 class StyleDeclarationBase <DeclarationType> extends Invalidatable
 					,	implements IStyleDeclaration <DeclarationType>
-#if neko			,	implements ICodeFormattable		#end
 #if (flash9 || cpp)	,	implements haxe.rtti.Generic	#end
 {
 	public var nestingInherited		(default, setNestingInherited)	: DeclarationType;
@@ -98,6 +96,18 @@ class StyleDeclarationBase <DeclarationType> extends Invalidatable
 		}
 		return v;
 	}
+	
+	
+#if (debug || neko)
+	public function toString ()	{ return toCSS(); }
+	
+	
+	public function toCSS (prefix:String = "") : String
+	{
+		Assert.abstract();
+		return "";
+	}
+#end
 	
 	
 #if neko

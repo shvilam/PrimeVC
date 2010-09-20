@@ -63,7 +63,7 @@ package primevc.gui.styling;
  import primevc.gui.styling.declarations.FilterStyleDeclarations;
  import primevc.gui.styling.declarations.FontStyleDeclarations;
  import primevc.gui.styling.declarations.LayoutStyleDeclarations;
- import primevc.gui.styling.declarations.UIElementStyle;
+ import primevc.gui.styling.declarations.UIContainerStyle;
  import primevc.gui.styling.StyleContainer;
  import primevc.gui.text.FontStyle;
  import primevc.gui.text.FontWeight;
@@ -101,6 +101,7 @@ class CSSParser
 	public static inline var R_PROPERTY_VALUE		: String = R_WHITESPACE + "a-z0-9%#.,:)(/\"'-";
 	
 	public static inline var R_BLOCK_NAME			: String = "([.#]?)([a-z]+)";
+	public static inline var R_BLOCK_NAMES			: String = "" + R_BLOCK_NAME + "(" + R_SPACE_MUST + R_BLOCK_NAME + ")*";
 	public static inline var R_BLOCK_VALUE			: String = R_PROPERTY_VALUE + ":;";
 	
 	public static inline var R_HEX_VALUE			: String = "0-9a-f";
@@ -185,10 +186,11 @@ class CSSParser
 	/**
 	 * block that is currently handled by the parser
 	 */
-	private var currentBlock			: UIElementStyle;
+	private var currentBlock			: UIContainerStyle;
 	
 	
 	public var blockExpr				(default, null) : EReg;
+	public var blockNameExpr			(default, null) : EReg;
 	public var propExpr					(default, null) : EReg;
 	
 	public var percValExpr				(default, null) : EReg;		//should match [float]%
@@ -234,8 +236,9 @@ class CSSParser
 	
 	private inline function init ()
 	{
-		blockExpr = new EReg(
-			  "(^" + R_BLOCK_NAME+")"			//match style selectors containing .name, #name or name
+		blockNameExpr	= new EReg ( R_BLOCK_NAME, "i" );
+		blockExpr		= new EReg(
+			  "(^" + R_BLOCK_NAMES+")"		//match style selectors containing .name, #name or name
 			+ "[" + R_WHITESPACE + "]*{"	//match opening of a block
 			+ "([" + R_BLOCK_VALUE + "]*)"	//match content of a block
 			+ "[" + R_WHITESPACE + "]*}"	//match closing of a block
@@ -346,13 +349,11 @@ class CSSParser
 	 */
 	public function parse (styleString:String) : Void
 	{
-	//	trace("parse");
 		try {
 			styleString = removeComments(styleString);
-		//	trace(styleString);
 			blockExpr.matchAll(styleString, handleMatchedBlock);
 			trace("css parsed:");
-			trace(styles);
+			trace(styles.toCSS());
 		}
 		catch (e:Dynamic) {
 			trace("ERROR - "+e);
@@ -385,22 +386,58 @@ class CSSParser
 	 */
 	private function handleMatchedBlock (expr:EReg) : Void
 	{
-		var name = expr.matched(3);
-		trace("handleMatchedBlock for "+name);
+	//	trace("handleMatchedBlock for "+name);
 		
-		//find the correct list to add the entry in
-		var list = 
-			if		(expr.matched(2) == "#")	styles.idSelectors;
-			else if (expr.matched(2) == ".")	styles.styleNameSelectors;
-			else								styles.typeSelectors;
+		//match parent objects
+	//	...
 		
-		//create a styleobject for this name if it doens't exist
-		if (list.exists(name))		currentBlock = list.get(name);
-		else						list.set( name, currentBlock = new UIElementStyle() );
+		//find correct block
+		getContentBlock( expr.matched(1) );
 		
-		var content = expr.matched(4).trim();
+		for (i in 0...8)
+			trace("[ " + i + " ] = " + expr.matched(i));
+		
+		var content = expr.matched(7).trim();
 		if (content != "")
 			parseBlock(content.trim());
+	}
+	
+	
+	private function getContentBlock ( names:String ):Void
+	{
+		var styleGroup : StyleContainer = styles;
+		var curList : Hash < UIContainerStyle >;
+		var depth		= 0;
+		var expr		= blockNameExpr;
+		currentBlock	= null;
+		
+		while (true)
+		{
+			if ( !expr.match(names) )
+				break;
+			
+			if ( currentBlock != null )
+				styleGroup = currentBlock.children;
+			
+			var name = expr.matched(2);
+			trace("creating content block for "+name + " from " + names);
+			
+			//find the correct list to add the entry in
+			curList = 
+				if		(expr.matched(1) == "#")	styleGroup.idSelectors;
+				else if (expr.matched(1) == ".")	styleGroup.styleNameSelectors;
+				else								styleGroup.typeSelectors;
+			
+			//create a styleobject for this name if it doens't exist
+			if (curList.exists(name))	currentBlock = curList.get(name);
+			else						curList.set( name, currentBlock = new UIContainerStyle() );
+			
+			names = expr.matchedRight().trim();
+			depth++;
+		}
+		
+	//	currentBlock = curBlock;
+		trace("final depth: "+depth);
 	}
 	
 	
@@ -409,7 +446,7 @@ class CSSParser
 	 */
 	private function parseBlock (content:String) : Void
 	{
-	//	trace("parseBlock "+content);
+		trace("parseBlock "+content);
 		propExpr.matchAll(content, handleMatchedProperty);
 	}
 	

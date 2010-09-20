@@ -28,7 +28,10 @@
  */
 package primevc.gui.graphics;
  import primevc.core.traits.IInvalidatable;
+#if neko
  import primevc.tools.generator.ICodeFormattable;
+#end
+ import primevc.tools.generator.ICSSFormattable;
 
 
 /**
@@ -37,6 +40,7 @@ package primevc.gui.graphics;
  */
 interface IGraphicElement 
 				implements IInvalidatable
+			,	implements ICSSFormattable
 #if neko	,	implements ICodeFormattable		#end
 {
 }

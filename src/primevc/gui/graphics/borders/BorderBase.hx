@@ -169,8 +169,8 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	}
 	
 	
-#if debug
-	public function toString ()
+#if (debug || neko)
+	override public function toCSS (prefix:String = "")
 	{
 		return fill + " " + weight + "px";
 	}

@@ -46,6 +46,7 @@ interface IUIElement
 			,	implements IBehaving
 			,	implements IIdentifiable
 			,	implements IDisposable
+			,	implements IStylable
 {
 	public var state	(default, null)		: UIElementStates;
 	

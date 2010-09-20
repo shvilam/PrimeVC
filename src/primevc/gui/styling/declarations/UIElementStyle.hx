@@ -270,28 +270,40 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 	}
 
 
-#if debug
-	public function toString ()
+#if (debug || neko)
+	override public function toCSS (namePrefix:String = "")
 	{
 		var css = "";
 		
 		if (skin != null)		css += "\tskin: " + skin + ";";
-		if (shape != null)		css += "\n\tshape: " + shape + ";";
-		if (background != null)	css += "\n\tbackground: " + background + ";";
-		if (border != null)		css += "\n\tborder: "+ border + ";";
-		if (layout != null)		css += layout;
-		if (font != null)		css += font;
-		if (effects != null)	css += effects;
-		if (filters != null)	css += filters;
+		if (shape != null)		css += "\n\tshape: " + shape.toCSS() + ";";
+		if (background != null)	css += "\n\tbackground: " + background.toCSS() + ";";
+		if (border != null)		css += "\n\tborder: "+ border.toCSS() + ";";
+		if (layout != null)		css += layout.toCSS();
+		if (font != null)		css += font.toCSS();
+		if (effects != null)	css += effects.toCSS();
+		if (filters != null)	css += filters.toCSS();
 		
-		return "{\n" + css + "\n}";
+		return "{" + css + "\n}";
+	}
+	
+	
+	public function isEmpty () : Bool
+	{
+		return (untyped skin) == null 
+			&& (untyped shape) == null 
+			&& (untyped border) == null 
+			&& ((untyped layout) == null || (untyped layout).isEmpty())
+			&& ((untyped font) == null || (untyped font).isEmpty())
+		 	&& ((untyped effects) == null || (untyped effects).isEmpty())
+			&& ((untyped filters) == null || (untyped filters).isEmpty());
 	}
 #end
 
 #if neko
 	override public function toCode (code:ICodeGenerator)
 	{
-		code.construct(this, [ layout, font, shape, background, border, skin, effects, filters ]);
+		code.construct(this, [ untyped layout, untyped font, untyped shape, untyped background, untyped border, untyped skin, untyped effects, untyped filters ]);
 		super.toCode(code);
 	}
 #end

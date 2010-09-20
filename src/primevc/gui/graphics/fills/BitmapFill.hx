@@ -174,8 +174,8 @@ class BitmapFill extends GraphicElement, implements IFill
 	}
 	
 	
-#if debug
-	public function toString ()
+#if (debug || neko)
+	override public function toCSS (prefix:String = "")
 	{
 		return "BitmapFill( " + bitmap + ", " + smooth + ", " + repeat + " )";
 	}

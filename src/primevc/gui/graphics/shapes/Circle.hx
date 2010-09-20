@@ -47,9 +47,9 @@ class Circle extends ShapeBase, implements IGraphicShape
 #end
 	}
 	
-	
-#if debug
-	public function toString ()
+
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String
 	{
 		return "circle";
 	}

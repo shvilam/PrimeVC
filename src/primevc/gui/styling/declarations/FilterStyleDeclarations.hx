@@ -45,6 +45,20 @@ class FilterStyleDeclarations extends StyleDeclarationBase < FilterStyleDeclarat
 	{
 		super();
 	}
+	
+	
+#if (neko || debug)
+	override public function toCSS (prefix:String = "")
+	{
+		return super.toCSS(prefix);
+	}
+	
+	
+	public function isEmpty ()
+	{
+		return false;
+	}
+#end
 
 
 #if neko

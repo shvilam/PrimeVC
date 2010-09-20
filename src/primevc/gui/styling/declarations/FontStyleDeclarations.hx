@@ -90,6 +90,7 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 		this.decoration		= decoration;
 		this.indent			= indent == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : indent;
 		this.transform		= transform;
+		trace("letterspacing: "+letterSpacing+" / "+this.letterSpacing+" - "+(letterSpacing == Number.INT_NOT_SET)+" - ");
 	}
 	
 	
@@ -319,33 +320,48 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 	
 	
 
-#if debug
-	public function toString ()
+#if (debug || neko)
+	override public function toCSS (prefix:String = "")
 	{
 		var css = [];
 		
-		if (size.isSet())			css.push("font-size: " 		+ size + "px");
-		if (family != null)			css.push("font-family: "	+family);
-		if (color != null)			css.push("color: "			+color.string());
-		if (weight != null)			css.push("font-weight: "	+weight);
-		if (style != null)			css.push("font-style: "		+style);
-		if (letterSpacing.isSet())	css.push("letter-spacing: "	+letterSpacing);
-		if (align != null)			css.push("text-align: "		+align);
-		if (decoration != null)		css.push("text-decoration: "+decoration);
-		if (indent.isSet())			css.push("text-indent: "	+indent);
-		if (transform != null)		css.push("text-transform: "	+transform);
+		if (IntUtil.isSet(untyped size))			css.push("font-size: " 		+ size + "px");
+		if ((untyped family) != null)				css.push("font-family: "	+family);
+		if ((untyped color) != null)				css.push("color: "			+color.string());
+		if ((untyped weight) != null)				css.push("font-weight: "	+weight);
+		if ((untyped style) != null)				css.push("font-style: "		+style);
+		if (FloatUtil.isSet(untyped letterSpacing))	css.push("letter-spacing: "	+letterSpacing);
+		if ((untyped align) != null)				css.push("text-align: "		+align);
+		if ((untyped decoration) != null)			css.push("text-decoration: "+decoration);
+		if (FloatUtil.isSet(untyped indent))		css.push("text-indent: "	+indent);
+		if ((untyped transform) != null)			css.push("text-transform: "	+transform);
 		
 		if (css.length > 0)
 			return "\n\t" + css.join(";\n\t") + ";";
 		else
 			return "";
 	}
+	
+	
+	public function isEmpty () : Bool
+	{
+		return	IntUtil.notSet(untyped size) &&
+				(untyped family) == null &&
+				(untyped color) == null &&
+				(untyped weight) == null &&
+				(untyped style) == null &&
+				(untyped letterSpacing) == null &&
+				(untyped align) == null &&
+				(untyped decoration) == null &&
+				(untyped indent) == null &&
+				(untyped transform) == null;
+	}
 #end
 
 #if neko
 	override public function toCode (code:ICodeGenerator)
 	{
-		code.construct( this, [ size, family, color, weight, style, letterSpacing, align, decoration, indent, transform ] );
+		code.construct( this, [ untyped size, untyped family, untyped color, untyped weight, untyped style, untyped letterSpacing, untyped align, untyped decoration, untyped indent, untyped transform ] );
 		super.toCode(code);
 	}
 #end

@@ -35,6 +35,7 @@ package primevc.gui.layout;
  import primevc.core.dispatcher.Signal0;
  import primevc.core.geom.IBox;
  import primevc.core.IDisposable;
+ import primevc.tools.generator.ICSSFormattable;
  import primevc.types.Number;
   using primevc.utils.NumberUtil;
 
@@ -63,7 +64,8 @@ package primevc.gui.layout;
  */
 class RelativeLayout 
 				implements IBox
-			,	implements IDisposable
+			,	implements IDisposable	
+			,	implements ICSSFormattable
 #if neko	,	implements ICodeFormattable		#end
 {
 	
@@ -283,9 +285,11 @@ class RelativeLayout
 	public function toString () {
 		return "RelativeLayout - t: "+top+"; r: "+right+"; b: "+bottom+"; l: "+left+"; hCenter: "+hCenter+"; vCenter: "+vCenter;
 	}
+#end
 	
-	
-	public function toCSS ()
+
+#if (neko || debug)
+	public function toCSS (prefix:String = "") : String
 	{
 		var css = [];
 		var str = "";
@@ -313,6 +317,17 @@ class RelativeLayout
 		str += css.join(" ");
 		
 		return str;
+	}
+	
+
+	public function isEmpty () : Bool
+	{
+		return	top.notSet()
+			&&	right.notSet()
+			&&	bottom.notSet()
+			&&	left.notSet()
+			&&	hCenter.notSet()
+			&&	vCenter.notSet();
 	}
 #end
 

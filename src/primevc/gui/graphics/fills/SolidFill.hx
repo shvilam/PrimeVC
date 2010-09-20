@@ -83,8 +83,8 @@ class SolidFill extends GraphicElement, implements IFill
 	}
 	
 	
-#if debug
-	public function toString ()
+#if (debug || neko)
+	override public function toCSS (prefix:String = "")
 	{
 		return color.string();
 	}

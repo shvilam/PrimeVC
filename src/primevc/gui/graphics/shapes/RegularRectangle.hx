@@ -84,10 +84,10 @@ class RegularRectangle extends ShapeBase, implements IGraphicShape
 		}
 		return v;
 	}
-
-
-#if debug
-	public function toString ()
+	
+	
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String
 	{
 		return "rectangle";
 	}

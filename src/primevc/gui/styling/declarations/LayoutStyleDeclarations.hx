@@ -35,6 +35,7 @@ package primevc.gui.styling.declarations;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.RelativeLayout;
  import primevc.types.Number;
+ import primevc.utils.NumberUtil;
   using primevc.utils.NumberUtil;
 
 
@@ -100,6 +101,11 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 		
 		maintainAspectRatio		= maintainAspect;
 		includeInLayout			= include;
+		
+		minWidth	= Number.INT_NOT_SET;
+		minHeight	= Number.INT_NOT_SET;
+		maxWidth	= Number.INT_NOT_SET;
+		maxHeight	= Number.INT_NOT_SET;
 	}
 	
 	
@@ -120,6 +126,11 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 		childWidth		= Number.INT_NOT_SET;
 		childHeight		= Number.INT_NOT_SET;
 		rotation		= Number.FLOAT_NOT_SET;
+		
+		minWidth		= Number.INT_NOT_SET;
+		minHeight		= Number.INT_NOT_SET;
+		maxWidth		= Number.INT_NOT_SET;
+		maxHeight		= Number.INT_NOT_SET;
 		
 		super.dispose();
 	}
@@ -439,13 +450,13 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	}
 	
 	
-#if debug
-	public function toString ()
+#if (debug || neko)
+	override public function toCSS (prefix:String = "") : String
 	{
 		var css = [];
 		
-		if (padding != null)				css.push("padding: " + padding);
-		if (algorithm != null)				css.push("algorithm: " + algorithm);
+		if (padding != null)				css.push("padding: " + padding.toCSS());
+		if (algorithm != null)				css.push("algorithm: " + algorithm.toCSS());
 		if (relative != null)				css.push("relative: " + relative.toCSS());
 		
 		if (width.isSet())					css.push("width: " + width + "px");
@@ -470,13 +481,50 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 		else
 			return "";
 	}
+	
+	
+	public function isEmpty () : Bool
+	{
+		return	IntUtil.notSet(untyped width) && 
+				IntUtil.notSet(untyped height) && 
+				
+				FloatUtil.notSet(untyped percentWidth) && 
+				FloatUtil.notSet(untyped percentHeight) && 
+				
+				IntUtil.notSet(untyped minWidth) && 
+				IntUtil.notSet(untyped minHeight) && 
+				IntUtil.notSet(untyped maxWidth) && 
+				IntUtil.notSet(untyped maxHeight) && 
+				
+				IntUtil.notSet(untyped childWidth) && 
+				IntUtil.notSet(untyped childHeight) && 
+				
+				((untyped padding) == null || (untyped padding).isEmpty()) &&
+				(untyped algorithm) == null &&
+				((untyped relative) == null || (untyped relative).isEmpty()) &&
+				
+				FloatUtil.notSet(untyped rotation) && 
+				(untyped includeInLayout) == null &&
+				(untyped maintainAspectRatio) == null;
+	}
 #end
 
 
 #if neko
 	override public function toCode (code:ICodeGenerator)
 	{
-		code.construct( this, [ relative, padding, algorithm, percentWidth, percentHeight, width, height, childWidth, childHeight, rotation, includeInLayout, maintainAspectRatio ] );
+		code.construct( this, [
+			untyped relative, untyped padding, untyped algorithm, 
+			untyped percentWidth, untyped percentHeight, untyped width, untyped height, 
+			untyped childWidth, untyped childHeight, 
+			untyped rotation, untyped includeInLayout, untyped maintainAspectRatio
+		] );
+		
+		if (IntUtil.isSet(untyped minWidth))		code.setProp( this, "minWidth", minWidth );
+		if (IntUtil.isSet(untyped minHeight))		code.setProp( this, "minHeight", minHeight );
+		if (IntUtil.isSet(untyped maxWidth))		code.setProp( this, "maxWidth", maxWidth );
+		if (IntUtil.isSet(untyped maxHeight))		code.setProp( this, "maxHeight", maxHeight );
+		
 		super.toCode(code);
 	}
 #end

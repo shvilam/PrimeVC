@@ -35,10 +35,15 @@ package primevc.tools.generator;
  */
 interface ICSSFormattable
 {
-#if neko	
+#if (neko || debug)
 	/**
 	 * Method to write to content of the object as css code.
 	 */
-	public function toCSS () : String;
+	public function toCSS (namePrefix:String = "") : String;
+	
+	/*
+	 * Returns true when some values within the object are set, otherwise false
+	 */
+//	public function isEmpty () : Bool;
 #end
 }

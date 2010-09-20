@@ -27,7 +27,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
-
+ import primevc.gui.styling.StyleContainer;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
 
 
 /**
@@ -40,7 +43,11 @@ package primevc.gui.styling.declarations;
  */
 class UIContainerStyle extends UIElementStyle
 {
+#if neko
 	public var children (default, null)		: StyleContainer;
+#else
+	public var children (default, default)	: StyleContainer;
+#end
 	
 	
 	override private function init ()
@@ -55,4 +62,30 @@ class UIContainerStyle extends UIElementStyle
 		children = null;
 		super.dispose();
 	}
+	
+	/*
+#if (debug || neko)
+	override public function toCSS (namePrefix:String = "")
+	{
+		var str = super.toCSS(namePrefix);
+		str += "\n " + children.toCSS(namePrefix);
+		return str;
+	}
+	
+	
+	/*override public function isEmpty ()
+	{
+		return (children == null || children.isEmpty()) && super.isEmpty();
+	}*/
+//#end
+	
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		super.toCode(code);
+		
+		if ((untyped children) != null)
+			code.setProp(this, "children", children);
+	}
+#end
 }

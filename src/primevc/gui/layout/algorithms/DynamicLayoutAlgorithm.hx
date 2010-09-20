@@ -231,9 +231,9 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 		return v;
 	}
 	
-	
-#if debug
-	public function toString ()
+
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String
 	{
 		return "dynamic ( " + horAlgorithm + ", " + verAlgorithm + " )";
 	}

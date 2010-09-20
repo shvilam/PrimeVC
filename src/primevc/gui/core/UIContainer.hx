@@ -44,8 +44,7 @@ package primevc.gui.core;
  * @creation-date Aug 02, 2010
  */
 class UIContainer <DataType> extends UIDataComponent <DataType>
-			, implements IUIContainer/*
-#if flash9	, implements IStylable		#end*/
+			, implements IUIContainer
 {
 	public var layoutContainer	(getLayoutContainer, never)		: LayoutContainer;
 	public var scrollableLayout	(getScrollableLayout, never)	: IScrollableLayout;

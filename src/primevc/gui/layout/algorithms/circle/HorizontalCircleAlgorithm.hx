@@ -172,9 +172,8 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 		return isEllipse ? Std.int( group.width * .5 ) : Std.int( Math.round( Formulas.getCircleRadius(group.width, group.height) ) );
 	}
 	
-	
-#if debug
-	public function toString ()
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String
 	{
 		return "ver-circle (" + direction + ", " + vertical + ")";
 	}

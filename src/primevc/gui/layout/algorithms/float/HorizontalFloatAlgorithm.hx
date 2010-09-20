@@ -222,10 +222,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 		}
 	}
 
-
-	/**
-	 * 
-	 */
+	
 	public inline function getDepthForBounds (bounds:IRectangle) : Int
 	{
 		return switch (direction) {
@@ -372,8 +369,8 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	}
 	
 	
-#if debug
-	public function toString ()
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String
 	{
 		return "float-hor (" + direction + ", " + vertical + ")";
 	}
