@@ -368,9 +368,16 @@ class Bitmap
 	}
 
 
-#if debug
-	public function toString () {
-		return		 if (url != null)	"url( "+url+" )";
+#if (debug || neko)
+	public function isEmpty ()
+	{
+		return false;
+	}
+	
+	
+	public function toString ()
+	{
+		return	if (url != null)	"url( "+url+" )";
 				else if (asset != null)	"Class( "+asset+" )";
 				else					"Bitmap()";
 	}

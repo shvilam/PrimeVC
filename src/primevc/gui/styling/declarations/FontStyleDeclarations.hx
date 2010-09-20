@@ -90,7 +90,6 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 		this.decoration		= decoration;
 		this.indent			= indent == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : indent;
 		this.transform		= transform;
-		trace("letterspacing: "+letterSpacing+" / "+this.letterSpacing+" - "+(letterSpacing == Number.INT_NOT_SET)+" - ");
 	}
 	
 	
@@ -343,7 +342,7 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 	}
 	
 	
-	public function isEmpty () : Bool
+	override public function isEmpty () : Bool
 	{
 		return	IntUtil.notSet(untyped size) &&
 				(untyped family) == null &&

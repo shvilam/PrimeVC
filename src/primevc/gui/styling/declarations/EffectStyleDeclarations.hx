@@ -54,7 +54,7 @@ class EffectStyleDeclarations extends StyleDeclarationBase < EffectStyleDeclarat
 	}
 	
 	
-	public function isEmpty ()
+	override public function isEmpty ()
 	{
 		return false;
 	}

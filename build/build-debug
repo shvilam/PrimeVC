@@ -14,7 +14,7 @@ while getopts "a:bs:td" OptionName
 		case $OptionName in
 			a ) MainClass=${OPTARG};;	#main class
 			s ) Style=${OPTARG};;		#style name
-			d ) Debug=true;;
+			d ) Debug="-debug";;
 	esac
 done
 
@@ -34,7 +34,8 @@ else
 	echo "2. BUILDING STYLES" &&
 	bash ${PRJROOT}/build/build-styles -s ${Style} ${Debug:+-d} ${Debug:+-f} &&
 	echo "3. COMPILING SWF" &&
-	haxe ${PRJROOT}/build/build.hxml -swf $OUTPUT -main $MainClass ${Debug:+-debug} -cp ${Style} -cp tests &&
+	echo "${PRJROOT}/build/build.hxml -swf $OUTPUT -main $MainClass ${Debug:---no-traces} -cp ${Style} -cp tests" &&
+	haxe ${PRJROOT}/build/build.hxml -swf $OUTPUT -main $MainClass ${Debug:---no-traces} -cp ${Style} -cp tests &&
 	echo "4. OPTIMIZING BUILD" &&
 	bash ${PRJROOT}/build/optimize-build $OUTPUT &&
 

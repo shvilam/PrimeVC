@@ -29,6 +29,7 @@
 package primevc.gui.traits;
  import primevc.core.traits.IIdentifiable;
 #if flash9
+ import primevc.core.Bindable;
  import primevc.gui.styling.declarations.UIContainerStyle;
 #end
 
@@ -40,13 +41,13 @@ package primevc.gui.traits;
 interface IStylable implements IIdentifiable
 {
 #if flash9
-	public var style (default, setStyle)			: UIContainerStyle;
+	public var style (default, setStyle)		: UIContainerStyle;
 	
 	/**
 	 * String containing all the css-classes that the IStyleable should use. 
 	 * It's possible to add more than one styleName by putting them in comma-
 	 * seperated. 
 	 */
-	public var styleNames (default, setStyleNames)	: String;
+	public var styleClasses (default, null)		: Bindable < String >;
 #end
 }

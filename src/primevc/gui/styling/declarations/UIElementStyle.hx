@@ -288,7 +288,7 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 	}
 	
 	
-	public function isEmpty () : Bool
+	override public function isEmpty () : Bool
 	{
 		return (untyped skin) == null 
 			&& (untyped shape) == null 

@@ -34,6 +34,7 @@ package primevc.gui.core;
  import primevc.gui.states.UIElementStates;
  import primevc.gui.traits.IBehaving;
  import primevc.gui.traits.ILayoutable;
+ import primevc.gui.traits.IStylable;
 
 
 /**

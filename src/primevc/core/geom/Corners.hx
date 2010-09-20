@@ -77,5 +77,8 @@ class Corners
 	{
 		code.construct( this, [ topLeft, topRight, bottomRight, bottomLeft ] );
 	}
+	
+	
+	public function isEmpty () { return false; }
 #end
 }

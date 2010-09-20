@@ -63,28 +63,33 @@ class UIContainerStyle extends UIElementStyle
 		super.dispose();
 	}
 	
-	/*
+	
 #if (debug || neko)
 	override public function toCSS (namePrefix:String = "")
 	{
 		var str = super.toCSS(namePrefix);
-		str += "\n " + children.toCSS(namePrefix);
+		
+		if (children == null || children.isEmpty())
+			str += "\n " + children.toCSS(namePrefix);
 		return str;
 	}
 	
 	
-	/*override public function isEmpty ()
+	override public function isEmpty ()
 	{
 		return (children == null || children.isEmpty()) && super.isEmpty();
-	}*/
-//#end
+	}
+#end
 	
 #if neko
 	override public function toCode (code:ICodeGenerator)
 	{
-		if (!isEmpty() || (children != null && !children.isEmpty()))
+		if (!isEmpty())
 		{
-			super.toCode(code);
+			if (!super.isEmpty())
+				super.toCode(code);
+			else
+				code.construct(this);
 			
 			if ((untyped children) != null)
 				code.setProp(this, "children", children);

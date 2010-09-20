@@ -158,18 +158,32 @@ class StyleContainer
 		if (!isEmpty())
 		{
 			code.construct( this );
-		
+			
+			var style:UIContainerStyle;
 			var keys = typeSelectors.keys();
+			
 			for (key in keys)
-				code.setAction(this, "typeSelectors.set", [ key, typeSelectors.get(key) ]);
+			{
+				style = typeSelectors.get(key);
+				if (!style.isEmpty())
+					code.setAction(this, "typeSelectors.set", [ key, style ]);
+			}
 		
 			keys = styleNameSelectors.keys();
 			for (key in keys)
-				code.setAction(this, "styleNameSelectors.set", [ key, styleNameSelectors.get(key) ]);
-		
+			{
+				style = styleNameSelectors.get(key);
+				if (!style.isEmpty())
+					code.setAction(this, "styleNameSelectors.set", [ key, style ]);
+			}
+			
 			keys = idSelectors.keys();
 			for (key in keys)
-				code.setAction(this, "idSelectors.set", [ key, idSelectors.get(key) ]);
+			{
+				style = idSelectors.get(key);
+				if (!style.isEmpty())
+					code.setAction(this, "idSelectors.set", [ key, style ]);
+			}
 		}
 	}
 #end

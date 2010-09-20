@@ -54,7 +54,7 @@ class FilterStyleDeclarations extends StyleDeclarationBase < FilterStyleDeclarat
 	}
 	
 	
-	public function isEmpty ()
+	override public function isEmpty ()
 	{
 		return false;
 	}

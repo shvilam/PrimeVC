@@ -42,6 +42,7 @@ class ManageStyleBehaviour extends BehaviourBase < IUIElement >
 		updateStyleClasses	.on( target.styleClasses.change, this );
 		updateIdStyle		.on( target.id.change, this );
 		updateElementStyle	.on( target.displayEvents.addedToStage, this );
+		//state changes?
 	}
 	
 	

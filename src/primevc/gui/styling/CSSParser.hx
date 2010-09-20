@@ -386,16 +386,8 @@ class CSSParser
 	 */
 	private function handleMatchedBlock (expr:EReg) : Void
 	{
-	//	trace("handleMatchedBlock for "+name);
-		
-		//match parent objects
-	//	...
-		
 		//find correct block
 		getContentBlock( expr.matched(1) );
-		
-		for (i in 0...8)
-			trace("[ " + i + " ] = " + expr.matched(i));
 		
 		var content = expr.matched(7).trim();
 		if (content != "")

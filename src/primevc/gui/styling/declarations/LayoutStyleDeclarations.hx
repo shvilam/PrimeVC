@@ -483,7 +483,7 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 	}
 	
 	
-	public function isEmpty () : Bool
+	override public function isEmpty () : Bool
 	{
 		return	IntUtil.notSet(untyped width) && 
 				IntUtil.notSet(untyped height) && 

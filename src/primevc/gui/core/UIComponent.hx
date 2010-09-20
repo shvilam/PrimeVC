@@ -30,12 +30,16 @@ package primevc.gui.core;
  import primevc.core.Bindable;
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
+ import primevc.gui.behaviours.ManageStyleBehaviour;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
  import primevc.gui.display.Sprite;
  import primevc.gui.effects.UIElementEffects;
  import primevc.gui.graphics.GraphicProperties;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.UIElementStates;
+#if flash9
+ import primevc.gui.styling.declarations.UIContainerStyle;
+#end
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
@@ -77,6 +81,11 @@ class UIComponent extends Sprite, implements IUIComponent
 	public var layout			(default, null)			: LayoutClient;
 	public var graphicData		(default, null)			: Bindable < GraphicProperties >;
 	
+#if flash9
+	public var style			(default, setStyle)	: UIContainerStyle;
+	public var styleClasses		(default, null)		: Bindable < String >;
+#end
+	
 	
 	private function new (?id:String)
 	{
@@ -87,9 +96,11 @@ class UIComponent extends Sprite, implements IUIComponent
 		
 		state			= new UIElementStates();
 		behaviours		= new BehaviourList();
+		styleClasses	= new Bindable < String > ();
 		graphicData		= new Bindable < GraphicProperties > ();
 		
 		//add default behaviours
+		behaviours.add( new ManageStyleBehaviour(this) );
 		behaviours.add( new RenderGraphicsBehaviour(this) );
 		behaviours.add( new ValidateLayoutBehaviour(this) );
 		
@@ -206,6 +217,14 @@ class UIComponent extends Sprite, implements IUIComponent
 
 		return skin;
 	}
+	
+	
+#if flash9
+	private inline function setStyle (v)
+	{
+		return style = v;
+	}
+#end
 	
 	
 	

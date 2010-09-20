@@ -99,14 +99,9 @@ class StyleDeclarationBase <DeclarationType> extends Invalidatable
 	
 	
 #if (debug || neko)
-	public function toString ()	{ return toCSS(); }
-	
-	
-	public function toCSS (prefix:String = "") : String
-	{
-		Assert.abstract();
-		return "";
-	}
+	public function toString ()					{ return toCSS(); }
+	public function isEmpty ()					{ Assert.abstract(); return false; }
+	public function toCSS (prefix:String = "") 	{ Assert.abstract(); return ""; }
 #end
 	
 	

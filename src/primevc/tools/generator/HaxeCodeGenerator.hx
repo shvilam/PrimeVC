@@ -175,6 +175,9 @@ class HaxeCodeGenerator implements ICodeGenerator
 		if (varMap.exists(obj.uuid))
 			return varMap.get(obj.uuid);
 		
+		if (obj.isEmpty())
+			return null;
+		
 		//get class name without package stuff..
 		var index:Int, name = getClassName( obj );
 		
