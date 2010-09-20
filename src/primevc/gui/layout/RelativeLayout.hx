@@ -334,11 +334,14 @@ class RelativeLayout
 #if neko
 	public function toCode (code:ICodeGenerator)
 	{
-		code.construct( this, [ top, right, bottom, left ] );
+		if (!isEmpty())
+		{
+			code.construct( this, [ top, right, bottom, left ] );
 		
-		if (hCenter.isSet())	code.setProp( this, "hCenter", hCenter );
-		if (vCenter.isSet())	code.setProp( this, "vCenter", vCenter );
-		if (!enabled)			code.setProp( this, "enabled", enabled );
+			if (hCenter.isSet())	code.setProp( this, "hCenter", hCenter );
+			if (vCenter.isSet())	code.setProp( this, "vCenter", vCenter );
+			if (!enabled)			code.setProp( this, "enabled", enabled );
+		}
 	}
 #end
 }

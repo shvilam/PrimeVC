@@ -107,7 +107,8 @@ class Box
 #if neko
 	public function toCode (code:ICodeGenerator)
 	{
-		code.construct( this, [ top, right, bottom, left ] );
+		if (!isEmpty())
+			code.construct( this, [ top, right, bottom, left ] );
 	}
 #end
 }

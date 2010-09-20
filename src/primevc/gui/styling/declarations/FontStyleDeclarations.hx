@@ -361,8 +361,11 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 #if neko
 	override public function toCode (code:ICodeGenerator)
 	{
-		code.construct( this, [ untyped size, untyped family, untyped color, untyped weight, untyped style, untyped letterSpacing, untyped align, untyped decoration, untyped indent, untyped transform ] );
-		super.toCode(code);
+		if (!isEmpty())
+		{
+			code.construct( this, [ untyped size, untyped family, untyped color, untyped weight, untyped style, untyped letterSpacing, untyped align, untyped decoration, untyped indent, untyped transform ] );
+			super.toCode(code);
+		}
 	}
 #end
 }

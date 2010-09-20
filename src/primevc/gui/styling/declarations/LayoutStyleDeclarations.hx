@@ -513,19 +513,22 @@ class LayoutStyleDeclarations extends StyleDeclarationBase <LayoutStyleDeclarati
 #if neko
 	override public function toCode (code:ICodeGenerator)
 	{
-		code.construct( this, [
-			untyped relative, untyped padding, untyped algorithm, 
-			untyped percentWidth, untyped percentHeight, untyped width, untyped height, 
-			untyped childWidth, untyped childHeight, 
-			untyped rotation, untyped includeInLayout, untyped maintainAspectRatio
-		] );
+		if (!isEmpty())
+		{
+			code.construct( this, [
+				untyped relative, untyped padding, untyped algorithm, 
+				untyped percentWidth, untyped percentHeight, untyped width, untyped height, 
+				untyped childWidth, untyped childHeight, 
+				untyped rotation, untyped includeInLayout, untyped maintainAspectRatio
+			] );
 		
-		if (IntUtil.isSet(untyped minWidth))		code.setProp( this, "minWidth", minWidth );
-		if (IntUtil.isSet(untyped minHeight))		code.setProp( this, "minHeight", minHeight );
-		if (IntUtil.isSet(untyped maxWidth))		code.setProp( this, "maxWidth", maxWidth );
-		if (IntUtil.isSet(untyped maxHeight))		code.setProp( this, "maxHeight", maxHeight );
+			if (IntUtil.isSet(untyped minWidth))		code.setProp( this, "minWidth", minWidth );
+			if (IntUtil.isSet(untyped minHeight))		code.setProp( this, "minHeight", minHeight );
+			if (IntUtil.isSet(untyped maxWidth))		code.setProp( this, "maxWidth", maxWidth );
+			if (IntUtil.isSet(untyped maxHeight))		code.setProp( this, "maxHeight", maxHeight );
 		
-		super.toCode(code);
+			super.toCode(code);
+		}
 	}
 #end
 }

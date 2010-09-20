@@ -303,8 +303,11 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 #if neko
 	override public function toCode (code:ICodeGenerator)
 	{
-		code.construct(this, [ untyped layout, untyped font, untyped shape, untyped background, untyped border, untyped skin, untyped effects, untyped filters ]);
-		super.toCode(code);
+		if (!isEmpty())
+		{
+			code.construct(this, [ untyped layout, untyped font, untyped shape, untyped background, untyped border, untyped skin, untyped effects, untyped filters ]);
+			super.toCode(code);
+		}
 	}
 #end
 }

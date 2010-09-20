@@ -82,10 +82,13 @@ class UIContainerStyle extends UIElementStyle
 #if neko
 	override public function toCode (code:ICodeGenerator)
 	{
-		super.toCode(code);
-		
-		if ((untyped children) != null)
-			code.setProp(this, "children", children);
+		if (!isEmpty() || (children != null && !children.isEmpty()))
+		{
+			super.toCode(code);
+			
+			if ((untyped children) != null)
+				code.setProp(this, "children", children);
+		}
 	}
 #end
 }

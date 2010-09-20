@@ -155,19 +155,22 @@ class StyleContainer
 #if neko
 	public function toCode (code:ICodeGenerator)
 	{
-		code.construct( this );
+		if (!isEmpty())
+		{
+			code.construct( this );
 		
-		var keys = typeSelectors.keys();
-		for (key in keys)
-			code.setAction(this, "typeSelectors.set", [ key, typeSelectors.get(key) ]);
+			var keys = typeSelectors.keys();
+			for (key in keys)
+				code.setAction(this, "typeSelectors.set", [ key, typeSelectors.get(key) ]);
 		
-		keys = styleNameSelectors.keys();
-		for (key in keys)
-			code.setAction(this, "styleNameSelectors.set", [ key, styleNameSelectors.get(key) ]);
+			keys = styleNameSelectors.keys();
+			for (key in keys)
+				code.setAction(this, "styleNameSelectors.set", [ key, styleNameSelectors.get(key) ]);
 		
-		keys = idSelectors.keys();
-		for (key in keys)
-			code.setAction(this, "idSelectors.set", [ key, idSelectors.get(key) ]);
+			keys = idSelectors.keys();
+			for (key in keys)
+				code.setAction(this, "idSelectors.set", [ key, idSelectors.get(key) ]);
+		}
 	}
 #end
 }

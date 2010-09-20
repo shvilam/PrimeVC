@@ -53,6 +53,7 @@ TextArea {
 
 TextArea Button Aap .eenVeld {
 	width: 40px;
+	padding: 0;
 }
 
 #idable {}

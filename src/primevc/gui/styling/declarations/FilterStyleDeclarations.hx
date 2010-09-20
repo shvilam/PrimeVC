@@ -64,8 +64,11 @@ class FilterStyleDeclarations extends StyleDeclarationBase < FilterStyleDeclarat
 #if neko
 	override public function toCode (code:ICodeGenerator)
 	{
-		code.construct( this );
-		super.toCode(code);
+		if (!isEmpty())
+		{
+			code.construct( this );
+			super.toCode(code);
+		}
 	}
 #end
 }
