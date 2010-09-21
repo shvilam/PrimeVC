@@ -72,6 +72,7 @@ package primevc.gui.styling;
  import primevc.gui.text.TextAlign;
  import primevc.gui.text.TextDecoration;
  import primevc.gui.text.TextTransform;
+ import primevc.tools.Manifest;
  import primevc.types.Bitmap;
  import primevc.types.Number;
  import primevc.types.RGBA;
@@ -222,6 +223,7 @@ class CSSParser
 	
 	
 	
+	private var manifest				: Manifest;
 	
 	/**
 	 * container with all the style blocks
@@ -253,9 +255,10 @@ class CSSParser
 	public var swfBasePath				: String;
 	
 	
-	public function new (styles:StyleContainer)
+	public function new (styles:StyleContainer, manifest:Manifest = null)
 	{
-		this.styles = styles;
+		this.styles		= styles;
+		this.manifest	= manifest;
 		styleSheetQueue = new FastList < StyleQueueItem >();
 		init();
 	}
@@ -400,10 +403,10 @@ class CSSParser
 	 * Method will first import other css sheets that are defined in the 
 	 * document and then remove all the comments
 	 */
-	public function parse (file:String, swfBasePath:String = ".") : Void
+	public function parse (styleSheet:String, swfBasePath:String = ".") : Void
 	{
 		this.swfBasePath = swfBasePath;
-		addStyleSheet(file);
+		addStyleSheet(styleSheet);
 		
 		while (!styleSheetQueue.isEmpty())
 			parseStyleSheet( styleSheetQueue.pop() );
@@ -528,7 +531,10 @@ class CSSParser
 				styleGroup = currentBlock.children;
 			
 			var name = expr.matched(2);
-			trace("creating content block for "+name + " from " + names);
+			
+			//find fullname of element styles
+			if (expr.matched(1) == "")
+				name = manifest.getFullName( name );
 			
 			//find the correct list to add the entry in
 			curList = 

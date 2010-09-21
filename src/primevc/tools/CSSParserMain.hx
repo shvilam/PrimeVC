@@ -60,6 +60,7 @@ class CSSParserMain
 	private var styles		: StyleContainer;
 	private var parser		: CSSParser;
 	private var generator	: HaxeCodeGenerator;
+	private var manifest	: Manifest;
 	
 	private var template	: String;
 	private var skinFolder	: String;
@@ -69,7 +70,8 @@ class CSSParserMain
 	{
 		skinFolder	= skin;
 		styles		= new StyleContainer();
-		parser		= new CSSParser( styles );
+		manifest	= new Manifest( "src/manifest.xml" );
+		parser		= new CSSParser( styles, manifest );
 		generator	= new HaxeCodeGenerator( 2 );
 		
 		var tplName = "src/primevc/gui/styling/StyleSheet.tpl.hx";

@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 <componentPackage>	
-	<component id="UIComponent"			parent=""					class="primevc.gui.core.UIComponent" />
-	<component id="UIContainer"			parent="UIDataComponent"	class="primevc.gui.core.UIContainer" />
-	<component id="UIDataComponent"		parent="UIComponent"		class="primevc.gui.core.UIDataComponent" />
-	<component id="UIGraphic"			parent=""					class="primevc.gui.core.UIGraphic" />
-	<component id="UITextField"			parent=""					class="primevc.gui.core.UITextField" />
-	<component id="UIWindow"			parent=""					class="primevc.gui.core.UIWindow" />
+	<component id="UIComponent"			parent=""					fullname="primevc.gui.core.UIComponent" />
+	<component id="UIContainer"			parent="UIDataComponent"	fullname="primevc.gui.core.UIContainer" />
+	<component id="UIDataComponent"		parent="UIComponent"		fullname="primevc.gui.core.UIDataComponent" />
+	<component id="UIGraphic"			parent=""					fullname="primevc.gui.core.UIGraphic" />
+	<component id="UITextField"			parent=""					fullname="primevc.gui.core.UITextField" />
+	<component id="UIWindow"			parent=""					fullname="primevc.gui.core.UIWindow" />
 	
-	<component id="Button"				parent="UIContainer"		class="primevc.gui.components.Button" />
-	<component id="InputField"			parent="Label"				class="primevc.gui.components.InputField" />
-	<component id="Label"				parent="UIDataComponent"	class="primevc.gui.components.Label" />
-	<component id="List"				parent="UIContainer"		class="primevc.gui.components.List" />
-	<component id="TextArea"			parent="UIContainer"		class="primevc.gui.components.TextArea" />
+	<component id="Button"				parent="UIContainer"		fullname="primevc.gui.components.Button" />
+	<component id="InputField"			parent="Label"				fullname="primevc.gui.components.InputField" />
+	<component id="Label"				parent="UIDataComponent"	fullname="primevc.gui.components.Label" />
+	<component id="List"				parent="UIContainer"		fullname="primevc.gui.components.List" />
+	<component id="TextArea"			parent="UIContainer"		fullname="primevc.gui.components.TextArea" />
 	
-<!--<component id="" parent="" class="" />-->
+<!--<component id="" parent="" fullname="" />-->
 </componentPackage>
