@@ -82,8 +82,7 @@ class CSSParserMain
 	
 	public function parse ()
 	{
-		parser.load( skinFolder + "/Style.css" );
-		parser.parse();
+		parser.parse( skinFolder + "/Style.css", ".." );
 	}
 	
 	

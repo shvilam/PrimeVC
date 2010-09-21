@@ -27,11 +27,13 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
+ import haxe.FastList;
  import primevc.core.geom.space.Direction;
  import primevc.core.geom.space.Horizontal;
  import primevc.core.geom.space.Vertical;
  import primevc.core.geom.Box;
  import primevc.core.geom.Corners;
+ import primevc.core.IDisposable;
  import primevc.gui.graphics.borders.BitmapBorder;
  import primevc.gui.graphics.borders.GradientBorder;
  import primevc.gui.graphics.borders.IBorder;
@@ -97,6 +99,9 @@ class CSSParser
 	public static inline var R_WS_MUST				: String = "[" + R_WHITESPACE + "]+";	//must have at least one whitespace charater
 	public static inline var R_SPACE				: String = "[ \\t]*";					//can have none, one or more tab/space charater
 	public static inline var R_SPACE_MUST			: String = "[ \\t]+";					//must have at least one tab/space charater
+	
+	public static inline var R_IMPORT_SHEET			: String = "@import" + R_SPACE_MUST + "(url" + R_SPACE + "[(])?['\"]" + R_SPACE + "(" + R_FILE_EXPR + ")" + R_SPACE + "['\"]" + R_SPACE + "[)]?;";
+	
 	public static inline var R_PROPERTY_NAME		: String = "a-z0-9-";
 	public static inline var R_PROPERTY_VALUE		: String = R_WHITESPACE + "a-z0-9%#.,:)(/\"'-";
 	
@@ -178,19 +183,6 @@ class CSSParser
 	
 	public static inline var R_COMMA				: String = R_SPACE + "," + R_SPACE;
 	
-	
-	/**
-	 * container with all the style blocks
-	 */
-	private var styles					: StyleContainer;
-	private var styleString				: String;
-	
-	/**
-	 * block that is currently handled by the parser
-	 */
-	private var currentBlock			: UIContainerStyle;
-	
-	
 	public var blockExpr				(default, null) : EReg;
 	public var blockNameExpr			(default, null) : EReg;
 	public var propExpr					(default, null) : EReg;
@@ -229,10 +221,42 @@ class CSSParser
 	public var fixedTileExpr			(default, null) : EReg;
 	
 	
+	
+	
+	/**
+	 * container with all the style blocks
+	 */
+	private var styles					: StyleContainer;
+	
+	/**
+	 * List with all styleSheets url's that should be loaded and parsed.
+	 */
+	private var styleSheetQueue			: FastList < StyleQueueItem >;
+	
+	/**
+	 * block that is currently handled by the parser
+	 */
+	private var currentBlock			: UIContainerStyle;
+	
+	/**
+	 * The path to the current css sheet. This path (combined with the 
+	 * 'swfBasePath') is added to each relative path that is found to make 
+	 * sure that references keep working.
+	 * 
+	 * I.e. './styles/flair'
+	 */
+	private var styleSheetBasePath		: String;
+	/**
+	 * Path from the directory where the swf is placed to the current stylesheet
+	 * location (i.e. '../../').
+	 */
+	public var swfBasePath				: String;
+	
+	
 	public function new (styles:StyleContainer)
 	{
 		this.styles = styles;
-	//	styleStrings	= new Array
+		styleSheetQueue = new FastList < StyleQueueItem >();
 		init();
 	}
 	
@@ -347,33 +371,102 @@ class CSSParser
 	}
 	
 	
-	public function load ( file:String ) : Void
+	private inline function getBasePath () : String
+	{
+		return (swfBasePath + "/" + styleSheetBasePath).replace("//", "/");
+	}
+	
+	
+	private inline function loadFileContent (file:String) : String
 	{
 #if neko
-		styleString = neko.io.File.getContent( file );
+		try {
+			return neko.io.File.getContent( file );
+		}
+		catch (e:Dynamic)
+		{
+			trace("ERROR IMPORTING STYLESHEET: " + e);
+			return "";
+		}
 #else
 		throw "not implemented yet!";
+		return "";
 #end
 	}
 	
 	
 	/**
-	 * Find style blocks
+	 * Find style blocks and parse their content to valid haxe code blocks.
+	 * Method will first import other css sheets that are defined in the 
+	 * document and then remove all the comments
 	 */
-	public function parse () : Void
+	public function parse (file:String, swfBasePath:String = ".") : Void
 	{
-	//	try {
-			styleString = removeComments(styleString);
-		//	trace("stylesheet:");
-		//	trace(styleString);
-			blockExpr.matchAll(styleString, handleMatchedBlock);
-			trace("css parsed:");
-			trace(styles.toCSS());
-	/*	}
-		catch (e:Dynamic) {
-			trace("ERROR - "+e);
-		}*/
+		this.swfBasePath = swfBasePath;
+		addStyleSheet(file);
+		
+		while (!styleSheetQueue.isEmpty())
+			parseStyleSheet( styleSheetQueue.pop() );
+			
+		trace("--- DONE ----");
+	//	trace(styles.toCSS());
 	}
+	
+	
+	private function addStyleSheet (file:String) : Void
+	{
+		var content = loadFileContent(file);
+		
+		if (content != "")
+		{
+			//find base path of stylesheet
+			var pathEndPos	= file.lastIndexOf("/");
+			var path		= "";
+			if (pathEndPos > -1)
+				path = file.substr(0, pathEndPos);
+			
+			styleSheetBasePath = path;
+			
+			//first add stylesheet to the queue with stylesheets that want to get parsed
+			var item = new StyleQueueItem(path);
+			styleSheetQueue.add( item );
+			
+			//strip content of bloat
+			content = importStyleSheets( content );
+			content = removeComments( content );
+			item.content = content;
+		}
+	}
+	
+	
+	private function parseStyleSheet (item:StyleQueueItem) : Void
+	{
+		styleSheetBasePath = item.path;
+		blockExpr.matchAll(item.content, handleMatchedBlock);
+		trace("PARSED: "+item.path);
+	}
+	
+	
+	
+	/**
+	 * Method will import all @import tags in the given stylesheet. 
+	 * 
+	 * It's important that the 'importExpr' variable is local, otherwise their
+	 * might be errors when stylesheets in stylesheets are imported.
+	 */
+	private function importStyleSheets ( styleContent ) : String
+	{
+		var importExpr = new EReg ( R_IMPORT_SHEET, "i" );
+		return importExpr.customReplace(styleContent, importStyleSheet);
+	}
+	
+	
+	private function importStyleSheet (expr:EReg) : String {
+		addStyleSheet( styleSheetBasePath + "/" + expr.matched(2) );
+		return "";
+	}
+	
+	
 	
 	
 	/**
@@ -1149,7 +1242,7 @@ class CSSParser
 		{	
 			repeatStr	= imageURIExpr.matched(5);
 			bmp			= new Bitmap();
-			bmp.setString( imageURIExpr.matched(2) );
+			bmp.setString( (getBasePath() + "/" + imageURIExpr.matched(2)).replace("//", "/") );
 		}
 		else if (imageClassExpr.match(v))
 		{	
@@ -1664,5 +1757,26 @@ class CSSParser
 			case "bottom":	Vertical.bottom;
 			case null:		null;
 		}
+	}
+}
+
+
+
+class StyleQueueItem implements IDisposable
+{
+	public var path		: String;
+	public var content	: String;
+	
+	
+	public function new (path:String = "", content:String = "")
+	{
+		this.path		= path;
+		this.content	= content;
+	}
+	
+	
+	public function dispose ()
+	{
+		path = content = null;
 	}
 }
