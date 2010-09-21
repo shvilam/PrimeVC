@@ -183,6 +183,8 @@ class CSSParser
 	 * container with all the style blocks
 	 */
 	private var styles					: StyleContainer;
+	private var styleString				: String;
+	
 	/**
 	 * block that is currently handled by the parser
 	 */
@@ -230,6 +232,7 @@ class CSSParser
 	public function new (styles:StyleContainer)
 	{
 		this.styles = styles;
+	//	styleStrings	= new Array
 		init();
 	}
 	
@@ -256,7 +259,7 @@ class CSSParser
 		floatUnitValExpr		= new EReg(R_FLOAT_UNIT_VALUE, "i");		//3 = value, 6 = unit
 		floatUnitGroupValExpr	= new EReg(R_FLOAT_GROUP_VALUE, "i");		//1 = prop1 ( 3 = val, 6 = unit ), 8 = prop2 ( 10 = val, 13 = unit ), 15 = prop3 ( 17 = val, 20 = unit ), 22 = prop4 ( 24 = val, 27 = unit )
 		
-		colorValExpr			= new EReg("^"+R_COLOR_EXPR+"$", "i");
+		colorValExpr			= new EReg(R_COLOR_EXPR, "i");
 		fontFamilyExpr			= new EReg("("+R_FONT_FAMILY_EXPR+")", "i");
 		fontWeightExpr			= new EReg("("+R_FONT_WEIGHT_EXPR+")", "i");
 		fontStyleExpr			= new EReg("("+R_FONT_STYLE_EXPR+")", "i");
@@ -344,20 +347,32 @@ class CSSParser
 	}
 	
 	
+	public function load ( file:String ) : Void
+	{
+#if neko
+		styleString = neko.io.File.getContent( file );
+#else
+		throw "not implemented yet!";
+#end
+	}
+	
+	
 	/**
 	 * Find style blocks
 	 */
-	public function parse (styleString:String) : Void
+	public function parse () : Void
 	{
-		try {
+	//	try {
 			styleString = removeComments(styleString);
+		//	trace("stylesheet:");
+		//	trace(styleString);
 			blockExpr.matchAll(styleString, handleMatchedBlock);
 			trace("css parsed:");
 			trace(styles.toCSS());
-		}
+	/*	}
 		catch (e:Dynamic) {
 			trace("ERROR - "+e);
-		}
+		}*/
 	}
 	
 	
@@ -369,14 +384,22 @@ class CSSParser
 	private inline function removeComments (style:String):String
 	{
 		var commentExpr = new EReg(
-			  "(['\"]([^'\"]|[\r\n])*['\"]([/]*([^/][^*])|[\r\n])*)?"	//matches any opening and closing of a literal string, followed by any text accept for a comment
-			+ "(/[*]([^*]|[\r\n]|([*]+([^*/]|[\r\n])))*[*]+/)"			//matches comments opening and closing /* */
+			  "("
+		/*	+ 	"['\"]"
+			+	"([^'\"]|[\r\n])*"
+			+	"['\"]"
+			+	"("
+			+		"[/]*"
+			+		"([^/][^*])|[\r\n]"
+			+	")*"
+			+ ")?"	//matches any opening and closing of a literal string, followed by any text accept for a comment
+			+ "("*/
+			+	"/[*]"
+			+	"([^*]|[\r\n]|([*]+([^*/]|[\r\n])))*"
+			+	"[*]+/"
+			+ ")"			//matches comments opening and closing /* */
 		, "im");
-		return commentExpr.customReplace(style, removeComment);
-	}
-	
-	private function removeComment (expr:EReg) : String {
-		return expr.matched(1) != null ? expr.matched(1) : "";
+		return commentExpr.removeAll(style);
 	}
 	
 	
@@ -840,7 +863,7 @@ class CSSParser
 		
 		//make sure the font-family doesn't match font-weight or font-style properties
 		if (isFam) {
-			fam		= fontFamilyExpr.matched(1);
+			fam		= fontFamilyExpr.matched(4) != null ? fontFamilyExpr.matched(5) : fontFamilyExpr.matched(1);
 			isFam	= !fontWeightExpr.match(fam) && !fontStyleExpr.match(fam);
 		}
 		
@@ -1222,7 +1245,7 @@ class CSSParser
 	private function setBorderWidth (weight:Float) : Void
 	{
 		if (currentBlock.border != null)
-			currentBlock.border = null;
+			currentBlock.border.weight = weight;
 		else {
 			currentBlock.border = cast new SolidBorder( null );
 			currentBlock.border.weight = weight;

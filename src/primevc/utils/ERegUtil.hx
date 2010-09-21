@@ -47,6 +47,32 @@ class ERegUtil #if flash9 extends EReg #end
 		}
 	}
 	
+	
+	/**
+	 * Method to remove all mathced elements
+	 */
+	public static inline function removeAll (expr:EReg, str:String) : String
+	{
+		var buf = new StringBuf();
+		try
+		{
+			while (true)
+			{
+				if ( !expr.match(str) )
+					break;
+			
+				buf.add(expr.matchedLeft());
+				str = expr.matchedRight();
+			}
+			buf.add(str);
+		}
+		catch (e:Dynamic)
+			trace("ERROR!: "+e);
+		
+		return buf.toString();
+	}
+	
+	
 #if debug
 	public static inline function test (expr:EReg, str:String, ?pos:haxe.PosInfos) : Bool
 	{

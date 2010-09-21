@@ -86,12 +86,12 @@ class UIContainerStyle extends UIElementStyle
 	{
 		if (!isEmpty())
 		{
-			if (!super.isEmpty())
+			if (!allPropertiesEmpty())
 				super.toCode(code);
 			else
 				code.construct(this);
 			
-			if ((untyped children) != null)
+			if (children != null && !children.isEmpty())
 				code.setProp(this, "children", children);
 		}
 	}

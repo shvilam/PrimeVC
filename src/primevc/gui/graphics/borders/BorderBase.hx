@@ -67,6 +67,9 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	public function new ( fill:FillType, weight:Float = 1, innerBorder:Bool = false, caps:CapsStyle = null, joint:JointStyle = null, pixelHinting:Bool = false )
 	{
 		super();
+#if flash9
+		Assert.notNull(fill);
+#end
 		this.fill			= fill;
 		this.weight			= weight;
 		this.caps			= caps != null ? caps : CapsStyle.NONE;
@@ -173,6 +176,12 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	override public function toCSS (prefix:String = "")
 	{
 		return fill + " " + weight + "px";
+	}
+	
+	
+	override public function isEmpty () : Bool
+	{
+		return fill == null;
 	}
 #end
 #if neko

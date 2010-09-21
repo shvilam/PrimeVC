@@ -175,7 +175,7 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 		else if (extendedStyle != null)		return extendedStyle.letterSpacing;
 		else if (nestingInherited != null)	return nestingInherited.letterSpacing;
 		else if (superStyle != null)		return superStyle.letterSpacing;
-		else								return Number.INT_NOT_SET;
+		else								return Number.FLOAT_NOT_SET;
 	}
 	
 	
@@ -195,7 +195,7 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 		else if (extendedStyle != null)		return extendedStyle.indent;
 		else if (nestingInherited != null)	return nestingInherited.indent;
 		else if (superStyle != null)		return superStyle.indent;
-		else								return Number.INT_NOT_SET;
+		else								return Number.FLOAT_NOT_SET;
 	}
 	
 	

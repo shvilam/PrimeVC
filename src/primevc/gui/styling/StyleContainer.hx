@@ -34,7 +34,7 @@ package primevc.gui.styling;
  import primevc.tools.generator.ICSSFormattable;
  import primevc.types.RGBA;
  import Hash;
-#if debug
+#if (debug || neko)
   using StringTools;
 #end
 
@@ -62,9 +62,9 @@ class StyleContainer
 	public var styleNameSelectors	(default, null) : Hash < UIContainerStyle >;
 	public var idSelectors			(default, null) : Hash < UIContainerStyle >;
 	
-	public var globalFills			(default, null) : Hash < IFill >;
-	public var globalBorders		(default, null) : Hash < IBorder<IFill> >;
-	public var globalColors			(default, null) : Hash < RGBA >;
+//	public var globalFills			(default, null) : Hash < IFill >;
+//	public var globalBorders		(default, null) : Hash < IBorder<IFill> >;
+//	public var globalColors			(default, null) : Hash < RGBA >;
 	
 	
 	public function new ()
@@ -76,11 +76,11 @@ class StyleContainer
 		styleNameSelectors	= new Hash();
 		idSelectors			= new Hash();
 		
-		globalFills			= new Hash();
-		globalBorders		= new Hash();
-		globalColors		= new Hash();
+	//	globalFills			= new Hash();
+	//	globalBorders		= new Hash();
+	//	globalColors		= new Hash();
 		
-		createGlobals();
+	//	createGlobals();
 		createTypeSelectors();
 		createStyleNameSelectors();
 		createIdSelectors();
@@ -95,7 +95,7 @@ class StyleContainer
 	}
 	
 	
-	private function createGlobals ()				: Void {}
+//	private function createGlobals ()				: Void {}
 	private function createTypeSelectors ()			: Void {} // Assert.abstract(); }
 	private function createStyleNameSelectors ()	: Void {} // Assert.abstract(); }
 	private function createIdSelectors ()			: Void {} // Assert.abstract(); }
@@ -143,7 +143,7 @@ class StyleContainer
 			var val = hash.get(key);
 			var name = (namePrefix + " " + keyPrefix + key).trim();
 			
-			if (!val.isEmpty())
+			if (!val.allPropertiesEmpty())
 				css += "\n" + name + " " + val.toCSS( name );
 			if (!val.children.isEmpty())
 				css += "\n" + val.children.toCSS( name );

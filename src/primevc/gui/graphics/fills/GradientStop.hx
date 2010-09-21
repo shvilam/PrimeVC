@@ -33,7 +33,7 @@ package primevc.gui.graphics.fills;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.types.RGBA;
-#if debug
+#if (debug || neko)
   using primevc.utils.Color;
   using Math;
   using Std;

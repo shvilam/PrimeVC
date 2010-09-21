@@ -67,8 +67,13 @@ class IntUtil
 	}
 	
 	
+#if flash9
 	public static inline function notSet (value:Int) : Bool	{ return value == Number.INT_NOT_SET; }
 	public static inline function isSet (value:Int) : Bool	{ return value != Number.INT_NOT_SET; }
+#else
+	public static inline function notSet (value:Int) : Bool	{ return value == Number.INT_NOT_SET || value == null; }
+	public static inline function isSet (value:Int) : Bool	{ return value != Number.INT_NOT_SET && value != null; }
+#end
 }
 
 
@@ -117,5 +122,5 @@ class FloatUtil
 
 
 	public static inline function notSet (value:Float) : Bool	{ return !isSet(value); }
-	public static inline function isSet  (value:Float) : Bool	{ return #if !flash9 value != null && #end (value == value /* false if NaN */); }
+	public static inline function isSet  (value:Float) : Bool	{ return #if !flash9 value != null && #end !Math.isNaN(value) /*(value == value /* false if NaN )*/; }
 }

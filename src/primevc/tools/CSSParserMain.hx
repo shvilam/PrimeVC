@@ -82,8 +82,8 @@ class CSSParserMain
 	
 	public function parse ()
 	{
-		var css	= neko.io.File.getContent( skinFolder + "/Style.css" );
-		parser.parse( css );
+		parser.load( skinFolder + "/Style.css" );
+		parser.parse();
 	}
 	
 	
@@ -110,8 +110,11 @@ class CSSParserMain
 		//create selector code
 		generator.start();
 		var keys = selectorHash.keys();
-		for (key in keys)
-			generator.setSelfAction( name + ".set", [ key, selectorHash.get(key) ] );
+		for (key in keys) {
+			var val = selectorHash.get(key);
+			if (!val.isEmpty())
+				generator.setSelfAction( name + ".set", [ key, val ] );
+		}
 		
 		//write to template
 		var pos = template.indexOf( "//" + name );

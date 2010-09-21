@@ -290,6 +290,12 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 	
 	override public function isEmpty () : Bool
 	{
+		return allPropertiesEmpty();
+	}
+	
+	
+	public inline function allPropertiesEmpty () : Bool
+	{
 		return (untyped skin) == null 
 			&& (untyped shape) == null 
 			&& (untyped border) == null 
@@ -303,7 +309,7 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 #if neko
 	override public function toCode (code:ICodeGenerator)
 	{
-		if (!isEmpty())
+		if (!allPropertiesEmpty())
 		{
 			code.construct(this, [ untyped layout, untyped font, untyped shape, untyped background, untyped border, untyped skin, untyped effects, untyped filters ]);
 			super.toCode(code);
