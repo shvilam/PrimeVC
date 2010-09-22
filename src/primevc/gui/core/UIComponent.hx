@@ -30,7 +30,6 @@ package primevc.gui.core;
  import primevc.core.Bindable;
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
- import primevc.gui.behaviours.ManageStyleBehaviour;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
  import primevc.gui.display.Sprite;
  import primevc.gui.effects.UIElementEffects;
@@ -38,7 +37,7 @@ package primevc.gui.core;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.UIElementStates;
 #if flash9
- import primevc.gui.styling.declarations.UIElementStyle;
+ import primevc.gui.styling.StyleSheet;
 #end
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
@@ -82,7 +81,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	public var graphicData		(default, null)			: Bindable < GraphicProperties >;
 	
 #if flash9
-	public var style			(default, setStyle)		: UIElementStyle;
+	public var style			(default, null)			: StyleSheet;
 	public var styleClasses		(default, null)			: Bindable < String >;
 #end
 	
@@ -96,11 +95,11 @@ class UIComponent extends Sprite, implements IUIComponent
 		
 		state			= new UIElementStates();
 		behaviours		= new BehaviourList();
-		styleClasses	= new Bindable < String > ();
 		graphicData		= new Bindable < GraphicProperties > ();
+		styleClasses	= new Bindable < String > ();
+		style			= new StyleSheet( this );
 		
 		//add default behaviours
-		behaviours.add( new ManageStyleBehaviour(this) );
 		behaviours.add( new RenderGraphicsBehaviour(this) );
 		behaviours.add( new ValidateLayoutBehaviour(this) );
 		

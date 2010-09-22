@@ -36,9 +36,13 @@ else
 	echo "3. COMPILING SWF" &&
 	echo "${PRJROOT}/build/build.hxml -swf $OUTPUT -main $MainClass ${Debug:---no-traces} -cp ${Style} -cp tests" &&
 	haxe ${PRJROOT}/build/build.hxml -swf $OUTPUT -main $MainClass ${Debug:---no-traces} -cp ${Style} -cp tests &&
-	echo "4. OPTIMIZING BUILD" &&
-	bash ${PRJROOT}/build/optimize-build $OUTPUT &&
-
-	#mv ${PRJROOT}/tmp.swf ${PRJROOT}/bin-debug/app.swf &&
-	open $OUTPUT
+	
+	if (set -u; : $Debug) 2> /dev/null ; then
+		#mv ${PRJROOT}/tmp.swf ${PRJROOT}/bin-debug/app.swf &&
+		open $OUTPUT
+	else
+		echo "4. OPTIMIZING BUILD" &&
+		bash ${PRJROOT}/build/optimize-build $OUTPUT &&
+		open $OUTPUT
+	fi;
 fi;

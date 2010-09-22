@@ -30,78 +30,102 @@ package primevc.gui.styling;
 
 #if flash9
  import primevc.core.IDisposable;
+ import primevc.gui.core.IUIElement;
  import primevc.gui.styling.declarations.UIElementStyle;
- import primevc.gui.traits.IStylable;
+ import primevc.utils.FastArray;
+  using primevc.utils.Bind;
+  using primevc.utils.FastArray;
   using Type;
 
 
 
 /**
- * StyleSheet contains all style objects that are used through the application
- * and is generally filled by loading a file with objects.
+ * StyleSheet contains all style objects that are used by one IUIElement.
+ * It's a unique collection of id-selectors, styleName-selectors and 
+ * element-selectors.
+ * 
+ * The StyleSheet of an element has to be rebuild everytime the element is 
+ * changing of parent.
  * 
  * @author Ruben Weijers
- * @creation-date Aug 05, 2010
+ * @creation-date Sep 22, 2010
  */
 class StyleSheet implements IDisposable
 {
-	private var styleContainer		: StyleContainer;
+	private var idStyle			: UIElementStyle;
+	private var styleNameStyles	: FastArray < UIElementStyle >;
+	private var elementStyle	: UIElementStyle;
+	
+	private var target			: IUIElement;
+	
+	/**
+	 * cached classname (incl package) of target since target won't change.
+	 */
+	private var targetClassName	: String;
 	
 	
-	public function new ()
+	
+	public function new (target:IUIElement)
 	{
+		styleNameStyles = FastArrayUtil.create();
+		this.target		= target;
+		targetClassName	= target.getClass().getClassName();
+		
+		updateStyleClasses	.on( target.styleClasses.change, this );
+		updateIdStyle		.on( target.id.change, this );
+		updateStyles		.on( target.displayEvents.addedToStage, this );
+		clearStyles			.on( target.displayEvents.removedFromStage, this );
 	}
 	
 	
 	public function dispose ()
 	{
-		unloadStyles();
+		if (target == null)
+			return;
+		
+		target.styleClasses.change.unbind( this );
+		target.id.change.unbind( this );
+		target.displayEvents.addedToStage.unbind( this );
+		target.displayEvents.removedFromStage.unbind( this );
+		
+		clearStyles();
+		styleNameStyles = null;
+		targetClassName	= null;
+		target			= null;
 	}
 	
 	
-	public inline function loadStyles (styleClass:Class<StyleContainer>)
+	private function clearStyles ()
 	{
-		unloadStyles();
-		styleContainer = Type.createInstance( styleClass, [] );
+		styleNameStyles.removeAll();
+		idStyle			= null;
+		elementStyle	= null;
 	}
 	
 	
-	public inline function unloadStyles ()
+	private function updateStyleClasses ()
 	{
-		if (styleContainer != null)
-		{
-			styleContainer.dispose();
-			styleContainer = null;
-		}
+		trace("updateStyleClasses");
 	}
 	
 	
-	
-	public inline function getStyleFor ( obj:IStylable ) : UIElementStyle
+	private function updateIdStyle ()
 	{
-		//list 
-		var c:Class<Dynamic>	= obj.getClass();
-		return new UIElementStyle();
-		/*
-		while (c != null)
-		{
-			if (elementSelectors[c.getClassName()])
-			inheritanceList.push( c.getClassName() );
-			c = c.getSuperClass();
-		}
-		
-		* {
-			backgroundcolor: #ffff;
-		}
-		EeenButotn {
-			backgroundcolor
-		}
-		
-		
-		
-		
-		EEnButton implemets IStyleable
-		*/
+		trace("updateIdStyle");
+	}
+	
+	
+	private function updateElementStyle ()
+	{
+		trace("updateElementStyle");
+	}
+	
+	
+	private function updateStyles ()
+	{
+		updateIdStyle();
+		updateStyleClasses();
+		updateElementStyle();
 	}
 }
 
