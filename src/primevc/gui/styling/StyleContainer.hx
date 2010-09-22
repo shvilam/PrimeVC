@@ -58,7 +58,7 @@ class StyleContainer
 	public var uuid					(default, null) : String;
 #end
 	
-	public var typeSelectors		(default, null) : Hash < UIElementStyle >;
+	public var elementSelectors		(default, null) : Hash < UIElementStyle >;
 	public var styleNameSelectors	(default, null) : Hash < UIElementStyle >;
 	public var idSelectors			(default, null) : Hash < UIElementStyle >;
 	
@@ -72,7 +72,7 @@ class StyleContainer
 #if neko
 		uuid = StringUtil.createUUID();
 #end
-		typeSelectors		= new Hash();
+		elementSelectors	= new Hash();
 		styleNameSelectors	= new Hash();
 		idSelectors			= new Hash();
 		
@@ -81,7 +81,7 @@ class StyleContainer
 	//	globalColors		= new Hash();
 		
 	//	createGlobals();
-		createTypeSelectors();
+		createElementSelectors();
 		createStyleNameSelectors();
 		createIdSelectors();
 	}
@@ -89,14 +89,14 @@ class StyleContainer
 	
 	public function dispose ()
 	{
-		typeSelectors		= null;
+		elementSelectors	= null;
 		styleNameSelectors	= null;
 		idSelectors			= null;
 	}
 	
 	
 //	private function createGlobals ()				: Void {}
-	private function createTypeSelectors ()			: Void {} // Assert.abstract(); }
+	private function createElementSelectors ()		: Void {} // Assert.abstract(); }
 	private function createStyleNameSelectors ()	: Void {} // Assert.abstract(); }
 	private function createIdSelectors ()			: Void {} // Assert.abstract(); }
 	
@@ -107,7 +107,7 @@ class StyleContainer
 	
 	public function isEmpty ()
 	{
-		return !idSelectors.iterator().hasNext() && !styleNameSelectors.iterator().hasNext() && !typeSelectors.iterator().hasNext();
+		return !idSelectors.iterator().hasNext() && !styleNameSelectors.iterator().hasNext() && !elementSelectors.iterator().hasNext();
 	}
 	
 
@@ -125,9 +125,9 @@ class StyleContainer
 			css += hashToCSSString( namePrefix, styleNameSelectors, "." );
 		}
 		
-		if (typeSelectors.iterator().hasNext()) {
+		if (elementSelectors.iterator().hasNext()) {
 		//	css += "\n\n/** ELEMENT STYLES **/";
-			css += hashToCSSString( namePrefix, typeSelectors, "" );
+			css += hashToCSSString( namePrefix, elementSelectors, "" );
 		}
 		
 		return css;
@@ -160,13 +160,13 @@ class StyleContainer
 			code.construct( this );
 			
 			var style:UIElementStyle;
-			var keys = typeSelectors.keys();
+			var keys = elementSelectors.keys();
 			
 			for (key in keys)
 			{
-				style = typeSelectors.get(key);
+				style = elementSelectors.get(key);
 				if (!style.isEmpty())
-					code.setAction(this, "typeSelectors.set", [ key, style ]);
+					code.setAction(this, "elementSelectors.set", [ key, style ]);
 			}
 		
 			keys = styleNameSelectors.keys();

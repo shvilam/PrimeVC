@@ -90,7 +90,7 @@ class CSSParserMain
 	
 	public function generateCode ()
 	{
-		generateSelectorCode( cast styles.children.typeSelectors, "typeSelectors" );
+		generateSelectorCode( cast styles.children.elementSelectors, "elementSelectors" );
 		generateSelectorCode( cast styles.children.styleNameSelectors, "styleNameSelectors" );
 		generateSelectorCode( cast styles.children.idSelectors, "idSelectors" );
 	}

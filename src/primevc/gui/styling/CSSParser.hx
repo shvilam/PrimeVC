@@ -415,7 +415,7 @@ class CSSParser
 		while (!styleSheetQueue.isEmpty())
 			parseStyleSheet( styleSheetQueue.pop() );
 		
-		findSuperClasses( styles );
+		createStyleStructure( styles );
 		trace("--- DONE ----");
 	//	trace(styles.toCSS());
 	}
@@ -493,70 +493,69 @@ class CSSParser
 	
 	
 	/**
-	 * Method will try to find all the "super" classes of the objects in the 
-	 * given stylegroup (recursivly through all child-items).
+	 * Method will try to find all the "super" and "extended" styles of the 
+	 * style-objects in the given stylegroup (recursivly through all 
+	 * child-items).
 	 */
-	private function findSuperClasses (group : UIElementStyle, ?parentList:Hash<UIElementStyle>) : Void
+	private function createStyleStructure (group : UIElementStyle) : Void
 	{
-		if (parentList != null)
-		{
-			
-		}
-		
 		//search in children
 		if (group.hasChildren())
 		{
-			trace("FINDING SUPER CLASSES");
-			findSuperClassesInList( group.children.idSelectors, parentList );
-			findSuperClassesInList( group.children.styleNameSelectors, parentList );
-			findSuperClassesInList( group.children.typeSelectors, parentList );
+			findExtendedClassesInList( group.children.idSelectors );
+			findExtendedClassesInList( group.children.styleNameSelectors );
+			findExtendedClassesInList( group.children.elementSelectors );
+			
+			findSuperClassesInList( group.children.elementSelectors );
+		}
+	}
+	
+	
+	private function findExtendedClassesInList (list:Hash<UIElementStyle>) : Void
+	{
+		var keys = list.keys();
+		for (name in keys)
+		{
+			var style = list.get(name);
+			setExtendedStyle( name, style );
+			createStyleStructure( style );
 		}
 	}
 	
 	
 	private function findSuperClassesInList (list:Hash<UIElementStyle>) : Void
 	{
-		/*
-		4. UIDataComponent
-		3. UIContainer
-		2. Button
-		1. DropDownBox
-		
-		.testBlock
-			HeaderBox
-				DropDownBox
-		
-		lijst zoekt naar super elementen in lijst
-		als dat klaar is, gaat ieder element hetzelfde doen
-		voor zijn kindlijst -> als kinderen daarna null zijn, ga dan zoeken in 
-		de eigen lijst
-		
-		1. Zoek in hoofdlijst
-		*/
-		
-		trace("FIND SUPER CLASSES IN LIST");
 		var keys = list.keys();
 		for (name in keys)
-		{
-			var styleItem = list.get( name );
-		//	trace("checking key: "+name+"; "+styleItem.superStyle);
-			if (styleItem.superStyle != null)
-				continue;
-			
-			if (styleItem.type == type)
-				styleItem.superStyle = findParentElemStyle( name, list );
-		}
+			setSuperStyle( name, list.get(name) );
+	}
+	
+	
+	private function setExtendedStyle (name:String, style:UIElementStyle)
+	{
+		if (style == null || style.parentStyle == null)
+			return;
 		
-		//start searching all children of all styles
-		for (name in keys)
+		style.extendedStyle = style.parentStyle.findStyle( name, style.type, style );
+		if (style.extendedStyle != null)
+			trace("extendedStyle found for "+name);
+	}
+	
+	
+	private function setSuperStyle (name:String, style:UIElementStyle) : Void
+	{
+		var parentName = manifest.getFullSuperClassName( name );
+		while (parentName != null && parentName != "")
 		{
-			var styleItem = list.get( name );
-			if (!styleItem.hasChildren())
-				continue;
+			style.superStyle = style.parentStyle.findStyle( parentName, element, style );
 			
-			styleItem.superStyle = findParentElemStyle( name, list );
-			findSuperClasses( styleItem.children );
+			if (style.superStyle != null)
+				break;
+			
+			parentName = manifest.getFullSuperClassName( parentName );
 		}
+		if (style.superStyle != null)
+			trace("superStyle found for "+name+": "+parentName);
 	}
 	
 	
@@ -564,7 +563,7 @@ class CSSParser
 	 * Searches recursivly to all superclasses until a super is found or null
 	 * when there is no super class.
 	 */
-	private function findParentElemStyle (name:String, list:Hash<UIElementStyle>) : UIElementStyle
+	/*private function findParentElemStyle (name:String, list:Hash<UIElementStyle>) : UIElementStyle
 	{
 		//get parent from manifest
 		var parent = manifest.getFullParentName( name );
@@ -577,7 +576,7 @@ class CSSParser
 		
 		trace("parent found for "+name+": "+parent);
 		return list.get( parent );
-	}
+	}*/
 	
 	
 	
@@ -634,6 +633,7 @@ class CSSParser
 	private function getContentBlock ( names:String ):Void
 	{
 		var styleGroup	: UIElementStyle = styles;
+		var type		: StyleDeclarationType;
 		var curList 	: Hash < UIElementStyle > = null;
 		var depth		= 0;
 		var expr		= blockNameExpr;
@@ -650,24 +650,30 @@ class CSSParser
 			var name = expr.matched(2);
 			
 			if (expr.matched(1) == "#") {
-				var type	= StyleDeclarationType.id;
-				curList		= styleGroup.children.idSelectors;
+				type	= StyleDeclarationType.id;
+				curList	= styleGroup.children.idSelectors;
 			}
 			else if (expr.matched(1) == ".") {
-				var type	= StyleDeclarationType.styleName;
-				curList		= styleGroup.children.styleNameSelectors;
+				type	= StyleDeclarationType.styleName;
+				curList	= styleGroup.children.styleNameSelectors;
 			}
 			else {
-				var type	= StyleDeclarationType.type;
-				curList		= styleGroup.children.typeSelectors;
+				type	= StyleDeclarationType.element;
+				curList	= styleGroup.children.elementSelectors;
 				
 				//find fullname of element styles
-				name		= manifest.getFullName( name );
+				name	= manifest.getFullName( name );
 			}
 			
 			//create a styleobject for this name if it doens't exist
-			if (curList.exists(name))	currentBlock = curList.get(name);
-			else						curList.set( name, currentBlock = new UIElementStyle(type, styleGroup) );
+			if (curList.exists(name))
+				currentBlock = curList.get(name);
+			else
+			{
+				currentBlock = new UIElementStyle(type);
+				currentBlock.parentStyle = styleGroup;
+				curList.set( name, currentBlock );
+			}
 			
 			names = expr.matchedRight().trim();
 			depth++;

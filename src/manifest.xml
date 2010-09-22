@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 <componentPackage>	
-	<component id="UIComponent"			parent=""					fullname="primevc.gui.core.UIComponent" />
-	<component id="UIContainer"			parent="UIDataComponent"	fullname="primevc.gui.core.UIContainer" />
-	<component id="UIDataComponent"		parent="UIComponent"		fullname="primevc.gui.core.UIDataComponent" />
-	<component id="UIGraphic"			parent=""					fullname="primevc.gui.core.UIGraphic" />
-	<component id="UITextField"			parent=""					fullname="primevc.gui.core.UITextField" />
-	<component id="UIWindow"			parent=""					fullname="primevc.gui.core.UIWindow" />
+	<component id="UIComponent"			superClass=""					fullname="primevc.gui.core.UIComponent" />
+	<component id="UIContainer"			superClass="UIDataComponent"	fullname="primevc.gui.core.UIContainer" />
+	<component id="UIDataComponent"		superClass="UIComponent"		fullname="primevc.gui.core.UIDataComponent" />
+	<component id="UIGraphic"			superClass=""					fullname="primevc.gui.core.UIGraphic" />
+	<component id="UITextField"			superClass=""					fullname="primevc.gui.core.UITextField" />
+	<component id="UIWindow"			superClass=""					fullname="primevc.gui.core.UIWindow" />
 	
-	<component id="Button"				parent="UIContainer"		fullname="primevc.gui.components.Button" />
-	<component id="InputField"			parent="Label"				fullname="primevc.gui.components.InputField" />
-	<component id="Label"				parent="UIDataComponent"	fullname="primevc.gui.components.Label" />
-	<component id="List"				parent="UIContainer"		fullname="primevc.gui.components.List" />
-	<component id="TextArea"			parent="UIContainer"		fullname="primevc.gui.components.TextArea" />
+	<component id="Button"				superClass="UIContainer"		fullname="primevc.gui.components.Button" />
+	<component id="InputField"			superClass="Label"				fullname="primevc.gui.components.InputField" />
+	<component id="Label"				superClass="UIDataComponent"	fullname="primevc.gui.components.Label" />
+	<component id="List"				superClass="UIContainer"		fullname="primevc.gui.components.List" />
+	<component id="TextArea"			superClass="UIContainer"		fullname="primevc.gui.components.TextArea" />
 	
-<!--<component id="" parent="" fullname="" />-->
+<!--<component id="" superClass="" fullname="" />-->
 </componentPackage>

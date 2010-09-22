@@ -85,7 +85,7 @@ class StyleSheet implements IDisposable
 		/*
 		while (c != null)
 		{
-			if (typeSelectors[c.getClassName()])
+			if (elementSelectors[c.getClassName()])
 			inheritanceList.push( c.getClassName() );
 			c = c.getSuperClass();
 		}

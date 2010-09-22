@@ -49,16 +49,16 @@ class Manifest implements IDisposable
 	private var classPackageMap		: Hash < String >;
 	
 	/**
-	 * Hash containing references from classes to their parent classes.
+	 * Hash containing references from classes to their super classes.
 	 * I.e. [ "primevc.gui.components.Label" => "primevc.gui.core.UIDataComponent" ]
 	 */
-	private var classParentMap		: Hash < String >;
+	private var superClassMap		: Hash < String >;
 	
 	
 	public function new (file:String)
 	{
 		classPackageMap	= new Hash<String>();
-		classParentMap	= new Hash<String>();
+		superClassMap	= new Hash<String>();
 		addFile( file );
 	}
 	
@@ -66,7 +66,7 @@ class Manifest implements IDisposable
 	public function dispose ()
 	{
 		classPackageMap	= null;
-		classParentMap	= null;
+		superClassMap	= null;
 	}
 	
 	
@@ -79,7 +79,7 @@ class Manifest implements IDisposable
 		{
 			try {
 				classPackageMap.set( item.att.id, item.att.fullname );
-				classParentMap.set( item.att.fullname, item.att.parent );
+				superClassMap.set( item.att.fullname, item.att.superClass );
 			}
 			catch (e:Dynamic)
 				trace("node " + item + " not matched. "+e);
@@ -99,17 +99,17 @@ class Manifest implements IDisposable
 	}
 
 
-	public inline function getParentName (fullClassName:String) : String
+	public inline function getSuperClassName (fullClassName:String) : String
 	{
-		if (classParentMap.exists( fullClassName ))
-			return classParentMap.get( fullClassName );
+		if (superClassMap.exists( fullClassName ))
+			return superClassMap.get( fullClassName );
 		
 		return null;
 	}
 	
 	
-	public inline function getFullParentName (className:String) : String
+	public inline function getFullSuperClassName (className:String) : String
 	{
-		return getFullName( getParentName( className ) );
+		return getFullName( getSuperClassName( className ) );
 	}
 }

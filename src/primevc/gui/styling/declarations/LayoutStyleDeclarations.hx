@@ -521,13 +521,11 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 				untyped childWidth, untyped childHeight, 
 				untyped rotation, untyped includeInLayout, untyped maintainAspectRatio
 			] );
-		
+			
 			if (IntUtil.isSet(untyped minWidth))		code.setProp( this, "minWidth", minWidth );
 			if (IntUtil.isSet(untyped minHeight))		code.setProp( this, "minHeight", minHeight );
 			if (IntUtil.isSet(untyped maxWidth))		code.setProp( this, "maxWidth", maxWidth );
 			if (IntUtil.isSet(untyped maxHeight))		code.setProp( this, "maxHeight", maxHeight );
-		
-			super.toCode(code);
 		}
 	}
 #end

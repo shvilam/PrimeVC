@@ -229,6 +229,41 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	}
 	
 	
+	//
+	// METHODS
+	//
+	
+	
+	/**
+	 * Searches recursivly in all parents until a style with the requested name
+	 * of the requested type is found.
+	 * With the 'exclude' parameter it's possible to exclude a style-element,
+	 * for example the original style that is searching for another style with
+	 * the same name.
+	 */
+	public function findStyle ( name:String, type:StyleDeclarationType, ?exclude:UIElementStyle ) : UIElementStyle
+	{
+		var style : UIElementStyle = null;
+		
+		var list = switch (type) {
+			case element:	children.elementSelectors;
+			case styleName:	children.styleNameSelectors;
+			case id:		children.idSelectors;
+			default:		null;
+		}
+		
+		if (list != null && list.exists(name)) {
+			style = list.get(name);
+			if (style == exclude)
+				style = null;
+		}
+		
+		if (style == null && parentStyle != null)
+			style = parentStyle.findStyle( name, type, exclude );
+		
+		return style;
+	}
+	
 	
 	
 	//
@@ -455,10 +490,12 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		if (effects != null)	css += effects.toCSS();
 		if (filters != null)	css += filters.toCSS();
 		
+		css = "{" + css + "\n}";
+		
 		if (hasChildren())
 			css += "\n " + children.toCSS(namePrefix);
 		
-		return "{" + css + "\n}";
+		return css;
 	}
 	
 	

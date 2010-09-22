@@ -73,9 +73,9 @@ class TestStyles extends StyleContainer
 	}
 	
 	
-	override private function createTypeSelectors ()
+	override private function createElementSelectors ()
 	{
-		var c = typeSelectors;
+		var c = elementSelectors;
 		c.set("primevc.gui.display.Sprite", new UIElementStyle(
 			null,
 			new FontStyleDeclarations(11, "Verdana")

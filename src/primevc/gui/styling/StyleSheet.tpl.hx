@@ -36,9 +36,9 @@ package ;
  */
 class Style extends StyleContainer
 {
-	override private function createTypeSelectors () : Void
+	override private function createElementSelectors () : Void
 	{
-		//typeSelectors
+		//elementSelectors
 	}
 	
 	
