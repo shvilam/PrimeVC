@@ -40,7 +40,7 @@ package primevc.gui.core;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.UIElementStates;
 #if flash9
- import primevc.gui.styling.declarations.UIContainerStyle;
+ import primevc.gui.styling.declarations.UIElementStyle;
 #end
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
@@ -63,7 +63,7 @@ class UITextField extends TextField, implements IUIElement
 	public var state		(default, null)		: UIElementStates;
 	
 #if flash9
-	public var style		(default, setStyle)	: UIContainerStyle;
+	public var style		(default, setStyle)	: UIElementStyle;
 	public var styleClasses	(default, null)		: Bindable < String >;
 #end
 	

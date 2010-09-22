@@ -28,7 +28,8 @@
  */
 package primevc.gui.behaviours;
  import primevc.gui.core.IUIElement;
- import primevc.gui.styling.declarations.UIContainerStyle;
+ import primevc.gui.styling.declarations.StyleDeclarationType;
+ import primevc.gui.styling.declarations.UIElementStyle;
   using primevc.utils.Bind;
 
 
@@ -71,7 +72,7 @@ class ManageStyleBehaviour extends BehaviourBase < IUIElement >
 	{
 		//create unique style-object if it doesn't exist
 		if (target.style == null)
-			target.style = new UIContainerStyle();
+			target.style = new UIElementStyle(StyleDeclarationType.specific);
 		
 		//fill it with the parent's style
 	//	trace("updateElementStyle");

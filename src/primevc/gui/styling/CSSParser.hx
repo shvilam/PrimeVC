@@ -65,7 +65,8 @@ package primevc.gui.styling;
  import primevc.gui.styling.declarations.FilterStyleDeclarations;
  import primevc.gui.styling.declarations.FontStyleDeclarations;
  import primevc.gui.styling.declarations.LayoutStyleDeclarations;
- import primevc.gui.styling.declarations.UIContainerStyle;
+ import primevc.gui.styling.declarations.StyleDeclarationType;
+ import primevc.gui.styling.declarations.UIElementStyle;
  import primevc.gui.styling.StyleContainer;
  import primevc.gui.text.FontStyle;
  import primevc.gui.text.FontWeight;
@@ -226,9 +227,10 @@ class CSSParser
 	private var manifest				: Manifest;
 	
 	/**
-	 * container with all the style blocks
+	 * container with all the style blocks that are found and parsed. The
+	 * direct styleproperties in this object are used as global properties.
 	 */
-	private var styles					: StyleContainer;
+	private var styles					: UIElementStyle;
 	
 	/**
 	 * List with all styleSheets url's that should be loaded and parsed.
@@ -238,7 +240,7 @@ class CSSParser
 	/**
 	 * block that is currently handled by the parser
 	 */
-	private var currentBlock			: UIContainerStyle;
+	private var currentBlock			: UIElementStyle;
 	
 	/**
 	 * The path to the current css sheet. This path (combined with the 
@@ -255,7 +257,9 @@ class CSSParser
 	public var swfBasePath				: String;
 	
 	
-	public function new (styles:StyleContainer, manifest:Manifest = null)
+	
+	
+	public function new (styles:UIElementStyle, manifest:Manifest = null)
 	{
 		this.styles		= styles;
 		this.manifest	= manifest;
@@ -410,11 +414,20 @@ class CSSParser
 		
 		while (!styleSheetQueue.isEmpty())
 			parseStyleSheet( styleSheetQueue.pop() );
-			
+		
+		findSuperClasses( styles );
 		trace("--- DONE ----");
 	//	trace(styles.toCSS());
 	}
 	
+	
+	
+	
+	
+	
+	//
+	// STYLESHEET METHODS
+	//
 	
 	private function addStyleSheet (file:String) : Void
 	{
@@ -472,6 +485,110 @@ class CSSParser
 	
 	
 	
+	
+	
+	//
+	// PARENT SEARCH METHODS
+	//
+	
+	
+	/**
+	 * Method will try to find all the "super" classes of the objects in the 
+	 * given stylegroup (recursivly through all child-items).
+	 */
+	private function findSuperClasses (group : UIElementStyle, ?parentList:Hash<UIElementStyle>) : Void
+	{
+		if (parentList != null)
+		{
+			
+		}
+		
+		//search in children
+		if (group.hasChildren())
+		{
+			trace("FINDING SUPER CLASSES");
+			findSuperClassesInList( group.children.idSelectors, parentList );
+			findSuperClassesInList( group.children.styleNameSelectors, parentList );
+			findSuperClassesInList( group.children.typeSelectors, parentList );
+		}
+	}
+	
+	
+	private function findSuperClassesInList (list:Hash<UIElementStyle>) : Void
+	{
+		/*
+		4. UIDataComponent
+		3. UIContainer
+		2. Button
+		1. DropDownBox
+		
+		.testBlock
+			HeaderBox
+				DropDownBox
+		
+		lijst zoekt naar super elementen in lijst
+		als dat klaar is, gaat ieder element hetzelfde doen
+		voor zijn kindlijst -> als kinderen daarna null zijn, ga dan zoeken in 
+		de eigen lijst
+		
+		1. Zoek in hoofdlijst
+		*/
+		
+		trace("FIND SUPER CLASSES IN LIST");
+		var keys = list.keys();
+		for (name in keys)
+		{
+			var styleItem = list.get( name );
+		//	trace("checking key: "+name+"; "+styleItem.superStyle);
+			if (styleItem.superStyle != null)
+				continue;
+			
+			if (styleItem.type == type)
+				styleItem.superStyle = findParentElemStyle( name, list );
+		}
+		
+		//start searching all children of all styles
+		for (name in keys)
+		{
+			var styleItem = list.get( name );
+			if (!styleItem.hasChildren())
+				continue;
+			
+			styleItem.superStyle = findParentElemStyle( name, list );
+			findSuperClasses( styleItem.children );
+		}
+	}
+	
+	
+	/**
+	 * Searches recursivly to all superclasses until a super is found or null
+	 * when there is no super class.
+	 */
+	private function findParentElemStyle (name:String, list:Hash<UIElementStyle>) : UIElementStyle
+	{
+		//get parent from manifest
+		var parent = manifest.getFullParentName( name );
+		
+		if (parent == null)
+			return null;
+		
+		if (!list.exists(parent))
+			return findSuperElemStyle(parent, list);
+		
+		trace("parent found for "+name+": "+parent);
+		return list.get( parent );
+	}
+	
+	
+	
+	
+	
+	
+	//
+	// CSS METHODS
+	//
+	
+	
 	/**
 	 * Method will replace all comments with empty strings with support for
 	 * literal strings.
@@ -516,8 +633,8 @@ class CSSParser
 	
 	private function getContentBlock ( names:String ):Void
 	{
-		var styleGroup : StyleContainer = styles;
-		var curList : Hash < UIContainerStyle >;
+		var styleGroup	: UIElementStyle = styles;
+		var curList 	: Hash < UIElementStyle > = null;
 		var depth		= 0;
 		var expr		= blockNameExpr;
 		currentBlock	= null;
@@ -528,30 +645,36 @@ class CSSParser
 				break;
 			
 			if ( currentBlock != null )
-				styleGroup = currentBlock.children;
+				styleGroup = currentBlock;
 			
 			var name = expr.matched(2);
 			
-			//find fullname of element styles
-			if (expr.matched(1) == "")
-				name = manifest.getFullName( name );
-			
-			//find the correct list to add the entry in
-			curList = 
-				if		(expr.matched(1) == "#")	styleGroup.idSelectors;
-				else if (expr.matched(1) == ".")	styleGroup.styleNameSelectors;
-				else								styleGroup.typeSelectors;
+			if (expr.matched(1) == "#") {
+				var type	= StyleDeclarationType.id;
+				curList		= styleGroup.children.idSelectors;
+			}
+			else if (expr.matched(1) == ".") {
+				var type	= StyleDeclarationType.styleName;
+				curList		= styleGroup.children.styleNameSelectors;
+			}
+			else {
+				var type	= StyleDeclarationType.type;
+				curList		= styleGroup.children.typeSelectors;
+				
+				//find fullname of element styles
+				name		= manifest.getFullName( name );
+			}
 			
 			//create a styleobject for this name if it doens't exist
 			if (curList.exists(name))	currentBlock = curList.get(name);
-			else						curList.set( name, currentBlock = new UIContainerStyle() );
+			else						curList.set( name, currentBlock = new UIElementStyle(type, styleGroup) );
 			
 			names = expr.matchedRight().trim();
 			depth++;
 		}
 		
 	//	currentBlock = curBlock;
-		trace("final depth: "+depth);
+	//	trace("final depth: "+depth);
 	}
 	
 	

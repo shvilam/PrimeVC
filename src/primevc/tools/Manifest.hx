@@ -88,20 +88,28 @@ class Manifest implements IDisposable
 	}
 	
 	
-	public function getFullName (className:String) : String
+	public inline function getFullName (className:String) : String
 	{
+		if (className == null)
+			return null;
 		if (classPackageMap.exists(className))
 			return classPackageMap.get( className );
-		else
-			return className;
+		
+		return className;
 	}
 
 
-	public function getParentName (fullClassName:String) : String
+	public inline function getParentName (fullClassName:String) : String
 	{
 		if (classParentMap.exists( fullClassName ))
 			return classParentMap.get( fullClassName );
-		else
-			return null;
+		
+		return null;
+	}
+	
+	
+	public inline function getFullParentName (className:String) : String
+	{
+		return getFullName( getParentName( className ) );
 	}
 }

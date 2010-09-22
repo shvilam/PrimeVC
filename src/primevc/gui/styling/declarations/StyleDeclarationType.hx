@@ -27,47 +27,15 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
-#if neko
- import primevc.tools.generator.ICodeGenerator;
-#end
-
 
 
 /**
- * Class holding all style properties for effects.
- * 
- * @author Ruben Weijers
- * @creation-date Sep 07, 2010
+ * @since	sep 21, 2010
+ * @author	Ruben Weijers
  */
-class EffectStyleDeclarations extends StylePropertyGroup
-{
-	public function new ()
-	{
-		super();
-	}
-	
-	
-#if (neko || debug)
-	override public function toCSS (prefix:String = "")
-	{
-		return super.toCSS(prefix);
-	}
-	
-	
-	override public function isEmpty ()
-	{
-		return false;
-	}
-#end
-
-#if neko
-	override public function toCode (code:ICodeGenerator)
-	{
-		if (!isEmpty())
-		{
-			code.construct( this );
-			super.toCode(code);
-		}
-	}
-#end
+enum StyleDeclarationType {
+	type;			//matches elements bases on their class 	(TextField)
+	id;				//all css classes that start with a #		(#uniqueStyleId)
+	styleName;		//all css classes that start with a dot.	(.styleName)
+	specific;		//the style declaration is only meant for one instance (<obj style="..." />)
 }

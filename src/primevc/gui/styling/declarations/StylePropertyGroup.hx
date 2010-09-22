@@ -27,73 +27,55 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
- import primevc.gui.styling.StyleContainer;
+ import primevc.core.traits.Invalidatable;
+ import primevc.tools.generator.ICSSFormattable;
+ import primevc.utils.StringUtil;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
 
 
+
 /**
- * UIContainerStyle adds child-support to a style. That means a style for a
- * List component can also contain style information for the buttons in this
- * list.
+ * Base class for each property group (fonts, layout, graphics, etc.).
  * 
  * @author Ruben Weijers
- * @creation-date Sep 16, 2010
+ * @creation-date Sep 22, 2010
  */
-class UIContainerStyle extends UIElementStyle
+class StylePropertyGroup extends Invalidatable, implements IStyleDeclaration
 {
-#if neko
-	public var children (default, null)		: StyleContainer;
-#else
-	public var children (default, default)	: StyleContainer;
-#end
+	public var owner				: UIElementStyle;
+	public var uuid (default, null) : String;
 	
 	
-	override private function init ()
+	public function new ()
 	{
-		children = new StyleContainer();
+		super();
+		this.uuid = StringUtil.createUUID();
 	}
 	
 	
 	override public function dispose ()
 	{
-		children.dispose();
-		children = null;
+		owner = null;
+		uuid = null;
 		super.dispose();
 	}
+
+
+	private inline function getExtended ()	{ return owner != null ? owner.extendedStyle : null; }
+	private inline function getNesting ()	{ return owner != null ? owner.nestingInherited : null; }
+	private inline function getSuper ()		{ return owner != null ? owner.superStyle : null; }
+	private inline function getParent ()	{ return owner != null ? owner.parentStyle : null; }
 	
 	
 #if (debug || neko)
-	override public function toCSS (namePrefix:String = "")
-	{
-		var str = super.toCSS(namePrefix);
-		
-		if (children == null || children.isEmpty())
-			str += "\n " + children.toCSS(namePrefix);
-		return str;
-	}
-	
-	
-	override public function isEmpty ()
-	{
-		return (children == null || children.isEmpty()) && super.isEmpty();
-	}
+	public function toString ()					{ return toCSS(); }
+	public function isEmpty ()					{ Assert.abstract(); return false; }
+	public function toCSS (prefix:String = "") 	{ Assert.abstract(); return ""; }
 #end
 	
 #if neko
-	override public function toCode (code:ICodeGenerator)
-	{
-		if (!isEmpty())
-		{
-			if (!allPropertiesEmpty())
-				super.toCode(code);
-			else
-				code.construct(this);
-			
-			if (children != null && !children.isEmpty())
-				code.setProp(this, "children", children);
-		}
-	}
+	public function toCode (code:ICodeGenerator){ Assert.abstract(); }
 #end
 }

@@ -30,7 +30,7 @@ package primevc.gui.styling;
  import primevc.core.IDisposable;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.fills.IFill;
- import primevc.gui.styling.declarations.UIContainerStyle;
+ import primevc.gui.styling.declarations.UIElementStyle;
  import primevc.tools.generator.ICSSFormattable;
  import primevc.types.RGBA;
  import Hash;
@@ -58,9 +58,9 @@ class StyleContainer
 	public var uuid					(default, null) : String;
 #end
 	
-	public var typeSelectors		(default, null) : Hash < UIContainerStyle >;
-	public var styleNameSelectors	(default, null) : Hash < UIContainerStyle >;
-	public var idSelectors			(default, null) : Hash < UIContainerStyle >;
+	public var typeSelectors		(default, null) : Hash < UIElementStyle >;
+	public var styleNameSelectors	(default, null) : Hash < UIElementStyle >;
+	public var idSelectors			(default, null) : Hash < UIElementStyle >;
 	
 //	public var globalFills			(default, null) : Hash < IFill >;
 //	public var globalBorders		(default, null) : Hash < IBorder<IFill> >;
@@ -134,7 +134,7 @@ class StyleContainer
 	}
 	
 	
-	private  function hashToCSSString (namePrefix:String, hash:Hash<UIContainerStyle>, keyPrefix:String = "") : String
+	private  function hashToCSSString (namePrefix:String, hash:Hash<UIElementStyle>, keyPrefix:String = "") : String
 	{
 		var css = "";
 		var keys = hash.keys();
@@ -159,7 +159,7 @@ class StyleContainer
 		{
 			code.construct( this );
 			
-			var style:UIContainerStyle;
+			var style:UIElementStyle;
 			var keys = typeSelectors.keys();
 			
 			for (key in keys)

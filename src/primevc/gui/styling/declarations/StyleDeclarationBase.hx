@@ -27,7 +27,6 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
- import primevc.core.traits.Invalidatable;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
@@ -35,66 +34,27 @@ package primevc.gui.styling.declarations;
 
 
 /**
- * Base class for style declarations
+ * Base class for (sub-)style declarations
  * 
  * @author Ruben Weijers
  * @creation-date Aug 05, 2010
  */
-class StyleDeclarationBase <DeclarationType> extends Invalidatable
-					,	implements IStyleDeclaration <DeclarationType>
-#if (flash9 || cpp)	,	implements haxe.rtti.Generic	#end
+class StyleDeclarationBase extends Invalidatable < StyleDeclarationBase >, implements IStyleDeclaration
 {
-	public var nestingInherited		(default, setNestingInherited)	: DeclarationType;
-	public var superStyle			(default, setSuperStyle)		: DeclarationType;
-	public var extendedStyle		(default, setExtendedStyle)		: DeclarationType;
-	
-	public var uuid					(default, null)					: String;
+	public var uuid (default, null) : String;
 	
 	
 	public function new ()
 	{
 		super();
-		uuid = StringUtil.createUUID();
+		this.uuid = StringUtil.createUUID();
 	}
 	
 	
 	override public function dispose ()
 	{
-		uuid				= null;
-		nestingInherited	= null;
-		superStyle			= null;
-		extendedStyle		= null;
+		uuid = null;
 		super.dispose();
-	}
-	
-	
-	private inline function setNestingInherited (v)
-	{
-		if (v != nestingInherited) {
-			nestingInherited = v;
-			invalidate( StyleFlags.NESTING_STYLE );
-		}
-		return v;
-	}
-	
-	
-	private inline function setSuperStyle (v)
-	{
-		if (v != superStyle) {
-			superStyle = v;
-			invalidate( StyleFlags.SUPER_STYLE );
-		}
-		return v;
-	}
-
-
-	private inline function setExtendedStyle (v)
-	{
-		if (v != extendedStyle) {
-			extendedStyle = v;
-			invalidate( StyleFlags.EXTENDED_STYLE );
-		}
-		return v;
 	}
 	
 	
@@ -104,13 +64,7 @@ class StyleDeclarationBase <DeclarationType> extends Invalidatable
 	public function toCSS (prefix:String = "") 	{ Assert.abstract(); return ""; }
 #end
 	
-	
 #if neko
-	public function toCode (code:ICodeGenerator)
-	{
-		if (nestingInherited != null)	code.setProp( this, "nestingInherited", nestingInherited );
-		if (superStyle != null)			code.setProp( this, "superStyle", superStyle );
-		if (extendedStyle != null)		code.setProp( this, "extendedStyle", extendedStyle );
-	}
+	public function toCode (code:ICodeGenerator){ Assert.abstract(); }
 #end
 }

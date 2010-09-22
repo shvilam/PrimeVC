@@ -38,7 +38,7 @@ package primevc.gui.core;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.UIElementStates;
 #if flash9
- import primevc.gui.styling.declarations.UIContainerStyle;
+ import primevc.gui.styling.declarations.UIElementStyle;
  import primevc.gui.traits.IDrawable;
 #end
   using primevc.gui.utils.UIElementActions;
@@ -62,7 +62,7 @@ class UIGraphic extends Shape
 	public var graphicData		(default, null)		: Bindable < GraphicProperties >;
 	
 #if flash9
-	public var style			(default, setStyle)	: UIContainerStyle;
+	public var style			(default, setStyle)	: UIElementStyle;
 	public var styleClasses		(default, null)		: Bindable< String >;
 #end
 	

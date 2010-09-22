@@ -38,87 +38,9 @@ package primevc.gui.styling.declarations;
  * @author Ruben Weijers
  * @creation-date Aug 05, 2010
  */
-interface IStyleDeclaration <DeclarationType>
+interface IStyleDeclaration
 				implements IInvalidatable	
 			,	implements ICSSFormattable
 #if neko	,	implements ICodeFormattable		#end
 {
-	
-	/**
-	 * Reference to style of which this style is inheriting when the requested
-	 * property is not in this declaration.
-	 * 
-	 * The 'nestingInherited' property is a reference to the style of the 
-	 * container in which the IStylable object is placed
-	 * 
-	 * @example
-	 * class SomeStyle implements IStyleDeclaration {
-	 * 		public var font (getFont, default)	: String;
-	 * 
-	 * 		...
-	 * 
-	 * 		private function getFont () {
-	 * 			if 		(font != null)					return font;
-	 * 			else if (nestingInherited != null)		return nestingInherited.font;
-	 * 			else 									return null;
-	 * 		}
-	 * }
-	 * 
-	 * 
-	 * var styleA = new SomeStyle( "Arial" );
-	 * var styleB = new SomeStyle();
-	 * 
-	 * trace(a.font);		//output: "Arial"
-	 * trace(b.font);		//output: ""
-	 * 
-	 * var objA = new Component( styleA );
-	 * var objB = new Component( styleB );
-	 * objA.children.add( objB );
-	 * 
-	 * trace(a.font);		//output: "Arial"
-	 * trace(b.font);		//output: "Arial"
-	 * 
-	 */
-	public var nestingInherited		(default, null)		: DeclarationType;
-	
-	
-	/**
-	 * Reference to other style-object of whom this style is inheriting when
-	 * the requested property is not in this declaration.
-	 * 
-	 * The 'superStyle' property is used to get style-information of a 
-	 * super-class of the described class.
-	 * 
-	 * @example
-	 * var styleA = new StyleDeclaration( package.A, new SomeStyle( new SolidFill( 0xfff000 ) ) );
-	 * var styleB = new StyleDeclaration( package.B, new SomeStyle() );
-	 * 
-	 * class A extends StyleInjector {}
-	 * class B extends A {}
-	 * 
-	 * var objA = new A();
-	 * var objB = new B();
-	 * 
-	 * trace( objA.style.fill );	//output:	SolidFill( 0xfff000 );
-	 * trace( objB.style.fill );	//output:	SolidFill( 0xfff000 );
-	 */
-	public var superStyle			(default, null)		: DeclarationType;
-	
-	
-	/**
-	 * Style object which was declared for the same property, only before..
-	 * object.
-	 * 
-	 * @example
-	 * Button, Label {
-	 * 		font-size: 10px;
-	 * }
-	 * Button {
-	 * 		font-family: Verdana;
-	 * }
-	 * 
-	 * buttonStyle.font.size = 10;
-	 * buttonStyle.font.family -> buttonStyle.font.extendedStyle.family = "Verdana";
-	 */
-	public var extendedStyle		(default, null)		: DeclarationType;
 }

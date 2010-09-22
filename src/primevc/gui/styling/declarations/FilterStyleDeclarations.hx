@@ -39,7 +39,7 @@ package primevc.gui.styling.declarations;
  * @author Ruben Weijers
  * @creation-date Sep 07, 2010
  */
-class FilterStyleDeclarations extends StyleDeclarationBase < FilterStyleDeclarations >
+class FilterStyleDeclarations extends StylePropertyGroup
 {
 	public function new ()
 	{

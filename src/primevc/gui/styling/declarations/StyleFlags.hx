@@ -39,14 +39,15 @@ class StyleFlags
 	public static inline var NESTING_STYLE		: UInt = 1;
 	public static inline var SUPER_STYLE		: UInt = 2;
 	public static inline var EXTENDED_STYLE		: UInt = 4;
+	public static inline var PARENT_STYLE		: UInt = 8;
 	
-	public static inline var SKIN				: UInt = 8;
 	public static inline var LAYOUT				: UInt = 16;
 	public static inline var FONT				: UInt = 32;
+	public static inline var SKIN				: UInt = 64;
 	
-	public static inline var SHAPE				: UInt = 64;
 	public static inline var BACKGROUND			: UInt = 128;
 	public static inline var BORDER				: UInt = 256;
 	public static inline var EFFECTS			: UInt = 512;
 	public static inline var FILTERS			: UInt = 1024;
+	public static inline var SHAPE				: UInt = 2048;
 }

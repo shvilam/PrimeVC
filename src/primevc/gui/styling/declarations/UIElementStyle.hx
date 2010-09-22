@@ -27,23 +27,126 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
+ import primevc.core.traits.Invalidatable;
  import primevc.gui.core.ISkin;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.shapes.IGraphicShape;
+ import primevc.gui.styling.StyleContainer;
+ import primevc.utils.StringUtil;
+
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
 
 
+
 /**
- * Class contains the style-data for a specifig UIElement
+ * Class contains the style-data for a specific UIElement
  * 
  * @author Ruben Weijers
  * @creation-date Aug 04, 2010
  */
-class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
+class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 {
+	/**
+	 * Reference to style of which this style is inheriting when the requested
+	 * property is not in this declaration.
+	 * 
+	 * The 'nestingInherited' property is a reference to the style of the 
+	 * container in which the IStylable object is placed
+	 * 
+	 * @example
+	 * class SomeStyle implements IStyleDeclaration {
+	 * 		public var font (getFont, default)	: String;
+	 * 
+	 * 		...
+	 * 
+	 * 		private function getFont () {
+	 * 			if 		(font != null)					return font;
+	 * 			else if (nestingInherited != null)		return nestingInherited.font;
+	 * 			else 									return null;
+	 * 		}
+	 * }
+	 * 
+	 * 
+	 * var styleA = new SomeStyle( "Arial" );
+	 * var styleB = new SomeStyle();
+	 * 
+	 * trace(a.font);		//output: "Arial"
+	 * trace(b.font);		//output: ""
+	 * 
+	 * var objA = new Component( styleA );
+	 * var objB = new Component( styleB );
+	 * objA.children.add( objB );
+	 * 
+	 * trace(a.font);		//output: "Arial"
+	 * trace(b.font);		//output: "Arial"
+	 * 
+	 */
+	public var nestingInherited		(default, setNestingInherited)	: UIElementStyle;
+	
+	/**
+	 * Reference to other style-object of whom this style is inheriting when
+	 * the requested property is not in this declaration.
+	 * 
+	 * The 'superStyle' property is used to get style-information of a 
+	 * super-class of the described class.
+	 * 
+	 * @example
+	 * var styleA = new StyleDeclaration( package.A, new SomeStyle( new SolidFill( 0xfff000 ) ) );
+	 * var styleB = new StyleDeclaration( package.B, new SomeStyle() );
+	 * 
+	 * class A extends StyleInjector {}
+	 * class B extends A {}
+	 * 
+	 * var objA = new A();
+	 * var objB = new B();
+	 * 
+	 * trace( objA.style.fill );	//output:	SolidFill( 0xfff000 );
+	 * trace( objB.style.fill );	//output:	SolidFill( 0xfff000 );
+	 */
+	public var superStyle			(default, setSuperStyle)		: UIElementStyle;
+	
+	/**
+	 * Style object which was declared for the same property, only before..
+	 * object.
+	 * 
+	 * @example
+	 * Button, Label {
+	 * 		font-size: 10px;
+	 * }
+	 * Button {
+	 * 		font-family: Verdana;
+	 * }
+	 * 
+	 * buttonStyle.font.size = 10;
+	 * buttonStyle.font.family -> buttonStyle.font.extendedStyle.family = "Verdana";
+	 */
+	public var extendedStyle		(default, setExtendedStyle)		: UIElementStyle;
+	
+	/**
+	 * Parent UIElementStyle object. This property is only set if the style 
+	 * only applies to the children of another style.
+	 * 
+	 * I.e. CSS:
+	 * .headerBlock DataGrid Button { ... }
+	 * 
+	 * The parent of Button will be DataGrid style. The parent of DataGrid
+	 * will be .headerBlock.
+	 * This property is needed to find the correct inherited styles.
+	 */
+	public var parentStyle			(default, setParentStyle)		: UIElementStyle;
+	
+	
+	//
+	// STYLE PROPERTIES
+	//
+	
+	
+	public var uuid			(default,		null)			: String;
+	public var type			(default,		null)			: StyleDeclarationType;
+	
 	public var skin			(getSkin,		setSkin)		: Class < ISkin >;
 	public var background	(getBackground, setBackground)	: IFill;
 	public var border		(getBorder,		setBorder)		: IBorder<IFill>;
@@ -55,8 +158,16 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 	public var effects		(getEffects,	setEffects)		: EffectStyleDeclarations;
 	public var filters		(getFilters,	setFilters)		: FilterStyleDeclarations;
 	
+#if neko
+	public var children		(default,		null)			: StyleContainer;
+#else
+	public var children		(default,		default)		: StyleContainer;
+#end
+	
+	
 	
 	public function new (
+		type		: StyleDeclarationType,
 		layout		: LayoutStyleDeclarations = null,
 		font		: FontStyleDeclarations = null,
 		shape		: IGraphicShape = null,
@@ -68,7 +179,10 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 	)
 	{
 		super();
-		init();
+		this.uuid		= StringUtil.createUUID();
+		this.children	= new StyleContainer();
+		this.type		= type;
+		
 		this.layout		= layout;
 		this.font		= font;
 		this.shape		= shape;
@@ -80,11 +194,13 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 	}
 	
 	
-	private function init () : Void;
-	
-	
 	override public function dispose ()
-	{
+	{	
+		nestingInherited	= null;
+		superStyle			= null;
+		extendedStyle		= null;
+		parentStyle			= null;
+		
 	//	if ((untyped this).skin != null)		skin.dispose();
 		if ((untyped this).shape != null)		shape.dispose();
 		if ((untyped this).background != null)	background.dispose();
@@ -94,6 +210,10 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 		if ((untyped this).effects != null)		effects.dispose();
 		if ((untyped this).filters != null)		filters.dispose();
 		
+		children.dispose();
+		
+		children	= null;
+		type		= null;
 		skin		= null;
 		shape		= null;
 		background	= null;
@@ -103,8 +223,11 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 		effects		= null;
 		filters		= null;
 		
+		uuid		= null;
+		
 		super.dispose();
 	}
+	
 	
 	
 	
@@ -114,74 +237,76 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 	
 	private function getSkin ()
 	{
-		if		(skin != null)			return skin;
-		else if (extendedStyle != null)	return extendedStyle.skin;
-		else if (superStyle != null)	return superStyle.skin;
-		else							return null;
+		var v = skin;
+		if (v == null && extendedStyle != null)	v = extendedStyle.skin;
+		if (v == null && superStyle != null)	v = superStyle.skin;
+		return v;
 	}
 	
 	
 	private function getShape ()
 	{
-		if		(shape != null)			return shape;
-		else if (extendedStyle != null)	return extendedStyle.shape;
-		else if (superStyle != null)	return superStyle.shape;
-		else							return null;
+		var v = shape;
+		if (v == null && extendedStyle != null)	v = extendedStyle.shape;
+		if (v == null && superStyle != null)	v = superStyle.shape;
+		return v;
 	}
 	
 	
 	private function getLayout ()
 	{
-		if		(layout != null)		return layout;
-		else if (extendedStyle != null)	return extendedStyle.layout;
-		else if (superStyle != null)	return superStyle.layout;
-		else							return null;
+		var v = layout;
+		if (v == null && extendedStyle != null)	v = extendedStyle.layout;
+		if (v == null && superStyle != null)	v = superStyle.layout;
+		return v;
 	}
 	
 	
 	private function getFont ()
 	{
-		if		(font != null)				return font;
-		else if (extendedStyle != null)		return extendedStyle.font;
-		else if (nestingInherited != null)	return nestingInherited.font;
-		else if (superStyle != null)		return superStyle.font;
-		else								return null;
+		var v = font;
+		if (v == null && extendedStyle != null)		v = extendedStyle.font;
+		if (v == null && nestingInherited != null)	v = nestingInherited.font;
+		if (v == null && superStyle != null)		v = superStyle.font;
+		if (v == null && parentStyle != null)		v = parentStyle.font;
+		
+		return v;
 	}
 
 
 	private function getBackground ()
 	{
-		if		(background != null)	return background;
-		else if (extendedStyle != null)	return extendedStyle.background;
-		else if (superStyle != null)	return superStyle.background;
-		else							return null;
+		var v = background;
+		if (v == null && extendedStyle != null)	v = extendedStyle.background;
+		if (v == null && superStyle != null)	v = superStyle.background;
+		return v;
 	}
 
 
 	private function getBorder ()
 	{
-		if		(border != null)		return border;
-		else if (extendedStyle != null)	return extendedStyle.border;
-		else if (superStyle != null)	return superStyle.border;
-		else							return null;
+		var v = border;
+		if (v == null && extendedStyle != null)	v = extendedStyle.border;
+		if (v == null && superStyle != null)	v = superStyle.border;
+		return v;
 	}
 	
 	
 	private function getEffects ()
 	{
-		if		(effects != null)		return effects;
-		else if (extendedStyle != null)	return extendedStyle.effects;
-		else if (superStyle != null)	return superStyle.effects;
-		else							return null;
+		var v = effects;
+		if (v == null && extendedStyle != null)	v = extendedStyle.effects;
+		if (v == null && superStyle != null)	v = superStyle.effects;
+		return v;
 	}
 
 
 	private function getFilters ()
 	{
-		if		(filters != null)		return filters;
-		else if (extendedStyle != null)	return extendedStyle.filters;
-		else if (superStyle != null)	return superStyle.filters;
-		else							return null;
+		var v = filters;
+		if (v == null && extendedStyle != null)	v = extendedStyle.filters;
+		if (v == null && superStyle != null)	v = superStyle.filters;
+		return v;
 	}
 	
 	
@@ -189,6 +314,49 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 	//
 	// SETTERS
 	//
+	
+	private inline function setNestingInherited (v)
+	{
+		if (v != nestingInherited) {
+			nestingInherited = v;
+			invalidate( StyleFlags.NESTING_STYLE );
+		}
+		return v;
+	}
+	
+	
+	private inline function setSuperStyle (v)
+	{
+		if (v != superStyle) {
+			superStyle = v;
+			invalidate( StyleFlags.SUPER_STYLE );
+		}
+		return v;
+	}
+
+
+	private inline function setExtendedStyle (v)
+	{
+		if (v != extendedStyle) {
+			extendedStyle = v;
+			invalidate( StyleFlags.EXTENDED_STYLE );
+		}
+		return v;
+	}
+
+
+	private inline function setParentStyle (v)
+	{
+		if (v != parentStyle) {
+			parentStyle = v;
+			invalidate( StyleFlags.PARENT_STYLE );
+		}
+		return v;
+	}
+	
+	
+	
+	
 	
 	private inline function setSkin (v)
 	{
@@ -271,7 +439,10 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 
 
 #if (debug || neko)
-	override public function toCSS (namePrefix:String = "")
+	public function toString () { return toCSS(); }
+	
+	
+	public function toCSS (namePrefix:String = "")
 	{
 		var css = "";
 		
@@ -284,13 +455,16 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 		if (effects != null)	css += effects.toCSS();
 		if (filters != null)	css += filters.toCSS();
 		
+		if (hasChildren())
+			css += "\n " + children.toCSS(namePrefix);
+		
 		return "{" + css + "\n}";
 	}
 	
 	
-	override public function isEmpty () : Bool
+	public function isEmpty () : Bool
 	{
-		return allPropertiesEmpty();
+		return allPropertiesEmpty() && !hasChildren();
 	}
 	
 	
@@ -304,15 +478,32 @@ class UIElementStyle extends StyleDeclarationBase < UIElementStyle >
 		 	&& ((untyped effects) == null || (untyped effects).isEmpty())
 			&& ((untyped filters) == null || (untyped filters).isEmpty());
 	}
+	
+	
+	public inline function hasChildren () : Bool
+	{
+		return children != null && !children.isEmpty();
+	}
 #end
 
+
 #if neko
-	override public function toCode (code:ICodeGenerator)
+	public function toCode (code:ICodeGenerator)
 	{
-		if (!allPropertiesEmpty())
+		if (!isEmpty())
 		{
-			code.construct(this, [ untyped layout, untyped font, untyped shape, untyped background, untyped border, untyped skin, untyped effects, untyped filters ]);
-			super.toCode(code);
+			if (!allPropertiesEmpty())
+				code.construct(this, [ type, untyped layout, untyped font, untyped shape, untyped background, untyped border, untyped skin, untyped effects, untyped filters ]);
+			else
+				code.construct(this, [ type ]);
+			
+			if (nestingInherited != null)	code.setProp( this, "nestingInherited", nestingInherited );
+			if (superStyle != null)			code.setProp( this, "superStyle", superStyle );
+			if (extendedStyle != null)		code.setProp( this, "extendedStyle", extendedStyle );
+			if (parentStyle != null)		code.setProp( this, "parentStyle", parentStyle );
+			
+			if (hasChildren())
+				code.setProp(this, "children", children);
 		}
 	}
 #end

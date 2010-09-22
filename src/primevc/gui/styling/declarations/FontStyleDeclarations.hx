@@ -49,7 +49,7 @@ package primevc.gui.styling.declarations;
  * @author Ruben Weijers
  * @creation-date Aug 05, 2010
  */
-class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations >
+class FontStyleDeclarations extends StylePropertyGroup
 {
 	public var size				(getSize,			setSize)			: Int;
 	public var family			(getFamily,			setFamily)			: String;
@@ -109,103 +109,124 @@ class FontStyleDeclarations extends StyleDeclarationBase < FontStyleDeclarations
 	// GETTERS
 	//
 	
+	
 	private function getSize ()
 	{
-		if		(size.isSet())				return size;
-		else if (extendedStyle != null)		return extendedStyle.size;
-		else if (nestingInherited != null)	return nestingInherited.size;
-		else if (superStyle != null)		return superStyle.size;
-		else								return Number.INT_NOT_SET;
+		var v = size;
+		if (v.notSet() && getExtended() != null)	v = getExtended().font.size;
+		if (v.notSet() && getNesting() != null)		v = getNesting().font.size;
+		if (v.notSet() && getSuper() != null)		v = getSuper().font.size;
+		if (v.notSet() && getParent() != null)		v = getParent().font.size;
+		
+		return v;
 	}
 	
 	
 	private function getFamily ()
 	{
-		if		(family != null)			return family;
-		else if (extendedStyle != null)		return extendedStyle.family;
-		else if (nestingInherited != null)	return nestingInherited.family;
-		else if (superStyle != null)		return superStyle.family;
-		else								return null;
+		var v = family;
+		if (v == null && getExtended() != null)		v = getExtended().font.family;
+		if (v == null && getNesting() != null)		v = getNesting().font.family;
+		if (v == null && getSuper() != null)		v = getSuper().font.family;
+		if (v == null && getParent() != null)		v = getParent().font.family;
+
+		return v;
 	}
 	
 	
 	private function getColor ()
 	{
-		if		(color != null)				return color;
-		else if (extendedStyle != null)		return extendedStyle.color;
-		else if (nestingInherited != null)	return nestingInherited.color;
-		else if (superStyle != null)		return superStyle.color;
-		else								return null;
+		var v = color;
+		if (v == null && getExtended() != null)		v = getExtended().font.color;
+		if (v == null && getNesting() != null)		v = getNesting().font.color;
+		if (v == null && getSuper() != null)		v = getSuper().font.color;
+		if (v == null && getParent() != null)		v = getParent().font.color;
+
+		return v;
 	}
 	
 	
 	private function getAlign ()
 	{
-		if		(align != null)				return align;
-		else if (extendedStyle != null)		return extendedStyle.align;
-		else if (nestingInherited != null)	return nestingInherited.align;
-		else if (superStyle != null)		return superStyle.align;
-		else								return null;
+		var v = align;
+		if (v == null && getExtended() != null)		v = getExtended().font.align;
+		if (v == null && getNesting() != null)		v = getNesting().font.align;
+		if (v == null && getSuper() != null)		v = getSuper().font.align;
+		if (v == null && getParent() != null)		v = getParent().font.align;
+
+		return v;
 	}
 	
 	
 	private function getWeight ()
 	{
-		if		(weight != null)			return weight;
-		else if (extendedStyle != null)		return extendedStyle.weight;
-		else if (nestingInherited != null)	return nestingInherited.weight;
-		else if (superStyle != null)		return superStyle.weight;
-		else								return null;
+		var v = weight;
+		if (v == null && getExtended() != null)		v = getExtended().font.weight;
+		if (v == null && getNesting() != null)		v = getNesting().font.weight;
+		if (v == null && getSuper() != null)		v = getSuper().font.weight;
+		if (v == null && getParent() != null)		v = getParent().font.weight;
+
+		return v;
 	}
 	
 	
 	private function getStyle ()
 	{
-		if		(style != null)				return style;
-		else if (extendedStyle != null)		return extendedStyle.style;
-		else if (nestingInherited != null)	return nestingInherited.style;
-		else if (superStyle != null)		return superStyle.style;
-		else								return null;
+		var v = style;
+		if (v == null && getExtended() != null)		v = getExtended().font.style;
+		if (v == null && getNesting() != null)		v = getNesting().font.style;
+		if (v == null && getSuper() != null)		v = getSuper().font.style;
+		if (v == null && getParent() != null)		v = getParent().font.style;
+
+		return v;
 	}
 
 
 	private function getLetterSpacing ()
 	{
-		if		(letterSpacing.isSet())		return letterSpacing;
-		else if (extendedStyle != null)		return extendedStyle.letterSpacing;
-		else if (nestingInherited != null)	return nestingInherited.letterSpacing;
-		else if (superStyle != null)		return superStyle.letterSpacing;
-		else								return Number.FLOAT_NOT_SET;
+		var v = letterSpacing;
+		if (v.notSet() && getExtended() != null)	v = getExtended().font.letterSpacing;
+		if (v.notSet() && getNesting() != null)		v = getNesting().font.letterSpacing;
+		if (v.notSet() && getSuper() != null)		v = getSuper().font.letterSpacing;
+		if (v.notSet() && getParent() != null)		v = getParent().font.letterSpacing;
+
+		return v;
 	}
 	
 	
 	private function getDecoration ()
 	{
-		if		(decoration != null)		return decoration;
-		else if (extendedStyle != null)		return extendedStyle.decoration;
-		else if (nestingInherited != null)	return nestingInherited.decoration;
-		else if (superStyle != null)		return superStyle.decoration;
-		else								return null;
+		var v = decoration;
+		if (v == null && getExtended() != null)		v = getExtended().font.decoration;
+		if (v == null && getNesting() != null)		v = getNesting().font.decoration;
+		if (v == null && getSuper() != null)		v = getSuper().font.decoration;
+		if (v == null && getParent() != null)		v = getParent().font.decoration;
+
+		return v;
 	}
 	
 	
 	private function getIndent ()
 	{
-		if		(indent.isSet())			return indent;
-		else if (extendedStyle != null)		return extendedStyle.indent;
-		else if (nestingInherited != null)	return nestingInherited.indent;
-		else if (superStyle != null)		return superStyle.indent;
-		else								return Number.FLOAT_NOT_SET;
+		var v = indent;
+		if (v.notSet() && getExtended() != null)	v = getExtended().font.indent;
+		if (v.notSet() && getNesting() != null)		v = getNesting().font.indent;
+		if (v.notSet() && getSuper() != null)		v = getSuper().font.indent;
+		if (v.notSet() && getParent() != null)		v = getParent().font.indent;
+
+		return v;
 	}
 	
 	
 	private function getTransform ()
 	{
-		if		(transform != null)			return transform;
-		else if (extendedStyle != null)		return extendedStyle.transform;
-		else if (nestingInherited != null)	return nestingInherited.transform;
-		else if (superStyle != null)		return superStyle.transform;
-		else								return null;
+		var v = transform;
+		if (v == null && getExtended() != null)		v = getExtended().font.transform;
+		if (v == null && getNesting() != null)		v = getNesting().font.transform;
+		if (v == null && getSuper() != null)		v = getSuper().font.transform;
+		if (v == null && getParent() != null)		v = getParent().font.transform;
+
+		return v;
 	}
 	
 	

@@ -27,8 +27,8 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.tools;
+ import primevc.gui.styling.declarations.UIElementStyle;
  import primevc.gui.styling.CSSParser;
- import primevc.gui.styling.StyleContainer;
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.HaxeCodeGenerator;
 
@@ -57,7 +57,7 @@ class CSSParserMain
 	}
 	
 	
-	private var styles		: StyleContainer;
+	private var styles		: UIElementStyle;
 	private var parser		: CSSParser;
 	private var generator	: HaxeCodeGenerator;
 	private var manifest	: Manifest;
@@ -69,7 +69,7 @@ class CSSParserMain
 	public function new (skin:String)
 	{
 		skinFolder	= skin;
-		styles		= new StyleContainer();
+		styles		= new UIElementStyle(null);
 		manifest	= new Manifest( "src/manifest.xml" );
 		parser		= new CSSParser( styles, manifest );
 		generator	= new HaxeCodeGenerator( 2 );
@@ -90,9 +90,9 @@ class CSSParserMain
 	
 	public function generateCode ()
 	{
-		generateSelectorCode( cast styles.typeSelectors, "typeSelectors" );
-		generateSelectorCode( cast styles.styleNameSelectors, "styleNameSelectors" );
-		generateSelectorCode( cast styles.idSelectors, "idSelectors" );
+		generateSelectorCode( cast styles.children.typeSelectors, "typeSelectors" );
+		generateSelectorCode( cast styles.children.styleNameSelectors, "styleNameSelectors" );
+		generateSelectorCode( cast styles.children.idSelectors, "idSelectors" );
 	}
 	
 	
