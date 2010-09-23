@@ -45,9 +45,12 @@ package primevc.gui.core;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.managers.InvalidationManager;
  import primevc.gui.managers.RenderManager;
+ import primevc.gui.styling.GlobalStyleSheet;
+ import primevc.gui.styling.StyleSheet;
  import primevc.gui.traits.IBehaving;
  import primevc.gui.traits.IDrawable;
  import primevc.gui.traits.ILayoutable;
+ import primevc.gui.traits.IStylable;
   using primevc.utils.TypeUtil;
 
 #if flash9
@@ -66,6 +69,7 @@ class UIWindow extends Window
 	,	implements IDrawable
 	,	implements IIdentifiable
 	,	implements ILayoutable
+	,	implements IStylable
 {
 	public var layout				(default, null)					: LayoutClient;
 	public var layoutContainer		(getLayoutContainer, never)		: LayoutContainer;
@@ -84,6 +88,9 @@ class UIWindow extends Window
 	 * Reference to bgShape.graphics.. Needed for compatibility with IDrawable
 	 */
 	public var graphics				(default, null)					: flash.display.Graphics;
+	
+	public var style				(default, null)					: StyleSheet;
+	public var styleClasses			(default, null)					: Bindable < String >;
 #end
 	
 	public var renderManager		(default, null)					: RenderManager;
@@ -100,6 +107,8 @@ class UIWindow extends Window
 		
 		behaviours			= new BehaviourList();
 		graphicData			= new Bindable < GraphicProperties > ();
+		styleClasses		= new Bindable < String >("");
+		style				= new GlobalStyleSheet(this);
 		
 		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
 		behaviours.add( new RenderGraphicsBehaviour(this) );
@@ -114,12 +123,13 @@ class UIWindow extends Window
 		createLayout();
 		
 		behaviours.init();
+		style.updateStyles();
 		
 		createGraphics();
 		createChildren();
 
 #if (flash9 && stats)
-		children.add( new Stats() );
+	//	children.add( new Stats() );
 #end
 	}
 

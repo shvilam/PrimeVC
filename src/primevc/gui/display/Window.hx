@@ -79,6 +79,7 @@ class Window
 	{
 		this.target		= target;
 		window			= this;
+		container		= this;
 		application		= app;
 		
 		children		= new DisplayList( target, this );
@@ -134,11 +135,11 @@ class Window
 	}
 	
 	private inline function setContainer (v) {
-		return null;
+		return container = this;
 	}
 	
 	
-#if debug
-	public inline function toString () { return "Window"; }
-#end
+//#if debug
+//	public inline function toString () { return "Window"; }
+//#end
 }

@@ -1,7 +1,7 @@
 package cases;
 // import primevc.core.net.URLLoader;
+ import primevc.gui.styling.declarations.StyleContainer;
  import primevc.gui.styling.CSSParser;
- import primevc.gui.styling.StyleContainer;
  import primevc.tools.generator.HaxeCodeGenerator;
   using primevc.utils.ERegUtil;
   using Std;

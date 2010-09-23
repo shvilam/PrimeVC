@@ -27,14 +27,26 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package ;
- import primevc.gui.styling.StyleContainer;
+ import primevc.gui.styling.declarations.StyleContainer;
+ import primevc.gui.styling.declarations.StyleDeclarationType;
+ import primevc.gui.styling.declarations.UIElementStyle;
 
 
 
 /**
  * This class is a template for generating StyleSheet classes
  */
-class Style extends StyleContainer
+class Style extends UIElementStyle
+{
+	public function new ()
+	{
+		children = new CurStyleContainer();
+		super(StyleDeclarationType.specific);
+	}
+}
+
+
+class CurStyleContainer extends StyleContainer
 {
 	override private function createElementSelectors () : Void
 	{

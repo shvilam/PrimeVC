@@ -26,11 +26,10 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling;
+package primevc.gui.styling.declarations;
  import primevc.core.IDisposable;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.fills.IFill;
- import primevc.gui.styling.declarations.UIElementStyle;
  import primevc.tools.generator.ICSSFormattable;
  import primevc.types.RGBA;
  import Hash;
@@ -62,10 +61,6 @@ class StyleContainer
 	public var styleNameSelectors	(default, null) : Hash < UIElementStyle >;
 	public var idSelectors			(default, null) : Hash < UIElementStyle >;
 	
-//	public var globalFills			(default, null) : Hash < IFill >;
-//	public var globalBorders		(default, null) : Hash < IBorder<IFill> >;
-//	public var globalColors			(default, null) : Hash < RGBA >;
-	
 	
 	public function new ()
 	{
@@ -76,11 +71,6 @@ class StyleContainer
 		styleNameSelectors	= new Hash();
 		idSelectors			= new Hash();
 		
-	//	globalFills			= new Hash();
-	//	globalBorders		= new Hash();
-	//	globalColors		= new Hash();
-		
-	//	createGlobals();
 		createElementSelectors();
 		createStyleNameSelectors();
 		createIdSelectors();
@@ -95,7 +85,6 @@ class StyleContainer
 	}
 	
 	
-//	private function createGlobals ()				: Void {}
 	private function createElementSelectors ()		: Void {} // Assert.abstract(); }
 	private function createStyleNameSelectors ()	: Void {} // Assert.abstract(); }
 	private function createIdSelectors ()			: Void {} // Assert.abstract(); }

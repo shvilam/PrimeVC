@@ -63,10 +63,10 @@ class StylePropertyGroup extends Invalidatable, implements IStyleDeclaration
 	}
 
 
-	private inline function getExtended ()	{ return owner != null ? owner.extendedStyle : null; }
-	private inline function getNesting ()	{ return owner != null ? owner.nestingInherited : null; }
-	private inline function getSuper ()		{ return owner != null ? owner.superStyle : null; }
-	private inline function getParent ()	{ return owner != null ? owner.parentStyle : null; }
+	private inline function getExtended ()		{ return owner != null ? owner.extendedStyle : null; }
+	private inline function getNesting ()		{ return owner != null ? owner.nestingInherited : null; }
+	private inline function getSuper ()			{ return owner != null ? owner.superStyle : null; }
+	private inline function getParent ()		{ return owner != null ? owner.parentStyle : null; }
 	
 	
 #if (debug || neko)

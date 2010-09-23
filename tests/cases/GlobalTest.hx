@@ -95,7 +95,7 @@ class GlobalTestWindow extends UIWindow
 	{
 		var app = new GlobalApp();
 		children.add( app );
-		new Style();
+	//	new Style();
 	}
 }
 

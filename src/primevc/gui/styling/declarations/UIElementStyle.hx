@@ -32,7 +32,7 @@ package primevc.gui.styling.declarations;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.shapes.IGraphicShape;
- import primevc.gui.styling.StyleContainer;
+ import primevc.gui.styling.declarations.StyleContainer;
  import primevc.utils.StringUtil;
 
 #if neko
@@ -180,7 +180,9 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	{
 		super();
 		this.uuid		= StringUtil.createUUID();
-		this.children	= new StyleContainer();
+		
+		if (children == null)
+			children	= new StyleContainer();
 		this.type		= type;
 		
 		this.layout		= layout;

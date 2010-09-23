@@ -38,16 +38,18 @@ package primevc.gui.traits;
  * @author Ruben Weijers
  * @creation-date Aug 04, 2010
  */
-interface IStylable implements IIdentifiable
+interface IStylable
+		implements IIdentifiable
+	,	implements IDisplayable
 {
 #if flash9
-	public var style (default, null)			: StyleSheet;
+	public var style		(default, null)			: StyleSheet;
 	
 	/**
 	 * String containing all the css-classes that the IStyleable should use. 
 	 * It's possible to add more than one styleName by putting them in comma-
 	 * seperated. 
 	 */
-	public var styleClasses (default, null)		: Bindable < String >;
+	public var styleClasses	(default, null)			: Bindable < String >;
 #end
 }

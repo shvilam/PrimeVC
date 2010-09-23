@@ -30,11 +30,13 @@ package primevc.gui.styling;
 
 #if flash9
  import primevc.core.IDisposable;
- import primevc.gui.core.IUIElement;
+ import primevc.gui.styling.declarations.StyleDeclarationType;
  import primevc.gui.styling.declarations.UIElementStyle;
+ import primevc.gui.traits.IStylable;
  import primevc.utils.FastArray;
   using primevc.utils.Bind;
   using primevc.utils.FastArray;
+  using primevc.utils.TypeUtil;
   using Type;
 
 
@@ -56,7 +58,10 @@ class StyleSheet implements IDisposable
 	private var styleNameStyles	: FastArray < UIElementStyle >;
 	private var elementStyle	: UIElementStyle;
 	
-	private var target			: IUIElement;
+	/**
+	 * object on which the style applies
+	 */
+	private var target			: IStylable;
 	
 	/**
 	 * cached classname (incl package) of target since target won't change.
@@ -65,7 +70,7 @@ class StyleSheet implements IDisposable
 	
 	
 	
-	public function new (target:IUIElement)
+	public function new (target:IStylable)
 	{
 		styleNameStyles = FastArrayUtil.create();
 		this.target		= target;
@@ -73,8 +78,16 @@ class StyleSheet implements IDisposable
 		
 		updateStyleClasses	.on( target.styleClasses.change, this );
 		updateIdStyle		.on( target.id.change, this );
-		updateStyles		.on( target.displayEvents.addedToStage, this );
-		clearStyles			.on( target.displayEvents.removedFromStage, this );
+		init();
+		
+	//	updateStyles();
+	}
+	
+	
+	private function init ()
+	{
+		updateStyles	.on( target.displayEvents.addedToStage, this );
+		clearStyles		.on( target.displayEvents.removedFromStage, this );
 	}
 	
 	
@@ -95,7 +108,33 @@ class StyleSheet implements IDisposable
 	}
 	
 	
-	private function clearStyles ()
+	public function findStyle ( name:String, type:StyleDeclarationType, ?exclude:UIElementStyle ) : UIElementStyle
+	{
+		var style : UIElementStyle = null;
+		
+		//search in the id-style
+		if (style == null && idStyle != null)
+			style = idStyle.findStyle(name, type, exclude);
+		
+		//search in stylenames list
+		if (style == null && styleNameStyles.length > 0)
+		{
+			for (styleNameStyle in styleNameStyles)
+			{
+				style = styleNameStyle.findStyle(name, type, exclude);
+				if (style != null)
+					break;
+			}
+		}
+		
+		//search in the element style
+		if (style == null && elementStyle != null)
+			style = elementStyle.findStyle(name, type, exclude);
+		return style;
+	}
+	
+	
+	private function clearStyles () : Void
 	{
 		styleNameStyles.removeAll();
 		idStyle			= null;
@@ -103,29 +142,68 @@ class StyleSheet implements IDisposable
 	}
 	
 	
-	private function updateStyleClasses ()
-	{
-		trace("updateStyleClasses");
+	private function updateStyleClasses () : Void
+	{	
+		//remove all styles
+		styleNameStyles.removeAll();
+		
+		if (target.styleClasses.value == null || target.styleClasses.value == "")
+			return;
+		
+		var parentStyle = getParentStyle();
+		Assert.notNull( parentStyle );
+		
+		
+		//search the style-object of each stylename
+		var styleNames = target.styleClasses.value.split(",");
+		for ( styleName in styleNames )
+		{
+			var tmp = parentStyle.findStyle( styleName, StyleDeclarationType.styleName );
+			if (tmp != null)
+				styleNameStyles.push( tmp );
+		}
 	}
 	
 	
-	private function updateIdStyle ()
+	private function updateIdStyle () : Void
 	{
-		trace("updateIdStyle");
+		//remove old id style
+		idStyle = null;
+		
+		if (target.id.value == "")
+			return;
+		
+		var parentStyle = getParentStyle();
+		Assert.notNull( parentStyle );
+		idStyle = parentStyle.findStyle( target.id.value, StyleDeclarationType.id );
 	}
 	
 	
-	private function updateElementStyle ()
+	private function updateElementStyle () : Void
 	{
-		trace("updateElementStyle");
+		var parentStyle = getParentStyle();
+		Assert.notNull( parentStyle );
+		elementStyle = parentStyle.findStyle( targetClassName, StyleDeclarationType.element );
 	}
 	
 	
-	private function updateStyles ()
+	public function updateStyles () : Void
 	{
+		if (getParentStyle() == null)
+			return;
+		
 		updateIdStyle();
 		updateStyleClasses();
 		updateElementStyle();
+	}
+	
+	
+	private inline function getParentStyle () : StyleSheet
+	{
+		Assert.notNull( target.container );
+		Assert.that( target.container.is( IStylable ) );
+		Assert.notNull( target.container.as( IStylable ).style );
+		return target.container.as( IStylable ).style;
 	}
 }
 

@@ -18,6 +18,16 @@ Label {
 }
 
 
+* {
+	font-size: 10px;
+}
+
+
+UIWindow {
+	
+}
+
+
 TextArea {
 	background-color: linear-gradient( 90deg, #aaa, #dddddd, #eee, #fff );
 	background-color: #ffad97f0;

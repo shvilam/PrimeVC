@@ -31,8 +31,8 @@ package cases;
  import primevc.gui.styling.declarations.FontStyleDeclarations;
  import primevc.gui.styling.declarations.GraphicStyleDeclarations;
  import primevc.gui.styling.declarations.LayoutStyleDeclarations;
+ import primevc.gui.styling.declarations.StyleContainer;
  import primevc.gui.styling.declarations.UIElementStyle;
- import primevc.gui.styling.StyleContainer;
  import primevc.gui.styling.StyleSheet;
 
 
