@@ -291,7 +291,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	//
 	
 	
-	private inline function setRelative (v)
+	private function setRelative (v)
 	{
 		if (v != relative) {
 			relative = v;
@@ -301,7 +301,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setAlgorithm (v)
+	private function setAlgorithm (v)
 	{
 		if (v != algorithm) {
 			algorithm = v;
@@ -311,7 +311,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setPadding (v)
+	private function setPadding (v)
 	{
 		if (v != padding) {
 			padding = v;
@@ -321,7 +321,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setWidth (v)
+	private function setWidth (v)
 	{
 		if (v != width) {
 			width = v;
@@ -331,7 +331,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setMaxWidth (v)
+	private function setMaxWidth (v)
 	{
 		if (v != maxWidth) {
 			maxWidth = v;
@@ -341,7 +341,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setMinWidth (v)
+	private function setMinWidth (v)
 	{
 		if (v != minWidth) {
 			minWidth = v;
@@ -351,7 +351,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setPercentWidth (v)
+	private function setPercentWidth (v)
 	{
 		if (v != percentWidth) {
 			percentWidth = v;
@@ -361,7 +361,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setHeight (v)
+	private function setHeight (v)
 	{
 		if (v != height) {
 			height = v;
@@ -371,7 +371,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setMaxHeight (v)
+	private function setMaxHeight (v)
 	{
 		if (v != maxHeight) {
 			maxHeight = v;
@@ -381,7 +381,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setMinHeight (v)
+	private function setMinHeight (v)
 	{
 		if (v != minHeight) {
 			minHeight = v;
@@ -391,7 +391,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setPercentHeight (v)
+	private function setPercentHeight (v)
 	{
 		if (v != percentHeight) {
 			percentHeight = v;
@@ -400,7 +400,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 		return v;
 	}
 	
-	private inline function setChildWidth (v)
+	private function setChildWidth (v)
 	{
 		if (v != childWidth) {
 			childWidth = v;
@@ -410,7 +410,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setChildHeight (v)
+	private function setChildHeight (v)
 	{
 		if (v != childHeight) {
 			childHeight = v;
@@ -420,7 +420,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setRotation (v)
+	private function setRotation (v)
 	{
 		if (v != rotation) {
 			rotation = v;
@@ -430,7 +430,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	}
 
 
-	private inline function setIncludeInLayout (v)
+	private function setIncludeInLayout (v)
 	{
 		if (v != includeInLayout) {
 			includeInLayout = v;
@@ -440,7 +440,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setMaintainAspect (v)
+	private function setMaintainAspect (v)
 	{
 		if (v != maintainAspectRatio) {
 			maintainAspectRatio = v;
