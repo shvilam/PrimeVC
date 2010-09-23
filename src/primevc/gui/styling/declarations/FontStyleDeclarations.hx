@@ -236,7 +236,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 	// SETTERS
 	//
 	
-	private inline function setSize (v)
+	private function setSize (v)
 	{
 		if (v != size) {
 			size = v;
@@ -246,7 +246,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setFamily (v)
+	private function setFamily (v)
 	{
 		if (v != family) {
 			family = v;
@@ -256,7 +256,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setColor (v:Null<RGBA>)
+	private function setColor (v:Null<RGBA>)
 	{
 		if (v != null)
 			v = v.validate();
@@ -269,7 +269,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setWeight (v)
+	private function setWeight (v)
 	{
 		if (v != weight) {
 			weight = v;
@@ -279,7 +279,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setStyle (v)
+	private function setStyle (v)
 	{
 		if (v != style) {
 			style = v;
@@ -289,7 +289,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setLetterSpacing (v)
+	private function setLetterSpacing (v)
 	{
 		if (v != letterSpacing) {
 			letterSpacing = v;
@@ -299,7 +299,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setAlign (v)
+	private function setAlign (v)
 	{
 		if (v != align) {
 			align = v;
@@ -309,7 +309,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setDecoration (v)
+	private function setDecoration (v)
 	{
 		if (v != decoration) {
 			decoration = v;
@@ -319,7 +319,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setIndent (v)
+	private function setIndent (v)
 	{
 		if (v != indent) {
 			indent = v;
@@ -329,7 +329,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function setTransform (v)
+	private function setTransform (v)
 	{
 		if (v != transform) {
 			transform = v;

@@ -352,7 +352,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	// SETTERS
 	//
 	
-	private inline function setNestingInherited (v)
+	private function setNestingInherited (v)
 	{
 		if (v != nestingInherited) {
 			nestingInherited = v;
@@ -362,7 +362,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	}
 	
 	
-	private inline function setSuperStyle (v)
+	private function setSuperStyle (v)
 	{
 		if (v != superStyle) {
 			superStyle = v;
@@ -372,7 +372,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	}
 
 
-	private inline function setExtendedStyle (v)
+	private function setExtendedStyle (v)
 	{
 		if (v != extendedStyle) {
 			extendedStyle = v;
@@ -382,7 +382,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	}
 
 
-	private inline function setParentStyle (v)
+	private function setParentStyle (v)
 	{
 		if (v != parentStyle) {
 			parentStyle = v;
@@ -395,7 +395,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	
 	
 	
-	private inline function setSkin (v)
+	private function setSkin (v)
 	{
 		if (v != skin) {
 			skin = v;
@@ -405,7 +405,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	}
 
 
-	private inline function setShape (v)
+	private function setShape (v)
 	{
 		if (v != shape) {
 			shape = v;
@@ -415,7 +415,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	}
 	
 	
-	private inline function setLayout (v)
+	private function setLayout (v)
 	{
 		if (v != layout) {
 			layout = v;
@@ -425,7 +425,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	}
 	
 	
-	private inline function setFont (v)
+	private function setFont (v)
 	{
 		if (v != font) {
 			font = v;
@@ -435,7 +435,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	}
 	
 	
-	private inline function setBackground (v)
+	private function setBackground (v)
 	{
 		if (v != background) {
 			background = v;
@@ -445,7 +445,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	}
 
 
-	private inline function setBorder (v)
+	private function setBorder (v)
 	{
 		if (v != border) {
 			border = v;
@@ -455,7 +455,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	}
 
 
-	private inline function setEffects (v)
+	private function setEffects (v)
 	{
 		if (v != effects) {
 			effects = v;
@@ -465,7 +465,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	}
 
 
-	private inline function setFilters (v)
+	private function setFilters (v)
 	{
 		if (v != filters) {
 			filters = v;
@@ -507,7 +507,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	}
 	
 	
-	public inline function allPropertiesEmpty () : Bool
+	public function allPropertiesEmpty () : Bool
 	{
 		return (untyped skin) == null 
 			&& (untyped shape) == null 
@@ -519,7 +519,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	}
 	
 	
-	public inline function hasChildren () : Bool
+	public function hasChildren () : Bool
 	{
 		return children != null && !children.isEmpty();
 	}
