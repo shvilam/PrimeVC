@@ -41,4 +41,5 @@ if [[ -d ${Style} ]] && [[ -f ${StyleFile} ]] && [[ -f ${Parser} ]]; then
 	neko ${Parser} ${Style}
 else
 	echo "Style '${StyleFile}' doesn't exist!"
+	exit 1
 fi;
