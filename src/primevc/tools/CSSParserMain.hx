@@ -31,6 +31,7 @@ package primevc.tools;
  import primevc.gui.styling.CSSParser;
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.HaxeCodeGenerator;
+  using primevc.utils.TypeUtil;
 
 
 /**
@@ -113,8 +114,10 @@ class CSSParserMain
 		var keys = selectorHash.keys();
 		for (key in keys) {
 			var val = selectorHash.get(key);
-			if (!val.isEmpty())
+			if (!val.isEmpty()) {
+				val.as(UIElementStyle).parentStyle = null;
 				generator.setSelfAction( name + ".set", [ key, val ] );
+			}
 		}
 		
 		//write to template

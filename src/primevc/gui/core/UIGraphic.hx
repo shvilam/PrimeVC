@@ -173,6 +173,12 @@ class UIGraphic extends Shape
 	{
 		return style = v;
 	}
+	
+	
+	public function applyStyling ()
+	{
+
+	}
 #end
 	
 	

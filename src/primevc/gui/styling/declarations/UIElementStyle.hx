@@ -254,6 +254,13 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 			default:		null;
 		}
 		
+	//	trace("searching "+name+" of type "+type+"; list: "+(list != null) + "; parent? "+(parentStyle != null));
+			
+	/*	if (list != null) {
+			var keys = list.keys();
+			for (key in keys)
+				trace("[ "+key+"] = "+list.get(key));
+		}*/
 		if (list != null && list.exists(name)) {
 			style = list.get(name);
 			if (style == exclude)

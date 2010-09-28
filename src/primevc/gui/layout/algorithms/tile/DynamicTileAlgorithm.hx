@@ -445,6 +445,12 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	{
 		return "DynamicTileAlgorithm";
 	}
+
+
+	override public function toCSS (prefix:String = "") : String
+	{
+		return "dynamic-tile ( "+startDirection+", "+horizontalDirection+", "+verticalDirection+" )";
+	}
 #end
 }
 

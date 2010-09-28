@@ -168,6 +168,20 @@ class UIWindow extends Window
 	}
 	
 	
+#if flash9
+	private inline function setStyle (v)
+	{
+		return style = v;
+	}
+	
+	
+	public function applyStyling ()
+	{
+		
+	}
+#end
+	
+	
 	//
 	// ABSTRACT METHODS
 	//

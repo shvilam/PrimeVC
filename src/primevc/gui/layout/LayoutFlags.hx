@@ -88,5 +88,5 @@ class LayoutFlags
 	 * Property is not meant as a flag but to incicate that a layout-client.
 	 * percentage property is set to fill the left space
 	 */
-	public static inline var FILL					: UInt = 2147483647;
+	public static inline var FILL					: UInt = #if neko 1073741821 #else 2147483644 #end;
 }

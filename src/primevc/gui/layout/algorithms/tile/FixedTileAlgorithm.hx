@@ -37,6 +37,8 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.core.collections.IList;
  import primevc.core.collections.IListCollection;
  import primevc.core.geom.space.Direction;
+ import primevc.core.geom.space.Horizontal;
+ import primevc.core.geom.space.Vertical;
  import primevc.core.geom.IRectangle;
  import primevc.types.Number;
  import primevc.core.RangeIterator;
@@ -47,6 +49,7 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.LayoutContainer;
+ import primevc.types.Number;
  import primevc.utils.FastArray;
  import primevc.utils.IntMath;
   using primevc.utils.BitUtil;
@@ -164,10 +167,10 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	private var childVerAlgorithm	: VerticalFloatAlgorithm;
 	
 	
-	public function new( ?startDir:Direction ) 
+	public function new( ?startDir:Direction, ?maxTiles:Int = Number.INT_NOT_SET, ?horDirection:Horizontal, ?verDirection:Vertical ) 
 	{
-		super( startDir );
-		maxTilesInDirection	= 4;
+		super( startDir, horDirection, verDirection );
+		maxTilesInDirection	= maxTiles.notSet() ? 4 : maxTiles;
 		childHorAlgorithm	= new HorizontalFloatAlgorithm( horizontalDirection );
 		childVerAlgorithm	= new VerticalFloatAlgorithm( verticalDirection );
 	}
@@ -487,8 +490,13 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 #if neko
 	override public function toCode (code:ICodeGenerator)
 	{
-		super.toCode(code);
-		code.setProp( this, "maxTilesInDirection", maxTilesInDirection);
+		code.construct( this, [ startDirection, maxTilesInDirection, horizontalDirection, verticalDirection ] );
+	}
+	
+	
+	override public function toCSS (prefix:String = "") : String
+	{
+		return "fixed-tile ( "+startDirection+", "+maxTilesInDirection+", "+horizontalDirection+", "+verticalDirection+" )";
 	}
 #end
 }

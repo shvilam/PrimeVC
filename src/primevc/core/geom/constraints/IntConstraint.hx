@@ -48,7 +48,7 @@ class IntConstraint implements IConstraint<Int>
 	public var max	(default, setMax)	: Int;
 	
 	
-	public function new( min = Number.INT_MIN, max = Number.INT_MAX )
+	public function new( min = Number.INT_NOT_SET, max = Number.INT_NOT_SET )
 	{
 		change = new Signal0();
 		this.min = min;
@@ -56,12 +56,14 @@ class IntConstraint implements IConstraint<Int>
 	}
 	
 	
-	public function dispose () {
+	public inline function dispose ()
+	{
 		change.dispose();
 	}
 	
 	
-	private inline function setMin (v) {
+	private inline function setMin (v)
+	{
 		if (v != min) {
 			min = v;
 			change.send();
@@ -69,7 +71,8 @@ class IntConstraint implements IConstraint<Int>
 		return v;
 	}
 	
-	private inline function setMax (v) {
+	private inline function setMax (v)
+	{
 		if (v != max) {
 			max = v;
 			change.send();
@@ -77,13 +80,14 @@ class IntConstraint implements IConstraint<Int>
 		return v;
 	}
 	
-	public inline function validate (v:Int) : Int {
-		if (min.isSet() && max.isSet())
-			v = v.within( min, max );
-		else if (min.isSet())
-			v = IntMath.max( v, min );
-		else
-			v = IntMath.min( v, max );
+	public inline function validate (v:Int) : Int
+	{
+		if (v.notSet())
+			return v;
+		
+		if (min.isSet() && max.isSet())		v = v.within( min, max );
+		else if (min.isSet())				v = IntMath.max( v, min );
+		else								v = IntMath.min( v, max );
 		
 		return v;
 	}

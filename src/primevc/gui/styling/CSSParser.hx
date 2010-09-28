@@ -60,6 +60,7 @@ package primevc.gui.styling;
  import primevc.gui.layout.algorithms.DynamicLayoutAlgorithm;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.algorithms.RelativeAlgorithm;
+ import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.RelativeLayout;
  import primevc.gui.styling.declarations.EffectStyleDeclarations;
  import primevc.gui.styling.declarations.FilterStyleDeclarations;
@@ -107,7 +108,7 @@ class CSSParser
 	public static inline var R_PROPERTY_NAME		: String = "a-z0-9-";
 	public static inline var R_PROPERTY_VALUE		: String = R_WHITESPACE + "a-z0-9%#.,:)(/\"'-";
 	
-	public static inline var R_BLOCK_NAME			: String = "([.#]?)([a-z]+)";
+	public static inline var R_BLOCK_NAME			: String = "([.#]?)([a-z][a-z0-9_]+([.][a-z][a-z0-9_]+)?)";
 	public static inline var R_BLOCK_NAMES			: String = "" + R_BLOCK_NAME + "(" + R_SPACE_MUST + R_BLOCK_NAME + ")*";
 	public static inline var R_BLOCK_VALUE			: String = R_PROPERTY_VALUE + ":;";
 	
@@ -417,7 +418,7 @@ class CSSParser
 		
 		createStyleStructure( styles );
 		trace("--- DONE ----");
-	//	trace(styles.toCSS());
+		trace(styles.toCSS());
 	}
 	
 	
@@ -624,7 +625,10 @@ class CSSParser
 		//find correct block
 		getContentBlock( expr.matched(1) );
 		
-		var content = expr.matched(7).trim();
+	//	for (i in 0...10)
+	//		trace("["+i+"] "+expr.matched(i));
+		
+		var content = expr.matched(9).trim();
 		if (content != "")
 			parseBlock(content.trim());
 	}
@@ -689,7 +693,7 @@ class CSSParser
 	 */
 	private function parseBlock (content:String) : Void
 	{
-		trace("parseBlock "+content);
+	//	trace("parseBlock "+content);
 		propExpr.matchAll(content, handleMatchedProperty);
 	}
 	
@@ -978,8 +982,8 @@ class CSSParser
 	private inline function parseUnitInt (v:String) : Int
 	{
 		var n = Number.INT_NOT_SET;
-		if (floatUnitValExpr.match(v))
-			n = floatUnitValExpr.matched(3) != null ? floatUnitValExpr.matched(3).parseInt() : 0;
+		if (floatUnitValExpr.match(v) && floatUnitValExpr.matched(3) != null)
+			n = floatUnitValExpr.matched(3).parseInt();
 		
 		return n;
 	}
@@ -988,8 +992,8 @@ class CSSParser
 	private inline function parseUnitFloat(v:String) : Float
 	{
 		var n = Number.FLOAT_NOT_SET;
-		if (floatUnitValExpr.match(v))
-			n = floatUnitValExpr.matched(3) != null ? floatUnitValExpr.matched(3).parseFloat() : 0;
+		if (floatUnitValExpr.match(v) && floatUnitValExpr.matched(3) != null)
+			n = floatUnitValExpr.matched(3).parseFloat();
 
 		return n;
 	}
@@ -1374,7 +1378,7 @@ class CSSParser
 		var repeatStr	= "";
 		
 		if (imageURIExpr.match(v))
-		{	
+		{
 			repeatStr	= imageURIExpr.matched(5);
 			bmp			= new Bitmap();
 			bmp.setString( (getBasePath() + "/" + imageURIExpr.matched(2)).replace("//", "/") );
@@ -1395,6 +1399,9 @@ class CSSParser
 	
 	private inline function parseRepeatImage (v:String) : Bool
 	{
+		if (v == null)
+			v = "";
+		
 		return switch (v.trim().toLowerCase()) {
 			default:			true;
 			case "no-repeat":	false;
@@ -1614,6 +1621,12 @@ class CSSParser
 	//
 	
 	
+	private function isAutoSize (v:String) : Bool
+	{
+		return v.trim().toLowerCase() == "auto";
+	}
+	
+	
 	/**
 	 * Method will parse the given width and set the value in the layout object.
 	 * Parsing is done in a separate method since the with can be a 
@@ -1622,7 +1635,8 @@ class CSSParser
 	 */
 	private function parseAndSetWidth (v:String) : Void
 	{
-		var w:Int = parseUnitInt(v);
+		var w:Int = isAutoSize(v) ? LayoutFlags.FILL : parseUnitInt(v);
+		
 		if (w.isSet())
 		{
 			createLayoutBlock();
@@ -1648,7 +1662,7 @@ class CSSParser
 	 */
 	private function parseAndSetHeight (v:String) : Void
 	{
-		var h:Int = parseUnitInt(v);
+		var h:Int = isAutoSize(v) ? LayoutFlags.FILL : parseUnitInt(v);
 		if (h.isSet())
 		{
 			createLayoutBlock();
@@ -1729,9 +1743,9 @@ class CSSParser
 			createLayoutBlock();
 			
 			var top		= expr.matched(3).parseInt();
-			var right	= expr.matched( 8) != null ? expr.matched(10).parseInt() : top;
-			var bottom	= expr.matched(15) != null ? expr.matched(17).parseInt() : top;
-			var left	= expr.matched(22) != null ? expr.matched(24).parseInt() : right;
+			var right	= expr.matched( 8) != null ? expr.matched(10).parseInt() : Number.INT_NOT_SET; //top;
+			var bottom	= expr.matched(15) != null ? expr.matched(17).parseInt() : Number.INT_NOT_SET; //top;
+			var left	= expr.matched(22) != null ? expr.matched(24).parseInt() : Number.INT_NOT_SET; //right;
 			
 			if (currentBlock.layout.relative == null)
 			{
@@ -1839,18 +1853,30 @@ class CSSParser
 		// tile layouts
 		//
 		
-		else if (dynamicTileExpr.match(v)) {
-			var tileAlg = new DynamicTileAlgorithm( parseDirection( dynamicTileExpr.matched( 3 ) ) );
-			tileAlg.horizontalDirection	= parseHorDirection( dynamicTileExpr.matched( 5 ) );
-			tileAlg.verticalDirection	= parseVerDirection( dynamicTileExpr.matched( 7 ) );
-			algorithm = tileAlg;
+		else if (dynamicTileExpr.match(v))
+		{
+			if (dynamicTileExpr.matched(1) == null)
+				algorithm = new DynamicTileAlgorithm();
+			else
+			{
+				var tileAlg = new DynamicTileAlgorithm( parseDirection( dynamicTileExpr.matched( 3 ) ) );
+				if (dynamicTileExpr.matched( 5 ) != null)	tileAlg.horizontalDirection	= parseHorDirection( dynamicTileExpr.matched( 5 ) );
+				if (dynamicTileExpr.matched( 7 ) != null)	tileAlg.verticalDirection	= parseVerDirection( dynamicTileExpr.matched( 7 ) );
+				algorithm = tileAlg;
+			}
 		}
-		else if (fixedTileExpr.match(v)) {
-			var tileAlg = new FixedTileAlgorithm( parseDirection( fixedTileExpr.matched( 3 ) ) );
-			tileAlg.maxTilesInDirection	= fixedTileExpr.matched( 5 ).parseInt();
-			tileAlg.horizontalDirection	= parseHorDirection( fixedTileExpr.matched( 5 ) );
-			tileAlg.verticalDirection	= parseVerDirection( fixedTileExpr.matched( 7 ) );
-			algorithm = tileAlg;
+		else if (fixedTileExpr.match(v))
+		{
+			if (fixedTileExpr.matched(1) == null)
+				algorithm = new FixedTileAlgorithm();
+			else
+			{
+				var tileAlg = new FixedTileAlgorithm( parseDirection( fixedTileExpr.matched( 2 ) ) );
+				if (fixedTileExpr.matched( 4 ) != null)		tileAlg.maxTilesInDirection	= fixedTileExpr.matched( 4 ).parseInt();
+				if (fixedTileExpr.matched( 6 ) != null)		tileAlg.horizontalDirection	= parseHorDirection( fixedTileExpr.matched( 6 ) );
+				if (fixedTileExpr.matched( 8 ) != null)		tileAlg.verticalDirection	= parseVerDirection( fixedTileExpr.matched( 8 ) );
+				algorithm = tileAlg;
+			}
 		}
 		
 		

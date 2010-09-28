@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.tools.generator;
+ import primevc.gui.layout.LayoutFlags;
  import primevc.types.RGBA;
  import primevc.utils.Color;
  import primevc.utils.NumberUtil;
@@ -139,6 +140,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 		if		(isColor(v))					return Color.string(v);
 		else if (Std.is( v, ICodeFormattable ))	return "cast " + getVar(v);
 		else if (isUndefinedNumber(v))			return (Std.is( v, Int ) || isConstructor) ? "primevc.types.Number.INT_NOT_SET" : "primevc.types.Number.FLOAT_NOT_SET";
+		else if (v == LayoutFlags.FILL)			return "primevc.gui.layout.LayoutFlags.FILL";
 		else if (v == null)						return "null";
 		else if (Std.is( v, String ))			return "'" + v + "'";
 		else if (Std.is( v, Int ))				return Std.string(v);

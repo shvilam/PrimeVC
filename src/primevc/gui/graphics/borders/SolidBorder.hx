@@ -49,7 +49,7 @@ class SolidBorder extends BorderBase <SolidFill>
 	{
 		changes = 0;
 #if flash9
-		target.graphics.lineStyle( weight, fill.color.rgb(), fill.color.alpha(), pixelHinting, LineScaleMode.NORMAL, caps, joint );
+		target.graphics.lineStyle( weight, fill.color.rgb(), fill.color.alpha().float(), pixelHinting, LineScaleMode.NORMAL, caps, joint );
 #end
 	}
 }

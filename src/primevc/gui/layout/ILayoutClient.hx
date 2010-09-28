@@ -158,8 +158,8 @@ interface ILayoutClient
 	public var events				(default, null)						: LayoutEvents;
 	
 	public var state				(default, null)						: SimpleStateMachine < ValidateStates >;
-	public var validatedHorizontal	(default, null)						: Bool;
-	public var validatedVertical	(default, null)						: Bool;
+	public var hasValidatedWidth	(default, null)						: Bool;
+	public var hasValidatedHeight	(default, null)						: Bool;
 	
 	
 	

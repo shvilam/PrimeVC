@@ -29,8 +29,11 @@
 package primevc.gui.styling;
 
 #if flash9
+import primevc.core.dispatcher.Wire;
  import primevc.core.IDisposable;
  import primevc.gui.styling.declarations.StyleDeclarationType;
+ import primevc.gui.styling.declarations.LayoutStyleDeclarations;
+ import primevc.gui.styling.declarations.LayoutStyleProxy;
  import primevc.gui.styling.declarations.UIElementStyle;
  import primevc.gui.traits.IStylable;
  import primevc.utils.FastArray;
@@ -54,9 +57,9 @@ package primevc.gui.styling;
  */
 class StyleSheet implements IDisposable
 {
-	private var idStyle			: UIElementStyle;
-	private var styleNameStyles	: FastArray < UIElementStyle >;
-	private var elementStyle	: UIElementStyle;
+	public var idStyle			: UIElementStyle;
+	public var styleNameStyles	: FastArray < UIElementStyle >;
+	public var elementStyle		: UIElementStyle;
 	
 	/**
 	 * object on which the style applies
@@ -66,7 +69,11 @@ class StyleSheet implements IDisposable
 	/**
 	 * cached classname (incl package) of target since target won't change.
 	 */
-	private var targetClassName	: String;
+	public var targetClassName	: String;
+	
+	
+	private var addedBinding	: Wire <Dynamic>;
+	private var removedBinding	: Wire <Dynamic>;
 	
 	
 	
@@ -79,15 +86,14 @@ class StyleSheet implements IDisposable
 		updateStyleClasses	.on( target.styleClasses.change, this );
 		updateIdStyle		.on( target.id.change, this );
 		init();
-		
-	//	updateStyles();
 	}
 	
 	
 	private function init ()
 	{
-		updateStyles	.on( target.displayEvents.addedToStage, this );
-		clearStyles		.on( target.displayEvents.removedFromStage, this );
+		addedBinding	= updateStyles	.on( target.displayEvents.addedToStage, this );
+		removedBinding	= clearStyles	.on( target.displayEvents.removedFromStage, this );
+		removedBinding.disable();
 	}
 	
 	
@@ -96,10 +102,19 @@ class StyleSheet implements IDisposable
 		if (target == null)
 			return;
 		
+		if (addedBinding != null) {
+			addedBinding.dispose();
+			addedBinding = null;
+		}
+		if (removedBinding != null) {
+			removedBinding.dispose();
+			removedBinding = null;
+		}
+		
 		target.styleClasses.change.unbind( this );
 		target.id.change.unbind( this );
-		target.displayEvents.addedToStage.unbind( this );
-		target.displayEvents.removedFromStage.unbind( this );
+	//	target.displayEvents.addedToStage.unbind( this );
+	//	target.displayEvents.removedFromStage.unbind( this );
 		
 		clearStyles();
 		styleNameStyles = null;
@@ -130,12 +145,20 @@ class StyleSheet implements IDisposable
 		//search in the element style
 		if (style == null && elementStyle != null)
 			style = elementStyle.findStyle(name, type, exclude);
+		
+		//look in parent.. (prevent infinte loops with parentStyle != this)
+		var parentStyle = getParentStyle();
+		if (style == null && parentStyle != null && parentStyle != this)
+			style = parentStyle.findStyle( name, type, exclude );
+		
 		return style;
 	}
 	
 	
 	private function clearStyles () : Void
 	{
+		removedBinding.disable();
+		addedBinding.enable();
 		styleNameStyles.removeAll();
 		idStyle			= null;
 		elementStyle	= null;
@@ -170,7 +193,7 @@ class StyleSheet implements IDisposable
 		//remove old id style
 		idStyle = null;
 		
-		if (target.id.value == "")
+		if (target.id.value == null || target.id.value == "")
 			return;
 		
 		var parentStyle = getParentStyle();
@@ -183,18 +206,33 @@ class StyleSheet implements IDisposable
 	{
 		var parentStyle = getParentStyle();
 		Assert.notNull( parentStyle );
-		elementStyle = parentStyle.findStyle( targetClassName, StyleDeclarationType.element );
+		
+		elementStyle = null;
+		var parentClass = target.getClass();
+		
+		//search for the first element style that is defined for this object or one of it's super classes
+		while (parentClass != null && elementStyle == null)
+		{
+			elementStyle	= parentStyle.findStyle( parentClass.getClassName(), StyleDeclarationType.element );
+			parentClass		= cast parentClass.getSuperClass();
+		}
+		
 	}
 	
 	
 	public function updateStyles () : Void
 	{
+		removedBinding.enable();
+		addedBinding.disable();
+		
 		if (getParentStyle() == null)
 			return;
 		
 		updateIdStyle();
 		updateStyleClasses();
 		updateElementStyle();
+		
+		target.applyStyling();
 	}
 	
 	
@@ -204,6 +242,103 @@ class StyleSheet implements IDisposable
 		Assert.that( target.container.is( IStylable ) );
 		Assert.notNull( target.container.as( IStylable ).style );
 		return target.container.as( IStylable ).style;
+	}
+	
+	
+	public function getLayout () : LayoutStyleDeclarations
+	{
+		return new LayoutStyleProxy(this);
+	}
+	
+	
+	
+	//
+	// ITERATABLE METHODS
+	//
+	
+	public function iterator () : Iterator < UIElementStyle >
+	{
+		return cast new StyleSheetIterator(this);
+	}
+}
+
+
+
+
+
+class StyleSheetIterator
+{
+	private var target				: StyleSheet;
+	private var currentStyleObj		: UIElementStyle;
+	
+	/**
+	 * The StyleDeclarationType of the last used UIElementStyle
+	 */
+	private var currentType			: StyleDeclarationType;
+	
+	/**
+	 * Keeps track of the last position of the currentStyleObj in the 
+	 * target.styleNameStyles list.
+	 */
+	private var styleNamesListPos	: Int;
+	
+	
+	
+	
+	public function new (target:StyleSheet)
+	{
+		this.target			= target;
+		currentType			= isTargetEmpty() ? null : specific;
+		styleNamesListPos	= -1;
+	}
+	
+	
+	public function next () : UIElementStyle
+	{
+		switch (currentType)
+		{
+			//there is no next object
+			case element:
+				currentStyleObj = null;
+				currentType		= null;
+			
+			
+			//element will be next if this is the last styleName style
+			case styleName:
+				if (styleNamesListPos >= target.styleNameStyles.length) {
+					currentStyleObj = target.elementStyle;
+					currentType		= element;
+				}
+				else
+					currentStyleObj	= target.styleNameStyles[ styleNamesListPos++ ];
+			
+			
+			case id:	
+				styleNamesListPos++;
+				currentType = styleName;
+			
+			
+			//currentStyleObj is still 'specific'
+			default:
+				currentType		= id;
+				currentStyleObj	= target.idStyle;
+		}
+		
+		
+		if (currentStyleObj == null && hasNext())
+			next();
+		
+		return currentStyleObj;
+	}
+	
+	
+	public function hasNext () : Bool {
+		return currentType != null && currentType != element;
+	}
+	
+	
+	private function isTargetEmpty () : Bool {
+		return target.idStyle == null && target.elementStyle == null && target.styleNameStyles.length == 0;
 	}
 }
 

@@ -43,7 +43,7 @@ class SizeConstraint implements IDisposable //implements IConstraint <Dynamic>
 	public var height (default, null)	: IntConstraint;
 	
 	
-	public function new(minW = Number.INT_MIN, maxW = Number.INT_MAX, minH = Number.INT_MIN, maxH = Number.INT_MAX) 
+	public function new(minW = Number.INT_NOT_SET, maxW = Number.INT_NOT_SET, minH = Number.INT_NOT_SET, maxH = Number.INT_NOT_SET) 
 	{
 		width	= new IntConstraint(minW, maxW);
 		height	= new IntConstraint(minH, maxH);
@@ -52,10 +52,10 @@ class SizeConstraint implements IDisposable //implements IConstraint <Dynamic>
 	
 	public function reset ()
 	{
-		width.min = Number.INT_MIN;
-		width.max = Number.INT_MAX;
-		height.min = Number.INT_MIN;
-		height.max = Number.INT_MAX;
+		width.min = Number.INT_NOT_SET;
+		width.max = Number.INT_NOT_SET;
+		height.min = Number.INT_NOT_SET;
+		height.max = Number.INT_NOT_SET;
 	}
 	
 	

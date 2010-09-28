@@ -162,7 +162,7 @@ class GradientFill extends GraphicElement, implements IFill
 		
 		for (fill in gradientStops) {
 			colors.push( fill.color.rgb() );
-			alphas.push( fill.color.alpha() );
+			alphas.push( fill.color.alpha().float() );
 			ratios.push( fill.position );
 		}
 		

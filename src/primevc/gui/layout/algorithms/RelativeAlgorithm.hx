@@ -65,7 +65,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 	{
 		if (!validatePrepared)
 		{
-			if (group.validatedHorizontal && !validatePreparedHor)
+			if (group.hasValidatedWidth && !validatePreparedHor)
 			{
 				for (child in group.children) {
 					if (child.relative == null || !child.includeInLayout)
@@ -79,7 +79,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 			}
 			
 			
-			if (group.validatedVertical && !validatePreparedVer)
+			if (group.hasValidatedHeight && !validatePreparedVer)
 			{
 				for (child in group.children) {
 					if (child.relative == null || !child.includeInLayout)
@@ -163,9 +163,14 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 
 
 #if (neko || debug)
+	override public function toString () : String
+	{
+		return toCSS(); //group + ".RelativeAlgorithm()"; // ( " + group.bounds.width + " -> " + group.bounds.height + " ) ";
+	}
+	
 	override public function toCSS (prefix:String = "") : String
 	{
-		return group + ".RelativeAlgorithm ( " + group.bounds.width + " -> " + group.bounds.height + " ) ";
+		return "relative";
 	}
 #end
 }

@@ -70,8 +70,8 @@ class LayoutClient implements ILayoutClient
 	
 	
 	public var state				(default, null)						: SimpleStateMachine < ValidateStates >;
-	public var validatedHorizontal	(default, null)						: Bool;
-	public var validatedVertical	(default, null)						: Bool;
+	public var hasValidatedWidth	(default, null)						: Bool;
+	public var hasValidatedHeight	(default, null)						: Bool;
 	
 	public var isValidating			(getIsValidating, never)			: Bool;
 	public var isInvalidated		(getIsInvalidated, never)			: Bool;
@@ -100,7 +100,6 @@ class LayoutClient implements ILayoutClient
 	// METHODS
 	//
 	
-	
 	public function new (newWidth:Int = 0, newHeight:Int = 0, validateOnPropertyChange = false)
 	{
 #if debug
@@ -125,8 +124,8 @@ class LayoutClient implements ILayoutClient
 		
 		changes				= changes.set(Flags.X | Flags.Y | Flags.WIDTH | Flags.HEIGHT);
 		state				= new SimpleStateMachine<ValidateStates>( ValidateStates.validated );
-		validatedVertical	= false;
-		validatedHorizontal	= false;
+		hasValidatedHeight	= false;
+		hasValidatedWidth	= false;
 	}
 	
 	
@@ -191,7 +190,7 @@ class LayoutClient implements ILayoutClient
 		
 		if (!state.is(ValidateStates.parent_invalidated))
 		{
-			if (parent != null && (parent.isInvalidated || parent.childInvalidated(changes))) {
+			if (includeInLayout && parent != null && (parent.isInvalidated || parent.childInvalidated(changes))) {
 				state.current = ValidateStates.parent_invalidated;
 			}
 			else
@@ -211,8 +210,8 @@ class LayoutClient implements ILayoutClient
 			return;
 		
 		state.current = ValidateStates.validating;
-		if (!validatedHorizontal)	validateHorizontal();
-		if (!validatedVertical)		validateVertical();
+		if (!hasValidatedWidth)	validateHorizontal();
+		if (!hasValidatedHeight)		validateVertical();
 		
 		//auto validate when there is no parent or when the parent isn't invalidated
 		if (parent == null || parent.changes == 0)
@@ -225,7 +224,7 @@ class LayoutClient implements ILayoutClient
 		if (changes.has(Flags.WIDTH))
 			bounds.width = width + getHorPadding();
 		
-		validatedHorizontal = true;
+		hasValidatedWidth = true;
 	}
 	
 	
@@ -234,7 +233,7 @@ class LayoutClient implements ILayoutClient
 		if (changes.has(Flags.HEIGHT))
 			bounds.height = height + getVerPadding();
 		
-		validatedVertical = true;
+		hasValidatedHeight = true;
 	}
 	
 	
@@ -252,8 +251,8 @@ class LayoutClient implements ILayoutClient
 		state.current	= ValidateStates.validated;
 		changes			= 0;
 		
-		validatedHorizontal	= false;
-		validatedVertical	= false;
+		hasValidatedWidth	= false;
+		hasValidatedHeight	= false;
 	}
 	
 	
@@ -472,7 +471,7 @@ class LayoutClient implements ILayoutClient
 				_height.validateValue.on( sizeConstraint.height.change, this );
 				invalidateSizeConstraint.on( sizeConstraint.width.change, this );
 				invalidateSizeConstraint.on( sizeConstraint.height.change, this );
-			
+				
 				//force size constraints to run for the first time
 				setWidth( width );
 				setHeight( height );

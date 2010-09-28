@@ -143,17 +143,23 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	}
 	
 	
+	private inline function isVisible () {
+		return (explicitWidth.notSet() || explicitWidth > 0) && (explicitHeight.notSet() || explicitHeight > 0);
+	} 
+	
+	
 	override public function validateHorizontal ()
 	{
-		if (validatedHorizontal)
+		if (hasValidatedWidth)
 			return;
 		
-		if (explicitWidth.isSet() && explicitWidth <= 0)
+		if (!isVisible())
 			return;
 		
 		var fillingChildren	= FastArrayUtil.create();
 		var childrenWidth	= 0;
-		validatedHorizontal	= true;
+		hasValidatedWidth	= true;
+		state.current		= ValidateStates.validating;
 		
 		if (algorithm != null)
 			algorithm.prepareValidate();
@@ -161,7 +167,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		for (child in children)
 		{
 			if (child.percentWidth == LayoutFlags.FILL) {
-				if (explicitWidth.isSet())
+			//	if (explicitWidth.isSet())
 					fillingChildren.push( child );
 				
 				child.width = Number.INT_NOT_SET;
@@ -194,15 +200,16 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	
 	override public function validateVertical ()
 	{
-		if (validatedVertical)
+		if (hasValidatedHeight)
 			return;
-		
-		if (explicitHeight.isSet() && explicitHeight <= 0)
+
+		if (!isVisible())
 			return;
 		
 		var fillingChildren	= FastArrayUtil.create();
 		var childrenHeight	= 0;
-		validatedVertical	= true;
+		hasValidatedHeight	= true;
+		state.current		= ValidateStates.validating;
 		
 		if (algorithm != null)
 			algorithm.prepareValidate();
@@ -210,7 +217,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		for (child in children)
 		{
 			if (child.percentHeight == LayoutFlags.FILL) {
-				if (explicitHeight.isSet())
+			//	if (explicitHeight.isSet())
 					fillingChildren.push( child );
 				
 				child.height = Number.INT_NOT_SET;
@@ -244,14 +251,19 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	
 	override public function validated ()
 	{
-		if (changes == 0 || !isValidating)
+		if (changes == 0 || !isValidating || !isVisible())
 			return;
+		
+	//	trace(this+"."+readChanges()+"; include: "+includeInLayout);
+	//	Assert.that(hasValidatedWidth, "To be validated, the layout should be validated horizontally for "+this);
+	//	Assert.that(hasValidatedHeight, "To be validated, the layout should be validated vertically for "+this);
 		
 		if (algorithm != null)
 			algorithm.apply();
 		
 		for (child in children)
-			child.validated();
+			if (child.includeInLayout)
+				child.validated();
 		
 		super.validated();
 	}

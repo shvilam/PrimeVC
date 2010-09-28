@@ -29,7 +29,9 @@
 package primevc.gui.core;
  import primevc.gui.layout.IScrollableLayout;
  import primevc.gui.layout.LayoutContainer;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
+
 
 #if flash9
 /* 
@@ -70,5 +72,18 @@ class UIContainer <DataType> extends UIDataComponent <DataType>
 	{
 		return style = v;
 	}*/
+	
+	override private function applyLayoutStyling (layoutProps) : Void
+	{
+		super.applyLayoutStyling(layoutProps);
+		
+		var algorithm	= layoutProps.algorithm;
+		var childW		= layoutProps.childWidth;
+		var childH		= layoutProps.childHeight;
+		
+		if (algorithm != null)		layoutContainer.algorithm	= algorithm;
+		if (childW.isSet())			layoutContainer.childWidth	= childW;
+		if (childH.isSet())			layoutContainer.childHeight	= childH;
+	}
 #end
 }

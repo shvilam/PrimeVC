@@ -62,7 +62,7 @@ class GradientBorder extends BorderBase <GradientFill>
 		
 		for (fill in fill.gradientStops) {
 			colors.push( fill.color.rgb() );
-			alphas.push( fill.color.alpha() );
+			alphas.push( fill.color.alpha().float() );
 			ratios.push( fill.position );
 		}
 		

@@ -13,5 +13,10 @@
 	<component id="List"				superClass="UIContainer"		fullname="primevc.gui.components.List" />
 	<component id="TextArea"			superClass="UIContainer"		fullname="primevc.gui.components.TextArea" />
 	
+	<component id="Tile"				superClass="Button"				fullname="cases.Tile" />
+	<component id="Button"				superClass="UIDataComponent"	fullname="cases.Button" />
+	<component id="Frame"				superClass="UIContainer"		fullname="cases.Frame" />
+	<component id="TileList"			superClass="Frame"				fullname="cases.TileList" />
+	<component id="GlobalApp"			superClass="UIContainer"		fullname="cases.GlobalApp" />
 <!--<component id="" superClass="" fullname="" />-->
 </componentPackage>

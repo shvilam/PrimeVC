@@ -30,7 +30,6 @@ package primevc.neko.utils;
  import primevc.types.RGBA;
   using primevc.neko.utils.Color;
   using primevc.utils.NumberUtil;
-//  using Math;
   using Std;
   using StringTools;
 
@@ -186,10 +185,10 @@ class Color
 			v += v;
 		else if (v.length == 8)
 		{
-			a = v.substr(6).parseInt();
+			a = ("0x" + v.substr(6)).parseInt();
 			v = v.substr(0, 6);
 		}
 		
-		return {color: ("0x"+v).parseInt(), a: a }.validate();
+		return {color: ("0x" + v).parseInt(), a: a }.validate();
 	}
 }

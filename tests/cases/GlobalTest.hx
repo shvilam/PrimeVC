@@ -95,7 +95,6 @@ class GlobalTestWindow extends UIWindow
 	{
 		var app = new GlobalApp();
 		children.add( app );
-	//	new Style();
 	}
 }
 
@@ -116,10 +115,10 @@ class GlobalApp extends UIContainer <Dynamic>
 	override private function createLayout ()
 	{
 		layout						= new LayoutContainer();
-		layout.relative				= new RelativeLayout( 5, 5, 5 );
-		layout.percentWidth			= 50;
-		layout.padding				= new Box( 5 );
-		layoutContainer.algorithm	= new RelativeAlgorithm();
+	//	layout.relative				= new RelativeLayout( 5, 5, 5 );
+	//	layout.percentWidth			= 50;
+	//	layout.padding				= new Box( 5 );
+	//	layoutContainer.algorithm	= new RelativeAlgorithm();
 	}
 	
 	
@@ -131,55 +130,58 @@ class GlobalApp extends UIContainer <Dynamic>
 	
 	override private function createChildren ()
 	{
+	//	trace("createChildren");
+	//	var proxy = style.getLayout();
+	//	trace("layout maxwidth "+proxy.maxWidth);
 		var frame0							= new TileList( "frame0", true );
-		frame0.layoutContainer.algorithm	= new VerticalFloatAlgorithm( Vertical.bottom );
-		frame0.layout.percentHeight			= 100;
+	//	frame0.layoutContainer.algorithm	= new VerticalFloatAlgorithm( Vertical.bottom );
+	//	frame0.layout.percentHeight			= 100;
 	//	frame0.layout.width					= 150;
 		
 		var frame1							= new TileList( "frame1", true );
-		frame1.layoutContainer.algorithm	= new HorizontalFloatAlgorithm( Horizontal.left );
-		frame1.layout.height				= 60;
-		frame1.layout.relative				= new RelativeLayout( 5, 5, Number.INT_NOT_SET, 5 );
+	//	frame1.layoutContainer.algorithm	= new HorizontalFloatAlgorithm( Horizontal.left );
+	//	frame1.layout.height				= 60;
+	//	frame1.layout.relative				= new RelativeLayout( 5, 5, Number.INT_NOT_SET, 5 );
 		
 		var frame2							= new TileList( "frame2", true, true, 150 );
-		var frame2Alg						= new FixedTileAlgorithm();
-		frame2Alg.maxTilesInDirection		= 16;
-		frame2Alg.startDirection			= Direction.vertical;
+	//	var frame2Alg						= new FixedTileAlgorithm();
+	//	frame2Alg.maxTilesInDirection		= 16;
+	//	frame2Alg.startDirection			= Direction.vertical;
 	//	frame2Alg.horizontalDirection		= Horizontal.right;
 	//	frame2Alg.verticalDirection			= Vertical.bottom;
-		frame2.layoutContainer.algorithm	= frame2Alg;
-		frame2.layout.relative				= new RelativeLayout( frame1.layout.bounds.bottom + 5, Number.INT_NOT_SET, 5, 5 );
-		frame2.layout.percentWidth			= 58;
+	//	frame2.layoutContainer.algorithm	= frame2Alg;
+	//	frame2.layout.relative				= new RelativeLayout( frame1.layout.bounds.bottom + 5, Number.INT_NOT_SET, 5, 5 );
+	//	frame2.layout.percentWidth			= 58;
 		
 		var frame3							= new TileList( "frame3", true );
-		frame3.layoutContainer.algorithm	= new DynamicTileAlgorithm();
-		frame3.layout.percentWidth			= 100;
-		frame3.layout.percentHeight			= 40;
+	//	frame3.layoutContainer.algorithm	= new DynamicTileAlgorithm();
+	//	frame3.layout.percentWidth			= 100;
+	//	frame3.layout.percentHeight			= 40;
 		
 		var frame4							= new Frame("frame4");
-		frame4.layout.percentWidth			= 50;
-		frame4.layout.percentHeight			= 100;
+	//	frame4.layout.percentWidth			= 50;
+	//	frame4.layout.percentHeight			= 100;
 		
 		var frame5							= new Frame("frame5");
-		frame5.layout.percentWidth			= LayoutFlags.FILL;
-		frame5.layout.percentHeight			= 100;
+	//	frame5.layout.percentWidth			= LayoutFlags.FILL;
+	//	frame5.layout.percentHeight			= 100;
 		
 		var frame6							= new Frame("frame6");
-		frame6.layout.percentWidth			= LayoutFlags.FILL;
-		frame6.layout.percentHeight			= 100;
+	//	frame6.layout.percentWidth			= LayoutFlags.FILL;
+	//	frame6.layout.percentHeight			= 100;
 		
 		var frame7							= new Frame("frame7");
-		frame7.layout.percentWidth			= 60;
-		frame7.layout.percentHeight			= 5;
+	//	frame7.layout.percentWidth			= 60;
+	//	frame7.layout.percentHeight			= 5;
 	//	frame7.layout.sizeConstraint	= new SizeConstraint(100, 400, 50, 200);
 		
 		var frame8							= new TileList( "frame8", true );
-		frame8.layout.percentWidth			= 100;
-		frame8.layout.percentHeight			= 40;
-		frame8.layoutContainer.algorithm	= new DynamicLayoutAlgorithm(
+	//	frame8.layout.percentWidth			= 100;
+	//	frame8.layout.percentHeight			= 40;
+	/*	frame8.layoutContainer.algorithm	= new DynamicLayoutAlgorithm(
 			new HorizontalCircleAlgorithm( Horizontal.left ),
 			new VerticalCircleAlgorithm( Vertical.top )
-		);
+		);*/
 		
 		var box0				= new VirtualLayoutContainer();
 		box0.algorithm			= new RelativeAlgorithm();
@@ -189,7 +191,7 @@ class GlobalApp extends UIContainer <Dynamic>
 		var box1				= new VirtualLayoutContainer();
 		var box1Alg				= new VerticalFloatAlgorithm();
 		box1Alg.direction		= Vertical.bottom;
-		box1.relative			= new RelativeLayout( frame1.layout.bounds.bottom + 5 /*TOP*/, 5/*RIGHT*/, 5/*BOTTOM*/, Number.INT_NOT_SET/*BOTTOM*/ );
+		box1.relative			= new RelativeLayout( 90, 5, 5, Number.INT_NOT_SET );
 		box1.percentWidth		= 40;
 		box1.algorithm			= box1Alg;
 		
@@ -236,12 +238,15 @@ class GlobalApp extends UIContainer <Dynamic>
 	
 	override private function createGraphics ()
 	{
-		graphicData.value = new GraphicProperties (
+	/*	graphicData.value = new GraphicProperties (
 			new RegularRectangle(),
-			layout.bounds, 
-			null, 
-			cast new SolidBorder( new SolidFill(0x00), 1 )
-		);
+			layout.bounds//, 
+		//	null, 
+		//	cast new SolidBorder( new SolidFill(0x00), 1 )
+		);*/
+		
+		graphicData.value.shape = new RegularRectangle();
+		graphicData.value.layout = layout.bounds;
 	}
 }
 
@@ -254,13 +259,13 @@ class Button extends UIDataComponent < String >
 	private var num				: Int;
 	private var textField		: TextField;
 #end
-	private var color			: UInt;
-	private var fill			: SolidFill;
+//	private var color			: UInt;
+//	private var fill			: SolidFill;
 	
 	
 	public function new (?id:String = "button")
 	{
-		color		= 0xaaaaaa;
+//		color		= 0xaaaaaa;
 #if debug
 		num			= counter++;
 		super(id + num);
@@ -270,27 +275,29 @@ class Button extends UIDataComponent < String >
 	}
 	
 	
-	private function highlight ()	{ fill.color = 0xaaaaaa; }
-	private function normallity ()	{ fill.color = color; }
+//	private function highlight ()	{ fill.color = 0xaaaaaa; }
+//	private function normallity ()	{ fill.color = color; }
 	
 	
 	override private function createBehaviours ()
 	{
-		highlight.on( userEvents.mouse.rollOver, this );
-		normallity.on( userEvents.mouse.rollOut, this );
+	//	highlight.on( userEvents.mouse.rollOver, this );
+	//	normallity.on( userEvents.mouse.rollOut, this );
 	}
 	
 	
 	override private function createLayout ()
 	{
-		layout	= new LayoutClient(20, 20);
+		layout	= new LayoutClient();
 	}
 	
 	
 	override private function createGraphics ()
 	{	
-		fill = new SolidFill( color );
-		graphicData.value = new GraphicProperties( new RegularRectangle(), layout.bounds, fill );
+	//	fill = new SolidFill( color );
+/*		graphicData.value = new GraphicProperties( new RegularRectangle(), layout.bounds ); //, fill );*/
+		graphicData.value.shape = new RegularRectangle();
+		graphicData.value.layout = layout.bounds;
 	}
 	
 #if (debug && flash9)
@@ -318,8 +325,8 @@ class Tile extends Button, implements IDraggable
 	public function new (?dynamicSize = false)
 	{
 		this.dynamicSize = dynamicSize;
-		super("tile");
-		color		= Color.random();
+		super();
+	//	color		= Color.random();
 		dragEvents	= new DragEvents();
 		
 		effects			= new UIElementEffects( this );
@@ -330,12 +337,12 @@ class Tile extends Button, implements IDraggable
 	}
 
 
-	override private function createLayout ()
+	override private function createGraphics ()
 	{	
-		super.createLayout();
+		super.createGraphics();
 		if (dynamicSize) {
-			layout.width += Std.int(30 * Math.random());
-			layout.height += Std.int(30 * Math.random());
+			layout.width += Std.int(layout.width * Math.random());
+			layout.height += Std.int(layout.height * Math.random());
 		}
 	}
 	
@@ -377,8 +384,8 @@ class Frame extends UIContainer < String >
 #if debug
 	public var textField	: TextField;
 #end
-	private var color 		: UInt;
-	private var fill		: SolidFill;
+//	private var color 		: UInt;
+//	private var fill		: SolidFill;
 
 
 	override private function createLayout ()
@@ -401,9 +408,11 @@ class Frame extends UIContainer < String >
 
 	override private function createGraphics ()
 	{
-		color	= Color.random();
-		fill	= new SolidFill(0xFFFFFFFF);
-		graphicData.value = new GraphicProperties( new RegularRectangle(), layout.bounds, fill, cast new SolidBorder( new SolidFill(color), 3, true ) );
+	//	color	= Color.random();
+	//	fill	= new SolidFill(0xFFFFFFFF);
+	//	graphicData.value = new GraphicProperties( new RegularRectangle(), layout.bounds ); //, fill, cast new SolidBorder( new SolidFill(color), 3, true ) );
+		graphicData.value.shape = new RegularRectangle();
+		graphicData.value.layout = layout.bounds;
 	}
 }
 
@@ -427,7 +436,7 @@ class TileList extends Frame, implements IDropTarget
 		doubleClickEnabled				= true;
 		
 		dragEvents	= new DropTargetEvents();
-		super(id);
+		super(id, id);
 	}
 
 	override private function createBehaviours ()
@@ -439,8 +448,8 @@ class TileList extends Frame, implements IDropTarget
 	//	behaviours.add( new MouseMoveScrollBehaviour(this) );
 	//	behaviours.add( new CornerScrollBehaviour(this) );
 		behaviours.add( new DragScrollBehaviour(this) );
-		dragOverHandler.on( dragEvents.over, this );
-		dragOutHandler.on( dragEvents.out, this );
+	//	dragOverHandler.on( dragEvents.over, this );
+	//	dragOutHandler.on( dragEvents.out, this );
 		addTile.on( userEvents.mouse.doubleClick, this );
 	}
 	
@@ -456,12 +465,11 @@ class TileList extends Frame, implements IDropTarget
 	override private function createLayout ()
 	{
 		super.createLayout();
-		layout.padding = new Box(10);
 
-		if (!dynamicSizes) {
+/*		if (!dynamicSizes) {
 			layoutContainer.childWidth	= 20;
 			layoutContainer.childHeight	= 20;
-		}
+		}*/
 	}
 	
 
@@ -484,6 +492,6 @@ class TileList extends Frame, implements IDropTarget
 		return layoutContainer.algorithm.getDepthForBounds(bounds);
 	}
 	
-	private function dragOverHandler ()	{ fill.color = color.setAlpha(.3.uint()); }
-	private function dragOutHandler ()	{ fill.color = 0xffffffff; }
+//	private function dragOverHandler ()	{ fill.color = color.setAlpha(.3.uint()); }
+//	private function dragOutHandler ()	{ fill.color = 0xffffffff; }
 }

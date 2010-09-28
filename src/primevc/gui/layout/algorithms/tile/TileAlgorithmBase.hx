@@ -31,6 +31,8 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.tools.generator.ICodeGenerator;
 #end
  import primevc.core.geom.space.Direction;
+ import primevc.core.geom.space.Horizontal;
+ import primevc.core.geom.space.Vertical;
  import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
  import primevc.gui.layout.algorithms.float.VerticalFloatAlgorithm;
  import primevc.gui.layout.algorithms.DynamicLayoutAlgorithm;
@@ -52,11 +54,11 @@ class TileAlgorithmBase extends DynamicLayoutAlgorithm
 	public var startDirection			(default, setStartDirection)		: Direction;
 	
 	
-	public function new( ?startDir:Direction ) 
+	public function new( ?startDir:Direction, ?horDirection:Horizontal, ?verDirection:Vertical ) 
 	{
 		super(
-			new HorizontalFloatAlgorithm(),
-			new VerticalFloatAlgorithm()
+			new HorizontalFloatAlgorithm( horDirection ),
+			new VerticalFloatAlgorithm( verDirection )
 		);
 		
 		horizontalDirection	= horAlgorithm.direction;
@@ -83,9 +85,7 @@ class TileAlgorithmBase extends DynamicLayoutAlgorithm
 #if neko
 	override public function toCode (code:ICodeGenerator)
 	{
-		code.construct( this, [ startDirection ] );
-		code.setProp( this, "horizontalDirection", horizontalDirection );
-		code.setProp( this, "verticalDirection", verticalDirection );
+		code.construct( this, [ startDirection, horizontalDirection, verticalDirection ] );
 	}
 #end
 }

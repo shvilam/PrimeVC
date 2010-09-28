@@ -125,9 +125,13 @@ class GraphicProperties implements IGraphicElement
 	 */
 	public function draw (target:IDrawable, ?useCoordinates:Bool = false) : Void
 	{
+#if debug
 		Assert.notNull(layout);
 		Assert.notNull(shape);
-		
+#else
+		if (layout == null || shape == null)
+			return;
+#end		
 		changes = 0;
 
 		var l = layout;

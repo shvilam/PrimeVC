@@ -37,10 +37,15 @@ package primevc.gui.core;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.UIElementStates;
 #if flash9
+ import primevc.core.geom.constraints.SizeConstraint;
+ import primevc.gui.styling.declarations.LayoutStyleDeclarations;
+ import primevc.gui.styling.declarations.StyleFlags;
  import primevc.gui.styling.StyleSheet;
 #end
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 
@@ -210,9 +215,8 @@ class UIComponent extends Sprite, implements IUIComponent
 	{
 		skin = newSkin;
 
-		if (skin != null && skin.is(Skin)) {
+		if (skin != null && skin.is(Skin))
 			cast(skin, Skin<Dynamic>).owner = this;
-		}
 
 		return skin;
 	}
@@ -223,8 +227,104 @@ class UIComponent extends Sprite, implements IUIComponent
 	{
 		return style = v;
 	}
-#end
 	
+	
+	public function applyStyling ()
+	{
+		var propsToSet	= StyleFlags.BACKGROUND | StyleFlags.BORDER | /*StyleFlags.EFFECTS | StyleFlags.FILTERS |*/ StyleFlags.SHAPE | StyleFlags.SKIN;
+		var it			= style.iterator();
+		
+		while (it.hasNext() && propsToSet > 0)
+		{
+		//	trace(this+".hasNext? "+it.hasNext()+"; props: "+propsToSet);
+			var styleObj = it.next();
+				
+			//read skin
+			if ( propsToSet.has( StyleFlags.SKIN ) && styleObj.skin != null )
+			{
+				skin = Type.createInstance( styleObj.skin, null );
+				propsToSet = propsToSet.unset( StyleFlags.SKIN );
+			}
+
+			//read shape
+			if ( propsToSet.has( StyleFlags.SHAPE ) && styleObj.shape != null )
+			{
+				createGraphicDataObj();
+				graphicData.value.shape		= styleObj.shape;
+				graphicData.value.layout	= layout.bounds;
+				propsToSet = propsToSet.unset( StyleFlags.SHAPE );
+			}
+			
+			//read fill
+			if ( propsToSet.has( StyleFlags.BACKGROUND ) && styleObj.background != null )
+			{
+				createGraphicDataObj();
+				graphicData.value.fill = styleObj.background;
+				propsToSet = propsToSet.unset( StyleFlags.BACKGROUND );
+			}
+			
+			//read border
+			if ( propsToSet.has( StyleFlags.BORDER ) && styleObj.border != null )
+			{
+				createGraphicDataObj();
+				graphicData.value.border = styleObj.border;
+				propsToSet = propsToSet.unset( StyleFlags.BORDER );
+			}
+			
+			//read font properties
+			//read effects
+			//read filters
+		}
+		
+		applyLayoutStyling( style.getLayout() );
+	}
+	
+	
+	private function createGraphicDataObj ()
+	{
+		if (graphicData.value == null)
+			graphicData.value = new GraphicProperties();
+	}
+	
+	
+	private function applyLayoutStyling (layoutProps:LayoutStyleDeclarations) : Void
+	{
+		var w			= layoutProps.width;
+		var h			= layoutProps.height;
+		var pW			= layoutProps.percentWidth;
+		var pH			= layoutProps.percentHeight;
+		var relative	= layoutProps.relative;
+		var padding		= layoutProps.padding;
+		var maintain	= layoutProps.maintainAspectRatio;
+		var incl		= layoutProps.includeInLayout;
+		
+		if (w.isSet())			layout.width				= w;
+		if (h.isSet())			layout.height				= h;
+		if (pW.isSet())			layout.percentWidth			= pW;
+		if (pH.isSet())			layout.percentHeight		= pH;
+		if (relative != null)	layout.relative				= relative;
+		if (incl != null)		layout.includeInLayout		= incl;
+		if (maintain != null)	layout.maintainAspectRatio	= maintain;
+		if (padding != null)	layout.padding				= layoutProps.padding;
+		
+		//size constraintss
+		var minW = layoutProps.minWidth, maxW = layoutProps.maxWidth, minH = layoutProps.minHeight, maxH = layoutProps.maxHeight;
+		if (minW.isSet() || maxW.isSet() || minH.isSet() || maxH.isSet())
+		{
+			//create size constraint for layout client
+			if (layout.sizeConstraint == null)
+				layout.sizeConstraint = new SizeConstraint( minW, maxW, minH, maxH );
+			else
+			{
+				var c = layout.sizeConstraint;
+				if (minW.isSet())	c.width.min		= minW;
+				if (minH.isSet())	c.height.min	= minH;
+				if (maxW.isSet())	c.width.max		= maxW;
+				if (maxH.isSet())	c.height.max	= maxH;
+			}
+		}
+	}
+#end
 	
 	
 	//

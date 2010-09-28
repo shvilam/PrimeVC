@@ -1,11 +1,103 @@
-@import url("reset.css");
-@import "screen.css";
+UIComponent { color: #000; }
+UIGraphic { color: #000; }
+UITextField { color: #000; }
+Tile { color: #000; }
 
+
+GlobalApp {
+	relative: 5px 5px 5px;
+	width: 50%;
+	padding: 5px;
+	algorithm: float-hor;
+	
+	shape: rectangle;
+	border: solid 1px #000;
+}
+
+
+Button {
+	width: 15px;
+	height: 15px;
+	margin: 10px;
+	background: #ccc;
+	border: 1px solid #000;
+}
+
+Frame {
+	border: solid 3px #fedcba;
+	background: #abcdef44;
+}
+
+TileList {
+	padding: 10px;
+	child-width: 40px;
+	child-height: 40px;
+}
+
+
+#frame0 {
+	algorithm: float-ver( bottom );
+	height: 100%;
+}
+
+#frame1 {
+	algorithm: float-hor( left );
+	height: 60px;
+	
+	top: 5px;
+	right: 5px;
+	left: 5px;
+}
+
+#frame2 {
+	algorithm: fixed-tile( vertical, 16, left, bottom );
+	width: 58%;
+	top: 90px;
+	bottom: 5px;
+	left: 5px;
+}
+
+#frame3 {
+	algorithm: dynamic-tile;
+	width: 100%;
+	height: 40%;
+}
+
+#frame4 {
+	width: 50%;
+	height: 100%;
+}
+
+#frame5 {
+	width: auto;
+	height: 100%;
+}
+
+#frame6 {
+	width: auto;
+	height: 100%;
+}
+
+#frame7 {
+	width: 60%;
+	height: 5%;
+}
+
+#frame8 {
+	width: 100%;
+	height: 40%;
+	algorithm: circle;
+}
+
+
+/*import url("reset.css");
+import "screen.css";*/
+/*
 UIComponent {
 	float: left;
 	text-align: center;
 	color: rgba(50, 12, 200,0.1);
-}
+/*}
 
 Label {
 	font-weight: bold;
@@ -16,17 +108,23 @@ Label {
 	text-align: left;
 /*	background-image: Class(nl.onlinetouch.Aap) repeat-both; */
 }
-
+/*
 
 * {
 	font-size: 10px;
 }
 
 
+Tile {
+	font-weight: bold;
+}
+
 UIWindow {
 	
 }
-
+GlobalApp {
+	max-width: 200px;
+}
 
 TextArea {
 	background-color: linear-gradient( 90deg, #aaa, #dddddd, #eee, #fff );
@@ -71,4 +169,4 @@ TextArea Button Aap .eenVeld {
 
 #idable {}
 
-#idable .eenVeld Label { font-size:44px;}
+#idable .eenVeld Label { font-size:44px;}*/

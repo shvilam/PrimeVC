@@ -192,6 +192,12 @@ class UITextField extends TextField, implements IUIElement
 	{
 		return style = v;
 	}
+	
+	
+	public function applyStyling ()
+	{
+		
+	}
 #end
 	
 	

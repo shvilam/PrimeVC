@@ -48,6 +48,27 @@ package primevc.gui.styling.declarations;
  */
 class LayoutStyleDeclarations extends StylePropertyGroup
 {
+	private var _relative				: RelativeLayout;
+	private var _algorithm				: ILayoutAlgorithm;
+	private var _padding				: Box;
+	
+	private var _width					: Int;
+	private var _minWidth				: Int;
+	private var _maxWidth				: Int;
+	private var _percentWidth			: Float;
+	
+	private var _height					: Int;
+	private var _minHeight				: Int;
+	private var _maxHeight				: Int;
+	private var _percentHeight			: Float;
+	
+	private var _childWidth				: Int;
+	private var _childHeight			: Int;	
+	private var _rotation				: Float;
+	private var _maintainAspectRatio	: Null < Bool >;
+	private var _includeInLayout		: Null < Bool >;
+	
+	
 	public var relative				(getRelative,			setRelative)		: RelativeLayout;
 	public var algorithm			(getAlgorithm,			setAlgorithm)		: ILayoutAlgorithm;
 	public var padding				(getPadding,			setPadding)			: Box;
@@ -87,50 +108,50 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	)
 	{
 		super();
-		this.relative			= rel;
-		this.algorithm			= alg;
-		this.padding			= padding;
+		_relative				= rel;
+		_algorithm				= alg;
+		_padding				= padding;
 		
-		this.percentWidth		= percentW == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentW;
-		this.percentHeight		= percentH == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentH;
-		this.width				= width;
-		this.height				= height;
-		this.childWidth			= childWidth;
-		this.childHeight		= childHeight;
-		this.rotation			= rotation == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : rotation;
+		_percentWidth			= percentW == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentW;
+		_percentHeight			= percentH == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentH;
+		_width					= width;
+		_height					= height;
+		_childWidth				= childWidth;
+		_childHeight			= childHeight;
+		_rotation				= rotation == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : rotation;
 		
-		maintainAspectRatio		= maintainAspect;
-		includeInLayout			= include;
+		_maintainAspectRatio	= maintainAspect;
+		_includeInLayout		= include;
 		
-		minWidth	= Number.INT_NOT_SET;
-		minHeight	= Number.INT_NOT_SET;
-		maxWidth	= Number.INT_NOT_SET;
-		maxHeight	= Number.INT_NOT_SET;
+		_minWidth	= Number.INT_NOT_SET;
+		_minHeight	= Number.INT_NOT_SET;
+		_maxWidth	= Number.INT_NOT_SET;
+		_maxHeight	= Number.INT_NOT_SET;
 	}
 	
 	
 	override public function dispose ()
 	{
-		if ((untyped this).relative != null)	relative.dispose();
-		if ((untyped this).algorithm != null)	algorithm.dispose();
+		if (_relative != null)		_relative.dispose();
+		if (_algorithm != null)		_algorithm.dispose();
 		
-		maintainAspectRatio = null;
-		includeInLayout	= null;
-		relative		= null;
-		algorithm		= null;
-		padding			= null;
-		percentWidth	= Number.FLOAT_NOT_SET;
-		percentHeight	= Number.FLOAT_NOT_SET;
-		width			= Number.INT_NOT_SET;
-		height			= Number.INT_NOT_SET;
-		childWidth		= Number.INT_NOT_SET;
-		childHeight		= Number.INT_NOT_SET;
-		rotation		= Number.FLOAT_NOT_SET;
+		_maintainAspectRatio	= null;
+		_includeInLayout		= null;
+		_relative				= null;
+		_algorithm				= null;
+		_padding				= null;
+		_percentWidth			= Number.FLOAT_NOT_SET;
+		_percentHeight			= Number.FLOAT_NOT_SET;
+		_width					= Number.INT_NOT_SET;
+		_height					= Number.INT_NOT_SET;
+		_childWidth				= Number.INT_NOT_SET;
+		_childHeight			= Number.INT_NOT_SET;
+		_rotation				= Number.FLOAT_NOT_SET;
 		
-		minWidth		= Number.INT_NOT_SET;
-		minHeight		= Number.INT_NOT_SET;
-		maxWidth		= Number.INT_NOT_SET;
-		maxHeight		= Number.INT_NOT_SET;
+		_minWidth				= Number.INT_NOT_SET;
+		_minHeight				= Number.INT_NOT_SET;
+		_maxWidth				= Number.INT_NOT_SET;
+		_maxHeight				= Number.INT_NOT_SET;
 		
 		super.dispose();
 	}
@@ -143,7 +164,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function getRelative ()
 	{
-		var v = relative;
+		var v = _relative;
 		if (v == null && getExtended() != null)		v = getExtended().layout.relative;
 		if (v == null && getSuper() != null)		v = getSuper().layout.relative;
 		return v;
@@ -152,7 +173,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function getAlgorithm ()
 	{
-		var v = algorithm;
+		var v = _algorithm;
 		if (v == null && getExtended() != null)		v = getExtended().layout.algorithm;
 		if (v == null && getSuper() != null)		v = getSuper().layout.algorithm;
 		return v;
@@ -161,7 +182,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function getPadding ()
 	{
-		var v = padding;
+		var v = _padding;
 		if (v == null && getExtended() != null)		v = getExtended().layout.padding;
 		if (v == null && getSuper() != null)		v = getSuper().layout.padding;
 		return v;
@@ -170,7 +191,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function getWidth ()
 	{
-		var v = width;
+		var v = _width;
 		if (v.notSet() && getExtended() != null)	v = getExtended().layout.width;
 		if (v.notSet() && getSuper() != null)		v = getSuper().layout.width;
 		return v;
@@ -179,7 +200,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function getMaxWidth ()
 	{
-		var v = maxWidth;
+		var v = _maxWidth;
 		if (v.notSet() && getExtended() != null)	v = getExtended().layout.maxWidth;
 		if (v.notSet() && getSuper() != null)		v = getSuper().layout.maxWidth;
 		return v;
@@ -188,7 +209,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function getMinWidth ()
 	{
-		var v = minWidth;
+		var v = _minWidth;
 		if (v.notSet() && getExtended() != null)	v = getExtended().layout.minWidth;
 		if (v.notSet() && getSuper() != null)		v = getSuper().layout.minWidth;
 		return v;
@@ -197,7 +218,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function getPercentWidth ()
 	{
-		var v = percentWidth;
+		var v = _percentWidth;
 		if (v.notSet() && getExtended() != null)	v = getExtended().layout.percentWidth;
 		if (v.notSet() && getSuper() != null)		v = getSuper().layout.percentWidth;
 		return v;
@@ -206,7 +227,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function getHeight ()
 	{
-		var v = height;
+		var v = _height;
 		if (v.notSet() && getExtended() != null)	v = getExtended().layout.height;
 		if (v.notSet() && getSuper() != null)		v = getSuper().layout.height;
 		return v;
@@ -215,7 +236,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function getMaxHeight ()
 	{
-		var v = maxHeight;
+		var v = _maxHeight;
 		if (v.notSet() && getExtended() != null)	v = getExtended().layout.maxHeight;
 		if (v.notSet() && getSuper() != null)		v = getSuper().layout.maxHeight;
 		return v;
@@ -224,7 +245,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function getMinHeight ()
 	{
-		var v = minHeight;
+		var v = _minHeight;
 		if (v.notSet() && getExtended() != null)	v = getExtended().layout.minHeight;
 		if (v.notSet() && getSuper() != null)		v = getSuper().layout.minHeight;
 		return v;
@@ -233,7 +254,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function getPercentHeight ()
 	{
-		var v = percentHeight;
+		var v = _percentHeight;
 		if (v.notSet() && getExtended() != null)	v = getExtended().layout.percentHeight;
 		if (v.notSet() && getSuper() != null)		v = getSuper().layout.percentHeight;
 		return v;
@@ -242,7 +263,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function getChildWidth ()
 	{
-		var v = childWidth;
+		var v = _childWidth;
 		if (v.notSet() && getExtended() != null)	v = getExtended().layout.childWidth;
 		if (v.notSet() && getSuper() != null)		v = getSuper().layout.childWidth;
 		return v;
@@ -251,7 +272,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function getChildHeight ()
 	{
-		var v = childHeight;
+		var v = _childHeight;
 		if (v.notSet() && getExtended() != null)	v = getExtended().layout.childHeight;
 		if (v.notSet() && getSuper() != null)		v = getSuper().layout.childHeight;
 		return v;
@@ -260,7 +281,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function getRotation ()
 	{
-		var v = rotation;
+		var v = _rotation;
 		if (v.notSet() && getExtended() != null)	v = getExtended().layout.rotation;
 		if (v.notSet() && getSuper() != null)		v = getSuper().layout.rotation;
 		return v;
@@ -269,7 +290,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 
 	private function getIncludeInLayout ()
 	{
-		var v = includeInLayout;
+		var v = _includeInLayout;
 		if (v == null && getExtended() != null)		v = getExtended().layout.includeInLayout;
 		if (v == null && getSuper() != null)		v = getSuper().layout.includeInLayout;
 		return v;
@@ -278,7 +299,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function getMaintainAspect ()
 	{
-		var v = maintainAspectRatio;
+		var v = _maintainAspectRatio;
 		if (v == null && getExtended() != null)		v = getExtended().layout.maintainAspectRatio;
 		if (v == null && getSuper() != null)		v = getSuper().layout.maintainAspectRatio;
 		return v;
@@ -293,8 +314,8 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function setRelative (v)
 	{
-		if (v != relative) {
-			relative = v;
+		if (v != _relative) {
+			_relative = v;
 			invalidate( LayoutFlags.RELATIVE );
 		}
 		return v;
@@ -303,8 +324,8 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function setAlgorithm (v)
 	{
-		if (v != algorithm) {
-			algorithm = v;
+		if (v != _algorithm) {
+			_algorithm = v;
 			invalidate( LayoutFlags.ALGORITHM );
 		}
 		return v;
@@ -313,8 +334,8 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function setPadding (v)
 	{
-		if (v != padding) {
-			padding = v;
+		if (v != _padding) {
+			_padding = v;
 			invalidate( LayoutFlags.PADDING );
 		}
 		return v;
@@ -323,8 +344,8 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function setWidth (v)
 	{
-		if (v != width) {
-			width = v;
+		if (v != _width) {
+			_width = v;
 			invalidate( LayoutFlags.WIDTH );
 		}
 		return v;
@@ -334,7 +355,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	private function setMaxWidth (v)
 	{
 		if (v != maxWidth) {
-			maxWidth = v;
+			_maxWidth = v;
 			invalidate( LayoutFlags.MAX_WIDTH );
 		}
 		return v;
@@ -343,8 +364,8 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function setMinWidth (v)
 	{
-		if (v != minWidth) {
-			minWidth = v;
+		if (v != _minWidth) {
+			_minWidth = v;
 			invalidate( LayoutFlags.MIN_WIDTH );
 		}
 		return v;
@@ -353,8 +374,8 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function setPercentWidth (v)
 	{
-		if (v != percentWidth) {
-			percentWidth = v;
+		if (v != _percentWidth) {
+			_percentWidth = v;
 			invalidate( LayoutFlags.PERCENT_WIDTH );
 		}
 		return v;
@@ -363,8 +384,8 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function setHeight (v)
 	{
-		if (v != height) {
-			height = v;
+		if (v != _height) {
+			_height = v;
 			invalidate( LayoutFlags.HEIGHT );
 		}
 		return v;
@@ -373,8 +394,8 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function setMaxHeight (v)
 	{
-		if (v != maxHeight) {
-			maxHeight = v;
+		if (v != _maxHeight) {
+			_maxHeight = v;
 			invalidate( LayoutFlags.MAX_HEIGHT );
 		}
 		return v;
@@ -383,8 +404,8 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function setMinHeight (v)
 	{
-		if (v != minHeight) {
-			minHeight = v;
+		if (v != _minHeight) {
+			_minHeight = v;
 			invalidate( LayoutFlags.MIN_HEIGHT );
 		}
 		return v;
@@ -393,8 +414,8 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function setPercentHeight (v)
 	{
-		if (v != percentHeight) {
-			percentHeight = v;
+		if (v != _percentHeight) {
+			_percentHeight = v;
 			invalidate( LayoutFlags.PERCENT_HEIGHT );
 		}
 		return v;
@@ -402,8 +423,8 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function setChildWidth (v)
 	{
-		if (v != childWidth) {
-			childWidth = v;
+		if (v != _childWidth) {
+			_childWidth = v;
 			invalidate( LayoutFlags.CHILD_WIDTH );
 		}
 		return v;
@@ -412,8 +433,8 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function setChildHeight (v)
 	{
-		if (v != childHeight) {
-			childHeight = v;
+		if (v != _childHeight) {
+			_childHeight = v;
 			invalidate( LayoutFlags.CHILD_HEIGHT );
 		}
 		return v;
@@ -422,8 +443,8 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function setRotation (v)
 	{
-		if (v != rotation) {
-			rotation = v;
+		if (v != _rotation) {
+			_rotation = v;
 			invalidate( LayoutFlags.ROTATION );
 		}
 		return v;
@@ -432,8 +453,8 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 
 	private function setIncludeInLayout (v)
 	{
-		if (v != includeInLayout) {
-			includeInLayout = v;
+		if (v != _includeInLayout) {
+			_includeInLayout = v;
 			invalidate( LayoutFlags.INCLUDE );
 		}
 		return v;
@@ -442,8 +463,8 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	private function setMaintainAspect (v)
 	{
-		if (v != maintainAspectRatio) {
-			maintainAspectRatio = v;
+		if (v != _maintainAspectRatio) {
+			_maintainAspectRatio = v;
 			invalidate( LayoutFlags.MAINTAIN_ASPECT );
 		}
 		return v;
@@ -455,26 +476,26 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	{
 		var css = [];
 		
-		if ((untyped padding) != null)					css.push("padding: " + padding.toCSS());
-		if ((untyped algorithm) != null)				css.push("algorithm: " + algorithm.toCSS());
-		if ((untyped relative) != null)					css.push("relative: " + relative.toCSS());
+		if (_padding != null)				css.push("padding: " + padding.toCSS());
+		if (_algorithm != null)				css.push("algorithm: " + algorithm.toCSS());
+		if (_relative != null)				css.push("relative: " + relative.toCSS());
 		
-		if (IntUtil.isSet( untyped width ))				css.push("width: " + width + "px");
-		if (FloatUtil.isSet( untyped percentWidth ))	css.push("width: " + percentWidth + "%");
-		if (IntUtil.isSet( untyped minWidth ))			css.push("min-width: " + minWidth + "px");
-		if (IntUtil.isSet( untyped maxWidth ))			css.push("max-width: " + maxWidth + "px");
+		if (_width.isSet())					css.push("width: " + width + "px");
+		if (_percentWidth.isSet())			css.push("width: " + percentWidth + "%");
+		if (_minWidth.isSet())				css.push("min-width: " + minWidth + "px");
+		if (_maxWidth.isSet())				css.push("max-width: " + maxWidth + "px");
 		
-		if (IntUtil.isSet( untyped height ))			css.push("height: " + height + "px");
-		if (FloatUtil.isSet( untyped percentHeight ))	css.push("height: " + percentHeight + "%");
-		if (IntUtil.isSet( untyped minHeight ))			css.push("min-height: " + minHeight + "px");
-		if (IntUtil.isSet( untyped maxHeight ))			css.push("max-height: " + maxHeight + "px");
+		if (_height.isSet())				css.push("height: " + height + "px");
+		if (_percentHeight.isSet())			css.push("height: " + percentHeight + "%");
+		if (_minHeight.isSet())				css.push("min-height: " + minHeight + "px");
+		if (_maxHeight.isSet())				css.push("max-height: " + maxHeight + "px");
 		
-		if (IntUtil.isSet( untyped childWidth ))		css.push("child-width: " + childWidth + "px");
-		if (IntUtil.isSet( untyped childHeight ))		css.push("child-height: " + childHeight + "px");
+		if (_childWidth.isSet())			css.push("child-width: " + childWidth + "px");
+		if (_childHeight.isSet())			css.push("child-height: " + childHeight + "px");
 		
-		if (FloatUtil.isSet( untyped rotation ))		css.push("rotation: " + rotation + "degr");
-		if ((untyped includeInLayout) != null)			css.push("position: " + (maintainAspectRatio ? "relative" : "absolute"));
-		if ((untyped maintainAspectRatio) != null)		css.push("maintainAspectRatio: " + (maintainAspectRatio ? "true" : "false"));
+		if (_rotation.isSet())				css.push("rotation: " + rotation + "degr");
+		if (_includeInLayout != null)		css.push("position: " + (maintainAspectRatio ? "relative" : "absolute"));
+		if (_maintainAspectRatio != null)	css.push("maintainAspectRatio: " + (maintainAspectRatio ? "true" : "false"));
 		
 		if (css.length > 0)
 			return "\n\t" + css.join(";\n\t") + ";";
@@ -485,27 +506,27 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	
 	override public function isEmpty () : Bool
 	{
-		return	IntUtil.notSet(untyped width) && 
-				IntUtil.notSet(untyped height) && 
+		return	_width.notSet() && 
+				_height.notSet() && 
 				
-				FloatUtil.notSet(untyped percentWidth) && 
-				FloatUtil.notSet(untyped percentHeight) && 
+				_percentWidth.notSet() && 
+				_percentHeight.notSet() && 
 				
-				IntUtil.notSet(untyped minWidth) && 
-				IntUtil.notSet(untyped minHeight) && 
-				IntUtil.notSet(untyped maxWidth) && 
-				IntUtil.notSet(untyped maxHeight) && 
+				_minWidth.notSet() && 
+				_minHeight.notSet() && 
+				_maxWidth.notSet() && 
+				_maxHeight.notSet() && 
 				
-				IntUtil.notSet(untyped childWidth) && 
-				IntUtil.notSet(untyped childHeight) && 
+				_childWidth.notSet() && 
+				_childHeight.notSet() && 
 				
-				((untyped padding) == null || (untyped padding).isEmpty()) &&
-				(untyped algorithm) == null &&
-				((untyped relative) == null || (untyped relative).isEmpty()) &&
+				(_padding == null || _padding.isEmpty()) &&
+				_algorithm == null &&
+				(_relative == null || _relative.isEmpty()) &&
 				
-				FloatUtil.notSet(untyped rotation) && 
-				(untyped includeInLayout) == null &&
-				(untyped maintainAspectRatio) == null;
+				_rotation.notSet() && 
+				_includeInLayout == null &&
+				_maintainAspectRatio == null;
 	}
 #end
 
@@ -515,17 +536,12 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	{
 		if (!isEmpty())
 		{
-			code.construct( this, [
-				untyped relative, untyped padding, untyped algorithm, 
-				untyped percentWidth, untyped percentHeight, untyped width, untyped height, 
-				untyped childWidth, untyped childHeight, 
-				untyped rotation, untyped includeInLayout, untyped maintainAspectRatio
-			] );
+			code.construct( this, [ _relative, _padding, _algorithm, _percentWidth, _percentHeight, _width, _height, _childWidth, _childHeight, _rotation, _includeInLayout, _maintainAspectRatio ] );
 			
-			if (IntUtil.isSet(untyped minWidth))		code.setProp( this, "minWidth", minWidth );
-			if (IntUtil.isSet(untyped minHeight))		code.setProp( this, "minHeight", minHeight );
-			if (IntUtil.isSet(untyped maxWidth))		code.setProp( this, "maxWidth", maxWidth );
-			if (IntUtil.isSet(untyped maxHeight))		code.setProp( this, "maxHeight", maxHeight );
+			if (_minWidth.isSet())		code.setProp( this, "minWidth", minWidth );
+			if (_minHeight.isSet())		code.setProp( this, "minHeight", minHeight );
+			if (_maxWidth.isSet())		code.setProp( this, "maxWidth", maxWidth );
+			if (_maxHeight.isSet())		code.setProp( this, "maxHeight", maxHeight );
 		}
 	}
 #end

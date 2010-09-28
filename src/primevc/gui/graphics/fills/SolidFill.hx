@@ -60,7 +60,7 @@ class SolidFill extends GraphicElement, implements IFill
 	{
 		changes = 0;
 #if flash9
-		target.graphics.beginFill( color.rgb(), color.alpha() );
+		target.graphics.beginFill( color.rgb(), color.alpha().float() );
 #end
 	}
 	
