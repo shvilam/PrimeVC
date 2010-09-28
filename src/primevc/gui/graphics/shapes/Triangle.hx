@@ -54,7 +54,7 @@ class Triangle extends ShapeBase, implements IGraphicShape
 	public function new (?direction:Position)
 	{
 		super();
-		this.direction = direction;
+		this.direction = direction == null ? Position.MiddleLeft : direction;
 		a = new IntPoint();
 		b = new IntPoint();
 		c = new IntPoint();
@@ -104,16 +104,17 @@ class Triangle extends ShapeBase, implements IGraphicShape
 				a.y = y + (height * .5).int();
 				b.x = x + width;
 				b.y = y;
-				c.x = a.x;
+				c.x = a.x + width;
 				c.y = y + height;
 			
 			case MiddleCenter:
+			/*	there is no middle center :-S
 				a.x = x + width;
 				a.y = y;
 				b.x = x;
 				b.y = y + (height * .5).int();
 				c.x = a.x;
-				c.y = y + height;
+				c.y = y + height;*/
 
 			case MiddleRight:
 				a.x = x;

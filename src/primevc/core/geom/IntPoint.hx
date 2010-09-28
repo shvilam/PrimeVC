@@ -28,6 +28,13 @@
  */
 package primevc.core.geom;
  import primevc.core.traits.IClonable;
+ import primevc.tools.generator.ICSSFormattable;
+#if neko
+ import primevc.tools.generator.ICodeFormattable;
+ import primevc.tools.generator.ICodeGenerator;
+ import primevc.utils.StringUtil;
+#end
+  using primevc.utils.NumberUtil;
   using Std;
  
 
@@ -37,20 +44,30 @@ package primevc.core.geom;
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
-class IntPoint implements IClonable <IntPoint>
+class IntPoint	implements IClonable <IntPoint>	
+			,	implements ICSSFormattable
+#if neko	,	implements ICodeFormattable		#end
 {
 	public static inline function fromFloat (x:Float, y:Float)	: IntPoint	{ return new IntPoint( x.int(), y.int() ); }
 	public static inline function fromPoint (p:Point)			: IntPoint	{ return new IntPoint( p.x.int(), p.y.int() ); }
 	
+	public var x		(getX, setX)	: Int;
+	public var y		(getY, setY)	: Int;
 	
-	public var x (getX, setX)	: Int;
-	public var y (getY, setY)	: Int;
+#if neko
+	public var uuid		(default, null) : String;
+#end
+	
+	
 	
 	
 	public function new(x = 0, y = 0)
 	{
-		this.x = x;
-		this.y = y;
+#if neko
+		this.uuid	= StringUtil.createUUID();
+#end
+		this.x		= x;
+		this.y		= y;
 	}
 	
 	
@@ -92,9 +109,27 @@ class IntPoint implements IClonable <IntPoint>
 	}
 	
 	
-#if debug
-	public inline function toString () {
+#if (debug || neko)
+	public inline function toString ()
+	{
 		return "IntPoint( "+x+", "+y+" )";
 	}
+	
+	
+	public function toCSS (prefix:String = "")
+	{
+		return x + "px, " + y + "px";
+	}
+#end
+	
+	
+#if neko
+	public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ x, y ] );
+	}
+	
+	
+	public function isEmpty () { return x.notSet() && y.notSet(); }
 #end
 }

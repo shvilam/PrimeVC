@@ -43,8 +43,7 @@ package primevc.core.geom;
  * @author Ruben Weijers
  * @creation-date Aug 01, 2010
  */
-class Corners
-				implements IClonable < Corners >
+class Corners	implements IClonable < Corners >
 #if neko	,	implements ICodeFormattable		#end
 {
 	public var topLeft		: Float;

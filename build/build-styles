@@ -27,21 +27,21 @@ done
 StyleFile=${Style}/Style.css
 
 #echo "MainFile: ${MainFile}"
-echo "Main: ${MainClass}"
-echo "Style: ${StyleFile}"
+echo "Main: ${MainClass}" &&
+echo "Style: ${StyleFile}" &&
 echo "Debugging? ${Debug:-false}"
 
 #create parser if the source files have changed
 if ${Force} || [[ ! -f ${Parser} ]]  ||  test ${MainFile} -nt ${Parser}  ||  test ${ParserClass} -nt ${Parser}  ; then  # ||  test ${StyleFile} -nt ${Parser} ; then
-	echo "Compiling parser"
+	echo "Compiling parser"  &&
 	haxe ${PRJROOT}/build/build-cssparser.hxml -main ${MainClass} -neko ${Parser} --no-inline ${Debug} ${Debug:---no-traces}
 fi;
 
 #compile css
 if [[ -d ${Style} ]] && [[ -f ${StyleFile} ]] && [[ -f ${Parser} ]]; then
-	echo "Running parser on ${StyleFile}"
+	echo "Running parser on ${StyleFile}" &&
 	neko ${Parser} ${Style}
 else
-	echo "Style '${StyleFile}' doesn't exist!"
+	echo "Style '${StyleFile}' doesn't exist!" &&
 	exit 1
 fi;

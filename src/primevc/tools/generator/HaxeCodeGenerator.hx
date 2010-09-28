@@ -154,9 +154,46 @@ class HaxeCodeGenerator implements ICodeGenerator
 	
 	private inline function isColor (v:Dynamic)					: Bool		{ return Reflect.hasField(v, "color") && Reflect.hasField(v, "a"); }
 	private inline function getClassName (obj:ICodeFormattable)	: String	{ return Type.getClass(obj).getClassName(); }
-	private inline function getEnumName (obj:Dynamic)			: String	{ return Type.getEnum( obj ).getEnumName() + "." + obj; }
 	private inline function addLine( line:String)				: Void		{ output.add( "\n" + linePrefix + line ); }
 	private inline function getVar (obj:ICodeFormattable)		: String	{ return varMap.exists( obj.uuid ) ? varMap.get( obj.uuid ) : createVarName( obj ); }
+	
+	
+	private inline function getEnumName (obj:Dynamic)			: String
+	{
+		var name	= Type.getEnum( obj ).getEnumName() + "." + Type.enumConstructor( obj );
+		var params	= Type.enumParameters( obj );
+		
+		//find and write the parameters of the enum.
+		if (params.length > 0)
+		{
+			var strParams = [];
+			for (param in params)
+			{
+				var type = Type.typeof(param);
+				var strParam:String = null;
+				switch (type)
+				{
+					case TClass( c ):
+						//create constructor with the right parameters from just a Class Reference..
+						var cName		= c.getClassName();
+						var pack		= cName.substr( 0, cName.lastIndexOf(".") );
+						strParam	= "new " + pack + "." + param;
+					
+					default:
+						strParam	= formatValue( param );
+				}
+				
+				if (strParam != null)
+					strParams.push(strParam);
+			}
+			
+			if (strParams.length > 0)
+				name += "( " + strParams.join(", ") + " )";
+		}
+		return name;
+	}
+	
+	
 	
 	
 	private inline function isUndefinedNumber (v:Dynamic) : Bool

@@ -43,7 +43,7 @@ class Circle extends ShapeBase, implements IGraphicShape
 	{
 		var radius = Formulas.getCircleRadius( width, height );
 #if flash9
-		target.graphics.drawCircle(x, y, radius);
+		target.graphics.drawCircle(x + radius, y + radius, radius);
 #end
 	}
 	

@@ -30,9 +30,12 @@ package primevc.gui.styling;
  import haxe.FastList;
  import primevc.core.geom.space.Direction;
  import primevc.core.geom.space.Horizontal;
+ import primevc.core.geom.space.MoveDirection;
+ import primevc.core.geom.space.Position;
  import primevc.core.geom.space.Vertical;
  import primevc.core.geom.Box;
  import primevc.core.geom.Corners;
+ import primevc.core.geom.IntPoint;
  import primevc.core.IDisposable;
  import primevc.gui.graphics.borders.BitmapBorder;
  import primevc.gui.graphics.borders.GradientBorder;
@@ -48,6 +51,7 @@ package primevc.gui.styling;
  import primevc.gui.graphics.fills.SpreadMethod;
  import primevc.gui.graphics.shapes.Circle;
  import primevc.gui.graphics.shapes.Ellipse;
+ import primevc.gui.graphics.shapes.IGraphicShape;
  import primevc.gui.graphics.shapes.Line;
  import primevc.gui.graphics.shapes.RegularRectangle;
  import primevc.gui.graphics.shapes.Triangle;
@@ -129,6 +133,7 @@ class CSSParser
 	public static inline var R_FLOAT_UNIT_VALUE		: String = "(0|(" + R_FLOAT_VALUE + R_UNITS + "))";
 	public static inline var R_PERC_VALUE			: String = "(" + R_FLOAT_VALUE + "%)";
 	public static inline var R_FLOAT_GROUP_VALUE	: String = R_FLOAT_UNIT_VALUE + "(" + R_SPACE + R_FLOAT_UNIT_VALUE + ")?(" + R_SPACE + R_FLOAT_UNIT_VALUE + ")?(" + R_SPACE + R_FLOAT_UNIT_VALUE + ")?";
+	public static inline var R_POINT_VALUE			: String = R_FLOAT_UNIT_VALUE + R_SPACE + "," + R_SPACE + R_FLOAT_UNIT_VALUE;
 	
 	public static inline var R_SIMPLE_GRADIENT_COLOR: String = "(" + R_COLOR_EXPR + ")(" + R_SPACE_MUST + R_SIMPLE_UNIT_VALUE + ")?";
 	public static inline var R_GRADIENT_COLOR		: String = "(" + R_COLOR_EXPR + ")(" + R_SPACE_MUST + "(0|" + R_FLOAT_UNIT_VALUE + "|" + R_PERC_VALUE + "))?";
@@ -183,6 +188,7 @@ class CSSParser
 	public static inline var R_HOR_DIR				: String = "(left|center|right)";
 	public static inline var R_VER_DIR				: String = "(top|center|bottom)";
 	public static inline var R_DIRECTIONS			: String = "(horizontal|vertical)";
+	public static inline var R_POSITIONS			: String = "(top[-]" + R_HOR_DIR + "|middle[-]" + R_HOR_DIR + "|bottom[-]" + R_HOR_DIR + "|(" + R_POINT_VALUE + "))";
 	
 	public static inline var R_COMMA				: String = R_SPACE + "," + R_SPACE;
 	
@@ -196,6 +202,7 @@ class CSSParser
 	public var floatValExpr				(default, null) : EReg;		//should match [float]
 	public var floatUnitValExpr			(default, null) : EReg;		//should match [float]unit
 	public var floatUnitGroupValExpr	(default, null) : EReg;		//should match [float]unit <[float]unit>? <[float]unit>? <[float]unit>?
+	public var pointExpr				(default, null) : EReg;		//matched a point value: [float]unit, [float]unit
 	
 	public var colorValExpr				(default, null) : EReg;
 	public var linGradientExpr			(default, null) : EReg;
@@ -222,6 +229,8 @@ class CSSParser
 	
 	public var dynamicTileExpr			(default, null) : EReg;
 	public var fixedTileExpr			(default, null) : EReg;
+	
+	public var triangleExpr				(default, null) : EReg;
 	
 	
 	
@@ -290,6 +299,7 @@ class CSSParser
 		floatValExpr			= new EReg(R_FLOAT_VALUE, "i");				//1 = value
 		floatUnitValExpr		= new EReg(R_FLOAT_UNIT_VALUE, "i");		//3 = value, 6 = unit
 		floatUnitGroupValExpr	= new EReg(R_FLOAT_GROUP_VALUE, "i");		//1 = prop1 ( 3 = val, 6 = unit ), 8 = prop2 ( 10 = val, 13 = unit ), 15 = prop3 ( 17 = val, 20 = unit ), 22 = prop4 ( 24 = val, 27 = unit )
+		pointExpr				= new EReg(R_POINT_VALUE, "i");				//1 = prop1 ( 3 = val, 6 = unit ), 8 = prop2 ( 10 = val, 13 = unit )
 		
 		colorValExpr			= new EReg(R_COLOR_EXPR, "i");
 		fontFamilyExpr			= new EReg("("+R_FONT_FAMILY_EXPR+")", "i");
@@ -374,6 +384,15 @@ class CSSParser
 			 		+ ")?"	
 		 		+ ")?"
 				+ R_SPACE + "[)]"
+			+ ")?"
+			, "i");
+		
+		triangleExpr	= new EReg(
+			  "triangle"
+			+ "("
+			 	+ R_SPACE + "[(]"
+			 	+ R_SPACE + R_POSITIONS
+			 	+ R_SPACE + "[)]"
 			+ ")?"
 			, "i");
 	}
@@ -753,6 +772,9 @@ class CSSParser
 			case "border-bottom-right-radius":	setBorderBottomRightRadius( parseUnitFloat( val ) );
 			
 			
+			case "shape":						parseAndSetShape( val );
+			
+			
 			//
 			// component properties
 			//
@@ -959,6 +981,9 @@ class CSSParser
 	
 	
 	
+	
+	
+	
 	//
 	// GENERAL UNIT CONVERSION / MATCH METHODS
 	//
@@ -1005,6 +1030,19 @@ class CSSParser
 	}
 	
 	
+	private function parseIntPoint (v:String) : IntPoint
+	{
+		var p:IntPoint = null;
+		if (v != null && pointExpr.match(v)) {
+			p = new IntPoint(
+				pointExpr.matched(3).parseInt(),
+				pointExpr.matched(10).parseInt()
+			);
+		}
+		return p;
+	}
+	
+	
 	private inline function isInt (v:String) : Bool			{ return intValExpr.match(v); }
 	private inline function isFloat (v:String) : Bool		{ return floatValExpr.match(v); }
 	private inline function isUnitInt (v:String) : Bool		{ return floatUnitValExpr.match(v); }
@@ -1041,6 +1079,60 @@ class CSSParser
 		
 		return clr;
 	}
+	
+	
+	private inline function parseDirection (v:String) : Direction
+	{
+		return switch (v) {
+			default:			Direction.horizontal;
+			case "vertical":	Direction.vertical;
+			case null:			null;
+		}
+	}
+	
+	
+	private inline function parseHorDirection (v:String) : Horizontal
+	{
+		return switch (v) {
+			default:		Horizontal.left;
+			case "center":	Horizontal.center;
+			case "right":	Horizontal.right;
+			case null:		null;
+		}
+	}
+
+
+	private inline function parseVerDirection (v:String) : Vertical
+	{
+		return switch (v) {
+			default:		Vertical.top;
+			case "center":	Vertical.center;
+			case "bottom":	Vertical.bottom;
+			case null:		null;
+		}
+	}
+	
+	
+	private inline function parsePosition (v:String) : Position
+	{
+		trace("parsePosition "+v);
+		return switch (v) {
+			case null:				null;
+			case "top-left":		Position.TopLeft;
+			case "top-center":		Position.TopCenter;
+			case "top-right":		Position.TopRight;
+			case "middle-left":		Position.MiddleLeft;
+			case "middle-center":	Position.MiddleCenter;
+			case "middle-right":	Position.MiddleRight;
+			case "bottom-left":		Position.BottomLeft;
+			case "bottom-center":	Position.BottomCenter;
+			case "bottom-right":	Position.BottomRight;
+			default:				Position.Custom( parseIntPoint(v) );
+		}
+	}
+	
+	
+	
 
 
 
@@ -1265,6 +1357,9 @@ class CSSParser
 					compFill.add(newFill);
 				}
 			}
+
+			if (currentBlock.background != null)
+				setDefaultShape();
 		}
 	}
 	
@@ -1420,6 +1515,43 @@ class CSSParser
 	
 	
 	
+	//
+	// SHAPE METHODS
+	//
+	
+	
+	/**
+	 * Method to make sure that the shape property isn't empty. If there's no
+	 * shape defined but there is a background or border, the shape proeprty
+	 * will be filled with a regular-rectangle.
+	 */
+	private function setDefaultShape ()
+	{
+		if (currentBlock.shape == null)
+			currentBlock.shape = new RegularRectangle();
+	}
+	
+	
+	private inline function parseAndSetShape (v:String) : Void
+	{
+		v = v.trim().toLowerCase();
+		
+		var shape:IGraphicShape = switch (v) {
+			case "line":		cast new Line();
+			case "circle":		cast new Circle();
+			case "ellipse":		cast new Ellipse();
+			case "rectangle":	cast new RegularRectangle();
+			default:			null;
+		}
+		
+		//try matching triangle shape..
+		if (shape == null && triangleExpr.match(v))
+			shape = new Triangle( parsePosition( triangleExpr.matched(2) ) );
+		
+		currentBlock.shape = shape;
+	}
+	
+	
 	
 	
 	//
@@ -1473,6 +1605,9 @@ class CSSParser
 					else								t.border		= copyBorderSettingsTo( t.border, cast new BitmapBorder( newFill.as(BitmapFill) ) );
 				}
 			}
+			
+			if (t.border != null)
+				setDefaultShape();
 		}
 	}
 	
@@ -1885,38 +2020,6 @@ class CSSParser
 		{
 			createLayoutBlock();
 			currentBlock.layout.algorithm = algorithm;
-		}
-	}
-	
-	
-	private inline function parseDirection (v:String) : Direction
-	{
-		return switch (v) {
-			default:			Direction.horizontal;
-			case "vertical":	Direction.vertical;
-			case null:			null;
-		}
-	}
-	
-	
-	private inline function parseHorDirection (v:String) : Horizontal
-	{
-		return switch (v) {
-			default:		Horizontal.left;
-			case "center":	Horizontal.center;
-			case "right":	Horizontal.right;
-			case null:		null;
-		}
-	}
-
-
-	private inline function parseVerDirection (v:String) : Vertical
-	{
-		return switch (v) {
-			default:		Vertical.top;
-			case "center":	Vertical.center;
-			case "bottom":	Vertical.bottom;
-			case null:		null;
 		}
 	}
 }
