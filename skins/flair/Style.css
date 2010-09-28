@@ -1,7 +1,7 @@
-UIComponent { color: #000; }
+UIComponent { color: #000; shape: rectangle; }
 UIGraphic { color: #000; }
 UITextField { color: #000; }
-Tile { color: #000; }
+Tile { color: #000; shape: ellipse; }
 
 
 GlobalApp {
@@ -17,8 +17,8 @@ Button {
 	width: 15px;
 	height: 15px;
 	margin: 10px;
-	background: #ccc;
-	shape: triangle ( middle-right );
+	background: radial-gradient( -1, #aaa, #000 40px, 0xadfc67f0 50%, #0f0f0f0f 60%, #222 70.987%, 0xabcdefdd 254.8px, repeat );
+/*	background: linear-gradient( 90deg, #ffffff00, #444, #fff );*/
 	border: 1px solid #000;
 }
 
@@ -63,16 +63,19 @@ TileList {
 }
 
 #frame4 {
-	width: 50%;
+	background: #a00;
+	width: auto;
 	height: 100%;
 }
 
 #frame5 {
+	background: #0a0;
 	width: auto;
 	height: 100%;
 }
 
 #frame6 {
+	background: #00a;
 	width: auto;
 	height: 100%;
 }

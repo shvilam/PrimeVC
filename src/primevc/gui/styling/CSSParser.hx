@@ -188,7 +188,7 @@ class CSSParser
 	public static inline var R_HOR_DIR				: String = "(left|center|right)";
 	public static inline var R_VER_DIR				: String = "(top|center|bottom)";
 	public static inline var R_DIRECTIONS			: String = "(horizontal|vertical)";
-	public static inline var R_POSITIONS			: String = "(top[-]" + R_HOR_DIR + "|middle[-]" + R_HOR_DIR + "|bottom[-]" + R_HOR_DIR + "|(" + R_POINT_VALUE + "))";
+	public static inline var R_POSITIONS			: String = "(top[-]" + R_HOR_DIR + "|middle[-](left|right)|bottom[-]" + R_HOR_DIR + "|(" + R_POINT_VALUE + "))";
 	
 	public static inline var R_COMMA				: String = R_SPACE + "," + R_SPACE;
 	
@@ -412,7 +412,7 @@ class CSSParser
 		}
 		catch (e:Dynamic)
 		{
-			trace("ERROR IMPORTING STYLESHEET: " + e);
+			trace("ERROR IMPORTING STYLESHEET (" + file + "): " + e);
 			return "";
 		}
 #else
@@ -1358,8 +1358,8 @@ class CSSParser
 				}
 			}
 
-			if (currentBlock.background != null)
-				setDefaultShape();
+		//	if (currentBlock.background != null)
+		//		setDefaultShape();
 		}
 	}
 	
@@ -1525,11 +1525,11 @@ class CSSParser
 	 * shape defined but there is a background or border, the shape proeprty
 	 * will be filled with a regular-rectangle.
 	 */
-	private function setDefaultShape ()
+	/*private function setDefaultShape ()
 	{
 		if (currentBlock.shape == null)
 			currentBlock.shape = new RegularRectangle();
-	}
+	}*/
 	
 	
 	private inline function parseAndSetShape (v:String) : Void
@@ -1606,8 +1606,8 @@ class CSSParser
 				}
 			}
 			
-			if (t.border != null)
-				setDefaultShape();
+		//	if (t.border != null)
+		//		setDefaultShape();
 		}
 	}
 	
@@ -1770,7 +1770,7 @@ class CSSParser
 	 */
 	private function parseAndSetWidth (v:String) : Void
 	{
-		var w:Int = isAutoSize(v) ? LayoutFlags.FILL : parseUnitInt(v);
+		var w:Int = parseUnitInt(v);
 		
 		if (w.isSet())
 		{
@@ -1779,7 +1779,7 @@ class CSSParser
 		}
 		else
 		{
-			var pw:Float = parsePercentage(v);
+			var pw:Float = isAutoSize(v) ? LayoutFlags.FILL : parsePercentage(v);
 			if (pw.isSet())
 			{
 				createLayoutBlock();

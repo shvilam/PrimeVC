@@ -26,9 +26,9 @@ MainClass=${MainFile//\//.}
 MainClass=${MainClass%.hx}
 Parser="test.n"
 
-#echo ${MainFile}
-#echo ${MainClass}
-#echo ${StyleSheet}
+echo "MainFile: ${MainFile}"
+echo "MainClass: ${MainClass}"
+echo "StyleSheet: ${StyleSheet}"
 
 if [[ -f ${StyleSheet} ]] ; then
 	Resource="-resource ${StyleSheet}@stylesheet"

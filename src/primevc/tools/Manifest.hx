@@ -88,7 +88,7 @@ class Manifest implements IDisposable
 	}
 	
 	
-	public inline function getFullName (className:String) : String
+	public function getFullName (className:String) : String
 	{
 		if (className == null)
 			return null;
@@ -99,7 +99,7 @@ class Manifest implements IDisposable
 	}
 
 
-	public inline function getSuperClassName (fullClassName:String) : String
+	public function getSuperClassName (fullClassName:String) : String
 	{
 		if (superClassMap.exists( fullClassName ))
 			return superClassMap.get( fullClassName );

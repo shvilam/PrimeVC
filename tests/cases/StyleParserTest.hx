@@ -1,8 +1,9 @@
 package cases;
 // import primevc.core.net.URLLoader;
- import primevc.gui.styling.declarations.StyleContainer;
+ import primevc.gui.styling.declarations.UIElementStyle;
  import primevc.gui.styling.CSSParser;
  import primevc.tools.generator.HaxeCodeGenerator;
+ import primevc.tools.Manifest;
   using primevc.utils.ERegUtil;
   using Std;
 
@@ -158,6 +159,9 @@ class StyleParserTest
 	public static inline var CORRECT_DYN_TILE			= [ "dynamic-tile", "dynamic-tile( horizontal )", "dynamic-tile (vertical)", "dynamic-tile( horizontal, left )", "dynamic-tile(vertical,left,bottom)", "dynamic-tile(vertical,right,bottom)", "dynamic-tile	( vertical   , center , top )" ];
 	public static inline var INCORRECT_DYN_TILE			= [ "dynamic-tile()", "dynamic-tile (diagonal)", "dynamic-tile ('vertical')", "dynamic-tile( horizontal, top )", "dynamic-tile(vertical,bottom)", "dynamic-tile(vertical,5,bottom)" ];
 	
+	public static inline var CORRECT_TRIANGLE			= [ "triangle", "triangle(top-left)", "triangle ( BOTTOM-RIGHT )", "TRiangLE( Middle-Left )", "TrIaNgLe(bottom-center)", "triangle(1px, 15px)", "triangle ( 600px ,   3em )", "triangle(0,0)" ];
+	public static inline var INCORRECT_TRIANGLE			= [ "circle", "ellipse", "rectangle", "line", "triangle()", "triangle (9px)", "triangle(9, 5)", "triangle(top)", "triangle(bottom)", "triangle (	center)", "tRiangle(middle-center)" ];
+	
 	
 	public static function main ()
 	{
@@ -180,8 +184,9 @@ class StyleParserTest
 	
 	
 	private var parser			: CSSParser;
-	private var styles			: StyleContainer;
+	private var styles			: UIElementStyle;
 	private var generator		: HaxeCodeGenerator;
+	private var manifest		: Manifest;
 	
 	public var correctTests		: Int;
 	public var totalTests		: Int;
@@ -189,8 +194,9 @@ class StyleParserTest
 	
 	public function new ()
 	{
-		styles		= new StyleContainer();
-		parser		= new CSSParser(styles);
+		styles		= new UIElementStyle(null);
+		manifest	= new Manifest( "../src/manifest.xml" );
+		parser		= new CSSParser( styles, manifest );
 		generator	= new HaxeCodeGenerator();
 		
 	//	throw parser.gradientExpr.getExpression();
@@ -199,12 +205,13 @@ class StyleParserTest
 	
 	public function parse ()
 	{
-#if debug
 		trace("=============== PARSING ==================");
-		parser.parse(haxe.Resource.getString("stylesheet"));
+		parser.parse( "cases/TestStyleSheet.css" );
+#if debug
+	//	parser.parse(haxe.Resource.getString("stylesheet"));
 		trace(styles);
 #else
-		parser.parse(haxe.Resource.getString("stylesheet"));
+	//	parser.parse(haxe.Resource.getString("stylesheet"));
 #end
 	}
 	
@@ -228,7 +235,7 @@ class StyleParserTest
 		totalTests		= 0;
 		correctTests	= 0;
 		testSimpleProperties();
-		testBgProperties();
+		testGraphicProperties();
 		testFontProperties();
 		testLayoutProperties();
 #end
@@ -308,7 +315,7 @@ class StyleParserTest
 	
 	
 	
-	private inline function testBgProperties ()
+	private inline function testGraphicProperties ()
 	{
 		//
 		// TEST BG COLOR
@@ -349,6 +356,17 @@ class StyleParserTest
 		testRegexp(expr, CORRECT_CLASS_IMAGE, true);
 		testRegexp(expr, INCORRECT_CLASS_IMAGE, false);
 		testRegexp(expr, CORRECT_URI_IMAGE, false);
+		
+		
+		//
+		// TEST SHAPE PROPERTY
+		// 
+		trace("\n\nTESTING TRIANGLE REGEX");
+		var expr = parser.triangleExpr;
+		testRegexp(expr, CORRECT_TRIANGLE, true);
+		testRegexp(expr, INCORRECT_TRIANGLE, false);
+		
+		
 		
 		/*
 		var expr = parser.percValExpr;

@@ -159,15 +159,15 @@ class GlobalApp extends UIContainer <Dynamic>
 		box2.children.add( frame5.layout );
 		box2.children.add( frame6.layout );
 		
-		children.add(frame0, 0);
-		children.add(frame2, 1);
-		children.add(frame1, 2);
-		children.add(frame3, 3);
-		children.add(frame4, 4);
-		children.add(frame5, 5);
-		children.add(frame6, 6);
-		children.add(frame7, 7);
-		children.add(frame8, 8);
+		children.add(frame0);
+		children.add(frame2);
+		children.add(frame1);
+		children.add(frame3);
+		children.add(frame4);
+		children.add(frame5);
+		children.add(frame6);
+		children.add(frame7);
+		children.add(frame8);
 	}
 }
 

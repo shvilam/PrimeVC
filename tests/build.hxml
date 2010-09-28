@@ -11,7 +11,7 @@
 -cp ../skins/flair
 -cp ./
 -swf-header 600:900:5:FFFFFF
-#-debug
+-debug
 -D network-sandbox
 -D stats
 #--no-inline
