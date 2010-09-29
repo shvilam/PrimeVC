@@ -43,8 +43,8 @@ package primevc.neko.utils;
  */
 class Color
 {
-	public static inline var BLACK					: UInt	= 0x000000;
-	public static inline var WHITE					: UInt	= 0xFFFFFF;
+	public static inline var BLACK					: UInt = 0x000000;
+	public static inline var WHITE					: UInt = 0xFFFFFF;
 	public static inline var ALPHA_MASK				: UInt = 0xFF;
 	public static inline var COLOR_MASK				: UInt = 0xFFFFFF;
 	public static inline var RED_MASK				: UInt = 0xFF0000;

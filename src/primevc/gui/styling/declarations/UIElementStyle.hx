@@ -143,6 +143,20 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	// STYLE PROPERTIES
 	//
 	
+	private var _skin		: Class < ISkin >;
+	private var _background	: IFill;
+	private var _border		: IBorder<IFill>;
+	private var _shape		: IGraphicShape;
+	
+	private var _layout		: LayoutStyleDeclarations;
+	private var _font		: FontStyleDeclarations;
+	
+	private var _effects	: EffectStyleDeclarations;
+	private var _boxFilters	: FilterStyleDeclarations;
+	private var _bgFilters	: FilterStyleDeclarations;
+	
+	
+	
 	
 	public var uuid			(default,		null)			: String;
 	public var type			(default,		null)			: StyleDeclarationType;
@@ -156,7 +170,8 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	public var font			(getFont,		setFont)		: FontStyleDeclarations;
 	
 	public var effects		(getEffects,	setEffects)		: EffectStyleDeclarations;
-	public var filters		(getFilters,	setFilters)		: FilterStyleDeclarations;
+	public var boxFilters	(getBoxFilters,	setBoxFilters)	: FilterStyleDeclarations;
+	public var bgFilters	(getBgFilters,	setBgFilters)	: FilterStyleDeclarations;
 	
 #if neko
 	public var children		(default,		null)			: StyleContainer;
@@ -175,24 +190,26 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		border		: IBorder < IFill > = null,
 		skin		: Class< ISkin > = null,
 		effects		: EffectStyleDeclarations = null,
-		filters		: FilterStyleDeclarations = null
+		boxFilters	: FilterStyleDeclarations = null,
+		bgFilters	: FilterStyleDeclarations = null
 	)
 	{
 		super();
-		this.uuid		= StringUtil.createUUID();
+		this.uuid = StringUtil.createUUID();
+		this.type = type;
 		
 		if (children == null)
-			children	= new StyleContainer();
-		this.type		= type;
+			children = new StyleContainer();
 		
-		this.layout		= layout;
-		this.font		= font;
-		this.shape		= shape;
-		this.background	= background;
-		this.border		= border;
-		this.skin		= skin;
-		this.effects	= effects;
-		this.filters	= filters;
+		_layout		= layout;
+		_font		= font;
+		_shape		= shape;
+		_background	= background;
+		_border		= border;
+		_skin		= skin;
+		_effects	= effects;
+		_boxFilters	= boxFilters;
+		_bgFilters	= bgFilters;
 	}
 	
 	
@@ -203,27 +220,29 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		extendedStyle		= null;
 		parentStyle			= null;
 		
-	//	if ((untyped this).skin != null)		skin.dispose();
-		if ((untyped this).shape != null)		shape.dispose();
-		if ((untyped this).background != null)	background.dispose();
-		if ((untyped this).border != null)		border.dispose();
-		if ((untyped this).layout != null)		layout.dispose();
-		if ((untyped this).font != null)		font.dispose();
-		if ((untyped this).effects != null)		effects.dispose();
-		if ((untyped this).filters != null)		filters.dispose();
+	//	if (_skin != null)			_skin.dispose();
+		if (_shape != null)			_shape.dispose();
+		if (_background != null)	_background.dispose();
+		if (_border != null)		_border.dispose();
+		if (_layout != null)		_layout.dispose();
+		if (_font != null)			_font.dispose();
+		if (_effects != null)		_effects.dispose();
+		if (_boxFilters != null)	_boxFilters.dispose();
+		if (_bgFilters != null)		_bgFilters.dispose();
 		
 		children.dispose();
 		
 		children	= null;
 		type		= null;
-		skin		= null;
-		shape		= null;
-		background	= null;
-		border		= null;
-		layout		= null;
-		font		= null;
-		effects		= null;
-		filters		= null;
+		_skin		= null;
+		_shape		= null;
+		_background	= null;
+		_border		= null;
+		_layout		= null;
+		_font		= null;
+		_effects	= null;
+		_boxFilters	= null;
+		_bgFilters	= null;
 		
 		uuid		= null;
 		
@@ -281,7 +300,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	
 	private function getSkin ()
 	{
-		var v = skin;
+		var v = _skin;
 		if (v == null && extendedStyle != null)	v = extendedStyle.skin;
 		if (v == null && superStyle != null)	v = superStyle.skin;
 		return v;
@@ -290,7 +309,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	
 	private function getShape ()
 	{
-		var v = shape;
+		var v = _shape;
 		if (v == null && extendedStyle != null)	v = extendedStyle.shape;
 		if (v == null && superStyle != null)	v = superStyle.shape;
 		return v;
@@ -299,7 +318,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	
 	private function getLayout ()
 	{
-		var v = layout;
+		var v = _layout;
 		if (v == null && extendedStyle != null)	v = extendedStyle.layout;
 		if (v == null && superStyle != null)	v = superStyle.layout;
 		return v;
@@ -308,7 +327,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	
 	private function getFont ()
 	{
-		var v = font;
+		var v = _font;
 		if (v == null && extendedStyle != null)		v = extendedStyle.font;
 		if (v == null && nestingInherited != null)	v = nestingInherited.font;
 		if (v == null && superStyle != null)		v = superStyle.font;
@@ -320,7 +339,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 
 	private function getBackground ()
 	{
-		var v = background;
+		var v = _background;
 		if (v == null && extendedStyle != null)	v = extendedStyle.background;
 		if (v == null && superStyle != null)	v = superStyle.background;
 		return v;
@@ -329,7 +348,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 
 	private function getBorder ()
 	{
-		var v = border;
+		var v = _border;
 		if (v == null && extendedStyle != null)	v = extendedStyle.border;
 		if (v == null && superStyle != null)	v = superStyle.border;
 		return v;
@@ -338,18 +357,27 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	
 	private function getEffects ()
 	{
-		var v = effects;
+		var v = _effects;
 		if (v == null && extendedStyle != null)	v = extendedStyle.effects;
 		if (v == null && superStyle != null)	v = superStyle.effects;
 		return v;
 	}
 
 
-	private function getFilters ()
+	private function getBoxFilters ()
 	{
-		var v = filters;
-		if (v == null && extendedStyle != null)	v = extendedStyle.filters;
-		if (v == null && superStyle != null)	v = superStyle.filters;
+		var v = _boxFilters;
+		if (v == null && extendedStyle != null)	v = extendedStyle.boxFilters;
+		if (v == null && superStyle != null)	v = superStyle.boxFilters;
+		return v;
+	}
+	
+
+	private function getBgFilters ()
+	{
+		var v = _bgFilters;
+		if (v == null && extendedStyle != null)	v = extendedStyle.bgFilters;
+		if (v == null && superStyle != null)	v = superStyle.bgFilters;
 		return v;
 	}
 	
@@ -404,8 +432,8 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	
 	private function setSkin (v)
 	{
-		if (v != skin) {
-			skin = v;
+		if (v != _skin) {
+			_skin = v;
 			invalidate( StyleFlags.SKIN );
 		}
 		return v;
@@ -414,8 +442,8 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 
 	private function setShape (v)
 	{
-		if (v != shape) {
-			shape = v;
+		if (v != _shape) {
+			_shape = v;
 			invalidate( StyleFlags.SHAPE );
 		}
 		return v;
@@ -424,8 +452,8 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	
 	private function setLayout (v)
 	{
-		if (v != layout) {
-			layout = v;
+		if (v != _layout) {
+			_layout = v;
 			invalidate( StyleFlags.LAYOUT );
 		}
 		return v;
@@ -434,8 +462,8 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	
 	private function setFont (v)
 	{
-		if (v != font) {
-			font = v;
+		if (v != _font) {
+			_font = v;
 			invalidate( StyleFlags.FONT );
 		}
 		return v;
@@ -444,8 +472,8 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	
 	private function setBackground (v)
 	{
-		if (v != background) {
-			background = v;
+		if (v != _background) {
+			_background = v;
 			invalidate( StyleFlags.BACKGROUND );
 		}
 		return v;
@@ -454,8 +482,8 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 
 	private function setBorder (v)
 	{
-		if (v != border) {
-			border = v;
+		if (v != _border) {
+			_border = v;
 			invalidate( StyleFlags.BORDER );
 		}
 		return v;
@@ -464,19 +492,29 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 
 	private function setEffects (v)
 	{
-		if (v != effects) {
-			effects = v;
+		if (v != _effects) {
+			_effects = v;
 			invalidate( StyleFlags.EFFECTS );
 		}
 		return v;
 	}
 
 
-	private function setFilters (v)
+	private function setBoxFilters (v)
 	{
-		if (v != filters) {
-			filters = v;
-			invalidate( StyleFlags.FILTERS );
+		if (v != _boxFilters) {
+			_boxFilters = v;
+			invalidate( StyleFlags.BOX_FILTERS );
+		}
+		return v;
+	}
+	
+
+	private function setBgFilters (v)
+	{
+		if (v != _bgFilters) {
+			_bgFilters = v;
+			invalidate( StyleFlags.BACKGROUND_FILTERS );
 		}
 		return v;
 	}
@@ -490,14 +528,15 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	{
 		var css = "";
 		
-		if (skin != null)		css += "\tskin: " + skin + ";";
-		if (shape != null)		css += "\n\tshape: " + shape.toCSS() + ";";
-		if (background != null)	css += "\n\tbackground: " + background.toCSS() + ";";
-		if (border != null)		css += "\n\tborder: "+ border.toCSS() + ";";
-		if (layout != null)		css += layout.toCSS();
-		if (font != null)		css += font.toCSS();
-		if (effects != null)	css += effects.toCSS();
-		if (filters != null)	css += filters.toCSS();
+		if (_skin != null)			css += "\tskin: " + _skin + ";";
+		if (_shape != null)			css += "\n\tshape: " + _shape.toCSS() + ";";
+		if (_background != null)	css += "\n\tbackground: " + _background.toCSS() + ";";
+		if (_border != null)		css += "\n\tborder: "+ _border.toCSS() + ";";
+		if (_layout != null)		css += _layout.toCSS();
+		if (_font != null)			css += _font.toCSS();
+		if (_effects != null)		css += _effects.toCSS();
+		if (_boxFilters != null)	css += _boxFilters.toCSS();
+		if (_bgFilters != null)		css += _bgFilters.toCSS();
 		
 		css = "{" + css + "\n}";
 		
@@ -516,13 +555,14 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	
 	public function allPropertiesEmpty () : Bool
 	{
-		return (untyped skin) == null 
-			&& (untyped shape) == null 
-			&& (untyped border) == null 
-			&& ((untyped layout) == null || (untyped layout).isEmpty())
-			&& ((untyped font) == null || (untyped font).isEmpty())
-		 	&& ((untyped effects) == null || (untyped effects).isEmpty())
-			&& ((untyped filters) == null || (untyped filters).isEmpty());
+		return _skin == null 
+			&& _shape == null 
+			&& _border == null 
+			&& (_layout == null || _layout.isEmpty())
+			&& (_font == null || _font.isEmpty())
+		 	&& (_effects == null || _effects.isEmpty())
+			&& (_boxFilters == null || _boxFilters.isEmpty())
+			&& (_bgFilters == null || _bgFilters.isEmpty());
 	}
 	
 	
@@ -539,7 +579,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		if (!isEmpty())
 		{
 			if (!allPropertiesEmpty())
-				code.construct(this, [ type, untyped layout, untyped font, untyped shape, untyped background, untyped border, untyped skin, untyped effects, untyped filters ]);
+				code.construct(this, [ type, _layout, _font, _shape, _background, _border, _skin, _effects, _boxFilters, _bgFilters ]);
 			else
 				code.construct(this, [ type ]);
 			

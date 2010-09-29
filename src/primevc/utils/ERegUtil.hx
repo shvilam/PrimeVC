@@ -49,7 +49,7 @@ class ERegUtil #if flash9 extends EReg #end
 	
 	
 	/**
-	 * Method to remove all mathced elements
+	 * Method to remove all matched elements
 	 */
 	public static inline function removeAll (expr:EReg, str:String) : String
 	{
@@ -70,6 +70,23 @@ class ERegUtil #if flash9 extends EReg #end
 			trace("ERROR!: "+e);
 		
 		return buf.toString();
+	}
+	
+	
+	
+	/**
+	 * returns the string without the matched elements (matches only the first occurance)
+	 */
+	public static inline function removeMatch (expr:EReg, str:String) : String
+	{
+		try {
+			if (expr.match(str))
+				str = expr.matchedLeft() + expr.matchedRight();
+		}
+		catch (e:Dynamic)
+			trace("ERROR!: "+e);
+		
+		return str;
 	}
 	
 	

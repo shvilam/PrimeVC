@@ -29,26 +29,7 @@
 package primevc.gui.styling.declarations;
 
 
-
-/**
- * @author Ruben Weijers
- * @creation-date Sep 05, 2010
- */
-class StyleFlags
-{
-	public static inline var NESTING_STYLE		: UInt = 1;
-	public static inline var SUPER_STYLE		: UInt = 2;
-	public static inline var EXTENDED_STYLE		: UInt = 4;
-	public static inline var PARENT_STYLE		: UInt = 8;
-	
-	public static inline var LAYOUT				: UInt = 16;
-	public static inline var FONT				: UInt = 32;
-	public static inline var SKIN				: UInt = 64;
-	
-	public static inline var BACKGROUND			: UInt = 128;
-	public static inline var BORDER				: UInt = 256;
-	public static inline var EFFECTS			: UInt = 512;
-	public static inline var SHAPE				: UInt = 1024;
-	public static inline var BOX_FILTERS		: UInt = 2048;
-	public static inline var BACKGROUND_FILTERS	: UInt = 4096;
+enum FilterCollectionType {
+	box;
+	background;
 }

@@ -30,13 +30,13 @@ package primevc.tools.generator;
  import primevc.core.traits.IUIdentifiable;
 
 
+#if (neko || debug)
 /**
  * @author Ruben Weijers
  * @creation-date Sep 13, 2010
  */
 interface ICodeFormattable implements IUIdentifiable
 {
-#if neko
 	
 	/**
 	 * Method to write to content of the object as haxe code.
@@ -46,5 +46,7 @@ interface ICodeFormattable implements IUIdentifiable
 	 * Returns true when some values within the object are set, otherwise false
 	 */
 	public function isEmpty () : Bool;
-#end
 }
+#else
+interface ICodeFormattable {}
+#end

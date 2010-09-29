@@ -74,6 +74,7 @@ class CSSParserMain
 		manifest	= new Manifest( "src/manifest.xml" );
 		parser		= new CSSParser( styles, manifest );
 		generator	= new HaxeCodeGenerator( 2 );
+		generator.instanceIgnoreList.set( styles.uuid, styles );
 		
 		var tplName = "src/primevc/gui/styling/StyleSheet.tpl.hx";
 		if (!neko.FileSystem.exists( tplName ))
@@ -91,6 +92,7 @@ class CSSParserMain
 	
 	public function generateCode ()
 	{
+		styles.background = new primevc.gui.graphics.fills.SolidFill(primevc.utils.Color.create());
 		generateSelectorCode( cast styles.children.elementSelectors, "elementSelectors" );
 		generateSelectorCode( cast styles.children.styleNameSelectors, "styleNameSelectors" );
 		generateSelectorCode( cast styles.children.idSelectors, "idSelectors" );
@@ -112,12 +114,11 @@ class CSSParserMain
 		//create selector code
 		generator.start();
 		var keys = selectorHash.keys();
-		for (key in keys) {
+		for (key in keys)
+		{
 			var val = selectorHash.get(key);
-			if (!val.isEmpty()) {
-				val.as(UIElementStyle).parentStyle = null;
+			if (!val.isEmpty())
 				generator.setSelfAction( name + ".set", [ key, val ] );
-			}
 		}
 		
 		//write to template

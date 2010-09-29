@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
+ import primevc.gui.filters.BitmapFilter;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
@@ -41,22 +42,91 @@ package primevc.gui.styling.declarations;
  */
 class FilterStyleDeclarations extends StylePropertyGroup
 {
-	public function new ()
+	private var type		: FilterCollectionType;
+	private var _shadow		: BitmapFilter;
+	
+	public var shadow	(getShadow, setShadow)	: BitmapFilter;
+	
+	
+	
+	public function new (newType:FilterCollectionType, shadow:BitmapFilter = null)
 	{
 		super();
+		type	= newType;
+		_shadow = shadow;
 	}
+	
+	
+	//
+	// GETTERS
+	//
+	
+	private inline function getExtendedBox () : FilterStyleDeclarations
+	{
+		var e = getExtended();
+		var b:FilterStyleDeclarations = null;
+		
+		if (e != null)
+			b = type == FilterCollectionType.box ? e.boxFilters : e.bgFilters;
+		
+		return b;
+	}
+	
+	
+	private inline function getSuperBox () : FilterStyleDeclarations
+	{
+		var s = getSuper();
+		var b:FilterStyleDeclarations = null;
+		
+		if (s != null)
+			b = type == FilterCollectionType.box ? s.boxFilters : s.bgFilters;
+		
+		return b;
+	}
+	
+	
+	private function getShadow ()
+	{
+		var v = _shadow;
+		if (v == null && getExtended() != null)		v = getExtendedBox().shadow;
+		if (v == null && getSuper() != null)		v = getSuperBox().shadow;
+		return v;	
+	}
+	
+	
+	//
+	// SETTERS
+	//
+	
+	private function setShadow (v)
+	{
+		if (v != _shadow) {
+			_shadow = v;
+			invalidate( FilterFlags.SHADOW );
+		}
+		return v;
+	}
+	
 	
 	
 #if (neko || debug)
 	override public function toCSS (prefix:String = "")
 	{
-		return super.toCSS(prefix);
+		var css = [];
+		
+		var propPrefix = (type == FilterCollectionType.box) ? "box-" : "background-";
+		if (_shadow != null)	css.push( propPrefix + "shadow: " + _shadow );
+		
+		if (css.length > 0)
+			return "\n\t" + css.join(";\n\t") + ";";
+		else
+			return "";
 	}
 	
 	
 	override public function isEmpty ()
 	{
-		return false;
+		return _shadow == null;
 	}
 #end
 
@@ -66,8 +136,7 @@ class FilterStyleDeclarations extends StylePropertyGroup
 	{
 		if (!isEmpty())
 		{
-			code.construct( this );
-			super.toCode(code);
+			code.construct( this, [ type, _shadow ] );
 		}
 	}
 #end

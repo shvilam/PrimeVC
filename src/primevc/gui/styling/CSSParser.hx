@@ -37,6 +37,8 @@ package primevc.gui.styling;
  import primevc.core.geom.Corners;
  import primevc.core.geom.IntPoint;
  import primevc.core.IDisposable;
+ import primevc.gui.filters.DropShadowFilter;
+ import primevc.gui.filters.IBitmapFilter;
  import primevc.gui.graphics.borders.BitmapBorder;
  import primevc.gui.graphics.borders.GradientBorder;
  import primevc.gui.graphics.borders.IBorder;
@@ -67,6 +69,7 @@ package primevc.gui.styling;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.RelativeLayout;
  import primevc.gui.styling.declarations.EffectStyleDeclarations;
+ import primevc.gui.styling.declarations.FilterCollectionType;
  import primevc.gui.styling.declarations.FilterStyleDeclarations;
  import primevc.gui.styling.declarations.FontStyleDeclarations;
  import primevc.gui.styling.declarations.LayoutStyleDeclarations;
@@ -132,7 +135,7 @@ class CSSParser
 	public static inline var R_INT_UNIT_VALUE		: String = "(0|(" + R_INT_VALUE + R_UNITS + "))";
 	public static inline var R_FLOAT_UNIT_VALUE		: String = "(0|(" + R_FLOAT_VALUE + R_UNITS + "))";
 	public static inline var R_PERC_VALUE			: String = "(" + R_FLOAT_VALUE + "%)";
-	public static inline var R_FLOAT_GROUP_VALUE	: String = R_FLOAT_UNIT_VALUE + "(" + R_SPACE + R_FLOAT_UNIT_VALUE + ")?(" + R_SPACE + R_FLOAT_UNIT_VALUE + ")?(" + R_SPACE + R_FLOAT_UNIT_VALUE + ")?";
+	public static inline var R_FLOAT_GROUP_VALUE	: String = R_FLOAT_UNIT_VALUE + "(" + R_SPACE_MUST + R_FLOAT_UNIT_VALUE + ")?(" + R_SPACE_MUST + R_FLOAT_UNIT_VALUE + ")?(" + R_SPACE_MUST + R_FLOAT_UNIT_VALUE + ")?";
 	public static inline var R_POINT_VALUE			: String = R_FLOAT_UNIT_VALUE + R_SPACE + "," + R_SPACE + R_FLOAT_UNIT_VALUE;
 	
 	public static inline var R_SIMPLE_GRADIENT_COLOR: String = "(" + R_COLOR_EXPR + ")(" + R_SPACE_MUST + R_SIMPLE_UNIT_VALUE + ")?";
@@ -142,7 +145,7 @@ class CSSParser
 	public static inline var R_DOMAIN_LABEL			: String = "[a-z]([a-z0-9-]*[a-z0-9])?";
 	public static inline var R_CLASS_EXPR			: String = "(" + R_DOMAIN_LABEL + ")([.]" + R_DOMAIN_LABEL + ")*";
 	
-	public static inline var R_ROTATION				: String = "([-]?[0-9]+)deg";
+	public static inline var R_ROTATION				: String = R_FLOAT_VALUE + "deg";
 	public static inline var R_WORDWRAP				: String = "off|normal|break-word";
 	
 	
@@ -203,6 +206,7 @@ class CSSParser
 	public var floatUnitValExpr			(default, null) : EReg;		//should match [float]unit
 	public var floatUnitGroupValExpr	(default, null) : EReg;		//should match [float]unit <[float]unit>? <[float]unit>? <[float]unit>?
 	public var pointExpr				(default, null) : EReg;		//matched a point value: [float]unit, [float]unit
+	public var angleExpr				(default, null) : EReg;		//matched a rotation value
 	
 	public var colorValExpr				(default, null) : EReg;
 	public var linGradientExpr			(default, null) : EReg;
@@ -231,6 +235,12 @@ class CSSParser
 	public var fixedTileExpr			(default, null) : EReg;
 	
 	public var triangleExpr				(default, null) : EReg;
+	
+	public var filterBlurExpr			(default, null) : EReg;
+	public var filterInnerExpr			(default, null) : EReg;
+	public var filterHideExpr			(default, null) : EReg;
+	public var filterKnockoutExpr		(default, null) : EReg;
+	public var filterQualityExpr		(default, null) : EReg;
 	
 	
 	
@@ -300,6 +310,7 @@ class CSSParser
 		floatUnitValExpr		= new EReg(R_FLOAT_UNIT_VALUE, "i");		//3 = value, 6 = unit
 		floatUnitGroupValExpr	= new EReg(R_FLOAT_GROUP_VALUE, "i");		//1 = prop1 ( 3 = val, 6 = unit ), 8 = prop2 ( 10 = val, 13 = unit ), 15 = prop3 ( 17 = val, 20 = unit ), 22 = prop4 ( 24 = val, 27 = unit )
 		pointExpr				= new EReg(R_POINT_VALUE, "i");				//1 = prop1 ( 3 = val, 6 = unit ), 8 = prop2 ( 10 = val, 13 = unit )
+		angleExpr				= new EReg(R_ROTATION, "i");
 		
 		colorValExpr			= new EReg(R_COLOR_EXPR, "i");
 		fontFamilyExpr			= new EReg("("+R_FONT_FAMILY_EXPR+")", "i");
@@ -395,6 +406,17 @@ class CSSParser
 			 	+ R_SPACE + "[)]"
 			+ ")?"
 			, "i");
+		
+		
+		//
+		//filter expressions
+		//
+		
+		filterBlurExpr		= new EReg(R_FLOAT_UNIT_VALUE + R_SPACE_MUST + R_FLOAT_UNIT_VALUE, "i");		//1 = prop1 ( 3 = val, 6 = unit ), 8 = prop2 ( 10 = val, 13 = unit )
+		filterInnerExpr		= new EReg("inner", "i");
+		filterHideExpr		= new EReg("hide[-]object", "i");
+		filterKnockoutExpr	= new EReg("knockout", "i");
+		filterQualityExpr	= new EReg("(low|medium|high)", "i");
 	}
 	
 	
@@ -868,8 +890,12 @@ class CSSParser
 			//filter properties
 			//
 			
-		//	case "box-shadow":					// <color> <size> <inset?>
-		//	case "filter":						createFiltersBlock();
+			case "box-bevel":					parseAndSetBoxBevel( val );
+			case "box-blur":					parseAndSetBoxBlur( val );
+			case "box-shadow":					parseAndSetBoxShadow( val );	// ( <distance>px <blurX>px <blurY>px <strength> ) | <angle>deg | <rgba> | <inset> | <hide> | <knockout> | <quality>
+			case "box-glow":					parseAndSetBoxGlow( val );
+			case "box-gradient-bevel":			parseAndSetBoxGradientBevel( val );
+			case "box-gradient-blur":			parseAndSetBoxGradientBlur( val );
 			
 			
 			
@@ -957,10 +983,17 @@ class CSSParser
 	}
 
 
-	private inline function createFiltersBlock () : Void
+	private inline function createBoxFiltersBlock () : Void
 	{
-		if (currentBlock.filters == null)
-			currentBlock.filters = new FilterStyleDeclarations();
+		if (currentBlock.boxFilters == null)
+			currentBlock.boxFilters = new FilterStyleDeclarations( FilterCollectionType.box );
+	}
+
+
+	private inline function createBackgroundFiltersBlock () : Void
+	{
+		if (currentBlock.bgFilters == null)
+			currentBlock.bgFilters = new FilterStyleDeclarations( FilterCollectionType.background );
 	}
 	
 	
@@ -994,20 +1027,20 @@ class CSSParser
 	 */
 	private inline function parseInt (v:String) : Int
 	{
-		return (intValExpr.match(v)) ? intValExpr.matched(1).parseInt() : Number.INT_NOT_SET;
+		return (isInt(v)) ? intValExpr.matched(1).parseInt() : Number.INT_NOT_SET;
 	}
 	
 	
 	private inline function parseFloat (v:String) : Float
 	{
-		return (floatValExpr.match(v)) ? floatValExpr.matched(1).parseFloat() : Number.FLOAT_NOT_SET;
+		return (isFloat(v)) ? floatValExpr.matched(1).parseFloat() : Number.FLOAT_NOT_SET;
 	}
 	
 	
 	private inline function parseUnitInt (v:String) : Int
 	{
 		var n = Number.INT_NOT_SET;
-		if (floatUnitValExpr.match(v) && floatUnitValExpr.matched(3) != null)
+		if (isUnitInt(v))
 			n = floatUnitValExpr.matched(3).parseInt();
 		
 		return n;
@@ -1017,16 +1050,16 @@ class CSSParser
 	private inline function parseUnitFloat(v:String) : Float
 	{
 		var n = Number.FLOAT_NOT_SET;
-		if (floatUnitValExpr.match(v) && floatUnitValExpr.matched(3) != null)
+		if (isUnitFloat(v))
 			n = floatUnitValExpr.matched(3).parseFloat();
-
+		
 		return n;
 	}
 	
 	
 	private inline function parsePercentage (v:String) : Float
 	{
-		return (percValExpr.match(v)) ? percValExpr.matched(2).parseFloat() : Number.FLOAT_NOT_SET;
+		return (isPercentage(v)) ? percValExpr.matched(2).parseFloat() : Number.FLOAT_NOT_SET;
 	}
 	
 	
@@ -1043,13 +1076,27 @@ class CSSParser
 	}
 	
 	
-	private inline function isInt (v:String) : Bool			{ return intValExpr.match(v); }
-	private inline function isFloat (v:String) : Bool		{ return floatValExpr.match(v); }
-	private inline function isUnitInt (v:String) : Bool		{ return floatUnitValExpr.match(v); }
-	private inline function isUnitFloat (v:String) : Bool	{ return floatUnitValExpr.match(v); }
-	private inline function isPercentage (v:String) : Bool	{ return percValExpr.match(v); }
-	private inline function isColor (v:String) : Bool		{ return v.trim().toLowerCase() != "inherit" && colorValExpr.match(v); }
+	private inline function parseAngle (v:String) : Float
+	{
+		return (angleExpr.match(v)) ? angleExpr.matched(1).parseFloat() : Number.FLOAT_NOT_SET;
+	}
 	
+	
+	private inline function isInt (v:String)			: Bool		{ return intValExpr.match(v); }
+	private inline function isFloat (v:String)			: Bool		{ return floatValExpr.match(v); }
+	private inline function isUnitInt (v:String)		: Bool		{ return floatUnitValExpr.match(v) && floatUnitValExpr.matched(3) != null; }
+	private inline function isUnitFloat (v:String)		: Bool		{ return floatUnitValExpr.match(v) && floatUnitValExpr.matched(3) != null; }
+	private inline function isPercentage (v:String)		: Bool		{ return percValExpr.match(v); }
+	private inline function isColor (v:String)			: Bool		{ return v.trim().toLowerCase() != "inherit" && colorValExpr.match(v); }
+	private inline function isAngle (v:String)			: Bool		{ return angleExpr.match(v); }
+	
+	private inline function removeInt (v:String)		: String	{ return intValExpr.removeMatch(v); }
+	private inline function removeFloat (v:String)		: String	{ return floatValExpr.removeMatch(v); }
+	private inline function removeUnitInt (v:String)	: String	{ return floatUnitValExpr.removeMatch(v); }
+	private inline function removeUnitFloat (v:String)	: String	{ return floatUnitValExpr.removeMatch(v); }
+	private inline function removePercentage (v:String)	: String	{ return percValExpr.removeMatch(v); }
+	private inline function removeColor (v:String)		: String	{ return colorValExpr.removeMatch(v); }
+	private inline function removeAngle (v:String)		: String	{ return angleExpr.removeMatch(v); }
 	
 	
 	
@@ -1457,7 +1504,7 @@ class CSSParser
 				fill = gr;
 			}
 		}
-		else if (colorValExpr.match(v))
+		else if (isColor(v))
 		{
 			fill = new SolidFill(parseColor(v));
 		}
@@ -2022,7 +2069,199 @@ class CSSParser
 			currentBlock.layout.algorithm = algorithm;
 		}
 	}
+	
+	
+	
+	
+	
+	
+	//
+	// FILTER METHODS
+	//
+	
+	
+	
+	private function parseBevelFilter (v:String) : Void
+	{
+		
+	}
+
+
+	private function parseBlurFilter (v:String) : Void
+	{
+
+	}
+	
+
+
+	/**
+	 * Matches the shadow values for a drop-shadow filter.
+	 * Can't use the CSS3 standard here since flash uses completly different properties.
+	 * 
+	 * Syntax:
+	 * ( <distance>px? <blurX>px? <blurY>px? <strength>? ) | <angle>deg? | <rgba>? | <inner>? | <hide-object>? | <knockout>? | <quality>?
+	 */
+	private function parseShadowFilter (v:String) : DropShadowFilter
+	{
+		var f:DropShadowFilter = new DropShadowFilter();
+		var isValid:Bool = false;
+		
+		//match rotation
+		if (isAngle(v))
+		{
+			f.angle	= parseAngle(v);
+			isValid	= true;
+			v		= removeAngle(v);
+		}
+		
+		//match color and alpha
+		if (isColor(v))
+		{
+			var c	= parseColor(v);
+			f.color	= c.rgb();
+			f.alpha	= c.alpha().float();
+			isValid	= true;
+			v		= removeColor(v);
+		}
+		
+		//match distance
+		if (isUnitFloat(v))
+		{
+			f.distance	= parseUnitFloat(v);
+			isValid		= true;
+			v = removeUnitFloat(v);
+		}
+		
+		//match blur
+		if (filterBlurExpr.match(v))
+		{
+			f.blurX	= filterBlurExpr.matched(3).parseFloat();
+			f.blurY	= filterBlurExpr.matched(10).parseFloat();
+			isValid	= true;
+			v		= filterBlurExpr.removeMatch(v);
+		}
+		
+		//match strength
+		if (isInt(v))
+		{
+			f.strength	= parseInt(v);
+			isValid		= true;
+			v			= removeInt(v);
+		}
+		
+		//match inset bool
+		if (filterInnerExpr.match(v))
+		{
+			f.inner	= true;
+			isValid	= true;
+			v		= filterInnerExpr.removeMatch(v);
+		}
+		
+		//match hide bool
+		if (filterHideExpr.match(v))
+		{
+			f.hideObject= true;
+			isValid		= true;
+			v			= filterHideExpr.removeMatch(v);
+		}
+		
+		//match knockout bool
+		if (filterKnockoutExpr.match(v))
+		{
+			f.knockout	= true;
+			isValid		= true;
+			v			= filterKnockoutExpr.removeMatch(v);
+		}
+		
+		//match quality flag
+		if (filterQualityExpr.match(v))
+		{
+			var qStr	= filterQualityExpr.matched(1);
+			isValid		= true;
+			f.quality	= switch (qStr.toLowerCase()) {
+				default:		1;
+				case "low":		1;
+				case "medium":	2;
+				case "high":	3;
+			}
+			v = filterQualityExpr.removeMatch(v);
+		}
+		
+		return isValid ? f : null;
+	}
+	
+	
+	private function parseGlowFilter (v:String) : Void
+	{
+
+	}
+	
+
+	private function parseGradientBevelFilter (v:String) : Void
+	{
+
+	}
+	
+
+	private function parseGradientBlurFilter (v:String) : Void
+	{
+
+	}
+	
+	
+	
+	//
+	// BOX FILTERS
+	//
+	
+	private function parseAndSetBoxBevel (v:String) : Void
+	{
+		
+	}
+
+
+	private function parseAndSetBoxBlur (v:String) : Void
+	{
+
+	}
+	
+
+	private function parseAndSetBoxShadow (v:String) : Void
+	{
+		var filter = parseShadowFilter(v);
+		if (filter != null) {
+			createBoxFiltersBlock();
+			currentBlock.boxFilters.shadow = filter;
+		}
+	}
+	
+
+	private function parseAndSetBoxGlow (v:String) : Void
+	{
+		
+	}
+	
+
+	private function parseAndSetBoxGradientBevel (v:String) : Void
+	{
+
+	}
+	
+
+	private function parseAndSetBoxGradientBlur (v:String) : Void
+	{
+
+	}
+	
+	
+	
+	//
+	// BACKGROUND FILTERS
+	//
+	
 }
+
+
 
 
 

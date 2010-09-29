@@ -51,9 +51,16 @@ class HaxeCodeGenerator implements ICodeGenerator
 	
 	public var tabSize		(default, setTabSize) : Int;
 	
+	/**
+	 * List with instances that should be set to 'null' when an object is 
+	 * refering to them.
+	 */
+	public var instanceIgnoreList	: Hash < Dynamic >;
+	
 	
 	public function new (?tabSize = 0) {
-		this.tabSize = tabSize;
+		this.tabSize		= tabSize;
+		instanceIgnoreList	= new Hash();
 	}
 	
 	
@@ -143,7 +150,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 		else if (v == LayoutFlags.FILL)			return "primevc.gui.layout.LayoutFlags.FILL";
 		else if (v == null)						return "null";
 		else if (Std.is( v, String ))			return "'" + v + "'";
-		else if (Std.is( v, Int ))				return Std.string(v);
+		else if (Std.is( v, Int ))				return v >= 0 ? Color.uintToString(v) : Std.string(v);
 		else if (Std.is( v, Float ))			return Std.string(v);
 		else if (Std.is( v, Bool ))				return v ? "true" : "false";
 		else if (null != Type.getEnum(v))		return getEnumName(v);
@@ -215,6 +222,9 @@ class HaxeCodeGenerator implements ICodeGenerator
 			return varMap.get(obj.uuid);
 		
 		if (obj.isEmpty())
+			return null;
+		
+		if (instanceIgnoreList.exists(obj.uuid))
 			return null;
 		
 		//get class name without package stuff..

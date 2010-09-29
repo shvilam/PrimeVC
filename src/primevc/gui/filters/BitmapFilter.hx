@@ -26,29 +26,44 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
+package primevc.gui.filters;
 
+
+typedef BitmapFilter = 
+	#if		flash9	flash.filters.BitmapFilter;
+	#elseif	flash8	flash.filters.BitmapFilter;
+	#elseif	js		throw "error";
+	#else			BitmapFilterImpl;
+	
+
+ import primevc.tools.generator.ICodeGenerator;
+ import primevc.utils.StringUtil;
 
 
 /**
  * @author Ruben Weijers
- * @creation-date Sep 05, 2010
+ * @creation-date Sep 29, 2010
  */
-class StyleFlags
+class BitmapFilterImpl implements IBitmapFilter
 {
-	public static inline var NESTING_STYLE		: UInt = 1;
-	public static inline var SUPER_STYLE		: UInt = 2;
-	public static inline var EXTENDED_STYLE		: UInt = 4;
-	public static inline var PARENT_STYLE		: UInt = 8;
+#if (neko || debug)
+	public var uuid			(default, null)	: String;
+#end
 	
-	public static inline var LAYOUT				: UInt = 16;
-	public static inline var FONT				: UInt = 32;
-	public static inline var SKIN				: UInt = 64;
+	public function new ()
+	{
+		uuid = StringUtil.createUUID();
+	}
 	
-	public static inline var BACKGROUND			: UInt = 128;
-	public static inline var BORDER				: UInt = 256;
-	public static inline var EFFECTS			: UInt = 512;
-	public static inline var SHAPE				: UInt = 1024;
-	public static inline var BOX_FILTERS		: UInt = 2048;
-	public static inline var BACKGROUND_FILTERS	: UInt = 4096;
+	
+	public function toCSS (prefix:String = "") : String	{ Assert.abstract(); return ""; }
+	public function toString ()							{ return toCSS(); }
+	
+	
+#if (neko || debug)	
+	public function toCode (code:ICodeGenerator) : Void	{ Assert.abstract(); }
+	public function isEmpty () : Bool					{ Assert.abstract(); return false; }
+#end
 }
+
+#end

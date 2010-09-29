@@ -31,9 +31,12 @@ package primevc.gui.styling;
 #if flash9
 import primevc.core.dispatcher.Wire;
  import primevc.core.IDisposable;
- import primevc.gui.styling.declarations.StyleDeclarationType;
+ import primevc.gui.styling.declarations.FilterCollectionType;
+ import primevc.gui.styling.declarations.FilterStyleDeclarations;
+ import primevc.gui.styling.declarations.FilterStyleProxy;
  import primevc.gui.styling.declarations.LayoutStyleDeclarations;
  import primevc.gui.styling.declarations.LayoutStyleProxy;
+ import primevc.gui.styling.declarations.StyleDeclarationType;
  import primevc.gui.styling.declarations.UIElementStyle;
  import primevc.gui.traits.IStylable;
  import primevc.utils.FastArray;
@@ -248,6 +251,12 @@ class StyleSheet implements IDisposable
 	public function getLayout () : LayoutStyleDeclarations
 	{
 		return new LayoutStyleProxy(this);
+	}
+
+
+	public function getBoxFilters () : FilterStyleDeclarations
+	{
+		return new FilterStyleProxy(this, FilterCollectionType.box);
 	}
 	
 	

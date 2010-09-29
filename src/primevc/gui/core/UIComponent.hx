@@ -38,6 +38,7 @@ package primevc.gui.core;
  import primevc.gui.states.UIElementStates;
 #if flash9
  import primevc.core.geom.constraints.SizeConstraint;
+ import primevc.gui.styling.declarations.FilterStyleDeclarations;
  import primevc.gui.styling.declarations.LayoutStyleDeclarations;
  import primevc.gui.styling.declarations.StyleFlags;
  import primevc.gui.styling.StyleSheet;
@@ -273,10 +274,10 @@ class UIComponent extends Sprite, implements IUIComponent
 			
 			//read font properties
 			//read effects
-			//read filters
 		}
 		
 		applyLayoutStyling( style.getLayout() );
+		applyBoxFilterStyling( style.getBoxFilters() );
 	}
 	
 	
@@ -323,6 +324,19 @@ class UIComponent extends Sprite, implements IUIComponent
 				if (maxH.isSet())	c.height.max	= maxH;
 			}
 		}
+	}
+	
+	
+	private function applyBoxFilterStyling (filterProps:FilterStyleDeclarations) : Void
+	{
+		var filters	= this.filters == null ? [] : this.filters;
+		var shadow	= filterProps.shadow;
+		
+		if (shadow != null)		filters.push( shadow );
+		
+		//set new array with filters
+		if (filters.length > 0)
+			this.filters = filters;
 	}
 #end
 	

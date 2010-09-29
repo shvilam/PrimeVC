@@ -4,6 +4,7 @@ package cases;
  import primevc.gui.styling.CSSParser;
  import primevc.tools.generator.HaxeCodeGenerator;
  import primevc.tools.Manifest;
+  using primevc.utils.Color;
   using primevc.utils.ERegUtil;
   using Std;
 
@@ -183,10 +184,8 @@ class StyleParserTest
 	}
 	
 	
-	private var parser			: CSSParser;
-	private var styles			: UIElementStyle;
+	private var parser			: CSSParserMethodTest;
 	private var generator		: HaxeCodeGenerator;
-	private var manifest		: Manifest;
 	
 	public var correctTests		: Int;
 	public var totalTests		: Int;
@@ -194,9 +193,7 @@ class StyleParserTest
 	
 	public function new ()
 	{
-		styles		= new UIElementStyle(null);
-		manifest	= new Manifest( "../src/manifest.xml" );
-		parser		= new CSSParser( styles, manifest );
+		parser		= new CSSParserMethodTest();
 		generator	= new HaxeCodeGenerator();
 		
 	//	throw parser.gradientExpr.getExpression();
@@ -209,7 +206,7 @@ class StyleParserTest
 		parser.parse( "cases/TestStyleSheet.css" );
 #if debug
 	//	parser.parse(haxe.Resource.getString("stylesheet"));
-		trace(styles);
+		trace(parser.getStyles());
 #else
 	//	parser.parse(haxe.Resource.getString("stylesheet"));
 #end
@@ -220,10 +217,10 @@ class StyleParserTest
 	{
 #if debug
 		trace("============ GENERATE CODE ===============");
-		generator.generate(styles);
+		generator.generate(parser.getStyles());
 		trace(generator.flush());
 #else
-		generator.generate(styles);
+		generator.generate(parser.getStyles());
 #end
 	}
 	
@@ -238,6 +235,8 @@ class StyleParserTest
 		testGraphicProperties();
 		testFontProperties();
 		testLayoutProperties();
+		
+		parser.testParseShadowFilter();
 #end
 	}
 	
@@ -616,8 +615,123 @@ class StyleParserTest
 				totalTests++;
 			}
 	}
+}
+
+
+class CSSParserMethodTest extends CSSParser
+{
+	public function new ()
+	{
+		super(
+			new UIElementStyle(null),
+			new Manifest( "../src/manifest.xml" )
+		);
+	}
 	
 	
+	public function getStyles () {
+		return styles;
+	}
+	
+	
+	//
+	// TEST METHODS
+	//
+	
+	
+	public function testParseShadowFilter ()
+	{	
+		trace("\n\nTESTING PARSE SHADOW FILTER");
+		
+		//
+		//test correct values. Syntax (variable order except for the order within the '()'):
+		//( <distance>px? <blurX>px? <blurY>px? <strength>? ) | <angle>deg? | <rgba>? | <inner>? | <hide-object>? | <knockout>? | <quality>?
+		//
+		
+		
+		var v = "5px 10px 12px 3 90deg #ff00aadd inner hide-object knockout high";
+		var f = parseShadowFilter(v);
+		Assert.equal( f.distance,	5,				"distance" );
+		Assert.equal( f.blurX,		10,				"blurX" );
+		Assert.equal( f.blurY,		12,				"blurY" );
+		Assert.equal( f.strength,	3,				"strength" );
+		Assert.equal( f.angle,		90,				"angle" );
+		Assert.equal( f.color,		0xff00aa,		"color" );
+		Assert.equal( f.alpha,		0xdd.float(),	"alpha" );
+		Assert.equal( f.inner,		true,			"inner" );
+		Assert.equal( f.hideObject,	true,			"hideObject" );
+		Assert.equal( f.knockout,	true,			"knockout" );
+		Assert.equal( f.quality,	3,				"quality" );
+		
+		
+		
+		var v = ".789px 3 90deg #ff0000 medium";
+		var f = parseShadowFilter(v);
+		Assert.equal( f.distance,	.789,			"distance" );
+		Assert.equal( f.blurX,		4,				"blurX" );
+		Assert.equal( f.blurY,		4,				"blurY" );
+		Assert.equal( f.strength,	3,				"strength" );
+		Assert.equal( f.angle,		90,				"angle" );
+		Assert.equal( f.color,		0xff0000,		"color" );
+		Assert.equal( f.alpha,		0xff.float(),	"alpha" );
+		Assert.equal( f.inner,		false,			"inner" );
+		Assert.equal( f.hideObject,	false,			"hideObject" );
+		Assert.equal( f.knockout,	false,			"knockout" );
+		Assert.equal( f.quality,	2,				"quality" );
+		
+		
+		
+		var v = "inner 210 knockout 12.701deg";
+		var f = parseShadowFilter(v);
+		Assert.equal( f.distance,	4,				"distance" );
+		Assert.equal( f.blurX,		4,				"blurX" );
+		Assert.equal( f.blurY,		4,				"blurY" );
+		Assert.equal( f.strength,	210,			"strength" );
+		Assert.equal( f.angle,		12.701,				"angle" );
+		Assert.equal( f.color,		0x00000,		"color" );
+		Assert.equal( f.alpha,		0xff.float(),	"alpha" );
+		Assert.equal( f.inner,		true,			"inner" );
+		Assert.equal( f.hideObject,	false,			"hideObject" );
+		Assert.equal( f.knockout,	true,			"knockout" );
+		Assert.equal( f.quality,	1,				"quality" );
+		
+		
+		
+		var v = "5px 10px 12px";
+		var f = parseShadowFilter(v);
+		Assert.equal( f.distance,	5,				"distance" );
+		Assert.equal( f.blurX,		10,				"blurX" );
+		Assert.equal( f.blurY,		12,				"blurY" );
+		Assert.equal( f.strength,	1,				"strength" );
+		Assert.equal( f.angle,		45,				"angle" );
+		Assert.equal( f.color,		0x00,			"color" );
+		Assert.equal( f.alpha,		0xff.float(),	"alpha" );
+		Assert.equal( f.inner,		false,			"inner" );
+		Assert.equal( f.hideObject,	false,			"hideObject" );
+		Assert.equal( f.knockout,	false,			"knockout" );
+		Assert.equal( f.quality,	1,				"quality" );
+		
+		
+		
+		var v = "4px 4px 4px #ff0000 180deg";
+		var f = parseShadowFilter(v);
+		Assert.equal( f.distance,	4,				"distance" );
+		Assert.equal( f.blurX,		4,				"blurX" );
+		Assert.equal( f.blurY,		4,				"blurY" );
+		Assert.equal( f.strength,	1,				"strength" );
+		Assert.equal( f.angle,		180,			"angle" );
+		Assert.equal( f.color,		0xff0000,		"color" );
+		Assert.equal( f.alpha,		0xff.float(),	"alpha" );
+		Assert.equal( f.inner,		false,			"inner" );
+		Assert.equal( f.hideObject,	false,			"hideObject" );
+		Assert.equal( f.knockout,	false,			"knockout" );
+		Assert.equal( f.quality,	1,				"quality" );
+	}
+}
+
+
+#end
+/*	
 	private inline function testURIs ()
 	{	
 		//
@@ -697,9 +811,8 @@ class StyleParserTest
 		expr.test( "test.jpg" );
 		expr.test( "test.jpeg" );
 		expr.testWrong( "test." );
-		expr.testWrong( "test" );*/
+		expr.testWrong( "test" );
 	}
-#end
 }
 
 /*
