@@ -30,7 +30,7 @@ package primevc.gui.filters;
 
 
 #if (flash9 || flash8)
-typedef DropShadowFilter = flash.filters.DropShadowFilter;
+typedef BevelFilter = flash.filters.BevelFilter;
 
 #elseif	js
 throw "error";
@@ -44,49 +44,55 @@ throw "error";
 
 
 /**
- * Simple DropShadowFilter implementation. Class currently just contains the 
- * same properties as the flash.filters.DropShadowFilter, but doesn't do 
- * anything.
- * 
+ * Simple BevelFilter implementation. Class currently just contains the 
+ * same properties as the flash.filters.BevelFilter, but doesn't do 
+ * anything else.
+ *
  * @author Ruben Weijers
- * @creation-date Sep 29, 2010
+ * @creation-date Sep 30, 2010
  */
-class DropShadowFilter extends BitmapFilter
+class BevelFilter extends BitmapFilter
 {
-	public var alpha		: Float;
+	public var highlightAlpha	: Float;
+	public var highlightColor	: UInt;
+	public var shadowAlpha		: Float;
+	public var shadowColor		: UInt;
+	
 	public var angle		: Float;
 	public var blurX		: Float;
 	public var blurY		: Float;
-	public var color		: UInt;
 	public var distance		: Float;
-	public var hideObject	: Bool;
-	public var inner		: Bool;
 	public var knockout		: Bool;
 	public var quality		: Int;
 	public var strength		: Float;
+	public var type			: BitmapFilterType;
 	
 	
 	public function new (
-				distance:Float = 4.0, angle:Float = 45, color:UInt = 0, alpha:Float = 1.0, 
+				distance:Float = 4.0, angle:Float = 45, 
+				highlightColor:UInt = 0xffffff, highlightAlpha:Float = 1.0, 
+				shadowColor:UInt = 0x000000, shadowAlpha:Float = 1.0,
 				blurX:Float = 4.0, blurY:Float = 4.0, strength:Float = 1.0, quality:Int = 1, 
-				inner:Bool = false, knockout:Bool = false, hideObject:Bool = false
+				type = null, knockout:Bool = false
 				)
 	{
 		super();
-		this.distance	= distance;
-		this.angle		= angle;
-		this.color		= color;
-		this.alpha		= alpha;
-		this.blurX		= blurX;
-		this.blurY		= blurY;
-		this.strength	= strength;
-		this.quality	= quality;
-		this.inner		= inner;
-		this.knockout	= knockout;
-		this.hideObject	= hideObject;
+		
+		this.distance		= distance;
+		this.angle			= angle;
+		this.highlightColor	= highlightColor;
+		this.highlightAlpha	= highlightAlpha;
+		this.shadowColor	= shadowColor;
+		this.shadowAlpha	= shadowAlpha;
+		this.blurX			= blurX;
+		this.blurY			= blurY;
+		this.strength		= strength;
+		this.quality		= quality;
+		this.type			= type == null ? BitmapFilterType.INNER : type;
+		this.knockout		= knockout;
 	}
-	
-	
+
+
 	override public function toCSS (prefix:String = "") : String
 	{
 		var css = [];
@@ -95,35 +101,42 @@ class DropShadowFilter extends BitmapFilter
 		css.push( blurY+"px" );
 		css.push( strength.string() );
 		css.push( angle+"deg");
-		css.push( Color.create().setRgb( color ).setAlpha( alpha.uint() ).string() );
-
-		if (inner)		css.push("inner");
+		css.push( Color.create().setRgb( highlightColor ).setAlpha( highlightAlpha.uint() ).string() );
+		css.push( Color.create().setRgb( shadowColor ).setAlpha( shadowAlpha.uint() ).string() );
+		
 		if (knockout)	css.push("knockout");
-		if (hideObject)	css.push("hide-object");
+		
+		css.push ( switch (type) {
+			case INNER:	"inner";
+			case OUTER:	"outer";
+			case FULL:	"full";
+		} );
 		
 		css.push ( switch (quality) {
 			case 1:		"low";
 			case 2:		"medium";
 			case 3:		"high";
 		} );
-		
+
 		return css.join(" ");
 	}
-	
-	
+
+
 #if (neko || debug)
 	override public function toCode (code:ICodeGenerator) : Void
 	{
-		code.construct( this, [ distance, angle, color, alpha, blurX, blurY, strength, quality, inner, knockout, hideObject ] );
+		code.construct( this, [ 
+			distance, angle, highlightColor, highlightAlpha, shadowColor, shadowAlpha, 
+			blurX, blurY, strength, quality, type, knockout
+		] );
 	}
-	
-	
+
+
 	override public function isEmpty () : Bool
 	{
-		return alpha == 0;
+		return false;
 	}
 #end
 }
-
 
 #end

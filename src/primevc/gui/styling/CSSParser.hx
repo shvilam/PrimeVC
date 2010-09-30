@@ -37,6 +37,8 @@ package primevc.gui.styling;
  import primevc.core.geom.Corners;
  import primevc.core.geom.IntPoint;
  import primevc.core.IDisposable;
+ import primevc.gui.filters.BevelFilter;
+ import primevc.gui.filters.BitmapFilterType;
  import primevc.gui.filters.DropShadowFilter;
  import primevc.gui.filters.IBitmapFilter;
  import primevc.gui.graphics.borders.BitmapBorder;
@@ -241,6 +243,7 @@ class CSSParser
 	public var filterHideExpr			(default, null) : EReg;
 	public var filterKnockoutExpr		(default, null) : EReg;
 	public var filterQualityExpr		(default, null) : EReg;
+	public var filterTypeExpr			(default, null) : EReg;
 	
 	
 	
@@ -417,6 +420,7 @@ class CSSParser
 		filterHideExpr		= new EReg("hide[-]object", "i");
 		filterKnockoutExpr	= new EReg("knockout", "i");
 		filterQualityExpr	= new EReg("(low|medium|high)", "i");
+		filterTypeExpr		= new EReg("(inner|outer|full)", "i");
 	}
 	
 	
@@ -890,9 +894,9 @@ class CSSParser
 			//filter properties
 			//
 			
-			case "box-bevel":					parseAndSetBoxBevel( val );
+			case "box-bevel":					parseAndSetBoxBevel( val );		// ( <distance>px? <blurX>px? <blurY>px? <strength>? ) | <angle>deg? | ( <rgba-shadow>? | <rgba-highlight>? ) | <inner|outer|full>? | <knockout>? | <quality>?
 			case "box-blur":					parseAndSetBoxBlur( val );
-			case "box-shadow":					parseAndSetBoxShadow( val );	// ( <distance>px <blurX>px <blurY>px <strength> ) | <angle>deg | <rgba> | <inset> | <hide> | <knockout> | <quality>
+			case "box-shadow":					parseAndSetBoxShadow( val );	// ( <distance>px? <blurX>px? <blurY>px? <strength>? ) | <angle>deg? | <rgba>? | <inner>? | <hide-object>? | <knockout>? | <quality>?
 			case "box-glow":					parseAndSetBoxGlow( val );
 			case "box-gradient-bevel":			parseAndSetBoxGradientBevel( val );
 			case "box-gradient-blur":			parseAndSetBoxGradientBlur( val );
@@ -2080,10 +2084,116 @@ class CSSParser
 	//
 	
 	
-	
-	private function parseBevelFilter (v:String) : Void
+	private function parseFilterType (v:String) : BitmapFilterType
 	{
+		return switch (v.toLowerCase()) {
+			default:		BitmapFilterType.INNER;
+			case "inner":	BitmapFilterType.INNER;
+			case "outer":	BitmapFilterType.OUTER;
+			case "full":	BitmapFilterType.FULL;
+		};
+	}
+	
+	
+	
+	
+	/**
+	 * Matches and creates a bevel-filter.
+	 * The first found color is used as hightlight color, the second (if any) as shadow color.
+	 *  
+	 * Syntax:
+	 * ( <distance>px? <blurX>px? <blurY>px? <strength>? ) | <angle>deg? | ( <rgba-shadow>? | <rgba-highlight>? ) | <inner|outer|full>? | <knockout>? | <quality>?
+	 */
+	private function parseBevelFilter (v:String) : BevelFilter
+	{
+		var f:BevelFilter = new BevelFilter();
+		var isValid:Bool = false;
 		
+		//match rotation
+		if (isAngle(v))
+		{
+			f.angle	= parseAngle(v);
+			isValid	= true;
+			v		= removeAngle(v);
+		}
+		
+		//match highlight-color and highlight-alpha
+		if (isColor(v))
+		{
+			var c				= parseColor(v);
+			f.highlightColor	= c.rgb();
+			f.highlightAlpha	= c.alpha().float();
+			isValid				= true;
+			v					= removeColor(v);
+		}
+
+		//match shadow-color and shadow-alpha
+		if (isColor(v))
+		{
+			var c			= parseColor(v);
+			f.shadowColor	= c.rgb();
+			f.shadowAlpha	= c.alpha().float();
+			isValid			= true;
+			v				= removeColor(v);
+		}
+		
+		//match distance
+		if (isUnitFloat(v))
+		{
+			f.distance	= parseUnitFloat(v);
+			isValid		= true;
+			v = removeUnitFloat(v);
+		}
+		
+		//match blur
+		if (filterBlurExpr.match(v))
+		{
+			f.blurX	= filterBlurExpr.matched(3).parseFloat();
+			f.blurY	= filterBlurExpr.matched(10).parseFloat();
+			isValid	= true;
+			v		= filterBlurExpr.removeMatch(v);
+		}
+		
+		//match strength
+		if (isInt(v))
+		{
+			f.strength	= parseInt(v);
+			isValid		= true;
+			v			= removeInt(v);
+		}
+		
+		//match filter type
+		if (filterTypeExpr.match(v))
+		{
+			var tStr	= filterTypeExpr.matched(1);
+			f.type		= parseFilterType(tStr); 
+			isValid		= true;
+			v			= filterTypeExpr.removeMatch(v);
+		}
+		
+		//match knockout bool
+		if (filterKnockoutExpr.match(v))
+		{
+			f.knockout	= true;
+			isValid		= true;
+			v			= filterKnockoutExpr.removeMatch(v);
+		}
+		
+		//match quality flag
+		if (filterQualityExpr.match(v))
+		{
+			var qStr	= filterQualityExpr.matched(1);
+			isValid		= true;
+			f.quality	= switch (qStr.toLowerCase()) {
+				default:		1;
+				case "low":		1;
+				case "medium":	2;
+				case "high":	3;
+			}
+			v = filterQualityExpr.removeMatch(v);
+		}
+		
+		return isValid ? f : null;
 	}
 
 
@@ -2149,7 +2259,7 @@ class CSSParser
 			v			= removeInt(v);
 		}
 		
-		//match inset bool
+		//match inner bool
 		if (filterInnerExpr.match(v))
 		{
 			f.inner	= true;
@@ -2216,7 +2326,11 @@ class CSSParser
 	
 	private function parseAndSetBoxBevel (v:String) : Void
 	{
-		
+		var filter = parseBevelFilter(v);
+		if (filter != null) {
+			createBoxFiltersBlock();
+			currentBlock.boxFilters.bevel = filter;
+		}
 	}
 
 

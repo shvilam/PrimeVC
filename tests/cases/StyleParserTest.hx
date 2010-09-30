@@ -9,6 +9,9 @@ package cases;
   using Std;
 
 
+typedef BType = primevc.gui.filters.BitmapFilterType;
+
+
 class StyleParserTest
 {
 	public static inline var CORRECT_INTS			= [ "1", "12456789", '35561', '-5789' ];
@@ -237,6 +240,7 @@ class StyleParserTest
 		testLayoutProperties();
 		
 		parser.testParseShadowFilter();
+		parser.testParseBevelFilter();
 #end
 	}
 	
@@ -687,7 +691,7 @@ class CSSParserMethodTest extends CSSParser
 		Assert.equal( f.blurX,		4,				"blurX" );
 		Assert.equal( f.blurY,		4,				"blurY" );
 		Assert.equal( f.strength,	210,			"strength" );
-		Assert.equal( f.angle,		12.701,				"angle" );
+		Assert.equal( f.angle,		12.701,			"angle" );
 		Assert.equal( f.color,		0x00000,		"color" );
 		Assert.equal( f.alpha,		0xff.float(),	"alpha" );
 		Assert.equal( f.inner,		true,			"inner" );
@@ -726,6 +730,69 @@ class CSSParserMethodTest extends CSSParser
 		Assert.equal( f.hideObject,	false,			"hideObject" );
 		Assert.equal( f.knockout,	false,			"knockout" );
 		Assert.equal( f.quality,	1,				"quality" );
+	}
+	
+	
+	
+	
+	public function testParseBevelFilter ()
+	{	
+		trace("\n\nTESTING PARSE BEVEL FILTER");
+
+		//
+		// test correct values. Syntax (variable order except for the order within the '()'):
+		// ( <distance>px? <blurX>px? <blurY>px? <strength>? ) | <angle>deg? | ( <rgba-shadow>? | <rgba-highlight>? ) | <inner|outer|full>? | <knockout>? | <quality>?
+		//
+
+
+		var v = "5px 10px 12px 3 90deg #ff00aadd #00aadd full knockout high";
+		var f = parseBevelFilter(v);
+		Assert.equal( f.distance,		5,				"distance" );
+		Assert.equal( f.blurX,			10,				"blurX" );
+		Assert.equal( f.blurY,			12,				"blurY" );
+		Assert.equal( f.strength,		3,				"strength" );
+		Assert.equal( f.angle,			90,				"angle" );
+		Assert.equal( f.highlightColor,	0xff00aa,		"highlightColor" );
+		Assert.equal( f.highlightAlpha,	0xdd.float(),	"highlightAlpha" );
+		Assert.equal( f.shadowColor,	0x00aadd,		"shadowColor" );
+		Assert.equal( f.shadowAlpha,	0xff.float(),	"shadowAlpha" );
+		Assert.equal( f.type,			BType.FULL,		"type" );
+		Assert.equal( f.knockout,		true,			"knockout" );
+		Assert.equal( f.quality,		3,				"quality" );
+
+
+
+		var v = ".789px 3 90deg #ff0000 medium";
+		var f = parseBevelFilter(v);
+		Assert.equal( f.distance,		.789,			"distance" );
+		Assert.equal( f.blurX,			4,				"blurX" );
+		Assert.equal( f.blurY,			4,				"blurY" );
+		Assert.equal( f.strength,		3,				"strength" );
+		Assert.equal( f.angle,			90,				"angle" );
+		Assert.equal( f.highlightColor,	0xff0000,		"color" );
+		Assert.equal( f.highlightAlpha,	0xff.float(),	"alpha" );
+		Assert.equal( f.shadowColor,	0x000000,		"shadowColor" );
+		Assert.equal( f.shadowAlpha,	0xff.float(),	"shadowAlpha" );
+		Assert.equal( f.type,			BType.INNER,	"type" );
+		Assert.equal( f.knockout,		false,			"knockout" );
+		Assert.equal( f.quality,		2,				"quality" );
+		
+
+
+		var v = "60 #abcdef12 #fedcba98 low outer";
+		var f = parseBevelFilter(v);
+		Assert.equal( f.distance,		4,				"distance" );
+		Assert.equal( f.blurX,			4,				"blurX" );
+		Assert.equal( f.blurY,			4,				"blurY" );
+		Assert.equal( f.strength,		60,				"strength" );
+		Assert.equal( f.angle,			45,				"angle" );
+		Assert.equal( f.highlightColor,	0xabcdef,		"color" );
+		Assert.equal( f.highlightAlpha,	0x12.float(),	"alpha" );
+		Assert.equal( f.shadowColor,	0xfedcba,		"shadowColor" );
+		Assert.equal( f.shadowAlpha,	0x98.float(),	"shadowAlpha" );
+		Assert.equal( f.type,			BType.OUTER,	"type" );
+		Assert.equal( f.knockout,		false,			"knockout" );
+		Assert.equal( f.quality,		1,				"quality" );
 	}
 }
 

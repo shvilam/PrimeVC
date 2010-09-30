@@ -50,13 +50,9 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	override private function getRelative ()
 	{
 		var v = super.getRelative();
-		var i = 0;
 		for (styleObj in target)
-		{
-			i++;
 			if (styleObj.layout != null && null != (v = styleObj.layout.relative))
 				break;
-		}
 		return v;
 	}
 	
