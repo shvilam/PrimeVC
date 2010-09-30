@@ -331,8 +331,18 @@ class UIComponent extends Sprite, implements IUIComponent
 	{
 		var filters	= this.filters == null ? [] : this.filters;
 		var shadow	= filterProps.shadow;
+		var bevel	= filterProps.bevel;
+		var blur	= filterProps.blur;
+		var glow	= filterProps.glow;
+		var grBevel	= filterProps.gradientBevel;
+		var grBlur	= filterProps.gradientBlur;
 		
 		if (shadow != null)		filters.push( shadow );
+		if (bevel != null)		filters.push( bevel );
+		if (blur != null)		filters.push( blur );
+		if (glow != null)		filters.push( glow );
+		if (grBevel != null)	filters.push( grBevel );
+		if (grBlur != null)		filters.push( grBlur );
 		
 		//set new array with filters
 		if (filters.length > 0)

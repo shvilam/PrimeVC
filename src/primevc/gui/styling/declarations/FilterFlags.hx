@@ -36,5 +36,10 @@ package primevc.gui.styling.declarations;
  */
 class FilterFlags
 {
-	public static inline var SHADOW		: UInt = 1;
+	public static inline var SHADOW			: UInt = 1;
+	public static inline var BEVEL			: UInt = 2;
+	public static inline var BLUR			: UInt = 4;
+	public static inline var GLOW			: UInt = 8;
+	public static inline var GRADIENT_BEVEL	: UInt = 16;
+	public static inline var GRADIENT_BLUR	: UInt = 32;
 }

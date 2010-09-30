@@ -42,24 +42,43 @@ package primevc.gui.styling.declarations;
  */
 class FilterStyleDeclarations extends StylePropertyGroup
 {
-	private var type		: FilterCollectionType;
-	private var _shadow		: BitmapFilter;
+	private var type			: FilterCollectionType;
+	private var _shadow			: BitmapFilter;
+	private var _bevel			: BitmapFilter;
+	private var _blur			: BitmapFilter;
+	private var _glow			: BitmapFilter;
+	private var _gradientBevel	: BitmapFilter;
+	private var _gradientBlur	: BitmapFilter;
 	
-	public var shadow	(getShadow, setShadow)	: BitmapFilter;
+	
+	public var shadow			(getShadow,			setShadow)			: BitmapFilter;
+	public var bevel			(getBevel,			setBevel)			: BitmapFilter;
+	public var blur				(getBlur,			setBlur)			: BitmapFilter;
+	public var glow				(getGlow,			setGlow)			: BitmapFilter;
+	public var gradientBevel	(getGradientBevel,	setGradientBevel)	: BitmapFilter;
+	public var gradientBlur		(getGradientBlur,	setGradientBlur)	: BitmapFilter;
 	
 	
 	
-	public function new (newType:FilterCollectionType, shadow:BitmapFilter = null)
+	public function new (newType:FilterCollectionType, shadow:BitmapFilter = null, bevel:BitmapFilter = null, blur:BitmapFilter = null, glow:BitmapFilter = null, gradientBevel:BitmapFilter = null, gradientBlur:BitmapFilter = null)
 	{
 		super();
-		type	= newType;
-		_shadow = shadow;
+		type			= newType;
+		_shadow 		= shadow;
+		_bevel			= bevel;
+		_blur			= blur;
+		_glow			= glow;
+		_gradientBevel	= gradientBevel;
+		_gradientBlur	= gradientBlur;
 	}
 	
 	
-	//
-	// GETTERS
-	//
+	override public function dispose ()
+	{
+		_shadow = _bevel = _blur = _glow = _gradientBevel = _gradientBlur = null;
+		super.dispose();
+	}
+	
 	
 	private inline function getExtendedBox () : FilterStyleDeclarations
 	{
@@ -85,18 +104,73 @@ class FilterStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
+	
+	
+	//
+	// GETTERS
+	//
+	
+	
 	private function getShadow ()
 	{
 		var v = _shadow;
 		if (v == null && getExtended() != null)		v = getExtendedBox().shadow;
 		if (v == null && getSuper() != null)		v = getSuperBox().shadow;
-		return v;	
+		return v;
 	}
+	
+	
+	private function getBevel ()
+	{
+		var v = _bevel;
+		if (v == null && getExtended() != null)		v = getExtendedBox().bevel;
+		if (v == null && getSuper() != null)		v = getSuperBox().bevel;
+		return v;
+	}
+	
+	
+	private function getBlur ()
+	{
+		var v = _blur;
+		if (v == null && getExtended() != null)		v = getExtendedBox().blur;
+		if (v == null && getSuper() != null)		v = getSuperBox().blur;
+		return v;
+	}
+	
+	
+	private function getGlow ()
+	{
+		var v = _glow;
+		if (v == null && getExtended() != null)		v = getExtendedBox().glow;
+		if (v == null && getSuper() != null)		v = getSuperBox().glow;
+		return v;
+	}
+	
+	
+	private function getGradientBlur ()
+	{
+		var v = _gradientBlur;
+		if (v == null && getExtended() != null)		v = getExtendedBox().gradientBlur;
+		if (v == null && getSuper() != null)		v = getSuperBox().gradientBlur;
+		return v;
+	}
+	
+	
+	private function getGradientBevel ()
+	{
+		var v = _gradientBevel;
+		if (v == null && getExtended() != null)		v = getExtendedBox().gradientBevel;
+		if (v == null && getSuper() != null)		v = getSuperBox().gradientBevel;
+		return v;
+	}
+	
+	
 	
 	
 	//
 	// SETTERS
 	//
+	
 	
 	private function setShadow (v)
 	{
@@ -108,6 +182,61 @@ class FilterStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
+	private function setBevel (v)
+	{
+		if (v != _bevel) {
+			_bevel = v;
+			invalidate( FilterFlags.BEVEL );
+		}
+		return v;
+	}
+	
+	
+	private function setBlur (v)
+	{
+		if (v != _blur) {
+			_blur = v;
+			invalidate( FilterFlags.BLUR );
+		}
+		return v;
+	}
+	
+	
+	private function setGlow (v)
+	{
+		if (v != _glow) {
+			_glow = v;
+			invalidate( FilterFlags.GLOW );
+		}
+		return v;
+	}
+	
+	
+	private function setGradientBevel (v)
+	{
+		if (v != _gradientBevel) {
+			_gradientBevel = v;
+			invalidate( FilterFlags.GRADIENT_BEVEL );
+		}
+		return v;
+	}
+	
+	
+	private function setGradientBlur (v)
+	{
+		if (v != _gradientBlur) {
+			_gradientBlur = v;
+			invalidate( FilterFlags.GRADIENT_BLUR );
+		}
+		return v;
+	}
+	
+	
+	
+	//
+	// CODE / CSS METHODS
+	//
+	
 	
 #if (neko || debug)
 	override public function toCSS (prefix:String = "")
@@ -115,7 +244,13 @@ class FilterStyleDeclarations extends StylePropertyGroup
 		var css = [];
 		
 		var propPrefix = (type == FilterCollectionType.box) ? "box-" : "background-";
-		if (_shadow != null)	css.push( propPrefix + "shadow: " + _shadow );
+		
+		if (_shadow != null)		css.push( propPrefix + "shadow: " + _shadow );
+		if (_bevel != null)			css.push( propPrefix + "bevel: " + _bevel );
+		if (_blur != null)			css.push( propPrefix + "blur: " + _blur );
+		if (_glow != null)			css.push( propPrefix + "glow: " + _glow );
+		if (_gradientBevel != null)	css.push( propPrefix + "gradient-bevel: " + _gradientBevel );
+		if (_gradientBlur != null)	css.push( propPrefix + "gradient-blur: " + _gradientBlur );
 		
 		if (css.length > 0)
 			return "\n\t" + css.join(";\n\t") + ";";
@@ -126,7 +261,7 @@ class FilterStyleDeclarations extends StylePropertyGroup
 	
 	override public function isEmpty ()
 	{
-		return _shadow == null;
+		return _shadow == null && _glow == null && _bevel == null && _blur == null && _gradientBevel == null && _gradientBlur == null;
 	}
 #end
 
@@ -135,9 +270,7 @@ class FilterStyleDeclarations extends StylePropertyGroup
 	override public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())
-		{
-			code.construct( this, [ type, _shadow ] );
-		}
+			code.construct( this, [ type, _shadow, _bevel, _blur, _glow, _gradientBevel, _gradientBlur ] );
 	}
 #end
 }

@@ -92,7 +92,6 @@ class CSSParserMain
 	
 	public function generateCode ()
 	{
-		styles.background = new primevc.gui.graphics.fills.SolidFill(primevc.utils.Color.create());
 		generateSelectorCode( cast styles.children.elementSelectors, "elementSelectors" );
 		generateSelectorCode( cast styles.children.styleNameSelectors, "styleNameSelectors" );
 		generateSelectorCode( cast styles.children.idSelectors, "idSelectors" );

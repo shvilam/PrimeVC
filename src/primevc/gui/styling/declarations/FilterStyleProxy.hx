@@ -49,30 +49,137 @@ class FilterStyleProxy extends FilterStyleDeclarations
 	override private function getShadow ()
 	{
 		var v = super.getShadow();
-		var i = 0;
 		
-		//box filters
 		if (type == FilterCollectionType.box)
 		{
+			//box filters
 			for (styleObj in target)
-			{
-				i++;
 				if (styleObj.boxFilters != null && null != (v = styleObj.boxFilters.shadow))
 					break;
-			}
 		}
-		
-		//background filters
 		else
 		{
+			//background filters
 			for (styleObj in target)
-			{
-				i++;
 				if (styleObj.bgFilters != null && null != (v = styleObj.bgFilters.shadow))
 					break;
-			}
 		}
 		
+		return v;
+	}
+	
+	
+	
+	override private function getBevel ()
+	{
+		var v = super.getBevel();
+		
+		if (type == FilterCollectionType.box)
+		{
+			//box filters
+			for (styleObj in target)
+				if (styleObj.boxFilters != null && null != (v = styleObj.boxFilters.bevel))
+					break;
+		}
+		else
+		{
+			//background filters
+			for (styleObj in target)
+				if (styleObj.bgFilters != null && null != (v = styleObj.bgFilters.bevel))
+					break;
+		}
+		return v;
+	}
+	
+	
+	
+	override private function getBlur ()
+	{
+		var v = super.getBlur();
+		
+		if (type == FilterCollectionType.box)
+		{
+			//box filters
+			for (styleObj in target)
+				if (styleObj.boxFilters != null && null != (v = styleObj.boxFilters.blur))
+					break;
+		}
+		else
+		{
+			//background filters
+			for (styleObj in target)
+				if (styleObj.bgFilters != null && null != (v = styleObj.bgFilters.blur))
+					break;
+		}
+		return v;
+	}
+	
+	
+	
+	override private function getGlow ()
+	{
+		var v = super.getGlow();
+		
+		if (type == FilterCollectionType.box)
+		{
+			//box filters
+			for (styleObj in target)
+				if (styleObj.boxFilters != null && null != (v = styleObj.boxFilters.glow))
+					break;
+		}
+		else
+		{
+			//background filters
+			for (styleObj in target)
+				if (styleObj.bgFilters != null && null != (v = styleObj.bgFilters.glow))
+					break;
+		}
+		return v;
+	}
+	
+	
+	
+	override private function getGradientBevel ()
+	{
+		var v = super.getGradientBevel();
+		
+		if (type == FilterCollectionType.box)
+		{
+			//box filters
+			for (styleObj in target)
+				if (styleObj.boxFilters != null && null != (v = styleObj.boxFilters.gradientBevel))
+					break;
+		}
+		else
+		{
+			//background filters
+			for (styleObj in target)
+				if (styleObj.bgFilters != null && null != (v = styleObj.bgFilters.gradientBevel))
+					break;
+		}
+		return v;
+	}
+	
+	
+	
+	override private function getGradientBlur ()
+	{
+		var v = super.getGradientBlur();
+		
+		if (type == FilterCollectionType.box)
+		{
+			//box filters
+			for (styleObj in target)
+				if (styleObj.boxFilters != null && null != (v = styleObj.boxFilters.gradientBlur))
+					break;
+		}
+		else
+		{
+			//background filters
+			for (styleObj in target)
+				if (styleObj.bgFilters != null && null != (v = styleObj.bgFilters.gradientBlur))
+					break;
+		}
 		return v;
 	}
 }
