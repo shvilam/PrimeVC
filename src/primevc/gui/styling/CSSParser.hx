@@ -39,7 +39,9 @@ package primevc.gui.styling;
  import primevc.core.IDisposable;
  import primevc.gui.filters.BevelFilter;
  import primevc.gui.filters.BitmapFilterType;
+ import primevc.gui.filters.BlurFilter;
  import primevc.gui.filters.DropShadowFilter;
+ import primevc.gui.filters.GlowFilter;
  import primevc.gui.filters.IBitmapFilter;
  import primevc.gui.graphics.borders.BitmapBorder;
  import primevc.gui.graphics.borders.GradientBorder;
@@ -894,12 +896,12 @@ class CSSParser
 			//filter properties
 			//
 			
-			case "box-bevel":					parseAndSetBoxBevel( val );		// ( <distance>px? <blurX>px? <blurY>px? <strength>? ) | <angle>deg? | ( <rgba-shadow>? | <rgba-highlight>? ) | <inner|outer|full>? | <knockout>? | <quality>?
-			case "box-blur":					parseAndSetBoxBlur( val );
-			case "box-shadow":					parseAndSetBoxShadow( val );	// ( <distance>px? <blurX>px? <blurY>px? <strength>? ) | <angle>deg? | <rgba>? | <inner>? | <hide-object>? | <knockout>? | <quality>?
-			case "box-glow":					parseAndSetBoxGlow( val );
-			case "box-gradient-bevel":			parseAndSetBoxGradientBevel( val );
-			case "box-gradient-blur":			parseAndSetBoxGradientBlur( val );
+			case "box-bevel":					parseAndSetBoxBevel( val );			// ( <distance>px? <blurX>px? <blurY>px? <strength>? ) | <angle>deg? | ( <rgba-shadow>? | <rgba-highlight>? ) | <inner|outer|full>? | <knockout>? | <quality>?
+			case "box-blur":					parseAndSetBoxBlur( val );			// <blurX>px? | <blurY>px? | <quality>?
+			case "box-shadow":					parseAndSetBoxShadow( val );		// ( <distance>px? <blurX>px? <blurY>px? <strength>? ) | <angle>deg? | <rgba>? | <inner>? | <hide-object>? | <knockout>? | <quality>?
+			case "box-glow":					parseAndSetBoxGlow( val );			//( <blurX>px? <blurY>px? <strength>? ) | <rgba>? | <inner>? | <knockout>? | <quality>?
+			case "box-gradient-bevel":			parseAndSetBoxGradientBevel( val );	//
+			case "box-gradient-blur":			parseAndSetBoxGradientBlur( val );	//
 			
 			
 			
@@ -1025,19 +1027,33 @@ class CSSParser
 	// GENERAL UNIT CONVERSION / MATCH METHODS
 	//
 	
+	
+	
+	private inline function getFloat (match:String) : Float
+	{
+		return (match == null) ? 0.0 : match.parseFloat();
+	}
+	
+	
+	private inline function getInt (match:String) : Int
+	{
+		return (match == null) ? 0 : match.parseInt();
+	}
+	
+	
 	/**
 	 * Method to convert the given value to an int and convert the value 
 	 * according to the unit.
 	 */
 	private inline function parseInt (v:String) : Int
 	{
-		return (isInt(v)) ? intValExpr.matched(1).parseInt() : Number.INT_NOT_SET;
+		return (isInt(v)) ? getInt( intValExpr.matched(1) ) : Number.INT_NOT_SET;
 	}
 	
 	
 	private inline function parseFloat (v:String) : Float
 	{
-		return (isFloat(v)) ? floatValExpr.matched(1).parseFloat() : Number.FLOAT_NOT_SET;
+		return (isFloat(v)) ? getFloat( floatValExpr.matched(1) ) : Number.FLOAT_NOT_SET;
 	}
 	
 	
@@ -1045,7 +1061,7 @@ class CSSParser
 	{
 		var n = Number.INT_NOT_SET;
 		if (isUnitInt(v))
-			n = floatUnitValExpr.matched(3).parseInt();
+			n = getInt( floatUnitValExpr.matched(3) );
 		
 		return n;
 	}
@@ -1055,7 +1071,7 @@ class CSSParser
 	{
 		var n = Number.FLOAT_NOT_SET;
 		if (isUnitFloat(v))
-			n = floatUnitValExpr.matched(3).parseFloat();
+			n = getFloat( floatUnitValExpr.matched(3) );
 		
 		return n;
 	}
@@ -1063,7 +1079,7 @@ class CSSParser
 	
 	private inline function parsePercentage (v:String) : Float
 	{
-		return (isPercentage(v)) ? percValExpr.matched(2).parseFloat() : Number.FLOAT_NOT_SET;
+		return (isPercentage(v)) ? getFloat( percValExpr.matched(2) ) : Number.FLOAT_NOT_SET;
 	}
 	
 	
@@ -1072,8 +1088,8 @@ class CSSParser
 		var p:IntPoint = null;
 		if (v != null && pointExpr.match(v)) {
 			p = new IntPoint(
-				pointExpr.matched(3).parseInt(),
-				pointExpr.matched(10).parseInt()
+				getInt( pointExpr.matched(3) ),
+				getInt( pointExpr.matched(10) )
 			);
 		}
 		return p;
@@ -1082,7 +1098,7 @@ class CSSParser
 	
 	private inline function parseAngle (v:String) : Float
 	{
-		return (angleExpr.match(v)) ? angleExpr.matched(1).parseFloat() : Number.FLOAT_NOT_SET;
+		return (angleExpr.match(v)) ? getFloat( angleExpr.matched(1) ) : Number.FLOAT_NOT_SET;
 	}
 	
 	
@@ -1122,9 +1138,9 @@ class CSSParser
 			else if (colorValExpr.matched(4) != null)
 			{
 				var colors = colorValExpr.matched(6).split(",");
-				var alpha = colorValExpr.matched(9).parseFloat().uint();
+				var alpha = getFloat( colorValExpr.matched(9) ).uint();
 				
-				clr = Color.create(colors[0].parseInt(), colors[1].parseInt(), colors[2].parseInt(), alpha);
+				clr = Color.create(getInt( colors[0] ), getInt( colors[1] ), getInt( colors[2] ), alpha);
 			}
 		}
 		
@@ -1464,8 +1480,8 @@ class CSSParser
 			var gradientExpr	= isLinearGr ? linGradientExpr : radGradientExpr;
 			var type			= isLinearGr ? GradientType.linear : GradientType.radial;
 			var colorsStr		= gradientExpr.matched(4);
-			var focalPoint		= isLinearGr ? 0 : gradientExpr.matched(2).parseInt();
-			var degr			= isRadialGr ? 0 : gradientExpr.matched(3).parseInt();
+			var focalPoint		= isLinearGr ? 0 : getInt( gradientExpr.matched(2) );
+			var degr			= isRadialGr ? 0 : getInt( gradientExpr.matched(3) );
 			var method			= parseGradientMethod( gradientExpr.matched(21) );
 			
 			var gr = new GradientFill(type, method, focalPoint, degr);
@@ -1482,11 +1498,11 @@ class CSSParser
 					var pos = -1;
 					if (gradientColorExpr.matched(16) != null) {
 						//match px,pt,em etc value
-						pos = gradientColorExpr.matched(16).parseInt();
+						pos = getInt( gradientColorExpr.matched(16) );
 					}
 					else if (gradientColorExpr.matched(20) != null)	{
 						//match percent value
-						var a = gradientColorExpr.matched(21).parseFloat();
+						var a = getFloat( gradientColorExpr.matched(21) );
 						pos = ((a / 100) * 255).int();
 					}
 					
@@ -1733,10 +1749,10 @@ class CSSParser
 			{
 				var shape = currentBlock.shape.as(RegularRectangle);
 				
-				var topLeft		= expr.matched(3).parseFloat();
-				var topRight	= expr.matched( 8) != null ? expr.matched(10).parseFloat() : topLeft;
-				var bottomRight	= expr.matched(15) != null ? expr.matched(17).parseFloat() : topLeft;
-				var bottomLeft	= expr.matched(22) != null ? expr.matched(24).parseFloat() : topRight;
+				var topLeft		= getFloat( expr.matched(3) );
+				var topRight	= expr.matched( 8) != null ? getFloat( expr.matched(10) ) : topLeft;
+				var bottomRight	= expr.matched(15) != null ? getFloat( expr.matched(17) ) : topLeft;
+				var bottomLeft	= expr.matched(22) != null ? getFloat( expr.matched(24) ) : topRight;
 				
 				if (shape.corners == null)
 				{
@@ -1895,10 +1911,10 @@ class CSSParser
 		{
 			createLayoutBlock();
 			
-			var top		= expr.matched(3).parseInt();
-			var right	= expr.matched( 8) != null ? expr.matched(10).parseInt() : top;
-			var bottom	= expr.matched(15) != null ? expr.matched(17).parseInt() : top;
-			var left	= expr.matched(22) != null ? expr.matched(24).parseInt() : right;
+			var top		= getInt( expr.matched(3) );
+			var right	= expr.matched( 8) != null ? getInt( expr.matched(10) ) : top;
+			var bottom	= expr.matched(15) != null ? getInt( expr.matched(17) ) : top;
+			var left	= expr.matched(22) != null ? getInt( expr.matched(24) ) : right;
 			
 			if (currentBlock.layout.padding == null)
 			{
@@ -1928,10 +1944,10 @@ class CSSParser
 		{
 			createLayoutBlock();
 			
-			var top		= expr.matched(3).parseInt();
-			var right	= expr.matched( 8) != null ? expr.matched(10).parseInt() : Number.INT_NOT_SET; //top;
-			var bottom	= expr.matched(15) != null ? expr.matched(17).parseInt() : Number.INT_NOT_SET; //top;
-			var left	= expr.matched(22) != null ? expr.matched(24).parseInt() : Number.INT_NOT_SET; //right;
+			var top		= getInt( expr.matched(3) );
+			var right	= expr.matched( 8) != null ? getInt( expr.matched(10) ) : Number.INT_NOT_SET; //top;
+			var bottom	= expr.matched(15) != null ? getInt( expr.matched(17) ) : Number.INT_NOT_SET; //top;
+			var left	= expr.matched(22) != null ? getInt( expr.matched(24) ) : Number.INT_NOT_SET; //right;
 			
 			if (currentBlock.layout.relative == null)
 			{
@@ -2058,7 +2074,7 @@ class CSSParser
 			else
 			{
 				var tileAlg = new FixedTileAlgorithm( parseDirection( fixedTileExpr.matched( 2 ) ) );
-				if (fixedTileExpr.matched( 4 ) != null)		tileAlg.maxTilesInDirection	= fixedTileExpr.matched( 4 ).parseInt();
+				if (fixedTileExpr.matched( 4 ) != null)		tileAlg.maxTilesInDirection	= getInt( fixedTileExpr.matched( 4 ) );
 				if (fixedTileExpr.matched( 6 ) != null)		tileAlg.horizontalDirection	= parseHorDirection( fixedTileExpr.matched( 6 ) );
 				if (fixedTileExpr.matched( 8 ) != null)		tileAlg.verticalDirection	= parseVerDirection( fixedTileExpr.matched( 8 ) );
 				algorithm = tileAlg;
@@ -2106,8 +2122,8 @@ class CSSParser
 	 */
 	private function parseBevelFilter (v:String) : BevelFilter
 	{
-		var f:BevelFilter = new BevelFilter();
-		var isValid:Bool = false;
+		var f = new BevelFilter();
+		var isValid = false;
 		
 		//match rotation
 		if (isAngle(v))
@@ -2148,8 +2164,8 @@ class CSSParser
 		//match blur
 		if (filterBlurExpr.match(v))
 		{
-			f.blurX	= filterBlurExpr.matched(3).parseFloat();
-			f.blurY	= filterBlurExpr.matched(10).parseFloat();
+			f.blurX	= getFloat( filterBlurExpr.matched(3) );
+			f.blurY	= getFloat( filterBlurExpr.matched(10) );
 			isValid	= true;
 			v		= filterBlurExpr.removeMatch(v);
 		}
@@ -2196,10 +2212,42 @@ class CSSParser
 		return isValid ? f : null;
 	}
 
-
-	private function parseBlurFilter (v:String) : Void
+	
+	/**
+	 * Syntax:
+	 * <blurX>px? | <blurY>px? | <quality>?
+	 */
+	private function parseBlurFilter (v:String) : BlurFilter
 	{
-
+		var f = new BlurFilter();
+		var isValid = false;
+		
+		//match blur
+		if (filterBlurExpr.match(v))
+		{
+			for (i in 0...11)
+				trace(" [ " + i + " ] => " + filterBlurExpr.matched(i));
+			f.blurX	= getFloat( filterBlurExpr.matched(3) );
+			f.blurY	= getFloat( filterBlurExpr.matched(10) );
+			isValid	= true;
+			v		= filterBlurExpr.removeMatch(v);
+		}
+		
+		//match quality flag
+		if (filterQualityExpr.match(v))
+		{
+			var qStr	= filterQualityExpr.matched(1);
+			isValid		= true;
+			f.quality	= switch (qStr.toLowerCase()) {
+				default:		1;
+				case "low":		1;
+				case "medium":	2;
+				case "high":	3;
+			}
+			v = filterQualityExpr.removeMatch(v);
+		}
+		
+		return isValid ? f : null;
 	}
 	
 
@@ -2213,8 +2261,8 @@ class CSSParser
 	 */
 	private function parseShadowFilter (v:String) : DropShadowFilter
 	{
-		var f:DropShadowFilter = new DropShadowFilter();
-		var isValid:Bool = false;
+		var f = new DropShadowFilter();
+		var isValid = false;
 		
 		//match rotation
 		if (isAngle(v))
@@ -2245,8 +2293,8 @@ class CSSParser
 		//match blur
 		if (filterBlurExpr.match(v))
 		{
-			f.blurX	= filterBlurExpr.matched(3).parseFloat();
-			f.blurY	= filterBlurExpr.matched(10).parseFloat();
+			f.blurX	= getFloat( filterBlurExpr.matched(3) );
+			f.blurY	= getFloat( filterBlurExpr.matched(10) );
 			isValid	= true;
 			v		= filterBlurExpr.removeMatch(v);
 		}
@@ -2301,9 +2349,73 @@ class CSSParser
 	}
 	
 	
-	private function parseGlowFilter (v:String) : Void
+	/**
+	 * Syntax:
+	 * ( <blurX>px? <blurY>px? <strength>? ) | <rgba>? | <inner>? | <knockout>? | <quality>?
+	 */
+	private function parseGlowFilter (v:String) : GlowFilter
 	{
-
+		var f = new GlowFilter();
+		var isValid = false;
+		
+		//match color and alpha
+		if (isColor(v))
+		{
+			var c	= parseColor(v);
+			f.color	= c.rgb();
+			f.alpha	= c.alpha().float();
+			isValid	= true;
+			v		= removeColor(v);
+		}
+		
+		//match blur
+		if (filterBlurExpr.match(v))
+		{
+			f.blurX	= getFloat( filterBlurExpr.matched(3) );
+			f.blurY	= getFloat( filterBlurExpr.matched(10) );
+			isValid	= true;
+			v		= filterBlurExpr.removeMatch(v);
+		}
+		
+		//match strength
+		if (isInt(v))
+		{
+			f.strength	= parseInt(v);
+			isValid		= true;
+			v			= removeInt(v);
+		}
+		
+		//match inner bool
+		if (filterInnerExpr.match(v))
+		{
+			f.inner	= true;
+			isValid	= true;
+			v		= filterInnerExpr.removeMatch(v);
+		}
+		
+		//match knockout bool
+		if (filterKnockoutExpr.match(v))
+		{
+			f.knockout	= true;
+			isValid		= true;
+			v			= filterKnockoutExpr.removeMatch(v);
+		}
+		
+		//match quality flag
+		if (filterQualityExpr.match(v))
+		{
+			var qStr	= filterQualityExpr.matched(1);
+			isValid		= true;
+			f.quality	= switch (qStr.toLowerCase()) {
+				default:		1;
+				case "low":		1;
+				case "medium":	2;
+				case "high":	3;
+			}
+			v = filterQualityExpr.removeMatch(v);
+		}
+		
+		return isValid ? f : null;
 	}
 	
 
@@ -2333,10 +2445,14 @@ class CSSParser
 		}
 	}
 
-
+	
 	private function parseAndSetBoxBlur (v:String) : Void
 	{
-
+		var filter = parseBlurFilter(v);
+		if (filter != null) {
+			createBoxFiltersBlock();
+			currentBlock.boxFilters.blur = filter;
+		}
 	}
 	
 
@@ -2352,7 +2468,11 @@ class CSSParser
 
 	private function parseAndSetBoxGlow (v:String) : Void
 	{
-		
+		var filter = parseGlowFilter(v);
+		if (filter != null) {
+			createBoxFiltersBlock();
+			currentBlock.boxFilters.glow = filter;
+		}
 	}
 	
 

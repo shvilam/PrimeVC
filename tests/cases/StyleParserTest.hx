@@ -241,6 +241,8 @@ class StyleParserTest
 		
 		parser.testParseShadowFilter();
 		parser.testParseBevelFilter();
+		parser.testParseGlowFilter();
+		parser.testParseBlurFilter();
 #end
 	}
 	
@@ -792,6 +794,99 @@ class CSSParserMethodTest extends CSSParser
 		Assert.equal( f.shadowAlpha,	0x98.float(),	"shadowAlpha" );
 		Assert.equal( f.type,			BType.OUTER,	"type" );
 		Assert.equal( f.knockout,		false,			"knockout" );
+		Assert.equal( f.quality,		1,				"quality" );
+	}
+
+
+
+
+	public function testParseGlowFilter ()
+	{	
+		trace("\n\nTESTING PARSE GLOW FILTER");
+
+		//
+		// test correct values. Syntax (variable order except for the order within the '()'):
+		// ( <blurX>px? <blurY>px? <strength>? ) | <rgba>? | <inner>? | <knockout>? | <quality>?
+		//
+
+
+		var v = "10px 12px 3 #ff00aadd inner knockout high";
+		var f = parseGlowFilter(v);
+		Assert.equal( f.blurX,		10,				"blurX" );
+		Assert.equal( f.blurY,		12,				"blurY" );
+		Assert.equal( f.strength,	3,				"strength");
+		Assert.equal( f.color,		0xff00aa,		"color" );
+		Assert.equal( f.alpha,		0xdd.float(),	"alpha" );
+		Assert.equal( f.inner,		true,			"inner" );
+		Assert.equal( f.knockout,	true,			"knockout" );
+		Assert.equal( f.quality,	3,				"quality" );
+
+
+
+		var v = "10 #ff0000 medium";
+		var f = parseGlowFilter(v);
+		Assert.equal( f.blurX,		4,				"blurX" );
+		Assert.equal( f.blurY,		4,				"blurY" );
+		Assert.equal( f.strength,	10,				"strength");
+		Assert.equal( f.color,		0xff0000,		"color" );
+		Assert.equal( f.alpha,		0xff.float(),	"alpha" );
+		Assert.equal( f.inner,		false,			"inner" );
+		Assert.equal( f.knockout,	false,			"knockout" );
+		Assert.equal( f.quality,	2,				"quality" );
+		
+		
+		var v = "knockout #abcdef12 low";
+		var f = parseGlowFilter(v);
+		Assert.equal( f.blurX,		4,				"blurX" );
+		Assert.equal( f.blurY,		4,				"blurY" );
+		Assert.equal( f.strength,	1,				"strength");
+		Assert.equal( f.color,		0xabcdef,		"color" );
+		Assert.equal( f.alpha,		0x12.float(),	"alpha" );
+		Assert.equal( f.inner,		false,			"inner" );
+		Assert.equal( f.knockout,	true,			"knockout" );
+		Assert.equal( f.quality,	1,				"quality" );
+		
+	}
+
+
+
+
+	public function testParseBlurFilter ()
+	{	
+		trace("\n\nTESTING PARSE BLUR FILTER");
+
+		//
+		// test correct values. Syntax (variable order except for the order within the '()'):
+		// <blurX>px? | <blurY>px? | <quality>?
+		//
+
+
+		var v = "5px 10px high";
+		var f = parseBlurFilter(v);
+		Assert.equal( f.blurX,			5,				"blurX" );
+		Assert.equal( f.blurY,			10,				"blurY" );
+		Assert.equal( f.quality,		3,				"quality" );
+
+
+
+		var v = "medium";
+		var f = parseBlurFilter(v);
+		Assert.equal( f.blurX,			4,				"blurX" );
+		Assert.equal( f.blurY,			4,				"blurY" );
+		Assert.equal( f.quality,		2,				"quality" );
+
+
+
+		var v = "10px 0 low";
+		var f = parseBlurFilter(v);
+		Assert.equal( f.blurX,			10,				"blurX" );
+		Assert.equal( f.blurY,			0,				"blurY" );
+		Assert.equal( f.quality,		1,				"quality" );
+
+		var v = "0 0";
+		var f = parseBlurFilter(v);
+		Assert.equal( f.blurX,			0,				"blurX" );
+		Assert.equal( f.blurY,			0,				"blurY" );
 		Assert.equal( f.quality,		1,				"quality" );
 	}
 }
