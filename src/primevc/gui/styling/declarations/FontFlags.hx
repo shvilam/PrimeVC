@@ -46,5 +46,10 @@ class FontFlags
 	public static inline var ALIGN			: UInt = 64;
 	public static inline var DECORATION		: UInt = 128;
 	public static inline var INDENT			: UInt = 256;
-	public static inline var TRANSFORM		: UInt = 512;	
+	public static inline var TRANSFORM		: UInt = 512;
+	
+	public static inline var TEXTWRAP		: UInt = 1024;
+	public static inline var COLUMN_COUNT	: UInt = 2048;
+	public static inline var COLUMN_GAP		: UInt = 4096;
+	public static inline var COLUMN_WIDTH	: UInt = 8192;
 }

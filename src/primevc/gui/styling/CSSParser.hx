@@ -820,10 +820,11 @@ class CSSParser
 		
 		
 			// textfield properties
-		//	case "word-wrap":					createFontBlock();			currentBlock.font.wordwrap		= parseWordWrap( val );
-		//	case "column-count":				createFontBlock();			currentBlock.font.columnCount	= parseInt( val );
-		//	case "column-gap":					createLayoutBlock();		currentBlock.layout.columnGap	= parseUnitFloat( val );
-		//	case "column-width":				createLayoutBlock();		currentBlock.layout.childWidth	= parseUnitFloat( val );
+		//	case "word-wrap":					createFontBlock();				//normal / break-word
+			case "text-wrap":					parseAndSetTextWrap( val ); 	//normal / suppress
+			case "column-count":				parseAndSetColumnCount( val );	//int value
+			case "column-gap":					parseAndSetColumnGap( val );	//unit value
+			case "column-width":				parseAndSetColumnWidth( val );	//unit value
 			
 			
 			//
@@ -1312,7 +1313,7 @@ class CSSParser
 					case "inherit":	null;
 				}
 			
-			v = fontWeightExpr.replace(v, "");
+			v = fontWeightExpr.removeMatch(v);
 		}
 		return v;
 	}
@@ -1336,7 +1337,7 @@ class CSSParser
 					case "inherit":	null;
 				}
 			
-			v = fontStyleExpr.replace(v, "");
+			v = fontStyleExpr.removeMatch(v);
 		}
 		return v;
 	}
@@ -1372,6 +1373,60 @@ class CSSParser
 			case "uppercase":	TextTransform.uppercase;
 			case "lowercase":	TextTransform.lowercase;
 			case "inherit":		null;
+		}
+	}
+	
+	
+	/**
+	 * @see http://www.w3.org/TR/css3-text/#text-wrap
+	 */
+	private inline function parseAndSetTextWrap (v:String) : Void
+	{
+		createFontBlock();
+		currentBlock.font.textWrap = switch (v.trim().toLowerCase()) {
+			default:			null;
+			case "normal":		false;
+			case "suppress":	true;
+			case "inherit":		null;
+		}
+	}
+	
+	
+	/**
+	 * 
+	 */
+	private inline function parseAndSetColumnCount (v:String) : Void
+	{
+		if (isInt(v))
+		{
+			createFontBlock();
+			currentBlock.font.columnCount = parseInt(v);
+		}
+	}
+	
+	
+	/**
+	 * 
+	 */
+	private inline function parseAndSetColumnGap (v:String) : Void
+	{
+		if (isUnitInt(v))
+		{
+			createFontBlock();
+			currentBlock.font.columnGap = parseUnitInt(v);
+		}
+	}
+	
+	
+	/**
+	 * 
+	 */
+	private inline function parseAndSetColumnWidth (v:String) : Void
+	{
+		if (isUnitInt(v))
+		{
+			createFontBlock();
+			currentBlock.font.columnWidth = parseUnitInt(v);
 		}
 	}
 	

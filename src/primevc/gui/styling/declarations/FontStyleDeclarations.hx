@@ -51,6 +51,22 @@ package primevc.gui.styling.declarations;
  */
 class FontStyleDeclarations extends StylePropertyGroup
 {
+	private var _size			: Int;
+	private var _family			: String;
+	private var _color			: Null < RGBA >;
+	private var _weight			: FontWeight;
+	private var _style			: FontStyle;
+	private var _letterSpacing	: Float;
+	private var _align			: TextAlign;
+	private var _decoration		: TextDecoration;
+	private var _indent			: Float;
+	private var _transform		: TextTransform;
+	private var _textWrap		: Null < Bool >;
+	private var _columnCount	: Int;
+	private var _columnGap		: Int;
+	private var _columnWidth	: Int;
+	
+	
 	public var size				(getSize,			setSize)			: Int;
 	public var family			(getFamily,			setFamily)			: String;
 	public var color			(getColor,			setColor)			: Null<RGBA>;
@@ -65,6 +81,11 @@ class FontStyleDeclarations extends StylePropertyGroup
 	public var indent			(getIndent,			setIndent)			: Float;
 	public var transform		(getTransform,		setTransform)		: TextTransform;
 	
+	public var textWrap			(getTextWrap,		setTextWrap)		: Null < Bool >;
+	public var columnCount		(getColumnCount,	setColumnCount)		: Int;
+	public var columnGap		(getColumnGap,		setColumnGap)		: Int;
+	public var columnWidth		(getColumnWidth,	setColumnWidth)		: Int;
+	
 	
 	public function new (
 		size:Int					= Number.INT_NOT_SET,
@@ -76,33 +97,44 @@ class FontStyleDeclarations extends StylePropertyGroup
 		align:TextAlign				= null,
 		decoration:TextDecoration	= null,
 		indent:Float				= Number.INT_NOT_SET,
-		transform:TextTransform		= null
+		transform:TextTransform		= null,
+		textWrap:Null < Bool >		= null,
+		columnCount:Int				= Number.INT_NOT_SET,
+		columnGap:Int				= Number.INT_NOT_SET,
+		columnWidth:Int				= Number.INT_NOT_SET
 	)
 	{
 		super();
-		this.size			= size;
-		this.family			= family;
-		this.color			= color;
-		this.weight			= weight;
-		this.style			= null;
-		this.letterSpacing	= letterSpacing == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : letterSpacing;
-		this.align			= align;
-		this.decoration		= decoration;
-		this.indent			= indent == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : indent;
-		this.transform		= transform;
+		_size			= size;
+		_family			= family;
+		_color			= color;
+		_weight			= weight;
+		_style			= null;
+		_letterSpacing	= letterSpacing == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : letterSpacing;
+		_align			= align;
+		_decoration		= decoration;
+		_indent			= indent == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : indent;
+		_transform		= transform;
+		_textWrap		= textWrap;
+		_columnCount	= columnCount;
+		_columnGap		= columnGap;
+		_columnWidth	= columnWidth;
 	}
 	
 	
 	override public function dispose ()
 	{
-		family		= null;
-		align		= null;
-		weight		= null;
-		style		= null;
-		decoration	= null;
-		transform	= null;
+		_family		= null;
+		_align		= null;
+		_weight		= null;
+		_style		= null;
+		_decoration	= null;
+		_transform	= null;
+		_textWrap	= null;
 		super.dispose();
 	}
+	
+	
 	
 	
 	//
@@ -112,7 +144,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 	
 	private function getSize ()
 	{
-		var v = size;
+		var v = _size;
 		if (v.notSet() && getExtended() != null)	v = getExtended().font.size;
 		if (v.notSet() && getNesting() != null)		v = getNesting().font.size;
 		if (v.notSet() && getSuper() != null)		v = getSuper().font.size;
@@ -124,7 +156,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 	
 	private function getFamily ()
 	{
-		var v = family;
+		var v = _family;
 		if (v == null && getExtended() != null)		v = getExtended().font.family;
 		if (v == null && getNesting() != null)		v = getNesting().font.family;
 		if (v == null && getSuper() != null)		v = getSuper().font.family;
@@ -136,7 +168,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 	
 	private function getColor ()
 	{
-		var v = color;
+		var v = _color;
 		if (v == null && getExtended() != null)		v = getExtended().font.color;
 		if (v == null && getNesting() != null)		v = getNesting().font.color;
 		if (v == null && getSuper() != null)		v = getSuper().font.color;
@@ -148,7 +180,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 	
 	private function getAlign ()
 	{
-		var v = align;
+		var v = _align;
 		if (v == null && getExtended() != null)		v = getExtended().font.align;
 		if (v == null && getNesting() != null)		v = getNesting().font.align;
 		if (v == null && getSuper() != null)		v = getSuper().font.align;
@@ -160,7 +192,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 	
 	private function getWeight ()
 	{
-		var v = weight;
+		var v = _weight;
 		if (v == null && getExtended() != null)		v = getExtended().font.weight;
 		if (v == null && getNesting() != null)		v = getNesting().font.weight;
 		if (v == null && getSuper() != null)		v = getSuper().font.weight;
@@ -172,7 +204,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 	
 	private function getStyle ()
 	{
-		var v = style;
+		var v = _style;
 		if (v == null && getExtended() != null)		v = getExtended().font.style;
 		if (v == null && getNesting() != null)		v = getNesting().font.style;
 		if (v == null && getSuper() != null)		v = getSuper().font.style;
@@ -181,10 +213,10 @@ class FontStyleDeclarations extends StylePropertyGroup
 		return v;
 	}
 
-
+	
 	private function getLetterSpacing ()
 	{
-		var v = letterSpacing;
+		var v = _letterSpacing;
 		if (v.notSet() && getExtended() != null)	v = getExtended().font.letterSpacing;
 		if (v.notSet() && getNesting() != null)		v = getNesting().font.letterSpacing;
 		if (v.notSet() && getSuper() != null)		v = getSuper().font.letterSpacing;
@@ -196,7 +228,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 	
 	private function getDecoration ()
 	{
-		var v = decoration;
+		var v = _decoration;
 		if (v == null && getExtended() != null)		v = getExtended().font.decoration;
 		if (v == null && getNesting() != null)		v = getNesting().font.decoration;
 		if (v == null && getSuper() != null)		v = getSuper().font.decoration;
@@ -208,7 +240,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 	
 	private function getIndent ()
 	{
-		var v = indent;
+		var v = _indent;
 		if (v.notSet() && getExtended() != null)	v = getExtended().font.indent;
 		if (v.notSet() && getNesting() != null)		v = getNesting().font.indent;
 		if (v.notSet() && getSuper() != null)		v = getSuper().font.indent;
@@ -220,11 +252,59 @@ class FontStyleDeclarations extends StylePropertyGroup
 	
 	private function getTransform ()
 	{
-		var v = transform;
+		var v = _transform;
 		if (v == null && getExtended() != null)		v = getExtended().font.transform;
 		if (v == null && getNesting() != null)		v = getNesting().font.transform;
 		if (v == null && getSuper() != null)		v = getSuper().font.transform;
 		if (v == null && getParent() != null)		v = getParent().font.transform;
+
+		return v;
+	}
+	
+	
+	private function getTextWrap ()
+	{
+		var v = _textWrap;
+		if (v == null && getExtended() != null)		v = getExtended().font.textWrap;
+		if (v == null && getNesting() != null)		v = getNesting().font.textWrap;
+		if (v == null && getSuper() != null)		v = getSuper().font.textWrap;
+		if (v == null && getParent() != null)		v = getParent().font.textWrap;
+
+		return v;
+	}
+	
+	
+	private function getColumnCount ()
+	{
+		var v = _columnCount;
+		if (v.notSet() && getExtended() != null)	v = getExtended().font.columnCount;
+		if (v.notSet() && getNesting() != null)		v = getNesting().font.columnCount;
+		if (v.notSet() && getSuper() != null)		v = getSuper().font.columnCount;
+		if (v.notSet() && getParent() != null)		v = getParent().font.columnCount;
+
+		return v;
+	}
+	
+	
+	private function getColumnGap ()
+	{
+		var v = _columnGap;
+		if (v.notSet() && getExtended() != null)	v = getExtended().font.columnGap;
+		if (v.notSet() && getNesting() != null)		v = getNesting().font.columnGap;
+		if (v.notSet() && getSuper() != null)		v = getSuper().font.columnGap;
+		if (v.notSet() && getParent() != null)		v = getParent().font.columnGap;
+
+		return v;
+	}
+	
+	
+	private function getColumnWidth ()
+	{
+		var v = _columnWidth;
+		if (v.notSet() && getExtended() != null)	v = getExtended().font.columnWidth;
+		if (v.notSet() && getNesting() != null)		v = getNesting().font.columnWidth;
+		if (v.notSet() && getSuper() != null)		v = getSuper().font.columnWidth;
+		if (v.notSet() && getParent() != null)		v = getParent().font.columnWidth;
 
 		return v;
 	}
@@ -238,8 +318,8 @@ class FontStyleDeclarations extends StylePropertyGroup
 	
 	private function setSize (v)
 	{
-		if (v != size) {
-			size = v;
+		if (v != _size) {
+			_size = v;
 			invalidate( FontFlags.SIZE );
 		}
 		return v;
@@ -248,8 +328,8 @@ class FontStyleDeclarations extends StylePropertyGroup
 	
 	private function setFamily (v)
 	{
-		if (v != family) {
-			family = v;
+		if (v != _family) {
+			_family = v;
 			invalidate( FontFlags.FAMILY );
 		}
 		return v;
@@ -261,8 +341,8 @@ class FontStyleDeclarations extends StylePropertyGroup
 		if (v != null)
 			v = v.validate();
 		
-		if (v != color) {
-			color = v;
+		if (v != _color) {
+			_color = v;
 			invalidate( FontFlags.COLOR );
 		}
 		return v;
@@ -271,8 +351,8 @@ class FontStyleDeclarations extends StylePropertyGroup
 	
 	private function setWeight (v)
 	{
-		if (v != weight) {
-			weight = v;
+		if (v != _weight) {
+			_weight = v;
 			invalidate( FontFlags.WEIGHT );
 		}
 		return v;
@@ -281,8 +361,8 @@ class FontStyleDeclarations extends StylePropertyGroup
 	
 	private function setStyle (v)
 	{
-		if (v != style) {
-			style = v;
+		if (v != _style) {
+			_style = v;
 			invalidate( FontFlags.STYLE );
 		}
 		return v;
@@ -291,8 +371,8 @@ class FontStyleDeclarations extends StylePropertyGroup
 	
 	private function setLetterSpacing (v)
 	{
-		if (v != letterSpacing) {
-			letterSpacing = v;
+		if (v != _letterSpacing) {
+			_letterSpacing = v;
 			invalidate( FontFlags.LETTER_SPACING );
 		}
 		return v;
@@ -301,8 +381,8 @@ class FontStyleDeclarations extends StylePropertyGroup
 	
 	private function setAlign (v)
 	{
-		if (v != align) {
-			align = v;
+		if (v != _align) {
+			_align = v;
 			invalidate( FontFlags.ALIGN );
 		}
 		return v;
@@ -311,8 +391,8 @@ class FontStyleDeclarations extends StylePropertyGroup
 	
 	private function setDecoration (v)
 	{
-		if (v != decoration) {
-			decoration = v;
+		if (v != _decoration) {
+			_decoration = v;
 			invalidate( FontFlags.DECORATION );
 		}
 		return v;
@@ -321,8 +401,8 @@ class FontStyleDeclarations extends StylePropertyGroup
 	
 	private function setIndent (v)
 	{
-		if (v != indent) {
-			indent = v;
+		if (v != _indent) {
+			_indent = v;
 			invalidate( FontFlags.INDENT );
 		}
 		return v;
@@ -331,12 +411,53 @@ class FontStyleDeclarations extends StylePropertyGroup
 	
 	private function setTransform (v)
 	{
-		if (v != transform) {
-			transform = v;
+		if (v != _transform) {
+			_transform = v;
 			invalidate( FontFlags.TRANSFORM );
 		}
 		return v;
 	}
+	
+	
+	private function setTextWrap (v)
+	{
+		if (v != _textWrap) {
+			_textWrap = v;
+			invalidate( FontFlags.TEXTWRAP );
+		}
+		return v;
+	}
+	
+	
+	private function setColumnCount (v)
+	{
+		if (v != _columnCount) {
+			_columnCount = v;
+			invalidate( FontFlags.COLUMN_COUNT );
+		}
+		return v;
+	}
+	
+	
+	private function setColumnGap (v)
+	{
+		if (v != _columnGap) {
+			_columnGap = v;
+			invalidate( FontFlags.COLUMN_GAP );
+		}
+		return v;
+	}
+	
+	
+	private function setColumnWidth (v)
+	{
+		if (v != _columnWidth) {
+			_columnWidth = v;
+			invalidate( FontFlags.COLUMN_WIDTH );
+		}
+		return v;
+	}
+	
 	
 	
 
@@ -345,16 +466,20 @@ class FontStyleDeclarations extends StylePropertyGroup
 	{
 		var css = [];
 		
-		if (IntUtil.isSet(untyped size))			css.push("font-size: " 		+ size + "px");
-		if ((untyped family) != null)				css.push("font-family: "	+family);
-		if ((untyped color) != null)				css.push("color: "			+color.string());
-		if ((untyped weight) != null)				css.push("font-weight: "	+weight);
-		if ((untyped style) != null)				css.push("font-style: "		+style);
-		if (FloatUtil.isSet(untyped letterSpacing))	css.push("letter-spacing: "	+letterSpacing);
-		if ((untyped align) != null)				css.push("text-align: "		+align);
-		if ((untyped decoration) != null)			css.push("text-decoration: "+decoration);
-		if (FloatUtil.isSet(untyped indent))		css.push("text-indent: "	+indent);
-		if ((untyped transform) != null)			css.push("text-transform: "	+transform);
+		if (_size.isSet())				css.push("font-size: " 		+ _size + "px");
+		if (_family != null)			css.push("font-family: "	+ _family);
+		if (_color != null)				css.push("color: "			+ _color.string());
+		if (_weight != null)			css.push("font-weight: "	+ _weight);
+		if (_style != null)				css.push("font-style: "		+ _style);
+		if (_letterSpacing.isSet())		css.push("letter-spacing: "	+ _letterSpacing);
+		if (_align != null)				css.push("text-align: "		+ _align);
+		if (_decoration != null)		css.push("text-decoration: "+ _decoration);
+		if (_indent.isSet())			css.push("text-indent: "	+ _indent);
+		if (_transform != null)			css.push("text-transform: "	+ _transform);
+		if (_textWrap != null)			css.push("text-wrap: "		+ _textWrap);
+		if (_columnCount.isSet())		css.push("column-count: "	+ _columnCount);
+		if (_columnGap.isSet())			css.push("column-gap: "		+ _columnGap);
+		if (_columnWidth.isSet())		css.push("column-width: "	+ _columnWidth);
 		
 		if (css.length > 0)
 			return "\n\t" + css.join(";\n\t") + ";";
@@ -365,16 +490,20 @@ class FontStyleDeclarations extends StylePropertyGroup
 	
 	override public function isEmpty () : Bool
 	{
-		return	IntUtil.notSet(untyped size) &&
-				(untyped family) == null &&
-				(untyped color) == null &&
-				(untyped weight) == null &&
-				(untyped style) == null &&
-				(untyped letterSpacing) == null &&
-				(untyped align) == null &&
-				(untyped decoration) == null &&
-				(untyped indent) == null &&
-				(untyped transform) == null;
+		return	_size.notSet() &&
+				_family == null &&
+				_color == null &&
+				_weight == null &&
+				_style == null &&
+				_letterSpacing.notSet() &&
+				_align == null &&
+				_decoration == null &&
+				_indent.notSet() &&
+				_transform == null &&
+				_textWrap == null &&
+				_columnCount.notSet() &&
+				_columnGap.notSet() &&
+				_columnWidth.notSet();
 	}
 #end
 
@@ -382,7 +511,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 	override public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())
-			code.construct( this, [ untyped size, untyped family, untyped color, untyped weight, untyped style, untyped letterSpacing, untyped align, untyped decoration, untyped indent, untyped transform ] );
+			code.construct( this, [ _size, _family, _color, _weight, _style, _letterSpacing, _align, _decoration, _indent, _transform, _textWrap, _columnCount, _columnGap, _columnWidth ] );
 	}
 #end
 }
