@@ -27,11 +27,11 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.avm2.display;
+ import flash.display.DisplayObject;
  import flash.net.URLRequest;
  import flash.utils.ByteArray;
  import primevc.avm2.events.LoaderEvents;
  import primevc.core.IDisposable;
- import primevc.gui.display.IDisplayObject;
 
 
 typedef FlashLoader = flash.display.Loader;
@@ -46,7 +46,7 @@ class Loader implements IDisposable
 	public var bytesTotal	(getBytesTotal, never)		: UInt;
 	public var isLoaded		(getIsLoaded, never)		: Bool;
 	
-	public var content		(getContent, never)			: IDisplayObject;
+	public var content		(getContent, never)			: DisplayObject;
 	
 	private var loader		: FlashLoader;
 	
@@ -69,7 +69,7 @@ class Loader implements IDisposable
 	
 	public inline function load (v:URLRequest)		{ return loader.load(v); }
 	public inline function unload ()				{ return loader.unload(); }
-	public inline function close ()					{ return loader.close(); }
+	public inline function close ()					{ if (!isLoaded) loader.close(); }
 	
 	
 	

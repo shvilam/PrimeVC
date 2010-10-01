@@ -1388,18 +1388,8 @@ class CSSParser
 			{
 				var curFill		= currentBlock.background;
 				var compFill	= new ComposedFill();
-				
-				//bitmap fill always has to be the first element in a composed fill
-				if (newFill.is( BitmapFill ))
-				{
-					compFill.add( newFill );
-					compFill.add( curFill );
-				}
-				else
-				{	
-					compFill.add( curFill );
-					compFill.add( newFill );
-				}
+				compFill.add( curFill );
+				compFill.add( newFill );
 				
 				currentBlock.background = compFill;
 			}

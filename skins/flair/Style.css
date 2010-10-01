@@ -17,13 +17,14 @@ Button {
 	width: 15px;
 	height: 15px;
 	margin: 10px;
-	background: radial-gradient( -1, #aaa, #000 40px, 0xadfc67f0 50%, #0f0f0f0f 60%, #222 70.987%, 0xabcdefdd 254.8px, repeat );
+	background: #fff;
+/*	background: radial-gradient( -1, #aaa, #000 40px, 0xadfc67f0 50%, #0f0f0f0f 60%, #222 70.987%, 0xabcdefdd 254.8px, repeat );*/
 /*	background: linear-gradient( 90deg, #ffffff00, #444, #fff );*/
 	border: 1px solid #000;
-	box-shadow: 4px 8px 8px #ff0000aa 180deg;
+/*	box-shadow: 4px 8px 8px #ff0000aa 180deg;
 	box-bevel: #000fff #00ff00;
 	box-glow: #000fff;
-	box-blur: 10px 10px;
+	box-blur: 10px 10px;*/
 }
 
 Frame {
