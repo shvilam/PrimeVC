@@ -46,13 +46,15 @@ package primevc.gui.graphics.fills;
  */
 class SolidFill extends GraphicElement, implements IFill
 {
-	public var color (default, setColor)	: RGBA;
+	public var color		(default, setColor)	: RGBA;
+	public var isFinished	(default, null)		: Bool;
 	
 	
 	public function new ( color:RGBA )
 	{
 		super();
-		this.color = color;
+		this.color	= color;
+		isFinished	= false;
 	}
 	
 	
@@ -62,6 +64,7 @@ class SolidFill extends GraphicElement, implements IFill
 #if flash9
 		target.graphics.beginFill( color.rgb(), color.alpha().float() );
 #end
+		isFinished = true;
 	}
 	
 	
@@ -70,6 +73,7 @@ class SolidFill extends GraphicElement, implements IFill
 #if flash9
 		target.graphics.endFill();
 #end
+		isFinished = false;
 	}
 	
 	

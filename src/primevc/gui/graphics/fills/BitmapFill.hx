@@ -47,10 +47,11 @@ package primevc.gui.graphics.fills;
  */
 class BitmapFill extends GraphicElement, implements IFill 
 {
-	public var bitmap	(default, setBitmap)	: Bitmap;
-	public var matrix	(default, setMatrix)	: Matrix2D;
-	public var smooth	(default, setSmooth)	: Bool;
-	public var repeat	(default, setRepeat)	: Bool;
+	public var bitmap		(default, setBitmap)	: Bitmap;
+	public var matrix		(default, setMatrix)	: Matrix2D;
+	public var smooth		(default, setSmooth)	: Bool;
+	public var repeat		(default, setRepeat)	: Bool;
+	public var isFinished	(default, null)			: Bool;
 	
 	
 	public function new (bitmap:Bitmap, matrix:Matrix2D = null, repeat:Bool = true, smooth:Bool = false)
@@ -60,6 +61,7 @@ class BitmapFill extends GraphicElement, implements IFill
 		this.matrix	= matrix;
 		this.repeat = repeat;
 		this.smooth	= smooth;
+		isFinished	= false;
 	}
 	
 	
@@ -160,6 +162,8 @@ class BitmapFill extends GraphicElement, implements IFill
 		}
 		else if (bitmap.state.is(BitmapStates.loadable))
 			bitmap.load();
+		
+		isFinished = true;
 	}
 	
 	
@@ -171,6 +175,7 @@ class BitmapFill extends GraphicElement, implements IFill
 			target.graphics.endFill();
 #end
 		}
+		isFinished = false;
 	}
 	
 	

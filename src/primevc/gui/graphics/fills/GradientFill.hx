@@ -61,6 +61,7 @@ class GradientFill extends GraphicElement, implements IFill
 	public var type				(default, setType)		: GradientType;
 	public var spread			(default, setSpread)	: SpreadMethod;
 	public var focalPointRatio	(default, setFocalP)	: Float;
+	public var isFinished		(default, null)			: Bool;
 	
 	/**
 	 * gradient rotation in degrees
@@ -79,6 +80,7 @@ class GradientFill extends GraphicElement, implements IFill
 		this.focalPointRatio	= focalPointRatio;
 		this.rotation			= rotation;
 		gradientStops			= FastArrayUtil.create();
+		isFinished				= false;
 	}
 	
 	
@@ -168,6 +170,7 @@ class GradientFill extends GraphicElement, implements IFill
 		
 		target.graphics.beginGradientFill( getFlashType(), colors, alphas, ratios, lastMatrix, getSpreadMethod(), InterpolationMethod.RGB, focalPointRatio  );
 #end
+		isFinished = true;
 	}
 	
 	
@@ -176,6 +179,7 @@ class GradientFill extends GraphicElement, implements IFill
 #if flash9
 		target.graphics.endFill();
 #end
+		isFinished = false;
 	}
 	
 	

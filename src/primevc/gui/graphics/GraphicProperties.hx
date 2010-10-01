@@ -149,23 +149,29 @@ class GraphicProperties implements IGraphicElement
 			}
 		}
 		
-		beginDraw( target );
-		shape.draw( target, x, y, w, h );
-		endDraw( target );
+		if (fill != null)
+		{
+			border.begin(target, layout);
+			fill.begin(target, layout);
+			shape.draw( target, x, y, w, h );
+			border.end(target);
+			
+			while (!fill.isFinished)
+			{
+				fill.begin(target, layout);
+				shape.draw( target, x, y, w, h );
+			}
+			fill.end(target);
+		}
+		else if (border != null) {
+			border.begin(target, layout);
+			shape.draw( target, x, y, w, h );
+			border.end(target);
+		}
 	}
 	
 	
-	private inline function beginDraw (target:IDrawable)
-	{
-		if (border != null)		border.begin(target, layout);
-		if (fill != null)		fill.begin(target, layout);
-	}
 	
-	private inline function endDraw (target:IDrawable)
-	{
-		if (border != null)		border.end(target);
-		if (fill != null)		fill.end(target);
-	}
 
 
 	//
