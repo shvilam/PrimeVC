@@ -67,7 +67,7 @@ class Bitmap
 	/**
 	 * Bitmapdata of the given source
 	 */
-	public var data (default, null)		: BitmapData;
+	public var data (getData, null)		: BitmapData;
 	private var loader					: Loader;
 #else
 	public var data (default, null)		: Dynamic;
@@ -142,7 +142,7 @@ class Bitmap
 	
 	
 #if flash9
-	private inline function setData (v:BitmapData)
+	private function setData (v:BitmapData)
 	{
 		if (v != data) {
 			data = v;
@@ -165,6 +165,18 @@ class Bitmap
 		return v;
 	}
 #end
+	
+	
+#if flash9
+	private function getData () : BitmapData
+	{
+		if (data == null || state.current != ready)
+			load();
+		
+		return data;
+	}
+#end
+	
 	
 	
 	
@@ -377,7 +389,7 @@ class Bitmap
 	
 	public function toString ()
 	{
-		return	if (url != null)	"url( "+url+" )";
+		return	if (url != null)		"url( "+url+" )";
 				else if (asset != null)	"Class( "+asset+" )";
 				else					"Bitmap()";
 	}

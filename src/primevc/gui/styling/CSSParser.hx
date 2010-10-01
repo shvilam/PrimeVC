@@ -831,7 +831,7 @@ class CSSParser
 			// iconing elements
 			//
 			
-		//	case "icon":
+			case "icon":						parseAndSetIcon( val ); // @see background-image
 			
 			
 			//
@@ -1604,22 +1604,29 @@ class CSSParser
 	}
 	
 	
-	private function parseImage (v:String) : IFill
+	private function parseBitmap (v:String) : Bitmap
 	{
-		var fill:IFill	= null;
 		var bmp:Bitmap	= null;
 		
 		if (imageURIExpr.match(v))
 		{
-			bmp			= new Bitmap();
+			bmp = new Bitmap();
 			bmp.setString( (getBasePath() + "/" + imageURIExpr.matched(2)).replace("//", "/") );
 		}
 		else if (isClassReference(v))
 		{
-			bmp			= new Bitmap();
+			bmp = new Bitmap();
 			bmp.setClass( parseClassReference(v) );
 		}
 		
+		return bmp;
+	}
+	
+	
+	private function parseImage (v:String) : IFill
+	{
+		var fill:IFill	= null;
+		var bmp:Bitmap	= parseBitmap(v);
 		if (bmp != null)
 			fill = new BitmapFill( bmp, null, parseRepeatImage(v), false );
 		
@@ -2763,6 +2770,14 @@ class CSSParser
 	{
 		if (isFloat(v))
 			currentBlock.opacity = parseFloat(v);
+	}
+	
+	
+	private function parseAndSetIcon (v:String) : Void
+	{
+		var bmp = parseBitmap(v);
+		if (bmp != null)
+			currentBlock.icon = bmp;
 	}
 }
 

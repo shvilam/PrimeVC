@@ -33,6 +33,7 @@ package primevc.gui.styling.declarations;
  import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.shapes.IGraphicShape;
  import primevc.gui.styling.declarations.StyleContainer;
+ import primevc.types.Bitmap;
  import primevc.types.Number;
  import primevc.utils.StringUtil;
   using primevc.utils.NumberUtil;
@@ -148,6 +149,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	private var _skin		: Class < ISkin >;
 	private var _opacity	: Float;
 	private var _visible	: Null < Bool >;
+	private var _icon		: Bitmap;
 	
 	private var _background	: IFill;
 	private var _border		: IBorder<IFill>;
@@ -169,6 +171,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	public var skin			(getSkin,		setSkin)		: Class < ISkin >;
 	public var opacity		(getOpacity,	setOpacity)		: Float;
 	public var visible		(getVisible,	setVisible)		: Null< Bool >;
+	public var icon			(getIcon,		setIcon)		: Bitmap;
 	
 	public var background	(getBackground, setBackground)	: IFill;
 	public var border		(getBorder,		setBorder)		: IBorder<IFill>;
@@ -201,7 +204,8 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		opacity		: Float = Number.INT_NOT_SET,
 		effects		: EffectStyleDeclarations = null,
 		boxFilters	: FilterStyleDeclarations = null,
-		bgFilters	: FilterStyleDeclarations = null
+		bgFilters	: FilterStyleDeclarations = null,
+		icon		: Bitmap = null
 	)
 	{
 		super();
@@ -222,6 +226,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		_effects	= effects;
 		_boxFilters	= boxFilters;
 		_bgFilters	= bgFilters;
+		_icon		= icon;
 	}
 	
 	
@@ -241,6 +246,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		if (_effects != null)		_effects.dispose();
 		if (_boxFilters != null)	_boxFilters.dispose();
 		if (_bgFilters != null)		_bgFilters.dispose();
+		if (_icon != null)			_icon.dispose();
 		
 		children.dispose();
 		
@@ -255,6 +261,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		_effects	= null;
 		_boxFilters	= null;
 		_bgFilters	= null;
+		_icon		= null;
 		
 		uuid		= null;
 		
@@ -408,6 +415,15 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		var v = _opacity;
 		if (v.notSet() && extendedStyle != null)	v = extendedStyle.opacity;
 		if (v.notSet() && superStyle != null)		v = superStyle.opacity;
+		return v;
+	}
+	
+
+	private function getIcon ()
+	{
+		var v = _icon;
+		if (v == null && extendedStyle != null)		v = extendedStyle.icon;
+		if (v == null && superStyle != null)		v = superStyle.icon;
 		return v;
 	}
 	
@@ -570,6 +586,18 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		return v;
 	}
 	
+	
+	private function setIcon (v)
+	{
+		if (v != _icon) {
+			_icon = v;
+			invalidate( StyleFlags.ICON );
+		}
+		return v;
+	}
+	
+	
+	
 
 
 #if (debug || neko)
@@ -586,6 +614,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		if (_border != null)		css += "\n\tborder: "+ _border.toCSS() + ";";
 		if (_visible != null)		css += "\n\tvisability: "+ _visible + ";";
 		if (_opacity.isSet())		css += "\n\topacity: "+ _opacity + ";";
+		if (_icon != null)			css += "\n\ticon: "+ _icon + ";";
 		if (_layout != null)		css += _layout.toCSS();
 		if (_font != null)			css += _font.toCSS();
 		if (_effects != null)		css += _effects.toCSS();
@@ -618,7 +647,8 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 			&& (_font == null || _font.isEmpty())
 		 	&& (_effects == null || _effects.isEmpty())
 			&& (_boxFilters == null || _boxFilters.isEmpty())
-			&& (_bgFilters == null || _bgFilters.isEmpty());
+			&& (_bgFilters == null || _bgFilters.isEmpty())
+			&& _icon == null;
 	}
 	
 	
@@ -635,7 +665,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		if (!isEmpty())
 		{
 			if (!allPropertiesEmpty())
-				code.construct(this, [ type, _layout, _font, _shape, _background, _border, _skin, _visible, _opacity, _effects, _boxFilters, _bgFilters ]);
+				code.construct(this, [ type, _layout, _font, _shape, _background, _border, _skin, _visible, _opacity, _effects, _boxFilters, _bgFilters, _icon ]);
 			else
 				code.construct(this, [ type ]);
 			
