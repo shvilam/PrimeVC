@@ -51,4 +51,7 @@ class StyleFlags
 	public static inline var SHAPE				: UInt = 1024;
 	public static inline var BOX_FILTERS		: UInt = 2048;
 	public static inline var BACKGROUND_FILTERS	: UInt = 4096;
+	
+	public static inline var VISIBLE			: UInt = 8192;
+	public static inline var OPACITY			: UInt = 16384;
 }

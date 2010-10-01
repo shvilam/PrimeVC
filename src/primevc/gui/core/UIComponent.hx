@@ -133,7 +133,7 @@ class UIComponent extends Sprite, implements IUIComponent
 			skin.childrenCreated();
 		
 		//finish initializing
-		visible = true;
+	//	visible = true;
 		state.current = state.initialized; 
 	}
 	
@@ -232,7 +232,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	public function applyStyling ()
 	{
-		var propsToSet	= StyleFlags.BACKGROUND | StyleFlags.BORDER | /*StyleFlags.EFFECTS | StyleFlags.FILTERS |*/ StyleFlags.SHAPE | StyleFlags.SKIN;
+		var propsToSet	= StyleFlags.BACKGROUND | StyleFlags.BORDER | StyleFlags.SHAPE | StyleFlags.SKIN | StyleFlags.VISIBLE | StyleFlags.OPACITY;
 		var it			= style.iterator();
 		
 		while (it.hasNext() && propsToSet > 0)
@@ -270,6 +270,20 @@ class UIComponent extends Sprite, implements IUIComponent
 				createGraphicDataObj();
 				graphicData.value.border = styleObj.border;
 				propsToSet = propsToSet.unset( StyleFlags.BORDER );
+			}
+			
+			//read opacity
+			if ( propsToSet.has( StyleFlags.OPACITY ) && styleObj.opacity.isSet() )
+			{
+				alpha		= styleObj.opacity;
+				propsToSet	= propsToSet.unset( StyleFlags.OPACITY );
+			}
+			
+			//read visable
+			if ( propsToSet.has( StyleFlags.VISIBLE ) && styleObj.visible != null )
+			{
+				visible		= styleObj.visible;
+				propsToSet	= propsToSet.unset( StyleFlags.VISIBLE );
 			}
 			
 			//read font properties

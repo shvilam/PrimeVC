@@ -1,4 +1,4 @@
-UIComponent { color: #000; shape: rectangle; }
+UIComponent { color: #000; shape: rectangle; visibility: visible; }
 UIGraphic { color: #000; }
 UITextField { color: #000; }
 Tile { color: #000; shape: ellipse; }
@@ -17,7 +17,7 @@ Button {
 	width: 15px;
 	height: 15px;
 	margin: 10px;
-	background: #ffffffaa;
+	background: #ff0000;
 /*	background: radial-gradient( -1, #aaa, #000 40px, 0xadfc67f0 50%, #0f0f0f0f 60%, #222 70.987%, 0xabcdefdd 254.8px, repeat );*/
 /*	background: linear-gradient( 90deg, #ffffff00, #444, #fff );*/
 	border: 1px solid #000;
@@ -25,6 +25,7 @@ Button {
 	box-bevel: #000fff #00ff00;
 	box-glow: #000fff;
 	box-blur: 10px 10px;*/
+	opacity: .5;
 }
 
 Frame {

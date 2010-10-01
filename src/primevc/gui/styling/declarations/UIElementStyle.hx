@@ -33,7 +33,9 @@ package primevc.gui.styling.declarations;
  import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.shapes.IGraphicShape;
  import primevc.gui.styling.declarations.StyleContainer;
+ import primevc.types.Number;
  import primevc.utils.StringUtil;
+  using primevc.utils.NumberUtil;
 
 #if neko
  import primevc.tools.generator.ICodeGenerator;
@@ -144,6 +146,9 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	//
 	
 	private var _skin		: Class < ISkin >;
+	private var _opacity	: Float;
+	private var _visible	: Null < Bool >;
+	
 	private var _background	: IFill;
 	private var _border		: IBorder<IFill>;
 	private var _shape		: IGraphicShape;
@@ -162,6 +167,9 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	public var type			(default,		null)			: StyleDeclarationType;
 	
 	public var skin			(getSkin,		setSkin)		: Class < ISkin >;
+	public var opacity		(getOpacity,	setOpacity)		: Float;
+	public var visible		(getVisible,	setVisible)		: Null< Bool >;
+	
 	public var background	(getBackground, setBackground)	: IFill;
 	public var border		(getBorder,		setBorder)		: IBorder<IFill>;
 	public var shape		(getShape,		setShape)		: IGraphicShape;
@@ -189,6 +197,8 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		background	: IFill = null,
 		border		: IBorder < IFill > = null,
 		skin		: Class< ISkin > = null,
+		visible		: Null < Bool > = null,
+		opacity		: Float = Number.INT_NOT_SET,
 		effects		: EffectStyleDeclarations = null,
 		boxFilters	: FilterStyleDeclarations = null,
 		bgFilters	: FilterStyleDeclarations = null
@@ -207,6 +217,8 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		_background	= background;
 		_border		= border;
 		_skin		= skin;
+		_visible	= visible;
+		_opacity	= opacity != Number.INT_NOT_SET ? opacity : Number.FLOAT_NOT_SET;
 		_effects	= effects;
 		_boxFilters	= boxFilters;
 		_bgFilters	= bgFilters;
@@ -382,6 +394,25 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	}
 	
 	
+	private function getVisible ()
+	{
+		var v = _visible;
+		if (v == null && extendedStyle != null)	v = extendedStyle.visible;
+		if (v == null && superStyle != null)	v = superStyle.visible;
+		return v;
+	}
+
+
+	private function getOpacity ()
+	{
+		var v = _opacity;
+		if (v.notSet() && extendedStyle != null)	v = extendedStyle.opacity;
+		if (v.notSet() && superStyle != null)		v = superStyle.opacity;
+		return v;
+	}
+	
+	
+	
 	
 	//
 	// SETTERS
@@ -520,6 +551,27 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	}
 
 
+	private function setVisible (v)
+	{
+		if (v != _visible) {
+			_visible = v;
+			invalidate( StyleFlags.VISIBLE );
+		}
+		return v;
+	}
+	
+	
+	private function setOpacity (v)
+	{
+		if (v != _opacity) {
+			_opacity = v;
+			invalidate( StyleFlags.OPACITY );
+		}
+		return v;
+	}
+	
+
+
 #if (debug || neko)
 	public function toString () { return toCSS(); }
 	
@@ -532,6 +584,8 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		if (_shape != null)			css += "\n\tshape: " + _shape.toCSS() + ";";
 		if (_background != null)	css += "\n\tbackground: " + _background.toCSS() + ";";
 		if (_border != null)		css += "\n\tborder: "+ _border.toCSS() + ";";
+		if (_visible != null)		css += "\n\tvisability: "+ _visible + ";";
+		if (_opacity.isSet())		css += "\n\topacity: "+ _opacity + ";";
 		if (_layout != null)		css += _layout.toCSS();
 		if (_font != null)			css += _font.toCSS();
 		if (_effects != null)		css += _effects.toCSS();
@@ -558,6 +612,8 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		return _skin == null 
 			&& _shape == null 
 			&& _border == null 
+			&& _visible == null
+			&& _opacity.notSet()
 			&& (_layout == null || _layout.isEmpty())
 			&& (_font == null || _font.isEmpty())
 		 	&& (_effects == null || _effects.isEmpty())
@@ -579,7 +635,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		if (!isEmpty())
 		{
 			if (!allPropertiesEmpty())
-				code.construct(this, [ type, _layout, _font, _shape, _background, _border, _skin, _effects, _boxFilters, _bgFilters ]);
+				code.construct(this, [ type, _layout, _font, _shape, _background, _border, _skin, _visible, _opacity, _effects, _boxFilters, _bgFilters ]);
 			else
 				code.construct(this, [ type ]);
 			

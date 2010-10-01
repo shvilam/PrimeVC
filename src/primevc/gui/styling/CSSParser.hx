@@ -814,8 +814,8 @@ class CSSParser
 			
 			case "skin":						parseAndSetSkin( val ); // class(package.Class)
 		//	case "cursor":			// auto, move, help, pointer, wait, text, n-resize, ne-resize, e-resize, se-resize, s-resize, sw-resize, w-resize, nw-resize, url(..)
-		//	case "visibility":		// visible, hidden
-		//	case "opacity":			// alpha value of entire element
+			case "visibility":					parseAndSetVisibility( val );	// visible, hidden
+			case "opacity":						parseAndSetOpacity( val );		// alpha value of entire element
 		//	case "resize":			// horizontal / vertical / both / none;	/* makes a textfield resizable in the right bottom corner */
 		
 		
@@ -848,12 +848,12 @@ class CSSParser
 			case "child-height":				if (isUnitInt(val))	{ createLayoutBlock();		currentBlock.layout.childHeight		= parseUnitInt( val ); }
 			
 			case "relative":					parseAndSetRelativeProperties( val );			// [top]px <[right]px> <[bottom]px> <[left]px>
-			case "left":						if (isUnitInt(val))	{ createRelativeBlock();		currentBlock.layout.relative.left	= parseUnitInt( val ); }
-			case "right":						if (isUnitInt(val))	{ createRelativeBlock();		currentBlock.layout.relative.right	= parseUnitInt( val ); }
-			case "top":							if (isUnitInt(val))	{ createRelativeBlock();		currentBlock.layout.relative.top	= parseUnitInt( val ); }
-			case "bottom":						if (isUnitInt(val))	{ createRelativeBlock();		currentBlock.layout.relative.bottom	= parseUnitInt( val ); }
-			case "h-center":					if (isUnitInt(val))	{ createRelativeBlock();		currentBlock.layout.relative.hCenter= parseUnitInt( val ); }
-			case "v-center":					if (isUnitInt(val))	{ createRelativeBlock();		currentBlock.layout.relative.vCenter= parseUnitInt( val ); }
+			case "left":						if (isUnitInt(val))	{ createRelativeBlock();	currentBlock.layout.relative.left	= parseUnitInt( val ); }
+			case "right":						if (isUnitInt(val))	{ createRelativeBlock();	currentBlock.layout.relative.right	= parseUnitInt( val ); }
+			case "top":							if (isUnitInt(val))	{ createRelativeBlock();	currentBlock.layout.relative.top	= parseUnitInt( val ); }
+			case "bottom":						if (isUnitInt(val))	{ createRelativeBlock();	currentBlock.layout.relative.bottom	= parseUnitInt( val ); }
+			case "h-center":					if (isUnitInt(val))	{ createRelativeBlock();	currentBlock.layout.relative.hCenter= parseUnitInt( val ); }
+			case "v-center":					if (isUnitInt(val))	{ createRelativeBlock();	currentBlock.layout.relative.vCenter= parseUnitInt( val ); }
 			
 			case "position":					parseAndSetPosition(val);						//absolute and relative supported (=includeInLayout)
 			case "algorithm":					parseAndSetLayoutAlgorithm(val);
@@ -2623,6 +2623,23 @@ class CSSParser
 	{
 		if (isClassReference(v))
 			currentBlock.skin = cast parseClassReference(v);
+	}
+	
+	
+	private function parseAndSetVisibility (v:String) : Void
+	{
+		currentBlock.visible = switch (v.trim().toLowerCase()) {
+			default:	null;
+			case "visible":	true;
+			case "hidden":	false;
+		}
+	}
+	
+	
+	private function parseAndSetOpacity (v:String) : Void
+	{
+		if (isFloat(v))
+			currentBlock.opacity = parseFloat(v);
 	}
 }
 

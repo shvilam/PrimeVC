@@ -32,15 +32,18 @@ echo "Main: ${MainClass}" &&
 echo "Style: ${StyleFile}" &&
 echo "Debugging? ${Debug:-false}"
 
+CompilerUpdated=false
+
 #create parser if the source files have changed
 if ${Force} || [[ ! -f ${Parser} ]]  ||  test ${MainFile} -nt ${Parser}  ||  test ${ParserClass} -nt ${Parser}  ; then  # ||  test ${StyleFile} -nt ${Parser} ; then
 	echo "Compiling parser"  &&
-	haxe ${PRJROOT}/build/build-cssparser.hxml -main ${MainClass} -neko ${Parser} --no-inline ${Debug} ${Debug:---no-traces}
+	haxe ${PRJROOT}/build/build-cssparser.hxml -main ${MainClass} -neko ${Parser} --no-inline ${Debug} ${Debug:---no-traces} &&
+	CompilerUpdated=true
 fi;
 
 #compile css
 if [[ -d ${Style} ]] && [[ -f ${StyleInputFile} ]] && [[ -f ${Parser} ]] ; then
-	if [[ ! -f ${StyleOutputFile} ]] || test ${StyleInputFile} -nt ${StyleOutputFile} ; then
+	if ${CompilerUpdated} || [[ ! -f ${StyleOutputFile} ]] || test ${StyleInputFile} -nt ${StyleOutputFile} ; then
 		echo "Running parser on ${StyleInputFile}" &&
 		neko ${Parser} ${Style}
 	else	

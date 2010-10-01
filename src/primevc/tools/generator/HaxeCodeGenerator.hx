@@ -149,7 +149,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 	{
 		if		(isColor(v))					return Color.string(v);
 		else if (Std.is( v, ICodeFormattable ))	return "cast " + getVar(v);
-		else if (isUndefinedNumber(v))			return (Std.is( v, Int ) || isConstructor) ? "primevc.types.Number.INT_NOT_SET" : "primevc.types.Number.FLOAT_NOT_SET";
+		else if (isUndefinedNumber(v))			return (Std.is( v, Int )) ? "primevc.types.Number.INT_NOT_SET" : "primevc.types.Number.FLOAT_NOT_SET";
 		else if (v == LayoutFlags.FILL)			return "primevc.gui.layout.LayoutFlags.FILL";
 		else if (v == null)						return "null";
 		else if (Std.is( v, String ))			return "'" + v + "'";
