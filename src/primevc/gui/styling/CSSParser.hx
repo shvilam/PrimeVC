@@ -908,6 +908,13 @@ class CSSParser
 			case "box-gradient-bevel":			parseAndSetBoxGradientBevel( val );	// ( <distance>px? <blurX>px? <blurY>px? <strength>? ) | <angle>deg? | ( (<rgba> <pos>) (<rgba> <pos>).. ) | <inner>? | <knockout>? | <quality>?
 			case "box-gradient-glow":			parseAndSetBoxGradientGlow( val );	// ( <distance>px? <blurX>px? <blurY>px? <strength>? ) | <angle>deg? | ( (<rgba> <pos>) (<rgba> <pos>).. ) | <inner>? | <knockout>? | <quality>?
 			
+			case "background-bevel":			parseAndSetBackgroundBevel( val );
+			case "background-blur":				parseAndSetBackgroundBlur( val );
+			case "background-shadow":			parseAndSetBackgroundShadow( val );
+			case "background-glow":				parseAndSetBackgroundGlow( val );
+			case "background-gradient-bevel":	parseAndSetBackgroundGradientBevel( val );
+			case "background-gradient-glow":	parseAndSetBackgroundGradientGlow( val );
+			
 			
 			
 			//
@@ -2612,6 +2619,67 @@ class CSSParser
 	//
 	// BACKGROUND FILTERS
 	//
+	
+	private function parseAndSetBackgroundBevel (v:String) : Void
+	{
+		var filter = parseBevelFilter(v);
+		if (filter != null) {
+			createBackgroundFiltersBlock();
+			currentBlock.bgFilters.bevel = filter;
+		}
+	}
+
+	
+	private function parseAndSetBackgroundBlur (v:String) : Void
+	{
+		var filter = parseBlurFilter(v);
+		if (filter != null) {
+			createBackgroundFiltersBlock();
+			currentBlock.bgFilters.blur = filter;
+		}
+	}
+	
+
+	private function parseAndSetBackgroundShadow (v:String) : Void
+	{
+		var filter = parseShadowFilter(v);
+		if (filter != null) {
+			createBackgroundFiltersBlock();
+			currentBlock.bgFilters.shadow = filter;
+		}
+	}
+	
+
+	private function parseAndSetBackgroundGlow (v:String) : Void
+	{
+		var filter = parseGlowFilter(v);
+		if (filter != null) {
+			createBackgroundFiltersBlock();
+			currentBlock.bgFilters.glow = filter;
+		}
+	}
+	
+
+	private function parseAndSetBackgroundGradientBevel (v:String) : Void
+	{
+		var filter = parseGradientBevelFilter(v);
+		if (filter != null) {
+			createBackgroundFiltersBlock();
+			currentBlock.bgFilters.gradientBevel = filter;
+		}
+	}
+	
+
+	private function parseAndSetBackgroundGradientGlow (v:String) : Void
+	{
+		var filter = parseGradientGlowFilter(v);
+		if (filter != null) {
+			createBackgroundFiltersBlock();
+			currentBlock.bgFilters.gradientGlow = filter;
+		}
+	}
+	
+	
 	
 	
 	
