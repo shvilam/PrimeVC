@@ -220,7 +220,9 @@ class CSSParser
 	public var gradientColorExpr		(default, null) : EReg;
 //	public var gradientStopExpr			(default, null) : EReg;
 	public var imageURIExpr				(default, null) : EReg;
-	public var imageClassExpr			(default, null) : EReg;
+	public var imageRepeatExpr			(default, null) : EReg;
+	public var classRefExpr				(default, null) : EReg;
+	
 	public var fontFamilyExpr			(default, null) : EReg;
 	public var fontWeightExpr			(default, null) : EReg;
 	public var fontStyleExpr			(default, null) : EReg;
@@ -348,15 +350,16 @@ class CSSParser
 				+ R_SPACE+"("+R_URI_PRETENDER+")"							//match the url content			2 
 				+ R_SPACE+"['\"]?"											//match possible closing ' or "
 				+ R_SPACE+"[)]"												//match closing ')'
-				+ "("+R_SPACE_MUST+"("+R_BG_REPEAT_EXPR+"))?"				//match possible repeat value	5
-			, "im");
-		imageClassExpr = new EReg(
+			, "i");
+		
+		imageRepeatExpr = new EReg("("+R_BG_REPEAT_EXPR+")", "i");			//match possible repeat value	1
+		
+		classRefExpr = new EReg(
 			  	"(Class)"													//match Class opener			1
 				+ R_SPACE+"[(]"												//match opening '('
 				+ R_SPACE+"("+R_CLASS_EXPR+")"								//match the class content		2
 				+ R_SPACE+"[)]"												//match closing ')'
-				+ "("+R_SPACE_MUST+"("+R_BG_REPEAT_EXPR+"))?"				//match possible repeat value	8
-			, "im");
+			, "i");
 		
 		var horLayoutEnding = R_SPACE
 		 	+ "([(]" + R_SPACE + R_HOR_DIR 									//2 = hor-dir
@@ -809,7 +812,7 @@ class CSSParser
 			// component properties
 			//
 			
-		//	case "skin":			// class(package.Class)
+			case "skin":						parseAndSetSkin( val ); // class(package.Class)
 		//	case "cursor":			// auto, move, help, pointer, wait, text, n-resize, ne-resize, e-resize, se-resize, s-resize, sw-resize, w-resize, nw-resize, url(..)
 		//	case "visibility":		// visible, hidden
 		//	case "opacity":			// alpha value of entire element
@@ -1102,23 +1105,37 @@ class CSSParser
 	{
 		return (angleExpr.match(v)) ? getFloat( angleExpr.matched(1) ) : Number.FLOAT_NOT_SET;
 	}
+
+
+	private inline function parseClassReference (v:String) : Class < Dynamic >
+	{
+		var c : Class<Dynamic> = null;
+		if (isClassReference(v))
+			c = cast classRefExpr.matched(2).resolveClass();
+
+		return c;
+	}
 	
 	
-	private inline function isInt (v:String)			: Bool		{ return intValExpr.match(v); }
-	private inline function isFloat (v:String)			: Bool		{ return floatValExpr.match(v); }
-	private inline function isUnitInt (v:String)		: Bool		{ return floatUnitValExpr.match(v) && floatUnitValExpr.matched(3) != null; }
-	private inline function isUnitFloat (v:String)		: Bool		{ return floatUnitValExpr.match(v) && floatUnitValExpr.matched(3) != null; }
-	private inline function isPercentage (v:String)		: Bool		{ return percValExpr.match(v); }
-	private inline function isColor (v:String)			: Bool		{ return v.trim().toLowerCase() != "inherit" && colorValExpr.match(v); }
-	private inline function isAngle (v:String)			: Bool		{ return angleExpr.match(v); }
 	
-	private inline function removeInt (v:String)		: String	{ return intValExpr.removeMatch(v); }
-	private inline function removeFloat (v:String)		: String	{ return floatValExpr.removeMatch(v); }
-	private inline function removeUnitInt (v:String)	: String	{ return floatUnitValExpr.removeMatch(v); }
-	private inline function removeUnitFloat (v:String)	: String	{ return floatUnitValExpr.removeMatch(v); }
-	private inline function removePercentage (v:String)	: String	{ return percValExpr.removeMatch(v); }
-	private inline function removeColor (v:String)		: String	{ return colorValExpr.removeMatch(v); }
-	private inline function removeAngle (v:String)		: String	{ return angleExpr.removeMatch(v); }
+	
+	private inline function isInt (v:String)				: Bool		{ return intValExpr.match(v); }
+	private inline function isFloat (v:String)				: Bool		{ return floatValExpr.match(v); }
+	private inline function isUnitInt (v:String)			: Bool		{ return floatUnitValExpr.match(v) && floatUnitValExpr.matched(3) != null; }
+	private inline function isUnitFloat (v:String)			: Bool		{ return floatUnitValExpr.match(v) && floatUnitValExpr.matched(3) != null; }
+	private inline function isPercentage (v:String)			: Bool		{ return percValExpr.match(v); }
+	private inline function isColor (v:String)				: Bool		{ return v.trim().toLowerCase() != "inherit" && colorValExpr.match(v); }
+	private inline function isAngle (v:String)				: Bool		{ return angleExpr.match(v); }
+	private inline function isClassReference (v:String) 	: Bool		{ return v != null && classRefExpr.match(v); }
+	
+	private inline function removeInt (v:String)			: String	{ return intValExpr.removeMatch(v); }
+	private inline function removeFloat (v:String)			: String	{ return floatValExpr.removeMatch(v); }
+	private inline function removeUnitInt (v:String)		: String	{ return floatUnitValExpr.removeMatch(v); }
+	private inline function removeUnitFloat (v:String)		: String	{ return floatUnitValExpr.removeMatch(v); }
+	private inline function removePercentage (v:String)		: String	{ return percValExpr.removeMatch(v); }
+	private inline function removeColor (v:String)			: String	{ return colorValExpr.removeMatch(v); }
+	private inline function removeAngle (v:String)			: String	{ return angleExpr.removeMatch(v); }
+	private inline function removeClassReference (v:String) : String	{ return classRefExpr.removeMatch(v); }
 	
 	
 	
@@ -1529,23 +1546,20 @@ class CSSParser
 	{
 		var fill:IFill	= null;
 		var bmp:Bitmap	= null;
-		var repeatStr	= "";
 		
 		if (imageURIExpr.match(v))
 		{
-			repeatStr	= imageURIExpr.matched(5);
 			bmp			= new Bitmap();
 			bmp.setString( (getBasePath() + "/" + imageURIExpr.matched(2)).replace("//", "/") );
 		}
-		else if (imageClassExpr.match(v))
-		{	
-			repeatStr	= imageURIExpr.matched(8);
+		else if (isClassReference(v))
+		{
 			bmp			= new Bitmap();
-			bmp.setClass( cast imageClassExpr.matched(2).resolveClass() );
+			bmp.setClass( parseClassReference(v) );
 		}
 		
 		if (bmp != null)
-			fill = new BitmapFill( bmp, null, parseRepeatImage(repeatStr), false );
+			fill = new BitmapFill( bmp, null, parseRepeatImage(v), false );
 		
 		return fill;
 	}
@@ -1553,10 +1567,12 @@ class CSSParser
 	
 	private inline function parseRepeatImage (v:String) : Bool
 	{
-		if (v == null)
-			v = "";
+		var repeatStr = "";
 		
-		return switch (v.trim().toLowerCase()) {
+		if (v != null && imageRepeatExpr.match(v))
+			repeatStr = imageRepeatExpr.matched(1);
+		
+		return switch (repeatStr.trim().toLowerCase()) {
 			default:			true;
 			case "no-repeat":	false;
 		}
@@ -2597,6 +2613,17 @@ class CSSParser
 	// BACKGROUND FILTERS
 	//
 	
+	
+	
+	//
+	// COMPONENT PROPERTIES
+	//
+	
+	private function parseAndSetSkin (v:String) : Void
+	{
+		if (isClassReference(v))
+			currentBlock.skin = cast parseClassReference(v);
+	}
 }
 
 
