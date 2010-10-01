@@ -26,20 +26,21 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
+package primevc.gui.filters;
 
 
+#if (flash9 || flash8)
+typedef GradientGlowFilter = flash.filters.GradientGlowFilter;
+
+#elseif	js
+throw "error";
+
+#else
 
 /**
  * @author Ruben Weijers
- * @creation-date Sep 29, 2010
+ * @creation-date Sep 30, 2010
  */
-class FilterFlags
-{
-	public static inline var SHADOW			: UInt = 1;
-	public static inline var BEVEL			: UInt = 2;
-	public static inline var BLUR			: UInt = 4;
-	public static inline var GLOW			: UInt = 8;
-	public static inline var GRADIENT_BEVEL	: UInt = 16;
-	public static inline var GRADIENT_GLOW	: UInt = 32;
-}
+class GradientGlowFilter extends GradientBevelFilter {}
+
+#end

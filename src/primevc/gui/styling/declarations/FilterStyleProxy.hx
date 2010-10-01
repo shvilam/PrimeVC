@@ -162,22 +162,22 @@ class FilterStyleProxy extends FilterStyleDeclarations
 	
 	
 	
-	override private function getGradientBlur ()
+	override private function getGradientGlow ()
 	{
-		var v = super.getGradientBlur();
+		var v = super.getGradientGlow();
 		
 		if (type == FilterCollectionType.box)
 		{
 			//box filters
 			for (styleObj in target)
-				if (styleObj.boxFilters != null && null != (v = styleObj.boxFilters.gradientBlur))
+				if (styleObj.boxFilters != null && null != (v = styleObj.boxFilters.gradientGlow))
 					break;
 		}
 		else
 		{
 			//background filters
 			for (styleObj in target)
-				if (styleObj.bgFilters != null && null != (v = styleObj.bgFilters.gradientBlur))
+				if (styleObj.bgFilters != null && null != (v = styleObj.bgFilters.gradientGlow))
 					break;
 		}
 		return v;

@@ -29,6 +29,7 @@
 package primevc.tools.generator;
  import primevc.gui.layout.LayoutFlags;
  import primevc.types.RGBA;
+ import primevc.types.SimpleDictionary;
  import primevc.utils.Color;
  import primevc.utils.NumberUtil;
   using Std;
@@ -46,6 +47,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 {
 	private var output		: StringBuf;
 	private var varMap		: Hash < String >;
+	private var arrayMap	: SimpleDictionary < Array<Dynamic>, String >;
 	private var varCounter	: Int;
 	private var linePrefix	: String;
 	
@@ -81,6 +83,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 	{
 		output		= new StringBuf();
 		varMap		= new Hash();
+		arrayMap	= new SimpleDictionary();
 		varCounter	= 0;
 	}
 	
@@ -105,7 +108,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 	
 	
 	public function construct (obj:ICodeFormattable, ?args:Array<Dynamic>) : Void {
-		addLine( "var " + createVarName(obj, false) + " = new " + getClassName(obj) + "( " + formatArguments( args, true ) + " );" );
+		addLine( "var " + createObjectVar(obj, false) + " = new " + getClassName(obj) + "( " + formatArguments( args, true ) + " );" );
 	}
 	
 	
@@ -150,6 +153,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 		else if (v == LayoutFlags.FILL)			return "primevc.gui.layout.LayoutFlags.FILL";
 		else if (v == null)						return "null";
 		else if (Std.is( v, String ))			return "'" + v + "'";
+		else if (Std.is( v, Array ))			return getArray( cast v );
 		else if (Std.is( v, Int ))				return v >= 0 ? Color.uintToString(v) : Std.string(v);
 		else if (Std.is( v, Float ))			return Std.string(v);
 		else if (Std.is( v, Bool ))				return v ? "true" : "false";
@@ -162,7 +166,8 @@ class HaxeCodeGenerator implements ICodeGenerator
 	private inline function isColor (v:Dynamic)					: Bool		{ return Reflect.hasField(v, "color") && Reflect.hasField(v, "a"); }
 	private inline function getClassName (obj:ICodeFormattable)	: String	{ return Type.getClass(obj).getClassName(); }
 	private inline function addLine( line:String)				: Void		{ output.add( "\n" + linePrefix + line ); }
-	private inline function getVar (obj:ICodeFormattable)		: String	{ return varMap.exists( obj.uuid ) ? varMap.get( obj.uuid ) : createVarName( obj ); }
+	private inline function getVar (obj:ICodeFormattable)		: String	{ return createObjectVar( obj ); }
+	private inline function getArray( arr:Array<Dynamic> )		: String	{ return createArrayVar( arr ); }
 	
 	
 	private inline function getEnumName (obj:Dynamic)			: String
@@ -182,8 +187,8 @@ class HaxeCodeGenerator implements ICodeGenerator
 				{
 					case TClass( c ):
 						//create constructor with the right parameters from just a Class Reference..
-						var cName		= c.getClassName();
-						var pack		= cName.substr( 0, cName.lastIndexOf(".") );
+						var cName	= c.getClassName();
+						var pack	= cName.substr( 0, cName.lastIndexOf(".") );
 						strParam	= "new " + pack + "." + param;
 					
 					default:
@@ -216,7 +221,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 	}
 	
 	
-	private function createVarName (obj:ICodeFormattable, constructObj:Bool = true) : String
+	private function createObjectVar (obj:ICodeFormattable, constructObj:Bool = true) : String
 	{
 		if (varMap.exists(obj.uuid))
 			return varMap.get(obj.uuid);
@@ -243,6 +248,21 @@ class HaxeCodeGenerator implements ICodeGenerator
 		
 		if (constructObj)
 			obj.toCode(this);
+		
+		return name;
+	}
+	
+	
+	private function createArrayVar (arr:Array<Dynamic>) : String
+	{
+		if (arrayMap.exists(arr))
+			return arrayMap.get(arr);
+		
+		var name = "array" + arrayMap.length;
+		arrayMap.set( arr, name );
+		
+		//write array code
+		addLine( "var " + name + " = [ " + formatArguments(arr) + " ];" );
 		
 		return name;
 	}

@@ -30,7 +30,7 @@ package primevc.gui.filters;
 
 
 #if (flash9 || flash8)
-typedef GlowFilter = flash.filters.GlowFilter;
+typedef GradientBevelFilter = flash.filters.GradientBevelFilter;
 
 #elseif	js
 throw "error";
@@ -44,77 +44,97 @@ throw "error";
 
 
 /**
- * Simple GlowFilter implementation. Class currently just contains the 
- * same properties as the flash.filters.GlowFilter, but doesn't do 
+ * Simple GradientBevelFilter implementation. Class currently just contains the 
+ * same properties as the flash.filters.GradientBevelFilter, but doesn't do 
  * anything else.
  *
  * @author Ruben Weijers
  * @creation-date Sep 30, 2010
  */
-class GlowFilter extends BitmapFilter
+class GradientBevelFilter extends BitmapFilter
 {
-	public var alpha		: Float;
+	public var colors		: Array < UInt >;
+	public var alphas		: Array < Float >;
+	public var ratios		: Array < Int >;
+	public var angle		: Float;
 	public var blurX		: Float;
 	public var blurY		: Float;
-	public var color		: UInt;
-	public var inner		: Bool;
+	public var distance		: Float;
 	public var knockout		: Bool;
 	public var quality		: Int;
 	public var strength		: Float;
-	
-	
+	public var type			: BitmapFilterType;
+
+
 	public function new (
-				color:UInt = 0, alpha:Float = 1.0, 
-				blurX:Float = 4.0, blurY:Float = 4.0, 
-				strength:Float = 1.0, quality:Int = 1, 
-				inner:Bool = false, knockout:Bool = false
-		)
+				distance:Float = 4.0, angle:Float = 45, 
+				colors:Array < UInt > = null, alphas:Array < Float > = null, ratios:Array < Int > = null,
+				blurX:Float = 4.0, blurY:Float = 4.0, strength:Float = 1.0, quality:Int = 1, 
+				type = null, knockout:Bool = false
+			)
 	{
 		super();
-		this.color		= color;
-		this.alpha		= alpha;
-		this.blurX		= blurX;
-		this.blurY		= blurY;
-		this.strength	= strength;
-		this.quality	= quality;
-		this.inner		= inner;
-		this.knockout	= knockout;
+		this.distance		= distance;
+		this.angle			= angle;
+		this.colors			= colors == null ? [] : colors;
+		this.alphas			= alphas == null ? [] : alphas;
+		this.ratios			= ratios == null ? [] : ratios;
+		this.blurX			= blurX;
+		this.blurY			= blurY;
+		this.strength		= strength;
+		this.quality		= quality;
+		this.type			= type == null ? BitmapFilterType.INNER : type;
+		this.knockout		= knockout;
 	}
-	
-	
+
+
 	override public function toCSS (prefix:String = "") : String
 	{
 		var css = [];
+		css.push( distance+"px");
 		css.push( blurX+"px" );
 		css.push( blurY+"px" );
 		css.push( strength.string() );
-		css.push( Color.create().setRgb( color ).setAlpha( alpha.uint() ).string() );
+		css.push( angle+"deg");
 		
-		if (inner)		css.push("inner");
+		var len = colors.length;
+		for (i in 0...len)
+			css.push( Color.create().setRgb( colors[i] ).setAlpha( alphas[i].uint() ).string() + " " + ratios[i] );
+		
 		if (knockout)	css.push("knockout");
-		
+
+		css.push ( switch (type) {
+			case INNER:	"inner";
+			case OUTER:	"outer";
+			case FULL:	"full";
+		} );
+
 		css.push ( switch (quality) {
 			case 1:		"low";
 			case 2:		"medium";
 			case 3:		"high";
 		} );
-		
+
 		return css.join(" ");
 	}
-	
-	
+
+
 #if (neko || debug)
 	override public function toCode (code:ICodeGenerator) : Void
 	{
-		code.construct( this, [ color, alpha, blurX, blurY, strength, quality, inner, knockout ] );
+		code.construct( this, [ 
+			distance, angle, colors, alphas, ratios, 
+			blurX, blurY, strength, 
+			quality, type, knockout
+		] );
 	}
-	
-	
+
+
 	override public function isEmpty () : Bool
 	{
-		return alpha == 0;
+		return colors.length == 0;
 	}
-	#end
+#end
 }
 
 #end

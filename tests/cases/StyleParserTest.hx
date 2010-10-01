@@ -243,6 +243,7 @@ class StyleParserTest
 		parser.testParseBevelFilter();
 		parser.testParseGlowFilter();
 		parser.testParseBlurFilter();
+		parser.testParseGradientBevelFilter();
 #end
 	}
 	
@@ -888,6 +889,73 @@ class CSSParserMethodTest extends CSSParser
 		Assert.equal( f.blurX,			0,				"blurX" );
 		Assert.equal( f.blurY,			0,				"blurY" );
 		Assert.equal( f.quality,		1,				"quality" );
+	}
+	
+	
+	
+	public function testParseGradientBevelFilter ()
+	{	
+		trace("\n\nTESTING PARSE GRADIENT-BEVEL FILTER");
+		
+		//
+		//test correct values. Syntax (variable order except for the order within the '()'):
+		//( <distance>px? <blurX>px? <blurY>px? <strength>? ) | <angle>deg? | <rgba>? | <inner>? | <hide-object>? | <knockout>? | <quality>?
+		//
+		
+		
+		var v = "5px 10px 12px 3 90deg #ff00aadd, #00aadd inner knockout high";
+		var f = parseGradientBevelFilter(v);
+		Assert.equal( f.distance,	5,				"distance" );
+		Assert.equal( f.blurX,		10,				"blurX" );
+		Assert.equal( f.blurY,		12,				"blurY" );
+		Assert.equal( f.strength,	3,				"strength" );
+		Assert.equal( f.angle,		90,				"angle" );
+		
+		Assert.equal( f.colors.length,	2,			"colors" );
+		Assert.equal( f.alphas.length,	2,			"alphas" );
+		Assert.equal( f.ratios.length,	2,			"ratios" );
+		
+		Assert.equal( f.colors[0],	0xff00aa,		"color" );
+		Assert.equal( f.alphas[0],	0xdd.float(),	"alpha" );
+		Assert.equal( f.ratios[0],	0,				"ratio" );
+		
+		Assert.equal( f.colors[1],	0x00aadd,		"color" );
+		Assert.equal( f.alphas[1],	0xff.float(),	"alpha" );
+		Assert.equal( f.ratios[1],	255,			"ratio" );
+		
+		Assert.equal( f.type,		BType.INNER,	"inner" );
+		Assert.equal( f.knockout,	true,			"knockout" );
+		Assert.equal( f.quality,	3,				"quality" );
+		
+		
+		
+		var v = "outer .789px 3 90deg #ff0000, #abcdef12 60px, #333 medium";
+		var f = parseGradientBevelFilter(v);
+		Assert.equal( f.distance,	.789,			"distance" );
+		Assert.equal( f.blurX,		4,				"blurX" );
+		Assert.equal( f.blurY,		4,				"blurY" );
+		Assert.equal( f.strength,	3,				"strength" );
+		Assert.equal( f.angle,		90,				"angle" );
+		
+		Assert.equal( f.colors.length,	3,			"colors" );
+		Assert.equal( f.alphas.length,	3,			"alphas" );
+		Assert.equal( f.ratios.length,	3,			"ratios" );
+		
+		Assert.equal( f.colors[0],	0xff0000,		"color" );
+		Assert.equal( f.alphas[0],	0xff.float(),	"alpha" );
+		Assert.equal( f.ratios[0],	0,				"ratio" );
+		
+		Assert.equal( f.colors[1],	0xabcdef,		"color" );
+		Assert.equal( f.alphas[1],	0x12.float(),	"alpha" );
+		Assert.equal( f.ratios[1],	60,				"ratio" );
+		
+		Assert.equal( f.colors[2],	0x333333,		"color" );
+		Assert.equal( f.alphas[2],	0xff.float(),	"alpha" );
+		Assert.equal( f.ratios[2],	255,			"ratio" );
+		
+		Assert.equal( f.type,		BType.OUTER,	"type" );
+		Assert.equal( f.knockout,	false,			"knockout" );
+		Assert.equal( f.quality,	2,				"quality" );
 	}
 }
 

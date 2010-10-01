@@ -24,7 +24,8 @@ while getopts "s:tfd" OptionName
 	esac
 done
 
-StyleFile=${Style}/Style.css
+StyleInputFile=${Style}/Style.css
+StyleOutputFile=${Style}/Style.hx
 
 #echo "MainFile: ${MainFile}"
 echo "Main: ${MainClass}" &&
@@ -38,10 +39,14 @@ if ${Force} || [[ ! -f ${Parser} ]]  ||  test ${MainFile} -nt ${Parser}  ||  tes
 fi;
 
 #compile css
-if [[ -d ${Style} ]] && [[ -f ${StyleFile} ]] && [[ -f ${Parser} ]]; then
-	echo "Running parser on ${StyleFile}" &&
-	neko ${Parser} ${Style}
+if [[ -d ${Style} ]] && [[ -f ${StyleInputFile} ]] && [[ -f ${Parser} ]] ; then
+	if [[ ! -f ${StyleOutputFile} ]] || test ${StyleInputFile} -nt ${StyleOutputFile} ; then
+		echo "Running parser on ${StyleInputFile}" &&
+		neko ${Parser} ${Style}
+	else	
+		echo "Style is already compiled and up to date.."
+	fi;
 else
-	echo "Style '${StyleFile}' doesn't exist!" &&
+	echo "Style '${StyleInputFile}' doesn't exist!" &&
 	exit 1
 fi;

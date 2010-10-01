@@ -42,6 +42,8 @@ package primevc.gui.styling;
  import primevc.gui.filters.BlurFilter;
  import primevc.gui.filters.DropShadowFilter;
  import primevc.gui.filters.GlowFilter;
+ import primevc.gui.filters.GradientBevelFilter;
+ import primevc.gui.filters.GradientGlowFilter;
  import primevc.gui.filters.IBitmapFilter;
  import primevc.gui.graphics.borders.BitmapBorder;
  import primevc.gui.graphics.borders.GradientBorder;
@@ -899,9 +901,9 @@ class CSSParser
 			case "box-bevel":					parseAndSetBoxBevel( val );			// ( <distance>px? <blurX>px? <blurY>px? <strength>? ) | <angle>deg? | ( <rgba-shadow>? | <rgba-highlight>? ) | <inner|outer|full>? | <knockout>? | <quality>?
 			case "box-blur":					parseAndSetBoxBlur( val );			// <blurX>px? | <blurY>px? | <quality>?
 			case "box-shadow":					parseAndSetBoxShadow( val );		// ( <distance>px? <blurX>px? <blurY>px? <strength>? ) | <angle>deg? | <rgba>? | <inner>? | <hide-object>? | <knockout>? | <quality>?
-			case "box-glow":					parseAndSetBoxGlow( val );			//( <blurX>px? <blurY>px? <strength>? ) | <rgba>? | <inner>? | <knockout>? | <quality>?
-			case "box-gradient-bevel":			parseAndSetBoxGradientBevel( val );	//
-			case "box-gradient-blur":			parseAndSetBoxGradientBlur( val );	//
+			case "box-glow":					parseAndSetBoxGlow( val );			// ( <blurX>px? <blurY>px? <strength>? ) | <rgba>? | <inner>? | <knockout>? | <quality>?
+			case "box-gradient-bevel":			parseAndSetBoxGradientBevel( val );	// ( <distance>px? <blurX>px? <blurY>px? <strength>? ) | <angle>deg? | ( (<rgba> <pos>) (<rgba> <pos>).. ) | <inner>? | <knockout>? | <quality>?
+			case "box-gradient-glow":			parseAndSetBoxGradientGlow( val );	// ( <distance>px? <blurX>px? <blurY>px? <strength>? ) | <angle>deg? | ( (<rgba> <pos>) (<rgba> <pos>).. ) | <inner>? | <knockout>? | <quality>?
 			
 			
 			
@@ -2225,8 +2227,6 @@ class CSSParser
 		//match blur
 		if (filterBlurExpr.match(v))
 		{
-			for (i in 0...11)
-				trace(" [ " + i + " ] => " + filterBlurExpr.matched(i));
 			f.blurX	= getFloat( filterBlurExpr.matched(3) );
 			f.blurY	= getFloat( filterBlurExpr.matched(10) );
 			isValid	= true;
@@ -2418,16 +2418,122 @@ class CSSParser
 		return isValid ? f : null;
 	}
 	
-
-	private function parseGradientBevelFilter (v:String) : Void
+	
+	/**
+	 * Syntax:
+	 *  ( <distance>px? <blurX>px? <blurY>px? <strength>? ) | <angle>deg? | ( (<rgba> <pos>) (<rgba> <pos>).. ) | <inner>? | <knockout>? | <quality>?
+	 */
+	private function parseGradientBevelFilter (v:String, f:GradientBevelFilter = null) : GradientBevelFilter
 	{
-
+		if (f == null)
+			f = new GradientBevelFilter();
+		
+		var isValid = false;
+		
+		//match rotation
+		if (isAngle(v))
+		{
+			f.angle	= parseAngle(v);
+			isValid	= true;
+			v		= removeAngle(v);
+		}
+		
+		//match colors, ratios and alphas
+		while (true)
+		{
+			if ( !gradientColorExpr.match(v) )
+				break;
+			
+			var pos = -1;
+			//match px,pt,em etc value
+			if (gradientColorExpr.matched(16) != null)
+				pos = getInt( gradientColorExpr.matched(16) );
+			
+			//match percent value
+			else if (gradientColorExpr.matched(20) != null)	{
+				var a = getFloat( gradientColorExpr.matched(21) );
+				pos = ((a / 100) * 255).int();
+			}
+			
+			var c = gradientColorExpr.matched(4).rgba();
+			f.colors.push( c.rgb() );
+			f.alphas.push( c.alpha().float() );
+			f.ratios.push( pos );
+			
+			v = removeColor(v);
+		}
+		
+		if (f.colors.length > 0)
+		{
+			//make sure that all ratios values are set
+			var stepSize	= 255 / (f.ratios.length - 1);
+			for (i in 0...f.ratios.length)
+				if (f.ratios[i] == -1)
+					f.ratios[i] = (stepSize * i).int();
+		}
+		
+		isValid	= f.colors.length > 1;
+		
+		//match distance
+		if (isValid && isUnitFloat(v))
+		{
+			f.distance = parseUnitFloat(v);
+			v = removeUnitFloat(v);
+		}
+		
+		//match blur
+		if (isValid && filterBlurExpr.match(v))
+		{
+			f.blurX	= getFloat( filterBlurExpr.matched(3) );
+			f.blurY	= getFloat( filterBlurExpr.matched(10) );
+			v		= filterBlurExpr.removeMatch(v);
+		}
+		
+		//match strength
+		if (isValid && isInt(v))
+		{
+			f.strength	= parseInt(v);
+			v			= removeInt(v);
+		}
+		
+		//match filter type
+		if (isValid && filterTypeExpr.match(v))
+		{
+			var tStr	= filterTypeExpr.matched(1);
+			f.type		= parseFilterType(tStr); 
+			v			= filterTypeExpr.removeMatch(v);
+		}
+		
+		//match knockout bool
+		if (isValid && filterKnockoutExpr.match(v))
+		{
+			f.knockout	= true;
+			v			= filterKnockoutExpr.removeMatch(v);
+		}
+		
+		//match quality flag
+		if (isValid && filterQualityExpr.match(v))
+		{
+			var qStr	= filterQualityExpr.matched(1);
+			f.quality	= switch (qStr.toLowerCase()) {
+				default:		1;
+				case "low":		1;
+				case "medium":	2;
+				case "high":	3;
+			}
+			v = filterQualityExpr.removeMatch(v);
+		}
+		
+		return isValid ? f : null;
 	}
 	
-
-	private function parseGradientBlurFilter (v:String) : Void
+	
+	/**
+	 * @see CSSParser.parseGradientBevelFilter
+	 */
+	private function parseGradientGlowFilter (v:String) : GradientGlowFilter
 	{
-
+		return cast parseGradientBevelFilter( v, new GradientGlowFilter() );
 	}
 	
 	
@@ -2478,13 +2584,21 @@ class CSSParser
 
 	private function parseAndSetBoxGradientBevel (v:String) : Void
 	{
-
+		var filter = parseGradientBevelFilter(v);
+		if (filter != null) {
+			createBoxFiltersBlock();
+			currentBlock.boxFilters.gradientBevel = filter;
+		}
 	}
 	
 
-	private function parseAndSetBoxGradientBlur (v:String) : Void
+	private function parseAndSetBoxGradientGlow (v:String) : Void
 	{
-
+		var filter = parseGradientGlowFilter(v);
+		if (filter != null) {
+			createBoxFiltersBlock();
+			currentBlock.boxFilters.gradientGlow = filter;
+		}
 	}
 	
 	

@@ -26,20 +26,60 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
-
+package primevc.types;
+ import primevc.utils.FastArray;
+  using primevc.utils.FastArray;
 
 
 /**
+ * Simple Dictionary implementation
+ * 
  * @author Ruben Weijers
- * @creation-date Sep 29, 2010
+ * @creation-date Sep 30, 2010
  */
-class FilterFlags
+class SimpleDictionary < KType, VType >
 {
-	public static inline var SHADOW			: UInt = 1;
-	public static inline var BEVEL			: UInt = 2;
-	public static inline var BLUR			: UInt = 4;
-	public static inline var GLOW			: UInt = 8;
-	public static inline var GRADIENT_BEVEL	: UInt = 16;
-	public static inline var GRADIENT_GLOW	: UInt = 32;
+	private var keys	: FastArray < KType >;
+	private var values	: FastArray < VType >;
+	public var length	(getLength, never)	: Int;
+	
+	
+	public function new ()
+	{
+		keys	= FastArrayUtil.create();
+		values	= FastArrayUtil.create();
+	}
+	
+	
+	public function exists (key:KType) : Bool
+	{
+		return keys.indexOf( key ) > -1;
+	}
+	
+	
+	public function set (key:KType, val:VType) : Void
+	{
+		var index = keys.indexOf(key);
+		if (index == -1)
+		{
+			keys.push( key );
+			values.push( val );
+		}
+		else
+		{
+			values[ index ] = val;
+		}
+	}
+	
+	
+	public function get (key:KType) : VType
+	{
+		var index = keys.indexOf( key );
+		return (index > -1) ? values[ index ] : null;
+	}
+	
+	
+	private inline function getLength () : Int {
+		return values.length;
+	}
 }

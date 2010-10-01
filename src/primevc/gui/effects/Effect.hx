@@ -122,7 +122,7 @@ class Effect < TargetType, ClassName > implements IDisposable, implements IClona
 		started		= new Signal0();
 		ended		= new Signal0();
 		
-		hideFiltersDuringEffect = true;
+		hideFiltersDuringEffect = false;
 		state		= target == null || duration < 0 ? EffectStates.empty : EffectStates.initialized;
 	}
 	
