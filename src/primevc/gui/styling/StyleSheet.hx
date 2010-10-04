@@ -31,6 +31,8 @@ package primevc.gui.styling;
 #if flash9
 import primevc.core.dispatcher.Wire;
  import primevc.core.IDisposable;
+ import primevc.gui.styling.declarations.EffectStyleDeclarations;
+ import primevc.gui.styling.declarations.EffectStyleProxy;
  import primevc.gui.styling.declarations.FilterCollectionType;
  import primevc.gui.styling.declarations.FilterStyleDeclarations;
  import primevc.gui.styling.declarations.FilterStyleProxy;
@@ -258,6 +260,13 @@ class StyleSheet implements IDisposable
 	{
 		return new FilterStyleProxy(this, FilterCollectionType.box);
 	}
+	
+
+	public function getEffects () : EffectStyleDeclarations
+	{
+		return new EffectStyleProxy(this);
+	}
+	
 	
 	
 	

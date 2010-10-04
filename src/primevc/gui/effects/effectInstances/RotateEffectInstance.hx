@@ -26,37 +26,66 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.effects;
- import primevc.gui.effects.effectInstances.ParallelEffectInstance;
- import primevc.utils.IntMath;
-  using primevc.utils.Bind;
+package primevc.gui.effects.effectInstances;
+ import primevc.gui.effects.EffectProperties;
+ import primevc.gui.effects.RotateEffect;
+ import primevc.gui.traits.IPositionable;
+ import primevc.types.Number;
+  using primevc.utils.NumberUtil;
 
 
 /**
- * Effect to play multiple effects at the same time.
- * 
  * @author Ruben Weijers
- * @creation-date Aug 31, 2010
+ * @creation-date Oct 04, 2010
  */
-class ParallelEffect extends CompositeEffect
+class RotateEffectInstance extends EffectInstance < IPositionable, RotateEffect >
 {
-	override public function clone ()
+	/**
+	 * start rotation value.
+	 * @default		Number.FLOAT_NOT_SET
+	 */
+	private var startValue	: Float;
+	/**
+	 * rotation end-value
+	 * @default		Number.FLOAT_NOT_SET
+	 */
+	private var endValue	: Float;
+	
+	
+	public function new (target, effect)
 	{
-		return cast new ParallelEffect( duration, delay, easing );
+		super(target, effect);
+		startValue = endValue = Number.FLOAT_NOT_SET;
+	}
+
+
+	override public function setValues ( v:EffectProperties ) 
+	{
+		switch (v) {
+			case rotation(from, to):
+				startValue	= from;
+				endValue	= to;
+			default:
+				return;
+		}
 	}
 	
-	
-	override public function createEffectInstance (target)
+
+	override private function initStartValues ()
 	{
-		return cast new ParallelEffectInstance( target, this );
+		startValue	= effect.startValue.isSet() ? effect.startValue : target.rotation;
+		endValue	= effect.endValue.isSet() ? effect.endValue : 1;
 	}
-	
-	
-	override private function getCompositeDuration ()
+
+
+	override private function tweenUpdater ( tweenPos:Float )
 	{
-		var d = 0;
-		for (effect in effects)
-			d = IntMath.max(d, effect.duration);
-		return d;
+		target.rotation = ( endValue * tweenPos ) + ( startValue * (1 - tweenPos) );
+	}
+
+
+	override private function calculateTweenStartPos () : Float
+	{
+		return (target.rotation - startValue) / (endValue - startValue);
 	}
 }

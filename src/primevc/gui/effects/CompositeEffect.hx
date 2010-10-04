@@ -27,9 +27,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.effects;
- import primevc.utils.FastArray;
-  using primevc.utils.FastArray;
+ import primevc.core.collections.ArrayList;
 
+
+typedef ChildEffectType = Effect < Dynamic, Dynamic >;
 
 
 /**
@@ -40,16 +41,16 @@ package primevc.gui.effects;
  * @author Ruben Weijers
  * @creation-date Aug 31, 2010
  */
-class CompositeEffect < ClassName > extends Effect < Dynamic, ClassName >
+class CompositeEffect extends Effect < Dynamic, CompositeEffect >
 {
-	private var effects				: FastArray < Effect < Dynamic, Dynamic > >;
+	public var effects				(default, null)					: ArrayList < ChildEffectType >;
 	public var compositeDuration	(getCompositeDuration, never)	: Int;
 	
 	
-	public function new (target = null, duration:Int = 350, delay:Int = 0, easing:Easing = null)
+	public function new (duration:Int = 350, delay:Int = 0, easing:Easing = null)
 	{	
-		effects = FastArrayUtil.create();
-		super(target, duration, delay, easing);
+		effects = new ArrayList < ChildEffectType > ();
+		super(duration, delay, easing);
 		init();
 	}
 	
@@ -59,15 +60,12 @@ class CompositeEffect < ClassName > extends Effect < Dynamic, ClassName >
 	 * method when you're extending ParallelEffect or SequenceEffect.
 	 */
 	public function init () {}
-	override private function initStartValues () {}
 	override public function setValues (v:EffectProperties) {}
 	
 	
 	override public function dispose ()
 	{
-		for (effect in effects)
-			effect.dispose();
-		
+		effects.dispose();
 		effects = null;
 		super.dispose();
 	}
@@ -75,36 +73,13 @@ class CompositeEffect < ClassName > extends Effect < Dynamic, ClassName >
 	
 	public function add (effect:Effect<Dynamic, Dynamic>)
 	{
-		effects.push( effect );
-		effect.target		= target;
-		effect.easing		= easing;
-		effect.isReverted	= isReverted;
+		effects.add( effect );
 	}
 	
 	
 	public function remove (effect:Effect<Dynamic, Dynamic>)
 	{
 		effects.remove( effect );
-		effect.dispose();
-	}
-	
-	
-	override public function stop ()
-	{
-		super.stop();
-		for (effect in effects)		effect.stop();
-	}
-	
-	
-	override public function reset ()
-	{
-		for (effect in effects)		effect.reset();
-	}
-
-
-	override private function calculateTweenStartPos () : Float
-	{
-		return 0;
 	}
 	
 	
@@ -116,29 +91,5 @@ class CompositeEffect < ClassName > extends Effect < Dynamic, ClassName >
 	private function getCompositeDuration ()
 	{
 		return duration;
-	}
-	
-	
-	override private function setEasing (v)
-	{
-		super.setEasing( v );
-		for (effect in effects)		effect.easing = easing;
-		return easing;
-	}
-	
-	
-	override private function setTarget (v)
-	{
-		super.setTarget( v );
-		for (effect in effects)		effect.target = target;
-		return target;
-	}
-	
-	
-	override private function setIsReverted (v)
-	{
-		super.setIsReverted( v );
-		for (effect in effects)		effect.isReverted = isReverted;
-		return isReverted;
 	}
 }

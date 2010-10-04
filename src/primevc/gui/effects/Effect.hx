@@ -27,13 +27,13 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.effects;
- import haxe.Timer;
- import primevc.core.dispatcher.Signal0;
- import primevc.core.IDisposable;
- import primevc.core.traits.IClonable;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+ import primevc.utils.StringUtil;
+#end
+ import primevc.core.traits.Invalidatable;
  import primevc.gui.display.IDisplayObject;
- import primevc.gui.states.EffectStates;
-  using	primevc.utils.TypeUtil;
+ import primevc.gui.effects.effectInstances.IEffectInstance;
 
 
 /**
@@ -42,312 +42,70 @@ package primevc.gui.effects;
  * @author Ruben Weijers
  * @creation-date Aug 31, 2010
  */
-class Effect < TargetType, ClassName > implements IDisposable, implements IClonable < ClassName >
+class Effect < TargetType, EffectClass:IEffect > extends Invalidatable, implements IEffect
 {
-	/**
-	 * Event that is dispatched when the effect starts playing
-	 */
-	public var started		(default, null)				: Signal0;
-	/**
-	 * Event that is dispatched when the effect is finished or stopped
-	 */
-	public var ended		(default, null)				: Signal0;
-	
-	/**
-	 * The easing type that the effect should use
-	 * @default		null
-	 * @see			feffects.easing
-	 */
-	public var easing		(default, setEasing)		: Easing;
-	
-	/**
-	 * State of the effect
-	 * @default		EffectStates.empty
-	 */
-	public var state		(default, null)				: EffectStates;
-	
-	/**
-	 * Flag indicating if the effect should play reverted or not
-	 * @default		false
-	 */
-	public var isReverted	(default, setIsReverted)	: Bool;
-	
-	/**
-	 * Number of milliseconds to wait before starting the effect
-	 * @default		0
-	 */
-	public var delay		(default, setDelay)			: Int;
-	
-	/**
-	 * Effect duration
-	 * @default		350
-	 */
-	public var duration		(default, setDuration)		: Int;
-	
-	/**
-	 * Target to play the effect on
-	 */
-	public var target		(default, setTarget)		: TargetType;
-	
-	
-	
-#if flash9
-	/**
-	 * Original array with filters of the target. For most effects the filters
-	 * will be temporary disabled to speed up the effect.
-	 */
-	private var cachedFilters			: Array < Dynamic >;
-	
-	/**
-	 * Flag indicating if the target's filters should be hidden when the effect
-	 * is running.
-	 * @default	true
-	 */
-	public var hideFiltersDuringEffect	: Bool;
+#if neko
+	public var uuid				(default, null)	: String;
 #end
 	
-	private var prevTween				: feffects.Tween;
-	private var delayTimer				: Timer;
+	public var easing			(default, setEasing)			: Easing;
+	public var delay			(default, setDelay)				: Int;
+	public var duration			(default, setDuration)			: Int;
+	public var autoHideFilters	(default, setAutoHideFilters)	: Bool;
 	
 	
-	
-	public function new( newTarget:TargetType = null, newDuration:Int = 350, newDelay:Int = 0, newEasing:Easing = null ) 
+	public function new( newDuration:Int = 350, newDelay:Int = 0, newEasing:Easing = null ) 
 	{
-		target		= newTarget;
-		duration	= newDuration;
-		delay		= newDelay;
-		easing		= newEasing;
-		isReverted	= false;
-		
-		started		= new Signal0();
-		ended		= new Signal0();
-		
-		hideFiltersDuringEffect = false;
-		state		= target == null || duration < 0 ? EffectStates.empty : EffectStates.initialized;
-	}
-	
-	
-	public function dispose ()
-	{
-		if (state == null)
-			return;
-		
-		stop();
-		started.dispose();
-		ended.dispose();
-		
-		started		= null;
-		ended		= null;
-		delayTimer	= null;
-		prevTween	= null;
-		target		= null;
-		state		= null;
-	}
-	
-	
-	public function clone ()						: ClassName { Assert.abstract(); return null; }
-	
-	/**
-	 * Method to set the explicit start and end values of the effect
-	 * @see	EffectProperties
-	 */
-	public function setValues( v:EffectProperties ) : Void		{ Assert.abstract(); }
-	/**
-	 * Method that is called before the effect is started to choose if the 
-	 * effect should use the target's original value or if it should use the
-	 * explicit value.
-	 * The explicitvalue will be choosen when it is set.
-	 */
-	private function initStartValues()				: Void		{ Assert.abstract(); }
-	/**
-	 * Method which will perform the transformation from visible to hidden.
-	 * Needs to be overwritten by subclasses.
-	 */
-	private function tweenUpdater( tweenPos:Float )	: Void		{ Assert.abstract(); }
-	/**
-	 * Method will calculate the start position for the play tween. When the 
-	 * target for example already has an alpha of 0.4, the start position
-	 * won't be '0' but 0.4. The tween-duration will also be 40% smaller.
-	 * @return	Float between 0 and 1
-	 */
-	private function calculateTweenStartPos ()		: Float		{ Assert.abstract(); return 0; }
-	
-	
-	
-	/**
-	 * Method will play the effect in oppposite direction
-	 */
-	public inline function revert ( withEffect:Bool = true, directly:Bool = false ) : Void
-	{
-		isReverted = !isReverted;
-		play( withEffect, directly );
-	}
-	
-	
-	/**
-	 * Method will play the effect
-	 */
-	public function play ( withEffect:Bool = true, directly:Bool = false ) : Void
-	{
-		if ((state == EffectStates.waiting && !directly) || state == EffectStates.empty)
-			return;
-		
-		stopDelay();
-		stopTween();
-		hideFilters();
-		started.send();
-		
-		if (delay <= 0 || directly)
-		{
-			if (withEffect)		playWithEffect();
-			else				playWithoutEffect();
-		}
-		else
-		{
-			state		= EffectStates.waiting;
-			delayTimer	= withEffect ? Timer.delay( playWithEffect, delay ) : Timer.delay( playWithoutEffect, delay );
-		}
-	}
-	
-	
-	/**
-	 * Method will stop the effect
-	 */
-	public function stop () : Void
-	{
-		stopDelay();
-		stopTween();
-		applyFilters();
-		
-		if (isPlaying())
-			state = EffectStates.finished;
-	}
-	
-	
-	public function reset ()
-	{
-		stop();
-		tweenUpdater( isReverted ? 1 : 0 );
-	}
-	
-	
-	
-	//
-	// PERFORM EFFECT
-	//
-	
-	/**
-	 * Method is called after the hideTimer has finished running. It will apply
-	 * the changed values with an effect.
-	 */
-	private function playWithEffect ()
-	{
-		//calculate the tweens end and start position
-		initStartValues();
-		var calcStartPos	= calculateTweenStartPos();
-		var startPos		= isReverted ? 1.0 : 0.0;
-		var endPos			= isReverted ? 0.0 : 1.0;
-		
-		//use current start pos, even when it's reversed
-		if (calcStartPos > 0 && state != EffectStates.initialized)
-			startPos = calcStartPos;
-		
-		//if the effect is playing for the first time, give the target it's start position
-		if (state == EffectStates.initialized) {
-		//	target.visible = false;
-			tweenUpdater( startPos );
-		//	target.visible = true;
-		}
-		
-		state = EffectStates.playing;
-		
-		if (startPos == endPos)
-		{
-			onTweenReady();
-		}
-		else
-		{
-			//calculate tween duration
-			var valDiff:Float			= startPos > endPos ? startPos - endPos : endPos - startPos;
-			var calcDuration:Int		= Math.round( duration * valDiff );
-#if debug
-			if (slowMotion)			calcDuration *= 10;
+		super();
+#if neko
+		uuid			= StringUtil.createUUID();
 #end
-			prevTween = new feffects.Tween( startPos, endPos, calcDuration, null, null, easing );
-			prevTween.setTweenHandlers( tweenUpdater, onTweenReady );
-			prevTween.start();
-		}
+		duration		= newDuration;
+		delay			= newDelay;
+		easing			= newEasing;
+		autoHideFilters	= false;
+	}
+	
+	
+	override public function dispose ()
+	{
+		easing = null;
+		super.dispose();
+		//dispose all effect instances?
+	}
+	
+	
+	public function clone () : IEffect
+	{
+		Assert.abstract(); return null;
+	}
+	
+	
+	public function setValues( v:EffectProperties ) : Void
+	{
+		Assert.abstract();
 	}
 	
 	
 	/**
-	 * Method is called after the hideTimer has finished running. It will apply
-	 * the changed values without an effect.
+	 * Method will start a new effect on the given target and return the 
+	 * playing effect instance.
 	 */
-	private function playWithoutEffect ()
+	public function play (target:TargetType, withEffect:Bool = true, playDirectly:Bool = false) : IEffectInstance < TargetType, EffectClass >
 	{
-		state = EffectStates.playing;
-		
-		//call the effect handler once to make sure it's hidden
-		tweenUpdater( isReverted ? 0 : 1 );
-		onTweenReady();
+		Assert.that(target == null || duration < 0);
+		var c = createEffectInstance(target);
+		c.play(withEffect, playDirectly);
+		return c;
 	}
 	
 	
-	private function onTweenReady ( ?tweenPos:Float )
+	public function createEffectInstance (target:TargetType) : IEffectInstance < TargetType, EffectClass >
 	{
-		state = EffectStates.finished;
-		applyFilters();
-		ended.send();
+		Assert.abstract();
+		return null;
 	}
 	
-	
-	private inline function hideFilters ()
-	{
-#if flash9
-		if (hideFiltersDuringEffect && target != null && target.is(IDisplayObject))
-		{
-			var d = target.as(IDisplayObject);
-			if (d.filters != null) {
-				cachedFilters	= d.filters;
-				d.filters		= null;
-			}
-		}
-#end
-	}
-	
-	
-	private inline function applyFilters ()
-	{
-#if flash9
-		if (hideFiltersDuringEffect && target != null && target.is(IDisplayObject) && cachedFilters != null)
-		{
-			var d = target.as(IDisplayObject);
-			d.filters		= cachedFilters;
-			cachedFilters	= null;
-		}
-#end
-	}
-	
-	
-	private inline function stopDelay ()
-	{
-		if (delayTimer != null)
-		{
-			delayTimer.stop();
-			delayTimer = null;
-		}
-	}
-	
-	
-	private inline function stopTween ()
-	{
-		if (prevTween != null)
-		{
-			prevTween.stop();
-			prevTween = null;
-		}
-	}
 	
 	
 	
@@ -356,59 +114,71 @@ class Effect < TargetType, ClassName > implements IDisposable, implements IClona
 	//
 	
 	
-	private inline function isPlaying () : Bool
-	{
-		return state == EffectStates.playing || state == waiting;
-	}
-	
-	
 	private inline function setDelay (v:Int) : Int
 	{
 		Assert.that(v >= 0);
-		return delay = v;
-	}
-	
-	
-	private function setIsReverted (v:Bool)		{ return isReverted = v; }
-	private function setEasing (v:Easing)		{ return easing = v; }
-	
-	
-	private function setTarget (newTarget : TargetType) : TargetType
-	{
-		if (target != newTarget)
-		{
-			if (target != null && isPlaying())
-				stop();
-			
-			target	= newTarget;
-			state	= target == null || duration < 0 ? EffectStates.empty : EffectStates.initialized;
+		if (delay != v) {
+			delay = v;
+			invalidate( EffectFlags.DELAY );
 		}
-		return newTarget;
+		return v;
 	}
 	
 	
-	private inline function setDuration (val:Int) : Int
+	private inline function setEasing (v:Easing) : Easing
 	{
-		if (duration != val)
-		{
-			duration	= val;
-			state		= target == null || duration < 0 ? EffectStates.empty : EffectStates.initialized;
+		if (easing != v) {
+			easing = v;
+			invalidate( EffectFlags.EASING );
 		}
-		return val;
+		return v;
 	}
 	
 	
+	private inline function setDuration (v:Int) : Int
+	{
+		if (duration != v) {
+			duration = v;
+			invalidate( EffectFlags.DURATION );
+		}
+		return v;
+	}
 	
-#if (debug && flash9)
-	static public var slowMotion = function() {
-		flash.Lib.current.addEventListener(flash.events.KeyboardEvent.KEY_DOWN, 
-			function(e:flash.events.KeyboardEvent) { if (e.keyCode == flash.ui.Keyboard.SHIFT) { slowMotion = true; trace("shiftDown"); } }
-		);
-		flash.Lib.current.addEventListener(flash.events.KeyboardEvent.KEY_UP, 
-			function(e:flash.events.KeyboardEvent) { if (e.keyCode == flash.ui.Keyboard.SHIFT) { slowMotion = false; trace("shiftUp"); } }
-		);
-		
-		return false;
-	}();
+	
+	private inline function setAutoHideFilters (v:Bool) : Bool
+	{
+		if (autoHideFilters != v) {
+			autoHideFilters = v;
+			invalidate( EffectFlags.AUTO_HIDE_FILTERS );
+		}
+		return v;
+	}
+	
+	
+#if (debug || neko)
+	public function toString ()
+	{
+		return toCSS();
+	}
+
+
+	public function toCSS (prefix:String = "") : String
+	{
+		Assert.abstract();
+		return null;
+	}
+	
+	
+	public function isEmpty ()
+	{
+		return duration <= 0;
+	}
+#end
+
+#if neko	
+	public function toCode (code:ICodeGenerator) : Void
+	{
+		Assert.abstract();
+	}
 #end
 }

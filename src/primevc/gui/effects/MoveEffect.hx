@@ -27,9 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.effects;
+ import primevc.gui.effects.effectInstances.MoveEffectInstance;
  import primevc.gui.traits.IPositionable;
  import primevc.types.Number;
-  using primevc.utils.NumberUtil;
 
 
 /**
@@ -40,21 +40,6 @@ package primevc.gui.effects;
  */
 class MoveEffect extends Effect < IPositionable, MoveEffect >
 {
-	/**
-	 * The startX that will be used during the calculations when the effect
-	 * is playing.
-	 * The value will be the 'startX' property when this is set and 
-	 * otherwise the original x value of the target.
-	 */
-	private var _startX	: Float;
-	/**
-	 * The startY that will be used during the calculations when the effect
-	 * is playing.
-	 * The value will be the 'startY' property when this is set and 
-	 * otherwise the original y value of the target.
-	 */
-	private var _startY	: Float;
-	
 	/**
 	 * Explicit start x value. If this value is not set, the effect will 
 	 * use the current x of the IPositionable.
@@ -79,25 +64,26 @@ class MoveEffect extends Effect < IPositionable, MoveEffect >
 	public var endY		: Float;
 	
 	
-	public function new (target = null, duration:Int = 350, delay:Int = 0, easing:Easing = null)
+	public function new (duration:Int = 350, delay:Int = 0, easing:Easing = null, startX:Float = Number.INT_NOT_SET, startY:Float = Number.INT_NOT_SET, endX:Float = Number.INT_NOT_SET, endY:Float = Number.INT_NOT_SET)
 	{
-		startX = startY = endX = endY = Number.FLOAT_NOT_SET;
-		super(target, duration, delay, easing);
+		super(duration, delay, easing);
+		
+		this.startX	= startX == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : startX;
+		this.startY	= startY == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : startY;
+		this.endX	= endX == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : endX;
+		this.endY	= endY == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : endY;
 	}
-	
-	
-	private inline function isXChanged () : Bool	{ return endX.isSet() && _startX != endX; }
-	private inline function isYChanged () : Bool	{ return endY.isSet() && _startY != endY; }
 	
 	
 	override public function clone ()
 	{
-		var n = new MoveEffect( target, duration, duration, easing );
-		n.startX	= startX;
-		n.startY	= startY;
-		n.endX		= endX;
-		n.endY		= endY;
-		return n;
+		return cast new MoveEffect( duration, duration, easing, startX, startY, endX, endY );
+	}
+	
+	
+	override public function createEffectInstance (target)
+	{
+		return cast new MoveEffectInstance(target, this);
 	}
 
 
@@ -112,33 +98,5 @@ class MoveEffect extends Effect < IPositionable, MoveEffect >
 			default:
 				return;
 		}
-	}
-	
-	
-	override private function initStartValues ()
-	{
-		if (startX.isSet())	_startX = startX;
-		else				_startX = target.x;
-		if (startY.isSet())	_startY = startY;
-		else				_startY = target.y;
-	}
-	
-
-	override private function tweenUpdater ( tweenPos:Float )
-	{
-		if (isXChanged())	target.x = ( endX * tweenPos ) + ( _startX * (1 - tweenPos) );
-		if (isYChanged())	target.y = ( endY * tweenPos ) + ( _startY * (1 - tweenPos) );
-	}
-	
-	
-	override private function calculateTweenStartPos () : Float
-	{
-		return if (!isXChanged() && !isYChanged())	1;
-		  else if (!isYChanged())					(target.x - _startX) / (endX - _startX);
-		  else if (!isXChanged())					(target.y - _startY) / (endY - _startY);
-		  else										Math.min(
-				(target.x - _startX) / (endX - _startX),
-				(target.y - _startY) / (endY - _startY)
-			);
 	}
 }

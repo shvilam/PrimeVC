@@ -30,8 +30,8 @@ package primevc.gui.display;
 
 
 typedef Stage = 
-	#if			flash9		flash.display.Stage;
-	#else if	js			Window;
-	#else					IDisplayObjectContainer;
+	#if		flash9		flash.display.Stage;
+	#elseif	js			Window;
+	#else				IDisplayContainer;
 	#end
 

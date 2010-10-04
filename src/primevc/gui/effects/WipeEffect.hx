@@ -28,11 +28,9 @@
  */
 package primevc.gui.effects;
  import primevc.core.geom.space.MoveDirection;
- import primevc.core.geom.Rectangle;
  import primevc.gui.display.IDisplayObject;
+ import primevc.gui.effects.effectInstances.WipeEffectInstance;
  import primevc.types.Number;
-  using primevc.utils.NumberUtil;
-  using primevc.utils.TypeUtil;
 
 
 /**
@@ -51,23 +49,10 @@ class WipeEffect extends Effect < IDisplayObject, WipeEffect >
 	public var direction			: MoveDirection;
 	
 	/**
-	 * start x/y position that will be used during the effect. The startValue
-	 * will be used when it's set, otherwise the effect will calculate the
-	 * default start-value based on the direction of the wipe.
-	 */
-	private var _startValue			: Float;
-	
-	/**
 	 * Explicit startValue of the object
 	 * @default		Number.FLOAT_NOT_SET
 	 */
 	public var startValue			: Float;
-	/**
-	 * final x/y position that will be used during the effect. The endValue
-	 * will be used when it's set, otherwise the effect will calculate the
-	 * default end-value based on the direction of the wipe.
-	 */
-	private var _endValue			: Float;
 	/**
 	 * Explicit endValue of the object
 	 * @default		Number.FLOAT_NOT_SET
@@ -75,71 +60,16 @@ class WipeEffect extends Effect < IDisplayObject, WipeEffect >
 	public var endValue				: Float;
 	
 	
-	public function new (target = null, duration:Int = 350, delay:Int = 0, easing:Easing = null, direction:MoveDirection = null, ?startValue:Float, ?endValue)
+	public function new (duration:Int = 350, delay:Int = 0, easing:Easing = null, direction:MoveDirection = null, startValue:Float = Number.INT_NOT_SET, endValue:Float = Number.INT_NOT_SET)
 	{
-		super(target, duration, delay, easing);
-		this.direction	= direction == null		? LeftToRight			: direction;
-		this.startValue	= startValue == null	? Number.FLOAT_NOT_SET	: startValue;
-		this.endValue	= endValue == null		? Number.FLOAT_NOT_SET	: endValue;
-	}
-	
-	
-	override public function clone ()
-	{
-		return new WipeEffect( target, duration, delay, easing, direction, startValue, endValue );
+		super(duration, delay, easing);
+		this.direction	= direction == null					? LeftToRight			: direction;
+		this.startValue	= startValue == Number.INT_NOT_SET	? Number.FLOAT_NOT_SET	: startValue;
+		this.endValue	= endValue == Number.INT_NOT_SET	? Number.FLOAT_NOT_SET	: endValue;
 	}
 	
 	
 	override public function setValues (v:EffectProperties) {}
-	
-	
-#if flash9
-	override private function initStartValues ()
-	{
-		var t = target;
-		if (t.scrollRect == null)
-			t.scrollRect = new Rectangle( 0, 0, t.width, t.height );
-
-		if (endValue.notSet())	_endValue = 0;
-		else					_endValue = endValue;
-
-		if (startValue.notSet() || startValue == endValue) {
-			_startValue = switch (direction) {
-				case TopToBottom:	 t.scrollRect.height;
-				case BottomToTop:	-t.scrollRect.height;
-				case LeftToRight:	 t.scrollRect.width;
-				case RightToLeft:	-t.scrollRect.width;
-			}
-		}
-		else
-		{
-			_startValue = startValue;
-		}
-	}
-
-
-	override private function tweenUpdater ( tweenPos:Float )
-	{
-		var rect			= target.scrollRect;
-		var newVal:Float	= ( _endValue * tweenPos ) + ( _startValue * (1 - tweenPos) );
-
-		switch (direction) {
-			case TopToBottom, BottomToTop:	rect.y = newVal;
-			case LeftToRight, RightToLeft:	rect.x = newVal;
-		}
-
-		target.scrollRect = rect;
-	}
-
-
-	override private function calculateTweenStartPos () : Float
-	{
-		var curValue:Float = switch (direction) {
-			case TopToBottom, BottomToTop:	target.scrollRect.y;
-			case LeftToRight, RightToLeft:	target.scrollRect.x;
-		}
-
-		return (curValue - _startValue) / (_endValue - _startValue);
-	}	
-#end
+	override public function clone ()						{ return cast new WipeEffect( duration, delay, easing, direction, startValue, endValue ); }
+	override public function createEffectInstance (target)	{ return cast new WipeEffectInstance(target, this); }
 }

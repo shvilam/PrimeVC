@@ -34,7 +34,7 @@ package cases;
 // import primevc.gui.effects.AnchorScaleEffect;
 // import primevc.gui.effects.EffectProperties;
 // import primevc.gui.effects.FadeEffect;
- import primevc.gui.effects.MoveEffect;
+// import primevc.gui.effects.MoveEffect;
 // import primevc.gui.effects.ParallelEffect;
 // import primevc.gui.effects.ResizeEffect;
 // import primevc.gui.effects.RotateEffect;
@@ -224,7 +224,7 @@ class Tile extends Button, implements IDraggable
 		
 		effects			= new UIElementEffects( this );
 	//	effects.move	= new TileFadeMoveEffect();
-		effects.move	= new MoveEffect(null, 400); //, 0, Eff.easeOut);
+	//	effects.move	= new MoveEffect(null, 400); //, 0, Eff.easeOut);
 	//	effects.move	= new TileMoveScaleEffect();
 	//	effects.move	= new TileRotateFadeScaleMoveEffect();
 	}

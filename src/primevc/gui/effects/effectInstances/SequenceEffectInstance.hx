@@ -26,37 +26,72 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.effects;
- import primevc.gui.effects.effectInstances.ParallelEffectInstance;
- import primevc.utils.IntMath;
+package primevc.gui.effects.effectInstances;
+ import primevc.gui.effects.SequenceEffect;
   using primevc.utils.Bind;
 
 
 /**
- * Effect to play multiple effects at the same time.
+ * Class description
  * 
  * @author Ruben Weijers
- * @creation-date Aug 31, 2010
+ * @creation-date Oct 04, 2010
  */
-class ParallelEffect extends CompositeEffect
+class SequenceEffectInstance extends CompositeEffectInstance
 {
-	override public function clone ()
+	override public function playWithEffect ()
 	{
-		return cast new ParallelEffect( duration, delay, easing );
+		stopDelay();
+		stopTween();
+		
+		if (effectInstances.length == 0) {
+			onTweenReady();
+			return;
+		}
+		
+		//play all effects directly with tween
+		var len:Int		= effectInstances.length;
+		var firstEffect	= effectInstances[ isReverted ? len - 1 : 0 ];
+		var prevEffect	= firstEffect;
+		for (i in 1...len)
+		{
+			var curEffect = effectInstances[ isReverted ? len - i : i ];
+			curEffect.playWithEffect.onceOn( prevEffect.ended, this );
+			prevEffect = curEffect;
+		}
+		
+		lastChildReadyHandler.onceOn( prevEffect.ended, this );
+		firstEffect.playWithEffect();
+	}
+
+
+	override public function playWithoutEffect ()
+	{
+		stopDelay();
+		stopTween();
+		
+		if (effectInstances.length == 0) {
+			onTweenReady();
+			return;
+		}
+		
+		//play all effects directly with tween
+		var len:Int		= effectInstances.length;
+		var firstEffect	= effectInstances[ isReverted ? len - 1 : 0 ];
+		var prevEffect	= firstEffect;
+		for (i in 1...len)
+		{
+			var curEffect = effectInstances[ isReverted ? len - i : i ];
+			curEffect.playWithoutEffect.onceOn( prevEffect.ended, this );
+			prevEffect = curEffect;
+		}
+
+		lastChildReadyHandler.onceOn( prevEffect.ended, this );
+		firstEffect.playWithoutEffect();
 	}
 	
 	
-	override public function createEffectInstance (target)
-	{
-		return cast new ParallelEffectInstance( target, this );
-	}
-	
-	
-	override private function getCompositeDuration ()
-	{
-		var d = 0;
-		for (effect in effects)
-			d = IntMath.max(d, effect.duration);
-		return d;
+	private function lastChildReadyHandler () {
+		onTweenReady();
 	}
 }

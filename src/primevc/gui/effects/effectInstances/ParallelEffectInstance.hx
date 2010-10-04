@@ -26,37 +26,79 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.effects;
- import primevc.gui.effects.effectInstances.ParallelEffectInstance;
- import primevc.utils.IntMath;
+package primevc.gui.effects.effectInstances;
+ import primevc.gui.effects.CompositeEffect;		//imports typedef ChildEffectType
+ import primevc.gui.effects.ParallelEffect;
   using primevc.utils.Bind;
 
 
 /**
- * Effect to play multiple effects at the same time.
- * 
  * @author Ruben Weijers
- * @creation-date Aug 31, 2010
+ * @creation-date Oct 04, 2010
  */
-class ParallelEffect extends CompositeEffect
+class ParallelEffectInstance extends CompositeEffectInstance
 {
-	override public function clone ()
+	/**
+	 * Number of effects that are currently playing.
+	 */
+	private var playingEffects : Int;
+	
+	
+	
+	override private function addEffectInstance (v:ChildEffectType, depth:Int)
 	{
-		return cast new ParallelEffect( duration, delay, easing );
+		var i = v.createEffectInstance( target );
+		lowerChildPlayCount.on( i.ended, this );
+		effectInstances.push( i );
 	}
 	
 	
-	override public function createEffectInstance (target)
+	//
+	// EFFECT CONTROLS
+	//
+	
+	override public function stop ()
 	{
-		return cast new ParallelEffectInstance( target, this );
+		super.stop();
+		playingEffects = 0;
 	}
 	
 	
-	override private function getCompositeDuration ()
+	override public function playWithEffect ()
 	{
-		var d = 0;
-		for (effect in effects)
-			d = IntMath.max(d, effect.duration);
-		return d;
+		stopDelay();
+		stopTween();
+		playingEffects = effectInstances.length;
+		
+		//play all effects directly with tween
+		for (effect in effectInstances)
+			effect.play( true, true );
+	}
+	
+	
+	override public function playWithoutEffect ()
+	{
+		stopDelay();
+		stopTween();
+		playingEffects = effectInstances.length;
+		
+		//play all effects directly without tween
+		for (effect in effectInstances)
+			effect.play( false, true );
+	}
+	
+
+
+
+	//
+	// EVENTHANDLERS
+	//
+
+	private function lowerChildPlayCount () : Void
+	{
+		if (--playingEffects <= 0) {
+			onTweenReady();
+			playingEffects = 0;
+		}
 	}
 }

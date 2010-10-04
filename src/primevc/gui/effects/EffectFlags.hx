@@ -27,36 +27,24 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.effects;
- import primevc.gui.effects.effectInstances.ParallelEffectInstance;
- import primevc.utils.IntMath;
-  using primevc.utils.Bind;
+
 
 
 /**
- * Effect to play multiple effects at the same time.
- * 
  * @author Ruben Weijers
- * @creation-date Aug 31, 2010
+ * @creation-date Oct 04, 2010
  */
-class ParallelEffect extends CompositeEffect
+class EffectFlags
 {
-	override public function clone ()
-	{
-		return cast new ParallelEffect( duration, delay, easing );
-	}
+	public static inline var EASING				: UInt = 1;
+	public static inline var DELAY				: UInt = 2;
+	public static inline var DURATION			: UInt = 4;
+	public static inline var AUTO_HIDE_FILTERS	: UInt = 8;
 	
-	
-	override public function createEffectInstance (target)
-	{
-		return cast new ParallelEffectInstance( target, this );
-	}
-	
-	
-	override private function getCompositeDuration ()
-	{
-		var d = 0;
-		for (effect in effects)
-			d = IntMath.max(d, effect.duration);
-		return d;
-	}
+	public static inline var MOVE				: UInt = 16;
+	public static inline var RESIZE				: UInt = 32;
+	public static inline var ROTATE				: UInt = 64;
+	public static inline var SCALE				: UInt = 128;
+	public static inline var SHOW				: UInt = 256;
+	public static inline var HIDE				: UInt = 512;
 }

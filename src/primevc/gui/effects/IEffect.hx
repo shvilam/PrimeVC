@@ -27,36 +27,56 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.effects;
- import primevc.gui.effects.effectInstances.ParallelEffectInstance;
- import primevc.utils.IntMath;
-  using primevc.utils.Bind;
+#if neko
+ import primevc.tools.generator.ICodeFormattable;
+#end
+ import primevc.core.traits.IClonable;
+ import primevc.core.traits.IInvalidatable;
+ import primevc.core.IDisposable;
+ import primevc.tools.generator.ICSSFormattable;
 
 
 /**
- * Effect to play multiple effects at the same time.
- * 
  * @author Ruben Weijers
- * @creation-date Aug 31, 2010
+ * @creation-date Oct 02, 2010
  */
-class ParallelEffect extends CompositeEffect
+interface IEffect
+				implements IDisposable
+			,	implements IInvalidatable	
+			,	implements ICSSFormattable
+#if neko	,	implements ICodeFormattable		#end
+			,	implements IClonable < IEffect >
 {
-	override public function clone ()
-	{
-		return cast new ParallelEffect( duration, delay, easing );
-	}
+	/**
+	 * The easing type that the effect should use
+	 * @default		null
+	 * @see			feffects.easing
+	 */
+	public var easing			(default, setEasing)			: Easing;
+	
+	/**
+	 * Number of milliseconds to wait before starting the effect
+	 * @default		0
+	 */
+	public var delay			(default, setDelay)				: Int;
+	
+	/**
+	 * Effect duration
+	 * @default		350
+	 */
+	public var duration			(default, setDuration)			: Int;
+	
+	/**
+	 * Flag indicating if the target's filters should be hidden when the effect
+	 * is running.
+	 * @default	false
+	 */
+	public var autoHideFilters	(default, setAutoHideFilters)	: Bool;
 	
 	
-	override public function createEffectInstance (target)
-	{
-		return cast new ParallelEffectInstance( target, this );
-	}
-	
-	
-	override private function getCompositeDuration ()
-	{
-		var d = 0;
-		for (effect in effects)
-			d = IntMath.max(d, effect.duration);
-		return d;
-	}
+	/**
+	 * Method to set the explicit start and end values of the effect
+	 * @see	EffectProperties
+	 */
+	public function setValues( v:EffectProperties ) : Void;
 }

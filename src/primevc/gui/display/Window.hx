@@ -27,12 +27,13 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.display;
- import haxe.FastList;
- import primevc.core.Application;
+ import primevc.core.Application;	
+#if (flash8 || flash9 || js)
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEvents;
  import primevc.gui.input.Mouse;
  import primevc.gui.traits.IInteractive;
+#end
 
 
 /**
@@ -42,6 +43,7 @@ package primevc.gui.display;
  * @author Ruben Weijers
  * @creation-date Jul 13, 2010
  */
+#if (flash8 || flash9 || js)
 class Window
 		implements IDisplayContainer
 	,	implements IInteractive
@@ -71,8 +73,6 @@ class Window
 	
 	public var userEvents		(default, null)			: UserEvents;
 	public var mouse			(default, null)			: Mouse;
-	
-	
 	
 	
 	public function new (target:Stage, app:Application)
@@ -106,9 +106,7 @@ class Window
 	
 	public function invalidate ()
 	{
-#if flash9
 		target.invalidate();
-#end
 		displayEvents.render.send();
 	}
 	
@@ -118,10 +116,13 @@ class Window
 	// IINTERACTIVE OBJECT PROPERTIES
 	//
 	
-	public var doubleClickEnabled	: Bool;
 	public var mouseEnabled			: Bool;
+#if flash9	
+	public var doubleClickEnabled	: Bool;
 	public var tabEnabled			: Bool;
 	public var tabIndex				: Int;
+#end
+	
 	
 	
 	//
@@ -130,16 +131,20 @@ class Window
 	
 	
 	
-	private inline function setWindow (v) {
-		return window = this;
-	}
-	
-	private inline function setContainer (v) {
-		return container = this;
-	}
-	
-	
-//#if debug
-//	public inline function toString () { return "Window"; }
-//#end
+	private inline function setWindow (v)		{ return window = this; }
+	private inline function setContainer (v)	{ return container = this; }
 }
+
+#else
+class Window implements IDisplayContainer
+{
+	public var application		(default, null) : Application;
+	
+	
+	public function new (app:Application)
+	{
+		application = app;
+	}
+	
+}
+#end

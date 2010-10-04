@@ -26,37 +26,14 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.effects;
- import primevc.gui.effects.effectInstances.ParallelEffectInstance;
- import primevc.utils.IntMath;
-  using primevc.utils.Bind;
+package primevc.core.traits;
 
 
 /**
- * Effect to play multiple effects at the same time.
- * 
  * @author Ruben Weijers
- * @creation-date Aug 31, 2010
+ * @creation-date Oct 04, 2010
  */
-class ParallelEffect extends CompositeEffect
+interface IValidatable extends IInvalidatable 
 {
-	override public function clone ()
-	{
-		return cast new ParallelEffect( duration, delay, easing );
-	}
-	
-	
-	override public function createEffectInstance (target)
-	{
-		return cast new ParallelEffectInstance( target, this );
-	}
-	
-	
-	override private function getCompositeDuration ()
-	{
-		var d = 0;
-		for (effect in effects)
-			d = IntMath.max(d, effect.duration);
-		return d;
-	}
+	public function validate () : Void;
 }

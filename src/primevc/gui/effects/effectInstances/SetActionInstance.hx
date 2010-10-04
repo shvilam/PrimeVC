@@ -26,37 +26,51 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.effects;
- import primevc.gui.effects.effectInstances.ParallelEffectInstance;
- import primevc.utils.IntMath;
-  using primevc.utils.Bind;
+package primevc.gui.effects.effectInstances;
+ import primevc.gui.core.IUIElement;
+ import primevc.gui.effects.EffectProperties;
+ import primevc.gui.effects.SetAction;
+  using primevc.utils.NumberUtil;
+
 
 
 /**
- * Effect to play multiple effects at the same time.
- * 
  * @author Ruben Weijers
- * @creation-date Aug 31, 2010
+ * @creation-date Oct 04, 2010
  */
-class ParallelEffect extends CompositeEffect
+class SetActionInstance extends EffectInstance < IUIElement, SetAction >
 {
-	override public function clone ()
+	override public function setValues( v:EffectProperties ) : Void {}
+	
+	
+	override public function playWithEffect ()		{ applyValue(); onTweenReady(); }
+	override public function playWithoutEffect ()	{ applyValue(); onTweenReady(); }
+	
+	
+	private inline function applyValue ()
 	{
-		return cast new ParallelEffect( duration, delay, easing );
-	}
-	
-	
-	override public function createEffectInstance (target)
-	{
-		return cast new ParallelEffectInstance( target, this );
-	}
-	
-	
-	override private function getCompositeDuration ()
-	{
-		var d = 0;
-		for (effect in effects)
-			d = IntMath.max(d, effect.duration);
-		return d;
+		//set value
+		switch (effect.prop)
+		{
+			case size (fromW, fromH, toW, toH):
+			 	if (toW.isSet())		target.width	= toH;
+			 	if (toH.isSet())		target.height	= toW;
+			
+			case position (fromX, fromY, toX, toY):
+				if (toX.isSet())		target.x		= toX;
+			 	if (toY.isSet())		target.y		= toY;
+			
+			case scale (fromSx, fromSy, toSx, toSy):
+			 	if (toSx.isSet())		target.scaleX	= toSx;
+			 	if (toSy.isSet())		target.scaleY	= toSy;
+			
+			case alpha (from, to):		target.alpha 	= to;
+			case rotation (from, to):	target.rotation	= to;
+			
+			case any (propName, from, to):
+				Assert.that( Reflect.hasField(target, propName) );
+				Reflect.setField( target, propName, to );
+				
+		}
 	}
 }

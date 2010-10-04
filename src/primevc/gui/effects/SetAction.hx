@@ -28,7 +28,7 @@
  */
 package primevc.gui.effects;
  import primevc.gui.core.IUIElement;
-  using primevc.utils.NumberUtil;
+ import primevc.gui.effects.effectInstances.SetActionInstance;
 
 
 /**
@@ -44,52 +44,14 @@ class SetAction extends Effect < IUIElement, SetAction >
 	public var prop : EffectProperties;
 	
 	
-	public function new (target = null, duration:Int = 350, delay:Int = 0, easing:Easing = null, prop:EffectProperties = null)
+	public function new (duration:Int = 350, delay:Int = 0, easing:Easing = null, prop:EffectProperties = null)
 	{
-		super(target, duration, delay, easing);
+		super(duration, delay, easing);
 		this.prop = prop;
 	}
 	
 	
-	override public function clone ()
-	{
-		return new SetAction( target, duration, delay, easing, prop );
-	}
-	
-	
-	override public function setValues (v:EffectProperties) {
-		prop = v;
-	}
-	
-	
-	override private function playWithEffect ()		{ applyValue(); onTweenReady(); }
-	override private function playWithoutEffect ()	{ applyValue(); onTweenReady(); }
-	
-	
-	private inline function applyValue ()
-	{
-		//set value
-		switch (prop)
-		{
-			case size (fromW, fromH, toW, toH):
-			 	if (toW.isSet())		target.width	= toH;
-			 	if (toH.isSet())		target.height	= toW;
-			
-			case position (fromX, fromY, toX, toY):
-				if (toX.isSet())		target.x		= toX;
-			 	if (toY.isSet())		target.y		= toY;
-			
-			case scale (fromSx, fromSy, toSx, toSy):
-			 	if (toSx.isSet())		target.scaleX	= toSx;
-			 	if (toSy.isSet())		target.scaleY	= toSy;
-			
-			case alpha (from, to):		target.alpha 	= to;
-			case rotation (from, to):	target.rotation	= to;
-			
-			case any (propName, from, to):
-				Assert.that( Reflect.hasField(target, propName) );
-				Reflect.setField( target, propName, to );
-				
-		}
-	}
+	override public function setValues (v:EffectProperties)	{ prop = v; }
+	override public function clone ()						{ return cast new SetAction( duration, delay, easing, prop ); }
+	override public function createEffectInstance (target)	{ return cast new SetActionInstance(target, this); }
 }

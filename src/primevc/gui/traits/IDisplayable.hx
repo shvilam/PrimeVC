@@ -28,9 +28,11 @@
  */
 package primevc.gui.traits;
  import primevc.core.IDisposable;
+#if (flash8 || flash9 || js)
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.Window;
  import primevc.gui.events.DisplayEvents;
+#end
 
 
 /**
@@ -39,6 +41,7 @@ package primevc.gui.traits;
  */
 interface IDisplayable implements IDisposable	
 {
+#if (flash8 || flash9 || js)
 	var displayEvents	(default, null)					: DisplayEvents;
 	
 	/**
@@ -50,4 +53,5 @@ interface IDisplayable implements IDisposable
 	 * Wrapper object for the stage.
 	 */
 	var window			(default, setWindow)			: Window;
+#end
 }

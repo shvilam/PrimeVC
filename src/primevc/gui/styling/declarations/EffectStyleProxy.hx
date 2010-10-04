@@ -26,37 +26,84 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.effects;
- import primevc.gui.effects.effectInstances.ParallelEffectInstance;
- import primevc.utils.IntMath;
-  using primevc.utils.Bind;
+package primevc.gui.styling.declarations;
+ import primevc.gui.styling.StyleSheet;
 
 
 /**
- * Effect to play multiple effects at the same time.
+ * Class description
  * 
  * @author Ruben Weijers
- * @creation-date Aug 31, 2010
+ * @creation-date Oct 04, 2010
  */
-class ParallelEffect extends CompositeEffect
+class EffectStyleProxy extends EffectStyleDeclarations
 {
-	override public function clone ()
-	{
-		return cast new ParallelEffect( duration, delay, easing );
+	private var target : StyleSheet;
+	
+	
+	public function new (target:StyleSheet)
+	{	
+		this.target = target;
+		super();
 	}
 	
 	
-	override public function createEffectInstance (target)
+	override private function getMove ()
 	{
-		return cast new ParallelEffectInstance( target, this );
+		var v = super.getMove();
+		for (styleObj in target)
+			if (styleObj.layout != null && null != (v = styleObj.effects.move))
+				break;
+		return v;
 	}
 	
 	
-	override private function getCompositeDuration ()
+	override private function getResize ()
 	{
-		var d = 0;
-		for (effect in effects)
-			d = IntMath.max(d, effect.duration);
-		return d;
+		var v = super.getResize();
+		for (styleObj in target)
+			if (styleObj.layout != null && null != (v = styleObj.effects.resize))
+				break;
+		return v;
+	}
+	
+	
+	override private function getRotate ()
+	{
+		var v = super.getRotate();
+		for (styleObj in target)
+			if (styleObj.layout != null && null != (v = styleObj.effects.rotate))
+				break;
+		return v;
+	}
+	
+	
+	override private function getScale ()
+	{
+		var v = super.getScale();
+		for (styleObj in target)
+			if (styleObj.layout != null && null != (v = styleObj.effects.scale))
+				break;
+		return v;
+	}
+	
+	
+	override private function getShow ()
+	{
+		var v = super.getShow();
+		for (styleObj in target)
+			if (styleObj.layout != null && null != (v = styleObj.effects.show))
+				break;
+		return v;
+	}
+	
+	
+	override private function getHide ()
+	{
+		var v = super.getHide();
+		for (styleObj in target)
+			if (styleObj.layout != null && null != (v = styleObj.effects.hide))
+				break;
+		return v;
 	}
 }

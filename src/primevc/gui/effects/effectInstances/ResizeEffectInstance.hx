@@ -26,59 +26,52 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.effects;
- import primevc.gui.effects.effectInstances.ResizeEffectInstance;
+package primevc.gui.effects.effectInstances;
+ import primevc.gui.effects.EffectProperties;
+ import primevc.gui.effects.ResizeEffect;
  import primevc.gui.traits.ISizeable;
  import primevc.types.Number;
+  using primevc.utils.NumberUtil;
 
 
 /**
- * Animate effect for resizing the width and/or height of the given target.
- * 
  * @author Ruben Weijers
- * @creation-date Aug 31, 2010
+ * @creation-date Oct 04, 2010
  */
-class ResizeEffect extends Effect < ISizeable, ResizeEffect >
+class ResizeEffectInstance extends EffectInstance < ISizeable, ResizeEffect >
 {
 	/**
-	 * Explicit start width value. If this value is not set, the effect will 
-	 * use the current width of the ISizeable.
+	 * Start width value.
 	 * @default		Number.FLOAT_NOT_SET
 	 */
-	public var startW	: Float;
+	private var startW	: Float;
 	/**
-	 * Explicit start height value. If this value is not set, the effect will 
-	 * use the current height of the ISizeable.
+	 * Start height value.
 	 * @default		Number.FLOAT_NOT_SET
 	 */
-	public var startH	: Float;
+	private var startH	: Float;
 	/**
-	 * Explicit width value of the animation at the end.
+	 * Width value of the animation at the end.
 	 * @default		Number.FLOAT_NOT_SET
 	 */
-	public var endW		: Float;
+	private var endW	: Float;
 	/**
-	 * Explicit height value of the animation at the end.
+	 * Height value of the animation at the end.
 	 * @default		Number.FLOAT_NOT_SET
 	 */
-	public var endH		: Float;
+	private var endH	: Float;
 	
 	
-	public function new (duration:Int = 350, delay:Int = 0, easing:Easing = null, startW:Float = Number.INT_NOT_SET, startH:Float = Number.INT_NOT_SET, endW:Float = Number.INT_NOT_SET, endH:Float = Number.INT_NOT_SET)
+	
+	public function new (target, effect)
 	{
-		super(duration, delay, easing);
-		
-		this.startW	= startW == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : startW;
-		this.startH	= startH == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : startH;
-		this.endW	= endW == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : endW;
-		this.endH	= endH == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : endH;
+		super(target, effect);
+		startW = startH = endW = endH = Number.FLOAT_NOT_SET;
 	}
 	
 	
-	override public function clone ()
-	{
-		return cast new ResizeEffect( duration, duration, easing, startW, startH, endW, endH );
-	}
+	private inline function isWChanged () : Bool	{ return endW.isSet() && startW != endW; }
+	private inline function isHChanged () : Bool	{ return endH.isSet() && startH != endH; }
 	
 
 	override public function setValues ( v:EffectProperties ) 
@@ -95,8 +88,31 @@ class ResizeEffect extends Effect < ISizeable, ResizeEffect >
 	}
 	
 	
-	override public function createEffectInstance (target)
+	
+	override private function initStartValues ()
 	{
-		return cast new ResizeEffectInstance(target, this);
+		if (effect.startW.isSet())	startW = effect.startW;
+		else						startW = target.width;
+		if (effect.startH.isSet())	startH = effect.startH;
+		else						startH = target.height;
+	}
+	
+
+	override private function tweenUpdater ( tweenPos:Float )
+	{
+		if (isWChanged())	target.width	= ( endW * tweenPos ) + ( startW * (1 - tweenPos) );
+		if (isHChanged())	target.height	= ( endH * tweenPos ) + ( startH * (1 - tweenPos) );
+	}
+	
+	
+	override private function calculateTweenStartPos () : Float
+	{
+		return if (!isWChanged() && !isHChanged())	1;
+		  else if (!isHChanged())					(target.width  - startW) / (endW - startW);
+		  else if (!isWChanged())					(target.height - startH) / (endH - startH);
+		  else										Math.min(
+				(target.width  - startW) / (endW - startW),
+				(target.height - startH) / (endH - startH)
+			);
 	}
 }

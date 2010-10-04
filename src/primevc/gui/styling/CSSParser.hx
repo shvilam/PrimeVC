@@ -876,12 +876,12 @@ class CSSParser
 			// transition properties
 			//
 			
-		//	case "move-transition":				createEffectsBlock();	// < effect( <duration>ms/s, <ease>, <delay>ms, reverted  ) | other-transition, ... > 
-		//	case "resize-transition":			createEffectsBlock();
-		//	case "rotate-transition":			createEffectsBlock();
-		//	case "scale-transition":			createEffectsBlock();
-		//	case "show-transition":				createEffectsBlock();
-		//	case "hide-transition":				createEffectsBlock();
+			case "move-transition":				parseAndSetMoveTransition( val );	// < effect( <duration>ms/s, <ease>, <delay>ms, reverted  ) | other-transition, ... > 
+			case "resize-transition":			parseAndSetResizeTransition( val );
+			case "rotate-transition":			parseAndSetRotateTransition( val );
+			case "scale-transition":			parseAndSetScaleTransition( val );
+			case "show-transition":				parseAndSetShowTransition( val );
+			case "hide-transition":				parseAndSetHideTransition( val );
 		//	case "transition":		// <property> <animation-name>	property: move, resize, rotate, scale, show, hide
 			
 			
@@ -2759,7 +2759,7 @@ class CSSParser
 	private function parseAndSetVisibility (v:String) : Void
 	{
 		currentBlock.visible = switch (v.trim().toLowerCase()) {
-			default:	null;
+			default:		null;
 			case "visible":	true;
 			case "hidden":	false;
 		}
@@ -2779,6 +2779,16 @@ class CSSParser
 		if (bmp != null)
 			currentBlock.icon = bmp;
 	}
+	
+	
+	
+	
+	
+	//
+	// TRANSITIONS
+	//
+	
+	
 }
 
 

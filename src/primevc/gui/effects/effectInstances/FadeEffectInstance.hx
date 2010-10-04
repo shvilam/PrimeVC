@@ -26,37 +26,70 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.effects;
- import primevc.gui.effects.effectInstances.ParallelEffectInstance;
- import primevc.utils.IntMath;
-  using primevc.utils.Bind;
+package primevc.gui.effects.effectInstances;
+ import primevc.gui.display.IDisplayObject;
+ import primevc.gui.effects.EffectProperties;
+ import primevc.gui.effects.FadeEffect;
+ import primevc.types.Number;
+  using primevc.utils.NumberUtil;
+
 
 
 /**
- * Effect to play multiple effects at the same time.
- * 
  * @author Ruben Weijers
- * @creation-date Aug 31, 2010
+ * @creation-date Oct 04, 2010
  */
-class ParallelEffect extends CompositeEffect
+class FadeEffectInstance extends EffectInstance < IDisplayObject, FadeEffect >
 {
-	override public function clone ()
+	/**
+	 * Start alpha value.
+	 */
+	private var startValue	: Float;
+	/**
+	 * Alpha value of the animation at the end.
+	 */
+	private var endValue	: Float;
+	
+	
+	public function new (newTarget, newEffect)
 	{
-		return cast new ParallelEffect( duration, delay, easing );
+		super(newTarget, newEffect);
+		startValue	= Number.FLOAT_NOT_SET;
+		endValue	= Number.FLOAT_NOT_SET;
 	}
 	
-	
-	override public function createEffectInstance (target)
+
+	override public function setValues ( v:EffectProperties ) 
 	{
-		return cast new ParallelEffectInstance( target, this );
+		switch (v)
+		{
+			case alpha(from, to):
+				startValue	= from;
+				endValue	= to;
+			default:
+				return;
+		}
 	}
 	
-	
-	override private function getCompositeDuration ()
+
+	override private function initStartValues ()
 	{
-		var d = 0;
-		for (effect in effects)
-			d = IntMath.max(d, effect.duration);
-		return d;
+		if		(effect.startValue.isSet())	startValue = effect.startValue;
+		else								startValue = target.alpha;
+		
+		if		(effect.endValue.isSet())	endValue = effect.endValue;
+		else								endValue = 1;
+	}
+
+	
+	override private function tweenUpdater ( tweenPos:Float )
+	{
+		target.alpha = ( endValue * tweenPos ) + ( startValue * ( 1 - tweenPos ) );
+	}
+
+
+	override private function calculateTweenStartPos () : Float
+	{
+		return (target.alpha - startValue) / (endValue - startValue);
 	}
 }
