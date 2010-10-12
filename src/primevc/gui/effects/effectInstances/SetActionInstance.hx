@@ -40,7 +40,20 @@ package primevc.gui.effects.effectInstances;
  */
 class SetActionInstance extends EffectInstance < IUIElement, SetAction >
 {
-	override public function setValues( v:EffectProperties ) : Void {}
+	private var prop : EffectProperties;
+	
+	
+	override public function setValues( v:EffectProperties ) : Void
+	{
+		prop = v;
+	}
+	
+	
+	override private function initStartValues ()
+	{
+		if (effect.prop != null)
+			prop = effect.prop;
+	}
 	
 	
 	override public function playWithEffect ()		{ applyValue(); onTweenReady(); }
@@ -50,7 +63,7 @@ class SetActionInstance extends EffectInstance < IUIElement, SetAction >
 	private inline function applyValue ()
 	{
 		//set value
-		switch (effect.prop)
+		switch (prop)
 		{
 			case size (fromW, fromH, toW, toH):
 			 	if (toW.isSet())		target.width	= toH;

@@ -149,6 +149,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 	{
 		if		(isColor(v))					return Color.string(v);
 		else if (Std.is( v, ICodeFormattable ))	return "cast " + getVar(v);
+		else if (Std.is( v, Reference))			return getReferenceName(v);
 		else if (isUndefinedNumber(v))			return (Std.is( v, Int )) ? "primevc.types.Number.INT_NOT_SET" : "primevc.types.Number.FLOAT_NOT_SET";
 		else if (v == LayoutFlags.FILL)			return "primevc.gui.layout.LayoutFlags.FILL";
 		else if (v == null)						return "null";
@@ -203,6 +204,15 @@ class HaxeCodeGenerator implements ICodeGenerator
 				name += "( " + strParams.join(", ") + " )";
 		}
 		return name;
+	}
+	
+	
+	private inline function getReferenceName (v:Reference) : String
+	{
+		return switch (v) {
+			case func(name):	name;
+			default:			null;
+		}
 	}
 	
 	

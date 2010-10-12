@@ -52,7 +52,7 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	{
 		var v = super.getMove();
 		for (styleObj in target)
-			if (styleObj.layout != null && null != (v = styleObj.effects.move))
+			if (styleObj.effects != null && null != (v = styleObj.effects.move))
 				break;
 		return v;
 	}
@@ -62,7 +62,7 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	{
 		var v = super.getResize();
 		for (styleObj in target)
-			if (styleObj.layout != null && null != (v = styleObj.effects.resize))
+			if (styleObj.effects != null && null != (v = styleObj.effects.resize))
 				break;
 		return v;
 	}
@@ -72,7 +72,7 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	{
 		var v = super.getRotate();
 		for (styleObj in target)
-			if (styleObj.layout != null && null != (v = styleObj.effects.rotate))
+			if (styleObj.effects != null && null != (v = styleObj.effects.rotate))
 				break;
 		return v;
 	}
@@ -82,7 +82,7 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	{
 		var v = super.getScale();
 		for (styleObj in target)
-			if (styleObj.layout != null && null != (v = styleObj.effects.scale))
+			if (styleObj.effects != null && null != (v = styleObj.effects.scale))
 				break;
 		return v;
 	}
@@ -92,7 +92,7 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	{
 		var v = super.getShow();
 		for (styleObj in target)
-			if (styleObj.layout != null && null != (v = styleObj.effects.show))
+			if (styleObj.effects != null && null != (v = styleObj.effects.show))
 				break;
 		return v;
 	}
@@ -102,7 +102,7 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	{
 		var v = super.getHide();
 		for (styleObj in target)
-			if (styleObj.layout != null && null != (v = styleObj.effects.hide))
+			if (styleObj.effects != null && null != (v = styleObj.effects.hide))
 				break;
 		return v;
 	}

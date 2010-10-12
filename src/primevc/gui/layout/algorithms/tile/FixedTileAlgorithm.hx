@@ -425,6 +425,12 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	override public function getDepthForBounds (bounds:IRectangle)
 	{
 		var depth:Int = 0;
+		
+		if (group.children.length == 0 || rows == null)
+			return depth;
+		
+		Assert.notNull( rows, "rows is null; length = " + group.children.length );
+		Assert.notNull( rows.algorithm, "rows.algorithm is null; length = " + group.children.length );
 		var rowNum = rows.algorithm.getDepthForBounds( bounds );
 		if (rowNum < rows.children.length)
 		{

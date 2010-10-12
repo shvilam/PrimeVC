@@ -28,9 +28,15 @@
  */
 package primevc.gui.effects;
  import primevc.core.geom.space.MoveDirection;
- import primevc.gui.display.IDisplayObject;
+ import primevc.gui.display.IDisplayObject;	
+#if (flash8 || flash9 || js)
  import primevc.gui.effects.effectInstances.WipeEffectInstance;
+#end
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.types.Number;
+  using primevc.utils.NumberUtil;
 
 
 /**
@@ -71,5 +77,44 @@ class WipeEffect extends Effect < IDisplayObject, WipeEffect >
 	
 	override public function setValues (v:EffectProperties) {}
 	override public function clone ()						{ return cast new WipeEffect( duration, delay, easing, direction, startValue, endValue ); }
+#if (flash8 || flash9 || js)
 	override public function createEffectInstance (target)	{ return cast new WipeEffectInstance(target, this); }
+#end
+	
+	
+#if (debug || neko)
+	override public function toCSS (prefix:String = "") : String
+	{
+		var props = [];
+		
+		if (duration.isSet())		props.push( duration + "ms" );
+		if (delay.isSet())			props.push( delay + "ms" );
+		if (easing != null)			props.push( easingToCSS() );
+		if (direction != null)		props.push( directionToCSS() );
+		if (startValue.isSet())		props.push( startValue + "px" );
+		if (endValue.isSet())		props.push( endValue + "px" );
+		
+		return "wipe " + props.join(" ");
+	}
+	
+	
+	private function directionToCSS () : String 
+	{
+		return switch (direction) {
+			case MoveDirection.LeftToRight:		"left-to-right";
+			case MoveDirection.RightToLeft:		"right-to-left";
+			case MoveDirection.TopToBottom:		"top-to-bottom";
+			case MoveDirection.BottomToTop:		"bottom-to-top";
+			default:							null;
+		}
+	}
+#end
+
+#if neko
+	override public function toCode (code:ICodeGenerator) : Void
+	{
+		if (!isEmpty())
+			code.construct( this, [ duration, delay, easingToCode(), direction, startValue, endValue ] );
+	}
+#end
 }

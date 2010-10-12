@@ -26,10 +26,16 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.effects;
+package primevc.gui.effects;	
+#if (flash8 || flash9 || js)
  import primevc.gui.effects.effectInstances.MoveEffectInstance;
+#end
  import primevc.gui.traits.IPositionable;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.types.Number;
+  using primevc.utils.NumberUtil;
 
 
 /**
@@ -81,10 +87,12 @@ class MoveEffect extends Effect < IPositionable, MoveEffect >
 	}
 	
 	
-	override public function createEffectInstance (target)
+#if (flash8 || flash9 || js)
+	override public function createEffectInstance (target:IPositionable)
 	{
 		return cast new MoveEffectInstance(target, this);
 	}
+#end
 
 
 	override public function setValues ( v:EffectProperties ) 
@@ -99,4 +107,31 @@ class MoveEffect extends Effect < IPositionable, MoveEffect >
 				return;
 		}
 	}
+	
+	
+#if (debug || neko)
+	override public function toCSS (prefix:String = "") : String
+	{
+		var props = [];
+		
+		if (duration.isSet())		props.push( duration + "ms" );
+		if (delay.isSet())			props.push( delay + "ms" );
+		if (easing != null)			props.push( easingToCSS() );
+		if (startX.isSet())			props.push( startX + "px" );
+		if (startY.isSet())			props.push( startY + "px" );
+		if (endX.isSet())			props.push( endX + "px" );
+		if (endY.isSet())			props.push( endY + "px" );
+		
+		
+		return "move " + props.join(" ");
+	}
+#end
+
+#if neko
+	override public function toCode (code:ICodeGenerator) : Void
+	{
+		if (!isEmpty())
+			code.construct( this, [ duration, delay, easingToCode(), startX, startY, endX, endY ] );
+	}
+#end
 }

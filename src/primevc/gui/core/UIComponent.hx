@@ -38,6 +38,7 @@ package primevc.gui.core;
  import primevc.gui.states.UIElementStates;
 #if flash9
  import primevc.core.geom.constraints.SizeConstraint;
+ import primevc.gui.styling.declarations.EffectStyleDeclarations;
  import primevc.gui.styling.declarations.FilterStyleDeclarations;
  import primevc.gui.styling.declarations.LayoutStyleDeclarations;
  import primevc.gui.styling.declarations.StyleFlags;
@@ -287,11 +288,11 @@ class UIComponent extends Sprite, implements IUIComponent
 			}
 			
 			//read font properties
-			//read effects
 		}
 		
 		applyLayoutStyling( style.getLayout() );
 		applyBoxFilterStyling( style.getBoxFilters() );
+		applyEffectStyling( style.getEffects() );
 	}
 	
 	
@@ -361,6 +362,21 @@ class UIComponent extends Sprite, implements IUIComponent
 		//set new array with filters
 		if (filters.length > 0)
 			this.filters = filters;
+	}
+	
+	
+	private function applyEffectStyling (effectProps:EffectStyleDeclarations) : Void
+	{
+		var show	= effectProps.show;
+		var hide	= effectProps.hide;
+		var scale	= effectProps.scale;
+		var resize	= effectProps.resize;
+		var rotate	= effectProps.rotate;
+		var move	= effectProps.move;
+		
+		if (show != null || hide != null || scale != null || resize != null || rotate != null || move != null)
+			effects = new UIElementEffects(this, effectProps);
+		
 	}
 #end
 	

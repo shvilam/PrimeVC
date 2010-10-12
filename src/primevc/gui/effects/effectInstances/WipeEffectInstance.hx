@@ -66,22 +66,31 @@ class WipeEffectInstance extends EffectInstance < IDisplayObject, WipeEffect >
 	}
 	
 	
+	override public function setValues ( v:EffectProperties ) 
+	{
+		
+	}
+	
+	
 #if flash9
 	override private function initStartValues ()
 	{
 		var t = target;
 		if (t.scrollRect == null)
 			t.scrollRect = new Rectangle( 0, 0, t.width, t.height );
-
+		
 		startValue	= effect.startValue;
-		endValue	= effect.endValue.isSet() ? 0 : effect.endValue;
+		endValue	= effect.endValue;
+		
+		if (endValue.notSet())
+			endValue = 0;
 		
 		if (startValue.notSet() || startValue == effect.endValue)
-			startValue = switch (effect.direction) {
-				case TopToBottom:	 t.scrollRect.height;
-				case BottomToTop:	-t.scrollRect.height;
-				case LeftToRight:	 t.scrollRect.width;
-				case RightToLeft:	-t.scrollRect.width;
+			switch (effect.direction) {
+				case TopToBottom:	startValue =  t.scrollRect.height;
+				case BottomToTop:	startValue = -t.scrollRect.height;
+				case LeftToRight:	startValue =  t.scrollRect.width;
+				case RightToLeft:	startValue = -t.scrollRect.width;
 			}
 	}
 
@@ -90,7 +99,7 @@ class WipeEffectInstance extends EffectInstance < IDisplayObject, WipeEffect >
 	{
 		var rect			= target.scrollRect;
 		var newVal:Float	= ( endValue * tweenPos ) + ( startValue * (1 - tweenPos) );
-
+		
 		switch (effect.direction) {
 			case TopToBottom, BottomToTop:	rect.y = newVal;
 			case LeftToRight, RightToLeft:	rect.x = newVal;
@@ -102,9 +111,10 @@ class WipeEffectInstance extends EffectInstance < IDisplayObject, WipeEffect >
 
 	override private function calculateTweenStartPos () : Float
 	{
-		var curValue:Float = switch (effect.direction) {
-			case TopToBottom, BottomToTop:	target.scrollRect.y;
-			case LeftToRight, RightToLeft:	target.scrollRect.x;
+		var curValue:Float = 0;
+		switch (effect.direction) {
+			case TopToBottom, BottomToTop:	curValue = target.scrollRect.y;
+			case LeftToRight, RightToLeft:	curValue = target.scrollRect.x;
 		}
 
 		return (curValue - startValue) / (endValue - startValue);

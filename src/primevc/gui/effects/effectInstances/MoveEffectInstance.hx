@@ -64,7 +64,7 @@ class MoveEffectInstance extends EffectInstance < IPositionable, MoveEffect >
 	
 	
 	
-	public function new (target, effect)
+	public function new (target:IPositionable, effect:MoveEffect)
 	{
 		super(target, effect);
 		startX = startY = endX = endY = Number.FLOAT_NOT_SET;
@@ -91,10 +91,13 @@ class MoveEffectInstance extends EffectInstance < IPositionable, MoveEffect >
 	
 	override private function initStartValues ()
 	{
-		if (effect.startX.isSet())	startX = effect.startX;
-		else						startX = target.x;
-		if (effect.startY.isSet())	startY = effect.startY;
-		else						startY = target.y;
+		if (effect.startX.isSet())	startX	= effect.startX;
+		else						startX	= target.x;
+		if (effect.startY.isSet())	startY	= effect.startY;
+		else						startY	= target.y;
+		
+		if (endX.notSet())			endX	= effect.endX;
+		if (endY.notSet())			endY	= effect.endY;
 	}
 	
 

@@ -121,7 +121,7 @@ class EffectInstance < TargetType, PropertiesType:IEffect >
 		hideFilters();
 		started.send();
 		
-		if (directly)
+		if (directly || effect.delay <= 0)
 		{
 			if (withEffect)		playWithEffect();
 			else				playWithoutEffect();

@@ -27,8 +27,14 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.effects;
- import primevc.gui.core.IUIElement;
+ import primevc.gui.core.IUIElement;	
+#if (flash8 || flash9 || js)
  import primevc.gui.effects.effectInstances.SetActionInstance;
+#end
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
+  using primevc.utils.NumberUtil;
 
 
 /**
@@ -53,5 +59,65 @@ class SetAction extends Effect < IUIElement, SetAction >
 	
 	override public function setValues (v:EffectProperties)	{ prop = v; }
 	override public function clone ()						{ return cast new SetAction( duration, delay, easing, prop ); }
+#if (flash8 || flash9 || js)
 	override public function createEffectInstance (target)	{ return cast new SetActionInstance(target, this); }
+#end
+	
+	
+#if (debug || neko)
+	override public function toCSS (prefix:String = "") : String
+	{
+		var props = [];
+		
+		if (duration.isSet())		props.push( duration + "ms" );
+		if (delay.isSet())			props.push( delay + "ms" );
+		if (easing != null)			props.push( easingToCSS() );
+		if (prop != null)			props.push( propToCSS() );
+		
+		return "set-action " + props.join(" ");
+	}
+	
+	
+	private function propToCSS () : String
+	{
+		var propStr = switch (prop) 
+		{
+			case alpha(from, to):
+				"alpha(" + from + ", " + to + ")";
+			
+			case any(propName, from, to):
+				"any(" + propName + ", " + from + ", " + to + ")";
+			
+			case position(fromX, fromY, toX, toY):
+				"position(" + fromX + ", " + fromY + ", " + toX + ", " + toY + ")";
+			
+			case rotation(from, to):
+				"rotation(" + from + ", " + to + ")";
+			
+			case scale(fromSx, fromSy, toSx, toSy):
+				"scale(" + fromSx + ", " + fromSy + ", " + toSx + ", " + toSy + ")";
+			
+			case size(fromW, fromH, toW, toH):
+				"size(" + fromW + ", " + fromH + ")";
+			
+			default: "";
+		}
+		
+		return propStr;
+	}
+#end
+
+#if neko
+	override public function isEmpty ()
+	{
+		return false;
+	}
+
+
+	override public function toCode (code:ICodeGenerator) : Void
+	{
+		if (!isEmpty())
+			code.construct( this, [ duration, delay, easingToCode(), prop ] );
+	}
+#end
 }

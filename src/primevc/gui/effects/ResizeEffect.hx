@@ -26,10 +26,16 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.effects;
+package primevc.gui.effects;	
+#if (flash8 || flash9 || js)
  import primevc.gui.effects.effectInstances.ResizeEffectInstance;
+#end
  import primevc.gui.traits.ISizeable;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.types.Number;
+  using primevc.utils.NumberUtil;
 
 
 /**
@@ -95,8 +101,34 @@ class ResizeEffect extends Effect < ISizeable, ResizeEffect >
 	}
 	
 	
+#if (flash8 || flash9 || js)
 	override public function createEffectInstance (target)
 	{
 		return cast new ResizeEffectInstance(target, this);
 	}
+#end
+	
+	
+#if (debug || neko)
+	override public function toCSS (prefix:String = "") : String
+	{
+		var props = [];
+		
+		if (duration.isSet())		props.push( duration + "ms" );
+		if (delay.isSet())			props.push( delay + "ms" );
+		if (easing != null)			props.push( easingToCSS() );
+		if (startW.isSet())			props.push( startW + "px, " + startH + "px" );
+		if (endW.isSet())			props.push( endW + "px, " + endH + "px" );
+		
+		return "resize " + props.join(" ");
+	}
+#end
+
+#if neko
+	override public function toCode (code:ICodeGenerator) : Void
+	{
+		if (!isEmpty())
+			code.construct( this, [ duration, delay, easingToCode(), startW, startH, endW, endH ] );
+	}
+#end
 }

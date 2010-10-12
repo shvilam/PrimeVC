@@ -37,6 +37,20 @@ package primevc.gui.styling;
  import primevc.core.geom.Corners;
  import primevc.core.geom.IntPoint;
  import primevc.core.IDisposable;
+ import primevc.gui.effects.AnchorScaleEffect;
+ import primevc.gui.effects.CompositeEffect;
+ import primevc.gui.effects.Easing;
+ import primevc.gui.effects.EffectProperties;
+ import primevc.gui.effects.FadeEffect;
+ import primevc.gui.effects.IEffect;
+ import primevc.gui.effects.MoveEffect;
+ import primevc.gui.effects.ParallelEffect;
+ import primevc.gui.effects.ResizeEffect;
+ import primevc.gui.effects.RotateEffect;
+ import primevc.gui.effects.ScaleEffect;
+ import primevc.gui.effects.SequenceEffect;
+ import primevc.gui.effects.SetAction;
+ import primevc.gui.effects.WipeEffect;
  import primevc.gui.filters.BevelFilter;
  import primevc.gui.filters.BitmapFilterType;
  import primevc.gui.filters.BlurFilter;
@@ -136,16 +150,17 @@ class CSSParser
 	
 	public static inline var R_SIMPLE_UNIT_VALUE	: String = R_FLOAT_VALUE + "[%a-z]+";			//matches floating points with a posible unit (flash player will crash if we make the search complexer...)
 	
+//	public static inline var R_ZERO_VALUE			: String = "((?![1-9]+)0)|(^0)"; // "[^1-9]+0|(?:(\\s|^)0)"; //"((" + R_SPACE_MUST + "|^)0)";
 	public static inline var R_INT_VALUE			: String = "([-]?[0-9]+)";
 	public static inline var R_FLOAT_VALUE			: String = "([-]?(([0-9]*[.][0-9]{1,3})|[0-9]+))";
-	public static inline var R_INT_UNIT_VALUE		: String = "(0|(" + R_INT_VALUE + R_UNITS + "))";
-	public static inline var R_FLOAT_UNIT_VALUE		: String = "(0|(" + R_FLOAT_VALUE + R_UNITS + "))";
-	public static inline var R_PERC_VALUE			: String = "(" + R_FLOAT_VALUE + "%)";
+	public static inline var R_INT_UNIT_VALUE		: String = "((" + R_INT_VALUE + R_UNITS + "))"; //"((" + R_INT_VALUE + R_UNITS + ")|" + R_ZERO_VALUE + ")";
+	public static inline var R_FLOAT_UNIT_VALUE		: String = "((" + R_FLOAT_VALUE + R_UNITS + "))"; //"((" + R_FLOAT_VALUE + R_UNITS + ")|" + R_ZERO_VALUE + ")";
+	public static inline var R_PERC_VALUE			: String = "((" + R_FLOAT_VALUE + "%))";
 	public static inline var R_FLOAT_GROUP_VALUE	: String = R_FLOAT_UNIT_VALUE + "(" + R_SPACE_MUST + R_FLOAT_UNIT_VALUE + ")?(" + R_SPACE_MUST + R_FLOAT_UNIT_VALUE + ")?(" + R_SPACE_MUST + R_FLOAT_UNIT_VALUE + ")?";
 	public static inline var R_POINT_VALUE			: String = R_FLOAT_UNIT_VALUE + R_SPACE + "," + R_SPACE + R_FLOAT_UNIT_VALUE;
 	
 	public static inline var R_SIMPLE_GRADIENT_COLOR: String = "(" + R_COLOR_EXPR + ")(" + R_SPACE_MUST + R_SIMPLE_UNIT_VALUE + ")?";
-	public static inline var R_GRADIENT_COLOR		: String = "(" + R_COLOR_EXPR + ")(" + R_SPACE_MUST + "(0|" + R_FLOAT_UNIT_VALUE + "|" + R_PERC_VALUE + "))?";
+	public static inline var R_GRADIENT_COLOR		: String = "(" + R_COLOR_EXPR + ")(" + R_SPACE_MUST + "(" + R_FLOAT_UNIT_VALUE + "|" + R_PERC_VALUE + ")|0)?";
 	public static inline var R_GRADIENT_SPREAD		: String = "pad|reflect|repeat";
 	
 	public static inline var R_DOMAIN_LABEL			: String = "[a-z]([a-z0-9-]*[a-z0-9])?";
@@ -183,7 +198,7 @@ class CSSParser
 	 * Greedy stupid URI/file matcher
 	 * R_URI_EXPR took to much time
 	 */
-	public static inline var R_URI_PRETENDER		: String = "['\"]?([a-z0-9/&%.#+=\\;:$@?_-]+)['\"]?";
+	public static inline var R_URI_PRETENDER		: String = "['\"]?([/a-z0-9/&%.#+=\\;:$@?_-]+)['\"]?";
 	public static inline var R_FILE_EXPR			: String = R_URI_PATH;
 	
 	
@@ -200,6 +215,12 @@ class CSSParser
 	public static inline var R_POSITIONS			: String = "(top[-]" + R_HOR_DIR + "|middle[-](left|right)|bottom[-]" + R_HOR_DIR + "|(" + R_POINT_VALUE + "))";
 	
 	public static inline var R_COMMA				: String = R_SPACE + "," + R_SPACE;
+	
+	public static inline var R_TIME_MS				: String = "([1-9][0-9]*)ms";
+	public static inline var R_EASING				: String = "(back|bounce|circ|cubic|elastic|expo|linear|quad|quart|quint|sine)[-]((in[-]out)|in|out)";
+	
+	
+	
 	
 	public var blockExpr				(default, null) : EReg;
 	public var blockNameExpr			(default, null) : EReg;
@@ -250,6 +271,22 @@ class CSSParser
 	public var filterKnockoutExpr		(default, null) : EReg;
 	public var filterQualityExpr		(default, null) : EReg;
 	public var filterTypeExpr			(default, null) : EReg;
+	
+	public var anchorScaleEffExpr		(default, null) : EReg;
+	public var fadeEffExpr				(default, null) : EReg;
+	public var moveEffExpr				(default, null) : EReg;
+	public var parallelEffExpr			(default, null) : EReg;
+	public var resizeEffExpr			(default, null) : EReg;
+	public var rotateEffExpr			(default, null) : EReg;
+	public var scaleEffExpr				(default, null) : EReg;
+	public var sequenceEffExpr			(default, null) : EReg;
+	public var setActionEffExpr			(default, null) : EReg;
+	public var wipeEffExpr				(default, null) : EReg;
+	
+	public var effectChildrenExpr		(default, null) : EReg;
+	
+	public var easingExpr				(default, null) : EReg;
+	public var timingExpr				(default, null) : EReg;
 	
 	
 	
@@ -424,10 +461,95 @@ class CSSParser
 		
 		filterBlurExpr		= new EReg(R_FLOAT_UNIT_VALUE + R_SPACE_MUST + R_FLOAT_UNIT_VALUE, "i");		//1 = prop1 ( 3 = val, 6 = unit ), 8 = prop2 ( 10 = val, 13 = unit )
 		filterInnerExpr		= new EReg("inner", "i");
-		filterHideExpr		= new EReg("hide[-]object", "i");
+		filterHideExpr		= new EReg("hide-object", "i");
 		filterKnockoutExpr	= new EReg("knockout", "i");
 		filterQualityExpr	= new EReg("(low|medium|high)", "i");
 		filterTypeExpr		= new EReg("(inner|outer|full)", "i");
+		
+		
+		
+		easingExpr	= new EReg(R_EASING, "i");
+		timingExpr	= new EReg(R_TIME_MS, "i");
+		
+		//parameters for a effect with 2 or 4 float-unit parameters
+		var effectFloatGroupParams = 
+			  "("
+			+		R_SPACE + R_POINT_VALUE					//start pos x = 3, y = 9
+			+		R_SPACE_MUST + R_POINT_VALUE			//end pos x = 15, y = 21
+			+ ")|("
+			+		R_SPACE + R_POINT_VALUE					//end pos x = 28, y = 34
+			+ ")";
+		
+		var fadeParams = 
+			  "("
+			+ 		R_SPACE + R_PERC_VALUE					//start-alpha = 3
+			+		R_SPACE_MUST + R_PERC_VALUE				//end-alpha = 8
+			+  ")|("
+			+		R_SPACE + R_PERC_VALUE					//end-alpha = 14
+			+  ")";
+		
+		var rotateParams = 
+			  "("
+			+		R_SPACE + "(" + R_ROTATION + ")"		//start-rotation = 3
+			+		R_SPACE_MUST + "(" + R_ROTATION + ")"	//end-rotation = 7
+			+ ")|("
+			+		R_SPACE + R_ROTATION					//end-rotation = 10
+			+ ")";
+		
+		var scaleParams = 
+			  "("
+			+		R_SPACE + R_PERC_VALUE					// start-scaleX	= 3
+			+		R_SPACE + "," + R_SPACE + R_PERC_VALUE	// start-scaleY	= 8
+			+		R_SPACE_MUST + R_PERC_VALUE				// end-scaleX	= 13
+			+		R_SPACE + "," + R_SPACE + R_PERC_VALUE	// end-scaleY	= 18
+			+ ")|("
+			+		R_SPACE + R_PERC_VALUE					// end-scaleX	= 24
+			+		R_SPACE + "," + R_SPACE + R_PERC_VALUE	// end-scaleY	= 29
+			+ ")";
+		
+		anchorScaleEffExpr = new EReg(
+			  "^anchor-scale"
+			+	"(" + R_SPACE_MUST + R_POSITIONS + ")?"		// position		= 2
+			+	"(" + R_SPACE_MUST + R_PERC_VALUE + ")?"	// end-scaleX	= 20
+			+	"(" + R_SPACE_MUST + R_PERC_VALUE + ")?"	// end-scaleY	= 25
+			, "i");
+		
+		fadeEffExpr		= new EReg("^fade(" + R_SPACE_MUST + fadeParams + ")?" , "i");
+		moveEffExpr		= new EReg("^move(" + R_SPACE_MUST + effectFloatGroupParams + ")?", "i");
+		resizeEffExpr	= new EReg("^resize(" + R_SPACE_MUST + effectFloatGroupParams + ")?", "i");
+		rotateEffExpr	= new EReg("^rotate(" + R_SPACE_MUST + rotateParams + ")?", "i" );
+		scaleEffExpr	= new EReg("^scale(" + R_SPACE_MUST + scaleParams + ")?", "i");
+		
+		wipeEffExpr = new EReg(
+			  "^wipe"
+			+	"(" + R_SPACE_MUST + R_DIRECTIONS + ")?"		// direction	= 1
+			+	"(" + R_SPACE_MUST + R_FLOAT_UNIT_VALUE + ")?"	// end-scaleX	= 19
+			+	"(" + R_SPACE_MUST + R_FLOAT_UNIT_VALUE + ")?"	// end-scaleY	= 26
+			, "i");
+		
+		setActionEffExpr = new EReg ( 
+			  "^set-action" + R_SPACE + "("
+			+	"("
+			+		"alpha" + R_SPACE + "[(](" + fadeParams + ")" + R_SPACE + "[)]"
+			+	")|("
+			+		"position" + R_SPACE + "[(](" + effectFloatGroupParams + ")" + R_SPACE + "[)]"
+			+	")|("
+			+		"rotation" + R_SPACE + "[(](" + rotateParams + ")" + R_SPACE + "[)]"
+			+	")|("
+			+		"size" + R_SPACE + "[(](" + effectFloatGroupParams + ")" + R_SPACE + "[)]"
+			+	")|("
+			+		"scale" + R_SPACE + "[(](" + scaleParams + ")" + R_SPACE + "[)]"
+			+	")|("
+			+		"any" + R_SPACE + "[(]" + R_SPACE + "([a-z][a-z0-9_+.-]*)" + R_SPACE + "," + R_SPACE + "([a-z0-9_+.-]+)(" + R_SPACE + "," + R_SPACE + "([a-z0-9_+.-]+))?" + R_SPACE + "[)]"
+			+	")"
+			+ ")?"
+			, "i" );
+		
+		
+		sequenceEffExpr = new EReg( "^sequence([^(]*)[(](.+)[)]", "i" );
+		parallelEffExpr = new EReg( "^parallel([^(]*)[(]([^)]+)[)]", "i" );
+		
+		effectChildrenExpr	= new EReg( "([a-z0-9 \\t_+%#.-]+([(]([^)]*|(?1))[)])?)("+R_SPACE+"[,]"+R_SPACE+")?", "i");
 	}
 	
 	
@@ -1060,21 +1182,22 @@ class CSSParser
 	 */
 	private inline function parseInt (v:String) : Int
 	{
-		return (isInt(v)) ? getInt( intValExpr.matched(1) ) : Number.INT_NOT_SET;
+		return (v != null && isInt(v)) ? getInt( intValExpr.matched(1) ) : Number.INT_NOT_SET;
 	}
 	
 	
 	private inline function parseFloat (v:String) : Float
 	{
-		return (isFloat(v)) ? getFloat( floatValExpr.matched(1) ) : Number.FLOAT_NOT_SET;
+		return (v != null && isFloat(v)) ? getFloat( floatValExpr.matched(1) ) : Number.FLOAT_NOT_SET;
 	}
 	
 	
 	private inline function parseUnitInt (v:String) : Int
 	{
 		var n = Number.INT_NOT_SET;
-		if (isUnitInt(v))
+		if (v != null && isUnitInt(v))
 			n = getInt( floatUnitValExpr.matched(3) );
+		//	trace(floatUnitValExpr.resultToString(7));
 		
 		return n;
 	}
@@ -1083,8 +1206,9 @@ class CSSParser
 	private inline function parseUnitFloat(v:String) : Float
 	{
 		var n = Number.FLOAT_NOT_SET;
-		if (isUnitFloat(v))
+		if (v != null && isUnitFloat(v))
 			n = getFloat( floatUnitValExpr.matched(3) );
+		//	trace(floatUnitValExpr.resultToString(7));
 		
 		return n;
 	}
@@ -1092,7 +1216,7 @@ class CSSParser
 	
 	private inline function parsePercentage (v:String) : Float
 	{
-		return (isPercentage(v)) ? getFloat( percValExpr.matched(2) ) : Number.FLOAT_NOT_SET;
+		return (v != null && isPercentage(v)) ? getFloat( percValExpr.matched(3) ) : Number.FLOAT_NOT_SET;
 	}
 	
 	
@@ -1111,7 +1235,15 @@ class CSSParser
 	
 	private inline function parseAngle (v:String) : Float
 	{
-		return (angleExpr.match(v)) ? getFloat( angleExpr.matched(1) ) : Number.FLOAT_NOT_SET;
+		var n = Number.FLOAT_NOT_SET;
+		
+	//	trace("parseAngle "+v);
+		if (v != null && angleExpr.match(v)) {
+			n = getFloat( angleExpr.matched(1) );
+	//		trace(angleExpr.resultToString(4));
+		}
+		
+		return n;
 	}
 
 
@@ -1129,8 +1261,8 @@ class CSSParser
 	
 	private inline function isInt (v:String)				: Bool		{ return intValExpr.match(v); }
 	private inline function isFloat (v:String)				: Bool		{ return floatValExpr.match(v); }
-	private inline function isUnitInt (v:String)			: Bool		{ return floatUnitValExpr.match(v) && floatUnitValExpr.matched(3) != null; }
-	private inline function isUnitFloat (v:String)			: Bool		{ return floatUnitValExpr.match(v) && floatUnitValExpr.matched(3) != null; }
+	private inline function isUnitInt (v:String)			: Bool		{ return floatUnitValExpr.match(v) && floatUnitValExpr.matched(1) != null; }
+	private inline function isUnitFloat (v:String)			: Bool		{ return floatUnitValExpr.match(v) && floatUnitValExpr.matched(1) != null; }
 	private inline function isPercentage (v:String)			: Bool		{ return percValExpr.match(v); }
 	private inline function isColor (v:String)				: Bool		{ return v.trim().toLowerCase() != "inherit" && colorValExpr.match(v); }
 	private inline function isAngle (v:String)				: Bool		{ return angleExpr.match(v); }
@@ -1177,41 +1309,36 @@ class CSSParser
 	
 	private inline function parseDirection (v:String) : Direction
 	{
-		return switch (v) {
+		return v == null ? null : switch (v.trim().toLowerCase()) {
 			default:			Direction.horizontal;
 			case "vertical":	Direction.vertical;
-			case null:			null;
 		}
 	}
 	
 	
 	private inline function parseHorDirection (v:String) : Horizontal
 	{
-		return switch (v) {
+		return v == null ? null : switch (v.trim().toLowerCase()) {
 			default:		Horizontal.left;
 			case "center":	Horizontal.center;
 			case "right":	Horizontal.right;
-			case null:		null;
 		}
 	}
 
 
 	private inline function parseVerDirection (v:String) : Vertical
 	{
-		return switch (v) {
+		return v == null ? null : switch (v.trim().toLowerCase()) {
 			default:		Vertical.top;
 			case "center":	Vertical.center;
 			case "bottom":	Vertical.bottom;
-			case null:		null;
 		}
 	}
 	
 	
 	private inline function parsePosition (v:String) : Position
 	{
-		trace("parsePosition "+v);
-		return switch (v) {
-			case null:				null;
+		return v == null ? null : switch (v.trim().toLowerCase()) {
 			case "top-left":		Position.TopLeft;
 			case "top-center":		Position.TopCenter;
 			case "top-right":		Position.TopRight;
@@ -1222,6 +1349,18 @@ class CSSParser
 			case "bottom-center":	Position.BottomCenter;
 			case "bottom-right":	Position.BottomRight;
 			default:				Position.Custom( parseIntPoint(v) );
+		}
+	}
+	
+	
+	private inline function parseMoveDirection (v:String) : MoveDirection
+	{
+		return v == null ? null : switch (v.trim().toLowerCase()) {
+			default:				MoveDirection.TopToBottom;
+			case "top-to-bottom":	MoveDirection.TopToBottom;
+			case "bottom-to-top":	MoveDirection.BottomToTop;
+			case "left-to-right":	MoveDirection.LeftToRight;
+			case "right-to-left":	MoveDirection.RightToLeft;
 		}
 	}
 	
@@ -2785,10 +2924,486 @@ class CSSParser
 	
 	
 	//
+	// EFFECTS
+	//
+	
+	
+	private function isEffect (v:String) : Bool
+	{
+		return anchorScaleEffExpr.match(v)
+			|| fadeEffExpr.match(v)
+			|| moveEffExpr.match(v)
+			|| resizeEffExpr.match(v)
+			|| rotateEffExpr.match(v)
+			|| scaleEffExpr.match(v)
+			|| wipeEffExpr.match(v)
+			|| parallelEffExpr.match(v)
+			|| sequenceEffExpr.match(v);
+	}
+	
+	
+	private function parseEasing (v:String) : Easing
+	{
+		var easing : Easing = null;
+		if (easingExpr.match(v))
+		{
+			var e : Dynamic = switch (easingExpr.matched(1).toLowerCase())
+			{
+				case "back":	cast feffects.easing.Back;		// trace(easingExpr.matched(1).toLowerCase());
+				case "bounce":	cast feffects.easing.Bounce;	// trace(easingExpr.matched(1).toLowerCase());
+				case "circ":	cast feffects.easing.Circ;		// trace(easingExpr.matched(1).toLowerCase());
+				case "cubic":	cast feffects.easing.Cubic;		// trace(easingExpr.matched(1).toLowerCase());
+				case "elastic":	cast feffects.easing.Elastic;	// trace(easingExpr.matched(1).toLowerCase());
+				case "expo":	cast feffects.easing.Expo;		// trace(easingExpr.matched(1).toLowerCase());
+				case "linear":	cast feffects.easing.Linear;	// trace(easingExpr.matched(1).toLowerCase());
+				case "quad":	cast feffects.easing.Quad;		// trace(easingExpr.matched(1).toLowerCase());
+				case "quart":	cast feffects.easing.Quart;		// trace(easingExpr.matched(1).toLowerCase());
+				case "quint":	cast feffects.easing.Quint;		// trace(easingExpr.matched(1).toLowerCase());
+				case "sine":	cast feffects.easing.Sine;		// trace(easingExpr.matched(1).toLowerCase());
+				default:		null;
+			}
+			
+			if (e != null)
+			{
+				easing = switch (easingExpr.matched(2).toLowerCase()) {
+					case "in":	e.easeIn;
+					case "out":	e.easeOut;
+					default:	e.easeInOut;
+				}
+			}
+		}
+		
+		return easing;
+	}
+	
+	
+	private function getEasingName (v:String ) : String
+	{
+		return v != null && easingExpr.match(v) ? easingExpr.matched(0).toLowerCase() : null;
+	}
+	
+	
+	private function removeEffectFromParamStr (v:String) : String
+	{
+		if (v == null)
+			return null;
+		
+		v = easingExpr.removeMatch(v);
+		v = timingExpr.removeMatch(v);
+		v = timingExpr.removeMatch(v);
+		
+		if (lastUsedEffectExpr != null)
+			v = lastUsedEffectExpr.removeMatch(v);
+		
+		return v;
+	}
+	
+	
+	private function parseEffectChildren (params:String, effect:CompositeEffect)
+	{
+		while (true)
+		{
+			if (!effectChildrenExpr.match(params))
+				break;
+			
+			params = effectChildrenExpr.removeMatch(params);
+			var cEffect = parseEffect( effectChildrenExpr.matched(1).trim() );
+			if (cEffect != null)
+				effect.add(cEffect);
+		}
+		
+		return effect;
+	}
+	
+	
+	/**
+	 * Reference to the EReg object that has matched the last effect. This
+	 * is used to remove the effect from the string without the need of 
+	 * returning the string.
+	 */
+	private var lastUsedEffectExpr : EReg;
+	
+	/**
+	 * Method to match the correct effect and create an effect-object from the
+	 * given parameters.
+	 * 
+	 * Every effect has it's own parameters, but can also have the following
+	 * general parameters:
+	 * 		- duration (ms)
+	 * 		- 'delay ( duration ms )'
+	 * 		- easing
+	 * 
+	 * Possible easing values (In / Out / InOut):
+	 * 		Back / Bounce / Circ / Cubic / Elastic / Expo / Linear / Quad / Quart / Quint / Sine
+	 */
+	private function parseEffect (v:String) : EffectType
+	{
+		var effect : EffectType	= null;
+		
+		if (v == "" || v == null)
+			return effect;
+		
+		//
+		// FIRST TRY TO MATCH COMPOSITE EFFECTS
+		//
+		
+		
+		
+		//match parallel effect		('parallel ( comma seperated list of effects )')
+		if (parallelEffExpr.match(v))
+		{
+		//	trace("PARALLEL MATCH FOR "+v);
+			trace(parallelEffExpr.resultToString(2));
+			var	tmpEffect = parseEffectChildren( parallelEffExpr.matched(2), new ParallelEffect() );
+			
+			if (tmpEffect.effects.length > 0)
+				effect = tmpEffect;
+			
+			parallelEffExpr.match(v);	//match the current str again...
+			v = parallelEffExpr.matched(1);
+			lastUsedEffectExpr = parallelEffExpr;
+		}
+		
+		
+		
+		//match sequence effect		('sequence ( comma seperated list of effects )')
+		else if (sequenceEffExpr.match(v))
+		{
+		//	trace("SEQUENCE MATCH FOR "+v);
+			var	tmpEffect = parseEffectChildren( sequenceEffExpr.matched(2), new SequenceEffect() );
+			
+			if (tmpEffect.effects.length > 0)
+				effect = tmpEffect;
+			
+			sequenceEffExpr.match(v);	//match the current str again...
+			v = sequenceEffExpr.matched(1);
+			lastUsedEffectExpr = sequenceEffExpr;
+		}
+		
+		
+		
+		//
+		// TRY TO MATCH DEFAULT EFFECT PARAMETERS
+		//
+		
+		var duration : Int	= Number.INT_NOT_SET;
+		var delay : Int		= Number.INT_NOT_SET;
+		var easing : Easing	= parseEasing(v);
+		var easingName		= getEasingName(v);
+		
+	//	trace("testing str = "+v);
+		
+		//remove easing
+		if (easing != null)
+			v = easingExpr.removeMatch(v);
+		
+		//parse duration
+		if (timingExpr.match(v)) {
+			duration = getInt( timingExpr.matched(1) );
+			v = timingExpr.removeMatch(v);
+		}
+		
+		//parse delay
+		if (timingExpr.match(v)) {
+			delay = getInt( timingExpr.matched(1) );
+			v = timingExpr.removeMatch(v);
+		}
+		
+		
+		if (effect != null) {
+			if (easing != null)		effect.easing	= easing;
+			if (duration.isSet())	effect.duration	= duration;
+			if (delay.isSet())		effect.delay	= delay;
+		}
+		
+		
+		//
+		// THEN TRY TO MATCH THE OTHER EFFECT TYPES
+		//
+		
+		//match anchorScale effect	(end-scaleX, end-scaleY, anchorPoint)
+		else if (anchorScaleEffExpr.match(v))
+		{
+		//	trace(anchorScaleEffExpr.resultToString(40));
+			var start	= parsePercentage( anchorScaleEffExpr.matched(20) );
+			var end		= parsePercentage( anchorScaleEffExpr.matched(25) );
+			
+			if (start.isSet())		start	/= 100;
+			if (end.isSet())		end		/= 100;
+			
+			effect = new AnchorScaleEffect ( duration, delay, easing, parsePosition( anchorScaleEffExpr.matched(2) ), start, end );
+			lastUsedEffectExpr = anchorScaleEffExpr;
+		}
+		
+		
+		
+		//match fade effect			(start-alpha, end-alpha)
+		else if (fadeEffExpr.match(v))
+		{
+		//	trace(fadeEffExpr.resultToString(40));
+			var start	= fadeEffExpr.matched(2) != null ? parsePercentage( fadeEffExpr.matched(3) ) : Number.FLOAT_NOT_SET;
+			var end		= fadeEffExpr.matched(2) != null ? parsePercentage( fadeEffExpr.matched(8) ) : parsePercentage( fadeEffExpr.matched(13) );
+			
+			if (start.isSet())		start	/= 100;
+			if (end.isSet())		end		/= 100;
+			
+			effect = new FadeEffect ( duration, delay, easing, start, end );
+			lastUsedEffectExpr = fadeEffExpr;
+		}
+		
+		
+		
+		//match move effect			(startX, startY, endX, endY)
+		else if (moveEffExpr.match(v))
+		{
+		//	trace(moveEffExpr.resultToString(40));
+			var startX	= moveEffExpr.matched(2) != null ? parseUnitFloat( moveEffExpr.matched(3) )		: Number.FLOAT_NOT_SET;
+			var startY	= moveEffExpr.matched(2) != null ? parseUnitFloat( moveEffExpr.matched(9) )		: Number.FLOAT_NOT_SET;
+			var endX	= moveEffExpr.matched(2) != null ? parseUnitFloat( moveEffExpr.matched(15) )	: parseUnitFloat( moveEffExpr.matched(28) );
+			var endY	= moveEffExpr.matched(2) != null ? parseUnitFloat( moveEffExpr.matched(21) )	: parseUnitFloat( moveEffExpr.matched(34) );
+			effect		= new MoveEffect ( duration, delay, easing, startX, startY, endX, endY );
+			lastUsedEffectExpr = moveEffExpr;
+		}
+		
+		
+		//match resize effect		(start-width, start-height, end-width, end-height)
+		else if (resizeEffExpr.match(v))
+		{
+		//	trace(resizeEffExpr.resultToString(40));
+			var startW	= resizeEffExpr.matched(2) != null ? parseUnitFloat( resizeEffExpr.matched(3) )		: Number.FLOAT_NOT_SET;
+			var startH	= resizeEffExpr.matched(2) != null ? parseUnitFloat( resizeEffExpr.matched(9) )		: Number.FLOAT_NOT_SET;
+			var endW	= resizeEffExpr.matched(2) != null ? parseUnitFloat( resizeEffExpr.matched(15) )	: parseUnitFloat( resizeEffExpr.matched(28) );
+			var endH	= resizeEffExpr.matched(2) != null ? parseUnitFloat( resizeEffExpr.matched(21) )	: parseUnitFloat( resizeEffExpr.matched(34) );
+			effect		= new ResizeEffect ( duration, delay, easing, startW, startH, endW, endH );
+			lastUsedEffectExpr = resizeEffExpr;
+		}
+		
+		
+		
+		//match rotate effect		(start-value, end-value)
+		else if (rotateEffExpr.match(v))
+		{
+		//	trace(rotateEffExpr.resultToString(13));
+			var start	= rotateEffExpr.matched(2) != null ? parseAngle( rotateEffExpr.matched(3) ) : Number.FLOAT_NOT_SET;
+			var end		= rotateEffExpr.matched(2) != null ? parseAngle( rotateEffExpr.matched(7) ) : parseAngle( rotateEffExpr.matched(11) );
+			effect		= new RotateEffect ( duration, delay, easing, start, end );
+			lastUsedEffectExpr = rotateEffExpr;
+		}
+		
+		
+		
+		//match scale effect		(start-scaleX, start-scaleY, end-scaleX, end-scaleY)
+		else if (scaleEffExpr.match(v))
+		{
+		//	trace(scaleEffExpr.resultToString(34));
+			var startX	= scaleEffExpr.matched(2) != null ? parsePercentage( scaleEffExpr.matched(3) ) : Number.FLOAT_NOT_SET;
+			var startY	= scaleEffExpr.matched(2) != null ? parsePercentage( scaleEffExpr.matched(8) ) : Number.FLOAT_NOT_SET;
+			var endX	= scaleEffExpr.matched(2) != null ? parsePercentage( scaleEffExpr.matched(13) ) : parsePercentage( scaleEffExpr.matched(24) );
+			var endY	= scaleEffExpr.matched(2) != null ? parsePercentage( scaleEffExpr.matched(18) ) : parsePercentage( scaleEffExpr.matched(29) );
+			
+			if (startX.isSet())		startX	/= 100;
+			if (startY.isSet())		startY	/= 100;
+			if (endX.isSet())		endX	/= 100;
+			if (endY.isSet())		endY	/= 100;
+			
+			effect		= new ScaleEffect ( duration, delay, easing, startX, startY, endX, endY );
+			lastUsedEffectExpr = scaleEffExpr;
+		}
+		
+		
+		
+		//match wipe effect			(direction, start-value, end-value)
+		else if (wipeEffExpr.match(v))
+		{
+		//	trace(wipeEffExpr.resultToString(17));
+			var direction	= parseMoveDirection( wipeEffExpr.matched(1) );
+			var start		= wipeEffExpr.matched(10) != null ? parseUnitFloat( wipeEffExpr.matched(4) ) : Number.FLOAT_NOT_SET;
+			var end			= wipeEffExpr.matched(10) != null ? parseUnitFloat( wipeEffExpr.matched(11) ) : parseUnitFloat( wipeEffExpr.matched(4) );
+			effect			= new WipeEffect ( duration, delay, easing, direction, start, end );
+			lastUsedEffectExpr = wipeEffExpr;
+		}
+		
+		
+		
+		//match set-action effect		(size | position | scale | rotation | alpha | any)
+		else if (setActionEffExpr.match(v))
+		{
+			var props = parseEffectProperties(v);
+			effect = new SetAction( duration, delay, easing, props );
+			lastUsedEffectExpr = setActionEffExpr;
+		}
+				
+		
+#if neko
+		if (effect != null)
+			effect.easingName = easingName;
+#end
+		
+	//	trace("p effect2 = "+effect);
+		
+		return effect;
+	}
+	
+	
+	
+	
+	
+	
+	private function parseEffectProperties (v:String) : EffectProperties
+	{
+		if (!setActionEffExpr.match(v)) {
+			trace("no effect property match");
+			return null;
+		}
+		
+		var props : EffectProperties = null;
+	//	trace(setActionEffExpr.resultToString(155));
+		
+		
+		
+		// alpha
+		if (setActionEffExpr.matched(2) != null)
+		{
+			var start	= setActionEffExpr.matched(4) != null ? parsePercentage( setActionEffExpr.matched(5) ) : Number.FLOAT_NOT_SET;
+			var end		= setActionEffExpr.matched(4) != null ? parsePercentage( setActionEffExpr.matched(10) ) : parsePercentage( setActionEffExpr.matched(15) );
+			
+			if (start.isSet())		start	/= 100;
+			if (end.isSet())		end		/= 100;
+			
+			if (start.isSet() || end.isSet())
+				props = EffectProperties.alpha( start, end );
+		}
+		
+		//position
+		if (setActionEffExpr.matched(21) != null)
+		{
+			var startX	= setActionEffExpr.matched(23) != null ? parseUnitFloat( setActionEffExpr.matched(24) )	: Number.FLOAT_NOT_SET;
+			var startY	= setActionEffExpr.matched(23) != null ? parseUnitFloat( setActionEffExpr.matched(30) )	: Number.FLOAT_NOT_SET;
+			var endX	= setActionEffExpr.matched(23) != null ? parseUnitFloat( setActionEffExpr.matched(36) )	: parseUnitFloat( setActionEffExpr.matched(49) );
+			var endY	= setActionEffExpr.matched(23) != null ? parseUnitFloat( setActionEffExpr.matched(42) )	: parseUnitFloat( setActionEffExpr.matched(55) );
+			
+			if (startX.isSet() || startY.isSet() || endX.isSet() || endY.isSet())
+				props = EffectProperties.position( startX, startY, endX, endY );
+		}
+		
+		//rotation
+		if (setActionEffExpr.matched(61) != null)
+		{
+			var start	= setActionEffExpr.matched(63) != null ? parseAngle( setActionEffExpr.matched(64) ) : Number.FLOAT_NOT_SET;
+			var end		= setActionEffExpr.matched(63) != null ? parseAngle( setActionEffExpr.matched(68) ) : parseAngle( setActionEffExpr.matched(72) );
+			
+			if (start.isSet() || end.isSet())
+				props = EffectProperties.rotation( start, end );
+		}
+		
+		//size
+		if (setActionEffExpr.matched(76) != null)
+		{
+			var startW	= setActionEffExpr.matched(78) != null ? parseUnitFloat( setActionEffExpr.matched(79) )	: Number.FLOAT_NOT_SET;
+			var startH	= setActionEffExpr.matched(78) != null ? parseUnitFloat( setActionEffExpr.matched(85) )	: Number.FLOAT_NOT_SET;
+			var endW	= setActionEffExpr.matched(78) != null ? parseUnitFloat( setActionEffExpr.matched(91) )	: parseUnitFloat( setActionEffExpr.matched(104) );
+			var endH	= setActionEffExpr.matched(78) != null ? parseUnitFloat( setActionEffExpr.matched(97) )	: parseUnitFloat( setActionEffExpr.matched(110) );
+			
+			if (startW.isSet() || startH.isSet() || endW.isSet() || endH.isSet())
+				props = EffectProperties.size( startW, startH, endW, endH );
+		}
+		
+		//scale
+		if (setActionEffExpr.matched(116) != null)
+		{
+			var startX	= setActionEffExpr.matched(118) != null ? parsePercentage( setActionEffExpr.matched(119) )	: Number.FLOAT_NOT_SET;
+			var startY	= setActionEffExpr.matched(118) != null ? parsePercentage( setActionEffExpr.matched(124) )	: Number.FLOAT_NOT_SET;
+			var endX	= setActionEffExpr.matched(118) != null ? parsePercentage( setActionEffExpr.matched(129) )	: parsePercentage( setActionEffExpr.matched(140) );
+			var endY	= setActionEffExpr.matched(118) != null ? parsePercentage( setActionEffExpr.matched(134) )	: parsePercentage( setActionEffExpr.matched(145) );
+			
+			if (startX.isSet())		startX	/= 100;
+			if (startY.isSet())		startY	/= 100;
+			if (endX.isSet())		endX	/= 100;
+			if (endY.isSet())		endY	/= 100;
+			
+			if (startX.isSet() || startY.isSet() || endX.isSet() || endY.isSet())
+				props = EffectProperties.scale( startX, startY, endX, endY );
+		}
+		
+		//any
+		if (setActionEffExpr.matched(150) != null)
+		{
+			var prop	= setActionEffExpr.matched(151).trim();
+			var startV	= setActionEffExpr.matched(153) != null ? setActionEffExpr.matched(152)	: null;
+			var endV	= setActionEffExpr.matched(153) != null ? setActionEffExpr.matched(154)	: setActionEffExpr.matched(152);
+			
+			if (prop != null && endV != null)
+				props = EffectProperties.any( prop, startV, endV );
+		}
+		
+		return props;
+	}
+	
+	
+	
+	//
 	// TRANSITIONS
 	//
 	
 	
+	private function parseAndSetMoveTransition (v:String) : Void
+	{
+		if (isEffect(v))
+		{
+			createEffectsBlock();
+			currentBlock.effects.move = parseEffect(v);
+		}
+	}
+	
+	
+	private function parseAndSetResizeTransition (v:String) : Void
+	{
+		if (isEffect(v))
+		{
+			createEffectsBlock();
+			currentBlock.effects.resize = parseEffect(v);
+		}
+	}
+	
+	
+	private function parseAndSetRotateTransition (v:String) : Void
+	{
+		if (isEffect(v))
+		{
+			createEffectsBlock();
+			currentBlock.effects.rotate = parseEffect(v);
+		}
+	}
+	
+	
+	private function parseAndSetScaleTransition (v:String) : Void
+	{
+		if (isEffect(v))
+		{
+			createEffectsBlock();
+			currentBlock.effects.scale = parseEffect(v);
+		}
+	}
+	
+	
+	private function parseAndSetShowTransition (v:String) : Void
+	{
+		if (isEffect(v))
+		{
+			createEffectsBlock();
+			currentBlock.effects.show = parseEffect(v);
+		}
+	}
+	
+	
+	private function parseAndSetHideTransition (v:String) : Void
+	{
+		if (isEffect(v))
+		{
+			createEffectsBlock();
+			currentBlock.effects.hide = parseEffect(v);
+		}
+	}
 }
 
 

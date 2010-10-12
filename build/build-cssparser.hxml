@@ -1,4 +1,4 @@
-#-lib feffects
+-lib feffects
 #-cp ../libs
 -cp libs/haxe/neko
 -cp src

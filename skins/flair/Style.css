@@ -1,7 +1,7 @@
 UIComponent { color: #000; shape: rectangle; visibility: visible; }
 UIGraphic { color: #000; }
 UITextField { color: #000; }
-Tile { color: #000; shape: ellipse; }
+Tile { color: #000; shape: ellipse; move-transition: sequence ( parallel ( fade 500ms 40%, move 300ms elastic-out, rotate 400ms 360deg bounce-in-out ), fade 600ms 100% ) ; }
 
 
 GlobalApp {

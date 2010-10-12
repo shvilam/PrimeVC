@@ -315,21 +315,21 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 		var posX:Int	= bounds.left;
 		var centerX:Int	= bounds.left + (bounds.width * .5).int();
 		
+		var groupWidth = group.width;
+		var emptyWidth = 0;
+		if (group.is(AdvancedLayoutClient))
+		{
+			groupWidth	= IntMath.max( 0, group.as(AdvancedLayoutClient).measuredWidth );
+			//check if there's any width left. This happens when there's an explicitWidth set.
+			emptyWidth	= IntMath.max( 0, group.width - groupWidth );
+		}
+		
 		if (group.childWidth.isSet())
 		{
-			depth = group.children.length - posX.divRound(group.childWidth);
+			depth = group.children.length - ( posX - emptyWidth ).divRound( group.childWidth );
 		}
 		else
 		{
-			var groupWidth = group.width;
-			var emptyWidth = 0;
-			if (group.is(AdvancedLayoutClient))
-			{
-				groupWidth	= IntMath.max( 0, group.as(AdvancedLayoutClient).measuredWidth );
-				//check if there's any width left. This happens when there's an explicitWidth set.
-				emptyWidth	= IntMath.max( 0, group.width - groupWidth );
-			}
-			
 			//if pos <= emptyWidth, the depth will be at the end of the list
 			if (posX <= emptyWidth)
 				depth = group.children.length;

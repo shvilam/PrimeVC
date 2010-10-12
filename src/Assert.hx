@@ -91,7 +91,22 @@ class Assert
 	//		trace(pos.className + "::" + pos.lineNumber+": "+var1+" != "+var2);
 		#end
 	}
+	
 
+	static inline public function null( var1:Dynamic, msg:String = "", ?pos:haxe.PosInfos)
+	{
+		#if debug
+		if (var1 != null) {
+			trace(pos.className + "::" + pos.lineNumber+": "+var1+" should not be null");
+			throw #if flash9 new Error( #end
+			"Assertion failed: " + var1 + " != null; msg: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber
+			#if flash9 ) #end;
+		}
+	//	else
+	//		trace(pos.className + "::" + pos.lineNumber+": "+var1+" != "+var2);
+		#end
+	}
+	
 
 	static inline public function notNull( var1:Dynamic, msg:String = "", ?pos:haxe.PosInfos)
 	{

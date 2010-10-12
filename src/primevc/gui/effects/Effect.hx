@@ -27,13 +27,20 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.effects;
-#if neko
+#if (debug || neko)
  import primevc.tools.generator.ICodeGenerator;
+ import primevc.tools.generator.Reference;
  import primevc.utils.StringUtil;
 #end
  import primevc.core.traits.Invalidatable;
  import primevc.gui.display.IDisplayObject;
+	
+#if (flash8 || flash9 || js)
  import primevc.gui.effects.effectInstances.IEffectInstance;
+#end
+
+ import primevc.types.Number;
+  using primevc.utils.NumberUtil;
 
 
 /**
@@ -44,8 +51,12 @@ package primevc.gui.effects;
  */
 class Effect < TargetType, EffectClass:IEffect > extends Invalidatable, implements IEffect
 {
-#if neko
+#if (debug || neko)
 	public var uuid				(default, null)	: String;
+	/**
+	 * String name of the easing method...
+	 */
+	public var easingName		(default, setEasingName)		: String;
 #end
 	
 	public var easing			(default, setEasing)			: Easing;
@@ -57,11 +68,11 @@ class Effect < TargetType, EffectClass:IEffect > extends Invalidatable, implemen
 	public function new( newDuration:Int = 350, newDelay:Int = 0, newEasing:Easing = null ) 
 	{
 		super();
-#if neko
+#if (debug || neko)
 		uuid			= StringUtil.createUUID();
 #end
-		duration		= newDuration;
-		delay			= newDelay;
+		duration		= newDuration.notSet()	? 350 : newDuration;
+		delay			= newDelay <= 0			? Number.INT_NOT_SET : newDelay;
 		easing			= newEasing;
 		autoHideFilters	= false;
 	}
@@ -87,13 +98,14 @@ class Effect < TargetType, EffectClass:IEffect > extends Invalidatable, implemen
 	}
 	
 	
+#if (flash8 || flash9 || js)
 	/**
 	 * Method will start a new effect on the given target and return the 
 	 * playing effect instance.
 	 */
 	public function play (target:TargetType, withEffect:Bool = true, playDirectly:Bool = false) : IEffectInstance < TargetType, EffectClass >
 	{
-		Assert.that(target == null || duration < 0);
+		Assert.that(target != null && duration > 0);
 		var c = createEffectInstance(target);
 		c.play(withEffect, playDirectly);
 		return c;
@@ -105,6 +117,7 @@ class Effect < TargetType, EffectClass:IEffect > extends Invalidatable, implemen
 		Assert.abstract();
 		return null;
 	}
+#end
 	
 	
 	
@@ -116,7 +129,7 @@ class Effect < TargetType, EffectClass:IEffect > extends Invalidatable, implemen
 	
 	private inline function setDelay (v:Int) : Int
 	{
-		Assert.that(v >= 0);
+		Assert.that(v >= 0 || v.notSet(), "delay should be 0 or larger.. it is: "+v);
 		if (delay != v) {
 			delay = v;
 			invalidate( EffectFlags.DELAY );
@@ -156,9 +169,73 @@ class Effect < TargetType, EffectClass:IEffect > extends Invalidatable, implemen
 	
 	
 #if (debug || neko)
+	private inline function setEasingName (v:String) : String
+	{
+		return easingName = v;
+	}
+
+
 	public function toString ()
 	{
 		return toCSS();
+	}
+	
+	
+	private function easingToCSS () : String
+	{
+	#if neko
+		return easingName;
+	}
+	
+	
+	private function easingToCode() : Reference
+	{
+		var path = "feffects.easing.";
+		return switch (easingName) {
+			case "back-in":			Reference.func( path + "Back.easeIn" );
+			case "back-out":		Reference.func( path + "Back.easeOut" );
+			case "back-in-out":		Reference.func( path + "Back.easeInOut" );
+			
+			case "bounce-in":		Reference.func( path + "Bounce.easeIn" );
+			case "bounce-out":		Reference.func( path + "Bounce.easeOut" );
+			case "bounce-in-out":	Reference.func( path + "Bounce.easeInOut" );
+			
+			case "circ-in":			Reference.func( path + "Circ.easeIn" );
+			case "circ-out":		Reference.func( path + "Circ.easeOut" );
+			case "circ-in-out":		Reference.func( path + "Circ.easeInOut" );
+			
+			case "cubic-in":		Reference.func( path + "Cubic.easeIn" );
+			case "cubic-out":		Reference.func( path + "Cubic.easeOut" );
+			case "cubic-in-out":	Reference.func( path + "Cubic.easeInOut" );
+			
+			case "elastic-in":		Reference.func( path + "Elastic.easeIn" );
+			case "elastic-out":		Reference.func( path + "Elastic.easeOut" );
+			case "elastic-in-out":	Reference.func( path + "Elastic.easeInOut" );
+			
+			case "expo-in":			Reference.func( path + "Expo.easeIn" );
+			case "expo-out":		Reference.func( path + "Expo.easeOut" );
+			case "expo-in-out":		Reference.func( path + "Expo.easeInOut" );
+			
+			case "linear-in":		Reference.func( path + "Linear.easeIn" );
+			case "linear-out":		Reference.func( path + "Linear.easeOut" );
+			case "linear-in-out":	Reference.func( path + "Linear.easeInOut" );
+			
+			case "quad-in":			Reference.func( path + "Quad.easeIn" );
+			case "quad-out":		Reference.func( path + "Quad.easeOut" );
+			case "quad-in-out":		Reference.func( path + "Quad.easeInOut" );
+			
+			case "quart-in":		Reference.func( path + "Quart.easeInOut" );
+			case "quart-out":		Reference.func( path + "Quart.easeOut" );
+			case "quart-in-out":	Reference.func( path + "Quart.easeInOut" );
+			
+			case "quint-in":		Reference.func( path + "Quint.easeIn" );
+			case "quint-out":		Reference.func( path + "Quint.easeOut" );
+			case "quint-in-out":	Reference.func( path + "Quint.easeInOut" );
+			default:	null;
+		}
+	#else
+		return "";
+	#end
 	}
 
 

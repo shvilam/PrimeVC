@@ -26,8 +26,13 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.effects;
+package primevc.gui.effects;	
+#if (flash8 || flash9 || js)
  import primevc.gui.effects.effectInstances.ParallelEffectInstance;
+#end
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.utils.IntMath;
   using primevc.utils.Bind;
 
@@ -46,10 +51,12 @@ class ParallelEffect extends CompositeEffect
 	}
 	
 	
+#if (flash8 || flash9 || js)
 	override public function createEffectInstance (target)
 	{
 		return cast new ParallelEffectInstance( target, this );
 	}
+#end
 	
 	
 	override private function getCompositeDuration ()
@@ -59,4 +66,12 @@ class ParallelEffect extends CompositeEffect
 			d = IntMath.max(d, effect.duration);
 		return d;
 	}
+
+
+#if (debug || neko)
+	override public function toCSS (prefix:String = "") : String
+	{
+		return "parallel " + super.toCSS(prefix);
+	}
+#end
 }

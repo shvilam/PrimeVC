@@ -91,7 +91,7 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >, implements I
 	
 	public inline function requestRender ()
 	{
-		if (target.window != null && (target.effects == null || target.effects.move == null))
+		if (target.window != null) // && (target.effects == null || target.effects.move == null))
 			getUIWindow().renderManager.add(this);
 	}
 	
@@ -100,7 +100,12 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >, implements I
 	{
 		var l = target.layout;
 	//	trace("applyPosition " + target.id + " / " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y);
-		target.x = l.getHorPosition();
-		target.y = l.getVerPosition();
+		if (target.effects == null)
+		{
+			target.x = l.getHorPosition();
+			target.y = l.getVerPosition();
+		} else {
+			target.effects.playMove();
+		}
 	}
 }

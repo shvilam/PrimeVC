@@ -26,69 +26,9 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.effects.effectInstances;
- import primevc.gui.effects.EffectProperties;
- import primevc.gui.effects.RotateEffect;
- import primevc.gui.traits.IPositionable;
- import primevc.types.Number;
-  using primevc.utils.NumberUtil;
+package primevc.tools.generator;
 
 
-/**
- * @author Ruben Weijers
- * @creation-date Oct 04, 2010
- */
-class RotateEffectInstance extends EffectInstance < IPositionable, RotateEffect >
-{
-	/**
-	 * start rotation value.
-	 * @default		Number.FLOAT_NOT_SET
-	 */
-	private var startValue	: Float;
-	/**
-	 * rotation end-value
-	 * @default		Number.FLOAT_NOT_SET
-	 */
-	private var endValue	: Float;
-	
-	
-	public function new (target, effect)
-	{
-		super(target, effect);
-		startValue = endValue = Number.FLOAT_NOT_SET;
-	}
-
-
-	override public function setValues ( v:EffectProperties ) 
-	{
-		switch (v) {
-			case rotation(from, to):
-				startValue	= from;
-				endValue	= to;
-			default:
-				return;
-		}
-	}
-	
-
-	override private function initStartValues ()
-	{
-		if (effect.startValue.isSet())	startValue = effect.startValue;
-		else							startValue = target.rotation;
-		
-		if (effect.endValue.isSet())	endValue = effect.endValue;
-		else							endValue = 1;
-	}
-
-
-	override private function tweenUpdater ( tweenPos:Float )
-	{
-		target.rotation = ( endValue * tweenPos ) + ( startValue * (1 - tweenPos) );
-	}
-
-
-	override private function calculateTweenStartPos () : Float
-	{
-		return (target.rotation - startValue) / (endValue - startValue);
-	}
+enum Reference {
+	func (name:String);
 }

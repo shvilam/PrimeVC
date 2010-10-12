@@ -103,8 +103,13 @@ class FastArrayUtil
 		if (curPos == -1)
 			curPos = list.indexOf(item);
 		
-		if (newPos > list.length)		throw "Position is bigger then the list length";
-		if (curPos < 0)					throw "Item is not part of list so cannot be moved";
+#if debug
+		if ( newPos > list.length ) throw "Moving from " + curPos + " to position "+newPos+", but it is bigger then the list length ("+list.length+")..";
+#end
+		if (newPos > list.length)
+			newPos = list.length;
+
+		if (curPos < 0)				throw "Item is not part of list so cannot be moved";
 		
 		if (curPos != newPos)
 		{

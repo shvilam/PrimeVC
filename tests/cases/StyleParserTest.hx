@@ -1,12 +1,34 @@
 package cases;
 // import primevc.core.net.URLLoader;
+ import primevc.core.geom.space.Direction;
+ import primevc.core.geom.space.Horizontal;
+ import primevc.core.geom.space.MoveDirection;
+ import primevc.core.geom.space.Position;
+ import primevc.core.geom.space.Vertical;
+ import primevc.gui.effects.AnchorScaleEffect;
+ import primevc.gui.effects.CompositeEffect;
+ import primevc.gui.effects.Easing;
+ import primevc.gui.effects.EffectProperties;
+ import primevc.gui.effects.FadeEffect;
+ import primevc.gui.effects.IEffect;
+ import primevc.gui.effects.MoveEffect;
+ import primevc.gui.effects.ParallelEffect;
+ import primevc.gui.effects.ResizeEffect;
+ import primevc.gui.effects.RotateEffect;
+ import primevc.gui.effects.ScaleEffect;
+ import primevc.gui.effects.SequenceEffect;
+ import primevc.gui.effects.SetAction;
+ import primevc.gui.effects.WipeEffect;
  import primevc.gui.styling.declarations.UIElementStyle;
  import primevc.gui.styling.CSSParser;
  import primevc.tools.generator.HaxeCodeGenerator;
  import primevc.tools.Manifest;
   using primevc.utils.Color;
   using primevc.utils.ERegUtil;
+  using primevc.utils.NumberUtil;
+  using primevc.utils.TypeUtil;
   using Std;
+  using Type;
 
 
 typedef BType = primevc.gui.filters.BitmapFilterType;
@@ -14,22 +36,22 @@ typedef BType = primevc.gui.filters.BitmapFilterType;
 
 class StyleParserTest
 {
-	public static inline var CORRECT_INTS			= [ "1", "12456789", '35561', '-5789' ];
+	public static inline var CORRECT_INTS			= [ "1", "12456789", '35561', '-5789', "210" ];
 	public static inline var INCORRECT_INTS			= [ '.123', '-0.12' ];																			//APPLY INCORRECT_FLOATS ALSO ON INTS
 	
 	public static inline var CORRECT_FLOATS			= [ '.123', '0.1', '-0.12' ];																	//APPLY CORRECT_INTS ALSO ON FLOATS
 	public static inline var INCORRECT_FLOATS		= [ '.1234', '12345.789012345', "abc", '&', '!', '@', '#', '$', '%', '1.', '.', '*', '(', ')', '_', '-', '+', '=', '?', '/' ];
 	
-	public static inline var CORRECT_UNIT_INTS		= [ "12px", "0", "2513em", "-1pt", "2ex", "3in", "4cm", "-5mm", "6pc" ];
-	public static inline var INCORRECT_UNIT_INTS	= [ "0.123px", ".12px", "5%", "12 px" ];														//APPLY INCORRECT_UNIT_FLOATS AND CORRECT_INTS ALSO ON INTS
+	public static inline var CORRECT_UNIT_INTS		= [ "12px", "2513em", "-1pt", "2ex", "3in", "4cm", "-5mm", "6pc" ];
+	public static inline var INCORRECT_UNIT_INTS	= [ "0.123px", ".12px", "5%", "12 px", "210", "0" ];											//APPLY INCORRECT_UNIT_FLOATS AND CORRECT_INTS ALSO ON INTS
 	
-	public static inline var CORRECT_UNIT_FLOATS	= [ "12.578px", "-12.578px", ".12ex" ];																				//APPLY CORRECT_UNIT_INTS ALSO ON UNIT_FLOATS
+	public static inline var CORRECT_UNIT_FLOATS	= [ "12.578px", "-12.578px", ".12ex" ];															//APPLY CORRECT_UNIT_INTS ALSO ON UNIT_FLOATS
 	public static inline var INCORRECT_UNIT_FLOATS	= [ "12.5789px", "px", "em", "pt", "ex", "in", "cm", "mm", "pc", "12%", "12 px", "12	em" ];	//APPLY CORRECT_FLOATS ALSO ON UNIT_FLOATS
 	
 	public static inline var CORRECT_PERCENTAGES	= [ "1%", "1234%", "0.123%", "1050.4%", "-5%" ];
 	public static inline var INCORRECT_PERCENTAGES	= [ "12.5789px", "%", "px", "5 %", ".1234%" ];
 	
-	public static inline var CORRECT_UNIT_GROUP		= [ "2px 1em", "1.34cm 1in 2.84px", "41pc 0 20px 1in", "2px 5px 0", "0 0 3px 4px", "-1.1px -2.210px -3.321px -4.4px" ];
+	public static inline var CORRECT_UNIT_GROUP		= [ "2px 1em", "1.34cm 1in 2.84px", "41pc 0px 20px 1in", "2px 5px 0px", "0px 0px 3px 4px", "-1.1px -2.210px -3.321px -4.4px" ];
 	public static inline var INCORRECT_UNIT_GROUP	= [ "2px 1", "1px 4px 3px 2px 1px", "2 px 2 px" ];
 	
 	public static inline var CORRECT_COLORS			= [
@@ -106,8 +128,8 @@ class StyleParserTest
 		"url( 'test/img.jpg')",
 		"url( \"test/img.jpg\"	)",
 		"url(	http://img.hier.server.adr/username/img.jpg )",
-		"url( http://img.hier.server.adr/username/img.jpg ) no-repeat",
-		"url(http://img.hier.server.adr/username/img.jpg) repeat-all",
+		"url( http://img.hier.server.adr/username/img.jpg )",
+		"url(http://img.hier.server.adr/username/img.jpg)",
 	];
 	public static inline var INCORRECT_URI_IMAGE	= [
 		"url(http://img.hier.server.adr/username/img.jpg) ietsAnders",
@@ -119,8 +141,7 @@ class StyleParserTest
 	public static inline var CORRECT_CLASS_IMAGE	= [
 		"class(Img)",
 		"class(nl.onlinetouch.skins.flair.ImageSkin)",
-		"class(nl.ImageSkin) repeat-all",
-		"class(nl.ImageSkin) no-repeat",
+		"class(nl.ImageSkin  )",
 		"class( 		nl.onlinetouch.skins.flair.ImageSkin)"
 	];
 	public static inline var INCORRECT_CLASS_IMAGE	= [
@@ -163,7 +184,7 @@ class StyleParserTest
 	public static inline var CORRECT_DYN_TILE			= [ "dynamic-tile", "dynamic-tile( horizontal )", "dynamic-tile (vertical)", "dynamic-tile( horizontal, left )", "dynamic-tile(vertical,left,bottom)", "dynamic-tile(vertical,right,bottom)", "dynamic-tile	( vertical   , center , top )" ];
 	public static inline var INCORRECT_DYN_TILE			= [ "dynamic-tile()", "dynamic-tile (diagonal)", "dynamic-tile ('vertical')", "dynamic-tile( horizontal, top )", "dynamic-tile(vertical,bottom)", "dynamic-tile(vertical,5,bottom)" ];
 	
-	public static inline var CORRECT_TRIANGLE			= [ "triangle", "triangle(top-left)", "triangle ( BOTTOM-RIGHT )", "TRiangLE( Middle-Left )", "TrIaNgLe(bottom-center)", "triangle(1px, 15px)", "triangle ( 600px ,   3em )", "triangle(0,0)" ];
+	public static inline var CORRECT_TRIANGLE			= [ "triangle", "triangle(top-left)", "triangle ( BOTTOM-RIGHT )", "TRiangLE( Middle-Left )", "TrIaNgLe(bottom-center)", "triangle(1px, 15px)", "triangle ( 600px ,   3em )", "triangle(0px,0px)" ];
 	public static inline var INCORRECT_TRIANGLE			= [ "circle", "ellipse", "rectangle", "line", "triangle()", "triangle (9px)", "triangle(9, 5)", "triangle(top)", "triangle(bottom)", "triangle (	center)", "tRiangle(middle-center)" ];
 	
 	
@@ -244,6 +265,7 @@ class StyleParserTest
 		parser.testParseGlowFilter();
 		parser.testParseBlurFilter();
 		parser.testParseGradientBevelFilter();
+		parser.testParseEffect();
 #end
 	}
 	
@@ -357,8 +379,8 @@ class StyleParserTest
 		testRegexp(expr, INCORRECT_URI_IMAGE, false);
 		testRegexp(expr, CORRECT_CLASS_IMAGE, false);
 		
-		trace("\n\nTESTING IMAGE CLASS REGEX");
-		var expr = parser.imageClassExpr;
+		trace("\n\nTESTING CLASS REFERENCE REGEX");
+		var expr = parser.classRefExpr;
 		testRegexp(expr, CORRECT_CLASS_IMAGE, true);
 		testRegexp(expr, INCORRECT_CLASS_IMAGE, false);
 		testRegexp(expr, CORRECT_URI_IMAGE, false);
@@ -625,6 +647,9 @@ class StyleParserTest
 }
 
 
+
+
+
 class CSSParserMethodTest extends CSSParser
 {
 	public function new ()
@@ -647,7 +672,7 @@ class CSSParserMethodTest extends CSSParser
 	
 	
 	public function testParseShadowFilter ()
-	{	
+	{
 		trace("\n\nTESTING PARSE SHADOW FILTER");
 		
 		//
@@ -739,7 +764,7 @@ class CSSParserMethodTest extends CSSParser
 	
 	
 	public function testParseBevelFilter ()
-	{	
+	{
 		trace("\n\nTESTING PARSE BEVEL FILTER");
 
 		//
@@ -802,7 +827,7 @@ class CSSParserMethodTest extends CSSParser
 
 
 	public function testParseGlowFilter ()
-	{	
+	{
 		trace("\n\nTESTING PARSE GLOW FILTER");
 
 		//
@@ -853,7 +878,7 @@ class CSSParserMethodTest extends CSSParser
 
 
 	public function testParseBlurFilter ()
-	{	
+	{
 		trace("\n\nTESTING PARSE BLUR FILTER");
 
 		//
@@ -878,13 +903,13 @@ class CSSParserMethodTest extends CSSParser
 
 
 
-		var v = "10px 0 low";
+		var v = "10px 0px low";
 		var f = parseBlurFilter(v);
 		Assert.equal( f.blurX,			10,				"blurX" );
 		Assert.equal( f.blurY,			0,				"blurY" );
 		Assert.equal( f.quality,		1,				"quality" );
 
-		var v = "0 0";
+		var v = "0px 0px";
 		var f = parseBlurFilter(v);
 		Assert.equal( f.blurX,			0,				"blurX" );
 		Assert.equal( f.blurY,			0,				"blurY" );
@@ -894,7 +919,7 @@ class CSSParserMethodTest extends CSSParser
 	
 	
 	public function testParseGradientBevelFilter ()
-	{	
+	{
 		trace("\n\nTESTING PARSE GRADIENT-BEVEL FILTER");
 		
 		//
@@ -957,10 +982,689 @@ class CSSParserMethodTest extends CSSParser
 		Assert.equal( f.knockout,	false,			"knockout" );
 		Assert.equal( f.quality,	2,				"quality" );
 	}
+	
+	
+	
+	
+	public function testParseEffect ()
+	{
+		//
+		// test anchorScaleEffect
+		//
+		
+		trace("\n\nTESTING PARSE ANCHOR SCALE EFFECT");
+		
+		var v = "anchor-scale";
+		var e = parseEffect(v).as(AnchorScaleEffect);
+		trace(e);
+		Assert.equal( e.duration,			350,				"duration" );
+		Assert.that( e.delay.notSet(),							"delay" );
+		Assert.equal( e.easing,				null,				"easing" );
+		Assert.equal( e.zoomPosition,		Position.TopLeft,	"zoom-position" );
+		Assert.that( e.startValue.notSet(),						"start-value" );
+		Assert.that( e.endValue.notSet(),						"end-value" );
+		
+		var v = "anchor-scale bottom-left 400ms 50ms";
+		var e = parseEffect(v).as(AnchorScaleEffect);
+		trace(e);
+		Assert.equal( e.duration,			400,				"duration" );
+		Assert.equal( e.delay,				50,					"delay" );
+		Assert.equal( e.easing,				null,				"easing" );
+		Assert.equal( e.zoomPosition,		Position.BottomLeft,"zoom-position" );
+		Assert.that( e.startValue.notSet(),						"start-value" );
+		Assert.that( e.endValue.notSet(),						"end-value" );
+		
+		var v = "anchor-scale 400ms 50ms Bounce-Out middle-right 100% 312.3%";
+		var e = parseEffect(v).as(AnchorScaleEffect);
+		trace(e);
+		Assert.equal( e.duration,			400,					"duration" );
+		Assert.equal( e.delay,				50,						"delay" );
+		Assert.equal( e.easingName,			"bounce-out",			"easing-name" );
+		Assert.equal( e.zoomPosition,		Position.MiddleRight,	"zoom-position" );
+		Assert.equal( e.startValue,			1.0,					"start-value" );
+		Assert.equal( e.endValue,			3.123,					"end-value" );
+		
+		
+		//
+		// test fade-effect
+		//
+		
+		trace("\n\nTESTING PARSE FADE EFFECT");
+		
+		var v = "fade";
+		var e = parseEffect(v).as(FadeEffect);
+		trace(e);
+		Assert.equal( e.duration,			350,				"duration" );
+		Assert.that( e.delay.notSet(),							"delay" );
+		Assert.equal( e.easing,				null,				"easing" );
+		Assert.that( e.startValue.notSet(),						"start-value" );
+		Assert.that( e.endValue.notSet(),						"end-value" );
+		
+		var v = "fade 400ms 50ms";
+		var e = parseEffect(v).as(FadeEffect);
+		trace(e);
+		Assert.equal( e.duration,			400,				"duration" );
+		Assert.equal( e.delay,				50,					"delay" );
+		Assert.equal( e.easing,				null,				"easing" );
+		Assert.that( e.startValue.notSet(),						"start-value" );
+		Assert.that( e.endValue.notSet(),						"end-value" );
+		
+		var v = "fade 400ms elastic-in-out 0% 99%";
+		var e = parseEffect(v).as(FadeEffect);
+		trace(e);
+		Assert.equal( e.duration,			400,				"duration" );
+		Assert.that( e.delay.notSet(),							"delay" );
+		Assert.equal( e.easingName,			"elastic-in-out",	"easing-name" );
+		Assert.equal( e.startValue,			0,					"start-value" );
+		Assert.equal( e.endValue,			0.99,				"end-value" );
+		
+		
+		
+		//
+		// test move-effect
+		//
+		
+		trace("\n\nTESTING PARSE MOVE EFFECT");
+		
+		var v = "move";
+		var e = parseEffect(v).as(MoveEffect);
+		trace(e);
+		Assert.equal( e.duration,		350,				"duration" );
+		Assert.that( e.delay.notSet(),						"delay" );
+		Assert.equal( e.easing,			null,				"easing" );
+		Assert.that( e.startX.notSet(),						"start-x-value" );
+		Assert.that( e.startY.notSet(),						"start-y-value" );
+		Assert.that( e.endX.notSet(),						"end-x-value" );
+		Assert.that( e.endY.notSet(),						"end-y-value" );
+		
+		var v = "move 400ms 50ms";
+		var e = parseEffect(v).as(MoveEffect);
+		trace(e);
+		Assert.equal( e.duration,		400,				"duration" );
+		Assert.equal( e.delay,			50,					"delay" );
+		Assert.equal( e.easing,			null,				"easing" );
+		Assert.that( e.startX.notSet(),						"start-x-value" );
+		Assert.that( e.startY.notSet(),						"start-y-value" );
+		Assert.that( e.endX.notSet(),						"end-x-value" );
+		Assert.that( e.endY.notSet(),						"end-y-value" );
+		
+		var v = "move 400ms circ-in 20px, 0px";
+		var e = parseEffect(v).as(MoveEffect);
+		trace(e);
+		Assert.equal( e.duration,		400,				"duration" );
+		Assert.that( e.delay.notSet(),						"delay" );
+		Assert.equal( e.easingName,		"circ-in",			"easing-name" );
+		Assert.that( e.startX.notSet(),						"start-x-value" );
+		Assert.that( e.startY.notSet(),						"start-y-value" );
+		Assert.equal( e.endX,			20,					"end-x-value" );
+		Assert.equal( e.endY,			0,					"end-y-value" );
+		
+		var v = "move 20px ,40px 100px,-50.4px";
+		var e = parseEffect(v).as(MoveEffect);
+		trace(e);
+		Assert.equal( e.duration,		350,				"duration" );
+		Assert.that( e.delay.notSet(),						"delay" );
+		Assert.equal( e.easingName,		null,				"easing-name" );
+		Assert.equal( e.startX,			20,					"start-x-value" );
+		Assert.equal( e.startY,			40,					"start-y-value" );
+		Assert.equal( e.endX,			100,				"end-x-value" );
+		Assert.equal( e.endY,			-50.4,				"end-y-value" );
+		
+		
+		
+		//
+		// test resize-effect
+		//
+		
+		trace("\n\nTESTING PARSE RESIZE EFFECT");
+		
+		var v = "resize";
+		var e = parseEffect(v).as(ResizeEffect);
+		trace(e);
+		Assert.equal( e.duration,		350,				"duration" );
+		Assert.that( e.delay.notSet(),						"delay" );
+		Assert.equal( e.easing,			null,				"easing" );
+		Assert.that( e.startW.notSet(),						"start-w-value" );
+		Assert.that( e.startH.notSet(),						"start-h-value" );
+		Assert.that( e.endW.notSet(),						"end-w-value" );
+		Assert.that( e.endH.notSet(),						"end-h-value" );
+		
+		var v = "resize 400ms";
+		var e = parseEffect(v).as(ResizeEffect);
+		trace(e);
+		Assert.equal( e.duration,		400,				"duration" );
+		Assert.that( e.delay.notSet(),						"delay" );
+		Assert.equal( e.easing,			null,				"easing" );
+		Assert.that( e.startW.notSet(),						"start-w-value" );
+		Assert.that( e.startH.notSet(),						"start-h-value" );
+		Assert.that( e.endW.notSet(),						"end-w-value" );
+		Assert.that( e.endH.notSet(),						"end-h-value" );
+		
+		var v = "resize 400ms sine-out 0px,20px";
+		var e = parseEffect(v).as(ResizeEffect);
+		trace(e);
+		Assert.equal( e.duration,		400,				"duration" );
+		Assert.that( e.delay.notSet(),						"delay" );
+		Assert.equal( e.easingName,		"sine-out",			"easing-name" );
+		Assert.that( e.startW.notSet(),						"start-w-value" );
+		Assert.that( e.startH.notSet(),						"start-h-value" );
+		Assert.equal( e.endW,			0,					"end-w-value" );
+		Assert.equal( e.endH,			20,					"end-h-value" );
+		
+		var v = "resize 0px ,		0px .123px,-50.4px";
+		var e = parseEffect(v).as(ResizeEffect);
+		trace(e);
+		Assert.equal( e.duration,		350,				"duration" );
+		Assert.that( e.delay.notSet(),						"delay" );
+		Assert.equal( e.easingName,		null,				"easing-name" );
+		Assert.equal( e.startW,			0,					"start-w-value" );
+		Assert.equal( e.startH,			0,					"start-h-value" );
+		Assert.equal( e.endW,			.123,				"end-w-value" );
+		Assert.equal( e.endH,			-50.4,				"end-h-value" );
+		
+		
+		
+		//
+		// test rotate-effect
+		//
+		
+		trace("\n\nTESTING PARSE ROTATE EFFECT");
+		
+		var v = "rotate";
+		var e = parseEffect(v).as(RotateEffect);
+		trace(e);
+		Assert.equal( e.duration,			350,				"duration" );
+		Assert.that( e.delay.notSet(),							"delay" );
+		Assert.equal( e.easing,				null,				"easing" );
+		Assert.that( e.startValue.notSet(),						"start-value" );
+		Assert.that( e.endValue.notSet(),						"end-value" );
+		
+		var v = "rotate 400ms 50ms";
+		var e = parseEffect(v).as(RotateEffect);
+		trace(e);
+		Assert.equal( e.duration,			400,				"duration" );
+		Assert.equal( e.delay,				50,					"delay" );
+		Assert.equal( e.easing,				null,				"easing" );
+		Assert.that( e.startValue.notSet(),						"start-value" );
+		Assert.that( e.endValue.notSet(),						"end-value" );
+		
+		var v = "rotate 400ms expo-out 51deg 315deg";
+		var e = parseEffect(v).as(RotateEffect);
+		trace(e);
+		Assert.equal( e.duration,			400,				"duration" );
+		Assert.that( e.delay.notSet(),							"delay" );
+		Assert.equal( e.easingName,			"expo-out",			"easing-name" );
+		Assert.equal( e.startValue,			51,					"start-value" );
+		Assert.equal( e.endValue,			315,				"end-value" );
+		
+		var v = "rotate 400ms expo-out 51deg ";
+		var e = parseEffect(v).as(RotateEffect);
+		trace(e);
+		Assert.equal( e.duration,			400,				"duration" );
+		Assert.that( e.delay.notSet(),							"delay" );
+		Assert.equal( e.easingName,			"expo-out",			"easing-name" );
+		Assert.that( e.startValue.notSet(),						"start-value" );
+		Assert.equal( e.endValue,			51,					"end-value" );
+		
+		
+		
+		//
+		// test scale-effect
+		//
+		
+		trace("\n\nTESTING PARSE SCALE EFFECT");
+		
+		var v = "scale";
+		var e = parseEffect(v).as(ScaleEffect);
+		trace(e);
+		Assert.equal( e.duration,		350,				"duration" );
+		Assert.that( e.delay.notSet(),						"delay" );
+		Assert.equal( e.easing,			null,				"easing" );
+		Assert.that( e.startX.notSet(),						"start-x-value" );
+		Assert.that( e.startY.notSet(),						"start-y-value" );
+		Assert.that( e.endX.notSet(),						"end-x-value" );
+		Assert.that( e.endY.notSet(),						"end-y-value" );
+		
+		var v = "scale 400ms";
+		var e = parseEffect(v).as(ScaleEffect);
+		trace(e);
+		Assert.equal( e.duration,		400,				"duration" );
+		Assert.that( e.delay.notSet(),						"delay" );
+		Assert.equal( e.easing,			null,				"easing" );
+		Assert.that( e.startX.notSet(),						"start-x-value" );
+		Assert.that( e.startY.notSet(),						"start-y-value" );
+		Assert.that( e.endX.notSet(),						"end-x-value" );
+		Assert.that( e.endY.notSet(),						"end-y-value" );
+		
+		var v = "scale 40ms linear-out 0%,20%";
+		var e = parseEffect(v).as(ScaleEffect);
+		trace(e);
+		Assert.equal( e.duration,		40,					"duration" );
+		Assert.that( e.delay.notSet(),						"delay" );
+		Assert.equal( e.easingName,		"linear-out",		"easing-name" );
+		Assert.that( e.startX.notSet(),						"start-x-value" );
+		Assert.that( e.startY.notSet(),						"start-y-value" );
+		Assert.equal( e.endX,			0,					"end-x-value" );
+		Assert.equal( e.endY,			.2,					"end-y-value" );
+		
+		var v = "scale 0% , 0% 400.123%, 50%";
+		var e = parseEffect(v).as(ScaleEffect);
+		trace(e);
+		Assert.equal( e.duration,		350,				"duration" );
+		Assert.that( e.delay.notSet(),						"delay" );
+		Assert.equal( e.easingName,		null,				"easing-name" );
+		Assert.equal( e.startX,			0,					"start-x-value" );
+		Assert.equal( e.startY,			0,					"start-y-value" );
+		Assert.equal( e.endX,			4.00123,			"end-x-value" );
+		Assert.equal( e.endY,			.5,					"end-y-value" );
+		
+		
+		//
+		// test set-action-effect
+		//
+		
+		trace("\n\nTESTING PARSE SET-ACTION EFFECT");
+		
+		var v = "set-action";
+		var prop = parseEffectProperties(v);
+		Assert.null(prop);
+		var e = parseEffect(v).as(SetAction);
+		Assert.notNull(e);
+		
+		trace("\n\nTESTING PARSE SET-ACTION ALPHA EFFECT");
+		
+		var v = "set-action alpha()";
+		var prop = parseEffectProperties(v);
+		Assert.null(prop);
+		
+		var v = "set-action alpha(80% 40%)";
+		var prop = parseEffectProperties(v);
+		Assert.notNull(prop);
+		trace(prop);
+		switch (prop) {
+			case alpha(from, to):
+				Assert.equal(from, 0.8, "alpha-from");
+				Assert.equal(to, 0.4, "alpha-to");
+			
+			default:
+				Assert.that(false);
+		}
+		
+		var v = "set-action alpha(45.1%)";
+		var prop = parseEffectProperties(v);
+		Assert.notNull(prop);
+		trace(prop);
+		switch (prop) {
+			case alpha(from, to):
+				Assert.that(from.notSet(), "alpha-from");
+				Assert.equal(to, 0.451, "alpha-to");
+			
+			default:
+				Assert.that(false);
+		}
+		
+		
+		
+		trace("\n\nTESTING PARSE SET-ACTION POSITION EFFECT");
+		
+		var v = "set-action position()";
+		var prop = parseEffectProperties(v);
+		Assert.null(prop);
+		
+		
+		var v = "set-action position(20px,809047px 4px,6px)";
+		var prop = parseEffectProperties(v);
+		Assert.notNull(prop);
+		trace(prop);
+		switch (prop) {
+			case position(fromX, fromY, toX, toY):
+				Assert.equal(fromX, 20, "pos-fromX");
+				Assert.equal(fromY, 809047, "pos-fromY");
+				Assert.equal(toX, 4, "pos-toX");
+				Assert.equal(toY, 6, "pos-toY");
+			
+			default:
+				Assert.that(false);
+		}
+		
+		
+		var v = "set-action position(4px,6px)";
+		var prop = parseEffectProperties(v);
+		Assert.notNull(prop);
+		trace(prop);
+		switch (prop) {
+			case position(fromX, fromY, toX, toY):
+				Assert.that(fromX.notSet(), "pos-fromX");
+				Assert.that(fromY.notSet(), "pos-fromY");
+				Assert.equal(toX, 4, "pos-toX");
+				Assert.equal(toY, 6, "pos-toY");
+			
+			default:
+				Assert.that(false);
+		}
+		
+		
+		trace("\n\nTESTING PARSE SET-ACTION ROTATION EFFECT");
+		
+		var v = "set-action rotation()";
+		var prop = parseEffectProperties(v);
+		Assert.null(prop);
+		
+		
+		var v = "set-action rotation(	4deg	987deg	)";
+		var prop = parseEffectProperties(v);
+		Assert.notNull(prop);
+		trace(prop);
+		switch (prop) {
+			case rotation(from, to):
+				Assert.equal(from, 4, "rotation-from");
+				Assert.equal(to, 987, "rotation-to");
+			
+			default:
+				Assert.that(false);
+		}
+		
+		
+		var v = "set-action rotation(987deg)";
+		var prop = parseEffectProperties(v);
+		trace(prop);
+		switch (prop) {
+			case rotation(from, to):
+				Assert.that(from.notSet(), "rotation-from");
+				Assert.equal(to, 987, "rotation-to");
+			
+			default:
+				Assert.that(false);
+		}		
+		
+		
+		trace("\n\nTESTING PARSE SET-ACTION SIZE EFFECT");
+		
+		var v = "set-action size()";
+		var prop = parseEffectProperties(v);
+		Assert.null(prop);
+		
+		
+		var v = "set-action size(	3px,4px	 650px,40px	 )";
+		var prop = parseEffectProperties(v);
+		Assert.notNull(prop);
+		trace(prop);
+		switch (prop) {
+			case size(fromW, fromH, toW, toH):
+				Assert.equal(fromW, 3, "size-width-from");
+				Assert.equal(fromH, 4, "size-height-from");
+				Assert.equal(toW, 650, "size-width-to");
+				Assert.equal(toH, 40, "size-height-to");
+			
+			default:
+				Assert.that(false);
+		}
+		
+		
+		var v = "set-action size (650px	,		40px)";
+		var prop = parseEffectProperties(v);
+		trace(prop);
+		switch (prop) {
+			case size(fromW, fromH, toW, toH):
+				Assert.that(fromW.notSet(), "size-width-from");
+				Assert.that(fromH.notSet(), "size-height-from");
+				Assert.equal(toW, 650, "size-width-to");
+				Assert.equal(toH, 40, "size-height-to");
+			
+			default:
+				Assert.that(false);
+		}
+		
+		
+		
+		trace("\n\nTESTING PARSE SET-ACTION SCALE EFFECT");
+		
+		var v = "set-action scale()";
+		var prop = parseEffectProperties(v);
+		Assert.null(prop);
+		
+		
+		var v = "set-action scale(4% , 95% 100%  , 0.12%)";
+		var prop = parseEffectProperties(v);
+		Assert.notNull(prop);
+		trace(prop);
+		switch (prop) {
+			case scale(fromX, fromY, toX, toY):
+				Assert.equal(fromX, .04,	"scale-x-from");
+				Assert.equal(fromY, .95,	"scale-y-from");
+				Assert.equal(toX, 1,		"scale-x-to");
+				Assert.equal(toY, .0012,	"scale-y-to");
+			
+			default:
+				Assert.that(false);
+		}
+		
+		
+		var v = "set-action scale(4% , 95%)";
+		var prop = parseEffectProperties(v);
+		Assert.notNull(prop);
+		trace(prop);
+		switch (prop) {
+			case scale(fromX, fromY, toX, toY):
+				Assert.that(fromX.notSet(),	"scale-x-from");
+				Assert.that(fromY.notSet(),	"scale-y-from");
+				Assert.equal(toX, .04,		"scale-x-to");
+				Assert.equal(toY, .95,		"scale-y-to");
+			
+			default:
+				Assert.that(false);
+		}
+		
+		
+		
+		trace("\n\nTESTING PARSE SET-ACTION ANY EFFECT");
+		
+		var v = "set-action any()";
+		var prop = parseEffectProperties(v);
+		Assert.null(prop);
+		
+		
+		var v = "set-action any(skewX, 10, 5)";
+		var prop = parseEffectProperties(v);
+		Assert.notNull(prop);
+		trace(prop);
+		switch (prop) {
+			case any(propName, from, to):
+				Assert.equal(propName,	"skewX",	"prop-name");
+				Assert.equal(from,		"10",		"start-value");
+				Assert.equal(to,		"5",		"end-value");
+			
+			default:
+				Assert.that(false);
+		}
+		
+		
+		var v = "set-action any(skewX, 10)";
+		var prop = parseEffectProperties(v);
+		Assert.notNull(prop);
+		trace(prop);
+		switch (prop) {
+			case any(propName, from, to):
+				Assert.equal(propName,	"skewX",	"prop-name");
+				Assert.null(from,					"start-value");
+				Assert.equal(to,		"10",		"end-value");
+			
+			default:
+				Assert.that(false);
+		}
+		
+		
+		
+		//
+		// test wipe-effect
+		//
+		
+		trace("\n\nTESTING PARSE WIPE EFFECT");
+		
+		var v = "wipe";
+		var e = parseEffect(v).as(WipeEffect);
+		Assert.notNull(e);
+		trace(e);
+		Assert.equal( e.duration,			350,		"duration" );
+		Assert.that( e.delay.notSet(),					"delay" );
+		Assert.equal( e.easing,				null,		"easing" );
+		Assert.that( e.startValue.notSet(),				"start-value" );
+		Assert.that( e.endValue.notSet(),				"end-value" );
+		
+		var v = "wipe 400ms";
+		var e = parseEffect(v).as(WipeEffect);
+		Assert.notNull(e);
+		trace(e);
+		Assert.equal( e.duration,			400,		"duration" );
+		Assert.that( e.delay.notSet(),					"delay" );
+		Assert.equal( e.easing,				null,		"easing" );
+		Assert.that( e.startValue.notSet(),				"start-value" );
+		Assert.that( e.endValue.notSet(),				"end-x-value" );
+		
+		var v = "wipe 40ms linear-out 0px 400px";
+		var e = parseEffect(v).as(WipeEffect);
+		Assert.notNull(e);
+		trace(e);
+		Assert.equal( e.duration,			40,				"duration" );
+		Assert.that( e.delay.notSet(),						"delay" );
+		Assert.equal( e.easingName,			"linear-out",	"easing-name" );
+		Assert.equal( e.startValue,			0,				"start-value" );
+		Assert.equal( e.endValue,			400,			"end-value" );
+		
+		var v = "wipe 400px";
+		var e = parseEffect(v).as(WipeEffect);
+		Assert.notNull(e);
+		trace(e);
+		Assert.equal( e.duration,			350,			"duration" );
+		Assert.that( e.delay.notSet(),						"delay" );
+		Assert.equal( e.easingName,			null,			"easing-name" );
+		Assert.that( e.startValue.notSet(),					"start-value" );
+		Assert.equal( e.endValue,			400,			"end-value" );
+		
+		
+		
+		
+		
+		//
+		// test parallel-effect
+		//
+		
+		trace("\n\nTESTING PARSE PARALLEL EFFECT");
+		
+		var v = "parallel";
+		var e = parseEffect(v);
+		Assert.null(e);
+		
+		var v = "parallel 4ms 30ms elastic-in";
+		var e = parseEffect(v).as(ParallelEffect);
+		Assert.null(e);
+		
+		var v = "parallel (fade 15ms)";
+		var e = parseEffect(v).as(ParallelEffect);
+		Assert.notNull(e, "effect");
+		trace(e);
+		Assert.equal( e.duration,			350,				"duration" );
+		Assert.that( e.delay.notSet(),							"delay" );
+		Assert.equal( e.easing,				null,				"easing" );
+		Assert.equal( e.effects.length,		1,					"child-length" );
+		Assert.that( e.effects.getItemAt(0).is(FadeEffect),		"first child-effect");
+		Assert.equal( e.effects.getItemAt(0).duration, 15,		"first child-effect duration");
+		Assert.that( e.effects.getItemAt(0).delay.notSet(),		"first child-effect delay");
+		
+		var v = "parallel 900ms 50ms bounce-out (wipe left-to-right 200ms, fade 15ms elastic-in)";
+		var e = parseEffect(v).as(ParallelEffect);
+		Assert.notNull(e, "effect");
+		trace(e);
+		Assert.equal( e.duration,			900,				"duration" );
+		Assert.equal( e.delay,				50,					"delay" );
+		Assert.equal( e.easingName,			"bounce-out",		"easing" );
+		Assert.notNull( e.effects,								"child-collection");
+		Assert.equal( e.effects.length,		2,					"child-length" );
+		Assert.that( e.effects.getItemAt(0).is(WipeEffect),		"first child-effect");
+		Assert.equal( e.effects.getItemAt(0).duration, 200,		"first child-effect duration");
+		Assert.null( e.effects.getItemAt(0).easingName,			"first-child-effect easing" );
+		Assert.that( e.effects.getItemAt(0).delay.notSet(),		"first child-effect delay");
+		
+		Assert.that( e.effects.getItemAt(1).is(FadeEffect),		"second child-effect");
+		Assert.equal( e.effects.getItemAt(1).duration, 15,		"second child-effect duration");
+		Assert.equal( e.effects.getItemAt(1).easingName,		"elastic-in",		"second-child-effect easing" );
+		Assert.that( e.effects.getItemAt(1).delay.notSet(),		"second child-effect delay");
+		
+		
+		
+		//
+		// test sequence-effect
+		//
+		
+		trace("\n\nTESTING PARSE SEQUENCE EFFECT");
+		
+		var v = "sequence";
+		var e = parseEffect(v);
+		Assert.null(e);
+		
+		var v = "sequence 4ms 30ms elastic-in";
+		var e = parseEffect(v).as(SequenceEffect);
+		Assert.null(e);
+		
+		var v = "sequence (fade 15ms)";
+		var e = parseEffect(v).as(SequenceEffect);
+		Assert.notNull(e, "effect");
+		trace(e);
+		Assert.equal( e.duration,			350,				"duration" );
+		Assert.that( e.delay.notSet(),							"delay" );
+		Assert.equal( e.easing,				null,				"easing" );
+		Assert.equal( e.effects.length,		1,					"child-length" );
+		Assert.that( e.effects.getItemAt(0).is(FadeEffect),		"first child-effect");
+		Assert.equal( e.effects.getItemAt(0).duration, 15,		"first child-effect duration");
+		Assert.that( e.effects.getItemAt(0).delay.notSet(),		"first child-effect delay");
+		
+		var v = "sequence 900ms 50ms bounce-out (wipe left-to-right 200ms, fade 15ms)";
+		var e = parseEffect(v).as(SequenceEffect);
+		Assert.notNull(e, "effect");
+		trace(e);
+		Assert.equal( e.duration,			900,				"duration" );
+		Assert.equal( e.delay,				50,					"delay" );
+		Assert.equal( e.easingName,			"bounce-out",		"easing" );
+		Assert.notNull( e.effects,								"child-collection");
+		Assert.equal( e.effects.length,		2,					"child-length" );
+		Assert.that( e.effects.getItemAt(0).is(WipeEffect),		"first child-effect");
+		Assert.equal( e.effects.getItemAt(0).duration, 200,		"first child-effect duration");
+		Assert.that( e.effects.getItemAt(0).delay.notSet(),		"first child-effect delay");
+		
+		Assert.that( e.effects.getItemAt(1).is(FadeEffect),		"second child-effect");
+		Assert.equal( e.effects.getItemAt(1).duration, 15,		"second child-effect duration");
+		Assert.that( e.effects.getItemAt(1).delay.notSet(),		"second child-effect delay");
+		
+		trace("\n\nTESTING PARSE NESTED SEQUENCE EFFECT");
+		var v = "sequence (parallel ( fade 500ms 40%, move 300ms elastic-out ), fade 600ms 100% )";
+		var e = parseEffect(v).as(SequenceEffect);
+		Assert.notNull(e, "effect");
+		trace(e);
+	//	Assert.equal( e.duration,			900,				"duration" );	
+		Assert.that( e.delay.notSet(),							"delay" );
+		Assert.equal( e.easingName,			null,				"easing" );
+		Assert.notNull( e.effects,								"child-collection");
+		Assert.equal( e.effects.length,		2,					"child-length" );
+		Assert.that( e.effects.getItemAt(0).is(ParallelEffect),	"first child-effect = '" + e.effects.getItemAt(0) + "' but should be a ParallelEffect");
+		var parallel = e.effects.getItemAt(0).as(ParallelEffect);
+		Assert.equal( parallel.effects.length, 2,					"nested child-effect");
+		Assert.that( parallel.effects.getItemAt(0).is(FadeEffect),	"first nested child-effect");
+		Assert.equal( parallel.effects.getItemAt(0).duration, 500,	"first nested child-effect duration");
+		Assert.that( parallel.effects.getItemAt(0).delay.notSet(),	"first child-effect delay");
+		Assert.that( parallel.effects.getItemAt(1).is(MoveEffect),	"second nested child-effect");
+		Assert.equal( parallel.effects.getItemAt(1).duration, 300,	"second nested child-effect duration");
+		Assert.that( parallel.effects.getItemAt(1).delay.notSet(),	"second child-effect delay");
+	//	Assert.equal( e.effects.getItemAt(0).duration, 200,		"first child-effect duration");
+	//	Assert.equal( e.effects.getItemAt(0).delay, 0,			"first child-effect delay");
+		
+		Assert.that( e.effects.getItemAt(1).is(FadeEffect),		"second child-effect");
+		Assert.equal( e.effects.getItemAt(1).duration, 600,		"second child-effect duration");
+		Assert.that( e.effects.getItemAt(1).delay.notSet(),		"second child-effect delay");
+	}
+#end
 }
 
 
-#end
 /*	
 	private inline function testURIs ()
 	{	

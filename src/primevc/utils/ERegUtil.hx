@@ -109,7 +109,7 @@ class ERegUtil #if flash9 extends EReg #end
 		
 		if (!success) {
 			trace(pos.fileName + ":" + pos.lineNumber+"; Assertion failed: '"+str+"'"+(hasResults ? " is not matched with '"+expr.matched(0)+"'" : " not matched"));
-#if flash9	trace(expr.resultToString());	#end
+			trace("results: \n"+expr.resultToString(32));
 			throw "Error";
 		} else {
 #if debug	trace(pos.fileName + ":" + pos.lineNumber+"; Assertion success: '"+expr.matched(0)+"' is correct");		#end
@@ -135,7 +135,7 @@ class ERegUtil #if flash9 extends EReg #end
 	
 		if (!success) {
 			trace(pos.fileName + ":" + pos.lineNumber+"; Assertion failed: '"+str+"'"+ (hasResults ? " is matched with '"+expr.matched(0)+"'" : ""));
-#if flash9	trace(expr.resultToString());	#end
+			trace("results: \n"+expr.resultToString(50));
 			throw "Error";
 		} else {
 #if debug	trace(pos.fileName + ":" + pos.lineNumber+"; Assertion success: '"+str + "' is not matched");		#end
@@ -158,8 +158,17 @@ class ERegUtil #if flash9 extends EReg #end
 		return output;
 	}
 	
-	public static inline function getExpression (expr:EReg) { return expr.r; }
+	public static inline function getExpression (expr:EReg, results:Int = 0) { return expr.r; }
 	
+	#elseif neko
+	public static inline function resultToString (expr:EReg, results:Int = 0) : String
+	{
+		var output = "";
+		for (i in 0...results)
+			output += "\n[ "+i+" ] = "+expr.matched(i);
+		
+		return output;
+	}
 	#end
 #end
 }

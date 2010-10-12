@@ -326,21 +326,21 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 		var posY:Int	= bounds.top;
 		var centerY:Int	= bounds.top + (bounds.height * .5).int();
 		
+		var groupHeight = group.height;
+		var emptyHeight	= 0;
+		if (group.is(AdvancedLayoutClient))
+		{
+			groupHeight = IntMath.max( 0, group.as(AdvancedLayoutClient).measuredHeight );
+			//check if there's any width left. This happens when there's an explicitWidth set.
+			emptyHeight	= IntMath.max( 0, group.height - groupHeight );
+		}
+		
 		if (group.childHeight.isSet())
 		{
-			depth = group.children.length - posY.divRound(group.childHeight);
+			depth = group.children.length - ( posY - emptyHeight ).divRound( group.childHeight );
 		}
 		else
 		{
-			var groupHeight = group.height;
-			var emptyHeight	= 0;
-			if (group.is(AdvancedLayoutClient))
-			{
-				groupHeight = IntMath.max( 0, group.as(AdvancedLayoutClient).measuredHeight );
-				//check if there's any width left. This happens when there's an explicitWidth set.
-				emptyHeight	= IntMath.max( 0, group.height - groupHeight );
-			}
-			
 			//if pos <= emptyHeight, the depth will be at the end of the list
 			if (posY <= emptyHeight)
 				depth = group.children.length;

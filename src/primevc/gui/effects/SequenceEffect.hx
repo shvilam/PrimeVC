@@ -26,8 +26,10 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.effects;
+package primevc.gui.effects;	
+#if (flash8 || flash9 || js)
  import primevc.gui.effects.effectInstances.SequenceEffectInstance;
+#end
 
 
 /**
@@ -44,10 +46,12 @@ class SequenceEffect extends CompositeEffect
 	}
 	
 	
+#if (flash8 || flash9 || js)
 	override public function createEffectInstance (target)
 	{
 		return cast new SequenceEffectInstance(target, this);
 	}
+#end
 	
 	
 	override private function getCompositeDuration ()
@@ -57,4 +61,12 @@ class SequenceEffect extends CompositeEffect
 			d += effect.duration;
 		return d;
 	}
+	
+	
+#if (debug || neko)
+	override public function toCSS (prefix:String = "") : String
+	{
+		return "sequence " + super.toCSS(prefix);
+	}
+#end
 }

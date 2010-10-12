@@ -45,9 +45,9 @@ class CompositeEffectInstance extends EffectInstance < Dynamic, CompositeEffect 
 	
 	
 	public function new (target, effect)
-	{
-		super(target, effect);
+	{	
 		effectInstances = FastArrayUtil.create();
+		super(target, effect);
 		
 		addEffectInstance.on( effect.effects.events.added, this );
 		removeEffectInstance.on( effect.effects.events.removed, this );
@@ -94,7 +94,13 @@ class CompositeEffectInstance extends EffectInstance < Dynamic, CompositeEffect 
 	
 	
 	override private function initStartValues () {}
-	override public function setValues (v:EffectProperties) {}
+	override public function setValues (v:EffectProperties)
+	{
+		for (effect in effectInstances)
+			effect.setValues(v);
+	}
+	
+	
 	override private function calculateTweenStartPos () : Float { return 0; }
 	
 	

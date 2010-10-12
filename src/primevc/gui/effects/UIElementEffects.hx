@@ -96,10 +96,10 @@ class UIElementEffects implements IDisposable
 	private var effects : EffectStyleDeclarations;
 	
 	
-	public function new ( target:IUIElement )
+	public function new ( target:IUIElement, effects:EffectStyleDeclarations = null )
 	{
-		this.target = target;
-		effects		= target.style.getEffects();
+		this.target 	= target;
+		this.effects	= effects;
 	}
 	
 	
@@ -127,7 +127,8 @@ class UIElementEffects implements IDisposable
 	
 	
 	public function playMove ()
-	{	
+	{
+#if (flash8 || flash9 || js)
 		Assert.that( effects != null );
 		if (move == null)
 		{
@@ -141,11 +142,18 @@ class UIElementEffects implements IDisposable
 			move.setValues( EffectProperties.position( target.x, target.y, target.layout.getHorPosition(), target.layout.getVerPosition() ) );
 			move.play();
 		}
+		else
+		{
+			target.x = target.layout.getHorPosition();
+			target.y = target.layout.getVerPosition();
+		}
+#end
 	}
 	
 	
 	public inline function playResize ()
 	{
+#if (flash8 || flash9 || js)
 		Assert.that( effects != null );
 		if (resize == null)
 		{
@@ -159,11 +167,18 @@ class UIElementEffects implements IDisposable
 			resize.setValues( EffectProperties.size( target.width, target.height, target.layout.width, target.layout.height ) );
 			resize.play();
 		}
+		else
+		{
+			target.width	= target.layout.width;
+			target.height	= target.layout.height;
+		}
+#end
 	}
 	
 	
 	public inline function playRotate ( endV:Float )
 	{
+#if (flash8 || flash9 || js)
 		if (rotate == null)
 		{
 			var effect = effects.rotate;
@@ -176,11 +191,17 @@ class UIElementEffects implements IDisposable
 			rotate.setValues( EffectProperties.rotation( target.rotation, endV ) );
 			rotate.play();
 		}
+		else
+		{
+			target.rotation = endV;
+		}
+#end
 	}
 	
 	
 	public inline function playScale ( endSx:Float, endSy:Float )
 	{
+#if (flash8 || flash9 || js)
 		if (scale == null)
 		{
 			var effect = effects.scale;
@@ -193,11 +214,18 @@ class UIElementEffects implements IDisposable
 			scale.setValues( EffectProperties.scale( target.scaleX, target.scaleY, endSx, endSy ) );
 			scale.play();
 		}
+		else
+		{
+			target.scaleX = endSx;
+			target.scaleY = endSy;
+		}
+#end
 	}
 	
 	
 	public inline function playShow ()
 	{
+#if (flash8 || flash9 || js)
 		if (show == null)
 		{
 			var effect = effects.show;
@@ -215,11 +243,13 @@ class UIElementEffects implements IDisposable
 		
 			show.play();
 		}
+#end
 	}
 	
 	
 	public inline function playHide ()
 	{
+#if (flash8 || flash9 || js)
 		if (hide == null)
 		{
 			var effect = effects.hide;
@@ -237,6 +267,7 @@ class UIElementEffects implements IDisposable
 		
 			hide.play();
 		}
+#end
 	}
 	
 	

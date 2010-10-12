@@ -41,7 +41,7 @@ package cases;
 // import primevc.gui.effects.SetAction;
 // import primevc.gui.effects.ScaleEffect;
 // import primevc.gui.effects.SequenceEffect;
- import primevc.gui.effects.UIElementEffects;
+// import primevc.gui.effects.UIElementEffects;
 // import primevc.gui.effects.WipeEffect;
  import primevc.gui.events.DragEvents;
  import primevc.gui.events.DropTargetEvents;
@@ -222,9 +222,9 @@ class Tile extends Button, implements IDraggable
 		super();
 		dragEvents	= new DragEvents();
 		
-		effects			= new UIElementEffects( this );
+	//	effects			= new UIElementEffects( this );
 	//	effects.move	= new TileFadeMoveEffect();
-	//	effects.move	= new MoveEffect(null, 400); //, 0, Eff.easeOut);
+	//	effects.move	= cast new MoveEffect(400).createEffectInstance(this); //, 0, Eff.easeOut);
 	//	effects.move	= new TileMoveScaleEffect();
 	//	effects.move	= new TileRotateFadeScaleMoveEffect();
 	}
