@@ -37,12 +37,15 @@ TileList {
 	padding: 10px;
 	child-width: 40px;
 	child-height: 40px;
+	resize-transition: resize 3000ms;
+	overflow: hidden;
 }
 
 
 #frame0 {
 	algorithm: float-ver( bottom );
 	height: 100%;
+	overflow: corner-scroll;
 }
 
 #frame1 {
@@ -52,6 +55,8 @@ TileList {
 	top: 5px;
 	right: 5px;
 	left: 5px;
+	
+	overflow: scroll-mouse-move;
 }
 
 #frame2 {
@@ -60,6 +65,7 @@ TileList {
 	top: 90px;
 	bottom: 5px;
 	left: 5px;
+	overflow: drag-scroll;
 }
 
 #frame3 {

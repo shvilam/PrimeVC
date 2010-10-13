@@ -27,12 +27,14 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.scroll;
+#if !neko
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.events.KeyModState;		// <= needed for typedef TargetType
  import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.IScrollableLayout;
  import primevc.gui.traits.IScrollable;
   using primevc.utils.TypeUtil;
+#end
 
 
 
@@ -44,6 +46,7 @@ package primevc.gui.behaviours.scroll;
  */
 class ScrollHelper
 {
+#if !neko
 	public static inline function getLocalMouse (target:IScrollable, mouseObj:MouseState)
 	{
 		var mousePos = (mouseObj.target != target.container.as(TargetType))
@@ -54,5 +57,6 @@ class ScrollHelper
 		mousePos.x -= scrollLayout.getHorPosition() + scrollLayout.padding.left;
 		mousePos.y -= scrollLayout.getVerPosition() + scrollLayout.padding.top;
 		return mousePos;
-	}
+	}	
+#end
 }

@@ -28,6 +28,13 @@
  */
 package primevc.gui.styling.declarations;
  import primevc.core.traits.Invalidatable;
+#if neko
+ import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
+ import primevc.gui.behaviours.layout.UnclippedLayoutBehaviour;
+ import primevc.gui.behaviours.scroll.CornerScrollBehaviour;
+ import primevc.gui.behaviours.scroll.DragScrollBehaviour;
+ import primevc.gui.behaviours.scroll.MouseMoveScrollBehaviour;
+#end
  import primevc.gui.core.ISkin;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.fills.IFill;
@@ -150,6 +157,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	private var _opacity	: Float;
 	private var _visible	: Null < Bool >;
 	private var _icon		: Bitmap;
+	private var _overflow	: Class < Dynamic >;
 	
 	private var _background	: IFill;
 	private var _border		: IBorder<IFill>;
@@ -172,6 +180,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	public var opacity		(getOpacity,	setOpacity)		: Float;
 	public var visible		(getVisible,	setVisible)		: Null< Bool >;
 	public var icon			(getIcon,		setIcon)		: Bitmap;
+	public var overflow		(getOverflow,	setOverflow)	: Class < Dynamic >;
 	
 	public var background	(getBackground, setBackground)	: IFill;
 	public var border		(getBorder,		setBorder)		: IBorder<IFill>;
@@ -205,7 +214,8 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		effects		: EffectStyleDeclarations = null,
 		boxFilters	: FilterStyleDeclarations = null,
 		bgFilters	: FilterStyleDeclarations = null,
-		icon		: Bitmap = null
+		icon		: Bitmap = null,
+		overflow	: Class < Dynamic > = null
 	)
 	{
 		super();
@@ -227,6 +237,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		_boxFilters	= boxFilters;
 		_bgFilters	= bgFilters;
 		_icon		= icon;
+		_overflow	= overflow;
 	}
 	
 	
@@ -262,6 +273,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		_boxFilters	= null;
 		_bgFilters	= null;
 		_icon		= null;
+		_overflow	= null;
 		
 		uuid		= null;
 		
@@ -424,6 +436,15 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		var v = _icon;
 		if (v == null && extendedStyle != null)		v = extendedStyle.icon;
 		if (v == null && superStyle != null)		v = superStyle.icon;
+		return v;
+	}
+	
+
+	private function getOverflow ()
+	{
+		var v = _overflow;
+		if (v == null && extendedStyle != null)		v = extendedStyle.overflow;
+		if (v == null && superStyle != null)		v = superStyle.overflow;
 		return v;
 	}
 	
@@ -597,6 +618,16 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	}
 	
 	
+	private function setOverflow (v)
+	{
+		if (v != _overflow) {
+			_overflow = v;
+			invalidate( StyleFlags.OVERFLOW );
+		}
+		return v;
+	}
+	
+	
 	
 
 
@@ -615,6 +646,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		if (_visible != null)		css += "\n\tvisability: "+ _visible + ";";
 		if (_opacity.isSet())		css += "\n\topacity: "+ _opacity + ";";
 		if (_icon != null)			css += "\n\ticon: "+ _icon + ";";
+		if (_overflow != null)		css += "\n\toverflow: "+ overflowToCSS() + ";";
 		if (_layout != null)		css += _layout.toCSS();
 		if (_font != null)			css += _font.toCSS();
 		if (_effects != null)		css += _effects.toCSS();
@@ -648,13 +680,38 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		 	&& (_effects == null || _effects.isEmpty())
 			&& (_boxFilters == null || _boxFilters.isEmpty())
 			&& (_bgFilters == null || _bgFilters.isEmpty())
-			&& _icon == null;
+			&& _icon == null
+			&& _overflow == null;
 	}
 	
 	
 	public function hasChildren () : Bool
 	{
 		return children != null && !children.isEmpty();
+	}
+	
+	
+	private function overflowToCSS () : String
+	{
+#if neko
+		return switch (_overflow) {
+				case UnclippedLayoutBehaviour:	"visible";
+				case ClippedLayoutBehaviour:	"hidden";
+				case DragScrollBehaviour:		"drag-scroll";
+				case CornerScrollBehaviour:		"corner-scroll";
+				case MouseMoveScrollBehaviour:	"scroll-mouse-move";
+			}
+#else
+		return null;
+#end
+	/*	return switch (_overflow) {
+			case OverflowType.visible:			"visible";
+			case OverflowType.hidden:			"hidden";
+			case OverflowType.dragScroll:		"drag-scroll";
+			case OverflowType.scrollbars:		"scrollbars";
+			case OverflowType.cornerScroll:		"corner-scroll";
+			case OverflowType.scrollMouseMove:	"scroll-mouse-move";
+		}*/
 	}
 #end
 
@@ -665,7 +722,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		if (!isEmpty())
 		{
 			if (!allPropertiesEmpty())
-				code.construct(this, [ type, _layout, _font, _shape, _background, _border, _skin, _visible, _opacity, _effects, _boxFilters, _bgFilters, _icon ]);
+				code.construct(this, [ type, _layout, _font, _shape, _background, _border, _skin, _visible, _opacity, _effects, _boxFilters, _bgFilters, _icon, _overflow ]);
 			else
 				code.construct(this, [ type ]);
 			

@@ -233,7 +233,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	public function applyStyling ()
 	{
-		var propsToSet	= StyleFlags.BACKGROUND | StyleFlags.BORDER | StyleFlags.SHAPE | StyleFlags.SKIN | StyleFlags.VISIBLE | StyleFlags.OPACITY;
+		var propsToSet	= StyleFlags.BACKGROUND | StyleFlags.BORDER | StyleFlags.SHAPE | StyleFlags.SKIN | StyleFlags.VISIBLE | StyleFlags.OPACITY | StyleFlags.OVERFLOW;
 		var it			= style.iterator();
 		
 		while (it.hasNext() && propsToSet > 0)
@@ -285,6 +285,13 @@ class UIComponent extends Sprite, implements IUIComponent
 			{
 				visible		= styleObj.visible;
 				propsToSet	= propsToSet.unset( StyleFlags.VISIBLE );
+			}
+			
+			//read overflow
+			if ( propsToSet.has( StyleFlags.OVERFLOW ) && styleObj.overflow != null )
+			{
+				behaviours.add( Type.createInstance( styleObj.overflow, [ this ] ) );
+				propsToSet	= propsToSet.unset( StyleFlags.OVERFLOW );
 			}
 			
 			//read font properties

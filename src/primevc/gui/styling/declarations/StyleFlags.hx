@@ -55,4 +55,5 @@ class StyleFlags
 	public static inline var VISIBLE			: UInt = 8192;
 	public static inline var OPACITY			: UInt = 16384;
 	public static inline var ICON				: UInt = 32768;
+	public static inline var OVERFLOW			: UInt = 65536;
 }

@@ -45,7 +45,7 @@ interface IInteractive
 	var tabEnabled									: Bool;
 	var tabIndex									: Int;
 	
-#else	
+#elseif !neko
 	var mouseEnabled								: Bool;
 //	var mouseEnabled	(default, setEnabled)		: Bool;
 #end

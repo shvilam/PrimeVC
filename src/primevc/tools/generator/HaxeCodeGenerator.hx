@@ -159,6 +159,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 		else if (Std.is( v, Float ))			return Std.string(v);
 		else if (Std.is( v, Bool ))				return v ? "true" : "false";
 		else if (null != Type.getEnum(v))		return getEnumName(v);
+		else if (null != Type.getClassName(v))	return Type.getClassName(cast v);
 		else									throw "unknown value type: " + v;
 		return "";
 	}

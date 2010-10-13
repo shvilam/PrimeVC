@@ -26,18 +26,26 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.display;
- import primevc.gui.traits.IInteractive;
+package primevc.gui.behaviours.layout;
+ import primevc.gui.behaviours.BehaviourBase;
+ import primevc.gui.core.IUIContainer;
+
 
 
 /**
+ * Behaviour to overwrite the ClippedLayoutBehaviour. Behaviour will remove
+ * the scrollrect of the target to represent the css property 
+ * "overflow = visible;".
+ * 
  * @author Ruben Weijers
- * @creation-date Jul 13, 2010
+ * @creation-date Oct 13, 2010
  */
-interface IDisplayContainer implements IInteractive
+class UnclippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 {
 #if !neko
-	var children	(default, null)			: DisplayList;
-	var window		(default, setWindow)	: Window;
+	override private function init ()
+	{
+		target.scrollRect = null;
+	}
 #end
 }

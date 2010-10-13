@@ -4,13 +4,7 @@ package cases;
  import primevc.gui.display.TextField;
 // import com.elad.optimize.memory.FrameStats;
 #end
-// import primevc.core.geom.constraints.SizeConstraint;
-// import primevc.core.geom.space.Direction;
-// import primevc.core.geom.space.Horizontal;
-// import primevc.core.geom.space.Position;
  import primevc.core.geom.space.Vertical;
-// import primevc.core.geom.Box;
-// import primevc.core.geom.IntPoint;
  import primevc.core.geom.IRectangle;
  import primevc.core.Application;
  import primevc.gui.behaviours.drag.DragDropBehaviour;
@@ -18,31 +12,12 @@ package cases;
  import primevc.gui.behaviours.drag.DropTargetBehaviour;
  import primevc.gui.behaviours.drag.ShowDragGapBehaviour;
  import primevc.gui.behaviours.drag.DragSource;
- import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
  import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
-// import primevc.gui.behaviours.BehaviourBase;
-// import primevc.gui.behaviours.scroll.CornerScrollBehaviour;
-// import primevc.gui.behaviours.scroll.MouseMoveScrollBehaviour;
- import primevc.gui.behaviours.scroll.DragScrollBehaviour;
-// import primevc.gui.core.IUIComponent;
-// import primevc.gui.core.IUIElement;
  import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIDataComponent;
 // import primevc.gui.core.UIGraphic;
 // import primevc.gui.core.UITextField;
  import primevc.gui.core.UIWindow;
-// import primevc.gui.effects.AnchorScaleEffect;
-// import primevc.gui.effects.EffectProperties;
-// import primevc.gui.effects.FadeEffect;
-// import primevc.gui.effects.MoveEffect;
-// import primevc.gui.effects.ParallelEffect;
-// import primevc.gui.effects.ResizeEffect;
-// import primevc.gui.effects.RotateEffect;
-// import primevc.gui.effects.SetAction;
-// import primevc.gui.effects.ScaleEffect;
-// import primevc.gui.effects.SequenceEffect;
-// import primevc.gui.effects.UIElementEffects;
-// import primevc.gui.effects.WipeEffect;
  import primevc.gui.events.DragEvents;
  import primevc.gui.events.DropTargetEvents;
 // import primevc.gui.events.MouseEvents;
@@ -59,7 +34,6 @@ package cases;
  import primevc.gui.traits.IDropTarget;
  import primevc.gui.traits.IDraggable;
  import primevc.types.Number;
-// import primevc.utils.Color;
   using primevc.utils.Bind;
   using primevc.utils.Color;
   using primevc.utils.TypeUtil;
@@ -99,12 +73,6 @@ class GlobalApp extends UIContainer <Dynamic>
 	override private function createLayout ()
 	{
 		layout = new LayoutContainer();
-	}
-	
-	
-	override private function createBehaviours ()
-	{
-		behaviours.add( new ClippedLayoutBehaviour(this) );
 	}
 	
 	
@@ -221,12 +189,6 @@ class Tile extends Button, implements IDraggable
 		this.dynamicSize = dynamicSize;
 		super();
 		dragEvents	= new DragEvents();
-		
-	//	effects			= new UIElementEffects( this );
-	//	effects.move	= new TileFadeMoveEffect();
-	//	effects.move	= cast new MoveEffect(400).createEffectInstance(this); //, 0, Eff.easeOut);
-	//	effects.move	= new TileMoveScaleEffect();
-	//	effects.move	= new TileRotateFadeScaleMoveEffect();
 	}
 
 
@@ -322,15 +284,9 @@ class TileList extends Frame, implements IDropTarget
 
 	override private function createBehaviours ()
 	{
-		behaviours.add( new ClippedLayoutBehaviour(this) );
 		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
 		behaviours.add( new DropTargetBehaviour(this) );
 		behaviours.add( new ShowDragGapBehaviour(this) );
-	//	behaviours.add( new MouseMoveScrollBehaviour(this) );
-	//	behaviours.add( new CornerScrollBehaviour(this) );
-		behaviours.add( new DragScrollBehaviour(this) );
-	//	dragOverHandler.on( dragEvents.over, this );
-	//	dragOutHandler.on( dragEvents.out, this );
 		addTile.on( userEvents.mouse.doubleClick, this );
 	}
 	

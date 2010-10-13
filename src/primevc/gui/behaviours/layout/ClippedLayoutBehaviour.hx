@@ -27,12 +27,14 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.layout;
- import primevc.core.geom.Rectangle;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.IUIContainer;
+#if !neko
+ import primevc.core.geom.Rectangle;
  import primevc.gui.layout.LayoutContainer;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
+#end
  
 
 /**
@@ -46,6 +48,7 @@ package primevc.gui.behaviours.layout;
  */
 class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 {
+#if !neko
 	private var layoutContainer : LayoutContainer;
 	
 	
@@ -105,4 +108,5 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 		r.y		= layoutContainer.scrollPos.y;
 		target.scrollRect = r;
 	}
+#end
 }

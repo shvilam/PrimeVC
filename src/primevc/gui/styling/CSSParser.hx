@@ -37,6 +37,11 @@ package primevc.gui.styling;
  import primevc.core.geom.Corners;
  import primevc.core.geom.IntPoint;
  import primevc.core.IDisposable;
+ import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
+ import primevc.gui.behaviours.layout.UnclippedLayoutBehaviour;
+ import primevc.gui.behaviours.scroll.CornerScrollBehaviour;
+ import primevc.gui.behaviours.scroll.DragScrollBehaviour;
+ import primevc.gui.behaviours.scroll.MouseMoveScrollBehaviour;
  import primevc.gui.effects.AnchorScaleEffect;
  import primevc.gui.effects.CompositeEffect;
  import primevc.gui.effects.Easing;
@@ -938,7 +943,10 @@ class CSSParser
 		//	case "cursor":			// auto, move, help, pointer, wait, text, n-resize, ne-resize, e-resize, se-resize, s-resize, sw-resize, w-resize, nw-resize, url(..)
 			case "visibility":					parseAndSetVisibility( val );	// visible, hidden
 			case "opacity":						parseAndSetOpacity( val );		// alpha value of entire element
-		//	case "resize":			// horizontal / vertical / both / none;	/* makes a textfield resizable in the right bottom corner */
+		//	case "resize":			// horizontal / vertical / both / none;	/* makes a textfield resizable in the right bottom corner */	
+			
+		//	case "clip":		// auto, rect([t],[r],[b],[l])	--> specifies the area of an absolutly positioned box that should be visible == scrollrect size?
+			case "overflow":					parseAndSetOverflow( val ); // visible, hidden, scroll-mouse-move, drag-scroll, corner-scroll, scrollbars
 		
 		
 			// textfield properties
@@ -989,9 +997,6 @@ class CSSParser
 			case "padding-bottom":				if (isUnitInt(val))	{ createPaddingBlock();		currentBlock.layout.padding.bottom	= parseUnitInt( val ); }
 			case "padding-right":				if (isUnitInt(val))	{ createPaddingBlock();		currentBlock.layout.padding.right	= parseUnitInt( val ); }
 			case "padding-left":				if (isUnitInt(val))	{ createPaddingBlock();		currentBlock.layout.padding.left	= parseUnitInt( val ); }
-			
-		//	case "clip":		// auto, rect([t],[r],[b],[l])	--> specifies the area of an absolutly positioned box that should be visible == scrollrect size?
-		//	case "overflow":	// visible, hidden, scroll-mouse-move, drag-scroll, corner-scroll
 			
 			
 			//
@@ -2917,6 +2922,32 @@ class CSSParser
 		var bmp = parseBitmap(v);
 		if (bmp != null)
 			currentBlock.icon = bmp;
+	}
+	
+	
+	/**
+	 * The overflow declaration tells the framework what to do with content 
+	 * that doesn't fit in the box.
+	 * 
+	 * Allowed values:
+	 * 	- visible					content of a box can flow over the edges
+	 * 	- hidden					overflowing content is completly hidden
+	 * 	- scroll-mouse-move			same as hidden, but the hidden content is reachable by scrolling. Scrolling will happen by moving the mouse over the box.
+	 * 	- drag-scroll				same as hidden, but the hidden content is reachable by scrolling. Scrolling will happen by dragging the box.
+	 * 	- corner-scroll				same as hidden, but the hidden content is reachable by scrolling. Scrolling will happen when the mouse reaches the edges of the box.
+	 * 	- scrollbars				same as hidden, but the hidden content is reachable by scrolling. Scrolling will happen by moving the scrollbars.
+	 */
+	private function parseAndSetOverflow (v:String) : Void
+	{
+		currentBlock.overflow = switch (v.trim().toLowerCase()) {
+			case "visible":				cast UnclippedLayoutBehaviour;
+			case "hidden":				cast ClippedLayoutBehaviour;
+			case "scroll-mouse-move":	cast MouseMoveScrollBehaviour;
+			case "drag-scroll":			cast DragScrollBehaviour;
+			case "corner-scroll":		cast CornerScrollBehaviour;
+			case "scrollbars":			null;
+			default:					null;
+		}
 	}
 	
 	
