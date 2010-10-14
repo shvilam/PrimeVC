@@ -30,6 +30,8 @@ package primevc.gui.graphics;
  import primevc.core.traits.Validatable;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
+#end
+#if (neko || debug)
  import primevc.utils.StringUtil;
 #end
 
@@ -43,7 +45,7 @@ package primevc.gui.graphics;
  */
 class GraphicElement extends Validatable, implements IGraphicElement 
 {
-#if neko
+#if (neko || debug)
 	public var uuid (default, null)	: String;
 	
 	
@@ -59,8 +61,9 @@ class GraphicElement extends Validatable, implements IGraphicElement
 		uuid = null;
 		super.dispose();
 	}
-	
-	
+#end
+
+#if neko	
 	public function toCode (code:ICodeGenerator) { Assert.abstract(); }
 #end
 

@@ -101,7 +101,6 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >, implements IR
 	
 	public function render ()
 	{
-	//	trace("render "+target+" size: "+target.rect);
 		target.graphics.clear();
 		target.graphicData.value.draw( target, false );
 	}

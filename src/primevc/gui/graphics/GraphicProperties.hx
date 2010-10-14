@@ -102,23 +102,23 @@ class GraphicProperties implements IGraphicElement
 	}
 	
 
-	public inline function invalidate (change:UInt) : Void
+	public  function invalidate (change:UInt) : Void
 	{
 		if (listeners != null)
 		{
 			changes = changes.set(change);
-			invalidateCall(change);
+			for (listener in listeners)
+				listener.invalidateCall( change );
+
+			if (changeEvent != null)
+				changeEvent.send();
 		}
 	}
 	
 	
 	public inline function invalidateCall (change:UInt) : Void
 	{
-		for (listener in listeners)
-			listener.invalidateCall( change );
-		
-		if (changeEvent != null)
-			changeEvent.send();
+		invalidate(change);
 	}
 	
 	

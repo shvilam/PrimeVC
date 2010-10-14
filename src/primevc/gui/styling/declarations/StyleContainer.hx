@@ -71,9 +71,10 @@ class StyleContainer
 		styleNameSelectors	= new Hash();
 		idSelectors			= new Hash();
 		
-		createElementSelectors();
-		createStyleNameSelectors();
-		createIdSelectors();
+		createSelectors();
+	//	createElementSelectors();
+	//	createStyleNameSelectors();
+	//	createIdSelectors();
 	}
 	
 	
@@ -85,9 +86,10 @@ class StyleContainer
 	}
 	
 	
-	private function createElementSelectors ()		: Void {} // Assert.abstract(); }
-	private function createStyleNameSelectors ()	: Void {} // Assert.abstract(); }
-	private function createIdSelectors ()			: Void {} // Assert.abstract(); }
+	private function createSelectors ()				: Void {} // Assert.abstract(); }
+//	private function createElementSelectors ()		: Void {} // Assert.abstract(); }
+//	private function createStyleNameSelectors ()	: Void {} // Assert.abstract(); }
+//	private function createIdSelectors ()			: Void {} // Assert.abstract(); }
 	
 	
 #if (debug || neko)

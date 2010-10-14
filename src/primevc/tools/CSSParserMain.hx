@@ -80,7 +80,7 @@ class CSSParserMain
 		if (!neko.FileSystem.exists( tplName ))
 			throw "Template does not exist! "+tplName;
 		
-		template	= neko.io.File.getContent( tplName );
+		template = neko.io.File.getContent( tplName );
 	}
 	
 	
@@ -92,9 +92,21 @@ class CSSParserMain
 	
 	public function generateCode ()
 	{
-		generateSelectorCode( cast styles.children.elementSelectors, "elementSelectors" );
-		generateSelectorCode( cast styles.children.styleNameSelectors, "styleNameSelectors" );
-		generateSelectorCode( cast styles.children.idSelectors, "idSelectors" );
+		var code:String = "";
+		generator.start();
+		code += generateSelectorCode( cast styles.children.elementSelectors, "elementSelectors" );
+		code += generateSelectorCode( cast styles.children.styleNameSelectors, "styleNameSelectors" );
+		code += generateSelectorCode( cast styles.children.idSelectors, "idSelectors" );
+		
+		//write to template
+		var name = "//selectors";
+		var pos = template.indexOf( name );
+		if (pos > -1) {
+			pos += name.length;
+			var begin	= template.substr( 0, pos );
+			var end 	= template.substr( pos );
+			template	= begin + generator.flush() + end;
+		}
 	}
 	
 	
@@ -111,22 +123,12 @@ class CSSParserMain
 	private function generateSelectorCode (selectorHash:Hash<ICodeFormattable>, name:String) : Void
 	{
 		//create selector code
-		generator.start();
 		var keys = selectorHash.keys();
 		for (key in keys)
 		{
 			var val = selectorHash.get(key);
 			if (!val.isEmpty())
 				generator.setSelfAction( name + ".set", [ key, val ] );
-		}
-		
-		//write to template
-		var pos = template.indexOf( "//" + name );
-		if (pos > -1) {
-			pos += name.length + 2;
-			var begin	= template.substr( 0, pos );
-			var end 	= template.substr( pos );
-			template	= begin + generator.flush() + end;
 		}
 	}
 }

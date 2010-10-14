@@ -37,15 +37,16 @@ package primevc.tools.generator;
  */
 interface ICodeFormattable implements IUIdentifiable
 {
-	
-	/**
-	 * Method to write to content of the object as haxe code.
-	 */
-	public function toCode (c:ICodeGenerator) : Void;
-	/*
-	 * Returns true when some values within the object are set, otherwise false
-	 */
-	public function isEmpty () : Bool;
+	#if neko
+		/**
+		 * Method to write to content of the object as haxe code.
+		 */
+		public function toCode (c:ICodeGenerator) : Void;
+		/*
+		 * Returns true when some values within the object are set, otherwise false
+		 */
+		public function isEmpty () : Bool;
+	#end
 }
 #else
 interface ICodeFormattable {}

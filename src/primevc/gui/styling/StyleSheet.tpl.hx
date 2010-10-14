@@ -48,20 +48,8 @@ class Style extends UIElementStyle
 
 class CurStyleContainer extends StyleContainer
 {
-	override private function createElementSelectors () : Void
+	override private function createSelectors () : Void
 	{
-		//elementSelectors
-	}
-	
-	
-	override private function createStyleNameSelectors () : Void
-	{
-		//styleNameSelectors
-	}
-	
-	
-	override private function createIdSelectors () : Void
-	{
-		//idSelectors
+		//selectors
 	}
 }

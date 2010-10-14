@@ -152,7 +152,7 @@ class GlobalApp extends UIContainer <Dynamic>
 		var tileStyle	= window.as(UIWindow).style.idStyle.children.elementSelectors.get( Tile.getClassName() );
 		var newColor	= Color.random();
 		tileStyle.background.as( primevc.gui.graphics.fills.SolidFill ).color = newColor;
-		trace("changeTileColor to "+newColor);
+		trace("changeTileColor to "+newColor.string());
 	}
 }
 

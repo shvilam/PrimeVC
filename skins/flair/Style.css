@@ -106,7 +106,7 @@ TileList {
 
 #frame0 Tile { background: #0000ff; shape: ellipse; move-transition: move 400ms quint-out; }
 #frame1 Tile { background: #00ff00; shape: circle;  }
-#frame2 Tile { background: #000000aa; shape: triangle; move-transition: sequence ( parallel ( fade 500ms 40%, move 300ms circ-out ), fade 600ms 100% ) ; }
+#frame2 Tile { /*background: #000000aa; */shape: triangle; move-transition: sequence ( parallel ( fade 500ms 40%, move 300ms circ-out ), fade 600ms 100% ) ; }
 #frame8 Tile { move-transition: sequence( rotate 500ms 360deg, move 300ms, rotate 400ms -360deg ); show-transition: fade 0% 100% 350ms; }
 
 

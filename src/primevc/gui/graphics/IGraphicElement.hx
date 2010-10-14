@@ -28,9 +28,7 @@
  */
 package primevc.gui.graphics;
  import primevc.core.traits.IValidatable;
-#if neko
  import primevc.tools.generator.ICodeFormattable;
-#end
  import primevc.tools.generator.ICSSFormattable;
 
 
@@ -39,8 +37,8 @@ package primevc.gui.graphics;
  * @creation-date Jul 30, 2010
  */
 interface IGraphicElement 
-				implements IValidatable
-			,	implements ICSSFormattable
-#if neko	,	implements ICodeFormattable		#end
+		implements IValidatable
+	,	implements ICSSFormattable
+	,	implements ICodeFormattable
 {
 }
