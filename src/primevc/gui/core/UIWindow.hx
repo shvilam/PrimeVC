@@ -30,6 +30,7 @@ package primevc.gui.core;
 #if (flash9 && stats)
  import net.hires.debug.Stats;
 #end
+ import primevc.core.geom.IntRectangle;
  import primevc.core.traits.IIdentifiable;
  import primevc.core.Application;
  import primevc.core.Bindable;
@@ -91,6 +92,7 @@ class UIWindow extends Window
 	
 	public var style				(default, null)					: StyleSheet;
 	public var styleClasses			(default, null)					: Bindable < String >;
+	public var rect					(default, null)					: IntRectangle;
 #end
 	
 	public var renderManager		(default, null)					: RenderManager;
@@ -109,6 +111,7 @@ class UIWindow extends Window
 		graphicData			= new Bindable < GraphicProperties > ();
 		styleClasses		= new Bindable < String >("");
 		style				= new GlobalStyleSheet(this);
+		rect				= new IntRectangle();
 		
 		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
 		behaviours.add( new RenderGraphicsBehaviour(this) );
@@ -143,11 +146,13 @@ class UIWindow extends Window
 		layout.dispose();
 		invalidationManager.dispose();
 		renderManager.dispose();
+		rect.dispose();
 		
 		behaviours			= null;
 		layout				= null;
 		invalidationManager	= null;
 		renderManager		= null;
+		rect				= null;
 		
 		super.dispose();
 	}

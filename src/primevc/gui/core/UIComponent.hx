@@ -253,7 +253,7 @@ class UIComponent extends Sprite, implements IUIComponent
 			{
 				createGraphicDataObj();
 				graphicData.value.shape		= styleObj.shape;
-				graphicData.value.layout	= layout.bounds;
+				graphicData.value.layout	= rect;
 				propsToSet = propsToSet.unset( StyleFlags.SHAPE );
 			}
 			
@@ -381,9 +381,12 @@ class UIComponent extends Sprite, implements IUIComponent
 		var rotate	= effectProps.rotate;
 		var move	= effectProps.move;
 		
-		if (show != null || hide != null || scale != null || resize != null || rotate != null || move != null)
-			effects = new UIElementEffects(this, effectProps);
-		
+		if (show != null || hide != null || scale != null || resize != null || rotate != null || move != null) {
+			if (effects == null)
+				effects = new UIElementEffects(this, effectProps);
+			else
+				effects.collection = effectProps;
+		}
 	}
 #end
 	

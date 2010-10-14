@@ -59,6 +59,9 @@ class CompositeEffectInstance extends EffectInstance < Dynamic, CompositeEffect 
 	
 	override public function dispose ()
 	{
+		if (state == null)
+			return;
+		
 		for (inst in effectInstances)
 			inst.dispose();
 		
@@ -72,8 +75,10 @@ class CompositeEffectInstance extends EffectInstance < Dynamic, CompositeEffect 
 	override public function stop ()
 	{
 		super.stop();
-		for (effect in effectInstances)
-			effect.stop();
+		
+		if (effectInstances != null)
+			for (effect in effectInstances)
+				effect.stop();
 	}
 	
 	

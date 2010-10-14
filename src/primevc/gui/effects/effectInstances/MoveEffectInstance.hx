@@ -32,6 +32,7 @@ package primevc.gui.effects.effectInstances;
  import primevc.gui.traits.IPositionable;
  import primevc.types.Number;
   using primevc.utils.NumberUtil;
+  using Std;
 
 
 
@@ -103,8 +104,8 @@ class MoveEffectInstance extends EffectInstance < IPositionable, MoveEffect >
 
 	override private function tweenUpdater ( tweenPos:Float )
 	{
-		if (isXChanged())	target.x = ( endX * tweenPos ) + ( startX * (1 - tweenPos) );
-		if (isYChanged())	target.y = ( endY * tweenPos ) + ( startY * (1 - tweenPos) );
+		if (isXChanged())	target.x = target.rect.left	= (( endX * tweenPos ) + ( startX * (1 - tweenPos) )).int();
+		if (isYChanged())	target.y = target.rect.top	= (( endY * tweenPos ) + ( startY * (1 - tweenPos) )).int();
 	}
 	
 	

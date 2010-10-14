@@ -29,8 +29,9 @@
 package primevc.gui.graphics;
  import haxe.FastList;
  import primevc.core.dispatcher.Signal0;
- import primevc.core.geom.IRectangle;
- import primevc.core.traits.IInvalidatable;
+ import primevc.core.geom.IntRectangle;
+ import primevc.core.traits.IInvalidateListener;
+ import primevc.core.traits.IValidatable;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.shapes.IGraphicShape;
@@ -39,6 +40,7 @@ package primevc.gui.graphics;
  import primevc.tools.generator.ICodeGenerator;
  import primevc.utils.StringUtil;
   using primevc.utils.BitUtil;
+  using primevc.utils.TypeUtil;
   using Math;
   using Std;
 
@@ -56,7 +58,7 @@ class GraphicProperties implements IGraphicElement
 	public var uuid			(default, null)			: String;
 	
 	public var changes		(default, null)			: UInt;
-	public var listeners	(default, null)			: FastList< IInvalidatable >;
+	public var listeners	(default, null)			: FastList< IInvalidateListener >;
 	/**
 	 * Signal to notify other objects than IGraphicElement of changes within
 	 * the shape.
@@ -66,13 +68,13 @@ class GraphicProperties implements IGraphicElement
 	public var fill			(default, setFill)		: IFill;
 	public var border		(default, setBorder)	: IBorder < IFill >;
 	public var shape		(default, setShape)		: IGraphicShape;
-	public var layout		(default, setLayout)	: IRectangle;
+	public var layout		(default, setLayout)	: IntRectangle;
 	
 	
-	public function new (shape:IGraphicShape = null, layout:IRectangle = null, fill:IFill = null, border:IBorder <IFill> = null)
+	public function new (shape:IGraphicShape = null, layout:IntRectangle = null, fill:IFill = null, border:IBorder <IFill> = null)
 	{	
 		uuid		= StringUtil.createUUID();
-		listeners	= new FastList< IInvalidatable >();
+		listeners	= new FastList< IInvalidateListener >();
 		this.shape	= shape;
 		this.layout	= layout;
 		this.fill	= fill;
@@ -86,6 +88,9 @@ class GraphicProperties implements IGraphicElement
 	{
 		if (border != null)	border.dispose();
 		if (fill != null)	fill.dispose();
+		
+		while (!listeners.isEmpty())
+			listeners.pop();
 		
 		changeEvent.dispose();
 		changeEvent	= null;
@@ -102,13 +107,30 @@ class GraphicProperties implements IGraphicElement
 		if (listeners != null)
 		{
 			changes = changes.set(change);
-			for (listener in listeners)
-				listener.invalidate( change );
-
-			if (changeEvent != null)
-				changeEvent.send();
-		}	
+			invalidateCall(change);
+		}
 	}
+	
+	
+	public inline function invalidateCall (change:UInt) : Void
+	{
+		for (listener in listeners)
+			listener.invalidateCall( change );
+		
+		if (changeEvent != null)
+			changeEvent.send();
+	}
+	
+	
+	public function validate ()
+	{
+		changes = 0;
+		if (border != null)				border.validate();
+		if (fill != null)				fill.validate();
+		if (shape != null)				shape.validate();
+		if (layout.is(IValidatable))	layout.as(IValidatable).validate();
+	}
+	
 	
 	
 	/**
@@ -131,7 +153,7 @@ class GraphicProperties implements IGraphicElement
 #else
 		if (layout == null || shape == null)
 			return;
-#end		
+#end
 		changes = 0;
 
 		var l = layout;
@@ -168,6 +190,8 @@ class GraphicProperties implements IGraphicElement
 			shape.draw( target, x, y, w, h );
 			border.end(target);
 		}
+		
+		validate();
 	}
 	
 	
@@ -230,11 +254,17 @@ class GraphicProperties implements IGraphicElement
 	}
 
 
-	private inline function setLayout (v:IRectangle)
+	private inline function setLayout (v)
 	{
 		if (v != layout)
 		{
+			if (layout != null)
+				layout.listeners.remove(this);
+
 			layout = v;
+			if (layout != null)
+				layout.listeners.add(this);
+			
 			invalidate( GraphicFlags.LAYOUT );
 		}
 		return v;

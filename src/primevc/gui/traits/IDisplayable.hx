@@ -29,6 +29,7 @@
 package primevc.gui.traits;
  import primevc.core.IDisposable;
 #if (flash8 || flash9 || js)
+ import primevc.core.geom.IntRectangle;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.Window;
  import primevc.gui.events.DisplayEvents;
@@ -48,10 +49,23 @@ interface IDisplayable implements IDisposable
 	 * Reference to the object in which this displayobject is placed. It 
 	 * behaves like the 'parent' property in as3.
 	 */
-	var container		(default, setContainer)			: IDisplayContainer;
+	public var container		(default, setContainer)		: IDisplayContainer;
 	/**
 	 * Wrapper object for the stage.
 	 */
-	var window			(default, setWindow)			: Window;
+	public var window			(default, setWindow)		: Window;
+	
+	
+	/**
+	 * Rectangle which contains the current width and height of the object 
+	 * (without any strokes on shapes), or the wanted width of the object.
+	 * 
+	 * For example, the resize effect will change the width in the "rect" 
+	 * property to make sure the background shape will redraw itself.
+	 * 
+	 * For the moment, the size and position is only correct when it's set
+	 * manually or by an effect. This due the lack of support for AS3 setters.
+	 */
+	public var rect				(default, null)				: IntRectangle;
 #end
 }

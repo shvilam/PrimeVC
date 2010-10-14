@@ -84,8 +84,10 @@ class WindowLayoutBehaviour extends BehaviourBase < UIWindow >
 		if (target.graphicData.value != null)
 		{
 			var l = target.layout;
-			target.bgShape.width	= l.width;
-			target.bgShape.height	= l.height;
+		//	target.bgShape.width	= l.width;
+		//	target.bgShape.height	= l.height;
+			target.rect.width		= l.width;
+			target.rect.height		= l.height;
 		}
 	}	
 #end

@@ -26,48 +26,15 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics;
- import primevc.core.traits.Validatable;
-#if neko
- import primevc.tools.generator.ICodeGenerator;
- import primevc.utils.StringUtil;
-#end
-
+package primevc.core.traits;
+ import primevc.core.IDisposable;
 
 
 /**
- * Base class for all graphic elements.
- * 
  * @author Ruben Weijers
- * @creation-date Jul 31, 2010
+ * @creation-date Oct 14, 2010
  */
-class GraphicElement extends Validatable, implements IGraphicElement 
+interface IInvalidateListener implements IDisposable
 {
-#if neko
-	public var uuid (default, null)	: String;
-	
-	
-	public function new ()
-	{
-		super();
-		uuid = StringUtil.createUUID();
-	}
-	
-	
-	override public function dispose ()
-	{
-		uuid = null;
-		super.dispose();
-	}
-	
-	
-	public function toCode (code:ICodeGenerator) { Assert.abstract(); }
-#end
-
-
-#if (neko || debug)
-	public function toString () : String				{ return toCSS(); }
-	public function toCSS (prefix:String = "") : String	{ Assert.abstract(); return ""; }
-	public function isEmpty () : Bool					{ return false; }
-#end
+	public function invalidateCall ( changes:UInt ) : Void;
 }

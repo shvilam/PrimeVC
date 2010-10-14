@@ -33,7 +33,7 @@ package primevc.core.traits;
  * @author Ruben Weijers
  * @creation-date Oct 04, 2010
  */
-interface IValidatable extends IInvalidatable 
+interface IValidatable implements IInvalidatable 
 {
 	public function validate () : Void;
 }

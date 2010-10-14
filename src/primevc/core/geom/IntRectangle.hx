@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.geom;
-
+ import primevc.core.traits.Validatable;
 
 
 /**
@@ -36,7 +36,7 @@ package primevc.core.geom;
  * @author Ruben Weijers
  * @creation-date Aug 03, 2010
  */
-class IntRectangle implements IRectangle 
+class IntRectangle extends Validatable, implements IRectangle
 {
 	public var left		(getLeft, setLeft)		: Int;
 	public var right	(getRight, setRight)	: Int;
@@ -46,16 +46,10 @@ class IntRectangle implements IRectangle
 	public var width	(getWidth, setWidth)	: Int;
 	public var height	(getHeight, setHeight)	: Int;
 	
-	/*
-	public function new ( top:Int = 0, right:Int = 0, bottom:Int = 0, left:Int = 0 )
-	{
-		this.top	= top;
-		this.right	= right;
-		this.bottom	= bottom;
-		this.left	= left;
-	}*/
+	
 	public function new ( x:Int = 0, y:Int = 0, width:Int = 0, height:Int = 0 )
 	{
+		super();
 		this.top	= x;
 		this.left	= y;
 		this.width	= width;
@@ -63,9 +57,9 @@ class IntRectangle implements IRectangle
 	}
 	
 	
-	public function clone () : IBox {
-		return cast new Rectangle( left, top, width, height );
-	//	return new Rectangle( top, right, bottom, left );
+	public function clone () : IBox
+	{
+		return cast new IntRectangle( left, top, width, height );
 	}
 	
 	
@@ -80,52 +74,68 @@ class IntRectangle implements IRectangle
 	//
 	
 	
-	private inline function setWidth (v:Int) {
-		width	= v;
-		right	= left + v;
-		return v;
-	}
-	
-	
-	private inline function setHeight (v:Int) {
-		height	= v;
-		bottom	= top + v;
-		return v;
-	}
-	
-	
-	private inline function setTop (v:Int) {
-		if (v != top) {
-			top		= v;
-			bottom	= v + height;
+	private inline function setWidth (v:Int)
+	{
+		if (v != width) {
+			width	= v;
+			right	= left + v;
+			invalidate( RectangleFlags.WIDTH );
 		}
 		return v;
 	}
 	
 	
-	private function setBottom (v:Int) {
+	private inline function setHeight (v:Int)
+	{
+		if (v != height) {
+			height	= v;
+			bottom	= top + v;
+			invalidate( RectangleFlags.HEIGHT );
+		}
+		return v;
+	}
+	
+	
+	private inline function setTop (v:Int)
+	{
+		if (v != top) {
+			top		= v;
+			bottom	= v + height;
+			invalidate( RectangleFlags.TOP );
+		}
+		return v;
+	}
+	
+	
+	private function setBottom (v:Int)
+	{
 		if (v != bottom) {
 			bottom	= v;
 			top		= v - height;
+			invalidate( RectangleFlags.BOTTOM );
 		}
 		
 		return v;
 	}
 	
 	
-	private inline function setLeft (v:Int) {
+	private inline function setLeft (v:Int)
+	{
 		if (v != left) {
 			left	= v;
 			right	= v + width;
+			invalidate( RectangleFlags.LEFT );
 		}
 		return v;
 	}
 	
 	
-	private function setRight (v:Int) {
+	private function setRight (v:Int)
+	{
 		if (v != right) {
 			right	= v;
 			left	= v - width;
+			invalidate( RectangleFlags.RIGHT );
 		}
 		return v;
 	}

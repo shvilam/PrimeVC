@@ -28,6 +28,7 @@
  */
 package primevc.gui.behaviours;
  import primevc.core.dispatcher.Wire;
+ import primevc.gui.core.IUIElement;
  import primevc.gui.core.UIWindow;
  import primevc.gui.traits.IDrawable;
  import primevc.gui.traits.IRenderable;
@@ -52,9 +53,10 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >, implements IR
 	{
 		Assert.that( target.layout != null );
 		
-		requestRender.on( target.layout.events.sizeChanged, this );
+		sizeChangeHandler.on( target.layout.events.sizeChanged, this );
 		updateGraphicBinding.on( target.graphicData.change, this );
 		updateGraphicBinding();
+		requestRender();
 	}
 	
 	
@@ -99,8 +101,22 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >, implements IR
 	
 	public function render ()
 	{
-	//	trace("render "+target+" size: "+target.layout.bounds.width+", "+target.layout.bounds.height);
+	//	trace("render "+target+" size: "+target.rect);
 		target.graphics.clear();
 		target.graphicData.value.draw( target, false );
+	}
+	
+	
+	private function sizeChangeHandler ()
+	{
+		var t:IUIElement = target.is(IUIElement) ? target.as(IUIElement) : null;
+		if (t == null || t.effects == null)
+		{
+		//	trace("sizeChangeHandler for "+target+"; target-rect: "+target.rect);
+			target.rect.width	= target.layout.bounds.width;
+			target.rect.height	= target.layout.bounds.height;
+		} else {
+			t.effects.playResize();
+		}
 	}
 }

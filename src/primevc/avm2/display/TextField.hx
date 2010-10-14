@@ -28,6 +28,7 @@
  */
 package primevc.avm2.display;
  import flash.display.DisplayObject;
+ import primevc.core.geom.IntRectangle;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.display.ITextField;
@@ -36,6 +37,7 @@ package primevc.avm2.display;
  import primevc.gui.events.TextEvents;
  import primevc.gui.events.UserEvents;
   using primevc.utils.TypeUtil;
+  using Std;
 
 
 /**
@@ -66,6 +68,7 @@ class TextField extends flash.text.TextField, implements ITextField
 	public var textEvents		(default, null)				: TextEvents;
 	public var userEvents		(default, null)				: UserEvents;
 	
+	public var rect				(default, null)				: IntRectangle;
 	
 	/**
 	 * Returns the textWidth + TEXT_WIDTH_PADDING
@@ -84,6 +87,7 @@ class TextField extends flash.text.TextField, implements ITextField
 		displayEvents	= new DisplayEvents( this );
 		textEvents		= new TextEvents( this );
 		userEvents		= new UserEvents( this );
+		rect			= new IntRectangle( x.int(), y.int(), width.int(), height.int() );
 	}
 	
 	
@@ -98,11 +102,14 @@ class TextField extends flash.text.TextField, implements ITextField
 		displayEvents.dispose();
 		textEvents.dispose();
 		userEvents.dispose();
+		rect.dispose();
+		
 		displayEvents	= null;
 		textEvents		= null;
 		userEvents		= null;
 		container		= null;
 		window			= null;
+		rect			= null;
 	}
 
 

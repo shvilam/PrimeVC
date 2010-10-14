@@ -28,11 +28,13 @@
  */
 package primevc.avm2.display;
  import flash.display.DisplayObject;
+ import primevc.core.geom.IntRectangle;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.display.Window;
   using primevc.utils.TypeUtil;
+  using Std;
 
 
 /**
@@ -46,12 +48,14 @@ class Shape extends flash.display.Shape, implements IDisplayObject
 	public var container		(default, setContainer)	: IDisplayContainer;
 	public var window			(default, setWindow)	: Window;
 	public var displayEvents	(default, null)			: DisplayEvents;
+	public var rect				(default, null)			: IntRectangle;
 	
 	
 	public function new () 
 	{
 		super();
-		displayEvents = new DisplayEvents( this );
+		displayEvents	= new DisplayEvents( this );
+		rect			= new IntRectangle( x.int(), y.int(), width.int(), height.int() );
 	}
 	
 	
@@ -63,10 +67,13 @@ class Shape extends flash.display.Shape, implements IDisplayObject
 		if (container != null)
 			container.children.remove(this);
 		
+		rect.dispose();
 		displayEvents.dispose();
+		
 		displayEvents	= null;
 		container		= null;
 		window			= null;
+		rect			= null;
 	}
 
 

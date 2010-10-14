@@ -32,6 +32,7 @@ package primevc.gui.effects.effectInstances;
  import primevc.gui.traits.ISizeable;
  import primevc.types.Number;
   using primevc.utils.NumberUtil;
+  using Std;
 
 
 /**
@@ -100,19 +101,19 @@ class ResizeEffectInstance extends EffectInstance < ISizeable, ResizeEffect >
 
 	override private function tweenUpdater ( tweenPos:Float )
 	{
-		if (isWChanged())	target.width	= ( endW * tweenPos ) + ( startW * (1 - tweenPos) );
-		if (isHChanged())	target.height	= ( endH * tweenPos ) + ( startH * (1 - tweenPos) );
+		if (isWChanged())	target.rect.width	= (( endW * tweenPos ) + ( startW * (1 - tweenPos) )).int();
+		if (isHChanged())	target.rect.height	= (( endH * tweenPos ) + ( startH * (1 - tweenPos) )).int();
 	}
 	
 	
 	override private function calculateTweenStartPos () : Float
 	{
 		return if (!isWChanged() && !isHChanged())	1;
-		  else if (!isHChanged())					(target.width  - startW) / (endW - startW);
-		  else if (!isWChanged())					(target.height - startH) / (endH - startH);
+		  else if (!isHChanged())					(target.rect.width  - startW) / (endW - startW);
+		  else if (!isWChanged())					(target.rect.height - startH) / (endH - startH);
 		  else										Math.min(
-				(target.width  - startW) / (endW - startW),
-				(target.height - startH) / (endH - startH)
+				(target.rect.width  - startW) / (endW - startW),
+				(target.rect.height - startH) / (endH - startH)
 			);
 	}
 }

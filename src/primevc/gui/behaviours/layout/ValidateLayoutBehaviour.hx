@@ -59,6 +59,7 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >, implements I
 		
 		layoutStateChangeHandler.on( target.layout.state.change, this );
 		requestRender.on( target.layout.events.posChanged, this );
+	//	requestRender.on( target.layout.events.sizeChanged, this );
 	}
 	
 	
@@ -99,11 +100,11 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >, implements I
 	public inline function render ()
 	{
 		var l = target.layout;
-	//	trace("applyPosition " + target.id + " / " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y);
+	//	trace("applyPosition " + target + " / " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y);
 		if (target.effects == null)
 		{
-			target.x = l.getHorPosition();
-			target.y = l.getVerPosition();
+			target.x	= target.rect.left	= l.getHorPosition();
+			target.y	= target.rect.top	= l.getVerPosition();
 		} else {
 			target.effects.playMove();
 		}

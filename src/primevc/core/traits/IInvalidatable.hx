@@ -28,14 +28,13 @@
  */
 package primevc.core.traits;
  import haxe.FastList;
- import primevc.core.IDisposable;
 
 
 /**
  * @author Ruben Weijers
  * @creation-date Jul 30, 2010
  */
-interface IInvalidatable implements IDisposable
+interface IInvalidatable implements IInvalidateListener
 {
 	public var changes (default, null)			: UInt;
 	
@@ -43,6 +42,6 @@ interface IInvalidatable implements IDisposable
 	 * List with IInvalidatables that want to be notified when values in this
 	 * instance changes
 	 */
-	public var listeners (default, null)		: FastList< IInvalidatable >;
+	public var listeners (default, null)		: FastList< IInvalidateListener >;
 	public function invalidate (change:UInt)	: Void;
 }

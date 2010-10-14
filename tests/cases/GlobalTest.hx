@@ -34,9 +34,11 @@ package cases;
  import primevc.gui.traits.IDropTarget;
  import primevc.gui.traits.IDraggable;
  import primevc.types.Number;
+ import primevc.utils.Color;
   using primevc.utils.Bind;
   using primevc.utils.Color;
   using primevc.utils.TypeUtil;
+  using Type;
 
 /**
  * @creation-date	Sep 16, 2010
@@ -73,6 +75,12 @@ class GlobalApp extends UIContainer <Dynamic>
 	override private function createLayout ()
 	{
 		layout = new LayoutContainer();
+	}
+	
+	
+	override private function createBehaviours ()
+	{
+		changeTileColor.on( userEvents.mouse.click, this );
 	}
 	
 	
@@ -136,6 +144,15 @@ class GlobalApp extends UIContainer <Dynamic>
 		children.add(frame6);
 		children.add(frame7);
 		children.add(frame8);
+	}
+	
+	
+	private function changeTileColor ()
+	{
+		var tileStyle	= window.as(UIWindow).style.idStyle.children.elementSelectors.get( Tile.getClassName() );
+		var newColor	= Color.random();
+		tileStyle.background.as( primevc.gui.graphics.fills.SolidFill ).color = newColor;
+		trace("changeTileColor to "+newColor);
 	}
 }
 

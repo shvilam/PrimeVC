@@ -29,6 +29,7 @@
  */
 package primevc.avm2.display;
  import flash.display.DisplayObject;
+ import primevc.core.geom.IntRectangle;
  import primevc.gui.display.ISprite;
  import primevc.gui.display.DisplayList;
  import primevc.gui.display.IDisplayContainer;
@@ -37,6 +38,7 @@ package primevc.avm2.display;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEvents;
   using primevc.utils.TypeUtil;
+  using Std;
 
  
 /**
@@ -58,6 +60,8 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	public var userEvents		(default, null)			: UserEvents;
 	public var displayEvents	(default, null)			: DisplayEvents;
 	
+	public var rect				(default, null)			: IntRectangle;
+	
 	
 	
 	public function new ()
@@ -66,6 +70,7 @@ class Sprite extends flash.display.Sprite, implements ISprite
 		children		= new DisplayList( this );
 		userEvents		= new UserEvents( this );
 		displayEvents	= new DisplayEvents( this );
+		rect			= new IntRectangle( x.int(), y.int(), width.int(), height.int() );
 	}
 	
 	
@@ -81,10 +86,13 @@ class Sprite extends flash.display.Sprite, implements ISprite
 		if (container != null)
 			container.children.remove(this);
 		
+		rect.dispose();
+		
 		window			= null;
 		children		= null;
 		userEvents		= null;
 		displayEvents	= null;
+		rect			= null;
 	}
 	
 	
