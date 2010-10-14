@@ -36,6 +36,10 @@ package primevc.tools.generator;
   using Type;
 
 
+private typedef ArrayMapType = SimpleDictionary < Array<Dynamic>, String >;
+private typedef VarMapType = SimpleDictionary < String, String >;
+
+
 /**
  * Class to loop through a set of IHxFormattable and put the output of these
  * objects as haxe code in a file.
@@ -46,8 +50,8 @@ package primevc.tools.generator;
 class HaxeCodeGenerator implements ICodeGenerator
 {
 	private var output		: StringBuf;
-	private var varMap		: Hash < String >;
-	private var arrayMap	: SimpleDictionary < Array<Dynamic>, String >;
+	private var varMap		: VarMapType;
+	private var arrayMap	: ArrayMapType;
 	private var varCounter	: Int;
 	private var linePrefix	: String;
 	
@@ -82,8 +86,8 @@ class HaxeCodeGenerator implements ICodeGenerator
 	public inline function start () : Void
 	{
 		output		= new StringBuf();
-		varMap		= new Hash();
-		arrayMap	= new SimpleDictionary();
+		varMap		= new VarMapType();
+		arrayMap	= new ArrayMapType();
 		varCounter	= 0;
 	}
 	

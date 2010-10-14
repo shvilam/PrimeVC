@@ -27,7 +27,14 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.types;
+ import primevc.core.collections.FastArrayForwardIterator;
+ import primevc.core.IDisposable;
+ import primevc.tools.generator.ICodeFormattable;
  import primevc.utils.FastArray;
+#if (neko || debug)
+ import primevc.tools.generator.ICodeGenerator;
+ import primevc.utils.StringUtil;
+#end
   using primevc.utils.FastArray;
 
 
@@ -37,49 +44,79 @@ package primevc.types;
  * @author Ruben Weijers
  * @creation-date Sep 30, 2010
  */
-class SimpleDictionary < KType, VType >
+class SimpleDictionary < KType, VType > 
+		implements IDisposable
+	,	implements haxe.rtti.Generic
+	,	implements ICodeFormattable
 {
-	private var keys	: FastArray < KType >;
-	private var values	: FastArray < VType >;
+	private var _keys	: FastArray < KType >;
+	private var _values	: FastArray < VType >;
 	public var length	(getLength, never)	: Int;
 	
+#if (neko || debug)
+	public var uuid		(default, null)		: String;
+#end
 	
-	public function new ()
+	
+	public function new (size:Int = 0, fixed:Bool = false)
 	{
-		keys	= FastArrayUtil.create();
-		values	= FastArrayUtil.create();
+#if (neko || debug)
+		uuid	= StringUtil.createUUID();
+#end
+		_keys	= FastArrayUtil.create(size, fixed);
+		_values	= FastArrayUtil.create(size, fixed);
 	}
 	
 	
-	public function exists (key:KType) : Bool
+	public function dispose ()
 	{
-		return keys.indexOf( key ) > -1;
+		_keys.removeAll();
+		_values.removeAll();
+		_keys	= null;
+		_values	= null;
 	}
 	
 	
 	public function set (key:KType, val:VType) : Void
 	{
-		var index = keys.indexOf(key);
+		var index = _keys.indexOf(key);
 		if (index == -1)
 		{
-			keys.push( key );
-			values.push( val );
+			_keys.push( key );
+			_values.push( val );
 		}
 		else
 		{
-			values[ index ] = val;
+			_values[ index ] = val;
 		}
 	}
 	
 	
 	public function get (key:KType) : VType
 	{
-		var index = keys.indexOf( key );
-		return (index > -1) ? values[ index ] : null;
+		var index = _keys.indexOf( key );
+		return (index > -1) ? _values[ index ] : null;
 	}
 	
 	
-	private inline function getLength () : Int {
-		return values.length;
+	
+	public inline function iterator () : Iterator < VType >		{ return new FastArrayForwardIterator < VType > ( _values ); }
+	public inline function isEmpty () : Bool					{ return _values.length == 0; }
+	private inline function getLength () : Int					{ return _values.length; }
+	public function exists (key:KType) : Bool					{ return _keys.indexOf( key ) > -1; }
+	public function keys () : Iterator < KType >				{ return new FastArrayForwardIterator < KType > ( _keys ); }
+
+
+#if neko
+	public function toCode (code:ICodeGenerator) : Void
+	{
+		if (!isEmpty())
+		{
+			code.construct( this, [ _values.length ] );
+			
+			for (i in 0...length)
+				code.setAction( this, "set", [ _keys[i], _values[i] ] );
+		}
 	}
+#end
 }

@@ -38,4 +38,5 @@ enum StyleDeclarationType {
 	id;				//all css classes that start with a #		(#uniqueStyleId)
 	styleName;		//all css classes that start with a dot.	(.styleName)
 	specific;		//the style declaration is only meant for one instance (<obj style="..." />)
+	state;			//the style declaration is a state of another selector (selector:state)
 }

@@ -42,6 +42,7 @@ package primevc.gui.styling.declarations;
  import primevc.gui.styling.declarations.StyleContainer;
  import primevc.types.Bitmap;
  import primevc.types.Number;
+ import primevc.types.SimpleDictionary;
  import primevc.utils.StringUtil;
   using primevc.utils.NumberUtil;
 
@@ -49,6 +50,8 @@ package primevc.gui.styling.declarations;
  import primevc.tools.generator.ICodeGenerator;
 #end
 
+
+typedef StatesListType = SimpleDictionary < String, UIElementStyle >;
 
 
 /**
@@ -170,6 +173,8 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	private var _boxFilters	: FilterStyleDeclarations;
 	private var _bgFilters	: FilterStyleDeclarations;
 	
+	private var _states		: StatesListType;
+	
 	
 	
 	
@@ -198,6 +203,8 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 #else
 	public var children		(default,		default)		: StyleContainer;
 #end
+
+	public var states		(getStates,		setStates)		: StatesListType;
 	
 	
 	
@@ -215,7 +222,8 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		boxFilters	: FilterStyleDeclarations = null,
 		bgFilters	: FilterStyleDeclarations = null,
 		icon		: Bitmap = null,
-		overflow	: Class < Dynamic > = null
+		overflow	: Class < Dynamic > = null,
+		states		: StatesListType = null
 	)
 	{
 		super();
@@ -238,6 +246,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		_bgFilters	= bgFilters;
 		_icon		= icon;
 		_overflow	= overflow;
+		_states		= states;
 	}
 	
 	
@@ -259,8 +268,10 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		if (_bgFilters != null)		_bgFilters.dispose();
 		if (_icon != null)			_icon.dispose();
 		
+		_states.dispose();
 		children.dispose();
 		
+		_states		= null;
 		children	= null;
 		type		= null;
 		_skin		= null;
@@ -448,6 +459,15 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		return v;
 	}
 	
+
+	private function getStates ()
+	{
+		var v = _states;
+		if (v == null && extendedStyle != null)		v = extendedStyle.states;
+		if (v == null && superStyle != null)		v = superStyle.states;
+		return v;
+	}
+	
 	
 	
 	
@@ -628,6 +648,16 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	}
 	
 	
+	private function setStates (v)
+	{
+		if (v != _states) {
+			_states = v;
+			invalidate( StyleFlags.STATES );
+		}
+		return v;
+	}
+	
+	
 	
 
 
@@ -655,8 +685,8 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		
 		css = "{" + css + "\n}";
 		
-		if (hasChildren())
-			css += "\n " + children.toCSS(namePrefix);
+		if (_states != null)		css += "\n " + statesToCSS ( namePrefix );
+		if (hasChildren())			css += "\n " + children.toCSS ( namePrefix );
 		
 		return css;
 	}
@@ -681,7 +711,8 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 			&& (_boxFilters == null || _boxFilters.isEmpty())
 			&& (_bgFilters == null || _bgFilters.isEmpty())
 			&& _icon == null
-			&& _overflow == null;
+			&& _overflow == null
+			&& (_states == null || _states.isEmpty());
 	}
 	
 	
@@ -693,7 +724,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	
 	private function overflowToCSS () : String
 	{
-#if neko
+	#if neko
 		return switch (_overflow) {
 				case UnclippedLayoutBehaviour:	"visible";
 				case ClippedLayoutBehaviour:	"hidden";
@@ -701,9 +732,9 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 				case CornerScrollBehaviour:		"corner-scroll";
 				case MouseMoveScrollBehaviour:	"scroll-mouse-move";
 			}
-#else
+	#else
 		return null;
-#end
+	#end
 	/*	return switch (_overflow) {
 			case OverflowType.visible:			"visible";
 			case OverflowType.hidden:			"hidden";
@@ -713,16 +744,40 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 			case OverflowType.scrollMouseMove:	"scroll-mouse-move";
 		}*/
 	}
+	
+	
+	private function statesToCSS (styleName:String) : String
+	{
+	#if neko
+		var css = "";
+		
+		var stateNames = _states.keys();
+		for (stateName in stateNames)
+			css += _states.get( stateName ).toCSS( styleName + ":" + stateName );
+		
+		return css;
+	#else
+		return null;
+	#end
+	}
 #end
 
 
 #if neko
 	public function toCode (code:ICodeGenerator)
 	{
+		//first make sure all containers are null when they are empty:
+		if (_layout != null && _layout.isEmpty())			_layout		= null;
+		if (_font != null && _font.isEmpty())				_font		= null;
+		if (_effects != null && _effects.isEmpty())			_effects	= null;
+		if (_boxFilters != null && _boxFilters.isEmpty())	_boxFilters	= null;
+		if (_bgFilters != null && _bgFilters.isEmpty())		_bgFilters	= null;
+		if (_states != null && _states.isEmpty())			_states		= null;
+		
 		if (!isEmpty())
 		{
 			if (!allPropertiesEmpty())
-				code.construct(this, [ type, _layout, _font, _shape, _background, _border, _skin, _visible, _opacity, _effects, _boxFilters, _bgFilters, _icon, _overflow ]);
+				code.construct(this, [ type, _layout, _font, _shape, _background, _border, _skin, _visible, _opacity, _effects, _boxFilters, _bgFilters, _icon, _overflow, _states ]);
 			else
 				code.construct(this, [ type ]);
 			

@@ -56,4 +56,5 @@ class StyleFlags
 	public static inline var OPACITY			: UInt = 16384;
 	public static inline var ICON				: UInt = 32768;
 	public static inline var OVERFLOW			: UInt = 65536;
+	public static inline var STATES				: UInt = 131072;
 }

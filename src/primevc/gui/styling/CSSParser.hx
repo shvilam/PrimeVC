@@ -140,7 +140,7 @@ class CSSParser
 	public static inline var R_PROPERTY_NAME		: String = "a-z0-9-";
 	public static inline var R_PROPERTY_VALUE		: String = R_WHITESPACE + "a-z0-9%#.,:)(/\"'-";
 	
-	public static inline var R_BLOCK_NAME			: String = "([.#]?)([a-z][a-z0-9_]+([.][a-z][a-z0-9_]+)?)";
+	public static inline var R_BLOCK_NAME			: String = "(([.#]?)([a-z][a-z0-9_]+)(:([a-z]+))?)";
 	public static inline var R_BLOCK_NAMES			: String = "" + R_BLOCK_NAME + "(" + R_SPACE_MUST + R_BLOCK_NAME + ")*";
 	public static inline var R_BLOCK_VALUE			: String = R_PROPERTY_VALUE + ":;";
 	
@@ -691,11 +691,13 @@ class CSSParser
 	}
 	
 	
-	private function findExtendedClassesInList (list:Hash<UIElementStyle>) : Void
+	private function findExtendedClassesInList (list:SelectorMapType) : Void
 	{
 		var keys = list.keys();
+		
 		for (name in keys)
 		{
+			Assert.that(name != null);
 			var style = list.get(name);
 			setExtendedStyle( name, style );
 			createStyleStructure( style );
@@ -703,7 +705,7 @@ class CSSParser
 	}
 	
 	
-	private function findSuperClassesInList (list:Hash<UIElementStyle>) : Void
+	private function findSuperClassesInList (list:SelectorMapType) : Void
 	{
 		var keys = list.keys();
 		for (name in keys)
@@ -804,23 +806,34 @@ class CSSParser
 		//find correct block
 		getContentBlock( expr.matched(1) );
 		
-	//	for (i in 0...10)
-	//		trace("["+i+"] "+expr.matched(i));
+		for (i in 0...14)
+			trace("["+i+"] "+expr.matched(i));
 		
-		var content = expr.matched(9).trim();
+		var content = expr.matched(13).trim();
 		if (content != "")
 			parseBlock(content.trim());
 	}
 	
 	
+	
+	/**
+	 * Method will find or create the correct UIElementBlock for the given 
+	 * names.
+	 */
 	private function getContentBlock ( names:String ):Void
 	{
+		trace("getContentBlock "+names);
 		var styleGroup	: UIElementStyle = styles;
 		var type		: StyleDeclarationType;
-		var curList 	: Hash < UIElementStyle > = null;
+		var curList 	: SelectorMapType = null;
 		var depth		= 0;
 		var expr		= blockNameExpr;
 		currentBlock	= null;
+		var stateName:String = null;
+		
+		//
+		// PARSE NAMES
+		//
 		
 		while (true)
 		{
@@ -830,13 +843,14 @@ class CSSParser
 			if ( currentBlock != null )
 				styleGroup = currentBlock;
 			
-			var name = expr.matched(2);
+			var name = expr.matched(3);
+			Assert.notNull(name);
 			
-			if (expr.matched(1) == "#") {
+			if (expr.matched(2) == "#") {
 				type	= StyleDeclarationType.id;
 				curList	= styleGroup.children.idSelectors;
 			}
-			else if (expr.matched(1) == ".") {
+			else if (expr.matched(2) == ".") {
 				type	= StyleDeclarationType.styleName;
 				curList	= styleGroup.children.styleNameSelectors;
 			}
@@ -858,12 +872,37 @@ class CSSParser
 				curList.set( name, currentBlock );
 			}
 			
+			//matched a state
+			if (expr.matched(4) != null)
+			{
+				getStateContentBlock(expr.matched(5));
+			}
+			
 			names = expr.matchedRight().trim();
 			depth++;
 		}
 		
 	//	currentBlock = curBlock;
 	//	trace("final depth: "+depth);
+	}
+	
+	
+	private function getStateContentBlock (stateName:String)
+	{
+		if (stateName == null || currentBlock == null)
+			return;
+		
+		var stateList	: StatesListType	= (currentBlock.states != null) ? currentBlock.states : new StatesListType();
+		var stateBlock	: UIElementStyle	= (stateList.exists( stateName )) ? stateList.get( stateName ) : new UIElementStyle( StyleDeclarationType.state );
+		
+		if (currentBlock.states == null)
+			currentBlock.states = stateList;
+		
+		if (stateBlock != null)
+		{
+			currentBlock.states.set( stateName, stateBlock );
+			currentBlock = stateBlock;
+		}
 	}
 	
 	

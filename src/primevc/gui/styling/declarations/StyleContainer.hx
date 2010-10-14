@@ -32,6 +32,7 @@ package primevc.gui.styling.declarations;
  import primevc.gui.graphics.fills.IFill;
  import primevc.tools.generator.ICSSFormattable;
  import primevc.types.RGBA;
+ import primevc.types.SimpleDictionary;
  import Hash;
 #if (debug || neko)
   using StringTools;
@@ -43,6 +44,8 @@ package primevc.gui.styling.declarations;
  import primevc.utils.StringUtil;
 #end
 
+
+typedef SelectorMapType = SimpleDictionary < String, UIElementStyle >;
 
 /**
  * @author Ruben Weijers
@@ -57,9 +60,9 @@ class StyleContainer
 	public var uuid					(default, null) : String;
 #end
 	
-	public var elementSelectors		(default, null) : Hash < UIElementStyle >;
-	public var styleNameSelectors	(default, null) : Hash < UIElementStyle >;
-	public var idSelectors			(default, null) : Hash < UIElementStyle >;
+	public var elementSelectors		(default, null) : SelectorMapType;
+	public var styleNameSelectors	(default, null) : SelectorMapType;
+	public var idSelectors			(default, null) : SelectorMapType;
 	
 	
 	public function new ()
@@ -67,9 +70,9 @@ class StyleContainer
 #if neko
 		uuid = StringUtil.createUUID();
 #end
-		elementSelectors	= new Hash();
-		styleNameSelectors	= new Hash();
-		idSelectors			= new Hash();
+		elementSelectors	= new SelectorMapType();
+		styleNameSelectors	= new SelectorMapType();
+		idSelectors			= new SelectorMapType();
 		
 		createSelectors();
 	//	createElementSelectors();
@@ -98,7 +101,7 @@ class StyleContainer
 	
 	public function isEmpty ()
 	{
-		return !idSelectors.iterator().hasNext() && !styleNameSelectors.iterator().hasNext() && !elementSelectors.iterator().hasNext();
+		return idSelectors.isEmpty() && styleNameSelectors.isEmpty() && elementSelectors.isEmpty();
 	}
 	
 
@@ -106,30 +109,20 @@ class StyleContainer
 	{
 		var css = "";
 		
-		if (idSelectors.iterator().hasNext()) {
-		//	css += "\n/** ID STYLES **/";
-			css += hashToCSSString( namePrefix, idSelectors, "#" );
-		}
-		
-		if (styleNameSelectors.iterator().hasNext()) {
-		//	css += "\n\n/** CLASS STYLES **/";
-			css += hashToCSSString( namePrefix, styleNameSelectors, "." );
-		}
-		
-		if (elementSelectors.iterator().hasNext()) {
-		//	css += "\n\n/** ELEMENT STYLES **/";
-			css += hashToCSSString( namePrefix, elementSelectors, "" );
-		}
+		if (!idSelectors.isEmpty())			css += hashToCSSString( namePrefix, idSelectors, "#" );
+		if (!styleNameSelectors.isEmpty())	css += hashToCSSString( namePrefix, styleNameSelectors, "." );
+		if (!elementSelectors.isEmpty())	css += hashToCSSString( namePrefix, elementSelectors, "" );
 		
 		return css;
 	}
 	
 	
-	private  function hashToCSSString (namePrefix:String, hash:Hash<UIElementStyle>, keyPrefix:String = "") : String
+	private  function hashToCSSString (namePrefix:String, hash:SelectorMapType, keyPrefix:String = "") : String
 	{
 		var css = "";
 		var keys = hash.keys();
-		while (keys.hasNext()) {
+		while (keys.hasNext())
+		{
 			var key = keys.next();
 			var val = hash.get(key);
 			var name = (namePrefix + " " + keyPrefix + key).trim();

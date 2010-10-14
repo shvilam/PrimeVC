@@ -53,4 +53,10 @@ class StyleTypes
 	 * Equal to css "#idname" rule.
 	 */
 	public inline static var ID_SELECTOR		: UInt = 4;
+	
+	/**
+	 * Styles declared as a state of another selector.
+	 * Equal to css "selector:statename" rule.
+	 */
+	public inline static var STATE_SELECTOR		: UInt = 8;
 }

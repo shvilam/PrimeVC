@@ -294,6 +294,7 @@ class TileList extends Frame, implements IDropTarget
 		this.dynamicSizes				= dynamicSizes;
 		this.allowDropFromOtherLists	= allowDropFromOtherLists;
 		doubleClickEnabled				= true;
+		cacheAsBitmap = true;
 		
 		dragEvents	= new DropTargetEvents();
 		super(id, id);
