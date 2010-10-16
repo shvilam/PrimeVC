@@ -41,12 +41,13 @@ private typedef BehaviourType = IBehaviour<Dynamic>;
  */
 class BehaviourList implements IDisposable
 {
-	private var list : FastList <BehaviourType>;
-	
+	private var list			: FastList < BehaviourType >;
+	private var isInitialized	: Bool;
 	
 	public function new ()
 	{
-		list = new FastList<BehaviourType>();
+		list			= new FastList < BehaviourType > ();
+		isInitialized	= false;
 	}
 	
 	
@@ -60,14 +61,18 @@ class BehaviourList implements IDisposable
 	}
 	
 	
-	public inline function init ()
+	public function init ()
 	{
-		for (behaviour in list)
-			behaviour.initialize();
+		if (!isInitialized)
+		{	
+			isInitialized = true;
+			for (behaviour in list)
+				behaviour.initialize();
+		}
 	}
 	
 	
-	public inline function dispose ()					{ removeAll(); list = null; }
-	public inline function add (v:BehaviourType)		{ return list.add(v); }
-	public inline function remove (v:BehaviourType)		{ return list.remove(v); }
+	public inline function dispose ()					{ removeAll(); list = null; isInitialized = false; }
+	public inline function add (v:BehaviourType)		{ if (isInitialized) { v.initialize(); }	return list.add(v); }
+	public inline function remove (v:BehaviourType)		{ if (isInitialized) { v.dispose(); }		return list.remove(v); }
 }

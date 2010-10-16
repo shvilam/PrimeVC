@@ -528,59 +528,20 @@ class LayoutClient implements ILayoutClient
 		invalidate(Flags.RELATIVE);
 	}
 	
-	/*
-	private function handleParentStateChange (oldState:ValidateStates, newState:ValidateStates)
-	{
-		Assert.notEqual(newState, null, "newstate cannot be null; oldstate: "+oldState);
-		switch (newState) {
-			case ValidateStates.invalidated:
-				state.current = ValidateStates.parent_invalidated;
-		}
-	}*/
-	
 	
 #if debug
-	public inline function readChanges (changes:Int = -1)
+	public inline function readChanges (changes:Int = -1) : String
 	{
 		if (changes == -1)
 			changes = this.changes;
 		
-		var output	= [];
-		var result	= "none";
-		
-		if (changes > 0)
-		{
-			if (changes.has( Flags.WIDTH ))					output.push("width");
-			if (changes.has( Flags.HEIGHT ))				output.push("height");
-			if (changes.has( Flags.X ))						output.push("x");
-			if (changes.has( Flags.Y ))						output.push("y");
-			if (changes.has( Flags.INCLUDE ))				output.push("include_in_layout");
-			if (changes.has( Flags.RELATIVE ))				output.push("relative_properties");
-			if (changes.has( Flags.LIST ))					output.push("list");
-			if (changes.has( Flags.CHILDREN_INVALIDATED ))	output.push("children_invalidated");
-			if (changes.has( Flags.ALGORITHM ))				output.push("algorithm");
-			if (changes.has( Flags.SIZE_CONSTRAINT ))		output.push("size constraint");
-			result = output.join(", ");
-		}
-		return "changes: " + result;
+		return Flags.readProperties(changes);
 	}
 	
 	
-	public inline function readChange (change:Int)
+	public inline function readChange (change:Int) : String
 	{
-		return switch (change) {
-			case Flags.WIDTH:					"width";
-			case Flags.HEIGHT:					"height";
-			case Flags.X:						"x";
-			case Flags.Y:						"y";
-			case Flags.INCLUDE:					"include_in_layout";
-			case Flags.RELATIVE:				"relative_properties";
-			case Flags.LIST:					"list";
-			case Flags.CHILDREN_INVALIDATED:	"children_invalidated";
-			case Flags.ALGORITHM:				"algorithm";
-			case Flags.SIZE_CONSTRAINT:			"size constraint";
-			default:							"unkown("+change+")";
-		}
+		return Flags.readProperty(change);
 	}
 	
 	

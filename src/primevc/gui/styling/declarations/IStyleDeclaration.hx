@@ -43,4 +43,45 @@ interface IStyleDeclaration
 			,	implements ICSSFormattable
 #if neko	,	implements ICodeFormattable		#end
 {
+	/**
+	 * Variable defining which properties in the style-declaration have been
+	 * set or not according to the flags of the style-declaration.
+	 */
+	public var filledProperties (default, null)						: UInt;
+	
+	/**
+	 * bit-flag with the filled properties of this style-object and it's
+	 * extended, super, inherited and parent style.
+	 */
+	public var allFilledProperties	(default, null)					: UInt;
+	
+	
+	/**
+	 * Method that will set or unset the flag of the property that is set in 
+	 * to the variable 'filledProperties'.
+	 */
+	private function markProperty ( propFlag:UInt, isSet:Bool )		: Void;
+	
+	
+	/**
+	 * Method which will update the flags in allFilledProperties when it's 
+	 * style or that of it's extended, super, inherited and parent style 
+	 * changes.
+	 */
+	private function updateAllFilledPropertiesFlag ()				: Void;
+	
+#if debug
+	
+	/**
+	 * Method to format the given flags of properties to a readable string.
+	 * If flags is -1, the property 'filledProperties' will be used.
+	 */
+	public function readProperties ( flags:UInt = -1 )				: String;
+	
+	/**
+	 * Method to format the changed properties to a readable string.
+	 * If flags is -1, the property 'changes' will be used.
+	 */
+	public function readChanges ( flags:UInt = -1 )					: String;
+#end
 }

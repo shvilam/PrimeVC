@@ -51,12 +51,5 @@ interface IStylable
 	 * seperated. 
 	 */
 	public var styleClasses	(default, null)			: Bindable < String >;
-	
-	
-	/**
-	 * Method which is called by the StyleSheet of an IStylable object when
-	 * all style properties for the object have been found;
-	 */
-	public function applyStyling ()				: Void;
 #end
 }

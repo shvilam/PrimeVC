@@ -27,11 +27,15 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
+ import primevc.core.traits.IInvalidatable;
  import primevc.gui.filters.BitmapFilter;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
+  using primevc.utils.BitUtil;
 
+
+private typedef Flags = FilterFlags;
 
 
 /**
@@ -42,6 +46,9 @@ package primevc.gui.styling.declarations;
  */
 class FilterStyleDeclarations extends StylePropertyGroup
 {
+	private var extendedStyle	: FilterStyleDeclarations;
+	private var superStyle		: FilterStyleDeclarations;
+
 	private var type			: FilterCollectionType;
 	private var _shadow			: BitmapFilter;
 	private var _bevel			: BitmapFilter;
@@ -63,13 +70,15 @@ class FilterStyleDeclarations extends StylePropertyGroup
 	public function new (newType:FilterCollectionType, shadow:BitmapFilter = null, bevel:BitmapFilter = null, blur:BitmapFilter = null, glow:BitmapFilter = null, gradientBevel:BitmapFilter = null, gradientGlow:BitmapFilter = null)
 	{
 		super();
-		type			= newType;
-		_shadow 		= shadow;
-		_bevel			= bevel;
-		_blur			= blur;
-		_glow			= glow;
-		_gradientBevel	= gradientBevel;
-		_gradientGlow	= gradientGlow;
+		this.type			= newType;
+		this.shadow 		= shadow;
+		this.bevel			= bevel;
+		this.blur			= blur;
+		this.glow			= glow;
+		this.gradientBevel	= gradientBevel;
+		this.gradientGlow	= gradientGlow;
+		
+		validate();
 	}
 	
 	
@@ -80,29 +89,89 @@ class FilterStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	private inline function getExtendedBox () : FilterStyleDeclarations
+	override private function updateOwnerReferences (changedReference:UInt) : Void
 	{
-		var e = getExtended();
-		var b:FilterStyleDeclarations = null;
+		if (changedReference.has( StyleFlags.EXTENDED_STYLE ))
+		{
+			if (extendedStyle != null)
+				extendedStyle.listeners.remove( this );
+			
+			extendedStyle = null;
+			if (owner != null && owner.extendedStyle != null)
+			{
+				extendedStyle = type == FilterCollectionType.box ? owner.extendedStyle.boxFilters : owner.extendedStyle.bgFilters;
+				
+				if (extendedStyle != null)
+					extendedStyle.listeners.add( this );
+			}
+		}
 		
-		if (e != null)
-			b = type == FilterCollectionType.box ? e.boxFilters : e.bgFilters;
 		
-		return b;
+		if (changedReference.has( StyleFlags.SUPER_STYLE ))
+		{
+			if (superStyle != null)
+				superStyle.listeners.remove( this );
+			
+			superStyle = null;
+			if (owner != null && owner.superStyle != null)
+			{
+				superStyle = type == FilterCollectionType.box ? owner.superStyle.boxFilters : owner.superStyle.bgFilters;
+				
+				if (superStyle != null)
+					superStyle.listeners.add( this );
+			}
+		}
 	}
 	
 	
-	private inline function getSuperBox () : FilterStyleDeclarations
+	override private function updateAllFilledPropertiesFlag ()
 	{
-		var s = getSuper();
-		var b:FilterStyleDeclarations = null;
+		super.updateAllFilledPropertiesFlag();
 		
-		if (s != null)
-			b = type == FilterCollectionType.box ? s.boxFilters : s.bgFilters;
-		
-		return b;
+		if (allFilledProperties < Flags.ALL_PROPERTIES && extendedStyle != null)	allFilledProperties |= extendedStyle.allFilledProperties;
+		if (allFilledProperties < Flags.ALL_PROPERTIES && superStyle != null)		allFilledProperties |= superStyle.allFilledProperties;
 	}
 	
+	
+	/**
+	 * Method is called when a property in the super- or extended-style is 
+	 * changed. If the property is not set in this style-object, it means that 
+	 * the allFilledPropertiesFlag needs to be changed..
+	 */
+	override public function invalidateCall ( changeFromOther:UInt, sender:IInvalidatable ) : Void
+	{
+		Assert.that(sender != null);
+		
+		if (sender == owner)
+			return super.invalidateCall( changeFromOther, sender );
+		
+		if (filledProperties.has( changeFromOther ))
+			return;
+		
+		//The changed property is not in this style-object.
+		//Check if the change should be broadcasted..
+		var propIsInExtended	= extendedStyle != null	&& extendedStyle.allFilledProperties.has( changeFromOther );
+		var propIsInSuper		= superStyle != null	&& superStyle	.allFilledProperties.has( changeFromOther );
+		
+		if (sender == extendedStyle)
+		{
+			if (propIsInExtended)	allFilledProperties = allFilledProperties.set( changeFromOther );
+			else					allFilledProperties = allFilledProperties.unset( changeFromOther );
+			
+			invalidate( changeFromOther );
+		}
+		
+		//if the sender is the super style and the extended-style doesn't have the property that is changed, broadcast the change as well
+		else if (sender == superStyle && !propIsInExtended)
+		{
+			if (propIsInSuper)		allFilledProperties = allFilledProperties.set( changeFromOther );
+			else					allFilledProperties = allFilledProperties.unset( changeFromOther );
+			
+			invalidate( changeFromOther );
+		}
+		
+		return;
+	}
 	
 	
 	
@@ -114,8 +183,8 @@ class FilterStyleDeclarations extends StylePropertyGroup
 	private function getShadow ()
 	{
 		var v = _shadow;
-		if (v == null && getExtended() != null)		v = getExtendedBox().shadow;
-		if (v == null && getSuper() != null)		v = getSuperBox().shadow;
+		if (v == null && getExtended() != null)		v = extendedStyle.shadow;
+		if (v == null && getSuper() != null)		v = superStyle.shadow;
 		return v;
 	}
 	
@@ -123,8 +192,8 @@ class FilterStyleDeclarations extends StylePropertyGroup
 	private function getBevel ()
 	{
 		var v = _bevel;
-		if (v == null && getExtended() != null)		v = getExtendedBox().bevel;
-		if (v == null && getSuper() != null)		v = getSuperBox().bevel;
+		if (v == null && getExtended() != null)		v = extendedStyle.bevel;
+		if (v == null && getSuper() != null)		v = superStyle.bevel;
 		return v;
 	}
 	
@@ -132,8 +201,8 @@ class FilterStyleDeclarations extends StylePropertyGroup
 	private function getBlur ()
 	{
 		var v = _blur;
-		if (v == null && getExtended() != null)		v = getExtendedBox().blur;
-		if (v == null && getSuper() != null)		v = getSuperBox().blur;
+		if (v == null && getExtended() != null)		v = extendedStyle.blur;
+		if (v == null && getSuper() != null)		v = superStyle.blur;
 		return v;
 	}
 	
@@ -141,8 +210,8 @@ class FilterStyleDeclarations extends StylePropertyGroup
 	private function getGlow ()
 	{
 		var v = _glow;
-		if (v == null && getExtended() != null)		v = getExtendedBox().glow;
-		if (v == null && getSuper() != null)		v = getSuperBox().glow;
+		if (v == null && getExtended() != null)		v = extendedStyle.glow;
+		if (v == null && getSuper() != null)		v = superStyle.glow;
 		return v;
 	}
 	
@@ -150,8 +219,8 @@ class FilterStyleDeclarations extends StylePropertyGroup
 	private function getGradientBevel ()
 	{
 		var v = _gradientBevel;
-		if (v == null && getExtended() != null)		v = getExtendedBox().gradientBevel;
-		if (v == null && getSuper() != null)		v = getSuperBox().gradientBevel;
+		if (v == null && getExtended() != null)		v = extendedStyle.gradientBevel;
+		if (v == null && getSuper() != null)		v = superStyle.gradientBevel;
 		return v;
 	}
 
@@ -159,8 +228,8 @@ class FilterStyleDeclarations extends StylePropertyGroup
 	private function getGradientGlow ()
 	{
 		var v = _gradientGlow;
-		if (v == null && getExtended() != null)		v = getExtendedBox().gradientGlow;
-		if (v == null && getSuper() != null)		v = getSuperBox().gradientGlow;
+		if (v == null && getExtended() != null)		v = extendedStyle.gradientGlow;
+		if (v == null && getSuper() != null)		v = superStyle.gradientGlow;
 		return v;
 	}
 	
@@ -176,7 +245,7 @@ class FilterStyleDeclarations extends StylePropertyGroup
 	{
 		if (v != _shadow) {
 			_shadow = v;
-			invalidate( FilterFlags.SHADOW );
+			markProperty( Flags.SHADOW, v != null );
 		}
 		return v;
 	}
@@ -186,7 +255,7 @@ class FilterStyleDeclarations extends StylePropertyGroup
 	{
 		if (v != _bevel) {
 			_bevel = v;
-			invalidate( FilterFlags.BEVEL );
+			markProperty( Flags.BEVEL, v != null );
 		}
 		return v;
 	}
@@ -196,7 +265,7 @@ class FilterStyleDeclarations extends StylePropertyGroup
 	{
 		if (v != _blur) {
 			_blur = v;
-			invalidate( FilterFlags.BLUR );
+			markProperty( Flags.BLUR, v != null );
 		}
 		return v;
 	}
@@ -206,7 +275,7 @@ class FilterStyleDeclarations extends StylePropertyGroup
 	{
 		if (v != _glow) {
 			_glow = v;
-			invalidate( FilterFlags.GLOW );
+			markProperty( Flags.GLOW, v != null );
 		}
 		return v;
 	}
@@ -216,7 +285,7 @@ class FilterStyleDeclarations extends StylePropertyGroup
 	{
 		if (v != _gradientBevel) {
 			_gradientBevel = v;
-			invalidate( FilterFlags.GRADIENT_BEVEL );
+			markProperty( Flags.GRADIENT_BEVEL, v != null );
 		}
 		return v;
 	}
@@ -226,7 +295,7 @@ class FilterStyleDeclarations extends StylePropertyGroup
 	{
 		if (v != _gradientGlow) {
 			_gradientGlow = v;
-			invalidate( FilterFlags.GRADIENT_GLOW );
+			markProperty( Flags.GRADIENT_GLOW, v != null );
 		}
 		return v;
 	}
@@ -271,6 +340,16 @@ class FilterStyleDeclarations extends StylePropertyGroup
 	{
 		if (!isEmpty())
 			code.construct( this, [ type, _shadow, _bevel, _blur, _glow, _gradientBevel, _gradientGlow ] );
+	}
+#end
+
+#if debug
+	override public function readProperties (flags:Int = -1) : String
+	{
+		if (flags == -1)
+			flags = filledProperties;
+
+		return Flags.readProperties(flags);
 	}
 #end
 }

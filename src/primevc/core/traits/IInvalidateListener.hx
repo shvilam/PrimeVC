@@ -36,5 +36,5 @@ package primevc.core.traits;
  */
 interface IInvalidateListener implements IDisposable
 {
-	public function invalidateCall ( changes:UInt ) : Void;
+	public function invalidateCall ( changeFromOther:UInt, sender:IInvalidatable ) : Void;
 }

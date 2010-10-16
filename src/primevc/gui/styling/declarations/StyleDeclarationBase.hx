@@ -27,10 +27,15 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
+ import primevc.core.traits.IInvalidatable;
+ import primevc.core.traits.Validatable;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
+#if (neko || debug)
  import primevc.utils.StringUtil;
+#end
+  using primevc.utils.BitUtil;
 
 
 /**
@@ -39,32 +44,75 @@ package primevc.gui.styling.declarations;
  * @author Ruben Weijers
  * @creation-date Aug 05, 2010
  */
-class StyleDeclarationBase extends Invalidatable < StyleDeclarationBase >, implements IStyleDeclaration
+class StyleDeclarationBase extends Validatable, implements IStyleDeclaration
 {
-	public var uuid (default, null) : String;
+#if (debug || neko)
+	public var uuid					(default, null)		: String;
+#end
+	public var filledProperties		(default, null)		: UInt;
+	public var allFilledProperties	(default, null)		: UInt;
 	
 	
 	public function new ()
 	{
 		super();
-		this.uuid = StringUtil.createUUID();
+#if (debug || neko)
+		uuid				= StringUtil.createUUID();
+#end
+		filledProperties	= 0;
+		allFilledProperties	= 0;
 	}
 	
 	
 	override public function dispose ()
 	{
-		uuid = null;
+#if (debug || neko)
+		uuid				= null;
+#end
+		filledProperties	= 0;
+		allFilledProperties	= 0;
 		super.dispose();
 	}
 	
 	
+	private function markProperty ( propFlag:UInt, isSet:Bool ) : Void
+	{
+		if (isSet)	filledProperties = filledProperties.set( propFlag );
+		else		filledProperties = filledProperties.unset( propFlag );
+		
+		//Now it's unknow if the property that is changed, is somewhere in
+		//the list with super / extended styles, so the object must rebuild 
+		//these flags.
+		updateAllFilledPropertiesFlag();
+		
+		invalidate( propFlag );
+	}
+	
+	
+	private function updateAllFilledPropertiesFlag () : Void
+	{
+		allFilledProperties = filledProperties;
+	}
+	
+	
+#if debug
+	public function readProperties ( flags:UInt = -1 )	: String	{ Assert.abstract(); return null; }
+	public function readChanges ( flags:UInt = -1 )		: String
+	{
+		if (flags == -1)
+			flags = changes;
+		return readProperties( flags );
+	}
+#end
+	
+	
 #if (debug || neko)
-	public function toString ()					{ return toCSS(); }
-	public function isEmpty ()					{ Assert.abstract(); return false; }
-	public function toCSS (prefix:String = "") 	{ Assert.abstract(); return ""; }
+	public function toString ()						{ return toCSS(); }
+	public function isEmpty ()						{ Assert.abstract(); return false; }
+	public function toCSS (prefix:String = "") 		{ Assert.abstract(); return ""; }
 #end
 	
 #if neko
-	public function toCode (code:ICodeGenerator){ Assert.abstract(); }
+	public function toCode (code:ICodeGenerator)	{ Assert.abstract(); }
 #end
 }

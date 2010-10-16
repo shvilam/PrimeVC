@@ -51,9 +51,16 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	override private function getMove ()
 	{
 		var v = super.getMove();
+		if (v != null)
+			return v;
+		
 		for (styleObj in target)
 			if (styleObj.effects != null && null != (v = styleObj.effects.move))
 				break;
+		
+		if (_move == null)
+			_move = v;
+		
 		return v;
 	}
 	
@@ -61,9 +68,16 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	override private function getResize ()
 	{
 		var v = super.getResize();
+		if (v != null)
+			return v;
+		
 		for (styleObj in target)
 			if (styleObj.effects != null && null != (v = styleObj.effects.resize))
 				break;
+		
+		if (_resize == null)
+			_resize = v;
+		
 		return v;
 	}
 	
@@ -71,9 +85,16 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	override private function getRotate ()
 	{
 		var v = super.getRotate();
+		if (v != null)
+			return v;
+		
 		for (styleObj in target)
 			if (styleObj.effects != null && null != (v = styleObj.effects.rotate))
 				break;
+
+		if (_rotate == null)
+			_rotate = v;
+
 		return v;
 	}
 	
@@ -81,9 +102,16 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	override private function getScale ()
 	{
 		var v = super.getScale();
+		if (v != null)
+			return v;
+		
 		for (styleObj in target)
 			if (styleObj.effects != null && null != (v = styleObj.effects.scale))
 				break;
+		
+		if (_scale == null)
+			_scale = v;
+
 		return v;
 	}
 	
@@ -91,9 +119,16 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	override private function getShow ()
 	{
 		var v = super.getShow();
+		if (v != null)
+			return v;
+		
 		for (styleObj in target)
 			if (styleObj.effects != null && null != (v = styleObj.effects.show))
 				break;
+		
+		if (_show == null)
+			_show = v;
+
 		return v;
 	}
 	
@@ -101,9 +136,16 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	override private function getHide ()
 	{
 		var v = super.getHide();
+		if (v != null)
+			return v;
+		
 		for (styleObj in target)
 			if (styleObj.effects != null && null != (v = styleObj.effects.hide))
 				break;
+		
+		if (_hide == null)
+			_hide = v;
+		
 		return v;
 	}
 }

@@ -27,7 +27,6 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
- import primevc.core.traits.Invalidatable;
 #if neko
  import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
  import primevc.gui.behaviours.layout.UnclippedLayoutBehaviour;
@@ -35,6 +34,7 @@ package primevc.gui.styling.declarations;
  import primevc.gui.behaviours.scroll.DragScrollBehaviour;
  import primevc.gui.behaviours.scroll.MouseMoveScrollBehaviour;
 #end
+ import primevc.core.traits.IInvalidatable;
  import primevc.gui.core.ISkin;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.fills.IFill;
@@ -44,6 +44,7 @@ package primevc.gui.styling.declarations;
  import primevc.types.Number;
  import primevc.types.SimpleDictionary;
  import primevc.utils.StringUtil;
+  using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
 
 #if neko
@@ -52,6 +53,7 @@ package primevc.gui.styling.declarations;
 
 
 typedef StatesListType = SimpleDictionary < String, UIElementStyle >;
+private typedef Flags = StyleFlags;
 
 
 /**
@@ -60,7 +62,7 @@ typedef StatesListType = SimpleDictionary < String, UIElementStyle >;
  * @author Ruben Weijers
  * @creation-date Aug 04, 2010
  */
-class UIElementStyle extends Invalidatable, implements IStyleDeclaration
+class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 {
 	/**
 	 * Reference to style of which this style is inheriting when the requested
@@ -178,7 +180,6 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	
 	
 	
-	public var uuid			(default,		null)			: String;
 	public var type			(default,		null)			: StyleDeclarationType;
 	
 	public var skin			(getSkin,		setSkin)		: Class < ISkin >;
@@ -227,26 +228,25 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	)
 	{
 		super();
-		this.uuid = StringUtil.createUUID();
 		this.type = type;
 		
 		if (children == null)
 			children = new StyleContainer();
 		
-		_layout		= layout;
-		_font		= font;
-		_shape		= shape;
-		_background	= background;
-		_border		= border;
-		_skin		= skin;
-		_visible	= visible;
-		_opacity	= opacity != Number.INT_NOT_SET ? opacity : Number.FLOAT_NOT_SET;
-		_effects	= effects;
-		_boxFilters	= boxFilters;
-		_bgFilters	= bgFilters;
-		_icon		= icon;
-		_overflow	= overflow;
-		_states		= states;
+		this.layout		= layout;
+		this.font		= font;
+		this.shape		= shape;
+		this.background	= background;
+		this.border		= border;
+		this.skin		= skin;
+		this.visible	= visible;
+		this.opacity	= opacity != Number.INT_NOT_SET ? opacity : Number.FLOAT_NOT_SET;
+		this.effects	= effects;
+		this.boxFilters	= boxFilters;
+		this.bgFilters	= bgFilters;
+		this.icon		= icon;
+		this.overflow	= overflow;
+		this.states		= states;
 	}
 	
 	
@@ -285,8 +285,6 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 		_bgFilters	= null;
 		_icon		= null;
 		_overflow	= null;
-		
-		uuid		= null;
 		
 		super.dispose();
 	}
@@ -335,10 +333,61 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	}
 	
 	
+	override private function updateAllFilledPropertiesFlag ()
+	{
+		super.updateAllFilledPropertiesFlag();
+		
+		if (allFilledProperties < Flags.ALL_PROPERTIES && extendedStyle != null)
+			allFilledProperties |= extendedStyle.allFilledProperties;
+		
+		if (allFilledProperties < Flags.ALL_PROPERTIES && superStyle != null)
+			allFilledProperties |= superStyle.allFilledProperties;
+	}
+	
+	
+	
+	/**
+	 * Method is called when a property in the parent-, super-, extended- or 
+	 * nested-style is changed. If the property is not set in this style-object,
+	 * it means that the allFilledPropertiesFlag needs to be changed..
+	 */
+	override public function invalidateCall ( changeFromOther:UInt, sender:IInvalidatable ) : Void
+	{
+		Assert.that(sender != null);
+		
+		if (filledProperties.has( changeFromOther ))
+			return;
+		
+		//The changed property is not in this style-object.
+		//Check if the change should be broadcasted..
+		if (sender == extendedStyle)
+		{
+			if (extendedStyle.allFilledProperties.has( changeFromOther ))
+				allFilledProperties = allFilledProperties.set( changeFromOther );
+			else
+				allFilledProperties = allFilledProperties.unset( changeFromOther );
+			
+			invalidate( changeFromOther );
+		}
+		
+		//if the sender is the super style and the extendedStyle doesn't have the property that is changed, broadcast the change as well
+		else if ((extendedStyle == null || !extendedStyle.allFilledProperties.has( changeFromOther )) && sender == superStyle)
+		{
+			if (superStyle.allFilledProperties.has( changeFromOther ))
+				allFilledProperties = allFilledProperties.set( changeFromOther );
+			else
+				allFilledProperties = allFilledProperties.unset( changeFromOther );
+			
+			invalidate( changeFromOther );
+		}
+	}
+	
+	
 	
 	//
 	// GETTERS
 	//
+	
 	
 	private function getSkin ()
 	{
@@ -479,7 +528,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	{
 		if (v != nestingInherited) {
 			nestingInherited = v;
-			invalidate( StyleFlags.NESTING_STYLE );
+			invalidate( Flags.NESTING_STYLE );
 		}
 		return v;
 	}
@@ -487,9 +536,18 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	
 	private function setSuperStyle (v)
 	{
-		if (v != superStyle) {
+		if (v != superStyle)
+		{
+			if (superStyle != null)
+				superStyle.listeners.remove( this );
+			
 			superStyle = v;
-			invalidate( StyleFlags.SUPER_STYLE );
+			
+			if (superStyle != null)
+				superStyle.listeners.add( this );
+			
+			updateAllFilledPropertiesFlag();
+			invalidate( Flags.SUPER_STYLE );
 		}
 		return v;
 	}
@@ -497,9 +555,18 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 
 	private function setExtendedStyle (v)
 	{
-		if (v != extendedStyle) {
+		if (v != extendedStyle)
+		{
+			if (extendedStyle != null)
+				extendedStyle.listeners.remove( this );
+			
 			extendedStyle = v;
-			invalidate( StyleFlags.EXTENDED_STYLE );
+			
+			if (extendedStyle != null)
+				extendedStyle.listeners.add( this );
+			
+			updateAllFilledPropertiesFlag();
+			invalidate( Flags.EXTENDED_STYLE );
 		}
 		return v;
 	}
@@ -509,7 +576,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	{
 		if (v != parentStyle) {
 			parentStyle = v;
-			invalidate( StyleFlags.PARENT_STYLE );
+			invalidate( Flags.PARENT_STYLE );
 		}
 		return v;
 	}
@@ -522,7 +589,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	{
 		if (v != _skin) {
 			_skin = v;
-			invalidate( StyleFlags.SKIN );
+			markProperty( Flags.SKIN, v != null );
 		}
 		return v;
 	}
@@ -532,7 +599,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	{
 		if (v != _shape) {
 			_shape = v;
-			invalidate( StyleFlags.SHAPE );
+			markProperty( Flags.SHAPE, v != null );
 		}
 		return v;
 	}
@@ -540,9 +607,17 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	
 	private function setLayout (v)
 	{
-		if (v != _layout) {
+		if (v != _layout)
+		{
+			if (_layout != null)
+				_layout.owner = null;
+			
 			_layout = v;
-			invalidate( StyleFlags.LAYOUT );
+			
+			if (_layout != null)
+				_layout.owner = null;
+			
+			markProperty( Flags.LAYOUT, v != null );
 		}
 		return v;
 	}
@@ -550,9 +625,17 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	
 	private function setFont (v)
 	{
-		if (v != _font) {
+		if (v != _font)
+		{
+			if (_font != null)
+				_font.owner = null;
+			
 			_font = v;
-			invalidate( StyleFlags.FONT );
+			
+			if (_font != null)
+				_font.owner = this;
+			
+			markProperty( Flags.FONT, v != null );
 		}
 		return v;
 	}
@@ -562,7 +645,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	{
 		if (v != _background) {
 			_background = v;
-			invalidate( StyleFlags.BACKGROUND );
+			markProperty( Flags.BACKGROUND, v != null );
 		}
 		return v;
 	}
@@ -572,7 +655,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	{
 		if (v != _border) {
 			_border = v;
-			invalidate( StyleFlags.BORDER );
+			markProperty( Flags.BORDER, v != null );
 		}
 		return v;
 	}
@@ -580,9 +663,17 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 
 	private function setEffects (v)
 	{
-		if (v != _effects) {
+		if (v != _effects)
+		{
+			if (_effects != null)
+				_effects.owner = null;
+			
 			_effects = v;
-			invalidate( StyleFlags.EFFECTS );
+			
+			if (_effects != null)
+				_effects.owner = this;
+			
+			markProperty( Flags.EFFECTS, v != null );
 		}
 		return v;
 	}
@@ -590,9 +681,17 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 
 	private function setBoxFilters (v)
 	{
-		if (v != _boxFilters) {
+		if (v != _boxFilters)
+		{
+			if (_boxFilters != null)
+				_boxFilters.owner = null;
+			
 			_boxFilters = v;
-			invalidate( StyleFlags.BOX_FILTERS );
+			
+			if (_boxFilters != null)
+				_boxFilters.owner = this;
+			
+			markProperty( Flags.BOX_FILTERS, v != null );
 		}
 		return v;
 	}
@@ -600,9 +699,17 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 
 	private function setBgFilters (v)
 	{
-		if (v != _bgFilters) {
+		if (v != _bgFilters)
+		{
+			if (_bgFilters != null)
+				_bgFilters.owner = null;
+			
 			_bgFilters = v;
-			invalidate( StyleFlags.BACKGROUND_FILTERS );
+			
+			if (_bgFilters != null)
+				_bgFilters.owner = this;
+			
+			markProperty( Flags.BACKGROUND_FILTERS, v != null );
 		}
 		return v;
 	}
@@ -612,7 +719,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	{
 		if (v != _visible) {
 			_visible = v;
-			invalidate( StyleFlags.VISIBLE );
+			markProperty( Flags.VISIBLE, v != null );
 		}
 		return v;
 	}
@@ -622,7 +729,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	{
 		if (v != _opacity) {
 			_opacity = v;
-			invalidate( StyleFlags.OPACITY );
+			markProperty( Flags.OPACITY, v.isSet() );
 		}
 		return v;
 	}
@@ -632,7 +739,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	{
 		if (v != _icon) {
 			_icon = v;
-			invalidate( StyleFlags.ICON );
+			markProperty( Flags.ICON, v != null );
 		}
 		return v;
 	}
@@ -642,7 +749,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	{
 		if (v != _overflow) {
 			_overflow = v;
-			invalidate( StyleFlags.OVERFLOW );
+			markProperty( Flags.OVERFLOW, v != null );
 		}
 		return v;
 	}
@@ -652,7 +759,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	{
 		if (v != _states) {
 			_states = v;
-			invalidate( StyleFlags.STATES );
+			markProperty( Flags.STATES, v != null );
 		}
 		return v;
 	}
@@ -662,10 +769,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 
 
 #if (debug || neko)
-	public function toString () { return toCSS(); }
-	
-	
-	public function toCSS (namePrefix:String = "")
+	override public function toCSS (namePrefix:String = "")
 	{
 		var css = "";
 		
@@ -692,7 +796,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 	}
 	
 	
-	public function isEmpty () : Bool
+	override public function isEmpty () : Bool
 	{
 		return allPropertiesEmpty() && !hasChildren();
 	}
@@ -764,7 +868,7 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 
 
 #if neko
-	public function toCode (code:ICodeGenerator)
+	override public function toCode (code:ICodeGenerator)
 	{
 		//first make sure all containers are null when they are empty:
 		if (_layout != null && _layout.isEmpty())			_layout		= null;
@@ -789,6 +893,16 @@ class UIElementStyle extends Invalidatable, implements IStyleDeclaration
 			if (hasChildren())
 				code.setProp(this, "children", children);
 		}
+	}
+#end
+	
+#if debug
+	override public function readProperties (flags:Int = -1) : String
+	{
+		if (flags == -1)
+			flags = filledProperties;
+		
+		return Flags.readProperties( flags );
 	}
 #end
 }

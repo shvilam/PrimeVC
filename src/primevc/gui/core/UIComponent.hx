@@ -29,6 +29,8 @@
 package primevc.gui.core;
  import primevc.core.Bindable;
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
+ import primevc.gui.behaviours.styling.ApplyStylingBehaviour;
+ import primevc.gui.behaviours.styling.MouseStyleChangeBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
  import primevc.gui.display.Sprite;
@@ -37,17 +39,10 @@ package primevc.gui.core;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.UIElementStates;
 #if flash9
- import primevc.core.geom.constraints.SizeConstraint;
- import primevc.gui.styling.declarations.EffectStyleDeclarations;
- import primevc.gui.styling.declarations.FilterStyleDeclarations;
- import primevc.gui.styling.declarations.LayoutStyleDeclarations;
- import primevc.gui.styling.declarations.StyleFlags;
  import primevc.gui.styling.StyleSheet;
 #end
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
-  using primevc.utils.BitUtil;
-  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 
@@ -103,12 +98,17 @@ class UIComponent extends Sprite, implements IUIComponent
 		state			= new UIElementStates();
 		behaviours		= new BehaviourList();
 		graphicData		= new Bindable < GraphicProperties > ();
+		
+#if flash9
 		styleClasses	= new Bindable < String > ();
 		style			= new StyleSheet( this );
 		
 		//add default behaviours
+		behaviours.add( new ApplyStylingBehaviour(this) );
 		behaviours.add( new RenderGraphicsBehaviour(this) );
 		behaviours.add( new ValidateLayoutBehaviour(this) );
+		behaviours.add( new MouseStyleChangeBehaviour(this) );
+#end
 		
 		createStates();
 		createBehaviours();
@@ -229,166 +229,14 @@ class UIComponent extends Sprite, implements IUIComponent
 	{
 		return style = v;
 	}
-	
-	
-	public function applyStyling ()
-	{
-		var propsToSet	= StyleFlags.BACKGROUND | StyleFlags.BORDER | StyleFlags.SHAPE | StyleFlags.SKIN | StyleFlags.VISIBLE | StyleFlags.OPACITY | StyleFlags.OVERFLOW;
-		var it			= style.iterator();
-		
-		while (it.hasNext() && propsToSet > 0)
-		{
-		//	trace(this+".hasNext? "+it.hasNext()+"; props: "+propsToSet);
-			var styleObj = it.next();
-				
-			//read skin
-			if ( propsToSet.has( StyleFlags.SKIN ) && styleObj.skin != null )
-			{
-				skin = Type.createInstance( styleObj.skin, null );
-				propsToSet = propsToSet.unset( StyleFlags.SKIN );
-			}
-
-			//read shape
-			if ( propsToSet.has( StyleFlags.SHAPE ) && styleObj.shape != null )
-			{
-				createGraphicDataObj();
-				graphicData.value.shape		= styleObj.shape;
-				graphicData.value.layout	= rect;
-				propsToSet = propsToSet.unset( StyleFlags.SHAPE );
-			}
-			
-			//read fill
-			if ( propsToSet.has( StyleFlags.BACKGROUND ) && styleObj.background != null )
-			{
-				createGraphicDataObj();
-				graphicData.value.fill = styleObj.background;
-				propsToSet = propsToSet.unset( StyleFlags.BACKGROUND );
-			}
-			
-			//read border
-			if ( propsToSet.has( StyleFlags.BORDER ) && styleObj.border != null )
-			{
-				createGraphicDataObj();
-				graphicData.value.border = styleObj.border;
-				propsToSet = propsToSet.unset( StyleFlags.BORDER );
-			}
-			
-			//read opacity
-			if ( propsToSet.has( StyleFlags.OPACITY ) && styleObj.opacity.isSet() )
-			{
-				alpha		= styleObj.opacity;
-				propsToSet	= propsToSet.unset( StyleFlags.OPACITY );
-			}
-			
-			//read visable
-			if ( propsToSet.has( StyleFlags.VISIBLE ) && styleObj.visible != null )
-			{
-				visible		= styleObj.visible;
-				propsToSet	= propsToSet.unset( StyleFlags.VISIBLE );
-			}
-			
-			//read overflow
-			if ( propsToSet.has( StyleFlags.OVERFLOW ) && styleObj.overflow != null )
-			{
-				behaviours.add( Type.createInstance( styleObj.overflow, [ this ] ) );
-				propsToSet	= propsToSet.unset( StyleFlags.OVERFLOW );
-			}
-			
-			//read font properties
-		}
-		
-		applyLayoutStyling( style.getLayout() );
-		applyBoxFilterStyling( style.getBoxFilters() );
-		applyEffectStyling( style.getEffects() );
-	}
-	
-	
-	private function createGraphicDataObj ()
-	{
-		if (graphicData.value == null)
-			graphicData.value = new GraphicProperties();
-	}
-	
-	
-	private function applyLayoutStyling (layoutProps:LayoutStyleDeclarations) : Void
-	{
-		var w			= layoutProps.width;
-		var h			= layoutProps.height;
-		var pW			= layoutProps.percentWidth;
-		var pH			= layoutProps.percentHeight;
-		var relative	= layoutProps.relative;
-		var padding		= layoutProps.padding;
-		var maintain	= layoutProps.maintainAspectRatio;
-		var incl		= layoutProps.includeInLayout;
-		
-		if (w.isSet())			layout.width				= w;
-		if (h.isSet())			layout.height				= h;
-		if (pW.isSet())			layout.percentWidth			= pW;
-		if (pH.isSet())			layout.percentHeight		= pH;
-		if (relative != null)	layout.relative				= relative;
-		if (incl != null)		layout.includeInLayout		= incl;
-		if (maintain != null)	layout.maintainAspectRatio	= maintain;
-		if (padding != null)	layout.padding				= layoutProps.padding;
-		
-		//size constraintss
-		var minW = layoutProps.minWidth, maxW = layoutProps.maxWidth, minH = layoutProps.minHeight, maxH = layoutProps.maxHeight;
-		if (minW.isSet() || maxW.isSet() || minH.isSet() || maxH.isSet())
-		{
-			//create size constraint for layout client
-			if (layout.sizeConstraint == null)
-				layout.sizeConstraint = new SizeConstraint( minW, maxW, minH, maxH );
-			else
-			{
-				var c = layout.sizeConstraint;
-				if (minW.isSet())	c.width.min		= minW;
-				if (minH.isSet())	c.height.min	= minH;
-				if (maxW.isSet())	c.width.max		= maxW;
-				if (maxH.isSet())	c.height.max	= maxH;
-			}
-		}
-	}
-	
-	
-	private function applyBoxFilterStyling (filterProps:FilterStyleDeclarations) : Void
-	{
-		var filters	= this.filters == null ? [] : this.filters;
-		var shadow	= filterProps.shadow;
-		var bevel	= filterProps.bevel;
-		var blur	= filterProps.blur;
-		var glow	= filterProps.glow;
-		var grBevel	= filterProps.gradientBevel;
-		var grGlow	= filterProps.gradientGlow;
-		
-		if (shadow != null)		filters.push( shadow );
-		if (bevel != null)		filters.push( bevel );
-		if (blur != null)		filters.push( blur );
-		if (glow != null)		filters.push( glow );
-		if (grBevel != null)	filters.push( grBevel );
-		if (grGlow != null)		filters.push( grGlow );
-		
-		//set new array with filters
-		if (filters.length > 0)
-			this.filters = filters;
-	}
-	
-	
-	private function applyEffectStyling (effectProps:EffectStyleDeclarations) : Void
-	{
-		var show	= effectProps.show;
-		var hide	= effectProps.hide;
-		var scale	= effectProps.scale;
-		var resize	= effectProps.resize;
-		var rotate	= effectProps.rotate;
-		var move	= effectProps.move;
-		
-		if (show != null || hide != null || scale != null || resize != null || rotate != null || move != null) {
-			if (effects == null)
-				effects = new UIElementEffects(this, effectProps);
-			else
-				effects.collection = effectProps;
-		}
-	}
 #end
+	
+	
+	private function createLayout () : Void
+	{
+		layout = new LayoutClient();
+	}
+	
 	
 	
 	//
@@ -397,7 +245,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	private function createStates ()		: Void; //	{ Assert.abstract(); }
 	private function createBehaviours ()	: Void; //	{ Assert.abstract(); }
-	private function createLayout ()		: Void		{ Assert.abstract(); }
+//	private function createLayout ()		: Void		{ Assert.abstract(); }
 	private function createGraphics ()		: Void; //	{ Assert.abstract(); }
 	private function createSkin ()			: Void; //	{ Assert.abstract(); }
 	private function createChildren ()		: Void		{ Assert.abstract(); }

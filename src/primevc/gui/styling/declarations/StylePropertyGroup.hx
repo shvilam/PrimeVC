@@ -27,13 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
- import primevc.core.traits.Invalidatable;
- import primevc.tools.generator.ICSSFormattable;
- import primevc.utils.StringUtil;
-#if neko
- import primevc.tools.generator.ICodeGenerator;
-#end
-
+ import primevc.core.traits.IInvalidatable;
 
 
 /**
@@ -42,24 +36,66 @@ package primevc.gui.styling.declarations;
  * @author Ruben Weijers
  * @creation-date Sep 22, 2010
  */
-class StylePropertyGroup extends Invalidatable, implements IStyleDeclaration
+class StylePropertyGroup extends StyleDeclarationBase
 {
-	public var owner				: UIElementStyle;
-	public var uuid (default, null) : String;
-	
-	
-	public function new ()
-	{
-		super();
-		this.uuid = StringUtil.createUUID();
-	}
+	public var owner (default, setOwner)	: UIElementStyle;
 	
 	
 	override public function dispose ()
 	{
 		owner = null;
-		uuid = null;
 		super.dispose();
+	}
+	
+	
+	private function setOwner (v)
+	{
+		if (owner != v)
+		{
+			if (owner != null)
+				owner.listeners.remove(this);
+			
+			owner = v;
+			updateOwnerReferences( StyleFlags.EXTENDED_STYLE | StyleFlags.SUPER_STYLE | StyleFlags.NESTING_STYLE | StyleFlags.PARENT_STYLE );
+			updateAllFilledPropertiesFlag();
+			
+			if (owner != null)
+				owner.listeners.add(this);
+		}
+		return v;
+	}
+	
+	
+	/**
+	 * Method is called when the extended, super, nested or inherited style of
+	 * the owner has changed. Each styleproperty-group has to check if the new
+	 * reference has any properties that this object doesn't have.
+	 * If so, it must send a invalidate request since properties of the object
+	 * have changed.
+	 */
+	private function updateOwnerReferences (changedReference:UInt) : Void
+	{
+		Assert.abstract();
+	}
+	
+	
+	private function isPropAnStyleReference ( property)
+	{
+		return property == StyleFlags.EXTENDED_STYLE || property == StyleFlags.SUPER_STYLE;
+	}
+	
+	
+	override public function invalidateCall ( changeFromOther:UInt, sender:IInvalidatable ) : Void
+	{
+		if (sender == owner)
+		{
+			if (isPropAnStyleReference( changeFromOther )) {
+				updateOwnerReferences ( changeFromOther );
+				updateAllFilledPropertiesFlag();
+			}
+		}
+		else
+			super.invalidateCall(changeFromOther, sender);
 	}
 
 
@@ -67,15 +103,4 @@ class StylePropertyGroup extends Invalidatable, implements IStyleDeclaration
 	private inline function getNesting ()		{ return owner != null ? owner.nestingInherited : null; }
 	private inline function getSuper ()			{ return owner != null ? owner.superStyle : null; }
 	private inline function getParent ()		{ return owner != null ? owner.parentStyle : null; }
-	
-	
-#if (debug || neko)
-	public function toString ()					{ return toCSS(); }
-	public function isEmpty ()					{ Assert.abstract(); return false; }
-	public function toCSS (prefix:String = "") 	{ Assert.abstract(); return ""; }
-#end
-	
-#if neko
-	public function toCode (code:ICodeGenerator){ Assert.abstract(); }
-#end
 }

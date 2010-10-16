@@ -33,14 +33,6 @@ package primevc.gui.core;
   using primevc.utils.TypeUtil;
 
 
-#if flash9
-/* 
- import primevc.gui.behaviours.LoadStyleBehaviour;
- import primevc.gui.styling.StyleDeclaration;
- import primevc.gui.traits.IStylable;*/
-#end
-
-
 /**
  * @author Ruben Weijers
  * @creation-date Aug 02, 2010
@@ -55,35 +47,8 @@ class UIContainer <DataType> extends UIDataComponent <DataType>
 	private inline function getScrollableLayout () 	{ return layout.as(IScrollableLayout); }
 	
 	
-#if flash9
-	//
-	// ISTYLEABLE IMPLEMENTATION
-	//
-	
-/*	public var style (default, setStyle)	: StyleDeclaration;
-	
-	override private function createBehaviours ()
+	override private function createLayout () : Void
 	{
-		behaviours.add( new LoadStyleBehaviour( this ) );
+		layout = new LayoutContainer();
 	}
-	
-	
-	private inline function setStyle (v:StyleDeclaration)
-	{
-		return style = v;
-	}*/
-	
-	override private function applyLayoutStyling (layoutProps) : Void
-	{
-		super.applyLayoutStyling(layoutProps);
-		
-		var algorithm	= layoutProps.algorithm;
-		var childW		= layoutProps.childWidth;
-		var childH		= layoutProps.childHeight;
-		
-		if (algorithm != null)		layoutContainer.algorithm	= algorithm;
-		if (childW.isSet())			layoutContainer.childWidth	= childW;
-		if (childH.isSet())			layoutContainer.childHeight	= childH;
-	}
-#end
 }

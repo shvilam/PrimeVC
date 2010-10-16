@@ -50,9 +50,15 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	override private function getRelative ()
 	{
 		var v = super.getRelative();
+		if (v != null)
+			return v;
+		
 		for (styleObj in target)
 			if (styleObj.layout != null && null != (v = styleObj.layout.relative))
 				break;
+
+		if (v != null)
+			_relative = v;
 		return v;
 	}
 	
@@ -60,12 +66,18 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	override private function getAlgorithm ()
 	{
 		var v = super.getAlgorithm();
+		if (v != null)
+			return v;
+		
 		for (styleObj in target) {
 			if (styleObj.layout == null)
 				continue;
 			if (null != (v = styleObj.layout.algorithm))
 				break;
 		}
+
+		if (v != null)
+			_algorithm = v;
 		return v;
 	}
 	
@@ -73,12 +85,19 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	override private function getPadding ()
 	{
 		var v = super.getPadding();
+		if (v != null)
+			return v;
+		
 		for (styleObj in target) {
 			if (styleObj.layout == null)
 				continue;
 			if (null != (v = styleObj.layout.padding))
 				break;
 		}
+		
+		if (v != null)
+			_padding = v;
+		
 		return v;
 	}
 	
@@ -86,6 +105,9 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	override private function getWidth ()
 	{
 		var v = super.getWidth();
+		if (v.isSet())
+			return v;
+		
 		for (styleObj in target) {
 			if (styleObj.layout == null)
 				continue;
@@ -94,6 +116,8 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 			if (v.isSet())
 				break;
 		}
+		if (v.isSet())
+			_width = v;
 		return v;
 	}
 	
@@ -101,6 +125,9 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	override private function getMaxWidth ()
 	{
 		var v = super.getMaxWidth();
+		if (v.isSet())
+			return v;
+		
 		for (styleObj in target) {
 			if (styleObj.layout == null)
 				continue;
@@ -109,6 +136,8 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 			if (v.isSet())
 				break;
 		}
+		if (v.isSet())
+			_maxWidth = v;
 		return v;
 	}
 	
@@ -117,6 +146,9 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	override private function getMinWidth ()
 	{
 		var v = super.getMinWidth();
+		if (v.isSet())
+			return v;
+		
 		for (styleObj in target) {
 			if (styleObj.layout == null)
 				continue;
@@ -125,6 +157,8 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 			if (v.isSet())
 				break;
 		}
+		if (v.isSet())
+			_minWidth = v;
 		return v;
 	}
 	
@@ -132,6 +166,9 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	override private function getPercentWidth ()
 	{
 		var v = super.getPercentWidth();
+		if (v.isSet())
+			return v;
+		
 		for (styleObj in target) {
 			if (styleObj.layout == null)
 				continue;
@@ -140,6 +177,10 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 			if (v.isSet())
 				break;
 		}
+		
+		if (v.isSet())
+			_percentWidth = v;
+		
 		return v;
 	}
 	
@@ -147,6 +188,9 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	override private function getHeight ()
 	{
 		var v = super.getHeight();
+		if (v.isSet())
+			return v;
+		
 		for (styleObj in target) {
 			if (styleObj.layout == null)
 				continue;
@@ -155,6 +199,8 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 			if (v.isSet())
 				break;
 		}
+		if (v.isSet())
+			_height = v;
 		return v;
 	}
 	
@@ -162,6 +208,9 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	override private function getMaxHeight ()
 	{
 		var v = super.getMaxHeight();
+		if (v.isSet())
+			return v;
+		
 		for (styleObj in target) {
 			if (styleObj.layout == null)
 				continue;
@@ -170,6 +219,8 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 			if (v.isSet())
 				break;
 		}
+		if (v.isSet())
+			_maxHeight = v;
 		return v;
 	}
 	
@@ -177,6 +228,9 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	override private function getMinHeight ()
 	{
 		var v = super.getMinHeight();
+		if (v.isSet())
+			return v;
+		
 		for (styleObj in target) {
 			if (styleObj.layout == null)
 				continue;
@@ -185,6 +239,8 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 			if (v.isSet())
 				break;
 		}
+		if (v.isSet())
+			_minHeight = v;
 		return v;
 	}
 	
@@ -192,6 +248,9 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	override private function getPercentHeight ()
 	{
 		var v = super.getPercentHeight();
+		if (v.isSet())
+			return v;
+		
 		for (styleObj in target) {
 			if (styleObj.layout == null)
 				continue;
@@ -200,6 +259,8 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 			if (v.isSet())
 				break;
 		}
+		if (v.isSet())
+			_percentHeight = v;
 		return v;
 	}
 	
@@ -207,6 +268,9 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	override private function getChildWidth ()
 	{
 		var v = super.getChildWidth();
+		if (v.isSet())
+			return v;
+		
 		for (styleObj in target) {
 			if (styleObj.layout == null)
 				continue;
@@ -215,6 +279,8 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 			if (v.isSet())
 				break;
 		}
+		if (v.isSet())
+			_childWidth = v;
 		return v;
 	}
 	
@@ -222,6 +288,9 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	override private function getChildHeight ()
 	{
 		var v = super.getChildHeight();
+		if (v.isSet())
+			return v;
+		
 		for (styleObj in target) {
 			if (styleObj.layout == null)
 				continue;
@@ -230,6 +299,8 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 			if (v.isSet())
 				break;
 		}
+		if (v.isSet())
+			_childHeight = v;
 		return v;
 	}
 	
@@ -237,6 +308,9 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	override private function getRotation ()
 	{
 		var v = super.getRotation();
+		if (v.isSet())
+			return v;
+		
 		for (styleObj in target) {
 			if (styleObj.layout == null)
 				continue;
@@ -245,6 +319,8 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 			if (v.isSet())
 				break;
 		}
+		if (v.isSet())
+			_rotation = v;
 		return v;
 	}
 
@@ -252,6 +328,9 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	override private function getIncludeInLayout ()
 	{
 		var v = super.getIncludeInLayout();
+		if (v != null)
+			return v;
+		
 		for (styleObj in target) {
 			if (styleObj.layout == null)
 				continue;
@@ -260,6 +339,8 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 			if (v != null)
 				break;
 		}
+		if (v != null)
+			_includeInLayout = v;
 		return v;
 	}
 	
@@ -267,6 +348,9 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	override private function getMaintainAspect ()
 	{
 		var v = super.getMaintainAspect();
+		if (v != null)
+			return v;
+		
 		for (styleObj in target) {
 			if (styleObj.layout == null)
 				continue;
@@ -275,6 +359,8 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 			if (v != null)
 				break;
 		}
+		if (v != null)
+			_maintainAspectRatio = v;
 		return v;
 	}
 }

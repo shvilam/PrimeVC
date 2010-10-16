@@ -30,6 +30,7 @@ package primevc.gui.graphics;
  import haxe.FastList;
  import primevc.core.dispatcher.Signal0;
  import primevc.core.geom.IntRectangle;
+ import primevc.core.traits.IInvalidatable;
  import primevc.core.traits.IInvalidateListener;
  import primevc.core.traits.IValidatable;
  import primevc.gui.graphics.borders.IBorder;
@@ -102,13 +103,13 @@ class GraphicProperties implements IGraphicElement
 	}
 	
 
-	public  function invalidate (change:UInt) : Void
+	public function invalidate (change:UInt) : Void
 	{
 		if (listeners != null)
 		{
 			changes = changes.set(change);
 			for (listener in listeners)
-				listener.invalidateCall( change );
+				listener.invalidateCall( change, this );
 
 			if (changeEvent != null)
 				changeEvent.send();
@@ -116,9 +117,9 @@ class GraphicProperties implements IGraphicElement
 	}
 	
 	
-	public inline function invalidateCall (change:UInt) : Void
+	public function invalidateCall (changeFromOther:UInt, sender:IInvalidatable) : Void
 	{
-		invalidate(change);
+		invalidate(changeFromOther);
 	}
 	
 	

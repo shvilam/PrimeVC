@@ -26,8 +26,6 @@ package cases;
  import primevc.gui.layout.algorithms.tile.DynamicTileAlgorithm;
  import primevc.gui.layout.algorithms.tile.FixedTileAlgorithm;
  import primevc.gui.layout.algorithms.RelativeAlgorithm;
- import primevc.gui.layout.LayoutClient;
- import primevc.gui.layout.LayoutContainer;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.RelativeLayout;
  import primevc.gui.layout.VirtualLayoutContainer;
@@ -69,12 +67,6 @@ class GlobalApp extends UIContainer <Dynamic>
 	public function new ()
 	{
 		super("GlobalApp");
-	}
-	
-	
-	override private function createLayout ()
-	{
-		layout = new LayoutContainer();
 	}
 	
 	
@@ -153,6 +145,9 @@ class GlobalApp extends UIContainer <Dynamic>
 		var newColor	= Color.random();
 		tileStyle.background.as( primevc.gui.graphics.fills.SolidFill ).color = newColor;
 		trace("changeTileColor to "+newColor.string());
+		
+		var btnStyle	= window.as(UIWindow).style.idStyle.children.elementSelectors.get( Button.getClassName() );
+		btnStyle.visible= !btnStyle.visible;
 	}
 }
 
@@ -173,11 +168,6 @@ class Button extends UIDataComponent < String >
 		super(id + num);
 	}
 	
-	
-	override private function createLayout ()
-	{
-		layout	= new LayoutClient();
-	}
 	
 #if (debug && flash9)
 	override private function createChildren ()
@@ -256,12 +246,6 @@ class Frame extends UIContainer < String >
 #if debug
 	public var textField	: TextField;
 #end
-
-
-	override private function createLayout ()
-	{
-		layout = new LayoutContainer();
-	}
 
 
 #if (debug && flash9)

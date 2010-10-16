@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
+  using primevc.utils.BitUtil;
 
 
 
@@ -36,6 +37,8 @@ package primevc.gui.styling.declarations;
  */
 class StyleFlags
 {
+	public static inline var ALL_PROPERTIES		: UInt = LAYOUT | FONT | SKIN | BACKGROUND | FONT | BORDER | EFFECTS | SHAPE | BOX_FILTERS | BACKGROUND_FILTERS | VISIBLE | OPACITY | ICON | OVERFLOW | STATES;
+	
 	public static inline var NESTING_STYLE		: UInt = 1;
 	public static inline var SUPER_STYLE		: UInt = 2;
 	public static inline var EXTENDED_STYLE		: UInt = 4;
@@ -57,4 +60,37 @@ class StyleFlags
 	public static inline var ICON				: UInt = 32768;
 	public static inline var OVERFLOW			: UInt = 65536;
 	public static inline var STATES				: UInt = 131072;
+	
+	
+#if debug
+	static public function readProperties (flags:UInt) : String
+	{
+		var output	= [];
+		var result	= "";
+		
+		if (flags > 0)
+		{
+			if (flags.has( BACKGROUND ))			output.push("background");
+			if (flags.has( BACKGROUND_FILTERS ))	output.push("background-filters");
+			if (flags.has( BORDER ))				output.push("border");
+			if (flags.has( BOX_FILTERS ))			output.push("box-filters");
+			if (flags.has( EFFECTS ))				output.push("effects");
+			if (flags.has( EXTENDED_STYLE ))		output.push("extended-style");
+			if (flags.has( FONT ))					output.push("font");
+			if (flags.has( ICON ))					output.push("icon");
+			if (flags.has( LAYOUT ))				output.push("layout");
+			if (flags.has( NESTING_STYLE ))			output.push("nesting-style");
+			if (flags.has( OPACITY ))				output.push("opacity");
+			if (flags.has( OVERFLOW ))				output.push("overflow");
+			if (flags.has( PARENT_STYLE ))			output.push("parent-style");
+			if (flags.has( SHAPE ))					output.push("shape");
+			if (flags.has( SKIN ))					output.push("skin");
+			if (flags.has( STATES ))				output.push("states");
+			if (flags.has( SUPER_STYLE ))			output.push("super-style");
+			if (flags.has( VISIBLE ))				output.push("visible");
+			result = output.join(", ");
+		}
+		return "properties: " + result;
+	}
+#end
 }

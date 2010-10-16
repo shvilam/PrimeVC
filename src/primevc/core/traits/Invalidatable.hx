@@ -58,16 +58,16 @@ class Invalidatable implements IInvalidatable
 	}
 	
 	
-	public inline function invalidate (change:UInt) : Void
+	public function invalidate (change:UInt) : Void
 	{
 		changes = changes.set(change);
-		invalidateCall(change);
+		for (listener in listeners)
+			listener.invalidateCall( change, this );
 	}
 	
 	
-	public function invalidateCall ( change:UInt ) : Void
+	public function invalidateCall ( changeFromOther:UInt, sender:IInvalidatable ) : Void
 	{	
-		for (listener in listeners)
-			listener.invalidateCall( change );
+		invalidate( changeFromOther );
 	}
 }

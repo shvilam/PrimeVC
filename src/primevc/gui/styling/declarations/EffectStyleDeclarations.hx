@@ -30,11 +30,14 @@ package primevc.gui.styling.declarations;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
+ import primevc.core.traits.IInvalidatable;
  import primevc.gui.effects.Effect;
  import primevc.gui.effects.EffectFlags;
+  using primevc.utils.BitUtil;
 
 
-typedef EffectType = Effect < Dynamic, Dynamic >;
+typedef EffectType		= Effect < Dynamic, Dynamic >;
+private typedef Flags	= EffectFlags;
 
 
 /**
@@ -45,6 +48,9 @@ typedef EffectType = Effect < Dynamic, Dynamic >;
  */
 class EffectStyleDeclarations extends StylePropertyGroup
 {
+	private var extendedStyle	: EffectStyleDeclarations;
+	private var superStyle		: EffectStyleDeclarations;
+	
 	private var _move	: EffectType;
 	private var _resize	: EffectType;
 	private var _rotate	: EffectType;
@@ -91,12 +97,106 @@ class EffectStyleDeclarations extends StylePropertyGroup
 	public function new (move:EffectType = null, resize:EffectType = null, rotate:EffectType = null, scale:EffectType = null, show:EffectType = null, hide:EffectType = null)
 	{
 		super();
-		_move	= move;
-		_resize	= resize;
-		_rotate	= rotate;
-		_scale	= scale;
-		_show	= show;
-		_hide	= hide;
+		this.move	= move;
+		this.resize	= resize;
+		this.rotate	= rotate;
+		this.scale	= scale;
+		this.show	= show;
+		this.hide	= hide;
+		
+		validate();
+	}
+	
+	
+	override public function dispose ()
+	{
+		_move = _resize = _rotate = _scale = _show = _hide = null;
+		super.dispose();
+	}
+	
+	
+	override private function updateOwnerReferences (changedReference:UInt) : Void
+	{
+		if (changedReference.has( StyleFlags.EXTENDED_STYLE ))
+		{
+			if (extendedStyle != null)
+				extendedStyle.listeners.remove( this );
+			
+			extendedStyle = null;
+			if (owner != null && owner.extendedStyle != null)
+			{
+				extendedStyle = owner.extendedStyle.effects;
+				
+				if (extendedStyle != null)
+					extendedStyle.listeners.add( this );
+			}
+		}
+		
+		
+		if (changedReference.has( StyleFlags.SUPER_STYLE ))
+		{
+			if (superStyle != null)
+				superStyle.listeners.remove( this );
+			
+			superStyle = null;
+			if (owner != null && owner.superStyle != null)
+			{
+				superStyle = owner.superStyle.effects;
+				
+				if (superStyle != null)
+					superStyle.listeners.add( this );
+			}
+		}
+	}
+	
+	
+	override private function updateAllFilledPropertiesFlag ()
+	{
+		super.updateAllFilledPropertiesFlag();
+		
+		if (allFilledProperties < Flags.ALL_PROPERTIES && extendedStyle != null)	allFilledProperties |= extendedStyle.allFilledProperties;
+		if (allFilledProperties < Flags.ALL_PROPERTIES && superStyle != null)		allFilledProperties |= superStyle.allFilledProperties;
+	}
+	
+	
+	/**
+	 * Method is called when a property in the super- or extended-style is 
+	 * changed. If the property is not set in this style-object, it means that 
+	 * the allFilledPropertiesFlag needs to be changed..
+	 */
+	override public function invalidateCall ( changeFromOther:UInt, sender:IInvalidatable ) : Void
+	{
+		Assert.that(sender != null);
+		
+		if (sender == owner)
+			return super.invalidateCall( changeFromOther, sender );
+		
+		if (filledProperties.has( changeFromOther ))
+			return;
+		
+		//The changed property is not in this style-object.
+		//Check if the change should be broadcasted..
+		var propIsInExtended	= extendedStyle != null	&& extendedStyle.allFilledProperties.has( changeFromOther );
+		var propIsInSuper		= superStyle != null	&& superStyle	.allFilledProperties.has( changeFromOther );
+		
+		if (sender == extendedStyle)
+		{
+			if (propIsInExtended)	allFilledProperties = allFilledProperties.set( changeFromOther );
+			else					allFilledProperties = allFilledProperties.unset( changeFromOther );
+			
+			invalidate( changeFromOther );
+		}
+		
+		//if the sender is the super style and the extended-style doesn't have the property that is changed, broadcast the change as well
+		else if (sender == superStyle && !propIsInExtended)
+		{
+			if (propIsInSuper)		allFilledProperties = allFilledProperties.set( changeFromOther );
+			else					allFilledProperties = allFilledProperties.unset( changeFromOther );
+			
+			invalidate( changeFromOther );
+		}
+		
+		return;
 	}
 	
 	
@@ -105,12 +205,11 @@ class EffectStyleDeclarations extends StylePropertyGroup
 	// GETTERS
 	//
 	
-	
 	private function getMove ()
 	{
 		var v = _move;
-		if (v == null && getExtended() != null)		v = getExtended().effects.move;
-		if (v == null && getSuper() != null)		v = getSuper().effects.move;
+		if (v == null && extendedStyle != null)		v = extendedStyle.move;
+		if (v == null && superStyle != null)		v = superStyle.move;
 		return v;
 	}
 	
@@ -118,8 +217,8 @@ class EffectStyleDeclarations extends StylePropertyGroup
 	private function getResize ()
 	{
 		var v = _resize;
-		if (v == null && getExtended() != null)		v = getExtended().effects.resize;
-		if (v == null && getSuper() != null)		v = getSuper().effects.resize;
+		if (v == null && extendedStyle != null)		v = extendedStyle.resize;
+		if (v == null && superStyle != null)		v = superStyle.resize;
 		return v;
 	}
 	
@@ -127,8 +226,8 @@ class EffectStyleDeclarations extends StylePropertyGroup
 	private function getRotate ()
 	{
 		var v = _rotate;
-		if (v == null && getExtended() != null)		v = getExtended().effects.rotate;
-		if (v == null && getSuper() != null)		v = getSuper().effects.rotate;
+		if (v == null && extendedStyle != null)		v = extendedStyle.rotate;
+		if (v == null && superStyle != null)		v = superStyle.rotate;
 		return v;
 	}
 	
@@ -136,8 +235,8 @@ class EffectStyleDeclarations extends StylePropertyGroup
 	private function getScale ()
 	{
 		var v = _scale;
-		if (v == null && getExtended() != null)		v = getExtended().effects.scale;
-		if (v == null && getSuper() != null)		v = getSuper().effects.scale;
+		if (v == null && extendedStyle != null)		v = extendedStyle.scale;
+		if (v == null && superStyle != null)		v = superStyle.scale;
 		return v;
 	}
 	
@@ -145,8 +244,8 @@ class EffectStyleDeclarations extends StylePropertyGroup
 	private function getShow ()
 	{
 		var v = _show;
-		if (v == null && getExtended() != null)		v = getExtended().effects.show;
-		if (v == null && getSuper() != null)		v = getSuper().effects.show;
+		if (v == null && extendedStyle != null)		v = extendedStyle.show;
+		if (v == null && superStyle != null)		v = superStyle.show;
 		return v;
 	}
 	
@@ -154,8 +253,8 @@ class EffectStyleDeclarations extends StylePropertyGroup
 	private function getHide ()
 	{
 		var v = _hide;
-		if (v == null && getExtended() != null)		v = getExtended().effects.hide;
-		if (v == null && getSuper() != null)		v = getSuper().effects.hide;
+		if (v == null && extendedStyle != null)		v = extendedStyle.hide;
+		if (v == null && superStyle != null)		v = superStyle.hide;
 		return v;
 	}
 	
@@ -170,7 +269,7 @@ class EffectStyleDeclarations extends StylePropertyGroup
 	{
 		if (v != _move) {
 			_move = v;
-			invalidate( EffectFlags.MOVE );
+			markProperty( Flags.MOVE, v != null );
 		}
 		return v;
 	}
@@ -180,7 +279,7 @@ class EffectStyleDeclarations extends StylePropertyGroup
 	{
 		if (v != _resize) {
 			_resize = v;
-			invalidate( EffectFlags.RESIZE );
+			markProperty( Flags.RESIZE, v != null );
 		}
 		return v;
 	}
@@ -190,7 +289,7 @@ class EffectStyleDeclarations extends StylePropertyGroup
 	{
 		if (v != _rotate) {
 			_rotate = v;
-			invalidate( EffectFlags.ROTATE );
+			markProperty( Flags.ROTATE, v != null );
 		}
 		return v;
 	}
@@ -200,7 +299,7 @@ class EffectStyleDeclarations extends StylePropertyGroup
 	{
 		if (v != _scale) {
 			_scale = v;
-			invalidate( EffectFlags.SCALE );
+			markProperty( Flags.SCALE, v != null );
 		}
 		return v;
 	}
@@ -210,7 +309,7 @@ class EffectStyleDeclarations extends StylePropertyGroup
 	{
 		if (v != _show) {
 			_show = v;
-			invalidate( EffectFlags.SHOW );
+			markProperty( Flags.SHOW, v != null );
 		}
 		return v;
 	}
@@ -220,7 +319,7 @@ class EffectStyleDeclarations extends StylePropertyGroup
 	{
 		if (v != _hide) {
 			_hide = v;
-			invalidate( EffectFlags.HIDE );
+			markProperty( Flags.HIDE, v != null );
 		}
 		return v;
 	}
@@ -259,6 +358,16 @@ class EffectStyleDeclarations extends StylePropertyGroup
 	{
 		if (!isEmpty())
 			code.construct( this, [ _move, _resize, _rotate, _scale, _show, _hide ] );
+	}
+#end
+
+#if debug
+	override public function readProperties (flags:Int = -1) : String
+	{
+		if (flags == -1)
+			flags = filledProperties;
+
+		return Flags.readProperties(flags);
 	}
 #end
 }

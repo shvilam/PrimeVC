@@ -26,50 +26,72 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.effects;
-  using primevc.utils.BitUtil;
-
+package primevc.gui.behaviours.styling;
+ import primevc.core.dispatcher.Wire;
+ import primevc.gui.behaviours.BehaviourBase;
+ import primevc.gui.core.IUIComponent;
+  using primevc.utils.Bind;
 
 
 /**
+ * Behaviour will change the style-state of the component based on 
+ * interactions with the mouse.
+ * 
  * @author Ruben Weijers
- * @creation-date Oct 04, 2010
+ * @creation-date Oct 15, 2010
  */
-class EffectFlags
+class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 {
-	public static inline var ALL_PROPERTIES		: UInt = MOVE | RESIZE | ROTATE | SCALE | SHOW | HIDE;
-	
-	public static inline var EASING				: UInt = 1;
-	public static inline var DELAY				: UInt = 2;
-	public static inline var DURATION			: UInt = 4;
-	public static inline var AUTO_HIDE_FILTERS	: UInt = 8;
-	
-	public static inline var MOVE				: UInt = 16;
-	public static inline var RESIZE				: UInt = 32;
-	public static inline var ROTATE				: UInt = 64;
-	public static inline var SCALE				: UInt = 128;
-	public static inline var SHOW				: UInt = 256;
-	public static inline var HIDE				: UInt = 512;
+	private var overBinding	: Wire < Dynamic >;
+	private var outBinding	: Wire < Dynamic >;
+	private var downBinding	: Wire < Dynamic >;
+	private var upBinding	: Wire < Dynamic >;
 	
 	
-
-#if debug
-	public static function readProperties (flags:UInt) : String
+	override private function init ()
 	{
-		var output	= [];
-		var result	= "";
-
-		if (flags > 0)
-		{
-			if (flags.has( HIDE ))		output.push("hide");
-			if (flags.has( MOVE ))		output.push("move");
-			if (flags.has( RESIZE ))	output.push("resize");
-			if (flags.has( ROTATE ))	output.push("rotate");
-			if (flags.has( SCALE ))		output.push("scale");
-			if (flags.has( SHOW ))		output.push("show");
-			result = output.join(", ");
-		}
-		return "properties: " + result;
+		var events = target.userEvents.mouse;
+		
+		downBinding	= changeStateToDown	.on( events.down,		this );
+		upBinding	= changeStateToHover.on( events.up,			this );
+		overBinding	= changeStateToHover.on( events.rollOver,	this );
+		outBinding	= clearState		.on( events.rollOut,	this );
+		
+		clearState();
 	}
-#end	
+	
+	
+	override private function reset ()
+	{
+		downBinding.dispose();
+		upBinding.dispose();
+		overBinding.dispose();
+		outBinding.dispose();
+	}
+	
+	
+	private function changeStateToDown ()
+	{
+		target.style.state = "down";
+		downBinding.disable();
+		upBinding.enable();
+	}
+	
+	
+	private function clearState ()
+	{
+		target.style.state = "";
+		upBinding.disable();
+		outBinding.disable();
+		downBinding.enable();
+		overBinding.enable();
+	}
+	
+	
+	private function changeStateToHover ()
+	{
+		target.style.state = "hover";
+		overBinding.disable();
+		outBinding.enable();
+	}
 }

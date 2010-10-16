@@ -2,7 +2,6 @@ UIComponent { color: #000; shape: rectangle; visibility: visible; }
 UIGraphic { color: #000; }
 UITextField { color: #000; }
 Tile { color: #000; move-transition: move 200ms elastic-in-out; } /*move-transition: sequence ( parallel ( fade 500ms 40%, move 300ms elastic-out, rotate 400ms 360deg bounce-in-out ), fade 600ms 100% ) ; }*/
-Tile:hover { border: 5px solid #0f0; }
 
 GlobalApp {
 	relative: 5px 5px 5px;
@@ -40,6 +39,10 @@ TileList {
 	resize-transition: resize 300ms;
 	move-transition: move 300ms;
 	overflow: hidden;
+}
+
+Frame:hover {
+	background: #0f0f0faa;
 }
 
 
@@ -107,7 +110,7 @@ TileList {
 #frame0 Tile { background: #0000ff; shape: ellipse; move-transition: move 400ms elastic-out; }
 #frame1 Tile { background: #00ff00; shape: circle;  }
 #frame2 Tile { shape: triangle; move-transition: sequence ( parallel ( fade 500ms 40%, move 300ms circ-out ), fade 600ms 100% ) ; }
-#frame8 Tile { move-transition: sequence( rotate 500ms 360deg, move 300ms, rotate 400ms -360deg ); show-transition: fade 0% 100% 350ms; }
+#frame8 Tile { move-transition: sequence( parallel ( rotate 500ms 360deg, move 500ms ), rotate 400ms -360deg ); show-transition: fade 0% 100% 350ms; }
 
 
 /*import url("reset.css");

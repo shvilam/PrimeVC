@@ -29,7 +29,8 @@
 package primevc.gui.styling;
 
 #if flash9
-import primevc.core.dispatcher.Wire;
+ import primevc.core.dispatcher.Signal0;
+ import primevc.core.dispatcher.Wire;
  import primevc.core.IDisposable;
  import primevc.gui.styling.declarations.EffectStyleDeclarations;
  import primevc.gui.styling.declarations.EffectStyleProxy;
@@ -39,10 +40,12 @@ import primevc.core.dispatcher.Wire;
  import primevc.gui.styling.declarations.LayoutStyleDeclarations;
  import primevc.gui.styling.declarations.LayoutStyleProxy;
  import primevc.gui.styling.declarations.StyleDeclarationType;
+ import primevc.gui.styling.declarations.StyleFlags;
  import primevc.gui.styling.declarations.UIElementStyle;
  import primevc.gui.traits.IStylable;
  import primevc.utils.FastArray;
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
   using primevc.utils.FastArray;
   using primevc.utils.TypeUtil;
   using Type;
@@ -62,23 +65,43 @@ import primevc.core.dispatcher.Wire;
  */
 class StyleSheet implements IDisposable
 {
-	public var idStyle			: UIElementStyle;
-	public var styleNameStyles	: FastArray < UIElementStyle >;
-	public var elementStyle		: UIElementStyle;
-	
 	/**
 	 * object on which the style applies
 	 */
 	private var target			: IStylable;
-	
 	/**
 	 * cached classname (incl package) of target since target won't change.
 	 */
-	public var targetClassName	: String;
-	
-	
+	private var targetClassName	: String;
 	private var addedBinding	: Wire <Dynamic>;
 	private var removedBinding	: Wire <Dynamic>;
+	
+	
+	public var idStyle			(default, null)			: UIElementStyle;
+	public var styleNameStyles	(default, null)			: FastArray < UIElementStyle >;
+	public var elementStyle		(default, null)			: UIElementStyle;
+	
+	
+	/**
+	 * Bitflag-collection with all properties that are set in the styles of 
+	 * the target,
+	 */
+	public var filledProperties	(default, null)	: UInt;
+	
+	/**
+	 * Signal which is dispatched when one of the style objects is changed.
+	 */
+	public var change			(default, null)			: Signal0;
+	/**
+	 * Current css-state of the object. When the property is set, the class 
+	 * will look for style-information that only applies for the given state.
+	 * 
+	 * All the properties that are changed will be stored as bitflags in 
+	 * 'stateChanges'. The style-information of the object before the state
+	 * was changed will be temporarily stored in 'orignalStyle'.
+	 */
+	public var state			(default, setState)		: String;
+	public var stateChanges		: UInt;
 	
 	
 	
@@ -87,6 +110,7 @@ class StyleSheet implements IDisposable
 		styleNameStyles = FastArrayUtil.create();
 		this.target		= target;
 		targetClassName	= target.getClass().getClassName();
+		change			= new Signal0();
 		
 		updateStyleClasses	.on( target.styleClasses.change, this );
 		updateIdStyle		.on( target.id.change, this );
@@ -116,6 +140,7 @@ class StyleSheet implements IDisposable
 			removedBinding = null;
 		}
 		
+		change.dispose();
 		target.styleClasses.change.unbind( this );
 		target.id.change.unbind( this );
 	//	target.displayEvents.addedToStage.unbind( this );
@@ -125,6 +150,7 @@ class StyleSheet implements IDisposable
 		styleNameStyles = null;
 		targetClassName	= null;
 		target			= null;
+		change			= null;
 	}
 	
 	
@@ -165,9 +191,38 @@ class StyleSheet implements IDisposable
 		removedBinding.disable();
 		addedBinding.enable();
 		styleNameStyles.removeAll();
-		idStyle			= null;
-		elementStyle	= null;
+		idStyle				= null;
+		elementStyle		= null;
+		filledProperties	= 0;
+		
+		change.send();
 	}
+	
+	
+	public function updateStyles () : Void
+	{
+		removedBinding.enable();
+		addedBinding.disable();
+		
+		if (getParentStyle() == null)
+			return;
+		
+		filledProperties = 0;
+		updateIdStyle();
+		updateStyleClasses();
+		updateElementStyle();
+		
+		//update filled-properties flag
+		var it = iterator();
+		while (it.hasNext() && filledProperties < StyleFlags.ALL_PROPERTIES)
+		{
+			var styleObj = it.next();
+			filledProperties = filledProperties.set( styleObj.allFilledProperties );
+		}
+		
+		change.send();
+	}
+	
 	
 	
 	private function updateStyleClasses () : Void
@@ -225,22 +280,6 @@ class StyleSheet implements IDisposable
 	}
 	
 	
-	public function updateStyles () : Void
-	{
-		removedBinding.enable();
-		addedBinding.disable();
-		
-		if (getParentStyle() == null)
-			return;
-		
-		updateIdStyle();
-		updateStyleClasses();
-		updateElementStyle();
-		
-		target.applyStyling();
-	}
-	
-	
 	private inline function getParentStyle () : StyleSheet
 	{
 		Assert.notNull( target.container );
@@ -268,6 +307,16 @@ class StyleSheet implements IDisposable
 	}
 	
 	
+	//
+	// SETTERS
+	//
+	
+	private inline function setState (v:String) : String
+	{
+		trace(target + ".setStyleState "+state+" => "+v);
+		return state = v;
+	}
+	
 	
 	
 	//
@@ -278,6 +327,17 @@ class StyleSheet implements IDisposable
 	{
 		return cast new StyleSheetIterator(this);
 	}
+	
+	
+#if debug
+	public function readProperties (flags:UInt = -1) : String
+	{
+		if (flags == -1)
+			flags = filledProperties;
+		
+		return StyleFlags.readProperties(flags);
+	}
+#end
 }
 
 
