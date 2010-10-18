@@ -272,6 +272,11 @@ class GraphicProperties implements IGraphicElement
 	}
 	
 	
+	public function isEmpty () : Bool
+	{
+		return layout == null || shape == null;
+	}
+	
 	
 #if (debug || neko)
 	public function toString ()							{ return toCSS(); }

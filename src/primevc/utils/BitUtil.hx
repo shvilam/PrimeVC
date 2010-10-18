@@ -41,21 +41,24 @@ class BitUtil
 	/**
 	 * Checks if any of the bits in 'flag' are set.
 	 */
-	public static inline function has (bits:UInt, flag:UInt) : Bool {
+	public static inline function has (bits:UInt, flag:UInt) : Bool
+	{
 		return (bits & flag) != 0;
 	}
 	
 	/**
 	 * Checks if none of the bits in 'flag' are set.
 	 */
-	public static inline function hasNone (bits:UInt, flag:UInt) : Bool {
+	public static inline function hasNone (bits:UInt, flag:UInt) : Bool
+	{
 		return (bits & flag) == 0;
 	}
 	
 	/**
 	 * Returns an UInt with the bits set in 'flag' added to 'bits'.
 	 */
-	public static inline function set (bits:UInt, flag:UInt) : UInt {
+	public static inline function set (bits:UInt, flag:UInt) : UInt
+	{
 #if neko
 		Assert.that(bits != null);
 		Assert.that(flag != null);
@@ -66,8 +69,18 @@ class BitUtil
 	/**
 	 * Returns an UInt with the bits set in 'flag' removed from 'bits'.
 	 */
-	public static inline function unset (bits:UInt, flag:UInt) : UInt {
+	public static inline function unset (bits:UInt, flag:UInt) : UInt
+	{
 		//is faster and better predictable than the commented code since there's one if statement less (6 ms faster on 7.000.000 iterations)
 		return bits &= 0xffffffff ^ flag; // has(bits, flag) ? bits ^= flag : bits;
+	}
+	
+	
+	/**
+	 * Returns an UInt where only the bits that both parameters share are set. (AND operator..)
+	 */
+	public static inline function filter (bits:UInt, allowedBits:UInt) : UInt
+	{
+		return bits & allowedBits;
 	}
 }

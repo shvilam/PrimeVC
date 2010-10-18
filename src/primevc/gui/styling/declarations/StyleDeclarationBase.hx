@@ -83,13 +83,21 @@ class StyleDeclarationBase extends Validatable, implements IStyleDeclaration
 		//Now it's unknow if the property that is changed, is somewhere in
 		//the list with super / extended styles, so the object must rebuild 
 		//these flags.
-		updateAllFilledPropertiesFlag();
+		if (isSet)	allFilledProperties = allFilledProperties.set( propFlag );
+		else		updateAllFilledPropertiesFlag();
 		
+	//	trace("markProperty "+readProperties(propFlag)+" = "+isSet);
 		invalidate( propFlag );
 	}
 	
 	
-	private function updateAllFilledPropertiesFlag () : Void
+	public function has (propFlag:UInt) : Bool
+	{
+		return allFilledProperties.has( propFlag );
+	}
+	
+	
+	public function updateAllFilledPropertiesFlag () : Void
 	{
 		allFilledProperties = filledProperties;
 	}

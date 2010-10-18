@@ -152,7 +152,7 @@ class StyleContainer
 				if (!style.isEmpty())
 					code.setAction(this, "elementSelectors.set", [ key, style ]);
 			}
-		
+			
 			keys = styleNameSelectors.keys();
 			for (key in keys)
 			{

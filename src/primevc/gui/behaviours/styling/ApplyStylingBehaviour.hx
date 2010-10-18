@@ -58,7 +58,7 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 	override private function init ()
 	{
 		applyStyling.on( target.style.change, this );
-		applyStyling();
+		applyStyling( target.style.filledProperties );
 	}
 	
 	
@@ -68,110 +68,100 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 	}
 	
 	
-	private function applyStyling ()
+	private function applyStyling (propsToSet:UInt) : Void
 	{
-		var style		= target.style;
-		var propsToSet	= style.filledProperties; //StyleFlags.VISIBLE | StyleFlags.OPACITY;
-		var it			= style.iterator();
+		var style	= target.style;
+		var it		= style.iterator();
 		
 		if (!target.is(ISkinnable))		propsToSet = propsToSet.unset( Flags.SKIN );
 		if (!target.is(IDrawable))		propsToSet = propsToSet.unset( Flags.BACKGROUND | Flags.BORDER | Flags.SHAPE );
 		if (!target.is(IUIContainer))	propsToSet = propsToSet.unset( Flags.OVERFLOW );
 		
-		//remove properties that won't be checked in the while loop but through a seperate proxy
-		propsToSet = propsToSet.unset( Flags.LAYOUT | Flags.FONT | Flags.BACKGROUND_FILTERS | Flags.BOX_FILTERS | Flags.EFFECTS | Flags.STATES );
+		//remove flags that don't influence the target's style
+		propsToSet = propsToSet.unset( Flags.STATES | Flags.INHERETING_STYLES );
 		
-		trace(target + ".applyStyling for properties "+StyleFlags.readProperties( propsToSet ));
+		//check properties that will be checked using a seperate proxy
+		if (propsToSet.has( Flags.LAYOUT ))			applyLayoutStyling( style.layout );
+		if (propsToSet.has( Flags.BOX_FILTERS ))	applyBoxFilterStyling( style.boxFilters );
+		if (propsToSet.has( Flags.EFFECTS ))		applyEffectStyling( style.effects );
+		
+		//remove checked properties
+		propsToSet = propsToSet.unset( Flags.LAYOUT | Flags.FONT | Flags.BACKGROUND_FILTERS | Flags.BOX_FILTERS | Flags.EFFECTS );
+		trace(target + ".applyStyling - "+Flags.readProperties( propsToSet ));
+		
+		if (propsToSet == 0)
+			return;
 		
 		//
 		// LOOP THROUGH ALL AVAILABLE STLYE-BLOCKS TO FIND THE STYLING PROPERTIES
 		//
 		
-		var i = 0;
 		while (it.hasNext() && propsToSet > 0)
 		{
-			var styleObj		= it.next();
+			var styleObj = it.next();
 			if (!styleObj.allFilledProperties.has( propsToSet ))
 				continue;
 			
-		//	trace("\tlooping in "+styleObj.type + " for "+StyleFlags.readProperties( propsToSet )+" with "+StyleFlags.readProperties( styleObj.allFilledProperties ));
-			i++;
-				
+			var curStyleProps = styleObj.allFilledProperties.filter( propsToSet );
+			trace("\t\tgonna find the props "+Flags.readProperties(curStyleProps));
+			
 			//read skin
-			if ( propsToSet.has( StyleFlags.SKIN ) && styleObj.skin != null )
-			{
+			if ( curStyleProps.has( StyleFlags.SKIN ) )
 				target.as(ISkinnable).skin = Type.createInstance( styleObj.skin, null );
-				propsToSet = propsToSet.unset( StyleFlags.SKIN );
-			}
 
 			//read shape
-			if ( propsToSet.has( StyleFlags.SHAPE ) && styleObj.shape != null )
+			if ( curStyleProps.has( StyleFlags.SHAPE ) )
 			{
 				createGraphicDataObj();
 				target.as(IDrawable).graphicData.value.shape	= styleObj.shape;
-				target.as(IDrawable).graphicData.value.layout	= target.rect;
-				propsToSet = propsToSet.unset( StyleFlags.SHAPE );
+			//	target.as(IDrawable).graphicData.value.layout	= target.rect;
 			}
 			
 			//read fill
-			if ( propsToSet.has( StyleFlags.BACKGROUND ) && styleObj.background != null )
+			if ( curStyleProps.has( StyleFlags.BACKGROUND ) )
 			{
 				createGraphicDataObj();
 				target.as(IDrawable).graphicData.value.fill = styleObj.background;
-				propsToSet = propsToSet.unset( StyleFlags.BACKGROUND );
 			}
 			
 			//read border
-			if ( propsToSet.has( StyleFlags.BORDER ) && styleObj.border != null )
+			if ( curStyleProps.has( StyleFlags.BORDER ) )
 			{
 				createGraphicDataObj();
 				target.as(IDrawable).graphicData.value.border = styleObj.border;
-				propsToSet = propsToSet.unset( StyleFlags.BORDER );
 			}
 			
 			//read opacity
-			if ( propsToSet.has( StyleFlags.OPACITY ) && styleObj.opacity.isSet() )
-			{
-				target.alpha	= styleObj.opacity;
-				propsToSet		= propsToSet.unset( StyleFlags.OPACITY );
-			}
+			if ( curStyleProps.has( StyleFlags.OPACITY ) )
+				target.alpha = styleObj.opacity;
 			
 			//read visable
-			if ( propsToSet.has( StyleFlags.VISIBLE ) && styleObj.visible != null )
-			{
-				target.visible	= styleObj.visible;
-				propsToSet		= propsToSet.unset( StyleFlags.VISIBLE );
-			}
+			if ( curStyleProps.has( StyleFlags.VISIBLE ) )
+				target.visible = styleObj.visible;
 			
 			//read overflow
-			if ( propsToSet.has( StyleFlags.OVERFLOW ) && styleObj.overflow != null )
-			{
+			if ( curStyleProps.has( StyleFlags.OVERFLOW ) )
 				target.behaviours.add( Type.createInstance( styleObj.overflow, [ target ] ) );
-				propsToSet = propsToSet.unset( StyleFlags.OVERFLOW );
-			}
 			
 			//read font properties
+			//...
+			
+			propsToSet = propsToSet.unset( curStyleProps );
 		}
-		
-		if (style.filledProperties.has( Flags.LAYOUT ))			applyLayoutStyling( style.getLayout() );
-		if (style.filledProperties.has( Flags.BOX_FILTERS ))	applyBoxFilterStyling( style.getBoxFilters() );
-		if (style.filledProperties.has( Flags.EFFECTS ))		applyEffectStyling( style.getEffects() );
-		
-		trace("appliedStyling for "+target+" in "+i+" loops; available props: "+style.readProperties(propsToSet));
 	}
 	
 	
 	private function createGraphicDataObj ()
 	{
 		if (target.as(IDrawable).graphicData.value == null)
-			target.as(IDrawable).graphicData.value = new GraphicProperties();
+			target.as(IDrawable).graphicData.value = new GraphicProperties(null, target.rect);
 	}
 	
 	
 	private function applyLayoutStyling (style:LayoutStyleDeclarations) : Void
-	{	
-		var layout		= target.layout;
-		
+	{
+		var layout = target.layout;
+	//	trace(target + ".applyLayoutStyling "+style.readProperties());
 		if (style.width.isSet())				layout.width				= style.width;
 		if (style.height.isSet())				layout.height				= style.height;
 		if (style.percentWidth.isSet())			layout.percentWidth			= style.percentWidth;
@@ -211,6 +201,7 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 	private function applyBoxFilterStyling (style:FilterStyleDeclarations) : Void
 	{
 		var filters	= target.filters;
+	//	trace(target + ".applyBoxFilterStyling "+style.readProperties());
 		if (filters == null)
 			filters = [];
 		
@@ -228,7 +219,8 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 	
 	
 	private function applyEffectStyling (style:EffectStyleDeclarations) : Void
-	{
+	{	
+	//	trace(target + ".applyEffectStyling "+style.readProperties());
 		if (style.show != null || style.hide != null || style.scale != null || style.resize != null || style.rotate != null || style.move != null)
 		{
 			if (target.effects == null)

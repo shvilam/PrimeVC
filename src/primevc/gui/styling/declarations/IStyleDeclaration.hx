@@ -68,7 +68,7 @@ interface IStyleDeclaration
 	 * style or that of it's extended, super, inherited and parent style 
 	 * changes.
 	 */
-	private function updateAllFilledPropertiesFlag ()				: Void;
+	public function updateAllFilledPropertiesFlag ()				: Void;
 	
 #if debug
 	

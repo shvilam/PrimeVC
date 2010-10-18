@@ -150,7 +150,7 @@ class EffectStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	override private function updateAllFilledPropertiesFlag ()
+	override public function updateAllFilledPropertiesFlag ()
 	{
 		super.updateAllFilledPropertiesFlag();
 		

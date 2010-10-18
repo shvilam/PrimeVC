@@ -122,5 +122,5 @@ class FloatUtil
 
 
 	public static inline function notSet (value:Float) : Bool	{ return !isSet(value); }
-	public static inline function isSet  (value:Float) : Bool	{ return #if !flash9 value != null && #end !Math.isNaN(value) /*(value == value /* false if NaN )*/; }
+	public static inline function isSet  (value:Float) : Bool	{ return #if !flash9 value != null && #end (value == value) /* false if NaN )*/; }
 }

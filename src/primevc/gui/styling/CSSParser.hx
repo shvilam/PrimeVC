@@ -806,9 +806,6 @@ class CSSParser
 		//find correct block
 		getContentBlock( expr.matched(1) );
 		
-		for (i in 0...14)
-			trace("["+i+"] "+expr.matched(i));
-		
 		var content = expr.matched(13).trim();
 		if (content != "")
 			parseBlock(content.trim());

@@ -333,7 +333,7 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 	}
 	
 	
-	override private function updateAllFilledPropertiesFlag ()
+	override public function updateAllFilledPropertiesFlag ()
 	{
 		super.updateAllFilledPropertiesFlag();
 		
@@ -806,6 +806,7 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 	{
 		return _skin == null 
 			&& _shape == null 
+			&& _background == null
 			&& _border == null 
 			&& _visible == null
 			&& _opacity.notSet()

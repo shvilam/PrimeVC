@@ -27,8 +27,13 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
+ import primevc.gui.layout.LayoutFlags;
  import primevc.gui.styling.StyleSheet;
   using primevc.utils.NumberUtil;
+  using primevc.utils.BitUtil;
+
+
+private typedef Flags = LayoutFlags;
 
 
 /**
@@ -47,56 +52,60 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	}
 	
 	
+	override public function updateAllFilledPropertiesFlag () : Void
+	{
+		super.updateAllFilledPropertiesFlag();
+		
+		for (styleObj in target) {
+			if (styleObj.has( StyleFlags.LAYOUT ))
+				allFilledProperties = allFilledProperties.set( styleObj.layout.allFilledProperties );
+			
+			if (allFilledProperties == Flags.ALL_PROPERTIES)
+				break;
+		}
+	}
+	
+	
 	override private function getRelative ()
 	{
-		var v = super.getRelative();
-		if (v != null)
-			return v;
+		if (!has(Flags.RELATIVE))
+			return _relative;
 		
-		for (styleObj in target)
-			if (styleObj.layout != null && null != (v = styleObj.layout.relative))
-				break;
-
-		if (v != null)
-			_relative = v;
+		var v = super.getRelative();
+		if (v == null)
+			for (styleObj in target)
+				if (styleObj.layout != null && null != (v = styleObj.layout.relative))
+					break;
+		
 		return v;
 	}
 	
 	
 	override private function getAlgorithm ()
 	{
-		var v = super.getAlgorithm();
-		if (v != null)
-			return v;
+		if (!has(Flags.ALGORITHM))
+			return _algorithm;
 		
-		for (styleObj in target) {
-			if (styleObj.layout == null)
-				continue;
-			if (null != (v = styleObj.layout.algorithm))
-				break;
-		}
-
-		if (v != null)
-			_algorithm = v;
+		var v = super.getAlgorithm();
+		if (v == null)
+			for (styleObj in target)
+				if (styleObj.layout != null && null != (v = styleObj.layout.algorithm))
+					break;
+		
 		return v;
 	}
 	
 	
 	override private function getPadding ()
 	{
+		if (!has(Flags.PADDING))
+			return _padding;
+		
 		var v = super.getPadding();
-		if (v != null)
-			return v;
-		
-		for (styleObj in target) {
-			if (styleObj.layout == null)
-				continue;
-			if (null != (v = styleObj.layout.padding))
-				break;
-		}
-		
-		if (v != null)
-			_padding = v;
+		if (v == null)
+			for (styleObj in target)
+				if (styleObj.layout != null && null != (v = styleObj.layout.padding))
+					break;
 		
 		return v;
 	}
@@ -104,40 +113,30 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	
 	override private function getWidth ()
 	{
-		var v = super.getWidth();
-		if (v.isSet())
-			return v;
+		if (!has(Flags.WIDTH))
+			return _width;
 		
-		for (styleObj in target) {
-			if (styleObj.layout == null)
-				continue;
-
-			v = styleObj.layout.width;
-			if (v.isSet())
-				break;
-		}
-		if (v.isSet())
-			_width = v;
+		var v = super.getWidth();
+		if (v.notSet())
+			for (styleObj in target)
+				if (styleObj.layout != null && (v = styleObj.layout.width).isSet())
+					break;
+		
 		return v;
 	}
 	
 	
 	override private function getMaxWidth ()
 	{
-		var v = super.getMaxWidth();
-		if (v.isSet())
-			return v;
+		if (!has(Flags.MAX_WIDTH))
+			return _maxWidth;
 		
-		for (styleObj in target) {
-			if (styleObj.layout == null)
-				continue;
-			
-			v = styleObj.layout.maxWidth;
-			if (v.isSet())
-				break;
-		}
-		if (v.isSet())
-			_maxWidth = v;
+		var v = super.getMaxWidth();
+		if (v.notSet())
+			for (styleObj in target)
+				if (styleObj.layout != null && (v = styleObj.layout.maxWidth).isSet())
+					break;
+		
 		return v;
 	}
 	
@@ -145,41 +144,29 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	
 	override private function getMinWidth ()
 	{
-		var v = super.getMinWidth();
-		if (v.isSet())
-			return v;
+		if (!has(Flags.MIN_WIDTH))
+			return _minWidth;
 		
-		for (styleObj in target) {
-			if (styleObj.layout == null)
-				continue;
-
-			v = styleObj.layout.minWidth;
-			if (v.isSet())
-				break;
-		}
-		if (v.isSet())
-			_minWidth = v;
+		var v = super.getMinWidth();
+		if (v.notSet())
+			for (styleObj in target)
+				if (styleObj.layout != null && (v = styleObj.layout.minWidth).isSet())
+					break;
+		
 		return v;
 	}
 	
 	
 	override private function getPercentWidth ()
 	{
+		if (!has(Flags.PERCENT_WIDTH))
+			return _percentWidth;
+		
 		var v = super.getPercentWidth();
-		if (v.isSet())
-			return v;
-		
-		for (styleObj in target) {
-			if (styleObj.layout == null)
-				continue;
-
-			v = styleObj.layout.percentWidth;
-			if (v.isSet())
-				break;
-		}
-		
-		if (v.isSet())
-			_percentWidth = v;
+		if (v.notSet())
+			for (styleObj in target)
+				if (styleObj.layout != null && (v = styleObj.layout.percentWidth).isSet())
+					break;
 		
 		return v;
 	}
@@ -187,180 +174,135 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	
 	override private function getHeight ()
 	{
-		var v = super.getHeight();
-		if (v.isSet())
-			return v;
+		if (!has(Flags.HEIGHT))
+			return _height;
 		
-		for (styleObj in target) {
-			if (styleObj.layout == null)
-				continue;
-
-			v = styleObj.layout.height;
-			if (v.isSet())
-				break;
-		}
-		if (v.isSet())
-			_height = v;
+		var v = super.getHeight();
+		if (v.notSet())
+			for (styleObj in target)
+				if (styleObj.layout != null && (v = styleObj.layout.height).isSet())
+					break;
+		
 		return v;
 	}
 	
 	
 	override private function getMaxHeight ()
 	{
-		var v = super.getMaxHeight();
-		if (v.isSet())
-			return v;
+		if (!has(Flags.MAX_HEIGHT))
+			return _maxHeight;
 		
-		for (styleObj in target) {
-			if (styleObj.layout == null)
-				continue;
-
-			v = styleObj.layout.maxHeight;
-			if (v.isSet())
-				break;
-		}
-		if (v.isSet())
-			_maxHeight = v;
+		var v = super.getMaxHeight();
+		if (v.notSet())
+			for (styleObj in target)
+				if (styleObj.layout != null && (v = styleObj.layout.maxHeight).isSet())
+					break;
+		
 		return v;
 	}
 	
 	
 	override private function getMinHeight ()
 	{
-		var v = super.getMinHeight();
-		if (v.isSet())
-			return v;
+		if (!has(Flags.MIN_HEIGHT))
+			return _minHeight;
 		
-		for (styleObj in target) {
-			if (styleObj.layout == null)
-				continue;
-
-			v = styleObj.layout.minHeight;
-			if (v.isSet())
-				break;
-		}
-		if (v.isSet())
-			_minHeight = v;
+		var v = super.getMinHeight();
+		if (v.notSet())
+			for (styleObj in target)
+				if (styleObj.layout != null && (v = styleObj.layout.minHeight).isSet())
+					break;
+		
 		return v;
 	}
 	
 	
 	override private function getPercentHeight ()
 	{
-		var v = super.getPercentHeight();
-		if (v.isSet())
-			return v;
+		if (!has(Flags.PERCENT_HEIGHT))
+			return _percentHeight;
 		
-		for (styleObj in target) {
-			if (styleObj.layout == null)
-				continue;
-
-			v = styleObj.layout.percentHeight;
-			if (v.isSet())
-				break;
-		}
-		if (v.isSet())
-			_percentHeight = v;
+		var v = super.getPercentHeight();
+		if (v.notSet())
+			for (styleObj in target)
+				if (styleObj.layout != null && (v = styleObj.layout.percentHeight).isSet())
+					break;
+		
 		return v;
 	}
 	
 	
 	override private function getChildWidth ()
 	{
-		var v = super.getChildWidth();
-		if (v.isSet())
-			return v;
+		if (!has(Flags.CHILD_WIDTH))
+			return _childWidth;
 		
-		for (styleObj in target) {
-			if (styleObj.layout == null)
-				continue;
-
-			v = styleObj.layout.childWidth;
-			if (v.isSet())
-				break;
-		}
-		if (v.isSet())
-			_childWidth = v;
+		var v = super.getChildWidth();
+		if (v.notSet())
+			for (styleObj in target)
+				if (styleObj.layout != null && (v = styleObj.layout.childWidth).isSet())
+					break;
+		
 		return v;
 	}
 	
 	
 	override private function getChildHeight ()
 	{
-		var v = super.getChildHeight();
-		if (v.isSet())
-			return v;
+		if (!has(Flags.CHILD_HEIGHT))
+			return _childHeight;
 		
-		for (styleObj in target) {
-			if (styleObj.layout == null)
-				continue;
-
-			v = styleObj.layout.childHeight;
-			if (v.isSet())
-				break;
-		}
-		if (v.isSet())
-			_childHeight = v;
+		var v = super.getChildHeight();
+		if (v.notSet())
+			for (styleObj in target)
+				if (styleObj.layout != null && (v = styleObj.layout.childHeight).isSet())
+					break;
+		
 		return v;
 	}
 	
 	
 	override private function getRotation ()
 	{
-		var v = super.getRotation();
-		if (v.isSet())
-			return v;
+		if (!has(Flags.ROTATION))
+			return _rotation;
 		
-		for (styleObj in target) {
-			if (styleObj.layout == null)
-				continue;
-
-			v = styleObj.layout.rotation;
-			if (v.isSet())
-				break;
-		}
-		if (v.isSet())
-			_rotation = v;
+		var v = super.getRotation();
+		if (v.notSet())
+			for (styleObj in target)
+				if (styleObj.layout != null && (v = styleObj.layout.rotation).isSet())
+					break;
+		
 		return v;
 	}
 
 
 	override private function getIncludeInLayout ()
 	{
-		var v = super.getIncludeInLayout();
-		if (v != null)
-			return v;
+		if (!has(Flags.INCLUDE))
+			return _includeInLayout;
 		
-		for (styleObj in target) {
-			if (styleObj.layout == null)
-				continue;
-
-			v = styleObj.layout.includeInLayout;
-			if (v != null)
-				break;
-		}
-		if (v != null)
-			_includeInLayout = v;
+		var v = super.getIncludeInLayout();
+		if (v == null)
+			for (styleObj in target)
+				if (styleObj.layout != null && null != (v = styleObj.layout.includeInLayout))
+					break;
+		
 		return v;
 	}
 	
 	
 	override private function getMaintainAspect ()
 	{
-		var v = super.getMaintainAspect();
-		if (v != null)
-			return v;
+		if (!has(Flags.MAINTAIN_ASPECT))
+			return _maintainAspectRatio;
 		
-		for (styleObj in target) {
-			if (styleObj.layout == null)
-				continue;
-
-			v = styleObj.layout.maintainAspectRatio;
-			if (v != null)
-				break;
-		}
-		if (v != null)
-			_maintainAspectRatio = v;
+		var v = super.getMaintainAspect();
+		if (v == null)
+			for (styleObj in target)
+				if (styleObj.layout != null && null != (v = styleObj.layout.maintainAspectRatio))
+					break;
+		
 		return v;
 	}
 }

@@ -141,13 +141,15 @@ class GlobalApp extends UIContainer <Dynamic>
 	
 	private function changeTileColor ()
 	{
-		var tileStyle	= window.as(UIWindow).style.idStyle.children.elementSelectors.get( Tile.getClassName() );
+	//	var tileStyle	= window.as(UIWindow).style.idStyle.children.elementSelectors.get( Tile.getClassName() );
+		var tileStyle	= window.as(UIWindow).style.idStyle.children.styleNameSelectors.get("odd");
 		var newColor	= Color.random();
-		tileStyle.background.as( primevc.gui.graphics.fills.SolidFill ).color = newColor;
-		trace("changeTileColor to "+newColor.string());
 		
-		var btnStyle	= window.as(UIWindow).style.idStyle.children.elementSelectors.get( Button.getClassName() );
-		btnStyle.visible= !btnStyle.visible;
+		if (tileStyle.background == null)
+			tileStyle.background = new primevc.gui.graphics.fills.SolidFill( newColor );
+		else
+			tileStyle.background.as( primevc.gui.graphics.fills.SolidFill ).color = newColor;
+		trace("changeTileColor to "+newColor.string());
 	}
 }
 
@@ -305,6 +307,9 @@ class TileList extends Frame, implements IDropTarget
 	{
 		var num		= numChildren;
 		var child	= new Tile(dynamicSizes);
+		if (num % 2 != 0)
+			child.styleClasses.value = "odd";
+		
 		children.add( child );
 	}
 

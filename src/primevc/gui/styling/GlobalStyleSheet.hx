@@ -44,8 +44,8 @@ class GlobalStyleSheet extends StyleSheet
 	}
 	
 	
-	override public function updateStyles () : Void {}
-	override private function updateStyleClasses () : Void {}
-	override private function updateIdStyle () : Void {}
-	override private function updateElementStyle () : Void {}
+	override public function updateStyles ()			: Void {}
+	override private function updateStyleNameStyles ()	: Void {}
+	override private function updateIdStyle ()			: Void {}
+	override private function updateElementStyle ()		: Void {}
 }

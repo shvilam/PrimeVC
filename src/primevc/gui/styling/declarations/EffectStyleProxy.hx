@@ -27,12 +27,15 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
+ import primevc.gui.effects.EffectFlags;
  import primevc.gui.styling.StyleSheet;
+  using primevc.utils.BitUtil;
+
+
+private typedef Flags = EffectFlags;
 
 
 /**
- * Class description
- * 
  * @author Ruben Weijers
  * @creation-date Oct 04, 2010
  */
@@ -48,8 +51,25 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	}
 	
 	
+	override public function updateAllFilledPropertiesFlag () : Void
+	{
+		super.updateAllFilledPropertiesFlag();
+		
+		for (styleObj in target) {
+			if (styleObj.has( StyleFlags.EFFECTS ))
+				allFilledProperties = allFilledProperties.set( styleObj.effects.allFilledProperties );
+			
+			if (allFilledProperties == Flags.ALL_PROPERTIES)
+				break;
+		}
+	}
+	
+	
 	override private function getMove ()
 	{
+		if (!has(Flags.MOVE))
+			return _move;
+		
 		var v = super.getMove();
 		if (v != null)
 			return v;
@@ -67,6 +87,9 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	
 	override private function getResize ()
 	{
+		if (!has(Flags.RESIZE))
+			return _resize;
+		
 		var v = super.getResize();
 		if (v != null)
 			return v;
@@ -84,6 +107,9 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	
 	override private function getRotate ()
 	{
+		if (!has(Flags.ROTATE))
+			return _rotate;
+		
 		var v = super.getRotate();
 		if (v != null)
 			return v;
@@ -101,6 +127,9 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	
 	override private function getScale ()
 	{
+		if (!has(Flags.SCALE))
+			return _scale;
+		
 		var v = super.getScale();
 		if (v != null)
 			return v;
@@ -118,6 +147,9 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	
 	override private function getShow ()
 	{
+		if (!has(Flags.SHOW))
+			return _show;
+		
 		var v = super.getShow();
 		if (v != null)
 			return v;
@@ -135,6 +167,9 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	
 	override private function getHide ()
 	{
+		if (!has(Flags.HIDE))
+			return _hide;
+		
 		var v = super.getHide();
 		if (v != null)
 			return v;

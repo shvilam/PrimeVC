@@ -38,6 +38,7 @@ package primevc.gui.styling.declarations;
 class StyleFlags
 {
 	public static inline var ALL_PROPERTIES		: UInt = LAYOUT | FONT | SKIN | BACKGROUND | FONT | BORDER | EFFECTS | SHAPE | BOX_FILTERS | BACKGROUND_FILTERS | VISIBLE | OPACITY | ICON | OVERFLOW | STATES;
+	public static inline var INHERETING_STYLES	: UInt = NESTING_STYLE | SUPER_STYLE | EXTENDED_STYLE | PARENT_STYLE;
 	
 	public static inline var NESTING_STYLE		: UInt = 1;
 	public static inline var SUPER_STYLE		: UInt = 2;

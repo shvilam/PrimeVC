@@ -92,7 +92,7 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >, implements IR
 	
 	public function requestRender ()
 	{
-		if (target.window == null || target.graphicData.value == null)
+		if (target.window == null || target.graphicData.value == null || target.graphicData.value.isEmpty())
 			return;
 		
 		target.window.as(UIWindow).renderManager.add( this );
