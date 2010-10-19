@@ -30,7 +30,6 @@ package primevc.gui.effects;
  import primevc.core.IDisposable;
  import primevc.gui.core.IUIElement;
  import primevc.gui.effects.effectInstances.IEffectInstance;
- import primevc.gui.styling.declarations.EffectStyleDeclarations;
   using primevc.utils.Bind;
 
 
@@ -51,13 +50,6 @@ class UIElementEffects implements IDisposable
 	//
 	// SLOTS
 	//
-	
-//	private var moveInstance	: EffectInstanceType;
-//	private var resizeInstance	: EffectInstanceType;
-//	private var rotateInstance	: EffectInstanceType;
-//	private var scaleInstance	: EffectInstanceType;
-//	private var showInstance	: EffectInstanceType;
-//	private var hideInstance	: EffectInstanceType;
 	
 	/**
 	 * Effect that is performed when the coordinates of the targets 
@@ -93,21 +85,16 @@ class UIElementEffects implements IDisposable
 	public var hide			(default, setHide)			: EffectInstanceType;
 	
 	
-	public var collection	(default, setCollection)	: EffectStyleDeclarations;
-	
-	
-	public function new ( target:IUIElement, effects:EffectStyleDeclarations = null )
+	public function new ( target:IUIElement )
 	{
 		this.target 	= target;
-		this.collection	= effects;
 	}
 	
 	
 	public function dispose ()
 	{
-		collection.dispose();
-		collection = null;
-		target = null;
+		target	= null;
+		move	= resize = rotate = scale = show = hide = null;
 	}
 	
 	
@@ -224,45 +211,6 @@ class UIElementEffects implements IDisposable
 	//
 	// GETTERS / SETTERS
 	//
-	
-	
-	private function setCollection (v)
-	{
-#if (flash8 || flash9 || js)
-		if (v != collection)
-		{
-			if (collection != null)
-			{
-				if (move != null)	{ move.dispose();	move	= null; }
-				if (resize != null)	{ resize.dispose();	resize	= null; }
-				if (rotate != null)	{ rotate.dispose();	rotate	= null; }
-				if (scale != null)	{ scale.dispose();	scale	= null; }
-				if (show != null)	{ show.dispose();	show	= null; }
-				if (hide != null)	{ hide.dispose();	hide	= null; }
-			}
-			
-			collection = v;
-			
-			if (collection != null)
-			{
-				var moveEff		= v.move;
-				var resizeEff	= v.resize;
-				var rotateEff	= v.rotate;
-				var scaleEff	= v.scale;
-				var showEff		= v.show;
-				var hideEff		= v.hide;
-			
-				move	= (moveEff != null)		? moveEff.createEffectInstance( target ) : null;
-				resize	= (resizeEff != null)	? resizeEff.createEffectInstance( target ) : null;
-				rotate	= (rotateEff != null)	? rotateEff.createEffectInstance( target ) : null;
-				scale	= (scaleEff != null)	? scaleEff.createEffectInstance( target ) : null;
-				show	= (showEff != null)		? showEff.createEffectInstance( target ) : null;
-				hide	= (hideEff != null)		? hideEff.createEffectInstance( target ) : null;
-			}
-		}
-#end
-		return v;
-	}
 	
 	
 	private function setMove (v)

@@ -31,10 +31,14 @@ package primevc.gui.behaviours.styling;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.IUIContainer;
  import primevc.gui.core.IUIElement;
+ import primevc.gui.effects.EffectFlags;
  import primevc.gui.effects.UIElementEffects;
  import primevc.gui.graphics.GraphicProperties;
+ import primevc.gui.layout.LayoutFlags;
  import primevc.gui.styling.declarations.EffectStyleDeclarations;
+ import primevc.gui.styling.declarations.FilterFlags;
  import primevc.gui.styling.declarations.FilterStyleDeclarations;
+ import primevc.gui.styling.declarations.IStyleDeclaration;
  import primevc.gui.styling.declarations.LayoutStyleDeclarations;
  import primevc.gui.styling.declarations.StyleFlags;
  import primevc.gui.traits.IDrawable;
@@ -57,37 +61,37 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 {
 	override private function init ()
 	{
-		applyStyling.on( target.style.change, this );
-		applyStyling( target.style.filledProperties );
+		applyGeneralStyling		.on( target.style.change, this );
+		applyLayoutStyling		.on( target.style.layout.change, this );
+		applyEffectStyling		.on( target.style.effects.change, this );
+		applyBoxFilterStyling	.on( target.style.boxFilters.change, this );
+		
+		applyGeneralStyling(	target.style.filledProperties );
+		applyLayoutStyling(		target.style.layout.allFilledProperties );
+		applyEffectStyling(		target.style.effects.allFilledProperties );
+		applyBoxFilterStyling(	target.style.boxFilters.allFilledProperties );
 	}
 	
 	
 	override private function reset ()
 	{
 		target.style.change.unbind( this );
+		target.style.layout.change.unbind( this );
+		target.style.effects.change.unbind( this );
+		target.style.boxFilters.change.unbind( this );
 	}
 	
-	
-	private function applyStyling (propsToSet:UInt) : Void
+		
+	private function applyGeneralStyling (propsToSet:UInt)
 	{
-		var style	= target.style;
-		var it		= style.iterator();
+		var style = target.style;
 		
 		if (!target.is(ISkinnable))		propsToSet = propsToSet.unset( Flags.SKIN );
 		if (!target.is(IDrawable))		propsToSet = propsToSet.unset( Flags.BACKGROUND | Flags.BORDER | Flags.SHAPE );
 		if (!target.is(IUIContainer))	propsToSet = propsToSet.unset( Flags.OVERFLOW );
 		
-		//remove flags that don't influence the target's style
-		propsToSet = propsToSet.unset( Flags.STATES | Flags.INHERETING_STYLES );
-		
-		//check properties that will be checked using a seperate proxy
-		if (propsToSet.has( Flags.LAYOUT ))			applyLayoutStyling( style.layout );
-		if (propsToSet.has( Flags.BOX_FILTERS ))	applyBoxFilterStyling( style.boxFilters );
-		if (propsToSet.has( Flags.EFFECTS ))		applyEffectStyling( style.effects );
-		
-		//remove checked properties
-		propsToSet = propsToSet.unset( Flags.LAYOUT | Flags.FONT | Flags.BACKGROUND_FILTERS | Flags.BOX_FILTERS | Flags.EFFECTS );
-		trace(target + ".applyStyling - "+Flags.readProperties( propsToSet ));
+		//remove flags that won't be used in this method
+		propsToSet = propsToSet.unset( Flags.STATES | Flags.INHERETING_STYLES | Flags.LAYOUT | Flags.FONT | Flags.BACKGROUND_FILTERS | Flags.BOX_FILTERS | Flags.EFFECTS );
 		
 		if (propsToSet == 0)
 			return;
@@ -96,6 +100,7 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 		// LOOP THROUGH ALL AVAILABLE STLYE-BLOCKS TO FIND THE STYLING PROPERTIES
 		//
 		
+		var it = style.iterator();
 		while (it.hasNext() && propsToSet > 0)
 		{
 			var styleObj = it.next();
@@ -103,7 +108,6 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 				continue;
 			
 			var curStyleProps = styleObj.allFilledProperties.filter( propsToSet );
-			trace("\t\tgonna find the props "+Flags.readProperties(curStyleProps));
 			
 			//read skin
 			if ( curStyleProps.has( StyleFlags.SKIN ) )
@@ -151,6 +155,8 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 	}
 	
 	
+	
+	
 	private function createGraphicDataObj ()
 	{
 		if (target.as(IDrawable).graphicData.value == null)
@@ -158,59 +164,72 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 	}
 	
 	
-	private function applyLayoutStyling (style:LayoutStyleDeclarations) : Void
+	
+	
+	private function applyLayoutStyling (propsToSet:UInt) : Void
 	{
-		var layout = target.layout;
-	//	trace(target + ".applyLayoutStyling "+style.readProperties());
-		if (style.width.isSet())				layout.width				= style.width;
-		if (style.height.isSet())				layout.height				= style.height;
-		if (style.percentWidth.isSet())			layout.percentWidth			= style.percentWidth;
-		if (style.percentHeight.isSet())		layout.percentHeight		= style.percentHeight;
-		if (style.relative != null)				layout.relative				= style.relative;
-		if (style.includeInLayout != null)		layout.includeInLayout		= style.includeInLayout;
-		if (style.maintainAspectRatio != null)	layout.maintainAspectRatio	= style.maintainAspectRatio;
-		if (style.padding != null)				layout.padding				= style.padding;
+		if (propsToSet == 0)
+			return;
+		
+		var layout	= target.layout;
+		var style	= target.style.layout;
+	//	trace(target + ".applyLayoutStyling "+style.readProperties( propsToSet ));
+		
+		if (propsToSet.has( LayoutFlags.WIDTH ))				layout.width				= style.width;
+		if (propsToSet.has( LayoutFlags.HEIGHT ))				layout.height				= style.height;
+		if (propsToSet.has( LayoutFlags.PERCENT_WIDTH ))		layout.percentWidth			= style.percentWidth;
+		if (propsToSet.has( LayoutFlags.PERCENT_HEIGHT ))		layout.percentHeight		= style.percentHeight;
+		if (propsToSet.has( LayoutFlags.RELATIVE ))				layout.relative				= style.relative;
+		if (propsToSet.has( LayoutFlags.INCLUDE ))				layout.includeInLayout		= style.includeInLayout;
+		if (propsToSet.has( LayoutFlags.MAINTAIN_ASPECT ))		layout.maintainAspectRatio	= style.maintainAspectRatio;
+		if (propsToSet.has( LayoutFlags.PADDING ))				layout.padding				= style.padding;
 		
 		//size constraintss
-		var minW = style.minWidth, maxW = style.maxWidth, minH = style.minHeight, maxH = style.maxHeight;
-		if (minW.isSet() || maxW.isSet() || minH.isSet() || maxH.isSet())
+		if (propsToSet.has( LayoutFlags.MIN_WIDTH | LayoutFlags.MIN_HEIGHT | LayoutFlags.MAX_WIDTH | LayoutFlags.MAX_HEIGHT ))
 		{
 			//create size constraint for layout client
 			if (layout.sizeConstraint == null)
-				layout.sizeConstraint = new SizeConstraint( minW, maxW, minH, maxH );
+				layout.sizeConstraint = new SizeConstraint( style.minWidth, style.maxWidth, style.minHeight, style.maxHeight );
 			else
 			{
 				var c = layout.sizeConstraint;
-				if (minW.isSet())	c.width.min		= minW;
-				if (minH.isSet())	c.height.min	= minH;
-				if (maxW.isSet())	c.width.max		= maxW;
-				if (maxH.isSet())	c.height.max	= maxH;
+				if (propsToSet.has( LayoutFlags.MIN_WIDTH ))	c.width.min		= style.minWidth;
+				if (propsToSet.has( LayoutFlags.MIN_HEIGHT ))	c.height.min	= style.minHeight;
+				if (propsToSet.has( LayoutFlags.MAX_HEIGHT ))	c.width.max		= style.maxWidth;
+				if (propsToSet.has( LayoutFlags.MAX_WIDTH ))	c.height.max	= style.maxHeight;
 			}
 		}
 		
 		if (target.is(IUIContainer))
 		{
 			var t = target.as(IUIContainer);
-			if (style.algorithm != null)	t.layoutContainer.algorithm		= style.algorithm;
-			if (style.childWidth.isSet())	t.layoutContainer.childWidth	= style.childWidth;
-			if (style.childHeight.isSet())	t.layoutContainer.childHeight	= style.childHeight;
+			if (propsToSet.has( LayoutFlags.ALGORITHM ))		t.layoutContainer.algorithm		= style.algorithm;
+			if (propsToSet.has( LayoutFlags.CHILD_WIDTH ))		t.layoutContainer.childWidth	= style.childWidth;
+			if (propsToSet.has( LayoutFlags.CHILD_HEIGHT ))		t.layoutContainer.childHeight	= style.childHeight;
 		}
 	}
 	
 	
-	private function applyBoxFilterStyling (style:FilterStyleDeclarations) : Void
+	
+	
+	private function applyBoxFilterStyling (propsToSet:UInt) : Void
 	{
+		if (propsToSet == 0)
+			return;
+
 		var filters	= target.filters;
-	//	trace(target + ".applyBoxFilterStyling "+style.readProperties());
+		var style	= target.style.boxFilters;
+	//	trace(target + ".applyBoxFilterStyling "+style.readProperties( propsToSet ));
+		
 		if (filters == null)
 			filters = [];
 		
-		if (style.shadow != null)			filters.push( style.shadow );
-		if (style.bevel != null)			filters.push( style.bevel );
-		if (style.blur != null)				filters.push( style.blur );
-		if (style.glow != null)				filters.push( style.glow );
-		if (style.gradientBevel != null)	filters.push( style.gradientBevel );
-		if (style.gradientGlow != null)		filters.push( style.gradientGlow );
+		if (propsToSet.has( FilterFlags.SHADOW ))				filters.push( style.shadow );
+		if (propsToSet.has( FilterFlags.BEVEL ))				filters.push( style.bevel );
+		if (propsToSet.has( FilterFlags.BLUR ))					filters.push( style.blur );
+		if (propsToSet.has( FilterFlags.GLOW ))					filters.push( style.glow );
+		if (propsToSet.has( FilterFlags.GRADIENT_BEVEL ))		filters.push( style.gradientBevel );
+		if (propsToSet.has( FilterFlags.GRADIENT_GLOW ))		filters.push( style.gradientGlow );
 		
 		//set new array with filters
 		if (filters.length > 0)
@@ -218,15 +237,31 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 	}
 	
 	
-	private function applyEffectStyling (style:EffectStyleDeclarations) : Void
-	{	
-	//	trace(target + ".applyEffectStyling "+style.readProperties());
-		if (style.show != null || style.hide != null || style.scale != null || style.resize != null || style.rotate != null || style.move != null)
-		{
-			if (target.effects == null)
-				target.effects = new UIElementEffects(target, style);
-			else
-				target.effects.collection = style;
+	
+	
+	
+	private function applyEffectStyling (propsToSet:UInt) : Void
+	{
+		if (propsToSet == 0)
+			return;
+		
+		if (target.effects == null)
+			target.effects = new UIElementEffects(target);
+		
+		var style	= target.style.effects;
+		var effects	= target.effects;
+	//	trace(target + ".applyEffectStyling "+style.readProperties( propsToSet )+"; has "+style.readProperties());
+		
+		if (propsToSet.has( EffectFlags.MOVE ))	{
+			if (style.has(EffectFlags.MOVE))
+				Assert.that( style.move != null );
+			
+			effects.move	= style.has(EffectFlags.MOVE)	? style.move.createEffectInstance( target ) : null;
 		}
+		if (propsToSet.has( EffectFlags.RESIZE ))	effects.resize	= style.has(EffectFlags.RESIZE)	? style.resize.createEffectInstance( target ) : null;
+		if (propsToSet.has( EffectFlags.ROTATE ))	effects.rotate	= style.has(EffectFlags.ROTATE)	? style.rotate.createEffectInstance( target ) : null;
+		if (propsToSet.has( EffectFlags.SCALE ))	effects.scale	= style.has(EffectFlags.SCALE)	? style.scale.createEffectInstance( target ) : null;
+		if (propsToSet.has( EffectFlags.SHOW ))		effects.show	= style.has(EffectFlags.SHOW)	? style.show.createEffectInstance( target ) : null;
+		if (propsToSet.has( EffectFlags.HIDE ))		effects.hide	= style.has(EffectFlags.HIDE)	? style.hide.createEffectInstance( target ) : null;
 	}
 }

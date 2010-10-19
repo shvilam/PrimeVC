@@ -27,9 +27,12 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
+ import primevc.core.dispatcher.Signal1;
+ import primevc.core.traits.IInvalidatable;
  import primevc.gui.effects.EffectFlags;
  import primevc.gui.styling.StyleSheet;
   using primevc.utils.BitUtil;
+  using primevc.utils.TypeUtil;
 
 
 private typedef Flags = EffectFlags;
@@ -41,13 +44,24 @@ private typedef Flags = EffectFlags;
  */
 class EffectStyleProxy extends EffectStyleDeclarations
 {
-	private var target : StyleSheet;
+	private var target					: StyleSheet;
+	public var change	(default, null)	: Signal1 < UInt >;
 	
 	
-	public function new (target:StyleSheet)
-	{	
-		this.target = target;
+	public function new (newTarget:StyleSheet)
+	{
+		target	= newTarget;
+		change	= new Signal1();
 		super();
+	}
+	
+	
+	override public function dispose ()
+	{	
+		change.dispose();
+		change	= null;
+		target	= null;
+		super.dispose();
 	}
 	
 	
@@ -55,7 +69,8 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	{
 		super.updateAllFilledPropertiesFlag();
 		
-		for (styleObj in target) {
+		for (styleObj in target)
+		{
 			if (styleObj.has( StyleFlags.EFFECTS ))
 				allFilledProperties = allFilledProperties.set( styleObj.effects.allFilledProperties );
 			
@@ -65,21 +80,53 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	}
 	
 	
+	override public function invalidateCall (changes:UInt, sender:IInvalidatable)
+	{
+		var t = sender.as(EffectStyleDeclarations);
+		
+		if (t.owner.type != StyleDeclarationType.id)
+		{
+			for (styleObj in target)
+			{
+				if (!styleObj.has( StyleFlags.EFFECTS ))
+					continue;
+				
+				if (styleObj.effects == t)
+					break;
+			
+				changes = changes.unset( styleObj.effects.allFilledProperties );
+			}
+		}
+		
+		if (t.filledProperties.has(changes))	allFilledProperties = allFilledProperties.set( changes );
+		else									updateAllFilledPropertiesFlag();
+		
+		invalidate( changes );
+	}
+	
+	
+	override public function invalidate (changes:UInt)
+	{
+		if (changes > 0)
+			change.send( changes );
+	}
+	
+	
+	
+	//
+	// GETTERS
+	//
+	
 	override private function getMove ()
 	{
 		if (!has(Flags.MOVE))
 			return _move;
 		
 		var v = super.getMove();
-		if (v != null)
-			return v;
-		
-		for (styleObj in target)
-			if (styleObj.effects != null && null != (v = styleObj.effects.move))
-				break;
-		
-		if (_move == null)
-			_move = v;
+		if (v == null)
+			for (styleObj in target)
+				if (styleObj.effects != null && null != (v = styleObj.effects.move))
+					break;
 		
 		return v;
 	}
@@ -91,15 +138,10 @@ class EffectStyleProxy extends EffectStyleDeclarations
 			return _resize;
 		
 		var v = super.getResize();
-		if (v != null)
-			return v;
-		
-		for (styleObj in target)
-			if (styleObj.effects != null && null != (v = styleObj.effects.resize))
-				break;
-		
-		if (_resize == null)
-			_resize = v;
+		if (v == null)
+			for (styleObj in target)
+				if (styleObj.effects != null && null != (v = styleObj.effects.resize))
+					break;
 		
 		return v;
 	}
@@ -111,16 +153,11 @@ class EffectStyleProxy extends EffectStyleDeclarations
 			return _rotate;
 		
 		var v = super.getRotate();
-		if (v != null)
-			return v;
+		if (v == null)
+			for (styleObj in target)
+				if (styleObj.effects != null && null != (v = styleObj.effects.rotate))
+					break;
 		
-		for (styleObj in target)
-			if (styleObj.effects != null && null != (v = styleObj.effects.rotate))
-				break;
-
-		if (_rotate == null)
-			_rotate = v;
-
 		return v;
 	}
 	
@@ -131,16 +168,11 @@ class EffectStyleProxy extends EffectStyleDeclarations
 			return _scale;
 		
 		var v = super.getScale();
-		if (v != null)
-			return v;
+		if (v == null)
+			for (styleObj in target)
+				if (styleObj.effects != null && null != (v = styleObj.effects.scale))
+					break;
 		
-		for (styleObj in target)
-			if (styleObj.effects != null && null != (v = styleObj.effects.scale))
-				break;
-		
-		if (_scale == null)
-			_scale = v;
-
 		return v;
 	}
 	
@@ -151,16 +183,11 @@ class EffectStyleProxy extends EffectStyleDeclarations
 			return _show;
 		
 		var v = super.getShow();
-		if (v != null)
-			return v;
+		if (v == null)
+			for (styleObj in target)
+				if (styleObj.effects != null && null != (v = styleObj.effects.show))
+					break;
 		
-		for (styleObj in target)
-			if (styleObj.effects != null && null != (v = styleObj.effects.show))
-				break;
-		
-		if (_show == null)
-			_show = v;
-
 		return v;
 	}
 	
@@ -171,15 +198,10 @@ class EffectStyleProxy extends EffectStyleDeclarations
 			return _hide;
 		
 		var v = super.getHide();
-		if (v != null)
-			return v;
-		
-		for (styleObj in target)
-			if (styleObj.effects != null && null != (v = styleObj.effects.hide))
-				break;
-		
-		if (_hide == null)
-			_hide = v;
+		if (v == null)
+			for (styleObj in target)
+				if (styleObj.effects != null && null != (v = styleObj.effects.hide))
+					break;
 		
 		return v;
 	}

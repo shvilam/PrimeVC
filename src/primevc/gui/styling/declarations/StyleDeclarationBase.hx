@@ -104,8 +104,8 @@ class StyleDeclarationBase extends Validatable, implements IStyleDeclaration
 	
 	
 #if debug
-	public function readProperties ( flags:UInt = -1 )	: String	{ Assert.abstract(); return null; }
-	public function readChanges ( flags:UInt = -1 )		: String
+	public function readProperties ( flags:Int = -1 )	: String	{ Assert.abstract(); return null; }
+	public function readChanges ( flags:Int = -1 )		: String
 	{
 		if (flags == -1)
 			flags = changes;

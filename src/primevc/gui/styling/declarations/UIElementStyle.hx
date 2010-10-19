@@ -615,7 +615,7 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 			_layout = v;
 			
 			if (_layout != null)
-				_layout.owner = null;
+				_layout.owner = this;
 			
 			markProperty( Flags.LAYOUT, v != null );
 		}

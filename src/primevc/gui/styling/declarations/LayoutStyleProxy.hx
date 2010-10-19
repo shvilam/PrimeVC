@@ -27,10 +27,13 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
+ import primevc.core.dispatcher.Signal1;
+ import primevc.core.traits.IInvalidatable;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.styling.StyleSheet;
   using primevc.utils.NumberUtil;
   using primevc.utils.BitUtil;
+  using primevc.utils.TypeUtil;
 
 
 private typedef Flags = LayoutFlags;
@@ -42,13 +45,24 @@ private typedef Flags = LayoutFlags;
  */
 class LayoutStyleProxy extends LayoutStyleDeclarations
 {
-	private var target : StyleSheet;
+	private var target	: StyleSheet;
+	public var change	(default, null)	: Signal1 < UInt >;
 	
 	
-	public function new (target:StyleSheet)
+	public function new (newTarget:StyleSheet)
 	{	
-		this.target = target;
+		target	= newTarget;
+		change	= new Signal1();
 		super();
+	}
+	
+	
+	override public function dispose ()
+	{	
+		change.dispose();
+		change	= null;
+		target	= null;
+		super.dispose();
 	}
 	
 	
@@ -56,7 +70,8 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	{
 		super.updateAllFilledPropertiesFlag();
 		
-		for (styleObj in target) {
+		for (styleObj in target)
+		{
 			if (styleObj.has( StyleFlags.LAYOUT ))
 				allFilledProperties = allFilledProperties.set( styleObj.layout.allFilledProperties );
 			
@@ -65,6 +80,43 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 		}
 	}
 	
+	
+	override public function invalidateCall (changes:UInt, sender:IInvalidatable)
+	{
+		var t = sender.as(LayoutStyleDeclarations);
+		
+		if (t.owner.type != StyleDeclarationType.id)
+		{
+			for (styleObj in target)
+			{
+				if (!styleObj.has( StyleFlags.LAYOUT ))
+					continue;
+				
+				if (styleObj.layout == t)
+					break;
+			
+				changes = changes.unset( styleObj.layout.allFilledProperties );
+			}
+		}
+		
+		if (t.filledProperties.has(changes))	allFilledProperties = allFilledProperties.set( changes );
+		else									updateAllFilledPropertiesFlag();
+		
+		invalidate( changes );
+	}
+	
+	
+	override public function invalidate (changes:UInt)
+	{
+		if (changes > 0)
+			change.send( changes );
+	}
+	
+	
+	
+	//
+	// GETTERS
+	//
 	
 	override private function getRelative ()
 	{

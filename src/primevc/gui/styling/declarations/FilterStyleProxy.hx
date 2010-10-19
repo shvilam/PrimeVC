@@ -27,8 +27,11 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
+ import primevc.core.dispatcher.Signal1;
+ import primevc.core.traits.IInvalidatable;
  import primevc.gui.styling.StyleSheet;
   using primevc.utils.BitUtil;
+  using primevc.utils.TypeUtil;
 
 
 private typedef Flags = FilterFlags;
@@ -39,13 +42,24 @@ private typedef Flags = FilterFlags;
  */
 class FilterStyleProxy extends FilterStyleDeclarations
 {
-	private var target : StyleSheet;
+	private var target	: StyleSheet;
+	public var change	(default, null)	: Signal1 < UInt >;
 	
 	
-	public function new (target:StyleSheet, type:FilterCollectionType)
+	public function new (newTarget:StyleSheet, type:FilterCollectionType)
 	{
-		this.target = target;
+		target	= newTarget;
+		change	= new Signal1();
 		super(type);
+	}
+	
+	
+	override public function dispose ()
+	{	
+		change.dispose();
+		change	= null;
+		target	= null;
+		super.dispose();
 	}
 	
 	
@@ -77,6 +91,54 @@ class FilterStyleProxy extends FilterStyleDeclarations
 		}
 	}
 	
+	
+	override public function invalidateCall (changes:UInt, sender:IInvalidatable)
+	{
+		var t = sender.as(FilterStyleDeclarations);
+		//if sender is the idStyle, the changes will always be used
+		if (t.owner.type != StyleDeclarationType.id)
+		{
+			if (type == FilterCollectionType.box)
+				for (styleObj in target)
+				{
+					if (!styleObj.has( StyleFlags.BOX_FILTERS ))
+						continue;
+					
+					if (styleObj.boxFilters == t)
+						break;
+					
+					changes = changes.unset( styleObj.boxFilters.allFilledProperties );
+				}
+			else
+				for (styleObj in target)
+				{
+					if (!styleObj.has( StyleFlags.BACKGROUND_FILTERS ))
+						continue;
+
+					if (styleObj.bgFilters == t)
+						break;
+
+					changes = changes.unset( styleObj.bgFilters.allFilledProperties );
+				}
+		}
+		
+		if (t.filledProperties.has(changes))	allFilledProperties = allFilledProperties.set( changes );
+		else									updateAllFilledPropertiesFlag();
+		
+		invalidate( changes );
+	}
+	
+	
+	override public function invalidate (changes:UInt)
+	{
+		if (changes > 0)
+			change.send( changes );
+	}
+	
+	
+	//
+	// GETTERS
+	//
 	
 	override private function getShadow ()
 	{

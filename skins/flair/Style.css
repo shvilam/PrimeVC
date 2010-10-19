@@ -1,10 +1,10 @@
-UIComponent { color: #000; shape: rectangle; visibility: visible; }
+UIComponent { color: #000; shape: rectangle; visibility: visible; opacity: 1; }
 UIGraphic { color: #000; }
 UITextField { color: #000; }
 Tile { color: #000; move-transition: move 200ms elastic-in-out; } /*move-transition: sequence ( parallel ( fade 500ms 40%, move 300ms elastic-out, rotate 400ms 360deg bounce-in-out ), fade 600ms 100% ) ; }*/
 
-.odd { visibility: visible; }
-#frame2 .odd { background: #000; }
+.odd { visibility: visible; width: 25px; }
+#frame2 .odd { background: #000; width: 50px;  }
 
 GlobalApp {
 	relative: 5px 5px 5px;
@@ -37,8 +37,8 @@ Frame {
 
 TileList {
 	padding: 10px;
-	child-width: 40px;
-	child-height: 40px;
+/*	child-width: 40px;
+	child-height: 40px;*/
 	resize-transition: resize 300ms;
 	move-transition: move 300ms;
 	overflow: hidden;

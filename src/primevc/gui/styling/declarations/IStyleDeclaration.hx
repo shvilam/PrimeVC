@@ -76,12 +76,12 @@ interface IStyleDeclaration
 	 * Method to format the given flags of properties to a readable string.
 	 * If flags is -1, the property 'filledProperties' will be used.
 	 */
-	public function readProperties ( flags:UInt = -1 )				: String;
+	public function readProperties ( flags:Int = -1 )				: String;
 	
 	/**
 	 * Method to format the changed properties to a readable string.
 	 * If flags is -1, the property 'changes' will be used.
 	 */
-	public function readChanges ( flags:UInt = -1 )					: String;
+	public function readChanges ( flags:Int = -1 )					: String;
 #end
 }

@@ -149,7 +149,10 @@ class GlobalApp extends UIContainer <Dynamic>
 			tileStyle.background = new primevc.gui.graphics.fills.SolidFill( newColor );
 		else
 			tileStyle.background.as( primevc.gui.graphics.fills.SolidFill ).color = newColor;
-		trace("changeTileColor to "+newColor.string());
+		
+		tileStyle.layout.width += 5;
+		
+		trace("new-color to "+newColor.string()+" newWidth: "+tileStyle.layout.width);
 	}
 }
 
@@ -272,12 +275,12 @@ class TileList extends Frame, implements IDropTarget
 	private var fixedTiles		: FixedTileAlgorithm;
 	private var dynamicTiles	: DynamicTileAlgorithm;
 	public var dynamicSizes		: Bool;
-
-
+	
+	
 	public function new (id:String = null, dynamicSizes = false, allowDropFromOtherLists = true, tilesToCreate:Int = 50)
-	{	
+	{
 		this.tilesToCreate				= tilesToCreate;
-		this.dynamicSizes				= dynamicSizes;
+		this.dynamicSizes				= false; //dynamicSizes;
 		this.allowDropFromOtherLists	= allowDropFromOtherLists;
 		doubleClickEnabled				= true;
 		cacheAsBitmap = true;
@@ -285,7 +288,8 @@ class TileList extends Frame, implements IDropTarget
 		dragEvents	= new DropTargetEvents();
 		super(id, id);
 	}
-
+	
+	
 	override private function createBehaviours ()
 	{
 		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
@@ -302,7 +306,7 @@ class TileList extends Frame, implements IDropTarget
 			addTile();
 	}
 	
-
+	
 	private function addTile ()
 	{
 		var num		= numChildren;
@@ -312,12 +316,12 @@ class TileList extends Frame, implements IDropTarget
 		
 		children.add( child );
 	}
-
-
+	
+	
 	//
 	// IDROPTARGET IMPLEMENTATION
 	//
-
+	
 	public inline function isDropAllowed (draggedItem:DragSource) : Bool {
 		return (draggedItem.target.is(Tile) && (allowDropFromOtherLists || this == draggedItem.origContainer));
 	}

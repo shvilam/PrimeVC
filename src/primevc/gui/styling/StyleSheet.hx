@@ -34,12 +34,9 @@ package primevc.gui.styling;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.traits.IInvalidateListener;
  import primevc.core.IDisposable;
- import primevc.gui.styling.declarations.EffectStyleDeclarations;
  import primevc.gui.styling.declarations.EffectStyleProxy;
  import primevc.gui.styling.declarations.FilterCollectionType;
- import primevc.gui.styling.declarations.FilterStyleDeclarations;
  import primevc.gui.styling.declarations.FilterStyleProxy;
- import primevc.gui.styling.declarations.LayoutStyleDeclarations;
  import primevc.gui.styling.declarations.LayoutStyleProxy;
  import primevc.gui.styling.declarations.StyleDeclarationType;
  import primevc.gui.styling.declarations.StyleFlags;
@@ -52,6 +49,8 @@ package primevc.gui.styling;
   using primevc.utils.TypeUtil;
   using Type;
 
+
+private typedef Flags = StyleFlags;
 
 
 /**
@@ -109,10 +108,10 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 	
 	/**
 	 * Signal which is dispatched when one of the style objects is changed. 
-	 * The parameter of signal will be a bit-flag conttaining all the properties
-	 * that are changed.
+	 * The first parameter of signal will be a bit-flag conttaining all the 
+	 * properties that are changed.
 	 */
-	public var change					(default, null)			: Signal1 < UInt >;
+	public var change					(default, null)	: Signal1 < UInt >;
 	/**
 	 * Current css-state of the object. When the property is set, the class 
 	 * will look for style-information that only applies for the given state.
@@ -182,18 +181,28 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 			removedBinding.dispose();
 			removedBinding = null;
 		}
+		if (styleNamesChangeBinding != null) {
+			styleNamesChangeBinding.dispose();
+			styleNamesChangeBinding = null;
+		}
+		if (idChangeBinding != null) {
+			idChangeBinding.dispose();
+			idChangeBinding = null;
+		}
+		
+		layout.dispose();
+		effects.dispose();
+		boxFilters.dispose();
 		
 		change.dispose();
-		target.styleClasses.change.unbind( this );
-		target.id.change.unbind( this );
-	//	target.displayEvents.addedToStage.unbind( this );
-	//	target.displayEvents.removedFromStage.unbind( this );
-		
 		clearStyles();
 		styleNameStyles = null;
 		targetClassName	= null;
 		target			= null;
 		change			= null;
+		layout			= null;
+		boxFilters		= null;
+		effects			= null;
 	}
 	
 	
@@ -241,9 +250,10 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 		stylesAreSearched	= false;
 		idStyle				= null;
 		elementStyle		= null;
+		var changed			= filledProperties;
 		filledProperties	= idStyleProperties	= styleNameStyleProperties = elementStyleProperties = 0;
 		
-		change.send( StyleFlags.ALL_PROPERTIES );
+		change.send( changed );
 	}
 	
 	
@@ -262,16 +272,31 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 		if (boxFilters == null)		boxFilters	= new FilterStyleProxy(this, FilterCollectionType.box);
 		if (effects == null)		effects		= new EffectStyleProxy(this);
 		
-		filledProperties = 0;
+		var changedProperties	= filledProperties;
+		var layoutChangedProps	= layout.allFilledProperties;
+		var effectsChangedProps	= effects.allFilledProperties;
+		var filtersChangedProps	= boxFilters.allFilledProperties;
+		
+		stylesAreSearched	= false;
+		filledProperties	= 0;
 		updateIdStyle();
 		updateStyleNameStyles();
 		updateElementStyle();
 		
 		//update filled-properties flag
 		updateFilledPropertiesFlag();
-		stylesAreSearched = true;
 		
-		change.send( filledProperties );
+		changedProperties	= changedProperties.set( filledProperties );
+		layoutChangedProps	= layoutChangedProps.set( layout.allFilledProperties );
+		effectsChangedProps	= effectsChangedProps.set( effects.allFilledProperties );
+		filtersChangedProps	= filtersChangedProps.set( boxFilters.allFilledProperties );
+		stylesAreSearched	= true;
+		
+		//send updates out to everyone
+		if (changedProperties > 0)		change.send( changedProperties );
+		if (layoutChangedProps > 0)		layout.change.send( layoutChangedProps );
+		if (effectsChangedProps > 0)	effects.change.send( effectsChangedProps );
+		if (filtersChangedProps > 0)	boxFilters.change.send( filtersChangedProps );
 	}
 	
 	
@@ -289,13 +314,34 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 	}
 	
 	
+	private function addStyleListeners (style:UIElementStyle) : Void
+	{
+		style.listeners.add( this );
+		
+		if (style.has( Flags.LAYOUT ))		style.layout.listeners.add( layout );
+		if (style.has( Flags.EFFECTS ))		style.effects.listeners.add( effects );
+		if (style.has( Flags.BOX_FILTERS ))	style.boxFilters.listeners.add( boxFilters );
+	}
+	
+	
+	private function removeStyleListeners (style:UIElementStyle) : Void
+	{
+		style.listeners.remove( this );
+
+		if (style.has( Flags.LAYOUT ))		style.layout.listeners.remove( layout );
+		if (style.has( Flags.EFFECTS ))		style.effects.listeners.remove( effects );
+		if (style.has( Flags.BOX_FILTERS ))	style.boxFilters.listeners.remove( boxFilters );
+	}
+	
+	
 	private function updateIdStyle () : Void
 	{
 		//remove old id style
 		if (idStyle != null) {
-			idStyle.listeners.remove( this );
-			idStyle			= null;
+			removeStyleListeners(idStyle);
+			idStyle	= null;
 		}
+		
 		var styleChanges	= idStyleProperties;
 		idStyleProperties	= 0;
 		
@@ -307,7 +353,7 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 			
 			if (idStyle != null) {
 				idStyleProperties = idStyle.allFilledProperties;
-				idStyle.listeners.add( this );
+				addStyleListeners( idStyle );
 			}
 		}
 		
@@ -320,6 +366,7 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 	}
 	
 	
+	
 	/**
 	 * Method to remove all style-name-style classes, including the listeners.
 	 */
@@ -328,7 +375,7 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 		while (styleNameStyles.length > 0)
 		{
 			var style = styleNameStyles.pop();
-			style.listeners.remove( this );
+			removeStyleListeners( style );
 		}
 	}
 	
@@ -354,7 +401,7 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 				if (tmp != null) {
 					styleNameStyles.push( tmp );
 					styleNameStyleProperties = styleNameStyleProperties.set( tmp.allFilledProperties );
-					tmp.listeners.add( this );
+					addStyleListeners( tmp );
 				}
 			}
 		}
@@ -376,7 +423,7 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 		Assert.notNull( parentStyle );
 		
 		if (elementStyle != null) {
-			elementStyle.listeners.remove( this );
+			removeStyleListeners( elementStyle );
 			elementStyle = null;
 		}
 		
@@ -392,7 +439,7 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 			
 			if (elementStyle != null) {
 				elementStyleProperties = elementStyle.allFilledProperties;
-				elementStyle.listeners.add( this );
+				addStyleListeners( elementStyle );
 			}
 		}
 		
@@ -449,7 +496,7 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 				changes = changes.unset( idStyle.allFilledProperties );
 		}
 		
-		trace("\tchanged properties "+StyleFlags.readProperties(changes));
+	//	trace("\tchanged properties "+StyleFlags.readProperties(changes));
 		
 		if (changes > 0)
 			change.send( changes );
