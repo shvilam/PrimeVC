@@ -95,8 +95,10 @@ class QueueManager < ChildType, OwnerType >
 	 */
 	public function add ( obj:ChildType )
 	{
-		queue.push( obj );
-		enableBinding();
+		if (queue.indexOf(obj) == -1) {
+			queue.push( obj );
+			enableBinding();
+		}
 	}
 	
 	

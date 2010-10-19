@@ -107,60 +107,29 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 			if (!styleObj.allFilledProperties.has( propsToSet ))
 				continue;
 			
-			var curStyleProps = styleObj.allFilledProperties.filter( propsToSet );
+			var curProps = styleObj.allFilledProperties.filter( propsToSet );
 			
-			//read skin
-			if ( curStyleProps.has( StyleFlags.SKIN ) )
-				target.as(ISkinnable).skin = Type.createInstance( styleObj.skin, null );
-
-			//read shape
-			if ( curStyleProps.has( StyleFlags.SHAPE ) )
-			{
-				createGraphicDataObj();
-				target.as(IDrawable).graphicData.value.shape	= styleObj.shape;
-			//	target.as(IDrawable).graphicData.value.layout	= target.rect;
-			}
+			if ( curProps.has( Flags.SKIN ) )			target.as(ISkinnable).skin	= Type.createInstance( styleObj.skin, null );
+			if ( curProps.has( Flags.SHAPE ) )			getGraphicsObj().shape		= styleObj.shape;
+			if ( curProps.has( Flags.BACKGROUND ) )		getGraphicsObj().fill		= styleObj.background;
+			if ( curProps.has( Flags.BORDER ) )			getGraphicsObj().border		= styleObj.border;
+			if ( curProps.has( Flags.OPACITY ) )		target.alpha				= styleObj.opacity;
+			if ( curProps.has( Flags.VISIBLE ) )		target.visible				= styleObj.visible;
+			if ( curProps.has( Flags.OVERFLOW ) )		target.behaviours.add( Type.createInstance( styleObj.overflow, [ target ] ) );
 			
-			//read fill
-			if ( curStyleProps.has( StyleFlags.BACKGROUND ) )
-			{
-				createGraphicDataObj();
-				target.as(IDrawable).graphicData.value.fill = styleObj.background;
-			}
-			
-			//read border
-			if ( curStyleProps.has( StyleFlags.BORDER ) )
-			{
-				createGraphicDataObj();
-				target.as(IDrawable).graphicData.value.border = styleObj.border;
-			}
-			
-			//read opacity
-			if ( curStyleProps.has( StyleFlags.OPACITY ) )
-				target.alpha = styleObj.opacity;
-			
-			//read visable
-			if ( curStyleProps.has( StyleFlags.VISIBLE ) )
-				target.visible = styleObj.visible;
-			
-			//read overflow
-			if ( curStyleProps.has( StyleFlags.OVERFLOW ) )
-				target.behaviours.add( Type.createInstance( styleObj.overflow, [ target ] ) );
-			
-			//read font properties
-			//...
-			
-			propsToSet = propsToSet.unset( curStyleProps );
+			propsToSet = propsToSet.unset( curProps );
 		}
 	}
 	
 	
 	
 	
-	private function createGraphicDataObj ()
+	private function getGraphicsObj () : GraphicProperties
 	{
 		if (target.as(IDrawable).graphicData.value == null)
-			target.as(IDrawable).graphicData.value = new GraphicProperties(null, target.rect);
+			return target.as(IDrawable).graphicData.value = new GraphicProperties(null, target.rect);
+		else
+			return target.as(IDrawable).graphicData.value;
 	}
 	
 	

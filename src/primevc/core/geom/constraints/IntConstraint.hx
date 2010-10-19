@@ -82,12 +82,12 @@ class IntConstraint implements IConstraint<Int>
 	
 	public inline function validate (v:Int) : Int
 	{
-		if (v.notSet())
-			return v;
+	//	if (v.notSet())
+	//		return v;
 		
 		if (min.isSet() && max.isSet())		v = v.within( min, max );
 		else if (min.isSet())				v = IntMath.max( v, min );
-		else								v = IntMath.min( v, max );
+		else if (max.isSet())				v = IntMath.min( v, max );
 		
 		return v;
 	}

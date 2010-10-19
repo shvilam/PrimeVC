@@ -48,11 +48,9 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >, implements IR
 {
 	private var graphicsBinding	: Wire <Dynamic>;
 	
-	
 	override private function init ()
 	{
 		Assert.that( target.layout != null );
-		
 		sizeChangeHandler.on( target.layout.events.sizeChanged, this );
 		updateGraphicBinding.on( target.graphicData.change, this );
 		updateGraphicBinding();
@@ -111,7 +109,6 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >, implements IR
 		var t:IUIElement = target.is(IUIElement) ? target.as(IUIElement) : null;
 		if (t == null || t.effects == null)
 		{
-		//	trace("sizeChangeHandler for "+target+"; target-rect: "+target.rect);
 			target.rect.width	= target.layout.bounds.width;
 			target.rect.height	= target.layout.bounds.height;
 		} else {

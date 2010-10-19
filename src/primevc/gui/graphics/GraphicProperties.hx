@@ -41,6 +41,7 @@ package primevc.gui.graphics;
  import primevc.tools.generator.ICodeGenerator;
  import primevc.utils.StringUtil;
   using primevc.utils.BitUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
   using Math;
   using Std;
@@ -162,6 +163,9 @@ class GraphicProperties implements IGraphicElement
 		var y = useCoordinates ? l.top : 0;
 		var w = l.width;
 		var h = l.height;
+		
+		Assert.that( w.isSet() );
+		Assert.that( h.isSet() );
 
 		if (border != null) {
 			if (border.innerBorder) {

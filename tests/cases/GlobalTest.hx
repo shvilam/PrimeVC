@@ -150,7 +150,7 @@ class GlobalApp extends UIContainer <Dynamic>
 		else
 			tileStyle.background.as( primevc.gui.graphics.fills.SolidFill ).color = newColor;
 		
-		tileStyle.layout.width += 5;
+	//	tileStyle.layout.width += 5;
 		
 		trace("new-color to "+newColor.string()+" newWidth: "+tileStyle.layout.width);
 	}
@@ -218,6 +218,17 @@ class Tile extends Button, implements IDraggable
 	{
 		super.createBehaviours();
 		behaviours.add( new DragDropBehaviour(this) );
+		changeStyleClass.on( userEvents.mouse.click, this );
+	}
+	
+	
+	private function changeStyleClass ()
+	{
+		
+		if (styleClasses.value == null)
+			styleClasses.value = "odd";
+		else
+			styleClasses.value = null;
 	}
 }
 
@@ -283,7 +294,7 @@ class TileList extends Frame, implements IDropTarget
 		this.dynamicSizes				= false; //dynamicSizes;
 		this.allowDropFromOtherLists	= allowDropFromOtherLists;
 		doubleClickEnabled				= true;
-		cacheAsBitmap = true;
+	//	cacheAsBitmap = true;
 		
 		dragEvents	= new DropTargetEvents();
 		super(id, id);

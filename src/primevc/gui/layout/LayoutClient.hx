@@ -210,8 +210,8 @@ class LayoutClient implements ILayoutClient
 			return;
 		
 		state.current = ValidateStates.validating;
-		if (!hasValidatedWidth)	validateHorizontal();
-		if (!hasValidatedHeight)		validateVertical();
+		if (!hasValidatedWidth)		validateHorizontal();
+		if (!hasValidatedHeight)	validateVertical();
 		
 		//auto validate when there is no parent or when the parent isn't invalidated
 		if (parent == null || parent.changes == 0)
