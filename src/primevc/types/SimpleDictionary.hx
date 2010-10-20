@@ -100,12 +100,16 @@ class SimpleDictionary < KType, VType >
 	
 	
 	
-	public inline function iterator () : Iterator < VType >		{ return new FastArrayForwardIterator < VType > ( _values ); }
-	public inline function isEmpty () : Bool					{ return _values.length == 0; }
-	private inline function getLength () : Int					{ return _values.length; }
-	public function exists (key:KType) : Bool					{ return _keys.indexOf( key ) > -1; }
-	public function keys () : Iterator < KType >				{ return new FastArrayForwardIterator < KType > ( _keys ); }
+	public inline function iterator ()		: Iterator < VType >	{ return new FastArrayForwardIterator < VType > ( _values ); }
+	public inline function isEmpty ()		: Bool					{ return _values.length == 0; }
+	private inline function getLength ()	: Int					{ return _values.length; }
+	public function exists (key:KType)		: Bool					{ return _keys.indexOf( key ) > -1; }
+	public function keys ()					: Iterator < KType >	{ return new FastArrayForwardIterator < KType > ( _keys ); }
 
+#if debug
+	public function toString ()		: String	{ return keysToString(); }
+	public function keysToString () : String	{ return _keys.join(", "); }
+#end
 
 #if neko
 	public function toCode (code:ICodeGenerator) : Void

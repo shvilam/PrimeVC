@@ -84,8 +84,6 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 		
 	private function applyGeneralStyling (propsToSet:UInt)
 	{
-		var style = target.style;
-		
 		if (!target.is(ISkinnable))		propsToSet = propsToSet.unset( Flags.SKIN );
 		if (!target.is(IDrawable))		propsToSet = propsToSet.unset( Flags.BACKGROUND | Flags.BORDER | Flags.SHAPE );
 		if (!target.is(IUIContainer))	propsToSet = propsToSet.unset( Flags.OVERFLOW );
@@ -96,11 +94,13 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 		if (propsToSet == 0)
 			return;
 		
+		
 		//
 		// LOOP THROUGH ALL AVAILABLE STLYE-BLOCKS TO FIND THE STYLING PROPERTIES
 		//
 		
-		var it = style.iterator();
+		var style	= target.style;
+		var it		= style.iterator();
 		while (it.hasNext() && propsToSet > 0)
 		{
 			var styleObj = it.next();

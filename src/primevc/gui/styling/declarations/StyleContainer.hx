@@ -95,14 +95,14 @@ class StyleContainer
 //	private function createIdSelectors ()			: Void {} // Assert.abstract(); }
 	
 	
-#if (debug || neko)
-	public function toString ()		{ return toCSS(); }
-	
-	
 	public function isEmpty ()
 	{
 		return idSelectors.isEmpty() && styleNameSelectors.isEmpty() && elementSelectors.isEmpty();
 	}
+	
+	
+#if (debug || neko)
+	public function toString ()		{ return toCSS(); }
 	
 
 	public function toCSS (namePrefix:String = "")

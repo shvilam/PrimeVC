@@ -595,7 +595,7 @@ class CSSParser
 		while (!styleSheetQueue.isEmpty())
 			parseStyleSheet( styleSheetQueue.pop() );
 		
-		createStyleStructure( styles );
+		createStyleStructure( "", styles );
 		trace("--- DONE ----");
 		trace(styles.toCSS());
 	}
@@ -677,16 +677,16 @@ class CSSParser
 	 * style-objects in the given stylegroup (recursivly through all 
 	 * child-items).
 	 */
-	private function createStyleStructure (group : UIElementStyle) : Void
+	private function createStyleStructure (name:String, style:UIElementStyle) : Void
 	{
 		//search in children
-		if (group.hasChildren())
+		if (style.hasChildren())
 		{
-			findExtendedClassesInList( group.children.idSelectors );
-			findExtendedClassesInList( group.children.styleNameSelectors );
-			findExtendedClassesInList( group.children.elementSelectors );
+			findExtendedClassesInList( style.children.idSelectors );
+			findExtendedClassesInList( style.children.styleNameSelectors );
+			findExtendedClassesInList( style.children.elementSelectors );
 			
-			findSuperClassesInList( group.children.elementSelectors );
+			findSuperClassesInList( style.children.elementSelectors );
 		}
 	}
 	
@@ -700,7 +700,10 @@ class CSSParser
 			Assert.that(name != null);
 			var style = list.get(name);
 			setExtendedStyle( name, style );
-			createStyleStructure( style );
+			createStyleStructure( name, style );
+			
+			if (style.hasStates())
+				findExtendedStatesForStyle( name, style );
 		}
 	}
 	
@@ -709,7 +712,13 @@ class CSSParser
 	{
 		var keys = list.keys();
 		for (name in keys)
-			setSuperStyle( name, list.get(name) );
+		{
+			var style = list.get(name);
+			setSuperStyle( name, style );
+			
+			if (style.hasStates())
+				findSuperStatesForStyle( name, style );
+		}
 	}
 	
 	
@@ -719,8 +728,6 @@ class CSSParser
 			return;
 		
 		style.extendedStyle = style.parentStyle.findStyle( name, style.type, style );
-		if (style.extendedStyle != null)
-			trace("extendedStyle found for "+name);
 	}
 	
 	
@@ -736,9 +743,60 @@ class CSSParser
 			
 			parentName = manifest.getFullSuperClassName( parentName );
 		}
-		if (style.superStyle != null)
-			trace("superStyle found for "+name+": "+parentName);
 	}
+	
+	
+	private function findExtendedStatesForStyle (styleName:String, style:UIElementStyle) : Void
+	{
+		var states	= style.states;
+		var keys	= states.keys();
+		
+		for (stateName in keys)
+		{
+			Assert.that(stateName != null);
+			var state = states.get(stateName);
+			setExtendedState( stateName, state, styleName, style );
+			createStyleStructure( stateName, state );
+		}
+	}
+	
+	
+	private function setExtendedState (stateName:String, state:UIElementStyle, styleName:String, style:UIElementStyle)
+	{
+		if (state == null || style == null)
+			return;
+		
+		state.extendedStyle = style.findState( stateName, styleName, style.type, state );
+	}
+	
+	
+	private function findSuperStatesForStyle (styleName:String, style:UIElementStyle) : Void
+	{
+		var states	= style.states;
+		var keys	= states.keys();
+		
+		for (stateName in keys)
+		{
+			Assert.that(stateName != null);
+			var state		= states.get(stateName);
+			var superName	= manifest.getFullSuperClassName( styleName );
+			while (state.superStyle == null && superName != null && superName != "")
+			{
+				setSuperState( stateName, state, superName, style );
+				superName = manifest.getFullSuperClassName( superName );
+			}
+		}
+	}
+	
+	
+	private function setSuperState (stateName:String, state:UIElementStyle, styleName:String, style:UIElementStyle)
+	{
+		if (state == null)
+			return;
+		
+		state.superStyle = style.findState( stateName, styleName, StyleDeclarationType.element, state );
+	}
+	
 	
 	
 	/**
@@ -897,6 +955,7 @@ class CSSParser
 		
 		if (stateBlock != null)
 		{
+		//	stateBlock.parentStyle = currentBlock;
 			currentBlock.states.set( stateName, stateBlock );
 			currentBlock = stateBlock;
 		}
@@ -3120,7 +3179,7 @@ class CSSParser
 		if (parallelEffExpr.match(v))
 		{
 		//	trace("PARALLEL MATCH FOR "+v);
-			trace(parallelEffExpr.resultToString(2));
+		//	trace(parallelEffExpr.resultToString(2));
 			var	tmpEffect = parseEffectChildren( parallelEffExpr.matched(2), new ParallelEffect() );
 			
 			if (tmpEffect.effects.length > 0)

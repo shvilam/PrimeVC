@@ -267,8 +267,7 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 		if (_boxFilters != null)	_boxFilters.dispose();
 		if (_bgFilters != null)		_bgFilters.dispose();
 		if (_icon != null)			_icon.dispose();
-		
-		_states.dispose();
+		if (_states != null)		_states.dispose();
 		children.dispose();
 		
 		_states		= null;
@@ -295,6 +294,35 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 	//
 	
 	
+	private function getListForType (type:StyleDeclarationType) : SelectorMapType
+	{
+		return (!hasChildren() || type == null) ? null : switch (type) {
+				case element:	children.elementSelectors;
+				case styleName:	children.styleNameSelectors;
+				case id:		children.idSelectors;
+				default:		null;
+			}
+	}
+	
+	
+	public function hasChildren () : Bool
+	{
+		return children != null && !children.isEmpty();
+	}
+	
+	
+	public function hasStates () : Bool
+	{
+		return states != null && !states.isEmpty();
+	}
+	
+	
+	public function hasState (stateName:String) : Bool
+	{
+		return states != null ? states.exists(stateName) : false;
+	}
+	
+	
 	/**
 	 * Searches recursivly in all parents until a style with the requested name
 	 * of the requested type is found.
@@ -304,23 +332,11 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 	 */
 	public function findStyle ( name:String, type:StyleDeclarationType, ?exclude:UIElementStyle ) : UIElementStyle
 	{
-		var style : UIElementStyle = null;
+		var style:UIElementStyle = null;
 		
-		var list = switch (type) {
-			case element:	children.elementSelectors;
-			case styleName:	children.styleNameSelectors;
-			case id:		children.idSelectors;
-			default:		null;
-		}
-		
-	//	trace("searching "+name+" of type "+type+"; list: "+(list != null) + "; parent? "+(parentStyle != null));
-			
-	/*	if (list != null) {
-			var keys = list.keys();
-			for (key in keys)
-				trace("[ "+key+"] = "+list.get(key));
-		}*/
-		if (list != null && list.exists(name)) {
+		var list = getListForType(type);
+		if (list != null)
+		{
 			style = list.get(name);
 			if (style == exclude)
 				style = null;
@@ -330,6 +346,31 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 			style = parentStyle.findStyle( name, type, exclude );
 		
 		return style;
+	}
+	
+	
+	/**
+	 * Method searches for the requested statename style-object
+	 */
+	public function findState ( stateName:String, styleName:String, styleType:StyleDeclarationType, ?exclude:UIElementStyle, depth:Int = 0 ) : UIElementStyle
+	{
+		var stateStyle:UIElementStyle = null;
+		
+		var list = getListForType(styleType);
+		if (list != null )
+		{
+			var child:UIElementStyle = list.get( styleName );
+			if (child != null && child.hasState(stateName))
+				stateStyle = child.states.get( stateName );
+		}
+		
+		if (stateStyle == exclude)
+			stateStyle = null;
+		
+		if (stateStyle == null && parentStyle != null)
+			stateStyle = parentStyle.findState( stateName, styleName, styleType, exclude, ++depth );
+		
+		return stateStyle;
 	}
 	
 	
@@ -818,12 +859,6 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 			&& _icon == null
 			&& _overflow == null
 			&& (_states == null || _states.isEmpty());
-	}
-	
-	
-	public function hasChildren () : Bool
-	{
-		return children != null && !children.isEmpty();
 	}
 	
 	

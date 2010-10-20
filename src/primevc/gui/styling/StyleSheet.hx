@@ -473,7 +473,7 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 	
 	
 	//
-	// SETTERS
+	// STATE SUPPORT
 	//
 	
 	private inline function setState (v:String) : String

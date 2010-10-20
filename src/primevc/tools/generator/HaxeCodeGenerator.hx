@@ -132,7 +132,9 @@ class HaxeCodeGenerator implements ICodeGenerator
 	
 	public function setProp ( obj:ICodeFormattable, name:String, value:Dynamic ) : Void {
 		Assert.that( varMap.exists( obj.uuid ) );
-		addLine( getVar(obj) + "." + name + " = " + formatValue(value) + ";");
+		var valueStr = formatValue(value);
+		if (valueStr != null)
+			addLine( getVar(obj) + "." + name + " = " + valueStr + ";");
 	}
 	
 	
@@ -152,7 +154,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 	private function formatValue (v:Dynamic, isConstructor:Bool = false) : String
 	{
 		if		(isColor(v))					return Color.string(v);
-		else if (Std.is( v, ICodeFormattable ))	return "cast " + getVar(v);
+		else if (Std.is( v, ICodeFormattable ))	{ var vStr = getVar(v); return vStr == null ? null : "cast " + vStr; }
 		else if (Std.is( v, Reference))			return getReferenceName(v);
 		else if (isUndefinedNumber(v))			return (Std.is( v, Int )) ? "primevc.types.Number.INT_NOT_SET" : "primevc.types.Number.FLOAT_NOT_SET";
 		else if (v == LayoutFlags.FILL)			return "primevc.gui.layout.LayoutFlags.FILL";
