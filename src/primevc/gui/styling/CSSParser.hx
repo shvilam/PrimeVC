@@ -98,8 +98,10 @@ package primevc.gui.styling;
  import primevc.gui.styling.declarations.FilterStyleDeclarations;
  import primevc.gui.styling.declarations.FontStyleDeclarations;
  import primevc.gui.styling.declarations.LayoutStyleDeclarations;
+ import primevc.gui.styling.declarations.StateStyleDeclarations;
  import primevc.gui.styling.declarations.StyleContainer;
  import primevc.gui.styling.declarations.StyleDeclarationType;
+ import primevc.gui.styling.declarations.StyleStates;
  import primevc.gui.styling.declarations.UIElementStyle;
  import primevc.gui.text.FontStyle;
  import primevc.gui.text.FontWeight;
@@ -595,8 +597,9 @@ class CSSParser
 		while (!styleSheetQueue.isEmpty())
 			parseStyleSheet( styleSheetQueue.pop() );
 		
-		createStyleStructure( "", styles );
+		createStyleStructure( styles );
 		trace("--- DONE ----");
+		trace("REVERSED CSS:");
 		trace(styles.toCSS());
 	}
 	
@@ -677,7 +680,7 @@ class CSSParser
 	 * style-objects in the given stylegroup (recursivly through all 
 	 * child-items).
 	 */
-	private function createStyleStructure (name:String, style:UIElementStyle) : Void
+	private function createStyleStructure (style:UIElementStyle) : Void
 	{
 		//search in children
 		if (style.hasChildren())
@@ -700,7 +703,7 @@ class CSSParser
 			Assert.that(name != null);
 			var style = list.get(name);
 			setExtendedStyle( name, style );
-			createStyleStructure( name, style );
+			createStyleStructure( style );
 			
 			if (style.hasStates())
 				findExtendedStatesForStyle( name, style );
@@ -751,17 +754,17 @@ class CSSParser
 		var states	= style.states;
 		var keys	= states.keys();
 		
-		for (stateName in keys)
-		{
-			Assert.that(stateName != null);
-			var state = states.get(stateName);
-			setExtendedState( stateName, state, styleName, style );
-			createStyleStructure( stateName, state );
-		}
+		if (keys != null)
+			for (stateName in keys)
+			{
+				var state = states.get(stateName);
+				setExtendedState( stateName, state, styleName, style );
+				createStyleStructure( state );
+			}
 	}
 	
 	
-	private function setExtendedState (stateName:String, state:UIElementStyle, styleName:String, style:UIElementStyle)
+	private function setExtendedState (stateName:UInt, state:UIElementStyle, styleName:String, style:UIElementStyle)
 	{
 		if (state == null || style == null)
 			return;
@@ -775,21 +778,22 @@ class CSSParser
 		var states	= style.states;
 		var keys	= states.keys();
 		
-		for (stateName in keys)
-		{
-			Assert.that(stateName != null);
-			var state		= states.get(stateName);
-			var superName	= manifest.getFullSuperClassName( styleName );
-			while (state.superStyle == null && superName != null && superName != "")
+		if (keys != null)
+			for (stateName in keys)
 			{
-				setSuperState( stateName, state, superName, style );
-				superName = manifest.getFullSuperClassName( superName );
+				Assert.that(stateName != null);
+				var state		= states.get(stateName);
+				var superName	= manifest.getFullSuperClassName( styleName );
+				while (state.superStyle == null && superName != null && superName != "")
+				{
+					setSuperState( stateName, state, superName, style );
+					superName = manifest.getFullSuperClassName( superName );
+				}
 			}
-		}
 	}
 	
 	
-	private function setSuperState (stateName:String, state:UIElementStyle, styleName:String, style:UIElementStyle)
+	private function setSuperState (stateName:UInt, state:UIElementStyle, styleName:String, style:UIElementStyle)
 	{
 		if (state == null)
 			return;
@@ -862,7 +866,7 @@ class CSSParser
 	private function handleMatchedBlock (expr:EReg) : Void
 	{
 		//find correct block
-		getContentBlock( expr.matched(1) );
+		setContentBlock( expr.matched(1) );
 		
 		var content = expr.matched(13).trim();
 		if (content != "")
@@ -875,9 +879,8 @@ class CSSParser
 	 * Method will find or create the correct UIElementBlock for the given 
 	 * names.
 	 */
-	private function getContentBlock ( names:String ):Void
+	private function setContentBlock ( names:String ):Void
 	{
-		trace("getContentBlock "+names);
 		var styleGroup	: UIElementStyle = styles;
 		var type		: StyleDeclarationType;
 		var curList 	: SelectorMapType = null;
@@ -929,8 +932,10 @@ class CSSParser
 			
 			//matched a state
 			if (expr.matched(4) != null)
-			{
-				getStateContentBlock(expr.matched(5));
+			{	
+				var stateName = StyleStates.stringToState( expr.matched(5) );
+				Assert.that( stateName != 0, "unkown state: "+expr.matched(5) );
+				setStateContentBlock( stateName );
 			}
 			
 			names = expr.matchedRight().trim();
@@ -942,13 +947,13 @@ class CSSParser
 	}
 	
 	
-	private function getStateContentBlock (stateName:String)
+	private function setStateContentBlock (stateName:UInt)
 	{
-		if (stateName == null || currentBlock == null)
+		if (stateName <= 0 || currentBlock == null)
 			return;
 		
-		var stateList	: StatesListType	= (currentBlock.states != null) ? currentBlock.states : new StatesListType();
-		var stateBlock	: UIElementStyle	= (stateList.exists( stateName )) ? stateList.get( stateName ) : new UIElementStyle( StyleDeclarationType.state );
+		var stateList	= (currentBlock.states != null) ? currentBlock.states			: new StateStyleDeclarations();
+		var stateBlock	= (stateList.owns( stateName )) ? stateList.get( stateName )	: new UIElementStyle( StyleDeclarationType.state );
 		
 		if (currentBlock.states == null)
 			currentBlock.states = stateList;
@@ -956,7 +961,8 @@ class CSSParser
 		if (stateBlock != null)
 		{
 		//	stateBlock.parentStyle = currentBlock;
-			currentBlock.states.set( stateName, stateBlock );
+			if (!stateList.owns( stateName ))
+				currentBlock.states.set( stateName, stateBlock );
 			currentBlock = stateBlock;
 		}
 	}

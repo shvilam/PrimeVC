@@ -70,6 +70,12 @@ interface IStyleDeclaration
 	 */
 	public function updateAllFilledPropertiesFlag ()				: Void;
 	
+	
+	public function has (propFlag:UInt)		: Bool;
+	public function owns (propFlag:UInt)	: Bool;
+	public function isEmpty ()				: Bool;
+	
+	
 #if debug
 	
 	/**

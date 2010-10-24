@@ -29,15 +29,18 @@
 package primevc.gui.styling;
 
 #if flash9
+ import primevc.core.collections.DoubleFastCell;
+ import primevc.core.collections.PriorityList;
  import primevc.core.dispatcher.Signal1;
  import primevc.core.dispatcher.Wire;
  import primevc.core.traits.IInvalidatable;
- import primevc.core.traits.IInvalidateListener;
- import primevc.core.IDisposable;
  import primevc.gui.styling.declarations.EffectStyleProxy;
  import primevc.gui.styling.declarations.FilterCollectionType;
  import primevc.gui.styling.declarations.FilterStyleProxy;
  import primevc.gui.styling.declarations.LayoutStyleProxy;
+ import primevc.gui.styling.declarations.StateStyleProxy;
+ import primevc.gui.styling.declarations.StyleContainer;
+ import primevc.gui.styling.declarations.StyleState;
  import primevc.gui.styling.declarations.StyleDeclarationType;
  import primevc.gui.styling.declarations.StyleFlags;
  import primevc.gui.styling.declarations.UIElementStyle;
@@ -64,12 +67,12 @@ private typedef Flags = StyleFlags;
  * @author Ruben Weijers
  * @creation-date Sep 22, 2010
  */
-class StyleSheet implements IInvalidateListener, implements IDisposable
+class StyleSheet implements IElementStyle
 {
 	/**
 	 * object on which the style applies
 	 */
-	private var target					: IStylable;
+	public var target					(default, null)			: IStylable;
 	/**
 	 * cached classname (incl package) of target since target won't change.
 	 */
@@ -80,10 +83,14 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 	private var styleNamesChangeBinding	: Wire <Dynamic>;
 	private var idChangeBinding			: Wire <Dynamic>;
 	
-	
-	public var idStyle					(default, null)			: UIElementStyle;
-	public var styleNameStyles			(default, null)			: FastArray < UIElementStyle >;
-	public var elementStyle				(default, null)			: UIElementStyle;
+	public var styles					(default, null)			: PriorityList < UIElementStyle >;
+//	public var idStyle					(default, null)			: UIElementStyle;
+//	public var styleNameStyles			(default, null)			: FastArray < UIElementStyle >;
+//	public var elementStyle				(default, null)			: UIElementStyle;
+	/**
+	 * List with all state-style objects for the target
+	 */
+//	public var currentStatesStyles		(default, null)			: FastArray < UIElementStyle >;
 	
 	
 	/**
@@ -94,16 +101,20 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 	/**
 	 * Cached bitflag with the properties of the id-style (if there is any)
 	 */
-	public var idStyleProperties		(default, null)	: UInt;
+//	public var idStyleProperties		(default, null)	: UInt;
 	/**
 	 * Cached bitflag with the properties of every style-name-style (if there 
 	 * are any)
 	 */
-	public var styleNameStyleProperties	(default, null)	: UInt;
+//	public var styleNameStyleProperties	(default, null)	: UInt;
 	/**
 	 * Cached bitflag with the properties of the element-style (if there is any)
 	 */
-	public var elementStyleProperties	(default, null)	: UInt;
+//	public var elementStyleProperties	(default, null)	: UInt;
+	/**
+	 * Cached bitflag with the properties of all the current states
+	 */
+//	public var stateStyleProperties		(default, null)	: UInt;
 	
 	
 	/**
@@ -113,15 +124,9 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 	 */
 	public var change					(default, null)	: Signal1 < UInt >;
 	/**
-	 * Current css-state of the object. When the property is set, the class 
-	 * will look for style-information that only applies for the given state.
-	 * 
-	 * All the properties that are changed will be stored as bitflags in 
-	 * 'stateChanges'. The style-information of the object before the state
-	 * was changed will be temporarily stored in 'orignalStyle'.
+	 * Current css-states of the object.
 	 */
-	public var state					(default, setState)		: String;
-	public var stateChanges				: UInt;
+	public var currentStates			(default, null)	: FastArray < StyleState >;
 	
 	/**
 	 * Flag indicating wether the styles of the target are searched or not (by 
@@ -136,19 +141,26 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 	public var layout					(default, null)	: LayoutStyleProxy;
 	public var boxFilters				(default, null)	: FilterStyleProxy;
 	public var effects					(default, null)	: EffectStyleProxy;
+	/**
+	 * Proxy object to loop through all available states in this object.
+	 */
+	public var states					(default, null)	: StateStyleProxy;
 	
 	
 	
 	
 	public function new (target:IStylable)
 	{
-		styleNameStyles		= FastArrayUtil.create();
+	//	styleNameStyles		= FastArrayUtil.create();
+		currentStates		= FastArrayUtil.create();
+		styles				= new PriorityList < UIElementStyle > ();
+		
 		this.target			= target;
 		targetClassName		= target.getClass().getClassName();
 		change				= new Signal1();
 		
 		stylesAreSearched	= false;
-		idStyleProperties	= styleNameStyleProperties = elementStyleProperties = 0;
+		filledProperties	= 0;
 		
 		styleNamesChangeBinding = updateStyleNameStyles	.on( target.styleClasses.change, this );
 		idChangeBinding			= updateIdStyle			.on( target.id.change, this );
@@ -181,18 +193,22 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 		layout.dispose();
 		effects.dispose();
 		boxFilters.dispose();
+		states.dispose();
 		
 		change.dispose();
 		clearStyles();
+		currentStates.removeAll();
 		
 		addedBinding	= removedBinding = styleNamesChangeBinding = idChangeBinding = null;
-		styleNameStyles = null;
+		currentStates	= null;
+		styles			= null;
 		targetClassName	= null;
 		target			= null;
 		change			= null;
 		layout			= null;
 		boxFilters		= null;
 		effects			= null;
+		states			= null;
 	}
 	
 	
@@ -200,34 +216,28 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 	{
 		var style : UIElementStyle = null;
 		
-		//search in the id-style
-		if (style == null && idStyle != null)
-			style = idStyle.findStyle(name, type, exclude);
-		
-		//search in stylenames list
-		if (style == null && styleNameStyles.length > 0)
+		for (styleObj in styles)
 		{
-			for (styleNameStyle in styleNameStyles)
-			{
-				style = styleNameStyle.findStyle(name, type, exclude);
-				if (style != null)
-					break;
-			}
+			style = styleObj.findStyle( name, type, exclude );
+			if (style != null)
+				break;
 		}
 		
-		//search in the element style
-		if (style == null && elementStyle != null)
-			style = elementStyle.findStyle(name, type, exclude);
-		
-		//look in parent.. (prevent infinte loops with parentStyle != this)
-		var parentStyle = getParentStyle();
-		if (style == null && parentStyle != null && parentStyle != this)
-			style = parentStyle.findStyle( name, type, exclude );
-		
+		if (style == null)
+		{
+			//look in parent.. (prevent infinte loops with parentStyle != this)
+			var parentStyle = getParentStyle();
+			if (parentStyle != this)
+				style = parentStyle.findStyle( name, type, exclude );
+		}
 		return style;
 	}
 	
 	
+	/**
+	 * Method will remove all the styles defined for the target and disable
+	 * the style-change-listeners.
+	 */
 	private function clearStyles () : Void
 	{
 		styleNamesChangeBinding.disable();
@@ -235,36 +245,46 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 		removedBinding.disable();
 		addedBinding.enable();
 		
-		removeStyleNameStyles();
-		
 		stylesAreSearched	= false;
-		idStyle				= null;
-		elementStyle		= null;
 		var changed			= filledProperties;
-		filledProperties	= idStyleProperties	= styleNameStyleProperties = elementStyleProperties = 0;
 		
+		//remove styles and their listeners
+		removeStylesWithPriority( StyleDeclarationType.state.enumIndex() );
+		removeStylesWithPriority( StyleDeclarationType.id.enumIndex() );
+		removeStylesWithPriority( StyleDeclarationType.styleName.enumIndex() );
+		removeStylesWithPriority( StyleDeclarationType.element.enumIndex() );
+		
+		Assert.that( styles.length == 0 );
+		
+		filledProperties = 0;
 		broadcastChanges( changed );
 	}
 	
 	
+	/**
+	 * Method will fill the styles-list for this object and enable the 
+	 * style-change listeners.
+	 */
 	public function updateStyles () : Void
-	{	
+	{
 		styleNamesChangeBinding.enable();
 		idChangeBinding.enable();
 		removedBinding.enable();
 		addedBinding.disable();
 		
-		if (getParentStyle() == null)
-			return;
-		
 		if (layout == null)			layout		= new LayoutStyleProxy(this);
 		if (boxFilters == null)		boxFilters	= new FilterStyleProxy(this, FilterCollectionType.box);
 		if (effects == null)		effects		= new EffectStyleProxy(this);
+		if (states == null)			states		= new StateStyleProxy(this);
 		
 		stylesAreSearched = false;
-		updateIdStyle();
-		updateStyleNameStyles();
+		filledProperties	= 0;
+		
+		//update styles.. start with the lowest priorities
 		updateElementStyle();
+		updateStyleNameStyles();
+		updateIdStyle();
+		updateStatesStyles();		//set de styles for any states that are already set
 		
 		//update filled-properties flag
 		broadcastChanges();
@@ -276,26 +296,38 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 	 * Method to loop through all available style objects to find all the 
 	 * properties that are set for the target.
 	 */
-	private function broadcastChanges (changedProperties:Int = -1)
+	public function broadcastChanges (changedProperties:Int = -1)
 	{
-		var newProps = idStyleProperties | styleNameStyleProperties | elementStyleProperties;
+		updateFilledPropertiesFlag();
 		
-		//update general properties
 		if (changedProperties == -1)
-			changedProperties = filledProperties.set( newProps );
+			changedProperties = filledProperties; //filledProperties.set( newProps );
 		
-		filledProperties = newProps;
 		
-		if (changedProperties > 0)
-			change.send( changedProperties );
+		//update state properties
+		if (changedProperties.has( Flags.STATES ))
+		{
+			var statesChangedProps	= states.filledProperties;
+			states.updateFilledPropertiesFlag();
+			statesChangedProps		= statesChangedProps.set( states.filledProperties );
+			
+			if (statesChangedProps > 0)
+			{
+				var tmp				= stylesAreSearched;
+				stylesAreSearched	= false;
+				changedProperties	= changedProperties.set( updateStatesStyles() );
+				stylesAreSearched	= tmp;
+				states.change.send( statesChangedProps );
+			}
+		}
 		
 		
 		//update layout properties
 		if (changedProperties.has( Flags.LAYOUT ))
 		{
-			var layoutChangedProps	= layout.allFilledProperties;
-			layout.updateAllFilledPropertiesFlag();
-			layoutChangedProps		= layoutChangedProps.set( layout.allFilledProperties );
+			var layoutChangedProps	= layout.filledProperties;
+			layout.updateFilledPropertiesFlag();
+			layoutChangedProps		= layoutChangedProps.set( layout.filledProperties );
 			
 			if (layoutChangedProps > 0)
 				layout.change.send( layoutChangedProps );
@@ -305,9 +337,9 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 		//update effect properties
 		if (changedProperties.has( Flags.EFFECTS ))
 		{
-			var effectsChangedProps	= effects.allFilledProperties;
-			effects.updateAllFilledPropertiesFlag();
-			effectsChangedProps		= effectsChangedProps.set( effects.allFilledProperties );
+			var effectsChangedProps	= effects.filledProperties;
+			effects.updateFilledPropertiesFlag();
+			effectsChangedProps		= effectsChangedProps.set( effects.filledProperties );
 			
 			if (effectsChangedProps > 0)
 				effects.change.send( effectsChangedProps );
@@ -317,149 +349,205 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 		//update filter properties
 		if (changedProperties.has( Flags.BOX_FILTERS ))
 		{
-			var filtersChangedProps	= boxFilters.allFilledProperties;
-			boxFilters.updateAllFilledPropertiesFlag();
-			filtersChangedProps		= filtersChangedProps.set( boxFilters.allFilledProperties );
+			var filtersChangedProps	= boxFilters.filledProperties;
+			boxFilters.updateFilledPropertiesFlag;
+			filtersChangedProps		= filtersChangedProps.set( boxFilters.filledProperties );
 			
 			if (filtersChangedProps > 0)
 				boxFilters.change.send( filtersChangedProps );
 		}
+		
+		if (changedProperties > 0)
+			change.send( changedProperties );
 	}
 	
 	
-	private function addStyleListeners (style:UIElementStyle) : Void
+	public function addStyle (style:UIElementStyle) : UInt
 	{
-		style.listeners.add( this );
+#if debug
+		Assert.notNull( styles );
+		Assert.notNull( style );
+		Assert.that( !styles.has(style) );
+#end
+		var styleCell	= styles.add( style );
+		var changes		= 0;
 		
-		if (style.has( Flags.LAYOUT ))		style.layout.listeners.add( layout );
-		if (style.has( Flags.EFFECTS ))		style.effects.listeners.add( effects );
-		if (style.has( Flags.BOX_FILTERS ))	style.boxFilters.listeners.add( boxFilters );
-	}
-	
-	
-	private function removeStyleListeners (style:UIElementStyle) : Void
-	{
-		style.listeners.remove( this );
-
-		if (style.has( Flags.LAYOUT ))		style.layout.listeners.remove( layout );
-		if (style.has( Flags.EFFECTS ))		style.effects.listeners.remove( effects );
-		if (style.has( Flags.BOX_FILTERS ))	style.boxFilters.listeners.remove( boxFilters );
-	}
-	
-	
-	private function updateIdStyle () : Void
-	{
-		//remove old id style
-		if (idStyle != null) {
-			removeStyleListeners(idStyle);
-			idStyle	= null;
-		}
-		
-		var styleChanges	= idStyleProperties;
-		idStyleProperties	= 0;
-		
-		if (target.id.value != null && target.id.value != "")
+		if (styleCell != null)
 		{
-			var parentStyle	= getParentStyle();
-			Assert.notNull( parentStyle );
-			idStyle			= parentStyle.findStyle( target.id.value, StyleDeclarationType.id );
+			//
+			// ADD LISTENERS
+			//
+			style.listeners.add( this );
 			
-			if (idStyle != null) {
-				idStyleProperties = idStyle.allFilledProperties;
-				addStyleListeners( idStyle );
-			}
+			if (style.has( Flags.LAYOUT ))		style.layout.listeners.add( layout );
+			if (style.has( Flags.EFFECTS ))		style.effects.listeners.add( effects );
+			if (style.has( Flags.BOX_FILTERS ))	style.boxFilters.listeners.add( boxFilters );
+			if (style.has( Flags.STATES ))		style.states.listeners.add( states );
+			
+			// FIND CHANGES
+			changes				= getUsablePropertiesOf( styleCell );
+			filledProperties	= filledProperties.set( changes );
+			
+		//	trace(target+".addedStyle "+readProperties( changes ));
 		}
-		
-		if (stylesAreSearched)
-			broadcastChanges( styleChanges.set( idStyleProperties ) );
+		return changes;
 	}
 	
 	
 	
 	/**
-	 * Method to remove all style-name-style classes, including the listeners.
+	 * Method will remove the given stylecell from the the list with styles.
+	 * This includes removing the change-listeners. It will return a flag with
+	 * style-properties that are changed after removing the style.
 	 */
-	private function removeStyleNameStyles () : Void
+	public function removeStyleCell (styleCell:DoubleFastCell < UIElementStyle >) : UInt
 	{
-		while (styleNameStyles.length > 0)
-		{
-			var style = styleNameStyles.pop();
-			removeStyleListeners( style );
-		}
+#if debug
+		Assert.notNull( styleCell );
+#else
+		if (styleCell == null)
+			return 0;
+#end
+		
+		var style	= styleCell.data;
+		var changes	= getUsablePropertiesOf( styleCell );
+		
+		styles.removeCell( styleCell );
+		
+		//
+		// REMOVE LISTENERS
+		//
+		style.listeners.remove( this );
+		
+		if (style.has( Flags.LAYOUT ))		style.layout.listeners.remove( layout );
+		if (style.has( Flags.EFFECTS ))		style.effects.listeners.remove( effects );
+		if (style.has( Flags.BOX_FILTERS ))	style.boxFilters.listeners.remove( boxFilters );
+		if (style.has( Flags.STATES ))		style.states.listeners.remove( states );
+		
+	//	trace(target+".removedStyle "+readProperties( changes ));
+		return changes;
 	}
 	
 	
-	private function updateStyleNameStyles () : Void
+	/**
+	 * Method will remove all the styles with the given priority and will return
+	 * an UInt flag with all the properties that where set in the removed styles.
+	 */
+	private function removeStylesWithPriority (priority:Int) : UInt
 	{	
-		//remove all styles
-		removeStyleNameStyles();
+		var changes = 0;
+		var styleCell:DoubleFastCell < UIElementStyle > = null;
 		
-		var styleChanges:UInt		= styleNameStyleProperties;
-		styleNameStyleProperties	= 0;
+		while (null != (styleCell = styles.getCellWithPriority( priority )))
+			changes = changes.set( removeStyleCell( styleCell ) );
+		
+		return changes;
+	}
+	
+	
+	
+	
+	//
+	// STYLE UPDATE METHODS
+	//
+	
+	
+	/**
+	 * Method will find the styles for every defined state
+	 */
+	private function updateStatesStyles () : UInt
+	{
+		var changes = removeStylesWithPriority( StyleDeclarationType.state.enumIndex() );
+		
+		if (currentStates.length > 0)
+		{	
+			//search the style-objects of each state
+			var styleNames = target.styleClasses.value.split(",");
+			
+			for ( state in currentStates )
+				changes = changes.set( state.setStyles() );
+		}
+		
+		if (stylesAreSearched)
+			broadcastChanges ( changes );
+		
+		return changes;
+	}
+	
+	
+	private function updateIdStyle () : UInt
+	{
+		var changes = removeStylesWithPriority( StyleDeclarationType.id.enumIndex() );
+		
+		if (target.id.value != null && target.id.value != "")
+		{
+			var parentStyle	= getParentStyle();
+			var idStyle		= parentStyle.findStyle( target.id.value, StyleDeclarationType.id );
+			
+			if (idStyle != null)
+				changes = changes.set( addStyle( idStyle ) );
+		}
+		
+		if (stylesAreSearched)
+			broadcastChanges ( changes );
+		
+		return changes;
+	}
+	
+	
+	private function updateStyleNameStyles () : UInt
+	{
+		var changes = removeStylesWithPriority( StyleDeclarationType.styleName.enumIndex() );
 		
 		if (target.styleClasses.value != null && target.styleClasses.value != "")
-		{
-			var parentStyle = getParentStyle();
-			Assert.notNull( parentStyle );
-			
+		{	
 			//search the style-object of each stylename
-			var styleNames = target.styleClasses.value.split(",");
+			var parentStyle	= getParentStyle();
+			var styleNames	= target.styleClasses.value.split(",");
+			
 			for ( styleName in styleNames )
 			{
-				var tmp = parentStyle.findStyle( styleName, StyleDeclarationType.styleName );
-				if (tmp != null) {
-					styleNameStyles.push( tmp );
-					styleNameStyleProperties = styleNameStyleProperties.set( tmp.allFilledProperties );
-					addStyleListeners( tmp );
-				}
+				var style = parentStyle.findStyle( styleName, StyleDeclarationType.styleName );
+				if (style != null)
+					changes = changes.set( addStyle( style ) );
 			}
 		}
 		
 		if (stylesAreSearched)
-		{
-			styleChanges = styleChanges.set( styleNameStyleProperties );	//add properties that are set in the new style-objects
-			styleChanges = styleChanges.unset( idStyleProperties );			//remove properties that are set in the id-style
-			
-			broadcastChanges( styleChanges );
-		}
+			broadcastChanges ( changes );
+		
+		return changes;
 	}
 	
 	
-	private function updateElementStyle () : Void
+	private function updateElementStyle () : UInt
 	{
+		var changes		= removeStylesWithPriority( StyleDeclarationType.element.enumIndex() );
 		var parentStyle = getParentStyle();
-		Assert.notNull( parentStyle );
 		
-		if (elementStyle != null) {
-			removeStyleListeners( elementStyle );
-			elementStyle = null;
-		}
-		
-		var styleChanges:UInt	= elementStyleProperties;
-		elementStyleProperties	= 0;
-		var parentClass			= target.getClass();
+		var style:UIElementStyle	= null;
+		var parentClass				= target.getClass();
 		
 		//search for the first element style that is defined for this object or one of it's super classes
-		while (parentClass != null && elementStyle == null)
+		while (parentClass != null && style == null)
 		{
-			elementStyle	= parentStyle.findStyle( parentClass.getClassName(), StyleDeclarationType.element );
-			parentClass		= cast parentClass.getSuperClass();
-			
-			if (elementStyle != null) {
-				elementStyleProperties = elementStyle.allFilledProperties;
-				addStyleListeners( elementStyle );
-			}
+			style		= parentStyle.findStyle( parentClass.getClassName(), StyleDeclarationType.element );
+			parentClass	= cast parentClass.getSuperClass();
 		}
 		
-		if (stylesAreSearched)
-		{
-			styleChanges = styleChanges.set( elementStyleProperties );		//add properties that are set in the new style-object
-			styleChanges = styleChanges.unset( idStyleProperties );			//remove properties that are set in the id-style
-			styleChanges = styleChanges.unset( styleNameStyleProperties );	//remove properties that are set in the stylenamestyles
-			
-			broadcastChanges( styleChanges );
-		}
+		if (style != null)			changes = changes.set( addStyle( style ));
+		if (stylesAreSearched)		broadcastChanges( changes );
+		
+		return changes;
 	}
+	
+	
+	//
+	// END UPDATE STYLE METHODS
+	//
+	
+	
+	
 	
 	
 	private inline function getParentStyle () : StyleSheet
@@ -471,16 +559,87 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 	}
 	
 	
+	/**
+	 * Method returns all the properties that are defined in the given cell-style
+	 * and which are not defined in the styles with higher priority.
+	 * 
+	 * @example
+	 * 		idStyle props:			background, border
+	 * 		elementStyle props:		font, background, border
+	 * 
+	 * Usabable props of elementStyle: font
+	 */ 
+	public function getUsablePropertiesOf ( styleCell:DoubleFastCell < UIElementStyle >, properties:Int = -1 ) : UInt
+	{
+		Assert.notNull( styleCell );
+		if (properties == -1)
+			properties = styleCell.data.allFilledProperties;
+		
+		//loop through all cell's with higher priority
+		while (null != (styleCell = styleCell.prev) && properties > 0)
+			properties = properties.unset( styleCell.data.allFilledProperties );
+		
+		return properties;
+	}
+	
+	
+	/**
+	 * Method returns a UInt with flags of every property that is set. 
+	 * Important: The method won't set the UInt as value for filledProperties.
+	 */
+	private function updateFilledPropertiesFlag () : Void
+	{
+		filledProperties = 0;
+		for (style in styles)
+		{
+			filledProperties = filledProperties.set( style.allFilledProperties );
+			if (filledProperties == Flags.ALL_PROPERTIES)
+				break;
+		}
+	}
+	
+	
+	public function getChildren () : StyleContainer
+	{
+		var children : StyleContainer = null;
+		for (style in styles)
+		{
+			if (!style.hasChildren())
+			{
+				children = style.children;
+				break;
+			}
+		}
+		return children;
+	}
+	
+	
 	
 	//
 	// STATE SUPPORT
 	//
 	
-	private inline function setState (v:String) : String
+	
+	public function createState ()
+	{
+		var state = new StyleState( this );
+		currentStates.push( state );
+		return state;
+	}
+	
+	
+	public function removeState (state:StyleState)
+	{
+		currentStates.remove( state );
+		state.dispose();
+	}
+	
+	
+/*	private inline function setState (v:String) : String
 	{
 	//	trace(target + ".setStyleState "+state+" => "+v);
 		return state = v;
-	}
+	}*/
 	
 	
 	//
@@ -489,21 +648,11 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 	
 	public function invalidateCall (changes:UInt, sender:IInvalidatable)
 	{
-		//if sender is the idStyle, the changes will always be used
-		if (sender != idStyle)
-		{
-			if (sender == elementStyle && styleNameStyles.length > 0)
-			{
-				//remove changes that are overwritten in style-name-styles
-				for (style in styleNameStyles)
-					changes = changes.unset( style.allFilledProperties );
-			}
-			//remove changes that are overwritten in the idStyle
-			if (idStyle != null)
-				changes = changes.unset( idStyle.allFilledProperties );
-		}
+		var senderCell	= styles.getCellForItem( cast sender );
+		Assert.notNull(senderCell);
+		changes			= getUsablePropertiesOf( senderCell, changes );
 		
-	//	trace("\tchanged properties "+StyleFlags.readProperties(changes));
+		trace("\tchanged properties "+StyleFlags.readProperties(changes));
 		
 		if (changes > 0)
 			broadcastChanges( changes );
@@ -516,17 +665,28 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 	
 	public function iterator () : Iterator < UIElementStyle >
 	{
-		return cast new StyleSheetIterator(this);
+		return styles.iterator();
 	}
 	
 	
 #if debug
-	public function readProperties (flags:UInt = -1) : String
+	public function readProperties (flags:Int = -1) : String
 	{
 		if (flags == -1)
 			flags = filledProperties;
 		
 		return StyleFlags.readProperties(flags);
+	}
+	
+	
+	public function readStates () : String
+	{
+		var r = [];
+		
+		for (state in currentStates)
+			r.push( state );
+		
+		return r.join(", ");
 	}
 #end
 }
@@ -534,7 +694,7 @@ class StyleSheet implements IInvalidateListener, implements IDisposable
 
 
 
-
+/*
 class StyleSheetIterator
 {
 	private var target				: StyleSheet;
@@ -543,22 +703,22 @@ class StyleSheetIterator
 	/**
 	 * The StyleDeclarationType of the last used UIElementStyle
 	 */
-	private var currentType			: StyleDeclarationType;
+//	private var currentType			: StyleDeclarationType;
 	
 	/**
 	 * Keeps track of the last position of the currentStyleObj in the 
-	 * target.styleNameStyles list.
+	 * target.styleNameStyles list or the target.currentStates list.
 	 */
-	private var styleNamesListPos	: Int;
+//	private var currentListPos		: Int;
 	
 	
 	
-	
+/*	
 	public function new (target:StyleSheet)
 	{
 		this.target			= target;
 		currentType			= isTargetEmpty() ? null : specific;
-		styleNamesListPos	= -1;
+		styleNamesListPos	= 0;
 	}
 	
 	
@@ -574,23 +734,29 @@ class StyleSheetIterator
 			
 			//element will be next if this is the last styleName style
 			case styleName:
-				if (styleNamesListPos >= target.styleNameStyles.length) {
+				if (currentListPos >= target.styleNameStyles.length) {
 					currentStyleObj = target.elementStyle;
 					currentType		= element;
 				}
 				else
-					currentStyleObj	= target.styleNameStyles[ styleNamesListPos++ ];
+					currentStyleObj	= target.styleNameStyles[ currentListPos++ ];
 			
 			
-			case id:	
-				styleNamesListPos++;
+			case id:
 				currentType = styleName;
 			
 			
-			//currentStyleObj is still 'specific'
+			
 			default:
-				currentType		= id;
-				currentStyleObj	= target.idStyle;
+				if (currentListPos >= target.currentStatesStyles.length) {
+					currentListPos	= 0;
+					currentStyleObj = target.idStyle;
+					currentType		= id;
+				}
+				else {
+					currentStyleObj	= target.currentStatesStyles[ currentListPos++ ];
+					currentType		= state;
+				}
 		}
 		
 		
@@ -607,10 +773,10 @@ class StyleSheetIterator
 	
 	
 	private function isTargetEmpty () : Bool {
-		return target.idStyle == null && target.elementStyle == null && target.styleNameStyles.length == 0;
+		return target.idStyle == null && target.elementStyle == null && target.styleNameStyles.length == 0 && target.currentStates.length == 0;
 	}
 }
-
+*/
 #else
 
 class StyleSheet {}

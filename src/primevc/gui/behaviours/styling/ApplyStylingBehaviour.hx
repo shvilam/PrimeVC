@@ -67,9 +67,9 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 		applyBoxFilterStyling	.on( target.style.boxFilters.change, this );
 		
 		applyGeneralStyling(	target.style.filledProperties );
-		applyLayoutStyling(		target.style.layout.allFilledProperties );
-		applyEffectStyling(		target.style.effects.allFilledProperties );
-		applyBoxFilterStyling(	target.style.boxFilters.allFilledProperties );
+		applyLayoutStyling(		target.style.layout.filledProperties );
+		applyEffectStyling(		target.style.effects.filledProperties );
+		applyBoxFilterStyling(	target.style.boxFilters.filledProperties );
 	}
 	
 	
@@ -94,16 +94,15 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 		if (propsToSet == 0)
 			return;
 		
-		
 		//
 		// LOOP THROUGH ALL AVAILABLE STLYE-BLOCKS TO FIND THE STYLING PROPERTIES
 		//
 		
-		var style	= target.style;
-		var it		= style.iterator();
-		while (it.hasNext() && propsToSet > 0)
+		for (styleObj in target.style)
 		{
-			var styleObj = it.next();
+			if (propsToSet == 0)
+				break;
+			
 			if (!styleObj.allFilledProperties.has( propsToSet ))
 				continue;
 			
@@ -142,39 +141,49 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 		
 		var layout	= target.layout;
 		var style	= target.style.layout;
+		
 	//	trace(target + ".applyLayoutStyling "+style.readProperties( propsToSet ));
 		
-		if (propsToSet.has( LayoutFlags.WIDTH ))				layout.width				= style.width;
-		if (propsToSet.has( LayoutFlags.HEIGHT ))				layout.height				= style.height;
-		if (propsToSet.has( LayoutFlags.PERCENT_WIDTH ))		layout.percentWidth			= style.percentWidth;
-		if (propsToSet.has( LayoutFlags.PERCENT_HEIGHT ))		layout.percentHeight		= style.percentHeight;
-		if (propsToSet.has( LayoutFlags.RELATIVE ))				layout.relative				= style.relative;
-		if (propsToSet.has( LayoutFlags.INCLUDE ))				layout.includeInLayout		= style.includeInLayout;
-		if (propsToSet.has( LayoutFlags.MAINTAIN_ASPECT ))		layout.maintainAspectRatio	= style.maintainAspectRatio;
-		if (propsToSet.has( LayoutFlags.PADDING ))				layout.padding				= style.padding;
+		//create size constraint for layout client
+		if (propsToSet.has( LayoutFlags.CONSTRAINT_PROPERTIES ) && layout.sizeConstraint == null)
+			layout.sizeConstraint = new SizeConstraint();
 		
-		//size constraintss
-		if (propsToSet.has( LayoutFlags.MIN_WIDTH | LayoutFlags.MIN_HEIGHT | LayoutFlags.MAX_WIDTH | LayoutFlags.MAX_HEIGHT ))
-		{
-			//create size constraint for layout client
-			if (layout.sizeConstraint == null)
-				layout.sizeConstraint = new SizeConstraint( style.minWidth, style.maxWidth, style.minHeight, style.maxHeight );
-			else
-			{
-				var c = layout.sizeConstraint;
-				if (propsToSet.has( LayoutFlags.MIN_WIDTH ))	c.width.min		= style.minWidth;
-				if (propsToSet.has( LayoutFlags.MIN_HEIGHT ))	c.height.min	= style.minHeight;
-				if (propsToSet.has( LayoutFlags.MAX_HEIGHT ))	c.width.max		= style.maxWidth;
-				if (propsToSet.has( LayoutFlags.MAX_WIDTH ))	c.height.max	= style.maxHeight;
-			}
-		}
+		if (!target.is(IUIContainer))
+			propsToSet = propsToSet.unset( LayoutFlags.ALGORITHM | LayoutFlags.CHILD_WIDTH | LayoutFlags.CHILD_HEIGHT );
 		
-		if (target.is(IUIContainer))
+		
+		var styleCell	= target.style.styles.first;
+		var tCont		= target.is(IUIContainer) ? target.as(IUIContainer) : null;
+		
+		for (styleObj in style)
 		{
-			var t = target.as(IUIContainer);
-			if (propsToSet.has( LayoutFlags.ALGORITHM ))		t.layoutContainer.algorithm		= style.algorithm;
-			if (propsToSet.has( LayoutFlags.CHILD_WIDTH ))		t.layoutContainer.childWidth	= style.childWidth;
-			if (propsToSet.has( LayoutFlags.CHILD_HEIGHT ))		t.layoutContainer.childHeight	= style.childHeight;
+			if (propsToSet == 0)
+				break;
+			
+			if (!styleObj.allFilledProperties.has( propsToSet ))
+				continue;
+			
+			var curProps = styleObj.allFilledProperties.filter( propsToSet );
+			
+			if (curProps.has( LayoutFlags.WIDTH ))				layout.width						= styleObj.width;
+			if (curProps.has( LayoutFlags.HEIGHT ))				layout.height						= styleObj.height;
+			if (curProps.has( LayoutFlags.PERCENT_WIDTH ))		layout.percentWidth					= styleObj.percentWidth;
+			if (curProps.has( LayoutFlags.PERCENT_HEIGHT ))		layout.percentHeight				= styleObj.percentHeight;
+			if (curProps.has( LayoutFlags.RELATIVE ))			layout.relative						= styleObj.relative;
+			if (curProps.has( LayoutFlags.INCLUDE ))			layout.includeInLayout				= styleObj.includeInLayout;
+			if (curProps.has( LayoutFlags.MAINTAIN_ASPECT ))	layout.maintainAspectRatio			= styleObj.maintainAspectRatio;
+			if (curProps.has( LayoutFlags.PADDING ))			layout.padding						= styleObj.padding;
+			
+			if (curProps.has( LayoutFlags.MIN_WIDTH ))			layout.sizeConstraint.width.min		= styleObj.minWidth;
+			if (curProps.has( LayoutFlags.MIN_HEIGHT ))			layout.sizeConstraint.height.min	= styleObj.minHeight;
+			if (curProps.has( LayoutFlags.MAX_HEIGHT ))			layout.sizeConstraint.width.max		= styleObj.maxWidth;
+			if (curProps.has( LayoutFlags.MAX_WIDTH ))			layout.sizeConstraint.height.max	= styleObj.maxHeight;
+			
+			if (curProps.has( LayoutFlags.ALGORITHM ))			tCont.layoutContainer.algorithm		= styleObj.algorithm;
+			if (curProps.has( LayoutFlags.CHILD_WIDTH ))		tCont.layoutContainer.childWidth	= styleObj.childWidth;
+			if (curProps.has( LayoutFlags.CHILD_HEIGHT ))		tCont.layoutContainer.childHeight	= styleObj.childHeight;
+			
+			propsToSet	= propsToSet.unset( curProps );
 		}
 	}
 	
@@ -193,12 +202,22 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 		if (filters == null)
 			filters = [];
 		
-		if (propsToSet.has( FilterFlags.SHADOW ))				filters.push( style.shadow );
-		if (propsToSet.has( FilterFlags.BEVEL ))				filters.push( style.bevel );
-		if (propsToSet.has( FilterFlags.BLUR ))					filters.push( style.blur );
-		if (propsToSet.has( FilterFlags.GLOW ))					filters.push( style.glow );
-		if (propsToSet.has( FilterFlags.GRADIENT_BEVEL ))		filters.push( style.gradientBevel );
-		if (propsToSet.has( FilterFlags.GRADIENT_GLOW ))		filters.push( style.gradientGlow );
+		for (styleObj in style)
+		{
+			if (propsToSet == 0)
+				break;
+			
+			if (!styleObj.allFilledProperties.has( propsToSet ))
+				continue;
+			
+			var curProps = styleObj.allFilledProperties.filter( propsToSet );
+			if (curProps.has( FilterFlags.SHADOW ))				filters.push( styleObj.shadow );
+			if (curProps.has( FilterFlags.BEVEL ))				filters.push( styleObj.bevel );
+			if (curProps.has( FilterFlags.BLUR ))				filters.push( styleObj.blur );
+			if (curProps.has( FilterFlags.GLOW ))				filters.push( styleObj.glow );
+			if (curProps.has( FilterFlags.GRADIENT_BEVEL ))		filters.push( styleObj.gradientBevel );
+			if (curProps.has( FilterFlags.GRADIENT_GLOW ))		filters.push( styleObj.gradientGlow );
+		}
 		
 		//set new array with filters
 		if (filters.length > 0)
@@ -217,20 +236,25 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 		if (target.effects == null)
 			target.effects = new UIElementEffects(target);
 		
-		var style	= target.style.effects;
 		var effects	= target.effects;
+		var style	= target.style.effects;
 	//	trace(target + ".applyEffectStyling "+style.readProperties( propsToSet )+"; has "+style.readProperties());
 		
-		if (propsToSet.has( EffectFlags.MOVE ))	{
-			if (style.has(EffectFlags.MOVE))
-				Assert.that( style.move != null );
+		for (styleObj in style)
+		{
+			if (propsToSet == 0)
+				break;
 			
-			effects.move	= style.has(EffectFlags.MOVE)	? style.move.createEffectInstance( target ) : null;
+			if (!styleObj.allFilledProperties.has( propsToSet ))
+				continue;
+			
+			var curProps = styleObj.allFilledProperties.filter( propsToSet );
+			if (curProps.has( EffectFlags.MOVE ))		effects.move	= styleObj.move.createEffectInstance( target );
+			if (curProps.has( EffectFlags.RESIZE ))		effects.resize	= styleObj.resize.createEffectInstance( target );
+			if (curProps.has( EffectFlags.ROTATE ))		effects.rotate	= styleObj.rotate.createEffectInstance( target );
+			if (curProps.has( EffectFlags.SCALE ))		effects.scale	= styleObj.scale.createEffectInstance( target );
+			if (curProps.has( EffectFlags.SHOW ))		effects.show	= styleObj.show.createEffectInstance( target );
+			if (curProps.has( EffectFlags.HIDE ))		effects.hide	= styleObj.hide.createEffectInstance( target );
 		}
-		if (propsToSet.has( EffectFlags.RESIZE ))	effects.resize	= style.has(EffectFlags.RESIZE)	? style.resize.createEffectInstance( target ) : null;
-		if (propsToSet.has( EffectFlags.ROTATE ))	effects.rotate	= style.has(EffectFlags.ROTATE)	? style.rotate.createEffectInstance( target ) : null;
-		if (propsToSet.has( EffectFlags.SCALE ))	effects.scale	= style.has(EffectFlags.SCALE)	? style.scale.createEffectInstance( target ) : null;
-		if (propsToSet.has( EffectFlags.SHOW ))		effects.show	= style.has(EffectFlags.SHOW)	? style.show.createEffectInstance( target ) : null;
-		if (propsToSet.has( EffectFlags.HIDE ))		effects.hide	= style.has(EffectFlags.HIDE)	? style.hide.createEffectInstance( target ) : null;
 	}
 }

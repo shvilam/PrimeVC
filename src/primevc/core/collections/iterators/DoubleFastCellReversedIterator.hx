@@ -26,26 +26,55 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling;
-
+package primevc.core.collections.iterators;
+ import primevc.core.collections.DoubleFastCell;
 
 
 /**
- * Stylesheet instance that is used by UIWindow.
+ * Iterate object for the DoubleFastList implementation
  * 
- * @author Ruben Weijers
- * @creation-date Sep 22, 2010
+ * @creation-date	Jul 23, 2010
+ * @author			Ruben Weijers
  */
-class GlobalStyleSheet extends StyleSheet
+class DoubleFastCellReversedIterator <DataType> implements IIterator <DataType>
+	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
-	override private function init ()
+	private var last (default, null)	: DoubleFastCell<DataType>;
+	public var current (default, null)	: DoubleFastCell<DataType>;
+
+	public function new (last:DoubleFastCell<DataType>) 
 	{
-		styles.add( new Style() );
+		this.last = last;
+		rewind();
+#if (unitTesting && debug)
+		test();
+#end
+	}
+
+	public inline function setCurrent (val:Dynamic)	{ current = val; }
+	public inline function rewind ()				{ current = last; }
+	public inline function hasNext ()				{ return current != null; }
+
+	public inline function next () : DataType
+	{
+		var c = current;
+		current = current.prev;
+		return c.data;
 	}
 	
 	
-	override public function updateStyles ()			: Void {}
-	override private function updateStyleNameStyles ()	: UInt { return 0; }
-	override private function updateIdStyle ()			: UInt { return 0; }
-	override private function updateElementStyle ()		: UInt { return 0; }
+#if (unitTesting && debug)
+	public function test ()
+	{
+		var cur = last, prev:DoubleFastCell<DataType> = null;
+		while (cur != null)
+		{
+			if (prev == null)	Assert.null( cur.next );
+			else				Assert.equal( cur.next, prev );
+			
+			prev	= cur;
+			cur		= cur.prev;
+		}
+	}
+#end
 }

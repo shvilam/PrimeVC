@@ -29,7 +29,7 @@
 package primevc.avm2.display;
  import flash.display.DisplayObjectContainer;
  import flash.display.DisplayObject;
- import primevc.core.collections.IIterator;
+ import primevc.core.collections.iterators.IIterator;
  import primevc.core.collections.IList;
  import primevc.core.events.ListEvents;
  import primevc.core.IDisposable;

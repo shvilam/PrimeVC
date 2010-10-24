@@ -346,10 +346,10 @@ class EffectStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	override public function isEmpty ()
+/*	override public function isEmpty ()
 	{
 		return _move == null && _resize == null && _rotate == null && _scale == null && _show == null && _hide == null;
-	}
+	}*/
 #end
 	
 	

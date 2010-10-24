@@ -75,24 +75,20 @@ class StyleContainer
 		idSelectors			= new SelectorMapType();
 		
 		createSelectors();
-	//	createElementSelectors();
-	//	createStyleNameSelectors();
-	//	createIdSelectors();
 	}
 	
 	
 	public function dispose ()
 	{
-		elementSelectors	= null;
-		styleNameSelectors	= null;
-		idSelectors			= null;
+		elementSelectors.dispose();
+		styleNameSelectors.dispose();
+		idSelectors.dispose();
+		
+		elementSelectors = styleNameSelectors = idSelectors = null;
 	}
 	
 	
 	private function createSelectors ()				: Void {} // Assert.abstract(); }
-//	private function createElementSelectors ()		: Void {} // Assert.abstract(); }
-//	private function createStyleNameSelectors ()	: Void {} // Assert.abstract(); }
-//	private function createIdSelectors ()			: Void {} // Assert.abstract(); }
 	
 	
 	public function isEmpty ()
@@ -128,9 +124,7 @@ class StyleContainer
 			var name = (namePrefix + " " + keyPrefix + key).trim();
 			
 			if (!val.allPropertiesEmpty())
-				css += "\n" + name + " " + val.toCSS( name );
-			if (!val.children.isEmpty())
-				css += "\n" + val.children.toCSS( name );
+				css += "\n" + val.toCSS( name );
 		}
 		return css;
 	}

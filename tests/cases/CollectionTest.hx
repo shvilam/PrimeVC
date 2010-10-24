@@ -26,14 +26,14 @@ class CollectionTest
 		var slist = new SimpleList<Tile>();
 		Assert.equal(slist.length, 0);
 		
-		slist.add( tile1 = tile = new Tile() );
+		slist.add( tile1 = tile = new Tile() );			// [ tile1 ]					( tile = tile1 )
 		Assert.equal(slist.length, 1);
 		Assert.equal(slist.first.data, tile);
 		Assert.equal(slist.last.data, tile);
 		Assert.equal(slist.last.prev, null);
 		Assert.equal(slist.last.next, null);
 		
-		slist.add( tile2 = tile = new Tile() );
+		slist.add( tile2 = tile = new Tile() );			// [ tile1, tile2 ]				( tile = tile2 )
 		Assert.equal(slist.length, 2);
 		Assert.notEqual(slist.first.data, tile);
 		Assert.equal(slist.first.data, tile1);
@@ -45,10 +45,10 @@ class CollectionTest
 		Assert.equal(slist.last.prev, slist.first);
 		Assert.equal(slist.last.next, null);
 		
-		slist.add( tile3 = tile = new Tile(), 1 );
+		slist.add( tile3 = tile = new Tile(), 1 );		// [ tile1, tile3, tile2 ]		( tile = tile3 )
 		Assert.equal(slist.length, 3);
 		
-		Assert.notEqual(slist.last.data, tile);
+		Assert.notEqual(slist.last.data, tile3);
 		Assert.equal(slist.first.data, tile1);
 		Assert.equal(slist.last.data, tile2);
 		Assert.equal(slist.first.next.data, tile3);
@@ -76,23 +76,34 @@ class CollectionTest
 		
 		//test moving items higher in the slist
 		trace("moving item up: "+tile1+" to 2");
-		slist.move(tile1, 2);
+		slist.move(tile1, 2);									// [ tile3, tile2, tile1 ]
+	//	throw "poep";
 		trace(slist);
-		Assert.equal( slist.first.data,		tile3 );
-		Assert.equal( slist.last.data,		tile1 );
+		Assert.equal( slist.first.data,			tile3 );
+		Assert.equal( slist.last.data,			tile1 );
 		Assert.equal( slist.first.next.data,	tile2 );
-		Assert.equal( slist.last.next,		null );
-		Assert.equal( slist.last.prev.data,	tile2 );
+		Assert.equal( slist.last.next,			null );
+		Assert.equal( slist.last.prev.data,		tile2 );
 		
 		//test moving items lower in the slist
 		trace("moving item down: "+tile1+" to 0");
-		slist.move(tile1, 0);
+		slist.move(tile1, 0);									// [ tile1, tile3, tile2 ]
 		trace(slist);
-		Assert.equal( slist.first.data,		tile1 );
-		Assert.equal( slist.last.data,		tile2 );
+		Assert.equal( slist.first.data,			tile1 );
+		Assert.equal( slist.last.data,			tile2 );
 		Assert.equal( slist.first.next.data,	tile3 );
-		Assert.equal( slist.last.next,		null );
-		Assert.equal( slist.last.prev.data,	tile3 );
+		Assert.equal( slist.last.next,			null );
+		Assert.equal( slist.last.prev.data,		tile3 );
+		
+		//test moving items lower in the slist
+		trace("moving item down: "+tile2+" to -2");
+		slist.move(tile2, -2);									// [ tile1, tile2, tile3 ]
+		trace(slist);
+		Assert.equal( slist.first.data,			tile1 );
+		Assert.equal( slist.last.data,			tile3 );
+		Assert.equal( slist.first.next.data,	tile2 );
+		Assert.equal( slist.last.next,			null );
+		Assert.equal( slist.last.prev.data,		tile2 );
 		
 		trace("END SIMPLE LIST\n\n");
 		
@@ -185,12 +196,13 @@ class CollectionTest
 		Assert.equal(chained.lists.getItemAt(1).length, 2);
 		Assert.equal(chained.lists.length, 2);
 		
-		Assert.equal(chained.lists.getItemAt(0).getItemAt(0).id, 0);
-		Assert.equal(chained.lists.getItemAt(0).getItemAt(1).id, 1);
-		Assert.equal(chained.lists.getItemAt(0).getItemAt(2).id, 2);
-		Assert.equal(chained.lists.getItemAt(0).getItemAt(3).id, 3);
-		Assert.equal(chained.lists.getItemAt(1).getItemAt(0).id, 4);
-		Assert.equal(chained.lists.getItemAt(1).getItemAt(1).id, 5);
+		trace(chained.lists.getItemAt(0));
+		Assert.equal(chained.lists.getItemAt(0).getItemAt(0).id, 1);
+		Assert.equal(chained.lists.getItemAt(0).getItemAt(1).id, 2);
+		Assert.equal(chained.lists.getItemAt(0).getItemAt(2).id, 3);
+		Assert.equal(chained.lists.getItemAt(0).getItemAt(3).id, 4);
+		Assert.equal(chained.lists.getItemAt(1).getItemAt(0).id, 5);
+		Assert.equal(chained.lists.getItemAt(1).getItemAt(1).id, 6);
 		
 		chained.add( tile = new Tile(), 2 );
 		chained.add( tile = new Tile(), 2 );
@@ -199,14 +211,14 @@ class CollectionTest
 		Assert.equal(chained.lists.getItemAt(0).length, 4);
 		Assert.equal(chained.lists.getItemAt(1).length, 4);
 		
-		Assert.equal(chained.lists.getItemAt(0).getItemAt(0).id, 0);
-		Assert.equal(chained.lists.getItemAt(0).getItemAt(1).id, 1);
-		Assert.equal(chained.lists.getItemAt(0).getItemAt(2).id, 7);
-		Assert.equal(chained.lists.getItemAt(0).getItemAt(3).id, 6);
-		Assert.equal(chained.lists.getItemAt(1).getItemAt(0).id, 2);
-		Assert.equal(chained.lists.getItemAt(1).getItemAt(1).id, 3);
-		Assert.equal(chained.lists.getItemAt(1).getItemAt(2).id, 4);
-		Assert.equal(chained.lists.getItemAt(1).getItemAt(3).id, 5);
+		Assert.equal(chained.lists.getItemAt(0).getItemAt(0).id, 1);
+		Assert.equal(chained.lists.getItemAt(0).getItemAt(1).id, 2);
+		Assert.equal(chained.lists.getItemAt(0).getItemAt(2).id, 8);
+		Assert.equal(chained.lists.getItemAt(0).getItemAt(3).id, 7);
+		Assert.equal(chained.lists.getItemAt(1).getItemAt(0).id, 3);
+		Assert.equal(chained.lists.getItemAt(1).getItemAt(1).id, 4);
+		Assert.equal(chained.lists.getItemAt(1).getItemAt(2).id, 5);
+		Assert.equal(chained.lists.getItemAt(1).getItemAt(3).id, 6);
 		
 		//
 		//test moving items around
@@ -294,11 +306,11 @@ class CollectionTest
 		Assert.equal(balancingCol.lists.getItemAt(1).length, 2);
 		Assert.equal(balancingCol.lists.getItemAt(2).length, 2);
 		Assert.equal(balancingCol.lists.getItemAt(3).length, 2);
-		Assert.equal(balancingCol.lists.getItemAt(3).getItemAt(0).id, 7 );
-		Assert.equal(balancingCol.lists.getItemAt(0).getItemAt(1).id, 3 );
-		Assert.equal(balancingCol.lists.getItemAt(1).getItemAt(1).id, 4 );
-		Assert.equal(balancingCol.lists.getItemAt(2).getItemAt(1).id, 5 );
-		Assert.equal(balancingCol.lists.getItemAt(3).getItemAt(1).id, 6 );
+		Assert.equal(balancingCol.lists.getItemAt(3).getItemAt(0).id, 8 );
+		Assert.equal(balancingCol.lists.getItemAt(0).getItemAt(1).id, 4 );
+		Assert.equal(balancingCol.lists.getItemAt(1).getItemAt(1).id, 5 );
+		Assert.equal(balancingCol.lists.getItemAt(2).getItemAt(1).id, 6 );
+		Assert.equal(balancingCol.lists.getItemAt(3).getItemAt(1).id, 7 );
 		
 		var removed = balancingCol.getItemAt(0);
 		removed = balancingCol.remove( removed );
@@ -310,13 +322,13 @@ class CollectionTest
 		Assert.equal(balancingCol.lists.getItemAt(1).length, 2);
 		Assert.equal(balancingCol.lists.getItemAt(2).length, 2);
 		Assert.equal(balancingCol.lists.getItemAt(3).length, 1);
-		Assert.equal(balancingCol.lists.getItemAt(0).getItemAt(0).id, 1 );
-		Assert.equal(balancingCol.lists.getItemAt(1).getItemAt(0).id, 2 );
-		Assert.equal(balancingCol.lists.getItemAt(2).getItemAt(0).id, 7 );
-		Assert.equal(balancingCol.lists.getItemAt(3).getItemAt(0).id, 3 );
-		Assert.equal(balancingCol.lists.getItemAt(0).getItemAt(1).id, 4 );
-		Assert.equal(balancingCol.lists.getItemAt(1).getItemAt(1).id, 5 );
-		Assert.equal(balancingCol.lists.getItemAt(2).getItemAt(1).id, 6 );
+		Assert.equal(balancingCol.lists.getItemAt(0).getItemAt(0).id, 2 );
+		Assert.equal(balancingCol.lists.getItemAt(1).getItemAt(0).id, 3 );
+		Assert.equal(balancingCol.lists.getItemAt(2).getItemAt(0).id, 8 );
+		Assert.equal(balancingCol.lists.getItemAt(3).getItemAt(0).id, 4 );
+		Assert.equal(balancingCol.lists.getItemAt(0).getItemAt(1).id, 5 );
+		Assert.equal(balancingCol.lists.getItemAt(1).getItemAt(1).id, 6 );
+		Assert.equal(balancingCol.lists.getItemAt(2).getItemAt(1).id, 7 );
 		
 		//
 		//test moving items around
@@ -363,6 +375,6 @@ class Tile
 	public static var COUNTER:Int = 0;
 	
 	public var id:Int;
-	public function new () { this.id = COUNTER++; }
+	public function new () { this.id = ++COUNTER; }
 	public function toString () { return "Tile" + id; }
 }

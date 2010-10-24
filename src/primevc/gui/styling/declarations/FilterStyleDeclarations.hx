@@ -328,10 +328,10 @@ class FilterStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	override public function isEmpty ()
+/*	override public function isEmpty ()
 	{
 		return _shadow == null && _glow == null && _bevel == null && _blur == null && _gradientBevel == null && _gradientGlow == null;
-	}
+	}*/
 #end
 
 

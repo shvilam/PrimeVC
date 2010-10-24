@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.types;
- import primevc.core.collections.FastArrayForwardIterator;
+ import primevc.core.collections.iterators.FastArrayForwardIterator;
  import primevc.core.IDisposable;
  import primevc.tools.generator.ICodeFormattable;
  import primevc.utils.FastArray;
@@ -79,6 +79,8 @@ class SimpleDictionary < KType, VType >
 	
 	public function set (key:KType, val:VType) : Void
 	{
+		Assert.notNull( key );
+		Assert.notNull( val );
 		var index = _keys.indexOf(key);
 		if (index == -1)
 		{
@@ -96,6 +98,18 @@ class SimpleDictionary < KType, VType >
 	{
 		var index = _keys.indexOf( key );
 		return (index > -1) ? _values[ index ] : null;
+	}
+	
+	
+	public function unset (key:KType) : Void
+	{
+		var index = _keys.indexOf(key);
+		
+		if (index > -1)
+		{
+			_values.removeAt( index );
+			_keys.removeAt( index );
+		}
 	}
 	
 	

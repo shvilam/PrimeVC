@@ -14,5 +14,6 @@
 -debug
 -D network-sandbox
 -D stats
+-D unitTesting
 #--no-inline
 #——flash—strict

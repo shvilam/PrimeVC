@@ -26,26 +26,30 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling;
-
+package primevc.core.collections.iterators;
+ import primevc.utils.FastArray;
 
 
 /**
- * Stylesheet instance that is used by UIWindow.
+ * Description
  * 
- * @author Ruben Weijers
- * @creation-date Sep 22, 2010
+ * @creation-date	Jul 23, 2010
+ * @author			Ruben Weijers
  */
-class GlobalStyleSheet extends StyleSheet
+class FastArrayReversedIterator <DataType> implements IIterator <DataType>
+	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
-	override private function init ()
+	private var target (default, null)	: FastArray<DataType>;
+	private var current 				: Int;
+	
+	
+	public function new (target:FastArray<DataType>)
 	{
-		styles.add( new Style() );
+		this.target = target;
+		rewind();
 	}
-	
-	
-	override public function updateStyles ()			: Void {}
-	override private function updateStyleNameStyles ()	: UInt { return 0; }
-	override private function updateIdStyle ()			: UInt { return 0; }
-	override private function updateElementStyle ()		: UInt { return 0; }
+	public inline function setCurrent (val:Dynamic)	{ current = val; }
+	public inline function rewind ()				{ current = target.length - 1; }
+	public inline function hasNext ()				{ return current >= 0; }
+	public inline function next ()					{ return target[current--]; }
 }

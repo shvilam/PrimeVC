@@ -647,7 +647,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	override public function isEmpty () : Bool
+/*	override public function isEmpty () : Bool
 	{
 		return	_size.notSet() &&
 				_family == null &&
@@ -663,7 +663,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 				_columnCount.notSet() &&
 				_columnGap.notSet() &&
 				_columnWidth.notSet();
-	}
+	}*/
 #end
 
 #if neko

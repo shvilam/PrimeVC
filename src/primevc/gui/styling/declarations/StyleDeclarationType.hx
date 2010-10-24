@@ -30,13 +30,16 @@ package primevc.gui.styling.declarations;
 
 
 /**
+ * The order of the types is very important! The lower the type, the higher the
+ * priority of the properties within a style-object of that type.
+ * 
  * @since	sep 21, 2010
  * @author	Ruben Weijers
  */
 enum StyleDeclarationType {
 	element;		//matches elements bases on their class 	(TextField)
-	id;				//all css classes that start with a #		(#uniqueStyleId)
 	styleName;		//all css classes that start with a dot.	(.styleName)
+	id;				//all css classes that start with a #		(#uniqueStyleId)
 	specific;		//the style declaration is only meant for one instance (<obj style="..." />)
 	state;			//the style declaration is a state of another selector (selector:state)
 }

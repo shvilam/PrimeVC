@@ -26,26 +26,17 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling;
+package primevc.core.collections;
 
 
 
 /**
- * Stylesheet instance that is used by UIWindow.
- * 
- * @author Ruben Weijers
- * @creation-date Sep 22, 2010
+ * Copied from haxe.FastList (since it's not in a seperate file :-S)
+ * @since	20 okt 2010
  */
-class GlobalStyleSheet extends StyleSheet
+class FastCell<T> #if (flash9 || cpp) implements haxe.rtti.Generic #end
 {
-	override private function init ()
-	{
-		styles.add( new Style() );
-	}
-	
-	
-	override public function updateStyles ()			: Void {}
-	override private function updateStyleNameStyles ()	: UInt { return 0; }
-	override private function updateIdStyle ()			: UInt { return 0; }
-	override private function updateElementStyle ()		: UInt { return 0; }
+	public var data : T;
+	public var next : FastCell<T>;
+	public function new(data,next) { this.data = data; this.next = next; }
 }

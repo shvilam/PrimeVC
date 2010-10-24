@@ -27,19 +27,81 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
- import primevc.core.dispatcher.Signal1;
- import primevc.core.traits.IInvalidatable;
- import primevc.gui.styling.StyleSheet;
+ import primevc.gui.styling.declarations.StyleProxyBase;
+ import primevc.gui.styling.IElementStyle;
   using primevc.utils.BitUtil;
-  using primevc.utils.TypeUtil;
 
 
 private typedef Flags = FilterFlags;
+private typedef Filter = FilterCollectionType;
 
 /**
  * @author Ruben Weijers
  * @creation-date Sep 29, 2010
  */
+class FilterStyleProxy extends StyleProxyBase < FilterStyleDeclarations >
+{
+	private var type : Filter;
+	
+	
+	public function new (styleSheet:IElementStyle, type:Filter)
+	{
+		var flag = (type == Filter.background) ? StyleFlags.BACKGROUND_FILTERS : StyleFlags.BOX_FILTERS;
+		super( styleSheet, flag );
+		this.type = type;
+	}
+	override public function forwardIterator ()					{ return cast new FilterGroupForwardIterator( styleSheet, propertyTypeFlag, type); }
+	override public function reversedIterator ()				{ return cast new FilterGroupReversedIterator( styleSheet, propertyTypeFlag, type); }
+
+#if debug
+	override public function readProperties (props:Int = -1)	{ return Flags.readProperties( (props == -1) ? filledProperties : props ); }
+#end
+}
+
+
+class FilterGroupForwardIterator extends StyleGroupForwardIterator < FilterStyleDeclarations >
+{
+	private var type : Filter;
+	
+	
+	public function new (styleSheet:IElementStyle, groupFlag:UInt, type:Filter)
+	{
+		this.type = type;
+		super( styleSheet, groupFlag );
+	}
+	
+	override public function next ()
+	{
+		if (type == Filter.background)
+			return setNext().data.bgFilters;
+		else
+			return setNext().data.boxFilters;
+	}
+}
+
+
+class FilterGroupReversedIterator extends StyleGroupReversedIterator < FilterStyleDeclarations >
+{
+	private var type : Filter;
+	
+	
+	public function new (styleSheet:IElementStyle, groupFlag:UInt, type:Filter)
+	{
+		this.type = type;
+		super( styleSheet, groupFlag );
+	}
+	
+
+	override public function next ()
+	{
+		if (type == Filter.background)
+			return setNext().data.bgFilters;
+		else
+			return setNext().data.boxFilters;
+	}
+}
+
+/*
 class FilterStyleProxy extends FilterStyleDeclarations
 {
 	private var target	: StyleSheet;
@@ -304,4 +366,4 @@ class FilterStyleProxy extends FilterStyleDeclarations
 		
 		return v;
 	}
-}
+}*/

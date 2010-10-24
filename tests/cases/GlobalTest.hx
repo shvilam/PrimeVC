@@ -142,7 +142,7 @@ class GlobalApp extends UIContainer <Dynamic>
 	private function changeTileColor ()
 	{
 	//	var tileStyle	= window.as(UIWindow).style.idStyle.children.elementSelectors.get( Tile.getClassName() );
-		var tileStyle	= window.as(UIWindow).style.idStyle.children.styleNameSelectors.get("odd");
+	/*	var tileStyle	= window.as(UIWindow).style.getChildren().styleNameSelectors.get("odd");
 		var newColor	= Color.random();
 		
 		if (tileStyle.background == null)
@@ -152,7 +152,7 @@ class GlobalApp extends UIContainer <Dynamic>
 		
 	//	tileStyle.layout.width += 5;
 		
-		trace("new-color to "+newColor.string()+" newWidth: "+tileStyle.layout.width);
+		trace("new-color to "+newColor.string()+" newWidth: "+tileStyle.layout.width);*/
 	}
 }
 

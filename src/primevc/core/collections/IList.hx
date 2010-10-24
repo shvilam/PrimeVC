@@ -27,14 +27,13 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.collections;
+ import primevc.core.collections.iterators.IIterator;
  import primevc.core.events.ListEvents;
  import primevc.core.traits.IClonable;
  import primevc.core.IDisposable;
  
 
 /**
- * Description
- *
  * @creation-date	Jun 29, 2010
  * @author			Ruben Weijers
  */

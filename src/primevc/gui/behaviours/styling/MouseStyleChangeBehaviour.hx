@@ -30,7 +30,12 @@ package primevc.gui.behaviours.styling;
  import primevc.core.dispatcher.Wire;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.IUIComponent;
+ import primevc.gui.events.MouseButton;
+ import primevc.gui.events.MouseEvents;
+ import primevc.gui.styling.declarations.StyleState;
+ import primevc.gui.styling.declarations.StyleStates;
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
 
 
 /**
@@ -42,56 +47,182 @@ package primevc.gui.behaviours.styling;
  */
 class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 {
-	private var overBinding	: Wire < Dynamic >;
-	private var outBinding	: Wire < Dynamic >;
-	private var downBinding	: Wire < Dynamic >;
-	private var upBinding	: Wire < Dynamic >;
+	private var overBinding			: Wire < Dynamic >;
+	private var outBinding			: Wire < Dynamic >;
+	private var globalUpBinding		: Wire < Dynamic >;
+	private var downBinding			: Wire < Dynamic >;
+	private var upBinding			: Wire < Dynamic >;
+	
+	
+	private var styleBinding		: Wire < Dynamic >;
+	private var state				: StyleState;
 	
 	
 	override private function init ()
 	{
-		var events = target.userEvents.mouse;
-		
-		downBinding	= changeStateToDown	.on( events.down,		this );
-		upBinding	= changeStateToHover.on( events.up,			this );
-		overBinding	= changeStateToHover.on( events.rollOver,	this );
-		outBinding	= clearState		.on( events.rollOut,	this );
-		
-		clearState();
+		styleBinding = updateBehaviour.on( getStates().change, this );
+		updateBehaviour( getStates().filledProperties );
 	}
 	
 	
 	override private function reset ()
 	{
-		downBinding.dispose();
-		upBinding.dispose();
-		overBinding.dispose();
-		outBinding.dispose();
+		removeHoverBindings();
+		removeDownBindings();
+		
+		if (styleBinding != null) {
+			styleBinding.dispose();
+			styleBinding = null;
+		}
+		
+		removeState();
 	}
 	
 	
+	
+	
+	private function updateBehaviour (changes:UInt) : Void
+	{
+	//	trace(target + ".update; "+getStates().readProperties());
+		var hoverChanged	= changes.has( StyleStates.HOVER );
+		var downChanged		= changes.has( StyleStates.DOWN );
+		
+		if (!hoverChanged && !downChanged)
+			return;
+		
+		var hasHoverState	= getStates().has( StyleStates.HOVER );
+		var hasDownState	= getStates().has( StyleStates.DOWN );
+		
+		
+		// MANAGE STATE OBJECT
+		if (hasHoverState || hasDownState)
+			createState();
+		else
+			removeState();
+		
+		
+		// MANAGE HOVER
+		if (hoverChanged && !hasHoverState)
+		{
+			if (state != null && state.current == StyleStates.HOVER)
+				state.current = StyleStates.NONE;
+			
+			removeHoverBindings();
+		}
+		else
+			createHoverBindings();
+		
+		
+		// MANAGE DOWN
+		if (downChanged && !hasDownState)
+		{
+			if (state != null && state.current == StyleStates.DOWN)
+				state.current = StyleStates.NONE;
+			
+			removeDownBindings();
+		}
+		else
+			createDownBindings();
+	}
+	
+	
+	
+	
+	//
+	// HELPER METHODS
+	//
+	
+	private inline function getEvents ()	{ return target.userEvents.mouse; }
+	private inline function getStates ()	{ return target.style.states; }
+	
+	
+	private inline function createHoverBindings ()
+	{
+		if (overBinding == null)	overBinding	= changeStateToHover.on( getEvents().rollOver,	this );
+		if (outBinding == null)		outBinding	= clearState		.on( getEvents().rollOut,	this );
+		outBinding.disable();
+	}
+	
+	
+	private inline function removeHoverBindings ()
+	{
+		if (overBinding != null)	overBinding.dispose();
+		if (outBinding != null)		outBinding.dispose();
+		overBinding = outBinding = null;
+	}
+	
+	
+	private inline function createDownBindings ()
+	{
+		if (downBinding == null)		downBinding		= changeStateToDown	.on( getEvents().down,				this );
+		if (upBinding == null)			upBinding		= changeStateToHover.on( getEvents().up,				this );
+		if (globalUpBinding == null)	globalUpBinding	= clearState		.on( target.window.mouse.events.up,	this );
+		
+		globalUpBinding.disable();
+		upBinding.disable();
+	}
+	
+	
+	private inline function removeDownBindings ()
+	{
+		if (downBinding != null)		downBinding.dispose();
+		if (upBinding != null)			upBinding.dispose();
+		if (globalUpBinding != null)	globalUpBinding.dispose();
+		downBinding = upBinding = globalUpBinding = null;
+	}
+	
+	
+	private inline function removeState ()
+	{
+		if (state != null)
+		{
+			target.style.removeState( state );
+			state = null;
+		}
+	}
+	
+	
+	private inline function createState ()
+	{
+		if (state == null)
+			state = target.style.createState();
+	}
+	
+	
+	
+	
+	//
+	// CHANGE HANDLERS
+	//
+	
 	private function changeStateToDown ()
 	{
-		target.style.state = "down";
-		downBinding.disable();
-		upBinding.enable();
+		state.current = StyleStates.DOWN;
+		downBinding		.disable();
+		upBinding		.enable();
+		globalUpBinding	.enable();
 	}
 	
 	
 	private function clearState ()
 	{
-		target.style.state = "";
-		upBinding.disable();
-		outBinding.disable();
+		state.current = StyleStates.NONE;
+		upBinding		.disable();
+		globalUpBinding	.disable();
+		outBinding		.disable();
+		
 		downBinding.enable();
 		overBinding.enable();
 	}
 	
 	
-	private function changeStateToHover ()
+	private function changeStateToHover (mouseObj:MouseState)
 	{
-		target.style.state = "hover";
-		overBinding.disable();
-		outBinding.enable();
+		if (mouseObj.mouseButton() != MouseButton.None)
+			return;
+		
+		state.current = StyleStates.HOVER;
+		overBinding	.disable();
+		outBinding	.enable();
 	}
 }

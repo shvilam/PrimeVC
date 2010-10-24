@@ -27,25 +27,19 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
-
+ import primevc.core.collections.PriorityList;
+ import primevc.core.traits.IInvalidateListener;
+ import primevc.core.IDisposable;
+ import primevc.gui.styling.declarations.UIElementStyle;
+ import primevc.gui.traits.IStylable;
 
 
 /**
- * Stylesheet instance that is used by UIWindow.
- * 
  * @author Ruben Weijers
- * @creation-date Sep 22, 2010
+ * @creation-date Oct 22, 2010
  */
-class GlobalStyleSheet extends StyleSheet
+interface IElementStyle implements IInvalidateListener, implements IDisposable
 {
-	override private function init ()
-	{
-		styles.add( new Style() );
-	}
-	
-	
-	override public function updateStyles ()			: Void {}
-	override private function updateStyleNameStyles ()	: UInt { return 0; }
-	override private function updateIdStyle ()			: UInt { return 0; }
-	override private function updateElementStyle ()		: UInt { return 0; }
+	public var target		(default, null)			: IStylable;
+	public var styles		(default, null)			: PriorityList < UIElementStyle >;
 }

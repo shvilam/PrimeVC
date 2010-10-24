@@ -27,51 +27,60 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
- import primevc.gui.effects.EffectFlags;
  import primevc.gui.styling.IElementStyle;
  import primevc.gui.styling.declarations.StyleProxyBase;
   using primevc.utils.BitUtil;
 
-
-private typedef Flags = EffectFlags;
+private typedef Flags = StyleStates;
 
 
 /**
  * @author Ruben Weijers
- * @creation-date Oct 04, 2010
+ * @creation-date Okt 20, 2010
  */
-class EffectStyleProxy extends StyleProxyBase < EffectStyleDeclarations >
+class StateStyleProxy extends StyleProxyBase < StateStyleDeclarations >
 {
-	public function new (styleSheet:IElementStyle)				{ super( styleSheet, StyleFlags.EFFECTS ); }
-	override public function forwardIterator ()					{ return cast new EffectGroupForwardIterator( styleSheet, propertyTypeFlag); }
-	override public function reversedIterator ()				{ return cast new EffectGroupReversedIterator( styleSheet, propertyTypeFlag); }
+	public function new (styleSheet:IElementStyle)				{ super( styleSheet, StyleFlags.STATES ); }
+	override public function forwardIterator ()					{ return cast new StateGroupForwardIterator( styleSheet, propertyTypeFlag); }
+	override public function reversedIterator ()				{ return cast new StateGroupReversedIterator( styleSheet, propertyTypeFlag); }
 
 #if debug
 	override public function readProperties (props:Int = -1)	{ return Flags.readProperties( (props == -1) ? filledProperties : props ); }
 #end
+	
+	
+	/**
+	 * when the states of any style changes, broadcast the change..
+	 */
+	override public function invalidateCall ( changeFromSender, sender )
+	{
+		if (changeFromSender > 0)
+			change.send( changeFromSender );
+	}
 }
 
 
-class EffectGroupForwardIterator extends StyleGroupForwardIterator < EffectStyleDeclarations >
+class StateGroupForwardIterator extends StyleGroupForwardIterator < StateStyleDeclarations >
 {
-	override public function next ()	{ return setNext().data.effects; }
+	override public function next ()	{ return setNext().data.states; }
 }
 
 
-class EffectGroupReversedIterator extends StyleGroupReversedIterator < EffectStyleDeclarations >
+class StateGroupReversedIterator extends StyleGroupReversedIterator < StateStyleDeclarations >
 {
-	override public function next ()	{ return setNext().data.effects; }
+	override public function next ()	{ return setNext().data.states; }
 }
+
 
 /*
-class EffectStyleProxy extends EffectStyleDeclarations
+class StateStyleProxy extends StateStyleDeclarations
 {
-	private var target					: StyleSheet;
+	private var target	: StyleSheet;
 	public var change	(default, null)	: Signal1 < UInt >;
 	
 	
 	public function new (newTarget:StyleSheet)
-	{
+	{	
 		target	= newTarget;
 		change	= new Signal1();
 		super();
@@ -93,10 +102,10 @@ class EffectStyleProxy extends EffectStyleDeclarations
 		
 		for (styleObj in target)
 		{
-			if (styleObj.has( StyleFlags.EFFECTS ))
-				allFilledProperties = allFilledProperties.set( styleObj.effects.allFilledProperties );
+			if (styleObj.has( StyleFlags.STATES ))
+				allFilledProperties = allFilledProperties.set( styleObj.states.allFilledProperties );
 			
-			if (allFilledProperties == Flags.ALL_PROPERTIES)
+			if (allFilledProperties == Flags.ALL_STATES)
 				break;
 		}
 	}
@@ -104,19 +113,19 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	
 	override public function invalidateCall (changes:UInt, sender:IInvalidatable)
 	{
-		var t = sender.as(EffectStyleDeclarations);
+		var t = sender.as(StateStyleDeclarations);
 		
 		if (t.owner.type != StyleDeclarationType.id)
 		{
 			for (styleObj in target)
 			{
-				if (!styleObj.has( StyleFlags.EFFECTS ))
+				if (!styleObj.has( StyleFlags.STATES ))
 					continue;
 				
-				if (styleObj.effects == t)
+				if (styleObj.states == t)
 					break;
 			
-				changes = changes.unset( styleObj.effects.allFilledProperties );
+				changes = changes.unset( styleObj.states.allFilledProperties );
 			}
 		}
 		
@@ -139,91 +148,18 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	// GETTERS
 	//
 	
-	override private function getMove ()
+	override public function get (stateName:UInt) : UIElementStyle
 	{
-		if (!has(Flags.MOVE))
-			return _move;
+		if (!has(stateName))
+			return null;
 		
-		var v = super.getMove();
+		var v = super.get(stateName);
 		if (v == null)
 			for (styleObj in target)
-				if (styleObj.effects != null && null != (v = styleObj.effects.move))
+				if (styleObj.hasState( stateName )) {
+					v = styleObj.states.get( stateName );
 					break;
-		
-		return v;
-	}
-	
-	
-	override private function getResize ()
-	{
-		if (!has(Flags.RESIZE))
-			return _resize;
-		
-		var v = super.getResize();
-		if (v == null)
-			for (styleObj in target)
-				if (styleObj.effects != null && null != (v = styleObj.effects.resize))
-					break;
-		
-		return v;
-	}
-	
-	
-	override private function getRotate ()
-	{
-		if (!has(Flags.ROTATE))
-			return _rotate;
-		
-		var v = super.getRotate();
-		if (v == null)
-			for (styleObj in target)
-				if (styleObj.effects != null && null != (v = styleObj.effects.rotate))
-					break;
-		
-		return v;
-	}
-	
-	
-	override private function getScale ()
-	{
-		if (!has(Flags.SCALE))
-			return _scale;
-		
-		var v = super.getScale();
-		if (v == null)
-			for (styleObj in target)
-				if (styleObj.effects != null && null != (v = styleObj.effects.scale))
-					break;
-		
-		return v;
-	}
-	
-	
-	override private function getShow ()
-	{
-		if (!has(Flags.SHOW))
-			return _show;
-		
-		var v = super.getShow();
-		if (v == null)
-			for (styleObj in target)
-				if (styleObj.effects != null && null != (v = styleObj.effects.show))
-					break;
-		
-		return v;
-	}
-	
-	
-	override private function getHide ()
-	{
-		if (!has(Flags.HIDE))
-			return _hide;
-		
-		var v = super.getHide();
-		if (v == null)
-			for (styleObj in target)
-				if (styleObj.effects != null && null != (v = styleObj.effects.hide))
-					break;
+				}
 		
 		return v;
 	}

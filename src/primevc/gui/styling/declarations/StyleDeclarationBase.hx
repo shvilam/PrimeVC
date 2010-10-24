@@ -57,7 +57,7 @@ class StyleDeclarationBase extends Validatable, implements IStyleDeclaration
 	{
 		super();
 #if (debug || neko)
-		uuid				= StringUtil.createUUID();
+		uuid = StringUtil.createUUID();
 #end
 		filledProperties	= 0;
 		allFilledProperties	= 0;
@@ -91,10 +91,9 @@ class StyleDeclarationBase extends Validatable, implements IStyleDeclaration
 	}
 	
 	
-	public function has (propFlag:UInt) : Bool
-	{
-		return allFilledProperties.has( propFlag );
-	}
+	public inline function has (propFlag:UInt) : Bool	{ return allFilledProperties.has( propFlag ); }
+	public inline function owns (propFlag:UInt) : Bool	{ return filledProperties.has( propFlag ); }
+	public function isEmpty () : Bool					{ return filledProperties == 0; }
 	
 	
 	public function updateAllFilledPropertiesFlag () : Void
@@ -116,7 +115,6 @@ class StyleDeclarationBase extends Validatable, implements IStyleDeclaration
 	
 #if (debug || neko)
 	public function toString ()						{ return toCSS(); }
-	public function isEmpty ()						{ Assert.abstract(); return false; }
 	public function toCSS (prefix:String = "") 		{ Assert.abstract(); return ""; }
 #end
 	

@@ -1,5 +1,5 @@
 UIComponent { color: #000; shape: rectangle; visibility: visible; opacity: 1; }
-UIComponent:hover { color: #aaa; }
+/*UIComponent:hover { color: #aaa; }*/
 UIGraphic { color: #000; }
 UITextField { color: #000; }
 Tile { color: #000; move-transition: move 200ms elastic-in-out; } /*move-transition: sequence ( parallel ( fade 500ms 40%, move 300ms elastic-out, rotate 400ms 360deg bounce-in-out ), fade 600ms 100% ) ; }*/
@@ -46,16 +46,27 @@ TileList {
 }
 
 Frame:hover {
-	background: #0f0f0faa;
+	background: #ff0aa;
 }
 
 TileList:hover {
-	background: #ccc;
+	background: #f0f;
 }
 
+TileList:hover Tile {
+	background: #000;
+}
+#frame0:hover {
+	background: #000;
+}
+Tile:hover {
+	border: #aaa 4px solid;
+	width: 100px;
+}
+/*
 GlobalApp TileList:hover {
 	color: #f00;
-}
+}*/
 
 #frame0 Tile { background: #0000ff; shape: ellipse; move-transition: move 400ms elastic-out; }
 #frame1 Tile { background: #00ff00; shape: circle;  }

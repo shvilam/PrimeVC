@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.collections;
+ import primevc.core.collections.iterators.IIterator;
  import primevc.core.collections.SimpleList;
  import primevc.core.events.ListEvents;
  import primevc.utils.IntMath;

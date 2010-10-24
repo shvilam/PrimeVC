@@ -33,8 +33,10 @@ package primevc.gui.styling.declarations;
  import primevc.gui.behaviours.scroll.CornerScrollBehaviour;
  import primevc.gui.behaviours.scroll.DragScrollBehaviour;
  import primevc.gui.behaviours.scroll.MouseMoveScrollBehaviour;
+ import primevc.tools.generator.ICodeGenerator;
 #end
  import primevc.core.traits.IInvalidatable;
+ import primevc.core.traits.IPrioritizable;
  import primevc.gui.core.ISkin;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.fills.IFill;
@@ -42,17 +44,16 @@ package primevc.gui.styling.declarations;
  import primevc.gui.styling.declarations.StyleContainer;
  import primevc.types.Bitmap;
  import primevc.types.Number;
- import primevc.types.SimpleDictionary;
  import primevc.utils.StringUtil;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
+  using Type;
 
-#if neko
- import primevc.tools.generator.ICodeGenerator;
+#if (neko || debug)
+  using StringTools;
 #end
 
 
-typedef StatesListType = SimpleDictionary < String, UIElementStyle >;
 private typedef Flags = StyleFlags;
 
 
@@ -62,7 +63,9 @@ private typedef Flags = StyleFlags;
  * @author Ruben Weijers
  * @creation-date Aug 04, 2010
  */
-class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
+class UIElementStyle extends StyleDeclarationBase
+	,	implements IStyleDeclaration
+	,	implements IPrioritizable
 {
 	/**
 	 * Reference to style of which this style is inheriting when the requested
@@ -175,7 +178,7 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 	private var _boxFilters	: FilterStyleDeclarations;
 	private var _bgFilters	: FilterStyleDeclarations;
 	
-	private var _states		: StatesListType;
+	private var _states		: StateStyleDeclarations;
 	
 	
 	
@@ -205,7 +208,7 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 	public var children		(default,		default)		: StyleContainer;
 #end
 
-	public var states		(getStates,		setStates)		: StatesListType;
+	public var states		(getStates,		setStates)		: StateStyleDeclarations;
 	
 	
 	
@@ -224,7 +227,7 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 		bgFilters	: FilterStyleDeclarations = null,
 		icon		: Bitmap = null,
 		overflow	: Class < Dynamic > = null,
-		states		: StatesListType = null
+		states		: StateStyleDeclarations = null
 	)
 	{
 		super();
@@ -294,7 +297,13 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 	//
 	
 	
-	private function getListForType (type:StyleDeclarationType) : SelectorMapType
+	public inline function getPriority () : Int
+	{
+		return type.enumIndex();
+	}
+	
+	
+	private inline function getListForType (type:StyleDeclarationType) : SelectorMapType
 	{
 		return (!hasChildren() || type == null) ? null : switch (type) {
 				case element:	children.elementSelectors;
@@ -313,13 +322,13 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 	
 	public function hasStates () : Bool
 	{
-		return states != null && !states.isEmpty();
+		return _states != null && !_states.isEmpty();
 	}
 	
 	
-	public function hasState (stateName:String) : Bool
+	public function hasState (stateName:UInt) : Bool
 	{
-		return states != null ? states.exists(stateName) : false;
+		return states != null ? states.has(stateName) : false;
 	}
 	
 	
@@ -352,7 +361,7 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 	/**
 	 * Method searches for the requested statename style-object
 	 */
-	public function findState ( stateName:String, styleName:String, styleType:StyleDeclarationType, ?exclude:UIElementStyle, depth:Int = 0 ) : UIElementStyle
+	public function findState ( stateName:UInt, styleName:String, styleType:StyleDeclarationType, ?exclude:UIElementStyle, depth:Int = 0 ) : UIElementStyle
 	{
 		var stateStyle:UIElementStyle = null;
 		
@@ -396,7 +405,8 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 	{
 		Assert.that(sender != null);
 		
-		if (filledProperties.has( changeFromOther ))
+		changeFromOther = changeFromOther.filter( filledProperties | Flags.INHERETING_STYLES );
+		if (changeFromOther == 0)
 			return;
 		
 		//The changed property is not in this style-object.
@@ -412,8 +422,11 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 		}
 		
 		//if the sender is the super style and the extendedStyle doesn't have the property that is changed, broadcast the change as well
-		else if ((extendedStyle == null || !extendedStyle.allFilledProperties.has( changeFromOther )) && sender == superStyle)
+		else if (sender == superStyle)
 		{
+			if (extendedStyle != null)		changeFromOther = changeFromOther.filter( extendedStyle.allFilledProperties );
+			if (changeFromOther == 0)		return;
+			
 			if (superStyle.allFilledProperties.has( changeFromOther ))
 				allFilledProperties = allFilledProperties.set( changeFromOther );
 			else
@@ -567,7 +580,13 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 	
 	private function setNestingInherited (v)
 	{
-		if (v != nestingInherited) {
+		if (v != nestingInherited)
+		{
+#if debug
+			if (v != null && nestingInherited != null)
+				throw "Changing the nestingInherited style after it's set is not yet supported!";
+#end
+			
 			nestingInherited = v;
 			invalidate( Flags.NESTING_STYLE );
 		}
@@ -578,7 +597,12 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 	private function setSuperStyle (v)
 	{
 		if (v != superStyle)
-		{
+		{			
+#if debug
+			if (v != null && superStyle != null)
+				throw "Changing the superStyle style after it's set is not yet supported!";
+#end
+
 			if (superStyle != null)
 				superStyle.listeners.remove( this );
 			
@@ -598,6 +622,10 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 	{
 		if (v != extendedStyle)
 		{
+#if debug
+			if (v != null && extendedStyle != null)
+				throw "Changing the extendedStyle style after it's set is not yet supported!";
+#end
 			if (extendedStyle != null)
 				extendedStyle.listeners.remove( this );
 			
@@ -615,7 +643,12 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 
 	private function setParentStyle (v)
 	{
-		if (v != parentStyle) {
+		if (v != parentStyle)
+		{
+#if debug
+			if (v != null && parentStyle != null)
+				throw "Changing the parentStyle style after it's set is not yet supported!";
+#end
 			parentStyle = v;
 			invalidate( Flags.PARENT_STYLE );
 		}
@@ -828,10 +861,11 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 		if (_boxFilters != null)	css += _boxFilters.toCSS();
 		if (_bgFilters != null)		css += _bgFilters.toCSS();
 		
-		css = "{" + css + "\n}";
+		if (css.trim() != "")
+			css = namePrefix + " {" + css + "\n}";
 		
-		if (_states != null)		css += "\n " + statesToCSS ( namePrefix );
-		if (hasChildren())			css += "\n " + children.toCSS ( namePrefix );
+		if (hasStates())			css += "\n" + _states.toCSS ( namePrefix );
+		if (hasChildren())			css += "\n" + children.toCSS ( namePrefix );
 		
 		return css;
 	}
@@ -845,6 +879,7 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 	
 	public function allPropertiesEmpty () : Bool
 	{
+		//return super.isEmpty();
 		return _skin == null 
 			&& _shape == null 
 			&& _background == null
@@ -885,7 +920,7 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 		}*/
 	}
 	
-	
+	/*
 	private function statesToCSS (styleName:String) : String
 	{
 	#if neko
@@ -899,7 +934,7 @@ class UIElementStyle extends StyleDeclarationBase, implements IStyleDeclaration
 	#else
 		return null;
 	#end
-	}
+	}*/
 #end
 
 

@@ -572,26 +572,32 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	{
 		var css = [];
 		
-		if (_padding != null)				css.push("padding: " + _padding.toCSS());
-		if (_algorithm != null)				css.push("algorithm: " + _algorithm.toCSS());
-		if (_relative != null)				css.push("relative: " + _relative.toCSS());
+		if (_padding != null)					css.push("padding: " + _padding.toCSS());
+		if (_algorithm != null)					css.push("algorithm: " + _algorithm.toCSS());
+		if (_relative != null)					css.push("relative: " + _relative.toCSS());
 		
-		if (_width.isSet())					css.push("width: " + _width + "px");
-		if (_percentWidth.isSet())			css.push("width: " + _percentWidth + "%");
-		if (_minWidth.isSet())				css.push("min-width: " + _minWidth + "px");
-		if (_maxWidth.isSet())				css.push("max-width: " + _maxWidth + "px");
+		if (_width.isSet())						css.push("width: " + _width + "px");
+		if (_percentWidth.isSet()) {
+			if (_percentWidth == Flags.FILL)	css.push("width: auto");
+			else								css.push("width: " + _percentWidth + "%");
+		}
+		if (_minWidth.isSet())					css.push("min-width: " + _minWidth + "px");
+		if (_maxWidth.isSet())					css.push("max-width: " + _maxWidth + "px");
 		
-		if (_height.isSet())				css.push("height: " + _height + "px");
-		if (_percentHeight.isSet())			css.push("height: " + _percentHeight + "%");
-		if (_minHeight.isSet())				css.push("min-height: " + _minHeight + "px");
-		if (_maxHeight.isSet())				css.push("max-height: " + _maxHeight + "px");
+		if (_height.isSet())					css.push("height: " + _height + "px");
+		if (_percentHeight.isSet()) {
+			if (_percentHeight == Flags.FILL)	css.push("height: auto");
+			else								css.push("hieght: " + _percentHeight + "%");
+		}
+		if (_minHeight.isSet())					css.push("min-height: " + _minHeight + "px");
+		if (_maxHeight.isSet())					css.push("max-height: " + _maxHeight + "px");
 		
-		if (_childWidth.isSet())			css.push("child-width: " + _childWidth + "px");
-		if (_childHeight.isSet())			css.push("child-height: " + _childHeight + "px");
+		if (_childWidth.isSet())				css.push("child-width: " + _childWidth + "px");
+		if (_childHeight.isSet())				css.push("child-height: " + _childHeight + "px");
 		
-		if (_rotation.isSet())				css.push("rotation: " + _rotation + "degr");
-		if (_includeInLayout != null)		css.push("position: " + (_maintainAspectRatio ? "relative" : "absolute"));
-		if (_maintainAspectRatio != null)	css.push("maintainAspectRatio: " + (_maintainAspectRatio ? "true" : "false"));
+		if (_rotation.isSet())					css.push("rotation: " + _rotation + "degr");
+		if (_includeInLayout != null)			css.push("position: " + (_maintainAspectRatio ? "relative" : "absolute"));
+		if (_maintainAspectRatio != null)		css.push("maintainAspectRatio: " + (_maintainAspectRatio ? "true" : "false"));
 		
 		if (css.length > 0)
 			return "\n\t" + css.join(";\n\t") + ";";
@@ -600,7 +606,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	override public function isEmpty () : Bool
+/*	override public function isEmpty () : Bool
 	{
 		return	_width.notSet() && 
 				_height.notSet() && 
@@ -623,7 +629,7 @@ class LayoutStyleDeclarations extends StylePropertyGroup
 				_rotation.notSet() && 
 				_includeInLayout == null &&
 				_maintainAspectRatio == null;
-	}
+	}*/
 #end
 
 

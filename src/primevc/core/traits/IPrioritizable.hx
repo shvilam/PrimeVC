@@ -26,30 +26,14 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.collections;
- import primevc.utils.FastArray;
+package primevc.core.traits;
 
 
 /**
- * Description
- * 
- * @creation-date	Jul 1, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Oct 20, 2010
  */
-class FastArrayForwardIterator <DataType> implements IIterator <DataType>
-	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
+interface IPrioritizable
 {
-	private var target (default, null)	: FastArray<DataType>;
-	private var current 				: Int;
-	
-	
-	public function new (target:FastArray<DataType>) {
-		this.target	= target;
-		rewind();
-	}
-	
-	public inline function setCurrent (val:Dynamic)	{ current = val; }
-	public inline function rewind ()				{ current = 0; }
-	public inline function hasNext ()				{ return current < Std.int( target.length ); }		// <- Vector.length is defined as UInt, but since haXe damns it to implement UInt, we have to cast it :-(
-	public inline function next ()					{ return target[current++]; }
+	public function getPriority () : Int;
 }

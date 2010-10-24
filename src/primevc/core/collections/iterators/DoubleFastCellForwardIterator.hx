@@ -26,29 +26,57 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.collections;
- import primevc.utils.FastArray;
+package primevc.core.collections.iterators;
+ import primevc.core.collections.DoubleFastCell;
 
 
 /**
- * Description
+ * Iterate object for the DoubleFastList implementation
  * 
- * @creation-date	Jul 23, 2010
+ * @creation-date	Jun 29, 2010
  * @author			Ruben Weijers
  */
-class FastArrayReversedIterator <DataType> implements IIterator <DataType>
+class DoubleFastCellForwardIterator <DataType> implements IIterator <DataType>
 	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
-	private var target (default, null)	: FastArray<DataType>;
-	private var current 				: Int;
+	private var first (default, null)	: DoubleFastCell<DataType>;
+	public var current (default, null)	: DoubleFastCell<DataType>;
 	
-	
-	public function new (target:FastArray<DataType>) {
-		this.target = target;
+	public function new (first:DoubleFastCell<DataType>) 
+	{
+		this.first = first;
 		rewind();
+#if (unitTesting && debug)
+		test();
+#end
 	}
+	
+	
 	public inline function setCurrent (val:Dynamic)	{ current = val; }
-	public inline function rewind ()				{ current = target.length - 1; }
-	public inline function hasNext ()				{ return current >= 0; }
-	public inline function next ()					{ return target[current--]; }
+	public inline function rewind ()				{ current = first; }
+	public inline function hasNext () 				{ return current != null; }
+	
+	
+	public inline function next () : DataType
+	{
+		var c = current;
+		current = current.next;
+		return c.data;
+	}
+	
+	
+#if (unitTesting && debug)
+	public function test ()
+	{
+		var cur = first, prev:DoubleFastCell<DataType> = null;
+		while (cur != null)
+		{
+			if (prev == null)	Assert.null( cur.prev, "first incorrect" );
+			else				Assert.equal( cur.prev, prev, "previous incorrect" );
+			
+			prev	= cur;
+			cur		= cur.next;
+		}
+	}
+#end
 }

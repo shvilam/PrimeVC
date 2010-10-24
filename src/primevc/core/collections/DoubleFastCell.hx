@@ -26,7 +26,7 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core;
+package primevc.core.collections;
  
 
 /**
@@ -41,13 +41,68 @@ class DoubleFastCell <T> #if (flash9 || cpp) implements haxe.rtti.Generic #end
 	public var prev : DoubleFastCell<T>;
 	public var next : DoubleFastCell<T>;
 	
-	public function new (data, prev, ?next) {
+	
+	public function new (data, ?prev, ?next)
+	{
 		this.data = data;
 		this.prev = prev;
 		this.next = next;
 	}
 	
-
+	
+	public inline function dispose ()
+	{
+		data = null;
+		next = prev = null;
+	}
+	
+	
+	/**
+	 * Insert's the current cell before the given cell
+	 */
+	public function insertBefore ( cell:DoubleFastCell <T >)
+	{
+		if (cell.prev != this)
+		{
+			prev = cell.prev;
+			if (prev != null)
+				prev.next = this;
+		
+			cell.prev	= this;
+		//	cell.next	= next;
+			next		= cell;
+		}
+		return this;
+	}
+	
+	
+	/**
+	 * Insert's the current cell after the given cell
+	 */
+	public function insertAfter ( cell:DoubleFastCell <T> )
+	{
+		if (cell.next != this)
+		{
+			next = cell.next;
+			if (next != null)
+				next.prev	= this;
+			
+			cell.next	= this;
+			prev		= cell;
+		}
+		return this;
+	}
+	
+	
+	public function remove ()
+	{
+		if (prev != null)	prev.next = next;
+		if (next != null)	next.prev = prev;
+		
+		prev = next = null;
+	//	dispose();
+	}
+	
 #if debug
 	public function toString () { return data+"Cell"; }
 #end

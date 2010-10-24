@@ -26,7 +26,7 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.collections;
+package primevc.core.collections.iterators;
 
 
 /**

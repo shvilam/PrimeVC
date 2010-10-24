@@ -27,13 +27,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling.declarations;
- import primevc.core.dispatcher.Signal1;
- import primevc.core.traits.IInvalidatable;
  import primevc.gui.layout.LayoutFlags;
- import primevc.gui.styling.StyleSheet;
-  using primevc.utils.NumberUtil;
+ import primevc.gui.styling.declarations.StyleProxyBase;
+ import primevc.gui.styling.IElementStyle;
   using primevc.utils.BitUtil;
-  using primevc.utils.TypeUtil;
 
 
 private typedef Flags = LayoutFlags;
@@ -43,6 +40,31 @@ private typedef Flags = LayoutFlags;
  * @author Ruben Weijers
  * @creation-date Sep 23, 2010
  */
+class LayoutStyleProxy extends StyleProxyBase < LayoutStyleDeclarations >
+{
+	public function new (styleSheet:IElementStyle)				{ super( styleSheet, StyleFlags.LAYOUT ); }
+	override public function forwardIterator ()					{ return cast new LayoutGroupForwardIterator( styleSheet, propertyTypeFlag); }
+	override public function reversedIterator ()				{ return cast new LayoutGroupReversedIterator( styleSheet, propertyTypeFlag); }
+
+#if debug
+	override public function readProperties (props:Int = -1)	{ return Flags.readProperties( (props == -1) ? filledProperties : props ); }
+#end
+}
+
+
+class LayoutGroupForwardIterator extends StyleGroupForwardIterator < LayoutStyleDeclarations >
+{
+	override public function next ()	{ return setNext().data.layout; }
+}
+
+
+class LayoutGroupReversedIterator extends StyleGroupReversedIterator < LayoutStyleDeclarations >
+{
+	override public function next ()	{ return setNext().data.layout; }
+}
+
+
+/*
 class LayoutStyleProxy extends LayoutStyleDeclarations
 {
 	private var target	: StyleSheet;
@@ -63,6 +85,12 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 		change	= null;
 		target	= null;
 		super.dispose();
+	}
+	
+	
+	public function iterator () : Iterator < LayoutStyleDeclarations >
+	{
+		return new LayoutStyleIterator( target, StyleFlags.LAYOUT );
 	}
 	
 	
@@ -358,3 +386,54 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 		return v;
 	}
 }
+
+
+
+import primevc.core.collections.DoubleFastCell;
+
+
+private typedef StyleGroupType	= LayoutStyleDeclarations;
+private typedef CellType		= DoubleFastCell < UIElementStyle >;
+
+
+class LayoutStyleIterator  // < StyleGroupType > #if (flash9 || cpp) implements haxe.rtti.Generic #end
+{
+	private var target	: StyleSheet;
+	private var current	: CellType;
+	private var flag	: UInt;
+	
+	
+	public function new (target:StyleSheet, groupFlag:UInt)
+	{
+		this.target	= target;
+		flag		= groupFlag;
+		setCurrent( target.styles.first );
+	}
+	
+	
+	public function hasNext ()
+	{
+		return current != null;
+	}
+	
+	
+	public function next () : LayoutStyleDeclarations
+	{
+		var c = current;
+		current = current.next;
+		return c.data.layout;
+	}
+	
+	
+	private function setCurrent ( styleCell:CellType )
+	{
+		if (styleCell == null)
+			current = null;
+		else if (styleCell.data.has( flag ))
+			current = styleCell;
+		else if (styleCell.next != null)
+			setCurrent( styleCell.next );
+		else
+			current = null;
+	}
+}*/
