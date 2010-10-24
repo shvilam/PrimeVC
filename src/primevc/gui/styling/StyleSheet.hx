@@ -249,7 +249,9 @@ class StyleSheet implements IElementStyle
 		var changed			= filledProperties;
 		
 		//remove styles and their listeners
-		removeStylesWithPriority( StyleDeclarationType.state.enumIndex() );
+		removeStylesWithPriority( StyleDeclarationType.idState.enumIndex() );
+		removeStylesWithPriority( StyleDeclarationType.styleNameState.enumIndex() );
+		removeStylesWithPriority( StyleDeclarationType.elementState.enumIndex() );
 		removeStylesWithPriority( StyleDeclarationType.id.enumIndex() );
 		removeStylesWithPriority( StyleDeclarationType.styleName.enumIndex() );
 		removeStylesWithPriority( StyleDeclarationType.element.enumIndex() );
@@ -463,7 +465,9 @@ class StyleSheet implements IElementStyle
 	 */
 	private function updateStatesStyles () : UInt
 	{
-		var changes = removeStylesWithPriority( StyleDeclarationType.state.enumIndex() );
+		var changes = removeStylesWithPriority( StyleDeclarationType.idState.enumIndex() );
+		var changes = removeStylesWithPriority( StyleDeclarationType.styleNameState.enumIndex() );
+		var changes = removeStylesWithPriority( StyleDeclarationType.elementState.enumIndex() );
 		
 		if (currentStates.length > 0)
 		{	

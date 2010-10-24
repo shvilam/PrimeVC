@@ -953,7 +953,14 @@ class CSSParser
 			return;
 		
 		var stateList	= (currentBlock.states != null) ? currentBlock.states			: new StateStyleDeclarations();
-		var stateBlock	= (stateList.owns( stateName )) ? stateList.get( stateName )	: new UIElementStyle( StyleDeclarationType.state );
+		var stateType	= switch (currentBlock.type) {
+			case StyleDeclarationType.element:		StyleDeclarationType.elementState;
+			case StyleDeclarationType.styleName:	StyleDeclarationType.styleNameState;
+			case StyleDeclarationType.id:			StyleDeclarationType.idState;
+			default:								currentBlock.type;
+		}
+		
+		var stateBlock	= (stateList.owns( stateName )) ? stateList.get( stateName )	: new UIElementStyle( stateType );
 		
 		if (currentBlock.states == null)
 			currentBlock.states = stateList;
