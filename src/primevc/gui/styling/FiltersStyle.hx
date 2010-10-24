@@ -26,7 +26,7 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
+package primevc.gui.styling;
  import primevc.core.traits.IInvalidatable;
  import primevc.gui.filters.BitmapFilter;
 #if neko
@@ -44,10 +44,10 @@ private typedef Flags = FilterFlags;
  * @author Ruben Weijers
  * @creation-date Sep 07, 2010
  */
-class FilterStyleDeclarations extends StylePropertyGroup
+class FiltersStyle extends StyleSubBlock
 {
-	private var extendedStyle	: FilterStyleDeclarations;
-	private var superStyle		: FilterStyleDeclarations;
+	private var extendedStyle	: FiltersStyle;
+	private var superStyle		: FiltersStyle;
 
 	private var type			: FilterCollectionType;
 	private var _shadow			: BitmapFilter;

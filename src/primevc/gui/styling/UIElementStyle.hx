@@ -34,16 +34,6 @@ package primevc.gui.styling;
  import primevc.core.dispatcher.Signal1;
  import primevc.core.dispatcher.Wire;
  import primevc.core.traits.IInvalidatable;
- import primevc.gui.styling.declarations.EffectStyleProxy;
- import primevc.gui.styling.declarations.FilterCollectionType;
- import primevc.gui.styling.declarations.FilterStyleProxy;
- import primevc.gui.styling.declarations.LayoutStyleProxy;
- import primevc.gui.styling.declarations.StateStyleProxy;
- import primevc.gui.styling.declarations.StyleContainer;
- import primevc.gui.styling.declarations.StyleState;
- import primevc.gui.styling.declarations.StyleDeclarationType;
- import primevc.gui.styling.declarations.StyleFlags;
- import primevc.gui.styling.declarations.UIElementStyle;
  import primevc.gui.traits.IStylable;
  import primevc.utils.FastArray;
   using primevc.utils.Bind;
@@ -57,17 +47,17 @@ private typedef Flags = StyleFlags;
 
 
 /**
- * StyleSheet contains all style objects that are used by one IUIElement.
+ * UIElementStyle contains all style objects that are used by one IUIElement.
  * It's a unique collection of id-selectors, styleName-selectors and 
  * element-selectors.
  * 
- * The StyleSheet of an element has to be rebuild everytime the element is 
+ * The UIElementStyle of an element has to be rebuild everytime the element is 
  * changing of parent.
  * 
  * @author Ruben Weijers
  * @creation-date Sep 22, 2010
  */
-class StyleSheet implements IElementStyle
+class UIElementStyle implements IUIElementStyle
 {
 	/**
 	 * object on which the style applies
@@ -83,14 +73,14 @@ class StyleSheet implements IElementStyle
 	private var styleNamesChangeBinding	: Wire <Dynamic>;
 	private var idChangeBinding			: Wire <Dynamic>;
 	
-	public var styles					(default, null)			: PriorityList < UIElementStyle >;
-//	public var idStyle					(default, null)			: UIElementStyle;
-//	public var styleNameStyles			(default, null)			: FastArray < UIElementStyle >;
-//	public var elementStyle				(default, null)			: UIElementStyle;
+	public var styles					(default, null)			: PriorityList < StyleBlock >;
+//	public var idStyle					(default, null)			: StyleBlock;
+//	public var styleNameStyles			(default, null)			: FastArray < StyleBlock >;
+//	public var elementStyle				(default, null)			: StyleBlock;
 	/**
 	 * List with all state-style objects for the target
 	 */
-//	public var currentStatesStyles		(default, null)			: FastArray < UIElementStyle >;
+//	public var currentStatesStyle		(default, null)			: FastArray < StyleBlock >;
 	
 	
 	/**
@@ -138,13 +128,13 @@ class StyleSheet implements IElementStyle
 	 */
 	private var stylesAreSearched		: Bool;
 	
-	public var layout					(default, null)	: LayoutStyleProxy;
-	public var boxFilters				(default, null)	: FilterStyleProxy;
-	public var effects					(default, null)	: EffectStyleProxy;
+	public var layout					(default, null)	: LayoutCollection;
+	public var boxFilters				(default, null)	: FiltersCollection;
+	public var effects					(default, null)	: EffectsCollection;
 	/**
 	 * Proxy object to loop through all available states in this object.
 	 */
-	public var states					(default, null)	: StateStyleProxy;
+	public var states					(default, null)	: StatesCollection;
 	
 	
 	
@@ -153,7 +143,7 @@ class StyleSheet implements IElementStyle
 	{
 	//	styleNameStyles		= FastArrayUtil.create();
 		currentStates		= FastArrayUtil.create();
-		styles				= new PriorityList < UIElementStyle > ();
+		styles				= new PriorityList < StyleBlock > ();
 		
 		this.target			= target;
 		targetClassName		= target.getClass().getClassName();
@@ -212,9 +202,9 @@ class StyleSheet implements IElementStyle
 	}
 	
 	
-	public function findStyle ( name:String, type:StyleDeclarationType, ?exclude:UIElementStyle ) : UIElementStyle
+	public function findStyle ( name:String, type:StyleDeclarationType, ?exclude:StyleBlock ) : StyleBlock
 	{
-		var style : UIElementStyle = null;
+		var style : StyleBlock = null;
 		
 		for (styleObj in styles)
 		{
@@ -274,10 +264,10 @@ class StyleSheet implements IElementStyle
 		removedBinding.enable();
 		addedBinding.disable();
 		
-		if (layout == null)			layout		= new LayoutStyleProxy(this);
-		if (boxFilters == null)		boxFilters	= new FilterStyleProxy(this, FilterCollectionType.box);
-		if (effects == null)		effects		= new EffectStyleProxy(this);
-		if (states == null)			states		= new StateStyleProxy(this);
+		if (layout == null)			layout		= new LayoutCollection(this);
+		if (boxFilters == null)		boxFilters	= new FiltersCollection(this, FilterCollectionType.box);
+		if (effects == null)		effects		= new EffectsCollection(this);
+		if (states == null)			states		= new StatesCollection(this);
 		
 		stylesAreSearched = false;
 		filledProperties	= 0;
@@ -286,7 +276,7 @@ class StyleSheet implements IElementStyle
 		updateElementStyle();
 		updateStyleNameStyles();
 		updateIdStyle();
-		updateStatesStyles();		//set de styles for any states that are already set
+		updateStatesStyle();		//set de styles for any states that are already set
 		
 		//update filled-properties flag
 		stylesAreSearched = true;
@@ -321,7 +311,7 @@ class StyleSheet implements IElementStyle
 			{
 				var tmp				= stylesAreSearched;
 				stylesAreSearched	= false;
-				changedProperties	= changedProperties.set( updateStatesStyles() );
+				changedProperties	= changedProperties.set( updateStatesStyle() );
 				stylesAreSearched	= tmp;
 				states.change.send( statesChangedProps );
 			}
@@ -370,7 +360,7 @@ class StyleSheet implements IElementStyle
 	}
 	
 	
-	public function addStyle (style:UIElementStyle) : UInt
+	public function addStyle (style:StyleBlock) : UInt
 	{
 #if debug
 		Assert.notNull( styles );
@@ -408,7 +398,7 @@ class StyleSheet implements IElementStyle
 	 * This includes removing the change-listeners. It will return a flag with
 	 * style-properties that are changed after removing the style.
 	 */
-	public function removeStyleCell (styleCell:DoubleFastCell < UIElementStyle >) : UInt
+	public function removeStyleCell (styleCell:DoubleFastCell < StyleBlock >) : UInt
 	{
 #if debug
 		Assert.notNull( styleCell );
@@ -444,7 +434,7 @@ class StyleSheet implements IElementStyle
 	private function removeStylesWithPriority (priority:Int) : UInt
 	{	
 		var changes = 0;
-		var styleCell:DoubleFastCell < UIElementStyle > = null;
+		var styleCell:DoubleFastCell < StyleBlock > = null;
 		
 		while (null != (styleCell = styles.getCellWithPriority( priority )))
 			changes = changes.set( removeStyleCell( styleCell ) );
@@ -463,7 +453,7 @@ class StyleSheet implements IElementStyle
 	/**
 	 * Method will find the styles for every defined state
 	 */
-	private function updateStatesStyles () : UInt
+	private function updateStatesStyle () : UInt
 	{
 		var changes = removeStylesWithPriority( StyleDeclarationType.idState.enumIndex() );
 		var changes = removeStylesWithPriority( StyleDeclarationType.styleNameState.enumIndex() );
@@ -524,7 +514,7 @@ class StyleSheet implements IElementStyle
 		var changes		= removeStylesWithPriority( StyleDeclarationType.element.enumIndex() );
 		var parentStyle = getParentStyle();
 		
-		var style:UIElementStyle	= null;
+		var style:StyleBlock	= null;
 		var parentClass				= target.getClass();
 		
 		//search for the first element style that is defined for this object or one of it's super classes
@@ -549,7 +539,7 @@ class StyleSheet implements IElementStyle
 	
 	
 	
-	private inline function getParentStyle () : StyleSheet
+	private inline function getParentStyle () : UIElementStyle
 	{
 		Assert.notNull( target.container );
 		Assert.that( target.container.is( IStylable ) );
@@ -568,7 +558,7 @@ class StyleSheet implements IElementStyle
 	 * 
 	 * Usabable props of elementStyle: font
 	 */ 
-	public function getUsablePropertiesOf ( styleCell:DoubleFastCell < UIElementStyle >, properties:Int = -1 ) : UInt
+	public function getUsablePropertiesOf ( styleCell:DoubleFastCell < StyleBlock >, properties:Int = -1 ) : UInt
 	{
 		Assert.notNull( styleCell );
 		if (properties == -1)
@@ -598,9 +588,9 @@ class StyleSheet implements IElementStyle
 	}
 	
 	
-	public function getChildren () : StyleContainer
+	public function getChildren () : StyleChildren
 	{
-		var children : StyleContainer = null;
+		var children : StyleChildren = null;
 		for (style in styles)
 		{
 			if (!style.hasChildren())
@@ -662,7 +652,7 @@ class StyleSheet implements IElementStyle
 	// ITERATABLE METHODS
 	//
 	
-	public function iterator () : Iterator < UIElementStyle >
+	public function iterator () : Iterator < StyleBlock >
 	{
 		return styles.iterator();
 	}
@@ -694,13 +684,13 @@ class StyleSheet implements IElementStyle
 
 
 /*
-class StyleSheetIterator
+class UIElementStyleIterator
 {
-	private var target				: StyleSheet;
-	private var currentStyleObj		: UIElementStyle;
+	private var target				: UIElementStyle;
+	private var currentStyleObj		: StyleBlock;
 	
 	/**
-	 * The StyleDeclarationType of the last used UIElementStyle
+	 * The StyleDeclarationType of the last used StyleBlock
 	 */
 //	private var currentType			: StyleDeclarationType;
 	
@@ -721,7 +711,7 @@ class StyleSheetIterator
 	}
 	
 	
-	public function next () : UIElementStyle
+	public function next () : StyleBlock
 	{
 		switch (currentType)
 		{
@@ -747,13 +737,13 @@ class StyleSheetIterator
 			
 			
 			default:
-				if (currentListPos >= target.currentStatesStyles.length) {
+				if (currentListPos >= target.currentStatesStyle.length) {
 					currentListPos	= 0;
 					currentStyleObj = target.idStyle;
 					currentType		= id;
 				}
 				else {
-					currentStyleObj	= target.currentStatesStyles[ currentListPos++ ];
+					currentStyleObj	= target.currentStatesStyle[ currentListPos++ ];
 					currentType		= state;
 				}
 		}
@@ -778,6 +768,6 @@ class StyleSheetIterator
 */
 #else
 
-class StyleSheet {}
+class UIElementStyle {}
 
 #end

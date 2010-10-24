@@ -26,7 +26,7 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
+package primevc.gui.styling;
   using primevc.utils.BitUtil;
 
 

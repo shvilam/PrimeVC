@@ -26,19 +26,26 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package ;
- import primevc.gui.styling.declarations.UIElementStyle;
+package primevc.gui.styling;
 
 
 
 /**
- * Empty class to simulate a skin-style-sheet
+ * Stylesheet instance that is used by UIWindow.
+ * 
+ * @author Ruben Weijers
+ * @creation-date Sep 22, 2010
  */
-class Style extends UIElementStyle
+class ApplicationStyle extends UIElementStyle
 {
-	public function new ()
+	override private function init ()
 	{
-		super();
-		trace("empty style");
+		styles.add( new StyleSheet() );
 	}
+	
+	
+	override public function updateStyles ()			: Void {}
+	override private function updateStyleNameStyles ()	: UInt { return 0; }
+	override private function updateIdStyle ()			: UInt { return 0; }
+	override private function updateElementStyle ()		: UInt { return 0; }
 }

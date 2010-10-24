@@ -26,43 +26,11 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
-  using primevc.utils.BitUtil;
+package primevc.gui.text;
 
 
-
-/**
- * @author Ruben Weijers
- * @creation-date Sep 29, 2010
- */
-class FilterFlags
-{
-	public static inline var ALL_PROPERTIES	: UInt = SHADOW | BEVEL | BLUR | GLOW | GRADIENT_BEVEL | GRADIENT_GLOW;
-	public static inline var SHADOW			: UInt = 1;
-	public static inline var BEVEL			: UInt = 2;
-	public static inline var BLUR			: UInt = 4;
-	public static inline var GLOW			: UInt = 8;
-	public static inline var GRADIENT_BEVEL	: UInt = 16;
-	public static inline var GRADIENT_GLOW	: UInt = 32;
-	
-	
-#if debug
-	public static function readProperties (flags:UInt) : String
-	{
-		var output	= [];
-		var result	= "";
-
-		if (flags > 0)
-		{
-			if (flags.has( BEVEL ))				output.push("bevel");
-			if (flags.has( BLUR ))				output.push("blur");
-			if (flags.has( GLOW ))				output.push("glow");
-			if (flags.has( GRADIENT_BEVEL ))	output.push("gradient-bevel");
-			if (flags.has( GRADIENT_GLOW ))		output.push("gradient-glow");
-			if (flags.has( SHADOW ))			output.push("shadow");
-			result = output.join(", ");
-		}
-		return "properties: " + result;
-	}
-#end
+enum FontStyling {
+	normal;
+	italic;
+	oblique;
 }

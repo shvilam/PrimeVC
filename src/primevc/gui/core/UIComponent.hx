@@ -39,7 +39,7 @@ package primevc.gui.core;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.UIElementStates;
 #if flash9
- import primevc.gui.styling.StyleSheet;
+ import primevc.gui.styling.UIElementStyle;
 #end
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
@@ -83,7 +83,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	public var graphicData		(default, null)			: Bindable < GraphicProperties >;
 	
 #if flash9
-	public var style			(default, null)			: StyleSheet;
+	public var style			(default, null)			: UIElementStyle;
 	public var styleClasses		(default, null)			: Bindable < String >;
 #end
 	
@@ -101,7 +101,7 @@ class UIComponent extends Sprite, implements IUIComponent
 		
 #if flash9
 		styleClasses	= new Bindable < String > ();
-		style			= new StyleSheet( this );
+		style			= new UIElementStyle( this );
 		
 		//add default behaviours
 		behaviours.add( new ApplyStylingBehaviour(this) );

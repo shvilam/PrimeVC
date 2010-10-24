@@ -26,7 +26,7 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
+package primevc.gui.styling;
 #if (neko || debug)
   using primevc.utils.BitUtil;
   using StringTools;
@@ -37,7 +37,7 @@ package primevc.gui.styling.declarations;
  * @author Ruben Weijers
  * @creation-date Oct 20, 2010
  */
-class StyleStates
+class StyleStateFlags
 {
 	public static inline var ALL_STATES	: UInt = HOVER | DOWN | FOCUS | VALID | INVALID | REQUIRED | OPTIONAL | DISABLED | CHECKED | LOADING | LOADED | ERROR | DRAG_OVER | DRAG_OUT | DRAG_DROP;
 	

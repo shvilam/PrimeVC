@@ -26,23 +26,22 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
- import primevc.gui.styling.IElementStyle;
- import primevc.gui.styling.declarations.StyleProxyBase;
+package primevc.gui.styling;
+ import primevc.gui.styling.StyleCollectionBase;
   using primevc.utils.BitUtil;
 
-private typedef Flags = StyleStates;
+private typedef Flags = StyleStateFlags;
 
 
 /**
  * @author Ruben Weijers
  * @creation-date Okt 20, 2010
  */
-class StateStyleProxy extends StyleProxyBase < StateStyleDeclarations >
+class StatesCollection extends StyleCollectionBase < StatesStyle >
 {
-	public function new (styleSheet:IElementStyle)				{ super( styleSheet, StyleFlags.STATES ); }
-	override public function forwardIterator ()					{ return cast new StateGroupForwardIterator( styleSheet, propertyTypeFlag); }
-	override public function reversedIterator ()				{ return cast new StateGroupReversedIterator( styleSheet, propertyTypeFlag); }
+	public function new (styleSheet:IUIElementStyle)			{ super( styleSheet, StyleFlags.STATES ); }
+	override public function forwardIterator ()					{ return cast new StatesCollectionForwardIterator( styleSheet, propertyTypeFlag); }
+	override public function reversedIterator ()				{ return cast new StatesCollectionReversedIterator( styleSheet, propertyTypeFlag); }
 
 #if debug
 	override public function readProperties (props:Int = -1)	{ return Flags.readProperties( (props == -1) ? filledProperties : props ); }
@@ -60,22 +59,22 @@ class StateStyleProxy extends StyleProxyBase < StateStyleDeclarations >
 }
 
 
-class StateGroupForwardIterator extends StyleGroupForwardIterator < StateStyleDeclarations >
+class StatesCollectionForwardIterator extends StyleCollectionForwardIterator < StatesStyle >
 {
 	override public function next ()	{ return setNext().data.states; }
 }
 
 
-class StateGroupReversedIterator extends StyleGroupReversedIterator < StateStyleDeclarations >
+class StatesCollectionReversedIterator extends StyleCollectionReversedIterator < StatesStyle >
 {
 	override public function next ()	{ return setNext().data.states; }
 }
 
 
 /*
-class StateStyleProxy extends StateStyleDeclarations
+class StatesCollection extends StatesStyle
 {
-	private var target	: StyleSheet;
+	private var target	: UIElementStyle;
 	public var change	(default, null)	: Signal1 < UInt >;
 	
 	
@@ -113,7 +112,7 @@ class StateStyleProxy extends StateStyleDeclarations
 	
 	override public function invalidateCall (changes:UInt, sender:IInvalidatable)
 	{
-		var t = sender.as(StateStyleDeclarations);
+		var t = sender.as(StatesStyle);
 		
 		if (t.owner.type != StyleDeclarationType.id)
 		{
@@ -148,7 +147,7 @@ class StateStyleProxy extends StateStyleDeclarations
 	// GETTERS
 	//
 	
-	override public function get (stateName:UInt) : UIElementStyle
+	override public function get (stateName:UInt) : StyleBlock
 	{
 		if (!has(stateName))
 			return null;

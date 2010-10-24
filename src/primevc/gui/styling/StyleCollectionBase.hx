@@ -26,7 +26,7 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
+package primevc.gui.styling;
  import primevc.core.collections.iterators.IIterator;
  import primevc.core.collections.PriorityList;
  import primevc.core.collections.DoubleFastCell;
@@ -34,12 +34,11 @@ package primevc.gui.styling.declarations;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.traits.IInvalidateListener;
  import primevc.core.IDisposable;
- import primevc.gui.styling.IElementStyle;
   using primevc.utils.BitUtil;
   using primevc.utils.TypeUtil;
 
 
-typedef CellType = DoubleFastCell < UIElementStyle >;
+typedef CellType = DoubleFastCell < StyleBlock >;
 
 /**
  * Base class for style-proxy's
@@ -47,7 +46,7 @@ typedef CellType = DoubleFastCell < UIElementStyle >;
  * @author Ruben Weijers
  * @creation-date Oct 22, 2010
  */
-class StyleProxyBase < StyleGroupType:StylePropertyGroup >
+class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 				implements IInvalidateListener
 #if flash9	,	implements haxe.rtti.Generic #end
 {
@@ -64,16 +63,16 @@ class StyleProxyBase < StyleGroupType:StylePropertyGroup >
 	public var propertyTypeFlag		(default, null)	: UInt;
 	public var change				(default, null)	: Signal1 < UInt >;
 	
-	private var styleSheet							: IElementStyle;
+	private var styleSheet							: IUIElementStyle;
 	
 	/**
 	 * Cached iterator that is only used to update the filled properties flag.
 	 * Since this operation happens quite frequent, the iterator is cached.
 	 */
-	private var groupIterator						: StyleGroupForwardIterator < StyleGroupType >;
+	private var groupIterator						: StyleCollectionForwardIterator < StyleGroupType >;
 	
 	
-	public function new (styleSheet:IElementStyle, propertyTypeFlag:UInt)
+	public function new (styleSheet:IUIElementStyle, propertyTypeFlag:UInt)
 	{
 		change					= new Signal1();
 		this.styleSheet			= styleSheet;
@@ -161,13 +160,13 @@ class StyleProxyBase < StyleGroupType:StylePropertyGroup >
 	
 	
 	
-	public function iterator ()						: Iterator < StyleGroupType >					{ return forwardIterator(); }
-	public function reversed ()						: Iterator < StyleGroupType >					{ return reversedIterator(); }
-	public function forwardIterator ()				: StyleGroupForwardIterator < StyleGroupType >	{ Assert.abstract(); return null; }
-	public function reversedIterator ()				: StyleGroupReversedIterator < StyleGroupType >	{ Assert.abstract(); return null; }
+	public function iterator ()						: Iterator < StyleGroupType >							{ return forwardIterator(); }
+	public function reversed ()						: Iterator < StyleGroupType >							{ return reversedIterator(); }
+	public function forwardIterator ()				: StyleCollectionForwardIterator < StyleGroupType >		{ Assert.abstract(); return null; }
+	public function reversedIterator ()				: StyleCollectionReversedIterator < StyleGroupType >	{ Assert.abstract(); return null; }
 	
 #if debug
-	public function readProperties (props:Int = -1)	: String										{ Assert.abstract(); return null; }
+	public function readProperties (props:Int = -1)	: String												{ Assert.abstract(); return null; }
 #end
 }
 
@@ -182,9 +181,9 @@ class StyleProxyBase < StyleGroupType:StylePropertyGroup >
  * @author Ruben Weijers
  * @creation-date Oct 22, 2010
  */
-class StyleGroupIteratorBase implements IDisposable
+class StyleCollectionIteratorBase implements IDisposable
 {
-	private var styleSheet	: IElementStyle;
+	private var styleSheet	: IUIElementStyle;
 	private var currentCell	: CellType;
 	/**
 	 * Flag to search for in target styles to see if the style contains the group
@@ -192,7 +191,7 @@ class StyleGroupIteratorBase implements IDisposable
 	private var flag		: UInt;
 	
 	
-	public function new (styleSheet:IElementStyle, groupFlag:UInt)
+	public function new (styleSheet:IUIElementStyle, groupFlag:UInt)
 	{
 		this.styleSheet	= styleSheet;
 		flag			= groupFlag;
@@ -241,7 +240,7 @@ class StyleGroupIteratorBase implements IDisposable
  * @author Ruben Weijers
  * @creation-date Oct 22, 2010
  */
-class StyleGroupForwardIterator < StyleGroupType > extends StyleGroupIteratorBase
+class StyleCollectionForwardIterator < StyleGroupType > extends StyleCollectionIteratorBase
 			,	implements IIterator < StyleGroupType >
 #if flash9	,	implements haxe.rtti.Generic #end
 {
@@ -256,7 +255,7 @@ class StyleGroupForwardIterator < StyleGroupType > extends StyleGroupIteratorBas
 	
 	
 #if (unitTesting && debug)
-	public function new (styleSheet:IElementStyle, groupFlag:UInt)
+	public function new (styleSheet:IUIElementStyle, groupFlag:UInt)
 	{
 		super( styleSheet, groupFlag );
 		test();
@@ -284,7 +283,7 @@ class StyleGroupForwardIterator < StyleGroupType > extends StyleGroupIteratorBas
  * @author Ruben Weijers
  * @creation-date Oct 22, 2010
  */
-class StyleGroupReversedIterator < StyleGroupType > extends StyleGroupIteratorBase
+class StyleCollectionReversedIterator < StyleGroupType > extends StyleCollectionIteratorBase
 			,	implements IIterator < StyleGroupType >
 #if flash9	,	implements haxe.rtti.Generic #end
 {
@@ -299,7 +298,7 @@ class StyleGroupReversedIterator < StyleGroupType > extends StyleGroupIteratorBa
 
 
 #if (unitTesting && debug)
-	public function new (styleSheet:IElementStyle, groupFlag:UInt)
+	public function new (styleSheet:IUIElementStyle, groupFlag:UInt)
 	{
 		super( styleSheet, groupFlag );
 		test();

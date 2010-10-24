@@ -26,7 +26,7 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
+package primevc.gui.styling;
  import primevc.core.IDisposable;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.fills.IFill;
@@ -45,13 +45,13 @@ package primevc.gui.styling.declarations;
 #end
 
 
-typedef SelectorMapType = SimpleDictionary < String, UIElementStyle >;
+typedef SelectorMapType = SimpleDictionary < String, StyleBlock >;
 
 /**
  * @author Ruben Weijers
  * @creation-date Aug 05, 2010
  */
-class StyleContainer 
+class StyleChildren 
 				implements IDisposable
 			,	implements ICSSFormattable
 #if neko	,	implements ICodeFormattable		#end
@@ -137,7 +137,7 @@ class StyleContainer
 		{
 			code.construct( this );
 			
-			var style:UIElementStyle;
+			var style:StyleBlock;
 			var keys = elementSelectors.keys();
 			
 			for (key in keys)

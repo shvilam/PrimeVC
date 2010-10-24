@@ -26,7 +26,7 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
+package primevc.gui.styling;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
@@ -46,10 +46,10 @@ private typedef Flags	= EffectFlags;
  * @author Ruben Weijers
  * @creation-date Sep 07, 2010
  */
-class EffectStyleDeclarations extends StylePropertyGroup
+class EffectsStyle extends StyleSubBlock
 {
-	private var extendedStyle	: EffectStyleDeclarations;
-	private var superStyle		: EffectStyleDeclarations;
+	private var extendedStyle	: EffectsStyle;
+	private var superStyle		: EffectsStyle;
 	
 	private var _move	: EffectType;
 	private var _resize	: EffectType;

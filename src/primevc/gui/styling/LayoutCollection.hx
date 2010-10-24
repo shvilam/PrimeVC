@@ -26,10 +26,9 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
+package primevc.gui.styling;
  import primevc.gui.layout.LayoutFlags;
- import primevc.gui.styling.declarations.StyleProxyBase;
- import primevc.gui.styling.IElementStyle;
+ import primevc.gui.styling.StyleCollectionBase;
   using primevc.utils.BitUtil;
 
 
@@ -40,11 +39,11 @@ private typedef Flags = LayoutFlags;
  * @author Ruben Weijers
  * @creation-date Sep 23, 2010
  */
-class LayoutStyleProxy extends StyleProxyBase < LayoutStyleDeclarations >
+class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 {
-	public function new (styleSheet:IElementStyle)				{ super( styleSheet, StyleFlags.LAYOUT ); }
-	override public function forwardIterator ()					{ return cast new LayoutGroupForwardIterator( styleSheet, propertyTypeFlag); }
-	override public function reversedIterator ()				{ return cast new LayoutGroupReversedIterator( styleSheet, propertyTypeFlag); }
+	public function new (styleSheet:IUIElementStyle)			{ super( styleSheet, StyleFlags.LAYOUT ); }
+	override public function forwardIterator ()					{ return cast new LayoutCollectionForwardIterator( styleSheet, propertyTypeFlag); }
+	override public function reversedIterator ()				{ return cast new LayoutCollectionReversedIterator( styleSheet, propertyTypeFlag); }
 
 #if debug
 	override public function readProperties (props:Int = -1)	{ return Flags.readProperties( (props == -1) ? filledProperties : props ); }
@@ -52,22 +51,22 @@ class LayoutStyleProxy extends StyleProxyBase < LayoutStyleDeclarations >
 }
 
 
-class LayoutGroupForwardIterator extends StyleGroupForwardIterator < LayoutStyleDeclarations >
+class LayoutCollectionForwardIterator extends StyleCollectionForwardIterator < LayoutStyle >
 {
 	override public function next ()	{ return setNext().data.layout; }
 }
 
 
-class LayoutGroupReversedIterator extends StyleGroupReversedIterator < LayoutStyleDeclarations >
+class LayoutCollectionReversedIterator extends StyleCollectionReversedIterator < LayoutStyle >
 {
 	override public function next ()	{ return setNext().data.layout; }
 }
 
 
 /*
-class LayoutStyleProxy extends LayoutStyleDeclarations
+class LayoutCollection extends LayoutStyle
 {
-	private var target	: StyleSheet;
+	private var target	: UIElementStyle;
 	public var change	(default, null)	: Signal1 < UInt >;
 	
 	
@@ -88,7 +87,7 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	}
 	
 	
-	public function iterator () : Iterator < LayoutStyleDeclarations >
+	public function iterator () : Iterator < LayoutStyle >
 	{
 		return new LayoutStyleIterator( target, StyleFlags.LAYOUT );
 	}
@@ -111,7 +110,7 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 	
 	override public function invalidateCall (changes:UInt, sender:IInvalidatable)
 	{
-		var t = sender.as(LayoutStyleDeclarations);
+		var t = sender.as(LayoutStyle);
 		
 		if (t.owner.type != StyleDeclarationType.id)
 		{
@@ -392,13 +391,13 @@ class LayoutStyleProxy extends LayoutStyleDeclarations
 import primevc.core.collections.DoubleFastCell;
 
 
-private typedef StyleGroupType	= LayoutStyleDeclarations;
-private typedef CellType		= DoubleFastCell < UIElementStyle >;
+private typedef StyleGroupType	= LayoutStyle;
+private typedef CellType		= DoubleFastCell < StyleBlock >;
 
 
 class LayoutStyleIterator  // < StyleGroupType > #if (flash9 || cpp) implements haxe.rtti.Generic #end
 {
-	private var target	: StyleSheet;
+	private var target	: UIElementStyle;
 	private var current	: CellType;
 	private var flag	: UInt;
 	
@@ -417,7 +416,7 @@ class LayoutStyleIterator  // < StyleGroupType > #if (flash9 || cpp) implements 
 	}
 	
 	
-	public function next () : LayoutStyleDeclarations
+	public function next () : LayoutStyle
 	{
 		var c = current;
 		current = current.next;

@@ -35,12 +35,12 @@ package primevc.gui.behaviours.styling;
  import primevc.gui.effects.UIElementEffects;
  import primevc.gui.graphics.GraphicProperties;
  import primevc.gui.layout.LayoutFlags;
- import primevc.gui.styling.declarations.EffectStyleDeclarations;
- import primevc.gui.styling.declarations.FilterFlags;
- import primevc.gui.styling.declarations.FilterStyleDeclarations;
- import primevc.gui.styling.declarations.IStyleDeclaration;
- import primevc.gui.styling.declarations.LayoutStyleDeclarations;
- import primevc.gui.styling.declarations.StyleFlags;
+ import primevc.gui.styling.EffectsStyle;
+ import primevc.gui.styling.FilterFlags;
+ import primevc.gui.styling.FiltersStyle;
+ import primevc.gui.styling.IStyleDeclaration;
+ import primevc.gui.styling.LayoutStyle;
+ import primevc.gui.styling.StyleFlags;
  import primevc.gui.traits.IDrawable;
  import primevc.gui.traits.ISkinnable;
   using primevc.utils.Bind;
@@ -97,7 +97,7 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 		//
 		// LOOP THROUGH ALL AVAILABLE STLYE-BLOCKS TO FIND THE STYLING PROPERTIES
 		//
-		trace(target + ".applyGeneralStyling "+target.style.readProperties( propsToSet ));
+	//	trace(target + ".applyGeneralStyling "+target.style.readProperties( propsToSet ));
 		
 		for (styleObj in target.style)
 		{
@@ -143,7 +143,7 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 		var layout	= target.layout;
 		var style	= target.style.layout;
 		
-		trace(target + ".applyLayoutStyling "+style.readProperties( propsToSet ));
+	//	trace(target + ".applyLayoutStyling "+style.readProperties( propsToSet ));
 		
 		//create size constraint for layout client
 		if (propsToSet.has( LayoutFlags.CONSTRAINT_PROPERTIES ) && layout.sizeConstraint == null)
@@ -200,7 +200,7 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 
 		var filters	= target.filters;
 		var style	= target.style.boxFilters;
-		trace(target + ".applyBoxFilterStyling "+style.readProperties( propsToSet ));
+	//	trace(target + ".applyBoxFilterStyling "+style.readProperties( propsToSet ));
 		
 		if (filters == null)
 			filters = [];
@@ -241,7 +241,7 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 		
 		var effects	= target.effects;
 		var style	= target.style.effects;
-		trace(target + ".applyEffectStyling "+style.readProperties( propsToSet )+"; has "+style.readProperties());
+	//	trace(target + ".applyEffectStyling "+style.readProperties( propsToSet )+"; has "+style.readProperties());
 		
 		for (styleObj in style)
 		{

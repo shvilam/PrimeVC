@@ -27,29 +27,18 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package ;
- import primevc.gui.styling.declarations.StyleContainer;
- import primevc.gui.styling.declarations.StyleDeclarationType;
- import primevc.gui.styling.declarations.UIElementStyle;
+ import primevc.gui.styling.StyleBlock;
 
 
 
 /**
- * This class is a template for generating StyleSheet classes
+ * Empty class to simulate a skin-style-sheet
  */
-class Style extends UIElementStyle
+class StyleSheet extends StyleBlock
 {
 	public function new ()
 	{
-		children = new CurStyleContainer();
-		super(StyleDeclarationType.specific);
-	}
-}
-
-
-class CurStyleContainer extends StyleContainer
-{
-	override private function createSelectors () : Void
-	{
-		//selectors
+		super();
+		trace("empty style");
 	}
 }

@@ -26,7 +26,7 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
+package primevc.gui.styling;
 #if neko
  import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
  import primevc.gui.behaviours.layout.UnclippedLayoutBehaviour;
@@ -41,7 +41,7 @@ package primevc.gui.styling.declarations;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.shapes.IGraphicShape;
- import primevc.gui.styling.declarations.StyleContainer;
+ import primevc.gui.styling.StyleChildren;	//needed for SelectorMapType typedef
  import primevc.types.Bitmap;
  import primevc.types.Number;
  import primevc.utils.StringUtil;
@@ -63,7 +63,7 @@ private typedef Flags = StyleFlags;
  * @author Ruben Weijers
  * @creation-date Aug 04, 2010
  */
-class UIElementStyle extends StyleDeclarationBase
+class StyleBlock extends StyleBlockBase
 	,	implements IStyleDeclaration
 	,	implements IPrioritizable
 {
@@ -102,7 +102,7 @@ class UIElementStyle extends StyleDeclarationBase
 	 * trace(b.font);		//output: "Arial"
 	 * 
 	 */
-	public var nestingInherited		(default, setNestingInherited)	: UIElementStyle;
+	public var nestingInherited		(default, setNestingInherited)	: StyleBlock;
 	
 	/**
 	 * Reference to other style-object of whom this style is inheriting when
@@ -124,7 +124,7 @@ class UIElementStyle extends StyleDeclarationBase
 	 * trace( objA.style.fill );	//output:	SolidFill( 0xfff000 );
 	 * trace( objB.style.fill );	//output:	SolidFill( 0xfff000 );
 	 */
-	public var superStyle			(default, setSuperStyle)		: UIElementStyle;
+	public var superStyle			(default, setSuperStyle)		: StyleBlock;
 	
 	/**
 	 * Style object which was declared for the same property, only before..
@@ -141,10 +141,10 @@ class UIElementStyle extends StyleDeclarationBase
 	 * buttonStyle.font.size = 10;
 	 * buttonStyle.font.family -> buttonStyle.font.extendedStyle.family = "Verdana";
 	 */
-	public var extendedStyle		(default, setExtendedStyle)		: UIElementStyle;
+	public var extendedStyle		(default, setExtendedStyle)		: StyleBlock;
 	
 	/**
-	 * Parent UIElementStyle object. This property is only set if the style 
+	 * Parent StyleBlock object. This property is only set if the style 
 	 * only applies to the children of another style.
 	 * 
 	 * I.e. CSS:
@@ -154,7 +154,7 @@ class UIElementStyle extends StyleDeclarationBase
 	 * will be .headerBlock.
 	 * This property is needed to find the correct inherited styles.
 	 */
-	public var parentStyle			(default, setParentStyle)		: UIElementStyle;
+	public var parentStyle			(default, setParentStyle)		: StyleBlock;
 	
 	
 	//
@@ -171,14 +171,14 @@ class UIElementStyle extends StyleDeclarationBase
 	private var _border		: IBorder<IFill>;
 	private var _shape		: IGraphicShape;
 	
-	private var _layout		: LayoutStyleDeclarations;
-	private var _font		: FontStyleDeclarations;
+	private var _layout		: LayoutStyle;
+	private var _font		: FontStyle;
 	
-	private var _effects	: EffectStyleDeclarations;
-	private var _boxFilters	: FilterStyleDeclarations;
-	private var _bgFilters	: FilterStyleDeclarations;
+	private var _effects	: EffectsStyle;
+	private var _boxFilters	: FiltersStyle;
+	private var _bgFilters	: FiltersStyle;
 	
-	private var _states		: StateStyleDeclarations;
+	private var _states		: StatesStyle;
 	
 	
 	
@@ -195,46 +195,46 @@ class UIElementStyle extends StyleDeclarationBase
 	public var border		(getBorder,		setBorder)		: IBorder<IFill>;
 	public var shape		(getShape,		setShape)		: IGraphicShape;
 	
-	public var layout		(getLayout,		setLayout)		: LayoutStyleDeclarations;
-	public var font			(getFont,		setFont)		: FontStyleDeclarations;
+	public var layout		(getLayout,		setLayout)		: LayoutStyle;
+	public var font			(getFont,		setFont)		: FontStyle;
 	
-	public var effects		(getEffects,	setEffects)		: EffectStyleDeclarations;
-	public var boxFilters	(getBoxFilters,	setBoxFilters)	: FilterStyleDeclarations;
-	public var bgFilters	(getBgFilters,	setBgFilters)	: FilterStyleDeclarations;
+	public var effects		(getEffects,	setEffects)		: EffectsStyle;
+	public var boxFilters	(getBoxFilters,	setBoxFilters)	: FiltersStyle;
+	public var bgFilters	(getBgFilters,	setBgFilters)	: FiltersStyle;
 	
 #if neko
-	public var children		(default,		null)			: StyleContainer;
+	public var children		(default,		null)			: StyleChildren;
 #else
-	public var children		(default,		default)		: StyleContainer;
+	public var children		(default,		default)		: StyleChildren;
 #end
 
-	public var states		(getStates,		setStates)		: StateStyleDeclarations;
+	public var states		(getStates,		setStates)		: StatesStyle;
 	
 	
 	
 	public function new (
 		type		: StyleDeclarationType,
-		layout		: LayoutStyleDeclarations = null,
-		font		: FontStyleDeclarations = null,
+		layout		: LayoutStyle = null,
+		font		: FontStyle = null,
 		shape		: IGraphicShape = null,
 		background	: IFill = null,
 		border		: IBorder < IFill > = null,
 		skin		: Class< ISkin > = null,
 		visible		: Null < Bool > = null,
 		opacity		: Float = Number.INT_NOT_SET,
-		effects		: EffectStyleDeclarations = null,
-		boxFilters	: FilterStyleDeclarations = null,
-		bgFilters	: FilterStyleDeclarations = null,
+		effects		: EffectsStyle = null,
+		boxFilters	: FiltersStyle = null,
+		bgFilters	: FiltersStyle = null,
 		icon		: Bitmap = null,
 		overflow	: Class < Dynamic > = null,
-		states		: StateStyleDeclarations = null
+		states		: StatesStyle = null
 	)
 	{
 		super();
 		this.type = type;
 		
 		if (children == null)
-			children = new StyleContainer();
+			children = new StyleChildren();
 		
 		this.layout		= layout;
 		this.font		= font;
@@ -339,9 +339,9 @@ class UIElementStyle extends StyleDeclarationBase
 	 * for example the original style that is searching for another style with
 	 * the same name.
 	 */
-	public function findStyle ( name:String, type:StyleDeclarationType, ?exclude:UIElementStyle ) : UIElementStyle
+	public function findStyle ( name:String, type:StyleDeclarationType, ?exclude:StyleBlock ) : StyleBlock
 	{
-		var style:UIElementStyle = null;
+		var style:StyleBlock = null;
 		
 		var list = getListForType(type);
 		if (list != null)
@@ -361,14 +361,14 @@ class UIElementStyle extends StyleDeclarationBase
 	/**
 	 * Method searches for the requested statename style-object
 	 */
-	public function findState ( stateName:UInt, styleName:String, styleType:StyleDeclarationType, ?exclude:UIElementStyle, depth:Int = 0 ) : UIElementStyle
+	public function findState ( stateName:UInt, styleName:String, styleType:StyleDeclarationType, ?exclude:StyleBlock, depth:Int = 0 ) : StyleBlock
 	{
-		var stateStyle:UIElementStyle = null;
+		var stateStyle:StyleBlock = null;
 		
 		var list = getListForType(styleType);
 		if (list != null )
 		{
-			var child:UIElementStyle = list.get( styleName );
+			var child:StyleBlock = list.get( styleName );
 			if (child != null && child.hasState(stateName))
 				stateStyle = child.states.get( stateName );
 		}

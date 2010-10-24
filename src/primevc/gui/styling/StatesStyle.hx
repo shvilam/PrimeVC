@@ -26,7 +26,7 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
+package primevc.gui.styling;
  import primevc.core.traits.IInvalidatable;
  import primevc.types.SimpleDictionary;
 #if neko
@@ -35,18 +35,18 @@ package primevc.gui.styling.declarations;
   using primevc.utils.BitUtil;
 
 
-typedef StatesListType	= SimpleDictionary < UInt, UIElementStyle >;
-private typedef Flags	= StyleStates;
+typedef StatesListType	= SimpleDictionary < UInt, StyleBlock >;
+private typedef Flags	= StyleStateFlags;
 
 
 /**
  * @author Ruben Weijers
  * @creation-date Oct 20, 2010
  */
-class StateStyleDeclarations extends StylePropertyGroup
+class StatesStyle extends StyleSubBlock
 {
-	private var extendedStyle	: StateStyleDeclarations;
-	private var superStyle		: StateStyleDeclarations;
+	private var extendedStyle	: StatesStyle;
+	private var superStyle		: StatesStyle;
 	private var _states			: StatesListType;
 	
 	public var states			(getStates, null) : StatesListType;
@@ -182,7 +182,7 @@ class StateStyleDeclarations extends StylePropertyGroup
 	// STATE METHODS
 	//
 	
-	public function set (stateName:UInt, state:UIElementStyle) : Void
+	public function set (stateName:UInt, state:StyleBlock) : Void
 	{
 		if (_states == null && state == null)
 			return;
@@ -195,12 +195,12 @@ class StateStyleDeclarations extends StylePropertyGroup
 	}
 	
 	
-	public function get (stateName:UInt) : UIElementStyle
+	public function get (stateName:UInt) : StyleBlock
 	{
 		if (allFilledProperties.hasNone(stateName))
 			return null;
 		
-		var v:UIElementStyle = null;
+		var v:StyleBlock = null;
 		if (filledProperties.has(stateName))		v = _states.get( stateName );
 		if (v == null && extendedStyle != null)		v = extendedStyle.get( stateName );
 		if (v == null && superStyle != null)		v = superStyle.get( stateName );
@@ -217,7 +217,7 @@ class StateStyleDeclarations extends StylePropertyGroup
 	
 #if (neko || debug)	
 	public function keys () : Iterator < UInt >					{ return states != null ? states.keys() : null; }
-	public function iterator () : Iterator < UIElementStyle >	{ return states != null ? states.iterator() : null; }
+	public function iterator () : Iterator < StyleBlock >	{ return states != null ? states.iterator() : null; }
 
 
 	override public function toCSS (prefix:String = "")
@@ -284,7 +284,7 @@ class StateStyleDeclarations extends StylePropertyGroup
 			statesToFind = addStateStringToArray( statesToFind, output, Flags.VALID );
 		}
 		
-		return "StateStyleDeclarations "+output.join(", ");
+		return "StatesStyle "+output.join(", ");
 	}
 	
 	

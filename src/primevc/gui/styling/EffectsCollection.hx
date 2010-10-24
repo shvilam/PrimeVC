@@ -26,10 +26,9 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
+package primevc.gui.styling;
  import primevc.gui.effects.EffectFlags;
- import primevc.gui.styling.IElementStyle;
- import primevc.gui.styling.declarations.StyleProxyBase;
+ import primevc.gui.styling.StyleCollectionBase;
   using primevc.utils.BitUtil;
 
 
@@ -40,11 +39,11 @@ private typedef Flags = EffectFlags;
  * @author Ruben Weijers
  * @creation-date Oct 04, 2010
  */
-class EffectStyleProxy extends StyleProxyBase < EffectStyleDeclarations >
+class EffectsCollection extends StyleCollectionBase < EffectsStyle >
 {
-	public function new (styleSheet:IElementStyle)				{ super( styleSheet, StyleFlags.EFFECTS ); }
-	override public function forwardIterator ()					{ return cast new EffectGroupForwardIterator( styleSheet, propertyTypeFlag); }
-	override public function reversedIterator ()				{ return cast new EffectGroupReversedIterator( styleSheet, propertyTypeFlag); }
+	public function new (styleSheet:IUIElementStyle)			{ super( styleSheet, StyleFlags.EFFECTS ); }
+	override public function forwardIterator ()					{ return cast new EffectsCollectionForwardIterator( styleSheet, propertyTypeFlag); }
+	override public function reversedIterator ()				{ return cast new EffectsCollectionReversedIterator( styleSheet, propertyTypeFlag); }
 
 #if debug
 	override public function readProperties (props:Int = -1)	{ return Flags.readProperties( (props == -1) ? filledProperties : props ); }
@@ -52,21 +51,21 @@ class EffectStyleProxy extends StyleProxyBase < EffectStyleDeclarations >
 }
 
 
-class EffectGroupForwardIterator extends StyleGroupForwardIterator < EffectStyleDeclarations >
+class EffectsCollectionForwardIterator extends StyleCollectionForwardIterator < EffectsStyle >
 {
 	override public function next ()	{ return setNext().data.effects; }
 }
 
 
-class EffectGroupReversedIterator extends StyleGroupReversedIterator < EffectStyleDeclarations >
+class EffectsCollectionReversedIterator extends StyleCollectionReversedIterator < EffectsStyle >
 {
 	override public function next ()	{ return setNext().data.effects; }
 }
 
 /*
-class EffectStyleProxy extends EffectStyleDeclarations
+class EffectsCollection extends EffectsStyle
 {
-	private var target					: StyleSheet;
+	private var target					: UIElementStyle;
 	public var change	(default, null)	: Signal1 < UInt >;
 	
 	
@@ -104,7 +103,7 @@ class EffectStyleProxy extends EffectStyleDeclarations
 	
 	override public function invalidateCall (changes:UInt, sender:IInvalidatable)
 	{
-		var t = sender.as(EffectStyleDeclarations);
+		var t = sender.as(EffectsStyle);
 		
 		if (t.owner.type != StyleDeclarationType.id)
 		{

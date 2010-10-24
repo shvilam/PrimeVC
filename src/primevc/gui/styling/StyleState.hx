@@ -26,9 +26,8 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
+package primevc.gui.styling;
  import primevc.core.IDisposable;
- import primevc.gui.styling.StyleSheet;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
 
@@ -41,13 +40,13 @@ package primevc.gui.styling.declarations;
 class StyleState implements IDisposable
 {
 	public var current		(default, setCurrent)	: UInt;
-	public var styleSheet	(default, null)			: StyleSheet;
+	public var elementStyle	(default, null)			: UIElementStyle;
 	
 	
-	public function new (styleSheet:StyleSheet, current:Int = 0)
+	public function new (elementStyle:UIElementStyle, current:Int = 0)
 	{
-		this.styleSheet	= styleSheet;
-		this.current	= current;
+		this.elementStyle	= elementStyle;
+		this.current		= current;
 		
 	//	checkStateStyles.on ( styleSheet.change, this );
 	}
@@ -56,8 +55,8 @@ class StyleState implements IDisposable
 	public function dispose ()
 	{
 	//	styleSheet.change.unbind( this );
-		current		= StyleStates.NONE;
-		styleSheet	= null;
+		current			= StyleStateFlags.NONE;
+		elementStyle	= null;
 	}
 	
 	
@@ -68,14 +67,14 @@ class StyleState implements IDisposable
 	
 	private inline function getStates ()
 	{
-		return styleSheet.states;
+		return elementStyle.states;
 	}
 	
 	private inline function setCurrent (v:UInt) : UInt
 	{
 		if (v != current)
 		{
-			Assert.that( styleSheet != null );
+			Assert.that( elementStyle != null );
 			var changes = 0;
 			if (current != 0)
 				changes = changes.set( removeStyles() );
@@ -85,8 +84,8 @@ class StyleState implements IDisposable
 			if (current != 0)
 				changes = changes.set( setStyles() );
 			
-		//	trace("setCurrentState "+v+"; all-states: "+styleSheet.readStates()+"; changedProperties "+styleSheet.readProperties(changes));
-			styleSheet.broadcastChanges( changes );
+		//	trace("setCurrentState "+v+"; all-states: "+elementStyle.readStates()+"; changedProperties "+elementStyle.readProperties(changes));
+			elementStyle.broadcastChanges( changes );
 		}
 		return v;
 	}
@@ -101,7 +100,7 @@ class StyleState implements IDisposable
 	 * styledefinition for the requested state. If a style-definition is found,
 	 * it will be added to the parent.
 	 * 
-	 * @return all the changes in the StyleSheet that are caused by adding the styles
+	 * @return all the changes in the UIElementStyle that are caused by adding the styles
 	 */
 	public function setStyles () : UInt
 	{
@@ -112,7 +111,7 @@ class StyleState implements IDisposable
 		var iterator	= getStates().reversed();
 		for (stateGroup in iterator)
 			if (stateGroup.has( current ))
-				changes = changes.set( styleSheet.addStyle( stateGroup.get( current ) ) );
+				changes = changes.set( elementStyle.addStyle( stateGroup.get( current ) ) );
 		
 		return changes;
 	}
@@ -123,7 +122,7 @@ class StyleState implements IDisposable
 	 * styledefinition for the requested state. If a style-definition is found,
 	 * it will be added to the parent.
 	 * 
-	 * @return all the changes in the StyleSheet that are caused by adding the styles
+	 * @return all the changes in the UIElementStyle that are caused by adding the styles
 	 */
 	public function removeStyles () : UInt
 	{
@@ -133,7 +132,7 @@ class StyleState implements IDisposable
 		var changes = 0;
 		for (stateGroup in getStates())
 			if (stateGroup.has( current ))
-				changes = changes.set( styleSheet.removeStyleCell( styleSheet.styles.getCellForItem( stateGroup.get( current ) ) ) );
+				changes = changes.set( elementStyle.removeStyleCell( elementStyle.styles.getCellForItem( stateGroup.get( current ) ) ) );
 		
 		return changes;
 	}
@@ -142,7 +141,7 @@ class StyleState implements IDisposable
 #if debug
 	public function toString ()
 	{
-		return StyleStates.stateToString( current );
+		return StyleStateFlags.stateToString( current );
 	}
 #end
 }

@@ -27,8 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.tools;
- import primevc.gui.styling.declarations.UIElementStyle;
- import primevc.gui.styling.CSSParser;
+ import primevc.gui.styling.StyleBlock;
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.HaxeCodeGenerator;
   using primevc.utils.TypeUtil;
@@ -58,7 +57,7 @@ class CSSParserMain
 	}
 	
 	
-	private var styles		: UIElementStyle;
+	private var styles		: StyleBlock;
 	private var parser		: CSSParser;
 	private var generator	: HaxeCodeGenerator;
 	private var manifest	: Manifest;
@@ -70,13 +69,13 @@ class CSSParserMain
 	public function new (skin:String)
 	{
 		skinFolder	= skin;
-		styles		= new UIElementStyle(null);
+		styles		= new StyleBlock(null);
 		manifest	= new Manifest( "src/manifest.xml" );
 		parser		= new CSSParser( styles, manifest );
 		generator	= new HaxeCodeGenerator( 2 );
 		generator.instanceIgnoreList.set( styles.uuid, styles );
 		
-		var tplName = "src/primevc/gui/styling/StyleSheet.tpl.hx";
+		var tplName = "src/primevc/tools/StyleSheet.tpl.hx";
 		if (!neko.FileSystem.exists( tplName ))
 			throw "Template does not exist! "+tplName;
 		
@@ -113,7 +112,7 @@ class CSSParserMain
 	public function flush ()
 	{
 		//write haxe code
-		var output = neko.io.File.write( skinFolder + "/Style.hx", false );
+		var output = neko.io.File.write( skinFolder + "/StyleSheet.hx", false );
 		output.writeString( template );
 		output.close();
 	}

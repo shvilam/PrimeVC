@@ -26,10 +26,22 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
+package primevc.gui.styling;
 
 
-enum FilterCollectionType {
-	box;
-	background;
+/**
+ * The order of the types is very important! The lower the type, the higher the
+ * priority of the properties within a style-object of that type.
+ * 
+ * @since	sep 21, 2010
+ * @author	Ruben Weijers
+ */
+enum StyleDeclarationType {
+	element;		//matches elements bases on their class 	(TextField)
+	styleName;		//all css classes that start with a dot.	(.styleName)
+	id;				//all css classes that start with a #		(#uniqueStyleId)
+	specific;		//the style declaration is only meant for one instance (<obj style="..." />)
+	elementState;	//the style declaration is a state of another element-selector (elementSelector:state)
+	styleNameState;	//the style declaration is a state of another stylename-selector (styleNameSelector:state)
+	idState;		//the style declaration is a state of another id-selector (idSelector:state)
 }

@@ -19,7 +19,7 @@ package cases;
  import primevc.gui.effects.SequenceEffect;
  import primevc.gui.effects.SetAction;
  import primevc.gui.effects.WipeEffect;
- import primevc.gui.styling.declarations.UIElementStyle;
+ import primevc.gui.styling.StyleBlock;
  import primevc.gui.styling.CSSParser;
  import primevc.tools.generator.HaxeCodeGenerator;
  import primevc.tools.Manifest;
@@ -655,7 +655,7 @@ class CSSParserMethodTest extends CSSParser
 	public function new ()
 	{
 		super(
-			new UIElementStyle(null),
+			new StyleBlock(null),
 			new Manifest( "../src/manifest.xml" )
 		);
 	}
@@ -1750,12 +1750,12 @@ class CSSParserMethodTest extends CSSParser
 }
 
 /*
-class StyleSheetParser
+class UIElementStyleParser
 {
 	private var loader : URLLoader;
 	
 	
-	public function new (styles:StyleContainer)
+	public function new (styles:StyleChildren)
 	{
 		this.styles = styles;
 		loader = new URLLoader();

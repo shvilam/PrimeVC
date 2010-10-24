@@ -26,7 +26,7 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
+package primevc.gui.styling;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.traits.Validatable;
 #if neko
@@ -44,7 +44,7 @@ package primevc.gui.styling.declarations;
  * @author Ruben Weijers
  * @creation-date Aug 05, 2010
  */
-class StyleDeclarationBase extends Validatable, implements IStyleDeclaration
+class StyleBlockBase extends Validatable, implements IStyleDeclaration
 {
 #if (debug || neko)
 	public var uuid					(default, null)		: String;

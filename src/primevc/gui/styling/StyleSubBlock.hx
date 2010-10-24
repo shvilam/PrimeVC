@@ -26,7 +26,7 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
+package primevc.gui.styling;
  import primevc.core.traits.IInvalidatable;
 
 
@@ -36,9 +36,9 @@ package primevc.gui.styling.declarations;
  * @author Ruben Weijers
  * @creation-date Sep 22, 2010
  */
-class StylePropertyGroup extends StyleDeclarationBase
+class StyleSubBlock extends StyleBlockBase
 {
-	public var owner (default, setOwner)	: UIElementStyle;
+	public var owner (default, setOwner)	: StyleBlock;
 	
 	
 	override public function dispose ()

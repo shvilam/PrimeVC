@@ -27,19 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
- import primevc.core.collections.PriorityList;
- import primevc.core.traits.IInvalidateListener;
- import primevc.core.IDisposable;
- import primevc.gui.styling.declarations.UIElementStyle;
- import primevc.gui.traits.IStylable;
 
 
-/**
- * @author Ruben Weijers
- * @creation-date Oct 22, 2010
- */
-interface IElementStyle implements IInvalidateListener, implements IDisposable
-{
-	public var target		(default, null)			: IStylable;
-	public var styles		(default, null)			: PriorityList < UIElementStyle >;
+enum FilterCollectionType {
+	box;
+	background;
 }

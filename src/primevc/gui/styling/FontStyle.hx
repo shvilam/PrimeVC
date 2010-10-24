@@ -26,12 +26,12 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
+package primevc.gui.styling;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
  import primevc.core.traits.IInvalidatable;
- import primevc.gui.text.FontStyle;
+ import primevc.gui.text.FontStyling;
  import primevc.gui.text.FontWeight;
  import primevc.gui.text.TextAlign;
  import primevc.gui.text.TextDecoration;
@@ -54,18 +54,18 @@ private typedef Flags = FontFlags;
  * @author Ruben Weijers
  * @creation-date Aug 05, 2010
  */
-class FontStyleDeclarations extends StylePropertyGroup
+class FontStyle extends StyleSubBlock
 {
-	private var extendedStyle	: FontStyleDeclarations;
-	private var nestingStyle	: FontStyleDeclarations;
-	private var superStyle		: FontStyleDeclarations;
-	private var parentStyle		: FontStyleDeclarations;
+	private var extendedStyle	: FontStyle;
+	private var nestingStyle	: FontStyle;
+	private var superStyle		: FontStyle;
+	private var parentStyle		: FontStyle;
 	
 	private var _size			: Int;
 	private var _family			: String;
 	private var _color			: Null < RGBA >;
 	private var _weight			: FontWeight;
-	private var _style			: FontStyle;
+	private var _style			: FontStyling;
 	private var _letterSpacing	: Float;
 	private var _align			: TextAlign;
 	private var _decoration		: TextDecoration;
@@ -81,7 +81,7 @@ class FontStyleDeclarations extends StylePropertyGroup
 	public var family			(getFamily,			setFamily)			: String;
 	public var color			(getColor,			setColor)			: Null<RGBA>;
 	public var weight			(getWeight,			setWeight)			: FontWeight;
-	public var style			(getStyle,			setStyle)			: FontStyle;
+	public var style			(getStyle,			setStyle)			: FontStyling;
 	/**
 	 * @default	0
 	 */

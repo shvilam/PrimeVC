@@ -26,7 +26,7 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
+package primevc.gui.styling;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
@@ -50,10 +50,10 @@ private typedef Flags = LayoutFlags;
  * @author Ruben Weijers
  * @creation-date Aug 05, 2010
  */
-class LayoutStyleDeclarations extends StylePropertyGroup
+class LayoutStyle extends StyleSubBlock
 {
-	private var extendedStyle			: LayoutStyleDeclarations;
-	private var superStyle				: LayoutStyleDeclarations;
+	private var extendedStyle			: LayoutStyle;
+	private var superStyle				: LayoutStyle;
 
 	private var _relative				: RelativeLayout;
 	private var _algorithm				: ILayoutAlgorithm;

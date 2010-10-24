@@ -26,22 +26,30 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
+package ;
+ import primevc.gui.styling.StyleChildren;
+ import primevc.gui.styling.StyleDeclarationType;
+ import primevc.gui.styling.StyleBlock;
+
 
 
 /**
- * The order of the types is very important! The lower the type, the higher the
- * priority of the properties within a style-object of that type.
- * 
- * @since	sep 21, 2010
- * @author	Ruben Weijers
+ * This class is a template for generating UIElementStyle classes
  */
-enum StyleDeclarationType {
-	element;		//matches elements bases on their class 	(TextField)
-	styleName;		//all css classes that start with a dot.	(.styleName)
-	id;				//all css classes that start with a #		(#uniqueStyleId)
-	specific;		//the style declaration is only meant for one instance (<obj style="..." />)
-	elementState;	//the style declaration is a state of another element-selector (elementSelector:state)
-	styleNameState;	//the style declaration is a state of another stylename-selector (styleNameSelector:state)
-	idState;		//the style declaration is a state of another id-selector (idSelector:state)
+class StyleSheet extends StyleBlock
+{
+	public function new ()
+	{
+		children = new ApplicationStyleChildren();
+		super(StyleDeclarationType.specific);
+	}
+}
+
+
+class ApplicationStyleChildren extends StyleChildren
+{
+	override private function createSelectors () : Void
+	{
+		//selectors
+	}
 }

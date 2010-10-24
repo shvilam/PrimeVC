@@ -46,8 +46,8 @@ package primevc.gui.core;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.managers.InvalidationManager;
  import primevc.gui.managers.RenderManager;
- import primevc.gui.styling.GlobalStyleSheet;
- import primevc.gui.styling.StyleSheet;
+ import primevc.gui.styling.ApplicationStyle;
+ import primevc.gui.styling.UIElementStyle;
  import primevc.gui.traits.IBehaving;
  import primevc.gui.traits.IDrawable;
  import primevc.gui.traits.ILayoutable;
@@ -90,7 +90,7 @@ class UIWindow extends Window
 	 */
 	public var graphics				(default, null)					: flash.display.Graphics;
 	
-	public var style				(default, null)					: StyleSheet;
+	public var style				(default, null)					: UIElementStyle;
 	public var styleClasses			(default, null)					: Bindable < String >;
 	public var rect					(default, null)					: IntRectangle;
 #end
@@ -110,7 +110,7 @@ class UIWindow extends Window
 		behaviours			= new BehaviourList();
 		graphicData			= new Bindable < GraphicProperties > ();
 		styleClasses		= new Bindable < String >("");
-		style				= new GlobalStyleSheet(this);
+		style				= new ApplicationStyle(this);
 		rect				= new IntRectangle();
 		
 		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );

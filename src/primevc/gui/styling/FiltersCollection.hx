@@ -26,9 +26,8 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling.declarations;
- import primevc.gui.styling.declarations.StyleProxyBase;
- import primevc.gui.styling.IElementStyle;
+package primevc.gui.styling;
+ import primevc.gui.styling.StyleCollectionBase;
   using primevc.utils.BitUtil;
 
 
@@ -39,19 +38,19 @@ private typedef Filter = FilterCollectionType;
  * @author Ruben Weijers
  * @creation-date Sep 29, 2010
  */
-class FilterStyleProxy extends StyleProxyBase < FilterStyleDeclarations >
+class FiltersCollection extends StyleCollectionBase < FiltersStyle >
 {
 	private var type : Filter;
 	
 	
-	public function new (styleSheet:IElementStyle, type:Filter)
+	public function new (styleSheet:IUIElementStyle, type:Filter)
 	{
 		var flag = (type == Filter.background) ? StyleFlags.BACKGROUND_FILTERS : StyleFlags.BOX_FILTERS;
 		super( styleSheet, flag );
 		this.type = type;
 	}
-	override public function forwardIterator ()					{ return cast new FilterGroupForwardIterator( styleSheet, propertyTypeFlag, type); }
-	override public function reversedIterator ()				{ return cast new FilterGroupReversedIterator( styleSheet, propertyTypeFlag, type); }
+	override public function forwardIterator ()					{ return cast new FiltersCollectionForwardIterator( styleSheet, propertyTypeFlag, type); }
+	override public function reversedIterator ()				{ return cast new FiltersCollectionReversedIterator( styleSheet, propertyTypeFlag, type); }
 
 #if debug
 	override public function readProperties (props:Int = -1)	{ return Flags.readProperties( (props == -1) ? filledProperties : props ); }
@@ -59,12 +58,12 @@ class FilterStyleProxy extends StyleProxyBase < FilterStyleDeclarations >
 }
 
 
-class FilterGroupForwardIterator extends StyleGroupForwardIterator < FilterStyleDeclarations >
+class FiltersCollectionForwardIterator extends StyleCollectionForwardIterator < FiltersStyle >
 {
 	private var type : Filter;
 	
 	
-	public function new (styleSheet:IElementStyle, groupFlag:UInt, type:Filter)
+	public function new (styleSheet:IUIElementStyle, groupFlag:UInt, type:Filter)
 	{
 		this.type = type;
 		super( styleSheet, groupFlag );
@@ -80,12 +79,12 @@ class FilterGroupForwardIterator extends StyleGroupForwardIterator < FilterStyle
 }
 
 
-class FilterGroupReversedIterator extends StyleGroupReversedIterator < FilterStyleDeclarations >
+class FiltersCollectionReversedIterator extends StyleCollectionReversedIterator < FiltersStyle >
 {
 	private var type : Filter;
 	
 	
-	public function new (styleSheet:IElementStyle, groupFlag:UInt, type:Filter)
+	public function new (styleSheet:IUIElementStyle, groupFlag:UInt, type:Filter)
 	{
 		this.type = type;
 		super( styleSheet, groupFlag );
@@ -102,9 +101,9 @@ class FilterGroupReversedIterator extends StyleGroupReversedIterator < FilterSty
 }
 
 /*
-class FilterStyleProxy extends FilterStyleDeclarations
+class FiltersCollection extends FiltersStyle
 {
-	private var target	: StyleSheet;
+	private var target	: UIElementStyle;
 	public var change	(default, null)	: Signal1 < UInt >;
 	
 	
@@ -156,7 +155,7 @@ class FilterStyleProxy extends FilterStyleDeclarations
 	
 	override public function invalidateCall (changes:UInt, sender:IInvalidatable)
 	{
-		var t = sender.as(FilterStyleDeclarations);
+		var t = sender.as(FiltersStyle);
 		//if sender is the idStyle, the changes will always be used
 		if (t.owner.type != StyleDeclarationType.id)
 		{

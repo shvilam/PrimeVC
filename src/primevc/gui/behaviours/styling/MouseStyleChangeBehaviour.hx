@@ -32,8 +32,8 @@ package primevc.gui.behaviours.styling;
  import primevc.gui.core.IUIComponent;
  import primevc.gui.events.MouseButton;
  import primevc.gui.events.MouseEvents;
- import primevc.gui.styling.declarations.StyleState;
- import primevc.gui.styling.declarations.StyleStates;
+ import primevc.gui.styling.StyleState;
+ import primevc.gui.styling.StyleStateFlags;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
 
@@ -84,14 +84,14 @@ class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	private function updateBehaviour (changes:UInt) : Void
 	{
 	//	trace(target + ".update; "+getStates().readProperties());
-		var hoverChanged	= changes.has( StyleStates.HOVER );
-		var downChanged		= changes.has( StyleStates.DOWN );
+		var hoverChanged	= changes.has( StyleStateFlags.HOVER );
+		var downChanged		= changes.has( StyleStateFlags.DOWN );
 		
 		if (!hoverChanged && !downChanged)
 			return;
 		
-		var hasHoverState	= getStates().has( StyleStates.HOVER );
-		var hasDownState	= getStates().has( StyleStates.DOWN );
+		var hasHoverState	= getStates().has( StyleStateFlags.HOVER );
+		var hasDownState	= getStates().has( StyleStateFlags.DOWN );
 		
 		
 		// MANAGE STATE OBJECT
@@ -104,8 +104,8 @@ class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 		// MANAGE HOVER
 		if (hoverChanged && !hasHoverState)
 		{
-			if (state != null && state.current == StyleStates.HOVER)
-				state.current = StyleStates.NONE;
+			if (state != null && state.current == StyleStateFlags.HOVER)
+				state.current = StyleStateFlags.NONE;
 			
 			removeHoverBindings();
 		}
@@ -116,8 +116,8 @@ class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 		// MANAGE DOWN
 		if (downChanged && !hasDownState)
 		{
-			if (state != null && state.current == StyleStates.DOWN)
-				state.current = StyleStates.NONE;
+			if (state != null && state.current == StyleStateFlags.DOWN)
+				state.current = StyleStateFlags.NONE;
 			
 			removeDownBindings();
 		}
@@ -197,7 +197,7 @@ class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	
 	private function changeStateToDown ()
 	{
-		state.current = StyleStates.DOWN;
+		state.current = StyleStateFlags.DOWN;
 		downBinding		.disable();
 		upBinding		.enable();
 		globalUpBinding	.enable();
@@ -206,7 +206,7 @@ class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	
 	private function clearState ()
 	{
-		state.current = StyleStates.NONE;
+		state.current = StyleStateFlags.NONE;
 		upBinding		.disable();
 		globalUpBinding	.disable();
 		outBinding		.disable();
@@ -221,7 +221,7 @@ class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 		if (mouseObj.mouseButton() != MouseButton.None)
 			return;
 		
-		state.current = StyleStates.HOVER;
+		state.current = StyleStateFlags.HOVER;
 		overBinding	.disable();
 		outBinding	.enable();
 	}

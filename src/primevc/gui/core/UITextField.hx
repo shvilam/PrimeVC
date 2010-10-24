@@ -29,7 +29,7 @@
 package primevc.gui.core;
 #if flash9
  import flash.text.TextFieldAutoSize;
- import primevc.gui.styling.StyleSheet;
+ import primevc.gui.styling.UIElementStyle;
 #end
  import primevc.core.Bindable;
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
@@ -61,7 +61,7 @@ class UITextField extends TextField, implements IUIElement
 	public var state		(default, null)		: UIElementStates;
 	
 #if flash9
-	public var style		(default, null)		: StyleSheet;
+	public var style		(default, null)		: UIElementStyle;
 	public var styleClasses	(default, null)		: Bindable < String >;
 #end
 	
@@ -71,7 +71,7 @@ class UITextField extends TextField, implements IUIElement
 		super();
 		this.id			= new Bindable<String>(id);
 		styleClasses	= new Bindable<String>();
-		style			= new StyleSheet(this);
+		style			= new UIElementStyle(this);
 		
 		visible			= false;
 		init.onceOn( displayEvents.addedToStage, this );

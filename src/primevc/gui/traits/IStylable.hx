@@ -30,7 +30,7 @@ package primevc.gui.traits;
  import primevc.core.traits.IIdentifiable;
 #if flash9
  import primevc.core.Bindable;
- import primevc.gui.styling.StyleSheet;
+ import primevc.gui.styling.UIElementStyle;
 #end
 
 
@@ -43,7 +43,7 @@ interface IStylable
 	,	implements IDisplayable
 {
 #if flash9
-	public var style		(default, null)			: StyleSheet;
+	public var style		(default, null)			: UIElementStyle;
 	
 	/**
 	 * String containing all the css-classes that the IStyleable should use. 

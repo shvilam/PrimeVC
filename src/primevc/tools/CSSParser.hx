@@ -26,7 +26,7 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling;
+package primevc.tools;
  import haxe.FastList;
  import primevc.core.geom.space.Direction;
  import primevc.core.geom.space.Horizontal;
@@ -93,22 +93,21 @@ package primevc.gui.styling;
  import primevc.gui.layout.algorithms.RelativeAlgorithm;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.RelativeLayout;
- import primevc.gui.styling.declarations.EffectStyleDeclarations;
- import primevc.gui.styling.declarations.FilterCollectionType;
- import primevc.gui.styling.declarations.FilterStyleDeclarations;
- import primevc.gui.styling.declarations.FontStyleDeclarations;
- import primevc.gui.styling.declarations.LayoutStyleDeclarations;
- import primevc.gui.styling.declarations.StateStyleDeclarations;
- import primevc.gui.styling.declarations.StyleContainer;
- import primevc.gui.styling.declarations.StyleDeclarationType;
- import primevc.gui.styling.declarations.StyleStates;
- import primevc.gui.styling.declarations.UIElementStyle;
- import primevc.gui.text.FontStyle;
+ import primevc.gui.styling.EffectsStyle;
+ import primevc.gui.styling.FilterCollectionType;
+ import primevc.gui.styling.FiltersStyle;
+ import primevc.gui.styling.FontStyle;
+ import primevc.gui.styling.LayoutStyle;
+ import primevc.gui.styling.StatesStyle;
+ import primevc.gui.styling.StyleChildren;
+ import primevc.gui.styling.StyleDeclarationType;
+ import primevc.gui.styling.StyleStateFlags;
+ import primevc.gui.styling.StyleBlock;
+ import primevc.gui.text.FontStyling;
  import primevc.gui.text.FontWeight;
  import primevc.gui.text.TextAlign;
  import primevc.gui.text.TextDecoration;
  import primevc.gui.text.TextTransform;
- import primevc.tools.Manifest;
  import primevc.types.Bitmap;
  import primevc.types.Number;
  import primevc.types.RGBA;
@@ -303,7 +302,7 @@ class CSSParser
 	 * container with all the style blocks that are found and parsed. The
 	 * direct styleproperties in this object are used as global properties.
 	 */
-	private var styles					: UIElementStyle;
+	private var styles					: StyleBlock;
 	
 	/**
 	 * List with all styleSheets url's that should be loaded and parsed.
@@ -313,7 +312,7 @@ class CSSParser
 	/**
 	 * block that is currently handled by the parser
 	 */
-	private var currentBlock			: UIElementStyle;
+	private var currentBlock			: StyleBlock;
 	
 	/**
 	 * The path to the current css sheet. This path (combined with the 
@@ -332,7 +331,7 @@ class CSSParser
 	
 	
 	
-	public function new (styles:UIElementStyle, manifest:Manifest = null)
+	public function new (styles:StyleBlock, manifest:Manifest = null)
 	{
 		this.styles		= styles;
 		this.manifest	= manifest;
@@ -680,7 +679,7 @@ class CSSParser
 	 * style-objects in the given stylegroup (recursivly through all 
 	 * child-items).
 	 */
-	private function createStyleStructure (style:UIElementStyle) : Void
+	private function createStyleStructure (style:StyleBlock) : Void
 	{
 		//search in children
 		if (style.hasChildren())
@@ -725,7 +724,7 @@ class CSSParser
 	}
 	
 	
-	private function setExtendedStyle (name:String, style:UIElementStyle)
+	private function setExtendedStyle (name:String, style:StyleBlock)
 	{
 		if (style == null || style.parentStyle == null)
 			return;
@@ -734,7 +733,7 @@ class CSSParser
 	}
 	
 	
-	private function setSuperStyle (name:String, style:UIElementStyle) : Void
+	private function setSuperStyle (name:String, style:StyleBlock) : Void
 	{
 		var parentName = manifest.getFullSuperClassName( name );
 		while (parentName != null && parentName != "")
@@ -749,7 +748,7 @@ class CSSParser
 	}
 	
 	
-	private function findExtendedStatesForStyle (styleName:String, style:UIElementStyle) : Void
+	private function findExtendedStatesForStyle (styleName:String, style:StyleBlock) : Void
 	{
 		var states	= style.states;
 		var keys	= states.keys();
@@ -764,7 +763,7 @@ class CSSParser
 	}
 	
 	
-	private function setExtendedState (stateName:UInt, state:UIElementStyle, styleName:String, style:UIElementStyle)
+	private function setExtendedState (stateName:UInt, state:StyleBlock, styleName:String, style:StyleBlock)
 	{
 		if (state == null || style == null)
 			return;
@@ -773,7 +772,7 @@ class CSSParser
 	}
 	
 	
-	private function findSuperStatesForStyle (styleName:String, style:UIElementStyle) : Void
+	private function findSuperStatesForStyle (styleName:String, style:StyleBlock) : Void
 	{
 		var states	= style.states;
 		var keys	= states.keys();
@@ -793,7 +792,7 @@ class CSSParser
 	}
 	
 	
-	private function setSuperState (stateName:UInt, state:UIElementStyle, styleName:String, style:UIElementStyle)
+	private function setSuperState (stateName:UInt, state:StyleBlock, styleName:String, style:StyleBlock)
 	{
 		if (state == null)
 			return;
@@ -807,7 +806,7 @@ class CSSParser
 	 * Searches recursivly to all superclasses until a super is found or null
 	 * when there is no super class.
 	 */
-	/*private function findParentElemStyle (name:String, list:Hash<UIElementStyle>) : UIElementStyle
+	/*private function findParentElemStyle (name:String, list:Hash<StyleBlock>) : StyleBlock
 	{
 		//get parent from manifest
 		var parent = manifest.getFullParentName( name );
@@ -881,7 +880,7 @@ class CSSParser
 	 */
 	private function setContentBlock ( names:String ):Void
 	{
-		var styleGroup	: UIElementStyle = styles;
+		var styleGroup	: StyleBlock = styles;
 		var type		: StyleDeclarationType;
 		var curList 	: SelectorMapType = null;
 		var depth		= 0;
@@ -925,7 +924,7 @@ class CSSParser
 				currentBlock = curList.get(name);
 			else
 			{
-				currentBlock = new UIElementStyle(type);
+				currentBlock = new StyleBlock(type);
 				currentBlock.parentStyle = styleGroup;
 				curList.set( name, currentBlock );
 			}
@@ -933,7 +932,7 @@ class CSSParser
 			//matched a state
 			if (expr.matched(4) != null)
 			{	
-				var stateName = StyleStates.stringToState( expr.matched(5) );
+				var stateName = StyleStateFlags.stringToState( expr.matched(5) );
 				Assert.that( stateName != 0, "unkown state: "+expr.matched(5) );
 				setStateContentBlock( stateName );
 			}
@@ -952,7 +951,7 @@ class CSSParser
 		if (stateName <= 0 || currentBlock == null)
 			return;
 		
-		var stateList	= (currentBlock.states != null) ? currentBlock.states			: new StateStyleDeclarations();
+		var stateList	= (currentBlock.states != null) ? currentBlock.states			: new StatesStyle();
 		var stateType	= switch (currentBlock.type) {
 			case StyleDeclarationType.element:		StyleDeclarationType.elementState;
 			case StyleDeclarationType.styleName:	StyleDeclarationType.styleNameState;
@@ -960,7 +959,7 @@ class CSSParser
 			default:								currentBlock.type;
 		}
 		
-		var stateBlock	= (stateList.owns( stateName )) ? stateList.get( stateName )	: new UIElementStyle( stateType );
+		var stateBlock	= (stateList.owns( stateName )) ? stateList.get( stateName )	: new StyleBlock( stateType );
 		
 		if (currentBlock.states == null)
 			currentBlock.states = stateList;
@@ -1219,35 +1218,35 @@ class CSSParser
 	private inline function createFontBlock () : Void
 	{
 		if (currentBlock.font == null)
-			currentBlock.font = new FontStyleDeclarations();
+			currentBlock.font = new FontStyle();
 	}
 	
 	
 	private inline function createLayoutBlock () : Void
 	{
 		if (currentBlock.layout == null)
-			currentBlock.layout = new LayoutStyleDeclarations();
+			currentBlock.layout = new LayoutStyle();
 	}
 
 
 	private inline function createEffectsBlock () : Void
 	{
 		if (currentBlock.effects == null)
-			currentBlock.effects = new EffectStyleDeclarations();
+			currentBlock.effects = new EffectsStyle();
 	}
 
 
 	private inline function createBoxFiltersBlock () : Void
 	{
 		if (currentBlock.boxFilters == null)
-			currentBlock.boxFilters = new FilterStyleDeclarations( FilterCollectionType.box );
+			currentBlock.boxFilters = new FiltersStyle( FilterCollectionType.box );
 	}
 
 
 	private inline function createBackgroundFiltersBlock () : Void
 	{
 		if (currentBlock.bgFilters == null)
-			currentBlock.bgFilters = new FilterStyleDeclarations( FilterCollectionType.background );
+			currentBlock.bgFilters = new FiltersStyle( FilterCollectionType.background );
 	}
 	
 	
@@ -1583,9 +1582,9 @@ class CSSParser
 			createFontBlock();
 			currentBlock.font.style =
 			 	switch (fontStyleExpr.matched(1).toLowerCase()) {
-					default:		FontStyle.normal;
-					case "italic":	FontStyle.italic;
-					case "oblique":	FontStyle.oblique;
+					default:		FontStyling.normal;
+					case "italic":	FontStyling.italic;
+					case "oblique":	FontStyling.oblique;
 					case "inherit":	null;
 				}
 			
@@ -2310,7 +2309,7 @@ class CSSParser
 	 * Checks if the given string contains a layout algorithm and parses the
 	 * properties of the algorithm to a algorithm instance.
 	 * If an algorithm is found, the value will be set in 
-	 * LayoutStyleDeclarations.algorithm.
+	 * LayoutStyle.algorithm.
 	 * 
 	 * Supported algorithms are:
 	 * 		+ float-hor ( [[ direction ]], [[ ver-pos ]]? )			(ver-pos defines how the children should be positioned vertical)
