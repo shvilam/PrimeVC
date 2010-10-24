@@ -30,42 +30,32 @@ package primevc.gui.styling;
  import primevc.gui.styling.StyleCollectionBase;
   using primevc.utils.BitUtil;
 
-private typedef Flags = StyleStateFlags;
 
+private typedef Flags = FontFlags
 
 /**
  * @author Ruben Weijers
- * @creation-date Okt 20, 2010
+ * @creation-date Okt 24, 2010
  */
-class StatesCollection extends StyleCollectionBase < StatesStyle >
+class FontCollection extends StyleCollectionBase < FontStyle >
 {
-	public function new (styleSheet:IUIElementStyle)			{ super( styleSheet, StyleFlags.STATES ); }
-	override public function forwardIterator ()					{ return cast new StatesCollectionForwardIterator( styleSheet, propertyTypeFlag); }
-	override public function reversedIterator ()				{ return cast new StatesCollectionReversedIterator( styleSheet, propertyTypeFlag); }
+	public function new (styleSheet:IUIElementStyle)			{ super( styleSheet, StyleFlags.FONT ); }
+	override public function forwardIterator ()					{ return cast new FontCollectionForwardIterator( styleSheet, propertyTypeFlag); }
+	override public function reversedIterator ()				{ return cast new FontCollectionReversedIterator( styleSheet, propertyTypeFlag); }
 
 #if debug
 	override public function readProperties (props:Int = -1)	{ return Flags.readProperties( (props == -1) ? filledProperties : props ); }
 #end
-	
-	
-	/**
-	 * when the states of any style changes, broadcast the change..
-	 */
-	override public function invalidateCall ( changeFromSender, sender )
-	{
-		if (changeFromSender > 0)
-			change.send( changeFromSender );
-	}
 }
 
 
-class StatesCollectionForwardIterator extends StyleCollectionForwardIterator < StatesStyle >
+class FontCollectionForwardIterator extends StyleCollectionForwardIterator < FontStyle >
 {
-	override public function next ()	{ return setNext().data.states; }
+	override public function next ()	{ return setNext().data.font; }
 }
 
 
-class StatesCollectionReversedIterator extends StyleCollectionReversedIterator < StatesStyle >
+class FontCollectionReversedIterator extends StyleCollectionReversedIterator < FontStyle >
 {
-	override public function next ()	{ return setNext().data.states; }
+	override public function next ()	{ return setNext().data.font; }
 }

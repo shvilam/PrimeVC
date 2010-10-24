@@ -128,9 +128,10 @@ class UIElementStyle implements IUIElementStyle
 	 */
 	private var stylesAreSearched		: Bool;
 	
-	public var layout					(default, null)	: LayoutCollection;
-	public var boxFilters				(default, null)	: FiltersCollection;
 	public var effects					(default, null)	: EffectsCollection;
+	public var boxFilters				(default, null)	: FiltersCollection;
+	public var font						(default, null)	: FontCollection;
+	public var layout					(default, null)	: LayoutCollection;
 	/**
 	 * Proxy object to loop through all available states in this object.
 	 */
@@ -180,6 +181,7 @@ class UIElementStyle implements IUIElementStyle
 		if (styleNamesChangeBinding != null)	styleNamesChangeBinding.dispose();
 		if (idChangeBinding != null)			idChangeBinding.dispose();
 		
+		font.dispose();
 		layout.dispose();
 		effects.dispose();
 		boxFilters.dispose();
@@ -199,6 +201,7 @@ class UIElementStyle implements IUIElementStyle
 		boxFilters		= null;
 		effects			= null;
 		states			= null;
+		font			= null;
 	}
 	
 	
@@ -264,9 +267,10 @@ class UIElementStyle implements IUIElementStyle
 		removedBinding.enable();
 		addedBinding.disable();
 		
-		if (layout == null)			layout		= new LayoutCollection(this);
-		if (boxFilters == null)		boxFilters	= new FiltersCollection(this, FilterCollectionType.box);
 		if (effects == null)		effects		= new EffectsCollection(this);
+		if (boxFilters == null)		boxFilters	= new FiltersCollection(this, FilterCollectionType.box);
+		if (font == null)			font		= new FontCollection(this);
+		if (layout == null)			layout		= new LayoutCollection(this);
 		if (states == null)			states		= new StatesCollection(this);
 		
 		stylesAreSearched = false;
