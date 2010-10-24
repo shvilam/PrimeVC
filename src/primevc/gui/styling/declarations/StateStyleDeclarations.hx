@@ -241,8 +241,9 @@ class StateStyleDeclarations extends StylePropertyGroup
 		else
 			return "";
 	}
-
-
+#end
+	
+#if debug
 	override public function readProperties (flags:Int = -1) : String
 	{
 		if (flags == -1)

@@ -86,7 +86,7 @@ class StyleState implements IDisposable
 				changes = changes.set( setStyles() );
 			
 		//	trace("setCurrentState "+v+"; all-states: "+styleSheet.readStates()+"; changedProperties "+styleSheet.readProperties(changes));
-			styleSheet.change.send( changes );
+			styleSheet.broadcastChanges( changes );
 		}
 		return v;
 	}

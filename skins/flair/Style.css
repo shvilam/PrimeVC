@@ -99,6 +99,9 @@ GlobalApp TileList:hover {
 	left: 5px;
 	overflow: drag-scroll;
 }
+#frame2:hover {
+	algorithm: circle;
+}
 
 #frame3 {
 	algorithm: dynamic-tile;

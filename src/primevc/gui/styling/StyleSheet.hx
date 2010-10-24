@@ -287,8 +287,8 @@ class StyleSheet implements IElementStyle
 		updateStatesStyles();		//set de styles for any states that are already set
 		
 		//update filled-properties flag
-		broadcastChanges();
 		stylesAreSearched = true;
+		broadcastChanges();
 	}
 	
 	
@@ -296,13 +296,17 @@ class StyleSheet implements IElementStyle
 	 * Method to loop through all available style objects to find all the 
 	 * properties that are set for the target.
 	 */
-	public function broadcastChanges (changedProperties:Int = -1)
+	public function broadcastChanges (changedProperties:Int = -1) : Int
 	{
+		if (!stylesAreSearched)
+			return changedProperties;
+		
 		updateFilledPropertiesFlag();
 		
 		if (changedProperties == -1)
 			changedProperties = filledProperties; //filledProperties.set( newProps );
 		
+		trace(target+".broadcastChanges "+readProperties(changedProperties));
 		
 		//update state properties
 		if (changedProperties.has( Flags.STATES ))
@@ -359,6 +363,8 @@ class StyleSheet implements IElementStyle
 		
 		if (changedProperties > 0)
 			change.send( changedProperties );
+		
+		return changedProperties;
 	}
 	
 	
@@ -462,16 +468,11 @@ class StyleSheet implements IElementStyle
 		if (currentStates.length > 0)
 		{	
 			//search the style-objects of each state
-			var styleNames = target.styleClasses.value.split(",");
-			
 			for ( state in currentStates )
 				changes = changes.set( state.setStyles() );
 		}
 		
-		if (stylesAreSearched)
-			broadcastChanges ( changes );
-		
-		return changes;
+		return broadcastChanges( changes );
 	}
 	
 	
@@ -488,10 +489,7 @@ class StyleSheet implements IElementStyle
 				changes = changes.set( addStyle( idStyle ) );
 		}
 		
-		if (stylesAreSearched)
-			broadcastChanges ( changes );
-		
-		return changes;
+		return broadcastChanges( changes );
 	}
 	
 	
@@ -513,10 +511,7 @@ class StyleSheet implements IElementStyle
 			}
 		}
 		
-		if (stylesAreSearched)
-			broadcastChanges ( changes );
-		
-		return changes;
+		return broadcastChanges( changes );
 	}
 	
 	
@@ -535,10 +530,10 @@ class StyleSheet implements IElementStyle
 			parentClass	= cast parentClass.getSuperClass();
 		}
 		
-		if (style != null)			changes = changes.set( addStyle( style ));
-		if (stylesAreSearched)		broadcastChanges( changes );
+		if (style != null)
+			changes = changes.set( addStyle( style ));
 		
-		return changes;
+		return broadcastChanges( changes );
 	}
 	
 	

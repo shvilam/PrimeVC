@@ -97,6 +97,7 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 		//
 		// LOOP THROUGH ALL AVAILABLE STLYE-BLOCKS TO FIND THE STYLING PROPERTIES
 		//
+		trace(target + ".applyGeneralStyling "+target.style.readProperties( propsToSet ));
 		
 		for (styleObj in target.style)
 		{
@@ -142,7 +143,7 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 		var layout	= target.layout;
 		var style	= target.style.layout;
 		
-	//	trace(target + ".applyLayoutStyling "+style.readProperties( propsToSet ));
+		trace(target + ".applyLayoutStyling "+style.readProperties( propsToSet ));
 		
 		//create size constraint for layout client
 		if (propsToSet.has( LayoutFlags.CONSTRAINT_PROPERTIES ) && layout.sizeConstraint == null)
@@ -151,6 +152,8 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 		if (!target.is(IUIContainer))
 			propsToSet = propsToSet.unset( LayoutFlags.ALGORITHM | LayoutFlags.CHILD_WIDTH | LayoutFlags.CHILD_HEIGHT );
 		
+		if (propsToSet == 0)
+			return;
 		
 		var styleCell	= target.style.styles.first;
 		var tCont		= target.is(IUIContainer) ? target.as(IUIContainer) : null;
@@ -197,7 +200,7 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 
 		var filters	= target.filters;
 		var style	= target.style.boxFilters;
-	//	trace(target + ".applyBoxFilterStyling "+style.readProperties( propsToSet ));
+		trace(target + ".applyBoxFilterStyling "+style.readProperties( propsToSet ));
 		
 		if (filters == null)
 			filters = [];
@@ -238,7 +241,7 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 		
 		var effects	= target.effects;
 		var style	= target.style.effects;
-	//	trace(target + ".applyEffectStyling "+style.readProperties( propsToSet )+"; has "+style.readProperties());
+		trace(target + ".applyEffectStyling "+style.readProperties( propsToSet )+"; has "+style.readProperties());
 		
 		for (styleObj in style)
 		{
