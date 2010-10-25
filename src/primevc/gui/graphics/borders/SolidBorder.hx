@@ -47,7 +47,6 @@ class SolidBorder extends BorderBase <SolidFill>
 {
 	override public function begin (target:IDrawable, ?bounds:IRectangle) : Void
 	{
-		changes = 0;
 #if flash9
 		target.graphics.lineStyle( weight, fill.color.rgb(), fill.color.alpha().float(), pixelHinting, LineScaleMode.NORMAL, caps, joint );
 #end

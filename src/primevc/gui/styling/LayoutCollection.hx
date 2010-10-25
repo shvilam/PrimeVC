@@ -41,9 +41,9 @@ private typedef Flags = LayoutFlags;
  */
 class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 {
-	public function new (styleSheet:IUIElementStyle)			{ super( styleSheet, StyleFlags.LAYOUT ); }
-	override public function forwardIterator ()					{ return cast new LayoutCollectionForwardIterator( styleSheet, propertyTypeFlag); }
-	override public function reversedIterator ()				{ return cast new LayoutCollectionReversedIterator( styleSheet, propertyTypeFlag); }
+	public function new (elementStyle:IUIElementStyle)			{ super( elementStyle, StyleFlags.LAYOUT ); }
+	override public function forwardIterator ()					{ return cast new LayoutCollectionForwardIterator( elementStyle, propertyTypeFlag); }
+	override public function reversedIterator ()				{ return cast new LayoutCollectionReversedIterator( elementStyle, propertyTypeFlag); }
 
 #if debug
 	override public function readProperties (props:Int = -1)	{ return Flags.readProperties( (props == -1) ? filledProperties : props ); }

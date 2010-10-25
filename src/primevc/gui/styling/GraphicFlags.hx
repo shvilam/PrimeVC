@@ -26,14 +26,44 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.traits;
+package primevc.gui.styling;
+ using primevc.utils.BitUtil;
 
 
 /**
  * @author Ruben Weijers
- * @creation-date Oct 04, 2010
+ * @creation-date Oct 25, 2010
  */
-interface IValidatable implements IInvalidatable 
+class GraphicFlags
 {
-	public function validate () : Void;
+	public static inline var ALL_PROPERTIES		: UInt = SKIN | BACKGROUND | BORDER | SHAPE | VISIBLE | OPACITY | ICON | OVERFLOW;
+	public static inline var DRAWING_PROPERTIES	: UInt = BACKGROUND | BORDER | SHAPE;
+	
+	public static inline var SKIN				: UInt = 1;
+	public static inline var BACKGROUND			: UInt = 2;
+	public static inline var BORDER				: UInt = 4;
+	public static inline var SHAPE				: UInt = 8;
+	public static inline var VISIBLE			: UInt = 16;
+	public static inline var OPACITY			: UInt = 32;
+	public static inline var ICON				: UInt = 64;
+	public static inline var OVERFLOW			: UInt = 128;
+	
+	
+#if debug
+	static public function readProperties (flags:UInt) : String
+	{
+		var output	= [];
+		
+		if (flags.has( BACKGROUND ))			output.push("background");
+		if (flags.has( BORDER ))				output.push("border");
+		if (flags.has( ICON ))					output.push("icon");
+		if (flags.has( OPACITY ))				output.push("opacity");
+		if (flags.has( OVERFLOW ))				output.push("overflow");
+		if (flags.has( SHAPE ))					output.push("shape");
+		if (flags.has( SKIN ))					output.push("skin");
+		if (flags.has( VISIBLE ))				output.push("visible");
+		
+		return "properties: " + output.join(", ");
+	}
+#end
 }

@@ -41,9 +41,9 @@ private typedef Flags = EffectFlags;
  */
 class EffectsCollection extends StyleCollectionBase < EffectsStyle >
 {
-	public function new (styleSheet:IUIElementStyle)			{ super( styleSheet, StyleFlags.EFFECTS ); }
-	override public function forwardIterator ()					{ return cast new EffectsCollectionForwardIterator( styleSheet, propertyTypeFlag); }
-	override public function reversedIterator ()				{ return cast new EffectsCollectionReversedIterator( styleSheet, propertyTypeFlag); }
+	public function new (elementStyle:IUIElementStyle)			{ super( elementStyle, StyleFlags.EFFECTS ); }
+	override public function forwardIterator ()					{ return cast new EffectsCollectionForwardIterator( elementStyle, propertyTypeFlag); }
+	override public function reversedIterator ()				{ return cast new EffectsCollectionReversedIterator( elementStyle, propertyTypeFlag); }
 
 #if debug
 	override public function readProperties (props:Int = -1)	{ return Flags.readProperties( (props == -1) ? filledProperties : props ); }

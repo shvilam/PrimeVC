@@ -239,23 +239,12 @@ class Effect < TargetType, EffectClass:IEffect > extends Invalidatable, implemen
 	}
 
 
-	public function toCSS (prefix:String = "") : String
-	{
-		Assert.abstract();
-		return null;
-	}
-	
-	
-	public function isEmpty ()
-	{
-		return duration <= 0;
-	}
+	public function toCSS (prefix:String = "")		{ Assert.abstract(); return null; }
+	public function isEmpty () : Bool				{ return duration <= 0; }
 #end
 
-#if neko	
-	public function toCode (code:ICodeGenerator) : Void
-	{
-		Assert.abstract();
-	}
+#if neko
+	public function cleanUp ()						{}
+	public function toCode (code:ICodeGenerator)	{ Assert.abstract(); }
 #end
 }

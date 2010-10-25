@@ -28,7 +28,7 @@
  */
 package primevc.gui.styling;
  import primevc.core.traits.IInvalidatable;
- import primevc.core.traits.Validatable;
+ import primevc.core.traits.Invalidatable;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
@@ -44,7 +44,7 @@ package primevc.gui.styling;
  * @author Ruben Weijers
  * @creation-date Aug 05, 2010
  */
-class StyleBlockBase extends Validatable, implements IStyleDeclaration
+class StyleBlockBase extends Invalidatable, implements IStyleBlock
 {
 #if (debug || neko)
 	public var uuid					(default, null)		: String;
@@ -104,12 +104,6 @@ class StyleBlockBase extends Validatable, implements IStyleDeclaration
 	
 #if debug
 	public function readProperties ( flags:Int = -1 )	: String	{ Assert.abstract(); return null; }
-	public function readChanges ( flags:Int = -1 )		: String
-	{
-		if (flags == -1)
-			flags = changes;
-		return readProperties( flags );
-	}
 #end
 	
 	
@@ -119,6 +113,7 @@ class StyleBlockBase extends Validatable, implements IStyleDeclaration
 #end
 	
 #if neko
+	public function cleanUp ()						{ Assert.abstract(); }
 	public function toCode (code:ICodeGenerator)	{ Assert.abstract(); }
 #end
 }

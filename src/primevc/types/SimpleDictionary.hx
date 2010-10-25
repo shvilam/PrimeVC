@@ -34,6 +34,7 @@ package primevc.types;
 #if (neko || debug)
  import primevc.tools.generator.ICodeGenerator;
  import primevc.utils.StringUtil;
+ import primevc.utils.TypeUtil;
 #end
   using primevc.utils.FastArray;
 
@@ -77,7 +78,7 @@ class SimpleDictionary < KType, VType >
 	}
 	
 	
-	public function set (key:KType, val:VType) : Void
+	public function set (key:KType, val:VType) : VType
 	{
 		Assert.notNull( key );
 		Assert.notNull( val );
@@ -91,6 +92,7 @@ class SimpleDictionary < KType, VType >
 		{
 			_values[ index ] = val;
 		}
+		return val;
 	}
 	
 	
@@ -118,6 +120,7 @@ class SimpleDictionary < KType, VType >
 	public inline function isEmpty ()		: Bool					{ return _values.length == 0; }
 	private inline function getLength ()	: Int					{ return _values.length; }
 	public function exists (key:KType)		: Bool					{ return _keys.indexOf( key ) > -1; }
+	public function hasValue (value:VType)	: Bool					{ return _values.indexOf( value ) > -1; }
 	public function keys ()					: Iterator < KType >	{ return new FastArrayForwardIterator < KType > ( _keys ); }
 
 #if debug
@@ -126,6 +129,28 @@ class SimpleDictionary < KType, VType >
 #end
 
 #if neko
+	public function cleanUp ()
+	{
+		var keysToRemove = [];
+		
+		for (i in 0...length)
+		{
+			if (!TypeUtil.is( _values[i], ICodeFormattable))
+				continue;
+			
+			var item = TypeUtil.as( _values[i], ICodeFormattable);
+			item.cleanUp();
+			if (item.isEmpty())
+				keysToRemove.push(_keys[i]);
+		}
+		
+		//remove keys after the loop so that length property won't be messed up
+		for (key in keysToRemove)
+			unset(key);
+		
+	//	trace("end cleaning "+length+"; removed: "+keysToRemove.length);
+	}
+
 	public function toCode (code:ICodeGenerator) : Void
 	{
 		if (!isEmpty())

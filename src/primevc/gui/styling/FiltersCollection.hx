@@ -43,14 +43,14 @@ class FiltersCollection extends StyleCollectionBase < FiltersStyle >
 	private var type : Filter;
 	
 	
-	public function new (styleSheet:IUIElementStyle, type:Filter)
+	public function new (elementStyle:IUIElementStyle, type:Filter)
 	{
 		var flag = (type == Filter.background) ? StyleFlags.BACKGROUND_FILTERS : StyleFlags.BOX_FILTERS;
-		super( styleSheet, flag );
+		super( elementStyle, flag );
 		this.type = type;
 	}
-	override public function forwardIterator ()					{ return cast new FiltersCollectionForwardIterator( styleSheet, propertyTypeFlag, type); }
-	override public function reversedIterator ()				{ return cast new FiltersCollectionReversedIterator( styleSheet, propertyTypeFlag, type); }
+	override public function forwardIterator ()					{ return cast new FiltersCollectionForwardIterator( elementStyle, propertyTypeFlag, type); }
+	override public function reversedIterator ()				{ return cast new FiltersCollectionReversedIterator( elementStyle, propertyTypeFlag, type); }
 
 #if debug
 	override public function readProperties (props:Int = -1)	{ return Flags.readProperties( (props == -1) ? filledProperties : props ); }
@@ -63,10 +63,10 @@ class FiltersCollectionForwardIterator extends StyleCollectionForwardIterator < 
 	private var type : Filter;
 	
 	
-	public function new (styleSheet:IUIElementStyle, groupFlag:UInt, type:Filter)
+	public function new (elementStyle:IUIElementStyle, groupFlag:UInt, type:Filter)
 	{
 		this.type = type;
-		super( styleSheet, groupFlag );
+		super( elementStyle, groupFlag );
 	}
 	
 	override public function next ()
@@ -84,10 +84,10 @@ class FiltersCollectionReversedIterator extends StyleCollectionReversedIterator 
 	private var type : Filter;
 	
 	
-	public function new (styleSheet:IUIElementStyle, groupFlag:UInt, type:Filter)
+	public function new (elementStyle:IUIElementStyle, groupFlag:UInt, type:Filter)
 	{
 		this.type = type;
-		super( styleSheet, groupFlag );
+		super( elementStyle, groupFlag );
 	}
 	
 

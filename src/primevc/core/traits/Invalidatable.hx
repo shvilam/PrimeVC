@@ -41,26 +41,26 @@ package primevc.core.traits;
  */
 class Invalidatable implements IInvalidatable
 {
-	public var changes		(default, null)	: UInt;
 	public var listeners	(default, null)	: FastList< IInvalidateListener >;
 	
 	
 	public function new ()
 	{
-		changes   = 0;
 		listeners = new FastList< IInvalidateListener >();
 	}
 	
 	
 	public function dispose ()
 	{
+		while(!listeners.isEmpty())
+			listeners.pop();
+		
 		listeners = null;
 	}
 	
 	
 	public function invalidate (change:UInt) : Void
 	{
-		changes = changes.set(change);
 		for (listener in listeners)
 			listener.invalidateCall( change, this );
 	}

@@ -61,8 +61,9 @@ class BitmapFilterImpl implements IBitmapFilter
 	
 	
 #if (neko || debug)	
-	public function toCode (code:ICodeGenerator) : Void	{ Assert.abstract(); }
-	public function isEmpty () : Bool					{ Assert.abstract(); return false; }
+	public function cleanUp () : Void				{}
+	public function toCode (code:ICodeGenerator)	{ Assert.abstract(); }
+	public function isEmpty () : Bool				{ Assert.abstract(); return false; }
 #end
 }
 

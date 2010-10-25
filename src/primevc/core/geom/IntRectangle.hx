@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.geom;
- import primevc.core.traits.Validatable;
+ import primevc.core.traits.Invalidatable;
 
 
 /**
@@ -36,7 +36,7 @@ package primevc.core.geom;
  * @author Ruben Weijers
  * @creation-date Aug 03, 2010
  */
-class IntRectangle extends Validatable, implements IRectangle
+class IntRectangle extends Invalidatable, implements IRectangle
 {
 	public var left		(getLeft, setLeft)		: Int;
 	public var right	(getRight, setRight)	: Int;

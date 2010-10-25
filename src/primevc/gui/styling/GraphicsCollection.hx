@@ -26,18 +26,36 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.traits;
+package primevc.gui.styling;
+ import primevc.gui.styling.StyleCollectionBase;
+  using primevc.utils.BitUtil;
 
 
+private typedef Flags = GraphicFlags
 
 /**
  * @author Ruben Weijers
- * @creation-date Oct 04, 2010
+ * @creation-date Okt 25, 2010
  */
-class Validatable extends Invalidatable, implements IValidatable 
+class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 {
-	public function validate ()
-	{
-		changes = 0;
-	}
+	public function new (elementStyle:IUIElementStyle)			{ super( elementStyle, StyleFlags.GRAPHICS ); }
+	override public function forwardIterator ()					{ return cast new GraphicsCollectionForwardIterator( elementStyle, propertyTypeFlag); }
+	override public function reversedIterator ()				{ return cast new GraphicsCollectionReversedIterator( elementStyle, propertyTypeFlag); }
+
+#if debug
+	override public function readProperties (props:Int = -1)	{ return Flags.readProperties( (props == -1) ? filledProperties : props ); }
+#end
+}
+
+
+class GraphicsCollectionForwardIterator extends StyleCollectionForwardIterator < GraphicsStyle >
+{
+	override public function next ()	{ return setNext().data.graphics; }
+}
+
+
+class GraphicsCollectionReversedIterator extends StyleCollectionReversedIterator < GraphicsStyle >
+{
+	override public function next ()	{ return setNext().data.graphics; }
 }

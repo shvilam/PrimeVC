@@ -132,7 +132,7 @@ class UIWindow extends Window
 		createChildren();
 
 #if (flash9 && stats)
-	//	children.add( new Stats() );
+		children.add( new Stats() );
 #end
 	}
 

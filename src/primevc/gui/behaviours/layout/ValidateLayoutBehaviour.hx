@@ -100,7 +100,7 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >, implements I
 	public inline function render ()
 	{
 		var l = target.layout;
-	//	trace("applyPosition " + target + " / " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y);
+	//	trace(target+".applyPosition; " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y);
 		if (target.effects == null)
 		{
 			target.x	= target.rect.left	= l.getHorPosition();

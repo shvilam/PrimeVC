@@ -99,34 +99,30 @@ class LayoutFlags
 	public static function readProperties (flags:UInt) : String
 	{
 		var output	= [];
-		var result	= "";
-	
-		if (flags > 0)
-		{
-			if (flags.has( ALGORITHM ))				output.push("algorithm");
-			if (flags.has( CHILD_HEIGHT ))			output.push("child-height");
-			if (flags.has( CHILD_WIDTH ))			output.push("child-width");
-			if (flags.has( CHILDREN_INVALIDATED ))	output.push("children_invalidated");
-			if (flags.has( HEIGHT ))				output.push("height");
-			if (flags.has( INCLUDE ))				output.push("include");
-			if (flags.has( LIST ))					output.push("list");
-			if (flags.has( MAINTAIN_ASPECT ))		output.push("maintain-aspect-ratio");
-			if (flags.has( MAX_HEIGHT ))			output.push("max-height");
-			if (flags.has( MAX_WIDTH ))				output.push("max-width");
-			if (flags.has( MIN_HEIGHT ))			output.push("min-height");
-			if (flags.has( MIN_WIDTH ))				output.push("min-width");
-			if (flags.has( PADDING ))				output.push("padding");
-			if (flags.has( PERCENT_HEIGHT ))		output.push("percent-height");
-			if (flags.has( PERCENT_WIDTH ))			output.push("percent-width");
-			if (flags.has( RELATIVE ))				output.push("relative");
-			if (flags.has( ROTATION ))				output.push("rotation");
-			if (flags.has( SIZE_CONSTRAINT ))		output.push("size constraint");
-			if (flags.has( X ))						output.push("x");
-			if (flags.has( Y ))						output.push("y");
-			if (flags.has( WIDTH ))					output.push("width");
-			result = output.join(", ");
-		}
-		return "properties: " + result;
+		
+		if (flags.has( ALGORITHM ))				output.push("algorithm");
+		if (flags.has( CHILD_HEIGHT ))			output.push("child-height");
+		if (flags.has( CHILD_WIDTH ))			output.push("child-width");
+		if (flags.has( CHILDREN_INVALIDATED ))	output.push("children_invalidated");
+		if (flags.has( HEIGHT ))				output.push("height");
+		if (flags.has( INCLUDE ))				output.push("include");
+		if (flags.has( LIST ))					output.push("list");
+		if (flags.has( MAINTAIN_ASPECT ))		output.push("maintain-aspect-ratio");
+		if (flags.has( MAX_HEIGHT ))			output.push("max-height");
+		if (flags.has( MAX_WIDTH ))				output.push("max-width");
+		if (flags.has( MIN_HEIGHT ))			output.push("min-height");
+		if (flags.has( MIN_WIDTH ))				output.push("min-width");
+		if (flags.has( PADDING ))				output.push("padding");
+		if (flags.has( PERCENT_HEIGHT ))		output.push("percent-height");
+		if (flags.has( PERCENT_WIDTH ))			output.push("percent-width");
+		if (flags.has( RELATIVE ))				output.push("relative");
+		if (flags.has( ROTATION ))				output.push("rotation");
+		if (flags.has( SIZE_CONSTRAINT ))		output.push("size constraint");
+		if (flags.has( X ))						output.push("x");
+		if (flags.has( Y ))						output.push("y");
+		if (flags.has( WIDTH ))					output.push("width");
+		
+		return "properties: " + output.join(", ");
 	}
 	
 	

@@ -97,12 +97,14 @@ package primevc.tools;
  import primevc.gui.styling.FilterCollectionType;
  import primevc.gui.styling.FiltersStyle;
  import primevc.gui.styling.FontStyle;
+ import primevc.gui.styling.GraphicsStyle;
  import primevc.gui.styling.LayoutStyle;
  import primevc.gui.styling.StatesStyle;
- import primevc.gui.styling.StyleChildren;
- import primevc.gui.styling.StyleDeclarationType;
- import primevc.gui.styling.StyleStateFlags;
  import primevc.gui.styling.StyleBlock;
+ import primevc.gui.styling.StyleBlockType;
+ import primevc.gui.styling.StyleChildren;
+ import primevc.gui.styling.StyleFlags;
+ import primevc.gui.styling.StyleStateFlags;
  import primevc.gui.text.FontStyling;
  import primevc.gui.text.FontWeight;
  import primevc.gui.text.TextAlign;
@@ -113,6 +115,7 @@ package primevc.tools;
  import primevc.types.RGBA;
  import primevc.utils.Color;
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
   using primevc.utils.Color;
   using primevc.utils.ERegUtil;
   using primevc.utils.NumberUtil;
@@ -599,6 +602,7 @@ class CSSParser
 		createStyleStructure( styles );
 		trace("--- DONE ----");
 		trace("REVERSED CSS:");
+	//	throw 1;
 		trace(styles.toCSS());
 	}
 	
@@ -681,13 +685,16 @@ class CSSParser
 	 */
 	private function createStyleStructure (style:StyleBlock) : Void
 	{
+		style.cleanUp();
+		
 		//search in children
-		if (style.hasChildren())
+		if (style.children != null)
 		{
 			findExtendedClassesInList( style.children.idSelectors );
 			findExtendedClassesInList( style.children.styleNameSelectors );
 			findExtendedClassesInList( style.children.elementSelectors );
 			
+			createEmptySuperClassesForList( style.children.elementSelectors );
 			findSuperClassesInList( style.children.elementSelectors );
 		}
 	}
@@ -695,6 +702,9 @@ class CSSParser
 	
 	private function findExtendedClassesInList (list:SelectorMapType) : Void
 	{
+		if (list == null)
+			return;
+
 		var keys = list.keys();
 		
 		for (name in keys)
@@ -702,9 +712,10 @@ class CSSParser
 			Assert.that(name != null);
 			var style = list.get(name);
 			setExtendedStyle( name, style );
+		//	trace("createStyleStructor for "+name);
 			createStyleStructure( style );
 			
-			if (style.hasStates())
+			if (style.filledProperties.has( StyleFlags.STATES ))
 				findExtendedStatesForStyle( name, style );
 		}
 	}
@@ -712,16 +723,59 @@ class CSSParser
 	
 	private function findSuperClassesInList (list:SelectorMapType) : Void
 	{
+		if (list == null)
+			return;
+
 		var keys = list.keys();
 		for (name in keys)
 		{
 			var style = list.get(name);
 			setSuperStyle( name, style );
 			
-			if (style.hasStates())
+			if (style.filledProperties.has( StyleFlags.STATES ))
 				findSuperStatesForStyle( name, style );
 		}
 	}
+	
+	
+	
+	/**
+	 * Method will create empty elementstyles for every element-style-object 
+	 * that be extended to make sure all references are correct..
+	 */
+	private function createEmptySuperClassesForList (list:SelectorMapType) : Void
+	{
+		if (list == null)
+			return;
+		
+		var elementNames = list.keys();
+		
+		for (elementName in elementNames)
+		{
+			var elementStyle = list.get(elementName);
+			
+			//we don't botter checking elements without subclasses
+			if (elementStyle.isEmpty() || elementStyle.parentStyle == styles || !manifest.hasSubClasses(elementName))
+				continue;
+			
+	//		trace("\tsearching for subclasses of "+elementName+": ");
+			//So according to the manifest it is possible that the element can have subclasses.
+			//Before create styleblocks for every subclass, check if the subclasses are used in the parent.
+			//If not, then creating one here is unnecessary.
+			var subClasses = manifest.subClassMap.get( elementName );
+			for (subClassName in subClasses)
+			{
+				//only create an empty styleblock for elements that are also defined in the parentstyle.
+				var childStyle = elementStyle.parentStyle.findChild( subClassName, StyleBlockType.element, elementStyle );
+				if (childStyle == null || childStyle.parentStyle == elementStyle.parentStyle || childStyle.isEmpty())
+					continue;
+				
+	//			trace("\t\tcreating empty styleblock fpr "+subClassName);
+				addStyleBlock( subClassName, StyleBlockType.element, elementStyle.parentStyle );
+			}
+		}
+	}
+	
 	
 	
 	private function setExtendedStyle (name:String, style:StyleBlock)
@@ -729,7 +783,7 @@ class CSSParser
 		if (style == null || style.parentStyle == null)
 			return;
 		
-		style.extendedStyle = style.parentStyle.findStyle( name, style.type, style );
+		style.extendedStyle = style.parentStyle.findChild( name, style.type, style );
 	}
 	
 	
@@ -738,7 +792,7 @@ class CSSParser
 		var parentName = manifest.getFullSuperClassName( name );
 		while (parentName != null && parentName != "")
 		{
-			style.superStyle = style.parentStyle.findStyle( parentName, element, style );
+			style.superStyle = style.parentStyle.findChild( parentName, element, style );
 			
 			if (style.superStyle != null)
 				break;
@@ -750,14 +804,20 @@ class CSSParser
 	
 	private function findExtendedStatesForStyle (styleName:String, style:StyleBlock) : Void
 	{
+		if (!style.owns( StyleFlags.STATES ))
+			return;
+		
+	//	trace("findExtendedStatesForStyle "+styleName);
 		var states	= style.states;
 		var keys	= states.keys();
 		
 		if (keys != null)
 			for (stateName in keys)
 			{
+	//			trace("\t\t"+styleName+":"+stateName);
 				var state = states.get(stateName);
 				setExtendedState( stateName, state, styleName, style );
+				trace("createStyleStructor for "+styleName+":"+stateName);
 				createStyleStructure( state );
 			}
 	}
@@ -774,6 +834,9 @@ class CSSParser
 	
 	private function findSuperStatesForStyle (styleName:String, style:StyleBlock) : Void
 	{
+		if (!style.owns( StyleFlags.STATES ))
+			return;
+
 		var states	= style.states;
 		var keys	= states.keys();
 		
@@ -797,7 +860,7 @@ class CSSParser
 		if (state == null)
 			return;
 		
-		state.superStyle = style.findState( stateName, styleName, StyleDeclarationType.element, state );
+		state.superStyle = style.findState( stateName, styleName, StyleBlockType.element, state );
 	}
 	
 	
@@ -881,8 +944,7 @@ class CSSParser
 	private function setContentBlock ( names:String ):Void
 	{
 		var styleGroup	: StyleBlock = styles;
-		var type		: StyleDeclarationType;
-		var curList 	: SelectorMapType = null;
+		var type		: StyleBlockType;
 		var depth		= 0;
 		var expr		= blockNameExpr;
 		currentBlock	= null;
@@ -903,31 +965,22 @@ class CSSParser
 			var name = expr.matched(3);
 			Assert.notNull(name);
 			
-			if (expr.matched(2) == "#") {
-				type	= StyleDeclarationType.id;
-				curList	= styleGroup.children.idSelectors;
-			}
-			else if (expr.matched(2) == ".") {
-				type	= StyleDeclarationType.styleName;
-				curList	= styleGroup.children.styleNameSelectors;
-			}
+			if (expr.matched(2) == "#")			type	= StyleBlockType.id;
+			else if (expr.matched(2) == ".")	type	= StyleBlockType.styleName;
 			else {
-				type	= StyleDeclarationType.element;
-				curList	= styleGroup.children.elementSelectors;
-				
 				//find fullname of element styles
 				name	= manifest.getFullName( name );
+				type	= StyleBlockType.element;
 			}
 			
+			
+			if (!styleGroup.owns( StyleFlags.CHILDREN ))
+				styleGroup.children = new StyleChildren();
+			
 			//create a styleobject for this name if it doens't exist
-			if (curList.exists(name))
-				currentBlock = curList.get(name);
-			else
-			{
-				currentBlock = new StyleBlock(type);
-				currentBlock.parentStyle = styleGroup;
-				curList.set( name, currentBlock );
-			}
+			currentBlock = styleGroup.children.get(name, type);
+			if (currentBlock == null)
+				currentBlock = addStyleBlock( name, type, styleGroup );
 			
 			//matched a state
 			if (expr.matched(4) != null)
@@ -946,6 +999,15 @@ class CSSParser
 	}
 	
 	
+	private function addStyleBlock (childName:String, childType:StyleBlockType, parentStyle:StyleBlock) : StyleBlock
+	{
+		var childBlock = new StyleBlock(childType);
+		childBlock.parentStyle = parentStyle;
+		parentStyle.children.set( childName, childBlock );
+		return childBlock;
+	}
+	
+	
 	private function setStateContentBlock (stateName:UInt)
 	{
 		if (stateName <= 0 || currentBlock == null)
@@ -953,9 +1015,9 @@ class CSSParser
 		
 		var stateList	= (currentBlock.states != null) ? currentBlock.states			: new StatesStyle();
 		var stateType	= switch (currentBlock.type) {
-			case StyleDeclarationType.element:		StyleDeclarationType.elementState;
-			case StyleDeclarationType.styleName:	StyleDeclarationType.styleNameState;
-			case StyleDeclarationType.id:			StyleDeclarationType.idState;
+			case StyleBlockType.element:		StyleBlockType.elementState;
+			case StyleBlockType.styleName:	StyleBlockType.styleNameState;
+			case StyleBlockType.id:			StyleBlockType.idState;
 			default:								currentBlock.type;
 		}
 		
@@ -1215,54 +1277,69 @@ class CSSParser
 	}
 	
 	
-	private inline function createFontBlock () : Void
-	{
-		if (currentBlock.font == null)
-			currentBlock.font = new FontStyle();
-	}
-	
-	
-	private inline function createLayoutBlock () : Void
-	{
-		if (currentBlock.layout == null)
-			currentBlock.layout = new LayoutStyle();
-	}
-
-
-	private inline function createEffectsBlock () : Void
-	{
-		if (currentBlock.effects == null)
-			currentBlock.effects = new EffectsStyle();
-	}
-
-
-	private inline function createBoxFiltersBlock () : Void
+	private inline function createBoxFiltersBlock ()
 	{
 		if (currentBlock.boxFilters == null)
 			currentBlock.boxFilters = new FiltersStyle( FilterCollectionType.box );
+		return currentBlock.boxFilters;
 	}
 
 
-	private inline function createBackgroundFiltersBlock () : Void
+	private inline function createBackgroundFiltersBlock ()
 	{
 		if (currentBlock.bgFilters == null)
 			currentBlock.bgFilters = new FiltersStyle( FilterCollectionType.background );
+		return currentBlock.bgFilters;
+	}
+
+
+	private inline function createEffectsBlock ()
+	{
+		if (currentBlock.effects == null)
+			currentBlock.effects = new EffectsStyle();
+		return currentBlock.effects;
 	}
 	
 	
-	private inline function createRelativeBlock () : Void
+	private inline function createFontBlock ()
+	{
+		if (currentBlock.font == null)
+			currentBlock.font = new FontStyle();
+		return currentBlock.font;
+	}
+	
+	
+	private inline function createGraphicsBlock ()
+	{
+		if (currentBlock.graphics == null)
+			currentBlock.graphics = new GraphicsStyle();
+		return currentBlock.graphics;
+	}
+
+
+	private inline function createLayoutBlock ()
+	{
+		if (currentBlock.layout == null)
+			currentBlock.layout = new LayoutStyle();
+		return currentBlock.layout;
+	}
+	
+	
+	private inline function createRelativeBlock ()
 	{
 		createLayoutBlock();
 		if (currentBlock.layout.relative == null)
 			currentBlock.layout.relative = new RelativeLayout();
+		return currentBlock.layout.relative;
 	}
 	
 	
-	private inline function createPaddingBlock () : Void
+	private inline function createPaddingBlock ()
 	{
 		createLayoutBlock();
 		if (currentBlock.layout.padding == null)
 			currentBlock.layout.padding = new Box();
+		return currentBlock.layout.padding;
 	}
 	
 	
@@ -1704,31 +1781,33 @@ class CSSParser
 	{
 		if (newFill != null)
 		{
+			var g = createGraphicsBlock();
+			
 			//
 			//there is no background yet or the current background is of the same type as the new background (=replace it)
 			//
-			if ( currentBlock.background == null || currentBlock.background.is( newFill.getClass() ) )
+			if ( g.background == null || g.background.is( newFill.getClass() ) )
 			{
-				currentBlock.background = newFill;
+				g.background = newFill;
 			}
 			//
 			//there is already another background property, but it's not a composed fill yet
 			//
-			else if (!currentBlock.background.is(ComposedFill))
+			else if (!g.background.is(ComposedFill))
 			{
-				var curFill		= currentBlock.background;
+				var curFill		= g.background;
 				var compFill	= new ComposedFill();
 				compFill.add( curFill );
 				compFill.add( newFill );
 				
-				currentBlock.background = compFill;
+				g.background = compFill;
 			}
 			//
 			//there is already an composed fill background property specified. Let's add the newFill to this composed fill.
 			//
 			else
 			{
-				var compFill = currentBlock.background.as(ComposedFill);
+				var compFill = g.background.as(ComposedFill);
 			
 				if (newFill.is(BitmapFill))
 				{
@@ -1929,6 +2008,7 @@ class CSSParser
 	
 	private inline function parseAndSetShape (v:String) : Void
 	{
+		var g = createGraphicsBlock();
 		v = v.trim().toLowerCase();
 		
 		var shape:IGraphicShape = switch (v) {
@@ -1943,7 +2023,7 @@ class CSSParser
 		if (shape == null && triangleExpr.match(v))
 			shape = new Triangle( parsePosition( triangleExpr.matched(2) ) );
 		
-		currentBlock.shape = shape;
+		g.shape = shape;
 	}
 	
 	
@@ -1971,14 +2051,14 @@ class CSSParser
 	{
 		if (newFill != null)
 		{
-			var t = currentBlock;
+			var g = createGraphicsBlock();
 			
 			//create correct border type
-			if (t.border == null)
+			if (g.border == null)
 			{
-				if		(newFill.is(SolidFill))		t.border = cast new SolidBorder( newFill.as( SolidFill ) );
-				else if	(newFill.is(GradientFill))	t.border = cast new GradientBorder( newFill.as( GradientFill ) );
-				else if	(newFill.is(BitmapFill))	t.border = cast new BitmapBorder( newFill.as( BitmapFill ) );
+				if		(newFill.is(SolidFill))		g.border = cast new SolidBorder( 	newFill.as( SolidFill ) );
+				else if	(newFill.is(GradientFill))	g.border = cast new GradientBorder( newFill.as( GradientFill ) );
+				else if	(newFill.is(BitmapFill))	g.border = cast new BitmapBorder(	newFill.as( BitmapFill ) );
 #if debug		else	throw "Fill type: "+Std.string(newFill)+" not supported for border";	#end
 			}
 			else
@@ -1986,18 +2066,18 @@ class CSSParser
 				//copy settings from old border and create a new border bases on the new fill type
 				if (newFill.is(SolidFill))
 				{
-					if (t.border.is(SolidBorder))		t.border.fill	= newFill;
-					else								t.border		= copyBorderSettingsTo( t.border, cast new SolidBorder( newFill.as(SolidFill) ) );
+					if (g.border.is(SolidBorder))		g.border.fill	= newFill;
+					else								g.border		= copyBorderSettingsTo( g.border, cast new SolidBorder( newFill.as(SolidFill) ) );
 				}
 				else if (newFill.is(GradientFill))
 				{
-					if (t.border.is(GradientBorder))	t.border.fill	= newFill;
-					else								t.border		= copyBorderSettingsTo( t.border, cast new GradientBorder( newFill.as(GradientFill) ) );
+					if (g.border.is(GradientBorder))	g.border.fill	= newFill;
+					else								g.border		= copyBorderSettingsTo( g.border, cast new GradientBorder( newFill.as(GradientFill) ) );
 				}
 				else if (newFill.is(BitmapFill))
 				{
-					if (t.border.is(BitmapBorder))		t.border.fill	= newFill;
-					else								t.border		= copyBorderSettingsTo( t.border, cast new BitmapBorder( newFill.as(BitmapFill) ) );
+					if (g.border.is(BitmapBorder))		g.border.fill	= newFill;
+					else								g.border		= copyBorderSettingsTo( g.border, cast new BitmapBorder( newFill.as(BitmapFill) ) );
 				}
 			}
 			
@@ -2009,11 +2089,12 @@ class CSSParser
 	
 	private function setBorderWidth (weight:Float) : Void
 	{
-		if (currentBlock.border != null)
-			currentBlock.border.weight = weight;
+		var g = createGraphicsBlock();
+		if (g.border != null)
+			g.border.weight = weight;
 		else {
-			currentBlock.border = cast new SolidBorder( null );
-			currentBlock.border.weight = weight;
+			g.border = cast new SolidBorder( null );
+			g.border.weight = weight;
 		}
 	}
 	
@@ -2071,28 +2152,25 @@ class CSSParser
 	{
 		var expr = floatUnitGroupValExpr;
 		
-		if (expr.match(v))
+		if (expr.match(v) && currentBlock.graphics != null && currentBlock.graphics.shape != null && currentBlock.graphics.shape.is(RegularRectangle))
 		{
-			if (currentBlock.shape != null && currentBlock.shape.is(RegularRectangle))
+			var shape = currentBlock.graphics.shape.as(RegularRectangle);
+			
+			var topLeft		= getFloat( expr.matched(3) );
+			var topRight	= expr.matched( 8) != null ? getFloat( expr.matched(10) ) : topLeft;
+			var bottomRight	= expr.matched(15) != null ? getFloat( expr.matched(17) ) : topLeft;
+			var bottomLeft	= expr.matched(22) != null ? getFloat( expr.matched(24) ) : topRight;
+			
+			if (shape.corners == null)
 			{
-				var shape = currentBlock.shape.as(RegularRectangle);
-				
-				var topLeft		= getFloat( expr.matched(3) );
-				var topRight	= expr.matched( 8) != null ? getFloat( expr.matched(10) ) : topLeft;
-				var bottomRight	= expr.matched(15) != null ? getFloat( expr.matched(17) ) : topLeft;
-				var bottomLeft	= expr.matched(22) != null ? getFloat( expr.matched(24) ) : topRight;
-				
-				if (shape.corners == null)
-				{
-					shape.corners = new Corners( topLeft, topRight, bottomRight, bottomLeft );
-				}
-				else
-				{
-					shape.corners.topLeft		= topLeft;
-					shape.corners.topRight		= topRight;
-					shape.corners.bottomRight	= bottomRight;
-					shape.corners.bottomLeft	= bottomLeft;
-				}
+				shape.corners = new Corners( topLeft, topRight, bottomRight, bottomLeft );
+			}
+			else
+			{
+				shape.corners.topLeft		= topLeft;
+				shape.corners.topRight		= topRight;
+				shape.corners.bottomRight	= bottomRight;
+				shape.corners.bottomLeft	= bottomLeft;
 			}
 		}
 	}
@@ -2133,9 +2211,9 @@ class CSSParser
 	private inline function getCorners () : Corners
 	{
 		var r:Corners = null;
-		if (currentBlock.shape != null && currentBlock.shape.is(RegularRectangle))
+		if (currentBlock.graphics != null && currentBlock.graphics.shape != null && currentBlock.graphics.shape.is(RegularRectangle))
 		{
-			var shape = currentBlock.shape.as(RegularRectangle);
+			var shape = currentBlock.graphics.shape.as(RegularRectangle);
 			if (shape.corners == null)
 				shape.corners = new Corners();
 			
@@ -3003,13 +3081,13 @@ class CSSParser
 	private function parseAndSetSkin (v:String) : Void
 	{
 		if (isClassReference(v))
-			currentBlock.skin = cast parseClassReference(v);
+			createGraphicsBlock().skin = cast parseClassReference(v);
 	}
 	
 	
 	private function parseAndSetVisibility (v:String) : Void
 	{
-		currentBlock.visible = switch (v.trim().toLowerCase()) {
+		createGraphicsBlock().visible = switch (v.trim().toLowerCase()) {
 			default:		null;
 			case "visible":	true;
 			case "hidden":	false;
@@ -3020,7 +3098,7 @@ class CSSParser
 	private function parseAndSetOpacity (v:String) : Void
 	{
 		if (isFloat(v))
-			currentBlock.opacity = parseFloat(v);
+			createGraphicsBlock().opacity = parseFloat(v);
 	}
 	
 	
@@ -3028,7 +3106,7 @@ class CSSParser
 	{
 		var bmp = parseBitmap(v);
 		if (bmp != null)
-			currentBlock.icon = bmp;
+			createGraphicsBlock().icon = bmp;
 	}
 	
 	
@@ -3046,7 +3124,7 @@ class CSSParser
 	 */
 	private function parseAndSetOverflow (v:String) : Void
 	{
-		currentBlock.overflow = switch (v.trim().toLowerCase()) {
+		createGraphicsBlock().overflow = switch (v.trim().toLowerCase()) {
 			case "visible":				cast UnclippedLayoutBehaviour;
 			case "hidden":				cast ClippedLayoutBehaviour;
 			case "scroll-mouse-move":	cast MouseMoveScrollBehaviour;

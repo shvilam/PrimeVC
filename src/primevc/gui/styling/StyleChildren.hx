@@ -65,35 +65,100 @@ class StyleChildren
 	public var idSelectors			(default, null) : SelectorMapType;
 	
 	
-	public function new ()
+	public function new (
+			elementSelectors:SelectorMapType = null,
+			styleNameSelectors:SelectorMapType = null,
+			idSelectors = null
+		)
 	{
 #if neko
 		uuid = StringUtil.createUUID();
 #end
-		elementSelectors	= new SelectorMapType();
+		this.elementSelectors	= elementSelectors;
+		this.styleNameSelectors	= styleNameSelectors;
+		this.idSelectors		= idSelectors;
+	/*	elementSelectors	= new SelectorMapType();
 		styleNameSelectors	= new SelectorMapType();
-		idSelectors			= new SelectorMapType();
+		idSelectors			= new SelectorMapType();*/
 		
-		createSelectors();
+		fillSelectors();
 	}
 	
 	
 	public function dispose ()
 	{
-		elementSelectors.dispose();
-		styleNameSelectors.dispose();
-		idSelectors.dispose();
+		if (elementSelectors != null)	elementSelectors.dispose();
+		if (styleNameSelectors != null)	styleNameSelectors.dispose();
+		if (idSelectors != null)		idSelectors.dispose();
 		
 		elementSelectors = styleNameSelectors = idSelectors = null;
 	}
 	
 	
-	private function createSelectors ()				: Void {} // Assert.abstract(); }
+	private function fillSelectors () : Void {} // Assert.abstract(); }
 	
 	
 	public function isEmpty ()
 	{
-		return idSelectors.isEmpty() && styleNameSelectors.isEmpty() && elementSelectors.isEmpty();
+		return (idSelectors == null || idSelectors.isEmpty())
+			&& (styleNameSelectors == null || styleNameSelectors.isEmpty()) 
+			&& (elementSelectors == null || elementSelectors.isEmpty());
+	}
+	
+	
+	private inline function getListForType (type:StyleBlockType) : SelectorMapType
+	{
+		Assert.notNull(type);
+		return switch (type) {
+				case element:	elementSelectors;
+				case styleName:	styleNameSelectors;
+				case id:		idSelectors;
+				default:		null;
+			}
+	}
+	
+	
+	/**
+	 * Method checks if one of the lists with children has the requested child
+	 */
+	public function has (childName:String, childType:StyleBlockType) : Bool
+	{
+		var list = getListForType(childType);
+		return list != null && list.exists(childName);
+	}
+	
+	
+	/**
+	 * Method checks if one of the lists with children has the requested child
+	 * and returns it
+	 */
+	public function get (childName:String, childType:StyleBlockType) : StyleBlock
+	{
+		var list = getListForType(childType);
+		return (list != null) ? list.get(childName) : null;
+	}
+	
+	
+	/**
+	 * Method add's the given child to the correct list
+	 */
+	public function set (childName:String, child:StyleBlock) : StyleBlock
+	{
+		var list = getListForType(child.type);
+		if (list == null)
+		{
+			list = switch (child.type) {
+				case element:	elementSelectors	= new SelectorMapType();
+				case styleName:	styleNameSelectors	= new SelectorMapType();
+				case id:		idSelectors			= new SelectorMapType();
+				default:		null;
+			}
+		}
+		
+		if (list != null)
+			list.set(childName, child);
+		
+		return child;
 	}
 	
 	
@@ -105,9 +170,12 @@ class StyleChildren
 	{
 		var css = "";
 		
-		if (!idSelectors.isEmpty())			css += hashToCSSString( namePrefix, idSelectors, "#" );
-		if (!styleNameSelectors.isEmpty())	css += hashToCSSString( namePrefix, styleNameSelectors, "." );
-		if (!elementSelectors.isEmpty())	css += hashToCSSString( namePrefix, elementSelectors, "" );
+		if (!isEmpty())
+		{
+			if (idSelectors != null)		css += hashToCSSString( namePrefix, idSelectors, "#" );
+			if (styleNameSelectors != null)	css += hashToCSSString( namePrefix, styleNameSelectors, "." );
+			if (elementSelectors != null)	css += hashToCSSString( namePrefix, elementSelectors, "" );
+		}
 		
 		return css;
 	}
@@ -123,7 +191,7 @@ class StyleChildren
 			var val = hash.get(key);
 			var name = (namePrefix + " " + keyPrefix + key).trim();
 			
-			if (!val.allPropertiesEmpty())
+			if (!val.isEmpty())
 				css += "\n" + val.toCSS( name );
 		}
 		return css;
@@ -131,38 +199,41 @@ class StyleChildren
 #end
 
 #if neko
+	public function cleanUp ()
+	{
+		if (idSelectors != null)
+		{
+			idSelectors.cleanUp();
+			if (idSelectors.isEmpty()) {
+				idSelectors.dispose();
+				idSelectors = null;
+			}
+		}
+		
+		if (styleNameSelectors != null)
+		{
+			styleNameSelectors.cleanUp();
+			if (styleNameSelectors.isEmpty()) {
+				styleNameSelectors.dispose();
+				styleNameSelectors = null;
+			}
+		}
+		
+		if (elementSelectors != null)
+		{
+			elementSelectors.cleanUp();
+			if (elementSelectors.isEmpty()) {
+				elementSelectors.dispose();
+				elementSelectors = null;
+			}
+		}
+	}
+	
+	
 	public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())
-		{
-			code.construct( this );
-			
-			var style:StyleBlock;
-			var keys = elementSelectors.keys();
-			
-			for (key in keys)
-			{
-				style = elementSelectors.get(key);
-				if (!style.isEmpty())
-					code.setAction(this, "elementSelectors.set", [ key, style ]);
-			}
-			
-			keys = styleNameSelectors.keys();
-			for (key in keys)
-			{
-				style = styleNameSelectors.get(key);
-				if (!style.isEmpty())
-					code.setAction(this, "styleNameSelectors.set", [ key, style ]);
-			}
-			
-			keys = idSelectors.keys();
-			for (key in keys)
-			{
-				style = idSelectors.get(key);
-				if (!style.isEmpty())
-					code.setAction(this, "idSelectors.set", [ key, style ]);
-			}
-		}
+			code.construct( this, [ elementSelectors, styleNameSelectors, idSelectors ] );
 	}
 #end
 }

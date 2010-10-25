@@ -52,6 +52,9 @@ private typedef Flags = LayoutFlags;
  */
 class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<LayoutClient>, implements IAdvancedLayoutClient, implements IScrollableLayout
 {
+	public static inline var EMPTY_PADDING : Box = new Box(0,0);
+	
+	
 	public var algorithm			(default, setAlgorithm)			: ILayoutAlgorithm;
 	public var children				(default, null)					: IList<LayoutClient>;
 	
@@ -65,7 +68,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	
 	public function new (newWidth:Int = 0, newHeight:Int = 0)
 	{
-		padding				= new Box(0, 0);
+		padding				= EMPTY_PADDING;
 		children			= new ArrayList<LayoutClient>();
 		scrollPos			= new BindablePoint();
 		
@@ -318,6 +321,15 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
 		}
 		return v;
+	}
+	
+	
+	override private function setPadding (v:Box)
+	{	
+		if (v == null)
+			v = EMPTY_PADDING;
+		
+		return super.setPadding(v);
 	}
 	
 	

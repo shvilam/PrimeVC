@@ -28,7 +28,7 @@
  */
 package ;
  import primevc.gui.styling.StyleChildren;
- import primevc.gui.styling.StyleDeclarationType;
+ import primevc.gui.styling.StyleBlockType;
  import primevc.gui.styling.StyleBlock;
 
 
@@ -40,15 +40,20 @@ class StyleSheet extends StyleBlock
 {
 	public function new ()
 	{
+		super(StyleBlockType.specific);
 		children = new ApplicationStyleChildren();
-		super(StyleDeclarationType.specific);
 	}
 }
 
 
 class ApplicationStyleChildren extends StyleChildren
 {
-	override private function createSelectors () : Void
+	public function new ()
+	{
+		super( new SelectorMapType(), new SelectorMapType(), new SelectorMapType() );
+	}
+	
+	override private function fillSelectors () : Void
 	{
 		//selectors
 	}

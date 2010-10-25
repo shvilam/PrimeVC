@@ -50,19 +50,15 @@ class FilterFlags
 	public static function readProperties (flags:UInt) : String
 	{
 		var output	= [];
-		var result	= "";
-
-		if (flags > 0)
-		{
-			if (flags.has( BEVEL ))				output.push("bevel");
-			if (flags.has( BLUR ))				output.push("blur");
-			if (flags.has( GLOW ))				output.push("glow");
-			if (flags.has( GRADIENT_BEVEL ))	output.push("gradient-bevel");
-			if (flags.has( GRADIENT_GLOW ))		output.push("gradient-glow");
-			if (flags.has( SHADOW ))			output.push("shadow");
-			result = output.join(", ");
-		}
-		return "properties: " + result;
+		
+		if (flags.has( BEVEL ))				output.push("bevel");
+		if (flags.has( BLUR ))				output.push("blur");
+		if (flags.has( GLOW ))				output.push("glow");
+		if (flags.has( GRADIENT_BEVEL ))	output.push("gradient-bevel");
+		if (flags.has( GRADIENT_GLOW ))		output.push("gradient-glow");
+		if (flags.has( SHADOW ))			output.push("shadow");
+		
+		return "properties: " + output.join(", ");
 	}
 #end
 }

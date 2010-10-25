@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics;
- import primevc.core.traits.Validatable;
+ import primevc.core.traits.Invalidatable;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
@@ -43,7 +43,7 @@ package primevc.gui.graphics;
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-class GraphicElement extends Validatable, implements IGraphicElement 
+class GraphicElement extends Invalidatable, implements IGraphicElement 
 {
 #if (neko || debug)
 	public var uuid (default, null)	: String;
@@ -72,5 +72,6 @@ class GraphicElement extends Validatable, implements IGraphicElement
 	public function toString () : String				{ return toCSS(); }
 	public function toCSS (prefix:String = "") : String	{ Assert.abstract(); return ""; }
 	public function isEmpty () : Bool					{ return false; }
+	public function cleanUp () : Void					{}
 #end
 }

@@ -129,8 +129,6 @@ class FontStyle extends StyleSubBlock
 		this.columnCount	= columnCount;
 		this.columnGap		= columnGap;
 		this.columnWidth	= columnWidth;
-		
-		validate();
 	}
 	
 	
@@ -672,6 +670,8 @@ class FontStyle extends StyleSubBlock
 		if (!isEmpty())
 			code.construct( this, [ _size, _family, _color, _weight, _style, _letterSpacing, _align, _decoration, _indent, _transform, _textWrap, _columnCount, _columnGap, _columnWidth ] );
 	}
+	
+	override public function cleanUp () {}
 #end
 
 #if debug

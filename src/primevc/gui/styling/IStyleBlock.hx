@@ -38,7 +38,7 @@ package primevc.gui.styling;
  * @author Ruben Weijers
  * @creation-date Aug 05, 2010
  */
-interface IStyleDeclaration
+interface IStyleBlock
 				implements IInvalidatable	
 			,	implements ICSSFormattable
 #if neko	,	implements ICodeFormattable		#end
@@ -83,11 +83,5 @@ interface IStyleDeclaration
 	 * If flags is -1, the property 'filledProperties' will be used.
 	 */
 	public function readProperties ( flags:Int = -1 )				: String;
-	
-	/**
-	 * Method to format the changed properties to a readable string.
-	 * If flags is -1, the property 'changes' will be used.
-	 */
-	public function readChanges ( flags:Int = -1 )					: String;
 #end
 }

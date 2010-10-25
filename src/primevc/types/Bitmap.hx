@@ -383,7 +383,7 @@ class Bitmap
 #if (debug || neko)
 	public function isEmpty ()
 	{
-		return false;
+		return url == null && asset == null && data == null;
 	}
 	
 	
@@ -396,6 +396,8 @@ class Bitmap
 #end
 
 #if neko
+	public function cleanUp () : Void {}
+	
 	public function toCode (code:ICodeGenerator)
 	{
 		code.construct(this);

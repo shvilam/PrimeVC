@@ -61,27 +61,23 @@ class FontFlags
 	public static function readProperties (flags:UInt) : String
 	{
 		var output	= [];
-		var result	= "";
-
-		if (flags > 0)
-		{
-			if (flags.has( ALIGN ))				output.push("align");
-			if (flags.has( COLOR ))				output.push("color");
-			if (flags.has( COLUMN_COUNT ))		output.push("column-count");
-			if (flags.has( COLUMN_GAP ))		output.push("column-gap");
-			if (flags.has( COLUMN_WIDTH ))		output.push("column-width");
-			if (flags.has( DECORATION ))		output.push("decoration");
-			if (flags.has( FAMILY ))			output.push("family");
-			if (flags.has( INDENT ))			output.push("indent");
-			if (flags.has( LETTER_SPACING ))	output.push("letter-spacing");
-			if (flags.has( SIZE ))				output.push("size");
-			if (flags.has( STYLE ))				output.push("style");
-			if (flags.has( TEXTWRAP ))			output.push("textwrap");
-			if (flags.has( TRANSFORM ))			output.push("transform");
-			if (flags.has( WEIGHT ))			output.push("weight");
-			result = output.join(", ");
-		}
-		return "properties: " + result;
+		
+		if (flags.has( ALIGN ))				output.push("align");
+		if (flags.has( COLOR ))				output.push("color");
+		if (flags.has( COLUMN_COUNT ))		output.push("column-count");
+		if (flags.has( COLUMN_GAP ))		output.push("column-gap");
+		if (flags.has( COLUMN_WIDTH ))		output.push("column-width");
+		if (flags.has( DECORATION ))		output.push("decoration");
+		if (flags.has( FAMILY ))			output.push("family");
+		if (flags.has( INDENT ))			output.push("indent");
+		if (flags.has( LETTER_SPACING ))	output.push("letter-spacing");
+		if (flags.has( SIZE ))				output.push("size");
+		if (flags.has( STYLE ))				output.push("style");
+		if (flags.has( TEXTWRAP ))			output.push("textwrap");
+		if (flags.has( TRANSFORM ))			output.push("transform");
+		if (flags.has( WEIGHT ))			output.push("weight");
+		
+		return "properties: " + output.join(", ");
 	}
 #end
 }

@@ -152,8 +152,6 @@ class BitmapFill extends GraphicElement, implements IFill
 	
 	public inline function begin (target:IDrawable, ?bounds:IRectangle)
 	{
-		changes = 0;
-		
 		if (bitmap.state.is(BitmapStates.ready))
 		{
 #if flash9

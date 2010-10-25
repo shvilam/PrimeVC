@@ -36,7 +36,7 @@ package primevc.gui.styling;
  * @since	sep 21, 2010
  * @author	Ruben Weijers
  */
-enum StyleDeclarationType {
+enum StyleBlockType {
 	element;		//matches elements bases on their class 	(TextField)
 	styleName;		//all css classes that start with a dot.	(.styleName)
 	id;				//all css classes that start with a #		(#uniqueStyleId)

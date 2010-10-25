@@ -7,7 +7,8 @@ PRJROOT="${BUILDSCRIPTDIR}/.."
 MINPARAMS=1
 Style=$1
 MainClass="primevc.tools.CSSParserMain"
-ParserClass="primevc.gui.styling.CSSParser"
+ParserClass="primevc.tools.CSSParser"
+ManifestFile="${PRJROOT}/src/manifest.xml"
 MainFile="${PRJROOT}/src/${MainClass//.//}.hx"		#replace all dots with slashes
 ParserClass="${PRJROOT}/src/${ParserClass//.//}.hx"	#replace all dots with slashes
 Parser="${PRJROOT}/build/parser.n"
@@ -42,14 +43,14 @@ if ${Force} || [[ ! -f ${Parser} ]]  ||  test ${MainFile} -nt ${Parser}  ||  tes
 fi;
 
 #compile css
-if [[ -d ${Style} ]] && [[ -f ${StyleInputFile} ]] && [[ -f ${Parser} ]] ; then
-	if ${CompilerUpdated} || [[ ! -f ${StyleOutputFile} ]] || test ${StyleInputFile} -nt ${StyleOutputFile} ; then
+if [[ -d ${Style} ]] && [[ -f ${ManifestFile} ]] && [[ -f ${StyleInputFile} ]] && [[ -f ${Parser} ]] ; then
+	if ${CompilerUpdated} || [[ ! -f ${StyleOutputFile} ]] || test ${StyleInputFile} -nt ${StyleOutputFile} || test ${ManifestFile} -nt ${StyleOutputFile} ; then
 		echo "Running parser on ${StyleInputFile}" &&
 		neko ${Parser} ${Style}
 	else	
 		echo "Style is already compiled and up to date.."
 	fi;
 else
-	echo "Style '${StyleInputFile}' doesn't exist!" &&
+	echo "Style '${StyleInputFile}' or manifest '${ManifestFile}' doesn't exist!" &&
 	exit 1
 fi;

@@ -36,7 +36,7 @@ package primevc.core.traits;
  */
 interface IInvalidatable implements IInvalidateListener
 {
-	public var changes (default, null)			: UInt;
+//	public var changes (default, null)			: UInt;
 	
 	/**
 	 * List with IInvalidatables that want to be notified when values in this

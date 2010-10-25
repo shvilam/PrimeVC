@@ -46,6 +46,12 @@ interface ICodeFormattable implements IUIdentifiable
 		 * Returns true when some values within the object are set, otherwise false
 		 */
 		public function isEmpty () : Bool;
+		
+		/**
+		 * Method to remove empty properties from the object. This way, unused
+		 * code will be removed.
+		 */
+		public function cleanUp () : Void;
 	#end
 }
 #else

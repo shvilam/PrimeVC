@@ -1,7 +1,7 @@
 -lib feffects
 
 -D Full
--D stats
+#-D stats
 #-D network-sandbox
 #-D FlashTrace
 #-D MonsterTrace

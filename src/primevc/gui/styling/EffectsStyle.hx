@@ -103,14 +103,13 @@ class EffectsStyle extends StyleSubBlock
 		this.scale	= scale;
 		this.show	= show;
 		this.hide	= hide;
-		
-		validate();
 	}
 	
 	
 	override public function dispose ()
 	{
 		_move = _resize = _rotate = _scale = _show = _hide = null;
+		extendedStyle = superStyle = null;
 		super.dispose();
 	}
 	
@@ -344,16 +343,67 @@ class EffectsStyle extends StyleSubBlock
 		else
 			return "";
 	}
-	
-	
-/*	override public function isEmpty ()
-	{
-		return _move == null && _resize == null && _rotate == null && _scale == null && _show == null && _hide == null;
-	}*/
 #end
-	
-	
+
 #if neko
+	override public function cleanUp ()
+	{
+		if (_move != null)
+		{
+			_move.cleanUp();
+			if (_move.isEmpty()) {
+				_move.dispose();
+				move = null;
+			}
+		}
+		
+		if (_resize != null)
+		{
+			_resize.cleanUp();
+			if (_resize.isEmpty()) {
+				_resize.dispose();
+				resize = null;
+			}
+		}
+		
+		if (_rotate != null)
+		{
+			_rotate.cleanUp();
+			if (_rotate.isEmpty()) {
+				_rotate.dispose();
+				rotate = null;
+			}
+		}
+		
+		if (_scale != null)
+		{
+			_scale.cleanUp();
+			if (_scale.isEmpty()) {
+				_scale.dispose();
+				scale = null;
+			}
+		}
+		
+		if (_show != null)
+		{
+			_show.cleanUp();
+			if (_show.isEmpty()) {
+				_show.dispose();
+				show = null;
+			}
+		}
+		
+		if (_hide != null)
+		{
+			_hide.cleanUp();
+			if (_hide.isEmpty()) {
+				_hide.dispose();
+				hide = null;
+			}
+		}
+	}
+
+
 	override public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())

@@ -107,6 +107,7 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >, implements IR
 	private function sizeChangeHandler ()
 	{
 		var t:IUIElement = target.is(IUIElement) ? target.as(IUIElement) : null;
+	//	trace(target+".sizeChanged; "+target.layout.bounds.width+", "+target.layout.bounds.height);
 		if (t == null || t.effects == null)
 		{
 			target.rect.width	= target.layout.bounds.width;

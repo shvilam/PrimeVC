@@ -105,6 +105,7 @@ class Box
 #end
 
 #if neko
+	public function cleanUp () : Void {}
 	public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())

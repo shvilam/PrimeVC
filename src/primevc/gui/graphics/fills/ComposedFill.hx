@@ -78,7 +78,6 @@ class ComposedFill extends GraphicElement, implements IFill
 	
 	public function begin (target:IDrawable, ?bounds:IRectangle)
 	{
-		changes = 0;
 	//	for (fill in fills)
 	//		fill.begin(target, bounds);
 		if (fills.length == 0) {

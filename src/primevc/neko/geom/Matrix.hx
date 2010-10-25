@@ -66,5 +66,6 @@ class Matrix implements ICodeFormattable
 #if neko
 	public function toCode (code:ICodeGenerator)	{ code.construct( this, [ a, b, c, d, tx, ty ] ); }
 	public function isEmpty ()						{ return false; }
+	public function cleanUp () : Void				{}
 #end
 }

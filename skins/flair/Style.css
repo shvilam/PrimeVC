@@ -12,7 +12,7 @@ GlobalApp {
 	width: 50%;
 	padding: 5px;
 	algorithm: float-hor;
-	border: solid 1px #000;
+	border: solid 1px #000 inset;
 }
 
 
@@ -36,6 +36,16 @@ Frame {
 	background: #abcdef44;
 }
 
+/*
+TileList Button {
+	font-weight: bold;
+}
+Frame UIComponent {
+	color: #aaa;
+}
+Frame Button {
+}
+*/
 TileList {
 	padding: 10px;
 /*	child-width: 40px;
@@ -44,7 +54,7 @@ TileList {
 	move-transition: move 300ms;
 	overflow: hidden;
 }
-
+/*
 Frame:hover {
 	background: #ff0aa;
 }
@@ -61,13 +71,13 @@ TileList:hover Tile {
 }
 Tile:hover {
 	border: #aaa 4px solid;
-	width: 100px;
+	min-width: 100px;
 }
-/*
-GlobalApp TileList:hover {
-	color: #f00;
-}*/
 
+GlobalApp TileList:hover {
+	background: #f00;
+}
+*/
 #frame0 Tile { background: #0000ff; shape: ellipse; move-transition: move 400ms elastic-out; }
 #frame1 Tile { background: #00ff00; shape: circle;  }
 #frame2 Tile { shape: triangle; move-transition: sequence ( parallel ( fade 500ms 40%, move 300ms circ-out ), fade 600ms 100% ) ; }
@@ -99,9 +109,7 @@ GlobalApp TileList:hover {
 	left: 5px;
 	overflow: drag-scroll;
 }
-#frame2:hover {
-	algorithm: circle;
-}
+/*#frame2:hover { algorithm: circle; }*/
 
 #frame3 {
 	algorithm: dynamic-tile;

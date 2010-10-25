@@ -243,6 +243,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 		if (varMap.exists(obj.uuid))
 			return varMap.get(obj.uuid);
 		
+		obj.cleanUp();
 		if (obj.isEmpty())
 			return null;
 		

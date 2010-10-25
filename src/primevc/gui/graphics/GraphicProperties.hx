@@ -32,7 +32,6 @@ package primevc.gui.graphics;
  import primevc.core.geom.IntRectangle;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.traits.IInvalidateListener;
- import primevc.core.traits.IValidatable;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.shapes.IGraphicShape;
@@ -40,7 +39,7 @@ package primevc.gui.graphics;
  import primevc.gui.traits.IDrawable;
  import primevc.tools.generator.ICodeGenerator;
  import primevc.utils.StringUtil;
-  using primevc.utils.BitUtil;
+//  using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
   using Math;
@@ -59,7 +58,7 @@ class GraphicProperties implements IGraphicElement
 {
 	public var uuid			(default, null)			: String;
 	
-	public var changes		(default, null)			: UInt;
+//	public var changes		(default, null)			: UInt;
 	public var listeners	(default, null)			: FastList< IInvalidateListener >;
 	/**
 	 * Signal to notify other objects than IGraphicElement of changes within
@@ -82,7 +81,7 @@ class GraphicProperties implements IGraphicElement
 		this.fill	= fill;
 		this.border	= border;
 		changeEvent	= new Signal0();
-		changes		= 0;
+	//	changes		= 0;
 	}
 	
 	
@@ -108,7 +107,7 @@ class GraphicProperties implements IGraphicElement
 	{
 		if (listeners != null)
 		{
-			changes = changes.set(change);
+		//	changes = changes.set(change);
 			for (listener in listeners)
 				listener.invalidateCall( change, this );
 
@@ -124,14 +123,14 @@ class GraphicProperties implements IGraphicElement
 	}
 	
 	
-	public function validate ()
+	/*public function validate ()
 	{
 		changes = 0;
 		if (border != null)				border.validate();
 		if (fill != null)				fill.validate();
 		if (shape != null)				shape.validate();
 		if (layout.is(IValidatable))	layout.as(IValidatable).validate();
-	}
+	}*/
 	
 	
 	
@@ -156,8 +155,7 @@ class GraphicProperties implements IGraphicElement
 		if (layout == null || shape == null)
 			return;
 #end
-		changes = 0;
-
+	//	trace(target+".drawing; "+target.rect.width+", "+target.rect.height);
 		var l = layout;
 		var x = useCoordinates ? l.left : 0;
 		var y = useCoordinates ? l.top : 0;
@@ -178,10 +176,13 @@ class GraphicProperties implements IGraphicElement
 		
 		if (fill != null)
 		{
-			border.begin(target, layout);
+			if (border != null)
+				border.begin(target, layout);
 			fill.begin(target, layout);
 			shape.draw( target, x, y, w, h );
-			border.end(target);
+			
+			if (border != null)
+				border.end(target);
 			
 			while (!fill.isFinished)
 			{
@@ -195,8 +196,6 @@ class GraphicProperties implements IGraphicElement
 			shape.draw( target, x, y, w, h );
 			border.end(target);
 		}
-		
-		validate();
 	}
 	
 	

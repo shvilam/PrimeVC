@@ -39,9 +39,9 @@ private typedef Flags = FontFlags
  */
 class FontCollection extends StyleCollectionBase < FontStyle >
 {
-	public function new (styleSheet:IUIElementStyle)			{ super( styleSheet, StyleFlags.FONT ); }
-	override public function forwardIterator ()					{ return cast new FontCollectionForwardIterator( styleSheet, propertyTypeFlag); }
-	override public function reversedIterator ()				{ return cast new FontCollectionReversedIterator( styleSheet, propertyTypeFlag); }
+	public function new (elementStyle:IUIElementStyle)			{ super( elementStyle, StyleFlags.FONT ); }
+	override public function forwardIterator ()					{ return cast new FontCollectionForwardIterator( elementStyle, propertyTypeFlag); }
+	override public function reversedIterator ()				{ return cast new FontCollectionReversedIterator( elementStyle, propertyTypeFlag); }
 
 #if debug
 	override public function readProperties (props:Int = -1)	{ return Flags.readProperties( (props == -1) ? filledProperties : props ); }

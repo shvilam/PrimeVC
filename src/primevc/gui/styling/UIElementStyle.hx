@@ -74,39 +74,11 @@ class UIElementStyle implements IUIElementStyle
 	private var idChangeBinding			: Wire <Dynamic>;
 	
 	public var styles					(default, null)			: PriorityList < StyleBlock >;
-//	public var idStyle					(default, null)			: StyleBlock;
-//	public var styleNameStyles			(default, null)			: FastArray < StyleBlock >;
-//	public var elementStyle				(default, null)			: StyleBlock;
-	/**
-	 * List with all state-style objects for the target
-	 */
-//	public var currentStatesStyle		(default, null)			: FastArray < StyleBlock >;
-	
-	
 	/**
 	 * Bitflag-collection with all properties that are set in the styles of 
 	 * the target,
 	 */
 	public var filledProperties			(default, null)	: UInt;
-	/**
-	 * Cached bitflag with the properties of the id-style (if there is any)
-	 */
-//	public var idStyleProperties		(default, null)	: UInt;
-	/**
-	 * Cached bitflag with the properties of every style-name-style (if there 
-	 * are any)
-	 */
-//	public var styleNameStyleProperties	(default, null)	: UInt;
-	/**
-	 * Cached bitflag with the properties of the element-style (if there is any)
-	 */
-//	public var elementStyleProperties	(default, null)	: UInt;
-	/**
-	 * Cached bitflag with the properties of all the current states
-	 */
-//	public var stateStyleProperties		(default, null)	: UInt;
-	
-	
 	/**
 	 * Signal which is dispatched when one of the style objects is changed. 
 	 * The first parameter of signal will be a bit-flag conttaining all the 
@@ -128,6 +100,7 @@ class UIElementStyle implements IUIElementStyle
 	 */
 	private var stylesAreSearched		: Bool;
 	
+	public var graphics					(default, null)	: GraphicsCollection;
 	public var effects					(default, null)	: EffectsCollection;
 	public var boxFilters				(default, null)	: FiltersCollection;
 	public var font						(default, null)	: FontCollection;
@@ -142,7 +115,6 @@ class UIElementStyle implements IUIElementStyle
 	
 	public function new (target:IStylable)
 	{
-	//	styleNameStyles		= FastArrayUtil.create();
 		currentStates		= FastArrayUtil.create();
 		styles				= new PriorityList < StyleBlock > ();
 		
@@ -181,10 +153,11 @@ class UIElementStyle implements IUIElementStyle
 		if (styleNamesChangeBinding != null)	styleNamesChangeBinding.dispose();
 		if (idChangeBinding != null)			idChangeBinding.dispose();
 		
-		font.dispose();
-		layout.dispose();
-		effects.dispose();
 		boxFilters.dispose();
+		effects.dispose();
+		font.dispose();
+		graphics.dispose();
+		layout.dispose();
 		states.dispose();
 		
 		change.dispose();
@@ -197,21 +170,23 @@ class UIElementStyle implements IUIElementStyle
 		targetClassName	= null;
 		target			= null;
 		change			= null;
-		layout			= null;
+		
 		boxFilters		= null;
 		effects			= null;
-		states			= null;
 		font			= null;
+		graphics		= null;
+		layout			= null;
+		states			= null;
 	}
 	
 	
-	public function findStyle ( name:String, type:StyleDeclarationType, ?exclude:StyleBlock ) : StyleBlock
+	public function findStyle ( name:String, type:StyleBlockType, ?exclude:StyleBlock ) : StyleBlock
 	{
 		var style : StyleBlock = null;
 		
 		for (styleObj in styles)
 		{
-			style = styleObj.findStyle( name, type, exclude );
+			style = styleObj.findChild( name, type, exclude );
 			if (style != null)
 				break;
 		}
@@ -242,12 +217,12 @@ class UIElementStyle implements IUIElementStyle
 		var changed			= filledProperties;
 		
 		//remove styles and their listeners
-		removeStylesWithPriority( StyleDeclarationType.idState.enumIndex() );
-		removeStylesWithPriority( StyleDeclarationType.styleNameState.enumIndex() );
-		removeStylesWithPriority( StyleDeclarationType.elementState.enumIndex() );
-		removeStylesWithPriority( StyleDeclarationType.id.enumIndex() );
-		removeStylesWithPriority( StyleDeclarationType.styleName.enumIndex() );
-		removeStylesWithPriority( StyleDeclarationType.element.enumIndex() );
+		removeStylesWithPriority( StyleBlockType.idState.enumIndex() );
+		removeStylesWithPriority( StyleBlockType.styleNameState.enumIndex() );
+		removeStylesWithPriority( StyleBlockType.elementState.enumIndex() );
+		removeStylesWithPriority( StyleBlockType.id.enumIndex() );
+		removeStylesWithPriority( StyleBlockType.styleName.enumIndex() );
+		removeStylesWithPriority( StyleBlockType.element.enumIndex() );
 		
 		Assert.that( styles.length == 0 );
 		
@@ -267,9 +242,10 @@ class UIElementStyle implements IUIElementStyle
 		removedBinding.enable();
 		addedBinding.disable();
 		
-		if (effects == null)		effects		= new EffectsCollection(this);
 		if (boxFilters == null)		boxFilters	= new FiltersCollection(this, FilterCollectionType.box);
+		if (effects == null)		effects		= new EffectsCollection(this);
 		if (font == null)			font		= new FontCollection(this);
+		if (graphics == null)		graphics	= new GraphicsCollection(this);
 		if (layout == null)			layout		= new LayoutCollection(this);
 		if (states == null)			states		= new StatesCollection(this);
 		
@@ -302,23 +278,46 @@ class UIElementStyle implements IUIElementStyle
 		if (changedProperties == -1)
 			changedProperties = filledProperties; //filledProperties.set( newProps );
 		
-		trace(target+".broadcastChanges "+readProperties(changedProperties));
+	//	trace(target+".broadcastChanges "+readProperties(changedProperties));
 		
 		//update state properties
 		if (changedProperties.has( Flags.STATES ))
 		{
-			var statesChangedProps	= states.filledProperties;
-			states.updateFilledPropertiesFlag();
-			statesChangedProps		= statesChangedProps.set( states.filledProperties );
+			var tmp				= stylesAreSearched;
+			stylesAreSearched	= false;
+			changedProperties	= changedProperties.set( updateStatesStyle() );
+			stylesAreSearched	= tmp;
+		//	states.change.send( statesChangedProps );
+		}
+		
+		if (changedProperties.has( Flags.GRAPHICS ))		graphics.broadcastChanges();
+		if (changedProperties.has( Flags.STATES ))			states.broadcastChanges();
+		if (changedProperties.has( Flags.LAYOUT ))			layout.broadcastChanges();
+		if (changedProperties.has( Flags.FONT ))			font.broadcastChanges();
+		if (changedProperties.has( Flags.EFFECTS ))			effects.broadcastChanges();
+		if (changedProperties.has( Flags.BOX_FILTERS ))		boxFilters.broadcastChanges();
+		
+		//update graphics properties
+	/*	if (changedProperties.has( Flags.GRAPHICS ))
+		{
+			var changedGraphics	= graphics.filledProperties;
+			graphics.updateFilledPropertiesFlag();
+			changedGraphics		= changedGraphics.set( graphics.filledProperties );
 			
-			if (statesChangedProps > 0)
-			{
-				var tmp				= stylesAreSearched;
-				stylesAreSearched	= false;
-				changedProperties	= changedProperties.set( updateStatesStyle() );
-				stylesAreSearched	= tmp;
-				states.change.send( statesChangedProps );
-			}
+			if (changedGraphics > 0)
+				graphics.change.send( changedGraphics );
+		}
+		
+		
+		//update font properties
+		if (changedProperties.has( Flags.FONT ))
+		{
+			var fontChangedProps	= font.filledProperties;
+			font.updateFilledPropertiesFlag();
+			fontChangedProps		= fontChangedProps.set( font.filledProperties );
+			
+			if (fontChangedProps > 0)
+				font.change.send( fontChangedProps );
 		}
 		
 		
@@ -326,6 +325,7 @@ class UIElementStyle implements IUIElementStyle
 		if (changedProperties.has( Flags.LAYOUT ))
 		{
 			var layoutChangedProps	= layout.filledProperties;
+			trace("before: "+LayoutFlags.readProperties(layoutChangedProps));
 			layout.updateFilledPropertiesFlag();
 			layoutChangedProps		= layoutChangedProps.set( layout.filledProperties );
 			
@@ -355,7 +355,7 @@ class UIElementStyle implements IUIElementStyle
 			
 			if (filtersChangedProps > 0)
 				boxFilters.change.send( filtersChangedProps );
-		}
+		}*/
 		
 		if (changedProperties > 0)
 			change.send( changedProperties );
@@ -381,10 +381,12 @@ class UIElementStyle implements IUIElementStyle
 			//
 			style.listeners.add( this );
 			
-			if (style.has( Flags.LAYOUT ))		style.layout.listeners.add( layout );
-			if (style.has( Flags.EFFECTS ))		style.effects.listeners.add( effects );
-			if (style.has( Flags.BOX_FILTERS ))	style.boxFilters.listeners.add( boxFilters );
-			if (style.has( Flags.STATES ))		style.states.listeners.add( states );
+			if (style.has( Flags.BOX_FILTERS ))		boxFilters	.add( style.boxFilters );
+			if (style.has( Flags.EFFECTS ))			effects		.add( style.effects );
+			if (style.has( Flags.FONT ))			font		.add( style.font );
+			if (style.has( Flags.GRAPHICS ))		graphics	.add( style.graphics );
+			if (style.has( Flags.LAYOUT ))			layout		.add( style.layout );
+			if (style.has( Flags.STATES ))			states		.add( style.states );
 			
 			// FIND CHANGES
 			changes				= getUsablePropertiesOf( styleCell );
@@ -414,17 +416,18 @@ class UIElementStyle implements IUIElementStyle
 		var style	= styleCell.data;
 		var changes	= getUsablePropertiesOf( styleCell );
 		
-		styles.removeCell( styleCell );
-		
 		//
 		// REMOVE LISTENERS
 		//
 		style.listeners.remove( this );
 		
-		if (style.has( Flags.LAYOUT ))		style.layout.listeners.remove( layout );
-		if (style.has( Flags.EFFECTS ))		style.effects.listeners.remove( effects );
-		if (style.has( Flags.BOX_FILTERS ))	style.boxFilters.listeners.remove( boxFilters );
-		if (style.has( Flags.STATES ))		style.states.listeners.remove( states );
+		if (style.has( Flags.BOX_FILTERS ))		boxFilters	.remove( style.boxFilters );
+		if (style.has( Flags.EFFECTS ))			effects		.remove( style.effects );
+		if (style.has( Flags.FONT ))			font		.remove( style.font );
+		if (style.has( Flags.GRAPHICS ))		graphics	.remove( style.graphics );
+		if (style.has( Flags.LAYOUT ))			layout		.remove( style.layout );
+		if (style.has( Flags.STATES ))			states		.remove( style.states );
+		styles.removeCell( styleCell );
 		
 	//	trace(target+".removedStyle "+readProperties( changes ));
 		return changes;
@@ -459,9 +462,9 @@ class UIElementStyle implements IUIElementStyle
 	 */
 	private function updateStatesStyle () : UInt
 	{
-		var changes = removeStylesWithPriority( StyleDeclarationType.idState.enumIndex() );
-		var changes = removeStylesWithPriority( StyleDeclarationType.styleNameState.enumIndex() );
-		var changes = removeStylesWithPriority( StyleDeclarationType.elementState.enumIndex() );
+		var changes = removeStylesWithPriority( StyleBlockType.idState.enumIndex() );
+		var changes = removeStylesWithPriority( StyleBlockType.styleNameState.enumIndex() );
+		var changes = removeStylesWithPriority( StyleBlockType.elementState.enumIndex() );
 		
 		if (currentStates.length > 0)
 		{	
@@ -476,12 +479,12 @@ class UIElementStyle implements IUIElementStyle
 	
 	private function updateIdStyle () : UInt
 	{
-		var changes = removeStylesWithPriority( StyleDeclarationType.id.enumIndex() );
+		var changes = removeStylesWithPriority( StyleBlockType.id.enumIndex() );
 		
 		if (target.id.value != null && target.id.value != "")
 		{
 			var parentStyle	= getParentStyle();
-			var idStyle		= parentStyle.findStyle( target.id.value, StyleDeclarationType.id );
+			var idStyle		= parentStyle.findStyle( target.id.value, StyleBlockType.id );
 			
 			if (idStyle != null)
 				changes = changes.set( addStyle( idStyle ) );
@@ -493,7 +496,7 @@ class UIElementStyle implements IUIElementStyle
 	
 	private function updateStyleNameStyles () : UInt
 	{
-		var changes = removeStylesWithPriority( StyleDeclarationType.styleName.enumIndex() );
+		var changes = removeStylesWithPriority( StyleBlockType.styleName.enumIndex() );
 		
 		if (target.styleClasses.value != null && target.styleClasses.value != "")
 		{	
@@ -503,7 +506,7 @@ class UIElementStyle implements IUIElementStyle
 			
 			for ( styleName in styleNames )
 			{
-				var style = parentStyle.findStyle( styleName, StyleDeclarationType.styleName );
+				var style = parentStyle.findStyle( styleName, StyleBlockType.styleName );
 				if (style != null)
 					changes = changes.set( addStyle( style ) );
 			}
@@ -515,7 +518,7 @@ class UIElementStyle implements IUIElementStyle
 	
 	private function updateElementStyle () : UInt
 	{
-		var changes		= removeStylesWithPriority( StyleDeclarationType.element.enumIndex() );
+		var changes		= removeStylesWithPriority( StyleBlockType.element.enumIndex() );
 		var parentStyle = getParentStyle();
 		
 		var style:StyleBlock	= null;
@@ -524,7 +527,7 @@ class UIElementStyle implements IUIElementStyle
 		//search for the first element style that is defined for this object or one of it's super classes
 		while (parentClass != null && style == null)
 		{
-			style		= parentStyle.findStyle( parentClass.getClassName(), StyleDeclarationType.element );
+			style		= parentStyle.findStyle( parentClass.getClassName(), StyleBlockType.element );
 			parentClass	= cast parentClass.getSuperClass();
 		}
 		
@@ -566,7 +569,7 @@ class UIElementStyle implements IUIElementStyle
 	{
 		Assert.notNull( styleCell );
 		if (properties == -1)
-			properties = styleCell.data.allFilledProperties;
+			properties = styleCell.data.allFilledProperties; //.unset( Flags.INHERETING_STYLES );
 		
 		//loop through all cell's with higher priority
 		while (null != (styleCell = styleCell.prev) && properties > 0)
@@ -589,21 +592,6 @@ class UIElementStyle implements IUIElementStyle
 			if (filledProperties == Flags.ALL_PROPERTIES)
 				break;
 		}
-	}
-	
-	
-	public function getChildren () : StyleChildren
-	{
-		var children : StyleChildren = null;
-		for (style in styles)
-		{
-			if (!style.hasChildren())
-			{
-				children = style.children;
-				break;
-			}
-		}
-		return children;
 	}
 	
 	
@@ -646,9 +634,7 @@ class UIElementStyle implements IUIElementStyle
 		changes			= getUsablePropertiesOf( senderCell, changes );
 		
 		trace("\tchanged properties "+StyleFlags.readProperties(changes));
-		
-		if (changes > 0)
-			broadcastChanges( changes );
+		broadcastChanges( changes );
 	}
 	
 	
@@ -683,93 +669,6 @@ class UIElementStyle implements IUIElementStyle
 	}
 #end
 }
-
-
-
-
-/*
-class UIElementStyleIterator
-{
-	private var target				: UIElementStyle;
-	private var currentStyleObj		: StyleBlock;
-	
-	/**
-	 * The StyleDeclarationType of the last used StyleBlock
-	 */
-//	private var currentType			: StyleDeclarationType;
-	
-	/**
-	 * Keeps track of the last position of the currentStyleObj in the 
-	 * target.styleNameStyles list or the target.currentStates list.
-	 */
-//	private var currentListPos		: Int;
-	
-	
-	
-/*	
-	public function new (target:StyleSheet)
-	{
-		this.target			= target;
-		currentType			= isTargetEmpty() ? null : specific;
-		styleNamesListPos	= 0;
-	}
-	
-	
-	public function next () : StyleBlock
-	{
-		switch (currentType)
-		{
-			//there is no next object
-			case element:
-				currentStyleObj = null;
-				currentType		= null;
-			
-			
-			//element will be next if this is the last styleName style
-			case styleName:
-				if (currentListPos >= target.styleNameStyles.length) {
-					currentStyleObj = target.elementStyle;
-					currentType		= element;
-				}
-				else
-					currentStyleObj	= target.styleNameStyles[ currentListPos++ ];
-			
-			
-			case id:
-				currentType = styleName;
-			
-			
-			
-			default:
-				if (currentListPos >= target.currentStatesStyle.length) {
-					currentListPos	= 0;
-					currentStyleObj = target.idStyle;
-					currentType		= id;
-				}
-				else {
-					currentStyleObj	= target.currentStatesStyle[ currentListPos++ ];
-					currentType		= state;
-				}
-		}
-		
-		
-		if (currentStyleObj == null && hasNext())
-			next();
-		
-		return currentStyleObj;
-	}
-	
-	
-	public function hasNext () : Bool {
-		return currentType != null && currentType != element;
-	}
-	
-	
-	private function isTargetEmpty () : Bool {
-		return target.idStyle == null && target.elementStyle == null && target.styleNameStyles.length == 0 && target.currentStates.length == 0;
-	}
-}
-*/
 #else
 
 class UIElementStyle {}

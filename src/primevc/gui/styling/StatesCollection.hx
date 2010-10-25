@@ -39,9 +39,9 @@ private typedef Flags = StyleStateFlags;
  */
 class StatesCollection extends StyleCollectionBase < StatesStyle >
 {
-	public function new (styleSheet:IUIElementStyle)			{ super( styleSheet, StyleFlags.STATES ); }
-	override public function forwardIterator ()					{ return cast new StatesCollectionForwardIterator( styleSheet, propertyTypeFlag); }
-	override public function reversedIterator ()				{ return cast new StatesCollectionReversedIterator( styleSheet, propertyTypeFlag); }
+	public function new (elementStyle:IUIElementStyle)			{ super( elementStyle, StyleFlags.STATES ); }
+	override public function forwardIterator ()					{ return cast new StatesCollectionForwardIterator( elementStyle, propertyTypeFlag); }
+	override public function reversedIterator ()				{ return cast new StatesCollectionReversedIterator( elementStyle, propertyTypeFlag); }
 
 #if debug
 	override public function readProperties (props:Int = -1)	{ return Flags.readProperties( (props == -1) ? filledProperties : props ); }

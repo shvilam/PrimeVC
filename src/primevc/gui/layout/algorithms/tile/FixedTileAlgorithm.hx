@@ -474,9 +474,10 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	{
 		if (group != v)
 		{
-			if (group != null) {
-				if (rows.padding == group.padding)		rows.padding = null;
-				if (columns.padding == group.padding)	columns.padding = null;
+			if (group != null)
+			{
+				if (rows != null	&& rows.padding == group.padding)		rows.padding = null;
+				if (columns != null && columns.padding == group.padding)	columns.padding = null;
 				
 				group.children.events.unbind(this);
 			}

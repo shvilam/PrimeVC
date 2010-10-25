@@ -38,7 +38,8 @@ package primevc.gui.behaviours.styling;
  import primevc.gui.styling.EffectsStyle;
  import primevc.gui.styling.FilterFlags;
  import primevc.gui.styling.FiltersStyle;
- import primevc.gui.styling.IStyleDeclaration;
+ import primevc.gui.styling.GraphicFlags;
+ import primevc.gui.styling.IStyleBlock;
  import primevc.gui.styling.LayoutStyle;
  import primevc.gui.styling.StyleFlags;
  import primevc.gui.traits.IDrawable;
@@ -61,12 +62,14 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 {
 	override private function init ()
 	{
-		applyGeneralStyling		.on( target.style.change, this );
+	//	applyStyling.on( target.style.change, this );
+		applyGraphicsStyling	.on( target.style.graphics.change, this );
 		applyLayoutStyling		.on( target.style.layout.change, this );
 		applyEffectStyling		.on( target.style.effects.change, this );
 		applyBoxFilterStyling	.on( target.style.boxFilters.change, this );
 		
-		applyGeneralStyling(	target.style.filledProperties );
+	//	applyStyling( target.style.filledProperties );
+		applyGraphicsStyling(	target.style.graphics.filledProperties );
 		applyLayoutStyling(		target.style.layout.filledProperties );
 		applyEffectStyling(		target.style.effects.filledProperties );
 		applyBoxFilterStyling(	target.style.boxFilters.filledProperties );
@@ -75,21 +78,18 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 	
 	override private function reset ()
 	{
-		target.style.change.unbind( this );
+		target.style.graphics.change.unbind( this );
 		target.style.layout.change.unbind( this );
 		target.style.effects.change.unbind( this );
 		target.style.boxFilters.change.unbind( this );
 	}
 	
 		
-	private function applyGeneralStyling (propsToSet:UInt)
+	private function applyGraphicsStyling (propsToSet:UInt)
 	{
-		if (!target.is(ISkinnable))		propsToSet = propsToSet.unset( Flags.SKIN );
-		if (!target.is(IDrawable))		propsToSet = propsToSet.unset( Flags.BACKGROUND | Flags.BORDER | Flags.SHAPE );
-		if (!target.is(IUIContainer))	propsToSet = propsToSet.unset( Flags.OVERFLOW );
-		
-		//remove flags that won't be used in this method
-		propsToSet = propsToSet.unset( Flags.STATES | Flags.INHERETING_STYLES | Flags.LAYOUT | Flags.FONT | Flags.BACKGROUND_FILTERS | Flags.BOX_FILTERS | Flags.EFFECTS );
+		if (!target.is(ISkinnable))		propsToSet = propsToSet.unset( GraphicFlags.SKIN );
+		if (!target.is(IDrawable))		propsToSet = propsToSet.unset( GraphicFlags.DRAWING_PROPERTIES );
+		if (!target.is(IUIContainer))	propsToSet = propsToSet.unset( GraphicFlags.OVERFLOW );
 		
 		if (propsToSet == 0)
 			return;
@@ -97,9 +97,12 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 		//
 		// LOOP THROUGH ALL AVAILABLE STLYE-BLOCKS TO FIND THE STYLING PROPERTIES
 		//
-	//	trace(target + ".applyGeneralStyling "+target.style.readProperties( propsToSet ));
 		
-		for (styleObj in target.style)
+		var style			= target.style.graphics;
+		var graphicProps	= (propsToSet.has( GraphicFlags.DRAWING_PROPERTIES )) ? getGraphicsObj() : null;
+		trace(target + ".applyGeneralStyling "+style.readProperties( propsToSet ));
+		
+		for (styleObj in style)
 		{
 			if (propsToSet == 0)
 				break;
@@ -109,13 +112,13 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 			
 			var curProps = styleObj.allFilledProperties.filter( propsToSet );
 			
-			if ( curProps.has( Flags.SKIN ) )			target.as(ISkinnable).skin	= Type.createInstance( styleObj.skin, null );
-			if ( curProps.has( Flags.SHAPE ) )			getGraphicsObj().shape		= styleObj.shape;
-			if ( curProps.has( Flags.BACKGROUND ) )		getGraphicsObj().fill		= styleObj.background;
-			if ( curProps.has( Flags.BORDER ) )			getGraphicsObj().border		= styleObj.border;
-			if ( curProps.has( Flags.OPACITY ) )		target.alpha				= styleObj.opacity;
-			if ( curProps.has( Flags.VISIBLE ) )		target.visible				= styleObj.visible;
-			if ( curProps.has( Flags.OVERFLOW ) )		target.behaviours.add( Type.createInstance( styleObj.overflow, [ target ] ) );
+			if ( curProps.has( GraphicFlags.SKIN ) )		target.as(ISkinnable).skin	= Type.createInstance( styleObj.skin, null );
+			if ( curProps.has( GraphicFlags.SHAPE ) )		graphicProps.shape			= styleObj.shape;
+			if ( curProps.has( GraphicFlags.BACKGROUND ) )	graphicProps.fill			= styleObj.background;
+			if ( curProps.has( GraphicFlags.BORDER ) )		graphicProps.border			= styleObj.border;
+			if ( curProps.has( GraphicFlags.OPACITY ) )		target.alpha				= styleObj.opacity;
+			if ( curProps.has( GraphicFlags.VISIBLE ) )		target.visible				= styleObj.visible;
+			if ( curProps.has( GraphicFlags.OVERFLOW ) )	target.behaviours.add( Type.createInstance( styleObj.overflow, [ target ] ) );
 			
 			propsToSet = propsToSet.unset( curProps );
 		}
@@ -141,9 +144,6 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 			return;
 		
 		var layout	= target.layout;
-		var style	= target.style.layout;
-		
-	//	trace(target + ".applyLayoutStyling "+style.readProperties( propsToSet ));
 		
 		//create size constraint for layout client
 		if (propsToSet.has( LayoutFlags.CONSTRAINT_PROPERTIES ) && layout.sizeConstraint == null)
@@ -155,8 +155,9 @@ class ApplyStylingBehaviour extends BehaviourBase < IUIElement >
 		if (propsToSet == 0)
 			return;
 		
-		var styleCell	= target.style.styles.first;
-		var tCont		= target.is(IUIContainer) ? target.as(IUIContainer) : null;
+		var style	= target.style.layout;
+		var tCont	= target.is(IUIContainer) ? target.as(IUIContainer) : null;
+		trace(target + ".applyLayoutStyling "+style.readProperties( propsToSet )+"; propsToSet "+propsToSet);
 		
 		for (styleObj in style)
 		{

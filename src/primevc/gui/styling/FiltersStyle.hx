@@ -77,8 +77,6 @@ class FiltersStyle extends StyleSubBlock
 		this.glow			= glow;
 		this.gradientBevel	= gradientBevel;
 		this.gradientGlow	= gradientGlow;
-		
-		validate();
 	}
 	
 	
@@ -341,6 +339,8 @@ class FiltersStyle extends StyleSubBlock
 		if (!isEmpty())
 			code.construct( this, [ type, _shadow, _bevel, _blur, _glow, _gradientBevel, _gradientGlow ] );
 	}
+	
+	override public function cleanUp () {}
 #end
 
 #if debug

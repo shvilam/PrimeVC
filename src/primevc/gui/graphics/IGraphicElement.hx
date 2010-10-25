@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics;
- import primevc.core.traits.IValidatable;
+ import primevc.core.traits.IInvalidatable;
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICSSFormattable;
 
@@ -37,7 +37,7 @@ package primevc.gui.graphics;
  * @creation-date Jul 30, 2010
  */
 interface IGraphicElement 
-		implements IValidatable
+		implements IInvalidatable
 	,	implements ICSSFormattable
 	,	implements ICodeFormattable
 {

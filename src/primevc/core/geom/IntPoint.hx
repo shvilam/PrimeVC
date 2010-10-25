@@ -124,12 +124,8 @@ class IntPoint	implements IClonable <IntPoint>
 	
 	
 #if neko
-	public function toCode (code:ICodeGenerator)
-	{
-		code.construct( this, [ x, y ] );
-	}
-	
-	
-	public function isEmpty () { return x.notSet() && y.notSet(); }
+	public function cleanUp () : Void				{}
+	public function toCode (code:ICodeGenerator)	{ code.construct( this, [ x, y ] ); }
+	public function isEmpty ()						{ return x.notSet() && y.notSet(); }
 #end
 }

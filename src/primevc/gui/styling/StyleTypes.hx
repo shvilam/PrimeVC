@@ -30,7 +30,7 @@ package primevc.gui.styling;
 
 
 /**
- * @see primevc.gui.styling.StyleDeclarationType
+ * @see primevc.gui.styling.StyleBlockType
  * @author Ruben Weijers
  * @creation-date Aug 05, 2010
  */

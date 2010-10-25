@@ -111,9 +111,7 @@ class LayoutAlgorithmBase
 #end
 	
 #if neko
-	public function toCode (code:ICodeGenerator)
-	{
-		code.construct( this );
-	}
+	public function cleanUp () : Void					{  }
+	public function toCode (code:ICodeGenerator)		{ code.construct( this ); }
 #end
 }

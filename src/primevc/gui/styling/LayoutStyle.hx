@@ -134,8 +134,6 @@ class LayoutStyle extends StyleSubBlock
 		this.minHeight	= Number.INT_NOT_SET;
 		this.maxWidth	= Number.INT_NOT_SET;
 		this.maxHeight	= Number.INT_NOT_SET;
-		
-		validate();
 	}
 	
 	
@@ -604,32 +602,6 @@ class LayoutStyle extends StyleSubBlock
 		else
 			return "";
 	}
-	
-	
-/*	override public function isEmpty () : Bool
-	{
-		return	_width.notSet() && 
-				_height.notSet() && 
-				
-				_percentWidth.notSet() && 
-				_percentHeight.notSet() && 
-				
-				_minWidth.notSet() && 
-				_minHeight.notSet() && 
-				_maxWidth.notSet() && 
-				_maxHeight.notSet() && 
-				
-				_childWidth.notSet() && 
-				_childHeight.notSet() && 
-				
-				(_padding == null || _padding.isEmpty()) &&
-				_algorithm == null &&
-				(_relative == null || _relative.isEmpty()) &&
-				
-				_rotation.notSet() && 
-				_includeInLayout == null &&
-				_maintainAspectRatio == null;
-	}*/
 #end
 
 
@@ -644,6 +616,35 @@ class LayoutStyle extends StyleSubBlock
 			if (_minHeight.isSet())		code.setProp( this, "minHeight", minHeight );
 			if (_maxWidth.isSet())		code.setProp( this, "maxWidth", maxWidth );
 			if (_maxHeight.isSet())		code.setProp( this, "maxHeight", maxHeight );
+		}
+	}
+	
+	
+	override public function cleanUp ()
+	{
+		if (_relative != null)
+		{
+			_relative.cleanUp();
+			if (_relative.isEmpty()) {
+				_relative.dispose();
+				relative = null;
+			}
+		}
+		
+		if (_padding != null)
+		{
+			_padding.cleanUp();
+			if (_padding.isEmpty())
+				padding = null;
+		}
+		
+		if (_algorithm != null)
+		{
+			_algorithm.cleanUp();
+			if (_algorithm.isEmpty()) {
+				_algorithm.dispose();
+				algorithm = null;
+			}
 		}
 	}
 #end

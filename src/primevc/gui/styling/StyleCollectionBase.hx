@@ -63,19 +63,21 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	public var propertyTypeFlag		(default, null)	: UInt;
 	public var change				(default, null)	: Signal1 < UInt >;
 	
-	private var styleSheet							: IUIElementStyle;
+	private var elementStyle		: IUIElementStyle;
 	
 	/**
 	 * Cached iterator that is only used to update the filled properties flag.
 	 * Since this operation happens quite frequent, the iterator is cached.
 	 */
-	private var groupIterator						: StyleCollectionForwardIterator < StyleGroupType >;
+	private var groupIterator		: StyleCollectionForwardIterator < StyleGroupType >;
+	private var changes				: UInt;
 	
 	
-	public function new (styleSheet:IUIElementStyle, propertyTypeFlag:UInt)
+	public function new (elementStyle:IUIElementStyle, propertyTypeFlag:UInt)
 	{
 		change					= new Signal1();
-		this.styleSheet			= styleSheet;
+		changes					= 0;
+		this.elementStyle		= elementStyle;
 		this.propertyTypeFlag	= propertyTypeFlag;
 		filledProperties		= 0;
 		groupIterator			= forwardIterator();
@@ -88,7 +90,7 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 		groupIterator.dispose();
 		
 		groupIterator	= null;
-		styleSheet		= null;
+		elementStyle	= null;
 		change			= null;
 	}
 	
@@ -99,7 +101,7 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	}
 	
 	
-	public function updateFilledPropertiesFlag () : Void
+	public function updateFilledPropertiesFlag (?excludedStyle:StyleGroupType) : Void
 	{	
 		Assert.notNull( groupIterator );
 		filledProperties = 0;
@@ -107,17 +109,41 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 		
 		//loop through every stylegroup that has the defined StyleGroupType
 		for ( styleGroup in groupIterator )
+			if (styleGroup != excludedStyle)
 			filledProperties = filledProperties.set( styleGroup.allFilledProperties );
 	}
 	
 	
 	public function invalidateCall ( changeFromSender:UInt, sender:IInvalidatable ) : Void
 	{
-		var changes = getRealChangesOf( cast sender, changeFromSender );
-	//	trace("\tchanged properties " + readProperties(changes));
-		
-		if (changes > 0)
+		changes = changes.set( getRealChangesOf( cast sender, changeFromSender ) );
+		trace("\tchanged properties " + readProperties(changes));
+		broadcastChanges();
+	}
+	
+	
+	public function add ( style:StyleGroupType )
+	{
+		style.listeners.add( this );
+		changes				= changes.set( getRealChangesOf( style, style.allFilledProperties ) );
+		filledProperties	= filledProperties.set( changes );
+	}
+	
+	
+	public function remove ( style:StyleGroupType )
+	{
+		style.listeners.remove( this );
+		updateFilledPropertiesFlag( style );	//exclude the to be removed style
+		changes = changes.set( getRealChangesOf( style, style.allFilledProperties ) );
+	}
+	
+	
+	public function broadcastChanges ()
+	{
+		if (changes > 0) {
 			change.send( changes );
+			changes = 0;
+		}
 	}
 	
 	
@@ -140,22 +166,30 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	 * defined with a higher priority height, so the real-changes for the 
 	 * IUIelement are 'height'.
 	 */
-	private function getRealChangesOf ( styleGroup:StyleGroupType, changes:UInt ) : UInt
+	private function getRealChangesOf ( styleGroup:StyleGroupType, styleChanges:UInt ) : UInt
 	{
-		var styleCell = styleSheet.styles.getCellForItem( styleGroup.owner );
-		Assert.notNull( styleCell );
-		
+		var styleCell:CellType = null;
 		var iterator = reversedIterator();
+		while( iterator.hasNext() )
+		{
+			var curCell = iterator.currentCell;
+			if (iterator.next() == styleGroup) {
+				styleCell = curCell;
+				break;
+			}	
+		}
+		
+		Assert.notNull( styleCell );
 		iterator.setCurrent( cast styleCell.prev );
 		
 		for (styleGroup in iterator)
 		{
-			changes = changes.unset( styleGroup.allFilledProperties );
-			if (changes == 0)
+			styleChanges = styleChanges.unset( styleGroup.allFilledProperties );
+			if (styleChanges == 0)
 				break;
 		}
 		
-		return changes;
+		return styleChanges;
 	}
 	
 	
@@ -183,38 +217,38 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
  */
 class StyleCollectionIteratorBase implements IDisposable
 {
-	private var styleSheet	: IUIElementStyle;
-	private var currentCell	: CellType;
+	private var elementStyle	: IUIElementStyle;
+	public var currentCell		: CellType;
 	/**
 	 * Flag to search for in target styles to see if the style contains the group
 	 */
 	private var flag		: UInt;
 	
 	
-	public function new (styleSheet:IUIElementStyle, groupFlag:UInt)
+	public function new (elementStyle:IUIElementStyle, groupFlag:UInt)
 	{
-		this.styleSheet	= styleSheet;
-		flag			= groupFlag;
+		this.elementStyle	= elementStyle;
+		flag				= groupFlag;
 		rewind();
 	}
 	
 	
 	public function dispose ()
 	{
-		styleSheet	= null;
-		flag		= 0;
-		currentCell	= null;
+		elementStyle	= null;
+		flag			= 0;
+		currentCell		= null;
 	}
 	
 	
-	public function rewind () : Void			{ Assert.abstract(); }
+	public function rewind () : Void		{ Assert.abstract(); }
 	
 	/**
 	 * Method will set the current property to the next cell and will return 
 	 * the previous current value.
 	 */
-	private function setNext() : CellType		{ Assert.abstract(); return null; }
-	public  function hasNext () : Bool	{ return currentCell != null; }
+	private function setNext() : CellType	{ Assert.abstract(); return null; }
+	public  function hasNext () : Bool		{ return currentCell != null; }
 	
 	
 	public function setCurrent ( cur:Dynamic )
@@ -244,7 +278,7 @@ class StyleCollectionForwardIterator < StyleGroupType > extends StyleCollectionI
 			,	implements IIterator < StyleGroupType >
 #if flash9	,	implements haxe.rtti.Generic #end
 {
-	override public function rewind () : Void	{ setCurrent( styleSheet.styles.first ); }
+	override public function rewind () : Void	{ setCurrent( elementStyle.styles.first ); }
 	public function next () : StyleGroupType	{ Assert.abstract(); return null; }
 	override private function setNext ()
 	{
@@ -255,16 +289,16 @@ class StyleCollectionForwardIterator < StyleGroupType > extends StyleCollectionI
 	
 	
 #if (unitTesting && debug)
-	public function new (styleSheet:IUIElementStyle, groupFlag:UInt)
+	public function new (elementStyle:IUIElementStyle, groupFlag:UInt)
 	{
-		super( styleSheet, groupFlag );
+		super( elementStyle, groupFlag );
 		test();
 	}
 	
 	
 	public function test ()
 	{
-		var cur = styleSheet.styles.first, prev:CellType = null;
+		var cur = elementStyle.styles.first, prev:CellType = null;
 		while (cur != null)
 		{
 			if (prev == null)	Assert.null( cur.prev, "first incorrect" );
@@ -287,7 +321,7 @@ class StyleCollectionReversedIterator < StyleGroupType > extends StyleCollection
 			,	implements IIterator < StyleGroupType >
 #if flash9	,	implements haxe.rtti.Generic #end
 {
-	override public function rewind () : Void	{ setCurrent( styleSheet.styles.last ); }
+	override public function rewind () : Void	{ setCurrent( elementStyle.styles.last ); }
 	public function next () : StyleGroupType	{ Assert.abstract(); return null; }
 	override private function setNext ()
 	{
@@ -298,16 +332,16 @@ class StyleCollectionReversedIterator < StyleGroupType > extends StyleCollection
 
 
 #if (unitTesting && debug)
-	public function new (styleSheet:IUIElementStyle, groupFlag:UInt)
+	public function new (elementStyle:IUIElementStyle, groupFlag:UInt)
 	{
-		super( styleSheet, groupFlag );
+		super( elementStyle, groupFlag );
 		test();
 	}
 	
 	
 	public function test ()
 	{
-		var cur = styleSheet.styles.last, prev:CellType = null;
+		var cur = elementStyle.styles.last, prev:CellType = null;
 		while (cur != null)
 		{
 			if (prev == null)	Assert.null( cur.next, "last incorrect" );

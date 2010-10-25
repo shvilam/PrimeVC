@@ -47,32 +47,24 @@ class StatesStyle extends StyleSubBlock
 {
 	private var extendedStyle	: StatesStyle;
 	private var superStyle		: StatesStyle;
-	private var _states			: StatesListType;
-	
-	public var states			(getStates, null) : StatesListType;
+	public var states			(default, null) : StatesListType;
 	
 	
 	public function new (states:StatesListType = null)
 	{
 		super();
-		_states = states;
+		this.states = states;
 		
-		if (_states != null)
-		{
-			//define filled states
-			var stateNames = _states.keys();
-			for (stateName in stateNames)
-				filledProperties = filledProperties.set(stateName);
-		}
+		updateFilledPropertiesFlag();
 		updateAllFilledPropertiesFlag();
 	}
 	
 	
 	override public function dispose ()
 	{
-		if (_states != null) {
-			_states.dispose();
-			_states = null;
+		if (states != null) {
+			states.dispose();
+			states = null;
 		}
 		super.dispose();
 	}
@@ -109,6 +101,18 @@ class StatesStyle extends StyleSubBlock
 				if (superStyle != null)
 					superStyle.listeners.add( this );
 			}
+		}
+	}
+	
+	
+	private function updateFilledPropertiesFlag ()
+	{
+		if (states != null)
+		{
+			//define filled states
+			var stateNames = states.keys();
+			for (stateName in stateNames)
+				filledProperties = filledProperties.set(stateName);
 		}
 	}
 	
@@ -165,31 +169,17 @@ class StatesStyle extends StyleSubBlock
 	
 	
 	//
-	// GETTERS / SETTERS
-	//
-	
-	private function getStates ()
-	{
-		var v = _states;
-		if (v == null && extendedStyle != null)		v = extendedStyle.states;
-		if (v == null && superStyle != null)		v = superStyle.states;
-		return v;
-	}
-	
-	
-	
-	//
 	// STATE METHODS
 	//
 	
 	public function set (stateName:UInt, state:StyleBlock) : Void
 	{
-		if (_states == null && state == null)
+		if (states == null && state == null)
 			return;
 		
-		if (_states == null)	_states = new StatesListType();
-		if (state == null)		_states.unset( stateName );
-		else					_states.set( stateName, state );
+		if (states == null)		states = new StatesListType();
+		if (state == null)		states.unset( stateName );
+		else					states.set( stateName, state );
 		
 		markProperty( stateName, state != null );
 	}
@@ -201,7 +191,7 @@ class StatesStyle extends StyleSubBlock
 			return null;
 		
 		var v:StyleBlock = null;
-		if (filledProperties.has(stateName))		v = _states.get( stateName );
+		if (filledProperties.has(stateName))		v = states.get( stateName );
 		if (v == null && extendedStyle != null)		v = extendedStyle.get( stateName );
 		if (v == null && superStyle != null)		v = superStyle.get( stateName );
 		
@@ -216,7 +206,7 @@ class StatesStyle extends StyleSubBlock
 	
 	
 #if (neko || debug)	
-	public function keys () : Iterator < UInt >					{ return states != null ? states.keys() : null; }
+	public function keys () : Iterator < UInt >				{ return states != null ? states.keys() : null; }
 	public function iterator () : Iterator < StyleBlock >	{ return states != null ? states.iterator() : null; }
 
 
@@ -226,10 +216,10 @@ class StatesStyle extends StyleSubBlock
 		
 		if (!isEmpty())
 		{
-			var stateNames = _states.keys();
+			var stateNames = states.keys();
 			for (stateName in stateNames)
 			{
-				var state = _states.get( stateName );
+				var state = states.get( stateName );
 				
 				if (state != null)
 					css.push( state.toCSS( prefix + ":" + Flags.stateToString(stateName) ) );
@@ -255,10 +245,21 @@ class StatesStyle extends StyleSubBlock
 	
 	
 #if neko
+	override public function cleanUp ()
+	{
+		if (!isEmpty())
+		{
+			states.cleanUp();
+			updateFilledPropertiesFlag();
+			updateAllFilledPropertiesFlag();
+		}
+	}
+	
+
 	override public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())
-			code.construct( this, [ _states ] );
+			code.construct( this, [ states ] );
 	}
 #end
 

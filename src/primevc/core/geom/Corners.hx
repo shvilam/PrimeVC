@@ -72,12 +72,8 @@ class Corners	implements IClonable < Corners >
 	
 	
 #if neko
-	public function toCode (code:ICodeGenerator)
-	{
-		code.construct( this, [ topLeft, topRight, bottomRight, bottomLeft ] );
-	}
-	
-	
-	public function isEmpty () { return false; }
+	public function cleanUp () : Void				{}
+	public function isEmpty ()						{ return topLeft.notSet() && topRight.notSet() && bottomRight.notSet() && bottomLeft.notSet(); }
+	public function toCode (code:ICodeGenerator)	{ code.construct( this, [ topLeft, topRight, bottomRight, bottomLeft ] ); }
 #end
 }

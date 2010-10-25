@@ -57,19 +57,15 @@ class EffectFlags
 	public static function readProperties (flags:UInt) : String
 	{
 		var output	= [];
-		var result	= "";
-
-		if (flags > 0)
-		{
-			if (flags.has( HIDE ))		output.push("hide");
-			if (flags.has( MOVE ))		output.push("move");
-			if (flags.has( RESIZE ))	output.push("resize");
-			if (flags.has( ROTATE ))	output.push("rotate");
-			if (flags.has( SCALE ))		output.push("scale");
-			if (flags.has( SHOW ))		output.push("show");
-			result = output.join(", ");
-		}
-		return "properties: " + result;
+		
+		if (flags.has( HIDE ))		output.push("hide");
+		if (flags.has( MOVE ))		output.push("move");
+		if (flags.has( RESIZE ))	output.push("resize");
+		if (flags.has( ROTATE ))	output.push("rotate");
+		if (flags.has( SCALE ))		output.push("scale");
+		if (flags.has( SHOW ))		output.push("show");
+		
+		return "properties: " + output.join(", ");
 	}
 #end	
 }

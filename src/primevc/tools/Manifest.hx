@@ -29,6 +29,9 @@
 package primevc.tools;
  import haxe.xml.Fast;
  import primevc.core.IDisposable;
+ import primevc.types.SimpleDictionary;
+ import primevc.utils.FastArray;
+  using primevc.utils.FastArray;
   using Xml;
 
 
@@ -46,27 +49,37 @@ class Manifest implements IDisposable
 	 * including the package.
 	 * I.e. [ "Label" => "primevc.gui.components.Label" ]
 	 */
-	private var classPackageMap		: Hash < String >;
+	public var classPackageMap		(default, null) : SimpleDictionary < String, String >;
 	
 	/**
 	 * Hash containing references from classes to their super classes.
 	 * I.e. [ "primevc.gui.components.Label" => "primevc.gui.core.UIDataComponent" ]
 	 */
-	private var superClassMap		: Hash < String >;
+	public var superClassMap		(default, null) : SimpleDictionary < String, String >;
+	
+	/**
+	 * Dictionary with lists for each class and it's sub classes
+	 */
+	public var subClassMap			(default, null)	: SimpleDictionary < String, FastArray < String > >;
 	
 	
 	public function new (file:String)
 	{
-		classPackageMap	= new Hash<String>();
-		superClassMap	= new Hash<String>();
+		classPackageMap	= new SimpleDictionary < String, String>();
+		superClassMap	= new SimpleDictionary < String, String>();
+		subClassMap		= new SimpleDictionary < String, FastArray < String > >();
 		addFile( file );
 	}
 	
 	
 	public function dispose ()
 	{
+		classPackageMap.dispose();
+		superClassMap.dispose();
+		subClassMap.dispose();
 		classPackageMap	= null;
 		superClassMap	= null;
+		subClassMap		= null;
 	}
 	
 	
@@ -80,9 +93,32 @@ class Manifest implements IDisposable
 			try {
 				classPackageMap.set( item.att.id, item.att.fullname );
 				superClassMap.set( item.att.fullname, item.att.superClass );
+				
+				//create list for new class
+				if (!subClassMap.exists( item.att.fullname ))
+					subClassMap.set( item.att.fullname, FastArrayUtil.create() );
 			}
 			catch (e:Dynamic)
 				trace("node " + item + " not matched. "+e);
+		}
+		
+		
+		//create subClassMap
+		var classNames = superClassMap.keys();
+		for (className in classNames)
+		{
+			var superClassName = getFullSuperClassName( className );
+			while (superClassName != null && superClassName != "")
+			{
+				var list = subClassMap.get( superClassName );
+				if (list == null)
+					list = subClassMap.set( superClassName, FastArrayUtil.create() );
+				
+				if (list.indexOf(className) == -1)
+					list.push( className );
+				
+				superClassName = getFullSuperClassName( superClassName );
+			}
 		}
 #end
 	}
@@ -105,6 +141,17 @@ class Manifest implements IDisposable
 			return superClassMap.get( fullClassName );
 		
 		return null;
+	}
+	
+	
+	
+	/**
+	 * Method will check if there are any classes defined who extend the given
+	 * classname.
+	 */
+	public function hasSubClasses (fullClassName:String) : Bool
+	{
+		return subClassMap.get( fullClassName ) != null && subClassMap.get( fullClassName ).length > 0;  //superClassMap.hasValue( fullClassName );
 	}
 	
 	

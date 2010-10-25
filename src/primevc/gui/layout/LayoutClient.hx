@@ -400,7 +400,7 @@ class LayoutClient implements ILayoutClient
 	
 	
 	
-	private inline function setPadding (v:Box)
+	private function setPadding (v:Box)
 	{
 		if (padding != v) {
 			padding = v;
