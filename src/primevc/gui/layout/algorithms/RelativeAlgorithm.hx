@@ -35,7 +35,7 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.RelativeLayout;
   using primevc.utils.BitUtil;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
 
 
 
@@ -47,25 +47,25 @@ package primevc.gui.layout.algorithms;
  */
 class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 {
-	private var measurePreparedHor : Bool;
-	private var measurePreparedVer : Bool;
+	private var validatePreparedHor : Bool;
+	private var validatePreparedVer : Bool;
 	
 	
 	public inline function isInvalid (changes:Int)
 	{
-		return changes.has( LayoutFlags.WIDTH_CHANGED ) 
-				|| changes.has( LayoutFlags.HEIGHT_CHANGED )
-				|| changes.has( LayoutFlags.X_CHANGED )
-				|| changes.has( LayoutFlags.Y_CHANGED )
-				|| changes.has( LayoutFlags.RELATIVE_CHANGED );
+		return changes.has( LayoutFlags.WIDTH ) 
+				|| changes.has( LayoutFlags.HEIGHT )
+				|| changes.has( LayoutFlags.X )
+				|| changes.has( LayoutFlags.Y )
+				|| changes.has( LayoutFlags.RELATIVE );
 	}
 	
 	
-	override public function prepareMeasure ()
+	override public function prepareValidate ()
 	{
-		if (!measurePrepared)
+		if (!validatePrepared)
 		{
-			if (group.measuredHorizontal && !measurePreparedHor)
+			if (group.hasValidatedWidth && !validatePreparedHor)
 			{
 				for (child in group.children) {
 					if (child.relative == null || !child.includeInLayout)
@@ -75,11 +75,11 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 						child.bounds.width	= group.width - child.relative.right - child.relative.left;
 				}
 				
-				measurePreparedHor = true;
+				validatePreparedHor = true;
 			}
 			
 			
-			if (group.measuredVertical && !measurePreparedVer)
+			if (group.hasValidatedHeight && !validatePreparedVer)
 			{
 				for (child in group.children) {
 					if (child.relative == null || !child.includeInLayout)
@@ -89,26 +89,26 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 						child.bounds.height	= group.height - child.relative.bottom - child.relative.top;
 				}
 				
-				measurePreparedVer = true;
+				validatePreparedVer = true;
 			}
 			
-			if (measurePreparedVer && measurePreparedHor)
-				measurePrepared = true;
+			if (validatePreparedVer && validatePreparedHor)
+				validatePrepared = true;
 		}
 	}
 	
 	
-	public inline function measure () {
-		measureHorizontal();
-		measureVertical();
+	public inline function validate () {
+		validateHorizontal();
+		validateVertical();
 	}
-	public inline function measureHorizontal () {
-		if (!measurePrepared)
-			prepareMeasure();
+	public inline function validateHorizontal () {
+		if (!validatePrepared)
+			prepareValidate();
 	}
-	public inline function measureVertical () {
-		if (!measurePrepared)
-			prepareMeasure();
+	public inline function validateVertical () {
+		if (!validatePrepared)
+			prepareValidate();
 	}
 	
 	
@@ -145,9 +145,9 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 			else if (childProps.vCenter.isSet())	child.bounds.top	= Std.int( ( group.bounds.height - child.bounds.height ) * .5 );
 		}
 		
-		measurePrepared		= false;
-		measurePreparedHor	= false;
-		measurePreparedVer	= false;
+		validatePrepared	= false;
+		validatePreparedHor	= false;
+		validatePreparedVer	= false;
 	}
 	
 	
@@ -162,10 +162,15 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 	}
 
 
-#if debug
-	public function toString ()
+#if (neko || debug)
+	override public function toString () : String
 	{
-		return group + ".RelativeAlgorithm ( " + group.bounds.width + " -> " + group.bounds.height + " ) ";
+		return toCSS(); //group + ".RelativeAlgorithm()"; // ( " + group.bounds.width + " -> " + group.bounds.height + " ) ";
+	}
+	
+	override public function toCSS (prefix:String = "") : String
+	{
+		return "relative";
 	}
 #end
 }

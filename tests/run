@@ -12,18 +12,20 @@ HEIGHT=900
 EXTRA=""
 DEBUG=""
 NOTRACES=""
+RESOURCE=""
 
 #parse arguments
-while getopts "dte:af:gr:sw:xh:i" OptionName
+while getopts "dte:af:gr:sw:xh:iy:z" OptionName
 	do
 		case $OptionName in
 			d ) DEBUG="-debug";;
 			e ) EXTRA=${OPTARG};;
-			r ) FPS=${OPTARG};;					#frame rate
-			f ) TestClass=${OPTARG//\//.};;		#class
-			w ) WIDTH=${OPTARG};;				#width
-			h ) HEIGHT=${OPTARG};;				#height
-			t ) NOTRACES="--no-traces";;		#remove traces
+			r ) FPS=${OPTARG};;						#frame rate
+			f ) TestClass=${OPTARG//\//.};;			#class
+			w ) WIDTH=${OPTARG};;					#width
+			h ) HEIGHT=${OPTARG};;					#height
+			y ) RESOURCE="-resource ${OPTARG}";;	#resource files
+			t ) NOTRACES="--no-traces";;			#remove traces
 			* ) echo "unkown argument";;
 	esac
 done
@@ -31,5 +33,5 @@ done
 TestClass=${TestClass%.hx}
 #echo $TestClass
 
-haxe build.hxml ${EXTRA} -main $TestClass -swf-header $WIDTH:$HEIGHT:$FPS:FFFFFF ${DEBUG} ${NOTRACES} &&
+haxe build.hxml ${EXTRA} -main $TestClass -swf-header $WIDTH:$HEIGHT:$FPS:FFFFFF ${DEBUG} ${NOTRACES} ${RESOURCE} &&
 open test.swf

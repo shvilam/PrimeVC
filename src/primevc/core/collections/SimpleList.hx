@@ -27,8 +27,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.collections;
+ import primevc.core.collections.iterators.IIterator;
+ import primevc.core.collections.iterators.DoubleFastCellForwardIterator;
+ import primevc.core.collections.iterators.DoubleFastCellReversedIterator;
  import primevc.core.events.ListEvents;
- import primevc.core.DoubleFastCell;
   using primevc.utils.IntMath;
  
 
@@ -40,7 +42,7 @@ package primevc.core.collections;
  * @creation-date	Jun 29, 2010
  * @author			Ruben Weijers
  */
-class SimpleList <DataType> implements IList <DataType> 
+class SimpleList < DataType > implements IList < DataType > 
 	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	public var events		(default, null)		: ListEvents < DataType >;
@@ -59,26 +61,23 @@ class SimpleList <DataType> implements IList <DataType>
 	
 	public function new()
 	{
-		events	= new ListEvents();
 		_length	= 0;
+		events	= new ListEvents();
 	}
 	
 	
-	public inline function removeAll ()
+	public function removeAll ()
 	{
-		var current = first;
-		var prev;
-		
-		while (current != null) {
-			prev			= current;
-			current 		= current.next;
-			current.prev	= null;
-			prev.next		= null;
+		var cur = first;
+		while (cur != null)
+		{
+			var tmp = cur;
+			cur = cur.next;
+			tmp.dispose();
 		}
 		
-		first	= null;
-		last	= null;
-		_length	= 0;
+		first = last = null;
+		_length = 0;
 		events.reset.send();
 	}
 	
@@ -103,14 +102,10 @@ class SimpleList <DataType> implements IList <DataType>
 	}
 	
 	
-	private inline function getLength () {
-		return _length;
-	}
-	
-	
-	public function iterator () : Iterator <DataType>				{ return getForwardIterator(); }
-	public function getForwardIterator () : IIterator <DataType>	{ return new SimpleListForwardIterator<DataType>(this); }
-	public function getReversedIterator () : IIterator <DataType>	{ return new SimpleListReversedIterator<DataType>(this); }
+	private inline function getLength ()	: Int					{ return _length; }
+	public function iterator ()				: Iterator <DataType>	{ return getForwardIterator(); }
+	public function getForwardIterator ()	: IIterator <DataType>	{ return new DoubleFastCellForwardIterator <DataType> (first); }
+	public function getReversedIterator ()	: IIterator <DataType>	{ return new DoubleFastCellReversedIterator <DataType> (last); }
 
 	
 	
@@ -122,7 +117,8 @@ class SimpleList <DataType> implements IList <DataType>
 	 * @return
 	 */
 	public function getItemAt (pos:Int) : DataType {
-		return getCellAt(pos).data;
+		var cell = getCellAt(pos);
+		return (cell != null) ? cell.data : null;
 	}
 	
 	
@@ -148,14 +144,19 @@ class SimpleList <DataType> implements IList <DataType>
 	
 	public inline function move (item:DataType, newPos:Int, curPos:Int = -1) : DataType
 	{
-		if		(curPos == -1)				curPos = indexOf( item );
-		if		(newPos > (length - 1))		newPos = length - 1;
-		else if (newPos < 0)				newPos = length - newPos;
+		if		(curPos == -1)		curPos = indexOf( item );
+		if		(newPos > length)	newPos = length;
+		else if (newPos < 0)		newPos = length + newPos;
 		
 		if (curPos != newPos)
 		{
-			removeItem( item );
-			insertAt( item, newPos );
+			var cell = getCellAt( curPos );
+			removeCell( cell );
+			
+			if (newPos == length || curPos > newPos)
+				insertCellAt( cell, newPos );
+			else
+				insertCellAt( cell, (newPos - 1) );
 			
 			events.moved.send( item, curPos, newPos );
 		}
@@ -165,34 +166,24 @@ class SimpleList <DataType> implements IList <DataType>
 	
 	public function indexOf (item:DataType) : Int
 	{
-		var nextCell	= first;
-		var index:Int	= -1;
-		var current:Int	= 0;
-		while (nextCell != null) {
-			if (nextCell.data == item) {
-				index = current;
-				break;
-			}
+		var cur = first;
+		var pos = -1, foundPos = -1;
+		while (cur != null && foundPos == -1)
+		{
+			pos++;
+			if (cur.data == item)
+				foundPos = pos;
 			
-			nextCell = nextCell.next;
-			current++;
+			cur = cur.next;
 		}
-		return index;
+		
+		return foundPos;
 	}
 	
 	
 	public function has (item:DataType) : Bool
 	{
-		var found		= false;
-		var nextCell	= first;
-		while (nextCell != null) {
-			if (nextCell.data == item) {
-				found = true;
-				break;
-			}
-			nextCell = nextCell.next;
-		}
-		return found;
+		return indexOf(item) > -1;
 	}
 	
 	
@@ -204,65 +195,45 @@ class SimpleList <DataType> implements IList <DataType>
 	 * @param	pos
 	 * @return	position where the cell is inserted
 	 */
-	private inline function insertAt (item:DataType, pos:Int = -1) : Int
+	
+
+	public function insertAt (item:DataType, ?pos:Int = -1) : Int
 	{
-		var cell = new DoubleFastCell<DataType>( item, null );
-		if (pos < 0)
+		return insertCellAt( new DoubleFastCell < DataType >( item, null ), pos );
+	}
+
+
+	private function insertCellAt( cell:DoubleFastCell < DataType >, ?pos:Int = -1) : Int
+	{
+		if (pos < 0 || pos > length)
 			pos = length;
-		
+
 		if (pos == 0)
 		{
 			//add at beginning of list
-			if (first != null) {
-				first.prev	= cell;
-				cell.next	= first;
-			}
-			
+			if (first != null)	cell.insertBefore( first );
 			first = cell;
-			
-			if (last == null)
-				last = cell;
+			if (last == null)	last = cell;
 		}
-		else if (pos >= length)
+		else if (pos == length)
 		{
 			//add at the end of the list
-			last.next	= cell;
-			cell.prev	= last;
-			last		= cell;
-			pos			= length;
+			cell.insertAfter( last );
+			last = cell;
 			Assert.that( cell.prev != null, "No previous cell for "+cell+" in "+this);
 		}
 		else
 		{
 			//insert item in the middle
-			cell.next			= getCellAt(pos);
-			cell.prev			= cell.next.prev;
-			
-			Assert.that( cell.next != null, "No next cell for "+cell+" in "+this);
-			Assert.that( cell.prev != null, "No previous cell for "+cell+" in "+this+"; next = "+cell.next);
-			
-			cell.next.prev	= cell;
-			cell.prev.next	= cell;
+			cell.insertBefore( getCellAt(pos) );
+
+			Assert.notNull( cell.next, "No next cell for "+cell+" in "+this);
+			Assert.notNull( cell.prev, "No previous cell for "+cell+" in "+this+"; next = "+cell.next);
+			Assert.notEqual( cell.next, cell );
+			Assert.notEqual( cell.prev, cell );
 		}
-		
+
 		_length++;
-		return pos;
-	}
-	
-	
-	/**
-	 * Method does the same thing as the remove method, except that it won't fire
-	 * an 'removed' event.
-	 * 
-	 * @param	item
-	 * @return	last position of the item
-	 */
-	private inline function removeItem (item:DataType) : Int
-	{
-		var cell = getCellFor(item);
-		var pos = -1;
-		if (cell != null)
-			pos = removeCell( cell );
 		return pos;
 	}
 	
@@ -298,35 +269,33 @@ class SimpleList <DataType> implements IList <DataType>
 	}
 	
 	
-	private inline function getCellFor (item:DataType) : DoubleFastCell<DataType>
+	/**
+	 * Method does the same thing as the remove method, except that it won't fire
+	 * an 'removed' event.
+	 * 
+	 * @param	item
+	 * @return	last position of the item
+	 */
+	private inline function removeItem (item:DataType) : Int
 	{
-		var currentCell:DoubleFastCell<DataType> = first;
-		while (currentCell != null) {
-			if (currentCell.data == item)
-				break;
-			currentCell = currentCell.next;
-		}
-		
-		return currentCell;
+		var pos = indexOf( item );
+		if (pos > -1)
+		{
+			var cell = getCellAt( pos );
+			if (cell != null)
+				removeCell( cell );
+		}	
+		return pos;
 	}
 	
 	
-	private inline function removeCell (cell:DoubleFastCell<DataType>) : Int
+	private function removeCell (cell:DoubleFastCell < DataType >)
 	{
-		var itemPos = indexOf(cell.data);
-		if (itemPos >= 0)
-		{
-			if (cell.prev != null)		cell.prev.next = cell.next;
-			else						first = cell.next;
+		if (cell == first)	first = cell.next;
+		if (cell == last)	last = cell.prev;
 		
-			if (cell.next != null)		cell.next.prev = cell.prev;
-			else						last = cell.prev;
-		
-			cell.next = cell.prev = null;
-			cell.data = null;
-			_length--;
-		}
-		return itemPos;
+		cell.remove();
+		_length--;
 	}
 	
 #if debug
@@ -342,70 +311,4 @@ class SimpleList <DataType> implements IList <DataType>
 		return name + "SimpleList ("+items.length+")\n" + items.join("\n");
 	}
 #end
-}
-
-
-
-
-/**
- * Iterate object for the SimpleList implementation
- * 
- * @creation-date	Jun 29, 2010
- * @author			Ruben Weijers
- */
-class SimpleListForwardIterator <DataType> implements IIterator <DataType>
-	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
-{
-	private var list (default, null)	: SimpleList<DataType>;
-	public var current (default, null)	: DoubleFastCell<DataType>;
-	
-	public function new (list:SimpleList<DataType>) 
-	{
-		this.list = list;
-		rewind();
-	}
-	
-	public inline function setCurrent (val:Dynamic)	{ current = val; }
-	public inline function rewind ()				{ current = list.first; }
-	public inline function hasNext () 				{ return current != null; }
-	
-	public inline function next () : DataType
-	{
-		var c = current;
-		current = current.next;
-		return c.data;
-	}
-}
-
-
-
-
-/**
- * Iterate object for the SimpleList implementation
- * 
- * @creation-date	Jul 23, 2010
- * @author			Ruben Weijers
- */
-class SimpleListReversedIterator <DataType> implements IIterator <DataType>
-	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
-{
-	private var list (default, null)	: SimpleList<DataType>;
-	public var current (default, null)	: DoubleFastCell<DataType>;
-
-	public function new (list:SimpleList<DataType>) 
-	{
-		this.list	= list;
-		rewind();
-	}
-	
-	public inline function setCurrent (val:Dynamic)	{ current = val; }
-	public inline function rewind ()				{ current = list.last; }
-	public inline function hasNext ()				{ return current != null; }
-	
-	public inline function next () : DataType
-	{
-		var c = current;
-		current = current.prev;
-		return c.data;
-	}
 }

@@ -20,4 +20,16 @@
 		<nature>com.powerflasher.fdt.core.FlashNature</nature>
 		<nature>com.powerflasher.fdt.haxe.core.nature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>feffects</name>
+			<type>2</type>
+			<locationURI>feffects</locationURI>
+		</link>
+		<link>
+			<name>haxeLib</name>
+			<type>2</type>
+			<locationURI>haxeLib</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>

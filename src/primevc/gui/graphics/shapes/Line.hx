@@ -35,13 +35,21 @@ package primevc.gui.graphics.shapes;
  * @author Ruben Weijers
  * @creation-date Aug 01, 2010
  */
-class Line extends ShapeBase
+class Line extends ShapeBase, implements IGraphicShape
 {
-	override private function drawShape (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
+	public inline function draw (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
 	{
 #if flash9
 		target.graphics.moveTo( x, y );
 		target.graphics.lineTo( x + width, y + height );
 #end
 	}
+	
+	
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String
+	{
+		return "line";
+	}
+#end
 }

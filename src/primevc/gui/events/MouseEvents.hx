@@ -36,6 +36,7 @@ typedef MouseEvents =
 	#if		flash9	primevc.avm2.events.MouseEvents;
 	#elseif	flash8	primevc.avm1.events.MouseEvents;
 	#elseif	js		primevc.js  .events.MouseEvents;
+	#elseif	neko	primevc.neko.events.MouseEvents;
 	#else	error	#end
 
 typedef MouseHandler	= MouseState -> Void;

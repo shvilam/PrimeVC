@@ -34,10 +34,10 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.LayoutClient;
- import primevc.gui.states.LayoutStates;
+ import primevc.gui.states.ValidateStates;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
  
 
@@ -65,7 +65,7 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 		childHeight	= Number.INT_NOT_SET;
 		
 		childAddedHandler.on( children.events.added, this );
-		childRemovedHandler.on( children.events.removed, this );
+	//	childRemovedHandler.on( children.events.removed, this );
 		
 		invalidateChildList.on( children.events.added, this );
 		invalidateChildList.on( children.events.moved, this );
@@ -93,7 +93,7 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 	{
 		var r = false;
 		algorithm.group = cast this;
-		if (childChanges.has(LayoutFlags.LIST_CHANGED) || (algorithm != null && algorithm.isInvalid(childChanges)))
+		if (childChanges.has(LayoutFlags.LIST) || (algorithm != null && algorithm.isInvalid(childChanges)))
 		{
 			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
 			r = true;
@@ -102,7 +102,7 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 	}
 	
 	
-	override public function measure () 
+	override public function validate () 
 	{
 		if (changes == 0)
 			return;
@@ -110,12 +110,12 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 #if debug
 		children.name = name;
 #end
-		measureHorizontal();
-		measureVertical();
+		validateHorizontal();
+		validateVertical();
 	}
 	
 	
-	override public function measureHorizontal ()
+	override public function validateHorizontal ()
 	{
 		if (changes == 0)
 			return;
@@ -124,15 +124,15 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 		
 		for (child in children)
 			if (childInvalidated(child.changes))
-				child.measureHorizontal();
+				child.validateHorizontal();
 		
 		algorithm.group = cast this;
-		algorithm.measureHorizontal();
-		super.measureHorizontal();
+		algorithm.validateHorizontal();
+		super.validateHorizontal();
 	}
 	
 	
-	override public function measureVertical ()
+	override public function validateVertical ()
 	{
 		if (changes == 0)
 			return;
@@ -140,16 +140,16 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 		Assert.that(algorithm != null);
 		for (child in children) {
 			if (childInvalidated(child.changes))
-				child.measureVertical();
+				child.validateVertical();
 		}
 		
 		algorithm.group = cast this;
-		algorithm.measureVertical();
-		super.measureVertical();
+		algorithm.validateVertical();
+		super.validateVertical();
 	}
 	
 	
-	override public function validate ()
+	override public function validated ()
 	{
 		if (changes == 0)
 			return;
@@ -187,7 +187,7 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 			}
 			
 			algorithm = v;
-			invalidate( LayoutFlags.ALGORITHM_CHANGED );
+			invalidate( LayoutFlags.ALGORITHM );
 			
 			if (algorithm != null) {
 				algorithmChangedHandler.on( algorithm.algorithmChanged, this );
@@ -226,13 +226,13 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 	// EVENT HANDLERS
 	//
 	
-	private function algorithmChangedHandler ()							{ invalidate( LayoutFlags.ALGORITHM_CHANGED ); }
-	private function invalidateChildList ()								{ invalidate( LayoutFlags.LIST_CHANGED ); }
-	private function childRemovedHandler (child:ChildType, pos:Int)		{ if (child != null) { child.parent = null; } }
+	private function algorithmChangedHandler ()							{ invalidate( LayoutFlags.ALGORITHM ); }
+	private function invalidateChildList ()								{ invalidate( LayoutFlags.LIST ); }
+//	private function childRemovedHandler (child:ChildType, pos:Int)		{ if (child != null) { child.parent = null; } }
 	
 	private function childAddedHandler (child:ChildType, pos:Int)
 	{
-		child.parent = this;
+	//	child.parent = this;
 		if (bounds.left != 0)	child.bounds.left	= bounds.left;
 		if (bounds.top != 0)	child.bounds.top	= bounds.top;
 	//	trace(name+".childAddedHandler "+child+"; bounds: "+bounds+"; child.bounds: "+child.bounds);
@@ -240,6 +240,6 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 
 	
 #if debug
-	override public function toString () { return "LayoutTileContainer( "+super.toString() + " ) - "+children; }
+	override public function toString () { return "LayoutTileContainer( "+super.toString() + " ) - "/*+children*/; }
 #end
 }

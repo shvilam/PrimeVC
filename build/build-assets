@@ -1,9 +1,11 @@
 #!bash
+
 BUILDSCRIPTDIR="`dirname $0`";
 PRJROOT="${BUILDSCRIPTDIR}/.."
 
 if [[ ! -f ${PRJROOT}/build/environment.sh ]]; then
 	echo "There's no environment file configured. Copy 'environment.sh.template' to 'environment.sh' and edit it."
+	exit 1
 else
 	if [[ ! -f ${PRJROOT}/assets/debug-assets.swf ]]  ||  test ${PRJROOT}/assets/DebugAssets.as -nt ${PRJROOT}/assets/debug-assets.swf  ||  test ${PRJROOT}/assets/Assets.as -nt ${PRJROOT}/assets/assets.swf ; then
 		echo "[mxmlc]  Compiling asset SWFs"
@@ -15,7 +17,7 @@ else
 		fi;
 		
 		"$MXMLC" \
-			-compiler.source-path ${PRJROOT}/src ${PRJROOT}/libs ${PRJROOT}/libs/as3-flexless \
+			-compiler.source-path "${PRJROOT}/src" "${PRJROOT}/libs/macmousewheel" "${PRJROOT}/libs/monsterdebugger" "${PRJROOT}/libs/as3-flexless" \
 			-compiler.as3 \
 			-debug=false \
 			-verbose-stacktraces=false \
@@ -24,7 +26,7 @@ else
 			${PRJROOT}/assets/Assets.as &&
 
 		"$MXMLC" \
-			-compiler.source-path ${PRJROOT}/src ${PRJROOT}/libs ${PRJROOT}/libs/as3-flexless \
+			-compiler.source-path "${PRJROOT}/src" "${PRJROOT}/libs/macmousewheel" "${PRJROOT}/libs/monsterdebugger" "${PRJROOT}/libs/as3-flexless" \
 			-compiler.as3 \
 			-output ${PRJROOT}/assets/debug-assets.swf \
 			${PRJROOT}/assets/DebugAssets.as &&

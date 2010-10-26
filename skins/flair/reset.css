@@ -1,0 +1,69 @@
+html, body					{ background: #eee; margin: 0; padding: 0; }
+* html, body				{ overflow: auto; }
+a							{ color: #000; text-decoration: none; }
+p, li, form div				{ font: 12px "Lucida Sans Unicode", "Lucida Sans", verdana, sans-serif; letter-spacing: 0.4px; line-height: 19px; }
+div { margin: 0; }
+
+#container					{ width: 690px; }
+.menu, .gallery				{ float: left; }
+
+/**
+ * MENU
+ */
+.gallery					{ width: 490px; }
+.menu						{ width: 200px; }
+.menu h1					{ font:  25px "Courier New"; font-weight: bold; text-align: center; margin: 7px 0; }
+.menu ul					{ list-style-type: none; margin: 0 auto; padding: 0; }
+.menu li					{ list-style-type: none; border-bottom: 1px dashed #aaa; padding: 0; width: 100%; }
+.menu li.active				{ background: #fff; }
+.menu li a					{ display: block; width: 90%; padding: 10px; font-size: 20px; }
+.menu li a:hover,
+	.menu li.active a,
+	form label:hover		{ color: #8C0000;  }
+
+img.small					{ width: 120px; }
+img.medium					{ width: 300px; }
+img.big						{ width: 550px; }
+
+
+/**
+ * FORM STYLING
+ */
+form, form fieldset 		{ margin: 0; padding: 0; border: 0; }
+form #photos				{ overflow: auto; height: 300px; width: 480px; background: #fff; border: 1px dashed #aaa; float: none; margin: 0; }
+form #photos label			{ display: none; }
+form #photos fieldset 		{ width: 96%; }
+form #photos fieldset label	{ display: block; width: 100%; height: 100%; }
+form #photos fieldset input	{ text-align: center; width: 100%; margin: 0; }
+form #photos fieldset div	{ float: left; margin: 10px; width: 120px; height: 125px; overflow: hidden; border: 1px solid #ddd; }
+form #photos fieldset div:hover	{ border-color: #000; }
+
+form .radiogroup				{ width: 45%; float: left; }
+form .radiogroup label,
+	form .radiogroup fieldset	{ width: 30%; float: left; }
+form .radiogroup fieldset		{ width: 65%; }
+form .radiogroup fieldset input	{ float: left; }
+form select	{ float: left; width: auto; }
+
+form p.error					{ display: none; }
+
+form .buttons input, 
+	form button					{ background: #ddd; border: 1px solid #000; margin: 2px; }
+form .buttons input:hover,
+	form button:hover			{ background: #fff; }
+
+form .buttons input,
+	div.submit input			{ float: right; }
+div.submit						{ display: inline; width: 18%; float: right; }
+
+
+/**
+ * Deze hack zorgt ervoor dat een niet-floatend element met daarin een floatend element, wel een hoogte heeft.
+ */
+/* clearing space fix \*/
+div:after, ul:after	{ content: "."; display: block; position: relative; height: 0; clear: both; visibility: hidden; }
+
+/* Hides from IE-mac \*/
+* html div	{ height: 1%; }
+div			{ display: block; }
+/* End hide from IE-mac */

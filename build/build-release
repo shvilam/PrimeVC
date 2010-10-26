@@ -1,7 +1,7 @@
 #!/bin/bash
 bash build/build-assets &&
 haxe build/build-release.hxml &&
-bash build/optimize-build &&
+bash build/optimize-build build/tmp.swf &&
 
-mv tmp.swf bin-release/app.swf &&
+mv build/tmp.swf bin-release/app.swf &&
 open bin-release/app.swf

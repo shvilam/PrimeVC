@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms.tile;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.core.collections.BalancingListCollection;
  import primevc.core.collections.BalancingList;
  import primevc.core.collections.ChainedListCollection;
@@ -34,6 +37,8 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.core.collections.IList;
  import primevc.core.collections.IListCollection;
  import primevc.core.geom.space.Direction;
+ import primevc.core.geom.space.Horizontal;
+ import primevc.core.geom.space.Vertical;
  import primevc.core.geom.IRectangle;
  import primevc.types.Number;
  import primevc.core.RangeIterator;
@@ -44,11 +49,12 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.LayoutContainer;
+ import primevc.types.Number;
  import primevc.utils.FastArray;
  import primevc.utils.IntMath;
   using primevc.utils.BitUtil;
   using primevc.utils.Bind;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.IntMath;
   using primevc.utils.TypeUtil;
  
@@ -161,10 +167,10 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	private var childVerAlgorithm	: VerticalFloatAlgorithm;
 	
 	
-	public function new() 
+	public function new( ?startDir:Direction, ?maxTiles:Int = Number.INT_NOT_SET, ?horDirection:Horizontal, ?verDirection:Vertical ) 
 	{
-		super();
-		maxTilesInDirection	= 4;
+		super( startDir, horDirection, verDirection );
+		maxTilesInDirection	= maxTiles.notSet() ? 4 : maxTiles;
 		childHorAlgorithm	= new HorizontalFloatAlgorithm( horizontalDirection );
 		childVerAlgorithm	= new VerticalFloatAlgorithm( verticalDirection );
 	}
@@ -348,37 +354,37 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	//
 	
 	
-	override public function prepareMeasure ()
+	override public function prepareValidate ()
 	{
-		if (group.children.length > 0 && !measurePrepared && (horizontalMap == null || verticalMap == null))
+		if (group.children.length > 0 && !validatePrepared && (horizontalMap == null || verticalMap == null))
 			createTileMap();
 		
-		super.prepareMeasure();
+		super.prepareValidate();
 	}
 	
 	
-	override public function measure () : Void
+	override public function validate () : Void
 	{
 		Assert.that( maxTilesInDirection.isSet(), "maxTilesInDirection should have been set" );
 		
 		if (group.children.length == 0)
 			return;
 		
-		measureHorizontal();
-		measureVertical();
+		validateHorizontal();
+		validateVertical();
 	}
 	
 	
-	override public function measureHorizontal ()
+	override public function validateHorizontal ()
 	{
 		var w:Int = 0;
 		
 		if (group.children.length > 0) {
 			if (startDirection == Direction.horizontal) {
-				columns.measureHorizontal();
+				columns.validateHorizontal();
 				w = rows.width = columns.width;
 			} else {
-				rows.measureHorizontal();
+				rows.validateHorizontal();
 				w = columns.width = rows.width;
 			}
 		}
@@ -387,15 +393,15 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	}
 	
 	
-	override public function measureVertical ()
+	override public function validateVertical ()
 	{
 		var h:Int = 0;
 		if (group.children.length > 0) {
 			if (startDirection == Direction.horizontal) {
-				rows.measureVertical();
+				rows.validateVertical();
 				h = columns.height = rows.height;
 			} else {
-				columns.measureVertical();
+				columns.validateVertical();
 				h = rows.height = columns.height;
 			}	
 		}
@@ -419,6 +425,12 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	override public function getDepthForBounds (bounds:IRectangle)
 	{
 		var depth:Int = 0;
+		
+		if (group.children.length == 0 || rows == null)
+			return depth;
+		
+		Assert.notNull( rows, "rows is null; length = " + group.children.length );
+		Assert.notNull( rows.algorithm, "rows.algorithm is null; length = " + group.children.length );
 		var rowNum = rows.algorithm.getDepthForBounds( bounds );
 		if (rowNum < rows.children.length)
 		{
@@ -462,9 +474,10 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	{
 		if (group != v)
 		{
-			if (group != null) {
-				if (rows.padding == group.padding)		rows.padding = null;
-				if (columns.padding == group.padding)	columns.padding = null;
+			if (group != null)
+			{
+				if (rows != null	&& rows.padding == group.padding)		rows.padding = null;
+				if (columns != null && columns.padding == group.padding)	columns.padding = null;
 				
 				group.children.events.unbind(this);
 			}
@@ -479,4 +492,18 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 		}
 		return v;
 	}
+	
+	
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ startDirection, maxTilesInDirection, horizontalDirection, verticalDirection ] );
+	}
+	
+	
+	override public function toCSS (prefix:String = "") : String
+	{
+		return "fixed-tile ( "+startDirection+", "+maxTilesInDirection+", "+horizontalDirection+", "+verticalDirection+" )";
+	}
+#end
 }

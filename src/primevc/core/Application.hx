@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core;
+ import primevc.gui.display.Stage;
  import primevc.gui.display.Window;
 
 
@@ -41,7 +42,7 @@ class Application
 	public var window	(default, null)	: Window;
 	
 	
-	public function new ( target:DocumentType, windowClass:Class<Window> )
+	public function new ( target:Stage, windowClass:Class<Window> )
 	{
 		window = Type.createInstance( windowClass, [ target, this ] );
 	}

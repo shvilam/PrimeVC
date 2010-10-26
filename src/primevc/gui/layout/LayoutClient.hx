@@ -34,10 +34,10 @@ package primevc.gui.layout;
  import primevc.core.states.SimpleStateMachine;
  import primevc.types.Number;
  import primevc.gui.events.LayoutEvents;
- import primevc.gui.states.LayoutStates;
+ import primevc.gui.states.ValidateStates;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 
@@ -52,7 +52,7 @@ private typedef Flags = LayoutFlags;
 class LayoutClient implements ILayoutClient
 {
 	public var validateOnPropertyChange									: Bool;
-	public var changes 				(default, setChanges)				: Int;
+	public var changes 													: Int;
 	public var includeInLayout		(default, setIncludeInLayout)		: Bool;
 	
 	public var parent				(default, setParent)				: ILayoutContainer<Dynamic>;
@@ -69,9 +69,9 @@ class LayoutClient implements ILayoutClient
 	private var aspectRatio			(default, default)					: Float;
 	
 	
-	public var state				(default, null)						: SimpleStateMachine < LayoutStates >;
-	public var measuredHorizontal	(default, null)						: Bool;
-	public var measuredVertical		(default, null)						: Bool;
+	public var state				(default, null)						: SimpleStateMachine < ValidateStates >;
+	public var hasValidatedWidth	(default, null)						: Bool;
+	public var hasValidatedHeight	(default, null)						: Bool;
 	
 	public var isValidating			(getIsValidating, never)			: Bool;
 	public var isInvalidated		(getIsInvalidated, never)			: Bool;
@@ -100,7 +100,6 @@ class LayoutClient implements ILayoutClient
 	// METHODS
 	//
 	
-	
 	public function new (newWidth:Int = 0, newHeight:Int = 0, validateOnPropertyChange = false)
 	{
 #if debug
@@ -123,10 +122,10 @@ class LayoutClient implements ILayoutClient
 		updateWidth	.on( bounds.size.xProp.change, this );
 		updateHeight.on( bounds.size.yProp.change, this );
 		
-		changes				= changes.set(Flags.X_CHANGED | Flags.Y_CHANGED | Flags.WIDTH_CHANGED | Flags.HEIGHT_CHANGED);
-		state				= new SimpleStateMachine<LayoutStates>( LayoutStates.validated );
-		measuredVertical	= false;
-		measuredHorizontal	= false;
+		changes				= changes.set(Flags.X | Flags.Y | Flags.WIDTH | Flags.HEIGHT);
+		state				= new SimpleStateMachine<ValidateStates>( ValidateStates.validated );
+		hasValidatedHeight	= false;
+		hasValidatedWidth	= false;
 	}
 	
 	
@@ -167,7 +166,7 @@ class LayoutClient implements ILayoutClient
 		parent	= null;
 		padding = null;
 		x = y = width = height = 0;
-		measure();
+		validate();
 		changes	= 0;
 	}
 	
@@ -186,54 +185,22 @@ class LayoutClient implements ILayoutClient
 		if (changes == 0 || state == null || state.current == null)
 			return;
 		
-		if (isValidating)
+		if (isValidating || (parent != null && parent.isValidating))
 			return;
 		
-		if (!state.is(LayoutStates.parent_invalidated))
+		if (!state.is(ValidateStates.parent_invalidated))
 		{
-			if (parent != null && (parent.isInvalidated || parent.childInvalidated(changes))) {
-				state.current = LayoutStates.parent_invalidated;
+			if (includeInLayout && parent != null && (parent.isInvalidated || parent.childInvalidated(changes))) {
+				state.current = ValidateStates.parent_invalidated;
 			}
-			else {
-				state.current = LayoutStates.invalidated;
+			else
+			{
+				state.current = ValidateStates.invalidated;
 				
 				if (validateOnPropertyChange && (parent == null || !parent.validateOnPropertyChange))
-					measure();
+					validate();
 			}
 		}
-	}
-	
-	
-	public function measure ()
-	{
-		if (changes == 0)
-			return;
-		
-		state.current = LayoutStates.measuring;
-		if (!measuredHorizontal)	measureHorizontal();
-		if (!measuredVertical)		measureVertical();
-		
-		//auto validate when there is no parent or when the parent isn't invalidated
-		if (parent == null || parent.changes == 0)
-			validate();
-	}
-	
-	
-	public function measureHorizontal ()
-	{
-		if (changes.has(Flags.WIDTH_CHANGED))
-			bounds.width = width + getHorPadding();
-		
-		measuredHorizontal = true;
-	}
-	
-	
-	public function measureVertical ()
-	{
-		if (changes.has(Flags.HEIGHT_CHANGED))
-			bounds.height = height + getVerPadding();
-		
-		measuredVertical = true;
 	}
 	
 	
@@ -242,19 +209,50 @@ class LayoutClient implements ILayoutClient
 		if (changes == 0)
 			return;
 		
-		state.current = LayoutStates.validating;
+		state.current = ValidateStates.validating;
+		if (!hasValidatedWidth)		validateHorizontal();
+		if (!hasValidatedHeight)	validateVertical();
 		
-		if (changes.has(Flags.WIDTH_CHANGED) || changes.has(Flags.HEIGHT_CHANGED))
+		//auto validate when there is no parent or when the parent isn't invalidated
+		if (parent == null || parent.changes == 0)
+			validated();
+	}
+	
+	
+	public function validateHorizontal ()
+	{
+		if (changes.has(Flags.WIDTH))
+			bounds.width = width + getHorPadding();
+		
+		hasValidatedWidth = true;
+	}
+	
+	
+	public function validateVertical ()
+	{
+		if (changes.has(Flags.HEIGHT))
+			bounds.height = height + getVerPadding();
+		
+		hasValidatedHeight = true;
+	}
+	
+	
+	public function validated ()
+	{
+		if (changes == 0)
+			return;
+		
+		if (changes.has(Flags.WIDTH) || changes.has(Flags.HEIGHT))
 			events.sizeChanged.send();
 		
-		if (changes.has(Flags.X_CHANGED) || changes.has(Flags.Y_CHANGED))
+		if (changes.has(Flags.X) || changes.has(Flags.Y))
 			events.posChanged.send();
 		
-		state.current	= LayoutStates.validated;
+		state.current	= ValidateStates.validated;
 		changes			= 0;
 		
-		measuredHorizontal	= false;
-		measuredVertical	= false;
+		hasValidatedWidth	= false;
+		hasValidatedHeight	= false;
 	}
 	
 	
@@ -287,15 +285,12 @@ class LayoutClient implements ILayoutClient
 	
 	
 	private inline function getIsValidating () : Bool {
-		var validating = state.is(LayoutStates.measuring) || state.is(LayoutStates.validating);
-		if (!validating && parent != null)
-			validating = parent.isValidating;
-		return validating;
+		return state.is(ValidateStates.validating) || (parent != null && parent.isValidating);
 	}
 	
 	
 	private inline function getIsInvalidated () : Bool {
-		return state == null ? false : state.is(LayoutStates.invalidated) || state.is(LayoutStates.parent_invalidated);
+		return state == null ? false : state.is(ValidateStates.invalidated) || state.is(ValidateStates.parent_invalidated);
 	}
 	
 	
@@ -318,7 +313,7 @@ class LayoutClient implements ILayoutClient
 		bounds.left = v;
 		if (x != bounds.left) {
 			x = bounds.left;
-			invalidate( Flags.X_CHANGED );
+			invalidate( Flags.X );
 		}
 		return x;
 	}
@@ -329,7 +324,7 @@ class LayoutClient implements ILayoutClient
 		bounds.top = v;
 		if (y != bounds.top) {
 			y = bounds.top;
-			invalidate( Flags.Y_CHANGED );
+			invalidate( Flags.Y );
 		}
 		return y;
 	}
@@ -357,7 +352,7 @@ class LayoutClient implements ILayoutClient
 			if (maintainAspectRatio && newH != height)
 				height = newH; //will trigger the height constraints
 			
-			invalidate( Flags.WIDTH_CHANGED );
+			invalidate( Flags.WIDTH );
 		}
 		return _width.value;
 	}
@@ -376,7 +371,7 @@ class LayoutClient implements ILayoutClient
 			if (maintainAspectRatio && newW != width)
 				width = newW; //will trigger the width constraints
 			
-			invalidate( Flags.HEIGHT_CHANGED );
+			invalidate( Flags.HEIGHT );
 		}
 		return _height.value;
 	}
@@ -387,7 +382,7 @@ class LayoutClient implements ILayoutClient
 		if (v != percentWidth)
 		{
 			percentWidth = v;
-			invalidate( Flags.WIDTH_CHANGED );
+			invalidate( Flags.WIDTH | Flags.PERCENT_WIDTH );
 		}
 		return v;
 	}
@@ -398,18 +393,18 @@ class LayoutClient implements ILayoutClient
 		if (v != percentHeight)
 		{
 			percentHeight = v;
-			invalidate( Flags.HEIGHT_CHANGED );
+			invalidate( Flags.HEIGHT | Flags.PERCENT_HEIGHT );
 		}
 		return v;
 	}
 	
 	
 	
-	private inline function setPadding (v:Box)
+	private function setPadding (v:Box)
 	{
 		if (padding != v) {
 			padding = v;
-			invalidate( Flags.HEIGHT_CHANGED | Flags.WIDTH_CHANGED );
+			invalidate( Flags.HEIGHT | Flags.WIDTH | Flags.PADDING );
 		}
 		return padding;
 	}
@@ -421,7 +416,7 @@ class LayoutClient implements ILayoutClient
 		{
 		//	if (parent != null && parent.state != null)
 		//		parent.state.change.unbind( this );
-		
+			
 			parent = v;
 		
 		//	if (parent != null)
@@ -435,17 +430,10 @@ class LayoutClient implements ILayoutClient
 	{
 		if (includeInLayout != v) {
 			includeInLayout = v;
-			invalidate( Flags.INCLUDE_CHANGED );
+			invalidate( Flags.INCLUDE );
 		}
 		return includeInLayout;
-	}
-	
-	
-	private inline function setChanges (v:Int)
-	{
-		return changes = v;
-	}
-	
+	}	
 	
 	
 	//
@@ -483,7 +471,7 @@ class LayoutClient implements ILayoutClient
 				_height.validateValue.on( sizeConstraint.height.change, this );
 				invalidateSizeConstraint.on( sizeConstraint.width.change, this );
 				invalidateSizeConstraint.on( sizeConstraint.height.change, this );
-			
+				
 				//force size constraints to run for the first time
 				setWidth( width );
 				setHeight( height );
@@ -494,7 +482,7 @@ class LayoutClient implements ILayoutClient
 	
 	
 	private inline function invalidateSizeConstraint () {
-		invalidate( Flags.SIZE_CONSTRAINT_CHANGED );
+		invalidate( Flags.SIZE_CONSTRAINT );
 	}
 	
 	
@@ -537,62 +525,23 @@ class LayoutClient implements ILayoutClient
 	
 	private function handleRelativeChange ()
 	{
-		invalidate(Flags.RELATIVE_CHANGED);
+		invalidate(Flags.RELATIVE);
 	}
-	
-	/*
-	private function handleParentStateChange (oldState:LayoutStates, newState:LayoutStates)
-	{
-		Assert.notEqual(newState, null, "newstate cannot be null; oldstate: "+oldState);
-		switch (newState) {
-			case LayoutStates.invalidated:
-				state.current = LayoutStates.parent_invalidated;
-		}
-	}*/
 	
 	
 #if debug
-	public inline function readChanges (changes:Int = -1)
+	public inline function readChanges (changes:Int = -1) : String
 	{
 		if (changes == -1)
 			changes = this.changes;
 		
-		var output	= [];
-		var result	= "none";
-		
-		if (changes > 0)
-		{
-			if (changes.has( Flags.WIDTH_CHANGED ))				output.push("width");
-			if (changes.has( Flags.HEIGHT_CHANGED ))			output.push("height");
-			if (changes.has( Flags.X_CHANGED ))					output.push("x");
-			if (changes.has( Flags.Y_CHANGED ))					output.push("y");
-			if (changes.has( Flags.INCLUDE_CHANGED ))			output.push("include_in_layout");
-			if (changes.has( Flags.RELATIVE_CHANGED ))			output.push("relative_properties");
-			if (changes.has( Flags.LIST_CHANGED ))				output.push("list");
-			if (changes.has( Flags.CHILDREN_INVALIDATED ))		output.push("children_invalidated");
-			if (changes.has( Flags.ALGORITHM_CHANGED ))			output.push("algorithm");
-			if (changes.has( Flags.SIZE_CONSTRAINT_CHANGED ))	output.push("size constraint");
-			result = output.join(", ");
-		}
-		return "changes: " + result;
+		return Flags.readProperties(changes);
 	}
 	
 	
-	public inline function readChange (change:Int)
+	public inline function readChange (change:Int) : String
 	{
-		return switch (change) {
-			case Flags.WIDTH_CHANGED:				"width";
-			case Flags.HEIGHT_CHANGED:				"height";
-			case Flags.X_CHANGED:					"x";
-			case Flags.Y_CHANGED:					"y";
-			case Flags.INCLUDE_CHANGED:				"include_in_layout";
-			case Flags.RELATIVE_CHANGED:			"relative_properties";
-			case Flags.LIST_CHANGED:				"list";
-			case Flags.CHILDREN_INVALIDATED:		"children_invalidated";
-			case Flags.ALGORITHM_CHANGED:			"algorithm";
-			case Flags.SIZE_CONSTRAINT_CHANGED:		"size constraint";
-			default:								"unkown("+change+")";
-		}
+		return Flags.readProperty(change);
 	}
 	
 	

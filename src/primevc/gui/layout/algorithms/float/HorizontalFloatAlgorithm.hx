@@ -29,14 +29,12 @@
 package primevc.gui.layout.algorithms.float;
  import primevc.core.geom.space.Horizontal;
  import primevc.core.geom.IRectangle;
+ import primevc.gui.layout.algorithms.HorizontalBaseAlgorithm;
  import primevc.gui.layout.algorithms.IHorizontalAlgorithm;
- import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
  import primevc.gui.layout.AdvancedLayoutClient;
- import primevc.gui.layout.LayoutFlags;
  import primevc.utils.IntMath;
-  using primevc.utils.BitUtil;
   using primevc.utils.IntMath;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
   using Std;
  
@@ -47,10 +45,8 @@ package primevc.gui.layout.algorithms.float;
  * @creation-date	Jun 24, 2010
  * @author			Ruben Weijers
  */
-class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizontalAlgorithm
+class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHorizontalAlgorithm
 {
-	public var direction			(default, setDirection)	: Horizontal;
-	
 	/**
 	 * Measured point of the right side of the middlest child (rounded above) 
 	 * when the direction is center.
@@ -58,77 +54,20 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	private var halfWidth			: Int;
 	
 	
-	public function new ( ?direction )
-	{
-		super();
-		this.direction = direction == null ? Horizontal.left : direction;
-	}
-	
-	
-	
-	//
-	// GETTERS / SETTERS
-	//
-	
-	/**
-	 * Setter for direction property. Method will change the apply method based
-	 * on the given direction. After that it will dispatch a 'directionChanged'
-	 * signal.
-	 */
-	private inline function setDirection (v:Horizontal)
-	{
-		if (v != direction) {
-			direction = v;
-			algorithmChanged.send();
-		}
-		return v;
-	}
-	
-	
-	
-	//
-	// LAYOUT
-	//
-	
-	/**
-	 * Method indicating if the size is invalidated or not.
-	 */
-	public inline function isInvalid (changes:Int)	: Bool
-	{
-		return changes.has( LayoutFlags.WIDTH_CHANGED ) && group.childWidth.notSet();
-	}
-	
-	
-	public inline function measure ()
+	public inline function validate ()
 	{
 		if (group.children.length == 0)
 			return;
-		
-		measureHorizontal();
-		measureVertical();
-	}
-	
-	
-	public inline function measureVertical ()
-	{
-		var height:Int = group.childHeight;
-		
-		if (group.childHeight.notSet())
-		{
-			height = 0;
-			for (child in group.children)
-				if (child.includeInLayout && child.bounds.height > height)
-					height = child.bounds.height;
-		}
-		
-		setGroupHeight(height);
+
+		validateHorizontal();
+		validateVertical();
 	}
 	
 	
 	/**
 	 * Method will return the total width of all the children.
 	 */
-	public function measureHorizontal ()
+	public function validateHorizontal ()
 	{
 		var width:Int = halfWidth = 0;
 		
@@ -161,14 +100,14 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	}
 
 
-	public inline function apply ()
+	override public function apply ()
 	{
 		switch (direction) {
 			case Horizontal.left:		applyLeftToRight();
 			case Horizontal.center:		applyCentered();
 			case Horizontal.right:		applyRightToLeft();
 		}
-		measurePrepared = false;
+		super.apply();
 	}
 	
 	
@@ -283,10 +222,7 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 		}
 	}
 
-
-	/**
-	 * 
-	 */
+	
 	public inline function getDepthForBounds (bounds:IRectangle) : Int
 	{
 		return switch (direction) {
@@ -379,21 +315,21 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 		var posX:Int	= bounds.left;
 		var centerX:Int	= bounds.left + (bounds.width * .5).int();
 		
+		var groupWidth = group.width;
+		var emptyWidth = 0;
+		if (group.is(AdvancedLayoutClient))
+		{
+			groupWidth	= IntMath.max( 0, group.as(AdvancedLayoutClient).measuredWidth );
+			//check if there's any width left. This happens when there's an explicitWidth set.
+			emptyWidth	= IntMath.max( 0, group.width - groupWidth );
+		}
+		
 		if (group.childWidth.isSet())
 		{
-			depth = group.children.length - posX.divRound(group.childWidth);
+			depth = group.children.length - ( posX - emptyWidth ).divRound( group.childWidth );
 		}
 		else
 		{
-			var groupWidth = group.width;
-			var emptyWidth = 0;
-			if (group.is(AdvancedLayoutClient))
-			{
-				groupWidth	= IntMath.max( 0, group.as(AdvancedLayoutClient).measuredWidth );
-				//check if there's any width left. This happens when there's an explicitWidth set.
-				emptyWidth	= IntMath.max( 0, group.width - groupWidth );
-			}
-			
 			//if pos <= emptyWidth, the depth will be at the end of the list
 			if (posX <= emptyWidth)
 				depth = group.children.length;
@@ -433,40 +369,10 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	}
 	
 	
-	
-	
-	//
-	// START VALUES
-	//
-	
-	private inline function getLeftStartValue ()	: Int
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String
 	{
-		var left:Int = 0;
-		if (group.padding != null)
-			left = group.padding.left;
-		
-		return left;
-	}
-	
-	
-	private inline function getRightStartValue ()	: Int
-	{
-		var w = group.width;
-		if (group.is(AdvancedLayoutClient))
-			w = IntMath.max(group.as(AdvancedLayoutClient).measuredWidth, w);
-		
-		if (group.padding != null)
-			w += group.padding.left; // + group.padding.right;
-		return w;
-	}
-	
-	
-#if debug
-	public function toString ()
-	{
-		var start	= direction == Horizontal.left ? "left" : "right";
-		var end		= direction == Horizontal.left ? "right" : "left";
-		return group.name + ".Float.hor " + start + " -> " + end;
+		return "float-hor (" + direction + ", " + vertical + ")";
 	}
 #end
 }

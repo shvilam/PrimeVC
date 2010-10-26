@@ -29,6 +29,7 @@
 package primevc.core.geom.constraints;
  import primevc.core.geom.BindableBox;
  import primevc.core.geom.BindablePoint;
+ import primevc.core.geom.IBox;
  import primevc.core.geom.IRectangle;
   using primevc.utils.Bind;
 
@@ -71,6 +72,12 @@ class ConstrainedRect extends BindableBox, implements IRectangle
 		size.dispose();
 		size		= null;
 		constraint	= null;
+	}
+
+
+	override public function clone () : IBox
+	{
+		return new ConstrainedRect( top, right, bottom, left );
 	}
 	
 	

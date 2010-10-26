@@ -28,33 +28,33 @@
  */
 package primevc.gui.behaviours;
  import primevc.core.dispatcher.Wire;
+ import primevc.gui.core.IUIElement;
+ import primevc.gui.core.UIWindow;
  import primevc.gui.traits.IDrawable;
+ import primevc.gui.traits.IRenderable;
   using primevc.utils.Bind;
+  using primevc.utils.TypeUtil;
 
 
 /**
- * Class description
+ * Behaviour that will respond changes in the graphicData and layout of the
+ * given target. When one of these who object's changes, it will request a new
+ * rendering.
  * 
  * @author Ruben Weijers
  * @creation-date Jul 16, 2010
  */
-class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >
+class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >, implements IRenderable
 {
-	private var renderBinding	: Wire <Dynamic>;
 	private var graphicsBinding	: Wire <Dynamic>;
-	
 	
 	override private function init ()
 	{
 		Assert.that( target.layout != null );
-		
-#if flash9	invalidateWindow.on( target.layout.events.sizeChanged, this );
-#else		renderTarget.on( target.layout.events.sizeChanged, this );		#end
-		
+		sizeChangeHandler.on( target.layout.events.sizeChanged, this );
 		updateGraphicBinding.on( target.graphicData.change, this );
-		
-		if (target.graphicData.value != null)
-			updateGraphicBinding();
+		updateGraphicBinding();
+		requestRender();
 	}
 	
 	
@@ -64,11 +64,6 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >
 			return;
 		
 		target.layout.events.sizeChanged.unbind(this);
-		
-		if (renderBinding != null) {
-			renderBinding.dispose();
-			renderBinding = null;
-		}
 		
 		if (graphicsBinding != null) {
 			graphicsBinding.dispose();
@@ -89,34 +84,36 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >
 		}
 		
 		if (target.graphicData.value != null)
-		{
-#if flash9	graphicsBinding = invalidateWindow.on( target.graphicData.value.changeEvent, this );
-#else		graphicsBinding = renderTarget.on( target.graphicData.value.changeEvent, this );			#end
-		}
-		
-		if (graphicsBinding != null && renderBinding == null)
-		{
-			renderBinding = renderTarget.on( target.displayEvents.render, this );
-			renderBinding.disable();
-		}
+			graphicsBinding = requestRender.on( target.graphicData.value.changeEvent, this );
 	}
-		
 	
-	private function invalidateWindow ()
+	
+	public function requestRender ()
 	{
-		if (target.window == null || target.graphicData.value == null)
+		if (target.window == null || target.graphicData.value == null || target.graphicData.value.isEmpty())
 			return;
 		
-		renderBinding.enable();
-		target.window.invalidate();
+		target.window.as(UIWindow).renderManager.add( this );
 	}
 	
 	
-	private function renderTarget ()
+	public function render ()
 	{
-		renderBinding.disable();
-	//	trace("render "+target+" size: "+target.layout.bounds.width+", "+target.layout.bounds.height);
 		target.graphics.clear();
 		target.graphicData.value.draw( target, false );
+	}
+	
+	
+	private function sizeChangeHandler ()
+	{
+		var t:IUIElement = target.is(IUIElement) ? target.as(IUIElement) : null;
+	//	trace(target+".sizeChanged; "+target.layout.bounds.width+", "+target.layout.bounds.height);
+		if (t == null || t.effects == null)
+		{
+			target.rect.width	= target.layout.bounds.width;
+			target.rect.height	= target.layout.bounds.height;
+		} else {
+			t.effects.playResize();
+		}
 	}
 }

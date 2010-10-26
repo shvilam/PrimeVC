@@ -36,6 +36,8 @@ package primevc.gui.display;
  */
 interface IDisplayContainer implements IInteractive
 {
+#if !neko
 	var children	(default, null)			: DisplayList;
 	var window		(default, setWindow)	: Window;
+#end
 }

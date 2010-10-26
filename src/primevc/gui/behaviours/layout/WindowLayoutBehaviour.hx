@@ -30,7 +30,7 @@ package primevc.gui.behaviours.layout;
  import primevc.core.dispatcher.Wire;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.UIWindow;
- import primevc.gui.states.LayoutStates;
+ import primevc.gui.states.ValidateStates;
   using primevc.utils.Bind;
 
 
@@ -40,62 +40,57 @@ package primevc.gui.behaviours.layout;
  */
 class WindowLayoutBehaviour extends BehaviourBase < UIWindow >
 {
-	/**
-	 * Reference to the last used enterFrame binding. If the state of a 
-	 * layoutclient changes to parentInvalidated, this enterFrame binding
-	 * should be removed.
-	 */
-	private var enterFrameBinding	: Wire <Dynamic>;
-
-	
 	override private function init ()
 	{
 		Assert.that(target.layout != null, "Layout of "+target+" can't be null for "+this);
 		
-		enterFrameBinding = measure.on( target.displayEvents.enterFrame, this );
-		enterFrameBinding.disable();
+#if debug
+		target.layout.name = target.id.value+"Layout";
+#end
 		
 		layoutStateChangeHandler.on( target.layout.state.change, this );
 		//trigger the event handler for the current state as well
 		layoutStateChangeHandler( null, target.layout.state.current );
+		
+#if flash9
+		updateBgSize.on( target.layout.events.sizeChanged, this );
+	//	updateBgSize();
+#end
 	}
 
 
 	override private function reset ()
 	{
-		if (enterFrameBinding != null) {
-			enterFrameBinding.dispose();
-			enterFrameBinding = null;
-		}
-		
 		if (target.layout == null)
 			return;
 		
+		target.invalidationManager.remove( target.layout );
 		target.layout.state.change.unbind( this );
 	}
 
-
-	private function layoutStateChangeHandler (oldState:LayoutStates, newState:LayoutStates)
+	
+	private function layoutStateChangeHandler (oldState:ValidateStates, newState:ValidateStates)
 	{
 	//	trace(target+".layoutStateChangeHandler "+oldState+" -> "+newState);
 		switch (newState) {
-			case LayoutStates.invalidated:		enterFrameBinding.enable();
-			case LayoutStates.measuring:		enterFrameBinding.disable();
-			case LayoutStates.validated:		enterFrameBinding.disable();
+			case ValidateStates.invalidated:
+				target.invalidationManager.add(target.layout);
 		}
 	}
 	
 	
-	private function measure () {
-	//	trace(target+".enterFrame measure");
-		enterFrameBinding.disable();
-		target.layout.measure();
-		
 #if flash9
-		if (target.graphicData.value != null) {
-			target.bgShape.width	= target.layout.width;
-			target.bgShape.height	= target.layout.height;
+	private function updateBgSize ()
+	{
+		if (target.graphicData.value != null)
+		{
+			var l = target.layout;
+			trace(target+".updateBgSize "+l.width+", "+l.height);
+		//	target.bgShape.width	= l.width;
+		//	target.bgShape.height	= l.height;
+			target.rect.width		= l.width;
+			target.rect.height		= l.height;
 		}
+	}	
 #end
-	}
 }

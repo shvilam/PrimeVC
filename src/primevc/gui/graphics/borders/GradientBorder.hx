@@ -50,7 +50,6 @@ class GradientBorder extends BorderBase <GradientFill>
 	
 	override public function begin (target:IDrawable, ?bounds:IRectangle) : Void
 	{
-		changes = 0;
 #if flash9
 		if (lastMatrix == null || bounds != lastBounds || !bounds.isEqualTo(lastBounds))
 			lastMatrix = fill.createMatrix(bounds);
@@ -62,7 +61,7 @@ class GradientBorder extends BorderBase <GradientFill>
 		
 		for (fill in fill.gradientStops) {
 			colors.push( fill.color.rgb() );
-			alphas.push( fill.color.alpha() );
+			alphas.push( fill.color.alpha().float() );
 			ratios.push( fill.position );
 		}
 		

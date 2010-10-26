@@ -40,12 +40,13 @@ package primevc.gui.traits;
  */
 interface IDraggable implements ISprite
 {
+#if !neko
 	public var dragEvents		(default, null)									: DragEvents;
 	public var isDragging		: Bool;
 	
 	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) 		: Void;
 	public function stopDrag()													: Void;
-	
+#end
 	
 #if flash9
 	public var dropTarget		(default, null)									: flash.display.DisplayObject;

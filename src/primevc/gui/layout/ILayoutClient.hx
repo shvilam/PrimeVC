@@ -33,7 +33,8 @@ package primevc.gui.layout;
  import primevc.core.IDisposable;
  import primevc.core.states.SimpleStateMachine;
  import primevc.gui.events.LayoutEvents;
- import primevc.gui.states.LayoutStates;
+ import primevc.gui.states.ValidateStates;
+ import primevc.gui.traits.IInvalidating;
 
 
 /**
@@ -43,12 +44,10 @@ package primevc.gui.layout;
  * @since	mar 19, 2010
  * @author	Ruben Weijers
  */
-interface ILayoutClient implements IDisposable
+interface ILayoutClient 
+		implements IInvalidating
+	,	implements IDisposable
 {
-	/**
-	 * Flags of properties that are changed
-	 */
-	public var changes						(default, setChanges)			: Int;
 	/**
 	 * Flag indicating if the layout should be automaticly revalidated when a 
 	 * property, such as height or width, is changed.
@@ -84,26 +83,26 @@ interface ILayoutClient implements IDisposable
 	//
 
 	/**
-	 * Measure is called before validating the layout. In meausure, each 
+	 * Validate is called before the layout is validated. In validate, each 
 	 * layout-object has a change to correct it's bounding-properties
 	 * or measured size.
 	 * 
-	 * Measure is called when a layoutClient is invalidated and the movie
+	 * Validate is called when a layoutClient is invalidated and the movie
 	 * has entered a new frame.
 	 */
-	public function measure ()					: Void;
-	public function measureHorizontal ()		: Void;
-	public function measureVertical ()			: Void;
-	/**
-	 * Method is called when a layout is invalidated and will validate again
-	 * by calculating it's new dimensions or position.
-	 */
 	public function validate ()					: Void;
+	public function validateHorizontal ()		: Void;
+	public function validateVertical ()			: Void;
+	/**
+	 * Method is called when a layout has run validate and is done with changing 
+	 * it's properties.
+	 */
+	public function validated ()				: Void;
 	/**
 	 * This method is called when a property of a layoutclient is changed which
 	 * would cause the layout the validate again.
 	 */
-	public function invalidate ( change:Int )	: Void;
+	public function invalidate ( change:UInt )	: Void;
 	
 	/**
 	 * Method will return the x coordinate that a DisplayObject can use
@@ -158,9 +157,9 @@ interface ILayoutClient implements IDisposable
 	
 	public var events				(default, null)						: LayoutEvents;
 	
-	public var state				(default, null)						: SimpleStateMachine < LayoutStates >;
-	public var measuredHorizontal	(default, null)						: Bool;
-	public var measuredVertical		(default, null)						: Bool;
+	public var state				(default, null)						: SimpleStateMachine < ValidateStates >;
+	public var hasValidatedWidth	(default, null)						: Bool;
+	public var hasValidatedHeight	(default, null)						: Bool;
 	
 	
 	
@@ -242,7 +241,6 @@ interface ILayoutClient implements IDisposable
 	
 	
 #if debug
-	public function readChanges (changes:Int = -1) : String;
 	public var name:String;
 #end
 }

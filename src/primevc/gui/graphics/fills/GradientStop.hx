@@ -27,9 +27,17 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.fills;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.types.RGBA;
+#if (debug || neko)
+  using primevc.utils.Color;
+  using Math;
+  using Std;
+#end
 
 
 /**
@@ -56,7 +64,7 @@ class GradientStop extends GraphicElement
 	{
 		if (v != color) {
 			color = v;
-			invalidate( GraphicFlags.FILL_CHANGED );
+			invalidate( GraphicFlags.FILL );
 		}
 		return v;
 	}
@@ -66,8 +74,22 @@ class GradientStop extends GraphicElement
 	{
 		if (v != position) {
 			position = v;
-			invalidate( GraphicFlags.FILL_CHANGED );
+			invalidate( GraphicFlags.FILL );
 		}
 		return v;
 	}
+	
+	
+#if (debug || neko)
+	override public function toCSS (prefix:String = "")
+	{
+		return color.string() + " " + ((position / 255) * 100).round().int() + "%";
+	}
+#end
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ color, position ] );
+	}
+#end
 }

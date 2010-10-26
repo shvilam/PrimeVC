@@ -1,0 +1,317 @@
+body							{ background: #CFB08D; margin: 0; color: #000; font-family: "Courier New"; }
+a								{ color: #000; text-decoration: none; }
+table							{ float: left; }
+
+#container						{ width: 698px; padding: 0; margin: 5px auto; position: relative; }
+
+#header							{ background: url(../img/papier_boven4.png) no-repeat top center; margin: 0 auto; padding: 20px 0 0; text-align: center; }
+#header h1						{ margin: 0; padding: 52px 0 0; font:  bold 21pt "Times New Roman"; font-variant: small-caps; }
+#header .nav					{ list-style: none; padding: 0 0 40px; margin: 7px 0; }
+#header .nav li					{ display: inline; font: bold 16px "Courier New"; margin: 0; }
+#header .nav li a				{ padding: 0 8px; }
+#header .nav a:hover,
+	#header .nav .current a		{ text-decoration: line-through; color: #bc0000; }
+
+#header p a						{ display: block; background-repeat: no-repeat; text-indent: -30000px; float: right; height: 32px; width: 32px; }
+#header p						{ position: absolute; top: 15px; right: 20px; margin: 0; }
+#header p.login,
+	#header p.logout			{ right: 70px; }
+#header p.logout a				{ background-image: url(../img/logout.png); }
+#header p.logout a:hover		{ background-image: url(../img/logout2.png); }
+#header p.login a				{ background-image: url(../img/login.png); }
+#header p.login a:hover			{ background-image: url(../img/login2.png); }
+
+#header p.lang a				{ width: 50px; }
+#header p.lang a.lang_en		{ background-image: url(../img/flag_en.png); }
+#header p.lang a.lang_en:hover	{ background-image: url(../img/flag_en2.png); }
+#header p.lang a.lang_nl		{ background-image: url(../img/flag_nl.png); }
+#header p.lang a.lang_nl:hover	{ background-image: url(../img/flag_nl2.png); }
+
+.content						{ background: url(../img/papier_midden2.png) repeat-y; margin: 0; padding: 0 10px 0 15px; float: left; _height: 300px; min-height: 300px; width: 97%; position: relative; }
+.content p, #footer p,
+	.content li,
+	form div, td,
+	.content dd,
+	.content dt,
+	#admin li					{ font: 12px "Lucida Sans Unicode", "Lucida Sans", verdana, sans-serif; letter-spacing: 0.4px; line-height: 19px; }
+.content p						{ margin: 7px 0 15px; }
+.content p a					{ text-decoration: underline; font-weight: bold; }
+.content a:hover				{ text-decoration: none; color: #bc0000; }
+.content h1						{ font-size: 30px; border: 0 double #aaa; border-width: 0 0 3px; font-weight: bold; text-align: center; margin: 10px 0; }
+
+.content div.manage				{ width: 98%; float: left; margin: 10px; text-align: right; }
+.content div.manage p			{ position: relative; float: right; margin: 0; padding: 0; }
+
+#footer							{ background: url(../img/papier_onder.png) no-repeat center top; height: 190px; width: 100%; float: left; }
+#footer p						{ text-align: center; position: relative; margin-top: 140px; }
+
+/*.content table			{ width: 98%; border-collapse: collapse; }
+.content table tbody	{ height: 400px; overflow: hidden; overflow-y: auto; }
+.content table tr		{ height: auto; }*/
+
+/* tnx to  http://www.imaputz.com/cssStuff/bigFourVersion.html */
+.datalist						{ overflow: auto; height: 400px; width: 670px; border: 1px dashed #000; }
+html>body div.datalist 			{ overflow: hidden; }
+.datalist table					{ width: 654px; border-collapse: collapse; }
+html>body .datalist table		{ width: 100%; }
+.datalist thead tr				{ position: relative; }			/* IE: will translate to 'fixed' */
+html>body .datalist thead tr	{ display: block; }
+html>body .datalist tbody		{ display: block; overflow: auto; width: 100%; height: 370px; }
+.datalist table tbody			{ padding-top: 5px; }
+.datalist table th				{ background: #283969; color: #fff; padding: 4px 0; font: 12px "Lucida Sans Unicode", "Lucida Sans", verdana, sans-serif; }
+.datalist tr.alternate td		{ background: #eee; }
+.datalist tbody tr:hover td		{ background: #d1e0f8; }
+.datalist td,
+	.datalist th				{ border: 0 solid #aaa; border-width: 0 1px; padding: 3px; margin: 0; }
+
+html>body #user table th,
+	html>body #user table td	{ width: 111px; }
+html>body #group thead th,
+	html>body #group tbody td	{ width: 335px; }
+
+html>body #subscribe td							{ width: 194px; }
+html>body #subscribe th							{ width: 200px; }
+html>body #subscribe td + td					{ width: 94px; }
+html>body #subscribe th + th					{ width: 100px; }
+html>body #subscribe td + td + td				{ width: 144px; }
+html>body #subscribe th + th + th				{ width: 150px; }
+html>body #subscribe td + td + td + td			{ width: 110px; }
+html>body #subscribe th + th + th + th			{ width: 120px; }
+html>body #subscribe td + td + td + td + td			{ width: 73px; }
+html>body #subscribe th + th + th + th + th			{ width: 95px; }
+
+
+/**
+ * RESULTS
+ */
+.content .results,
+	.content #subscribe_form	{ border: 1px dashed #629ce3; margin: 0 10px; padding: 5px; background: #edf3fc; width: 95%; float: left; }
+.content .results p				{ margin: 3px 0; }
+
+/**
+ * HOME
+ */
+.content#home div				{ margin: 0 2px; }
+.content .date					{ margin-bottom: -15px; }
+.content #prayershield,
+	.content #news				{ float: left; width: 58%; }
+.content #photos				{ float: left; width: 40%; }
+.content#home #agenda			{ width: 38%; float: right; }
+.content #intro					{ float: left; width: 98%; }
+
+#home #photolist li				{ width: 95px; height: 90px; margin: 7px; border: #bbb 2px solid; }
+#home #photolist li:hover		{ border-color: #ba0000; }
+#home #prayershield p			{ margin: 0; float: left; }
+#home #prayershield .date		{ width: 20%; }
+
+/**
+ * NEWSLETTER
+ */
+.content .info			{ width: 170px; float: left; }
+.content .info img		{ background: url(../img/polaroid.png) no-repeat right bottom; padding: 10px 17px 40px 10px; }
+.content .info p		{ margin: 10px auto; clear: both; }
+.content .info ul		{ margin: 10px 0; padding: 0; width: 100%; clear: both; }
+.content .info li		{ list-style-type: none; border-bottom: 1px dashed #aaa; }
+.content .info li a		{ display: block; width: 90%; padding: 5px 10px; }
+.content .info a:hover	{ color: #8C0000; font-weight:bold; }
+
+.content .message		{ width: 480px; float: right; border-left: 1px solid #aaa; padding: 0 5px 0 15px; }
+.content .message #intro p { font-style: italic; }
+.content .message h1	{ font-size: 20px; text-align: right; border-style: dashed; border-width: 0 0 1px; color: #8C0000; }
+.content .message p		{ width: 100%; }
+
+.content .datebox		{ display: block; float: left; color: #8C0000; width: 121px; }
+.content .datebox span	{ display: block; clear: right; font-size: 21px; float: right; }
+.content .datebox .month{ font-size: 30px; padding: 6px 0; }
+.content .datebox .day	{ font-size: 50px; float: left; padding: 20px 0 0; }
+
+
+/**
+ * COMMON LISTS
+ */
+.content ul.list		{ list-style-type: none; margin: 0 auto; padding: 0; width: 90%; text-align: center; }
+.content .list h2		{ font-weight: normal; font-size: 18px; }
+.content .list li		{ display: block; width: 180px; float: left; padding: 5px; margin: 5px; }
+.content .list li:hover *,
+.content .list a:hover	{ color: #8C0000; }
+.content .list img		{ border: 0; }
+.content .small_list	{ text-align: left; }
+.content .small_list li,
+	.content #prayerlist li	{ width: 100%; border: 0 dashed #aaa; border-width: 0 0 1px; }
+.content .small_list li	{ margin: 0; }
+.content .small_list li:hover	{ background: #fdffcc; }
+
+/**
+ * NEWSLIST
+ */
+.content ul.newslist	{ max-width: 618px; border: 0 dashed #aaa; border-width: 1px 0 0 1px; margin: 10px; }
+.content .newslist li	{ width: 185px; border: 0 dashed #aaa; border-width: 0 1px 1px 0; padding: 8px; margin: 0; text-align: justify; min-height: 180px; _height: 180px; }
+.content .newslist a	{ text-decoration: none; font-weight: normal; }
+.content h2				{ margin: 2px 0 14px; }
+.content #archive		{ border: 1px dashed #aaa; float: left; width: 95%; padding: 5px; margin: 0 0 10px; color: #ba0000; }
+.content #archive h2,
+	.content #archive ul	{ margin: 0; padding: 0; float: left; width: auto; }
+.content #archive li	{ width: auto; display: inline; }
+
+
+/**
+ * FOTOALBUM
+ */
+.content #albumlist li			{ border: 0 solid #555; border-width: 1px 2px 2px 1px; background: #fff; }
+.content #albumlist li:hover	{ border-color: #000; }
+.content #albumlist h2			{ margin: 0; }
+.content #albumlist p			{ margin: 0; }
+.content #albumlist img			{ padding: 5px; }
+
+.content #photolist img			{ position: relative; /*right: 40%;*/ top: -21%; }
+.content #photolist li			{ position: relative; padding: 0 7px 2px 0; margin: 10px; width: 170px; height: 90px; overflow: hidden; }
+.content #photoshow p			{ margin: 0 auto; text-align: center; }
+
+.content img.small				{ max-width: 170px; _width: 170px; }
+.content img.medium				{ max-width: 300px; _width: 170px; }
+.content img.big				{ _width: 630px; max-width: 630px; }
+.content#news img.small			{ max-width: 120px; }
+.content#news img.medium		{ max-width: 300px; }
+.content#news img.big			{ max-width: 480px; }
+.content img.left				{ float: left; }
+.content img.right				{ float: right; }
+.content img.left, img.right	{ margin: 5px; }
+
+/**
+ * PRAYERSHIELD
+ */
+.content #prayerlist li p		{ text-align: justify; }
+.content #prayerlist li h2,
+	.content #prayerlist li p	{ float: right; width: 75%; clear: right; margin: 6px 0; }
+.content #prayerlist li .datebox,
+	.content #prayerlist li .info { float: left; width: 20%; clear: left; color: #000; }
+.content#prayershield .month	{ text-transform: lowercase; }
+
+/**
+ * SUBSCRIBE
+ */
+#subscribe #subscribe_form h1				{ display: none; }
+#subscribe #subscribe_form div,
+	#subscribe #subscribe_form .text label	{ width: 40%; }
+#subscribe #subscribe_form div.radiogroup	{ width: 50%; }
+#subscribe #subscribe_form div.submit 		{ width: 10%; }
+#subscribe #subscribe_form .radiogroup div	{ width: 49%; }
+
+.content #subscribe_form h1					{ width: 30%; float: left; font-size: 25px; text-align: left; margin: 0; border: none; }
+.content #subscribe_form div,
+	.content #subscribe_form .error			{ width: 80%; padding: 3px 0; float: left; margin: 0; }
+.content #subscribe_form div.submit 		{ width: 20%; float: right; }
+.content #subscribe_form .text label		{ width: 30%; }
+.content #subscribe_form input				{ float: left; margin: 0; }
+.content #subscribe_form .radiogroup div	{ width: 49%; }
+.content #subscribe_form .radiogroup input	{ background: none; border: 0; margin: 0; padding: 0; }
+
+/**
+ * USER
+ */
+#user form #info *		{ width: 100%; }
+.content dl				{ width: 98%; float: left; }
+.content dl *			{ float: left; margin: 0; padding: 4px 0; }
+.content dl dt			{ width: 30%; font-weight: bold; clear: left; }
+.content dl dd			{ width: 70%; }
+
+/**
+ * BUTTONS
+ */
+.button						{ position: relative; display: block; cursor: pointer; background: url(../img/button_left.png) no-repeat; border: 0; min-height: 16px; padding: 8px 2px 8px 8px; text-align: center; margin: 0 5px; font-weight: normal !important; text-decoration: none !important; }
+.button_end					{ position: absolute; display: inline; background: url(../img/button_right.png) no-repeat; height: 32px; width: 5px; top: 0; right: -5px; }
+.button:hover				{ background-image: url(../img/button_left2.png); }
+.button:hover .button_end	{ background-image: url(../img/button_right2.png); }
+.content a.button:active,
+	.button:active			{ color: #bc0000; }
+
+.content a.button			{ height: 16px; color: #000; width: auto; }
+* html .content a.button	{ width: 100px; }
+
+/**
+ * FORM STYLING
+ */
+form, form fieldset 	{ margin: 0; padding: 0; border: 0; }
+form div				{ padding: 5px 0; }
+form div label			{ width: 20%; float: left; clear: left; }
+form .error				{ padding: 0 5px; }
+
+form div input,
+	form div textarea	{ float: left; }
+form div.text input,
+	form textarea		{ border: 1px solid #999; font: inherit; background: #eee; padding: 2px; }
+
+form textarea,
+	form div fieldset	{ width: 78%; }
+
+form div.text input		{ width: 40%; }
+
+form div textarea		{ height: 80px; }
+form .richtextarea textarea	{ height: 320px; float: right; }
+form .toolbar			{ float: right; width: 100%; text-align: right; margin: 15px 15px 0 0; }
+form .toolbar button	{ float: right; }
+
+/** dropdownlists, checkboxes and radiobuttons */
+form div fieldset label,
+	form div.checkbox label	{ float: right; clear: none; width: 80%; }
+form div fieldset 		{ float: left; height: 50px; }
+form div fieldset div	{ width: 25%; float: left; }
+form div#zipcode input	{ text-transform: uppercase; }
+
+form div select			{ background: #eee; border: 1px solid #000; }
+
+form div.text:hover input,
+	form div.text input:focus,
+	form div.textarea:hover textarea,
+	form div.textarea textarea:focus,
+	form div select:focus,
+	form div.list:hover select	{ border: 1px solid #a31b31; background: #fff; }
+form div:hover label	{ color: #000; font-weight: bold; }
+
+/*form .buttons input, 
+	form button,
+	.buttons a			{ background: #ddd; border: 1px solid #000; margin: 2px; padding: 3px; }
+form .buttons input:hover,
+	form button:hover,
+	.buttons a:hover	{ background: #fff; }*/
+form button img			{ margin: 0; }
+
+form .buttons button,
+	div.submit button,
+	form .toolbutton	{ float: right; margin: 0 2px; }
+div.submit				{ display: inline; float: right; }
+
+#agenda form textarea,
+	#prayershield form textarea	{ height: 80px; }
+
+.small_form					{ margin: 0 auto; width: 70%; }
+.small_form div textarea	{ height: 150px; width: 68%; }
+.small_form div label		{ width: 30%; }
+
+
+/**
+ * POST EXAMPLE
+ */
+.content .post_example			{ width: 100%; background: #F4F4F4; }
+.content .post_example .manage	{ display: none; }
+
+
+/**
+ * ADMIN MENU
+ */
+#admin						{ width: 180px; position: fixed; background: #fafafa; padding: 5px; top: 100px; }
+#admin h2					{ font-size: 17px; text-align: right; border-style: dashed; border-width: 0 0 1px; color: #8c0000; }
+#admin ul					{ margin: 0; padding: 0; list-style: none; }
+#admin a					{ text-decoration: none; font-weight: bold; }
+#admin a:hover				{ color: #8c0000; text-decoration: underline; }
+
+/**
+ * Deze hack zorgt ervoor dat een niet-floatend element met daarin een floatend element, wel een hoogte heeft.
+ */
+/* clearing space fix \*/
+div:after, ul:after	{ content: "."; display: block; position: relative; height: 0; clear: both; visibility: hidden; }
+
+/* Hides from IE-mac \*/
+* html div	{ height: 1%; }
+div			{ display: block; }
+/* End hide from IE-mac */

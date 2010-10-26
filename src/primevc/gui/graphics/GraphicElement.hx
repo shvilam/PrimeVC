@@ -27,8 +27,13 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics;
- import haxe.FastList;
-  using primevc.utils.BitUtil;
+ import primevc.core.traits.Invalidatable;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
+#if (neko || debug)
+ import primevc.utils.StringUtil;
+#end
 
 
 
@@ -38,28 +43,35 @@ package primevc.gui.graphics;
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-class GraphicElement implements IGraphicElement 
+class GraphicElement extends Invalidatable, implements IGraphicElement 
 {
-	public var changes		(default, null)	: UInt;
-	public var listeners	(default, null)	: FastList< IGraphicElement >;
+#if (neko || debug)
+	public var uuid (default, null)	: String;
 	
 	
 	public function new ()
 	{
-		listeners = new FastList< IGraphicElement >();
+		super();
+		uuid = StringUtil.createUUID();
 	}
 	
 	
-	public function dispose ()
+	override public function dispose ()
 	{
-		listeners = null;
+		uuid = null;
+		super.dispose();
 	}
-	
-	
-	public inline function invalidate (change:UInt) : Void
-	{
-		changes = changes.set(change);
-		for (listener in listeners)
-			listener.invalidate( change );
-	}
+#end
+
+#if neko	
+	public function toCode (code:ICodeGenerator) { Assert.abstract(); }
+#end
+
+
+#if (neko || debug)
+	public function toString () : String				{ return toCSS(); }
+	public function toCSS (prefix:String = "") : String	{ Assert.abstract(); return ""; }
+	public function isEmpty () : Bool					{ return false; }
+	public function cleanUp () : Void					{}
+#end
 }

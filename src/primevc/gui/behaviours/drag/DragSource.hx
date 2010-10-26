@@ -29,7 +29,6 @@
 package primevc.gui.behaviours.drag;
  import primevc.core.IDisposable;
  import primevc.core.geom.Point;
- import primevc.core.geom.IntRectangle;
  import primevc.core.geom.IRectangle;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.layout.LayoutClient;
@@ -98,7 +97,7 @@ class DragSource implements IDisposable
 		dropTarget		= newTarget.container.as(IDropTarget);
 		origPosition	= new Point(target.x, target.y);
 		layout			= new LayoutClient( target.width.int(), target.height.int() );
-		dragRectangle	= new IntRectangle( target.x.int(), target.y.int(), layout.width, layout.height );
+		dragRectangle	= cast target.rect.clone(); //new IntRectangle( target.x.int(), target.y.int(), layout.width, layout.height );
 		
 		origContainer	= target.container;
 		origDepth		= target.container.children.indexOf(target);

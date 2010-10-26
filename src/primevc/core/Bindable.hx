@@ -238,8 +238,8 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 	
 	
 #if debug
-	public inline function toString () {
-		return cast(value, String);
+	public inline function toString () : String {
+		return cast value;
 	}
 #end
 }

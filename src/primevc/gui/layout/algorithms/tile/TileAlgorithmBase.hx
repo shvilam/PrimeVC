@@ -27,7 +27,12 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms.tile;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.core.geom.space.Direction;
+ import primevc.core.geom.space.Horizontal;
+ import primevc.core.geom.space.Vertical;
  import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
  import primevc.gui.layout.algorithms.float.VerticalFloatAlgorithm;
  import primevc.gui.layout.algorithms.DynamicLayoutAlgorithm;
@@ -49,16 +54,16 @@ class TileAlgorithmBase extends DynamicLayoutAlgorithm
 	public var startDirection			(default, setStartDirection)		: Direction;
 	
 	
-	public function new() 
+	public function new( ?startDir:Direction, ?horDirection:Horizontal, ?verDirection:Vertical ) 
 	{
 		super(
-			new HorizontalFloatAlgorithm(),
-			new VerticalFloatAlgorithm()
+			new HorizontalFloatAlgorithm( horDirection ),
+			new VerticalFloatAlgorithm( verDirection )
 		);
 		
 		horizontalDirection	= horAlgorithm.direction;
 		verticalDirection	= verAlgorithm.direction;
-		startDirection		= Direction.horizontal;
+		startDirection		= startDir == null ? Direction.horizontal : startDir;
 	}
 	
 	
@@ -75,4 +80,12 @@ class TileAlgorithmBase extends DynamicLayoutAlgorithm
 		}
 		return v;
 	}
+	
+	
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ startDirection, horizontalDirection, verticalDirection ] );
+	}
+#end
 }

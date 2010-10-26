@@ -1,7 +1,8 @@
 package cases;
 #if debug
- import flash.text.TextField;
+// import flash.text.TextField;
  import flash.text.TextFormat;
+ import primevc.gui.display.TextField;
 // import com.elad.optimize.memory.FrameStats;
 #end
  import primevc.core.geom.constraints.SizeConstraint;
@@ -29,6 +30,7 @@ package cases;
  import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIDataComponent;
  import primevc.gui.core.UIGraphic;
+ import primevc.gui.core.UITextField;
  import primevc.gui.core.UIWindow;
  import primevc.gui.effects.AnchorScaleEffect;
  import primevc.gui.effects.EffectProperties;
@@ -52,11 +54,12 @@ package cases;
  import primevc.gui.graphics.fills.ComposedFill;
  import primevc.gui.graphics.fills.SolidFill;
  import primevc.gui.graphics.shapes.Circle;
- import primevc.gui.graphics.shapes.ComposedShape;
+// import primevc.gui.graphics.shapes.ComposedShape;
  import primevc.gui.graphics.shapes.Ellipse;
  import primevc.gui.graphics.shapes.Line;
  import primevc.gui.graphics.shapes.Triangle;
  import primevc.gui.graphics.shapes.RegularRectangle;
+ import primevc.gui.graphics.GraphicProperties;
  import primevc.gui.layout.algorithms.circle.HorizontalCircleAlgorithm;
  import primevc.gui.layout.algorithms.circle.VerticalCircleAlgorithm;
  import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
@@ -109,6 +112,7 @@ class LayoutApp extends UIContainer <Dynamic>
 		super("LayoutApp");
 	}
 	
+	
 	override private function createLayout ()
 	{
 		layout						= new LayoutContainer();
@@ -135,7 +139,7 @@ class LayoutApp extends UIContainer <Dynamic>
 		var frame1							= new TileList( "frame1", true );
 		frame1.layoutContainer.algorithm	= new HorizontalFloatAlgorithm( Horizontal.left );
 		frame1.layout.height				= 60;
-		frame1.layout.relative				= new RelativeLayout( 5, 5, -100000, 5 );
+		frame1.layout.relative				= new RelativeLayout( 5, 5, Number.INT_NOT_SET, 5 );
 		
 		var frame2							= new TileList( "frame2", true, true, 150 );
 		var frame2Alg						= new FixedTileAlgorithm();
@@ -144,7 +148,7 @@ class LayoutApp extends UIContainer <Dynamic>
 	//	frame2Alg.horizontalDirection		= Horizontal.right;
 	//	frame2Alg.verticalDirection			= Vertical.bottom;
 		frame2.layoutContainer.algorithm	= frame2Alg;
-		frame2.layout.relative				= new RelativeLayout( frame1.layout.bounds.bottom + 5, -100000, 5, 5 );
+		frame2.layout.relative				= new RelativeLayout( frame1.layout.bounds.bottom + 5, Number.INT_NOT_SET, 5, 5 );
 		frame2.layout.percentWidth			= 58;
 		
 		var frame3							= new TileList( "frame3", true );
@@ -185,7 +189,7 @@ class LayoutApp extends UIContainer <Dynamic>
 		var box1				= new VirtualLayoutContainer();
 		var box1Alg				= new VerticalFloatAlgorithm();
 		box1Alg.direction		= Vertical.bottom;
-		box1.relative			= new RelativeLayout( frame1.layout.bounds.bottom + 5 /*TOP*/, 5/*RIGHT*/, 5/*BOTTOM*/, -100000/*BOTTOM*/ );
+		box1.relative			= new RelativeLayout( frame1.layout.bounds.bottom + 5 /*TOP*/, 5/*RIGHT*/, 5/*BOTTOM*/, Number.INT_NOT_SET/*BOTTOM*/ );
 		box1.percentWidth		= 40;
 		box1.algorithm			= box1Alg;
 		
@@ -232,7 +236,12 @@ class LayoutApp extends UIContainer <Dynamic>
 	
 	override private function createGraphics ()
 	{
-		graphicData.value = new RegularRectangle( layout.bounds, null, cast new SolidBorder( new SolidFill(0x00), 1 ) );
+		graphicData.value = new GraphicProperties (
+			new RegularRectangle(),
+			layout.bounds, 
+			null, 
+			cast new SolidBorder( new SolidFill(0x00), 1 )
+		);
 	}
 }
 
@@ -281,7 +290,7 @@ class Button extends UIDataComponent < String >
 	override private function createGraphics ()
 	{	
 		fill = new SolidFill( color );
-		graphicData.value = new RegularRectangle( layout.bounds, fill );
+		graphicData.value = new GraphicProperties( new RegularRectangle(), layout.bounds, fill );
 	}
 	
 #if (debug && flash9)
@@ -292,12 +301,12 @@ class Button extends UIDataComponent < String >
 		textField.autoSize = flash.text.TextFieldAutoSize.LEFT;
 		textField.setTextFormat( new TextFormat("Verdana", 15, 0x00 ) );
 		textField.mouseEnabled = false;
-		addChild( textField );
+		children.add( textField );
 	}
 #end
 }
 
-
+/*
 class TileFadeMoveEffect extends SequenceEffect
 {
 	private var fadeIn		: FadeEffect;
@@ -364,16 +373,16 @@ class TileRotateFadeScaleMoveEffect extends SequenceEffect
 		add( prlIn			= new ParallelEffect() );
 		add( prlOut			= new ParallelEffect() );
 		
-		prlIn.add( fadeOut	= new FadeEffect(null, 1500, 0, Eff.easeInOut, .7) );
-		prlIn.add( move		= new MoveEffect(null, 8000, 0, Eff.easeInOut) );
-		prlIn.add( scaleIn	= new ScaleEffect(null, 8000, 0, Eff.easeInOut, 2, 2) );
+		prlIn.add( fadeOut	= new FadeEffect(null, 150, 0, Eff.easeInOut, .7) );
+		prlIn.add( move		= new MoveEffect(null, 800, 0, Eff.easeInOut) );
+		prlIn.add( scaleIn	= new ScaleEffect(null, 800, 0, Eff.easeInOut, 2, 2) );
 	//	prlIn.add( scaleIn	= new AnchorScaleEffect(null, 500, 0, null, Position.MiddleCenter, 2.5) );
-		prlIn.add( rotate1	= new RotateEffect(null, 8000, 0, Eff.easeInOut, 360 * Math.random()) );
+		prlIn.add( rotate1	= new RotateEffect(null, 800, 0, Eff.easeInOut, 360 * Math.random()) );
 		
-		prlOut.add( fadeIn	= new FadeEffect(null, 5000, 0, null, 1) );
-		prlOut.add( scaleOut= new ScaleEffect(null, 5000, 0, Eff.easeInOut, 1, 1) );
+		prlOut.add( fadeIn	= new FadeEffect(null, 500, 0, null, 1) );
+		prlOut.add( scaleOut= new ScaleEffect(null, 500, 0, Eff.easeInOut, 1, 1) );
 	//	prlOut.add( scaleOut= new AnchorScaleEffect(null, 500, 0, null, Position.MiddleCenter, 1) );
-		prlOut.add( rotate2	= new RotateEffect(null, 5000, 0, Eff.easeInOut, 0) );
+		prlOut.add( rotate2	= new RotateEffect(null, 500, 0, Eff.easeInOut, 0) );
 	}
 	
 	override public function setValues (v:EffectProperties)
@@ -381,7 +390,7 @@ class TileRotateFadeScaleMoveEffect extends SequenceEffect
 		move.setValues(v);
 	}
 }
-
+*/
 
 class Tile extends Button, implements IDraggable
 {	
@@ -399,7 +408,7 @@ class Tile extends Button, implements IDraggable
 		
 		effects			= new UIElementEffects( this );
 	//	effects.move	= new TileFadeMoveEffect();
-		effects.move	= new MoveEffect(null, 1000, 0, Eff.easeOut);
+		effects.move	= new MoveEffect(null, 400); //, 0, Eff.easeOut);
 	//	effects.move	= new TileMoveScaleEffect();
 	//	effects.move	= new TileRotateFadeScaleMoveEffect();
 	}
@@ -464,9 +473,9 @@ class DragThumb extends UIComponent
 	{
 		layout = new LayoutClient();
 		if (direction == Direction.horizontal)
-			layout.relative = new RelativeLayout( 2, -100000, 2 );
+			layout.relative = new RelativeLayout( 2, Number.INT_NOT_SET, 2 );
 		else
-			layout.relative = new RelativeLayout( -100000, 2, -100000, 2 );
+			layout.relative = new RelativeLayout( Number.INT_NOT_SET, 2, Number.INT_NOT_SET, 2 );
 	}
 	
 	
@@ -567,7 +576,7 @@ class Frame extends UIContainer < String >
 	{
 		color	= Color.random();
 		fill	= new SolidFill(0xFFFFFFFF);
-		graphicData.value = new RegularRectangle( layout.bounds, fill, cast new SolidBorder( new SolidFill(color), 3, true ) );
+		graphicData.value = new GraphicProperties( new RegularRectangle(), layout.bounds, fill, cast new SolidBorder( new SolidFill(color), 3, true ) );
 	}
 }
 

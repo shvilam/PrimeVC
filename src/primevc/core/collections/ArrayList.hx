@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.collections;
+ import primevc.core.collections.iterators.FastArrayForwardIterator;
+ import primevc.core.collections.iterators.FastArrayReversedIterator;
+ import primevc.core.collections.iterators.IIterator;
  import primevc.core.events.ListEvents;
  import primevc.utils.FastArray;
   using primevc.utils.FastArray;
@@ -58,9 +61,7 @@ class ArrayList <DataType> implements IList <DataType>
 	
 	public inline function removeAll ()
 	{
-		while (list.length > 0)
-			list.pop();
-		
+		FastArrayUtil.removeAll(list);
 		events.reset.send();
 	}
 	

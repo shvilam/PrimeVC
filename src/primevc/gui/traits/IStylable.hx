@@ -27,8 +27,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.traits;
+ import primevc.core.traits.IIdentifiable;
 #if flash9
- import primevc.gui.styling.declarations.UIElementStyle;
+ import primevc.core.Bindable;
+ import primevc.gui.styling.UIElementStyle;
 #end
 
 
@@ -36,16 +38,18 @@ package primevc.gui.traits;
  * @author Ruben Weijers
  * @creation-date Aug 04, 2010
  */
-interface IStylable implements IIdentifiable
+interface IStylable
+		implements IIdentifiable
+	,	implements IDisplayable
 {
 #if flash9
-	public var style (default, setStyle)			: UIElementStyle;
+	public var style		(default, null)			: UIElementStyle;
 	
 	/**
 	 * String containing all the css-classes that the IStyleable should use. 
 	 * It's possible to add more than one styleName by putting them in comma-
 	 * seperated. 
 	 */
-	public var styleNames (default, setStyleNames)	: String;
+	public var styleClasses	(default, null)			: Bindable < String >;
 #end
 }

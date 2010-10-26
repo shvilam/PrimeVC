@@ -27,17 +27,19 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.scroll;
+ import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
+ import primevc.gui.traits.IScrollable;
+#if !neko
  import primevc.core.dispatcher.Wire;
  import primevc.core.geom.Point;
  import primevc.gui.behaviours.drag.DragHelper;
- import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.IScrollableLayout;
- import primevc.gui.traits.IScrollable;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
   using Math;
   using Std;
+#end
 
 
 /**
@@ -46,8 +48,9 @@ package primevc.gui.behaviours.scroll;
  * @author Ruben Weijers
  * @creation-date Jul 29, 2010
  */
-class DragScrollBehaviour extends BehaviourBase <IScrollable>
+class DragScrollBehaviour extends ClippedLayoutBehaviour
 {
+#if !neko
 	private var scrollLayout	: IScrollableLayout;
 	private var lastMousePos	: Point;
 	private var dragHelper		: DragHelper;
@@ -57,6 +60,7 @@ class DragScrollBehaviour extends BehaviourBase <IScrollable>
 	override private function init ()
 	{
 		Assert.that( target.scrollableLayout != null, "target.layout of "+target+" must be a IScrollableLayout" );
+		super.init();
 		
 		scrollLayout	= target.scrollableLayout;
 		dragHelper		= new DragHelper( target, activateScrolling, deactivateScrolling, dragAndScroll );
@@ -74,6 +78,7 @@ class DragScrollBehaviour extends BehaviourBase <IScrollable>
 		lastMousePos	= null;
 		dragHelper		= null;
 		moveBinding		= null;
+		super.reset();
 	}
 	
 	
@@ -118,4 +123,5 @@ class DragScrollBehaviour extends BehaviourBase <IScrollable>
 		newScrollPos = scrollLayout.validateScrollPosition( newScrollPos );
 		scrollLayout.scrollPos.setTo( newScrollPos );
 	}
+#end
 }

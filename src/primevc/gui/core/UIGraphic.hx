@@ -29,13 +29,18 @@
 package primevc.gui.core;
  import primevc.core.Bindable;
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
+// import primevc.gui.behaviours.styling.ApplyStylingBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
  import primevc.gui.display.Shape;
  import primevc.gui.effects.UIElementEffects;
- import primevc.gui.graphics.shapes.IGraphicShape;
+ import primevc.gui.graphics.GraphicProperties;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.UIElementStates;
+#if flash9
+ import primevc.gui.styling.UIElementStyle;
+ import primevc.gui.traits.IDrawable;
+#end
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
 
@@ -44,7 +49,9 @@ package primevc.gui.core;
  * @author Ruben Weijers
  * @creation-date Aug 02, 2010
  */
-class UIGraphic extends Shape, implements IUIElement
+class UIGraphic extends Shape
+			,	implements IUIElement
+#if flash9	,	implements IDrawable	#end
 {
 	public var behaviours		(default, null)		: BehaviourList;
 	public var id				(default, null)		: Bindable < String >;
@@ -52,7 +59,12 @@ class UIGraphic extends Shape, implements IUIElement
 	public var effects			(default, default)	: UIElementEffects;
 	
 	public var layout			(default, null)		: LayoutClient;
-	public var graphicData		(default, null)		: Bindable < IGraphicShape >;
+	public var graphicData		(default, null)		: Bindable < GraphicProperties >;
+	
+#if flash9
+	public var style			(default, null)		: UIElementStyle;
+	public var styleClasses		(default, null)		: Bindable< String >;
+#end
 	
 	
 	public function new (?id:String)
@@ -64,9 +76,12 @@ class UIGraphic extends Shape, implements IUIElement
 		
 		state			= new UIElementStates();
 		behaviours		= new BehaviourList();
-		graphicData		= new Bindable < IGraphicShape > ();
+		styleClasses	= new Bindable < String > ();
+		style			= new UIElementStyle( this );
+		graphicData		= new Bindable < GraphicProperties > ();
 		
 		//add default behaviours
+	//	behaviours.add( new ApplyStylingBehaviour(this) );
 		behaviours.add( new RenderGraphicsBehaviour(this) );
 		behaviours.add( new ValidateLayoutBehaviour(this) );
 		
@@ -74,6 +89,48 @@ class UIGraphic extends Shape, implements IUIElement
 		createLayout();
 		
 		state.current = state.constructed;
+	}
+
+
+	override public function dispose ()
+	{
+		if (state == null)
+			return;
+		
+		//Change the state to disposed before the behaviours are removed.
+		//This way a behaviour is still able to respond to the disposed
+		//state.
+		state.current = state.disposed;
+		removeBehaviours();
+		
+		state.dispose();
+		id.dispose();
+#if flash9
+		styleClasses.dispose();
+#end
+
+		if (layout != null)
+			layout.dispose();
+		
+		if (graphicData != null)
+		{
+			if (graphicData.value != null)
+				graphicData.value.dispose();
+
+			graphicData.dispose();
+			graphicData = null;
+		}
+		
+		id				= null;
+#if flash9
+		style			= null;
+		styleClasses	= null;
+#end
+		state			= null;
+		behaviours		= null;
+		layout			= null;
+
+		super.dispose();
 	}
 	
 	
@@ -109,6 +166,23 @@ class UIGraphic extends Shape, implements IUIElement
 	}
 	
 	
+	//
+	// GETTERS / SETTESR
+	//
+	
+#if flash9
+	private inline function setStyle (v)
+	{
+		return style = v;
+	}
+	
+	
+	public function applyStyling ()
+	{
+
+	}
+#end
+	
 	
 	//
 	// ACTIONS (actual methods performed by UIElementActions util)
@@ -128,7 +202,7 @@ class UIGraphic extends Shape, implements IUIElement
 	//
 	
 	private function createBehaviours ()	: Void; //	{ Assert.abstract(); }
-	private function createGraphics ()		: Void		{ Assert.abstract(); }
+	private function createGraphics ()		: Void; //	{ Assert.abstract(); }
 	private function removeGraphics ()		: Void; //	{ Assert.abstract(); }
 	
 	

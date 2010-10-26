@@ -30,8 +30,11 @@ package primevc.gui.behaviours.layout;
  import primevc.core.dispatcher.Wire;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.IUIElement;
- import primevc.gui.states.LayoutStates;
+ import primevc.gui.core.UIWindow;
+ import primevc.gui.states.ValidateStates;
+ import primevc.gui.traits.IRenderable;
   using primevc.utils.Bind;
+  using primevc.utils.TypeUtil;
  
 
 /**
@@ -41,104 +44,69 @@ package primevc.gui.behaviours.layout;
  * @creation-date	Jun 14, 2010
  * @author			Ruben Weijers
  */
-class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >
-{
-	/**
-	 * Reference to the last used enterFrame binding. If the state of a 
-	 * layoutclient changes to parentInvalidated, this enterFrame binding
-	 * should be removed.
-	 */
-	private var enterFrameBinding	: Wire <Dynamic>;
-	private var renderBinding		: Wire <Dynamic>;
+class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >, implements IRenderable
+{	
+	private inline function getUIWindow () : UIWindow	{ return target.window.as(UIWindow); }
 	
 	
 	override private function init ()
 	{
 		Assert.that(target.layout != null, "Layout of "+target+" can't be null for "+this);
 		
-		enterFrameBinding	= measure.on( target.displayEvents.enterFrame, this );
-		renderBinding		= applyPosition.on( target.displayEvents.render, this );
-		enterFrameBinding.disable();
-		renderBinding.disable();
+#if debug
+		target.layout.name = target.id.value+"Layout";
+#end
 		
 		layoutStateChangeHandler.on( target.layout.state.change, this );
-#if flash9
-		invalidateWindow		.on( target.layout.events.posChanged, this );
-#else
-		applyPosition			.on( target.layout.events.posChanged, this );
-#end
+		requestRender.on( target.layout.events.posChanged, this );
+	//	requestRender.on( target.layout.events.sizeChanged, this );
 	}
 	
 	
 	override private function reset ()
 	{
-		enterFrameBinding.dispose();
-		renderBinding.dispose();
-		
-		enterFrameBinding	= null;
-		renderBinding		= null;
-		
 		if (target.layout == null)
 			return;
 		
+		getUIWindow().invalidationManager.remove( target.layout );
 		target.layout.state.change.unbind( this );
 		target.layout.events.posChanged.unbind( this );
 	}
 	
 	
-	private function layoutStateChangeHandler (oldState:LayoutStates, newState:LayoutStates)
+	private function layoutStateChangeHandler (oldState:ValidateStates, newState:ValidateStates)
 	{
 	//	trace(target+".layoutStateChangeHandler "+oldState+" -> "+newState);
-		switch (newState) {
-			case LayoutStates.invalidated:
-				enterFrameBinding.enable();
+		switch (newState)
+		{
+			case ValidateStates.invalidated:
+				if (target.window != null)
+					getUIWindow().invalidationManager.add( target.layout );
 			
-			case LayoutStates.measuring:
-				enterFrameBinding.disable();
-			
-			/**
-			 * When the state of the layout is changed from invalidated to parent_invalidated so the parent skin
-			 * will add a enterFrame to validate this layout as well.
-			 */
-			case LayoutStates.parent_invalidated:
-				enterFrameBinding.disable();
-			
-			case LayoutStates.validated:
-				enterFrameBinding.disable();
+			case ValidateStates.parent_invalidated:
+				if (oldState == ValidateStates.invalidated)
+					getUIWindow().invalidationManager.remove( target.layout );
 		}
 	}
-
-
-	private function measure () {
-	//	trace(target+".enterFrame measure");
-		enterFrameBinding.disable();
-		target.layout.measure();
+	
+	
+	public inline function requestRender ()
+	{
+		if (target.window != null) // && (target.effects == null || target.effects.move == null))
+			getUIWindow().renderManager.add(this);
 	}
 	
 	
-	private inline function invalidateWindow ()
+	public inline function render ()
 	{
-		if (target.container == null)
-			return;
-		
-	//	trace(target+".invalidateWindow");
-		renderBinding.enable();
-		target.window.invalidate();
-	}
-	
-	
-	private function applyPosition ()
-	{
-		renderBinding.disable();
 		var l = target.layout;
-		
-		if (target.effects == null || target.effects.move == null)
+	//	trace(target+".applyPosition; " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y);
+		if (target.effects == null)
 		{
-	//	trace("applyPosition " + target.id + " / " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y);
-			target.x		= l.getHorPosition();
-			target.y		= l.getVerPosition();
-		}/* else {
-			target.effects.playMove( l.getHorPosition(), l.getVerPosition() );
-		}*/
+			target.x	= target.rect.left	= l.getHorPosition();
+			target.y	= target.rect.top	= l.getVerPosition();
+		} else {
+			target.effects.playMove();
+		}
 	}
 }

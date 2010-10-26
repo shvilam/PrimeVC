@@ -27,38 +27,48 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.geom;
+#if neko
+ import primevc.tools.generator.ICodeFormattable;
+ import primevc.tools.generator.ICodeGenerator;
+ import primevc.utils.StringUtil;
+#end
+ import primevc.tools.generator.ICSSFormattable;
+ import primevc.types.Number;
+  using primevc.utils.NumberUtil;
 
 
 /**
  * @since	mar 22, 2010
  * @author	Ruben Weijers
  */
-class Box implements IBox
+class Box
+				implements IBox
+			,	implements ICSSFormattable
+#if neko	,	implements ICodeFormattable		#end
 {
 	public var left		(getLeft, setLeft)		: Int;
 	public var right	(getRight, setRight)	: Int;
 	public var top		(getTop, setTop)		: Int;
 	public var bottom	(getBottom, setBottom)	: Int;
 	
+#if neko
+	public var uuid		(default, null)			: String;
+#end
 	
-	public function new ( top:Int = 0, right:Int = -100, bottom:Int = -100, left:Int = -100 )
+	
+	public function new ( top:Int = 0, right:Int = Number.INT_NOT_SET, bottom:Int = Number.INT_NOT_SET, left:Int = Number.INT_NOT_SET )
 	{
+#if neko
+		this.uuid	= StringUtil.createUUID();
+#end
 		this.top	= top;
-		this.right	= (right == -100) ? this.top : right;
-		this.bottom	= (bottom == -100) ? this.top : bottom;
-		this.left	= (left == -100) ? this.right : left;
+		this.right	= (right.notSet()) ? this.top : right;
+		this.bottom	= (bottom.notSet()) ? this.top : bottom;
+		this.left	= (left.notSet()) ? this.right : left;
 	}
 	
 	
-	public function clone () : IBox {
-		return new Box( top, right, bottom, left );
-	}
-	
-	
-	public function toString ()
-	{
-		return "t: " + top + "; r: " + right + "; b: " + bottom + "; l: " + left + ";";
-	}
+	public function clone () : IBox			{ return new Box( top, right, bottom, left ); }
 	
 	private inline function getLeft ()		{ return left; }
 	private inline function getRight ()		{ return right; }
@@ -68,4 +78,38 @@ class Box implements IBox
 	private inline function setRight (v)	{ return this.right = v; }
 	private inline function setTop (v)		{ return this.top = v; }
 	private inline function setBottom (v)	{ return this.bottom = v; }
+	
+	
+#if (debug || neko)
+	public function isEmpty () : Bool
+	{
+		return top.notSet()
+			&& left.notSet()
+			&& bottom.notSet()
+			&& right.notSet();
+	}
+	
+	
+	public function toCSS (prefix:String = "") : String
+	{
+		var css = "";
+		if (left != right)		css = getCSSValue(left);
+		if (bottom != top)		css = getCSSValue(bottom) + " " + css;
+		if (right != top)		css = getCSSValue(right) + " " + css;
+		
+		return StringTools.trim(getCSSValue(top) + " " + css);
+	}
+	
+	
+	private inline function getCSSValue (v:Int) { return v == 0 ? "0" : v + "px"; }
+#end
+
+#if neko
+	public function cleanUp () : Void {}
+	public function toCode (code:ICodeGenerator)
+	{
+		if (!isEmpty())
+			code.construct( this, [ top, right, bottom, left ] );
+	}
+#end
 }

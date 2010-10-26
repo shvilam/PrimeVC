@@ -35,7 +35,8 @@ typedef DisplayEvents =
 	#if		flash9	primevc.avm2.events.DisplayEvents;
 	#elseif	flash8	primevc.avm1.events.DisplayEvents;
 	#elseif	js		primevc.js  .events.DisplayEvents;
-	#else	error	#end
+	#else	DisplaySignals	#end
+
 
 /**
  * Cross-platform displayobject events

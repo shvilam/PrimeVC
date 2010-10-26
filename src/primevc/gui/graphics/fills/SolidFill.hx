@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.fills;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.core.geom.IRectangle;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
@@ -43,22 +46,24 @@ package primevc.gui.graphics.fills;
  */
 class SolidFill extends GraphicElement, implements IFill
 {
-	public var color (default, setColor)	: RGBA;
+	public var color		(default, setColor)	: RGBA;
+	public var isFinished	(default, null)		: Bool;
 	
 	
 	public function new ( color:RGBA )
 	{
 		super();
-		this.color = color;
+		this.color	= color;
+		isFinished	= false;
 	}
 	
 	
 	public inline function begin (target:IDrawable, ?bounds:IRectangle)
 	{
-		changes = 0;
 #if flash9
-		target.graphics.beginFill( color.rgb(), color.alpha() );
+		target.graphics.beginFill( color.rgb(), color.alpha().float() );
 #end
+		isFinished = true;
 	}
 	
 	
@@ -67,6 +72,7 @@ class SolidFill extends GraphicElement, implements IFill
 #if flash9
 		target.graphics.endFill();
 #end
+		isFinished = false;
 	}
 	
 	
@@ -74,8 +80,22 @@ class SolidFill extends GraphicElement, implements IFill
 	{
 		if (color != v) {
 			this.color = v;
-			invalidate( GraphicFlags.FILL_CHANGED );
+			invalidate( GraphicFlags.FILL );
 		}
 		return v;
 	}
+	
+	
+#if (debug || neko)
+	override public function toCSS (prefix:String = "")
+	{
+		return color.string();
+	}
+#end
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ color ] );
+	}
+#end
 }

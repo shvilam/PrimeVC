@@ -30,9 +30,9 @@ package primevc.gui.display;
  
 
 typedef Shape = 
-	#if		flash9	primevc.avm2.Shape;
-	#elseif	flash8	primevc.avm1.Shape;
-	#elseif	js		primevc.js  .Shape;
+	#if		flash9	primevc.avm2.display.Shape;
+	#elseif	flash8	primevc.avm1.display.Shape;
+	#elseif	js		primevc.js  .display.Shape;
 	#else			ShapeImpl
 
 

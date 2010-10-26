@@ -27,16 +27,14 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
+ import primevc.core.traits.IIdentifiable;
  import primevc.core.IDisposable;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.effects.UIElementEffects;
  import primevc.gui.states.UIElementStates;
  import primevc.gui.traits.IBehaving;
- import primevc.gui.traits.IIdentifiable;
  import primevc.gui.traits.ILayoutable;
-#if flash9
- import primevc.gui.traits.IDrawable;
-#end
+ import primevc.gui.traits.IStylable;
 
 
 /**
@@ -45,11 +43,11 @@ package primevc.gui.core;
  */
 interface IUIElement	
 				implements IDisplayObject
-#if flash9	,	implements IDrawable	#end
 			,	implements ILayoutable
 			,	implements IBehaving
 			,	implements IIdentifiable
 			,	implements IDisposable
+			,	implements IStylable
 {
 	public var state	(default, null)		: UIElementStates;
 	

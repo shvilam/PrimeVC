@@ -1,0 +1,56 @@
+#!/bin/bash
+# script to build and run the css-parser
+
+BUILDSCRIPTDIR="`dirname $0`";
+PRJROOT="${BUILDSCRIPTDIR}/.."
+
+MINPARAMS=1
+Style=$1
+MainClass="primevc.tools.CSSParserMain"
+ParserClass="primevc.tools.CSSParser"
+ManifestFile="${PRJROOT}/src/manifest.xml"
+MainFile="${PRJROOT}/src/${MainClass//.//}.hx"		#replace all dots with slashes
+ParserClass="${PRJROOT}/src/${ParserClass//.//}.hx"	#replace all dots with slashes
+Parser="${PRJROOT}/build/parser.n"
+Force=false
+#Resource=""
+
+#parse arguments
+while getopts "s:tfd" OptionName
+	do
+		case $OptionName in
+			s ) Style=${OPTARG};;
+			f ) Force=true;;
+			d ) Debug="-debug";;
+	esac
+done
+
+StyleInputFile=${Style}/Style.css
+StyleOutputFile=${Style}/Style.hx
+
+#echo "MainFile: ${MainFile}"
+echo "Main: ${MainClass}" &&
+echo "Style: ${StyleFile}" &&
+echo "Debugging? ${Debug:-false}"
+
+CompilerUpdated=false
+
+#create parser if the source files have changed
+if ${Force} || [[ ! -f ${Parser} ]]  ||  test ${MainFile} -nt ${Parser}  ||  test ${ParserClass} -nt ${Parser}  ; then  # ||  test ${StyleFile} -nt ${Parser} ; then
+	echo "Compiling parser"  &&
+	haxe ${PRJROOT}/build/build-cssparser.hxml -main ${MainClass} -neko ${Parser} --no-inline ${Debug} ${Debug:---no-traces} &&
+	CompilerUpdated=true
+fi;
+
+#compile css
+if [[ -d ${Style} ]] && [[ -f ${ManifestFile} ]] && [[ -f ${StyleInputFile} ]] && [[ -f ${Parser} ]] ; then
+	if ${CompilerUpdated} || [[ ! -f ${StyleOutputFile} ]] || test ${StyleInputFile} -nt ${StyleOutputFile} || test ${ManifestFile} -nt ${StyleOutputFile} ; then
+		echo "Running parser on ${StyleInputFile}" &&
+		neko ${Parser} ${Style}
+	else	
+		echo "Style is already compiled and up to date.."
+	fi;
+else
+	echo "Style '${StyleInputFile}' or manifest '${ManifestFile}' doesn't exist!" &&
+	exit 1
+fi;

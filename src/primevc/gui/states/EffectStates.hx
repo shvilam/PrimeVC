@@ -30,7 +30,7 @@ package primevc.gui.states;
 
 
 enum EffectStates {
-	empty;			//default state when the effect is created but can't be played (not enough properties or no target)
+//	empty;			//default state when the effect is created but can't be played (not enough properties or no target)
 	initialized;	//effect is ready and has a target but is never played
 	waiting;		//effect is waiting for the delayTimer to finish
 	playing;		//effect is playing

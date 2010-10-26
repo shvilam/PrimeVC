@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.fills;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.core.geom.IRectangle;
  import primevc.core.geom.Matrix2D;
  import primevc.gui.graphics.GraphicElement;
@@ -44,25 +47,33 @@ package primevc.gui.graphics.fills;
  */
 class BitmapFill extends GraphicElement, implements IFill 
 {
-	public var bitmap	(default, setBitmap)	: Bitmap;
-	public var matrix	(default, setMatrix)	: Matrix2D;
-	public var smooth	(default, setSmooth)	: Bool;
-	public var repeat	(default, setRepeat)	: Bool;
+	public var bitmap		(default, setBitmap)	: Bitmap;
+	public var matrix		(default, setMatrix)	: Matrix2D;
+	public var smooth		(default, setSmooth)	: Bool;
+	public var repeat		(default, setRepeat)	: Bool;
+	public var isFinished	(default, null)			: Bool;
 	
 	
-	public function new (bitmap:Bitmap, ?matrix:Matrix2D = null)
+	public function new (bitmap:Bitmap, matrix:Matrix2D = null, repeat:Bool = true, smooth:Bool = false)
 	{
 		super();
 		this.bitmap = bitmap;
 		this.matrix	= matrix;
+		this.repeat = repeat;
+		this.smooth	= smooth;
+		isFinished	= false;
 	}
 	
 	
 	override public function dispose ()
 	{
-		bitmap.dispose();
-		untyped bitmap = null;
-		matrix = null;
+		if (bitmap != null) {
+			bitmap.dispose();
+		//	untyped bitmap = null;
+		}
+		if (matrix != null)
+			untyped matrix = null;
+		
 		super.dispose();
 	}
 	
@@ -81,8 +92,8 @@ class BitmapFill extends GraphicElement, implements IFill
 			bitmap = v;
 			
 			if (bitmap != null) {
-				if (bitmap.state.is(BitmapStates.loaded))
-					invalidate( GraphicFlags.FILL_CHANGED );
+				if (bitmap.state.is(BitmapStates.ready))
+					invalidate( GraphicFlags.FILL );
 				
 				handleBitmapStateChange.on( bitmap.state.change, this );
 			}
@@ -95,7 +106,7 @@ class BitmapFill extends GraphicElement, implements IFill
 	{
 		if (v != matrix) {
 			matrix = v;
-			invalidate( GraphicFlags.FILL_CHANGED );
+			invalidate( GraphicFlags.FILL );
 		}
 		return v;
 	}
@@ -105,7 +116,7 @@ class BitmapFill extends GraphicElement, implements IFill
 	{
 		if (v != smooth) {
 			smooth = v;
-			invalidate( GraphicFlags.FILL_CHANGED );
+			invalidate( GraphicFlags.FILL );
 		}
 		return v;
 	}
@@ -115,7 +126,7 @@ class BitmapFill extends GraphicElement, implements IFill
 	{
 		if (v != repeat) {
 			repeat = v;
-			invalidate( GraphicFlags.FILL_CHANGED );
+			invalidate( GraphicFlags.FILL );
 		}
 		return v;
 	}
@@ -128,8 +139,8 @@ class BitmapFill extends GraphicElement, implements IFill
 	private inline function handleBitmapStateChange (oldState:BitmapStates, newState:BitmapStates)
 	{
 		switch (newState) {
-			case BitmapStates.loaded:	invalidate( GraphicFlags.FILL_CHANGED );
-			case BitmapStates.empty:	invalidate( GraphicFlags.FILL_CHANGED );
+			case BitmapStates.ready:	invalidate( GraphicFlags.FILL );
+			case BitmapStates.empty:	invalidate( GraphicFlags.FILL );
 		}
 	}
 	
@@ -141,24 +152,47 @@ class BitmapFill extends GraphicElement, implements IFill
 	
 	public inline function begin (target:IDrawable, ?bounds:IRectangle)
 	{
-		changes = 0;
-		
-		if (bitmap.state.is(BitmapStates.loaded))
+		if (bitmap.state.is(BitmapStates.ready))
 		{
 #if flash9
 			target.graphics.beginBitmapFill( bitmap.data, matrix, repeat, smooth );
 #end
 		}
+		else if (bitmap.state.is(BitmapStates.loadable))
+			bitmap.load();
+		
+		isFinished = true;
 	}
 	
 	
 	public inline function end (target:IDrawable)
 	{
-		if (bitmap.state.is(BitmapStates.loaded))
+		if (bitmap.state.is(BitmapStates.ready))
 		{
 #if flash9
 			target.graphics.endFill();
 #end
 		}
+		isFinished = false;
 	}
+	
+	
+#if (debug || neko)
+	override public function toString ()
+	{
+		return "BitmapFill( " + bitmap + ", " + smooth + ", " + repeat + " )";
+	}
+	
+	
+	override public function toCSS (prefix:String = "")
+	{
+		return bitmap.toString + " " + repeat;
+	}
+#end
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ bitmap, matrix, repeat, smooth ] );
+	}
+#end
 }

@@ -30,13 +30,11 @@ package primevc.gui.layout.algorithms.float;
  import primevc.core.geom.space.Vertical;
  import primevc.core.geom.IRectangle;
  import primevc.gui.layout.algorithms.IVerticalAlgorithm;
- import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
+ import primevc.gui.layout.algorithms.VerticalBaseAlgorithm;
  import primevc.gui.layout.AdvancedLayoutClient;
- import primevc.gui.layout.LayoutFlags;
  import primevc.utils.IntMath;
-  using primevc.utils.BitUtil;
   using primevc.utils.IntMath;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
   using Std;
 
@@ -47,10 +45,8 @@ package primevc.gui.layout.algorithms.float;
  * @creation-date	Jun 24, 2010
  * @author			Ruben Weijers
  */
-class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAlgorithm
+class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVerticalAlgorithm
 {
-	public var direction	(default, setDirection)		: Vertical;
-	
 	/**
 	 * Measured point of the bottom side of the middlest child (rounded above)
 	 * when the direction is center.
@@ -58,74 +54,26 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 	private var halfHeight	: Int;
 	
 	
-	public function new (?direction)
-	{
-		super();
-		this.direction = direction == null ? Vertical.top : direction;
-	}
-	
-	
-	
-	//
-	// GETTERS / SETTERS
-	//
-	
-	/**
-	 * Setter for direction property. Method will change the apply method based
-	 * on the given direction. After that it will dispatch a 'directionChanged'
-	 * signal.
-	 */
-	private inline function setDirection (v:Vertical) {
-		if (v != direction) {
-			direction = v;
-			algorithmChanged.send();
-		}
-		return v;
-	}
-	
-	
 	
 	//
 	// LAYOUT
 	//
 	
-	/**
-	 * Method indicating if the size is invalidated or not.
-	 */
-	public inline function isInvalid (changes:Int)	: Bool {
-		return changes.has( LayoutFlags.HEIGHT_CHANGED ) && group.childHeight.notSet();
-	}
-	
 	
 	/**
 	 * Method will return the total height of all the children.
 	 */
-	public inline function measure ()
+	public inline function validate ()
 	{
 		if (group.children.length == 0)
 			return;
 		
-		measureHorizontal();
-		measureVertical();
+		validateHorizontal();
+		validateVertical();
 	}
 	
 	
-	public inline function measureHorizontal ()
-	{
-		var width:Int = group.childWidth;
-		
-		if (group.childWidth.notSet())
-		{
-			width = 0;
-			for (child in group.children)
-				if (child.includeInLayout && child.bounds.width > width)
-					width = child.bounds.width;
-		}
-		setGroupWidth(width);
-	}
-	
-	
-	public function measureVertical ()
+	public function validateVertical ()
 	{
 		var height:Int = halfHeight = 0;
 		
@@ -158,14 +106,14 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 	}
 
 
-	public inline function apply ()
+	override public function apply ()
 	{
 		switch (direction) {
 			case Vertical.top:		applyTopToBottom();
 			case Vertical.center:	applyCentered();
 			case Vertical.bottom:	applyBottomToTop();
 		}
-		measurePrepared = false;
+		super.apply();
 	}
 	
 	
@@ -378,21 +326,21 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 		var posY:Int	= bounds.top;
 		var centerY:Int	= bounds.top + (bounds.height * .5).int();
 		
+		var groupHeight = group.height;
+		var emptyHeight	= 0;
+		if (group.is(AdvancedLayoutClient))
+		{
+			groupHeight = IntMath.max( 0, group.as(AdvancedLayoutClient).measuredHeight );
+			//check if there's any width left. This happens when there's an explicitWidth set.
+			emptyHeight	= IntMath.max( 0, group.height - groupHeight );
+		}
+		
 		if (group.childHeight.isSet())
 		{
-			depth = group.children.length - posY.divRound(group.childHeight);
+			depth = group.children.length - ( posY - emptyHeight ).divRound( group.childHeight );
 		}
 		else
 		{
-			var groupHeight = group.height;
-			var emptyHeight	= 0;
-			if (group.is(AdvancedLayoutClient))
-			{
-				groupHeight = IntMath.max( 0, group.as(AdvancedLayoutClient).measuredHeight );
-				//check if there's any width left. This happens when there's an explicitWidth set.
-				emptyHeight	= IntMath.max( 0, group.height - groupHeight );
-			}
-			
 			//if pos <= emptyHeight, the depth will be at the end of the list
 			if (posY <= emptyHeight)
 				depth = group.children.length;
@@ -432,40 +380,10 @@ class VerticalFloatAlgorithm extends LayoutAlgorithmBase, implements IVerticalAl
 	}
 	
 	
-	
-	
-	//
-	// START VALUES
-	//
-	
-	private inline function getTopStartValue ()		: Int
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String
 	{
-		var top:Int = 0;
-		if (group.padding != null)
-			top = group.padding.top;
-		
-		return top;
-	}
-	
-	
-	private inline function getBottomStartValue ()	: Int	{
-		var h:Int = group.height;
-		if (group.is(AdvancedLayoutClient))
-			h = IntMath.max(group.as(AdvancedLayoutClient).measuredHeight, h);
-		
-		if (group.padding != null)
-			h += group.padding.top; // + group.padding.bottom;
-		
-		return h;
-	}
-	
-	
-#if debug
-	public function toString ()
-	{
-		var start = direction == Vertical.top ? "top" : "bottom";
-		var end = direction == Vertical.top ? "bottom" : "top";
-		return group.name + ".Float.ver ( " + start + " -> " + end + " ) ";
+		return "float-ver (" + direction + ", " + horizontal + ")";
 	}
 #end
 }

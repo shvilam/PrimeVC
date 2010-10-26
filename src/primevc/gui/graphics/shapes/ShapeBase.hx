@@ -27,158 +27,24 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.shapes;
- import haxe.FastList;
- import primevc.core.dispatcher.Signal0;
- import primevc.core.geom.IRectangle;
- import primevc.gui.graphics.borders.IBorder;
- import primevc.gui.graphics.fills.IFill;
- import primevc.gui.graphics.GraphicFlags;
- import primevc.gui.graphics.IGraphicElement;
- import primevc.gui.traits.IDrawable;
-  using primevc.utils.BitUtil;
-  using Math;
-  using Std;
-
+ import primevc.gui.graphics.GraphicElement;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
 
 
 /**
- * Base class for shapes
+ * Base class for shapes, adding a toCode method for shapes.
  * 
  * @author Ruben Weijers
- * @creation-date Aug 01, 2010
+ * @creation-date Sep 14, 2010
  */
-class ShapeBase implements IGraphicShape
+class ShapeBase extends GraphicElement 
 {
-	public var changes		(default, null)			: UInt;
-	public var listeners	(default, null)			: FastList< IGraphicElement >;
-	public var changeEvent	(default, null)			: Signal0;
-	
-	public var fill			(default, setFill)		: IFill;
-	public var border		(default, setBorder)	: IBorder <IFill>;
-	public var layout		(default, setLayout)	: IRectangle;
-	
-	
-	public function new (?layout:IRectangle, ?fill:IFill, ?border:IBorder <IFill>)
+#if neko
+	override public function toCode (code:ICodeGenerator)
 	{
-		listeners	= new FastList< IGraphicElement >();
-		this.layout	= layout;
-		this.fill	= fill;
-		this.border	= border;
-		changeEvent	= new Signal0();
-		changes		= 0;
+		code.construct( this );
 	}
-	
-	
-	public function dispose ()
-	{
-		if (border != null)	border.dispose();
-		if (fill != null)	fill.dispose();
-		
-		changeEvent.dispose();
-		changeEvent	= null;
-		listeners	= null;
-		border		= null;
-		fill		= null;
-		layout		= null;
-	}
-	
-	
-	public inline function invalidate (change:UInt) : Void
-	{
-		changes = changes.set(change);
-		for (listener in listeners)
-			listener.invalidate( change );
-		
-		if (changeEvent != null)
-			changeEvent.send();
-	}
-	
-	
-	public function draw (target:IDrawable, ?useCoordinates:Bool = false) : Void
-	{
-		Assert.notNull(layout);
-		changes = 0;
-		
-		var l = layout;
-		var x = useCoordinates ? l.left : 0;
-		var y = useCoordinates ? l.top : 0;
-		var w = l.width;
-		var h = l.height;
-		
-		if (border != null) {
-			border.begin(target, l);
-			if (border.innerBorder) {
-				x += border.weight.ceil().int();
-				y += border.weight.ceil().int();
-				w -= (border.weight * 2).ceil().int();
-				h -= (border.weight * 2).ceil().int();
-			}
-		}
-		if (fill != null)
-			fill.begin(target, l);
-		
-		drawShape( target, x, y, w, h );
-		
-		if (border != null)		border.end(target);
-		if (fill != null)		fill.end(target);
-	}
-	
-	
-	
-	/**
-	 * Method to overwrite in sub-shape-clases
-	 */
-	private function drawShape (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
-	{
-		Assert.abstract();
-	}
-	
-	
-	//
-	// GETTERS / SETTERS
-	//
-	
-	private inline function setFill (v:IFill)
-	{
-		if (v != fill)
-		{
-			if (fill != null)
-				fill.listeners.remove(this);
-
-			fill = v;
-			if (fill != null)
-				fill.listeners.add(this);
-
-			invalidate( GraphicFlags.FILL_CHANGED );
-		}
-		return v;
-	}
-	
-	
-	private inline function setBorder (v)
-	{
-		if (v != border)
-		{
-			if (border != null)
-				border.listeners.remove(this);
-
-			border = v;
-			if (border != null)
-				border.listeners.add(this);
-
-			invalidate( GraphicFlags.BORDER_CHANGED );
-		}
-		return v;
-	}
-	
-	
-	private inline function setLayout (v:IRectangle)
-	{
-		if (v != layout)
-		{
-			layout = v;
-			invalidate( GraphicFlags.LAYOUT_CHANGED );
-		}
-		return v;
-	}
+#end
 }

@@ -27,9 +27,15 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.effects;
- import primevc.gui.display.IDisplayObject;
+ import primevc.gui.display.IDisplayObject;	
+#if (flash8 || flash9 || js)
+ import primevc.gui.effects.effectInstances.FadeEffectInstance;
+#end
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.types.Number;
-  using primevc.utils.FloatUtil;
+  using primevc.utils.NumberUtil;
 
 
 /**
@@ -40,15 +46,6 @@ package primevc.gui.effects;
  */
 class FadeEffect extends Effect < IDisplayObject, FadeEffect >
 {
-	
-	/**
-	 * The startvalue that will be used during the calculations when the effect
-	 * is playing.
-	 * The value will be the 'startValue' property when this is set and 
-	 * otherwise the original alpha value of the target.
-	 */
-	private var _startValue	: Float;
-	
 	/**
 	 * Explicit start alpha value. If this value is not set, the effect will 
 	 * use the current alpha of the displayobject.
@@ -62,24 +59,33 @@ class FadeEffect extends Effect < IDisplayObject, FadeEffect >
 	public var endValue		: Float;
 	
 	
-	public function new( target = null, duration:Int = 350, delay:Int = 0, easing:Easing = null, endValue:Float = 1, ?startValue:Float )
+	public function new( duration:Int = 350, delay:Int = 0, easing:Easing = null, startValue:Float = Number.INT_NOT_SET, endValue:Float = Number.INT_NOT_SET )
 	{
-		super( target, duration, delay, easing );
-		hideFiltersDuringEffect	= false;
-		this.startValue			= (startValue == null) ? Number.FLOAT_NOT_SET : startValue;
-		this.endValue			= endValue;
+		super( duration, delay, easing );
+		autoHideFilters	= false;
+		this.startValue	= startValue == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : startValue;
+		this.endValue	= endValue == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : endValue;
 	}
 	
 	
 	override public function clone ()
 	{
-		return new FadeEffect( target, duration, duration, easing, endValue, startValue );
+		return cast new FadeEffect( duration, duration, easing, startValue, endValue );
 	}
+	
+	
+#if (flash8 || flash9 || js)
+	override public function createEffectInstance (target)
+	{
+		return cast new FadeEffectInstance(target, this);
+	}
+#end
 
 
 	override public function setValues ( v:EffectProperties ) 
 	{
-		switch (v) {
+		switch (v)
+		{
 			case alpha(from, to):
 				startValue	= from;
 				endValue	= to;
@@ -87,28 +93,29 @@ class FadeEffect extends Effect < IDisplayObject, FadeEffect >
 				return;
 		}
 	}
+	
+	
+#if (debug || neko)
+	override public function toCSS (prefix:String = "") : String
+	{
+		var props = [];
+		
+		if (duration.isSet())		props.push( duration + "ms" );
+		if (delay.isSet())			props.push( delay + "ms" );
+		if (easing != null)			props.push( easingToCSS() );
+		if (startValue.isSet())		props.push( (startValue * 100) + "%" );
+		if (endValue.isSet())		props.push( (endValue * 100) + "%" );
+		
+		
+		return "fade " + props.join(" ");
+	}
+#end
 
-
-	override private function initStartValues ()
+#if neko
+	override public function toCode (code:ICodeGenerator) : Void
 	{
-		if (startValue.isSet())		_startValue = startValue;
-		else						_startValue = target.alpha;
+		if (!isEmpty())
+			code.construct( this, [ duration, delay, easingToCode(), startValue, endValue ] );
 	}
-	
-	
-	
-	/**
-	 * Method which will perform the transformation from visible to hidden.
-	 * Needs to be overwritten by SubClasses
-	 */
-	override private function tweenUpdater ( tweenPos:Float )
-	{
-		target.alpha = ( endValue * tweenPos ) + ( _startValue * ( 1 - tweenPos ) );
-	}
-	
-	
-	override private function calculateTweenStartPos () : Float
-	{
-		return (target.alpha - _startValue) / (endValue - _startValue);
-	}
+#end
 }
