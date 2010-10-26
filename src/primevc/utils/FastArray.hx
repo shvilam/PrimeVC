@@ -28,7 +28,8 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.utils;
- using primevc.utils.FastArray;
+ using  primevc.utils.FastArray;
+  using Std;
 
 typedef FastArray<T> =
 	#if flash10		flash.Vector<T>
@@ -48,27 +49,44 @@ class FastArrayUtil
 	{
 #if flash10
 		return new flash.Vector<T>(size, fixed);
-#else
+#elseif flash
 		return untyped __new__(Array, size);
+#elseif neko
+		return untyped Array.new1(neko.NativeArray.alloc(size), size);
 #end
 	}
+	
+	
+#if !flash10
+	public static inline function indexOf<T> ( list:FastArray<T>, item:T, ?startPos:Int = 0 ) : Int
+	{
+		var pos:Int = -1;
+		for (i in startPos...list.length) {
+			if (list[i] == item) {
+				pos = i;
+				break;
+			}
+		}
+		return pos;
+	}
+#end
 	
 	
 	public static inline function insertAt<T>( list:FastArray<T>, item:T, pos:Int ) : Int
 	{
 		var newPos:Int = 0;
-		if (pos < 0 || pos == Std.int(list.length))
+		if (pos < 0 || pos == list.length.int())
 		{
 			newPos = list.push( item ) - 1;
 		}
 		else
 		{
-			var len = list.length;
+			var len = list.length.int();
 			if (pos > len)
 				pos = len;
 			
 			//move all items in the list one place down
-			var i = list.length;
+			var i = len;
 			while ( i > pos ) {
 				list[i] = list[i - 1];
 				i--;
@@ -86,8 +104,14 @@ class FastArrayUtil
 		if (curPos == -1)
 			curPos = list.indexOf(item);
 		
-		if (newPos > list.length)		throw "Position is bigger then the list length";
-		if (curPos < 0)					throw "Item is not part of list so cannot be moved";
+		var len = list.length.int();
+#if debug
+		if ( newPos > len ) throw "Moving from " + curPos + " to position "+newPos+", but it is bigger then the list length ("+list.length+")..";
+#end
+		if (newPos > len)
+			newPos = len;
+
+		if (curPos < 0)				throw "Item is not part of list so cannot be moved";
 		
 		if (curPos != newPos)
 		{
@@ -124,7 +148,11 @@ class FastArrayUtil
 	
 	public static inline function remove < T > (list:FastArray<T>, item:T) : Bool {
 		var pos = list.indexOf(item);
-		
+		return removeAt(list, pos);
+	}
+	
+	
+	public static inline function removeAt < T > (list:FastArray<T>, pos:Int) : Bool {
 		if (pos >= 0)
 		{
 			if		(pos == 0)						list.shift();

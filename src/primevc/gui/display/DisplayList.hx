@@ -29,9 +29,9 @@
 package primevc.gui.display;
 
 typedef DisplayList = 
-	#if		flash9	primevc.avm2.DisplayList;
-	#elseif	flash8	primevc.avm1.DisplayList;
-	#elseif	js		primevc.js  .DisplayList;
+	#if		flash9	primevc.avm2.display.DisplayList;
+	#elseif	flash8	primevc.avm1.display.DisplayList;
+	#elseif	js		primevc.js  .display.DisplayList;
 	#else			DisplayListImpl
 
 

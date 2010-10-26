@@ -27,7 +27,12 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.types;
- 
+ /*
+
+typedef IntType = 
+	#if neko	neko.Int32;
+	#else		Int;	#end
+*/
 
 /**
  * Defines the min and max values of integers
@@ -41,16 +46,18 @@ class Number
 	public static inline var FLOAT_MIN:Float		= -2147483648;
 	public static inline var FLOAT_MAX:Float		=  2147483647;
 	
-	public static inline var INT_MIN:Int			= -2147483648;
-	public static inline var INT_MAX:Int			=  2147483647;
-	
+	public static inline var INT_MIN:Int			= #if neko -1073741824 #else -2147483648 #end;
+	public static inline var INT_MAX:Int			= #if neko 1073741824 #else 2147483647 #end;
+
+#if !neko
 	public static inline var UINT_MIN:UInt			=  0;
 	public static inline var UINT_MAX:UInt			=  -1; //4294967295;		//<-- not working, since value is seen as Float
+#end
 	
 	/**
-	 * Value defining an undefined Int. Is needed since there's no value like
+	 * Value defining an undefined Int. Useful for AVM2 since there's no value like
 	 * Math.NaN for integers..
 	 */
-	public static inline var INT_NOT_SET:Int		=  -2147483648;
+	public static inline var INT_NOT_SET:Int		=  INT_MIN; //#if flash9 INT_MIN #else null #end;
 	public static inline var FLOAT_NOT_SET:Float	=  Math.NaN;
 }

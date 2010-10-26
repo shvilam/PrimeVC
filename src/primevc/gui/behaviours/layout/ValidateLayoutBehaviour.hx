@@ -59,6 +59,7 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >, implements I
 		
 		layoutStateChangeHandler.on( target.layout.state.change, this );
 		requestRender.on( target.layout.events.posChanged, this );
+	//	requestRender.on( target.layout.events.sizeChanged, this );
 	}
 	
 	
@@ -91,7 +92,7 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >, implements I
 	
 	public inline function requestRender ()
 	{
-		if (target.window != null && (target.effects == null || target.effects.move == null))
+		if (target.window != null) // && (target.effects == null || target.effects.move == null))
 			getUIWindow().renderManager.add(this);
 	}
 	
@@ -99,8 +100,13 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >, implements I
 	public inline function render ()
 	{
 		var l = target.layout;
-	//	trace("applyPosition " + target.id + " / " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y);
-		target.x = l.getHorPosition();
-		target.y = l.getVerPosition();
+	//	trace(target+".applyPosition; " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y);
+		if (target.effects == null)
+		{
+			target.x	= target.rect.left	= l.getHorPosition();
+			target.y	= target.rect.top	= l.getVerPosition();
+		} else {
+			target.effects.playMove();
+		}
 	}
 }

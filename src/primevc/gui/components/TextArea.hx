@@ -29,7 +29,7 @@
 package primevc.gui.components;
  import primevc.gui.core.UIContainer;
  import primevc.gui.core.UITextField;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
 
 
 /**
@@ -39,7 +39,7 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Sep 03, 2010
  */
-class TextArea extends UIContainer < String >
+class TextArea extends UIContainer < String >, implements ITextArea
 {
 	private static inline var MAX_COLUMNS	: Int = 40;
 	
@@ -71,7 +71,7 @@ class TextArea extends UIContainer < String >
 		v = v.within( 1, MAX_COLUMNS );
 		if (v != columns) {
 			columns = v;
-			invalidate( Flags.COLUMNS_CHANGED );
+			invalidate( Flags.COLUMNS );
 		}
 		return v;
 	}

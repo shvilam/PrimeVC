@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.core.geom.space.Direction;
  import primevc.core.geom.space.Horizontal;
  import primevc.core.geom.space.Vertical;
@@ -227,4 +230,21 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 		}
 		return v;
 	}
+	
+
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String
+	{
+		return "dynamic ( " + horAlgorithm + ", " + verAlgorithm + " )";
+	}
+#end
+
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ horAlgorithm, verAlgorithm ] );
+		if (horizontalDirection != null)	code.setProp( this, "horizontalDirection", horizontalDirection );
+		if (verticalDirection != null)		code.setProp( this, "verticalDirection", verticalDirection );
+	}
+#end
 }

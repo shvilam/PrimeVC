@@ -38,6 +38,12 @@ package primevc.gui.graphics.fills;
  */
 interface IFill implements IGraphicElement 
 {
+	/**
+	 * Flag indicating if the fill is done with drawing. This way a composed fill
+	 * can draw it's children one by one without knowing anything about 
+	 * GraphicProperties.
+	 */
+	public var isFinished (default, null)	: Bool;
 	public function begin (target:IDrawable, ?bounds:IRectangle) : Void;
 	public function end (target:IDrawable) : Void;
 }

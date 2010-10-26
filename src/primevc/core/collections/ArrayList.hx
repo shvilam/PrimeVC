@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.collections;
+ import primevc.core.collections.iterators.FastArrayForwardIterator;
+ import primevc.core.collections.iterators.FastArrayReversedIterator;
+ import primevc.core.collections.iterators.IIterator;
  import primevc.core.events.ListEvents;
  import primevc.utils.FastArray;
   using primevc.utils.FastArray;

@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.fills;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.core.geom.IRectangle;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
@@ -45,13 +48,17 @@ package primevc.gui.graphics.fills;
  */
 class ComposedFill extends GraphicElement, implements IFill 
 {
-	public var fills	(default, null)		: FastArray <IFill>;
+	public var fills		(default, null)		: FastArray <IFill>;
+	public var isFinished	(default, null)		: Bool;
+	private var curFillNumber					: Int;
 	
 	
 	public function new ()
 	{
 		super();
-		fills = FastArrayUtil.create();
+		fills			= FastArrayUtil.create();
+		isFinished		= false;
+		curFillNumber	= 0;
 	}
 	
 	
@@ -69,19 +76,34 @@ class ComposedFill extends GraphicElement, implements IFill
 	// IFILL METHODS
 	//
 	
-	public inline function begin (target:IDrawable, ?bounds:IRectangle)
+	public function begin (target:IDrawable, ?bounds:IRectangle)
 	{
-		changes = 0;
-		for (fill in fills)
-			fill.begin(target, bounds);
+	//	for (fill in fills)
+	//		fill.begin(target, bounds);
+		if (fills.length == 0) {
+			isFinished = true;
+			return;
+		}
 		
+		//check if the currentfill is already finished
+		if (fills[ curFillNumber ].isFinished) {
+			fills[ curFillNumber ].end(target);
+			curFillNumber++;
+		}
+		
+		if (curFillNumber >= fills.length) {
+			isFinished = true;
+			return;
+		}
+		
+		fills[ curFillNumber ].begin(target, bounds);
 	}
 	
 	
 	public inline function end (target:IDrawable)
 	{
-		for (fill in fills)
-			fill.end(target);
+		curFillNumber	= 0;
+		isFinished		= false;
 	}
 	
 	
@@ -94,7 +116,7 @@ class ComposedFill extends GraphicElement, implements IFill
 	{
 		fills.insertAt( fill, depth );
 		fill.listeners.add(this);
-		invalidate( GraphicFlags.FILL_CHANGED );
+		invalidate( GraphicFlags.FILL );
 	}
 
 
@@ -103,6 +125,29 @@ class ComposedFill extends GraphicElement, implements IFill
 		fills.remove(fill);
 		fill.listeners.remove(this);
 		fill.dispose();
-		invalidate( GraphicFlags.FILL_CHANGED );
+		invalidate( GraphicFlags.FILL );
 	}
+	
+	
+	
+#if (debug || neko)
+	override public function toCSS (prefix:String = "")
+	{
+		return fills.join(", ");
+	}
+	
+	
+	override public function isEmpty () : Bool
+	{
+		return fills.length == 0;
+	}
+#end
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this );
+		for (fill in fills)
+			code.setAction(this, "add", [ fill ]);
+	}
+#end
 }

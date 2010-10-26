@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.core.geom.space.Horizontal;
  import primevc.core.geom.space.Vertical;
  import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
@@ -34,7 +37,7 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.LayoutFlags;
  import primevc.utils.IntMath;
   using primevc.utils.BitUtil;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
   using Std;
 
@@ -109,7 +112,7 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 	 */
 	public inline function isInvalid (changes:Int)	: Bool
 	{
-		return (changes.has( LayoutFlags.HEIGHT_CHANGED ) && group.childHeight.notSet()) || ( horizontal != null && changes.has( LayoutFlags.WIDTH_CHANGED ) );
+		return (changes.has( LayoutFlags.HEIGHT ) && group.childHeight.notSet()) || ( horizontal != null && changes.has( LayoutFlags.WIDTH ) );
 	}
 
 
@@ -228,4 +231,12 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 
 		return h;
 	}
+	
+	
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ direction, horizontal ] );
+	}
+#end
 }

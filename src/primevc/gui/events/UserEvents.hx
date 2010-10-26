@@ -34,6 +34,7 @@ typedef UserEvents =
 	#if		flash9	primevc.avm2.events.UserEvents;
 	#elseif	flash8	primevc.avm1.events.UserEvents;
 	#elseif	js		primevc.js  .events.UserEvents;
+	#elseif neko	primevc.neko.events.UserEvents;
 	#else	error	#end
 
 /**

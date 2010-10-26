@@ -35,7 +35,7 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.RelativeLayout;
   using primevc.utils.BitUtil;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
 
 
 
@@ -53,11 +53,11 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 	
 	public inline function isInvalid (changes:Int)
 	{
-		return changes.has( LayoutFlags.WIDTH_CHANGED ) 
-				|| changes.has( LayoutFlags.HEIGHT_CHANGED )
-				|| changes.has( LayoutFlags.X_CHANGED )
-				|| changes.has( LayoutFlags.Y_CHANGED )
-				|| changes.has( LayoutFlags.RELATIVE_CHANGED );
+		return changes.has( LayoutFlags.WIDTH ) 
+				|| changes.has( LayoutFlags.HEIGHT )
+				|| changes.has( LayoutFlags.X )
+				|| changes.has( LayoutFlags.Y )
+				|| changes.has( LayoutFlags.RELATIVE );
 	}
 	
 	
@@ -65,7 +65,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 	{
 		if (!validatePrepared)
 		{
-			if (group.validatedHorizontal && !validatePreparedHor)
+			if (group.hasValidatedWidth && !validatePreparedHor)
 			{
 				for (child in group.children) {
 					if (child.relative == null || !child.includeInLayout)
@@ -79,7 +79,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 			}
 			
 			
-			if (group.validatedVertical && !validatePreparedVer)
+			if (group.hasValidatedHeight && !validatePreparedVer)
 			{
 				for (child in group.children) {
 					if (child.relative == null || !child.includeInLayout)
@@ -162,10 +162,15 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 	}
 
 
-#if debug
-	public function toString ()
+#if (neko || debug)
+	override public function toString () : String
 	{
-		return group + ".RelativeAlgorithm ( " + group.bounds.width + " -> " + group.bounds.height + " ) ";
+		return toCSS(); //group + ".RelativeAlgorithm()"; // ( " + group.bounds.width + " -> " + group.bounds.height + " ) ";
+	}
+	
+	override public function toCSS (prefix:String = "") : String
+	{
+		return "relative";
 	}
 #end
 }

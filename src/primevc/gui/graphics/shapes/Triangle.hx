@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.shapes;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.core.geom.IntPoint;
  import primevc.core.geom.space.Position;
  import primevc.gui.graphics.GraphicFlags;
@@ -39,7 +42,7 @@ package primevc.gui.graphics.shapes;
  * @author Ruben Weijers
  * @creation-date Aug 01, 2010
  */
-class Triangle extends ShapeBase
+class Triangle extends ShapeBase, implements IGraphicShape
 {
 	public var direction (default, setDirection)	: Position;
 	
@@ -48,10 +51,10 @@ class Triangle extends ShapeBase
 	private var c		: IntPoint;
 	
 	
-	public function new (?layout, ?fill, ?border, ?direction:Position)
+	public function new (?direction:Position)
 	{
-		super(layout, fill, border);
-		this.direction = direction;
+		super();
+		this.direction = direction == null ? Position.MiddleLeft : direction;
 		a = new IntPoint();
 		b = new IntPoint();
 		c = new IntPoint();
@@ -61,11 +64,12 @@ class Triangle extends ShapeBase
 	override public function dispose ()
 	{
 		a = b = c = null;
+		direction = null;
 		super.dispose();
 	}
 	
 	
-	override private function drawShape (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
+	public inline function draw (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
 	{
 #if flash9
 		var a = a, b = b, c = c;
@@ -100,16 +104,17 @@ class Triangle extends ShapeBase
 				a.y = y + (height * .5).int();
 				b.x = x + width;
 				b.y = y;
-				c.x = a.x;
+				c.x = a.x + width;
 				c.y = y + height;
 			
 			case MiddleCenter:
+			/*	there is no middle center :-S
 				a.x = x + width;
 				a.y = y;
 				b.x = x;
 				b.y = y + (height * .5).int();
 				c.x = a.x;
-				c.y = y + height;
+				c.y = y + height;*/
 
 			case MiddleRight:
 				a.x = x;
@@ -162,8 +167,22 @@ class Triangle extends ShapeBase
 	{
 		if (v != direction) {
 			direction = v;
-			invalidate( GraphicFlags.SHAPE_CHANGED );
+			invalidate( GraphicFlags.SHAPE );
 		}
 		return v;
 	}
+
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String
+	{
+		return "triangle";
+	}
+#end
+
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ direction ] );
+	}
+#end
 }

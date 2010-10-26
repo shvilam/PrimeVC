@@ -29,13 +29,18 @@
 package primevc.gui.core;
  import primevc.core.Bindable;
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
+// import primevc.gui.behaviours.styling.ApplyStylingBehaviour;
+ import primevc.gui.behaviours.styling.MouseStyleChangeBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
  import primevc.gui.display.Sprite;
  import primevc.gui.effects.UIElementEffects;
- import primevc.gui.graphics.shapes.IGraphicShape;
+ import primevc.gui.graphics.GraphicProperties;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.UIElementStates;
+#if flash9
+ import primevc.gui.styling.UIElementStyle;
+#end
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
@@ -75,7 +80,12 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	public var skin				(default, setSkin)		: ISkin;
 	public var layout			(default, null)			: LayoutClient;
-	public var graphicData		(default, null)			: Bindable < IGraphicShape >;
+	public var graphicData		(default, null)			: Bindable < GraphicProperties >;
+	
+#if flash9
+	public var style			(default, null)			: UIElementStyle;
+	public var styleClasses		(default, null)			: Bindable < String >;
+#end
 	
 	
 	private function new (?id:String)
@@ -87,11 +97,18 @@ class UIComponent extends Sprite, implements IUIComponent
 		
 		state			= new UIElementStates();
 		behaviours		= new BehaviourList();
-		graphicData		= new Bindable < IGraphicShape > ();
+		graphicData		= new Bindable < GraphicProperties > ();
+		
+#if flash9
+		styleClasses	= new Bindable < String > ();
+		style			= new UIElementStyle( this );
 		
 		//add default behaviours
-		behaviours.add( new RenderGraphicsBehaviour(this) );
+	//	behaviours.add( new ApplyStylingBehaviour(this) );	
 		behaviours.add( new ValidateLayoutBehaviour(this) );
+		behaviours.add( new RenderGraphicsBehaviour(this) );
+		behaviours.add( new MouseStyleChangeBehaviour(this) );
+#end
 		
 		createStates();
 		createBehaviours();
@@ -117,7 +134,7 @@ class UIComponent extends Sprite, implements IUIComponent
 			skin.childrenCreated();
 		
 		//finish initializing
-		visible = true;
+	//	visible = true;
 		state.current = state.initialized; 
 	}
 	
@@ -200,11 +217,24 @@ class UIComponent extends Sprite, implements IUIComponent
 	{
 		skin = newSkin;
 
-		if (skin != null && skin.is(Skin)) {
+		if (skin != null && skin.is(Skin))
 			cast(skin, Skin<Dynamic>).owner = this;
-		}
 
 		return skin;
+	}
+	
+	
+#if flash9
+	private inline function setStyle (v)
+	{
+		return style = v;
+	}
+#end
+	
+	
+	private function createLayout () : Void
+	{
+		layout = new LayoutClient();
 	}
 	
 	
@@ -215,7 +245,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	private function createStates ()		: Void; //	{ Assert.abstract(); }
 	private function createBehaviours ()	: Void; //	{ Assert.abstract(); }
-	private function createLayout ()		: Void		{ Assert.abstract(); }
+//	private function createLayout ()		: Void		{ Assert.abstract(); }
 	private function createGraphics ()		: Void; //	{ Assert.abstract(); }
 	private function createSkin ()			: Void; //	{ Assert.abstract(); }
 	private function createChildren ()		: Void		{ Assert.abstract(); }

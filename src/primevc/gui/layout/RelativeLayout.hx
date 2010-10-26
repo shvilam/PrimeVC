@@ -27,10 +27,17 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout;
+#if neko
+ import primevc.tools.generator.ICodeFormattable;
+ import primevc.tools.generator.ICodeGenerator;
+ import primevc.utils.StringUtil;
+#end
  import primevc.core.dispatcher.Signal0;
  import primevc.core.geom.IBox;
  import primevc.core.IDisposable;
+ import primevc.tools.generator.ICSSFormattable;
  import primevc.types.Number;
+  using primevc.utils.NumberUtil;
 
 
 /**
@@ -55,8 +62,17 @@ package primevc.gui.layout;
  * @creation-date	Jun 22, 2010
  * @author			Ruben Weijers
  */
-class RelativeLayout implements IBox, implements IDisposable
+class RelativeLayout 
+				implements IBox
+			,	implements IDisposable	
+			,	implements ICSSFormattable
+#if neko	,	implements ICodeFormattable		#end
 {
+	
+#if neko
+	public var uuid					(default, null)	: String;
+#end
+	
 	/**
 	 * Flag indicating if the relative-properties are enabled or disabled.
 	 * When the value is false, it will still be possible to change the
@@ -140,15 +156,19 @@ class RelativeLayout implements IBox, implements IDisposable
 	public var bottom				(getBottom, setBottom)			: Int;
 	
 	
-	public function new ( top:Int = -100000, right:Int = -100000, bottom:Int = -100000, left:Int = -100000 )
+	public function new ( top:Int = Number.INT_NOT_SET, right:Int = Number.INT_NOT_SET, bottom:Int = Number.INT_NOT_SET, left:Int = Number.INT_NOT_SET )
 	{
+#if neko
+		this.uuid		= StringUtil.createUUID();
+#end
+		this.enabled	= true;
 		this.changed	= new Signal0();
 		this.hCenter	= Number.INT_NOT_SET;
 		this.vCenter	= Number.INT_NOT_SET;
-		this.top		= (top == -100000)		? Number.INT_NOT_SET : top;
-		this.right		= (right == -100000)	? Number.INT_NOT_SET : right;
-		this.bottom		= (bottom == -100000)	? Number.INT_NOT_SET : bottom;
-		this.left		= (left == -100000)		? Number.INT_NOT_SET : left;
+		this.top		= top;
+		this.right		= right;
+		this.bottom		= bottom;
+		this.left		= left;
 	}
 	
 	
@@ -156,6 +176,9 @@ class RelativeLayout implements IBox, implements IDisposable
 	{
 		changed.dispose();
 		changed = null;
+#if neko
+		uuid	= null;
+#end
 	}
 	
 	
@@ -261,6 +284,66 @@ class RelativeLayout implements IBox, implements IDisposable
 #if debug
 	public function toString () {
 		return "RelativeLayout - t: "+top+"; r: "+right+"; b: "+bottom+"; l: "+left+"; hCenter: "+hCenter+"; vCenter: "+vCenter;
+	}
+#end
+	
+
+#if (neko || debug)
+	public function toCSS (prefix:String = "") : String
+	{
+		var css = [];
+		var str = "";
+		
+		if (top.isSet())	css.push( top + "px" );
+		else				css.push( "none" );
+		if (right.isSet())	css.push( right + "px" );
+		else				css.push( "none" );
+		if (bottom.isSet())	css.push( bottom + "px" );
+		else				css.push( "none" );
+		if (left.isSet())	css.push( left + "px" );
+		else				css.push( "none" );
+		
+		str = css.join(" ");
+		css = [];
+		
+		if (hCenter.isSet())	css.push( hCenter + "px")
+		else					css.push( "none");
+		if (vCenter.isSet())	css.push( vCenter + "px")
+		else					css.push( "none");
+		
+		if (str != "")
+			str += ", ";
+		
+		str += css.join(" ");
+		
+		return str;
+	}
+	
+
+	public function isEmpty () : Bool
+	{
+		return	top.notSet()
+			&&	right.notSet()
+			&&	bottom.notSet()
+			&&	left.notSet()
+			&&	hCenter.notSet()
+			&&	vCenter.notSet();
+	}
+#end
+
+#if neko
+	public function cleanUp () : Void {}
+	
+	public function toCode (code:ICodeGenerator)
+	{
+		if (!isEmpty())
+		{
+			code.construct( this, [ top, right, bottom, left ] );
+		
+			if (hCenter.isSet())	code.setProp( this, "hCenter", hCenter );
+			if (vCenter.isSet())	code.setProp( this, "vCenter", vCenter );
+			if (!enabled)			code.setProp( this, "enabled", enabled );
+		}
 	}
 #end
 }

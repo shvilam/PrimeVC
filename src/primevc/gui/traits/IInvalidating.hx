@@ -70,7 +70,7 @@ interface IInvalidating
 	 * @param	changes		flags property to use. If it's -1, the classes 
 	 * 						'changes' will be used.
 	 */
-	public function readChanges (changes:UInt = -1)	: String;
+	public function readChanges (changes:Int = -1)	: String;
 	/**
 	 * Method will return a textual version of the given change flag
 	 */

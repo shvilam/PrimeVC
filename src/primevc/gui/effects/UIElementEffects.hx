@@ -29,8 +29,11 @@
 package primevc.gui.effects;
  import primevc.core.IDisposable;
  import primevc.gui.core.IUIElement;
+ import primevc.gui.effects.effectInstances.IEffectInstance;
   using primevc.utils.Bind;
 
+
+typedef EffectInstanceType = IEffectInstance < Dynamic, Dynamic >;
 
 /**
  * Container with empty slots for effects that will be bound to events that
@@ -52,54 +55,46 @@ class UIElementEffects implements IDisposable
 	 * Effect that is performed when the coordinates of the targets 
 	 * layoutobject have changed.
 	 */
-	public var move		(default, setMove)		: Effect < Dynamic, Dynamic >;
+	public var move			(default, setMove)			: EffectInstanceType;
 	
 	/**
 	 * Effect that is performed when the size of targets layoutobject is 
 	 * changed.
 	 */
-	public var resize	(default, setResize)	: Effect < Dynamic, Dynamic >;
+	public var resize		(default, setResize)		: EffectInstanceType;
 	
 	/**
 	 * Effect that is performed when the 'rotate' method of the target is called.
 	 */
-	public var rotate	(default, setRotate)	: Effect < Dynamic, Dynamic >;
+	public var rotate		(default, setRotate)		: EffectInstanceType;
 	
 	/**
 	 * Effect that is performed when the 'scale' method of the target is called.
 	 */
-	public var scale	(default, setScale)		: Effect < Dynamic, Dynamic >;
+	public var scale		(default, setScale)			: EffectInstanceType;
 	
 	/**
 	 * Effect that is performed when the 'show' method of the target is called.
 	 * This effect will stop the 'hide' effect if it's playing.
 	 */
-	public var show		(default, setShow)		: Effect < Dynamic, Dynamic >;
+	public var show			(default, setShow)			: EffectInstanceType;
 	/**
 	 * Effect that is performed when the 'hide' method of the target is called.
 	 * This effect will stop the 'show' effect if it's playing.
 	 */
-	public var hide		(default, setHide)		: Effect < Dynamic, Dynamic >;
-	
+	public var hide			(default, setHide)			: EffectInstanceType;
 	
 	
 	public function new ( target:IUIElement )
 	{
-		this.target = target;
+		this.target 	= target;
 	}
 	
 	
 	public function dispose ()
 	{
-		if (move != null)	move.dispose();
-		if (resize != null)	resize.dispose();
-		if (rotate != null)	rotate.dispose();
-		if (scale != null)	scale.dispose();
-		if (show != null)	show.dispose();
-		if (hide != null)	hide.dispose();
-		
-		target = null;
-		move = resize = rotate = scale = show = hide = null;
+		target	= null;
+		move	= resize = rotate = scale = show = hide = null;
 	}
 	
 	
@@ -110,61 +105,104 @@ class UIElementEffects implements IDisposable
 	//
 	
 	
-	public inline function playMove ()
+	public function playMove ()
 	{
-		Assert.that( move != null );
-		move.setValues( EffectProperties.position( target.x, target.y, target.layout.getHorPosition(), target.layout.getVerPosition() ) );
-		move.play();
+#if (flash8 || flash9 || js)
+		if (move != null)
+		{
+			move.setValues( EffectProperties.position( target.x, target.y, target.layout.getHorPosition(), target.layout.getVerPosition() ) );
+			move.play();
+		}
+		else
+		{
+			target.x = target.rect.left	= target.layout.getHorPosition();
+			target.y = target.rect.top	= target.layout.getVerPosition();
+		}
+#end
 	}
 	
 	
-	public inline function playResize ()
+	public function playResize ()
 	{
-		Assert.that( resize != null );
-		resize.setValues( EffectProperties.size( target.width, target.height, target.layout.width, target.layout.height ) );
-		resize.play();
+#if (flash8 || flash9 || js)
+		if (resize != null)
+		{
+			resize.setValues( EffectProperties.size( target.width, target.height, target.layout.bounds.width, target.layout.bounds.height ) );
+			resize.play();
+		}
+		else
+		{
+			target.rect.width	= target.layout.bounds.width;
+			target.rect.height	= target.layout.bounds.height;
+		}
+#end
 	}
 	
 	
 	public inline function playRotate ( endV:Float )
 	{
-		Assert.that( rotate != null );
-		rotate.setValues( EffectProperties.rotation( target.rotation, endV ) );
-		rotate.play();
+#if (flash8 || flash9 || js)
+		if (rotate != null)
+		{
+			rotate.setValues( EffectProperties.rotation( target.rotation, endV ) );
+			rotate.play();
+		}
+		else
+		{
+			target.rotation = endV;
+		}
+#end
 	}
 	
 	
 	public inline function playScale ( endSx:Float, endSy:Float )
 	{
-		Assert.that( scale != null );
-		scale.setValues( EffectProperties.scale( target.scaleX, target.scaleY, endSx, endSy ) );
-		scale.play();
+#if (flash8 || flash9 || js)
+		if (scale != null)
+		{
+			scale.setValues( EffectProperties.scale( target.scaleX, target.scaleY, endSx, endSy ) );
+			scale.play();
+		}
+		else
+		{
+			target.scaleX = endSx;
+			target.scaleY = endSy;
+		}
+#end
 	}
 	
 	
 	public inline function playShow ()
 	{
-		Assert.that( show != null );
-		if (hide != null)
-			hide.stop();
+#if (flash8 || flash9 || js)
+		if (show != null)
+		{
+			if (hide != null)
+				hide.stop();
 		
-		if (show == hide)
-			show.isReverted = false;
+			if (show == hide)
+				show.isReverted = false;
 		
-		show.play();
+			show.play();
+		}
+#end
 	}
 	
 	
 	public inline function playHide ()
 	{
-		Assert.that( hide != null );
-		if (show != null)
-			show.stop();
+#if (flash8 || flash9 || js)
+		if (hide != null)
+		{
+			if (hide != null)
+				hide.stop();
 		
-		if (show == hide)
-			hide.isReverted = true;
+			if (show == hide)
+				hide.isReverted = true;
 		
-		hide.play();
+			hide.play();
+		}
+#end
 	}
 	
 	
@@ -175,89 +213,84 @@ class UIElementEffects implements IDisposable
 	//
 	
 	
-	private inline function setMove (v)
+	private function setMove (v)
 	{
 		if (v != move)
 		{
-			if (move != null) {
-				move.target = null;
-				target.layout.events.posChanged.unbind(this);
-			}
+			if (move != null)
+				move.dispose();
 			
 			move = v;
 			
-			if (move != null) {
-				move.target	= target;
-				playMove.on( target.layout.events.posChanged, this );
-			}
+		//	if (move != null)
+		//		playMove.on( target.layout.events.posChanged, this );
 		}
 		return v;
 	}
 	
 	
-	private inline function setResize (v)
+	private function setResize (v)
 	{
 		if (v != resize)
 		{
-			if (resize != null) {
-				resize.target = null;
-				target.layout.events.sizeChanged.unbind(this);
-			}
-
+			if (resize != null)
+				resize.dispose();
+			
 			resize = v;
-
-			if (resize != null) {
-				resize.target = target;
-				playResize.on( target.layout.events.sizeChanged, this );
-			}
+		//	if (resize != null)
+		//		playResize.on( target.layout.events.sizeChanged, this );
 		}
 		return v;
 	}
 	
 	
-	private inline function setRotate (v)
+	private function setRotate (v)
 	{
 		if (v != rotate)
 		{
-			if (rotate != null)		rotate.target = null;
+			if (rotate != null)
+				rotate.dispose();
+			
 			rotate = v;
-			if (rotate != null)		rotate.target = target;
 		}
 		return v;
 	}
 	
 	
-	private inline function setScale (v)
+	private function setScale (v)
 	{
 		if (v != scale)
 		{
-			if (scale != null)		scale.target = null;
+			if (scale != null)
+				scale.dispose();
+			
 			scale = v;
-			if (scale != null)		scale.target = target;
 		}
 		return v;
 	}
 	
 	
-	private inline function setShow (v)
+	private function setShow (v)
 	{
 		if (v != show)
 		{
-			if (show != null)		show.target = null;
+			if (show != null)
+				show.dispose();
+			
 			show = v;
-			if (show != null)		show.target = target;
 		}
 		return v;
 	}
 	
 	
-	private inline function setHide (v)
+	private function setHide (v)
 	{
 		if (v != hide)
 		{
-			if (hide != null)		hide.target = null;
+			if (hide != null)
+				hide.dispose();
+			
 			hide = v;
-			if (hide != null)		hide.target = target;
 		}
 		return v;
 	}

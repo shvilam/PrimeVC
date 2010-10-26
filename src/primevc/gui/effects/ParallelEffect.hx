@@ -26,7 +26,13 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.effects;
+package primevc.gui.effects;	
+#if (flash8 || flash9 || js)
+ import primevc.gui.effects.effectInstances.ParallelEffectInstance;
+#end
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.utils.IntMath;
   using primevc.utils.Bind;
 
@@ -37,78 +43,35 @@ package primevc.gui.effects;
  * @author Ruben Weijers
  * @creation-date Aug 31, 2010
  */
-class ParallelEffect extends CompositeEffect < ParallelEffect >
+class ParallelEffect extends CompositeEffect
 {
-	/**
-	 * Number of effects that are currently playing.
-	 */
-	private var playingEffects : Int;
-	
-	
 	override public function clone ()
 	{
-		return new ParallelEffect( target, duration, delay, easing );
+		return cast new ParallelEffect( duration, delay, easing );
 	}
 	
 	
-	override public function add (effect)
+#if (flash8 || flash9 || js)
+	override public function createEffectInstance (target)
 	{
-		super.add(effect);
-		lowerChildPlayCount.on( effect.ended, this );
+		return cast new ParallelEffectInstance( target, this );
 	}
+#end
 	
 	
 	override private function getCompositeDuration ()
 	{
 		var d = 0;
-		for (effect in effects)		d = IntMath.max(d, effect.duration);
+		for (effect in effects)
+			d = IntMath.max(d, effect.duration);
 		return d;
 	}
-	
-	
-	//
-	// EFFECT CONTROLS
-	//
-	
-	override public function stop ()
-	{
-		super.stop();
-		playingEffects = 0;
-	}
-	
-	
-	override private function playWithEffect ()
-	{
-		stopDelay();
-		stopTween();
-		playingEffects = effects.length;
-		
-		//play all effects directly with tween
-		for (effect in effects)		effect.play( true, true );
-	}
-	
-	
-	override private function playWithoutEffect ()
-	{
-		stopDelay();
-		stopTween();
-		playingEffects = effects.length;
-		
-		//play all effects directly without tween
-		for (effect in effects)		effect.play( false, true );
-	}
 
 
-
-	//
-	// EVENTHANDLERS
-	//
-
-	private function lowerChildPlayCount () : Void
+#if (debug || neko)
+	override public function toCSS (prefix:String = "") : String
 	{
-		if (--playingEffects <= 0) {
-			onTweenReady();
-			playingEffects = 0;
-		}
+		return "parallel " + super.toCSS(prefix);
 	}
+#end
 }

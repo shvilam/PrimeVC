@@ -39,7 +39,7 @@ package primevc.gui.layout;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.IntMath;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 
@@ -52,6 +52,9 @@ private typedef Flags = LayoutFlags;
  */
 class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<LayoutClient>, implements IAdvancedLayoutClient, implements IScrollableLayout
 {
+	public static inline var EMPTY_PADDING : Box = new Box(0,0);
+	
+	
 	public var algorithm			(default, setAlgorithm)			: ILayoutAlgorithm;
 	public var children				(default, null)					: IList<LayoutClient>;
 	
@@ -65,7 +68,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	
 	public function new (newWidth:Int = 0, newHeight:Int = 0)
 	{
-		padding				= new Box(0, 0);
+		padding				= EMPTY_PADDING;
 		children			= new ArrayList<LayoutClient>();
 		scrollPos			= new BindablePoint();
 		
@@ -128,7 +131,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	
 	
 	private inline function checkIfChildGetsPercentageWidth (child:LayoutClient, widthToUse:Int) : Bool {
-		return (changes.has(LayoutFlags.WIDTH_CHANGED) || child.changes.has(LayoutFlags.WIDTH_CHANGED))
+		return (changes.has(LayoutFlags.WIDTH) || child.changes.has(LayoutFlags.WIDTH))
 					&& child.percentWidth > 0
 					&& child.percentWidth != LayoutFlags.FILL
 					&& widthToUse.isSet();
@@ -136,24 +139,30 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	
 	
 	private inline function checkIfChildGetsPercentageHeight (child:LayoutClient, heightToUse:Int) : Bool {
-		return (changes.has(LayoutFlags.HEIGHT_CHANGED) || child.changes.has(LayoutFlags.HEIGHT_CHANGED))
+		return (changes.has(LayoutFlags.HEIGHT) || child.changes.has(LayoutFlags.HEIGHT))
 					&& child.percentHeight > 0
 					&& child.percentHeight != LayoutFlags.FILL
 					&& heightToUse.isSet();
 	}
 	
 	
+	private inline function isVisible () {
+		return (explicitWidth.notSet() || explicitWidth > 0) && (explicitHeight.notSet() || explicitHeight > 0);
+	} 
+	
+	
 	override public function validateHorizontal ()
 	{
-		if (validatedHorizontal)
+		if (hasValidatedWidth)
 			return;
 		
-		if (explicitWidth.isSet() && explicitWidth <= 0)
+		if (!isVisible())
 			return;
 		
 		var fillingChildren	= FastArrayUtil.create();
 		var childrenWidth	= 0;
-		validatedHorizontal	= true;
+		hasValidatedWidth	= true;
+		state.current		= ValidateStates.validating;
 		
 		if (algorithm != null)
 			algorithm.prepareValidate();
@@ -161,7 +170,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		for (child in children)
 		{
 			if (child.percentWidth == LayoutFlags.FILL) {
-				if (explicitWidth.isSet())
+			//	if (explicitWidth.isSet())
 					fillingChildren.push( child );
 				
 				child.width = Number.INT_NOT_SET;
@@ -194,15 +203,16 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	
 	override public function validateVertical ()
 	{
-		if (validatedVertical)
+		if (hasValidatedHeight)
 			return;
-		
-		if (explicitHeight.isSet() && explicitHeight <= 0)
+
+		if (!isVisible())
 			return;
 		
 		var fillingChildren	= FastArrayUtil.create();
 		var childrenHeight	= 0;
-		validatedVertical	= true;
+		hasValidatedHeight	= true;
+		state.current		= ValidateStates.validating;
 		
 		if (algorithm != null)
 			algorithm.prepareValidate();
@@ -210,7 +220,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		for (child in children)
 		{
 			if (child.percentHeight == LayoutFlags.FILL) {
-				if (explicitHeight.isSet())
+			//	if (explicitHeight.isSet())
 					fillingChildren.push( child );
 				
 				child.height = Number.INT_NOT_SET;
@@ -244,14 +254,19 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	
 	override public function validated ()
 	{
-		if (changes == 0 || !isValidating)
+		if (changes == 0 || !isValidating || !isVisible())
 			return;
+		
+	//	trace(this+"."+readChanges()+"; include: "+includeInLayout);
+	//	Assert.that(hasValidatedWidth, "To be validated, the layout should be validated horizontally for "+this);
+	//	Assert.that(hasValidatedHeight, "To be validated, the layout should be validated vertically for "+this);
 		
 		if (algorithm != null)
 			algorithm.apply();
 		
 		for (child in children)
-			child.validated();
+			if (child.includeInLayout)
+				child.validated();
 		
 		super.validated();
 	}
@@ -274,7 +289,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 			}
 			
 			algorithm = v;
-			invalidate( LayoutFlags.ALGORITHM_CHANGED );
+			invalidate( LayoutFlags.ALGORITHM );
 			
 			if (algorithm != null) {
 				algorithm.group = this;
@@ -290,6 +305,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		if (v != childWidth)
 		{
 			childWidth = v;
+			invalidate( LayoutFlags.CHILD_WIDTH );
 			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
 		}
 		return v;
@@ -301,9 +317,19 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		if (v != childHeight)
 		{
 			childHeight = v;
+			invalidate( LayoutFlags.CHILD_HEIGHT );
 			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
 		}
 		return v;
+	}
+	
+	
+	override private function setPadding (v:Box)
+	{	
+		if (v == null)
+			v = EMPTY_PADDING;
+		
+		return super.setPadding(v);
 	}
 	
 	
@@ -328,8 +354,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	// EVENT HANDLERS
 	//
 	
-	private function algorithmChangedHandler ()							{ invalidate( LayoutFlags.ALGORITHM_CHANGED ); }
-	private function invalidateChildList ()								{ invalidate( LayoutFlags.LIST_CHANGED ); }
+	private function algorithmChangedHandler ()							{ invalidate( LayoutFlags.ALGORITHM ); }
+	private function invalidateChildList ()								{ invalidate( LayoutFlags.LIST ); }
 	
 	
 	private function childRemovedHandler (child:LayoutClient, pos:Int)	{

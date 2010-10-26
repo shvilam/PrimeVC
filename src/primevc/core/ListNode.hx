@@ -28,6 +28,7 @@
  */
 package primevc.core;
 
+
 class ListNode <T> implements haxe.rtti.Generic
 {
 	/** Access helper for friend classes */

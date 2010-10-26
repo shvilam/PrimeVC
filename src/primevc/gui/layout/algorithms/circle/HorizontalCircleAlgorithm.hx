@@ -35,7 +35,7 @@ package primevc.gui.layout.algorithms.circle;
  import primevc.utils.Formulas;
  import primevc.utils.IntMath;
   using primevc.utils.Formulas;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
  
 
 /**
@@ -172,13 +172,10 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 		return isEllipse ? Std.int( group.width * .5 ) : Std.int( Math.round( Formulas.getCircleRadius(group.width, group.height) ) );
 	}
 	
-	
-#if debug
-	public function toString ()
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String
 	{
-		var start	= direction == Horizontal.left ? "left" : "right";
-		var end		= direction == Horizontal.left ? "right" : "left";
-		return "circle.hor " + start + " -> " + end;
+		return "ver-circle (" + direction + ", " + vertical + ")";
 	}
 #end
 }

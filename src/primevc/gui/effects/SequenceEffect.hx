@@ -26,8 +26,10 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.effects;
-  using primevc.utils.Bind;
+package primevc.gui.effects;	
+#if (flash8 || flash9 || js)
+ import primevc.gui.effects.effectInstances.SequenceEffectInstance;
+#end
 
 
 /**
@@ -36,75 +38,35 @@ package primevc.gui.effects;
  * @author Ruben Weijers
  * @creation-date Aug 31, 2010
  */
-class SequenceEffect extends CompositeEffect < SequenceEffect >
+class SequenceEffect extends CompositeEffect
 {
 	override public function clone ()
 	{
-		return new SequenceEffect( target, duration, delay, easing );
+		return cast new SequenceEffect( duration, delay, easing );
 	}
+	
+	
+#if (flash8 || flash9 || js)
+	override public function createEffectInstance (target)
+	{
+		return cast new SequenceEffectInstance(target, this);
+	}
+#end
 	
 	
 	override private function getCompositeDuration ()
 	{
 		var d = 0;
-		for (effect in effects)		d += effect.duration;
+		for (effect in effects)
+			d += effect.duration;
 		return d;
 	}
-
-
-	override private function playWithEffect ()
-	{
-		stopDelay();
-		stopTween();
-		
-		if (effects.length == 0) {
-			onTweenReady();
-			return;
-		}
-		
-		//play all effects directly with tween
-		var len:Int		= effects.length;
-		var firstEffect	= effects[ isReverted ? len - 1 : 0 ];
-		var prevEffect	= firstEffect;
-		for (i in 1...len)
-		{
-			var curEffect = effects[ isReverted ? len - i : i ];
-			curEffect.playWithEffect.onceOn( prevEffect.ended, this );
-			prevEffect = curEffect;
-		}
-		
-		lastChildReadyHandler.onceOn( prevEffect.ended, this );
-		firstEffect.playWithEffect();
-	}
-
-
-	override private function playWithoutEffect ()
-	{
-		stopDelay();
-		stopTween();
-		
-		if (effects.length == 0) {
-			onTweenReady();
-			return;
-		}
-		
-		//play all effects directly with tween
-		var len:Int		= effects.length;
-		var firstEffect	= effects[ isReverted ? len - 1 : 0 ];
-		var prevEffect	= firstEffect;
-		for (i in 1...len)
-		{
-			var curEffect = effects[ isReverted ? len - i : i ];
-			curEffect.playWithoutEffect.onceOn( prevEffect.ended, this );
-			prevEffect = curEffect;
-		}
-
-		lastChildReadyHandler.onceOn( prevEffect.ended, this );
-		firstEffect.playWithoutEffect();
-	}
 	
 	
-	private function lastChildReadyHandler () {
-		onTweenReady();
+#if (debug || neko)
+	override public function toCSS (prefix:String = "") : String
+	{
+		return "sequence " + super.toCSS(prefix);
 	}
+#end
 }

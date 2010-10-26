@@ -34,7 +34,7 @@ package primevc.gui.layout.algorithms.float;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.utils.IntMath;
   using primevc.utils.IntMath;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
   using Std;
  
@@ -222,10 +222,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 		}
 	}
 
-
-	/**
-	 * 
-	 */
+	
 	public inline function getDepthForBounds (bounds:IRectangle) : Int
 	{
 		return switch (direction) {
@@ -318,21 +315,21 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 		var posX:Int	= bounds.left;
 		var centerX:Int	= bounds.left + (bounds.width * .5).int();
 		
+		var groupWidth = group.width;
+		var emptyWidth = 0;
+		if (group.is(AdvancedLayoutClient))
+		{
+			groupWidth	= IntMath.max( 0, group.as(AdvancedLayoutClient).measuredWidth );
+			//check if there's any width left. This happens when there's an explicitWidth set.
+			emptyWidth	= IntMath.max( 0, group.width - groupWidth );
+		}
+		
 		if (group.childWidth.isSet())
 		{
-			depth = group.children.length - posX.divRound(group.childWidth);
+			depth = group.children.length - ( posX - emptyWidth ).divRound( group.childWidth );
 		}
 		else
 		{
-			var groupWidth = group.width;
-			var emptyWidth = 0;
-			if (group.is(AdvancedLayoutClient))
-			{
-				groupWidth	= IntMath.max( 0, group.as(AdvancedLayoutClient).measuredWidth );
-				//check if there's any width left. This happens when there's an explicitWidth set.
-				emptyWidth	= IntMath.max( 0, group.width - groupWidth );
-			}
-			
 			//if pos <= emptyWidth, the depth will be at the end of the list
 			if (posX <= emptyWidth)
 				depth = group.children.length;
@@ -372,12 +369,10 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	}
 	
 	
-#if debug
-	public function toString ()
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String
 	{
-		var start	= direction == Horizontal.left ? "left" : "right";
-		var end		= direction == Horizontal.left ? "right" : "left";
-		return group.name + ".Float.hor " + start + " -> " + end;
+		return "float-hor (" + direction + ", " + vertical + ")";
 	}
 #end
 }

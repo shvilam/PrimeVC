@@ -34,4 +34,66 @@ package primevc.core.geom;
  */
 #if flash9
 	typedef Point = flash.geom.Point;
+#else
+
+
+class Point
+{
+	
+	public var x (getX, setX)	: Float;
+	public var y (getY, setY)	: Float;
+	
+	
+	public function new(x:Float = 0, y:Float = 0)
+	{
+		this.x = x;
+		this.y = y;
+	}
+	
+	
+	public function clone () {
+		return new Point( x, y );
+	}
+	
+	
+	private function getX()		{ return x; }
+	private function setX(v)	{ return x = v; }
+	private function getY()		{ return y; }
+	private function setY(v)	{ return y = v; }
+	
+	
+	public inline function subtract (v:Point) {
+		return new Point(
+			x - v.x,
+			y - v.y
+		);
+	}
+	
+	
+	public inline function add (v:Point) {
+		return new Point(
+			x + v.x,
+			y + v.y
+		);
+	}
+	
+	
+	public inline function isEqualTo (v:Point) : Bool {
+		return x == v.x && y == v.y;
+	}
+	
+	
+	public inline function setTo (v:Point) : Void {
+		x = v.x;
+		y = v.y;
+	}
+	
+	
+	#if debug
+	public inline function toString () {
+		return "Point( "+x+", "+y+" )";
+	}
+	#end
+}
+
 #end

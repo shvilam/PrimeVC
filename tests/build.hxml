@@ -2,13 +2,18 @@
 -swf-lib ../assets/debug-assets.swf
 -swf-version 10
 -swf9 test.swf
--cp ../libs
+-cp ../libs/haxe
+-cp ../libs/hiresStats
+-cp ../libs/macmousewheel
+-cp ../libs/monsterdebugger
 -cp ../src
 -cp ../generated-src
 -cp ../skins/flair
 -cp ./
 -swf-header 600:900:5:FFFFFF
-#-debug
+-debug
 -D network-sandbox
 -D stats
+-D unitTesting
+#--no-inline
 #——flash—strict

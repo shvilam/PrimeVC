@@ -109,7 +109,9 @@ class Wire <FunctionSignature> extends ListNode<Wire<FunctionSignature>>, implem
 	// INLINE PROPERTIES
 	//
 	
-	private function new();
+	private function new() {
+		flags = 0;
+	}
 	
 	public inline function isEnabled()
 	{
@@ -130,7 +132,6 @@ class Wire <FunctionSignature> extends ListNode<Wire<FunctionSignature>>, implem
 			Assert.that(isEnabled()? found == 1 : found == 0, "Found: "+found + " ; Enabled: "+isEnabled());
 		}
 		#end
-		
 		return flags.has(ENABLED);
 	}
 	

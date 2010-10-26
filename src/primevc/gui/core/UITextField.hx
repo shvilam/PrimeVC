@@ -29,15 +29,18 @@
 package primevc.gui.core;
 #if flash9
  import flash.text.TextFieldAutoSize;
+ import primevc.gui.styling.UIElementStyle;
+ import primevc.gui.text.TextFormat;
 #end
  import primevc.core.Bindable;
- import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
+ import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.display.TextField;
  import primevc.gui.effects.UIElementEffects;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.UIElementStates;
+ import primevc.gui.traits.ITextStylable;
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
@@ -50,20 +53,29 @@ package primevc.gui.core;
  * @author Ruben Weijers
  * @creation-date Sep 02, 2010
  */
-class UITextField extends TextField, implements IUIElement 
+class UITextField extends TextField, implements IUIElement, implements ITextStylable 
 {
-	public var id			(default, null)			: Bindable < String >;
-	public var behaviours	(default, null)			: BehaviourList;
-	public var effects		(default, default)		: UIElementEffects;
-	public var layout		(default, null)			: LayoutClient;
-	public var state		(default, null)			: UIElementStates;
+	public var id			(default, null)					: Bindable < String >;
+	public var behaviours	(default, null)					: BehaviourList;
+	public var effects		(default, default)				: UIElementEffects;
+	public var layout		(default, null)					: LayoutClient;
+	public var state		(default, null)					: UIElementStates;
+	
+#if flash9
+	public var style		(default, null)					: UIElementStyle;
+	public var styleClasses	(default, null)					: Bindable < String >;
+	public var textStyle	(getTextStyle, setTextStyle)	: TextFormat;
+#end
 	
 	
 	public function new (?id:String)
 	{
 		super();
-		this.id	= new Bindable<String>(id);
-		visible = false;
+		this.id			= new Bindable<String>(id);
+		styleClasses	= new Bindable<String>();
+		style			= new UIElementStyle(this);
+		
+		visible			= false;
 		init.onceOn( displayEvents.addedToStage, this );
 		
 		state			= new UIElementStates();
@@ -90,13 +102,23 @@ class UITextField extends TextField, implements IUIElement
 		state.current = state.disposed;
 		removeBehaviours();
 		
+		id.dispose();
 		state.dispose();
+#if flash9
+		styleClasses.dispose();
+#end
+		
 		
 		if (layout != null)
 			layout.dispose();
 		
+		id				= null;
 		state			= null;
 		behaviours		= null;
+#if flash9
+		styleClasses	= null;
+		style			= null;
+#end
 		super.dispose();
 	}
 
@@ -150,6 +172,7 @@ class UITextField extends TextField, implements IUIElement
 		htmlText = v;
 		updateSize();
 	}
+	
 	/*
 #if flash9
 	public inline function setAutoSize (v:TextFieldAutoSize)
@@ -166,6 +189,23 @@ class UITextField extends TextField, implements IUIElement
 	}
 #end
 	*/
+	
+#if flash9
+	private inline function setStyle (v)
+	{
+		return style = v;
+	}
+	
+	
+	public function applyStyling ()
+	{
+		
+	}
+	
+	
+	private inline function getTextStyle ()				{ return defaultTextFormat.as(TextFormat); }
+	private inline function setTextStyle (v:TextFormat)	{ return cast defaultTextFormat = v; }
+#end
 	
 	
 	//

@@ -136,7 +136,7 @@ class DragHelper implements IDisposable
 			stopHandler( mouseObj );
 			isDragging = false;
 		}
-		trace("stopDrag \n\n");
+		
 		timer.stop();
 		mouseDownBinding.enable();
 		mouseUpBinding	.disable();
@@ -153,7 +153,6 @@ class DragHelper implements IDisposable
 #if debug			
 	//	target.window.application.clearTraces();
 #end	
-		trace("\n\nstartDrag "+lastMouseObj.local);
 		isDragging = true;
 		
 		if (target.is(IDraggable))

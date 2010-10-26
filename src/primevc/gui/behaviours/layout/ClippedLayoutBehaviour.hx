@@ -27,12 +27,18 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.layout;
- import primevc.core.geom.Rectangle;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.IUIContainer;
+#if !neko
+ import primevc.core.geom.Rectangle;
+ import primevc.core.geom.RectangleFlags;
+ import primevc.core.traits.IInvalidatable;
+ import primevc.core.traits.IInvalidateListener;
  import primevc.gui.layout.LayoutContainer;
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
   using primevc.utils.TypeUtil;
+#end
  
 
 /**
@@ -45,7 +51,9 @@ package primevc.gui.behaviours.layout;
  * @author			Ruben Weijers
  */
 class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
+#if !neko	,	implements IInvalidateListener #end
 {
+#if !neko
 	private var layoutContainer : LayoutContainer;
 	
 	
@@ -60,7 +68,8 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 		layoutContainer		= target.layoutContainer;
 		target.scrollRect	= new Rectangle();
 		
-		updateScrollRect.on( target.layout.events.sizeChanged, this );
+	//	updateScrollRect.on( target.layout.events.sizeChanged, this );
+		target.rect.listeners.add( this );
 		updateScrollX.on( layoutContainer.scrollPos.xProp.change, this );
 		updateScrollY.on( layoutContainer.scrollPos.yProp.change, this );
 	}
@@ -68,8 +77,8 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 	
 	override private function reset ()
 	{
-		if (target.layout != null)
-			target.layout.events.sizeChanged.unbind(this);
+	//	if (target.layout != null)
+	//		target.layout.events.sizeChanged.unbind(this);
 		
 		layoutContainer.scrollPos.xProp.change.unbind( this );
 		layoutContainer.scrollPos.yProp.change.unbind( this );
@@ -83,10 +92,10 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 		var r		= target.scrollRect;
 	//	r.x			= layoutContainer.scrollX;
 	//	r.y			= layoutContainer.scrollY;
-		r.width		= layoutContainer.bounds.width;
-		r.height	= layoutContainer.bounds.height;
+		r.width		= target.rect.width; //layoutContainer.bounds.width;
+		r.height	= target.rect.height; //layoutContainer.bounds.height;
 		
-	//	trace("updated scrollRect " + r);
+	//	trace(target+".updated scrollRect " + r);
 		target.scrollRect = r;
 	}
 
@@ -105,4 +114,12 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 		r.y		= layoutContainer.scrollPos.y;
 		target.scrollRect = r;
 	}
+	
+	
+	public function invalidateCall ( changeFromOther:UInt, sender:IInvalidatable )
+	{
+		if (( changeFromOther.has(RectangleFlags.WIDTH) || changeFromOther.has(RectangleFlags.HEIGHT) ) && (target.scrollRect.width != target.rect.width || target.scrollRect.height != target.rect.height) )
+			updateScrollRect();
+	}
+#end
 }

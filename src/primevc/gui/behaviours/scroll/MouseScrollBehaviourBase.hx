@@ -27,14 +27,15 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.scroll;
+ import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
+ import primevc.gui.traits.IScrollable;
+#if !neko
  import primevc.core.dispatcher.Wire;
- import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.IScrollableLayout;
- import primevc.gui.traits.IScrollable;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
-
+#end
 
 
 /**
@@ -43,8 +44,9 @@ package primevc.gui.behaviours.scroll;
  * @author Ruben Weijers
  * @creation-date Jul 29, 2010
  */
-class MouseScrollBehaviourBase extends BehaviourBase <IScrollable>
+class MouseScrollBehaviourBase extends ClippedLayoutBehaviour
 {
+#if !neko
 	private var scrollLayout		: IScrollableLayout;
 	private var activateBinding		: Wire < Dynamic >;
 	private var deactivateBinding	: Wire < Dynamic >;
@@ -54,6 +56,7 @@ class MouseScrollBehaviourBase extends BehaviourBase <IScrollable>
 	override private function init ()
 	{
 		Assert.that( target.scrollableLayout != null, "target.layout of "+target+" must be a IScrollableLayout" );
+		super.init();
 		scrollLayout = target.scrollableLayout;
 		createBindings();
 	}
@@ -68,10 +71,12 @@ class MouseScrollBehaviourBase extends BehaviourBase <IScrollable>
 		activateBinding		= null;
 		deactivateBinding	= null;
 		calcScrollBinding	= null;
+		super.reset();
 	}
 	
 	
-	private function createBindings () {
+	private function createBindings ()
+	{
 		activateBinding		= activateScrolling		.on( target.userEvents.mouse.rollOver, this );
 		deactivateBinding	= deactivateScrolling	.on( target.userEvents.mouse.rollOut, this );
 		calcScrollBinding	= calculateScroll		.on( target.container.userEvents.mouse.move, this );
@@ -100,8 +105,9 @@ class MouseScrollBehaviourBase extends BehaviourBase <IScrollable>
 	
 	
 	private function calculateScroll (mouseObj:MouseState) {
-#if debug
+	#if debug
 		throw "Method calculateScrollPosition should be overwritten";
-#end
+	#end
 	}
+#end
 }

@@ -26,10 +26,16 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.effects;
+package primevc.gui.effects;	
+#if (flash8 || flash9 || js)
+ import primevc.gui.effects.effectInstances.ResizeEffectInstance;
+#end
  import primevc.gui.traits.ISizeable;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.types.Number;
-  using primevc.utils.FloatUtil;
+  using primevc.utils.NumberUtil;
 
 
 /**
@@ -40,21 +46,6 @@ package primevc.gui.effects;
  */
 class ResizeEffect extends Effect < ISizeable, ResizeEffect >
 {
-	/**
-	 * The start width that will be used during the calculations when the effect
-	 * is playing.
-	 * The value will be the 'startW' property when this is set and 
-	 * otherwise the original width value of the target.
-	 */
-	private var _startW	: Float;
-	/**
-	 * The start height that will be used during the calculations when the effect
-	 * is playing.
-	 * The value will be the 'startH' property when this is set and 
-	 * otherwise the original height value of the target.
-	 */
-	private var _startH	: Float;
-	
 	/**
 	 * Explicit start width value. If this value is not set, the effect will 
 	 * use the current width of the ISizeable.
@@ -79,18 +70,22 @@ class ResizeEffect extends Effect < ISizeable, ResizeEffect >
 	public var endH		: Float;
 	
 	
-	private inline function isWChanged () : Bool	{ return endW.isSet() && startW != endW; }
-	private inline function isHChanged () : Bool	{ return endH.isSet() && startH != endH; }
+	public function new (duration:Int = 350, delay:Int = 0, easing:Easing = null, startW:Float = Number.INT_NOT_SET, startH:Float = Number.INT_NOT_SET, endW:Float = Number.INT_NOT_SET, endH:Float = Number.INT_NOT_SET)
+	{
+		super(duration, delay, easing);
+		
+		this.startW	= startW == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : startW;
+		this.startH	= startH == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : startH;
+		this.endW	= endW == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : endW;
+		this.endH	= endH == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : endH;
+	}
 	
 	
 	override public function clone ()
 	{
-		var n = new ResizeEffect( target, duration, duration, easing );
-		n.endW = endW;
-		n.endH = endH;
-		return n;
+		return cast new ResizeEffect( duration, duration, easing, startW, startH, endW, endH );
 	}
-
+	
 
 	override public function setValues ( v:EffectProperties ) 
 	{
@@ -104,39 +99,36 @@ class ResizeEffect extends Effect < ISizeable, ResizeEffect >
 				return;
 		}
 	}
+	
+	
+#if (flash8 || flash9 || js)
+	override public function createEffectInstance (target)
+	{
+		return cast new ResizeEffectInstance(target, this);
+	}
+#end
+	
+	
+#if (debug || neko)
+	override public function toCSS (prefix:String = "") : String
+	{
+		var props = [];
+		
+		if (duration.isSet())		props.push( duration + "ms" );
+		if (delay.isSet())			props.push( delay + "ms" );
+		if (easing != null)			props.push( easingToCSS() );
+		if (startW.isSet())			props.push( startW + "px, " + startH + "px" );
+		if (endW.isSet())			props.push( endW + "px, " + endH + "px" );
+		
+		return "resize " + props.join(" ");
+	}
+#end
 
-
-	override private function initStartValues ()
+#if neko
+	override public function toCode (code:ICodeGenerator) : Void
 	{
-		if (startW.isSet())	_startW = startW;
-		else				_startW = target.width;
-		if (startH.isSet())	_startH = startH;
-		else				_startH = target.height;
+		if (!isEmpty())
+			code.construct( this, [ duration, delay, easingToCode(), startW, startH, endW, endH ] );
 	}
-	
-
-	override private function tweenUpdater ( tweenPos:Float )
-	{
-		if (isWChanged())	target.width	= ( endW * tweenPos ) + ( _startW * (1 - tweenPos) );
-		if (isHChanged())	target.height	= ( endH * tweenPos ) + ( _startH * (1 - tweenPos) );
-	}
-	
-	
-	override private function calculateTweenStartPos () : Float
-	{
-		return if (!isWChanged() && !isHChanged())	1;
-		  else if (!isHChanged())					(target.width  - _startW) / (endW - _startW);
-		  else if (!isWChanged())					(target.height - _startH) / (endH - _startH);
-		  else										Math.min(
-				(target.width  - _startW) / (endW - _startW),
-				(target.height - _startH) / (endH - _startH)
-			);
-	}
-	
-	
-	override private function setTarget ( v )
-	{
-		startW = startH = endW = endH = Number.FLOAT_NOT_SET;
-		return super.setTarget( v );
-	}
+#end
 }

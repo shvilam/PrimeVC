@@ -28,6 +28,7 @@
  */
 package primevc.gui.behaviours;
  import primevc.core.dispatcher.Wire;
+ import primevc.gui.core.IUIElement;
  import primevc.gui.core.UIWindow;
  import primevc.gui.traits.IDrawable;
  import primevc.gui.traits.IRenderable;
@@ -47,14 +48,13 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >, implements IR
 {
 	private var graphicsBinding	: Wire <Dynamic>;
 	
-	
 	override private function init ()
 	{
 		Assert.that( target.layout != null );
-		
-		requestRender.on( target.layout.events.sizeChanged, this );
+		sizeChangeHandler.on( target.layout.events.sizeChanged, this );
 		updateGraphicBinding.on( target.graphicData.change, this );
 		updateGraphicBinding();
+		requestRender();
 	}
 	
 	
@@ -90,7 +90,7 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >, implements IR
 	
 	public function requestRender ()
 	{
-		if (target.window == null || target.graphicData.value == null)
+		if (target.window == null || target.graphicData.value == null || target.graphicData.value.isEmpty())
 			return;
 		
 		target.window.as(UIWindow).renderManager.add( this );
@@ -99,8 +99,21 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >, implements IR
 	
 	public function render ()
 	{
-	//	trace("render "+target+" size: "+target.layout.bounds.width+", "+target.layout.bounds.height);
 		target.graphics.clear();
 		target.graphicData.value.draw( target, false );
+	}
+	
+	
+	private function sizeChangeHandler ()
+	{
+		var t:IUIElement = target.is(IUIElement) ? target.as(IUIElement) : null;
+	//	trace(target+".sizeChanged; "+target.layout.bounds.width+", "+target.layout.bounds.height);
+		if (t == null || t.effects == null)
+		{
+			target.rect.width	= target.layout.bounds.width;
+			target.rect.height	= target.layout.bounds.height;
+		} else {
+			t.effects.playResize();
+		}
 	}
 }

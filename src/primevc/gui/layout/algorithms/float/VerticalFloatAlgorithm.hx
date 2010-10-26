@@ -34,7 +34,7 @@ package primevc.gui.layout.algorithms.float;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.utils.IntMath;
   using primevc.utils.IntMath;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
   using Std;
 
@@ -326,21 +326,21 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 		var posY:Int	= bounds.top;
 		var centerY:Int	= bounds.top + (bounds.height * .5).int();
 		
+		var groupHeight = group.height;
+		var emptyHeight	= 0;
+		if (group.is(AdvancedLayoutClient))
+		{
+			groupHeight = IntMath.max( 0, group.as(AdvancedLayoutClient).measuredHeight );
+			//check if there's any width left. This happens when there's an explicitWidth set.
+			emptyHeight	= IntMath.max( 0, group.height - groupHeight );
+		}
+		
 		if (group.childHeight.isSet())
 		{
-			depth = group.children.length - posY.divRound(group.childHeight);
+			depth = group.children.length - ( posY - emptyHeight ).divRound( group.childHeight );
 		}
 		else
 		{
-			var groupHeight = group.height;
-			var emptyHeight	= 0;
-			if (group.is(AdvancedLayoutClient))
-			{
-				groupHeight = IntMath.max( 0, group.as(AdvancedLayoutClient).measuredHeight );
-				//check if there's any width left. This happens when there's an explicitWidth set.
-				emptyHeight	= IntMath.max( 0, group.height - groupHeight );
-			}
-			
 			//if pos <= emptyHeight, the depth will be at the end of the list
 			if (posY <= emptyHeight)
 				depth = group.children.length;
@@ -380,12 +380,10 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	}
 	
 	
-#if debug
-	public function toString ()
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String
 	{
-		var start = direction == Vertical.top ? "top" : "bottom";
-		var end = direction == Vertical.top ? "bottom" : "top";
-		return group.name + ".Float.ver ( " + start + " -> " + end + " ) ";
+		return "float-ver (" + direction + ", " + horizontal + ")";
 	}
 #end
 }

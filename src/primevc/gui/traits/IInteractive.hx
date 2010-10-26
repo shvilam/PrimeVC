@@ -27,12 +27,16 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.traits;
+#if (flash8 || flash9 || js)
  import primevc.gui.events.UserEvents;
+#end
 
 
 interface IInteractive
 {
+#if (flash8 || flash9 || js)
 	var userEvents		(default, null)				: UserEvents;
+#end
 	
 #if flash9
 	
@@ -41,7 +45,8 @@ interface IInteractive
 	var tabEnabled									: Bool;
 	var tabIndex									: Int;
 	
-#else
-	var mouseEnabled	(default, setEnabled)		: Bool;
+#elseif !neko
+	var mouseEnabled								: Bool;
+//	var mouseEnabled	(default, setEnabled)		: Bool;
 #end
 }

@@ -68,4 +68,12 @@ class BehaviourBase < TargetType > implements IBehaviour < TargetType >
 		
 		return target;
 	}
+	
+
+#if debug
+	public function toString ()
+	{
+		return target+".behaviour "+Type.getClassName( Type.getClass( this ) );
+	}
+#end
 }

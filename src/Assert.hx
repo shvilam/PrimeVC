@@ -25,10 +25,14 @@
  *
  * Authors:
  *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 
 #if flash9
-import flash.errors.Error;
+ import flash.errors.Error;
+#end
+#if debug
+  using Type;
 #end
 
 class Assert
@@ -39,6 +43,15 @@ class Assert
 		throw #if flash9 new Error( #end
 			"Abstract method: "+ pos.className + "::" + pos.methodName +"() not overridden"
 			#if flash9 ) #end ;
+		#end
+	}
+	
+	
+	static inline public function isType(var1:Dynamic, type:Class<Dynamic>, ?pos:haxe.PosInfos)
+	{
+		#if debug
+		Assert.notNull( var1 );
+		Assert.that( Std.is(var1, type), "var of type '" + var1.getClass().getClassName() + "' should be of type '" + type.getClassName() + "'" );
 		#end
 	}
 	
@@ -91,7 +104,22 @@ class Assert
 	//		trace(pos.className + "::" + pos.lineNumber+": "+var1+" != "+var2);
 		#end
 	}
+	
 
+	static inline public function null( var1:Dynamic, msg:String = "", ?pos:haxe.PosInfos)
+	{
+		#if debug
+		if (var1 != null) {
+			trace(pos.className + "::" + pos.lineNumber+": "+var1+" should not be null");
+			throw #if flash9 new Error( #end
+			"Assertion failed: " + var1 + " != null; msg: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber
+			#if flash9 ) #end;
+		}
+	//	else
+	//		trace(pos.className + "::" + pos.lineNumber+": "+var1+" != "+var2);
+		#end
+	}
+	
 
 	static inline public function notNull( var1:Dynamic, msg:String = "", ?pos:haxe.PosInfos)
 	{

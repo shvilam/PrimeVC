@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.fills;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
  import primevc.core.geom.IRectangle;
  import primevc.core.geom.Matrix2D;
  import primevc.gui.graphics.GraphicElement;
@@ -58,6 +61,7 @@ class GradientFill extends GraphicElement, implements IFill
 	public var type				(default, setType)		: GradientType;
 	public var spread			(default, setSpread)	: SpreadMethod;
 	public var focalPointRatio	(default, setFocalP)	: Float;
+	public var isFinished		(default, null)			: Bool;
 	
 	/**
 	 * gradient rotation in degrees
@@ -68,13 +72,15 @@ class GradientFill extends GraphicElement, implements IFill
 	private var lastMatrix		: Matrix2D;
 	
 	
-	public function new (type:GradientType = null, spread:SpreadMethod = null, focalPointRatio:Float = 0)
+	public function new (type:GradientType = null, spread:SpreadMethod = null, focalPointRatio:Float = 0, rotation:Int = 0)
 	{
 		super();
 		this.type				= type == null ? GradientType.linear : type;
 		this.spread				= spread == null ? SpreadMethod.normal : spread;
 		this.focalPointRatio	= focalPointRatio;
+		this.rotation			= rotation;
 		gradientStops			= FastArrayUtil.create();
+		isFinished				= false;
 	}
 	
 	
@@ -101,7 +107,7 @@ class GradientFill extends GraphicElement, implements IFill
 		if (v != rotation) {
 			lastMatrix	= null;
 			rotation	= v;
-			invalidate( GraphicFlags.FILL_CHANGED );
+			invalidate( GraphicFlags.FILL );
 		}
 		return v;
 	}
@@ -111,7 +117,7 @@ class GradientFill extends GraphicElement, implements IFill
 	{
 		if (v != type) {
 			type = v;
-			invalidate( GraphicFlags.FILL_CHANGED );
+			invalidate( GraphicFlags.FILL );
 		}
 		return v;
 	}
@@ -121,7 +127,7 @@ class GradientFill extends GraphicElement, implements IFill
 	{
 		if (v != spread) {
 			spread = v;
-			invalidate( GraphicFlags.FILL_CHANGED );
+			invalidate( GraphicFlags.FILL );
 		}
 		return v;
 	}
@@ -131,7 +137,7 @@ class GradientFill extends GraphicElement, implements IFill
 	{
 		if (v != focalPointRatio) {
 			focalPointRatio = v;
-			invalidate( GraphicFlags.FILL_CHANGED );
+			invalidate( GraphicFlags.FILL );
 		}
 		return v;
 	}
@@ -158,12 +164,13 @@ class GradientFill extends GraphicElement, implements IFill
 		
 		for (fill in gradientStops) {
 			colors.push( fill.color.rgb() );
-			alphas.push( fill.color.alpha() );
+			alphas.push( fill.color.alpha().float() );
 			ratios.push( fill.position );
 		}
 		
 		target.graphics.beginGradientFill( getFlashType(), colors, alphas, ratios, lastMatrix, getSpreadMethod(), InterpolationMethod.RGB, focalPointRatio  );
 #end
+		isFinished = true;
 	}
 	
 	
@@ -172,9 +179,11 @@ class GradientFill extends GraphicElement, implements IFill
 #if flash9
 		target.graphics.endFill();
 #end
+		isFinished = false;
 	}
 	
 	
+#if flash9
 	public inline function createMatrix (bounds:IRectangle) : Matrix2D
 	{
 		var m = new Matrix2D();
@@ -182,6 +191,7 @@ class GradientFill extends GraphicElement, implements IFill
 		lastBounds = bounds.clone().as(IRectangle);
 		return m;
 	}
+#end
 	
 
 #if flash9
@@ -209,7 +219,7 @@ class GradientFill extends GraphicElement, implements IFill
 	{
 		gradientStops.insertAt( fill, depth );
 		fill.listeners.add(this);
-		invalidate( GraphicFlags.FILL_CHANGED );
+		invalidate( GraphicFlags.FILL );
 	}
 	
 	
@@ -218,6 +228,26 @@ class GradientFill extends GraphicElement, implements IFill
 		gradientStops.remove(fill);
 		fill.listeners.remove(this);
 		fill.dispose();
-		invalidate( GraphicFlags.FILL_CHANGED );
+		invalidate( GraphicFlags.FILL );
 	}
+	
+	
+#if (debug || neko)
+	override public function toCSS (prefix:String = "")
+	{
+		var colorStr = gradientStops.join(", ");
+		if (type == GradientType.linear)
+			return "linear-gradient( " + rotation + "deg, " + colorStr + ", " + spread + " )";
+		else
+			return "radial-gradient( " + focalPointRatio + ", " + colorStr + ", " + spread + " )";
+	}
+#end
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ type, spread, focalPointRatio, rotation ] );
+		for (stop in gradientStops)
+			code.setAction( this, "add", [ stop ] );
+	}
+#end
 }

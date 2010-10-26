@@ -35,7 +35,7 @@ package primevc.gui.layout.algorithms.circle;
  import primevc.utils.Formulas;
  import primevc.utils.IntMath;
   using primevc.utils.Formulas;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
  
 
 /**
@@ -173,13 +173,10 @@ class VerticalCircleAlgorithm extends VerticalBaseAlgorithm, implements IVertica
 			Std.int( Math.round( Formulas.getCircleRadius(group.width, group.height) ) );
 	}
 	
-	
-#if debug
-	public function toString ()
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String
 	{
-		var start = direction == Vertical.top ? "top" : "bottom";
-		var end = direction == Vertical.top ? "bottom" : "top";
-		return "circle.ver ( " + start + " -> " + end + " ) ";
+		return "ver-circle (" + direction + ", " + horizontal + ")";
 	}
 #end
 }

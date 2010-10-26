@@ -37,13 +37,21 @@ package primevc.gui.graphics.shapes;
  * @author Ruben Weijers
  * @creation-date Aug 01, 2010
  */
-class Circle extends ShapeBase
+class Circle extends ShapeBase, implements IGraphicShape
 {
-	override private function drawShape (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
+	public function draw (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
 	{
 		var radius = Formulas.getCircleRadius( width, height );
 #if flash9
-		target.graphics.drawCircle(x, y, radius);
+		target.graphics.drawCircle(x + radius, y + radius, radius);
 #end
 	}
+	
+
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String
+	{
+		return "circle";
+	}
+#end
 }

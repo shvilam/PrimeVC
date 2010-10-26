@@ -27,9 +27,13 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.utils;
+
+#if neko
+typedef Color = primevc.neko.utils.Color;
+#else
  import primevc.types.RGBA;
   using primevc.utils.Color;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
 //  using Math;
   using Std;
   using StringTools;
@@ -90,7 +94,7 @@ class RGBAUtil
 	
 	
 	/**
-	 * Returns the alpha value of a RGBA object as a Float.
+	 * Returns the alpha value of a RGBA object as a UInt.
 	 */
 	public static inline function alpha (v:RGBA) : UInt					{ return v & ALPHA_MASK; }
 	/**
@@ -158,7 +162,7 @@ class RGBAUtil
 
 
 class FloatColorUtil
-{	
+{
 	/**
 	 * Converts two bytes to a Float. Only one color channel should be given as input.
 	 */
@@ -177,9 +181,19 @@ class StringColorUtil
 	/**
 	 * Converts a RGBA value to a hexadecimal string. 
 	 */
-	public static inline function string (v:RGBA) : String				{ return "0x"+v.rgb().hex(6) + v.alpha().hex(2); }
+	public static inline function string (v:RGBA) : String			{ return rgbaToString(v); }
+	public static inline function rgbaToString (v:RGBA) : String	{ return "0x"+v.rgb().hex(6) + v.alpha().hex(2); }
+	public static inline function uintToString (v:UInt) : String	{ return "0x"+v.hex(6); }
 	/**
 	 * Converts a hexadecimal string to a RGBA value
 	 */
-	public static inline function rgba (v:String) : RGBA				{ return v.parseInt().validate(); }
+	public static inline function rgba (v:String) : RGBA {
+		if (v.length == 3)
+			v += v;
+		if (v.length == 6)
+			v += "FF";
+		
+		return ("0x"+v).parseInt().validate();
+	}
 }
+#end

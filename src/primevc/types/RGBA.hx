@@ -32,4 +32,8 @@ package primevc.types;
 /**
  * Color value in the 0xRRGGBBAA format.
  */
+#if neko
+typedef RGBA = { var color:Int; var a:Int; }
+#else
 typedef RGBA = UInt;
+#end

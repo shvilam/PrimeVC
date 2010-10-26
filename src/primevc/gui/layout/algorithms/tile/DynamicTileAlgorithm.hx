@@ -46,7 +46,7 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.utils.IntMath;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.IntUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
  
 
@@ -205,7 +205,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	private var groupSizeChanged:Bool;
 	
 	override public function isInvalid (changes:Int) : Bool {
-		return super.isInvalid(changes) || changes.has( LayoutFlags.SIZE_CONSTRAINT_CHANGED );
+		return super.isInvalid(changes) || changes.has( LayoutFlags.SIZE_CONSTRAINT );
 	}
 	
 	
@@ -215,7 +215,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		if (!validatePrepared)
 		{
 			var group			= group.as(LayoutContainer);
-			groupSizeChanged	= group.changes.has(LayoutFlags.LIST_CHANGED);
+			groupSizeChanged	= group.changes.has(LayoutFlags.LIST);
 		
 			//
 			//create a new tile map if it removed
@@ -229,7 +229,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 			//
 			// APPLY CHANGES IN SIZE CONSTRAINT ALSO ON THE CHILDREN
 			//
-			if (group.changes.has(LayoutFlags.SIZE_CONSTRAINT_CHANGED))
+			if (group.changes.has(LayoutFlags.SIZE_CONSTRAINT))
 			{
 				if (group.sizeConstraint == null) {
 					childSizeConstraint.reset();
@@ -247,14 +247,14 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 			}
 		
 			//resize all rows
-			else if (group.changes.has(LayoutFlags.WIDTH_CHANGED) && startDirection == horizontal && group.explicitWidth.isSet()) {
+			else if (group.changes.has(LayoutFlags.WIDTH) && startDirection == horizontal && group.explicitWidth.isSet()) {
 				groupSizeChanged = true;
 				for (tileGroup in tileGroups)
 					tileGroup.width = group.explicitWidth;
 			}
 		
 			//resize all columns
-			else if (group.changes.has(LayoutFlags.HEIGHT_CHANGED) && startDirection == vertical && group.explicitHeight.isSet()) {
+			else if (group.changes.has(LayoutFlags.HEIGHT) && startDirection == vertical && group.explicitHeight.isSet()) {
 				groupSizeChanged = true;
 				for (tileGroup in tileGroups)
 					tileGroup.height = group.explicitHeight;
@@ -441,9 +441,15 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	
 #if debug
-	public function toString ()
+	override public function toString ()
 	{
-		return group+".DynamicTileAlgorithm";
+		return "DynamicTileAlgorithm";
+	}
+
+
+	override public function toCSS (prefix:String = "") : String
+	{
+		return "dynamic-tile ( "+startDirection+", "+horizontalDirection+", "+verticalDirection+" )";
 	}
 #end
 }
@@ -461,7 +467,7 @@ private class DynamicRowAlgorithm extends HorizontalFloatAlgorithm
 	//	if (children.length < 2)
 	//		return;
 		
-		if ( !group.changes.has(LayoutFlags.LIST_CHANGED) && !group.changes.has(LayoutFlags.CHILDREN_INVALIDATED) && !group.changes.has(LayoutFlags.WIDTH_CHANGED) )
+		if ( !group.changes.has(LayoutFlags.LIST) && !group.changes.has(LayoutFlags.CHILDREN_INVALIDATED) && !group.changes.has(LayoutFlags.WIDTH) )
 			return;
 		
 		var groupSize		= group.width;
@@ -524,7 +530,7 @@ private class DynamicColumnAlgorithm extends VerticalFloatAlgorithm
 	//	if (children.length < 2)
 	//		return;
 		
-		if ( !group.changes.has(LayoutFlags.LIST_CHANGED) && !group.changes.has(LayoutFlags.CHILDREN_INVALIDATED) && !group.changes.has(LayoutFlags.HEIGHT_CHANGED) )
+		if ( !group.changes.has(LayoutFlags.LIST) && !group.changes.has(LayoutFlags.CHILDREN_INVALIDATED) && !group.changes.has(LayoutFlags.HEIGHT) )
 			return;
 		
 		var groupSize		= group.height;

@@ -60,12 +60,6 @@ class TypeUtil
 	 */
 	static public inline function as<T>(o:Dynamic, t:Class<T>) : T
 	{
-		return
-		#if flash9
-			untyped __as__(o, t)
-		#else
-			cast t
-		#end
-		;
+		return cast o;
 	}
 }

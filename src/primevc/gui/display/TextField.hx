@@ -34,7 +34,7 @@ package primevc.gui.display;
  * @creation-date Sep 02, 2010
  */
 typedef TextField = 
-	#if		flash9	primevc.avm2.TextField;
-	#elseif	flash8	primevc.avm1.TextField;
-	#elseif	js		primevc.js  .TextField;
+	#if		flash9	primevc.avm2.display.TextField;
+	#elseif	flash8	primevc.avm1.display.TextField;
+	#elseif	js		primevc.js  .display.TextField;
 	#else	error;	#end

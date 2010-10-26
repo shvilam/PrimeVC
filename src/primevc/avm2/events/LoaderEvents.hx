@@ -29,11 +29,11 @@
 package primevc.avm2.events;
 private typedef ErrorSignal		= primevc.avm2.events.ErrorSignal;		// override import
 private typedef ProgressSignal	= primevc.avm2.events.ProgressSignal;	// override import
- import flash.display.LoaderInfo;
+ import flash.events.IEventDispatcher;
  import flash.events.IOErrorEvent;
  import flash.events.Event;
  import flash.events.ProgressEvent;
- import primevc.gui.events.LoaderEvents;
+ import primevc.core.events.LoaderEvents;
 
 
 
@@ -47,7 +47,7 @@ private typedef ProgressSignal	= primevc.avm2.events.ProgressSignal;	// override
  */
 class LoaderEvents extends LoaderSignals
 {
-	public function new (target:LoaderInfo)
+	public function new (target:IEventDispatcher)
 	{
 		started		= new FlashSignal0( target, 	Event.OPEN );
 		progress	= new ProgressSignal( target,	ProgressEvent.PROGRESS );

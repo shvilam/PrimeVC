@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.scroll;
+#if !neko
  import primevc.core.dispatcher.Wire;
  import primevc.core.geom.IntPoint;
  import primevc.gui.events.MouseEvents;
@@ -34,6 +35,7 @@ package primevc.gui.behaviours.scroll;
   using primevc.utils.TypeUtil;
   using Math;
   using Std;
+#end
 
 
 
@@ -47,6 +49,7 @@ package primevc.gui.behaviours.scroll;
  */
 class CornerScrollBehaviour extends MouseScrollBehaviourBase
 {
+#if !neko
 	private var scrollSpeed		: IntPoint;
 	private var scrollBinding	: Wire < Dynamic >;
 	
@@ -131,4 +134,5 @@ class CornerScrollBehaviour extends MouseScrollBehaviourBase
 		if (scrollSpeed.x != 0 || scrollSpeed.y != 0)
 			scrollBinding.enable();
 	}
+#end
 }

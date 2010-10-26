@@ -1,7 +1,12 @@
 #!/bin/bash
 
-INPUT=${1}
-OUTPUT=build/tmp_tdsi.swf
+MINPARAMS=1
+
+INPUT=$1
+OUTPUT="build/tmp_tdsi.swf"
+
+#echo "input: $INPUT"
+#echo "output: $OUTPUT"
 
 if [ -f build/environment.sh ]; then
 	source build/environment.sh

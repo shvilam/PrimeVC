@@ -27,6 +27,11 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms;
+#if neko
+ import primevc.tools.generator.ICodeFormattable;
+ import primevc.tools.generator.ICodeGenerator;
+ import primevc.utils.StringUtil;
+#end
  import primevc.core.dispatcher.Signal0;
  import primevc.core.IDisposable;
  import primevc.gui.layout.AdvancedLayoutClient;
@@ -41,14 +46,25 @@ package primevc.gui.layout.algorithms;
  * @creation-date	Jun 24, 2010
  * @author			Ruben Weijers
  */
-class LayoutAlgorithmBase implements IDisposable
+class LayoutAlgorithmBase 
+				implements IDisposable
+#if neko	,	implements ICodeFormattable		#end
 {
 	public var algorithmChanged 		(default, null)				: Signal0;
 	public var group					(default, setGroup)			: ILayoutContainer<LayoutClient>;
 	
+#if neko
+	public var uuid						(default, null)				: String;
+#end
+
+	private var validatePrepared		: Bool;
+	
 	
 	public function new()
 	{
+#if neko
+		uuid				= StringUtil.createUUID();
+#end
 		algorithmChanged	= new Signal0();
 		validatePrepared	= false;
 	}
@@ -64,11 +80,6 @@ class LayoutAlgorithmBase implements IDisposable
 	//
 	// GETTERS / SETTERS
 	//
-	
-	private function setGroup (v)
-	{
-		return group = v;
-	}
 	
 	
 	private inline function setGroupHeight (h:Int)
@@ -89,8 +100,18 @@ class LayoutAlgorithmBase implements IDisposable
 	}
 	
 	
-	private var validatePrepared : Bool;
-	public function prepareValidate () {
-		validatePrepared = true;
-	}
+	private function setGroup (v)		{ return group = v; }
+	public function prepareValidate ()	{ validatePrepared = true; }
+	
+	
+#if (neko || debug)
+	public function toString () : String				{ return toCSS(); }
+	public function toCSS (prefix:String = "") : String	{ Assert.abstract(); return ""; }
+	public function isEmpty () : Bool					{ return false; }
+#end
+	
+#if neko
+	public function cleanUp () : Void					{  }
+	public function toCode (code:ICodeGenerator)		{ code.construct( this ); }
+#end
 }

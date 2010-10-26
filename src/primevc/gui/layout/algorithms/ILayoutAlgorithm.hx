@@ -27,18 +27,25 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms;
+#if neko
+ import primevc.tools.generator.ICodeFormattable;
+#end
  import primevc.core.dispatcher.Signal0;
  import primevc.core.geom.IRectangle;
  import primevc.core.IDisposable;
  import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutClient;
+ import primevc.tools.generator.ICSSFormattable;
 
 
 /**
  * @since	mar 20, 2010
  * @author	Ruben Weijers
  */
-interface ILayoutAlgorithm implements IDisposable
+interface ILayoutAlgorithm
+				implements IDisposable	
+			,	implements ICSSFormattable	
+#if neko	,	implements ICodeFormattable		#end
 {
 	/**
 	 * Signal that will be dispatched when properties of the algorithm have 

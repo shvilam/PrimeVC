@@ -28,12 +28,12 @@
  */
 package cases;
  import primevc.gui.core.UIComponent;
- import primevc.gui.styling.declarations.FontStyleDeclarations;
- import primevc.gui.styling.declarations.GraphicStyleDeclarations;
- import primevc.gui.styling.declarations.LayoutStyleDeclarations;
- import primevc.gui.styling.declarations.UIElementStyle;
- import primevc.gui.styling.StyleContainer;
- import primevc.gui.styling.StyleSheet;
+ import primevc.gui.styling.FontStyle;
+ import primevc.gui.styling.GraphicStyleDeclarations;
+ import primevc.gui.styling.LayoutStyle;
+ import primevc.gui.styling.StyleChildren;
+ import primevc.gui.styling.StyleBlock;
+ import primevc.gui.styling.UIElementStyle;
 
 
 /**
@@ -44,13 +44,13 @@ class StyleAssertionTest
 {
 	public static function main ()
 	{
-		var styleSheet = new StyleSheet();
+		var styleSheet = new UIElementStyle();
 		styleSheet.loadStyles( TestStyles );
 	}
 }
 
 
-class TestStyles extends StyleContainer
+class TestStyles extends StyleChildren
 {
 	public static inline var DEFAULT_BACKGROUND_FILL	: String = "defaultBackgroundFill";
 	public static inline var APP_GREY					: String = "appGrey";
@@ -73,17 +73,17 @@ class TestStyles extends StyleContainer
 	}
 	
 	
-	override private function createTypeSelectors ()
+	override private function createElementSelectors ()
 	{
-		var c = typeSelectors;
-		c.set("primevc.gui.display.Sprite", new UIElementStyle(
+		var c = elementSelectors;
+		c.set("primevc.gui.display.Sprite", new StyleBlock(
 			null,
-			new FontStyleDeclarations(11, "Verdana")
+			new FontStyle(11, "Verdana")
 		));
 		
 		
-		c.set("cases.Button", new UIElementStyle(
-			new LayoutStyleDeclarations(
+		c.set("cases.Button", new StyleBlock(
+			new LayoutStyle(
 				null,
 				new Box( 10 ),
 				new HorizontalFloatAlgorithm( Horizontal.left )
@@ -93,7 +93,7 @@ class TestStyles extends StyleContainer
 		));
 		
 		
-		c.set("cases.Checkbox", new UIElementStyle(
+		c.set("cases.Checkbox", new StyleBlock(
 			
 		));
 		
@@ -106,8 +106,8 @@ class TestStyles extends StyleContainer
 	{
 		var c = styleNameSelectors;
 		
-		c.set("fillingButton", new UIElementStyle(
-			new LayoutStyleDeclarations(
+		c.set("fillingButton", new StyleBlock(
+			new LayoutStyle(
 				new RelativeLayout( 5, 5, 5, 5 ), //t r b l	-> make button as big as it's parent with 5 px margin on all sides
 			)
 		));
@@ -118,7 +118,7 @@ class TestStyles extends StyleContainer
 	{
 		var c = idSelectors;
 		
-		c.set("userCheckbox", new UIElementStyle(
+		c.set("userCheckbox", new StyleBlock(
 			null, null, new GraphicStyleDeclarations(
 				new SolidFill(0xffff00dd);
 			)
@@ -148,7 +148,7 @@ Style {
 	}
 	border: 1px solid @red;
 	color: #fff;
-	background-color:	gradient( lineair, 0% 40px 100% 90deg, #ffff00ff, #00ff0faa, #f0fa3677 );
+	background-color:	gradient( linear, 0% 40px 100% 90deg, #ffff00ff, #00ff0faa, #f0fa3677 );
 	background-image:	Assets(HAPPY_SMILEY), url(sad_smiley.jpg);
 	background-repeat:	REPEAT_X, REPEAT_NONE;
 	layout = {

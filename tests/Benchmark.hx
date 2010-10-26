@@ -209,7 +209,7 @@ class MainThread
 		
 		var change = System.totalMemory - lastGcMemory;
 		
-		if (change > 100000) {	//over 100Kb of changes
+		if (change > 10000000) {	//over 1MB of changes
 			pausingFrames = Std.int( flash.Lib.current.stage.frameRate );
 			trace("Waiting " + pausingFrames + " frames to garbage collect. Memory change: "+change);
 			System.gc();

@@ -27,13 +27,14 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.borders;
- import flash.display.CapsStyle;
- import flash.display.JointStyle;
  import primevc.core.geom.IRectangle;
  import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.traits.IDrawable;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
 
 
 /**
@@ -63,14 +64,18 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	
 	
 	
-	public function new ( fill:FillType, weight:Float, innerBorder:Bool = false, caps:CapsStyle = null, joint:JointStyle = null )
+	public function new ( fill:FillType, weight:Float = 1, innerBorder:Bool = false, caps:CapsStyle = null, joint:JointStyle = null, pixelHinting:Bool = false )
 	{
 		super();
+#if flash9
+		Assert.notNull(fill);
+#end
 		this.fill			= fill;
 		this.weight			= weight;
 		this.caps			= caps != null ? caps : CapsStyle.NONE;
 		this.joint			= joint != null ? joint : JointStyle.ROUND;
 		this.innerBorder	= innerBorder;
+		this.pixelHinting	= pixelHinting;
 	}
 	
 	
@@ -105,7 +110,7 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	{
 		if (v != weight) {
 			weight = v;
-			invalidate( GraphicFlags.BORDER_CHANGED );
+			invalidate( GraphicFlags.BORDER );
 		}
 		return v;
 	}
@@ -121,7 +126,7 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 			if (fill != null)
 				fill.listeners.add(this);
 			
-			invalidate( GraphicFlags.BORDER_CHANGED );
+			invalidate( GraphicFlags.BORDER );
 		}
 		return v;
 	}
@@ -131,7 +136,7 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	{
 		if (v != caps) {
 			caps = v;
-			invalidate( GraphicFlags.BORDER_CHANGED );
+			invalidate( GraphicFlags.BORDER );
 		}
 		return v;
 	}
@@ -141,7 +146,7 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	{
 		if (v != joint) {
 			joint = v;
-			invalidate( GraphicFlags.BORDER_CHANGED );
+			invalidate( GraphicFlags.BORDER );
 		}
 		return v;
 	}
@@ -151,7 +156,7 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	{
 		if (v != pixelHinting) {
 			pixelHinting = v;
-			invalidate( GraphicFlags.BORDER_CHANGED );
+			invalidate( GraphicFlags.BORDER );
 		}
 		return v;
 	}
@@ -161,8 +166,28 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	{
 		if (v != innerBorder) {
 			innerBorder = v;
-			invalidate( GraphicFlags.BORDER_CHANGED );
+			invalidate( GraphicFlags.BORDER );
 		}
 		return v;
 	}
+	
+	
+#if (debug || neko)
+	override public function toCSS (prefix:String = "")
+	{
+		return fill + " " + weight + "px";
+	}
+	
+	
+	override public function isEmpty () : Bool
+	{
+		return fill == null;
+	}
+#end
+#if neko
+	override public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ fill, weight, innerBorder, caps, joint, pixelHinting ] );
+	}
+#end
 }

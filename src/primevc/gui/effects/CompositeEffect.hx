@@ -27,9 +27,16 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.effects;
- import primevc.utils.FastArray;
-  using primevc.utils.FastArray;
+ import primevc.core.collections.ArrayList;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
+ import primevc.types.Number;
+ import primevc.utils.IntMath;
+  using primevc.utils.NumberUtil;
 
+
+typedef ChildEffectType = Effect < Dynamic, Dynamic >;
 
 
 /**
@@ -40,16 +47,17 @@ package primevc.gui.effects;
  * @author Ruben Weijers
  * @creation-date Aug 31, 2010
  */
-class CompositeEffect < ClassName > extends Effect < Dynamic, ClassName >
+class CompositeEffect extends Effect < Dynamic, CompositeEffect >
 {
-	private var effects				: FastArray < Effect < Dynamic, Dynamic > >;
+	public var effects				(default, null)					: ArrayList < ChildEffectType >;
 	public var compositeDuration	(getCompositeDuration, never)	: Int;
 	
 	
-	public function new (target = null, duration:Int = 350, delay:Int = 0, easing:Easing = null)
-	{	
-		effects = FastArrayUtil.create();
-		super(target, duration, delay, easing);
+	public function new (duration:Int = 0, delay:Int = 0, easing:Easing = null)
+	{
+		effects		= new ArrayList < ChildEffectType > ();
+		duration	= duration <= 0	? Number.INT_NOT_SET : duration;
+		super(duration, delay, easing);
 		init();
 	}
 	
@@ -59,15 +67,16 @@ class CompositeEffect < ClassName > extends Effect < Dynamic, ClassName >
 	 * method when you're extending ParallelEffect or SequenceEffect.
 	 */
 	public function init () {}
-	override private function initStartValues () {}
-	override public function setValues (v:EffectProperties) {}
+	override public function setValues (v:EffectProperties)
+	{
+		for (effect in effects)
+			effect.setValues(v);
+	}
 	
 	
 	override public function dispose ()
 	{
-		for (effect in effects)
-			effect.dispose();
-		
+		effects.dispose();
 		effects = null;
 		super.dispose();
 	}
@@ -75,36 +84,13 @@ class CompositeEffect < ClassName > extends Effect < Dynamic, ClassName >
 	
 	public function add (effect:Effect<Dynamic, Dynamic>)
 	{
-		effects.push( effect );
-		effect.target		= target;
-		effect.easing		= easing;
-		effect.isReverted	= isReverted;
+		effects.add( effect );
 	}
 	
 	
 	public function remove (effect:Effect<Dynamic, Dynamic>)
 	{
 		effects.remove( effect );
-		effect.dispose();
-	}
-	
-	
-	override public function stop ()
-	{
-		super.stop();
-		for (effect in effects)		effect.stop();
-	}
-	
-	
-	override public function reset ()
-	{
-		for (effect in effects)		effect.reset();
-	}
-
-
-	override private function calculateTweenStartPos () : Float
-	{
-		return 0;
 	}
 	
 	
@@ -115,30 +101,49 @@ class CompositeEffect < ClassName > extends Effect < Dynamic, ClassName >
 	
 	private function getCompositeDuration ()
 	{
+		var duration = this.duration;
+		
+		for (effect in effects)
+			duration = IntMath.max(duration, effect.duration);
+		
 		return duration;
 	}
-	
-	
-	override private function setEasing (v)
+
+
+#if (debug || neko)
+	override public function toCSS (prefix:String = "") : String
 	{
-		super.setEasing( v );
-		for (effect in effects)		effect.easing = easing;
-		return easing;
+		var props = [];
+
+		if (duration.isSet())		props.push( duration + "ms" );
+		if (delay.isSet())			props.push( delay + "ms" );
+		if (easing != null)			props.push( easingToCSS() );
+		
+		if (effects.length > 0) {
+			var cssEff = [];
+			for (effect in effects)
+				cssEff.push( effect.toCSS() );
+			
+			props.push( "(" + cssEff.join(", ") + ")" );
+		}
+		
+		return props.join(" ");
 	}
 	
 	
-	override private function setTarget (v)
-	{
-		super.setTarget( v );
-		for (effect in effects)		effect.target = target;
-		return target;
+	override public function isEmpty () {
+		return getCompositeDuration() <= 0 || effects.length <= 0;
 	}
-	
-	
-	override private function setIsReverted (v)
+#end
+
+#if neko
+	override public function toCode (code:ICodeGenerator) : Void
 	{
-		super.setIsReverted( v );
-		for (effect in effects)		effect.isReverted = isReverted;
-		return isReverted;
+		if (!isEmpty()) {
+			code.construct( this, [ duration, delay, easingToCode() ] );
+			for (effect in effects)
+				code.setAction( this, "add", [ effect ] );
+		}
 	}
+#end
 }
