@@ -29,7 +29,7 @@
 package primevc.gui.core;
  import primevc.core.Bindable;
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
- import primevc.gui.behaviours.styling.ApplyStylingBehaviour;
+// import primevc.gui.behaviours.styling.ApplyStylingBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
  import primevc.gui.display.Shape;
@@ -81,7 +81,7 @@ class UIGraphic extends Shape
 		graphicData		= new Bindable < GraphicProperties > ();
 		
 		//add default behaviours
-		behaviours.add( new ApplyStylingBehaviour(this) );
+	//	behaviours.add( new ApplyStylingBehaviour(this) );
 		behaviours.add( new RenderGraphicsBehaviour(this) );
 		behaviours.add( new ValidateLayoutBehaviour(this) );
 		

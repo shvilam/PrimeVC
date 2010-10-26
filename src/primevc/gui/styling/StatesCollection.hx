@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
+ import primevc.core.dispatcher.Signal1;
  import primevc.gui.styling.StyleCollectionBase;
   using primevc.utils.BitUtil;
 
@@ -39,7 +40,16 @@ private typedef Flags = StyleStateFlags;
  */
 class StatesCollection extends StyleCollectionBase < StatesStyle >
 {
-	public function new (elementStyle:IUIElementStyle)			{ super( elementStyle, StyleFlags.STATES ); }
+	public var change				(default, null)	: Signal1 < UInt >;
+	
+	
+	public function new (elementStyle:IUIElementStyle)
+	{
+		change = new Signal1();
+		super( elementStyle, StyleFlags.STATES );
+	}
+	
+	
 	override public function forwardIterator ()					{ return cast new StatesCollectionForwardIterator( elementStyle, propertyTypeFlag); }
 	override public function reversedIterator ()				{ return cast new StatesCollectionReversedIterator( elementStyle, propertyTypeFlag); }
 
@@ -48,13 +58,31 @@ class StatesCollection extends StyleCollectionBase < StatesStyle >
 #end
 	
 	
+	override public function dispose ()
+	{
+		super.dispose();
+		change.dispose();
+		change = null;
+	}
+	
+	
 	/**
 	 * when the states of any style changes, broadcast the change..
 	 */
 	override public function invalidateCall ( changeFromSender, sender )
 	{
-		if (changeFromSender > 0)
-			change.send( changeFromSender );
+		changes = changes.set(changeFromSender);
+		apply();
+	}
+	
+	
+	override public function apply ()
+	{
+		if (changes > 0)
+		{
+			change.send(changes);
+			changes = 0;
+		}
 	}
 }
 

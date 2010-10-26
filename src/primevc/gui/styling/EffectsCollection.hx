@@ -27,9 +27,12 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
+ import primevc.gui.core.IUIElement;
  import primevc.gui.effects.EffectFlags;
+ import primevc.gui.effects.UIElementEffects;
  import primevc.gui.styling.StyleCollectionBase;
   using primevc.utils.BitUtil;
+  using primevc.utils.TypeUtil;
 
 
 private typedef Flags = EffectFlags;
@@ -48,6 +51,52 @@ class EffectsCollection extends StyleCollectionBase < EffectsStyle >
 #if debug
 	override public function readProperties (props:Int = -1)	{ return Flags.readProperties( (props == -1) ? filledProperties : props ); }
 #end
+	
+	
+	override public function apply ()
+	{
+		if (changes == 0 || !elementStyle.target.is(IUIElement))
+			return;
+		
+		var target = elementStyle.target.as(IUIElement);
+		if (target.effects == null)
+			target.effects = new UIElementEffects(target);
+		
+	//	trace(target + ".applyEffectStyling "+style.readProperties( changes )+"; has "+style.readProperties());
+		
+		for (styleObj in this)
+		{
+			if (changes == 0)
+				break;
+			
+			if (!styleObj.allFilledProperties.has( changes ))
+				continue;
+			
+			var propsToSet	= styleObj.allFilledProperties.filter( changes );
+			changes			= changes.unset( propsToSet );
+			applyStyleObject( propsToSet, styleObj );
+		}
+		
+		//properties that are changed but are not found in any style-object need to be unset
+		if (changes > 0)
+		{
+			applyStyleObject( changes, null );
+			changes = 0;
+		}
+	}
+	
+	
+	private inline function applyStyleObject ( propsToSet:UInt, styleObj:EffectsStyle )
+	{
+		var target	= elementStyle.target.as(IUIElement);
+		var effects	= target.effects;
+		if (propsToSet.has( Flags.MOVE ))		effects.move	= styleObj != null ? styleObj.move	.createEffectInstance( target ) : null;
+		if (propsToSet.has( Flags.RESIZE ))		effects.resize	= styleObj != null ? styleObj.resize.createEffectInstance( target ) : null;
+		if (propsToSet.has( Flags.ROTATE ))		effects.rotate	= styleObj != null ? styleObj.rotate.createEffectInstance( target ) : null;
+		if (propsToSet.has( Flags.SCALE ))		effects.scale	= styleObj != null ? styleObj.scale	.createEffectInstance( target ) : null;
+		if (propsToSet.has( Flags.SHOW ))		effects.show	= styleObj != null ? styleObj.show	.createEffectInstance( target ) : null;
+		if (propsToSet.has( Flags.HIDE ))		effects.hide	= styleObj != null ? styleObj.hide	.createEffectInstance( target ) : null;
+	}
 }
 
 

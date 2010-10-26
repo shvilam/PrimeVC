@@ -277,7 +277,7 @@ class GraphicProperties implements IGraphicElement
 	
 	public function isEmpty () : Bool
 	{
-		return layout == null || shape == null;
+		return (layout == null || layout.isEmpty()) || shape == null;
 	}
 	
 	

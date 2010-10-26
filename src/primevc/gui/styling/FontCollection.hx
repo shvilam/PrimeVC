@@ -46,6 +46,12 @@ class FontCollection extends StyleCollectionBase < FontStyle >
 #if debug
 	override public function readProperties (props:Int = -1)	{ return Flags.readProperties( (props == -1) ? filledProperties : props ); }
 #end
+	
+	
+	override public function apply ()
+	{
+		
+	}
 }
 
 

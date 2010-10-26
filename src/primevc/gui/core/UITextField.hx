@@ -33,7 +33,7 @@ package primevc.gui.core;
 #end
  import primevc.core.Bindable;
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
- import primevc.gui.behaviours.styling.ApplyStylingBehaviour;
+// import primevc.gui.behaviours.styling.ApplyStylingBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.display.TextField;
  import primevc.gui.effects.UIElementEffects;
@@ -80,7 +80,7 @@ class UITextField extends TextField, implements IUIElement
 		behaviours		= new BehaviourList();
 		
 		//add default behaviour
-		behaviours.add( new ApplyStylingBehaviour(this) );
+	//	behaviours.add( new ApplyStylingBehaviour(this) );
 		behaviours.add( new ValidateLayoutBehaviour(this) );
 		
 		createBehaviours();

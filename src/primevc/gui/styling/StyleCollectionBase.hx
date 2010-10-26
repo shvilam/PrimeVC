@@ -30,7 +30,7 @@ package primevc.gui.styling;
  import primevc.core.collections.iterators.IIterator;
  import primevc.core.collections.PriorityList;
  import primevc.core.collections.DoubleFastCell;
- import primevc.core.dispatcher.Signal1;
+// import primevc.core.dispatcher.Signal1;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.traits.IInvalidateListener;
  import primevc.core.IDisposable;
@@ -61,7 +61,7 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	 * proxy.
 	 */
 	public var propertyTypeFlag		(default, null)	: UInt;
-	public var change				(default, null)	: Signal1 < UInt >;
+//	public var change				(default, null)	: Signal1 < UInt >;
 	
 	private var elementStyle		: IUIElementStyle;
 	
@@ -75,7 +75,7 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	
 	public function new (elementStyle:IUIElementStyle, propertyTypeFlag:UInt)
 	{
-		change					= new Signal1();
+	//	change					= new Signal1();
 		changes					= 0;
 		this.elementStyle		= elementStyle;
 		this.propertyTypeFlag	= propertyTypeFlag;
@@ -86,12 +86,12 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	
 	public function dispose ()
 	{
-		change.dispose();
+	//	change.dispose();
 		groupIterator.dispose();
 		
 		groupIterator	= null;
 		elementStyle	= null;
-		change			= null;
+	//	change			= null;
 	}
 	
 	
@@ -110,7 +110,7 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 		//loop through every stylegroup that has the defined StyleGroupType
 		for ( styleGroup in groupIterator )
 			if (styleGroup != excludedStyle)
-			filledProperties = filledProperties.set( styleGroup.allFilledProperties );
+				filledProperties = filledProperties.set( styleGroup.allFilledProperties );
 	}
 	
 	
@@ -118,7 +118,7 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	{
 		changes = changes.set( getRealChangesOf( cast sender, changeFromSender ) );
 		trace("\tchanged properties " + readProperties(changes));
-		broadcastChanges();
+		apply();
 	}
 	
 	
@@ -138,12 +138,9 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	}
 	
 	
-	public function broadcastChanges ()
+	public function apply ()
 	{
-		if (changes > 0) {
-			change.send( changes );
-			changes = 0;
-		}
+		Assert.abstract();
 	}
 	
 	

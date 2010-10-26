@@ -31,7 +31,7 @@ package primevc.gui.styling;
 #if flash9
  import primevc.core.collections.DoubleFastCell;
  import primevc.core.collections.PriorityList;
- import primevc.core.dispatcher.Signal1;
+// import primevc.core.dispatcher.Signal1;
  import primevc.core.dispatcher.Wire;
  import primevc.core.traits.IInvalidatable;
  import primevc.gui.traits.IStylable;
@@ -84,7 +84,7 @@ class UIElementStyle implements IUIElementStyle
 	 * The first parameter of signal will be a bit-flag conttaining all the 
 	 * properties that are changed.
 	 */
-	public var change					(default, null)	: Signal1 < UInt >;
+//	public var change					(default, null)	: Signal1 < UInt >;
 	/**
 	 * Current css-states of the object.
 	 */
@@ -120,7 +120,7 @@ class UIElementStyle implements IUIElementStyle
 		
 		this.target			= target;
 		targetClassName		= target.getClass().getClassName();
-		change				= new Signal1();
+	//	change				= new Signal1();
 		
 		stylesAreSearched	= false;
 		filledProperties	= 0;
@@ -160,7 +160,7 @@ class UIElementStyle implements IUIElementStyle
 		layout.dispose();
 		states.dispose();
 		
-		change.dispose();
+	//	change.dispose();
 		clearStyles();
 		currentStates.removeAll();
 		
@@ -169,7 +169,7 @@ class UIElementStyle implements IUIElementStyle
 		styles			= null;
 		targetClassName	= null;
 		target			= null;
-		change			= null;
+	//	change			= null;
 		
 		boxFilters		= null;
 		effects			= null;
@@ -290,12 +290,12 @@ class UIElementStyle implements IUIElementStyle
 		//	states.change.send( statesChangedProps );
 		}
 		
-		if (changedProperties.has( Flags.GRAPHICS ))		graphics.broadcastChanges();
-		if (changedProperties.has( Flags.STATES ))			states.broadcastChanges();
-		if (changedProperties.has( Flags.LAYOUT ))			layout.broadcastChanges();
-		if (changedProperties.has( Flags.FONT ))			font.broadcastChanges();
-		if (changedProperties.has( Flags.EFFECTS ))			effects.broadcastChanges();
-		if (changedProperties.has( Flags.BOX_FILTERS ))		boxFilters.broadcastChanges();
+		if (changedProperties.has( Flags.STATES ))			states.apply();
+		if (changedProperties.has( Flags.GRAPHICS ))		graphics.apply();
+		if (changedProperties.has( Flags.LAYOUT ))			layout.apply();
+		if (changedProperties.has( Flags.FONT ))			font.apply();
+		if (changedProperties.has( Flags.EFFECTS ))			effects.apply();
+		if (changedProperties.has( Flags.BOX_FILTERS ))		boxFilters.apply();
 		
 		//update graphics properties
 	/*	if (changedProperties.has( Flags.GRAPHICS ))
@@ -357,8 +357,8 @@ class UIElementStyle implements IUIElementStyle
 				boxFilters.change.send( filtersChangedProps );
 		}*/
 		
-		if (changedProperties > 0)
-			change.send( changedProperties );
+	//	if (changedProperties > 0)
+	//		change.send( changedProperties );
 		
 		return changedProperties;
 	}

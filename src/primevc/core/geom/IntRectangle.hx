@@ -147,4 +147,10 @@ class IntRectangle extends Invalidatable, implements IRectangle
 	private inline function getBottom ()	{ return bottom; }
 	private inline function getWidth ()		{ return width; }
 	private inline function getHeight ()	{ return height; }
+	
+	
+	public function isEmpty ()
+	{
+		return width <= 0 || height <= 0;
+	}
 }

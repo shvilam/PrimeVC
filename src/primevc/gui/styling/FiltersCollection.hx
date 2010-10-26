@@ -27,8 +27,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
+ import primevc.gui.display.IDisplayObject;
  import primevc.gui.styling.StyleCollectionBase;
   using primevc.utils.BitUtil;
+  using primevc.utils.TypeUtil;
 
 
 private typedef Flags = FilterFlags;
@@ -55,6 +57,56 @@ class FiltersCollection extends StyleCollectionBase < FiltersStyle >
 #if debug
 	override public function readProperties (props:Int = -1)	{ return Flags.readProperties( (props == -1) ? filledProperties : props ); }
 #end
+	
+	
+	override public function apply ()
+	{
+		if (changes == 0)
+			return;
+		
+		if (type == Filter.box)
+			applyBoxFilters();
+	}
+	
+	
+	private function applyBoxFilters ()
+	{
+		if (!elementStyle.target.is(IDisplayObject))
+			return;
+		
+		var target	= elementStyle.target.as(IDisplayObject);
+		var filters	= target.filters;
+	//	trace(target + ".applyBoxFilterStyling "+style.readProperties( changes ));
+		
+		if (filters == null)
+			filters = [];
+		
+		for (styleObj in this)
+		{
+			if (changes == 0)
+				break;
+			
+			if (!styleObj.allFilledProperties.has( changes ))
+				continue;
+			
+			var propsToSet = styleObj.allFilledProperties.filter( changes );
+			if (propsToSet.has( Flags.SHADOW ))				filters.push( styleObj.shadow );
+			if (propsToSet.has( Flags.BEVEL ))				filters.push( styleObj.bevel );
+			if (propsToSet.has( Flags.BLUR ))				filters.push( styleObj.blur );
+			if (propsToSet.has( Flags.GLOW ))				filters.push( styleObj.glow );
+			if (propsToSet.has( Flags.GRADIENT_BEVEL ))		filters.push( styleObj.gradientBevel );
+			if (propsToSet.has( Flags.GRADIENT_GLOW ))		filters.push( styleObj.gradientGlow );
+			
+			changes = changes.unset( propsToSet );
+		}
+		
+		//set new array with filters
+		if (filters.length > 0)
+			target.filters = filters;
+		
+		//TODO: should actually check if there are any filters that need to be removed!...
+		changes = 0;
+	}
 }
 
 

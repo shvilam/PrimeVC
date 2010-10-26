@@ -54,7 +54,7 @@ class WindowLayoutBehaviour extends BehaviourBase < UIWindow >
 		
 #if flash9
 		updateBgSize.on( target.layout.events.sizeChanged, this );
-		updateBgSize();
+	//	updateBgSize();
 #end
 	}
 

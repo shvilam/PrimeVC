@@ -27,9 +27,14 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
+ import primevc.core.geom.constraints.SizeConstraint;
+ import primevc.gui.core.IUIContainer;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.styling.StyleCollectionBase;
+ import primevc.gui.traits.ILayoutable;
+ import primevc.types.Number;
   using primevc.utils.BitUtil;
+  using primevc.utils.TypeUtil;
 
 
 private typedef Flags = LayoutFlags;
@@ -48,6 +53,75 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 #if debug
 	override public function readProperties (props:Int = -1)	{ return Flags.readProperties( (props == -1) ? filledProperties : props ); }
 #end
+
+	
+	override public function apply ()
+	{
+		if (changes == 0 || !elementStyle.target.is( ILayoutable ))
+			return;
+		
+		var target = elementStyle.target.as( ILayoutable );
+		
+		//create size constraint for layout client
+		if (changes.has( Flags.CONSTRAINT_PROPERTIES ) && target.layout.sizeConstraint == null)
+			target.layout.sizeConstraint = new SizeConstraint();
+		
+		if (!target.is(IUIContainer))
+			changes = changes.unset( Flags.ALGORITHM | Flags.CHILD_WIDTH | Flags.CHILD_HEIGHT );
+		
+		if (changes == 0)
+			return;
+		
+	//	trace(target + ".applyLayoutStyling1 "+readProperties( changes )+"; changes "+changes);
+		
+		for (styleObj in this)
+		{
+			if (changes == 0)
+				break;
+			
+			if (!styleObj.allFilledProperties.has( changes ))
+				continue;
+			
+			var propsToSet	= styleObj.allFilledProperties.filter( changes );
+			changes			= changes.unset( propsToSet );
+			applyStyleObject( propsToSet, styleObj );
+		}
+		
+		//properties that are changed but are not found in any style-object need to be unset
+		if (changes > 0) {
+			applyStyleObject( changes, null );
+			changes = 0;
+		}
+	}
+	
+	
+	private function applyStyleObject (propsToSet:UInt, styleObj:LayoutStyle)
+	{
+		var layout	= elementStyle.target.as( ILayoutable ).layout;
+		
+		if (propsToSet.has( LayoutFlags.WIDTH ))			layout.width						= styleObj != null ? styleObj.width					: Number.INT_NOT_SET;
+		if (propsToSet.has( LayoutFlags.HEIGHT ))			layout.height						= styleObj != null ? styleObj.height				: Number.INT_NOT_SET;
+		if (propsToSet.has( LayoutFlags.PERCENT_WIDTH ))	layout.percentWidth					= styleObj != null ? styleObj.percentWidth			: 0; //Number.FLOAT_NOT_SET;
+		if (propsToSet.has( LayoutFlags.PERCENT_HEIGHT ))	layout.percentHeight				= styleObj != null ? styleObj.percentHeight			: 0; //Number.FLOAT_NOT_SET;
+		if (propsToSet.has( LayoutFlags.RELATIVE ))			layout.relative						= styleObj != null ? styleObj.relative				: null;
+		if (propsToSet.has( LayoutFlags.INCLUDE ))			layout.includeInLayout				= styleObj != null ? styleObj.includeInLayout		: null;
+		if (propsToSet.has( LayoutFlags.MAINTAIN_ASPECT ))	layout.maintainAspectRatio			= styleObj != null ? styleObj.maintainAspectRatio	: null;
+		if (propsToSet.has( LayoutFlags.PADDING ))			layout.padding						= styleObj != null ? styleObj.padding				: null;
+		
+		if (propsToSet.has( LayoutFlags.MIN_WIDTH ))		layout.sizeConstraint.width.min		= styleObj != null ? styleObj.minWidth				: Number.INT_NOT_SET;
+		if (propsToSet.has( LayoutFlags.MIN_HEIGHT ))		layout.sizeConstraint.height.min	= styleObj != null ? styleObj.minHeight				: Number.INT_NOT_SET;
+		if (propsToSet.has( LayoutFlags.MAX_HEIGHT ))		layout.sizeConstraint.width.max		= styleObj != null ? styleObj.maxWidth				: Number.INT_NOT_SET;
+		if (propsToSet.has( LayoutFlags.MAX_WIDTH ))		layout.sizeConstraint.height.max	= styleObj != null ? styleObj.maxHeight				: Number.INT_NOT_SET;
+		
+		if (elementStyle.target.is( IUIContainer ))
+		{
+			var tCont = elementStyle.target.as( IUIContainer );
+			
+			if (propsToSet.has( LayoutFlags.ALGORITHM ))	tCont.layoutContainer.algorithm		= styleObj != null ? styleObj.algorithm				: null;
+			if (propsToSet.has( LayoutFlags.CHILD_WIDTH ))	tCont.layoutContainer.childWidth	= styleObj != null ? styleObj.childWidth			: Number.INT_NOT_SET;
+			if (propsToSet.has( LayoutFlags.CHILD_HEIGHT ))	tCont.layoutContainer.childHeight	= styleObj != null ? styleObj.childHeight			: Number.INT_NOT_SET;
+		}
+	}
 }
 
 
