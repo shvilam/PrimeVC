@@ -35,26 +35,27 @@ package primevc.gui.styling;
  * @author Ruben Weijers
  * @creation-date Sep 08, 2010
  */
-class FontFlags
+class TextStyleFlags
 {
-	public static inline var ALL_PROPERTIES	: UInt = SIZE | FAMILY | COLOR | WEIGHT | STYLE | LETTER_SPACING | ALIGN | DECORATION | INDENT | TRANSFORM | TEXTWRAP | COLUMN_COUNT | COLUMN_GAP | COLUMN_WIDTH;
+	public static inline var ALL_PROPERTIES		: UInt = SIZE | FAMILY | COLOR | WEIGHT | STYLE | LETTER_SPACING | ALIGN | DECORATION | INDENT | TRANSFORM | TEXTWRAP | COLUMN_COUNT | COLUMN_GAP | COLUMN_WIDTH;
+	public static inline var COLUMN_PROPERTIES	: UInt = COLUMN_COUNT | COLUMN_GAP | COLUMN_WIDTH;
 	
-	public static inline var SIZE			: UInt = 1;
-	public static inline var FAMILY			: UInt = 2;
-	public static inline var COLOR			: UInt = 4;
-	public static inline var WEIGHT			: UInt = 8;
-	public static inline var STYLE			: UInt = 16;
+	public static inline var SIZE				: UInt = 1;
+	public static inline var FAMILY				: UInt = 2;
+	public static inline var COLOR				: UInt = 4;
+	public static inline var WEIGHT				: UInt = 8;
+	public static inline var STYLE				: UInt = 16;
 	
-	public static inline var LETTER_SPACING	: UInt = 32;
-	public static inline var ALIGN			: UInt = 64;
-	public static inline var DECORATION		: UInt = 128;
-	public static inline var INDENT			: UInt = 256;
-	public static inline var TRANSFORM		: UInt = 512;
+	public static inline var LETTER_SPACING		: UInt = 32;
+	public static inline var ALIGN				: UInt = 64;
+	public static inline var DECORATION			: UInt = 128;
+	public static inline var INDENT				: UInt = 256;
+	public static inline var TRANSFORM			: UInt = 512;
 	
-	public static inline var TEXTWRAP		: UInt = 1024;
-	public static inline var COLUMN_COUNT	: UInt = 2048;
-	public static inline var COLUMN_GAP		: UInt = 4096;
-	public static inline var COLUMN_WIDTH	: UInt = 8192;
+	public static inline var TEXTWRAP			: UInt = 1024;
+	public static inline var COLUMN_COUNT		: UInt = 2048;
+	public static inline var COLUMN_GAP			: UInt = 4096;
+	public static inline var COLUMN_WIDTH		: UInt = 8192;
 	
 	
 #if debug

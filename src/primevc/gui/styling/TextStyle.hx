@@ -31,7 +31,7 @@ package primevc.gui.styling;
  import primevc.tools.generator.ICodeGenerator;
 #end
  import primevc.core.traits.IInvalidatable;
- import primevc.gui.text.FontStyling;
+ import primevc.gui.text.FontStyle;
  import primevc.gui.text.FontWeight;
  import primevc.gui.text.TextAlign;
  import primevc.gui.text.TextDecoration;
@@ -44,7 +44,7 @@ package primevc.gui.styling;
   using primevc.utils.Color;
 
 
-private typedef Flags = FontFlags;
+private typedef Flags = TextStyleFlags;
 
 
 /**
@@ -54,18 +54,18 @@ private typedef Flags = FontFlags;
  * @author Ruben Weijers
  * @creation-date Aug 05, 2010
  */
-class FontStyle extends StyleSubBlock
+class TextStyle extends StyleSubBlock
 {
-	private var extendedStyle	: FontStyle;
-	private var nestingStyle	: FontStyle;
-	private var superStyle		: FontStyle;
-	private var parentStyle		: FontStyle;
+	private var extendedStyle	: TextStyle;
+	private var nestingStyle	: TextStyle;
+	private var superStyle		: TextStyle;
+	private var parentStyle		: TextStyle;
 	
 	private var _size			: Int;
 	private var _family			: String;
 	private var _color			: Null < RGBA >;
 	private var _weight			: FontWeight;
-	private var _style			: FontStyling;
+	private var _style			: FontStyle;
 	private var _letterSpacing	: Float;
 	private var _align			: TextAlign;
 	private var _decoration		: TextDecoration;
@@ -81,7 +81,7 @@ class FontStyle extends StyleSubBlock
 	public var family			(getFamily,			setFamily)			: String;
 	public var color			(getColor,			setColor)			: Null<RGBA>;
 	public var weight			(getWeight,			setWeight)			: FontWeight;
-	public var style			(getStyle,			setStyle)			: FontStyling;
+	public var style			(getStyle,			setStyle)			: FontStyle;
 	/**
 	 * @default	0
 	 */
@@ -102,7 +102,7 @@ class FontStyle extends StyleSubBlock
 		family:String				= null,
 		color:Null<RGBA>			= null,
 		weight:FontWeight			= null,
-		style:FontStyle				= null,
+		style:TextStyle				= null,
 		letterSpacing:Float			= Number.INT_NOT_SET,
 		align:TextAlign				= null,
 		decoration:TextDecoration	= null,

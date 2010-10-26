@@ -26,20 +26,30 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.text;
-
+package primevc.gui.components;
+ import primevc.gui.core.IUIElement;
+ import primevc.gui.traits.ITextStylable;
 
 /**
  * @author Ruben Weijers
- * @creation-date Aug 05, 2010
+ * @creation-date Oct 26, 2010
  */
-#if flash9
-	typedef TextAlign = flash.text.TextFormatAlign;
-#else
-	enum TextAlign {
-		LEFT;
-		CENTER;
-		RIGHT;
-		JUSTIFY;
-	}
-#end
+interface ITextArea implements IUIElement, implements ITextStylable
+{
+	/**
+	 * Maximum number of columns that the textarea can have.
+	 */
+	public var maxColumns (default, setMaxColumns)				: Int;
+	
+	/**
+	 * Number of pixels between columns
+	 */
+	public var columnGap	(default, setColumnGap)				: Int;
+	
+	/**
+	 * The width of one column. If not specified, the width will be calculated
+	 * automaticly.
+	 * @default		Number.INT_NOT_SET
+	 */
+	public var columnWidth	(getColumnWidth, setColumnWidth)	: Int;
+}

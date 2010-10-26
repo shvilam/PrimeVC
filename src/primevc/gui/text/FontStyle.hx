@@ -26,42 +26,11 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling;
- import primevc.gui.styling.StyleCollectionBase;
-  using primevc.utils.BitUtil;
+package primevc.gui.text;
 
 
-private typedef Flags = FontFlags
-
-/**
- * @author Ruben Weijers
- * @creation-date Okt 24, 2010
- */
-class FontCollection extends StyleCollectionBase < FontStyle >
-{
-	public function new (elementStyle:IUIElementStyle)			{ super( elementStyle, StyleFlags.FONT ); }
-	override public function forwardIterator ()					{ return cast new FontCollectionForwardIterator( elementStyle, propertyTypeFlag); }
-	override public function reversedIterator ()				{ return cast new FontCollectionReversedIterator( elementStyle, propertyTypeFlag); }
-
-#if debug
-	override public function readProperties (props:Int = -1)	{ return Flags.readProperties( (props == -1) ? filledProperties : props ); }
-#end
-	
-	
-	override public function apply ()
-	{
-		
-	}
-}
-
-
-class FontCollectionForwardIterator extends StyleCollectionForwardIterator < FontStyle >
-{
-	override public function next ()	{ return setNext().data.font; }
-}
-
-
-class FontCollectionReversedIterator extends StyleCollectionReversedIterator < FontStyle >
-{
-	override public function next ()	{ return setNext().data.font; }
+enum FontStyle {
+	normal;
+	italic;
+	oblique;
 }

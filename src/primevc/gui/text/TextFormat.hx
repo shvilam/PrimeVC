@@ -29,17 +29,14 @@
 package primevc.gui.text;
 
 
+
 /**
+ * Class description
+ * 
  * @author Ruben Weijers
- * @creation-date Aug 05, 2010
+ * @creation-date Oct 26, 2010
  */
-#if flash9
-	typedef TextAlign = flash.text.TextFormatAlign;
-#else
-	enum TextAlign {
-		LEFT;
-		CENTER;
-		RIGHT;
-		JUSTIFY;
-	}
-#end
+class TextFormat #if flash9 extends flash.text.TextFormat #end
+{
+	public var transform : TextTransform;
+}

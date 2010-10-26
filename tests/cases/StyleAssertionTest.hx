@@ -28,7 +28,7 @@
  */
 package cases;
  import primevc.gui.core.UIComponent;
- import primevc.gui.styling.FontStyling;
+ import primevc.gui.styling.FontStyle;
  import primevc.gui.styling.GraphicStyleDeclarations;
  import primevc.gui.styling.LayoutStyle;
  import primevc.gui.styling.StyleChildren;
@@ -78,7 +78,7 @@ class TestStyles extends StyleChildren
 		var c = elementSelectors;
 		c.set("primevc.gui.display.Sprite", new StyleBlock(
 			null,
-			new FontStyling(11, "Verdana")
+			new FontStyle(11, "Verdana")
 		));
 		
 		

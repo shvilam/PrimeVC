@@ -96,7 +96,7 @@ package primevc.tools;
  import primevc.gui.styling.EffectsStyle;
  import primevc.gui.styling.FilterCollectionType;
  import primevc.gui.styling.FiltersStyle;
- import primevc.gui.styling.FontStyle;
+ import primevc.gui.styling.TextStyle;
  import primevc.gui.styling.GraphicsStyle;
  import primevc.gui.styling.LayoutStyle;
  import primevc.gui.styling.StatesStyle;
@@ -105,7 +105,7 @@ package primevc.tools;
  import primevc.gui.styling.StyleChildren;
  import primevc.gui.styling.StyleFlags;
  import primevc.gui.styling.StyleStateFlags;
- import primevc.gui.text.FontStyling;
+ import primevc.gui.text.FontStyle;
  import primevc.gui.text.FontWeight;
  import primevc.gui.text.TextAlign;
  import primevc.gui.text.TextDecoration;
@@ -1065,7 +1065,7 @@ class CSSParser
 			case "font-family":					parseAndSetFontFamily( val );																//inherit, font-name
 			case "color":						if (isColor(val)) { createFontBlock(); currentBlock.font.color = parseColor( val ); }		//inherit, color-values
 			case "font-weight":					parseAndSetFontWeight( val );																//normal, bold, bolder, lighter
-			case "font-style":					parseAndSetFontStyle( val );																//inherit, normal, italic, oblique
+			case "font-style":					parseAndSetTextStyle( val );																//inherit, normal, italic, oblique
 			case "letter-spacing":				createFontBlock();			currentBlock.font.letterSpacing	= parseUnitFloat( val );		//inherit, normal, [length]
 			case "text-align":					createFontBlock();			currentBlock.font.align			= parseTextAlign( val );		//inherit, left, center, right, justify
 			case "text-decoration":				createFontBlock();			currentBlock.font.decoration	= parseTextDecoration( val );	//inherit, none, underline
@@ -1304,7 +1304,7 @@ class CSSParser
 	private inline function createFontBlock ()
 	{
 		if (currentBlock.font == null)
-			currentBlock.font = new FontStyle();
+			currentBlock.font = new TextStyle();
 		return currentBlock.font;
 	}
 	
@@ -1567,7 +1567,7 @@ class CSSParser
 	
 	private function parseAndSetFont (v:String) : Void
 	{	
-		v = parseAndSetFontStyle(v);
+		v = parseAndSetTextStyle(v);
 		v = parseAndSetFontWeight(v);
 		v = parseAndSetFontSize(v);
 		v = parseAndSetFontFamily(v);
@@ -1589,10 +1589,10 @@ class CSSParser
 	private inline function parseTextAlign (v:String) : TextAlign
 	{
 		return switch (v.trim().toLowerCase()) {
-			default:		TextAlign.left;
-			case "center":	TextAlign.center;
-			case "right":	TextAlign.right;
-			case "jusitfy":	TextAlign.justify;
+			default:		TextAlign.LEFT;
+			case "center":	TextAlign.CENTER;
+			case "right":	TextAlign.RIGHT;
+			case "jusitfy":	TextAlign.JUSTIFY;
 			case "inherit":	null;
 		}
 	}
@@ -1652,16 +1652,16 @@ class CSSParser
 	 * style property of the current block.
 	 * Method will return the input-string without the mathed style.
 	 */
-	private inline function parseAndSetFontStyle (v:String) : String
+	private inline function parseAndSetTextStyle (v:String) : String
 	{
 		if (fontStyleExpr.match(v))
 		{
 			createFontBlock();
 			currentBlock.font.style =
 			 	switch (fontStyleExpr.matched(1).toLowerCase()) {
-					default:		FontStyling.normal;
-					case "italic":	FontStyling.italic;
-					case "oblique":	FontStyling.oblique;
+					default:		FontStyle.normal;
+					case "italic":	FontStyle.italic;
+					case "oblique":	FontStyle.oblique;
 					case "inherit":	null;
 				}
 			

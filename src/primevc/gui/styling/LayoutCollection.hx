@@ -99,27 +99,27 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 	{
 		var layout	= elementStyle.target.as( ILayoutable ).layout;
 		
-		if (propsToSet.has( LayoutFlags.WIDTH ))			layout.width						= styleObj != null ? styleObj.width					: Number.INT_NOT_SET;
-		if (propsToSet.has( LayoutFlags.HEIGHT ))			layout.height						= styleObj != null ? styleObj.height				: Number.INT_NOT_SET;
-		if (propsToSet.has( LayoutFlags.PERCENT_WIDTH ))	layout.percentWidth					= styleObj != null ? styleObj.percentWidth			: 0; //Number.FLOAT_NOT_SET;
-		if (propsToSet.has( LayoutFlags.PERCENT_HEIGHT ))	layout.percentHeight				= styleObj != null ? styleObj.percentHeight			: 0; //Number.FLOAT_NOT_SET;
-		if (propsToSet.has( LayoutFlags.RELATIVE ))			layout.relative						= styleObj != null ? styleObj.relative				: null;
-		if (propsToSet.has( LayoutFlags.INCLUDE ))			layout.includeInLayout				= styleObj != null ? styleObj.includeInLayout		: null;
-		if (propsToSet.has( LayoutFlags.MAINTAIN_ASPECT ))	layout.maintainAspectRatio			= styleObj != null ? styleObj.maintainAspectRatio	: null;
-		if (propsToSet.has( LayoutFlags.PADDING ))			layout.padding						= styleObj != null ? styleObj.padding				: null;
+		if (propsToSet.has( Flags.WIDTH ))				layout.width						= styleObj != null ? styleObj.width					: Number.INT_NOT_SET;
+		if (propsToSet.has( Flags.HEIGHT ))				layout.height						= styleObj != null ? styleObj.height				: Number.INT_NOT_SET;
+		if (propsToSet.has( Flags.PERCENT_WIDTH ))		layout.percentWidth					= styleObj != null ? styleObj.percentWidth			: 0; //Number.FLOAT_NOT_SET;
+		if (propsToSet.has( Flags.PERCENT_HEIGHT ))		layout.percentHeight				= styleObj != null ? styleObj.percentHeight			: 0; //Number.FLOAT_NOT_SET;
+		if (propsToSet.has( Flags.RELATIVE ))			layout.relative						= styleObj != null ? styleObj.relative				: null;
+		if (propsToSet.has( Flags.INCLUDE ))			layout.includeInLayout				= styleObj != null ? styleObj.includeInLayout		: null;
+		if (propsToSet.has( Flags.MAINTAIN_ASPECT ))	layout.maintainAspectRatio			= styleObj != null ? styleObj.maintainAspectRatio	: null;
+		if (propsToSet.has( Flags.PADDING ))			layout.padding						= styleObj != null ? styleObj.padding				: null;
 		
-		if (propsToSet.has( LayoutFlags.MIN_WIDTH ))		layout.sizeConstraint.width.min		= styleObj != null ? styleObj.minWidth				: Number.INT_NOT_SET;
-		if (propsToSet.has( LayoutFlags.MIN_HEIGHT ))		layout.sizeConstraint.height.min	= styleObj != null ? styleObj.minHeight				: Number.INT_NOT_SET;
-		if (propsToSet.has( LayoutFlags.MAX_HEIGHT ))		layout.sizeConstraint.width.max		= styleObj != null ? styleObj.maxWidth				: Number.INT_NOT_SET;
-		if (propsToSet.has( LayoutFlags.MAX_WIDTH ))		layout.sizeConstraint.height.max	= styleObj != null ? styleObj.maxHeight				: Number.INT_NOT_SET;
+		if (propsToSet.has( Flags.MIN_WIDTH ))			layout.sizeConstraint.width.min		= styleObj != null ? styleObj.minWidth				: Number.INT_NOT_SET;
+		if (propsToSet.has( Flags.MIN_HEIGHT ))			layout.sizeConstraint.height.min	= styleObj != null ? styleObj.minHeight				: Number.INT_NOT_SET;
+		if (propsToSet.has( Flags.MAX_HEIGHT ))			layout.sizeConstraint.width.max		= styleObj != null ? styleObj.maxWidth				: Number.INT_NOT_SET;
+		if (propsToSet.has( Flags.MAX_WIDTH ))			layout.sizeConstraint.height.max	= styleObj != null ? styleObj.maxHeight				: Number.INT_NOT_SET;
 		
 		if (elementStyle.target.is( IUIContainer ))
 		{
 			var tCont = elementStyle.target.as( IUIContainer );
 			
-			if (propsToSet.has( LayoutFlags.ALGORITHM ))	tCont.layoutContainer.algorithm		= styleObj != null ? styleObj.algorithm				: null;
-			if (propsToSet.has( LayoutFlags.CHILD_WIDTH ))	tCont.layoutContainer.childWidth	= styleObj != null ? styleObj.childWidth			: Number.INT_NOT_SET;
-			if (propsToSet.has( LayoutFlags.CHILD_HEIGHT ))	tCont.layoutContainer.childHeight	= styleObj != null ? styleObj.childHeight			: Number.INT_NOT_SET;
+			if (propsToSet.has( Flags.ALGORITHM ))		tCont.layoutContainer.algorithm		= styleObj != null ? styleObj.algorithm				: null;
+			if (propsToSet.has( Flags.CHILD_WIDTH ))	tCont.layoutContainer.childWidth	= styleObj != null ? styleObj.childWidth			: Number.INT_NOT_SET;
+			if (propsToSet.has( Flags.CHILD_HEIGHT ))	tCont.layoutContainer.childHeight	= styleObj != null ? styleObj.childHeight			: Number.INT_NOT_SET;
 		}
 	}
 }

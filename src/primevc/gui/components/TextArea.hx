@@ -39,7 +39,7 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Sep 03, 2010
  */
-class TextArea extends UIContainer < String >
+class TextArea extends UIContainer < String >, implements ITextArea
 {
 	private static inline var MAX_COLUMNS	: Int = 40;
 	

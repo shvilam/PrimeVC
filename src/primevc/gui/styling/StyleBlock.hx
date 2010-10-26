@@ -150,7 +150,7 @@ class StyleBlock extends StyleBlockBase
 	
 	private var _graphics	: GraphicsStyle;
 	private var _layout		: LayoutStyle;
-	private var _font		: FontStyle;
+	private var _font		: TextStyle;
 	private var _effects	: EffectsStyle;
 	private var _boxFilters	: FiltersStyle;
 	private var _bgFilters	: FiltersStyle;
@@ -165,7 +165,7 @@ class StyleBlock extends StyleBlockBase
 	
 	public var graphics		(getGraphics,	setGraphics)	: GraphicsStyle;
 	public var layout		(getLayout,		setLayout)		: LayoutStyle;
-	public var font			(getFont,		setFont)		: FontStyle;
+	public var font			(getFont,		setFont)		: TextStyle;
 	public var effects		(getEffects,	setEffects)		: EffectsStyle;
 	public var boxFilters	(getBoxFilters,	setBoxFilters)	: FiltersStyle;
 	public var bgFilters	(getBgFilters,	setBgFilters)	: FiltersStyle;
@@ -178,7 +178,7 @@ class StyleBlock extends StyleBlockBase
 		type		: StyleBlockType,
 		graphics	: GraphicsStyle = null,
 		layout		: LayoutStyle = null,
-		font		: FontStyle = null,
+		font		: TextStyle = null,
 		effects		: EffectsStyle = null,
 		boxFilters	: FiltersStyle = null,
 		bgFilters	: FiltersStyle = null,

@@ -26,11 +26,18 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.text;
+package primevc.gui.traits;
+ import primevc.gui.text.TextFormat;
 
 
-enum FontStyling {
-	normal;
-	italic;
-	oblique;
+/**
+ * @author Ruben Weijers
+ * @creation-date Oct 26, 2010
+ */
+interface ITextStylable implements IStylable
+{
+#if flash9
+	public var textStyle	(getTextStyle, setTextStyle)	: TextFormat;
+	public var wordWrap		: Bool;
+#end
 }

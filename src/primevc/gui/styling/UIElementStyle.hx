@@ -100,15 +100,15 @@ class UIElementStyle implements IUIElementStyle
 	 */
 	private var stylesAreSearched		: Bool;
 	
-	public var graphics					(default, null)	: GraphicsCollection;
-	public var effects					(default, null)	: EffectsCollection;
-	public var boxFilters				(default, null)	: FiltersCollection;
-	public var font						(default, null)	: FontCollection;
-	public var layout					(default, null)	: LayoutCollection;
+	public var graphics					(getGraphics, null)		: GraphicsCollection;
+	public var effects					(getEffects, null)		: EffectsCollection;
+	public var boxFilters				(getBoxFilters, null)	: FiltersCollection;
+	public var font						(getFont, null)			: TextStyleCollection;
+	public var layout					(getLayout, null)		: LayoutCollection;
 	/**
 	 * Proxy object to loop through all available states in this object.
 	 */
-	public var states					(default, null)	: StatesCollection;
+	public var states					(getStates, null)		: StatesCollection;
 	
 	
 	
@@ -153,12 +153,12 @@ class UIElementStyle implements IUIElementStyle
 		if (styleNamesChangeBinding != null)	styleNamesChangeBinding.dispose();
 		if (idChangeBinding != null)			idChangeBinding.dispose();
 		
-		boxFilters.dispose();
-		effects.dispose();
-		font.dispose();
-		graphics.dispose();
-		layout.dispose();
-		states.dispose();
+		if (boxFilters != null)		boxFilters.dispose();
+		if (effects != null)		effects.dispose();
+		if (font != null)			font.dispose();
+		if (graphics != null)		graphics.dispose();
+		if (layout != null)			layout.dispose();
+		if (states != null)			states.dispose();
 		
 	//	change.dispose();
 		clearStyles();
@@ -242,14 +242,14 @@ class UIElementStyle implements IUIElementStyle
 		removedBinding.enable();
 		addedBinding.disable();
 		
-		if (boxFilters == null)		boxFilters	= new FiltersCollection(this, FilterCollectionType.box);
-		if (effects == null)		effects		= new EffectsCollection(this);
-		if (font == null)			font		= new FontCollection(this);
-		if (graphics == null)		graphics	= new GraphicsCollection(this);
-		if (layout == null)			layout		= new LayoutCollection(this);
-		if (states == null)			states		= new StatesCollection(this);
+	//	if (boxFilters == null)		boxFilters	= new FiltersCollection(this, FilterCollectionType.box);
+	//	if (effects == null)		effects		= new EffectsCollection(this);
+	//	if (font == null)			font		= new TextStyleCollection(this);
+	//	if (graphics == null)		graphics	= new GraphicsCollection(this);
+	//	if (layout == null)			layout		= new LayoutCollection(this);
+	//	if (states == null)			states		= new StatesCollection(this);
 		
-		stylesAreSearched = false;
+		stylesAreSearched	= false;
 		filledProperties	= 0;
 		
 		//update styles.. start with the lowest priorities
@@ -262,6 +262,14 @@ class UIElementStyle implements IUIElementStyle
 		stylesAreSearched = true;
 		broadcastChanges();
 	}
+	
+	
+	private inline function getBoxFilters ()	{ return (boxFilters == null)	? boxFilters = new FiltersCollection( this, FilterCollectionType.box ) : boxFilters; }
+	private inline function getEffects ()		{ return (effects == null)		? effects = new EffectsCollection( this ) : effects; }
+	private inline function getFont ()			{ return (font == null)			? font = new TextStyleCollection( this ) : font; }
+	private inline function getGraphics ()		{ return (graphics == null)		? graphics = new GraphicsCollection( this ) : graphics; }
+	private inline function getLayout ()		{ return (layout == null)		? layout = new LayoutCollection( this ) : layout; }
+	private inline function getStates ()		{ return (states == null)		? states = new StatesCollection( this ) : states; }
 	
 	
 	/**
