@@ -86,6 +86,7 @@ class DragDropBehaviour extends DragBehaviourBase
 		target.window.children.add( cast target );
 		target.x		= pos.x;
 		target.y		= pos.y;
+		target.mouseEnabled = false;
 	//	trace("startDraggin "+target+"; origPos: "+dragSource.origPosition+"; newPosition: "+pos);
 		target.visible	= true;
 #end
@@ -100,6 +101,7 @@ class DragDropBehaviour extends DragBehaviourBase
 	override private function stopDrag (mouseObj:MouseState) : Void
 	{
 		target.stopDrag();
+		target.mouseEnabled = true;
 		if (dragSource.dropTarget != null)
 		{
 #if flash9

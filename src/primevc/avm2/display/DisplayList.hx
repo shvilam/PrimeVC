@@ -66,7 +66,14 @@ class DisplayList implements IList <ChildType>
 	public var change		(default, null)				: Signal1 < ListChanges < ChildType > >;
 	public var length		(getLength, never)			: Int;
 	
+	/**
+	 * Property to enable mouse events on children or not
+	 */
 	public var mouseEnabled	(default, setMouseEnabled)	: Bool;
+	
+	/**
+	 * Property to enable tab events on children or not
+	 */
 	public var tabEnabled	(default, setTabEnabled)	: Bool;
 	
 	
@@ -79,9 +86,11 @@ class DisplayList implements IList <ChildType>
 		
 		Assert.notEqual( owner, null, "Owner object can't be null." );
 		
-		this.target	= target;
-		this.owner	= owner;
-		change		= new Signal1();
+		this.target		= target;
+		this.owner		= owner;
+		change			= new Signal1();
+		tabEnabled		= target.tabChildren;
+		mouseEnabled	= target.mouseChildren;
 	}
 	
 	

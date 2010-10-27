@@ -96,7 +96,7 @@ class DragInfo implements IDisposable
 		target			= newTarget;
 		dropTarget		= newTarget.container.as(IDropTarget);
 		origPosition	= new Point(target.x, target.y);
-		layout			= target.  new LayoutClient( target.width.int(), target.height.int() );
+		layout			= new LayoutClient( target.width.int(), target.height.int() );
 		dragRectangle	= cast target.rect.clone(); //new IntRectangle( target.x.int(), target.y.int(), layout.width, layout.height );
 		
 		origContainer	= target.container;

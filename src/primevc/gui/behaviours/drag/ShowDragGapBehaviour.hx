@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.drag;
- import primevc.core.geom.Point;
+// import primevc.core.geom.Point;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.IUIContainer;
  import primevc.gui.events.MouseEvents;
@@ -48,9 +48,10 @@ package primevc.gui.behaviours.drag;
  */
 class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 {
-	private var draggedItem : DragInfo;
-	private var layoutGroup	: LayoutContainer;
-
+	private var draggedItem				: DragInfo;
+	private var layoutGroup				: LayoutContainer;
+	private var oldMouseChildrenValue	: Bool;
+	
 
 	override private function init ()
 	{
@@ -72,7 +73,9 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 	
 	private function dragOverHandler (source:DragInfo)
 	{
-		draggedItem = source;
+		draggedItem						= source;
+		oldMouseChildrenValue			= target.children.mouseEnabled;
+		target.children.mouseEnabled	= false;
 		updateTargetAfterMouseMove.on( target.window.mouse.events.move, this );
 	}
 	
@@ -82,13 +85,14 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 		target.window.mouse.events.move.unbind( this );
 		layoutGroup.children.remove( source.layout );
 		draggedItem = null;
+		target.children.mouseEnabled = oldMouseChildrenValue;
 	}
 	
 	
 	private function updateTargetAfterMouseMove (mouseObject:MouseState)
 	{
 		var newDepth	= target.children.length;
-		var dragPos		= target.globalToLocal( new Point( draggedItem.target.x, draggedItem.target.y ) );
+		var dragPos		= mouseObject.local;  //target.globalToLocal( new Point( draggedItem.target.x, draggedItem.target.y ) );
 		var curDepth	= layoutGroup.children.indexOf(draggedItem.layout);
 		var rect		= draggedItem.dragRectangle;
 		rect.left		= dragPos.x.int();
