@@ -48,7 +48,7 @@ package primevc.gui.behaviours.drag;
  */
 class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 {
-	private var draggedItem : DragSource;
+	private var draggedItem : DragInfo;
 	private var layoutGroup	: LayoutContainer;
 
 
@@ -70,14 +70,14 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 	}
 	
 	
-	private function dragOverHandler (source:DragSource)
+	private function dragOverHandler (source:DragInfo)
 	{
 		draggedItem = source;
 		updateTargetAfterMouseMove.on( target.window.mouse.events.move, this );
 	}
 	
 	
-	private function removeTmpTileFromLayout (source:DragSource)
+	private function removeTmpTileFromLayout (source:DragInfo)
 	{
 		target.window.mouse.events.move.unbind( this );
 		layoutGroup.children.remove( source.layout );

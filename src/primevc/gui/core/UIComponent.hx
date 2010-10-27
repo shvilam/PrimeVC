@@ -29,7 +29,6 @@
 package primevc.gui.core;
  import primevc.core.Bindable;
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
-// import primevc.gui.behaviours.styling.ApplyStylingBehaviour;
  import primevc.gui.behaviours.styling.MouseStyleChangeBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
@@ -104,7 +103,6 @@ class UIComponent extends Sprite, implements IUIComponent
 		style			= new UIElementStyle( this );
 		
 		//add default behaviours
-	//	behaviours.add( new ApplyStylingBehaviour(this) );	
 		behaviours.add( new ValidateLayoutBehaviour(this) );
 		behaviours.add( new RenderGraphicsBehaviour(this) );
 		behaviours.add( new MouseStyleChangeBehaviour(this) );
@@ -248,7 +246,7 @@ class UIComponent extends Sprite, implements IUIComponent
 //	private function createLayout ()		: Void		{ Assert.abstract(); }
 	private function createGraphics ()		: Void; //	{ Assert.abstract(); }
 	private function createSkin ()			: Void; //	{ Assert.abstract(); }
-	private function createChildren ()		: Void		{ Assert.abstract(); }
+	private function createChildren ()		: Void; //	{ Assert.abstract(); }
 	
 	private function removeStates ()		: Void; //	{ Assert.abstract(); }
 	private function removeGraphics ()		: Void; //	{ Assert.abstract(); }

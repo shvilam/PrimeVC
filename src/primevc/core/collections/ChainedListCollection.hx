@@ -28,8 +28,9 @@
  */
 package primevc.core.collections;
  import primevc.core.collections.iterators.IIterator;
+ import primevc.core.collections.IList;
  import primevc.core.collections.SimpleList;
- import primevc.core.events.ListEvents;
+ import primevc.core.dispatcher.Signal1;
  import primevc.utils.IntMath;
   using primevc.utils.IntMath;
   using primevc.utils.TypeUtil; 
@@ -45,12 +46,12 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	implements IListCollection < DataType, ChainedList<DataType> > 
 	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
-	public var events		(default, null)				: ListEvents < DataType >;
+	public var change		(default, null)				: Signal1 < ListChanges < DataType > >;
 	
 	private var _length		: Int;
 	public var length		(getLength, never)			: Int;
 	
-	public var lists		(default, null)				: ArrayList <ChainedList<DataType>>;
+	public var lists		(default, null)				: ArrayList < ChainedList < DataType > >;
 	/**
 	 * Maximum number of items per chained list.
 	 */
@@ -59,10 +60,8 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	
 	public function new (max:Int = -1)
 	{
-		events		= new ListEvents();
+		change		= new Signal1();
 		lists		= new ArrayList<ChainedList<DataType>>();
-	//	lists.push( new ChainedList() );
-		
 		maxPerList	= max;
 		_length		= 0;
 	}
@@ -70,14 +69,14 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	
 	public function dispose ()
 	{
-		events.dispose();
+		change.dispose();
 		
 		for (list in lists)
 			list.dispose();
 		
 		lists.removeAll();
 		lists	= null;
-		events	= null;
+		change	= null;
 	}
 	
 	
@@ -128,15 +127,16 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	public inline function add (item:DataType, pos:Int = -1) : DataType
 	{
 		pos = insertAt( item, pos );
-		events.added.send( item, pos );
+		change.send( ListChanges.added( item, pos ) );
 		return item;
 	}
 	
 	
-	public inline function remove (item:DataType) : DataType
+	public inline function remove (item:DataType, oldPos:Int = -1) : DataType
 	{
-		removeItem(item);
-		events.removed.send( item, removeItem(item) );
+		oldPos = removeItem(item, oldPos);
+		if (oldPos > -1)
+			change.send( ListChanges.removed( item, oldPos ) );
 		return item;
 	}
 	
@@ -149,10 +149,9 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 		
 		if (curPos != newPos)
 		{
-			removeItem( item );
+			removeItem( item, curPos );
 			insertAt( item, newPos );
-			
-			events.moved.send( item, curPos, newPos );
+			change.send( ListChanges.moved( item, newPos, curPos ) );
 		}
 		
 		return item;
@@ -162,7 +161,8 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	public inline function has (item:DataType) : Bool
 	{
 		var found:Bool	= false;
-		for (list in lists) {
+		for (list in lists)
+		{
 			if (list.has(item)) {
 				found = true;
 				break;
@@ -175,7 +175,8 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	public inline function indexOf (item:DataType) : Int
 	{
 		var pos:Int = 0;
-		for (list in lists) {
+		for (list in lists)
+		{
 			var index:Int = list.indexOf(item);
 			if (index >= 0) {
 				pos += index;
@@ -210,9 +211,10 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 		//3. find correct position to add item to
 		var itemPos		= calculateItemPosition( pos );
 		//4. add the item to the correct list
-		targetList.add( item, itemPos );
-		//5. update length value
-		_length++;
+		if (targetList.add( item, itemPos ) != null) {
+			//5. update length value
+			_length++;
+		}
 		return pos;
 	}
 	
@@ -224,18 +226,30 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	 * @param	item
 	 * @return	last position of the item
 	 */
-	private function removeItem (item:DataType) : Int
+	private function removeItem (item:DataType, itemPos:Int = -1) : Int
 	{
-		var itemPos = 0;
-		
-		for (list in lists) {
-			if (list.has(item)) {
-				itemPos += list.indexOf(item);
-				list.remove( item );
+		if (itemPos > -1)
+		{
+			var list = getListForPosition( itemPos );
+			if (list.remove( item ) != null)
 				_length--;
-				break;
+			else
+				itemPos = -1;
+		}
+		else
+		{
+			itemPos = 0;
+		
+			for (list in lists)
+			{
+				if (list.has(item)) {
+					itemPos += list.indexOf(item);
+					list.remove( item );
+					_length--;
+					break;
+				}
+				itemPos += list.length;
 			}
-			itemPos += list.length;
 		}
 		return itemPos;
 	}
@@ -253,16 +267,27 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	}
 	
 	
-	public function iterator () : Iterator <DataType>						{ return getForwardIterator(); }
-	public inline function getForwardIterator () : IIterator <DataType>		{ return new ChainedListCollectionIterator<DataType>(this); }
-	public inline function getReversedIterator () : IIterator <DataType>	{ return new ChainedListCollectionIterator<DataType>(this); }
+	public function iterator () : Iterator <DataType>						{ return forwardIterator(); }
+	public inline function forwardIterator () : IIterator <DataType>		{ return new ChainedListCollectionIterator<DataType>(this); }
+	public inline function reversedIterator () : IIterator <DataType>	{ return new ChainedListCollectionIterator<DataType>(this); }
 	
 	
-	private inline function getListForPosition (globalPos:Int) : ChainedList<DataType> {
+	/**
+	 * Method will return the list that has the item at the requested position
+	 */
+	private inline function getListForPosition (globalPos:Int) : ChainedList<DataType>
+	{
 		return lists.getItemAt(getListNumForPosition(globalPos));
 	}
 	
-	private inline function calculateItemPosition (globalPos:Int) : Int {
+	
+	/**
+	 * Method to calculate the position in a list for the given global-position.
+	 * If lists have dynamic length, the only way to find the correct position
+	 * is looping though each list.
+	 */
+	private function calculateItemPosition (globalPos:Int) : Int
+	{
 		if (globalPos < 0)
 			globalPos = length - globalPos;
 		
@@ -293,7 +318,12 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	}
 	
 	
-	private inline function getListNumForPosition (globalPos:Int) : Int {
+	
+	/**
+	 * Method will return the list number for the requested item position
+	 */
+	private inline function getListNumForPosition (globalPos:Int) : Int
+	{
 		//calculate the number of the list in which the item will be
 		var listNum = 0;
 		if (globalPos < 0)

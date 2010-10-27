@@ -50,10 +50,11 @@ class UIDataComponent <DataProxyType> extends UIComponent, implements IUIDataCom
 	public var value (getValue, setValue)	: DataProxyType;
 	
 	
-	public function new (id:String = null, ?value:DataProxyType)
+	public function new (id:String = null, value:DataProxyType = null)
 	{
 		super(id);
-		data = new Bindable < DataProxyType >(value);
+		if (data == null)
+			data = new Bindable < DataProxyType >(value);
 	}
 	
 	

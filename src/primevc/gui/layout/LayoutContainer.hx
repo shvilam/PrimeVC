@@ -75,21 +75,14 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		childWidth			= Number.INT_NOT_SET;
 		childHeight			= Number.INT_NOT_SET;
 		
-		childAddedHandler	.on( children.events.added, this );
-		childRemovedHandler	.on( children.events.removed, this );
-		
-		invalidateChildList	.on( children.events.added, this );
-		invalidateChildList	.on( children.events.moved, this );
-		invalidateChildList	.on( children.events.removed, this );
+		childrenChangeHandler.on( children.change, this );
 		super(newWidth, newHeight);
 	}
 	
 	
 	override public function dispose ()
 	{
-		children.events.added.unbind( this );
-		children.events.removed.unbind( this );
-		children.events.moved.unbind( this );
+		children.change.unbind( this );
 		children.dispose();
 		children	= null;
 		algorithm	= null;
@@ -354,24 +347,29 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	// EVENT HANDLERS
 	//
 	
-	private function algorithmChangedHandler ()							{ invalidate( LayoutFlags.ALGORITHM ); }
-	private function invalidateChildList ()								{ invalidate( LayoutFlags.LIST ); }
-	
-	
-	private function childRemovedHandler (child:LayoutClient, pos:Int)	{
-		child.parent		= null;
-		//reset boundary properties without validating
-		child.bounds.left	= 0;
-		child.bounds.top	= 0;
-		child.changes		= 0;
-	}
-	
-	
-	private function childAddedHandler (child:LayoutClient, pos:Int)	{
-		child.parent = this;
+	private function childrenChangeHandler ( change:ListChanges <LayoutClient> ) : Void
+	{
+		switch (change)
+		{
+			case added( child, newPos ):
+				child.parent = this;
+				//check first if the bound properties are zero. If they are not, they can have been set by a tile-container
+				if (child.bounds.left == 0)		child.bounds.left	= padding.left;
+				if (child.bounds.top == 0)		child.bounds.top	= padding.top;
+			
+			case removed( child, oldPos ):
+				child.parent		= null;
+				//reset boundary properties without validating
+				child.bounds.left	= 0;
+				child.bounds.top	= 0;
+				child.changes		= 0;
+			
+			default:
+		}
 		
-		//check first if the bound properties are zero. If they are not, they can have been set by a tile-container
-		if (child.bounds.left == 0)		child.bounds.left	= padding.left;
-		if (child.bounds.top == 0)		child.bounds.top	= padding.top;
+		invalidate( LayoutFlags.LIST );
 	}
+	
+	
+	private function algorithmChangedHandler ()	{ invalidate( LayoutFlags.ALGORITHM ); }
 }

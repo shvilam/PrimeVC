@@ -78,7 +78,7 @@ class DragDropBehaviour extends DragBehaviourBase
 	
 	override private function startDrag (mouseObj:MouseState) : Void
 	{
-		dragSource = new DragSource(target);
+		dragSource = new DragInfo(target);
 #if flash9
 		//move item to correct location
 		var pos			= target.container.as(IDisplayObject).localToGlobal( dragSource.origPosition );
@@ -130,7 +130,7 @@ class DragDropBehaviour extends DragBehaviourBase
 		}
 		
 		moveBinding.disable();
-		disposeDragSource();
+		disposeDragInfo();
 	}
 	
 	

@@ -30,7 +30,8 @@ package primevc.core.collections;
  import primevc.core.collections.iterators.IIterator;
  import primevc.core.collections.iterators.DoubleFastCellForwardIterator;
  import primevc.core.collections.iterators.DoubleFastCellReversedIterator;
- import primevc.core.events.ListEvents;
+ import primevc.core.collections.IList;
+ import primevc.core.dispatcher.Signal1;
   using primevc.utils.IntMath;
  
 
@@ -45,7 +46,7 @@ package primevc.core.collections;
 class SimpleList < DataType > implements IList < DataType > 
 	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
-	public var events		(default, null)		: ListEvents < DataType >;
+	public var change		(default, null)		: Signal1 < ListChanges < DataType > >;
 	
 	private var _length		: Int;
 	public var length		(getLength, never)	: Int;
@@ -62,7 +63,7 @@ class SimpleList < DataType > implements IList < DataType >
 	public function new()
 	{
 		_length	= 0;
-		events	= new ListEvents();
+		change	= new Signal1();
 	}
 	
 	
@@ -78,18 +79,18 @@ class SimpleList < DataType > implements IList < DataType >
 		
 		first = last = null;
 		_length = 0;
-		events.reset.send();
+		change.send( ListChanges.reset );
 	}
 	
 	
 	public function dispose ()
 	{
-		if (events == null)
+		if (change == null)
 			return;
 		
 		removeAll();
-		events.dispose();
-		events	= null;
+		change.dispose();
+		change = null;
 	}
 	
 	
@@ -103,9 +104,9 @@ class SimpleList < DataType > implements IList < DataType >
 	
 	
 	private inline function getLength ()	: Int					{ return _length; }
-	public function iterator ()				: Iterator <DataType>	{ return getForwardIterator(); }
-	public function getForwardIterator ()	: IIterator <DataType>	{ return new DoubleFastCellForwardIterator <DataType> (first); }
-	public function getReversedIterator ()	: IIterator <DataType>	{ return new DoubleFastCellReversedIterator <DataType> (last); }
+	public function iterator ()				: Iterator <DataType>	{ return forwardIterator(); }
+	public function forwardIterator ()	: IIterator <DataType>	{ return new DoubleFastCellForwardIterator <DataType> (first); }
+	public function reversedIterator ()	: IIterator <DataType>	{ return new DoubleFastCellReversedIterator <DataType> (last); }
 
 	
 	
@@ -125,18 +126,18 @@ class SimpleList < DataType > implements IList < DataType >
 	public function add (item:DataType, pos:Int = -1) : DataType
 	{
 		pos = insertAt( item, pos );
-		events.added.send( item, pos );
+		change.send( ListChanges.added( item, pos ) );
 		return item;
 	}
 	
 	
-	public function remove (item:DataType) : DataType
+	public function remove (item:DataType, oldPos:Int = -1) : DataType
 	{
 		if (item != null)
 		{
-			var itemPos = removeItem( item );
-			if (itemPos > -1)
-				events.removed.send( item, itemPos );
+			oldPos = removeItem( item, oldPos );
+			if (oldPos > -1)
+				change.send( ListChanges.removed( item, oldPos ) );
 		}
 		return item;
 	}
@@ -158,7 +159,7 @@ class SimpleList < DataType > implements IList < DataType >
 			else
 				insertCellAt( cell, (newPos - 1) );
 			
-			events.moved.send( item, curPos, newPos );
+			change.send( ListChanges.moved( item, newPos, curPos ) );
 		}
 		return item;
 	}
@@ -276,16 +277,18 @@ class SimpleList < DataType > implements IList < DataType >
 	 * @param	item
 	 * @return	last position of the item
 	 */
-	private inline function removeItem (item:DataType) : Int
+	private inline function removeItem (item:DataType, curPos:Int = -1) : Int
 	{
-		var pos = indexOf( item );
-		if (pos > -1)
+		if (curPos == -1)
+			curPos = indexOf( item );
+		
+		if (curPos > -1)
 		{
-			var cell = getCellAt( pos );
+			var cell = getCellAt( curPos );
 			if (cell != null)
 				removeCell( cell );
 		}	
-		return pos;
+		return curPos;
 	}
 	
 	

@@ -42,7 +42,7 @@ package primevc.gui.behaviours.drag;
  */
 class DragBehaviourBase extends BehaviourBase <IDraggable>
 {
-	private var dragSource	: DragSource;
+	private var dragSource	: DragInfo;
 	private var dragHelper	: DragHelper;
 	private var dragBounds	: Rectangle;
 	
@@ -64,7 +64,7 @@ class DragBehaviourBase extends BehaviourBase <IDraggable>
 	{
 		dragHelper.dispose();
 		dragHelper = null;
-		disposeDragSource();
+		disposeDragInfo();
 		if (dragBounds.is(IDisposable))
 			dragBounds.as(IDisposable).dispose();
 		dragBounds = null;
@@ -79,11 +79,11 @@ class DragBehaviourBase extends BehaviourBase <IDraggable>
 	{	
 		target.stopDrag();
 		target.dragEvents.complete.send(dragSource);
-		disposeDragSource();
+		disposeDragInfo();
 	}
 
 
-	private inline function disposeDragSource ()
+	private inline function disposeDragInfo ()
 	{
 		if (dragSource != null) {
 			dragSource.dispose();

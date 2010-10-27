@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.effects.effectInstances;
+ import primevc.core.collections.IList;
  import primevc.gui.effects.CompositeEffect;		//imports typedef ChildEffectType
  import primevc.gui.effects.EffectProperties;
  import primevc.gui.effects.IEffect;
@@ -49,8 +50,7 @@ class CompositeEffectInstance extends EffectInstance < Dynamic, CompositeEffect 
 		effectInstances = FastArrayUtil.create();
 		super(target, effect);
 		
-		addEffectInstance.on( effect.effects.events.added, this );
-		removeEffectInstance.on( effect.effects.events.removed, this );
+		updateEffectInstances.on( effect.effects.change, this );
 		
 		for (childEffect in effect.effects)
 			addEffectInstance( childEffect, -1 );
@@ -65,8 +65,7 @@ class CompositeEffectInstance extends EffectInstance < Dynamic, CompositeEffect 
 		for (inst in effectInstances)
 			inst.dispose();
 		
-		effect.effects.events.added.unbind(this);
-		effect.effects.events.removed.unbind(this);
+		effect.effects.change.unbind(this);
 		effectInstances = null;
 		super.dispose();
 	}
@@ -107,6 +106,17 @@ class CompositeEffectInstance extends EffectInstance < Dynamic, CompositeEffect 
 	
 	
 	override private function calculateTweenStartPos () : Float { return 0; }
+	
+	
+	private function updateEffectInstances (change:ListChanges < ChildEffectType > )
+	{
+		switch (change)
+		{
+			case added( effect, newPos ):	addEffectInstance( effect, newPos );
+			case removed( effect, oldPos ):	removeEffectInstance( effect, oldPos );
+			default:
+		}
+	}
 	
 	
 	private function addEffectInstance (v:ChildEffectType, depth:Int ) : Void

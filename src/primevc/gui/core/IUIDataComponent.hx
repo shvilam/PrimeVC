@@ -36,10 +36,10 @@ package primevc.gui.core;
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
-interface IUIDataComponent <DataProxyType> implements IUIComponent
+interface IUIDataComponent < DataType > implements IUIComponent
 {
-	public var data (default, setData)		: Bindable < DataProxyType >;
-	public var value (getValue, setValue)	: DataProxyType;
+	public var data (default, setData)		: Bindable < DataType >;
+	public var value (getValue, setValue)	: DataType;
 	
 	
 	/**

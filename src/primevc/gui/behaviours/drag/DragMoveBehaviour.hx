@@ -44,7 +44,7 @@ class DragMoveBehaviour extends DragBehaviourBase
 {
 	override private function startDrag (mouseObj:MouseState) : Void
 	{
-		dragSource = new DragSource(target);
+		dragSource = new DragInfo(target);
 		
 		if (target.is(ILayoutable))
 			target.as(ILayoutable).layout.includeInLayout = false;
@@ -69,7 +69,7 @@ class DragMoveBehaviour extends DragBehaviourBase
 		target.dragEvents.exit.send( dragSource );
 		target.x = dragSource.origPosition.x;
 		target.y = dragSource.origPosition.y;
-		disposeDragSource();
+		disposeDragInfo();
 		
 		if (target.is(ILayoutable))
 			target.as(ILayoutable).layout.includeInLayout = true;

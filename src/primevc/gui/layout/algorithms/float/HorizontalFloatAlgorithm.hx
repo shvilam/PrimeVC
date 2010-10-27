@@ -266,7 +266,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 				else
 				{
 					//start at end
-					var itr	= group.children.getReversedIterator();
+					var itr	= group.children.reversedIterator();
 					depth	= group.children.length;
 					while (itr.hasNext()) {
 						var child = itr.next();
@@ -352,7 +352,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 				else
 				{
 					//start at end
-					var itr	= group.children.getReversedIterator();
+					var itr	= group.children.reversedIterator();
 					depth	= group.children.length - 1;
 					while (itr.hasNext()) {
 						var child = itr.next();

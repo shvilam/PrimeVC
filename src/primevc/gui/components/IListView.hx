@@ -26,46 +26,16 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours.drag;
- import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.traits.IDropTarget;
- import primevc.utils.IntMath;
-  using primevc.utils.Bind;
+package primevc.gui.components;
+ import primevc.gui.core.IUIContainer;
+ import primevc.gui.core.IUIDataComponent;
 
 
 /**
- * Behaviour which will add an dropped item on the right child-depth an on the
- * right position.
- * 
  * @author Ruben Weijers
- * @creation-date Jul 28, 2010
+ * @creation-date Oct 26, 2010
  */
-class DropTargetBehaviour extends BehaviourBase <IDropTarget>
+interface IListView <ListDataType > implements IUIContainer 
 {
-	override private function init ()
-	{
-		addDroppedChild.on( target.dragEvents.drop, this );
-	}
-	
-	
-	override private function reset ()
-	{
-		target.dragEvents.drop.unbind(this);
-	}
-
-
-	private function addDroppedChild (droppedItem:DragSource) : Void
-	{
-		var newChild	= droppedItem.target;
-		var depth		= IntMath.min( target.children.length, target.getDepthForBounds( droppedItem.dropBounds ) );
-	//	trace(target + ".addDroppedTile "+newChild+" on "+depth+" in "+target.name);
-		
-		newChild.x = droppedItem.dragRectangle.left;
-		newChild.y = droppedItem.dragRectangle.top;
-		
-		if (droppedItem.origContainer != target || !target.children.has(newChild))
-			target.children.add( newChild, depth );
-		else
-			target.children.move( newChild, depth );
-	}
+	public var itemRenderer (default, null)	: Class < IUIDataComponent < ListDataType > >;
 }

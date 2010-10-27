@@ -117,10 +117,10 @@ class LayoutClient implements ILayoutClient
 		percentHeight	= 0;
 		includeInLayout	= true;
 		
-		setX		.on( bounds.leftProp.change, this );
-		setY		.on( bounds.topProp.change, this );
-		updateWidth	.on( bounds.size.xProp.change, this );
-		updateHeight.on( bounds.size.yProp.change, this );
+		boundsLeftChangeHandler	.on( bounds.leftProp.change, this );
+		boundsTopChangeHandler	.on( bounds.topProp.change, this );
+		updateWidth				.on( bounds.size.xProp.change, this );
+		updateHeight			.on( bounds.size.yProp.change, this );
 		
 		changes				= changes.set(Flags.X | Flags.Y | Flags.WIDTH | Flags.HEIGHT);
 		state				= new SimpleStateMachine<ValidateStates>( ValidateStates.validated );
@@ -299,8 +299,8 @@ class LayoutClient implements ILayoutClient
 	// BOUNDARY SETTERS
 	//
 	
-	private inline function updateWidth (v:Int)		{ width = v - getHorPadding(); }
-	private inline function updateHeight (v:Int)	{ height = v - getVerPadding(); }
+	private inline function updateWidth (newV:Int, oldV:Int)	{ width = newV - getHorPadding(); }
+	private inline function updateHeight (newV:Int, oldV:Int)	{ height = newV - getVerPadding(); }
 	
 	
 	
@@ -328,6 +328,11 @@ class LayoutClient implements ILayoutClient
 		}
 		return y;
 	}
+	
+	
+	private function boundsLeftChangeHandler (newV:Int, oldV:Int) { x = newV; }
+	private function boundsTopChangeHandler (newV:Int, oldV:Int) { y = newV; }
+	
 	
 	
 	

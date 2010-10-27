@@ -29,6 +29,7 @@
 package primevc.gui.layout.algorithms.tile;
  import primevc.core.collections.ChainedListCollection;
  import primevc.core.collections.ChainedList;
+ import primevc.core.collections.IList;
  import primevc.core.collections.SimpleList;
  import primevc.core.geom.constraints.SizeConstraint;
  import primevc.core.geom.space.Direction;
@@ -128,7 +129,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	}
 	
 	
-	private inline function addTileContainer (childList:ChainedList<LayoutClient> = null)
+	private function addTileContainer (childList:ChainedList<LayoutClient> = null)
 	{
 		if (childList == null)
 			childList = new ChainedList<LayoutClient>();
@@ -168,30 +169,35 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	}
 	
 	
-	private function updateMapsAfterRemove (client:LayoutClient, pos:Int) : Void
+	private function updateMapsAfterChange (change:ListChanges < LayoutClient > )
 	{
-		if (tileCollection == null || !client.includeInLayout)
+		if (tileCollection == null)
 			return;
 		
-		tileCollection.remove(client);
-	}
-	
-	
-	private function updateMapsAfterAdd (client:LayoutClient, pos:Int) : Void
-	{
-		if (tileCollection == null || !client.includeInLayout)
-			return;
-		
-		tileCollection.add(client, pos);
-	}
-	
-	
-	private function updateMapsAfterMove (client:LayoutClient, oldPos:Int, newPos:Int)
-	{
-		if (tileCollection == null || !client.includeInLayout)
-			return;
-		
-		tileCollection.move(client, newPos, oldPos);
+		switch (change)
+		{
+			case added (client, newPos):
+				if (!client.includeInLayout)
+					return;
+				
+				tileCollection.add(client, newPos);
+				
+				
+			case removed (client, oldPos):
+				if (!client.includeInLayout)
+					return;
+				
+				tileCollection.remove(client);
+				
+			
+			case moved (client, newPos, oldPos):
+				if (!client.includeInLayout)
+					return;
+				
+				tileCollection.move(client, newPos, oldPos);
+			
+			default:
+		}
 	}
 	
 	
@@ -264,7 +270,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	}
 	
 	
-	private inline function validateGroups ()
+	private function validateGroups ()
 	{
 		//
 		// Check if children are added, removed or moved in the list
@@ -403,16 +409,13 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 				if (tileGroups.padding == group.padding)
 					tileGroups.padding = null;
 				
-				group.children.events.unbind(this);
+				group.children.change.unbind(this);
 			}
 			
 			v = super.setGroup(v);
 			
-			if (v != null) {
-				updateMapsAfterAdd		.on( group.children.events.added, this );
-				updateMapsAfterRemove	.on( group.children.events.removed, this );
-				updateMapsAfterMove		.on( group.children.events.moved, this );
-			}
+			if (v != null)
+				updateMapsAfterChange.on( group.children.change, this );
 		}
 		return v;
 	}

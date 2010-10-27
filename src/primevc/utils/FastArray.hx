@@ -146,9 +146,10 @@ class FastArrayUtil
 	}
 	
 	
-	public static inline function remove < T > (list:FastArray<T>, item:T) : Bool {
-		var pos = list.indexOf(item);
-		return removeAt(list, pos);
+	public static inline function remove < T > (list:FastArray<T>, item:T, oldPos:Int = -1) : Bool {
+		if (oldPos == -1)
+			oldPos = list.indexOf(item);
+		return removeAt(list, oldPos);
 	}
 	
 	

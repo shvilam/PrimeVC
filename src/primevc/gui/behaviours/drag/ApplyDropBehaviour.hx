@@ -26,52 +26,47 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.events;
- import primevc.core.dispatcher.Signals;
- import primevc.core.dispatcher.Signal0;
- import primevc.core.dispatcher.Signal2;
- import primevc.core.dispatcher.Signal3;
- 
+package primevc.gui.behaviours.drag;
+ import primevc.gui.behaviours.BehaviourBase;
+ import primevc.gui.traits.IDropTarget;
+ import primevc.utils.IntMath;
+  using primevc.utils.Bind;
+
 
 /**
- * Change events for a collection
+ * Behaviour which will add an dropped item on the right child-depth and on the
+ * right position. This behaviour should be added to the container that will
+ * accept the drag&drop (IDropTarget).
  * 
- * @creation-date	Jun 29, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Jul 28, 2010
  */
-class ListEvents <DataType> extends Signals
+class ApplyDropBehaviour extends BehaviourBase <IDropTarget>
 {
-	/**
-	 * Signal which is dispatched when an item is added to the list.
-	 * The event will contain the new item and the position on wich it is added.
-	 */
-	public var added	(default, null)		: Signal2 <DataType, Int>;
-	/**
-	 * Signal which is dispatched when an item is removed from the list. The 
-	 * event will contain the removed item and the last position of the item.
-	 */
-	public var removed	(default, null)		: Signal2 <DataType, Int>;
-	/**
-	 * Signal which is dispatched when an item is moved to a different position.
-	 * Event parameters:
-	 * 		1. moved item
-	 * 		2. old position
-	 * 		3. new position
-	 */
-	public var moved	(default, null)		: Signal3 <DataType, Int, Int>;
-	
-	/**
-	 * Signal which is dispatched when all of the items of the list have been 
-	 * removed at once.
-	 */
-	public var reset	(default, null)		: Signal0;
-	
-	
-	public function new ()
+	override private function init ()
 	{
-		reset	= new Signal0();
-		added	= new Signal2();
-		removed	= new Signal2();
-		moved	= new Signal3();
+		addDroppedChild.on( target.dragEvents.drop, this );
+	}
+	
+	
+	override private function reset ()
+	{
+		target.dragEvents.drop.unbind(this);
+	}
+
+
+	private function addDroppedChild (droppedItem:DragInfo) : Void
+	{
+		var newChild	= droppedItem.target;
+		var depth		= IntMath.min( target.children.length, target.getDepthForBounds( droppedItem.dropBounds ) );
+	//	trace(target + ".addDroppedTile "+newChild+" on "+depth+" in "+target.name);
+		
+		newChild.x = droppedItem.dragRectangle.left;
+		newChild.y = droppedItem.dragRectangle.top;
+		
+		if (droppedItem.origContainer != target || !target.children.has(newChild))
+			target.children.add( newChild, depth );
+		else
+			target.children.move( newChild, depth );
 	}
 }

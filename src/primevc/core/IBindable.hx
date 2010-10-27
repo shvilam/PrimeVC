@@ -27,7 +27,6 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.core;
- import primevc.core.dispatcher.Signal1;
 
 /**
  * Read/write interface for 'data-binding'.

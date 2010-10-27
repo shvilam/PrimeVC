@@ -82,9 +82,9 @@ class PriorityList < DataType : IPrioritizable >
 	}
 	
 	
-	public function iterator ()				: Iterator <DataType>	{ return getForwardIterator(); }
-	public function getForwardIterator ()	: IIterator <DataType>	{ return new DoubleFastCellForwardIterator <DataType> (first); }
-	public function getReversedIterator ()	: IIterator <DataType>	{ return new DoubleFastCellReversedIterator <DataType> (last); }
+	public function iterator ()				: Iterator <DataType>	{ return forwardIterator(); }
+	public function forwardIterator ()	: IIterator <DataType>	{ return new DoubleFastCellForwardIterator <DataType> (first); }
+	public function reversedIterator ()	: IIterator <DataType>	{ return new DoubleFastCellReversedIterator <DataType> (last); }
 	
 	
 	public function has (item:DataType)

@@ -39,13 +39,13 @@ package primevc.gui.behaviours.drag;
 
 
 /**
- * DragSource contains all the information about an object that is currenly
+ * DragInfo contains all the information about an object that is currenly
  * dragged.
  * 
  * @author Ruben Weijers
  * @creation-date Jul 21, 2010
  */
-class DragSource implements IDisposable
+class DragInfo implements IDisposable
 {
 	public var target										: IDraggable;
 	
@@ -91,12 +91,12 @@ class DragSource implements IDisposable
 	public var dropBounds									: IRectangle;
 	
 	
-	public function new (newTarget)
+	public function new (newTarget:IDraggable)
 	{
 		target			= newTarget;
 		dropTarget		= newTarget.container.as(IDropTarget);
 		origPosition	= new Point(target.x, target.y);
-		layout			= new LayoutClient( target.width.int(), target.height.int() );
+		layout			= target.  new LayoutClient( target.width.int(), target.height.int() );
 		dragRectangle	= cast target.rect.clone(); //new IntRectangle( target.x.int(), target.y.int(), layout.width, layout.height );
 		
 		origContainer	= target.container;
@@ -135,7 +135,7 @@ class DragSource implements IDisposable
 	
 #if debug
 	public function toString () {
-		return "DragSource( " + target + ") ";
+		return "DragInfo( " + target + ") ";
 	}
 #end
 }

@@ -64,23 +64,23 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 		childWidth	= Number.INT_NOT_SET;
 		childHeight	= Number.INT_NOT_SET;
 		
-		childAddedHandler.on( children.events.added, this );
-	//	childRemovedHandler.on( children.events.removed, this );
-		
-		invalidateChildList.on( children.events.added, this );
-		invalidateChildList.on( children.events.moved, this );
-		invalidateChildList.on( children.events.removed, this );
-		
-		setHorChildPosition.on( bounds.leftProp.change, this );
-		setVerChildPosition.on( bounds.topProp.change, this );
+		childrenChangeHandler	.on( children.change, this );
+		setHorChildPosition		.on( bounds.leftProp.change, this );
+		setVerChildPosition		.on( bounds.topProp.change, this );
 	}
 	
 	
 	override public function dispose ()
 	{
-		children.dispose();
-		children	= null;
-		algorithm	= null;
+		if (children != null)
+		{
+			if (children.change != null) {
+				children.change.unbind(this);
+				children.dispose();
+			}
+			children = null;
+		}
+		algorithm = null;
 		
 		super.dispose();
 	}
@@ -226,18 +226,28 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 	// EVENT HANDLERS
 	//
 	
-	private function algorithmChangedHandler ()							{ invalidate( LayoutFlags.ALGORITHM ); }
-	private function invalidateChildList ()								{ invalidate( LayoutFlags.LIST ); }
-//	private function childRemovedHandler (child:ChildType, pos:Int)		{ if (child != null) { child.parent = null; } }
+	private function algorithmChangedHandler () { invalidate( LayoutFlags.ALGORITHM ); }
 	
-	private function childAddedHandler (child:ChildType, pos:Int)
+	private function childrenChangeHandler ( change:ListChanges < ChildType > ) : Void
 	{
-	//	child.parent = this;
-		if (bounds.left != 0)	child.bounds.left	= bounds.left;
-		if (bounds.top != 0)	child.bounds.top	= bounds.top;
-	//	trace(name+".childAddedHandler "+child+"; bounds: "+bounds+"; child.bounds: "+child.bounds);
+		switch (change)
+		{
+			case added( child, newPos ):
+			//	child.parent = this;
+				if (bounds.left != 0)	child.bounds.left	= bounds.left;
+				if (bounds.top != 0)	child.bounds.top	= bounds.top;
+			//	trace(name+".childAddedHandler "+child+"; bounds: "+bounds+"; child.bounds: "+child.bounds);
+			
+			case removed( child, oldPos ):
+			//	if (child != null)
+			//		child.parent = null;
+			
+			default:
+		}
+		
+		invalidate( LayoutFlags.LIST );
 	}
-
+	
 	
 #if debug
 	override public function toString () { return "LayoutTileContainer( "+super.toString() + " ) - "/*+children*/; }

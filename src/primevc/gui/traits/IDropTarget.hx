@@ -28,7 +28,7 @@
  */
 package primevc.gui.traits;
  import primevc.core.geom.IRectangle;
- import primevc.gui.behaviours.drag.DragSource;
+ import primevc.gui.behaviours.drag.DragInfo;
  import primevc.gui.core.IUIContainer;
  import primevc.gui.events.DropTargetEvents;
 
@@ -51,7 +51,7 @@ interface IDropTarget implements IUIContainer
 	 * Method to check if an IDraggable-item is allowed to drop on this
 	 * container.
 	 */
-	public function isDropAllowed (draggedItem:DragSource) : Bool;
+	public function isDropAllowed (draggedItem:DragInfo) : Bool;
 	
 	
 	/**

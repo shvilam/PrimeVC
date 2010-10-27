@@ -18,7 +18,7 @@ package cases;
  import primevc.gui.behaviours.drag.DragMoveBehaviour;
  import primevc.gui.behaviours.drag.DropTargetBehaviour;
  import primevc.gui.behaviours.drag.ShowDragGapBehaviour;
- import primevc.gui.behaviours.drag.DragSource;
+ import primevc.gui.behaviours.drag.DragInfo;
  import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
  import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
  import primevc.gui.behaviours.BehaviourBase;
@@ -677,7 +677,7 @@ class TileList extends Frame, implements IDropTarget
 	// IDROPTARGET IMPLEMENTATION
 	//
 
-	public inline function isDropAllowed (draggedItem:DragSource) : Bool {
+	public inline function isDropAllowed (draggedItem:DragInfo) : Bool {
 		return (draggedItem.target.is(Tile) && (allowDropFromOtherLists || this == draggedItem.origContainer));
 	}
 	public inline function getDepthForBounds (bounds:IRectangle) : Int {

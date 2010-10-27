@@ -102,7 +102,8 @@ GlobalApp TileList:hover {
 }
 
 #frame2 {
-	algorithm: fixed-tile( vertical, 16, left, bottom );
+/*	algorithm: fixed-tile( vertical, 16, left, bottom );*/
+	algorithm: fixed-tile( horizontal, 6, left, top );
 	width: 58%;
 	top: 90px;
 	bottom: 5px;

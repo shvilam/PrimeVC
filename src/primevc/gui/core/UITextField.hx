@@ -107,8 +107,6 @@ class UITextField extends TextField, implements IUIElement, implements ITextStyl
 #if flash9
 		styleClasses.dispose();
 #end
-		
-		
 		if (layout != null)
 			layout.dispose();
 		
@@ -127,7 +125,6 @@ class UITextField extends TextField, implements IUIElement, implements ITextStyl
 	//
 	// METHODS
 	//
-
 
 	private function init ()
 	{
@@ -191,18 +188,6 @@ class UITextField extends TextField, implements IUIElement, implements ITextStyl
 	*/
 	
 #if flash9
-	private inline function setStyle (v)
-	{
-		return style = v;
-	}
-	
-	
-	public function applyStyling ()
-	{
-		
-	}
-	
-	
 	private inline function getTextStyle ()				{ return defaultTextFormat.as(TextFormat); }
 	private inline function setTextStyle (v:TextFormat)	{ return cast defaultTextFormat = v; }
 #end

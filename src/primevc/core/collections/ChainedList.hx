@@ -91,9 +91,9 @@ class ChainedList <DataType> extends SimpleList <DataType>
 	}
 	
 	
-	override public function remove (item:DataType) : DataType
+	override public function remove (item:DataType, oldPos:Int = -1) : DataType
 	{
-		super.remove(item);
+		super.remove(item, oldPos);
 		
 		if (nextList != null && nextList.length > 0)
 		{

@@ -286,66 +286,71 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	}
 	
 	
-	private function updateMapsAfterRemove (client:LayoutClient, pos:Int) : Void
+	private function updateMapsAfterChange (change:ListChanges < LayoutClient > )
 	{
-		if (horizontalMap == null || verticalMap == null || !client.includeInLayout)
+		if (horizontalMap == null || verticalMap == null)
 			return;
 		
-		horizontalMap.remove(client);
-		verticalMap.remove(client);
-	//	validateMaps();
-	}
-	
-	
-	private function updateMapsAfterAdd (client:LayoutClient, pos:Int) : Void
-	{
-		if (horizontalMap == null || verticalMap == null || !client.includeInLayout)
-			return;
-		
-		//reset boundary properties
-	//	client.bounds.left	= 0;
-	//	client.bounds.top	= 0;
-		
-		if (horizontalMap.length % maxTilesInDirection == 0) {
-			if (startDirection == horizontal)		addRow(childHorAlgorithm);
-			else									addRow(childVerAlgorithm);
+		switch (change)
+		{
+			case added ( client, newPos ):
+				if (!client.includeInLayout)
+					return;
+				
+				if (horizontalMap.length % maxTilesInDirection == 0)
+					if (startDirection == horizontal)		addRow(childHorAlgorithm);
+					else									addRow(childVerAlgorithm);
+				
+				horizontalMap.add(client, newPos);
+				verticalMap.add(client, newPos);
 			
+			
+			case removed ( client, oldPos ):
+				if (!client.includeInLayout)
+					return;
+				
+				horizontalMap.remove(client);
+				verticalMap.remove(client);
+			
+			
+			case moved ( client, newPos, oldPos ):
+				if (!client.includeInLayout)
+					return;
+
+				horizontalMap.move(client, newPos, oldPos);
+				verticalMap.move(client, newPos, oldPos);
+			
+			default:
 		}
 		
-		horizontalMap.add(client, pos);
-		verticalMap.add(client, pos);
-	//	validateMaps();
+#if unitTesting
+		validateMaps();				
+#end
 	}
 	
 	
-	private function updateMapsAfterMove (client:LayoutClient, oldPos:Int, newPos:Int)
-	{
-		if (horizontalMap == null || verticalMap == null || !client.includeInLayout)
-			return;
-		
-		horizontalMap.move(client, newPos, oldPos);
-		verticalMap.move(client, newPos, oldPos);
-	//	validateMaps();
-	}
-	
-	
+#if (unitTesting || debugLayout)
 	private inline function validateMaps ()
 	{
-#if (debug && debugLayout)
-		var len = horizontalMap.length;
+		var horLen = horizontalMap.length;
+		var verLen = verticalMap.length;
 		
-		for (i in 0...len)
+		Assert.equal( horLen, verLen );
+		
+		for (i in 0...horLen)
 		{
 			var hChild = horizontalMap.getItemAt(i);
 			var vChild = verticalMap.getItemAt(i);
-			if (hChild != vChild) {
+			if (hChild != vChild)
+			{
+				trace("i: "+i+"; hor: "+hChild+"; ver: "+vChild);
 				trace(horizontalMap);
 				trace(verticalMap);
 				Assert.equal(hChild, vChild, "children at "+i+" should be equal");
 			}
 		}
+	}	
 #end
-	}
 	
 	
 	
@@ -479,16 +484,13 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 				if (rows != null	&& rows.padding == group.padding)		rows.padding = null;
 				if (columns != null && columns.padding == group.padding)	columns.padding = null;
 				
-				group.children.events.unbind(this);
+				group.children.change.unbind(this);
 			}
 			
 			v = super.setGroup(v);
 			
-			if (v != null) {
-				updateMapsAfterAdd		.on( group.children.events.added, this );
-				updateMapsAfterRemove	.on( group.children.events.removed, this );
-				updateMapsAfterMove		.on( group.children.events.moved, this );
-			}
+			if (v != null)
+				updateMapsAfterChange.on( group.children.change, this );
 		}
 		return v;
 	}

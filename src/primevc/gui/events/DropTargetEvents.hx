@@ -29,7 +29,7 @@
 package primevc.gui.events;
  import primevc.core.dispatcher.Signals;
  import primevc.core.dispatcher.Signal1;
- import primevc.gui.behaviours.drag.DragSource;
+ import primevc.gui.behaviours.drag.DragInfo;
 
 
 
@@ -45,19 +45,19 @@ class DropTargetEvents extends Signals
 	 * Dispatched by the target on which the dragged item is dropped on the
 	 * DropTarget.
 	 */
-	var drop	(default, null) : Signal1 <DragSource>;
+	var drop	(default, null) : Signal1 <DragInfo>;
 	
 	/**
 	 * Dispatched by an object when a IDraggable object is moved over it and
 	 * it's allowed to be dropped on the DropTarget.
 	 */
-	var over	(default, null) : Signal1 <DragSource>;
+	var over	(default, null) : Signal1 <DragInfo>;
 	
 	/**
 	 * Dispatched by the DropTarget when an allowed IDraggable object is
 	 * moved out of the DropTarget.
 	 */
-	var out		(default, null) : Signal1 <DragSource>;
+	var out		(default, null) : Signal1 <DragInfo>;
 	
 	
 	public function new ()
