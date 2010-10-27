@@ -75,7 +75,7 @@ class GlobalApp extends UIContainer <Dynamic>
 		super("GlobalApp");
 		
 		testList1 = new ArrayList<DataVOType>();
-		for (i in 0...30)
+		for (i in 0...60)
 			testList1.add(i+"");
 	}
 	
@@ -83,6 +83,7 @@ class GlobalApp extends UIContainer <Dynamic>
 	override private function createBehaviours ()
 	{
 		changeTileColor.on( userEvents.mouse.click, this );
+		haxe.Log.clear.on( userEvents.mouse.doubleClick, this );
 	}
 	
 	
@@ -205,9 +206,9 @@ class Tile extends Button, implements IDraggable
 	public var isDragging					: Bool;
 	
 	
-	public function new (id:String = "", value:DataVOType = null)
+	public function new (value:DataVOType = null)
 	{
-		super(id, value);
+		super("Tile", value);
 	//	trace("new Tile! "+id+"; "+value+"; num "+num);
 		dragEvents	= new DragEvents();
 	}

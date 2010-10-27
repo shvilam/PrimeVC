@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.traits;
+ import primevc.core.traits.IInvalidatable;
 
 
 /**
@@ -43,7 +44,7 @@ package primevc.gui.traits;
  * @author Ruben Weijers
  * @creation-date Sep 03, 2010
  */
-interface IInvalidating
+interface IInvalidating implements IInvalidatable
 {
 	/**
 	 * Flags of properties that are changed
@@ -56,7 +57,7 @@ interface IInvalidating
 	 * It will in most cases add an eventlistener to an enter-frame event to
 	 * validate all the changed properties.
 	 */
-	public function invalidate ( change:UInt )	: Void;
+//	public function invalidate ( change:UInt )	: Void;
 	
 	/**
 	 * Method to update all the properties that have changed.

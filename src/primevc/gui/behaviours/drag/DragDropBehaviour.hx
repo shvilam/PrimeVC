@@ -49,8 +49,9 @@ package primevc.gui.behaviours.drag;
  */
 class DragDropBehaviour extends DragBehaviourBase
 {
-	private var copyTarget	: Bool;
-	private var moveBinding	: Wire < Dynamic >;
+	private var copyTarget			: Bool;
+	private var moveBinding			: Wire < Dynamic >;
+	private var mouseEnabledValue	: Bool;
 	
 	
 	public function new (target, ?dragBounds, ?copyTarget = false)
@@ -81,14 +82,15 @@ class DragDropBehaviour extends DragBehaviourBase
 		dragSource = new DragInfo(target);
 #if flash9
 		//move item to correct location
-		var pos			= target.container.as(IDisplayObject).localToGlobal( dragSource.origPosition );
-		target.visible	= false;
+		var pos				= target.container.as(IDisplayObject).localToGlobal( dragSource.origPosition );
+		target.visible		= false;
 		target.window.children.add( cast target );
-		target.x		= pos.x;
-		target.y		= pos.y;
+		target.x			= pos.x;
+		target.y			= pos.y;
+		mouseEnabledValue	= target.mouseEnabled;
 		target.mouseEnabled = false;
 	//	trace("startDraggin "+target+"; origPos: "+dragSource.origPosition+"; newPosition: "+pos);
-		target.visible	= true;
+		target.visible		= true;
 #end
 		
 		//start dragging and fire events
@@ -101,16 +103,16 @@ class DragDropBehaviour extends DragBehaviourBase
 	override private function stopDrag (mouseObj:MouseState) : Void
 	{
 		target.stopDrag();
-		target.mouseEnabled = true;
+		target.mouseEnabled = mouseEnabledValue;
 		if (dragSource.dropTarget != null)
 		{
 #if flash9
 			var rect	= dragSource.dragRectangle;
-			var pos		= new Point(target.x, target.y);
-			pos			= dragSource.dropTarget.globalToLocal( pos );
-			rect.left	= pos.x.int();
-			rect.top	= pos.y.int();
-			dragSource.dropBounds = rect;
+		//	var pos		= new Point(target.x, target.y);
+		//	pos			= dragSource.dropTarget.globalToLocal( pos );
+		//	rect.left	= pos.x.int();
+		//	rect.top	= pos.y.int();
+			dragSource.dropBounds = dragSource.layout.bounds;
 #end
 			//notify the dragged item that the drag-operation is completed
 			target.dragEvents.complete.send(dragSource);

@@ -49,7 +49,7 @@ interface ILayoutContainer <ChildType:LayoutClient> implements ILayoutClient
 	 * @return	true if the change invalidates the parent as well, otherwise 
 	 * 			false
 	 */
-	public function childInvalidated (childChanges:Int)			: Bool;
+//	public function childInvalidated (childChanges:Int)			: Bool;
 	
 	/**
 	 * List with all the children of the group

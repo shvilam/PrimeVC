@@ -105,18 +105,22 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		
 		childSizeConstraint			= new SizeConstraint();
 		
-		tileCollection				= cast new ChainedListCollection <LayoutClient>();
-		tileGroups					= new TileContainer<TileContainer<LayoutClient>>();
+		tileCollection				= cast new ChainedListCollection < LayoutClient >();
+		tileGroups					= new TileContainer < TileContainer < LayoutClient > >();
+		tileGroups.parent			= group;
 		tileGroups.padding			= group.padding;
 		tileGroups.sizeConstraint	= group.sizeConstraint;
 		
 		var children = group.children;
 		
-		if (startDirection == Direction.horizontal) {
+		if (startDirection == Direction.horizontal)
+		{
 			tileGroups.algorithm = verAlgorithm;
 			if (group.padding != null)
 				childPadding = new Box( 0, group.padding.left, 0, group.padding.right );
-		} else {
+		}
+		else
+		{
 			tileGroups.algorithm = horAlgorithm;
 			if (group.padding != null)
 				childPadding = new Box( group.padding.top, 0, group.padding.bottom, 0 );
@@ -140,6 +144,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		tileGroup.padding			= childPadding;
 		tileGroup.childWidth		= group.childWidth;
 		tileGroup.childHeight		= group.childHeight;
+		tileGroup.parent			= tileGroups;
 #if debug
 		tileGroup.name				= "row" + tileGroups.children.length;
 #end

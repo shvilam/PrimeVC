@@ -233,6 +233,9 @@ class UIComponent extends Sprite, implements IUIComponent
 	private function createLayout () : Void
 	{
 		layout = new LayoutClient();
+#if debug
+		layout.name = id+"Layout";
+#end
 	}
 	
 	

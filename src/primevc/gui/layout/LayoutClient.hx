@@ -32,6 +32,7 @@ package primevc.gui.layout;
  import primevc.core.geom.constraints.ConstrainedRect;
  import primevc.core.geom.constraints.SizeConstraint;
  import primevc.core.states.SimpleStateMachine;
+ import primevc.core.traits.Invalidatable;
  import primevc.types.Number;
  import primevc.gui.events.LayoutEvents;
  import primevc.gui.states.ValidateStates;
@@ -49,7 +50,7 @@ private typedef Flags = LayoutFlags;
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
-class LayoutClient implements ILayoutClient
+class LayoutClient extends Invalidatable, implements ILayoutClient
 {
 	public var validateOnPropertyChange									: Bool;
 	public var changes 													: Int;
@@ -102,6 +103,7 @@ class LayoutClient implements ILayoutClient
 	
 	public function new (newWidth:Int = 0, newHeight:Int = 0, validateOnPropertyChange = false)
 	{
+		super();
 #if debug
 		name = "LayoutClient" + counter++;
 #end
@@ -129,7 +131,7 @@ class LayoutClient implements ILayoutClient
 	}
 	
 	
-	public function dispose ()
+	override public function dispose ()
 	{
 		//remove the layoutclient from the parents layout.
 		if (parent != null && parent.children.has(this))
@@ -157,6 +159,7 @@ class LayoutClient implements ILayoutClient
 		events	= null;
 		parent	= null;
 		
+		super.dispose();
 	}
 	
 	
@@ -178,7 +181,7 @@ class LayoutClient implements ILayoutClient
 	//
 	
 	
-	public function invalidate (change:Int)
+	override public function invalidate (change:Int)
 	{
 		changes = changes.set(change);
 		
@@ -188,7 +191,18 @@ class LayoutClient implements ILayoutClient
 		if (isValidating || (parent != null && parent.isValidating))
 			return;
 		
+		if (includeInLayout && parent != null)
+			super.invalidate(change);
+		
 		if (!state.is(ValidateStates.parent_invalidated))
+		{
+			state.current = ValidateStates.invalidated;
+			
+			if (validateOnPropertyChange && (parent == null || !parent.validateOnPropertyChange))
+				validate();
+		}
+		
+	/*	if (!state.is(ValidateStates.parent_invalidated))
 		{
 			if (includeInLayout && parent != null && (parent.isInvalidated || parent.childInvalidated(changes))) {
 				state.current = ValidateStates.parent_invalidated;
@@ -200,7 +214,7 @@ class LayoutClient implements ILayoutClient
 				if (validateOnPropertyChange && (parent == null || !parent.validateOnPropertyChange))
 					validate();
 			}
-		}
+		}*/
 	}
 	
 	

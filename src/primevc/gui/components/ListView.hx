@@ -79,7 +79,7 @@ class ListView < ListDataType > extends UIContainer < IList < ListDataType > >, 
 	private function addItemRenderer( item:ListDataType, newPos:Int = -1 )
 	{
 		Assert.notNull( itemRenderer, "Item renderer cannot be null" );
-		var inst = Type.createInstance( itemRenderer, [ null, item ] );
+		var inst = Type.createInstance( itemRenderer, [ item ] );
 		children.add( inst );
 	}
 	

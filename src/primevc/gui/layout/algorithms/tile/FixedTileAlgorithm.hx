@@ -202,10 +202,12 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 		rows				= new TileContainer<TileContainer<LayoutClient>>();
 		rows.algorithm		= verAlgorithm;
 		rows.padding		= group.padding;
+	//	rows.parent			= group;
 		
 		columns				= new TileContainer<TileContainer<LayoutClient>>();
 		columns.algorithm	= horAlgorithm;
 		columns.padding		= group.padding;
+	//	columns.parent		= group;
 #if debug
 		rows.name			= "RowsContainer";
 		columns.name		= "ColumnsContainer";
@@ -256,6 +258,7 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 		var row			= new TileContainer<LayoutClient>( rowChildren);
 		row.childWidth	= group.childWidth;
 		row.childHeight	= group.childHeight;
+		row.parent		= rows;
 #if debug
 		row.name		= "row"+rows.children.length;
 #end
@@ -384,7 +387,8 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	{
 		var w:Int = 0;
 		
-		if (group.children.length > 0) {
+		if (group.children.length > 0)
+		{
 			if (startDirection == Direction.horizontal) {
 				columns.validateHorizontal();
 				w = rows.width = columns.width;

@@ -32,9 +32,10 @@ package primevc.gui.layout;
  import primevc.core.geom.BindablePoint;
  import primevc.core.geom.Box;
  import primevc.core.geom.IntPoint;
- import primevc.types.Number;
+ import primevc.core.traits.IInvalidatable;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.states.ValidateStates;
+ import primevc.types.Number;
  import primevc.utils.FastArray;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
@@ -98,7 +99,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	//
 	
 	
-	override public function invalidate (change:Int)
+	/*override public function invalidate (change:Int)
 	{
 		var wasInvalid = isInvalidated;
 		super.invalidate(change);
@@ -109,17 +110,26 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 				if (child.isInvalidated)
 					child.state.current = ValidateStates.parent_invalidated;
 		}
-	}
+	}*/
 	
 	
-	public inline function childInvalidated (childChanges:Int) : Bool
+	/*public inline function childInvalidated (childChanges:Int) : Bool
 	{
 		var r = false;
+		trace(this+".childInvalidated: isValidating? "+isValidating+"; "+algorithm.isInvalid(childChanges)+"; changes: "+LayoutFlags.readProperties(childChanges));
 		if (!isValidating && algorithm != null && algorithm.isInvalid(childChanges)) {
 			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
 			r = true;
 		}
 		return r;
+	}*/
+	override public function invalidateCall ( childChanges:UInt, sender:IInvalidatable ) : Void
+	{
+		var child = sender.as(LayoutClient);
+		if (!isValidating && algorithm != null && algorithm.isInvalid(childChanges)) {
+			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
+			child.state.current = ValidateStates.parent_invalidated;
+		}
 	}
 	
 	
@@ -154,6 +164,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		
 		var fillingChildren	= FastArrayUtil.create();
 		var childrenWidth	= 0;
+		
 		hasValidatedWidth	= true;
 		state.current		= ValidateStates.validating;
 		
@@ -250,7 +261,6 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		if (changes == 0 || !isValidating || !isVisible())
 			return;
 		
-	//	trace(this+"."+readChanges()+"; include: "+includeInLayout);
 	//	Assert.that(hasValidatedWidth, "To be validated, the layout should be validated horizontally for "+this);
 	//	Assert.that(hasValidatedHeight, "To be validated, the layout should be validated vertically for "+this);
 		
@@ -356,9 +366,12 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 				//check first if the bound properties are zero. If they are not, they can have been set by a tile-container
 				if (child.bounds.left == 0)		child.bounds.left	= padding.left;
 				if (child.bounds.top == 0)		child.bounds.top	= padding.top;
+				child.listeners.add(this);
 			
 			case removed( child, oldPos ):
 				child.parent		= null;
+				child.listeners.remove(this);
+				
 				//reset boundary properties without validating
 				child.bounds.left	= 0;
 				child.bounds.top	= 0;
