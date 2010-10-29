@@ -26,33 +26,22 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.display;
- import primevc.core.geom.Rectangle;
-#if !flash9
- import primevc.gui.traits.IDisplayable;
-#end
- import primevc.gui.traits.IInteractive;
+package primevc.gui.traits;
+ import primevc.core.collections.DataCursor;
+ import primevc.core.collections.IList;
 
 
 /**
- * Sprite interface for every platform.
- *
- * @creation-date	Jun 11, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Oct 27, 2010
  */
-interface ISprite 
-		implements IDisplayContainer
-	,	implements IInteractive
-	,	implements IDisplayObject
+interface IDataDropTarget < DataType > implements IDropTarget 
 {
-#if flash9
-	public var buttonMode						: Bool;
-	public var useHandCursor					: Bool;
-	public var dropTarget		(default, null) : flash.display.DisplayObject;
+	public var value	(getValue, setValue)	: IList < DataType >;
 	
-	public function stopDrag()	: Void;
-	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) : Void;
-#else
-	public var dropTarget		(default, null)		: IDisplayable;
-#end
+	/**
+	 * Method to check if an IDraggabledata--item is allowed to drop on this
+	 * container.
+	 */
+	public function isDataDropAllowed (draggedItem:DataCursor < DataType >) : Bool;
 }

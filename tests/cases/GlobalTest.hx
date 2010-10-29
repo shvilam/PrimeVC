@@ -5,6 +5,7 @@ package cases;
 // import com.elad.optimize.memory.FrameStats;
 #end
  import primevc.core.collections.ArrayList;
+ import primevc.core.collections.DataCursor;
  import primevc.core.geom.space.Vertical;
  import primevc.core.geom.IRectangle;
  import primevc.core.Application;
@@ -20,6 +21,7 @@ package cases;
 // import primevc.gui.core.UIGraphic;
 // import primevc.gui.core.UITextField;
  import primevc.gui.core.UIWindow;
+ import primevc.gui.display.DisplayDataCursor;
  import primevc.gui.events.DragEvents;
  import primevc.gui.events.DropTargetEvents;
 // import primevc.gui.events.MouseEvents;
@@ -31,7 +33,7 @@ package cases;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.RelativeLayout;
  import primevc.gui.layout.VirtualLayoutContainer;
-// import primevc.gui.traits.IDataDropTarget;
+ import primevc.gui.traits.IDataDropTarget;
  import primevc.gui.traits.IDropTarget;
  import primevc.gui.traits.IDraggable;
  import primevc.types.Number;
@@ -75,7 +77,7 @@ class GlobalApp extends UIContainer <Dynamic>
 		super("GlobalApp");
 		
 		testList1 = new ArrayList<DataVOType>();
-		for (i in 0...60)
+		for (i in 0...50)
 			testList1.add(i+"");
 	}
 	
@@ -198,8 +200,14 @@ class Button extends UIDataComponent < DataVOType >
 #end
 }
 
-
-
+/*
+class DataInfo < DataType >
+{
+	var type	: Class < Dynamic >;
+	var data	: DataType;
+	var list	: IList < DataType >;
+}
+*/
 class Tile extends Button, implements IDraggable
 {
 	public var dragEvents (default, null)	: DragEvents;
@@ -219,6 +227,13 @@ class Tile extends Button, implements IDraggable
 		super.createBehaviours();
 		behaviours.add( new DragDropBehaviour(this) );
 		changeStyleClass.on( userEvents.mouse.click, this );
+	}
+	
+	
+	public function createDragInfo () : DragInfo
+	{
+	//	var t = new Tile(value);
+		return new DragInfo( this, getDataCursor() );//, t ); //getDisplayCursor()/*, new Tile(value), null*/ );
 	}
 	
 	
@@ -277,7 +292,7 @@ class Frame extends UIContainer < String >
 }*/
 
 
-class TileList extends ListView < DataVOType >, implements IDropTarget
+class TileList extends ListView < DataVOType >, implements IDataDropTarget < DataVOType >
 {
 	public var dragEvents				: DropTargetEvents;
 	public var allowDropFromOtherLists	: Bool;
@@ -305,10 +320,28 @@ class TileList extends ListView < DataVOType >, implements IDropTarget
 	// IDROPTARGET IMPLEMENTATION
 	//
 	
-	public inline function isDropAllowed (draggedItem:DragInfo ) : Bool {
-		return (draggedItem.target.is(Tile) && (allowDropFromOtherLists || this == draggedItem.origContainer));
+	public function isDisplayDropAllowed (displayCursor:DisplayDataCursor ) : Bool
+	{
+		var allowed = false;
+		if (displayCursor.target.is(Tile))
+		{
+			var tile = displayCursor.target.as(Tile);
+			if ( value != null && !value.has( tile.value ) )
+				allowed = true;
+		}
+		return allowed;
 	}
-	public inline function getDepthForBounds (bounds:IRectangle) : Int {
+	
+	
+	public function isDataDropAllowed (dataCursor:DataCursor < DataVOType > ) : Bool
+	{
+		return dataCursor.list == value;
+	//	return (draggedItem.target.is(Tile) && (allowDropFromOtherLists || children == draggedItem.cursor.list));
+	}
+	
+	
+	public inline function getDepthForBounds (bounds:IRectangle) : Int
+	{
 		return layoutContainer.algorithm.getDepthForBounds(bounds);
 	}
 }

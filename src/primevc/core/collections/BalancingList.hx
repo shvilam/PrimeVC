@@ -63,11 +63,11 @@ class BalancingList <DataType> extends SimpleList <DataType>
 			//move the item who is currently at the position 'pos' to the next list
 			var curCell = getCellAt(pos);
 			nextList.add(curCell.data, nextListPos);
-			change.send( ListChanges.removed( curCell.data, pos ) );
+			change.send( ListChange.removed( curCell.data, pos ) );
 			
 			//set the item in the current cell
 			curCell.data = item;
-			change.send( ListChanges.added( item, pos ) );
+			change.send( ListChange.added( item, pos ) );
 			return item;
 		}
 		else
@@ -93,11 +93,11 @@ class BalancingList <DataType> extends SimpleList <DataType>
 			var newData = newCell.data;
 			//2. remove the item from the next list
 			nextList.remove(newData);
-			change.send( ListChanges.removed( cell.data, oldDepth ) );
+			change.send( ListChange.removed( cell.data, oldDepth ) );
 			
 			//3. add the item to this list without moving the next list
 			cell.data = newData;
-			change.send( ListChanges.added( cell.data, oldDepth ) );
+			change.send( ListChange.added( cell.data, oldDepth ) );
 			
 			return item;
 		}
@@ -114,8 +114,8 @@ class BalancingList <DataType> extends SimpleList <DataType>
 		var oldData		= curCell.data;
 		curCell.data	= newItem;
 		
-		change.send( ListChanges.added( newItem, toDepth ) );
-		change.send( ListChanges.removed( oldData, toDepth ) );
+		change.send( ListChange.added( newItem, toDepth ) );
+		change.send( ListChange.removed( oldData, toDepth ) );
 		
 		return oldData;
 	}

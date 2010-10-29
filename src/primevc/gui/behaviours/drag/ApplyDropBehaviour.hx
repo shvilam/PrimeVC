@@ -28,9 +28,12 @@
  */
 package primevc.gui.behaviours.drag;
  import primevc.gui.behaviours.BehaviourBase;
+ import primevc.gui.traits.IDataDropTarget;
  import primevc.gui.traits.IDropTarget;
+ import primevc.gui.traits.ILayoutable;
  import primevc.utils.IntMath;
   using primevc.utils.Bind;
+  using primevc.utils.TypeUtil;
 
 
 /**
@@ -45,7 +48,7 @@ class ApplyDropBehaviour extends BehaviourBase <IDropTarget>
 {
 	override private function init ()
 	{
-		addDroppedChild.on( target.dragEvents.drop, this );
+		addDroppedItem.on( target.dragEvents.drop, this );
 	}
 	
 	
@@ -55,18 +58,45 @@ class ApplyDropBehaviour extends BehaviourBase <IDropTarget>
 	}
 
 
-	private function addDroppedChild (droppedItem:DragInfo) : Void
+	private function addDroppedItem (droppedItem:DragInfo) : Void
 	{
+	//	trace(target+".addDroppedItem");
 		var newChild	= droppedItem.target;
 		var depth		= IntMath.min( target.children.length, target.getDepthForBounds( droppedItem.dropBounds ) );
-	//	trace(target + ".addDroppedTile "+newChild+" on "+depth+" in "+target.name);
 		
-		newChild.x = droppedItem.dragRectangle.left;
-		newChild.y = droppedItem.dragRectangle.top;
-		
-		if (droppedItem.origContainer != target || !target.children.has(newChild))
-			target.children.add( newChild, depth );
+		//add itemrenderer to datalist?
+		if (target.isDisplayDropAllowed( droppedItem.displayCursor ))
+		{
+			var cursor = droppedItem.displayCursor;
+			if (cursor.target.is(ILayoutable))
+			{
+				var layout = cursor.target.as(ILayoutable).layout;
+				layout.x = droppedItem.dragRectangle.left;
+				layout.y = droppedItem.dragRectangle.top;
+			}
+			else
+			{
+				cursor.target.x = droppedItem.dragRectangle.left;
+				cursor.target.y = droppedItem.dragRectangle.top;
+			}
+			cursor.moveTarget( depth, target.children );
+		}
 		else
-			target.children.move( newChild, depth );
+			droppedItem.displayCursor.restore();
+		
+		//add data item to datalist?
+		if (target.is(IDataDropTarget) && droppedItem.dataCursor != null)
+		{
+			var dataTarget	= target.as(IDataDropTarget);
+			var dataCursor	= droppedItem.dataCursor;
+			
+			if (dataTarget.isDataDropAllowed( cast dataCursor ))
+				dataCursor.moveTarget( depth, dataTarget.value );
+			else
+				dataCursor.restore();
+				
+		}
+		
+		droppedItem.dispose();
 	}
 }

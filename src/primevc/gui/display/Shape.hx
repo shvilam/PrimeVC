@@ -89,6 +89,13 @@ class ShapeImpl implements IDisplayObject
 		window			= null;
 	}
 	
+	
+	public function getDisplayCursor () : DisplayDataCursor
+	{
+		return new DisplayDataCursor(this);
+	}
+	
+	
 	private var _visible:Bool;
 	private inline function getMaxWidth() { return 1024; }
 	

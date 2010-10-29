@@ -108,7 +108,7 @@ class CompositeEffectInstance extends EffectInstance < Dynamic, CompositeEffect 
 	override private function calculateTweenStartPos () : Float { return 0; }
 	
 	
-	private function updateEffectInstances (change:ListChanges < ChildEffectType > )
+	private function updateEffectInstances (change:ListChange < ChildEffectType > )
 	{
 		switch (change)
 		{

@@ -46,7 +46,7 @@ package primevc.core.collections;
 class SimpleList < DataType > implements IList < DataType > 
 	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
-	public var change		(default, null)		: Signal1 < ListChanges < DataType > >;
+	public var change		(default, null)		: Signal1 < ListChange < DataType > >;
 	
 	private var _length		: Int;
 	public var length		(getLength, never)	: Int;
@@ -79,7 +79,7 @@ class SimpleList < DataType > implements IList < DataType >
 		
 		first = last = null;
 		_length = 0;
-		change.send( ListChanges.reset );
+		change.send( ListChange.reset );
 	}
 	
 	
@@ -126,7 +126,7 @@ class SimpleList < DataType > implements IList < DataType >
 	public function add (item:DataType, pos:Int = -1) : DataType
 	{
 		pos = insertAt( item, pos );
-		change.send( ListChanges.added( item, pos ) );
+		change.send( ListChange.added( item, pos ) );
 		return item;
 	}
 	
@@ -137,7 +137,7 @@ class SimpleList < DataType > implements IList < DataType >
 		{
 			oldPos = removeItem( item, oldPos );
 			if (oldPos > -1)
-				change.send( ListChanges.removed( item, oldPos ) );
+				change.send( ListChange.removed( item, oldPos ) );
 		}
 		return item;
 	}
@@ -159,7 +159,7 @@ class SimpleList < DataType > implements IList < DataType >
 			else
 				insertCellAt( cell, (newPos - 1) );
 			
-			change.send( ListChanges.moved( item, newPos, curPos ) );
+			change.send( ListChange.moved( item, newPos, curPos ) );
 		}
 		return item;
 	}

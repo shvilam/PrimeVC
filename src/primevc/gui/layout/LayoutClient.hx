@@ -33,6 +33,10 @@ package primevc.gui.layout;
  import primevc.core.geom.constraints.SizeConstraint;
  import primevc.core.states.SimpleStateMachine;
  import primevc.core.traits.Invalidatable;
+#if debug
+ import primevc.core.traits.IUIdentifiable;
+ import primevc.utils.StringUtil;
+#end
  import primevc.types.Number;
  import primevc.gui.events.LayoutEvents;
  import primevc.gui.states.ValidateStates;
@@ -50,7 +54,9 @@ private typedef Flags = LayoutFlags;
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
-class LayoutClient extends Invalidatable, implements ILayoutClient
+class LayoutClient extends Invalidatable
+			,	implements ILayoutClient
+#if debug	,	implements IUIdentifiable #end
 {
 	public var validateOnPropertyChange									: Bool;
 	public var changes 													: Int;
@@ -96,6 +102,11 @@ class LayoutClient extends Invalidatable, implements ILayoutClient
 	
 	public var padding				(default, setPadding)				: Box;
 	
+#if debug
+	public var uuid					(default, null)						: String;
+#end
+	
+	
 	
 	//
 	// METHODS
@@ -106,6 +117,7 @@ class LayoutClient extends Invalidatable, implements ILayoutClient
 		super();
 #if debug
 		name = "LayoutClient" + counter++;
+		uuid = StringUtil.createUUID();
 #end
 		this.validateOnPropertyChange	= validateOnPropertyChange;
 		maintainAspectRatio				= false;
@@ -188,7 +200,9 @@ class LayoutClient extends Invalidatable, implements ILayoutClient
 		if (changes == 0 || state == null || state.current == null)
 			return;
 		
-		if (isValidating || (parent != null && parent.isValidating))
+	//	if (parent != null)
+	//		trace(this+".invalidate "+changes+"; "+state.current+"; "+parent.isValidating+"; parent: "+parent);
+		if (isValidating)
 			return;
 		
 		if (includeInLayout && parent != null)
@@ -566,6 +580,6 @@ class LayoutClient extends Invalidatable, implements ILayoutClient
 	
 	public static var counter:Int = 0;
 	public var name:String;
-	public function toString() { return name; }
+	public function toString() { return name + " - " + uuid; }
 #end
 }

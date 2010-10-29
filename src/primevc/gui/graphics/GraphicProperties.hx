@@ -87,8 +87,9 @@ class GraphicProperties implements IGraphicElement
 	
 	public function dispose ()
 	{
-		if (border != null)	border.dispose();
-		if (fill != null)	fill.dispose();
+	//	if (border != null)	border.dispose();
+	//	if (fill != null)	fill.dispose();
+	//	if (shape != null)	shape.dispose();
 		
 		while (!listeners.isEmpty())
 			listeners.pop();
@@ -211,7 +212,7 @@ class GraphicProperties implements IGraphicElement
 	{
 		if (v != shape)
 		{
-			if (shape != null)
+			if (shape != null && shape.listeners != null)
 				shape.listeners.remove(this);
 
 			shape = v;
@@ -228,7 +229,7 @@ class GraphicProperties implements IGraphicElement
 	{
 		if (v != fill)
 		{
-			if (fill != null)
+			if (fill != null && fill.listeners != null)
 				fill.listeners.remove(this);
 
 			fill = v;
@@ -245,7 +246,7 @@ class GraphicProperties implements IGraphicElement
 	{
 		if (v != border)
 		{
-			if (border != null)
+			if (border != null && border.listeners != null)
 				border.listeners.remove(this);
 
 			border = v;

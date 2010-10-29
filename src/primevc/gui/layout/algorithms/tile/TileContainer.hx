@@ -252,8 +252,9 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 	
 	private function algorithmChangedHandler () { invalidate( LayoutFlags.ALGORITHM ); }
 	
-	private function childrenChangeHandler ( change:ListChanges < ChildType > ) : Void
+	private function childrenChangeHandler ( change:ListChange < ChildType > ) : Void
 	{
+	//	trace(this+".childrenChangeHandler "+change);
 		switch (change)
 		{
 			case added( child, newPos ):

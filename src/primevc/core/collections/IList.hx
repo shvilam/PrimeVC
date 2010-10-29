@@ -40,7 +40,7 @@ typedef NewPos = Int;
  * @author			Ruben Weijers
  * @creation-date	Oct 26, 2010
  */
-enum ListChanges <T>
+enum ListChange <T>
 {
 	added ( item:T, newPos:NewPos );
 	removed ( item:T, oldPos:OldPos );
@@ -58,7 +58,7 @@ interface IList <DataType>
 	,	implements IDisposable
 {
 //	public var events		(default, null)									: ListEvents <DataType>;
-	public var change		(default, null)									: Signal1 < ListChanges < DataType > >;
+	public var change		(default, null)									: Signal1 < ListChange < DataType > >;
 	public var length		(getLength, never)								: Int;
 	
 	

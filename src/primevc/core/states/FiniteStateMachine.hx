@@ -94,9 +94,9 @@ class FiniteStateMachine implements IFiniteStateMachine
 		if (newState == null)
 			newState = defaultState;
 		
-		if (!enabled)							return current;	//can't change states when we're not enabled
-		if (current == newState)				return current;	//don't need to change since we're already in this state
-		if (states[ newState.id ] != newState)	return current;	//can't go to a state that isn't part of this FSM
+		if (!enabled)												return current;	//can't change states when we're not enabled
+		if (current == newState)									return current;	//don't need to change since we're already in this state
+		if (newState != null && states[ newState.id ] != newState)	return current;	//can't go to a state that isn't part of this FSM
 		
 		//dispathc exiting event
 		if (current != null)

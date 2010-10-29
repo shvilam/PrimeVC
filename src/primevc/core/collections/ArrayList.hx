@@ -45,7 +45,7 @@ package primevc.core.collections;
 class ArrayList <DataType> implements IList <DataType>
 	#if flash9	,	implements haxe.rtti.Generic #end
 {
-	public var change		(default, null)		: Signal1 < ListChanges< DataType > >;
+	public var change		(default, null)		: Signal1 < ListChange< DataType > >;
 	private var list		(default, null)		: FastArray < DataType >;
 	public var length		(getLength, never)	: Int;
 	
@@ -63,7 +63,7 @@ class ArrayList <DataType> implements IList <DataType>
 	public inline function removeAll ()
 	{
 		FastArrayUtil.removeAll(list);
-		change.send( ListChanges.reset );
+		change.send( ListChange.reset );
 	}
 	
 	
@@ -108,7 +108,7 @@ class ArrayList <DataType> implements IList <DataType>
 	public inline function add (item:DataType, pos:Int = -1) : DataType
 	{
 		pos = list.insertAt(item, pos);
-		change.send( ListChanges.added( item, pos ) );
+		change.send( ListChange.added( item, pos ) );
 		return item;
 	}
 	
@@ -119,7 +119,7 @@ class ArrayList <DataType> implements IList <DataType>
 			oldPos = list.indexOf(item);
 		
 		if (oldPos > -1 && list.remove(item, oldPos))
-			change.send( ListChanges.removed( item, oldPos ) );
+			change.send( ListChange.removed( item, oldPos ) );
 		return item;
 	}
 	
@@ -131,7 +131,7 @@ class ArrayList <DataType> implements IList <DataType>
 		else if (newPos < 0)				newPos = length - newPos;
 		
 		if (curPos != newPos && list.move(item, newPos, curPos))
-			change.send( ListChanges.moved( item, newPos, curPos ) );
+			change.send( ListChange.moved( item, newPos, curPos ) );
 		
 		return item;
 	}

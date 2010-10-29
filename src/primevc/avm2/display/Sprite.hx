@@ -30,6 +30,7 @@
 package primevc.avm2.display;
  import flash.display.DisplayObject;
  import primevc.core.geom.IntRectangle;
+ import primevc.gui.display.DisplayDataCursor;
  import primevc.gui.display.ISprite;
  import primevc.gui.display.DisplayList;
  import primevc.gui.display.IDisplayContainer;
@@ -79,6 +80,7 @@ class Sprite extends flash.display.Sprite, implements ISprite
 		if (userEvents == null)
 			return;		// already disposed
 		
+		window = null;
 		children.dispose();
 		userEvents.dispose();
 		displayEvents.dispose();
@@ -88,7 +90,6 @@ class Sprite extends flash.display.Sprite, implements ISprite
 		
 		rect.dispose();
 		
-		window			= null;
 		children		= null;
 		userEvents		= null;
 		displayEvents	= null;
@@ -96,8 +97,15 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	}
 	
 	
-	public inline function isObjectOn (otherObj:IDisplayObject) : Bool {
+	public inline function isObjectOn (otherObj:IDisplayObject) : Bool
+	{
 		return otherObj == null ? false : otherObj.as(DisplayObject).hitTestObject( this.as(DisplayObject) );
+	}
+	
+	
+	public function getDisplayCursor () : DisplayDataCursor
+	{
+		return new DisplayDataCursor(this);
 	}
 	
 	
@@ -134,7 +142,7 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	}
 	
 	
-	private inline function setWindow (v)
+	private  function setWindow (v)
 	{
 		if (window != v)
 		{

@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.drag;
+ import primevc.core.dispatcher.Wire;
 // import primevc.core.geom.Point;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.IUIContainer;
@@ -51,6 +52,7 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 	private var draggedItem				: DragInfo;
 	private var layoutGroup				: LayoutContainer;
 	private var oldMouseChildrenValue	: Bool;
+	private var mouseMoveBinding		: Wire < Dynamic >;
 	
 
 	override private function init ()
@@ -67,7 +69,11 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 		layoutGroup = null;
 		target.dragEvents.over.unbind(this);
 		target.dragEvents.out.unbind(this);
-		target.window.mouse.events.move.unbind(this);
+		
+		if (mouseMoveBinding != null) {
+			mouseMoveBinding.dispose();
+			mouseMoveBinding = null;
+		}
 	}
 	
 	
@@ -76,16 +82,25 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 		draggedItem						= source;
 		oldMouseChildrenValue			= target.children.mouseEnabled;
 		target.children.mouseEnabled	= false;
-		updateTargetAfterMouseMove.on( target.window.mouse.events.move, this );
+		
+		if (mouseMoveBinding == null)
+			mouseMoveBinding = updateTargetAfterMouseMove.on( target.window.mouse.events.move, this );
+		else
+			mouseMoveBinding.enable();
 	}
 	
 	
 	private function removeTmpTileFromLayout (source:DragInfo)
 	{
-		target.window.mouse.events.move.unbind( this );
+	//	trace(target+".removeTmpTileFromLayout "+source.layout);
+		Assert.notNull( source.layout );
+		Assert.notNull( mouseMoveBinding );
+		
+		mouseMoveBinding.disable();
 		layoutGroup.children.remove( source.layout );
 		draggedItem = null;
 		target.children.mouseEnabled = oldMouseChildrenValue;
+	//	trace("\t"+layoutGroup.children);
 	}
 	
 	
@@ -105,9 +120,13 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 	//	if (curDepth > -1 && newDepth == target.children.length)
 	//		newDepth -= 1;
 		
+	//	trace(target+".updateTargetAfterMouseMove "+curDepth+" => "+newDepth+" for rect "+rect+"; bounds "+draggedItem.layout.parent);
 		if (curDepth == -1)
 			layoutGroup.children.add( draggedItem.layout, newDepth );
 		else if (curDepth != newDepth)
 			layoutGroup.children.move( draggedItem.layout, newDepth, curDepth );
+		
+	//	layoutGroup.validate();
+	//	trace("layoutGroup.children "+layoutGroup.children);
 	}
 }

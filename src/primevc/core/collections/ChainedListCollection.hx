@@ -46,7 +46,7 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	implements IListCollection < DataType, ChainedList<DataType> > 
 	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
-	public var change		(default, null)				: Signal1 < ListChanges < DataType > >;
+	public var change		(default, null)				: Signal1 < ListChange < DataType > >;
 	
 	private var _length		: Int;
 	public var length		(getLength, never)			: Int;
@@ -127,7 +127,7 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	public inline function add (item:DataType, pos:Int = -1) : DataType
 	{
 		pos = insertAt( item, pos );
-		change.send( ListChanges.added( item, pos ) );
+		change.send( ListChange.added( item, pos ) );
 		return item;
 	}
 	
@@ -136,7 +136,7 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	{
 		oldPos = removeItem(item, oldPos);
 		if (oldPos > -1)
-			change.send( ListChanges.removed( item, oldPos ) );
+			change.send( ListChange.removed( item, oldPos ) );
 		return item;
 	}
 	
@@ -151,7 +151,7 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 		{
 			removeItem( item, curPos );
 			insertAt( item, newPos );
-			change.send( ListChanges.moved( item, newPos, curPos ) );
+			change.send( ListChange.moved( item, newPos, curPos ) );
 		}
 		
 		return item;

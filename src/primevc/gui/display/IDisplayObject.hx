@@ -46,8 +46,8 @@ interface IDisplayObject
 #if flash9  ,	implements flash.display.IBitmapDrawable #end
 {
 	
-	function isObjectOn (otherObj:IDisplayObject)		: Bool;
-	
+	function isObjectOn (otherObj:IDisplayObject)	: Bool;
+	function getDisplayCursor ()					: DisplayDataCursor;
 	
 #if flash9
 	var alpha					: Float;

@@ -45,12 +45,15 @@ package primevc.gui.behaviours.layout;
  * @author			Ruben Weijers
  */
 class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >, implements IRenderable
-{	
+{
+	private var isNotPositionedYet : Bool;
+	
 	private inline function getUIWindow () : UIWindow	{ return target.window.as(UIWindow); }
 	
 	
 	override private function init ()
 	{
+		isNotPositionedYet = true;
 		Assert.that(target.layout != null, "Layout of "+target+" can't be null for "+this);
 		
 #if debug
@@ -68,7 +71,10 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >, implements I
 		if (target.layout == null)
 			return;
 		
-		getUIWindow().invalidationManager.remove( target.layout );
+		var window = getUIWindow();
+		
+		if (window != null)
+			window.invalidationManager.remove( target.layout );
 		target.layout.state.change.unbind( this );
 		target.layout.events.posChanged.unbind( this );
 	}
@@ -101,10 +107,11 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >, implements I
 	{
 		var l = target.layout;
 	//	trace(target+".applyPosition; " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y);
-		if (target.effects == null)
+		if (target.effects == null || isNotPositionedYet)
 		{
 			target.x	= target.rect.left	= l.getHorPosition();
 			target.y	= target.rect.top	= l.getVerPosition();
+			isNotPositionedYet = false;
 		} else {
 			target.effects.playMove();
 		}

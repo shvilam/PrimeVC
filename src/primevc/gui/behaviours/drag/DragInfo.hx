@@ -28,12 +28,16 @@
  */
 package primevc.gui.behaviours.drag;
  import primevc.core.IDisposable;
+ import primevc.core.collections.IDataCursor;
  import primevc.core.geom.Point;
  import primevc.core.geom.IRectangle;
+ import primevc.gui.display.DisplayDataCursor;
  import primevc.gui.display.IDisplayContainer;
+ import primevc.gui.display.ISprite;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.traits.IDraggable;
  import primevc.gui.traits.IDropTarget;
+ import primevc.gui.traits.ILayoutable;
   using primevc.utils.TypeUtil;
   using Std;
 
@@ -47,24 +51,40 @@ package primevc.gui.behaviours.drag;
  */
 class DragInfo implements IDisposable
 {
-	public var target										: IDraggable;
+	public var target			(default, null)				: IDraggable;
+	
+	/**
+	 * Sprite to visualize the dragged-item during a drag operation.
+	 * @default		target
+	 */
+	public var dragRenderer		(default, null)				: ISprite;
+	
+	/**
+	 * Information about the displayList in which the target is placed.
+	 */
+	public var displayCursor	(default, null)				: DisplayDataCursor;
+	
+	/**
+	 * Optional cursor pointer for the data
+	 */
+	public var dataCursor		(default, null)				: IDataCursor < Dynamic >;
 	
 	/**
 	 * Container in which the target used to be when the drag-operation 
 	 * started.
 	 */
-	public var origContainer	(default, null)				: IDisplayContainer;
+//	public var origContainer	(default, null)				: IDisplayContainer;
 	
 	/**
 	 * Depth on which the target was in the displaylist when the drag-operation
 	 * started.
 	 */
-	public var origDepth		(default, null)				: Int;
+//	public var origDepth		(default, null)				: Int;
 	
 	/**
 	 * Original location of the dragged item.
 	 */
-	public var origPosition		(default, null)				: Point;
+//	public var origPosition		(default, null)				: Point;
 	
 	/**
 	 * Layout object of the target
@@ -91,27 +111,49 @@ class DragInfo implements IDisposable
 	public var dropBounds									: IRectangle;
 	
 	
-	public function new (newTarget:IDraggable)
+	public function new (target:IDraggable, dataCursor:IDataCursor < Dynamic >, dragRenderer:ISprite = null, dragLayout:LayoutClient = null)
 	{
-		target			= newTarget;
-		dropTarget		= newTarget.container.as(IDropTarget);
-		origPosition	= new Point(target.x, target.y);
-		layout			= new LayoutClient( target.width.int(), target.height.int() );
-		dragRectangle	= cast target.rect.clone(); //new IntRectangle( target.x.int(), target.y.int(), layout.width, layout.height );
+		this.target			= target;
+		this.displayCursor	= target.getDisplayCursor();
+		this.dataCursor		= dataCursor;
 		
-		origContainer	= target.container;
-		origDepth		= target.container.children.indexOf(target);
+		if (target.container.is(IDropTarget))
+			this.dropTarget	= target.container.as(IDropTarget);
+		
+		this.dragRenderer	= (dragRenderer != null)	? dragRenderer : target;
+		this.layout			= (dragLayout != null)		? dragLayout : new LayoutClient( target.rect.width, target.rect.height );
+		this.dragRectangle	= this.dragRenderer.rect; //cast target.rect.clone(); //new IntRectangle( target.x.int(), target.y.int(), layout.width, layout.height );
+		
+	//	trace("new DragInfo "+layout);
 	}
 	
 	
 	public function dispose ()
 	{
+		if (target != dragRenderer)
+			dragRenderer.dispose();
+		
+		if (dataCursor != null)		dataCursor.dispose();
+		if (displayCursor != null)	displayCursor.dispose();
+		
 		target			= null;
 		dragRectangle	= null;
+		dragRenderer	= null;
+		
+		displayCursor	= null;
+		dataCursor		= null;
+		
 		dropTarget		= null;
 		dropBounds		= null;
-		origContainer	= null;
-		origPosition	= null;
+	//	origContainer	= null;
+	//	origPosition	= null;
+	}
+	
+	
+	public function restore ()
+	{
+		if (displayCursor != null)		displayCursor.restore();
+		if (dataCursor != null)			dataCursor.restore();
 	}
 	
 	

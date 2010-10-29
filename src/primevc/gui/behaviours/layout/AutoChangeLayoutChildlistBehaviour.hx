@@ -89,8 +89,10 @@ class AutoChangeLayoutChildlistBehaviour extends BehaviourBase < IDisplayContain
 		target.children.change.unbind(this);
 	}
 	
-	private function handleChildChange ( change:ListChanges < IDisplayObject > )
+	
+	private function handleChildChange ( change:ListChange < IDisplayObject > )
 	{
+	//	trace(target+".handleChildChange for layout "+change);
 		switch (change)
 		{
 			case added( child, newPos ):
@@ -115,6 +117,7 @@ class AutoChangeLayoutChildlistBehaviour extends BehaviourBase < IDisplayContain
 			
 			default:
 		}
+	//	trace("\t children: "+layoutGroup.children);
 	}
 	
 	

@@ -357,8 +357,9 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	// EVENT HANDLERS
 	//
 	
-	private function childrenChangeHandler ( change:ListChanges <LayoutClient> ) : Void
+	private function childrenChangeHandler ( change:ListChange <LayoutClient> ) : Void
 	{
+	//	trace("layoutGroup.childrenChangeHandler "+change);
 		switch (change)
 		{
 			case added( child, newPos ):

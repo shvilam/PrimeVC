@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
+ import primevc.core.collections.DataCursor;
  import primevc.core.Bindable;
  
 
@@ -48,5 +49,8 @@ interface IUIDataComponent < DataType > implements IUIComponent
 	 * 		- component has created children and the data is already set
 	 * 		- data is set and the component-state is already initialized
 	 */
-	private function initData()				: Void;
+	private function initData ()			: Void;
+	
+	
+	public function getDataCursor ()		: DataCursor < DataType >;
 }

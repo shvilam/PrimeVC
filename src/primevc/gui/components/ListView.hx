@@ -35,7 +35,8 @@ package primevc.gui.components;
   using primevc.utils.TypeUtil;
 
 
-private typedef ItemRendererType <T> = Class < IUIDataComponent < T > >;
+private typedef ItemRenderer < T > = IUIDataComponent < T >;
+private typedef ItemRendererType <T> = Class < ItemRenderer < T > >;
 
 
 /**
@@ -86,19 +87,39 @@ class ListView < ListDataType > extends UIContainer < IList < ListDataType > >, 
 	
 	private function removeItemRenderer( item:ListDataType, oldPos:Int = -1 )
 	{
-		var inst = getItemRendererFor( item );
-		if (inst != null)
-			children.remove( inst );
+		var renderer = getItemRendererFor( item );
+		if (renderer != null) {
+			children.remove( renderer );
+			renderer.dispose();
+		}
 	}
 	
 	
 	private function getItemRendererFor ( item:ListDataType )
 	{
-		for (child in children)
-			if (child.is( ItemRendererType ) )
-				return child;
+		for (child in children) {
+			if (child.is( ItemRenderer ))
+			{
+				if (item == cast child.as( ItemRenderer ).value )
+					return child;
+			}
+		}
 		
 		return null;		
+	}
+	
+	
+	private function moveItemRenderer ( item:ListDataType, newPos:Int, oldPos:Int )
+	{
+		var renderer = getItemRendererFor( item );
+		if (renderer != null)
+			children.move( renderer, newPos, oldPos );
+#if debug
+		else
+			trace("no itemrenderer found to move for data-item "+item+"; move: "+oldPos+" => "+newPos);
+#end
+	//	else
+	//		addItemRenderer( item, newPos );
 	}
 	
 	
@@ -125,7 +146,6 @@ class ListView < ListDataType > extends UIContainer < IList < ListDataType > >, 
 			listChangeHandler.on( newVal.change, this );
 			
 			//add itemrenders for new list
-			trace(this+".dataChangeHandler");
 			for (item in newVal)
 				addItemRenderer( item );
 		}
@@ -133,8 +153,14 @@ class ListView < ListDataType > extends UIContainer < IList < ListDataType > >, 
 	
 	
 	
-	private function listChangeHandler ( change:ListChanges < ListDataType > ) : Void
+	private function listChangeHandler ( change:ListChange < ListDataType > ) : Void
 	{
-		
+		switch (change)
+		{
+			case added( item, newPos):			addItemRenderer( item, newPos );
+			case removed (item, oldPos):		removeItemRenderer( item, oldPos );
+			case moved (item, newPos, oldPos):	moveItemRenderer( item, newPos, oldPos );
+			default:
+		}
 	}
 }

@@ -29,6 +29,7 @@
 package primevc.avm2.display;
  import flash.display.DisplayObject;
  import primevc.core.geom.IntRectangle;
+ import primevc.gui.display.DisplayDataCursor;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.display.ITextField;
@@ -113,8 +114,15 @@ class TextField extends flash.text.TextField, implements ITextField
 	}
 
 
-	public inline function isObjectOn (otherObj:IDisplayObject) : Bool {
+	public function isObjectOn (otherObj:IDisplayObject) : Bool
+	{
 		return otherObj == null ? false : otherObj.as(DisplayObject).hitTestObject( this.as(DisplayObject) );
+	}
+	
+	
+	public function getDisplayCursor () : DisplayDataCursor
+	{
+		return new DisplayDataCursor(this);
 	}
 	
 	
@@ -126,7 +134,8 @@ class TextField extends flash.text.TextField, implements ITextField
 	private inline function setContainer (v)
 	{
 		container	= v;
-		window		= container.window;
+		if (v != null)	window = container.window;
+		else			window = null;
 		return v;
 	}
 	

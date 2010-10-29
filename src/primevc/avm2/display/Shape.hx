@@ -29,10 +29,11 @@
 package primevc.avm2.display;
  import flash.display.DisplayObject;
  import primevc.core.geom.IntRectangle;
- import primevc.gui.events.DisplayEvents;
+ import primevc.gui.display.DisplayDataCursor;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.display.Window;
+ import primevc.gui.events.DisplayEvents;
   using primevc.utils.TypeUtil;
   using Std;
 
@@ -77,8 +78,15 @@ class Shape extends flash.display.Shape, implements IDisplayObject
 	}
 
 
-	public inline function isObjectOn (otherObj:IDisplayObject) : Bool {
+	public function isObjectOn (otherObj:IDisplayObject) : Bool
+	{
 		return otherObj == null ? false : otherObj.as(DisplayObject).hitTestObject( this.as(DisplayObject) );
+	}
+	
+	
+	public function getDisplayCursor () : DisplayDataCursor
+	{
+		return new DisplayDataCursor(this);
 	}
 	
 	
@@ -89,7 +97,8 @@ class Shape extends flash.display.Shape, implements IDisplayObject
 	
 	private inline function setContainer (v) {
 		container	= v;
-		window		= container.window;
+		if (v != null)	window = container.window;
+		else			window = null;
 		return v;
 	}
 	

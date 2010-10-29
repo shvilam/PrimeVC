@@ -27,32 +27,51 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.display;
- import primevc.core.geom.Rectangle;
-#if !flash9
- import primevc.gui.traits.IDisplayable;
-#end
- import primevc.gui.traits.IInteractive;
+ import primevc.core.collections.DataCursor;
+ import primevc.core.collections.IDataCursor;
+ import primevc.core.geom.Point;
+  using Std;
 
 
 /**
- * Sprite interface for every platform.
- *
- * @creation-date	Jun 11, 2010
+ * Metadata about a displayObject containing the current depth, parent and 
+ * coordinates.
+ * 
  * @author			Ruben Weijers
+ * @creation-date	Oct 28, 2010
  */
-interface ISprite 
-		implements IDisplayContainer
-	,	implements IInteractive
-	,	implements IDisplayObject
+class DisplayDataCursor extends DataCursor < IDisplayObject >, implements IDataCursor < IDisplayObject >
 {
-#if flash9
-	public var buttonMode						: Bool;
-	public var useHandCursor					: Bool;
-	public var dropTarget		(default, null) : flash.display.DisplayObject;
+	/**
+	 * Current x&y-coordinates of the target
+	 */
+	public var position		(default, null)	: Point;
 	
-	public function stopDrag()	: Void;
-	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) : Void;
-#else
-	public var dropTarget		(default, null)		: IDisplayable;
-#end
+	
+	public function new (target:IDisplayObject)
+	{
+		if (target.container != null)
+			super(target, target.container.children);
+		else
+			super(target, null);
+		
+		position = new Point( target.x, target.y );
+	}
+	
+	
+	override public function dispose ()
+	{
+		position = null;
+		super.dispose();
+	}
+	
+	
+	override public function restore ()
+	{
+		target.visible	= false;
+		target.x		= target.rect.left	= position.x.int();
+		target.y		= target.rect.top	= position.y.int();
+		super.restore();
+		target.visible	= true;
+	}
 }

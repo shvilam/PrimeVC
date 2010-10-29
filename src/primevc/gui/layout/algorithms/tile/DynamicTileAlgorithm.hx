@@ -174,7 +174,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	}
 	
 	
-	private function updateMapsAfterChange (change:ListChanges < LayoutClient > )
+	private function updateMapsAfterChange (change:ListChange < LayoutClient > )
 	{
 		if (tileCollection == null)
 			return;

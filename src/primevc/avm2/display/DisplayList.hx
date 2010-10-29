@@ -63,7 +63,7 @@ class DisplayList implements IList <ChildType>
 	 */
 	public var owner		(default, null)				: IDisplayContainer;
 	
-	public var change		(default, null)				: Signal1 < ListChanges < ChildType > >;
+	public var change		(default, null)				: Signal1 < ListChange < ChildType > >;
 	public var length		(getLength, never)			: Int;
 	
 	/**
@@ -131,14 +131,14 @@ class DisplayList implements IList <ChildType>
 	// LIST METHODS
 	//
 
-	public function iterator () : Iterator <ChildType>				{ return forwardIterator(); }
+	public function iterator () : Iterator <ChildType>			{ return forwardIterator(); }
 	public function forwardIterator () : IIterator <ChildType>	{ return new DisplayListForwardIterator(this); }
 	public function reversedIterator () : IIterator <ChildType>	{ return new DisplayListReversedIterator(this); }
 	
-	public inline function getItemAt	(pos:Int)					{ return target.getChildAt( pos ).as( ChildType ); }
-	public inline function has			(item:ChildType)			{ return target.contains( item.as( TargetChildType ) ); } 
-	public inline function indexOf		(item:ChildType)			{ return target.getChildIndex( item.as( TargetChildType ) ); }
-	private inline function getLength	()							{ return target.numChildren; }
+	public inline function getItemAt	(pos:Int)				{ return target.getChildAt( pos ).as( ChildType ); }
+	public inline function has			(item:ChildType)		{ return target.contains( item.as( TargetChildType ) ); } 
+	public inline function indexOf		(item:ChildType)		{ return target.getChildIndex( item.as( TargetChildType ) ); }
+	private inline function getLength	()						{ return target.numChildren; }
 	
 	
 	public inline function add (item:ChildType, pos:Int = -1) : ChildType
@@ -155,7 +155,7 @@ class DisplayList implements IList <ChildType>
 		
 		item.container = owner;
 		target.addChildAt( item.as( TargetChildType ), pos );
-		change.send( ListChanges.added( item, pos ) );
+		change.send( ListChange.added( item, pos ) );
 		return item;
 	}
 	
@@ -170,7 +170,7 @@ class DisplayList implements IList <ChildType>
 		target.removeChild(item.as( TargetChildType ));
 		item.container = null;
 		
-		change.send( ListChanges.removed( item, oldPos ) );
+		change.send( ListChange.removed( item, oldPos ) );
 		return item;
 	}
 	
@@ -183,7 +183,7 @@ class DisplayList implements IList <ChildType>
 		Assert.that( curPos >= 0, "Child to move is not in this DisplayList: "+item );
 		
 		target.addChildAt( item.as( TargetChildType ), newPos );
-		change.send( ListChanges.moved( item, newPos, curPos ) );
+		change.send( ListChange.moved( item, newPos, curPos ) );
 		return item;
 	}
 

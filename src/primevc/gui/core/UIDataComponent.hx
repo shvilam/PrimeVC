@@ -27,7 +27,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
+ import primevc.core.collections.DataCursor;
+ import primevc.core.collections.IList;
  import primevc.core.Bindable;
+  using primevc.utils.TypeUtil;
  
 
 /**
@@ -44,17 +47,17 @@ package primevc.gui.core;
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
-class UIDataComponent <DataProxyType> extends UIComponent, implements IUIDataComponent <DataProxyType>
+class UIDataComponent <DataType> extends UIComponent, implements IUIDataComponent <DataType>
 {
-	public var data (default, setData)		: Bindable < DataProxyType >;
-	public var value (getValue, setValue)	: DataProxyType;
+	public var data (default, setData)		: Bindable < DataType >;
+	public var value (getValue, setValue)	: DataType;
 	
 	
-	public function new (id:String = null, value:DataProxyType = null)
+	public function new (id:String = null, value:DataType = null)
 	{
 		super(id);
 		if (data == null)
-			data = new Bindable < DataProxyType >(value);
+			data = new Bindable < DataType >(value);
 	}
 	
 	
@@ -82,12 +85,27 @@ class UIDataComponent <DataProxyType> extends UIComponent, implements IUIDataCom
 	private function initData ()	{ /*Assert.abstract();*/ }
 	
 	
+	public function getDataCursor ()
+	{
+		var cursor = new DataCursor < DataType > ( value );
+		if (container == null || !container.is(IUIDataComponent))
+			return cursor;
+		
+		var parent = container.as(IUIDataComponent);
+		if (!parent.value.is(IList))
+			return cursor;
+		
+		cursor.list = cast parent.value.as( IList );
+		return cursor;
+	}
+	
+	
 	
 	//
 	// GETTERS / SETTERS
 	//
 	
-	private inline function setData (newData:Bindable < DataProxyType >)
+	private inline function setData (newData:Bindable < DataType >)
 	{
 		data = newData;
 		if (state.current == state.initialized && data != null)
@@ -97,6 +115,6 @@ class UIDataComponent <DataProxyType> extends UIComponent, implements IUIDataCom
 	}
 	
 	
-	private inline function getValue () : DataProxyType	{ return data.value; }
-	private inline function setValue (v:DataProxyType)	{ return data.value = v; }
+	private inline function getValue () : DataType	{ return data.value; }
+	private inline function setValue (v:DataType)	{ return data.value = v; }
 }

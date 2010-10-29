@@ -26,33 +26,35 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.display;
- import primevc.core.geom.Rectangle;
-#if !flash9
- import primevc.gui.traits.IDisplayable;
-#end
- import primevc.gui.traits.IInteractive;
+package primevc.core.collections;
+ import primevc.core.IDisposable;
 
 
 /**
- * Sprite interface for every platform.
- *
- * @creation-date	Jun 11, 2010
  * @author			Ruben Weijers
+ * @creation-date	Oct 28, 2010
  */
-interface ISprite 
-		implements IDisplayContainer
-	,	implements IInteractive
-	,	implements IDisplayObject
+interface IDataCursor < DataType > implements IDisposable
 {
-#if flash9
-	public var buttonMode						: Bool;
-	public var useHandCursor					: Bool;
-	public var dropTarget		(default, null) : flash.display.DisplayObject;
+	public var list		(default, null)	: IList < DataType >;
+	public var target	(default, null)	: DataType;
+	public var depth	(default, null)	: Int;
 	
-	public function stopDrag()	: Void;
-	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) : Void;
-#else
-	public var dropTarget		(default, null)		: IDisplayable;
-#end
+	
+	/**
+	 * Method will remove the target from the original list
+	 */
+	public function removeTarget ()		: Void;
+	
+	/**
+	 * Method will put the target on it's old position in the list
+	 */
+	public function restore ()			: Void;
+	
+	
+	/**
+	 * Method wil move the target to the given depth in the given list. If the
+	 * list is null, then the current list value will be used.
+	 */
+	public function moveTarget (newDepth:Int, newList:IList < DataType > = null) : Void;
 }

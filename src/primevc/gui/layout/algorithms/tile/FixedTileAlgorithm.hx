@@ -289,7 +289,7 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	}
 	
 	
-	private function updateMapsAfterChange (change:ListChanges < LayoutClient > )
+	private function updateMapsAfterChange (change:ListChange < LayoutClient > )
 	{
 		if (horizontalMap == null || verticalMap == null)
 			return;

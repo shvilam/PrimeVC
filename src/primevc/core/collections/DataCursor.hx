@@ -26,33 +26,84 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.display;
- import primevc.core.geom.Rectangle;
-#if !flash9
- import primevc.gui.traits.IDisplayable;
-#end
- import primevc.gui.traits.IInteractive;
+package primevc.core.collections;
+
 
 
 /**
- * Sprite interface for every platform.
- *
- * @creation-date	Jun 11, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Oct 28, 2010
  */
-interface ISprite 
-		implements IDisplayContainer
-	,	implements IInteractive
-	,	implements IDisplayObject
+class DataCursor < DataType > implements IDataCursor < DataType > 
 {
-#if flash9
-	public var buttonMode						: Bool;
-	public var useHandCursor					: Bool;
-	public var dropTarget		(default, null) : flash.display.DisplayObject;
+	public var target	(default, null)		: DataType;
+	public var list		(default, setList)	: IList < DataType >;
+	public var depth	(default, null)		: Int;
 	
-	public function stopDrag()	: Void;
-	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) : Void;
-#else
-	public var dropTarget		(default, null)		: IDisplayable;
-#end
+	
+	public function new (target:DataType, list:IList < DataType > = null)
+	{
+		this.target	= target;
+		this.list	= list;
+	}
+	
+	
+	public function dispose ()
+	{
+		target	= null;
+		list	= null;
+		depth	= -1;
+	}
+	
+	
+	private inline function setList (v)
+	{
+		if (v != list)
+		{
+			list = v;
+			if (v != null)
+				depth = v.indexOf( target );
+		}
+		return v;
+	}
+	
+	
+	public function removeTarget ()
+	{
+		Assert.notNull( list );
+		list.remove( target, depth );
+	}
+	
+	
+	public function restore ()
+	{
+		Assert.notNull( list );
+		if (!list.has(target))
+			list.add( target, depth );
+		else
+			list.move( target, depth );
+	}
+	
+	
+	public function moveTarget (newDepth:Int, newList:IList < DataType > = null)
+	{
+		Assert.notNull( list );
+	//	trace("Cursor.moveTarget "+target+" "+depth+" => "+newDepth+"; newList "+(newList == list));
+		if (list == newList || newList == null)
+		{
+			if (list.has(target))
+				list.move( target, newDepth, depth );
+			else
+				list.add( target, newDepth );
+		}
+		else
+		{
+			if (list.has(target))
+				list.remove( target, depth );
+			
+			newList.add( target, newDepth );
+			list = newList;
+		}
+		depth = newDepth;
+	}
 }
