@@ -84,10 +84,12 @@ class Shape extends flash.display.Shape, implements IDisplayObject
 	}
 	
 	
+#if !neko
 	public function getDisplayCursor () : DisplayDataCursor
 	{
 		return new DisplayDataCursor(this);
 	}
+#end
 	
 	
 	

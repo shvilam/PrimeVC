@@ -619,7 +619,7 @@ class UIElementStyle implements IUIElementStyle
 	
 	public function removeState (state:StyleState)
 	{
-		currentStates.remove( state );
+		currentStates.removeItem( state );
 		state.dispose();
 	}
 	

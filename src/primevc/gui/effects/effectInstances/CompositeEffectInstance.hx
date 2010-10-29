@@ -128,7 +128,7 @@ class CompositeEffectInstance extends EffectInstance < Dynamic, CompositeEffect 
 	private function removeEffectInstance (v:ChildEffectType, lastDepth:Int ) : Void
 	{
 		var i = effectInstances[ lastDepth ];
-		effectInstances.remove( i );
+		effectInstances.removeItem( i );
 		i.dispose();
 	}
 }

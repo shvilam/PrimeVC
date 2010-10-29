@@ -30,17 +30,10 @@ package cases;
  import primevc.core.Application;
  import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIWindow;
- import primevc.gui.graphics.fills.SolidFill;
- import primevc.gui.graphics.shapes.RegularRectangle;
- import primevc.gui.layout.algorithms.RelativeAlgorithm;
- import primevc.gui.layout.LayoutContainer;
- import primevc.gui.layout.RelativeLayout;
 
 
 
 /**
- * Class description
- * 
  * @author Ruben Weijers
  * @creation-date Aug 30, 2010
  */
@@ -62,22 +55,8 @@ class AppTestWindow extends UIWindow
 
 class Editor extends UIContainer <Dynamic>
 {
-	override private function createLayout ()
-	{
-		layout						= new LayoutContainer();
-		layout.relative				= new RelativeLayout( 0, 0, 0, 0 );
-		layoutContainer.algorithm	= new RelativeAlgorithm();
-	}
-	
-	
 	override private function createChildren ()
 	{
 		
-	}
-	
-	
-	override private function createGraphics ()
-	{
-		graphicData.value = new RegularRectangle( layout.bounds, new SolidFill(0xff000aa) );
 	}
 }

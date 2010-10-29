@@ -103,10 +103,12 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	}
 	
 	
+#if !neko
 	public function getDisplayCursor () : DisplayDataCursor
 	{
 		return new DisplayDataCursor(this);
 	}
+#end
 	
 	
 	

@@ -2,7 +2,6 @@ package cases;
 #if debug
  import flash.text.TextFormat;
  import primevc.gui.display.TextField;
-// import com.elad.optimize.memory.FrameStats;
 #end
  import primevc.core.collections.ArrayList;
  import primevc.core.collections.DataCursor;
@@ -10,25 +9,18 @@ package cases;
  import primevc.core.geom.IRectangle;
  import primevc.core.Application;
  import primevc.gui.behaviours.drag.DragDropBehaviour;
-// import primevc.gui.behaviours.drag.DragMoveBehaviour;
  import primevc.gui.behaviours.drag.ApplyDropBehaviour;
  import primevc.gui.behaviours.drag.ShowDragGapBehaviour;
  import primevc.gui.behaviours.drag.DragInfo;
-// import primevc.gui.behaviours.drag.DraggedDataInfo;
  import primevc.gui.components.ListView;
  import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIDataComponent;
-// import primevc.gui.core.UIGraphic;
-// import primevc.gui.core.UITextField;
  import primevc.gui.core.UIWindow;
  import primevc.gui.display.DisplayDataCursor;
  import primevc.gui.events.DragEvents;
  import primevc.gui.events.DropTargetEvents;
-// import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
  import primevc.gui.layout.algorithms.float.VerticalFloatAlgorithm;
-// import primevc.gui.layout.algorithms.tile.DynamicTileAlgorithm;
-// import primevc.gui.layout.algorithms.tile.FixedTileAlgorithm;
  import primevc.gui.layout.algorithms.RelativeAlgorithm;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.RelativeLayout;
@@ -82,18 +74,11 @@ class GlobalApp extends UIContainer <Dynamic>
 	}
 	
 	
-	override private function createBehaviours ()
-	{
-		changeTileColor.on( userEvents.mouse.click, this );
-		haxe.Log.clear.on( userEvents.mouse.doubleClick, this );
-	}
-	
-	
 	override private function createChildren ()
 	{
 		var frame0				= new TileList( "frame0", testList1 );
 		var frame1				= new TileList( "frame1", testList1 );
-		var frame2				= new TileList( "frame2", testList1, true );
+		var frame2				= new TileList( "frame2", testList1 );
 		var frame3				= new TileList( "frame3", testList1 );
 		var frame4				= new TileList( "frame4");
 		var frame5				= new TileList( "frame5");
@@ -150,23 +135,6 @@ class GlobalApp extends UIContainer <Dynamic>
 		children.add(frame7);
 		children.add(frame8);
 	}
-	
-	
-	private function changeTileColor ()
-	{
-	//	var tileStyle	= window.as(UIWindow).style.idStyle.children.elementSelectors.get( Tile.getClassName() );
-	/*	var tileStyle	= window.as(UIWindow).style.getChildren().styleNameSelectors.get("odd");
-		var newColor	= Color.random();
-		
-		if (tileStyle.background == null)
-			tileStyle.background = new primevc.gui.graphics.fills.SolidFill( newColor );
-		else
-			tileStyle.background.as( primevc.gui.graphics.fills.SolidFill ).color = newColor;
-		
-	//	tileStyle.layout.width += 5;
-		
-		trace("new-color to "+newColor.string()+" newWidth: "+tileStyle.layout.width);*/
-	}
 }
 
 
@@ -200,14 +168,7 @@ class Button extends UIDataComponent < DataVOType >
 #end
 }
 
-/*
-class DataInfo < DataType >
-{
-	var type	: Class < Dynamic >;
-	var data	: DataType;
-	var list	: IList < DataType >;
-}
-*/
+
 class Tile extends Button, implements IDraggable
 {
 	public var dragEvents (default, null)	: DragEvents;
@@ -246,62 +207,16 @@ class Tile extends Button, implements IDraggable
 }
 
 
-
-/*
-class DragButton extends Button, implements IDraggable
-{
-	public var dragEvents (default, null)	: DragEvents;
-	public var isDragging					: Bool;
-	
-	
-	public function new ()
-	{
-		super();
-		dragEvents = new DragEvents();
-	}
-	
-	
-	override private function createBehaviours ()
-	{
-		super.createBehaviours();
-		behaviours.add( new DragMoveBehaviour(this) );
-	}
-}
-*/
-
-/*
-class Frame extends UIContainer < String >
-{
-#if debug
-	public var textField	: TextField;
-#end
-
-
-#if (debug && flash9)
-	override private function createChildren () {
-		textField = new TextField();
-		textField.text = id.value;
-		textField.autoSize = flash.text.TextFieldAutoSize.LEFT;
-		textField.setTextFormat( new TextFormat("Verdana", 15, 0x00 ) );
-		textField.mouseEnabled = false;
-		addChild( textField );
-	}
-#end
-}*/
-
-
 class TileList extends ListView < DataVOType >, implements IDataDropTarget < DataVOType >
 {
-	public var dragEvents				: DropTargetEvents;
-	public var allowDropFromOtherLists	: Bool;
+	public var dragEvents	(default, null) : DropTargetEvents;
 	
 	
-	public function new (id:String = null, list:ArrayList<DataVOType> = null, allowDropFromOtherLists = true)
+	public function new (id:String = null, list:ArrayList<DataVOType> = null)
 	{
-		this.allowDropFromOtherLists	= allowDropFromOtherLists;
-		doubleClickEnabled				= true;
-		dragEvents = new DropTargetEvents();
-		super(id, list, Tile);
+		doubleClickEnabled	= true;
+		dragEvents			= new DropTargetEvents();
+		super(id, list);
 	}
 	
 	
@@ -313,9 +228,10 @@ class TileList extends ListView < DataVOType >, implements IDataDropTarget < Dat
 	}
 	
 	
-	//
-	// IDROPTARGET IMPLEMENTATION
-	//
+	override private function createItemRenderer (dataItem:DataVOType)
+	{
+		return cast new Tile(dataItem);
+	}
 	
 	public function isDisplayDropAllowed (displayCursor:DisplayDataCursor ) : Bool
 	{

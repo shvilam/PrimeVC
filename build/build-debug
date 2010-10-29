@@ -13,10 +13,11 @@ FPS=31
 BGCOLOR=FFFFFF
 
 #parse arguments
-while getopts "a:bs:tw:uh:idf" OptionName
+while getopts "a:bc:ds:tw:uh:idf" OptionName
 	do
 		case $OptionName in
 			a ) MainClass=${OPTARG};;	#main class
+			c ) BGCOLOR=${OPTARG};;		#background color
 			s ) Style=${OPTARG};;		#style name
 			d ) Debug="-debug";;		#compile cssparser and application in debugmode
 			f ) Force=true;;			#force recompilation of css parser

@@ -26,20 +26,35 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.components;
- import primevc.gui.core.IUIContainer;
- import primevc.gui.core.IUIDataComponent;
- import primevc.gui.display.IDisplayObject;
+package ;
+ import primevc.gui.styling.StyleChildren;
+ import primevc.gui.styling.StyleBlockType;
+ import primevc.gui.styling.StyleBlock;
+
 
 
 /**
- * @author Ruben Weijers
- * @creation-date Oct 26, 2010
+ * This class is a template for generating UIElementStyle classes
  */
-interface IListView <ListDataType > implements IUIContainer 
+class StyleSheet extends StyleBlock
 {
-	private function createItemRenderer ( item:ListDataType )						: IDisplayObject;
-	private function addItemRenderer( item:ListDataType, newPos:Int = -1 )			: Void;
-	private function removeItemRenderer( item:ListDataType, oldPos:Int = -1 )		: Void;
-	private function moveItemRenderer ( item:ListDataType, newPos:Int, oldPos:Int )	: Void;
+	public function new ()
+	{
+		super(StyleBlockType.specific);
+		children = new ApplicationStyleChildren();
+	}
+}
+
+
+class ApplicationStyleChildren extends StyleChildren
+{
+	public function new ()
+	{
+		super( new SelectorMapType(), new SelectorMapType(), new SelectorMapType() );
+	}
+	
+	override private function fillSelectors () : Void
+	{
+		//selectors
+	}
 }

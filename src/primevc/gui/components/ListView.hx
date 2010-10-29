@@ -31,6 +31,7 @@ package primevc.gui.components;
  import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
  import primevc.gui.core.IUIDataComponent;
  import primevc.gui.core.UIContainer;
+ import primevc.gui.display.IDisplayObject;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
@@ -47,16 +48,6 @@ private typedef ItemRendererType <T> = Class < ItemRenderer < T > >;
  */
 class ListView < ListDataType > extends UIContainer < IList < ListDataType > >, implements IListView < ListDataType >
 {
-	public var itemRenderer (default, null)	: ItemRendererType < ListDataType >;
-	
-	
-	public function new (id:String = null, data:IList<ListDataType> = null, itemRenderer:ItemRendererType<ListDataType> = null)
-	{
-		super(id, data);
-		this.itemRenderer = itemRenderer;
-	}
-	
-	
 	override private function createBehaviours ()
 	{
 		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
@@ -77,11 +68,16 @@ class ListView < ListDataType > extends UIContainer < IList < ListDataType > >, 
 	// DATA RENDERER METHODS
 	//
 	
+	private function createItemRenderer ( item:ListDataType ) : IDisplayObject
+	{
+		Assert.abstract();
+		return null;
+	}
+	
+	
 	private function addItemRenderer( item:ListDataType, newPos:Int = -1 )
 	{
-		Assert.notNull( itemRenderer, "Item renderer cannot be null" );
-		var inst = Type.createInstance( itemRenderer, [ item ] );
-		children.add( inst );
+		children.add( createItemRenderer( item ), newPos );
 	}
 	
 	

@@ -120,10 +120,12 @@ class TextField extends flash.text.TextField, implements ITextField
 	}
 	
 	
+#if !neko
 	public function getDisplayCursor () : DisplayDataCursor
 	{
 		return new DisplayDataCursor(this);
 	}
+#end
 	
 	
 	

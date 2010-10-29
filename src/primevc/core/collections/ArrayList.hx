@@ -118,7 +118,7 @@ class ArrayList <DataType> implements IList <DataType>
 		if (oldPos == -1)
 			oldPos = list.indexOf(item);
 		
-		if (oldPos > -1 && list.remove(item, oldPos))
+		if (oldPos > -1 && list.removeItem(item, oldPos))
 			change.send( ListChange.removed( item, oldPos ) );
 		return item;
 	}

@@ -108,7 +108,7 @@ class QueueManager < ChildType, OwnerType >
 	 */
 	public inline function remove ( obj:ChildType )
 	{
-		queue.remove(obj);
+		queue.removeItem(obj);
 		disableBinding();
 	}
 }

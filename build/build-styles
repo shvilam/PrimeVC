@@ -8,7 +8,6 @@ MINPARAMS=1
 Style=$1
 MainClass="primevc.tools.CSSParserMain"
 ParserClass="primevc.tools.CSSParser"
-ManifestFile="${PRJROOT}/src/manifest.xml"
 MainFile="${PRJROOT}/src/${MainClass//.//}.hx"		#replace all dots with slashes
 ParserClass="${PRJROOT}/src/${ParserClass//.//}.hx"	#replace all dots with slashes
 Parser="${PRJROOT}/build/parser.n"
@@ -25,8 +24,10 @@ while getopts "s:tfd" OptionName
 	esac
 done
 
-StyleInputFile=${Style}/Style.css
-StyleOutputFile=${Style}/Style.hx
+StyleFolder="${PRJROOT}/${Style}"
+StyleInputFile="${StyleFolder}/Style.css"
+StyleOutputFile="${StyleFolder}/Style.hx"
+ManifestFile="${StyleFolder}/manifest.xml"
 
 #echo "MainFile: ${MainFile}"
 echo "Main: ${MainClass}" &&
@@ -43,7 +44,7 @@ if ${Force} || [[ ! -f ${Parser} ]]  ||  test ${MainFile} -nt ${Parser}  ||  tes
 fi;
 
 #compile css
-if [[ -d ${Style} ]] && [[ -f ${ManifestFile} ]] && [[ -f ${StyleInputFile} ]] && [[ -f ${Parser} ]] ; then
+if [[ -d ${StyleFolder} ]] && [[ -f ${ManifestFile} ]] && [[ -f ${StyleInputFile} ]] && [[ -f ${Parser} ]] ; then
 	if ${CompilerUpdated} || [[ ! -f ${StyleOutputFile} ]] || test ${StyleInputFile} -nt ${StyleOutputFile} || test ${ManifestFile} -nt ${StyleOutputFile} ; then
 		echo "Running parser on ${StyleInputFile}" &&
 		neko ${Parser} ${Style}

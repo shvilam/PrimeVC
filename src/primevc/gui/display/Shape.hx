@@ -90,10 +90,12 @@ class ShapeImpl implements IDisplayObject
 	}
 	
 	
+#if !neko
 	public function getDisplayCursor () : DisplayDataCursor
 	{
 		return new DisplayDataCursor(this);
 	}
+#end
 	
 	
 	private var _visible:Bool;

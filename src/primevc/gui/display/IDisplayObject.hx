@@ -47,7 +47,9 @@ interface IDisplayObject
 {
 	
 	function isObjectOn (otherObj:IDisplayObject)	: Bool;
+#if !neko
 	function getDisplayCursor ()					: DisplayDataCursor;
+#end
 	
 #if flash9
 	var alpha					: Float;

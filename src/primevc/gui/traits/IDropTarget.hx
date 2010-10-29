@@ -46,7 +46,7 @@ interface IDropTarget implements IUIContainer
 	 * Eventgroup which will dispatch events when an IDraggable object is 
 	 * interacting with this IDropTarget.
 	 */
-	public var dragEvents	: DropTargetEvents;
+	public var dragEvents	(default, null)	: DropTargetEvents;
 	
 	/**
 	 * Method to check if an IDraggable-item is allowed to drop on this

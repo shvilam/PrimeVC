@@ -70,7 +70,7 @@ class CSSParserMain
 	{
 		skinFolder	= skin;
 		styles		= new StyleBlock(null);
-		manifest	= new Manifest( "src/manifest.xml" );
+		manifest	= new Manifest( skinFolder + "/manifest.xml" );
 		parser		= new CSSParser( styles, manifest );
 		generator	= new HaxeCodeGenerator( 2 );
 		generator.instanceIgnoreList.set( styles.uuid, styles );
@@ -93,9 +93,13 @@ class CSSParserMain
 	{
 		var code:String = "";
 		generator.start();
-		code += generateSelectorCode( cast styles.children.elementSelectors, "elementSelectors" );
-		code += generateSelectorCode( cast styles.children.styleNameSelectors, "styleNameSelectors" );
-		code += generateSelectorCode( cast styles.children.idSelectors, "idSelectors" );
+		
+		if (styles.children != null)
+		{
+			if (styles.children.elementSelectors != null)	code += generateSelectorCode( cast styles.children.elementSelectors, "elementSelectors" );
+			if (styles.children.styleNameSelectors != null)	code += generateSelectorCode( cast styles.children.styleNameSelectors, "styleNameSelectors" );
+			if (styles.children.idSelectors != null)		code += generateSelectorCode( cast styles.children.idSelectors, "idSelectors" );
+		}
 		
 		//write to template
 		var name = "//selectors";
