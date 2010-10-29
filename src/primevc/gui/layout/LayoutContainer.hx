@@ -98,31 +98,6 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	// LAYOUT METHODS
 	//
 	
-	
-	/*override public function invalidate (change:Int)
-	{
-		var wasInvalid = isInvalidated;
-		super.invalidate(change);
-		
-		if (!wasInvalid && isInvalidated) {
-			//loop through child list to find children who are also invalidated and change their state to parent_invalidated
-			for (child in children)
-				if (child.isInvalidated)
-					child.state.current = ValidateStates.parent_invalidated;
-		}
-	}*/
-	
-	
-	/*public inline function childInvalidated (childChanges:Int) : Bool
-	{
-		var r = false;
-		trace(this+".childInvalidated: isValidating? "+isValidating+"; "+algorithm.isInvalid(childChanges)+"; changes: "+LayoutFlags.readProperties(childChanges));
-		if (!isValidating && algorithm != null && algorithm.isInvalid(childChanges)) {
-			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
-			r = true;
-		}
-		return r;
-	}*/
 	override public function invalidateCall ( childChanges:UInt, sender:IInvalidatable ) : Void
 	{
 		var child = sender.as(LayoutClient);
@@ -175,8 +150,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		{
 			if (child.percentWidth == LayoutFlags.FILL) {
 			//	if (explicitWidth.isSet())
-					fillingChildren.push( child );
-				
+				fillingChildren.push( child );
 				child.width = Number.INT_NOT_SET;
 			}
 			
@@ -345,7 +319,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	public inline function verScrollable ()							{ return explicitHeight.isSet() && measuredHeight > explicitHeight; }
 	public inline function getScrollableWidth ()					{ return measuredWidth - explicitWidth; }
 	public inline function getScrollableHeight ()					{ return measuredHeight - explicitHeight; }
-	public inline function validateScrollPosition (pos:IntPoint) {
+	public inline function validateScrollPosition (pos:IntPoint)
+	{
 		if (horScrollable())	pos.x = pos.x.within( 0, scrollableWidth );
 		if (verScrollable())	pos.y = pos.y.within( 0, scrollableHeight );
 		return pos;
@@ -359,7 +334,6 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	
 	private function childrenChangeHandler ( change:ListChange <LayoutClient> ) : Void
 	{
-	//	trace("layoutGroup.childrenChangeHandler "+change);
 		switch (change)
 		{
 			case added( child, newPos ):

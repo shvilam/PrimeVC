@@ -118,8 +118,6 @@ class ListView < ListDataType > extends UIContainer < IList < ListDataType > >, 
 		else
 			trace("no itemrenderer found to move for data-item "+item+"; move: "+oldPos+" => "+newPos);
 #end
-	//	else
-	//		addItemRenderer( item, newPos );
 	}
 	
 	

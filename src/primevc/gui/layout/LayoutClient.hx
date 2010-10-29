@@ -200,8 +200,6 @@ class LayoutClient extends Invalidatable
 		if (changes == 0 || state == null || state.current == null)
 			return;
 		
-	//	if (parent != null)
-	//		trace(this+".invalidate "+changes+"; "+state.current+"; "+parent.isValidating+"; parent: "+parent);
 		if (isValidating)
 			return;
 		
@@ -215,20 +213,6 @@ class LayoutClient extends Invalidatable
 			if (validateOnPropertyChange && (parent == null || !parent.validateOnPropertyChange))
 				validate();
 		}
-		
-	/*	if (!state.is(ValidateStates.parent_invalidated))
-		{
-			if (includeInLayout && parent != null && (parent.isInvalidated || parent.childInvalidated(changes))) {
-				state.current = ValidateStates.parent_invalidated;
-			}
-			else
-			{
-				state.current = ValidateStates.invalidated;
-				
-				if (validateOnPropertyChange && (parent == null || !parent.validateOnPropertyChange))
-					validate();
-			}
-		}*/
 	}
 	
 	

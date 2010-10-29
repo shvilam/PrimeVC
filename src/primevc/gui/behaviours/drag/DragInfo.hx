@@ -70,23 +70,6 @@ class DragInfo implements IDisposable
 	public var dataCursor		(default, null)				: IDataCursor < Dynamic >;
 	
 	/**
-	 * Container in which the target used to be when the drag-operation 
-	 * started.
-	 */
-//	public var origContainer	(default, null)				: IDisplayContainer;
-	
-	/**
-	 * Depth on which the target was in the displaylist when the drag-operation
-	 * started.
-	 */
-//	public var origDepth		(default, null)				: Int;
-	
-	/**
-	 * Original location of the dragged item.
-	 */
-//	public var origPosition		(default, null)				: Point;
-	
-	/**
 	 * Layout object of the target
 	 */
 	public var layout			(default, null)				: LayoutClient;
@@ -123,8 +106,6 @@ class DragInfo implements IDisposable
 		this.dragRenderer	= (dragRenderer != null)	? dragRenderer : target;
 		this.layout			= (dragLayout != null)		? dragLayout : new LayoutClient( target.rect.width, target.rect.height );
 		this.dragRectangle	= this.dragRenderer.rect; //cast target.rect.clone(); //new IntRectangle( target.x.int(), target.y.int(), layout.width, layout.height );
-		
-	//	trace("new DragInfo "+layout);
 	}
 	
 	
@@ -145,8 +126,6 @@ class DragInfo implements IDisposable
 		
 		dropTarget		= null;
 		dropBounds		= null;
-	//	origContainer	= null;
-	//	origPosition	= null;
 	}
 	
 	

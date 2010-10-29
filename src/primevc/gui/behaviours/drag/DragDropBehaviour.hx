@@ -86,9 +86,7 @@ class DragDropBehaviour extends DragBehaviourBase
 	override private function startDrag (mouseObj:MouseState) : Void
 	{
 		haxe.Log.clear();
-		dragInfo = target.createDragInfo(); //new DragInfo(target);
-	//	if (dragInfo.cursor == null || dragInfo.cursor.list == null)
-	//		return;
+		dragInfo = target.createDragInfo();
 #if flash9
 		//move item to correct location
 		var pos				= target.container.as(IDisplayObject).localToGlobal( dragInfo.displayCursor.position );
@@ -104,7 +102,6 @@ class DragDropBehaviour extends DragBehaviourBase
 		
 		mouseEnabledValue	= item.mouseEnabled;
 		item.mouseEnabled	= false;
-	//	trace("startDraggin "+item+"; pos: "+pos+"; "+item.x+", "+item.y+"; "+item.is(IUIElement));
 		item.visible		= true;
 #end
 		
@@ -122,17 +119,11 @@ class DragDropBehaviour extends DragBehaviourBase
 		item.mouseEnabled	= mouseEnabledValue;
 		
 		//remove dragrenderer from displaylist
-	//	if (item != target)
 		item.container.children.remove(item);
 		
 		if (dragInfo.dropTarget != null)
 		{
 #if flash9
-		//	var rect	= dragInfo.dragRectangle;
-		//	var pos		= new Point(target.x, target.y);
-		//	pos			= dragInfo.dropTarget.globalToLocal( pos );
-		//	rect.left	= pos.x.int();
-		//	rect.top	= pos.y.int();
 			dragInfo.dropBounds = dragInfo.layout.bounds;
 #end
 			//notify the dragged item that the drag-operation is completed

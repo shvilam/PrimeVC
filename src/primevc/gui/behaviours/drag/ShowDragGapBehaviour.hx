@@ -92,7 +92,6 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 	
 	private function removeTmpTileFromLayout (source:DragInfo)
 	{
-	//	trace(target+".removeTmpTileFromLayout "+source.layout);
 		Assert.notNull( source.layout );
 		Assert.notNull( mouseMoveBinding );
 		
@@ -100,7 +99,6 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 		layoutGroup.children.remove( source.layout );
 		draggedItem = null;
 		target.children.mouseEnabled = oldMouseChildrenValue;
-	//	trace("\t"+layoutGroup.children);
 	}
 	
 	
@@ -116,17 +114,10 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 		if (layoutGroup.algorithm != null)
 			newDepth = IntMath.min( newDepth, layoutGroup.algorithm.getDepthForBounds( rect ) );
 		
-		//lower with one if the object should be placed at the end of the list, and is already there
-	//	if (curDepth > -1 && newDepth == target.children.length)
-	//		newDepth -= 1;
 		
-	//	trace(target+".updateTargetAfterMouseMove "+curDepth+" => "+newDepth+" for rect "+rect+"; bounds "+draggedItem.layout.parent);
 		if (curDepth == -1)
 			layoutGroup.children.add( draggedItem.layout, newDepth );
 		else if (curDepth != newDepth)
 			layoutGroup.children.move( draggedItem.layout, newDepth, curDepth );
-		
-	//	layoutGroup.validate();
-	//	trace("layoutGroup.children "+layoutGroup.children);
 	}
 }

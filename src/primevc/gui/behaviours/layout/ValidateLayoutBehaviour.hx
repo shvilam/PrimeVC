@@ -82,7 +82,6 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >, implements I
 	
 	private function layoutStateChangeHandler (oldState:ValidateStates, newState:ValidateStates)
 	{
-	//	trace(target+".layoutStateChangeHandler "+oldState+" -> "+newState);
 		switch (newState)
 		{
 			case ValidateStates.invalidated:
@@ -98,7 +97,7 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >, implements I
 	
 	public inline function requestRender ()
 	{
-		if (target.window != null) // && (target.effects == null || target.effects.move == null))
+		if (target.window != null)
 			getUIWindow().renderManager.add(this);
 	}
 	

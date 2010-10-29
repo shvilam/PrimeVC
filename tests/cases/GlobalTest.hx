@@ -217,7 +217,6 @@ class Tile extends Button, implements IDraggable
 	public function new (value:DataVOType = null)
 	{
 		super("Tile", value);
-	//	trace("new Tile! "+id+"; "+value+"; num "+num);
 		dragEvents	= new DragEvents();
 	}
 	
@@ -232,7 +231,6 @@ class Tile extends Button, implements IDraggable
 	
 	public function createDragInfo () : DragInfo
 	{
-	//	var t = new Tile(value);
 		return new DragInfo( this, getDataCursor() );//, t ); //getDisplayCursor()/*, new Tile(value), null*/ );
 	}
 	
@@ -312,7 +310,6 @@ class TileList extends ListView < DataVOType >, implements IDataDropTarget < Dat
 		super.createBehaviours();
 		behaviours.add( new ApplyDropBehaviour (this) );
 		behaviours.add( new ShowDragGapBehaviour(this) );
-	//	addTile.on( userEvents.mouse.doubleClick, this );
 	}
 	
 	
@@ -336,7 +333,6 @@ class TileList extends ListView < DataVOType >, implements IDataDropTarget < Dat
 	public function isDataDropAllowed (dataCursor:DataCursor < DataVOType > ) : Bool
 	{
 		return dataCursor.list == value;
-	//	return (draggedItem.target.is(Tile) && (allowDropFromOtherLists || children == draggedItem.cursor.list));
 	}
 	
 	

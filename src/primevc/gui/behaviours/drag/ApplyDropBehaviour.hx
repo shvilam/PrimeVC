@@ -60,7 +60,6 @@ class ApplyDropBehaviour extends BehaviourBase <IDropTarget>
 
 	private function addDroppedItem (droppedItem:DragInfo) : Void
 	{
-	//	trace(target+".addDroppedItem");
 		var newChild	= droppedItem.target;
 		var depth		= IntMath.min( target.children.length, target.getDepthForBounds( droppedItem.dropBounds ) );
 		
