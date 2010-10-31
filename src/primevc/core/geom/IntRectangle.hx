@@ -28,6 +28,7 @@
  */
 package primevc.core.geom;
  import primevc.core.traits.Invalidatable;
+  using primevc.utils.NumberUtil;
 
 
 /**
@@ -78,7 +79,7 @@ class IntRectangle extends Invalidatable, implements IRectangle
 	{
 		if (v != width) {
 			width	= v;
-			right	= left + v;
+			right	= v.isSet() ? left + v : left;
 			invalidate( RectangleFlags.WIDTH );
 		}
 		return v;
@@ -89,7 +90,7 @@ class IntRectangle extends Invalidatable, implements IRectangle
 	{
 		if (v != height) {
 			height	= v;
-			bottom	= top + v;
+			bottom	= v.isSet() ? top + v : top;
 			invalidate( RectangleFlags.HEIGHT );
 		}
 		return v;
@@ -100,7 +101,7 @@ class IntRectangle extends Invalidatable, implements IRectangle
 	{
 		if (v != top) {
 			top		= v;
-			bottom	= v + height;
+			bottom	= height.isSet() ? v + height : v;
 			invalidate( RectangleFlags.TOP );
 		}
 		return v;
@@ -111,7 +112,7 @@ class IntRectangle extends Invalidatable, implements IRectangle
 	{
 		if (v != bottom) {
 			bottom	= v;
-			top		= v - height;
+			top		= height.isSet() ? v - height : bottom;
 			invalidate( RectangleFlags.BOTTOM );
 		}
 		
@@ -123,7 +124,7 @@ class IntRectangle extends Invalidatable, implements IRectangle
 	{
 		if (v != left) {
 			left	= v;
-			right	= v + width;
+			right	= width.isSet() ? v + width : left;
 			invalidate( RectangleFlags.LEFT );
 		}
 		return v;
@@ -134,7 +135,7 @@ class IntRectangle extends Invalidatable, implements IRectangle
 	{
 		if (v != right) {
 			right	= v;
-			left	= v - width;
+			left	= width.isSet() ? v - width : right;
 			invalidate( RectangleFlags.RIGHT );
 		}
 		return v;

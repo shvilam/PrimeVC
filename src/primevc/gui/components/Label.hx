@@ -54,7 +54,7 @@ class Label extends UIDataComponent < String >
 	
 	override private function createChildren ()
 	{
-		field = new UITextField(id+"Field");
+		field = new UITextField(id+"TextField");
 #if flash9
 		field.autoSize			= flash.text.TextFieldAutoSize.LEFT;
 		field.selectable		= false;
@@ -90,9 +90,9 @@ class Label extends UIDataComponent < String >
 	private function updateSize ()
 	{
 		var l = layout.as(AdvancedLayoutClient);
+		trace("label.updateSize");
 		l.measuredWidth		= field.layout.width;
 		l.measuredHeight	= field.layout.height;
-		trace(this+".updatedSize "+l.measuredWidth+", "+l.measuredHeight);
 	}
 	
 	

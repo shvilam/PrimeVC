@@ -50,7 +50,7 @@ class WindowLayoutBehaviour extends BehaviourBase < UIWindow >
 		
 		layoutStateChangeHandler.on( target.layout.state.change, this );
 		//trigger the event handler for the current state as well
-		layoutStateChangeHandler( null, target.layout.state.current );
+		layoutStateChangeHandler( target.layout.state.current, null );
 		
 #if flash9
 		updateBgSize.on( target.layout.events.sizeChanged, this );
@@ -69,9 +69,8 @@ class WindowLayoutBehaviour extends BehaviourBase < UIWindow >
 	}
 
 	
-	private function layoutStateChangeHandler (oldState:ValidateStates, newState:ValidateStates)
+	private function layoutStateChangeHandler (newState:ValidateStates, oldState:ValidateStates)
 	{
-	//	trace(target+".layoutStateChangeHandler "+oldState+" -> "+newState);
 		switch (newState) {
 			case ValidateStates.invalidated:
 				target.invalidationManager.add(target.layout);
@@ -85,7 +84,7 @@ class WindowLayoutBehaviour extends BehaviourBase < UIWindow >
 		if (target.graphicData.value != null)
 		{
 			var l = target.layout;
-			trace(target+".updateBgSize "+l.width+", "+l.height);
+		//	trace(target+".updateBgSize "+l.bounds);
 		//	target.bgShape.width	= l.width;
 		//	target.bgShape.height	= l.height;
 			target.rect.width		= l.width;

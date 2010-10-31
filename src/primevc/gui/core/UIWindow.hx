@@ -173,10 +173,6 @@ class UIWindow extends Window
 	}
 	
 	
-#if flash9
-#end
-	
-	
 	//
 	// ABSTRACT METHODS
 	//
@@ -194,4 +190,12 @@ class UIWindow extends Window
 	private inline function getLayoutContainer () {
 		return layout.as(LayoutContainer);
 	}
+
+
+#if debug
+	public function toString ()
+	{
+		return id.value;
+	}
+#end
 }

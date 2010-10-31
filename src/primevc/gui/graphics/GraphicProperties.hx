@@ -28,7 +28,7 @@
  */
 package primevc.gui.graphics;
  import haxe.FastList;
- import primevc.core.dispatcher.Signal0;
+ import primevc.core.dispatcher.Signal1;
  import primevc.core.geom.IntRectangle;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.traits.IInvalidateListener;
@@ -64,7 +64,7 @@ class GraphicProperties implements IGraphicElement
 	 * Signal to notify other objects than IGraphicElement of changes within
 	 * the shape.
 	 */
-	public var changeEvent	(default, null)			: Signal0;
+	public var changeEvent	(default, null)			: Signal1 < UInt >;
 
 	public var fill			(default, setFill)		: IFill;
 	public var border		(default, setBorder)	: IBorder < IFill >;
@@ -80,7 +80,7 @@ class GraphicProperties implements IGraphicElement
 		this.layout	= layout;
 		this.fill	= fill;
 		this.border	= border;
-		changeEvent	= new Signal0();
+		changeEvent	= new Signal1();
 	//	changes		= 0;
 	}
 	
@@ -104,23 +104,30 @@ class GraphicProperties implements IGraphicElement
 	}
 	
 
-	public function invalidate (change:UInt) : Void
+	public function invalidate (change:Int) : Void
 	{
+		if (change <= 0)
+			return;
+		
 		if (listeners != null)
-		{
-		//	changes = changes.set(change);
 			for (listener in listeners)
 				listener.invalidateCall( change, this );
-
-			if (changeEvent != null)
-				changeEvent.send();
-		}
+		
+		if (changeEvent != null)
+			changeEvent.send( change );
 	}
 	
 	
 	public function invalidateCall (changeFromOther:UInt, sender:IInvalidatable) : Void
 	{
-		invalidate(changeFromOther);
+		var change = switch (sender) {
+			case cast border:	GraphicFlags.BORDER;
+			case cast shape:	GraphicFlags.SHAPE;
+			case cast fill:		GraphicFlags.FILL;
+			case cast layout:	GraphicFlags.LAYOUT;
+			default:			0;
+		}
+		invalidate( change );
 	}
 	
 	
@@ -231,7 +238,7 @@ class GraphicProperties implements IGraphicElement
 		{
 			if (fill != null && fill.listeners != null)
 				fill.listeners.remove(this);
-
+			
 			fill = v;
 			if (fill != null)
 				fill.listeners.add(this);
@@ -283,8 +290,8 @@ class GraphicProperties implements IGraphicElement
 	
 	
 #if (debug || neko)
-	public function toString ()							{ return toCSS(); }
-	public function toCSS (prefix:String = "")			{ Assert.abstract(); return ""; }
+	public function toString ()					{ return "GraphicProperties: l: "+layout+"; s: "+shape+"; f: "+fill+"; b: "+border; }
+	public function toCSS (prefix:String = "")	{ Assert.abstract(); return ""; }
 #end
 	
 	

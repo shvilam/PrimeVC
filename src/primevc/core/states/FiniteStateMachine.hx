@@ -103,8 +103,9 @@ class FiniteStateMachine implements IFiniteStateMachine
 			current.exiting.send();
 		
 		//set new state and dispatch change event
-		change.send( newState, current );
-		current = newState;
+		var old	= current;
+		current	= newState;
+		change.send( newState, old );
 		
 		//dispatch entering event
 		if (current != null)

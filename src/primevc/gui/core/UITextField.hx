@@ -158,8 +158,10 @@ class UITextField extends TextField, implements IUIElement, implements ITextStyl
 		if (v == null)
 			v = "";
 		
-		text = v;
-		updateSize();
+		if (text != v) {
+			text = v;
+			updateSize();
+		}
 	}
 	
 	

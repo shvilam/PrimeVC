@@ -37,6 +37,7 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutClient;
+ import primevc.types.Number;
   using primevc.utils.TypeUtil;
  
 
@@ -84,6 +85,9 @@ class LayoutAlgorithmBase
 	
 	private inline function setGroupHeight (h:Int)
 	{
+		if (h <= 0)
+			h = Number.INT_NOT_SET;
+		
 		if (group.is(AdvancedLayoutClient))
 			group.as(AdvancedLayoutClient).measuredHeight = h;
 		else
@@ -93,6 +97,9 @@ class LayoutAlgorithmBase
 	
 	private inline function setGroupWidth (w:Int)
 	{
+		if (w <= 0)
+			w = Number.INT_NOT_SET;
+		
 		if (group.is(AdvancedLayoutClient))
 			group.as(AdvancedLayoutClient).measuredWidth = w;
 		else

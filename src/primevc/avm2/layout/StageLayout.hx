@@ -63,6 +63,6 @@ class StageLayout extends LayoutContainer
 	private function stageResizeHandler (?event) {
 		width	= stage.stageWidth;
 		height	= stage.stageHeight;
-		events.sizeChanged.send();
+	//	events.sizeChanged.send();
 	}
 }

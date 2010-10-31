@@ -80,8 +80,9 @@ class SimpleStateMachine <StateType> implements IDisposable
 	
 	private inline function setCurrent (v:StateType) {
 		if (current != v) {
-			change.send( v, current );
-			current = v;
+			var old	= current;
+			current	= v;
+			change.send( v, old );
 		}
 		return v;
 	}

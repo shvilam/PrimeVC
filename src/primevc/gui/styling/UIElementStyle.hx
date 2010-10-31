@@ -210,8 +210,8 @@ class UIElementStyle implements IUIElementStyle
 	{
 		styleNamesChangeBinding.disable();
 		idChangeBinding.disable();
-		removedBinding.disable();
-		addedBinding.enable();
+		if (removedBinding != null)	removedBinding.disable();
+		if (addedBinding != null)	addedBinding.enable();
 		
 		stylesAreSearched	= false;
 		var changed			= filledProperties;
@@ -239,8 +239,8 @@ class UIElementStyle implements IUIElementStyle
 	{
 		styleNamesChangeBinding.enable();
 		idChangeBinding.enable();
-		removedBinding.enable();
-		addedBinding.disable();
+		if (removedBinding != null)	removedBinding.enable();
+		if (addedBinding != null)	addedBinding.disable();
 		
 	//	if (boxFilters == null)		boxFilters	= new FiltersCollection(this, FilterCollectionType.box);
 	//	if (effects == null)		effects		= new EffectsCollection(this);

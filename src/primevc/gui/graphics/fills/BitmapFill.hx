@@ -151,7 +151,11 @@ class BitmapFill extends GraphicElement, implements IFill
 	//
 	
 	public inline function begin (target:IDrawable, ?bounds:IRectangle)
-	{
+	{	
+		isFinished = true;
+		if (bitmap == null)
+			return;
+		
 		if (bitmap.state.is(BitmapStates.ready))
 		{
 #if flash9
@@ -160,20 +164,18 @@ class BitmapFill extends GraphicElement, implements IFill
 		}
 		else if (bitmap.state.is(BitmapStates.loadable))
 			bitmap.load();
-		
-		isFinished = true;
 	}
 	
 	
 	public inline function end (target:IDrawable)
-	{
-		if (bitmap.state.is(BitmapStates.ready))
+	{	
+		isFinished = false;
+		if (bitmap != null && bitmap.state.is(BitmapStates.ready))
 		{
 #if flash9
 			target.graphics.endFill();
 #end
 		}
-		isFinished = false;
 	}
 	
 	

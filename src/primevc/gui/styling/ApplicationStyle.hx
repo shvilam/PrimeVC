@@ -44,8 +44,8 @@ class ApplicationStyle extends UIElementStyle
 	}
 	
 	
-	override public function updateStyles ()			: Void {}
-	override private function updateStyleNameStyles ()	: UInt { return 0; }
-	override private function updateIdStyle ()			: UInt { return 0; }
-	override private function updateElementStyle ()		: UInt { return 0; }
+//	override public function updateStyles ()			: Void {}
+//	override private function updateStyleNameStyles ()	: UInt { return 0; }
+//	override private function updateIdStyle ()			: UInt { return 0; }
+//	override private function updateElementStyle ()		: UInt { return 0; }
 }

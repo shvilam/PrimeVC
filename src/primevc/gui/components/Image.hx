@@ -33,6 +33,7 @@ package primevc.gui.components;
  import primevc.gui.graphics.GraphicProperties;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.types.Bitmap;
+ import primevc.types.Number;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
@@ -109,9 +110,10 @@ class Image extends UIGraphic
 		}
 		else
 		{
-			l.measuredWidth		= 0;
-			l.measuredHeight	= 0;
+			l.measuredWidth		= Number.INT_NOT_SET;
+			l.measuredHeight	= Number.INT_NOT_SET;
 		}
+		trace("Image.updateSize; "+l.measuredWidth+", "+l.measuredHeight);
 	}
 	
 	private function bitmapStateChangeHandler (newState:BitmapStates, oldState:BitmapStates)

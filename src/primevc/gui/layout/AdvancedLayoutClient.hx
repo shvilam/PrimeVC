@@ -27,8 +27,13 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout;
-import primevc.types.Number;
+ import primevc.types.Number;
+  using primevc.utils.BitUtil;
+  using primevc.utils.NumberUtil;
  
+
+private typedef Flags = LayoutFlags;
+
 
 /**
  * Description
@@ -38,11 +43,11 @@ import primevc.types.Number;
  */
 class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClient
 {
-	public function new (newWidth:Int = 0, newHeight:Int = 0, validateOnPropertyChange = false)
+	public function new (newWidth:Int = Number.INT_NOT_SET, newHeight:Int = Number.INT_NOT_SET, validateOnPropertyChange = false)
 	{
 		super(newWidth, newHeight, validateOnPropertyChange);
-		explicitWidth	= newWidth > 0 ? newWidth : Number.INT_NOT_SET;
-		explicitHeight	= newHeight > 0 ? newHeight : Number.INT_NOT_SET;
+		explicitWidth	= newWidth;
+		explicitHeight	= newHeight;
 		measuredWidth	= Number.INT_NOT_SET;
 		measuredHeight	= Number.INT_NOT_SET;
 	}
@@ -50,11 +55,7 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	
 	override private function resetProperties () : Void
 	{
-		explicitWidth	= Number.INT_NOT_SET;
-		explicitHeight	= Number.INT_NOT_SET;
-		measuredWidth	= Number.INT_NOT_SET;
-		measuredHeight	= Number.INT_NOT_SET;
-		
+		explicitWidth = explicitHeight = measuredWidth = measuredHeight = Number.INT_NOT_SET;
 		super.resetProperties();
 	}
 	
@@ -64,11 +65,17 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	// SIZE PROPERTIES
 	//
 	
-	public var explicitWidth	(default, setExplicitWidth)		: Int;
-	public var explicitHeight	(default, setExplicitHeight)	: Int;
+	private var _explicitWidth	: Int;
+	private var _explicitHeight	: Int;
+	private var _measuredWidth	: Int;
+	private var _measuredHeight	: Int;
 	
-	public var measuredWidth	(default, setMeasuredWidth) 	: Int;
-	public var measuredHeight	(default, setMeasuredHeight)	: Int;
+	
+	public var explicitWidth	(getExplicitWidth, setExplicitWidth)	: Int;
+	public var explicitHeight	(getExplicitHeight, setExplicitHeight)	: Int;
+	
+	public var measuredWidth	(getMeasuredWidth, setMeasuredWidth) 	: Int;
+	public var measuredHeight	(getMeasuredHeight, setMeasuredHeight)	: Int;
 	
 	
 	
@@ -76,58 +83,125 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	// GETTERS / SETTERS
 	//
 	
+	
+	private inline function getMeasuredWidth ()		{ return _measuredWidth; }
+	private inline function getMeasuredHeight ()	{ return _measuredHeight; }
+	private inline function getExplicitWidth ()		{ return _explicitWidth; }
+	private inline function getExplicitHeight ()	{ return _explicitHeight; }
+	
+	
 	private inline function setExplicitWidth (v:Int)
 	{
-		if (explicitWidth != v) {
-			explicitWidth = v;
-			if (v != Number.INT_NOT_SET)
-				explicitWidth = width = v;		//setWidth can trigger a size constraint..
+		if (_explicitWidth != v) {
+			_explicitWidth = v;
+			invalidate( Flags.EXPLICIT_WIDTH | Flags.WIDTH );
+		//	if (v.isSet())
+		//		explicitWidth = width = v;		//setWidth can trigger a size constraint.
+		//	else
+		//		width = measuredWidth;
+			
 		}
-		return explicitWidth;
+		return v;
 	}
 	
 	
 	private inline function setExplicitHeight (v:Int)
 	{
-		if (explicitHeight != v) {
-			explicitHeight = v;
-			if (v != Number.INT_NOT_SET)
-				explicitHeight = height = v;	//setHeight can trigger a size constraint
+		if (_explicitHeight != v) {
+			_explicitHeight = v;
+			invalidate( Flags.EXPLICIT_HEIGHT | Flags.HEIGHT );
+		//	if (v.isSet())
+		//		explicitHeight = height = v;	//setHeight can trigger a size constraint
+		//	else
+		//		height = measuredHeight;
 		}
-		return explicitHeight;
+		return v;
 	}
 	
 	
 	private inline function setMeasuredWidth (v:Int)
 	{
-		if (measuredWidth != v) {
-			measuredWidth = v;
-			if (explicitWidth == Number.INT_NOT_SET)
-				measuredWidth = width = v;		//setWidth can trigger a size constraint..
+		if (_measuredWidth != v) {
+			_measuredWidth = v;
+			invalidate( Flags.MEASURED_WIDTH );
+		//	if (explicitWidth.notSet())
+		//		measuredWidth = width = v;		//setWidth can trigger a size constraint..
 		}
-		return measuredWidth;
+		return v;
 	}
 	
 	
 	private inline function setMeasuredHeight (v:Int)
 	{
-		if (measuredHeight != v) {
-			measuredHeight = v;
-			if (explicitHeight == Number.INT_NOT_SET)
-				measuredHeight = height = v;	//setHeight can trigger a size constraint
+		if (_measuredHeight != v) {
+			_measuredHeight = v;
+			invalidate( Flags.MEASURED_HEIGHT );
+		//	if (explicitHeight.notSet())
+		//		measuredHeight = height = v;	//setHeight can trigger a size constraint
 		}
-		return measuredHeight;
+		return v;
 	}
 	
 	
-	override private function setWidth (v:Int)
+	override public function validateHorizontal ()
 	{
+		if (hasValidatedWidth)
+			return;
+
+		super.validateHorizontal();
+		
+		if (changes.has(Flags.MEASURED_WIDTH | Flags.EXPLICIT_WIDTH) && _explicitWidth.notSet() && _measuredWidth.isSet())
+			width = _measuredWidth;
+		
+		if (changes.has(Flags.EXPLICIT_WIDTH) && _explicitWidth.isSet())
+			width = _explicitWidth;
+		
+		if (_explicitWidth.notSet() && width != _measuredWidth && width.isSet())
+			_measuredWidth = width;
+		
+		if (_explicitWidth.isSet() && width != _explicitWidth && width.isSet())
+			_explicitWidth = width;
+		
+		if (changes.has(Flags.WIDTH))
+			bounds.width = width + getHorPadding();
+	}
+	
+	
+	
+	override public function validateVertical ()
+	{
+		if (hasValidatedHeight)
+			return;
+		
+		super.validateVertical();
+		
+		if (changes.has(Flags.MEASURED_HEIGHT | Flags.EXPLICIT_HEIGHT) && _explicitHeight.notSet() && _measuredHeight.isSet())
+			height = _measuredHeight;
+		
+		if (changes.has(Flags.EXPLICIT_HEIGHT) && _explicitHeight.isSet())
+			height = _explicitHeight;
+		
+		if (_explicitHeight.notSet() && height != _measuredHeight && height.isSet())
+			_measuredHeight = height;
+		
+		if (_explicitHeight.isSet() && height != _explicitHeight && height.isSet())	
+			_explicitHeight = height;
+		
+		if (changes.has(Flags.HEIGHT))
+			bounds.height = height + getVerPadding();
+	}
+	
+	
+	/*override private function setWidth (v:Int)
+	{
+		trace(this+".setWidth "+width+"; v "+v);
 		var newV = super.setWidth(v);
 		
 		//set the explicitWidth property if height is set directly and there's no measuredWidth
 		if (measuredWidth != v && explicitWidth != v)
 			explicitWidth = newV;
 		
+		trace("\t" + this+".END setWidth "+width+"; newV "+newV+"; v "+v+"; explicit: "+explicitWidth+"; measured "+measuredWidth);
 		return newV;
 	}
 	
@@ -140,5 +214,5 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 			explicitHeight = newV;
 		
 		return newV;
-	}
+	}*/
 }

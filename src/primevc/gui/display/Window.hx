@@ -86,6 +86,8 @@ class Window
 		displayEvents	= new DisplayEvents( target );
 		userEvents		= new UserEvents( target );
 		mouse			= new Mouse( this );
+		
+		target.doubleClickEnabled = true;
 	}
 	
 	

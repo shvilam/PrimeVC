@@ -32,6 +32,8 @@ package primevc.core.geom.constraints;
  import primevc.core.geom.IBox;
  import primevc.core.geom.IRectangle;
   using primevc.utils.Bind;
+  using primevc.utils.NumberUtil;
+  using Std;
 
 
 /**
@@ -87,83 +89,102 @@ class ConstrainedRect extends BindableBox, implements IRectangle
 	private inline function getHeight ()	{ return size.y; }
 	
 	
-	private inline function setWidth (v:Int) {
-		size.x			= v;
-		rightProp.value	= left + size.x;
+	private inline function setWidth (v:Int)
+	{
+		if (size.x != v)
+		{
+			size.x = v;
+			rightProp.value	= v.isSet() ? left + size.x : left;
+		}
 		return v;
 	}
 	
 	
-	private inline function setHeight (v:Int) {
-		size.y				= v;
-		bottomProp.value	= top + size.y;
+	private inline function setHeight (v:Int)
+	{
+		if (size.y != v)
+		{
+			size.y = v;
+			bottomProp.value = v.isSet() ? top + v : top;
+		}
 		return v;
 	}
 	
 	
-	override private function setTop (v:Int) {
+	override private function setTop (v:Int)
+	{
 		if (constraint != null && v < constraint.top)
 			v = constraint.top;
 		
 		if (v != top) {
 			topProp.value		= v;
-			bottomProp.value	= v + height;
+			bottomProp.value	= (v.isSet() && height.isSet()) ? v + height : v;
 		}
 		return v;
 	}
 	
 	
-	override private function setBottom (v:Int) {
+	override private function setBottom (v:Int)
+	{
 		if (constraint != null && v > constraint.bottom)
 			v = constraint.bottom;
 		
 		if (v != bottom) {
-			bottomProp.value	= v;
-			topProp.value		= v - height;
+			bottomProp.value = v;
+			topProp.value = (v.isSet() && height.isSet()) ? v - height : v;
 		}
 		
 		return v;
 	}
 	
 	
-	override private function setLeft (v:Int) {
+	override private function setLeft (v:Int)
+	{
 		if (constraint != null && v < constraint.left)
 			v = constraint.left;
 		
 		if (v != left) {
 			leftProp.value	= v;
-			rightProp.value	= v + width;
+			rightProp.value	= (v.isSet() && width.isSet()) ? v + width : v;
 		}
 		return v;
 	}
 	
 	
-	override private function setRight (v:Int) {
+	override private function setRight (v:Int)
+	{
 		if (constraint != null && v > constraint.right)
 			v = constraint.right;
 		
 		if (v != right) {
 			rightProp.value	= v;
-			leftProp.value	= v - width;
+			leftProp.value	= (v.isSet() && width.isSet()) ? v - width : v;
 		}
 		return v;
 	}
 	
 	
-	private inline function setCenterX (v:Float) {
-		left = Std.int(v - (width * .5));
-		return centerX;
+	private inline function setCenterX (v:Float)
+	{
+		if (v.isSet())
+			left = width.isSet() ? (v - (width * .5)).int() : v.int();
+		
+		return centerX = v;
 	}
 	
 	
-	private inline function setCenterY (v:Float) {
-		top = Std.int(v - (height * .5));
-		return centerY;
+	private inline function setCenterY (v:Float)
+	{
+		if (v.isSet())
+			top = width.isSet() ? (v - (height * .5)).int() : v.int();
+		
+		return centerY = v;
 	}
 	
 	
 	
-	public inline function setConstraint (v) {
+	public inline function setConstraint (v)
+	{
 		if (constraint != null) {
 			constraint.leftProp		.change.unbind( this );
 			constraint.rightProp	.change.unbind( this );

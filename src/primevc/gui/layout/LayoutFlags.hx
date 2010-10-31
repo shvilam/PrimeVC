@@ -75,17 +75,23 @@ class LayoutFlags
 	public static inline var MAX_WIDTH				: UInt = 1024;
 	public static inline var MIN_WIDTH				: UInt = 2048;
 	public static inline var PERCENT_WIDTH			: UInt = 4096;
+	public static inline var BOUNDARY_WIDTH			: UInt = 8192;
+	public static inline var MEASURED_WIDTH			: UInt = 8388608;
+	public static inline var EXPLICIT_WIDTH			: UInt = 16777216;
 	
-	public static inline var MAX_HEIGHT				: UInt = 8192;
-	public static inline var MIN_HEIGHT				: UInt = 16384;
-	public static inline var PERCENT_HEIGHT			: UInt = 32768;
+	public static inline var MAX_HEIGHT				: UInt = 16384;
+	public static inline var MIN_HEIGHT				: UInt = 32768;
+	public static inline var PERCENT_HEIGHT			: UInt = 65536;
+	public static inline var BOUNDARY_HEIGHT		: UInt = 131072;
+	public static inline var MEASURED_HEIGHT		: UInt = 33554432;
+	public static inline var EXPLICIT_HEIGHT		: UInt = 67108864;
 	
-	public static inline var PADDING				: UInt = 65536;
-	public static inline var MAINTAIN_ASPECT		: UInt = 131072;
-	public static inline var ROTATION				: UInt = 262144;
+	public static inline var PADDING				: UInt = 262144;
+	public static inline var MAINTAIN_ASPECT		: UInt = 524288;
+	public static inline var ROTATION				: UInt = 1048576;
 	
-	public static inline var CHILD_WIDTH			: UInt = 524288;
-	public static inline var CHILD_HEIGHT			: UInt = 1048576;
+	public static inline var CHILD_WIDTH			: UInt = 2097152;
+	public static inline var CHILD_HEIGHT			: UInt = 4194304;
 	
 	
 	/**
@@ -101,13 +107,19 @@ class LayoutFlags
 		var output	= [];
 		
 		if (flags.has( ALGORITHM ))				output.push("algorithm");
+		if (flags.has( BOUNDARY_HEIGHT ))		output.push("boundary-height");
+		if (flags.has( BOUNDARY_WIDTH ))		output.push("boundary-width");
 		if (flags.has( CHILD_HEIGHT ))			output.push("child-height");
 		if (flags.has( CHILD_WIDTH ))			output.push("child-width");
 		if (flags.has( CHILDREN_INVALIDATED ))	output.push("children_invalidated");
+		if (flags.has( EXPLICIT_HEIGHT ))		output.push("explicit-height");
+		if (flags.has( EXPLICIT_WIDTH))			output.push("explicit-width");
 		if (flags.has( HEIGHT ))				output.push("height");
 		if (flags.has( INCLUDE ))				output.push("include");
 		if (flags.has( LIST ))					output.push("list");
 		if (flags.has( MAINTAIN_ASPECT ))		output.push("maintain-aspect-ratio");
+		if (flags.has( MEASURED_HEIGHT ))		output.push("measured-height");
+		if (flags.has( MEASURED_WIDTH ))		output.push("measured-width");
 		if (flags.has( MAX_HEIGHT ))			output.push("max-height");
 		if (flags.has( MAX_WIDTH ))				output.push("max-width");
 		if (flags.has( MIN_HEIGHT ))			output.push("min-height");

@@ -40,6 +40,7 @@ package primevc.gui.layout;
  import primevc.types.Number;
  import primevc.gui.events.LayoutEvents;
  import primevc.gui.states.ValidateStates;
+ import primevc.utils.IntMath;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
@@ -112,7 +113,7 @@ class LayoutClient extends Invalidatable
 	// METHODS
 	//
 	
-	public function new (newWidth:Int = 0, newHeight:Int = 0, validateOnPropertyChange = false)
+	public function new (newWidth:Int = Number.INT_NOT_SET, newHeight:Int = Number.INT_NOT_SET, validateOnPropertyChange = false)
 	{
 		super();
 #if debug
@@ -123,7 +124,12 @@ class LayoutClient extends Invalidatable
 		maintainAspectRatio				= false;
 		
 		events	= new LayoutEvents();
-		bounds	= new ConstrainedRect(0, newWidth + getHorPadding(), newHeight + getVerPadding(), 0);
+		bounds	= new ConstrainedRect(
+			0,
+			IntMath.max( newWidth, 0 ) + getHorPadding(), 
+			IntMath.max( newHeight, 0) + getVerPadding(), 
+			0
+		);
 		_width	= new ConstrainedInt( newWidth );
 		_height	= new ConstrainedInt( newHeight );
 		
@@ -131,10 +137,10 @@ class LayoutClient extends Invalidatable
 		percentHeight	= 0;
 		includeInLayout	= true;
 		
-		boundsLeftChangeHandler	.on( bounds.leftProp.change, this );
-		boundsTopChangeHandler	.on( bounds.topProp.change, this );
-		updateWidth				.on( bounds.size.xProp.change, this );
-		updateHeight			.on( bounds.size.yProp.change, this );
+		boundsLeftChangeHandler		.on( bounds.leftProp.change, this );
+		boundsTopChangeHandler		.on( bounds.topProp.change, this );
+		boundsWidthChangeHandler	.on( bounds.size.xProp.change, this );
+		boundsHeightChangeHandler	.on( bounds.size.yProp.change, this );
 		
 		changes				= changes.set(Flags.X | Flags.Y | Flags.WIDTH | Flags.HEIGHT);
 		state				= new SimpleStateMachine<ValidateStates>( ValidateStates.validated );
@@ -222,8 +228,8 @@ class LayoutClient extends Invalidatable
 			return;
 		
 		state.current = ValidateStates.validating;
-		if (!hasValidatedWidth)		validateHorizontal();
-		if (!hasValidatedHeight)	validateVertical();
+		validateHorizontal();
+		validateVertical();
 		
 		//auto validate when there is no parent or when the parent isn't invalidated
 		if (parent == null || parent.changes == 0)
@@ -233,6 +239,14 @@ class LayoutClient extends Invalidatable
 	
 	public function validateHorizontal ()
 	{
+		if (hasValidatedWidth)
+			return;
+		
+		state.current = ValidateStates.validating;
+		
+		if (changes.has(Flags.BOUNDARY_WIDTH))
+			width = bounds.width - getHorPadding();
+		
 		if (changes.has(Flags.WIDTH))
 			bounds.width = width + getHorPadding();
 		
@@ -242,6 +256,14 @@ class LayoutClient extends Invalidatable
 	
 	public function validateVertical ()
 	{
+		if (hasValidatedHeight)
+			return;
+		
+		state.current = ValidateStates.validating;
+		
+		if (changes.has(Flags.BOUNDARY_HEIGHT))
+			height = bounds.height - getVerPadding();
+		
 		if (changes.has(Flags.HEIGHT))
 			bounds.height = height + getVerPadding();
 		
@@ -308,8 +330,8 @@ class LayoutClient extends Invalidatable
 	// BOUNDARY SETTERS
 	//
 	
-	private inline function updateWidth (newV:Int, oldV:Int)	{ width = newV - getHorPadding(); }
-	private inline function updateHeight (newV:Int, oldV:Int)	{ height = newV - getVerPadding(); }
+//	private function updateWidth (newV:Int, oldV:Int)	{ width = newV - getHorPadding(); }
+//	private function updateHeight (newV:Int, oldV:Int)	{ height = newV - getVerPadding(); }
 	
 	
 	
@@ -339,8 +361,10 @@ class LayoutClient extends Invalidatable
 	}
 	
 	
-	private function boundsLeftChangeHandler (newV:Int, oldV:Int) { x = newV; }
-	private function boundsTopChangeHandler (newV:Int, oldV:Int) { y = newV; }
+	private function boundsLeftChangeHandler (newV:Int, oldV:Int)	{ x = newV; }
+	private function boundsTopChangeHandler (newV:Int, oldV:Int)	{ y = newV; }
+	private function boundsWidthChangeHandler (newV:Int, oldV:Int)	{ invalidate( Flags.BOUNDARY_WIDTH ); }
+	private function boundsHeightChangeHandler (newV:Int, oldV:Int)	{ invalidate( Flags.BOUNDARY_HEIGHT ); }
 	
 	
 	
@@ -361,13 +385,14 @@ class LayoutClient extends Invalidatable
 		if (_width.value != oldW)
 		{
 			var newH:Int	= maintainAspectRatio ? Std.int(_width.value / aspectRatio) : height;
-			bounds.width 	= _width.value + getHorPadding();
+		//	bounds.width 	= _width.value + getHorPadding();
 			
 			if (maintainAspectRatio && newH != height)
 				height = newH; //will trigger the height constraints
 			
 			invalidate( Flags.WIDTH );
 		}
+	//	trace("\t"+this+".end setWidth");
 		return _width.value;
 	}
 	
@@ -380,7 +405,7 @@ class LayoutClient extends Invalidatable
 		if (_height.value != oldH)
 		{
 			var newW:Int	= maintainAspectRatio ? Std.int(_height.value * aspectRatio) : width;	
-			bounds.height	= _height.value + getVerPadding();
+		//	bounds.height	= _height.value + getVerPadding();
 			
 			if (maintainAspectRatio && newW != width)
 				width = newW; //will trigger the width constraints

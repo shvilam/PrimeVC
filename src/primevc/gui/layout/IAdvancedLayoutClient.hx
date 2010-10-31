@@ -37,9 +37,9 @@ package primevc.gui.layout;
  */
 interface IAdvancedLayoutClient implements ILayoutClient
 {
-	public var explicitWidth	(default, setExplicitWidth)		: Int;
-	public var explicitHeight	(default, setExplicitHeight)	: Int;
-	
-	public var measuredWidth	(default, setMeasuredWidth) 	: Int;
-	public var measuredHeight	(default, setMeasuredHeight)	: Int;
+	public var explicitWidth	(getExplicitWidth, setExplicitWidth)	: Int;
+	public var explicitHeight	(getExplicitHeight, setExplicitHeight)	: Int;
+
+	public var measuredWidth	(getMeasuredWidth, setMeasuredWidth) 	: Int;
+	public var measuredHeight	(getMeasuredHeight, setMeasuredHeight)	: Int;
 }
