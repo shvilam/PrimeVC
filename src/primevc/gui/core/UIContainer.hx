@@ -34,11 +34,12 @@ package primevc.gui.core;
 
 
 /**
+ * Container class without data.
+ * 
  * @author Ruben Weijers
- * @creation-date Aug 02, 2010
+ * @creation-date Oct 29, 2010
  */
-class UIContainer <DataType> extends UIDataComponent <DataType>
-			, implements IUIContainer
+class UIContainer extends UIComponent, implements IUIContainer
 {
 	public var layoutContainer	(getLayoutContainer, never)		: LayoutContainer;
 	public var scrollableLayout	(getScrollableLayout, never)	: IScrollableLayout;

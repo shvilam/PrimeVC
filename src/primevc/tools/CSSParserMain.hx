@@ -70,7 +70,7 @@ class CSSParserMain
 	{
 		skinFolder	= skin;
 		styles		= new StyleBlock(null);
-		manifest	= new Manifest( skinFolder + "/manifest.xml" );
+		manifest	= new Manifest(); // skinFolder + "/manifest.xml" );
 		parser		= new CSSParser( styles, manifest );
 		generator	= new HaxeCodeGenerator( 2 );
 		generator.instanceIgnoreList.set( styles.uuid, styles );

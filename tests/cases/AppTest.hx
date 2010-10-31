@@ -27,8 +27,15 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package cases;
+ import primevc.core.collections.ArrayList;
  import primevc.core.Application;
+ import primevc.core.Bindable;
+ import primevc.gui.components.ApplicationView;
+ import primevc.gui.components.Button;
+ import primevc.gui.components.Label;
+ import primevc.gui.components.ListView;
  import primevc.gui.core.UIContainer;
+ import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UIWindow;
 
 
@@ -39,24 +46,178 @@ package cases;
  */
 class AppTest
 {
-	public static function main () { Application.startup( AppTestWindow ); }
+	public static function main () { Application.startup( EditorWindow ); }
 }
 
-class AppTestWindow extends UIWindow
+class EditorWindow extends UIWindow
 {
 	override private function createChildren ()
 	{
-		var app = new Editor();
-		children.add( app );
+		children.add( new EditorView("editorView") );
 	}
 }
 
 
 
-class Editor extends UIContainer <Dynamic>
+class EditorView extends ApplicationView
 {
+	private var applicationBar	: ApplicationMainBar;
+	private var framesToolBar	: FramesToolBar;
+	
+	
 	override private function createChildren ()
 	{
+		applicationBar	= new ApplicationMainBar("applicationMainBar");
+		framesToolBar	= new FramesToolBar("framesToolBar");
 		
+		layoutContainer.children.add( applicationBar.layout );
+		layoutContainer.children.add( framesToolBar.layout );
+		children.add( applicationBar );
+		children.add( framesToolBar );
 	}
 }
+
+
+
+class ApplicationMainBar extends UIContainer {}
+
+
+
+class FramesToolBar extends ListView < FrameTypesSectionVO >
+{
+	public function new (id:String = null)
+	{
+		var frames = new ArrayList<FrameTypeVO>();
+		frames.add( new FrameTypeVO( "externalLinkFrame", "Externe Link", null ) );
+		frames.add( new FrameTypeVO( "internalLinkFrame", "Interne Link", null ) );
+		frames.add( new FrameTypeVO( "webshopFrame", "Webshop Kader", null ) );
+		
+		var media = new ArrayList<FrameTypeVO>();
+	//	media.add( new FrameTypeVO( "pictureFrame", "Afbeeldingen", null ) );
+	//	media.add( new FrameTypeVO( "videoFrame", "Video", null ) );
+	//	media.add( new FrameTypeVO( "flashFrame", "Flash", null ) );
+		
+		var elements = new ArrayList<FrameTypeVO>();
+	//	elements.add( new FrameTypeVO( "shapeFrame", "Vormen", null ) );
+	//	elements.add( new FrameTypeVO( "textFrame", "Tekst", null ) );
+		
+		var list = new FrameTypesList();
+		list.add( new FrameTypesSectionVO( "linkFrames", "kaders", frames ) );
+		list.add( new FrameTypesSectionVO( "mediaFrames", "media", media ) );
+		list.add( new FrameTypesSectionVO( "elementFrames", "elementen", elements ) );
+		super(id, list);
+	}
+	
+	
+	override private function createItemRenderer (dataItem:FrameTypesSectionVO)
+	{
+		return cast new FrameTypesBar( dataItem.name+"Bar2", dataItem );
+	}
+}
+
+
+
+class FrameTypesBar extends UIDataContainer < FrameTypesSectionVO >
+{
+	private var titleField	: Label;
+	private var framesList	: FrameTypesBarList;
+	
+	
+	override private function createChildren ()
+	{
+		titleField	= new Label(id+"TitleField");
+		framesList	= new FrameTypesBarList(id+"List");
+		
+		titleField.styleClasses.value = "title";
+		
+		layoutContainer.children.add( titleField.layout );
+		layoutContainer.children.add( framesList.layout );
+		children.add( titleField );
+		children.add( framesList );
+	}
+	
+	
+	override private function initData ()
+	{
+		titleField.data.bind( value.label );
+		framesList.value = cast value.frames;
+	}
+}
+
+
+
+class FrameTypesBarList extends ListView < FrameTypeVO >
+{
+	override private function createItemRenderer (dataItem:FrameTypeVO)
+	{
+		return cast new FrameButton( dataItem );
+	}
+}
+
+
+
+class FrameButton extends Button
+{
+	public var vo : FrameTypeVO;
+	
+	
+	public function new (vo:FrameTypeVO)
+	{
+		super(vo.name+"Button");
+		data.bind( vo.label );
+		this.vo = vo;
+	}
+	
+	
+	override public function dispose ()
+	{
+		vo = null;
+		super.dispose();
+	}
+}
+
+
+
+
+
+/**
+ * Data classes
+ */
+
+typedef FrameTypesList		= ArrayList < FrameTypesSectionVO >;
+
+
+class FrameTypesSectionVO
+{	
+	public var name		: String;
+	public var frames	: ArrayList < FrameTypeVO >;
+	public var label	: Bindable < String >;
+	
+	
+	public function new (name:String, label:String, frames:ArrayList < FrameTypeVO > )
+	{
+		this.name	= name;
+		this.label	= new Bindable<String>(label);
+		this.frames	= frames;
+	}
+}
+
+
+class FrameTypeVO
+{
+	/**
+	 * Property is used as ID for the itemViewer
+	 */
+	public var name			: String;
+	public var label		: Bindable < String >;
+	public var frameClass	: Class < Dynamic >;
+	
+	
+	public function new (name:String, label:String, frameClass:Class < Dynamic >)
+	{
+		this.name		= name;
+		this.label		= new Bindable<String>(label);
+		this.frameClass	= frameClass;
+	}
+}
+

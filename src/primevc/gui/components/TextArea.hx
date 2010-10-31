@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
- import primevc.gui.core.UIContainer;
+ import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UITextField;
   using primevc.utils.NumberUtil;
 
@@ -39,7 +39,7 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Sep 03, 2010
  */
-class TextArea extends UIContainer < String >, implements ITextArea
+class TextArea extends UIDataContainer < String >, implements ITextArea
 {
 	private static inline var MAX_COLUMNS	: Int = 40;
 	

@@ -31,8 +31,6 @@ package primevc.gui.text;
 
 
 /**
- * Class description
- * 
  * @author Ruben Weijers
  * @creation-date Oct 26, 2010
  */

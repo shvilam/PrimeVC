@@ -26,30 +26,16 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.components;
+package primevc.gui.styling;
+ import primevc.gui.core.IUIElement;
+ import primevc.types.Bitmap;
 
 
 /**
- * InputField component
- * 
  * @author Ruben Weijers
- * @creation-date Sep 03, 2010
+ * @creation-date Oct 29, 2010
  */
-class InputField extends Label
+interface IIconOwner implements IUIElement
 {
-	override private function createChildren ()
-	{
-		super.createChildren();
-#if flash9
-		field.type			= flash.text.TextFieldType.INPUT;
-		field.selectable	= true;
-#end
-		updateValue.on( field.textEvents.change, this );
-	}
-	
-	
-	private function updateValue ()
-	{
-		value = field.text;
-	}
+	public var icon	: Bitmap;
 }

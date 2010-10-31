@@ -27,29 +27,33 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
+ import primevc.core.Bindable;
+ import primevc.gui.styling.IIconOwner;
+ import primevc.types.Bitmap;
+
 
 
 /**
- * InputField component
+ * Button component
  * 
  * @author Ruben Weijers
- * @creation-date Sep 03, 2010
+ * @creation-date Oct 29, 2010
  */
-class InputField extends Label
+class Button extends Label, implements IIconOwner
 {
-	override private function createChildren ()
+	public var icon : Bitmap;
+	
+	
+	public function new (id:String = null, value:Bindable<String> = null, icon:Bitmap = null)
 	{
-		super.createChildren();
-#if flash9
-		field.type			= flash.text.TextFieldType.INPUT;
-		field.selectable	= true;
-#end
-		updateValue.on( field.textEvents.change, this );
+		super(id, value);
+		this.icon = icon;
 	}
 	
 	
-	private function updateValue ()
+	override private function removeChildren ()
 	{
-		value = field.text;
+		this.icon = null;
+		super.removeChildren();
 	}
 }

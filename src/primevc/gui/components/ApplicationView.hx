@@ -27,29 +27,16 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
+ import primevc.gui.core.UIContainer;
 
 
 /**
- * InputField component
+ * Base class for the main-application container.
  * 
  * @author Ruben Weijers
- * @creation-date Sep 03, 2010
+ * @creation-date Oct 29, 2010
  */
-class InputField extends Label
+class ApplicationView extends UIContainer
 {
-	override private function createChildren ()
-	{
-		super.createChildren();
-#if flash9
-		field.type			= flash.text.TextFieldType.INPUT;
-		field.selectable	= true;
-#end
-		updateValue.on( field.textEvents.change, this );
-	}
 	
-	
-	private function updateValue ()
-	{
-		value = field.text;
-	}
 }

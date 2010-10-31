@@ -1,7 +1,5 @@
-UIComponent { shape: rectangle; visibility: visible; opacity: 1; }
-/*UIComponent:hover { color: #aaa; }*/
-UIGraphic {}
-UITextField { color: #000; }
+@import url('../empty/Style.css');
+
 Tile { color: #000; move-transition: move 200ms elastic-in-out; } /*move-transition: sequence ( parallel ( fade 500ms 40%, move 300ms elastic-out, rotate 400ms 360deg bounce-in-out ), fade 600ms 100% ) ; }*/
 
 .odd { visibility: visible; width: 25px; }
@@ -9,7 +7,7 @@ Tile { color: #000; move-transition: move 200ms elastic-in-out; } /*move-transit
 
 GlobalApp {
 	relative: 5px 5px 5px;
-	width: 50%;
+	width: 80%;
 	padding: 5px;
 	algorithm: float-hor;
 	border: solid 1px #000 inset;

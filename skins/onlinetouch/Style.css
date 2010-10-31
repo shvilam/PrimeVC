@@ -1,0 +1,53 @@
+@import url('../empty/Style.css');
+@manifest url('manifest.xml');
+
+UIComponent { opacity: .6; border: solid 1px #f0f; }
+
+EditorView {
+	algorithm: float-ver;
+}
+
+ApplicationMainBar {
+	width: 100%;
+	height: 40px;
+	background: #252525;
+	font: "Helvetica Bold" 9px #fff;
+}
+
+
+FramesToolBar {
+	background: linear-gradient( #d4d4d4 0%, #eee 90%, #fff 100% );
+	algorithm: float-hor(center);
+	width: 100%;
+	height: 100px;
+}
+
+FrameTypesBar {
+	algorithm: float-hor(right);
+	background: #fff;
+	width: 200px;
+}
+
+FrameTypesBarList {
+	algorithm: float-hor(right);
+	width: 500px;
+	background: #ff0;
+}
+
+FrameTypesBar .title {
+	font: "Helvetica Bold" 11px #fff;
+	border-radius: 10px;
+	/*border: solid 1px #b5b5b5;*/
+	background: #0f0;
+}
+
+FrameTypesBarList FrameButton {
+	width: 100px;
+	height: 65px;
+	background: #f00;
+	font: Helvetica 8px;
+	text-transform: capitalize;
+}
+FrameTypesBarList FrameButton:hover {
+	background: #0f0;
+}

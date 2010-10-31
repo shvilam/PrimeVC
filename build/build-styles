@@ -26,12 +26,14 @@ done
 
 StyleFolder="${PRJROOT}/${Style}"
 StyleInputFile="${StyleFolder}/Style.css"
-StyleOutputFile="${StyleFolder}/Style.hx"
-ManifestFile="${StyleFolder}/manifest.xml"
+StyleOutputFile="${StyleFolder}/StyleSheet.hx"
+#ManifestFile="${StyleFolder}/manifest.xml"
 
 #echo "MainFile: ${MainFile}"
 echo "Main: ${MainClass}" &&
-echo "Style: ${StyleFile}" &&
+echo "StyleInput: ${StyleInputFile}" &&
+echo "StyleOutput: ${StyleOutputFile}" &&
+#echo "Manifest: ${ManifestFile}" &&
 echo "Debugging? ${Debug:-false}"
 
 CompilerUpdated=false
@@ -44,14 +46,14 @@ if ${Force} || [[ ! -f ${Parser} ]]  ||  test ${MainFile} -nt ${Parser}  ||  tes
 fi;
 
 #compile css
-if [[ -d ${StyleFolder} ]] && [[ -f ${ManifestFile} ]] && [[ -f ${StyleInputFile} ]] && [[ -f ${Parser} ]] ; then
-	if ${CompilerUpdated} || [[ ! -f ${StyleOutputFile} ]] || test ${StyleInputFile} -nt ${StyleOutputFile} || test ${ManifestFile} -nt ${StyleOutputFile} ; then
+if [[ -d ${StyleFolder} ]] && [[ -f ${StyleInputFile} ]] && [[ -f ${Parser} ]] ; then # && [[ -f ${ManifestFile} ]] ; then
+	if ${CompilerUpdated} || [[ ! -f ${StyleOutputFile} ]] || test ${StyleInputFile} -nt ${StyleOutputFile} ; then # || test ${ManifestFile} -nt ${StyleOutputFile} ; then
 		echo "Running parser on ${StyleInputFile}" &&
 		neko ${Parser} ${Style}
 	else	
 		echo "Style is already compiled and up to date.."
 	fi;
 else
-	echo "Style '${StyleInputFile}' or manifest '${ManifestFile}' doesn't exist!" &&
+	echo "Style '${StyleInputFile}' doesn't exist!" &&
 	exit 1
 fi;

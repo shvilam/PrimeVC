@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<componentPackage>	
+	<component id="UIComponent"			superClass=""					fullname="primevc.gui.core.UIComponent" />
+	<component id="UIContainer"			superClass="UIComponent"		fullname="primevc.gui.core.UIContainer" />
+	<component id="UIDataComponent"		superClass="UIComponent"		fullname="primevc.gui.core.UIDataComponent" />
+	<component id="UIDataContainer"		superClass="UIDataComponent"	fullname="primevc.gui.core.UIDataContainer" />
+	<component id="UIGraphic"			superClass=""					fullname="primevc.gui.core.UIGraphic" />
+	<component id="UITextField"			superClass=""					fullname="primevc.gui.core.UITextField" />
+	<component id="UIWindow"			superClass=""					fullname="primevc.gui.core.UIWindow" />
+	
+	<component id="ApplicationView"		superClass="UIContainer"		fullname="primevc.gui.components.ApplicationView" />
+	<component id="Button"				superClass="Label"				fullname="primevc.gui.components.Button" />
+	<component id="InputField"			superClass="Label"				fullname="primevc.gui.components.InputField" />
+	<component id="Label"				superClass="UIDataContainer"	fullname="primevc.gui.components.Label" />
+	<component id="ListView"			superClass="UIDataContainer"	fullname="primevc.gui.components.ListView" />
+	<component id="TextArea"			superClass="UIDataContainer"	fullname="primevc.gui.components.TextArea" />
+	
+<!--<component id=""	superClass=""	fullname="" />-->
+</componentPackage>

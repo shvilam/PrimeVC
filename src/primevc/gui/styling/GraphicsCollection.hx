@@ -65,6 +65,7 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		if (!target.is(IDrawable))		changes = changes.unset( Flags.DRAWING_PROPERTIES );
 		if (!target.is(IUIContainer))	changes = changes.unset( Flags.OVERFLOW );
 		if (!target.is(IDisplayObject))	changes = changes.unset( Flags.OPACITY | Flags.VISIBLE );
+		if (!target.is(IIconOwner))		changes = changes.unset( Flags.ICON );
 		
 		if (changes == 0)
 			return;
@@ -104,6 +105,7 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		if ( propsToSet.has( Flags.SHAPE ) )		graphicProps.shape					= styleObj.shape;
 		if ( propsToSet.has( Flags.BACKGROUND ) )	graphicProps.fill					= styleObj.background;
 		if ( propsToSet.has( Flags.BORDER ) )		graphicProps.border					= styleObj.border;
+		if ( propsToSet.has( Flags.ICON ) )			target.as(IIconOwner).icon			= styleObj.icon;
 		if ( propsToSet.has( Flags.OPACITY ) )		target.as(IDisplayObject).alpha		= styleObj.opacity;
 		if ( propsToSet.has( Flags.VISIBLE ) )		target.as(IDisplayObject).visible	= styleObj.visible;
 		if ( propsToSet.has( Flags.OVERFLOW ) )

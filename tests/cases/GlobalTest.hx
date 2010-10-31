@@ -13,7 +13,7 @@ package cases;
  import primevc.gui.behaviours.drag.ShowDragGapBehaviour;
  import primevc.gui.behaviours.drag.DragInfo;
  import primevc.gui.components.ListView;
- import primevc.gui.core.UIContainer;
+ import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UIDataComponent;
  import primevc.gui.core.UIWindow;
  import primevc.gui.display.DisplayDataCursor;
@@ -59,7 +59,7 @@ typedef DataVOType = String;
  * @creation-date	Jun 15, 2010
  * @author			Ruben Weijers
  */
-class GlobalApp extends UIContainer <Dynamic>
+class GlobalApp extends UIDataContainer <Dynamic>
 {
 	private var testList1 : ArrayList < String >;
 	

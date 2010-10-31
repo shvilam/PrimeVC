@@ -530,7 +530,7 @@ class UIElementStyle implements IUIElementStyle
 		var parentStyle = getParentStyle();
 		
 		var style:StyleBlock	= null;
-		var parentClass				= target.getClass();
+		var parentClass			= target.getClass();
 		
 		//search for the first element style that is defined for this object or one of it's super classes
 		while (parentClass != null && style == null)

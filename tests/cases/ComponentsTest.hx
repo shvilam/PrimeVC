@@ -7,7 +7,7 @@ import primevc.core.geom.space.Vertical;
  import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
  import primevc.gui.components.Label;
  import primevc.gui.components.InputField;
- import primevc.gui.core.UIContainer;
+ import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UIWindow;
  import primevc.gui.layout.algorithms.float.VerticalFloatAlgorithm;
  import primevc.gui.layout.algorithms.DynamicLayoutAlgorithm;
@@ -37,7 +37,7 @@ class ComponentsTest extends UIWindow
  * @author Ruben Weijers
  * @creation-date Sep 02, 2010
  */
-class ComponentsApp extends UIContainer <Dynamic>
+class ComponentsApp extends UIDataContainer <Dynamic>
 {
 	private var label	: Label;
 	private var input	: InputField;

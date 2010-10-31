@@ -30,7 +30,7 @@ package primevc.gui.components;
  import primevc.core.collections.IList;
  import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
  import primevc.gui.core.IUIDataComponent;
- import primevc.gui.core.UIContainer;
+ import primevc.gui.core.UIDataContainer;
  import primevc.gui.display.IDisplayObject;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
@@ -46,7 +46,7 @@ private typedef ItemRendererType <T> = Class < ItemRenderer < T > >;
  * @author Ruben Weijers
  * @creation-date Oct 26, 2010
  */
-class ListView < ListDataType > extends UIContainer < IList < ListDataType > >, implements IListView < ListDataType >
+class ListView < ListDataType > extends UIDataContainer < IList < ListDataType > >, implements IListView < ListDataType >
 {
 	override private function createBehaviours ()
 	{

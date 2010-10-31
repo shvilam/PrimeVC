@@ -139,7 +139,9 @@ class CSSParser
 	public static inline var R_SPACE				: String = "[ \\t]*";					//can have none, one or more tab/space charater
 	public static inline var R_SPACE_MUST			: String = "[ \\t]+";					//must have at least one tab/space charater
 	
-	public static inline var R_IMPORT_SHEET			: String = "@import" + R_SPACE_MUST + "(url" + R_SPACE + "[(])?['\"]" + R_SPACE + "(" + R_FILE_EXPR + ")" + R_SPACE + "['\"]" + R_SPACE + "[)]?;";
+	public static inline var R_HEADER_RULE			: String = R_SPACE_MUST + "(url" + R_SPACE + "[(])?['\"]" + R_SPACE + "(" + R_FILE_EXPR + ")" + R_SPACE + "['\"]" + R_SPACE + "[)]?;";
+	public static inline var R_IMPORT_SHEET			: String = "@import" + R_HEADER_RULE;
+	public static inline var R_IMPORT_MANIFEST		: String = "@manifest" + R_HEADER_RULE;
 	
 	public static inline var R_PROPERTY_NAME		: String = "a-z0-9-";
 	public static inline var R_PROPERTY_VALUE		: String = R_WHITESPACE + "a-z0-9%#.,:)(/\"'-";
@@ -643,9 +645,31 @@ class CSSParser
 	
 	private function parseStyleSheet (item:StyleQueueItem) : Void
 	{
-		styleSheetBasePath = item.path;
+		styleSheetBasePath	= item.path;
+		item.content		= importManifests( item.content );
 		blockExpr.matchAll(item.content, handleMatchedBlock);
 		trace("PARSED: "+item.path);
+	}
+	
+	
+	
+	/**
+	 * Method will import all @import tags in the given stylesheet. 
+	 * 
+	 * It's important that the 'importExpr' variable is local, otherwise their
+	 * might be errors when stylesheets in stylesheets are imported.
+	 */
+	private function importManifests ( styleContent ) : String
+	{
+		var importExpr = new EReg ( R_IMPORT_MANIFEST, "i" );
+		return importExpr.customReplace(styleContent, importManifest);
+	}
+	
+	
+	private function importManifest (expr:EReg) : String {
+		trace("addmanifest file "+styleSheetBasePath + "/" + expr.matched(2));
+		manifest.addFile( styleSheetBasePath + "/" + expr.matched(2) );
+		return "";
 	}
 	
 	

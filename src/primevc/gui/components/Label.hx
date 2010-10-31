@@ -27,87 +27,64 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
- import primevc.gui.core.UIDataComponent;
+ import primevc.core.Bindable;
+ import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UITextField;
- import primevc.gui.layout.AdvancedLayoutClient;
   using primevc.utils.Bind;
-  using primevc.utils.TypeUtil;
+
 
 
 /**
- * Label is a UIComponent which will display a textfield with the given text.
- * 
- * Options of the Label component
- * 		- truncate text when the width or height reach a certain value
- * 		- skinnable
- * 		- graphics drawable
- * 		- in flash10 full implementation of the text-layout framework
- * 		- autogrowing if height or width aren't defined and the text value 
- * 			changes.
+ * Label Component
  * 
  * @author Ruben Weijers
- * @creation-date Sep 02, 2010
+ * @creation-date Oct 29, 2010
  */
-class Label extends UIDataComponent < String >
+class Label extends UIDataContainer < String >
 {
-	private var field	: UITextField;
+	private var labelField	: UITextField;
 	
 	
-	override public function dispose ()
+	public function new (id:String = null, data:Bindable<String> = null)
 	{
-		if (field != null)
-		{
-			children.remove(field);
-			field.dispose();
-			field = null;
-		}
-		super.dispose();
-	}
-	
-	
-	override private function initData ()
-	{
-		field.setText.on( data.change, this );
-		field.setText( value );
+		if (data != null)
+			this.data = cast data;
+		
+		super(id);
 	}
 	
 	
 	override private function createChildren ()
 	{
-		field = new UITextField("labelField");
+		labelField = new UITextField("labelField");
 #if flash9
-		field.autoSize			= flash.text.TextFieldAutoSize.LEFT;
-		field.selectable		= false;
-		field.mouseWheelEnabled	= false;
+		labelField.autoSize				= flash.text.TextFieldAutoSize.LEFT;
+		labelField.selectable			= false;
+		labelField.mouseWheelEnabled	= false;
 #end
-		field.layout.validateOnPropertyChange = true;
-		
-		updateValue.on( field.textEvents.change, this );
-		updateSize.on( field.layout.events.sizeChanged, this );
-		children.add( field );
+		children.add( labelField );
+		layoutContainer.children.add( labelField.layout );
 	}
 	
 	
-	override private function createLayout ()
+	override private function removeChildren ()
 	{
-		layout = new AdvancedLayoutClient();
+		super.removeChildren();
+		layoutContainer.children.remove( labelField.layout );
+		labelField.dispose();
+		labelField = null;
 	}
 	
 	
-	//
-	// EVENTHANDLERS
-	//
-	
-	private function updateSize ()
+	override private function initData ()
 	{
-		var l = layout.as(AdvancedLayoutClient);
-		l.measuredWidth		= field.layout.width;
-		l.measuredHeight	= field.layout.height;
+		dataChangeHandler.on( data.change, this );
+		labelField.setText( value );
 	}
 	
 	
-	private function updateValue ()
+	private function dataChangeHandler (newValue:String, oldValue:String)
 	{
-		value = field.text;
+		labelField.setText( newValue );
 	}
 }

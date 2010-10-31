@@ -87,7 +87,7 @@ class UIComponent extends Sprite, implements IUIComponent
 #end
 	
 	
-	private function new (?id:String)
+	public function new (?id:String)
 	{
 		super();
 		this.id	= new Bindable<String>(id);
@@ -239,6 +239,12 @@ class UIComponent extends Sprite, implements IUIComponent
 	}
 	
 	
+	private function removeChildren () : Void
+	{
+		children.removeAll();
+	}
+	
+	
 	
 	//
 	// ABSTRACT METHODS
@@ -253,7 +259,6 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	private function removeStates ()		: Void; //	{ Assert.abstract(); }
 	private function removeGraphics ()		: Void; //	{ Assert.abstract(); }
-	private function removeChildren ()		: Void; //	{ Assert.abstract(); }
 	
 	
 #if debug

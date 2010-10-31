@@ -63,12 +63,14 @@ class Manifest implements IDisposable
 	public var subClassMap			(default, null)	: SimpleDictionary < String, FastArray < String > >;
 	
 	
-	public function new (file:String)
+	public function new (file:String = null)
 	{
 		classPackageMap	= new SimpleDictionary < String, String>();
 		superClassMap	= new SimpleDictionary < String, String>();
 		subClassMap		= new SimpleDictionary < String, FastArray < String > >();
-		addFile( file );
+		
+		if (file != null)
+			addFile( file );
 	}
 	
 	

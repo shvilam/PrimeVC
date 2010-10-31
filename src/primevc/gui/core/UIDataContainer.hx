@@ -26,30 +26,32 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.components;
+package primevc.gui.core;
+ import primevc.gui.layout.IScrollableLayout;
+ import primevc.gui.layout.LayoutContainer;
+  using primevc.utils.NumberUtil;
+  using primevc.utils.TypeUtil;
 
 
 /**
- * InputField component
+ * Container class with data
  * 
  * @author Ruben Weijers
- * @creation-date Sep 03, 2010
+ * @creation-date Aug 02, 2010
  */
-class InputField extends Label
+class UIDataContainer <DataType> extends UIDataComponent <DataType>
+			, implements IUIContainer
+/*#if flash9	, implements haxe.rtti.Generic #end*/
 {
-	override private function createChildren ()
-	{
-		super.createChildren();
-#if flash9
-		field.type			= flash.text.TextFieldType.INPUT;
-		field.selectable	= true;
-#end
-		updateValue.on( field.textEvents.change, this );
-	}
+	public var layoutContainer	(getLayoutContainer, never)		: LayoutContainer;
+	public var scrollableLayout	(getScrollableLayout, never)	: IScrollableLayout;
+	
+	private inline function getLayoutContainer () 	{ return layout.as(LayoutContainer); }
+	private inline function getScrollableLayout () 	{ return layout.as(IScrollableLayout); }
 	
 	
-	private function updateValue ()
+	override private function createLayout () : Void
 	{
-		value = field.text;
+		layout = new LayoutContainer();
 	}
 }

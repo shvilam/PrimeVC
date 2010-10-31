@@ -1,0 +1,6 @@
+@manifest url('manifest.xml');
+
+UIComponent		{ shape: rectangle; visibility: visible; opacity: 1; }
+UIGraphic		{}
+UITextField		{ color: #000; }
+ApplicationView	{ width: 100%; height: 100%; algorithm: relative; }
