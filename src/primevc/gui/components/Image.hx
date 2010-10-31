@@ -27,23 +27,37 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
- import primevc.gui.core.UIDataComponent;
- import primevc.gui.core.UITextField;
+ import primevc.gui.core.UIGraphic;
+ import primevc.gui.graphics.fills.BitmapFill;
+ import primevc.gui.graphics.shapes.RegularRectangle;
+ import primevc.gui.graphics.GraphicProperties;
  import primevc.gui.layout.AdvancedLayoutClient;
+ import primevc.types.Bitmap;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
 
-
 /**
- * Label Component
- * 
  * @author Ruben Weijers
- * @creation-date Oct 29, 2010
+ * @creation-date Oct 31, 2010
  */
-class Label extends UIDataComponent < String >
+class Image extends UIGraphic
 {
-	private var field	: UITextField;
+	public var source	(default, setSource) : Bitmap;
+	
+	
+	public function new (id:String = null, source:Bitmap = null)
+	{
+		super(id);
+		this.source = source;
+	}
+	
+	
+	override private function createGraphics ()
+	{
+		Assert.notNull(graphicData.value);
+		graphicData.value.fill = new BitmapFill( source );
+	}
 	
 	
 	override private function createLayout ()
@@ -52,33 +66,31 @@ class Label extends UIDataComponent < String >
 	}
 	
 	
-	override private function createChildren ()
+	private inline function setSource (v:Bitmap)
 	{
-		field = new UITextField(id+"Field");
-#if flash9
-		field.autoSize			= flash.text.TextFieldAutoSize.LEFT;
-		field.selectable		= false;
-		field.mouseWheelEnabled	= false;
-#end
-		field.layout.validateOnPropertyChange = true;
-		
-		updateSize.on( field.layout.events.sizeChanged, this );
-		children.add( field );
-	}
-	
-	
-	override private function removeChildren ()
-	{
-		super.removeChildren();
-		field.dispose();
-		field = null;
-	}
-	
-	
-	override private function initData ()
-	{
-		dataChangeHandler.on( data.change, this );
-		field.setText( value );
+		if (source != v)
+		{
+			if (source != null)
+			{
+				source.state.change.unbind(this);
+				bitmapStateChangeHandler( BitmapStates.empty, null );
+				
+				if (state.current == state.initialized)
+					graphicData.value.fill.as(BitmapFill).bitmap = null;
+			}
+			
+			source = v;
+			
+			if (v != null)
+			{
+				bitmapStateChangeHandler.on( v.state.change, this );
+				bitmapStateChangeHandler( v.state.current, null );
+				
+				if (state.current == state.initialized)
+					graphicData.value.fill.as(BitmapFill).bitmap = v;
+			}
+		}
+		return v;
 	}
 	
 	
@@ -90,14 +102,25 @@ class Label extends UIDataComponent < String >
 	private function updateSize ()
 	{
 		var l = layout.as(AdvancedLayoutClient);
-		l.measuredWidth		= field.layout.width;
-		l.measuredHeight	= field.layout.height;
-		trace(this+".updatedSize "+l.measuredWidth+", "+l.measuredHeight);
+		if (source.state.is( BitmapStates.ready ))
+		{
+			l.measuredWidth		= source.data.width;
+			l.measuredHeight	= source.data.height;
+		}
+		else
+		{
+			l.measuredWidth		= 0;
+			l.measuredHeight	= 0;
+		}
 	}
 	
-	
-	private function dataChangeHandler (newValue:String, oldValue:String)
+	private function bitmapStateChangeHandler (newState:BitmapStates, oldState:BitmapStates)
 	{
-		field.setText( newValue );
+		switch (newState)
+		{
+			case BitmapStates.ready:	updateSize();
+			case BitmapStates.empty:	updateSize();
+			default:
+		}
 	}
 }

@@ -64,13 +64,16 @@ class Bitmap
 #if neko	,	implements ICodeFormattable		#end
 {
 #if flash9
+	private var _data					: BitmapData;
+	
 	/**
 	 * Bitmapdata of the given source
 	 */
-	public var data (getData, null)		: BitmapData;
+	public var data (getData, setData)	: BitmapData;
 	private var loader					: Loader;
 #else
-	public var data (default, null)		: Dynamic;
+	private var _data					: Dynamic;
+	public var data (getData, setData)	: Dynamic;
 #end
 
 #if neko
@@ -111,7 +114,7 @@ class Bitmap
 		state.dispose();
 		asset	= null;
 		url		= null;
-		data	= null;
+		_data	= null;
 		state	= null;
 #if neko
 		uuid	= null;
@@ -119,22 +122,25 @@ class Bitmap
 	}
 	
 	
-	private inline function disposeLoader ()
+	private function disposeLoader ()
 	{
 #if flash9
-		if (loader != null) {
+		if (loader != null)
+		{
 			if (state.is(loading))
 				loader.close();
 			
 			loader.dispose();
 			loader = null;
-			state.current = empty;
+			
+			if (_data == null)
+				state.current = empty;
 		}
 #end
 	}
 	
 	
-	public inline function load ()
+	public function load ()
 	{
 		if (url != null)			loadString();
 		else if (asset != null)		loadClass();
@@ -142,10 +148,10 @@ class Bitmap
 	
 	
 #if flash9
-	private function setData (v:BitmapData)
+	private inline function setData (v:BitmapData)
 	{
-		if (v != data) {
-			data = v;
+		if (v != _data) {
+			_data = v;
 			state.current = v == null ? empty : ready;
 		}
 		return v;
@@ -153,13 +159,13 @@ class Bitmap
 #else
 	private inline function setData (v:Dynamic)
 	{
-		if (v != data) {
-			if (data != null)
+		if (v != _data) {
+			if (_data != null)
 				state.current = empty;
 			
-			data = v;
+			_data = v;
 			
-			if (data != null)
+			if (_data != null)
 				state.current = ready;
 		}
 		return v;
@@ -168,12 +174,17 @@ class Bitmap
 	
 	
 #if flash9
-	private function getData () : BitmapData
+	private inline function getData () : BitmapData
 	{
-		if (data == null || state.current != ready)
+		if (_data == null || state.current != ready)
 			load();
 		
-		return data;
+		return _data;
+	}
+#else
+	private inline function getData () : Dynamic
+	{
+		return _data;
 	}
 #end
 	
@@ -219,7 +230,7 @@ class Bitmap
 	 * If there's no parameter given, it will try to load the current 'url' 
 	 * value.
 	 */
-	public inline function loadString (?v:String)
+	public  function loadString (?v:String)
 	{
 		if (v != url || (v == null && url != null))
 		{
@@ -239,19 +250,19 @@ class Bitmap
 	{
 		var d = new BitmapData( v.width.int(), v.height.int(), true, 0 );
 		d.draw( v, transform );
-		setData(d);
+		data = d;
 	}
 	
 	
 	public inline function loadFlashBitmap (v:FlashBitmap)
 	{	
-		setData(v.bitmapData);
+		data = v.bitmapData;
 	}
 	
 	
 	public inline function loadBitmapData (v:BitmapData)
 	{	
-		setData(v);
+		data = v;
 	}
 	
 	
@@ -296,7 +307,7 @@ class Bitmap
 	// EVENT HANDLERS
 	//
 	
-	private inline function setLoadedData ()
+	private function setLoadedData ()
 	{
 #if flash9
 		if (loader == null || !loader.isLoaded)
@@ -305,8 +316,8 @@ class Bitmap
 		try {
 			var d = new BitmapData( loader.content.width.int(), loader.content.height.int(), true, 0x00000000 );
 			d.draw( loader.content );
+			data = d;
 			disposeLoader();
-			setData( d );
 		}
 		catch (e:flash.errors.Error) {
 			throw "Loading bitmap error. Check policy settings. "+e.message;
@@ -383,7 +394,7 @@ class Bitmap
 #if (debug || neko)
 	public function isEmpty ()
 	{
-		return url == null && asset == null && data == null;
+		return url == null && asset == null && _data == null;
 	}
 	
 	
@@ -403,7 +414,7 @@ class Bitmap
 		code.construct(this);
 		if (url != null)	code.setAction(this, "setString", [url]);
 		if (asset != null)	code.setAction(this, "setClass", [asset]);
-		if (data != null)	code.setProp(this, "data", data);
+		if (_data != null)	code.setProp(this, "data", _data);
 	}
 #end
 }

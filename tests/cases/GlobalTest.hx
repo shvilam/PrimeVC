@@ -12,6 +12,7 @@ package cases;
  import primevc.gui.behaviours.drag.ApplyDropBehaviour;
  import primevc.gui.behaviours.drag.ShowDragGapBehaviour;
  import primevc.gui.behaviours.drag.DragInfo;
+ import primevc.gui.components.ApplicationView;
  import primevc.gui.components.ListView;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UIDataComponent;
@@ -48,8 +49,7 @@ class GlobalTestWindow extends UIWindow
 {
 	override private function createChildren ()
 	{
-		var app = new GlobalApp();
-		children.add( app );
+		children.add( new GlobalApp() );
 	}
 }
 
@@ -59,7 +59,7 @@ typedef DataVOType = String;
  * @creation-date	Jun 15, 2010
  * @author			Ruben Weijers
  */
-class GlobalApp extends UIDataContainer <Dynamic>
+class GlobalApp extends ApplicationView
 {
 	private var testList1 : ArrayList < String >;
 	
@@ -72,6 +72,9 @@ class GlobalApp extends UIDataContainer <Dynamic>
 		for (i in 0...50)
 			testList1.add(i+"");
 	}
+	
+	
+	override private function createBehaviours () {}
 	
 	
 	override private function createChildren ()
@@ -138,20 +141,31 @@ class GlobalApp extends UIDataContainer <Dynamic>
 }
 
 
-
-class Button extends UIDataComponent < DataVOType >
+class Tile extends UIDataComponent < DataVOType >, implements IDraggable
 {
-	public static var counter	: Int = 0;
-	private var num				: Int;
-	
+	public static var counter				: Int = 0;
+	public var dragEvents (default, null)	: DragEvents;
+	public var isDragging					: Bool;
+	private var num							: Int;
+
 #if (debug && flash9)
-	private var textField		: TextField;
+	private var textField					: TextField;
 #end
 	
-	public function new (?id:String = "button", value:DataVOType = null)
+	
+	public function new (value:DataVOType = null)
 	{
 		num = counter++;
-		super(id + num, value);
+		super("Tile" + num, value);
+		dragEvents	= new DragEvents();
+	}
+	
+	
+	override private function createBehaviours ()
+	{
+		super.createBehaviours();
+		behaviours.add( new DragDropBehaviour(this) );
+		changeStyleClass.on( userEvents.mouse.click, this );
 	}
 	
 	
@@ -166,28 +180,6 @@ class Button extends UIDataComponent < DataVOType >
 		children.add( textField );
 	}
 #end
-}
-
-
-class Tile extends Button, implements IDraggable
-{
-	public var dragEvents (default, null)	: DragEvents;
-	public var isDragging					: Bool;
-	
-	
-	public function new (value:DataVOType = null)
-	{
-		super("Tile", value);
-		dragEvents	= new DragEvents();
-	}
-	
-	
-	override private function createBehaviours ()
-	{
-		super.createBehaviours();
-		behaviours.add( new DragDropBehaviour(this) );
-		changeStyleClass.on( userEvents.mouse.click, this );
-	}
 	
 	
 	public function createDragInfo () : DragInfo
@@ -198,11 +190,7 @@ class Tile extends Button, implements IDraggable
 	
 	private function changeStyleClass ()
 	{
-		
-		if (styleClasses.value == null)
-			styleClasses.value = "odd";
-		else
-			styleClasses.value = null;
+		styleClasses.value = (styleClasses.value == null) ? "odd" : null;
 	}
 }
 
@@ -232,6 +220,7 @@ class TileList extends ListView < DataVOType >, implements IDataDropTarget < Dat
 	{
 		return cast new Tile(dataItem);
 	}
+	
 	
 	public function isDisplayDropAllowed (displayCursor:DisplayDataCursor ) : Bool
 	{

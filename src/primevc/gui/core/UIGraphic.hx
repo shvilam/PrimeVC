@@ -66,7 +66,7 @@ class UIGraphic extends Shape
 #end
 	
 	
-	public function new (?id:String)
+	public function new (id:String = null)
 	{
 		super();
 		this.id	= new Bindable<String>(id);

@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
+ import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
  import primevc.gui.core.UIContainer;
 
 
@@ -38,5 +39,8 @@ package primevc.gui.components;
  */
 class ApplicationView extends UIContainer
 {
-	
+	override private function createBehaviours ()
+	{	
+		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
+	}
 }

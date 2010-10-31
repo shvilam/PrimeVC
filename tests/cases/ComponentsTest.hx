@@ -1,19 +1,12 @@
 package cases;
-import primevc.core.geom.space.Horizontal;
-import primevc.core.geom.space.Vertical;
- import primevc.core.geom.Box;
  import primevc.core.Application;
- import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
- import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
+ import primevc.gui.components.ApplicationView;
+// import primevc.gui.components.Button;
  import primevc.gui.components.Label;
+// import primevc.gui.components.Image;
  import primevc.gui.components.InputField;
- import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UIWindow;
- import primevc.gui.layout.algorithms.float.VerticalFloatAlgorithm;
- import primevc.gui.layout.algorithms.DynamicLayoutAlgorithm;
- import primevc.gui.layout.algorithms.RelativeAlgorithm;
- import primevc.gui.layout.LayoutContainer;
- import primevc.gui.layout.RelativeLayout;
+ import primevc.types.Bitmap;
   using primevc.utils.Bind;
 
 
@@ -23,13 +16,8 @@ import primevc.core.geom.space.Vertical;
  */
 class ComponentsTest extends UIWindow
 {
-	public static function main () { Application.startup( ComponentsTest ); }
-	
-	override private function createChildren ()
-	{
-		var app = new ComponentsApp();
-		children.add( app );
-	}
+	public static function main ()				{ Application.startup( ComponentsTest ); }
+	override private function createChildren ()	{ children.add( new ComponentsApp( "componentsApp" ) ); }
 }
 
 
@@ -37,46 +25,26 @@ class ComponentsTest extends UIWindow
  * @author Ruben Weijers
  * @creation-date Sep 02, 2010
  */
-class ComponentsApp extends UIDataContainer <Dynamic>
+class ComponentsApp extends ApplicationView
 {
 	private var label	: Label;
 	private var input	: InputField;
-	
-	
-	public function new ()
-	{
-		super("ComponentsApp");
-	}
-	
-	
-	override private function createLayout ()
-	{
-		layout						= new LayoutContainer();
-		layout.relative				= new RelativeLayout( 5, 5, 5, 5 );
-		layout.padding				= new Box( 5 );
-		layoutContainer.algorithm	= new VerticalFloatAlgorithm( Vertical.top, Horizontal.center );
-	}
-	
-	
-	override private function createBehaviours ()
-	{	
-		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
-		behaviours.add( new ClippedLayoutBehaviour(this) );
-		
-		changeLabel.on( userEvents.mouse.down, this );
-	}
+//	private var button	: Button;
+//	private var image	: Image;
 	
 	
 	override private function createChildren ()
 	{
 		//create label
-		label	= new Label("testLabel", "Test tekst");
-		input	= new InputField("testInput", "other text");
-		label.data.pair( input.data );
+		children.add( label		= new Label("testLabel") );
+		children.add( input		= new InputField("testInput", "welcome") );
+//		children.add( button	= new Button("testButton", "add some text") );
+//		children.add( image		= new Image("testImage" ) ); //, Bitmap.fromString("/Users/ruben/Pictures/0227pod11.jpg")) );
 		
-		children.add(label);
-		children.add(input);
+		label.data.pair( input.data );
+//		changeLabel.on( button.userEvents.mouse.down, this );
 	}
+	
 	
 	private function changeLabel ()
 	{

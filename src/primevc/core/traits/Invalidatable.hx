@@ -67,7 +67,7 @@ class Invalidatable implements IInvalidatable
 	
 	
 	public function invalidateCall ( changeFromOther:UInt, sender:IInvalidatable ) : Void
-	{	
+	{
 		invalidate( changeFromOther );
 	}
 }

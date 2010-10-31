@@ -136,7 +136,7 @@ class BitmapFill extends GraphicElement, implements IFill
 	// EVENT HANDLERS
 	//
 	
-	private inline function handleBitmapStateChange (oldState:BitmapStates, newState:BitmapStates)
+	private inline function handleBitmapStateChange (newState:BitmapStates, oldState:BitmapStates)
 	{
 		switch (newState) {
 			case BitmapStates.ready:	invalidate( GraphicFlags.FILL );

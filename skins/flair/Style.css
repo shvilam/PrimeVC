@@ -1,4 +1,6 @@
 @import url('../empty/Style.css');
+@manifest url('manifest.xml');
+
 
 Tile { color: #000; move-transition: move 200ms elastic-in-out; } /*move-transition: sequence ( parallel ( fade 500ms 40%, move 300ms elastic-out, rotate 400ms 360deg bounce-in-out ), fade 600ms 100% ) ; }*/
 

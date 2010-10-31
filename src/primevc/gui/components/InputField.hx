@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
-
+  using primevc.utils.Bind;
 
 /**
  * InputField component

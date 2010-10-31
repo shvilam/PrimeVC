@@ -1,6 +1,11 @@
 @manifest url('manifest.xml');
 
 UIComponent		{ shape: rectangle; visibility: visible; opacity: 1; }
-UIGraphic		{}
-UITextField		{ color: #000; }
-ApplicationView	{ width: 100%; height: 100%; algorithm: relative; }
+UIGraphic		{ shape: rectangle; visibility: visible; opacity: 1; }
+UITextField		{ color: #00f; font-size: 40px; }
+ApplicationView	{ width: 100%; height: 100%; algorithm: float-hor( center, center ); background: #f00; }
+
+InputField		{ width: 100px; height: 40px; background: #0f0; border: 1px solid #000; }
+Label			{ min-width: 100px; height: 40px; background: #f00; }
+Image			{ min-width: 400px; min-height: 400px; background: #f0f;}
+

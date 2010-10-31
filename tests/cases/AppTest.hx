@@ -67,13 +67,8 @@ class EditorView extends ApplicationView
 	
 	override private function createChildren ()
 	{
-		applicationBar	= new ApplicationMainBar("applicationMainBar");
-		framesToolBar	= new FramesToolBar("framesToolBar");
-		
-		layoutContainer.children.add( applicationBar.layout );
-		layoutContainer.children.add( framesToolBar.layout );
-		children.add( applicationBar );
-		children.add( framesToolBar );
+		children.add( applicationBar	= new ApplicationMainBar("applicationMainBar") );
+		children.add( framesToolBar		= new FramesToolBar("framesToolBar") );
 	}
 }
 

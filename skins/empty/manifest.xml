@@ -9,9 +9,10 @@
 	<component id="UIWindow"			superClass=""					fullname="primevc.gui.core.UIWindow" />
 	
 	<component id="ApplicationView"		superClass="UIContainer"		fullname="primevc.gui.components.ApplicationView" />
-	<component id="Button"				superClass="Label"				fullname="primevc.gui.components.Button" />
+	<component id="Button"				superClass="UIDataContainer"	fullname="primevc.gui.components.Button" />
+	<component id="Image"				superClass="UIGraphic"			fullname="primevc.gui.components.Image" />
 	<component id="InputField"			superClass="Label"				fullname="primevc.gui.components.InputField" />
-	<component id="Label"				superClass="UIDataContainer"	fullname="primevc.gui.components.Label" />
+	<component id="Label"				superClass="UIDataComponent"	fullname="primevc.gui.components.Label" />
 	<component id="ListView"			superClass="UIDataContainer"	fullname="primevc.gui.components.ListView" />
 	<component id="TextArea"			superClass="UIDataContainer"	fullname="primevc.gui.components.TextArea" />
 	

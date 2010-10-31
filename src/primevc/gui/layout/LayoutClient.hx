@@ -254,11 +254,8 @@ class LayoutClient extends Invalidatable
 		if (changes == 0)
 			return;
 		
-		if (changes.has(Flags.WIDTH) || changes.has(Flags.HEIGHT))
-			events.sizeChanged.send();
-		
-		if (changes.has(Flags.X) || changes.has(Flags.Y))
-			events.posChanged.send();
+		if (changes.has(Flags.WIDTH | Flags.HEIGHT))	events.sizeChanged.send();
+		if (changes.has(Flags.X | Flags.Y))				events.posChanged.send();
 		
 		state.current	= ValidateStates.validated;
 		changes			= 0;
@@ -564,6 +561,6 @@ class LayoutClient extends Invalidatable
 	
 	public static var counter:Int = 0;
 	public var name:String;
-	public function toString() { return name + " - " + uuid; }
+	public function toString() { return name; } // + " - " + uuid; }
 #end
 }

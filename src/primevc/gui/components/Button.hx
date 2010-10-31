@@ -27,10 +27,11 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
- import primevc.core.Bindable;
+ import primevc.gui.core.UIDataContainer;
+ import primevc.gui.core.UITextField;
  import primevc.gui.styling.IIconOwner;
  import primevc.types.Bitmap;
-
+  using primevc.utils.Bind;
 
 
 /**
@@ -39,21 +40,95 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Oct 29, 2010
  */
-class Button extends Label, implements IIconOwner
+class Button extends UIDataContainer < String >, implements IIconOwner
 {
-	public var icon : Bitmap;
+	public var icon			(default, setIcon)	: Bitmap;
+	private var labelField	: UITextField;
+	private var iconGraphic	: Image;
 	
 	
-	public function new (id:String = null, value:Bindable<String> = null, icon:Bitmap = null)
+	public function new (id:String = null, value:String = null, icon:Bitmap = null)
 	{
 		super(id, value);
 		this.icon = icon;
 	}
 	
 	
+	override private function createChildren ()
+	{
+		labelField = new UITextField("labelField");
+#if flash9
+		labelField.autoSize				= flash.text.TextFieldAutoSize.LEFT;
+		labelField.selectable			= false;
+		labelField.mouseWheelEnabled	= false;
+#end		
+		layoutContainer.children.add( labelField.layout );
+		children.add( labelField );
+		createIconGraphic();
+	}
+	
+	
 	override private function removeChildren ()
 	{
-		this.icon = null;
 		super.removeChildren();
+		layoutContainer.children.remove( labelField.layout );
+		labelField.dispose();
+		labelField	= null;
+		icon		= null;
+	}
+	
+	
+	override private function initData ()
+	{
+		dataChangeHandler.on( data.change, this );
+		labelField.setText( value );
+	}
+	
+	
+	private function dataChangeHandler (newValue:String, oldValue:String)
+	{
+		labelField.setText( newValue );
+	}
+	
+	
+	private inline function setIcon (v)
+	{
+		if (icon != v)
+		{
+			if (state.current == state.initialized && icon != null)
+			{
+				if (v == null)
+				{
+					children.remove(iconGraphic);
+					layoutContainer.children.remove( iconGraphic.layout );
+					iconGraphic.dispose();
+					iconGraphic = null;
+				}
+				else
+					iconGraphic.source = null;
+			}
+			
+			icon = v;
+			
+			if (state.current == state.initialized && v != null)
+			{
+				if (iconGraphic == null)
+					createIconGraphic();
+				else
+					iconGraphic.source = v;
+			}
+		}
+		return v;
+	}
+	
+	
+	private function createIconGraphic ()
+	{
+		if (iconGraphic == null && icon != null)
+		{
+			iconGraphic = new Image( icon );
+			layoutContainer.children.add( iconGraphic.layout, 0 );
+			children.add( iconGraphic, 0 );
+		}
 	}
 }

@@ -37,5 +37,5 @@ package primevc.gui.styling;
  */
 interface IIconOwner implements IUIElement
 {
-	public var icon	: Bitmap;
+	public var icon	(default, setIcon)	: Bitmap;
 }
