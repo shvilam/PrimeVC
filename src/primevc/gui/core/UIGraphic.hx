@@ -52,17 +52,18 @@ class UIGraphic extends Shape
 			,	implements IUIElement
 #if flash9	,	implements IDrawable	#end
 {
-	public var behaviours		(default, null)		: BehaviourList;
-	public var id				(default, null)		: Bindable < String >;
-	public var state			(default, null)		: UIElementStates;
-	public var effects			(default, default)	: UIElementEffects;
+	public var behaviours		(default, null)					: BehaviourList;
+	public var id				(default, null)					: Bindable < String >;
+	public var state			(default, null)					: UIElementStates;
+	public var effects			(default, default)				: UIElementEffects;
 	
-	public var layout			(default, null)		: LayoutClient;
-	public var graphicData		(default, null)		: Bindable < GraphicProperties >;
+	public var layout			(default, null)					: LayoutClient;
+	public var graphicData		(default, null)					: Bindable < GraphicProperties >;
 	
 #if flash9
-	public var style			(default, null)		: UIElementStyle;
-	public var styleClasses		(default, null)		: Bindable< String >;
+	public var style			(default, null)					: UIElementStyle;
+	public var styleClasses		(default, null)					: Bindable< String >;
+	public var stylingEnabled	(default, setStylingEnabled)	: Bool;
 #end
 	
 	
@@ -75,8 +76,10 @@ class UIGraphic extends Shape
 		
 		state			= new UIElementStates();
 		behaviours		= new BehaviourList();
+#if flash9
 		styleClasses	= new Bindable < String > ();
-		style			= new UIElementStyle( this );
+		stylingEnabled	= true;
+#end
 		graphicData		= new Bindable < GraphicProperties > ();
 		
 		//add default behaviours
@@ -104,6 +107,9 @@ class UIGraphic extends Shape
 		state.dispose();
 		id.dispose();
 #if flash9
+		if (style.target == this)
+			style.dispose();
+		
 		styleClasses.dispose();
 #end
 
@@ -169,6 +175,21 @@ class UIGraphic extends Shape
 	//
 	
 #if flash9
+	private function setStylingEnabled (v:Bool)
+	{
+		if (v != stylingEnabled)
+		{
+			if (stylingEnabled) {
+				style.dispose();
+				style = null;
+			}
+			
+			stylingEnabled = v;
+			if (v)
+				style = new UIElementStyle(this);
+		}
+		return v;
+	}
 #end
 	
 	

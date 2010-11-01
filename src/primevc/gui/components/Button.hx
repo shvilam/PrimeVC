@@ -30,6 +30,8 @@ package primevc.gui.components;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UITextField;
  import primevc.gui.styling.IIconOwner;
+ import primevc.gui.text.TextFormat;
+ import primevc.gui.traits.ITextStylable;
  import primevc.types.Bitmap;
   using primevc.utils.Bind;
 
@@ -40,11 +42,16 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Oct 29, 2010
  */
-class Button extends UIDataContainer < String >, implements IIconOwner
+class Button extends UIDataContainer < String >, implements IIconOwner, implements ITextStylable
 {
-	public var icon			(default, setIcon)	: Bitmap;
+	public var icon			(default, setIcon)				: Bitmap;
 	private var labelField	: UITextField;
 	private var iconGraphic	: Image;
+	
+#if flash9
+	public var textStyle	(getTextStyle, setTextStyle)	: TextFormat;
+	public var wordWrap		: Bool;
+#end
 	
 	
 	public function new (id:String = null, value:String = null, icon:Bitmap = null)
@@ -56,12 +63,13 @@ class Button extends UIDataContainer < String >, implements IIconOwner
 	
 	override private function createChildren ()
 	{
-		labelField = new UITextField("labelField");
+		labelField = new UITextField("labelField", false);
 #if flash9
 		labelField.autoSize				= flash.text.TextFieldAutoSize.LEFT;
 		labelField.selectable			= false;
 		labelField.mouseWheelEnabled	= false;
-#end		
+#end
+		labelField.textStyle			= textStyle;
 		layoutContainer.children.add( labelField.layout );
 		children.add( labelField );
 		createIconGraphic();
@@ -131,4 +139,21 @@ class Button extends UIDataContainer < String >, implements IIconOwner
 			children.add( iconGraphic, 0 );
 		}
 	}
+	
+	
+#if flash9
+	private inline function getTextStyle ()
+	{
+		return textStyle;
+	}
+	
+	
+	private inline function setTextStyle (v:TextFormat)
+	{
+		if (labelField != null)
+			labelField.textStyle = v;
+		
+		return textStyle = v;
+	}
+#end
 }

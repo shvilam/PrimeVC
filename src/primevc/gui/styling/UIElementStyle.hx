@@ -140,6 +140,9 @@ class UIElementStyle implements IUIElementStyle
 		addedBinding	= updateStyles	.on( target.displayEvents.addedToStage, this );
 		removedBinding	= clearStyles	.on( target.displayEvents.removedFromStage, this );
 		removedBinding.disable();
+		
+		if (target.window != null)
+			updateStyles();
 	}
 	
 	

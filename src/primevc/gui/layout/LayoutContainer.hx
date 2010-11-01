@@ -37,6 +37,7 @@ package primevc.gui.layout;
  import primevc.gui.states.ValidateStates;
  import primevc.types.Number;
  import primevc.utils.FastArray;
+ import primevc.utils.IntMath;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.IntMath;
@@ -169,7 +170,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		
 		if (fillingChildren.length > 0)
 		{
-			var sizePerChild = (width - childrenWidth).divFloor( fillingChildren.length );
+			var sizePerChild = IntMath.max(width - childrenWidth, 0).divFloor( fillingChildren.length );
 			for (child in fillingChildren) {
 				child.bounds.width = sizePerChild;
 				child.validateHorizontal();

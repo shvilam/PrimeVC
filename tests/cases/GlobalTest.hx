@@ -36,24 +36,24 @@ package cases;
   using primevc.utils.TypeUtil;
   using Type;
 
+
+
+typedef DataVOType = String;
+
 /**
  * @creation-date	Sep 16, 2010
  * @author			Ruben Weijers
  */
-class GlobalTest
+class GlobalTest extends UIWindow
 {
-	public static function main () { Application.startup( GlobalTestWindow ); }
-}
-
-class GlobalTestWindow extends UIWindow
-{
+	public static function main () { Application.startup( GlobalTest ); }
+	
 	override private function createChildren ()
 	{
 		children.add( new GlobalApp() );
 	}
 }
 
-typedef DataVOType = String;
 
 /**
  * @creation-date	Jun 15, 2010

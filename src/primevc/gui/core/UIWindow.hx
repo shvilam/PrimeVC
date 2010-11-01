@@ -89,10 +89,11 @@ class UIWindow extends Window
 	 * Reference to bgShape.graphics.. Needed for compatibility with IDrawable
 	 */
 	public var graphics				(default, null)					: flash.display.Graphics;
+	public var rect					(default, null)					: IntRectangle;
 	
 	public var style				(default, null)					: UIElementStyle;
 	public var styleClasses			(default, null)					: Bindable < String >;
-	public var rect					(default, null)					: IntRectangle;
+	public var stylingEnabled		(default, setStylingEnabled)	: Bool;
 #end
 	
 	public var renderManager		(default, null)					: RenderManager;
@@ -109,8 +110,11 @@ class UIWindow extends Window
 		
 		behaviours			= new BehaviourList();
 		graphicData			= new Bindable < GraphicProperties > ();
+		
+#if flash9
 		styleClasses		= new Bindable < String >("");
-		style				= new ApplicationStyle(this);
+		stylingEnabled		= true;
+#end
 		rect				= new IntRectangle();
 		
 		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
@@ -126,7 +130,6 @@ class UIWindow extends Window
 		createLayout();
 		
 		behaviours.init();
-		style.updateStyles();
 		
 		createGraphics();
 		createChildren();
@@ -187,9 +190,31 @@ class UIWindow extends Window
 	// GETTERS / SETTERS
 	//
 	
-	private inline function getLayoutContainer () {
+	private inline function getLayoutContainer ()
+	{
 		return layout.as(LayoutContainer);
 	}
+	
+	
+#if flash9
+	private function setStylingEnabled (v:Bool)
+	{
+		if (v != stylingEnabled)
+		{
+			if (stylingEnabled) {
+				style.dispose();
+				style = null;
+			}
+			
+			stylingEnabled = v;
+			if (v) {
+				style = new ApplicationStyle(this);
+				style.updateStyles();
+			}
+		}
+		return v;
+	}
+#end
 
 
 #if debug

@@ -43,13 +43,19 @@ interface IStylable
 	,	implements IDisplayable
 {
 #if flash9
-	public var style		(default, null)			: UIElementStyle;
+	public var style			(default, null)					: UIElementStyle;
 	
 	/**
 	 * String containing all the css-classes that the IStyleable should use. 
 	 * It's possible to add more than one styleName by putting them in comma-
 	 * seperated. 
 	 */
-	public var styleClasses	(default, null)			: Bindable < String >;
+	public var styleClasses		(default, null)					: Bindable < String >;
+	
+	/**
+	 * Flag indicating if the object should use styling or not
+	 * @default		true
+	 */
+	public var stylingEnabled	(default, setStylingEnabled)	: Bool;
 #end
 }

@@ -27,7 +27,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.text;
+ import primevc.gui.styling.TextStyleFlags;
 
+
+//typedef TextFormat = flash.text.TextFormat;
 
 
 /**
@@ -36,5 +39,5 @@ package primevc.gui.text;
  */
 class TextFormat #if flash9 extends flash.text.TextFormat #end
 {
-	public var transform : TextTransform;
+	public var transform (default, default)	: TextTransform;
 }

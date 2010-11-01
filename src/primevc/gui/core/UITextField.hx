@@ -39,6 +39,7 @@ package primevc.gui.core;
  import primevc.gui.effects.UIElementEffects;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutClient;
+ import primevc.gui.layout.LayoutFlags;
  import primevc.gui.states.UIElementStates;
  import primevc.gui.traits.ITextStylable;
   using primevc.gui.utils.UIElementActions;
@@ -55,33 +56,33 @@ package primevc.gui.core;
  */
 class UITextField extends TextField, implements IUIElement, implements ITextStylable 
 {
-	public var id			(default, null)					: Bindable < String >;
-	public var behaviours	(default, null)					: BehaviourList;
-	public var effects		(default, default)				: UIElementEffects;
-	public var layout		(default, null)					: LayoutClient;
-	public var state		(default, null)					: UIElementStates;
+	public var id				(default, null)					: Bindable < String >;
+	public var behaviours		(default, null)					: BehaviourList;
+	public var effects			(default, default)				: UIElementEffects;
+	public var layout			(default, null)					: LayoutClient;
+	public var state			(default, null)					: UIElementStates;
 	
 #if flash9
-	public var style		(default, null)					: UIElementStyle;
-	public var styleClasses	(default, null)					: Bindable < String >;
-	public var textStyle	(getTextStyle, setTextStyle)	: TextFormat;
+	public var style			(default, null)					: UIElementStyle;
+	public var styleClasses		(default, null)					: Bindable < String >;
+	public var stylingEnabled	(default, setStylingEnabled)	: Bool;
+	public var textStyle		(getTextStyle, setTextStyle)	: TextFormat;
 #end
 	
 	
-	public function new (?id:String)
+	public function new (?id:String, stylingEnabled:Bool = true)
 	{
 		super();
-		this.id			= new Bindable<String>(id);
-		styleClasses	= new Bindable<String>();
-		style			= new UIElementStyle(this);
+		this.id				= new Bindable<String>(id);
+		styleClasses		= new Bindable<String>();
+		this.stylingEnabled	= stylingEnabled;
 		
-		visible			= false;
-		init.onceOn( displayEvents.addedToStage, this );
-		
-		state			= new UIElementStates();
-		behaviours		= new BehaviourList();
+		visible				= false;
+		state				= new UIElementStates();
+		behaviours			= new BehaviourList();
 		
 		//add default behaviour
+		init.onceOn( displayEvents.addedToStage, this );
 		behaviours.add( new ValidateLayoutBehaviour(this) );
 		
 		createBehaviours();
@@ -105,6 +106,9 @@ class UITextField extends TextField, implements IUIElement, implements ITextStyl
 		id.dispose();
 		state.dispose();
 #if flash9
+		if (style.target == this)
+			style.dispose();
+		
 		styleClasses.dispose();
 #end
 		if (layout != null)
@@ -192,8 +196,45 @@ class UITextField extends TextField, implements IUIElement, implements ITextStyl
 	*/
 	
 #if flash9
-	private inline function getTextStyle ()				{ return (defaultTextFormat != null && defaultTextFormat.is(TextFormat)) ? defaultTextFormat.as(TextFormat) : null; }
-	private inline function setTextStyle (v:TextFormat)	{ return cast defaultTextFormat = v; }
+	private inline function getTextStyle ()
+	{
+		return (defaultTextFormat != null && defaultTextFormat.is(TextFormat)) ? defaultTextFormat.as(TextFormat) : null;
+	}
+	
+	
+	private inline function setTextStyle (v:TextFormat)
+	{
+		//Invalidate layout and apply the textformat when the layout starts validating
+		//This will prevend screen flickering.
+		
+		layout.invalidate( LayoutFlags.MEASURED_WIDTH | LayoutFlags.MEASURED_HEIGHT );
+		applyTextFormat.onceOn( layout.state.change, this );
+		return cast defaultTextFormat = v;
+	}
+	
+	
+	private function applyTextFormat ()
+	{
+		setTextFormat( defaultTextFormat );
+		updateSize();	
+	}
+	
+	
+	private function setStylingEnabled (v:Bool)
+	{
+		if (v != stylingEnabled)
+		{
+			if (stylingEnabled) {
+				style.dispose();
+				style = null;
+			}
+			
+			stylingEnabled = v;
+			if (v)
+				style = new UIElementStyle(this);
+		}
+		return v;
+	}
 #end
 	
 	

@@ -72,18 +72,19 @@ package primevc.gui.core;
  */
 class UIComponent extends Sprite, implements IUIComponent
 {
-	public var behaviours		(default, null)			: BehaviourList;
-	public var state			(default, null)			: UIElementStates;
-	public var effects			(default, default)		: UIElementEffects;
-	public var id				(default, null)			: Bindable < String >;
+	public var behaviours		(default, null)					: BehaviourList;
+	public var state			(default, null)					: UIElementStates;
+	public var effects			(default, default)				: UIElementEffects;
+	public var id				(default, null)					: Bindable < String >;
 	
-	public var skin				(default, setSkin)		: ISkin;
-	public var layout			(default, null)			: LayoutClient;
-	public var graphicData		(default, null)			: Bindable < GraphicProperties >;
+	public var skin				(default, setSkin)				: ISkin;
+	public var layout			(default, null)					: LayoutClient;
+	public var graphicData		(default, null)					: Bindable < GraphicProperties >;
 	
 #if flash9
-	public var style			(default, null)			: UIElementStyle;
-	public var styleClasses		(default, null)			: Bindable < String >;
+	public var style			(default, null)					: UIElementStyle;
+	public var styleClasses		(default, null)					: Bindable < String >;
+	public var stylingEnabled	(default, setStylingEnabled)	: Bool;
 #end
 	
 	
@@ -92,15 +93,15 @@ class UIComponent extends Sprite, implements IUIComponent
 		super();
 		this.id	= new Bindable<String>(id);
 		visible = false;
-		init.onceOn( displayEvents.addedToStage, this );
 		
 		state			= new UIElementStates();
 		behaviours		= new BehaviourList();
 		graphicData		= new Bindable < GraphicProperties > ();
 		
+		init.onceOn( displayEvents.addedToStage, this );
 #if flash9
 		styleClasses	= new Bindable < String > ();
-		style			= new UIElementStyle( this );
+		stylingEnabled	= true;
 		
 		//add default behaviours
 		behaviours.add( new ValidateLayoutBehaviour(this) );
@@ -165,6 +166,11 @@ class UIComponent extends Sprite, implements IUIComponent
 			graphicData = null;
 		}
 		
+		style.dispose();
+		styleClasses.dispose();
+		
+		styleClasses	= null;
+		style			= null;
 		state			= null;
 		behaviours		= null;
 		skin			= null;
@@ -226,6 +232,23 @@ class UIComponent extends Sprite, implements IUIComponent
 	private inline function setStyle (v)
 	{
 		return style = v;
+	}
+	
+	
+	private function setStylingEnabled (v:Bool)
+	{
+		if (v != stylingEnabled)
+		{
+			if (stylingEnabled) {
+				style.dispose();
+				style = null;
+			}
+			
+			stylingEnabled = v;
+			if (v)
+				style = new UIElementStyle(this);
+		}
+		return v;
 	}
 #end
 	

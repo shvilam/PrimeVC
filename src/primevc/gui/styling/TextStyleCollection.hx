@@ -67,7 +67,9 @@ class TextStyleCollection extends StyleCollectionBase < TextStyle >
 #if flash9
 		var textFormat	= target.textStyle;
 		if (textFormat == null)
-			textFormat	= target.textStyle = new TextFormat();
+			textFormat	= new TextFormat();
+		
+	//	trace(target + ".applyFontStyling1 "+readProperties( changes )+"; changes "+changes);
 		
 		for (styleObj in this)
 		{
@@ -87,6 +89,8 @@ class TextStyleCollection extends StyleCollectionBase < TextStyle >
 			applyStyleObject( changes, null, textFormat );
 			changes = 0;
 		}
+		
+		target.textStyle = textFormat;
 #end
 	}
 	
@@ -97,18 +101,18 @@ class TextStyleCollection extends StyleCollectionBase < TextStyle >
 		var empty		= styleObj == null;
 		var target		= elementStyle.target.as(ITextStylable);
 		
-		if (propsToSet.has( Flags.ALIGN ))			textFormat.align			= empty ? null : styleObj.align;
-		if (propsToSet.has( Flags.COLOR ))			textFormat.color			= empty ? null : styleObj.color;
-		if (propsToSet.has( Flags.DECORATION ))		textFormat.underline		= empty ? null : styleObj.decoration == TextDecoration.underline;
-		if (propsToSet.has( Flags.FAMILY ))			textFormat.font				= empty ? null : styleObj.family;
-		if (propsToSet.has( Flags.INDENT ))			textFormat.indent			= empty ? null : styleObj.indent;
-		if (propsToSet.has( Flags.LETTER_SPACING ))	textFormat.letterSpacing	= empty ? null : styleObj.letterSpacing;
-		if (propsToSet.has( Flags.SIZE ))			textFormat.size				= empty ? null : styleObj.size;
-		if (propsToSet.has( Flags.STYLE ))			textFormat.italic			= empty ? null : styleObj.style == FontStyle.italic;
-		if (propsToSet.has( Flags.WEIGHT ))			textFormat.bold				= empty ? null : styleObj.weight != FontWeight.normal;
+		if (propsToSet.has( Flags.ALIGN ))			textFormat.align			= empty ? TextAlign.LEFT		: styleObj.align;
+		if (propsToSet.has( Flags.COLOR ))			textFormat.color			= empty ? 0x00					: styleObj.color;
+		if (propsToSet.has( Flags.DECORATION ))		textFormat.underline		= empty ? false					: styleObj.decoration == TextDecoration.underline;
+		if (propsToSet.has( Flags.FAMILY ))			textFormat.font				= empty ? "Times New Roman"		: styleObj.family;
+		if (propsToSet.has( Flags.INDENT ))			textFormat.indent			= empty ? 0						: styleObj.indent;
+		if (propsToSet.has( Flags.LETTER_SPACING ))	textFormat.letterSpacing	= empty ? 0						: styleObj.letterSpacing;
+		if (propsToSet.has( Flags.SIZE ))			textFormat.size				= empty ? 12					: styleObj.size;
+		if (propsToSet.has( Flags.STYLE ))			textFormat.italic			= empty ? false					: styleObj.style == FontStyle.italic;
+		if (propsToSet.has( Flags.WEIGHT ))			textFormat.bold				= empty ? false					: styleObj.weight != FontWeight.normal;
 		
-		if (propsToSet.has( Flags.TRANSFORM ))		textFormat.transform		= empty ? null : styleObj.transform;
-		if (propsToSet.has( Flags.TEXTWRAP ))		target.wordWrap				= empty ? null : styleObj.textWrap;
+		if (propsToSet.has( Flags.TRANSFORM ))		textFormat.transform		= empty ? TextTransform.none	: styleObj.transform;
+		if (propsToSet.has( Flags.TEXTWRAP ))		target.wordWrap				= empty ? false					: styleObj.textWrap;
 		
 		if (propsToSet.has( Flags.COLUMN_PROPERTIES ) && elementStyle.target.is(ITextArea))
 		{
