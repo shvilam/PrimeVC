@@ -1,10 +1,7 @@
 @import url('../empty/Style.css');
 @manifest url('manifest.xml');
 
-
-Tile { color: #000; move-transition: move 200ms elastic-in-out; } /*move-transition: sequence ( parallel ( fade 500ms 40%, move 300ms elastic-out, rotate 400ms 360deg bounce-in-out ), fade 600ms 100% ) ; }*/
-
-.odd { visibility: visible; width: 25px; }
+.odd { visibility: visible; width: 60px; }
 #frame2 .odd { background: #000; width: 50px;  }
 
 GlobalApp {
@@ -16,7 +13,9 @@ GlobalApp {
 }
 
 
-Button {
+Tile {
+	color: #000;
+	move-transition: move 200ms elastic-in-out;
 	min-width: 15px;
 	min-height: 15px;
 	margin: 10px;
@@ -31,11 +30,6 @@ Button {
 	opacity: .5;
 }
 
-Frame {
-	border: solid 3px #fedcba;
-	background: #abcdef44;
-}
-
 /*
 TileList Button {
 	font-weight: bold;
@@ -47,6 +41,8 @@ Frame Button {
 }
 */
 TileList {
+	border: solid 3px #fedcba;
+	background: #abcdef44;
 	padding: 10px;
 /*	child-width: 40px;
 	child-height: 40px;*/
@@ -85,7 +81,7 @@ GlobalApp TileList:hover {
 
 
 #frame0 {
-	algorithm: float-ver( bottom );
+	algorithm: float-ver( bottom, center );
 	height: 100%;
 	overflow: corner-scroll;
 }
@@ -164,7 +160,7 @@ Label {
 	background-color: #ffa;
 	background-image: url(../images/test.png) no-repeat;
 	text-align: left;
-/*	background-image: Class(nl.onlinetouch.Aap) repeat-both; */
+	background-image: Class(nl.onlinetouch.Aap) repeat-both;
 }
 /*
 

@@ -90,7 +90,7 @@ class Label extends UIDataComponent < String >
 	private function updateSize ()
 	{
 		var l = layout.as(AdvancedLayoutClient);
-		trace("label.updateSize");
+	//	trace("label.updateSize");
 		l.measuredWidth		= field.layout.width;
 		l.measuredHeight	= field.layout.height;
 	}

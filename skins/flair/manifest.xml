@@ -1,9 +1,7 @@
 <?xml version="1.0"?>
 <componentPackage>	
-	<component id="Tile"				superClass="Button"				fullname="cases.Tile" />
-	<component id="Button"				superClass="UIDataComponent"	fullname="cases.Button" />
-	<component id="Frame"				superClass="UIDataContainer"	fullname="cases.Frame" />
-	<component id="TileList"			superClass="Frame"				fullname="cases.TileList" />
-	<component id="GlobalApp"			superClass="UIDataContainer"	fullname="cases.GlobalApp" />
+	<component id="Tile"				superClass="UIDataComponent"	fullname="cases.Tile" />
+	<component id="TileList"			superClass="ListView"			fullname="cases.TileList" />
+	<component id="GlobalApp"			superClass="ApplicationView"	fullname="cases.GlobalApp" />
 <!--<component id="" superClass="" fullname="" />-->
 </componentPackage>

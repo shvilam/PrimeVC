@@ -101,8 +101,7 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >, implements IR
 	
 	
 	public function render ()
-	{	
-		trace(target+".render "+target.rect);
+	{
 		target.graphics.clear();
 		target.graphicData.value.draw( target, false );
 	}
@@ -111,12 +110,13 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >, implements IR
 	private function sizeChangeHandler ()
 	{
 		var t:IUIElement = target.is(IUIElement) ? target.as(IUIElement) : null;
+	//	trace(target+".sizeChanged; "+target.layout.bounds);
 		if (t == null || t.effects == null)
 		{
 			var b = target.layout.bounds;
-			target.rect.width	= b.width.isSet() ? b.width : 0;
-			target.rect.height	= b.height.isSet() ? b.height : 0;
-			trace(target+".sizeChanged; "+target.rect);
+			target.rect.width	= b.width;
+			target.rect.height	= b.height;
+			
 		} else {
 			t.effects.playResize();
 		}

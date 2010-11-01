@@ -110,8 +110,8 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 		
 		if (propsToSet.has( Flags.MIN_WIDTH ))			layout.sizeConstraint.width.min		= styleObj != null ? styleObj.minWidth				: Number.INT_NOT_SET;
 		if (propsToSet.has( Flags.MIN_HEIGHT ))			layout.sizeConstraint.height.min	= styleObj != null ? styleObj.minHeight				: Number.INT_NOT_SET;
-		if (propsToSet.has( Flags.MAX_HEIGHT ))			layout.sizeConstraint.width.max		= styleObj != null ? styleObj.maxWidth				: Number.INT_NOT_SET;
-		if (propsToSet.has( Flags.MAX_WIDTH ))			layout.sizeConstraint.height.max	= styleObj != null ? styleObj.maxHeight				: Number.INT_NOT_SET;
+		if (propsToSet.has( Flags.MAX_WIDTH ))			layout.sizeConstraint.width.max		= styleObj != null ? styleObj.maxWidth				: Number.INT_NOT_SET;
+		if (propsToSet.has( Flags.MAX_HEIGHT ))			layout.sizeConstraint.height.max	= styleObj != null ? styleObj.maxHeight				: Number.INT_NOT_SET;
 		
 		if (elementStyle.target.is( IUIContainer ))
 		{

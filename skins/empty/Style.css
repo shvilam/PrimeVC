@@ -5,8 +5,9 @@ UITextField		{ color: #000; font-size: 40px; }
 UIWindow		{ overflow: hidden; }
 ApplicationView	{ width: 90%; height: 90%; algorithm: float-ver( top, center ); border: 2px solid #f00; }
 
+ListView		{ overflow: hidden; }
 InputField		{ border: 1px solid #000; }
 Label			{ min-width: 100px; background: #eee; }
-Image			{ max-width: 150px;  }
+Image			{ max-width: 150px; }
 Button			{ border: 2px solid #f0f; background: #000; }
 

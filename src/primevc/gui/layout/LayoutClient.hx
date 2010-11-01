@@ -206,7 +206,7 @@ class LayoutClient extends Invalidatable
 		if (changes == 0 || state == null || state.current == null)
 			return;
 		
-		if (isValidating)
+		if (isValidating && (parent == null || parent.isValidating))
 			return;
 		
 		if (includeInLayout && parent != null)
@@ -244,11 +244,11 @@ class LayoutClient extends Invalidatable
 		
 		state.current = ValidateStates.validating;
 		
-		if (changes.has(Flags.BOUNDARY_WIDTH))
+		if (changes.has(Flags.BOUNDARY_WIDTH) && (bounds.width - getHorPadding()) > 0)
 			width = bounds.width - getHorPadding();
 		
 		if (changes.has(Flags.WIDTH))
-			bounds.width = width + getHorPadding();
+			bounds.width = IntMath.max( width, 0 ) + getHorPadding();
 		
 		hasValidatedWidth = true;
 	}
@@ -261,11 +261,11 @@ class LayoutClient extends Invalidatable
 		
 		state.current = ValidateStates.validating;
 		
-		if (changes.has(Flags.BOUNDARY_HEIGHT))
+		if (changes.has(Flags.BOUNDARY_HEIGHT) && (bounds.height - getVerPadding()) > 0)
 			height = bounds.height - getVerPadding();
 		
 		if (changes.has(Flags.HEIGHT))
-			bounds.height = height + getVerPadding();
+			bounds.height = IntMath.max( height, 0 ) + getVerPadding();
 		
 		hasValidatedHeight = true;
 	}
@@ -385,14 +385,12 @@ class LayoutClient extends Invalidatable
 		if (_width.value != oldW)
 		{
 			var newH:Int	= maintainAspectRatio ? Std.int(_width.value / aspectRatio) : height;
-		//	bounds.width 	= _width.value + getHorPadding();
 			
 			if (maintainAspectRatio && newH != height)
 				height = newH; //will trigger the height constraints
 			
 			invalidate( Flags.WIDTH );
 		}
-	//	trace("\t"+this+".end setWidth");
 		return _width.value;
 	}
 	
@@ -404,8 +402,7 @@ class LayoutClient extends Invalidatable
 		
 		if (_height.value != oldH)
 		{
-			var newW:Int	= maintainAspectRatio ? Std.int(_height.value * aspectRatio) : width;	
-		//	bounds.height	= _height.value + getVerPadding();
+			var newW:Int	= maintainAspectRatio ? Std.int(_height.value * aspectRatio) : width;
 			
 			if (maintainAspectRatio && newW != width)
 				width = newW; //will trigger the width constraints

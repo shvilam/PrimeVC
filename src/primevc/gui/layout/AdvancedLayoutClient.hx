@@ -28,6 +28,7 @@
  */
 package primevc.gui.layout;
  import primevc.types.Number;
+ import primevc.utils.IntMath;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
  
@@ -36,8 +37,6 @@ private typedef Flags = LayoutFlags;
 
 
 /**
- * Description
- * 
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
@@ -65,17 +64,17 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	// SIZE PROPERTIES
 	//
 	
-	private var _explicitWidth	: Int;
-	private var _explicitHeight	: Int;
-	private var _measuredWidth	: Int;
-	private var _measuredHeight	: Int;
+//	private var explicitWidth	: Int;
+//	private var explicitHeight	: Int;
+//	private var measuredWidth	: Int;
+//	private var measuredHeight	: Int;
 	
 	
-	public var explicitWidth	(getExplicitWidth, setExplicitWidth)	: Int;
-	public var explicitHeight	(getExplicitHeight, setExplicitHeight)	: Int;
+	public var explicitWidth	(default, setExplicitWidth)		: Int;
+	public var explicitHeight	(default, setExplicitHeight)	: Int;
 	
-	public var measuredWidth	(getMeasuredWidth, setMeasuredWidth) 	: Int;
-	public var measuredHeight	(getMeasuredHeight, setMeasuredHeight)	: Int;
+	public var measuredWidth	(default, setMeasuredWidth) 	: Int;
+	public var measuredHeight	(default, setMeasuredHeight)	: Int;
 	
 	
 	
@@ -84,22 +83,17 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	//
 	
 	
-	private inline function getMeasuredWidth ()		{ return _measuredWidth; }
-	private inline function getMeasuredHeight ()	{ return _measuredHeight; }
-	private inline function getExplicitWidth ()		{ return _explicitWidth; }
-	private inline function getExplicitHeight ()	{ return _explicitHeight; }
+//	private inline function getMeasuredWidth ()		{ return measuredWidth; }
+//	private inline function getMeasuredHeight ()	{ return measuredHeight; }
+//	private inline function getExplicitWidth ()		{ return explicitWidth; }
+//	private inline function getExplicitHeight ()	{ return explicitHeight; }
 	
 	
 	private inline function setExplicitWidth (v:Int)
 	{
-		if (_explicitWidth != v) {
-			_explicitWidth = v;
+		if (explicitWidth != v) {
+			explicitWidth = v;
 			invalidate( Flags.EXPLICIT_WIDTH | Flags.WIDTH );
-		//	if (v.isSet())
-		//		explicitWidth = width = v;		//setWidth can trigger a size constraint.
-		//	else
-		//		width = measuredWidth;
-			
 		}
 		return v;
 	}
@@ -107,13 +101,9 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	
 	private inline function setExplicitHeight (v:Int)
 	{
-		if (_explicitHeight != v) {
-			_explicitHeight = v;
+		if (explicitHeight != v) {
+			explicitHeight = v;
 			invalidate( Flags.EXPLICIT_HEIGHT | Flags.HEIGHT );
-		//	if (v.isSet())
-		//		explicitHeight = height = v;	//setHeight can trigger a size constraint
-		//	else
-		//		height = measuredHeight;
 		}
 		return v;
 	}
@@ -121,11 +111,11 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	
 	private inline function setMeasuredWidth (v:Int)
 	{
-		if (_measuredWidth != v) {
-			_measuredWidth = v;
-			invalidate( Flags.MEASURED_WIDTH );
-		//	if (explicitWidth.notSet())
-		//		measuredWidth = width = v;		//setWidth can trigger a size constraint..
+		if (measuredWidth != v) {
+			measuredWidth = v;
+			
+			if (explicitWidth.isSet())		invalidate( Flags.MEASURED_WIDTH );
+			else							invalidate( Flags.MEASURED_WIDTH | Flags.WIDTH );
 		}
 		return v;
 	}
@@ -133,11 +123,11 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	
 	private inline function setMeasuredHeight (v:Int)
 	{
-		if (_measuredHeight != v) {
-			_measuredHeight = v;
-			invalidate( Flags.MEASURED_HEIGHT );
-		//	if (explicitHeight.notSet())
-		//		measuredHeight = height = v;	//setHeight can trigger a size constraint
+		if (measuredHeight != v) {
+			measuredHeight = v;
+			
+			if (explicitWidth.isSet())		invalidate( Flags.MEASURED_HEIGHT );
+			else							invalidate( Flags.MEASURED_HEIGHT | Flags.HEIGHT );
 		}
 		return v;
 	}
@@ -150,20 +140,25 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 
 		super.validateHorizontal();
 		
-		if (changes.has(Flags.MEASURED_WIDTH | Flags.EXPLICIT_WIDTH) && _explicitWidth.notSet() && _measuredWidth.isSet())
-			width = _measuredWidth;
+	//	trace(this+".validateHorizontal "+width+"; explicit: "+explicitWidth+"; measured: "+measuredWidth+"; "+Flags.readProperties(changes));
+		if (changes.has(Flags.MEASURED_WIDTH | Flags.EXPLICIT_WIDTH) && explicitWidth.notSet() && measuredWidth.isSet())
+			width = measuredWidth;
 		
-		if (changes.has(Flags.EXPLICIT_WIDTH) && _explicitWidth.isSet())
-			width = _explicitWidth;
-		
-		if (_explicitWidth.notSet() && width != _measuredWidth && width.isSet())
-			_measuredWidth = width;
-		
-		if (_explicitWidth.isSet() && width != _explicitWidth && width.isSet())
-			_explicitWidth = width;
+		if (changes.has(Flags.EXPLICIT_WIDTH) && explicitWidth.isSet())
+			width = explicitWidth;
 		
 		if (changes.has(Flags.WIDTH))
-			bounds.width = width + getHorPadding();
+		{
+			bounds.width = IntMath.max( width, 0 ) + getHorPadding();
+			
+			if (width.isSet())
+			{
+				if (explicitWidth.isSet() || measuredWidth.notSet())
+					explicitWidth	= width;
+				else
+					measuredWidth	= width;
+			}
+		}
 	}
 	
 	
@@ -175,44 +170,23 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 		
 		super.validateVertical();
 		
-		if (changes.has(Flags.MEASURED_HEIGHT | Flags.EXPLICIT_HEIGHT) && _explicitHeight.notSet() && _measuredHeight.isSet())
-			height = _measuredHeight;
+		if (changes.has(Flags.MEASURED_HEIGHT | Flags.EXPLICIT_HEIGHT) && explicitHeight.notSet() && measuredHeight.isSet())
+			height = measuredHeight;
 		
-		if (changes.has(Flags.EXPLICIT_HEIGHT) && _explicitHeight.isSet())
-			height = _explicitHeight;
-		
-		if (_explicitHeight.notSet() && height != _measuredHeight && height.isSet())
-			_measuredHeight = height;
-		
-		if (_explicitHeight.isSet() && height != _explicitHeight && height.isSet())	
-			_explicitHeight = height;
+		if (changes.has(Flags.EXPLICIT_HEIGHT) && explicitHeight.isSet())
+			height = explicitHeight;
 		
 		if (changes.has(Flags.HEIGHT))
-			bounds.height = height + getVerPadding();
+		{
+			bounds.height = IntMath.max( height, 0 ) + getVerPadding();
+			
+			if (height.isSet())
+			{
+				if (explicitHeight.isSet() || measuredHeight.notSet())
+					explicitHeight	= height;
+				else
+					measuredHeight	= height;
+			}
+		}
 	}
-	
-	
-	/*override private function setWidth (v:Int)
-	{
-		trace(this+".setWidth "+width+"; v "+v);
-		var newV = super.setWidth(v);
-		
-		//set the explicitWidth property if height is set directly and there's no measuredWidth
-		if (measuredWidth != v && explicitWidth != v)
-			explicitWidth = newV;
-		
-		trace("\t" + this+".END setWidth "+width+"; newV "+newV+"; v "+v+"; explicit: "+explicitWidth+"; measured "+measuredWidth);
-		return newV;
-	}
-	
-	
-	override private function setHeight (v:Int)
-	{
-		var newV = super.setHeight(v);
-		//set the explicitHeight property if height is set directly and there's no measuredHeight
-		if (measuredHeight != v && explicitHeight != v)
-			explicitHeight = newV;
-		
-		return newV;
-	}*/
 }

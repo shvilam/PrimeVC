@@ -67,7 +67,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	public var scrollableHeight		(getScrollableHeight, never)	: Int;
 	
 	
-	public function new (newWidth:Int = 0, newHeight:Int = 0)
+	public function new (newWidth:Int = primevc.types.Number.INT_NOT_SET, newHeight:Int = primevc.types.Number.INT_NOT_SET)
 	{
 		padding				= EMPTY_PADDING;
 		children			= new ArrayList<LayoutClient>();
@@ -100,6 +100,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	
 	override public function invalidateCall ( childChanges:UInt, sender:IInvalidatable ) : Void
 	{
+	//	trace(this+".invalidateCall "+Flags.readProperties(childChanges)+"; sender "+sender);
+	//	trace("\t\tisValidating? "+isValidating+"; "+(algorithm != null)+"; algorithm "+algorithm.isInvalid(childChanges));
 		var child = sender.as(LayoutClient);
 		if (!isValidating && algorithm != null && algorithm.isInvalid(childChanges)) {
 			invalidate( Flags.CHILDREN_INVALIDATED );
@@ -134,16 +136,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		if (hasValidatedWidth)
 			return;
 		
-	//	if (!isVisible())
-	//		return;
-		
 		if (changes.has( Flags.WIDTH | Flags.EXPLICIT_WIDTH | Flags.BOUNDARY_WIDTH ))
 			super.validateHorizontal();
-	//	var tmpChanges = changes;
-	//	changes = 0;
-		
-	//	hasValidatedWidth	= true;
-	//	state.current		= ValidateStates.validating;
 		
 		if (!changes.has( Flags.WIDTH | Flags.CHILDREN_INVALIDATED | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH | Flags.ALGORITHM ))
 			return;
@@ -185,8 +179,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		if (algorithm != null)
 			algorithm.validateHorizontal();
 		
+		hasValidatedWidth = false;
 		super.validateHorizontal();
-	//	changes = changes.set( tmpChanges );
 	}
 	
 	
@@ -194,17 +188,10 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	{
 		if (hasValidatedHeight)
 			return;
-
-	//	if (!isVisible())
-	//		return;
 		
 		if (changes.has( Flags.HEIGHT | Flags.EXPLICIT_HEIGHT | Flags.BOUNDARY_HEIGHT ))
 			super.validateVertical();
-	//	var tmpChanges = changes;
-	//	changes = 0;
 		
-	//	hasValidatedHeight	= true;
-	//	state.current		= ValidateStates.validating;
 		
 		if (!changes.has( Flags.HEIGHT | Flags.CHILDREN_INVALIDATED | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH | Flags.ALGORITHM ))
 			return;
@@ -245,8 +232,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		if (algorithm != null)
 			algorithm.validateVertical();
 		
+		hasValidatedHeight = false;
 		super.validateVertical();
-	//	changes = changes.set( tmpChanges );
 	}
 	
 	
@@ -255,11 +242,14 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		if (changes == 0 || !isValidating)
 			return;
 		
-		if (!isVisible()) {
+		if (!isVisible())
+		{
 			super.validated();
 			return;
 		}
 		
+		
+	//	trace(this+".validated; size: "+width+", "+height+"; explicitSize "+explicitWidth+", "+explicitHeight+"; measured: "+measuredWidth+", "+measuredHeight);
 	//	Assert.that(hasValidatedWidth, "To be validated, the layout should be validated horizontally for "+this);
 	//	Assert.that(hasValidatedHeight, "To be validated, the layout should be validated vertically for "+this);
 		

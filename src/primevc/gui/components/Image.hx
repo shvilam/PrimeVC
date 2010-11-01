@@ -113,7 +113,7 @@ class Image extends UIGraphic
 			l.measuredWidth		= Number.INT_NOT_SET;
 			l.measuredHeight	= Number.INT_NOT_SET;
 		}
-		trace("Image.updateSize; "+l.measuredWidth+", "+l.measuredHeight);
+	//	trace("Image.updateSize; "+l.measuredWidth+", "+l.measuredHeight);
 	}
 	
 	private function bitmapStateChangeHandler (newState:BitmapStates, oldState:BitmapStates)

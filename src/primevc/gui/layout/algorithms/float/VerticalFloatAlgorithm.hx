@@ -81,14 +81,15 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 		{
 			var i:Int = 0;
 			
-			for (child in group.children) {
+			for (child in group.children)
+			{
 				if (!child.includeInLayout)
 					continue;
 				
 				if (child.bounds.height.isSet())
 				{
 					height += child.bounds.height;
-				
+					
 					//only count even children
 					if (i % 2 == 0)
 						halfHeight += child.bounds.height;

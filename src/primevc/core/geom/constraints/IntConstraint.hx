@@ -91,4 +91,12 @@ class IntConstraint implements IConstraint<Int>
 		
 		return v;
 	}
+	
+	
+#if debug
+	public function toString ()
+	{
+		return "IntC ( " + min + ", " + max + " )";
+	}
+#end
 }

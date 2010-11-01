@@ -69,7 +69,7 @@ class GlobalApp extends ApplicationView
 		super("GlobalApp");
 		
 		testList1 = new ArrayList<DataVOType>();
-		for (i in 0...50)
+		for (i in 0...60)
 			testList1.add(i+"");
 	}
 	
