@@ -38,6 +38,7 @@ package primevc.gui.core;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.UIElementStates;
 #if flash9
+ import primevc.core.collections.SimpleList;
  import primevc.gui.styling.UIElementStyle;
 #end
   using primevc.gui.utils.UIElementActions;
@@ -83,7 +84,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 #if flash9
 	public var style			(default, null)					: UIElementStyle;
-	public var styleClasses		(default, null)					: Bindable < String >;
+	public var styleClasses		(default, null)					: SimpleList < String >;
 	public var stylingEnabled	(default, setStylingEnabled)	: Bool;
 #end
 	
@@ -100,7 +101,7 @@ class UIComponent extends Sprite, implements IUIComponent
 		
 		init.onceOn( displayEvents.addedToStage, this );
 #if flash9
-		styleClasses	= new Bindable < String > ();
+		styleClasses	= new SimpleList<String>();
 		stylingEnabled	= true;
 		
 		//add default behaviours
@@ -165,12 +166,12 @@ class UIComponent extends Sprite, implements IUIComponent
 			graphicData.dispose();
 			graphicData = null;
 		}
-		
+#if flash9
 		style.dispose();
 		styleClasses.dispose();
-		
 		styleClasses	= null;
 		style			= null;
+#end
 		state			= null;
 		behaviours		= null;
 		skin			= null;

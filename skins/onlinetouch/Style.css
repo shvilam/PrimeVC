@@ -16,8 +16,13 @@ ApplicationMainBar {
 
 FramesToolBar {
 	background: linear-gradient( -90deg, #d4d4d4 0%, #eee 90%, #fff 100% );
-	algorithm: float-hor(center, center);
+	algorithm: float-hor(center, top);
+	
 	width: 100%;
+	padding-bottom: 15px;
+	
+	/** ( <distance>px? <blurX>px? <blurY>px? <strength>? ) | <angle>deg? | ( (<rgba> <pos>) (<rgba> <pos>).. ) | <inner>? | <knockout>? | <quality>? **/
+	box-shadow: 0px 16px 16px 1 90deg #0000004b;
 }
 
 FrameTypesBar {
@@ -27,11 +32,15 @@ FrameTypesBar {
 
 FrameTypesBarList {
 	algorithm: float-hor(left);
-	border-radius: 20px;
+	border-radius: 10px;
 	border: 1px solid #b5b5b5;
 	
-	box-glow: 5px 5px 2 #ffffff;
+	/* ( <blurX>px? <blurY>px? <strength>? ) | <rgba>? | <inner>? | <knockout>? | <quality>? */
+	box-glow: 2px 2px 3 #ffffff;
 }
+
+
+
 
 FrameTypesBar .title {
 	width: 130px;
@@ -51,6 +60,8 @@ FrameTypesBar .title {
 #linkFramesBarTitleField	{ background: #7baa28; }
 #mediaFramesBarTitleField	{ background: #289caa; }
 #elementFramesBarTitleField	{ background: #aa2862; }
+
+
 
 
 FrameTypesBarList FrameButton {
@@ -74,3 +85,6 @@ FrameTypesBarList FrameButton:down {
 	color: #fff;
 	font-weight: bold;
 }
+
+FrameTypesBarList .first	{ border-radius: 10px 0px 0px 10px; }
+FrameTypesBarList .last		{ border-radius: 0px 10px 10px 0px; }

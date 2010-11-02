@@ -119,12 +119,12 @@ class FrameTypesBar extends UIDataContainer < FrameTypesSectionVO >
 		titleField	= new Label(id+"TitleField");
 		framesList	= new FrameTypesBarList(id+"List");
 		
-		titleField.styleClasses.value = "title";
+		titleField.styleClasses.add("title");
 		
 		layoutContainer.children.add( titleField.layout );
 		layoutContainer.children.add( framesList.layout );
-		children.add( titleField );
 		children.add( framesList );
+		children.add( titleField );
 	}
 	
 	
@@ -142,8 +142,8 @@ class FrameTypesBarList extends ListView < FrameTypeVO >
 	override private function createItemRenderer (dataItem:FrameTypeVO, pos:Int)
 	{
 		var button = new FrameButton( dataItem );
-		if		(pos == 0)					button.styleClasses.value += "first";
-		else if (pos == (value.length - 1))	button.styleClasses.value += "last";
+		if		(pos == 0)					button.styleClasses.add("first");
+		else if (pos == (value.length - 1))	button.styleClasses.add("last");
 		return cast button;
 	}
 }

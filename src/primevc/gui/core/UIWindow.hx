@@ -55,6 +55,7 @@ package primevc.gui.core;
   using primevc.utils.TypeUtil;
 
 #if flash9
+ import primevc.core.collections.SimpleList;
  import primevc.gui.display.Shape;
 #end
 
@@ -92,7 +93,7 @@ class UIWindow extends Window
 	public var rect					(default, null)					: IntRectangle;
 	
 	public var style				(default, null)					: UIElementStyle;
-	public var styleClasses			(default, null)					: Bindable < String >;
+	public var styleClasses			(default, null)					: SimpleList<String>;
 	public var stylingEnabled		(default, setStylingEnabled)	: Bool;
 #end
 	
@@ -112,7 +113,7 @@ class UIWindow extends Window
 		graphicData			= new Bindable < GraphicProperties > ();
 		
 #if flash9
-		styleClasses		= new Bindable < String >("");
+		styleClasses		= new SimpleList<String>();
 		stylingEnabled		= true;
 #end
 		rect				= new IntRectangle();
@@ -150,6 +151,15 @@ class UIWindow extends Window
 		invalidationManager.dispose();
 		renderManager.dispose();
 		rect.dispose();
+		
+#if flash9
+		bgShape.dispose();
+		style.dispose();
+		styleClasses.dispose();
+		styleClasses		= null;
+		style				= null;
+		bgShape				= null;
+#end
 		
 		behaviours			= null;
 		layout				= null;

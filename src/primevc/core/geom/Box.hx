@@ -81,6 +81,9 @@ class Box
 	
 	
 #if (debug || neko)
+	public function toString () { return toCSS(); }
+
+
 	public function isEmpty () : Bool
 	{
 		return top.notSet()
@@ -92,12 +95,7 @@ class Box
 	
 	public function toCSS (prefix:String = "") : String
 	{
-		var css = "";
-		if (left != right)		css = getCSSValue(left);
-		if (bottom != top)		css = getCSSValue(bottom) + " " + css;
-		if (right != top)		css = getCSSValue(right) + " " + css;
-		
-		return StringTools.trim(getCSSValue(top) + " " + css);
+		return getCSSValue(top) + " " + getCSSValue(right) + " " + getCSSValue(bottom) + " " + getCSSValue(left);
 	}
 	
 	

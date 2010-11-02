@@ -37,6 +37,7 @@ package primevc.gui.core;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.UIElementStates;
 #if flash9
+ import primevc.core.collections.SimpleList;
  import primevc.gui.styling.UIElementStyle;
  import primevc.gui.traits.IDrawable;
 #end
@@ -62,7 +63,7 @@ class UIGraphic extends Shape
 	
 #if flash9
 	public var style			(default, null)					: UIElementStyle;
-	public var styleClasses		(default, null)					: Bindable< String >;
+	public var styleClasses		(default, null)					: SimpleList< String >;
 	public var stylingEnabled	(default, setStylingEnabled)	: Bool;
 #end
 	
@@ -77,7 +78,7 @@ class UIGraphic extends Shape
 		state			= new UIElementStates();
 		behaviours		= new BehaviourList();
 #if flash9
-		styleClasses	= new Bindable < String > ();
+		styleClasses	= new SimpleList<String> ();
 		stylingEnabled	= true;
 #end
 		graphicData		= new Bindable < GraphicProperties > ();

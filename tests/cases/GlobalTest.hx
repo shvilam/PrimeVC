@@ -190,7 +190,10 @@ class Tile extends UIDataComponent < DataVOType >, implements IDraggable
 	
 	private function changeStyleClass ()
 	{
-		styleClasses.value = (styleClasses.value == null) ? "odd" : null;
+		if (styleClasses.length == 1)
+			styleClasses.remove("odd");
+		else
+			styleClasses.add("odd");
 	}
 }
 

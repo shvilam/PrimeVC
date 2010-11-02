@@ -29,6 +29,7 @@
 package primevc.gui.traits;
  import primevc.core.traits.IIdentifiable;
 #if flash9
+ import primevc.core.collections.SimpleList;
  import primevc.core.Bindable;
  import primevc.gui.styling.UIElementStyle;
 #end
@@ -46,11 +47,9 @@ interface IStylable
 	public var style			(default, null)					: UIElementStyle;
 	
 	/**
-	 * String containing all the css-classes that the IStyleable should use. 
-	 * It's possible to add more than one styleName by putting them in comma-
-	 * seperated. 
+	 * List containing all the css-classes that the IStyleable should use.
 	 */
-	public var styleClasses		(default, null)					: Bindable < String >;
+	public var styleClasses		(default, null)					: SimpleList < String >;
 	
 	/**
 	 * Flag indicating if the object should use styling or not

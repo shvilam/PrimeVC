@@ -30,6 +30,7 @@ package primevc.gui.styling;
 
 #if flash9
  import primevc.core.collections.DoubleFastCell;
+ import primevc.core.collections.IList;
  import primevc.core.collections.PriorityList;
 // import primevc.core.dispatcher.Signal1;
  import primevc.core.dispatcher.Wire;
@@ -245,19 +246,12 @@ class UIElementStyle implements IUIElementStyle
 		if (removedBinding != null)	removedBinding.enable();
 		if (addedBinding != null)	addedBinding.disable();
 		
-	//	if (boxFilters == null)		boxFilters	= new FiltersCollection(this, FilterCollectionType.box);
-	//	if (effects == null)		effects		= new EffectsCollection(this);
-	//	if (font == null)			font		= new TextStyleCollection(this);
-	//	if (graphics == null)		graphics	= new GraphicsCollection(this);
-	//	if (layout == null)			layout		= new LayoutCollection(this);
-	//	if (states == null)			states		= new StatesCollection(this);
-		
 		stylesAreSearched	= false;
 		filledProperties	= 0;
 		
 		//update styles.. start with the lowest priorities
 		updateElementStyle();
-		updateStyleNameStyles();
+		updateStyleNameStyles(null);
 		updateIdStyle();
 		updateStatesStyle();		//set de styles for any states that are already set
 		
@@ -287,9 +281,7 @@ class UIElementStyle implements IUIElementStyle
 		updateFilledPropertiesFlag();
 		
 		if (changedProperties == -1)
-			changedProperties = filledProperties; //filledProperties.set( newProps );
-		
-	//	trace(target+".broadcastChanges "+readProperties(changedProperties));
+			changedProperties = filledProperties;
 		
 		//update state properties
 		if (changedProperties.has( Flags.STATES ))
@@ -307,69 +299,6 @@ class UIElementStyle implements IUIElementStyle
 		if (changedProperties.has( Flags.FONT ))			font.apply();
 		if (changedProperties.has( Flags.EFFECTS ))			effects.apply();
 		if (changedProperties.has( Flags.BOX_FILTERS ))		boxFilters.apply();
-		
-		//update graphics properties
-	/*	if (changedProperties.has( Flags.GRAPHICS ))
-		{
-			var changedGraphics	= graphics.filledProperties;
-			graphics.updateFilledPropertiesFlag();
-			changedGraphics		= changedGraphics.set( graphics.filledProperties );
-			
-			if (changedGraphics > 0)
-				graphics.change.send( changedGraphics );
-		}
-		
-		
-		//update font properties
-		if (changedProperties.has( Flags.FONT ))
-		{
-			var fontChangedProps	= font.filledProperties;
-			font.updateFilledPropertiesFlag();
-			fontChangedProps		= fontChangedProps.set( font.filledProperties );
-			
-			if (fontChangedProps > 0)
-				font.change.send( fontChangedProps );
-		}
-		
-		
-		//update layout properties
-		if (changedProperties.has( Flags.LAYOUT ))
-		{
-			var layoutChangedProps	= layout.filledProperties;
-			trace("before: "+LayoutFlags.readProperties(layoutChangedProps));
-			layout.updateFilledPropertiesFlag();
-			layoutChangedProps		= layoutChangedProps.set( layout.filledProperties );
-			
-			if (layoutChangedProps > 0)
-				layout.change.send( layoutChangedProps );
-		}
-		
-		
-		//update effect properties
-		if (changedProperties.has( Flags.EFFECTS ))
-		{
-			var effectsChangedProps	= effects.filledProperties;
-			effects.updateFilledPropertiesFlag();
-			effectsChangedProps		= effectsChangedProps.set( effects.filledProperties );
-			
-			if (effectsChangedProps > 0)
-				effects.change.send( effectsChangedProps );
-		}
-		
-		
-		//update filter properties
-		if (changedProperties.has( Flags.BOX_FILTERS ))
-		{
-			var filtersChangedProps	= boxFilters.filledProperties;
-			boxFilters.updateFilledPropertiesFlag;
-			filtersChangedProps		= filtersChangedProps.set( boxFilters.filledProperties );
-			
-			if (filtersChangedProps > 0)
-				boxFilters.change.send( filtersChangedProps );
-		}*/
-		
-	//	if (changedProperties > 0)
-	//		change.send( changedProperties );
 		
 		return changedProperties;
 	}
@@ -461,6 +390,17 @@ class UIElementStyle implements IUIElementStyle
 	}
 	
 	
+	private function removeStyle (style:StyleBlock) : UInt
+	{
+		var cell	= styles.getCellForItem( style );
+		var changes	= 0;
+		if (cell != null)
+			changes = removeStyleCell( cell );
+		
+		return changes;
+	}
+	
+	
 	
 	
 	//
@@ -505,22 +445,40 @@ class UIElementStyle implements IUIElementStyle
 	}
 	
 	
-	private function updateStyleNameStyles () : UInt
+	private function updateStyleNameStyles (change:ListChange<String>) : UInt
 	{
-		var changes = removeStylesWithPriority( StyleBlockType.styleName.enumIndex() );
+		if (change == null)
+			change = ListChange.reset;
 		
-		if (target.styleClasses.value != null && target.styleClasses.value != "")
-		{	
-			//search the style-object of each stylename
-			var parentStyle	= getParentStyle();
-			var styleNames	= target.styleClasses.value.split(",");
-			
-			for ( styleName in styleNames )
-			{
+		var parentStyle	= getParentStyle();
+		var changes		= 0;
+		
+		switch (change)
+		{
+			case added( styleName, newPos ):
 				var style = parentStyle.findStyle( styleName, StyleBlockType.styleName );
 				if (style != null)
 					changes = changes.set( addStyle( style ) );
-			}
+			
+			
+			case removed( styleName, oldPos ):
+				var style = parentStyle.findStyle( styleName, StyleBlockType.styleName );
+				if (style != null)
+					changes = changes.set( removeStyle( style ) );
+			
+			
+			case reset:
+				changes = changes.set( removeStylesWithPriority( StyleBlockType.styleNameState.enumIndex() ) );
+				
+				for ( styleName in target.styleClasses )
+				{
+					var style = parentStyle.findStyle( styleName, StyleBlockType.styleName );
+					if (style != null)
+						changes = changes.set( addStyle( style ) );
+				}
+			
+			
+			default:
 		}
 		
 		return broadcastChanges( changes );
