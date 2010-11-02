@@ -99,15 +99,16 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 	
 	private function applyGraphicsStyleObj (propsToSet:UInt, styleObj:GraphicsStyle, graphicProps:GraphicProperties)
 	{
-		var target = elementStyle.target;
+		var target	= elementStyle.target;
+		var empty	= styleObj == null;
 		
-		if ( propsToSet.has( Flags.SKIN ) )			target.as(ISkinnable).skin			= (styleObj.skin != null) ? Type.createInstance( styleObj.skin, null ) : null;
-		if ( propsToSet.has( Flags.SHAPE ) )		graphicProps.shape					= styleObj.shape;
-		if ( propsToSet.has( Flags.BACKGROUND ) )	graphicProps.fill					= styleObj.background;
-		if ( propsToSet.has( Flags.BORDER ) )		graphicProps.border					= styleObj.border;
-		if ( propsToSet.has( Flags.ICON ) )			target.as(IIconOwner).icon			= styleObj.icon;
-		if ( propsToSet.has( Flags.OPACITY ) )		target.as(IDisplayObject).alpha		= styleObj.opacity;
-		if ( propsToSet.has( Flags.VISIBLE ) )		target.as(IDisplayObject).visible	= styleObj.visible;
+		if ( propsToSet.has( Flags.SKIN ) )			target.as(ISkinnable).skin			= empty ? null	: (styleObj.skin != null) ? Type.createInstance( styleObj.skin, null ) : null;
+		if ( propsToSet.has( Flags.SHAPE ) )		graphicProps.shape					= empty ? null	: styleObj.shape;
+		if ( propsToSet.has( Flags.BACKGROUND ) )	graphicProps.fill					= empty ? null	: styleObj.background;
+		if ( propsToSet.has( Flags.BORDER ) )		graphicProps.border					= empty ? null	: styleObj.border;
+		if ( propsToSet.has( Flags.ICON ) )			target.as(IIconOwner).icon			= empty ? null	: styleObj.icon;
+		if ( propsToSet.has( Flags.OPACITY ) )		target.as(IDisplayObject).alpha		= empty ? 1		: styleObj.opacity;
+		if ( propsToSet.has( Flags.VISIBLE ) )		target.as(IDisplayObject).visible	= empty ? true	: styleObj.visible;
 		if ( propsToSet.has( Flags.OVERFLOW ) )
 		{
 			if (styleObj.overflow != null)

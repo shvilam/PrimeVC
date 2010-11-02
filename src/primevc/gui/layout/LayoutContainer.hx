@@ -249,7 +249,6 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 			return;
 		}
 		
-		
 	//	trace(this+".validated; size: "+width+", "+height+"; explicitSize "+explicitWidth+", "+explicitHeight+"; measured: "+measuredWidth+", "+measuredHeight);
 	//	Assert.that(hasValidatedWidth, "To be validated, the layout should be validated horizontally for "+this);
 	//	Assert.that(hasValidatedHeight, "To be validated, the layout should be validated vertically for "+this);

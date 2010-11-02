@@ -37,7 +37,7 @@ class ComponentsApp extends ApplicationView
 	override private function createChildren ()
 	{
 		children.add( label		= new Label("testLabel") );
-		children.add( button	= new Button("testButton", "add some text") );
+		children.add( button	= new Button("testButton", "add some text", Bitmap.fromString("/Users/ruben/Desktop/naamloze map/Arrow-Right.png")) );
 		children.add( image		= new Image("testImage", Bitmap.fromString("/Users/ruben/Pictures/0227pod11.jpg")) );
 		children.add( input		= new InputField("testInput", "welcome welcome welcome welcome welcome welcome welcome") );
 		

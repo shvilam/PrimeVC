@@ -112,11 +112,12 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	}
 	
 	
-	private inline function applyLeftToRight () : Void
+	private inline function applyLeftToRight (next:Int = -1) : Void
 	{
 		if (group.children.length > 0)
 		{
-			var next = getLeftStartValue();
+			if (next == -1)
+				next = getLeftStartValue();
 		
 			//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
 			if (group.childWidth.notSet())
@@ -145,7 +146,8 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	
 	private inline function applyCentered () : Void
 	{
-		if (group.children.length > 0)
+		applyLeftToRight( getCenterStartValue() );
+		/*if (group.children.length > 0)
 		{
 			var i:Int = 0;
 			var evenPos:Int, oddPos:Int;
@@ -188,7 +190,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 					i++;
 				}
 			}
-		}
+		}*/
 	}
 	
 	
@@ -285,6 +287,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	
 	private inline function getDepthForBoundsC (bounds:IRectangle) : Int
 	{
+		Assert.abstract( "Wrong implementation since the way centered layouts behave is changed");
 		var depth:Int	= 0;
 		var posX:Int	= bounds.left;
 		var centerX:Int	= bounds.left + (bounds.width * .5).int();

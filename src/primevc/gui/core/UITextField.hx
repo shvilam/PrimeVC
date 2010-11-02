@@ -206,10 +206,13 @@ class UITextField extends TextField, implements IUIElement, implements ITextStyl
 	{
 		//Invalidate layout and apply the textformat when the layout starts validating
 		//This will prevend screen flickering.
-		
-		layout.invalidate( LayoutFlags.MEASURED_WIDTH | LayoutFlags.MEASURED_HEIGHT );
-		applyTextFormat.onceOn( layout.state.change, this );
-		return cast defaultTextFormat = v;
+		if (v != null)
+		{
+			layout.invalidate( LayoutFlags.MEASURED_WIDTH | LayoutFlags.MEASURED_HEIGHT );
+			applyTextFormat.onceOn( layout.state.change, this );
+			defaultTextFormat = v;
+		}
+		return v; 
 	}
 	
 	

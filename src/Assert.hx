@@ -37,11 +37,11 @@
 
 class Assert
 {
-	static inline public function abstract(?pos:haxe.PosInfos)
+	static inline public function abstract(msg:String = "", ?pos:haxe.PosInfos)
 	{
 		#if debug
 		throw #if flash9 new Error( #end
-			"Abstract method: "+ pos.className + "::" + pos.methodName +"() not overridden"
+			"Abstract method: "+ msg + "; "+pos.className + "::" + pos.methodName +"() not overridden"
 			#if flash9 ) #end ;
 		#end
 	}

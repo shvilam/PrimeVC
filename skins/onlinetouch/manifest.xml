@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <componentPackage>
+	<component id="AppTest"				superClass="UIWindow"			fullname="cases.AppTest" />
 	<component id="EditorView"			superClass="ApplicationView"	fullname="cases.EditorView" />
 	<component id="ApplicationMainBar"	superClass="UIDataContainer"	fullname="cases.ApplicationMainBar" />
 	

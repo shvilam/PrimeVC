@@ -1,7 +1,7 @@
 @import url('../empty/Style.css');
 @manifest url('manifest.xml');
 
-UIComponent { opacity: .6; border: solid 1px #f0f; }
+/*UIComponent { opacity: .6; border: solid 3px #f0f inset; }*/
 
 EditorView {
 	algorithm: float-ver;
@@ -14,40 +14,63 @@ ApplicationMainBar {
 	font: "Helvetica Bold" 9px #fff;
 }
 
-
 FramesToolBar {
-	background: linear-gradient( #d4d4d4 0%, #eee 90%, #fff 100% );
-	algorithm: float-hor(center);
+	background: linear-gradient( -90deg, #d4d4d4 0%, #eee 90%, #fff 100% );
+	algorithm: float-hor(center, center);
 	width: 100%;
-	height: 100px;
 }
 
 FrameTypesBar {
-	algorithm: float-hor(right);
-	background: #fff;
-	width: 200px;
+	algorithm: float-ver(top, center);
+	width: auto;
 }
 
 FrameTypesBarList {
-	algorithm: float-hor(right);
-	width: 500px;
-	background: #ff0;
+	algorithm: float-hor(left);
+	border-radius: 20px;
+	border: 1px solid #b5b5b5;
+	
+	box-glow: 5px 5px 2 #ffffff;
 }
 
 FrameTypesBar .title {
-	font: "Helvetica Bold" 11px #fff;
-	border-radius: 10px;
-	/*border: solid 1px #b5b5b5;*/
-	background: #0f0;
+	width: 130px;
+	padding: 4px 4px;
+	
+	border-radius: 0px 0px 22px 22px;
+	border: solid 2px #fff;
+	
+	font: Helvetica 11px;
+	font-weight: bold;
+	color: #fff;
+	text-align: center;
+	
+	box-shadow: 1px 6px 6px 90deg #00000058;
 }
+
+#linkFramesBarTitleField	{ background: #7baa28; }
+#mediaFramesBarTitleField	{ background: #289caa; }
+#elementFramesBarTitleField	{ background: #aa2862; }
+
 
 FrameTypesBarList FrameButton {
 	width: 100px;
 	height: 65px;
-	background: #f00;
-	font: Helvetica 8px;
+	
+	font: Helvetica 9px;
+	/*color: #393939;*/
+	text-align: center;
 	text-transform: capitalize;
+	
+	icon: url(/Users/ruben/Desktop/naamloze map/14_gradient.png);
 }
+
 FrameTypesBarList FrameButton:hover {
-	background: #0f0;
+	background: linear-gradient( -90deg, #d3d3d3 0%, #e6e6e6 99.5%, #fff 100% );
+}
+
+FrameTypesBarList FrameButton:down {
+	background: linear-gradient( -90deg, #4e4e4e, #6e6e6e );
+	color: #fff;
+	font-weight: bold;
 }

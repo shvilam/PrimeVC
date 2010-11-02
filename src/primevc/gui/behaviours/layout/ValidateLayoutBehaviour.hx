@@ -32,7 +32,7 @@ package primevc.gui.behaviours.layout;
  import primevc.gui.core.IUIElement;
  import primevc.gui.core.UIWindow;
  import primevc.gui.states.ValidateStates;
- import primevc.gui.traits.IRenderable;
+ import primevc.gui.traits.IDrawable;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
  
@@ -44,11 +44,15 @@ package primevc.gui.behaviours.layout;
  * @creation-date	Jun 14, 2010
  * @author			Ruben Weijers
  */
-class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >, implements IRenderable
+class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >
 {
 	private var isNotPositionedYet : Bool;
 	
-	private inline function getUIWindow () : UIWindow	{ return target.window.as(UIWindow); }
+	
+	private inline function getInvalidationManager ()
+	{
+		return (target.window != null && target.window.is(UIWindow)) ? target.window.as(UIWindow).invalidationManager : null;
+	}
 	
 	
 	override private function init ()
@@ -61,8 +65,8 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >, implements I
 #end
 		
 		layoutStateChangeHandler.on( target.layout.state.change, this );
-		requestRender.on( target.layout.events.posChanged, this );
-	//	requestRender.on( target.layout.events.sizeChanged, this );
+		applyPosition	.on( target.layout.events.posChanged, this );
+		applySize		.on( target.layout.events.sizeChanged, this );
 	}
 	
 	
@@ -71,48 +75,61 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >, implements I
 		if (target.layout == null)
 			return;
 		
-		var window = getUIWindow();
+		if (target.window != null)
+			getInvalidationManager().remove( target.layout );
 		
-		if (window != null)
-			window.invalidationManager.remove( target.layout );
 		target.layout.state.change.unbind( this );
 		target.layout.events.posChanged.unbind( this );
+		target.layout.events.sizeChanged.unbind( this );
 	}
 	
 	
 	private function layoutStateChangeHandler (newState:ValidateStates, oldState:ValidateStates)
 	{
+		if (target.window == null)
+			return;
+		
 		switch (newState)
 		{
 			case ValidateStates.invalidated:
-				if (target.window != null)
-					getUIWindow().invalidationManager.add( target.layout );
+				getInvalidationManager().add( target.layout );
 			
 			case ValidateStates.parent_invalidated:
-				if (oldState == ValidateStates.invalidated)
-					getUIWindow().invalidationManager.remove( target.layout );
+				getInvalidationManager().remove( target.layout );
 		}
 	}
 	
 	
-	public inline function requestRender ()
+	public function applyPosition ()
 	{
-		if (target.window != null)
-			getUIWindow().renderManager.add(this);
-	}
-	
-	
-	public inline function render ()
-	{
-		var l = target.layout;
 	//	trace(target+".applyPosition; " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y);
 		if (target.effects == null || isNotPositionedYet)
 		{
+			var l = target.layout;
 			target.x	= target.rect.left	= l.getHorPosition();
 			target.y	= target.rect.top	= l.getVerPosition();
 			isNotPositionedYet = false;
-		} else {
-			target.effects.playMove();
 		}
+		else
+			target.effects.playMove();
+	}
+	
+	
+	private function applySize ()
+	{
+	//	trace(target+".sizeChanged; "+target.layout.bounds);
+		if (target.effects == null)
+		{
+			var b = target.layout.bounds;
+			target.rect.width	= b.width;
+			target.rect.height	= b.height;
+			
+			if (!target.is(IDrawable)) {
+				target.width	= target.rect.width;
+				target.height	= target.rect.height;
+			}
+		}
+		else
+			target.effects.playResize();
 	}
 }

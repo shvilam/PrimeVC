@@ -89,7 +89,7 @@ package primevc.tools;
  import primevc.gui.layout.algorithms.tile.DynamicTileAlgorithm;
  import primevc.gui.layout.algorithms.tile.FixedTileAlgorithm;
  import primevc.gui.layout.algorithms.DynamicLayoutAlgorithm;
- import primevc.gui.layout.algorithms.ILayoutAlgorithm;
+// import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.algorithms.RelativeAlgorithm;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.RelativeLayout;
@@ -98,6 +98,7 @@ package primevc.tools;
  import primevc.gui.styling.FiltersStyle;
  import primevc.gui.styling.TextStyle;
  import primevc.gui.styling.GraphicsStyle;
+ import primevc.gui.styling.LayoutAlgorithmInfo;
  import primevc.gui.styling.LayoutStyle;
  import primevc.gui.styling.StatesStyle;
  import primevc.gui.styling.StyleBlock;
@@ -144,7 +145,7 @@ class CSSParser
 	public static inline var R_IMPORT_MANIFEST		: String = "@manifest" + R_HEADER_RULE;
 	
 	public static inline var R_PROPERTY_NAME		: String = "a-z0-9-";
-	public static inline var R_PROPERTY_VALUE		: String = R_WHITESPACE + "a-z0-9%#.,:)(/\"'-";
+	public static inline var R_PROPERTY_VALUE		: String = R_WHITESPACE + "a-z0-9%#.,:)(/\"_'-";
 	
 	public static inline var R_BLOCK_NAME			: String = "(([.#]?)([a-z][a-z0-9_]+)(:([a-z]+))?)";
 	public static inline var R_BLOCK_NAMES			: String = "" + R_BLOCK_NAME + "(" + R_SPACE_MUST + R_BLOCK_NAME + ")*";
@@ -1904,17 +1905,18 @@ class CSSParser
 		{
 			var gradientExpr	= isLinearGr ? linGradientExpr : radGradientExpr;
 			var type			= isLinearGr ? GradientType.linear : GradientType.radial;
-			var colorsStr		= gradientExpr.matched(4);
+			
+			var colorsStr		= isLinearGr ? gradientExpr.matched(6) : gradientExpr.matched(4);
 			var focalPoint		= isLinearGr ? 0 : getInt( gradientExpr.matched(2) );
 			var degr			= isRadialGr ? 0 : getInt( gradientExpr.matched(3) );
-			var method			= parseGradientMethod( gradientExpr.matched(21) );
+			var method			= isLinearGr ? parseGradientMethod( gradientExpr.matched(24) ) : parseGradientMethod( gradientExpr.matched(22) );
 			
 			var gr = new GradientFill(type, method, focalPoint, degr);
 			
 			//add colors
 			if (colorsStr != null)
 			{
-			//	trace("FOUND COLORS!! "+colorsStr);
+		//		trace("FOUND COLORS!! "+colorsStr);
 				while (true)
 				{
 					if ( !gradientColorExpr.match(colorsStr) )
@@ -2176,10 +2178,24 @@ class CSSParser
 	{
 		var expr = floatUnitGroupValExpr;
 		
-		if (expr.match(v) && currentBlock.graphics != null && currentBlock.graphics.shape != null && currentBlock.graphics.shape.is(RegularRectangle))
+		if (!expr.match(v))
+			return;
+		
+		var shape:RegularRectangle = null;
+		
+		if (currentBlock.graphics == null)
+			createGraphicsBlock();
+		
+		if (currentBlock.graphics.shape == null)
+			currentBlock.graphics.shape = shape = new RegularRectangle();
+		
+		else if (currentBlock.graphics.shape.is(RegularRectangle))
+			shape = currentBlock.graphics.shape.as(RegularRectangle);
+		
+		
+		
+		if (shape != null)
 		{
-			var shape = currentBlock.graphics.shape.as(RegularRectangle);
-			
 			var topLeft		= getFloat( expr.matched(3) );
 			var topRight	= expr.matched( 8) != null ? getFloat( expr.matched(10) ) : topLeft;
 			var bottomRight	= expr.matched(15) != null ? getFloat( expr.matched(17) ) : topLeft;
@@ -2436,45 +2452,72 @@ class CSSParser
 	 */
 	private function parseAndSetLayoutAlgorithm (v:String) : Void
 	{
-		var algorithm:ILayoutAlgorithm = null;
+		var info = new LayoutAlgorithmInfo();
 		var v = v.trim().toLowerCase();
 		
-		if		(v == "relative")			algorithm = new RelativeAlgorithm ();
-		else if	(v == "none")				algorithm = null;						//FIXME -> none and inherit are the same now. none is not implemented yet..
-		else if	(v == "inherit")			algorithm = null;
+		if		(v == "relative")			info.algorithm = RelativeAlgorithm;
+		else if	(v == "none")				info.algorithm = null;						//FIXME -> none and inherit are the same now. none is not implemented yet..
+		else if	(v == "inherit")			info.algorithm = null;
 		
 		//
 		// match floating layout
 		//
 		
-		else if (floatHorExpr.match(v))		algorithm = new HorizontalFloatAlgorithm ( parseHorDirection( floatHorExpr.matched(2) ), parseVerDirection( floatHorExpr.matched(4) ) );
-		else if (floatVerExpr.match(v))		algorithm = new VerticalFloatAlgorithm ( parseVerDirection( floatVerExpr.matched(2) ), parseHorDirection( floatVerExpr.matched(4) ) );
-		else if (floatExpr.match(v))		algorithm = new DynamicLayoutAlgorithm (
-			new HorizontalFloatAlgorithm ( parseHorDirection( floatExpr.matched(2) ) ), 
-			new VerticalFloatAlgorithm ( parseVerDirection( floatExpr.matched(4) ) )
-		);
+		else if (floatHorExpr.match(v)) {
+			info.algorithm	= HorizontalFloatAlgorithm;
+			info.params		= [ parseHorDirection( floatHorExpr.matched(2) ), parseVerDirection( floatHorExpr.matched(4) ) ];
+		}
+		else if (floatVerExpr.match(v)) {
+			info.algorithm	= VerticalFloatAlgorithm;
+			info.params		= [ parseVerDirection( floatVerExpr.matched(2) ), parseHorDirection( floatVerExpr.matched(4) ) ];
+		}
+		else if (floatExpr.match(v)) {
+			info.algorithm	= DynamicLayoutAlgorithm;
+			info.params		= [
+				new LayoutAlgorithmInfo( HorizontalFloatAlgorithm,	[ parseHorDirection( floatExpr.matched(2) ) ] ), 
+				new LayoutAlgorithmInfo( VerticalFloatAlgorithm,	[ parseVerDirection( floatExpr.matched(4) ) ] )
+			];
+		}
 		
 		//
 		//match circle layout
 		//
 		
-		else if (horCircleExpr.match(v))	algorithm = new HorizontalCircleAlgorithm ( parseHorDirection( horCircleExpr.matched(2) ), parseVerDirection( horCircleExpr.matched(4) ), false );
-		else if (verCircleExpr.match(v))	algorithm = new VerticalCircleAlgorithm ( parseVerDirection( verCircleExpr.matched(2) ), parseHorDirection( verCircleExpr.matched(4) ), false );
-		else if (circleExpr.match(v))		algorithm = new DynamicLayoutAlgorithm (
-			new HorizontalCircleAlgorithm ( parseHorDirection( circleExpr.matched(2) ), null, false ), 
-			new VerticalCircleAlgorithm ( parseVerDirection( circleExpr.matched(4) ), null, false )
-		);
+		else if (horCircleExpr.match(v)) {
+			info.algorithm	= HorizontalCircleAlgorithm;
+			info.params		= [ parseHorDirection( horCircleExpr.matched(2) ), parseVerDirection( horCircleExpr.matched(4) ), false ];
+		}
+		else if (verCircleExpr.match(v)) {
+			info.algorithm	= VerticalCircleAlgorithm;
+			info.params		= [ parseVerDirection( verCircleExpr.matched(2) ), parseHorDirection( verCircleExpr.matched(4) ), false ];
+		}
+		else if (circleExpr.match(v)) {
+			info.algorithm	= DynamicLayoutAlgorithm;
+			info.params		= [ 
+				new LayoutAlgorithmInfo( HorizontalCircleAlgorithm,	[ parseHorDirection( circleExpr.matched(2) ), null, false ] ), 
+				new LayoutAlgorithmInfo( VerticalCircleAlgorithm,	[ parseVerDirection( circleExpr.matched(4) ), null, false ] )
+			];
+		}
 		
 		//
 		//match ellipse layout
 		//
 		
-		else if (horEllipseExpr.match(v))	algorithm = new HorizontalCircleAlgorithm ( parseHorDirection( horEllipseExpr.matched(2) ), parseVerDirection( horEllipseExpr.matched(4) ) );
-		else if (verEllipseExpr.match(v))	algorithm = new VerticalCircleAlgorithm ( parseVerDirection( verEllipseExpr.matched(2) ), parseHorDirection( verEllipseExpr.matched(4) ) );
-		else if (ellipseExpr.match(v))		algorithm = new DynamicLayoutAlgorithm (
-			new HorizontalCircleAlgorithm ( parseHorDirection( horEllipseExpr.matched(2) ) ), 
-			new VerticalCircleAlgorithm ( parseVerDirection( horEllipseExpr.matched(4) ) )
-		);
+		else if (horEllipseExpr.match(v)) {
+			info.algorithm	= HorizontalCircleAlgorithm;
+			info.params		= [ parseHorDirection( horEllipseExpr.matched(2) ), parseVerDirection( horEllipseExpr.matched(4) ) ];
+		}
+		else if (verEllipseExpr.match(v)) {
+			info.algorithm	= VerticalCircleAlgorithm;
+			info.params		= [ parseVerDirection( verEllipseExpr.matched(2) ), parseHorDirection( verEllipseExpr.matched(4) ) ];
+		}
+		else if (ellipseExpr.match(v)) {
+			info.algorithm	= DynamicLayoutAlgorithm;
+			info.params		= [
+				new LayoutAlgorithmInfo( HorizontalCircleAlgorithm,	[ parseHorDirection( horEllipseExpr.matched(2) ) ] ), 
+				new LayoutAlgorithmInfo( VerticalCircleAlgorithm,	[ parseVerDirection( horEllipseExpr.matched(4) ) ] )
+			];
+		}
 		
 		//
 		//match dynamic
@@ -2488,35 +2531,35 @@ class CSSParser
 		else if (dynamicTileExpr.match(v))
 		{
 			if (dynamicTileExpr.matched(1) == null)
-				algorithm = new DynamicTileAlgorithm();
+				info.algorithm = DynamicTileAlgorithm;
 			else
 			{
-				var tileAlg = new DynamicTileAlgorithm( parseDirection( dynamicTileExpr.matched( 3 ) ) );
-				if (dynamicTileExpr.matched( 5 ) != null)	tileAlg.horizontalDirection	= parseHorDirection( dynamicTileExpr.matched( 5 ) );
-				if (dynamicTileExpr.matched( 7 ) != null)	tileAlg.verticalDirection	= parseVerDirection( dynamicTileExpr.matched( 7 ) );
-				algorithm = tileAlg;
+				info.algorithm = DynamicTileAlgorithm;
+				info.params.push( parseDirection( dynamicTileExpr.matched( 3 ) ) );
+				info.params.push( (dynamicTileExpr.matched( 5 ) != null) ? parseHorDirection( dynamicTileExpr.matched( 5 ) ) : null );
+				info.params.push( (dynamicTileExpr.matched( 7 ) != null) ? parseVerDirection( dynamicTileExpr.matched( 7 ) ) : null );
 			}
 		}
 		else if (fixedTileExpr.match(v))
 		{
 			if (fixedTileExpr.matched(1) == null)
-				algorithm = new FixedTileAlgorithm();
+				info.algorithm = FixedTileAlgorithm;
 			else
 			{
-				var tileAlg = new FixedTileAlgorithm( parseDirection( fixedTileExpr.matched( 2 ) ) );
-				if (fixedTileExpr.matched( 4 ) != null)		tileAlg.maxTilesInDirection	= getInt( fixedTileExpr.matched( 4 ) );
-				if (fixedTileExpr.matched( 6 ) != null)		tileAlg.horizontalDirection	= parseHorDirection( fixedTileExpr.matched( 6 ) );
-				if (fixedTileExpr.matched( 8 ) != null)		tileAlg.verticalDirection	= parseVerDirection( fixedTileExpr.matched( 8 ) );
-				algorithm = tileAlg;
+				info.algorithm	= FixedTileAlgorithm;
+				info.params.push( parseDirection( fixedTileExpr.matched( 2 ) ) );
+				info.params.push( (fixedTileExpr.matched( 4 ) != null) ? getInt( fixedTileExpr.matched( 4 ) )				: Number.INT_NOT_SET );
+				info.params.push( (fixedTileExpr.matched( 6 ) != null) ? parseHorDirection( fixedTileExpr.matched( 6 ) )	: null );
+				info.params.push( (fixedTileExpr.matched( 8 ) != null) ? parseVerDirection( fixedTileExpr.matched( 8 ) )	: null );
 			}
 		}
 		
 		
 		//insert the found algorithm in the layout-style-block
-		if (algorithm != null)
+		if (info != null && !info.isEmpty())
 		{
 			createLayoutBlock();
-			currentBlock.layout.algorithm = algorithm;
+			currentBlock.layout.algorithm = info;
 		}
 	}
 	

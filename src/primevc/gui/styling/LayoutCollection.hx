@@ -29,6 +29,7 @@
 package primevc.gui.styling;
  import primevc.core.geom.constraints.SizeConstraint;
  import primevc.gui.core.IUIContainer;
+ import primevc.gui.layout.IAdvancedLayoutClient;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.styling.StyleCollectionBase;
  import primevc.gui.traits.ILayoutable;
@@ -97,29 +98,41 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 	
 	private function applyStyleObject (propsToSet:UInt, styleObj:LayoutStyle)
 	{
-		var layout	= elementStyle.target.as( ILayoutable ).layout;
+		var layout		= elementStyle.target.as( ILayoutable ).layout;
+		var notEmpty	= styleObj != null;
 		
-		if (propsToSet.has( Flags.WIDTH ))				layout.width						= styleObj != null ? styleObj.width					: Number.INT_NOT_SET;
-		if (propsToSet.has( Flags.HEIGHT ))				layout.height						= styleObj != null ? styleObj.height				: Number.INT_NOT_SET;
-		if (propsToSet.has( Flags.PERCENT_WIDTH ))		layout.percentWidth					= styleObj != null ? styleObj.percentWidth			: 0; //Number.FLOAT_NOT_SET;
-		if (propsToSet.has( Flags.PERCENT_HEIGHT ))		layout.percentHeight				= styleObj != null ? styleObj.percentHeight			: 0; //Number.FLOAT_NOT_SET;
-		if (propsToSet.has( Flags.RELATIVE ))			layout.relative						= styleObj != null ? styleObj.relative				: null;
-		if (propsToSet.has( Flags.INCLUDE ))			layout.includeInLayout				= styleObj != null ? styleObj.includeInLayout		: null;
-		if (propsToSet.has( Flags.MAINTAIN_ASPECT ))	layout.maintainAspectRatio			= styleObj != null ? styleObj.maintainAspectRatio	: null;
-		if (propsToSet.has( Flags.PADDING ))			layout.padding						= styleObj != null ? styleObj.padding				: null;
+		if (propsToSet.has( Flags.WIDTH | Flags.HEIGHT ))
+		{
+			if (layout.is( IAdvancedLayoutClient )) {
+				var l = layout.as( IAdvancedLayoutClient );
+				if (propsToSet.has( Flags.WIDTH ))		l.explicitWidth						= notEmpty ? styleObj.width					: Number.INT_NOT_SET;
+				if (propsToSet.has( Flags.HEIGHT ))		l.explicitHeight					= notEmpty ? styleObj.height				: Number.INT_NOT_SET;
+			}
+			else
+				if (propsToSet.has( Flags.WIDTH ))		layout.width						= notEmpty ? styleObj.width					: Number.INT_NOT_SET;
+				if (propsToSet.has( Flags.HEIGHT ))		layout.height						= notEmpty ? styleObj.height				: Number.INT_NOT_SET;
+		}
+		if (propsToSet.has( Flags.PERCENT_WIDTH ))		layout.percentWidth					= notEmpty ? styleObj.percentWidth			: 0; //Number.FLOAT_NOT_SET;
+		if (propsToSet.has( Flags.PERCENT_HEIGHT ))		layout.percentHeight				= notEmpty ? styleObj.percentHeight			: 0; //Number.FLOAT_NOT_SET;
+		if (propsToSet.has( Flags.RELATIVE ))			layout.relative						= notEmpty ? styleObj.relative				: null;
+		if (propsToSet.has( Flags.INCLUDE ))			layout.includeInLayout				= notEmpty ? styleObj.includeInLayout		: null;
+		if (propsToSet.has( Flags.MAINTAIN_ASPECT ))	layout.maintainAspectRatio			= notEmpty ? styleObj.maintainAspectRatio	: null;
+		if (propsToSet.has( Flags.PADDING ))			layout.padding						= notEmpty ? styleObj.padding				: null;
 		
-		if (propsToSet.has( Flags.MIN_WIDTH ))			layout.sizeConstraint.width.min		= styleObj != null ? styleObj.minWidth				: Number.INT_NOT_SET;
-		if (propsToSet.has( Flags.MIN_HEIGHT ))			layout.sizeConstraint.height.min	= styleObj != null ? styleObj.minHeight				: Number.INT_NOT_SET;
-		if (propsToSet.has( Flags.MAX_WIDTH ))			layout.sizeConstraint.width.max		= styleObj != null ? styleObj.maxWidth				: Number.INT_NOT_SET;
-		if (propsToSet.has( Flags.MAX_HEIGHT ))			layout.sizeConstraint.height.max	= styleObj != null ? styleObj.maxHeight				: Number.INT_NOT_SET;
+		if (propsToSet.has( Flags.MIN_WIDTH ))			layout.sizeConstraint.width.min		= notEmpty ? styleObj.minWidth				: Number.INT_NOT_SET;
+		if (propsToSet.has( Flags.MIN_HEIGHT ))			layout.sizeConstraint.height.min	= notEmpty ? styleObj.minHeight				: Number.INT_NOT_SET;
+		if (propsToSet.has( Flags.MAX_WIDTH ))			layout.sizeConstraint.width.max		= notEmpty ? styleObj.maxWidth				: Number.INT_NOT_SET;
+		if (propsToSet.has( Flags.MAX_HEIGHT ))			layout.sizeConstraint.height.max	= notEmpty ? styleObj.maxHeight				: Number.INT_NOT_SET;
 		
 		if (elementStyle.target.is( IUIContainer ))
 		{
 			var tCont = elementStyle.target.as( IUIContainer );
 			
-			if (propsToSet.has( Flags.ALGORITHM ))		tCont.layoutContainer.algorithm		= styleObj != null ? styleObj.algorithm				: null;
-			if (propsToSet.has( Flags.CHILD_WIDTH ))	tCont.layoutContainer.childWidth	= styleObj != null ? styleObj.childWidth			: Number.INT_NOT_SET;
-			if (propsToSet.has( Flags.CHILD_HEIGHT ))	tCont.layoutContainer.childHeight	= styleObj != null ? styleObj.childHeight			: Number.INT_NOT_SET;
+			if (propsToSet.has( Flags.CHILD_WIDTH ))	tCont.layoutContainer.childWidth	= notEmpty ? styleObj.childWidth			: Number.INT_NOT_SET;
+			if (propsToSet.has( Flags.CHILD_HEIGHT ))	tCont.layoutContainer.childHeight	= notEmpty ? styleObj.childHeight			: Number.INT_NOT_SET;
+			if (propsToSet.has( Flags.ALGORITHM ))
+				if (notEmpty)	tCont.layoutContainer.algorithm = styleObj.algorithm.create();
+				else			tCont.layoutContainer.algorithm = null;
 		}
 	}
 }

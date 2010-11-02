@@ -32,7 +32,6 @@ package primevc.gui.styling;
 #end
  import primevc.core.geom.Box;
  import primevc.core.traits.IInvalidatable;
- import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.RelativeLayout;
  import primevc.types.Number;
@@ -56,7 +55,7 @@ class LayoutStyle extends StyleSubBlock
 	private var superStyle				: LayoutStyle;
 
 	private var _relative				: RelativeLayout;
-	private var _algorithm				: ILayoutAlgorithm;
+	private var _algorithm				: LayoutAlgorithmInfo;
 	private var _padding				: Box;
 	
 	private var _width					: Int;
@@ -77,7 +76,7 @@ class LayoutStyle extends StyleSubBlock
 	
 	
 	public var relative				(getRelative,			setRelative)		: RelativeLayout;
-	public var algorithm			(getAlgorithm,			setAlgorithm)		: ILayoutAlgorithm;
+	public var algorithm			(getAlgorithm,			setAlgorithm)		: LayoutAlgorithmInfo;
 	public var padding				(getPadding,			setPadding)			: Box;
 	
 	public var width				(getWidth,				setWidth)			: Int;
@@ -102,7 +101,7 @@ class LayoutStyle extends StyleSubBlock
 	public function new (
 		rel:RelativeLayout			= null,
 		padding:Box					= null,
-		alg:ILayoutAlgorithm		= null,
+		alg:LayoutAlgorithmInfo		= null,
 		percentW:Float				= Number.INT_NOT_SET,
 		percentH:Float				= Number.INT_NOT_SET,
 		width:Int					= Number.INT_NOT_SET,
@@ -571,7 +570,7 @@ class LayoutStyle extends StyleSubBlock
 		var css = [];
 		
 		if (_padding != null)					css.push("padding: " + _padding.toCSS());
-		if (_algorithm != null)					css.push("algorithm: " + _algorithm.toCSS());
+	//	if (_algorithm != null)					css.push("algorithm: " + _algorithm.toCSS());
 		if (_relative != null)					css.push("relative: " + _relative.toCSS());
 		
 		if (_width.isSet())						css.push("width: " + _width + "px");

@@ -1,15 +1,15 @@
 @manifest url('manifest.xml');
 
 IDisplayObject	{ shape: rectangle; visibility: visible; opacity: 1; }
-/*UITextField		{ color: #000; font-size: 40px; }*/
+UITextField		{ color: #000; font: 14px Verdana; }
 UIWindow		{ overflow: hidden; }
-ApplicationView	{ width: 100%; height: 100%; algorithm: float-ver( top, center ); border: 2px solid #f00 inset; }
+ApplicationView	{ width: 100%; height: 100%; algorithm: float-ver( top, center ); }
 
 ListView		{ overflow: hidden; }
-InputField		{ border: 1px solid #000; }
-Label			{ min-width: 100px; background: #eee; }
-Image			{ max-width: 150px; }
-Button			{ algorithm: float-hor( left, center ); border: 2px solid #f0f; background: #00000011; font: Verdana 20px; }
-Button:hover	{ font-weight: bold; font: "Courier New"; }
-Button:down		{ font: "Courier New"; }
+InputField		{ min-width: 100px; border: 1px solid #000; }
+Label			{ background: #eee; }
+Image			{ opacity: .8; }
+Button			{ algorithm: float-hor( left, center ); font: Verdana 20px; background: #ffffff00; }
+/*Button:hover	{ font-weight: bold; font: "Courier New"; height: 70px; }
+Button:down		{ font: "Courier New"; }*/
 

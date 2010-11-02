@@ -83,7 +83,7 @@ class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	
 	private function updateBehaviour (changes:UInt) : Void
 	{
-		trace(target + ".update; "+getStates().readProperties());
+	//	trace(target + ".update; "+getStates().readProperties());
 		var hoverChanged	= changes.has( StyleStateFlags.HOVER );
 		var downChanged		= changes.has( StyleStateFlags.DOWN );
 		

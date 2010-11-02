@@ -27,9 +27,12 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
+ import primevc.gui.behaviours.components.LabelLayoutBehaviour;
  import primevc.gui.core.UIDataComponent;
  import primevc.gui.core.UITextField;
  import primevc.gui.layout.AdvancedLayoutClient;
+ import primevc.gui.text.TextFormat;
+ import primevc.gui.traits.ITextStylable;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
@@ -41,9 +44,14 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Oct 29, 2010
  */
-class Label extends UIDataComponent < String >
+class Label extends UIDataComponent < String >, implements ITextStylable
 {
-	private var field	: UITextField;
+	public var field		(default, null)					: UITextField;
+	
+#if flash9
+	public var textStyle	(getTextStyle, setTextStyle)	: TextFormat;
+	public var wordWrap		: Bool;
+#end
 	
 	
 	override private function createLayout ()
@@ -52,17 +60,23 @@ class Label extends UIDataComponent < String >
 	}
 	
 	
+	override private function createBehaviours ()
+	{
+		behaviours.add( new LabelLayoutBehaviour(this) );
+	}
+	
+	
 	override private function createChildren ()
 	{
-		field = new UITextField(id+"TextField");
+		field = new UITextField( null, false );
 #if flash9
-		field.autoSize			= flash.text.TextFieldAutoSize.LEFT;
+		field.autoSize			= flash.text.TextFieldAutoSize.NONE;
 		field.selectable		= false;
 		field.mouseWheelEnabled	= false;
 #end
+		field.textStyle			= textStyle;
 		field.layout.validateOnPropertyChange = true;
 		
-		updateSize.on( field.layout.events.sizeChanged, this );
 		children.add( field );
 	}
 	
@@ -82,19 +96,30 @@ class Label extends UIDataComponent < String >
 	}
 	
 	
+	//
+	// GETERS / SETTERS
+	//
+	
+#if flash9
+	private inline function getTextStyle ()
+	{
+		return textStyle;
+	}
+	
+	
+	private inline function setTextStyle (v:TextFormat)
+	{
+		if (field != null)
+			field.textStyle = v;
+		
+		return textStyle = v;
+	}
+#end
+	
 	
 	//
 	// EVENT HANDLERS
 	//
-	
-	private function updateSize ()
-	{
-		var l = layout.as(AdvancedLayoutClient);
-	//	trace("label.updateSize");
-		l.measuredWidth		= field.layout.width;
-		l.measuredHeight	= field.layout.height;
-	}
-	
 	
 	private function dataChangeHandler (newValue:String, oldValue:String)
 	{

@@ -68,7 +68,7 @@ class ListView < ListDataType > extends UIDataContainer < IList < ListDataType >
 	// DATA RENDERER METHODS
 	//
 	
-	private function createItemRenderer ( item:ListDataType ) : IDisplayObject
+	private function createItemRenderer ( item:ListDataType, pos:Int ) : IDisplayObject
 	{
 		Assert.abstract();
 		return null;
@@ -77,7 +77,10 @@ class ListView < ListDataType > extends UIDataContainer < IList < ListDataType >
 	
 	private function addItemRenderer( item:ListDataType, newPos:Int = -1 )
 	{
-		children.add( createItemRenderer( item ), newPos );
+		if (newPos == -1)
+			newPos = data.value.indexOf( item );
+		
+		children.add( createItemRenderer( item, newPos ), newPos );
 	}
 	
 	

@@ -49,6 +49,8 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 		explicitHeight	= newHeight;
 		measuredWidth	= Number.INT_NOT_SET;
 		measuredHeight	= Number.INT_NOT_SET;
+		
+		changes			= changes.unset( Flags.MEASURED_HEIGHT | Flags.MEASURED_WIDTH | Flags.EXPLICIT_HEIGHT | Flags.EXPLICIT_WIDTH );
 	}
 	
 	
@@ -64,12 +66,6 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	// SIZE PROPERTIES
 	//
 	
-//	private var explicitWidth	: Int;
-//	private var explicitHeight	: Int;
-//	private var measuredWidth	: Int;
-//	private var measuredHeight	: Int;
-	
-	
 	public var explicitWidth	(default, setExplicitWidth)		: Int;
 	public var explicitHeight	(default, setExplicitHeight)	: Int;
 	
@@ -81,13 +77,6 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	//
 	// GETTERS / SETTERS
 	//
-	
-	
-//	private inline function getMeasuredWidth ()		{ return measuredWidth; }
-//	private inline function getMeasuredHeight ()	{ return measuredHeight; }
-//	private inline function getExplicitWidth ()		{ return explicitWidth; }
-//	private inline function getExplicitHeight ()	{ return explicitHeight; }
-	
 	
 	private inline function setExplicitWidth (v:Int)
 	{
@@ -137,28 +126,31 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	{
 		if (hasValidatedWidth)
 			return;
-
-		super.validateHorizontal();
 		
-	//	trace(this+".validateHorizontal "+width+"; explicit: "+explicitWidth+"; measured: "+measuredWidth+"; "+Flags.readProperties(changes));
-		if (changes.has(Flags.MEASURED_WIDTH | Flags.EXPLICIT_WIDTH) && explicitWidth.notSet() && measuredWidth.isSet())
-			width = measuredWidth;
+	//	trace(this+".validateHorizontal 1 "+width+"; explicit: "+explicitWidth+"; measured: "+measuredWidth+"; "+Flags.readProperties(changes.filter( Flags.WIDTH_PROPERTIES )));
 		
-		if (changes.has(Flags.EXPLICIT_WIDTH) && explicitWidth.isSet())
-			width = explicitWidth;
+		if (changes.has( Flags.BOUNDARY_WIDTH ))
+			super.validateHorizontal();
 		
-		if (changes.has(Flags.WIDTH))
+		if (changes.has(Flags.WIDTH) && changes.hasNone( Flags.MEASURED_WIDTH | Flags.EXPLICIT_WIDTH ))
 		{
-			bounds.width = IntMath.max( width, 0 ) + getHorPadding();
-			
-			if (width.isSet())
-			{
-				if (explicitWidth.isSet() || measuredWidth.notSet())
-					explicitWidth	= width;
-				else
-					measuredWidth	= width;
-			}
+			explicitWidth = width;
 		}
+		else
+		{
+			if (changes.has(Flags.EXPLICIT_WIDTH))
+				super.setWidth( explicitWidth );
+		
+			if ((changes.has(Flags.MEASURED_WIDTH) || width.notSet()) && explicitWidth.notSet())
+				super.setWidth( measuredWidth );
+		}
+		
+		if (changes.has( Flags.WIDTH ))
+		{
+			hasValidatedWidth = false;
+			super.validateHorizontal();
+		}
+	//	trace(this+".validateHorizontal 2 "+width+"; explicit: "+explicitWidth+"; measured: "+measuredWidth+"; "+Flags.readProperties(changes.filter( Flags.WIDTH_PROPERTIES )));
 	}
 	
 	
@@ -168,25 +160,27 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 		if (hasValidatedHeight)
 			return;
 		
-		super.validateVertical();
+		if (changes.has( Flags.BOUNDARY_HEIGHT ))
+			super.validateVertical();
 		
-		if (changes.has(Flags.MEASURED_HEIGHT | Flags.EXPLICIT_HEIGHT) && explicitHeight.notSet() && measuredHeight.isSet())
-			height = measuredHeight;
-		
-		if (changes.has(Flags.EXPLICIT_HEIGHT) && explicitHeight.isSet())
-			height = explicitHeight;
-		
-		if (changes.has(Flags.HEIGHT))
+	//	trace(this+".validateVertical 1 "+height+"; explicit: "+explicitHeight+"; measured: "+measuredHeight+"; "+Flags.readProperties( changes.filter( Flags.HEIGHT_PROPERTIES ) ));
+		if (changes.has(Flags.HEIGHT) && changes.hasNone( Flags.MEASURED_HEIGHT | Flags.EXPLICIT_HEIGHT ))
 		{
-			bounds.height = IntMath.max( height, 0 ) + getVerPadding();
-			
-			if (height.isSet())
-			{
-				if (explicitHeight.isSet() || measuredHeight.notSet())
-					explicitHeight	= height;
-				else
-					measuredHeight	= height;
-			}
+			explicitHeight = height;
+		}
+		else
+		{
+			if (changes.has(Flags.EXPLICIT_HEIGHT))
+				height = explicitHeight;
+		
+			if ((changes.has(Flags.MEASURED_HEIGHT) || height.notSet()) && explicitHeight.notSet())
+				height = measuredHeight;
+		}
+		
+		if (changes.has( Flags.HEIGHT ))
+		{
+			hasValidatedHeight = false;
+			super.validateVertical();
 		}
 	}
 }

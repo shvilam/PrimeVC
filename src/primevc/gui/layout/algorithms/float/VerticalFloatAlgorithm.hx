@@ -118,11 +118,12 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	}
 	
 	
-	private inline function applyTopToBottom () : Void
+	private inline function applyTopToBottom (next:Int = -1) : Void
 	{
 		if (group.children.length > 0)
 		{
-			var next = getTopStartValue();
+			if (next == -1)
+				next = getTopStartValue();
 		
 			//use 2 loops for algorithms with and without a fixed child-height. This is faster than doing the if statement inside the loop!
 			if (group.childHeight.notSet())
@@ -151,7 +152,8 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	
 	private inline function applyCentered () : Void
 	{
-		if (group.children.length > 0)
+		applyTopToBottom( getCenterStartValue() );
+		/*if (group.children.length > 0)
 		{
 			var i:Int = 0;
 			var evenPos:Int, oddPos:Int;
@@ -196,7 +198,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 					i++;
 				}
 			}
-		}
+		}*/
 	}
 	
 	
@@ -296,6 +298,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 
 	private inline function getDepthForBoundsC (bounds:IRectangle) : Int
 	{
+		Assert.abstract( "Wrong implementation since the way centered layouts behave is changed");
 		var depth:Int	= 0;
 		var posY:Int	= bounds.top;
 		var centerY:Int	= bounds.top + (bounds.height * .5).int();

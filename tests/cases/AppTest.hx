@@ -44,19 +44,15 @@ package cases;
  * @author Ruben Weijers
  * @creation-date Aug 30, 2010
  */
-class AppTest
+class AppTest extends UIWindow
 {
-	public static function main () { Application.startup( EditorWindow ); }
-}
-
-class EditorWindow extends UIWindow
-{
+	public static function main () { Application.startup( AppTest ); }
+	
 	override private function createChildren ()
 	{
 		children.add( new EditorView("editorView") );
 	}
 }
-
 
 
 class EditorView extends ApplicationView
@@ -68,7 +64,7 @@ class EditorView extends ApplicationView
 	override private function createChildren ()
 	{
 		children.add( applicationBar	= new ApplicationMainBar("applicationMainBar") );
-		children.add( framesToolBar		= new FramesToolBar("framesToolBar") );
+		children.add( framesToolBar		= new FramesToolBar("framesList") );
 	}
 }
 
@@ -88,13 +84,13 @@ class FramesToolBar extends ListView < FrameTypesSectionVO >
 		frames.add( new FrameTypeVO( "webshopFrame", "Webshop Kader", null ) );
 		
 		var media = new ArrayList<FrameTypeVO>();
-	//	media.add( new FrameTypeVO( "pictureFrame", "Afbeeldingen", null ) );
-	//	media.add( new FrameTypeVO( "videoFrame", "Video", null ) );
-	//	media.add( new FrameTypeVO( "flashFrame", "Flash", null ) );
+		media.add( new FrameTypeVO( "pictureFrame", "Afbeeldingen", null ) );
+		media.add( new FrameTypeVO( "videoFrame", "Video", null ) );
+		media.add( new FrameTypeVO( "flashFrame", "Flash", null ) );
 		
 		var elements = new ArrayList<FrameTypeVO>();
-	//	elements.add( new FrameTypeVO( "shapeFrame", "Vormen", null ) );
-	//	elements.add( new FrameTypeVO( "textFrame", "Tekst", null ) );
+		elements.add( new FrameTypeVO( "shapeFrame", "Vormen", null ) );
+		elements.add( new FrameTypeVO( "textFrame", "Tekst", null ) );
 		
 		var list = new FrameTypesList();
 		list.add( new FrameTypesSectionVO( "linkFrames", "kaders", frames ) );
@@ -104,9 +100,9 @@ class FramesToolBar extends ListView < FrameTypesSectionVO >
 	}
 	
 	
-	override private function createItemRenderer (dataItem:FrameTypesSectionVO)
+	override private function createItemRenderer (dataItem:FrameTypesSectionVO, pos:Int)
 	{
-		return cast new FrameTypesBar( dataItem.name+"Bar2", dataItem );
+		return cast new FrameTypesBar( dataItem.name+"Bar", dataItem );
 	}
 }
 
@@ -143,9 +139,12 @@ class FrameTypesBar extends UIDataContainer < FrameTypesSectionVO >
 
 class FrameTypesBarList extends ListView < FrameTypeVO >
 {
-	override private function createItemRenderer (dataItem:FrameTypeVO)
+	override private function createItemRenderer (dataItem:FrameTypeVO, pos:Int)
 	{
-		return cast new FrameButton( dataItem );
+		var button = new FrameButton( dataItem );
+		if		(pos == 0)					button.styleClasses.value += "first";
+		else if (pos == (value.length - 1))	button.styleClasses.value += "last";
+		return cast button;
 	}
 }
 

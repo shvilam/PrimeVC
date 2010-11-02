@@ -34,8 +34,10 @@ package primevc.gui.layout.algorithms;
  import primevc.core.geom.space.Horizontal;
  import primevc.core.geom.space.Vertical;
  import primevc.core.geom.IRectangle;
+ import primevc.gui.styling.LayoutAlgorithmInfo;
  import primevc.utils.IntMath;
   using primevc.utils.Bind;
+  using Type;
  
 
 /**
@@ -47,7 +49,6 @@ package primevc.gui.layout.algorithms;
  */
 class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 {
-	
 	/**
 	 * Defines the start position on the horizontal axis.
 	 * @default		Horizontal.left
@@ -64,11 +65,11 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 	public var verAlgorithm				(default, setVerAlgorithm)			: IVerticalAlgorithm;
 	
 	
-	public function new (horAlgorithm:IHorizontalAlgorithm, verAlgorithm:IVerticalAlgorithm) 
+	public function new (?horAlgorithmInfo:LayoutAlgorithmInfo, ?verAlgorithmInfo:LayoutAlgorithmInfo) 
 	{
 		super();
-		this.horAlgorithm	= horAlgorithm;
-		this.verAlgorithm	= verAlgorithm;
+		if (horAlgorithmInfo != null)	horAlgorithm	= cast horAlgorithmInfo.create();
+		if (verAlgorithmInfo != null)	verAlgorithm	= cast verAlgorithmInfo.create();
 	}
 	
 	
@@ -242,9 +243,9 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 #if neko
 	override public function toCode (code:ICodeGenerator)
 	{
-		code.construct( this, [ horAlgorithm, verAlgorithm ] );
-		if (horizontalDirection != null)	code.setProp( this, "horizontalDirection", horizontalDirection );
-		if (verticalDirection != null)		code.setProp( this, "verticalDirection", verticalDirection );
+		var hor = horAlgorithm == null ? null : new LayoutAlgorithmInfo( cast horAlgorithm.getClass(), [ horizontalDirection ] );
+		var ver = verAlgorithm == null ? null : new LayoutAlgorithmInfo( cast verAlgorithm.getClass(), [ verticalDirection ] );
+		code.construct( this, [ hor, ver ] );
 	}
 #end
 }

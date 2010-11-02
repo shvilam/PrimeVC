@@ -215,7 +215,7 @@ class GradientFill extends GraphicElement, implements IFill
 	// LIST METHODS
 	//
 	
-	public inline function add ( fill:GradientStop, depth:Int = -1 )
+	public function add ( fill:GradientStop, depth:Int = -1 )
 	{
 		gradientStops.insertAt( fill, depth );
 		fill.listeners.add(this);
@@ -223,9 +223,9 @@ class GradientFill extends GraphicElement, implements IFill
 	}
 	
 	
-	public inline function remove ( fill:GradientStop )
+	public function remove ( fill:GradientStop )
 	{
-		gradientStops.remove(fill);
+		gradientStops.removeItem(fill);
 		fill.listeners.remove(this);
 		fill.dispose();
 		invalidate( GraphicFlags.FILL );

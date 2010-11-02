@@ -40,6 +40,8 @@ class LayoutFlags
 {
 	public static inline var ALL_PROPERTIES			: UInt = WIDTH | HEIGHT | INCLUDE | RELATIVE | ALGORITHM | MAX_WIDTH | MAX_HEIGHT | PERCENT_WIDTH | PERCENT_HEIGHT | PADDING | MAINTAIN_ASPECT | ROTATION | CHILD_WIDTH | CHILD_HEIGHT;
 	public static inline var CONSTRAINT_PROPERTIES	: UInt = MIN_WIDTH | MIN_HEIGHT | MAX_WIDTH | MAX_HEIGHT;
+	public static inline var WIDTH_PROPERTIES		: UInt = WIDTH | MEASURED_WIDTH | BOUNDARY_WIDTH | EXPLICIT_WIDTH;
+	public static inline var HEIGHT_PROPERTIES		: UInt = HEIGHT | MEASURED_HEIGHT | BOUNDARY_HEIGHT | EXPLICIT_HEIGHT;
 	
 	public static inline var WIDTH					: UInt = 1;
 	public static inline var HEIGHT					: UInt = 2;

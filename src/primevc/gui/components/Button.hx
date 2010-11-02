@@ -29,6 +29,7 @@
 package primevc.gui.components;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UITextField;
+ import primevc.gui.layout.LayoutFlags;
  import primevc.gui.styling.IIconOwner;
  import primevc.gui.text.TextFormat;
  import primevc.gui.traits.ITextStylable;
@@ -45,8 +46,8 @@ package primevc.gui.components;
 class Button extends UIDataContainer < String >, implements IIconOwner, implements ITextStylable
 {
 	public var icon			(default, setIcon)				: Bitmap;
-	private var labelField	: UITextField;
-	private var iconGraphic	: Image;
+	public var labelField	(default, null)					: UITextField;
+	public var iconGraphic	(default, null)					: Image;
 	
 #if flash9
 	public var textStyle	(getTextStyle, setTextStyle)	: TextFormat;
@@ -63,13 +64,15 @@ class Button extends UIDataContainer < String >, implements IIconOwner, implemen
 	
 	override private function createChildren ()
 	{
-		labelField = new UITextField("labelField", false);
+		labelField = new UITextField( null, false);
 #if flash9
 		labelField.autoSize				= flash.text.TextFieldAutoSize.LEFT;
 		labelField.selectable			= false;
 		labelField.mouseWheelEnabled	= false;
 #end
 		labelField.textStyle			= textStyle;
+		labelField.layout.percentWidth	= LayoutFlags.FILL;
+		
 		layoutContainer.children.add( labelField.layout );
 		children.add( labelField );
 		createIconGraphic();
@@ -134,7 +137,7 @@ class Button extends UIDataContainer < String >, implements IIconOwner, implemen
 	{
 		if (iconGraphic == null && icon != null)
 		{
-			iconGraphic = new Image( icon );
+			iconGraphic = new Image( null, icon );
 			layoutContainer.children.add( iconGraphic.layout, 0 );
 			children.add( iconGraphic, 0 );
 		}

@@ -37,6 +37,7 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.LayoutFlags;
  import primevc.utils.IntMath;
   using primevc.utils.BitUtil;
+  using primevc.utils.IntMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
   using Std;
@@ -218,6 +219,21 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 			top = group.padding.top;
 
 		return top;
+	}
+	
+	
+	private inline function getCenterStartValue ()	: Int
+	{
+		var start:Int = 0;
+		
+		if (group.is(AdvancedLayoutClient))
+		{
+			var group = group.as(AdvancedLayoutClient);
+			if (group.explicitHeight.isSet() && group.measuredHeight.isSet())
+				start = IntMath.max( group.explicitHeight - group.measuredHeight, 0 ).divCeil( 2 );
+		}
+		
+		return start += getTopStartValue();
 	}
 
 
