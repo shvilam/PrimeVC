@@ -28,7 +28,7 @@
  */
 package primevc.gui.core;
  import primevc.core.collections.DataCursor;
- import primevc.core.Bindable;
+ import primevc.core.IBindable;
  
 
 /**
@@ -39,7 +39,7 @@ package primevc.gui.core;
  */
 interface IUIDataComponent < DataType > implements IUIComponent
 {
-	public var data (default, setData)		: Bindable < DataType >;
+	public var data (default, setData)		: IBindable < DataType >;
 	public var value (getValue, setValue)	: DataType;
 	
 	

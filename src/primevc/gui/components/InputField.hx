@@ -27,7 +27,6 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
-  using primevc.utils.Bind;
 
 /**
  * InputField component
@@ -44,12 +43,5 @@ class InputField extends Label
 		field.type			= flash.text.TextFieldType.INPUT;
 		field.selectable	= true;
 #end
-		updateValue.on( field.textEvents.change, this );
-	}
-	
-	
-	private function updateValue ()
-	{
-		value = field.text;
 	}
 }

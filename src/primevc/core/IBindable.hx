@@ -56,4 +56,13 @@ interface IBindable <DataType> implements IBindableReadonly<DataType>
 	 * Internal function which tells this IBindable, another bindable is writing to it.
 	 */
 	private function registerBoundTo( otherBindable:IBindableReadonly<DataType> ) : Void;
+	
+	/** 
+	 * Makes sure this Bindable and otherBindable always have the same value.
+	 * 
+	 * In other words: 
+	 * - update this when otherBindable.value changes
+	 * - update otherBindable when this.value changes
+	 */
+	public function pair (otherBindable:IBindable<DataType>) : Void;
 }

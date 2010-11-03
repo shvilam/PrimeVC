@@ -31,20 +31,20 @@ package primevc.gui.core;
  import flash.text.TextFieldAutoSize;
  import primevc.core.collections.SimpleList;
  import primevc.gui.styling.UIElementStyle;
- import primevc.gui.text.TextFormat;
 #end
  import primevc.core.Bindable;
+ import primevc.core.IBindable;
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.display.TextField;
  import primevc.gui.effects.UIElementEffects;
- import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutFlags;
+ import primevc.gui.states.ValidateStates;
  import primevc.gui.states.UIElementStates;
- import primevc.gui.traits.ITextStylable;
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
   using Std;
 
@@ -55,7 +55,7 @@ package primevc.gui.core;
  * @author Ruben Weijers
  * @creation-date Sep 02, 2010
  */
-class UITextField extends TextField, implements IUIElement, implements ITextStylable 
+class UITextField extends TextField, implements IUIElement
 {
 	public var id				(default, null)					: Bindable < String >;
 	public var behaviours		(default, null)					: BehaviourList;
@@ -67,19 +67,17 @@ class UITextField extends TextField, implements IUIElement, implements ITextStyl
 	public var style			(default, null)					: UIElementStyle;
 	public var styleClasses		(default, null)					: SimpleList<String>;
 	public var stylingEnabled	(default, setStylingEnabled)	: Bool;
-	public var textStyle		(getTextStyle, setTextStyle)	: TextFormat;
 #end
 	
 	
-	public function new (?id:String, stylingEnabled:Bool = true)
+	public function new (id:String = null, stylingEnabled:Bool = true, data:IBindable<String> = null)
 	{
-		super();
 		this.id				= new Bindable<String>(id);
+		super(data);
 #if flash9
 		styleClasses		= new SimpleList<String>();
 		this.stylingEnabled	= stylingEnabled;
 #end
-		
 		visible				= false;
 		state				= new UIElementStates();
 		behaviours			= new BehaviourList();
@@ -108,22 +106,22 @@ class UITextField extends TextField, implements IUIElement, implements ITextStyl
 		
 		id.dispose();
 		state.dispose();
+		
+		if (layout != null)
+			layout.dispose();
+		
 #if flash9
 		if (style.target == this)
 			style.dispose();
 		
 		styleClasses.dispose();
+		styleClasses	= null;
+		style			= null;
 #end
-		if (layout != null)
-			layout.dispose();
 		
 		id				= null;
 		state			= null;
 		behaviours		= null;
-#if flash9
-		styleClasses	= null;
-		style			= null;
-#end
 		super.dispose();
 	}
 
@@ -135,8 +133,6 @@ class UITextField extends TextField, implements IUIElement, implements ITextStyl
 
 	private function init ()
 	{
-		textStyle = new TextFormat();
-		
 		behaviours.init();
 		
 		//finish initializing
@@ -154,21 +150,7 @@ class UITextField extends TextField, implements IUIElement, implements ITextStyl
 
 	private function createLayout () : Void
 	{
-		layout = new AdvancedLayoutClient();
-		updateSize();
-		updateSize.on( textEvents.change, this );
-	}
-	
-	
-	public inline function setText (v:String) : Void
-	{
-		if (v == null)
-			v = "";
-		
-		if (text != v) {
-			text = v;
-			updateSize();
-		}
+		layout = new LayoutClient();
 	}
 	
 	
@@ -178,51 +160,36 @@ class UITextField extends TextField, implements IUIElement, implements ITextStyl
 			v = "";
 		
 		htmlText = v;
-		updateSize();
+		layout.invalidate( LayoutFlags.WIDTH | LayoutFlags.HEIGHT );
+		updateSize.onceOn( layout.state.change, this );
 	}
 	
-	/*
-#if flash9
-	public inline function setAutoSize (v:TextFieldAutoSize)
-	{
-		if (v != autoSize)
-		{
-			autoSize = v;
-			switch (v)
-			{
-				case TextFieldAutoSize.NONE:
-			}
-		}
-		return v;
-	}
-#end
-	*/
 	
 #if flash9
-	private inline function getTextStyle ()
+	override private function setTextStyle (v)
 	{
-		return (defaultTextFormat != null && defaultTextFormat.is(TextFormat)) ? defaultTextFormat.as(TextFormat) : null;
-	}
-	
-	
-	private inline function setTextStyle (v:TextFormat)
-	{
+		Assert.notNull(v);
+		textStyle = v;
+		
+		if (v != null)
+			defaultTextFormat = v;
+		
+		if (window == null)
+			return v;
+		
 		//Invalidate layout and apply the textformat when the layout starts validating
 		//This will prevend screen flickering.
-		if (v != null)
-		{
-			layout.invalidate( LayoutFlags.MEASURED_WIDTH | LayoutFlags.MEASURED_HEIGHT );
-			applyTextFormat.onceOn( layout.state.change, this );
-			defaultTextFormat = v;
-		}
+		layout.invalidate( LayoutFlags.MEASURED_WIDTH | LayoutFlags.MEASURED_HEIGHT );
+		applyTextFormat.onceOn( layout.state.change, this );
+		
 		return v; 
 	}
 	
 	
-	private function applyTextFormat ()
+	override private function applyValue ()
 	{
-		setTextFormat( defaultTextFormat );
-		updateSize();	
+		super.applyValue();
+		updateSize();
 	}
 	
 	
@@ -236,12 +203,13 @@ class UITextField extends TextField, implements IUIElement, implements ITextStyl
 			}
 			
 			stylingEnabled = v;
-			if (v)
+			if (stylingEnabled)
 				style = new UIElementStyle(this);
 		}
 		return v;
 	}
 #end
+	
 	
 	
 	//
@@ -264,10 +232,10 @@ class UITextField extends TextField, implements IUIElement, implements ITextStyl
 	//
 	
 	private function updateSize ()
-	{
-		var l = layout.as(AdvancedLayoutClient);
-		l.measuredWidth		= realTextWidth.int();
-		l.measuredHeight	= realTextHeight.int();
+	{	
+	//	trace(this+".updateSize: "+realTextWidth+", "+realTextHeight);
+		if (layout.percentWidth <= 0)	layout.width	= realTextWidth.int();
+		if (layout.percentHeight <= 0)	layout.height	= realTextHeight.int();
 	}
 	
 	

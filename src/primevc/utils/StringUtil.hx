@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.utils;
+  using primevc.utils.StringUtil;
   using Std;
   using StringTools;
   using String;
@@ -60,4 +61,28 @@ class StringUtil
 	
 	private static inline function randomHexStr (val:Int)		{ return val.random().hex(); }
 	private static inline function randomChar(s:String, l:Int)	{ return s.charAt( Std.random( l ) ); }
+	
+	
+	/**
+	 * Method will change the first character of every word in the given string
+	 * to uppercase
+	 */
+	public static inline function capitalize (v:String) : String
+	{
+		var words	= v.split(" ");
+		var len		= words.length;
+		for ( i in 0...len )
+			words[ i ] = words[ i ].capitalizeFirstLetter();
+		
+		return words.join(" ");
+	}
+	
+	
+	/**
+	 * Method will change the first character of the given string to uppercase
+	 */
+	public static inline function capitalizeFirstLetter (v:String) : String
+	{
+		return v.substr(0, 1).toUpperCase() + v.substr(1);
+	}
 }

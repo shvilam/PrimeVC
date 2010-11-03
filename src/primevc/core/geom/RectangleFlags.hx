@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.geom;
+  using primevc.utils.BitUtil;
 
 
 
@@ -42,4 +43,21 @@ class RectangleFlags
 	public static inline var BOTTOM		: UInt = 8;
 	public static inline var LEFT		: UInt = 16;
 	public static inline var RIGHT		: UInt = 32;
+	
+	
+#if debug
+	public static function readProperties (flags:UInt) : String
+	{
+		var output	= [];
+		
+		if (flags.has( WIDTH ))			output.push("width");
+		if (flags.has( HEIGHT ))		output.push("height");
+		if (flags.has( TOP ))			output.push("top");
+		if (flags.has( BOTTOM ))		output.push("bottom");
+		if (flags.has( LEFT ))			output.push("left");
+		if (flags.has( RIGHT ))			output.push("right");
+		
+		return "properties: " + output.join(", ");
+	}
+#end
 }

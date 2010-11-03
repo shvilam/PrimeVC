@@ -51,7 +51,7 @@ class Matrix implements ICodeFormattable
 	public var uuid	(default, null) : String;
 	
 	
-	public function new (a, b, c, d, tx, ty)
+	public function new (a:Float = 1, b:Float = 0, c:Float = 0, d:Float = 1, tx:Float = 0, ty:Float = 0)
 	{
 		uuid = StringUtil.createUUID();
 		this.a = a;

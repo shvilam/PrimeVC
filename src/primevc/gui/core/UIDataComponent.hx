@@ -30,6 +30,7 @@ package primevc.gui.core;
  import primevc.core.collections.DataCursor;
  import primevc.core.collections.IList;
  import primevc.core.Bindable;
+ import primevc.core.IBindable;
   using primevc.utils.TypeUtil;
  
 
@@ -49,7 +50,7 @@ package primevc.gui.core;
  */
 class UIDataComponent <DataType> extends UIComponent, implements IUIDataComponent <DataType>
 {
-	public var data (default, setData)		: Bindable < DataType >;
+	public var data (default, setData)		: IBindable < DataType >;
 	public var value (getValue, setValue)	: DataType;
 	
 	
@@ -105,7 +106,7 @@ class UIDataComponent <DataType> extends UIComponent, implements IUIDataComponen
 	// GETTERS / SETTERS
 	//
 	
-	private inline function setData (newData:Bindable < DataType >)
+	private inline function setData (newData:IBindable < DataType >)
 	{
 		data = newData;
 		if (state.current == state.initialized && data != null)

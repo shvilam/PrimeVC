@@ -102,7 +102,7 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >
 	
 	public function applyPosition ()
 	{
-	//	trace(target+".applyPosition; " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y);
+	//	trace(target+".applyPosition; " + " - pos: " + target.layout.getHorPosition() + ", " + target.layout.getVerPosition() + " - old pos "+target.x+", "+target.y);
 		if (target.effects == null || isNotPositionedYet)
 		{
 			var l = target.layout;
@@ -117,7 +117,7 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >
 	
 	private function applySize ()
 	{
-	//	trace(target+".sizeChanged; "+target.layout.bounds);
+		trace(target+".sizeChanged; "+target.layout.bounds);
 		if (target.effects == null)
 		{
 			var b = target.layout.bounds;
@@ -131,5 +131,7 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >
 		}
 		else
 			target.effects.playResize();
+			
+	//	trace("\t\t"+target.width+", "+target.height);
 	}
 }

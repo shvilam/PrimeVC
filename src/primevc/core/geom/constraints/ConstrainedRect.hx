@@ -95,7 +95,7 @@ class ConstrainedRect extends BindableBox, implements IRectangle
 		{
 			Assert.that( v >= 0, "setWidth "+size.x+" => "+v );
 			size.x = v;
-			rightProp.value	= v.isSet() ? left + size.x : left;
+			rightProp.value	= left + size.x;
 		}
 		return v;
 	}
@@ -107,7 +107,7 @@ class ConstrainedRect extends BindableBox, implements IRectangle
 		{
 			Assert.that( v >= 0, "setHeight "+size.y+" => "+v );
 			size.y = v;
-			bottomProp.value = v.isSet() ? top + v : top;
+			bottomProp.value = top + v;
 		}
 		return v;
 	}

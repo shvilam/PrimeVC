@@ -27,6 +27,7 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.core.dispatcher;
+ import primevc.core.IDisposable;
  import primevc.core.ListNode;
   using primevc.utils.TypeUtil;
   using primevc.core.dispatcher.Wire;
@@ -37,7 +38,7 @@ package primevc.core.dispatcher;
  * @author Danny Wilson
  * @creation-date Jun 09, 2010
  */
-class Signal <FunctionSignature> extends ListNode<Wire<FunctionSignature>>, implements IUnbindable<FunctionSignature>, implements primevc.core.IDisposable
+class Signal <FunctionSignature> extends WireList<FunctionSignature>, implements IUnbindable<FunctionSignature>, implements IDisposable
 {
 	static public inline function notifyEnabled<T>(s:Signal<T>, w:Wire<T>) : Void
 	{

@@ -29,7 +29,6 @@
  */
 package primevc.core;
  import primevc.core.IBindableReadonly;
- import primevc.core.IDisposable;
  import primevc.core.dispatcher.Signal2;
  import haxe.FastList;
 
@@ -71,7 +70,7 @@ package primevc.core;
  * @creation-date	Jun 18, 2010
  * @author			Ruben Weijers, Danny Wilson
  */
-class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.Generic, implements primevc.core.IDisposable
+class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.Generic
 {
 	public var value	(default, setValue)	: DataType;
 	

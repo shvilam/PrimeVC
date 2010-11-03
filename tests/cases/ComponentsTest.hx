@@ -34,12 +34,18 @@ class ComponentsApp extends ApplicationView
 	private var image	: Image;
 	
 	
+	override private function init ()
+	{
+		styleClasses.add("test");
+		super.init();
+	}
+	
 	override private function createChildren ()
 	{
-		children.add( label		= new Label("testLabel") );
 		children.add( button	= new Button("testButton", "add some text", Bitmap.fromString("/Users/ruben/Desktop/naamloze map/Arrow-Right.png")) );
 		children.add( image		= new Image("testImage", Bitmap.fromString("/Users/ruben/Pictures/0227pod11.jpg")) );
 		children.add( input		= new InputField("testInput", "welcome welcome welcome welcome welcome welcome welcome") );
+		children.add( label		= new Label("testLabel") );
 		
 		label.data.pair( input.data );
 		changeLabel.on( button.userEvents.mouse.down, this );
@@ -48,6 +54,6 @@ class ComponentsApp extends ApplicationView
 	
 	private function changeLabel ()
 	{
-		label.value += " test";
+		button.value += " test";
 	}
 }

@@ -212,7 +212,7 @@ class LayoutClient extends Invalidatable
 		if (includeInLayout && parent != null)
 			super.invalidate(change);
 		
-		if (!state.is(ValidateStates.parent_invalidated))
+		if (!state.is(ValidateStates.parent_invalidated) && !state.is(ValidateStates.validating))
 		{
 			state.current = ValidateStates.invalidated;
 			
@@ -583,6 +583,6 @@ class LayoutClient extends Invalidatable
 	
 	public static var counter:Int = 0;
 	public var name:String;
-	public function toString() { return name; } // + " - " + uuid; }
+	public function toString() { return state.current+"_"+name; } // + " - " + uuid; }
 #end
 }

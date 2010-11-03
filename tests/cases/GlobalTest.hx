@@ -219,7 +219,7 @@ class TileList extends ListView < DataVOType >, implements IDataDropTarget < Dat
 	}
 	
 	
-	override private function createItemRenderer (dataItem:DataVOType)
+	override private function createItemRenderer (dataItem:DataVOType, pos:Int)
 	{
 		return cast new Tile(dataItem);
 	}

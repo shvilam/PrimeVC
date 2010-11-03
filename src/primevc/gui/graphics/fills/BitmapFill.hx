@@ -58,7 +58,7 @@ class BitmapFill extends GraphicElement, implements IFill
 	{
 		super();
 		this.bitmap = bitmap;
-		this.matrix	= matrix;
+		this.matrix	= matrix; //matrix == null ? new Matrix2D() : matrix;
 		this.repeat = repeat;
 		this.smooth	= smooth;
 		isFinished	= false;
@@ -159,7 +159,12 @@ class BitmapFill extends GraphicElement, implements IFill
 		if (bitmap.state.is(BitmapStates.ready))
 		{
 #if flash9
-			target.graphics.beginBitmapFill( bitmap.data, matrix, repeat, smooth );
+			var m:Matrix2D = null;
+			if (repeat == false) {
+				m = new Matrix2D();
+				matrix.scale( bounds.width / bitmap.data.width, bounds.height / bitmap.data.height );
+			}
+			target.graphics.beginBitmapFill( bitmap.data, m, repeat, smooth );
 #end
 		}
 		else if (bitmap.state.is(BitmapStates.loadable))

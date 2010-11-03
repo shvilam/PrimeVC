@@ -55,6 +55,9 @@ class Signal1 <A> extends Signal<A->Void>, implements ISender1<A>, implements IN
 			{
 				Assert.that(b != x);
 				
+				if (b.flags.has(Wire.SEND_ONCE))
+					b.disable();
+				
 				if (b.flags.has(Wire.VOID_HANDLER))
 				 	b.sendVoid();
 				else

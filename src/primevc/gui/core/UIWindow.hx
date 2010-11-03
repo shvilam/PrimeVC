@@ -129,7 +129,12 @@ class UIWindow extends Window
 #end
 		createBehaviours();
 		createLayout();
-		
+		init();
+	}
+	
+	
+	private function init ()
+	{
 		behaviours.init();
 		
 		createGraphics();

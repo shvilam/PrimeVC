@@ -6,6 +6,7 @@
 #-D FlashTrace
 #-D MonsterTrace
 #-D unitTesting
+#-D DebugEvents
 
 -swf-version 10
 -swf-header 1000:750:31:FFFFFF

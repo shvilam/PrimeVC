@@ -54,6 +54,10 @@ class Signal2 <A,B> extends Signal<A->B->Void>, implements ISender2<A,B>, implem
 			if (b.isEnabled())
 			{
 				Assert.that(b != x);
+				Assert.that(b.flags != 0);
+				
+				if (b.flags.has(Wire.SEND_ONCE))
+					b.disable();
 				
 				if (b.flags.has(Wire.VOID_HANDLER))
 				 	b.sendVoid();

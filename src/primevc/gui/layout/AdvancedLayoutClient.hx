@@ -100,9 +100,9 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	
 	private inline function setMeasuredWidth (v:Int)
 	{
-		if (measuredWidth != v) {
+		if (measuredWidth != v)
+		{
 			measuredWidth = v;
-			
 			if (explicitWidth.isSet())		invalidate( Flags.MEASURED_WIDTH );
 			else							invalidate( Flags.MEASURED_WIDTH | Flags.WIDTH );
 		}
@@ -112,9 +112,9 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	
 	private inline function setMeasuredHeight (v:Int)
 	{
-		if (measuredHeight != v) {
+		if (measuredHeight != v)
+		{
 			measuredHeight = v;
-			
 			if (explicitWidth.isSet())		invalidate( Flags.MEASURED_HEIGHT );
 			else							invalidate( Flags.MEASURED_HEIGHT | Flags.HEIGHT );
 		}
@@ -139,10 +139,10 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 		else
 		{
 			if (changes.has(Flags.EXPLICIT_WIDTH))
-				super.setWidth( explicitWidth );
+				width = explicitWidth;
 		
 			if ((changes.has(Flags.MEASURED_WIDTH) || width.notSet()) && explicitWidth.notSet())
-				super.setWidth( measuredWidth );
+				width = measuredWidth;
 		}
 		
 		if (changes.has( Flags.WIDTH ))

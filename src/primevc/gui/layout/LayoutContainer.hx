@@ -114,7 +114,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	private inline function checkIfChildGetsPercentageWidth (child:LayoutClient, widthToUse:Int) : Bool {
 		return (changes.has( Flags.WIDTH ) || child.changes.has( Flags.PERCENT_WIDTH ))
 					&& child.percentWidth > 0
-					&& child.percentWidth != Flags.FILL
+					/*&& child.percentWidth != Flags.FILL*/
 					&& widthToUse.isSet();
 	}
 	
@@ -122,7 +122,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	private inline function checkIfChildGetsPercentageHeight (child:LayoutClient, heightToUse:Int) : Bool {
 		return (changes.has( Flags.HEIGHT ) || child.changes.has( Flags.PERCENT_HEIGHT ))
 					&& child.percentHeight > 0
-					&& child.percentHeight != Flags.FILL
+					/*&& child.percentHeight != Flags.FILL*/
 					&& heightToUse.isSet();
 	}
 	

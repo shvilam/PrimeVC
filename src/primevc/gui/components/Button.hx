@@ -45,12 +45,12 @@ package primevc.gui.components;
  */
 class Button extends UIDataContainer < String >, implements IIconOwner, implements ITextStylable
 {
-	public var icon			(default, setIcon)				: Bitmap;
-	public var labelField	(default, null)					: UITextField;
-	public var iconGraphic	(default, null)					: Image;
+	public var icon			(default, setIcon)		: Bitmap;
+	public var labelField	(default, null)			: UITextField;
+	public var iconGraphic	(default, null)			: Image;
 	
 #if flash9
-	public var textStyle	(getTextStyle, setTextStyle)	: TextFormat;
+	public var textStyle	(default, setTextStyle)	: TextFormat;
 	public var wordWrap		: Bool;
 #end
 	
@@ -64,14 +64,20 @@ class Button extends UIDataContainer < String >, implements IIconOwner, implemen
 	
 	override private function createChildren ()
 	{
-		labelField = new UITextField( null, false);
+		labelField = new UITextField( null, false, data);
+#if debug
+		labelField.id.value = id.value + "TextField";
+#end
 #if flash9
-		labelField.autoSize				= flash.text.TextFieldAutoSize.LEFT;
+		labelField.autoSize				= flash.text.TextFieldAutoSize.NONE;
 		labelField.selectable			= false;
 		labelField.mouseWheelEnabled	= false;
 #end
-		labelField.textStyle			= textStyle;
-		labelField.layout.percentWidth	= LayoutFlags.FILL;
+		if (textStyle != null)
+			labelField.textStyle		= textStyle;
+		
+	//	labelField.layout.percentWidth	= LayoutFlags.FILL;
+	//	labelField.layout.percentHeight	= LayoutFlags.FILL;
 		
 		layoutContainer.children.add( labelField.layout );
 		children.add( labelField );
@@ -86,19 +92,6 @@ class Button extends UIDataContainer < String >, implements IIconOwner, implemen
 		labelField.dispose();
 		labelField	= null;
 		icon		= null;
-	}
-	
-	
-	override private function initData ()
-	{
-		dataChangeHandler.on( data.change, this );
-		labelField.setText( value );
-	}
-	
-	
-	private function dataChangeHandler (newValue:String, oldValue:String)
-	{
-		labelField.setText( newValue );
 	}
 	
 	
@@ -145,12 +138,6 @@ class Button extends UIDataContainer < String >, implements IIconOwner, implemen
 	
 	
 #if flash9
-	private inline function getTextStyle ()
-	{
-		return textStyle;
-	}
-	
-	
 	private inline function setTextStyle (v:TextFormat)
 	{
 		if (labelField != null)

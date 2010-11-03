@@ -30,6 +30,7 @@ package primevc.gui.graphics;
  import haxe.FastList;
  import primevc.core.dispatcher.Signal1;
  import primevc.core.geom.IntRectangle;
+ import primevc.core.geom.RectangleFlags;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.traits.IInvalidateListener;
  import primevc.gui.graphics.borders.IBorder;
@@ -39,7 +40,7 @@ package primevc.gui.graphics;
  import primevc.gui.traits.IDrawable;
  import primevc.tools.generator.ICodeGenerator;
  import primevc.utils.StringUtil;
-//  using primevc.utils.BitUtil;
+  using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
   using Math;
@@ -124,8 +125,12 @@ class GraphicProperties implements IGraphicElement
 			case cast border:	GraphicFlags.BORDER;
 			case cast shape:	GraphicFlags.SHAPE;
 			case cast fill:		GraphicFlags.FILL;
-			case cast layout:	GraphicFlags.LAYOUT;
-			default:			0;
+			case cast layout:
+				if (changeFromOther.has( RectangleFlags.WIDTH | RectangleFlags.HEIGHT ))
+					GraphicFlags.LAYOUT;
+				else
+					0;
+			default: 0;
 		}
 		invalidate( change );
 	}

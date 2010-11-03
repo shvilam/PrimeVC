@@ -89,8 +89,10 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > , implements IRendera
 	
 	public function render ()
 	{
+	//	trace(target+".render "+target.layout.width+", "+target.layout.height);
 		var targetLayout	= target.layout;
 		var fieldLayout		= target.field.layout;
+		
 		fieldLayout.width	= targetLayout.width;
 		fieldLayout.height	= targetLayout.height;
 		
@@ -103,14 +105,18 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > , implements IRendera
 		{
 			fieldLayout.x = fieldLayout.y = 0;
 		}
+		
+		fieldLayout.validate();
 	}
 	
 	
 	private function updateLabelSize ()
 	{
-		var l = target.layout.as(AdvancedLayoutClient);
-	//	trace(target+".updateSize "+target.field.layout.bounds);
-		l.measuredWidth		= target.field.layout.width;
-		l.measuredHeight	= target.field.layout.height;
+		var targetLayout	= target.layout.as(AdvancedLayoutClient);
+		var fieldLayout		= target.field.layout;
+		
+	//	trace(target+".updateLabelSize "+target.field.layout.bounds);
+		targetLayout.measuredWidth	= fieldLayout.width;
+		targetLayout.measuredHeight	= fieldLayout.height;
 	}
 }

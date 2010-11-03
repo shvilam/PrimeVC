@@ -46,10 +46,10 @@ package primevc.gui.components;
  */
 class Label extends UIDataComponent < String >, implements ITextStylable
 {
-	public var field		(default, null)					: UITextField;
+	public var field		(default, null)			: UITextField;
 	
 #if flash9
-	public var textStyle	(getTextStyle, setTextStyle)	: TextFormat;
+	public var textStyle	(default, setTextStyle)	: TextFormat;
 	public var wordWrap		: Bool;
 #end
 	
@@ -68,14 +68,18 @@ class Label extends UIDataComponent < String >, implements ITextStylable
 	
 	override private function createChildren ()
 	{
-		field = new UITextField( null, false );
+		field = new UITextField( null, false, data );
+#if debug
+		field.id.value = id.value + "TextField";
+#end
 #if flash9
 		field.autoSize			= flash.text.TextFieldAutoSize.NONE;
 		field.selectable		= false;
 		field.mouseWheelEnabled	= false;
 #end
-		field.textStyle			= textStyle;
-		field.layout.validateOnPropertyChange = true;
+		
+		if (textStyle != null)
+			field.textStyle		= textStyle;
 		
 		children.add( field );
 	}
@@ -89,11 +93,19 @@ class Label extends UIDataComponent < String >, implements ITextStylable
 	}
 	
 	
-	override private function initData ()
+	/*override private function initData ()
 	{
-		dataChangeHandler.on( data.change, this );
-		field.setText( value );
+		trace("DATA VALUE 1 "+value);
+		field.data.pair( data );
+		trace("DATA VALUE 2 "+value);
+		traceChange.on( data.change, this );
 	}
+	
+	
+	private function traceChange (newV, oldV)
+	{
+		trace(this+".changed "+oldV+" => "+newV);
+	}*/
 	
 	
 	//
@@ -101,12 +113,6 @@ class Label extends UIDataComponent < String >, implements ITextStylable
 	//
 	
 #if flash9
-	private inline function getTextStyle ()
-	{
-		return textStyle;
-	}
-	
-	
 	private inline function setTextStyle (v:TextFormat)
 	{
 		if (field != null)
@@ -115,14 +121,4 @@ class Label extends UIDataComponent < String >, implements ITextStylable
 		return textStyle = v;
 	}
 #end
-	
-	
-	//
-	// EVENT HANDLERS
-	//
-	
-	private function dataChangeHandler (newValue:String, oldValue:String)
-	{
-		field.setText( newValue );
-	}
 }
