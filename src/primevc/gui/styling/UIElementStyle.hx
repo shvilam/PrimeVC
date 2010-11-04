@@ -287,14 +287,14 @@ class UIElementStyle implements IUIElementStyle
 		filledProperties	= 0;
 		
 		//update styles.. start with the lowest priorities
-		updateElementStyle();
-		updateStyleNameStyles(null);
-		updateIdStyle();
-		updateStatesStyle();		//set de styles for any states that are already set
+		var changes	= updateElementStyle();
+		changes		= changes.set( updateStyleNameStyles(null) );
+		changes		= changes.set( updateIdStyle() );
+		changes		= changes.set( updateStatesStyle() );		//set de styles for any states that are already set
 		
 		//update filled-properties flag
 		stylesAreSearched = true;
-		broadcastChanges();
+		broadcastChanges(changes);
 	}
 	
 	
@@ -339,6 +339,8 @@ class UIElementStyle implements IUIElementStyle
 		
 		if (changedProperties.has( Flags.CHILDREN ))
 			childrenChanged.send();
+		
+	//	trace(target+".broadcastChanges "+Flags.readProperties(changedProperties));
 		
 		return changedProperties;
 	}

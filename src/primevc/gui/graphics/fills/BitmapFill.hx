@@ -34,6 +34,7 @@ package primevc.gui.graphics.fills;
  import primevc.core.geom.Matrix2D;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
+ import primevc.gui.graphics.IGraphicProperty;
  import primevc.gui.traits.IDrawable;
  import primevc.types.Bitmap;
   using primevc.utils.Bind;
@@ -45,7 +46,7 @@ package primevc.gui.graphics.fills;
  * @author Ruben Weijers
  * @creation-date Jul 30, 2010
  */
-class BitmapFill extends GraphicElement, implements IFill 
+class BitmapFill extends GraphicElement, implements IGraphicProperty 
 {
 	public var bitmap		(default, setBitmap)	: Bitmap;
 	public var matrix		(default, setMatrix)	: Matrix2D;
@@ -152,7 +153,7 @@ class BitmapFill extends GraphicElement, implements IFill
 	// IFILL METHODS
 	//
 	
-	public inline function begin (target:IDrawable, ?bounds:IRectangle)
+	public inline function begin (target:IDrawable, bounds:IRectangle)
 	{	
 		isFinished = true;
 		if (bitmap == null)
@@ -174,7 +175,7 @@ class BitmapFill extends GraphicElement, implements IFill
 	}
 	
 	
-	public inline function end (target:IDrawable)
+	public inline function end (target:IDrawable, bounds:IRectangle)
 	{	
 		isFinished = false;
 		if (bitmap != null && bitmap.state.is(BitmapStates.ready))

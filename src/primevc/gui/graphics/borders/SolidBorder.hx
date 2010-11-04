@@ -45,8 +45,9 @@ package primevc.gui.graphics.borders;
  */
 class SolidBorder extends BorderBase <SolidFill>
 {
-	override public function begin (target:IDrawable, ?bounds:IRectangle) : Void
+	override public function begin (target:IDrawable, bounds:IRectangle) : Void
 	{
+		super.begin(target, bounds);
 #if flash9
 		target.graphics.lineStyle( weight, fill.color.rgb(), fill.color.alpha().float(), pixelHinting, LineScaleMode.NORMAL, caps, joint );
 #end

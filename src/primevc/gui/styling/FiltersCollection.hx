@@ -28,7 +28,9 @@
  */
 package primevc.gui.styling;
  import primevc.gui.display.IDisplayObject;
+ import primevc.gui.filters.BitmapFilter;
  import primevc.gui.styling.StyleCollectionBase;
+ import primevc.utils.FastArray;
   using primevc.utils.BitUtil;
   using primevc.utils.TypeUtil;
 
@@ -42,7 +44,8 @@ private typedef Filter = FilterCollectionType;
  */
 class FiltersCollection extends StyleCollectionBase < FiltersStyle >
 {
-	private var type : Filter;
+	private var type			: Filter;
+	private var filterPositions	: FastArray<Int>;
 	
 	
 	public function new (elementStyle:IUIElementStyle, type:Filter)
@@ -51,6 +54,8 @@ class FiltersCollection extends StyleCollectionBase < FiltersStyle >
 		super( elementStyle, flag );
 		this.type = type;
 	}
+	
+	
 	override public function forwardIterator ()					{ return cast new FiltersCollectionForwardIterator( elementStyle, propertyTypeFlag, type); }
 	override public function reversedIterator ()				{ return cast new FiltersCollectionReversedIterator( elementStyle, propertyTypeFlag, type); }
 
@@ -64,48 +69,113 @@ class FiltersCollection extends StyleCollectionBase < FiltersStyle >
 		if (changes == 0)
 			return;
 		
-		if (type == Filter.box)
+		if (type == Filter.box && elementStyle.target.is(IDisplayObject))
 			applyBoxFilters();
 	}
 	
 	
 	private function applyBoxFilters ()
 	{
-		if (!elementStyle.target.is(IDisplayObject))
-			return;
-		
 		var target	= elementStyle.target.as(IDisplayObject);
 		var filters	= target.filters;
-	//	trace(target + ".applyBoxFilterStyling "+style.readProperties( changes ));
+	//	trace(target + ".applyBoxFilterStyling "+Flags.readProperties( changes ));
 		
-		if (filters == null)
-			filters = [];
-		
-		for (styleObj in this)
+		if (filledProperties == 0)
+		{	
+			changes = 0;
+			if (filters != null)
+				while( filters.length > 0 )
+					filters.pop();
+			
+			if (filterPositions != null)
+				while( filterPositions.length > 0 )
+					filterPositions.pop();
+		}
+		else
 		{
-			if (changes == 0)
-				break;
+			if (filters == null)			filters			= new Array<Dynamic>();
+			if (filterPositions == null)	filterPositions	= FastArrayUtil.create();
 			
-			if (!styleObj.allFilledProperties.has( changes ))
-				continue;
+			for (styleObj in this)
+			{
+				if (changes == 0)
+					break;
 			
-			var propsToSet = styleObj.allFilledProperties.filter( changes );
-			if (propsToSet.has( Flags.SHADOW ))				filters.push( styleObj.shadow );
-			if (propsToSet.has( Flags.BEVEL ))				filters.push( styleObj.bevel );
-			if (propsToSet.has( Flags.BLUR ))				filters.push( styleObj.blur );
-			if (propsToSet.has( Flags.GLOW ))				filters.push( styleObj.glow );
-			if (propsToSet.has( Flags.GRADIENT_BEVEL ))		filters.push( styleObj.gradientBevel );
-			if (propsToSet.has( Flags.GRADIENT_GLOW ))		filters.push( styleObj.gradientGlow );
-			
-			changes = changes.unset( propsToSet );
+				if (!styleObj.allFilledProperties.has( changes ))
+					continue;
+				
+				var propsToSet = styleObj.allFilledProperties.filter( changes );
+				if (propsToSet.has( Flags.SHADOW ))				setFilter( filters, Flags.SHADOW,			styleObj.shadow );
+				if (propsToSet.has( Flags.BEVEL ))				setFilter( filters, Flags.BEVEL,			styleObj.bevel );
+				if (propsToSet.has( Flags.BLUR ))				setFilter( filters, Flags.BLUR,				styleObj.blur );
+				if (propsToSet.has( Flags.GLOW ))				setFilter( filters, Flags.GLOW,				styleObj.glow );
+				if (propsToSet.has( Flags.GRADIENT_BEVEL ))		setFilter( filters, Flags.GRADIENT_BEVEL,	styleObj.gradientBevel );
+				if (propsToSet.has( Flags.GRADIENT_GLOW ))		setFilter( filters, Flags.GRADIENT_GLOW,	styleObj.gradientGlow );
+				
+				changes = changes.unset( propsToSet );
+			}
+		
+			if (changes > 0) {
+				removeBoxFilters(changes, filters);
+				changes = 0;
+			}
 		}
 		
 		//set new array with filters
-		if (filters.length > 0)
-			target.filters = filters;
+		target.filters = filters;
+	}
+	
+	
+	private function setFilter ( filters:Array<Dynamic>, flag:UInt, filter:BitmapFilter = null )
+	{
+		Assert.notNull(filter);
 		
-		//TODO: should actually check if there are any filters that need to be removed!...
-		changes = 0;
+		var pos = filterPositions.indexOf(flag);
+		if (pos == -1)
+		{
+			//add filter
+			filters.push( filter );
+			filterPositions.push( flag );
+		}
+		else
+			filters[ pos ] = filter;
+		
+		Assert.equal( filters.length, filterPositions.length );
+	}
+	
+	
+	private function unsetFilter ( filters:Array<Dynamic>, flag:UInt )
+	{
+		//remove filter
+		var pos = filterPositions.indexOf( flag );
+		if (pos > -1)
+		{
+			if (pos == 0) {
+				filters.shift();
+				filterPositions.shift();
+			}
+			else if	(pos == (filters.length - 1)) {
+				filters.pop();
+				filterPositions.pop();
+			}
+			else {
+				filters.splice(pos, 1);
+				filterPositions.splice(pos, 1);
+			}
+		}
+		
+		Assert.equal( filters.length, filterPositions.length );
+	}
+	
+	
+	private inline function removeBoxFilters (filtersToRemove:UInt, filters:Array<Dynamic>)
+	{
+		if (filtersToRemove.has( Flags.SHADOW ))			unsetFilter( filters, Flags.SHADOW );
+		if (filtersToRemove.has( Flags.BEVEL ))				unsetFilter( filters, Flags.BEVEL );
+		if (filtersToRemove.has( Flags.BLUR ))				unsetFilter( filters, Flags.BLUR );
+		if (filtersToRemove.has( Flags.GLOW ))				unsetFilter( filters, Flags.GLOW );
+		if (filtersToRemove.has( Flags.GRADIENT_BEVEL ))	unsetFilter( filters, Flags.GRADIENT_BEVEL );
+		if (filtersToRemove.has( Flags.GRADIENT_GLOW ))		unsetFilter( filters, Flags.GRADIENT_GLOW );
 	}
 }
 

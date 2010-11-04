@@ -71,10 +71,16 @@ class SimpleDictionary < KType, VType >
 	
 	public function dispose ()
 	{
-		_keys.removeAll();
-		_values.removeAll();
+		removeAll();
 		_keys	= null;
 		_values	= null;
+	}
+	
+	
+	public function removeAll ()
+	{
+		_keys.removeAll();
+		_values.removeAll();
 	}
 	
 	
@@ -108,10 +114,14 @@ class SimpleDictionary < KType, VType >
 		var index = _keys.indexOf(key);
 		
 		if (index > -1)
-		{
-			_values.removeAt( index );
-			_keys.removeAt( index );
-		}
+			removeAt( index );
+	}
+	
+	
+	private function removeAt (index:Int) : Void
+	{
+		_values.removeAt( index );
+		_keys.removeAt( index );
 	}
 	
 	

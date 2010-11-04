@@ -26,49 +26,17 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics.borders;
+package primevc.gui.graphics;
  import primevc.core.geom.IRectangle;
- import primevc.core.geom.Matrix2D;
- import primevc.gui.graphics.fills.GradientFill;
  import primevc.gui.traits.IDrawable;
-  using primevc.utils.Color;
-  using primevc.utils.RectangleUtil;
-  using primevc.utils.TypeUtil;
-
 
 /**
- * GradientBorder implementation
- * 
+ * Interface describing fills and borders
  * @author Ruben Weijers
- * @creation-date Jul 31, 2010
+ * @creation-date Nov 04, 2010
  */
-class GradientBorder extends BorderBase <GradientFill>
+interface IGraphicProperty implements IGraphicElement
 {
-	private var lastBounds		: IRectangle;
-	private var lastMatrix		: Matrix2D;
-	
-	
-	override public function begin (target:IDrawable, bounds:IRectangle) : Void
-	{
-		super.begin(target, bounds);
-#if flash9
-		if (lastMatrix == null || bounds != lastBounds || !bounds.isEqualTo(lastBounds))
-			lastMatrix = fill.createMatrix(bounds);
-		
-		//TODO: MORE EFFICIENT TO CACHE THIS? MEMORY vs. SPEED
-		var colors	= new Array();
-		var alphas	= new Array();
-		var ratios	= new Array();
-		
-		for (fill in fill.gradientStops) {
-			colors.push( fill.color.rgb() );
-			alphas.push( fill.color.alpha().float() );
-			ratios.push( fill.position );
-		}
-		
-		target.graphics.lineStyle( weight, 0, 1, pixelHinting, flash.display.LineScaleMode.NORMAL, caps, joint );
-		target.graphics.lineGradientStyle( fill.getFlashType(), colors, alphas, ratios, lastMatrix );
-#end
-		lastBounds = bounds.clone().as(IRectangle);
-	}
+	public function begin (target:IDrawable, bounds:IRectangle) : Void;
+	public function end (target:IDrawable, bounds:IRectangle) : Void;
 }

@@ -65,6 +65,7 @@ package primevc.tools;
  import primevc.gui.filters.GradientGlowFilter;
  import primevc.gui.filters.IBitmapFilter;
  import primevc.gui.graphics.borders.BitmapBorder;
+ import primevc.gui.graphics.borders.ComposedBorder;
  import primevc.gui.graphics.borders.GradientBorder;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.borders.SolidBorder;
@@ -73,7 +74,6 @@ package primevc.tools;
  import primevc.gui.graphics.fills.GradientFill;
  import primevc.gui.graphics.fills.GradientStop;
  import primevc.gui.graphics.fills.GradientType;
- import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.fills.SolidFill;
  import primevc.gui.graphics.fills.SpreadMethod;
  import primevc.gui.graphics.shapes.Circle;
@@ -82,6 +82,7 @@ package primevc.tools;
  import primevc.gui.graphics.shapes.Line;
  import primevc.gui.graphics.shapes.RegularRectangle;
  import primevc.gui.graphics.shapes.Triangle;
+ import primevc.gui.graphics.IGraphicProperty;
  import primevc.gui.layout.algorithms.circle.HorizontalCircleAlgorithm;
  import primevc.gui.layout.algorithms.circle.VerticalCircleAlgorithm;
  import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
@@ -1127,12 +1128,12 @@ class CSSParser
 			//
 			
 			case "border":						parseAndSetBorder( val );			// <border-color> <border-width> <border-image> <border-style>
-			case "border-color":				parseAndSetBorderColor( val );
-			case "border-image":
-			case "border-image-source":			parseAndSetBorderImage( val );
+		//	case "border-color":				parseAndSetBorderColor( val );
+		//	case "border-image":
+		//	case "border-image-source":			parseAndSetBorderImage( val );
 			
 		//	case "border-style":				parseAndSetBorderStyle( val );		//none, solid, dashed, dotted
-			case "border-width":				parseAndSetBorderWidth( val );
+		//	case "border-width":				parseAndSetBorderWidth( val );
 			
 			case "border-radius":				parseAndSetBorderRadius( val );		//[top-left]px <[top-right]px> <[bottom-right]px> <[bottom-left]px>
 			case "border-top-left-radius":		setBorderTopLeftRadius( parseUnitFloat( val ) );
@@ -1826,70 +1827,39 @@ class CSSParser
 	 * In a composedfill, it will always try to first set the BitmapFill and
 	 * then the rest of the fills.
 	 */
-	private function setBackground(newFill:IFill) : Void
+	private function setBackground(newFill:IGraphicProperty) : Void
 	{
 		if (newFill != null)
 		{
 			var g = createGraphicsBlock();
 			
-			//
-			//there is no background yet or the current background is of the same type as the new background (=replace it)
-			//
-			if ( g.background == null || g.background.is( newFill.getClass() ) )
-			{
-				g.background = newFill;
-			}
-			//
-			//there is already another background property, but it's not a composed fill yet
-			//
-			else if (!g.background.is(ComposedFill))
-			{
-				var curFill		= g.background;
-				var compFill	= new ComposedFill();
-				compFill.add( curFill );
-				compFill.add( newFill );
-				
-				g.background = compFill;
-			}
-			//
 			//there is already an composed fill background property specified. Let's add the newFill to this composed fill.
-			//
-			else
-			{
-				var compFill = g.background.as(ComposedFill);
-			
-				if (newFill.is(BitmapFill))
-				{
-					//remove old bitmap fill (if any)
-					for (curFill in compFill.fills) {
-						if (curFill.is(BitmapFill))
-							compFill.remove(curFill);
-					}
-					//add bitmap as first fill
-					compFill.add(newFill, 0);
-				}
+			if (g.background != null && g.background.is(ComposedFill))
+				if (newFill.is(ComposedFill))
+					g.background.as(ComposedFill).merge( cast newFill );
 				else
-				{
-					//add fill at the end of the fill list
-					compFill.add(newFill);
-				}
-			}
-
-		//	if (currentBlock.background != null)
-		//		setDefaultShape();
+					g.background.as(ComposedFill).add( newFill );
+			
+			//there is no background yet or the current background is of the same type as the new background (=replace it)
+			if ( g.background == null || g.background.is( newFill.getClass() ) )
+				g.background = newFill;
 		}
 	}
 	
 	
 	private inline function parseAndSetBackground (v:String) : Void
 	{
+		var g = createGraphicsBlock();
 		parseAndSetBackgroundColor( v );
 		parseAndSetBackgroundImage( v );
 	}
 	
 	
-	private inline function parseAndSetBackgroundColor (v:String) : Void	{ setBackground( parseColorFill( v ) ); }
-	private inline function parseAndSetBackgroundImage (v:String) : Void	{ setBackground( parseImage( v ) ); }
+	private inline function parseAndSetBackgroundColor (v:String) : Void	{ setBackground( parseColorFills( v ) ); }
+	private inline function parseAndSetBackgroundImage (v:String) : Void	{ setBackground( parseImages( v ) ); }
+	
+	
+	private var lastParsedString : String;
 	
 	
 	/**
@@ -1918,17 +1888,46 @@ class CSSParser
 	 * 		- reflect	(repeat gradient and reverse every odd repeat)
 	 * 		- repeat	(repeat gradient)
 	 */
-	private function parseColorFill (v:String) : IFill
+	private function parseColorFills (v:String) : IGraphicProperty
 	{
-		var fill:IFill = null;
+		var fills		= new ComposedFill();
+		var isLooping	= true;
+		
+		while (isLooping)
+		{
+			var fill:IGraphicProperty = parseColorFill(v);
+			if (fill == null) {
+				isLooping = false;
+				break;
+			}
+			
+			fills.add( fill );
+			v = lastParsedString;
+		}
+		
+		lastParsedString = v;
+		
+		if (fills.length > 1)
+			return fills;
+		
+		if (fills.length == 1)
+			return fills.next();
+		
+		return null;
+	}
+	
+	
+	private function parseColorFill (v:String) : IGraphicProperty
+	{	
+		var fill:IGraphicProperty = null;
 		
 		var isLinearGr	= linGradientExpr.match(v);
 		var isRadialGr	= !isLinearGr && radGradientExpr.match(v);
 		
 		if (isLinearGr || isRadialGr)
 		{
-			var gradientExpr	= isLinearGr ? linGradientExpr : radGradientExpr;
-			var type			= isLinearGr ? GradientType.linear : GradientType.radial;
+			var gradientExpr	= isLinearGr ? linGradientExpr		: radGradientExpr;
+			var type			= isLinearGr ? GradientType.linear	: GradientType.radial;
 			
 			var colorsStr		= isLinearGr ? gradientExpr.matched(6) : gradientExpr.matched(4);
 			var focalPoint		= isLinearGr ? 0 : getInt( gradientExpr.matched(2) );
@@ -1974,12 +1973,19 @@ class CSSParser
 				//only add the gradient if there are colors
 				fill = gr;
 			}
+			
+			//iterate
+			v = gradientExpr.removeMatch(v);
+		//	isLinearGr	= linGradientExpr.match(v);
+		//	isRadialGr	= !isLinearGr && radGradientExpr.match(v);
 		}
-		else if (isColor(v))
+		if (fill == null && isColor(v))
 		{
 			fill = new SolidFill(parseColor(v));
+			v = removeColor(v);
 		}
 		
+		lastParsedString = v;
 		return fill;
 	}
 	
@@ -1992,6 +1998,7 @@ class CSSParser
 		{
 			bmp = new Bitmap();
 			bmp.setString( (getBasePath() + "/" + imageURIExpr.matched(2)).replace("//", "/") );
+			lastParsedString = imageURIExpr.removeMatch(v);
 		}
 		else if (isClassReference(v))
 		{
@@ -2004,21 +2011,50 @@ class CSSParser
 				bmp.setClass( c );
 			else
 				bmp.setString( "class:" + classRefExpr.matched(2) );
+			
+			lastParsedString = classRefExpr.removeMatch(v);
 		}
 		
 		return bmp;
 	}
 	
 	
-	private function parseImage (v:String) : IFill
+	private function parseImages (v:String) : IGraphicProperty
 	{
-		var fill:IFill	= null;
-		var bmp:Bitmap	= parseBitmap(v);
-		if (bmp != null)
-			fill = new BitmapFill( bmp, null, parseRepeatImage(v), false );
+		var fills = new ComposedFill();
+		var fill:IGraphicProperty = null;
+		
+		while (null != (fill = parseImage(v)))
+		{
+			fills.add( fill );
+			v = lastParsedString;	//remove repeat from string
+		}
+		
+		if (fills.length > 1)
+			return fills;
+		
+		if (fills.length == 1)
+			return fills.next();
+		
+		return null;
+	}
+	
+	
+	private function parseImage (v:String) : IGraphicProperty
+	{
+		var fill:IGraphicProperty = null;
+		var bmp = parseBitmap(v);
+		
+		if (bmp != null) {
+			v = lastParsedString;	//remove bitmap from string
+			fill = new BitmapFill( bmp, null, parseRepeatImage( v ), false );
+			v = lastParsedString;	//remove repeat from string
+		}
 		
 		return fill;
 	}
+	
+	
 	
 	
 	private inline function parseRepeatImage (v:String) : Bool
@@ -2028,6 +2064,7 @@ class CSSParser
 		if (v != null && imageRepeatExpr.match(v))
 			repeatStr = imageRepeatExpr.matched(1);
 		
+		lastParsedString = imageRepeatExpr.removeMatch(v);
 		return switch (repeatStr.trim().toLowerCase()) {
 			default:			true;
 			case "no-repeat":	false;
@@ -2093,80 +2130,122 @@ class CSSParser
 	
 	private inline function parseAndSetBorder (v:String) : Void
 	{
-		parseAndSetBorderColor(v);
-		parseAndSetBorderImage(v);
-		parseAndSetBorderWidth(v);
-		parseAndSetBorderInset(v);
-	}
-	
-	
-	private inline function parseAndSetBorderImage (v:String) : Void	{ setBorderFill( parseImage( v ) ); }
-	private inline function parseAndSetBorderColor (v:String) : Void	{ setBorderFill( parseColorFill( v ) ); }
-	private inline function parseAndSetBorderWidth (v:String) : Void	{ setBorderWidth( parseUnitFloat( v ) ); }
-	
-	
-	private inline function parseAndSetBorderInset  (v:String) : Void
-	{
-		var pos = v.indexOf("inset");
-		if (pos > -1)
+		var borders = new ComposedBorder();
+		var parsingBorders:Bool = true;
+		
+		trace("\n\nparseAndSetBorder "+v);
+		while ( parsingBorders )
 		{
-			var g = createGraphicsBlock();
-			if (g.border == null)
-				g.border = cast new SolidBorder( null );
+			var fill:IGraphicProperty = null;
+			if (fill == null)	fill = parseImage(v);
+			if (fill == null)	fill = parseColorFill(v);
 			
-			g.border.innerBorder = true;
-		}
-	}
-	
-	
-	private function setBorderFill (newFill:IFill) : Void
-	{
-		if (newFill != null)
-		{
-			var g = createGraphicsBlock();
-			
-			//create correct border type
-			if (g.border == null)
-			{
-				if		(newFill.is(SolidFill))		g.border = cast new SolidBorder( 	newFill.as( SolidFill ) );
-				else if	(newFill.is(GradientFill))	g.border = cast new GradientBorder( newFill.as( GradientFill ) );
-				else if	(newFill.is(BitmapFill))	g.border = cast new BitmapBorder(	newFill.as( BitmapFill ) );
-#if debug		else	throw "Fill type: "+Std.string(newFill)+" not supported for border";	#end
+			if (fill == null) {
+				parsingBorders = false;
+				break;
 			}
+			
+			v = lastParsedString;
+			
+			//parse border-weight
+			var weight = parseUnitFloat( v );
+			v = removeUnitFloat( v );
+			
+			//parse border inside
+			var inside = parseBorderInside( v );
+			v = lastParsedString;
+			
+			borders.add( createBorderForFill( fill, weight, inside ) );
+			trace("added border "+v);
+		}
+		
+		var border:IBorder = null;
+		if (borders.length > 1)
+			border = borders;
+		
+		if (borders.length == 1)
+			border = borders.next().as(IBorder);
+		
+		if (border != null)
+		{
+			var g = createGraphicsBlock();
+			if (g.border != null && g.border.is(ComposedBorder) && border.is(ComposedBorder))
+				g.border.as(ComposedBorder).merge( cast border );
 			else
-			{
-				//copy settings from old border and create a new border bases on the new fill type
-				if (newFill.is(SolidFill))
-				{
-					if (g.border.is(SolidBorder))		g.border.fill	= newFill;
-					else								g.border		= copyBorderSettingsTo( g.border, cast new SolidBorder( newFill.as(SolidFill) ) );
-				}
-				else if (newFill.is(GradientFill))
-				{
-					if (g.border.is(GradientBorder))	g.border.fill	= newFill;
-					else								g.border		= copyBorderSettingsTo( g.border, cast new GradientBorder( newFill.as(GradientFill) ) );
-				}
-				else if (newFill.is(BitmapFill))
-				{
-					if (g.border.is(BitmapBorder))		g.border.fill	= newFill;
-					else								g.border		= copyBorderSettingsTo( g.border, cast new BitmapBorder( newFill.as(BitmapFill) ) );
-				}
-			}
-			
-		//	if (t.border != null)
-		//		setDefaultShape();
+				g.border = border;
 		}
 	}
 	
 	
-	private function setBorderWidth (weight:Float) : Void
+//	private inline function parseAndSetBorderImage (v:String) : Void	{ setBorderFill( parseImages( v ) ); }
+//	private inline function parseAndSetBorderColor (v:String) : Void	{ setBorderFill( parseColorFill( v ) ); }
+//	private inline function parseAndSetBorderWidth (v:String) : Void	{ setBorderWidth( parseUnitFloat( v ) ); }
+	
+	
+	private function createBorderForFill (fill:IGraphicProperty, weight:Float = 1, inside:Bool = false) : IBorder
+	{
+		var border:IBorder = null;
+		
+		if		(fill.is(SolidFill))	border = cast new SolidBorder( cast fill	, cast weight, inside );
+		else if	(fill.is(GradientFill))	border = cast new GradientBorder( cast fill	, cast weight, inside );
+		else if	(fill.is(BitmapFill))	border = cast new BitmapBorder(	cast fill	, cast weight, inside );
+#if debug
+		else	throw "Fill type: "+Std.string(fill)+" not supported for border";
+#end
+		
+		/*//copy settings from old border and create a new border bases on the new fill type
+		if (newFill.is(SolidFill))
+		{
+			if (g.border.is(SolidBorder))		g.border.as(SolidBorder).fill = cast newFill;
+			else								g.border = copyBorderSettingsTo( cast g.border, cast new SolidBorder( newFill.as(SolidFill) ) );
+		}
+		else if (newFill.is(GradientFill))
+		{
+			if (g.border.is(GradientBorder))	g.border.as(GradientBorder).fill = cast newFill;
+			else								g.border = copyBorderSettingsTo( cast g.border, cast new GradientBorder( newFill.as(GradientFill) ) );
+		}
+		else if (newFill.is(BitmapFill))
+		{
+			if (g.border.is(BitmapBorder))		g.border.as(BitmapBorder).fill	= cast newFill;
+			else								g.border = copyBorderSettingsTo( cast g.border, cast new BitmapBorder( newFill.as(BitmapFill) ) );
+		}*/
+		
+		return border;
+	}
+	
+	
+	/**
+	 * defines if a border is on the inside or on the outside
+	 */
+	private inline function parseBorderInside  (v:String) : Bool
+	{
+		var pos = v.indexOf("inside");
+		var result = pos > -1;
+		if (result)
+		{
+			lastParsedString = v.substr(pos + 6);
+			trace("parseBorderInset "+v+" => "+lastParsedString);
+		}
+		else
+		{
+			pos = v.indexOf("outside");
+			if (pos > -1)
+				lastParsedString = v.substr( pos + 7 );
+		}
+		
+		return result;
+	}
+	
+	
+	/*private function setBorderWidth (weight:Float) : Void
 	{
 		var g = createGraphicsBlock();
 		if (g.border == null)
 			g.border = cast new SolidBorder( null );
 		
-		g.border.weight = weight;
-	}
+		if (g.border.is(IBorder))
+			g.border.as(IBorder).weight = weight;
+	}*/
 	
 	
 	
@@ -2174,7 +2253,7 @@ class CSSParser
 	 * Method will copy the properties that the two borders share from the 
 	 * 'from' obj to the 'to' obj, except for the fill-property.
 	 */
-	private inline function copyBorderSettingsTo (from:IBorder<IFill>, to:IBorder<IFill>) : IBorder<IFill>
+/*	private inline function copyBorderSettingsTo (from:IBorder<IGraphicProperty>, to:IBorder<IGraphicProperty>) : IBorder<IGraphicProperty>
 	{
 		if (from != null && to != null)
 		{
@@ -2185,7 +2264,7 @@ class CSSParser
 			to.weight		= from.weight;
 		}
 		return to;
-	}
+	}*/
 	
 	
 	
@@ -2225,85 +2304,29 @@ class CSSParser
 		if (!expr.match(v))
 			return;
 		
-		var shape:RegularRectangle = null;
+		var g = createGraphicsBlock();
+		var topLeft		= getFloat( expr.matched(3) );
+		var topRight	= expr.matched( 8) != null ? getFloat( expr.matched(10) ) : topLeft;
+		var bottomRight	= expr.matched(15) != null ? getFloat( expr.matched(17) ) : topLeft;
+		var bottomLeft	= expr.matched(22) != null ? getFloat( expr.matched(24) ) : topRight;
 		
-		if (currentBlock.graphics == null)
-			createGraphicsBlock();
-		
-		if (currentBlock.graphics.shape == null)
-			currentBlock.graphics.shape = shape = new RegularRectangle();
-		
-		else if (currentBlock.graphics.shape.is(RegularRectangle))
-			shape = currentBlock.graphics.shape.as(RegularRectangle);
-		
-		
-		
-		if (shape != null)
-		{
-			var topLeft		= getFloat( expr.matched(3) );
-			var topRight	= expr.matched( 8) != null ? getFloat( expr.matched(10) ) : topLeft;
-			var bottomRight	= expr.matched(15) != null ? getFloat( expr.matched(17) ) : topLeft;
-			var bottomLeft	= expr.matched(22) != null ? getFloat( expr.matched(24) ) : topRight;
-			
-			if (shape.corners == null)
-			{
-				shape.corners = new Corners( topLeft, topRight, bottomRight, bottomLeft );
-			}
-			else
-			{
-				shape.corners.topLeft		= topLeft;
-				shape.corners.topRight		= topRight;
-				shape.corners.bottomRight	= bottomRight;
-				shape.corners.bottomLeft	= bottomLeft;
-			}
-		}
+		g.borderRadius = new Corners( topLeft, topRight, bottomRight, bottomLeft );
 	}
 	
 	
-	private inline function setBorderTopLeftRadius (v:Float) : Void
+	private function setBorderTopLeftRadius (v:Float)		{ getBorderRadius().topLeft = v; }
+	private function setBorderTopRightRadius (v:Float)		{ getBorderRadius().topRight = v; }
+	private function setBorderBottomLeftRadius (v:Float)	{ getBorderRadius().bottomLeft = v; }
+	private function setBorderBottomRightRadius (v:Float)	{ getBorderRadius().bottomRight = v; }
+	
+	
+	private inline function getBorderRadius () : Corners
 	{
-		var corners = getCorners();
-		if (corners != null)
-			corners.topLeft = v;
-	}
-	
-	
-	private inline function setBorderTopRightRadius (v:Float) : Void
-	{
-		var corners = getCorners();
-		if (corners != null)
-			corners.topRight = v;
-	}
-	
-	
-	private inline function setBorderBottomLeftRadius (v:Float) : Void
-	{
-		var corners = getCorners();
-		if (corners != null)
-			corners.bottomLeft = v;
-	}
-	
-	
-	private inline function setBorderBottomRightRadius (v:Float) : Void
-	{
-		var corners = getCorners();
-		if (corners != null)
-			corners.bottomRight = v;
-	}
-	
-	
-	private inline function getCorners () : Corners
-	{
-		var r:Corners = null;
-		if (currentBlock.graphics != null && currentBlock.graphics.shape != null && currentBlock.graphics.shape.is(RegularRectangle))
-		{
-			var shape = currentBlock.graphics.shape.as(RegularRectangle);
-			if (shape.corners == null)
-				shape.corners = new Corners();
-			
-			r = shape.corners;
-		}
-		return r;
+		var g = createGraphicsBlock();
+		if (g.borderRadius == null)
+			g.borderRadius = new Corners();
+		
+		return g.borderRadius;
 	}
 	
 	

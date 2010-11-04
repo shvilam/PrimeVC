@@ -35,11 +35,12 @@ package primevc.gui.styling;
  import primevc.gui.behaviours.scroll.MouseMoveScrollBehaviour;
  import primevc.tools.generator.ICodeGenerator;
 #end
+ import primevc.core.geom.Corners;
  import primevc.core.traits.IInvalidatable;
  import primevc.gui.core.ISkin;
  import primevc.gui.graphics.borders.IBorder;
- import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.shapes.IGraphicShape;
+ import primevc.gui.graphics.IGraphicProperty;
  import primevc.types.Bitmap;
  import primevc.types.Number;
   using primevc.utils.BitUtil;
@@ -61,47 +62,51 @@ class GraphicsStyle extends StyleSubBlock
 	private var superStyle		: GraphicsStyle;
 	
 	
-	private var _skin		: Class < ISkin >;
-	private var _opacity	: Float;
-	private var _visible	: Null < Bool >;
-	private var _icon		: Bitmap;
-	private var _overflow	: Class < Dynamic >;
-	private var _background	: IFill;
-	private var _border		: IBorder<IFill>;
-	private var _shape		: IGraphicShape;
+	private var _skin			: Class < ISkin >;
+	private var _opacity		: Float;
+	private var _visible		: Null < Bool >;
+	private var _icon			: Bitmap;
+	private var _overflow		: Class < Dynamic >;
+	private var _background		: IGraphicProperty;
+	private var _border			: IBorder;
+	private var _shape			: IGraphicShape;
+	private var _borderRadius	: Corners;
 	
 	
-	public var skin			(getSkin,		setSkin)		: Class < ISkin >;
-	public var opacity		(getOpacity,	setOpacity)		: Float;
-	public var visible		(getVisible,	setVisible)		: Null< Bool >;
-	public var icon			(getIcon,		setIcon)		: Bitmap;
-	public var overflow		(getOverflow,	setOverflow)	: Class < Dynamic >;
-	public var background	(getBackground, setBackground)	: IFill;
-	public var border		(getBorder,		setBorder)		: IBorder<IFill>;
-	public var shape		(getShape,		setShape)		: IGraphicShape;
+	public var skin			(getSkin,			setSkin)			: Class < ISkin >;
+	public var opacity		(getOpacity,		setOpacity)			: Float;
+	public var visible		(getVisible,		setVisible)			: Null< Bool >;
+	public var icon			(getIcon,			setIcon)			: Bitmap;
+	public var overflow		(getOverflow,		setOverflow)		: Class < Dynamic >;
+	public var background	(getBackground, 	setBackground)		: IGraphicProperty;
+	public var border		(getBorder,			setBorder)			: IBorder;
+	public var shape		(getShape,			setShape)			: IGraphicShape;
+	public var borderRadius	(getBorderRadius,	setBorderRadius)	: Corners;
 	
 	
 	
 	public function new (
-		background	: IFill = null,
-		border		: IBorder < IFill > = null,
+		background	: IGraphicProperty = null,
+		border		: IBorder = null,
 		shape		: IGraphicShape = null,
 		skin		: Class< ISkin > = null,
 		visible		: Null < Bool > = null,
 		opacity		: Float = Number.INT_NOT_SET,
 		icon		: Bitmap = null,
-		overflow	: Class < Dynamic > = null)
+		overflow	: Class < Dynamic > = null,
+		borderRadius: Corners = null)
 	{
 		super();
 		
-		this.shape		= shape;
-		this.background	= background;
-		this.border		= border;
-		this.skin		= skin;
-		this.visible	= visible;
-		this.opacity	= opacity != Number.INT_NOT_SET ? opacity : Number.FLOAT_NOT_SET;
-		this.icon		= icon;
-		this.overflow	= overflow;
+		this.shape			= shape;
+		this.background		= background;
+		this.border			= border;
+		this.skin			= skin;
+		this.visible		= visible;
+		this.opacity		= opacity != Number.INT_NOT_SET ? opacity : Number.FLOAT_NOT_SET;
+		this.icon			= icon;
+		this.overflow		= overflow;
+		this.borderRadius	= borderRadius;
 	}
 	
 	
@@ -115,14 +120,15 @@ class GraphicsStyle extends StyleSubBlock
 		if (_border != null)		_border.dispose();
 		if (_icon != null)			_icon.dispose();
 		
-		_skin		= null;
-		_shape		= null;
-		_background	= null;
-		_border		= null;
-		_icon		= null;
-		_overflow	= null;
-		_visible	= null;
-		_opacity	= Number.FLOAT_NOT_SET;
+		_skin			= null;
+		_shape			= null;
+		_background		= null;
+		_border			= null;
+		_icon			= null;
+		_overflow		= null;
+		_visible		= null;
+		_borderRadius	= null;
+		_opacity		= Number.FLOAT_NOT_SET;
 		
 		super.dispose();
 	}
@@ -290,6 +296,15 @@ class GraphicsStyle extends StyleSubBlock
 		return v;
 	}
 	
+
+	private function getBorderRadius ()
+	{
+		var v = _borderRadius;
+		if (v == null && extendedStyle != null)		v = extendedStyle.borderRadius;
+		if (v == null && superStyle != null)		v = superStyle.borderRadius;
+		return v;
+	}
+	
 	
 	
 	
@@ -377,6 +392,16 @@ class GraphicsStyle extends StyleSubBlock
 	}
 	
 	
+	private function setBorderRadius (v)
+	{
+		if (v != _borderRadius) {
+			_borderRadius = v;
+			markProperty( Flags.BORDER_RADIUS, v != null );
+		}
+		return v;
+	}
+	
+	
 	
 	
 #if (neko || debug)
@@ -391,6 +416,7 @@ class GraphicsStyle extends StyleSubBlock
 		if (_opacity.isSet())		css.push("opacity: "+ _opacity );
 		if (_icon != null)			css.push("icon: "+ _icon );
 		if (_overflow != null)		css.push("overflow: "+ overflowToCSS() );
+		if (_borderRadius != null)	css.push("border-radius: "+ _borderRadius );
 		
 		if (css.length > 0)
 			return "\n\t" + css.join(";\n\t") + ";";
@@ -418,7 +444,7 @@ class GraphicsStyle extends StyleSubBlock
 	override public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())
-			code.construct( this, [ _background, _border, _shape, _skin, _visible, _opacity, _icon, _overflow ] );
+			code.construct( this, [ _background, _border, _shape, _skin, _visible, _opacity, _icon, _overflow, _borderRadius ] );
 	}
 	
 	

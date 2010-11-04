@@ -27,16 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.fills;
-#if neko
- import primevc.tools.generator.ICodeGenerator;
-#end
- import primevc.core.geom.IRectangle;
- import primevc.gui.graphics.GraphicElement;
+ import primevc.gui.graphics.ComposedGraphicProperty;
  import primevc.gui.graphics.GraphicFlags;
- import primevc.gui.traits.IDrawable;
- import primevc.utils.FastArray;
-  using primevc.utils.FastArray;
-
+ import primevc.gui.graphics.IGraphicProperty;
 
 
 /**
@@ -46,108 +39,24 @@ package primevc.gui.graphics.fills;
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-class ComposedFill extends GraphicElement, implements IFill 
+class ComposedFill extends ComposedGraphicProperty
 {
-	public var fills		(default, null)		: FastArray <IFill>;
-	public var isFinished	(default, null)		: Bool;
-	private var curFillNumber					: Int;
-	
-	
-	public function new ()
+	override public function add (property:IGraphicProperty) : Bool
 	{
-		super();
-		fills			= FastArrayUtil.create();
-		isFinished		= false;
-		curFillNumber	= 0;
-	}
-	
-	
-	override public function dispose ()
-	{
-		for (fill in fills)
-			fill.dispose();
+		if (!super.add( property ))
+			return false;
 		
-		fills = null;
-		super.dispose();
-	}
-	
-	
-	//
-	// IFILL METHODS
-	//
-	
-	public function begin (target:IDrawable, ?bounds:IRectangle)
-	{
-	//	for (fill in fills)
-	//		fill.begin(target, bounds);
-		if (fills.length == 0) {
-			isFinished = true;
-			return;
-		}
-		
-		//check if the currentfill is already finished
-		if (fills[ curFillNumber ].isFinished) {
-			fills[ curFillNumber ].end(target);
-			curFillNumber++;
-		}
-		
-		if (curFillNumber >= fills.length) {
-			isFinished = true;
-			return;
-		}
-		
-		fills[ curFillNumber ].begin(target, bounds);
-	}
-	
-	
-	public inline function end (target:IDrawable)
-	{
-		curFillNumber	= 0;
-		isFinished		= false;
-	}
-	
-	
-	
-	//
-	// LIST METHODS
-	//
-
-	public inline function add ( fill:IFill, depth:Int = -1 )
-	{
-		fills.insertAt( fill, depth );
-		fill.listeners.add(this);
 		invalidate( GraphicFlags.FILL );
+		return true;
 	}
-
-
-	public inline function remove ( fill:IFill )
+	
+	
+	override public function remove (property:IGraphicProperty) : Bool
 	{
-		fills.remove(fill);
-		fill.listeners.remove(this);
-		fill.dispose();
+		if (!super.remove( property ))
+			return false;
+		
 		invalidate( GraphicFlags.FILL );
+		return true;
 	}
-	
-	
-	
-#if (debug || neko)
-	override public function toCSS (prefix:String = "")
-	{
-		return fills.join(", ");
-	}
-	
-	
-	override public function isEmpty () : Bool
-	{
-		return fills.length == 0;
-	}
-#end
-#if neko
-	override public function toCode (code:ICodeGenerator)
-	{
-		code.construct( this );
-		for (fill in fills)
-			code.setAction(this, "add", [ fill ]);
-	}
-#end
 }

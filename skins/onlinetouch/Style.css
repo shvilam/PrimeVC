@@ -48,7 +48,7 @@ FrameTypesBar {
 FrameTypesBarList {
 	algorithm: float-hor(left);
 	border-radius: 10px;
-	border: 1px solid #b5b5b5;
+	border: 1px solid #b5b5b5 outside, 1px solid #fff outside;
 	
 	/* ( <blurX>px? <blurY>px? <strength>? ) | <rgba>? | <inner>? | <knockout>? | <quality>? */
 	/*box-glow: 2px 2px 3 #ffffff;*/
@@ -166,7 +166,7 @@ SpreadToolBar {
 	
 	background: linear-gradient( -90deg, #151515b3, #3b3a3ab3 );
 	border-radius: 22px 22px 0px 0px;
-	border: 1px solid #fff inset;
+	border: 1px solid #fff inside;
 	
 	/** ( <distance>px? <blurX>px? <blurY>px? <strength>? ) | <angle>deg? | ( (<rgba> <pos>) (<rgba> <pos>).. ) | <inner>? | <knockout>? | <quality>? **/
 	box-shadow: 10px 18px 18px 1 90deg #1e1e1e;

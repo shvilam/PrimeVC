@@ -90,12 +90,22 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 	private function updateScrollRect ()
 	{
 		var r		= target.scrollRect;
+		r.x = r.y	= 0;
 	//	r.x			= layoutContainer.scrollX;
 	//	r.y			= layoutContainer.scrollY;
-		r.width		= target.rect.width; //layoutContainer.bounds.width;
-		r.height	= target.rect.height; //layoutContainer.bounds.height;
+		r.width		= target.rect.width;
+		r.height	= target.rect.height;
 		
-	//	trace(target+".updated scrollRect " + r);
+		if (target.graphicData.value.border != null)
+		{
+			var borderSize = target.graphicData.value.border.weight;
+			r.x			-= borderSize;
+			r.y			-= borderSize;
+			r.width		+= borderSize * 2;
+			r.height	+= borderSize * 2;
+		}
+		
+	//	trace(target+".updated scrollRect " + r+" -> "+target.rect);
 		target.scrollRect = r;
 	}
 

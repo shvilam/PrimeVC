@@ -64,17 +64,13 @@ class EditorView extends ApplicationView
 	private var spreadStage		: SpreadStage;
 	
 	
-//	override private function createBehaviours () {}	//remove auto change layout behaviour...
+	override private function createBehaviours () {}	//remove auto change layout behaviour...
 	
-	override private function createBehaviours ()
-	{
-		haxe.Log.clear.on( userEvents.mouse.click, this );
-	}
 	override private function createChildren ()
 	{
-		children.add( applicationBar	= new ApplicationMainBar("applicationMainBar") );
 		children.add( spreadStage		= new SpreadStage() );
 		children.add( framesToolBar		= new FramesToolBar("framesList") );
+		children.add( applicationBar	= new ApplicationMainBar("applicationMainBar") );
 		
 		layoutContainer.children.add( applicationBar.layout );
 		layoutContainer.children.add( framesToolBar.layout );
@@ -212,7 +208,13 @@ class SpreadStage extends UIContainer
 
 
 
-class SpreadView extends UIContainer {}
+class SpreadView extends UIContainer
+{
+	override private function createBehaviours ()
+	{
+		haxe.Log.clear.on( userEvents.mouse.click, this );
+	}
+}
 
 
 class SpreadToolBar extends UIContainer

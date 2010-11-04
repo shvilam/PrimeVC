@@ -28,10 +28,7 @@
  */
 package primevc.gui.styling;
  import primevc.core.IDisposable;
- import primevc.gui.graphics.borders.IBorder;
- import primevc.gui.graphics.fills.IFill;
  import primevc.tools.generator.ICSSFormattable;
- import primevc.types.RGBA;
  import primevc.types.SimpleDictionary;
  import Hash;
 #if (debug || neko)

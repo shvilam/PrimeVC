@@ -27,6 +27,8 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.shapes;
+ import primevc.core.geom.Corners;
+ import primevc.core.geom.IRectangle;
  import primevc.gui.traits.IDrawable;
 
 
@@ -37,11 +39,11 @@ package primevc.gui.graphics.shapes;
  */
 class Line extends ShapeBase, implements IGraphicShape
 {
-	public inline function draw (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
+	public inline function draw (target:IDrawable, bounds:IRectangle, borderRadius:Corners) : Void
 	{
 #if flash9
-		target.graphics.moveTo( x, y );
-		target.graphics.lineTo( x + width, y + height );
+		target.graphics.moveTo( bounds.left, bounds.top );
+		target.graphics.lineTo( bounds.right, bounds.bottom );
 #end
 	}
 	

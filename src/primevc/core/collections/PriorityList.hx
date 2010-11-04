@@ -55,10 +55,11 @@ class PriorityList < DataType : IPrioritizable >
 	public var last			(default, null)		: DoubleFastCell < DataType >;
 	
 	
-	public function new()
-	{
-		length	= 0;
-	}
+	public function new ()				{ length = 0; }
+	public function dispose ()			{ removeAll(); }
+	public function iterator ()			: Iterator <DataType>	{ return forwardIterator(); }
+	public function forwardIterator ()	: IIterator <DataType>	{ return new DoubleFastCellForwardIterator <DataType> (first); }
+	public function reversedIterator ()	: IIterator <DataType>	{ return new DoubleFastCellReversedIterator <DataType> (last); }
 	
 	
 	public function removeAll ()
@@ -74,17 +75,6 @@ class PriorityList < DataType : IPrioritizable >
 		first = last = null;
 		length = 0;
 	}
-	
-	
-	public function dispose ()
-	{
-		removeAll();
-	}
-	
-	
-	public function iterator ()				: Iterator <DataType>	{ return forwardIterator(); }
-	public function forwardIterator ()	: IIterator <DataType>	{ return new DoubleFastCellForwardIterator <DataType> (first); }
-	public function reversedIterator ()	: IIterator <DataType>	{ return new DoubleFastCellReversedIterator <DataType> (last); }
 	
 	
 	public function has (item:DataType)

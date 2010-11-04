@@ -28,13 +28,15 @@
  */
 package primevc.gui.graphics.borders;
  import primevc.core.geom.IRectangle;
- import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
+ import primevc.gui.graphics.IGraphicProperty;
  import primevc.gui.traits.IDrawable;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
+  using Math;
+  using Std;
 
 
 /**
@@ -43,7 +45,7 @@ package primevc.gui.graphics.borders;
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <FillType>
+class BorderBase <FillType:IGraphicProperty> extends GraphicElement, implements IBorder
 {
 	public var weight		(default, setWeight)		: Float;
 	public var fill			(default, setFill)			: FillType;
@@ -86,16 +88,27 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 	}
 	
 	
-	public function begin (target:IDrawable, ?bounds:IRectangle) {
-		Assert.abstract();
+	public function begin (target:IDrawable, bounds:IRectangle)
+	{
+		if (innerBorder) {
+			bounds.left		+= weight.ceil().int();
+			bounds.top		+= weight.ceil().int();
+			bounds.width	-= (weight * 2).ceil().int();
+			bounds.height 	-= (weight * 2).ceil().int();
+		}
+	//	Assert.abstract();
 	}
 	
 	
-	public function end (target:IDrawable)
+	public function end (target:IDrawable, bounds:IRectangle)
 	{
 #if flash9
 		target.graphics.lineStyle( 0, 0 , 0 );
 #end
+		bounds.left		-= weight.ceil().int();
+		bounds.top		-= weight.ceil().int();
+		bounds.width	+= (weight * 2).ceil().int();
+		bounds.height 	+= (weight * 2).ceil().int();
 	}
 	
 	
@@ -175,7 +188,7 @@ class BorderBase <FillType:IFill> extends GraphicElement, implements IBorder <Fi
 #if (debug || neko)
 	override public function toCSS (prefix:String = "")
 	{
-		return fill + " " + weight + "px";
+		return fill + " " + weight + "px " + (innerBorder ? "inside" : "outside");
 	}
 	
 	

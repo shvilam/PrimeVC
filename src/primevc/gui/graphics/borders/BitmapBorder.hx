@@ -40,8 +40,9 @@ package primevc.gui.graphics.borders;
  */
 class BitmapBorder extends BorderBase < BitmapFill >
 {
-	override public function begin (target:IDrawable, ?bounds:IRectangle) : Void
+	override public function begin (target:IDrawable, bounds:IRectangle) : Void
 	{
+		super.begin(target, bounds);
 #if flash10
 		target.graphics.lineStyle( weight, 0, 1, pixelHinting, flash.display.LineScaleMode.NORMAL, caps, joint );
 		target.graphics.lineBitmapStyle( fill.bitmap.data, fill.matrix, fill.repeat, fill.smooth );

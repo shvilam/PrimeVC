@@ -36,8 +36,8 @@ package primevc.gui.styling;
  */
 class GraphicFlags
 {
-	public static inline var ALL_PROPERTIES		: UInt = SKIN | BACKGROUND | BORDER | SHAPE | VISIBLE | OPACITY | ICON | OVERFLOW;
-	public static inline var DRAWING_PROPERTIES	: UInt = BACKGROUND | BORDER | SHAPE;
+	public static inline var ALL_PROPERTIES		: UInt = SKIN | BACKGROUND | BORDER | SHAPE | VISIBLE | OPACITY | ICON | OVERFLOW | BORDER_RADIUS;
+	public static inline var DRAWING_PROPERTIES	: UInt = BACKGROUND | BORDER | SHAPE | BORDER_RADIUS;
 	
 	public static inline var SKIN				: UInt = 1;
 	public static inline var BACKGROUND			: UInt = 2;
@@ -47,6 +47,7 @@ class GraphicFlags
 	public static inline var OPACITY			: UInt = 32;
 	public static inline var ICON				: UInt = 64;
 	public static inline var OVERFLOW			: UInt = 128;
+	public static inline var BORDER_RADIUS		: UInt = 256;
 	
 	
 #if debug
@@ -62,6 +63,7 @@ class GraphicFlags
 		if (flags.has( SHAPE ))					output.push("shape");
 		if (flags.has( SKIN ))					output.push("skin");
 		if (flags.has( VISIBLE ))				output.push("visible");
+		if (flags.has( BORDER_RADIUS ))			output.push("border-radius");
 		
 		return "properties: " + output.join(", ");
 	}

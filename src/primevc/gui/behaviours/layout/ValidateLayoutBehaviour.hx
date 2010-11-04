@@ -35,6 +35,7 @@ package primevc.gui.behaviours.layout;
  import primevc.gui.traits.IDrawable;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
+  using Std;
  
 
 /**
@@ -106,8 +107,20 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >
 		if (target.effects == null || isNotPositionedYet)
 		{
 			var l = target.layout;
-			target.x	= target.rect.left	= l.getHorPosition();
-			target.y	= target.rect.top	= l.getVerPosition();
+			var newX = l.getHorPosition();
+			var newY = l.getVerPosition();
+			
+			if (target.is(IDrawable)) {
+				var t = target.as(IDrawable);
+				if (t.graphicData.value.border != null) {
+					var borderWidth = t.graphicData.value.border.weight.int();
+					newX -= borderWidth;
+					newY -= borderWidth;
+				}
+			}
+			
+			target.x	= target.rect.left	= newX;
+			target.y	= target.rect.top	= newY;
 			isNotPositionedYet = false;
 		}
 		else

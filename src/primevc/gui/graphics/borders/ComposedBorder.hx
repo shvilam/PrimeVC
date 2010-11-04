@@ -27,48 +27,63 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.borders;
- import primevc.core.geom.IRectangle;
- import primevc.core.geom.Matrix2D;
- import primevc.gui.graphics.fills.GradientFill;
- import primevc.gui.traits.IDrawable;
-  using primevc.utils.Color;
-  using primevc.utils.RectangleUtil;
+ import primevc.gui.graphics.ComposedGraphicProperty;
+ import primevc.gui.graphics.GraphicFlags;
+ import primevc.gui.graphics.IGraphicProperty;
   using primevc.utils.TypeUtil;
 
 
+
 /**
- * GradientBorder implementation
- * 
  * @author Ruben Weijers
- * @creation-date Jul 31, 2010
+ * @creation-date Nov 04, 2010
  */
-class GradientBorder extends BorderBase <GradientFill>
+class ComposedBorder extends ComposedGraphicProperty, implements IBorder
 {
-	private var lastBounds		: IRectangle;
-	private var lastMatrix		: Matrix2D;
+	public var weight		(default, setWeight) : Float;
 	
 	
-	override public function begin (target:IDrawable, bounds:IRectangle) : Void
+	public function new ()
 	{
-		super.begin(target, bounds);
-#if flash9
-		if (lastMatrix == null || bounds != lastBounds || !bounds.isEqualTo(lastBounds))
-			lastMatrix = fill.createMatrix(bounds);
+		weight = 0;
+		super();
+	}
+	
+	
+	override public function add (property:IGraphicProperty) : Bool
+	{
+		if (!super.add( property ))
+			return false;
 		
-		//TODO: MORE EFFICIENT TO CACHE THIS? MEMORY vs. SPEED
-		var colors	= new Array();
-		var alphas	= new Array();
-		var ratios	= new Array();
+		var border = property.as(BorderBase);
+		if (!border.innerBorder)
+			weight += border.weight;
 		
-		for (fill in fill.gradientStops) {
-			colors.push( fill.color.rgb() );
-			alphas.push( fill.color.alpha().float() );
-			ratios.push( fill.position );
+		invalidate( GraphicFlags.BORDER );
+		return true;
+	}
+	
+	
+	override public function remove (property:IGraphicProperty) : Bool
+	{
+		if (!super.remove( property ))
+			return false;
+		
+		var border = property.as(BorderBase);
+		if (!border.innerBorder)
+			weight -= border.weight;
+		
+		invalidate( GraphicFlags.BORDER );
+		return true;
+	}
+	
+	
+	private inline function setWeight (v:Float)
+	{
+		if (v != weight) {
+			weight = v;
+	//		invalidate( GraphicFlags.BORDER );
 		}
-		
-		target.graphics.lineStyle( weight, 0, 1, pixelHinting, flash.display.LineScaleMode.NORMAL, caps, joint );
-		target.graphics.lineGradientStyle( fill.getFlashType(), colors, alphas, ratios, lastMatrix );
-#end
-		lastBounds = bounds.clone().as(IRectangle);
+		return v;
 	}
 }

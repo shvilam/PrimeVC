@@ -27,6 +27,8 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics.shapes;
+ import primevc.core.geom.Corners;
+ import primevc.core.geom.IRectangle;
  import primevc.gui.traits.IDrawable;
  import primevc.utils.Formulas;
 
@@ -39,11 +41,11 @@ package primevc.gui.graphics.shapes;
  */
 class Circle extends ShapeBase, implements IGraphicShape
 {
-	public function draw (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
+	public function draw (target:IDrawable, bounds:IRectangle, borderRadius:Corners) : Void
 	{
-		var radius = Formulas.getCircleRadius( width, height );
+		var radius = Formulas.getCircleRadius( bounds.width, bounds.height );
 #if flash9
-		target.graphics.drawCircle(x + radius, y + radius, radius);
+		target.graphics.drawCircle(bounds.left + radius, bounds.top + radius, radius);
 #end
 	}
 	

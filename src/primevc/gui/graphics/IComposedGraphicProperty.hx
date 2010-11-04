@@ -26,24 +26,26 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.graphics.fills;
- import primevc.core.geom.IRectangle;
- import primevc.gui.graphics.IGraphicElement;
- import primevc.gui.traits.IDrawable;
+package primevc.gui.graphics;
+ import primevc.core.collections.iterators.IIterator;
+ import primevc.core.collections.FastCell;
 
 
 /**
  * @author Ruben Weijers
- * @creation-date Jul 30, 2010
+ * @creation-date Nov 04, 2010
  */
-interface IFill implements IGraphicElement 
+interface IComposedGraphicProperty implements IGraphicProperty, implements IIterator < IGraphicProperty >
 {
-	/**
-	 * Flag indicating if the fill is done with drawing. This way a composed fill
-	 * can draw it's children one by one without knowing anything about 
-	 * GraphicProperties.
-	 */
-	public var isFinished (default, null)	: Bool;
-	public function begin (target:IDrawable, ?bounds:IRectangle) : Void;
-	public function end (target:IDrawable) : Void;
+	private var firstCell	: FastCell < IGraphicProperty >;
+	private var lastCell	: FastCell < IGraphicProperty >;
+	private var nextCell	: FastCell < IGraphicProperty >;
+	
+	public var length		(default, null): Int;
+	
+	
+	public function add ( property:IGraphicProperty )		: Bool;
+	public function remove ( property:IGraphicProperty )	: Bool;
+	
+	public function merge (other:IComposedGraphicProperty)	: Void;
 }

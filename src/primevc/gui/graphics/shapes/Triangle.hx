@@ -30,8 +30,10 @@ package primevc.gui.graphics.shapes;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
- import primevc.core.geom.IntPoint;
  import primevc.core.geom.space.Position;
+ import primevc.core.geom.Corners;
+ import primevc.core.geom.IntPoint;
+ import primevc.core.geom.IRectangle;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.traits.IDrawable;
   using primevc.utils.FastArray;
@@ -69,84 +71,89 @@ class Triangle extends ShapeBase, implements IGraphicShape
 	}
 	
 	
-	public inline function draw (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
+	public inline function draw (target:IDrawable, bounds:IRectangle, borderRadius:Corners) : Void
 	{
 #if flash9
 		var a = a, b = b, c = c;
+		var x = bounds.left;
+		var y = bounds.top;
+		var w = bounds.width;
+		var h = bounds.height;
+		
 		switch (direction) {
 			case Custom(p):
 			case TopLeft:
 				a.x = x;
 				a.y = y;
-				b.x = x + width;
+				b.x = x + w;
 				b.y = y;
 				c.x = x;
-				c.y = y + height;
+				c.y = y + h;
 		
 			case TopCenter:
 				a.x = x;
-				a.y = height;
-				b.x = x + (width * .5).int();
+				a.y = h;
+				b.x = x + (w * .5).int();
 				b.y = y;
-				c.x = x + width;
-				c.y = y + height;
+				c.x = x + w;
+				c.y = y + h;
 			
 			case TopRight:
-				a.x = x + width;
+				a.x = x + w;
 				a.y = y;
-				b.x = x + width;
-				b.y = y + height;
+				b.x = x + w;
+				b.y = y + h;
 				c.x = x;
 				c.y = y;
 
 			case MiddleLeft:
 				a.x = x;
-				a.y = y + (height * .5).int();
-				b.x = x + width;
+				a.y = y + (h * .5).int();
+				b.x = x + w;
 				b.y = y;
-				c.x = a.x + width;
-				c.y = y + height;
+				c.x = a.x + w;
+				c.y = y + h;
 			
 			case MiddleCenter:
 			/*	there is no middle center :-S
-				a.x = x + width;
+				a.x = x + w;
 				a.y = y;
 				b.x = x;
-				b.y = y + (height * .5).int();
+				b.y = y + (h * .5).int();
 				c.x = a.x;
-				c.y = y + height;*/
+				c.y = y + h;*/
 
 			case MiddleRight:
 				a.x = x;
 				a.y = y;
-				b.x = x + width;
-				b.y = y + (height * .5).int();
+				b.x = x + w;
+				b.y = y + (h * .5).int();
 				c.x = x;
-				c.y = y + height;
+				c.y = y + h;
 			
 			case BottomLeft:
 				a.x = x;
-				a.y = y + height;
-				b.x = x + width;
-				b.y = y + height;
+				a.y = y + h;
+				b.x = x + w;
+				b.y = y + h;
 				c.x = x;
 				c.y = y;
 		
 			case BottomCenter:
 				a.x = x;
 				a.y = y;
-				b.x = x + width;
+				b.x = x + w;
 				b.y = y;
-				c.x = x + (width * .5).int();
-				c.y = y + height;
+				c.x = x + (w * .5).int();
+				c.y = y + h;
 			
 			case BottomRight:
-				a.x = x + width;
-				a.y = y + height;
-				b.x = x + width;
+				a.x = x + w;
+				a.y = y + h;
+				b.x = x + w;
 				b.y = y;
 				c.x = x;
-				c.y = y + height;
+				c.y = y + h;
 		}
 		
 //	#if flash10
