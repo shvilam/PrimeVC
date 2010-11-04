@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <componentPackage>
 	<component id="AppTest"				superClass="UIWindow"			fullname="cases.AppTest" />
-	<component id="EditorView"			superClass="ApplicationView"	fullname="cases.EditorView" />
+	<component id="EditorView"			superClass="UIContainer"		fullname="cases.EditorView" />
 	<component id="ApplicationMainBar"	superClass="UIDataContainer"	fullname="cases.ApplicationMainBar" />
 	
 	<component id="FramesToolBar"		superClass="ListView"			fullname="cases.FramesToolBar" />
@@ -9,5 +9,8 @@
 	<component id="FrameTypesBarList"	superClass="ListView"			fullname="cases.FrameTypesBarList" />
 	<component id="FrameButton"			superClass="Button"				fullname="cases.FrameButton" />
 	
-<!--<component id=""	superClass=""	fullname="" />-->
+	<component id="SpreadStage"			superClass="UIContainer"		fullname="cases.SpreadStage" />
+	<component id="SpreadView"			superClass="UIContainer"		fullname="cases.SpreadView" />
+	<component id="SpreadToolBar"		superClass="UIContainer"		fullname="cases.SpreadToolBar" />
+<!--<component id=""	superClass=""	fullname="cases." />-->
 </componentPackage>

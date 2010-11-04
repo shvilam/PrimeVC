@@ -86,14 +86,14 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 				if (!child.includeInLayout)
 					continue;
 				
-				if (child.bounds.height.isSet())
-				{
-					height += child.bounds.height;
+			//	if (child.outerBounds.height.isSet())
+			//	{
+					height += child.outerBounds.height;
 					
 					//only count even children
 					if (i % 2 == 0)
-						halfHeight += child.bounds.height;
-				}
+						halfHeight += child.outerBounds.height;
+			//	}
 				i++;
 			}
 		}
@@ -132,8 +132,8 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 					if (!child.includeInLayout)
 						continue;
 					
-					child.bounds.top	= next;
-					next				= child.bounds.bottom;
+					child.outerBounds.top	= next;
+					next					= child.outerBounds.bottom;
 				}
 			}
 			else
@@ -142,8 +142,8 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 					if (!child.includeInLayout)
 						continue;
 					
-					child.bounds.top	 = next;
-					next				+= group.childHeight;
+					child.outerBounds.top	 = next;
+					next					+= group.childHeight;
 				}
 			}
 		}
@@ -152,7 +152,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	
 	private inline function applyCentered () : Void
 	{
-		applyTopToBottom( getCenterStartValue() );
+		applyTopToBottom( getVerCenterStartValue() );
 		/*if (group.children.length > 0)
 		{
 			var i:Int = 0;
@@ -215,8 +215,8 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 					if (!child.includeInLayout)
 						continue;
 					
-					child.bounds.bottom	= next;
-					next				= child.bounds.top;
+					child.outerBounds.bottom	= next;
+					next						= child.outerBounds.top;
 				}
 			}
 			else
@@ -226,8 +226,8 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 					if (!child.includeInLayout)
 						continue;
 					
-					child.bounds.top	= next;
-					next				= child.bounds.top - group.childHeight;
+					child.outerBounds.top	= next;
+					next					= child.outerBounds.top - group.childHeight;
 				}
 			}
 		}
@@ -271,7 +271,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 				if (posY < halfH) {
 					//start at beginning
 					for (child in group.children) {
-						if (child.includeInLayout && centerY <= child.bounds.bottom && centerY >= child.bounds.top)
+						if (child.includeInLayout && centerY <= child.outerBounds.bottom && centerY >= child.outerBounds.top)
 							break;
 
 						depth++;
@@ -284,7 +284,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 					depth	= group.children.length;
 					while (itr.hasNext()) {
 						var child = itr.next();
-						if (child.includeInLayout && centerY >= child.bounds.bottom)
+						if (child.includeInLayout && centerY >= child.outerBounds.bottom)
 							break;
 
 						depth--;
@@ -312,8 +312,8 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 		for (child in group.children) {
 			if (child.includeInLayout 
 				&& (
-						(centerY <= child.bounds.bottom && centerY >= halfH)
-					||	(centerY >= child.bounds.bottom && centerY <= halfH)
+						(centerY <= child.outerBounds.bottom && centerY >= halfH)
+					||	(centerY >= child.outerBounds.bottom && centerY <= halfH)
 				)
 			)
 				break;
@@ -358,7 +358,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 				if (posY > (emptyHeight + halfH)) {
 					//start at beginning
 					for (child in group.children) {
-						if (child.includeInLayout && centerY >= child.bounds.top)
+						if (child.includeInLayout && centerY >= child.outerBounds.top)
 							break;
 
 						depth++;
@@ -371,7 +371,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 					depth	= group.children.length - 1;
 					while (itr.hasNext()) {
 						var child = itr.next();
-						if (child.includeInLayout && centerY <= child.bounds.bottom)
+						if (child.includeInLayout && centerY <= child.outerBounds.bottom)
 							break;
 
 						depth--;

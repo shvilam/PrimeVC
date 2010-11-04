@@ -807,20 +807,21 @@ class StyleBlock extends StyleBlockBase
 		if (!isEmpty())
 		{
 			if (filledProperties.has( Flags.ALL_PROPERTIES ))
-				code.construct(this, [ type, _graphics, _layout, _font, _effects, _boxFilters, _bgFilters, _states ]);
+				code.construct(this, [ type, _graphics, _layout, _font, _effects, _boxFilters, _bgFilters ]);
 			else
 				code.construct(this, [ type ]);
 			
 			if (filledProperties.has( Flags.INHERETING_STYLES ))
 			{
-				if (nestingInherited != null)	code.setProp( this, "nestingInherited", nestingInherited );
-				if (superStyle != null)			code.setProp( this, "superStyle", superStyle );
-				if (extendedStyle != null)		code.setProp( this, "extendedStyle", extendedStyle );
-				if (parentStyle != null)		code.setProp( this, "parentStyle", parentStyle );
+				if (nestingInherited != null)			code.setProp( this, "nestingInherited", nestingInherited );
+				if (superStyle != null)					code.setProp( this, "superStyle", superStyle );
+				if (extendedStyle != null)				code.setProp( this, "extendedStyle", extendedStyle );
+				if (parentStyle != null)				code.setProp( this, "parentStyle", parentStyle );
 			}
 			
-			if (filledProperties.has( Flags.CHILDREN ))
-				code.setProp(this, "children", _children);
+			//important to do after the styleblock is constructed. otherwise references to the parentstyle might nog yet exist
+			if (filledProperties.has( Flags.CHILDREN ))	code.setProp(this, "children", _children);
+			if (filledProperties.has( Flags.STATES ))	code.setProp(this, "states", _states);
 		}
 	}
 #end

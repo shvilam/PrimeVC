@@ -54,7 +54,7 @@ private typedef Flags = LayoutFlags;
  */
 class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<LayoutClient>, implements IAdvancedLayoutClient, implements IScrollableLayout
 {
-	public static inline var EMPTY_PADDING : Box = new Box(0,0);
+	public static inline var EMPTY_BOX : Box = new Box(0,0);
 	
 	
 	public var algorithm			(default, setAlgorithm)			: ILayoutAlgorithm;
@@ -70,7 +70,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	
 	public function new (newWidth:Int = primevc.types.Number.INT_NOT_SET, newHeight:Int = primevc.types.Number.INT_NOT_SET)
 	{
-		padding				= EMPTY_PADDING;
+		padding				= EMPTY_BOX;
+		margin				= EMPTY_BOX;
 		children			= new ArrayList<LayoutClient>();
 		scrollPos			= new BindablePoint();
 		
@@ -101,6 +102,11 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	
 	override public function invalidateCall ( childChanges:UInt, sender:IInvalidatable ) : Void
 	{
+		if (!sender.is(LayoutClient)) {
+			super.invalidateCall( childChanges, sender );
+			return;
+		}
+		
 	//	trace(this+".invalidateCall "+Flags.readProperties(childChanges)+"; sender "+sender);
 	//	trace("\t\tisValidating? "+isValidating+"; "+(algorithm != null)+"; algorithm "+algorithm.isInvalid(childChanges));
 		var child = sender.as(LayoutClient);
@@ -159,12 +165,12 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 			
 			//measure children with explicitWidth and no percentage size
 			else if (checkIfChildGetsPercentageWidth(child, explicitWidth))
-				child.bounds.width = Std.int(explicitWidth * child.percentWidth / 100);
+				child.outerBounds.width = Std.int(explicitWidth * child.percentWidth / 100);
 			
 			//measure children
 			if (child.percentWidth != Flags.FILL && child.includeInLayout) {
 				child.validateHorizontal();
-				childrenWidth += child.bounds.width;
+				childrenWidth += child.outerBounds.width;
 			}
 		}
 		
@@ -172,7 +178,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		{
 			var sizePerChild = IntMath.max(width - childrenWidth, 0).divFloor( fillingChildren.length );
 			for (child in fillingChildren) {
-				child.bounds.width = sizePerChild;
+				child.outerBounds.width = sizePerChild;
 				child.validateHorizontal();
 			}
 		}
@@ -212,12 +218,12 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 			}
 			
 			else if (checkIfChildGetsPercentageHeight(child, explicitHeight))
-				child.bounds.height = Std.int(explicitHeight * child.percentHeight / 100);
+				child.outerBounds.height = Std.int(explicitHeight * child.percentHeight / 100);
 			
 			//measure children
 			if (child.percentHeight != Flags.FILL && child.includeInLayout) {
 				child.validateVertical();
-				childrenHeight += child.bounds.height;
+				childrenHeight += child.outerBounds.height;
 			}
 		}
 		
@@ -225,7 +231,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		{
 			var sizePerChild = (height - childrenHeight).divFloor( fillingChildren.length );
 			for (child in fillingChildren) {
-				child.bounds.height = sizePerChild;
+				child.outerBounds.height = sizePerChild;
 				child.validateVertical();
 			}
 		}
@@ -319,9 +325,18 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	override private function setPadding (v:Box)
 	{	
 		if (v == null)
-			v = EMPTY_PADDING;
+			v = EMPTY_BOX;
 		
 		return super.setPadding(v);
+	}
+	
+	
+	override private function setMargin (v:Box)
+	{	
+		if (v == null)
+			v = EMPTY_BOX;
+		
+		return super.setMargin(v);
 	}
 	
 	
@@ -354,8 +369,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 			case added( child, newPos ):
 				child.parent = this;
 				//check first if the bound properties are zero. If they are not, they can have been set by a tile-container
-				if (child.bounds.left == 0)		child.bounds.left	= padding.left;
-				if (child.bounds.top == 0)		child.bounds.top	= padding.top;
+				if (child.outerBounds.left == 0)	child.outerBounds.left	= padding.left;
+				if (child.outerBounds.top == 0)		child.outerBounds.top	= padding.top;
 				child.listeners.add(this);
 			
 			case removed( child, oldPos ):
@@ -363,9 +378,9 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 				child.listeners.remove(this);
 				
 				//reset boundary properties without validating
-				child.bounds.left	= 0;
-				child.bounds.top	= 0;
-				child.changes		= 0;
+				child.outerBounds.left	= 0;
+				child.outerBounds.top	= 0;
+				child.changes			= 0;
 			
 			default:
 		}

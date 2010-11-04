@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout;
-
+  using primevc.utils.BitUtil;
 
 
 /**
@@ -70,7 +70,7 @@ class VirtualLayoutContainer extends LayoutContainer
 	{
 		super.invalidate(change);
 		
-		if (change == LayoutFlags.X || change == LayoutFlags.Y)
+		if (change.has( LayoutFlags.X | LayoutFlags.Y))
 			for (child in children)
 				child.invalidate(change);
 	}

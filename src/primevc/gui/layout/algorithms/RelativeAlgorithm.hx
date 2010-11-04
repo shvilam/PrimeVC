@@ -27,7 +27,6 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms;
- import primevc.core.geom.constraints.ConstrainedRect;
  import primevc.core.geom.Box;
  import primevc.core.geom.IRectangle;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
@@ -72,7 +71,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 						continue;
 					
 					if (child.relative.left.isSet() && child.relative.right.isSet())
-						child.bounds.width	= group.width - child.relative.right - child.relative.left;
+						child.outerBounds.width	= group.width - child.relative.right - child.relative.left;
 				}
 				
 				validatePreparedHor = true;
@@ -86,7 +85,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 						continue;
 					
 					if (child.relative.top.isSet() && child.relative.bottom.isSet())
-						child.bounds.height	= group.height - child.relative.bottom - child.relative.top;
+						child.outerBounds.height	= group.height - child.relative.bottom - child.relative.top;
 				}
 				
 				validatePreparedVer = true;
@@ -115,7 +114,6 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 	public inline function apply ()
 	{
 		var childProps	: RelativeLayout;
-		var childBounds	: ConstrainedRect;
 		var padding = group.padding;
 		
 		for (child in group.children)
@@ -124,25 +122,24 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 				continue;
 			
 			childProps	= child.relative;
-			childBounds	= child.bounds;
 			
 			
 			//
 			//apply horizontal
 			//
 			
-			if		(childProps.left.isSet())		child.bounds.left	= padding.left + childProps.left;
-			else if (childProps.right.isSet())		child.bounds.right	= group.bounds.width - padding.right - childProps.right;
-			else if (childProps.hCenter.isSet())	child.bounds.left	= Std.int( ( group.bounds.width - child.bounds.width ) * .5 );			
+			if		(childProps.left.isSet())		child.outerBounds.left		= padding.left + childProps.left;
+			else if (childProps.right.isSet())		child.outerBounds.right		= group.innerBounds.width - padding.right - childProps.right;
+			else if (childProps.hCenter.isSet())	child.outerBounds.left		= Std.int( ( group.innerBounds.width - child.outerBounds.width ) * .5 );			
 			
 			
 			//
 			//apply vertical
 			//
 			
-			if		(childProps.top.isSet())		child.bounds.top	= padding.top + childProps.top;
-			else if (childProps.bottom.isSet())		child.bounds.bottom	= group.bounds.height - padding.bottom - childProps.bottom;
-			else if (childProps.vCenter.isSet())	child.bounds.top	= Std.int( ( group.bounds.height - child.bounds.height ) * .5 );
+			if		(childProps.top.isSet())		child.outerBounds.top		= padding.top + childProps.top;
+			else if (childProps.bottom.isSet())		child.outerBounds.bottom	= group.innerBounds.height - padding.bottom - childProps.bottom;
+			else if (childProps.vCenter.isSet())	child.outerBounds.top		= Std.int( ( group.innerBounds.height - child.outerBounds.height ) * .5 );
 		}
 		
 		validatePrepared	= false;

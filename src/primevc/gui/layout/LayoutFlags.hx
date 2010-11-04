@@ -38,7 +38,7 @@ package primevc.gui.layout;
  */
 class LayoutFlags 
 {
-	public static inline var ALL_PROPERTIES			: UInt = WIDTH | HEIGHT | INCLUDE | RELATIVE | ALGORITHM | MAX_WIDTH | MAX_HEIGHT | PERCENT_WIDTH | PERCENT_HEIGHT | PADDING | MAINTAIN_ASPECT | ROTATION | CHILD_WIDTH | CHILD_HEIGHT;
+	public static inline var ALL_PROPERTIES			: UInt = WIDTH | HEIGHT | INCLUDE | RELATIVE | ALGORITHM | MAX_WIDTH | MAX_HEIGHT | PERCENT_WIDTH | PERCENT_HEIGHT | PADDING | MARGIN | MAINTAIN_ASPECT | ROTATION | CHILD_WIDTH | CHILD_HEIGHT;
 	public static inline var CONSTRAINT_PROPERTIES	: UInt = MIN_WIDTH | MIN_HEIGHT | MAX_WIDTH | MAX_HEIGHT;
 	public static inline var WIDTH_PROPERTIES		: UInt = WIDTH | MEASURED_WIDTH | BOUNDARY_WIDTH | EXPLICIT_WIDTH;
 	public static inline var HEIGHT_PROPERTIES		: UInt = HEIGHT | MEASURED_HEIGHT | BOUNDARY_HEIGHT | EXPLICIT_HEIGHT;
@@ -88,6 +88,7 @@ class LayoutFlags
 	public static inline var MEASURED_HEIGHT		: UInt = 33554432;
 	public static inline var EXPLICIT_HEIGHT		: UInt = 67108864;
 	
+	public static inline var MARGIN					: UInt = 134217728;
 	public static inline var PADDING				: UInt = 262144;
 	public static inline var MAINTAIN_ASPECT		: UInt = 524288;
 	public static inline var ROTATION				: UInt = 1048576;
@@ -120,6 +121,7 @@ class LayoutFlags
 		if (flags.has( INCLUDE ))				output.push("include");
 		if (flags.has( LIST ))					output.push("list");
 		if (flags.has( MAINTAIN_ASPECT ))		output.push("maintain-aspect-ratio");
+		if (flags.has( MARGIN ))				output.push("margin");
 		if (flags.has( MEASURED_HEIGHT ))		output.push("measured-height");
 		if (flags.has( MEASURED_WIDTH ))		output.push("measured-width");
 		if (flags.has( MAX_HEIGHT ))			output.push("max-height");

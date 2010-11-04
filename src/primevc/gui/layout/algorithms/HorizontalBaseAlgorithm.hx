@@ -35,9 +35,7 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutFlags;
- import primevc.utils.IntMath;
   using primevc.utils.BitUtil;
-  using primevc.utils.IntMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
   using Std;
@@ -125,8 +123,8 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 		{
 			height = 0;
 			for (child in group.children)
-				if (child.includeInLayout && child.bounds.height > height)
-					height = child.bounds.height;
+				if (child.includeInLayout && child.outerBounds.height > height)
+					height = child.outerBounds.height;
 		}
 
 		setGroupHeight(height);
@@ -149,11 +147,12 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 	{
 		if (group.children.length > 0)
 		{
+			var start = getTopStartValue();
 			for (child in group.children) {
 				if (!child.includeInLayout)
 					continue;
 
-				child.bounds.top = 0;
+				child.outerBounds.top = start;
 			}
 		}
 	}
@@ -163,21 +162,22 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 	{
 		if (group.children.length > 0)
 		{
+			var start = getTopStartValue();
 			if (group.childHeight.notSet())
 			{	
 				for (child in group.children) {
 					if (!child.includeInLayout)
 						continue;
 					
-					child.bounds.top = ( (group.bounds.height - child.bounds.height) * .5 ).int();
+					child.outerBounds.top = start + ( (group.height - child.outerBounds.height) * .5 ).int();
 				}
 			}
 			else
 			{
-				var childY = ( (group.bounds.height - group.childHeight) * .5 ).int();
+				var childY = start + ( (group.innerBounds.height - group.childHeight) * .5 ).int();
 				for (child in group.children)
 					if (child.includeInLayout)
-						child.bounds.top = childY;
+						child.outerBounds.top = childY;
 			}
 		}
 	}
@@ -187,67 +187,26 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 	{
 		if (group.children.length > 0)
 		{
+			var start = getTopStartValue();
 			if (group.childHeight.notSet())
-			{	
+			{
 				for (child in group.children) {
 					if (!child.includeInLayout)
 						continue;
 					
-					child.bounds.top = group.bounds.height - child.bounds.height;
+					child.outerBounds.top = start + (group.innerBounds.height - child.outerBounds.height);
 				}
 			}
 			else
 			{
-				var childY = group.bounds.height - group.childHeight;
+				var childY = start + (group.innerBounds.height - group.childHeight);
 				for (child in group.children)
 					if (child.includeInLayout)
-						child.bounds.top = childY;
+						child.outerBounds.top = childY;
 			}
 		}
 	}
 	
-	
-
-	//
-	// START VALUES
-	//
-
-	private inline function getLeftStartValue ()	: Int
-	{
-		var left:Int = 0;
-		if (group.padding != null)
-			left = group.padding.left;
-
-		return left;
-	}
-	
-	
-	private inline function getCenterStartValue ()	: Int
-	{
-		var start:Int = 0;
-		
-		if (group.is(AdvancedLayoutClient))
-		{
-			var group = group.as(AdvancedLayoutClient);
-			if (group.explicitWidth.isSet() && group.measuredWidth.isSet())
-				start = IntMath.max( group.explicitWidth - group.measuredWidth, 0 ).divCeil( 2 );
-		}
-		
-		return start += getLeftStartValue();
-	}
-
-
-	private inline function getRightStartValue ()	: Int
-	{
-		var w = group.width;
-		if (group.is(AdvancedLayoutClient))
-			w = IntMath.max(group.as(AdvancedLayoutClient).measuredWidth, w);
-
-		if (group.padding != null)
-			w += group.padding.left; // + group.padding.right;
-		return w;
-	}
-
 
 #if neko
 	override public function toCode (code:ICodeGenerator)

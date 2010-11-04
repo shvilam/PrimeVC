@@ -28,10 +28,12 @@
  */
 package primevc.gui.layout;
  import primevc.core.geom.Box;
- import primevc.core.geom.constraints.ConstrainedRect;
+// import primevc.core.geom.constraints.ConstrainedRect;
  import primevc.core.geom.constraints.SizeConstraint;
- import primevc.core.IDisposable;
+ import primevc.core.geom.IntRectangle;
  import primevc.core.states.SimpleStateMachine;
+ import primevc.core.traits.IInvalidateListener;
+ import primevc.core.IDisposable;
  import primevc.gui.events.LayoutEvents;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.traits.IInvalidating;
@@ -46,6 +48,7 @@ package primevc.gui.layout;
  */
 interface ILayoutClient 
 		implements IInvalidating
+	,	implements IInvalidateListener
 	,	implements IDisposable
 {
 	/**
@@ -227,7 +230,8 @@ interface ILayoutClient
 	 * 		- right:	470 (400 + 50 + 20)
 	 * 		- bottom:	380 (300 + 60 + 20)
 	 */
-	public var padding (default, setPadding)	: Box;
+	public var padding	(default, setPadding)	: Box;
+	public var margin	(default, setMargin)	: Box;
 	
 	
 	//
@@ -237,7 +241,14 @@ interface ILayoutClient
 	public var x		(default, setX)			: Int;
 	public var y		(default, setY)			: Int;
 	
-	public var bounds	(default, null)			: ConstrainedRect;
+	/**
+	 * Size of the layouclient including the padding but without the margin
+	 */
+	public var innerBounds	(default, null)		: IntRectangle;
+	/**
+	 * Size of the layouclient including the padding and margin
+	 */
+	public var outerBounds	(default, null)		: IntRectangle;
 	
 	
 #if debug

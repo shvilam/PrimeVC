@@ -40,6 +40,7 @@ class ApplicationStyle extends UIElementStyle
 {
 	override private function init ()
 	{
+		parentStyle = this;
 		styles.add( new StyleSheet() );
 	}
 	

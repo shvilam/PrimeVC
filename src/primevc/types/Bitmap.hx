@@ -38,6 +38,7 @@ package primevc.types;
  import primevc.core.geom.Matrix2D;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.display.Loader;
+ import primevc.utils.TypeUtil;
   using	Std;
 
 
@@ -49,6 +50,14 @@ typedef FlashBitmap = flash.display.Bitmap;
  import primevc.utils.StringUtil;
 #end
 
+
+typedef AssetClass = Class<Dynamic>;
+/*	#if flash9	Class<DisplayObject>;
+	#else		Class<Dynamic>; #end*/
+
+typedef BitmapDataType = 
+	#if flash9	BitmapData;
+	#else		Dynamic; #end
 
 
 /**
@@ -63,20 +72,17 @@ class Bitmap
 				implements IDisposable
 #if neko	,	implements ICodeFormattable		#end
 {
-#if flash9
-	private var _data					: BitmapData;
+	private var _data					: BitmapDataType;
 	
 	/**
 	 * Bitmapdata of the given source
 	 */
-	public var data (getData, setData)	: BitmapData;
+	public var data (getData, setData)	: BitmapDataType;
+#if flash9
 	private var loader					: Loader;
-#else
-	private var _data					: Dynamic;
-	public var data (getData, setData)	: Dynamic;
 #end
 
-#if neko
+#if (neko || debug)
 	public var uuid (default, null)		: String;
 #end
 	
@@ -92,19 +98,18 @@ class Bitmap
 	 * Class of the current bitmap (if it's loaded from a class).
 	 * Used for internal caching of bitmaps.
 	 */
-#if flash9
-	public var asset (default, null)	: Class <DisplayObject>;
-#else
-	public var asset (default, null)	: Class <Dynamic>;
-#end
+	public var asset (default, null)	: AssetClass;
 	
 	
-	public function new ()
+	public function new (url:String = null, asset:AssetClass = null, data:BitmapDataType = null)
 	{
 		state	= new SimpleStateMachine < BitmapStates >(empty);
 #if neko
 		uuid	= StringUtil.createUUID();
 #end
+		if (url != null)	setString( url );
+		if (asset != null)	setClass( asset );
+		if (data != null)	this.data = data;
 	}
 	
 	
@@ -142,13 +147,14 @@ class Bitmap
 	
 	public function load ()
 	{
-		if (url != null)			loadString();
-		else if (asset != null)		loadClass();
+		if (state.current == loadable) {
+			if (url != null)			loadString();
+			else if (asset != null)		loadClass();
+		}
 	}
 	
 	
-#if flash9
-	private inline function setData (v:BitmapData)
+	private inline function setData (v:BitmapDataType)
 	{
 		if (v != _data) {
 			_data = v;
@@ -156,37 +162,17 @@ class Bitmap
 		}
 		return v;
 	}
-#else
-	private inline function setData (v:Dynamic)
+	
+	
+	private inline function getData () : BitmapDataType
 	{
-		if (v != _data) {
-			if (_data != null)
-				state.current = empty;
-			
-			_data = v;
-			
-			if (_data != null)
-				state.current = ready;
-		}
-		return v;
-	}
-#end
-	
-	
 #if flash9
-	private inline function getData () : BitmapData
-	{
 		if (_data == null || state.current != ready)
 			load();
+#end
 		
 		return _data;
 	}
-#else
-	private inline function getData () : Dynamic
-	{
-		return _data;
-	}
-#end
 	
 	
 	
@@ -238,7 +224,13 @@ class Bitmap
 				setString(v);
 #if flash9
 			state.current = loading;
-			loader.load( new flash.net.URLRequest(url) );
+			
+			if (url.indexOf("class:") != 0)
+				loader.load( new flash.net.URLRequest(url) );
+			else {
+				var c = Type.resolveClass(url.substr(6));
+				loadClass( c );
+			}
 #end
 		}
 	}
@@ -264,37 +256,28 @@ class Bitmap
 	{	
 		data = v;
 	}
+#end
 	
-	
-	public inline function loadClass (?v:Class<DisplayObject>)
+	public function loadClass (?v:AssetClass)
 	{
 		if (v != asset || (v == null && asset != null))
 		{
 			if (v != null)
 				setClass(v);
 			
-			loadDisplayObject(untyped __new__(v));
-		}
-	}
-	
-#else
-	
-	public inline function loadClass (?v:Class<Dynamic>)
-	{
-		if (v != asset || (v == null && asset != null))
-		{
-			if (v != null)
-				setClass(v);
-		}
-	}
-
-#end
-
 #if flash9
-	public inline function setClass (v:Class<DisplayObject>)
-#else
-	public inline function setClass (v:Class<Dynamic>)
+			var inst:Dynamic = Type.createInstance(v, []);
+			Assert.notNull(inst);
+			if		(TypeUtil.is( inst, IDisplayObject))	loadDisplayObject( cast inst );
+			else if (TypeUtil.is( inst, BitmapData))		loadBitmapData( cast inst );
+			else if (TypeUtil.is( inst, FlashBitmap))		loadFlashBitmap( cast inst );
+			else											trace("unkown asset!");
 #end
+		}
+	}
+	
+	
+	public inline function setClass (v:AssetClass)
 	{
 		state.current = loadable;
 		asset	= v;
@@ -370,7 +353,7 @@ class Bitmap
 	}
 	
 	
-	public static inline function fromBitmapData (v:BitmapData) : Bitmap
+	public static inline function fromBitmapData (v:BitmapDataType) : Bitmap
 	{
 		var b = new Bitmap();
 		b.loadBitmapData(v);
@@ -378,12 +361,9 @@ class Bitmap
 	}
 	
 #end
-
-#if flash9
-	public static inline function fromClass (v:Class<DisplayObject>) : Bitmap
-#else
-	public static inline function fromClass (v:Class<Dynamic>) : Bitmap
-#end
+	
+	
+	public static inline function fromClass (v:AssetClass) : Bitmap
 	{
 		var b = new Bitmap();
 		b.loadClass(v);
@@ -411,10 +391,10 @@ class Bitmap
 	
 	public function toCode (code:ICodeGenerator)
 	{
-		code.construct(this);
-		if (url != null)	code.setAction(this, "setString", [url]);
+		code.construct(this, [ url, asset, _data ]);
+		/*if (url != null)	code.setAction(this, "setString", [url]);
 		if (asset != null)	code.setAction(this, "setClass", [asset]);
-		if (_data != null)	code.setProp(this, "data", _data);
+		if (_data != null)	code.setProp(this, "data", _data);*/
 	}
 #end
 }

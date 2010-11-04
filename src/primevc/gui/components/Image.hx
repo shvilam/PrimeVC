@@ -57,7 +57,8 @@ class Image extends UIGraphic
 	override private function createGraphics ()
 	{
 		Assert.notNull(graphicData.value);
-		graphicData.value.fill = new BitmapFill( source, null, false );
+		if (graphicData.value.fill == null || !graphicData.value.fill.is(BitmapFill))
+			graphicData.value.fill = new BitmapFill( source, null, false );
 	}
 	
 	

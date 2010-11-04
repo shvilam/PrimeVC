@@ -158,7 +158,7 @@ class TextField extends flash.text.TextField, implements ITextField
 	 */
 	private function applyValue ()
 	{
-	//	trace(this+".applyValue "+text+" => "+value);
+	//	trace(this+".applyValue "+text+" => "+value+"; transform: "+textStyle.transform);
 		var newText = value;
 		if (newText == null)
 			newText = "";

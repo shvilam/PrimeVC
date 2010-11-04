@@ -29,6 +29,7 @@
 package primevc.core.geom;
  import primevc.core.traits.Invalidatable;
   using primevc.utils.NumberUtil;
+  using Std;
 
 
 /**
@@ -39,13 +40,16 @@ package primevc.core.geom;
  */
 class IntRectangle extends Invalidatable, implements IRectangle
 {
-	public var left		(getLeft, setLeft)		: Int;
-	public var right	(getRight, setRight)	: Int;
-	public var top		(getTop, setTop)		: Int;
-	public var bottom	(getBottom, setBottom)	: Int;
+	public var centerX	(getCenterX, setCenterX)	: Float;
+	public var centerY	(getCenterY, setCenterY)	: Float;
 	
-	public var width	(getWidth, setWidth)	: Int;
-	public var height	(getHeight, setHeight)	: Int;
+	public var left		(getLeft, setLeft)			: Int;
+	public var right	(getRight, setRight)		: Int;
+	public var top		(getTop, setTop)			: Int;
+	public var bottom	(getBottom, setBottom)		: Int;
+	
+	public var width	(getWidth, setWidth)		: Int;
+	public var height	(getHeight, setHeight)		: Int;
 	
 	
 	public function new ( x:Int = 0, y:Int = 0, width:Int = 0, height:Int = 0 )
@@ -142,12 +146,34 @@ class IntRectangle extends Invalidatable, implements IRectangle
 	}
 	
 	
+	private inline function setCenterX (v:Float)
+	{
+		if (v.isSet())
+			left = (v - (width * .5)).int();
+		
+		return centerX = v;
+	}
+	
+	
+	private inline function setCenterY (v:Float)
+	{
+		if (v.isSet())
+			top = (v - (height * .5)).int();
+		
+		return centerY = v;
+	}
+	
+	
+	
 	private inline function getLeft ()		{ return left; }
 	private inline function getRight ()		{ return right; }
 	private inline function getTop ()		{ return top; }
 	private inline function getBottom ()	{ return bottom; }
 	private inline function getWidth ()		{ return width; }
 	private inline function getHeight ()	{ return height; }
+	
+	private inline function getCenterX ()	{ return left + (width * .5); }
+	private inline function getCenterY ()	{ return top + (height * .5); }
 	
 	
 	public function isEmpty ()

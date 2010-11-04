@@ -117,10 +117,10 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >
 	
 	private function applySize ()
 	{
-		trace(target+".sizeChanged; "+target.layout.bounds);
+	//	trace(target+".sizeChanged; "+target.layout.outerBounds);
 		if (target.effects == null)
 		{
-			var b = target.layout.bounds;
+			var b = target.layout.innerBounds;
 			target.rect.width	= b.width;
 			target.rect.height	= b.height;
 			

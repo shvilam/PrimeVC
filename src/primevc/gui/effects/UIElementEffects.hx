@@ -125,7 +125,7 @@ class UIElementEffects implements IDisposable
 	public function playResize ()
 	{
 #if (flash8 || flash9 || js)
-		var bounds = target.layout.bounds;
+		var bounds = target.layout.innerBounds;
 		
 		if (resize != null)
 		{

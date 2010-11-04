@@ -91,11 +91,13 @@ class BitmapFill extends GraphicElement, implements IFill
 			
 			bitmap = v;
 			
-			if (bitmap != null) {
+			if (bitmap != null)
+			{
 				if (bitmap.state.is(BitmapStates.ready))
 					invalidate( GraphicFlags.FILL );
 				
 				handleBitmapStateChange.on( bitmap.state.change, this );
+				bitmap.load();
 			}
 		}
 		return v;
@@ -162,7 +164,7 @@ class BitmapFill extends GraphicElement, implements IFill
 			var m:Matrix2D = null;
 			if (repeat == false) {
 				m = new Matrix2D();
-				matrix.scale( bounds.width / bitmap.data.width, bounds.height / bitmap.data.height );
+				m.scale( bounds.width / bitmap.data.width, bounds.height / bitmap.data.height );
 			}
 			target.graphics.beginBitmapFill( bitmap.data, m, repeat, smooth );
 #end

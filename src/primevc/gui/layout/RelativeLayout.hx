@@ -156,15 +156,15 @@ class RelativeLayout
 	public var bottom				(getBottom, setBottom)			: Int;
 	
 	
-	public function new ( top:Int = Number.INT_NOT_SET, right:Int = Number.INT_NOT_SET, bottom:Int = Number.INT_NOT_SET, left:Int = Number.INT_NOT_SET )
+	public function new ( top:Int = Number.INT_NOT_SET, right:Int = Number.INT_NOT_SET, bottom:Int = Number.INT_NOT_SET, left:Int = Number.INT_NOT_SET, hCenter:Int = Number.INT_NOT_SET, vCenter:Int = Number.INT_NOT_SET )
 	{
 #if neko
 		this.uuid		= StringUtil.createUUID();
 #end
 		this.enabled	= true;
 		this.changed	= new Signal0();
-		this.hCenter	= Number.INT_NOT_SET;
-		this.vCenter	= Number.INT_NOT_SET;
+		this.hCenter	= hCenter;
+		this.vCenter	= vCenter;
 		this.top		= top;
 		this.right		= right;
 		this.bottom		= bottom;
@@ -184,10 +184,7 @@ class RelativeLayout
 	
 	public inline function clone () : IBox
 	{
-		var n = new RelativeLayout( top, right, bottom, left );
-		n.vCenter = vCenter;
-		n.hCenter = hCenter;
-		return n;
+		return new RelativeLayout( top, right, bottom, left, hCenter, vCenter );
 	}
 	
 	
@@ -204,9 +201,9 @@ class RelativeLayout
 	
 	
 	
-	private function setHCenter (v) {
+	private function setHCenter (v:Int) {
 		//unset left and right
-		if (v != Number.INT_NOT_SET)
+		if (v.isSet())
 			left = right = Number.INT_NOT_SET;
 		
 		if (v != hCenter) {
@@ -217,9 +214,9 @@ class RelativeLayout
 		return v;
 	}
 	
-	private function setVCenter (v) {
+	private function setVCenter (v:Int) {
 		//unset top and bottom
-		if (v != Number.INT_NOT_SET)
+		if (v.isSet())
 			top = bottom = Number.INT_NOT_SET;
 		
 		if (v != vCenter) {
@@ -232,8 +229,8 @@ class RelativeLayout
 	
 	
 	
-	private inline function setLeft (v) {
-		if (v != Number.INT_NOT_SET)
+	private inline function setLeft (v:Int) {
+		if (v.isSet())
 			hCenter = Number.INT_NOT_SET;
 		
 		if (v != left) {
@@ -244,8 +241,8 @@ class RelativeLayout
 		return v;
 	}
 	
-	private inline function setRight (v) {
-		if (v != Number.INT_NOT_SET)
+	private inline function setRight (v:Int) {
+		if (v.isSet())
 			hCenter = Number.INT_NOT_SET;
 		
 		if (v != right) {
@@ -256,8 +253,8 @@ class RelativeLayout
 		return v;
 	}
 	
-	private inline function setTop (v) {
-		if (v != Number.INT_NOT_SET)
+	private inline function setTop (v:Int) {
+		if (v.isSet())
 			vCenter = Number.INT_NOT_SET;
 		
 		if (v != top) {
@@ -268,8 +265,8 @@ class RelativeLayout
 		return v;
 	}
 	
-	private inline function setBottom (v) {
-		if (v != Number.INT_NOT_SET)
+	private inline function setBottom (v:Int) {
+		if (v.isSet())
 			vCenter = Number.INT_NOT_SET;
 		
 		if (v != bottom) {
@@ -338,11 +335,9 @@ class RelativeLayout
 	{
 		if (!isEmpty())
 		{
-			code.construct( this, [ top, right, bottom, left ] );
-		
-			if (hCenter.isSet())	code.setProp( this, "hCenter", hCenter );
-			if (vCenter.isSet())	code.setProp( this, "vCenter", vCenter );
-			if (!enabled)			code.setProp( this, "enabled", enabled );
+			code.construct( this, [ top, right, bottom, left, hCenter, vCenter ] );
+			if (!enabled)
+				code.setProp( this, "enabled", enabled );
 		}
 	}
 #end

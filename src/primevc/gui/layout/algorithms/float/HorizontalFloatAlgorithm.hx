@@ -80,14 +80,14 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 				if (!child.includeInLayout)
 					continue;
 				
-				if (child.bounds.width.isSet())
-				{
-					width += child.bounds.width;
+			//	if (child.outerBounds.width.isSet())
+			//	{
+					width += child.outerBounds.width;
 				
 					//only count even children
 					if (i % 2 == 0)
-						halfWidth += child.bounds.width;
-				}
+						halfWidth += child.outerBounds.width;
+			//	}
 				i++;
 			}
 		}
@@ -126,8 +126,8 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 					if (!child.includeInLayout)
 						continue;
 					
-					child.bounds.left	= next;
-					next				= child.bounds.right;
+					child.outerBounds.left	= next;
+					next					= child.outerBounds.right;
 				}
 			} 
 			else
@@ -136,8 +136,8 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 					if (!child.includeInLayout)
 						continue;
 					
-					child.bounds.left	 = next;
-					next				+= group.childWidth;
+					child.outerBounds.left	 = next;
+					next					+= group.childWidth;
 				}
 			}
 		}
@@ -146,7 +146,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	
 	private inline function applyCentered () : Void
 	{
-		applyLeftToRight( getCenterStartValue() );
+		applyLeftToRight( getHorCenterStartValue() );
 		/*if (group.children.length > 0)
 		{
 			var i:Int = 0;
@@ -207,8 +207,8 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 					if (!child.includeInLayout)
 						continue;
 					
-					child.bounds.right	= next;
-					next				= child.bounds.left;
+					child.outerBounds.right	= next;
+					next					= child.outerBounds.left;
 				}
 			}
 			else
@@ -218,8 +218,8 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 					if (!child.includeInLayout)
 						continue;
 					
-					child.bounds.left	= next;
-					next				= child.bounds.left - group.childWidth;
+					child.outerBounds.left	= next;
+					next					= child.outerBounds.left - group.childWidth;
 				}
 			}
 		}
@@ -260,7 +260,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 				if (posX < halfW) {
 					//start at beginning
 					for (child in group.children) {
-						if (child.includeInLayout && centerX <= child.bounds.right && centerX >= child.bounds.left)
+						if (child.includeInLayout && centerX <= child.outerBounds.right && centerX >= child.outerBounds.left)
 							break;
 						
 						depth++;
@@ -273,7 +273,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 					depth	= group.children.length;
 					while (itr.hasNext()) {
 						var child = itr.next();
-						if (child.includeInLayout && centerX >= child.bounds.right)
+						if (child.includeInLayout && centerX >= child.outerBounds.right)
 							break;
 						
 						depth--;
@@ -301,8 +301,8 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 		for (child in group.children) {
 			if (child.includeInLayout 
 				&& (
-						(centerX <= child.bounds.right && centerX >= halfW)
-					||	(centerX >= child.bounds.right && centerX <= halfW)
+						(centerX <= child.outerBounds.right && centerX >= halfW)
+					||	(centerX >= child.outerBounds.right && centerX <= halfW)
 				)
 			)
 				break;
@@ -347,7 +347,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 				if (posX > (emptyWidth + halfW)) {
 					//start at beginning
 					for (child in group.children) {
-						if (child.includeInLayout && centerX >= child.bounds.left)
+						if (child.includeInLayout && centerX >= child.outerBounds.left)
 							break;
 						
 						depth++;
@@ -360,7 +360,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 					depth	= group.children.length - 1;
 					while (itr.hasNext()) {
 						var child = itr.next();
-						if (child.includeInLayout && centerX <= child.bounds.right)
+						if (child.includeInLayout && centerX <= child.outerBounds.right)
 							break;
 
 						depth--;

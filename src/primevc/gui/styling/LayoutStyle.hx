@@ -57,6 +57,7 @@ class LayoutStyle extends StyleSubBlock
 	private var _relative				: RelativeLayout;
 	private var _algorithm				: LayoutAlgorithmInfo;
 	private var _padding				: Box;
+	private var _margin					: Box;
 	
 	private var _width					: Int;
 	private var _minWidth				: Int;
@@ -78,6 +79,7 @@ class LayoutStyle extends StyleSubBlock
 	public var relative				(getRelative,			setRelative)		: RelativeLayout;
 	public var algorithm			(getAlgorithm,			setAlgorithm)		: LayoutAlgorithmInfo;
 	public var padding				(getPadding,			setPadding)			: Box;
+	public var margin				(getMargin,				setMargin)			: Box;
 	
 	public var width				(getWidth,				setWidth)			: Int;
 	public var maxWidth				(getMaxWidth,			setMaxWidth)		: Int;
@@ -101,6 +103,7 @@ class LayoutStyle extends StyleSubBlock
 	public function new (
 		rel:RelativeLayout			= null,
 		padding:Box					= null,
+		margin:Box					= null,
 		alg:LayoutAlgorithmInfo		= null,
 		percentW:Float				= Number.INT_NOT_SET,
 		percentH:Float				= Number.INT_NOT_SET,
@@ -117,6 +120,7 @@ class LayoutStyle extends StyleSubBlock
 		this.relative				= rel;
 		this.algorithm				= alg;
 		this.padding				= padding;
+		this.margin					= margin;
 		
 		this.percentWidth			= percentW == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentW;
 		this.percentHeight			= percentH == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentH;
@@ -146,6 +150,7 @@ class LayoutStyle extends StyleSubBlock
 		_relative				= null;
 		_algorithm				= null;
 		_padding				= null;
+		_margin					= null;
 		_percentWidth			= Number.FLOAT_NOT_SET;
 		_percentHeight			= Number.FLOAT_NOT_SET;
 		_width					= Number.INT_NOT_SET;
@@ -278,6 +283,15 @@ class LayoutStyle extends StyleSubBlock
 		var v = _padding;
 		if (v == null && extendedStyle != null)		v = extendedStyle.padding;
 		if (v == null && superStyle != null)		v = superStyle.padding;
+		return v;
+	}
+	
+	
+	private function getMargin ()
+	{
+		var v = _margin;
+		if (v == null && extendedStyle != null)		v = extendedStyle.margin;
+		if (v == null && superStyle != null)		v = superStyle.margin;
 		return v;
 	}
 	
@@ -435,6 +449,16 @@ class LayoutStyle extends StyleSubBlock
 	}
 	
 	
+	private function setMargin (v)
+	{
+		if (v != _margin) {
+			_margin = v;
+			markProperty( Flags.MARGIN, v != null );
+		}
+		return v;
+	}
+	
+	
 	private function setWidth (v)
 	{
 		if (v != _width) {
@@ -570,6 +594,7 @@ class LayoutStyle extends StyleSubBlock
 		var css = [];
 		
 		if (_padding != null)					css.push("padding: " + _padding.toCSS());
+		if (_margin != null)					css.push("margin: " + _margin.toCSS());
 	//	if (_algorithm != null)					css.push("algorithm: " + _algorithm.toCSS());
 		if (_relative != null)					css.push("relative: " + _relative.toCSS());
 		
@@ -609,7 +634,7 @@ class LayoutStyle extends StyleSubBlock
 	{
 		if (!isEmpty())
 		{
-			code.construct( this, [ _relative, _padding, _algorithm, _percentWidth, _percentHeight, _width, _height, _childWidth, _childHeight, _rotation, _includeInLayout, _maintainAspectRatio ] );
+			code.construct( this, [ _relative, _padding, _margin, _algorithm, _percentWidth, _percentHeight, _width, _height, _childWidth, _childHeight, _rotation, _includeInLayout, _maintainAspectRatio ] );
 			
 			if (_minWidth.isSet())		code.setProp( this, "minWidth", minWidth );
 			if (_minHeight.isSet())		code.setProp( this, "minHeight", minHeight );
@@ -635,6 +660,13 @@ class LayoutStyle extends StyleSubBlock
 			_padding.cleanUp();
 			if (_padding.isEmpty())
 				padding = null;
+		}
+		
+		if (_margin != null)
+		{
+			_margin.cleanUp();
+			if (_margin.isEmpty())
+				margin = null;
 		}
 		
 		if (_algorithm != null)

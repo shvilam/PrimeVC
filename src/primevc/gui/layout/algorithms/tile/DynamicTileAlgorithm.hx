@@ -486,7 +486,7 @@ private class DynamicRowAlgorithm extends HorizontalFloatAlgorithm
 		for (child in children)
 		{
 			//check if the child will still fit in this row
-			if (fullChildNum >= 0 || groupSize < child.bounds.width)
+			if (fullChildNum >= 0 || groupSize < child.outerBounds.width)
 			{
 				//move child to the next list
 				if (children.length > 1) {
@@ -497,7 +497,7 @@ private class DynamicRowAlgorithm extends HorizontalFloatAlgorithm
 			else
 			{
 				//add child to row
-				groupSize -= child.bounds.width;
+				groupSize -= child.outerBounds.width;
 			}
 		}
 		
@@ -506,12 +506,12 @@ private class DynamicRowAlgorithm extends HorizontalFloatAlgorithm
 		{
 			for (child in children.nextList)
 			{
-				if (groupSize < child.bounds.width)
+				if (groupSize < child.outerBounds.width)
 					break;
 				
 				children.nextList.remove(child);
 				children.add( child );
-				groupSize -= child.bounds.width;
+				groupSize -= child.outerBounds.width;
 			}
 		}
 	}
@@ -549,7 +549,7 @@ private class DynamicColumnAlgorithm extends VerticalFloatAlgorithm
 		for (child in children)
 		{
 			//check if the child will still fit in this row
-			if (fullChildNum >= 0 || groupSize < child.bounds.height)
+			if (fullChildNum >= 0 || groupSize < child.outerBounds.height)
 			{
 				//move child to the next list
 				fullChildNum++;
@@ -560,7 +560,7 @@ private class DynamicColumnAlgorithm extends VerticalFloatAlgorithm
 			else
 			{
 				//add child to row
-				groupSize -= child.bounds.height;
+				groupSize -= child.outerBounds.height;
 			}
 		}
 
@@ -569,12 +569,12 @@ private class DynamicColumnAlgorithm extends VerticalFloatAlgorithm
 		{
 			for (child in children.nextList)
 			{
-				if (groupSize < child.bounds.height)
+				if (groupSize < child.outerBounds.height)
 					break;
 
 				children.nextList.remove(child);
 				children.add( child );
-				groupSize -= child.bounds.height;
+				groupSize -= child.outerBounds.height;
 			}
 		}
 	}

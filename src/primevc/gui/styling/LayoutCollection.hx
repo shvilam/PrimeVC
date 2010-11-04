@@ -118,6 +118,7 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 		if (propsToSet.has( Flags.INCLUDE ))			layout.includeInLayout				= notEmpty ? styleObj.includeInLayout		: null;
 		if (propsToSet.has( Flags.MAINTAIN_ASPECT ))	layout.maintainAspectRatio			= notEmpty ? styleObj.maintainAspectRatio	: null;
 		if (propsToSet.has( Flags.PADDING ))			layout.padding						= notEmpty ? styleObj.padding				: null;
+		if (propsToSet.has( Flags.MARGIN ))				layout.margin						= notEmpty ? styleObj.margin				: null;
 		
 		if (propsToSet.has( Flags.MIN_WIDTH ))			layout.sizeConstraint.width.min		= notEmpty ? styleObj.minWidth				: Number.INT_NOT_SET;
 		if (propsToSet.has( Flags.MIN_HEIGHT ))			layout.sizeConstraint.height.min	= notEmpty ? styleObj.minHeight				: Number.INT_NOT_SET;

@@ -124,7 +124,7 @@ class DragDropBehaviour extends DragBehaviourBase
 		if (dragInfo.dropTarget != null)
 		{
 #if flash9
-			dragInfo.dropBounds = dragInfo.layout.bounds;
+			dragInfo.dropBounds = dragInfo.layout.outerBounds;
 #end
 			//notify the dragged item that the drag-operation is completed
 			target.dragEvents.complete.send(dragInfo);

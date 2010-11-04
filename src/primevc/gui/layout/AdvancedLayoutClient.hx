@@ -129,8 +129,8 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 		
 	//	trace(this+".validateHorizontal 1 "+width+"; explicit: "+explicitWidth+"; measured: "+measuredWidth+"; "+Flags.readProperties(changes.filter( Flags.WIDTH_PROPERTIES )));
 		
-		if (changes.has( Flags.BOUNDARY_WIDTH ))
-			super.validateHorizontal();
+	//	if (changes.has( Flags.BOUNDARY_WIDTH ))
+	//		super.validateHorizontal();
 		
 		if (changes.has(Flags.WIDTH) && changes.hasNone( Flags.MEASURED_WIDTH | Flags.EXPLICIT_WIDTH ))
 		{
@@ -160,8 +160,8 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 		if (hasValidatedHeight)
 			return;
 		
-		if (changes.has( Flags.BOUNDARY_HEIGHT ))
-			super.validateVertical();
+	//	if (changes.has( Flags.BOUNDARY_HEIGHT ))
+	//		super.validateVertical();
 		
 	//	trace(this+".validateVertical 1 "+height+"; explicit: "+explicitHeight+"; measured: "+measuredHeight+"; "+Flags.readProperties( changes.filter( Flags.HEIGHT_PROPERTIES ) ));
 		if (changes.has(Flags.HEIGHT) && changes.hasNone( Flags.MEASURED_HEIGHT | Flags.EXPLICIT_HEIGHT ))

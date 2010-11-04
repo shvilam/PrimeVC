@@ -7,8 +7,8 @@ MINPARAMS=1
 Style="flair"
 MainClass="primevc.Main"
 OUTPUT="bin-debug/app.swf"
-WIDTH=1000
-HEIGHT=750
+WIDTH=1300
+HEIGHT=900
 FPS=31
 BGCOLOR=FFFFFF
 
@@ -26,7 +26,12 @@ while getopts "a:bc:ds:tw:uh:idf" OptionName
 	esac
 done
 
-Style=skins/${Style}
+Style="skins/${Style}"
+ASSETS=""
+
+if [[ -f "${Style}/Assets.swf" ]] ; then
+	ASSETS="-swf-lib ${Style}/Assets.swf"
+fi;
 
 echo "==================== BUILD${Debug:+ DEBUG} ===================="
 
@@ -36,6 +41,7 @@ else
 	echo "Main: ${MainClass}"
 	echo "Style: ${Style}"
 	echo "Debugging: ${Debug:-false}"
+	echo "Assets: ${ASSETS}"
 	
 	echo "1. BUILDING ASSETS" &&
 	bash ${PRJROOT}/build/build-assets &&
@@ -44,7 +50,7 @@ else
 	echo "3. COMPILING SWF" &&
 	mkdir -p "${PRJROOT}/bin-debug" &&
 	echo "${PRJROOT}/build/build.hxml -swf $OUTPUT -main $MainClass ${Debug:---no-traces} -cp ${Style} -cp tests" &&
-	haxe ${PRJROOT}/build/build.hxml -swf $OUTPUT -main $MainClass ${Debug:---no-traces} -cp ${Style} -cp tests -swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR &&
+	haxe ${PRJROOT}/build/build.hxml -swf $OUTPUT -main $MainClass ${Debug:---no-traces} -cp ${Style} -cp tests -swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR $ASSETS &&
 	
 	if (set -u; : $Debug) 2> /dev/null ; then
 		#mv ${PRJROOT}/tmp.swf ${PRJROOT}/bin-debug/app.swf &&

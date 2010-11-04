@@ -128,12 +128,12 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 				
 				angle	= (childAngle * i) + startRadians;
 				pos		= start + Std.int( radius * Math.cos(angle) );
-				var halfChildWidth	= Std.int( child.bounds.width * .5 );
+				var halfChildWidth	= Std.int( child.outerBounds.width * .5 );
 				var doCenter		= pos.isWithin( radius - halfChildWidth, radius + halfChildWidth );
 				
-				if		(doCenter)				child.bounds.centerX	= pos;
-				else if	(pos > radius)			child.bounds.right		= pos;
-				else							child.bounds.left		= pos;
+				if		(doCenter)				child.outerBounds.centerX	= pos;
+				else if	(pos > radius)			child.outerBounds.right		= pos;
+				else							child.outerBounds.left		= pos;
 				i++;
 			}
 		}

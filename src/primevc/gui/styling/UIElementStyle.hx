@@ -32,7 +32,7 @@ package primevc.gui.styling;
  import primevc.core.collections.DoubleFastCell;
  import primevc.core.collections.IList;
  import primevc.core.collections.PriorityList;
-// import primevc.core.dispatcher.Signal1;
+ import primevc.core.dispatcher.Signal0;
  import primevc.core.dispatcher.Wire;
  import primevc.core.traits.IInvalidatable;
  import primevc.gui.traits.IStylable;
@@ -110,7 +110,9 @@ class UIElementStyle implements IUIElementStyle
 	 * Proxy object to loop through all available states in this object.
 	 */
 	public var states					(getStates, null)		: StatesCollection;
+	public var parentStyle				(default, null)			: UIElementStyle;
 	
+	public var childrenChanged			(default, null)			: Signal0;
 	
 	
 	
@@ -121,7 +123,7 @@ class UIElementStyle implements IUIElementStyle
 		
 		this.target			= target;
 		targetClassName		= target.getClass().getClassName();
-	//	change				= new Signal1();
+		childrenChanged		= new Signal0();
 		
 		stylesAreSearched	= false;
 		filledProperties	= 0;
@@ -138,8 +140,8 @@ class UIElementStyle implements IUIElementStyle
 	
 	private function init ()
 	{
-		addedBinding	= updateStyles	.on( target.displayEvents.addedToStage, this );
-		removedBinding	= clearStyles	.on( target.displayEvents.removedFromStage, this );
+		addedBinding	= updateParentStyle	.on( target.displayEvents.addedToStage, this );
+		removedBinding	= clearStyles		.on( target.displayEvents.removedFromStage, this );
 		removedBinding.disable();
 		
 		if (target.window != null)
@@ -164,7 +166,12 @@ class UIElementStyle implements IUIElementStyle
 		if (layout != null)			layout.dispose();
 		if (states != null)			states.dispose();
 		
-	//	change.dispose();
+		if (parentStyle != null) {
+			parentStyle.childrenChanged.unbind( this );
+			parentStyle = null;
+		}
+		
+		childrenChanged.dispose();
 		clearStyles();
 		currentStates.removeAll();
 		
@@ -173,7 +180,7 @@ class UIElementStyle implements IUIElementStyle
 		styles			= null;
 		targetClassName	= null;
 		target			= null;
-	//	change			= null;
+		childrenChanged	= null;
 		
 		boxFilters		= null;
 		effects			= null;
@@ -188,17 +195,22 @@ class UIElementStyle implements IUIElementStyle
 	{
 		var style : StyleBlock = null;
 		
-		for (styleObj in styles)
+		if (filledProperties.has( Flags.CHILDREN ))
 		{
-			style = styleObj.findChild( name, type, exclude );
-			if (style != null)
-				break;
+		//	trace(target+".findStyle "+name+" of type "+type);
+			for (styleObj in styles)
+			{
+				style = styleObj.findChild( name, type, exclude );
+				if (style != null) {
+		//			trace("\t style found in "+styleObj.type);
+					break;
+				}
+			}
 		}
 		
 		if (style == null)
 		{
 			//look in parent.. (prevent infinte loops with parentStyle != this)
-			var parentStyle = getParentStyle();
 			if (parentStyle != this)
 				style = parentStyle.findStyle( name, type, exclude );
 		}
@@ -214,24 +226,49 @@ class UIElementStyle implements IUIElementStyle
 	{
 		styleNamesChangeBinding.disable();
 		idChangeBinding.disable();
-		if (removedBinding != null)	removedBinding.disable();
-		if (addedBinding != null)	addedBinding.enable();
+		if (removedBinding != null)		removedBinding.disable();
+		if (addedBinding != null)		addedBinding.enable();
 		
 		stylesAreSearched	= false;
 		var changed			= filledProperties;
 		
 		//remove styles and their listeners
-		removeStylesWithPriority( StyleBlockType.idState.enumIndex() );
-		removeStylesWithPriority( StyleBlockType.styleNameState.enumIndex() );
-		removeStylesWithPriority( StyleBlockType.elementState.enumIndex() );
-		removeStylesWithPriority( StyleBlockType.id.enumIndex() );
-		removeStylesWithPriority( StyleBlockType.styleName.enumIndex() );
-		removeStylesWithPriority( StyleBlockType.element.enumIndex() );
+		removeStylesWithPriority( StyleBlockType.idState		.enumIndex() );
+		removeStylesWithPriority( StyleBlockType.styleNameState	.enumIndex() );
+		removeStylesWithPriority( StyleBlockType.elementState	.enumIndex() );
+		removeStylesWithPriority( StyleBlockType.id				.enumIndex() );
+		removeStylesWithPriority( StyleBlockType.styleName		.enumIndex() );
+		removeStylesWithPriority( StyleBlockType.element		.enumIndex() );
+		
+		updateParentStyle();
 		
 		Assert.that( styles.length == 0 );
 		
 		filledProperties = 0;
 		broadcastChanges( changed );
+	}
+	
+	
+	private function updateParentStyle ()
+	{
+		if (parentStyle != null)
+			parentStyle.childrenChanged.unbind( this );
+		
+		parentStyle = null;
+		
+		if (target.window != null)
+		{
+			Assert.notNull( target.container );
+			Assert.that( target.container.is( IStylable ) );
+			Assert.notNull( target.container.as( IStylable ).style );
+			
+			parentStyle = target.container.as( IStylable ).style;
+			
+			if (parentStyle != this)
+				updateStyles.on( parentStyle.childrenChanged, this );
+			
+			updateStyles();
+		}
 	}
 	
 	
@@ -261,12 +298,12 @@ class UIElementStyle implements IUIElementStyle
 	}
 	
 	
-	private inline function getBoxFilters ()	{ return (boxFilters == null)	? boxFilters = new FiltersCollection( this, FilterCollectionType.box ) : boxFilters; }
-	private inline function getEffects ()		{ return (effects == null)		? effects = new EffectsCollection( this ) : effects; }
-	private inline function getFont ()			{ return (font == null)			? font = new TextStyleCollection( this ) : font; }
-	private inline function getGraphics ()		{ return (graphics == null)		? graphics = new GraphicsCollection( this ) : graphics; }
-	private inline function getLayout ()		{ return (layout == null)		? layout = new LayoutCollection( this ) : layout; }
-	private inline function getStates ()		{ return (states == null)		? states = new StatesCollection( this ) : states; }
+	private inline function getBoxFilters ()	{ return (boxFilters == null)	? boxFilters	= new FiltersCollection( this, FilterCollectionType.box ) : boxFilters; }
+	private inline function getEffects ()		{ return (effects == null)		? effects		= new EffectsCollection( this ) : effects; }
+	private inline function getFont ()			{ return (font == null)			? font			= new TextStyleCollection( this ) : font; }
+	private inline function getGraphics ()		{ return (graphics == null)		? graphics		= new GraphicsCollection( this ) : graphics; }
+	private inline function getLayout ()		{ return (layout == null)		? layout		= new LayoutCollection( this ) : layout; }
+	private inline function getStates ()		{ return (states == null)		? states		= new StatesCollection( this ) : states; }
 	
 	
 	/**
@@ -300,6 +337,9 @@ class UIElementStyle implements IUIElementStyle
 		if (changedProperties.has( Flags.EFFECTS ))			effects.apply();
 		if (changedProperties.has( Flags.BOX_FILTERS ))		boxFilters.apply();
 		
+		if (changedProperties.has( Flags.CHILDREN ))
+			childrenChanged.send();
+		
 		return changedProperties;
 	}
 	
@@ -332,7 +372,7 @@ class UIElementStyle implements IUIElementStyle
 			changes				= getUsablePropertiesOf( styleCell );
 			filledProperties	= filledProperties.set( changes );
 			
-		//	trace(target+".addedStyle "+readProperties( changes ));
+	//		trace(target+".addedStyle " + style.type+"; "+readProperties( changes ));
 		}
 		return changes;
 	}
@@ -434,9 +474,7 @@ class UIElementStyle implements IUIElementStyle
 		
 		if (target.id.value != null && target.id.value != "")
 		{
-			var parentStyle	= getParentStyle();
-			var idStyle		= parentStyle.findStyle( target.id.value, StyleBlockType.id );
-			
+			var idStyle = parentStyle.findStyle( target.id.value, StyleBlockType.id );
 			if (idStyle != null)
 				changes = changes.set( addStyle( idStyle ) );
 		}
@@ -450,9 +488,7 @@ class UIElementStyle implements IUIElementStyle
 		if (change == null)
 			change = ListChange.reset;
 		
-		var parentStyle	= getParentStyle();
-		var changes		= 0;
-		
+		var changes = 0;
 		switch (change)
 		{
 			case added( styleName, newPos ):
@@ -487,8 +523,7 @@ class UIElementStyle implements IUIElementStyle
 	
 	private function updateElementStyle () : UInt
 	{
-		var changes		= removeStylesWithPriority( StyleBlockType.element.enumIndex() );
-		var parentStyle = getParentStyle();
+		var changes = removeStylesWithPriority( StyleBlockType.element.enumIndex() );
 		
 		var style:StyleBlock	= null;
 		var parentClass			= target.getClass();
@@ -514,16 +549,6 @@ class UIElementStyle implements IUIElementStyle
 	
 	
 	
-	
-	private inline function getParentStyle () : UIElementStyle
-	{
-		Assert.notNull( target.container );
-		Assert.that( target.container.is( IStylable ) );
-		Assert.notNull( target.container.as( IStylable ).style );
-		return target.container.as( IStylable ).style;
-	}
-	
-	
 	/**
 	 * Method returns all the properties that are defined in the given cell-style
 	 * and which are not defined in the styles with higher priority.
@@ -538,7 +563,7 @@ class UIElementStyle implements IUIElementStyle
 	{
 		Assert.notNull( styleCell );
 		if (properties == -1)
-			properties = styleCell.data.allFilledProperties; //.unset( Flags.INHERETING_STYLES );
+			properties = styleCell.data.allFilledProperties.unset( Flags.INHERETING_STYLES );
 		
 		//loop through all cell's with higher priority
 		while (null != (styleCell = styleCell.prev) && properties > 0)
@@ -602,7 +627,7 @@ class UIElementStyle implements IUIElementStyle
 		Assert.notNull(senderCell);
 		changes			= getUsablePropertiesOf( senderCell, changes );
 		
-		trace("\tchanged properties "+StyleFlags.readProperties(changes));
+	//	trace("\tchanged properties "+StyleFlags.readProperties(changes));
 		broadcastChanges( changes );
 	}
 	

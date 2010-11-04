@@ -36,6 +36,9 @@ package primevc.gui.styling;
  import primevc.core.IDisposable;
   using primevc.utils.BitUtil;
   using primevc.utils.TypeUtil;
+#if debug
+  using Type;
+#end
 
 
 typedef CellType = DoubleFastCell < StyleBlock >;
@@ -108,16 +111,17 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 		groupIterator.rewind();
 		
 		//loop through every stylegroup that has the defined StyleGroupType
-		for ( styleGroup in groupIterator )
-			if (styleGroup != excludedStyle)
-				filledProperties = filledProperties.set( styleGroup.allFilledProperties );
+		if (elementStyle.styles.length > 0)
+			for ( styleGroup in groupIterator )
+				if (styleGroup != excludedStyle)
+					filledProperties = filledProperties.set( styleGroup.allFilledProperties );
 	}
 	
 	
 	public function invalidateCall ( changeFromSender:UInt, sender:IInvalidatable ) : Void
 	{
 		changes = changes.set( getRealChangesOf( cast sender, changeFromSender ) );
-		trace("\tchanged properties " + readProperties(changes));
+	//	trace("\tchanged properties " + readProperties(changes));
 		apply();
 	}
 	
@@ -127,6 +131,7 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 		style.listeners.add( this );
 		changes				= changes.set( getRealChangesOf( style, style.allFilledProperties ) );
 		filledProperties	= filledProperties.set( changes );
+	//	trace("\t"+this+".styleAdded; " + readProperties(filledProperties));
 	}
 	
 	
@@ -135,6 +140,7 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 		style.listeners.remove( this );
 		updateFilledPropertiesFlag( style );	//exclude the to be removed style
 		changes = changes.set( getRealChangesOf( style, style.allFilledProperties ) );
+	//	trace("\t"+this+".styleRemoved; " + readProperties(filledProperties)+"; changes: "+readProperties(changes));
 	}
 	
 	
@@ -163,27 +169,30 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	 * defined with a higher priority height, so the real-changes for the 
 	 * IUIelement are 'height'.
 	 */
-	private function getRealChangesOf ( styleGroup:StyleGroupType, styleChanges:UInt ) : UInt
+	private function getRealChangesOf ( styleGroup:StyleGroupType, styleChanges:Int ) : UInt
 	{
-		var styleCell:CellType = null;
-		var iterator = reversedIterator();
-		while( iterator.hasNext() )
+		if (elementStyle.styles.length > 0)
 		{
-			var curCell = iterator.currentCell;
-			if (iterator.next() == styleGroup) {
-				styleCell = curCell;
-				break;
-			}	
-		}
+			var styleCell:CellType = null;
+			var iterator = reversedIterator();
+			while( iterator.hasNext() )
+			{
+				var curCell = iterator.currentCell;
+				if (iterator.next() == styleGroup) {
+					styleCell = curCell;
+					break;
+				}	
+			}
 		
-		Assert.notNull( styleCell );
-		iterator.setCurrent( cast styleCell.prev );
+			Assert.notNull( styleCell );
+			iterator.setCurrent( cast styleCell.prev );
 		
-		for (styleGroup in iterator)
-		{
-			styleChanges = styleChanges.unset( styleGroup.allFilledProperties );
-			if (styleChanges == 0)
-				break;
+			for (styleGroup in iterator)
+			{
+				styleChanges = styleChanges.unset( styleGroup.allFilledProperties );
+				if (styleChanges == 0)
+					break;
+			}
 		}
 		
 		return styleChanges;
@@ -197,7 +206,8 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	public function reversedIterator ()				: StyleCollectionReversedIterator < StyleGroupType >	{ Assert.abstract(); return null; }
 	
 #if debug
-	public function readProperties (props:Int = -1)	: String												{ Assert.abstract(); return null; }
+	public function readProperties (props:Int = -1)	: String	{ Assert.abstract(); return null; }
+	public function toString () : String						{ return this.getClass().getClassName(); }
 #end
 }
 

@@ -119,8 +119,9 @@ class ConstrainedRect extends BindableBox, implements IRectangle
 			v = constraint.top;
 		
 		if (v != top) {
+			Assert.that( v.isSet() );
 			topProp.value		= v;
-			bottomProp.value	= (v.isSet() && height.isSet()) ? v + height : v;
+			bottomProp.value	= v + height;
 		}
 		return v;
 	}
@@ -132,8 +133,9 @@ class ConstrainedRect extends BindableBox, implements IRectangle
 			v = constraint.bottom;
 		
 		if (v != bottom) {
+			Assert.that( v.isSet() );
 			bottomProp.value = v;
-			topProp.value = (v.isSet() && height.isSet()) ? v - height : v;
+			topProp.value = v - height;
 		}
 		
 		return v;
@@ -146,8 +148,9 @@ class ConstrainedRect extends BindableBox, implements IRectangle
 			v = constraint.left;
 		
 		if (v != left) {
+			Assert.that( v.isSet() );
 			leftProp.value	= v;
-			rightProp.value	= (v.isSet() && width.isSet()) ? v + width : v;
+			rightProp.value	= v + width;
 		}
 		return v;
 	}
@@ -159,8 +162,9 @@ class ConstrainedRect extends BindableBox, implements IRectangle
 			v = constraint.right;
 		
 		if (v != right) {
+			Assert.that( v.isSet() );
 			rightProp.value	= v;
-			leftProp.value	= (v.isSet() && width.isSet()) ? v - width : v;
+			leftProp.value	= v - width;
 		}
 		return v;
 	}
@@ -169,7 +173,7 @@ class ConstrainedRect extends BindableBox, implements IRectangle
 	private inline function setCenterX (v:Float)
 	{
 		if (v.isSet())
-			left = width.isSet() ? (v - (width * .5)).int() : v.int();
+			left = (v - (width * .5)).int();
 		
 		return centerX = v;
 	}
@@ -178,7 +182,7 @@ class ConstrainedRect extends BindableBox, implements IRectangle
 	private inline function setCenterY (v:Float)
 	{
 		if (v.isSet())
-			top = width.isSet() ? (v - (height * .5)).int() : v.int();
+			top = (v - (height * .5)).int();
 		
 		return centerY = v;
 	}

@@ -130,7 +130,10 @@ class Button extends UIDataContainer < String >, implements IIconOwner, implemen
 	{
 		if (iconGraphic == null && icon != null)
 		{
-			iconGraphic = new Image( null, icon );
+			iconGraphic = new Image( null, icon );			
+#if debug
+			iconGraphic.id.value = id.value + "Icon";
+#end
 			layoutContainer.children.add( iconGraphic.layout, 0 );
 			children.add( iconGraphic, 0 );
 		}

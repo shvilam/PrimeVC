@@ -32,11 +32,13 @@ package cases;
  import primevc.core.Bindable;
  import primevc.gui.components.ApplicationView;
  import primevc.gui.components.Button;
+ import primevc.gui.components.Image;
  import primevc.gui.components.Label;
  import primevc.gui.components.ListView;
  import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UIWindow;
+  using primevc.utils.Bind;
 
 
 
@@ -59,18 +61,40 @@ class EditorView extends ApplicationView
 {
 	private var applicationBar	: ApplicationMainBar;
 	private var framesToolBar	: FramesToolBar;
+	private var spreadStage		: SpreadStage;
 	
 	
+//	override private function createBehaviours () {}	//remove auto change layout behaviour...
+	
+	override private function createBehaviours ()
+	{
+		haxe.Log.clear.on( userEvents.mouse.click, this );
+	}
 	override private function createChildren ()
 	{
 		children.add( applicationBar	= new ApplicationMainBar("applicationMainBar") );
+		children.add( spreadStage		= new SpreadStage() );
 		children.add( framesToolBar		= new FramesToolBar("framesList") );
+		
+		layoutContainer.children.add( applicationBar.layout );
+		layoutContainer.children.add( framesToolBar.layout );
+		layoutContainer.children.add( spreadStage.layout );
 	}
 }
 
 
 
-class ApplicationMainBar extends UIContainer {}
+class ApplicationMainBar extends UIContainer
+{
+	private var logo			: Image;
+	
+	
+	override private function createChildren ()
+	{
+		children.add( logo = new Image("logo") );
+		layoutContainer.children.add( logo.layout );
+	}
+}
 
 
 
@@ -84,7 +108,7 @@ class FramesToolBar extends ListView < FrameTypesSectionVO >
 		frames.add( new FrameTypeVO( "webshopFrame", "Webshop Kader", null ) );
 		
 		var media = new ArrayList<FrameTypeVO>();
-		media.add( new FrameTypeVO( "pictureFrame", "Afbeeldingen", null ) );
+		media.add( new FrameTypeVO( "imageFrame", "Afbeeldingen", null ) );
 		media.add( new FrameTypeVO( "videoFrame", "Video", null ) );
 		media.add( new FrameTypeVO( "flashFrame", "Flash", null ) );
 		
@@ -142,8 +166,8 @@ class FrameTypesBarList extends ListView < FrameTypeVO >
 	override private function createItemRenderer (dataItem:FrameTypeVO, pos:Int)
 	{
 		var button = new FrameButton( dataItem );
-		if		(pos == 0)					button.styleClasses.add("first");
-		else if (pos == (value.length - 1))	button.styleClasses.add("last");
+		if (pos == 0)					button.styleClasses.add("first");
+		if (pos == (value.length - 1))	button.styleClasses.add("last");
 		return cast button;
 	}
 }
@@ -170,6 +194,44 @@ class FrameButton extends Button
 	}
 }
 
+
+
+class SpreadStage extends UIContainer
+{
+	private var spread	: SpreadView;
+	private var toolBar	: SpreadToolBar;
+	
+	override private function createChildren ()
+	{
+		children.add( spread	= new SpreadView() );
+		children.add( toolBar	= new SpreadToolBar() );
+		layoutContainer.children.add( spread.layout );
+		layoutContainer.children.add( toolBar.layout );
+	}
+}
+
+
+
+class SpreadView extends UIContainer {}
+
+
+class SpreadToolBar extends UIContainer
+{
+	private var undoBtn	: Button;
+	private var redoBtn	: Button;
+	
+	
+	override private function createChildren ()
+	{
+		children.add( undoBtn = new Button("undoBtn", "Undo") );
+		children.add( redoBtn = new Button("redoBtn", "Redo") );
+		layoutContainer.children.add( undoBtn.layout );
+		layoutContainer.children.add( redoBtn.layout );
+		
+		undoBtn.styleClasses.add( "toolBtn" );
+		redoBtn.styleClasses.add( "toolBtn" );
+	}
+}
 
 
 

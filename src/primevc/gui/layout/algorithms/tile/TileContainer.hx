@@ -66,8 +66,6 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 		childHeight	= Number.INT_NOT_SET;
 		
 		childrenChangeHandler	.on( children.change, this );
-		setHorChildPosition		.on( bounds.leftProp.change, this );
-		setVerChildPosition		.on( bounds.topProp.change, this );
 		
 		if (children.length > 0)
 			for (child in children)
@@ -113,6 +111,11 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 	}*/
 	override public function invalidateCall ( childChanges:UInt, sender:IInvalidatable ) : Void
 	{
+		if (!sender.is(LayoutClient)) {
+			super.invalidateCall( childChanges, sender );
+			return;
+		}
+		
 	//	trace(name+".childInvalidated; "+isValidating+"; "+LayoutFlags.readProperties(childChanges)+"; "+algorithm);
 		var child = sender.as(LayoutClient);
 		if (!isValidating && (childChanges.has(LayoutFlags.LIST) || algorithm == null || algorithm.isInvalid(childChanges)))
@@ -184,15 +187,25 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 	}
 	
 	
-	private function setHorChildPosition () {
-		for (child in children)
-			child.bounds.left = bounds.left;
+	override private function setX (v)
+	{
+		if (v != x) {
+			v = super.setX(v);
+			for (child in children)
+				child.outerBounds.left = innerBounds.left;
+		}
+		return v;
 	}
 	
 	
-	private function setVerChildPosition () {
-		for (child in children)
-			child.bounds.top = bounds.top;
+	override private function setY (v)
+	{
+		if (v != y) {
+			v = super.setY(v);
+			for (child in children)
+				child.outerBounds.top = innerBounds.top;
+		}
+		return v;
 	}
 	
 	
@@ -261,8 +274,8 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 			//	child.parent = this;
 				child.listeners.add(this);
 				
-				if (bounds.left != 0)	child.bounds.left	= bounds.left;
-				if (bounds.top != 0)	child.bounds.top	= bounds.top;
+				if (innerBounds.left != 0)	child.outerBounds.left	= innerBounds.left;
+				if (innerBounds.top != 0)	child.outerBounds.top	= innerBounds.top;
 			//	trace(name+".childAddedHandler "+child+"; bounds: "+bounds+"; child.bounds: "+child.bounds);
 			
 			case removed( child, oldPos ):

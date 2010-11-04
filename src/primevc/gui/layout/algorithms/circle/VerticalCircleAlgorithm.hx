@@ -128,12 +128,12 @@ class VerticalCircleAlgorithm extends VerticalBaseAlgorithm, implements IVertica
 				angle	= (childAngle * i) + startRadians;
 				pos		= start + Std.int( radius * Math.sin(angle) );
 				
-				var halfChildHeight	= Std.int( child.bounds.height * .5 );
+				var halfChildHeight	= Std.int( child.outerBounds.height * .5 );
 				var doCenter		= pos.isWithin( radius - halfChildHeight, radius + halfChildHeight );
 				
-				if		(doCenter)				child.bounds.centerY	= pos;
-				else if	(pos > radius)			child.bounds.bottom		= pos;
-				else							child.bounds.top		= pos;
+				if		(doCenter)				child.outerBounds.centerY	= pos;
+				else if	(pos > radius)			child.outerBounds.bottom	= pos;
+				else							child.outerBounds.top		= pos;
 				i++;
 			}
 		}

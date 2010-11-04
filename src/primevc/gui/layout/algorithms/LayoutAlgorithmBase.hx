@@ -38,6 +38,9 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutClient;
  import primevc.types.Number;
+ import primevc.utils.IntMath;
+  using primevc.utils.IntMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
  
 
@@ -109,6 +112,84 @@ class LayoutAlgorithmBase
 	
 	private function setGroup (v)		{ return group = v; }
 	public function prepareValidate ()	{ validatePrepared = true; }
+	
+	
+	
+	
+	//
+	// START VALUES
+	//
+
+	private inline function getTopStartValue ()		: Int
+	{
+		var top:Int = 0;
+		if (group.margin != null)	top += group.margin.top;
+		if (group.padding != null)	top += group.padding.top;
+		return top;
+	}
+	
+	
+	private inline function getVerCenterStartValue ()	: Int
+	{
+		var start:Int = 0;
+		
+		if (group.is(AdvancedLayoutClient))
+		{
+			var group = group.as(AdvancedLayoutClient);
+			if (group.explicitHeight.isSet() && group.measuredHeight.isSet())
+				start = IntMath.max( group.explicitHeight - group.measuredHeight, 0 ).divCeil( 2 );
+		}
+		
+		return start += getTopStartValue();
+	}
+
+
+	private inline function getBottomStartValue ()	: Int
+	{
+		var start = group.height;
+		
+		if (group.is(AdvancedLayoutClient))
+			start = IntMath.max(group.as(AdvancedLayoutClient).measuredHeight, start);
+		
+		return start += getTopStartValue();
+	}
+	
+	
+	private inline function getLeftStartValue ()	: Int
+	{
+		var start:Int = 0;
+		if (group.margin != null)	start += group.margin.left;
+		if (group.padding != null)	start += group.padding.left;
+		return start;
+	}
+	
+	
+	private inline function getHorCenterStartValue ()	: Int
+	{
+		var start:Int = 0;
+		
+		if (group.is(AdvancedLayoutClient))
+		{
+			var group = group.as(AdvancedLayoutClient);
+			if (group.explicitWidth.isSet() && group.measuredWidth.isSet())
+				start = IntMath.max( group.explicitWidth - group.measuredWidth, 0 ).divCeil( 2 );
+		}
+		
+		return start += getLeftStartValue();
+	}
+
+
+	private inline function getRightStartValue ()	: Int
+	{
+		var start = group.width;
+		
+		if (group.is(AdvancedLayoutClient))
+			start = IntMath.max(group.as(AdvancedLayoutClient).measuredWidth, start);
+		
+		return start += getLeftStartValue();
+	}
+	
+	
 	
 	
 #if (neko || debug)

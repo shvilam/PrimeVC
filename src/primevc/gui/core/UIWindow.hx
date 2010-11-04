@@ -105,7 +105,7 @@ class UIWindow extends Window
 	{
 		super(target, app);
 		
-		id					= new Bindable<String>("UIWindow");
+		id					= new Bindable<String>( #if debug "UIWindow" #end );
 		renderManager		= new RenderManager(this);
 		invalidationManager	= new InvalidationManager(this);
 		

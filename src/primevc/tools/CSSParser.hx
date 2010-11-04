@@ -210,7 +210,7 @@ class CSSParser
 	 * Greedy stupid URI/file matcher
 	 * R_URI_EXPR took to much time
 	 */
-	public static inline var R_URI_PRETENDER		: String = "['\"]?([/a-z0-9/&%.#+=\\;:$@?_-]+)['\"]?";
+	public static inline var R_URI_PRETENDER		: String = "[/a-z0-9/&%.#+=\\;:$@?_-]+";
 	public static inline var R_FILE_EXPR			: String = R_URI_PATH;
 	
 	
@@ -715,11 +715,13 @@ class CSSParser
 		//search in children
 		if (style.children != null)
 		{
+		//	trace("\t\t\tsearch for extended classes");
 			findExtendedClassesInList( style.children.idSelectors );
 			findExtendedClassesInList( style.children.styleNameSelectors );
 			findExtendedClassesInList( style.children.elementSelectors );
 			
 			createEmptySuperClassesForList( style.children.elementSelectors );
+		//	trace("\t\t\tsearch for super classes");
 			findSuperClassesInList( style.children.elementSelectors );
 		}
 	}
@@ -736,8 +738,10 @@ class CSSParser
 		{
 			Assert.that(name != null);
 			var style = list.get(name);
+		//	trace("\n");
+		//	trace("found style "+name);
 			setExtendedStyle( name, style );
-		//	trace("createStyleStructor for "+name);
+		//	trace("\tcreateStyleStructor for "+name);
 			createStyleStructure( style );
 			
 			if (style.filledProperties.has( StyleFlags.STATES ))
@@ -805,15 +809,21 @@ class CSSParser
 	
 	private function setExtendedStyle (name:String, style:StyleBlock)
 	{
-		if (style == null || style.parentStyle == null)
+		if (style == null || style.parentStyle == null || style.extendedStyle != null)
 			return;
 		
+	//	trace("\t\tsetExtendedStyle for  "+name + "( "+style.type+" )"+" = -> parentType: "+style.parentStyle.type);
 		style.extendedStyle = style.parentStyle.findChild( name, style.type, style );
+	//	trace("\t\t\t\t\t "+(style.extendedStyle != null));
 	}
 	
 	
 	private function setSuperStyle (name:String, style:StyleBlock) : Void
 	{
+		if (style == null || style.parentStyle == null || style.extendedStyle != null)
+			return;
+		
+	//	trace("\t\tsetSuperStyle for "+name + "( "+style.type+" )"+" = -> parentType: "+style.parentStyle.type);
 		var parentName = manifest.getFullSuperClassName( name );
 		while (parentName != null && parentName != "")
 		{
@@ -824,6 +834,8 @@ class CSSParser
 			
 			parentName = manifest.getFullSuperClassName( parentName );
 		}
+		
+	//	trace("\t\t\t\t\t "+(style.superStyle != null));
 	}
 	
 	
@@ -839,10 +851,10 @@ class CSSParser
 		if (keys != null)
 			for (stateName in keys)
 			{
-	//			trace("\t\t"+styleName+":"+stateName);
+			//	trace("\t\t"+styleName+":"+stateName);
 				var state = states.get(stateName);
 				setExtendedState( stateName, state, styleName, style );
-				trace("createStyleStructor for "+styleName+":"+stateName);
+			//	trace("createStyleStructor for "+styleName+":"+stateName);
 				createStyleStructure( state );
 			}
 	}
@@ -854,6 +866,7 @@ class CSSParser
 			return;
 		
 		state.extendedStyle = style.findState( stateName, styleName, style.type, state );
+	//	trace("\t\tsetExtendedState for "+styleName+":"+stateName+" = "+(state.extendedStyle != null));
 	}
 	
 	
@@ -1040,10 +1053,10 @@ class CSSParser
 		
 		var stateList	= (currentBlock.states != null) ? currentBlock.states			: new StatesStyle();
 		var stateType	= switch (currentBlock.type) {
-			case StyleBlockType.element:		StyleBlockType.elementState;
+			case StyleBlockType.element:	StyleBlockType.elementState;
 			case StyleBlockType.styleName:	StyleBlockType.styleNameState;
 			case StyleBlockType.id:			StyleBlockType.idState;
-			default:								currentBlock.type;
+			default:						currentBlock.type;
 		}
 		
 		var stateBlock	= (stateList.owns( stateName )) ? stateList.get( stateName )	: new StyleBlock( stateType );
@@ -1054,8 +1067,10 @@ class CSSParser
 		if (stateBlock != null)
 		{
 		//	stateBlock.parentStyle = currentBlock;
-			if (!stateList.owns( stateName ))
+			if (!stateList.owns( stateName )) {
 				currentBlock.states.set( stateName, stateBlock );
+				stateBlock.parentStyle = currentBlock;
+			}
 			currentBlock = stateBlock;
 		}
 	}
@@ -1192,6 +1207,12 @@ class CSSParser
 			case "padding-right":				if (isUnitInt(val))	{ createPaddingBlock();		currentBlock.layout.padding.right	= parseUnitInt( val ); }
 			case "padding-left":				if (isUnitInt(val))	{ createPaddingBlock();		currentBlock.layout.padding.left	= parseUnitInt( val ); }
 			
+			case "margin":						parseAndSetMargin( val );						// [top]px <[right]px> <[bottom]px> <[left]px>
+			case "margin-top":					if (isUnitInt(val))	{ createMarginBlock();		currentBlock.layout.margin.top		= parseUnitInt( val ); }
+			case "margin-bottom":				if (isUnitInt(val))	{ createMarginBlock();		currentBlock.layout.margin.bottom	= parseUnitInt( val ); }
+			case "margin-right":				if (isUnitInt(val))	{ createMarginBlock();		currentBlock.layout.margin.right	= parseUnitInt( val ); }
+			case "margin-left":					if (isUnitInt(val))	{ createMarginBlock();		currentBlock.layout.margin.left		= parseUnitInt( val ); }
+			
 			
 			//
 			// transition properties
@@ -1288,11 +1309,6 @@ class CSSParser
 			
 			case "box-sizing":				//currentBlock.layout.sizing		= parseBoxSizing (val); //content-box /*(box model)*/, border-box /*(padding and border will render inside box)*/
 			case "z-index":
-			case "margin":
-			case "margin-top":
-			case "margin-bottom":
-			case "margin-right":
-			case "margin-left":
 			case "float":
 			case "clear":
 			case "display":
@@ -1367,6 +1383,14 @@ class CSSParser
 		return currentBlock.layout.padding;
 	}
 	
+	
+	private inline function createMarginBlock ()
+	{
+		createLayoutBlock();
+		if (currentBlock.layout.margin == null)
+			currentBlock.layout.margin = new Box();
+		return currentBlock.layout.margin;
+	}
 	
 	
 	
@@ -1466,7 +1490,7 @@ class CSSParser
 		var c : Class<Dynamic> = null;
 		if (isClassReference(v))
 			c = cast classRefExpr.matched(2).resolveClass();
-
+		
 		return c;
 	}
 	
@@ -1971,8 +1995,15 @@ class CSSParser
 		}
 		else if (isClassReference(v))
 		{
-			bmp = new Bitmap();
-			bmp.setClass( parseClassReference(v) );
+			//Try to create a class instance for the given string. If the class is not yet compiled, this will fail. 
+			//By setting the classname as string, the bitmapObject will try to create a class-reference to the asset.
+			bmp		= new Bitmap();
+			var c	= parseClassReference(v);
+			
+			if (c != null)
+				bmp.setClass( c );
+			else
+				bmp.setString( "class:" + classRefExpr.matched(2) );
 		}
 		
 		return bmp;
@@ -2065,12 +2096,27 @@ class CSSParser
 		parseAndSetBorderColor(v);
 		parseAndSetBorderImage(v);
 		parseAndSetBorderWidth(v);
+		parseAndSetBorderInset(v);
 	}
 	
 	
 	private inline function parseAndSetBorderImage (v:String) : Void	{ setBorderFill( parseImage( v ) ); }
 	private inline function parseAndSetBorderColor (v:String) : Void	{ setBorderFill( parseColorFill( v ) ); }
 	private inline function parseAndSetBorderWidth (v:String) : Void	{ setBorderWidth( parseUnitFloat( v ) ); }
+	
+	
+	private inline function parseAndSetBorderInset  (v:String) : Void
+	{
+		var pos = v.indexOf("inset");
+		if (pos > -1)
+		{
+			var g = createGraphicsBlock();
+			if (g.border == null)
+				g.border = cast new SolidBorder( null );
+			
+			g.border.innerBorder = true;
+		}
+	}
 	
 	
 	private function setBorderFill (newFill:IFill) : Void
@@ -2116,12 +2162,10 @@ class CSSParser
 	private function setBorderWidth (weight:Float) : Void
 	{
 		var g = createGraphicsBlock();
-		if (g.border != null)
-			g.border.weight = weight;
-		else {
+		if (g.border == null)
 			g.border = cast new SolidBorder( null );
-			g.border.weight = weight;
-		}
+		
+		g.border.weight = weight;
 	}
 	
 	
@@ -2310,7 +2354,7 @@ class CSSParser
 	 */
 	private function parseAndSetHeight (v:String) : Void
 	{
-		var h:Int = isAutoSize(v) ? LayoutFlags.FILL : parseUnitInt(v);
+		var h:Int = parseUnitInt(v);
 		if (h.isSet())
 		{
 			createLayoutBlock();
@@ -2318,7 +2362,7 @@ class CSSParser
 		}
 		else
 		{
-			var ph:Float = parsePercentage(v);
+			var ph:Float = isAutoSize(v) ? LayoutFlags.FILL : parsePercentage(v);
 			if (ph.isSet())
 			{
 				createLayoutBlock();
@@ -2369,6 +2413,38 @@ class CSSParser
 			else
 			{
 				var p		= currentBlock.layout.padding;
+				p.top		= top;
+				p.right		= right;
+				p.bottom	= bottom;
+				p.left		= left;
+			}
+		}
+	}
+	
+	
+	/**
+	 * @see parseAndSetPadding
+	 */
+	private function parseAndSetMargin (v:String) : Void
+	{
+		var expr = floatUnitGroupValExpr;
+		
+		if (expr.match(v))
+		{
+			createLayoutBlock();
+			
+			var top		= getInt( expr.matched(3) );
+			var right	= expr.matched( 8) != null ? getInt( expr.matched(10) ) : top;
+			var bottom	= expr.matched(15) != null ? getInt( expr.matched(17) ) : top;
+			var left	= expr.matched(22) != null ? getInt( expr.matched(24) ) : right;
+			
+			if (currentBlock.layout.margin == null)
+			{
+				currentBlock.layout.margin = new Box( top, right, bottom, left );
+			}
+			else
+			{
+				var p		= currentBlock.layout.margin;
 				p.top		= top;
 				p.right		= right;
 				p.bottom	= bottom;
