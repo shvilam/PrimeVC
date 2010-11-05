@@ -26,9 +26,8 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.styling;
+package primevc.types;
  import primevc.core.IDisposable;
- import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.tools.generator.ICSSFormattable;
 
 #if neko
@@ -38,38 +37,40 @@ package primevc.gui.styling;
 #if (neko || debug)
  import primevc.utils.StringUtil;
 #end
-
+  using primevc.utils.TypeUtil;
+  using Std;
   using Type;
 
 
 
 /**
- * Class holding information about the algorithm to create.
+ * Class holding information about an instance to create.
  * 
  * @author Ruben Weijers
  * @creation-date Nov 01, 2010
  */
-class LayoutAlgorithmInfo implements IDisposable		
+class ClassInstanceFactory < InstanceType >
+				implements IDisposable		
 			,	implements ICSSFormattable
 #if neko	,	implements ICodeFormattable		#end
 {
 	public static inline var EMPTY_ARRAY = [];
 	
 #if (debug || neko)
-	public var uuid			(default, null)		: String;
+	public var uuid (default, null)	: String;
 #end
-	public var algorithm	(default, default)	: Class < ILayoutAlgorithm >;
-	public var params		(default, default)	: Array < Dynamic >;
+	public var classRef				: Class < InstanceType >;
+	public var params				: Array < Dynamic >;
 	
 	
-	public function new (algorithm:Class < ILayoutAlgorithm > = null, params:Array< Dynamic > = null)
-	{	
+	public function new ( classRef:Class<InstanceType> = null, params:Array< Dynamic > = null )
+	{
 #if (debug || neko)
 		uuid = StringUtil.createUUID();
 		if (params == null)
 			params = [];
 #end
-		this.algorithm	= algorithm;
+		this.classRef	= classRef;
 		this.params		= params;
 	}
 	
@@ -79,29 +80,42 @@ class LayoutAlgorithmInfo implements IDisposable
 #if (debug || neko)
 		uuid		= null;
 #end
-		algorithm	= null;
+		classRef	= null;
 		params		= null;
 	}
 	
 	
-	public function create () : ILayoutAlgorithm
+	public function create () : InstanceType
 	{
-		Assert.notNull(algorithm);
+		Assert.notNull(classRef);
 		if (params == null)
-			return algorithm.createInstance( EMPTY_ARRAY );
+			return classRef.createInstance( EMPTY_ARRAY );
 		else
-			return algorithm.createInstance( params );
+			return classRef.createInstance( params );
 	}
 	
 
-#if (neko || debug)
-	public function toString ()						{ return toCSS(); }
-	public function toCSS (prefix:String = "")		{ return create().toCSS(); }
-#end
-
 #if neko
-	public function isEmpty ()						{ return algorithm == null; }
-	public function toCode (code:ICodeGenerator)	{ code.construct( this, [ algorithm, params ] ); }
+	public function toCSS (prefix:String = "")
+	{
+		var i = create();
+		if (i != null && i.is(ICSSFormattable))
+			return i.as(ICSSFormattable).toCSS();
+		else
+			return i.string();
+	}
+	
+	
+	public function toString ()	{ return toCSS(); }
+	public function isEmpty ()	{ return classRef == null; }
+	
+	
+	public function toCode (code:ICodeGenerator)
+	{
+		code.construct( this, [ classRef, params ] );
+	}
+	
+	
 	public function cleanUp ()
 	{
 		if (params == null)

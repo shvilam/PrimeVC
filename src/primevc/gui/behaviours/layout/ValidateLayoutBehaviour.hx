@@ -112,7 +112,7 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >
 			
 			if (target.is(IDrawable)) {
 				var t = target.as(IDrawable);
-				if (t.graphicData.value.border != null) {
+				if (t.graphicData.value != null && t.graphicData.value.border != null) {
 					var borderWidth = t.graphicData.value.border.weight.int();
 					newX -= borderWidth;
 					newY -= borderWidth;

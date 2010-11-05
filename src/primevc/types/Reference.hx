@@ -26,9 +26,40 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.tools.generator;
+package primevc.types;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
+ import primevc.types.ClassInstanceFactory;
 
 
 enum Reference {
-	func (name:String);
+	func		(name:String, cssValue:String);
+	instance	(obj:ClassInstanceFactory<Dynamic>, cssValue:String);
+	className	(name:String, cssValue:String);
 }
+
+
+#if neko
+class ReferenceUtil
+{
+	public static inline function toCSS (ref:Reference) : String
+	{
+		return switch (ref) {
+			case className (name, css):		css != null ? css : "Class( " + name + " )";
+			case instance (factory, css):	css != null ? css : factory.toCSS();
+			case func (name, css):			css != null ? css : "unkown-function";
+		}
+	}
+	
+	
+	public static inline function toCode (ref:Reference, code:ICodeGenerator) : String
+	{
+		return switch (ref) {
+			case className ( name, css ):	name;
+			case instance ( factory, css ):	code.createClassConstructor( factory.classRef, factory.params );
+			case func ( name, css ):		name;
+		}
+	}
+}
+#end

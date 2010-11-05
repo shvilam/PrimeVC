@@ -94,7 +94,7 @@ class DragInfo implements IDisposable
 	public var dropBounds									: IRectangle;
 	
 	
-	public function new (target:IDraggable, dataCursor:IDataCursor < Dynamic >, dragRenderer:ISprite = null, dragLayout:LayoutClient = null)
+	public function new (target:IDraggable, dataCursor:IDataCursor<Dynamic> = null, dragRenderer:ISprite = null, dragLayout:LayoutClient = null)
 	{
 		this.target			= target;
 		this.displayCursor	= target.getDisplayCursor();

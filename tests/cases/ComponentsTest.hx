@@ -5,6 +5,7 @@ package cases;
  import primevc.gui.components.Label;
  import primevc.gui.components.Image;
  import primevc.gui.components.InputField;
+ import primevc.gui.components.Slider;
  import primevc.gui.core.UIWindow;
  import primevc.types.Bitmap;
   using primevc.utils.Bind;
@@ -32,6 +33,7 @@ class ComponentsApp extends ApplicationView
 	private var input	: InputField;
 	private var button	: Button;
 	private var image	: Image;
+	private var slider	: Slider;
 	
 	
 	override private function init ()
@@ -46,6 +48,7 @@ class ComponentsApp extends ApplicationView
 		children.add( image		= new Image("testImage", Bitmap.fromString("/Users/ruben/Pictures/0227pod11.jpg")) );
 		children.add( input		= new InputField("testInput", "welcome welcome welcome welcome welcome welcome welcome") );
 		children.add( label		= new Label("testLabel") );
+		children.add( slider	= new Slider("testSlider", 5, 0, 10) );
 		
 		label.data.pair( input.data );
 		changeLabel.on( button.userEvents.mouse.down, this );

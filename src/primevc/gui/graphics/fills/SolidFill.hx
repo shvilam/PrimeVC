@@ -87,16 +87,8 @@ class SolidFill extends GraphicElement, implements IGraphicProperty
 	}
 	
 	
-#if (debug || neko)
-	override public function toCSS (prefix:String = "")
-	{
-		return color.string();
-	}
-#end
 #if neko
-	override public function toCode (code:ICodeGenerator)
-	{
-		code.construct( this, [ color ] );
-	}
+	override public function toCSS (prefix:String = "")		{ return color.string(); }
+	override public function toCode (code:ICodeGenerator)	{ code.construct( this, [ color ] ); }
 #end
 }

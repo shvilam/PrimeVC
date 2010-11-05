@@ -107,12 +107,9 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 #end
 	
 	
-#if (debug || neko)
+#if neko
 	public function toString ()						{ return toCSS(); }
 	public function toCSS (prefix:String = "") 		{ Assert.abstract(); return ""; }
-#end
-	
-#if neko
 	public function cleanUp ()						{ Assert.abstract(); }
 	public function toCode (code:ICodeGenerator)	{ Assert.abstract(); }
 #end

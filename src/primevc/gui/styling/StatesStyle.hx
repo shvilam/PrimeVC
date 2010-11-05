@@ -205,7 +205,7 @@ class StatesStyle extends StyleSubBlock
 	//
 	
 	
-#if (neko || debug)	
+#if neko
 	public function keys () : Iterator < UInt >				{ return states != null ? states.keys() : null; }
 	public function iterator () : Iterator < StyleBlock >	{ return states != null ? states.iterator() : null; }
 
@@ -231,20 +231,8 @@ class StatesStyle extends StyleSubBlock
 		else
 			return "";
 	}
-#end
-	
-#if debug
-	override public function readProperties (flags:Int = -1) : String
-	{
-		if (flags == -1)
-			flags = filledProperties;
-
-		return Flags.readProperties(flags);
-	}
-#end
 	
 	
-#if neko
 	override public function cleanUp ()
 	{
 		if (!isEmpty())
@@ -263,8 +251,20 @@ class StatesStyle extends StyleSubBlock
 	}
 #end
 
+
+#if debug
+	override public function readProperties (flags:Int = -1) : String
+	{
+		if (flags == -1)
+			flags = filledProperties;
+
+		return Flags.readProperties(flags);
+	}
+#end
+
+
 #if (debug && flash9)
-	override public function toString () 
+	public function toString () 
 	{
 		var statesToFind	= allFilledProperties;
 		var output			= [];

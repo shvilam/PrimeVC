@@ -185,7 +185,7 @@ class BorderBase <FillType:IGraphicProperty> extends GraphicElement, implements 
 	}
 	
 	
-#if (debug || neko)
+#if neko
 	override public function toCSS (prefix:String = "")
 	{
 		return fill + " " + weight + "px " + (innerBorder ? "inside" : "outside");
@@ -196,8 +196,8 @@ class BorderBase <FillType:IGraphicProperty> extends GraphicElement, implements 
 	{
 		return fill == null;
 	}
-#end
-#if neko
+	
+	
 	override public function toCode (code:ICodeGenerator)
 	{
 		code.construct( this, [ fill, weight, innerBorder, caps, joint, pixelHinting ] );

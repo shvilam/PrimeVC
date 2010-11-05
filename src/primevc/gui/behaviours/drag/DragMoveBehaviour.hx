@@ -66,9 +66,10 @@ class DragMoveBehaviour extends DragBehaviourBase
 	override private function cancelDrag (mouseObj:MouseState) : Void
 	{	
 		target.stopDrag();
+		dragInfo.restore();
+		
+		//notifiy the dragged item that the drag-operation is canceled
 		target.dragEvents.exit.send( dragInfo );
-		target.x = dragInfo.origPosition.x;
-		target.y = dragInfo.origPosition.y;
 		disposeDragInfo();
 		
 		if (target.is(ILayoutable))

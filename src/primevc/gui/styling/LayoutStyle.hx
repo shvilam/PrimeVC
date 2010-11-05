@@ -32,15 +32,18 @@ package primevc.gui.styling;
 #end
  import primevc.core.geom.Box;
  import primevc.core.traits.IInvalidatable;
+ import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.RelativeLayout;
+ import primevc.types.ClassInstanceFactory;
  import primevc.types.Number;
  import primevc.utils.NumberUtil;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
 
 
-private typedef Flags = LayoutFlags;
+private typedef Flags			= LayoutFlags;
+private typedef AlgorithmClass	= ClassInstanceFactory < ILayoutAlgorithm >;
 
 
 /**
@@ -55,7 +58,7 @@ class LayoutStyle extends StyleSubBlock
 	private var superStyle				: LayoutStyle;
 
 	private var _relative				: RelativeLayout;
-	private var _algorithm				: LayoutAlgorithmInfo;
+	private var _algorithm				: AlgorithmClass;
 	private var _padding				: Box;
 	private var _margin					: Box;
 	
@@ -77,7 +80,7 @@ class LayoutStyle extends StyleSubBlock
 	
 	
 	public var relative				(getRelative,			setRelative)		: RelativeLayout;
-	public var algorithm			(getAlgorithm,			setAlgorithm)		: LayoutAlgorithmInfo;
+	public var algorithm			(getAlgorithm,			setAlgorithm)		: AlgorithmClass;
 	public var padding				(getPadding,			setPadding)			: Box;
 	public var margin				(getMargin,				setMargin)			: Box;
 	
@@ -104,7 +107,7 @@ class LayoutStyle extends StyleSubBlock
 		rel:RelativeLayout			= null,
 		padding:Box					= null,
 		margin:Box					= null,
-		alg:LayoutAlgorithmInfo		= null,
+		alg:AlgorithmClass			= null,
 		percentW:Float				= Number.INT_NOT_SET,
 		percentH:Float				= Number.INT_NOT_SET,
 		width:Int					= Number.INT_NOT_SET,
@@ -588,7 +591,7 @@ class LayoutStyle extends StyleSubBlock
 	}
 	
 	
-#if (debug || neko)
+#if neko
 	override public function toCSS (prefix:String = "") : String
 	{
 		var css = [];
@@ -626,10 +629,8 @@ class LayoutStyle extends StyleSubBlock
 		else
 			return "";
 	}
-#end
-
-
-#if neko
+	
+	
 	override public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())

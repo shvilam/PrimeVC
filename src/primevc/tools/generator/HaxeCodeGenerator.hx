@@ -28,10 +28,13 @@
  */
 package primevc.tools.generator;
  import primevc.gui.layout.LayoutFlags;
+ import primevc.types.ClassInstanceFactory;
+ import primevc.types.Reference;
  import primevc.types.RGBA;
  import primevc.types.SimpleDictionary;
  import primevc.utils.Color;
  import primevc.utils.NumberUtil;
+  using primevc.types.Reference;
   using Std;
   using Type;
 
@@ -111,8 +114,15 @@ class HaxeCodeGenerator implements ICodeGenerator
 	}
 	
 	
-	public function construct (obj:ICodeFormattable, ?args:Array<Dynamic>) : Void {
-		addLine( "var " + createObjectVar(obj, false) + " = new " + getClassName(obj) + "( " + formatArguments( args, true ) + " );" );
+	public function construct (obj:ICodeFormattable, ?args:Array<Dynamic>) : Void
+	{
+		addLine( "var " + createObjectVar(obj, false) + " = " +createClassConstructor( obj.getClass(), args ) + ";" );
+	}
+	
+	
+	public function createClassConstructor (classRef:Class<Dynamic>, ?args:Array<Dynamic>)
+	{
+		return "new " + classRef.getClassName() + "( " + formatArguments( args, true ) + " )";
 	}
 	
 	
@@ -153,20 +163,21 @@ class HaxeCodeGenerator implements ICodeGenerator
 	
 	private function formatValue (v:Dynamic, isConstructor:Bool = false) : String
 	{
-		if		(isColor(v))					return Color.string(v);
-		else if (Std.is( v, ICodeFormattable ))	{ var vStr = getVar(v); return vStr == null ? null : "cast " + vStr; }
-		else if (Std.is( v, Reference))			return getReferenceName(v);
-		else if (isUndefinedNumber(v))			return (Std.is( v, Int )) ? "primevc.types.Number.INT_NOT_SET" : "primevc.types.Number.FLOAT_NOT_SET";
-		else if (v == LayoutFlags.FILL)			return "primevc.gui.layout.LayoutFlags.FILL";
-		else if (v == null)						return "null";
-		else if (Std.is( v, String ))			return "'" + v + "'";
-		else if (Std.is( v, Array ))			return getArray( cast v );
-		else if (Std.is( v, Int ))				return v >= 0 ? Color.uintToString(v) : Std.string(v);
-		else if (Std.is( v, Float ))			return Std.string(v);
-		else if (Std.is( v, Bool ))				return v ? "true" : "false";
-		else if (null != Type.getEnum(v))		return getEnumName(v);
-		else if (null != Type.getClassName(v))	return Type.getClassName(cast v);
-		else									throw "unknown value type: " + v;
+		var str = "";
+		if		(isColor(v))						return Color.string(v);
+		else if (Std.is( v, ICodeFormattable ))		{ var vStr = getVar(v); return vStr == null ? null : "cast " + vStr; }
+		else if (Std.is( v, Reference))				return cast(v, Reference).toCode(this);
+		else if (isUndefinedNumber(v))				return (Std.is( v, Int )) ? "primevc.types.Number.INT_NOT_SET" : "primevc.types.Number.FLOAT_NOT_SET";
+		else if (v == LayoutFlags.FILL)				return "primevc.gui.layout.LayoutFlags.FILL";
+		else if (v == null)							return "null";
+		else if (Std.is( v, String ))				return "'" + v + "'";
+		else if (Std.is( v, Array ))				return getArray( cast v );
+		else if (Std.is( v, Int ))					return v >= 0 ? Color.uintToString(v) : Std.string(v);
+		else if (Std.is( v, Float ))				return Std.string(v);
+		else if (Std.is( v, Bool ))					return v ? "true" : "false";
+		else if (null != Type.getEnum(v))			return getEnumName(v);
+		else if (null != Type.getClassName(v))		return Type.getClassName(cast v);
+		else										throw "unknown value type: " + v;
 		return "";
 	}
 	
@@ -214,17 +225,6 @@ class HaxeCodeGenerator implements ICodeGenerator
 	}
 	
 	
-	private inline function getReferenceName (v:Reference) : String
-	{
-		return switch (v) {
-			case func(name):	name;
-			default:			null;
-		}
-	}
-	
-	
-	
-	
 	private inline function isUndefinedNumber (v:Dynamic) : Bool
 	{
 		var isUndef = false;
@@ -250,8 +250,23 @@ class HaxeCodeGenerator implements ICodeGenerator
 		if (instanceIgnoreList.exists(obj.uuid))
 			return null;
 		
+		var name = createVarName( obj.getClass() );
+		Assert.notNull( name );
+		Assert.notThat( name == "" );
+		
+		varMap.set( obj.uuid, name );
+		
+		if (constructObj)
+			obj.toCode(this);
+		
+		return name;
+	}
+	
+	
+	private function createVarName (classRef:Class<Dynamic>)
+	{
 		//get class name without package stuff..
-		var index:Int, name = getClassName( obj );
+		var index:Int, name = classRef.getClassName();
 		
 		while ( -1 != (index = name.indexOf(".")))
 			name = name.substr( index + 1 );
@@ -261,12 +276,6 @@ class HaxeCodeGenerator implements ICodeGenerator
 		
 		//add a number at the end to make sure the varname is unique
 		name += varCounter++;
-		
-		varMap.set( obj.uuid, name );
-		
-		if (constructObj)
-			obj.toCode(this);
-		
 		return name;
 	}
 	

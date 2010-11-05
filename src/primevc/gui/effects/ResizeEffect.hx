@@ -33,6 +33,7 @@ package primevc.gui.effects;
  import primevc.gui.traits.ISizeable;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
+  using primevc.types.Reference;
 #end
  import primevc.types.Number;
   using primevc.utils.NumberUtil;
@@ -109,26 +110,25 @@ class ResizeEffect extends Effect < ISizeable, ResizeEffect >
 #end
 	
 	
-#if (debug || neko)
+#if neko
 	override public function toCSS (prefix:String = "") : String
 	{
 		var props = [];
 		
 		if (duration.isSet())		props.push( duration + "ms" );
 		if (delay.isSet())			props.push( delay + "ms" );
-		if (easing != null)			props.push( easingToCSS() );
+		if (easing != null)			props.push( easing.toCSS() );
 		if (startW.isSet())			props.push( startW + "px, " + startH + "px" );
 		if (endW.isSet())			props.push( endW + "px, " + endH + "px" );
 		
 		return "resize " + props.join(" ");
 	}
-#end
-
-#if neko
+	
+	
 	override public function toCode (code:ICodeGenerator) : Void
 	{
 		if (!isEmpty())
-			code.construct( this, [ duration, delay, easingToCode(), startW, startH, endW, endH ] );
+			code.construct( this, [ duration, delay, easing, startW, startH, endW, endH ] );
 	}
 #end
 }

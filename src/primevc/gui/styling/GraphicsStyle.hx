@@ -28,12 +28,14 @@
  */
 package primevc.gui.styling;
 #if neko
- import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
+/* import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
  import primevc.gui.behaviours.layout.UnclippedLayoutBehaviour;
  import primevc.gui.behaviours.scroll.CornerScrollBehaviour;
  import primevc.gui.behaviours.scroll.DragScrollBehaviour;
- import primevc.gui.behaviours.scroll.MouseMoveScrollBehaviour;
+ import primevc.gui.behaviours.scroll.MouseMoveScrollBehaviour;*/
  import primevc.tools.generator.ICodeGenerator;
+ import primevc.types.Reference;
+  using primevc.types.Reference;
 #end
  import primevc.core.geom.Corners;
  import primevc.core.traits.IInvalidatable;
@@ -61,26 +63,37 @@ class GraphicsStyle extends StyleSubBlock
 	private var extendedStyle	: GraphicsStyle;
 	private var superStyle		: GraphicsStyle;
 	
-	
+#if neko	
+	private var _shape			: Reference;
+	private var _skin			: Reference;
+	private var _overflow		: Reference;
+#else	
+	private var _shape			: IGraphicShape;
 	private var _skin			: Class < ISkin >;
+	private var _overflow		: Class < Dynamic >;
+#end
 	private var _opacity		: Float;
 	private var _visible		: Null < Bool >;
 	private var _icon			: Bitmap;
-	private var _overflow		: Class < Dynamic >;
 	private var _background		: IGraphicProperty;
 	private var _border			: IBorder;
-	private var _shape			: IGraphicShape;
 	private var _borderRadius	: Corners;
 	
 	
+#if neko	
+	public var shape		(getShape,			setShape)			: Reference;
+	public var skin			(getSkin,			setSkin)			: Reference;
+	public var overflow		(getOverflow,		setOverflow)		: Reference;
+#else	
+	public var shape		(getShape,			setShape)			: IGraphicShape;
 	public var skin			(getSkin,			setSkin)			: Class < ISkin >;
+	public var overflow		(getOverflow,		setOverflow)		: Class < Dynamic >;
+#end
 	public var opacity		(getOpacity,		setOpacity)			: Float;
 	public var visible		(getVisible,		setVisible)			: Null< Bool >;
 	public var icon			(getIcon,			setIcon)			: Bitmap;
-	public var overflow		(getOverflow,		setOverflow)		: Class < Dynamic >;
 	public var background	(getBackground, 	setBackground)		: IGraphicProperty;
 	public var border		(getBorder,			setBorder)			: IBorder;
-	public var shape		(getShape,			setShape)			: IGraphicShape;
 	public var borderRadius	(getBorderRadius,	setBorderRadius)	: Corners;
 	
 	
@@ -88,12 +101,18 @@ class GraphicsStyle extends StyleSubBlock
 	public function new (
 		background	: IGraphicProperty = null,
 		border		: IBorder = null,
+#if neko		
+		shape		: Reference = null,
+		skin		: Reference = null,
+		overflow	: Reference = null,
+#else		
 		shape		: IGraphicShape = null,
 		skin		: Class< ISkin > = null,
+		overflow	: Class < Dynamic > = null,
+#end
 		visible		: Null < Bool > = null,
 		opacity		: Float = Number.INT_NOT_SET,
 		icon		: Bitmap = null,
-		overflow	: Class < Dynamic > = null,
 		borderRadius: Corners = null)
 	{
 		super();
@@ -115,10 +134,12 @@ class GraphicsStyle extends StyleSubBlock
 		extendedStyle = superStyle = null;
 		
 	//	if (_skin != null)			_skin.dispose();
-		if (_shape != null)			_shape.dispose();
 		if (_background != null)	_background.dispose();
 		if (_border != null)		_border.dispose();
+#if !neko
+		if (_shape != null)			_shape.dispose();
 		if (_icon != null)			_icon.dispose();
+#end
 		
 		_skin			= null;
 		_shape			= null;
@@ -404,18 +425,18 @@ class GraphicsStyle extends StyleSubBlock
 	
 	
 	
-#if (neko || debug)
+#if neko
 	override public function toCSS (prefix:String = "")
 	{
 		var css = [];
-		if (_skin != null)			css.push("skin: " + _skin );
+		if (_skin != null)			css.push("skin: " + _skin.toCSS() );
 		if (_shape != null)			css.push("shape: " + _shape.toCSS() );
 		if (_background != null)	css.push("background: " + _background.toCSS() );
 		if (_border != null)		css.push("border: "+ _border.toCSS() );
 		if (_visible != null)		css.push("visability: "+ _visible );
 		if (_opacity.isSet())		css.push("opacity: "+ _opacity );
 		if (_icon != null)			css.push("icon: "+ _icon );
-		if (_overflow != null)		css.push("overflow: "+ overflowToCSS() );
+		if (_overflow != null)		css.push("overflow: "+ _overflow.toCSS() );
 		if (_borderRadius != null)	css.push("border-radius: "+ _borderRadius );
 		
 		if (css.length > 0)
@@ -424,27 +445,11 @@ class GraphicsStyle extends StyleSubBlock
 			return "";
 	}
 	
-	private function overflowToCSS () : String
-	{
-	#if neko
-		return switch (_overflow) {
-				case UnclippedLayoutBehaviour:	"visible";
-				case ClippedLayoutBehaviour:	"hidden";
-				case DragScrollBehaviour:		"drag-scroll";
-				case CornerScrollBehaviour:		"corner-scroll";
-				case MouseMoveScrollBehaviour:	"scroll-mouse-move";
-			}
-	#else
-		return null;
-	#end
-	}
-#end
 	
-#if neko
 	override public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())
-			code.construct( this, [ _background, _border, _shape, _skin, _visible, _opacity, _icon, _overflow, _borderRadius ] );
+			code.construct( this, [ _background, _border, _shape, _skin, _overflow, _visible, _opacity, _icon, _borderRadius ] );
 	}
 	
 	
@@ -467,7 +472,7 @@ class GraphicsStyle extends StyleSubBlock
 				border = null;
 			}
 		}
-		
+	#if !neko
 		if (_shape != null)
 		{
 			_shape.cleanUp();
@@ -485,6 +490,7 @@ class GraphicsStyle extends StyleSubBlock
 				icon = null;
 			}
 		}
+	#end
 	}
 #end
 

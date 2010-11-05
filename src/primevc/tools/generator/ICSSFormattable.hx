@@ -35,7 +35,7 @@ package primevc.tools.generator;
  */
 interface ICSSFormattable
 {
-#if (neko || debug)
+#if neko
 	/**
 	 * Method to write to content of the object as css code.
 	 */

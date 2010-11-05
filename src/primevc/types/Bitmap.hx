@@ -31,7 +31,6 @@ package primevc.types;
  import primevc.core.IDisposable;
   using primevc.utils.Bind;
 
-
 #if flash9
  import flash.display.BitmapData;
  import flash.display.DisplayObject;
@@ -47,19 +46,14 @@ typedef FlashBitmap = flash.display.Bitmap;
 #elseif neko
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICodeGenerator;
- import primevc.tools.ClassReference;
+ import primevc.types.Reference;
  import primevc.utils.StringUtil;
+  using primevc.types.Reference;
 #end
 
 
-typedef AssetClass = Class<Dynamic>;
-	#if flash9		Class<DisplayObject>;
-	#elseif neko	ClassReference;
-	#else			Class<Dynamic>; #end
-
-typedef BitmapDataType = 
-	#if flash9	BitmapData;
-	#else		Dynamic; #end
+typedef AssetClass		= #if neko		Reference	#else Class<Dynamic>	#end;
+typedef BitmapDataType	= #if flash9	BitmapData	#else Dynamic			#end;
 
 
 /**
@@ -268,12 +262,21 @@ class Bitmap
 				setClass(v);
 			
 #if flash9
-			var inst:Dynamic = Type.createInstance(v, []);
-			Assert.notNull(inst);
-			if		(TypeUtil.is( inst, IDisplayObject))	loadDisplayObject( cast inst );
-			else if (TypeUtil.is( inst, BitmapData))		loadBitmapData( cast inst );
-			else if (TypeUtil.is( inst, FlashBitmap))		loadFlashBitmap( cast inst );
-			else											trace("unkown asset!");
+			try
+			{
+				Assert.notNull( asset );
+				var inst:Dynamic = Type.createInstance(asset, []);
+				Assert.notNull(inst);
+				if		(TypeUtil.is( inst, IDisplayObject))	loadDisplayObject( cast inst );
+				else if (TypeUtil.is( inst, BitmapData))		loadBitmapData( cast inst );
+				else if (TypeUtil.is( inst, FlashBitmap))		loadFlashBitmap( cast inst );
+				else											throw "unkown asset!";
+			}
+			catch (e:Dynamic) {
+#if debug
+				throw "Error creating an instance of " + v+"; Error: "+e;
+#end
+			}
 #end
 		}
 	}
@@ -373,7 +376,7 @@ class Bitmap
 	}
 
 
-#if (debug || neko)
+#if neko
 	public function isEmpty ()
 	{
 		return url == null && asset == null && _data == null;
@@ -383,20 +386,16 @@ class Bitmap
 	public function toString ()
 	{
 		return	if (url != null)		"url( "+url+" )";
-				else if (asset != null)	"Class( "+asset+" )";
+				else if (asset != null)	asset.toCSS();
 				else					"Bitmap()";
 	}
-#end
-
-#if neko
+	
+	
 	public function cleanUp () : Void {}
 	
 	public function toCode (code:ICodeGenerator)
 	{
-		code.construct(this, [ url, asset, _data ]);
-		/*if (url != null)	code.setAction(this, "setString", [url]);
-		if (asset != null)	code.setAction(this, "setClass", [asset]);
-		if (_data != null)	code.setProp(this, "data", _data);*/
+		code.construct( this, [ url, asset, _data ] );
 	}
 #end
 }

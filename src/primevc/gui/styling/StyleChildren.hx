@@ -31,14 +31,13 @@ package primevc.gui.styling;
  import primevc.tools.generator.ICSSFormattable;
  import primevc.types.SimpleDictionary;
  import Hash;
-#if (debug || neko)
-  using StringTools;
+#if (neko || debug)
+ import primevc.utils.StringUtil;
 #end
-
 #if neko
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICodeGenerator;
- import primevc.utils.StringUtil;
+  using StringTools;
 #end
 
 
@@ -53,7 +52,7 @@ class StyleChildren
 			,	implements ICSSFormattable
 #if neko	,	implements ICodeFormattable		#end
 {
-#if neko
+#if (neko || debug)
 	public var uuid					(default, null) : String;
 #end
 	
@@ -68,7 +67,7 @@ class StyleChildren
 			idSelectors = null
 		)
 	{
-#if neko
+#if (neko || debug)
 		uuid = StringUtil.createUUID();
 #end
 		this.elementSelectors	= elementSelectors;
@@ -159,7 +158,7 @@ class StyleChildren
 	}
 	
 	
-#if (debug || neko)
+#if neko
 	public function toString ()		{ return toCSS(); }
 	
 
@@ -193,9 +192,8 @@ class StyleChildren
 		}
 		return css;
 	}
-#end
-
-#if neko
+	
+	
 	public function cleanUp ()
 	{
 		if (idSelectors != null)

@@ -233,7 +233,7 @@ class GradientFill extends GraphicElement, implements IGraphicProperty
 	}
 	
 	
-#if (debug || neko)
+#if neko
 	override public function toCSS (prefix:String = "")
 	{
 		var colorStr = gradientStops.join(", ");
@@ -242,8 +242,8 @@ class GradientFill extends GraphicElement, implements IGraphicProperty
 		else
 			return "radial-gradient( " + focalPointRatio + ", " + colorStr + ", " + spread + " )";
 	}
-#end
-#if neko
+	
+	
 	override public function toCode (code:ICodeGenerator)
 	{
 		code.construct( this, [ type, spread, focalPointRatio, rotation ] );

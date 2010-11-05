@@ -187,22 +187,9 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 	}
 	
 	
-#if (debug || neko)
-	override public function toString ()
-	{
-		return "BitmapFill( " + bitmap + ", " + smooth + ", " + repeat + " )";
-	}
-	
-	
-	override public function toCSS (prefix:String = "")
-	{
-		return bitmap.toString + " " + repeat;
-	}
-#end
 #if neko
-	override public function toCode (code:ICodeGenerator)
-	{
-		code.construct( this, [ bitmap, matrix, repeat, smooth ] );
-	}
+	override public function toString ()					{ return "BitmapFill( " + bitmap + ", " + smooth + ", " + repeat + " )"; }
+	override public function toCSS (prefix:String = "")		{ return bitmap.toString + " " + repeat; }
+	override public function toCode (code:ICodeGenerator)	{ code.construct( this, [ bitmap, matrix, repeat, smooth ] ); }
 #end
 }

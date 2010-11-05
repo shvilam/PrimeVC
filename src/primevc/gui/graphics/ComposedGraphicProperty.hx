@@ -179,7 +179,7 @@ class ComposedGraphicProperty extends GraphicElement, implements IComposedGraphi
 	}
 	
 	
-#if (debug || neko)	
+#if neko	
 	
 	//
 	// CSS / ICODEFORMATTABLE METHODS
@@ -202,8 +202,8 @@ class ComposedGraphicProperty extends GraphicElement, implements IComposedGraphi
 	{
 		return firstCell == null || firstCell.data == null;
 	}
-#end
-#if neko
+	
+	
 	override public function toCode (code:ICodeGenerator)
 	{
 		code.construct( this );

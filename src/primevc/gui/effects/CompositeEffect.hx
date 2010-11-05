@@ -30,6 +30,7 @@ package primevc.gui.effects;
  import primevc.core.collections.ArrayList;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
+  using primevc.types.Reference;
 #end
  import primevc.types.Number;
  import primevc.utils.IntMath;
@@ -110,14 +111,14 @@ class CompositeEffect extends Effect < Dynamic, CompositeEffect >
 	}
 
 
-#if (debug || neko)
+#if neko
 	override public function toCSS (prefix:String = "") : String
 	{
 		var props = [];
 
 		if (duration.isSet())		props.push( duration + "ms" );
 		if (delay.isSet())			props.push( delay + "ms" );
-		if (easing != null)			props.push( easingToCSS() );
+		if (easing != null)			props.push( easing.toCSS() );
 		
 		if (effects.length > 0) {
 			var cssEff = [];
@@ -131,16 +132,16 @@ class CompositeEffect extends Effect < Dynamic, CompositeEffect >
 	}
 	
 	
-	override public function isEmpty () {
+	override public function isEmpty ()
+	{
 		return getCompositeDuration() <= 0 || effects.length <= 0;
 	}
-#end
-
-#if neko
+	
+	
 	override public function toCode (code:ICodeGenerator) : Void
 	{
 		if (!isEmpty()) {
-			code.construct( this, [ duration, delay, easingToCode() ] );
+			code.construct( this, [ duration, delay, easing ] );
 			for (effect in effects)
 				code.setAction( this, "add", [ effect ] );
 		}

@@ -40,6 +40,7 @@ package primevc.gui.effects;
  import primevc.types.Number;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
+  using primevc.types.Reference;
 #end
   using primevc.utils.NumberUtil;
 
@@ -101,7 +102,7 @@ class AnchorScaleEffect extends Effect < IDisplayObject, AnchorScaleEffect >
 	override public function setValues (v:EffectProperties) {}
 	
 	
-#if (debug || neko)
+#if neko
 	private function posToCSS () : String
 	{
 		return switch (zoomPosition) {
@@ -125,7 +126,7 @@ class AnchorScaleEffect extends Effect < IDisplayObject, AnchorScaleEffect >
 		
 		if (duration.isSet())		props.push( duration + "ms" );
 		if (delay.isSet())			props.push( delay + "ms" );
-		if (easing != null)			props.push( easingToCSS() );
+		if (easing != null)			props.push( easing.toCSS() );
 		if (zoomPosition != null)	props.push( posToCSS() );
 		if (startValue.isSet())		props.push( (startValue * 100) + "%" );
 		if (endValue.isSet())		props.push( (endValue * 100) + "%" );
@@ -133,13 +134,12 @@ class AnchorScaleEffect extends Effect < IDisplayObject, AnchorScaleEffect >
 		
 		return "anchor-scale " + props.join(" ");
 	}
-#end
-
-#if neko
+	
+	
 	override public function toCode (code:ICodeGenerator) : Void
 	{
 		if (!isEmpty())
-			code.construct( this, [ duration, delay, easingToCode(), zoomPosition, startValue, endValue ] );
+			code.construct( this, [ duration, delay, easing, zoomPosition, startValue, endValue ] );
 	}
 #end
 }

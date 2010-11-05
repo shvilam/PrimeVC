@@ -90,7 +90,7 @@ package primevc.tools;
  import primevc.gui.layout.algorithms.tile.DynamicTileAlgorithm;
  import primevc.gui.layout.algorithms.tile.FixedTileAlgorithm;
  import primevc.gui.layout.algorithms.DynamicLayoutAlgorithm;
-// import primevc.gui.layout.algorithms.ILayoutAlgorithm;
+ import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.algorithms.RelativeAlgorithm;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.RelativeLayout;
@@ -99,7 +99,6 @@ package primevc.tools;
  import primevc.gui.styling.FiltersStyle;
  import primevc.gui.styling.TextStyle;
  import primevc.gui.styling.GraphicsStyle;
- import primevc.gui.styling.LayoutAlgorithmInfo;
  import primevc.gui.styling.LayoutStyle;
  import primevc.gui.styling.StatesStyle;
  import primevc.gui.styling.StyleBlock;
@@ -113,6 +112,8 @@ package primevc.tools;
  import primevc.gui.text.TextDecoration;
  import primevc.gui.text.TextTransform;
  import primevc.types.Bitmap;
+ import primevc.types.ClassInstanceFactory;
+ import primevc.types.Reference;
  import primevc.types.Number;
  import primevc.types.RGBA;
  import primevc.utils.Color;
@@ -1486,13 +1487,12 @@ class CSSParser
 	}
 
 
-	private inline function parseClassReference (v:String) : Class < Dynamic >
+	private function parseClassReference (v:String) : Reference
 	{
-		var c : Class<Dynamic> = null;
 		if (isClassReference(v))
-			c = cast classRefExpr.matched(2).resolveClass();
-		
-		return c;
+			return Reference.className( classRefExpr.matched(2), v );
+		else
+			return null;
 	}
 	
 	
@@ -2005,12 +2005,12 @@ class CSSParser
 			//Try to create a class instance for the given string. If the class is not yet compiled, this will fail. 
 			//By setting the classname as string, the bitmapObject will try to create a class-reference to the asset.
 			bmp		= new Bitmap();
-			var c	= parseClassReference(v);
+			bmp.setClass( parseClassReference(v) );
 			
-			if (c != null)
+		/*	if (c != null)
 				bmp.setClass( c );
 			else
-				bmp.setString( "class:" + classRefExpr.matched(2) );
+				bmp.setString( "class:" + classRefExpr.matched(2) );*/
 			
 			lastParsedString = classRefExpr.removeMatch(v);
 		}
@@ -2102,22 +2102,30 @@ class CSSParser
 	
 	private inline function parseAndSetShape (v:String) : Void
 	{
-		var g = createGraphicsBlock();
-		v = v.trim().toLowerCase();
+		var factory	= new ClassInstanceFactory<IGraphicShape>();
 		
-		var shape:IGraphicShape = switch (v) {
-			case "line":		cast new Line();
-			case "circle":		cast new Circle();
-			case "ellipse":		cast new Ellipse();
-			case "rectangle":	cast new RegularRectangle();
-			default:			null;
+		factory.classRef = switch (v.trim().toLowerCase()) {
+			case "line":		cast Line;
+			case "circle":		cast Circle;
+			case "ellipse":		cast Ellipse;
+			case "rectangle":	cast RegularRectangle;
+			default:
+				//check if there's a custom shape class defined
+				if (v.trim().toLowerCase().indexOf("custom") == 0 && isClassReference(v))
+					cast parseClassReference(v);
+				else
+					null;
 		}
 		
 		//try matching triangle shape..
-		if (shape == null && triangleExpr.match(v))
-			shape = new Triangle( parsePosition( triangleExpr.matched(2) ) );
+		if (factory.classRef == null && triangleExpr.match(v))
+		{
+			factory.classRef	= Triangle;
+			factory.params		= [ parsePosition( triangleExpr.matched(2) ) ];
+		}
 		
-		g.shape = shape;
+		if (factory != null && !factory.isEmpty())
+			createGraphicsBlock().shape = Reference.instance( factory, v );
 	}
 	
 	
@@ -2551,30 +2559,30 @@ class CSSParser
 	 */
 	private function parseAndSetLayoutAlgorithm (v:String) : Void
 	{
-		var info = new LayoutAlgorithmInfo();
+		var info:ClassInstanceFactory<ILayoutAlgorithm> = new ClassInstanceFactory();
 		var v = v.trim().toLowerCase();
 		
-		if		(v == "relative")			info.algorithm = RelativeAlgorithm;
-		else if	(v == "none")				info.algorithm = null;						//FIXME -> none and inherit are the same now. none is not implemented yet..
-		else if	(v == "inherit")			info.algorithm = null;
+		if		(v == "relative")			info.classRef = RelativeAlgorithm;
+		else if	(v == "none")				info.classRef = null;						//FIXME -> none and inherit are the same now. none is not implemented yet..
+		else if	(v == "inherit")			info.classRef = null;
 		
 		//
 		// match floating layout
 		//
 		
 		else if (floatHorExpr.match(v)) {
-			info.algorithm	= HorizontalFloatAlgorithm;
+			info.classRef	= HorizontalFloatAlgorithm;
 			info.params		= [ parseHorDirection( floatHorExpr.matched(2) ), parseVerDirection( floatHorExpr.matched(4) ) ];
 		}
 		else if (floatVerExpr.match(v)) {
-			info.algorithm	= VerticalFloatAlgorithm;
+			info.classRef	= VerticalFloatAlgorithm;
 			info.params		= [ parseVerDirection( floatVerExpr.matched(2) ), parseHorDirection( floatVerExpr.matched(4) ) ];
 		}
 		else if (floatExpr.match(v)) {
-			info.algorithm	= DynamicLayoutAlgorithm;
+			info.classRef	= DynamicLayoutAlgorithm;
 			info.params		= [
-				new LayoutAlgorithmInfo( HorizontalFloatAlgorithm,	[ parseHorDirection( floatExpr.matched(2) ) ] ), 
-				new LayoutAlgorithmInfo( VerticalFloatAlgorithm,	[ parseVerDirection( floatExpr.matched(4) ) ] )
+				new ClassInstanceFactory( HorizontalFloatAlgorithm,	[ parseHorDirection( floatExpr.matched(2) ) ] ), 
+				new ClassInstanceFactory( VerticalFloatAlgorithm,	[ parseVerDirection( floatExpr.matched(4) ) ] )
 			];
 		}
 		
@@ -2583,18 +2591,18 @@ class CSSParser
 		//
 		
 		else if (horCircleExpr.match(v)) {
-			info.algorithm	= HorizontalCircleAlgorithm;
+			info.classRef	= HorizontalCircleAlgorithm;
 			info.params		= [ parseHorDirection( horCircleExpr.matched(2) ), parseVerDirection( horCircleExpr.matched(4) ), false ];
 		}
 		else if (verCircleExpr.match(v)) {
-			info.algorithm	= VerticalCircleAlgorithm;
+			info.classRef	= VerticalCircleAlgorithm;
 			info.params		= [ parseVerDirection( verCircleExpr.matched(2) ), parseHorDirection( verCircleExpr.matched(4) ), false ];
 		}
 		else if (circleExpr.match(v)) {
-			info.algorithm	= DynamicLayoutAlgorithm;
+			info.classRef	= DynamicLayoutAlgorithm;
 			info.params		= [ 
-				new LayoutAlgorithmInfo( HorizontalCircleAlgorithm,	[ parseHorDirection( circleExpr.matched(2) ), null, false ] ), 
-				new LayoutAlgorithmInfo( VerticalCircleAlgorithm,	[ parseVerDirection( circleExpr.matched(4) ), null, false ] )
+				new ClassInstanceFactory( HorizontalCircleAlgorithm,	[ parseHorDirection( circleExpr.matched(2) ), null, false ] ), 
+				new ClassInstanceFactory( VerticalCircleAlgorithm,	[ parseVerDirection( circleExpr.matched(4) ), null, false ] )
 			];
 		}
 		
@@ -2603,18 +2611,18 @@ class CSSParser
 		//
 		
 		else if (horEllipseExpr.match(v)) {
-			info.algorithm	= HorizontalCircleAlgorithm;
+			info.classRef	= HorizontalCircleAlgorithm;
 			info.params		= [ parseHorDirection( horEllipseExpr.matched(2) ), parseVerDirection( horEllipseExpr.matched(4) ) ];
 		}
 		else if (verEllipseExpr.match(v)) {
-			info.algorithm	= VerticalCircleAlgorithm;
+			info.classRef	= VerticalCircleAlgorithm;
 			info.params		= [ parseVerDirection( verEllipseExpr.matched(2) ), parseHorDirection( verEllipseExpr.matched(4) ) ];
 		}
 		else if (ellipseExpr.match(v)) {
-			info.algorithm	= DynamicLayoutAlgorithm;
+			info.classRef	= DynamicLayoutAlgorithm;
 			info.params		= [
-				new LayoutAlgorithmInfo( HorizontalCircleAlgorithm,	[ parseHorDirection( horEllipseExpr.matched(2) ) ] ), 
-				new LayoutAlgorithmInfo( VerticalCircleAlgorithm,	[ parseVerDirection( horEllipseExpr.matched(4) ) ] )
+				new ClassInstanceFactory( HorizontalCircleAlgorithm,	[ parseHorDirection( horEllipseExpr.matched(2) ) ] ), 
+				new ClassInstanceFactory( VerticalCircleAlgorithm,	[ parseVerDirection( horEllipseExpr.matched(4) ) ] )
 			];
 		}
 		
@@ -2630,10 +2638,10 @@ class CSSParser
 		else if (dynamicTileExpr.match(v))
 		{
 			if (dynamicTileExpr.matched(1) == null)
-				info.algorithm = DynamicTileAlgorithm;
+				info.classRef = DynamicTileAlgorithm;
 			else
 			{
-				info.algorithm = DynamicTileAlgorithm;
+				info.classRef = DynamicTileAlgorithm;
 				info.params.push( parseDirection( dynamicTileExpr.matched( 3 ) ) );
 				info.params.push( (dynamicTileExpr.matched( 5 ) != null) ? parseHorDirection( dynamicTileExpr.matched( 5 ) ) : null );
 				info.params.push( (dynamicTileExpr.matched( 7 ) != null) ? parseVerDirection( dynamicTileExpr.matched( 7 ) ) : null );
@@ -2642,10 +2650,10 @@ class CSSParser
 		else if (fixedTileExpr.match(v))
 		{
 			if (fixedTileExpr.matched(1) == null)
-				info.algorithm = FixedTileAlgorithm;
+				info.classRef = FixedTileAlgorithm;
 			else
 			{
-				info.algorithm	= FixedTileAlgorithm;
+				info.classRef	= FixedTileAlgorithm;
 				info.params.push( parseDirection( fixedTileExpr.matched( 2 ) ) );
 				info.params.push( (fixedTileExpr.matched( 4 ) != null) ? getInt( fixedTileExpr.matched( 4 ) )				: Number.INT_NOT_SET );
 				info.params.push( (fixedTileExpr.matched( 6 ) != null) ? parseHorDirection( fixedTileExpr.matched( 6 ) )	: null );
@@ -3247,7 +3255,7 @@ class CSSParser
 	private function parseAndSetSkin (v:String) : Void
 	{
 		if (isClassReference(v))
-			createGraphicsBlock().skin = cast parseClassReference(v);
+			createGraphicsBlock().skin = parseClassReference(v);
 	}
 	
 	
@@ -3290,15 +3298,18 @@ class CSSParser
 	 */
 	private function parseAndSetOverflow (v:String) : Void
 	{
-		createGraphicsBlock().overflow = switch (v.trim().toLowerCase()) {
-			case "visible":				cast UnclippedLayoutBehaviour;
-			case "hidden":				cast ClippedLayoutBehaviour;
-			case "scroll-mouse-move":	cast MouseMoveScrollBehaviour;
-			case "drag-scroll":			cast DragScrollBehaviour;
-			case "corner-scroll":		cast CornerScrollBehaviour;
+		var className = switch (v.trim().toLowerCase()) {
+			case "hidden":				ClippedLayoutBehaviour.getClassName();
+			case "scroll-mouse-move":	MouseMoveScrollBehaviour.getClassName();
+			case "drag-scroll":			DragScrollBehaviour.getClassName();
+			case "corner-scroll":		CornerScrollBehaviour.getClassName();
 			case "scrollbars":			null;
-			default:					null;
-		}
+			/*case "visible":*/
+			default:					UnclippedLayoutBehaviour.getClassName();
+		};
+		
+		if (className != null)
+			createGraphicsBlock().overflow = Reference.className( className, v.trim() );
 	}
 	
 	
@@ -3329,30 +3340,31 @@ class CSSParser
 		var easing : Easing = null;
 		if (easingExpr.match(v))
 		{
-			var e : Dynamic = switch (easingExpr.matched(1).toLowerCase())
+			var method = switch (easingExpr.matched(1).toLowerCase())
 			{
-				case "back":	cast feffects.easing.Back;		// trace(easingExpr.matched(1).toLowerCase());
-				case "bounce":	cast feffects.easing.Bounce;	// trace(easingExpr.matched(1).toLowerCase());
-				case "circ":	cast feffects.easing.Circ;		// trace(easingExpr.matched(1).toLowerCase());
-				case "cubic":	cast feffects.easing.Cubic;		// trace(easingExpr.matched(1).toLowerCase());
-				case "elastic":	cast feffects.easing.Elastic;	// trace(easingExpr.matched(1).toLowerCase());
-				case "expo":	cast feffects.easing.Expo;		// trace(easingExpr.matched(1).toLowerCase());
-				case "linear":	cast feffects.easing.Linear;	// trace(easingExpr.matched(1).toLowerCase());
-				case "quad":	cast feffects.easing.Quad;		// trace(easingExpr.matched(1).toLowerCase());
-				case "quart":	cast feffects.easing.Quart;		// trace(easingExpr.matched(1).toLowerCase());
-				case "quint":	cast feffects.easing.Quint;		// trace(easingExpr.matched(1).toLowerCase());
-				case "sine":	cast feffects.easing.Sine;		// trace(easingExpr.matched(1).toLowerCase());
+				case "back":	"feffects.easing.Back";
+				case "bounce":	"feffects.easing.Bounce";
+				case "circ":	"feffects.easing.Circ";
+				case "cubic":	"feffects.easing.Cubic";
+				case "elastic":	"feffects.easing.Elastic";
+				case "expo":	"feffects.easing.Expo";
+				case "linear":	"feffects.easing.Linear";
+				case "quad":	"feffects.easing.Quad";
+				case "quart":	"feffects.easing.Quart";
+				case "quint":	"feffects.easing.Quint";
+				case "sine":	"feffects.easing.Sine";
 				default:		null;
 			}
 			
-			if (e != null)
-			{
-				easing = switch (easingExpr.matched(2).toLowerCase()) {
-					case "in":	e.easeIn;
-					case "out":	e.easeOut;
-					default:	e.easeInOut;
+			if (method != null)
+				method += switch (easingExpr.matched(2).toLowerCase()) {
+					case "in":	".easeIn";
+					case "out":	".easeOut";
+					default:	".easeInOut";
 				}
-			}
+			
+			if (method != null)
+				easing = Reference.func( method, easingExpr.matched(0) );
 		}
 		
 		return easing;
@@ -3471,7 +3483,7 @@ class CSSParser
 		var duration : Int	= Number.INT_NOT_SET;
 		var delay : Int		= Number.INT_NOT_SET;
 		var easing : Easing	= parseEasing(v);
-		var easingName		= getEasingName(v);
+	//	var easingName		= getEasingName(v);
 		
 	//	trace("testing str = "+v);
 		
@@ -3614,12 +3626,6 @@ class CSSParser
 			effect = new SetAction( duration, delay, easing, props );
 			lastUsedEffectExpr = setActionEffExpr;
 		}
-				
-		
-#if neko
-		if (effect != null)
-			effect.easingName = easingName;
-#end
 		
 	//	trace("p effect2 = "+effect);
 		

@@ -697,7 +697,7 @@ class StyleBlock extends StyleBlockBase
 	}
 	
 	
-#if (debug || neko)
+#if neko
 	override public function toCSS (namePrefix:String = "")
 	{
 		var css = "";
@@ -717,9 +717,8 @@ class StyleBlock extends StyleBlockBase
 		
 		return css;
 	}
-#end
 	
-#if neko
+	
 	override public function cleanUp ()
 	{
 		if (_boxFilters != null)
@@ -826,13 +825,13 @@ class StyleBlock extends StyleBlockBase
 	}
 #end
 	
-#if debug
-	override public function toString ()
+#if (debug && !neko)
+	public function toString ()
 	{
 		return uuid+"; "+readProperties();
 	}
-	
-	
+#end
+#if debug
 	override public function readProperties (flags:Int = -1) : String
 	{
 		if (flags == -1)

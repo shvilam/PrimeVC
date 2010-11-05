@@ -80,7 +80,7 @@ class Box
 	private inline function setBottom (v)	{ return this.bottom = v; }
 	
 	
-#if (debug || neko)
+#if neko
 	public function toString () { return toCSS(); }
 
 
@@ -100,10 +100,7 @@ class Box
 	
 	
 	private inline function getCSSValue (v:Int) { return v == 0 ? "0" : v + "px"; }
-#end
-
-#if neko
-	public function cleanUp () : Void {}
+	public function cleanUp () : Void			{}
 	public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())

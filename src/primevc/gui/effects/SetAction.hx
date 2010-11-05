@@ -33,6 +33,7 @@ package primevc.gui.effects;
 #end
 #if neko
  import primevc.tools.generator.ICodeGenerator;
+  using primevc.types.Reference;
 #end
   using primevc.utils.NumberUtil;
 
@@ -64,14 +65,14 @@ class SetAction extends Effect < IUIElement, SetAction >
 #end
 	
 	
-#if (debug || neko)
+#if neko
 	override public function toCSS (prefix:String = "") : String
 	{
 		var props = [];
 		
 		if (duration.isSet())		props.push( duration + "ms" );
 		if (delay.isSet())			props.push( delay + "ms" );
-		if (easing != null)			props.push( easingToCSS() );
+		if (easing != null)			props.push( easing.toCSS() );
 		if (prop != null)			props.push( propToCSS() );
 		
 		return "set-action " + props.join(" ");
@@ -105,9 +106,8 @@ class SetAction extends Effect < IUIElement, SetAction >
 		
 		return propStr;
 	}
-#end
-
-#if neko
+	
+	
 	override public function isEmpty ()
 	{
 		return false;
@@ -117,7 +117,7 @@ class SetAction extends Effect < IUIElement, SetAction >
 	override public function toCode (code:ICodeGenerator) : Void
 	{
 		if (!isEmpty())
-			code.construct( this, [ duration, delay, easingToCode(), prop ] );
+			code.construct( this, [ duration, delay, easing, prop ] );
 	}
 #end
 }

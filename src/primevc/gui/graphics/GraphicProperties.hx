@@ -329,16 +329,9 @@ class GraphicProperties implements IGraphicElement
 	}
 	
 	
-#if (debug || neko)
-	public function toString ()					{ return "GraphicProperties: l: "+layout+"; s: "+shape+"; f: "+fill+"; b: "+border; }
-	public function toCSS (prefix:String = "")	{ Assert.abstract(); return ""; }
-#end
-	
-	
 #if neko
-	public function toCode (code:ICodeGenerator)
-	{
-		code.construct(this, [ shape, layout, fill, border, borderRadius ]);
-	}
+	public function toString ()						{ return "GraphicProperties: l: "+layout+"; s: "+shape+"; f: "+fill+"; b: "+border; }
+	public function toCSS (prefix:String = "")		{ Assert.abstract(); return ""; }
+	public function toCode (code:ICodeGenerator)	{ code.construct(this, [ shape, layout, fill, border, borderRadius ]); }
 #end
 }
