@@ -47,13 +47,15 @@ typedef FlashBitmap = flash.display.Bitmap;
 #elseif neko
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICodeGenerator;
+ import primevc.tools.ClassReference;
  import primevc.utils.StringUtil;
 #end
 
 
 typedef AssetClass = Class<Dynamic>;
-/*	#if flash9	Class<DisplayObject>;
-	#else		Class<Dynamic>; #end*/
+	#if flash9		Class<DisplayObject>;
+	#elseif neko	ClassReference;
+	#else			Class<Dynamic>; #end
 
 typedef BitmapDataType = 
 	#if flash9	BitmapData;
@@ -225,12 +227,12 @@ class Bitmap
 #if flash9
 			state.current = loading;
 			
-			if (url.indexOf("class:") != 0)
+		//	if (url.indexOf("class:") != 0)
 				loader.load( new flash.net.URLRequest(url) );
-			else {
-				var c = Type.resolveClass(url.substr(6));
-				loadClass( c );
-			}
+		//	else {
+		//		var c = Type.resolveClass(url.substr(6));
+		//		loadClass( c );
+		//	}
 #end
 		}
 	}
