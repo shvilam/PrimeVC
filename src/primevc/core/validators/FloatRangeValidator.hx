@@ -26,47 +26,82 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.geom.constraints;
- import primevc.core.IDisposable;
+package primevc.core.validators;
+ import primevc.core.dispatcher.Signal0;
  import primevc.types.Number;
- 
+ import primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
+
 
 /**
- * Description
+ * This class can constraint the value of an float to the given min and max value.
  * 
- * @creation-date	Jun 19, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Nov 06, 2010
  */
-class SizeConstraint implements IDisposable //implements IConstraint <Dynamic>
+class FloatRangeValidator implements IValueValidator <Float>
 {
-	public var width (default, null)	: IntConstraint;
-	public var height (default, null)	: IntConstraint;
-	
-	
-	public function new(minW = Number.INT_NOT_SET, maxW = Number.INT_NOT_SET, minH = Number.INT_NOT_SET, maxH = Number.INT_NOT_SET) 
+	public var change (default, null)	: Signal0;
+
+	public var min	(default, setMin)	: Float;
+	public var max	(default, setMax)	: Float;
+
+
+	public function new( min = Number.INT_NOT_SET, max = Number.INT_NOT_SET )
 	{
-		width	= new IntConstraint(minW, maxW);
-		height	= new IntConstraint(minH, maxH);
+		change = new Signal0();
+		this.min = min == Number.INT_NOT_SET ? this.min.unset() : min;
+		this.max = max == Number.INT_NOT_SET ? this.max.unset() : max;
 	}
-	
-	
-	public function reset ()
+
+
+	public inline function dispose ()
 	{
-		width.min = Number.INT_NOT_SET;
-		width.max = Number.INT_NOT_SET;
-		height.min = Number.INT_NOT_SET;
-		height.max = Number.INT_NOT_SET;
+		change.dispose();
 	}
-	
-	
-	public function dispose ()
+
+
+	public inline function getDiff ()
 	{
-		if (width == null)
-			return;
-		
-		width.dispose();
-		height.dispose();
-		width = null;
-		height = null;
+		return min.isSet() && max.isSet() ? max - min : 0;
 	}
+
+
+	private inline function setMin (v)
+	{
+		if (v != min) {
+			min = v;
+			change.send();
+		}
+		return v;
+	}
+
+	private inline function setMax (v)
+	{
+		if (v != max) {
+			max = v;
+			change.send();
+		}
+		return v;
+	}
+
+	public inline function validate (v:Float) : Float
+	{
+	//	if (v.notSet())
+	//		return v;
+
+		if (min.isSet() && max.isSet())		v = v.within( min, max );
+		else if (min.isSet())				v = v.getBiggest( min );
+		else if (max.isSet())				v = v.getSmallest( max );
+
+		return v;
+	}
+
+
+#if debug
+	public function toString ()
+	{
+		return "FloatConstraint ( " + min + ", " + max + " )";
+	}
+#end
 }

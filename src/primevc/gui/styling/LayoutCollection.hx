@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
- import primevc.core.geom.constraints.SizeConstraint;
+ import primevc.core.validators.IntRangeValidator;
  import primevc.gui.core.IUIContainer;
  import primevc.gui.layout.IAdvancedLayoutClient;
  import primevc.gui.layout.LayoutFlags;
@@ -63,9 +63,37 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 		
 		var target = elementStyle.target.as( ILayoutable );
 		
+		var widthRange:IntRangeValidator = null;
+		var heightRange:IntRangeValidator = null;
+		
 		//create size constraint for layout client
-		if (changes.has( Flags.CONSTRAINT_PROPERTIES ) && target.layout.sizeConstraint == null)
-			target.layout.sizeConstraint = new SizeConstraint();
+		if (changes.has( Flags.HEIGHT_CONSTRAINTS ))
+		{
+			if (!filledProperties.has(Flags.HEIGHT_CONSTRAINTS)) {
+				target.layout.height.validator = null;
+				changes = changes.unset( Flags.HEIGHT_CONSTRAINTS);
+			}
+			
+			else if (target.layout.height.validator == null)
+				target.layout.height.validator = heightRange = new IntRangeValidator();
+				
+			else
+				heightRange = target.layout.height.validator.as( IntRangeValidator );
+		}
+		
+		if (changes.has( Flags.WIDTH_CONSTRAINTS ))
+		{
+			if (!filledProperties.has(Flags.WIDTH_CONSTRAINTS)) {
+				target.layout.width.validator = null;
+				changes = changes.unset( Flags.WIDTH_CONSTRAINTS );
+			}
+			
+			else if (target.layout.width.validator == null)
+				target.layout.width.validator = widthRange = new IntRangeValidator();
+			
+			else
+				widthRange = target.layout.width.validator.as( IntRangeValidator );
+		}
 		
 		if (!target.is(IUIContainer))
 			changes = changes.unset( Flags.ALGORITHM | Flags.CHILD_WIDTH | Flags.CHILD_HEIGHT );
@@ -85,7 +113,7 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 			
 			var propsToSet	= styleObj.allFilledProperties.filter( changes );
 			changes			= changes.unset( propsToSet );
-			applyStyleObject( propsToSet, styleObj );
+			applyStyleObject( propsToSet, styleObj, widthRange, heightRange );
 		}
 		
 		//properties that are changed but are not found in any style-object need to be unset
@@ -96,7 +124,7 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 	}
 	
 	
-	private function applyStyleObject (propsToSet:UInt, styleObj:LayoutStyle)
+	private function applyStyleObject (propsToSet:UInt, styleObj:LayoutStyle, widthRange:IntRangeValidator = null, heightRange:IntRangeValidator = null)
 	{
 		var layout		= elementStyle.target.as( ILayoutable ).layout;
 		var notEmpty	= styleObj != null;
@@ -109,8 +137,8 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 				if (propsToSet.has( Flags.HEIGHT ))		l.explicitHeight					= notEmpty ? styleObj.height				: Number.INT_NOT_SET;
 			}
 			else
-				if (propsToSet.has( Flags.WIDTH ))		layout.width						= notEmpty ? styleObj.width					: Number.INT_NOT_SET;
-				if (propsToSet.has( Flags.HEIGHT ))		layout.height						= notEmpty ? styleObj.height				: Number.INT_NOT_SET;
+				if (propsToSet.has( Flags.WIDTH ))		layout.width.value					= notEmpty ? styleObj.width					: Number.INT_NOT_SET;
+				if (propsToSet.has( Flags.HEIGHT ))		layout.height.value					= notEmpty ? styleObj.height				: Number.INT_NOT_SET;
 		}
 		if (propsToSet.has( Flags.PERCENT_WIDTH ))		layout.percentWidth					= notEmpty ? styleObj.percentWidth			: 0; //Number.FLOAT_NOT_SET;
 		if (propsToSet.has( Flags.PERCENT_HEIGHT ))		layout.percentHeight				= notEmpty ? styleObj.percentHeight			: 0; //Number.FLOAT_NOT_SET;
@@ -120,10 +148,10 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 		if (propsToSet.has( Flags.PADDING ))			layout.padding						= notEmpty ? styleObj.padding				: null;
 		if (propsToSet.has( Flags.MARGIN ))				layout.margin						= notEmpty ? styleObj.margin				: null;
 		
-		if (propsToSet.has( Flags.MIN_WIDTH ))			layout.sizeConstraint.width.min		= notEmpty ? styleObj.minWidth				: Number.INT_NOT_SET;
-		if (propsToSet.has( Flags.MIN_HEIGHT ))			layout.sizeConstraint.height.min	= notEmpty ? styleObj.minHeight				: Number.INT_NOT_SET;
-		if (propsToSet.has( Flags.MAX_WIDTH ))			layout.sizeConstraint.width.max		= notEmpty ? styleObj.maxWidth				: Number.INT_NOT_SET;
-		if (propsToSet.has( Flags.MAX_HEIGHT ))			layout.sizeConstraint.height.max	= notEmpty ? styleObj.maxHeight				: Number.INT_NOT_SET;
+		if (propsToSet.has( Flags.MIN_WIDTH ))			widthRange.min						= notEmpty ? styleObj.minWidth				: Number.INT_NOT_SET;
+		if (propsToSet.has( Flags.MIN_HEIGHT ))			heightRange.min						= notEmpty ? styleObj.minHeight				: Number.INT_NOT_SET;
+		if (propsToSet.has( Flags.MAX_WIDTH ))			widthRange.max						= notEmpty ? styleObj.maxWidth				: Number.INT_NOT_SET;
+		if (propsToSet.has( Flags.MAX_HEIGHT ))			heightRange.max						= notEmpty ? styleObj.maxHeight				: Number.INT_NOT_SET;
 		
 		if (elementStyle.target.is( IUIContainer ))
 		{

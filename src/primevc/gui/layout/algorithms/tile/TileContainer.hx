@@ -42,6 +42,8 @@ package primevc.gui.layout.algorithms.tile;
   using primevc.utils.TypeUtil;
  
 
+private typedef Flags = LayoutFlags;
+
 /**
  * Group of tiles within a tile layout. Behaves as a LayoutContainer but without 
  * the properties of AdvancedLayoutContainer.
@@ -49,23 +51,23 @@ package primevc.gui.layout.algorithms.tile;
  * @creation-date	Jun 30, 2010
  * @author			Ruben Weijers
  */
-class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements ILayoutContainer <ChildType>
+class TileContainer extends LayoutClient, implements ILayoutContainer
 {
 	public var algorithm	(default, setAlgorithm)		: ILayoutAlgorithm;
-	public var children		(default, null)				: IList<ChildType>;
+	public var children		(default, null)				: IList<LayoutClient>;
 	
 	public var childWidth	(default, setChildWidth)	: Int;
 	public var childHeight	(default, setChildHeight)	: Int;
 	
 	
-	public function new( list:IList<ChildType> = null )
+	public function new( list:IList<LayoutClient> = null )
 	{
 		super();
-		children	= list == null ? new ArrayList<ChildType>() : list;
+		children	= list == null ? new ArrayList<LayoutClient>() : list;
 		childWidth	= Number.INT_NOT_SET;
 		childHeight	= Number.INT_NOT_SET;
 		
-		childrenChangeHandler	.on( children.change, this );
+		childrenChangeHandler.on( children.change, this );
 		
 		if (children.length > 0)
 			for (child in children)
@@ -95,20 +97,6 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 	public function iterator () { return children.iterator(); }
 	
 	
-	/*public function childInvalidated (childChanges:Int) : Bool
-	{
-	//	return childChanges > 0 && ( childChanges.has(LayoutFlags.LIST) || algorithm == null || algorithm.isInvalid(childChanges) );
-		trace(name+".childInvalidated; "+isValidating+"; "+LayoutFlags.readProperties(childChanges)+"; "+algorithm);
-		var r = false;
-		algorithm.group = cast this;
-		if (!isValidating && (childChanges.has(LayoutFlags.LIST) || algorithm == null || algorithm.isInvalid(childChanges)))
-		{
-		//	invalidate( childChanges );
-			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
-			r = true;
-		}
-		return r;
-	}*/
 	override public function invalidateCall ( childChanges:UInt, sender:IInvalidatable ) : Void
 	{
 		if (!sender.is(LayoutClient)) {
@@ -116,32 +104,17 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 			return;
 		}
 		
-	//	trace(name+".childInvalidated; "+isValidating+"; "+LayoutFlags.readProperties(childChanges)+"; "+algorithm);
+	//	trace(name+".childInvalidated; "+isValidating+"; "+Flags.readProperties(childChanges)+"; "+algorithm);
 		var child = sender.as(LayoutClient);
-		if (!isValidating && (childChanges.has(LayoutFlags.LIST) || algorithm == null || algorithm.isInvalid(childChanges)))
-			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
+		algorithm.group = cast this;
+		if (!isValidating && (childChanges.has(Flags.LIST) || algorithm == null || algorithm.isInvalid(childChanges)))
+			invalidate( Flags.CHILDREN_INVALIDATED );
 	}
-	
-	/*
-	override public function validate () 
-	{
-		trace(name+".validate "+changes);
-		super.validate();
-		if (changes == 0)
-			return;
-		
-#if debug
-		children.name = name;
-#end
-		validateHorizontal();
-		validateVertical();
-	}*/
 	
 	
 	override public function validateHorizontal ()
 	{
 		if (changes == 0)
-	//	if (hasValidatedWidth)
 			return;
 		
 		Assert.that(algorithm != null);
@@ -158,7 +131,6 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 	override public function validateVertical ()
 	{
 		if (changes == 0)
-	//	if (hasValidatedWidth)
 			return;
 	
 		Assert.that(algorithm != null);
@@ -224,7 +196,7 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 			}
 			
 			algorithm = v;
-			invalidate( LayoutFlags.ALGORITHM );
+			invalidate( Flags.ALGORITHM );
 			
 			if (algorithm != null) {
 				algorithmChangedHandler.on( algorithm.algorithmChanged, this );
@@ -240,7 +212,7 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 		if (v != childWidth)
 		{
 			childWidth = v;
-			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
+			invalidate( Flags.CHILDREN_INVALIDATED );
 		}
 		return v;
 	}
@@ -251,7 +223,7 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 		if (v != childHeight)
 		{
 			childHeight = v;
-			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
+			invalidate( Flags.CHILDREN_INVALIDATED );
 		}
 		return v;
 	}
@@ -263,11 +235,11 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 	// EVENT HANDLERS
 	//
 	
-	private function algorithmChangedHandler () { invalidate( LayoutFlags.ALGORITHM ); }
+	private function algorithmChangedHandler () { invalidate( Flags.ALGORITHM ); }
 	
-	private function childrenChangeHandler ( change:ListChange < ChildType > ) : Void
+	private function childrenChangeHandler ( change:ListChange < LayoutClient > ) : Void
 	{
-	//	trace(this+".childrenChangeHandler "+change);
+		trace(this+".childrenChangeHandler "+change);
 		switch (change)
 		{
 			case added( child, newPos ):
@@ -286,7 +258,7 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 			default:
 		}
 		
-		invalidate( LayoutFlags.LIST );
+		invalidate( Flags.LIST );
 	}
 	
 	

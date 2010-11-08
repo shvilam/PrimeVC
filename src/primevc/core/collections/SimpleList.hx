@@ -32,7 +32,7 @@ package primevc.core.collections;
  import primevc.core.collections.iterators.DoubleFastCellReversedIterator;
  import primevc.core.collections.IList;
  import primevc.core.dispatcher.Signal1;
-  using primevc.utils.IntMath;
+  using primevc.utils.NumberMath;
  
 
 /**

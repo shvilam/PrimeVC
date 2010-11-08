@@ -42,6 +42,7 @@ package primevc.gui.core;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.states.UIElementStates;
+ import primevc.types.Number;
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
   using primevc.utils.NumberUtil;
@@ -234,8 +235,9 @@ class UITextField extends TextField, implements IUIElement
 	private function updateSize ()
 	{	
 	//	trace(this+".updateSize: "+realTextWidth+", "+realTextHeight);
-		if (layout.percentWidth <= 0)	layout.width	= realTextWidth.int();
-		if (layout.percentHeight <= 0)	layout.height	= realTextHeight.int();
+		var w = (layout.percentWidth <= 0) ? layout.width.value : Number.INT_NOT_SET;
+		var h = (layout.percentHeight <= 0) ? layout.height.value : Number.INT_NOT_SET;
+		resize(w,h);
 	}
 	
 	

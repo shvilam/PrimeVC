@@ -38,8 +38,8 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutClient;
  import primevc.types.Number;
- import primevc.utils.IntMath;
-  using primevc.utils.IntMath;
+ import primevc.utils.NumberMath;
+  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
  
@@ -55,7 +55,7 @@ class LayoutAlgorithmBase
 #if neko	,	implements ICodeFormattable		#end
 {
 	public var algorithmChanged 		(default, null)				: Signal0;
-	public var group					(default, setGroup)			: ILayoutContainer<LayoutClient>;
+	public var group					(default, setGroup)			: ILayoutContainer;
 	
 #if neko
 	public var uuid						(default, null)				: String;
@@ -94,7 +94,7 @@ class LayoutAlgorithmBase
 		if (group.is(AdvancedLayoutClient))
 			group.as(AdvancedLayoutClient).measuredHeight = h;
 		else
-			group.height = h;
+			group.height.value = h;
 	}
 	
 	
@@ -106,7 +106,7 @@ class LayoutAlgorithmBase
 		if (group.is(AdvancedLayoutClient))
 			group.as(AdvancedLayoutClient).measuredWidth = w;
 		else
-			group.width = w;
+			group.width.value = w;
 	}
 	
 	
@@ -146,7 +146,7 @@ class LayoutAlgorithmBase
 
 	private inline function getBottomStartValue ()	: Int
 	{
-		var start = group.height;
+		var start = group.height.value;
 		
 		if (group.is(AdvancedLayoutClient))
 			start = IntMath.max(group.as(AdvancedLayoutClient).measuredHeight, start);
@@ -181,7 +181,7 @@ class LayoutAlgorithmBase
 
 	private inline function getRightStartValue ()	: Int
 	{
-		var start = group.width;
+		var start = group.width.value;
 		
 		if (group.is(AdvancedLayoutClient))
 			start = IntMath.max(group.as(AdvancedLayoutClient).measuredWidth, start);

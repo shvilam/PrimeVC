@@ -35,7 +35,7 @@ package primevc.gui.layout;
  * @author Ruben Weijers
  * @creation-date Jul 29, 2010
  */
-interface IScrollableLayout implements ILayoutContainer <LayoutClient>, implements IAdvancedLayoutClient
+interface IScrollableLayout implements ILayoutContainer, implements IAdvancedLayoutClient
 {
 	/**
 	 * horizontal and vertical scroll position

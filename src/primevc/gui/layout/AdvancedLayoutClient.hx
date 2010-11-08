@@ -28,7 +28,7 @@
  */
 package primevc.gui.layout;
  import primevc.types.Number;
- import primevc.utils.IntMath;
+ import primevc.utils.NumberMath;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
  
@@ -134,15 +134,15 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 		
 		if (changes.has(Flags.WIDTH) && changes.hasNone( Flags.MEASURED_WIDTH | Flags.EXPLICIT_WIDTH ))
 		{
-			explicitWidth = width;
+			explicitWidth = width.value;
 		}
 		else
 		{
 			if (changes.has(Flags.EXPLICIT_WIDTH))
-				width = explicitWidth;
+				width.value = explicitWidth;
 		
-			if ((changes.has(Flags.MEASURED_WIDTH) || width.notSet()) && explicitWidth.notSet())
-				width = measuredWidth;
+			if ((changes.has(Flags.MEASURED_WIDTH) || width.value.notSet()) && explicitWidth.notSet())
+				width.value = measuredWidth;
 		}
 		
 		if (changes.has( Flags.WIDTH ))
@@ -166,15 +166,15 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	//	trace(this+".validateVertical 1 "+height+"; explicit: "+explicitHeight+"; measured: "+measuredHeight+"; "+Flags.readProperties( changes.filter( Flags.HEIGHT_PROPERTIES ) ));
 		if (changes.has(Flags.HEIGHT) && changes.hasNone( Flags.MEASURED_HEIGHT | Flags.EXPLICIT_HEIGHT ))
 		{
-			explicitHeight = height;
+			explicitHeight = height.value;
 		}
 		else
 		{
 			if (changes.has(Flags.EXPLICIT_HEIGHT))
-				height = explicitHeight;
+				height.value = explicitHeight;
 		
-			if ((changes.has(Flags.MEASURED_HEIGHT) || height.notSet()) && explicitHeight.notSet())
-				height = measuredHeight;
+			if ((changes.has(Flags.MEASURED_HEIGHT) || height.value.notSet()) && explicitHeight.notSet())
+				height.value = measuredHeight;
 		}
 		
 		if (changes.has( Flags.HEIGHT ))

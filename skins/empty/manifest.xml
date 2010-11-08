@@ -11,10 +11,12 @@
 	
 	<component id="ApplicationView"		superClass="UIContainer"		fullname="primevc.gui.components.ApplicationView" />
 	<component id="Button"				superClass="UIDataContainer"	fullname="primevc.gui.components.Button" />
+	<component id="DragButton"			superClass="Button"				fullname="primevc.gui.components.DragButton" />
 	<component id="Image"				superClass="UIGraphic"			fullname="primevc.gui.components.Image" />
 	<component id="InputField"			superClass="Label"				fullname="primevc.gui.components.InputField" />
 	<component id="Label"				superClass="UIDataComponent"	fullname="primevc.gui.components.Label" />
 	<component id="ListView"			superClass="UIDataContainer"	fullname="primevc.gui.components.ListView" />
+	<component id="Slider"				superClass="UIDataContainer"	fullname="primevc.gui.components.Slider" />
 	<component id="TextArea"			superClass="UIDataContainer"	fullname="primevc.gui.components.TextArea" />
 	
 <!--<component id=""	superClass=""	fullname="" />-->

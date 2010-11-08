@@ -223,7 +223,7 @@ class PriorityList < DataType : IPrioritizable >
 		var items = [];
 		var i = 0;
 		for (item in this) {
-			items.push( "[ " + i + " ] = " + item ); // Type.getClassName(Type.getClass(item)));
+			items.push( "[ " + i + " ] = " + item + " ( " + item.getPriorityName()+ " )" ); // Type.getClassName(Type.getClass(item)));
 			i++;
 		}
 		return name + "PriorityList ("+items.length+")\n" + items.join("\n");

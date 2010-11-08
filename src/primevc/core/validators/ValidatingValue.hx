@@ -26,46 +26,101 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.geom.constraints;
+package primevc.core.validators;
+ import primevc.core.traits.Invalidatable;
+  using primevc.utils.Bind;
+  using Std;
  
 
 /**
- * Class to provide a int with dynamic rules wich can be applied on it when 
- * the value of the int is changed.
- * 
- * The constraints won't contain a value by themselves but their validate method
- * will be called when the value changes. The constraint can then apply it's
- * rules on the given value and change it if he likes that.
- * 
- * @creation-date	Jun 21, 2010
+ * @creation-date	Jun 20, 2010
  * @author			Ruben Weijers
  */
-class ConstrainedInt extends ConstraintBase <Int>
+class ValidatingValue < DataType > extends Invalidatable
+#if flash	,	implements haxe.rtti.Generic	#end
 {
-	/**
-	 * Value of the cosntrained float. When the value is changed, the new
-	 * value will first be checked by the constraints if they are enabled.
-	 */
-	public var value (default, setValue)		: Int;
-		private inline function setValue (v)	{ return value = applyConstraint(v); }
+	public var validator			(default, setValidator)	: IValueValidator < DataType >;
+	public var value				(default, setValue)		: DataType;
 	
 	
-	public function new (v = 0)
+	public function new (newValue:DataType)
 	{
 		super();
-		value = v;
+		value = newValue;
 	}
 	
 	
 	override public function dispose ()
 	{
+		if (validator != null)
+			validator = null;
+		
 		super.dispose();
-		value = 0;
 	}
 	
 	
-	public function validateValue ()
+	private inline function applyValidator (v:DataType)
 	{
-		value = applyConstraint(value);
+		return (validator != null) ? validator.validate(v) : v;
 	}
+	
+	
+	public inline function validateValue ()
+	{
+		value = applyValidator(value);
+	}
+	
+	
+	private function validatorChangeHandler ()
+	{
+		invalidate( ValueFlags.VALIDATOR );
+		validateValue();
+	}
+	
+	
+	private inline function setValidator (v)
+	{
+		if (v != validator)
+		{
+			if (validator != null)
+				validator.change.unbind(this);
+			
+			validator = v;
+			invalidate( ValueFlags.VALIDATOR );
+			
+			if (v != null) {
+				validatorChangeHandler.on( validator.change, this );
+				validateValue();
+			}
+		}
+		return v;
+	}
+	
+	
+	private inline function setValue (v:DataType)
+	{
+		var oldV = value;
+		if (v != value)
+		{
+			value = applyValidator(v);
+			if (value != oldV)
+				invalidate( ValueFlags.VALUE );
+		}
+		return value;
+	}
+	
+	
+#if debug
+	public function toString ()
+	{
+		return "Value( "+value.string() + ") - validator: "+validator;
+	}
+#end
+}
+
+
+class ValueFlags
+{
+	public static inline var VALUE		: Int = 1;
+	public static inline var VALIDATOR	: Int = 2;
 }

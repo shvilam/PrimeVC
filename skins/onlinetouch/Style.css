@@ -1,4 +1,4 @@
-@import url('../empty/Style.css');
+@import url('../empty/BasicStyle.css');
 @manifest url('manifest.xml');
 
 EditorView {

@@ -80,6 +80,7 @@ class IntMath
 	 * 
 	 * @param	var1	Integer to divide
 	 * @param	var2	Integer to divide with
+	 * 
 	 * @return	result of the ceiled division
 	 */
 	public static inline function divCeil (var1:Int, var2:Int) : Int
@@ -103,5 +104,35 @@ class IntMath
 		var intResult	= IntMath.divFloor(var1, var2);
 		var floatResult	= var1 / var2;
 		return (floatResult - intResult) >= 0.5 ? intResult + 1 : intResult;
+	}
+}
+
+
+
+
+
+class FloatMath
+{
+	/**
+	 * Returns the biggest float of the two given integers
+	 * @param	var1
+	 * @param	var2
+	 * @return	biggest float
+	 */
+	public static inline function max (var1:Float, var2:Float) : Float
+	{
+		return var1 > var2 ? var1 : var2;
+	}
+	
+	
+	/**
+	 * Returns the smallest integer of the two given integers
+	 * @param	var1
+	 * @param	var2
+	 * @return	smallest integer
+	 */
+	public static inline function min (var1:Float, var2:Float) : Float
+	{
+		return var1 < var2 ? var1 : var2;
 	}
 }

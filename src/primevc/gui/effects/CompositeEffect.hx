@@ -33,7 +33,7 @@ package primevc.gui.effects;
   using primevc.types.Reference;
 #end
  import primevc.types.Number;
- import primevc.utils.IntMath;
+ import primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
 
 

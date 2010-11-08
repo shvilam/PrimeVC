@@ -26,17 +26,59 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.geom.constraints;
- import primevc.core.IDisposable;
- 
+package primevc.core.traits;
+  using primevc.utils.BitUtil;
+
 
 /**
- * Description
- *
- * @creation-date	Jun 20, 2010
- * @author			Ruben Weijers
+ * QueueingInvalidatable allows to disable the broadcasting of an invalidate
+ * call. When the broadcasting is disabled, all of the changes will be stored
+ * in the "changes" flag.
+ * 
+ * When the broadcasting is enabled again, the changes will be dispatched.
+ * 
+ * @author Ruben Weijers
+ * @creation-date Nov 08, 2010
  */
-interface IConstraint <ValidateType> implements IDisposable, implements haxe.rtti.Generic 
+class QueueingInvalidatable extends Invalidatable
 {
-	function validate (v:ValidateType) : ValidateType;
+	/**
+	 * Flag indicating if the object should broadcast an invalidate call or do
+	 * nothing with it.
+	 */
+	public var invalidatable	(default, setInvalidatable)	: Bool;
+	private var changes			: Int;
+	
+	
+	public function new ()
+	{
+		super();
+		changes			= 0;
+		invalidatable	= true;
+	}
+	
+	
+	override public function invalidate (change:UInt) : Void
+	{
+		if (invalidatable)
+			super.invalidate(change);
+		else
+			changes = changes.set(change);
+	}
+	
+	
+	private inline function setInvalidatable (v:Bool)
+	{
+		if (v != invalidatable)
+		{
+			invalidatable = v;
+			
+			//broadcast queued changes?
+			if (v && changes > 0) {
+				invalidate(changes);
+				changes = 0;
+			}
+		}
+		return v;
+	}
 }

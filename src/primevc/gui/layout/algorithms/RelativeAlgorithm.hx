@@ -71,7 +71,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 						continue;
 					
 					if (child.relative.left.isSet() && child.relative.right.isSet())
-						child.outerBounds.width	= group.width - child.relative.right - child.relative.left;
+						child.outerBounds.width	= group.width.value - child.relative.right - child.relative.left;
 				}
 				
 				validatePreparedHor = true;
@@ -85,7 +85,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 						continue;
 					
 					if (child.relative.top.isSet() && child.relative.bottom.isSet())
-						child.outerBounds.height	= group.height - child.relative.bottom - child.relative.top;
+						child.outerBounds.height	= group.height.value - child.relative.bottom - child.relative.top;
 				}
 				
 				validatePreparedVer = true;

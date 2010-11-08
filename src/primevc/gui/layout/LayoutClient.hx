@@ -28,28 +28,30 @@
  */
 package primevc.gui.layout;
  import primevc.core.geom.Box;
- import primevc.core.geom.constraints.ConstrainedInt;
- import primevc.core.geom.constraints.SizeConstraint;
  import primevc.core.geom.IntRectangle;
  import primevc.core.geom.RectangleFlags;
  import primevc.core.states.SimpleStateMachine;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.traits.Invalidatable;
+ import primevc.core.validators.ValidatingValue;
 #if debug
  import primevc.core.traits.IUIdentifiable;
  import primevc.utils.StringUtil;
 #end
  import primevc.types.Number;
  import primevc.gui.events.LayoutEvents;
+ import primevc.gui.layout.ILayoutClient;
  import primevc.gui.states.ValidateStates;
- import primevc.utils.IntMath;
+ import primevc.utils.NumberMath;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
+  using Std;
 
 
 private typedef Flags = LayoutFlags;
+
 
 /**
  * Base class for layout clients without implementing x, y, width and height.
@@ -65,7 +67,7 @@ class LayoutClient extends Invalidatable
 	public var changes 													: Int;
 	public var includeInLayout		(default, setIncludeInLayout)		: Bool;
 	
-	public var parent				(default, setParent)				: ILayoutContainer<Dynamic>;
+	public var parent				(default, setParent)				: ILayoutContainer;
 	public var events				(default, null)						: LayoutEvents;
 	
 	
@@ -80,7 +82,7 @@ class LayoutClient extends Invalidatable
 	
 	
 	public var relative				(default, setRelative)				: RelativeLayout;	//rules for sizing / positioning the layout with relation to the parent
-	public var sizeConstraint		(default, setSizeConstraint)		: SizeConstraint;
+//	public var sizeConstraint		(default, setSizeConstraint)		: SizeConstraint;
 	
 	/**
 	 * @default	false
@@ -104,11 +106,11 @@ class LayoutClient extends Invalidatable
 	public var x					(default, setX)						: Int;
 	public var y					(default, setY)						: Int;
 	
-	public var width				(getWidth, setWidth)				: Int;
-		private var _width			(default, null)						: ConstrainedInt;
+	public var width				(default, null)						: SizeType;
+//		private var _width			(default, null)						: ConstrainedInt;
 	
-	public var height				(getHeight, setHeight)				: Int;
-		private var _height 		(default, null)						: ConstrainedInt;
+	public var height				(default, null)						: SizeType;
+//		private var _height 		(default, null)						: ConstrainedInt;
 	
 	public var percentWidth			(default, setPercentWidth)			: Float;
 	public var percentHeight		(default, setPercentHeight)			: Float;
@@ -139,12 +141,13 @@ class LayoutClient extends Invalidatable
 		events		= new LayoutEvents();
 		innerBounds	= new IntRectangle( x, y, IntMath.max( newWidth, 0 ) + getHorPadding(), IntMath.max( newHeight, 0) + getVerPadding() );
 		outerBounds	= new IntRectangle( x, y, innerBounds.width + getHorMargin(), innerBounds.height + getVerMargin() );
+		width		= new SizeType( newWidth );
+		height		= new SizeType( newHeight );
 		
-		innerBounds.listeners.add( this );
-		outerBounds.listeners.add( this );
-		
-		_width	= new ConstrainedInt( newWidth );
-		_height	= new ConstrainedInt( newHeight );
+		innerBounds	.listeners.add( this );
+		outerBounds	.listeners.add( this );
+		width		.listeners.add( this );
+		height		.listeners.add( this );
 		
 		percentWidth	= 0;
 		percentHeight	= 0;
@@ -163,8 +166,8 @@ class LayoutClient extends Invalidatable
 		if (parent != null && parent.children.has(this))
 			parent.children.remove(this);
 		
-		_width.dispose();
-		_height.dispose();
+		width.dispose();
+		height.dispose();
 		innerBounds.dispose();
 		outerBounds.dispose();
 		state.dispose();
@@ -175,11 +178,11 @@ class LayoutClient extends Invalidatable
 			relative = null;
 		}
 		
-		sizeConstraint	= null;		//do not dispose him. Sizeconstraints instances can be used across several clients.
+	//	sizeConstraint	= null;		//do not dispose him. Sizeconstraints instances can be used across several clients.
 		percentWidth	= 0;
 		percentHeight	= 0;
-		_width	= null;
-		_height	= null;
+		width	= null;
+		height	= null;
 		innerBounds	= null;
 		outerBounds	= null;
 		padding	= null;
@@ -198,7 +201,7 @@ class LayoutClient extends Invalidatable
 		parent	= null;
 		margin	= null;
 		padding = null;
-		x = y = width = height = 0;
+		x = y = width.value = height.value = 0;
 		validate();
 		changes	= 0;
 	}
@@ -219,7 +222,11 @@ class LayoutClient extends Invalidatable
 			return;
 		
 		if (isValidating && (parent == null || parent.isValidating))
+		{
+			if (changes.has(Flags.WIDTH) && hasValidatedWidth)		hasValidatedWidth	= false;
+			if (changes.has(Flags.HEIGHT) && hasValidatedHeight)	hasValidatedHeight	= false;
 			return;
+		}
 		
 		if (includeInLayout && parent != null)
 			super.invalidate(change);
@@ -258,11 +265,15 @@ class LayoutClient extends Invalidatable
 		if (hasValidatedWidth)
 			return;
 		
+	//	trace(this+".validateHorizontal ");
 		state.current = ValidateStates.validating;
 		
 		if (changes.has(Flags.WIDTH))
 		{
-			innerBounds.width = IntMath.max( width, 0 ) + getHorPadding();
+			if (maintainAspectRatio)
+				height.value = (width.value / aspectRatio).int();
+			
+			innerBounds.width = IntMath.max( width.value, 0 ) + getHorPadding();
 			outerBounds.width = innerBounds.width + getHorMargin();
 		}
 		
@@ -275,11 +286,15 @@ class LayoutClient extends Invalidatable
 		if (hasValidatedHeight)
 			return;
 		
+	//	trace(this+".validateVertical ");
 		state.current = ValidateStates.validating;
 		
 		if (changes.has(Flags.HEIGHT))
 		{
-			innerBounds.height = IntMath.max( height, 0 ) + getVerPadding();
+			if (maintainAspectRatio)
+				width.value = (height.value / aspectRatio).int();
+			
+			innerBounds.height = IntMath.max( height.value, 0 ) + getVerPadding();
 			outerBounds.height = innerBounds.height + getVerMargin();
 		}
 		
@@ -303,12 +318,11 @@ class LayoutClient extends Invalidatable
 	}
 	
 	
-	public inline function getHorPosition () {
-		var pos : Int = innerBounds.left;
-		if (parent.is(VirtualLayoutContainer)) {
-		//	trace(this+".getParentHorPosition "+parent.getHorPosition()+" ( "+pos+" ) "+parent+" - "+parent.innerBounds);
+	public inline function getHorPosition ()
+	{
+		var pos = innerBounds.left;
+		if (parent.is(VirtualLayoutContainer))
 			pos += parent.getHorPosition();
-		}
 		
 		return pos;
 	}
@@ -316,7 +330,7 @@ class LayoutClient extends Invalidatable
 	
 	public inline function getVerPosition ()
 	{
-		var pos : Int = innerBounds.top;
+		var pos = innerBounds.top;
 		if (parent.is(VirtualLayoutContainer))
 			pos += parent.getVerPosition();
 		
@@ -354,11 +368,9 @@ class LayoutClient extends Invalidatable
 		if (x != v)
 		{
 			x = v;
-			
-			outerBounds.left = x;
-			innerBounds.left = (margin == null) ? outerBounds.left : outerBounds.left + margin.left;
-			
 			invalidate( Flags.X );
+			outerBounds.left = v;
+			innerBounds.left = (margin == null) ? outerBounds.left : outerBounds.left + margin.left;
 		}
 		return x;
 	}
@@ -366,13 +378,12 @@ class LayoutClient extends Invalidatable
 	
 	private function setY (v:Int) : Int
 	{
-		if (y != v) {
+		if (y != v)
+		{
 			y = v;
-			
-			outerBounds.top = y;
-			innerBounds.top = (margin == null) ? outerBounds.top : outerBounds.top + margin.top;
-			
 			invalidate( Flags.Y );
+			outerBounds.top = v;
+			innerBounds.top = (margin == null) ? outerBounds.top : outerBounds.top + margin.top;
 		}
 		return y;
 	}
@@ -380,78 +391,47 @@ class LayoutClient extends Invalidatable
 	
 	override public function invalidateCall (changes:Int, sender:IInvalidatable)
 	{
-		if (!sender.is(IntRectangle)) {
+		if (changes == 0)
+			return;
+		
+		if (sender.is(IntRectangle))
+		{
+			if (/*state.current == ValidateStates.invalidated || */changes == RectangleFlags.BOTTOM || changes == RectangleFlags.RIGHT)
+				return;
+		
+			var box = sender.as(IntRectangle);
+		
+			if (box == outerBounds)
+			{
+				if (changes.has( RectangleFlags.LEFT ))		x = box.left;
+				if (changes.has( RectangleFlags.TOP ))		y = box.top;
+				if (changes.has( RectangleFlags.WIDTH ))	width.value		= box.width - getHorPadding() - getHorMargin();
+				if (changes.has( RectangleFlags.HEIGHT ))	height.value	= box.height - getVerPadding() - getVerMargin();
+			//	trace(this+".invalidateCall from outerBounds "+RectangleFlags.readProperties(changes) + "; state: "+state.current + "; w: "+width+"; h: "+height+"; x: "+x+"; y: "+y);
+			}
+		
+			else if (box == innerBounds)
+			{
+				if (changes.has( RectangleFlags.LEFT ))		x = margin == null ? box.left : box.left - margin.left;
+				if (changes.has( RectangleFlags.TOP ))		y = margin == null ? box.top : box.top - margin.top;
+				if (changes.has( RectangleFlags.WIDTH ))	width.value		= box.width - getHorPadding();
+				if (changes.has( RectangleFlags.HEIGHT ))	height.value	= box.height - getVerPadding();
+			//	trace(this+".invalidateCall from innerBounds "+RectangleFlags.readProperties(changes) + "; state: "+state.current+"; w: "+width+"; h: "+height+"; x: "+x+"; y: "+y);
+			}
+		}
+		
+		else if (sender == width)
+		{
+			if (changes.has( ValueFlags.VALUE ))		invalidate( Flags.WIDTH );
+			if (changes.has( ValueFlags.VALIDATOR ))	invalidate( Flags.WIDTH_VALIDATOR );
+		}
+		else if (sender == height)
+		{
+			if (changes.has( ValueFlags.VALUE ))		invalidate( Flags.HEIGHT );
+			if (changes.has( ValueFlags.VALIDATOR ))	invalidate( Flags.HEIGHT_VALIDATOR );
+		}
+		else
 			super.invalidateCall( changes, sender );
-			return;
-		}
-		
-		if (changes == 0 || changes == RectangleFlags.BOTTOM || changes == RectangleFlags.RIGHT)
-			return;
-		
-		var box = sender.as(IntRectangle);
-		
-		if (box == outerBounds)
-		{
-			if (changes.has( RectangleFlags.LEFT ))		x		= box.left;
-			if (changes.has( RectangleFlags.TOP ))		y		= box.top;
-			if (changes.has( RectangleFlags.WIDTH ))	width	= box.width - getHorPadding() - getHorMargin();
-			if (changes.has( RectangleFlags.HEIGHT ))	height	= box.height - getVerPadding() - getVerMargin();
-		//	trace(this+".invalidateCall from outerBounds "+RectangleFlags.readProperties(changes) + "; state: "+state.current + "; w: "+width+"; h: "+height+"; x: "+x+"; y: "+y);
-		}
-		
-		else if (box == innerBounds)
-		{
-			if (changes.has( RectangleFlags.LEFT ))		x		= margin == null ? box.left : box.left - margin.left;
-			if (changes.has( RectangleFlags.TOP ))		y		= margin == null ? box.top : box.top - margin.top;
-			if (changes.has( RectangleFlags.WIDTH ))	width	= box.width - getHorPadding();
-			if (changes.has( RectangleFlags.HEIGHT ))	height	= box.height - getVerPadding();
-		//	trace(this+".invalidateCall from innerBounds "+RectangleFlags.readProperties(changes) + "; state: "+state.current+"; w: "+width+"; h: "+height+"; x: "+x+"; y: "+y);
-		}
-	}
-	
-	
-	
-	//
-	// SIZE GETTERS / SETTERS
-	//
-	
-	private inline function getWidth ()		: Int { return _width.value; }
-	private inline function getHeight ()	: Int { return _height.value; }
-	
-	
-	private function setWidth (v:Int) : Int
-	{
-		var oldW		= _width.value;
-		_width.value	= v;
-		
-		if (_width.value != oldW)
-		{
-			var newH:Int	= maintainAspectRatio ? Std.int(_width.value / aspectRatio) : height;
-			
-			if (maintainAspectRatio && newH != height)
-				height = newH; //will trigger the height constraints
-			
-			invalidate( Flags.WIDTH );
-		}
-		return _width.value;
-	}
-	
-	
-	private function setHeight (v:Int) : Int
-	{
-		var oldH		= _height.value;
-		_height.value	= v;
-		
-		if (_height.value != oldH)
-		{
-			var newW:Int	= maintainAspectRatio ? Std.int(_height.value * aspectRatio) : width;
-			
-			if (maintainAspectRatio && newW != width)
-				width = newW; //will trigger the width constraints
-			
-			invalidate( Flags.HEIGHT );
-		}
-		return _height.value;
 	}
 	
 	
@@ -520,56 +500,6 @@ class LayoutClient extends Invalidatable
 			invalidate( Flags.INCLUDE );
 		}
 		return includeInLayout;
-	}	
-	
-	
-	//
-	// CONSTRAINT METHODS
-	//
-	
-	
-	/**
-	 * Setter will set the new sizeConstraint and bind it's change signals to this
-	 * class. The SizeConstraint is meant for constrainting the size values by
-	 * defining a min and max value for the width and the height.
-	 */
-	private inline function setSizeConstraint (v:SizeConstraint)
-	{
-		if (sizeConstraint != v)
-		{
-			if (sizeConstraint != null)
-			{
-				_width.constraint	= null;
-				_height.constraint	= null;
-				
-				sizeConstraint.width.change.unbind(this);
-				sizeConstraint.height.change.unbind(this);
-			}
-		
-			sizeConstraint = v;
-			invalidateSizeConstraint();
-		
-			if (sizeConstraint != null)
-			{
-				_width.constraint	= sizeConstraint.width;
-				_height.constraint	= sizeConstraint.height;
-			
-				_width.validateValue.on( sizeConstraint.width.change, this );
-				_height.validateValue.on( sizeConstraint.height.change, this );
-				invalidateSizeConstraint.on( sizeConstraint.width.change, this );
-				invalidateSizeConstraint.on( sizeConstraint.height.change, this );
-				
-				//force size constraints to run for the first time
-				setWidth( width );
-				setHeight( height );
-			}
-		}
-		return v;
-	}
-	
-	
-	private inline function invalidateSizeConstraint () {
-		invalidate( Flags.SIZE_CONSTRAINT );
 	}
 	
 	
@@ -583,7 +513,7 @@ class LayoutClient extends Invalidatable
 			maintainAspectRatio = v;
 			
 			if (maintainAspectRatio)
-				aspectRatio = width / height;
+				aspectRatio = width.value / height.value;
 		}
 		return v;
 	}

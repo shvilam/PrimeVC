@@ -35,7 +35,7 @@ package primevc.gui.layout.algorithms;
  import primevc.core.geom.space.Vertical;
  import primevc.core.geom.IRectangle;
  import primevc.types.ClassInstanceFactory;
- import primevc.utils.IntMath;
+ import primevc.utils.NumberMath;
   using primevc.utils.Bind;
   using Type;
 

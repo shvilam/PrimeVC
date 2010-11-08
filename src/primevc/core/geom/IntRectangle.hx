@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.geom;
- import primevc.core.traits.Invalidatable;
+ import primevc.core.traits.QueueingInvalidatable;
   using primevc.utils.NumberUtil;
   using Std;
 
@@ -38,7 +38,7 @@ package primevc.core.geom;
  * @author Ruben Weijers
  * @creation-date Aug 03, 2010
  */
-class IntRectangle extends Invalidatable, implements IRectangle
+class IntRectangle extends QueueingInvalidatable, implements IRectangle
 {
 	public var centerX	(getCenterX, setCenterX)	: Float;
 	public var centerY	(getCenterY, setCenterY)	: Float;
@@ -55,10 +55,12 @@ class IntRectangle extends Invalidatable, implements IRectangle
 	public function new ( x:Int = 0, y:Int = 0, width:Int = 0, height:Int = 0 )
 	{
 		super();
+		invalidatable = false;
 		this.top	= x;
 		this.left	= y;
 		this.width	= width;
 		this.height	= height;
+		invalidatable = true;
 	}
 	
 	
@@ -71,6 +73,24 @@ class IntRectangle extends Invalidatable, implements IRectangle
 	public function toString ()
 	{
 		return "t: " + top + "; r: " + right + "; b: " + bottom + "; l: " + left + "; width: " + width + "; height: " + height;
+	}
+	
+	
+	public function resize (newWidth:Int, newHeight:Int) : Void
+	{
+		invalidatable = false;
+		width	= newWidth;
+		height	= newHeight;
+		invalidatable = true;
+	}
+	
+	
+	public function move (newX:Int, newY:Int) : Void
+	{
+		invalidatable = false;
+		top = newX;
+		left = newY;
+		invalidatable = true;
 	}
 	
 	
@@ -180,4 +200,12 @@ class IntRectangle extends Invalidatable, implements IRectangle
 	{
 		return width <= 0 || height <= 0;
 	}
+	
+	
+#if flash9
+	public function toFloatRectangle () : Rectangle
+	{
+		return new Rectangle (0, 0, width, height);
+	}
+#end
 }

@@ -37,10 +37,10 @@ package primevc.gui.layout;
  import primevc.gui.states.ValidateStates;
  import primevc.types.Number;
  import primevc.utils.FastArray;
- import primevc.utils.IntMath;
+ import primevc.utils.NumberMath;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.IntMath;
+  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
@@ -52,7 +52,7 @@ private typedef Flags = LayoutFlags;
  * @since	mar 20, 2010
  * @author	Ruben Weijers
  */
-class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<LayoutClient>, implements IAdvancedLayoutClient, implements IScrollableLayout
+class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer, implements IScrollableLayout
 {
 	public static inline var EMPTY_BOX : Box = new Box(0,0);
 	
@@ -143,12 +143,13 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		if (hasValidatedWidth)
 			return;
 		
-		if (changes.has( Flags.WIDTH | Flags.EXPLICIT_WIDTH | Flags.BOUNDARY_WIDTH ))
+		if (changes.has( Flags.WIDTH | Flags.EXPLICIT_WIDTH ))
 			super.validateHorizontal();
 		
-		if (!changes.has( Flags.WIDTH | Flags.CHILDREN_INVALIDATED | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH | Flags.ALGORITHM ))
+		if (!changes.has( Flags.WIDTH | Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH | Flags.ALGORITHM ))
 			return;
 		
+		trace(this+".validateHorizontal");
 		var fillingChildren	= FastArrayUtil.create();
 		var childrenWidth	= 0;
 		
@@ -160,7 +161,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 			if (child.percentWidth == Flags.FILL) {
 			//	if (explicitWidth.isSet())
 				fillingChildren.push( child );
-				child.width = Number.INT_NOT_SET;
+				child.width.value = Number.INT_NOT_SET;
 			}
 			
 			//measure children with explicitWidth and no percentage size
@@ -176,7 +177,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		
 		if (fillingChildren.length > 0)
 		{
-			var sizePerChild = IntMath.max(width - childrenWidth, 0).divFloor( fillingChildren.length );
+			var sizePerChild = IntMath.max(width.value - childrenWidth, 0).divFloor( fillingChildren.length );
 			for (child in fillingChildren) {
 				child.outerBounds.width = sizePerChild;
 				child.validateHorizontal();
@@ -196,13 +197,13 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		if (hasValidatedHeight)
 			return;
 		
-		if (changes.has( Flags.HEIGHT | Flags.EXPLICIT_HEIGHT | Flags.BOUNDARY_HEIGHT ))
+		if (changes.has( Flags.HEIGHT | Flags.EXPLICIT_HEIGHT ))
 			super.validateVertical();
 		
-		
-		if (!changes.has( Flags.HEIGHT | Flags.CHILDREN_INVALIDATED | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH | Flags.ALGORITHM ))
+		if (!changes.has( Flags.HEIGHT | Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH | Flags.ALGORITHM ))
 			return;
 		
+		trace(this+".validateVertical");
 		var fillingChildren	= FastArrayUtil.create();
 		var childrenHeight	= 0;
 		
@@ -214,7 +215,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 			if (child.percentHeight == Flags.FILL) {
 			//	if (explicitHeight.isSet())
 				fillingChildren.push( child );
-				child.height = Number.INT_NOT_SET;
+				child.height.value = Number.INT_NOT_SET;
 			}
 			
 			else if (checkIfChildGetsPercentageHeight(child, explicitHeight))
@@ -229,7 +230,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 		
 		if (fillingChildren.length > 0)
 		{
-			var sizePerChild = (height - childrenHeight).divFloor( fillingChildren.length );
+			var sizePerChild = (height.value - childrenHeight).divFloor( fillingChildren.length );
 			for (child in fillingChildren) {
 				child.outerBounds.height = sizePerChild;
 				child.validateVertical();
@@ -244,8 +245,16 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	}
 	
 	
+	override public function validate ()
+	{
+		trace(this+".validate "+Flags.readProperties(changes));
+		super.validate();
+	}
+	
+	
 	override public function validated ()
 	{
+		trace(this+".validated");
 		if (changes == 0 || !isValidating)
 			return;
 		
@@ -364,6 +373,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer<
 	
 	private function childrenChangeHandler ( change:ListChange <LayoutClient> ) : Void
 	{
+		trace(this+".childrenChangeHandler "+change);
 		switch (change)
 		{
 			case added( child, newPos ):

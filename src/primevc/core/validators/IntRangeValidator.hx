@@ -26,45 +26,90 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.geom.constraints;
- import haxe.FastList;
- import primevc.core.IDisposable;
- 
+package primevc.core.validators;
+ import primevc.core.dispatcher.Signal0;
+ import primevc.types.Number;
+ import primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
+
 
 /**
- * Description
+ * This class can constraint the value of an int to the given min and max value.
  * 
- * @creation-date	Jun 20, 2010
+ * @creation-date	Jun 21, 2010
  * @author			Ruben Weijers
  */
-class ConstraintBase <ConstraintDataType> implements IDisposable, implements haxe.rtti.Generic
+class IntRangeValidator implements IValueValidator <Int>
 {
-	/**
-	 * Flag indicating if the constraints on the float are enabled or not.
-	 * @default	true
-	 */
-	public var constraintEnabled		: Bool;
-	public var constraint				: IConstraint<ConstraintDataType>;
+	public var change (default, null)	: Signal0;
+	
+	public var min	(default, setMin)	: Int;
+	public var max	(default, setMax)	: Int;
 	
 	
-	public function new ()
+	public function new( min:Int = Number.INT_NOT_SET, max:Int = Number.INT_NOT_SET )
 	{
-		constraintEnabled	= true;
+		this.min = min;
+		this.max = max;
+		change = new Signal0();
+		change.send();
 	}
 	
 	
-	public function dispose ()
+	public inline function dispose ()
 	{
-		if (constraint != null)
-			constraint.dispose();
-		constraint	= null;
+		change.dispose();
 	}
 	
 	
-	private inline function applyConstraint (v)
+	public inline function getDiff ()
 	{
-		if (constraintEnabled && constraint != null)
-			v = constraint.validate(v);
+		return min.isSet() && max.isSet() ? max - min : 0;
+	}
+	
+	
+	private inline function setMin (v)
+	{
+		if (v != min) {
+			min = v;
+			broadcastChange();
+		}
 		return v;
 	}
+	
+	
+	private inline function setMax (v)
+	{
+		if (v != max) {
+			max = v;
+			broadcastChange();
+		}
+		return v;
+	}
+	
+	
+	private inline function broadcastChange ()
+	{
+		if (change != null && (min.isSet() || max.isSet()))
+			change.send();
+	}
+	
+	
+	public function validate (v:Int) : Int
+	{
+	//	if (v.notSet())
+	//		return v;
+		if (min.isSet() && max.isSet())		v = v.within( min, max );
+		else if (min.isSet())				v = v.getBiggest( min );
+		else if (max.isSet())				v = v.getSmallest( max );
+		return v;
+	}
+	
+	
+#if debug
+	public function toString ()
+	{
+		return "IntRangeValidator ( " + min + ", " + max + " )";
+	}
+#end
 }

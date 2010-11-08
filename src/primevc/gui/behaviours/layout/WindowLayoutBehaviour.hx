@@ -87,8 +87,8 @@ class WindowLayoutBehaviour extends BehaviourBase < UIWindow >
 		//	trace(target+".updateBgSize "+l.bounds);
 		//	target.bgShape.width	= l.width;
 		//	target.bgShape.height	= l.height;
-			target.rect.width		= l.width;
-			target.rect.height		= l.height;
+			target.rect.width		= l.width.value;
+			target.rect.height		= l.height.value;
 		}
 	}	
 #end

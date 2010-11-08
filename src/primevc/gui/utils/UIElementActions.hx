@@ -83,8 +83,8 @@ class UIElementActions
 	
 	public static inline function doResize (target:IUIElement, newW:Float, newH:Float)
 	{
-		if (newW.isSet())	target.layout.width		= newW.int();
-		if (newH.isSet())	target.layout.height	= newH.int();
+		if (newW.isSet())	target.layout.width.value	= newW.int();
+		if (newH.isSet())	target.layout.height.value	= newH.int();
 	}
 	
 	

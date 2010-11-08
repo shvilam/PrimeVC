@@ -237,6 +237,14 @@ class StyleBlock extends StyleBlockBase
 	}
 	
 	
+#if debug
+	public inline function getPriorityName () : String
+	{
+		return type.enumConstructor();
+	}
+#end
+	
+	
 	/*
 	public inline function hasChildren () : Bool
 	{

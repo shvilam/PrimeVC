@@ -233,16 +233,12 @@ class UIElementStyle implements IUIElementStyle
 		var changed			= filledProperties;
 		
 		//remove styles and their listeners
-		removeStylesWithPriority( StyleBlockType.idState		.enumIndex() );
-		removeStylesWithPriority( StyleBlockType.styleNameState	.enumIndex() );
-		removeStylesWithPriority( StyleBlockType.elementState	.enumIndex() );
-		removeStylesWithPriority( StyleBlockType.id				.enumIndex() );
-		removeStylesWithPriority( StyleBlockType.styleName		.enumIndex() );
-		removeStylesWithPriority( StyleBlockType.element		.enumIndex() );
+		while (styles.length > 0)
+			removeStyleCell( styles.last );
 		
 		updateParentStyle();
 		
-		Assert.that( styles.length == 0 );
+		Assert.equal( styles.length, 0, styles.toString() );
 		
 		filledProperties = 0;
 		broadcastChanges( changed );
@@ -252,9 +248,14 @@ class UIElementStyle implements IUIElementStyle
 	private function updateParentStyle ()
 	{
 		if (parentStyle != null)
+		{
+			if (target.container != null && target.container.as( IStylable ).style == parentStyle)
+				return;
+			
 			parentStyle.childrenChanged.unbind( this );
+			parentStyle = null;
+		}
 		
-		parentStyle = null;
 		
 		if (target.window != null)
 		{
@@ -421,7 +422,10 @@ class UIElementStyle implements IUIElementStyle
 	 * an UInt flag with all the properties that where set in the removed styles.
 	 */
 	private function removeStylesWithPriority (priority:Int) : UInt
-	{	
+	{
+		if (styles.length == 0)
+			return 0;
+		
 		var changes = 0;
 		var styleCell:DoubleFastCell < StyleBlock > = null;
 		

@@ -34,7 +34,6 @@ package primevc.gui.layout.algorithms;
  import primevc.core.geom.IRectangle;
  import primevc.core.IDisposable;
  import primevc.gui.layout.ILayoutContainer;
- import primevc.gui.layout.LayoutClient;
  import primevc.tools.generator.ICSSFormattable;
 
 
@@ -52,7 +51,7 @@ interface ILayoutAlgorithm
 	 * been changed and the layout needs to be validated again.
 	 */
 	public var algorithmChanged (default, null)				: Signal0;
-	public var group			(default, setGroup)			: ILayoutContainer<LayoutClient>;
+	public var group			(default, setGroup)			: ILayoutContainer;
 	
 	
 	/**

@@ -1,12 +1,12 @@
-@import url('../empty/Style.css');
+@import url('../empty/BasicStyle.css');
 @manifest url('manifest.xml');
 
 .odd { visibility: visible; width: 60px; }
-#frame2 .odd { background: #000; width: 50px;  }
+#frame2 .odd { background: #000; width: 100px;  }
 
 GlobalApp {
 	relative: 5px 5px 5px;
-	width: 80%;
+	width: 60%;
 	padding: 5px;
 	algorithm: float-hor;
 	border: solid 1px #000 inset;
@@ -15,10 +15,10 @@ GlobalApp {
 
 Tile {
 	color: #000;
-	move-transition: move 200ms elastic-in-out;
+	move-transition: move 200ms;
 	min-width: 15px;
 	min-height: 15px;
-	margin: 10px;
+	margin: 3px;
 	background: #ff0000;
 /*	background: radial-gradient( -1, #aaa, #000 40px, 0xadfc67f0 50%, #0f0f0f0f 60%, #222 70.987%, 0xabcdefdd 254.8px, repeat );*/
 /*	background: linear-gradient( 90deg, #ffffff00, #444, #fff );*/
@@ -30,16 +30,6 @@ Tile {
 	opacity: .5;
 }
 
-/*
-TileList Button {
-	font-weight: bold;
-}
-Frame UIComponent {
-	color: #aaa;
-}
-Frame Button {
-}
-*/
 TileList {
 	border: solid 3px #fedcba;
 	background: #abcdef44;
@@ -76,7 +66,7 @@ GlobalApp TileList:hover {
 */
 #frame0 Tile { background: #0000ff; shape: ellipse; move-transition: move 400ms elastic-out; }
 #frame1 Tile { background: #00ff00; shape: circle;  }
-#frame2 Tile { shape: triangle; move-transition: sequence ( parallel ( fade 500ms 40%, move 300ms circ-out ), fade 600ms 100% ) ; }
+#frame2 Tile { shape: triangle; min-width: 60px; move-transition: sequence ( parallel ( fade 500ms 40%, move 300ms circ-out ), fade 600ms 100% ) ; }
 #frame8 Tile { move-transition: sequence( parallel ( rotate 500ms 360deg, move 500ms ), rotate 400ms -360deg ); show-transition: fade 0% 100% 350ms; }
 
 
@@ -98,16 +88,12 @@ GlobalApp TileList:hover {
 }
 
 #frame2 {
-/*	algorithm: fixed-tile( vertical, 16, left, bottom );*/
-	algorithm: fixed-tile( vertical, 6, left, top );
-	width: 58%;
+	algorithm: fixed-tile( horizontal, 6, left, top );
 	top: 90px;
 	bottom: 5px;
 	left: 5px;
 	overflow: drag-scroll;
 }
-/*#frame2:hover { algorithm: circle; }*/
-
 #frame3 {
 	algorithm: dynamic-tile;
 	width: 100%;
@@ -142,85 +128,3 @@ GlobalApp TileList:hover {
 	height: 40%;
 	algorithm: circle;
 }
-
-
-/*import url("reset.css");
-import "screen.css";*/
-/*
-UIComponent {
-	float: left;
-	text-align: center;
-	color: rgba(50, 12, 200,0.1);
-/*}
-
-Label {
-	font-weight: bold;
-	background-color: rgba(80, 255, 90, 0.89);
-	background-color: #fffd460a;
-	background-color: #ffa;
-	background-image: url(../images/test.png) no-repeat;
-	text-align: left;
-	background-image: Class(nl.onlinetouch.Aap) repeat-both;
-}
-/*
-
-* {
-	font-size: 10px;
-}
-
-
-Tile {
-	font-weight: bold;
-}
-
-UIWindow {
-	
-}
-GlobalApp {
-	max-width: 200px;
-}
-
-TextArea {
-	background-color: linear-gradient( 90deg, #aaa, #dddddd, #eee, #fff );
-	background-color: #ffad97f0;
-	
-	column-count:	4;
-	column-gap:		20px;
-	column-width:	120px;
-	column-rule:	1px solid #aaa;
-	word-wrap:		break-word;
-	
-	algorithm:		circle( left, top );
-	
-	min-width: 50px;
-	min-height: 10px;
-	max-height: 20em;
-	left: 0;
-	right: 400px;
-	top: 10px;
-	v-center: 0;
-}
-
-.eenVeld {
-	font: 12px bold italic Verdana;
-	width: 50px;
-	height: 10%;
-	child-width: 3em;
-	child-height: 400px;
-	background-color: radial-gradient( -1, #aaa, #000 40px, 0xadfc67f0 50%, #0f0f0f0f 60%, #222 70.987%, 0xabcdefdd 254.8px, repeat );
-	border-color: #f00;
-	border-width: 3px;
-	border-radius: 5px 2px;
-	padding: 4px 3px;
-	position: absolute;
-	algorithm: float-hor( right );
-}
-
-TextArea Button Aap .eenVeld {
-	width: 40px;
-	padding: 0;
-}
-
-#idable {}
-
-#idable .eenVeld Label { font-size:44px;}*/

@@ -166,10 +166,10 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 			if (group.childHeight.notSet())
 			{	
 				for (child in group.children) {
-					if (!child.includeInLayout)
+					if (!child.includeInLayout || child.height.value.notSet())
 						continue;
 					
-					child.outerBounds.top = start + ( (group.height - child.outerBounds.height) * .5 ).int();
+					child.outerBounds.top = start + ( (group.height.value - child.outerBounds.height) * .5 ).int();
 				}
 			}
 			else
@@ -191,7 +191,7 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 			if (group.childHeight.notSet())
 			{
 				for (child in group.children) {
-					if (!child.includeInLayout)
+					if (!child.includeInLayout || child.height.value.notSet())
 						continue;
 					
 					child.outerBounds.top = start + (group.innerBounds.height - child.outerBounds.height);

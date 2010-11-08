@@ -93,8 +93,8 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > , implements IRendera
 		var targetLayout	= target.layout;
 		var fieldLayout		= target.field.layout;
 		
-		fieldLayout.width	= targetLayout.width;
-		fieldLayout.height	= targetLayout.height;
+		fieldLayout.width.value		= targetLayout.width.value;
+		fieldLayout.height.value	= targetLayout.height.value;
 		
 		if (targetLayout.padding != null)
 		{
@@ -116,7 +116,7 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > , implements IRendera
 		var fieldLayout		= target.field.layout;
 		
 	//	trace(target+".updateLabelSize "+target.field.layout.bounds);
-		targetLayout.measuredWidth	= fieldLayout.width;
-		targetLayout.measuredHeight	= fieldLayout.height;
+		targetLayout.measuredWidth	= fieldLayout.width.value;
+		targetLayout.measuredHeight	= fieldLayout.height.value;
 	}
 }

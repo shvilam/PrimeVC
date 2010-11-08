@@ -32,8 +32,8 @@ package primevc.gui.layout.algorithms.float;
  import primevc.gui.layout.algorithms.IVerticalAlgorithm;
  import primevc.gui.layout.algorithms.VerticalBaseAlgorithm;
  import primevc.gui.layout.AdvancedLayoutClient;
- import primevc.utils.IntMath;
-  using primevc.utils.IntMath;
+ import primevc.utils.NumberMath;
+  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
   using Std;
@@ -86,14 +86,12 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 				if (!child.includeInLayout)
 					continue;
 				
-			//	if (child.outerBounds.height.isSet())
-			//	{
-					height += child.outerBounds.height;
-					
-					//only count even children
-					if (i % 2 == 0)
-						halfHeight += child.outerBounds.height;
-			//	}
+				height += child.outerBounds.height;
+				
+				//only count even children
+				if (i % 2 == 0)
+					halfHeight += child.outerBounds.height;
+				
 				i++;
 			}
 		}
@@ -263,7 +261,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 			if (posY > 0)
 			{
 				//check if it's smart to start searching at the end or at the beginning..
-				var groupHeight = group.height;
+				var groupHeight = group.height.value;
 				if (group.is(AdvancedLayoutClient))
 					groupHeight = IntMath.max( 0, group.as(AdvancedLayoutClient).measuredHeight );
 				
@@ -303,7 +301,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 		var posY:Int	= bounds.top;
 		var centerY:Int	= bounds.top + (bounds.height * .5).int();
 		
-		var groupHeight	= group.height;
+		var groupHeight	= group.height.value;
 		if (group.is(AdvancedLayoutClient))
 			groupHeight	= IntMath.max( 0, group.as(AdvancedLayoutClient).measuredHeight );
 		
@@ -330,13 +328,13 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 		var posY:Int	= bounds.top;
 		var centerY:Int	= bounds.top + (bounds.height * .5).int();
 		
-		var groupHeight = group.height;
+		var groupHeight = group.height.value;
 		var emptyHeight	= 0;
 		if (group.is(AdvancedLayoutClient))
 		{
 			groupHeight = IntMath.max( 0, group.as(AdvancedLayoutClient).measuredHeight );
 			//check if there's any width left. This happens when there's an explicitWidth set.
-			emptyHeight	= IntMath.max( 0, group.height - groupHeight );
+			emptyHeight	= IntMath.max( 0, group.height.value - groupHeight );
 		}
 		
 		if (group.childHeight.isSet())
@@ -350,7 +348,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 				depth = group.children.length;
 			
 			//if bounds.bottom < maximum group height, then the depth is at the beginning of the list
-			else if (bounds.right < IntMath.max(group.height, groupHeight))
+			else if (bounds.right < IntMath.max(group.height.value, groupHeight))
 			{
 				//check if it's smart to start searching at the end or at the beginning..
 				var halfH = groupHeight * .5;

@@ -33,7 +33,7 @@ package primevc.gui.layout.algorithms.circle;
  import primevc.gui.layout.algorithms.IVerticalAlgorithm;
  import primevc.gui.layout.algorithms.VerticalBaseAlgorithm;
  import primevc.utils.Formulas;
- import primevc.utils.IntMath;
+ import primevc.utils.NumberMath;
   using primevc.utils.Formulas;
   using primevc.utils.NumberUtil;
  
@@ -81,7 +81,7 @@ class VerticalCircleAlgorithm extends VerticalBaseAlgorithm, implements IVertica
 	
 	public inline function validateVertical ()
 	{
-		var height:Int = group.height;
+		var height:Int = group.height.value;
 	/*	
 		if (group.childHeight.notSet())
 		{
@@ -169,8 +169,8 @@ class VerticalCircleAlgorithm extends VerticalBaseAlgorithm, implements IVertica
 	
 	private inline function getRadius () : Int {
 		return isEllipse ?
-			Std.int( group.height * .5 ) : 
-			Std.int( Math.round( Formulas.getCircleRadius(group.width, group.height) ) );
+			Std.int( group.height.value * .5 ) : 
+			Std.int( Math.round( Formulas.getCircleRadius(group.width.value, group.height.value) ) );
 	}
 	
 #if (neko || debug)

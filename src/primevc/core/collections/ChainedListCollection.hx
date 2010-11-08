@@ -31,8 +31,8 @@ package primevc.core.collections;
  import primevc.core.collections.IList;
  import primevc.core.collections.SimpleList;
  import primevc.core.dispatcher.Signal1;
- import primevc.utils.IntMath;
-  using primevc.utils.IntMath;
+ import primevc.utils.NumberMath;
+  using primevc.utils.NumberMath;
   using primevc.utils.TypeUtil; 
 
 

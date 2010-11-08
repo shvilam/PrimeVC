@@ -28,15 +28,18 @@
  */
 package primevc.gui.layout;
  import primevc.core.geom.Box;
-// import primevc.core.geom.constraints.ConstrainedRect;
- import primevc.core.geom.constraints.SizeConstraint;
  import primevc.core.geom.IntRectangle;
  import primevc.core.states.SimpleStateMachine;
  import primevc.core.traits.IInvalidateListener;
+ import primevc.core.validators.ValidatingValue;
+ import primevc.core.validators.IntRangeValidator;
  import primevc.core.IDisposable;
  import primevc.gui.events.LayoutEvents;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.traits.IInvalidating;
+
+
+typedef SizeType = ValidatingValue < Int >;
 
 
 /**
@@ -75,7 +78,7 @@ interface ILayoutClient
 	 * the client can let the parent know when it's size or position has
 	 * changed wich could result in revalidating the parents layout.
 	 */
-	public var parent						(default, setParent)			: ILayoutContainer<Dynamic>;
+	public var parent						(default, setParent)			: ILayoutContainer;
 	
 	public var isValidating					(getIsValidating, never)		: Bool;
 	public var isInvalidated				(getIsInvalidated, never)		: Bool;
@@ -141,7 +144,7 @@ interface ILayoutClient
 	/**
 	 * rules for the size (min, max)
 	 */
-	public var sizeConstraint		(default, setSizeConstraint)		: SizeConstraint;
+//	public var sizeConstraint		(default, setSizeConstraint)		: SizeConstraint;
 	/**
 	 * rules for sizing / positioning the layout with relation to the parent
 	 */
@@ -174,12 +177,12 @@ interface ILayoutClient
 	 * Width of the LayoutClient. Changing the width will also change the width
 	 * property in 'bounds'.
 	 */
-	public var width (getWidth, setWidth)			: Int;
+	public var width				(default, null)						: SizeType;
 	/**
 	 * Width of the LayoutClient. Changing the width will also change the height
 	 * property in 'bounds'.
 	 */
-	public var height (getHeight, setHeight)		: Int;
+	public var height				(default, null)						: SizeType;
 	
 	/**
 	 * If percent width is set, the width of the layoutclient will be 
