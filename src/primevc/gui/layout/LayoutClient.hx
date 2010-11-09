@@ -178,7 +178,6 @@ class LayoutClient extends Invalidatable
 			relative = null;
 		}
 		
-	//	sizeConstraint	= null;		//do not dispose him. Sizeconstraints instances can be used across several clients.
 		percentWidth	= 0;
 		percentHeight	= 0;
 		width	= null;
@@ -216,9 +215,10 @@ class LayoutClient extends Invalidatable
 	
 	override public function invalidate (change:Int)
 	{
+		var oldChanges = changes;
 		changes = changes.set(change);
 		
-		if (changes == 0 || state == null || state.current == null)
+		if (changes == 0 || changes == oldChanges || state == null || state.current == null)
 			return;
 		
 		if (isValidating && (parent == null || parent.isValidating))
@@ -231,6 +231,8 @@ class LayoutClient extends Invalidatable
 		if (includeInLayout && parent != null)
 			super.invalidate(change);
 		
+	//	if (parent != null)
+	//		trace(this+".invalidate; "+Flags.readProperties(change)); //" parent: "+parent+"; parent changes: "+Flags.readProperties(parent.changes));
 		if (!state.is(ValidateStates.parent_invalidated) && !state.is(ValidateStates.validating))
 		{
 			state.current = ValidateStates.invalidated;
@@ -250,7 +252,6 @@ class LayoutClient extends Invalidatable
 		validateHorizontal();
 		validateVertical();
 		
-	//	trace(this+".validate "+Flags.readProperties(changes));
 	//	trace("\t outer: "+outerBounds);
 	//	trace("\t inner: "+innerBounds);
 		
@@ -262,10 +263,9 @@ class LayoutClient extends Invalidatable
 	
 	public function validateHorizontal ()
 	{
-		if (hasValidatedWidth)
+		if (hasValidatedWidth || changes == 0)
 			return;
 		
-	//	trace(this+".validateHorizontal ");
 		state.current = ValidateStates.validating;
 		
 		if (changes.has(Flags.WIDTH))
@@ -283,10 +283,9 @@ class LayoutClient extends Invalidatable
 	
 	public function validateVertical ()
 	{
-		if (hasValidatedHeight)
+		if (hasValidatedHeight || changes == 0)
 			return;
 		
-	//	trace(this+".validateVertical ");
 		state.current = ValidateStates.validating;
 		
 		if (changes.has(Flags.HEIGHT))
@@ -304,15 +303,14 @@ class LayoutClient extends Invalidatable
 	
 	public function validated ()
 	{
-		if (changes == 0)
-			return;
+		if (changes > 0)
+		{
+			if (changes.has(Flags.WIDTH | Flags.HEIGHT))	events.sizeChanged.send();
+			if (changes.has(Flags.X | Flags.Y))				events.posChanged.send();
+			changes = 0;
+		}
 		
-		if (changes.has(Flags.WIDTH | Flags.HEIGHT))	events.sizeChanged.send();
-		if (changes.has(Flags.X | Flags.Y))				events.posChanged.send();
-		
-		state.current	= ValidateStates.validated;
-		changes			= 0;
-		
+		state.current = ValidateStates.validated;
 		hasValidatedWidth	= false;
 		hasValidatedHeight	= false;
 	}
@@ -564,6 +562,6 @@ class LayoutClient extends Invalidatable
 	
 	public static var counter:Int = 0;
 	public var name:String;
-	public function toString() { return name; } //state.current+"_"+name; } // + " - " + uuid; }
+	public function toString() { return state.current+"_"+name; } // + " - " + uuid; }
 #end
 }

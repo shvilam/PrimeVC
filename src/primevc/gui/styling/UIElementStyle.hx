@@ -41,6 +41,7 @@ package primevc.gui.styling;
   using primevc.utils.BitUtil;
   using primevc.utils.FastArray;
   using primevc.utils.TypeUtil;
+  using Std;
   using Type;
 
 
@@ -238,7 +239,7 @@ class UIElementStyle implements IUIElementStyle
 		
 		updateParentStyle();
 		
-		Assert.equal( styles.length, 0, styles.toString() );
+		Assert.equal( styles.length, 0, styles.string() );
 		
 		filledProperties = 0;
 		broadcastChanges( changed );

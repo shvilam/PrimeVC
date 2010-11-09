@@ -27,11 +27,13 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.drag;
+ import primevc.core.geom.IntRectangle;
  import primevc.core.geom.Rectangle;
  import primevc.core.IDisposable;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.traits.IDraggable;
+ import primevc.gui.traits.ILayoutable;
   using primevc.utils.TypeUtil;
 
 /**
@@ -42,12 +44,13 @@ package primevc.gui.behaviours.drag;
  */
 class DragBehaviourBase extends BehaviourBase <IDraggable>
 {
-	private var dragInfo	: DragInfo;
-	private var dragHelper	: DragHelper;
-	private var dragBounds	: Rectangle;
+	private var dragInfo			: DragInfo;
+	private var dragHelper			: DragHelper;
+	private var dragBounds			: IntRectangle;
+	private var mouseEnabledValue	: Bool;
 	
 	
-	public function new (target, ?dragBounds:Rectangle)
+	public function new (target, ?dragBounds:IntRectangle)
 	{
 		super(target);
 		this.dragBounds = dragBounds;
@@ -68,23 +71,62 @@ class DragBehaviourBase extends BehaviourBase <IDraggable>
 		}
 		
 		disposeDragInfo();
+		dragBounds = null;
+	}
+	
+	
+	private function startDrag (mouseObj:MouseState) : Void
+	{
+		if (dragInfo == null)
+			dragInfo = target.createDragInfo();
 		
-		if (dragBounds.is(IDisposable)) {
-			dragBounds.as(IDisposable).dispose();
-			dragBounds = null;
+		var item = dragInfo.dragRenderer;
+#if flash9
+		mouseEnabledValue	= item.mouseEnabled;
+		item.mouseEnabled	= false;
+#end
+		if (dragBounds == null)
+			item.startDrag();
+		else
+		{
+			var bounds		 = dragBounds.toFloatRectangle();
+			bounds.width	-= dragInfo.dragRectangle.width;
+			bounds.height	-= dragInfo.dragRectangle.height;
+			item.startDrag( false, bounds );
+		}
+		
+		if (target.is(ILayoutable))
+			target.as(ILayoutable).layout.includeInLayout = false;
+		
+		target.dragEvents.start.send(dragInfo);
+	}
+	
+	
+	private function cancelDrag (mouseObj:MouseState) : Void
+	{
+		Assert.abstract();
+	}
+
+
+	private function stopDrag (mouseObj:MouseState) : Void
+	{
+		if (dragInfo != null)
+		{
+			stopDragging();
+			target.dragEvents.complete.send(dragInfo);
 		}
 	}
 	
 	
-	private function startDrag (mouseObj:MouseState) : Void	{ Assert.abstract(); }
-	private function cancelDrag (mouseObj:MouseState) : Void { Assert.abstract(); }
+	private function stopDragging ()
+	{
+		var item = dragInfo.dragRenderer;
+		item.stopDrag();
+		item.mouseEnabled = mouseEnabledValue;
+		
+		if (target.is(ILayoutable))
+			target.as(ILayoutable).layout.includeInLayout = true;
 
-
-	private function stopDrag (mouseObj:MouseState) : Void
-	{	
-		target.stopDrag();
-		target.dragEvents.complete.send(dragInfo);
-		disposeDragInfo();
 	}
 
 

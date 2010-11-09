@@ -54,7 +54,6 @@ class DragDropBehaviour extends DragBehaviourBase
 {
 	private var copyTarget			: Bool;
 	private var moveBinding			: Wire < Dynamic >;
-	private var mouseEnabledValue	: Bool;
 	
 	
 	public function new (target, ?dragBounds, ?copyTarget = false)
@@ -85,7 +84,12 @@ class DragDropBehaviour extends DragBehaviourBase
 	
 	override private function startDrag (mouseObj:MouseState) : Void
 	{
-		haxe.Log.clear();
+		if (dragInfo != null)
+		{
+			cancelDrag(mouseObj);
+			stopDrag(mouseObj);
+		}
+	//	haxe.Log.clear();
 		dragInfo = target.createDragInfo();
 #if flash9
 		//move item to correct location
@@ -97,26 +101,21 @@ class DragDropBehaviour extends DragBehaviourBase
 		if (item.is(IUIElement))
 			item.as(IUIElement).doMove( pos.x.int(), pos.y.int() );
 		
-		item.x	= pos.x;
-		item.y	= pos.y;
-		
-		mouseEnabledValue	= item.mouseEnabled;
-		item.mouseEnabled	= false;
-		item.visible		= true;
+		item.x			= pos.x;
+		item.y			= pos.y;
+		item.visible	= true;
 #end
 		
 		//start dragging and fire events
-		item.startDrag();
-		target.dragEvents.start.send(dragInfo);
+		super.startDrag(mouseObj);
 		moveBinding.enable();
 	}
 	
 	
 	override private function stopDrag (mouseObj:MouseState) : Void
-	{
-		var item			= dragInfo.dragRenderer;
-		item.stopDrag();
-		item.mouseEnabled	= mouseEnabledValue;
+	{	
+		stopDragging();
+		var item = dragInfo.dragRenderer;
 		
 		//remove dragrenderer from displaylist
 		item.container.children.remove(item);
@@ -149,6 +148,7 @@ class DragDropBehaviour extends DragBehaviourBase
 	
 	override private function cancelDrag (mouseObj:MouseState) : Void
 	{
+		trace(target+".cancelDrag \n");
 		dragInfo.dropTarget = null;
 	//	stopDrag(mouseObj);
 	}

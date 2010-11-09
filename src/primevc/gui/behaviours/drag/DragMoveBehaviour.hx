@@ -27,9 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.drag;
- import primevc.gui.traits.ILayoutable;
  import primevc.gui.events.MouseEvents;
-  using primevc.utils.TypeUtil;
 
 
 /**
@@ -42,37 +40,20 @@ package primevc.gui.behaviours.drag;
  */
 class DragMoveBehaviour extends DragBehaviourBase
 {
-	override private function startDrag (mouseObj:MouseState) : Void
-	{
-		dragInfo = target.createDragInfo(); //new DragInfo(target);
-		
-		if (target.is(ILayoutable))
-			target.as(ILayoutable).layout.includeInLayout = false;
-		
-		//start dragging and fire events
-		target.startDrag( false, dragBounds );
-		target.dragEvents.start.send(dragInfo);
-	}
-	
-	
 	override private function stopDrag (mouseObj:MouseState) : Void
 	{
 		super.stopDrag(mouseObj);
-		if (target.is(ILayoutable))
-			target.as(ILayoutable).layout.includeInLayout = true;
+		disposeDragInfo();
 	}
 	
 	
 	override private function cancelDrag (mouseObj:MouseState) : Void
-	{	
-		target.stopDrag();
+	{
+		stopDragging();
 		dragInfo.restore();
 		
 		//notifiy the dragged item that the drag-operation is canceled
 		target.dragEvents.exit.send( dragInfo );
 		disposeDragInfo();
-		
-		if (target.is(ILayoutable))
-			target.as(ILayoutable).layout.includeInLayout = true;
 	}
 }

@@ -27,8 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.layout;
+ import primevc.core.collections.DoubleFastCell;
  import primevc.core.dispatcher.Wire;
- import primevc.gui.behaviours.BehaviourBase;
+ import primevc.gui.behaviours.ValidatingBehaviour;
  import primevc.gui.core.IUIElement;
  import primevc.gui.core.UIWindow;
  import primevc.gui.states.ValidateStates;
@@ -45,15 +46,9 @@ package primevc.gui.behaviours.layout;
  * @creation-date	Jun 14, 2010
  * @author			Ruben Weijers
  */
-class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >
+class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >
 {
-	private var isNotPositionedYet : Bool;
-	
-	
-	private inline function getInvalidationManager ()
-	{
-		return (target.window != null && target.window.is(UIWindow)) ? target.window.as(UIWindow).invalidationManager : null;
-	}
+	private var isNotPositionedYet	: Bool;
 	
 	
 	override private function init ()
@@ -76,8 +71,7 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >
 		if (target.layout == null)
 			return;
 		
-		if (target.window != null)
-			getInvalidationManager().remove( target.layout );
+		super.reset();
 		
 		target.layout.state.change.unbind( this );
 		target.layout.events.posChanged.unbind( this );
@@ -90,15 +84,15 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >
 		if (target.window == null)
 			return;
 		
-		switch (newState)
-		{
-			case ValidateStates.invalidated:
-				getInvalidationManager().add( target.layout );
-			
-			case ValidateStates.parent_invalidated:
-				getInvalidationManager().remove( target.layout );
-		}
+		if (nextValidatable != null && newState != ValidateStates.invalidated)
+			getValidationManager().remove( this );
+		else if (nextValidatable == null && newState == ValidateStates.invalidated)
+			getValidationManager().add( this );
 	}
+	
+	
+	override public function validate ()				{ target.layout.validate(); }
+	override private function getValidationManager ()	{ return (target.window != null) ? cast target.window.as(UIWindow).invalidationManager : null; }
 	
 	
 	public function applyPosition ()

@@ -26,32 +26,30 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.managers;
-  using primevc.utils.Bind;
-
+package primevc.gui.traits;
 
 /**
- * Manager obj to queue the rendering of all IRenderable's until a render event
- * is fired.
+ * Interface describes how changes in properties won't directly affect other
+ * properties. The consequence of a changed property will be applied in 
+ * validate.
+ * 
+ * @example
+ * 		label.value = "new value";
+ * 		The width of the label will be changed after validate is called. 
+ * 			Changing the width while the label isn't on the stage won't 
+ * 			influence the width.
  * 
  * @author Ruben Weijers
  * @creation-date Sep 03, 2010
  */
-class RenderManager extends QueueManager
+interface IValidatable
 {
-	public function new (owner)
-	{
-		super(owner);
-		updateQueueBinding = validateQueue.on( owner.displayEvents.render, this );
-		updateQueueBinding.disable();
-	}
+	public var prevValidatable	: IValidatable;
+	public var nextValidatable	: IValidatable;
 	
+	/**
+	 * Method to update all the properties that have changed.
+	 */
+	public function validate ()					: Void;
 	
-	override private function enableBinding ()
-	{
-		if (!updateQueueBinding.isEnabled())
-			owner.invalidate();
-		
-		super.enableBinding();
-	}
 }

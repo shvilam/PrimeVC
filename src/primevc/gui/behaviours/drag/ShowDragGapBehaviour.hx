@@ -34,7 +34,7 @@ package primevc.gui.behaviours.drag;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.traits.IDropTarget;
- import primevc.utils.IntMath;
+ import primevc.utils.NumberMath;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
   using Std;
@@ -114,7 +114,7 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 		if (layoutGroup.algorithm != null)
 			newDepth = IntMath.min( newDepth, layoutGroup.algorithm.getDepthForBounds( rect ) );
 		
-		
+	//	trace("updateTargetAfterMouseMove "+curDepth+" -> "+newDepth);
 		if (curDepth == -1)
 			layoutGroup.children.add( draggedItem.layout, newDepth );
 		else if (curDepth != newDepth)

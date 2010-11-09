@@ -29,8 +29,8 @@
 package primevc.gui.managers;
  import primevc.core.dispatcher.Wire;
  import primevc.core.IDisposable;
- import primevc.utils.FastArray;
-  using primevc.utils.FastArray;
+ import primevc.gui.display.Window;
+ import primevc.gui.traits.IValidatable;
 
 
 /**
@@ -40,20 +40,14 @@ package primevc.gui.managers;
  * @author Ruben Weijers
  * @creation-date Sep 03, 2010
  */
-class QueueManager < ChildType, OwnerType >
-		implements IDisposable
-//	,	implements haxe.rtti.Generic
+class QueueManager implements IDisposable
 {	
 	/**
 	 * Reference to the object that owns the object
 	 */
-	private var owner				: OwnerType;
-	
-	/**
-	 * Queue with objects that need to be updated on the next 
-	 * updateQueueBinding call.
-	 */
-	private var queue				: FastArray < ChildType >;
+	private var owner			: Window;
+	private var first			: IValidatable;
+	private var last			: IValidatable;
 	
 	/**
 	 * Binding reference to the wire that will apply the update to the queue
@@ -62,22 +56,28 @@ class QueueManager < ChildType, OwnerType >
 	private var updateQueueBinding	: Wire <Dynamic>;
 	
 	
-	public function new (owner:OwnerType)
+	public function new (owner:Window)
 	{
-		this.owner		= owner;
-		queue			= FastArrayUtil.create();
+		this.owner = owner;
 	}
 	
 	
 	public function dispose ()
 	{
-		if (updateQueueBinding != null)
+		if (updateQueueBinding != null) {
 			updateQueueBinding.dispose();
+			updateQueueBinding = null;
+		}
 		
-		queue.removeAll();
-		updateQueueBinding = null;
+		while (last != null)
+		{
+			var obj = last;
+			last = last.prevValidatable;
+			obj.nextValidatable = obj.prevValidatable = null;
+		}
+		
+		first	= null;
 		owner	= null;
-		queue	= null;
 	}
 	
 	
@@ -86,29 +86,58 @@ class QueueManager < ChildType, OwnerType >
 	//
 	
 	
-	private function enableBinding ()	{ updateQueueBinding.enable(); }
-	private function disableBinding ()	{ if (queue.length == 0) updateQueueBinding.disable(); }
+	private function enableBinding ()			{ updateQueueBinding.enable(); }
+	private inline function disableBinding ()	{ updateQueueBinding.disable(); }
 	
 	
-	/**
-	 * Add's an obj to the queue with objects
-	 */
-	public function add ( obj:ChildType )
+	private function validateQueue ()
 	{
-		if (queue.indexOf(obj) == -1) {
-			queue.push( obj );
-			enableBinding();
+		var curCell = first;
+		while (curCell != null)
+		{
+			var obj	= curCell;
+			curCell	= curCell.nextValidatable;
+			
+			obj.validate();
+			obj.nextValidatable = obj.prevValidatable = null;
 		}
+		first = last = null;
+		disableBinding();
 	}
 	
 	
 	
 	/**
+	 * Add's an obj to the queue with objects
+	 */
+	public function add ( obj:IValidatable )
+	{
+		if (obj.prevValidatable != null)
+			return;
+		
+		if (first == null)
+			first = obj;
+		else
+			last.nextValidatable = obj;
+		
+		last = obj;
+		
+		if (first != null)
+			enableBinding();
+	}
+	
+	
+	/**
 	 * Removed an object from the queue with objects
 	 */
-	public inline function remove ( obj:ChildType )
+	public function remove ( obj:IValidatable )
 	{
-		queue.removeItem(obj);
-		disableBinding();
+		if (obj == first)	first = obj.nextValidatable;
+		if (obj == last)	last = obj.prevValidatable;
+		
+		obj.nextValidatable = obj.prevValidatable = null;
+		
+		if (first == null)
+			disableBinding();
 	}
 }

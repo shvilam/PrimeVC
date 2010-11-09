@@ -144,7 +144,7 @@ class LayoutFlags
 		if (flags.has( Y ))						output.push("y");
 		if (flags.has( WIDTH ))					output.push("width");
 		
-		return "properties: " + output.join(", ");
+		return "properties: " + output.join(", ")+" ("+flags+")";
 	}
 	
 	

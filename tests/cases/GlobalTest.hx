@@ -137,6 +137,8 @@ class GlobalApp extends ApplicationView
 		children.add(frame6);
 		children.add(frame7);
 		children.add(frame8);
+		
+		haxe.Log.clear.on( frame4.userEvents.mouse.down, this );
 	}
 }
 

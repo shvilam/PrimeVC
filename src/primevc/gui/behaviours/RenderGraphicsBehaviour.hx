@@ -31,7 +31,6 @@ package primevc.gui.behaviours;
  import primevc.gui.core.IUIElement;
  import primevc.gui.core.UIWindow;
  import primevc.gui.traits.IDrawable;
- import primevc.gui.traits.IRenderable;
   using primevc.utils.Bind;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
@@ -45,9 +44,9 @@ package primevc.gui.behaviours;
  * @author Ruben Weijers
  * @creation-date Jul 16, 2010
  */
-class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >, implements IRenderable
+class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >
 {
-	private var graphicsBinding	: Wire <Dynamic>;
+	private var graphicsBinding		: Wire <Dynamic>;
 	
 	
 	override private function init ()
@@ -66,6 +65,7 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >, implements IR
 			graphicsBinding.dispose();
 			graphicsBinding = null;
 		}
+		super.reset();
 	}
 	
 	
@@ -92,13 +92,19 @@ class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >, implements IR
 		if (target.window == null || target.graphicData.value == null || target.graphicData.value.isEmpty())
 			return;
 		
-		target.window.as(UIWindow).renderManager.add( this );
+		getValidationManager().add( this );
 	}
 	
 	
-	public function render ()
+	override public function validate ()
 	{
 		target.graphics.clear();
 		target.graphicData.value.draw( target, false );
+	}
+	
+	
+	override private function getValidationManager ()
+	{
+		return (target.window != null) ? cast target.window.as(UIWindow).renderManager : null;
 	}
 }

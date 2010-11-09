@@ -115,7 +115,7 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 		if (measuredHeight != v)
 		{
 			measuredHeight = v;
-			if (explicitWidth.isSet())		invalidate( Flags.MEASURED_HEIGHT );
+			if (explicitHeight.isSet())		invalidate( Flags.MEASURED_HEIGHT );
 			else							invalidate( Flags.MEASURED_HEIGHT | Flags.HEIGHT );
 		}
 		return v;

@@ -118,7 +118,7 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 	public inline function validateHorizontal ()
 	{
 		var width:Int = group.childWidth;
-
+		
 		if (group.childWidth.notSet())
 		{
 			width = 0;

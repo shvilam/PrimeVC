@@ -26,55 +26,32 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
- import primevc.core.traits.IInvalidatable;
+package primevc.gui.behaviours;
+ import primevc.gui.managers.QueueManager;
+ import primevc.gui.traits.IDisplayable;
+ import primevc.gui.traits.IValidatable;
+
 
 
 /**
- * Interface describes how changes in properties won't directly affect other
- * properties. The consequence of a changed property will be applied in 
- * validate.
- * 
- * @example
- * 		label.value = "new value";
- * 		The width of the label will be changed after validate is called. 
- * 			Changing the width while the label isn't on the stage won't 
- * 			influence the width.
- * 
  * @author Ruben Weijers
- * @creation-date Sep 03, 2010
+ * @creation-date Nov 09, 2010
  */
-interface IInvalidating implements IInvalidatable
+class ValidatingBehaviour < TargetType:IDisplayable > extends BehaviourBase < TargetType >, implements IValidatable
 {
-	/**
-	 * Flags of properties that are changed
-	 */
-	public var changes							: UInt;
+	public var prevValidatable		: IValidatable;
+	public var nextValidatable		: IValidatable;
 	
-	/**
-	 * Invalidate will add the given change flag to the list with invalidated
-	 * properties.
-	 * It will in most cases add an eventlistener to an enter-frame event to
-	 * validate all the changed properties.
-	 */
-//	public function invalidate ( change:UInt )	: Void;
 	
-	/**
-	 * Method to update all the properties that have changed.
-	 */
-	public function validate ()					: Void;
+	private function getValidationManager ()	: QueueManager	{ Assert.abstract(); return null; }
+	public function validate ()					: Void			{ Assert.abstract(); }
 	
-#if debug
 	
-	/**
-	 * Method will return a textual version of all change flags.
-	 * @param	changes		flags property to use. If it's -1, the classes 
-	 * 						'changes' will be used.
-	 */
-	public function readChanges (changes:Int = -1)	: String;
-	/**
-	 * Method will return a textual version of the given change flag
-	 */
-	public function readChange (change:UInt)		: String;
-#end
+	override private function reset ()
+	{
+		if (target.window != null)
+			getValidationManager().remove( this );
+		else
+			prevValidatable = nextValidatable = null;
+	}
 }

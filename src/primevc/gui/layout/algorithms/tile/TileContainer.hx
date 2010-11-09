@@ -72,6 +72,8 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 		if (children.length > 0)
 			for (child in children)
 				child.listeners.add(this);
+		
+		changes = 0;
 	}
 	
 	
@@ -104,52 +106,64 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 			return;
 		}
 		
-	//	trace(name+".childInvalidated; "+isValidating+"; "+Flags.readProperties(childChanges)+"; "+algorithm);
-		var child = sender.as(LayoutClient);
+		Assert.that(algorithm != null);
 		algorithm.group = cast this;
-		if (!isValidating && (childChanges.has(Flags.LIST) || algorithm == null || algorithm.isInvalid(childChanges)))
+	//	trace(name+".childInvalidated; "+isValidating+"; "+Flags.readProperties(childChanges)+"; "+algorithm.isInvalid(childChanges)+"; algorithm "+algorithm);
+		
+		var child = sender.as(LayoutClient);
+		if (!isValidating && (childChanges.has(Flags.LIST) || algorithm.isInvalid(childChanges)))
 			invalidate( Flags.CHILDREN_INVALIDATED );
 	}
 	
 	
 	override public function validateHorizontal ()
 	{
-		if (changes == 0)
+		if (hasValidatedWidth)
 			return;
 		
 		Assert.that(algorithm != null);
-		
 		for (child in children)
-			child.validateHorizontal();
+			if (child.changes > 0)
+				child.validateHorizontal();
 		
-		algorithm.group = cast this;
-		algorithm.validateHorizontal();
+		if (changes > 0)
+		{
+			algorithm.group = cast this;
+			algorithm.validateHorizontal();
+		}
 		super.validateHorizontal();
 	}
 	
 	
 	override public function validateVertical ()
 	{
-		if (changes == 0)
+		if (hasValidatedHeight)
 			return;
-	
+		
 		Assert.that(algorithm != null);
 		for (child in children)
-			child.validateVertical();
-		
-		algorithm.group = cast this;
-		algorithm.validateVertical();
+			if (child.changes > 0)
+				child.validateVertical();
+
+		if (changes > 0)
+		{
+			algorithm.group = cast this;
+			algorithm.validateVertical();
+		}
 		super.validateVertical();
 	}
 	
 	
 	override public function validated ()
 	{
-		if (changes == 0 || !isValidating)
+		if (!isValidating)
 			return;
 		
-		algorithm.group = cast this;
-		algorithm.apply();
+		if (changes > 0)
+		{
+			algorithm.group = cast this;
+			algorithm.apply();
+		}
 		
 		state.current	= ValidateStates.validated;
 		changes			= 0;
@@ -239,20 +253,15 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 	
 	private function childrenChangeHandler ( change:ListChange < LayoutClient > ) : Void
 	{
-		trace(this+".childrenChangeHandler "+change);
+	//	trace(this+".childrenChangeHandler "+change);
 		switch (change)
 		{
 			case added( child, newPos ):
-			//	child.parent = this;
 				child.listeners.add(this);
-				
 				if (innerBounds.left != 0)	child.outerBounds.left	= innerBounds.left;
 				if (innerBounds.top != 0)	child.outerBounds.top	= innerBounds.top;
-			//	trace(name+".childAddedHandler "+child+"; bounds: "+bounds+"; child.bounds: "+child.bounds);
 			
 			case removed( child, oldPos ):
-			//	if (child != null)
-			//		child.parent = null;
 				child.listeners.remove(this);
 			
 			default:

@@ -2,7 +2,7 @@
 @manifest url('manifest.xml');
 
 .odd { visibility: visible; width: 60px; }
-#frame2 .odd { background: #000; width: 100px;  }
+#frame2 .odd { background: #000; width: 100px; shape: rectangle;  }
 
 GlobalApp {
 	relative: 5px 5px 5px;
@@ -15,7 +15,7 @@ GlobalApp {
 
 Tile {
 	color: #000;
-	move-transition: move 200ms;
+	move-transition: move 200ms circ-out;
 	min-width: 15px;
 	min-height: 15px;
 	margin: 3px;
@@ -66,7 +66,7 @@ GlobalApp TileList:hover {
 */
 #frame0 Tile { background: #0000ff; shape: ellipse; move-transition: move 400ms elastic-out; }
 #frame1 Tile { background: #00ff00; shape: circle;  }
-#frame2 Tile { shape: triangle; min-width: 60px; move-transition: sequence ( parallel ( fade 500ms 40%, move 300ms circ-out ), fade 600ms 100% ) ; }
+#frame2 Tile { shape: triangle; min-width: 30px; move-transition: sequence ( parallel ( fade 500ms 40%, move 300ms circ-out ), fade 600ms 100% ) ; }
 #frame8 Tile { move-transition: sequence( parallel ( rotate 500ms 360deg, move 500ms ), rotate 400ms -360deg ); show-transition: fade 0% 100% 350ms; }
 
 
@@ -88,7 +88,7 @@ GlobalApp TileList:hover {
 }
 
 #frame2 {
-	algorithm: fixed-tile( horizontal, 6, left, top );
+	algorithm: fixed-tile( vertical, 8, left, top );
 	top: 90px;
 	bottom: 5px;
 	left: 5px;

@@ -74,7 +74,6 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 		if (group.childWidth.notSet())
 		{
 			var i:Int = 0;
-			
 			for (child in group.children)
 			{
 				if (!child.includeInLayout)

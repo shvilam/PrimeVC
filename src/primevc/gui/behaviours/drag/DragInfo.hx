@@ -106,6 +106,7 @@ class DragInfo implements IDisposable
 		this.dragRenderer	= (dragRenderer != null)	? dragRenderer : target;
 		this.layout			= (dragLayout != null)		? dragLayout : new LayoutClient( target.rect.width, target.rect.height );
 		this.dragRectangle	= this.dragRenderer.rect; //cast target.rect.clone(); //new IntRectangle( target.x.int(), target.y.int(), layout.width, layout.height );
+	//	trace("new DragInfo "+target+" -> layout: "+this.layout);
 	}
 	
 	

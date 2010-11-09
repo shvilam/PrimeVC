@@ -112,7 +112,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		var child = sender.as(LayoutClient);
 		if (!isValidating && algorithm != null && algorithm.isInvalid(childChanges)) {
 			invalidate( Flags.CHILDREN_INVALIDATED );
-			child.state.current = ValidateStates.parent_invalidated;
+			if (!child.isValidating)
+				child.state.current = ValidateStates.parent_invalidated;
 		}
 	}
 	
@@ -149,7 +150,6 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (!changes.has( Flags.WIDTH | Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH | Flags.ALGORITHM ))
 			return;
 		
-		trace(this+".validateHorizontal");
 		var fillingChildren	= FastArrayUtil.create();
 		var childrenWidth	= 0;
 		
@@ -170,7 +170,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			
 			//measure children
 			if (child.percentWidth != Flags.FILL && child.includeInLayout) {
-				child.validateHorizontal();
+				if (child.changes > 0)
+					child.validateHorizontal();
 				childrenWidth += child.outerBounds.width;
 			}
 		}
@@ -178,9 +179,12 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (fillingChildren.length > 0)
 		{
 			var sizePerChild = IntMath.max(width.value - childrenWidth, 0).divFloor( fillingChildren.length );
-			for (child in fillingChildren) {
+			for (child in fillingChildren)
+			{
 				child.outerBounds.width = sizePerChild;
-				child.validateHorizontal();
+				
+				if (child.changes > 0)
+					child.validateHorizontal();
 			}
 		}
 		
@@ -203,7 +207,6 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (!changes.has( Flags.HEIGHT | Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH | Flags.ALGORITHM ))
 			return;
 		
-		trace(this+".validateVertical");
 		var fillingChildren	= FastArrayUtil.create();
 		var childrenHeight	= 0;
 		
@@ -223,7 +226,9 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			
 			//measure children
 			if (child.percentHeight != Flags.FILL && child.includeInLayout) {
-				child.validateVertical();
+				if (child.changes > 0)
+					child.validateVertical();
+				
 				childrenHeight += child.outerBounds.height;
 			}
 		}
@@ -231,9 +236,12 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (fillingChildren.length > 0)
 		{
 			var sizePerChild = (height.value - childrenHeight).divFloor( fillingChildren.length );
-			for (child in fillingChildren) {
+			for (child in fillingChildren)
+			{
 				child.outerBounds.height = sizePerChild;
-				child.validateVertical();
+				
+				if (child.changes > 0)
+					child.validateVertical();
 			}
 		}
 		
@@ -242,13 +250,6 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		
 		hasValidatedHeight = false;
 		super.validateVertical();
-	}
-	
-	
-	override public function validate ()
-	{
-		trace(this+".validate "+Flags.readProperties(changes));
-		super.validate();
 	}
 	
 	
@@ -373,7 +374,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	
 	private function childrenChangeHandler ( change:ListChange <LayoutClient> ) : Void
 	{
-		trace(this+".childrenChangeHandler "+change);
+	//	trace(this+".childrenChangeHandler "+change);
 		switch (change)
 		{
 			case added( child, newPos ):

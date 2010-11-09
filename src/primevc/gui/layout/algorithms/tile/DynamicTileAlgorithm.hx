@@ -31,25 +31,29 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.core.collections.ChainedList;
  import primevc.core.collections.IList;
  import primevc.core.collections.SimpleList;
- import primevc.core.geom.constraints.SizeConstraint;
+// import primevc.core.geom.constraints.SizeConstraint;
  import primevc.core.geom.space.Direction;
  import primevc.core.geom.space.Horizontal;
  import primevc.core.geom.space.Vertical;
  import primevc.core.geom.Box;
  import primevc.core.geom.IRectangle;
- import primevc.gui.layout.LayoutContainer;
+ import primevc.core.validators.IntRangeValidator;
  import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
  import primevc.gui.layout.algorithms.float.VerticalFloatAlgorithm;
  import primevc.gui.layout.algorithms.tile.TileContainer;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.LayoutClient;
+ import primevc.gui.layout.LayoutContainer;
  import primevc.gui.layout.LayoutFlags;
- import primevc.utils.IntMath;
+ import primevc.utils.NumberMath;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
  
+
+private typedef Flags = LayoutFlags;
+
 
 /**
  * FixedTileAlgorithm will place a fixed number of tiles in one row or column.
@@ -77,7 +81,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	 * 			-> children (ChainedList)
 	 * 		-> etc.
 	 */
-	public var tileGroups (default, null)	: TileContainer < TileContainer < LayoutClient > >;
+	public var tileGroups (default, null)	: TileContainer; // < TileContainer < LayoutClient > >;
 	/**
 	 * HorizontalMap is a collection of the children properties of all tileGroups. 
 	 * Defining them in a ChainedListCollection makes it easy to let the 
@@ -94,7 +98,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	 */
 	private var tileCollection				: ChainedListCollection < LayoutClient > ;
 	
-	private var childSizeConstraint			: SizeConstraint;
+	private var childSizeValidator			: IntRangeValidator;
 	private var childAlgorithm				: ILayoutAlgorithm;
 	private var childPadding				: Box;
 	
@@ -103,25 +107,28 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	{
 		Assert.that( group.is( LayoutContainer ), "group should be an LayoutContainer" );
 		
-		childSizeConstraint			= new SizeConstraint();
-		
-		tileCollection				= cast new ChainedListCollection < LayoutClient >();
-		tileGroups					= new TileContainer < TileContainer < LayoutClient > >();
-		tileGroups.parent			= group;
-		tileGroups.padding			= group.padding;
-		tileGroups.sizeConstraint	= group.sizeConstraint;
+		var group						= this.group.as(LayoutContainer);
+		childSizeValidator				= new IntRangeValidator();
+		tileCollection					= cast new ChainedListCollection < LayoutClient >();
+		tileGroups						= new TileContainer();
+		tileGroups.parent				= group;
+		tileGroups.padding				= group.padding;
+		tileGroups.width.validator		= group.width.validator;
+		tileGroups.height.validator		= group.height.validator;
 		
 		var children = group.children;
 		
 		if (startDirection == Direction.horizontal)
 		{
-			tileGroups.algorithm = verAlgorithm;
+			tileGroups.algorithm	= verAlgorithm;
+			childSizeValidator.max	= group.explicitWidth;
 			if (group.padding != null)
 				childPadding = new Box( 0, group.padding.left, 0, group.padding.right );
 		}
 		else
 		{
-			tileGroups.algorithm = horAlgorithm;
+			tileGroups.algorithm	= horAlgorithm;
+			childSizeValidator.max	= group.explicitHeight;
 			if (group.padding != null)
 				childPadding = new Box( group.padding.top, 0, group.padding.bottom, 0 );
 		}
@@ -138,8 +145,8 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		if (childList == null)
 			childList = new ChainedList<LayoutClient>();
 		
-		var tileGroup				= new TileContainer<LayoutClient>( childList );
-		var group					= group.as(LayoutContainer);
+		var group					= this.group.as(LayoutContainer);
+		var tileGroup				= new TileContainer( childList );
 		tileGroup.algorithm			= childAlgorithm;
 		tileGroup.padding			= childPadding;
 		tileGroup.childWidth		= group.childWidth;
@@ -149,24 +156,16 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		tileGroup.name				= "row" + tileGroups.children.length;
 #end
 		if (startDirection == Direction.horizontal)
-		{
-			if		(group.explicitWidth.isSet())		tileGroup.width = group.explicitWidth;
-			else if	(childSizeConstraint != null)		tileGroup.sizeConstraint = childSizeConstraint;
-#if debug	else	throw "group should have an explicitWidth/maxWidth to use the dynamic-tile-algorithm"; #end
-		}
+			tileGroup.width.validator = childSizeValidator;
 		else
-		{
-			if		(group.explicitHeight.isSet())		tileGroup.height = group.explicitHeight;
-			else if	(childSizeConstraint != null)		tileGroup.sizeConstraint = childSizeConstraint;
-#if debug	else	throw "group should have an explicitHeight/maxHeight to use the dynamic-tile-algorithm";	#end	
-		}
+			tileGroup.height.validator = childSizeValidator;
 		
 		tileCollection.addList( childList );
 		tileGroups.children.add( tileGroup );	
 	}
 	
 	
-	private inline function removeTileContainer (tileGroup:TileContainer<LayoutClient>)
+	private inline function removeTileContainer (tileGroup:TileContainer)
 	{
 		tileCollection.removeList( cast tileGroup.children );
 		tileGroups.children.remove( tileGroup );
@@ -212,64 +211,35 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	// LAYOUT METHODS
 	//
 	
-	
-	private var groupSizeChanged:Bool;
-	
-	override public function isInvalid (changes:Int) : Bool {
-		return super.isInvalid(changes) || changes.has( LayoutFlags.SIZE_CONSTRAINT );
+	override public function isInvalid (changes:Int) : Bool
+	{
+		return super.isInvalid(changes) || changes.has( Flags.WIDTH_VALIDATOR | Flags.HEIGHT_VALIDATOR );
 	}
-	
 	
 	
 	override public function prepareValidate () : Void
 	{
 		if (!validatePrepared)
 		{
-			var group			= group.as(LayoutContainer);
-			groupSizeChanged	= group.changes.has(LayoutFlags.LIST);
+			var group = group.as(LayoutContainer);
 		
-			//
 			//create a new tile map if it removed
-			//
 			if (tileCollection == null)
 				createTileMap();
 		
 			if (group.children.length == 0)
 				return;
 		
-			//
 			// APPLY CHANGES IN SIZE CONSTRAINT ALSO ON THE CHILDREN
-			//
-			if (group.changes.has(LayoutFlags.SIZE_CONSTRAINT))
-			{
-				if (group.sizeConstraint == null) {
-					childSizeConstraint.reset();
-				} else {
-					if (startDirection == horizontal) {
-						childSizeConstraint.width.min = group.sizeConstraint.width.min;
-						childSizeConstraint.width.max = group.sizeConstraint.width.max;
-					} else {
-						childSizeConstraint.height.min = group.sizeConstraint.height.min;
-						childSizeConstraint.height.max = group.sizeConstraint.height.max;
-					}
-				
-					tileGroups.sizeConstraint = group.sizeConstraint;
-				}
-			}
-		
-			//resize all rows
-			else if (group.changes.has(LayoutFlags.WIDTH) && startDirection == horizontal && group.explicitWidth.isSet()) {
-				groupSizeChanged = true;
-				for (tileGroup in tileGroups)
-					tileGroup.width = group.explicitWidth;
-			}
-		
-			//resize all columns
-			else if (group.changes.has(LayoutFlags.HEIGHT) && startDirection == vertical && group.explicitHeight.isSet()) {
-				groupSizeChanged = true;
-				for (tileGroup in tileGroups)
-					tileGroup.height = group.explicitHeight;
-			}
+			if (group.changes.has( Flags.WIDTH_VALIDATOR ))
+				tileGroups.width.validator = group.width.validator;
+			
+			if (group.changes.has( Flags.HEIGHT_VALIDATOR ))
+				tileGroups.height.validator = group.height.validator;
+			
+			//resize all columns / rows
+			if (group.changes.has(Flags.EXPLICIT_HEIGHT | Flags.EXPLICIT_WIDTH))
+				childSizeValidator.max = (startDirection == vertical) ? group.explicitHeight : group.explicitWidth;
 		}
 		super.prepareValidate();
 	}
@@ -280,31 +250,28 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		//
 		// Check if children are added, removed or moved in the list
 		//
-		if (groupSizeChanged)
+		var groupItr = tileGroups.iterator();
+		//check each tileGroup for changes in the list or in the width of the children
+		for (tileGroup in groupItr)
 		{
-			var groupItr = tileGroups.iterator();
-			//check each tileGroup for changes in the list or in the width of the children
-			for (tileGroup in groupItr)
-			{
-				var children:ChainedList<LayoutClient> = cast tileGroup.children;
-				
-				if (children.length == 0) {
-				//	if (groupItr.hasNext())
-					removeTileContainer( tileGroup );
-					continue;
-				}
-				
-				var hasNext = children.nextList != null;
-				tileGroup.validate();
-				
-				if (!hasNext && children.nextList != null) {
-					//A chained list is added by the previous validate method.
-					//Create a tile group for the list.
-					addTileContainer( children.nextList );
-				}
+			if (tileGroup.changes == 0)
+				continue;
+			
+			var children:ChainedList<LayoutClient> = cast tileGroup.as(TileContainer).children;
+			if (children.length == 0) {
+			//	if (groupItr.hasNext())
+				removeTileContainer( cast tileGroup );
+				continue;
 			}
 			
-			groupSizeChanged = false;
+			var hasNext = children.nextList != null;
+			tileGroup.validate();
+			
+			if (!hasNext && children.nextList != null) {
+				//A chained list is added by the previous validate method.
+				//Create a tile group for the list.
+				addTileContainer( children.nextList );
+			}
 		}
 	}
 	
@@ -316,7 +283,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		
 		validateGroups();
 		tileGroups.validate();
-		setGroupWidth(tileGroups.width);
+		setGroupWidth( tileGroups.width.value );
 	}
 	
 	
@@ -327,7 +294,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		
 		validateGroups();
 		tileGroups.validate();
-		setGroupHeight(tileGroups.height);
+		setGroupHeight( tileGroups.height.value );
 	}
 	
 	
@@ -371,12 +338,12 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 				{
 					if (i == rowNum)
 						break;
-					depth += tileGroup.children.length;
+					depth += tileGroup.as(TileContainer).children.length;
 					i++;
 				}
 			}
 			
-			var row	 = tileGroups.children.getItemAt( rowNum );
+			var row	 = tileGroups.children.getItemAt( rowNum ).as(TileContainer);
 			row.algorithm.group = row;		//<-- important! will otherwise validate with wrong row
 			depth	+= row.algorithm.getDepthForBounds( bounds );
 		}
@@ -411,6 +378,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		if (group != v)
 		{
 			if (group != null) {
+				Assert.that(v == null, "Group of DynamicTileAlgorithm cannot be changed.");
 				if (tileGroups.padding == group.padding)
 					tileGroups.padding = null;
 				
@@ -475,10 +443,11 @@ private class DynamicRowAlgorithm extends HorizontalFloatAlgorithm
 	//	if (children.length < 2)
 	//		return;
 		
-		if ( !group.changes.has(LayoutFlags.LIST) && !group.changes.has(LayoutFlags.CHILDREN_INVALIDATED) && !group.changes.has(LayoutFlags.WIDTH) )
+		if ( group.changes.hasNone(Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.WIDTH | Flags.WIDTH_VALIDATOR ) )
 			return;
 		
-		var groupSize		= group.width;
+		var maxWidth		= group.width.validator.as(IntRangeValidator).max;
+		var availableSpace	= maxWidth;
 		var fullChildNum	= -1;			//counter to count all the children that didn't fit in the group
 		
 		//TileContainers children are changed.
@@ -486,7 +455,7 @@ private class DynamicRowAlgorithm extends HorizontalFloatAlgorithm
 		for (child in children)
 		{
 			//check if the child will still fit in this row
-			if (fullChildNum >= 0 || groupSize < child.outerBounds.width)
+			if (fullChildNum >= 0 || availableSpace < child.outerBounds.width)
 			{
 				//move child to the next list
 				if (children.length > 1) {
@@ -496,24 +465,26 @@ private class DynamicRowAlgorithm extends HorizontalFloatAlgorithm
 			}
 			else
 			{
-				//add child to row
-				groupSize -= child.outerBounds.width;
+				//keep child in row
+				availableSpace -= child.outerBounds.width;
 			}
 		}
 		
 		//try to add children from the next list to this lsit
-		if (fullChildNum == -1 && children.nextList != null && children.nextList.length > 0)
+		if (availableSpace > 0 && fullChildNum == -1 && children.nextList != null && children.nextList.length > 0)
 		{
 			for (child in children.nextList)
 			{
-				if (groupSize < child.outerBounds.width)
+				if (availableSpace < child.outerBounds.width)
 					break;
 				
 				children.nextList.remove(child);
 				children.add( child );
-				groupSize -= child.outerBounds.width;
+				availableSpace -= child.outerBounds.width;
 			}
 		}
+		
+		setGroupWidth( maxWidth - availableSpace );
 	}
 	
 	
@@ -538,10 +509,11 @@ private class DynamicColumnAlgorithm extends VerticalFloatAlgorithm
 	//	if (children.length < 2)
 	//		return;
 		
-		if ( !group.changes.has(LayoutFlags.LIST) && !group.changes.has(LayoutFlags.CHILDREN_INVALIDATED) && !group.changes.has(LayoutFlags.HEIGHT) )
+		if ( !group.changes.has(Flags.LIST) && !group.changes.has(Flags.CHILDREN_INVALIDATED) && !group.changes.has(Flags.HEIGHT) )
 			return;
 		
-		var groupSize		= group.height;
+		var maxHeight		= group.height.validator.as(IntRangeValidator).max;
+		var availableSpace	= maxHeight;
 		var fullChildNum	= -1;				//counter to count all the children that didn't fit in the group
 		
 		//TileContainers children are changed.
@@ -549,7 +521,7 @@ private class DynamicColumnAlgorithm extends VerticalFloatAlgorithm
 		for (child in children)
 		{
 			//check if the child will still fit in this row
-			if (fullChildNum >= 0 || groupSize < child.outerBounds.height)
+			if (fullChildNum >= 0 || availableSpace < child.outerBounds.height)
 			{
 				//move child to the next list
 				fullChildNum++;
@@ -560,23 +532,24 @@ private class DynamicColumnAlgorithm extends VerticalFloatAlgorithm
 			else
 			{
 				//add child to row
-				groupSize -= child.outerBounds.height;
+				availableSpace -= child.outerBounds.height;
 			}
 		}
 
 		//try to add children from the next list to this lsit
-		if (fullChildNum == -1 && children.nextList != null && children.nextList.length > 0)
+		if (availableSpace > 0 && fullChildNum == -1 && children.nextList != null && children.nextList.length > 0)
 		{
 			for (child in children.nextList)
 			{
-				if (groupSize < child.outerBounds.height)
+				if (availableSpace < child.outerBounds.height)
 					break;
 
 				children.nextList.remove(child);
 				children.add( child );
-				groupSize -= child.outerBounds.height;
+				availableSpace -= child.outerBounds.height;
 			}
 		}
+		setGroupHeight( maxHeight - availableSpace );
 	}
 	
 	

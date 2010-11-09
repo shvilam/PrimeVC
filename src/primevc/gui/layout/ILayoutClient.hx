@@ -30,13 +30,12 @@ package primevc.gui.layout;
  import primevc.core.geom.Box;
  import primevc.core.geom.IntRectangle;
  import primevc.core.states.SimpleStateMachine;
- import primevc.core.traits.IInvalidateListener;
+ import primevc.core.traits.IInvalidatable;
  import primevc.core.validators.ValidatingValue;
  import primevc.core.validators.IntRangeValidator;
  import primevc.core.IDisposable;
  import primevc.gui.events.LayoutEvents;
  import primevc.gui.states.ValidateStates;
- import primevc.gui.traits.IInvalidating;
 
 
 typedef SizeType = ValidatingValue < Int >;
@@ -50,8 +49,7 @@ typedef SizeType = ValidatingValue < Int >;
  * @author	Ruben Weijers
  */
 interface ILayoutClient 
-		implements IInvalidating
-	,	implements IInvalidateListener
+		implements IInvalidatable
 	,	implements IDisposable
 {
 	/**
@@ -65,6 +63,11 @@ interface ILayoutClient
 	 * @default false
 	 */
 	public var validateOnPropertyChange										: Bool;
+	
+	/**
+	 * Flags of properties that are changed
+	 */
+	public var changes							: UInt;
 	
 	
 	/**

@@ -167,7 +167,7 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 			}
 			
 			v = super.setGroup(v);
-			invalidate(true);
+		//	invalidate(true);
 			
 			if (v != null) {
 				horAlgorithm.group	= v;

@@ -105,8 +105,8 @@ class SimpleList < DataType > implements IList < DataType >
 	
 	private inline function getLength ()	: Int					{ return _length; }
 	public function iterator ()				: Iterator <DataType>	{ return forwardIterator(); }
-	public function forwardIterator ()	: IIterator <DataType>	{ return new DoubleFastCellForwardIterator <DataType> (first); }
-	public function reversedIterator ()	: IIterator <DataType>	{ return new DoubleFastCellReversedIterator <DataType> (last); }
+	public function forwardIterator ()		: IIterator <DataType>	{ return new DoubleFastCellForwardIterator <DataType> (first); }
+	public function reversedIterator ()		: IIterator <DataType>	{ return new DoubleFastCellReversedIterator <DataType> (last); }
 
 	
 	
