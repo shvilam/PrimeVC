@@ -123,7 +123,7 @@ class LayoutAlgorithmBase
 	private inline function getTopStartValue ()		: Int
 	{
 		var top:Int = 0;
-		if (group.margin != null)	top += group.margin.top;
+	//	if (group.margin != null)	top += group.margin.top;
 		if (group.padding != null)	top += group.padding.top;
 		return top;
 	}
@@ -158,7 +158,7 @@ class LayoutAlgorithmBase
 	private inline function getLeftStartValue ()	: Int
 	{
 		var start:Int = 0;
-		if (group.margin != null)	start += group.margin.left;
+	//	if (group.margin != null)	start += group.margin.left;
 		if (group.padding != null)	start += group.padding.left;
 		return start;
 	}

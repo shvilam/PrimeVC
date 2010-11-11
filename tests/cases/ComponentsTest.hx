@@ -1,5 +1,6 @@
 package cases;
  import primevc.core.Application;
+ import primevc.core.geom.space.Direction;
  import primevc.gui.components.ApplicationView;
  import primevc.gui.components.Button;
  import primevc.gui.components.Label;
@@ -30,10 +31,11 @@ class ComponentsTest extends UIWindow
 class ComponentsApp extends ApplicationView
 {
 	private var label	: Label;
-	private var input	: InputField;
+	private var input	: Label;
 	private var button	: Button;
 	private var image	: Image;
 	private var slider	: Slider;
+	private var slider2	: Slider;
 	
 	
 	override private function init ()
@@ -46,11 +48,13 @@ class ComponentsApp extends ApplicationView
 	{
 		children.add( button	= new Button("testButton", "add some text", Bitmap.fromString("/Users/ruben/Desktop/naamloze map/Arrow-Right.png")) );
 		children.add( image		= new Image("testImage", Bitmap.fromString("/Users/ruben/Pictures/0227pod11.jpg")) );
-		children.add( input		= new InputField("testInput", "welcome welcome welcome welcome welcome welcome welcome") );
+		children.add( slider	= new Slider("testSlider", 5, 4, 6) );
+		children.add( slider2	= new Slider("sliderCopy", 5, 4, 6, Direction.vertical) );
+		children.add( input		= new InputField("testInput", "welcome welcome welcome") );
 		children.add( label		= new Label("testLabel") );
-		children.add( slider	= new Slider("testSlider", 5, 0, 10) );
 		
 		label.data.pair( input.data );
+		slider2.data.pair( slider.data );
 		changeLabel.on( button.userEvents.mouse.down, this );
 	}
 	
@@ -58,5 +62,6 @@ class ComponentsApp extends ApplicationView
 	private function changeLabel ()
 	{
 		button.value += " test";
+		input.value += " test";
 	}
 }

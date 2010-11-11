@@ -43,6 +43,7 @@ package primevc.gui.layout;
   using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
+  using Std;
 
 
 private typedef Flags = LayoutFlags;
@@ -78,6 +79,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		childWidth			= Number.INT_NOT_SET;
 		childHeight			= Number.INT_NOT_SET;
 		
+		changes = changes.unset( Flags.PADDING | Flags.MARGIN | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH );
+		
 		childrenChangeHandler.on( children.change, this );
 		super(newWidth, newHeight);
 	}
@@ -109,9 +112,12 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		
 	//	trace(this+".invalidateCall "+Flags.readProperties(childChanges)+"; sender "+sender);
 	//	trace("\t\tisValidating? "+isValidating+"; "+(algorithm != null)+"; algorithm "+algorithm.isInvalid(childChanges));
-		var child = sender.as(LayoutClient);
-		if (!isValidating && algorithm != null && algorithm.isInvalid(childChanges)) {
+		
+		if (!isValidating && (algorithm == null || algorithm.isInvalid(childChanges)))
+		{
+			var child = sender.as(LayoutClient);
 			invalidate( Flags.CHILDREN_INVALIDATED );
+			
 			if (!child.isValidating)
 				child.state.current = ValidateStates.parent_invalidated;
 		}
@@ -120,7 +126,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	
 	private inline function checkIfChildGetsPercentageWidth (child:LayoutClient, widthToUse:Int) : Bool {
 		return (changes.has( Flags.WIDTH ) || child.changes.has( Flags.PERCENT_WIDTH ))
-					&& child.percentWidth > 0
+					&& child.percentWidth.isSet()
 					/*&& child.percentWidth != Flags.FILL*/
 					&& widthToUse.isSet();
 	}
@@ -128,7 +134,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	
 	private inline function checkIfChildGetsPercentageHeight (child:LayoutClient, heightToUse:Int) : Bool {
 		return (changes.has( Flags.HEIGHT ) || child.changes.has( Flags.PERCENT_HEIGHT ))
-					&& child.percentHeight > 0
+					&& child.percentHeight.isSet()
 					/*&& child.percentHeight != Flags.FILL*/
 					&& heightToUse.isSet();
 	}
@@ -141,13 +147,13 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	
 	override public function validateHorizontal ()
 	{
-		if (hasValidatedWidth)
+		if (hasValidatedWidth || changes == 0)
 			return;
 		
 		if (changes.has( Flags.WIDTH | Flags.EXPLICIT_WIDTH ))
 			super.validateHorizontal();
 		
-		if (!changes.has( Flags.WIDTH | Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH | Flags.ALGORITHM ))
+		if (changes.hasNone( Flags.WIDTH | Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH | Flags.ALGORITHM ))
 			return;
 		
 		var fillingChildren	= FastArrayUtil.create();
@@ -158,6 +164,9 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		
 		for (child in children)
 		{
+			if (!child.includeInLayout)
+				continue;
+			
 			if (child.percentWidth == Flags.FILL) {
 			//	if (explicitWidth.isSet())
 				fillingChildren.push( child );
@@ -166,10 +175,10 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			
 			//measure children with explicitWidth and no percentage size
 			else if (checkIfChildGetsPercentageWidth(child, explicitWidth))
-				child.outerBounds.width = Std.int(explicitWidth * child.percentWidth / 100);
+				child.outerBounds.width = (explicitWidth * child.percentWidth).int();
 			
 			//measure children
-			if (child.percentWidth != Flags.FILL && child.includeInLayout) {
+			if (child.percentWidth != Flags.FILL) {
 				if (child.changes > 0)
 					child.validateHorizontal();
 				childrenWidth += child.outerBounds.width;
@@ -198,13 +207,13 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	
 	override public function validateVertical ()
 	{
-		if (hasValidatedHeight)
+		if (hasValidatedHeight || changes == 0)
 			return;
 		
 		if (changes.has( Flags.HEIGHT | Flags.EXPLICIT_HEIGHT ))
 			super.validateVertical();
 		
-		if (!changes.has( Flags.HEIGHT | Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH | Flags.ALGORITHM ))
+		if (changes.hasNone( Flags.HEIGHT | Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH | Flags.ALGORITHM ))
 			return;
 		
 		var fillingChildren	= FastArrayUtil.create();
@@ -215,6 +224,9 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		
 		for (child in children)
 		{
+			if (!child.includeInLayout)
+				continue;
+			
 			if (child.percentHeight == Flags.FILL) {
 			//	if (explicitHeight.isSet())
 				fillingChildren.push( child );
@@ -222,10 +234,10 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			}
 			
 			else if (checkIfChildGetsPercentageHeight(child, explicitHeight))
-				child.outerBounds.height = Std.int(explicitHeight * child.percentHeight / 100);
+				child.outerBounds.height = (explicitHeight * child.percentHeight).int();
 			
 			//measure children
-			if (child.percentHeight != Flags.FILL && child.includeInLayout) {
+			if (child.percentHeight != Flags.FILL) {
 				if (child.changes > 0)
 					child.validateVertical();
 				
@@ -255,7 +267,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	
 	override public function validated ()
 	{
-		trace(this+".validated");
+	//	trace(this+".validated "+(changes != 0)+", "+isValidating);
 		if (changes == 0 || !isValidating)
 			return;
 		

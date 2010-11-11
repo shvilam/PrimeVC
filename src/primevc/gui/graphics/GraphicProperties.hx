@@ -37,7 +37,7 @@ package primevc.gui.graphics;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.shapes.IGraphicShape;
  import primevc.gui.graphics.GraphicFlags;
- import primevc.gui.traits.IDrawable;
+ import primevc.gui.traits.IGraphicsOwner;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
@@ -78,7 +78,7 @@ class GraphicProperties implements IGraphicElement
 	public var borderRadius	(default, setBorderRadius)	: Corners;
 	
 	
-	public function new (shape:IGraphicShape = null, layout:IntRectangle = null, fill:IGraphicProperty = null, border:IBorder = null, borderRadius:Corners = null)
+	public function new (layout:IntRectangle = null, shape:IGraphicShape = null, fill:IGraphicProperty = null, border:IBorder = null, borderRadius:Corners = null)
 	{
 #if (debug || neko)
 		uuid = StringUtil.createUUID();
@@ -151,11 +151,11 @@ class GraphicProperties implements IGraphicElement
 	 * Flag indicating if the draw method should also use the coordinates of the
 	 * layoutclient.
 	 * 
-	 * If a shape is directly drawn into a IDrawable element, this is not the 
+	 * If a shape is directly drawn into a IGraphicsOwner element, this is not the 
 	 * case. If a shape is part of a composition of shapes, then the shape 
 	 * should respect the coordinates of the LayoutClient.
 	 */
-	public function draw (target:IDrawable, ?useCoordinates:Bool = false) : Void
+	public function draw (target:IGraphicsOwner, ?useCoordinates:Bool = false) : Void
 	{
 #if debug
 		Assert.notNull(layout, "layout is null for "+target);
@@ -223,7 +223,7 @@ class GraphicProperties implements IGraphicElement
 	}
 	
 	
-	private inline function drawFill (target:IDrawable, fill:IGraphicProperty, layout:IntRectangle)
+	private inline function drawFill (target:IGraphicsOwner, fill:IGraphicProperty, layout:IntRectangle)
 	{
 		fill.begin( target, layout );
 		shape.draw( target, layout, borderRadius );
@@ -231,7 +231,7 @@ class GraphicProperties implements IGraphicElement
 	}
 	
 	
-	private inline function drawBorder (target:IDrawable, border:IBorder, layout:IntRectangle)
+	private inline function drawBorder (target:IGraphicsOwner, border:IBorder, layout:IntRectangle)
 	{
 		border.begin( target, layout );
 		shape.draw( target, layout, borderRadius );
@@ -332,6 +332,6 @@ class GraphicProperties implements IGraphicElement
 #if neko
 	public function toString ()						{ return "GraphicProperties: l: "+layout+"; s: "+shape+"; f: "+fill+"; b: "+border; }
 	public function toCSS (prefix:String = "")		{ Assert.abstract(); return ""; }
-	public function toCode (code:ICodeGenerator)	{ code.construct(this, [ shape, layout, fill, border, borderRadius ]); }
+	public function toCode (code:ICodeGenerator)	{ code.construct(this, [ layout, shape, fill, border, borderRadius ]); }
 #end
 }

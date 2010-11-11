@@ -440,8 +440,10 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 		for (row in rows)
 			row.validated();*/
 		
-		columns.validated();
-		rows.validated();
+		if (group.children.length > 0) {
+			columns.validated();
+			rows.validated();
+		}
 		validatePrepared = false;
 	}
 

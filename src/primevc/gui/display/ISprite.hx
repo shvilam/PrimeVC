@@ -31,6 +31,7 @@ package primevc.gui.display;
 #if !flash9
  import primevc.gui.traits.IDisplayable;
 #end
+ import primevc.gui.traits.IGraphicsOwner;
  import primevc.gui.traits.IInteractive;
 
 
@@ -44,6 +45,7 @@ interface ISprite
 		implements IDisplayContainer
 	,	implements IInteractive
 	,	implements IDisplayObject
+	,	implements IGraphicsOwner
 {
 #if flash9
 	public var buttonMode						: Bool;

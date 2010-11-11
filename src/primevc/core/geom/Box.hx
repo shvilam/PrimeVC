@@ -80,7 +80,9 @@ class Box
 	private inline function setBottom (v)	{ return this.bottom = v; }
 	
 	
-#if neko
+#if (debug && flash9)
+	public function toString () { return "Box ( "+top+"px "+right+"px "+bottom+"px "+left+"px )"; }
+#elseif neko
 	public function toString () { return toCSS(); }
 
 

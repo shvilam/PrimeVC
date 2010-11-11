@@ -968,6 +968,7 @@ class CSSParser
 	private function handleMatchedBlock (expr:EReg) : Void
 	{
 		//find correct block
+		trace("\n\nhandleMatchedBlock "+expr.matched(1));
 		setContentBlock( expr.matched(1) );
 		
 		var content = expr.matched(13).trim();
@@ -1021,6 +1022,7 @@ class CSSParser
 			currentBlock = styleGroup.children.get(name, type);
 			if (currentBlock == null)
 				currentBlock = addStyleBlock( name, type, styleGroup );
+			//	trace("createStyleBlock for "+name+" = "+type+"; "+currentBlock.uuid);
 			
 			//matched a state
 			if (expr.matched(4) != null)
@@ -1053,7 +1055,13 @@ class CSSParser
 		if (stateName <= 0 || currentBlock == null)
 			return;
 		
-		var stateList	= (currentBlock.states != null) ? currentBlock.states			: new StatesStyle();
+		var stateList = currentBlock.states;
+		
+		if (stateList == null) {
+			stateList = new StatesStyle();
+			currentBlock.states = stateList;
+		}
+		
 		var stateType	= switch (currentBlock.type) {
 			case StyleBlockType.element:	StyleBlockType.elementState;
 			case StyleBlockType.styleName:	StyleBlockType.styleNameState;
@@ -1061,20 +1069,18 @@ class CSSParser
 			default:						currentBlock.type;
 		}
 		
-		var stateBlock	= (stateList.owns( stateName )) ? stateList.get( stateName )	: new StyleBlock( stateType );
+		var stateBlock:StyleBlock = stateList.get( stateName );
 		
-		if (currentBlock.states == null)
-			currentBlock.states = stateList;
-		
-		if (stateBlock != null)
+		if (stateBlock == null)
 		{
-		//	stateBlock.parentStyle = currentBlock;
-			if (!stateList.owns( stateName )) {
-				currentBlock.states.set( stateName, stateBlock );
-				stateBlock.parentStyle = currentBlock;
-			}
-			currentBlock = stateBlock;
+			stateBlock = new StyleBlock( stateType );
+			currentBlock.states.set( stateName, stateBlock );
+			stateBlock.parentStyle = currentBlock;
+		//	trace("create states style block for "+StyleStateFlags.stateToString( stateName )+"; "+stateBlock.uuid);
 		}
+		
+		Assert.notNull( stateBlock );
+		currentBlock = stateBlock;
 	}
 	
 	
@@ -1095,7 +1101,7 @@ class CSSParser
 	{
 		var name	= expr.matched(1).trim();
 		var val		= expr.matched(2).trim();
-	//	trace("handleMatchedProperty "+name+" = "+val);
+		trace("handleMatchedProperty "+name+" = "+val);
 		switch (name)
 		{
 			//
@@ -1348,6 +1354,7 @@ class CSSParser
 	{
 		if (currentBlock.font == null)
 			currentBlock.font = new TextStyle();
+		
 		return currentBlock.font;
 	}
 	
@@ -1420,15 +1427,21 @@ class CSSParser
 	 * Method to convert the given value to an int and convert the value 
 	 * according to the unit.
 	 */
-	private inline function parseInt (v:String) : Int
+	private function parseInt (v:String) : Int
 	{
-		return (v != null && isInt(v)) ? getInt( intValExpr.matched(1) ) : Number.INT_NOT_SET;
+		if (v == null || !isInt(v))
+			return Number.INT_NOT_SET;
+		else
+			return getInt( intValExpr.matched(1) );
 	}
 	
 	
-	private inline function parseFloat (v:String) : Float
+	private function parseFloat (v:String) : Float
 	{
-		return (v != null && isFloat(v)) ? getFloat( floatValExpr.matched(1) ) : Number.FLOAT_NOT_SET;
+		if (v == null || !isFloat(v))
+			return Number.FLOAT_NOT_SET;
+		else
+			return getFloat( floatValExpr.matched(1) );
 	}
 	
 	
@@ -1456,7 +1469,7 @@ class CSSParser
 	
 	private inline function parsePercentage (v:String) : Float
 	{
-		return (v != null && isPercentage(v)) ? getFloat( percValExpr.matched(3) ) : Number.FLOAT_NOT_SET;
+		return (v != null && isPercentage(v)) ? getFloat( percValExpr.matched(3) ) / 100 : Number.FLOAT_NOT_SET;
 	}
 	
 	
@@ -1497,7 +1510,8 @@ class CSSParser
 	
 	
 	
-	
+	private inline function strip (v:String)				: String	{ return v.trim().toLowerCase(); }
+	private inline function isNone (v:String)				: Bool		{ return strip(v) == "none"; }
 	private inline function isInt (v:String)				: Bool		{ return intValExpr.match(v); }
 	private inline function isFloat (v:String)				: Bool		{ return floatValExpr.match(v); }
 	private inline function isUnitInt (v:String)			: Bool		{ return floatUnitValExpr.match(v) && floatUnitValExpr.matched(1) != null; }
@@ -2141,7 +2155,7 @@ class CSSParser
 		var borders = new ComposedBorder();
 		var parsingBorders:Bool = true;
 		
-		trace("\n\nparseAndSetBorder "+v);
+	//	trace("\n\nparseAndSetBorder "+v);
 		while ( parsingBorders )
 		{
 			var fill:IGraphicProperty = null;
@@ -2164,7 +2178,7 @@ class CSSParser
 			v = lastParsedString;
 			
 			borders.add( createBorderForFill( fill, weight, inside ) );
-			trace("added border "+v);
+	//		trace("added border "+v);
 		}
 		
 		var border:IBorder = null;
@@ -2386,7 +2400,12 @@ class CSSParser
 	private function parseAndSetHeight (v:String) : Void
 	{
 		var h:Int = parseUnitInt(v);
-		if (h.isSet())
+		if (isNone(v))
+		{
+			currentBlock.layout.height			= Number.EMPTY;
+			currentBlock.layout.percentHeight	= Number.EMPTY;
+		}
+		else if (h.isSet())
 		{
 			createLayoutBlock();
 			currentBlock.layout.height = h;
@@ -2394,11 +2413,11 @@ class CSSParser
 		else
 		{
 			var ph:Float = isAutoSize(v) ? LayoutFlags.FILL : parsePercentage(v);
-			if (ph.isSet())
-			{
-				createLayoutBlock();
-				currentBlock.layout.percentHeight = ph;
-			}
+		//	if (ph.isSet())
+		//	{
+			createLayoutBlock();
+			currentBlock.layout.percentHeight = ph;
+		//	}
 		}
 	}
 	
@@ -3522,8 +3541,8 @@ class CSSParser
 			var start	= parsePercentage( anchorScaleEffExpr.matched(20) );
 			var end		= parsePercentage( anchorScaleEffExpr.matched(25) );
 			
-			if (start.isSet())		start	/= 100;
-			if (end.isSet())		end		/= 100;
+		//	if (start.isSet())		start	/= 100;
+		//	if (end.isSet())		end		/= 100;
 			
 			effect = new AnchorScaleEffect ( duration, delay, easing, parsePosition( anchorScaleEffExpr.matched(2) ), start, end );
 			lastUsedEffectExpr = anchorScaleEffExpr;
@@ -3538,8 +3557,8 @@ class CSSParser
 			var start	= fadeEffExpr.matched(2) != null ? parsePercentage( fadeEffExpr.matched(3) ) : Number.FLOAT_NOT_SET;
 			var end		= fadeEffExpr.matched(2) != null ? parsePercentage( fadeEffExpr.matched(8) ) : parsePercentage( fadeEffExpr.matched(13) );
 			
-			if (start.isSet())		start	/= 100;
-			if (end.isSet())		end		/= 100;
+		//	if (start.isSet())		start	/= 100;
+		//	if (end.isSet())		end		/= 100;
 			
 			effect = new FadeEffect ( duration, delay, easing, start, end );
 			lastUsedEffectExpr = fadeEffExpr;
@@ -3595,10 +3614,10 @@ class CSSParser
 			var endX	= scaleEffExpr.matched(2) != null ? parsePercentage( scaleEffExpr.matched(13) ) : parsePercentage( scaleEffExpr.matched(24) );
 			var endY	= scaleEffExpr.matched(2) != null ? parsePercentage( scaleEffExpr.matched(18) ) : parsePercentage( scaleEffExpr.matched(29) );
 			
-			if (startX.isSet())		startX	/= 100;
+		/*	if (startX.isSet())		startX	/= 100;
 			if (startY.isSet())		startY	/= 100;
 			if (endX.isSet())		endX	/= 100;
-			if (endY.isSet())		endY	/= 100;
+			if (endY.isSet())		endY	/= 100;*/
 			
 			effect		= new ScaleEffect ( duration, delay, easing, startX, startY, endX, endY );
 			lastUsedEffectExpr = scaleEffExpr;
@@ -3655,8 +3674,8 @@ class CSSParser
 			var start	= setActionEffExpr.matched(4) != null ? parsePercentage( setActionEffExpr.matched(5) ) : Number.FLOAT_NOT_SET;
 			var end		= setActionEffExpr.matched(4) != null ? parsePercentage( setActionEffExpr.matched(10) ) : parsePercentage( setActionEffExpr.matched(15) );
 			
-			if (start.isSet())		start	/= 100;
-			if (end.isSet())		end		/= 100;
+		/*	if (start.isSet())		start	/= 100;
+			if (end.isSet())		end		/= 100;*/
 			
 			if (start.isSet() || end.isSet())
 				props = EffectProperties.alpha( start, end );
@@ -3704,10 +3723,10 @@ class CSSParser
 			var endX	= setActionEffExpr.matched(118) != null ? parsePercentage( setActionEffExpr.matched(129) )	: parsePercentage( setActionEffExpr.matched(140) );
 			var endY	= setActionEffExpr.matched(118) != null ? parsePercentage( setActionEffExpr.matched(134) )	: parsePercentage( setActionEffExpr.matched(145) );
 			
-			if (startX.isSet())		startX	/= 100;
+		/*	if (startX.isSet())		startX	/= 100;
 			if (startY.isSet())		startY	/= 100;
 			if (endX.isSet())		endX	/= 100;
-			if (endY.isSet())		endY	/= 100;
+			if (endY.isSet())		endY	/= 100;*/
 			
 			if (startX.isSet() || startY.isSet() || endX.isSet() || endY.isSet())
 				props = EffectProperties.scale( startX, startY, endX, endY );

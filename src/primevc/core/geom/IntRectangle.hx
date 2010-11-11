@@ -72,7 +72,7 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	
 	public function toString ()
 	{
-		return "t: " + top + "; r: " + right + "; b: " + bottom + "; l: " + left + "; width: " + width + "; height: " + height;
+		return "IntRect (x=" + left + ", y=" + top + ", width=" + width + ", height=" + height + ", r=" + right + ", b=" + bottom+" )";
 	}
 	
 	
@@ -102,8 +102,9 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private inline function setWidth (v:Int)
 	{
 		if (v != width) {
+			Assert.that( v.isSet() );
 			width	= v;
-			right	= v.isSet() ? left + v : left;
+			right	= left + v;
 			invalidate( RectangleFlags.WIDTH );
 		}
 		return v;
@@ -113,8 +114,9 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private inline function setHeight (v:Int)
 	{
 		if (v != height) {
+			Assert.that( v.isSet() );
 			height	= v;
-			bottom	= v.isSet() ? top + v : top;
+			bottom	= top + v;
 			invalidate( RectangleFlags.HEIGHT );
 		}
 		return v;
@@ -124,8 +126,9 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private inline function setTop (v:Int)
 	{
 		if (v != top) {
+			Assert.that( v.isSet() );
 			top		= v;
-			bottom	= height.isSet() ? v + height : v;
+			bottom	= v + height;
 			invalidate( RectangleFlags.TOP );
 		}
 		return v;
@@ -135,8 +138,9 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private function setBottom (v:Int)
 	{
 		if (v != bottom) {
+			Assert.that( v.isSet() );
 			bottom	= v;
-			top		= height.isSet() ? v - height : bottom;
+			top		= v - height;
 			invalidate( RectangleFlags.BOTTOM );
 		}
 		
@@ -147,8 +151,9 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private inline function setLeft (v:Int)
 	{
 		if (v != left) {
+			Assert.that( v.isSet() );
 			left	= v;
-			right	= width.isSet() ? v + width : left;
+			right	= v + width;
 			invalidate( RectangleFlags.LEFT );
 		}
 		return v;
@@ -158,8 +163,9 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private function setRight (v:Int)
 	{
 		if (v != right) {
+			Assert.that( v.isSet() );
 			right	= v;
-			left	= width.isSet() ? v - width : right;
+			left	= v - width;
 			invalidate( RectangleFlags.RIGHT );
 		}
 		return v;
@@ -167,7 +173,8 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	
 	
 	private inline function setCenterX (v:Float)
-	{
+	{	
+		Assert.that( v.isSet() );
 		if (v.isSet())
 			left = (v - (width * .5)).int();
 		
@@ -176,7 +183,8 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	
 	
 	private inline function setCenterY (v:Float)
-	{
+	{	
+		Assert.that( v.isSet() );
 		if (v.isSet())
 			top = (v - (height * .5)).int();
 		

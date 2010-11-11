@@ -102,7 +102,7 @@ class TextStyle extends StyleSubBlock
 		family:String				= null,
 		color:Null<RGBA>			= null,
 		weight:FontWeight			= null,
-		style:TextStyle				= null,
+		style:FontStyle				= null,
 		letterSpacing:Float			= Number.INT_NOT_SET,
 		align:TextAlign				= null,
 		decoration:TextDecoration	= null,

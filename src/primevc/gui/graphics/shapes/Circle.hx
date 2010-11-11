@@ -29,7 +29,7 @@
 package primevc.gui.graphics.shapes;
  import primevc.core.geom.Corners;
  import primevc.core.geom.IRectangle;
- import primevc.gui.traits.IDrawable;
+ import primevc.gui.traits.IGraphicsOwner;
  import primevc.utils.Formulas;
 
 
@@ -41,7 +41,7 @@ package primevc.gui.graphics.shapes;
  */
 class Circle extends ShapeBase, implements IGraphicShape
 {
-	public function draw (target:IDrawable, bounds:IRectangle, borderRadius:Corners) : Void
+	public function draw (target:IGraphicsOwner, bounds:IRectangle, borderRadius:Corners) : Void
 	{
 		var radius = Formulas.getCircleRadius( bounds.width, bounds.height );
 #if flash9

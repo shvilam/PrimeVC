@@ -109,7 +109,7 @@ class TextField extends flash.text.TextField, implements ITextField
 	{
 		applyValue	.on( data.change, this );
 		updateValue	.on( textEvents.change, this );
-		applyTextFormat();
+		applyValue();
 	}
 	
 	
@@ -159,6 +159,25 @@ class TextField extends flash.text.TextField, implements ITextField
 	private function applyValue ()
 	{
 	//	trace(this+".applyValue "+text+" => "+value+"; transform: "+textStyle.transform);
+		if (value != text && value != null)
+			applyTextFormat();
+		else if (value == null)
+			text = "";
+	}
+	
+	
+	private function updateValue ()
+	{
+		if (value != text)
+		{
+			value = text;
+			applyTextFormat();
+		}
+	}
+	
+	
+	private function applyTextFormat ()
+	{
 		var newText = value;
 		if (newText == null)
 			newText = "";
@@ -173,23 +192,9 @@ class TextField extends flash.text.TextField, implements ITextField
 		
 		if (newText != text)
 			text = newText;
-	}
-	
-	
-	private function updateValue ()
-	{
-		if (value != text)
-		{
-			value = text;
-			applyValue();
-		}
-	}
-	
-	
-	private function applyTextFormat ()
-	{
-		applyValue();
-		setTextFormat( defaultTextFormat );
+		
+	//	trace(this+".applyTextFormat "+textStyle);
+		setTextFormat( textStyle );
 	}
 	
 	
@@ -215,8 +220,6 @@ class TextField extends flash.text.TextField, implements ITextField
 	
 	private function setTextStyle (v:TextFormat)
 	{
-		//Invalidate layout and apply the textformat when the layout starts validating
-		//This will prevend screen flickering.
 		textStyle = v;
 		
 		if (v != null) {

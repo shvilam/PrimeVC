@@ -5,11 +5,12 @@
 #frame2 .odd { background: #000; width: 100px; shape: rectangle;  }
 
 GlobalApp {
-	relative: 5px 5px 5px;
+	relative: 5px 5px 55px;
+	height: none;
 	width: 60%;
 	padding: 5px;
 	algorithm: float-hor;
-	border: solid 1px #000 inset;
+	border: solid 1px #000 inside;
 }
 
 
@@ -31,7 +32,7 @@ Tile {
 }
 
 TileList {
-	border: solid 3px #fedcba;
+	border: solid 3px #fedcbaaa;
 	background: #abcdef44;
 	padding: 10px;
 /*	child-width: 40px;

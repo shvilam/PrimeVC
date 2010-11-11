@@ -413,10 +413,10 @@ class StyleBlock extends StyleBlockBase
 	private function getFont ()
 	{
 		var v = _font;
-		if (v == null && extendedStyle != null)		v = extendedStyle.font;
-		if (v == null && nestingInherited != null)	v = nestingInherited.font;
-		if (v == null && superStyle != null)		v = superStyle.font;
-		if (v == null && parentStyle != null)		v = parentStyle.font;
+			if (v == null && extendedStyle != null)		v = extendedStyle.font;
+#if flash9	if (v == null && nestingInherited != null)	v = nestingInherited.font; #end
+			if (v == null && superStyle != null)		v = superStyle.font;
+#if flash9	if (v == null && parentStyle != null)		v = parentStyle.font; #end
 		
 		return v;
 	}

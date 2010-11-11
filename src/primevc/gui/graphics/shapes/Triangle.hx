@@ -35,7 +35,7 @@ package primevc.gui.graphics.shapes;
  import primevc.core.geom.IntPoint;
  import primevc.core.geom.IRectangle;
  import primevc.gui.graphics.GraphicFlags;
- import primevc.gui.traits.IDrawable;
+ import primevc.gui.traits.IGraphicsOwner;
   using primevc.utils.FastArray;
   using Std;
 
@@ -71,7 +71,7 @@ class Triangle extends ShapeBase, implements IGraphicShape
 	}
 	
 	
-	public inline function draw (target:IDrawable, bounds:IRectangle, borderRadius:Corners) : Void
+	public inline function draw (target:IGraphicsOwner, bounds:IRectangle, borderRadius:Corners) : Void
 	{
 #if flash9
 		var a = a, b = b, c = c;

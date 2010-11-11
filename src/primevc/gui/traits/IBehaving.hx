@@ -46,5 +46,5 @@ interface IBehaving
 	/**
 	 * Implement this method to clean-up the behaviours of the component
 	 */
-	private function removeBehaviours ()			: Void;
+//	private function removeBehaviours ()			: Void;
 }

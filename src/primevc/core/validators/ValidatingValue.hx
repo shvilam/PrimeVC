@@ -29,6 +29,7 @@
 package primevc.core.validators;
  import primevc.core.traits.Invalidatable;
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
   using Std;
  
 
@@ -90,7 +91,7 @@ class ValidatingValue < DataType > extends Invalidatable
 			
 			if (v != null) {
 				validatorChangeHandler.on( validator.change, this );
-				validateValue();
+			//	validateValue();
 			}
 		}
 		return v;
@@ -123,4 +124,16 @@ class ValueFlags
 {
 	public static inline var VALUE		: Int = 1;
 	public static inline var VALIDATOR	: Int = 2;
+	
+#if debug
+	public static function readProperties (flags:UInt) : String
+	{
+		var output	= [];
+		
+		if (flags.has( VALUE ))			output.push("value");
+		if (flags.has( VALIDATOR ))		output.push("validator");
+		
+		return "properties: " + output.join(", ")+" ("+flags+")";
+	}
+#end
 }

@@ -27,7 +27,6 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.layout;
- import primevc.core.dispatcher.Wire;
  import primevc.gui.behaviours.ValidatingBehaviour;
  import primevc.gui.core.UIWindow;
  import primevc.gui.states.ValidateStates;
@@ -85,15 +84,12 @@ class WindowLayoutBehaviour extends ValidatingBehaviour < UIWindow >
 #if flash9
 	private function updateBgSize ()
 	{
-		if (target.graphicData.value != null)
-		{
-			var l = target.layout;
-		//	trace(target+".updateBgSize "+l.bounds);
-		//	target.bgShape.width	= l.width;
-		//	target.bgShape.height	= l.height;
-			target.rect.width		= l.width.value;
-			target.rect.height		= l.height.value;
-		}
+		var l = target.layout;
+	//	trace(target+".updateBgSize "+l.outerBounds);
+	//	target.bgShape.width	= l.width;
+	//	target.bgShape.height	= l.height;
+		target.rect.width		= l.width.value;
+		target.rect.height		= l.height.value;
 	}	
 #end
 }

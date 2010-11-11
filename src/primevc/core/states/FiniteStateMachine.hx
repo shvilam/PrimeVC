@@ -137,6 +137,7 @@ class FiniteStateMachine implements IFiniteStateMachine
 	// METHODS
 	//
 	
+	public function is (otherState:IState)				{ return current == otherState; }
 	
 	public function enable ()							{ enabled = true; }
 	public function disable ()							{ enabled = false; }

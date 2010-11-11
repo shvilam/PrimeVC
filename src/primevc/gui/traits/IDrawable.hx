@@ -28,7 +28,6 @@
  */
 package primevc.gui.traits;
 #if flash9
- import primevc.core.Bindable;
  import primevc.gui.graphics.GraphicProperties;
 #end
 
@@ -39,19 +38,17 @@ package primevc.gui.traits;
  */
 interface IDrawable 
 			  implements ILayoutable
-#if flash9	, implements IDisplayable	#end
+			, implements IGraphicsOwner
 {
 #if flash9
 	/**
 	 * Object containing graphical data. One object will be enough in general
 	 * since it can be a ComposedShape that contains multiple shapes.
 	 */
-	public var graphicData		(default, null)		: Bindable < GraphicProperties >;
+	public var graphicData		(default, null)		: GraphicProperties;
 	
-	public var graphics			(default, null)		: flash.display.Graphics;
-
-	private function createGraphics ()				: Void;
-	private function removeGraphics ()				: Void;
+//	private function createGraphics ()				: Void;
+//	private function removeGraphics ()				: Void;
 
 #end
 }

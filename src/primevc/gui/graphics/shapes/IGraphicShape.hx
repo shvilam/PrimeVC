@@ -30,7 +30,7 @@ package primevc.gui.graphics.shapes;
  import primevc.core.geom.Corners;
  import primevc.core.geom.IRectangle;
  import primevc.gui.graphics.IGraphicElement;
- import primevc.gui.traits.IDrawable;
+ import primevc.gui.traits.IGraphicsOwner;
 
 
 /**
@@ -39,5 +39,5 @@ package primevc.gui.graphics.shapes;
  */
 interface IGraphicShape implements IGraphicElement
 {
-	public function draw (target:IDrawable, bounds:IRectangle, borderRadius:Corners) : Void;
+	public function draw (target:IGraphicsOwner, bounds:IRectangle, borderRadius:Corners) : Void;
 }

@@ -27,12 +27,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours;
- import primevc.core.dispatcher.Wire;
  import primevc.gui.core.IUIElement;
  import primevc.gui.core.UIWindow;
  import primevc.gui.traits.IDrawable;
   using primevc.utils.Bind;
-  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 
@@ -46,50 +44,30 @@ package primevc.gui.behaviours;
  */
 class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >
 {
-	private var graphicsBinding		: Wire <Dynamic>;
-	
-	
 	override private function init ()
 	{
 		Assert.that( target.layout != null );
-		updateGraphicBinding.on( target.graphicData.change, this );
 		
-		if (target.graphicData.value != null)
-			updateGraphicBinding();
-	}
-	
-	
-	override private function reset ()
-	{
-		if (graphicsBinding != null) {
-			graphicsBinding.dispose();
-			graphicsBinding = null;
-		}
-		super.reset();
-	}
-	
-	
-	/**
-	 * Event handler which is called when the graphicData property of the target
-	 * changes.
-	 */
-	private inline function updateGraphicBinding ()
-	{
-		if (graphicsBinding != null) {
-			graphicsBinding.dispose();
-			graphicsBinding = null;
-		}
-		
-		if (target.graphicData.value != null) {
-			graphicsBinding = requestRender.on( target.graphicData.value.changeEvent, this );
+		if (target.graphicData != null)
+		{
+			requestRender.on( target.graphicData.changeEvent, this );
 			requestRender();
 		}
 	}
 	
 	
+	override private function reset ()
+	{
+		if (target.graphicData != null)
+			target.graphicData.changeEvent.unbind( this );
+		
+		super.reset();
+	}
+	
+	
 	public function requestRender ()
 	{
-		if (target.window == null || target.graphicData.value == null || target.graphicData.value.isEmpty())
+		if (target.window == null || target.graphicData.isEmpty() || nextValidatable != null || prevValidatable != null)
 			return;
 		
 		getValidationManager().add( this );
@@ -99,7 +77,7 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >
 	override public function validate ()
 	{
 		target.graphics.clear();
-		target.graphicData.value.draw( target, false );
+		target.graphicData.draw( target, false );
 	}
 	
 	

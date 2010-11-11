@@ -51,4 +51,8 @@ class InvalidationManager extends QueueManager
 		updateQueueBinding = validateQueue.on( owner.displayEvents.enterFrame, this );
 		updateQueueBinding.disable();
 	}
+	
+#if debug
+	override public function toString () { return "InvalidationManager"; }
+#end
 }

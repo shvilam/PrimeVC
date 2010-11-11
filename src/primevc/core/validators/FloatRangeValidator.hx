@@ -47,53 +47,61 @@ class FloatRangeValidator implements IValueValidator <Float>
 	public var max	(default, setMax)	: Float;
 
 
-	public function new( min = Number.INT_NOT_SET, max = Number.INT_NOT_SET )
+	public function new( min:Float = Number.INT_NOT_SET, max:Float = Number.INT_NOT_SET )
 	{
+		this.min = min == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : min;
+		this.max = max == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : max;
 		change = new Signal0();
-		this.min = min == Number.INT_NOT_SET ? this.min.unset() : min;
-		this.max = max == Number.INT_NOT_SET ? this.max.unset() : max;
 	}
-
-
+	
+	
 	public inline function dispose ()
 	{
 		change.dispose();
+		change = null;
 	}
-
-
+	
+	
 	public inline function getDiff ()
 	{
 		return min.isSet() && max.isSet() ? max - min : 0;
 	}
-
-
+	
+	
 	private inline function setMin (v)
 	{
 		if (v != min) {
 			min = v;
-			change.send();
+			broadcastChange();
 		}
 		return v;
 	}
-
+	
+	
 	private inline function setMax (v)
 	{
 		if (v != max) {
 			max = v;
-			change.send();
+			broadcastChange();
 		}
 		return v;
 	}
-
-	public inline function validate (v:Float) : Float
+	
+	
+	private inline function broadcastChange ()
+	{
+		if (change != null && (min == min || max == max)) //FIXME: haxe compiler bug, when inlining NumberUtil.isSet()
+			change.send();
+	}
+	
+	
+	public function validate (v:Float) : Float
 	{
 	//	if (v.notSet())
 	//		return v;
-
 		if (min.isSet() && max.isSet())		v = v.within( min, max );
 		else if (min.isSet())				v = v.getBiggest( min );
 		else if (max.isSet())				v = v.getSmallest( max );
-
 		return v;
 	}
 

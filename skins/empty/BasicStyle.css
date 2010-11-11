@@ -11,17 +11,33 @@ ListView		{ overflow: hidden; }
 InputField		{ border: 1px solid #000; }
 Label			{ font: Verdana 20px; }
 Image			{ shape: rectangle; }
-Button			{ overflow: hidden; algorithm: float-hor( left, center ); font: Verdana 20px; background: #ffffff00; }
+Button			{ overflow: hidden; algorithm: float-hor( left, center ); font: Verdana 20px; background: #ffffff00; color: #000; }
+
+
+/***************
+ * SLIDER
+ **************/
+
+.horizontalSlider	{ width: 200px; height: 4px; }
+.verticalSlider		{ height: 200px; width: 4px;}
+
+.horizontalSlider UIGraphic	{ width: 0%; height: 100%; }
+.verticalSlider UIGraphic	{ height: 0%; width: 100%; bottom: 0px; }
 
 Slider {
 	algorithm: relative;
-	width: 100px;
-	height: 20px;
-	background: #ddd;
+	background: #fff;
 }
 
-Slider Button {
-	background: #000;
-	height: 30px;
-	width: 30px;
+.horizontalSlider Button {
+	v-center: 0px;
+	background: #666;
+	height: 15px;
+	width: 6px;
+}
+.verticalSlider Button {
+	h-center: 0px;
+	background: #666;
+	width: 15px;
+	height: 6px;
 }

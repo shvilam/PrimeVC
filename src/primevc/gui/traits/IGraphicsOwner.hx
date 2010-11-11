@@ -26,45 +26,16 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.types;
- /*
+package primevc.gui.traits;
 
-typedef IntType = 
-	#if neko	neko.Int32;
-	#else		Int;	#end
-*/
 
 /**
- * Defines the min and max values of integers
- * 
- * @creation-date	Jun 17, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Nov 09, 2010
  */
-class Number
+interface IGraphicsOwner implements IDisplayable
 {
-	//floats can actually be a lot bigger (64 bit) but this will work for now
-	public static inline var FLOAT_MIN:Float		= -3.40282346638528e+38;
-	public static inline var FLOAT_MAX:Float		=  3.40282346638528e+38;
-	
-	public static inline var INT_MIN:Int			= #if neko 0x40000000 #else 0x80000000 #end;
-	public static inline var INT_MAX:Int			= #if neko 0x3fffffff #else 0x7fffffff #end;
-
-#if !neko
-	public static inline var UINT_MIN:UInt			=  0;
-	public static inline var UINT_MAX:UInt			=  0xffffffff; //4294967295;		//<-- not working, since value is seen as Float
+#if flash9
+	public var graphics			(default, null)		: flash.display.Graphics;
 #end
-	
-	/**
-	 * Value defining an undefined Int. Useful for AVM2 since there's no value like
-	 * Math.NaN for integers..
-	 */
-	public static inline var INT_NOT_SET:Int		=  INT_MIN; //#if flash9 INT_MIN #else null #end;
-	public static inline var FLOAT_NOT_SET:Float	=  Math.NaN;
-	
-	/**
-	 * Integer-value to indicate a value is set but doesn't have a value. 
-	 * If for example the height is set to 'none' in the css, it wil become 
-	 * NONE. This way the style-object won't look in other style-classes.
-	 */
-	public static inline var EMPTY:Int				= #if neko -1073741820 #else -2147483640 #end;
 }

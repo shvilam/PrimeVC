@@ -32,7 +32,7 @@ package primevc.gui.graphics;
 #end
  import primevc.core.collections.FastCell;
  import primevc.core.geom.IRectangle;
- import primevc.gui.traits.IDrawable;
+ import primevc.gui.traits.IGraphicsOwner;
 
 
 
@@ -87,14 +87,14 @@ class ComposedGraphicProperty extends GraphicElement, implements IComposedGraphi
 	// IGRAPHICPROPERTY METHODS
 	//
 	
-	public function begin (target:IDrawable, bounds:IRectangle)
+	public function begin (target:IGraphicsOwner, bounds:IRectangle)
 	{
 		if (nextCell != null)
 			nextCell.data.begin( target, bounds );
 	}
 	
 	
-	public function end (target:IDrawable, bounds:IRectangle)
+	public function end (target:IGraphicsOwner, bounds:IRectangle)
 	{
 		if (nextCell != null) {
 			nextCell.data.end(target, bounds);

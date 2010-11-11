@@ -34,6 +34,7 @@ package primevc.avm2.display;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.display.Window;
  import primevc.gui.events.DisplayEvents;
+ import primevc.gui.traits.IGraphicsOwner;
   using primevc.utils.TypeUtil;
   using Std;
 
@@ -44,7 +45,7 @@ package primevc.avm2.display;
  * @creation-date	Jun 11, 2010
  * @author			Ruben Weijers
  */
-class Shape extends flash.display.Shape, implements IDisplayObject
+class Shape extends flash.display.Shape, implements IDisplayObject, implements IGraphicsOwner
 {
 	public var container		(default, setContainer)	: IDisplayContainer;
 	public var window			(default, setWindow)	: Window;

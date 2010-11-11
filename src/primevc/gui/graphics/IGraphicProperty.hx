@@ -28,7 +28,7 @@
  */
 package primevc.gui.graphics;
  import primevc.core.geom.IRectangle;
- import primevc.gui.traits.IDrawable;
+ import primevc.gui.traits.IGraphicsOwner;
 
 /**
  * Interface describing fills and borders
@@ -37,6 +37,6 @@ package primevc.gui.graphics;
  */
 interface IGraphicProperty implements IGraphicElement
 {
-	public function begin (target:IDrawable, bounds:IRectangle) : Void;
-	public function end (target:IDrawable, bounds:IRectangle) : Void;
+	public function begin (target:IGraphicsOwner, bounds:IRectangle) : Void;
+	public function end (target:IGraphicsOwner, bounds:IRectangle) : Void;
 }

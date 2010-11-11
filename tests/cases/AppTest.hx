@@ -35,6 +35,7 @@ package cases;
  import primevc.gui.components.Image;
  import primevc.gui.components.Label;
  import primevc.gui.components.ListView;
+ import primevc.gui.components.Slider;
  import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UIWindow;
@@ -82,7 +83,7 @@ class EditorView extends ApplicationView
 
 class ApplicationMainBar extends UIContainer
 {
-	private var logo			: Image;
+	private var logo : Image;
 	
 	
 	override private function createChildren ()
@@ -141,10 +142,10 @@ class FrameTypesBar extends UIDataContainer < FrameTypesSectionVO >
 		
 		titleField.styleClasses.add("title");
 		
-		layoutContainer.children.add( titleField.layout );
-		layoutContainer.children.add( framesList.layout );
 		children.add( framesList );
 		children.add( titleField );
+		layoutContainer.children.add( titleField.layout );
+		layoutContainer.children.add( framesList.layout );
 	}
 	
 	
@@ -203,6 +204,14 @@ class SpreadStage extends UIContainer
 		children.add( toolBar	= new SpreadToolBar() );
 		layoutContainer.children.add( spread.layout );
 		layoutContainer.children.add( toolBar.layout );
+		
+		updatePageZoom.on( toolBar.zoomSlider.data.change, this );
+	}
+	
+	
+	private function updatePageZoom ()
+	{
+		spread.scaleX = spread.scaleY = toolBar.zoomSlider.value;
 	}
 }
 
@@ -219,16 +228,19 @@ class SpreadView extends UIContainer
 
 class SpreadToolBar extends UIContainer
 {
-	private var undoBtn	: Button;
-	private var redoBtn	: Button;
+	public var undoBtn		(default, null)	: Button;
+	public var redoBtn		(default, null)	: Button;
+	public var zoomSlider	(default, null)	: Slider;
 	
 	
 	override private function createChildren ()
 	{
 		children.add( undoBtn = new Button("undoBtn", "Undo") );
 		children.add( redoBtn = new Button("redoBtn", "Redo") );
+		children.add( zoomSlider = new Slider("zoomSlider", 1, 0.4, 3) );
 		layoutContainer.children.add( undoBtn.layout );
 		layoutContainer.children.add( redoBtn.layout );
+		layoutContainer.children.add( zoomSlider.layout );
 		
 		undoBtn.styleClasses.add( "toolBtn" );
 		redoBtn.styleClasses.add( "toolBtn" );

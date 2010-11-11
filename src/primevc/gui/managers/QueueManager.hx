@@ -93,12 +93,13 @@ class QueueManager implements IDisposable
 	private function validateQueue ()
 	{
 		var curCell = first;
+		
 		while (curCell != null)
 		{
 			var obj	= curCell;
-			curCell	= curCell.nextValidatable;
-			
 			obj.validate();
+			
+			curCell	= curCell.nextValidatable;
 			obj.nextValidatable = obj.prevValidatable = null;
 		}
 		first = last = null;
@@ -112,7 +113,8 @@ class QueueManager implements IDisposable
 	 */
 	public function add ( obj:IValidatable )
 	{
-		if (obj.prevValidatable != null)
+		//only add the object if it's not in the list yet
+		if (obj.prevValidatable != null || obj.nextValidatable != null)
 			return;
 		
 		if (first == null)
@@ -140,4 +142,9 @@ class QueueManager implements IDisposable
 		if (first == null)
 			disableBinding();
 	}
+	
+	
+#if debug
+	public function toString () { return "QueueManager"; }
+#end
 }

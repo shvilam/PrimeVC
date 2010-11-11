@@ -30,7 +30,7 @@ package primevc.gui.graphics.borders;
  import primevc.core.geom.IRectangle;
  import primevc.core.geom.Matrix2D;
  import primevc.gui.graphics.fills.GradientFill;
- import primevc.gui.traits.IDrawable;
+ import primevc.gui.traits.IGraphicsOwner;
   using primevc.utils.Color;
   using primevc.utils.RectangleUtil;
   using primevc.utils.TypeUtil;
@@ -48,7 +48,7 @@ class GradientBorder extends BorderBase <GradientFill>
 	private var lastMatrix		: Matrix2D;
 	
 	
-	override public function begin (target:IDrawable, bounds:IRectangle) : Void
+	override public function begin (target:IGraphicsOwner, bounds:IRectangle) : Void
 	{
 		super.begin(target, bounds);
 #if flash9

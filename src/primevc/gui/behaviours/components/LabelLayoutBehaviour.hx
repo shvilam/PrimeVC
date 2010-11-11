@@ -28,13 +28,13 @@
  */
 package primevc.gui.behaviours.components;
  import primevc.core.dispatcher.Wire;
- import primevc.gui.behaviours.BehaviourBase;
+ import primevc.gui.behaviours.ValidatingBehaviour;
  import primevc.gui.components.Label;
  import primevc.gui.core.UIWindow;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.states.ValidateStates;
- import primevc.gui.traits.IRenderable;
   using primevc.utils.Bind;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 
@@ -42,11 +42,8 @@ package primevc.gui.behaviours.components;
  * @author Ruben Weijers
  * @creation-date Nov 01, 2010
  */
-class LabelLayoutBehaviour extends BehaviourBase < Label > , implements IRenderable 
+class LabelLayoutBehaviour extends ValidatingBehaviour < Label >
 {
-	private inline function getUIWindow () : UIWindow	{ return target.window.as(UIWindow); }
-	
-	
 	override private function init ()
 	{
 		if ( target.state.current != target.state.initialized )
@@ -60,6 +57,7 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > , implements IRendera
 	{
 		requestRender	.on( target.layout.events.sizeChanged, this );
 		updateLabelSize	.on( target.field.layout.events.sizeChanged, this );
+		updateLabelSize();
 		requestRender();
 	}
 	
@@ -67,34 +65,36 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > , implements IRendera
 	override private function reset ()
 	{
 		if (target.layout != null)
-		{
 			target.layout.events.sizeChanged.unbind(this);
-			
-			var window = getUIWindow();
-			if (window != null)
-				window.invalidationManager.remove( target.layout );
-		}
 		
 		if (target.field != null && target.field.layout != null)
 			target.field.layout.events.sizeChanged.unbind( this );
+		
+		super.reset();
+	}
+	
+	
+	override private function getValidationManager ()
+	{
+		return (target.window != null) ? cast target.window.as(UIWindow).renderManager : null;
 	}
 	
 	
 	public function requestRender ()
 	{
 		if (target.window != null)
-			getUIWindow().renderManager.add(this);
+			getValidationManager().add(this);
 	}
 	
 	
-	public function render ()
+	override public function validate ()
 	{
-	//	trace(target+".render "+target.layout.width+", "+target.layout.height);
-		var targetLayout	= target.layout;
+		var targetLayout	= target.layout.as(AdvancedLayoutClient);
 		var fieldLayout		= target.field.layout;
 		
-		fieldLayout.width.value		= targetLayout.width.value;
-		fieldLayout.height.value	= targetLayout.height.value;
+	//	trace("\t"+target+".validate "+targetLayout.explicitWidth+", "+targetLayout.explicitHeight+"; "+targetLayout.measuredWidth+", "+targetLayout.measuredHeight);
+		if (targetLayout.explicitWidth.isSet())		fieldLayout.width.value		= targetLayout.explicitWidth;
+		if (targetLayout.explicitHeight.isSet())	fieldLayout.height.value	= targetLayout.explicitHeight;
 		
 		if (targetLayout.padding != null)
 		{
@@ -115,8 +115,10 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > , implements IRendera
 		var targetLayout	= target.layout.as(AdvancedLayoutClient);
 		var fieldLayout		= target.field.layout;
 		
-	//	trace(target+".updateLabelSize "+target.field.layout.bounds);
+	//	trace(target+".updateLabelSize "+target.field.layout.width.value+", "+target.field.layout.height.value);
 		targetLayout.measuredWidth	= fieldLayout.width.value;
 		targetLayout.measuredHeight	= fieldLayout.height.value;
+	//	trace("\t\ttarget measured-size: "+targetLayout.measuredWidth+", "+targetLayout.measuredHeight);
+	//	trace("\t\ttarget explicit-size: "+targetLayout.explicitWidth+", "+targetLayout.explicitHeight);
 	}
 }

@@ -29,6 +29,7 @@
 package primevc.tools.generator;
  import primevc.gui.layout.LayoutFlags;
  import primevc.types.ClassInstanceFactory;
+ import primevc.types.Number;
  import primevc.types.Reference;
  import primevc.types.RGBA;
  import primevc.types.SimpleDictionary;
@@ -169,6 +170,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 		else if (Std.is( v, Reference))				return cast(v, Reference).toCode(this);
 		else if (isUndefinedNumber(v))				return (Std.is( v, Int )) ? "primevc.types.Number.INT_NOT_SET" : "primevc.types.Number.FLOAT_NOT_SET";
 		else if (v == LayoutFlags.FILL)				return "primevc.gui.layout.LayoutFlags.FILL";
+		else if (v == Number.EMPTY)					return "primevc.types.Number.EMPTY";
 		else if (v == null)							return "null";
 		else if (Std.is( v, String ))				return "'" + v + "'";
 		else if (Std.is( v, Array ))				return getArray( cast v );

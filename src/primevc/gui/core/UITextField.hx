@@ -103,8 +103,8 @@ class UITextField extends TextField, implements IUIElement
 		//This way a behaviour is still able to respond to the disposed
 		//state.
 		state.current = state.disposed;
-		removeBehaviours();
 		
+		behaviours.dispose();
 		id.dispose();
 		state.dispose();
 		
@@ -134,18 +134,9 @@ class UITextField extends TextField, implements IUIElement
 
 	private function init ()
 	{
-		behaviours.init();
-		
-		//finish initializing
 		visible = true;
+		behaviours.init();
 		state.current = state.initialized;
-	}
-
-
-	private inline function removeBehaviours ()
-	{
-		behaviours.dispose();
-		behaviours = null;
 	}
 
 
@@ -180,16 +171,16 @@ class UITextField extends TextField, implements IUIElement
 		
 		//Invalidate layout and apply the textformat when the layout starts validating
 		//This will prevend screen flickering.
-		layout.invalidate( LayoutFlags.MEASURED_WIDTH | LayoutFlags.MEASURED_HEIGHT );
+		layout.invalidate( LayoutFlags.WIDTH | LayoutFlags.HEIGHT );
 		applyTextFormat.onceOn( layout.state.change, this );
 		
 		return v; 
 	}
 	
 	
-	override private function applyValue ()
+	override private function applyTextFormat ()
 	{
-		super.applyValue();
+		super.applyTextFormat();
 		updateSize();
 	}
 	
@@ -219,8 +210,8 @@ class UITextField extends TextField, implements IUIElement
 
 	public inline function show ()						{ this.doShow(); }
 	public inline function hide ()						{ this.doHide(); }
-	public inline function move (x:Float, y:Float)		{ this.doMove(x, y); }
-	public inline function resize (w:Float, h:Float)	{ this.doResize(w, h); }
+	public inline function move (x:Int, y:Int)			{ this.doMove(x, y); }
+	public inline function resize (w:Int, h:Int)		{ this.doResize(w, h); }
 	public inline function rotate (v:Float)				{ this.doRotate(v); }
 	public inline function scale (sx:Float, sy:Float)	{ this.doScale(sx, sy); }
 	
@@ -233,11 +224,17 @@ class UITextField extends TextField, implements IUIElement
 	//
 	
 	private function updateSize ()
-	{	
-	//	trace(this+".updateSize: "+realTextWidth+", "+realTextHeight);
-		var w = (layout.percentWidth <= 0) ? layout.width.value : Number.INT_NOT_SET;
-		var h = (layout.percentHeight <= 0) ? layout.height.value : Number.INT_NOT_SET;
-		resize(w,h);
+	{
+		var w = (layout.percentWidth.isSet() && layout.percentWidth >= 0)	? Number.INT_NOT_SET : realTextWidth.int();
+		var h = (layout.percentHeight.isSet() && layout.percentHeight >= 0)	? Number.INT_NOT_SET : realTextHeight.int();
+		
+#if flash9
+		if (autoSize == flash.text.TextFieldAutoSize.NONE)
+			scrollH = 0;
+#end
+	//	trace(this+".updateSize: "+realTextWidth+", "+realTextHeight+" => "+w+", "+h+"; cursize: "+width+", "+height);
+		layout.width.value = w;
+		layout.height.value = h;
 	}
 	
 	

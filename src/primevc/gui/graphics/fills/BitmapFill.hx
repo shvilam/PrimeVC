@@ -35,7 +35,7 @@ package primevc.gui.graphics.fills;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.graphics.IGraphicProperty;
- import primevc.gui.traits.IDrawable;
+ import primevc.gui.traits.IGraphicsOwner;
  import primevc.types.Bitmap;
   using primevc.utils.Bind;
 
@@ -153,7 +153,7 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 	// IFILL METHODS
 	//
 	
-	public inline function begin (target:IDrawable, bounds:IRectangle)
+	public inline function begin (target:IGraphicsOwner, bounds:IRectangle)
 	{	
 		isFinished = true;
 		if (bitmap == null)
@@ -175,7 +175,7 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 	}
 	
 	
-	public inline function end (target:IDrawable, bounds:IRectangle)
+	public inline function end (target:IGraphicsOwner, bounds:IRectangle)
 	{	
 		isFinished = false;
 		if (bitmap != null && bitmap.state.is(BitmapStates.ready))

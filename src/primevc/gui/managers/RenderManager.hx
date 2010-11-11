@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.managers;
+ import primevc.gui.traits.IValidatable;
   using primevc.utils.Bind;
 
 
@@ -54,4 +55,8 @@ class RenderManager extends QueueManager
 		
 		super.enableBinding();
 	}
+	
+#if debug
+	override public function toString () { return "RenderManager"; }
+#end
 }

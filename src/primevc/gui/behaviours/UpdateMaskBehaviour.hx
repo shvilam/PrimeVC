@@ -26,45 +26,73 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.types;
- /*
+package primevc.gui.behaviours;
+ import primevc.gui.core.IUIElement;
+ import primevc.gui.core.UIWindow;
+ import primevc.gui.display.Shape;
+ import primevc.gui.traits.IDrawable;
+  using primevc.utils.Bind;
+  using primevc.utils.TypeUtil;
 
-typedef IntType = 
-	#if neko	neko.Int32;
-	#else		Int;	#end
-*/
 
 /**
- * Defines the min and max values of integers
+ * Behavior will draw and update the given shape to fit the given mirror object.
+ * It will redraw the shape when the mirror object changes of size or when it's
+ * graphicProperties change.
  * 
- * @creation-date	Jun 17, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Nov 09, 2010
  */
-class Number
+class UpdateMaskBehaviour extends ValidatingBehaviour < Shape >
 {
-	//floats can actually be a lot bigger (64 bit) but this will work for now
-	public static inline var FLOAT_MIN:Float		= -3.40282346638528e+38;
-	public static inline var FLOAT_MAX:Float		=  3.40282346638528e+38;
+	private var mirror : IDrawable;
 	
-	public static inline var INT_MIN:Int			= #if neko 0x40000000 #else 0x80000000 #end;
-	public static inline var INT_MAX:Int			= #if neko 0x3fffffff #else 0x7fffffff #end;
-
-#if !neko
-	public static inline var UINT_MIN:UInt			=  0;
-	public static inline var UINT_MAX:UInt			=  0xffffffff; //4294967295;		//<-- not working, since value is seen as Float
-#end
 	
-	/**
-	 * Value defining an undefined Int. Useful for AVM2 since there's no value like
-	 * Math.NaN for integers..
-	 */
-	public static inline var INT_NOT_SET:Int		=  INT_MIN; //#if flash9 INT_MIN #else null #end;
-	public static inline var FLOAT_NOT_SET:Float	=  Math.NaN;
+	public function new (target:Shape, mirror:IDrawable)
+	{
+		super(target);
+		this.mirror = mirror;
+	}
 	
-	/**
-	 * Integer-value to indicate a value is set but doesn't have a value. 
-	 * If for example the height is set to 'none' in the css, it wil become 
-	 * NONE. This way the style-object won't look in other style-classes.
-	 */
-	public static inline var EMPTY:Int				= #if neko -1073741820 #else -2147483640 #end;
+	
+	override private function init ()
+	{
+		if (mirror.graphicData != null)
+		{
+			requestRender.on( mirror.graphicData.changeEvent, this );
+			requestRender();
+		}
+	}
+	
+	
+	override private function reset ()
+	{
+		if (mirror.graphicData != null)
+			mirror.graphicData.changeEvent.unbind( this );
+		
+		mirror = null;
+		super.reset();
+	}
+	
+	
+	public function requestRender ()
+	{
+		if (target.window == null || mirror.graphicData.isEmpty())
+			return;
+		
+		getValidationManager().add( this );
+	}
+	
+	
+	override public function validate ()
+	{
+		target.graphics.clear();
+		mirror.graphicData.draw( target, false );
+	}
+	
+	
+	override private function getValidationManager ()
+	{
+		return (target.window != null) ? cast target.window.as(UIWindow).renderManager : null;
+	}
 }

@@ -29,7 +29,7 @@
 package primevc.gui.graphics.borders;
  import primevc.core.geom.IRectangle;
  import primevc.gui.graphics.fills.BitmapFill;
- import primevc.gui.traits.IDrawable;
+ import primevc.gui.traits.IGraphicsOwner;
 
 
 /**
@@ -40,7 +40,7 @@ package primevc.gui.graphics.borders;
  */
 class BitmapBorder extends BorderBase < BitmapFill >
 {
-	override public function begin (target:IDrawable, bounds:IRectangle) : Void
+	override public function begin (target:IGraphicsOwner, bounds:IRectangle) : Void
 	{
 		super.begin(target, bounds);
 #if flash10

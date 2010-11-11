@@ -35,6 +35,7 @@ package primevc.gui.styling;
  import primevc.gui.traits.ILayoutable;
  import primevc.types.Number;
   using primevc.utils.BitUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 
@@ -74,11 +75,8 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 				changes = changes.unset( Flags.HEIGHT_CONSTRAINTS);
 			}
 			
-			else if (target.layout.height.validator == null)
-				target.layout.height.validator = heightRange = new IntRangeValidator();
-				
 			else
-				heightRange = target.layout.height.validator.as( IntRangeValidator );
+				heightRange = (target.layout.height.validator == null) ? new IntRangeValidator() : target.layout.height.validator.as( IntRangeValidator );
 		}
 		
 		if (changes.has( Flags.WIDTH_CONSTRAINTS ))
@@ -88,11 +86,8 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 				changes = changes.unset( Flags.WIDTH_CONSTRAINTS );
 			}
 			
-			else if (target.layout.width.validator == null)
-				target.layout.width.validator = widthRange = new IntRangeValidator();
-			
 			else
-				widthRange = target.layout.width.validator.as( IntRangeValidator );
+				widthRange = (target.layout.width.validator == null) ? new IntRangeValidator() : target.layout.width.validator.as( IntRangeValidator );
 		}
 		
 		if (!target.is(IUIContainer))
@@ -121,6 +116,13 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 			applyStyleObject( changes, null );
 			changes = 0;
 		}
+		
+		//set the validators after they are filled, otherwise the width or height will be updated to soon.
+		if (widthRange != null && target.layout.width.validator == null)
+			target.layout.width.validator = widthRange;
+		
+		if (heightRange != null && target.layout.height.validator == null)
+			target.layout.height.validator = heightRange;
 	}
 	
 	
@@ -133,15 +135,22 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 		{
 			if (layout.is( IAdvancedLayoutClient )) {
 				var l = layout.as( IAdvancedLayoutClient );
-				if (propsToSet.has( Flags.WIDTH ))		l.explicitWidth						= notEmpty ? styleObj.width					: Number.INT_NOT_SET;
-				if (propsToSet.has( Flags.HEIGHT ))		l.explicitHeight					= notEmpty ? styleObj.height				: Number.INT_NOT_SET;
+				if (propsToSet.has( Flags.WIDTH ))		l.explicitWidth		= notEmpty && styleObj.width.notEmpty()		? styleObj.width	: Number.INT_NOT_SET;
+				if (propsToSet.has( Flags.HEIGHT ))		l.explicitHeight	= notEmpty && styleObj.height.notEmpty()	? styleObj.height	: Number.INT_NOT_SET;
 			}
 			else
-				if (propsToSet.has( Flags.WIDTH ))		layout.width.value					= notEmpty ? styleObj.width					: Number.INT_NOT_SET;
-				if (propsToSet.has( Flags.HEIGHT ))		layout.height.value					= notEmpty ? styleObj.height				: Number.INT_NOT_SET;
+				if (propsToSet.has( Flags.WIDTH ))		layout.width.value	= notEmpty && styleObj.width.notEmpty()		? styleObj.width	: Number.INT_NOT_SET;
+				if (propsToSet.has( Flags.HEIGHT ))		layout.height.value	= notEmpty && styleObj.height.notEmpty()	? styleObj.height	: Number.INT_NOT_SET;
 		}
-		if (propsToSet.has( Flags.PERCENT_WIDTH ))		layout.percentWidth					= notEmpty ? styleObj.percentWidth			: 0; //Number.FLOAT_NOT_SET;
-		if (propsToSet.has( Flags.PERCENT_HEIGHT ))		layout.percentHeight				= notEmpty ? styleObj.percentHeight			: 0; //Number.FLOAT_NOT_SET;
+		
+		
+		if (propsToSet.has( Flags.PERCENT_WIDTH ))
+				layout.percentWidth = (notEmpty && styleObj.percentWidth.notEmpty()) ? styleObj.percentWidth : Number.FLOAT_NOT_SET;
+		
+		if (propsToSet.has( Flags.PERCENT_HEIGHT ))
+			layout.percentHeight = (notEmpty && styleObj.percentHeight.notEmpty()) ? styleObj.percentHeight : Number.FLOAT_NOT_SET;
+		
+		
 		if (propsToSet.has( Flags.RELATIVE ))			layout.relative						= notEmpty ? styleObj.relative				: null;
 		if (propsToSet.has( Flags.INCLUDE ))			layout.includeInLayout				= notEmpty ? styleObj.includeInLayout		: null;
 		if (propsToSet.has( Flags.MAINTAIN_ASPECT ))	layout.maintainAspectRatio			= notEmpty ? styleObj.maintainAspectRatio	: null;

@@ -59,6 +59,7 @@ class IntRangeValidator implements IValueValidator <Int>
 	public inline function dispose ()
 	{
 		change.dispose();
+		change = null;
 	}
 	
 	
@@ -99,9 +100,11 @@ class IntRangeValidator implements IValueValidator <Int>
 	{
 	//	if (v.notSet())
 	//		return v;
+		
 		if (min.isSet() && max.isSet())		v = v.within( min, max );
 		else if (min.isSet())				v = v.getBiggest( min );
 		else if (max.isSet())				v = v.getSmallest( max );
+	//	trace("validate "+oldV+" => "+v+"; min/max: "+min+", "+max);
 		return v;
 	}
 	

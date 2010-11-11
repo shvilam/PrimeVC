@@ -38,6 +38,7 @@ package primevc.gui.styling;
  import primevc.gui.traits.ITextStylable;
  import primevc.types.Number;
   using primevc.utils.BitUtil;
+  using primevc.utils.Color;
   using primevc.utils.TypeUtil;
 
 
@@ -90,6 +91,7 @@ class TextStyleCollection extends StyleCollectionBase < TextStyle >
 			changes = 0;
 		}
 		
+	//	trace("\tsetTextFormat: "+textFormat);
 		target.textStyle = textFormat;
 #end
 	}
@@ -102,7 +104,7 @@ class TextStyleCollection extends StyleCollectionBase < TextStyle >
 		var target		= elementStyle.target.as(ITextStylable);
 		
 		if (propsToSet.has( Flags.ALIGN ))			textFormat.align			= empty ? TextAlign.LEFT		: styleObj.align;
-		if (propsToSet.has( Flags.COLOR ))			textFormat.color			= empty ? 0x00					: styleObj.color;
+		if (propsToSet.has( Flags.COLOR ))			textFormat.color			= empty ? 0x00					: styleObj.color.rgb();
 		if (propsToSet.has( Flags.DECORATION ))		textFormat.underline		= empty ? false					: styleObj.decoration == TextDecoration.underline;
 		if (propsToSet.has( Flags.FAMILY ))			textFormat.font				= empty ? "Times New Roman"		: styleObj.family;
 		if (propsToSet.has( Flags.INDENT ))			textFormat.indent			= empty ? 0						: styleObj.indent;

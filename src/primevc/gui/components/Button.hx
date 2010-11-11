@@ -76,12 +76,26 @@ class Button extends UIDataContainer < String >, implements IIconOwner, implemen
 		if (textStyle != null)
 			labelField.textStyle		= textStyle;
 		
-	//	labelField.layout.percentWidth	= LayoutFlags.FILL;
-	//	labelField.layout.percentHeight	= LayoutFlags.FILL;
-		
-		layoutContainer.children.add( labelField.layout );
-		children.add( labelField );
+		addOrRemoveLabel();
 		createIconGraphic();
+		
+		addOrRemoveLabel.on( data.change, this );
+	}
+	
+	
+	private function addOrRemoveLabel ()
+	{
+		if (value == null && labelField.container != null)
+		{
+			layoutContainer.children.remove( labelField.layout );
+			children.remove( labelField );
+		}
+		
+		else if (labelField.container == null)
+		{
+			layoutContainer.children.add( labelField.layout, children.length );
+			children.add( labelField, children.length );
+		}
 	}
 	
 	

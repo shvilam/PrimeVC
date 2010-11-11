@@ -30,7 +30,7 @@ package primevc.gui.graphics.shapes;
  import primevc.core.geom.Corners;
  import primevc.core.geom.IRectangle;
  import primevc.gui.graphics.GraphicFlags;
- import primevc.gui.traits.IDrawable;
+ import primevc.gui.traits.IGraphicsOwner;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
@@ -42,21 +42,23 @@ package primevc.gui.graphics.shapes;
  */
 class RegularRectangle extends ShapeBase, implements IGraphicShape
 {
-	public inline function draw (target:IDrawable, bounds:IRectangle, borderRadius:Corners) : Void
+	public inline function draw (target:IGraphicsOwner, bounds:IRectangle, borderRadius:Corners) : Void
 	{
 #if flash9
 		if (borderRadius == null)
 			target.graphics.drawRect( bounds.left, bounds.top, bounds.width, bounds.height );
 		
+		
 		else if (borderRadius.allCornersEqual())
 			target.graphics.drawRoundRect(
-				bounds.left, bounds.top, bounds.width, bounds.height, 
+				bounds.left - 0.5, bounds.top - 0.5, bounds.width, bounds.height, 
 				borderRadius.topLeft, borderRadius.topRight
 			);
 		
+		
 		else
 			target.graphics.drawRoundRectComplex(
-				bounds.left, bounds.top, bounds.width, bounds.height, 
+				bounds.left - 0.5, bounds.top - 0.5, bounds.width, bounds.height, 
 				borderRadius.topLeft, borderRadius.topRight, borderRadius.bottomLeft, borderRadius.bottomRight
 			);
 #end

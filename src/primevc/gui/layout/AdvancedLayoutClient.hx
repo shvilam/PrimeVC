@@ -45,12 +45,14 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	public function new (newWidth:Int = Number.INT_NOT_SET, newHeight:Int = Number.INT_NOT_SET, validateOnPropertyChange = false)
 	{
 		super(newWidth, newHeight, validateOnPropertyChange);
-		explicitWidth	= newWidth;
-		explicitHeight	= newHeight;
-		measuredWidth	= Number.INT_NOT_SET;
-		measuredHeight	= Number.INT_NOT_SET;
+		(untyped this).explicitWidth	= newWidth;
+		(untyped this).explicitHeight	= newHeight;
+		(untyped this).measuredWidth	= Number.INT_NOT_SET;
+		(untyped this).measuredHeight	= Number.INT_NOT_SET;
 		
-		changes			= changes.unset( Flags.MEASURED_HEIGHT | Flags.MEASURED_WIDTH | Flags.EXPLICIT_HEIGHT | Flags.EXPLICIT_WIDTH );
+	//	changes = changes.unset( Flags.MEASURED_HEIGHT | Flags.MEASURED_WIDTH );
+		if (explicitWidth.isSet())		changes = changes.set( Flags.EXPLICIT_WIDTH );
+		if (explicitHeight.isSet())		changes = changes.set( Flags.EXPLICIT_HEIGHT );
 	}
 	
 	
@@ -81,8 +83,8 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	private inline function setExplicitWidth (v:Int)
 	{
 		if (explicitWidth != v) {
-			explicitWidth = v;
-			invalidate( Flags.EXPLICIT_WIDTH | Flags.WIDTH );
+			explicitWidth = width.value = v;
+			invalidate( Flags.EXPLICIT_WIDTH );
 		}
 		return v;
 	}
@@ -91,8 +93,8 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	private inline function setExplicitHeight (v:Int)
 	{
 		if (explicitHeight != v) {
-			explicitHeight = v;
-			invalidate( Flags.EXPLICIT_HEIGHT | Flags.HEIGHT );
+			explicitHeight = height.value = v;
+			invalidate( Flags.EXPLICIT_HEIGHT );
 		}
 		return v;
 	}
@@ -102,9 +104,12 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	{
 		if (measuredWidth != v)
 		{
-			measuredWidth = v;
-			if (explicitWidth.isSet())		invalidate( Flags.MEASURED_WIDTH );
-			else							invalidate( Flags.MEASURED_WIDTH | Flags.WIDTH );
+			if (explicitWidth.notSet())
+				measuredWidth = width.value = v;
+			else
+				measuredWidth = v;
+			
+			invalidate( Flags.MEASURED_WIDTH );
 		}
 		return v;
 	}
@@ -114,9 +119,12 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	{
 		if (measuredHeight != v)
 		{
-			measuredHeight = v;
-			if (explicitHeight.isSet())		invalidate( Flags.MEASURED_HEIGHT );
-			else							invalidate( Flags.MEASURED_HEIGHT | Flags.HEIGHT );
+			if (explicitHeight.notSet())
+				measuredHeight = height.value = v;
+			else
+				measuredHeight = v;
+			
+			invalidate( Flags.MEASURED_HEIGHT );
 		}
 		return v;
 	}
@@ -127,22 +135,29 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 		if (hasValidatedWidth)
 			return;
 		
-	//	trace(this+".validateHorizontal 1 "+width+"; explicit: "+explicitWidth+"; measured: "+measuredWidth+"; "+Flags.readProperties(changes.filter( Flags.WIDTH_PROPERTIES )));
+		/*if (name == "spreadToolBarLayout") {
+			trace(this+".validateHorizontal 1 "+width.value+"; explicit: "+explicitWidth+"; measured: "+measuredWidth);
+			trace("\t\tchanges: "+Flags.readProperties(changes));
+		}*/
 		
 	//	if (changes.has( Flags.BOUNDARY_WIDTH ))
 	//		super.validateHorizontal();
 		
 		if (changes.has(Flags.WIDTH) && changes.hasNone( Flags.MEASURED_WIDTH | Flags.EXPLICIT_WIDTH ))
 		{
-			explicitWidth = width.value;
+		//	explicitWidth = width.value;
+			if (measuredWidth.isSet() && explicitWidth.notSet())
+				measuredWidth = width.value;
+			else
+				explicitWidth = width.value;
 		}
 		else
 		{
-			if (changes.has(Flags.EXPLICIT_WIDTH))
-				width.value = explicitWidth;
-		
 			if ((changes.has(Flags.MEASURED_WIDTH) || width.value.notSet()) && explicitWidth.notSet())
 				width.value = measuredWidth;
+			
+			else if (changes.has(Flags.EXPLICIT_WIDTH))
+				width.value = explicitWidth;
 		}
 		
 		if (changes.has( Flags.WIDTH ))
@@ -163,18 +178,22 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	//	if (changes.has( Flags.BOUNDARY_HEIGHT ))
 	//		super.validateVertical();
 		
-	//	trace(this+".validateVertical 1 "+height+"; explicit: "+explicitHeight+"; measured: "+measuredHeight+"; "+Flags.readProperties( changes.filter( Flags.HEIGHT_PROPERTIES ) ));
+	//	trace(this+".validateVertical 1 "+height.value+"; explicit: "+explicitHeight+"; measured: "+measuredHeight+"; "+Flags.readProperties( changes.filter( Flags.HEIGHT_PROPERTIES ) ));
 		if (changes.has(Flags.HEIGHT) && changes.hasNone( Flags.MEASURED_HEIGHT | Flags.EXPLICIT_HEIGHT ))
 		{
-			explicitHeight = height.value;
+		//	explicitHeight = height.value;	
+			if (measuredHeight.isSet() && explicitHeight.notSet())
+				measuredHeight = height.value;
+			else
+				explicitHeight = height.value;
 		}
 		else
 		{
-			if (changes.has(Flags.EXPLICIT_HEIGHT))
-				height.value = explicitHeight;
-		
 			if ((changes.has(Flags.MEASURED_HEIGHT) || height.value.notSet()) && explicitHeight.notSet())
 				height.value = measuredHeight;
+			
+			if (changes.has(Flags.EXPLICIT_HEIGHT))
+				height.value = explicitHeight;
 		}
 		
 		if (changes.has( Flags.HEIGHT ))
@@ -182,5 +201,6 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 			hasValidatedHeight = false;
 			super.validateVertical();
 		}
+	//	trace(this+".validateVertical 2 "+height+"; explicit: "+explicitHeight+"; measured: "+measuredHeight+"; "+Flags.readProperties(changes.filter( Flags.HEIGHT_PROPERTIES )));
 	}
 }

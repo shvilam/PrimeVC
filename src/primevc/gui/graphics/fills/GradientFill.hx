@@ -35,7 +35,7 @@ package primevc.gui.graphics.fills;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.graphics.IGraphicProperty;
- import primevc.gui.traits.IDrawable;
+ import primevc.gui.traits.IGraphicsOwner;
  import primevc.utils.FastArray;
   using primevc.utils.Color;
   using primevc.utils.FastArray;
@@ -150,7 +150,7 @@ class GradientFill extends GraphicElement, implements IGraphicProperty
 	// FILL METHODS
 	//
 	
-	public inline function begin (target:IDrawable, bounds:IRectangle)
+	public inline function begin (target:IGraphicsOwner, bounds:IRectangle)
 	{
 		Assert.that( gradientStops.length >= 2, "There should be at least be two fills in an gradient.");
 			
@@ -175,7 +175,7 @@ class GradientFill extends GraphicElement, implements IGraphicProperty
 	}
 	
 	
-	public inline function end (target:IDrawable, bounds:IRectangle)
+	public inline function end (target:IGraphicsOwner, bounds:IRectangle)
 	{
 #if flash9
 		target.graphics.endFill();

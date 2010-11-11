@@ -78,7 +78,7 @@ class UIWindow extends Window
 	
 	public var behaviours			(default, null)					: BehaviourList;
 	public var id					(default, null)					: Bindable < String >;
-	public var graphicData			(default, null)					: Bindable < GraphicProperties >;
+	public var graphicData			(default, null)					: GraphicProperties;
 	
 #if flash9
 	/**
@@ -110,9 +110,9 @@ class UIWindow extends Window
 		invalidationManager	= new InvalidationManager(this);
 		
 		behaviours			= new BehaviourList();
-		graphicData			= new Bindable < GraphicProperties > ();
 		
-#if flash9
+#if flash9		
+		graphicData			= new GraphicProperties();
 		styleClasses		= new SimpleList<String>();
 		stylingEnabled		= true;
 #end
@@ -136,8 +136,6 @@ class UIWindow extends Window
 	private function init ()
 	{
 		behaviours.init();
-		
-		createGraphics();
 		createChildren();
 
 #if (flash9 && stats)
@@ -151,35 +149,32 @@ class UIWindow extends Window
 		if (displayEvents == null)
 			return;
 		
-		behaviours.dispose();
-		layout.dispose();
-		invalidationManager.dispose();
-		renderManager.dispose();
-		rect.dispose();
+		behaviours			.dispose();
+		layout				.dispose();
+		invalidationManager	.dispose();
+		renderManager		.dispose();
+		rect				.dispose();
 		
 #if flash9
-		bgShape.dispose();
-		style.dispose();
-		styleClasses.dispose();
+		bgShape				.dispose();
+		style				.dispose();
+		styleClasses		.dispose();
 		styleClasses		= null;
 		style				= null;
 		bgShape				= null;
 #end
 		
+		if (layout != null)			layout		.dispose();
+		if (graphicData != null)	graphicData	.dispose();
+		
 		behaviours			= null;
+		graphicData			= null;
 		layout				= null;
 		invalidationManager	= null;
 		renderManager		= null;
 		rect				= null;
 		
 		super.dispose();
-	}
-	
-	
-	private inline function removeBehaviours ()
-	{
-		behaviours.dispose();
-		behaviours = null;
 	}
 	
 	
@@ -197,8 +192,6 @@ class UIWindow extends Window
 	
 	private function createBehaviours ()	: Void;
 	private function createChildren ()		: Void;
-	private function createGraphics ()		: Void;
-	private function removeGraphics ()		: Void;
 	
 	
 	//

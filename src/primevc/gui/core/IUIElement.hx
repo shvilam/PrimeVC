@@ -63,8 +63,8 @@ interface IUIElement
 	// ACTIONS
 	//
 	
-	public function move (newX:Float, newY:Float)	: Void;
-	public function resize (newW:Float, newH:Float)	: Void;
+	public function move (newX:Int, newY:Int)		: Void;
+	public function resize (newW:Int, newH:Int)		: Void;
 	public function rotate (newV:Float)				: Void;
 	public function scale (newX:Float, newY:Float)	: Void;
 	public function show ()							: Void;

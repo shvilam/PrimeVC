@@ -42,7 +42,7 @@ package primevc.gui.layout;
  import primevc.gui.events.LayoutEvents;
  import primevc.gui.layout.ILayoutClient;
  import primevc.gui.states.ValidateStates;
- import primevc.utils.NumberMath;
+// import primevc.utils.NumberMath;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
@@ -139,7 +139,7 @@ class LayoutClient extends Invalidatable
 		maintainAspectRatio				= false;
 		
 		events		= new LayoutEvents();
-		innerBounds	= new IntRectangle( x, y, IntMath.max( newWidth, 0 ) + getHorPadding(), IntMath.max( newHeight, 0) + getVerPadding() );
+		innerBounds	= new IntRectangle( x, y, newWidth.getBiggest( 0 ) + getHorPadding(), newHeight.getBiggest( 0 ) + getVerPadding() );
 		outerBounds	= new IntRectangle( x, y, innerBounds.width + getHorMargin(), innerBounds.height + getVerMargin() );
 		width		= new SizeType( newWidth );
 		height		= new SizeType( newHeight );
@@ -149,11 +149,15 @@ class LayoutClient extends Invalidatable
 		width		.listeners.add( this );
 		height		.listeners.add( this );
 		
-		percentWidth	= 0;
-		percentHeight	= 0;
+		percentWidth	= Number.FLOAT_NOT_SET;
+		percentHeight	= Number.FLOAT_NOT_SET;
 		includeInLayout	= true;
 		
-		changes				= changes.set(Flags.X | Flags.Y | Flags.WIDTH | Flags.HEIGHT);
+		//remove and set correct flags
+		changes = changes.unset( Flags.PERCENT_WIDTH | Flags.PERCENT_HEIGHT ).set( Flags.X | Flags.Y );
+		if (width.value.isSet())	changes = changes.set( Flags.WIDTH );
+		if (height.value.isSet())	changes = changes.set( Flags.HEIGHT );
+		
 		state				= new SimpleStateMachine<ValidateStates>( ValidateStates.validated );
 		hasValidatedHeight	= false;
 		hasValidatedWidth	= false;
@@ -178,14 +182,10 @@ class LayoutClient extends Invalidatable
 			relative = null;
 		}
 		
-		percentWidth	= 0;
-		percentHeight	= 0;
-		width	= null;
-		height	= null;
-		innerBounds	= null;
-		outerBounds	= null;
-		padding	= null;
-		margin	= null;
+		percentWidth	= percentHeight	= Number.FLOAT_NOT_SET;
+		width			= height		= null;
+		innerBounds		= outerBounds	= null;
+		padding			= margin		= null;
 		state	= null;
 		events	= null;
 		parent	= null;
@@ -221,25 +221,25 @@ class LayoutClient extends Invalidatable
 		if (changes == 0 || changes == oldChanges || state == null || state.current == null)
 			return;
 		
-		if (isValidating && (parent == null || parent.isValidating))
+		if (includeInLayout && parent != null)
+			super.invalidate(change);
+		
+		if (isValidating) // && (parent == null || parent.isValidating))
 		{
+		//	trace(this+".NOT invalidating; "+Flags.readProperties(change)+"; "+isValidating+"; "+parent.isValidating);
 			if (changes.has(Flags.WIDTH) && hasValidatedWidth)		hasValidatedWidth	= false;
 			if (changes.has(Flags.HEIGHT) && hasValidatedHeight)	hasValidatedHeight	= false;
 			return;
 		}
 		
-		if (includeInLayout && parent != null)
-			super.invalidate(change);
-		
 	//	if (parent != null)
 	//		trace(this+".invalidate; "+Flags.readProperties(change)); //" parent: "+parent+"; parent changes: "+Flags.readProperties(parent.changes));
-		if (!state.is(ValidateStates.parent_invalidated) && !state.is(ValidateStates.validating))
-		{
+		
+		if (state.is(ValidateStates.validated))
 			state.current = ValidateStates.invalidated;
-			
-			if (validateOnPropertyChange && (parent == null || !parent.validateOnPropertyChange))
-				validate();
-		}
+		
+		if (state.is( ValidateStates.invalidated ) && validateOnPropertyChange && (parent == null || !parent.validateOnPropertyChange))
+			validate();
 	}
 	
 	
@@ -256,6 +256,9 @@ class LayoutClient extends Invalidatable
 	//	trace("\t inner: "+innerBounds);
 		
 		//auto validate when there is no parent or when the parent isn't invalidated
+	//	if (parent != null)
+	//		trace(this+".validate; "+readChanges()); //" p: "+parent+"; pchanges: "+Flags.readProperties(parent.changes)+"; parentState "+parent.state.current);
+		
 		if (parent == null || parent.changes == 0)
 			validated();
 	}
@@ -273,9 +276,12 @@ class LayoutClient extends Invalidatable
 			if (maintainAspectRatio)
 				height.value = (width.value / aspectRatio).int();
 			
-			innerBounds.width = IntMath.max( width.value, 0 ) + getHorPadding();
+			innerBounds.width = width.value.getBiggest( 0 ) + getHorPadding();
 			outerBounds.width = innerBounds.width + getHorMargin();
 		}
+		
+		if (changes.has(Flags.MARGIN))
+			innerBounds.left = (margin == null) ? outerBounds.left : outerBounds.left + margin.left;
 		
 		hasValidatedWidth = true;
 	}
@@ -293,9 +299,12 @@ class LayoutClient extends Invalidatable
 			if (maintainAspectRatio)
 				width.value = (height.value / aspectRatio).int();
 			
-			innerBounds.height = IntMath.max( height.value, 0 ) + getVerPadding();
+			innerBounds.height = height.value.getBiggest( 0 ) + getVerPadding();
 			outerBounds.height = innerBounds.height + getVerMargin();
 		}
+		
+		if (changes.has(Flags.MARGIN))
+			innerBounds.top = (margin == null) ? outerBounds.top : outerBounds.top + margin.top;
 		
 		hasValidatedHeight = true;
 	}
@@ -387,49 +396,50 @@ class LayoutClient extends Invalidatable
 	}
 	
 	
-	override public function invalidateCall (changes:Int, sender:IInvalidatable)
+	override public function invalidateCall (propChanges:Int, sender:IInvalidatable)
 	{
-		if (changes == 0)
+		if (propChanges == 0)
 			return;
 		
 		if (sender.is(IntRectangle))
 		{
-			if (/*state.current == ValidateStates.invalidated || */changes == RectangleFlags.BOTTOM || changes == RectangleFlags.RIGHT)
+			if (/*state.current == ValidateStates.invalidated || */propChanges == RectangleFlags.BOTTOM || propChanges == RectangleFlags.RIGHT)
 				return;
 		
 			var box = sender.as(IntRectangle);
 		
 			if (box == outerBounds)
 			{
-				if (changes.has( RectangleFlags.LEFT ))		x = box.left;
-				if (changes.has( RectangleFlags.TOP ))		y = box.top;
-				if (changes.has( RectangleFlags.WIDTH ))	width.value		= box.width - getHorPadding() - getHorMargin();
-				if (changes.has( RectangleFlags.HEIGHT ))	height.value	= box.height - getVerPadding() - getVerMargin();
-			//	trace(this+".invalidateCall from outerBounds "+RectangleFlags.readProperties(changes) + "; state: "+state.current + "; w: "+width+"; h: "+height+"; x: "+x+"; y: "+y);
+				if (propChanges.has( RectangleFlags.LEFT ))		x = box.left;
+				if (propChanges.has( RectangleFlags.TOP ))		y = box.top;
+				if (propChanges.has( RectangleFlags.WIDTH ))	width.value		= box.width - getHorPadding() - getHorMargin();
+				if (propChanges.has( RectangleFlags.HEIGHT ))	height.value	= box.height - getVerPadding() - getVerMargin();
+			//	trace("\t\t\t"+this+".outerBounds changed "+box+"; "+getVerPadding()+"; "+getVerMargin());
+			//	trace(this+".invalidateCall from outerBounds "+RectangleFlags.readProperties(propChanges) + "; state: "+state.current + "; w: "+width+"; h: "+height+"; x: "+x+"; y: "+y);
 			}
 		
 			else if (box == innerBounds)
 			{
-				if (changes.has( RectangleFlags.LEFT ))		x = margin == null ? box.left : box.left - margin.left;
-				if (changes.has( RectangleFlags.TOP ))		y = margin == null ? box.top : box.top - margin.top;
-				if (changes.has( RectangleFlags.WIDTH ))	width.value		= box.width - getHorPadding();
-				if (changes.has( RectangleFlags.HEIGHT ))	height.value	= box.height - getVerPadding();
-			//	trace(this+".invalidateCall from innerBounds "+RectangleFlags.readProperties(changes) + "; state: "+state.current+"; w: "+width+"; h: "+height+"; x: "+x+"; y: "+y);
+				if (propChanges.has( RectangleFlags.LEFT ))		x = margin == null ? box.left : box.left - margin.left;
+				if (propChanges.has( RectangleFlags.TOP ))		y = margin == null ? box.top : box.top - margin.top;
+				if (propChanges.has( RectangleFlags.WIDTH ))	width.value		= box.width - getHorPadding();
+				if (propChanges.has( RectangleFlags.HEIGHT ))	height.value	= box.height - getVerPadding();
+			//	trace(this+".invalidateCall from innerBounds "+RectangleFlags.readProperties(propChanges) + "; state: "+state.current+"; w: "+width+"; h: "+height+"; x: "+x+"; y: "+y);
 			}
 		}
 		
 		else if (sender == width)
 		{
-			if (changes.has( ValueFlags.VALUE ))		invalidate( Flags.WIDTH );
-			if (changes.has( ValueFlags.VALIDATOR ))	invalidate( Flags.WIDTH_VALIDATOR );
+			if (propChanges.has( ValueFlags.VALUE ))		invalidate( Flags.WIDTH );
+			if (propChanges.has( ValueFlags.VALIDATOR ))	invalidate( Flags.WIDTH_VALIDATOR );
 		}
 		else if (sender == height)
 		{
-			if (changes.has( ValueFlags.VALUE ))		invalidate( Flags.HEIGHT );
-			if (changes.has( ValueFlags.VALIDATOR ))	invalidate( Flags.HEIGHT_VALIDATOR );
+			if (propChanges.has( ValueFlags.VALUE ))		invalidate( Flags.HEIGHT );
+			if (propChanges.has( ValueFlags.VALIDATOR ))	invalidate( Flags.HEIGHT_VALIDATOR );
 		}
 		else
-			super.invalidateCall( changes, sender );
+			super.invalidateCall( propChanges, sender );
 	}
 	
 	
@@ -562,6 +572,6 @@ class LayoutClient extends Invalidatable
 	
 	public static var counter:Int = 0;
 	public var name:String;
-	public function toString() { return state.current+"_"+name; } // + " - " + uuid; }
+	public function toString() { return name; } //state.current+"_"+name; } // + " - " + uuid; }
 #end
 }

@@ -34,7 +34,7 @@ package primevc.gui.graphics.fills;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.graphics.IGraphicProperty;
- import primevc.gui.traits.IDrawable;
+ import primevc.gui.traits.IGraphicsOwner;
  import primevc.types.RGBA;
   using primevc.utils.Color;
 
@@ -59,7 +59,7 @@ class SolidFill extends GraphicElement, implements IGraphicProperty
 	}
 	
 	
-	public inline function begin (target:IDrawable, bounds:IRectangle)
+	public inline function begin (target:IGraphicsOwner, bounds:IRectangle)
 	{
 #if flash9
 		target.graphics.beginFill( color.rgb(), color.alpha().float() );
@@ -68,7 +68,7 @@ class SolidFill extends GraphicElement, implements IGraphicProperty
 	}
 	
 	
-	public inline function end (target:IDrawable, bounds:IRectangle)
+	public inline function end (target:IGraphicsOwner, bounds:IRectangle)
 	{
 #if flash9
 		target.graphics.endFill();

@@ -73,7 +73,8 @@ class BehaviourBase < TargetType > implements IBehaviour < TargetType >
 #if debug
 	public function toString ()
 	{
-		return target+".behaviour "+Type.getClassName( Type.getClass( this ) );
+		var className = Type.getClassName( Type.getClass( this ) );
+		return className.split(".").pop() + " ( "+target+" )";
 	}
 #end
 }

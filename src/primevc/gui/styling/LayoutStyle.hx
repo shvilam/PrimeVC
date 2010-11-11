@@ -604,7 +604,7 @@ class LayoutStyle extends StyleSubBlock
 		if (_width.isSet())						css.push("width: " + _width + "px");
 		if (_percentWidth.isSet()) {
 			if (_percentWidth == Flags.FILL)	css.push("width: auto");
-			else								css.push("width: " + _percentWidth + "%");
+			else								css.push("width: " + (_percentWidth * 100) + "%");
 		}
 		if (_minWidth.isSet())					css.push("min-width: " + _minWidth + "px");
 		if (_maxWidth.isSet())					css.push("max-width: " + _maxWidth + "px");
@@ -612,7 +612,7 @@ class LayoutStyle extends StyleSubBlock
 		if (_height.isSet())					css.push("height: " + _height + "px");
 		if (_percentHeight.isSet()) {
 			if (_percentHeight == Flags.FILL)	css.push("height: auto");
-			else								css.push("hieght: " + _percentHeight + "%");
+			else								css.push("hieght: " + (_percentHeight * 100) + "%");
 		}
 		if (_minHeight.isSet())					css.push("min-height: " + _minHeight + "px");
 		if (_maxHeight.isSet())					css.push("max-height: " + _maxHeight + "px");

@@ -1,9 +1,10 @@
 @import url('BasicStyle.css');
 
-.test InputField	{ margin: 10px 0; min-width: 100px; background: #005; color: #fff; font-weight: bold; }
-.test Label			{ margin: 10px 0; background: #050; color: #fff; }
-.test Button		{ margin: 10px 0; background: #aaa;  }
+.test InputField	{ margin: 10px 0px; padding: 5px; min-width: 100px; border: 1px solid #000; background: #005; color: #fff; font-weight: bold; }
+.test Label			{ margin: 10px 0px; background: #050; color: #fff; }
+.test Button		{ margin: 10px 0px; background: #aaa; padding: 5px;  }
 .test Button Image	{ width: 150px; }
-.test Button:hover	{ font-weight: bold; font: "Courier New"; height: 70px; width: 100px; }
-.test Button:down	{ font: "Courier New"; }
-.test Image			{ margin: 10px 0; max-height: 200px; }
+.test Button:hover	{ font-weight: bold; font: "Courier New"; }
+.test Button:down	{ font: "Courier New"; text-decoration: underline; }
+.test Image			{ max-height: 200px; max-width: 100px; }
+.test Slider		{ margin: 10px 0px; }

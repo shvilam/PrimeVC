@@ -74,8 +74,10 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		// LOOP THROUGH ALL AVAILABLE STLYE-BLOCKS TO FIND THE STYLING PROPERTIES
 		//
 		
-		var graphicProps = (changes.has( Flags.DRAWING_PROPERTIES )) ? getGraphicsObj() : null;
-	//	trace(target + ".applyGeneralStyling "+readProperties( changes ));
+		var graphicProps:GraphicProperties = null;
+		if (changes.has( Flags.DRAWING_PROPERTIES ))
+			graphicProps = elementStyle.target.as(IDrawable).graphicData;
+	//	trace(target + ".applyGeneralStyling "+readProperties( changes )+"; "+(graphicProps != null));
 		
 		for (styleObj in this)
 		{
@@ -117,16 +119,6 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		//	else
 		//		target.behaviours.remove(  )
 		}
-	}
-	
-	
-	private  function getGraphicsObj () : GraphicProperties
-	{
-		var target = elementStyle.target.as(IDrawable);
-		if (target.graphicData.value == null)
-			return target.graphicData.value = new GraphicProperties(null, target.rect);
-		else
-			return target.graphicData.value;
 	}
 }
 

@@ -85,7 +85,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 						continue;
 					
 					if (child.relative.top.isSet() && child.relative.bottom.isSet())
-						child.outerBounds.height	= group.height.value - child.relative.bottom - child.relative.top;
+						child.outerBounds.height = group.height.value - child.relative.bottom - child.relative.top;
 				}
 				
 				validatePreparedVer = true;
@@ -97,15 +97,22 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 	}
 	
 	
-	public inline function validate () {
+	public inline function validate ()
+	{
 		validateHorizontal();
 		validateVertical();
 	}
-	public inline function validateHorizontal () {
+	
+	
+	public inline function validateHorizontal ()
+	{
 		if (!validatePrepared)
 			prepareValidate();
 	}
-	public inline function validateVertical () {
+	
+	
+	public inline function validateVertical ()
+	{
 		if (!validatePrepared)
 			prepareValidate();
 	}
@@ -113,7 +120,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 	
 	public inline function apply ()
 	{
-		var childProps	: RelativeLayout;
+		var childProps : RelativeLayout;
 		var padding = group.padding;
 		
 		for (child in group.children)
@@ -122,7 +129,6 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 				continue;
 			
 			childProps	= child.relative;
-			
 			
 			//
 			//apply horizontal

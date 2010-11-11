@@ -28,6 +28,7 @@
  */
 package primevc.gui.text;
  import primevc.gui.styling.TextStyleFlags;
+  using primevc.utils.Color;
 
 
 //typedef TextFormat = flash.text.TextFormat;
@@ -40,4 +41,22 @@ package primevc.gui.text;
 class TextFormat #if flash9 extends flash.text.TextFormat #end
 {
 	public var transform (default, default)	: TextTransform;
+	
+	
+#if debug
+	public function toString ()
+	{
+		var props = [];
+		
+		props.push( font + size + "px" );
+		props.push( Std.string( align ) );
+		props.push( color.uintToString() );
+		
+		if (underline)	props.push( "underline" );
+		if (bold)		props.push( "bold" );
+		if (italic)		props.push( "italic" );
+		
+		return "TextFormat( " + props.join(", ")  + " )";
+	}
+#end
 }

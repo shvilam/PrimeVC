@@ -31,7 +31,7 @@ package primevc.gui.graphics.borders;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.graphics.IGraphicProperty;
- import primevc.gui.traits.IDrawable;
+ import primevc.gui.traits.IGraphicsOwner;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
@@ -88,7 +88,7 @@ class BorderBase <FillType:IGraphicProperty> extends GraphicElement, implements 
 	}
 	
 	
-	public function begin (target:IDrawable, bounds:IRectangle)
+	public function begin (target:IGraphicsOwner, bounds:IRectangle)
 	{
 		if (innerBorder) {
 			bounds.left		+= weight.ceil().int();
@@ -100,7 +100,7 @@ class BorderBase <FillType:IGraphicProperty> extends GraphicElement, implements 
 	}
 	
 	
-	public function end (target:IDrawable, bounds:IRectangle)
+	public function end (target:IGraphicsOwner, bounds:IRectangle)
 	{
 #if flash9
 		target.graphics.lineStyle( 0, 0 , 0 );

@@ -96,9 +96,9 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 		r.width		= target.rect.width;
 		r.height	= target.rect.height;
 		
-		if (target.graphicData.value.border != null)
+		if (target.graphicData.border != null)
 		{
-			var borderSize = target.graphicData.value.border.weight;
+			var borderSize = target.graphicData.border.weight;
 			r.x			-= borderSize;
 			r.y			-= borderSize;
 			r.width		+= borderSize * 2;

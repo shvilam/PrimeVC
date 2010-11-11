@@ -84,8 +84,9 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >
 		if (target.window == null)
 			return;
 		
-		if (nextValidatable != null && newState != ValidateStates.invalidated)
+		if (nextValidatable != null && newState == ValidateStates.parent_invalidated)
 			getValidationManager().remove( this );
+		
 		else if (nextValidatable == null && newState == ValidateStates.invalidated)
 			getValidationManager().add( this );
 	}
@@ -97,17 +98,19 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >
 	
 	public function applyPosition ()
 	{
-	//	trace(target+".applyPosition; " + " - pos: " + target.layout.getHorPosition() + ", " + target.layout.getVerPosition() + " - old pos "+target.x+", "+target.y);
+	//	trace(target+".applyPosition; " + " - pos: " + target.layout.getHorPosition() + ", " + target.layout.getVerPosition() + " - old pos "+target.x+", "+target.y+"; padding? "+target.layout.padding);
 		if (target.effects == null || isNotPositionedYet)
 		{
 			var l = target.layout;
 			var newX = l.getHorPosition();
 			var newY = l.getVerPosition();
 			
-			if (target.is(IDrawable)) {
+			if (target.is(IDrawable))
+			{
 				var t = target.as(IDrawable);
-				if (t.graphicData.value != null && t.graphicData.value.border != null) {
-					var borderWidth = t.graphicData.value.border.weight.int();
+				if (t.graphicData.border != null)
+				{
+					var borderWidth = t.graphicData.border.weight.int();
 					newX -= borderWidth;
 					newY -= borderWidth;
 				}
@@ -124,12 +127,24 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >
 	
 	private function applySize ()
 	{
-	//	trace(target+".sizeChanged; "+target.layout.outerBounds);
+	//	trace("\t"+target+".sizeChanged; outer: "+target.layout.outerBounds); //+"; inner: "+target.layout.innerBounds);
 		if (target.effects == null)
 		{
 			var b = target.layout.innerBounds;
+			
 			target.rect.width	= b.width;
 			target.rect.height	= b.height;
+			
+			if (target.is(IDrawable))
+			{
+				var t = target.as(IDrawable);
+				if (t.graphicData.border != null)
+				{
+					var borderWidth = t.graphicData.border.weight.int();
+					target.rect.width += borderWidth;
+					target.rect.height += borderWidth;
+				}
+			}
 			
 			if (!target.is(IDrawable)) {
 				target.width	= target.rect.width;
@@ -138,7 +153,7 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >
 		}
 		else
 			target.effects.playResize();
-			
-	//	trace("\t\t"+target.width+", "+target.height);
+		
+	//	trace("\t\tfinal size: "+target.rect.width+", "+target.rect.height+"\n");
 	}
 }

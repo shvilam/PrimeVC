@@ -54,11 +54,12 @@ class Image extends UIGraphic
 	}
 	
 	
-	override private function createGraphics ()
+	override private function init ()
 	{
-		Assert.notNull(graphicData.value);
-		if (graphicData.value.fill == null || !graphicData.value.fill.is(BitmapFill))
-			graphicData.value.fill = new BitmapFill( source, null, false );
+		super.init();
+		Assert.notNull(graphicData);
+		if (graphicData.fill == null || !graphicData.fill.is(BitmapFill))
+			graphicData.fill = new BitmapFill( source, null, false );
 	}
 	
 	
@@ -78,7 +79,7 @@ class Image extends UIGraphic
 				bitmapStateChangeHandler( BitmapStates.empty, null );
 				
 				if (state.current == state.initialized)
-					graphicData.value.fill.as(BitmapFill).bitmap = null;
+					graphicData.fill.as(BitmapFill).bitmap = null;
 			}
 			
 			source = v;
@@ -89,7 +90,7 @@ class Image extends UIGraphic
 				bitmapStateChangeHandler( v.state.current, null );
 				
 				if (state.current == state.initialized)
-					graphicData.value.fill.as(BitmapFill).bitmap = v;
+					graphicData.fill.as(BitmapFill).bitmap = v;
 			}
 		}
 		return v;
@@ -106,6 +107,7 @@ class Image extends UIGraphic
 		var l = layout.as(AdvancedLayoutClient);
 		if (source.state.is( BitmapStates.ready ))
 		{
+		//	trace("Image.updateSize; "+source.data.width+", "+source.data.height+"; expl size? "+l.explicitWidth+", "+l.explicitHeight);
 			l.measuredWidth		= source.data.width;
 			l.measuredHeight	= source.data.height;
 		}
@@ -114,7 +116,6 @@ class Image extends UIGraphic
 			l.measuredWidth		= Number.INT_NOT_SET;
 			l.measuredHeight	= Number.INT_NOT_SET;
 		}
-	//	trace("Image.updateSize; "+l.measuredWidth+", "+l.measuredHeight);
 	}
 	
 	private function bitmapStateChangeHandler (newState:BitmapStates, oldState:BitmapStates)

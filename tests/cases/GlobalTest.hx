@@ -92,19 +92,19 @@ class GlobalApp extends ApplicationView
 		var box0				= new VirtualLayoutContainer();
 		box0.algorithm			= new RelativeAlgorithm();
 		box0.percentWidth		= LayoutFlags.FILL;
-		box0.percentHeight		= 100;
+		box0.percentHeight		= 1;
 		
 		var box1				= new VirtualLayoutContainer();
 		var box1Alg				= new VerticalFloatAlgorithm();
 		box1Alg.direction		= Vertical.bottom;
 		box1.relative			= new RelativeLayout( 90, 5, 5, Number.INT_NOT_SET );
-		box1.percentWidth		= 40;
+		box1.percentWidth		= 0.4;
 		box1.algorithm			= box1Alg;
 		
 		var box2				= new VirtualLayoutContainer();
 		box2.algorithm			= new HorizontalFloatAlgorithm();
-		box2.percentWidth		= 100;
-		box2.percentHeight	 	= 15;
+		box2.percentWidth		= 1;
+		box2.percentHeight	 	= 0.15;
 
 #if debug
 		box0.name	= "box0";
