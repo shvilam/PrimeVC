@@ -197,6 +197,7 @@ SpreadToolBar {
 	text-transform: lowercase;
 	background: #000;
 	border: 1px solid #f00;
+	margin: 0 8px;
 }
 .toolBtn:hover {
 	/* ( <distance>px? <blurX>px? <blurY>px? <strength>? ) | <angle>deg? | ( (<rgba> <pos>) (<rgba> <pos>).. ) | <inner>? | <knockout>? | <quality>? */
@@ -211,12 +212,13 @@ SpreadToolBar #redoBtn { icon: Class(IconRedo); }
 SpreadToolBar .horizontalSlider {
 	width: 71px;
 	height: 18px;
+	margin: 0 8px;
 	
 	background: #b0b0b0;
-	border-radius: 4px;
+	border-radius: 4px 8px 8px 4px;	/* top-left, top-right, bottom-right, bottom-left */
 	shape: custom( ZoomSliderShape );
 	
-	box-shadow: 3px 6px 6px 1 59deg #000 inner;
+	box-shadow: 3px 6px 6px 1 59deg #000 inner;*/
 }
 
 SpreadToolBar .horizontalSlider UIGraphic {
@@ -225,10 +227,13 @@ SpreadToolBar .horizontalSlider UIGraphic {
 
 SpreadToolBar .horizontalSlider Button {
 	algorithm: float-hor( center, center );
-	shape: circle;
 	width: 20px;
 	height: 20px;
-	background: #fff;
+	
 	icon: Class(IconZoom);
-	border: 1px solid #000;
+	background: #fff;
+	shape: circle;
+	border: 1px solid #505050;
+	
+	box-shadow: 0px 7px 7px 1 120deg #292929;
 }

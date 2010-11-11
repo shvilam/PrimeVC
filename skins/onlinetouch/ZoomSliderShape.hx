@@ -48,13 +48,16 @@ class ZoomSliderShape extends ShapeBase, implements IGraphicShape
 		
 		var halfHeight	= bounds.top + (bounds.height * .5);
 		var leftTopX	= bounds.left + borderRadius.topLeft;
-		var leftTopY	= bounds.left + borderRadius.topLeft;
+		var leftTopY	= bounds.top + halfHeight - borderRadius.topLeft;
+		var leftBottomY	= bounds.top + halfHeight + borderRadius.bottomLeft;
 		
-		g.moveTo( leftTopX, leftTopY );
-		g.lineTo( bounds.right - borderRadius.topRight,		bounds.top );
-		g.lineTo( bounds.right - borderRadius.topRight,		bounds.bottom );
-		g.lineTo( bounds.left + borderRadius.bottomLeft,	halfHeight + borderRadius.bottomLeft );
-		g.lineTo( leftTopX, leftTopY );
+		g.moveTo(  leftTopX, leftTopY );																	//left top starting point
+		g.lineTo(  bounds.right - borderRadius.topRight, bounds.top );										//right top point
+		g.curveTo( bounds.right, bounds.top, bounds.right, halfHeight );									//right half-height point
+		g.curveTo( bounds.right, bounds.bottom, bounds.right - borderRadius.topRight, bounds.bottom );		//right bottom point
+		g.lineTo(  bounds.left + borderRadius.bottomLeft, halfHeight + borderRadius.bottomLeft );			//left bottom point
+	//	g.curveTo( bounds.left, bounds.bottom, bounds.left, halfHeight );									//left half-height point
+		g.curveTo( bounds.left, halfHeight, leftTopX, leftTopY );											//left top-starting point
 #end
 	}
 	
