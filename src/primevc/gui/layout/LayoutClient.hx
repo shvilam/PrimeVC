@@ -271,6 +271,10 @@ class LayoutClient extends Invalidatable
 		
 		state.current = ValidateStates.validating;
 		
+		//force width validation if there's a validator buth there's no width set yet
+		if (width.value.notSet() && width.validator != null)
+			width.validateValue();
+		
 		if (changes.has(Flags.WIDTH))
 		{
 			if (maintainAspectRatio)
@@ -293,6 +297,10 @@ class LayoutClient extends Invalidatable
 			return;
 		
 		state.current = ValidateStates.validating;
+		
+		//force height validation if there's a validator buth there's no height set yet
+		if (height.value.notSet() && height.validator != null)
+			height.validateValue();
 		
 		if (changes.has(Flags.HEIGHT))
 		{

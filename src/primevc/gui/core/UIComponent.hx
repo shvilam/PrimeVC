@@ -179,7 +179,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	public inline function move (x:Int, y:Int)			{ this.doMove(x, y); }
 	public inline function resize (w:Int, h:Int)		{ this.doResize(w, h); }
 	public inline function rotate (v:Float)				{ this.doRotate(v); }
-	public inline function scale (sx:Float, sy:Float)	{ this.doScale(sx, sy); }
+	public function scale (sx:Float, sy:Float)			{ this.doScale(sx, sy); }
 	
 
 

@@ -36,10 +36,14 @@ package cases;
  import primevc.gui.components.Label;
  import primevc.gui.components.ListView;
  import primevc.gui.components.Slider;
+ import primevc.gui.core.UIComponent;
  import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UIWindow;
+ import primevc.gui.layout.LayoutClient;
+ import primevc.gui.layout.LayoutContainer;
   using primevc.utils.Bind;
+  using Std;
 
 
 
@@ -62,20 +66,20 @@ class EditorView extends ApplicationView
 {
 	private var applicationBar	: ApplicationMainBar;
 	private var framesToolBar	: FramesToolBar;
-	private var spreadStage		: SpreadStage;
+	private var spreadEditor	: SpreadEditor;
 	
 	
 	override private function createBehaviours () {}	//remove auto change layout behaviour...
 	
 	override private function createChildren ()
 	{
-		children.add( spreadStage		= new SpreadStage() );
+		children.add( spreadEditor		= new SpreadEditor() );
 		children.add( framesToolBar		= new FramesToolBar("framesList") );
 		children.add( applicationBar	= new ApplicationMainBar("applicationMainBar") );
 		
 		layoutContainer.children.add( applicationBar.layout );
 		layoutContainer.children.add( framesToolBar.layout );
-		layoutContainer.children.add( spreadStage.layout );
+		layoutContainer.children.add( spreadEditor.layout );
 	}
 }
 
@@ -193,16 +197,16 @@ class FrameButton extends Button
 
 
 
-class SpreadStage extends UIContainer
+class SpreadEditor extends UIContainer
 {
-	private var spread	: SpreadView;
-	private var toolBar	: SpreadToolBar;
+	private var spreadStage	: SpreadStage;
+	private var toolBar		: SpreadToolBar;
 	
 	override private function createChildren ()
 	{
-		children.add( spread	= new SpreadView() );
-		children.add( toolBar	= new SpreadToolBar() );
-		layoutContainer.children.add( spread.layout );
+		children.add( spreadStage	= new SpreadStage() );
+		children.add( toolBar		= new SpreadToolBar() );
+		layoutContainer.children.add( spreadStage.layout );
 		layoutContainer.children.add( toolBar.layout );
 		
 		updatePageZoom.on( toolBar.zoomSlider.data.change, this );
@@ -211,17 +215,64 @@ class SpreadStage extends UIContainer
 	
 	private function updatePageZoom ()
 	{
-		spread.scaleX = spread.scaleY = toolBar.zoomSlider.value;
+		spreadStage.spread.scale( toolBar.zoomSlider.value, toolBar.zoomSlider.value );
 	}
 }
 
 
+class SpreadStage extends UIContainer
+{	
+	public var spread	: SpreadView;
+	
+	
+	override private function createChildren ()
+	{
+		children.add( spread = new SpreadView() );
+		layoutContainer.children.add( spread.layout );
+	}
+}
 
-class SpreadView extends UIContainer
+
+class SpreadView extends UIComponent
 {
+	private var content : UIContainer;
+	
+	
+	override private function createChildren ()
+	{
+		content = new UIContainer();
+		addChild( content );
+	}
+	
+	
 	override private function createBehaviours ()
 	{
 		haxe.Log.clear.on( userEvents.mouse.click, this );
+	}
+	
+	
+	
+	override public function scale (sx:Float, sy:Float)
+	{
+		Assert.notNull( content );
+		resetLayoutScale();
+		content.scaleX = sx;
+		content.scaleY = sy;
+		updateLayoutScale();
+	}
+	
+	
+	private inline function resetLayoutScale ()
+	{
+		layout.width.value	= (layout.width.value / content.scaleX).int();
+		layout.height.value	= (layout.height.value / content.scaleY).int();
+	}
+	
+	
+	private inline function updateLayoutScale ()
+	{
+		layout.width.value	= (layout.width.value * content.scaleX).int();
+		layout.height.value	= (layout.height.value * content.scaleY).int();
 	}
 }
 

@@ -180,6 +180,8 @@ class CSSParser
 	public static inline var R_DOMAIN_LABEL			: String = "[a-z]([a-z0-9-]*[a-z0-9])?";
 	public static inline var R_CLASS_EXPR			: String = "(" + R_DOMAIN_LABEL + ")([.]" + R_DOMAIN_LABEL + ")*";
 	
+	public static inline var R_CUSTOM_SHAPE_EXPR	: String = "custom" + R_SPACE + "[(]" + R_SPACE + "(" + R_CLASS_EXPR + ")"+R_SPACE+"[)]";
+	
 	public static inline var R_ROTATION				: String = R_FLOAT_VALUE + "deg";
 	public static inline var R_WORDWRAP				: String = "off|normal|break-word";
 	
@@ -278,6 +280,7 @@ class CSSParser
 	public var fixedTileExpr			(default, null) : EReg;
 	
 	public var triangleExpr				(default, null) : EReg;
+	public var customShapeExpr			(default, null) : EReg;
 	
 	public var filterBlurExpr			(default, null) : EReg;
 	public var filterInnerExpr			(default, null) : EReg;
@@ -467,6 +470,8 @@ class CSSParser
 			 	+ R_SPACE + "[)]"
 			+ ")?"
 			, "i");
+			
+		customShapeExpr = new EReg( R_CUSTOM_SHAPE_EXPR, "i" );
 		
 		
 		//
@@ -2118,17 +2123,13 @@ class CSSParser
 	{
 		var factory	= new ClassInstanceFactory<IGraphicShape>();
 		
-		factory.classRef = switch (v.trim().toLowerCase()) {
+		var strippedV = strip(v);
+		factory.classRef = switch (strippedV) {
 			case "line":		cast Line;
 			case "circle":		cast Circle;
 			case "ellipse":		cast Ellipse;
 			case "rectangle":	cast RegularRectangle;
-			default:
-				//check if there's a custom shape class defined
-				if (v.trim().toLowerCase().indexOf("custom") == 0 && isClassReference(v))
-					cast parseClassReference(v);
-				else
-					null;
+			default:			null;
 		}
 		
 		//try matching triangle shape..
@@ -2139,7 +2140,11 @@ class CSSParser
 		}
 		
 		if (factory != null && !factory.isEmpty())
-			createGraphicsBlock().shape = Reference.instance( factory, v );
+			createGraphicsBlock().shape = Reference.objInstance( factory, v );
+		
+		//check if there's a custom shape class defined
+		else if (customShapeExpr.match(v))
+			createGraphicsBlock().shape = cast Reference.classInstance( customShapeExpr.matched(1), v );
 	}
 	
 	

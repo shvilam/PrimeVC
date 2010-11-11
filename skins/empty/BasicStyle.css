@@ -11,7 +11,7 @@ ListView		{ overflow: hidden; }
 InputField		{ border: 1px solid #000; }
 Label			{ font: Verdana 20px; }
 Image			{ shape: rectangle; }
-Button			{ overflow: hidden; algorithm: float-hor( left, center ); font: Verdana 20px; background: #ffffff00; color: #000; }
+Button			{ /*overflow: hidden;*/ algorithm: float-hor( center, center ); font: Verdana 20px; background: #ffffff00; color: #000; }
 
 
 /***************

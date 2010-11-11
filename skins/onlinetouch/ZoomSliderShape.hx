@@ -26,21 +26,43 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.tools.generator;
+package ;
+ import primevc.core.geom.Corners;
+ import primevc.core.geom.IRectangle;
+ import primevc.gui.graphics.shapes.IGraphicShape;
+ import primevc.gui.graphics.shapes.ShapeBase;
+ import primevc.gui.traits.IGraphicsOwner;
+
 
 
 /**
  * @author Ruben Weijers
- * @creation-date Sep 13, 2010
+ * @creation-date Nov 11, 2010
  */
-interface ICodeGenerator
+class ZoomSliderShape extends ShapeBase, implements IGraphicShape 
 {
-	public function construct (obj:ICodeFormattable, ?args:Array<Dynamic>)					: Void;
-	public function createClassConstructor (classRef:Class<Dynamic>, ?args:Array<Dynamic>)	: String;
-	public function createClassNameConstructor (name:String, ?args:Array<Dynamic>)			: String;
-	public function setAction (obj:ICodeFormattable, name:String, ?args:Array<Dynamic>)		: Void;
-	public function setProp (obj:ICodeFormattable, name:String, value:Dynamic)				: Void;
+	public inline function draw (target:IGraphicsOwner, bounds:IRectangle, borderRadius:Corners) : Void
+	{
+#if flash9
+		var g = target.graphics;
+		
+		var halfHeight	= bounds.top + (bounds.height * .5);
+		var leftTopX	= bounds.left + borderRadius.topLeft;
+		var leftTopY	= bounds.left + borderRadius.topLeft;
+		
+		g.moveTo( leftTopX, leftTopY );
+		g.lineTo( bounds.right - borderRadius.topRight,		bounds.top );
+		g.lineTo( bounds.right - borderRadius.topRight,		bounds.bottom );
+		g.lineTo( bounds.left + borderRadius.bottomLeft,	halfHeight + borderRadius.bottomLeft );
+		g.lineTo( leftTopX, leftTopY );
+#end
+	}
 	
-	private function formatArguments (args:Array<Dynamic>, isConstructor:Bool = false)		: String;
-	private function formatValue (value:Dynamic, isConstructor:Bool = false)				: String;
+	
+#if neko
+	override public function toCSS (prefix:String = "") : String
+	{
+		return "custom( ZoomSliderShape )";
+	}
+#end
 }

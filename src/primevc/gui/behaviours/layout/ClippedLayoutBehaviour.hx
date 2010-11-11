@@ -34,7 +34,7 @@ package primevc.gui.behaviours.layout;
  import primevc.core.geom.RectangleFlags;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.traits.IInvalidateListener;
- import primevc.gui.layout.LayoutContainer;
+ import primevc.gui.layout.IScrollableLayout;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.TypeUtil;
@@ -54,7 +54,7 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 #if !neko	,	implements IInvalidateListener #end
 {
 #if !neko
-	private var layoutContainer : LayoutContainer;
+	private var layoutContainer : IScrollableLayout;
 	
 	
 	/**

@@ -277,6 +277,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			return;
 		}
 		
+		validateScrollPosition( scrollPos );
+		
 	//	trace(this+".validated; size: "+width+", "+height+"; explicitSize "+explicitWidth+", "+explicitHeight+"; measured: "+measuredWidth+", "+measuredHeight);
 	//	Assert.that(hasValidatedWidth, "To be validated, the layout should be validated horizontally for "+this);
 	//	Assert.that(hasValidatedHeight, "To be validated, the layout should be validated vertically for "+this);
@@ -374,7 +376,9 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	public inline function validateScrollPosition (pos:IntPoint)
 	{
 		if (horScrollable())	pos.x = pos.x.within( 0, scrollableWidth );
+		else					pos.x = 0;
 		if (verScrollable())	pos.y = pos.y.within( 0, scrollableHeight );
+		else					pos.y = 0;
 		return pos;
 	}
 	

@@ -9,6 +9,7 @@
 	<component id="FrameTypesBarList"	superClass="ListView"			fullname="cases.FrameTypesBarList" />
 	<component id="FrameButton"			superClass="Button"				fullname="cases.FrameButton" />
 	
+	<component id="SpreadEditor"		superClass="UIContainer"		fullname="cases.SpreadEditor" />
 	<component id="SpreadStage"			superClass="UIContainer"		fullname="cases.SpreadStage" />
 	<component id="SpreadView"			superClass="UIContainer"		fullname="cases.SpreadView" />
 	<component id="SpreadToolBar"		superClass="UIContainer"		fullname="cases.SpreadToolBar" />

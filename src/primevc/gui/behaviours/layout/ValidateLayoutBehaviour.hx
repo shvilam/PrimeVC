@@ -135,7 +135,7 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >
 			target.rect.width	= b.width;
 			target.rect.height	= b.height;
 			
-			if (target.is(IDrawable))
+			/*if (target.is(IDrawable))
 			{
 				var t = target.as(IDrawable);
 				if (t.graphicData.border != null)
@@ -144,7 +144,7 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >
 					target.rect.width += borderWidth;
 					target.rect.height += borderWidth;
 				}
-			}
+			}*/
 			
 			if (!target.is(IDrawable)) {
 				target.width	= target.rect.width;

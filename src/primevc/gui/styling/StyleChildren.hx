@@ -159,7 +159,7 @@ class StyleChildren
 	
 	
 #if neko
-	public function toString ()		{ return toCSS(); }
+	public function toString ()	{ return toCSS(); }
 	
 
 	public function toCSS (namePrefix:String = "")

@@ -34,9 +34,10 @@ package primevc.types;
 
 
 enum Reference {
-	func		(name:String, cssValue:String);
-	instance	(obj:ClassInstanceFactory<Dynamic>, cssValue:String);
-	className	(name:String, cssValue:String);
+	func			(name:String, cssValue:String);							//function reference
+	objInstance		(obj:ClassInstanceFactory<Dynamic>, cssValue:String);	//reference to a class-object that will be instantiated
+	classInstance	(name:String, cssValue:String);							//reference to a classname that will be instantiated
+	className		(name:String, cssValue:String);							//reference to a class in string form
 }
 
 
@@ -46,9 +47,10 @@ class ReferenceUtil
 	public static inline function toCSS (ref:Reference) : String
 	{
 		return switch (ref) {
-			case className (name, css):		css != null ? css : "Class( " + name + " )";
-			case instance (factory, css):	css != null ? css : factory.toCSS();
-			case func (name, css):			css != null ? css : "unkown-function";
+			case className (name, css):			css != null ? css : "Class( " + name + " )";
+			case objInstance (factory, css):	css != null ? css : factory.toCSS();
+			case classInstance (name, css):		css != null ? css : name;
+			case func (name, css):				css != null ? css : "unkown-function";
 		}
 	}
 	
@@ -56,9 +58,10 @@ class ReferenceUtil
 	public static inline function toCode (ref:Reference, code:ICodeGenerator) : String
 	{
 		return switch (ref) {
-			case className ( name, css ):	name;
-			case instance ( factory, css ):	code.createClassConstructor( factory.classRef, factory.params );
-			case func ( name, css ):		name;
+			case className ( name, css ):		name;
+			case objInstance ( factory, css ):	code.createClassConstructor( factory.classRef, factory.params );
+			case classInstance ( name, css ):	code.createClassNameConstructor( name, null );
+			case func ( name, css ):			name;
 		}
 	}
 }

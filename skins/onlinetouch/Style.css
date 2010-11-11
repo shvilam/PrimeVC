@@ -95,7 +95,7 @@ FrameTypesBarList FrameButton {
 }
 
 FrameTypesBarList FrameButton:hover {
-	background: linear-gradient( -90deg, #d3d3d3 0%, #e6e6e6 99.5%, #fff 100% );
+	background: linear-gradient( -90deg, #d3d3d3 0%, #e6e6e6 100% );
 }
 
 FrameTypesBarList FrameButton:down {
@@ -136,13 +136,20 @@ FrameTypesBarList .last		{ border-radius: 0px 10px 10px 0px; }
 
 
 /**
- * SPREAD STAGE VIEW
+ * SPREAD EDITOR
  */
 
-SpreadStage {
+SpreadEditor {	
+	algorithm: relative;
 	height: auto;
 	width: 100%;
+}
+
+SpreadStage {
+	width: 100%;
+	height: 100%;
 	algorithm: relative;
+	overflow: drag-scroll;
 }
 
 SpreadView {
@@ -152,7 +159,6 @@ SpreadView {
 	v-center: 0px;
 	
 	algorithm: relative;
-	overflow: drag-scroll;
 	
 	background: #fff;
 	/* ( <blurX>px? <blurY>px? <strength>? ) | <rgba>? | <inner>? | <knockout>? | <quality>? */
@@ -166,7 +172,7 @@ SpreadView {
  *****************/
 
 SpreadToolBar {
-	min-width: 180px;
+	min-width: 100px;
 	height: 45px;
 	h-center: 0px;
 	bottom: -3px;
@@ -203,13 +209,14 @@ SpreadToolBar #undoBtn { icon: Class(IconUndo); }
 SpreadToolBar #redoBtn { icon: Class(IconRedo); }
 
 SpreadToolBar .horizontalSlider {
-	width: 100px;
-	height: 15px;
+	width: 71px;
+	height: 18px;
 	
-	background: #cecece;
-	border-radius: 15px;
+	background: #b0b0b0;
+	border-radius: 4px;
+	shape: custom( ZoomSliderShape );
 	
-	box-shadow: 2px 18px 18px 1 90deg #1e1e1e inner;
+	box-shadow: 3px 6px 6px 1 59deg #000 inner;
 }
 
 SpreadToolBar .horizontalSlider UIGraphic {
@@ -219,8 +226,9 @@ SpreadToolBar .horizontalSlider UIGraphic {
 SpreadToolBar .horizontalSlider Button {
 	algorithm: float-hor( center, center );
 	shape: circle;
-	width: 30px;
-	height: 30px;
-	background: #eee;
+	width: 20px;
+	height: 20px;
+	background: #fff;
 	icon: Class(IconZoom);
+	border: 1px solid #000;
 }

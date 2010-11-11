@@ -62,6 +62,7 @@ class DragScrollBehaviour extends ClippedLayoutBehaviour
 		Assert.that( target.scrollableLayout != null, "target.layout of "+target+" must be a IScrollableLayout" );
 		super.init();
 		
+		trace(target+".init DragScrollBehaviour "+target.scrollRect);
 		scrollLayout	= target.scrollableLayout;
 		dragHelper		= new DragHelper( target, activateScrolling, deactivateScrolling, dragAndScroll );
 		moveBinding		= dragAndScroll.on( target.window.mouse.events.move, this );
@@ -84,7 +85,7 @@ class DragScrollBehaviour extends ClippedLayoutBehaviour
 	
 	private function activateScrolling (mouseObj:MouseState)
 	{
-		if (target.scrollRect == null)
+		if (target.scrollRect == null || (!scrollLayout.horScrollable() && !scrollLayout.verScrollable()))
 			return;
 		
 		moveBinding.enable();

@@ -33,9 +33,12 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.RelativeLayout;
+ import primevc.types.Number;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
 
+
+private typedef Flags = LayoutFlags;
 
 
 /**
@@ -52,11 +55,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 	
 	public inline function isInvalid (changes:Int)
 	{
-		return changes.has( LayoutFlags.WIDTH ) 
-				|| changes.has( LayoutFlags.HEIGHT )
-				|| changes.has( LayoutFlags.X )
-				|| changes.has( LayoutFlags.Y )
-				|| changes.has( LayoutFlags.RELATIVE );
+		return changes.has( Flags.WIDTH | Flags.HEIGHT | Flags.X | Flags.Y | Flags.RELATIVE );
 	}
 	
 	
@@ -104,24 +103,21 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 	}
 	
 	
-	public inline function validateHorizontal ()
-	{
-		if (!validatePrepared)
-			prepareValidate();
-	}
-	
-	
-	public inline function validateVertical ()
-	{
-		if (!validatePrepared)
-			prepareValidate();
-	}
+	public inline function validateHorizontal ()	{ /*if (!validatePrepared) { prepareValidate(); } */ }
+	public inline function validateVertical ()		{ /*if (!validatePrepared) { prepareValidate(); } */ }
 	
 	
 	public inline function apply ()
 	{
 		var childProps : RelativeLayout;
 		var padding = group.padding;
+		
+		//properties to find the corners of the outer children
+		//this is actually measuring, but can't be done before the position of the children is defined
+		var mostLeftVal:Int		= Number.INT_NOT_SET;
+		var mostRightVal:Int	= Number.INT_NOT_SET;
+		var mostTopVal:Int		= Number.INT_NOT_SET;
+		var mostBottomVal:Int	= Number.INT_NOT_SET;
 		
 		for (child in group.children)
 		{
@@ -146,7 +142,15 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 			if		(childProps.top.isSet())		child.outerBounds.top		= padding.top + childProps.top;
 			else if (childProps.bottom.isSet())		child.outerBounds.bottom	= group.innerBounds.height - padding.bottom - childProps.bottom;
 			else if (childProps.vCenter.isSet())	child.outerBounds.top		= Std.int( ( group.innerBounds.height - child.outerBounds.height ) * .5 );
+			
+			if (mostLeftVal.notSet() || child.outerBounds.left < mostLeftVal)	mostLeftVal		= child.outerBounds.left;
+			if (mostTopVal.notSet() || child.outerBounds.top < mostTopVal)		mostTopVal		= child.outerBounds.top;
+			if (child.outerBounds.right > mostRightVal)							mostRightVal	= child.outerBounds.right;
+			if (child.outerBounds.bottom > mostBottomVal)						mostBottomVal	= child.outerBounds.bottom;
 		}
+		
+		if (mostRightVal.isSet() && mostLeftVal.isSet())	setGroupWidth( mostRightVal - mostLeftVal );
+		if (mostBottomVal.isSet() && mostTopVal.isSet())	setGroupHeight( mostBottomVal - mostTopVal );
 		
 		validatePrepared	= false;
 		validatePreparedHor	= false;

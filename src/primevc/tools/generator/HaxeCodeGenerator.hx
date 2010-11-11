@@ -123,7 +123,14 @@ class HaxeCodeGenerator implements ICodeGenerator
 	
 	public function createClassConstructor (classRef:Class<Dynamic>, ?args:Array<Dynamic>)
 	{
-		return "new " + classRef.getClassName() + "( " + formatArguments( args, true ) + " )";
+		return createClassNameConstructor( classRef.getClassName(), args );
+	}
+	
+	
+	
+	public function createClassNameConstructor (className:String, ?args:Array<Dynamic>)
+	{
+		return "new " + className + "( " + formatArguments( args, true ) + " )";
 	}
 	
 	
