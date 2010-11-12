@@ -196,16 +196,14 @@ class UIElementStyle implements IUIElementStyle
 	{
 		var style : StyleBlock = null;
 		
+	//	trace(target+".findStyle "+name+" of type "+type+"; styles length: "+styles.length+"; "+Flags.readProperties(filledProperties));
 		if (filledProperties.has( Flags.CHILDREN ))
 		{
-		//	trace(target+".findStyle "+name+" of type "+type+"; styles length: "+styles.length);
 			for (styleObj in styles)
 			{
 				style = styleObj.findChild( name, type, exclude );
-				if (style != null) {
-		//			trace("\t style found in "+styleObj.type);
+				if (style != null)
 					break;
-				}
 			}
 		}
 		
@@ -286,7 +284,7 @@ class UIElementStyle implements IUIElementStyle
 		if (addedBinding != null)	addedBinding.disable();
 		
 		stylesAreSearched	= false;
-		filledProperties	= 0;
+	//	filledProperties	= 0;
 		
 		//update styles.. start with the lowest priorities
 		var changes	= updateElementStyle();
