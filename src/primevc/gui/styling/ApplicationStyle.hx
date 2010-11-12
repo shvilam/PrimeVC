@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
-
+  using primevc.utils.BitUtil;
 
 
 /**
@@ -40,8 +40,12 @@ class ApplicationStyle extends UIElementStyle
 {
 	override private function init ()
 	{
-		parentStyle = this;
-		styles.add( new StyleSheet() );
+		var sheet			= new StyleSheet();
+		filledProperties	= filledProperties.set( sheet.allFilledProperties );
+		parentStyle			= this;
+		
+		styles.add( sheet );
+		updateStyles();
 	}
 	
 	
