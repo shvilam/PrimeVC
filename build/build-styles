@@ -2,15 +2,17 @@
 # script to build and run the css-parser
 
 BUILDSCRIPTDIR="`dirname $0`";
-PRJROOT="${BUILDSCRIPTDIR}/.."
+PRIMEVC_ROOT="${BUILDSCRIPTDIR}/.."
+#PRJROOT=${PRIMEVC_ROOT}
 
 MINPARAMS=1
-Style=$1
+StyleFolder=$1
 MainClass="primevc.tools.CSSParserMain"
 ParserClass="primevc.tools.CSSParser"
-MainFile="${PRJROOT}/src/${MainClass//.//}.hx"		#replace all dots with slashes
-ParserClass="${PRJROOT}/src/${ParserClass//.//}.hx"	#replace all dots with slashes
-Parser="${PRJROOT}/build/parser.n"
+SourceFolder="${PRIMEVC_ROOT}/src"
+MainFile="${SourceFolder}/${MainClass//.//}.hx"		#replace all dots with slashes
+ParserClass="${SourceFolder}/${ParserClass//.//}.hx"	#replace all dots with slashes
+Parser="${PRIMEVC_ROOT}/build/parser.n"
 Force=false
 #Resource=""
 
@@ -18,42 +20,54 @@ Force=false
 while getopts "s:tfd" OptionName
 	do
 		case $OptionName in
-			s ) Style=${OPTARG};;
+			s ) StyleFolder=${OPTARG};;
 			f ) Force=true;;
 			d ) Debug="-debug";;
+		#	p ) PRJROOT=${OPTARGS};;	#project root (used for styles)
 	esac
 done
 
-StyleFolder="${PRJROOT}/${Style}"
+#StyleFolder="$PRJROOT/$STYLE"
 StyleInputFile="${StyleFolder}/Style.css"
 StyleOutputFile="${StyleFolder}/StyleSheet.hx"
 #ManifestFile="${StyleFolder}/manifest.xml"
 
 #echo "MainFile: ${MainFile}"
-echo "Main: ${MainClass}" &&
-echo "StyleInput: ${StyleInputFile}" &&
-echo "StyleOutput: ${StyleOutputFile}" &&
+echo -e "\tMain: ${MainClass}" &&
+echo -e "\tStyleInput: ${StyleInputFile}" &&
+echo -e "\tStyleOutput: ${StyleOutputFile}" &&
 #echo "Manifest: ${ManifestFile}" &&
-echo "Debugging? ${Debug:-false}"
+echo -e "\tDebugging? ${Debug:-false}"
 
 CompilerUpdated=false
 
 #create parser if the source files have changed
 if ${Force} || [[ ! -f ${Parser} ]]  ||  test ${MainFile} -nt ${Parser}  ||  test ${ParserClass} -nt ${Parser}  ; then  # ||  test ${StyleFile} -nt ${Parser} ; then
-	echo "Compiling parser"  &&
-	haxe ${PRJROOT}/build/build-cssparser.hxml -main ${MainClass} -neko ${Parser} --no-inline ${Debug} ${Debug:---no-traces} &&
+	echo -e "\tCompiling parser"  &&
+	haxe build/build-cssparser.hxml \
+		-main ${MainClass} \
+		-neko ${Parser} \
+		--no-inline ${Debug} \
+		${Debug:---no-traces} &&
+	
 	CompilerUpdated=true
 fi;
 
+if [[ ! -f ${Parser} ]] ; then
+	echo -e "\tError compiling parser"
+	exit 1
+fi;
+
 #compile css
-if [[ -d ${StyleFolder} ]] && [[ -f ${StyleInputFile} ]] && [[ -f ${Parser} ]] ; then # && [[ -f ${ManifestFile} ]] ; then
+if [[ -d ${StyleFolder} ]] && [[ -f ${StyleInputFile} ]] ; then # && [[ -f ${ManifestFile} ]] ; then
 	if ${CompilerUpdated} || [[ ! -f ${StyleOutputFile} ]] || test ${StyleInputFile} -nt ${StyleOutputFile} ; then # || test ${ManifestFile} -nt ${StyleOutputFile} ; then
-		echo "Running parser on ${StyleInputFile}" &&
-		neko ${Parser} ${Style}
+		echo -e "\tRunning parser on ${StyleInputFile}" &&
+		neko ${Parser} ${StyleFolder} ${PRIMEVC_ROOT}
 	else	
-		echo "Style is already compiled and up to date.."
+		echo -e "\tStyle is already compiled and up to date.."
 	fi;
+	exit 0
 else
-	echo "Style '${StyleInputFile}' doesn't exist!" &&
+	echo -e "\tStyle '${StyleInputFile}' doesn't exist!" &&
 	exit 1
 fi;

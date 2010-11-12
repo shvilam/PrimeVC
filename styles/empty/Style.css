@@ -7,4 +7,6 @@
 .test Button:hover	{ font-weight: bold; font: "Courier New"; }
 .test Button:down	{ font: "Courier New"; text-decoration: underline; }
 .test Image			{ max-height: 200px; max-width: 100px; }
-.test Slider		{ margin: 10px 0px; }
+.test Slider		{ margin: 10px 0px; background: #aaa; }
+.horizontalSlider UIGraphic	{ background: #000; }
+.verticalSlider UIGraphic	{ background: #000; }

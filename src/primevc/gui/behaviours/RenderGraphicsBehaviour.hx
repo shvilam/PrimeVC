@@ -76,6 +76,7 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >
 	
 	override public function validate ()
 	{
+	//	trace(target+".render "+target.rect);
 		target.graphics.clear();
 		target.graphicData.draw( target, false );
 	}

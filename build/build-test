@@ -1,0 +1,13 @@
+#!/bin/bash
+
+MINPARAMS=1
+BUILDSCRIPTDIR="`dirname $0`"
+PRIMEVC_DIR="${BUILDSCRIPTDIR}/.."
+
+echo "params: $*"
+
+bash ${PRIMEVC_DIR}/build/build \
+	-c ffffff \
+	-o App.swf \
+	$* \
+	-e "-cp tests" \

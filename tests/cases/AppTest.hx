@@ -309,7 +309,7 @@ typedef FrameTypesList		= ArrayList < FrameTypesSectionVO >;
 
 
 class FrameTypesSectionVO
-{	
+{
 	public var name		: String;
 	public var frames	: ArrayList < FrameTypeVO >;
 	public var label	: Bindable < String >;

@@ -198,7 +198,7 @@ class UIElementStyle implements IUIElementStyle
 		
 		if (filledProperties.has( Flags.CHILDREN ))
 		{
-		//	trace(target+".findStyle "+name+" of type "+type);
+		//	trace(target+".findStyle "+name+" of type "+type+"; styles length: "+styles.length);
 			for (styleObj in styles)
 			{
 				style = styleObj.findChild( name, type, exclude );
