@@ -1,6 +1,6 @@
 @manifest url('manifest.xml');
 
-.debug UIComponent { opacity: .7; border: solid 3px #f0f inset; }
+UIComponent { opacity: .7; border: solid 3px #f0f inset; }
 
 IDisplayObject	{ shape: rectangle; visibility: visible; opacity: 1; }
 /*UITextField		{ color: #000; font: 14px Verdana; }*/
