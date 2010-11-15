@@ -1,9 +1,10 @@
 #!/bin/bash
 
+DIR="`pwd`"
 BUILDSCRIPTDIR="`dirname $0`";
 PRIMEVC_ROOT="${BUILDSCRIPTDIR}/.."
 
-PRJROOT=${PRIMEVC_ROOT}
+PRJROOT="${PRIMEVC_ROOT}"
 MINPARAMS=1
 STYLE="empty"
 #MainClass="primevc.Main"
@@ -36,11 +37,11 @@ OUTPUT="$OUTPUTDIR/$OUTPUT"
 ASSETS=""
 
 if [[ -f "$STYLEDIR/Assets.swf" ]] ; then
-	ASSETS="-swf-lib $STYLEDIR/Assets.swf"
+	ASSETS="$STYLEDIR/Assets.swf"
 fi;
 
-if [[ ! -d $OUTPUTDIR ]] ; then
-	mkdir -p $OUTPUTDIR
+if [[ ! -d "$OUTPUTDIR" ]] ; then
+	mkdir -p "$OUTPUTDIR"
 fi;
 
 
@@ -65,31 +66,31 @@ else
 	
 	
 	echo -e "\n2. BUILDING STYLES" &&
-	bash build/build-styles -s ${STYLEDIR} ${Debug:+-d} ${Force:+-f} &&
+	bash build/build-styles -s "${STYLEDIR}" ${Debug:+-d} ${Force:+-f} &&
 	
 	
 	echo -e "\n3. COMPILING SWF" &&
 #	echo "${PRIMEVC_ROOT}/build/build.hxml -swf $OUTPUT -main $MainClass ${Debug:---no-traces} -cp "${PRJROOT}/src" -cp ${STYLEDIR} -swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR $ASSETS $EXTRA" &&
 	haxe build/build.hxml \
-		-swf $OUTPUT \
+		-swf "$OUTPUT" \
 		${Debug:---no-traces} \
 		-cp "${PRJROOT}/src" \
-		-cp ${STYLEDIR} \
+		-cp "${STYLEDIR}" \
 		-main $MainClass \
 		-swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR \
-		$ASSETS \
+		${ASSETS:+-swf-lib} "$ASSETS" \
 		-swf-lib assets/${Debug:+debug-}assets.swf
 		$EXTRA && # -cp tests
 	
 	
 	if (set -u; : $Debug) 2> /dev/null ; then
 		#mv ${PRIMEVC_ROOT}/tmp.swf ${PRIMEVC_ROOT}/bin-debug/app.swf &&
-		open $OUTPUT
+		open "$OUTPUT"
 	else
 		echo -e "\n4. OPTIMIZING BUILD" &&
-		bash build/optimize-build $OUTPUT &&
-		open $OUTPUT
+		bash build/optimize-build "$OUTPUT" &&
+		open "$OUTPUT"
 	fi;
 fi;
 
-cd -
+cd "$DIR";

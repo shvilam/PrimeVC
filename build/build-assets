@@ -3,17 +3,21 @@
 BUILDSCRIPTDIR="`dirname $0`";
 PRIMEVC_ROOT="$BUILDSCRIPTDIR/.."
 
-if [[ ! -f $PRIMEVC_ROOT/build/environment.sh ]]; then
+if [[ ! -f "$PRIMEVC_ROOT/build/environment.sh" ]]; then
 	echo -e "\tThere's no environment file configured. Copy 'environment.sh.template' to 'environment.sh' and edit it."
 	exit 1
 else
-	if [[ ! -f $PRIMEVC_ROOT/assets/debug-assets.swf ]]  ||  test $PRIMEVC_ROOT/assets/DebugAssets.as -nt $PRIMEVC_ROOT/assets/debug-assets.swf  ||  test $PRIMEVC_ROOT/assets/Assets.as -nt $PRIMEVC_ROOT/assets/assets.swf ; then
+	if [[ ! -f "$PRIMEVC_ROOT/assets/debug-assets.swf" ]]  ||  test "$PRIMEVC_ROOT/assets/DebugAssets.as" -nt "$PRIMEVC_ROOT/assets/debug-assets.swf"  ||  test "$PRIMEVC_ROOT/assets/Assets.as" -nt "$PRIMEVC_ROOT/assets/assets.swf"; then
+		source "$PRIMEVC_ROOT/build/environment.sh"
+		if [[ ! -f "$MXMLC" ]]; then
+			echo -e "\t[error]  Not found: $MXMLC"
+			exit 1
+		fi;
+		
 		echo -e "\t[mxmlc]  Compiling asset SWFs"
 		
-		source $PRIMEVC_ROOT/build/environment.sh
-		
-		if [[ -d $PRIMEVC_ROOT/generated-src ]]; then
-			rm -R $PRIMEVC_ROOT/generated-src
+		if [[ -d "$PRIMEVC_ROOT/generated-src" ]]; then
+			rm -R "$PRIMEVC_ROOT/generated-src"
 		fi;
 		
 		"$MXMLC" \
@@ -22,23 +26,23 @@ else
 			-debug=false \
 			-verbose-stacktraces=false \
 			-compiler.optimize \
-			-output $PRIMEVC_ROOT/assets/assets.swf \
-			$PRIMEVC_ROOT/assets/Assets.as &&
+			-output "$PRIMEVC_ROOT/assets/assets.swf" \
+			"$PRIMEVC_ROOT/assets/Assets.as" &&
 
 		"$MXMLC" \
 			-compiler.source-path "$PRIMEVC_ROOT/src" "$PRIMEVC_ROOT/libs/macmousewheel" "$PRIMEVC_ROOT/libs/monsterdebugger" "$PRIMEVC_ROOT/libs/as3-flexless" \
 			-compiler.as3 \
-			-output $PRIMEVC_ROOT/assets/debug-assets.swf \
-			$PRIMEVC_ROOT/assets/DebugAssets.as &&
+			-output "$PRIMEVC_ROOT/assets/debug-assets.swf" \
+			"$PRIMEVC_ROOT/assets/DebugAssets.as" &&
 		
 		echo -e "\t[haXe]   Generating extern classes" &&
 		
-		haxe --gen-hx-classes $PRIMEVC_ROOT/assets/debug-assets.swf &&
-		mv hxclasses $PRIMEVC_ROOT/generated-src
-		rm $PRIMEVC_ROOT/generated-src/Assets.hx
-		rm $PRIMEVC_ROOT/generated-src/DebugAssets.hx
+		haxe --gen-hx-classes "$PRIMEVC_ROOT/assets/debug-assets.swf" &&
+		mv hxclasses "$PRIMEVC_ROOT/generated-src"
+		rm "$PRIMEVC_ROOT/generated-src/Assets.hx"
+		rm "$PRIMEVC_ROOT/generated-src/DebugAssets.hx"
 		
 		# Cleanup
-	#	rm -R $PRIMEVC_ROOT/hxclasses
+	#	rm -R "$PRIMEVC_ROOT/hxclasses"
 	fi;
 fi;

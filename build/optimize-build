@@ -2,7 +2,7 @@
 
 MINPARAMS=1
 
-INPUT=$1
+INPUT="$1"
 OUTPUT="build/tmp_tdsi.swf"
 
 #echo "input: $INPUT"
@@ -11,7 +11,7 @@ OUTPUT="build/tmp_tdsi.swf"
 if [ -f build/environment.sh ]; then
 	source build/environment.sh
 
-	java -jar build/tdsi.jar -finalize true -dead-code-elimination true -input $INPUT -output $OUTPUT
-	"$MXMLC_OPTIMIZER" $OUTPUT -output $INPUT
-	rm $OUTPUT
+	java -jar build/tdsi.jar -finalize true -dead-code-elimination true -input "$INPUT" -output "$OUTPUT"
+	"$MXMLC_OPTIMIZER" "$OUTPUT" -output "$INPUT"
+	rm "$OUTPUT"
 fi;
