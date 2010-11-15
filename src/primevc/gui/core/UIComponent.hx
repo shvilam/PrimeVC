@@ -29,7 +29,6 @@
 package primevc.gui.core;
  import primevc.core.Bindable;
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
-// import primevc.gui.behaviours.styling.ApplyStylingBehaviour;
  import primevc.gui.behaviours.styling.MouseStyleChangeBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
@@ -39,6 +38,7 @@ package primevc.gui.core;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.UIElementStates;
 #if flash9
+ import primevc.core.collections.SimpleList;
  import primevc.gui.styling.UIElementStyle;
 #end
   using primevc.gui.utils.UIElementActions;
@@ -73,38 +73,38 @@ package primevc.gui.core;
  */
 class UIComponent extends Sprite, implements IUIComponent
 {
-	public var behaviours		(default, null)			: BehaviourList;
-	public var state			(default, null)			: UIElementStates;
-	public var effects			(default, default)		: UIElementEffects;
-	public var id				(default, null)			: Bindable < String >;
+	public var behaviours		(default, null)					: BehaviourList;
+	public var state			(default, null)					: UIElementStates;
+	public var effects			(default, default)				: UIElementEffects;
+	public var id				(default, null)					: Bindable < String >;
 	
-	public var skin				(default, setSkin)		: ISkin;
-	public var layout			(default, null)			: LayoutClient;
-	public var graphicData		(default, null)			: Bindable < GraphicProperties >;
+	public var skin				(default, setSkin)				: ISkin;
+	public var layout			(default, null)					: LayoutClient;
 	
-#if flash9
-	public var style			(default, null)			: UIElementStyle;
-	public var styleClasses		(default, null)			: Bindable < String >;
+#if flash9	
+	public var graphicData		(default, null)					: GraphicProperties;
+	public var style			(default, null)					: UIElementStyle;
+	public var styleClasses		(default, null)					: SimpleList < String >;
+	public var stylingEnabled	(default, setStylingEnabled)	: Bool;
 #end
 	
 	
-	private function new (?id:String)
+	public function new (?id:String)
 	{
 		super();
 		this.id	= new Bindable<String>(id);
 		visible = false;
-		init.onceOn( displayEvents.addedToStage, this );
 		
 		state			= new UIElementStates();
 		behaviours		= new BehaviourList();
-		graphicData		= new Bindable < GraphicProperties > ();
 		
-#if flash9
-		styleClasses	= new Bindable < String > ();
-		style			= new UIElementStyle( this );
+		init.onceOn( displayEvents.addedToStage, this );
+#if flash9		
+		graphicData		= new GraphicProperties( rect );
+		styleClasses	= new SimpleList<String>();
+		stylingEnabled	= true;
 		
 		//add default behaviours
-	//	behaviours.add( new ApplyStylingBehaviour(this) );	
 		behaviours.add( new ValidateLayoutBehaviour(this) );
 		behaviours.add( new RenderGraphicsBehaviour(this) );
 		behaviours.add( new MouseStyleChangeBehaviour(this) );
@@ -122,10 +122,6 @@ class UIComponent extends Sprite, implements IUIComponent
 	{
 		behaviours.init();
 		
-		//create a skin (if there is one defined for this component) and it's children
-		createSkin();
-		//overwrite the graphics of the skin with custom graphics (or do nothing if the method isn't overwritten)
-		createGraphics();
 		//create the children of this component after the skin has created it's children
 		createChildren();
 		
@@ -134,7 +130,6 @@ class UIComponent extends Sprite, implements IUIComponent
 			skin.childrenCreated();
 		
 		//finish initializing
-	//	visible = true;
 		state.current = state.initialized; 
 	}
 	
@@ -144,54 +139,34 @@ class UIComponent extends Sprite, implements IUIComponent
 		if (state == null)
 			return;
 		
-		removeChildren();
-		
 		//Change the state to disposed before the behaviours are removed.
 		//This way a behaviour is still able to respond to the disposed
 		//state.
 		state.current = state.disposed;
-		removeBehaviours();
-		removeStates();
 		
-		state.dispose();
+		removeChildren();
+		removeStates();
+		behaviours	.dispose();
+		state		.dispose();
+		graphicData	.dispose();
 		
 		if (layout != null)
 			layout.dispose();
 		
-		if (graphicData != null)
-		{
-			if (graphicData.value != null)
-				graphicData.value.dispose();
-			
-			graphicData.dispose();
-			graphicData = null;
-		}
-		
+#if flash9
+		style.dispose();
+		styleClasses.dispose();
+		styleClasses	= null;
+		style			= null;
+#end
 		state			= null;
 		behaviours		= null;
+		graphicData		= null;
 		skin			= null;
 		layout			= null;
+		behaviours		= null;
 		
 		super.dispose();
-	}
-	
-	
-	
-	//
-	// METHODS
-	//
-	
-	
-	private inline function removeBehaviours ()
-	{
-		behaviours.dispose();
-		behaviours = null;
-	}
-	
-	
-	private inline function removeSkin ()
-	{
-		skin = null;
 	}
 	
 	
@@ -201,10 +176,10 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	public inline function show ()						{ this.doShow(); }
 	public inline function hide ()						{ this.doHide(); }
-	public inline function move (x:Float, y:Float)		{ this.doMove(x, y); }
-	public inline function resize (w:Float, h:Float)	{ this.doResize(w, h); }
+	public inline function move (x:Int, y:Int)			{ this.doMove(x, y); }
+	public inline function resize (w:Int, h:Int)		{ this.doResize(w, h); }
 	public inline function rotate (v:Float)				{ this.doRotate(v); }
-	public inline function scale (sx:Float, sy:Float)	{ this.doScale(sx, sy); }
+	public function scale (sx:Float, sy:Float)			{ this.doScale(sx, sy); }
 	
 
 
@@ -229,12 +204,38 @@ class UIComponent extends Sprite, implements IUIComponent
 	{
 		return style = v;
 	}
+	
+	
+	private function setStylingEnabled (v:Bool)
+	{
+		if (v != stylingEnabled)
+		{
+			if (stylingEnabled) {
+				style.dispose();
+				style = null;
+			}
+			
+			stylingEnabled = v;
+			if (v)
+				style = new UIElementStyle(this);
+		}
+		return v;
+	}
 #end
 	
 	
 	private function createLayout () : Void
 	{
 		layout = new LayoutClient();
+#if debug
+		layout.name = id+"Layout";
+#end
+	}
+	
+	
+	private function removeChildren () : Void
+	{
+		children.removeAll();
 	}
 	
 	
@@ -245,14 +246,8 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	private function createStates ()		: Void; //	{ Assert.abstract(); }
 	private function createBehaviours ()	: Void; //	{ Assert.abstract(); }
-//	private function createLayout ()		: Void		{ Assert.abstract(); }
-	private function createGraphics ()		: Void; //	{ Assert.abstract(); }
-	private function createSkin ()			: Void; //	{ Assert.abstract(); }
-	private function createChildren ()		: Void		{ Assert.abstract(); }
-	
+	private function createChildren ()		: Void; //	{ Assert.abstract(); }
 	private function removeStates ()		: Void; //	{ Assert.abstract(); }
-	private function removeGraphics ()		: Void; //	{ Assert.abstract(); }
-	private function removeChildren ()		: Void		{ Assert.abstract(); }
 	
 	
 #if debug

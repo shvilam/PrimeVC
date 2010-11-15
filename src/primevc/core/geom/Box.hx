@@ -80,7 +80,12 @@ class Box
 	private inline function setBottom (v)	{ return this.bottom = v; }
 	
 	
-#if (debug || neko)
+#if (debug && flash9)
+	public function toString () { return "Box ( "+top+"px "+right+"px "+bottom+"px "+left+"px )"; }
+#elseif neko
+	public function toString () { return toCSS(); }
+
+
 	public function isEmpty () : Bool
 	{
 		return top.notSet()
@@ -92,20 +97,12 @@ class Box
 	
 	public function toCSS (prefix:String = "") : String
 	{
-		var css = "";
-		if (left != right)		css = getCSSValue(left);
-		if (bottom != top)		css = getCSSValue(bottom) + " " + css;
-		if (right != top)		css = getCSSValue(right) + " " + css;
-		
-		return StringTools.trim(getCSSValue(top) + " " + css);
+		return getCSSValue(top) + " " + getCSSValue(right) + " " + getCSSValue(bottom) + " " + getCSSValue(left);
 	}
 	
 	
 	private inline function getCSSValue (v:Int) { return v == 0 ? "0" : v + "px"; }
-#end
-
-#if neko
-	public function cleanUp () : Void {}
+	public function cleanUp () : Void			{}
 	public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())

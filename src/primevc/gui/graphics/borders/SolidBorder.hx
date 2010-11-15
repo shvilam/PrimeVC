@@ -29,7 +29,7 @@
 package primevc.gui.graphics.borders;
  import primevc.core.geom.IRectangle;
  import primevc.gui.graphics.fills.SolidFill;
- import primevc.gui.traits.IDrawable;
+ import primevc.gui.traits.IGraphicsOwner;
   using primevc.utils.Color;
 
 #if flash9
@@ -45,8 +45,9 @@ package primevc.gui.graphics.borders;
  */
 class SolidBorder extends BorderBase <SolidFill>
 {
-	override public function begin (target:IDrawable, ?bounds:IRectangle) : Void
+	override public function begin (target:IGraphicsOwner, bounds:IRectangle) : Void
 	{
+		super.begin(target, bounds);
 #if flash9
 		target.graphics.lineStyle( weight, fill.color.rgb(), fill.color.alpha().float(), pixelHinting, LineScaleMode.NORMAL, caps, joint );
 #end

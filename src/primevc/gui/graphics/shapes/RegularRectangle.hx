@@ -28,8 +28,9 @@
  */
 package primevc.gui.graphics.shapes;
  import primevc.core.geom.Corners;
+ import primevc.core.geom.IRectangle;
  import primevc.gui.graphics.GraphicFlags;
- import primevc.gui.traits.IDrawable;
+ import primevc.gui.traits.IGraphicsOwner;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
@@ -41,48 +42,26 @@ package primevc.gui.graphics.shapes;
  */
 class RegularRectangle extends ShapeBase, implements IGraphicShape
 {
-	public var corners		(default, setCorners)	: Corners;
-	
-	
-	public function new (?corners:Corners)
-	{
-		super();
-		this.corners = corners;
-	}
-	
-	
-	override public function dispose ()
-	{
-		corners = null;
-		super.dispose();
-	}
-	
-	
-	public inline function draw (target:IDrawable, x:Int, y:Int, width:Int, height:Int) : Void
+	public inline function draw (target:IGraphicsOwner, bounds:IRectangle, borderRadius:Corners) : Void
 	{
 #if flash9
-		if (corners == null)
-			target.graphics.drawRect( x, y, width, height );
+		if (borderRadius == null)
+			target.graphics.drawRect( bounds.left, bounds.top, bounds.width, bounds.height );
+		
+		
+		else if (borderRadius.allCornersEqual())
+			target.graphics.drawRoundRect(
+				bounds.left - 0.5, bounds.top - 0.5, bounds.width, bounds.height, 
+				borderRadius.topLeft, borderRadius.topRight
+			);
+		
+		
 		else
 			target.graphics.drawRoundRectComplex(
-				x, y, width, height, 
-				corners.topLeft, corners.topRight, corners.bottomLeft, corners.bottomRight
+				bounds.left - 0.5, bounds.top - 0.5, bounds.width, bounds.height, 
+				borderRadius.topLeft, borderRadius.topRight, borderRadius.bottomLeft, borderRadius.bottomRight
 			);
 #end
-	}
-	
-	
-	//
-	// SETTERS
-	//
-	
-	private inline function setCorners (v:Corners)
-	{
-		if (v != corners) {
-			corners = v;
-			invalidate( GraphicFlags.SHAPE );
-		}
-		return v;
 	}
 	
 	
@@ -90,13 +69,6 @@ class RegularRectangle extends ShapeBase, implements IGraphicShape
 	override public function toCSS (prefix:String = "") : String
 	{
 		return "rectangle";
-	}
-#end
-
-#if neko
-	override public function toCode (code:ICodeGenerator)
-	{
-		code.construct( this, [ corners ] );
 	}
 #end
 }

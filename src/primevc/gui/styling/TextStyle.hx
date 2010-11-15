@@ -102,7 +102,7 @@ class TextStyle extends StyleSubBlock
 		family:String				= null,
 		color:Null<RGBA>			= null,
 		weight:FontWeight			= null,
-		style:TextStyle				= null,
+		style:FontStyle				= null,
 		letterSpacing:Float			= Number.INT_NOT_SET,
 		align:TextAlign				= null,
 		decoration:TextDecoration	= null,
@@ -618,7 +618,7 @@ class TextStyle extends StyleSubBlock
 	
 	
 
-#if (debug || neko)
+#if neko
 	override public function toCSS (prefix:String = "")
 	{
 		var css = [];
@@ -645,26 +645,6 @@ class TextStyle extends StyleSubBlock
 	}
 	
 	
-/*	override public function isEmpty () : Bool
-	{
-		return	_size.notSet() &&
-				_family == null &&
-				_color == null &&
-				_weight == null &&
-				_style == null &&
-				_letterSpacing.notSet() &&
-				_align == null &&
-				_decoration == null &&
-				_indent.notSet() &&
-				_transform == null &&
-				_textWrap == null &&
-				_columnCount.notSet() &&
-				_columnGap.notSet() &&
-				_columnWidth.notSet();
-	}*/
-#end
-
-#if neko
 	override public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())

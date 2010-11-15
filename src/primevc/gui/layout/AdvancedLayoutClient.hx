@@ -27,34 +27,38 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout;
-import primevc.types.Number;
+ import primevc.types.Number;
+ import primevc.utils.NumberMath;
+  using primevc.utils.BitUtil;
+  using primevc.utils.NumberUtil;
  
 
+private typedef Flags = LayoutFlags;
+
+
 /**
- * Description
- * 
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
 class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClient
 {
-	public function new (newWidth:Int = 0, newHeight:Int = 0, validateOnPropertyChange = false)
+	public function new (newWidth:Int = Number.INT_NOT_SET, newHeight:Int = Number.INT_NOT_SET, validateOnPropertyChange = false)
 	{
 		super(newWidth, newHeight, validateOnPropertyChange);
-		explicitWidth	= newWidth > 0 ? newWidth : Number.INT_NOT_SET;
-		explicitHeight	= newHeight > 0 ? newHeight : Number.INT_NOT_SET;
-		measuredWidth	= Number.INT_NOT_SET;
-		measuredHeight	= Number.INT_NOT_SET;
+		(untyped this).explicitWidth	= newWidth;
+		(untyped this).explicitHeight	= newHeight;
+		(untyped this).measuredWidth	= Number.INT_NOT_SET;
+		(untyped this).measuredHeight	= Number.INT_NOT_SET;
+		
+	//	changes = changes.unset( Flags.MEASURED_HEIGHT | Flags.MEASURED_WIDTH );
+		if (explicitWidth.isSet())		changes = changes.set( Flags.EXPLICIT_WIDTH );
+		if (explicitHeight.isSet())		changes = changes.set( Flags.EXPLICIT_HEIGHT );
 	}
 	
 	
 	override private function resetProperties () : Void
 	{
-		explicitWidth	= Number.INT_NOT_SET;
-		explicitHeight	= Number.INT_NOT_SET;
-		measuredWidth	= Number.INT_NOT_SET;
-		measuredHeight	= Number.INT_NOT_SET;
-		
+		explicitWidth = explicitHeight = measuredWidth = measuredHeight = Number.INT_NOT_SET;
 		super.resetProperties();
 	}
 	
@@ -79,66 +83,124 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	private inline function setExplicitWidth (v:Int)
 	{
 		if (explicitWidth != v) {
-			explicitWidth = v;
-			if (v != Number.INT_NOT_SET)
-				explicitWidth = width = v;		//setWidth can trigger a size constraint..
+			explicitWidth = width.value = v;
+			invalidate( Flags.EXPLICIT_WIDTH );
 		}
-		return explicitWidth;
+		return v;
 	}
 	
 	
 	private inline function setExplicitHeight (v:Int)
 	{
 		if (explicitHeight != v) {
-			explicitHeight = v;
-			if (v != Number.INT_NOT_SET)
-				explicitHeight = height = v;	//setHeight can trigger a size constraint
+			explicitHeight = height.value = v;
+			invalidate( Flags.EXPLICIT_HEIGHT );
 		}
-		return explicitHeight;
+		return v;
 	}
 	
 	
 	private inline function setMeasuredWidth (v:Int)
 	{
-		if (measuredWidth != v) {
-			measuredWidth = v;
-			if (explicitWidth == Number.INT_NOT_SET)
-				measuredWidth = width = v;		//setWidth can trigger a size constraint..
+		if (measuredWidth != v)
+		{
+			if (explicitWidth.notSet())
+				measuredWidth = width.value = v;
+			else
+				measuredWidth = v;
+			
+			invalidate( Flags.MEASURED_WIDTH );
 		}
-		return measuredWidth;
+		return v;
 	}
 	
 	
 	private inline function setMeasuredHeight (v:Int)
 	{
-		if (measuredHeight != v) {
-			measuredHeight = v;
-			if (explicitHeight == Number.INT_NOT_SET)
-				measuredHeight = height = v;	//setHeight can trigger a size constraint
+		if (measuredHeight != v)
+		{
+			if (explicitHeight.notSet())
+				measuredHeight = height.value = v;
+			else
+				measuredHeight = v;
+			
+			invalidate( Flags.MEASURED_HEIGHT );
 		}
-		return measuredHeight;
+		return v;
 	}
 	
 	
-	override private function setWidth (v:Int)
+	override public function validateHorizontal ()
 	{
-		var newV = super.setWidth(v);
+		if (hasValidatedWidth)
+			return;
 		
-		//set the explicitWidth property if height is set directly and there's no measuredWidth
-		if (measuredWidth != v && explicitWidth != v)
-			explicitWidth = newV;
+		/*if (name == "spreadToolBarLayout") {
+			trace(this+".validateHorizontal 1 "+width.value+"; explicit: "+explicitWidth+"; measured: "+measuredWidth);
+			trace("\t\tchanges: "+Flags.readProperties(changes));
+		}*/
 		
-		return newV;
+	//	if (changes.has( Flags.BOUNDARY_WIDTH ))
+	//		super.validateHorizontal();
+		
+		if (changes.has(Flags.WIDTH) && changes.hasNone( Flags.MEASURED_WIDTH | Flags.EXPLICIT_WIDTH ))
+		{
+		//	explicitWidth = width.value;
+			if (measuredWidth.isSet() && explicitWidth.notSet())
+				measuredWidth = width.value;
+			else
+				explicitWidth = width.value;
+		}
+		else
+		{
+			if ((changes.has(Flags.MEASURED_WIDTH) || width.value.notSet()) && explicitWidth.notSet())
+				width.value = measuredWidth;
+			
+			else if (changes.has(Flags.EXPLICIT_WIDTH))
+				width.value = explicitWidth;
+		}
+		
+		if (changes.has( Flags.WIDTH ))
+		{
+			hasValidatedWidth = false;
+			super.validateHorizontal();
+		}
+	//	trace(this+".validateHorizontal 2 "+width+"; explicit: "+explicitWidth+"; measured: "+measuredWidth+"; "+Flags.readProperties(changes.filter( Flags.WIDTH_PROPERTIES )));
 	}
 	
 	
-	override private function setHeight (v:Int)
+	
+	override public function validateVertical ()
 	{
-		var newV = super.setHeight(v);
-		//set the explicitHeight property if height is set directly and there's no measuredHeight
-		if (measuredHeight != v && explicitHeight != v)
-			explicitHeight = newV;
+		if (hasValidatedHeight)
+			return;
 		
-		return newV;
+	//	if (changes.has( Flags.BOUNDARY_HEIGHT ))
+	//		super.validateVertical();
+		
+	//	trace(this+".validateVertical 1 "+height.value+"; explicit: "+explicitHeight+"; measured: "+measuredHeight+"; "+Flags.readProperties( changes.filter( Flags.HEIGHT_PROPERTIES ) ));
+		if (changes.has(Flags.HEIGHT) && changes.hasNone( Flags.MEASURED_HEIGHT | Flags.EXPLICIT_HEIGHT ))
+		{
+		//	explicitHeight = height.value;	
+			if (measuredHeight.isSet() && explicitHeight.notSet())
+				measuredHeight = height.value;
+			else
+				explicitHeight = height.value;
+		}
+		else
+		{
+			if ((changes.has(Flags.MEASURED_HEIGHT) || height.value.notSet()) && explicitHeight.notSet())
+				height.value = measuredHeight;
+			
+			if (changes.has(Flags.EXPLICIT_HEIGHT))
+				height.value = explicitHeight;
+		}
+		
+		if (changes.has( Flags.HEIGHT ))
+		{
+			hasValidatedHeight = false;
+			super.validateVertical();
+		}
+	//	trace(this+".validateVertical 2 "+height+"; explicit: "+explicitHeight+"; measured: "+measuredHeight+"; "+Flags.readProperties(changes.filter( Flags.HEIGHT_PROPERTIES )));
 	}
 }

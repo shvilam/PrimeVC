@@ -62,18 +62,25 @@ class Corners	implements IClonable < Corners >
 		this.uuid			= StringUtil.createUUID();
 #end
 		this.topLeft		= topLeft;
-		this.topRight		= topRight.isSet()		? this.topLeft : topRight;
-		this.bottomLeft		= bottomLeft.isSet()	? this.topLeft : bottomLeft;
-		this.bottomRight	= bottomRight.isSet()	? this.topRight : bottomRight;
+		this.topRight		= topRight.isSet()		? topRight		: this.topLeft;
+		this.bottomLeft		= bottomLeft.isSet()	? bottomLeft	: this.topLeft;
+		this.bottomRight	= bottomRight.isSet()	? bottomRight	: this.topRight;
 	}
 	
 	
-	public function clone () : Corners { return new Corners( topLeft, topRight, bottomRight, bottomLeft ); }
-	
+	public function clone ()			: Corners	{ return new Corners( topLeft, topRight, bottomRight, bottomLeft ); }
+	public function allCornersEqual ()	: Bool		{ return topLeft == topRight && topLeft == bottomLeft && topLeft == bottomRight; }
 	
 #if neko
 	public function cleanUp () : Void				{}
 	public function isEmpty ()						{ return topLeft.notSet() && topRight.notSet() && bottomRight.notSet() && bottomLeft.notSet(); }
 	public function toCode (code:ICodeGenerator)	{ code.construct( this, [ topLeft, topRight, bottomRight, bottomLeft ] ); }
+#end
+
+#if debug
+	public function toString ()
+	{
+		return "Corners tl: "+topLeft+"; tr: "+topRight+"; br: "+bottomRight+"; bl: "+bottomLeft;
+	}
 #end
 }

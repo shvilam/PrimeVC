@@ -41,7 +41,7 @@ package primevc.gui.core;
  import primevc.gui.display.Stage;
  import primevc.gui.display.Window;
  import primevc.gui.graphics.GraphicProperties;
- import primevc.gui.layout.algorithms.RelativeAlgorithm;
+// import primevc.gui.layout.algorithms.RelativeAlgorithm;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.managers.InvalidationManager;
@@ -55,6 +55,7 @@ package primevc.gui.core;
   using primevc.utils.TypeUtil;
 
 #if flash9
+ import primevc.core.collections.SimpleList;
  import primevc.gui.display.Shape;
 #end
 
@@ -77,7 +78,7 @@ class UIWindow extends Window
 	
 	public var behaviours			(default, null)					: BehaviourList;
 	public var id					(default, null)					: Bindable < String >;
-	public var graphicData			(default, null)					: Bindable < GraphicProperties >;
+	public var graphicData			(default, null)					: GraphicProperties;
 	
 #if flash9
 	/**
@@ -89,10 +90,11 @@ class UIWindow extends Window
 	 * Reference to bgShape.graphics.. Needed for compatibility with IDrawable
 	 */
 	public var graphics				(default, null)					: flash.display.Graphics;
+	public var rect					(default, null)					: IntRectangle;
 	
 	public var style				(default, null)					: UIElementStyle;
-	public var styleClasses			(default, null)					: Bindable < String >;
-	public var rect					(default, null)					: IntRectangle;
+	public var styleClasses			(default, null)					: SimpleList<String>;
+	public var stylingEnabled		(default, setStylingEnabled)	: Bool;
 #end
 	
 	public var renderManager		(default, null)					: RenderManager;
@@ -103,19 +105,22 @@ class UIWindow extends Window
 	{
 		super(target, app);
 		
-		id					= new Bindable<String>("UIWindow");
+		id					= new Bindable<String>( #if debug "UIWindow" #end );
 		renderManager		= new RenderManager(this);
 		invalidationManager	= new InvalidationManager(this);
 		
 		behaviours			= new BehaviourList();
-		graphicData			= new Bindable < GraphicProperties > ();
-		styleClasses		= new Bindable < String >("");
-		style				= new ApplicationStyle(this);
 		rect				= new IntRectangle();
 		
+#if flash9		
+		graphicData			= new GraphicProperties(rect);
+		styleClasses		= new SimpleList<String>();
+		stylingEnabled		= true;
+#end
+		
 		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
-		behaviours.add( new RenderGraphicsBehaviour(this) );
 		behaviours.add( new WindowLayoutBehaviour(this) );
+		behaviours.add( new RenderGraphicsBehaviour(this) );
 		
 #if flash9
 		bgShape		= new Shape();
@@ -124,11 +129,13 @@ class UIWindow extends Window
 #end
 		createBehaviours();
 		createLayout();
-		
+		init();
+	}
+	
+	
+	private function init ()
+	{
 		behaviours.init();
-		style.updateStyles();
-		
-		createGraphics();
 		createChildren();
 
 #if (flash9 && stats)
@@ -142,13 +149,26 @@ class UIWindow extends Window
 		if (displayEvents == null)
 			return;
 		
-		behaviours.dispose();
-		layout.dispose();
-		invalidationManager.dispose();
-		renderManager.dispose();
-		rect.dispose();
+		behaviours			.dispose();
+		layout				.dispose();
+		invalidationManager	.dispose();
+		renderManager		.dispose();
+		rect				.dispose();
+		
+#if flash9
+		bgShape				.dispose();
+		style				.dispose();
+		styleClasses		.dispose();
+		styleClasses		= null;
+		style				= null;
+		bgShape				= null;
+#end
+		
+		if (layout != null)			layout		.dispose();
+		if (graphicData != null)	graphicData	.dispose();
 		
 		behaviours			= null;
+		graphicData			= null;
 		layout				= null;
 		invalidationManager	= null;
 		renderManager		= null;
@@ -158,33 +178,12 @@ class UIWindow extends Window
 	}
 	
 	
-	private inline function removeBehaviours ()
-	{
-		behaviours.dispose();
-		behaviours = null;
-	}
-	
-	
 	private inline function createLayout ()
 	{
 		layout =	#if flash9	new primevc.avm2.layout.StageLayout( target );
 					#else		new LayoutContainer();	#end
-		layoutContainer.algorithm = new RelativeAlgorithm();
+	//	layoutContainer.algorithm = new RelativeAlgorithm();
 	}
-	
-	
-#if flash9
-	private inline function setStyle (v)
-	{
-		return style = v;
-	}
-	
-	
-	public function applyStyling ()
-	{
-		
-	}
-#end
 	
 	
 	//
@@ -193,15 +192,43 @@ class UIWindow extends Window
 	
 	private function createBehaviours ()	: Void;
 	private function createChildren ()		: Void;
-	private function createGraphics ()		: Void;
-	private function removeGraphics ()		: Void;
 	
 	
 	//
 	// GETTERS / SETTERS
 	//
 	
-	private inline function getLayoutContainer () {
+	private inline function getLayoutContainer ()
+	{
 		return layout.as(LayoutContainer);
 	}
+	
+	
+#if flash9
+	private function setStylingEnabled (v:Bool)
+	{
+		if (v != stylingEnabled)
+		{
+			if (stylingEnabled) {
+				style.dispose();
+				style = null;
+			}
+			
+			stylingEnabled = v;
+			if (v) {
+				style = new ApplicationStyle(this);
+				style.updateStyles();
+			}
+		}
+		return v;
+	}
+#end
+
+
+#if debug
+	public function toString ()
+	{
+		return id.value;
+	}
+#end
 }

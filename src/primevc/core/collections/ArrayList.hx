@@ -30,7 +30,8 @@ package primevc.core.collections;
  import primevc.core.collections.iterators.FastArrayForwardIterator;
  import primevc.core.collections.iterators.FastArrayReversedIterator;
  import primevc.core.collections.iterators.IIterator;
- import primevc.core.events.ListEvents;
+ import primevc.core.collections.IList;
+ import primevc.core.dispatcher.Signal1;
  import primevc.utils.FastArray;
   using primevc.utils.FastArray;
  
@@ -42,16 +43,16 @@ package primevc.core.collections;
  * @author			Ruben Weijers
  */
 class ArrayList <DataType> implements IList <DataType>
-	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
+	#if flash9	,	implements haxe.rtti.Generic #end
 {
-	public var events		(default, null)		: ListEvents < DataType >;
+	public var change		(default, null)		: Signal1 < ListChange< DataType > >;
 	private var list		(default, null)		: FastArray < DataType >;
 	public var length		(getLength, never)	: Int;
 	
 	
 	public function new( ?wrapAroundList:FastArray < DataType > )
 	{
-		events = new ListEvents();
+		change = new Signal1();
 		if (wrapAroundList != null)
 			list = wrapAroundList;
 		else
@@ -62,16 +63,16 @@ class ArrayList <DataType> implements IList <DataType>
 	public inline function removeAll ()
 	{
 		FastArrayUtil.removeAll(list);
-		events.reset.send();
+		change.send( ListChange.reset );
 	}
 	
 	
 	public function dispose ()
 	{
 		removeAll();
-		events.dispose();
+		change.dispose();
 		list	= null;
-		events	= null;
+		change	= null;
 	}
 	
 	
@@ -85,10 +86,10 @@ class ArrayList <DataType> implements IList <DataType>
 	}
 	
 	
-	private inline function getLength ()							{ return list.length; }
-	public function iterator () : Iterator <DataType>				{ return getForwardIterator(); }
-	public function getForwardIterator () : IIterator <DataType>	{ return new FastArrayForwardIterator<DataType>(list); }
-	public function getReversedIterator () : IIterator <DataType>	{ return new FastArrayReversedIterator<DataType>(list); }
+	private inline function getLength ()						{ return list.length; }
+	public function iterator () : Iterator <DataType>			{ return cast forwardIterator(); }
+	public function forwardIterator () : IIterator <DataType>	{ return cast new FastArrayForwardIterator<DataType>(list); }
+	public function reversedIterator () : IIterator <DataType>	{ return cast new FastArrayReversedIterator<DataType>(list); }
 	
 	
 	/**
@@ -107,16 +108,18 @@ class ArrayList <DataType> implements IList <DataType>
 	public inline function add (item:DataType, pos:Int = -1) : DataType
 	{
 		pos = list.insertAt(item, pos);
-		events.added.send( item, pos );
+		change.send( ListChange.added( item, pos ) );
 		return item;
 	}
 	
 	
-	public inline function remove (item:DataType) : DataType
+	public inline function remove (item:DataType, oldPos:Int = -1) : DataType
 	{
-		var oldPos = list.indexOf(item);
-		if (list.remove(item))
-			events.removed.send( item, oldPos );
+		if (oldPos == -1)
+			oldPos = list.indexOf(item);
+		
+		if (oldPos > -1 && list.removeItem(item, oldPos))
+			change.send( ListChange.removed( item, oldPos ) );
 		return item;
 	}
 	
@@ -128,7 +131,7 @@ class ArrayList <DataType> implements IList <DataType>
 		else if (newPos < 0)				newPos = length - newPos;
 		
 		if (curPos != newPos && list.move(item, newPos, curPos))
-			events.moved.send( item, curPos, newPos );
+			change.send( ListChange.moved( item, newPos, curPos ) );
 		
 		return item;
 	}

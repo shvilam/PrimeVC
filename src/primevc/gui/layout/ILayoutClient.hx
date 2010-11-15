@@ -28,13 +28,17 @@
  */
 package primevc.gui.layout;
  import primevc.core.geom.Box;
- import primevc.core.geom.constraints.ConstrainedRect;
- import primevc.core.geom.constraints.SizeConstraint;
- import primevc.core.IDisposable;
+ import primevc.core.geom.IntRectangle;
  import primevc.core.states.SimpleStateMachine;
+ import primevc.core.traits.IInvalidatable;
+ import primevc.core.validators.ValidatingValue;
+ import primevc.core.validators.IntRangeValidator;
+ import primevc.core.IDisposable;
  import primevc.gui.events.LayoutEvents;
  import primevc.gui.states.ValidateStates;
- import primevc.gui.traits.IInvalidating;
+
+
+typedef SizeType = ValidatingValue < Int >;
 
 
 /**
@@ -45,7 +49,7 @@ package primevc.gui.layout;
  * @author	Ruben Weijers
  */
 interface ILayoutClient 
-		implements IInvalidating
+		implements IInvalidatable
 	,	implements IDisposable
 {
 	/**
@@ -60,6 +64,11 @@ interface ILayoutClient
 	 */
 	public var validateOnPropertyChange										: Bool;
 	
+	/**
+	 * Flags of properties that are changed
+	 */
+	public var changes							: UInt;
+	
 	
 	/**
 	 * Flag indicating if this client should be included within the layout
@@ -72,7 +81,7 @@ interface ILayoutClient
 	 * the client can let the parent know when it's size or position has
 	 * changed wich could result in revalidating the parents layout.
 	 */
-	public var parent						(default, setParent)			: ILayoutContainer<Dynamic>;
+	public var parent						(default, setParent)			: ILayoutContainer;
 	
 	public var isValidating					(getIsValidating, never)		: Bool;
 	public var isInvalidated				(getIsInvalidated, never)		: Bool;
@@ -138,7 +147,7 @@ interface ILayoutClient
 	/**
 	 * rules for the size (min, max)
 	 */
-	public var sizeConstraint		(default, setSizeConstraint)		: SizeConstraint;
+//	public var sizeConstraint		(default, setSizeConstraint)		: SizeConstraint;
 	/**
 	 * rules for sizing / positioning the layout with relation to the parent
 	 */
@@ -171,12 +180,12 @@ interface ILayoutClient
 	 * Width of the LayoutClient. Changing the width will also change the width
 	 * property in 'bounds'.
 	 */
-	public var width (getWidth, setWidth)			: Int;
+	public var width				(default, null)						: SizeType;
 	/**
 	 * Width of the LayoutClient. Changing the width will also change the height
 	 * property in 'bounds'.
 	 */
-	public var height (getHeight, setHeight)		: Int;
+	public var height				(default, null)						: SizeType;
 	
 	/**
 	 * If percent width is set, the width of the layoutclient will be 
@@ -227,7 +236,8 @@ interface ILayoutClient
 	 * 		- right:	470 (400 + 50 + 20)
 	 * 		- bottom:	380 (300 + 60 + 20)
 	 */
-	public var padding (default, setPadding)	: Box;
+	public var padding	(default, setPadding)	: Box;
+	public var margin	(default, setMargin)	: Box;
 	
 	
 	//
@@ -237,7 +247,14 @@ interface ILayoutClient
 	public var x		(default, setX)			: Int;
 	public var y		(default, setY)			: Int;
 	
-	public var bounds	(default, null)			: ConstrainedRect;
+	/**
+	 * Size of the layouclient including the padding but without the margin
+	 */
+	public var innerBounds	(default, null)		: IntRectangle;
+	/**
+	 * Size of the layouclient including the padding and margin
+	 */
+	public var outerBounds	(default, null)		: IntRectangle;
 	
 	
 #if debug

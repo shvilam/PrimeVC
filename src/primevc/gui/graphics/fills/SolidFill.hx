@@ -33,7 +33,8 @@ package primevc.gui.graphics.fills;
  import primevc.core.geom.IRectangle;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
- import primevc.gui.traits.IDrawable;
+ import primevc.gui.graphics.IGraphicProperty;
+ import primevc.gui.traits.IGraphicsOwner;
  import primevc.types.RGBA;
   using primevc.utils.Color;
 
@@ -44,7 +45,7 @@ package primevc.gui.graphics.fills;
  * @author Ruben Weijers
  * @creation-date Jul 30, 2010
  */
-class SolidFill extends GraphicElement, implements IFill
+class SolidFill extends GraphicElement, implements IGraphicProperty
 {
 	public var color		(default, setColor)	: RGBA;
 	public var isFinished	(default, null)		: Bool;
@@ -58,7 +59,7 @@ class SolidFill extends GraphicElement, implements IFill
 	}
 	
 	
-	public inline function begin (target:IDrawable, ?bounds:IRectangle)
+	public inline function begin (target:IGraphicsOwner, bounds:IRectangle)
 	{
 #if flash9
 		target.graphics.beginFill( color.rgb(), color.alpha().float() );
@@ -67,7 +68,7 @@ class SolidFill extends GraphicElement, implements IFill
 	}
 	
 	
-	public inline function end (target:IDrawable)
+	public inline function end (target:IGraphicsOwner, bounds:IRectangle)
 	{
 #if flash9
 		target.graphics.endFill();
@@ -86,16 +87,8 @@ class SolidFill extends GraphicElement, implements IFill
 	}
 	
 	
-#if (debug || neko)
-	override public function toCSS (prefix:String = "")
-	{
-		return color.string();
-	}
-#end
 #if neko
-	override public function toCode (code:ICodeGenerator)
-	{
-		code.construct( this, [ color ] );
-	}
+	override public function toCSS (prefix:String = "")		{ return color.string(); }
+	override public function toCode (code:ICodeGenerator)	{ code.construct( this, [ color ] ); }
 #end
 }

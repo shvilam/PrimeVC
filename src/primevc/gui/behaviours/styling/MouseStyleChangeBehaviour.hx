@@ -109,7 +109,7 @@ class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 			
 			removeHoverBindings();
 		}
-		else
+		else if (hasHoverState)
 			createHoverBindings();
 		
 		
@@ -121,7 +121,7 @@ class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 			
 			removeDownBindings();
 		}
-		else
+		else if (hasDownState)
 			createDownBindings();
 	}
 	
@@ -198,21 +198,26 @@ class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	private function changeStateToDown ()
 	{
 		state.current = StyleStateFlags.DOWN;
-		downBinding		.disable();
-		upBinding		.enable();
-		globalUpBinding	.enable();
+		
+		if (outBinding != null)			outBinding		.disable();
+		if (overBinding != null)		overBinding		.disable();
+		
+		if (upBinding != null)			upBinding		.enable();
+		if (globalUpBinding != null)	globalUpBinding	.enable();
+		if (downBinding != null)		downBinding		.disable();
 	}
 	
 	
 	private function clearState ()
 	{
 		state.current = StyleStateFlags.NONE;
-		upBinding		.disable();
-		globalUpBinding	.disable();
-		outBinding		.disable();
 		
-		downBinding.enable();
-		overBinding.enable();
+		if (outBinding != null)			outBinding		.disable();
+		if (overBinding != null)		overBinding		.enable();
+		
+		if (upBinding != null)			upBinding		.disable();
+		if (globalUpBinding != null)	globalUpBinding	.disable();
+		if (downBinding != null)		downBinding		.enable();
 	}
 	
 	
@@ -221,8 +226,14 @@ class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 		if (mouseObj.mouseButton() != MouseButton.None)
 			return;
 		
-		state.current = StyleStateFlags.HOVER;
-		overBinding	.disable();
-		outBinding	.enable();
+		//check if there's a hover state, otherwise change state to none
+		state.current = (overBinding != null) ? StyleStateFlags.HOVER : StyleStateFlags.NONE;
+		
+		if (outBinding != null)			outBinding		.enable();
+		if (overBinding != null)		overBinding		.disable();
+		
+		if (upBinding != null)			upBinding		.disable();
+		if (globalUpBinding != null)	globalUpBinding	.disable();
+		if (downBinding != null)		downBinding		.enable();
 	}
 }

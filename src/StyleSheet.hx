@@ -28,6 +28,7 @@
  */
 package ;
  import primevc.gui.styling.StyleBlock;
+ import primevc.gui.styling.StyleBlockType;
 
 
 
@@ -38,7 +39,7 @@ class StyleSheet extends StyleBlock
 {
 	public function new ()
 	{
-		super();
+		super( StyleBlockType.specific );
 		trace("empty style");
 	}
 }

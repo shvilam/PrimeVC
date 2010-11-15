@@ -28,6 +28,7 @@
  */
 package primevc.gui.traits;
  import primevc.core.geom.Rectangle;
+ import primevc.gui.behaviours.drag.DragInfo;
  import primevc.gui.display.ISprite;
  import primevc.gui.events.DragEvents;
 
@@ -40,17 +41,19 @@ package primevc.gui.traits;
  */
 interface IDraggable implements ISprite
 {
+#if flash9
+	public var dropTarget		(default, null)		: flash.display.DisplayObject;
+#else
+	public var dropTarget		(default, null)		: IDisplayable;
+#end
+
 #if !neko
-	public var dragEvents		(default, null)									: DragEvents;
+	public var dragEvents		(default, null)		: DragEvents;
 	public var isDragging		: Bool;
+	
+	public function createDragInfo ()				: DragInfo;
 	
 	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) 		: Void;
 	public function stopDrag()													: Void;
-#end
-	
-#if flash9
-	public var dropTarget		(default, null)									: flash.display.DisplayObject;
-#else
-	public var dropTarget		(default, null)									: IDisplayable;
 #end
 }

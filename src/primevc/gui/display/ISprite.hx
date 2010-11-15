@@ -27,6 +27,11 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.display;
+ import primevc.core.geom.Rectangle;
+#if !flash9
+ import primevc.gui.traits.IDisplayable;
+#end
+ import primevc.gui.traits.IGraphicsOwner;
  import primevc.gui.traits.IInteractive;
 
 
@@ -40,9 +45,16 @@ interface ISprite
 		implements IDisplayContainer
 	,	implements IInteractive
 	,	implements IDisplayObject
+	,	implements IGraphicsOwner
 {
 #if flash9
-	var buttonMode														: Bool;
-	var useHandCursor													: Bool;
+	public var buttonMode						: Bool;
+	public var useHandCursor					: Bool;
+	public var dropTarget		(default, null) : flash.display.DisplayObject;
+	
+	public function stopDrag()	: Void;
+	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) : Void;
+#else
+	public var dropTarget		(default, null)		: IDisplayable;
 #end
 }

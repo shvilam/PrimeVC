@@ -29,6 +29,9 @@
 package primevc.avm2.display;
  import flash.display.DisplayObject;
  import primevc.core.geom.IntRectangle;
+ import primevc.core.IBindable;
+ import primevc.core.Bindable;
+ import primevc.gui.display.DisplayDataCursor;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.display.ITextField;
@@ -36,6 +39,10 @@ package primevc.avm2.display;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.TextEvents;
  import primevc.gui.events.UserEvents;
+ import primevc.gui.text.TextFormat;
+ import primevc.gui.text.TextTransform;
+  using primevc.utils.Bind;
+  using primevc.utils.StringUtil;
   using primevc.utils.TypeUtil;
   using Std;
 
@@ -79,15 +86,30 @@ class TextField extends flash.text.TextField, implements ITextField
 	 */
 	public var realTextHeight	(getRealTextHeight, never)	: Float;
 	
+	public var data				(default, null)				: IBindable < String >;
+	public var value			(getValue, setValue)		: String;
+	public var textStyle		(default, setTextStyle)		: TextFormat;
 	
 	
-	public function new () 
+	public function new (data:IBindable<String> = null)
 	{
 		super();
 		displayEvents	= new DisplayEvents( this );
 		textEvents		= new TextEvents( this );
 		userEvents		= new UserEvents( this );
 		rect			= new IntRectangle( x.int(), y.int(), width.int(), height.int() );
+		this.data		= data == null ? new Bindable<String>(text) : data;
+		textStyle		= new TextFormat();
+		
+		setHandlers.onceOn( displayEvents.addedToStage, this );
+	}
+	
+	
+	private function setHandlers ()
+	{
+		applyValue	.on( data.change, this );
+		updateValue	.on( textEvents.change, this );
+		applyValue();
 	}
 	
 	
@@ -99,11 +121,14 @@ class TextField extends flash.text.TextField, implements ITextField
 		if (container != null)
 			container.children.remove(this);
 		
+		data.dispose();
 		displayEvents.dispose();
 		textEvents.dispose();
 		userEvents.dispose();
 		rect.dispose();
 		
+		data			= null;
+		textStyle		= null;
 		displayEvents	= null;
 		textEvents		= null;
 		userEvents		= null;
@@ -113,8 +138,63 @@ class TextField extends flash.text.TextField, implements ITextField
 	}
 
 
-	public inline function isObjectOn (otherObj:IDisplayObject) : Bool {
+	public function isObjectOn (otherObj:IDisplayObject) : Bool
+	{
 		return otherObj == null ? false : otherObj.as(DisplayObject).hitTestObject( this.as(DisplayObject) );
+	}
+	
+	
+#if !neko
+	public function getDisplayCursor () : DisplayDataCursor
+	{
+		return new DisplayDataCursor(this);
+	}
+#end
+	
+	
+	/**
+	 * Method will apply a text-transform on the value of the text-field.
+	 * TODO: implementation for htmlText
+	 */
+	private function applyValue ()
+	{
+	//	trace(this+".applyValue "+text+" => "+value+"; transform: "+textStyle.transform);
+		if (value != text && value != null)
+			applyTextFormat();
+		else if (value == null)
+			text = "";
+	}
+	
+	
+	private function updateValue ()
+	{
+		if (value != text)
+		{
+			value = text;
+			applyTextFormat();
+		}
+	}
+	
+	
+	private function applyTextFormat ()
+	{
+		var newText = value;
+		if (newText == null)
+			newText = "";
+		
+		if (value != null && textStyle != null && textStyle.transform != null)
+			newText = switch (textStyle.transform) {
+				case capitalize:	newText.capitalize();
+				case uppercase:		newText.toUpperCase();
+				case lowercase:		newText.toLowerCase();
+				default:			newText;
+			}
+		
+		if (newText != text)
+			text = newText;
+		
+	//	trace(this+".applyTextFormat "+textStyle);
+		setTextFormat( textStyle );
 	}
 	
 	
@@ -126,7 +206,8 @@ class TextField extends flash.text.TextField, implements ITextField
 	private inline function setContainer (v)
 	{
 		container	= v;
-		window		= container.window;
+		if (v != null)	window = container.window;
+		else			window = null;
 		return v;
 	}
 	
@@ -136,6 +217,23 @@ class TextField extends flash.text.TextField, implements ITextField
 		return window = v;
 	}
 	
+	
+	private function setTextStyle (v:TextFormat)
+	{
+		textStyle = v;
+		
+		if (v != null) {
+			defaultTextFormat = v;
+			if (window != null)
+				applyTextFormat();
+		}
+		
+		return v; 
+	}
+	
+	
+	private inline function setValue (v:String)		{ return data.value = v; }
+	private inline function getValue () : String	{ return data.value; }
 	
 	private inline function getRealTextWidth ()		{ return textWidth + TEXT_WIDTH_PADDING; }
 	private inline function getRealTextHeight ()	{ return textHeight + TEXT_HEIGHT_PADDING; }

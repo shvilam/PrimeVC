@@ -32,6 +32,10 @@ package primevc.core.states;
  import primevc.utils.FastArray;
 
 
+private typedef NewState = IState;
+private typedef OldState = IState;
+
+
 /**
  * Interface describing the FiniteStateMachine
  * 
@@ -58,10 +62,10 @@ interface IFiniteStateMachine implements haxe.rtti.Infos, implements IDisposable
 	 */
 	var defaultState	(default, setDefaultState)	: IState;
 	/**
-	 * Change dispatcher. First parameter is the old state, the second parameter
-	 * is the new state.
+	 * Change dispatcher. First parameter is the new state, the second parameter
+	 * is the old state.
 	 */
-	var change			(default, null)				: Signal2 < IState, IState >;
+	var change			(default, null)				: Signal2 < NewState, OldState >;
 	
 	
 	

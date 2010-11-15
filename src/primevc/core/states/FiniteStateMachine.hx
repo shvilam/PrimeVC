@@ -94,17 +94,18 @@ class FiniteStateMachine implements IFiniteStateMachine
 		if (newState == null)
 			newState = defaultState;
 		
-		if (!enabled)							return current;	//can't change states when we're not enabled
-		if (current == newState)				return current;	//don't need to change since we're already in this state
-		if (states[ newState.id ] != newState)	return current;	//can't go to a state that isn't part of this FSM
+		if (!enabled)												return current;	//can't change states when we're not enabled
+		if (current == newState)									return current;	//don't need to change since we're already in this state
+		if (newState != null && states[ newState.id ] != newState)	return current;	//can't go to a state that isn't part of this FSM
 		
 		//dispathc exiting event
 		if (current != null)
 			current.exiting.send();
 		
 		//set new state and dispatch change event
-		change.send( current, newState );
-		current = newState;
+		var old	= current;
+		current	= newState;
+		change.send( newState, old );
 		
 		//dispatch entering event
 		if (current != null)
@@ -136,6 +137,7 @@ class FiniteStateMachine implements IFiniteStateMachine
 	// METHODS
 	//
 	
+	public function is (otherState:IState)				{ return current == otherState; }
 	
 	public function enable ()							{ enabled = true; }
 	public function disable ()							{ enabled = false; }

@@ -27,7 +27,11 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.core;
- import primevc.core.dispatcher.Signal1;
+ import primevc.core.dispatcher.Signal2;
+
+
+typedef OldValue <V> = V;
+
 
 /**
  * Read-only interface for 'data-binding'.
@@ -36,14 +40,14 @@ package primevc.core;
  * @author Danny Wilson
  * @creation-date Jun 25, 2010
  */
-interface IBindableReadonly <DataType>
+interface IBindableReadonly <DataType> implements primevc.core.IDisposable
 //	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	/** 
 	 * Dispatched just before "value" is set to a new value.
 	 * Signal argument: The new value.
 	 */
-	public var change	(default, null)	: Signal1<DataType>;
+	public var change	(default, null)	: Signal2<DataType, OldValue< DataType > >;
 	public var value	(default, null)	: DataType;
 	
 	/**

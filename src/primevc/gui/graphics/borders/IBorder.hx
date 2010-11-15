@@ -28,7 +28,7 @@
  */
 package primevc.gui.graphics.borders;
  import primevc.core.geom.IRectangle;
- import primevc.gui.graphics.IGraphicElement;
+ import primevc.gui.graphics.IGraphicProperty;
  import primevc.gui.traits.IDrawable;
 
 
@@ -36,27 +36,27 @@ package primevc.gui.graphics.borders;
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-interface IBorder <FillType> implements IGraphicElement 
+interface IBorder implements IGraphicProperty 
 {
 	public var weight		(default, setWeight)		: Float;
-	public var fill			(default, setFill)			: FillType;
+//	public var fill			(default, setFill)			: FillType;
 	/**
 	 * The capsstyle that is used at the end of lines
 	 */
-	public var caps			(default, setCaps)			: CapsStyle;
+//	public var caps			(default, setCaps)			: CapsStyle;
 	/**
 	 * The jointstyle that is used at angles
 	 */
-	public var joint		(default, setJoint)			: JointStyle;
-	public var pixelHinting	(default, setPixelHinting)	: Bool;
+//	public var joint		(default, setJoint)			: JointStyle;
+//	public var pixelHinting	(default, setPixelHinting)	: Bool;
 	
 	/**
 	 * Should this border be drawn on the inside of the parent shape (true) or
 	 * on the outside of the parentshape.
 	 */
-	public var innerBorder	(default, setInnerBorder)	: Bool;
+//	public var innerBorder	(default, setInnerBorder)	: Bool;
 	
 	
-	public function begin (target:IDrawable, ?bounds:IRectangle) : Void;
-	public function end (target:IDrawable) : Void;
+//	public function begin (target:IDrawable, ?bounds:IRectangle) : Void;
+//	public function end (target:IDrawable) : Void;
 }

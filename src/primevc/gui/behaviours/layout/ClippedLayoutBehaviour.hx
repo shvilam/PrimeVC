@@ -34,7 +34,7 @@ package primevc.gui.behaviours.layout;
  import primevc.core.geom.RectangleFlags;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.traits.IInvalidateListener;
- import primevc.gui.layout.LayoutContainer;
+ import primevc.gui.layout.IScrollableLayout;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.TypeUtil;
@@ -54,7 +54,7 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 #if !neko	,	implements IInvalidateListener #end
 {
 #if !neko
-	private var layoutContainer : LayoutContainer;
+	private var layoutContainer : IScrollableLayout;
 	
 	
 	/**
@@ -90,12 +90,22 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 	private function updateScrollRect ()
 	{
 		var r		= target.scrollRect;
+		r.x = r.y	= 0;
 	//	r.x			= layoutContainer.scrollX;
 	//	r.y			= layoutContainer.scrollY;
-		r.width		= target.rect.width; //layoutContainer.bounds.width;
-		r.height	= target.rect.height; //layoutContainer.bounds.height;
+		r.width		= target.rect.width;
+		r.height	= target.rect.height;
 		
-	//	trace(target+".updated scrollRect " + r);
+		if (target.graphicData.border != null)
+		{
+			var borderSize = target.graphicData.border.weight;
+			r.x			-= borderSize;
+			r.y			-= borderSize;
+			r.width		+= borderSize * 2;
+			r.height	+= borderSize * 2;
+		}
+		
+	//	trace(target+".updated scrollRect " + r+" -> "+target.rect);
 		target.scrollRect = r;
 	}
 
@@ -118,7 +128,7 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 	
 	public function invalidateCall ( changeFromOther:UInt, sender:IInvalidatable )
 	{
-		if (( changeFromOther.has(RectangleFlags.WIDTH) || changeFromOther.has(RectangleFlags.HEIGHT) ) && (target.scrollRect.width != target.rect.width || target.scrollRect.height != target.rect.height) )
+		if ( changeFromOther.has(RectangleFlags.WIDTH | RectangleFlags.HEIGHT) && (target.scrollRect.width != target.rect.width || target.scrollRect.height != target.rect.height) )
 			updateScrollRect();
 	}
 #end

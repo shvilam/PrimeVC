@@ -55,6 +55,9 @@ class Signal4 <A,B,C,D> extends Signal<A->B->C->D->Void>, implements ISender4<A,
 			{
 				Assert.that(w != x);
 				
+				if (b.flags.has(Wire.SEND_ONCE))
+					b.disable();
+				
 				if (w.flags.has(Wire.VOID_HANDLER))
 				 	w.sendVoid();
 				else

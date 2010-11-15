@@ -27,11 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours;
- import primevc.core.dispatcher.Wire;
  import primevc.gui.core.IUIElement;
  import primevc.gui.core.UIWindow;
  import primevc.gui.traits.IDrawable;
- import primevc.gui.traits.IRenderable;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
@@ -44,76 +42,48 @@ package primevc.gui.behaviours;
  * @author Ruben Weijers
  * @creation-date Jul 16, 2010
  */
-class RenderGraphicsBehaviour extends BehaviourBase < IDrawable >, implements IRenderable
+class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >
 {
-	private var graphicsBinding	: Wire <Dynamic>;
-	
 	override private function init ()
 	{
 		Assert.that( target.layout != null );
-		sizeChangeHandler.on( target.layout.events.sizeChanged, this );
-		updateGraphicBinding.on( target.graphicData.change, this );
-		updateGraphicBinding();
-		requestRender();
+		
+		if (target.graphicData != null)
+		{
+			requestRender.on( target.graphicData.changeEvent, this );
+			requestRender();
+		}
 	}
 	
 	
 	override private function reset ()
 	{
-		if (target.layout == null)
-			return;
+		if (target.graphicData != null)
+			target.graphicData.changeEvent.unbind( this );
 		
-		target.layout.events.sizeChanged.unbind(this);
-		
-		if (graphicsBinding != null) {
-			graphicsBinding.dispose();
-			graphicsBinding = null;
-		}
-	}
-	
-	
-	/**
-	 * Event handler which is called when the graphicData property of the target
-	 * changes.
-	 */
-	private inline function updateGraphicBinding ()
-	{
-		if (graphicsBinding != null) {
-			graphicsBinding.dispose();
-			graphicsBinding = null;
-		}
-		
-		if (target.graphicData.value != null)
-			graphicsBinding = requestRender.on( target.graphicData.value.changeEvent, this );
+		super.reset();
 	}
 	
 	
 	public function requestRender ()
 	{
-		if (target.window == null || target.graphicData.value == null || target.graphicData.value.isEmpty())
+		if (target.window == null || target.graphicData.isEmpty() || nextValidatable != null || prevValidatable != null)
 			return;
 		
-		target.window.as(UIWindow).renderManager.add( this );
+		getValidationManager().add( this );
 	}
 	
 	
-	public function render ()
+	override public function validate ()
 	{
+	//	trace(target+".render "+target.rect);
 		target.graphics.clear();
-		target.graphicData.value.draw( target, false );
+		target.graphicData.draw( target, false );
 	}
 	
 	
-	private function sizeChangeHandler ()
+	override private function getValidationManager ()
 	{
-		var t:IUIElement = target.is(IUIElement) ? target.as(IUIElement) : null;
-	//	trace(target+".sizeChanged; "+target.layout.bounds.width+", "+target.layout.bounds.height);
-		if (t == null || t.effects == null)
-		{
-			target.rect.width	= target.layout.bounds.width;
-			target.rect.height	= target.layout.bounds.height;
-		} else {
-			t.effects.playResize();
-		}
+		return (target.window != null) ? cast target.window.as(UIWindow).renderManager : null;
 	}
 }

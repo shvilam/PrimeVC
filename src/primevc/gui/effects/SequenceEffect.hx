@@ -63,7 +63,7 @@ class SequenceEffect extends CompositeEffect
 	}
 	
 	
-#if (debug || neko)
+#if neko
 	override public function toCSS (prefix:String = "") : String
 	{
 		return "sequence " + super.toCSS(prefix);

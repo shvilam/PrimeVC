@@ -42,9 +42,9 @@ interface ISkinnable implements IDisplayable
 	 * Factory method for creating the default skin of this UIComponent.
 	 * After creating the child componentns, the skin will be created.
 	 */
-	private function createSkin ()			: Void;
+//	private function createSkin ()			: Void;
 	/**
 	 * Implement this method to clean-up the skin of the component
 	 */
-	private function removeSkin ()			: Void;
+//	private function removeSkin ()			: Void;
 }

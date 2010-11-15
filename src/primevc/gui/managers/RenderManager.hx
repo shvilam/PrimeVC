@@ -27,8 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.managers;
- import primevc.gui.display.Window;
- import primevc.gui.traits.IRenderable;
+ import primevc.gui.traits.IValidatable;
   using primevc.utils.Bind;
 
 
@@ -39,12 +38,12 @@ package primevc.gui.managers;
  * @author Ruben Weijers
  * @creation-date Sep 03, 2010
  */
-class RenderManager extends QueueManager < IRenderable, Window >
+class RenderManager extends QueueManager
 {
 	public function new (owner)
 	{
 		super(owner);
-		updateQueueBinding = renderQueue.on( owner.displayEvents.render, this );
+		updateQueueBinding = validateQueue.on( owner.displayEvents.render, this );
 		updateQueueBinding.disable();
 	}
 	
@@ -57,15 +56,7 @@ class RenderManager extends QueueManager < IRenderable, Window >
 		super.enableBinding();
 	}
 	
-	
-	private function renderQueue ()
-	{
-		var item:IRenderable;
-		while (queue.length > 0) {
-			item = queue.pop();
-			item.render();
-		}
-		
-		updateQueueBinding.disable();
-	}
+#if debug
+	override public function toString () { return "RenderManager"; }
+#end
 }

@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.graphics;
-
+  using primevc.utils.BitUtil;
 
 
 /**
@@ -43,4 +43,20 @@ class GraphicFlags
 	public static inline var SHAPE		: Int = 4;
 	public static inline var LAYOUT		: Int = 8;
 	public static inline var PROPERTIES	: Int = 16;
+	
+	
+#if debug
+	public static function readProperties (flags:UInt) : String
+	{
+		var output	= [];
+		
+		if (flags.has( FILL ))			output.push("fill");
+		if (flags.has( BORDER ))		output.push("border");
+		if (flags.has( SHAPE ))			output.push("shape");
+		if (flags.has( LAYOUT ))		output.push("layout");
+		if (flags.has( PROPERTIES ))	output.push("properties");
+		
+		return "properties: " + output.join(", ");
+	}
+#end
 }

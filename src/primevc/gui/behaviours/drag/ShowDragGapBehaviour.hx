@@ -27,13 +27,14 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.drag;
- import primevc.core.geom.Point;
+ import primevc.core.dispatcher.Wire;
+// import primevc.core.geom.Point;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.IUIContainer;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.traits.IDropTarget;
- import primevc.utils.IntMath;
+ import primevc.utils.NumberMath;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
   using Std;
@@ -48,9 +49,11 @@ package primevc.gui.behaviours.drag;
  */
 class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 {
-	private var draggedItem : DragSource;
-	private var layoutGroup	: LayoutContainer;
-
+	private var draggedItem				: DragInfo;
+	private var layoutGroup				: LayoutContainer;
+	private var oldMouseChildrenValue	: Bool;
+	private var mouseMoveBinding		: Wire < Dynamic >;
+	
 
 	override private function init ()
 	{
@@ -66,29 +69,43 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 		layoutGroup = null;
 		target.dragEvents.over.unbind(this);
 		target.dragEvents.out.unbind(this);
-		target.window.mouse.events.move.unbind(this);
+		
+		if (mouseMoveBinding != null) {
+			mouseMoveBinding.dispose();
+			mouseMoveBinding = null;
+		}
 	}
 	
 	
-	private function dragOverHandler (source:DragSource)
+	private function dragOverHandler (source:DragInfo)
 	{
-		draggedItem = source;
-		updateTargetAfterMouseMove.on( target.window.mouse.events.move, this );
+		draggedItem						= source;
+		oldMouseChildrenValue			= target.children.mouseEnabled;
+		target.children.mouseEnabled	= false;
+		
+		if (mouseMoveBinding == null)
+			mouseMoveBinding = updateTargetAfterMouseMove.on( target.window.mouse.events.move, this );
+		else
+			mouseMoveBinding.enable();
 	}
 	
 	
-	private function removeTmpTileFromLayout (source:DragSource)
+	private function removeTmpTileFromLayout (source:DragInfo)
 	{
-		target.window.mouse.events.move.unbind( this );
+		Assert.notNull( source.layout );
+		Assert.notNull( mouseMoveBinding );
+		
+		mouseMoveBinding.disable();
 		layoutGroup.children.remove( source.layout );
 		draggedItem = null;
+		target.children.mouseEnabled = oldMouseChildrenValue;
 	}
 	
 	
 	private function updateTargetAfterMouseMove (mouseObject:MouseState)
 	{
 		var newDepth	= target.children.length;
-		var dragPos		= target.globalToLocal( new Point( draggedItem.target.x, draggedItem.target.y ) );
+		var dragPos		= mouseObject.local;  //target.globalToLocal( new Point( draggedItem.target.x, draggedItem.target.y ) );
 		var curDepth	= layoutGroup.children.indexOf(draggedItem.layout);
 		var rect		= draggedItem.dragRectangle;
 		rect.left		= dragPos.x.int();
@@ -97,10 +114,7 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 		if (layoutGroup.algorithm != null)
 			newDepth = IntMath.min( newDepth, layoutGroup.algorithm.getDepthForBounds( rect ) );
 		
-		//lower with one if the object should be placed at the end of the list, and is already there
-	//	if (curDepth > -1 && newDepth == target.children.length)
-	//		newDepth -= 1;
-		
+	//	trace("updateTargetAfterMouseMove "+curDepth+" -> "+newDepth);
 		if (curDepth == -1)
 			layoutGroup.children.add( draggedItem.layout, newDepth );
 		else if (curDepth != newDepth)

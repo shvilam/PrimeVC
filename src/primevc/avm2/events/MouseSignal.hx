@@ -83,7 +83,7 @@ class MouseSignal extends Signal1<MouseState>, implements IWireWatcher<MouseHand
 	}
 	
 	
-	static public function stateFromFlashEvent( e, clickCount:Int ) : MouseState
+	static public function stateFromFlashEvent( e:MouseEvent, clickCount:Int ) : MouseState
 	{
 		var flags;
 		
@@ -105,6 +105,7 @@ class MouseSignal extends Signal1<MouseState>, implements IWireWatcher<MouseHand
 		flags = //TODO: Implement AIR support
 #else error
 #end
+	//	trace("stateFromFlashEvent "+e.type+"; "+e.localX+", "+e.localY+"; "+e.stageX+", "+e.stageY);
 		return new MouseState(flags, e.target, new Point(e.localX, e.localY), new Point(e.stageX, e.stageY));
 	}
 

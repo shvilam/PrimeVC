@@ -29,10 +29,12 @@
 package primevc.avm2.display;
  import flash.display.DisplayObject;
  import primevc.core.geom.IntRectangle;
- import primevc.gui.events.DisplayEvents;
+ import primevc.gui.display.DisplayDataCursor;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.display.Window;
+ import primevc.gui.events.DisplayEvents;
+ import primevc.gui.traits.IGraphicsOwner;
   using primevc.utils.TypeUtil;
   using Std;
 
@@ -43,7 +45,7 @@ package primevc.avm2.display;
  * @creation-date	Jun 11, 2010
  * @author			Ruben Weijers
  */
-class Shape extends flash.display.Shape, implements IDisplayObject
+class Shape extends flash.display.Shape, implements IDisplayObject, implements IGraphicsOwner
 {
 	public var container		(default, setContainer)	: IDisplayContainer;
 	public var window			(default, setWindow)	: Window;
@@ -77,9 +79,18 @@ class Shape extends flash.display.Shape, implements IDisplayObject
 	}
 
 
-	public inline function isObjectOn (otherObj:IDisplayObject) : Bool {
+	public function isObjectOn (otherObj:IDisplayObject) : Bool
+	{
 		return otherObj == null ? false : otherObj.as(DisplayObject).hitTestObject( this.as(DisplayObject) );
 	}
+	
+	
+#if !neko
+	public function getDisplayCursor () : DisplayDataCursor
+	{
+		return new DisplayDataCursor(this);
+	}
+#end
 	
 	
 	
@@ -89,7 +100,8 @@ class Shape extends flash.display.Shape, implements IDisplayObject
 	
 	private inline function setContainer (v) {
 		container	= v;
-		window		= container.window;
+		if (v != null)	window = container.window;
+		else			window = null;
 		return v;
 	}
 	

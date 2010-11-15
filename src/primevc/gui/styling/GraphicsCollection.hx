@@ -65,6 +65,7 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		if (!target.is(IDrawable))		changes = changes.unset( Flags.DRAWING_PROPERTIES );
 		if (!target.is(IUIContainer))	changes = changes.unset( Flags.OVERFLOW );
 		if (!target.is(IDisplayObject))	changes = changes.unset( Flags.OPACITY | Flags.VISIBLE );
+		if (!target.is(IIconOwner))		changes = changes.unset( Flags.ICON );
 		
 		if (changes == 0)
 			return;
@@ -73,8 +74,10 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		// LOOP THROUGH ALL AVAILABLE STLYE-BLOCKS TO FIND THE STYLING PROPERTIES
 		//
 		
-		var graphicProps = (changes.has( Flags.DRAWING_PROPERTIES )) ? getGraphicsObj() : null;
-	//	trace(target + ".applyGeneralStyling "+readProperties( changes ));
+		var graphicProps:GraphicProperties = null;
+		if (changes.has( Flags.DRAWING_PROPERTIES ))
+			graphicProps = elementStyle.target.as(IDrawable).graphicData;
+	//	trace(target + ".applyGeneralStyling "+readProperties( changes )+"; "+(graphicProps != null));
 		
 		for (styleObj in this)
 		{
@@ -98,31 +101,24 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 	
 	private function applyGraphicsStyleObj (propsToSet:UInt, styleObj:GraphicsStyle, graphicProps:GraphicProperties)
 	{
-		var target = elementStyle.target;
+		var target	= elementStyle.target;
+		var empty	= styleObj == null;
 		
-		if ( propsToSet.has( Flags.SKIN ) )			target.as(ISkinnable).skin			= (styleObj.skin != null) ? Type.createInstance( styleObj.skin, null ) : null;
-		if ( propsToSet.has( Flags.SHAPE ) )		graphicProps.shape					= styleObj.shape;
-		if ( propsToSet.has( Flags.BACKGROUND ) )	graphicProps.fill					= styleObj.background;
-		if ( propsToSet.has( Flags.BORDER ) )		graphicProps.border					= styleObj.border;
-		if ( propsToSet.has( Flags.OPACITY ) )		target.as(IDisplayObject).alpha		= styleObj.opacity;
-		if ( propsToSet.has( Flags.VISIBLE ) )		target.as(IDisplayObject).visible	= styleObj.visible;
-		if ( propsToSet.has( Flags.OVERFLOW ) )
+		if ( propsToSet.has( Flags.SKIN ))			target.as(ISkinnable).skin			= empty ? null	: (styleObj.skin != null) ? Type.createInstance( styleObj.skin, null ) : null;
+		if ( propsToSet.has( Flags.SHAPE ))			graphicProps.shape					= empty ? null	: styleObj.shape;
+		if ( propsToSet.has( Flags.BACKGROUND ))	graphicProps.fill					= empty ? null	: styleObj.background;
+		if ( propsToSet.has( Flags.BORDER ))		graphicProps.border					= empty ? null	: styleObj.border;
+		if ( propsToSet.has( Flags.BORDER_RADIUS ))	graphicProps.borderRadius			= empty ? null	: styleObj.borderRadius;
+		if ( propsToSet.has( Flags.ICON ))			target.as(IIconOwner).icon			= empty ? null	: styleObj.icon;
+		if ( propsToSet.has( Flags.OPACITY ))		target.as(IDisplayObject).alpha		= empty ? 1		: styleObj.opacity;
+		if ( propsToSet.has( Flags.VISIBLE ))		target.as(IDisplayObject).visible	= empty ? true	: styleObj.visible;
+		if ( propsToSet.has( Flags.OVERFLOW ))
 		{
 			if (styleObj.overflow != null)
 				target.as(IUIContainer).behaviours.add( Type.createInstance( styleObj.overflow, [ target ] ) );
 		//	else
 		//		target.behaviours.remove(  )
 		}
-	}
-	
-	
-	private  function getGraphicsObj () : GraphicProperties
-	{
-		var target = elementStyle.target.as(IDrawable);
-		if (target.graphicData.value == null)
-			return target.graphicData.value = new GraphicProperties(null, target.rect);
-		else
-			return target.graphicData.value;
 	}
 }
 

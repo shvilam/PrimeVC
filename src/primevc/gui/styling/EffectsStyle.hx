@@ -327,7 +327,7 @@ class EffectsStyle extends StyleSubBlock
 	
 	
 	
-#if (neko || debug)
+#if neko
 	override public function toCSS (prefix:String = "")
 	{
 		var css = [];
@@ -343,9 +343,8 @@ class EffectsStyle extends StyleSubBlock
 		else
 			return "";
 	}
-#end
-
-#if neko
+	
+	
 	override public function cleanUp ()
 	{
 		if (_move != null)

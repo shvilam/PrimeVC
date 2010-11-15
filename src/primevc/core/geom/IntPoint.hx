@@ -109,21 +109,9 @@ class IntPoint	implements IClonable <IntPoint>
 	}
 	
 	
-#if (debug || neko)
-	public inline function toString ()
-	{
-		return "IntPoint( "+x+", "+y+" )";
-	}
-	
-	
-	public function toCSS (prefix:String = "")
-	{
-		return x + "px, " + y + "px";
-	}
-#end
-	
-	
 #if neko
+	public inline function toString ()				{ return "IntPoint( "+x+", "+y+" )"; }
+	public function toCSS (prefix:String = "")		{ return x + "px, " + y + "px"; }
 	public function cleanUp () : Void				{}
 	public function toCode (code:ICodeGenerator)	{ code.construct( this, [ x, y ] ); }
 	public function isEmpty ()						{ return x.notSet() && y.notSet(); }

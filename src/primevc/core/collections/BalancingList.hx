@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.collections;
+ import primevc.core.collections.IList;
  
 
 /**
@@ -62,11 +63,11 @@ class BalancingList <DataType> extends SimpleList <DataType>
 			//move the item who is currently at the position 'pos' to the next list
 			var curCell = getCellAt(pos);
 			nextList.add(curCell.data, nextListPos);
-			events.removed.send( curCell.data, pos );
+			change.send( ListChange.removed( curCell.data, pos ) );
 			
 			//set the item in the current cell
 			curCell.data = item;
-			events.added.send( item, pos );
+			change.send( ListChange.added( item, pos ) );
 			return item;
 		}
 		else
@@ -76,25 +77,27 @@ class BalancingList <DataType> extends SimpleList <DataType>
 	}
 	
 	
-	override public function remove (item:DataType) : DataType
+	override public function remove (item:DataType, oldDepth:Int = -1) : DataType
 	{
-		var depth		= indexOf(item);
-		var nextDepth	= listNum == maxLists ? depth + 1 : depth;
+		if (oldDepth == -1)
+			oldDepth	= indexOf(item);
+		
+		var nextDepth	= (listNum == maxLists) ? oldDepth + 1 : oldDepth;
 		
 		if (nextList != null && nextDepth < nextList.length)
 		{
-			var cell		= getCellAt(depth);
+			var cell	= getCellAt(oldDepth);
 			//move the item at this depth from the nextlist to this list if the removed item isn't the last item.
 			//1. get the next item from the next list
 			var newCell = nextList.getCellAt(nextDepth);
 			var newData = newCell.data;
 			//2. remove the item from the next list
 			nextList.remove(newData);
-			events.removed.send( cell.data, depth );
+			change.send( ListChange.removed( cell.data, oldDepth ) );
 			
 			//3. add the item to this list without moving the next list
 			cell.data = newData;
-			events.added.send( cell.data, depth );
+			change.send( ListChange.added( cell.data, oldDepth ) );
 			
 			return item;
 		}
@@ -111,8 +114,8 @@ class BalancingList <DataType> extends SimpleList <DataType>
 		var oldData		= curCell.data;
 		curCell.data	= newItem;
 		
-		events.added.send( newItem, toDepth );
-		events.removed.send( oldData, toDepth );
+		change.send( ListChange.added( newItem, toDepth ) );
+		change.send( ListChange.removed( oldData, toDepth ) );
 		
 		return oldData;
 	}

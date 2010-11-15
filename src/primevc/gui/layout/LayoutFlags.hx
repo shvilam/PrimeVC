@@ -38,8 +38,11 @@ package primevc.gui.layout;
  */
 class LayoutFlags 
 {
-	public static inline var ALL_PROPERTIES			: UInt = WIDTH | HEIGHT | INCLUDE | RELATIVE | ALGORITHM | MAX_WIDTH | MAX_HEIGHT | PERCENT_WIDTH | PERCENT_HEIGHT | PADDING | MAINTAIN_ASPECT | ROTATION | CHILD_WIDTH | CHILD_HEIGHT;
-	public static inline var CONSTRAINT_PROPERTIES	: UInt = MIN_WIDTH | MIN_HEIGHT | MAX_WIDTH | MAX_HEIGHT;
+	public static inline var ALL_PROPERTIES			: UInt = WIDTH | HEIGHT | INCLUDE | RELATIVE | ALGORITHM | MAX_WIDTH | MAX_HEIGHT | PERCENT_WIDTH | PERCENT_HEIGHT | PADDING | MARGIN | MAINTAIN_ASPECT | ROTATION | CHILD_WIDTH | CHILD_HEIGHT;
+	public static inline var WIDTH_CONSTRAINTS		: UInt = MIN_WIDTH | MAX_WIDTH;
+	public static inline var HEIGHT_CONSTRAINTS		: UInt = MIN_HEIGHT | MAX_HEIGHT;
+	public static inline var WIDTH_PROPERTIES		: UInt = WIDTH | MEASURED_WIDTH | EXPLICIT_WIDTH;
+	public static inline var HEIGHT_PROPERTIES		: UInt = HEIGHT | MEASURED_HEIGHT | EXPLICIT_HEIGHT;
 	
 	public static inline var WIDTH					: UInt = 1;
 	public static inline var HEIGHT					: UInt = 2;
@@ -68,31 +71,42 @@ class LayoutFlags
 	 */
 	public static inline var ALGORITHM				: UInt = 256;
 	/**
-	 * Flag indicating that the size-constraUInt of the layout-client is changed
+	 * Flag indicating that the width validator is changed
 	 */
-	public static inline var SIZE_CONSTRAINT		: UInt = 512;
+	public static inline var WIDTH_VALIDATOR		: UInt = 512;
+	/**
+	 * Flag indicating that the height validator is changed
+	 */
+	public static inline var HEIGHT_VALIDATOR		: UInt = 268435456;
 	
 	public static inline var MAX_WIDTH				: UInt = 1024;
 	public static inline var MIN_WIDTH				: UInt = 2048;
 	public static inline var PERCENT_WIDTH			: UInt = 4096;
+//	public static inline var BOUNDARY_WIDTH			: UInt = 8192;
+	public static inline var MEASURED_WIDTH			: UInt = 8388608;
+	public static inline var EXPLICIT_WIDTH			: UInt = 16777216;
 	
-	public static inline var MAX_HEIGHT				: UInt = 8192;
-	public static inline var MIN_HEIGHT				: UInt = 16384;
-	public static inline var PERCENT_HEIGHT			: UInt = 32768;
+	public static inline var MAX_HEIGHT				: UInt = 16384;
+	public static inline var MIN_HEIGHT				: UInt = 32768;
+	public static inline var PERCENT_HEIGHT			: UInt = 65536;
+//	public static inline var BOUNDARY_HEIGHT		: UInt = 131072;
+	public static inline var MEASURED_HEIGHT		: UInt = 33554432;
+	public static inline var EXPLICIT_HEIGHT		: UInt = 67108864;
 	
-	public static inline var PADDING				: UInt = 65536;
-	public static inline var MAINTAIN_ASPECT		: UInt = 131072;
-	public static inline var ROTATION				: UInt = 262144;
+	public static inline var MARGIN					: UInt = 134217728;
+	public static inline var PADDING				: UInt = 262144;
+	public static inline var MAINTAIN_ASPECT		: UInt = 524288;
+	public static inline var ROTATION				: UInt = 1048576;
 	
-	public static inline var CHILD_WIDTH			: UInt = 524288;
-	public static inline var CHILD_HEIGHT			: UInt = 1048576;
+	public static inline var CHILD_WIDTH			: UInt = 2097152;
+	public static inline var CHILD_HEIGHT			: UInt = 4194304;
 	
 	
 	/**
 	 * Property is not meant as a flag but to incicate that a layout-client.
 	 * percentage property is set to fill the left space
 	 */
-	public static inline var FILL					: UInt = #if neko 1073741821 #else 2147483644 #end;
+	public static inline var FILL					: Int = #if neko -1073741821 #else -2147483644 #end;
 
 
 #if debug
@@ -101,13 +115,20 @@ class LayoutFlags
 		var output	= [];
 		
 		if (flags.has( ALGORITHM ))				output.push("algorithm");
+	//	if (flags.has( BOUNDARY_HEIGHT ))		output.push("boundary-height");
+	//	if (flags.has( BOUNDARY_WIDTH ))		output.push("boundary-width");
 		if (flags.has( CHILD_HEIGHT ))			output.push("child-height");
 		if (flags.has( CHILD_WIDTH ))			output.push("child-width");
 		if (flags.has( CHILDREN_INVALIDATED ))	output.push("children_invalidated");
+		if (flags.has( EXPLICIT_HEIGHT ))		output.push("explicit-height");
+		if (flags.has( EXPLICIT_WIDTH))			output.push("explicit-width");
 		if (flags.has( HEIGHT ))				output.push("height");
 		if (flags.has( INCLUDE ))				output.push("include");
 		if (flags.has( LIST ))					output.push("list");
 		if (flags.has( MAINTAIN_ASPECT ))		output.push("maintain-aspect-ratio");
+		if (flags.has( MARGIN ))				output.push("margin");
+		if (flags.has( MEASURED_HEIGHT ))		output.push("measured-height");
+		if (flags.has( MEASURED_WIDTH ))		output.push("measured-width");
 		if (flags.has( MAX_HEIGHT ))			output.push("max-height");
 		if (flags.has( MAX_WIDTH ))				output.push("max-width");
 		if (flags.has( MIN_HEIGHT ))			output.push("min-height");
@@ -117,12 +138,13 @@ class LayoutFlags
 		if (flags.has( PERCENT_WIDTH ))			output.push("percent-width");
 		if (flags.has( RELATIVE ))				output.push("relative");
 		if (flags.has( ROTATION ))				output.push("rotation");
-		if (flags.has( SIZE_CONSTRAINT ))		output.push("size constraint");
+		if (flags.has( WIDTH_VALIDATOR ))		output.push("width-validator");
+		if (flags.has( HEIGHT_VALIDATOR ))		output.push("height-validator");
 		if (flags.has( X ))						output.push("x");
 		if (flags.has( Y ))						output.push("y");
 		if (flags.has( WIDTH ))					output.push("width");
 		
-		return "properties: " + output.join(", ");
+		return "properties: " + output.join(", ")+" ("+flags+")";
 	}
 	
 	
@@ -138,7 +160,8 @@ class LayoutFlags
 			case LIST:					"list";
 			case CHILDREN_INVALIDATED:	"children_invalidated";
 			case ALGORITHM:				"algorithm";
-			case SIZE_CONSTRAINT:		"size constraint";
+			case WIDTH_VALIDATOR:		"width-validator";
+			case HEIGHT_VALIDATOR:		"height-validator";
 			default:					"unkown(" + flag + ")";
 		}
 	}

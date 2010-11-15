@@ -54,6 +54,9 @@ class Signal0 extends Signal<Void->Void>, implements ISender0, implements INotif
 			if (b.isEnabled())
 			{
 				Assert.that(b != x);
+				if (b.flags.has(Wire.SEND_ONCE))
+					b.disable();
+				
 				b.handler();
 				
 				if (b.flags.has(Wire.SEND_ONCE))

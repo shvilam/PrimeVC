@@ -36,4 +36,7 @@ package primevc.core.traits;
 interface IPrioritizable
 {
 	public function getPriority () : Int;
+#if debug
+	public function getPriorityName () : String;
+#end
 }

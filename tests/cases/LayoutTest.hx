@@ -18,7 +18,7 @@ package cases;
  import primevc.gui.behaviours.drag.DragMoveBehaviour;
  import primevc.gui.behaviours.drag.DropTargetBehaviour;
  import primevc.gui.behaviours.drag.ShowDragGapBehaviour;
- import primevc.gui.behaviours.drag.DragSource;
+ import primevc.gui.behaviours.drag.DragInfo;
  import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
  import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
  import primevc.gui.behaviours.BehaviourBase;
@@ -27,7 +27,7 @@ package cases;
  import primevc.gui.behaviours.scroll.DragScrollBehaviour;
  import primevc.gui.core.IUIComponent;
  import primevc.gui.core.IUIElement;
- import primevc.gui.core.UIContainer;
+ import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UIDataComponent;
  import primevc.gui.core.UIGraphic;
  import primevc.gui.core.UITextField;
@@ -105,7 +105,7 @@ class LayoutTestWindow extends UIWindow
  * @creation-date	Jun 15, 2010
  * @author			Ruben Weijers
  */
-class LayoutApp extends UIContainer <Dynamic>
+class LayoutApp extends UIDataContainer <Dynamic>
 {
 	public function new ()
 	{
@@ -545,7 +545,7 @@ class ScrollBar extends UIComponent
 
 
 
-class Frame extends UIContainer < String >
+class Frame extends UIDataContainer < String >
 {
 #if debug
 	public var textField	: TextField;
@@ -582,7 +582,7 @@ class Frame extends UIContainer < String >
 
 /*
 
-class UIList <ListType:IList, RenderType:IUIElement> extends UIContainer < ListType >
+class UIList <ListType:IList, RenderType:IUIElement> extends UIDataContainer < ListType >
 { 
 	
 }
@@ -677,7 +677,7 @@ class TileList extends Frame, implements IDropTarget
 	// IDROPTARGET IMPLEMENTATION
 	//
 
-	public inline function isDropAllowed (draggedItem:DragSource) : Bool {
+	public inline function isDropAllowed (draggedItem:DragInfo) : Bool {
 		return (draggedItem.target.is(Tile) && (allowDropFromOtherLists || this == draggedItem.origContainer));
 	}
 	public inline function getDepthForBounds (bounds:IRectangle) : Int {

@@ -28,18 +28,37 @@
  */
 package primevc.core.collections;
  import primevc.core.collections.iterators.IIterator;
- import primevc.core.events.ListEvents;
+ import primevc.core.dispatcher.Signal1;
  import primevc.core.traits.IClonable;
  import primevc.core.IDisposable;
+
+
+typedef OldPos = Int;
+typedef NewPos = Int;
+
+/**
+ * @author			Ruben Weijers
+ * @creation-date	Oct 26, 2010
+ */
+enum ListChange <T>
+{
+	added ( item:T, newPos:NewPos );
+	removed ( item:T, oldPos:OldPos );
+	moved ( item:T, newPos:NewPos, oldPos:OldPos );
+	reset;
+}
  
 
 /**
  * @creation-date	Jun 29, 2010
  * @author			Ruben Weijers
  */
-interface IList <DataType> implements IClonable<IList<DataType>>, implements IDisposable
+interface IList <DataType> 
+		implements IClonable < IList < DataType > >
+	,	implements IDisposable
 {
-	public var events		(default, null)									: ListEvents <DataType>;
+//	public var events		(default, null)									: ListEvents <DataType>;
+	public var change		(default, null)									: Signal1 < ListChange < DataType > >;
 	public var length		(getLength, never)								: Int;
 	
 	
@@ -62,7 +81,7 @@ interface IList <DataType> implements IClonable<IList<DataType>>, implements IDi
 	 * @param	item
 	 * @return	item
 	 */
-	public function remove	(item:DataType)										: DataType;
+	public function remove	(item:DataType, oldPos:Int = -1)					: DataType;
 	/**
 	 * Method will change the depth of the given item.
 	 * 
@@ -97,8 +116,8 @@ interface IList <DataType> implements IClonable<IList<DataType>>, implements IDi
 	
 	public function getItemAt (pos:Int)			: DataType;
 	public function iterator ()					: Iterator <DataType>;
-	public function getForwardIterator ()		: IIterator <DataType>;
-	public function getReversedIterator ()		: IIterator <DataType>;
+	public function forwardIterator ()		: IIterator <DataType>;
+	public function reversedIterator ()		: IIterator <DataType>;
 	
 	
 #if debug

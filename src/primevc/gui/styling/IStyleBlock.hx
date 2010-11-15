@@ -39,7 +39,7 @@ package primevc.gui.styling;
  * @creation-date Aug 05, 2010
  */
 interface IStyleBlock
-				implements IInvalidatable	
+				implements IInvalidatable
 			,	implements ICSSFormattable
 #if neko	,	implements ICodeFormattable		#end
 {

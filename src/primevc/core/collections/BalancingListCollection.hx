@@ -28,9 +28,10 @@
  */
 package primevc.core.collections;
  import primevc.core.collections.iterators.IIterator;
- import primevc.core.events.ListEvents;
- import primevc.utils.IntMath;
-  using primevc.utils.IntMath;
+ import primevc.core.collections.IList;
+ import primevc.core.dispatcher.Signal1;
+ import primevc.utils.NumberMath;
+  using primevc.utils.NumberMath;
   using primevc.utils.TypeUtil;
  
 
@@ -76,8 +77,8 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 {
 	private var _length		: Int;
 	public var length		(getLength, never)			: Int;
-	public var events		(default, null)				: ListEvents <DataType>;
-	public var lists		(default, null)				: ArrayList < BalancingList<DataType> > ;
+	public var change		(default, null)				: Signal1 < ListChange < DataType > >;
+	public var lists		(default, null)				: ArrayList < BalancingList < DataType > > ;
 	
 	/**
 	 * Maximum number of lists that will be balanced.
@@ -96,26 +97,23 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 	
 	public function new (max) 
 	{
-		events			= new ListEvents();
-		lists			= new ArrayList< BalancingList<DataType> >();
-		
-	//	longestListNum	= 0;
-		maxLists		= max;
-		_length			= 0;
+		change	 = new Signal1();
+		lists	 = new ArrayList< BalancingList<DataType> >();
+		maxLists = max;
+		_length	 = 0;
 	}
 	
 	
 	public function dispose ()
 	{
-		events.dispose();
+		change.dispose();
 		
-		for (list in lists) {
+		for (list in lists)
 			list.dispose();
-		}
 		
 		lists.removeAll();
 		lists	= null;
-		events	= null;
+		change	= null;
 	}
 	
 	
@@ -158,15 +156,16 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 	public inline function add (item:DataType, pos:Int = -1) : DataType
 	{
 		pos = insertAt( item, pos );
-		events.added.send( item, pos );
+		change.send( ListChange.added( item, pos ) );
 		return item;
 	}
 	
 	
-	public inline function remove (item:DataType) : DataType
+	public inline function remove (item:DataType, oldPos:Int = -1) : DataType
 	{
-		removeItem(item);
-		events.removed.send( item, removeItem(item) );
+		oldPos = removeItem(item, oldPos);
+		if (oldPos > -1)
+			change.send( ListChange.removed( item, oldPos ) );
 		return item;
 	}
 	
@@ -193,7 +192,7 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 	{
 		curPos = moveItem(item, newPos, curPos);
 		if (curPos != newPos)
-			events.moved.send( item, curPos, newPos );
+			change.send( ListChange.moved( item, newPos, curPos ) );
 		return item;
 	}
 	
@@ -244,9 +243,8 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 		
 		var listPos = getListNumForPosition(pos);
 		
-		if (lists.length <= listPos) {
+		if (lists.length <= listPos)
 			addList( new BalancingList<DataType>() );
-		}
 		
 		//1. find corrent list to add item in
 		var targetList	= lists.getItemAt(listPos);
@@ -254,9 +252,10 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 		var itemDepth	= calculateItemDepth( pos );
 		
 		//3. add the item to the correct list
-		targetList.add( item, itemDepth );
-		//4. update length value
-		_length++;
+		if (targetList.add( item, itemDepth ) != null) {
+			//4. update length value
+			_length++;
+		}
 		return pos;
 	}
 	
@@ -276,12 +275,14 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 	 * @param	item
 	 * @return	last position of the item
 	 */
-	private inline function removeItem (item:DataType) : Int
+	private inline function removeItem (item:DataType, oldItemPos:Int = -1) : Int
 	{
-		var oldItemPos	= indexOf(item);
+		if (oldItemPos == -1)
+			oldItemPos	= indexOf(item);
+		
 		var itemList	= getListForPosition(oldItemPos);
-		itemList.remove(item);
-		_length--;
+		if (itemList.remove(item) != null)
+			_length--;
 		return oldItemPos;
 	}
 	
@@ -313,13 +314,14 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 				var steps = newPos - curPos;
 				
 				//rewind iterator with one (since the item is already in the current list)
-				var itr			= lists.getForwardIterator();
+				var itr			= lists.forwardIterator();
 				itr.setCurrent( oldListPos );
 				if (!itr.hasNext())
 					itr.rewind();
 				itr.next();
 				
-				for ( i in 0...steps ) {
+				for ( i in 0...steps )
+				{
 					if (!itr.hasNext()) {
 						itr.rewind();
 						curDepth++;
@@ -339,14 +341,15 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 				var steps = curPos - newPos;
 				
 				//rewind iterator with one (since the item is already in the current list)
-				var itr			= lists.getReversedIterator();
+				var itr			= lists.reversedIterator();
 				itr.setCurrent( oldListPos );
 				if (!itr.hasNext())
 					itr.rewind();
 				
 				itr.next();
 				
-				for ( i in 0...steps ) {
+				for ( i in 0...steps )
+				{
 					if (!itr.hasNext()) {
 						itr.rewind();
 						curDepth--;
@@ -376,9 +379,9 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 	}
 	
 	
-	public function iterator () : Iterator <DataType>				{ return getForwardIterator(); }
-	public function getForwardIterator () : IIterator <DataType>	{ return new BalancingListCollectionForwardIterator<DataType>(this); }
-	public function getReversedIterator () : IIterator <DataType>	{ return new BalancingListCollectionReversedIterator<DataType>(this); }
+	public function iterator () : Iterator <DataType>				{ return forwardIterator(); }
+	public function forwardIterator () : IIterator <DataType>	{ return new BalancingListCollectionForwardIterator<DataType>(this); }
+	public function reversedIterator () : IIterator <DataType>	{ return new BalancingListCollectionReversedIterator<DataType>(this); }
 	
 	
 	

@@ -28,6 +28,7 @@
  */
 package primevc.utils;
  import primevc.types.Number;
+ import primevc.utils.NumberMath;
  
 
 /**
@@ -68,13 +69,22 @@ class IntUtil
 	
 	
 #if flash9
-	public static inline function notSet (value:Int) : Bool	{ return value == Number.INT_NOT_SET; }
-	public static inline function isSet (value:Int) : Bool	{ return value != Number.INT_NOT_SET; }
+	public static inline function notSet (value:Int) : Bool		{ return value == Number.INT_NOT_SET; }
+	public static inline function isSet (value:Int) : Bool		{ return value != Number.INT_NOT_SET; }
+	public static inline function notEmpty (value:Int) : Bool	{ return value != Number.EMPTY; }
+	public static inline function isEmpty (value:Int) : Bool	{ return value == Number.EMPTY; }
 #else
 	public static inline function notSet (value:Int) : Bool	{ return value == Number.INT_NOT_SET || value == null; }
 	public static inline function isSet (value:Int) : Bool	{ return value != Number.INT_NOT_SET && value != null; }
 #end
+	
+	public static inline function unset () : Int			{ return Number.INT_NOT_SET; }
+	
+	public static inline function getBiggest (var1:Int, var2:Int) : Int		{ return IntMath.max(var1, var2); }
+	public static inline function getSmallest (var1:Int, var2:Int) : Int	{ return IntMath.min(var1, var2); }
 }
+
+
 
 
 /**
@@ -122,5 +132,12 @@ class FloatUtil
 
 
 	public static inline function notSet (value:Float) : Bool	{ return !isSet(value); }
-	public static inline function isSet  (value:Float) : Bool	{ return #if !flash9 value != null && #end (value == value) /* false if NaN )*/; }
+	public static inline function isSet  (value:Float) : Bool	{ return #if !flash9 value != null && #end /*!Math.isNaN(value)*/ (value == value) /* false if NaN )*/; }
+	public static inline function notEmpty (value:Float) : Bool	{ return value != Number.EMPTY; }
+	public static inline function isEmpty (value:Float) : Bool	{ return value == Number.EMPTY; }
+	public static inline function unset () : Float				{ return Number.FLOAT_NOT_SET; }
+	
+	
+	public static inline function getBiggest (var1:Float, var2:Float) : Float	{ return FloatMath.max(var1, var2); }
+	public static inline function getSmallest (var1:Float, var2:Float) : Float	{ return FloatMath.min(var1, var2); }
 }

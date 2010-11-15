@@ -43,15 +43,15 @@ typedef IntType =
 class Number
 {
 	//floats can actually be a lot bigger (64 bit) but this will work for now
-	public static inline var FLOAT_MIN:Float		= -2147483648;
-	public static inline var FLOAT_MAX:Float		=  2147483647;
+	public static inline var FLOAT_MIN:Float		= -3.40282346638528e+38;
+	public static inline var FLOAT_MAX:Float		=  3.40282346638528e+38;
 	
-	public static inline var INT_MIN:Int			= #if neko -1073741824 #else -2147483648 #end;
-	public static inline var INT_MAX:Int			= #if neko 1073741824 #else 2147483647 #end;
+	public static inline var INT_MIN:Int			= #if neko 0x40000000 #else 0x80000000 #end;
+	public static inline var INT_MAX:Int			= #if neko 0x3fffffff #else 0x7fffffff #end;
 
 #if !neko
 	public static inline var UINT_MIN:UInt			=  0;
-	public static inline var UINT_MAX:UInt			=  -1; //4294967295;		//<-- not working, since value is seen as Float
+	public static inline var UINT_MAX:UInt			=  0xffffffff; //4294967295;		//<-- not working, since value is seen as Float
 #end
 	
 	/**
@@ -60,4 +60,11 @@ class Number
 	 */
 	public static inline var INT_NOT_SET:Int		=  INT_MIN; //#if flash9 INT_MIN #else null #end;
 	public static inline var FLOAT_NOT_SET:Float	=  Math.NaN;
+	
+	/**
+	 * Integer-value to indicate a value is set but doesn't have a value. 
+	 * If for example the height is set to 'none' in the css, it wil become 
+	 * NONE. This way the style-object won't look in other style-classes.
+	 */
+	public static inline var EMPTY:Int				= #if neko -1073741820 #else -2147483640 #end;
 }

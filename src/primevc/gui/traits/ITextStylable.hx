@@ -34,10 +34,10 @@ package primevc.gui.traits;
  * @author Ruben Weijers
  * @creation-date Oct 26, 2010
  */
-interface ITextStylable implements IStylable
+interface ITextStylable //implements IStylable
 {
 #if flash9
-	public var textStyle	(getTextStyle, setTextStyle)	: TextFormat;
+	public var textStyle	(default, setTextStyle)	: TextFormat;
 	public var wordWrap		: Bool;
 #end
 }

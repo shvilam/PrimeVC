@@ -4,11 +4,11 @@ BUILDSCRIPTDIR="`dirname $0`";
 PRJROOT="${BUILDSCRIPTDIR}/.."
 
 if [[ ! -f ${PRJROOT}/build/environment.sh ]]; then
-	echo "There's no environment file configured. Copy 'environment.sh.template' to 'environment.sh' and edit it."
+	echo -e "\tThere's no environment file configured. Copy 'environment.sh.template' to 'environment.sh' and edit it."
 	exit 1
 else
 	if [[ ! -f ${PRJROOT}/assets/debug-assets.swf ]]  ||  test ${PRJROOT}/assets/DebugAssets.as -nt ${PRJROOT}/assets/debug-assets.swf  ||  test ${PRJROOT}/assets/Assets.as -nt ${PRJROOT}/assets/assets.swf ; then
-		echo "[mxmlc]  Compiling asset SWFs"
+		echo -e "\t[mxmlc]  Compiling asset SWFs"
 		
 		source ${PRJROOT}/build/environment.sh
 		
@@ -31,7 +31,7 @@ else
 			-output ${PRJROOT}/assets/debug-assets.swf \
 			${PRJROOT}/assets/DebugAssets.as &&
 		
-		echo "[haXe]   Generating extern classes" &&
+		echo -e "\t[haXe]   Generating extern classes" &&
 		
 		haxe --gen-hx-classes ${PRJROOT}/assets/debug-assets.swf &&
 		mv hxclasses ${PRJROOT}/generated-src

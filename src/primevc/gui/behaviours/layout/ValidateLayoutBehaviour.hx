@@ -27,14 +27,16 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.layout;
+ import primevc.core.collections.DoubleFastCell;
  import primevc.core.dispatcher.Wire;
- import primevc.gui.behaviours.BehaviourBase;
+ import primevc.gui.behaviours.ValidatingBehaviour;
  import primevc.gui.core.IUIElement;
  import primevc.gui.core.UIWindow;
  import primevc.gui.states.ValidateStates;
- import primevc.gui.traits.IRenderable;
+ import primevc.gui.traits.IDrawable;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
+  using Std;
  
 
 /**
@@ -44,13 +46,14 @@ package primevc.gui.behaviours.layout;
  * @creation-date	Jun 14, 2010
  * @author			Ruben Weijers
  */
-class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >, implements IRenderable
-{	
-	private inline function getUIWindow () : UIWindow	{ return target.window.as(UIWindow); }
+class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >
+{
+	private var isNotPositionedYet	: Bool;
 	
 	
 	override private function init ()
 	{
+		isNotPositionedYet = true;
 		Assert.that(target.layout != null, "Layout of "+target+" can't be null for "+this);
 		
 #if debug
@@ -58,8 +61,8 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >, implements I
 #end
 		
 		layoutStateChangeHandler.on( target.layout.state.change, this );
-		requestRender.on( target.layout.events.posChanged, this );
-	//	requestRender.on( target.layout.events.sizeChanged, this );
+		applyPosition	.on( target.layout.events.posChanged, this );
+		applySize		.on( target.layout.events.sizeChanged, this );
 	}
 	
 	
@@ -68,45 +71,89 @@ class ValidateLayoutBehaviour extends BehaviourBase < IUIElement >, implements I
 		if (target.layout == null)
 			return;
 		
-		getUIWindow().invalidationManager.remove( target.layout );
+		super.reset();
+		
 		target.layout.state.change.unbind( this );
 		target.layout.events.posChanged.unbind( this );
+		target.layout.events.sizeChanged.unbind( this );
 	}
 	
 	
-	private function layoutStateChangeHandler (oldState:ValidateStates, newState:ValidateStates)
+	private function layoutStateChangeHandler (newState:ValidateStates, oldState:ValidateStates)
 	{
-	//	trace(target+".layoutStateChangeHandler "+oldState+" -> "+newState);
-		switch (newState)
+		if (target.window == null)
+			return;
+		
+		if (nextValidatable != null && newState == ValidateStates.parent_invalidated)
+			getValidationManager().remove( this );
+		
+		else if (nextValidatable == null && newState == ValidateStates.invalidated)
+			getValidationManager().add( this );
+	}
+	
+	
+	override public function validate ()				{ target.layout.validate(); }
+	override private function getValidationManager ()	{ return (target.window != null) ? cast target.window.as(UIWindow).invalidationManager : null; }
+	
+	
+	public function applyPosition ()
+	{
+	//	trace(target+".applyPosition; " + " - pos: " + target.layout.getHorPosition() + ", " + target.layout.getVerPosition() + " - old pos "+target.x+", "+target.y+"; padding? "+target.layout.padding);
+		if (target.effects == null || isNotPositionedYet)
 		{
-			case ValidateStates.invalidated:
-				if (target.window != null)
-					getUIWindow().invalidationManager.add( target.layout );
+			var l = target.layout;
+			var newX = l.getHorPosition();
+			var newY = l.getVerPosition();
 			
-			case ValidateStates.parent_invalidated:
-				if (oldState == ValidateStates.invalidated)
-					getUIWindow().invalidationManager.remove( target.layout );
+			if (target.is(IDrawable))
+			{
+				var t = target.as(IDrawable);
+				if (t.graphicData.border != null)
+				{
+					var borderWidth = t.graphicData.border.weight.int();
+					newX -= borderWidth;
+					newY -= borderWidth;
+				}
+			}
+			
+			target.x	= target.rect.left	= newX;
+			target.y	= target.rect.top	= newY;
+			isNotPositionedYet = false;
 		}
+		else
+			target.effects.playMove();
 	}
 	
 	
-	public inline function requestRender ()
+	private function applySize ()
 	{
-		if (target.window != null) // && (target.effects == null || target.effects.move == null))
-			getUIWindow().renderManager.add(this);
-	}
-	
-	
-	public inline function render ()
-	{
-		var l = target.layout;
-	//	trace(target+".applyPosition; " + l + " - pos: " + l.getHorPosition() + ", " + l.getVerPosition() + " - old pos "+target.x+", "+target.y);
+	//	trace("\t"+target+".sizeChanged; outer: "+target.layout.outerBounds); //+"; inner: "+target.layout.innerBounds);
 		if (target.effects == null)
 		{
-			target.x	= target.rect.left	= l.getHorPosition();
-			target.y	= target.rect.top	= l.getVerPosition();
-		} else {
-			target.effects.playMove();
+			var b = target.layout.innerBounds;
+			
+			target.rect.width	= b.width;
+			target.rect.height	= b.height;
+			
+			/*if (target.is(IDrawable))
+			{
+				var t = target.as(IDrawable);
+				if (t.graphicData.border != null)
+				{
+					var borderWidth = t.graphicData.border.weight.int();
+					target.rect.width += borderWidth;
+					target.rect.height += borderWidth;
+				}
+			}*/
+			
+			if (!target.is(IDrawable)) {
+				target.width	= target.rect.width;
+				target.height	= target.rect.height;
+			}
 		}
+		else
+			target.effects.playResize();
+		
+	//	trace("\t\tfinal size: "+target.rect.width+", "+target.rect.height+"\n");
 	}
 }

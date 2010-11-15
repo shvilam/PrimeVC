@@ -27,11 +27,6 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
- import primevc.gui.graphics.borders.SolidBorder;
- import primevc.gui.graphics.fills.SolidFill;
- import primevc.gui.graphics.shapes.RegularRectangle;
-
-
 
 /**
  * InputField component
@@ -41,16 +36,6 @@ package primevc.gui.components;
  */
 class InputField extends Label
 {
-	override private function createGraphics ()
-	{
-		graphicData.value = new RegularRectangle(
-			layout.bounds,
-			new SolidFill( 0xffffffff ),
-			cast new SolidBorder( new SolidFill(0x000000ff), 1 )
-		);
-	}
-	
-	
 	override private function createChildren ()
 	{
 		super.createChildren();

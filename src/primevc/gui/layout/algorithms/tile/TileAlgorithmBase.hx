@@ -56,10 +56,9 @@ class TileAlgorithmBase extends DynamicLayoutAlgorithm
 	
 	public function new( ?startDir:Direction, ?horDirection:Horizontal, ?verDirection:Vertical ) 
 	{
-		super(
-			new HorizontalFloatAlgorithm( horDirection ),
-			new VerticalFloatAlgorithm( verDirection )
-		);
+		super();
+		horAlgorithm = new HorizontalFloatAlgorithm( horDirection );
+		verAlgorithm = new VerticalFloatAlgorithm( verDirection );
 		
 		horizontalDirection	= horAlgorithm.direction;
 		verticalDirection	= verAlgorithm.direction;

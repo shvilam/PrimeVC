@@ -27,65 +27,31 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
+ import primevc.gui.behaviours.components.LabelLayoutBehaviour;
  import primevc.gui.core.UIDataComponent;
  import primevc.gui.core.UITextField;
  import primevc.gui.layout.AdvancedLayoutClient;
+ import primevc.gui.text.TextFormat;
+ import primevc.gui.traits.ITextStylable;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
 
+
 /**
- * Label is a UIComponent which will display a textfield with the given text.
- * 
- * Options of the Label component
- * 		- truncate text when the width or height reach a certain value
- * 		- skinnable
- * 		- graphics drawable
- * 		- in flash10 full implementation of the text-layout framework
- * 		- autogrowing if height or width aren't defined and the text value 
- * 			changes.
+ * Label Component
  * 
  * @author Ruben Weijers
- * @creation-date Sep 02, 2010
+ * @creation-date Oct 29, 2010
  */
-class Label extends UIDataComponent < String >
+class Label extends UIDataComponent < String >, implements ITextStylable
 {
-	private var field	: UITextField;
+	public var field		(default, null)			: UITextField;
 	
-	
-	override public function dispose ()
-	{
-		if (field != null)
-		{
-			children.remove(field);
-			field.dispose();
-			field = null;
-		}
-		super.dispose();
-	}
-	
-	
-	override private function initData ()
-	{
-		field.setText.on( data.change, this );
-		field.setText( value );
-	}
-	
-	
-	override private function createChildren ()
-	{
-		field = new UITextField("labelField");
 #if flash9
-		field.autoSize			= flash.text.TextFieldAutoSize.LEFT;
-		field.selectable		= false;
-		field.mouseWheelEnabled	= false;
+	public var textStyle	(default, setTextStyle)	: TextFormat;
+	public var wordWrap		: Bool;
 #end
-		field.layout.validateOnPropertyChange = true;
-		
-		updateValue.on( field.textEvents.change, this );
-		updateSize.on( field.layout.events.sizeChanged, this );
-		children.add( field );
-	}
 	
 	
 	override private function createLayout ()
@@ -94,20 +60,65 @@ class Label extends UIDataComponent < String >
 	}
 	
 	
-	//
-	// EVENTHANDLERS
-	//
-	
-	private function updateSize ()
+	override private function createBehaviours ()
 	{
-		var l = layout.as(AdvancedLayoutClient);
-		l.measuredWidth		= field.layout.width;
-		l.measuredHeight	= field.layout.height;
+		behaviours.add( new LabelLayoutBehaviour(this) );
 	}
 	
 	
-	private function updateValue ()
+	override private function createChildren ()
 	{
-		value = field.text;
+		field = new UITextField( null, false, data );
+#if debug
+		field.id.value = id.value + "TextField";
+#end
+#if flash9
+		field.autoSize			= flash.text.TextFieldAutoSize.NONE;
+		field.selectable		= false;
+		field.mouseWheelEnabled	= false;
+#end
+		
+		if (textStyle != null)
+			field.textStyle		= textStyle;
+		
+		children.add( field );
 	}
+	
+	
+	override private function removeChildren ()
+	{
+		super.removeChildren();
+		field.dispose();
+		field = null;
+	}
+	
+	
+	/*override private function initData ()
+	{
+		trace("DATA VALUE 1 "+value);
+		field.data.pair( data );
+		trace("DATA VALUE 2 "+value);
+		traceChange.on( data.change, this );
+	}
+	
+	
+	private function traceChange (newV, oldV)
+	{
+		trace(this+".changed "+oldV+" => "+newV);
+	}*/
+	
+	
+	//
+	// GETERS / SETTERS
+	//
+	
+#if flash9
+	private inline function setTextStyle (v:TextFormat)
+	{
+		if (field != null)
+			field.textStyle = v;
+		
+		return textStyle = v;
+	}
+#end
 }

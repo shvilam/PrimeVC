@@ -37,6 +37,10 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutClient;
+ import primevc.types.Number;
+ import primevc.utils.NumberMath;
+  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
  
 
@@ -51,7 +55,7 @@ class LayoutAlgorithmBase
 #if neko	,	implements ICodeFormattable		#end
 {
 	public var algorithmChanged 		(default, null)				: Signal0;
-	public var group					(default, setGroup)			: ILayoutContainer<LayoutClient>;
+	public var group					(default, setGroup)			: ILayoutContainer;
 	
 #if neko
 	public var uuid						(default, null)				: String;
@@ -84,24 +88,108 @@ class LayoutAlgorithmBase
 	
 	private inline function setGroupHeight (h:Int)
 	{
+		if (h <= 0)
+			h = Number.INT_NOT_SET;
+		
 		if (group.is(AdvancedLayoutClient))
 			group.as(AdvancedLayoutClient).measuredHeight = h;
 		else
-			group.height = h;
+			group.height.value = h;
 	}
 	
 	
 	private inline function setGroupWidth (w:Int)
 	{
+		if (w <= 0)
+			w = Number.INT_NOT_SET;
+		
 		if (group.is(AdvancedLayoutClient))
 			group.as(AdvancedLayoutClient).measuredWidth = w;
 		else
-			group.width = w;
+			group.width.value = w;
 	}
 	
 	
 	private function setGroup (v)		{ return group = v; }
 	public function prepareValidate ()	{ validatePrepared = true; }
+	
+	
+	
+	
+	//
+	// START VALUES
+	//
+
+	private inline function getTopStartValue ()		: Int
+	{
+		var top:Int = 0;
+	//	if (group.margin != null)	top += group.margin.top;
+		if (group.padding != null)	top += group.padding.top;
+		return top;
+	}
+	
+	
+	private inline function getVerCenterStartValue ()	: Int
+	{
+		var start:Int = 0;
+		
+		if (group.is(AdvancedLayoutClient))
+		{
+			var group = group.as(AdvancedLayoutClient);
+			if (group.explicitHeight.isSet() && group.measuredHeight.isSet())
+				start = IntMath.max( group.explicitHeight - group.measuredHeight, 0 ).divCeil( 2 );
+		}
+		
+		return start += getTopStartValue();
+	}
+
+
+	private inline function getBottomStartValue ()	: Int
+	{
+		var start = group.height.value;
+		
+		if (group.is(AdvancedLayoutClient))
+			start = IntMath.max(group.as(AdvancedLayoutClient).measuredHeight, start);
+		
+		return start += getTopStartValue();
+	}
+	
+	
+	private inline function getLeftStartValue ()	: Int
+	{
+		var start:Int = 0;
+	//	if (group.margin != null)	start += group.margin.left;
+		if (group.padding != null)	start += group.padding.left;
+		return start;
+	}
+	
+	
+	private inline function getHorCenterStartValue ()	: Int
+	{
+		var start:Int = 0;
+		
+		if (group.is(AdvancedLayoutClient))
+		{
+			var group = group.as(AdvancedLayoutClient);
+			if (group.explicitWidth.isSet() && group.measuredWidth.isSet())
+				start = IntMath.max( group.explicitWidth - group.measuredWidth, 0 ).divCeil( 2 );
+		}
+		
+		return start += getLeftStartValue();
+	}
+
+
+	private inline function getRightStartValue ()	: Int
+	{
+		var start = group.width.value;
+		
+		if (group.is(AdvancedLayoutClient))
+			start = IntMath.max(group.as(AdvancedLayoutClient).measuredWidth, start);
+		
+		return start += getLeftStartValue();
+	}
+	
+	
 	
 	
 #if (neko || debug)

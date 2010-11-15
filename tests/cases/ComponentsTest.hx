@@ -1,19 +1,14 @@
 package cases;
-import primevc.core.geom.space.Horizontal;
-import primevc.core.geom.space.Vertical;
- import primevc.core.geom.Box;
  import primevc.core.Application;
- import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
- import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
+ import primevc.core.geom.space.Direction;
+ import primevc.gui.components.ApplicationView;
+ import primevc.gui.components.Button;
  import primevc.gui.components.Label;
+ import primevc.gui.components.Image;
  import primevc.gui.components.InputField;
- import primevc.gui.core.UIContainer;
+ import primevc.gui.components.Slider;
  import primevc.gui.core.UIWindow;
- import primevc.gui.layout.algorithms.float.VerticalFloatAlgorithm;
- import primevc.gui.layout.algorithms.DynamicLayoutAlgorithm;
- import primevc.gui.layout.algorithms.RelativeAlgorithm;
- import primevc.gui.layout.LayoutContainer;
- import primevc.gui.layout.RelativeLayout;
+ import primevc.types.Bitmap;
   using primevc.utils.Bind;
 
 
@@ -23,13 +18,9 @@ import primevc.core.geom.space.Vertical;
  */
 class ComponentsTest extends UIWindow
 {
-	public static function main () { Application.startup( ComponentsTest ); }
-	
-	override private function createChildren ()
-	{
-		var app = new ComponentsApp();
-		children.add( app );
-	}
+	public static function main ()					{ Application.startup( ComponentsTest ); }
+	override private function createChildren ()		{ children.add( new ComponentsApp( "componentsApp" ) ); }
+	override private function createBehaviours ()	{ haxe.Log.clear.on( mouse.events.doubleClick, this ); }
 }
 
 
@@ -37,49 +28,40 @@ class ComponentsTest extends UIWindow
  * @author Ruben Weijers
  * @creation-date Sep 02, 2010
  */
-class ComponentsApp extends UIContainer <Dynamic>
+class ComponentsApp extends ApplicationView
 {
 	private var label	: Label;
-	private var input	: InputField;
+	private var input	: Label;
+	private var button	: Button;
+	private var image	: Image;
+	private var slider	: Slider;
+	private var slider2	: Slider;
 	
 	
-	public function new ()
+	override private function init ()
 	{
-		super("ComponentsApp");
+		styleClasses.add("test");
+		super.init();
 	}
-	
-	
-	override private function createLayout ()
-	{
-		layout						= new LayoutContainer();
-		layout.relative				= new RelativeLayout( 5, 5, 5, 5 );
-		layout.padding				= new Box( 5 );
-		layoutContainer.algorithm	= new VerticalFloatAlgorithm( Vertical.top, Horizontal.center );
-	}
-	
-	
-	override private function createBehaviours ()
-	{	
-		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
-		behaviours.add( new ClippedLayoutBehaviour(this) );
-		
-		changeLabel.on( userEvents.mouse.down, this );
-	}
-	
 	
 	override private function createChildren ()
 	{
-		//create label
-		label	= new Label("testLabel", "Test tekst");
-		input	= new InputField("testInput", "other text");
-		label.data.pair( input.data );
+		children.add( button	= new Button("testButton", "add some text", Bitmap.fromString("/Users/ruben/Desktop/naamloze map/Arrow-Right.png")) );
+		children.add( image		= new Image("testImage", Bitmap.fromString("/Users/ruben/Pictures/0227pod11.jpg")) );
+		children.add( slider	= new Slider("testSlider", 5, 4, 6) );
+		children.add( slider2	= new Slider("sliderCopy", 5, 4, 6, Direction.vertical) );
+		children.add( input		= new InputField("testInput", "welcome welcome welcome") );
+		children.add( label		= new Label("testLabel") );
 		
-		children.add(label);
-		children.add(input);
+		label.data.pair( input.data );
+		slider2.data.pair( slider.data );
+		changeLabel.on( button.userEvents.mouse.down, this );
 	}
+	
 	
 	private function changeLabel ()
 	{
-		label.value += " test";
+		button.value += " test";
+		input.value += " test";
 	}
 }

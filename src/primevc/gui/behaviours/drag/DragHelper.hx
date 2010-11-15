@@ -174,8 +174,8 @@ class DragHelper implements IDisposable
 #if flash9
 		if (state.keyCode() == flash.ui.Keyboard.ESCAPE) {
 			cancelHandler( lastMouseObj );
-			isDragging = false;
 			stopDrag(null);
+			isDragging = false;
 		}
 #end
 	}

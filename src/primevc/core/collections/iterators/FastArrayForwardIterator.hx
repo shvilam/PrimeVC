@@ -37,7 +37,7 @@ package primevc.core.collections.iterators;
  * @author			Ruben Weijers
  */
 class FastArrayForwardIterator <DataType> implements IIterator <DataType>
-	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
+	#if flash9	,	implements haxe.rtti.Generic #end
 {
 	private var target (default, null)	: FastArray<DataType>;
 	private var current 				: Int;

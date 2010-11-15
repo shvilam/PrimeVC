@@ -55,10 +55,11 @@ class PriorityList < DataType : IPrioritizable >
 	public var last			(default, null)		: DoubleFastCell < DataType >;
 	
 	
-	public function new()
-	{
-		length	= 0;
-	}
+	public function new ()				{ length = 0; }
+	public function dispose ()			{ removeAll(); }
+	public function iterator ()			: Iterator <DataType>	{ return forwardIterator(); }
+	public function forwardIterator ()	: IIterator <DataType>	{ return new DoubleFastCellForwardIterator <DataType> (first); }
+	public function reversedIterator ()	: IIterator <DataType>	{ return new DoubleFastCellReversedIterator <DataType> (last); }
 	
 	
 	public function removeAll ()
@@ -74,17 +75,6 @@ class PriorityList < DataType : IPrioritizable >
 		first = last = null;
 		length = 0;
 	}
-	
-	
-	public function dispose ()
-	{
-		removeAll();
-	}
-	
-	
-	public function iterator ()				: Iterator <DataType>	{ return getForwardIterator(); }
-	public function getForwardIterator ()	: IIterator <DataType>	{ return new DoubleFastCellForwardIterator <DataType> (first); }
-	public function getReversedIterator ()	: IIterator <DataType>	{ return new DoubleFastCellReversedIterator <DataType> (last); }
 	
 	
 	public function has (item:DataType)
@@ -233,7 +223,7 @@ class PriorityList < DataType : IPrioritizable >
 		var items = [];
 		var i = 0;
 		for (item in this) {
-			items.push( "[ " + i + " ] = " + item ); // Type.getClassName(Type.getClass(item)));
+			items.push( "[ " + i + " ] = " + item + " ( " + item.getPriorityName()+ " )" ); // Type.getClassName(Type.getClass(item)));
 			i++;
 		}
 		return name + "PriorityList ("+items.length+")\n" + items.join("\n");

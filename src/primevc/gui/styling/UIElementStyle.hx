@@ -30,8 +30,9 @@ package primevc.gui.styling;
 
 #if flash9
  import primevc.core.collections.DoubleFastCell;
+ import primevc.core.collections.IList;
  import primevc.core.collections.PriorityList;
-// import primevc.core.dispatcher.Signal1;
+ import primevc.core.dispatcher.Signal0;
  import primevc.core.dispatcher.Wire;
  import primevc.core.traits.IInvalidatable;
  import primevc.gui.traits.IStylable;
@@ -40,6 +41,7 @@ package primevc.gui.styling;
   using primevc.utils.BitUtil;
   using primevc.utils.FastArray;
   using primevc.utils.TypeUtil;
+  using Std;
   using Type;
 
 
@@ -109,7 +111,9 @@ class UIElementStyle implements IUIElementStyle
 	 * Proxy object to loop through all available states in this object.
 	 */
 	public var states					(getStates, null)		: StatesCollection;
+	public var parentStyle				(default, null)			: UIElementStyle;
 	
+	public var childrenChanged			(default, null)			: Signal0;
 	
 	
 	
@@ -120,7 +124,7 @@ class UIElementStyle implements IUIElementStyle
 		
 		this.target			= target;
 		targetClassName		= target.getClass().getClassName();
-	//	change				= new Signal1();
+		childrenChanged		= new Signal0();
 		
 		stylesAreSearched	= false;
 		filledProperties	= 0;
@@ -137,9 +141,12 @@ class UIElementStyle implements IUIElementStyle
 	
 	private function init ()
 	{
-		addedBinding	= updateStyles	.on( target.displayEvents.addedToStage, this );
-		removedBinding	= clearStyles	.on( target.displayEvents.removedFromStage, this );
+		addedBinding	= updateParentStyle	.on( target.displayEvents.addedToStage, this );
+		removedBinding	= clearStyles		.on( target.displayEvents.removedFromStage, this );
 		removedBinding.disable();
+		
+		if (target.window != null)
+			updateStyles();
 	}
 	
 	
@@ -160,7 +167,12 @@ class UIElementStyle implements IUIElementStyle
 		if (layout != null)			layout.dispose();
 		if (states != null)			states.dispose();
 		
-	//	change.dispose();
+		if (parentStyle != null) {
+			parentStyle.childrenChanged.unbind( this );
+			parentStyle = null;
+		}
+		
+		childrenChanged.dispose();
 		clearStyles();
 		currentStates.removeAll();
 		
@@ -169,7 +181,7 @@ class UIElementStyle implements IUIElementStyle
 		styles			= null;
 		targetClassName	= null;
 		target			= null;
-	//	change			= null;
+		childrenChanged	= null;
 		
 		boxFilters		= null;
 		effects			= null;
@@ -184,17 +196,20 @@ class UIElementStyle implements IUIElementStyle
 	{
 		var style : StyleBlock = null;
 		
-		for (styleObj in styles)
+	//	trace(target+".findStyle "+name+" of type "+type+"; styles length: "+styles.length+"; "+Flags.readProperties(filledProperties));
+		if (filledProperties.has( Flags.CHILDREN ))
 		{
-			style = styleObj.findChild( name, type, exclude );
-			if (style != null)
-				break;
+			for (styleObj in styles)
+			{
+				style = styleObj.findChild( name, type, exclude );
+				if (style != null)
+					break;
+			}
 		}
 		
 		if (style == null)
 		{
 			//look in parent.. (prevent infinte loops with parentStyle != this)
-			var parentStyle = getParentStyle();
 			if (parentStyle != this)
 				style = parentStyle.findStyle( name, type, exclude );
 		}
@@ -210,24 +225,50 @@ class UIElementStyle implements IUIElementStyle
 	{
 		styleNamesChangeBinding.disable();
 		idChangeBinding.disable();
-		removedBinding.disable();
-		addedBinding.enable();
+		if (removedBinding != null)		removedBinding.disable();
+		if (addedBinding != null)		addedBinding.enable();
 		
 		stylesAreSearched	= false;
 		var changed			= filledProperties;
 		
 		//remove styles and their listeners
-		removeStylesWithPriority( StyleBlockType.idState.enumIndex() );
-		removeStylesWithPriority( StyleBlockType.styleNameState.enumIndex() );
-		removeStylesWithPriority( StyleBlockType.elementState.enumIndex() );
-		removeStylesWithPriority( StyleBlockType.id.enumIndex() );
-		removeStylesWithPriority( StyleBlockType.styleName.enumIndex() );
-		removeStylesWithPriority( StyleBlockType.element.enumIndex() );
+		while (styles.length > 0)
+			removeStyleCell( styles.last );
 		
-		Assert.that( styles.length == 0 );
+		updateParentStyle();
+		
+		Assert.equal( styles.length, 0, styles.string() );
 		
 		filledProperties = 0;
 		broadcastChanges( changed );
+	}
+	
+	
+	private function updateParentStyle ()
+	{
+		if (parentStyle != null)
+		{
+			if (target.container != null && target.container.as( IStylable ).style == parentStyle)
+				return;
+			
+			parentStyle.childrenChanged.unbind( this );
+			parentStyle = null;
+		}
+		
+		
+		if (target.window != null)
+		{
+			Assert.notNull( target.container );
+			Assert.that( target.container.is( IStylable ) );
+			Assert.notNull( target.container.as( IStylable ).style );
+			
+			parentStyle = target.container.as( IStylable ).style;
+			
+			if (parentStyle != this)
+				updateStyles.on( parentStyle.childrenChanged, this );
+			
+			updateStyles();
+		}
 	}
 	
 	
@@ -239,37 +280,30 @@ class UIElementStyle implements IUIElementStyle
 	{
 		styleNamesChangeBinding.enable();
 		idChangeBinding.enable();
-		removedBinding.enable();
-		addedBinding.disable();
-		
-	//	if (boxFilters == null)		boxFilters	= new FiltersCollection(this, FilterCollectionType.box);
-	//	if (effects == null)		effects		= new EffectsCollection(this);
-	//	if (font == null)			font		= new TextStyleCollection(this);
-	//	if (graphics == null)		graphics	= new GraphicsCollection(this);
-	//	if (layout == null)			layout		= new LayoutCollection(this);
-	//	if (states == null)			states		= new StatesCollection(this);
+		if (removedBinding != null)	removedBinding.enable();
+		if (addedBinding != null)	addedBinding.disable();
 		
 		stylesAreSearched	= false;
-		filledProperties	= 0;
+	//	filledProperties	= 0;
 		
 		//update styles.. start with the lowest priorities
-		updateElementStyle();
-		updateStyleNameStyles();
-		updateIdStyle();
-		updateStatesStyle();		//set de styles for any states that are already set
+		var changes	= updateElementStyle();
+		changes		= changes.set( updateStyleNameStyles(null) );
+		changes		= changes.set( updateIdStyle() );
+		changes		= changes.set( updateStatesStyle() );		//set de styles for any states that are already set
 		
 		//update filled-properties flag
 		stylesAreSearched = true;
-		broadcastChanges();
+		broadcastChanges(changes);
 	}
 	
 	
-	private inline function getBoxFilters ()	{ return (boxFilters == null)	? boxFilters = new FiltersCollection( this, FilterCollectionType.box ) : boxFilters; }
-	private inline function getEffects ()		{ return (effects == null)		? effects = new EffectsCollection( this ) : effects; }
-	private inline function getFont ()			{ return (font == null)			? font = new TextStyleCollection( this ) : font; }
-	private inline function getGraphics ()		{ return (graphics == null)		? graphics = new GraphicsCollection( this ) : graphics; }
-	private inline function getLayout ()		{ return (layout == null)		? layout = new LayoutCollection( this ) : layout; }
-	private inline function getStates ()		{ return (states == null)		? states = new StatesCollection( this ) : states; }
+	private inline function getBoxFilters ()	{ return (boxFilters == null)	? boxFilters	= new FiltersCollection( this, FilterCollectionType.box ) : boxFilters; }
+	private inline function getEffects ()		{ return (effects == null)		? effects		= new EffectsCollection( this ) : effects; }
+	private inline function getFont ()			{ return (font == null)			? font			= new TextStyleCollection( this ) : font; }
+	private inline function getGraphics ()		{ return (graphics == null)		? graphics		= new GraphicsCollection( this ) : graphics; }
+	private inline function getLayout ()		{ return (layout == null)		? layout		= new LayoutCollection( this ) : layout; }
+	private inline function getStates ()		{ return (states == null)		? states		= new StatesCollection( this ) : states; }
 	
 	
 	/**
@@ -284,9 +318,7 @@ class UIElementStyle implements IUIElementStyle
 		updateFilledPropertiesFlag();
 		
 		if (changedProperties == -1)
-			changedProperties = filledProperties; //filledProperties.set( newProps );
-		
-	//	trace(target+".broadcastChanges "+readProperties(changedProperties));
+			changedProperties = filledProperties;
 		
 		//update state properties
 		if (changedProperties.has( Flags.STATES ))
@@ -305,68 +337,10 @@ class UIElementStyle implements IUIElementStyle
 		if (changedProperties.has( Flags.EFFECTS ))			effects.apply();
 		if (changedProperties.has( Flags.BOX_FILTERS ))		boxFilters.apply();
 		
-		//update graphics properties
-	/*	if (changedProperties.has( Flags.GRAPHICS ))
-		{
-			var changedGraphics	= graphics.filledProperties;
-			graphics.updateFilledPropertiesFlag();
-			changedGraphics		= changedGraphics.set( graphics.filledProperties );
-			
-			if (changedGraphics > 0)
-				graphics.change.send( changedGraphics );
-		}
+		if (changedProperties.has( Flags.CHILDREN ))
+			childrenChanged.send();
 		
-		
-		//update font properties
-		if (changedProperties.has( Flags.FONT ))
-		{
-			var fontChangedProps	= font.filledProperties;
-			font.updateFilledPropertiesFlag();
-			fontChangedProps		= fontChangedProps.set( font.filledProperties );
-			
-			if (fontChangedProps > 0)
-				font.change.send( fontChangedProps );
-		}
-		
-		
-		//update layout properties
-		if (changedProperties.has( Flags.LAYOUT ))
-		{
-			var layoutChangedProps	= layout.filledProperties;
-			trace("before: "+LayoutFlags.readProperties(layoutChangedProps));
-			layout.updateFilledPropertiesFlag();
-			layoutChangedProps		= layoutChangedProps.set( layout.filledProperties );
-			
-			if (layoutChangedProps > 0)
-				layout.change.send( layoutChangedProps );
-		}
-		
-		
-		//update effect properties
-		if (changedProperties.has( Flags.EFFECTS ))
-		{
-			var effectsChangedProps	= effects.filledProperties;
-			effects.updateFilledPropertiesFlag();
-			effectsChangedProps		= effectsChangedProps.set( effects.filledProperties );
-			
-			if (effectsChangedProps > 0)
-				effects.change.send( effectsChangedProps );
-		}
-		
-		
-		//update filter properties
-		if (changedProperties.has( Flags.BOX_FILTERS ))
-		{
-			var filtersChangedProps	= boxFilters.filledProperties;
-			boxFilters.updateFilledPropertiesFlag;
-			filtersChangedProps		= filtersChangedProps.set( boxFilters.filledProperties );
-			
-			if (filtersChangedProps > 0)
-				boxFilters.change.send( filtersChangedProps );
-		}*/
-		
-	//	if (changedProperties > 0)
-	//		change.send( changedProperties );
+	//	trace(target+".broadcastChanges "+Flags.readProperties(changedProperties));
 		
 		return changedProperties;
 	}
@@ -400,7 +374,7 @@ class UIElementStyle implements IUIElementStyle
 			changes				= getUsablePropertiesOf( styleCell );
 			filledProperties	= filledProperties.set( changes );
 			
-		//	trace(target+".addedStyle "+readProperties( changes ));
+	//		trace(target+".addedStyle " + style.type+"; "+readProperties( changes ));
 		}
 		return changes;
 	}
@@ -447,12 +421,26 @@ class UIElementStyle implements IUIElementStyle
 	 * an UInt flag with all the properties that where set in the removed styles.
 	 */
 	private function removeStylesWithPriority (priority:Int) : UInt
-	{	
+	{
+		if (styles.length == 0)
+			return 0;
+		
 		var changes = 0;
 		var styleCell:DoubleFastCell < StyleBlock > = null;
 		
 		while (null != (styleCell = styles.getCellWithPriority( priority )))
 			changes = changes.set( removeStyleCell( styleCell ) );
+		
+		return changes;
+	}
+	
+	
+	private function removeStyle (style:StyleBlock) : UInt
+	{
+		var cell	= styles.getCellForItem( style );
+		var changes	= 0;
+		if (cell != null)
+			changes = removeStyleCell( cell );
 		
 		return changes;
 	}
@@ -491,9 +479,7 @@ class UIElementStyle implements IUIElementStyle
 		
 		if (target.id.value != null && target.id.value != "")
 		{
-			var parentStyle	= getParentStyle();
-			var idStyle		= parentStyle.findStyle( target.id.value, StyleBlockType.id );
-			
+			var idStyle = parentStyle.findStyle( target.id.value, StyleBlockType.id );
 			if (idStyle != null)
 				changes = changes.set( addStyle( idStyle ) );
 		}
@@ -502,22 +488,38 @@ class UIElementStyle implements IUIElementStyle
 	}
 	
 	
-	private function updateStyleNameStyles () : UInt
+	private function updateStyleNameStyles (change:ListChange<String>) : UInt
 	{
-		var changes = removeStylesWithPriority( StyleBlockType.styleName.enumIndex() );
+		if (change == null)
+			change = ListChange.reset;
 		
-		if (target.styleClasses.value != null && target.styleClasses.value != "")
-		{	
-			//search the style-object of each stylename
-			var parentStyle	= getParentStyle();
-			var styleNames	= target.styleClasses.value.split(",");
-			
-			for ( styleName in styleNames )
-			{
+		var changes = 0;
+		switch (change)
+		{
+			case added( styleName, newPos ):
 				var style = parentStyle.findStyle( styleName, StyleBlockType.styleName );
 				if (style != null)
 					changes = changes.set( addStyle( style ) );
-			}
+			
+			
+			case removed( styleName, oldPos ):
+				var style = parentStyle.findStyle( styleName, StyleBlockType.styleName );
+				if (style != null)
+					changes = changes.set( removeStyle( style ) );
+			
+			
+			case reset:
+				changes = changes.set( removeStylesWithPriority( StyleBlockType.styleNameState.enumIndex() ) );
+				
+				for ( styleName in target.styleClasses )
+				{
+					var style = parentStyle.findStyle( styleName, StyleBlockType.styleName );
+					if (style != null)
+						changes = changes.set( addStyle( style ) );
+				}
+			
+			
+			default:
 		}
 		
 		return broadcastChanges( changes );
@@ -526,11 +528,10 @@ class UIElementStyle implements IUIElementStyle
 	
 	private function updateElementStyle () : UInt
 	{
-		var changes		= removeStylesWithPriority( StyleBlockType.element.enumIndex() );
-		var parentStyle = getParentStyle();
+		var changes = removeStylesWithPriority( StyleBlockType.element.enumIndex() );
 		
 		var style:StyleBlock	= null;
-		var parentClass				= target.getClass();
+		var parentClass			= target.getClass();
 		
 		//search for the first element style that is defined for this object or one of it's super classes
 		while (parentClass != null && style == null)
@@ -553,16 +554,6 @@ class UIElementStyle implements IUIElementStyle
 	
 	
 	
-	
-	private inline function getParentStyle () : UIElementStyle
-	{
-		Assert.notNull( target.container );
-		Assert.that( target.container.is( IStylable ) );
-		Assert.notNull( target.container.as( IStylable ).style );
-		return target.container.as( IStylable ).style;
-	}
-	
-	
 	/**
 	 * Method returns all the properties that are defined in the given cell-style
 	 * and which are not defined in the styles with higher priority.
@@ -577,7 +568,7 @@ class UIElementStyle implements IUIElementStyle
 	{
 		Assert.notNull( styleCell );
 		if (properties == -1)
-			properties = styleCell.data.allFilledProperties; //.unset( Flags.INHERETING_STYLES );
+			properties = styleCell.data.allFilledProperties.unset( Flags.INHERETING_STYLES );
 		
 		//loop through all cell's with higher priority
 		while (null != (styleCell = styleCell.prev) && properties > 0)
@@ -619,7 +610,7 @@ class UIElementStyle implements IUIElementStyle
 	
 	public function removeState (state:StyleState)
 	{
-		currentStates.remove( state );
+		currentStates.removeItem( state );
 		state.dispose();
 	}
 	
@@ -641,7 +632,7 @@ class UIElementStyle implements IUIElementStyle
 		Assert.notNull(senderCell);
 		changes			= getUsablePropertiesOf( senderCell, changes );
 		
-		trace("\tchanged properties "+StyleFlags.readProperties(changes));
+	//	trace("\tchanged properties "+StyleFlags.readProperties(changes));
 		broadcastChanges( changes );
 	}
 	

@@ -29,7 +29,7 @@
 package primevc.gui.events;
  import primevc.core.dispatcher.Signals;
  import primevc.core.dispatcher.Signal1;
- import primevc.gui.behaviours.drag.DragSource;
+ import primevc.gui.behaviours.drag.DragInfo;
 
 
 /**
@@ -45,20 +45,20 @@ class DragEvents extends Signals
 	 * Dispatched by the object that is being dragged when a drag operation
 	 * starts.
 	 */
-	var start		(default, null)		: Signal1<DragSource>;
+	var start		(default, null)		: Signal1<DragInfo>;
 	
 	/**
 	 * Dispatched by the object that is being dragged when a drag operation is
 	 * completed and dropped in a dropTarget.
 	 */
-	var complete	(default, null)		: Signal1<DragSource>;
+	var complete	(default, null)		: Signal1<DragInfo>;
 	
 	/**
 	 * Dispatched when the drag operation is canceled. This could happen when
 	 * the user releases the dragged object while it's not on a droptarget or
 	 * when the user presses the [esc] key.
 	 */
-	var exit		(default, null)		: Signal1<DragSource>;
+	var exit		(default, null)		: Signal1<DragInfo>;
 	
 	
 	public function new ()

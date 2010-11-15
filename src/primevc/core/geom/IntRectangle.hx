@@ -27,7 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.geom;
- import primevc.core.traits.Invalidatable;
+ import primevc.core.traits.QueueingInvalidatable;
+  using primevc.utils.NumberUtil;
+  using Std;
 
 
 /**
@@ -36,24 +38,29 @@ package primevc.core.geom;
  * @author Ruben Weijers
  * @creation-date Aug 03, 2010
  */
-class IntRectangle extends Invalidatable, implements IRectangle
+class IntRectangle extends QueueingInvalidatable, implements IRectangle
 {
-	public var left		(getLeft, setLeft)		: Int;
-	public var right	(getRight, setRight)	: Int;
-	public var top		(getTop, setTop)		: Int;
-	public var bottom	(getBottom, setBottom)	: Int;
+	public var centerX	(getCenterX, setCenterX)	: Float;
+	public var centerY	(getCenterY, setCenterY)	: Float;
 	
-	public var width	(getWidth, setWidth)	: Int;
-	public var height	(getHeight, setHeight)	: Int;
+	public var left		(getLeft, setLeft)			: Int;
+	public var right	(getRight, setRight)		: Int;
+	public var top		(getTop, setTop)			: Int;
+	public var bottom	(getBottom, setBottom)		: Int;
+	
+	public var width	(getWidth, setWidth)		: Int;
+	public var height	(getHeight, setHeight)		: Int;
 	
 	
 	public function new ( x:Int = 0, y:Int = 0, width:Int = 0, height:Int = 0 )
 	{
 		super();
+		invalidatable = false;
 		this.top	= x;
 		this.left	= y;
 		this.width	= width;
 		this.height	= height;
+		invalidatable = true;
 	}
 	
 	
@@ -65,7 +72,25 @@ class IntRectangle extends Invalidatable, implements IRectangle
 	
 	public function toString ()
 	{
-		return "t: " + top + "; r: " + right + "; b: " + bottom + "; l: " + left + "; width: " + width + "; height: " + height;
+		return "IntRect (x=" + left + ", y=" + top + ", width=" + width + ", height=" + height + ", r=" + right + ", b=" + bottom+" )";
+	}
+	
+	
+	public function resize (newWidth:Int, newHeight:Int) : Void
+	{
+		invalidatable = false;
+		width	= newWidth;
+		height	= newHeight;
+		invalidatable = true;
+	}
+	
+	
+	public function move (newX:Int, newY:Int) : Void
+	{
+		invalidatable = false;
+		top = newX;
+		left = newY;
+		invalidatable = true;
 	}
 	
 	
@@ -77,6 +102,7 @@ class IntRectangle extends Invalidatable, implements IRectangle
 	private inline function setWidth (v:Int)
 	{
 		if (v != width) {
+			Assert.that( v.isSet() );
 			width	= v;
 			right	= left + v;
 			invalidate( RectangleFlags.WIDTH );
@@ -88,6 +114,7 @@ class IntRectangle extends Invalidatable, implements IRectangle
 	private inline function setHeight (v:Int)
 	{
 		if (v != height) {
+			Assert.that( v.isSet() );
 			height	= v;
 			bottom	= top + v;
 			invalidate( RectangleFlags.HEIGHT );
@@ -99,6 +126,7 @@ class IntRectangle extends Invalidatable, implements IRectangle
 	private inline function setTop (v:Int)
 	{
 		if (v != top) {
+			Assert.that( v.isSet() );
 			top		= v;
 			bottom	= v + height;
 			invalidate( RectangleFlags.TOP );
@@ -110,6 +138,7 @@ class IntRectangle extends Invalidatable, implements IRectangle
 	private function setBottom (v:Int)
 	{
 		if (v != bottom) {
+			Assert.that( v.isSet() );
 			bottom	= v;
 			top		= v - height;
 			invalidate( RectangleFlags.BOTTOM );
@@ -122,6 +151,7 @@ class IntRectangle extends Invalidatable, implements IRectangle
 	private inline function setLeft (v:Int)
 	{
 		if (v != left) {
+			Assert.that( v.isSet() );
 			left	= v;
 			right	= v + width;
 			invalidate( RectangleFlags.LEFT );
@@ -133,12 +163,34 @@ class IntRectangle extends Invalidatable, implements IRectangle
 	private function setRight (v:Int)
 	{
 		if (v != right) {
+			Assert.that( v.isSet() );
 			right	= v;
 			left	= v - width;
 			invalidate( RectangleFlags.RIGHT );
 		}
 		return v;
 	}
+	
+	
+	private inline function setCenterX (v:Float)
+	{	
+		Assert.that( v.isSet() );
+		if (v.isSet())
+			left = (v - (width * .5)).int();
+		
+		return centerX = v;
+	}
+	
+	
+	private inline function setCenterY (v:Float)
+	{	
+		Assert.that( v.isSet() );
+		if (v.isSet())
+			top = (v - (height * .5)).int();
+		
+		return centerY = v;
+	}
+	
 	
 	
 	private inline function getLeft ()		{ return left; }
@@ -148,9 +200,20 @@ class IntRectangle extends Invalidatable, implements IRectangle
 	private inline function getWidth ()		{ return width; }
 	private inline function getHeight ()	{ return height; }
 	
+	private inline function getCenterX ()	{ return left + (width * .5); }
+	private inline function getCenterY ()	{ return top + (height * .5); }
+	
 	
 	public function isEmpty ()
 	{
 		return width <= 0 || height <= 0;
 	}
+	
+	
+#if flash9
+	public function toFloatRectangle () : Rectangle
+	{
+		return new Rectangle (0, 0, width, height);
+	}
+#end
 }

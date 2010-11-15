@@ -29,6 +29,7 @@
 package primevc.gui.utils;
  import primevc.core.IDisposable;
  import primevc.gui.core.IUIElement;
+ import primevc.types.Number;
   using primevc.utils.NumberUtil;
   using Std;
 
@@ -65,7 +66,7 @@ class UIElementActions
 	}
 	
 	
-	public static inline function doMove (target:IUIElement, newX:Float, newY:Float)
+	public static inline function doMove (target:IUIElement, newX:Int = Number.INT_NOT_SET, newY:Int = Number.INT_NOT_SET)
 	{
 		if (newX.isSet())	target.layout.x = newX.int();
 		if (newY.isSet())	target.layout.y = newY.int();
@@ -81,10 +82,10 @@ class UIElementActions
 	}
 	
 	
-	public static inline function doResize (target:IUIElement, newW:Float, newH:Float)
+	public static inline function doResize (target:IUIElement, newW:Int = Number.INT_NOT_SET, newH:Int = Number.INT_NOT_SET)
 	{
-		if (newW.isSet())	target.layout.width		= newW.int();
-		if (newH.isSet())	target.layout.height	= newH.int();
+		if (newW.isSet())	target.layout.width.value	= newW.int();
+		if (newH.isSet())	target.layout.height.value	= newH.int();
 	}
 	
 	

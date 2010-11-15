@@ -1,0 +1,43 @@
+@manifest url('manifest.xml');
+
+.debug UIComponent { opacity: .7; border: solid 3px #f0f inset; }
+
+IDisplayObject	{ shape: rectangle; visibility: visible; opacity: 1; }
+/*UITextField		{ color: #000; font: 14px Verdana; }*/
+UIWindow		{ overflow: hidden; algorithm: relative; }
+ApplicationView	{ width: 100%; height: 100%; algorithm: float-ver( top, center ); }
+
+ListView		{ overflow: hidden; }
+InputField		{ border: 1px solid #000; }
+Label			{ font: Verdana 20px; }
+Image			{ shape: rectangle; }
+Button			{ /*overflow: hidden;*/ algorithm: float-hor( center, center ); font: Verdana 20px; background: #ffffff00; color: #000; }
+
+
+/***************
+ * SLIDER
+ **************/
+
+.horizontalSlider	{ width: 200px; height: 4px; }
+.verticalSlider		{ height: 200px; width: 4px;}
+
+.horizontalSlider UIGraphic	{ width: 0%; height: 100%; }
+.verticalSlider UIGraphic	{ height: 0%; width: 100%; bottom: 0px; }
+
+Slider {
+	algorithm: relative;
+	background: #fff;
+}
+
+.horizontalSlider Button {
+	v-center: 0px;
+	background: #666;
+	height: 15px;
+	width: 6px;
+}
+.verticalSlider Button {
+	h-center: 0px;
+	background: #666;
+	width: 15px;
+	height: 6px;
+}

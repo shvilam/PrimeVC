@@ -29,17 +29,20 @@
 package primevc.gui.layout.algorithms.tile;
  import primevc.core.collections.IList;
  import primevc.core.collections.ArrayList;
- import primevc.types.Number;
+ import primevc.core.traits.IInvalidatable;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.ValidateStates;
+ import primevc.types.Number;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
  
+
+private typedef Flags = LayoutFlags;
 
 /**
  * Group of tiles within a tile layout. Behaves as a LayoutContainer but without 
@@ -48,39 +51,46 @@ package primevc.gui.layout.algorithms.tile;
  * @creation-date	Jun 30, 2010
  * @author			Ruben Weijers
  */
-class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements ILayoutContainer <ChildType>
+class TileContainer extends LayoutClient, implements ILayoutContainer
 {
 	public var algorithm	(default, setAlgorithm)		: ILayoutAlgorithm;
-	public var children		(default, null)				: IList<ChildType>;
+	public var children		(default, null)				: IList<LayoutClient>;
 	
 	public var childWidth	(default, setChildWidth)	: Int;
 	public var childHeight	(default, setChildHeight)	: Int;
 	
 	
-	public function new( list:IList<ChildType> = null )
+	public function new( list:IList<LayoutClient> = null )
 	{
 		super();
-		children	= list == null ? new ArrayList<ChildType>() : list;
+		children	= list == null ? new ArrayList<LayoutClient>() : list;
 		childWidth	= Number.INT_NOT_SET;
 		childHeight	= Number.INT_NOT_SET;
 		
-		childAddedHandler.on( children.events.added, this );
-	//	childRemovedHandler.on( children.events.removed, this );
+		childrenChangeHandler.on( children.change, this );
 		
-		invalidateChildList.on( children.events.added, this );
-		invalidateChildList.on( children.events.moved, this );
-		invalidateChildList.on( children.events.removed, this );
+		if (children.length > 0)
+			for (child in children)
+				child.listeners.add(this);
 		
-		setHorChildPosition.on( bounds.leftProp.change, this );
-		setVerChildPosition.on( bounds.topProp.change, this );
+		changes = 0;
 	}
 	
 	
 	override public function dispose ()
 	{
-		children.dispose();
-		children	= null;
-		algorithm	= null;
+		if (children != null)
+		{
+			for (child in children)
+				child.listeners.remove(this);
+			
+			if (children.change != null) {
+				children.change.unbind(this);
+				children.dispose();
+			}
+			children = null;
+		}
+		algorithm = null;
 		
 		super.dispose();
 	}
@@ -89,86 +99,99 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 	public function iterator () { return children.iterator(); }
 	
 	
-	public function childInvalidated (childChanges:Int) : Bool
+	override public function invalidateCall ( childChanges:UInt, sender:IInvalidatable ) : Void
 	{
-		var r = false;
-		algorithm.group = cast this;
-		if (childChanges.has(LayoutFlags.LIST) || (algorithm != null && algorithm.isInvalid(childChanges)))
-		{
-			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
-			r = true;
-		}
-		return r;
-	}
-	
-	
-	override public function validate () 
-	{
-		if (changes == 0)
+		if (!sender.is(LayoutClient)) {
+			super.invalidateCall( childChanges, sender );
 			return;
+		}
 		
-#if debug
-		children.name = name;
-#end
-		validateHorizontal();
-		validateVertical();
+		Assert.that(algorithm != null);
+		algorithm.group = cast this;
+	//	trace(name+".childInvalidated; "+isValidating+"; "+Flags.readProperties(childChanges)+"; "+algorithm.isInvalid(childChanges)+"; algorithm "+algorithm);
+		
+		var child = sender.as(LayoutClient);
+		if (!isValidating && (childChanges.has(Flags.LIST) || algorithm.isInvalid(childChanges)))
+			invalidate( Flags.CHILDREN_INVALIDATED );
 	}
 	
 	
 	override public function validateHorizontal ()
 	{
-		if (changes == 0)
+		if (hasValidatedWidth)
 			return;
 		
 		Assert.that(algorithm != null);
-		
 		for (child in children)
-			if (childInvalidated(child.changes))
+			if (child.changes > 0)
 				child.validateHorizontal();
 		
-		algorithm.group = cast this;
-		algorithm.validateHorizontal();
+		if (changes > 0)
+		{
+			algorithm.group = cast this;
+			algorithm.validateHorizontal();
+		}
 		super.validateHorizontal();
 	}
 	
 	
 	override public function validateVertical ()
 	{
-		if (changes == 0)
+		if (hasValidatedHeight)
 			return;
 		
 		Assert.that(algorithm != null);
-		for (child in children) {
-			if (childInvalidated(child.changes))
+		for (child in children)
+			if (child.changes > 0)
 				child.validateVertical();
+
+		if (changes > 0)
+		{
+			algorithm.group = cast this;
+			algorithm.validateVertical();
 		}
-		
-		algorithm.group = cast this;
-		algorithm.validateVertical();
 		super.validateVertical();
 	}
 	
 	
 	override public function validated ()
 	{
-		if (changes == 0)
+		if (!isValidating)
 			return;
 		
-		algorithm.group = cast this;
-		algorithm.apply();
-		changes = 0;
+		if (changes > 0)
+		{
+			algorithm.group = cast this;
+			algorithm.apply();
+		}
+		
+		state.current	= ValidateStates.validated;
+		changes			= 0;
+		
+		hasValidatedWidth	= false;
+		hasValidatedHeight	= false;
 	}
 	
 	
-	private function setHorChildPosition () {
-		for (child in children)
-			child.bounds.left = bounds.left;
+	override private function setX (v)
+	{
+		if (v != x) {
+			v = super.setX(v);
+			for (child in children)
+				child.outerBounds.left = innerBounds.left;
+		}
+		return v;
 	}
 	
 	
-	private function setVerChildPosition () {
-		for (child in children)
-			child.bounds.top = bounds.top;
+	override private function setY (v)
+	{
+		if (v != y) {
+			v = super.setY(v);
+			for (child in children)
+				child.outerBounds.top = innerBounds.top;
+		}
+		return v;
 	}
 	
 	
@@ -187,7 +210,7 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 			}
 			
 			algorithm = v;
-			invalidate( LayoutFlags.ALGORITHM );
+			invalidate( Flags.ALGORITHM );
 			
 			if (algorithm != null) {
 				algorithmChangedHandler.on( algorithm.algorithmChanged, this );
@@ -203,7 +226,7 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 		if (v != childWidth)
 		{
 			childWidth = v;
-			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
+			invalidate( Flags.CHILDREN_INVALIDATED );
 		}
 		return v;
 	}
@@ -214,7 +237,7 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 		if (v != childHeight)
 		{
 			childHeight = v;
-			invalidate( LayoutFlags.CHILDREN_INVALIDATED );
+			invalidate( Flags.CHILDREN_INVALIDATED );
 		}
 		return v;
 	}
@@ -226,18 +249,27 @@ class TileContainer <ChildType:LayoutClient> extends LayoutClient, implements IL
 	// EVENT HANDLERS
 	//
 	
-	private function algorithmChangedHandler ()							{ invalidate( LayoutFlags.ALGORITHM ); }
-	private function invalidateChildList ()								{ invalidate( LayoutFlags.LIST ); }
-//	private function childRemovedHandler (child:ChildType, pos:Int)		{ if (child != null) { child.parent = null; } }
+	private function algorithmChangedHandler () { invalidate( Flags.ALGORITHM ); }
 	
-	private function childAddedHandler (child:ChildType, pos:Int)
+	private function childrenChangeHandler ( change:ListChange < LayoutClient > ) : Void
 	{
-	//	child.parent = this;
-		if (bounds.left != 0)	child.bounds.left	= bounds.left;
-		if (bounds.top != 0)	child.bounds.top	= bounds.top;
-	//	trace(name+".childAddedHandler "+child+"; bounds: "+bounds+"; child.bounds: "+child.bounds);
+	//	trace(this+".childrenChangeHandler "+change);
+		switch (change)
+		{
+			case added( child, newPos ):
+				child.listeners.add(this);
+				if (innerBounds.left != 0)	child.outerBounds.left	= innerBounds.left;
+				if (innerBounds.top != 0)	child.outerBounds.top	= innerBounds.top;
+			
+			case removed( child, oldPos ):
+				child.listeners.remove(this);
+			
+			default:
+		}
+		
+		invalidate( Flags.LIST );
 	}
-
+	
 	
 #if debug
 	override public function toString () { return "LayoutTileContainer( "+super.toString() + " ) - "/*+children*/; }

@@ -305,7 +305,7 @@ class FiltersStyle extends StyleSubBlock
 	//
 	
 	
-#if (neko || debug)
+#if neko
 	override public function toCSS (prefix:String = "")
 	{
 		var css = [];
@@ -326,14 +326,6 @@ class FiltersStyle extends StyleSubBlock
 	}
 	
 	
-/*	override public function isEmpty ()
-	{
-		return _shadow == null && _glow == null && _bevel == null && _blur == null && _gradientBevel == null && _gradientGlow == null;
-	}*/
-#end
-
-
-#if neko
 	override public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())

@@ -1,0 +1,94 @@
+#!/bin/bash
+
+BUILDSCRIPTDIR="`dirname $0`";
+PRIMEVC_ROOT="${BUILDSCRIPTDIR}/.."
+
+PRJROOT=${PRIMEVC_ROOT}
+MINPARAMS=1
+STYLE="empty"
+#MainClass="primevc.Main"
+OUTPUT="app.swf"
+WIDTH=1300
+HEIGHT=900
+FPS=31
+BGCOLOR=FFFFFF
+
+#parse arguments
+while getopts "m:nc:ds:tw:uh:io:qp:re:zdf" OptionName
+	do
+		case $OptionName in
+			m ) MainClass=${OPTARG};;	#main class
+			c ) BGCOLOR=${OPTARG};;		#background color
+			s ) STYLE=${OPTARG};;		#style name
+			d ) Debug="-debug";;		#compile cssparser and application in debugmode
+			f ) Force=true;;			#force recompilation of css parser
+			w ) WIDTH=${OPTARG};;		#width
+			h ) HEIGHT=${OPTARG};;		#height
+			o ) OUTPUT=${OPTARG};;		#output filename
+			p ) PRJROOT=${OPTARG};;		#project root (used for styles)
+			e ) EXTRA=${OPTARGS};;		#extra compiler options
+	esac
+done
+
+STYLEDIR="$PRJROOT/styles/$STYLE"
+OUTPUTDIR="$PRJROOT/bin${Debug:--release}"
+OUTPUT="$OUTPUTDIR/$OUTPUT"
+ASSETS=""
+
+if [[ -f "$STYLEDIR/Assets.swf" ]] ; then
+	ASSETS="-swf-lib $STYLEDIR/Assets.swf"
+fi;
+
+if [[ ! -d $OUTPUTDIR ]] ; then
+	mkdir -p $OUTPUTDIR
+fi;
+
+
+#ls $PRIMEVC_ROOT &&
+cd $PRIMEVC_ROOT &&
+
+echo -e "\n\n==================== BUILD${Debug:+ DEBUG} ====================" &&
+
+if [[ ${MainClass} == "" ]] ; then
+	echo "Error: Mainclass is not specified"
+else
+	echo -e "\tMain: $MainClass" &&
+	echo -e "\tStyle: $STYLEDIR" &&
+	echo -e "\tDebugging: ${Debug:-false}" &&
+	echo -e "\tAssets: $ASSETS" &&
+	echo -e "\tProject: $PRJROOT" &&
+	echo -e "\tOutput: $OUTPUT" &&
+	echo -e "\tPrimeVC: $PRIMEVC_ROOT" &&
+	
+	echo "1. BUILDING ASSETS" &&
+	bash build/build-assets &&
+	
+	
+	echo -e "\n2. BUILDING STYLES" &&
+	bash build/build-styles -s ${STYLEDIR} ${Debug:+-d} ${Force:+-f} &&
+	
+	
+	echo -e "\n3. COMPILING SWF" &&
+#	echo "${PRIMEVC_ROOT}/build/build.hxml -swf $OUTPUT -main $MainClass ${Debug:---no-traces} -cp "${PRJROOT}/src" -cp ${STYLEDIR} -swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR $ASSETS $EXTRA" &&
+	haxe build/build.hxml \
+		-swf $OUTPUT \
+		${Debug:---no-traces} \
+		-cp "${PRJROOT}/src" \
+		-cp ${STYLEDIR} \
+		-main $MainClass \
+		-swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR \
+		$ASSETS \
+		$EXTRA && # -cp tests
+	
+	
+	if (set -u; : $Debug) 2> /dev/null ; then
+		#mv ${PRIMEVC_ROOT}/tmp.swf ${PRIMEVC_ROOT}/bin-debug/app.swf &&
+		open $OUTPUT
+	else
+		echo -e "\n4. OPTIMIZING BUILD" &&
+		bash build/optimize-build $OUTPUT &&
+		open $OUTPUT
+	fi;
+fi;
+
+cd -

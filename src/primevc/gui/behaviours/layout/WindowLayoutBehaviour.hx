@@ -27,8 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.layout;
- import primevc.core.dispatcher.Wire;
- import primevc.gui.behaviours.BehaviourBase;
+ import primevc.gui.behaviours.ValidatingBehaviour;
  import primevc.gui.core.UIWindow;
  import primevc.gui.states.ValidateStates;
   using primevc.utils.Bind;
@@ -38,7 +37,7 @@ package primevc.gui.behaviours.layout;
  * @author Ruben Weijers
  * @creation-date Jul 26, 2010
  */
-class WindowLayoutBehaviour extends BehaviourBase < UIWindow >
+class WindowLayoutBehaviour extends ValidatingBehaviour < UIWindow >
 {
 	override private function init ()
 	{
@@ -50,7 +49,7 @@ class WindowLayoutBehaviour extends BehaviourBase < UIWindow >
 		
 		layoutStateChangeHandler.on( target.layout.state.change, this );
 		//trigger the event handler for the current state as well
-		layoutStateChangeHandler( null, target.layout.state.current );
+		layoutStateChangeHandler( target.layout.state.current, null );
 		
 #if flash9
 		updateBgSize.on( target.layout.events.sizeChanged, this );
@@ -64,33 +63,36 @@ class WindowLayoutBehaviour extends BehaviourBase < UIWindow >
 		if (target.layout == null)
 			return;
 		
-		target.invalidationManager.remove( target.layout );
 		target.layout.state.change.unbind( this );
+		super.reset();
 	}
 
 	
-	private function layoutStateChangeHandler (oldState:ValidateStates, newState:ValidateStates)
+	private function layoutStateChangeHandler (newState:ValidateStates, oldState:ValidateStates)
 	{
-	//	trace(target+".layoutStateChangeHandler "+oldState+" -> "+newState);
 		switch (newState) {
 			case ValidateStates.invalidated:
-				target.invalidationManager.add(target.layout);
+				target.invalidationManager.add(this);
 		}
 	}
+	
+	
+	override private function getValidationManager ()	{ return cast target.invalidationManager; }
+	override public function validate ()				{ target.layout.validate(); }
 	
 	
 #if flash9
 	private function updateBgSize ()
 	{
-		if (target.graphicData.value != null)
+		var l = target.layout;
+		trace(target+".updateBgSize "+l.outerBounds);
+	/*	if (!target.graphicData.isEmpty())
 		{
-			var l = target.layout;
-			trace(target+".updateBgSize "+l.width+", "+l.height);
-		//	target.bgShape.width	= l.width;
-		//	target.bgShape.height	= l.height;
-			target.rect.width		= l.width;
-			target.rect.height		= l.height;
-		}
+			target.bgShape.width	= l.width.value;
+			target.bgShape.height	= l.height.value;
+		}*/
+		target.rect.width		= l.width.value;
+		target.rect.height		= l.height.value;
 	}	
 #end
 }

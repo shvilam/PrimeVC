@@ -27,16 +27,32 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.collections;
-
+ import primevc.core.IDisposable;
 
 
 /**
  * Copied from haxe.FastList (since it's not in a seperate file :-S)
  * @since	20 okt 2010
  */
-class FastCell<T> #if (flash9 || cpp) implements haxe.rtti.Generic #end
+class FastCell<T> implements IDisposable #if (flash9 || cpp) , implements haxe.rtti.Generic #end
 {
 	public var data : T;
 	public var next : FastCell<T>;
-	public function new(data,next) { this.data = data; this.next = next; }
+	
+	public function new (data:T, prev:FastCell<T>)
+	{
+		this.data = data;
+		
+		if (prev != null) {
+			this.next = prev.next;
+			prev.next = this;
+		}
+	}
+	
+	
+	public function dispose ()
+	{
+		data = null;
+		next = null;
+	}
 }

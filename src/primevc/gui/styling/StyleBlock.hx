@@ -237,6 +237,14 @@ class StyleBlock extends StyleBlockBase
 	}
 	
 	
+#if debug
+	public inline function getPriorityName () : String
+	{
+		return type.enumConstructor();
+	}
+#end
+	
+	
 	/*
 	public inline function hasChildren () : Bool
 	{
@@ -405,10 +413,10 @@ class StyleBlock extends StyleBlockBase
 	private function getFont ()
 	{
 		var v = _font;
-		if (v == null && extendedStyle != null)		v = extendedStyle.font;
-		if (v == null && nestingInherited != null)	v = nestingInherited.font;
-		if (v == null && superStyle != null)		v = superStyle.font;
-		if (v == null && parentStyle != null)		v = parentStyle.font;
+			if (v == null && extendedStyle != null)		v = extendedStyle.font;
+#if flash9	if (v == null && nestingInherited != null)	v = nestingInherited.font; #end
+			if (v == null && superStyle != null)		v = superStyle.font;
+#if flash9	if (v == null && parentStyle != null)		v = parentStyle.font; #end
 		
 		return v;
 	}
@@ -697,7 +705,7 @@ class StyleBlock extends StyleBlockBase
 	}
 	
 	
-#if (debug || neko)
+#if neko
 	override public function toCSS (namePrefix:String = "")
 	{
 		var css = "";
@@ -717,9 +725,8 @@ class StyleBlock extends StyleBlockBase
 		
 		return css;
 	}
-#end
 	
-#if neko
+	
 	override public function cleanUp ()
 	{
 		if (_boxFilters != null)
@@ -807,31 +814,32 @@ class StyleBlock extends StyleBlockBase
 		if (!isEmpty())
 		{
 			if (filledProperties.has( Flags.ALL_PROPERTIES ))
-				code.construct(this, [ type, _graphics, _layout, _font, _effects, _boxFilters, _bgFilters, _states ]);
+				code.construct(this, [ type, _graphics, _layout, _font, _effects, _boxFilters, _bgFilters ]);
 			else
 				code.construct(this, [ type ]);
 			
 			if (filledProperties.has( Flags.INHERETING_STYLES ))
 			{
-				if (nestingInherited != null)	code.setProp( this, "nestingInherited", nestingInherited );
-				if (superStyle != null)			code.setProp( this, "superStyle", superStyle );
-				if (extendedStyle != null)		code.setProp( this, "extendedStyle", extendedStyle );
-				if (parentStyle != null)		code.setProp( this, "parentStyle", parentStyle );
+				if (nestingInherited != null)			code.setProp( this, "nestingInherited", nestingInherited );
+				if (superStyle != null)					code.setProp( this, "superStyle", superStyle );
+				if (extendedStyle != null)				code.setProp( this, "extendedStyle", extendedStyle );
+				if (parentStyle != null)				code.setProp( this, "parentStyle", parentStyle );
 			}
 			
-			if (filledProperties.has( Flags.CHILDREN ))
-				code.setProp(this, "children", _children);
+			//important to do after the styleblock is constructed. otherwise references to the parentstyle might nog yet exist
+			if (filledProperties.has( Flags.CHILDREN ))	code.setProp(this, "children", _children);
+			if (filledProperties.has( Flags.STATES ))	code.setProp(this, "states", _states);
 		}
 	}
 #end
 	
-#if debug
-	override public function toString ()
+#if (debug && !neko)
+	public function toString ()
 	{
 		return uuid+"; "+readProperties();
 	}
-	
-	
+#end
+#if debug
 	override public function readProperties (flags:Int = -1) : String
 	{
 		if (flags == -1)

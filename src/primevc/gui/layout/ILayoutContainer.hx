@@ -35,7 +35,7 @@ package primevc.gui.layout;
  * @since	mar 19, 2010
  * @author	Ruben Weijers
  */
-interface ILayoutContainer <ChildType:LayoutClient> implements ILayoutClient
+interface ILayoutContainer implements ILayoutClient
 {
 	public var algorithm			(default, setAlgorithm)		: ILayoutAlgorithm;
 	/**
@@ -49,12 +49,12 @@ interface ILayoutContainer <ChildType:LayoutClient> implements ILayoutClient
 	 * @return	true if the change invalidates the parent as well, otherwise 
 	 * 			false
 	 */
-	public function childInvalidated (childChanges:Int)			: Bool;
+//	public function childInvalidated (childChanges:Int)			: Bool;
 	
 	/**
 	 * List with all the children of the group
 	 */
-	public var children				(default, null)				: IList<ChildType>;
+	public var children				(default, null)				: IList<LayoutClient>;
 	
 	
 	/**

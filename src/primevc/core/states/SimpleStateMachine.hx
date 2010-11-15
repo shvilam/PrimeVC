@@ -48,6 +48,11 @@ class SimpleStateMachine <StateType> implements IDisposable
 	public var current		(default, setCurrent)	: StateType;
 	public var defaultState	(default, setDefault)	: StateType;
 	
+	/**
+	 * Change event, dispatched when the state changes
+	 * @param	1. new state
+	 * @param	2. old state
+	 */
 	public var change		(default, null)			: Signal2 < StateType, StateType >;
 	
 	
@@ -75,8 +80,9 @@ class SimpleStateMachine <StateType> implements IDisposable
 	
 	private inline function setCurrent (v:StateType) {
 		if (current != v) {
-			change.send( current, v );
-			current = v;
+			var old	= current;
+			current	= v;
+			change.send( v, old );
 		}
 		return v;
 	}

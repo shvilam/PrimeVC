@@ -27,57 +27,318 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package cases;
+ import primevc.core.collections.ArrayList;
  import primevc.core.Application;
+ import primevc.core.Bindable;
+ import primevc.gui.components.ApplicationView;
+ import primevc.gui.components.Button;
+ import primevc.gui.components.Image;
+ import primevc.gui.components.Label;
+ import primevc.gui.components.ListView;
+ import primevc.gui.components.Slider;
+ import primevc.gui.core.UIComponent;
  import primevc.gui.core.UIContainer;
+ import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UIWindow;
- import primevc.gui.graphics.fills.SolidFill;
- import primevc.gui.graphics.shapes.RegularRectangle;
- import primevc.gui.layout.algorithms.RelativeAlgorithm;
+ import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutContainer;
- import primevc.gui.layout.RelativeLayout;
+  using primevc.utils.Bind;
+  using Std;
 
 
 
 /**
- * Class description
- * 
  * @author Ruben Weijers
  * @creation-date Aug 30, 2010
  */
-class AppTest
+class AppTest extends UIWindow
 {
-	public static function main () { Application.startup( AppTestWindow ); }
-}
-
-class AppTestWindow extends UIWindow
-{
+	public static function main () { Application.startup( AppTest ); }
+	
 	override private function createChildren ()
 	{
-		var app = new Editor();
-		children.add( app );
+		children.add( new EditorView("editorView") );
 	}
 }
 
 
-
-class Editor extends UIContainer <Dynamic>
+class EditorView extends ApplicationView
 {
-	override private function createLayout ()
-	{
-		layout						= new LayoutContainer();
-		layout.relative				= new RelativeLayout( 0, 0, 0, 0 );
-		layoutContainer.algorithm	= new RelativeAlgorithm();
-	}
+	private var applicationBar	: ApplicationMainBar;
+	private var framesToolBar	: FramesToolBar;
+	private var spreadEditor	: SpreadEditor;
 	
+	
+	override private function createBehaviours () {}	//remove auto change layout behaviour...
 	
 	override private function createChildren ()
 	{
+		children.add( spreadEditor		= new SpreadEditor() );
+		children.add( framesToolBar		= new FramesToolBar("framesList") );
+		children.add( applicationBar	= new ApplicationMainBar("applicationMainBar") );
 		
-	}
-	
-	
-	override private function createGraphics ()
-	{
-		graphicData.value = new RegularRectangle( layout.bounds, new SolidFill(0xff000aa) );
+		layoutContainer.children.add( applicationBar.layout );
+		layoutContainer.children.add( framesToolBar.layout );
+		layoutContainer.children.add( spreadEditor.layout );
 	}
 }
+
+
+
+class ApplicationMainBar extends UIContainer
+{
+	private var logo : Image;
+	
+	
+	override private function createChildren ()
+	{
+		children.add( logo = new Image("logo") );
+		layoutContainer.children.add( logo.layout );
+	}
+}
+
+
+
+class FramesToolBar extends ListView < FrameTypesSectionVO >
+{
+	public function new (id:String = null)
+	{
+		var frames = new ArrayList<FrameTypeVO>();
+		frames.add( new FrameTypeVO( "externalLinkFrame", "Externe Link", null ) );
+		frames.add( new FrameTypeVO( "internalLinkFrame", "Interne Link", null ) );
+		frames.add( new FrameTypeVO( "webshopFrame", "Webshop Kader", null ) );
+		
+		var media = new ArrayList<FrameTypeVO>();
+		media.add( new FrameTypeVO( "imageFrame", "Afbeeldingen", null ) );
+		media.add( new FrameTypeVO( "videoFrame", "Video", null ) );
+		media.add( new FrameTypeVO( "flashFrame", "Flash", null ) );
+		
+		var elements = new ArrayList<FrameTypeVO>();
+		elements.add( new FrameTypeVO( "shapeFrame", "Vormen", null ) );
+		elements.add( new FrameTypeVO( "textFrame", "Tekst", null ) );
+		
+		var list = new FrameTypesList();
+		list.add( new FrameTypesSectionVO( "linkFrames", "kaders", frames ) );
+		list.add( new FrameTypesSectionVO( "mediaFrames", "media", media ) );
+		list.add( new FrameTypesSectionVO( "elementFrames", "elementen", elements ) );
+		super(id, list);
+	}
+	
+	
+	override private function createItemRenderer (dataItem:FrameTypesSectionVO, pos:Int)
+	{
+		return cast new FrameTypesBar( dataItem.name+"Bar", dataItem );
+	}
+}
+
+
+
+class FrameTypesBar extends UIDataContainer < FrameTypesSectionVO >
+{
+	private var titleField	: Label;
+	private var framesList	: FrameTypesBarList;
+	
+	
+	override private function createChildren ()
+	{
+		titleField	= new Label(id+"TitleField");
+		framesList	= new FrameTypesBarList(id+"List");
+		
+		titleField.styleClasses.add("title");
+		
+		children.add( framesList );
+		children.add( titleField );
+		layoutContainer.children.add( titleField.layout );
+		layoutContainer.children.add( framesList.layout );
+	}
+	
+	
+	override private function initData ()
+	{
+		titleField.data.bind( value.label );
+		framesList.value = cast value.frames;
+	}
+}
+
+
+
+class FrameTypesBarList extends ListView < FrameTypeVO >
+{
+	override private function createItemRenderer (dataItem:FrameTypeVO, pos:Int)
+	{
+		var button = new FrameButton( dataItem );
+		if (pos == 0)					button.styleClasses.add("first");
+		if (pos == (value.length - 1))	button.styleClasses.add("last");
+		return cast button;
+	}
+}
+
+
+
+class FrameButton extends Button
+{
+	public var vo : FrameTypeVO;
+	
+	
+	public function new (vo:FrameTypeVO)
+	{
+		super(vo.name+"Button");
+		data.bind( vo.label );
+		this.vo = vo;
+	}
+	
+	
+	override public function dispose ()
+	{
+		vo = null;
+		super.dispose();
+	}
+}
+
+
+
+class SpreadEditor extends UIContainer
+{
+	private var spreadStage	: SpreadStage;
+	private var toolBar		: SpreadToolBar;
+	
+	override private function createChildren ()
+	{
+		children.add( spreadStage	= new SpreadStage() );
+		children.add( toolBar		= new SpreadToolBar() );
+		layoutContainer.children.add( spreadStage.layout );
+		layoutContainer.children.add( toolBar.layout );
+		
+		updatePageZoom.on( toolBar.zoomSlider.data.change, this );
+	}
+	
+	
+	private function updatePageZoom ()
+	{
+		spreadStage.spread.scale( toolBar.zoomSlider.value, toolBar.zoomSlider.value );
+	}
+}
+
+
+class SpreadStage extends UIContainer
+{	
+	public var spread	: SpreadView;
+	
+	
+	override private function createChildren ()
+	{
+		children.add( spread = new SpreadView() );
+		layoutContainer.children.add( spread.layout );
+	}
+}
+
+
+class SpreadView extends UIComponent
+{
+	private var content : UIContainer;
+	
+	
+	override private function createChildren ()
+	{
+		content = new UIContainer();
+		addChild( content );
+	}
+	
+	
+	override private function createBehaviours ()
+	{
+		haxe.Log.clear.on( userEvents.mouse.click, this );
+	}
+	
+	
+	
+	override public function scale (sx:Float, sy:Float)
+	{
+		Assert.notNull( content );
+		resetLayoutScale();
+		content.scaleX = sx;
+		content.scaleY = sy;
+		updateLayoutScale();
+	}
+	
+	
+	private inline function resetLayoutScale ()
+	{
+		layout.width.value	= (layout.width.value / content.scaleX).int();
+		layout.height.value	= (layout.height.value / content.scaleY).int();
+	}
+	
+	
+	private inline function updateLayoutScale ()
+	{
+		layout.width.value	= (layout.width.value * content.scaleX).int();
+		layout.height.value	= (layout.height.value * content.scaleY).int();
+	}
+}
+
+
+class SpreadToolBar extends UIContainer
+{
+	public var undoBtn		(default, null)	: Button;
+	public var redoBtn		(default, null)	: Button;
+	public var zoomSlider	(default, null)	: Slider;
+	
+	
+	override private function createChildren ()
+	{
+		children.add( undoBtn = new Button("undoBtn", "Undo") );
+		children.add( redoBtn = new Button("redoBtn", "Redo") );
+		children.add( zoomSlider = new Slider("zoomSlider", 1, 0.4, 3) );
+		layoutContainer.children.add( undoBtn.layout );
+		layoutContainer.children.add( redoBtn.layout );
+		layoutContainer.children.add( zoomSlider.layout );
+		
+		undoBtn.styleClasses.add( "toolBtn" );
+		redoBtn.styleClasses.add( "toolBtn" );
+	}
+}
+
+
+
+
+/**
+ * Data classes
+ */
+
+typedef FrameTypesList		= ArrayList < FrameTypesSectionVO >;
+
+
+class FrameTypesSectionVO
+{
+	public var name		: String;
+	public var frames	: ArrayList < FrameTypeVO >;
+	public var label	: Bindable < String >;
+	
+	
+	public function new (name:String, label:String, frames:ArrayList < FrameTypeVO > )
+	{
+		this.name	= name;
+		this.label	= new Bindable<String>(label);
+		this.frames	= frames;
+	}
+}
+
+
+class FrameTypeVO
+{
+	/**
+	 * Property is used as ID for the itemViewer
+	 */
+	public var name			: String;
+	public var label		: Bindable < String >;
+	public var frameClass	: Class < Dynamic >;
+	
+	
+	public function new (name:String, label:String, frameClass:Class < Dynamic >)
+	{
+		this.name		= name;
+		this.label		= new Bindable<String>(label);
+		this.frameClass	= frameClass;
+	}
+}
+

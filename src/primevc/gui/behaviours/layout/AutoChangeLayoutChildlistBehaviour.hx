@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.layout;
+ import primevc.core.collections.IList;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
@@ -74,43 +75,49 @@ class AutoChangeLayoutChildlistBehaviour extends BehaviourBase < IDisplayContain
 	{
 		Assert.that(target.is(ILayoutable), "Target must be "+target+" must be ILayoutable");
 		Assert.that(target.as(ILayoutable).layout.is(LayoutContainer), "Layout of "+target+" must be ILayoutContainer");
-		layoutGroup = target.as(ILayoutable).layout.as(LayoutContainer);
 		
-		countDifference = target.children.length - layoutGroup.children.length;
+		layoutGroup		= target.as(ILayoutable).layout.as(LayoutContainer);
+		countDifference	= target.children.length - layoutGroup.children.length;
 		
-		addedHandler	.on( target.children.events.added, this );
-		removedHandler	.on( target.children.events.removed, this );
-		movedHandler	.on( target.children.events.moved, this );
+		handleChildChange.on( target.children.change, this );
 	}
 	
 	
 	override private function reset ()
 	{
 		layoutGroup = null;
-		target.children.events.added.unbind(this);
-		target.children.events.removed.unbind(this);
-		target.children.events.moved.unbind(this);
+		target.children.change.unbind(this);
 	}
 	
 	
-	private function addedHandler (child:IDisplayObject, pos:Int)
+	private function handleChildChange ( change:ListChange < IDisplayObject > )
 	{
-		if (child.is(IDraggable) && child.as(IDraggable).isDragging)
-			return;
-		
-		if (child.is(ILayoutable))	addChildToLayout( child.as(ILayoutable), pos );
-	}
-	
-	
-	private function movedHandler (child:IDisplayObject, newPos:Int, oldPos:Int)
-	{
-		if (child.is(ILayoutable))	moveChildInLayout( child.as(ILayoutable), newPos, oldPos );
-	}
-	
-	
-	private function removedHandler (child:IDisplayObject, pos:Int)
-	{
-		if (child.is(ILayoutable))	removeChildFromLayout( child.as(ILayoutable) );
+	//	trace(target+".handleChildChange for layout "+change);
+		switch (change)
+		{
+			case added( child, newPos ):
+				if (child.is(IDraggable) && child.as(IDraggable).isDragging)
+					return;
+				
+				if (child.is(ILayoutable))
+					addChildToLayout( child.as(ILayoutable), newPos );
+				
+			
+				
+			case removed( child, oldPos ):
+				if (child.is(ILayoutable))
+					removeChildFromLayout( child.as(ILayoutable) );
+			
+			
+			
+			case moved( child, newPos, oldPos ):
+				if (child.is(ILayoutable))
+					moveChildInLayout( child.as(ILayoutable), newPos, oldPos );
+			
+			
+			default:
+		}
+	//	trace("\t children: "+layoutGroup.children);
 	}
 	
 	

@@ -4,7 +4,7 @@ Thumb.db
 *.tmbuild
 *.n
 
-/skins/flair/StyleSheet.hx
+/styles/*/StyleSheet.hx
 /build/environment.sh
 /bin-debug
 /bin-release

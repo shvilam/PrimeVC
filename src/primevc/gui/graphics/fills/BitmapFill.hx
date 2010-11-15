@@ -34,7 +34,8 @@ package primevc.gui.graphics.fills;
  import primevc.core.geom.Matrix2D;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
- import primevc.gui.traits.IDrawable;
+ import primevc.gui.graphics.IGraphicProperty;
+ import primevc.gui.traits.IGraphicsOwner;
  import primevc.types.Bitmap;
   using primevc.utils.Bind;
 
@@ -45,7 +46,7 @@ package primevc.gui.graphics.fills;
  * @author Ruben Weijers
  * @creation-date Jul 30, 2010
  */
-class BitmapFill extends GraphicElement, implements IFill 
+class BitmapFill extends GraphicElement, implements IGraphicProperty 
 {
 	public var bitmap		(default, setBitmap)	: Bitmap;
 	public var matrix		(default, setMatrix)	: Matrix2D;
@@ -58,7 +59,7 @@ class BitmapFill extends GraphicElement, implements IFill
 	{
 		super();
 		this.bitmap = bitmap;
-		this.matrix	= matrix;
+		this.matrix	= matrix; //matrix == null ? new Matrix2D() : matrix;
 		this.repeat = repeat;
 		this.smooth	= smooth;
 		isFinished	= false;
@@ -91,11 +92,13 @@ class BitmapFill extends GraphicElement, implements IFill
 			
 			bitmap = v;
 			
-			if (bitmap != null) {
+			if (bitmap != null)
+			{
 				if (bitmap.state.is(BitmapStates.ready))
 					invalidate( GraphicFlags.FILL );
 				
 				handleBitmapStateChange.on( bitmap.state.change, this );
+				bitmap.load();
 			}
 		}
 		return v;
@@ -136,7 +139,7 @@ class BitmapFill extends GraphicElement, implements IFill
 	// EVENT HANDLERS
 	//
 	
-	private inline function handleBitmapStateChange (oldState:BitmapStates, newState:BitmapStates)
+	private inline function handleBitmapStateChange (newState:BitmapStates, oldState:BitmapStates)
 	{
 		switch (newState) {
 			case BitmapStates.ready:	invalidate( GraphicFlags.FILL );
@@ -150,49 +153,43 @@ class BitmapFill extends GraphicElement, implements IFill
 	// IFILL METHODS
 	//
 	
-	public inline function begin (target:IDrawable, ?bounds:IRectangle)
-	{
+	public inline function begin (target:IGraphicsOwner, bounds:IRectangle)
+	{	
+		isFinished = true;
+		if (bitmap == null)
+			return;
+		
 		if (bitmap.state.is(BitmapStates.ready))
 		{
 #if flash9
-			target.graphics.beginBitmapFill( bitmap.data, matrix, repeat, smooth );
+			var m:Matrix2D = null;
+			if (repeat == false) {
+				m = new Matrix2D();
+				m.scale( bounds.width / bitmap.data.width, bounds.height / bitmap.data.height );
+			}
+			target.graphics.beginBitmapFill( bitmap.data, m, repeat, smooth );
 #end
 		}
 		else if (bitmap.state.is(BitmapStates.loadable))
 			bitmap.load();
-		
-		isFinished = true;
 	}
 	
 	
-	public inline function end (target:IDrawable)
-	{
-		if (bitmap.state.is(BitmapStates.ready))
+	public inline function end (target:IGraphicsOwner, bounds:IRectangle)
+	{	
+		isFinished = false;
+		if (bitmap != null && bitmap.state.is(BitmapStates.ready))
 		{
 #if flash9
 			target.graphics.endFill();
 #end
 		}
-		isFinished = false;
 	}
 	
 	
-#if (debug || neko)
-	override public function toString ()
-	{
-		return "BitmapFill( " + bitmap + ", " + smooth + ", " + repeat + " )";
-	}
-	
-	
-	override public function toCSS (prefix:String = "")
-	{
-		return bitmap.toString + " " + repeat;
-	}
-#end
 #if neko
-	override public function toCode (code:ICodeGenerator)
-	{
-		code.construct( this, [ bitmap, matrix, repeat, smooth ] );
-	}
+	override public function toString ()					{ return "BitmapFill( " + bitmap + ", " + smooth + ", " + repeat + " )"; }
+	override public function toCSS (prefix:String = "")		{ return bitmap.toString + " " + repeat; }
+	override public function toCode (code:ICodeGenerator)	{ code.construct( this, [ bitmap, matrix, repeat, smooth ] ); }
 #end
 }

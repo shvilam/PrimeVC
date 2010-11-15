@@ -33,7 +33,7 @@ package primevc.gui.layout.algorithms.circle;
  import primevc.gui.layout.algorithms.HorizontalBaseAlgorithm;
  import primevc.gui.layout.algorithms.IHorizontalAlgorithm;
  import primevc.utils.Formulas;
- import primevc.utils.IntMath;
+ import primevc.utils.NumberMath;
   using primevc.utils.Formulas;
   using primevc.utils.NumberUtil;
  
@@ -84,7 +84,7 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 	 */
 	public inline function validateHorizontal ()
 	{
-		var width:Int = group.width;
+		var width:Int = group.width.value;
 	/*	if (group.childWidth.notSet())
 		{
 			for (child in group.children)
@@ -128,12 +128,12 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 				
 				angle	= (childAngle * i) + startRadians;
 				pos		= start + Std.int( radius * Math.cos(angle) );
-				var halfChildWidth	= Std.int( child.bounds.width * .5 );
+				var halfChildWidth	= Std.int( child.outerBounds.width * .5 );
 				var doCenter		= pos.isWithin( radius - halfChildWidth, radius + halfChildWidth );
 				
-				if		(doCenter)				child.bounds.centerX	= pos;
-				else if	(pos > radius)			child.bounds.right		= pos;
-				else							child.bounds.left		= pos;
+				if		(doCenter)				child.outerBounds.centerX	= pos;
+				else if	(pos > radius)			child.outerBounds.right		= pos;
+				else							child.outerBounds.left		= pos;
 				i++;
 			}
 		}
@@ -169,7 +169,7 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 
 
 	private inline function getRadius () : Int {
-		return isEllipse ? Std.int( group.width * .5 ) : Std.int( Math.round( Formulas.getCircleRadius(group.width, group.height) ) );
+		return isEllipse ? Std.int( group.width.value * .5 ) : Std.int( Math.round( Formulas.getCircleRadius(group.width.value, group.height.value) ) );
 	}
 	
 #if (neko || debug)

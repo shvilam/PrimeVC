@@ -29,7 +29,6 @@
 package primevc.gui.core;
  import primevc.core.Bindable;
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
-// import primevc.gui.behaviours.styling.ApplyStylingBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
  import primevc.gui.display.Shape;
@@ -38,6 +37,7 @@ package primevc.gui.core;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.states.UIElementStates;
 #if flash9
+ import primevc.core.collections.SimpleList;
  import primevc.gui.styling.UIElementStyle;
  import primevc.gui.traits.IDrawable;
 #end
@@ -53,21 +53,22 @@ class UIGraphic extends Shape
 			,	implements IUIElement
 #if flash9	,	implements IDrawable	#end
 {
-	public var behaviours		(default, null)		: BehaviourList;
-	public var id				(default, null)		: Bindable < String >;
-	public var state			(default, null)		: UIElementStates;
-	public var effects			(default, default)	: UIElementEffects;
+	public var behaviours		(default, null)					: BehaviourList;
+	public var id				(default, null)					: Bindable < String >;
+	public var state			(default, null)					: UIElementStates;
+	public var effects			(default, default)				: UIElementEffects;
 	
-	public var layout			(default, null)		: LayoutClient;
-	public var graphicData		(default, null)		: Bindable < GraphicProperties >;
+	public var layout			(default, null)					: LayoutClient;
 	
-#if flash9
-	public var style			(default, null)		: UIElementStyle;
-	public var styleClasses		(default, null)		: Bindable< String >;
+#if flash9	
+	public var graphicData		(default, null)					: GraphicProperties;
+	public var style			(default, null)					: UIElementStyle;
+	public var styleClasses		(default, null)					: SimpleList< String >;
+	public var stylingEnabled	(default, setStylingEnabled)	: Bool;
 #end
 	
 	
-	public function new (?id:String)
+	public function new (id:String = null)
 	{
 		super();
 		this.id	= new Bindable<String>(id);
@@ -76,12 +77,13 @@ class UIGraphic extends Shape
 		
 		state			= new UIElementStates();
 		behaviours		= new BehaviourList();
-		styleClasses	= new Bindable < String > ();
-		style			= new UIElementStyle( this );
-		graphicData		= new Bindable < GraphicProperties > ();
+#if flash9		
+		graphicData		= new GraphicProperties( rect );
+		styleClasses	= new SimpleList<String>();
+		stylingEnabled	= true;
+#end
 		
 		//add default behaviours
-	//	behaviours.add( new ApplyStylingBehaviour(this) );
 		behaviours.add( new RenderGraphicsBehaviour(this) );
 		behaviours.add( new ValidateLayoutBehaviour(this) );
 		
@@ -101,25 +103,19 @@ class UIGraphic extends Shape
 		//This way a behaviour is still able to respond to the disposed
 		//state.
 		state.current = state.disposed;
-		removeBehaviours();
 		
-		state.dispose();
-		id.dispose();
+		behaviours	.dispose();
+		state		.dispose();
+		id			.dispose();
 #if flash9
+		if (style.target == this)
+			style.dispose();
+		
 		styleClasses.dispose();
 #end
 
-		if (layout != null)
-			layout.dispose();
-		
-		if (graphicData != null)
-		{
-			if (graphicData.value != null)
-				graphicData.value.dispose();
-
-			graphicData.dispose();
-			graphicData = null;
-		}
+		if (layout != null)			layout.dispose();
+		if (graphicData != null)	graphicData.dispose();
 		
 		id				= null;
 #if flash9
@@ -129,6 +125,7 @@ class UIGraphic extends Shape
 		state			= null;
 		behaviours		= null;
 		layout			= null;
+		graphicData		= null;
 
 		super.dispose();
 	}
@@ -139,24 +136,10 @@ class UIGraphic extends Shape
 	// METHODS
 	//
 	
-	
 	private function init ()
 	{
 		behaviours.init();
-		
-		//overwrite the graphics of the skin with custom graphics (or do nothing if the method isn't overwritten)
-		createGraphics();
-		
-		//finish initializing
-		visible = true;
 		state.current = state.initialized;
-	}
-	
-	
-	private inline function removeBehaviours ()
-	{
-		behaviours.dispose();
-		behaviours = null;
 	}
 	
 	
@@ -166,20 +149,26 @@ class UIGraphic extends Shape
 	}
 	
 	
+	
 	//
 	// GETTERS / SETTESR
 	//
 	
 #if flash9
-	private inline function setStyle (v)
+	private function setStylingEnabled (v:Bool)
 	{
-		return style = v;
-	}
-	
-	
-	public function applyStyling ()
-	{
-
+		if (v != stylingEnabled)
+		{
+			if (stylingEnabled) {
+				style.dispose();
+				style = null;
+			}
+			
+			stylingEnabled = v;
+			if (v)
+				style = new UIElementStyle(this);
+		}
+		return v;
 	}
 #end
 	
@@ -190,8 +179,8 @@ class UIGraphic extends Shape
 
 	public inline function show ()						{ this.doShow(); }
 	public inline function hide ()						{ this.doHide(); }
-	public inline function move (x:Float, y:Float)		{ this.doMove(x, y); }
-	public inline function resize (w:Float, h:Float)	{ this.doResize(w, h); }
+	public inline function move (x:Int, y:Int)			{ this.doMove(x, y); }
+	public inline function resize (w:Int, h:Int)		{ this.doResize(w, h); }
 	public inline function rotate (v:Float)				{ this.doRotate(v); }
 	public inline function scale (sx:Float, sy:Float)	{ this.doScale(sx, sy); }
 	
@@ -202,8 +191,6 @@ class UIGraphic extends Shape
 	//
 	
 	private function createBehaviours ()	: Void; //	{ Assert.abstract(); }
-	private function createGraphics ()		: Void; //	{ Assert.abstract(); }
-	private function removeGraphics ()		: Void; //	{ Assert.abstract(); }
 	
 	
 #if debug

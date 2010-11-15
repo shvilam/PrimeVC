@@ -50,7 +50,11 @@ class CSSParserMain
 		if (neko.Sys.args().length == 0)
 			throw "Skin folder location is needed to run this script.";
 		
-		var css = new CSSParserMain( neko.Sys.args()[0] );
+		var primevcDir = "src/primevc";
+		if (neko.Sys.args().length == 2)
+			primevcDir = neko.Sys.args()[1] + "/" + primevcDir;
+		
+		var css = new CSSParserMain( neko.Sys.args()[0], primevcDir );
 		css.parse();
 		css.generateCode();
 		css.flush();
@@ -66,16 +70,16 @@ class CSSParserMain
 	private var skinFolder	: String;
 	
 	
-	public function new (skin:String)
+	public function new (skin:String, primevcDir:String)
 	{
 		skinFolder	= skin;
 		styles		= new StyleBlock(null);
-		manifest	= new Manifest( "src/manifest.xml" );
+		manifest	= new Manifest(); // skinFolder + "/manifest.xml" );
 		parser		= new CSSParser( styles, manifest );
 		generator	= new HaxeCodeGenerator( 2 );
 		generator.instanceIgnoreList.set( styles.uuid, styles );
 		
-		var tplName = "src/primevc/tools/StyleSheet.tpl.hx";
+		var tplName = primevcDir + "/tools/StyleSheet.tpl.hx";
 		if (!neko.FileSystem.exists( tplName ))
 			throw "Template does not exist! "+tplName;
 		
@@ -93,9 +97,13 @@ class CSSParserMain
 	{
 		var code:String = "";
 		generator.start();
-		code += generateSelectorCode( cast styles.children.elementSelectors, "elementSelectors" );
-		code += generateSelectorCode( cast styles.children.styleNameSelectors, "styleNameSelectors" );
-		code += generateSelectorCode( cast styles.children.idSelectors, "idSelectors" );
+		
+		if (styles.children != null)
+		{
+			if (styles.children.elementSelectors != null)	code += generateSelectorCode( cast styles.children.elementSelectors, "elementSelectors" );
+			if (styles.children.styleNameSelectors != null)	code += generateSelectorCode( cast styles.children.styleNameSelectors, "styleNameSelectors" );
+			if (styles.children.idSelectors != null)		code += generateSelectorCode( cast styles.children.idSelectors, "idSelectors" );
+		}
 		
 		//write to template
 		var name = "//selectors";

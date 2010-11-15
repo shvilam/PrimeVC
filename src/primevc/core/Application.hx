@@ -49,9 +49,6 @@ class Application
 	
 	
 	
-	
-	
-	
 	//
 	// STARTUP METHODS
 	//

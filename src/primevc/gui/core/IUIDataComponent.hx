@@ -27,7 +27,8 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
- import primevc.core.Bindable;
+ import primevc.core.collections.DataCursor;
+ import primevc.core.IBindable;
  
 
 /**
@@ -36,10 +37,10 @@ package primevc.gui.core;
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
-interface IUIDataComponent <DataProxyType> implements IUIComponent
+interface IUIDataComponent < DataType > implements IUIComponent
 {
-	public var data (default, setData)		: Bindable < DataProxyType >;
-	public var value (getValue, setValue)	: DataProxyType;
+	public var data (default, setData)		: IBindable < DataType >;
+	public var value (getValue, setValue)	: DataType;
 	
 	
 	/**
@@ -48,5 +49,8 @@ interface IUIDataComponent <DataProxyType> implements IUIComponent
 	 * 		- component has created children and the data is already set
 	 * 		- data is set and the component-state is already initialized
 	 */
-	private function initData()				: Void;
+	private function initData ()			: Void;
+	
+	
+	public function getDataCursor ()		: DataCursor < DataType >;
 }

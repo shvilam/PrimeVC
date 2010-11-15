@@ -35,7 +35,6 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutFlags;
- import primevc.utils.IntMath;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
@@ -119,13 +118,13 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 	public inline function validateHorizontal ()
 	{
 		var width:Int = group.childWidth;
-
+		
 		if (group.childWidth.notSet())
 		{
 			width = 0;
 			for (child in group.children)
-				if (child.includeInLayout && child.bounds.width > width)
-					width = child.bounds.width;
+				if (child.includeInLayout && child.outerBounds.width > width)
+					width = child.outerBounds.width;
 		}
 		setGroupWidth(width);
 	}
@@ -147,11 +146,12 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 	{
 		if (group.children.length > 0)
 		{
+			var start = getLeftStartValue();
 			for (child in group.children) {
 				if (!child.includeInLayout)
 					continue;
 
-				child.bounds.left = 0;
+				child.outerBounds.left = start;
 			}
 		}
 	}
@@ -161,21 +161,22 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 	{
 		if (group.children.length > 0)
 		{
+			var start = getLeftStartValue();
 			if (group.childWidth.notSet())
 			{	
 				for (child in group.children) {
-					if (!child.includeInLayout)
+					if (!child.includeInLayout || child.width.value.notSet())
 						continue;
 					
-					child.bounds.left = ( (group.bounds.width - child.bounds.width) * .5 ).int();
+					child.outerBounds.left = start + ( (group.width.value - child.outerBounds.width) * .5 ).int();
 				}
 			}
 			else
 			{
-				var childX = ( (group.bounds.width - group.childWidth) * .5 ).int();
+				var childX = start + ( (group.innerBounds.width - group.childWidth) * .5 ).int();
 				for (child in group.children)
 					if (child.includeInLayout)
-						child.bounds.left = childX;
+						child.outerBounds.left = childX;
 			}
 		}
 	}
@@ -185,52 +186,26 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 	{
 		if (group.children.length > 0)
 		{
+			var start = getLeftStartValue();
 			if (group.childWidth.notSet())
 			{	
 				for (child in group.children) {
-					if (!child.includeInLayout)
+					if (!child.includeInLayout || child.width.value.notSet())
 						continue;
 					
-					child.bounds.left = group.bounds.width - child.bounds.width;
+					child.outerBounds.left = start + (group.innerBounds.width - child.outerBounds.width);
 				}
 			}
 			else
 			{
-				var childX = group.bounds.width - group.childWidth;
+				var childX = start + (group.innerBounds.width - group.childWidth);
 				for (child in group.children)
 					if (child.includeInLayout)
-						child.bounds.left = childX;
+						child.outerBounds.left = childX;
 			}
 		}
 	}
 
-
-
-
-	//
-	// START VALUES
-	//
-
-	private inline function getTopStartValue ()		: Int
-	{
-		var top:Int = 0;
-		if (group.padding != null)
-			top = group.padding.top;
-
-		return top;
-	}
-
-
-	private inline function getBottomStartValue ()	: Int	{
-		var h:Int = group.height;
-		if (group.is(AdvancedLayoutClient))
-			h = IntMath.max(group.as(AdvancedLayoutClient).measuredHeight, h);
-
-		if (group.padding != null)
-			h += group.padding.top; // + group.padding.bottom;
-
-		return h;
-	}
 	
 	
 #if neko

@@ -33,6 +33,7 @@ package primevc.gui.effects;
 #end
 #if neko
  import primevc.tools.generator.ICodeGenerator;
+  using primevc.types.Reference;
 #end
  import primevc.types.Number;
   using primevc.utils.NumberUtil;
@@ -95,27 +96,25 @@ class FadeEffect extends Effect < IDisplayObject, FadeEffect >
 	}
 	
 	
-#if (debug || neko)
+#if neko
 	override public function toCSS (prefix:String = "") : String
 	{
 		var props = [];
 		
 		if (duration.isSet())		props.push( duration + "ms" );
 		if (delay.isSet())			props.push( delay + "ms" );
-		if (easing != null)			props.push( easingToCSS() );
+		if (easing != null)			props.push( easing.toCSS() );
 		if (startValue.isSet())		props.push( (startValue * 100) + "%" );
 		if (endValue.isSet())		props.push( (endValue * 100) + "%" );
 		
-		
 		return "fade " + props.join(" ");
 	}
-#end
-
-#if neko
+	
+	
 	override public function toCode (code:ICodeGenerator) : Void
 	{
 		if (!isEmpty())
-			code.construct( this, [ duration, delay, easingToCode(), startValue, endValue ] );
+			code.construct( this, [ duration, delay, easing, startValue, endValue ] );
 	}
 #end
 }

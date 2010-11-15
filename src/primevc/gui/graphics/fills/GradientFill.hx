@@ -34,7 +34,8 @@ package primevc.gui.graphics.fills;
  import primevc.core.geom.Matrix2D;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
- import primevc.gui.traits.IDrawable;
+ import primevc.gui.graphics.IGraphicProperty;
+ import primevc.gui.traits.IGraphicsOwner;
  import primevc.utils.FastArray;
   using primevc.utils.Color;
   using primevc.utils.FastArray;
@@ -55,7 +56,7 @@ typedef FlashGradientType = flash.display.GradientType;
  * @author Ruben Weijers
  * @creation-date Jul 30, 2010
  */
-class GradientFill extends GraphicElement, implements IFill 
+class GradientFill extends GraphicElement, implements IGraphicProperty 
 {
 	public var gradientStops	(default, null)			: FastArray <GradientStop>;
 	public var type				(default, setType)		: GradientType;
@@ -149,7 +150,7 @@ class GradientFill extends GraphicElement, implements IFill
 	// FILL METHODS
 	//
 	
-	public inline function begin (target:IDrawable, ?bounds:IRectangle)
+	public inline function begin (target:IGraphicsOwner, bounds:IRectangle)
 	{
 		Assert.that( gradientStops.length >= 2, "There should be at least be two fills in an gradient.");
 			
@@ -174,7 +175,7 @@ class GradientFill extends GraphicElement, implements IFill
 	}
 	
 	
-	public inline function end (target:IDrawable)
+	public inline function end (target:IGraphicsOwner, bounds:IRectangle)
 	{
 #if flash9
 		target.graphics.endFill();
@@ -215,7 +216,7 @@ class GradientFill extends GraphicElement, implements IFill
 	// LIST METHODS
 	//
 	
-	public inline function add ( fill:GradientStop, depth:Int = -1 )
+	public function add ( fill:GradientStop, depth:Int = -1 )
 	{
 		gradientStops.insertAt( fill, depth );
 		fill.listeners.add(this);
@@ -223,16 +224,16 @@ class GradientFill extends GraphicElement, implements IFill
 	}
 	
 	
-	public inline function remove ( fill:GradientStop )
+	public function remove ( fill:GradientStop )
 	{
-		gradientStops.remove(fill);
+		gradientStops.removeItem(fill);
 		fill.listeners.remove(this);
 		fill.dispose();
 		invalidate( GraphicFlags.FILL );
 	}
 	
 	
-#if (debug || neko)
+#if neko
 	override public function toCSS (prefix:String = "")
 	{
 		var colorStr = gradientStops.join(", ");
@@ -241,8 +242,8 @@ class GradientFill extends GraphicElement, implements IFill
 		else
 			return "radial-gradient( " + focalPointRatio + ", " + colorStr + ", " + spread + " )";
 	}
-#end
-#if neko
+	
+	
 	override public function toCode (code:ICodeGenerator)
 	{
 		code.construct( this, [ type, spread, focalPointRatio, rotation ] );

@@ -33,7 +33,7 @@ package primevc.gui.effects;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
- import primevc.utils.IntMath;
+ import primevc.utils.NumberMath;
   using primevc.utils.Bind;
 
 
@@ -68,7 +68,7 @@ class ParallelEffect extends CompositeEffect
 	}
 
 
-#if (debug || neko)
+#if neko
 	override public function toCSS (prefix:String = "") : String
 	{
 		return "parallel " + super.toCSS(prefix);

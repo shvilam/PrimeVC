@@ -60,7 +60,9 @@ class Loader implements IDisposable
 	
 	public function dispose ()
 	{
+#if flash10
 		loader.unloadAndStop();
+#end
 		events.dispose();
 		loader = null;
 		events = null;

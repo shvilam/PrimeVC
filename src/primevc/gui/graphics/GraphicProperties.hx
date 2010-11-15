@@ -28,22 +28,27 @@
  */
 package primevc.gui.graphics;
  import haxe.FastList;
- import primevc.core.dispatcher.Signal0;
+ import primevc.core.dispatcher.Signal1;
+ import primevc.core.geom.Corners;
  import primevc.core.geom.IntRectangle;
+ import primevc.core.geom.RectangleFlags;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.traits.IInvalidateListener;
  import primevc.gui.graphics.borders.IBorder;
- import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.shapes.IGraphicShape;
  import primevc.gui.graphics.GraphicFlags;
- import primevc.gui.traits.IDrawable;
- import primevc.tools.generator.ICodeGenerator;
- import primevc.utils.StringUtil;
-//  using primevc.utils.BitUtil;
+ import primevc.gui.traits.IGraphicsOwner;
+  using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
-  using Math;
-  using Std;
+
+
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
+#if (debug || neko)
+ import primevc.utils.StringUtil;
+#end
 
 
 
@@ -56,82 +61,86 @@ package primevc.gui.graphics;
  */
 class GraphicProperties implements IGraphicElement
 {
-	public var uuid			(default, null)			: String;
+	public var uuid			(default, null)				: String;
 	
-//	public var changes		(default, null)			: UInt;
-	public var listeners	(default, null)			: FastList< IInvalidateListener >;
+//	public var changes		(default, null)				: UInt;
+	public var listeners	(default, null)				: FastList< IInvalidateListener >;
 	/**
 	 * Signal to notify other objects than IGraphicElement of changes within
 	 * the shape.
 	 */
-	public var changeEvent	(default, null)			: Signal0;
+	public var changeEvent	(default, null)				: Signal1 < UInt >;
 
-	public var fill			(default, setFill)		: IFill;
-	public var border		(default, setBorder)	: IBorder < IFill >;
-	public var shape		(default, setShape)		: IGraphicShape;
-	public var layout		(default, setLayout)	: IntRectangle;
+	public var fill			(default, setFill)			: IGraphicProperty;
+	public var border		(default, setBorder)		: IBorder;
+	public var shape		(default, setShape)			: IGraphicShape;
+	public var layout		(default, setLayout)		: IntRectangle;
+	public var borderRadius	(default, setBorderRadius)	: Corners;
 	
 	
-	public function new (shape:IGraphicShape = null, layout:IntRectangle = null, fill:IFill = null, border:IBorder <IFill> = null)
-	{	
-		uuid		= StringUtil.createUUID();
-		listeners	= new FastList< IInvalidateListener >();
-		this.shape	= shape;
-		this.layout	= layout;
-		this.fill	= fill;
-		this.border	= border;
-		changeEvent	= new Signal0();
+	public function new (layout:IntRectangle = null, shape:IGraphicShape = null, fill:IGraphicProperty = null, border:IBorder = null, borderRadius:Corners = null)
+	{
+#if (debug || neko)
+		uuid = StringUtil.createUUID();
+#end
+		listeners			= new FastList< IInvalidateListener >();
+		this.shape			= shape;
+		this.layout			= layout;
+		this.fill			= fill;
+		this.border			= border;
+		this.borderRadius	= borderRadius;
+		changeEvent			= new Signal1();
 	//	changes		= 0;
 	}
 	
 	
 	public function dispose ()
 	{
-		if (border != null)	border.dispose();
-		if (fill != null)	fill.dispose();
-		
 		while (!listeners.isEmpty())
 			listeners.pop();
 		
 		changeEvent.dispose();
 		changeEvent	= null;
 		listeners	= null;
+		borderRadius= null;
 		border		= null;
 		fill		= null;
 		layout		= null;
+#if (debug || neko)
 		uuid		= null;
+#end
 	}
 	
 
-	public function invalidate (change:UInt) : Void
+	public function invalidate (change:Int) : Void
 	{
+		if (change <= 0)
+			return;
+		
 		if (listeners != null)
-		{
-		//	changes = changes.set(change);
 			for (listener in listeners)
 				listener.invalidateCall( change, this );
-
-			if (changeEvent != null)
-				changeEvent.send();
-		}
+		
+		if (changeEvent != null)
+			changeEvent.send( change );
 	}
 	
 	
 	public function invalidateCall (changeFromOther:UInt, sender:IInvalidatable) : Void
 	{
-		invalidate(changeFromOther);
+		var change = switch (sender) {
+			case cast border:	GraphicFlags.BORDER;
+			case cast shape:	GraphicFlags.SHAPE;
+			case cast fill:		GraphicFlags.FILL;
+			case cast layout:
+				if (changeFromOther.has( RectangleFlags.WIDTH | RectangleFlags.HEIGHT ))
+					GraphicFlags.LAYOUT;
+				else
+					0;
+			default: 0;
+		}
+		invalidate( change );
 	}
-	
-	
-	/*public function validate ()
-	{
-		changes = 0;
-		if (border != null)				border.validate();
-		if (fill != null)				fill.validate();
-		if (shape != null)				shape.validate();
-		if (layout.is(IValidatable))	layout.as(IValidatable).validate();
-	}*/
-	
 	
 	
 	/**
@@ -142,63 +151,92 @@ class GraphicProperties implements IGraphicElement
 	 * Flag indicating if the draw method should also use the coordinates of the
 	 * layoutclient.
 	 * 
-	 * If a shape is directly drawn into a IDrawable element, this is not the 
+	 * If a shape is directly drawn into a IGraphicsOwner element, this is not the 
 	 * case. If a shape is part of a composition of shapes, then the shape 
 	 * should respect the coordinates of the LayoutClient.
 	 */
-	public function draw (target:IDrawable, ?useCoordinates:Bool = false) : Void
+	public function draw (target:IGraphicsOwner, ?useCoordinates:Bool = false) : Void
 	{
 #if debug
-		Assert.notNull(layout);
-		Assert.notNull(shape);
-#else
-		if (layout == null || shape == null)
-			return;
+		Assert.notNull(layout, "layout is null for "+target);
+		Assert.notNull(shape, "shape is null for "+target);
+	//	Assert.notThat(border == null && fill == null, "Graphic property must have a border or a fill when drawing to "+target);
 #end
+		if (layout == null || shape == null || (border == null && fill == null))
+			return;
+		
 	//	trace(target+".drawing; "+target.rect.width+", "+target.rect.height);
-		var l = layout;
-		var x = useCoordinates ? l.left : 0;
-		var y = useCoordinates ? l.top : 0;
-		var w = l.width;
-		var h = l.height;
+		var layout:IntRectangle = cast this.layout.clone();
+		if (!useCoordinates)
+			layout.left = layout.top = 0;
 		
-		Assert.that( w.isSet() );
-		Assert.that( h.isSet() );
-
-		if (border != null) {
-			if (border.innerBorder) {
-				x += border.weight.ceil().int();
-				y += border.weight.ceil().int();
-				w -= (border.weight * 2).ceil().int();
-				h -= (border.weight * 2).ceil().int();
-			}
-		}
+		Assert.that( layout.width.isSet() );
+		Assert.that( layout.height.isSet() );
 		
-		if (fill != null)
+		var hasComposedFill		= fill != null && fill.is(IComposedGraphicProperty);
+		var hasComposedBorder	= border != null && border.is(IComposedGraphicProperty);
+		
+		//if both the fill and shape aren't a list of fills or borders, use only one draw operation to draw the properties
+		if (!hasComposedFill && !hasComposedBorder)
 		{
-			if (border != null)
-				border.begin(target, layout);
-			fill.begin(target, layout);
-			shape.draw( target, x, y, w, h );
+			if (border != null)		border.begin( target, layout );
+			if (fill != null)		fill.begin( target, layout );
 			
-			if (border != null)
-				border.end(target);
+			shape.draw( target, layout, borderRadius );
 			
-			while (!fill.isFinished)
-			{
-				fill.begin(target, layout);
-				shape.draw( target, x, y, w, h );
-			}
-			fill.end(target);
+			if (border != null)		border.end( target, layout );
+			if (fill != null)		fill.end( target, layout );
 		}
-		else if (border != null) {
-			border.begin(target, layout);
-			shape.draw( target, x, y, w, h );
-			border.end(target);
+		else
+		{
+			if (fill != null)
+			{
+				//if there is more then one fill, the draw method needs to be called multiple times
+				if (hasComposedFill)
+				{
+					//draw fills in loop
+					var cFill = fill.as(IComposedGraphicProperty);
+					cFill.rewind();
+					while (cFill.hasNext())
+						drawFill( target, cFill, layout );
+				}
+				else
+					drawFill( target, fill, layout );
+			}
+			
+			
+			if (border != null)
+			{
+				//if there is more then one border, the draw method needs to be called multiple times
+				if (hasComposedBorder)
+				{
+					//draw fills in loop
+					var cBorder = border.as(IComposedGraphicProperty);
+					cBorder.rewind();
+					while (cBorder.hasNext())
+						drawBorder( target, border, layout );
+				}
+				else
+					drawBorder( target, border, layout );
+			}
 		}
 	}
 	
 	
+	private inline function drawFill (target:IGraphicsOwner, fill:IGraphicProperty, layout:IntRectangle)
+	{
+		fill.begin( target, layout );
+		shape.draw( target, layout, borderRadius );
+		fill.end( target, layout );
+	}
+	
+	
+	private inline function drawBorder (target:IGraphicsOwner, border:IBorder, layout:IntRectangle)
+	{
+		border.begin( target, layout );
+		shape.draw( target, layout, borderRadius );
+		border.end( target, layout );
+	}
 	
 
 
@@ -211,7 +249,7 @@ class GraphicProperties implements IGraphicElement
 	{
 		if (v != shape)
 		{
-			if (shape != null)
+			if (shape != null && shape.listeners != null)
 				shape.listeners.remove(this);
 
 			shape = v;
@@ -224,13 +262,13 @@ class GraphicProperties implements IGraphicElement
 	}
 	
 	
-	private inline function setFill (v:IFill)
+	private inline function setFill (v:IGraphicProperty)
 	{
 		if (v != fill)
 		{
-			if (fill != null)
+			if (fill != null && fill.listeners != null)
 				fill.listeners.remove(this);
-
+			
 			fill = v;
 			if (fill != null)
 				fill.listeners.add(this);
@@ -241,11 +279,11 @@ class GraphicProperties implements IGraphicElement
 	}
 
 
-	private inline function setBorder (v)
+	private inline function setBorder (v:IBorder)
 	{
 		if (v != border)
 		{
-			if (border != null)
+			if (border != null && border.listeners != null)
 				border.listeners.remove(this);
 
 			border = v;
@@ -275,22 +313,25 @@ class GraphicProperties implements IGraphicElement
 	}
 	
 	
+	private inline function setBorderRadius (v:Corners)
+	{
+		if (v != borderRadius) {
+			borderRadius = v;
+			invalidate( GraphicFlags.SHAPE );
+		}
+		return v;
+	}
+	
+	
 	public function isEmpty () : Bool
 	{
 		return (layout == null || layout.isEmpty()) || shape == null;
 	}
 	
 	
-#if (debug || neko)
-	public function toString ()							{ return toCSS(); }
-	public function toCSS (prefix:String = "")			{ Assert.abstract(); return ""; }
-#end
-	
-	
 #if neko
-	public function toCode (code:ICodeGenerator)
-	{
-		code.construct(this, [ shape, layout, fill, border ]);
-	}
+	public function toString ()						{ return "GraphicProperties: l: "+layout+"; s: "+shape+"; f: "+fill+"; b: "+border; }
+	public function toCSS (prefix:String = "")		{ Assert.abstract(); return ""; }
+	public function toCode (code:ICodeGenerator)	{ code.construct(this, [ layout, shape, fill, border, borderRadius ]); }
 #end
 }

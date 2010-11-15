@@ -65,6 +65,7 @@ package primevc.tools;
  import primevc.gui.filters.GradientGlowFilter;
  import primevc.gui.filters.IBitmapFilter;
  import primevc.gui.graphics.borders.BitmapBorder;
+ import primevc.gui.graphics.borders.ComposedBorder;
  import primevc.gui.graphics.borders.GradientBorder;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.borders.SolidBorder;
@@ -73,7 +74,6 @@ package primevc.tools;
  import primevc.gui.graphics.fills.GradientFill;
  import primevc.gui.graphics.fills.GradientStop;
  import primevc.gui.graphics.fills.GradientType;
- import primevc.gui.graphics.fills.IFill;
  import primevc.gui.graphics.fills.SolidFill;
  import primevc.gui.graphics.fills.SpreadMethod;
  import primevc.gui.graphics.shapes.Circle;
@@ -82,6 +82,7 @@ package primevc.tools;
  import primevc.gui.graphics.shapes.Line;
  import primevc.gui.graphics.shapes.RegularRectangle;
  import primevc.gui.graphics.shapes.Triangle;
+ import primevc.gui.graphics.IGraphicProperty;
  import primevc.gui.layout.algorithms.circle.HorizontalCircleAlgorithm;
  import primevc.gui.layout.algorithms.circle.VerticalCircleAlgorithm;
  import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
@@ -111,6 +112,8 @@ package primevc.tools;
  import primevc.gui.text.TextDecoration;
  import primevc.gui.text.TextTransform;
  import primevc.types.Bitmap;
+ import primevc.types.ClassInstanceFactory;
+ import primevc.types.Reference;
  import primevc.types.Number;
  import primevc.types.RGBA;
  import primevc.utils.Color;
@@ -119,7 +122,7 @@ package primevc.tools;
   using primevc.utils.Color;
   using primevc.utils.ERegUtil;
   using primevc.utils.NumberUtil;
-  using primevc.utils.IntMath;
+  using primevc.utils.NumberMath;
   using primevc.utils.TypeUtil;
   using Std;
   using StringTools;
@@ -139,10 +142,12 @@ class CSSParser
 	public static inline var R_SPACE				: String = "[ \\t]*";					//can have none, one or more tab/space charater
 	public static inline var R_SPACE_MUST			: String = "[ \\t]+";					//must have at least one tab/space charater
 	
-	public static inline var R_IMPORT_SHEET			: String = "@import" + R_SPACE_MUST + "(url" + R_SPACE + "[(])?['\"]" + R_SPACE + "(" + R_FILE_EXPR + ")" + R_SPACE + "['\"]" + R_SPACE + "[)]?;";
+	public static inline var R_HEADER_RULE			: String = R_SPACE_MUST + "(url" + R_SPACE + "[(])?['\"]" + R_SPACE + "(" + R_FILE_EXPR + ")" + R_SPACE + "['\"]" + R_SPACE + "[)]?;";
+	public static inline var R_IMPORT_SHEET			: String = "@import" + R_HEADER_RULE;
+	public static inline var R_IMPORT_MANIFEST		: String = "@manifest" + R_HEADER_RULE;
 	
 	public static inline var R_PROPERTY_NAME		: String = "a-z0-9-";
-	public static inline var R_PROPERTY_VALUE		: String = R_WHITESPACE + "a-z0-9%#.,:)(/\"'-";
+	public static inline var R_PROPERTY_VALUE		: String = R_WHITESPACE + "a-z0-9%#.,:)(/\"_'-";
 	
 	public static inline var R_BLOCK_NAME			: String = "(([.#]?)([a-z][a-z0-9_]+)(:([a-z]+))?)";
 	public static inline var R_BLOCK_NAMES			: String = "" + R_BLOCK_NAME + "(" + R_SPACE_MUST + R_BLOCK_NAME + ")*";
@@ -174,6 +179,8 @@ class CSSParser
 	
 	public static inline var R_DOMAIN_LABEL			: String = "[a-z]([a-z0-9-]*[a-z0-9])?";
 	public static inline var R_CLASS_EXPR			: String = "(" + R_DOMAIN_LABEL + ")([.]" + R_DOMAIN_LABEL + ")*";
+	
+	public static inline var R_CUSTOM_SHAPE_EXPR	: String = "custom" + R_SPACE + "[(]" + R_SPACE + "(" + R_CLASS_EXPR + ")"+R_SPACE+"[)]";
 	
 	public static inline var R_ROTATION				: String = R_FLOAT_VALUE + "deg";
 	public static inline var R_WORDWRAP				: String = "off|normal|break-word";
@@ -207,7 +214,7 @@ class CSSParser
 	 * Greedy stupid URI/file matcher
 	 * R_URI_EXPR took to much time
 	 */
-	public static inline var R_URI_PRETENDER		: String = "['\"]?([/a-z0-9/&%.#+=\\;:$@?_-]+)['\"]?";
+	public static inline var R_URI_PRETENDER		: String = "[/a-z0-9/&%.#+=\\;:$@?_-]+";
 	public static inline var R_FILE_EXPR			: String = R_URI_PATH;
 	
 	
@@ -273,6 +280,7 @@ class CSSParser
 	public var fixedTileExpr			(default, null) : EReg;
 	
 	public var triangleExpr				(default, null) : EReg;
+	public var customShapeExpr			(default, null) : EReg;
 	
 	public var filterBlurExpr			(default, null) : EReg;
 	public var filterInnerExpr			(default, null) : EReg;
@@ -462,6 +470,8 @@ class CSSParser
 			 	+ R_SPACE + "[)]"
 			+ ")?"
 			, "i");
+			
+		customShapeExpr = new EReg( R_CUSTOM_SHAPE_EXPR, "i" );
 		
 		
 		//
@@ -643,9 +653,31 @@ class CSSParser
 	
 	private function parseStyleSheet (item:StyleQueueItem) : Void
 	{
-		styleSheetBasePath = item.path;
+		styleSheetBasePath	= item.path;
+		item.content		= importManifests( item.content );
 		blockExpr.matchAll(item.content, handleMatchedBlock);
 		trace("PARSED: "+item.path);
+	}
+	
+	
+	
+	/**
+	 * Method will import all @import tags in the given stylesheet. 
+	 * 
+	 * It's important that the 'importExpr' variable is local, otherwise their
+	 * might be errors when stylesheets in stylesheets are imported.
+	 */
+	private function importManifests ( styleContent ) : String
+	{
+		var importExpr = new EReg ( R_IMPORT_MANIFEST, "i" );
+		return importExpr.customReplace(styleContent, importManifest);
+	}
+	
+	
+	private function importManifest (expr:EReg) : String {
+		trace("addmanifest file "+styleSheetBasePath + "/" + expr.matched(2));
+		manifest.addFile( styleSheetBasePath + "/" + expr.matched(2) );
+		return "";
 	}
 	
 	
@@ -690,11 +722,13 @@ class CSSParser
 		//search in children
 		if (style.children != null)
 		{
+		//	trace("\t\t\tsearch for extended classes");
 			findExtendedClassesInList( style.children.idSelectors );
 			findExtendedClassesInList( style.children.styleNameSelectors );
 			findExtendedClassesInList( style.children.elementSelectors );
 			
 			createEmptySuperClassesForList( style.children.elementSelectors );
+		//	trace("\t\t\tsearch for super classes");
 			findSuperClassesInList( style.children.elementSelectors );
 		}
 	}
@@ -711,8 +745,10 @@ class CSSParser
 		{
 			Assert.that(name != null);
 			var style = list.get(name);
+		//	trace("\n");
+		//	trace("found style "+name);
 			setExtendedStyle( name, style );
-		//	trace("createStyleStructor for "+name);
+		//	trace("\tcreateStyleStructor for "+name);
 			createStyleStructure( style );
 			
 			if (style.filledProperties.has( StyleFlags.STATES ))
@@ -780,15 +816,21 @@ class CSSParser
 	
 	private function setExtendedStyle (name:String, style:StyleBlock)
 	{
-		if (style == null || style.parentStyle == null)
+		if (style == null || style.parentStyle == null || style.extendedStyle != null)
 			return;
 		
+	//	trace("\t\tsetExtendedStyle for  "+name + "( "+style.type+" )"+" = -> parentType: "+style.parentStyle.type);
 		style.extendedStyle = style.parentStyle.findChild( name, style.type, style );
+	//	trace("\t\t\t\t\t "+(style.extendedStyle != null));
 	}
 	
 	
 	private function setSuperStyle (name:String, style:StyleBlock) : Void
 	{
+		if (style == null || style.parentStyle == null || style.extendedStyle != null)
+			return;
+		
+	//	trace("\t\tsetSuperStyle for "+name + "( "+style.type+" )"+" = -> parentType: "+style.parentStyle.type);
 		var parentName = manifest.getFullSuperClassName( name );
 		while (parentName != null && parentName != "")
 		{
@@ -799,6 +841,8 @@ class CSSParser
 			
 			parentName = manifest.getFullSuperClassName( parentName );
 		}
+		
+	//	trace("\t\t\t\t\t "+(style.superStyle != null));
 	}
 	
 	
@@ -814,10 +858,10 @@ class CSSParser
 		if (keys != null)
 			for (stateName in keys)
 			{
-	//			trace("\t\t"+styleName+":"+stateName);
+			//	trace("\t\t"+styleName+":"+stateName);
 				var state = states.get(stateName);
 				setExtendedState( stateName, state, styleName, style );
-				trace("createStyleStructor for "+styleName+":"+stateName);
+			//	trace("createStyleStructor for "+styleName+":"+stateName);
 				createStyleStructure( state );
 			}
 	}
@@ -829,6 +873,7 @@ class CSSParser
 			return;
 		
 		state.extendedStyle = style.findState( stateName, styleName, style.type, state );
+	//	trace("\t\tsetExtendedState for "+styleName+":"+stateName+" = "+(state.extendedStyle != null));
 	}
 	
 	
@@ -928,6 +973,7 @@ class CSSParser
 	private function handleMatchedBlock (expr:EReg) : Void
 	{
 		//find correct block
+		trace("\n\nhandleMatchedBlock "+expr.matched(1));
 		setContentBlock( expr.matched(1) );
 		
 		var content = expr.matched(13).trim();
@@ -981,6 +1027,7 @@ class CSSParser
 			currentBlock = styleGroup.children.get(name, type);
 			if (currentBlock == null)
 				currentBlock = addStyleBlock( name, type, styleGroup );
+			//	trace("createStyleBlock for "+name+" = "+type+"; "+currentBlock.uuid);
 			
 			//matched a state
 			if (expr.matched(4) != null)
@@ -1013,26 +1060,32 @@ class CSSParser
 		if (stateName <= 0 || currentBlock == null)
 			return;
 		
-		var stateList	= (currentBlock.states != null) ? currentBlock.states			: new StatesStyle();
+		var stateList = currentBlock.states;
+		
+		if (stateList == null) {
+			stateList = new StatesStyle();
+			currentBlock.states = stateList;
+		}
+		
 		var stateType	= switch (currentBlock.type) {
-			case StyleBlockType.element:		StyleBlockType.elementState;
+			case StyleBlockType.element:	StyleBlockType.elementState;
 			case StyleBlockType.styleName:	StyleBlockType.styleNameState;
 			case StyleBlockType.id:			StyleBlockType.idState;
-			default:								currentBlock.type;
+			default:						currentBlock.type;
 		}
 		
-		var stateBlock	= (stateList.owns( stateName )) ? stateList.get( stateName )	: new StyleBlock( stateType );
+		var stateBlock:StyleBlock = stateList.get( stateName );
 		
-		if (currentBlock.states == null)
-			currentBlock.states = stateList;
-		
-		if (stateBlock != null)
+		if (stateBlock == null)
 		{
-		//	stateBlock.parentStyle = currentBlock;
-			if (!stateList.owns( stateName ))
-				currentBlock.states.set( stateName, stateBlock );
-			currentBlock = stateBlock;
+			stateBlock = new StyleBlock( stateType );
+			currentBlock.states.set( stateName, stateBlock );
+			stateBlock.parentStyle = currentBlock;
+		//	trace("create states style block for "+StyleStateFlags.stateToString( stateName )+"; "+stateBlock.uuid);
 		}
+		
+		Assert.notNull( stateBlock );
+		currentBlock = stateBlock;
 	}
 	
 	
@@ -1053,7 +1106,7 @@ class CSSParser
 	{
 		var name	= expr.matched(1).trim();
 		var val		= expr.matched(2).trim();
-	//	trace("handleMatchedProperty "+name+" = "+val);
+		trace("handleMatchedProperty "+name+" = "+val);
 		switch (name)
 		{
 			//
@@ -1087,12 +1140,12 @@ class CSSParser
 			//
 			
 			case "border":						parseAndSetBorder( val );			// <border-color> <border-width> <border-image> <border-style>
-			case "border-color":				parseAndSetBorderColor( val );
-			case "border-image":
-			case "border-image-source":			parseAndSetBorderImage( val );
+		//	case "border-color":				parseAndSetBorderColor( val );
+		//	case "border-image":
+		//	case "border-image-source":			parseAndSetBorderImage( val );
 			
 		//	case "border-style":				parseAndSetBorderStyle( val );		//none, solid, dashed, dotted
-			case "border-width":				parseAndSetBorderWidth( val );
+		//	case "border-width":				parseAndSetBorderWidth( val );
 			
 			case "border-radius":				parseAndSetBorderRadius( val );		//[top-left]px <[top-right]px> <[bottom-right]px> <[bottom-left]px>
 			case "border-top-left-radius":		setBorderTopLeftRadius( parseUnitFloat( val ) );
@@ -1166,6 +1219,12 @@ class CSSParser
 			case "padding-bottom":				if (isUnitInt(val))	{ createPaddingBlock();		currentBlock.layout.padding.bottom	= parseUnitInt( val ); }
 			case "padding-right":				if (isUnitInt(val))	{ createPaddingBlock();		currentBlock.layout.padding.right	= parseUnitInt( val ); }
 			case "padding-left":				if (isUnitInt(val))	{ createPaddingBlock();		currentBlock.layout.padding.left	= parseUnitInt( val ); }
+			
+			case "margin":						parseAndSetMargin( val );						// [top]px <[right]px> <[bottom]px> <[left]px>
+			case "margin-top":					if (isUnitInt(val))	{ createMarginBlock();		currentBlock.layout.margin.top		= parseUnitInt( val ); }
+			case "margin-bottom":				if (isUnitInt(val))	{ createMarginBlock();		currentBlock.layout.margin.bottom	= parseUnitInt( val ); }
+			case "margin-right":				if (isUnitInt(val))	{ createMarginBlock();		currentBlock.layout.margin.right	= parseUnitInt( val ); }
+			case "margin-left":					if (isUnitInt(val))	{ createMarginBlock();		currentBlock.layout.margin.left		= parseUnitInt( val ); }
 			
 			
 			//
@@ -1263,11 +1322,6 @@ class CSSParser
 			
 			case "box-sizing":				//currentBlock.layout.sizing		= parseBoxSizing (val); //content-box /*(box model)*/, border-box /*(padding and border will render inside box)*/
 			case "z-index":
-			case "margin":
-			case "margin-top":
-			case "margin-bottom":
-			case "margin-right":
-			case "margin-left":
 			case "float":
 			case "clear":
 			case "display":
@@ -1305,6 +1359,7 @@ class CSSParser
 	{
 		if (currentBlock.font == null)
 			currentBlock.font = new TextStyle();
+		
 		return currentBlock.font;
 	}
 	
@@ -1343,6 +1398,14 @@ class CSSParser
 	}
 	
 	
+	private inline function createMarginBlock ()
+	{
+		createLayoutBlock();
+		if (currentBlock.layout.margin == null)
+			currentBlock.layout.margin = new Box();
+		return currentBlock.layout.margin;
+	}
+	
 	
 	
 	
@@ -1369,15 +1432,21 @@ class CSSParser
 	 * Method to convert the given value to an int and convert the value 
 	 * according to the unit.
 	 */
-	private inline function parseInt (v:String) : Int
+	private function parseInt (v:String) : Int
 	{
-		return (v != null && isInt(v)) ? getInt( intValExpr.matched(1) ) : Number.INT_NOT_SET;
+		if (v == null || !isInt(v))
+			return Number.INT_NOT_SET;
+		else
+			return getInt( intValExpr.matched(1) );
 	}
 	
 	
-	private inline function parseFloat (v:String) : Float
+	private function parseFloat (v:String) : Float
 	{
-		return (v != null && isFloat(v)) ? getFloat( floatValExpr.matched(1) ) : Number.FLOAT_NOT_SET;
+		if (v == null || !isFloat(v))
+			return Number.FLOAT_NOT_SET;
+		else
+			return getFloat( floatValExpr.matched(1) );
 	}
 	
 	
@@ -1405,7 +1474,7 @@ class CSSParser
 	
 	private inline function parsePercentage (v:String) : Float
 	{
-		return (v != null && isPercentage(v)) ? getFloat( percValExpr.matched(3) ) : Number.FLOAT_NOT_SET;
+		return (v != null && isPercentage(v)) ? getFloat( percValExpr.matched(3) ) / 100 : Number.FLOAT_NOT_SET;
 	}
 	
 	
@@ -1436,18 +1505,18 @@ class CSSParser
 	}
 
 
-	private inline function parseClassReference (v:String) : Class < Dynamic >
+	private function parseClassReference (v:String) : Reference
 	{
-		var c : Class<Dynamic> = null;
 		if (isClassReference(v))
-			c = cast classRefExpr.matched(2).resolveClass();
-
-		return c;
+			return Reference.className( classRefExpr.matched(2), v );
+		else
+			return null;
 	}
 	
 	
 	
-	
+	private inline function strip (v:String)				: String	{ return v.trim().toLowerCase(); }
+	private inline function isNone (v:String)				: Bool		{ return strip(v) == "none"; }
 	private inline function isInt (v:String)				: Bool		{ return intValExpr.match(v); }
 	private inline function isFloat (v:String)				: Bool		{ return floatValExpr.match(v); }
 	private inline function isUnitInt (v:String)			: Bool		{ return floatUnitValExpr.match(v) && floatUnitValExpr.matched(1) != null; }
@@ -1777,70 +1846,39 @@ class CSSParser
 	 * In a composedfill, it will always try to first set the BitmapFill and
 	 * then the rest of the fills.
 	 */
-	private function setBackground(newFill:IFill) : Void
+	private function setBackground(newFill:IGraphicProperty) : Void
 	{
 		if (newFill != null)
 		{
 			var g = createGraphicsBlock();
 			
-			//
-			//there is no background yet or the current background is of the same type as the new background (=replace it)
-			//
-			if ( g.background == null || g.background.is( newFill.getClass() ) )
-			{
-				g.background = newFill;
-			}
-			//
-			//there is already another background property, but it's not a composed fill yet
-			//
-			else if (!g.background.is(ComposedFill))
-			{
-				var curFill		= g.background;
-				var compFill	= new ComposedFill();
-				compFill.add( curFill );
-				compFill.add( newFill );
-				
-				g.background = compFill;
-			}
-			//
 			//there is already an composed fill background property specified. Let's add the newFill to this composed fill.
-			//
-			else
-			{
-				var compFill = g.background.as(ComposedFill);
-			
-				if (newFill.is(BitmapFill))
-				{
-					//remove old bitmap fill (if any)
-					for (curFill in compFill.fills) {
-						if (curFill.is(BitmapFill))
-							compFill.remove(curFill);
-					}
-					//add bitmap as first fill
-					compFill.add(newFill, 0);
-				}
+			if (g.background != null && g.background.is(ComposedFill))
+				if (newFill.is(ComposedFill))
+					g.background.as(ComposedFill).merge( cast newFill );
 				else
-				{
-					//add fill at the end of the fill list
-					compFill.add(newFill);
-				}
-			}
-
-		//	if (currentBlock.background != null)
-		//		setDefaultShape();
+					g.background.as(ComposedFill).add( newFill );
+			
+			//there is no background yet or the current background is of the same type as the new background (=replace it)
+			if ( g.background == null || g.background.is( newFill.getClass() ) )
+				g.background = newFill;
 		}
 	}
 	
 	
 	private inline function parseAndSetBackground (v:String) : Void
 	{
+		var g = createGraphicsBlock();
 		parseAndSetBackgroundColor( v );
 		parseAndSetBackgroundImage( v );
 	}
 	
 	
-	private inline function parseAndSetBackgroundColor (v:String) : Void	{ setBackground( parseColorFill( v ) ); }
-	private inline function parseAndSetBackgroundImage (v:String) : Void	{ setBackground( parseImage( v ) ); }
+	private inline function parseAndSetBackgroundColor (v:String) : Void	{ setBackground( parseColorFills( v ) ); }
+	private inline function parseAndSetBackgroundImage (v:String) : Void	{ setBackground( parseImages( v ) ); }
+	
+	
+	private var lastParsedString : String;
 	
 	
 	/**
@@ -1869,28 +1907,58 @@ class CSSParser
 	 * 		- reflect	(repeat gradient and reverse every odd repeat)
 	 * 		- repeat	(repeat gradient)
 	 */
-	private function parseColorFill (v:String) : IFill
+	private function parseColorFills (v:String) : IGraphicProperty
 	{
-		var fill:IFill = null;
+		var fills		= new ComposedFill();
+		var isLooping	= true;
+		
+		while (isLooping)
+		{
+			var fill:IGraphicProperty = parseColorFill(v);
+			if (fill == null) {
+				isLooping = false;
+				break;
+			}
+			
+			fills.add( fill );
+			v = lastParsedString;
+		}
+		
+		lastParsedString = v;
+		
+		if (fills.length > 1)
+			return fills;
+		
+		if (fills.length == 1)
+			return fills.next();
+		
+		return null;
+	}
+	
+	
+	private function parseColorFill (v:String) : IGraphicProperty
+	{	
+		var fill:IGraphicProperty = null;
 		
 		var isLinearGr	= linGradientExpr.match(v);
 		var isRadialGr	= !isLinearGr && radGradientExpr.match(v);
 		
 		if (isLinearGr || isRadialGr)
 		{
-			var gradientExpr	= isLinearGr ? linGradientExpr : radGradientExpr;
-			var type			= isLinearGr ? GradientType.linear : GradientType.radial;
-			var colorsStr		= gradientExpr.matched(4);
+			var gradientExpr	= isLinearGr ? linGradientExpr		: radGradientExpr;
+			var type			= isLinearGr ? GradientType.linear	: GradientType.radial;
+			
+			var colorsStr		= isLinearGr ? gradientExpr.matched(6) : gradientExpr.matched(4);
 			var focalPoint		= isLinearGr ? 0 : getInt( gradientExpr.matched(2) );
 			var degr			= isRadialGr ? 0 : getInt( gradientExpr.matched(3) );
-			var method			= parseGradientMethod( gradientExpr.matched(21) );
+			var method			= isLinearGr ? parseGradientMethod( gradientExpr.matched(24) ) : parseGradientMethod( gradientExpr.matched(22) );
 			
 			var gr = new GradientFill(type, method, focalPoint, degr);
 			
 			//add colors
 			if (colorsStr != null)
 			{
-			//	trace("FOUND COLORS!! "+colorsStr);
+		//		trace("FOUND COLORS!! "+colorsStr);
 				while (true)
 				{
 					if ( !gradientColorExpr.match(colorsStr) )
@@ -1924,12 +1992,19 @@ class CSSParser
 				//only add the gradient if there are colors
 				fill = gr;
 			}
+			
+			//iterate
+			v = gradientExpr.removeMatch(v);
+		//	isLinearGr	= linGradientExpr.match(v);
+		//	isRadialGr	= !isLinearGr && radGradientExpr.match(v);
 		}
-		else if (isColor(v))
+		if (fill == null && isColor(v))
 		{
 			fill = new SolidFill(parseColor(v));
+			v = removeColor(v);
 		}
 		
+		lastParsedString = v;
 		return fill;
 	}
 	
@@ -1942,26 +2017,63 @@ class CSSParser
 		{
 			bmp = new Bitmap();
 			bmp.setString( (getBasePath() + "/" + imageURIExpr.matched(2)).replace("//", "/") );
+			lastParsedString = imageURIExpr.removeMatch(v);
 		}
 		else if (isClassReference(v))
 		{
-			bmp = new Bitmap();
+			//Try to create a class instance for the given string. If the class is not yet compiled, this will fail. 
+			//By setting the classname as string, the bitmapObject will try to create a class-reference to the asset.
+			bmp		= new Bitmap();
 			bmp.setClass( parseClassReference(v) );
+			
+		/*	if (c != null)
+				bmp.setClass( c );
+			else
+				bmp.setString( "class:" + classRefExpr.matched(2) );*/
+			
+			lastParsedString = classRefExpr.removeMatch(v);
 		}
 		
 		return bmp;
 	}
 	
 	
-	private function parseImage (v:String) : IFill
+	private function parseImages (v:String) : IGraphicProperty
 	{
-		var fill:IFill	= null;
-		var bmp:Bitmap	= parseBitmap(v);
-		if (bmp != null)
-			fill = new BitmapFill( bmp, null, parseRepeatImage(v), false );
+		var fills = new ComposedFill();
+		var fill:IGraphicProperty = null;
+		
+		while (null != (fill = parseImage(v)))
+		{
+			fills.add( fill );
+			v = lastParsedString;	//remove repeat from string
+		}
+		
+		if (fills.length > 1)
+			return fills;
+		
+		if (fills.length == 1)
+			return fills.next();
+		
+		return null;
+	}
+	
+	
+	private function parseImage (v:String) : IGraphicProperty
+	{
+		var fill:IGraphicProperty = null;
+		var bmp = parseBitmap(v);
+		
+		if (bmp != null) {
+			v = lastParsedString;	//remove bitmap from string
+			fill = new BitmapFill( bmp, null, parseRepeatImage( v ), false );
+			v = lastParsedString;	//remove repeat from string
+		}
 		
 		return fill;
 	}
+	
+	
 	
 	
 	private inline function parseRepeatImage (v:String) : Bool
@@ -1971,6 +2083,7 @@ class CSSParser
 		if (v != null && imageRepeatExpr.match(v))
 			repeatStr = imageRepeatExpr.matched(1);
 		
+		lastParsedString = imageRepeatExpr.removeMatch(v);
 		return switch (repeatStr.trim().toLowerCase()) {
 			default:			true;
 			case "no-repeat":	false;
@@ -2008,22 +2121,30 @@ class CSSParser
 	
 	private inline function parseAndSetShape (v:String) : Void
 	{
-		var g = createGraphicsBlock();
-		v = v.trim().toLowerCase();
+		var factory	= new ClassInstanceFactory<IGraphicShape>();
 		
-		var shape:IGraphicShape = switch (v) {
-			case "line":		cast new Line();
-			case "circle":		cast new Circle();
-			case "ellipse":		cast new Ellipse();
-			case "rectangle":	cast new RegularRectangle();
+		var strippedV = strip(v);
+		factory.classRef = switch (strippedV) {
+			case "line":		cast Line;
+			case "circle":		cast Circle;
+			case "ellipse":		cast Ellipse;
+			case "rectangle":	cast RegularRectangle;
 			default:			null;
 		}
 		
 		//try matching triangle shape..
-		if (shape == null && triangleExpr.match(v))
-			shape = new Triangle( parsePosition( triangleExpr.matched(2) ) );
+		if (factory.classRef == null && triangleExpr.match(v))
+		{
+			factory.classRef	= Triangle;
+			factory.params		= [ parsePosition( triangleExpr.matched(2) ) ];
+		}
 		
-		g.shape = shape;
+		if (factory != null && !factory.isEmpty())
+			createGraphicsBlock().shape = Reference.objInstance( factory, v );
+		
+		//check if there's a custom shape class defined
+		else if (customShapeExpr.match(v))
+			createGraphicsBlock().shape = cast Reference.classInstance( customShapeExpr.matched(1), v );
 	}
 	
 	
@@ -2036,67 +2157,122 @@ class CSSParser
 	
 	private inline function parseAndSetBorder (v:String) : Void
 	{
-		parseAndSetBorderColor(v);
-		parseAndSetBorderImage(v);
-		parseAndSetBorderWidth(v);
-	}
-	
-	
-	private inline function parseAndSetBorderImage (v:String) : Void	{ setBorderFill( parseImage( v ) ); }
-	private inline function parseAndSetBorderColor (v:String) : Void	{ setBorderFill( parseColorFill( v ) ); }
-	private inline function parseAndSetBorderWidth (v:String) : Void	{ setBorderWidth( parseUnitFloat( v ) ); }
-	
-	
-	private function setBorderFill (newFill:IFill) : Void
-	{
-		if (newFill != null)
+		var borders = new ComposedBorder();
+		var parsingBorders:Bool = true;
+		
+	//	trace("\n\nparseAndSetBorder "+v);
+		while ( parsingBorders )
+		{
+			var fill:IGraphicProperty = null;
+			if (fill == null)	fill = parseImage(v);
+			if (fill == null)	fill = parseColorFill(v);
+			
+			if (fill == null) {
+				parsingBorders = false;
+				break;
+			}
+			
+			v = lastParsedString;
+			
+			//parse border-weight
+			var weight = parseUnitFloat( v );
+			v = removeUnitFloat( v );
+			
+			//parse border inside
+			var inside = parseBorderInside( v );
+			v = lastParsedString;
+			
+			borders.add( createBorderForFill( fill, weight, inside ) );
+	//		trace("added border "+v);
+		}
+		
+		var border:IBorder = null;
+		if (borders.length > 1)
+			border = borders;
+		
+		if (borders.length == 1)
+			border = borders.next().as(IBorder);
+		
+		if (border != null)
 		{
 			var g = createGraphicsBlock();
-			
-			//create correct border type
-			if (g.border == null)
-			{
-				if		(newFill.is(SolidFill))		g.border = cast new SolidBorder( 	newFill.as( SolidFill ) );
-				else if	(newFill.is(GradientFill))	g.border = cast new GradientBorder( newFill.as( GradientFill ) );
-				else if	(newFill.is(BitmapFill))	g.border = cast new BitmapBorder(	newFill.as( BitmapFill ) );
-#if debug		else	throw "Fill type: "+Std.string(newFill)+" not supported for border";	#end
-			}
+			if (g.border != null && g.border.is(ComposedBorder) && border.is(ComposedBorder))
+				g.border.as(ComposedBorder).merge( cast border );
 			else
-			{
-				//copy settings from old border and create a new border bases on the new fill type
-				if (newFill.is(SolidFill))
-				{
-					if (g.border.is(SolidBorder))		g.border.fill	= newFill;
-					else								g.border		= copyBorderSettingsTo( g.border, cast new SolidBorder( newFill.as(SolidFill) ) );
-				}
-				else if (newFill.is(GradientFill))
-				{
-					if (g.border.is(GradientBorder))	g.border.fill	= newFill;
-					else								g.border		= copyBorderSettingsTo( g.border, cast new GradientBorder( newFill.as(GradientFill) ) );
-				}
-				else if (newFill.is(BitmapFill))
-				{
-					if (g.border.is(BitmapBorder))		g.border.fill	= newFill;
-					else								g.border		= copyBorderSettingsTo( g.border, cast new BitmapBorder( newFill.as(BitmapFill) ) );
-				}
-			}
-			
-		//	if (t.border != null)
-		//		setDefaultShape();
+				g.border = border;
 		}
 	}
 	
 	
-	private function setBorderWidth (weight:Float) : Void
+//	private inline function parseAndSetBorderImage (v:String) : Void	{ setBorderFill( parseImages( v ) ); }
+//	private inline function parseAndSetBorderColor (v:String) : Void	{ setBorderFill( parseColorFill( v ) ); }
+//	private inline function parseAndSetBorderWidth (v:String) : Void	{ setBorderWidth( parseUnitFloat( v ) ); }
+	
+	
+	private function createBorderForFill (fill:IGraphicProperty, weight:Float = 1, inside:Bool = false) : IBorder
+	{
+		var border:IBorder = null;
+		
+		if		(fill.is(SolidFill))	border = cast new SolidBorder( cast fill	, cast weight, inside );
+		else if	(fill.is(GradientFill))	border = cast new GradientBorder( cast fill	, cast weight, inside );
+		else if	(fill.is(BitmapFill))	border = cast new BitmapBorder(	cast fill	, cast weight, inside );
+#if debug
+		else	throw "Fill type: "+Std.string(fill)+" not supported for border";
+#end
+		
+		/*//copy settings from old border and create a new border bases on the new fill type
+		if (newFill.is(SolidFill))
+		{
+			if (g.border.is(SolidBorder))		g.border.as(SolidBorder).fill = cast newFill;
+			else								g.border = copyBorderSettingsTo( cast g.border, cast new SolidBorder( newFill.as(SolidFill) ) );
+		}
+		else if (newFill.is(GradientFill))
+		{
+			if (g.border.is(GradientBorder))	g.border.as(GradientBorder).fill = cast newFill;
+			else								g.border = copyBorderSettingsTo( cast g.border, cast new GradientBorder( newFill.as(GradientFill) ) );
+		}
+		else if (newFill.is(BitmapFill))
+		{
+			if (g.border.is(BitmapBorder))		g.border.as(BitmapBorder).fill	= cast newFill;
+			else								g.border = copyBorderSettingsTo( cast g.border, cast new BitmapBorder( newFill.as(BitmapFill) ) );
+		}*/
+		
+		return border;
+	}
+	
+	
+	/**
+	 * defines if a border is on the inside or on the outside
+	 */
+	private inline function parseBorderInside  (v:String) : Bool
+	{
+		var pos = v.indexOf("inside");
+		var result = pos > -1;
+		if (result)
+		{
+			lastParsedString = v.substr(pos + 6);
+			trace("parseBorderInset "+v+" => "+lastParsedString);
+		}
+		else
+		{
+			pos = v.indexOf("outside");
+			if (pos > -1)
+				lastParsedString = v.substr( pos + 7 );
+		}
+		
+		return result;
+	}
+	
+	
+	/*private function setBorderWidth (weight:Float) : Void
 	{
 		var g = createGraphicsBlock();
-		if (g.border != null)
-			g.border.weight = weight;
-		else {
+		if (g.border == null)
 			g.border = cast new SolidBorder( null );
-			g.border.weight = weight;
-		}
-	}
+		
+		if (g.border.is(IBorder))
+			g.border.as(IBorder).weight = weight;
+	}*/
 	
 	
 	
@@ -2104,7 +2280,7 @@ class CSSParser
 	 * Method will copy the properties that the two borders share from the 
 	 * 'from' obj to the 'to' obj, except for the fill-property.
 	 */
-	private inline function copyBorderSettingsTo (from:IBorder<IFill>, to:IBorder<IFill>) : IBorder<IFill>
+/*	private inline function copyBorderSettingsTo (from:IBorder<IGraphicProperty>, to:IBorder<IGraphicProperty>) : IBorder<IGraphicProperty>
 	{
 		if (from != null && to != null)
 		{
@@ -2115,7 +2291,7 @@ class CSSParser
 			to.weight		= from.weight;
 		}
 		return to;
-	}
+	}*/
 	
 	
 	
@@ -2152,74 +2328,32 @@ class CSSParser
 	{
 		var expr = floatUnitGroupValExpr;
 		
-		if (expr.match(v) && currentBlock.graphics != null && currentBlock.graphics.shape != null && currentBlock.graphics.shape.is(RegularRectangle))
-		{
-			var shape = currentBlock.graphics.shape.as(RegularRectangle);
-			
-			var topLeft		= getFloat( expr.matched(3) );
-			var topRight	= expr.matched( 8) != null ? getFloat( expr.matched(10) ) : topLeft;
-			var bottomRight	= expr.matched(15) != null ? getFloat( expr.matched(17) ) : topLeft;
-			var bottomLeft	= expr.matched(22) != null ? getFloat( expr.matched(24) ) : topRight;
-			
-			if (shape.corners == null)
-			{
-				shape.corners = new Corners( topLeft, topRight, bottomRight, bottomLeft );
-			}
-			else
-			{
-				shape.corners.topLeft		= topLeft;
-				shape.corners.topRight		= topRight;
-				shape.corners.bottomRight	= bottomRight;
-				shape.corners.bottomLeft	= bottomLeft;
-			}
-		}
+		if (!expr.match(v))
+			return;
+		
+		var g = createGraphicsBlock();
+		var topLeft		= getFloat( expr.matched(3) );
+		var topRight	= expr.matched( 8) != null ? getFloat( expr.matched(10) ) : topLeft;
+		var bottomRight	= expr.matched(15) != null ? getFloat( expr.matched(17) ) : topLeft;
+		var bottomLeft	= expr.matched(22) != null ? getFloat( expr.matched(24) ) : topRight;
+		
+		g.borderRadius = new Corners( topLeft, topRight, bottomRight, bottomLeft );
 	}
 	
 	
-	private inline function setBorderTopLeftRadius (v:Float) : Void
+	private function setBorderTopLeftRadius (v:Float)		{ getBorderRadius().topLeft = v; }
+	private function setBorderTopRightRadius (v:Float)		{ getBorderRadius().topRight = v; }
+	private function setBorderBottomLeftRadius (v:Float)	{ getBorderRadius().bottomLeft = v; }
+	private function setBorderBottomRightRadius (v:Float)	{ getBorderRadius().bottomRight = v; }
+	
+	
+	private inline function getBorderRadius () : Corners
 	{
-		var corners = getCorners();
-		if (corners != null)
-			corners.topLeft = v;
-	}
-	
-	
-	private inline function setBorderTopRightRadius (v:Float) : Void
-	{
-		var corners = getCorners();
-		if (corners != null)
-			corners.topRight = v;
-	}
-	
-	
-	private inline function setBorderBottomLeftRadius (v:Float) : Void
-	{
-		var corners = getCorners();
-		if (corners != null)
-			corners.bottomLeft = v;
-	}
-	
-	
-	private inline function setBorderBottomRightRadius (v:Float) : Void
-	{
-		var corners = getCorners();
-		if (corners != null)
-			corners.bottomRight = v;
-	}
-	
-	
-	private inline function getCorners () : Corners
-	{
-		var r:Corners = null;
-		if (currentBlock.graphics != null && currentBlock.graphics.shape != null && currentBlock.graphics.shape.is(RegularRectangle))
-		{
-			var shape = currentBlock.graphics.shape.as(RegularRectangle);
-			if (shape.corners == null)
-				shape.corners = new Corners();
-			
-			r = shape.corners;
-		}
-		return r;
+		var g = createGraphicsBlock();
+		if (g.borderRadius == null)
+			g.borderRadius = new Corners();
+		
+		return g.borderRadius;
 	}
 	
 	
@@ -2270,20 +2404,25 @@ class CSSParser
 	 */
 	private function parseAndSetHeight (v:String) : Void
 	{
-		var h:Int = isAutoSize(v) ? LayoutFlags.FILL : parseUnitInt(v);
-		if (h.isSet())
+		var h:Int = parseUnitInt(v);
+		if (isNone(v))
+		{
+			currentBlock.layout.height			= Number.EMPTY;
+			currentBlock.layout.percentHeight	= Number.EMPTY;
+		}
+		else if (h.isSet())
 		{
 			createLayoutBlock();
 			currentBlock.layout.height = h;
 		}
 		else
 		{
-			var ph:Float = parsePercentage(v);
-			if (ph.isSet())
-			{
-				createLayoutBlock();
-				currentBlock.layout.percentHeight = ph;
-			}
+			var ph:Float = isAutoSize(v) ? LayoutFlags.FILL : parsePercentage(v);
+		//	if (ph.isSet())
+		//	{
+			createLayoutBlock();
+			currentBlock.layout.percentHeight = ph;
+		//	}
 		}
 	}
 	
@@ -2329,6 +2468,38 @@ class CSSParser
 			else
 			{
 				var p		= currentBlock.layout.padding;
+				p.top		= top;
+				p.right		= right;
+				p.bottom	= bottom;
+				p.left		= left;
+			}
+		}
+	}
+	
+	
+	/**
+	 * @see parseAndSetPadding
+	 */
+	private function parseAndSetMargin (v:String) : Void
+	{
+		var expr = floatUnitGroupValExpr;
+		
+		if (expr.match(v))
+		{
+			createLayoutBlock();
+			
+			var top		= getInt( expr.matched(3) );
+			var right	= expr.matched( 8) != null ? getInt( expr.matched(10) ) : top;
+			var bottom	= expr.matched(15) != null ? getInt( expr.matched(17) ) : top;
+			var left	= expr.matched(22) != null ? getInt( expr.matched(24) ) : right;
+			
+			if (currentBlock.layout.margin == null)
+			{
+				currentBlock.layout.margin = new Box( top, right, bottom, left );
+			}
+			else
+			{
+				var p		= currentBlock.layout.margin;
 				p.top		= top;
 				p.right		= right;
 				p.bottom	= bottom;
@@ -2412,45 +2583,72 @@ class CSSParser
 	 */
 	private function parseAndSetLayoutAlgorithm (v:String) : Void
 	{
-		var algorithm:ILayoutAlgorithm = null;
+		var info:ClassInstanceFactory<ILayoutAlgorithm> = new ClassInstanceFactory();
 		var v = v.trim().toLowerCase();
 		
-		if		(v == "relative")			algorithm = new RelativeAlgorithm ();
-		else if	(v == "none")				algorithm = null;						//FIXME -> none and inherit are the same now. none is not implemented yet..
-		else if	(v == "inherit")			algorithm = null;
+		if		(v == "relative")			info.classRef = RelativeAlgorithm;
+		else if	(v == "none")				info.classRef = null;						//FIXME -> none and inherit are the same now. none is not implemented yet..
+		else if	(v == "inherit")			info.classRef = null;
 		
 		//
 		// match floating layout
 		//
 		
-		else if (floatHorExpr.match(v))		algorithm = new HorizontalFloatAlgorithm ( parseHorDirection( floatHorExpr.matched(2) ), parseVerDirection( floatHorExpr.matched(4) ) );
-		else if (floatVerExpr.match(v))		algorithm = new VerticalFloatAlgorithm ( parseVerDirection( floatVerExpr.matched(2) ), parseHorDirection( floatVerExpr.matched(4) ) );
-		else if (floatExpr.match(v))		algorithm = new DynamicLayoutAlgorithm (
-			new HorizontalFloatAlgorithm ( parseHorDirection( floatExpr.matched(2) ) ), 
-			new VerticalFloatAlgorithm ( parseVerDirection( floatExpr.matched(4) ) )
-		);
+		else if (floatHorExpr.match(v)) {
+			info.classRef	= HorizontalFloatAlgorithm;
+			info.params		= [ parseHorDirection( floatHorExpr.matched(2) ), parseVerDirection( floatHorExpr.matched(4) ) ];
+		}
+		else if (floatVerExpr.match(v)) {
+			info.classRef	= VerticalFloatAlgorithm;
+			info.params		= [ parseVerDirection( floatVerExpr.matched(2) ), parseHorDirection( floatVerExpr.matched(4) ) ];
+		}
+		else if (floatExpr.match(v)) {
+			info.classRef	= DynamicLayoutAlgorithm;
+			info.params		= [
+				new ClassInstanceFactory( HorizontalFloatAlgorithm,	[ parseHorDirection( floatExpr.matched(2) ) ] ), 
+				new ClassInstanceFactory( VerticalFloatAlgorithm,	[ parseVerDirection( floatExpr.matched(4) ) ] )
+			];
+		}
 		
 		//
 		//match circle layout
 		//
 		
-		else if (horCircleExpr.match(v))	algorithm = new HorizontalCircleAlgorithm ( parseHorDirection( horCircleExpr.matched(2) ), parseVerDirection( horCircleExpr.matched(4) ), false );
-		else if (verCircleExpr.match(v))	algorithm = new VerticalCircleAlgorithm ( parseVerDirection( verCircleExpr.matched(2) ), parseHorDirection( verCircleExpr.matched(4) ), false );
-		else if (circleExpr.match(v))		algorithm = new DynamicLayoutAlgorithm (
-			new HorizontalCircleAlgorithm ( parseHorDirection( circleExpr.matched(2) ), null, false ), 
-			new VerticalCircleAlgorithm ( parseVerDirection( circleExpr.matched(4) ), null, false )
-		);
+		else if (horCircleExpr.match(v)) {
+			info.classRef	= HorizontalCircleAlgorithm;
+			info.params		= [ parseHorDirection( horCircleExpr.matched(2) ), parseVerDirection( horCircleExpr.matched(4) ), false ];
+		}
+		else if (verCircleExpr.match(v)) {
+			info.classRef	= VerticalCircleAlgorithm;
+			info.params		= [ parseVerDirection( verCircleExpr.matched(2) ), parseHorDirection( verCircleExpr.matched(4) ), false ];
+		}
+		else if (circleExpr.match(v)) {
+			info.classRef	= DynamicLayoutAlgorithm;
+			info.params		= [ 
+				new ClassInstanceFactory( HorizontalCircleAlgorithm,	[ parseHorDirection( circleExpr.matched(2) ), null, false ] ), 
+				new ClassInstanceFactory( VerticalCircleAlgorithm,	[ parseVerDirection( circleExpr.matched(4) ), null, false ] )
+			];
+		}
 		
 		//
 		//match ellipse layout
 		//
 		
-		else if (horEllipseExpr.match(v))	algorithm = new HorizontalCircleAlgorithm ( parseHorDirection( horEllipseExpr.matched(2) ), parseVerDirection( horEllipseExpr.matched(4) ) );
-		else if (verEllipseExpr.match(v))	algorithm = new VerticalCircleAlgorithm ( parseVerDirection( verEllipseExpr.matched(2) ), parseHorDirection( verEllipseExpr.matched(4) ) );
-		else if (ellipseExpr.match(v))		algorithm = new DynamicLayoutAlgorithm (
-			new HorizontalCircleAlgorithm ( parseHorDirection( horEllipseExpr.matched(2) ) ), 
-			new VerticalCircleAlgorithm ( parseVerDirection( horEllipseExpr.matched(4) ) )
-		);
+		else if (horEllipseExpr.match(v)) {
+			info.classRef	= HorizontalCircleAlgorithm;
+			info.params		= [ parseHorDirection( horEllipseExpr.matched(2) ), parseVerDirection( horEllipseExpr.matched(4) ) ];
+		}
+		else if (verEllipseExpr.match(v)) {
+			info.classRef	= VerticalCircleAlgorithm;
+			info.params		= [ parseVerDirection( verEllipseExpr.matched(2) ), parseHorDirection( verEllipseExpr.matched(4) ) ];
+		}
+		else if (ellipseExpr.match(v)) {
+			info.classRef	= DynamicLayoutAlgorithm;
+			info.params		= [
+				new ClassInstanceFactory( HorizontalCircleAlgorithm,	[ parseHorDirection( horEllipseExpr.matched(2) ) ] ), 
+				new ClassInstanceFactory( VerticalCircleAlgorithm,	[ parseVerDirection( horEllipseExpr.matched(4) ) ] )
+			];
+		}
 		
 		//
 		//match dynamic
@@ -2464,35 +2662,35 @@ class CSSParser
 		else if (dynamicTileExpr.match(v))
 		{
 			if (dynamicTileExpr.matched(1) == null)
-				algorithm = new DynamicTileAlgorithm();
+				info.classRef = DynamicTileAlgorithm;
 			else
 			{
-				var tileAlg = new DynamicTileAlgorithm( parseDirection( dynamicTileExpr.matched( 3 ) ) );
-				if (dynamicTileExpr.matched( 5 ) != null)	tileAlg.horizontalDirection	= parseHorDirection( dynamicTileExpr.matched( 5 ) );
-				if (dynamicTileExpr.matched( 7 ) != null)	tileAlg.verticalDirection	= parseVerDirection( dynamicTileExpr.matched( 7 ) );
-				algorithm = tileAlg;
+				info.classRef = DynamicTileAlgorithm;
+				info.params.push( parseDirection( dynamicTileExpr.matched( 3 ) ) );
+				info.params.push( (dynamicTileExpr.matched( 5 ) != null) ? parseHorDirection( dynamicTileExpr.matched( 5 ) ) : null );
+				info.params.push( (dynamicTileExpr.matched( 7 ) != null) ? parseVerDirection( dynamicTileExpr.matched( 7 ) ) : null );
 			}
 		}
 		else if (fixedTileExpr.match(v))
 		{
 			if (fixedTileExpr.matched(1) == null)
-				algorithm = new FixedTileAlgorithm();
+				info.classRef = FixedTileAlgorithm;
 			else
 			{
-				var tileAlg = new FixedTileAlgorithm( parseDirection( fixedTileExpr.matched( 2 ) ) );
-				if (fixedTileExpr.matched( 4 ) != null)		tileAlg.maxTilesInDirection	= getInt( fixedTileExpr.matched( 4 ) );
-				if (fixedTileExpr.matched( 6 ) != null)		tileAlg.horizontalDirection	= parseHorDirection( fixedTileExpr.matched( 6 ) );
-				if (fixedTileExpr.matched( 8 ) != null)		tileAlg.verticalDirection	= parseVerDirection( fixedTileExpr.matched( 8 ) );
-				algorithm = tileAlg;
+				info.classRef	= FixedTileAlgorithm;
+				info.params.push( parseDirection( fixedTileExpr.matched( 2 ) ) );
+				info.params.push( (fixedTileExpr.matched( 4 ) != null) ? getInt( fixedTileExpr.matched( 4 ) )				: Number.INT_NOT_SET );
+				info.params.push( (fixedTileExpr.matched( 6 ) != null) ? parseHorDirection( fixedTileExpr.matched( 6 ) )	: null );
+				info.params.push( (fixedTileExpr.matched( 8 ) != null) ? parseVerDirection( fixedTileExpr.matched( 8 ) )	: null );
 			}
 		}
 		
 		
 		//insert the found algorithm in the layout-style-block
-		if (algorithm != null)
+		if (info != null && !info.isEmpty())
 		{
 			createLayoutBlock();
-			currentBlock.layout.algorithm = algorithm;
+			currentBlock.layout.algorithm = info;
 		}
 	}
 	
@@ -3081,7 +3279,7 @@ class CSSParser
 	private function parseAndSetSkin (v:String) : Void
 	{
 		if (isClassReference(v))
-			createGraphicsBlock().skin = cast parseClassReference(v);
+			createGraphicsBlock().skin = parseClassReference(v);
 	}
 	
 	
@@ -3124,15 +3322,18 @@ class CSSParser
 	 */
 	private function parseAndSetOverflow (v:String) : Void
 	{
-		createGraphicsBlock().overflow = switch (v.trim().toLowerCase()) {
-			case "visible":				cast UnclippedLayoutBehaviour;
-			case "hidden":				cast ClippedLayoutBehaviour;
-			case "scroll-mouse-move":	cast MouseMoveScrollBehaviour;
-			case "drag-scroll":			cast DragScrollBehaviour;
-			case "corner-scroll":		cast CornerScrollBehaviour;
+		var className = switch (v.trim().toLowerCase()) {
+			case "hidden":				ClippedLayoutBehaviour.getClassName();
+			case "scroll-mouse-move":	MouseMoveScrollBehaviour.getClassName();
+			case "drag-scroll":			DragScrollBehaviour.getClassName();
+			case "corner-scroll":		CornerScrollBehaviour.getClassName();
 			case "scrollbars":			null;
-			default:					null;
-		}
+			/*case "visible":*/
+			default:					UnclippedLayoutBehaviour.getClassName();
+		};
+		
+		if (className != null)
+			createGraphicsBlock().overflow = Reference.className( className, v.trim() );
 	}
 	
 	
@@ -3163,30 +3364,31 @@ class CSSParser
 		var easing : Easing = null;
 		if (easingExpr.match(v))
 		{
-			var e : Dynamic = switch (easingExpr.matched(1).toLowerCase())
+			var method = switch (easingExpr.matched(1).toLowerCase())
 			{
-				case "back":	cast feffects.easing.Back;		// trace(easingExpr.matched(1).toLowerCase());
-				case "bounce":	cast feffects.easing.Bounce;	// trace(easingExpr.matched(1).toLowerCase());
-				case "circ":	cast feffects.easing.Circ;		// trace(easingExpr.matched(1).toLowerCase());
-				case "cubic":	cast feffects.easing.Cubic;		// trace(easingExpr.matched(1).toLowerCase());
-				case "elastic":	cast feffects.easing.Elastic;	// trace(easingExpr.matched(1).toLowerCase());
-				case "expo":	cast feffects.easing.Expo;		// trace(easingExpr.matched(1).toLowerCase());
-				case "linear":	cast feffects.easing.Linear;	// trace(easingExpr.matched(1).toLowerCase());
-				case "quad":	cast feffects.easing.Quad;		// trace(easingExpr.matched(1).toLowerCase());
-				case "quart":	cast feffects.easing.Quart;		// trace(easingExpr.matched(1).toLowerCase());
-				case "quint":	cast feffects.easing.Quint;		// trace(easingExpr.matched(1).toLowerCase());
-				case "sine":	cast feffects.easing.Sine;		// trace(easingExpr.matched(1).toLowerCase());
+				case "back":	"feffects.easing.Back";
+				case "bounce":	"feffects.easing.Bounce";
+				case "circ":	"feffects.easing.Circ";
+				case "cubic":	"feffects.easing.Cubic";
+				case "elastic":	"feffects.easing.Elastic";
+				case "expo":	"feffects.easing.Expo";
+				case "linear":	"feffects.easing.Linear";
+				case "quad":	"feffects.easing.Quad";
+				case "quart":	"feffects.easing.Quart";
+				case "quint":	"feffects.easing.Quint";
+				case "sine":	"feffects.easing.Sine";
 				default:		null;
 			}
 			
-			if (e != null)
-			{
-				easing = switch (easingExpr.matched(2).toLowerCase()) {
-					case "in":	e.easeIn;
-					case "out":	e.easeOut;
-					default:	e.easeInOut;
+			if (method != null)
+				method += switch (easingExpr.matched(2).toLowerCase()) {
+					case "in":	".easeIn";
+					case "out":	".easeOut";
+					default:	".easeInOut";
 				}
-			}
+			
+			if (method != null)
+				easing = Reference.func( method, easingExpr.matched(0) );
 		}
 		
 		return easing;
@@ -3305,7 +3507,7 @@ class CSSParser
 		var duration : Int	= Number.INT_NOT_SET;
 		var delay : Int		= Number.INT_NOT_SET;
 		var easing : Easing	= parseEasing(v);
-		var easingName		= getEasingName(v);
+	//	var easingName		= getEasingName(v);
 		
 	//	trace("testing str = "+v);
 		
@@ -3344,8 +3546,8 @@ class CSSParser
 			var start	= parsePercentage( anchorScaleEffExpr.matched(20) );
 			var end		= parsePercentage( anchorScaleEffExpr.matched(25) );
 			
-			if (start.isSet())		start	/= 100;
-			if (end.isSet())		end		/= 100;
+		//	if (start.isSet())		start	/= 100;
+		//	if (end.isSet())		end		/= 100;
 			
 			effect = new AnchorScaleEffect ( duration, delay, easing, parsePosition( anchorScaleEffExpr.matched(2) ), start, end );
 			lastUsedEffectExpr = anchorScaleEffExpr;
@@ -3360,8 +3562,8 @@ class CSSParser
 			var start	= fadeEffExpr.matched(2) != null ? parsePercentage( fadeEffExpr.matched(3) ) : Number.FLOAT_NOT_SET;
 			var end		= fadeEffExpr.matched(2) != null ? parsePercentage( fadeEffExpr.matched(8) ) : parsePercentage( fadeEffExpr.matched(13) );
 			
-			if (start.isSet())		start	/= 100;
-			if (end.isSet())		end		/= 100;
+		//	if (start.isSet())		start	/= 100;
+		//	if (end.isSet())		end		/= 100;
 			
 			effect = new FadeEffect ( duration, delay, easing, start, end );
 			lastUsedEffectExpr = fadeEffExpr;
@@ -3417,10 +3619,10 @@ class CSSParser
 			var endX	= scaleEffExpr.matched(2) != null ? parsePercentage( scaleEffExpr.matched(13) ) : parsePercentage( scaleEffExpr.matched(24) );
 			var endY	= scaleEffExpr.matched(2) != null ? parsePercentage( scaleEffExpr.matched(18) ) : parsePercentage( scaleEffExpr.matched(29) );
 			
-			if (startX.isSet())		startX	/= 100;
+		/*	if (startX.isSet())		startX	/= 100;
 			if (startY.isSet())		startY	/= 100;
 			if (endX.isSet())		endX	/= 100;
-			if (endY.isSet())		endY	/= 100;
+			if (endY.isSet())		endY	/= 100;*/
 			
 			effect		= new ScaleEffect ( duration, delay, easing, startX, startY, endX, endY );
 			lastUsedEffectExpr = scaleEffExpr;
@@ -3448,12 +3650,6 @@ class CSSParser
 			effect = new SetAction( duration, delay, easing, props );
 			lastUsedEffectExpr = setActionEffExpr;
 		}
-				
-		
-#if neko
-		if (effect != null)
-			effect.easingName = easingName;
-#end
 		
 	//	trace("p effect2 = "+effect);
 		
@@ -3483,8 +3679,8 @@ class CSSParser
 			var start	= setActionEffExpr.matched(4) != null ? parsePercentage( setActionEffExpr.matched(5) ) : Number.FLOAT_NOT_SET;
 			var end		= setActionEffExpr.matched(4) != null ? parsePercentage( setActionEffExpr.matched(10) ) : parsePercentage( setActionEffExpr.matched(15) );
 			
-			if (start.isSet())		start	/= 100;
-			if (end.isSet())		end		/= 100;
+		/*	if (start.isSet())		start	/= 100;
+			if (end.isSet())		end		/= 100;*/
 			
 			if (start.isSet() || end.isSet())
 				props = EffectProperties.alpha( start, end );
@@ -3532,10 +3728,10 @@ class CSSParser
 			var endX	= setActionEffExpr.matched(118) != null ? parsePercentage( setActionEffExpr.matched(129) )	: parsePercentage( setActionEffExpr.matched(140) );
 			var endY	= setActionEffExpr.matched(118) != null ? parsePercentage( setActionEffExpr.matched(134) )	: parsePercentage( setActionEffExpr.matched(145) );
 			
-			if (startX.isSet())		startX	/= 100;
+		/*	if (startX.isSet())		startX	/= 100;
 			if (startY.isSet())		startY	/= 100;
 			if (endX.isSet())		endX	/= 100;
-			if (endY.isSet())		endY	/= 100;
+			if (endY.isSet())		endY	/= 100;*/
 			
 			if (startX.isSet() || startY.isSet() || endX.isSet() || endY.isSet())
 				props = EffectProperties.scale( startX, startY, endX, endY );

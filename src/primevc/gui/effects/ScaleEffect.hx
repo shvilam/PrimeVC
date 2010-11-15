@@ -33,6 +33,7 @@ package primevc.gui.effects;
  import primevc.gui.traits.IScaleable;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
+  using primevc.types.Reference;
 #end
  import primevc.types.Number;
   using primevc.utils.NumberUtil;
@@ -109,14 +110,14 @@ class ScaleEffect extends Effect < IScaleable, ScaleEffect >
 	}
 	
 	
-#if (debug || neko)
+#if neko
 	override public function toCSS (prefix:String = "") : String
 	{
 		var props = [];
 		
 		if (duration.isSet())		props.push( duration + "ms" );
 		if (delay.isSet())			props.push( delay + "ms" );
-		if (easing != null)			props.push( easingToCSS() );
+		if (easing != null)			props.push( easing.toCSS() );
 		if (startX.isSet())			props.push( (startX * 100) + "%" );
 		if (startY.isSet())			props.push( (startY * 100) + "%" );
 		if (endX.isSet())			props.push( (endX * 100) + "px" );
@@ -125,13 +126,12 @@ class ScaleEffect extends Effect < IScaleable, ScaleEffect >
 		
 		return "scale " + props.join(" ");
 	}
-#end
-
-#if neko
+	
+	
 	override public function toCode (code:ICodeGenerator) : Void
 	{
 		if (!isEmpty())
-			code.construct( this, [ duration, delay, easingToCode(), startX, startY, endX, endY ] );
+			code.construct( this, [ duration, delay, easing, startX, startY, endX, endY ] );
 	}
 #end
 }

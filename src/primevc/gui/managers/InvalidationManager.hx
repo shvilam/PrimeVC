@@ -27,8 +27,6 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.managers;
- import primevc.gui.display.Window;
- import primevc.gui.traits.IInvalidating;
   using primevc.utils.Bind;
 
 
@@ -44,9 +42,9 @@ package primevc.gui.managers;
  * @author Ruben Weijers
  * @creation-date Sep 03, 2010
  */
-class InvalidationManager extends QueueManager < IInvalidating, Window >
+class InvalidationManager extends QueueManager
 {
-	public function new (owner:Window)
+	public function new (owner)
 	{
 		super(owner);
 		
@@ -54,23 +52,7 @@ class InvalidationManager extends QueueManager < IInvalidating, Window >
 		updateQueueBinding.disable();
 	}
 	
-	
-	//
-	// VALIDATION METHODS
-	//
-	
-	/**
-	 * Method is called after an enterFrame event and will validate every obj
-	 * in the queue.
-	 */
-	private function validateQueue ()
-	{
-		var item:IInvalidating;
-		while (queue.length > 0) {
-			item = queue.pop();
-			item.validate();
-		}
-		
-		disableBinding();
-	}
+#if debug
+	override public function toString () { return "InvalidationManager"; }
+#end
 }

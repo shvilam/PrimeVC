@@ -28,9 +28,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core;
- import primevc.core.IDisposable;
- import primevc.core.dispatcher.Signal1;
+ import primevc.core.IBindableReadonly;
+ import primevc.core.dispatcher.Signal2;
  import haxe.FastList;
+
 
 /**
  * Class to keep a value automatically updated.
@@ -69,7 +70,7 @@ package primevc.core;
  * @creation-date	Jun 18, 2010
  * @author			Ruben Weijers, Danny Wilson
  */
-class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.Generic, implements primevc.core.IDisposable
+class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.Generic
 {
 	public var value	(default, setValue)	: DataType;
 	
@@ -77,21 +78,21 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 	 * Dispatched just before "value" is set to a new value.
 	 * Signal argument: The new value.
 	 */
-	public var change	(default, null)	: Signal1<DataType>;
+	public var change	(default, null)	: Signal2 < DataType, OldValue < DataType > >;
 	
 	/**
 	 * Keeps track of which Bindables update this.value
 	 */
-	private var boundTo : FastList<IBindableReadonly<DataType>>;
+	private var boundTo : FastList < IBindableReadonly < DataType > >;
 	/**
 	 * Keeps track of which Bindables should be updated when this.value changes.
 	 */
-	private var writeTo : FastList<IBindable<DataType>>;
+	private var writeTo : FastList < IBindable < DataType > >;
 	
 	
 	public function new (?val:DataType)
 	{
-		change = new Signal1();
+		change = new Signal2();
 		value  = val;
 	}
 	
@@ -130,8 +131,9 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 	{
 		if (value != newValue)
 		{
-			value = newValue;			//first set the value -> will possibly trigger an infinite loop otherwise
-			change.send( newValue );
+			var oldV	= value;
+			value		= newValue;			//first set the value -> will possibly trigger an infinite loop otherwise
+			change.send( newValue, oldV );
 		//	value = newValue;
 			BindableTools.dispatchValueToBound(writeTo, newValue);
 		}
@@ -237,11 +239,11 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 	}
 	
 	
-#if debug
+//#if debug
 	public inline function toString () : String {
 		return cast value;
 	}
-#end
+//#end
 }
 
 

@@ -31,7 +31,7 @@ package primevc.avm2.display;
  import flash.display.DisplayObject;
  import primevc.core.collections.iterators.IIterator;
  import primevc.core.collections.IList;
- import primevc.core.events.ListEvents;
+ import primevc.core.dispatcher.Signal1;
  import primevc.core.IDisposable;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
@@ -63,10 +63,17 @@ class DisplayList implements IList <ChildType>
 	 */
 	public var owner		(default, null)				: IDisplayContainer;
 	
-	public var events		(default, null)				: ListEvents < ChildType >;
+	public var change		(default, null)				: Signal1 < ListChange < ChildType > >;
 	public var length		(getLength, never)			: Int;
 	
+	/**
+	 * Property to enable mouse events on children or not
+	 */
 	public var mouseEnabled	(default, setMouseEnabled)	: Bool;
+	
+	/**
+	 * Property to enable tab events on children or not
+	 */
 	public var tabEnabled	(default, setTabEnabled)	: Bool;
 	
 	
@@ -79,17 +86,19 @@ class DisplayList implements IList <ChildType>
 		
 		Assert.notEqual( owner, null, "Owner object can't be null." );
 		
-		this.target	= target;
-		this.owner	= owner;
-		events		= new ListEvents();
+		this.target		= target;
+		this.owner		= owner;
+		change			= new Signal1();
+		tabEnabled		= target.tabChildren;
+		mouseEnabled	= target.mouseChildren;
 	}
 	
 	
 	public inline function dispose ()
 	{
 		removeAll();
-		events.dispose();
-		events	= null;
+		change.dispose();
+		change	= null;
 		target	= null;
 		owner	= null;
 	}
@@ -122,14 +131,14 @@ class DisplayList implements IList <ChildType>
 	// LIST METHODS
 	//
 
-	public function iterator () : Iterator <ChildType>				{ return getForwardIterator(); }
-	public function getForwardIterator () : IIterator <ChildType>	{ return new DisplayListForwardIterator(this); }
-	public function getReversedIterator () : IIterator <ChildType>	{ return new DisplayListReversedIterator(this); }
+	public function iterator () : Iterator <ChildType>			{ return forwardIterator(); }
+	public function forwardIterator () : IIterator <ChildType>	{ return new DisplayListForwardIterator(this); }
+	public function reversedIterator () : IIterator <ChildType>	{ return new DisplayListReversedIterator(this); }
 	
-	public inline function getItemAt	(pos:Int)					{ return target.getChildAt( pos ).as( ChildType ); }
-	public inline function has			(item:ChildType)			{ return target.contains( item.as( TargetChildType ) ); } 
-	public inline function indexOf		(item:ChildType)			{ return target.getChildIndex( item.as( TargetChildType ) ); }
-	private inline function getLength	()							{ return target.numChildren; }
+	public inline function getItemAt	(pos:Int)				{ return target.getChildAt( pos ).as( ChildType ); }
+	public inline function has			(item:ChildType)		{ return target.contains( item.as( TargetChildType ) ); } 
+	public inline function indexOf		(item:ChildType)		{ return target.getChildIndex( item.as( TargetChildType ) ); }
+	private inline function getLength	()						{ return target.numChildren; }
 	
 	
 	public inline function add (item:ChildType, pos:Int = -1) : ChildType
@@ -146,20 +155,22 @@ class DisplayList implements IList <ChildType>
 		
 		item.container = owner;
 		target.addChildAt( item.as( TargetChildType ), pos );
-		events.added.send( item, pos );
+		change.send( ListChange.added( item, pos ) );
 		return item;
 	}
 	
 	
-	public inline function remove (item:ChildType) : ChildType
+	public inline function remove (item:ChildType, oldPos:Int = -1) : ChildType
 	{
 		Assert.that( has(item), "remove: Child "+item+" is not in "+this );
 		
-		var pos = indexOf(item);
+		if (oldPos == -1)
+			oldPos = indexOf(item);
+		
 		target.removeChild(item.as( TargetChildType ));
 		item.container = null;
 		
-		events.removed.send( item, pos );
+		change.send( ListChange.removed( item, oldPos ) );
 		return item;
 	}
 	
@@ -172,7 +183,7 @@ class DisplayList implements IList <ChildType>
 		Assert.that( curPos >= 0, "Child to move is not in this DisplayList: "+item );
 		
 		target.addChildAt( item.as( TargetChildType ), newPos );
-		events.moved.send( item, curPos, newPos );
+		change.send( ListChange.moved( item, newPos, curPos ) );
 		return item;
 	}
 

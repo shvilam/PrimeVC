@@ -51,11 +51,11 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.gui.layout.LayoutContainer;
  import primevc.types.Number;
  import primevc.utils.FastArray;
- import primevc.utils.IntMath;
+ import primevc.utils.NumberMath;
   using primevc.utils.BitUtil;
   using primevc.utils.Bind;
   using primevc.utils.NumberUtil;
-  using primevc.utils.IntMath;
+  using primevc.utils.NumberMath;
   using primevc.utils.TypeUtil;
  
 
@@ -114,7 +114,7 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	 * 			-> children (ChainedList)
 	 * 		-> etc.
 	 */
-	public var rows					(default, null)		: TileContainer < TileContainer < LayoutClient > >;
+	public var rows					(default, null)		: TileContainer; // < TileContainer < LayoutClient > >;
 	/**
 	 * HorizontalMap is a collection of the children properties of all rows. 
 	 * Defining them in a ChainedListCollection makes it easy to let the 
@@ -145,7 +145,7 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	 * 			-> children (ChainedList)
 	 * 		-> etc.
 	 */
-	public var columns				(default, null)		: TileContainer < TileContainer < LayoutClient > >;
+	public var columns				(default, null)		: TileContainer; // < TileContainer < LayoutClient > >;
 	/**
 	 * VerticalMap is a collection of the children properties of all columns. 
 	 * Defining them in a ChainedListCollection makes it easy to let the 
@@ -199,13 +199,15 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 		horizontalMap		= cast new ChainedListCollection <LayoutClient>(maxTilesInDirection);
 		verticalMap			= cast new BalancingListCollection <LayoutClient>(maxTilesInDirection);
 		
-		rows				= new TileContainer<TileContainer<LayoutClient>>();
+		rows				= new TileContainer();
 		rows.algorithm		= verAlgorithm;
 		rows.padding		= group.padding;
+	//	rows.parent			= group;
 		
-		columns				= new TileContainer<TileContainer<LayoutClient>>();
+		columns				= new TileContainer();
 		columns.algorithm	= horAlgorithm;
 		columns.padding		= group.padding;
+	//	columns.parent		= group;
 #if debug
 		rows.name			= "RowsContainer";
 		columns.name		= "ColumnsContainer";
@@ -225,10 +227,11 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 			for ( i in 0...maxTilesInDirection )
 			{
 				var columnChildren	= new BalancingList<LayoutClient>();
-				var column			= new TileContainer<LayoutClient>( columnChildren );
+				var column			= new TileContainer( columnChildren );
 				column.childWidth	= group.childWidth;
 				column.childHeight	= group.childHeight;
 				column.algorithm	= childVerAlgorithm;
+				column.parent		= columns;
 #if debug		column.name			= "column"+columns.children.length;			#end				
 #if debug		columnChildren.name	= "columnList"+columns.children.length;		#end
 				verticalMap.addList( columnChildren );
@@ -250,12 +253,13 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	}
 	
 	
-	private inline function addRow (childAlg:ILayoutAlgorithm)
+	private function addRow (childAlg:ILayoutAlgorithm)
 	{
 		var rowChildren	= new ChainedList<LayoutClient>( maxTilesInDirection );
-		var row			= new TileContainer<LayoutClient>( rowChildren);
+		var row			= new TileContainer(rowChildren);
 		row.childWidth	= group.childWidth;
 		row.childHeight	= group.childHeight;
+		row.parent		= rows;
 #if debug
 		row.name		= "row"+rows.children.length;
 #end
@@ -265,7 +269,7 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	}
 	
 	
-	private inline function swapHorizontalAndVertical ()
+	private function swapHorizontalAndVertical ()
 	{
 		if (horizontalMap != null && verticalMap != null)
 		{
@@ -274,78 +278,83 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 			columns.algorithm	= rows.algorithm;
 			rows.algorithm		= columnsAlg;
 			
-			var columnAlg		= columns.children.getItemAt(0).algorithm;
-			var rowAlg			= rows.children.getItemAt(0).algorithm;
+			var columnAlg		= (startDirection == horizontal) ? cast childHorAlgorithm : cast childVerAlgorithm;
+			var rowAlg			= (startDirection == horizontal) ? cast childVerAlgorithm : cast childHorAlgorithm;
 			
 			for (group in columns)
-				group.algorithm = rowAlg;
+				group.as(TileContainer).algorithm = rowAlg;
 			
 			for (group in rows)
-				group.algorithm = columnAlg;
+				group.as(TileContainer).algorithm = columnAlg;
 		}
 	}
 	
 	
-	private function updateMapsAfterRemove (client:LayoutClient, pos:Int) : Void
+	private function updateMapsAfterChange (change:ListChange < LayoutClient > )
 	{
-		if (horizontalMap == null || verticalMap == null || !client.includeInLayout)
+		if (horizontalMap == null || verticalMap == null)
 			return;
 		
-		horizontalMap.remove(client);
-		verticalMap.remove(client);
-	//	validateMaps();
-	}
-	
-	
-	private function updateMapsAfterAdd (client:LayoutClient, pos:Int) : Void
-	{
-		if (horizontalMap == null || verticalMap == null || !client.includeInLayout)
-			return;
-		
-		//reset boundary properties
-	//	client.bounds.left	= 0;
-	//	client.bounds.top	= 0;
-		
-		if (horizontalMap.length % maxTilesInDirection == 0) {
-			if (startDirection == horizontal)		addRow(childHorAlgorithm);
-			else									addRow(childVerAlgorithm);
+		switch (change)
+		{
+			case added ( client, newPos ):
+				if (!client.includeInLayout)
+					return;
+				
+				if (horizontalMap.length % maxTilesInDirection == 0)
+					if (startDirection == horizontal)		addRow(childHorAlgorithm);
+					else									addRow(childVerAlgorithm);
+				
+				horizontalMap.add(client, newPos);
+				verticalMap.add(client, newPos);
 			
+			
+			case removed ( client, oldPos ):
+				if (!client.includeInLayout)
+					return;
+				
+				horizontalMap.remove(client);
+				verticalMap.remove(client);
+			
+			
+			case moved ( client, newPos, oldPos ):
+				if (!client.includeInLayout)
+					return;
+
+				horizontalMap.move(client, newPos, oldPos);
+				verticalMap.move(client, newPos, oldPos);
+			
+			default:
 		}
 		
-		horizontalMap.add(client, pos);
-		verticalMap.add(client, pos);
-	//	validateMaps();
+#if unitTesting
+		validateMaps();				
+#end
 	}
 	
 	
-	private function updateMapsAfterMove (client:LayoutClient, oldPos:Int, newPos:Int)
-	{
-		if (horizontalMap == null || verticalMap == null || !client.includeInLayout)
-			return;
-		
-		horizontalMap.move(client, newPos, oldPos);
-		verticalMap.move(client, newPos, oldPos);
-	//	validateMaps();
-	}
-	
-	
+#if (unitTesting || debugLayout)
 	private inline function validateMaps ()
 	{
-#if (debug && debugLayout)
-		var len = horizontalMap.length;
+		var horLen = horizontalMap.length;
+		var verLen = verticalMap.length;
 		
-		for (i in 0...len)
+		Assert.equal( horLen, verLen );
+		
+		for (i in 0...horLen)
 		{
 			var hChild = horizontalMap.getItemAt(i);
 			var vChild = verticalMap.getItemAt(i);
-			if (hChild != vChild) {
+			if (hChild != vChild)
+			{
+				trace("i: "+i+"; hor: "+hChild+"; ver: "+vChild);
 				trace(horizontalMap);
 				trace(verticalMap);
 				Assert.equal(hChild, vChild, "children at "+i+" should be equal");
 			}
 		}
+	}	
 #end
-	}
 	
 	
 	
@@ -379,13 +388,14 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	{
 		var w:Int = 0;
 		
-		if (group.children.length > 0) {
+		if (group.children.length > 0)
+		{
 			if (startDirection == Direction.horizontal) {
 				columns.validateHorizontal();
-				w = rows.width = columns.width;
+				w = rows.width.value = columns.width.value;
 			} else {
 				rows.validateHorizontal();
-				w = columns.width = rows.width;
+				w = columns.width.value = rows.width.value;
 			}
 		}
 		
@@ -396,14 +406,15 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	override public function validateVertical ()
 	{
 		var h:Int = 0;
-		if (group.children.length > 0) {
+		if (group.children.length > 0)
+		{
 			if (startDirection == Direction.horizontal) {
 				rows.validateVertical();
-				h = columns.height = rows.height;
+				h = columns.height.value = rows.height.value;
 			} else {
 				columns.validateVertical();
-				h = rows.height = columns.height;
-			}	
+				h = rows.height.value = columns.height.value;
+			}
 		}
 		
 		setGroupHeight(h);
@@ -418,6 +429,22 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 		}
 		
 		super.invalidate(shouldbeResetted);
+	}
+	
+	
+	override public function apply ()
+	{
+	/*	for (column in columns)
+			column.validated();
+		
+		for (row in rows)
+			row.validated();*/
+		
+		if (group.children.length > 0) {
+			columns.validated();
+			rows.validated();
+		}
+		validatePrepared = false;
 	}
 
 
@@ -439,6 +466,7 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 		}
 		else
 			 depth = horizontalMap.length;
+		
 		return depth;
 	}
 	
@@ -476,19 +504,17 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 		{
 			if (group != null)
 			{
+				Assert.that(v == null, "Group of FixedTileAlgorithm cannot be changed.");
 				if (rows != null	&& rows.padding == group.padding)		rows.padding = null;
 				if (columns != null && columns.padding == group.padding)	columns.padding = null;
 				
-				group.children.events.unbind(this);
+				group.children.change.unbind(this);
 			}
 			
 			v = super.setGroup(v);
 			
-			if (v != null) {
-				updateMapsAfterAdd		.on( group.children.events.added, this );
-				updateMapsAfterRemove	.on( group.children.events.removed, this );
-				updateMapsAfterMove		.on( group.children.events.moved, this );
-			}
+			if (v != null)
+				updateMapsAfterChange.on( group.children.change, this );
 		}
 		return v;
 	}

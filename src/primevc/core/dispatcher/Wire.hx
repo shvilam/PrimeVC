@@ -39,7 +39,7 @@ package primevc.core.dispatcher;
  * Implementation detail: Wires are added to a bounded freelist (max 256 free objects) to reduce garbage collector pressure.
  * This means you should never reuse a Wire after calling dispose() and/or after unbinding the handler from the signal (which returned this Wire).
  */
-class Wire <FunctionSignature> extends ListNode<Wire<FunctionSignature>>, implements IDisposable
+class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements IDisposable
 {
 	/** Wire.flags bit which tells if the Wire is isEnabled(). */
 	static public inline var ENABLED		= 1;
@@ -127,9 +127,9 @@ class Wire <FunctionSignature> extends ListNode<Wire<FunctionSignature>>, implem
 				++total;
 				x = x.n;
 			}
-			var isEnabled() = flags.has(ENABLED);
-			trace("Total: "+total+" ; Found: "+found + " ; Enabled: "+isEnabled());
-			Assert.that(isEnabled()? found == 1 : found == 0, "Found: "+found + " ; Enabled: "+isEnabled());
+			var isEnabled = flags.has(ENABLED);
+			trace("Total: "+total+" ; Found: "+found + " ; Enabled: "+isEnabled);
+			Assert.that(isEnabled ? found == 1 : found == 0, "Found: "+found + " ; Enabled: "+isEnabled);
 		}
 		#end
 		return flags.has(ENABLED);
@@ -149,7 +149,7 @@ class Wire <FunctionSignature> extends ListNode<Wire<FunctionSignature>>, implem
 	{
 		if (!isEnabled())
 		{
-			flags |= ENABLED;
+			flags = flags.set( ENABLED );
 			doEnable();
 		}
 	}
@@ -164,11 +164,11 @@ class Wire <FunctionSignature> extends ListNode<Wire<FunctionSignature>>, implem
 	
 	/** Disable propagation for the handler this link belongs too. Usefull to quickly (syntax and performance wise) temporarily disable a handler.
 		Adviced to use in classes which "in the usual way" would add and remove listeners alot. **/
-	public inline function disable()
+	public /*inline*/ function disable()
 	{
 		if (isEnabled())
 		{
-			flags ^= ENABLED;
+			flags = flags.unset( ENABLED );
 			
 			// Find LinkNode before this one
 			var x:ListNode<Wire<FunctionSignature>> = signal;
@@ -189,6 +189,7 @@ class Wire <FunctionSignature> extends ListNode<Wire<FunctionSignature>>, implem
 		
 		// Cleanup all connections
 		handler = owner = signal = null;
+		flags	= 0;
 		
 		var W = Wire;
 		if (W.freeCount != 256) {

@@ -36,8 +36,10 @@ package primevc.gui.display;
  import flash.text.TextFormat;
  import flash.text.TextLineMetrics;
 #end
+ import primevc.core.IBindable;
  import primevc.gui.events.TextEvents;
  import primevc.gui.traits.IInteractive;
+ import primevc.gui.traits.ITextStylable;
 
 
 /**
@@ -47,9 +49,20 @@ package primevc.gui.display;
 interface ITextField 
 		implements IDisplayObject	
 	,	implements IInteractive 
+	,	implements ITextStylable
 {
 	
-	public var textEvents			(default, null)	: TextEvents;
+	public var textEvents			(default, null)			: TextEvents;
+	
+	/**
+	 * The real text-value of the inputfield. The UITextField can apply a
+	 * text-transform on the 'text' property but it will leave the 'value' 
+	 * unchanged.
+	 * 
+	 * TODO: not implemented for the htmlText property
+	 */
+	public var data					(default, null)			: IBindable < String >;
+	public var value				(getValue, setValue)	: String;
 	
 	
 #if flash9
@@ -96,7 +109,7 @@ interface ITextField
 	// FONT FORMATTING
 	//
 	
-	public var defaultTextFormat					: TextFormat;
+//	public var defaultTextFormat					: TextFormat;
 	public var styleSheet							: StyleSheet;
 	public var textColor							: UInt;
 	public var thickness							: Float;
