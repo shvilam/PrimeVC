@@ -4,7 +4,7 @@
 
 IDisplayObject	{ shape: rectangle; visibility: visible; opacity: 1; }
 /*UITextField		{ color: #000; font: 14px Verdana; }*/
-UIWindow		{ overflow: hidden; algorithm: relative; }
+UIWindow		{ overflow: hidden; }
 ApplicationView	{ width: 100%; height: 100%; algorithm: float-ver( top, center ); }
 
 ListView		{ overflow: hidden; }

@@ -32,8 +32,6 @@ package primevc.core;
 
 
 /**
- * Class description
- * 
  * @author Ruben Weijers
  * @creation-date Jul 13, 2010
  */
@@ -93,21 +91,25 @@ class Application
 	
 	
 	#if (MonsterTrace && flash9)
-	
-		private static inline function getClassName (infos : haxe.PosInfos) : String {
+		static var monster = new nl.demonsters.debugger.MonsterDebugger(flash.Lib.current);
+		
+		
+		private static inline function getClassName (infos : haxe.PosInfos) : String
+		{
 			return infos.className.split(".").pop(); //infos.fileName;
 		}
 	
 	
-		private static inline function getTraceColor (name:String) : Int {
+		private static inline function getTraceColor (name:String) : Int
+		{
 			var length	= name.length; // - 3; // remove .hx
 			return name.charCodeAt(0) * name.charCodeAt( length >> 1 ) * name.charCodeAt( length - 1 );
 		}
-	
+		
 
-		static var monster = new nl.demonsters.debugger.MonsterDebugger(flash.Lib.current);
-
-		static function doTrace (v : Dynamic, ?infos : haxe.PosInfos) {
+		static function doTrace (v : Dynamic, ?infos : haxe.PosInfos)
+		{
+			monster = new nl.demonsters.debugger.MonsterDebugger(flash.Lib.current);
 			var name	= getClassName( infos );
 			var color	= getTraceColor( name );
 			nl.demonsters.debugger.MonsterDebugger.trace(name +':' + infos.lineNumber +'\t -> ' + infos.methodName, v, color);
