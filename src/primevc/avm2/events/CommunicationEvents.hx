@@ -26,24 +26,27 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.events;
- import primevc.core.dispatcher.Signal0;
- import primevc.core.dispatcher.Signals;
-
-
-typedef LoaderEvents = 
-	#if		flash9	primevc.avm2.events.LoaderEvents;
-	#elseif	flash8	primevc.avm1.events.LoaderEvents;
-	#elseif	js		primevc.js  .events.LoaderEvents;
-	#else	error	#end
+package primevc.avm2.events;
+private typedef ErrorSignal		= primevc.avm2.events.ErrorSignal;		// override import
+private typedef ProgressSignal	= primevc.avm2.events.ProgressSignal;	// override import
+ import flash.events.IEventDispatcher;
+ import flash.events.IOErrorEvent;
+ import flash.events.Event;
+ import flash.events.ProgressEvent;
+ import primevc.core.events.CommunicationEvents;
 
 
 /**
  * @author Ruben Weijers
  * @creation-date Nov 15, 2010
  */
-class LoaderSignals extends Signals
+class CommunicationEvents extends CommunicationSignals
 {
-	public var unloaded		(default, null)		: Signal0;
-	public var load			(default, null)		: CommunicationEvents;
+	public function new (target:IEventDispatcher)
+	{
+		started		= new FlashSignal0( target, 	Event.OPEN );
+		progress	= new ProgressSignal( target,	ProgressEvent.PROGRESS );
+		completed	= new FlashSignal0( target,		Event.COMPLETE );
+		error		= new ErrorSignal( target,		IOErrorEvent.IO_ERROR );
+	}
 }

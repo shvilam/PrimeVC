@@ -31,7 +31,7 @@ package primevc.core.collections;
  import primevc.core.collections.iterators.DoubleFastCellForwardIterator;
  import primevc.core.collections.iterators.DoubleFastCellReversedIterator;
  import primevc.core.collections.IList;
- import primevc.core.dispatcher.Signal1;
+ import primevc.core.events.ListChangeSignal;
   using primevc.utils.NumberMath;
  
 
@@ -46,7 +46,7 @@ package primevc.core.collections;
 class SimpleList < DataType > implements IList < DataType > 
 	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
-	public var change		(default, null)		: Signal1 < ListChange < DataType > >;
+	public var change		(default, null)		: ListChangeSignal < DataType >;
 	
 	private var _length		: Int;
 	public var length		(getLength, never)	: Int;
@@ -63,7 +63,7 @@ class SimpleList < DataType > implements IList < DataType >
 	public function new()
 	{
 		_length	= 0;
-		change	= new Signal1();
+		change	= new ListChangeSignal();
 	}
 	
 	

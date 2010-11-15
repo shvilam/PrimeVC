@@ -26,24 +26,14 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.events;
- import primevc.core.dispatcher.Signal0;
- import primevc.core.dispatcher.Signals;
-
-
-typedef LoaderEvents = 
-	#if		flash9	primevc.avm2.events.LoaderEvents;
-	#elseif	flash8	primevc.avm1.events.LoaderEvents;
-	#elseif	js		primevc.js  .events.LoaderEvents;
-	#else	error	#end
+package primevc.mvc;
 
 
 /**
  * @author Ruben Weijers
  * @creation-date Nov 15, 2010
  */
-class LoaderSignals extends Signals
+interface IView implements primevc.core.IDisposable
 {
-	public var unloaded		(default, null)		: Signal0;
-	public var load			(default, null)		: CommunicationEvents;
+	
 }

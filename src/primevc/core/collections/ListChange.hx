@@ -26,24 +26,20 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.events;
- import primevc.core.dispatcher.Signal0;
- import primevc.core.dispatcher.Signals;
+package primevc.core.collections;
 
 
-typedef LoaderEvents = 
-	#if		flash9	primevc.avm2.events.LoaderEvents;
-	#elseif	flash8	primevc.avm1.events.LoaderEvents;
-	#elseif	js		primevc.js  .events.LoaderEvents;
-	#else	error	#end
-
+typedef OldPos = Int;
+typedef NewPos = Int;
 
 /**
- * @author Ruben Weijers
- * @creation-date Nov 15, 2010
+ * @author			Ruben Weijers
+ * @creation-date	Oct 26, 2010
  */
-class LoaderSignals extends Signals
+enum ListChange <T>
 {
-	public var unloaded		(default, null)		: Signal0;
-	public var load			(default, null)		: CommunicationEvents;
+	added ( item:T, newPos:NewPos );
+	removed ( item:T, oldPos:OldPos );
+	moved ( item:T, newPos:NewPos, oldPos:OldPos );
+	reset;
 }

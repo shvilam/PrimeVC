@@ -198,9 +198,9 @@ class Bitmap
 			url		= v;
 #if flash9
 			loader	= new Loader();
-			disposeLoader.onceOn( loader.events.error, this );
-			handleLoadError.onceOn( loader.events.error, this );
-			setLoadedData.onceOn( loader.events.loaded, this );
+			disposeLoader.onceOn( loader.events.load.error, this );
+			handleLoadError.onceOn( loader.events.load.error, this );
+			setLoadedData.onceOn( loader.events.load.completed, this );
 #end
 		}
 	}

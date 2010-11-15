@@ -28,15 +28,15 @@ while getopts "s:tfd" OptionName
 done
 
 #StyleFolder="$PRJROOT/$STYLE"
-StyleInputFile="${StyleFolder}/Style.css"
-StyleOutputFile="${StyleFolder}/StyleSheet.hx"
+StyleInputFile="$StyleFolder/Style.css"
+StyleOutputFile="$StyleFolder/StyleSheet.hx"
 #ManifestFile="${StyleFolder}/manifest.xml"
 
 #echo "MainFile: ${MainFile}"
-echo -e "\tMain: ${MainClass}" &&
-echo -e "\tStyleInput: ${StyleInputFile}" &&
-echo -e "\tStyleOutput: ${StyleOutputFile}" &&
-#echo "Manifest: ${ManifestFile}" &&
+echo -e "\tMain: $MainClass" &&
+echo -e "\tStyleInput: $StyleInputFile" &&
+echo -e "\tStyleOutput: $StyleOutputFile" &&
+#echo "Manifest: $ManifestFile" &&
 echo -e "\tDebugging? ${Debug:-false}"
 
 CompilerUpdated=false

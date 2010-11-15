@@ -32,7 +32,6 @@ package primevc.gui.core;
 #end
  import primevc.core.geom.IntRectangle;
  import primevc.core.traits.IIdentifiable;
- import primevc.core.Application;
  import primevc.core.Bindable;
  import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
  import primevc.gui.behaviours.layout.WindowLayoutBehaviour;
@@ -101,9 +100,9 @@ class UIWindow extends Window
 	public var invalidationManager	(default, null)					: InvalidationManager;
 	
 	
-	public function new (target:Stage, app:Application)
+	public function new (target:Stage)
 	{
-		super(target, app);
+		super(target);
 		
 		id					= new Bindable<String>( #if debug "UIWindow" #end );
 		renderManager		= new RenderManager(this);
