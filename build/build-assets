@@ -4,7 +4,7 @@ BUILDSCRIPTDIR="`dirname $0`";
 PRIMEVC_ROOT="$BUILDSCRIPTDIR/.."
 
 if [[ ! -f "$PRIMEVC_ROOT/build/environment.sh" ]]; then
-	echo -e "\tThere's no environment file configured. Copy 'environment.sh.template' to 'environment.sh' and edit it."
+	echo -e "\tThere's no environment file: \"`cd $PRIMEVC_ROOT/build; pwd`/environment.sh\" configured. Copy 'environment.sh.template' to 'environment.sh' and edit it."
 	exit 1
 else
 	if [[ ! -f "$PRIMEVC_ROOT/assets/debug-assets.swf" ]]  ||  test "$PRIMEVC_ROOT/assets/DebugAssets.as" -nt "$PRIMEVC_ROOT/assets/debug-assets.swf"  ||  test "$PRIMEVC_ROOT/assets/Assets.as" -nt "$PRIMEVC_ROOT/assets/assets.swf"; then

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-DIR="`pwd`"
 BUILDSCRIPTDIR="`dirname $0`";
 PRIMEVC_ROOT="${BUILDSCRIPTDIR}/.."
 
@@ -53,24 +52,22 @@ echo -e "\n\n==================== BUILD${Debug:+ DEBUG} ====================" &&
 if [[ ${MainClass} == "" ]] ; then
 	echo "Error: Mainclass is not specified"
 else
-	echo -e "\tMain: $MainClass" &&
-	echo -e "\tStyle: $STYLEDIR" &&
-	echo -e "\tDebugging: ${Debug:-false}" &&
-	echo -e "\tAssets: $ASSETS" &&
-	echo -e "\tProject: $PRJROOT" &&
-	echo -e "\tOutput: $OUTPUT" &&
-	echo -e "\tPrimeVC: $PRIMEVC_ROOT" &&
+	echo -e "\tMain: $MainClass"
+	echo -e "\tStyle: $STYLEDIR"
+	echo -e "\tDebugging: ${Debug:-false}"
+	echo -e "\tAssets: $ASSETS"
+	echo -e "\tProject: $PRJROOT"
+	echo -e "\tOutput: $OUTPUT"
+	echo -e "\tPrimeVC: $PRIMEVC_ROOT"
 	
-	echo "1. BUILDING ASSETS" &&
-	bash build/build-assets &&
+	echo "1. BUILDING ASSETS"
+	bash build/build-assets || exit 1;
 	
+	echo -e "\n2. BUILDING STYLES"
+	bash build/build-styles -s "${STYLEDIR}" ${Debug:+-d} ${Force:+-f} || exit 1;
 	
-	echo -e "\n2. BUILDING STYLES" &&
-	bash build/build-styles -s "${STYLEDIR}" ${Debug:+-d} ${Force:+-f} &&
-	
-	
-	echo -e "\n3. COMPILING SWF" &&
-#	echo "${PRIMEVC_ROOT}/build/build.hxml -swf $OUTPUT -main $MainClass ${Debug:---no-traces} -cp "${PRJROOT}/src" -cp ${STYLEDIR} -swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR $ASSETS $EXTRA" &&
+	echo -e "\n3. COMPILING SWF"
+#		echo "${PRIMEVC_ROOT}/build/build.hxml -swf $OUTPUT -main $MainClass ${Debug:---no-traces} -cp "${PRJROOT}/src" -cp ${STYLEDIR} -swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR $ASSETS $EXTRA" &&
 	haxe build/build.hxml \
 		-swf "$OUTPUT" \
 		${Debug:---no-traces} \
@@ -79,9 +76,8 @@ else
 		-main $MainClass \
 		-swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR \
 		${ASSETS:+-swf-lib} "$ASSETS" \
-		-swf-lib assets/${Debug:+debug-}assets.swf
-		$EXTRA && # -cp tests
-	
+		-swf-lib assets/${Debug:+debug-}assets.swf \
+		$EXTRA || exit 1;
 	
 	if (set -u; : $Debug) 2> /dev/null ; then
 		#mv ${PRIMEVC_ROOT}/tmp.swf ${PRIMEVC_ROOT}/bin-debug/app.swf &&
@@ -92,5 +88,3 @@ else
 		open "$OUTPUT"
 	fi;
 fi;
-
-cd "$DIR";
