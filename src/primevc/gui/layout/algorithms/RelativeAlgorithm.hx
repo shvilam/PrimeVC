@@ -143,6 +143,11 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 			else if (childProps.bottom.isSet())		child.outerBounds.bottom	= group.innerBounds.height - padding.bottom - childProps.bottom;
 			else if (childProps.vCenter.isSet())	child.outerBounds.top		= Std.int( ( group.innerBounds.height - child.outerBounds.height ) * .5 );
 			
+			if (childProps.vCenter.isSet())
+			{
+				
+			}
+			
 			if (mostLeftVal.notSet() || child.outerBounds.left < mostLeftVal)	mostLeftVal		= child.outerBounds.left;
 			if (mostTopVal.notSet() || child.outerBounds.top < mostTopVal)		mostTopVal		= child.outerBounds.top;
 			if (child.outerBounds.right > mostRightVal)							mostRightVal	= child.outerBounds.right;

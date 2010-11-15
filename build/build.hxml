@@ -2,9 +2,9 @@
 
 -D Full
 #-D stats
-#-D network-sandbox
+-D network-sandbox
 #-D FlashTrace
-#-D MonsterTrace
+-D MonsterTrace
 #-D unitTesting
 #-D DebugEvents
 

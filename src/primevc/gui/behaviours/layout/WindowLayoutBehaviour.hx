@@ -85,7 +85,7 @@ class WindowLayoutBehaviour extends ValidatingBehaviour < UIWindow >
 	private function updateBgSize ()
 	{
 		var l = target.layout;
-		trace(target+".updateBgSize "+l.outerBounds);
+	//	trace(target+".updateBgSize "+l.outerBounds);
 	/*	if (!target.graphicData.isEmpty())
 		{
 			target.bgShape.width	= l.width.value;

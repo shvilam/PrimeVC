@@ -78,6 +78,7 @@ else
 		-main $MainClass \
 		-swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR \
 		$ASSETS \
+		-swf-lib assets/${Debug:+debug-}assets.swf
 		$EXTRA && # -cp tests
 	
 	

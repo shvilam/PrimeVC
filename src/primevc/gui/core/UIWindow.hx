@@ -41,7 +41,7 @@ package primevc.gui.core;
  import primevc.gui.display.Stage;
  import primevc.gui.display.Window;
  import primevc.gui.graphics.GraphicProperties;
-// import primevc.gui.layout.algorithms.RelativeAlgorithm;
+ import primevc.gui.layout.algorithms.RelativeAlgorithm;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.managers.InvalidationManager;
@@ -118,7 +118,6 @@ class UIWindow extends Window
 		stylingEnabled		= true;
 #end
 		
-		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
 		behaviours.add( new WindowLayoutBehaviour(this) );
 		behaviours.add( new RenderGraphicsBehaviour(this) );
 		
@@ -182,7 +181,7 @@ class UIWindow extends Window
 	{
 		layout =	#if flash9	new primevc.avm2.layout.StageLayout( target );
 					#else		new LayoutContainer();	#end
-	//	layoutContainer.algorithm = new RelativeAlgorithm();
+		layoutContainer.algorithm = new RelativeAlgorithm();
 	}
 	
 	
@@ -190,7 +189,12 @@ class UIWindow extends Window
 	// ABSTRACT METHODS
 	//
 	
-	private function createBehaviours ()	: Void;
+	private function createBehaviours ()	: Void
+	{
+		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
+	}
+	
+	
 	private function createChildren ()		: Void;
 	
 	
