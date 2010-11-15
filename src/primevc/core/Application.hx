@@ -57,11 +57,8 @@ class Application
 		if (windowClass == null)		windowClass			= Window;
 		if (applicationClass == null)	applicationClass	= Application;
 		
-#if debug
-	#if (MonsterTrace && flash9)
+#if (debug && MonsterTrace && flash9)
 		haxe.Log.trace	= doTrace;
-	#end
-		trace("started " + applicationClass + ", "+windowClass+".");
 #end
 		
 #if flash9
@@ -74,8 +71,11 @@ class Application
 
 #if debug
 		app.clearTraces = 
-			#if MonsterTrace	nl.demonsters.debugger.MonsterDebugger.clearTraces;
-			#else				haxe.Log.clear;	#end
+			#if (MonsterTrace && flash9)	nl.demonsters.debugger.MonsterDebugger.clearTraces;
+			#else							haxe.Log.clear;	#end
+		
+		app.clearTraces();
+		trace("started " + applicationClass + ", "+windowClass+".");
 #end
 	}
 	

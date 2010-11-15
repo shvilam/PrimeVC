@@ -2379,6 +2379,12 @@ class CSSParser
 	{
 		var w:Int = parseUnitInt(v);
 		
+		if (isNone(v))
+		{
+			currentBlock.layout.width			= Number.EMPTY;
+			currentBlock.layout.percentWidth	= Number.EMPTY;
+		}
+		
 		if (w.isSet())
 		{
 			createLayoutBlock();
@@ -3099,11 +3105,16 @@ class CSSParser
 		}
 		
 		//match filter type
-		if (isValid && filterTypeExpr.match(v))
+		if (isValid)
 		{
-			var tStr	= filterTypeExpr.matched(1);
-			f.type		= parseFilterType(tStr); 
-			v			= filterTypeExpr.removeMatch(v);
+			if (filterTypeExpr.match(v))
+			{
+				var tStr	= filterTypeExpr.matched(1);
+				f.type		= parseFilterType(tStr); 
+				v			= filterTypeExpr.removeMatch(v);
+			}
+			else
+				f.type		= BitmapFilterType.OUTER;
 		}
 		
 		//match knockout bool

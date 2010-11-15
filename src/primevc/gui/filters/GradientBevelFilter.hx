@@ -67,10 +67,17 @@ class GradientBevelFilter extends BitmapFilter
 
 
 	public function new (
-				distance:Float = 4.0, angle:Float = 45, 
-				colors:Array < UInt > = null, alphas:Array < Float > = null, ratios:Array < Int > = null,
-				blurX:Float = 4.0, blurY:Float = 4.0, strength:Float = 1.0, quality:Int = 1, 
-				type = null, knockout:Bool = false
+				distance:Float = 4.0,
+				angle:Float = 45, 
+				colors:Array < UInt > = null,
+				alphas:Array < Float > = null,
+				ratios:Array < Int > = null,
+				blurX:Float = 4.0,
+				blurY:Float = 4.0,
+				strength:Float = 1.0,
+				quality:Int = 1, 
+				type:BitmapFilterType = null,
+				knockout:Bool = false
 			)
 	{
 		super();
@@ -102,7 +109,7 @@ class GradientBevelFilter extends BitmapFilter
 			css.push( Color.create().setRgb( colors[i] ).setAlpha( alphas[i].uint() ).string() + " " + ratios[i] );
 		
 		if (knockout)	css.push("knockout");
-
+		
 		css.push ( switch (type) {
 			case INNER:	"inner";
 			case OUTER:	"outer";
