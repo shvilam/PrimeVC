@@ -44,6 +44,7 @@ if [[ ! -d $OUTPUTDIR ]] ; then
 fi;
 
 
+#ls $PRIMEVC_ROOT &&
 cd $PRIMEVC_ROOT &&
 
 echo -e "\n\n==================== BUILD${Debug:+ DEBUG} ====================" &&
@@ -57,21 +58,19 @@ else
 	echo -e "\tAssets: $ASSETS" &&
 	echo -e "\tProject: $PRJROOT" &&
 	echo -e "\tOutput: $OUTPUT" &&
+	echo -e "\tPrimeVC: $PRIMEVC_ROOT" &&
 	
 	echo "1. BUILDING ASSETS" &&
-	bash ${PRIMEVC_ROOT}/build/build-assets &&
+	bash build/build-assets &&
 	
 	
 	echo -e "\n2. BUILDING STYLES" &&
-	bash $PRIMEVC_ROOT/build/build-styles -s ${STYLEDIR} ${Debug:+-d} ${Force:+-f} &&
+	bash build/build-styles -s ${STYLEDIR} ${Debug:+-d} ${Force:+-f} &&
 	
 	
 	echo -e "\n3. COMPILING SWF" &&
-#	mkdir -p "${PRIMEVC_ROOT}/bin-debug" &&
-	
-	
 #	echo "${PRIMEVC_ROOT}/build/build.hxml -swf $OUTPUT -main $MainClass ${Debug:---no-traces} -cp "${PRJROOT}/src" -cp ${STYLEDIR} -swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR $ASSETS $EXTRA" &&
-	haxe ${PRIMEVC_ROOT}/build/build.hxml \
+	haxe build/build.hxml \
 		-swf $OUTPUT \
 		${Debug:---no-traces} \
 		-cp "${PRJROOT}/src" \
@@ -87,7 +86,7 @@ else
 		open $OUTPUT
 	else
 		echo -e "\n4. OPTIMIZING BUILD" &&
-		bash ${PRIMEVC_ROOT}/build/optimize-build $OUTPUT &&
+		bash build/optimize-build $OUTPUT &&
 		open $OUTPUT
 	fi;
 fi;
