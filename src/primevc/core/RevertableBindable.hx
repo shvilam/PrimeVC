@@ -33,6 +33,7 @@ package primevc.core;
  import haxe.FastList;
   using primevc.utils.BitUtil;
 
+
 /**
  * A Bindable that keeps a copy of its value when entering edit-mode:
  * using beginEdit(), and reverts to it when editing is cancelled by calling
@@ -72,7 +73,7 @@ class RevertableBindable <DataType> extends Bindable<DataType>//, implements hax
 	public function set(newValue:DataType) : Void
 	{
 		var f	 = flags;
-		flags	|= IN_EDITMODE;
+		flags	|= RevertableBindableFlags.IN_EDITMODE;
 		value	 = newValue;
 		flags	 = f;
 	}
@@ -100,11 +101,12 @@ class RevertableBindable <DataType> extends Bindable<DataType>//, implements hax
 		else
 	*/		f |= RevertableBindableFlags.IS_VALID;
 		
-		this.flags = f;
-		this.value = newValue;
+		this.flags	= f;
+		var oldV	= this.value;
+		this.value	= newValue;
 		
 		if (RevertableBindableFlags.shouldSignal(f))
-			change.send(newValue);
+			change.send(newValue, oldV);
 		
 		if (RevertableBindableFlags.shouldUpdateBindings(f))
 			BindableTools.dispatchValueToBound(writeTo, newValue);
@@ -133,10 +135,10 @@ class RevertableBindable <DataType> extends Bindable<DataType>//, implements hax
 		if (flags & (MAKE_SHADOW_COPY | RevertableBindableFlags.DISPATCH_CHANGES_BEFORE_COMMIT | RevertableBindableFlags.UPDATE_BINDINGS_BEFORE_COMMIT)
 		    - MAKE_SHADOW_COPY > 0)
 		{
-			if (flags.hasNot(RevertableBindableFlags.DISPATCH_CHANGES_BEFORE_COMMIT))
-				change.send(value);
+			if (flags.hasNone(RevertableBindableFlags.DISPATCH_CHANGES_BEFORE_COMMIT))
+				change.send(value, shadowValue);
 			
-			if (flags.hasNot(RevertableBindableFlags.UPDATE_BINDINGS_BEFORE_COMMIT))
+			if (flags.hasNone(RevertableBindableFlags.UPDATE_BINDINGS_BEFORE_COMMIT))
 				BindableTools.dispatchValueToBound(writeTo, value);
 		}
 		flags = flags.unset(RevertableBindableFlags.IN_EDITMODE | MAKE_SHADOW_COPY);
@@ -149,7 +151,7 @@ class RevertableBindable <DataType> extends Bindable<DataType>//, implements hax
 	{
 		if (flags.has(RevertableBindableFlags.IN_EDITMODE))
 		{
-			if (flags.hasNot(MAKE_SHADOW_COPY)) // value was changed
+			if (flags.hasNone(MAKE_SHADOW_COPY)) // value was changed
 				setValue(shadowValue);
 			
 			flags = flags.unset(RevertableBindableFlags.IN_EDITMODE | MAKE_SHADOW_COPY);

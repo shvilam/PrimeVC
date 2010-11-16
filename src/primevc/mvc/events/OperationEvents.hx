@@ -24,24 +24,48 @@
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.dispatcher;
- import primevc.core.IDisposable;
+package primevc.mvc.events;
+ import primevc.core.dispatcher.Signal0;
+ import primevc.core.dispatcher.Signal1;
+ import primevc.core.dispatcher.Signal2;
+ import primevc.core.events.CommunicationEvents;
 
 
 /**
- * An INotifier calls message handlers of type <FunctionSignature> that are registered using bind().
- * INotifier is Observable aswell.
+ * OperationEvents are used to start/stop operations and track the progress of
+ * the operations.
  * 
- * @see Observable
- * @author Danny Wilson
- * @creation-date Jun 09, 2010
+ * @author Ruben Weijers
+ * @creation-date Nov 16, 2010
  */
-interface INotifier <FunctionSignature> implements IUnbindable <FunctionSignature>, implements IDisposable
+class OperationEvents <DataType> extends CommunicationSignals
 {
-	public function observe		(owner:Dynamic, handler:Void->Void)			: Wire<FunctionSignature>;
-	public function observeOnce	(owner:Dynamic, handler:Void->Void)			: Wire<FunctionSignature>;
-	public function bind		(owner:Dynamic, handler:FunctionSignature)	: Wire<FunctionSignature>;
-	public function bindOnce	(owner:Dynamic, handler:FunctionSignature)	: Wire<FunctionSignature>;
+	public var start	(default, null)		: Signal1 < DataType >;
+	public var stop		(default, null)		: Signal0;
+	
+	public function new ()
+	{
+		start		= new Signal1();
+		stop		= new Signal0();
+		started		= new Signal0();
+		progress	= new Signal2();
+		completed	= new Signal0();
+		error		= new Signal1();
+	}
+	
+	
+	override public function dispose ()
+	{
+		start.dispose();
+		stop.dispose();
+		started.dispose();
+		progress.dispose();
+		completed.dispose();
+		error.dispose();
+		
+		start = null;
+		stop = started = completed = null;
+	}
 }
