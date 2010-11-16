@@ -1,7 +1,7 @@
 #!/bin/bash
 # script to build and run the css-parser
 
-BUILDSCRIPTDIR="`dirname $0`";
+BUILDSCRIPTDIR="`dirname "$0"`";
 PRIMEVC_ROOT="${BUILDSCRIPTDIR}/.."
 #PRJROOT=${PRIMEVC_ROOT}
 

@@ -1,6 +1,6 @@
 #!bash
 
-BUILDSCRIPTDIR="`dirname $0`";
+BUILDSCRIPTDIR="`dirname "$0"`";
 PRIMEVC_ROOT="$BUILDSCRIPTDIR/.."
 
 if [[ ! -f "$PRIMEVC_ROOT/build/environment.sh" ]]; then

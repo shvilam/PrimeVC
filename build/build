@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BUILDSCRIPTDIR="`dirname $0`";
+BUILDSCRIPTDIR="`dirname "$0"`";
 PRIMEVC_ROOT="${BUILDSCRIPTDIR}/.."
 
 PRJROOT="${PRIMEVC_ROOT}"
@@ -45,7 +45,7 @@ fi;
 
 
 #ls $PRIMEVC_ROOT &&
-cd $PRIMEVC_ROOT &&
+cd "$PRIMEVC_ROOT" &&
 
 echo -e "\n\n==================== BUILD${Debug:+ DEBUG} ====================" &&
 
