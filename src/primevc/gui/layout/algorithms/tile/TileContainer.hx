@@ -27,8 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms.tile;
- import primevc.core.collections.IList;
  import primevc.core.collections.ArrayList;
+ import primevc.core.collections.IList;
+ import primevc.core.collections.ListChange;
  import primevc.core.traits.IInvalidatable;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.ILayoutContainer;

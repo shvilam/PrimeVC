@@ -177,7 +177,7 @@ class Bitmap
 	// IMAGE LOAD METHODS
 	//
 	
-	public inline function loadUrl (v:URL)
+	public inline function loadUrl (v:URI)
 	{
 		loadString( v.toString() );
 	}
@@ -325,7 +325,7 @@ class Bitmap
 	// IMAGE CREATE METHODS
 	//
 	
-	public static inline function fromUrl (v:URL) : Bitmap
+	public static inline function fromUrl (v:URI) : Bitmap
 	{
 		var b = new Bitmap();
 		b.loadUrl(v);

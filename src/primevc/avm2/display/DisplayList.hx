@@ -31,7 +31,8 @@ package primevc.avm2.display;
  import flash.display.DisplayObject;
  import primevc.core.collections.iterators.IIterator;
  import primevc.core.collections.IList;
- import primevc.core.dispatcher.Signal1;
+ import primevc.core.collections.ListChange;
+ import primevc.core.events.ListChangeSignal;
  import primevc.core.IDisposable;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
@@ -63,7 +64,7 @@ class DisplayList implements IList <ChildType>
 	 */
 	public var owner		(default, null)				: IDisplayContainer;
 	
-	public var change		(default, null)				: Signal1 < ListChange < ChildType > >;
+	public var change		(default, null)				: ListChangeSignal < ChildType >;
 	public var length		(getLength, never)			: Int;
 	
 	/**
@@ -88,7 +89,7 @@ class DisplayList implements IList <ChildType>
 		
 		this.target		= target;
 		this.owner		= owner;
-		change			= new Signal1();
+		change			= new ListChangeSignal();
 		tabEnabled		= target.tabChildren;
 		mouseEnabled	= target.mouseChildren;
 	}

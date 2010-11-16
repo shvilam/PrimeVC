@@ -28,10 +28,6 @@
  */
 package primevc.types;
 
-/**
- *  http://en.wikipedia.org/wiki/URI_scheme
- *  
- */
 enum URIScheme
 {
 	http;
@@ -42,23 +38,33 @@ enum URIScheme
 }
 
 /**
- * Type which stores a URL
- * - http://en.wikipedia.org/wiki/URL
+ * A URI is a uniform resource <i>identifier</i> while a URL is a uniform
+ * resource <i>locator</i>.  Hence every URL is a URI, abstractly speaking, but
+ * not every URI is a URL.  This is because there is another subcategory of
+ * URIs, uniform resource <i>names</i> (URNs), which name resources but do not
+ * specify how to locate them.
+ *  
+ * A URL must be absolute, that is, it must always specify a scheme.
+ * A URL string is parsed according to its scheme.
+ *  
+ *  http://en.wikipedia.org/wiki/URI_scheme
+ *  
+ *  Ook interessant: http://www.php.net/manual/en/function.parse-url.php#90365
  */
-class URL
+class URI
 {
 #if debug
 	static function __init__()
 	{
-		var u = new URL();
-		var mailURL = "mailto:mediahuis@test.nl?subject=Een onvergetelijke kerst";
+		var u = new URI();
+		var mailURI = "mailto:mediahuis@tntpost.nl?subject=Een onvergetelijke kerst";
 		
-		u.parse(mailURL);
+		u.parse(mailURI);
 		Assert.that(u.scheme == mailto,  u.string);
 		Assert.that(u.userinfo == "mediahuis",  u.userinfo);
-		Assert.that(u.host == "test.nl",  u.host);
+		Assert.that(u.host == "tntpost.nl",  u.host);
 		Assert.that(u.query == "subject=Een onvergetelijke kerst",  u.query);
-		Assert.that(u.string == mailURL, u.string);
+		Assert.that(u.string == mailURI, u.string);
 		
 		u.parse("http://decube.net/a");
 		Assert.that(u.scheme == http, u.string);
@@ -102,12 +108,13 @@ class URL
 	private inline function setQuery(v)		{ string = null; return query = v; }
 	private inline function setFragment(v)	{ string = null; return fragment = v; }
 
+	/** Returns true if this URI has a scheme and thus is a URL **/
+	public function isURL() return scheme != null
 	
-	/**
-	 * Returns the string after the last dot in the path.
-	 * Returns an empty string if it has no dots in the path.
-	 * Returns empty string if the first char is a dot and there are no other dots (UNIX hidden file convention).
-	 */
+	/** Returns the string after the last dot in the path.
+	 	Returns an empty string if it has no dots in the path.
+	 	Returns empty string if the first char is a dot and there are no other dots (UNIX hidden file convention).
+	*/
 	public var fileExt	(getFileExt,setFileExt): String;
 		private inline function getFileExt() : String {
 			if (path == null) return "";
@@ -178,13 +185,13 @@ class URL
 		return string = s.toString();
 	}
 	
-#if flash9
-	public inline function toRequest() {
+	#if flash9
+	public function toRequest() {
 		return new flash.net.URLRequest(this.string);
 	}
-#end
+	#end
 	
-	public function parse(str:String) : URL
+	public function parse(str:String) : URI
 	{
 		if (str == null) return this;
 		

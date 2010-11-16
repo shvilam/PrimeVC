@@ -30,7 +30,7 @@ package primevc.gui.styling;
 
 #if flash9
  import primevc.core.collections.DoubleFastCell;
- import primevc.core.collections.IList;
+ import primevc.core.collections.ListChange;
  import primevc.core.collections.PriorityList;
  import primevc.core.dispatcher.Signal0;
  import primevc.core.dispatcher.Wire;
