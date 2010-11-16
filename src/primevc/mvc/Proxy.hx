@@ -29,6 +29,7 @@
 package primevc.mvc;
  import primevc.mvc.traits.IValueObject;
 
+
 /**
  * A Proxy manages a portion of the Model. Usually it manages a single value-object.
  * It exposes methods and properties to allow other MVC-actors to manipulate it.

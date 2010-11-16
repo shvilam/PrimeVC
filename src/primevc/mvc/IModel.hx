@@ -24,33 +24,16 @@
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.mvc;
- import primevc.gui.display.Sprite;
+
 
 /**
- * Base View class
- * 
- * TODO: ..document
- * 
- * @author Danny Wilson
- * @creation-date Jun 22, 2010
+ * @author Ruben Weijers
+ * @creation-date Nov 15, 2010
  */
-class View implements primevc.core.IDisposable 
+interface IModel
 {
-	var target : Sprite;
 	
-	public function new (sprite:Sprite)
-	{
-		target = sprite;
-	}
-	
-	public function dispose()
-	{
-		if (target == null) return; // already disposed
-		
-		target.dispose();
-		target = null;
-	}
 }

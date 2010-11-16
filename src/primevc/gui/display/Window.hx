@@ -27,7 +27,6 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.display;
- import primevc.core.Application;	
 #if (flash8 || flash9 || js)
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEvents;
@@ -49,7 +48,31 @@ class Window
 	,	implements IInteractive
 {
 	
-	public var application		(default, null)			: Application;
+#if (flash9 && debug)
+	public static function __init__ ()
+	{
+	#if MonsterTrace
+		var monster		= new nl.demonsters.debugger.MonsterDebugger(flash.Lib.current);
+		haxe.Log.trace	= primevc.utils.MonsterTrace.trace;
+		haxe.Log.clear	= nl.demonsters.debugger.MonsterDebugger.clearTraces;
+	#end
+		haxe.Log.clear();
+	}	
+#end
+	
+	
+	public static function startup (windowClass:Class<Window>) : Window
+	{
+		var stage:Stage = null;
+		
+#if flash9
+		stage = flash.Lib.current.stage;
+		stage.scaleMode	= flash.display.StageScaleMode.NO_SCALE;
+#end		
+		trace("started " + windowClass);
+		return Type.createInstance( windowClass, [ stage ] );
+	}
+	
 	
 	//
 	// IDISPLAYCONTAINER PROPERTIES
@@ -75,12 +98,11 @@ class Window
 	public var mouse			(default, null)			: Mouse;
 	
 	
-	public function new (target:Stage, app:Application)
+	public function new (target:Stage)
 	{
 		this.target		= target;
 		window			= this;
 		container		= this;
-		application		= app;
 		
 		children		= new DisplayList( target, this );
 		displayEvents	= new DisplayEvents( target );
@@ -140,13 +162,6 @@ class Window
 #else
 class Window implements IDisplayContainer
 {
-	public var application		(default, null) : Application;
-	
-	
-	public function new (app:Application)
-	{
-		application = app;
-	}
-	
+	public function new () {}
 }
 #end

@@ -28,6 +28,7 @@
  */
 package primevc.gui.components;
  import primevc.core.collections.IList;
+ import primevc.core.collections.ListChange;
  import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
  import primevc.gui.core.IUIDataComponent;
  import primevc.gui.core.UIDataContainer;

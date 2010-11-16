@@ -36,6 +36,7 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.core.collections.ChainedList;
  import primevc.core.collections.IList;
  import primevc.core.collections.IListCollection;
+ import primevc.core.collections.ListChange;
  import primevc.core.geom.space.Direction;
  import primevc.core.geom.space.Horizontal;
  import primevc.core.geom.space.Vertical;

@@ -30,7 +30,7 @@ package primevc.avm2.net;
  import flash.net.URLLoaderDataFormat;
  import primevc.core.events.LoaderEvents;
  import primevc.core.IDisposable;
- import primevc.types.URL;
+ import primevc.types.URI;
 
 
 /**
@@ -51,7 +51,7 @@ class URLLoader implements IDisposable
 	private var loader		: flash.net.URLLoader;
 	
 	
-	public function new (?url:URL)
+	public function new (?url:URI)
 	{	
 		loader	= new flash.net.URLLoader();
 		events	= new LoaderEvents(loader);
@@ -71,7 +71,7 @@ class URLLoader implements IDisposable
 	
 	
 	
-	public inline function load (v:URL)				{ return loader.load(v.toRequest()); }
+	public inline function load (v:URI)				{ return loader.load(v.toRequest()); }
 	public inline function close ()					{ return loader.close(); }
 	
 	

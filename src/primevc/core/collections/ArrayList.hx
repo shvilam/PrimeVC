@@ -31,32 +31,27 @@ package primevc.core.collections;
  import primevc.core.collections.iterators.FastArrayReversedIterator;
  import primevc.core.collections.iterators.IIterator;
  import primevc.core.collections.IList;
- import primevc.core.dispatcher.Signal1;
+ import primevc.core.events.ListChangeSignal;
  import primevc.utils.FastArray;
   using primevc.utils.FastArray;
  
 
 /**
- * Description
- * 
  * @creation-date	Jun 29, 2010
  * @author			Ruben Weijers
  */
 class ArrayList <DataType> implements IList <DataType>
 	#if flash9	,	implements haxe.rtti.Generic #end
 {
-	public var change		(default, null)		: Signal1 < ListChange< DataType > >;
+	public var change		(default, null)		: ListChangeSignal < DataType >;
 	private var list		(default, null)		: FastArray < DataType >;
 	public var length		(getLength, never)	: Int;
 	
 	
-	public function new( ?wrapAroundList:FastArray < DataType > )
+	public function new( ?wrapAroundList:FastArray<DataType> )
 	{
-		change = new Signal1();
-		if (wrapAroundList != null)
-			list = wrapAroundList;
-		else
-			list = FastArrayUtil.create();
+		change	= new ListChangeSignal();
+		list	= wrapAroundList != null	? wrapAroundList : FastArrayUtil.create();
 	}
 	
 	

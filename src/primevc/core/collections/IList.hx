@@ -31,22 +31,6 @@ package primevc.core.collections;
  import primevc.core.dispatcher.Signal1;
  import primevc.core.traits.IClonable;
  import primevc.core.IDisposable;
-
-
-typedef OldPos = Int;
-typedef NewPos = Int;
-
-/**
- * @author			Ruben Weijers
- * @creation-date	Oct 26, 2010
- */
-enum ListChange <T>
-{
-	added ( item:T, newPos:NewPos );
-	removed ( item:T, oldPos:OldPos );
-	moved ( item:T, newPos:NewPos, oldPos:OldPos );
-	reset;
-}
  
 
 /**
@@ -114,8 +98,8 @@ interface IList <DataType>
 	// ITERATION METHODS
 	//
 	
-	public function getItemAt (pos:Int)			: DataType;
-	public function iterator ()					: Iterator <DataType>;
+	public function getItemAt (pos:Int)		: DataType;
+	public function iterator ()				: Iterator <DataType>;
 	public function forwardIterator ()		: IIterator <DataType>;
 	public function reversedIterator ()		: IIterator <DataType>;
 	

@@ -14,19 +14,19 @@ FPS=31
 BGCOLOR=FFFFFF
 
 #parse arguments
-while getopts "m:nc:ds:tw:uh:io:qp:re:zdf" OptionName
+while getopts "m:nc:bs:tw:uh:io:qp:re:zdf" OptionName
 	do
 		case $OptionName in
 			m ) MainClass=${OPTARG};;	#main class
 			c ) BGCOLOR=${OPTARG};;		#background color
 			s ) STYLE=${OPTARG};;		#style name
-			d ) Debug="-debug";;		#compile cssparser and application in debugmode
-			f ) Force=true;;			#force recompilation of css parser
 			w ) WIDTH=${OPTARG};;		#width
 			h ) HEIGHT=${OPTARG};;		#height
 			o ) OUTPUT=${OPTARG};;		#output filename
 			p ) PRJROOT=${OPTARG};;		#project root (used for styles)
-			e ) EXTRA=${OPTARGS};;		#extra compiler options
+			e ) EXTRA=${OPTARG};;		#extra compiler options
+			d ) Debug="-debug";;		#compile cssparser and application in debugmode
+			f ) Force=true;;			#force recompilation of css parser
 	esac
 done
 
@@ -59,6 +59,7 @@ else
 	echo -e "\tProject: $PRJROOT"
 	echo -e "\tOutput: $OUTPUT"
 	echo -e "\tPrimeVC: $PRIMEVC_ROOT"
+	echo -e "\tExtra: ${EXTRA:-"no extra's"}"
 	
 	echo "1. BUILDING ASSETS"
 	bash build/build-assets || exit 1;
@@ -67,17 +68,18 @@ else
 	bash build/build-styles -s "${STYLEDIR}" ${Debug:+-d} ${Force:+-f} || exit 1;
 	
 	echo -e "\n3. COMPILING SWF"
-#		echo "${PRIMEVC_ROOT}/build/build.hxml -swf $OUTPUT -main $MainClass ${Debug:---no-traces} -cp "${PRJROOT}/src" -cp ${STYLEDIR} -swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR $ASSETS $EXTRA" &&
+	echo -e "\t\tbuild/build.hxml ${Debug:---no-traces} \n\t\t\t-swf \042$OUTPUT\042 \n\t\t\t-cp \042$PRJROOT/src\042 \n\t\t\t-cp \042$STYLEDIR\042 ${EXTRA:+\n\t\t\t}$EXTRA \n\t\t\t-cp \042$PRJROOT/shared/generated-src/haxe\042 \n\t\t\t-main $MainClass \n\t\t\t-swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR \n\t\t\t${ASSETS:+-swf-lib} $ASSETS \n\t\t\t-swf-lib \042assets/${Debug:+debug-}assets.swf\042" &&
 	haxe build/build.hxml \
 		-swf "$OUTPUT" \
 		${Debug:---no-traces} \
-		-cp "${PRJROOT}/src" \
-		-cp "${STYLEDIR}" \
+		$EXTRA \
+		-cp "$PRJROOT/src" \
+		-cp "$STYLEDIR" \
 		-main $MainClass \
 		-swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR \
 		${ASSETS:+-swf-lib} "$ASSETS" \
-		-swf-lib assets/${Debug:+debug-}assets.swf \
-		$EXTRA || exit 1;
+		-swf-lib "assets/${Debug:+debug-}assets.swf" \
+		 	|| exit 1;
 	
 	if (set -u; : $Debug) 2> /dev/null ; then
 		#mv ${PRIMEVC_ROOT}/tmp.swf ${PRIMEVC_ROOT}/bin-debug/app.swf &&

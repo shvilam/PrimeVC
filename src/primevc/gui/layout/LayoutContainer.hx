@@ -29,6 +29,7 @@
 package primevc.gui.layout;
  import primevc.core.collections.ArrayList;
  import primevc.core.collections.IList;
+ import primevc.core.collections.ListChange;
  import primevc.core.geom.BindablePoint;
  import primevc.core.geom.Box;
  import primevc.core.geom.IntPoint;

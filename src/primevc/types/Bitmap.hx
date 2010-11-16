@@ -177,7 +177,7 @@ class Bitmap
 	// IMAGE LOAD METHODS
 	//
 	
-	public inline function loadUrl (v:URL)
+	public inline function loadUrl (v:URI)
 	{
 		loadString( v.toString() );
 	}
@@ -198,9 +198,9 @@ class Bitmap
 			url		= v;
 #if flash9
 			loader	= new Loader();
-			disposeLoader.onceOn( loader.events.error, this );
-			handleLoadError.onceOn( loader.events.error, this );
-			setLoadedData.onceOn( loader.events.loaded, this );
+			disposeLoader.onceOn( loader.events.load.error, this );
+			handleLoadError.onceOn( loader.events.load.error, this );
+			setLoadedData.onceOn( loader.events.load.completed, this );
 #end
 		}
 	}
@@ -325,7 +325,7 @@ class Bitmap
 	// IMAGE CREATE METHODS
 	//
 	
-	public static inline function fromUrl (v:URL) : Bitmap
+	public static inline function fromUrl (v:URI) : Bitmap
 	{
 		var b = new Bitmap();
 		b.loadUrl(v);

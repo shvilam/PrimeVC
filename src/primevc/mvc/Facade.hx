@@ -45,26 +45,28 @@ package primevc.mvc;
  * @author Danny Wilson
  * @creation-date Jun 22, 2010
  */
-class Facade <E : Signals, M : Model, V: View> implements primevc.core.IDisposable
+class Facade <EventsType : Signals, ModelsType : IModel, ViewsType : IView> implements primevc.core.IDisposable, implements haxe.rtti.Generic
 {
-	public var events	(default,null) : E;
-	public var model	(default,null) : M;
-	public var view		(default,null) : V;
+	public var events	(default,null) : EventsType;
+	public var model	(default,null) : ModelsType;
+	public var view		(default,null) : ViewsType;
+	
 	
 	function new ()
 	{	
 		setupEvents();
-		Assert.that(events != null);
+		Assert.notNull( events, "Events-collection can't be empty.");
 		
 		setupModel();
-		Assert.that(model != null);
+		Assert.notNull(model, "Proxy-collection can't be empty.");
 		
 		setupCommands();
 		Assert.that(true); //FIXME: Is there anything we can assert here?
 		
 		setupView();
-		Assert.that(view != null);
+		Assert.notNull(view, "Mediator-collection can't be empty.");
 	}
+	
 	
 	public function dispose()
 	{

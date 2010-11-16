@@ -1764,7 +1764,7 @@ class UIElementStyleParser
 	}
 	
 	
-	public function load (url:URL)
+	public function load (url:URI)
 	{
 		trace("load "+url);
 		loader.load(url);

@@ -24,26 +24,19 @@
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Danny Wilson	<danny @ onlinetouch.nl>
  */
-package primevc.core.events;
- import primevc.core.dispatcher.Signal0;
- import primevc.core.dispatcher.Signals;
-
-
-typedef LoaderEvents = 
-	#if		flash9	primevc.avm2.events.LoaderEvents;
-	#elseif	flash8	primevc.avm1.events.LoaderEvents;
-	#elseif	js		primevc.js  .events.LoaderEvents;
-	#else	error	#end
+package primevc.mvc;
 
 
 /**
- * @author Ruben Weijers
- * @creation-date Nov 15, 2010
+ * A Model is a group of Proxies which manage the data-model.
+ * Extend this abstract class and define proxy properties.
+ * 
+ * @author Danny Wilson
+ * @creation-date Jun 22, 2010
  */
-class LoaderSignals extends Signals
+class ProxyGroup implements haxe.Public, implements IModel
 {
-	public var unloaded		(default, null)		: Signal0;
-	public var load			(default, null)		: CommunicationEvents;
+	//FIXME: Misschien een IModel interface ipv Model class ?
 }

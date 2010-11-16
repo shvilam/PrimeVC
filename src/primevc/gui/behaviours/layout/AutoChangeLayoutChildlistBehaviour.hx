@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.layout;
- import primevc.core.collections.IList;
+ import primevc.core.collections.ListChange;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;

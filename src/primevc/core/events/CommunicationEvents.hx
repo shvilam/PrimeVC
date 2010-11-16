@@ -24,19 +24,53 @@
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.mvc;
+package primevc.core.events;
+ import primevc.core.dispatcher.Signal0;
+ import primevc.core.dispatcher.Signals;
+
+
+typedef CommunicationEvents = 
+	#if		flash9	primevc.avm2.events.CommunicationEvents;
+	#elseif	flash8	primevc.avm1.events.CommunicationEvents;
+	#elseif	js		primevc.js  .events.CommunicationEvents;
+	#else	error	#end
+
+
+
+
+typedef ErrorHandler	= String -> Void;
+typedef ProgressHandler	= UInt -> UInt -> Void;
+typedef ErrorSignal		= primevc.core.dispatcher.INotifier< ErrorHandler >;
+typedef ProgressSignal	= primevc.core.dispatcher.INotifier< ProgressHandler >;
 
 
 /**
- * A Model is a group of Proxies which manage the data-model.
- * Extend this abstract class and define proxy properties.
+ * Cross-platform communication events
  * 
- * @author Danny Wilson
- * @creation-date Jun 22, 2010
+ * @author Ruben Weijers
+ * @creation-date Jul 31, 2010
  */
-class Model implements haxe.Public
+class CommunicationSignals extends Signals
 {
-	//FIXME: Misschien een IModel interface ipv Model class ?
+	/**
+	 * Dispatched when a communication operation has started
+	 */
+	var started		(default, null) : Signal0;
+	
+	/**
+	 * Dispatched when data there is progress receiving or sending data
+	 */
+	var progress	(default, null) : ProgressSignal;
+	
+	/**
+	 * Dispatched when data communication is done
+	 */
+	var completed	(default, null) : Signal0;
+	
+	/**
+	 * Dispatched when an error occured during the communication
+	 */
+	var error		(default, null) : ErrorSignal;
 }
