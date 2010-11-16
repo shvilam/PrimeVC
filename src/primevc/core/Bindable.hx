@@ -93,7 +93,13 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 	public function new (?val:DataType)
 	{
 		change = new Signal2();
-		value  = val;
+		set( val );
+	}
+	
+	
+	public function set (val:DataType) : Void
+	{
+		value = val;
 	}
 	
 	

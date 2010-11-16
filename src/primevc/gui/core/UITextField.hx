@@ -73,6 +73,10 @@ class UITextField extends TextField, implements IUIElement
 	
 	public function new (id:String = null, stylingEnabled:Bool = true, data:IBindable<String> = null)
 	{
+#if debug
+	if (id == null)
+		id = this.getReadableId();
+#end
 		this.id				= new Bindable<String>(id);
 		super(data);
 #if flash9

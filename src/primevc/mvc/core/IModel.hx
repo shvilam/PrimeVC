@@ -24,16 +24,18 @@
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Danny Wilson	<danny @ onlinetouch.nl>
  */
-package primevc.mvc;
+package primevc.mvc.core;
 
 
 /**
- * @author Ruben Weijers
- * @creation-date Nov 15, 2010
+ * A Model is a group of Proxies which manage the data-model.
+ * Extend this abstract class and define proxy properties.
+ * 
+ * @author Danny Wilson
+ * @creation-date Jun 22, 2010
  */
-interface IView implements primevc.core.IDisposable
+interface IModel implements primevc.core.IDisposable
 {
-	
 }

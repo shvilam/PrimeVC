@@ -27,9 +27,8 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.mvc;
- import primevc.mvc.traits.IValueObject;
- import primevc.mvc.traits.IEditableValueObject;
- import primevc.mvc.traits.IEditEnabledValueObject;
+ import primevc.core.traits.IEditableValueObject;
+ import primevc.core.traits.IEditEnabledValueObject;
 
 /**
  * A proxy that allows mediators to edit the VO managed by the proxy.
@@ -38,12 +37,11 @@ package primevc.mvc;
  * @creation-date Jul 09, 2010
  */
 class EditableProxy
-  < ReadOnlyVO : IValueObject,
-	VOType : (/* ReadOnlyVO, /* DOESNT COMPILE @#^$ */ IEditableValueObject<EditEnabledVOType>),
-	EditEnabledVOType : (/* ReadOnlyVO, /* ALSO DOESNT COMPILE */ IEditEnabledValueObject),
-	EventsTypedef
-  >
-  extends Proxy<ReadOnlyVO, VOType, EventsTypedef>
+	<	VOType				: IEditableValueObject<EditEnabledVOType>,
+		EditEnabledVOType	: IEditEnabledValueObject,
+		EventsTypedef
+	>
+ 	extends Proxy <VOType, EventsTypedef>
 {
 	public function beginEdit() : EditEnabledVOType
 	{

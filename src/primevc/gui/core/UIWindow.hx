@@ -100,11 +100,15 @@ class UIWindow extends Window
 	public var invalidationManager	(default, null)					: InvalidationManager;
 	
 	
-	public function new (target:Stage)
+	public function new (target:Stage, id:String = null)
 	{
 		super(target);
 		
-		id					= new Bindable<String>( #if debug "UIWindow" #end );
+#if debug
+		if (id == null)
+			id = this.getReadableId();
+#end
+		this.id				= new Bindable<String>( id );
 		renderManager		= new RenderManager(this);
 		invalidationManager	= new InvalidationManager(this);
 		
@@ -114,19 +118,20 @@ class UIWindow extends Window
 #if flash9		
 		graphicData			= new GraphicProperties(rect);
 		styleClasses		= new SimpleList<String>();
-		stylingEnabled		= true;
 #end
 		
 		behaviours.add( new WindowLayoutBehaviour(this) );
 		behaviours.add( new RenderGraphicsBehaviour(this) );
 		
-#if flash9
-		bgShape		= new Shape();
-		graphics	= bgShape.graphics;
-		children.add(bgShape);
-#end
 		createBehaviours();
 		createLayout();
+		
+#if flash9
+		bgShape			= new Shape();
+		graphics		= bgShape.graphics;
+		children.add(bgShape);
+		stylingEnabled	= true;
+#end
 		init();
 	}
 	
@@ -180,7 +185,7 @@ class UIWindow extends Window
 	{
 		layout =	#if flash9	new primevc.avm2.layout.StageLayout( target );
 					#else		new LayoutContainer();	#end
-		layoutContainer.algorithm = new RelativeAlgorithm();
+	//	layoutContainer.algorithm = new RelativeAlgorithm();
 	}
 	
 	

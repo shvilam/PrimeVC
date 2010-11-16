@@ -24,20 +24,54 @@
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.mvc.traits;
-
+package primevc.core.collections;
+ import primevc.core.collections.iterators.IIterator;
+ import primevc.core.dispatcher.Signal1;
+ import primevc.core.traits.IClonable;
+ import primevc.core.traits.IValueObject;
+ import primevc.core.IDisposable;
 
 /**
- * Implemented by every Editable-Value-Object class.
- * 
- * @author Danny Wilson
- * @creation-date Jul 06, 2010
+ * @author Ruben Weijers
+ * @creation-date Nov 16, 2010
  */
-interface IEditableValueObject <EditableInterface : IEditEnabledValueObject> implements IValueObject 
+interface IReadOnlyList < DataType >
+		implements IClonable < IReadOnlyList < DataType > >
+	,	implements IValueObject
+	,	implements IDisposable
 {
-	public function asEditable() : EditableInterface;
-	public function commitEdit() : Void;
-	public function cancelEdit() : Void;
+	public var change		(default, null)									: Signal1 < ListChange < DataType > >;
+	public var length		(getLength, never)								: Int;
+	
+	/**
+	 * Method will check if the requested item is in this collection
+	 * @param	item
+	 * @return	true if the item is in the list, otherwise false
+	 */
+	public function has		(item:DataType)										: Bool;
+	
+	/**
+	 * Method will return the index of the requested item or -1 of the item is 
+	 * not in the list.
+	 * @param	item
+	 * @return	position of the requested item
+	 */
+	public function indexOf	(item:DataType)										: Int;
+	
+	
+	//
+	// ITERATION METHODS
+	//
+	
+	public function getItemAt (pos:Int)		: DataType;
+	public function iterator ()				: Iterator <DataType>;
+	public function forwardIterator ()		: IIterator <DataType>;
+	public function reversedIterator ()		: IIterator <DataType>;
+	
+	
+#if debug
+	public var name : String;
+#end
 }

@@ -30,7 +30,6 @@ package primevc.core.collections;
  import primevc.core.collections.iterators.FastArrayForwardIterator;
  import primevc.core.collections.iterators.FastArrayReversedIterator;
  import primevc.core.collections.iterators.IIterator;
- import primevc.core.collections.IList;
  import primevc.core.events.ListChangeSignal;
  import primevc.utils.FastArray;
   using primevc.utils.FastArray;
@@ -48,10 +47,12 @@ class ArrayList <DataType> implements IList <DataType>
 	public var length		(getLength, never)	: Int;
 	
 	
-	public function new( ?wrapAroundList:FastArray<DataType> )
+	public function new( wrapAroundList:FastArray<DataType> = null )
 	{
 		change	= new ListChangeSignal();
-		list	= wrapAroundList != null	? wrapAroundList : FastArrayUtil.create();
+		list	= wrapAroundList;
+		if (list == null)
+			list = FastArrayUtil.create();
 	}
 	
 	
@@ -71,7 +72,7 @@ class ArrayList <DataType> implements IList <DataType>
 	}
 	
 	
-	public inline function clone () : IList < DataType >
+	public inline function clone () : IReadOnlyList < DataType >
 	{
 		var l = new ArrayList<DataType>();
 		for (child in this)

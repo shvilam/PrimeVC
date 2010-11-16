@@ -24,15 +24,31 @@
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.mvc.traits;
+package primevc.mvc.core;
+ import primevc.core.IDisposable;
 
 
 /**
- * Tag-interface implemented by every Editable-Value-Object interface.
+ * Base class for Model and View
  * 
- * @author Danny Wilson
- * @creation-date Jul 06, 2010
+ * @author Ruben Weijers
+ * @creation-date Nov 16, 2010
  */
-interface IEditEnabledValueObject implements IValueObject {}
+class MVCCore <FacadeType> implements IDisposable, implements haxe.rtti.Generic
+{
+	private var facade (default, null)	: FacadeType;
+	
+	
+	public function new (facade:FacadeType)
+	{
+		this.facade = facade;
+	}
+	
+	
+	public function dispose ()
+	{
+		facade = null;
+	}
+}

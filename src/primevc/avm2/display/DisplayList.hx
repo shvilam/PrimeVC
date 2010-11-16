@@ -32,6 +32,7 @@ package primevc.avm2.display;
  import primevc.core.collections.iterators.IIterator;
  import primevc.core.collections.IList;
  import primevc.core.collections.ListChange;
+ import primevc.core.collections.IReadOnlyList;
  import primevc.core.events.ListChangeSignal;
  import primevc.core.IDisposable;
  import primevc.gui.display.IDisplayContainer;
@@ -105,7 +106,7 @@ class DisplayList implements IList <ChildType>
 	}
 	
 	
-	public inline function clone () : IList <ChildType>
+	public inline function clone () : IReadOnlyList <ChildType>
 	{
 		return new DisplayList( target, owner );
 	}

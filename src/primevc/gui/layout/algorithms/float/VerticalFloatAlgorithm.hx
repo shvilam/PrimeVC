@@ -122,7 +122,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 		{
 			if (next == -1)
 				next = getTopStartValue();
-		
+			
 			//use 2 loops for algorithms with and without a fixed child-height. This is faster than doing the if statement inside the loop!
 			if (group.childHeight.notSet())
 			{

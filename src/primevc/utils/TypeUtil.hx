@@ -28,10 +28,11 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.utils;
+  using Type;
+
 
 class TypeUtil
 {
-	
 	/**
 	 * Optimized simple instanceof check. Compiles to bytecode or Useful to quickly check if an object implements some interface.
 	 *  
@@ -62,4 +63,14 @@ class TypeUtil
 	{
 		return cast o;
 	}
+	
+	
+#if debug
+	private static var objCounter : Int = 0;
+	
+	public static inline function getReadableId (obj:Dynamic) : String
+	{
+		return Type.getClass( obj ).getClassName().split(".").pop() + objCounter++;
+	}
+#end
 }

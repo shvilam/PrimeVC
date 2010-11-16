@@ -27,8 +27,8 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.mvc;
- import primevc.core.dispatcher.Signals;
+package primevc.mvc.core;
+ import primevc.mvc.events.MVCEvents;
 
 /**
  * Abstract Façade class.
@@ -45,7 +45,7 @@ package primevc.mvc;
  * @author Danny Wilson
  * @creation-date Jun 22, 2010
  */
-class Facade <EventsType : Signals, ModelsType : IModel, ViewsType : IView> implements primevc.core.IDisposable, implements haxe.rtti.Generic
+class Facade < EventsType:MVCEvents, ModelsType:IModel, ViewsType:IView > implements primevc.core.IDisposable, implements haxe.rtti.Generic
 {
 	public var events	(default,null) : EventsType;
 	public var model	(default,null) : ModelsType;
@@ -65,6 +65,8 @@ class Facade <EventsType : Signals, ModelsType : IModel, ViewsType : IView> impl
 		
 		setupView();
 		Assert.notNull(view, "Mediator-collection can't be empty.");
+		
+		events.started.send();
 	}
 	
 	

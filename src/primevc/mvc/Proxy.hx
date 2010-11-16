@@ -27,7 +27,7 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.mvc;
- import primevc.mvc.traits.IValueObject;
+ import primevc.core.traits.IValueObject;
 
 
 /**
@@ -40,20 +40,7 @@ package primevc.mvc;
  * @author Danny Wilson
  * @creation-date Jun 22, 2010
  */
-class Proxy
-  < ReadOnlyVO : IValueObject,
- 	VOType : (/* ReadOnlyVO, /* DOESNT COMPILE @#^$ */ IValueObject),
- 	EventsTypedef
-  >
+class Proxy < VOType : IValueObject, EventsTypedef > extends Notifier < EventsTypedef >
 {
-	public var data	  (default,null) : ReadOnlyVO;
-	public var events (default,null) : EventsTypedef;
-	
-	private var vo : VOType;
-	
-	public function new( _events : EventsTypedef )
-	{	
-		Assert.that(_events != null);
-		this.events = _events;
-	}
+	public var vo		(default, null)	: VOType;
 }

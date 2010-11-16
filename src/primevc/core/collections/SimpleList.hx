@@ -30,7 +30,6 @@ package primevc.core.collections;
  import primevc.core.collections.iterators.IIterator;
  import primevc.core.collections.iterators.DoubleFastCellForwardIterator;
  import primevc.core.collections.iterators.DoubleFastCellReversedIterator;
- import primevc.core.collections.IList;
  import primevc.core.events.ListChangeSignal;
   using primevc.utils.NumberMath;
  
@@ -94,7 +93,7 @@ class SimpleList < DataType > implements IList < DataType >
 	}
 	
 	
-	public function clone () : IList<DataType>
+	public function clone () : IReadOnlyList<DataType>
 	{
 		var l = new SimpleList<DataType>();
 		for (child in this)

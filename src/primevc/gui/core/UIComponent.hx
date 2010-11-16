@@ -92,6 +92,11 @@ class UIComponent extends Sprite, implements IUIComponent
 	public function new (?id:String)
 	{
 		super();
+		
+#if debug
+		if (id == null)
+			id = this.getReadableId();
+#end
 		this.id	= new Bindable<String>(id);
 		visible = false;
 		

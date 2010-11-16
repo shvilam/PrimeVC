@@ -42,34 +42,37 @@ package primevc.mvc;
  * @author Danny Wilson
  * @creation-date Jun 22, 2010
  */
-class Mediator <EventsTypedef/* : Signals*/, ModelTypedef/* : Model*/> implements IMediator
+class Mediator <EventsTypedef, ModelTypedef, ViewType> extends Listener <EventsTypedef, ModelTypedef>, implements IMediator
 {
-	//TODO: Ask Nicolas why the %$@#! you can't have typedefs as type constraint parameters...
+	public var view		(default, setView)	: ViewType;
 	
-	var facade	: { var events (default,null):EventsTypedef; var model (default,null):ModelTypedef; };
 	
-	public var events	: EventsTypedef;
-	public var model	: ModelTypedef;
-	
-	public function new (dependencies :{ var events (default,null):EventsTypedef; var model (default,null):ModelTypedef; })
+	public function new (dependencies :{ var events (default,null):EventsTypedef; var model (default,null):ModelTypedef; }, view:ViewType = null)
 	{
-		Assert.that(dependencies != null);
+		super(dependencies);
 		
-		facade = dependencies;
-		events = dependencies.events;
-		model  = dependencies.model;
+		if (view != null)
+			setView( view );
 		
-		Assert.that(events != null);
-		Assert.that(model  != null);
+		init();
 	}
 	
-	public function dispose()
+	
+	private function init () : Void;
+	
+	
+	override public function dispose ()
 	{
-		if (events == null) return; // already disposed
+		if (events == null)
+			return; // already disposed
 		
-		untyped events.unbind(this);
-		events = null;
-		facade = null;
-		model  = null;
+		view = null;
+		super.dispose();
+	}
+	
+	
+	private function setView (view:ViewType)
+	{
+		return this.view = view;
 	}
 }

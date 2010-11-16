@@ -26,14 +26,13 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.mvc;
+package primevc.mvc.core;
 
 
 /**
  * @author Ruben Weijers
  * @creation-date Nov 15, 2010
  */
-interface IModel
+interface IView implements primevc.core.IDisposable
 {
-	
 }

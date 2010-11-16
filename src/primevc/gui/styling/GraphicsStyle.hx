@@ -28,11 +28,6 @@
  */
 package primevc.gui.styling;
 #if neko
-/* import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
- import primevc.gui.behaviours.layout.UnclippedLayoutBehaviour;
- import primevc.gui.behaviours.scroll.CornerScrollBehaviour;
- import primevc.gui.behaviours.scroll.DragScrollBehaviour;
- import primevc.gui.behaviours.scroll.MouseMoveScrollBehaviour;*/
  import primevc.tools.generator.ICodeGenerator;
  import primevc.types.Reference;
   using primevc.types.Reference;

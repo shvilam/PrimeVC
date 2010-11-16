@@ -26,17 +26,13 @@
  * Authors:
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
-package primevc.mvc;
+package primevc.core.traits;
 
 
 /**
- * A Model is a group of Proxies which manage the data-model.
- * Extend this abstract class and define proxy properties.
+ * Implemented by every Value-Object class.
  * 
  * @author Danny Wilson
- * @creation-date Jun 22, 2010
+ * @creation-date Jul 06, 2010
  */
-class ProxyGroup implements haxe.Public, implements IModel
-{
-	//FIXME: Misschien een IModel interface ipv Model class ?
-}
+interface IValueObject {}

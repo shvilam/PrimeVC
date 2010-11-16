@@ -70,12 +70,12 @@ class RevertableBindable <DataType> extends Bindable<DataType>//, implements hax
 	/**
 	 * Sets value directly, without the requirement to be in edit mode.
 	 */
-	public function set(newValue:DataType) : Void
+	override public function set(newValue:DataType) : Void
 	{
-		var f	 = flags;
-		flags	|= RevertableBindableFlags.IN_EDITMODE;
-		value	 = newValue;
-		flags	 = f;
+		var f	= flags;
+		flags	= flags.set( RevertableBindableFlags.IN_EDITMODE );
+		value	= newValue;
+		flags	= f;
 	}
 	
 	

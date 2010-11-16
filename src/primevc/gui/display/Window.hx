@@ -47,20 +47,6 @@ class Window
 		implements IDisplayContainer
 	,	implements IInteractive
 {
-	
-#if (flash9 && debug)
-	public static function __init__ ()
-	{
-	#if MonsterTrace
-		var monster		= new nl.demonsters.debugger.MonsterDebugger(flash.Lib.current);
-		haxe.Log.trace	= primevc.utils.MonsterTrace.trace;
-		haxe.Log.clear	= nl.demonsters.debugger.MonsterDebugger.clearTraces;
-	#end
-		haxe.Log.clear();
-	}	
-#end
-	
-	
 	public static function startup (windowClass:Class<Window>) : Window
 	{
 		var stage:Stage = null;
@@ -68,6 +54,13 @@ class Window
 #if flash9
 		stage = flash.Lib.current.stage;
 		stage.scaleMode	= flash.display.StageScaleMode.NO_SCALE;
+
+	#if (debug && MonsterTrace)	
+		var monster		= new nl.demonsters.debugger.MonsterDebugger(flash.Lib.current);
+		haxe.Log.trace	= primevc.utils.MonsterTrace.trace;
+		haxe.Log.clear	= nl.demonsters.debugger.MonsterDebugger.clearTraces;
+		haxe.Log.clear();
+	#end
 #end		
 		trace("started " + windowClass);
 		return Type.createInstance( windowClass, [ stage ] );

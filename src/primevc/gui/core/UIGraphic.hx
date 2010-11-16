@@ -43,6 +43,7 @@ package primevc.gui.core;
 #end
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
+  using primevc.utils.TypeUtil;
 
 
 /**
@@ -71,6 +72,10 @@ class UIGraphic extends Shape
 	public function new (id:String = null)
 	{
 		super();
+#if debug
+		if (id == null)
+			id = this.getReadableId();
+#end
 		this.id	= new Bindable<String>(id);
 		visible = false;
 		init.onceOn( displayEvents.addedToStage, this );

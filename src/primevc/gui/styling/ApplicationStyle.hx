@@ -45,7 +45,7 @@ class ApplicationStyle extends UIElementStyle
 		parentStyle			= this;
 		
 		styles.add( sheet );
-		updateStyles();
+	//	updateStyles();
 	}
 	
 	

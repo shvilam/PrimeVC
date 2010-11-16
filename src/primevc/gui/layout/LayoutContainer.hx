@@ -51,7 +51,7 @@ private typedef Flags = LayoutFlags;
 
 
 /**
- * @since	mar 20, 2010
+ * @since	Mar 20, 2010
  * @author	Ruben Weijers
  */
 class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer, implements IScrollableLayout
@@ -168,7 +168,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			if (!child.includeInLayout)
 				continue;
 			
-			if (child.percentWidth == Flags.FILL) {
+			if (child.percentWidth == Flags.FILL)
+			{
 			//	if (explicitWidth.isSet())
 				fillingChildren.push( child );
 				child.width.value = Number.INT_NOT_SET;
@@ -179,7 +180,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 				child.outerBounds.width = (explicitWidth * child.percentWidth).int();
 			
 			//measure children
-			if (child.percentWidth != Flags.FILL) {
+			if (child.percentWidth != Flags.FILL)
+			{
 				if (child.changes > 0)
 					child.validateHorizontal();
 				childrenWidth += child.outerBounds.width;
