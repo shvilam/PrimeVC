@@ -37,7 +37,7 @@ package primevc.mvc;
  * @creation-date Jul 09, 2010
  */
 class EditableProxy
-	<	VOType				: IEditableValueObject<EditEnabledVOType>,
+	<	VOType				: IEditableValueObject,
 		EditEnabledVOType	: IEditEnabledValueObject,
 		EventsTypedef
 	>
@@ -45,7 +45,8 @@ class EditableProxy
 {
 	public function beginEdit() : EditEnabledVOType
 	{
-		return vo.asEditable();
+		vo.beginEdit();
+		return cast vo;
 	}
 	
 	public function commitEdit() : Void

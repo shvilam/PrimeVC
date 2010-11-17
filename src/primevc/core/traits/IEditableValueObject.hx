@@ -35,9 +35,9 @@ package primevc.core.traits;
  * @author Danny Wilson
  * @creation-date Jul 06, 2010
  */
-interface IEditableValueObject <EditableInterface : IEditEnabledValueObject> implements IValueObject 
+interface IEditableValueObject implements IEditEnabledValueObject 
 {
-	public function asEditable() : EditableInterface;
+	public function beginEdit()  : Void;
 	public function commitEdit() : Void;
 	public function cancelEdit() : Void;
 }
