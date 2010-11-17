@@ -9,21 +9,23 @@ package primevc.mvc;
  * @author Ruben Weijers
  * @creation-date Nov 16, 2010
  */
-class Listener <EventsTypedef, ModelTypedef> extends Notifier <EventsTypedef>
+class Listener <EventsTypedef, ModelTypedef, ViewTypeDef> extends Notifier <EventsTypedef>
 {
 	//TODO: Ask Nicolas why the %$@#! you can't have typedefs as type constraint parameters...
 
-	private var facade	: { var events (default,null):EventsTypedef; var model (default,null):ModelTypedef; };
+	private var facade	: { var events (default,null):EventsTypedef; var model (default,null):ModelTypedef; var view (default,null):ViewTypeDef; };
 	public var model	(default, null)		: ModelTypedef;
+	public var view		(default, null)		: ViewTypeDef;
 	
 	
-	public function new (dependencies :{ var events (default,null):EventsTypedef; var model (default,null):ModelTypedef; })
+	public function new (dependencies :{ var events (default,null):EventsTypedef; var model (default,null):ModelTypedef; var view (default,null):ViewTypeDef; })
 	{
 		Assert.that(dependencies != null);
 		
 		super( dependencies.events );
 		facade	= dependencies;
 		model	= dependencies.model;
+		view	= dependencies.view;
 		
 		Assert.notNull(model, "Model cannot be null");
 	}
@@ -36,6 +38,7 @@ class Listener <EventsTypedef, ModelTypedef> extends Notifier <EventsTypedef>
 		
 		facade	= null;
 		model	= null;
+		view	= null;
 		super.dispose();
 	}
 }
