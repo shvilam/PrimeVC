@@ -39,8 +39,8 @@ package primevc.gui.core;
  */
 interface IUIDataComponent < DataType > implements IUIComponent
 {
-	public var data (default, setData)		: IBindable < DataType >;
-	public var value (getValue, setValue)	: DataType;
+	public var vo (default, setVO)			: IBindable < DataType >;
+	public var data (getData, setData)		: DataType;
 	
 	
 	/**

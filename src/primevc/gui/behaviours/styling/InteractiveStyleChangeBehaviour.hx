@@ -45,7 +45,7 @@ package primevc.gui.behaviours.styling;
  * @author Ruben Weijers
  * @creation-date Oct 15, 2010
  */
-class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
+class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 {
 	private var overBinding			: Wire < Dynamic >;
 	private var outBinding			: Wire < Dynamic >;
@@ -53,9 +53,12 @@ class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	private var downBinding			: Wire < Dynamic >;
 	private var upBinding			: Wire < Dynamic >;
 	
+	private var disabledBinding		: Wire < Dynamic >;
+	
 	
 	private var styleBinding		: Wire < Dynamic >;
-	private var state				: StyleState;
+	private var mouseState			: StyleState;
+	private var disabledState		: StyleState;
 	
 	
 	override private function init ()
@@ -75,7 +78,15 @@ class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 			styleBinding = null;
 		}
 		
-		removeState();
+		if (mouseState != null) {
+			mouseState.dispose();
+			mouseState = null;
+		}
+		
+		if (disabledState != null) {
+			disabledState.dispose();
+			disabledState = null;
+		}
 	}
 	
 	
@@ -83,46 +94,75 @@ class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	
 	private function updateBehaviour (changes:UInt) : Void
 	{
+		//
+		// DISABLED STATE
+		//
+		
+		if (changes.has( StyleStateFlags.DISABLED ))
+		{
+			var hasDisabledState = getStates().has( StyleStateFlags.DISABLED );
+			
+			if (hasDisabledState)
+			{
+				if (disabledState == null)		{ disabledState		= target.style.createState(); }
+				if (disabledBinding == null)	{ disabledBinding	= changeEnabledState.on( target.enabled.change, this ); changeEnabledState( target.enabled.value, false ); }
+			}
+			else
+			{
+				if (disabledState != null)		{ disabledState.dispose();		disabledState = null; }
+				if (disabledBinding != null)	{ disabledBinding.dispose();	disabledBinding = null; }
+			}
+		}
+		
+		
+		//
+		// HOVER / DOWN STATE
+		//
+		
 	//	trace(target + ".update; "+getStates().readProperties());
 		var hoverChanged	= changes.has( StyleStateFlags.HOVER );
 		var downChanged		= changes.has( StyleStateFlags.DOWN );
 		
-		if (!hoverChanged && !downChanged)
-			return;
-		
-		var hasHoverState	= getStates().has( StyleStateFlags.HOVER );
-		var hasDownState	= getStates().has( StyleStateFlags.DOWN );
-		
-		
-		// MANAGE STATE OBJECT
-		if (hasHoverState || hasDownState)
-			createState();
-		else
-			removeState();
-		
-		
-		// MANAGE HOVER
-		if (hoverChanged && !hasHoverState)
+		if (hoverChanged || downChanged)
 		{
-			if (state != null && state.current == StyleStateFlags.HOVER)
-				state.current = StyleStateFlags.NONE;
-			
-			removeHoverBindings();
-		}
-		else if (hasHoverState)
-			createHoverBindings();
+			var hasHoverState	= getStates().has( StyleStateFlags.HOVER );
+			var hasDownState	= getStates().has( StyleStateFlags.DOWN );
 		
 		
-		// MANAGE DOWN
-		if (downChanged && !hasDownState)
-		{
-			if (state != null && state.current == StyleStateFlags.DOWN)
-				state.current = StyleStateFlags.NONE;
+			// MANAGE STATE OBJECT
+			if (hasHoverState || hasDownState)
+				if (mouseState == null)
+					mouseState = target.style.createState();
+			else
+				if (mouseState != null) {
+					mouseState.dispose();
+					mouseState = null;
+				}
+		
+		
+			// MANAGE HOVER
+			if (hoverChanged && !hasHoverState)
+			{
+				if (mouseState != null && mouseState.current == StyleStateFlags.HOVER)
+					mouseState.current = StyleStateFlags.NONE;
 			
-			removeDownBindings();
+				removeHoverBindings();
+			}
+			else if (hasHoverState)
+				createHoverBindings();
+		
+		
+			// MANAGE DOWN
+			if (downChanged && !hasDownState)
+			{
+				if (mouseState != null && mouseState.current == StyleStateFlags.DOWN)
+					mouseState.current = StyleStateFlags.NONE;
+			
+				removeDownBindings();
+			}
+			else if (hasDownState)
+				createDownBindings();
 		}
-		else if (hasDownState)
-			createDownBindings();
 	}
 	
 	
@@ -139,7 +179,7 @@ class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	private inline function createHoverBindings ()
 	{
 		if (overBinding == null)	overBinding	= changeStateToHover.on( getEvents().rollOver,	this );
-		if (outBinding == null)		outBinding	= clearState		.on( getEvents().rollOut,	this );
+		if (outBinding == null)		outBinding	= clearMouseState	.on( getEvents().rollOut,	this );
 		outBinding.disable();
 	}
 	
@@ -156,7 +196,7 @@ class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	{
 		if (downBinding == null)		downBinding		= changeStateToDown	.on( getEvents().down,				this );
 		if (upBinding == null)			upBinding		= changeStateToHover.on( getEvents().up,				this );
-		if (globalUpBinding == null)	globalUpBinding	= clearState		.on( target.window.mouse.events.up,	this );
+		if (globalUpBinding == null)	globalUpBinding	= clearMouseState	.on( target.window.mouse.events.up,	this );
 		
 		globalUpBinding.disable();
 		upBinding.disable();
@@ -172,23 +212,6 @@ class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	}
 	
 	
-	private inline function removeState ()
-	{
-		if (state != null)
-		{
-			target.style.removeState( state );
-			state = null;
-		}
-	}
-	
-	
-	private inline function createState ()
-	{
-		if (state == null)
-			state = target.style.createState();
-	}
-	
-	
 	
 	
 	//
@@ -197,7 +220,7 @@ class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	
 	private function changeStateToDown ()
 	{
-		state.current = StyleStateFlags.DOWN;
+		mouseState.current = StyleStateFlags.DOWN;
 		
 		if (outBinding != null)			outBinding		.disable();
 		if (overBinding != null)		overBinding		.disable();
@@ -208,16 +231,19 @@ class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	}
 	
 	
-	private function clearState ()
+	private function clearMouseState ()
 	{
-		state.current = StyleStateFlags.NONE;
-		
-		if (outBinding != null)			outBinding		.disable();
-		if (overBinding != null)		overBinding		.enable();
-		
-		if (upBinding != null)			upBinding		.disable();
-		if (globalUpBinding != null)	globalUpBinding	.disable();
-		if (downBinding != null)		downBinding		.enable();
+		if (mouseState != null)
+		{
+			mouseState.current = StyleStateFlags.NONE;
+			
+			if (outBinding != null)			outBinding		.disable();
+			if (overBinding != null)		overBinding		.enable();
+			
+			if (upBinding != null)			upBinding		.disable();
+			if (globalUpBinding != null)	globalUpBinding	.disable();
+			if (downBinding != null)		downBinding		.enable();
+		}
 	}
 	
 	
@@ -227,7 +253,7 @@ class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 			return;
 		
 		//check if there's a hover state, otherwise change state to none
-		state.current = (overBinding != null) ? StyleStateFlags.HOVER : StyleStateFlags.NONE;
+		mouseState.current = (overBinding != null) ? StyleStateFlags.HOVER : StyleStateFlags.NONE;
 		
 		if (outBinding != null)			outBinding		.enable();
 		if (overBinding != null)		overBinding		.disable();
@@ -235,5 +261,15 @@ class MouseStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 		if (upBinding != null)			upBinding		.disable();
 		if (globalUpBinding != null)	globalUpBinding	.disable();
 		if (downBinding != null)		downBinding		.enable();
+	}
+	
+	
+	private function changeEnabledState (newVal:Bool, oldVal:Bool)
+	{
+		if (newVal)		disabledState.current = StyleStateFlags.NONE;
+		else			disabledState.current = StyleStateFlags.DISABLED;
+		
+		if (!newVal)
+			clearMouseState();
 	}
 }

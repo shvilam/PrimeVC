@@ -28,7 +28,7 @@
  */
 package primevc.core.collections;
  import primevc.core.collections.iterators.IIterator;
- import primevc.core.collections.IList;
+ import primevc.core.collections.IBindableList;
  import primevc.core.collections.SimpleList;
  import primevc.core.dispatcher.Signal1;
  import primevc.utils.NumberMath;
@@ -42,8 +42,8 @@ package primevc.core.collections;
  * list.
  * 
  */
-class ChainedListCollection <DataType> implements IList <DataType>,
-	implements IListCollection < DataType, ChainedList<DataType> > 
+class ChainedListCollection <DataType> implements IBindableList <DataType>,
+	implements IBindableListCollection < DataType, ChainedList<DataType> > 
 	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	public var change		(default, null)				: Signal1 < ListChange < DataType > >;
@@ -80,12 +80,19 @@ class ChainedListCollection <DataType> implements IList <DataType>,
 	}
 	
 	
-	public function clone () : IList < DataType >
+	public function clone () : IReadOnlyList < DataType >
 	{
 		var l = new ChainedListCollection<DataType>(maxPerList);
 		for (child in this)
 			l.insertAt(child);
 		return l;
+	}
+
+
+	public inline function removeAll ()
+	{
+		while (length > 0)
+			removeItem( getItemAt(0) );
 	}
 	
 	

@@ -26,57 +26,46 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.collections.iterators;
- import primevc.core.collections.DoubleFastCell;
-
+package primevc.core.collections;
+ 
 
 /**
- * Iterate object for the DoubleFastList implementation
- * 
  * @creation-date	Jun 29, 2010
  * @author			Ruben Weijers
  */
-class DoubleFastCellForwardIterator <DataType> implements IIterator <DataType>
-	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
+interface IBindableList <DataType> implements IReadOnlyList <DataType>
 {
-	private var first (default, null)	: DoubleFastCell<DataType>;
-	public var current (default, null)	: DoubleFastCell<DataType>;
+	//
+	// LIST MANIPULATION METHODS
+	//
 	
-	public function new (first:DoubleFastCell<DataType>) 
-	{
-		this.first = first;
-		rewind();
-#if (unitTesting && debug)
-		test();
-#end
-	}
+	/**
+	 * Method will add the item on the given position. It will add the 
+	 * item at the end of the childlist when the value is equal to -1.
+	 * 
+	 * @param	item
+	 * @param	pos		default-value: -1
+	 * @return	item
+	 */
+	public function add		(item:DataType, pos:Int = -1)						: DataType;
+	/**
+	 * Method will try to remove the given item from the childlist.
+	 * 
+	 * @param	item
+	 * @return	item
+	 */
+	public function remove	(item:DataType, oldPos:Int = -1)					: DataType;
+	/**
+	 * Method will change the depth of the given item.
+	 * 
+	 * @param	item
+	 * @param	newPos
+	 * @param	curPos	Optional parameter that can be used to speed up the 
+	 * 					moving process since the list doesn't have to search 
+	 * 					for the original location of the item.
+	 * @return	item
+	 */
+	public function move	(item:DataType, newPos:Int, curPos:Int = -1)		: DataType;
 	
-	
-	public inline function setCurrent (val:Dynamic)	{ current = val; }
-	public inline function rewind ()				{ current = first; }
-	public inline function hasNext () 				{ return current != null; }
-	
-	
-	public inline function next () : DataType
-	{
-		var c = current;
-		current = current.next;
-		return c.data;
-	}
-	
-	
-#if (unitTesting && debug)
-	public function test ()
-	{
-		var cur = first, prev:DoubleFastCell<DataType> = null;
-		while (cur != null)
-		{
-			if (prev == null)	Assert.null( cur.prev, "first incorrect" );
-			else				Assert.equal( cur.prev, prev, "previous incorrect" );
-			
-			prev	= cur;
-			cur		= cur.next;
-		}
-	}
-#end
+	public function removeAll ()	: Void;
 }

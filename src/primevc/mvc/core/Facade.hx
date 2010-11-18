@@ -60,11 +60,12 @@ class Facade < EventsType:MVCEvents, ModelsType:IModel, ViewsType:IView > implem
 		setupModel();
 		Assert.notNull(model, "Proxy-collection can't be empty.");
 		
-		setupCommands();
-		Assert.that(true); //FIXME: Is there anything we can assert here?
-		
 		setupView();
 		Assert.notNull(view, "Mediator-collection can't be empty.");
+		
+		model.init();
+		setupCommands();
+		view.init();
 		
 		events.started.send();
 	}

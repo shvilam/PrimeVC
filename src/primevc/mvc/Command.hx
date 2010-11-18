@@ -7,5 +7,5 @@ package primevc.mvc;
  */
 class Command <EventsTypedef, ModelTypedef> extends Listener <EventsTypedef, ModelTypedef>, implements ICommand 
 {
-	public function execute () : Void;
+//	public function execute () : Void;
 }

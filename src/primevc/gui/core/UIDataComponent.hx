@@ -28,19 +28,19 @@
  */
 package primevc.gui.core;
  import primevc.core.collections.DataCursor;
- import primevc.core.collections.IList;
+ import primevc.core.collections.IBindableList;
  import primevc.core.Bindable;
  import primevc.core.IBindable;
   using primevc.utils.TypeUtil;
  
 
 /**
- * UIDataComponent is an UIComponent with a bindable data property of the given
+ * UIDataComponent is an UIComponent with a bindable vo property of the given
  * type. The DataComponent will default create a bindable object of the 
  * requested type which can be used to update other values in the component.
  * 
  * It's possible to change or read the value of the bindable directly by calling
- *  v = component.value; and component.value = newValue;
+ *  v = component.data; and component.data = newValue;
  * 
  * @see				primevc.gui.core.UIComponent
  * @see				primevc.gui.core.IUIComponent
@@ -50,23 +50,23 @@ package primevc.gui.core;
  */
 class UIDataComponent <DataType> extends UIComponent, implements IUIDataComponent <DataType>
 {
-	public var data (default, setData)		: IBindable < DataType >;
-	public var value (getValue, setValue)	: DataType;
+	public var vo (default, setVO)		: IBindable < DataType >;
+	public var data (getData, setData)	: DataType;
 	
 	
-	public function new (id:String = null, value:DataType = null)
+	public function new (id:String = null, data:DataType = null)
 	{
 		super(id);
-		if (data == null)
-			data = new Bindable < DataType >(value);
+		if (vo == null)
+			vo = new Bindable < DataType >(data);
 	}
 	
 	
 	override public function dispose ()
 	{
-		if (data != null) {
-			data.dispose();
-			data = null;
+		if (vo != null) {
+			vo.dispose();
+			vo = null;
 		}
 		super.dispose();
 	}
@@ -88,15 +88,15 @@ class UIDataComponent <DataType> extends UIComponent, implements IUIDataComponen
 	
 	public function getDataCursor ()
 	{
-		var cursor = new DataCursor < DataType > ( value );
+		var cursor = new DataCursor < DataType > ( data );
 		if (container == null || !container.is(IUIDataComponent))
 			return cursor;
 		
 		var parent = container.as(IUIDataComponent);
-		if (!parent.value.is(IList))
+		if (!parent.data.is(IBindableList))
 			return cursor;
 		
-		cursor.list = cast parent.value.as( IList );
+		cursor.list = cast parent.data.as( IBindableList );
 		return cursor;
 	}
 	
@@ -106,16 +106,18 @@ class UIDataComponent <DataType> extends UIComponent, implements IUIDataComponen
 	// GETTERS / SETTERS
 	//
 	
-	private inline function setData (newData:IBindable < DataType >)
+	private inline function setVO (newVO:IBindable < DataType >)
 	{
-		data = newData;
-		if (state.current == state.initialized && data != null)
+		vo = newVO;
+		if (state.current == state.initialized && vo != null) {
+			Assert.notNull(window);
 			initData();
+		}
 		
-		return data;
+		return vo;
 	}
 	
 	
-	private inline function getValue () : DataType	{ return data.value; }
-	private inline function setValue (v:DataType)	{ return data.value = v; }
+	private inline function getData () : DataType	{ return vo.value; }
+	private inline function setData (v:DataType)	{ return vo.value = v; }
 }

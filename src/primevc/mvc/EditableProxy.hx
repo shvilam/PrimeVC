@@ -36,26 +36,51 @@ package primevc.mvc;
  * @author Danny Wilson
  * @creation-date Jul 09, 2010
  */
-class EditableProxy
-	<	VOType				: IEditableValueObject,
-		EditEnabledVOType	: IEditEnabledValueObject,
-		EventsTypedef
-	>
+class EditableProxy	< VOType:IEditableValueObject, EditEnabledVOType:IEditEnabledValueObject, EventsTypedef >
  	extends Proxy <VOType, EventsTypedef>
 {
+	public var enabled (default, null)	: Bool;
+	
+	
+	public function new( events:EventsTypedef, enabled = true )
+	{
+		super(events);
+		this.enabled = enabled;
+	}
+	
+	
 	public function beginEdit() : EditEnabledVOType
 	{
+		if (!enabled)
+			return null;
+		
 		vo.beginEdit();
 		return cast vo;
 	}
 	
+	
 	public function commitEdit() : Void
 	{
-		vo.commitEdit();
+		if (enabled)
+			vo.commitEdit();
 	}
+	
 	
 	public function cancelEdit() : Void
 	{
 		vo.cancelEdit();
+	}
+	
+	
+	public function enable ()
+	{
+		enabled = true;
+	}
+	
+	
+	public function disable ()
+	{
+		enabled = false;
+		cancelEdit();
 	}
 }

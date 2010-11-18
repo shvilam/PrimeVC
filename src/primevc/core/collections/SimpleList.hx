@@ -28,21 +28,21 @@
  */
 package primevc.core.collections;
  import primevc.core.collections.iterators.IIterator;
- import primevc.core.collections.iterators.DoubleFastCellForwardIterator;
- import primevc.core.collections.iterators.DoubleFastCellReversedIterator;
+ import primevc.core.collections.iterators.FastDoubleCellForwardIterator;
+ import primevc.core.collections.iterators.FastDoubleCellReversedIterator;
  import primevc.core.events.ListChangeSignal;
   using primevc.utils.NumberMath;
  
 
 /**
- * IList implementation as FastList. When this list is iterated it will
+ *.IBindableList implementation as FastList. When this list is iterated it will
  * start with the first added item instead of the last added item as with
  * FastList.
  * 
  * @creation-date	Jun 29, 2010
  * @author			Ruben Weijers
  */
-class SimpleList < DataType > implements IList < DataType > 
+class SimpleList < DataType > implements IBindableList < DataType > 
 	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	public var change		(default, null)		: ListChangeSignal < DataType >;
@@ -52,11 +52,11 @@ class SimpleList < DataType > implements IList < DataType >
 	/**
 	 * Pointer to the first added cell
 	 */
-	public var first		(default, null)		: DoubleFastCell < DataType >;
+	public var first		(default, null)		: FastDoubleCell < DataType >;
 	/**
 	 * Pointer to the last added cell
 	 */
-	public var last			(default, null)		: DoubleFastCell < DataType >;
+	public var last			(default, null)		: FastDoubleCell < DataType >;
 	
 	
 	public function new()
@@ -104,8 +104,8 @@ class SimpleList < DataType > implements IList < DataType >
 	
 	private inline function getLength ()	: Int					{ return _length; }
 	public function iterator ()				: Iterator <DataType>	{ return forwardIterator(); }
-	public function forwardIterator ()		: IIterator <DataType>	{ return new DoubleFastCellForwardIterator <DataType> (first); }
-	public function reversedIterator ()		: IIterator <DataType>	{ return new DoubleFastCellReversedIterator <DataType> (last); }
+	public function forwardIterator ()		: IIterator <DataType>	{ return new FastDoubleCellForwardIterator <DataType> (first); }
+	public function reversedIterator ()		: IIterator <DataType>	{ return new FastDoubleCellReversedIterator <DataType> (last); }
 
 	
 	
@@ -199,11 +199,11 @@ class SimpleList < DataType > implements IList < DataType >
 
 	public function insertAt (item:DataType, ?pos:Int = -1) : Int
 	{
-		return insertCellAt( new DoubleFastCell < DataType >( item, null ), pos );
+		return insertCellAt( new FastDoubleCell < DataType >( item, null ), pos );
 	}
 
 
-	private function insertCellAt( cell:DoubleFastCell < DataType >, ?pos:Int = -1) : Int
+	private function insertCellAt( cell:FastDoubleCell < DataType >, ?pos:Int = -1) : Int
 	{
 		if (pos < 0 || pos > length)
 			pos = length;
@@ -238,9 +238,9 @@ class SimpleList < DataType > implements IList < DataType >
 	}
 	
 	
-	private function getCellAt (pos:Int) : DoubleFastCell<DataType>
+	private function getCellAt (pos:Int) : FastDoubleCell<DataType>
 	{
-		var currentCell:DoubleFastCell<DataType> = first;
+		var currentCell:FastDoubleCell<DataType> = first;
 		pos = pos < 0 ? length + pos : pos;
 		
 		if (pos == 0) 				return first;
@@ -291,7 +291,7 @@ class SimpleList < DataType > implements IList < DataType >
 	}
 	
 	
-	private function removeCell (cell:DoubleFastCell < DataType >)
+	private function removeCell (cell:FastDoubleCell < DataType >)
 	{
 		if (cell == first)	first = cell.next;
 		if (cell == last)	last = cell.prev;

@@ -29,7 +29,7 @@
 package primevc.gui.core;
  import primevc.core.Bindable;
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
- import primevc.gui.behaviours.styling.MouseStyleChangeBehaviour;
+ import primevc.gui.behaviours.styling.InteractiveStyleChangeBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
  import primevc.gui.display.Sprite;
@@ -88,6 +88,8 @@ class UIComponent extends Sprite, implements IUIComponent
 	public var stylingEnabled	(default, setStylingEnabled)	: Bool;
 #end
 	
+	public var enabled			(default, null)					: Bindable < Bool >;
+	
 	
 	public function new (?id:String)
 	{
@@ -97,12 +99,14 @@ class UIComponent extends Sprite, implements IUIComponent
 		if (id == null)
 			id = this.getReadableId();
 #end
-		this.id	= new Bindable<String>(id);
-		visible = false;
+		this.id			= new Bindable<String>(id);
+		this.enabled	= new Bindable<Bool>(true);
+		visible			= false;
 		
 		state			= new UIElementStates();
 		behaviours		= new BehaviourList();
 		
+		handleEnableChange.on( enabled.change, this );
 		init.onceOn( displayEvents.addedToStage, this );
 #if flash9		
 		graphicData		= new GraphicProperties( rect );
@@ -112,7 +116,7 @@ class UIComponent extends Sprite, implements IUIComponent
 		//add default behaviours
 		behaviours.add( new ValidateLayoutBehaviour(this) );
 		behaviours.add( new RenderGraphicsBehaviour(this) );
-		behaviours.add( new MouseStyleChangeBehaviour(this) );
+		behaviours.add( new InteractiveStyleChangeBehaviour(this) );
 #end
 		
 		createStates();
@@ -124,7 +128,8 @@ class UIComponent extends Sprite, implements IUIComponent
 
 
 	private function init ()
-	{
+	{	
+		Assert.notNull(container, "Container can't be null for "+this);
 		behaviours.init();
 		
 		//create the children of this component after the skin has created it's children
@@ -158,6 +163,8 @@ class UIComponent extends Sprite, implements IUIComponent
 		if (layout != null)
 			layout.dispose();
 		
+		enabled.dispose();
+		
 #if flash9
 		style.dispose();
 		styleClasses.dispose();
@@ -166,6 +173,7 @@ class UIComponent extends Sprite, implements IUIComponent
 #end
 		state			= null;
 		behaviours		= null;
+		enabled			= null;
 		graphicData		= null;
 		skin			= null;
 		layout			= null;
@@ -253,6 +261,16 @@ class UIComponent extends Sprite, implements IUIComponent
 	private function createBehaviours ()	: Void; //	{ Assert.abstract(); }
 	private function createChildren ()		: Void; //	{ Assert.abstract(); }
 	private function removeStates ()		: Void; //	{ Assert.abstract(); }
+	
+	
+	//
+	// EVENT HANDLERS
+	//
+	
+	private function handleEnableChange (newVal:Bool, oldVal:Bool)
+	{
+		mouseEnabled = tabEnabled = children.mouseEnabled = children.tabEnabled = newVal;
+	}
 	
 	
 #if debug

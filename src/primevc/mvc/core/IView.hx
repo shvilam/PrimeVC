@@ -35,4 +35,9 @@ package primevc.mvc.core;
  */
 interface IView implements primevc.core.IDisposable
 {
+	/**
+	 * Method in which all the mediators should be created. Constructor is only
+	 * meant to make the object exist
+	 */
+	public function init () : Void;
 }

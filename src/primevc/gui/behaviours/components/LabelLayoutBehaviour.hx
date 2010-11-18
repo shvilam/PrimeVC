@@ -32,6 +32,7 @@ package primevc.gui.behaviours.components;
  import primevc.gui.components.Label;
  import primevc.gui.core.UIWindow;
  import primevc.gui.layout.AdvancedLayoutClient;
+ import primevc.gui.layout.LayoutFlags;
  import primevc.gui.states.ValidateStates;
   using primevc.utils.Bind;
   using primevc.utils.NumberUtil;
@@ -82,6 +83,7 @@ class LabelLayoutBehaviour extends ValidatingBehaviour < Label >
 	
 	public function requestRender ()
 	{
+	//	trace(target+".requestRender");
 		if (target.window != null)
 			getValidationManager().add(this);
 	}
@@ -115,9 +117,10 @@ class LabelLayoutBehaviour extends ValidatingBehaviour < Label >
 		var targetLayout	= target.layout.as(AdvancedLayoutClient);
 		var fieldLayout		= target.field.layout;
 		
-	//	trace(target+".updateLabelSize "+target.field.layout.width.value+", "+target.field.layout.height.value);
+	//	trace(target+".updateLabelSize "+fieldLayout.width.value+", "+fieldLayout.height.value);
 		targetLayout.measuredWidth	= fieldLayout.width.value;
 		targetLayout.measuredHeight	= fieldLayout.height.value;
+	//	targetLayout.invalidate( LayoutFlags.WIDTH | LayoutFlags.HEIGHT );
 	//	trace("\t\ttarget measured-size: "+targetLayout.measuredWidth+", "+targetLayout.measuredHeight);
 	//	trace("\t\ttarget explicit-size: "+targetLayout.explicitWidth+", "+targetLayout.explicitHeight);
 	}

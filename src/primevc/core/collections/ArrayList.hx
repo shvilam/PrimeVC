@@ -39,7 +39,7 @@ package primevc.core.collections;
  * @creation-date	Jun 29, 2010
  * @author			Ruben Weijers
  */
-class ArrayList <DataType> implements IList <DataType>
+class ArrayList <DataType> implements IBindableList <DataType>
 	#if flash9	,	implements haxe.rtti.Generic #end
 {
 	public var change		(default, null)		: ListChangeSignal < DataType >;

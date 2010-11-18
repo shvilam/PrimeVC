@@ -29,7 +29,7 @@
 package primevc.gui.styling;
 
 #if flash9
- import primevc.core.collections.DoubleFastCell;
+ import primevc.core.collections.FastDoubleCell;
  import primevc.core.collections.ListChange;
  import primevc.core.collections.PriorityList;
  import primevc.core.dispatcher.Signal0;
@@ -263,12 +263,49 @@ class UIElementStyle implements IUIElementStyle
 			Assert.notNull( target.container.as( IStylable ).style );
 			
 			parentStyle = target.container.as( IStylable ).style;
-			
-			if (parentStyle != this)
-				updateStyles.on( parentStyle.childrenChanged, this );
-			
+			resetStyles.on( parentStyle.childrenChanged, this );
 			updateStyles();
 		}
+	}
+	
+	
+	private function resetStyles ()
+	{
+		if (styles.length > 0)
+		{
+			var oldStyles	= styles.clone();
+			var changes		= updateStyles(false);
+			
+			if (styles.length > 0)
+			{
+				//find removed or added style-blocks
+				var styleCell:FastDoubleCell < StyleBlock > = oldStyles.first;
+				while (styleCell != null)
+				{
+					var newCell = styles.getCellForItem( styleCell.data );
+					if (newCell != null)
+						changes = changes.unset( getUsablePropertiesOf( newCell ) );
+					
+					/*else if (styleCell.data.extendedStyle != null)
+					{
+						newCell = styles.getCellForItem( styleCell.data.extendedStyle );
+						if (newCell != null)
+							changes = changes.unset( getUsablePropertiesOf( newCell, styleCell.data.allFilledProperties ) );
+					}*/
+					
+					styleCell = styleCell.next;
+				}
+				
+			//	trace(target+"...RESET STYLES; "+styles.length+" / "+oldStyles.length+"; changes "+Flags.readProperties(changes));
+			}
+			
+			oldStyles.dispose();
+			stylesAreSearched = true;
+			broadcastChanges( changes );
+		//	trace("\t\tcurProps: "+Flags.readProperties(filledProperties));
+		}
+		else
+			updateStyles();
 	}
 	
 	
@@ -276,7 +313,7 @@ class UIElementStyle implements IUIElementStyle
 	 * Method will fill the styles-list for this object and enable the 
 	 * style-change listeners.
 	 */
-	public function updateStyles () : Void
+	public function updateStyles (allowBroadcast:Bool = true) : Int
 	{
 		styleNamesChangeBinding.enable();
 		idChangeBinding.enable();
@@ -291,10 +328,15 @@ class UIElementStyle implements IUIElementStyle
 		changes		= changes.set( updateStyleNameStyles(null) );
 		changes		= changes.set( updateIdStyle() );
 		changes		= changes.set( updateStatesStyle() );		//set de styles for any states that are already set
+	//	changes		= changes.unset( Flags.INHERETING_STYLES );
 		
 		//update filled-properties flag
 		stylesAreSearched = true;
-		broadcastChanges(changes);
+		
+		if (allowBroadcast)
+			return broadcastChanges(changes);
+		else
+			return changes;
 	}
 	
 	
@@ -351,7 +393,7 @@ class UIElementStyle implements IUIElementStyle
 #if debug
 		Assert.notNull( styles );
 		Assert.notNull( style );
-		Assert.that( !styles.has(style) );
+		Assert.that( !styles.has(style), "style "+style+" already exists for "+target );
 #end
 		var styleCell	= styles.add( style );
 		var changes		= 0;
@@ -370,6 +412,9 @@ class UIElementStyle implements IUIElementStyle
 			if (style.has( Flags.LAYOUT ))			layout		.add( style.layout );
 			if (style.has( Flags.STATES ))			states		.add( style.states );
 			
+		//	if (style.parentStyle != null)
+		//		style.parentStyle.listeners.add( this );
+			
 			// FIND CHANGES
 			changes				= getUsablePropertiesOf( styleCell );
 			filledProperties	= filledProperties.set( changes );
@@ -385,8 +430,12 @@ class UIElementStyle implements IUIElementStyle
 	 * Method will remove the given stylecell from the the list with styles.
 	 * This includes removing the change-listeners. It will return a flag with
 	 * style-properties that are changed after removing the style.
+	 * 
+	 * @param isStyleStillInList	flag indicating if the style is still in the styles list.
+	 * 								This is not the case when the styles are resetted since
+	 * 								the whole list is thrown away.
 	 */
-	public function removeStyleCell (styleCell:DoubleFastCell < StyleBlock >) : UInt
+	public function removeStyleCell (styleCell:FastDoubleCell < StyleBlock >, isStyleStillInList:Bool = true) : UInt
 	{
 #if debug
 		Assert.notNull( styleCell );
@@ -396,20 +445,25 @@ class UIElementStyle implements IUIElementStyle
 #end
 		
 		var style	= styleCell.data;
-		var changes	= getUsablePropertiesOf( styleCell );
+		var changes	= isStyleStillInList ? getUsablePropertiesOf( styleCell ) : style.allFilledProperties;
 		
 		//
 		// REMOVE LISTENERS
 		//
 		style.listeners.remove( this );
 		
-		if (style.has( Flags.BOX_FILTERS ))		boxFilters	.remove( style.boxFilters );
-		if (style.has( Flags.EFFECTS ))			effects		.remove( style.effects );
-		if (style.has( Flags.FONT ))			font		.remove( style.font );
-		if (style.has( Flags.GRAPHICS ))		graphics	.remove( style.graphics );
-		if (style.has( Flags.LAYOUT ))			layout		.remove( style.layout );
-		if (style.has( Flags.STATES ))			states		.remove( style.states );
-		styles.removeCell( styleCell );
+	//	if (style.parentStyle != null)
+	//		style.parentStyle.listeners.remove( this );
+		
+		if (style.has( Flags.BOX_FILTERS ))		boxFilters	.remove( style.boxFilters	, isStyleStillInList );
+		if (style.has( Flags.EFFECTS ))			effects		.remove( style.effects		, isStyleStillInList );
+		if (style.has( Flags.FONT ))			font		.remove( style.font			, isStyleStillInList );
+		if (style.has( Flags.GRAPHICS ))		graphics	.remove( style.graphics		, isStyleStillInList );
+		if (style.has( Flags.LAYOUT ))			layout		.remove( style.layout		, isStyleStillInList );
+		if (style.has( Flags.STATES ))			states		.remove( style.states		, isStyleStillInList );
+		
+		if (isStyleStillInList)
+			styles.removeCell( styleCell );
 		
 	//	trace(target+".removedStyle "+readProperties( changes ));
 		return changes;
@@ -426,7 +480,7 @@ class UIElementStyle implements IUIElementStyle
 			return 0;
 		
 		var changes = 0;
-		var styleCell:DoubleFastCell < StyleBlock > = null;
+		var styleCell:FastDoubleCell < StyleBlock > = null;
 		
 		while (null != (styleCell = styles.getCellWithPriority( priority )))
 			changes = changes.set( removeStyleCell( styleCell ) );
@@ -494,6 +548,7 @@ class UIElementStyle implements IUIElementStyle
 			change = ListChange.reset;
 		
 		var changes = 0;
+		
 		switch (change)
 		{
 			case added( styleName, newPos ):
@@ -509,7 +564,7 @@ class UIElementStyle implements IUIElementStyle
 			
 			
 			case reset:
-				changes = changes.set( removeStylesWithPriority( StyleBlockType.styleNameState.enumIndex() ) );
+				changes = changes.set( removeStylesWithPriority( StyleBlockType.styleName.enumIndex() ) );
 				
 				for ( styleName in target.styleClasses )
 				{
@@ -564,15 +619,19 @@ class UIElementStyle implements IUIElementStyle
 	 * 
 	 * Usabable props of elementStyle: font
 	 */ 
-	public function getUsablePropertiesOf ( styleCell:DoubleFastCell < StyleBlock >, properties:Int = -1 ) : UInt
+	public function getUsablePropertiesOf ( styleCell:FastDoubleCell < StyleBlock >, properties:Int = -1 ) : UInt
 	{
 		Assert.notNull( styleCell );
 		if (properties == -1)
-			properties = styleCell.data.allFilledProperties.unset( Flags.INHERETING_STYLES );
+			properties = styleCell.data.allFilledProperties;
+		
+		properties = properties.unset( Flags.INHERETING_STYLES );
 		
 		//loop through all cell's with higher priority
-		while (null != (styleCell = styleCell.prev) && properties > 0)
+		while (null != (styleCell = styleCell.prev) && properties > 0) {
+			Assert.notNull( styleCell.data, "found cell without data in "+target );
 			properties = properties.unset( styleCell.data.allFilledProperties );
+		}
 		
 		return properties;
 	}
@@ -591,6 +650,7 @@ class UIElementStyle implements IUIElementStyle
 			if (filledProperties == Flags.ALL_PROPERTIES)
 				break;
 		}
+		filledProperties = filledProperties.unset( Flags.INHERETING_STYLES );
 	}
 	
 	
@@ -602,17 +662,17 @@ class UIElementStyle implements IUIElementStyle
 	
 	public function createState ()
 	{
-		var state = new StyleState( this );
-		currentStates.push( state );
-		return state;
+		/*var state = new StyleState( this );
+		currentStates.push( state );*/
+		return new StyleState( this );
 	}
 	
-	
+	/*
 	public function removeState (state:StyleState)
 	{
 		currentStates.removeItem( state );
 		state.dispose();
-	}
+	}*/
 	
 	
 /*	private inline function setState (v:String) : String
@@ -628,12 +688,25 @@ class UIElementStyle implements IUIElementStyle
 	
 	public function invalidateCall (changes:UInt, sender:IInvalidatable)
 	{
-		var senderCell	= styles.getCellForItem( cast sender );
-		Assert.notNull(senderCell);
-		changes			= getUsablePropertiesOf( senderCell, changes );
-		
-	//	trace("\tchanged properties "+StyleFlags.readProperties(changes));
-		broadcastChanges( changes );
+		if (sender.is(UIElementStyle))
+		{
+			var senderCell = styles.getCellForItem( cast sender );
+		//	Assert.notNull(senderCell);
+			
+			if (senderCell != null)
+			{
+				//sender is a styleblock of this style 
+				changes = getUsablePropertiesOf( senderCell, changes );
+				broadcastChanges( changes );
+			}
+			else
+			{
+				//Sender must be the parent-style of one of our styles.
+				//Check if the changes include child-changes. If so, reset our styles
+				if (changes.has( Flags.CHILDREN ))
+					resetStyles();
+			}
+		}
 	}
 	
 	

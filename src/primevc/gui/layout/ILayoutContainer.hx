@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout;
- import primevc.core.collections.IList;
+ import primevc.core.collections.IBindableList;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
 
 
@@ -54,7 +54,7 @@ interface ILayoutContainer implements ILayoutClient
 	/**
 	 * List with all the children of the group
 	 */
-	public var children				(default, null)				: IList<LayoutClient>;
+	public var children				(default, null)				: IBindableList<LayoutClient>;
 	
 	
 	/**

@@ -61,7 +61,7 @@ interface ITextField
 	 * 
 	 * TODO: not implemented for the htmlText property
 	 */
-	public var data					(default, null)			: IBindable < String >;
+	public var data					(default, setData)		: IBindable < String >;
 	public var value				(getValue, setValue)	: String;
 	
 	

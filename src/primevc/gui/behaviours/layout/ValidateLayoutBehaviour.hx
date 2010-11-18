@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.layout;
- import primevc.core.collections.DoubleFastCell;
+ import primevc.core.collections.FastDoubleCell;
  import primevc.core.dispatcher.Wire;
  import primevc.gui.behaviours.ValidatingBehaviour;
  import primevc.gui.core.IUIElement;

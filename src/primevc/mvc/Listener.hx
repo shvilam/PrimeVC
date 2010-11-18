@@ -21,13 +21,14 @@ class Listener <EventsTypedef, ModelTypedef, ViewTypeDef> extends Notifier <Even
 	public function new (dependencies :{ var events (default,null):EventsTypedef; var model (default,null):ModelTypedef; var view (default,null):ViewTypeDef; })
 	{
 		Assert.that(dependencies != null);
-		
 		super( dependencies.events );
+		
 		facade	= dependencies;
 		model	= dependencies.model;
 		view	= dependencies.view;
 		
-		Assert.notNull(model, "Model cannot be null");
+		Assert.notNull(model, "Model cannot be null for "+this);
+		Assert.notNull(view, "View cannot be null for "+this);
 	}
 	
 	

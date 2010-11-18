@@ -68,7 +68,7 @@ class Label extends UIDataComponent < String >, implements ITextStylable
 	
 	override private function createChildren ()
 	{
-		field = new UITextField( null, false, data );
+		field = new UITextField( null, false, vo );
 #if debug
 		field.id.value = id.value + "TextField";
 #end
@@ -95,10 +95,10 @@ class Label extends UIDataComponent < String >, implements ITextStylable
 	
 	/*override private function initData ()
 	{
-		trace("DATA VALUE 1 "+value);
-		field.data.pair( data );
-		trace("DATA VALUE 2 "+value);
-		traceChange.on( data.change, this );
+		trace("DATA VALUE 1 "+data);
+		field.vo.pair( vo );
+		trace("DATA VALUE 2 "+data);
+		traceChange.on( vo.change, this );
 	}
 	
 	

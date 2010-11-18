@@ -28,7 +28,7 @@
  */
 package primevc.gui.traits;
  import primevc.core.collections.DataCursor;
- import primevc.core.collections.IList;
+ import primevc.core.collections.IBindableList;
 
 
 /**
@@ -37,7 +37,7 @@ package primevc.gui.traits;
  */
 interface IDataDropTarget < DataType > implements IDropTarget 
 {
-	public var value	(getValue, setValue)	: IList < DataType >;
+	public var value	(getValue, setValue)	: IBindableList < DataType >;
 	
 	/**
 	 * Method to check if an IDraggabledata--item is allowed to drop on this

@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
- import primevc.core.collections.IList;
+ import primevc.core.collections.IBindableList;
  import primevc.core.collections.ListChange;
  import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
  import primevc.gui.core.IUIDataComponent;
@@ -47,7 +47,7 @@ private typedef ItemRendererType <T> = Class < ItemRenderer < T > >;
  * @author Ruben Weijers
  * @creation-date Oct 26, 2010
  */
-class ListView < ListDataType > extends UIDataContainer < IList < ListDataType > >, implements IListView < ListDataType >
+class ListView < ListDataType > extends UIDataContainer < IBindableList < ListDataType > >, implements IListView < ListDataType >
 {
 	override private function createBehaviours ()
 	{
@@ -57,11 +57,9 @@ class ListView < ListDataType > extends UIDataContainer < IList < ListDataType >
 	
 	override private function initData ()
 	{
-		Assert.that(window != null);
-		
-		//listen for data changes
-		dataChangeHandler.on( data.change, this );
-		dataChangeHandler( data.value, null );
+		//listen for vo changes
+		voChangeHandler.on( vo.change, this );
+		voChangeHandler( vo.value, null );
 	}
 	
 	
@@ -79,7 +77,7 @@ class ListView < ListDataType > extends UIDataContainer < IList < ListDataType >
 	private function addItemRenderer( item:ListDataType, newPos:Int = -1 )
 	{
 		if (newPos == -1)
-			newPos = data.value.indexOf( item );
+			newPos = vo.value.indexOf( item );
 		
 		children.add( createItemRenderer( item, newPos ), newPos );
 	}
@@ -100,12 +98,12 @@ class ListView < ListDataType > extends UIDataContainer < IList < ListDataType >
 		for (child in children) {
 			if (child.is( ItemRenderer ))
 			{
-				if (item == cast child.as( ItemRenderer ).value )
+				if (item == cast child.as( ItemRenderer ).data )
 					return child;
 			}
 		}
 		
-		return null;		
+		return null;
 	}
 	
 	
@@ -116,7 +114,7 @@ class ListView < ListDataType > extends UIDataContainer < IList < ListDataType >
 			children.move( renderer, newPos, oldPos );
 #if debug
 		else
-			trace("no itemrenderer found to move for data-item "+item+"; move: "+oldPos+" => "+newPos);
+			trace("no itemrenderer found to move for vo-item "+item+"; move: "+oldPos+" => "+newPos);
 #end
 	}
 	
@@ -126,7 +124,7 @@ class ListView < ListDataType > extends UIDataContainer < IList < ListDataType >
 	// EVENT HANDLERS
 	//
 	
-	private function dataChangeHandler (newVal:IList< ListDataType >, oldVal:IList< ListDataType > ) : Void
+	private function voChangeHandler (newVal:IBindableList< ListDataType >, oldVal:IBindableList< ListDataType > ) : Void
 	{
 		if (oldVal == newVal)
 			return;

@@ -27,7 +27,6 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.effects.effectInstances;
- import primevc.core.collections.IList;
  import primevc.gui.effects.CompositeEffect;		//imports typedef ChildEffectType
  import primevc.gui.effects.EffectProperties;
  import primevc.gui.effects.IEffect;

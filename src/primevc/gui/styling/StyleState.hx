@@ -30,10 +30,10 @@ package primevc.gui.styling;
  import primevc.core.IDisposable;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
+  using primevc.utils.FastArray;
 
 
 /**
- * 
  * @author Ruben Weijers
  * @creation-date Oct 20, 2010
  */
@@ -76,8 +76,14 @@ class StyleState implements IDisposable
 		{
 			Assert.that( elementStyle != null );
 			var changes = 0;
-			if (current != 0)
+			if (current != 0) {
 				changes = changes.set( removeStyles() );
+				
+				if (v == 0)
+					elementStyle.currentStates.removeItem( this );
+			}
+			else
+				elementStyle.currentStates.push( this );
 			
 			current = v;
 			

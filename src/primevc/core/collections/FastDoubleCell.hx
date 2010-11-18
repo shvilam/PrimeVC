@@ -26,55 +26,84 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.collections.iterators;
- import primevc.core.collections.DoubleFastCell;
-
+package primevc.core.collections;
+ 
 
 /**
- * Iterate object for the DoubleFastList implementation
+ * FastCell with a back- and forward reference.
  * 
- * @creation-date	Jul 23, 2010
+ * @creation-date	Jul 1, 2010
  * @author			Ruben Weijers
  */
-class DoubleFastCellReversedIterator <DataType> implements IIterator <DataType>
-	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
+class FastDoubleCell <T> #if (flash9 || cpp) implements haxe.rtti.Generic #end
 {
-	private var last (default, null)	: DoubleFastCell<DataType>;
-	public var current (default, null)	: DoubleFastCell<DataType>;
-
-	public function new (last:DoubleFastCell<DataType>) 
+	public var data : T;
+	public var prev : FastDoubleCell<T>;
+	public var next : FastDoubleCell<T>;
+	
+	
+	public function new (data, ?prev, ?next)
 	{
-		this.last = last;
-		rewind();
-#if (unitTesting && debug)
-		test();
-#end
-	}
-
-	public inline function setCurrent (val:Dynamic)	{ current = val; }
-	public inline function rewind ()				{ current = last; }
-	public inline function hasNext ()				{ return current != null; }
-
-	public inline function next () : DataType
-	{
-		var c = current;
-		current = current.prev;
-		return c.data;
+		this.data = data;
+		this.prev = prev;
+		this.next = next;
 	}
 	
 	
-#if (unitTesting && debug)
-	public function test ()
+	public inline function dispose ()
 	{
-		var cur = last, prev:DoubleFastCell<DataType> = null;
-		while (cur != null)
+		data = null;
+		next = prev = null;
+	}
+	
+	
+	/**
+	 * Insert's the current cell before the given cell
+	 */
+	public function insertBefore ( cell:FastDoubleCell <T >)
+	{
+		if (cell.prev != this)
 		{
-			if (prev == null)	Assert.null( cur.next );
-			else				Assert.equal( cur.next, prev );
-			
-			prev	= cur;
-			cur		= cur.prev;
+			prev = cell.prev;
+			if (prev != null)
+				prev.next = this;
+		
+			cell.prev	= this;
+		//	cell.next	= next;
+			next		= cell;
 		}
+		return this;
 	}
+	
+	
+	/**
+	 * Insert's the current cell after the given cell
+	 */
+	public function insertAfter ( cell:FastDoubleCell <T> )
+	{
+		if (cell.next != this)
+		{
+			next = cell.next;
+			if (next != null)
+				next.prev	= this;
+			
+			cell.next	= this;
+			prev		= cell;
+		}
+		return this;
+	}
+	
+	
+	public function remove ()
+	{
+		if (prev != null)	prev.next = next;
+		if (next != null)	next.prev = prev;
+		
+		prev = next = null;
+	//	dispose();
+	}
+	
+#if debug
+	public function toString () { return data+"Cell"; }
 #end
 }

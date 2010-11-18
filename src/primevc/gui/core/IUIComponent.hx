@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
+ import primevc.core.Bindable;
  import primevc.gui.display.ISprite;
  import primevc.gui.traits.ISkinnable;
 #if flash9
@@ -46,6 +47,8 @@ interface IUIComponent
 			,	implements ISkinnable
 #if flash9	,	implements IDrawable	#end
 {
+	public var enabled	(default, null)				: Bindable < Bool >;
+	
 	/**
 	 * This is the first method that will be runned by the constructor.
 	 * Overwrite this method to instantiate the states of the component.

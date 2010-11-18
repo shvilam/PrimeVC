@@ -28,7 +28,7 @@
  */
 package primevc.gui.layout.algorithms.tile;
  import primevc.core.collections.ArrayList;
- import primevc.core.collections.IList;
+ import primevc.core.collections.IBindableList;
  import primevc.core.collections.ListChange;
  import primevc.core.traits.IInvalidatable;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
@@ -55,13 +55,13 @@ private typedef Flags = LayoutFlags;
 class TileContainer extends LayoutClient, implements ILayoutContainer
 {
 	public var algorithm	(default, setAlgorithm)		: ILayoutAlgorithm;
-	public var children		(default, null)				: IList<LayoutClient>;
+	public var children		(default, null)				: IBindableList<LayoutClient>;
 	
 	public var childWidth	(default, setChildWidth)	: Int;
 	public var childHeight	(default, setChildHeight)	: Int;
 	
 	
-	public function new( list:IList<LayoutClient> = null )
+	public function new( list:IBindableList<LayoutClient> = null )
 	{
 		super();
 		children	= list == null ? new ArrayList<LayoutClient>() : list;

@@ -29,7 +29,7 @@
 package primevc.gui.styling;
  import primevc.core.collections.iterators.IIterator;
  import primevc.core.collections.PriorityList;
- import primevc.core.collections.DoubleFastCell;
+ import primevc.core.collections.FastDoubleCell;
 // import primevc.core.dispatcher.Signal1;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.traits.IInvalidateListener;
@@ -41,7 +41,7 @@ package primevc.gui.styling;
 #end
 
 
-typedef CellType = DoubleFastCell < StyleBlock >;
+typedef CellType = FastDoubleCell < StyleBlock >;
 
 /**
  * Base class for style-proxy's
@@ -135,11 +135,15 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	}
 	
 	
-	public function remove ( style:StyleGroupType )
+	public function remove ( style:StyleGroupType, isStyleStillInList:Bool = true )
 	{
 		style.listeners.remove( this );
 		updateFilledPropertiesFlag( style );	//exclude the to be removed style
-		changes = changes.set( getRealChangesOf( style, style.allFilledProperties ) );
+		
+		if (isStyleStillInList)
+			changes = changes.set( getRealChangesOf( style, style.allFilledProperties ) );
+		else
+			changes = changes.set( style.allFilledProperties );
 	//	trace("\t"+this+".styleRemoved; " + readProperties(filledProperties)+"; changes: "+readProperties(changes));
 	}
 	

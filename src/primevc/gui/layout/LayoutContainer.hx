@@ -28,7 +28,7 @@
  */
 package primevc.gui.layout;
  import primevc.core.collections.ArrayList;
- import primevc.core.collections.IList;
+ import primevc.core.collections.IBindableList;
  import primevc.core.collections.ListChange;
  import primevc.core.geom.BindablePoint;
  import primevc.core.geom.Box;
@@ -60,7 +60,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	
 	
 	public var algorithm			(default, setAlgorithm)			: ILayoutAlgorithm;
-	public var children				(default, null)					: IList<LayoutClient>;
+	public var children				(default, null)					: IBindableList<LayoutClient>;
 	
 	public var childWidth			(default, setChildWidth)		: Int;
 	public var childHeight			(default, setChildHeight)		: Int;

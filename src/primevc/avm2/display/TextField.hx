@@ -86,7 +86,7 @@ class TextField extends flash.text.TextField, implements ITextField
 	 */
 	public var realTextHeight	(getRealTextHeight, never)	: Float;
 	
-	public var data				(default, null)				: IBindable < String >;
+	public var data				(default, setData)			: IBindable < String >;
 	public var value			(getValue, setValue)		: String;
 	public var textStyle		(default, setTextStyle)		: TextFormat;
 	
@@ -100,8 +100,6 @@ class TextField extends flash.text.TextField, implements ITextField
 		rect			= new IntRectangle( x.int(), y.int(), width.int(), height.int() );
 		this.data		= data == null ? new Bindable<String>(text) : data;
 		textStyle		= new TextFormat();
-		
-		setHandlers.onceOn( displayEvents.addedToStage, this );
 	}
 	
 	
@@ -110,6 +108,24 @@ class TextField extends flash.text.TextField, implements ITextField
 		applyValue	.on( data.change, this );
 		updateValue	.on( textEvents.change, this );
 		applyValue();
+	}
+	
+	
+	private inline function setData (v:IBindable<String>)
+	{
+		if (data != null)
+		{
+			data.change.unbind(this);
+			textEvents.change.unbind(this);
+		}
+		
+		data = v;
+		if (data != null && window != null)
+			setHandlers();
+		else
+			setHandlers.onceOn( displayEvents.addedToStage, this );
+		
+		return v;
 	}
 	
 	

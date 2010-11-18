@@ -38,4 +38,9 @@ package primevc.mvc.core;
  */
 interface IModel implements primevc.core.IDisposable
 {
+	/**
+	 * Method in which all the proxies should be created. Constructor is only
+	 * meant to make the object exist
+	 */
+	public function init () : Void;
 }

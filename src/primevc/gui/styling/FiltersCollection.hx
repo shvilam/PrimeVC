@@ -170,6 +170,7 @@ class FiltersCollection extends StyleCollectionBase < FiltersStyle >
 	
 	private inline function removeBoxFilters (filtersToRemove:UInt, filters:Array<Dynamic>)
 	{
+	//	trace(elementStyle.target+".removeBoxFilters "+Flags.readProperties(filtersToRemove));
 		if (filtersToRemove.has( Flags.SHADOW ))			unsetFilter( filters, Flags.SHADOW );
 		if (filtersToRemove.has( Flags.BEVEL ))				unsetFilter( filters, Flags.BEVEL );
 		if (filtersToRemove.has( Flags.BLUR ))				unsetFilter( filters, Flags.BLUR );

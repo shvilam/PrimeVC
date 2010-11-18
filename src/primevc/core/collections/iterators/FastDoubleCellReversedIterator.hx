@@ -26,44 +26,55 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.collections;
- 
+package primevc.core.collections.iterators;
+ import primevc.core.collections.FastDoubleCell;
+
 
 /**
- * @creation-date	Jun 29, 2010
+ * Iterate object for the DoubleFastList implementation
+ * 
+ * @creation-date	Jul 23, 2010
  * @author			Ruben Weijers
  */
-interface IList <DataType> implements IReadOnlyList <DataType>
+class FastDoubleCellReversedIterator <DataType> implements IIterator <DataType>
+	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
-	//
-	// LIST MANIPULATION METHODS
-	//
+	private var last (default, null)	: FastDoubleCell<DataType>;
+	public var current (default, null)	: FastDoubleCell<DataType>;
+
+	public function new (last:FastDoubleCell<DataType>) 
+	{
+		this.last = last;
+		rewind();
+#if (unitTesting && debug)
+		test();
+#end
+	}
+
+	public inline function setCurrent (val:Dynamic)	{ current = val; }
+	public inline function rewind ()				{ current = last; }
+	public inline function hasNext ()				{ return current != null; }
+
+	public inline function next () : DataType
+	{
+		var c = current;
+		current = current.prev;
+		return c.data;
+	}
 	
-	/**
-	 * Method will add the item on the given position. It will add the 
-	 * item at the end of the childlist when the value is equal to -1.
-	 * 
-	 * @param	item
-	 * @param	pos		default-value: -1
-	 * @return	item
-	 */
-	public function add		(item:DataType, pos:Int = -1)						: DataType;
-	/**
-	 * Method will try to remove the given item from the childlist.
-	 * 
-	 * @param	item
-	 * @return	item
-	 */
-	public function remove	(item:DataType, oldPos:Int = -1)					: DataType;
-	/**
-	 * Method will change the depth of the given item.
-	 * 
-	 * @param	item
-	 * @param	newPos
-	 * @param	curPos	Optional parameter that can be used to speed up the 
-	 * 					moving process since the list doesn't have to search 
-	 * 					for the original location of the item.
-	 * @return	item
-	 */
-	public function move	(item:DataType, newPos:Int, curPos:Int = -1)		: DataType;
+	
+#if (unitTesting && debug)
+	public function test ()
+	{
+		var cur = last, prev:FastDoubleCell<DataType> = null;
+		while (cur != null)
+		{
+			if (prev == null)	Assert.null( cur.next );
+			else				Assert.equal( cur.next, prev );
+			
+			prev	= cur;
+			cur		= cur.prev;
+		}
+	}
+#end
 }

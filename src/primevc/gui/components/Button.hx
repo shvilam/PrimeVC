@@ -55,37 +55,38 @@ class Button extends UIDataContainer < String >, implements IIconOwner, implemen
 #end
 	
 	
-	public function new (id:String = null, value:String = null, icon:Bitmap = null)
+	public function new (id:String = null, data:String = null, icon:Bitmap = null)
 	{
-		super(id, value);
+		super(id, data);
 		this.icon = icon;
 	}
 	
 	
 	override private function createChildren ()
 	{
-		labelField = new UITextField( null, false, data);
+		labelField = new UITextField( null, false, vo);
 #if debug
 		labelField.id.value = id.value + "TextField";
 #end
 #if flash9
-		labelField.autoSize				= flash.text.TextFieldAutoSize.NONE;
-		labelField.selectable			= false;
-		labelField.mouseWheelEnabled	= false;
+		labelField.autoSize			= flash.text.TextFieldAutoSize.NONE;
+		labelField.selectable		= false;
+		labelField.mouseEnabled		= false;
+		labelField.tabEnabled		= false;
 #end
 		if (textStyle != null)
-			labelField.textStyle		= textStyle;
+			labelField.textStyle	= textStyle;
 		
 		addOrRemoveLabel();
 		createIconGraphic();
 		
-		addOrRemoveLabel.on( data.change, this );
+		addOrRemoveLabel.on( vo.change, this );
 	}
 	
 	
 	private function addOrRemoveLabel ()
 	{
-		if (value == null && labelField.container != null)
+		if (data == null && labelField.container != null)
 		{
 			layoutContainer.children.remove( labelField.layout );
 			children.remove( labelField );
@@ -106,6 +107,12 @@ class Button extends UIDataContainer < String >, implements IIconOwner, implemen
 		labelField.dispose();
 		labelField	= null;
 		icon		= null;
+	}
+	
+	
+	override private function initData ()
+	{
+		labelField.data = vo;
 	}
 	
 	

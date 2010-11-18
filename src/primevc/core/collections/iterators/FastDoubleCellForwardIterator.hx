@@ -26,84 +26,57 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.collections;
- 
+package primevc.core.collections.iterators;
+ import primevc.core.collections.FastDoubleCell;
+
 
 /**
- * FastCell with a back- and forward reference.
+ * Iterate object for the DoubleFastList implementation
  * 
- * @creation-date	Jul 1, 2010
+ * @creation-date	Jun 29, 2010
  * @author			Ruben Weijers
  */
-class DoubleFastCell <T> #if (flash9 || cpp) implements haxe.rtti.Generic #end
+class FastDoubleCellForwardIterator <DataType> implements IIterator <DataType>
+	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
-	public var data : T;
-	public var prev : DoubleFastCell<T>;
-	public var next : DoubleFastCell<T>;
+	private var first (default, null)	: FastDoubleCell<DataType>;
+	public var current (default, null)	: FastDoubleCell<DataType>;
 	
-	
-	public function new (data, ?prev, ?next)
+	public function new (first:FastDoubleCell<DataType>) 
 	{
-		this.data = data;
-		this.prev = prev;
-		this.next = next;
+		this.first = first;
+		rewind();
+#if (unitTesting && debug)
+		test();
+#end
 	}
 	
 	
-	public inline function dispose ()
+	public inline function setCurrent (val:Dynamic)	{ current = val; }
+	public inline function rewind ()				{ current = first; }
+	public inline function hasNext () 				{ return current != null; }
+	
+	
+	public inline function next () : DataType
 	{
-		data = null;
-		next = prev = null;
+		var c = current;
+		current = current.next;
+		return c.data;
 	}
 	
 	
-	/**
-	 * Insert's the current cell before the given cell
-	 */
-	public function insertBefore ( cell:DoubleFastCell <T >)
+#if (unitTesting && debug)
+	public function test ()
 	{
-		if (cell.prev != this)
+		var cur = first, prev:FastDoubleCell<DataType> = null;
+		while (cur != null)
 		{
-			prev = cell.prev;
-			if (prev != null)
-				prev.next = this;
-		
-			cell.prev	= this;
-		//	cell.next	= next;
-			next		= cell;
-		}
-		return this;
-	}
-	
-	
-	/**
-	 * Insert's the current cell after the given cell
-	 */
-	public function insertAfter ( cell:DoubleFastCell <T> )
-	{
-		if (cell.next != this)
-		{
-			next = cell.next;
-			if (next != null)
-				next.prev	= this;
+			if (prev == null)	Assert.null( cur.prev, "first incorrect" );
+			else				Assert.equal( cur.prev, prev, "previous incorrect" );
 			
-			cell.next	= this;
-			prev		= cell;
+			prev	= cur;
+			cur		= cur.next;
 		}
-		return this;
 	}
-	
-	
-	public function remove ()
-	{
-		if (prev != null)	prev.next = next;
-		if (next != null)	next.prev = prev;
-		
-		prev = next = null;
-	//	dispose();
-	}
-	
-#if debug
-	public function toString () { return data+"Cell"; }
 #end
 }

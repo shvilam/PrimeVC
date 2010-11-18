@@ -51,7 +51,7 @@ class Mediator <EventsTypedef, ModelTypedef, ViewTypeDef, ViewComponentType> ext
 	{
 		super(dependencies);
 		
-		if (view != null)
+		if (viewComponent != null)
 			setViewComponent( viewComponent );
 		
 		init();

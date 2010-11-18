@@ -37,11 +37,11 @@ package primevc.core.collections;
 class DataCursor < DataType > implements IDataCursor < DataType > 
 {
 	public var target	(default, null)		: DataType;
-	public var list		(default, setList)	: IList < DataType >;
+	public var list		(default, setList)	: IBindableList < DataType >;
 	public var depth	(default, null)		: Int;
 	
 	
-	public function new (target:DataType, list:IList < DataType > = null)
+	public function new (target:DataType, list:IBindableList < DataType > = null)
 	{
 		this.target	= target;
 		this.list	= list;
@@ -85,7 +85,7 @@ class DataCursor < DataType > implements IDataCursor < DataType >
 	}
 	
 	
-	public function moveTarget (newDepth:Int, newList:IList < DataType > = null)
+	public function moveTarget (newDepth:Int, newList:IBindableList < DataType > = null)
 	{
 		Assert.notNull( list );
 	//	trace("Cursor.moveTarget "+target+" "+depth+" => "+newDepth+"; newList "+(newList == list));

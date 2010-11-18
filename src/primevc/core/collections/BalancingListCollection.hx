@@ -28,7 +28,7 @@
  */
 package primevc.core.collections;
  import primevc.core.collections.iterators.IIterator;
- import primevc.core.collections.IList;
+ import primevc.core.collections.IBindableList;
  import primevc.core.dispatcher.Signal1;
  import primevc.utils.NumberMath;
   using primevc.utils.NumberMath;
@@ -71,8 +71,8 @@ package primevc.core.collections;
  * @creation-date	Jul 1, 2010
  * @author			Ruben Weijers
  */
-class BalancingListCollection <DataType> implements IList <DataType>,
-	implements IListCollection < DataType, BalancingList<DataType> > 
+class BalancingListCollection <DataType> implements IBindableList <DataType>,
+	implements IBindableListCollection < DataType, BalancingList<DataType> > 
 	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	private var _length		: Int;
@@ -117,7 +117,14 @@ class BalancingListCollection <DataType> implements IList <DataType>,
 	}
 	
 	
-	public function clone () : IList < DataType >
+	public inline function removeAll ()
+	{
+		while (length > 0)
+			removeItem( getItemAt(0) );
+	}
+	
+	
+	public function clone () : IReadOnlyList < DataType >
 	{
 		var l = new BalancingListCollection<DataType>(maxLists);
 		for (child in this)
