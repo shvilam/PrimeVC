@@ -27,7 +27,7 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.core.dispatcher;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.utils.TypeUtil;
 
 /**

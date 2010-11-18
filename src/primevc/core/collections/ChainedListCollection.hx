@@ -43,7 +43,7 @@ package primevc.core.collections;
  * 
  */
 class ChainedListCollection <DataType> implements IBindableList <DataType>,
-	implements IBindableListCollection < DataType, ChainedList<DataType> > 
+	implements IListCollection < DataType, ChainedList<DataType> > 
 	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	public var change		(default, null)				: Signal1 < ListChange < DataType > >;

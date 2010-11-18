@@ -28,7 +28,7 @@
  */
 package primevc.core.validators;
  import primevc.core.dispatcher.Signal0;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  
 
 /**

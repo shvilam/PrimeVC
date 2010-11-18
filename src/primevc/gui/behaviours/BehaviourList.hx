@@ -28,7 +28,7 @@
  */
 package primevc.gui.behaviours;
  import haxe.FastList;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
 
 
 private typedef BehaviourType = IBehaviour<Dynamic>;

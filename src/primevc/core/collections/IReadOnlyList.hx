@@ -31,7 +31,7 @@ package primevc.core.collections;
  import primevc.core.dispatcher.Signal1;
  import primevc.core.traits.IClonable;
  import primevc.core.traits.IValueObject;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
 
 /**
  * @author Ruben Weijers

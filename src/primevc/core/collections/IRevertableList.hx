@@ -6,7 +6,7 @@ package primevc.core.collections;
  * @author Ruben Weijers
  * @creation-date Nov 18, 2010
  */
-interface IEditableList implements IBindableList, implements IEditableValueObject
+interface IRevertableList implements IBindableList, implements IEditableValueObject
 {
 	
 }

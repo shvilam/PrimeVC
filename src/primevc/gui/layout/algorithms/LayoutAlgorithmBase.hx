@@ -33,7 +33,7 @@ package primevc.gui.layout.algorithms;
  import primevc.utils.StringUtil;
 #end
  import primevc.core.dispatcher.Signal0;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutClient;

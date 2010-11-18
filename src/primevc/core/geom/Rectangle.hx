@@ -36,7 +36,7 @@ package primevc.core.geom;
 #if flash9
  typedef Rectangle = flash.geom.Rectangle;
 /*
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
 
 class Rectangle extends flash.geom.Rectangle, implements IDisposable
 {

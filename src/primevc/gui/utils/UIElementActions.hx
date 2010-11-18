@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.utils;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.gui.core.IUIElement;
  import primevc.types.Number;
   using primevc.utils.NumberUtil;

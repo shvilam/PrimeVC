@@ -36,7 +36,7 @@ package primevc.tools;
  import primevc.core.geom.Box;
  import primevc.core.geom.Corners;
  import primevc.core.geom.IntPoint;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
  import primevc.gui.behaviours.layout.UnclippedLayoutBehaviour;
  import primevc.gui.behaviours.scroll.CornerScrollBehaviour;

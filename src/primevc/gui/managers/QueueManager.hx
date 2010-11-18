@@ -28,7 +28,7 @@
  */
 package primevc.gui.managers;
  import primevc.core.dispatcher.Wire;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.gui.display.Window;
  import primevc.gui.traits.IValidatable;
 

@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.gui.states.SkinStates;
  import primevc.gui.traits.IBehaving;
 

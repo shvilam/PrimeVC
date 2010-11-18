@@ -29,7 +29,7 @@
 package primevc.gui.behaviours.drag;
  import primevc.core.geom.IntRectangle;
  import primevc.core.geom.Rectangle;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.traits.IDraggable;

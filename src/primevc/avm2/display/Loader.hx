@@ -31,7 +31,7 @@ package primevc.avm2.display;
  import flash.net.URLRequest;
  import flash.utils.ByteArray;
  import primevc.avm2.events.LoaderEvents;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
 
 
 typedef FlashLoader = flash.display.Loader;

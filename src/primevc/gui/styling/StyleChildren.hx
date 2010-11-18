@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.tools.generator.ICSSFormattable;
  import primevc.types.SimpleDictionary;
  import Hash;

@@ -28,7 +28,7 @@
  */
 package primevc.gui.graphics;
  import primevc.core.traits.IInvalidatable;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICSSFormattable;
 

@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.drag;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.core.collections.IDataCursor;
  import primevc.core.geom.Point;
  import primevc.core.geom.IRectangle;

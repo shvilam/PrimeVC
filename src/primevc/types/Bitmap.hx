@@ -28,7 +28,7 @@
  */
 package primevc.types;
  import primevc.core.states.SimpleStateMachine;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
   using primevc.utils.Bind;
 
 #if flash9

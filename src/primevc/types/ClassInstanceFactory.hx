@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.types;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.tools.generator.ICSSFormattable;
 
 #if neko

@@ -34,7 +34,7 @@ package primevc.gui.layout;
 #end
  import primevc.core.dispatcher.Signal0;
  import primevc.core.geom.IBox;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.tools.generator.ICSSFormattable;
  import primevc.types.Number;
   using primevc.utils.NumberUtil;

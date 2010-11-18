@@ -130,7 +130,7 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	 * 			-> tile1
 	 * 			-> ...
 	 */
-	private var horizontalMap		: IListCollection <LayoutClient, IList<LayoutClient>>;
+	private var horizontalMap		: IListCollection <LayoutClient, IBindableList<LayoutClient>>;
 	
 	
 	/**
@@ -161,7 +161,7 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	 * 			-> tile3
 	 * 			-> ...
 	 */
-	private var verticalMap			: IListCollection <LayoutClient, IList<LayoutClient>>;
+	private var verticalMap			: IListCollection <LayoutClient, IBindableList<LayoutClient>>;
 	
 	
 	private var childHorAlgorithm	: HorizontalFloatAlgorithm;

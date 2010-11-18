@@ -34,7 +34,7 @@ package primevc.avm2.display;
  import primevc.core.collections.ListChange;
  import primevc.core.collections.IReadOnlyList;
  import primevc.core.events.ListChangeSignal;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
   using primevc.utils.TypeUtil;

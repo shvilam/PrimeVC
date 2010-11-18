@@ -32,7 +32,7 @@ package primevc.gui.effects;
 #end
  import primevc.core.traits.IClonable;
  import primevc.core.traits.IInvalidatable;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.tools.generator.ICSSFormattable;
 
 

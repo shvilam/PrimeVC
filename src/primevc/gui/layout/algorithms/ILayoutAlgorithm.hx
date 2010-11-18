@@ -32,7 +32,7 @@ package primevc.gui.layout.algorithms;
 #end
  import primevc.core.dispatcher.Signal0;
  import primevc.core.geom.IRectangle;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.gui.layout.ILayoutContainer;
  import primevc.tools.generator.ICSSFormattable;
 

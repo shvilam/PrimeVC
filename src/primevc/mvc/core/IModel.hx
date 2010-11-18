@@ -36,7 +36,7 @@ package primevc.mvc.core;
  * @author Danny Wilson
  * @creation-date Jun 22, 2010
  */
-interface IModel implements primevc.core.IDisposable
+interface IModel implements primevc.core.traits.IDisposable
 {
 	/**
 	 * Method in which all the proxies should be created. Constructor is only

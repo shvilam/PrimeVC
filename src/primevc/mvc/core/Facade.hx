@@ -45,7 +45,7 @@ package primevc.mvc.core;
  * @author Danny Wilson
  * @creation-date Jun 22, 2010
  */
-class Facade < EventsType:MVCEvents, ModelsType:IModel, ViewsType:IView > implements primevc.core.IDisposable, implements haxe.rtti.Generic
+class Facade < EventsType:MVCEvents, ModelsType:IModel, ViewsType:IView > implements primevc.core.traits.IDisposable, implements haxe.rtti.Generic
 {
 	public var events	(default,null) : EventsType;
 	public var model	(default,null) : ModelsType;

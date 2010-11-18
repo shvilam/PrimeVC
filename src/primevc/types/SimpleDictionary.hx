@@ -28,7 +28,7 @@
  */
 package primevc.types;
  import primevc.core.collections.iterators.FastArrayForwardIterator;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.tools.generator.ICodeFormattable;
  import primevc.utils.FastArray;
 #if (neko || debug)

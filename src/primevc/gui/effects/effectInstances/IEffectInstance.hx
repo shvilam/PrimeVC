@@ -29,7 +29,7 @@
 package primevc.gui.effects.effectInstances;
  import haxe.Timer;
  import primevc.core.dispatcher.Signal0;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.gui.effects.EffectProperties;
  import primevc.gui.effects.IEffect;
  import primevc.gui.states.EffectStates;

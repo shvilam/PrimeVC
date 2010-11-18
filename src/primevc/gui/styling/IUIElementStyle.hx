@@ -29,7 +29,7 @@
 package primevc.gui.styling;
  import primevc.core.collections.PriorityList;
  import primevc.core.traits.IInvalidateListener;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.gui.styling.StyleBlock;
  import primevc.gui.traits.IStylable;
 

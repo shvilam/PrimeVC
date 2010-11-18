@@ -27,9 +27,10 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.core;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.core.Bindable;
  import primevc.core.dispatcher.Signal1;
+ import primevc.core.traits.IEditableValueObject;
  import haxe.FastList;
   using primevc.utils.BitUtil;
 
@@ -54,7 +55,7 @@ package primevc.core;
  * @creation-date	Jun 18, 2010
  * @author			Danny Wilson
  */
-class RevertableBindable <DataType> extends Bindable<DataType>//, implements haxe.rtti.Generic //- compiler crash
+class RevertableBindable <DataType> extends Bindable<DataType>, implements IEditableValueObject //, implements haxe.rtti.Generic //- compiler crash
 {
 	/**
 	 * Keeps track of settings.

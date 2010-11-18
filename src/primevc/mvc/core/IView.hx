@@ -33,7 +33,7 @@ package primevc.mvc.core;
  * @author Ruben Weijers
  * @creation-date Nov 15, 2010
  */
-interface IView implements primevc.core.IDisposable
+interface IView implements primevc.core.traits.IDisposable
 {
 	/**
 	 * Method in which all the mediators should be created. Constructor is only

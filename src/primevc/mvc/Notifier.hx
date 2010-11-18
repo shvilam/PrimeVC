@@ -1,5 +1,5 @@
 package primevc.mvc;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
 
 
 /**

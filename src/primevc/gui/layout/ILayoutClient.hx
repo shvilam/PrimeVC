@@ -33,7 +33,7 @@ package primevc.gui.layout;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.validators.ValidatingValue;
  import primevc.core.validators.IntRangeValidator;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.gui.events.LayoutEvents;
  import primevc.gui.states.ValidateStates;
 

@@ -72,7 +72,7 @@ package primevc.core.collections;
  * @author			Ruben Weijers
  */
 class BalancingListCollection <DataType> implements IBindableList <DataType>,
-	implements IBindableListCollection < DataType, BalancingList<DataType> > 
+	implements IListCollection < DataType, BalancingList<DataType> > 
 	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	private var _length		: Int;

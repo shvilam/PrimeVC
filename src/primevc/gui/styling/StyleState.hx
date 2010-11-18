@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.FastArray;

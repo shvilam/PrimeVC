@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.states;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.core.dispatcher.Signal2;
  import primevc.utils.FastArray;
 

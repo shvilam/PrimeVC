@@ -28,7 +28,7 @@
  */
 package primevc.core.states;
  import primevc.core.dispatcher.Signal2;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  
 
 /**

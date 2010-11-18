@@ -28,7 +28,7 @@
  */
 package primevc.gui.core;
  import primevc.core.traits.IIdentifiable;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.effects.UIElementEffects;
  import primevc.gui.states.UIElementStates;

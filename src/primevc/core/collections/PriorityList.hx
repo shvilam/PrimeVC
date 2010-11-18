@@ -32,7 +32,7 @@ package primevc.core.collections;
  import primevc.core.collections.iterators.FastDoubleCellReversedIterator;
  import primevc.core.traits.IClonable;
  import primevc.core.traits.IPrioritizable;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
 
 
 /**

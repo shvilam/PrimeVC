@@ -33,7 +33,7 @@ package primevc.gui.styling;
 // import primevc.core.dispatcher.Signal1;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.traits.IInvalidateListener;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
   using primevc.utils.BitUtil;
   using primevc.utils.TypeUtil;
 #if debug

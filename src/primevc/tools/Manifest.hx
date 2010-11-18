@@ -28,7 +28,7 @@
  */
 package primevc.tools;
  import haxe.xml.Fast;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.types.SimpleDictionary;
  import primevc.utils.FastArray;
   using primevc.utils.FastArray;

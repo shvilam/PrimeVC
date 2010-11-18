@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.traits;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
 #if (flash8 || flash9 || js)
  import primevc.core.geom.IntRectangle;
  import primevc.gui.display.IDisplayContainer;

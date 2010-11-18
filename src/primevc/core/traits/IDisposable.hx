@@ -26,7 +26,7 @@
  * Authors:
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
-package primevc.core;
+package primevc.core.traits;
 
 interface IDisposable
 {

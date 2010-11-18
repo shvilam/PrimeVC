@@ -29,7 +29,7 @@
 package primevc.avm2.net;
  import flash.net.URLLoaderDataFormat;
  import primevc.core.events.LoaderEvents;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.types.URI;
 
 

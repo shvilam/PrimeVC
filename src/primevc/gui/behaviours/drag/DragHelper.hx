@@ -29,7 +29,7 @@
 package primevc.gui.behaviours.drag;
  import haxe.Timer;
  import primevc.core.dispatcher.Wire;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.gui.display.ISprite;
  import primevc.gui.events.KeyboardEvents;
  import primevc.gui.events.MouseEvents;

@@ -28,6 +28,7 @@
  */
 package primevc.core;
  import primevc.core.dispatcher.Signal2;
+ import primevc.core.traits.IValueObject;
 
 
 typedef OldValue <V> = V;
@@ -40,7 +41,7 @@ typedef OldValue <V> = V;
  * @author Danny Wilson
  * @creation-date Jun 25, 2010
  */
-interface IBindableReadonly <DataType> implements primevc.core.IDisposable
+interface IBindableReadonly <DataType> implements primevc.core.traits.IValueObject
 //	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	/** 

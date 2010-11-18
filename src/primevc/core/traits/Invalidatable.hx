@@ -28,7 +28,6 @@
  */
 package primevc.core.traits;
  import haxe.FastList;
- import primevc.core.IDisposable;
   using primevc.utils.BitUtil;
 
 

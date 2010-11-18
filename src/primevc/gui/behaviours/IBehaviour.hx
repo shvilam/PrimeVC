@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  
 
 /**

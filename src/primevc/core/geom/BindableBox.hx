@@ -28,7 +28,7 @@
  */
 package primevc.core.geom;
  import primevc.core.Bindable;
- import primevc.core.IDisposable;
+ import primevc.core.traits.IDisposable;
  import primevc.types.Number;
 
 
