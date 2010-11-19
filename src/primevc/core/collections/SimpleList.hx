@@ -35,14 +35,14 @@ package primevc.core.collections;
  
 
 /**
- *.IBindableList implementation as FastList. When this list is iterated it will
+ *.IEditableList implementation as FastList. When this list is iterated it will
  * start with the first added item instead of the last added item as with
  * FastList.
  * 
  * @creation-date	Jun 29, 2010
  * @author			Ruben Weijers
  */
-class SimpleList < DataType > implements IBindableList < DataType > 
+class SimpleList < DataType > implements IEditableList < DataType > 
 	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	public var change		(default, null)		: ListChangeSignal < DataType >;

@@ -35,7 +35,7 @@ package primevc.core.collections;
  * @creation-date	Jul 1, 2010
  * @author			Ruben Weijers
  */
-interface IListCollection <DataType, ListType:IBindableList<DataType>> implements IBindableList <DataType>
+interface IListCollection <DataType, ListType:IEditableList<DataType>> implements IEditableList <DataType>
 //	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	public var lists		(default, null)		: ArrayList <ListType>;

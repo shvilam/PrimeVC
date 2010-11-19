@@ -30,6 +30,7 @@ package primevc.mvc;
  import primevc.core.traits.IEditableValueObject;
  import primevc.core.traits.IEditEnabledValueObject;
 
+
 /**
  * A proxy that allows mediators to edit the VO managed by the proxy.
  * 

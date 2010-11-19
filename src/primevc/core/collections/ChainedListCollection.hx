@@ -28,7 +28,7 @@
  */
 package primevc.core.collections;
  import primevc.core.collections.iterators.IIterator;
- import primevc.core.collections.IBindableList;
+ import primevc.core.collections.IEditableList;
  import primevc.core.collections.SimpleList;
  import primevc.core.dispatcher.Signal1;
  import primevc.utils.NumberMath;
@@ -42,7 +42,7 @@ package primevc.core.collections;
  * list.
  * 
  */
-class ChainedListCollection <DataType> implements IBindableList <DataType>,
+class ChainedListCollection <DataType> implements IEditableList <DataType>,
 	implements IListCollection < DataType, ChainedList<DataType> > 
 	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {

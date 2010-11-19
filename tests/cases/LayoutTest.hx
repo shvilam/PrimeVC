@@ -582,7 +582,7 @@ class Frame extends UIDataContainer < String >
 
 /*
 
-class UIList <ListType:IBindableList, RenderType:IUIElement> extends UIDataContainer < ListType >
+class UIList <ListType:IEditableList, RenderType:IUIElement> extends UIDataContainer < ListType >
 { 
 	
 }

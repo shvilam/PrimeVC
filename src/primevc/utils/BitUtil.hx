@@ -46,6 +46,16 @@ class BitUtil
 		return (bits & flag) != 0;
 	}
 	
+	
+	/**
+	 * Checks if all of the bits in 'flags' are set.
+	 */
+	public static inline function hasAll (bits:UInt, flags:Int) : Bool
+	{
+		return (bits & flags) == flags;
+	}
+	
+	
 	/**
 	 * Checks if none of the bits in 'flag' are set.
 	 */

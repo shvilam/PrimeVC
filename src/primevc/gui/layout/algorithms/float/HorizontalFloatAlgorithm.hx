@@ -82,7 +82,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 				width += child.outerBounds.width;
 				
 				//only count even children
-				if (i % 2 == 0)
+				if (i.isEven())
 					halfWidth += child.outerBounds.width;
 				
 				i++;
@@ -157,7 +157,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 					if (!child.includeInLayout)
 						continue;
 					
-					if (i % 2 == 0) {
+					if (i.isEven()) {
 						//even
 						child.bounds.right	= evenPos;
 						evenPos				= child.bounds.left;
@@ -175,7 +175,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 					if (!child.includeInLayout)
 						continue;
 					
-					if (i % 2 == 0) {
+					if (i.isEven()) {
 						//even
 						child.bounds.right	 = evenPos;
 						evenPos				-= group.childWidth;

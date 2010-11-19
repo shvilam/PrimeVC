@@ -105,6 +105,12 @@ class IntMath
 		var floatResult	= var1 / var2;
 		return (floatResult - intResult) >= 0.5 ? intResult + 1 : intResult;
 	}
+	
+	
+	public static inline function isEven (val:Int) : Bool
+	{
+		return (val & 1) == 0;
+	}
 }
 
 

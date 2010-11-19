@@ -30,7 +30,7 @@ package primevc.avm2.display;
  import flash.display.DisplayObjectContainer;
  import flash.display.DisplayObject;
  import primevc.core.collections.iterators.IIterator;
- import primevc.core.collections.IBindableList;
+ import primevc.core.collections.IEditableList;
  import primevc.core.collections.ListChange;
  import primevc.core.collections.IReadOnlyList;
  import primevc.core.events.ListChangeSignal;
@@ -50,7 +50,7 @@ private typedef ChildType		= IDisplayObject;
  * @author Ruben Weijers
  * @creation-date Jul 13, 2010
  */
-class DisplayList implements IBindableList <ChildType>
+class DisplayList implements IEditableList <ChildType>
 {
 	/**
 	 * Target display-object. This display-object will be controlled by the

@@ -26,46 +26,35 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.collections;
- 
+package primevc.utils;
+ import primevc.core.collections.IEditableList;
+ import primevc.core.collections.ListChange;
+
 
 /**
- * @creation-date	Jun 29, 2010
- * @author			Ruben Weijers
+ * Utility providing methods to deal with ListChange or PropertyChange values
+ * (to undo/redo them).
+ * 
+ * @author Ruben Weijers
+ * @creation-date Nov 19, 2010
  */
-interface IBindableList <DataType> implements IReadOnlyList <DataType>
+class ChangesUtility
 {
-	//
-	// LIST MANIPULATION METHODS
-	//
-	
-	/**
-	 * Method will add the item on the given position. It will add the 
-	 * item at the end of the childlist when the value is equal to -1.
-	 * 
-	 * @param	item
-	 * @param	pos		default-value: -1
-	 * @return	item
-	 */
-	public function add		(item:DataType, pos:Int = -1)						: DataType;
-	/**
-	 * Method will try to remove the given item from the childlist.
-	 * 
-	 * @param	item
-	 * @return	item
-	 */
-	public function remove	(item:DataType, oldPos:Int = -1)					: DataType;
-	/**
-	 * Method will change the depth of the given item.
-	 * 
-	 * @param	item
-	 * @param	newPos
-	 * @param	curPos	Optional parameter that can be used to speed up the 
-	 * 					moving process since the list doesn't have to search 
-	 * 					for the original location of the item.
-	 * @return	item
-	 */
-	public function move	(item:DataType, newPos:Int, curPos:Int = -1)		: DataType;
-	
-	public function removeAll ()	: Void;
+	public static inline function undoListChange<T> (list:IEditableList<T>, change:ListChange<T>) : Void
+	{
+		switch (change)
+		{
+			case added (item, newPos):
+				list.remove(item);
+			
+			case removed (item, oldPos):
+				list.add( item, oldPos );
+			
+			case moved (item, newPos, oldPos):
+				list.move( item, oldPos, newPos );
+			
+			default:
+				//what to do with a reset :-S
+		}
+	}
 }

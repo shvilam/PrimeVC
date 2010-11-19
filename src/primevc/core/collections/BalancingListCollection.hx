@@ -28,7 +28,7 @@
  */
 package primevc.core.collections;
  import primevc.core.collections.iterators.IIterator;
- import primevc.core.collections.IBindableList;
+ import primevc.core.collections.IEditableList;
  import primevc.core.dispatcher.Signal1;
  import primevc.utils.NumberMath;
   using primevc.utils.NumberMath;
@@ -71,7 +71,7 @@ package primevc.core.collections;
  * @creation-date	Jul 1, 2010
  * @author			Ruben Weijers
  */
-class BalancingListCollection <DataType> implements IBindableList <DataType>,
+class BalancingListCollection <DataType> implements IEditableList <DataType>,
 	implements IListCollection < DataType, BalancingList<DataType> > 
 	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {

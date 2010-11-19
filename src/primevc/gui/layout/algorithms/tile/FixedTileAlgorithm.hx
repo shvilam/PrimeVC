@@ -34,7 +34,7 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.core.collections.BalancingList;
  import primevc.core.collections.ChainedListCollection;
  import primevc.core.collections.ChainedList;
- import primevc.core.collections.IBindableList;
+ import primevc.core.collections.IEditableList;
  import primevc.core.collections.IListCollection;
  import primevc.core.collections.ListChange;
  import primevc.core.geom.space.Direction;
@@ -130,7 +130,7 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	 * 			-> tile1
 	 * 			-> ...
 	 */
-	private var horizontalMap		: IListCollection <LayoutClient, IBindableList<LayoutClient>>;
+	private var horizontalMap		: IListCollection <LayoutClient, IEditableList<LayoutClient>>;
 	
 	
 	/**
@@ -161,7 +161,7 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	 * 			-> tile3
 	 * 			-> ...
 	 */
-	private var verticalMap			: IListCollection <LayoutClient, IBindableList<LayoutClient>>;
+	private var verticalMap			: IListCollection <LayoutClient, IEditableList<LayoutClient>>;
 	
 	
 	private var childHorAlgorithm	: HorizontalFloatAlgorithm;

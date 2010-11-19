@@ -89,7 +89,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 				height += child.outerBounds.height;
 				
 				//only count even children
-				if (i % 2 == 0)
+				if (i.isEven())
 					halfHeight += child.outerBounds.height;
 				
 				i++;
@@ -165,7 +165,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 					if (!child.includeInLayout)
 						continue;
 					
-					if (i % 2 == 0) {
+					if (i.isEven()) {
 						//even
 						child.bounds.bottom	= evenPos;
 						evenPos				= child.bounds.top;
@@ -184,7 +184,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 					if (!child.includeInLayout)
 						continue;
 					
-					if (i % 2 == 0) {
+					if (i.isEven()) {
 						//even
 						child.bounds.bottom	 = evenPos;
 						evenPos				-= group.childHeight;

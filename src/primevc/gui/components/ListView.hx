@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
- import primevc.core.collections.IBindableList;
+ import primevc.core.collections.IEditableList;
  import primevc.core.collections.ListChange;
  import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
  import primevc.gui.core.IUIDataComponent;
@@ -47,7 +47,7 @@ private typedef ItemRendererType <T> = Class < ItemRenderer < T > >;
  * @author Ruben Weijers
  * @creation-date Oct 26, 2010
  */
-class ListView < ListDataType > extends UIDataContainer < IBindableList < ListDataType > >, implements IListView < ListDataType >
+class ListView < ListDataType > extends UIDataContainer < IEditableList < ListDataType > >, implements IListView < ListDataType >
 {
 	override private function createBehaviours ()
 	{
@@ -124,7 +124,7 @@ class ListView < ListDataType > extends UIDataContainer < IBindableList < ListDa
 	// EVENT HANDLERS
 	//
 	
-	private function voChangeHandler (newVal:IBindableList< ListDataType >, oldVal:IBindableList< ListDataType > ) : Void
+	private function voChangeHandler (newVal:IEditableList< ListDataType >, oldVal:IEditableList< ListDataType > ) : Void
 	{
 		if (oldVal == newVal)
 			return;

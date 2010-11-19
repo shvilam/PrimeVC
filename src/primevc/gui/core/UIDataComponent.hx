@@ -28,7 +28,7 @@
  */
 package primevc.gui.core;
  import primevc.core.collections.DataCursor;
- import primevc.core.collections.IBindableList;
+ import primevc.core.collections.IEditableList;
  import primevc.core.Bindable;
  import primevc.core.IBindable;
   using primevc.utils.TypeUtil;
@@ -93,10 +93,10 @@ class UIDataComponent <DataType> extends UIComponent, implements IUIDataComponen
 			return cursor;
 		
 		var parent = container.as(IUIDataComponent);
-		if (!parent.data.is(IBindableList))
+		if (!parent.data.is(IEditableList))
 			return cursor;
 		
-		cursor.list = cast parent.data.as( IBindableList );
+		cursor.list = cast parent.data.as( IEditableList );
 		return cursor;
 	}
 	

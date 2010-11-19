@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2010, The PrimeVC Project Contributors
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
@@ -26,49 +26,49 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.layout;
- import primevc.core.collections.IEditableList;
- import primevc.gui.layout.algorithms.ILayoutAlgorithm;
-
+package primevc.core.collections;
+ import primevc.core.traits.IEditEnabledValueObject;
+ 
 
 /**
- * @since	mar 19, 2010
- * @author	Ruben Weijers
+ * @creation-date	Jun 29, 2010
+ * @author			Ruben Weijers
  */
-interface ILayoutContainer implements ILayoutClient
+interface IEditableList <DataType>
+		implements IReadOnlyList <DataType>	
+	,	implements IEditEnabledValueObject
 {
-	public var algorithm			(default, setAlgorithm)		: ILayoutAlgorithm;
-	/**
-	 * Method that is called by a child of the layoutgroup to let the group
-	 * know that the child is changed. The layoutgroup can than decide, based 
-	 * on the used algorithm, if the group should be invalidated as well or
-	 * if the change in the child is not important.
-	 * 
-	 * @param	change		integer containing the change flags of the child
-	 * 			that is changed
-	 * @return	true if the change invalidates the parent as well, otherwise 
-	 * 			false
-	 */
-//	public function childInvalidated (childChanges:Int)			: Bool;
+	//
+	// LIST MANIPULATION METHODS
+	//
 	
 	/**
-	 * List with all the children of the group
-	 */
-	public var children				(default, null)				: IEditableList<LayoutClient>;
-	
-	
-	/**
-	 * The maximum width of each child. Their orignal width will be ignored if
-	 * the child is bigger then this number (it won't get resized).
+	 * Method will add the item on the given position. It will add the 
+	 * item at the end of the childlist when the value is equal to -1.
 	 * 
-	 * @default		Number.INT_NOT_SET
+	 * @param	item
+	 * @param	pos		default-value: -1
+	 * @return	item
 	 */
-	public var childWidth			(default, setChildWidth)	: Int;
+	public function add		(item:DataType, pos:Int = -1)						: DataType;
 	/**
-	 * The maximum height of each child. Their orignal height will be ignored if
-	 * the child is heigher then this number (it won't get resized).
+	 * Method will try to remove the given item from the childlist.
 	 * 
-	 * @default		Number.INT_NOT_SET
+	 * @param	item
+	 * @return	item
 	 */
-	public var childHeight			(default, setChildHeight)	: Int;
+	public function remove	(item:DataType, oldPos:Int = -1)					: DataType;
+	/**
+	 * Method will change the depth of the given item.
+	 * 
+	 * @param	item
+	 * @param	newPos
+	 * @param	curPos	Optional parameter that can be used to speed up the 
+	 * 					moving process since the list doesn't have to search 
+	 * 					for the original location of the item.
+	 * @return	item
+	 */
+	public function move	(item:DataType, newPos:Int, curPos:Int = -1)		: DataType;
+	
+	public function removeAll ()	: Void;
 }
