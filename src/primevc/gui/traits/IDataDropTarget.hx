@@ -37,7 +37,7 @@ package primevc.gui.traits;
  */
 interface IDataDropTarget < DataType > implements IDropTarget 
 {
-	public var value	(getValue, setValue)	: IEditableList < DataType >;
+	public var data	(default, setData)	: IEditableList < DataType >;
 	
 	/**
 	 * Method to check if an IDraggabledata--item is allowed to drop on this
