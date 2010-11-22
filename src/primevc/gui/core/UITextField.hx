@@ -42,9 +42,11 @@ package primevc.gui.core;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.states.UIElementStates;
+ import primevc.gui.traits.IValidatable;
  import primevc.types.Number;
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
   using Std;
@@ -58,6 +60,10 @@ package primevc.gui.core;
  */
 class UITextField extends TextField, implements IUIElement
 {
+	public var prevValidatable	: IValidatable;
+	public var nextValidatable	: IValidatable;
+	private var changes			: Int;
+	
 	public var id				(default, null)					: Bindable < String >;
 	public var behaviours		(default, null)					: BehaviourList;
 	public var effects			(default, default)				: UIElementEffects;
@@ -84,6 +90,7 @@ class UITextField extends TextField, implements IUIElement
 		this.stylingEnabled	= stylingEnabled;
 #end
 		visible				= false;
+		changes				= 0;
 		state				= new UIElementStates();
 		behaviours			= new BehaviourList();
 		
@@ -140,6 +147,10 @@ class UITextField extends TextField, implements IUIElement
 	{
 		visible = true;
 		behaviours.init();
+		
+		if (changes > 0)
+			validate();
+		
 		state.current = state.initialized;
 	}
 
@@ -165,6 +176,8 @@ class UITextField extends TextField, implements IUIElement
 	override private function setTextStyle (v)
 	{
 		Assert.notNull(v);
+		
+		invalidate( UIElementFlags.TEXTSTYLE );
 		textStyle = v;
 		
 		if (v != null)
@@ -206,6 +219,36 @@ class UITextField extends TextField, implements IUIElement
 	}
 #end
 	
+	
+	
+	//
+	// IPROPERTY-VALIDATOR METHODS
+	//
+	
+	public function invalidate (change:Int)
+	{
+		if (change != 0)
+		{
+			changes = changes.set( change );
+			if (window != null && changes == change)
+				getValidationManager().add(this);
+		}
+	}
+	
+	
+	public function validate ()
+	{
+		if (changes.has( UIElementFlags.TEXTSTYLE ))
+			applyTextFormat();
+		
+		changes = 0;
+	}
+	
+	
+	private function getValidationManager ()
+	{
+		return window.as(UIWindow).invalidationManager;
+	}
 	
 	
 	//

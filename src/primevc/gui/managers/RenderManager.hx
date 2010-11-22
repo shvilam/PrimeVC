@@ -27,8 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.managers;
- import primevc.gui.traits.IValidatable;
+ import primevc.gui.traits.IGraphicsValidator;
   using primevc.utils.Bind;
+  using primevc.utils.TypeUtil;
 
 
 /**
@@ -54,6 +55,23 @@ class RenderManager extends QueueManager
 			owner.invalidate();
 		
 		super.enableBinding();
+	}
+	
+	
+	override private function validateQueue ()
+	{
+		var curCell = first;
+		
+		while (curCell != null)
+		{
+			var obj	= curCell.as(IGraphicsValidator);
+			obj.validateGraphics();
+			
+			curCell	= curCell.nextValidatable;
+			obj.nextValidatable = obj.prevValidatable = null;
+		}
+		first = last = null;
+		disableBinding();
 	}
 	
 #if debug

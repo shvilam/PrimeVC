@@ -30,6 +30,7 @@ package primevc.gui.components;
  import primevc.core.dispatcher.Wire;
  import primevc.core.geom.space.Direction;
  import primevc.core.validators.FloatRangeValidator;
+ import primevc.core.Bindable;
  import primevc.gui.behaviours.UpdateMaskBehaviour;
  import primevc.gui.components.DragButton;
  import primevc.gui.core.UIDataContainer;
@@ -42,13 +43,16 @@ package primevc.gui.components;
   using Std;
 
 
+private typedef DataType = Bindable<Float>;
+
+
 /**
  * Slider component
  * 
  * @author Ruben Weijers
  * @creation-date Nov 05, 2010
  */
-class Slider extends UIDataContainer < Float >
+class Slider extends UIDataContainer < DataType >
 {
 	/**
 	 * Defines if the slider is horizontal or vertical
@@ -73,9 +77,9 @@ class Slider extends UIDataContainer < Float >
 	private var dataChangeBinding		: Wire < Dynamic >;
 	
 	
-	public function new (id:String = null, data:Float = null, minValue:Float = 0, maxValue:Float = 1, direction:Direction = null)
+	public function new (id:String = null, value:Float = null, minValue:Float = 0, maxValue:Float = 1, direction:Direction = null)
 	{
-		super(id, data);
+		super(id, new DataType(value));
 		this.direction	= direction == null ? horizontal : direction;
 		validator		= new FloatRangeValidator( minValue, maxValue );
 	}
@@ -119,13 +123,17 @@ class Slider extends UIDataContainer < Float >
 	
 	override private function initData ()
 	{
-		validateData.on( validator.change, this );
-		dataChangeBinding = calculatePercentage.on( vo.change, this );
-		
-		dataChangeBinding.disable();
 		validateData();
 		calculatePercentage();
-		dataChangeBinding.enable();
+		validateData.on( validator.change, this );
+		dataChangeBinding = calculatePercentage.on( data.change, this );
+	}
+	
+	
+	override private function removeData ()
+	{
+		if (dataChangeBinding != null)
+			dataChangeBinding.dispose();
 	}
 	
 	
@@ -231,7 +239,7 @@ class Slider extends UIDataContainer < Float >
 	private function calculatePercentage ()
 	{
 		validateData();
-		percentage = ( data - validator.min ) / (validator.getDiff());
+		percentage = ( data.value - validator.min ) / (validator.getDiff());
 	}
 	
 	
@@ -251,11 +259,11 @@ class Slider extends UIDataContainer < Float >
 		
 		var newValue = validator.min + (newPercentage * (validator.max - validator.min));
 		
-	//	trace(this+".calculateValue "+percentage + " => " + newPercentage+"% v: "+data+"; -> "+newValue+"; "+mouseObj.target);
+	//	trace(this+".calculateValue "+percentage + " => " + newPercentage+"% v: "+data.value+"; -> "+newValue+"; "+mouseObj.target);
 		
 		//set the newvalue
 		dataChangeBinding.disable();
-		data		= validator.validate( newValue );
+		data.value	= validator.validate( newValue );
 		percentage	= newPercentage;
 		dataChangeBinding.enable();
 	}
@@ -270,7 +278,7 @@ class Slider extends UIDataContainer < Float >
 	{
 		Assert.that( validator.min.isSet() );
 		Assert.that( validator.max.isSet() );
-		data = validator.validate( data );
+		data.value = validator.validate( data.value );
 	}
 	
 	

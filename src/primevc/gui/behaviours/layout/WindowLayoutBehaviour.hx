@@ -30,6 +30,7 @@ package primevc.gui.behaviours.layout;
  import primevc.gui.behaviours.ValidatingBehaviour;
  import primevc.gui.core.UIWindow;
  import primevc.gui.states.ValidateStates;
+ import primevc.gui.traits.IPropertyValidator;
   using primevc.utils.Bind;
 
 
@@ -37,7 +38,7 @@ package primevc.gui.behaviours.layout;
  * @author Ruben Weijers
  * @creation-date Jul 26, 2010
  */
-class WindowLayoutBehaviour extends ValidatingBehaviour < UIWindow >
+class WindowLayoutBehaviour extends ValidatingBehaviour < UIWindow >, implements IPropertyValidator
 {
 	override private function init ()
 	{
@@ -72,13 +73,14 @@ class WindowLayoutBehaviour extends ValidatingBehaviour < UIWindow >
 	{
 		switch (newState) {
 			case ValidateStates.invalidated:
-				target.invalidationManager.add(this);
+				invalidate();
 		}
 	}
 	
 	
+	public inline function invalidate ()			{ target.invalidationManager.add(this); }
+	public inline function validate ()				{ target.layout.validate(); }
 	override private function getValidationManager ()	{ return cast target.invalidationManager; }
-	override public function validate ()				{ target.layout.validate(); }
 	
 	
 #if flash9

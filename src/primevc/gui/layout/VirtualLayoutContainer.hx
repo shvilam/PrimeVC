@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout;
+ import primevc.gui.states.ValidateStates;
   using primevc.utils.BitUtil;
 
 
@@ -73,5 +74,10 @@ class VirtualLayoutContainer extends LayoutContainer
 		if (change.has( LayoutFlags.X | LayoutFlags.Y))
 			for (child in children)
 				child.invalidate(change);
+		
+		if (parent != null && state.is(ValidateStates.invalidated)) {
+			parent.invalidate( LayoutFlags.CHILDREN_INVALIDATED );
+			state.current			= ValidateStates.parent_invalidated;
+		}
 	}
 }

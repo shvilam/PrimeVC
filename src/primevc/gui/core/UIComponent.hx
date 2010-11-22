@@ -41,8 +41,10 @@ package primevc.gui.core;
  import primevc.core.collections.SimpleList;
  import primevc.gui.styling.UIElementStyle;
 #end
+ import primevc.gui.traits.IValidatable;
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
   using primevc.utils.TypeUtil;
 
 
@@ -73,6 +75,10 @@ package primevc.gui.core;
  */
 class UIComponent extends Sprite, implements IUIComponent
 {
+	public var prevValidatable	: IValidatable;
+	public var nextValidatable	: IValidatable;
+	private var changes			: Int;
+	
 	public var behaviours		(default, null)					: BehaviourList;
 	public var state			(default, null)					: UIElementStates;
 	public var effects			(default, default)				: UIElementEffects;
@@ -102,6 +108,7 @@ class UIComponent extends Sprite, implements IUIComponent
 		this.id			= new Bindable<String>(id);
 		this.enabled	= new Bindable<Bool>(true);
 		visible			= false;
+		changes			= 0;
 		
 		state			= new UIElementStates();
 		behaviours		= new BehaviourList();
@@ -128,7 +135,7 @@ class UIComponent extends Sprite, implements IUIComponent
 
 
 	private function init ()
-	{	
+	{
 		Assert.notNull(container, "Container can't be null for "+this);
 		behaviours.init();
 		
@@ -139,8 +146,11 @@ class UIComponent extends Sprite, implements IUIComponent
 		if (skin != null)
 			skin.childrenCreated();
 		
+		if (changes > 0)
+			validate();
+		
 		//finish initializing
-		state.current = state.initialized; 
+		state.current = state.initialized;
 	}
 	
 	
@@ -249,6 +259,34 @@ class UIComponent extends Sprite, implements IUIComponent
 	private function removeChildren () : Void
 	{
 		children.removeAll();
+	}
+	
+	
+	
+	//
+	// IPROPERTY-VALIDATOR METHODS
+	//
+	
+	public function invalidate (change:Int)
+	{
+		if (change != 0)
+		{
+			changes = changes.set( change );
+			if (window != null && changes == change)
+				getValidationManager().add(this);
+		}
+	}
+	
+	
+	public function validate ()
+	{
+		changes = 0;
+	}
+	
+	
+	private function getValidationManager ()
+	{
+		return window.as(UIWindow).invalidationManager;
 	}
 	
 	

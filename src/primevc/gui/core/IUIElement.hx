@@ -34,6 +34,7 @@ package primevc.gui.core;
  import primevc.gui.states.UIElementStates;
  import primevc.gui.traits.IBehaving;
  import primevc.gui.traits.ILayoutable;
+ import primevc.gui.traits.IPropertyValidator;
  import primevc.gui.traits.IStylable;
 
 
@@ -48,6 +49,7 @@ interface IUIElement
 			,	implements IIdentifiable
 			,	implements IDisposable
 			,	implements IStylable
+			,	implements IPropertyValidator
 {
 	public var state	(default, null)		: UIElementStates;
 	

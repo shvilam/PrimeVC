@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
+ import primevc.core.Bindable;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UITextField;
  import primevc.gui.layout.LayoutFlags;
@@ -35,6 +36,10 @@ package primevc.gui.components;
  import primevc.gui.traits.ITextStylable;
  import primevc.types.Bitmap;
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
+
+
+private typedef DataType = Bindable<String>;
 
 
 /**
@@ -43,8 +48,10 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Oct 29, 2010
  */
-class Button extends UIDataContainer < String >, implements IIconOwner, implements ITextStylable
+class Button extends UIDataContainer <DataType>, implements IIconOwner, implements ITextStylable
 {
+	public static inline var ICON : Int = 16384;
+	
 	public var icon			(default, setIcon)		: Bitmap;
 	public var labelField	(default, null)			: UITextField;
 	public var iconGraphic	(default, null)			: Image;
@@ -55,16 +62,16 @@ class Button extends UIDataContainer < String >, implements IIconOwner, implemen
 #end
 	
 	
-	public function new (id:String = null, data:String = null, icon:Bitmap = null)
+	public function new (id:String = null, value:String = null, icon:Bitmap = null)
 	{
-		super(id, data);
+		super(id, new DataType(value));
 		this.icon = icon;
 	}
 	
 	
 	override private function createChildren ()
 	{
-		labelField = new UITextField( null, false, vo);
+		labelField = new UITextField( null, false, data);
 #if debug
 		labelField.id.value = id.value + "TextField";
 #end
@@ -77,22 +84,22 @@ class Button extends UIDataContainer < String >, implements IIconOwner, implemen
 		if (textStyle != null)
 			labelField.textStyle	= textStyle;
 		
-		addOrRemoveLabel();
-		createIconGraphic();
+	//	if (data == null)
+	//		data = labelField.data;
 		
-		addOrRemoveLabel.on( vo.change, this );
+		addOrRemoveLabel();
 	}
 	
 	
 	private function addOrRemoveLabel ()
 	{
-		if (data == null && labelField.container != null)
+		if (data.value == null && labelField.container != null)
 		{
 			layoutContainer.children.remove( labelField.layout );
 			children.remove( labelField );
 		}
 		
-		else if (labelField.container == null)
+		else if (data.value != null && labelField.container == null)
 		{
 			layoutContainer.children.add( labelField.layout, children.length );
 			children.add( labelField, children.length );
@@ -112,7 +119,41 @@ class Button extends UIDataContainer < String >, implements IIconOwner, implemen
 	
 	override private function initData ()
 	{
-		labelField.data = vo;
+		addOrRemoveLabel.on( data.change, this );
+		labelField.data = data;
+	}
+	
+	
+	override private function removeData ()
+	{
+		labelField.data = null;
+		data.change.unbind(this);
+	}
+	
+	
+	override public function validate ()
+	{
+		if (changes.has( ICON ))
+		{
+			if (iconGraphic != null)
+			{
+				children.remove(iconGraphic);
+				layoutContainer.children.remove( iconGraphic.layout );
+				iconGraphic.dispose();
+				iconGraphic = null;
+			}
+			
+			if (icon != null)
+			{
+				Assert.null( iconGraphic );
+				iconGraphic = new Image( null, icon );			
+#if debug		iconGraphic.id.value = id.value + "Icon";	#end
+				layoutContainer.children.add( iconGraphic.layout, 0 );
+				children.add( iconGraphic, 0 );
+			}
+		}
+		
+		super.validate();
 	}
 	
 	
@@ -120,44 +161,10 @@ class Button extends UIDataContainer < String >, implements IIconOwner, implemen
 	{
 		if (icon != v)
 		{
-			if (state.current == state.initialized && icon != null)
-			{
-				if (v == null)
-				{
-					children.remove(iconGraphic);
-					layoutContainer.children.remove( iconGraphic.layout );
-					iconGraphic.dispose();
-					iconGraphic = null;
-				}
-				else
-					iconGraphic.source = null;
-			}
-			
 			icon = v;
-			
-			if (state.current == state.initialized && v != null)
-			{
-				if (iconGraphic == null)
-					createIconGraphic();
-				else
-					iconGraphic.source = v;
-			}
+			invalidate( ICON );
 		}
 		return v;
-	}
-	
-	
-	private function createIconGraphic ()
-	{
-		if (iconGraphic == null && icon != null)
-		{
-			iconGraphic = new Image( null, icon );			
-#if debug
-			iconGraphic.id.value = id.value + "Icon";
-#end
-			layoutContainer.children.add( iconGraphic.layout, 0 );
-			children.add( iconGraphic, 0 );
-		}
 	}
 	
 	

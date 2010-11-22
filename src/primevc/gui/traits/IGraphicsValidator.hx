@@ -26,36 +26,25 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours;
- import primevc.gui.managers.QueueManager;
- import primevc.gui.traits.IDisplayable;
- import primevc.gui.traits.IValidatable;
-
+package primevc.gui.traits;
 
 
 /**
+ * Interface for objects that will draw or change properties on the screen.
+ * Methods allow the object to queue the rendering until the next RENDER event.
+ * 
  * @author Ruben Weijers
- * @creation-date Nov 09, 2010
+ * @creation-date Sep 03, 2010
  */
-class ValidatingBehaviour < TargetType:IDisplayable > extends BehaviourBase < TargetType >, implements IValidatable
+interface IGraphicsValidator implements IValidatable
 {
-	public var prevValidatable		: IValidatable;
-	public var nextValidatable		: IValidatable;
-	
-	
-	private function getValidationManager () : QueueManager
-	{
-		Assert.abstract();
-		return null;
-	}
-//	public function validate ()					: Void			{ Assert.abstract(); }
-	
-	
-	override private function reset ()
-	{
-		if (target.window != null)
-			getValidationManager().remove( this );
-		else
-			prevValidatable = nextValidatable = null;
-	}
+	/**
+	 * Sends a request to the RenderManager to get a render action.
+	 */
+	public function invalidateGraphics ()	: Void;
+	/**
+	 * Perform render action. Don't call this method, this is done by the 
+	 * RenderManager. To request a rendering, call the requestRender method.
+	 */
+	public function validateGraphics ()		: Void;
 }

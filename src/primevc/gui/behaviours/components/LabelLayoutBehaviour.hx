@@ -34,6 +34,7 @@ package primevc.gui.behaviours.components;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.states.ValidateStates;
+ import primevc.gui.traits.IPropertyValidator;
   using primevc.utils.Bind;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
@@ -43,7 +44,7 @@ package primevc.gui.behaviours.components;
  * @author Ruben Weijers
  * @creation-date Nov 01, 2010
  */
-class LabelLayoutBehaviour extends ValidatingBehaviour < Label >
+class LabelLayoutBehaviour extends ValidatingBehaviour < Label >, implements IPropertyValidator
 {
 	override private function init ()
 	{
@@ -56,10 +57,10 @@ class LabelLayoutBehaviour extends ValidatingBehaviour < Label >
 	
 	private function setEventHandlers ()
 	{
-		requestRender	.on( target.layout.events.sizeChanged, this );
+		invalidate.on( target.layout.events.sizeChanged, this );
 		updateLabelSize	.on( target.field.layout.events.sizeChanged, this );
 		updateLabelSize();
-		requestRender();
+		invalidate();
 	}
 	
 	
@@ -77,11 +78,11 @@ class LabelLayoutBehaviour extends ValidatingBehaviour < Label >
 	
 	override private function getValidationManager ()
 	{
-		return (target.window != null) ? cast target.window.as(UIWindow).renderManager : null;
+		return (target.window != null) ? cast target.window.as(UIWindow).invalidationManager : null;
 	}
 	
 	
-	public function requestRender ()
+	public inline function invalidate ()
 	{
 	//	trace(target+".requestRender");
 		if (target.window != null)
@@ -89,7 +90,7 @@ class LabelLayoutBehaviour extends ValidatingBehaviour < Label >
 	}
 	
 	
-	override public function validate ()
+	public inline function validate ()
 	{
 		var targetLayout	= target.layout.as(AdvancedLayoutClient);
 		var fieldLayout		= target.field.layout;

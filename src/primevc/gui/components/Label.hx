@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
+ import primevc.core.Bindable;
  import primevc.gui.behaviours.components.LabelLayoutBehaviour;
  import primevc.gui.core.UIDataComponent;
  import primevc.gui.core.UITextField;
@@ -37,6 +38,8 @@ package primevc.gui.components;
   using primevc.utils.TypeUtil;
 
 
+private typedef DataType = Bindable<String>;
+
 
 /**
  * Label Component
@@ -44,7 +47,7 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Oct 29, 2010
  */
-class Label extends UIDataComponent < String >, implements ITextStylable
+class Label extends UIDataComponent <DataType>, implements ITextStylable
 {
 	public var field		(default, null)			: UITextField;
 	
@@ -68,7 +71,7 @@ class Label extends UIDataComponent < String >, implements ITextStylable
 	
 	override private function createChildren ()
 	{
-		field = new UITextField( null, false, vo );
+		field = new UITextField( null, false, data );
 #if debug
 		field.id.value = id.value + "TextField";
 #end
@@ -80,6 +83,9 @@ class Label extends UIDataComponent < String >, implements ITextStylable
 		
 		if (textStyle != null)
 			field.textStyle		= textStyle;
+		
+		if (data == null)
+			data = cast field.data;
 		
 		children.add( field );
 	}
@@ -93,19 +99,16 @@ class Label extends UIDataComponent < String >, implements ITextStylable
 	}
 	
 	
-	/*override private function initData ()
+	override private function initData ()
 	{
-		trace("DATA VALUE 1 "+data);
-		field.vo.pair( vo );
-		trace("DATA VALUE 2 "+data);
-		traceChange.on( vo.change, this );
+		field.data = data;
 	}
 	
 	
-	private function traceChange (newV, oldV)
+	override private function removeData ()
 	{
-		trace(this+".changed "+oldV+" => "+newV);
-	}*/
+		field.data = null;
+	}
 	
 	
 	//

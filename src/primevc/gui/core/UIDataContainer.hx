@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
+ import primevc.core.traits.IValueObject;
  import primevc.gui.layout.IScrollableLayout;
  import primevc.gui.layout.LayoutContainer;
   using primevc.utils.NumberUtil;
@@ -39,8 +40,7 @@ package primevc.gui.core;
  * @author Ruben Weijers
  * @creation-date Aug 02, 2010
  */
-class UIDataContainer <DataType> extends UIDataComponent <DataType>
-			, implements IUIContainer
+class UIDataContainer <DataType:IValueObject> extends UIDataComponent <DataType>, implements IUIContainer
 /*#if flash9	, implements haxe.rtti.Generic #end*/
 {
 	public var layoutContainer	(getLayoutContainer, never)		: LayoutContainer;

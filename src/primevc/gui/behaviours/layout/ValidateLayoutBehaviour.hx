@@ -34,6 +34,7 @@ package primevc.gui.behaviours.layout;
  import primevc.gui.core.UIWindow;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.traits.IDrawable;
+ import primevc.gui.traits.IPropertyValidator;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
   using Std;
@@ -46,7 +47,7 @@ package primevc.gui.behaviours.layout;
  * @creation-date	Jun 14, 2010
  * @author			Ruben Weijers
  */
-class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >
+class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implements IPropertyValidator
 {
 	private var isNotPositionedYet	: Bool;
 	
@@ -88,11 +89,12 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >
 			getValidationManager().remove( this );
 		
 		else if (nextValidatable == null && newState == ValidateStates.invalidated)
-			getValidationManager().add( this );
+			invalidate();
 	}
 	
 	
-	override public function validate ()				{ target.layout.validate(); }
+	public inline function invalidate ()				{ getValidationManager().add( this ); }
+	public inline function validate ()					{ target.layout.validate(); }
 	override private function getValidationManager ()	{ return (target.window != null) ? cast target.window.as(UIWindow).invalidationManager : null; }
 	
 	

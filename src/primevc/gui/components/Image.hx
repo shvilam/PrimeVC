@@ -27,6 +27,8 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
+ import primevc.gui.core.IUIDataElement;
+ import primevc.gui.core.UIElementFlags;
  import primevc.gui.core.UIGraphic;
  import primevc.gui.graphics.fills.BitmapFill;
  import primevc.gui.graphics.shapes.RegularRectangle;
@@ -35,6 +37,7 @@ package primevc.gui.components;
  import primevc.types.Bitmap;
  import primevc.types.Number;
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
   using primevc.utils.TypeUtil;
 
 
@@ -42,57 +45,85 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Oct 31, 2010
  */
-class Image extends UIGraphic
+class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 {
-	public var source	(default, setSource) : Bitmap;
+	public var data	(default, setData) : Bitmap;
 	
 	
-	public function new (id:String = null, source:Bitmap = null)
+	public function new (id:String = null, data:Bitmap = null)
 	{
 		super(id);
-		this.source = source;
+		this.data = data;
 	}
 	
 	
-	override private function init ()
+	override public function dispose ()
 	{
-		super.init();
-		Assert.notNull(graphicData);
-		if (graphicData.fill == null || !graphicData.fill.is(BitmapFill))
-			graphicData.fill = new BitmapFill( source, null, false );
+		if (data != null)
+			data = null;
+
+		super.dispose();
 	}
 	
 	
-	override private function createLayout ()
+	override public function validate ()
 	{
-		layout = new AdvancedLayoutClient();
-	}
-	
-	
-	private inline function setSource (v:Bitmap)
-	{
-		if (source != v)
+		if (changes.has( UIElementFlags.DATA ))
 		{
-			if (source != null)
-			{
-				source.state.change.unbind(this);
-				bitmapStateChangeHandler( BitmapStates.empty, null );
-				
-				if (state.current == state.initialized)
-					graphicData.fill.as(BitmapFill).bitmap = null;
-			}
+			if (data != null)
+				initData();
 			
-			source = v;
-			
-			if (v != null)
-			{
-				bitmapStateChangeHandler.on( v.state.change, this );
-				bitmapStateChangeHandler( v.state.current, null );
-				
-				if (state.current == state.initialized)
-					graphicData.fill.as(BitmapFill).bitmap = v;
-			}
+			updateSize();
 		}
+		
+		super.validate();
+	}
+	
+	
+	override private function createLayout ()	{ layout = new AdvancedLayoutClient(); }
+	public function getDataCursor ()			{ return null; }
+	
+	
+	private function initData () : Void
+	{
+		bitmapStateChangeHandler.on( data.state.change, this );
+	//	bitmapStateChangeHandler( data.state.current, null );
+		
+		if (graphicData.fill == null || !graphicData.fill.is(BitmapFill))
+			graphicData.fill = new BitmapFill( data, null, false );
+		
+		else if (graphicData.fill.is(BitmapFill))
+			graphicData.fill.as(BitmapFill).bitmap = data;	
+	}
+	
+	
+	private function removeData () : Void
+	{
+		data.state.change.unbind(this);
+		if (graphicData.fill.is(BitmapFill))
+			graphicData.fill.as(BitmapFill).bitmap = null;
+	}
+	
+	
+	
+	
+	
+	//
+	// GETTERS / SETTERS
+	//
+	
+	private function setData (v:Bitmap)
+	{
+		if (v != data)
+		{
+			if (data != null && window != null)
+				removeData();
+			
+			data = v;
+		//	trace(this+".invalidateData "+v);
+			invalidate( UIElementFlags.DATA );
+		}
+		
 		return v;
 	}
 	
@@ -102,14 +133,14 @@ class Image extends UIGraphic
 	// EVENT HANDLERS
 	//
 	
-	private function updateSize ()
+	private inline function updateSize ()
 	{
 		var l = layout.as(AdvancedLayoutClient);
-		if (source.state.is( BitmapStates.ready ))
+		if (data.state.is( BitmapStates.ready ))
 		{
-		//	trace("Image.updateSize; "+source.data.width+", "+source.data.height+"; expl size? "+l.explicitWidth+", "+l.explicitHeight);
-			l.measuredWidth		= source.data.width;
-			l.measuredHeight	= source.data.height;
+	//		trace("Image.updateSize; "+data.data.width+", "+data.data.height+"; expl size? "+l.explicitWidth+", "+l.explicitHeight);
+			l.measuredWidth		= data.data.width;
+			l.measuredHeight	= data.data.height;
 		}
 		else
 		{
@@ -118,8 +149,10 @@ class Image extends UIGraphic
 		}
 	}
 	
+	
 	private function bitmapStateChangeHandler (newState:BitmapStates, oldState:BitmapStates)
 	{
+	//	trace(this+".bitmapStateChangeHandler "+data.state.current);
 		switch (newState)
 		{
 			case BitmapStates.ready:	updateSize();

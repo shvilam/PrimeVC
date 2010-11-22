@@ -53,6 +53,12 @@ class QueueingInvalidatable extends Invalidatable
 	public function new ()
 	{
 		super();
+		resetValidation();
+	}
+	
+	
+	public inline function resetValidation ()
+	{
 		changes			= 0;
 		invalidatable	= true;
 	}

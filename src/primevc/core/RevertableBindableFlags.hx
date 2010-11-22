@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core;
+  using primevc.utils.BitUtil;
 
 
 /**
@@ -117,4 +118,20 @@ class RevertableBindableFlags
 		    | (f & INVALID_CHANGES_UPDATE_BINDINGS) >> 3	// if dispatchOnInvalid:	1
 		  )) == 1;
 	}
+	
+	
+#if debug
+	public static inline function readProperties (flags:Int) : String
+	{
+		var props = [];
+		
+		if (flags.has( IN_EDITMODE ))						props.push( "editmode" );
+		if (flags.has( DISPATCH_CHANGES_BEFORE_COMMIT ))	props.push( "dispatch-changes-before-commit" );
+		if (flags.has( INVALID_CHANGES_DISPATCH_SIGNAL ))	props.push( "invalid-changes-dispatch-signal" );
+		if (flags.has( UPDATE_BINDINGS_BEFORE_COMMIT ))		props.push( "update-bindings-before-commit" );
+		if (flags.has( INVALID_CHANGES_UPDATE_BINDINGS ))	props.push( "invalid-changes-update-bindings" );
+		
+		return "properties: "+props.join(", ") + " ("+flags+")";
+	}
+#end
 }

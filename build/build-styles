@@ -23,7 +23,7 @@ while getopts "s:tfd" OptionName
 			s ) StyleFolder="${OPTARG}";;
 			f ) Force=true;;
 			d ) Debug="-debug";;
-		#	p ) PRJROOT=${OPTARGS};;	#project root (used for styles)
+		#	p ) PRJROOT=${OPTARG};;	#project root (used for styles)
 	esac
 done
 

@@ -27,18 +27,19 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
- import primevc.core.collections.IEditableList;
+ import primevc.core.collections.IReadOnlyList;
  import primevc.core.collections.ListChange;
+ import primevc.core.traits.IValueObject;
  import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
- import primevc.gui.core.IUIDataComponent;
+ import primevc.gui.core.IUIDataElement;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.display.IDisplayObject;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
 
-private typedef ItemRenderer < T > = IUIDataComponent < T >;
-private typedef ItemRendererType <T> = Class < ItemRenderer < T > >;
+private typedef ItemRenderer <T:IValueObject>		= IUIDataElement < T >;
+private typedef ItemRendererType <T:IValueObject>	= Class < ItemRenderer < T > >;
 
 
 /**
@@ -47,7 +48,7 @@ private typedef ItemRendererType <T> = Class < ItemRenderer < T > >;
  * @author Ruben Weijers
  * @creation-date Oct 26, 2010
  */
-class ListView < ListDataType > extends UIDataContainer < IEditableList < ListDataType > >, implements IListView < ListDataType >
+class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDataType > >, implements IListView < ListDataType >
 {
 	override private function createBehaviours ()
 	{
@@ -57,9 +58,21 @@ class ListView < ListDataType > extends UIDataContainer < IEditableList < ListDa
 	
 	override private function initData ()
 	{
-		//listen for vo changes
-		voChangeHandler.on( vo.change, this );
-		voChangeHandler( vo.value, null );
+		var i = 0;
+		//add itemrenders for new list
+		for (item in data)
+			addItemRenderer( item, i++ );
+		
+		handleListChange.on( data.change, this );
+	}
+	
+	
+	override private function removeData ()
+	{
+		for (item in data)
+			removeItemRenderer( item );
+				
+		data.change.unbind(this);
 	}
 	
 	
@@ -77,7 +90,7 @@ class ListView < ListDataType > extends UIDataContainer < IEditableList < ListDa
 	private function addItemRenderer( item:ListDataType, newPos:Int = -1 )
 	{
 		if (newPos == -1)
-			newPos = vo.value.indexOf( item );
+			newPos = data.indexOf( item );
 		
 		children.add( createItemRenderer( item, newPos ), newPos );
 	}
@@ -124,32 +137,8 @@ class ListView < ListDataType > extends UIDataContainer < IEditableList < ListDa
 	// EVENT HANDLERS
 	//
 	
-	private function voChangeHandler (newVal:IEditableList< ListDataType >, oldVal:IEditableList< ListDataType > ) : Void
-	{
-		if (oldVal == newVal)
-			return;
-		
-		if (oldVal != null)
-		{
-			for (item in oldVal)
-				removeItemRenderer( item );
-			
-			oldVal.change.unbind(this);
-		}
-		
-		if (newVal != null)
-		{
-			listChangeHandler.on( newVal.change, this );
-			
-			//add itemrenders for new list
-			for (item in newVal)
-				addItemRenderer( item );
-		}
-	}
 	
-	
-	
-	private function listChangeHandler ( change:ListChange < ListDataType > ) : Void
+	private function handleListChange ( change:ListChange<ListDataType> ) : Void
 	{
 		switch (change)
 		{

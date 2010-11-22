@@ -27,8 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
+ import primevc.core.collections.IReadOnlyList;
  import primevc.gui.core.IUIContainer;
- import primevc.gui.core.IUIDataComponent;
+ import primevc.gui.core.IUIDataElement;
  import primevc.gui.display.IDisplayObject;
 
 
@@ -36,7 +37,7 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Oct 26, 2010
  */
-interface IListView <ListDataType > implements IUIContainer 
+interface IListView < ListDataType > implements IUIContainer 
 {
 	private function createItemRenderer ( item:ListDataType, pos:Int )				: IDisplayObject;
 	private function addItemRenderer( item:ListDataType, newPos:Int = -1 )			: Void;

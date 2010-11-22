@@ -29,6 +29,7 @@
 package primevc.types;
  import primevc.core.states.SimpleStateMachine;
  import primevc.core.traits.IDisposable;
+ import primevc.core.traits.IValueObject;
   using primevc.utils.Bind;
 
 #if flash9
@@ -66,6 +67,7 @@ typedef BitmapDataType	= #if flash9	BitmapData	#else Dynamic			#end;
  */
 class Bitmap
 				implements IDisposable
+			,	implements IValueObject
 #if neko	,	implements ICodeFormattable		#end
 {
 	private var _data					: BitmapDataType;

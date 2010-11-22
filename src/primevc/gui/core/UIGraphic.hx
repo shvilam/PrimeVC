@@ -41,8 +41,10 @@ package primevc.gui.core;
  import primevc.gui.styling.UIElementStyle;
  import primevc.gui.traits.IDrawable;
 #end
+ import primevc.gui.traits.IValidatable;
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
   using primevc.utils.TypeUtil;
 
 
@@ -54,6 +56,11 @@ class UIGraphic extends Shape
 			,	implements IUIElement
 #if flash9	,	implements IDrawable	#end
 {
+	public var prevValidatable	: IValidatable;
+	public var nextValidatable	: IValidatable;
+	private var changes			: Int;
+	
+	
 	public var behaviours		(default, null)					: BehaviourList;
 	public var id				(default, null)					: Bindable < String >;
 	public var state			(default, null)					: UIElementStates;
@@ -78,6 +85,7 @@ class UIGraphic extends Shape
 #end
 		this.id	= new Bindable<String>(id);
 		visible = false;
+		changes	= 0;
 		init.onceOn( displayEvents.addedToStage, this );
 		
 		state			= new UIElementStates();
@@ -144,6 +152,10 @@ class UIGraphic extends Shape
 	private function init ()
 	{
 		behaviours.init();
+		
+		if (changes > 0)
+			validate();
+		
 		state.current = state.initialized;
 	}
 	
@@ -151,6 +163,34 @@ class UIGraphic extends Shape
 	private function createLayout () : Void
 	{
 		layout = new LayoutClient();
+	}
+	
+	
+	
+	//
+	// IPROPERTY-VALIDATOR METHODS
+	//
+	
+	public function invalidate (change:Int)
+	{
+		if (change != 0)
+		{
+			changes = changes.set( change );
+			if (window != null && changes == change)
+				getValidationManager().add(this);
+		}
+	}
+	
+	
+	public function validate ()
+	{
+		changes = 0;
+	}
+	
+	
+	private function getValidationManager ()
+	{
+		return window.as(UIWindow).invalidationManager;
 	}
 	
 	

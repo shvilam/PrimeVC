@@ -28,9 +28,11 @@
  */
 package primevc.gui.core;
  import primevc.core.collections.DataCursor;
- import primevc.core.collections.IEditableList;
- import primevc.core.Bindable;
- import primevc.core.IBindable;
+ import primevc.core.collections.IReadOnlyList;
+ import primevc.core.traits.IValueObject;
+// import primevc.core.Bindable;
+// import primevc.core.IBindable;
+  using primevc.utils.BitUtil;
   using primevc.utils.TypeUtil;
  
 
@@ -48,26 +50,25 @@ package primevc.gui.core;
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
-class UIDataComponent <DataType> extends UIComponent, implements IUIDataComponent <DataType>
+class UIDataComponent <DataType:IValueObject> extends UIComponent, implements IUIDataElement <DataType>
 {
-	public var vo (default, setVO)		: IBindable < DataType >;
-	public var data (getData, setData)	: DataType;
+//	public var vo (default, setVO)		: IBindable < DataType >;
+//	public var data (getData, setData)	: DataType;
+	public var data (default, setData)	: DataType;
 	
 	
 	public function new (id:String = null, data:DataType = null)
 	{
 		super(id);
-		if (vo == null)
-			vo = new Bindable < DataType >(data);
+		this.data = data;
 	}
 	
 	
 	override public function dispose ()
 	{
-		if (vo != null) {
-			vo.dispose();
-			vo = null;
-		}
+		if (data != null)
+			data = null;
+		
 		super.dispose();
 	}
 	
@@ -76,27 +77,28 @@ class UIDataComponent <DataType> extends UIComponent, implements IUIDataComponen
 	// METHODS
 	//
 	
-	override private function init ()
+	override public function validate ()
 	{
-		super.init();
-		initData();
+		if (changes.has( UIElementFlags.DATA ) && data != null)
+			initData();
 	}
 	
 	
-	private function initData ()	{ /*Assert.abstract();*/ }
+	private function initData () : Void		{}
+	private function removeData () : Void	{}
 	
 	
 	public function getDataCursor ()
 	{
 		var cursor = new DataCursor < DataType > ( data );
-		if (container == null || !container.is(IUIDataComponent))
+		if (container == null || !container.is(IUIDataElement))
 			return cursor;
 		
-		var parent = container.as(IUIDataComponent);
-		if (!parent.data.is(IEditableList))
+		var parent = container.as(IUIDataElement);
+		if (!parent.data.is(IReadOnlyList))
 			return cursor;
 		
-		cursor.list = cast parent.data.as( IEditableList );
+		cursor.list = cast parent.data.as( IReadOnlyList );
 		return cursor;
 	}
 	
@@ -106,18 +108,22 @@ class UIDataComponent <DataType> extends UIComponent, implements IUIDataComponen
 	// GETTERS / SETTERS
 	//
 	
-	private inline function setVO (newVO:IBindable < DataType >)
+	private function setData (v:DataType)
 	{
-		vo = newVO;
-		if (state.current == state.initialized && vo != null) {
-			Assert.notNull(window);
-			initData();
+		if (v != data)
+		{
+			if (data != null && window != null)
+				removeData();
+			
+			data = v;
+		//	trace(this+".invalidateData "+v);
+			invalidate( UIElementFlags.DATA );
 		}
 		
-		return vo;
+		return v;
 	}
 	
 	
-	private inline function getData () : DataType	{ return vo.value; }
-	private inline function setData (v:DataType)	{ return vo.value = v; }
+//	private inline function getData () : DataType	{ return vo.value; }
+//	private inline function setData (v:DataType)	{ return vo.value = v; }
 }

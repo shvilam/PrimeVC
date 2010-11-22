@@ -26,25 +26,28 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
+package primevc.gui.core;
+
 
 
 /**
- * Interface for objects that will draw or change properties on the screen.
- * Methods allow the object to queue the rendering until the next RENDER event.
+ * Flags used in UIElements
  * 
  * @author Ruben Weijers
- * @creation-date Sep 03, 2010
+ * @creation-date Nov 19, 2010
  */
-interface IRenderable
+class UIElementFlags
 {
-	/**
-	 * Sends a request to the RenderManager to get a render action.
-	 */
-	public function requestRender ()					: Void;
-	/**
-	 * Perform render action. Don't call this method, this is done by the 
-	 * RenderManager. To request a rendering, call the requestRender method.
-	 */
-	public function render ()							: Void;
+	public static inline var LAYOUT		: Int	= 1;
+	public static inline var GRAPHICS	: Int	= 2;
+	public static inline var STYLE		: Int	= 4;
+	
+	
+	public static inline var DATA		: Int	= 8;
+	
+	//
+	// UITEXTFIELD PROPERTIES
+	//
+	
+	public static inline var TEXTSTYLE	: Int	= 16;
 }

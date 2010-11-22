@@ -27,7 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.managers;
+ import primevc.gui.traits.IPropertyValidator;
   using primevc.utils.Bind;
+  using primevc.utils.TypeUtil;
 
 
 /**
@@ -51,6 +53,24 @@ class InvalidationManager extends QueueManager
 		updateQueueBinding = validateQueue.on( owner.displayEvents.enterFrame, this );
 		updateQueueBinding.disable();
 	}
+	
+	
+	override private function validateQueue ()
+	{
+		var curCell = first;
+		
+		while (curCell != null)
+		{
+			var obj	= curCell.as(IPropertyValidator);
+			obj.validate();
+			
+			curCell	= curCell.nextValidatable;
+			obj.nextValidatable = obj.prevValidatable = null;
+		}
+		first = last = null;
+		disableBinding();
+	}
+	
 	
 #if debug
 	override public function toString () { return "InvalidationManager"; }

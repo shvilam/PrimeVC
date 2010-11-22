@@ -27,10 +27,13 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
+ import primevc.core.Bindable;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UITextField;
   using primevc.utils.NumberUtil;
 
+
+private typedef DataType = Bindable<String>;
 
 /**
  * TextArea component displays a multiline textfield and adds the posibility
@@ -39,7 +42,7 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Sep 03, 2010
  */
-class TextArea extends UIDataContainer < String >, implements ITextArea
+class TextArea extends UIDataContainer < DataType >, implements ITextArea
 {
 	private static inline var MAX_COLUMNS	: Int = 40;
 	
@@ -55,9 +58,9 @@ class TextArea extends UIDataContainer < String >, implements ITextArea
 	public var columns	(default, setColumns)	: Int;
 	
 	
-	public function new (id:String = null, ?value:String, ?columns:Int = 1)
+	public function new (id:String = null, data:DataType = null, ?columns:Int = 1)
 	{
-		super(id, value);
+		super(id, data);
 		this.columns = columns;
 	}
 	

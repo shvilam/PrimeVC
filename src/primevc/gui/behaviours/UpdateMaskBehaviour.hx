@@ -27,12 +27,8 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours;
- import primevc.gui.core.IUIElement;
- import primevc.gui.core.UIWindow;
  import primevc.gui.display.Shape;
  import primevc.gui.traits.IDrawable;
-  using primevc.utils.Bind;
-  using primevc.utils.TypeUtil;
 
 
 /**
@@ -43,56 +39,28 @@ package primevc.gui.behaviours;
  * @author Ruben Weijers
  * @creation-date Nov 09, 2010
  */
-class UpdateMaskBehaviour extends ValidatingBehaviour < Shape >
+class UpdateMaskBehaviour extends RenderGraphicsBehaviour
 {
-	private var mirror : IDrawable;
+	private var mask : Shape;
 	
 	
-	public function new (target:Shape, mirror:IDrawable)
+	public function new (mask:Shape, target:IDrawable)
 	{
 		super(target);
-		this.mirror = mirror;
-	}
-	
-	
-	override private function init ()
-	{
-		if (mirror.graphicData != null)
-		{
-			requestRender.on( mirror.graphicData.changeEvent, this );
-			requestRender();
-		}
+		this.mask = mask;
 	}
 	
 	
 	override private function reset ()
 	{
-		if (mirror.graphicData != null)
-			mirror.graphicData.changeEvent.unbind( this );
-		
-		mirror = null;
+		mask = null;
 		super.reset();
 	}
 	
 	
-	public function requestRender ()
+	override public function validateGraphics ()
 	{
-		if (target.window == null || mirror.graphicData.isEmpty())
-			return;
-		
-		getValidationManager().add( this );
-	}
-	
-	
-	override public function validate ()
-	{
-		target.graphics.clear();
-		mirror.graphicData.draw( target, false );
-	}
-	
-	
-	override private function getValidationManager ()
-	{
-		return (target.window != null) ? cast target.window.as(UIWindow).renderManager : null;
+		mask.graphics.clear();
+		target.graphicData.draw( mask, false );
 	}
 }

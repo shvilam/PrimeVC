@@ -125,7 +125,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	}
 	
 	
-	private inline function checkIfChildGetsPercentageWidth (child:LayoutClient, widthToUse:Int) : Bool {
+	private inline function checkIfChildGetsPercentageWidth (child:LayoutClient, widthToUse:Int) : Bool
+	{
 		return (changes.has( Flags.WIDTH ) || child.changes.has( Flags.PERCENT_WIDTH ))
 					&& child.percentWidth.isSet()
 					/*&& child.percentWidth != Flags.FILL*/
@@ -133,7 +134,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	}
 	
 	
-	private inline function checkIfChildGetsPercentageHeight (child:LayoutClient, heightToUse:Int) : Bool {
+	private inline function checkIfChildGetsPercentageHeight (child:LayoutClient, heightToUse:Int) : Bool
+	{
 		return (changes.has( Flags.HEIGHT ) || child.changes.has( Flags.PERCENT_HEIGHT ))
 					&& child.percentHeight.isSet()
 					/*&& child.percentHeight != Flags.FILL*/
@@ -143,7 +145,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	
 	private inline function isVisible () {
 		return (explicitWidth.notSet() || explicitWidth > 0) && (explicitHeight.notSet() || explicitHeight > 0);
-	} 
+	}
 	
 	
 	override public function validateHorizontal ()
@@ -270,13 +272,15 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	
 	override public function validated ()
 	{
-	//	trace(this+".validated "+(changes != 0)+", "+isValidating);
+	//	trace(this+".validated; changes? "+(changes != 0)+"; validating? "+isValidating+"; children: "+children.length+"; visible? "+isVisible());
+	//	trace(this+".sizes; size: "+width.value+", "+height.value+"; measured: "+measuredWidth+", "+measuredHeight+"; explicit: "+explicitWidth+", "+explicitHeight);
 		if (changes == 0 || !isValidating)
 			return;
 		
 		if (!isVisible())
 		{
 			super.validated();
+	//		state.current = ValidateStates.invalidated;
 			return;
 		}
 		

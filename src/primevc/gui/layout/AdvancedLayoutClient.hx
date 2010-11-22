@@ -165,7 +165,7 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 			hasValidatedWidth = false;
 			super.validateHorizontal();
 		}
-	//	trace(this+".validateHorizontal 2 "+width+"; explicit: "+explicitWidth+"; measured: "+measuredWidth+"; "+Flags.readProperties(changes.filter( Flags.WIDTH_PROPERTIES )));
+	//	trace(this+".validateHorizontal 2 "+width.value+"; explicit: "+explicitWidth+"; measured: "+measuredWidth+"; "+Flags.readProperties(changes.filter( Flags.WIDTH_PROPERTIES )));
 	}
 	
 	
@@ -179,6 +179,7 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	//		super.validateVertical();
 		
 	//	trace(this+".validateVertical 1 "+height.value+"; explicit: "+explicitHeight+"; measured: "+measuredHeight+"; "+Flags.readProperties( changes.filter( Flags.HEIGHT_PROPERTIES ) ));
+	//	trace(this+".validateVertical "+Flags.readProperties(changes));
 		if (changes.has(Flags.HEIGHT) && changes.hasNone( Flags.MEASURED_HEIGHT | Flags.EXPLICIT_HEIGHT ))
 		{
 		//	explicitHeight = height.value;	
@@ -201,6 +202,6 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 			hasValidatedHeight = false;
 			super.validateVertical();
 		}
-	//	trace(this+".validateVertical 2 "+height+"; explicit: "+explicitHeight+"; measured: "+measuredHeight+"; "+Flags.readProperties(changes.filter( Flags.HEIGHT_PROPERTIES )));
+	//	trace(this+".validateVertical 2 "+height.value+"; explicit: "+explicitHeight+"; measured: "+measuredHeight+"; "+Flags.readProperties(changes.filter( Flags.HEIGHT_PROPERTIES )));
 	}
 }

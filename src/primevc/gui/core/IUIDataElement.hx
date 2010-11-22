@@ -28,7 +28,8 @@
  */
 package primevc.gui.core;
  import primevc.core.collections.DataCursor;
- import primevc.core.IBindable;
+ import primevc.core.traits.IValueObject;
+// import primevc.core.IBindable;
  
 
 /**
@@ -37,10 +38,11 @@ package primevc.gui.core;
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
-interface IUIDataComponent < DataType > implements IUIComponent
+interface IUIDataElement < DataType:IValueObject >
 {
-	public var vo (default, setVO)			: IBindable < DataType >;
-	public var data (getData, setData)		: DataType;
+//	public var vo (default, setVO)			: IBindable < DataType >;
+//	public var data (getData, setData)		: DataType;
+	public var data (default, setData)		: DataType;
 	
 	
 	/**
@@ -50,6 +52,7 @@ interface IUIDataComponent < DataType > implements IUIComponent
 	 * 		- data is set and the component-state is already initialized
 	 */
 	private function initData ()			: Void;
+	private function removeData ()			: Void;
 	
 	
 	public function getDataCursor ()		: DataCursor < DataType >;

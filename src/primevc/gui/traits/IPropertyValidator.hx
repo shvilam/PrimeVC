@@ -26,36 +26,14 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours;
- import primevc.gui.managers.QueueManager;
- import primevc.gui.traits.IDisplayable;
- import primevc.gui.traits.IValidatable;
-
-
+package primevc.gui.traits;
 
 /**
  * @author Ruben Weijers
- * @creation-date Nov 09, 2010
+ * @creation-date Nov 19, 2010
  */
-class ValidatingBehaviour < TargetType:IDisplayable > extends BehaviourBase < TargetType >, implements IValidatable
+interface IPropertyValidator implements IValidatable
 {
-	public var prevValidatable		: IValidatable;
-	public var nextValidatable		: IValidatable;
-	
-	
-	private function getValidationManager () : QueueManager
-	{
-		Assert.abstract();
-		return null;
-	}
-//	public function validate ()					: Void			{ Assert.abstract(); }
-	
-	
-	override private function reset ()
-	{
-		if (target.window != null)
-			getValidationManager().remove( this );
-		else
-			prevValidatable = nextValidatable = null;
-	}
+//	public function invalidate ()	: Void;
+	public function validate ()		: Void;
 }

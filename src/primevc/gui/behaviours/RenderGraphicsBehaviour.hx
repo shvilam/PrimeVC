@@ -27,9 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours;
- import primevc.gui.core.IUIElement;
  import primevc.gui.core.UIWindow;
  import primevc.gui.traits.IDrawable;
+ import primevc.gui.traits.IGraphicsValidator;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
@@ -42,7 +42,7 @@ package primevc.gui.behaviours;
  * @author Ruben Weijers
  * @creation-date Jul 16, 2010
  */
-class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >
+class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, implements IGraphicsValidator
 {
 	override private function init ()
 	{
@@ -50,8 +50,8 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >
 		
 		if (target.graphicData != null)
 		{
-			requestRender.on( target.graphicData.changeEvent, this );
-			requestRender();
+			invalidateGraphics.on( target.graphicData.changeEvent, this );
+			invalidateGraphics();
 		}
 	}
 	
@@ -65,16 +65,14 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >
 	}
 	
 	
-	public function requestRender ()
+	public inline function invalidateGraphics ()
 	{
-		if (target.window == null || target.graphicData.isEmpty() || nextValidatable != null || prevValidatable != null)
-			return;
-		
-		getValidationManager().add( this );
+		if (target.window != null && !target.graphicData.isEmpty() && nextValidatable == null && prevValidatable == null)
+			getValidationManager().add( this );
 	}
 	
 	
-	override public function validate ()
+	public function validateGraphics ()
 	{
 	//	trace(target+".render "+target.rect);
 		target.graphics.clear();

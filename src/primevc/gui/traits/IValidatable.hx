@@ -50,6 +50,6 @@ interface IValidatable
 	/**
 	 * Method to update all the properties that have changed.
 	 */
-	public function validate ()					: Void;
+//	public function validate ()					: Void;
 	
 }

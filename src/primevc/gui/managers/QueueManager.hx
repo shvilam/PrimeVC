@@ -72,7 +72,7 @@ class QueueManager implements IDisposable
 		while (last != null)
 		{
 			var obj = last;
-			last = last.prevValidatable;
+			last = cast last.prevValidatable;
 			obj.nextValidatable = obj.prevValidatable = null;
 		}
 		
@@ -88,23 +88,7 @@ class QueueManager implements IDisposable
 	
 	private function enableBinding ()			{ updateQueueBinding.enable(); }
 	private inline function disableBinding ()	{ updateQueueBinding.disable(); }
-	
-	
-	private function validateQueue ()
-	{
-		var curCell = first;
-		
-		while (curCell != null)
-		{
-			var obj	= curCell;
-			obj.validate();
-			
-			curCell	= curCell.nextValidatable;
-			obj.nextValidatable = obj.prevValidatable = null;
-		}
-		first = last = null;
-		disableBinding();
-	}
+	private function validateQueue ()			{ Assert.abstract(); }
 	
 	
 	

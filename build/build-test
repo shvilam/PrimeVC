@@ -10,4 +10,4 @@ bash ${PRIMEVC_DIR}/build/build \
 	-c ffffff \
 	-o App.swf \
 	$* \
-	-e "-cp tests" \
+	-e "-cp 'tests'" \

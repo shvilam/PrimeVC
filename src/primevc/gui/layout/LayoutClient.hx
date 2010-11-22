@@ -257,9 +257,9 @@ class LayoutClient extends Invalidatable
 		
 		//auto validate when there is no parent or when the parent isn't invalidated
 	//	if (parent != null)
-	//		trace(this+".validate; "+readChanges()); //" p: "+parent+"; pchanges: "+Flags.readProperties(parent.changes)+"; parentState "+parent.state.current);
+	//		trace(this+".validate; "+readChanges() + "; p: "+parent+"; pchanges: "+Flags.readProperties(parent.changes)+"; parent.isValidating? "+parent.isValidating);
 		
-		if (parent == null || parent.changes == 0)
+		if (parent == null || !parent.isValidating)
 			validated();
 	}
 	
@@ -275,6 +275,8 @@ class LayoutClient extends Invalidatable
 		if (width.value.notSet() && width.validator != null)
 			width.validateValue();
 		
+		innerBounds.invalidatable = outerBounds.invalidatable = false;
+		
 		if (changes.has(Flags.WIDTH))
 		{
 			if (maintainAspectRatio)
@@ -287,6 +289,8 @@ class LayoutClient extends Invalidatable
 		if (changes.has(Flags.MARGIN))
 			innerBounds.left = (margin == null) ? outerBounds.left : outerBounds.left + margin.left;
 		
+		innerBounds.resetValidation();
+		outerBounds.resetValidation();
 		hasValidatedWidth = true;
 	}
 	
@@ -302,6 +306,7 @@ class LayoutClient extends Invalidatable
 		if (height.value.notSet() && height.validator != null)
 			height.validateValue();
 		
+		innerBounds.invalidatable = outerBounds.invalidatable = false;
 		if (changes.has(Flags.HEIGHT))
 		{
 			if (maintainAspectRatio)
@@ -314,6 +319,8 @@ class LayoutClient extends Invalidatable
 		if (changes.has(Flags.MARGIN))
 			innerBounds.top = (margin == null) ? outerBounds.top : outerBounds.top + margin.top;
 		
+		innerBounds.resetValidation();
+		outerBounds.resetValidation();
 		hasValidatedHeight = true;
 	}
 	

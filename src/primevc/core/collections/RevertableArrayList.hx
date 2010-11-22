@@ -57,6 +57,16 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >
 	public var changes (default,null) : FastArray<ListChange<DataType>>;
 	
 	
+	public function new( wrapAroundList:FastArray<DataType> = null )
+	{
+		super(wrapAroundList);
+		flags = REMEMBER_CHANGES;
+	}
+	
+	
+	public inline function rememberChanges (enabled:Bool = true)				{ flags = enabled ? flags.set(REMEMBER_CHANGES) : flags.unset(REMEMBER_CHANGES); }
+	public inline function dispatchChangesBeforeCommit (enabled:Bool = true)	{ flags = enabled ? flags.set(Flags.DISPATCH_CHANGES_BEFORE_COMMIT) : flags.unset(Flags.DISPATCH_CHANGES_BEFORE_COMMIT); }
+	
 	
 	//
 	// EDITABLE VALUE-OBJECT METHODS
@@ -65,21 +75,25 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >
 	
 	public inline function beginEdit ()
 	{
-		// Only set REMEMBER_CHANGES if IN_EDITMODE is not set
-		Assert.that(Flags.IN_EDITMODE << 11 == REMEMBER_CHANGES);
-		flags = flags.set( (((flags & Flags.IN_EDITMODE) << 11) ^ REMEMBER_CHANGES) | Flags.IN_EDITMODE );
-		
-		if (flags.has(REMEMBER_CHANGES))
-			changes = FastArrayUtil.create();
+		if (flags.hasNone( Flags.IN_EDITMODE ))
+		{
+			flags = flags.set( Flags.IN_EDITMODE );
+			
+			if (flags.has(REMEMBER_CHANGES))
+				changes = FastArrayUtil.create();
+		}
 	}
 	
 	
-	public inline function commitEdit ()
+	public  function commitEdit ()
 	{
 		// Check if REMEMBER_CHANGES is not set (value changed) and any dispatch flag is set.
 		if (flags.has(REMEMBER_CHANGES) && flags.hasNone( Flags.DISPATCH_CHANGES_BEFORE_COMMIT ))
-			while (changes.length > 0)
-				change.send( changes.pop() );
+			while (changes.length > 0) {
+				var listChange = changes.pop();
+				Assert.notNull( listChange );
+				change.send( listChange );
+			}
 		
 		stopEdit();
 	}
@@ -123,17 +137,35 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >
 	
 	public function removeAll ()
 	{
-		list.removeAll();
+		var f = flags;
+		Assert.that( f.has(Flags.IN_EDITMODE) );
+		
+		if (f.hasNone(Flags.IN_EDITMODE))
+			return;
+		
+		flags = f.unset( Flags.DISPATCH_CHANGES_BEFORE_COMMIT );
+		
+		while (length > 0)
+			remove ( list[ length - 1] );
+		
+		flags = f;
+		if (f.has( Flags.DISPATCH_CHANGES_BEFORE_COMMIT ))
+			change.send( ListChange.reset );
 	}
 	
 	
 	public function add (item:DataType, pos:Int = -1) : DataType
 	{
 		var f = flags;
-		Assert.that( f.has(Flags.IN_EDITMODE) );
+		Assert.that( f.has(Flags.IN_EDITMODE), this+" doesn't have EDITMODE. Flags: "+Flags.readProperties(f) );
+		
+		if (f.hasNone(Flags.IN_EDITMODE))
+			return item;
 		
 		pos = list.insertAt(item, pos);
 		addChange( ListChange.added( item, pos ) );
+		
+	//	trace("this.add "+item +"; "+Flags.readProperties(flags)+"; "+length);
 		
 		return item;
 	}
@@ -143,6 +175,9 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >
 	{
 		var f = flags;
 		Assert.that( f.has(Flags.IN_EDITMODE) );
+		
+		if (f.hasNone(Flags.IN_EDITMODE))
+			return item;
 		
 		if (oldPos == -1)
 			oldPos = list.indexOf(item);
@@ -158,6 +193,9 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >
 	{
 		var f = flags;
 		Assert.that( f.has(Flags.IN_EDITMODE) );
+		
+		if (f.hasNone(Flags.IN_EDITMODE))
+			return item;
 		
 		if		(curPos == -1)				curPos = list.indexOf(item);
 		if		(newPos > (length - 1))		newPos = length - 1;
