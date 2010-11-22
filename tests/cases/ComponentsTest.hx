@@ -1,5 +1,4 @@
 package cases;
- import primevc.core.Application;
  import primevc.core.geom.space.Direction;
  import primevc.gui.components.ApplicationView;
  import primevc.gui.components.Button;
@@ -8,6 +7,7 @@ package cases;
  import primevc.gui.components.InputField;
  import primevc.gui.components.Slider;
  import primevc.gui.core.UIWindow;
+ import primevc.gui.display.Window;
  import primevc.types.Bitmap;
   using primevc.utils.Bind;
 
@@ -18,7 +18,7 @@ package cases;
  */
 class ComponentsTest extends UIWindow
 {
-	public static function main ()					{ Application.startup( ComponentsTest ); }
+	public static function main ()					{ Window.startup( ComponentsTest ); }
 	override private function createChildren ()		{ children.add( new ComponentsApp( "componentsApp" ) ); }
 	override private function createBehaviours ()	{ haxe.Log.clear.on( mouse.events.doubleClick, this ); }
 }
@@ -50,7 +50,7 @@ class ComponentsApp extends ApplicationView
 		children.add( image		= new Image("testImage", Bitmap.fromString("/Users/ruben/Pictures/0227pod11.jpg")) );
 		children.add( slider	= new Slider("testSlider", 5, 4, 6) );
 		children.add( slider2	= new Slider("sliderCopy", 5, 4, 6, Direction.vertical) );
-		children.add( input		= new InputField("testInput", "welcome welcome welcome") );
+		children.add( input		= new InputField("testInput") );
 		children.add( label		= new Label("testLabel") );
 		
 		label.data.pair( input.data );
@@ -61,7 +61,7 @@ class ComponentsApp extends ApplicationView
 	
 	private function changeLabel ()
 	{
-		button.value += " test";
-		input.value += " test";
+		button.data.value += " test";
+		input.data.value += " test";
 	}
 }

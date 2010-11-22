@@ -24,51 +24,11 @@
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.utils;
-  using Type;
+package ;
 
 
-class TypeUtil
-{
-	/**
-	 * Optimized simple instanceof check. Compiles to bytecode or Useful to quickly check if an object implements some interface.
-	 *  
-	 * Warning: Use Std.is() for checking enums and stuff.
-	 */
-	static public inline function is(o:Dynamic, t:Class<Dynamic>)
-	{
-		#if flash9
-			return untyped __is__(o, t);
-		#elseif flash
-			return untyped __instanceof__(o, t);
-		#elseif js {
-			var __o = o, __t = t;
-			return __js__("__o instanceof __t");
-		}
-		#else
-			return Std.is(o, t);
-		#end
-	}
-	
-	
-	/**
-	 * Optimized simple instanceof check. Compiles to bytecode or Useful to quickly cast an object.
-	 */
-	static public inline function as<T>(o:Dynamic, t:Class<T>) : T
-	{
-		return cast o;
-	}
-	
-	
-#if debug
-	private static var objCounter : Int = 0;
-	
-	public static inline function getReadableId (obj:Dynamic) : String
-	{
-		return Type.getClass( obj ).getClassName().split(".").pop() + objCounter++;
-	}
+#if js
+typedef UInt = Int;
 #end
-}
