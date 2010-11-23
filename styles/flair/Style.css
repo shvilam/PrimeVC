@@ -4,6 +4,10 @@
 .odd { visibility: visible; width: 60px; }
 #frame2 .odd { background: #000; width: 100px; shape: rectangle;  }
 
+GlobalTest {
+	algorithm: relative;
+}
+
 GlobalApp {
 	relative: 5px 5px 55px;
 	height: none;

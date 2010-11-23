@@ -29,8 +29,10 @@
 package primevc.gui.graphics;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.traits.IDisposable;
+#if neko
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICSSFormattable;
+#end
 
 
 /**
@@ -38,9 +40,9 @@ package primevc.gui.graphics;
  * @creation-date Jul 30, 2010
  */
 interface IGraphicElement 
-		implements IInvalidatable
-	,	implements IDisposable
-	,	implements ICSSFormattable
-	,	implements ICodeFormattable
+				implements IInvalidatable
+			,	implements IDisposable
+#if neko	,	implements ICSSFormattable
+			,	implements ICodeFormattable #end
 {
 }

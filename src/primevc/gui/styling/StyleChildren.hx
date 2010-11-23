@@ -28,7 +28,6 @@
  */
 package primevc.gui.styling;
  import primevc.core.traits.IDisposable;
- import primevc.tools.generator.ICSSFormattable;
  import primevc.types.SimpleDictionary;
  import Hash;
 #if (neko || debug)
@@ -37,6 +36,7 @@ package primevc.gui.styling;
 #if neko
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICodeGenerator;
+ import primevc.tools.generator.ICSSFormattable;
   using StringTools;
 #end
 
@@ -49,8 +49,8 @@ typedef SelectorMapType = SimpleDictionary < String, StyleBlock >;
  */
 class StyleChildren 
 				implements IDisposable
-			,	implements ICSSFormattable
-#if neko	,	implements ICodeFormattable		#end
+#if neko	,	implements ICSSFormattable
+			,	implements ICodeFormattable		#end
 {
 #if (neko || debug)
 	public var uuid					(default, null) : String;

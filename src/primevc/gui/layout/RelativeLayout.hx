@@ -30,12 +30,12 @@ package primevc.gui.layout;
 #if neko
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICodeGenerator;
+ import primevc.tools.generator.ICSSFormattable;
  import primevc.utils.StringUtil;
 #end
  import primevc.core.dispatcher.Signal0;
  import primevc.core.geom.IBox;
  import primevc.core.traits.IDisposable;
- import primevc.tools.generator.ICSSFormattable;
  import primevc.types.Number;
   using primevc.utils.NumberUtil;
 
@@ -65,8 +65,8 @@ package primevc.gui.layout;
 class RelativeLayout 
 				implements IBox
 			,	implements IDisposable	
-			,	implements ICSSFormattable
-#if neko	,	implements ICodeFormattable		#end
+#if neko	,	implements ICSSFormattable
+			,	implements ICodeFormattable		#end
 {
 	
 #if neko

@@ -29,11 +29,11 @@
 package primevc.gui.effects;
 #if neko
  import primevc.tools.generator.ICodeFormattable;
+ import primevc.tools.generator.ICSSFormattable;
 #end
  import primevc.core.traits.IClonable;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.traits.IDisposable;
- import primevc.tools.generator.ICSSFormattable;
 
 
 /**
@@ -43,8 +43,8 @@ package primevc.gui.effects;
 interface IEffect
 				implements IDisposable
 			,	implements IInvalidatable	
-			,	implements ICSSFormattable
-#if neko	,	implements ICodeFormattable		#end
+#if neko	,	implements ICSSFormattable
+			,	implements ICodeFormattable		#end
 			,	implements IClonable < IEffect >
 {
 	/**

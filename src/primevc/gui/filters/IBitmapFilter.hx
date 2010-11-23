@@ -27,8 +27,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.filters;
+#if neko
  import primevc.tools.generator.ICSSFormattable;
  import primevc.tools.generator.ICodeFormattable;
+#end
 
 
 /**
@@ -38,8 +40,8 @@ package primevc.gui.filters;
  * @creation-date Sep 29, 2010
  */
 interface IBitmapFilter		
-		implements ICSSFormattable
-	,	implements ICodeFormattable
+#if neko	implements ICSSFormattable
+		,	implements ICodeFormattable #end
 {
 	
 }

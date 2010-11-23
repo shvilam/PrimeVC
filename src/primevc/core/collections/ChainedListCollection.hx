@@ -42,9 +42,10 @@ package primevc.core.collections;
  * list.
  * 
  */
-class ChainedListCollection <DataType> implements IEditableList <DataType>,
-	implements IListCollection < DataType, ChainedList<DataType> > 
-	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
+class ChainedListCollection <DataType>
+				implements IEditableList <DataType>
+			,	implements IListCollection < DataType, ChainedList<DataType> > 
+#if flash9	,	implements haxe.rtti.Generic #end
 {
 	public var change		(default, null)				: Signal1 < ListChange < DataType > >;
 	
@@ -101,7 +102,7 @@ class ChainedListCollection <DataType> implements IEditableList <DataType>,
 	// ILISTCOLLECTION METHODS
 	//
 	
-	public function addList (list)
+	public function addList (list:ChainedList<DataType>)
 	{
 		if (lists.length != 0) {
 			var lastList = lists.getItemAt(lists.length - 1);
@@ -114,7 +115,7 @@ class ChainedListCollection <DataType> implements IEditableList <DataType>,
 	}
 	
 	
-	public function removeList (list)
+	public function removeList (list:ChainedList<DataType>)
 	{
 		var index = lists.indexOf(list);
 		
@@ -274,8 +275,8 @@ class ChainedListCollection <DataType> implements IEditableList <DataType>,
 	}
 	
 	
-	public function iterator () : Iterator <DataType>						{ return forwardIterator(); }
-	public inline function forwardIterator () : IIterator <DataType>		{ return new ChainedListCollectionIterator<DataType>(this); }
+	public function iterator () : Iterator <DataType>					{ return forwardIterator(); }
+	public inline function forwardIterator () : IIterator <DataType>	{ return new ChainedListCollectionIterator<DataType>(this); }
 	public inline function reversedIterator () : IIterator <DataType>	{ return new ChainedListCollectionIterator<DataType>(this); }
 	
 	

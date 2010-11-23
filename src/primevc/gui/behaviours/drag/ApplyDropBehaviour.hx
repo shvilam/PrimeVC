@@ -90,7 +90,7 @@ class ApplyDropBehaviour extends BehaviourBase <IDropTarget>
 			var dataCursor	= droppedItem.dataCursor;
 			
 			if (dataTarget.isDataDropAllowed( cast dataCursor ))
-				dataCursor.moveTarget( depth, dataTarget.value );
+				dataCursor.moveTarget( depth, dataTarget.list );
 			else
 				dataCursor.restore();
 				

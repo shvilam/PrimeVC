@@ -28,9 +28,9 @@
  */
 package primevc.gui.styling;
  import primevc.core.traits.IInvalidatable;
- import primevc.tools.generator.ICSSFormattable;
 #if neko
  import primevc.tools.generator.ICodeFormattable;
+ import primevc.tools.generator.ICSSFormattable;
 #end
 
 
@@ -40,8 +40,8 @@ package primevc.gui.styling;
  */
 interface IStyleBlock
 				implements IInvalidatable
-			,	implements ICSSFormattable
-#if neko	,	implements ICodeFormattable		#end
+#if neko	,	implements ICSSFormattable
+			,	implements ICodeFormattable		#end
 {
 	/**
 	 * Variable defining which properties in the style-declaration have been

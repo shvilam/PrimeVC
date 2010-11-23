@@ -2,12 +2,11 @@
 
 MINPARAMS=1
 BUILDSCRIPTDIR="`dirname "$0"`"
-PRIMEVC_DIR="${BUILDSCRIPTDIR}/.."
-
-echo "params: $*"
+PRIMEVC_DIR="`cd ${BUILDSCRIPTDIR}/..; pwd`"
 
 bash ${PRIMEVC_DIR}/build/build \
 	-c ffffff \
+	-p "$PRIMEVC_DIR" \
 	-o App.swf \
-	$* \
-	-e "-cp 'tests'" \
+	-e "-cp '$PRIMEVC_DIR/tests'" \
+	$* 

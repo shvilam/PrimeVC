@@ -5,9 +5,10 @@ package cases;
 #end
  import primevc.core.collections.ArrayList;
  import primevc.core.collections.DataCursor;
+ import primevc.core.collections.IEditableList;
  import primevc.core.geom.space.Vertical;
  import primevc.core.geom.IRectangle;
- import primevc.core.Application;
+ import primevc.core.Bindable;
  import primevc.gui.behaviours.drag.DragDropBehaviour;
  import primevc.gui.behaviours.drag.ApplyDropBehaviour;
  import primevc.gui.behaviours.drag.ShowDragGapBehaviour;
@@ -18,6 +19,7 @@ package cases;
  import primevc.gui.core.UIDataComponent;
  import primevc.gui.core.UIWindow;
  import primevc.gui.display.DisplayDataCursor;
+ import primevc.gui.display.Window;
  import primevc.gui.events.DragEvents;
  import primevc.gui.events.DropTargetEvents;
  import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
@@ -38,7 +40,7 @@ package cases;
 
 
 
-typedef DataVOType = String;
+typedef DataVOType = Bindable<String>;
 
 /**
  * @creation-date	Sep 16, 2010
@@ -46,7 +48,7 @@ typedef DataVOType = String;
  */
 class GlobalTest extends UIWindow
 {
-	public static function main () { Application.startup( GlobalTest ); }
+	public static function main () { Window.startup( GlobalTest ); }
 	
 	override private function createChildren ()
 	{
@@ -61,7 +63,7 @@ class GlobalTest extends UIWindow
  */
 class GlobalApp extends ApplicationView
 {
-	private var testList1 : ArrayList < String >;
+	private var testList1 : ArrayList<DataVOType>;
 	
 	
 	public function new ()
@@ -70,7 +72,7 @@ class GlobalApp extends ApplicationView
 		
 		testList1 = new ArrayList<DataVOType>();
 		for (i in 0...60)
-			testList1.add(i+"");
+			testList1.add(new DataVOType(i+""));
 	}
 	
 	
@@ -174,8 +176,7 @@ class Tile extends UIDataComponent < DataVOType >, implements IDraggable
 #if (debug && flash9)
 	override private function createChildren ()
 	{
-		textField = new TextField();
-		textField.text = value;
+		textField = new TextField(data);
 		textField.autoSize = flash.text.TextFieldAutoSize.LEFT;
 		textField.setTextFormat( new TextFormat("Verdana", 15, 0x00 ) );
 		textField.mouseEnabled = false;
@@ -202,7 +203,8 @@ class Tile extends UIDataComponent < DataVOType >, implements IDraggable
 
 class TileList extends ListView < DataVOType >, implements IDataDropTarget < DataVOType >
 {
-	public var dragEvents	(default, null) : DropTargetEvents;
+	public var dragEvents	(default, null)		: DropTargetEvents;
+	public var list			(getList, never)	: IEditableList < DataVOType >;
 	
 	
 	public function new (id:String = null, list:ArrayList<DataVOType> = null)
@@ -233,7 +235,7 @@ class TileList extends ListView < DataVOType >, implements IDataDropTarget < Dat
 		if (displayCursor.target.is(Tile))
 		{
 			var tile = displayCursor.target.as(Tile);
-			if ( value != null && !value.has( tile.value ) )
+			if ( data != null && !data.has( tile.data ) )
 				allowed = true;
 		}
 		return allowed;
@@ -242,12 +244,18 @@ class TileList extends ListView < DataVOType >, implements IDataDropTarget < Dat
 	
 	public function isDataDropAllowed (dataCursor:DataCursor < DataVOType > ) : Bool
 	{
-		return dataCursor.list == value;
+		return dataCursor.list == data;
 	}
 	
 	
 	public inline function getDepthForBounds (bounds:IRectangle) : Int
 	{
 		return layoutContainer.algorithm.getDepthForBounds(bounds);
+	}
+	
+	
+	private inline function getList ()
+	{
+		return cast data;
 	}
 }

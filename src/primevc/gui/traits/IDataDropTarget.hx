@@ -37,7 +37,15 @@ package primevc.gui.traits;
  */
 interface IDataDropTarget < DataType > implements IDropTarget 
 {
-	public var data	(default, setData)	: IEditableList < DataType >;
+	
+	/**
+	 * Variable defining the list in which the data should be dropped.
+	 * This variable can't be called data since IUIDataElement defines data 
+	 * as well. When an ListView wants to implement this interface, there will
+	 * be an IReadOnlyList and an IEditableList which will give errors (even
+	 * when they are the same instance).
+	 */
+	public var list	(getList, never)	: IEditableList < DataType >;
 	
 	/**
 	 * Method to check if an IDraggabledata--item is allowed to drop on this

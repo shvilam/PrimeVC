@@ -3,5 +3,6 @@
 	<component id="Tile"				superClass="UIDataComponent"	fullname="cases.Tile" />
 	<component id="TileList"			superClass="ListView"			fullname="cases.TileList" />
 	<component id="GlobalApp"			superClass="ApplicationView"	fullname="cases.GlobalApp" />
+	<component id="GlobalTest"			superClass="UIWindow"			fullname="cases.GlobalTest" />
 <!--<component id="" superClass="" fullname="" />-->
 </componentPackage>

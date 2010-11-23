@@ -137,7 +137,7 @@ class BalancingListCollection <DataType> implements IEditableList <DataType>,
 	// ILISTCOLLECTION METHODS
 	//
 	
-	public inline function addList (list)
+	public inline function addList (list:BalancingList<DataType>)
 	{
 		//give the previous list a reference to the new list
 		if (lists.length > 0)
@@ -321,10 +321,12 @@ class BalancingListCollection <DataType> implements IEditableList <DataType>,
 				var steps = newPos - curPos;
 				
 				//rewind iterator with one (since the item is already in the current list)
-				var itr			= lists.forwardIterator();
+				var itr = lists.forwardIterator();
 				itr.setCurrent( oldListPos );
+				
 				if (!itr.hasNext())
 					itr.rewind();
+				
 				itr.next();
 				
 				for ( i in 0...steps )
@@ -348,8 +350,9 @@ class BalancingListCollection <DataType> implements IEditableList <DataType>,
 				var steps = curPos - newPos;
 				
 				//rewind iterator with one (since the item is already in the current list)
-				var itr			= lists.reversedIterator();
+				var itr = lists.reversedIterator();
 				itr.setCurrent( oldListPos );
+				
 				if (!itr.hasNext())
 					itr.rewind();
 				
@@ -386,13 +389,14 @@ class BalancingListCollection <DataType> implements IEditableList <DataType>,
 	}
 	
 	
-	public function iterator () : Iterator <DataType>				{ return forwardIterator(); }
+	public function iterator () : Iterator <DataType>			{ return forwardIterator(); }
 	public function forwardIterator () : IIterator <DataType>	{ return new BalancingListCollectionForwardIterator<DataType>(this); }
 	public function reversedIterator () : IIterator <DataType>	{ return new BalancingListCollectionReversedIterator<DataType>(this); }
 	
 	
 	
-	private inline function getListForPosition (globalPos:Int) : BalancingList<DataType> {
+	private inline function getListForPosition (globalPos:Int) : BalancingList<DataType>
+	{
 		return lists.getItemAt(getListNumForPosition(globalPos));
 	}
 	

@@ -30,9 +30,9 @@ package primevc.core.geom;
 #if neko
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICodeGenerator;
+ import primevc.tools.generator.ICSSFormattable;
  import primevc.utils.StringUtil;
 #end
- import primevc.tools.generator.ICSSFormattable;
  import primevc.types.Number;
   using primevc.utils.NumberUtil;
 
@@ -43,8 +43,8 @@ package primevc.core.geom;
  */
 class Box
 				implements IBox
-			,	implements ICSSFormattable
-#if neko	,	implements ICodeFormattable		#end
+#if neko	,	implements ICSSFormattable
+			,	implements ICodeFormattable		#end
 {
 	public var left		(getLeft, setLeft)		: Int;
 	public var right	(getRight, setRight)	: Int;

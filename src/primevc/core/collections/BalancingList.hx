@@ -31,8 +31,6 @@ package primevc.core.collections;
  
 
 /**
- * Description
- * 
  * @creation-date	Jul 1, 2010
  * @author			Ruben Weijers
  */

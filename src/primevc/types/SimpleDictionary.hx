@@ -29,7 +29,9 @@
 package primevc.types;
  import primevc.core.collections.iterators.FastArrayForwardIterator;
  import primevc.core.traits.IDisposable;
+#if neko
  import primevc.tools.generator.ICodeFormattable;
+#end
  import primevc.utils.FastArray;
 #if (neko || debug)
  import primevc.tools.generator.ICodeGenerator;
@@ -46,9 +48,9 @@ package primevc.types;
  * @creation-date Sep 30, 2010
  */
 class SimpleDictionary < KType, VType > 
-		implements IDisposable
-	,	implements haxe.rtti.Generic
-	,	implements ICodeFormattable
+				implements IDisposable
+			,	implements haxe.rtti.Generic
+#if neko	,	implements ICodeFormattable		#end
 {
 	private var _keys	: FastArray < KType >;
 	private var _values	: FastArray < VType >;

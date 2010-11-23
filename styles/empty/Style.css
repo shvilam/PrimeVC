@@ -1,12 +1,16 @@
 @import url('BasicStyle.css');
+@manifest url('TestManifest.xml');
 
-.test InputField	{ margin: 10px 0px; padding: 5px; min-width: 100px; border: 1px solid #000; background: #005; color: #fff; font-weight: bold; }
-.test Label			{ margin: 10px 0px; background: #050; color: #fff; }
-.test Button		{ margin: 10px 0px; background: #aaa; padding: 5px;  }
-.test Button Image	{ width: 150px; }
-.test Button:hover	{ font-weight: bold; font: "Courier New"; }
-.test Button:down	{ font: "Courier New"; text-decoration: underline; }
-.test Image			{ max-height: 200px; max-width: 100px; }
-.test Slider		{ margin: 10px 0px; background: #aaa; }
+ComponentsTest	{ algorithm: float-ver(top, center); }
+UIComponent		{ h-center: 0px;}
+
+InputField		{ margin: 10px 0px; padding: 5px; min-width: 100px; border: 1px solid #000; background: #005; color: #fff; font-weight: bold; }
+Label			{ margin: 10px 0px; background: #050; color: #fff; }
+Button			{ margin: 10px 0px; background: #aaa; padding: 5px;  }
+Button Image	{ width: 150px; }
+Button:hover	{ font-weight: bold; font: "Courier New"; }
+Button:down		{ font: "Courier New"; text-decoration: underline; }
+Image			{ max-height: 200px; max-width: 100px; }
+Slider			{ margin: 10px 0px; background: #aaa; }
 .horizontalSlider UIGraphic	{ background: #000; }
 .verticalSlider UIGraphic	{ background: #000; }

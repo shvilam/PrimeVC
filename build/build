@@ -77,7 +77,8 @@ else
 		-cp "'$STYLEDIR'" \
 		-main $MainClass \
 		-swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR \
-		${ASSETS:+-swf-lib} "'$ASSETS'" \
+		${ASSETS:+-swf-lib "'$ASSETS'"} \
+		${Debug:--exclude "'build/release-exclude.txt'"} \
 		-swf-lib "'assets/${Debug:+debug-}assets.swf'" \
 		| xargs -t haxe \
 		 	|| exit 1;

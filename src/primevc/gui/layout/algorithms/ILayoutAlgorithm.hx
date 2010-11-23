@@ -29,12 +29,12 @@
 package primevc.gui.layout.algorithms;
 #if neko
  import primevc.tools.generator.ICodeFormattable;
+ import primevc.tools.generator.ICSSFormattable;
 #end
  import primevc.core.dispatcher.Signal0;
  import primevc.core.geom.IRectangle;
  import primevc.core.traits.IDisposable;
  import primevc.gui.layout.ILayoutContainer;
- import primevc.tools.generator.ICSSFormattable;
 
 
 /**
@@ -43,8 +43,8 @@ package primevc.gui.layout.algorithms;
  */
 interface ILayoutAlgorithm
 				implements IDisposable	
-			,	implements ICSSFormattable	
-#if neko	,	implements ICodeFormattable		#end
+#if neko	,	implements ICSSFormattable	
+			,	implements ICodeFormattable		#end
 {
 	/**
 	 * Signal that will be dispatched when properties of the algorithm have 

@@ -28,11 +28,11 @@
  */
 package primevc.types;
  import primevc.core.traits.IDisposable;
- import primevc.tools.generator.ICSSFormattable;
 
 #if neko
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICodeGenerator;
+ import primevc.tools.generator.ICSSFormattable;
 #end
 #if (neko || debug)
  import primevc.utils.StringUtil;
@@ -51,8 +51,8 @@ package primevc.types;
  */
 class ClassInstanceFactory < InstanceType >
 				implements IDisposable		
-			,	implements ICSSFormattable
-#if neko	,	implements ICodeFormattable		#end
+#if neko	,	implements ICSSFormattable
+			,	implements ICodeFormattable		#end
 {
 	public static inline var EMPTY_ARRAY = [];
 	

@@ -157,7 +157,7 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >
 	public function add (item:DataType, pos:Int = -1) : DataType
 	{
 		var f = flags;
-		Assert.that( f.has(Flags.IN_EDITMODE), this+" doesn't have EDITMODE. Flags: "+Flags.readProperties(f) );
+		Assert.that( f.has(Flags.IN_EDITMODE), this+" doesn't have EDITMODE. "); // Flags: "+Flags.readProperties(f) );
 		
 		if (f.hasNone(Flags.IN_EDITMODE))
 			return item;

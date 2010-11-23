@@ -19,17 +19,8 @@ package cases;
 class ComponentsTest extends UIWindow
 {
 	public static function main ()					{ Window.startup( ComponentsTest ); }
-	override private function createChildren ()		{ children.add( new ComponentsApp( "componentsApp" ) ); }
-	override private function createBehaviours ()	{ haxe.Log.clear.on( mouse.events.doubleClick, this ); }
-}
-
-
-/**
- * @author Ruben Weijers
- * @creation-date Sep 02, 2010
- */
-class ComponentsApp extends ApplicationView
-{
+	
+	
 	private var label	: Label;
 	private var input	: Label;
 	private var button	: Button;
@@ -38,16 +29,10 @@ class ComponentsApp extends ApplicationView
 	private var slider2	: Slider;
 	
 	
-	override private function init ()
-	{
-		styleClasses.add("test");
-		super.init();
-	}
-	
 	override private function createChildren ()
 	{
-		children.add( button	= new Button("testButton", "add some text", Bitmap.fromString("/Users/ruben/Desktop/naamloze map/Arrow-Right.png")) );
-		children.add( image		= new Image("testImage", Bitmap.fromString("/Users/ruben/Pictures/0227pod11.jpg")) );
+		children.add( button	= new Button("testButton", "add some text" ) ); //, Bitmap.fromString("/Users/ruben/Desktop/naamloze map/Arrow-Right.png")) );
+	//	children.add( image		= new Image("testImage", Bitmap.fromString("http://www.google.com/images/logos/ps_logo.png")) );
 		children.add( slider	= new Slider("testSlider", 5, 4, 6) );
 		children.add( slider2	= new Slider("sliderCopy", 5, 4, 6, Direction.vertical) );
 		children.add( input		= new InputField("testInput") );
@@ -63,5 +48,12 @@ class ComponentsApp extends ApplicationView
 	{
 		button.data.value += " test";
 		input.data.value += " test";
+	}
+	
+	
+	override private function createBehaviours ()
+	{
+		haxe.Log.clear.on( mouse.events.doubleClick, this );
+		super.createBehaviours();
 	}
 }

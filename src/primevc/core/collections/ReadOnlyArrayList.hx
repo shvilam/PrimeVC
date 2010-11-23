@@ -78,10 +78,10 @@ class ReadOnlyArrayList < DataType >
 	}
 	
 	
-	private inline function getLength ()								{ return list.length; }
-	public inline function iterator () : Iterator <DataType>			{ return cast forwardIterator(); }
-	public inline function forwardIterator () : IIterator <DataType>	{ return cast new FastArrayForwardIterator<DataType>(list); }
-	public inline function reversedIterator () : IIterator <DataType>	{ return cast new FastArrayReversedIterator<DataType>(list); }
+	private inline function getLength ()						{ return list.length; }
+	public inline function iterator () : Iterator <DataType>	{ return cast forwardIterator(); }
+	public function forwardIterator () : IIterator <DataType>	{ return cast new FastArrayForwardIterator<DataType>(list); }
+	public function reversedIterator () : IIterator <DataType>	{ return cast new FastArrayReversedIterator<DataType>(list); }
 	
 	
 	/**
@@ -91,14 +91,14 @@ class ReadOnlyArrayList < DataType >
 	 * @param	pos
 	 * @return
 	 */
-	public inline function getItemAt (pos:Int) : DataType
+	public function getItemAt (pos:Int) : DataType
 	{
 		var i:Int = pos < 0 ? length + pos : pos;
 		return list[i];
 	}
 	
 	
-	public inline function indexOf (item:DataType) : Int {
+	public function indexOf (item:DataType) : Int {
 		return list.indexOf(item);
 	}
 	
