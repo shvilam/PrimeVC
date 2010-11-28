@@ -81,6 +81,8 @@ class UIDataComponent <DataType:IValueObject> extends UIComponent, implements IU
 	{
 		if (changes.has( UIElementFlags.DATA ) && data != null)
 			initData();
+		
+		super.validate();
 	}
 	
 	

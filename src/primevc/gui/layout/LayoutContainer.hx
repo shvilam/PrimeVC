@@ -44,7 +44,6 @@ package primevc.gui.layout;
   using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
-  using Std;
 
 
 private typedef Flags = LayoutFlags;
@@ -179,7 +178,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			
 			//measure children with explicitWidth and no percentage size
 			else if (checkIfChildGetsPercentageWidth(child, explicitWidth))
-				child.outerBounds.width = (explicitWidth * child.percentWidth).int();
+				child.outerBounds.width = (explicitWidth * child.percentWidth).roundFloat();
 			
 			//measure children
 			if (child.percentWidth != Flags.FILL)
@@ -239,7 +238,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			}
 			
 			else if (checkIfChildGetsPercentageHeight(child, explicitHeight))
-				child.outerBounds.height = (explicitHeight * child.percentHeight).int();
+				child.outerBounds.height = (explicitHeight * child.percentHeight).roundFloat();
 			
 			//measure children
 			if (child.percentHeight != Flags.FILL) {
@@ -313,7 +312,9 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (v != algorithm)
 		{
 			if (algorithm != null) {
-				algorithm.group = null;
+				if (algorithm.group == this)
+					algorithm.group = null;
+				
 				algorithm.algorithmChanged.unbind(this);
 			}
 			

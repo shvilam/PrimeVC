@@ -55,6 +55,7 @@ class StyleStateFlags
 	public static inline var LOADING	: UInt = 512;
 	public static inline var LOADED		: UInt = 1024;
 	public static inline var ERROR		: UInt = 2048;
+	public static inline var EDITABLE	: UInt = 32768;
 	
 	public static inline var DRAG_OVER	: UInt = 4096;
 	public static inline var DRAG_OUT	: UInt = 8192;
@@ -78,6 +79,7 @@ class StyleStateFlags
 			case "loading":		LOADING;
 			case "loaded":		LOADED;
 			case "error":		ERROR;
+			case "editable":	EDITABLE;
 			case "drag-over":	DRAG_OVER;
 			case "drag-out":	DRAG_OUT;
 			case "drag-drop":	DRAG_DROP;
@@ -102,6 +104,7 @@ class StyleStateFlags
 			case LOADING:	"loading";
 			case LOADED:	"loaded";
 			case ERROR:		"error";
+			case EDITABLE:	"editable";
 			case DRAG_OVER:	"drag-over";
 			case DRAG_OUT:	"drag-out";
 			case DRAG_DROP:	"drag-drop";
@@ -129,6 +132,7 @@ class StyleStateFlags
 			if (flags.has( LOADING ))	output.push("loading");
 			if (flags.has( LOADED ))	output.push("loaded");
 			if (flags.has( ERROR ))		output.push("error");
+			if (flags.has( EDITABLE ))	output.push("editable");
 			if (flags.has( DRAG_OVER ))	output.push("drag-over");
 			if (flags.has( DRAG_OUT ))	output.push("drag-out");
 			if (flags.has( DRAG_DROP ))	output.push("drag-drop");

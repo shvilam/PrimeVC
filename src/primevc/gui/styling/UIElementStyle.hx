@@ -160,6 +160,9 @@ class UIElementStyle implements IUIElementStyle
 		if (styleNamesChangeBinding != null)	styleNamesChangeBinding.dispose();
 		if (idChangeBinding != null)			idChangeBinding.dispose();
 		
+		addedBinding = removedBinding = styleNamesChangeBinding = idChangeBinding = null;
+		
+		
 		if (boxFilters != null)		boxFilters.dispose();
 		if (effects != null)		effects.dispose();
 		if (font != null)			font.dispose();
@@ -172,11 +175,13 @@ class UIElementStyle implements IUIElementStyle
 			parentStyle = null;
 		}
 		
+		//remove styles and their listeners
+		while (styles.length > 0)
+			removeStyleCell( styles.last );
+		
 		childrenChanged.dispose();
-		clearStyles();
 		currentStates.removeAll();
 		
-		addedBinding	= removedBinding = styleNamesChangeBinding = idChangeBinding = null;
 		currentStates	= null;
 		styles			= null;
 		targetClassName	= null;
@@ -223,6 +228,9 @@ class UIElementStyle implements IUIElementStyle
 	 */
 	private function clearStyles () : Void
 	{
+		if (target == null)
+			return;		//<-- disposed
+		
 		styleNamesChangeBinding.disable();
 		idChangeBinding.disable();
 		if (removedBinding != null)		removedBinding.disable();

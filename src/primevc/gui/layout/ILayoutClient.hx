@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout;
+ import primevc.core.dispatcher.Signal1;
  import primevc.core.geom.Box;
  import primevc.core.geom.IntRectangle;
  import primevc.core.states.SimpleStateMachine;
@@ -34,7 +35,7 @@ package primevc.gui.layout;
  import primevc.core.validators.ValidatingValue;
  import primevc.core.validators.IntRangeValidator;
  import primevc.core.traits.IDisposable;
- import primevc.gui.events.LayoutEvents;
+// import primevc.gui.events.LayoutEvents;
  import primevc.gui.states.ValidateStates;
 
 
@@ -164,7 +165,8 @@ interface ILayoutClient
 	// EVENTS
 	//
 	
-	public var events				(default, null)						: LayoutEvents;
+//	public var events				(default, null)						: LayoutEvents;
+	public var changed				(default, null)						: Signal1<Int>;
 	
 	public var state				(default, null)						: SimpleStateMachine < ValidateStates >;
 	public var hasValidatedWidth	(default, null)						: Bool;

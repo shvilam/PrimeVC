@@ -36,7 +36,6 @@ package primevc.gui.layout.algorithms.float;
   using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
-  using Std;
 
 
 /**
@@ -249,7 +248,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	{
 		var depth:Int	= 0;
 		var posY:Int	= bounds.top;
-		var centerY:Int	= bounds.top + (bounds.height * .5).int();
+		var centerY:Int	= bounds.top + (bounds.height * .5).roundFloat();
 		
 		if (group.childHeight.isSet())
 		{
@@ -299,7 +298,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 		Assert.abstract( "Wrong implementation since the way centered layouts behave is changed");
 		var depth:Int	= 0;
 		var posY:Int	= bounds.top;
-		var centerY:Int	= bounds.top + (bounds.height * .5).int();
+		var centerY:Int	= bounds.top + (bounds.height * .5).roundFloat();
 		
 		var groupHeight	= group.height.value;
 		if (group.is(AdvancedLayoutClient))
@@ -326,7 +325,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	{
 		var depth:Int	= 0;
 		var posY:Int	= bounds.top;
-		var centerY:Int	= bounds.top + (bounds.height * .5).int();
+		var centerY:Int	= bounds.top + (bounds.height * .5).roundFloat();
 		
 		var groupHeight = group.height.value;
 		var emptyHeight	= 0;

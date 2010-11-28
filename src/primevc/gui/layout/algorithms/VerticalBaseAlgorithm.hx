@@ -36,9 +36,9 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutFlags;
   using primevc.utils.BitUtil;
+  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
-  using Std;
 
 
 
@@ -168,12 +168,12 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 					if (!child.includeInLayout || child.width.value.notSet())
 						continue;
 					
-					child.outerBounds.left = start + ( (group.width.value - child.outerBounds.width) * .5 ).int();
+					child.outerBounds.left = start + ( (group.width.value - child.outerBounds.width) * .5 ).roundFloat();
 				}
 			}
 			else
 			{
-				var childX = start + ( (group.innerBounds.width - group.childWidth) * .5 ).int();
+				var childX = start + ( (group.innerBounds.width - group.childWidth) * .5 ).roundFloat();
 				for (child in group.children)
 					if (child.includeInLayout)
 						child.outerBounds.left = childX;

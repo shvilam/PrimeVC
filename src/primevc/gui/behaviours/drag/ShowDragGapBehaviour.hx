@@ -36,8 +36,8 @@ package primevc.gui.behaviours.drag;
  import primevc.gui.traits.IDropTarget;
  import primevc.utils.NumberMath;
   using primevc.utils.Bind;
+  using primevc.utils.NumberMath;
   using primevc.utils.TypeUtil;
-  using Std;
 
 
 /**
@@ -108,8 +108,8 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 		var dragPos		= mouseObject.local;  //target.globalToLocal( new Point( draggedItem.target.x, draggedItem.target.y ) );
 		var curDepth	= layoutGroup.children.indexOf(draggedItem.layout);
 		var rect		= draggedItem.dragRectangle;
-		rect.left		= dragPos.x.int();
-		rect.top		= dragPos.y.int();
+		rect.left		= dragPos.x.roundFloat();
+		rect.top		= dragPos.y.roundFloat();
 		
 		if (layoutGroup.algorithm != null)
 			newDepth = IntMath.min( newDepth, layoutGroup.algorithm.getDepthForBounds( rect ) );

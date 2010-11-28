@@ -35,8 +35,8 @@ package primevc.avm2.display;
  import primevc.gui.display.Window;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.traits.IGraphicsOwner;
+  using primevc.utils.NumberMath;
   using primevc.utils.TypeUtil;
-  using Std;
 
 
 /**
@@ -57,7 +57,7 @@ class Shape extends flash.display.Shape, implements IDisplayObject, implements I
 	{
 		super();
 		displayEvents	= new DisplayEvents( this );
-		rect			= new IntRectangle( x.int(), y.int(), width.int(), height.int() );
+		rect			= new IntRectangle( x.roundFloat(), y.roundFloat(), width.roundFloat(), height.roundFloat() );
 	}
 	
 	

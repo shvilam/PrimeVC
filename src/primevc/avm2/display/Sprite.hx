@@ -38,8 +38,8 @@ package primevc.avm2.display;
  import primevc.gui.display.Window;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEvents;
+  using primevc.utils.NumberMath;
   using primevc.utils.TypeUtil;
-  using Std;
 
  
 /**
@@ -71,7 +71,7 @@ class Sprite extends flash.display.Sprite, implements ISprite
 		children		= new DisplayList( this );
 		userEvents		= new UserEvents( this );
 		displayEvents	= new DisplayEvents( this );
-		rect			= new IntRectangle( x.int(), y.int(), width.int(), height.int() );
+		rect			= new IntRectangle( x.roundFloat(), y.roundFloat(), width.roundFloat(), height.roundFloat() );
 	}
 	
 	

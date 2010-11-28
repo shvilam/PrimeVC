@@ -47,9 +47,9 @@ package primevc.gui.core;
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
+  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
-  using Std;
 
 
 /**
@@ -123,7 +123,7 @@ class UITextField extends TextField, implements IUIElement
 			layout.dispose();
 		
 #if flash9
-		if (style.target == this)
+		if (style != null && style.target == this)
 			style.dispose();
 		
 		styleClasses.dispose();
@@ -175,7 +175,7 @@ class UITextField extends TextField, implements IUIElement
 #if flash9
 	override private function setTextStyle (v)
 	{
-		Assert.notNull(v);
+	//	Assert.notNull(v);
 		
 		invalidate( UIElementFlags.TEXTSTYLE );
 		textStyle = v;
@@ -272,8 +272,8 @@ class UITextField extends TextField, implements IUIElement
 	
 	private function updateSize ()
 	{
-		var w = (layout.percentWidth.isSet() && layout.percentWidth >= 0)	? Number.INT_NOT_SET : realTextWidth.int();
-		var h = (layout.percentHeight.isSet() && layout.percentHeight >= 0)	? Number.INT_NOT_SET : realTextHeight.int();
+		var w = (layout.percentWidth.isSet() && layout.percentWidth >= 0)	? Number.INT_NOT_SET : realTextWidth.roundFloat();
+		var h = (layout.percentHeight.isSet() && layout.percentHeight >= 0)	? Number.INT_NOT_SET : realTextHeight.roundFloat();
 		
 #if flash9
 		if (autoSize == flash.text.TextFieldAutoSize.NONE)

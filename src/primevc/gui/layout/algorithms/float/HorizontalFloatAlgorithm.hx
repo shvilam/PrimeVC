@@ -36,7 +36,6 @@ package primevc.gui.layout.algorithms.float;
   using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
-  using Std;
  
 
 /**
@@ -237,7 +236,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	{
 		var depth:Int	= 0;
 		var posX:Int	= bounds.left;
-		var centerX:Int	= bounds.left + (bounds.width * .5).int();
+		var centerX:Int	= bounds.left + (bounds.width * .5).roundFloat();
 		
 		if (group.childWidth.isSet())
 		{
@@ -287,7 +286,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 		Assert.abstract( "Wrong implementation since the way centered layouts behave is changed");
 		var depth:Int	= 0;
 		var posX:Int	= bounds.left;
-		var centerX:Int	= bounds.left + (bounds.width * .5).int();
+		var centerX:Int	= bounds.left + (bounds.width * .5).roundFloat();
 		
 		var groupWidth	= group.width.value;
 		if (group.is(AdvancedLayoutClient))
@@ -314,7 +313,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	{
 		var depth:Int	= 0;
 		var posX:Int	= bounds.left;
-		var centerX:Int	= bounds.left + (bounds.width * .5).int();
+		var centerX:Int	= bounds.left + (bounds.width * .5).roundFloat();
 		
 		var groupWidth = group.width.value;
 		var emptyWidth = 0;

@@ -73,6 +73,6 @@ class BehaviourList implements IDisposable
 	
 	
 	public inline function dispose ()					{ removeAll(); list = null; isInitialized = false; }
-	public inline function add (v:BehaviourType)		{ if (isInitialized) { v.initialize(); }	return list.add(v); }
-	public inline function remove (v:BehaviourType)		{ if (isInitialized) { v.dispose(); }		return list.remove(v); }
+	public inline function add (v:BehaviourType)		{ if (isInitialized) { v.initialize(); }	list.add(v);	return v; }
+	public inline function remove (v:BehaviourType)		{ if (isInitialized) { v.dispose(); }		list.remove(v);	return v; }
 }

@@ -40,6 +40,7 @@ typedef MouseEvents =
 	#else	error	#end
 
 typedef MouseHandler	= MouseState -> Void;
+//typedef MouseSignal		= primevc.core.dispatcher.Signal1<MouseHandler>;
 typedef MouseSignal		= primevc.core.dispatcher.INotifier<MouseHandler>;
 
 /**

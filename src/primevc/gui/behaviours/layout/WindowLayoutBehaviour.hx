@@ -29,9 +29,11 @@
 package primevc.gui.behaviours.layout;
  import primevc.gui.behaviours.ValidatingBehaviour;
  import primevc.gui.core.UIWindow;
+ import primevc.gui.layout.LayoutFlags;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.traits.IPropertyValidator;
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
 
 
 /**
@@ -53,7 +55,7 @@ class WindowLayoutBehaviour extends ValidatingBehaviour < UIWindow >, implements
 		layoutStateChangeHandler( target.layout.state.current, null );
 		
 #if flash9
-		updateBgSize.on( target.layout.events.sizeChanged, this );
+		updateBgSize.on( target.layout.changed, this );
 	//	updateBgSize();
 #end
 	}
@@ -84,8 +86,11 @@ class WindowLayoutBehaviour extends ValidatingBehaviour < UIWindow >, implements
 	
 	
 #if flash9
-	private function updateBgSize ()
+	private function updateBgSize (changes:Int)
 	{
+		if (changes.hasNone( LayoutFlags.WIDTH | LayoutFlags.HEIGHT ))
+			return;
+		
 		var l = target.layout;
 	//	trace(target+".updateBgSize "+l.outerBounds);
 	/*	if (!target.graphicData.isEmpty())

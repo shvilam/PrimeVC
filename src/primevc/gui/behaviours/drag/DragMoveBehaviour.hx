@@ -28,6 +28,9 @@
  */
 package primevc.gui.behaviours.drag;
  import primevc.gui.events.MouseEvents;
+ import primevc.gui.traits.ILayoutable;
+  using primevc.utils.NumberMath;
+  using primevc.utils.TypeUtil;
 
 
 /**
@@ -43,17 +46,23 @@ class DragMoveBehaviour extends DragBehaviourBase
 	override private function stopDrag (mouseObj:MouseState) : Void
 	{
 		super.stopDrag(mouseObj);
+		
+		if (target.is(ILayoutable))
+		{
+			var l = target.as(ILayoutable).layout;
+			l.x = target.x.roundFloat();
+			l.y = target.y.roundFloat();
+		}
+		
 		disposeDragInfo();
 	}
 	
 	
 	override private function cancelDrag (mouseObj:MouseState) : Void
 	{
-		stopDragging();
 		dragInfo.restore();
 		
 		//notifiy the dragged item that the drag-operation is canceled
 		target.dragEvents.exit.send( dragInfo );
-		disposeDragInfo();
 	}
 }

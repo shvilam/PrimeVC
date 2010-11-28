@@ -39,7 +39,7 @@ package primevc.types;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.display.Loader;
  import primevc.utils.TypeUtil;
-  using	Std;
+  using primevc.utils.NumberMath;
 
 
 typedef FlashBitmap = flash.display.Bitmap;
@@ -238,7 +238,7 @@ class Bitmap
 	
 	public inline function loadDisplayObject (v:IDisplayObject, ?transform:Matrix2D)
 	{
-		var d = new BitmapData( v.width.int(), v.height.int(), true, 0 );
+		var d = new BitmapData( v.width.roundFloat(), v.height.roundFloat(), true, 0 );
 		d.draw( v, transform );
 		data = d;
 	}
@@ -304,7 +304,7 @@ class Bitmap
 			return;
 
 		try {
-			var d = new BitmapData( loader.content.width.int(), loader.content.height.int(), true, 0x00000000 );
+			var d = new BitmapData( loader.content.width.roundFloat(), loader.content.height.roundFloat(), true, 0x00000000 );
 			d.draw( loader.content );
 			data = d;
 			disposeLoader();

@@ -36,9 +36,9 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutFlags;
   using primevc.utils.BitUtil;
+  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
-  using Std;
 
 
 
@@ -169,12 +169,12 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 					if (!child.includeInLayout || child.height.value.notSet())
 						continue;
 					
-					child.outerBounds.top = start + ( (group.height.value - child.outerBounds.height) * .5 ).int();
+					child.outerBounds.top = start + ( (group.height.value - child.outerBounds.height) * .5 ).roundFloat();
 				}
 			}
 			else
 			{
-				var childY = start + ( (group.innerBounds.height - group.childHeight) * .5 ).int();
+				var childY = start + ( (group.innerBounds.height - group.childHeight) * .5 ).roundFloat();
 				for (child in group.children)
 					if (child.includeInLayout)
 						child.outerBounds.top = childY;

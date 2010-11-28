@@ -30,8 +30,7 @@ package primevc.gui.behaviours.scroll;
 #if !neko
  import primevc.core.geom.IntPoint;
  import primevc.gui.events.MouseEvents;
-  using Math;
-  using Std;	
+  using primevc.utils.NumberMath;
 #end
 
 
@@ -58,14 +57,14 @@ class MouseMoveScrollBehaviour extends MouseScrollBehaviourBase
 		//horScroll
 		if (scrollHor) {
 			var percentX	 = ( mousePos.x / scrollLayout.explicitWidth ).max(0).min(1);
-			scrollPos.x		 = ( scrollLayout.scrollableWidth * percentX ).round().int();
+			scrollPos.x		 = ( scrollLayout.scrollableWidth * percentX ).roundFloat();
 		//	trace("scrollX: "+layoutGroup.scrollX+"; sW: "+scrollableW+"; eW: "+layoutGroup.explicitWidth+"; mW: "+layoutGroup.measuredWidth+"; mX: "+mousePos.x+"; pX "+percentX+"; horP: "+layoutGroup.getHorPosition()+"; x: "+target.x);
 		}
 		
 		//verScroll
 		if (scrollVer) {
 			var percentY	 = ( mousePos.y / scrollLayout.explicitHeight ).min(1).max(0);
-			scrollPos.y		 = ( scrollLayout.scrollableHeight * percentY ).round().int();
+			scrollPos.y		 = ( scrollLayout.scrollableHeight * percentY ).roundFloat();
 		//	trace("scrollY: "+layoutGroup.scrollY+"; sH: "+scrollableH+"; eW: "+layoutGroup.explicitHeight+"; mW: "+layoutGroup.measuredHeight+"; mY: "+mousePos.y+"; stageMY: "+mouseObject.stage.y+"; pY "+percentY);
 		}
 		
