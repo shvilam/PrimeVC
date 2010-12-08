@@ -43,10 +43,13 @@ class ArrayList <DataType> extends ReadOnlyArrayList <DataType>, implements IEdi
 	}
 	
 	
-	public inline function removeAll ()
+	public function removeAll ()
 	{
-		list.removeAll();
-		change.send( ListChange.reset );
+		if (length > 0)
+		{
+			list.removeAll();
+			change.send( ListChange.reset );
+		}
 	}
 	
 	

@@ -33,8 +33,8 @@ package primevc.gui.behaviours.drag;
  import primevc.gui.display.ISprite;
  import primevc.gui.events.KeyboardEvents;
  import primevc.gui.events.MouseEvents;
- import primevc.gui.input.Mouse;
  import primevc.gui.traits.IDraggable;
+ import primevc.types.Number;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
@@ -61,24 +61,26 @@ class DragHelper implements IDisposable
 	private var stopHandler			: MouseState -> Void;
 	private var cancelHandler		: MouseState -> Void;
 	
+	private var delay				: Int;
 	private var timer				: Timer;
 	private var lastMouseObj		: MouseState;
 	private var isDragging			: Bool;
 	
-	private var mouseDownBinding	: Wire < Dynamic >;
-	private var mouseUpBinding		: Wire < Dynamic >;
-	private var mouseMoveBinding	: Wire < Dynamic >;
-	private var keyDownBinding		: Wire < Dynamic >;
+//	private var mouseDownBinding	: Wire < Dynamic >;
+	public var mouseUpBinding		(default, null)	: Wire < Dynamic >;
+	public var mouseMoveBinding		(default, null)	: Wire < Dynamic >;
+	public var keyDownBinding		(default, null)	: Wire < Dynamic >;
 	
 	
-	public function new (target:ISprite, startHandler:MouseState -> Void, stopHandler:MouseState -> Void, cancelHandler:MouseState -> Void)
+	public function new (target:ISprite, startHandler:MouseState -> Void, stopHandler:MouseState -> Void, cancelHandler:MouseState -> Void, delay:Int = Number.INT_NOT_SET)
 	{
 		this.target			= target;
 		this.startHandler	= startHandler;
 		this.stopHandler	= stopHandler;
 		this.cancelHandler	= cancelHandler;
+		this.delay			= delay;
 		
-		mouseDownBinding	= startTimer	.on( target.userEvents.mouse.down, this );
+	//	mouseDownBinding	= startTimer	.on( target.userEvents.mouse.down, this );
 		mouseUpBinding		= stopDrag		.on( target.window.mouse.events.up, this );
 		mouseMoveBinding	= stopDrag		.on( target.window.mouse.events.move, this );
 		keyDownBinding		= checkCancel	.on( target.window.userEvents.key.down, this );
@@ -91,12 +93,12 @@ class DragHelper implements IDisposable
 	
 	public function dispose ()
 	{
-		mouseDownBinding.dispose();
+	//	mouseDownBinding.dispose();
 		mouseUpBinding	.dispose();
 		mouseMoveBinding.dispose();
 		keyDownBinding	.dispose();
 		
-		mouseDownBinding	= null;
+	//	mouseDownBinding	= null;
 		mouseUpBinding		= null;
 		mouseMoveBinding	= null;
 		keyDownBinding		= null;
@@ -111,24 +113,30 @@ class DragHelper implements IDisposable
 	}
 	
 	
-	private function startTimer (mouseObj:MouseState)
+	public function start (mouseObj:MouseState)
 	{
-		var mouseTarget = mouseObj.target.as(ISprite);
+		lastMouseObj	= mouseObj;
+		var mouseTarget	= mouseObj.target.as(ISprite);
 		if (mouseTarget != null && mouseTarget != target && mouseTarget.is(IDraggable))
 			return;
 		
-		mouseDownBinding.disable();
-		mouseUpBinding	.enable();
-		mouseMoveBinding.enable();
-		keyDownBinding	.disable();
-		
-		lastMouseObj	= mouseObj;
-		timer			= Timer.delay( startDragHandler, Mouse.DRAG_DELAY );
+		if (delay > 0)
+		{
+	//		mouseDownBinding.disable();
+			mouseUpBinding	.enable();
+			mouseMoveBinding.enable();
+	//		keyDownBinding	.enable();
+			
+			timer = Timer.delay( startDrag, delay );
+		}
+		else
+			startDrag();
 	}
 	
 	
 	private function stopDrag (mouseObj:MouseState)
 	{
+		trace(target+".stopDrag "+isDragging);
 		if (isDragging) {
 			if (target.is(IDraggable))
 				target.as(IDraggable).isDragging = false;
@@ -137,19 +145,23 @@ class DragHelper implements IDisposable
 			isDragging = false;
 		}
 		
-		timer.stop();
-		mouseDownBinding.enable();
+		if (timer != null) {
+			timer.stop();
+			timer = null;
+		}
+		
+	//	mouseDownBinding.enable();
 		mouseUpBinding	.disable();
 		mouseMoveBinding.disable();
 		keyDownBinding	.disable();
 		
-		lastMouseObj	= null;
-		timer			= null;
+		lastMouseObj = null;
 	}
 	
 	
-	private function startDragHandler ()
+	private function startDrag ()
 	{
+	//	trace(target+".startDrag "+isDragging+"; "+lastMouseObj.target);
 #if debug			
 	//	target.window.application.clearTraces();
 #end	
@@ -160,23 +172,28 @@ class DragHelper implements IDisposable
 		
 		startHandler( lastMouseObj );
 		
-		mouseDownBinding.disable();
+	//	mouseDownBinding.disable();
 		mouseMoveBinding.disable();
 		keyDownBinding	.enable();	//enable keydown binding to check for a cancel event
 		mouseUpBinding	.enable();	//enable mouse up binding to check when the dragoperation has stopped
 	}
 	
 	
+	public function cancel ()
+	{
+		trace(target+".cancel "+isDragging);
+		cancelHandler( lastMouseObj );
+		stopDrag(null);
+		isDragging = false;
+	}
+	
 	
 	
 	private function checkCancel (state:KeyboardState) : Void
 	{
 #if flash9
-		if (state.keyCode() == flash.ui.Keyboard.ESCAPE) {
-			cancelHandler( lastMouseObj );
-			stopDrag(null);
-			isDragging = false;
-		}
+		if (state.keyCode() == flash.ui.Keyboard.ESCAPE)
+			cancel();
 #end
 	}
 }

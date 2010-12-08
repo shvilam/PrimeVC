@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.utils;
+  using Std;
  
 
 /**
@@ -70,7 +71,8 @@ class IntMath
 	 */
 	public static inline function divFloor (var1:Int, var2:Int) : Int
 	{
-		return Std.int(var1 / var2);
+		return IntMath.floorFloat( var1 / var2 );
+	//	return (var1 / var2).int();
 	}
 	
 	
@@ -85,9 +87,10 @@ class IntMath
 	 */
 	public static inline function divCeil (var1:Int, var2:Int) : Int
 	{
-		var intResult	= IntMath.divFloor(var1, var2);
+		return IntMath.ceilFloat( var1 / var2 );
+		/*var intResult	= IntMath.divFloor(var1, var2);
 		var floatResult	= var1 / var2;
-		return (floatResult - intResult) > 0 ? intResult + 1 : intResult;
+		return (floatResult - intResult) > 0 ? intResult + 1 : intResult;*/
 	}
 	
 	
@@ -101,15 +104,35 @@ class IntMath
 	 */
 	public static inline function divRound (var1:Int, var2:Int) : Int
 	{
-		var intResult	= IntMath.divFloor(var1, var2);
+		return IntMath.roundFloat( var1 / var2 );
+	/*	var intResult	= IntMath.divFloor(var1, var2);
 		var floatResult	= var1 / var2;
-		return (floatResult - intResult) >= 0.5 ? intResult + 1 : intResult;
+		return (floatResult - intResult) >= 0.5 ? intResult + 1 : intResult;*/
 	}
 	
 	
 	public static inline function isEven (val:Int) : Bool
 	{
 		return (val & 1) == 0;
+	}
+	
+	
+	
+	public static inline function ceilFloat (var1:Float) : Int
+	{
+		return var1.int() + (var1 % 1 == 1 ? 1 : 0);
+	}
+	
+	
+	public static inline function floorFloat (var1:Float) : Int
+	{
+		return var1.int();	
+	}
+	
+	
+	public static inline function roundFloat (var1:Float) : Int
+	{
+		return floorFloat(var1 + .5);
 	}
 }
 

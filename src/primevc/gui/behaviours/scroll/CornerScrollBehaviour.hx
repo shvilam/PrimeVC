@@ -32,9 +32,8 @@ package primevc.gui.behaviours.scroll;
  import primevc.core.geom.IntPoint;
  import primevc.gui.events.MouseEvents;
   using primevc.utils.Bind;
+  using primevc.utils.NumberMath;
   using primevc.utils.TypeUtil;
-  using Math;
-  using Std;
 #end
 
 
@@ -113,7 +112,7 @@ class CornerScrollBehaviour extends MouseScrollBehaviourBase
 			if		(mousePos.x < quarterW)			speedX = ((quarterW - mousePos.x) / quarterW) * -maxSpeedX;				//scroll to left
 			else if	(mousePos.x > (quarterW * 3))	speedX = ((mousePos.x - (quarterW * 3)) / quarterW) *  maxSpeedX;		//scroll to right
 			
-			scrollSpeed.x = speedX.round().int();
+			scrollSpeed.x = speedX.roundFloat();
 		//	trace(target+".calculateScrollSpeedX: "+scrollSpeed.x+"; mousePos: "+mousePos.x+"; w: "+scrollLayout.explicitWidth);
 		}
 		
@@ -127,7 +126,7 @@ class CornerScrollBehaviour extends MouseScrollBehaviourBase
 			if		(mousePos.y < quarterH)			speedY = ((quarterH - mousePos.y) / quarterH) * -maxSpeedY;				//scroll to top
 			else if	(mousePos.y > (quarterH * 3))	speedY = ((mousePos.y - (quarterH * 3)) / quarterH) *  maxSpeedY;		//scroll to bottom
 			
-			scrollSpeed.y = speedY.round().int();
+			scrollSpeed.y = speedY.roundFloat();
 		//	trace(target+".calculateScrollSpeedY: "+scrollSpeed.y+"; mousePos: "+mousePos.y+"; h: "+scrollLayout.explicitHeight);
 		}
 		

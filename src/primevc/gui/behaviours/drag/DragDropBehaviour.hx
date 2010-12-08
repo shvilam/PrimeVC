@@ -36,8 +36,8 @@ package primevc.gui.behaviours.drag;
  import primevc.gui.traits.IDropTarget;
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
+  using primevc.utils.NumberMath;
   using primevc.utils.TypeUtil;
-  using Std;
  
 
 /**
@@ -52,15 +52,15 @@ package primevc.gui.behaviours.drag;
  */
 class DragDropBehaviour extends DragBehaviourBase
 {
-	private var copyTarget			: Bool;
+//	private var copyTarget			: Bool;
 	private var moveBinding			: Wire < Dynamic >;
 	
 	
-	public function new (target, ?dragBounds, ?copyTarget = false)
+/*	public function new (target, ?dragBounds, ?copyTarget = false)
 	{
 		super(target, dragBounds);
 		this.copyTarget = copyTarget;
-	}
+	}*/
 	
 	
 	override private function init () : Void
@@ -99,7 +99,7 @@ class DragDropBehaviour extends DragBehaviourBase
 		target.window.children.add( cast item );
 		
 		if (item.is(IUIElement))
-			item.as(IUIElement).doMove( pos.x.int(), pos.y.int() );
+			item.as(IUIElement).doMove( pos.x.roundFloat(), pos.y.roundFloat() );
 		
 		item.x			= pos.x;
 		item.y			= pos.y;
@@ -137,7 +137,7 @@ class DragDropBehaviour extends DragBehaviourBase
 			dragInfo.restore();
 			
 			//notifiy the dragged item that the drag-operation is canceled
-			target.dragEvents.exit.send( dragInfo );
+			target.dragEvents.cancel.send( dragInfo );
 			disposeDragInfo();
 		}
 		
@@ -146,12 +146,16 @@ class DragDropBehaviour extends DragBehaviourBase
 	}
 	
 	
+	
+	
 	override private function cancelDrag (mouseObj:MouseState) : Void
 	{
 		trace(target+".cancelDrag \n");
 		dragInfo.dropTarget = null;
-	//	stopDrag(mouseObj);
+	//	stopDrag(mouseObj);		<-- this is done by the draghelper
 	}
+	
+	
 	
 	
 	private function checkDropTarget () : Void

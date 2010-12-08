@@ -34,11 +34,13 @@ package primevc.gui.behaviours.scroll;
  import primevc.core.geom.Point;
  import primevc.gui.behaviours.drag.DragHelper;
  import primevc.gui.events.MouseEvents;
+ import primevc.gui.layout.LayoutFlags;
+ import primevc.gui.input.Mouse;
  import primevc.gui.layout.IScrollableLayout;
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
+  using primevc.utils.NumberMath;
   using primevc.utils.TypeUtil;
-  using Math;
-  using Std;
 #end
 
 
@@ -64,7 +66,9 @@ class DragScrollBehaviour extends ClippedLayoutBehaviour
 		
 	//	trace(target+".init DragScrollBehaviour "+target.scrollRect);
 		scrollLayout	= target.scrollableLayout;
-		dragHelper		= new DragHelper( target, activateScrolling, deactivateScrolling, dragAndScroll );
+		checkScrollable.on( scrollLayout.changed, this );
+		
+		dragHelper		= new DragHelper( target, startScrolling, stopScrolling, dragAndScroll, Mouse.DRAG_DELAY );
 		moveBinding		= dragAndScroll.on( target.window.mouse.events.move, this );
 		moveBinding.disable();
 	}
@@ -83,17 +87,26 @@ class DragScrollBehaviour extends ClippedLayoutBehaviour
 	}
 	
 	
-	private function activateScrolling (mouseObj:MouseState)
+	private function checkScrollable (changes:Int)
 	{
-		if (target.scrollRect == null || (!scrollLayout.horScrollable() && !scrollLayout.verScrollable()))
+		if (changes.hasNone( LayoutFlags.WIDTH_PROPERTIES | LayoutFlags.HEIGHT_PROPERTIES ))
 			return;
 		
+		if (target.scrollRect == null || (!scrollLayout.horScrollable() && !scrollLayout.verScrollable()))
+			target.userEvents.mouse.down.unbind( this );
+		else
+			dragHelper.start.on( target.userEvents.mouse.down, this );
+	}
+	
+	
+	private function startScrolling (mouseObj:MouseState)
+	{
 		moveBinding.enable();
 		dragAndScroll(mouseObj);
 	}
 
 
-	private function deactivateScrolling (mouseObj:MouseState)
+	private function stopScrolling (mouseObj:MouseState)
 	{
 		moveBinding.disable();
 		lastMousePos = null;
@@ -117,8 +130,8 @@ class DragScrollBehaviour extends ClippedLayoutBehaviour
 		var mouseDiff		= lastMousePos.subtract(mousePos);
 		var newScrollPos	= scrollLayout.scrollPos.clone();
 		
-		if (scrollHor)	newScrollPos.x += mouseDiff.x.round().int();
-		if (scrollVer)	newScrollPos.y += mouseDiff.y.round().int();
+		if (scrollHor)	newScrollPos.x += mouseDiff.x.roundFloat();
+		if (scrollVer)	newScrollPos.y += mouseDiff.y.roundFloat();
 		
 		lastMousePos = mousePos;
 		newScrollPos = scrollLayout.validateScrollPosition( newScrollPos );

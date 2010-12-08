@@ -68,17 +68,20 @@ class SimpleList < DataType > implements IEditableList < DataType >
 	
 	public function removeAll ()
 	{
-		var cur = first;
-		while (cur != null)
+		if (_length > 0)
 		{
-			var tmp = cur;
-			cur = cur.next;
-			tmp.dispose();
-		}
+			var cur = first;
+			while (cur != null)
+			{
+				var tmp = cur;
+				cur = cur.next;
+				tmp.dispose();
+			}
 		
-		first = last = null;
-		_length = 0;
-		change.send( ListChange.reset );
+			first = last = null;
+			_length = 0;
+			change.send( ListChange.reset );
+		}
 	}
 	
 	

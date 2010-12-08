@@ -30,7 +30,7 @@ package primevc.gui.display;
  import primevc.core.collections.DataCursor;
  import primevc.core.collections.IDataCursor;
  import primevc.core.geom.Point;
-  using Std;
+  using primevc.utils.NumberMath;
 
 
 /**
@@ -69,9 +69,9 @@ class DisplayDataCursor extends DataCursor < IDisplayObject >, implements IDataC
 	override public function restore ()
 	{
 		target.visible	= false;
-		target.x		= target.rect.left	= position.x.int();
-		target.y		= target.rect.top	= position.y.int();
-		super.restore();
+		target.x		= target.rect.left	= position.x.roundFloat();
+		target.y		= target.rect.top	= position.y.roundFloat();
+	//	super.restore();
 		target.visible	= true;
 	}
 }

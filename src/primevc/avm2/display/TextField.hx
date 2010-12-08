@@ -42,9 +42,9 @@ package primevc.avm2.display;
  import primevc.gui.text.TextFormat;
  import primevc.gui.text.TextTransform;
   using primevc.utils.Bind;
+  using primevc.utils.NumberMath;
   using primevc.utils.StringUtil;
   using primevc.utils.TypeUtil;
-  using Std;
 
 
 /**
@@ -97,7 +97,7 @@ class TextField extends flash.text.TextField, implements ITextField
 		displayEvents	= new DisplayEvents( this );
 		textEvents		= new TextEvents( this );
 		userEvents		= new UserEvents( this );
-		rect			= new IntRectangle( x.int(), y.int(), width.int(), height.int() );
+		rect			= new IntRectangle( x.roundFloat(), y.roundFloat(), width.roundFloat(), height.roundFloat() );
 		this.data		= data == null ? new Bindable<String>(text) : data;
 		textStyle		= new TextFormat();
 	}
@@ -139,7 +139,7 @@ class TextField extends flash.text.TextField, implements ITextField
 		if (container != null)
 			container.children.remove(this);
 		
-		data.dispose();
+		var d = data;
 		displayEvents.dispose();
 		textEvents.dispose();
 		userEvents.dispose();
@@ -153,6 +153,8 @@ class TextField extends flash.text.TextField, implements ITextField
 		container		= null;
 		window			= null;
 		rect			= null;
+		
+		d.dispose();
 	}
 
 

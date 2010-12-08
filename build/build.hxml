@@ -10,7 +10,7 @@
 --flash-strict
 
 -swf-version 10
--swf-header 1000:750:31:FFFFFF
+-swf-header 1000:750:24:FFFFFF
 #-swf bin-debug/app.swf
 
 #-main primevc.Main

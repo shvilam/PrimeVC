@@ -39,6 +39,8 @@ package primevc.gui.components;
  import primevc.gui.events.MouseEvents;
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
+  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using Std;
 
@@ -54,6 +56,8 @@ private typedef DataType = Bindable<Float>;
  */
 class Slider extends UIDataContainer < DataType >
 {
+	public static inline var PERCENTAGE : Int = 32768;
+	
 	/**
 	 * Defines if the slider is horizontal or vertical
 	 * @default		horizontal
@@ -123,8 +127,8 @@ class Slider extends UIDataContainer < DataType >
 	
 	override private function initData ()
 	{
-		validateData();
 		calculatePercentage();
+		updateChildren();
 		validateData.on( validator.change, this );
 		dataChangeBinding = calculatePercentage.on( data.change, this );
 	}
@@ -134,6 +138,15 @@ class Slider extends UIDataContainer < DataType >
 	{
 		if (dataChangeBinding != null)
 			dataChangeBinding.dispose();
+	}
+	
+	
+	override public function validate ()
+	{
+		if (changes.has(PERCENTAGE))
+			updateChildren();
+
+		super.validate();
 	}
 	
 	
@@ -200,8 +213,7 @@ class Slider extends UIDataContainer < DataType >
 			Assert.that( v >= 0 );
 			percentage = v;
 			
-			if (state.is(state.initialized))
-				updateChildren();
+			invalidate(PERCENTAGE);
 		}
 		return v;
 	}
@@ -287,13 +299,13 @@ class Slider extends UIDataContainer < DataType >
 		if (direction == horizontal)
 		{
 			dragBtn.x			= layout.padding.left + ( percentage * ( layout.width.value - dragBtn.layout.outerBounds.width ) );
-			dragBtn.layout.x	= dragBtn.x.int();
+			dragBtn.layout.x	= dragBtn.x.roundFloat();
 			background.layout.percentWidth = percentage;
 		}
 		else
 		{
 			dragBtn.y			= layout.padding.top + ( (1 - percentage) * (layout.height.value - dragBtn.layout.outerBounds.height) );
-			dragBtn.layout.y	= dragBtn.y.int();
+			dragBtn.layout.y	= dragBtn.y.roundFloat();
 			background.layout.percentHeight = percentage;
 		}
 	}

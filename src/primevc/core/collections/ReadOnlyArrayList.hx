@@ -103,7 +103,7 @@ class ReadOnlyArrayList < DataType >
 	}
 	
 	
-	public inline function has (item:DataType) : Bool {
+	public function has (item:DataType) : Bool {
 		return list.indexOf(item) >= 0;
 	}
 	

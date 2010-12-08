@@ -58,13 +58,13 @@ class DragEvents extends Signals
 	 * the user releases the dragged object while it's not on a droptarget or
 	 * when the user presses the [esc] key.
 	 */
-	var exit		(default, null)		: Signal1<DragInfo>;
+	var cancel		(default, null)		: Signal1<DragInfo>;
 	
 	
 	public function new ()
 	{
 		start		= new Signal1();
 		complete	= new Signal1();
-		exit		= new Signal1();
+		cancel		= new Signal1();
 	}
 }

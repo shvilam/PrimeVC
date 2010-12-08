@@ -35,8 +35,7 @@ package primevc.gui.graphics.fills;
  import primevc.types.RGBA;
 #if (debug || neko)
   using primevc.utils.Color;
-  using Math;
-  using Std;
+  using primevc.utils.NumberMath;
 #end
 
 
@@ -81,7 +80,7 @@ class GradientStop extends GraphicElement
 	
 	
 #if neko
-	override public function toCSS (prefix:String = "")		{ return color.string() + " " + ((position / 255) * 100).round().int() + "%"; }
+	override public function toCSS (prefix:String = "")		{ return color.string() + " " + ((position / 255) * 100).roundFloat() + "%"; }
 	override public function toCode (code:ICodeGenerator)	{ code.construct( this, [ color, position ] ); }
 #end
 }

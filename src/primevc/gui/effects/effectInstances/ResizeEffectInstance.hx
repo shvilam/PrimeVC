@@ -31,8 +31,8 @@ package primevc.gui.effects.effectInstances;
  import primevc.gui.effects.ResizeEffect;
  import primevc.gui.traits.ISizeable;
  import primevc.types.Number;
+  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
-  using Std;
 
 
 /**
@@ -101,8 +101,8 @@ class ResizeEffectInstance extends EffectInstance < ISizeable, ResizeEffect >
 
 	override private function tweenUpdater ( tweenPos:Float )
 	{
-		if (isWChanged())	target.rect.width	= (( endW * tweenPos ) + ( startW * (1 - tweenPos) )).int();
-		if (isHChanged())	target.rect.height	= (( endH * tweenPos ) + ( startH * (1 - tweenPos) )).int();
+		if (isWChanged())	target.rect.width	= (( endW * tweenPos ) + ( startW * (1 - tweenPos) )).roundFloat();
+		if (isHChanged())	target.rect.height	= (( endH * tweenPos ) + ( startH * (1 - tweenPos) )).roundFloat();
 	}
 	
 	

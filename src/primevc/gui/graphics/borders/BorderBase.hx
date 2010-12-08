@@ -35,8 +35,7 @@ package primevc.gui.graphics.borders;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
-  using Math;
-  using Std;
+  using primevc.utils.NumberMath;
 
 
 /**
@@ -91,10 +90,10 @@ class BorderBase <FillType:IGraphicProperty> extends GraphicElement, implements 
 	public function begin (target:IGraphicsOwner, bounds:IRectangle)
 	{
 		if (innerBorder) {
-			bounds.left		+= weight.ceil().int();
-			bounds.top		+= weight.ceil().int();
-			bounds.width	-= (weight * 2).ceil().int();
-			bounds.height 	-= (weight * 2).ceil().int();
+			bounds.left		+= weight.ceilFloat();
+			bounds.top		+= weight.ceilFloat();
+			bounds.width	-= (weight * 2).ceilFloat();
+			bounds.height 	-= (weight * 2).ceilFloat();
 		}
 	//	Assert.abstract();
 	}
@@ -105,10 +104,10 @@ class BorderBase <FillType:IGraphicProperty> extends GraphicElement, implements 
 #if flash9
 		target.graphics.lineStyle( 0, 0 , 0 );
 #end
-		bounds.left		-= weight.ceil().int();
-		bounds.top		-= weight.ceil().int();
-		bounds.width	+= (weight * 2).ceil().int();
-		bounds.height 	+= (weight * 2).ceil().int();
+		bounds.left		-= weight.ceilFloat();
+		bounds.top		-= weight.ceilFloat();
+		bounds.width	+= (weight * 2).ceilFloat();
+		bounds.height 	+= (weight * 2).ceilFloat();
 	}
 	
 	

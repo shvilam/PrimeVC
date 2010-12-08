@@ -28,8 +28,8 @@
  */
 package primevc.core.geom;
  import primevc.core.traits.QueueingInvalidatable;
+  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
-  using Std;
 
 
 /**
@@ -176,7 +176,7 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	{	
 		Assert.that( v.isSet() );
 		if (v.isSet())
-			left = (v - (width * .5)).int();
+			left = (v - (width * .5)).roundFloat();
 		
 		return centerX = v;
 	}
@@ -186,7 +186,7 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	{	
 		Assert.that( v.isSet() );
 		if (v.isSet())
-			top = (v - (height * .5)).int();
+			top = (v - (height * .5)).roundFloat();
 		
 		return centerY = v;
 	}

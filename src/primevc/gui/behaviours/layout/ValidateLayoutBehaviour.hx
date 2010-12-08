@@ -32,12 +32,14 @@ package primevc.gui.behaviours.layout;
  import primevc.gui.behaviours.ValidatingBehaviour;
  import primevc.gui.core.IUIElement;
  import primevc.gui.core.UIWindow;
+ import primevc.gui.layout.LayoutFlags;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.traits.IDrawable;
  import primevc.gui.traits.IPropertyValidator;
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
+  using primevc.utils.NumberMath;
   using primevc.utils.TypeUtil;
-  using Std;
  
 
 /**
@@ -62,8 +64,7 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 #end
 		
 		layoutStateChangeHandler.on( target.layout.state.change, this );
-		applyPosition	.on( target.layout.events.posChanged, this );
-		applySize		.on( target.layout.events.sizeChanged, this );
+		applyChanges.on( target.layout.changed, this );
 	}
 	
 	
@@ -75,8 +76,7 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 		super.reset();
 		
 		target.layout.state.change.unbind( this );
-		target.layout.events.posChanged.unbind( this );
-		target.layout.events.sizeChanged.unbind( this );
+		target.layout.changed.unbind( this );
 	}
 	
 	
@@ -98,64 +98,72 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 	override private function getValidationManager ()	{ return (target.window != null) ? cast target.window.as(UIWindow).invalidationManager : null; }
 	
 	
-	public function applyPosition ()
+	public function applyChanges (changes:Int)
 	{
-	//	trace(target+".applyPosition; " + " - pos: " + target.layout.getHorPosition() + ", " + target.layout.getVerPosition() + " - old pos "+target.x+", "+target.y+"; padding? "+target.layout.padding);
-		if (target.effects == null || isNotPositionedYet)
+		if (changes.has( LayoutFlags.X | LayoutFlags.Y ))
 		{
-			var l = target.layout;
-			var newX = l.getHorPosition();
-			var newY = l.getVerPosition();
+			//	trace(target+".applyPosition; " + " - pos: " + target.layout.getHorPosition() + ", " + target.layout.getVerPosition() + " - old pos "+target.x+", "+target.y+"; padding? "+target.layout.padding);
 			
-			if (target.is(IDrawable))
+			if (target.effects == null || isNotPositionedYet)
 			{
-				var t = target.as(IDrawable);
-				if (t.graphicData.border != null)
+				var l = target.layout;
+				var newX = l.getHorPosition();
+				var newY = l.getVerPosition();
+			
+				if (!isNotPositionedYet && target.x == newX && target.y == newY)
+					return;
+			
+				if (target.is(IDrawable))
 				{
-					var borderWidth = t.graphicData.border.weight.int();
-					newX -= borderWidth;
-					newY -= borderWidth;
+					var t = target.as(IDrawable);
+					if (t.graphicData.border != null)
+					{
+						var borderWidth = t.graphicData.border.weight;
+						newX -= (borderWidth * target.scaleX).roundFloat();
+						newY -= (borderWidth * target.scaleY).roundFloat();
+					}
 				}
+			
+				target.x	= target.rect.left	= newX;
+				target.y	= target.rect.top	= newY;
+				isNotPositionedYet = false;
 			}
-			
-			target.x	= target.rect.left	= newX;
-			target.y	= target.rect.top	= newY;
-			isNotPositionedYet = false;
+			else
+				target.effects.playMove();
 		}
-		else
-			target.effects.playMove();
-	}
-	
-	
-	private function applySize ()
-	{
-	//	trace("\t"+target+".sizeChanged; outer: "+target.layout.outerBounds); //+"; inner: "+target.layout.innerBounds);
-		if (target.effects == null)
-		{
-			var b = target.layout.innerBounds;
-			
-			target.rect.width	= b.width;
-			target.rect.height	= b.height;
-			
-			/*if (target.is(IDrawable))
-			{
-				var t = target.as(IDrawable);
-				if (t.graphicData.border != null)
-				{
-					var borderWidth = t.graphicData.border.weight.int();
-					target.rect.width += borderWidth;
-					target.rect.height += borderWidth;
-				}
-			}*/
-			
-			if (!target.is(IDrawable)) {
-				target.width	= target.rect.width;
-				target.height	= target.rect.height;
-			}
-		}
-		else
-			target.effects.playResize();
 		
-	//	trace("\t\tfinal size: "+target.rect.width+", "+target.rect.height+"\n");
+		
+		
+		if (changes.has( LayoutFlags.WIDTH | LayoutFlags.HEIGHT ))
+		{
+		//	trace("\t"+target+".sizeChanged; outer: "+target.layout.outerBounds); //+"; inner: "+target.layout.innerBounds);
+			if (target.effects == null)
+			{
+				var b = target.layout.innerBounds;
+
+				target.rect.width	= b.width;
+				target.rect.height	= b.height;
+
+				/*if (target.is(IDrawable))
+				{
+					var t = target.as(IDrawable);
+					if (t.graphicData.border != null)
+					{
+						var borderWidth = t.graphicData.border.weight.roundFloat();
+						target.rect.width += borderWidth;
+						target.rect.height += borderWidth;
+					}
+				}*/
+
+				if (!target.is(IDrawable)) {
+					target.width	= target.rect.width;
+					target.height	= target.rect.height;
+				}
+			}
+			else
+				target.effects.playResize();
+
+		//	trace("\t\tfinal size: "+target.rect.width+", "+target.rect.height+"\n");
+		}
 	}
 }

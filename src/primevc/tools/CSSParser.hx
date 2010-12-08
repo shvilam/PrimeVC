@@ -121,8 +121,8 @@ package primevc.tools;
   using primevc.utils.BitUtil;
   using primevc.utils.Color;
   using primevc.utils.ERegUtil;
-  using primevc.utils.NumberUtil;
   using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
   using Std;
   using StringTools;
@@ -1972,7 +1972,7 @@ class CSSParser
 					else if (gradientColorExpr.matched(20) != null)	{
 						//match percent value
 						var a = getFloat( gradientColorExpr.matched(21) );
-						pos = ((a / 100) * 255).int();
+						pos = ((a / 100) * 255).roundFloat();
 					}
 					
 					gr.add( new GradientStop( gradientColorExpr.matched(4).rgba(), pos ) );
@@ -1985,7 +1985,7 @@ class CSSParser
 				
 				for (stop in gr.gradientStops) {
 					if (stop.position == -1)
-						stop.position = (stepPos * i).int();
+						stop.position = (stepPos * i).roundFloat();
 					i++;
 				}
 				
@@ -3060,7 +3060,7 @@ class CSSParser
 			//match percent value
 			else if (gradientColorExpr.matched(20) != null)	{
 				var a = getFloat( gradientColorExpr.matched(21) );
-				pos = ((a / 100) * 255).int();
+				pos = ((a / 100) * 255).roundFloat();
 			}
 			
 			var c = gradientColorExpr.matched(4).rgba();
@@ -3077,7 +3077,7 @@ class CSSParser
 			var stepSize	= 255 / (f.ratios.length - 1);
 			for (i in 0...f.ratios.length)
 				if (f.ratios[i] == -1)
-					f.ratios[i] = (stepSize * i).int();
+					f.ratios[i] = (stepSize * i).roundFloat();
 		}
 		
 		isValid	= f.colors.length > 1;

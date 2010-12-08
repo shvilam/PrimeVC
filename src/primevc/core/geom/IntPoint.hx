@@ -34,8 +34,8 @@ package primevc.core.geom;
  import primevc.tools.generator.ICSSFormattable;
  import primevc.utils.StringUtil;
 #end
+  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
-  using Std;
  
 
 /**
@@ -48,8 +48,8 @@ class IntPoint	implements IClonable <IntPoint>
 #if neko	,	implements ICSSFormattable
 			,	implements ICodeFormattable		#end
 {
-	public static inline function fromFloat (x:Float, y:Float)	: IntPoint	{ return new IntPoint( x.int(), y.int() ); }
-	public static inline function fromPoint (p:Point)			: IntPoint	{ return new IntPoint( p.x.int(), p.y.int() ); }
+	public static inline function fromFloat (x:Float, y:Float)	: IntPoint	{ return new IntPoint( x.roundFloat(), y.roundFloat() ); }
+	public static inline function fromPoint (p:Point)			: IntPoint	{ return new IntPoint( p.x.roundFloat(), p.y.roundFloat() ); }
 	
 	public var x		(getX, setX)	: Int;
 	public var y		(getY, setY)	: Int;

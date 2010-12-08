@@ -27,8 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.components;
- import primevc.core.dispatcher.Wire;
- import primevc.gui.behaviours.ValidatingBehaviour;
+ import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.components.Label;
  import primevc.gui.core.UIWindow;
  import primevc.gui.layout.AdvancedLayoutClient;
@@ -36,6 +35,7 @@ package primevc.gui.behaviours.components;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.traits.IPropertyValidator;
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
@@ -44,7 +44,7 @@ package primevc.gui.behaviours.components;
  * @author Ruben Weijers
  * @creation-date Nov 01, 2010
  */
-class LabelLayoutBehaviour extends ValidatingBehaviour < Label >, implements IPropertyValidator
+class LabelLayoutBehaviour extends BehaviourBase < Label > // extends ValidatingBehaviour < Label >, implements IPropertyValidator
 {
 	override private function init ()
 	{
@@ -57,26 +57,25 @@ class LabelLayoutBehaviour extends ValidatingBehaviour < Label >, implements IPr
 	
 	private function setEventHandlers ()
 	{
-		invalidate.on( target.layout.events.sizeChanged, this );
-		updateLabelSize	.on( target.field.layout.events.sizeChanged, this );
-		updateLabelSize();
-		invalidate();
+		updateFieldSize.on( target.layout.changed, this );
+		updateLabelSize	.on( target.field.layout.changed, this );
+		updateLabelSize( LayoutFlags.WIDTH_PROPERTIES | LayoutFlags.HEIGHT_PROPERTIES | LayoutFlags.PADDING );
 	}
 	
 	
 	override private function reset ()
 	{
 		if (target.layout != null)
-			target.layout.events.sizeChanged.unbind(this);
+			target.layout.changed.unbind(this);
 		
 		if (target.field != null && target.field.layout != null)
-			target.field.layout.events.sizeChanged.unbind( this );
+			target.field.layout.changed.unbind( this );
 		
-		super.reset();
+	//	super.reset();
 	}
 	
 	
-	override private function getValidationManager ()
+	/*override private function getValidationManager ()
 	{
 		return (target.window != null) ? cast target.window.as(UIWindow).invalidationManager : null;
 	}
@@ -87,22 +86,29 @@ class LabelLayoutBehaviour extends ValidatingBehaviour < Label >, implements IPr
 	//	trace(target+".requestRender");
 		if (target.window != null)
 			getValidationManager().add(this);
-	}
+	}*/
 	
 	
-	public inline function validate ()
+	public function updateFieldSize (changes:Int)
 	{
 		var targetLayout	= target.layout.as(AdvancedLayoutClient);
 		var fieldLayout		= target.field.layout;
 		
 	//	trace("\t"+target+".validate "+targetLayout.explicitWidth+", "+targetLayout.explicitHeight+"; "+targetLayout.measuredWidth+", "+targetLayout.measuredHeight);
-		if (targetLayout.explicitWidth.isSet())		fieldLayout.width.value		= targetLayout.explicitWidth;
-		if (targetLayout.explicitHeight.isSet())	fieldLayout.height.value	= targetLayout.explicitHeight;
+		if (changes.has( LayoutFlags.EXPLICIT_WIDTH ) && targetLayout.explicitWidth.isSet())		fieldLayout.width.value		= targetLayout.explicitWidth;
+		if (changes.has( LayoutFlags.EXPLICIT_HEIGHT ) && targetLayout.explicitHeight.isSet())		fieldLayout.height.value	= targetLayout.explicitHeight;
 		
-		if (targetLayout.padding != null)
+		if (changes.has( LayoutFlags.PADDING ))
 		{
-			fieldLayout.x	= targetLayout.padding.left;
-			fieldLayout.y	= targetLayout.padding.top;
+			if (targetLayout.padding != null)
+			{
+				fieldLayout.x	= targetLayout.padding.left;
+				fieldLayout.y	= targetLayout.padding.top;
+			}
+			else
+			{
+				fieldLayout.x	= fieldLayout.y	= 0;
+			}
 		}
 		else
 		{
@@ -113,8 +119,11 @@ class LabelLayoutBehaviour extends ValidatingBehaviour < Label >, implements IPr
 	}
 	
 	
-	private function updateLabelSize ()
+	private function updateLabelSize (changes:Int)
 	{
+		if (changes.hasNone( LayoutFlags.WIDTH | LayoutFlags.HEIGHT ))
+			return;
+		
 		var targetLayout	= target.layout.as(AdvancedLayoutClient);
 		var fieldLayout		= target.field.layout;
 		

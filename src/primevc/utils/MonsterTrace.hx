@@ -19,7 +19,7 @@ class MonsterTrace
 
 	private static inline function getTraceColor (name:String) : Int
 	{
-		var length	= name.length - 3; // remove .hx
+		var length	= name.length - 5; // remove .hx
 		return name.charCodeAt(0) * name.charCodeAt( length >> 1 ) * name.charCodeAt( length - 1 );
 	}
 	

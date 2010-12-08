@@ -10,7 +10,7 @@ STYLE="empty"
 OUTPUT="app.swf"
 WIDTH=1300
 HEIGHT=900
-FPS=31
+FPS=24
 BGCOLOR=FFFFFF
 
 #parse arguments

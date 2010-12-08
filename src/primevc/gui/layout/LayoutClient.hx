@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout;
+ import primevc.core.dispatcher.Signal1;
  import primevc.core.geom.Box;
  import primevc.core.geom.IntRectangle;
  import primevc.core.geom.RectangleFlags;
@@ -39,15 +40,15 @@ package primevc.gui.layout;
  import primevc.utils.StringUtil;
 #end
  import primevc.types.Number;
- import primevc.gui.events.LayoutEvents;
+// import primevc.gui.events.LayoutEvents;
  import primevc.gui.layout.ILayoutClient;
  import primevc.gui.states.ValidateStates;
 // import primevc.utils.NumberMath;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
+  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
-  using Std;
 
 
 private typedef Flags = LayoutFlags;
@@ -68,7 +69,8 @@ class LayoutClient extends Invalidatable
 	public var includeInLayout		(default, setIncludeInLayout)		: Bool;
 	
 	public var parent				(default, setParent)				: ILayoutContainer;
-	public var events				(default, null)						: LayoutEvents;
+//	public var events				(default, null)						: LayoutEvents;
+	public var changed				(default, null)						: Signal1<Int>;
 	
 	
 	/**
@@ -138,7 +140,8 @@ class LayoutClient extends Invalidatable
 		this.validateOnPropertyChange	= validateOnPropertyChange;
 		maintainAspectRatio				= false;
 		
-		events		= new LayoutEvents();
+	//	events		= new LayoutEvents();
+		changed		= new Signal1<Int>();
 		innerBounds	= new IntRectangle( x, y, newWidth.getBiggest( 0 ) + getHorPadding(), newHeight.getBiggest( 0 ) + getVerPadding() );
 		outerBounds	= new IntRectangle( x, y, innerBounds.width + getHorMargin(), innerBounds.height + getVerMargin() );
 		width		= new SizeType( newWidth );
@@ -175,20 +178,23 @@ class LayoutClient extends Invalidatable
 		innerBounds.dispose();
 		outerBounds.dispose();
 		state.dispose();
-		events.dispose();
+	//	events.dispose();
+		changed.dispose();
 		
-		if (relative != null) {
+	/*	if (relative != null) {
 			relative.dispose();
 			relative = null;
-		}
+		}*/
+		relative		= null;		//do not dispose relative, can be used by other clients as well
 		
 		percentWidth	= percentHeight	= Number.FLOAT_NOT_SET;
 		width			= height		= null;
 		innerBounds		= outerBounds	= null;
 		padding			= margin		= null;
-		state	= null;
-		events	= null;
-		parent	= null;
+		state		= null;
+	//	events		= null;
+		parent		= null;
+		changed		= null;
 		
 		super.dispose();
 	}
@@ -280,7 +286,7 @@ class LayoutClient extends Invalidatable
 		if (changes.has(Flags.WIDTH))
 		{
 			if (maintainAspectRatio)
-				height.value = (width.value / aspectRatio).int();
+				height.value = (width.value / aspectRatio).roundFloat();
 			
 			innerBounds.width = width.value.getBiggest( 0 ) + getHorPadding();
 			outerBounds.width = innerBounds.width + getHorMargin();
@@ -310,7 +316,7 @@ class LayoutClient extends Invalidatable
 		if (changes.has(Flags.HEIGHT))
 		{
 			if (maintainAspectRatio)
-				width.value = (height.value / aspectRatio).int();
+				width.value = (height.value / aspectRatio).roundFloat();
 			
 			innerBounds.height = height.value.getBiggest( 0 ) + getVerPadding();
 			outerBounds.height = innerBounds.height + getVerMargin();
@@ -329,8 +335,11 @@ class LayoutClient extends Invalidatable
 	{
 		if (changes > 0)
 		{
-			if (changes.has(Flags.WIDTH | Flags.HEIGHT))	events.sizeChanged.send();
-			if (changes.has(Flags.X | Flags.Y))				events.posChanged.send();
+			if (changes.has( Flags.WIDTH_PROPERTIES | Flags.HEIGHT_PROPERTIES | Flags.X | Flags.Y ))
+				changed.send( changes );
+			
+		//	if (changes.has(Flags.WIDTH | Flags.HEIGHT))	events.sizeChanged.send();
+		//	if (changes.has(Flags.X | Flags.Y))				events.posChanged.send();
 			changes = 0;
 		}
 		
@@ -405,7 +414,7 @@ class LayoutClient extends Invalidatable
 			y = v;
 			invalidate( Flags.Y );
 			outerBounds.top = v;
-			innerBounds.top = (margin == null) ? outerBounds.top : outerBounds.top + margin.top;
+			innerBounds.top = (margin == null) ? v : v + margin.top;
 		}
 		return y;
 	}
@@ -430,7 +439,7 @@ class LayoutClient extends Invalidatable
 				if (propChanges.has( RectangleFlags.WIDTH ))	width.value		= box.width - getHorPadding() - getHorMargin();
 				if (propChanges.has( RectangleFlags.HEIGHT ))	height.value	= box.height - getVerPadding() - getVerMargin();
 			//	trace("\t\t\t"+this+".outerBounds changed "+box+"; "+getVerPadding()+"; "+getVerMargin());
-			//	trace(this+".invalidateCall from outerBounds "+RectangleFlags.readProperties(propChanges) + "; state: "+state.current + "; w: "+width+"; h: "+height+"; x: "+x+"; y: "+y);
+			//	trace(this+".invalidateCall from outerBounds "+RectangleFlags.readProperties(propChanges) + "; state: "+state.current + "; w: "+width.value+"; h: "+height.value+"; x: "+x+"; y: "+y);
 			}
 		
 			else if (box == innerBounds)
@@ -439,7 +448,7 @@ class LayoutClient extends Invalidatable
 				if (propChanges.has( RectangleFlags.TOP ))		y = margin == null ? box.top : box.top - margin.top;
 				if (propChanges.has( RectangleFlags.WIDTH ))	width.value		= box.width - getHorPadding();
 				if (propChanges.has( RectangleFlags.HEIGHT ))	height.value	= box.height - getVerPadding();
-			//	trace(this+".invalidateCall from innerBounds "+RectangleFlags.readProperties(propChanges) + "; state: "+state.current+"; w: "+width+"; h: "+height+"; x: "+x+"; y: "+y);
+			//	trace(this+".invalidateCall from innerBounds "+RectangleFlags.readProperties(propChanges) + "; state: "+state.current+"; w: "+width.value+"; h: "+height.value+"; x: "+x+"; y: "+y);
 			}
 		}
 		
@@ -546,7 +555,7 @@ class LayoutClient extends Invalidatable
 	{
 		if (relative != v)
 		{
-			if (relative != null)
+			if (relative != null && relative.changed != null)
 				relative.changed.unbind( this );
 		
 			relative = v;

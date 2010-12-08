@@ -76,14 +76,14 @@ class UIGraphic extends Shape
 #end
 	
 	
-	public function new (id:String = null)
+	public function new (idValue:String = null)
 	{
 		super();
 #if debug
-		if (id == null)
-			id = this.getReadableId();
+		if (idValue == null)
+			idValue = this.getReadableId();
 #end
-		this.id	= new Bindable<String>(id);
+		id		= new Bindable<String>(idValue);
 		visible = false;
 		changes	= 0;
 		init.onceOn( displayEvents.addedToStage, this );

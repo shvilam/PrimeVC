@@ -26,53 +26,13 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours;
- import haxe.FastList;
- import primevc.core.traits.IDisposable;
+package primevc.gui.input;
 
-
-private typedef BehaviourType = IBehaviour<Dynamic>;
 
 /**
- * List with all available behaviours
- * 
  * @author Ruben Weijers
- * @creation-date Aug 02, 2010
+ * @creation-date Dec 8, 2010
  */
-class BehaviourList implements IDisposable
-{
-	private var list			: FastList < BehaviourType >;
-	private var isInitialized	: Bool;
-	
-	public function new ()
-	{
-		list			= new FastList < BehaviourType > ();
-		isInitialized	= false;
-	}
-	
-	
-	public inline function removeAll ()
-	{
-		while (!list.isEmpty()) {
-			var b:BehaviourType = list.pop();
-			if (b != null)
-				b.dispose();
-		}
-	}
-	
-	
-	public function init ()
-	{
-		if (!isInitialized)
-		{	
-			isInitialized = true;
-			for (behaviour in list)
-				behaviour.initialize();
-		}
-	}
-	
-	
-	public inline function dispose ()					{ removeAll(); list = null; isInitialized = false; }
-	public inline function add (v:BehaviourType)		{ if (isInitialized) { v.initialize(); }	list.add(v);	return v; }
-	public inline function remove (v:BehaviourType)		{ if (isInitialized) { v.dispose(); }		list.remove(v);	return v; }
-}
+typedef KeyCodes = 
+	#if flash9	flash.ui.Keyboard;
+	#else		throw 1;	#end

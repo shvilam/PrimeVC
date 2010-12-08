@@ -32,8 +32,10 @@ package primevc.gui.behaviours.drag;
  import primevc.core.traits.IDisposable;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.events.MouseEvents;
+ import primevc.gui.input.Mouse;
  import primevc.gui.traits.IDraggable;
  import primevc.gui.traits.ILayoutable;
+  using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
 /**
@@ -45,9 +47,10 @@ package primevc.gui.behaviours.drag;
 class DragBehaviourBase extends BehaviourBase <IDraggable>
 {
 	private var dragInfo			: DragInfo;
-	private var dragHelper			: DragHelper;
 	private var dragBounds			: IntRectangle;
 	private var mouseEnabledValue	: Bool;
+	
+	public var dragHelper			(default, null) : DragHelper;
 	
 	
 	public function new (target, ?dragBounds:IntRectangle)
@@ -59,7 +62,8 @@ class DragBehaviourBase extends BehaviourBase <IDraggable>
 	
 	override private function init () : Void
 	{
-		dragHelper = new DragHelper( target, startDrag, stopDrag, cancelDrag );
+		dragHelper = new DragHelper( target, startDrag, stopDrag, cancelDrag, Mouse.DRAG_DELAY );
+		enable();
 	}
 	
 	
@@ -73,6 +77,10 @@ class DragBehaviourBase extends BehaviourBase <IDraggable>
 		disposeDragInfo();
 		dragBounds = null;
 	}
+
+
+	public inline function enable ()	{ dragHelper.start.on( target.userEvents.mouse.down, this ); }
+	public inline function disable ()	{ target.userEvents.mouse.down.unbind( this ); }
 	
 	
 	private function startDrag (mouseObj:MouseState) : Void
@@ -95,8 +103,8 @@ class DragBehaviourBase extends BehaviourBase <IDraggable>
 			item.startDrag( false, bounds );
 		}
 		
-		if (target.is(ILayoutable))
-			target.as(ILayoutable).layout.includeInLayout = false;
+		if (item.is(ILayoutable))
+			item.as(ILayoutable).layout.includeInLayout = false;
 		
 		target.dragEvents.start.send(dragInfo);
 	}

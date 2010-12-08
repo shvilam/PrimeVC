@@ -37,7 +37,7 @@ package primevc.gui.graphics.shapes;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.traits.IGraphicsOwner;
   using primevc.utils.FastArray;
-  using Std;
+  using primevc.utils.NumberMath;
 
 
 /**
@@ -93,7 +93,7 @@ class Triangle extends ShapeBase, implements IGraphicShape
 			case TopCenter:
 				a.x = x;
 				a.y = h;
-				b.x = x + (w * .5).int();
+				b.x = x + (w * .5).roundFloat();
 				b.y = y;
 				c.x = x + w;
 				c.y = y + h;
@@ -108,7 +108,7 @@ class Triangle extends ShapeBase, implements IGraphicShape
 
 			case MiddleLeft:
 				a.x = x;
-				a.y = y + (h * .5).int();
+				a.y = y + (h * .5).roundFloat();
 				b.x = x + w;
 				b.y = y;
 				c.x = a.x + w;
@@ -119,7 +119,7 @@ class Triangle extends ShapeBase, implements IGraphicShape
 				a.x = x + w;
 				a.y = y;
 				b.x = x;
-				b.y = y + (h * .5).int();
+				b.y = y + (h * .5).roundFloat();
 				c.x = a.x;
 				c.y = y + h;*/
 
@@ -127,7 +127,7 @@ class Triangle extends ShapeBase, implements IGraphicShape
 				a.x = x;
 				a.y = y;
 				b.x = x + w;
-				b.y = y + (h * .5).int();
+				b.y = y + (h * .5).roundFloat();
 				c.x = x;
 				c.y = y + h;
 			
@@ -144,7 +144,7 @@ class Triangle extends ShapeBase, implements IGraphicShape
 				a.y = y;
 				b.x = x + w;
 				b.y = y;
-				c.x = x + (w * .5).int();
+				c.x = x + (w * .5).roundFloat();
 				c.y = y + h;
 			
 			case BottomRight:
