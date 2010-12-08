@@ -63,6 +63,6 @@ class DragMoveBehaviour extends DragBehaviourBase
 		dragInfo.restore();
 		
 		//notifiy the dragged item that the drag-operation is canceled
-		target.dragEvents.exit.send( dragInfo );
+		target.dragEvents.cancel.send( dragInfo );
 	}
 }

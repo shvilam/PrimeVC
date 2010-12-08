@@ -161,7 +161,7 @@ class DragHelper implements IDisposable
 	
 	private function startDrag ()
 	{
-		trace(target+".startDrag "+isDragging+"; "+lastMouseObj.target);
+	//	trace(target+".startDrag "+isDragging+"; "+lastMouseObj.target);
 #if debug			
 	//	target.window.application.clearTraces();
 #end	

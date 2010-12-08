@@ -1,4 +1,4 @@
-	/*
+/*
  * Copyright (c) 2010, The PrimeVC Project Contributors
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
@@ -26,22 +26,20 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.traits;
- import haxe.FastList;
+package primevc.gui.input;
 
 
 /**
+ * Class that will represent the keyboard.
+ * 
  * @author Ruben Weijers
- * @creation-date Jul 30, 2010
+ * @creation-date Dec 8, 2010
  */
-interface IInvalidatable implements IInvalidateListener
+class Keyboard //implements IInputDevice 
 {
-//	public var changes (default, null)			: UInt;
-	
 	/**
-	 * List with IInvalidatables that want to be notified when values in this
-	 * instance changes
+	 * Constant value indicating the number of milliseconds to wait before a
+	 * mouse-down event will be labeled as a drag-start event.
 	 */
-	public var listeners (default, null)		: FastList< IInvalidateListener >;
-	public function invalidate (change:UInt)	: Void;
+	public static inline var REPEAT_DELAY	: Int = 100;
 }

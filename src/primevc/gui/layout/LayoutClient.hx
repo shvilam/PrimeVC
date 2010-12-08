@@ -181,10 +181,11 @@ class LayoutClient extends Invalidatable
 	//	events.dispose();
 		changed.dispose();
 		
-		if (relative != null) {
+	/*	if (relative != null) {
 			relative.dispose();
 			relative = null;
-		}
+		}*/
+		relative		= null;		//do not dispose relative, can be used by other clients as well
 		
 		percentWidth	= percentHeight	= Number.FLOAT_NOT_SET;
 		width			= height		= null;
@@ -554,7 +555,7 @@ class LayoutClient extends Invalidatable
 	{
 		if (relative != v)
 		{
-			if (relative != null)
+			if (relative != null && relative.changed != null)
 				relative.changed.unbind( this );
 		
 			relative = v;

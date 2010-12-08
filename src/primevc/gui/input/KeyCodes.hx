@@ -1,4 +1,4 @@
-	/*
+/*
  * Copyright (c) 2010, The PrimeVC Project Contributors
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
@@ -26,22 +26,13 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.traits;
- import haxe.FastList;
+package primevc.gui.input;
 
 
 /**
  * @author Ruben Weijers
- * @creation-date Jul 30, 2010
+ * @creation-date Dec 8, 2010
  */
-interface IInvalidatable implements IInvalidateListener
-{
-//	public var changes (default, null)			: UInt;
-	
-	/**
-	 * List with IInvalidatables that want to be notified when values in this
-	 * instance changes
-	 */
-	public var listeners (default, null)		: FastList< IInvalidateListener >;
-	public function invalidate (change:UInt)	: Void;
-}
+typedef KeyCodes = 
+	#if flash9	flash.ui.Keyboard;
+	#else		throw 1;	#end

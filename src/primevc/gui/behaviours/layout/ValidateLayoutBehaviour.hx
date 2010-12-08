@@ -103,7 +103,7 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 		if (changes.has( LayoutFlags.X | LayoutFlags.Y ))
 		{
 			//	trace(target+".applyPosition; " + " - pos: " + target.layout.getHorPosition() + ", " + target.layout.getVerPosition() + " - old pos "+target.x+", "+target.y+"; padding? "+target.layout.padding);
-		
+			
 			if (target.effects == null || isNotPositionedYet)
 			{
 				var l = target.layout;
@@ -118,9 +118,9 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 					var t = target.as(IDrawable);
 					if (t.graphicData.border != null)
 					{
-						var borderWidth = t.graphicData.border.weight.roundFloat();
-						newX -= borderWidth;
-						newY -= borderWidth;
+						var borderWidth = t.graphicData.border.weight;
+						newX -= (borderWidth * target.scaleX).roundFloat();
+						newY -= (borderWidth * target.scaleY).roundFloat();
 					}
 				}
 			

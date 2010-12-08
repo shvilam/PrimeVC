@@ -718,7 +718,7 @@ class ResizeFromCornerBehaviour extends BehaviourBase <ISkin>
 	{
 		dragBtn.dragEvents.start.unbind(this);
 		dragBtn.dragEvents.complete.unbind(this);
-		dragBtn.dragEvents.exit.unbind(this);
+		dragBtn.dragEvents.cancel.unbind(this);
 		dragBtn.window.mouse.events.move.unbind(this);
 		
 		dragBtn.dispose();
@@ -743,7 +743,7 @@ class ResizeFromCornerBehaviour extends BehaviourBase <ISkin>
 	{
 		lastMousePos = null;
 		dragBtn.dragEvents.complete.unbind(this);
-		dragBtn.dragEvents.exit.unbind(this);
+		dragBtn.dragEvents.cancel.unbind(this);
 		dragBtn.window.mouse.events.move.unbind(this);
 		startResize.on( dragBtn.dragEvents.start, this );
 	}
@@ -756,7 +756,7 @@ class ResizeFromCornerBehaviour extends BehaviourBase <ISkin>
 		target.layout.height	= startSize.y;
 		
 		dragBtn.dragEvents.complete.unbind(this);
-		dragBtn.dragEvents.exit.unbind(this);
+		dragBtn.dragEvents.cancel.unbind(this);
 		dragBtn.window.mouse.events.move.unbind(this);
 		startResize.on( dragBtn.dragEvents.start, this );
 	}
