@@ -102,8 +102,10 @@ class SignalRepeater <FunctionSig> implements IDisposable
 	
 	private function stop ()
 	{
-		timer.stop();
-		timer = null;
+		if (timer != null) {
+			timer.stop();
+			timer = null;
+		}
 		stopBinding.disable();
 		startBinding.enable();
 	}

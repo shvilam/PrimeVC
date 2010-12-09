@@ -56,8 +56,8 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	{
 		super();
 		invalidatable = false;
-		this.top	= x;
-		this.left	= y;
+		this.top	= y;
+		this.left	= x;
 		this.width	= width;
 		this.height	= height;
 		invalidatable = true;
