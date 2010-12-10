@@ -115,6 +115,9 @@ class DragScrollBehaviour extends ClippedLayoutBehaviour
 	
 	private function dragAndScroll (mouseObj:MouseState)
 	{
+		if (mouseObj == null)
+			return;
+		
 		var scrollHor = scrollLayout.horScrollable();
 		var scrollVer = scrollLayout.verScrollable();
 		

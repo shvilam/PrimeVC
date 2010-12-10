@@ -47,8 +47,12 @@ package primevc.gui.behaviours.scroll;
 class ScrollHelper
 {
 #if !neko
-	public static inline function getLocalMouse (target:IScrollable, mouseObj:MouseState)
+	public static function getLocalMouse (target:IScrollable, mouseObj:MouseState)
 	{
+		Assert.notNull( target );
+		Assert.notNull( target.container, "target's container can't be null for "+target);
+		Assert.notNull( mouseObj, "MouseObj for "+target+" can't be null" );
+		
 		var mousePos = (mouseObj.target != target.container.as(TargetType))
 							? target.container.as(IDisplayObject).globalToLocal(mouseObj.stage)
 							: mouseObj.local;

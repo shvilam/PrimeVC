@@ -529,7 +529,7 @@ class LayoutClient extends Invalidatable
 	{
 		if (includeInLayout != v) {
 			includeInLayout = v;
-			invalidate( Flags.INCLUDE );
+			invalidate( Flags.INCLUDE | Flags.PERCENT_HEIGHT | Flags.PERCENT_WIDTH | Flags.RELATIVE );
 		}
 		return includeInLayout;
 	}

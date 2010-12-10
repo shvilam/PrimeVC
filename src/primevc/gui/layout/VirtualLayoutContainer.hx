@@ -71,7 +71,7 @@ class VirtualLayoutContainer extends LayoutContainer
 	{
 		super.invalidate(change);
 		
-		if (change.has( LayoutFlags.X | LayoutFlags.Y))
+		if (change.has( LayoutFlags.X | LayoutFlags.Y ))
 			for (child in children)
 				child.invalidate(change);
 		
