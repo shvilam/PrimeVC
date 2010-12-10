@@ -57,10 +57,17 @@ class Window
 
 	#if (debug && MonsterTrace)	
 		var monster		= new nl.demonsters.debugger.MonsterDebugger(flash.Lib.current);
-		haxe.Log.trace	= primevc.utils.MonsterTrace.trace;
+		haxe.Log.trace	= primevc.utils.DebugTrace.trace;
 		haxe.Log.clear	= nl.demonsters.debugger.MonsterDebugger.clearTraces;
-		haxe.Log.clear();
 	#end
+	
+	#if (debug && AlconTrace)
+		haxe.Log.trace	= primevc.utils.DebugTrace.trace;
+		haxe.Log.clear	= com.hexagonstar.util.debug.Debug.clear;
+		com.hexagonstar.util.debug.Debug.monitor( stage );
+	#end
+		
+		haxe.Log.clear();
 #end		
 		trace("started " + windowClass);
 		return Type.createInstance( windowClass, [ stage ] );

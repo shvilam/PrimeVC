@@ -7,11 +7,14 @@
 
 package 
 {
+	import com.hexagonstar.util.debug.Debug;
 	import nl.demonsters.debugger.MonsterDebugger;
+	
 	
 	public class DebugAssets extends Assets
 	{
 		// Force embedding
 		private var monsterDebugger : nl.demonsters.debugger.MonsterDebugger;
+		private var alconDebugger	: com.hexagonstar.util.debug.Debug;
 	}
 }

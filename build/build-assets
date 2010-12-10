@@ -21,7 +21,7 @@ else
 		fi;
 		
 		"$MXMLC" \
-			-compiler.source-path "$PRIMEVC_ROOT/src" "$PRIMEVC_ROOT/libs/macmousewheel" "$PRIMEVC_ROOT/libs/monsterdebugger" "$PRIMEVC_ROOT/libs/as3-flexless" \
+			-compiler.source-path "$PRIMEVC_ROOT/src" "$PRIMEVC_ROOT/libs/macmousewheel" "$PRIMEVC_ROOT/libs/as3-flexless" \
 			-compiler.as3 \
 			-debug=false \
 			-verbose-stacktraces=false \
@@ -30,7 +30,7 @@ else
 			"$PRIMEVC_ROOT/assets/Assets.as" &&
 
 		"$MXMLC" \
-			-compiler.source-path "$PRIMEVC_ROOT/src" "$PRIMEVC_ROOT/libs/macmousewheel" "$PRIMEVC_ROOT/libs/monsterdebugger" "$PRIMEVC_ROOT/libs/as3-flexless" \
+			-compiler.source-path "$PRIMEVC_ROOT/src" "$PRIMEVC_ROOT/libs/macmousewheel" "$PRIMEVC_ROOT/libs/monsterdebugger" "$PRIMEVC_ROOT/libs/as3-flexless" "$PRIMEVC_ROOT/libs/alcon" \
 			-compiler.as3 \
 			-output "$PRIMEVC_ROOT/assets/debug-assets.swf" \
 			"$PRIMEVC_ROOT/assets/DebugAssets.as" &&
