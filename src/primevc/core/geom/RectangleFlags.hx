@@ -39,10 +39,18 @@ class RectangleFlags
 {
 	public static inline var WIDTH		: UInt = 1;
 	public static inline var HEIGHT		: UInt = 2;
+	
 	public static inline var TOP		: UInt = 4;
-	public static inline var BOTTOM		: UInt = 8;
-	public static inline var LEFT		: UInt = 16;
-	public static inline var RIGHT		: UInt = 32;
+	public static inline var CENTERY	: UInt = 8;
+	public static inline var BOTTOM		: UInt = 16;
+	
+	public static inline var LEFT		: UInt = 32;
+	public static inline var CENTERX	: UInt = 64;
+	public static inline var RIGHT		: UInt = 128;
+	
+	public static inline var HORIZONTAL	: UInt = LEFT | RIGHT | CENTERX;
+	public static inline var VERTICAL	: UInt = TOP | BOTTOM | CENTERY;
+	public static inline var ALL		: UInt = HORIZONTAL | VERTICAL;
 	
 	
 #if debug
@@ -53,8 +61,10 @@ class RectangleFlags
 		if (flags.has( WIDTH ))			output.push("width");
 		if (flags.has( HEIGHT ))		output.push("height");
 		if (flags.has( TOP ))			output.push("top");
+		if (flags.has( CENTERY ))		output.push("center-y");
 		if (flags.has( BOTTOM ))		output.push("bottom");
 		if (flags.has( LEFT ))			output.push("left");
+		if (flags.has( CENTERX ))		output.push("center-x");
 		if (flags.has( RIGHT ))			output.push("right");
 		
 		return "properties: " + output.join(", ");

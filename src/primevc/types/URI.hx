@@ -136,8 +136,11 @@ class URI
 	public var isSet		(getIsSet, never) : Bool;
 		private function getIsSet() { return (string != null && string.length != 0) || (host != null && host.length != 0) || (path != null && path.length != 0); }
 	
-	public function new() {
+	public function new(str:String = null) {
 		port = -1;
+		
+		if (str != null)
+			parse(str);
 	}
 	
 	public function toString()
