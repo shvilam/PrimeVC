@@ -68,7 +68,7 @@ class ReadOnlyArrayList < DataType >
 	}
 	
 	
-	public inline function clone () : IReadOnlyList < DataType >
+	public function clone () : IReadOnlyList < DataType >
 	{
 		var l = new ReadOnlyArrayList<DataType>();
 		for (child in this)
