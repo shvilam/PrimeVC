@@ -106,6 +106,12 @@ class DisplayList implements IEditableList <ChildType>
 	}
 	
 	
+	public inline function isEmpty () : Bool
+	{
+		return length == 0;
+	}
+	
+	
 	public inline function clone () : IReadOnlyList <ChildType>
 	{
 		return new DisplayList( target, owner );
