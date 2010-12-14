@@ -27,9 +27,10 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.core.dispatcher;
- import primevc.core.ListNode;
+  using primevc.core.ListNode;
   using primevc.core.dispatcher.Wire;
   using primevc.utils.BitUtil;
+  using primevc.utils.IfUtil;
 
 /**
  * Signal with 2 arguments to send()
@@ -45,29 +46,29 @@ class Signal2 <A,B> extends Signal<A->B->Void>, implements ISender2<A,B>, implem
 	{
 		//TODO: Run benchmarks and tests if this should really be inlined...
 		
-		var b:Wire<A->B->Void> = this.n;
+		var w = this.n;
 		
-		while (b != null)
+		while (w.notNull())
 		{
-			var x:Wire<A->B->Void> = ListNode.next(b);
+			var x = w.next();
 			
-			if (b.isEnabled())
+			if (w.isEnabled())
 			{
-				Assert.that(b != x);
-				Assert.that(b.flags != 0);
+				Assert.that(w != x);
+				Assert.that(w.flags != 0);
 				
-				if (b.flags.has(Wire.SEND_ONCE))
-					b.disable();
+				if (w.flags.has(Wire.SEND_ONCE))
+					w.disable();
 				
-				if (b.flags.has(Wire.VOID_HANDLER))
-				 	b.sendVoid();
+				if (w.flags.has(Wire.VOID_HANDLER))
+				 	w.sendVoid();
 				else
-					b.handler(_1,_2);
+					w.handler(_1,_2);
 				
-				if (b.flags.has(Wire.SEND_ONCE))
-				 	b.dispose();
+				if (w.flags.has(Wire.SEND_ONCE))
+				 	w.dispose();
 			}
-			b = x; // Next node
+			w = x; // Next node
 		}
 	}
 	

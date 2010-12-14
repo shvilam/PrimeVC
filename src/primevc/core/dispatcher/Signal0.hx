@@ -27,9 +27,10 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.core.dispatcher;
- import primevc.core.ListNode;
+  using primevc.core.ListNode;
   using primevc.core.dispatcher.Wire;
   using primevc.utils.BitUtil;
+  using primevc.utils.IfUtil;
 
 /**
  * Signal with no arguments to send()
@@ -45,24 +46,26 @@ class Signal0 extends Signal<Void->Void>, implements ISender0, implements INotif
 	{
 		//TODO: Run benchmarks and tests if this should really be inlined...
 		
-		var b = this.n;
+		var w = this.n;
 		
-		while (b != null)
+		while (w.notNull())
 		{
-			var x = ListNode.next(b);
+			var x = w.next();
 			
-			if (b.isEnabled())
+			if (w.isEnabled())
 			{
-				Assert.that(b != x);
-				if (b.flags.has(Wire.SEND_ONCE))
-					b.disable();
+				Assert.that(w != x);
+				Assert.that(w.flags != 0);
 				
-				b.handler();
+				if (w.flags.has(Wire.SEND_ONCE))
+					w.disable();
 				
-				if (b.flags.has(Wire.SEND_ONCE))
-				 	b.dispose();
+				w.handler();
+				
+				if (w.flags.has(Wire.SEND_ONCE))
+				 	w.dispose();
 			}
-			b = x; // Next node
+			w = x; // Next node
 		}
 	}
 	

@@ -58,7 +58,7 @@ class TextSignal extends Signal1 <String>, implements IWireWatcher < TextHandler
 
 	public function wireEnabled (wire:Wire<TextHandler>) : Void {
 		Assert.that(n != null);
-		if (ListNode.next(n) == null) // First wire connected
+		if (ListUtil.next(n) == null) // First wire connected
 			eventDispatcher.addEventListener(event, dispatch);
 	}
 

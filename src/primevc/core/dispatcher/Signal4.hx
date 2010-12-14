@@ -27,9 +27,10 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.core.dispatcher;
- import primevc.core.ListNode;
+  using primevc.core.ListNode;
   using primevc.core.dispatcher.Wire;
   using primevc.utils.BitUtil;
+  using primevc.utils.IfUtil;
 
 /**
  * Signal with 4 arguments to send()
@@ -47,16 +48,17 @@ class Signal4 <A,B,C,D> extends Signal<A->B->C->D->Void>, implements ISender4<A,
 		
 		var w = this.n;
 		
-		while (w != null)
+		while (w.notNull())
 		{
-			var x = ListNode.next(w);
+			var x = w.next();
 			
 			if (w.isEnabled())
 			{
 				Assert.that(w != x);
+				Assert.that(w.flags != 0);
 				
-				if (b.flags.has(Wire.SEND_ONCE))
-					b.disable();
+				if (w.flags.has(Wire.SEND_ONCE))
+					w.disable();
 				
 				if (w.flags.has(Wire.VOID_HANDLER))
 				 	w.sendVoid();

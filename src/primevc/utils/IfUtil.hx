@@ -26,51 +26,54 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.avm2.events;
- import flash.events.IEventDispatcher;
- import flash.events.ProgressEvent;
- import primevc.core.dispatcher.IWireWatcher;
- import primevc.core.dispatcher.Signal2;
- import primevc.core.dispatcher.Wire;
- import primevc.core.ListNode;
- import primevc.core.events.CommunicationEvents;		// needed for ProgressHandler typedef
-
+package primevc.utils;
 
 
 /**
- * AVM2 Loader Progress Signal implementation
+ * Bunch of utility functions for faster/smaller if statements
  * 
- * Parameter 1: loaded bytes
- * Parameter 2: total bytes
- * 
- * @author Ruben Weijers
- * @creation-date Jul 31, 2010
+ * @author Danny Wilson
+ * @creation-date nov 29, 2010
  */
-class ProgressSignal extends Signal2<UInt, UInt>, implements IWireWatcher < ProgressHandler > 
+class IfUtil
 {
-	var eventDispatcher:IEventDispatcher;
-	var event:String;
-
-
-	public function new (d:IEventDispatcher, e:String)
+	/**
+	 * Helper function to use in expressions, to check in the fastest way possible if an object reference is not null.
+	 * 
+	 * @param	value
+	 * @return	true when value != null
+	 */
+	static inline public function notNull (obj:Dynamic) : Bool
 	{
-		super();
-		this.eventDispatcher = d;
-		this.event = e;
+		return	#if (js || flash9)	untyped obj  // single iffalse AVM2 instruction
+				#else				obj != null
+				#end ;
 	}
-
-	public function wireEnabled (wire:Wire<ProgressHandler>) : Void {
-		Assert.that(n != null);
-		if (ListUtil.next(n) == null) // First wire connected
-			eventDispatcher.addEventListener(event, dispatch);
+	
+	/**
+	 * Helper function to use booleans (true == 1, false == 0) in arithmetic expressions, for example true + true == 2
+	 * 
+	 * @param	value
+	 * @return	true when value != null
+	 */
+	static inline public function boolCalc (value:Bool) : Int
+	{
+		return	#if (js || flash9)	untyped value  // single iffalse AVM2 instruction
+				#else				value? 1 : 0
+				#end ;
 	}
-
-	public function wireDisabled	(wire:Wire<ProgressHandler>) : Void {
-		if (n == null) // No more wires connected
-			eventDispatcher.removeEventListener(event, dispatch);
-	}
-
-	private function dispatch(e:ProgressEvent) {
-		send(e.bytesLoaded, e.bytesTotal);
+	
+	/**
+	 * Helper function to use in expressions, to check in the fastest way possible if a positive/unsigned integer != 0.
+	 * 
+	 * @param	value
+	 * @return	AVM2: true when value > 0
+	 * @return	Others: true when value != 0
+	 */
+	public static inline function not0 (value:Int) : Bool
+	{
+		return	#if (js || flash9)	untyped value  // single iffalse AVM2 instruction
+				#else				value != 0
+				#end ;
 	}
 }
