@@ -12,9 +12,10 @@ WIDTH=1300
 HEIGHT=900
 FPS=24
 BGCOLOR=FFFFFF
+ACCESS="-D network-sandbox"
 
 #parse arguments
-while getopts "m:nc:bs:tw:uh:io:qp:re:zdf" OptionName
+while getopts "m:nc:bs:tw:uh:io:qp:re:zdfl" OptionName
 	do
 		case $OptionName in
 			m ) MainClass=${OPTARG};;	#main class
@@ -27,6 +28,7 @@ while getopts "m:nc:bs:tw:uh:io:qp:re:zdf" OptionName
 			e ) EXTRA=${OPTARG};;		#extra compiler options
 			d ) Debug="-debug";;		#compile cssparser and application in debugmode
 			f ) Force=true;;			#force recompilation of css parser
+			l ) ACCESS="";;				#local file access allowed
 	esac
 done
 
@@ -59,6 +61,7 @@ else
 	echo -e "\tProject: $PRJROOT"
 	echo -e "\tOutput: $OUTPUT"
 	echo -e "\tPrimeVC: $PRIMEVC_ROOT"
+	echo -e "\tLocal file access: $LOCALACCESS"
 	echo -e "\tExtra: ${EXTRA:-"no extra's"}"
 	
 	echo "1. BUILDING ASSETS"
@@ -80,6 +83,7 @@ else
 		${ASSETS:+-swf-lib "'$ASSETS'"} \
 		${Debug:--exclude "'build/release-exclude.txt'"} \
 		-swf-lib "'assets/${Debug:+debug-}assets.swf'" \
+		$LOCALACCESS \
 		| xargs -t haxe \
 		 	|| exit 1;
 	

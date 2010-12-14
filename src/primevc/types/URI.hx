@@ -143,8 +143,11 @@ class URI
 		 	(  host.notNull() &&   host.length.not0()) ||
 		 	(  path.notNull() &&   path.length.not0())
 	
-	public function new() {
+	public function new(str:String = null) {
 		port = -1;
+		
+		if (str != null)
+			parse(str);
 	}
 	
 	public function toString()

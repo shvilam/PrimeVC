@@ -40,8 +40,8 @@ package primevc.core.geom;
  */
 class IntRectangle extends QueueingInvalidatable, implements IRectangle
 {
-	public var centerX	(getCenterX, setCenterX)	: Float;
-	public var centerY	(getCenterY, setCenterY)	: Float;
+	public var centerX	(getCenterX, setCenterX)	: Int;
+	public var centerY	(getCenterY, setCenterY)	: Int;
 	
 	public var left		(getLeft, setLeft)			: Int;
 	public var right	(getRight, setRight)		: Int;
@@ -172,7 +172,7 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	}
 	
 	
-	private inline function setCenterX (v:Float)
+	private inline function setCenterX (v:Int)
 	{	
 		Assert.that( v.isSet() );
 		if (v.isSet())
@@ -182,7 +182,7 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	}
 	
 	
-	private inline function setCenterY (v:Float)
+	private inline function setCenterY (v:Int)
 	{	
 		Assert.that( v.isSet() );
 		if (v.isSet())
@@ -200,8 +200,8 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private inline function getWidth ()		{ return width; }
 	private inline function getHeight ()	{ return height; }
 	
-	private inline function getCenterX ()	{ return left + (width * .5); }
-	private inline function getCenterY ()	{ return top + (height * .5); }
+	private inline function getCenterX ()	{ return left + (width * .5).roundFloat(); }
+	private inline function getCenterY ()	{ return top + (height * .5).roundFloat(); }
 	
 	
 	public function isEmpty ()

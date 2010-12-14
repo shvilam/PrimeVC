@@ -30,6 +30,7 @@
 package primevc.core;
  import primevc.core.IBindableReadonly;
  import primevc.core.dispatcher.Signal2;
+ import primevc.core.traits.IClonable;
  import haxe.FastList;
   using primevc.utils.IfUtil;
 
@@ -71,7 +72,7 @@ package primevc.core;
  * @creation-date	Jun 18, 2010
  * @author			Ruben Weijers, Danny Wilson
  */
-class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.Generic
+class Bindable <DataType> implements IBindable<DataType>, implements IClonable<Bindable<DataType>>, implements haxe.rtti.Generic
 {
 	public var value	(default, setValue)	: DataType;
 	
@@ -98,18 +99,6 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 	}
 	
 	
-	public inline function isEmpty () : Bool
-	{
-		return (untyped this).value == null;
-	}
-	
-	
-	public function set (val:DataType) : Void
-	{
-		value = val;
-	}
-	
-	
 	public function dispose ()
 	{
 		if (change == null) return; // already disposed
@@ -130,6 +119,25 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 		
 		(untyped this).value = null; // Int can't be set to null, so we trick it with untyped
 	}
+	
+	
+	public inline function isEmpty () : Bool
+	{
+		return (untyped this).value == null;
+	}
+	
+	
+	public function clone ()
+	{
+		return new Bindable<DataType>(value);
+	}
+	
+	
+	public function set (val:DataType) : Void
+	{
+		value = val;
+	}
+	
 	
 #if debug
 	public function isBoundTo(otherBindable)
