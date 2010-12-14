@@ -24,11 +24,27 @@
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Danny Wilson	<danny @ onlinetouch.nl>
  */
-package ;
+package primevc.types;
 
 
-#if (neko || js)
-typedef UInt = Int;
-#end
+/**
+ * A period between 2 instances in time.
+ * 
+ * @author Danny Wilson
+ * @creation-date Dec 14, 2010
+ */
+class DateInterval
+{
+	static inline public var TYPE_ID = 10;
+	
+	public var start	(default,null) : Date;
+	public var end		(default,null) : Date;
+	
+	public function new (startDate:Date, endDate:Date)
+	{
+		this.start = startDate;
+		this.end   = endDate;
+	}
+}

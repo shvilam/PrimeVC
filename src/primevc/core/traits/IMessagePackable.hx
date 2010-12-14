@@ -24,11 +24,22 @@
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Danny Wilson	<danny @ onlinetouch.nl>
  */
-package ;
+package primevc.core.traits;
+ import haxe.io.BytesOutput;
 
-
-#if (neko || js)
-typedef UInt = Int;
-#end
+/**
+ * An object serializable to the MessagePack format.
+ * 
+ * @author Danny Wilson
+ * @creation-date Dec 13, 2010
+ */
+interface IMessagePackable
+{
+	/**
+	 * Serialize this object.
+	 * @return Bytes written to Output stream.
+	 */
+	public function messagePack(o : BytesOutput) : Int;
+}

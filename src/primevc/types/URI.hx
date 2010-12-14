@@ -27,6 +27,8 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.types;
+  using primevc.utils.NumberUtil;
+  using primevc.utils.IfUtil;
 
 enum URIScheme
 {
@@ -109,7 +111,9 @@ class URI
 	private inline function setFragment(v)	{ string = null; return fragment = v; }
 
 	/** Returns true if this URI has a scheme and thus is a URL **/
-	public function isURL() return scheme != null
+	public function isURL() : Bool {
+		return scheme.notNull();
+	}
 	
 	/** Returns the string after the last dot in the path.
 	 	Returns an empty string if it has no dots in the path.
@@ -117,7 +121,7 @@ class URI
 	*/
 	public var fileExt	(getFileExt,setFileExt): String;
 		private inline function getFileExt() : String {
-			if (path == null) return "";
+			if (!path.notNull()) return "";
 			else {
 				var idx = path.lastIndexOf('.');
 				return idx <= 1? "" : path.substr(idx+1);
@@ -134,7 +138,10 @@ class URI
 		}
 	
 	public var isSet		(getIsSet, never) : Bool;
-		private function getIsSet() { return (string != null && string.length != 0) || (host != null && host.length != 0) || (path != null && path.length != 0); }
+		private function getIsSet() return
+		 	(string.notNull() && string.length.not0()) ||
+		 	(  host.notNull() &&   host.length.not0()) ||
+		 	(  path.notNull() &&   path.length.not0())
 	
 	public function new() {
 		port = -1;
@@ -142,11 +149,11 @@ class URI
 	
 	public function toString()
 	{
-		if (this.string != null) return this.string;
+		if (this.string.notNull()) return this.string;
 		
 		var s:StringBuf = new StringBuf();
 		
-		if (scheme != null) switch (scheme)
+		if (scheme.notNull()) switch (scheme)
 		{
 			case mailto: s.add("mailto:");
 			
@@ -158,26 +165,26 @@ class URI
 				s.add("://");
 		}
 		
-		if (userinfo != null) {
+		if (userinfo.notNull()) {
 			s.add(userinfo);
 			s.addChar('@'.code);
 		}
 		
-		if (host != null)
+		if (host.notNull())
 			s.add(host);
 		
 		if (port != -1) {
 			s.addChar(':'.code);
 			s.add(Std.string(port));
 		}
-		if (path != null)
+		if (path.notNull())
 			s.add(path);
 		
-		if (query != null) {
+		if (query.notNull()) {
 			s.addChar('?'.code);
 			s.add(query);
 		}
-		if (fragment != null) {
+		if (fragment.notNull()) {
 			s.addChar('#'.code);
 			s.add(fragment);
 		}
@@ -193,7 +200,7 @@ class URI
 	
 	public function parse(str:String) : URI
 	{
-		if (str == null) return this;
+		if (!str.notNull()) return this;
 		
 		// Reset values
 		this.port = -1; this.scheme = null; this.string = this.userinfo = this.host = this.path = this.query = this.fragment = null;
@@ -258,7 +265,7 @@ class URI
 			this.port = Std.parseInt(str.substr(port_pos+1, port_end - port_pos));
 			pos = port_end;
 		}
-		else if (scheme != null)
+		else if (scheme.notNull())
 		{
 			var host_end = path_pos;
 			if (host_end == -1) {
