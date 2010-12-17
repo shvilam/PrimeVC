@@ -56,6 +56,14 @@ class FastArrayUtil
 #end
 	}
 	
+	static public inline function ofArray<T> ( array:Array<T> ) : FastArray<T>
+	{
+	#if flash10
+		return flash.Lib.vectorOfArray(array);
+	#else
+		return array;
+	#end
+	}
 	
 #if !flash10
 	public static inline function indexOf<T> ( list:FastArray<T>, item:T, ?startPos:Int = 0 ) : Int

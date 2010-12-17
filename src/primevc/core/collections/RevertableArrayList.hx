@@ -83,6 +83,11 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >
 	// EDITABLE VALUE-OBJECT METHODS
 	//
 	
+	public inline function isEmpty()
+	{
+		return this.length == 0;
+	}
+	
 	
 	public inline function beginEdit ()
 	{

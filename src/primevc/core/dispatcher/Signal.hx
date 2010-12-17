@@ -28,7 +28,7 @@
  */
 package primevc.core.dispatcher;
  import primevc.core.traits.IDisposable;
- import primevc.core.ListNode;
+  using primevc.core.ListNode;
   using primevc.utils.TypeUtil;
   using primevc.core.dispatcher.Wire;
 
@@ -70,7 +70,7 @@ class Signal <FunctionSignature> extends WireList<FunctionSignature>, implements
 		var b = this.n, count = 0;
 		
 		while (b != null) {
-			var x = ListNode.next(b);
+			var x = b.next();
 			if( b.isBoundTo(listener, handler) ) {
 				b.dispose();
 				++count;
@@ -87,7 +87,7 @@ class Signal <FunctionSignature> extends WireList<FunctionSignature>, implements
 	{
 		var b = this.n;
 		while(b != null) {
-			var x = ListNode.next(b);
+			var x = b.next();
 			b.dispose();
 			b = x;
 		}

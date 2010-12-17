@@ -27,9 +27,10 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.core.dispatcher;
- import primevc.core.ListNode;
+  using primevc.core.ListNode;
   using primevc.core.dispatcher.Wire;
   using primevc.utils.BitUtil;
+  using primevc.utils.IfUtil;
 
 /**
  * Signal with 3 arguments to send()
@@ -45,28 +46,29 @@ class Signal3 <A,B,C> extends Signal<A->B->C->Void>, implements ISender3<A,B,C>,
 	{
 		//TODO: Run benchmarks and tests if this should really be inlined...
 		
-		var b = this.n;
+		var w = this.n;
 		
-		while (b != null)
+		while (w.notNull())
 		{
-			var x = ListNode.next(b);
+			var x = w.next();
 			
-			if (b.isEnabled())
+			if (w.isEnabled())
 			{
-				Assert.that(b != x);
+				Assert.that(w != x);
+				Assert.that(w.flags != 0);
 				
-				if (b.flags.has(Wire.SEND_ONCE))
-					b.disable();
+				if (w.flags.has(Wire.SEND_ONCE))
+					w.disable();
 				
-				if (b.flags.has(Wire.VOID_HANDLER))
-				 	b.sendVoid();
+				if (w.flags.has(Wire.VOID_HANDLER))
+				 	w.sendVoid();
 				else
-					b.handler(_1,_2,_3);
+					w.handler(_1,_2,_3);
 				
-				if (b.flags.has(Wire.SEND_ONCE))
-				 	b.dispose();
+				if (w.flags.has(Wire.SEND_ONCE))
+				 	w.dispose();
 			}
-			b = x; // Next node
+			w = x; // Next node
 		}
 	}
 	

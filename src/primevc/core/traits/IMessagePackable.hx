@@ -24,53 +24,22 @@
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Danny Wilson	<danny @ onlinetouch.nl>
  */
-package primevc.avm2.events;
- import flash.events.IEventDispatcher;
- import flash.events.ProgressEvent;
- import primevc.core.dispatcher.IWireWatcher;
- import primevc.core.dispatcher.Signal2;
- import primevc.core.dispatcher.Wire;
- import primevc.core.ListNode;
- import primevc.core.events.CommunicationEvents;		// needed for ProgressHandler typedef
-
-
+package primevc.core.traits;
+ import haxe.io.BytesOutput;
 
 /**
- * AVM2 Loader Progress Signal implementation
+ * An object serializable to the MessagePack format.
  * 
- * Parameter 1: loaded bytes
- * Parameter 2: total bytes
- * 
- * @author Ruben Weijers
- * @creation-date Jul 31, 2010
+ * @author Danny Wilson
+ * @creation-date Dec 13, 2010
  */
-class ProgressSignal extends Signal2<UInt, UInt>, implements IWireWatcher < ProgressHandler > 
+interface IMessagePackable
 {
-	var eventDispatcher:IEventDispatcher;
-	var event:String;
-
-
-	public function new (d:IEventDispatcher, e:String)
-	{
-		super();
-		this.eventDispatcher = d;
-		this.event = e;
-	}
-
-	public function wireEnabled (wire:Wire<ProgressHandler>) : Void {
-		Assert.that(n != null);
-		if (ListUtil.next(n) == null) // First wire connected
-			eventDispatcher.addEventListener(event, dispatch);
-	}
-
-	public function wireDisabled	(wire:Wire<ProgressHandler>) : Void {
-		if (n == null) // No more wires connected
-			eventDispatcher.removeEventListener(event, dispatch);
-	}
-
-	private function dispatch(e:ProgressEvent) {
-		send(e.bytesLoaded, e.bytesTotal);
-	}
+	/**
+	 * Serialize this object.
+	 * @return Bytes written to Output stream.
+	 */
+	public function messagePack(o : BytesOutput) : Int;
 }

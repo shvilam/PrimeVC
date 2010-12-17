@@ -29,6 +29,6 @@
 package ;
 
 
-#if js
+#if (neko || js)
 typedef UInt = Int;
 #end

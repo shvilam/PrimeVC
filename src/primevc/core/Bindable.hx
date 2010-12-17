@@ -32,6 +32,7 @@ package primevc.core;
  import primevc.core.dispatcher.Signal2;
  import primevc.core.traits.IClonable;
  import haxe.FastList;
+  using primevc.utils.IfUtil;
 
 
 /**
@@ -120,6 +121,12 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 	}
 	
 	
+	public inline function isEmpty () : Bool
+	{
+		return (untyped this).value == null;
+	}
+	
+	
 	public function clone ()
 	{
 		return new Bindable<DataType>(value);
@@ -175,10 +182,11 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 	
 	private inline function registerBoundTo(otherBindable)
 	{
-		if (boundTo == null)
-			boundTo = new FastList<IBindableReadonly<DataType>>();
+		var b = this.boundTo;
+		if (!b.notNull())
+			b = this.boundTo = new FastList<IBindableReadonly<DataType>>();
 		
-		addToBoundList(boundTo, otherBindable);
+		addToBoundList(b, otherBindable);
 	}
 	
 	
@@ -188,11 +196,11 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 		
 		// Only bind if not already bound.
 		var n = list.head;
-		while (n != null)
+		while (n.notNull())
 		 	if (n.elt == otherBindable) { list = null; break; } // already bound, skip add()
 			else n = n.next;
 		
-		if (list != null)
+		if (list.notNull())
 			list.add(otherBindable);
 	}
 	
@@ -208,10 +216,11 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 		otherBindable.value = this.value;
 		untyped otherBindable.registerBoundTo(this);
 		
-		if (writeTo == null)
-			writeTo = new FastList<IBindable<DataType>>();
+		var w = this.writeTo;
+		if (!w.notNull())
+			w = this.writeTo = new FastList<IBindable<DataType>>();
 		
-		addToBoundList(writeTo, otherBindable);
+		addToBoundList(w, otherBindable);
 	}
 	
 	
@@ -242,9 +251,9 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 	
 		
 		var removed = false;
-		if (boundTo != null)
+		if (boundTo.notNull())
 		 	removed = this.boundTo.remove(otherBindable);
-		if (writeTo != null)
+		if (writeTo.notNull())
 		 	removed = this.writeTo.remove(cast otherBindable) || removed;
 		if (removed)
 			otherBindable.unbind(this);
@@ -273,7 +282,7 @@ class BindableTools
 		if (list != null)
 		{
 			var n = list.head;
-			while (n != null) {
+			while (n.notNull()) {
 				n.elt.value = newValue;
 				n = n.next;
 			}
