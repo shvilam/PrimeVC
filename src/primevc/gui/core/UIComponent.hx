@@ -156,7 +156,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	override public function dispose ()
 	{
-		if (state == null)
+		if (isDisposed())
 			return;
 		
 		//Change the state to disposed before the behaviours are removed.
@@ -191,6 +191,13 @@ class UIComponent extends Sprite, implements IUIComponent
 		
 		super.dispose();
 	}
+	
+	
+	public inline function isDisposed ()
+	{
+		return state == null || state.is(state.disposed);
+	}
+	
 	
 	
 	//

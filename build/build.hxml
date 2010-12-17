@@ -16,6 +16,7 @@
 
 #-main primevc.Main
 
+-cp libs/apparat
 -cp libs/haxe
 -cp libs/hiresStats
 -cp libs/macmousewheel

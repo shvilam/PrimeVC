@@ -124,11 +124,10 @@ class Assert
 	static inline public function notNull( var1:Dynamic, msg:String = "", ?pos:haxe.PosInfos)
 	{
 		#if debug
-		if (var1 == null) {
+		if (var1 == null)
+		{
 			trace(pos.className + "::" + pos.lineNumber+": "+var1+" should not be null");
-			throw #if flash9 new Error( #end
-			"Assertion failed: " + var1 + " == null; msg: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber
-			#if flash9 ) #end;
+			throw "Assertion failed: " + var1 + " should not be null; msg: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber;
 		}
 	//	else
 	//		trace(pos.className + "::" + pos.lineNumber+": "+var1+" != "+var2);

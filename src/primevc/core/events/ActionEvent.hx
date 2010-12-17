@@ -24,41 +24,40 @@
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.dispatcher;
- import primevc.core.traits.IDisposable;
- import primevc.utils.TypeUtil;
+package primevc.core.events;
+ import primevc.core.dispatcher.Signal0;
+ import primevc.core.dispatcher.Signals;
+
 
 /**
- * A group of signal dispatchers.
+ * Events for starting, canceling and applying an action.
  * 
- * @author Danny Wilson
- * @creation-date jun 10, 2010
+ * @author Ruben Weijers
+ * @creation-date Dec 14, 2010
  */
-class Signals implements IUnbindable<Dynamic>, implements IDisposable, implements haxe.Public
+class ActionEvent extends Signals
 {
-	public function dispose()
+	public var begin	(default, null)	: Signal0;
+	public var cancel	(default, null)	: Signal0;
+	public var apply	(default, null)	: Signal0;
+	
+	
+	public function new ()
 	{
-		var f, R = Reflect, T = Type;
-		
-		var fields = T.getInstanceFields(T.getClass(this));
-		for(field in fields) {
-			f = R.field(this, field);
-			if (TypeUtil.is(f, IDisposable))
-				f.dispose();
-		}
+		begin	= new Signal0();
+		cancel	= new Signal0();
+		apply	= new Signal0();
 	}
 	
-	public function unbind( listener : Dynamic, ?handler : Dynamic ) : Int
+	
+	override public function dispose ()
 	{
-		var f, count = 0, R = Reflect, T = Type;
+		begin.dispose();
+		cancel.dispose();
+		apply.dispose();
 		
-		for(field in T.getInstanceFields(T.getClass(this))) {
-			f = R.field(this, field);
-			if (TypeUtil.is(f, IUnbindable))
-				count += f.unbind(listener, handler);
-		}
-		return count;
+		begin = cancel = apply = null;
 	}
 }

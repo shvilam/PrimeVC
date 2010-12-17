@@ -1,4 +1,5 @@
 package primevc.mvc;
+  using primevc.utils.BitUtil;
 
 
 
@@ -9,35 +10,38 @@ package primevc.mvc;
  * @author Ruben Weijers
  * @creation-date Nov 16, 2010
  */
-class Listener <EventsTypedef, ModelTypedef, ViewTypeDef> extends Notifier <EventsTypedef>
+class Listener <EventsTypeDef, ModelTypeDef, ViewTypeDef> extends Notifier <EventsTypeDef>
 {
 	//TODO: Ask Nicolas why the %$@#! you can't have typedefs as type constraint parameters...
-
-	private var facade	: { var events (default,null):EventsTypedef; var model (default,null):ModelTypedef; var view (default,null):ViewTypeDef; };
-	public var model	(default, null)		: ModelTypedef;
+	
+	public var model	(default, null)		: ModelTypeDef;
 	public var view		(default, null)		: ViewTypeDef;
 	
 	
-	public function new (dependencies :{ var events (default,null):EventsTypedef; var model (default,null):ModelTypedef; var view (default,null):ViewTypeDef; })
+	public function new (events:EventsTypeDef, model:ModelTypeDef, view:ViewTypeDef)
 	{
-		Assert.that(dependencies != null);
-		super( dependencies.events );
+		super( events );
 		
-		facade	= dependencies;
-		model	= dependencies.model;
-		view	= dependencies.view;
+		this.model	= model;
+		this.view	= view;
 		
 		Assert.notNull(model, "Model cannot be null for "+this);
 		Assert.notNull(view, "View cannot be null for "+this);
 	}
 	
 	
+	public function startListening () : Void		{ if (!isListening())	state = state.set( MVCState.LISTENING ); }
+	public function stopListening () : Void			{ if (isListening())	state = state.unset( MVCState.LISTENING ); }
+	private inline function isListening () : Bool	{ return state.has( MVCState.LISTENING ); }
+	
+	
 	override public function dispose()
 	{
-		if (events == null)
-			return; // already disposed
+		if (isDisposed())
+			return;
 		
-		facade	= null;
+		stopListening();
+		
 		model	= null;
 		view	= null;
 		super.dispose();

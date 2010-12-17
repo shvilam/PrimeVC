@@ -114,7 +114,7 @@ class UIDataComponent <DataType:IValueObject> extends UIComponent, implements IU
 	{
 		if (v != data)
 		{
-			if (data != null && window != null)
+			if (data != null)// && window != null)
 				removeData();
 			
 			data = v;

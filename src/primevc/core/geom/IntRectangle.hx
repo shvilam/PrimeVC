@@ -88,8 +88,8 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	public function move (newX:Int, newY:Int) : Void
 	{
 		invalidatable = false;
-		top = newX;
-		left = newY;
+		top		= newX;
+		left	= newY;
 		invalidatable = true;
 	}
 	

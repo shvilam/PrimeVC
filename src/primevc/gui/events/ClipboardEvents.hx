@@ -24,41 +24,31 @@
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.dispatcher;
- import primevc.core.traits.IDisposable;
- import primevc.utils.TypeUtil;
+package primevc.gui.events;
+ import primevc.core.dispatcher.Signals;
+ import primevc.core.dispatcher.Signal0;
+
+
+typedef ClipboardEvents = 
+	#if		flash10	primevc.avm2.events.ClipboardEvents;
+	#elseif flash9	error
+	#elseif	flash8	primevc.avm1.events.ClipboardEvents;
+	#elseif	js		primevc.js  .events.ClipboardEvents;
+	#else	error	#end
+
 
 /**
- * A group of signal dispatchers.
+ * Signals that are fired when the hot-keys for copy, cut and paste on the
+ * platform of the user are pressed.
  * 
- * @author Danny Wilson
- * @creation-date jun 10, 2010
+ * @author Ruben Weijers
+ * @creation-date Dec 12, 2010
  */
-class Signals implements IUnbindable<Dynamic>, implements IDisposable, implements haxe.Public
+class ClipboardSignals extends Signals
 {
-	public function dispose()
-	{
-		var f, R = Reflect, T = Type;
-		
-		var fields = T.getInstanceFields(T.getClass(this));
-		for(field in fields) {
-			f = R.field(this, field);
-			if (TypeUtil.is(f, IDisposable))
-				f.dispose();
-		}
-	}
-	
-	public function unbind( listener : Dynamic, ?handler : Dynamic ) : Int
-	{
-		var f, count = 0, R = Reflect, T = Type;
-		
-		for(field in T.getInstanceFields(T.getClass(this))) {
-			f = R.field(this, field);
-			if (TypeUtil.is(f, IUnbindable))
-				count += f.unbind(listener, handler);
-		}
-		return count;
-	}
+	public var cut		(default, null) : Signal0;
+	public var copy		(default, null) : Signal0;
+	public var paste	(default, null) : Signal0;
 }

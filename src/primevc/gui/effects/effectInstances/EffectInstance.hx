@@ -35,6 +35,7 @@ package primevc.gui.effects.effectInstances;
  import primevc.gui.effects.EffectProperties;
  import primevc.gui.effects.IEffect;
  import primevc.gui.states.EffectStates;
+  using primevc.utils.NumberMath;
   using primevc.utils.TypeUtil;
 
 
@@ -186,7 +187,7 @@ class EffectInstance < TargetType, PropertiesType:IEffect >
 		{
 			//calculate tween duration
 			var valDiff:Float			= startPos > endPos ? startPos - endPos : endPos - startPos;
-			var calcDuration:Int		= Math.round( effect.duration * valDiff );
+			var calcDuration:Int		= ( effect.duration * valDiff ).roundFloat();
 #if debug
 			if (slowMotion)			calcDuration *= 10;
 #end

@@ -29,6 +29,7 @@
 package primevc.mvc;
  import primevc.core.traits.IEditableValueObject;
  import primevc.core.traits.IEditEnabledValueObject;
+  using primevc.utils.BitUtil;
 
 
 /**
@@ -38,23 +39,25 @@ package primevc.mvc;
  * @creation-date Jul 09, 2010
  */
 class EditableProxy	< VOType:IEditableValueObject, EditEnabledVOType:IEditEnabledValueObject, EventsTypedef >
- 	extends Proxy <VOType, EventsTypedef>
+ 		extends Proxy <VOType, EventsTypedef>
+	,	implements IEditableProxy < EditEnabledVOType >
 {
-	public var enabled (default, null)	: Bool;
-	
-	
 	public function new( events:EventsTypedef, enabled = true )
 	{
 		super(events);
-		this.enabled = enabled;
+		if (enabled)
+			enable();
+		else
+			disable();
 	}
 	
 	
 	public function beginEdit() : EditEnabledVOType
 	{
-		if (!enabled)
+		if (!isEnabled())
 			return null;
 		
+		state = state.set( MVCState.EDITING );
 		vo.beginEdit();
 		return cast vo;
 	}
@@ -62,26 +65,24 @@ class EditableProxy	< VOType:IEditableValueObject, EditEnabledVOType:IEditEnable
 	
 	public function commitEdit() : Void
 	{
-		if (enabled)
+		if (isEditing())
+		{
 			vo.commitEdit();
+			state = state.unset( MVCState.EDITING );
+		}
 	}
 	
 	
 	public function cancelEdit() : Void
 	{
-		vo.cancelEdit();
+		if (isEditing())
+		{
+			vo.cancelEdit();
+			state = state.unset( MVCState.EDITING );
+		}
 	}
 	
 	
-	public function enable ()
-	{
-		enabled = true;
-	}
-	
-	
-	public function disable ()
-	{
-		enabled = false;
-		cancelEdit();
-	}
+	public inline function isEditing ()	{ return state.has( MVCState.EDITING ); }
+	override public function disable ()	{ cancelEdit(); super.disable(); }
 }

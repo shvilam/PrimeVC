@@ -1,9 +1,10 @@
 package primevc.mvc;
  import primevc.core.traits.IDisposable;
+  using primevc.utils.BitUtil;
 
 
 /**
- * Base class for commands, mediators and proxy's. It defines that the objects
+ * Base class for controllers, mediators and proxy's. It defines that the objects
  * can send events.
  * 
  * @author Ruben Weijers
@@ -11,22 +12,29 @@ package primevc.mvc;
  */
 class Notifier < EventsTypedef > implements IDisposable
 {
+	public var state	(default, null)	: Int;
 	public var events	(default, null)	: EventsTypedef;
 	
 	
 	public function new( events:EventsTypedef )
 	{
 		Assert.notNull(events, "Events cannot be null");
-		this.events = events;
+		state		= 0;
+		this.events	= events;
 	}
 	
 	
 	public function dispose ()
 	{
-		if (events == null)
+		if (isDisposed())
 			return;
 		
-	//	events.unbind(this);
 		events	= null;
+	}
+	
+	
+	private inline function isDisposed ()
+	{
+		return state.has( MVCState.DISPOSED );
 	}
 }

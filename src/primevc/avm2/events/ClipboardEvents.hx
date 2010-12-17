@@ -24,41 +24,26 @@
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.dispatcher;
- import primevc.core.traits.IDisposable;
- import primevc.utils.TypeUtil;
+package primevc.avm2.events;
+ import flash.events.Event;
+ import primevc.gui.events.ClipboardEvents;
+
 
 /**
- * A group of signal dispatchers.
+ * AVM2 implementation of events that are triggered when the platform's hotkeys
+ * for copy, cut or paste are pressed.
  * 
- * @author Danny Wilson
- * @creation-date jun 10, 2010
+ * @author Ruben Weijers
+ * @creation-date Dec 12, 2010
  */
-class Signals implements IUnbindable<Dynamic>, implements IDisposable, implements haxe.Public
+class ClipboardEvents extends ClipboardSignals
 {
-	public function dispose()
+	public function new (eventDispatcher)
 	{
-		var f, R = Reflect, T = Type;
-		
-		var fields = T.getInstanceFields(T.getClass(this));
-		for(field in fields) {
-			f = R.field(this, field);
-			if (TypeUtil.is(f, IDisposable))
-				f.dispose();
-		}
-	}
-	
-	public function unbind( listener : Dynamic, ?handler : Dynamic ) : Int
-	{
-		var f, count = 0, R = Reflect, T = Type;
-		
-		for(field in T.getInstanceFields(T.getClass(this))) {
-			f = R.field(this, field);
-			if (TypeUtil.is(f, IUnbindable))
-				count += f.unbind(listener, handler);
-		}
-		return count;
+		cut		= new FlashSignal0 (eventDispatcher, Event.CUT );
+		copy	= new FlashSignal0 (eventDispatcher, Event.COPY );
+		paste	= new FlashSignal0 (eventDispatcher, Event.PASTE );
 	}
 }

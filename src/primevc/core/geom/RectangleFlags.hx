@@ -48,6 +48,7 @@ class RectangleFlags
 	public static inline var CENTERX	: UInt = 64;
 	public static inline var RIGHT		: UInt = 128;
 	
+	public static inline var SIZE		: UInt = WIDTH | HEIGHT;
 	public static inline var HORIZONTAL	: UInt = LEFT | RIGHT | CENTERX;
 	public static inline var VERTICAL	: UInt = TOP | BOTTOM | CENTERY;
 	public static inline var ALL		: UInt = HORIZONTAL | VERTICAL;

@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms.circle;
+ import apparat.math.FastMath;
  import primevc.core.geom.space.Horizontal;
  import primevc.core.geom.space.Vertical;
  import primevc.core.geom.IRectangle;
@@ -36,6 +37,7 @@ package primevc.gui.layout.algorithms.circle;
  import primevc.utils.NumberMath;
   using primevc.utils.Formulas;
   using primevc.utils.NumberUtil;
+  using primevc.utils.NumberMath;
  
 
 /**
@@ -59,7 +61,7 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 	public function new ( ?direction:Horizontal, ?vertical:Vertical = null, ?isEllipse:Bool = true )
 	{
 		super(direction, vertical);
-		this.isEllipse	= isEllipse;
+		this.isEllipse = isEllipse;
 	}
 	
 	
@@ -84,7 +86,7 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 	 */
 	public inline function validateHorizontal ()
 	{
-		var width:Int = group.width.value;
+	//	var width:Int = group.width.value;
 	/*	if (group.childWidth.notSet())
 		{
 			for (child in group.children)
@@ -96,7 +98,7 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 			width = group.childWidth * (group.children.length.divCeil(2) + 1);
 		}
 		*/
-		setGroupWidth(width);
+		setGroupWidth(group.width.value);
 	}
 	
 	
@@ -127,8 +129,8 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 					continue;
 				
 				angle	= (childAngle * i) + startRadians;
-				pos		= start + Std.int( radius * Math.cos(angle) );
-				var halfChildWidth	= Std.int( child.outerBounds.width * .5 );
+				pos		= start + ( radius * FastMath.cos(angle) ).roundFloat();
+				var halfChildWidth	= ( child.outerBounds.width * .5 ).roundFloat();
 				var doCenter		= pos.isWithin( radius - halfChildWidth, radius + halfChildWidth );
 				
 				if		(doCenter)				child.outerBounds.centerX	= pos;
@@ -140,25 +142,25 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 	}
 	
 	
-	private inline function applyLeftToRight ()	: Void		{ applyCircle( 0 ); }				//   0 degrees
-	private inline function applyCentered ()	: Void		{ applyCircle( -Math.PI / 2 ); }	//- 90 degrees
-	private inline function applyRightToLeft () : Void		{ applyCircle( -Math.PI ); }		//-180 degrees
+	private inline function applyLeftToRight ()	: Void		{ applyCircle( 0 ); }					//   0 degrees
+	private inline function applyCentered ()	: Void		{ applyCircle( -FastMath.HALVE_PI ); }	//- 90 degrees
+	private inline function applyRightToLeft () : Void		{ applyCircle( -FastMath.PI ); }		//-180 degrees
 	
 	
 	public inline function getDepthForBounds (bounds:IRectangle)
 	{
 		var childAngle		= (360 / group.children.length).degreesToRadians();
-		var posX:Float		= IntMath.max(0, bounds.left - getLeftStartValue()) - getRadius();
 		var radius:Float	= getRadius();
+		var posX:Float		= IntMath.max(0, bounds.left - getLeftStartValue()) - radius;
 		var startRadians	= switch (direction) {
 			case Horizontal.left:		0;
-			case Horizontal.center:		-Math.PI / 2;
-			case Horizontal.right:		-Math.PI;
+			case Horizontal.center:		-FastMath.HALVE_PI;
+			case Horizontal.right:		-FastMath.PI;
 		}
 		
 		//the formula of applyCircle reversed..
-		var itemRadians = Math.acos(posX / radius) - startRadians;
-		return Std.int( Math.round( itemRadians / childAngle ) );
+		var itemRadians = FastMath.acos(posX / radius) - startRadians;
+		return ( itemRadians / childAngle ).roundFloat();
 	}
 	
 	
@@ -169,7 +171,7 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 
 
 	private inline function getRadius () : Int {
-		return isEllipse ? Std.int( group.width.value * .5 ) : Std.int( Math.round( Formulas.getCircleRadius(group.width.value, group.height.value) ) );
+		return ( isEllipse ? group.width.value * .5 : Formulas.getCircleRadius(group.width.value, group.height.value) ).roundFloat();
 	}
 	
 #if (neko || debug)

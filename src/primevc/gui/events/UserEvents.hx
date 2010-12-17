@@ -37,6 +37,7 @@ typedef UserEvents =
 	#elseif neko	primevc.neko.events.UserEvents;
 	#else	error	#end
 
+
 /**
  * Cross-platform user-interface events.
  * 
@@ -45,8 +46,24 @@ typedef UserEvents =
  */
 class UserSignals extends Signals, implements haxe.Public
 {
-	var mouse	(default,null) : MouseEvents;
-	var key		(default,null) : KeyboardEvents;
-	var focus	(default,null) : INotifier<Void->Void>;
-	var blur	(default,null) : INotifier<Void->Void>;
+	var mouse		(default,null) : MouseEvents;
+	var key			(default,null) : KeyboardEvents;
+	var focus		(default,null) : INotifier<Void->Void>;
+	var blur		(default,null) : INotifier<Void->Void>;
+	var clipboard	(default,null) : ClipboardEvents;
+	
+	
+	override public function dispose ()
+	{
+		mouse		.dispose();
+		key			.dispose();
+		focus		.dispose();
+		blur		.dispose();
+		clipboard	.dispose();
+		
+		clipboard = null;
+		mouse = null;
+		key = null;
+		blur = focus = null;
+	}
 }

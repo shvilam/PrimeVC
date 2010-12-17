@@ -31,6 +31,7 @@ package primevc.gui.effects.effectInstances;
  import primevc.gui.effects.MoveEffect;
  import primevc.gui.traits.IPositionable;
  import primevc.types.Number;
+ import primevc.utils.NumberMath;
   using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
 
@@ -114,7 +115,7 @@ class MoveEffectInstance extends EffectInstance < IPositionable, MoveEffect >
 		return if (!isXChanged() && !isYChanged())	1;
 		  else if (!isYChanged())					(target.x - startX) / (endX - startX);
 		  else if (!isXChanged())					(target.y - startY) / (endY - startY);
-		  else										Math.min(
+		  else										FloatMath.min(
 				(target.x - startX) / (endX - startX),
 				(target.y - startY) / (endY - startY)
 			);

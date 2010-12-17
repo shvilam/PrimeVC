@@ -45,14 +45,15 @@ package primevc.mvc.core;
  * @author Danny Wilson
  * @creation-date Jun 22, 2010
  */
-class Facade < EventsType:MVCEvents, ModelsType:IModel, ViewsType:IView > implements primevc.core.traits.IDisposable, implements haxe.rtti.Generic
+class Facade < EventsType:MVCEvents, ModelType:IModel, ViewType:IView, ControllerType:IController > implements primevc.core.traits.IDisposable, implements haxe.rtti.Generic
 {
-	public var events	(default,null) : EventsType;
-	public var model	(default,null) : ModelsType;
-	public var view		(default,null) : ViewsType;
+	public var events		(default, null)	: EventsType;
+	public var model		(default, null)	: ModelType;
+	public var view			(default, null)	: ViewType;
+	public var controller	(default, null)	: ControllerType;
 	
 	
-	function new ()
+	private function new ()
 	{	
 		setupEvents();
 		Assert.notNull( events, "Events-collection can't be empty.");
@@ -63,8 +64,11 @@ class Facade < EventsType:MVCEvents, ModelsType:IModel, ViewsType:IView > implem
 		setupView();
 		Assert.notNull(view, "Mediator-collection can't be empty.");
 		
+		setupController();
+		Assert.notNull(controller, "Controller-collection can't be empty.");
+		
 		model.init();
-		setupCommands();
+		controller.init();
 		view.init();
 		
 		events.started.send();
@@ -73,12 +77,18 @@ class Facade < EventsType:MVCEvents, ModelsType:IModel, ViewsType:IView > implem
 	
 	public function dispose()
 	{
-		if (events == null) return; // already disposed
+		if (events == null)
+			return; // already disposed
 		
 		events.dispose();
-		view   = null;
-		model  = null;
-		events = null;
+		model.dispose();
+		controller.dispose();
+		view.dispose();
+		
+		controller	= null;
+		view		= null;
+		model		= null;
+		events		= null;
 	}
 	
 	/**
@@ -94,7 +104,7 @@ class Facade < EventsType:MVCEvents, ModelsType:IModel, ViewsType:IView > implem
 	/**
 	 * Must map the event handlers, and setup behaviours/commands for this (sub)system.
 	 */
-	function setupCommands()	{ Assert.abstract(); }
+	function setupController()	{ Assert.abstract(); }
 	
 	/**
 	 * Must instantiate the View for this (sub)system.

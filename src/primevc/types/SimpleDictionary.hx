@@ -28,6 +28,7 @@
  */
 package primevc.types;
  import primevc.core.collections.iterators.FastArrayForwardIterator;
+ import primevc.core.traits.IClonable;
  import primevc.core.traits.IDisposable;
 #if neko
  import primevc.tools.generator.ICodeFormattable;
@@ -49,6 +50,7 @@ package primevc.types;
  */
 class SimpleDictionary < KType, VType > 
 				implements IDisposable
+			,	implements IClonable<SimpleDictionary<KType, VType>>
 			,	implements haxe.rtti.Generic
 #if neko	,	implements ICodeFormattable		#end
 {
@@ -76,6 +78,16 @@ class SimpleDictionary < KType, VType >
 		removeAll();
 		_keys	= null;
 		_values	= null;
+	}
+	
+	
+	public function clone ()
+	{
+		var inst = new SimpleDictionary<KType, VType>();
+		for (i in 0...length)
+			inst.set( _keys[i], _values[i] );
+		
+		return inst;
 	}
 	
 	
@@ -139,7 +151,7 @@ class SimpleDictionary < KType, VType >
 
 #if debug
 	public function toString ()		: String	{ return keysToString(); }
-	public function keysToString () : String	{ return _keys.join(", "); }
+	public function keysToString () : String	{ return "keys: [ " +_keys.join(", ") + " ]"; }
 #end
 
 #if neko

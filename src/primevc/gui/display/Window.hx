@@ -32,6 +32,7 @@ package primevc.gui.display;
  import primevc.gui.events.UserEvents;
  import primevc.gui.input.Mouse;
  import primevc.gui.traits.IInteractive;
+  using primevc.utils.Bind;
 #end
 
 
@@ -132,6 +133,7 @@ class Window
 	{
 		target.invalidate();
 		displayEvents.render.send();
+		target.focus = target;
 	}
 	
 	

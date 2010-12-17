@@ -24,41 +24,20 @@
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.dispatcher;
- import primevc.core.traits.IDisposable;
- import primevc.utils.TypeUtil;
+package primevc.mvc;
+ import primevc.core.traits.IEditEnabledValueObject;
+
 
 /**
- * A group of signal dispatchers.
- * 
- * @author Danny Wilson
- * @creation-date jun 10, 2010
+ * @author Ruben Weijers
+ * @creation-date Dec 14, 2010
  */
-class Signals implements IUnbindable<Dynamic>, implements IDisposable, implements haxe.Public
+interface IEditableProxy < EditableVOType:IEditEnabledValueObject > 
 {
-	public function dispose()
-	{
-		var f, R = Reflect, T = Type;
-		
-		var fields = T.getInstanceFields(T.getClass(this));
-		for(field in fields) {
-			f = R.field(this, field);
-			if (TypeUtil.is(f, IDisposable))
-				f.dispose();
-		}
-	}
-	
-	public function unbind( listener : Dynamic, ?handler : Dynamic ) : Int
-	{
-		var f, count = 0, R = Reflect, T = Type;
-		
-		for(field in T.getInstanceFields(T.getClass(this))) {
-			f = R.field(this, field);
-			if (TypeUtil.is(f, IUnbindable))
-				count += f.unbind(listener, handler);
-		}
-		return count;
-	}
+	public function beginEdit ()	: EditableVOType;
+	public function commitEdit ()	: Void;
+	public function cancelEdit ()	: Void;
+	public function isEditing ()	: Bool;
 }

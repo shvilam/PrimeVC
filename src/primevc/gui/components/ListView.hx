@@ -106,15 +106,12 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	}
 	
 	
-	private function getItemRendererFor ( item:ListDataType )
+	public function getItemRendererFor ( item:ListDataType )
 	{
-		for (child in children) {
+		for (child in children)
 			if (child.is( ItemRenderer ))
-			{
 				if (item == cast child.as( ItemRenderer ).data )
 					return child;
-			}
-		}
 		
 		return null;
 	}

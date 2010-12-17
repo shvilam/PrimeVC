@@ -124,7 +124,7 @@ class TextField extends flash.text.TextField, implements ITextField
 			data = v;
 			if (data != null && window != null)
 				setHandlers();
-			else
+			else if (displayEvents != null)
 				setHandlers.onceOn( displayEvents.addedToStage, this );
 		}
 		return v;
@@ -140,16 +140,17 @@ class TextField extends flash.text.TextField, implements ITextField
 			container.children.remove(this);
 		
 		var d = data;
+		data  = null;
+		
 		displayEvents.dispose();
 		textEvents.dispose();
 		userEvents.dispose();
 		rect.dispose();
 		
-		data			= null;
-		textStyle		= null;
 		displayEvents	= null;
 		textEvents		= null;
 		userEvents		= null;
+		textStyle		= null;
 		container		= null;
 		window			= null;
 		rect			= null;

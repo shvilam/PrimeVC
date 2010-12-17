@@ -83,6 +83,7 @@ class BitUtil
 	{
 		//is faster and better predictable than the commented code since there's one if statement less (6 ms faster on 7.000.000 iterations)
 		return bits &= 0xffffffff ^ flag; // has(bits, flag) ? bits ^= flag : bits;
+		//or what about (bits & -flag)
 	}
 	
 	
@@ -92,5 +93,23 @@ class BitUtil
 	public static inline function filter (bits:UInt, allowedBits:UInt) : UInt
 	{
 		return bits & allowedBits;
+	}
+	
+	
+	/**
+	 * method will return bits with the flags in bitsToFlip flipped
+	 */
+	public static inline function flip (bits:UInt, bitsToFlip:UInt) : UInt
+	{
+		return bits ^ bitsToFlip;
+	}
+	
+	
+	/**
+	 * Method will change all 1's to 0's and 0's to 1's
+	 */
+	public static inline function invert (bits:UInt) : UInt
+	{
+		return bits ^ 0xffffffff;
 	}
 }

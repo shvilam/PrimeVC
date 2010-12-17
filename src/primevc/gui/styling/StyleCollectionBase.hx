@@ -73,6 +73,7 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	 * Since this operation happens quite frequent, the iterator is cached.
 	 */
 	private var groupIterator		: StyleCollectionForwardIterator < StyleGroupType >;
+	private var groupRevIterator	: StyleCollectionReversedIterator < StyleGroupType >;
 	private var changes				: UInt;
 	
 	
@@ -84,6 +85,7 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 		this.propertyTypeFlag	= propertyTypeFlag;
 		filledProperties		= 0;
 		groupIterator			= forwardIterator();
+		groupRevIterator		= reversedIterator();
 	}
 	
 	
@@ -91,10 +93,12 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	{
 	//	change.dispose();
 		groupIterator.dispose();
+		groupRevIterator.dispose();
 		
-		groupIterator	= null;
-		elementStyle	= null;
-	//	change			= null;
+		groupRevIterator	= null;
+		groupIterator		= null;
+		elementStyle		= null;
+	//	change				= null;
 	}
 	
 	
@@ -112,7 +116,7 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 		
 		//loop through every stylegroup that has the defined StyleGroupType
 		if (elementStyle.styles.length > 0)
-			for ( styleGroup in groupIterator )
+			for (styleGroup in groupIterator)
 				if (styleGroup != excludedStyle)
 					filledProperties = filledProperties.set( styleGroup.allFilledProperties );
 	}
@@ -128,10 +132,10 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	
 	public function add ( style:StyleGroupType )
 	{
+		Assert.notNull(style);
 		style.listeners.add( this );
 		changes				= changes.set( getRealChangesOf( style, style.allFilledProperties ) );
 		filledProperties	= filledProperties.set( changes );
-	//	trace("\t"+this+".styleAdded; " + readProperties(filledProperties));
 	}
 	
 	
@@ -144,7 +148,6 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 			changes = changes.set( getRealChangesOf( style, style.allFilledProperties ) );
 		else
 			changes = changes.set( style.allFilledProperties );
-	//	trace("\t"+this+".styleRemoved; " + readProperties(filledProperties)+"; changes: "+readProperties(changes));
 	}
 	
 	
@@ -178,19 +181,21 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 		if (elementStyle.styles.length > 0)
 		{
 			var styleCell:CellType = null;
-			var iterator = reversedIterator();
+			var iterator = groupRevIterator;
+			
+			iterator.rewind();
 			while( iterator.hasNext() )
 			{
-				var curCell = iterator.currentCell;
+				var cell = iterator.currentCell;
 				if (iterator.next() == styleGroup) {
-					styleCell = curCell;
+					styleCell = cell;
 					break;
-				}	
+				}
 			}
-		
-			Assert.notNull( styleCell );
+			
+			Assert.that( styleCell != null );
 			iterator.setCurrent( cast styleCell.prev );
-		
+			
 			for (styleGroup in iterator)
 			{
 				styleChanges = styleChanges.unset( styleGroup.allFilledProperties );

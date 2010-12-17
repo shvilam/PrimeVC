@@ -47,24 +47,17 @@ class Mediator <EventsTypedef, ModelTypedef, ViewTypeDef, ViewComponentType> ext
 	public var viewComponent (default, setViewComponent)	: ViewComponentType;
 	
 	
-	public function new (dependencies :{ var events (default,null):EventsTypedef; var model (default,null):ModelTypedef; var view (default,null):ViewTypeDef; }, viewComponent:ViewComponentType = null)
+	public function new (events:EventsTypedef, model:ModelTypedef, view:ViewTypeDef, viewComponent:ViewComponentType = null)
 	{
-		super(dependencies);
-		
-		if (viewComponent != null)
-			setViewComponent( viewComponent );
-		
-		init();
+		super(events, model, view);
+		setViewComponent( viewComponent );
 	}
-	
-	
-	private function init () : Void;
 	
 	
 	override public function dispose ()
 	{
-		if (events == null)
-			return; // already disposed
+		if (isDisposed())
+			return;
 		
 		viewComponent = null;
 		super.dispose();
@@ -73,6 +66,17 @@ class Mediator <EventsTypedef, ModelTypedef, ViewTypeDef, ViewComponentType> ext
 	
 	private function setViewComponent (viewComponent:ViewComponentType)
 	{
-		return this.viewComponent = viewComponent;
+		if (isListening())
+		{
+			stopListening();
+			this.viewComponent = viewComponent;
+			
+			if (viewComponent != null)
+				startListening();
+		}
+		else
+			this.viewComponent = viewComponent;
+		
+		return viewComponent;
 	}
 }

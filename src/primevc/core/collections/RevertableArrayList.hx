@@ -99,9 +99,9 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >
 	public  function commitEdit ()
 	{
 		// Check if REMEMBER_CHANGES is not set (value changed) and any dispatch flag is set.
-		if (flags.has(REMEMBER_CHANGES) && flags.hasNone( Flags.DISPATCH_CHANGES_BEFORE_COMMIT ))
+		if (changes != null && flags.has(REMEMBER_CHANGES) && flags.hasNone( Flags.DISPATCH_CHANGES_BEFORE_COMMIT ))
 			while (changes.length > 0) {
-				var listChange = changes.pop();
+				var listChange = changes.shift();
 				Assert.notNull( listChange );
 				change.send( listChange );
 			}
@@ -112,9 +112,15 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >
 	
 	public inline function cancelEdit ()
 	{
-		if (flags.hasAll(Flags.IN_EDITMODE | REMEMBER_CHANGES))
+		if (changes != null && flags.hasAll( Flags.IN_EDITMODE | REMEMBER_CHANGES))
+		{
+			var f = flags;
+			flags = flags.unset( REMEMBER_CHANGES );
 			while (changes.length > 0)
 				this.undoListChange( changes.pop() );
+			
+			flags = f;
+		}
 		
 		stopEdit();
 	}

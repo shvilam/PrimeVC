@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.layout.algorithms.circle;
+ import apparat.math.FastMath;
  import primevc.core.geom.space.Horizontal;
  import primevc.core.geom.space.Vertical;
  import primevc.core.geom.IRectangle;
@@ -35,6 +36,7 @@ package primevc.gui.layout.algorithms.circle;
  import primevc.utils.Formulas;
  import primevc.utils.NumberMath;
   using primevc.utils.Formulas;
+  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
  
 
@@ -81,8 +83,8 @@ class VerticalCircleAlgorithm extends VerticalBaseAlgorithm, implements IVertica
 	
 	public inline function validateVertical ()
 	{
-		var height:Int = group.height.value;
-	/*	
+	/*	var height:Int = group.height.value;
+		
 		if (group.childHeight.notSet())
 		{
 			for (child in group.children)
@@ -94,7 +96,7 @@ class VerticalCircleAlgorithm extends VerticalBaseAlgorithm, implements IVertica
 			height = group.childHeight * (group.children.length.divCeil(2) + 1);
 		}
 		*/
-		setGroupHeight(height);
+		setGroupHeight(group.height.value);
 	}
 	
 	
@@ -118,7 +120,7 @@ class VerticalCircleAlgorithm extends VerticalBaseAlgorithm, implements IVertica
 			var radius:Int		= getRadius();
 			var i:Int			= 0;
 			var pos:Int			= 0;
-			var start			= getTopStartValue() + getRadius();
+			var start			= getTopStartValue() + radius;
 			
 			for (child in group.children)
 			{
@@ -126,9 +128,9 @@ class VerticalCircleAlgorithm extends VerticalBaseAlgorithm, implements IVertica
 					continue;
 				
 				angle	= (childAngle * i) + startRadians;
-				pos		= start + Std.int( radius * Math.sin(angle) );
+				pos		= start + ( radius * FastMath.sin(angle) ).roundFloat();
 				
-				var halfChildHeight	= Std.int( child.outerBounds.height * .5 );
+				var halfChildHeight	= ( child.outerBounds.height * .5 ).roundFloat();
 				var doCenter		= pos.isWithin( radius - halfChildHeight, radius + halfChildHeight );
 				
 				if		(doCenter)				child.outerBounds.centerY	= pos;
@@ -140,25 +142,26 @@ class VerticalCircleAlgorithm extends VerticalBaseAlgorithm, implements IVertica
 	}
 	
 	
-	private inline function applyTopToBottom ()	: Void		{ applyCircle( 0 ); }				//   0 degrees
-	private inline function applyCentered ()	: Void		{ applyCircle( -Math.PI / 2 ); }	//- 90 degrees
-	private inline function applyBottomToTop () : Void		{ applyCircle( -Math.PI ); }		//-180 degrees
+	private inline function applyTopToBottom ()	: Void		{ applyCircle( 0 ); }					//   0 degrees
+	private inline function applyCentered ()	: Void		{ applyCircle( -FastMath.HALVE_PI ); }	//- 90 degrees
+	private inline function applyBottomToTop () : Void		{ applyCircle( -FastMath.PI ); }		//-180 degrees
 	
 	
 	public inline function getDepthForBounds (bounds:IRectangle)
 	{
 		var childAngle		= (360 / group.children.length).degreesToRadians();
-		var posY:Float		= IntMath.max(0, bounds.top - getTopStartValue()) - getRadius();
 		var radius:Float	= getRadius();
+		var posY:Float		= IntMath.max(0, bounds.top - getTopStartValue()) - radius;
+		
 		var startRadians	= switch (direction) {
 			case Vertical.top:	   	0;
-			case Vertical.center:	-Math.PI / 2;
-			case Vertical.bottom:	-Math.PI;
+			case Vertical.center:	-FastMath.HALVE_PI;
+			case Vertical.bottom:	-FastMath.PI;
 		}
 		
 		//the formula of applyCircle reversed..
-		var itemRadians = Math.asin(posY / radius) - startRadians;
-		return Std.int( Math.round( itemRadians / childAngle ) );
+		var itemRadians = FastMath.asin(posY / radius) - startRadians;
+		return ( itemRadians / childAngle ).roundFloat();
 	}
 	
 	
@@ -168,9 +171,7 @@ class VerticalCircleAlgorithm extends VerticalBaseAlgorithm, implements IVertica
 	//
 	
 	private inline function getRadius () : Int {
-		return isEllipse ?
-			Std.int( group.height.value * .5 ) : 
-			Std.int( Math.round( Formulas.getCircleRadius(group.width.value, group.height.value) ) );
+		return ( isEllipse ? group.height.value * .5 : Formulas.getCircleRadius(group.width.value, group.height.value) ).roundFloat();
 	}
 	
 #if (neko || debug)

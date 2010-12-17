@@ -28,6 +28,7 @@
  */
 package primevc.mvc;
  import primevc.core.traits.IValueObject;
+  using primevc.utils.BitUtil;
 
 
 /**
@@ -43,4 +44,9 @@ package primevc.mvc;
 class Proxy < VOType : IValueObject, EventsTypedef > extends Notifier < EventsTypedef >
 {
 	public var vo		(default, null)	: VOType;
+	
+	
+	public inline function isEnabled ()	{ return state.has( MVCState.ENABLED ); }
+	public function enable ()			{ state = state.set( MVCState.ENABLED ); }
+	public function disable ()			{ state = state.unset( MVCState.ENABLED ); }
 }

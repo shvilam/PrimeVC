@@ -72,3 +72,30 @@ class TypeUtil
 	}
 #end
 }
+
+
+/**
+ * @author	Ruben Weijers
+ * @since	Dec 15, 2010
+ */
+class IntTypeUtil
+{
+	public static inline function int (v:Bool) : Int
+	{
+		return v ? 1 : 0;
+	}
+}
+
+
+
+/**
+ * @author	Ruben Weijers
+ * @since	Dec 15, 2010
+ */
+class FloatTypeUtil
+{
+	public static inline function float (v:Bool) : Float
+	{
+		return v ? 1.0 : 0.0;
+	}
+}

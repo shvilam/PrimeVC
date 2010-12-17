@@ -27,6 +27,8 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.utils;
+ import apparat.math.FastMath;
+ import primevc.utils.NumberMath;
   using primevc.utils.Formulas;
 
 
@@ -38,10 +40,6 @@ package primevc.utils;
  */
 class Formulas
 {
-	public static inline var RAD_DEGREE = 180 / Math.PI;
-	public static inline var DEGREE_RAD = Math.PI / 180;
-	
-	
 	/**
 	 * Method will return the square of the given number
 	 */
@@ -62,7 +60,7 @@ class Formulas
 	 * a2 = c2 - b2
 	 */
 	public static inline function pythagorasA (b:Float, c:Float) : Float {
-		return Math.sqrt( c.square() - b.square() );
+		return FastMath.sqrt( c.square() - b.square() );
 	}
 	
 	
@@ -78,7 +76,7 @@ class Formulas
 	 * c2 = a2 + b2
 	 */
 	public static inline function pythagorasC (a:Float, b:Float) : Float {
-		return Math.sqrt( a.square() + b.square() );
+		return FastMath.sqrt( a.square() + b.square() );
 	}
 	
 	
@@ -87,16 +85,16 @@ class Formulas
 	 * smallest value of these two will be used to calculate the circle.
 	 */
 	public static inline function getCircleRadius (width:Float, height:Float) : Float {
-		return Math.min( width * .5, height * .5 );
+		return FloatMath.min( width * .5, height * .5 );
 	}
 	
 	
 	public static inline function radiansToDegrees (radians:Float) : Float {
-		return radians * RAD_DEGREE;
+		return radians * FastMath.RAD_DEGREE;
 	}
 	
 	
 	public static inline function degreesToRadians (degrees:Float) : Float {
-		return degrees * DEGREE_RAD;
+		return degrees * FastMath.DEGREE_RAD;
 	}
 }

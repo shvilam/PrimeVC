@@ -63,7 +63,7 @@ class DragHelper implements IDisposable
 	
 	private var delay				: Int;
 	private var timer				: Timer;
-	private var lastMouseObj		: MouseState;
+	public var lastMouseObj			(default, null) : MouseState;
 	private var isDragging			: Bool;
 	
 //	private var mouseDownBinding	: Wire < Dynamic >;
@@ -115,6 +115,7 @@ class DragHelper implements IDisposable
 	
 	public function start (mouseObj:MouseState)
 	{
+	//	trace(mouseObj);
 		lastMouseObj	= mouseObj;
 		var mouseTarget	= mouseObj.target.as(ISprite);
 		if (mouseTarget != null && mouseTarget != target && mouseTarget.is(IDraggable))
@@ -136,7 +137,7 @@ class DragHelper implements IDisposable
 	
 	private function stopDrag (mouseObj:MouseState)
 	{
-		trace(target+".stopDrag "+isDragging);
+	//	trace(isDragging);
 		if (isDragging) {
 			if (target.is(IDraggable))
 				target.as(IDraggable).isDragging = false;
@@ -159,9 +160,9 @@ class DragHelper implements IDisposable
 	}
 	
 	
-	private function startDrag ()
+	public function startDrag ()
 	{
-	//	trace(target+".startDrag "+isDragging+"; "+lastMouseObj.target);
+	//	trace(isDragging);
 #if debug			
 	//	target.window.application.clearTraces();
 #end	
@@ -181,7 +182,7 @@ class DragHelper implements IDisposable
 	
 	public function cancel ()
 	{
-		trace(target+".cancel "+isDragging);
+	//	trace(isDragging);
 		cancelHandler( lastMouseObj );
 		stopDrag(null);
 		isDragging = false;

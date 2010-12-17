@@ -162,6 +162,9 @@ class UIElementStyle implements IUIElementStyle
 		
 		addedBinding = removedBinding = styleNamesChangeBinding = idChangeBinding = null;
 		
+		//remove styles and their listeners
+		while (styles.length > 0)
+			removeStyleCell( styles.last );
 		
 		if (boxFilters != null)		boxFilters.dispose();
 		if (effects != null)		effects.dispose();
@@ -174,10 +177,6 @@ class UIElementStyle implements IUIElementStyle
 			parentStyle.childrenChanged.unbind( this );
 			parentStyle = null;
 		}
-		
-		//remove styles and their listeners
-		while (styles.length > 0)
-			removeStyleCell( styles.last );
 		
 		childrenChanged.dispose();
 		currentStates.removeAll();

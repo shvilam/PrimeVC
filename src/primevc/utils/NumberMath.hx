@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.utils;
+ import apparat.math.FastMath;
   using Std;
  
 
@@ -126,13 +127,13 @@ class IntMath
 	
 	public static inline function floorFloat (var1:Float) : Int
 	{
-		return var1.int();	
+		return var1 < 0 ? (var1 - .9).int() : var1.int();
 	}
 	
 	
 	public static inline function roundFloat (var1:Float) : Int
 	{
-		return floorFloat(var1 + .5);
+		return var1 < 0 ? -1 * floorFloat( -1 * var1 + .5) : floorFloat(var1 + .5);
 	}
 }
 

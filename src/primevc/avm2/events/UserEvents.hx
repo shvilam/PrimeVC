@@ -28,9 +28,10 @@
  */
 package primevc.avm2.events;
  import primevc.core.dispatcher.INotifier;
- import primevc.gui.events.UserEvents;
+ import primevc.gui.events.ClipboardEvents;
  import primevc.gui.events.KeyboardEvents;
  import primevc.gui.events.MouseEvents;
+ import primevc.gui.events.UserEvents;
 
 
 /**	
@@ -43,9 +44,26 @@ class UserEvents extends primevc.gui.events.UserSignals
 {
 	public function new(eventDispatcher)
 	{
-		this.mouse	= new primevc.avm2.events.MouseEvents(eventDispatcher);
-		this.key	= new primevc.avm2.events.KeyboardEvents(eventDispatcher);
-		this.focus	= new FlashSignal0(eventDispatcher, flash.events.FocusEvent.FOCUS_IN);
-		this.blur	= new FlashSignal0(eventDispatcher, flash.events.FocusEvent.FOCUS_OUT);
+		this.mouse		= new primevc.avm2.events.MouseEvents(eventDispatcher);
+		this.key		= new primevc.avm2.events.KeyboardEvents(eventDispatcher);
+		this.focus		= new FlashSignal0(eventDispatcher, flash.events.FocusEvent.FOCUS_IN);
+		this.blur		= new FlashSignal0(eventDispatcher, flash.events.FocusEvent.FOCUS_OUT);
+		this.clipboard	= new ClipboardEvents(eventDispatcher);
+	}
+	
+	
+	override public function dispose ()
+	{
+		mouse.dispose();
+		key.dispose();
+		focus.dispose();
+		blur.dispose();
+		clipboard.dispose();
+		
+		mouse = null;
+		key = null;
+		focus = null;
+		blur = null;
+		clipboard = null;
 	}
 }
