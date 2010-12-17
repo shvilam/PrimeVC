@@ -133,6 +133,12 @@ class BalancingListCollection <DataType> implements IEditableList <DataType>,
 	}
 	
 	
+	public inline function isEmpty()
+	{
+		return length == 0;
+	}
+	
+	
 	//
 	// ILISTCOLLECTION METHODS
 	//

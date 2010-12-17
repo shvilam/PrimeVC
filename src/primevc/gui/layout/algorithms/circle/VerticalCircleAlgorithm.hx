@@ -160,7 +160,7 @@ class VerticalCircleAlgorithm extends VerticalBaseAlgorithm, implements IVertica
 		}
 		
 		//the formula of applyCircle reversed..
-		var itemRadians = FastMath.asin(posY / radius) - startRadians;
+		var itemRadians = Math.asin(posY / radius) - startRadians;
 		return ( itemRadians / childAngle ).roundFloat();
 	}
 	

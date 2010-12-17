@@ -53,6 +53,12 @@ class ArrayList <DataType> extends ReadOnlyArrayList <DataType>, implements IEdi
 	}
 	
 	
+	public inline function isEmpty()
+	{
+		return length == 0;
+	}
+	
+	
 	public function add (item:DataType, pos:Int = -1) : DataType
 	{
 		pos = list.insertAt(item, pos);

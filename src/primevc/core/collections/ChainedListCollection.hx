@@ -97,6 +97,11 @@ class ChainedListCollection <DataType>
 	}
 	
 	
+	public inline function isEmpty()
+	{
+		return length == 0;
+	}
+	
 	
 	//
 	// ILISTCOLLECTION METHODS

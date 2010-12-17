@@ -159,7 +159,7 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 		}
 		
 		//the formula of applyCircle reversed..
-		var itemRadians = FastMath.acos(posX / radius) - startRadians;
+		var itemRadians = Math.acos(posX / radius) - startRadians;
 		return ( itemRadians / childAngle ).roundFloat();
 	}
 	
