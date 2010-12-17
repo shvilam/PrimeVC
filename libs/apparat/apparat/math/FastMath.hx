@@ -354,7 +354,9 @@ class IntTypeUtil
 {
 	public static inline function int (v:Bool) : Int
 	{
-		return v ? 1 : 0;
+		return	#if (js || flash9)	untyped v  // single iffalse AVM2 instruction
+				#else				v ? 1 : 0
+				#end ;
 	}
 }
 
@@ -368,6 +370,8 @@ class FloatTypeUtil
 {
 	public static inline function float (v:Bool) : Float
 	{
-		return v ? 1.0 : 0.0;
+		return	#if (js || flash9)	untyped v  // single iffalse AVM2 instruction
+				#else				v ? 1.0 : 0.0
+				#end ;
 	}
 }
