@@ -79,6 +79,9 @@ class FadeEffectInstance extends EffectInstance < IDisplayObject, FadeEffect >
 		
 		if		(effect.endValue.isSet())	endValue = effect.endValue;
 		else								endValue = 1;
+		
+		target.alpha	= startValue;
+		target.visible	= true;
 	}
 
 	

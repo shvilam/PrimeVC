@@ -42,7 +42,7 @@ package primevc.gui.graphics.shapes;
  */
 class RegularRectangle extends ShapeBase, implements IGraphicShape
 {
-	public inline function draw (target:IGraphicsOwner, bounds:IRectangle, borderRadius:Corners) : Void
+	public function draw (target:IGraphicsOwner, bounds:IRectangle, borderRadius:Corners) : Void
 	{
 #if flash9
 		if (borderRadius == null)

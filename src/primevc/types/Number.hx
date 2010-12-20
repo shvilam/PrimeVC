@@ -46,8 +46,8 @@ class Number
 	public static inline var FLOAT_MIN:Float		= -3.40282346638528e+38;
 	public static inline var FLOAT_MAX:Float		=  3.40282346638528e+38;
 	
-	public static inline var INT_MIN:Int			= #if neko 0x40000000 #else 0x80000000 #end;
-	public static inline var INT_MAX:Int			= #if neko 0x3fffffff #else 0x7fffffff #end;
+	public static inline var INT_MIN:Int			= #if neko -1073741824 #else 0x80000000 #end;
+	public static inline var INT_MAX:Int			= #if neko 1073741823  #else 0x7fffffff #end;
 
 #if !neko
 	public static inline var UINT_MIN:UInt			=  0;

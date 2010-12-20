@@ -59,7 +59,7 @@ class FastArrayUtil
 	static public inline function ofArray<T> ( array:Array<T> ) : FastArray<T>
 	{
 	#if flash10
-		return flash.Lib.vectorOfArray(array);
+		return flash.Vector.ofArray(array);
 	#else
 		return array;
 	#end

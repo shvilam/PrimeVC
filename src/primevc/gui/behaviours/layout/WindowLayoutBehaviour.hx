@@ -73,10 +73,8 @@ class WindowLayoutBehaviour extends ValidatingBehaviour < UIWindow >, implements
 	
 	private function layoutStateChangeHandler (newState:ValidateStates, oldState:ValidateStates)
 	{
-		switch (newState) {
-			case ValidateStates.invalidated:
-				invalidate();
-		}
+		if (newState == ValidateStates.invalidated)
+			invalidate();
 	}
 	
 	

@@ -144,6 +144,7 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 		switch (newState) {
 			case BitmapStates.ready:	invalidate( GraphicFlags.FILL );
 			case BitmapStates.empty:	invalidate( GraphicFlags.FILL );
+			default:
 		}
 	}
 	

@@ -33,6 +33,7 @@ package primevc.gui.behaviours.drag;
  import primevc.gui.display.ISprite;
  import primevc.gui.events.KeyboardEvents;
  import primevc.gui.events.MouseEvents;
+ import primevc.gui.input.KeyCodes;
  import primevc.gui.traits.IDraggable;
  import primevc.types.Number;
   using primevc.utils.Bind;
@@ -192,9 +193,7 @@ class DragHelper implements IDisposable
 	
 	private function checkCancel (state:KeyboardState) : Void
 	{
-#if flash9
-		if (state.keyCode() == flash.ui.Keyboard.ESCAPE)
+		if (state.keyCode() == KeyCodes.ESCAPE)
 			cancel();
-#end
 	}
 }

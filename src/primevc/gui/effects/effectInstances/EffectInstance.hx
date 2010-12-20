@@ -171,11 +171,8 @@ class EffectInstance < TargetType, PropertiesType:IEffect >
 			startPos = calcStartPos;
 		
 		//if the effect is playing for the first time, give the target it's start position
-		if (state == EffectStates.initialized) {
-		//	target.visible = false;
+		if (state == EffectStates.initialized)
 			tweenUpdater( startPos );
-		//	target.visible = true;
-		}
 		
 		state = EffectStates.playing;
 		
