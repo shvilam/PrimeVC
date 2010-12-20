@@ -1,0 +1,2 @@
+export MXMLC_OPTIMIZER="/Applications/Adobe/Adobe Flash Builder 4/sdks/3.5.0/bin/optimizer"
+export MXMLC="/Applications/Adobe/Adobe Flash Builder 4/sdks/3.5.0/bin/mxmlc"

@@ -1,0 +1,37 @@
+#!/bin/bash
+# script to test the given testclass
+
+bash ../build/build-assets ".." || exit 1;
+
+MINPARAMS=1
+
+TestClass=${1//\//.}
+FPS=5
+WIDTH=1200
+HEIGHT=900
+EXTRA=""
+DEBUG=""
+NOTRACES=""
+RESOURCE=""
+
+#parse arguments
+while getopts "dte:af:gr:sw:xh:iy:z" OptionName
+	do
+		case $OptionName in
+			d ) DEBUG="-debug";;
+			e ) EXTRA=${OPTARG};;
+			r ) FPS=${OPTARG};;						#frame rate
+			f ) TestClass=${OPTARG//\//.};;			#class
+			w ) WIDTH=${OPTARG};;					#width
+			h ) HEIGHT=${OPTARG};;					#height
+			y ) RESOURCE="-resource ${OPTARG}";;	#resource files
+			t ) NOTRACES="--no-traces";;			#remove traces
+			* ) echo "unkown argument";;
+	esac
+done
+
+TestClass=${TestClass%.hx}
+#echo $TestClass
+
+haxe build.hxml ${EXTRA} -main $TestClass -swf-header $WIDTH:$HEIGHT:$FPS:FFFFFF ${DEBUG} ${NOTRACES} ${RESOURCE} &&
+open test.swf

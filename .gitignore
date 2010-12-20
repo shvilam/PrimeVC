@@ -1,0 +1,15 @@
+.DS_Store
+Thumb.db
+*.tmproj
+*.tmbuild
+*.n
+
+/styles/*/StyleSheet.hx
+/build/environment.sh
+/bin-debug
+/bin-release
+/generated-src
+
+/assets/assets.swf
+/assets/debug-assets.swf
+/tests/test.swf

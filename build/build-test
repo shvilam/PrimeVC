@@ -1,0 +1,12 @@
+#!/bin/bash
+
+MINPARAMS=1
+BUILDSCRIPTDIR="`dirname "$0"`"
+PRIMEVC_DIR="`cd ${BUILDSCRIPTDIR}/..; pwd`"
+
+bash ${PRIMEVC_DIR}/build/build \
+	-c ffffff \
+	-p "$PRIMEVC_DIR" \
+	-o App.swf \
+	-e "-cp '$PRIMEVC_DIR/tests'" \
+	$* 

@@ -1,0 +1,19 @@
+-D Release
+-exclude build/release-exclude.txt
+--no-traces
+
+-swf9 build/tmp.swf
+-swf-version 10
+-swf-header 1000:750:25
+
+--flash-strict
+-cp libs/flash9
+-cp libs/macmousewheel
+-cp generated-src
+-cp src
+#-cp skins/flair
+#-cp tests/
+-lib feffects
+#-main primevc.Main
+#-main cases.LayoutTest
+#-main cases.ComponentsTest

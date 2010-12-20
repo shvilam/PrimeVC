@@ -1,0 +1,10 @@
+-lib feffects
+#-cp ../libs
+-cp libs/haxe/neko
+-cp libs/apparat
+-cp src
+#-cp ../generated-src
+#-cp ../skins/flair
+-cp ./
+#-main cases.StyleParserTest
+#-neko CSSParser.n

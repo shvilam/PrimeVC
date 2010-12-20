@@ -1,0 +1,135 @@
+@import url('../empty/BasicStyle.css');
+@manifest url('manifest.xml');
+
+.odd { visibility: visible; width: 60px; }
+#frame2 .odd { background: #000; width: 100px; shape: rectangle;  }
+
+GlobalTest {
+	algorithm: relative;
+}
+
+GlobalApp {
+	relative: 5px 5px 55px;
+	height: none;
+	width: 60%;
+	padding: 5px;
+	algorithm: float-hor;
+	border: solid 1px #000 inside;
+}
+
+
+Tile {
+	color: #000;
+	move-transition: move 200ms circ-out;
+	min-width: 15px;
+	min-height: 15px;
+	margin: 3px;
+	background: #ff0000;
+/*	background: radial-gradient( -1, #aaa, #000 40px, 0xadfc67f0 50%, #0f0f0f0f 60%, #222 70.987%, 0xabcdefdd 254.8px, repeat );*/
+/*	background: linear-gradient( 90deg, #ffffff00, #444, #fff );*/
+	border: 1px solid #000;
+/*	box-shadow: 4px 8px 8px #ff0000aa 180deg;
+	box-bevel: #000fff #00ff00;
+	box-glow: #000fff;
+	box-blur: 10px 10px;*/
+	opacity: .5;
+}
+
+TileList {
+	border: solid 3px #fedcbaaa;
+	background: #abcdef44;
+	padding: 10px;
+/*	child-width: 40px;
+	child-height: 40px;*/
+	resize-transition: resize 300ms;
+	move-transition: move 300ms;
+	overflow: hidden;
+}
+/*
+Frame:hover {
+	background: #ff0aa;
+}
+
+TileList:hover {
+	background: #f0f;
+}
+
+TileList:hover Tile {
+	background: #000;
+}
+#frame0:hover {
+	background: #000;
+}
+Tile:hover {
+	border: #aaa 4px solid;
+	min-width: 100px;
+}
+
+GlobalApp TileList:hover {
+	background: #f00;
+}
+*/
+#frame0 Tile { background: #0000ff; shape: ellipse; move-transition: move 400ms elastic-out; }
+#frame1 Tile { background: #00ff00; shape: circle;  }
+#frame2 Tile { shape: triangle; min-width: 30px; move-transition: sequence ( parallel ( fade 500ms 40%, move 300ms circ-out ), fade 600ms 100% ) ; }
+#frame8 Tile { move-transition: sequence( parallel ( rotate 500ms 360deg, move 500ms ), rotate 400ms -360deg ); show-transition: fade 0% 100% 350ms; }
+
+
+#frame0 {
+	algorithm: float-ver( bottom, center );
+	height: 100%;
+	overflow: corner-scroll;
+}
+
+#frame1 {
+	algorithm: float-hor( left );
+	height: 60px;
+	
+	top: 5px;
+	right: 5px;
+	left: 5px;
+	
+	overflow: scroll-mouse-move;
+}
+
+#frame2 {
+	algorithm: fixed-tile( vertical, 8, left, top );
+	top: 90px;
+	bottom: 5px;
+	left: 5px;
+	overflow: drag-scroll;
+}
+#frame3 {
+	algorithm: dynamic-tile;
+	width: 100%;
+	height: 40%;
+}
+
+#frame4 {
+	background: #a00;
+	width: auto;
+	height: 100%;
+}
+
+#frame5 {
+	background: #0a0;
+	width: auto;
+	height: 100%;
+}
+
+#frame6 {
+	background: #00a;
+	width: auto;
+	height: 100%;
+}
+
+#frame7 {
+	width: 60%;
+	height: 5%;
+}
+
+#frame8 {
+	width: 100%;
+	height: 40%;
+	algorithm: circle;
+}

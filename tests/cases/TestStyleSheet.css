@@ -1,0 +1,63 @@
+UIComponent {
+	float: left;
+	text-align: center;
+	color: rgba(50, 12, 200,0.1);
+}
+
+Label {
+	font-weight: bold;
+	background-color: rgba(80, 255, 90, 0.89);
+	background-color: #fffd460a;
+	background-color: #ffa;
+	background-image: url(../images/test.png) no-repeat;
+	text-align: left;
+/*	background-image: Class(nl.onlinetouch.Aap) repeat-both; */
+}
+
+
+TextArea {
+	background-color: linear-gradient( 90deg, #aaa, #dddddd, #eee, #fff );
+	background-color: #ffad97f0;
+	
+	column-count:	4;
+	column-gap:		20px;
+	column-width:	120px;
+	column-rule:	1px solid #aaa;
+	word-wrap:		break-word;
+	
+	algorithm:		circle( left, top );
+	
+	min-width: 50px;
+	min-height: 10px;
+	max-height: 20em;
+	left: 0;
+	right: 400px;
+	top: 10px;
+	v-center: 0;
+}
+
+
+TextArea .eenVeld {
+	height: 40px;
+}
+
+
+
+.eenVeld {
+	font: 12px bold italic Verdana;
+	width: 50px;
+	height: 10%;
+	child-width: 3em;
+	child-height: 400px;
+	background-color: radial-gradient( -1, #aaa, #000 40px, 0xadfc67f0 50%, #0f0f0f0f 60%, #222 70.987%, 0xabcdefdd 254.8px, repeat );
+	border-color: #f00;
+	border-width: 3px;
+	border-radius: 5px 2px;
+	padding: 4px 3px;
+	position: absolute;
+	algorithm: float-hor( right );
+}
+
+
+#idable {}
+``
