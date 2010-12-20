@@ -47,8 +47,10 @@ class FastMath
 	public static inline var RAD_DEGREE	: Float = 180 / PI;
 	public static inline var DEGREE_RAD	: Float = PI / 180;
 	
+#if !neko
 	public static inline var INV_SQRT	: Float = 0x5f3759df;
-	
+#end
+
 	
 #if flash10
 	public static function __init__() : Void
