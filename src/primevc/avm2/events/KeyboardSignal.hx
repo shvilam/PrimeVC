@@ -69,7 +69,7 @@ class KeyboardSignal extends Signal1<KeyboardState>, implements IWireWatcher<Key
 		send( stateFromFlashEvent(e) );
 	}
 	
-	static inline public function stateFromFlashEvent( e ) : KeyboardState
+	static  public function stateFromFlashEvent( e ) : KeyboardState
 	{
 		/*
 			charCode				keyCode					keyLocation		KeyMod
@@ -77,27 +77,24 @@ class KeyboardSignal extends Signal1<KeyboardState>, implements IWireWatcher<Key
 		*/
 		var flags;
 		
-		#if flash9
+#if flash9
 		Assert.that(e.charCode		< 16384); // 14 bits available in AVM2
 		Assert.that(e.keyCode		<  1024);
 		
-		flags = (switch (e.keyLocation) {
-				case flash.ui.KeyLocation.STANDARD:	0;
-				case flash.ui.KeyLocation.LEFT:		1;
-				case flash.ui.KeyLocation.RIGHT:	2;
-				case flash.ui.KeyLocation.NUM_PAD:	3; 
-				case flash.ui.KeyLocation.D_PAD:	4;}) << 4;
+		flags = (e.altKey?	KeyModState.ALT : 0)
+			| (e.ctrlKey?	KeyModState.CMD | KeyModState.CTRL : 0)
+			| (e.shiftKey?	KeyModState.SHIFT : 0);
 		
-		flags |= (e.charCode << 18)
-				| (e.keyCode << 8)
-				| (e.altKey?	KeyModState.ALT : 0)
-				| (e.ctrlKey?	KeyModState.CMD | KeyModState.CTRL : 0)
-				| (e.shiftKey?	KeyModState.SHIFT : 0);
+		flags |= cast(e.keyLocation, UInt) << 4;
+		flags |= (e.charCode << 18);
+		flags |= (e.keyCode << 8);
+			
 		
-		#elseif air?
+#elseif air?
 		flags = //TODO: Implement AIR support
-		#else error
-		#end
+#else
+		error
+#end
 		
 		return new KeyboardState(flags, e.target);
 	}
