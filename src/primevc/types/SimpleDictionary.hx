@@ -150,8 +150,15 @@ class SimpleDictionary < KType, VType >
 	public inline function valueList ()				: FastArray < VType >	{ return _values; }
 
 #if debug
-	public function toString ()		: String	{ return keysToString(); }
 	public function keysToString () : String	{ return "keys: [ " +_keys.join(", ") + " ]"; }
+	public function toString ()		: String
+	{
+		var str = [];
+		for (i in 0...length)
+			str.push( "[ " + _keys[i] + " ] => " + _values[i] );
+		
+		return "dic: "+(length > 0 ? str.join(", ") : "empty");
+	}
 #end
 
 #if neko

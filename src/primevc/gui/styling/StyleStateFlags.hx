@@ -39,31 +39,31 @@ package primevc.gui.styling;
  */
 class StyleStateFlags
 {
-	public static inline var ALL_STATES	: UInt = HOVER | DOWN | FOCUS | VALID | INVALID | REQUIRED | OPTIONAL | DISABLED | CHECKED | LOADING | LOADED | ERROR | DRAG_OVER | DRAG_OUT | DRAG_DROP;
+	public static inline var ALL_STATES	: Int = HOVER | DOWN | FOCUS | VALID | INVALID | REQUIRED | OPTIONAL | DISABLED | CHECKED | LOADING | LOADED | ERROR | DRAG_OVER | DRAG_OUT | DRAG_DROP;
 	
 	
-	public static inline var NONE		: UInt = 0;
-	public static inline var HOVER		: UInt = 1;
-	public static inline var DOWN		: UInt = 2;
-	public static inline var FOCUS		: UInt = 4;
-	public static inline var VALID		: UInt = 8;
-	public static inline var INVALID	: UInt = 16;
-	public static inline var REQUIRED	: UInt = 32;
-	public static inline var OPTIONAL	: UInt = 64;
-	public static inline var DISABLED	: UInt = 128;
-	public static inline var CHECKED	: UInt = 256;
-	public static inline var LOADING	: UInt = 512;
-	public static inline var LOADED		: UInt = 1024;
-	public static inline var ERROR		: UInt = 2048;
-	public static inline var EDITABLE	: UInt = 32768;
+	public static inline var NONE		: Int = 0;
+	public static inline var HOVER		: Int = 1;
+	public static inline var DOWN		: Int = 2;
+	public static inline var FOCUS		: Int = 4;
+	public static inline var VALID		: Int = 8;
+	public static inline var INVALID	: Int = 16;
+	public static inline var REQUIRED	: Int = 32;
+	public static inline var OPTIONAL	: Int = 64;
+	public static inline var DISABLED	: Int = 128;
+	public static inline var CHECKED	: Int = 256;
+	public static inline var LOADING	: Int = 512;
+	public static inline var LOADED		: Int = 1024;
+	public static inline var ERROR		: Int = 2048;
+	public static inline var EDITABLE	: Int = 32768;
 	
-	public static inline var DRAG_OVER	: UInt = 4096;
-	public static inline var DRAG_OUT	: UInt = 8192;
-	public static inline var DRAG_DROP	: UInt = 16384;
+	public static inline var DRAG_OVER	: Int = 4096;
+	public static inline var DRAG_OUT	: Int = 8192;
+	public static inline var DRAG_DROP	: Int = 16384;
 	
 	
 #if (neko || debug)
-	public static function stringToState (v:String) : UInt
+	public static function stringToState (v:String) : Int
 	{
 		return switch (v.toLowerCase().trim())
 		{
@@ -88,7 +88,7 @@ class StyleStateFlags
 	}
 	
 	
-	public static function stateToString (v:UInt) : String
+	public static function stateToString (v:Int) : String
 	{
 		return switch (v)
 		{
@@ -113,7 +113,7 @@ class StyleStateFlags
 	}
 	
 	
-	public static function readProperties (flags:UInt) : String
+	public static function readProperties (flags:Int) : String
 	{
 		var output	= [];
 		var result	= "";

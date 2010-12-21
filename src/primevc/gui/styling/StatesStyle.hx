@@ -35,7 +35,7 @@ package primevc.gui.styling;
   using primevc.utils.BitUtil;
 
 
-typedef StatesListType	= SimpleDictionary < UInt, StyleBlock >;
+typedef StatesListType	= SimpleDictionary < Int, StyleBlock >;
 private typedef Flags	= StyleStateFlags;
 
 
@@ -187,14 +187,15 @@ class StatesStyle extends StyleSubBlock
 	
 	public function get (stateName:UInt) : StyleBlock
 	{
-		if (allFilledProperties.hasNone(stateName))
+		Assert.that( has(stateName), Flags.readProperties( allFilledProperties ) );
+		
+		if (this.doesntHave(stateName))
 			return null;
 		
 		var v:StyleBlock = null;
 		if (filledProperties.has(stateName))		v = states.get( stateName );
 		if (v == null && extendedStyle != null)		v = extendedStyle.get( stateName );
 		if (v == null && superStyle != null)		v = superStyle.get( stateName );
-		
 		return v;
 	}
 	

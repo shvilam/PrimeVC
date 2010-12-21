@@ -133,11 +133,12 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 
 	public function apply ()
 	{
-		switch (vertical) {
-			case Vertical.top:			applyVerticalTop();
-			case Vertical.center:		applyVerticalCenter();
-			case Vertical.bottom:		applyVerticalBottom();
-		}
+		if (vertical != null)
+			switch (vertical) {
+				case Vertical.top:			applyVerticalTop();
+				case Vertical.center:		applyVerticalCenter();
+				case Vertical.bottom:		applyVerticalBottom();
+			}
 		validatePrepared = false;
 	}
 	

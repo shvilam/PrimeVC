@@ -114,7 +114,6 @@ class StyleState implements IDisposable
 		if (current == 0 || getStates().filledProperties.hasNone( current ))
 			return 0;
 		
-		trace("setStyles "+current+"; "+elementStyle.target);
 		var changes		= 0;
 		var iterator	= getStates().reversed();
 		for (stateGroup in iterator)

@@ -91,9 +91,10 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 	}
 	
 	
-	public inline function has (propFlag:UInt) : Bool	{ return allFilledProperties.has( propFlag ); }
-	public inline function owns (propFlag:UInt) : Bool	{ return filledProperties.has( propFlag ); }
-	public function isEmpty () : Bool					{ return filledProperties == 0; }
+	public inline function has (propFlag:UInt) : Bool			{ return allFilledProperties.has( propFlag ); }
+	public inline function doesntHave (propFlag:UInt) : Bool	{ return allFilledProperties.hasNone( propFlag ); }
+	public inline function owns (propFlag:UInt) : Bool			{ return filledProperties.has( propFlag ); }
+	public function isEmpty () : Bool							{ return filledProperties == 0; }
 	
 	
 	public function updateAllFilledPropertiesFlag () : Void
