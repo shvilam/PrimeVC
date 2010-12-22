@@ -37,7 +37,7 @@ else
 		
 		echo -e "\t[haXe]   Generating extern classes" &&
 		
-		haxe --gen-hx-classes "$PRIMEVC_ROOT/assets/debug-assets.swf" --dead-code-elimination &&
+		haxe --gen-hx-classes "$PRIMEVC_ROOT/assets/debug-assets.swf" &&
 		mv hxclasses "$PRIMEVC_ROOT/generated-src"
 		rm "$PRIMEVC_ROOT/generated-src/Assets.hx"
 		rm "$PRIMEVC_ROOT/generated-src/DebugAssets.hx"

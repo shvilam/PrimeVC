@@ -133,9 +133,12 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 	}
 	
 	
-	public function set (val:DataType) : Void
+	/**
+	 * Sets value directly, without the requirement to be in edit mode, and without dispatching any events.
+	 */
+	public inline function set (val:DataType) : Void
 	{
-		value = val;
+		(untyped this).value = val;
 	}
 	
 	

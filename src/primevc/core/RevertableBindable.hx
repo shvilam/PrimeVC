@@ -70,18 +70,6 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 	public var shadowValue (default,null) : DataType;
 	
 	
-	/**
-	 * Sets value directly, without the requirement to be in edit mode.
-	 */
-	override public function set(newValue:DataType) : Void
-	{
-		var f	= flags;
-		flags	= flags.set( Flags.IN_EDITMODE );
-		value	= newValue;
-		flags	= f;
-	}
-	
-	
 	override private function setValue (newValue:DataType) : DataType
 	{
 		var f = flags;
