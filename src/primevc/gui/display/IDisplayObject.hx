@@ -52,19 +52,19 @@ interface IDisplayObject
 #end
 	
 #if flash9
-	var alpha					: Float;
-	var visible					: Bool;
+	public var alpha		: Float;
+	public var visible		: Bool;
 	
-	var filters					: Array < Dynamic >;
-	var name					: String;
-	var scrollRect				: flash.geom.Rectangle;
-	var transform				: flash.geom.Transform; //Matrix2D;
+	public var filters		: Array < Dynamic >;
+	public var name			: String;
+	public var scrollRect	: flash.geom.Rectangle;
+	public var transform	: flash.geom.Transform; //Matrix2D;
 	
-	function globalToLocal (point : Point) : Point;
-	function localToGlobal (point : Point) : Point;
+	public function globalToLocal (point : Point) : Point;
+	public function localToGlobal (point : Point) : Point;
 #else
-	var visible		(getVisibility, setVisibility)		: Bool;
-	var alpha		(getAlpha,		setAlpha)			: Float;
-	var transform	(default, null)						: primevc.core.geom.Matrix2D;
+	public var visible		(getVisibility, setVisibility)		: Bool;
+	public var alpha		(getAlpha,		setAlpha)			: Float;
+	public var transform	(default, null)						: primevc.core.geom.Matrix2D;
 #end
 }

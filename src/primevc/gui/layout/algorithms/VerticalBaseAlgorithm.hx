@@ -132,17 +132,18 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 
 	public function apply ()
 	{
-		switch (horizontal) {
-			case Horizontal.left:	applyHorizontalLeft();
-			case Horizontal.center:	applyHorizontalCenter();
-			case Horizontal.right:	applyHorizontalRight();
-		}
+		if (horizontal != null)
+			switch (horizontal) {
+				case Horizontal.left:	applyHorizontalLeft();
+				case Horizontal.center:	applyHorizontalCenter();
+				case Horizontal.right:	applyHorizontalRight();
+			}
 		validatePrepared = false;
 	}
 	
 
 
-	private inline function applyHorizontalLeft ()
+	private  function applyHorizontalLeft ()
 	{
 		if (group.children.length > 0)
 		{
@@ -157,7 +158,7 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 	}
 	
 	
-	private inline function applyHorizontalCenter ()
+	private  function applyHorizontalCenter ()
 	{
 		if (group.children.length > 0)
 		{
@@ -182,7 +183,7 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 	}
 	
 	
-	private inline function applyHorizontalRight ()
+	private  function applyHorizontalRight ()
 	{
 		if (group.children.length > 0)
 		{

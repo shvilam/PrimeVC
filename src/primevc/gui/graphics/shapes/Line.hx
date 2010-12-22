@@ -39,7 +39,7 @@ package primevc.gui.graphics.shapes;
  */
 class Line extends ShapeBase, implements IGraphicShape
 {
-	public inline function draw (target:IGraphicsOwner, bounds:IRectangle, borderRadius:Corners) : Void
+	public function draw (target:IGraphicsOwner, bounds:IRectangle, borderRadius:Corners) : Void
 	{
 #if flash9
 		target.graphics.moveTo( bounds.left, bounds.top );

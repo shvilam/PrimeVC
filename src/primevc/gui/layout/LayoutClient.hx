@@ -170,7 +170,7 @@ class LayoutClient extends Invalidatable
 	override public function dispose ()
 	{
 		//remove the layoutclient from the parents layout.
-		if (parent != null && parent.children.has(this))
+		if (parent != null && parent.children != null && parent.children.has(this))
 			parent.children.remove(this);
 		
 		width.dispose();

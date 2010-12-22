@@ -43,7 +43,7 @@ class StyleState implements IDisposable
 	public var elementStyle	(default, null)			: UIElementStyle;
 	
 	
-	public function new (elementStyle:UIElementStyle, current:Int = 0)
+	public function new (elementStyle:UIElementStyle, current:UInt = 0)
 	{
 		this.elementStyle	= elementStyle;
 		this.current		= current;
@@ -69,6 +69,7 @@ class StyleState implements IDisposable
 	{
 		return elementStyle.states;
 	}
+	
 	
 	private inline function setCurrent (v:UInt) : UInt
 	{
@@ -113,6 +114,7 @@ class StyleState implements IDisposable
 		if (current == 0 || getStates().filledProperties.hasNone( current ))
 			return 0;
 		
+		trace("setStyles "+current+"; "+elementStyle.target);
 		var changes		= 0;
 		var iterator	= getStates().reversed();
 		for (stateGroup in iterator)
@@ -124,11 +126,10 @@ class StyleState implements IDisposable
 	
 	
 	/**
-	 * Method will look in all the available state-lists to find every 
-	 * styledefinition for the requested state. If a style-definition is found,
-	 * it will be added to the parent.
+	 * Method will loop over every style of the current states and will remove
+	 * them from the UIElementStyle object.
 	 * 
-	 * @return all the changes in the UIElementStyle that are caused by adding the styles
+	 * @return all the changes in the UIElementStyle that are caused by removing the styles
 	 */
 	public function removeStyles () : UInt
 	{

@@ -34,6 +34,7 @@ package primevc.avm2.events;
  import primevc.core.dispatcher.Wire;
  import primevc.core.ListNode;
  import primevc.core.events.CommunicationEvents;		// needed for ProgressHandler typedef
+  using Std;
 
 
 
@@ -71,6 +72,6 @@ class ProgressSignal extends Signal2<UInt, UInt>, implements IWireWatcher < Prog
 	}
 
 	private function dispatch(e:ProgressEvent) {
-		send(e.bytesLoaded, e.bytesTotal);
+		send(e.bytesLoaded.int(), e.bytesTotal.int());
 	}
 }

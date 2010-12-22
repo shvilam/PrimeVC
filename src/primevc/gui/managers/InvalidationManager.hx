@@ -54,11 +54,9 @@ class InvalidationManager extends QueueManager
 		updateQueueBinding.disable();
 	}
 	
-	
 	override private function validateQueue ()
 	{
 		var curCell = first;
-		
 		while (curCell != null)
 		{
 			var obj	= curCell.as(IPropertyValidator);
@@ -67,6 +65,7 @@ class InvalidationManager extends QueueManager
 			curCell	= curCell.nextValidatable;
 			obj.nextValidatable = obj.prevValidatable = null;
 		}
+		
 		first = last = null;
 		disableBinding();
 	}

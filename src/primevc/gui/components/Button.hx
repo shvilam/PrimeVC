@@ -71,7 +71,7 @@ class Button extends UIDataContainer <DataType>, implements IIconOwner, implemen
 	
 	override private function createChildren ()
 	{
-		labelField = new UITextField( null, false, data);
+		labelField = new UITextField( null, true, data);
 #if debug
 		labelField.id.value = id.value + "TextField";
 #end

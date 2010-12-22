@@ -85,7 +85,8 @@ class KeyboardSignal extends Signal1<KeyboardState>, implements IWireWatcher<Key
 				case flash.ui.KeyLocation.STANDARD:	0;
 				case flash.ui.KeyLocation.LEFT:		1;
 				case flash.ui.KeyLocation.RIGHT:	2;
-				case flash.ui.KeyLocation.NUM_PAD:	3; }) << 4;
+				case flash.ui.KeyLocation.NUM_PAD:	3; 
+				case flash.ui.KeyLocation.D_PAD:	4;}) << 4;
 		
 		flags |= (e.charCode << 18)
 				| (e.keyCode << 8)
