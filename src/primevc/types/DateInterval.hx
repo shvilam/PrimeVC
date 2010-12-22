@@ -47,4 +47,9 @@ class DateInterval
 		this.start = startDate;
 		this.end   = endDate;
 	}
+	
+	public function toString()
+	{
+		return "{ DateInterval start: "+ start +", end: "+ end +" }";
+	}
 }
