@@ -62,14 +62,12 @@ package primevc.gui.graphics;
 class GraphicProperties implements IGraphicElement
 {
 	public var uuid			(default, null)				: String;
-	
-//	public var changes		(default, null)				: UInt;
 	public var listeners	(default, null)				: FastList< IInvalidateListener >;
 	/**
 	 * Signal to notify other objects than IGraphicElement of changes within
 	 * the shape.
 	 */
-	public var changeEvent	(default, null)				: Signal1 < UInt >;
+	public var changeEvent	(default, null)				: Signal1 < Int >;
 
 	public var fill			(default, setFill)			: IGraphicProperty;
 	public var border		(default, setBorder)		: IBorder;
@@ -90,7 +88,6 @@ class GraphicProperties implements IGraphicElement
 		this.border			= border;
 		this.borderRadius	= borderRadius;
 		changeEvent			= new Signal1();
-	//	changes		= 0;
 	}
 	
 	
@@ -126,7 +123,7 @@ class GraphicProperties implements IGraphicElement
 	}
 	
 	
-	public function invalidateCall (changeFromOther:UInt, sender:IInvalidatable) : Void
+	public function invalidateCall (changeFromOther:Int, sender:IInvalidatable) : Void
 	{
 		var change = switch (sender) {
 			case cast border:	GraphicFlags.BORDER;

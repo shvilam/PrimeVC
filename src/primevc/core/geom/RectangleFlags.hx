@@ -37,25 +37,25 @@ package primevc.core.geom;
  */
 class RectangleFlags
 {
-	public static inline var WIDTH		: UInt = 1;
-	public static inline var HEIGHT		: UInt = 2;
-	
-	public static inline var TOP		: UInt = 4;
-	public static inline var CENTERY	: UInt = 8;
-	public static inline var BOTTOM		: UInt = 16;
-	
-	public static inline var LEFT		: UInt = 32;
-	public static inline var CENTERX	: UInt = 64;
-	public static inline var RIGHT		: UInt = 128;
-	
-	public static inline var SIZE		: UInt = WIDTH | HEIGHT;
-	public static inline var HORIZONTAL	: UInt = LEFT | RIGHT | CENTERX;
-	public static inline var VERTICAL	: UInt = TOP | BOTTOM | CENTERY;
-	public static inline var ALL		: UInt = HORIZONTAL | VERTICAL;
+	public static inline var WIDTH		= 1 << 0;
+	public static inline var HEIGHT		= 1 << 1;
+	                                    
+	public static inline var TOP		= 1 << 2;
+	public static inline var CENTERY	= 1 << 3;
+	public static inline var BOTTOM		= 1 << 4;
+	                                    
+	public static inline var LEFT		= 1 << 5;
+	public static inline var CENTERX	= 1 << 6;
+	public static inline var RIGHT		= 1 << 7;
+	                                    
+	public static inline var SIZE		= WIDTH | HEIGHT;
+	public static inline var HORIZONTAL	= LEFT | RIGHT | CENTERX;
+	public static inline var VERTICAL	= TOP | BOTTOM | CENTERY;
+	public static inline var ALL		= HORIZONTAL | VERTICAL;
 	
 	
 #if debug
-	public static function readProperties (flags:UInt) : String
+	public static function readProperties (flags:Int) : String
 	{
 		var output	= [];
 		

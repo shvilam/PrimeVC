@@ -38,11 +38,11 @@ package primevc.gui.graphics;
  */
 class GraphicFlags
 {
-	public static inline var FILL		: Int = 1;
-	public static inline var BORDER		: Int = 2;
-	public static inline var SHAPE		: Int = 4;
-	public static inline var LAYOUT		: Int = 8;
-	public static inline var PROPERTIES	: Int = 16;
+	public static inline var FILL		= 1 << 0;
+	public static inline var BORDER		= 1 << 1;
+	public static inline var SHAPE		= 1 << 2;
+	public static inline var LAYOUT		= 1 << 3;
+	public static inline var PROPERTIES	= 1 << 4;
 	
 	
 #if debug

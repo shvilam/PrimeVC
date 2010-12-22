@@ -42,24 +42,24 @@ class StyleStateFlags
 	public static inline var ALL_STATES	: Int = HOVER | DOWN | FOCUS | VALID | INVALID | REQUIRED | OPTIONAL | DISABLED | CHECKED | LOADING | LOADED | ERROR | DRAG_OVER | DRAG_OUT | DRAG_DROP;
 	
 	
-	public static inline var NONE		: Int = 0;
-	public static inline var HOVER		: Int = 1;
-	public static inline var DOWN		: Int = 2;
-	public static inline var FOCUS		: Int = 4;
-	public static inline var VALID		: Int = 8;
-	public static inline var INVALID	: Int = 16;
-	public static inline var REQUIRED	: Int = 32;
-	public static inline var OPTIONAL	: Int = 64;
-	public static inline var DISABLED	: Int = 128;
-	public static inline var CHECKED	: Int = 256;
-	public static inline var LOADING	: Int = 512;
-	public static inline var LOADED		: Int = 1024;
-	public static inline var ERROR		: Int = 2048;
-	public static inline var EDITABLE	: Int = 32768;
+	public static inline var NONE		= 1 << 0;
+	public static inline var HOVER		= 1 << 1;
+	public static inline var DOWN		= 1 << 2;
+	public static inline var FOCUS		= 1 << 3;
+	public static inline var VALID		= 1 << 4;
+	public static inline var INVALID	= 1 << 5;
+	public static inline var REQUIRED	= 1 << 6;
+	public static inline var OPTIONAL	= 1 << 7;
+	public static inline var DISABLED	= 1 << 8;
+	public static inline var CHECKED	= 1 << 9;
+	public static inline var LOADING	= 1 << 10;
+	public static inline var LOADED		= 1 << 11;
+	public static inline var ERROR		= 1 << 12;
+	public static inline var EDITABLE	= 1 << 13;
 	
-	public static inline var DRAG_OVER	: Int = 4096;
-	public static inline var DRAG_OUT	: Int = 8192;
-	public static inline var DRAG_DROP	: Int = 16384;
+	public static inline var DRAG_OVER	= 1 << 14;
+	public static inline var DRAG_OUT	= 1 << 15;
+	public static inline var DRAG_DROP	= 1 << 16;
 	
 	
 #if (neko || debug)

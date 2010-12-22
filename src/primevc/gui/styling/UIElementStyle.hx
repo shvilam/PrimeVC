@@ -80,13 +80,13 @@ class UIElementStyle implements IUIElementStyle
 	 * Bitflag-collection with all properties that are set in the styles of 
 	 * the target,
 	 */
-	public var filledProperties			(default, null)	: UInt;
+	public var filledProperties			(default, null)	: Int;
 	/**
 	 * Signal which is dispatched when one of the style objects is changed. 
 	 * The first parameter of signal will be a bit-flag conttaining all the 
 	 * properties that are changed.
 	 */
-//	public var change					(default, null)	: Signal1 < UInt >;
+//	public var change					(default, null)	: Signal1 < Int >;
 	/**
 	 * Current css-states of the object.
 	 */
@@ -395,7 +395,7 @@ class UIElementStyle implements IUIElementStyle
 	}
 	
 	
-	public function addStyle (style:StyleBlock) : UInt
+	public function addStyle (style:StyleBlock) : Int
 	{
 #if debug
 		Assert.notNull( styles );
@@ -442,7 +442,7 @@ class UIElementStyle implements IUIElementStyle
 	 * 								This is not the case when the styles are resetted since
 	 * 								the whole list is thrown away.
 	 */
-	public function removeStyleCell (styleCell:FastDoubleCell < StyleBlock >, isStyleStillInList:Bool = true) : UInt
+	public function removeStyleCell (styleCell:FastDoubleCell < StyleBlock >, isStyleStillInList:Bool = true) : Int
 	{
 #if debug
 		Assert.notNull( styleCell );
@@ -479,9 +479,9 @@ class UIElementStyle implements IUIElementStyle
 	
 	/**
 	 * Method will remove all the styles with the given priority and will return
-	 * an UInt flag with all the properties that where set in the removed styles.
+	 * an Int flag with all the properties that where set in the removed styles.
 	 */
-	private function removeStylesWithPriority (priority:Int) : UInt
+	private function removeStylesWithPriority (priority:Int) : Int
 	{
 		if (styles.length == 0)
 			return 0;
@@ -496,7 +496,7 @@ class UIElementStyle implements IUIElementStyle
 	}
 	
 	
-	private function removeStyle (style:StyleBlock) : UInt
+	private function removeStyle (style:StyleBlock) : Int
 	{
 		var cell	= styles.getCellForItem( style );
 		var changes	= 0;
@@ -517,7 +517,7 @@ class UIElementStyle implements IUIElementStyle
 	/**
 	 * Method will find the styles for every defined state
 	 */
-	private function updateStatesStyle () : UInt
+	private function updateStatesStyle () : Int
 	{
 		var changes = removeStylesWithPriority( StyleBlockType.idState.enumIndex() );
 		var changes = removeStylesWithPriority( StyleBlockType.styleNameState.enumIndex() );
@@ -534,7 +534,7 @@ class UIElementStyle implements IUIElementStyle
 	}
 	
 	
-	private function updateIdStyle () : UInt
+	private function updateIdStyle () : Int
 	{
 		var changes = removeStylesWithPriority( StyleBlockType.id.enumIndex() );
 		
@@ -549,7 +549,7 @@ class UIElementStyle implements IUIElementStyle
 	}
 	
 	
-	private function updateStyleNameStyles (change:ListChange<String>) : UInt
+	private function updateStyleNameStyles (change:ListChange<String>) : Int
 	{
 		if (change == null)
 			change = ListChange.reset;
@@ -588,7 +588,7 @@ class UIElementStyle implements IUIElementStyle
 	}
 	
 	
-	private function updateElementStyle () : UInt
+	private function updateElementStyle () : Int
 	{
 		var changes = removeStylesWithPriority( StyleBlockType.element.enumIndex() );
 		
@@ -626,7 +626,7 @@ class UIElementStyle implements IUIElementStyle
 	 * 
 	 * Usabable props of elementStyle: font
 	 */ 
-	public function getUsablePropertiesOf ( styleCell:FastDoubleCell < StyleBlock >, properties:Int = -1 ) : UInt
+	public function getUsablePropertiesOf ( styleCell:FastDoubleCell < StyleBlock >, properties:Int = -1 ) : Int
 	{
 		Assert.notNull( styleCell );
 		if (properties == -1)
@@ -645,8 +645,8 @@ class UIElementStyle implements IUIElementStyle
 	
 	
 	/**
-	 * Method returns a UInt with flags of every property that is set. 
-	 * Important: The method won't set the UInt as value for filledProperties.
+	 * Method returns a Int with flags of every property that is set. 
+	 * Important: The method won't set the Int as value for filledProperties.
 	 */
 	private function updateFilledPropertiesFlag () : Void
 	{
@@ -693,7 +693,7 @@ class UIElementStyle implements IUIElementStyle
 	// IINVALIDATELIST METHODS
 	//
 	
-	public function invalidateCall (changes:UInt, sender:IInvalidatable)
+	public function invalidateCall (changes:Int, sender:IInvalidatable)
 	{
 		if (sender.is(UIElementStyle))
 		{

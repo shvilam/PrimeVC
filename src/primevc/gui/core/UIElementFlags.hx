@@ -38,16 +38,16 @@ package primevc.gui.core;
  */
 class UIElementFlags
 {
-	public static inline var LAYOUT		: Int	= 1;
-	public static inline var GRAPHICS	: Int	= 2;
-	public static inline var STYLE		: Int	= 4;
+	public static inline var LAYOUT		= 1 << 0;
+	public static inline var GRAPHICS	= 1 << 1;
+	public static inline var STYLE		= 1 << 2;
 	
 	
-	public static inline var DATA		: Int	= 8;
+	public static inline var DATA		= 1 << 3;
 	
 	//
 	// UITEXTFIELD PROPERTIES
 	//
 	
-	public static inline var TEXTSTYLE	: Int	= 16;
+	public static inline var TEXTSTYLE	= 1 << 4;
 }

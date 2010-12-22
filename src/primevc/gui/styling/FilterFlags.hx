@@ -37,17 +37,17 @@ package primevc.gui.styling;
  */
 class FilterFlags
 {
-	public static inline var ALL_PROPERTIES	: UInt = SHADOW | BEVEL | BLUR | GLOW | GRADIENT_BEVEL | GRADIENT_GLOW;
-	public static inline var SHADOW			: UInt = 1;
-	public static inline var BEVEL			: UInt = 2;
-	public static inline var BLUR			: UInt = 4;
-	public static inline var GLOW			: UInt = 8;
-	public static inline var GRADIENT_BEVEL	: UInt = 16;
-	public static inline var GRADIENT_GLOW	: UInt = 32;
+	public static inline var ALL_PROPERTIES	= SHADOW | BEVEL | BLUR | GLOW | GRADIENT_BEVEL | GRADIENT_GLOW;
+	public static inline var SHADOW			= 1 << 0;
+	public static inline var BEVEL			= 1 << 1;
+	public static inline var BLUR			= 1 << 2;
+	public static inline var GLOW			= 1 << 3;
+	public static inline var GRADIENT_BEVEL	= 1 << 4;
+	public static inline var GRADIENT_GLOW	= 1 << 5;
 	
 	
 #if debug
-	public static function readProperties (flags:UInt) : String
+	public static function readProperties (flags:Int) : String
 	{
 		var output	= [];
 		

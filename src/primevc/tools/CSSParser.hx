@@ -867,7 +867,7 @@ class CSSParser
 	}
 	
 	
-	private function setExtendedState (stateName:UInt, state:StyleBlock, styleName:String, style:StyleBlock)
+	private function setExtendedState (stateName:Int, state:StyleBlock, styleName:String, style:StyleBlock)
 	{
 		if (state == null || style == null)
 			return;
@@ -900,7 +900,7 @@ class CSSParser
 	}
 	
 	
-	private function setSuperState (stateName:UInt, state:StyleBlock, styleName:String, style:StyleBlock)
+	private function setSuperState (stateName:Int, state:StyleBlock, styleName:String, style:StyleBlock)
 	{
 		if (state == null)
 			return;
@@ -1055,7 +1055,7 @@ class CSSParser
 	}
 	
 	
-	private function setStateContentBlock (stateName:UInt)
+	private function setStateContentBlock (stateName:Int)
 	{
 		if (stateName <= 0 || currentBlock == null)
 			return;

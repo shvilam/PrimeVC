@@ -49,8 +49,8 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 #if (debug || neko)
 	public var uuid					(default, null)		: String;
 #end
-	public var filledProperties		(default, null)		: UInt;
-	public var allFilledProperties	(default, null)		: UInt;
+	public var filledProperties		(default, null)		: Int;
+	public var allFilledProperties	(default, null)		: Int;
 	
 	
 	public function new ()
@@ -75,7 +75,7 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 	}
 	
 	
-	private function markProperty ( propFlag:UInt, isSet:Bool ) : Void
+	private function markProperty ( propFlag:Int, isSet:Bool ) : Void
 	{
 		if (isSet)	filledProperties = filledProperties.set( propFlag );
 		else		filledProperties = filledProperties.unset( propFlag );
@@ -91,10 +91,10 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 	}
 	
 	
-	public inline function has (propFlag:UInt) : Bool			{ return allFilledProperties.has( propFlag ); }
-	public inline function doesntHave (propFlag:UInt) : Bool	{ return allFilledProperties.hasNone( propFlag ); }
-	public inline function owns (propFlag:UInt) : Bool			{ return filledProperties.has( propFlag ); }
-	public function isEmpty () : Bool							{ return filledProperties == 0; }
+	public inline function has (propFlag:Int) : Bool		{ return allFilledProperties.has( propFlag ); }
+	public inline function doesntHave (propFlag:Int) : Bool	{ return allFilledProperties.hasNone( propFlag ); }
+	public inline function owns (propFlag:Int) : Bool		{ return filledProperties.has( propFlag ); }
+	public function isEmpty () : Bool						{ return filledProperties == 0; }
 	
 	
 	public function updateAllFilledPropertiesFlag () : Void

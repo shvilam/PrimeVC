@@ -37,24 +37,24 @@ package primevc.gui.effects;
  */
 class EffectFlags
 {
-	public static inline var ALL_PROPERTIES		: UInt = MOVE | RESIZE | ROTATE | SCALE | SHOW | HIDE;
+	public static inline var ALL_PROPERTIES		= MOVE | RESIZE | ROTATE | SCALE | SHOW | HIDE;
+	                                            
+	public static inline var EASING				= 1 << 0;
+	public static inline var DELAY				= 1 << 1;
+	public static inline var DURATION			= 1 << 2;
+	public static inline var AUTO_HIDE_FILTERS	= 1 << 3;
 	
-	public static inline var EASING				: UInt = 1;
-	public static inline var DELAY				: UInt = 2;
-	public static inline var DURATION			: UInt = 4;
-	public static inline var AUTO_HIDE_FILTERS	: UInt = 8;
-	
-	public static inline var MOVE				: UInt = 16;
-	public static inline var RESIZE				: UInt = 32;
-	public static inline var ROTATE				: UInt = 64;
-	public static inline var SCALE				: UInt = 128;
-	public static inline var SHOW				: UInt = 256;
-	public static inline var HIDE				: UInt = 512;
+	public static inline var ROTATE				= 1 << 4;
+	public static inline var MOVE				= 1 << 5;
+	public static inline var RESIZE				= 1 << 6;
+	public static inline var SCALE				= 1 << 8;
+	public static inline var SHOW				= 1 << 9;
+	public static inline var HIDE				= 1 << 10;
 	
 	
 
 #if debug
-	public static function readProperties (flags:UInt) : String
+	public static function readProperties (flags:Int) : String
 	{
 		var output	= [];
 		

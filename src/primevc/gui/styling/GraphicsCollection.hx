@@ -99,7 +99,7 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 	}
 	
 	
-	private function applyGraphicsStyleObj (propsToSet:UInt, styleObj:GraphicsStyle, graphicProps:GraphicProperties)
+	private function applyGraphicsStyleObj (propsToSet:Int, styleObj:GraphicsStyle, graphicProps:GraphicProperties)
 	{
 		var target	= elementStyle.target;
 		var empty	= styleObj == null;

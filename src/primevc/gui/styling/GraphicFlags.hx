@@ -36,22 +36,22 @@ package primevc.gui.styling;
  */
 class GraphicFlags
 {
-	public static inline var ALL_PROPERTIES		: UInt = SKIN | BACKGROUND | BORDER | SHAPE | VISIBLE | OPACITY | ICON | OVERFLOW | BORDER_RADIUS;
-	public static inline var DRAWING_PROPERTIES	: UInt = BACKGROUND | BORDER | SHAPE | BORDER_RADIUS;
+	public static inline var ALL_PROPERTIES		= SKIN | BACKGROUND | BORDER | SHAPE | VISIBLE | OPACITY | ICON | OVERFLOW | BORDER_RADIUS;
+	public static inline var DRAWING_PROPERTIES	= BACKGROUND | BORDER | SHAPE | BORDER_RADIUS;
 	
-	public static inline var SKIN				: UInt = 1;
-	public static inline var BACKGROUND			: UInt = 2;
-	public static inline var BORDER				: UInt = 4;
-	public static inline var SHAPE				: UInt = 8;
-	public static inline var VISIBLE			: UInt = 16;
-	public static inline var OPACITY			: UInt = 32;
-	public static inline var ICON				: UInt = 64;
-	public static inline var OVERFLOW			: UInt = 128;
-	public static inline var BORDER_RADIUS		: UInt = 256;
+	public static inline var SKIN				= 1 << 0;
+	public static inline var BACKGROUND			= 1 << 1;
+	public static inline var BORDER				= 1 << 2;
+	public static inline var SHAPE				= 1 << 3;
+	public static inline var VISIBLE			= 1 << 4;
+	public static inline var OPACITY			= 1 << 5;
+	public static inline var ICON				= 1 << 6;
+	public static inline var OVERFLOW			= 1 << 7;
+	public static inline var BORDER_RADIUS		= 1 << 8;
 	
 	
 #if debug
-	static public function readProperties (flags:UInt) : String
+	static public function readProperties (flags:Int) : String
 	{
 		var output	= [];
 		

@@ -39,11 +39,11 @@ package primevc.gui.styling;
  */
 class StyleState implements IDisposable
 {
-	public var current		(default, setCurrent)	: UInt;
+	public var current		(default, setCurrent)	: Int;
 	public var elementStyle	(default, null)			: UIElementStyle;
 	
 	
-	public function new (elementStyle:UIElementStyle, current:UInt = 0)
+	public function new (elementStyle:UIElementStyle, current:Int = 0)
 	{
 		this.elementStyle	= elementStyle;
 		this.current		= current;
@@ -71,7 +71,7 @@ class StyleState implements IDisposable
 	}
 	
 	
-	private inline function setCurrent (v:UInt) : UInt
+	private inline function setCurrent (v:Int) : Int
 	{
 		if (v != current)
 		{
@@ -109,7 +109,7 @@ class StyleState implements IDisposable
 	 * 
 	 * @return all the changes in the UIElementStyle that are caused by adding the styles
 	 */
-	public function setStyles () : UInt
+	public function setStyles () : Int
 	{
 		if (current == 0 || getStates().filledProperties.hasNone( current ))
 			return 0;
@@ -130,7 +130,7 @@ class StyleState implements IDisposable
 	 * 
 	 * @return all the changes in the UIElementStyle that are caused by removing the styles
 	 */
-	public function removeStyles () : UInt
+	public function removeStyles () : Int
 	{
 		if (current == 0 || getStates().filledProperties.hasNone( current ))
 			return 0;

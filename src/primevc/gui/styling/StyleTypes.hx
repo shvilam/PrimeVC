@@ -40,35 +40,35 @@ class StyleTypes
 	 * Styles declared to match with IStyleable class-types (the packagename + classname)
 	 * Equal to css "H1" rule.
 	 */
-	public inline static var ELEMENT_SELECTOR			: UInt = 1;
+	public inline static var ELEMENT_SELECTOR			= 1 << 0;
 	
 	/**
 	 * Styles declared to match with a value from IStyleable.styleNames
 	 * Equal to css ".stylename" rule.
 	 */
-	public inline static var STYLENAME_SELECTOR			: UInt = 2;
+	public inline static var STYLENAME_SELECTOR			= 1 << 1;
 	
 	/**
 	 * Styles declared with the id of a IStyleable classes
 	 * Equal to css "#idname" rule.
 	 */
-	public inline static var ID_SELECTOR				: UInt = 4;
+	public inline static var ID_SELECTOR				= 1 << 2;
 	
 	/**
 	 * Styles declared as a state of another selector.
 	 * Equal to css "elementSelector:statename" rule.
 	 */
-	public inline static var ELEMENT_STATE_SELECTOR		: UInt = 8;
+	public inline static var ELEMENT_STATE_SELECTOR		= 1 << 3;
 	
 	/**
 	 * Styles declared as a state of another selector.
 	 * Equal to css "styleNameSelector:statename" rule.
 	 */
-	public inline static var STYLENAME_STATE_SELECTOR	: UInt = 16;
+	public inline static var STYLENAME_STATE_SELECTOR	= 1 << 4;
 	
 	/**
 	 * Styles declared as a state of another selector.
 	 * Equal to css "idSelector:statename" rule.
 	 */
-	public inline static var ID_STATE_SELECTOR			: UInt = 32;
+	public inline static var ID_STATE_SELECTOR			= 1 << 5;
 }

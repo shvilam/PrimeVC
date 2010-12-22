@@ -70,7 +70,7 @@ class StatesStyle extends StyleSubBlock
 	}
 	
 	
-	override private function updateOwnerReferences (changedReference:UInt) : Void
+	override private function updateOwnerReferences (changedReference:Int) : Void
 	{
 		if (changedReference.has( StyleFlags.EXTENDED_STYLE ))
 		{
@@ -131,7 +131,7 @@ class StatesStyle extends StyleSubBlock
 	 * changed. If the property is not set in this style-object, it means that 
 	 * the allFilledPropertiesFlag needs to be changed..
 	 */
-	override public function invalidateCall ( changeFromOther:UInt, sender:IInvalidatable ) : Void
+	override public function invalidateCall ( changeFromOther:Int, sender:IInvalidatable ) : Void
 	{
 		Assert.that(sender != null);
 		
@@ -172,7 +172,7 @@ class StatesStyle extends StyleSubBlock
 	// STATE METHODS
 	//
 	
-	public function set (stateName:UInt, state:StyleBlock) : Void
+	public function set (stateName:Int, state:StyleBlock) : Void
 	{
 		if (states == null && state == null)
 			return;
@@ -185,9 +185,9 @@ class StatesStyle extends StyleSubBlock
 	}
 	
 	
-	public function get (stateName:UInt) : StyleBlock
+	public function get (stateName:Int) : StyleBlock
 	{
-		Assert.that( has(stateName), Flags.readProperties( allFilledProperties ) );
+	//	Assert.that( has(stateName), Flags.readProperties( allFilledProperties ) );
 		
 		if (this.doesntHave(stateName))
 			return null;
@@ -207,7 +207,7 @@ class StatesStyle extends StyleSubBlock
 	
 	
 #if neko
-	public function keys () : Iterator < UInt >				{ return states != null ? states.keys() : null; }
+	public function keys () : Iterator < Int >				{ return states != null ? states.keys() : null; }
 	public function iterator () : Iterator < StyleBlock >	{ return states != null ? states.iterator() : null; }
 
 
@@ -290,7 +290,7 @@ class StatesStyle extends StyleSubBlock
 	}
 	
 	
-	private function addStateStringToArray ( statesToFind:UInt, output:Array<String>, state:UInt )
+	private function addStateStringToArray ( statesToFind:Int, output:Array<String>, state:Int )
 	{
 		if (statesToFind.has( state ))
 		{

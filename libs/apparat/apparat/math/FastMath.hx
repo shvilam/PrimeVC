@@ -53,7 +53,7 @@ class FastMath
 
 	
 #if flash10
-	public static function __init__() : Void
+	public static function __init__ () : Void
 	{
 		var byteArray = new flash.utils.ByteArray();
 		byteArray.length = flash.system.ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;

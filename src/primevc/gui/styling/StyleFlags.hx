@@ -37,27 +37,27 @@ package primevc.gui.styling;
  */
 class StyleFlags
 {
-	public static inline var ALL_PROPERTIES		: UInt = LAYOUT | FONT | GRAPHICS | EFFECTS | BOX_FILTERS | BACKGROUND_FILTERS | STATES;	//but no children
-	public static inline var INHERETING_STYLES	: UInt = NESTING_STYLE | SUPER_STYLE | EXTENDED_STYLE | PARENT_STYLE;
+	public static inline var ALL_PROPERTIES		= LAYOUT | FONT | GRAPHICS | EFFECTS | BOX_FILTERS | BACKGROUND_FILTERS | STATES;	//but no children
+	public static inline var INHERETING_STYLES	= NESTING_STYLE | SUPER_STYLE | EXTENDED_STYLE | PARENT_STYLE;
+	                                            
+	public static inline var NESTING_STYLE		= 1 << 0;
+	public static inline var SUPER_STYLE		= 1 << 1;
+	public static inline var EXTENDED_STYLE		= 1 << 2;
+	public static inline var PARENT_STYLE		= 1 << 3;
 	
-	public static inline var NESTING_STYLE		: UInt = 1;
-	public static inline var SUPER_STYLE		: UInt = 2;
-	public static inline var EXTENDED_STYLE		: UInt = 4;
-	public static inline var PARENT_STYLE		: UInt = 8;
+	public static inline var LAYOUT				= 1 << 4;
+	public static inline var FONT				= 1 << 5;
+	public static inline var GRAPHICS			= 1 << 6;
+	public static inline var EFFECTS			= 1 << 7;
+	public static inline var BOX_FILTERS		= 1 << 8;
+	public static inline var BACKGROUND_FILTERS	= 1 << 9;
 	
-	public static inline var LAYOUT				: UInt = 16;
-	public static inline var FONT				: UInt = 32;
-	public static inline var GRAPHICS			: UInt = 64;
-	public static inline var EFFECTS			: UInt = 128;
-	public static inline var BOX_FILTERS		: UInt = 256;
-	public static inline var BACKGROUND_FILTERS	: UInt = 512;
-	
-	public static inline var CHILDREN			: UInt = 1024;
-	public static inline var STATES				: UInt = 2048;
+	public static inline var CHILDREN			= 1 << 10;
+	public static inline var STATES				= 1 << 11;
 	
 	
 #if debug
-	static public function readProperties (flags:UInt) : String
+	static public function readProperties (flags:Int) : String
 	{
 		var output	= [];
 		

@@ -92,7 +92,7 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	
 	
 	
-	private function updateBehaviour (changes:UInt) : Void
+	private function updateBehaviour (changes:Int) : Void
 	{
 		//
 		// DISABLED STATE

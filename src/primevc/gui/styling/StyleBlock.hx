@@ -258,7 +258,7 @@ class StyleBlock extends StyleBlockBase
 	}
 	*/
 	/*
-	public function hasState (stateName:UInt) : Bool
+	public function hasState (stateName:Int) : Bool
 	{
 		return states != null ? states.has(stateName) : false;
 	}*/
@@ -311,7 +311,7 @@ class StyleBlock extends StyleBlockBase
 	 * Method will search for the requested state + type in it's children or
 	 * the children of his extended / superStyle.
 	 */
-	public function getState ( stateName:UInt, styleName:String, styleType:StyleBlockType, ?exclude:StyleBlock ) : StyleBlock
+	public function getState ( stateName:Int, styleName:String, styleType:StyleBlockType, ?exclude:StyleBlock ) : StyleBlock
 	{
 		var stateStyle:StyleBlock = null;
 		var child = getChild( styleName, styleType, exclude );
@@ -331,7 +331,7 @@ class StyleBlock extends StyleBlockBase
 	 * state is not found there, it will ask it's parent to look for the 
 	 * requested state.
 	 */
-	public function findState ( stateName:UInt, styleName:String, styleType:StyleBlockType, ?exclude:StyleBlock, depth:Int = 0 ) : StyleBlock
+	public function findState ( stateName:Int, styleName:String, styleType:StyleBlockType, ?exclude:StyleBlock, depth:Int = 0 ) : StyleBlock
 	{
 		var stateStyle = getState( stateName, styleName, styleType, exclude);
 		
@@ -360,7 +360,7 @@ class StyleBlock extends StyleBlockBase
 	 * nested-style is changed. If the property is not set in this style-object,
 	 * it means that the allFilledPropertiesFlag needs to be changed..
 	 */
-	override public function invalidateCall ( changeFromOther:UInt, sender:IInvalidatable ) : Void
+	override public function invalidateCall ( changeFromOther:Int, sender:IInvalidatable ) : Void
 	{
 		Assert.that(sender != null);
 		

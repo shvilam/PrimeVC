@@ -171,7 +171,7 @@ class LayoutStyle extends StyleSubBlock
 	}
 	
 	
-	override private function updateOwnerReferences (changedReference:UInt) : Void
+	override private function updateOwnerReferences (changedReference:Int) : Void
 	{
 		if (changedReference.has( StyleFlags.EXTENDED_STYLE ))
 		{
@@ -220,7 +220,7 @@ class LayoutStyle extends StyleSubBlock
 	 * changed. If the property is not set in this style-object, it means that 
 	 * the allFilledPropertiesFlag needs to be changed..
 	 */
-	override public function invalidateCall ( changeFromOther:UInt, sender:IInvalidatable ) : Void
+	override public function invalidateCall ( changeFromOther:Int, sender:IInvalidatable ) : Void
 	{
 		Assert.that(sender != null);
 		

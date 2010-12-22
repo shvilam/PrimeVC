@@ -40,7 +40,7 @@ private typedef Flags = StyleStateFlags;
  */
 class StatesCollection extends StyleCollectionBase < StatesStyle >
 {
-	public var change				(default, null)	: Signal1 < UInt >;
+	public var change				(default, null)	: Signal1 < Int >;
 	
 	
 	public function new (elementStyle:IUIElementStyle)

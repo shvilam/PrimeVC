@@ -43,14 +43,14 @@ class RevertableBindableFlags
 	 * If not set, only when not in (or leaving) edit-mode, changes
 	 * will be signalled.
 	 */
-	public static inline var DISPATCH_CHANGES_BEFORE_COMMIT		=  1; // 0b_0000 0001
+	public static inline var DISPATCH_CHANGES_BEFORE_COMMIT		=  1 << 0; // 0b_0000 0001
 	/**
 	 * When this flag is set, value changes which are not valid will send
 	 * the 'change' signal anyway.
 	 * In combination with DISPATCH_CHANGES_BEFORE_COMMIT, all value changes
 	 * are sent at any time.
 	 */
-	public static inline var INVALID_CHANGES_DISPATCH_SIGNAL	=  2; // 0b_0000 0010
+	public static inline var INVALID_CHANGES_DISPATCH_SIGNAL	=  1 << 1; // 0b_0000 0010
 	
 	/**
 	 * When this flag is set, any (valid) value change will be sent to the
@@ -59,24 +59,24 @@ class RevertableBindableFlags
 	 * If not set, only when not in (or leaving) edit-mode, will the bound
 	 * Bindables be updated.
 	 */
-	public static inline var UPDATE_BINDINGS_BEFORE_COMMIT		=  4; // 0b_0000 0100
+	public static inline var UPDATE_BINDINGS_BEFORE_COMMIT		=  1 << 2; // 0b_0000 0100
 	/**
 	 * When this flag is set, value changes which are not valid will send
 	 * the 'change' signal anyway.
 	 * In combination with UPDATE_BINDINGS_BEFORE_COMMIT, all value changes
 	 * are sent to 'the Bindables bound to this' at any time.
 	 */
-	public static inline var INVALID_CHANGES_UPDATE_BINDINGS	=  8; // 0b_0000 1000
+	public static inline var INVALID_CHANGES_UPDATE_BINDINGS	=  1 << 3; // 0b_0000 1000
 	
 	
 	/**
 	 * Whether in edit-mode, and shadowValue is set.
 	 */
-	public static inline var IN_EDITMODE						= 16; // 0b_0001 0000
+	public static inline var IN_EDITMODE						= 1 << 4; // 0b_0001 0000
 	/**
 	 * Whether 'value' is valid according to the configured validator.
 	 */
-	public static inline var IS_VALID							= 32; // 0b_0010 0000
+	public static inline var IS_VALID							= 1 << 5; // 0b_0010 0000
 	
 	/**
 	 *  Tests in one go if change signal should be dispatched.

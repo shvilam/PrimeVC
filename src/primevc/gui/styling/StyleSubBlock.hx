@@ -73,7 +73,7 @@ class StyleSubBlock extends StyleBlockBase
 	 * If so, it must send a invalidate request since properties of the object
 	 * have changed.
 	 */
-	private function updateOwnerReferences (changedReference:UInt) : Void
+	private function updateOwnerReferences (changedReference:Int) : Void
 	{
 		Assert.abstract();
 	}
@@ -85,7 +85,7 @@ class StyleSubBlock extends StyleBlockBase
 	}
 	
 	
-	override public function invalidateCall ( changeFromOther:UInt, sender:IInvalidatable ) : Void
+	override public function invalidateCall ( changeFromOther:Int, sender:IInvalidatable ) : Void
 	{
 		if (sender == owner)
 		{

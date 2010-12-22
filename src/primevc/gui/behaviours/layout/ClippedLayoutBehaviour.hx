@@ -126,7 +126,7 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 	}
 	
 	
-	public function invalidateCall ( changeFromOther:UInt, sender:IInvalidatable )
+	public function invalidateCall ( changeFromOther:Int, sender:IInvalidatable )
 	{
 		if ( changeFromOther.has(RectangleFlags.WIDTH | RectangleFlags.HEIGHT) && (target.scrollRect.width != target.rect.width || target.scrollRect.height != target.rect.height) )
 			updateScrollRect();

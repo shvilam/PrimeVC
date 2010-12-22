@@ -141,7 +141,7 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 	
 	
 	
-	private function applyStyleObject (propsToSet:UInt, styleObj:LayoutStyle, widthRange:IntRangeValidator = null, heightRange:IntRangeValidator = null)
+	private function applyStyleObject (propsToSet:Int, styleObj:LayoutStyle, widthRange:IntRangeValidator = null, heightRange:IntRangeValidator = null)
 	{
 		var layout		= elementStyle.target.as( ILayoutable ).layout;
 		var notEmpty	= styleObj != null;

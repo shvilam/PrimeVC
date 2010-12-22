@@ -68,7 +68,7 @@ interface ILayoutClient
 	/**
 	 * Flags of properties that are changed
 	 */
-	public var changes							: UInt;
+	public var changes							: Int;
 	
 	
 	/**
@@ -112,7 +112,7 @@ interface ILayoutClient
 	 * This method is called when a property of a layoutclient is changed which
 	 * would cause the layout the validate again.
 	 */
-	public function invalidate ( change:UInt )	: Void;
+	public function invalidate ( change:Int )	: Void;
 	
 	/**
 	 * Method will return the x coordinate that a DisplayObject can use

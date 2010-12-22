@@ -47,20 +47,20 @@ interface IStyleBlock
 	 * Variable defining which properties in the style-declaration have been
 	 * set or not according to the flags of the style-declaration.
 	 */
-	public var filledProperties (default, null)						: UInt;
+	public var filledProperties (default, null)						: Int;
 	
 	/**
 	 * bit-flag with the filled properties of this style-object and it's
 	 * extended, super, inherited and parent style.
 	 */
-	public var allFilledProperties	(default, null)					: UInt;
+	public var allFilledProperties	(default, null)					: Int;
 	
 	
 	/**
 	 * Method that will set or unset the flag of the property that is set in 
 	 * to the variable 'filledProperties'.
 	 */
-	private function markProperty ( propFlag:UInt, isSet:Bool )		: Void;
+	private function markProperty ( propFlag:Int, isSet:Bool )		: Void;
 	
 	
 	/**
@@ -71,9 +71,10 @@ interface IStyleBlock
 	public function updateAllFilledPropertiesFlag ()				: Void;
 	
 	
-	public function has (propFlag:UInt)		: Bool;
-	public function owns (propFlag:UInt)	: Bool;
-	public function isEmpty ()				: Bool;
+	public function has (propFlag:Int)			: Bool;
+	public function doesntHave (propFlag:Int)	: Bool;
+	public function owns (propFlag:Int)			: Bool;
+	public function isEmpty ()					: Bool;
 	
 	
 #if debug

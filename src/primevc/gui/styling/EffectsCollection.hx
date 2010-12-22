@@ -86,7 +86,7 @@ class EffectsCollection extends StyleCollectionBase < EffectsStyle >
 	}
 	
 	
-	private inline function applyStyleObject ( propsToSet:UInt, styleObj:EffectsStyle )
+	private inline function applyStyleObject ( propsToSet:Int, styleObj:EffectsStyle )
 	{
 		var target	= elementStyle.target.as(IUIElement);
 		var effects	= target.effects;

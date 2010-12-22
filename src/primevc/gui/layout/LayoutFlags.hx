@@ -38,68 +38,66 @@ package primevc.gui.layout;
  */
 class LayoutFlags 
 {
-	public static inline var ALL_PROPERTIES			: UInt = WIDTH | HEIGHT | INCLUDE | RELATIVE | ALGORITHM | MAX_WIDTH | MAX_HEIGHT | PERCENT_WIDTH | PERCENT_HEIGHT | PADDING | MARGIN | MAINTAIN_ASPECT | ROTATION | CHILD_WIDTH | CHILD_HEIGHT;
-	public static inline var WIDTH_CONSTRAINTS		: UInt = MIN_WIDTH | MAX_WIDTH;
-	public static inline var HEIGHT_CONSTRAINTS		: UInt = MIN_HEIGHT | MAX_HEIGHT;
-	public static inline var WIDTH_PROPERTIES		: UInt = WIDTH | MEASURED_WIDTH | EXPLICIT_WIDTH;
-	public static inline var HEIGHT_PROPERTIES		: UInt = HEIGHT | MEASURED_HEIGHT | EXPLICIT_HEIGHT;
+	public static inline var ALL_PROPERTIES			= WIDTH | HEIGHT | INCLUDE | RELATIVE | ALGORITHM | MAX_WIDTH | MAX_HEIGHT | PERCENT_WIDTH | PERCENT_HEIGHT | PADDING | MARGIN | MAINTAIN_ASPECT | ROTATION | CHILD_WIDTH | CHILD_HEIGHT;
+	public static inline var WIDTH_CONSTRAINTS		= MIN_WIDTH | MAX_WIDTH;
+	public static inline var HEIGHT_CONSTRAINTS		= MIN_HEIGHT | MAX_HEIGHT;
+	public static inline var WIDTH_PROPERTIES		= WIDTH | MEASURED_WIDTH | EXPLICIT_WIDTH;
+	public static inline var HEIGHT_PROPERTIES		= HEIGHT | MEASURED_HEIGHT | EXPLICIT_HEIGHT;
 	
-	public static inline var WIDTH					: UInt = 1;
-	public static inline var HEIGHT					: UInt = 2;
-	public static inline var X						: UInt = 4;
-	public static inline var Y						: UInt = 8;
+	public static inline var WIDTH					= 1 << 0;
+	public static inline var HEIGHT					= 1 << 1;
+	public static inline var X						= 1 << 2;
+	public static inline var Y						= 1 << 3;
 	/**
 	 * Flag indicating the includeInLayout property has changed
 	 */
-	public static inline var INCLUDE				: UInt = 16;
+	public static inline var INCLUDE				= 1 << 4;
 	/**
 	 * The relative property or properties of the relative object are changed.
 	 */
-	public static inline var RELATIVE				: UInt = 32;
+	public static inline var RELATIVE				= 1 << 5;
 	/**
 	 * Flag indicating that when the list with children of a layoutgroup have 
 	 * changed.
 	 */
-	public static inline var LIST					: UInt = 64;
+	public static inline var LIST					= 1 << 6;
 	/**
 	 * Flag indicating that the children of the layout algorithm have changed.
 	 */
-	public static inline var CHILDREN_INVALIDATED	: UInt = 128;
+	public static inline var CHILDREN_INVALIDATED	= 1 << 7;
 	/**
 	 * Flag indicating that a property of the layout algorithm is changed and
 	 * the layout needs to be validated again.
 	 */
-	public static inline var ALGORITHM				: UInt = 256;
+	public static inline var ALGORITHM				= 1 << 8;
 	/**
 	 * Flag indicating that the width validator is changed
 	 */
-	public static inline var WIDTH_VALIDATOR		: UInt = 512;
+	public static inline var WIDTH_VALIDATOR		= 1 << 9;
 	/**
 	 * Flag indicating that the height validator is changed
 	 */
-	public static inline var HEIGHT_VALIDATOR		: UInt = 268435456;
+	public static inline var HEIGHT_VALIDATOR		= 1 << 10;
 	
-	public static inline var MAX_WIDTH				: UInt = 1024;
-	public static inline var MIN_WIDTH				: UInt = 2048;
-	public static inline var PERCENT_WIDTH			: UInt = 4096;
-//	public static inline var BOUNDARY_WIDTH			: UInt = 8192;
-	public static inline var MEASURED_WIDTH			: UInt = 8388608;
-	public static inline var EXPLICIT_WIDTH			: UInt = 16777216;
+	public static inline var MAX_WIDTH				= 1 << 11;
+	public static inline var MIN_WIDTH				= 1 << 12;
+	public static inline var PERCENT_WIDTH			= 1 << 13;
+	public static inline var MEASURED_WIDTH			= 1 << 14;
+	public static inline var EXPLICIT_WIDTH			= 1 << 15;
 	
-	public static inline var MAX_HEIGHT				: UInt = 16384;
-	public static inline var MIN_HEIGHT				: UInt = 32768;
-	public static inline var PERCENT_HEIGHT			: UInt = 65536;
-//	public static inline var BOUNDARY_HEIGHT		: UInt = 131072;
-	public static inline var MEASURED_HEIGHT		: UInt = 33554432;
-	public static inline var EXPLICIT_HEIGHT		: UInt = 67108864;
+	public static inline var MAX_HEIGHT				= 1 << 16;
+	public static inline var MIN_HEIGHT				= 1 << 17;
+	public static inline var PERCENT_HEIGHT			= 1 << 18;
+	public static inline var MEASURED_HEIGHT		= 1 << 19;
+	public static inline var EXPLICIT_HEIGHT		= 1 << 20;
 	
-	public static inline var MARGIN					: UInt = 134217728;
-	public static inline var PADDING				: UInt = 262144;
-	public static inline var MAINTAIN_ASPECT		: UInt = 524288;
-	public static inline var ROTATION				: UInt = 1048576;
+	public static inline var MARGIN					= 1 << 21;
+	public static inline var PADDING				= 1 << 22;
+	public static inline var MAINTAIN_ASPECT		= 1 << 23;
+	public static inline var ROTATION				= 1 << 24;
 	
-	public static inline var CHILD_WIDTH			: UInt = 2097152;
-	public static inline var CHILD_HEIGHT			: UInt = 4194304;
+	public static inline var CHILD_WIDTH			= 1 << 25;
+	public static inline var CHILD_HEIGHT			= 1 << 26;
 	
 	
 	/**
@@ -110,7 +108,7 @@ class LayoutFlags
 
 
 #if debug
-	public static function readProperties (flags:UInt) : String
+	public static function readProperties (flags:Int) : String
 	{
 		var output	= [];
 		
@@ -148,7 +146,7 @@ class LayoutFlags
 	}
 	
 	
-	public static function readProperty (flag:UInt) : String
+	public static function readProperty (flag:Int) : String
 	{
 		return switch (flag) {
 			case WIDTH:					"width";

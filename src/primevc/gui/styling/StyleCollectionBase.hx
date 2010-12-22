@@ -57,14 +57,14 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	 * Flag with all the style-declaration-properties that are defined for 
 	 * the stylesheet.target.
 	 */
-	public var filledProperties		(default, null)	: UInt;
+	public var filledProperties		(default, null)	: Int;
 	
 	/**
 	 * Bit-flag from StyleFlags indicating which property is searched in this 
 	 * proxy.
 	 */
-	public var propertyTypeFlag		(default, null)	: UInt;
-//	public var change				(default, null)	: Signal1 < UInt >;
+	public var propertyTypeFlag		(default, null)	: Int;
+//	public var change				(default, null)	: Signal1 < Int >;
 	
 	private var elementStyle		: IUIElementStyle;
 	
@@ -74,10 +74,10 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	 */
 	private var groupIterator		: StyleCollectionForwardIterator < StyleGroupType >;
 	private var groupRevIterator	: StyleCollectionReversedIterator < StyleGroupType >;
-	private var changes				: UInt;
+	private var changes				: Int;
 	
 	
-	public function new (elementStyle:IUIElementStyle, propertyTypeFlag:UInt)
+	public function new (elementStyle:IUIElementStyle, propertyTypeFlag:Int)
 	{
 	//	change					= new Signal1();
 		changes					= 0;
@@ -102,7 +102,7 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	}
 	
 	
-	public inline function has (properties:UInt) : Bool
+	public inline function has (properties:Int) : Bool
 	{
 		return filledProperties.has(properties);
 	}
@@ -122,7 +122,7 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	}
 	
 	
-	public function invalidateCall ( changeFromSender:UInt, sender:IInvalidatable ) : Void
+	public function invalidateCall ( changeFromSender:Int, sender:IInvalidatable ) : Void
 	{
 		changes = changes.set( getRealChangesOf( cast sender, changeFromSender ) );
 	//	trace("\tchanged properties " + readProperties(changes));
@@ -176,7 +176,7 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	 * defined with a higher priority height, so the real-changes for the 
 	 * IUIelement are 'height'.
 	 */
-	private function getRealChangesOf ( styleGroup:StyleGroupType, styleChanges:Int ) : UInt
+	private function getRealChangesOf ( styleGroup:StyleGroupType, styleChanges:Int ) : Int
 	{
 		if (elementStyle.styles.length > 0)
 		{
@@ -238,10 +238,10 @@ class StyleCollectionIteratorBase implements IDisposable
 	/**
 	 * Flag to search for in target styles to see if the style contains the group
 	 */
-	private var flag		: UInt;
+	private var flag		: Int;
 	
 	
-	public function new (elementStyle:IUIElementStyle, groupFlag:UInt)
+	public function new (elementStyle:IUIElementStyle, groupFlag:Int)
 	{
 		this.elementStyle	= elementStyle;
 		flag				= groupFlag;
@@ -305,7 +305,7 @@ class StyleCollectionForwardIterator < StyleGroupType > extends StyleCollectionI
 	
 	
 #if (unitTesting && debug)
-	public function new (elementStyle:IUIElementStyle, groupFlag:UInt)
+	public function new (elementStyle:IUIElementStyle, groupFlag:Int)
 	{
 		super( elementStyle, groupFlag );
 		test();
@@ -348,7 +348,7 @@ class StyleCollectionReversedIterator < StyleGroupType > extends StyleCollection
 
 
 #if (unitTesting && debug)
-	public function new (elementStyle:IUIElementStyle, groupFlag:UInt)
+	public function new (elementStyle:IUIElementStyle, groupFlag:Int)
 	{
 		super( elementStyle, groupFlag );
 		test();

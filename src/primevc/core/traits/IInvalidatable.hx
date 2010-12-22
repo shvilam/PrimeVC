@@ -36,12 +36,12 @@ package primevc.core.traits;
  */
 interface IInvalidatable implements IInvalidateListener
 {
-//	public var changes (default, null)			: UInt;
+//	public var changes (default, null)			: Int;
 	
 	/**
 	 * List with IInvalidatables that want to be notified when values in this
 	 * instance changes
 	 */
-	public var listeners (default, null)		: FastList< IInvalidateListener >;
-	public function invalidate (change:UInt)	: Void;
+	public var listeners (default, null)	: FastList< IInvalidateListener >;
+	public function invalidate (change:Int)	: Void;
 }

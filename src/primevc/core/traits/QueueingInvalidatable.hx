@@ -64,7 +64,7 @@ class QueueingInvalidatable extends Invalidatable
 	}
 	
 	
-	override public function invalidate (change:UInt) : Void
+	override public function invalidate (change:Int) : Void
 	{
 		if (invalidatable)
 			super.invalidate(change);

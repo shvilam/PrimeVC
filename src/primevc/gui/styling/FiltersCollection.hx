@@ -126,7 +126,7 @@ class FiltersCollection extends StyleCollectionBase < FiltersStyle >
 	}
 	
 	
-	private function setFilter ( filters:Array<Dynamic>, flag:UInt, filter:BitmapFilter = null )
+	private function setFilter ( filters:Array<Dynamic>, flag:Int, filter:BitmapFilter = null )
 	{
 		Assert.notNull(filter);
 		
@@ -144,7 +144,7 @@ class FiltersCollection extends StyleCollectionBase < FiltersStyle >
 	}
 	
 	
-	private function unsetFilter ( filters:Array<Dynamic>, flag:UInt )
+	private function unsetFilter ( filters:Array<Dynamic>, flag:Int )
 	{
 		//remove filter
 		var pos = filterPositions.indexOf( flag );
@@ -168,7 +168,7 @@ class FiltersCollection extends StyleCollectionBase < FiltersStyle >
 	}
 	
 	
-	private inline function removeBoxFilters (filtersToRemove:UInt, filters:Array<Dynamic>)
+	private inline function removeBoxFilters (filtersToRemove:Int, filters:Array<Dynamic>)
 	{
 	//	trace(elementStyle.target+".removeBoxFilters "+Flags.readProperties(filtersToRemove));
 		if (filtersToRemove.has( Flags.SHADOW ))			unsetFilter( filters, Flags.SHADOW );
@@ -186,7 +186,7 @@ class FiltersCollectionForwardIterator extends StyleCollectionForwardIterator < 
 	private var type : Filter;
 	
 	
-	public function new (elementStyle:IUIElementStyle, groupFlag:UInt, type:Filter)
+	public function new (elementStyle:IUIElementStyle, groupFlag:Int, type:Filter)
 	{
 		this.type = type;
 		super( elementStyle, groupFlag );
@@ -207,7 +207,7 @@ class FiltersCollectionReversedIterator extends StyleCollectionReversedIterator 
 	private var type : Filter;
 	
 	
-	public function new (elementStyle:IUIElementStyle, groupFlag:UInt, type:Filter)
+	public function new (elementStyle:IUIElementStyle, groupFlag:Int, type:Filter)
 	{
 		this.type = type;
 		super( elementStyle, groupFlag );

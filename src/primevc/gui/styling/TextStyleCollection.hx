@@ -98,7 +98,7 @@ class TextStyleCollection extends StyleCollectionBase < TextStyle >
 	
 	
 #if flash9
-	private function applyStyleObject ( propsToSet:UInt, styleObj:TextStyle, textFormat:TextFormat )
+	private function applyStyleObject ( propsToSet:Int, styleObj:TextStyle, textFormat:TextFormat )
 	{
 		var empty		= styleObj == null;
 		var target		= elementStyle.target.as(ITextStylable);

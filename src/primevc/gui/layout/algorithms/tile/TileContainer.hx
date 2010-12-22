@@ -100,7 +100,7 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 	public function iterator () { return children.iterator(); }
 	
 	
-	override public function invalidateCall ( childChanges:UInt, sender:IInvalidatable ) : Void
+	override public function invalidateCall ( childChanges:Int, sender:IInvalidatable ) : Void
 	{
 		if (!sender.is(LayoutClient)) {
 			super.invalidateCall( childChanges, sender );

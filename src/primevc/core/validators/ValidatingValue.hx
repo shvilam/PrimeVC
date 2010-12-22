@@ -122,11 +122,11 @@ class ValidatingValue < DataType > extends Invalidatable
 
 class ValueFlags
 {
-	public static inline var VALUE		: Int = 1;
-	public static inline var VALIDATOR	: Int = 2;
+	public static inline var VALUE		= 1;
+	public static inline var VALIDATOR	= 2;
 	
 #if debug
-	public static function readProperties (flags:UInt) : String
+	public static function readProperties (flags:Int) : String
 	{
 		var output	= [];
 		
