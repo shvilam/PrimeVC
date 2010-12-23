@@ -36,16 +36,19 @@ package primevc.core.collections;
 
 private typedef Flags = RevertableBindableFlags;
 
+class RevertableArrayListFlags
+{
+	static public inline var REMEMBER_CHANGES = 32768;	// 0b_1000 0000 0000 0000
+}
 
 /**
  * @author Ruben Weijers
  * @creation-date Nov 19, 2010
  */
-class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >
-			,	implements IRevertableList < DataType >
-//#if flash9	,	implements haxe.rtti.Generic	#end
+class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >,
+ 	implements IRevertableList < DataType >
+	#if GenericArrays, implements haxe.rtti.Generic #end
 {
-	private static inline var REMEMBER_CHANGES = 32768;	// 0b_1000 0000 0000 0000
 	/**
 	 * Keeps track of settings.
 	 */
@@ -60,7 +63,7 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >
 	public function new( wrapAroundList:FastArray<DataType> = null )
 	{
 		super(wrapAroundList);
-		flags = REMEMBER_CHANGES;
+		flags = RevertableArrayListFlags.REMEMBER_CHANGES;
 	}
 	
 	
@@ -75,7 +78,7 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >
 	}
 	
 	
-	public inline function rememberChanges (enabled:Bool = true)				{ flags = enabled ? flags.set(REMEMBER_CHANGES) : flags.unset(REMEMBER_CHANGES); }
+	public inline function rememberChanges (enabled:Bool = true)				{ flags = enabled ? flags.set(RevertableArrayListFlags.REMEMBER_CHANGES) : flags.unset(RevertableArrayListFlags.REMEMBER_CHANGES); }
 	public inline function dispatchChangesBeforeCommit (enabled:Bool = true)	{ flags = enabled ? flags.set(Flags.DISPATCH_CHANGES_BEFORE_COMMIT) : flags.unset(Flags.DISPATCH_CHANGES_BEFORE_COMMIT); }
 	
 	
@@ -95,7 +98,7 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >
 		{
 			flags = flags.set( Flags.IN_EDITMODE );
 			
-			if (flags.has(REMEMBER_CHANGES))
+			if (flags.has(RevertableArrayListFlags.REMEMBER_CHANGES))
 				changes = FastArrayUtil.create();
 		}
 	}
@@ -104,7 +107,7 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >
 	public  function commitEdit ()
 	{
 		// Check if REMEMBER_CHANGES is not set (value changed) and any dispatch flag is set.
-		if (changes != null && flags.has(REMEMBER_CHANGES) && flags.hasNone( Flags.DISPATCH_CHANGES_BEFORE_COMMIT ))
+		if (changes != null && flags.has(RevertableArrayListFlags.REMEMBER_CHANGES) && flags.hasNone( Flags.DISPATCH_CHANGES_BEFORE_COMMIT ))
 			while (changes.length > 0) {
 				var listChange = changes.shift();
 				Assert.notNull( listChange );
@@ -117,10 +120,10 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >
 	
 	public inline function cancelEdit ()
 	{
-		if (changes != null && flags.hasAll( Flags.IN_EDITMODE | REMEMBER_CHANGES))
+		if (changes != null && flags.hasAll( Flags.IN_EDITMODE | RevertableArrayListFlags.REMEMBER_CHANGES))
 		{
 			var f = flags;
-			flags = flags.unset( REMEMBER_CHANGES );
+			flags = flags.unset( RevertableArrayListFlags.REMEMBER_CHANGES );
 			while (changes.length > 0)
 				this.undoListChange( changes.pop() );
 			
@@ -149,7 +152,7 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >
 	
 	private inline function addChange (listChange:ListChange<DataType>)
 	{
-		if (flags.has( REMEMBER_CHANGES ))
+		if (flags.has( RevertableArrayListFlags.REMEMBER_CHANGES ))
 			changes.push( listChange );
 
 		if (flags.has( Flags.DISPATCH_CHANGES_BEFORE_COMMIT ))

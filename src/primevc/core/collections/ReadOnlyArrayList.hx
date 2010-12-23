@@ -43,8 +43,8 @@ package primevc.core.collections;
  * @creation-date Nov 19, 2010
  */
 class ReadOnlyArrayList < DataType >
-				implements IReadOnlyList < DataType >
-#if flash9	,	implements haxe.rtti.Generic #end
+	implements IReadOnlyList < DataType >
+	#if GenericArrays, implements haxe.rtti.Generic #end
 {
 	public var change		(default, null)		: ListChangeSignal < DataType >;
 	private var list		(default, null)		: FastArray < DataType >;
@@ -54,9 +54,11 @@ class ReadOnlyArrayList < DataType >
 	public function new( wrapAroundList:FastArray<DataType> = null )
 	{
 		change	= new ListChangeSignal();
-		list	= wrapAroundList;
-		if (list == null)
+		
+		if (wrapAroundList == null)
 			list = FastArrayUtil.create();
+		else
+		 	list = wrapAroundList;
 	}
 	
 	

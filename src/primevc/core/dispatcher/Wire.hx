@@ -63,7 +63,7 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 		}
 	} */
 		
-	static public inline function make<T>( dispatcher:Signal<T>, owner:Dynamic, handlerFn:T, flags:Int ) : Wire<T>
+	static public function make<T>( dispatcher:Signal<T>, owner:Dynamic, handlerFn:T, flags:Int ) : Wire<T>
 	{
 		var w:Wire<Dynamic>,
 			W = Wire;
@@ -83,7 +83,7 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 		w.flags	  = flags;
 		w.doEnable();
 		
-		return cast w;
+		return untyped w;
 	}
 	
 	static public inline function sendVoid<T>( wire:Wire<Dynamic> ) {
