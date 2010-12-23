@@ -69,12 +69,9 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >,
 	
 	override public function clone ()
 	{
-		var l = new RevertableArrayList<DataType>();
-		for (child in this)
-			l.list.insertAt(child, l.length);
-		
+		var l = new RevertableArrayList<DataType>(list.concat() /* copy */);
 		l.flags = flags;
-		return cast l;
+		return untyped l;
 	}
 	
 	
