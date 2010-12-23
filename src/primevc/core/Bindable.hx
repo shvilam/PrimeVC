@@ -92,7 +92,7 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 	private var writeTo : FastList < IBindable < DataType > >;
 	
 	
-	public function new (?val:DataType)
+	public function new (?val : Null<DataType>)
 	{
 		change = new Signal2();
 		set( val );

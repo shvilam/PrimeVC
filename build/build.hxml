@@ -23,3 +23,5 @@
 -cp libs/monsterdebugger
 -cp generated-src
 -cp src
+
+#--dead-code-elimination

@@ -1,5 +1,4 @@
 -D Release
--exclude build/release-exclude.txt
 --no-traces
 
 -swf9 build/tmp.swf

@@ -81,7 +81,7 @@ class Slider extends UIDataContainer < DataType >
 	private var dataChangeBinding		: Wire < Dynamic >;
 	
 	
-	public function new (id:String = null, value:Float = null, minValue:Float = 0, maxValue:Float = 1, direction:Direction = null)
+	public function new (id:String = null, ?value:Float, minValue:Float = 0, maxValue:Float = 1, direction:Direction = null)
 	{
 		super(id, new DataType(value));
 		this.direction	= direction == null ? horizontal : direction;

@@ -81,7 +81,6 @@ else
 		-main $MainClass \
 		-swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR \
 		${ASSETS:+-swf-lib "'$ASSETS'"} \
-		${Debug:--exclude "'build/release-exclude.txt'"} \
 		-swf-lib "'assets/${Debug:+debug-}assets.swf'" \
 		$LOCALACCESS \
 		| xargs -t haxe \
