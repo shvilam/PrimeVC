@@ -43,8 +43,8 @@ package primevc.core.collections;
  * @creation-date Nov 19, 2010
  */
 class ReadOnlyArrayList < DataType >
-	implements IReadOnlyList < DataType >
-	#if GenericArrays, implements haxe.rtti.Generic #end
+						implements IReadOnlyList < DataType >
+#if GenericArrays	,	implements haxe.rtti.Generic #end
 {
 	public var change		(default, null)		: ListChangeSignal < DataType >;
 	private var list		(default, null)		: FastArray < DataType >;
@@ -72,11 +72,7 @@ class ReadOnlyArrayList < DataType >
 	
 	public function clone () : IReadOnlyList < DataType >
 	{
-		var l = new ReadOnlyArrayList<DataType>();
-		for (child in this)
-			l.list.insertAt(child, l.length);
-		
-		return l;
+		return new ReadOnlyArrayList<DataType>( list.clone() );
 	}
 	
 	
