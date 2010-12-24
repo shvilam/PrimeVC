@@ -50,20 +50,20 @@ class UserSignals extends Signals, implements haxe.Public
 	var key			(default,null) : KeyboardEvents;
 	var focus		(default,null) : INotifier<Void->Void>;
 	var blur		(default,null) : INotifier<Void->Void>;
-	var clipboard	(default,null) : ClipboardEvents;
+	var edit		(default,null) : EditEvents;
 	
 	
 	override public function dispose ()
 	{
-		mouse		.dispose();
-		key			.dispose();
-		focus		.dispose();
-		blur		.dispose();
-		clipboard	.dispose();
+		mouse	.dispose();
+		key		.dispose();
+		focus	.dispose();
+		blur	.dispose();
+		edit	.dispose();
 		
-		clipboard = null;
-		mouse = null;
-		key = null;
-		blur = focus = null;
+		edit	= null;
+		mouse	= null;
+		key		= null;
+		blur	= focus = null;
 	}
 }

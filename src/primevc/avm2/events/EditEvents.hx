@@ -26,29 +26,60 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.events;
- import primevc.core.dispatcher.Signals;
+package primevc.avm2.events;
+#if flash10
+ import flash.events.Event;
+#else if flash9
+ import flash.events.KeyboardEvent;
  import primevc.core.dispatcher.Signal0;
-
-
-typedef ClipboardEvents = 
-	#if		flash10	primevc.avm2.events.ClipboardEvents;
-	#elseif flash9	error
-	#elseif	flash8	primevc.avm1.events.ClipboardEvents;
-	#elseif	js		primevc.js  .events.ClipboardEvents;
-	#else	error	#end
+#end
+ import primevc.gui.events.EditEvents;
 
 
 /**
- * Signals that are fired when the hot-keys for copy, cut and paste on the
- * platform of the user are pressed.
+ * AVM2 implementation of events that are triggered when the platform's hotkeys
+ * for copy, cut or paste are pressed.
  * 
  * @author Ruben Weijers
  * @creation-date Dec 12, 2010
  */
-class ClipboardSignals extends Signals
+class EditEvents extends EditSignals
 {
-	public var cut		(default, null) : Signal0;
-	public var copy		(default, null) : Signal0;
-	public var paste	(default, null) : Signal0;
+	public function new (eventDispatcher)
+	{
+#if flash10
+		cut			= new FlashSignal0 (eventDispatcher, Event.CUT );
+		copy		= new FlashSignal0 (eventDispatcher, Event.COPY );
+		paste		= new FlashSignal0 (eventDispatcher, Event.PASTE );
+		remove		= new FlashSignal0 (eventDispatcher, Event.CLEAR );
+		selectAll	= new FlashSignal0 (eventDispatcher, Event.SELECT_ALL );
+#else if flash9
+		cut			= new Signal0();
+		copy		= new Signal0();
+		paste		= new Signal0();
+		remove		= new Signal0();
+		selectAll	= new Signal0();
+		
+		eventDispatcher.addEventListener(KeyboardEvent.KEY_DOWN, dispatch);
+#end
+	}
+	
+	
+#if (flash9 && !flash10)
+	private function dispatch (e:KeyboardEvent) : Void
+	{
+		var key = keyObj.keyCode();
+		
+		if (key == KeyCodes.BACKSPACE || key == KeyCodes.DELETE)
+			remove.send();
+		else if (keyObj.ctrlKey())
+			switch (key)
+			{
+				case KeyCodes.A:	selectAll.send();
+				case KeyCodes.X:	cut.send();
+				case KeyCodes.C:	copy.send();
+				case KeyCodes.V:	paste.send();
+			}
+	}
+#end
 }

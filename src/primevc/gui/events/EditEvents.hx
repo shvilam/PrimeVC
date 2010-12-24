@@ -26,24 +26,30 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.avm2.events;
- import flash.events.Event;
- import primevc.gui.events.ClipboardEvents;
+package primevc.gui.events;
+ import primevc.core.dispatcher.Signals;
+ import primevc.core.dispatcher.Signal0;
+
+
+typedef EditEvents = 
+	#if		flash9	primevc.avm2.events.EditEvents;
+	#elseif	flash8	primevc.avm1.events.EditEvents;
+	#elseif	js		primevc.js  .events.EditEvents;
+	#else	error	#end
 
 
 /**
- * AVM2 implementation of events that are triggered when the platform's hotkeys
- * for copy, cut or paste are pressed.
+ * Signals that are fired when the hot-keys for copy, cut and paste on the
+ * platform of the user are pressed.
  * 
  * @author Ruben Weijers
  * @creation-date Dec 12, 2010
  */
-class ClipboardEvents extends ClipboardSignals
+class EditSignals extends Signals
 {
-	public function new (eventDispatcher)
-	{
-		cut		= new FlashSignal0 (eventDispatcher, Event.CUT );
-		copy	= new FlashSignal0 (eventDispatcher, Event.COPY );
-		paste	= new FlashSignal0 (eventDispatcher, Event.PASTE );
-	}
+	public var cut			(default, null) : Signal0;
+	public var copy			(default, null) : Signal0;
+	public var paste		(default, null) : Signal0;
+	public var remove		(default, null) : Signal0;
+	public var selectAll	(default, null) : Signal0;
 }
