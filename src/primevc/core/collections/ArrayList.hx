@@ -89,4 +89,10 @@ class ArrayList <DataType> extends ReadOnlyArrayList <DataType>, implements IEdi
 		
 		return item;
 	}
+	
+	
+	override public function clone () : IReadOnlyList<DataType>
+	{
+		return untyped new ArrayList<DataType>(list.concat() /* copy */);
+	}
 }
