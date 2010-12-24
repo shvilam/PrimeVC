@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.display;
+ import primevc.core.geom.Point;
  import primevc.gui.traits.IInteractive;
 
 
@@ -39,5 +40,10 @@ interface IDisplayContainer implements IInteractive
 #if !neko
 	var children	(default, null)			: DisplayList;
 	var window		(default, setWindow)	: Window;
+#end
+	
+#if flash9
+	public function globalToLocal (point : Point) : Point;
+	public function localToGlobal (point : Point) : Point;
 #end
 }

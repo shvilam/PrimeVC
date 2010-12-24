@@ -136,7 +136,12 @@ class UITextField extends TextField, implements IUIElement
 		behaviours		= null;
 		super.dispose();
 	}
-
+	
+	
+	public inline function isDisposed ()
+	{
+		return state == null || state.is(state.disposed);
+	}
 
 
 	//

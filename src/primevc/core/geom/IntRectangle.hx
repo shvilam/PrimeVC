@@ -28,6 +28,7 @@
  */
 package primevc.core.geom;
  import primevc.core.traits.QueueingInvalidatable;
+ import primevc.utils.NumberMath;
   using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
 
@@ -207,6 +208,21 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	public function isEmpty ()
 	{
 		return width <= 0 || height <= 0;
+	}
+	
+	
+	/**
+	 * Method to check if the given rectangle intersects with this rectangle
+	 * @param rect IntRectangle
+	 * @return Bool
+	 */
+	public function intersectsWith (rect:IntRectangle) : Bool
+	{
+		var maxLeft		= IntMath.max( rect.left, left );
+		var minRight	= IntMath.min( rect.right, right );
+		var maxTop		= IntMath.max( rect.top, top );
+		var minBottom	= IntMath.min( rect.bottom, bottom );
+		return maxLeft < minRight && maxTop < minBottom;
 	}
 	
 	

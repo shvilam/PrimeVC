@@ -142,7 +142,7 @@ class FastArrayUtil
 	}
 	
 	
-	public static inline function swap <T> (list:FastArray<T>, item1:T, item2:T ) : Void
+	public static inline function swap<T> (list:FastArray<T>, item1:T, item2:T ) : Void
 	{
 		if (!list.has(item1))		throw "item1 is not in list";
 		if (!list.has(item2))		throw "item2 is not in list";
@@ -154,14 +154,14 @@ class FastArrayUtil
 	}
 	
 	
-	public static inline function removeItem < T > (list:FastArray<T>, item:T, oldPos:Int = -1) : Bool {
+	public static inline function removeItem<T> (list:FastArray<T>, item:T, oldPos:Int = -1) : Bool {
 		if (oldPos == -1)
 			oldPos = list.indexOf(item);
 		return removeAt(list, oldPos);
 	}
 	
 	
-	public static inline function removeAt < T > (list:FastArray<T>, pos:Int) : Bool {
+	public static inline function removeAt<T> (list:FastArray<T>, pos:Int) : Bool {
 		if (pos >= 0)
 		{
 			if		(pos == 0)						list.shift();
@@ -172,7 +172,7 @@ class FastArrayUtil
 	}
 	
 	
-	public static inline function removeAll <T> (list:FastArray<T>) : Void {
+	public static inline function removeAll<T> (list:FastArray<T>) : Void {
 		while (list.length > 0)
 			list.pop();
 	}

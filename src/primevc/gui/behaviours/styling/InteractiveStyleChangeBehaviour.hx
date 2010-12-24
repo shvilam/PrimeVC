@@ -34,8 +34,14 @@ package primevc.gui.behaviours.styling;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.styling.StyleState;
  import primevc.gui.styling.StyleStateFlags;
+ import primevc.gui.traits.IDropTarget;
+ import primevc.gui.traits.ISelectable;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
+  using primevc.utils.TypeUtil;
+
+
+private typedef Flags = StyleStateFlags;
 
 
 /**
@@ -54,17 +60,32 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	private var upBinding			: Wire < Dynamic >;
 	
 	private var disabledBinding		: Wire < Dynamic >;
+	private var selectedBinding		: Wire < Dynamic >;
+	private var dragOverBinding		: Wire < Dynamic >;
+	private var dragOutBinding		: Wire < Dynamic >;
 	
-	
-	private var styleBinding		: Wire < Dynamic >;
 	private var mouseState			: StyleState;
 	private var disabledState		: StyleState;
+	private var selectedState		: StyleState;
+	private var dragState			: StyleState;
 	
 	
 	override private function init ()
 	{
-		styleBinding = updateBehaviour.on( getStates().change, this );
-		updateBehaviour( getStates().filledProperties );
+		var states = getStates();
+		updateInteractiveStates.on( states.change, this );
+		updateInteractiveStates( states.filledProperties );
+		
+		if (target.is(IDropTarget)) {
+			updateDropTargetStates.on( states.change, this );
+			updateDropTargetStates( states.filledProperties );
+		}
+		
+		
+		if (target.is(ISelectable)) {
+			updateSelectionStates.on( states.change, this );
+			updateSelectionStates( states.filledProperties );
+		}
 	}
 	
 	
@@ -72,35 +93,32 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	{
 		removeHoverBindings();
 		removeDownBindings();
+		removeDragOverBindings();
 		
-		if (styleBinding != null) {
-			styleBinding.dispose();
-			styleBinding = null;
-		}
+		getStates().change.unbind( this );
 		
-		if (mouseState != null) {
-			mouseState.dispose();
-			mouseState = null;
-		}
+		if (mouseState != null)		mouseState.dispose();
+		if (disabledState != null)	disabledState.dispose();
+		if (selectedState != null)	selectedState.dispose();
+		if (dragState != null)		dragState.dispose();
 		
-		if (disabledState != null) {
-			disabledState.dispose();
-			disabledState = null;
-		}
+		mouseState = disabledState = selectedState = dragState = null;
 	}
 	
 	
 	
 	
-	private function updateBehaviour (changes:Int) : Void
+	private function updateInteractiveStates (changes:Int) : Void
 	{
+		var states = getStates();
+		
 		//
 		// DISABLED STATE
 		//
 		
-		if (changes.has( StyleStateFlags.DISABLED ))
+		if (changes.has( Flags.DISABLED ))
 		{
-			var hasDisabledState = getStates().has( StyleStateFlags.DISABLED );
+			var hasDisabledState = states.has( Flags.DISABLED );
 			
 			if (hasDisabledState)
 			{
@@ -119,50 +137,89 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 		// HOVER / DOWN STATE
 		//
 		
+		if (changes.hasNone( Flags.MOUSE_STATES ))
+			return;
+		
 	//	trace(target + ".update; "+getStates().readProperties());
-		var hoverChanged	= changes.has( StyleStateFlags.HOVER );
-		var downChanged		= changes.has( StyleStateFlags.DOWN );
+		var hoverChanged	= changes.has( Flags.HOVER );
+		var downChanged		= changes.has( Flags.DOWN );
 		
-		if (hoverChanged || downChanged)
+		var hasHoverState	= states.has( Flags.HOVER );
+		var hasDownState	= states.has( Flags.DOWN );
+	
+	
+		// MANAGE STATE OBJECT
+		if (hasHoverState || hasDownState)
+			if (mouseState == null)
+				mouseState = target.style.createState();
+		else
+			if (mouseState != null) {
+				mouseState.dispose();
+				mouseState = null;
+			}
+	
+	
+		// MANAGE HOVER
+		if (hoverChanged && !hasHoverState)
 		{
-			var hasHoverState	= getStates().has( StyleStateFlags.HOVER );
-			var hasDownState	= getStates().has( StyleStateFlags.DOWN );
-		
-		
-			// MANAGE STATE OBJECT
-			if (hasHoverState || hasDownState)
-				if (mouseState == null)
-					mouseState = target.style.createState();
-			else
-				if (mouseState != null) {
-					mouseState.dispose();
-					mouseState = null;
-				}
-		
-		
-			// MANAGE HOVER
-			if (hoverChanged && !hasHoverState)
-			{
-				if (mouseState != null && mouseState.current == StyleStateFlags.HOVER)
-					mouseState.current = StyleStateFlags.NONE;
-			
-				removeHoverBindings();
-			}
-			else if (hasHoverState)
-				createHoverBindings();
-		
-		
-			// MANAGE DOWN
-			if (downChanged && !hasDownState)
-			{
-				if (mouseState != null && mouseState.current == StyleStateFlags.DOWN)
-					mouseState.current = StyleStateFlags.NONE;
-			
-				removeDownBindings();
-			}
-			else if (hasDownState)
-				createDownBindings();
+			unsetState( mouseState, Flags.HOVER );
+			removeHoverBindings();
 		}
+		else if (hasHoverState)
+			createHoverBindings();
+	
+	
+		// MANAGE DOWN
+		if (downChanged && !hasDownState)
+		{
+			unsetState( mouseState, Flags.DOWN );
+			removeDownBindings();
+		}
+		else if (hasDownState)
+			createDownBindings();
+	}
+	
+	
+	private function updateSelectionStates (changes:Int)	: Void
+	{
+		if (changes.has( Flags.SELECTED ))
+		{
+			var selectable = target.as(ISelectable);
+			
+			if (getStates().has( Flags.SELECTED ))
+			{
+				if (selectedState == null)		{ selectedState		= target.style.createState(); }
+				if (selectedBinding == null)	{ selectedBinding	= changeSelectedState.on( selectable.selected.change, this ); changeEnabledState( selectable.selected.value, false ); }
+			}
+			else
+			{
+				if (selectedState != null)		{ selectedState.dispose();		selectedState = null; }
+				if (selectedBinding != null)	{ selectedBinding.dispose();	selectedBinding = null; }
+			}
+		}
+	}
+	
+	
+	private function updateDropTargetStates (changes:Int)	: Void
+	{	
+		var states	= getStates();
+		var target	= target.as(IDropTarget);
+		
+		if (changes.hasNone( Flags.DRAG_STATES ))
+			return;
+		
+		if (changes.has( Flags.DRAG_OVER ))
+			if (!states.has( Flags.DRAG_OVER ))
+			{
+				unsetState( dragState, Flags.DRAG_OVER );
+				removeDragOverBindings();
+			}
+			else
+			{
+				if (dragState == null)			dragState		= target.style.createState();
+				if (dragOverBinding == null)	dragOverBinding = changeStateToDragOver	.on( target.dragEvents.over, this );
+				if (dragOutBinding == null)		dragOutBinding	= clearDragState		.on( target.dragEvents.out, this );
+			}
 	}
 	
 	
@@ -174,6 +231,13 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	
 	private inline function getEvents ()	{ return target.userEvents.mouse; }
 	private inline function getStates ()	{ return target.style.states; }
+	
+	
+	private inline function unsetState (stateObj:StyleState, stateFlag:Int) : Void
+	{
+		if (stateObj != null && stateObj.current == stateFlag)
+			stateObj.current = Flags.NONE;
+	}
 	
 	
 	private inline function createHoverBindings ()
@@ -212,6 +276,13 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	}
 	
 	
+	private inline function removeDragOverBindings ()
+	{
+		if (dragOverBinding != null)	dragOverBinding.dispose();
+		if (dragOutBinding != null)		dragOutBinding.dispose();
+		dragOverBinding = dragOutBinding = null;
+	}
+	
 	
 	
 	//
@@ -220,7 +291,7 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	
 	private function changeStateToDown ()
 	{
-		mouseState.current = StyleStateFlags.DOWN;
+		mouseState.current = Flags.DOWN;
 		
 		if (outBinding != null)			outBinding		.disable();
 		if (overBinding != null)		overBinding		.disable();
@@ -235,7 +306,7 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	{
 		if (mouseState != null)
 		{
-			mouseState.current = StyleStateFlags.NONE;
+			mouseState.current = Flags.NONE;
 			
 			if (outBinding != null)			outBinding		.disable();
 			if (overBinding != null)		overBinding		.enable();
@@ -253,7 +324,7 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 			return;
 		
 		//check if there's a hover state, otherwise change state to none
-		mouseState.current = (overBinding != null) ? StyleStateFlags.HOVER : StyleStateFlags.NONE;
+		mouseState.current = (overBinding != null) ? Flags.HOVER : Flags.NONE;
 		
 		if (outBinding != null)			outBinding		.enable();
 		if (overBinding != null)		overBinding		.disable();
@@ -266,10 +337,21 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	
 	private function changeEnabledState (newVal:Bool, oldVal:Bool)
 	{
-		if (newVal)		disabledState.current = StyleStateFlags.NONE;
-		else			disabledState.current = StyleStateFlags.DISABLED;
+		if (newVal)		disabledState.current = Flags.NONE;
+		else			disabledState.current = Flags.DISABLED;
 		
 		if (!newVal)
 			clearMouseState();
 	}
+	
+	
+	private function changeSelectedState (newVal:Bool, oldVal:Bool)
+	{
+		if (newVal)		selectedState.current = Flags.SELECTED;
+		else			selectedState.current = Flags.NONE;
+	}
+	
+	
+	private function changeStateToDragOver ()	{ dragState.current = Flags.DRAG_OVER; }
+	private function clearDragState ()			{ dragState.current = Flags.NONE; }
 }

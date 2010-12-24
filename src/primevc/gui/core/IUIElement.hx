@@ -61,6 +61,8 @@ interface IUIElement
 	public var effects	(default, default)	: UIElementEffects;
 	
 	
+	public function isDisposed ()			: Bool;
+	
 	//
 	// ACTIONS
 	//

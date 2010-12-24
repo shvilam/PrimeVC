@@ -69,6 +69,8 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, impleme
 	{
 		if (target.window != null && !target.graphicData.isEmpty() && nextValidatable == null && prevValidatable == null)
 			getValidationManager().add( this );
+		else if (target.graphicData.isEmpty())
+			target.graphics.clear();
 	}
 	
 	

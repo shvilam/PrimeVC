@@ -144,6 +144,12 @@ class UIGraphic extends Shape
 	}
 	
 	
+	public inline function isDisposed ()
+	{
+		return state == null || state.is(state.disposed);
+	}
+	
+	
 	
 	//
 	// METHODS

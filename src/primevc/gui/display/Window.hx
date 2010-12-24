@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.display;
+#if flash9
+ import primevc.core.geom.Point;
+#end
 #if (flash8 || flash9 || js)
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEvents;
@@ -147,6 +150,10 @@ class Window
 	public var doubleClickEnabled	: Bool;
 	public var tabEnabled			: Bool;
 	public var tabIndex				: Int;
+	
+	
+	public inline function globalToLocal (point:Point) : Point	{ return target.globalToLocal(point); }
+	public inline function localToGlobal (point:Point) : Point	{ return target.localToGlobal(point); }
 #end
 	
 	
