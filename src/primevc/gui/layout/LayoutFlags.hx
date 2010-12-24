@@ -44,6 +44,9 @@ class LayoutFlags
 	public static inline var WIDTH_PROPERTIES		= WIDTH | MEASURED_WIDTH | EXPLICIT_WIDTH;
 	public static inline var HEIGHT_PROPERTIES		= HEIGHT | MEASURED_HEIGHT | EXPLICIT_HEIGHT;
 	
+	public static inline var SIZE					= WIDTH | HEIGHT;
+	public static inline var POSITION				= X | Y;
+	
 	public static inline var WIDTH					= 1 << 0;
 	public static inline var HEIGHT					= 1 << 1;
 	public static inline var X						= 1 << 2;

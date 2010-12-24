@@ -47,7 +47,7 @@ class ReadOnlyArrayList < DataType >
 #if GenericArrays	,	implements haxe.rtti.Generic #end
 {
 	public var change		(default, null)		: ListChangeSignal < DataType >;
-	private var list		(default, null)		: FastArray < DataType >;
+	public var list			(default, null)		: FastArray < DataType >;
 	public var length		(getLength, never)	: Int;
 	
 	

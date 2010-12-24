@@ -185,12 +185,15 @@ class FastArrayUtil
 	
 	public static inline function clone<T> ( list:FastArray<T> ) : FastArray<T>
 	{
-		return list.concat();
-		/*var l:FastArray<T> = create();
+#if neko
+		var l:FastArray<T> = create();
 		for (i in 0...list.length)
 			l.push( list[i] );
-		
-		return l;*/
+	
+		return l;
+#else
+		return list.concat();
+#end
 	}
 	
 	
