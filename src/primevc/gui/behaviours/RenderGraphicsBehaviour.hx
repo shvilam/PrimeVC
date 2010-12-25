@@ -67,7 +67,7 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, impleme
 	
 	public inline function invalidateGraphics ()
 	{
-		if (target.window != null && !target.graphicData.isEmpty() && nextValidatable == null && prevValidatable == null)
+		if (isOnStage() && !target.graphicData.isEmpty() && !isQueued())
 			getValidationManager().add( this );
 		else if (target.graphicData.isEmpty())
 			target.graphics.clear();
@@ -77,6 +77,9 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, impleme
 	public function validateGraphics ()
 	{
 	//	trace(target+".render "+target.rect);
+		if (target == null || target.graphics == null)
+			return;
+		
 		target.graphics.clear();
 		target.graphicData.draw( target, false );
 	}
@@ -84,6 +87,6 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, impleme
 	
 	override private function getValidationManager ()
 	{
-		return (target.window != null) ? cast target.window.as(UIWindow).renderManager : null;
+		return (isOnStage()) ? cast target.window.as(UIWindow).renderManager : null;
 	}
 }

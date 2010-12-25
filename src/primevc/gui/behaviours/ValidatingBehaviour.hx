@@ -48,14 +48,15 @@ class ValidatingBehaviour < TargetType:IDisplayable > extends BehaviourBase < Ta
 		Assert.abstract();
 		return null;
 	}
-//	public function validate ()					: Void			{ Assert.abstract(); }
 	
 	
 	override private function reset ()
 	{
-		if (target.window != null)
-			getValidationManager().remove( this );
-		else
-			prevValidatable = nextValidatable = null;
+		if (isOnStage())	getValidationManager().remove( this );
+		else				prevValidatable = nextValidatable = null;
 	}
+	
+	
+	private inline function isOnStage ()	{ return target.window != null; }
+	private inline function isQueued ()		{ return nextValidatable != null || prevValidatable != null; }
 }

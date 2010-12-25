@@ -45,7 +45,7 @@ package primevc.utils;
  * @author Ruben Weijers
  * @creation-date Nov 19, 2010
  */
-class ChangesUtility
+class ChangesUtil
 {
 	public static inline function undoListChange<T> (list:IEditableList<T>, change:ListChange<T>) : Void
 	{
@@ -77,6 +77,7 @@ class ChangesUtility
 	{
 	//	trace("undo changes "+Date.fromTime(changes.timestamp));
 		var vo = changes.vo;
+		vo.beginEdit();
 		
 		var change:PropertyChangeVO = changes.next;
 		while( change != null )
@@ -89,6 +90,8 @@ class ChangesUtility
 			
 			change = change.next;
 		}
+		
+		vo.commitEdit();
 	}
 	
 	
@@ -96,6 +99,7 @@ class ChangesUtility
 	{
 	//	trace("redo changes "+Date.fromTime(changes.timestamp * 1000));
 		var vo = changes.vo;
+		vo.beginEdit();
 		
 		var change:PropertyChangeVO = changes.next;
 		while( change != null )
@@ -108,6 +112,7 @@ class ChangesUtility
 			
 			change = change.next;
 		}
+		vo.commitEdit();
 	}
 	
 	
@@ -119,9 +124,8 @@ class ChangesUtility
 		var list	= TypeUtil.as( getProperty( owner, property ), IEditableList);
 		var changes = changesVO.changes;
 		
-		if (list.is(IEditableValueObject))		list.as(IEditableValueObject).beginEdit();
-		for (i in 0...changes.length)			undoListChange( list, cast changes[i] );
-		if (list.is(IEditableValueObject))		list.as(IEditableValueObject).commitEdit();
+		for (i in 0...changes.length)
+			undoListChange( list, cast changes[i] );
 	}
 	
 	
@@ -131,9 +135,8 @@ class ChangesUtility
 		var list	= TypeUtil.as( getProperty( owner, property ), IEditableList);
 		var changes = changesVO.changes;
 		
-		if (list.is(IEditableValueObject))		list.as(IEditableValueObject).beginEdit();
-		for (i in 0...changes.length)			redoListChange( list, cast changes[i] );
-		if (list.is(IEditableValueObject))		list.as(IEditableValueObject).commitEdit();
+		for (i in 0...changes.length)
+			redoListChange( list, cast changes[i] );
 	}
 	
 	
@@ -141,14 +144,14 @@ class ChangesUtility
 	
 	private static inline function undoPropertyChange (change:PropertyValueChangeVO, owner:ValueObjectBase, property:String) : Void
 	{
-		trace("for "+property+": "+change.newValue+" => "+change.oldValue);
+	//	trace("for "+property+": "+change.newValue+" => "+change.oldValue);
 		setProperty( owner, property, change.oldValue );
 	}
 	
 	
 	private static inline function redoPropertyChange (change:PropertyValueChangeVO, owner:ValueObjectBase, property:String) : Void
 	{
-		trace("for "+property+": "+change.oldValue+" => "+change.newValue);
+	//	trace("for "+property+": "+change.oldValue+" => "+change.newValue);
 		setProperty( owner, property, change.newValue );
 	}
 	
@@ -171,18 +174,7 @@ class ChangesUtility
 	//	trace("set "+owner+"."+property+" to "+value);
 		
 		if (TypeUtil.is( field, Bindable))
-		{
-			var b = TypeUtil.as( field, Bindable);
-			if (TypeUtil.is(field, IEditableValueObject))
-			{
-				var p = TypeUtil.as( field, IEditableValueObject);
-				p.beginEdit();
-				b.value = value;
-				p.commitEdit();
-			}
-			else
-				b.value = value;
-		}
+			TypeUtil.as( field, Bindable).value = value;
 		else
 			Reflect.setField( owner, property, value );
 	}

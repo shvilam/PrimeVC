@@ -82,20 +82,20 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 	
 	private function layoutStateChangeHandler (newState:ValidateStates, oldState:ValidateStates)
 	{
-		if (target.window == null)
+		if (!isOnStage())
 			return;
 		
-		if (nextValidatable != null && newState == ValidateStates.parent_invalidated)
+		if (isQueued() && newState == ValidateStates.parent_invalidated)
 			getValidationManager().remove( this );
 		
-		else if (nextValidatable == null && newState == ValidateStates.invalidated)
+		else if (!isQueued() && newState == ValidateStates.invalidated)
 			invalidate();
 	}
 	
 	
 	public inline function invalidate ()				{ getValidationManager().add( this ); }
 	public inline function validate ()					{ target.layout.validate(); }
-	override private function getValidationManager ()	{ return (target.window != null) ? cast target.window.as(UIWindow).invalidationManager : null; }
+	override private function getValidationManager ()	{ return isOnStage() ? cast target.window.as(UIWindow).invalidationManager : null; }
 	
 	
 	public function applyChanges (changes:Int)

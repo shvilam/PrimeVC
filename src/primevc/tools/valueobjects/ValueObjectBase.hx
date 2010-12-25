@@ -34,6 +34,9 @@ package primevc.tools.valueobjects;
  import primevc.core.dispatcher.Signal1;
  import primevc.core.RevertableBindable;
  import primevc.utils.FastArray;
+#if debug
+  using primevc.utils.ChangesUtil;
+#end
   using primevc.utils.IfUtil;
   using primevc.utils.TypeUtil;
 
@@ -173,6 +176,13 @@ class PropertyValueChangeVO extends PropertyChangeVO
 		this.oldValue = this.newValue = null;
 		super.dispose();
 	}
+	
+#if debug
+	public function toString ()
+	{
+		return oldValue + " -> " + newValue;
+	}
+#end
 }
 
 class ListChangeVO extends PropertyChangeVO
@@ -197,6 +207,17 @@ class ListChangeVO extends PropertyChangeVO
 		}
 		super.dispose();
 	}
+	
+#if debug
+	public function toString ()
+	{
+		var output = [];
+		for (change in changes)
+			output.push( change );
+		
+		return output.length > 0 ? "\n\t\t\t\t" + output.join("\n\t\t\t\t") : "no-changes";
+	}
+#end
 }
 /*
 ObjectChangeVO {
@@ -255,10 +276,27 @@ class ObjectChangeSet extends ChangeVO
 		if (flagBit.not0())
 			add(ListChangeVO.make(id, list.changes));
 	}
+	
+	
+#if debug
+	public function toString ()
+	{
+		var output = [];
+		
+		var change = next;
+		while(change != null)
+		{
+			output.push( vo.propertyIdToString(change.propertyID) + ": " + change );
+			change = change.next;
+		}
+		
+		return "ChangeSet of " + Date.fromTime( timestamp * 1000 ) + " on "+vo+"; changes: \n\t\t\t" + output.join("\n\t\t\t");
+	}
+#end
 }
 
 class ObjectPathVO implements IValueObject
-{	
+{
 	public var parent		(default, null) : ObjectPathVO;
 	public var object		(default, null) : IValueObject;
 	public var propertyID	(default, null) : Int;
