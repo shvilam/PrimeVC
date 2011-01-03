@@ -1,5 +1,15 @@
 #!/bin/bash
 
+if test "`which open`" -nt '' ; then
+	# Use open on OS X
+	echo;
+elif test "`which start`" -nt '' ; then
+	# Do nothing on Windows (I can't get start to work :-S)
+	function open () {
+		echo;
+	}
+fi;
+
 BUILDSCRIPTDIR=`dirname "$0"`;
 PRIMEVC_ROOT=`cd "${BUILDSCRIPTDIR}/.."; pwd`
 
