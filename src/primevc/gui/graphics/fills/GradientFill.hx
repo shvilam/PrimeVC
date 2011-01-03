@@ -201,11 +201,11 @@ class GradientFill extends GraphicElement, implements IGraphicProperty
 		return (type == GradientType.linear) ? FlashGradientType.LINEAR : FlashGradientType.RADIAL;
 	}
 	
-	public inline function getSpreadMethod () {
+	public function getSpreadMethod () : flash.display.SpreadMethod {
 		return switch (spread) {
-			case normal:	flash.display.SpreadMethod.PAD;
-			case reflect:	flash.display.SpreadMethod.REFLECT;
-			case repeat:	flash.display.SpreadMethod.REPEAT;
+			case SpreadMethod.normal:	flash.display.SpreadMethod.PAD;
+			case SpreadMethod.reflect:	flash.display.SpreadMethod.REFLECT;
+			case SpreadMethod.repeat:	flash.display.SpreadMethod.REPEAT;
 		}
 	}
 #end
