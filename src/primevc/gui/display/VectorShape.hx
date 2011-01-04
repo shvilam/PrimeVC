@@ -29,11 +29,11 @@
 package primevc.gui.display;
  
 
-typedef Shape = 
-	#if		flash9	primevc.avm2.display.Shape;
-	#elseif	flash8	primevc.avm1.display.Shape;
-	#elseif	js		primevc.js  .display.Shape;
-	#else			ShapeImpl
+typedef VectorShape = 
+	#if		flash9	primevc.avm2.display.VectorShape;
+	#elseif	flash8	primevc.avm1.display.VectorShape;
+	#elseif	js		primevc.js  .display.VectorShape;
+	#else			VectorShapeImpl
 
 
 
@@ -47,7 +47,7 @@ typedef Shape =
  * @creation-date	Jun 14, 2010
  * @author			Ruben Weijers
  */
-class ShapeImpl implements IDisplayObject
+class VectorShapeImpl implements IDisplayObject
 {
 //	public var displayList		(default, default)				: DisplayList;
 	public var displayEvents	(default, null)					: DisplayEvents;

@@ -55,7 +55,7 @@ package primevc.gui.core;
 
 #if flash9
  import primevc.core.collections.SimpleList;
- import primevc.gui.display.Shape;
+ import primevc.gui.display.VectorShape;
 #end
 
 
@@ -84,7 +84,7 @@ class UIWindow extends Window
 	 * Shape to draw the background graphics in. Stage doesn't have a Graphics
 	 * property.
 	 */
-	public var bgShape				: Shape;
+	public var bgShape				: VectorShape;
 	/**
 	 * Reference to bgShape.graphics.. Needed for compatibility with IDrawable
 	 */
@@ -127,7 +127,7 @@ class UIWindow extends Window
 		createLayout();
 		
 #if flash9
-		bgShape			= new Shape();
+		bgShape			= new VectorShape();
 		graphics		= bgShape.graphics;
 		children.add(bgShape);
 		stylingEnabled	= true;

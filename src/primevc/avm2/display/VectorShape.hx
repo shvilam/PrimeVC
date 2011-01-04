@@ -45,7 +45,7 @@ package primevc.avm2.display;
  * @creation-date	Jun 11, 2010
  * @author			Ruben Weijers
  */
-class Shape extends flash.display.Shape, implements IDisplayObject, implements IGraphicsOwner
+class VectorShape extends flash.display.Shape, implements IDisplayObject, implements IGraphicsOwner
 {
 	public var container		(default, setContainer)	: IDisplayContainer;
 	public var window			(default, setWindow)	: Window;

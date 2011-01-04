@@ -154,7 +154,11 @@ class Bitmap
 	
 	private inline function setData (v:BitmapDataType)
 	{
-		if (v != _data) {
+		if (v != _data)
+		{
+#if flash9	if (_data != null)
+				_data.dispose();
+#end
 			_data = v;
 			state.current = v == null ? empty : ready;
 		}
@@ -306,7 +310,7 @@ class Bitmap
 		try {
 			var d = new BitmapData( loader.content.width.roundFloat(), loader.content.height.roundFloat(), true, 0x00000000 );
 			d.draw( loader.content );
-			data = d;
+			data = d;	// <-- setData will change the bitmapState to the correct value
 			disposeLoader();
 		}
 		catch (e:flash.errors.Error) {
@@ -384,7 +388,6 @@ class Bitmap
 		return url == null && asset == null && _data == null;
 	}
 	
-	
 	public function toString ()
 	{
 		return	if (url != null)		"url( "+url+" )";
@@ -392,12 +395,19 @@ class Bitmap
 				else					"Bitmap()";
 	}
 	
-	
 	public function cleanUp () : Void {}
 	
 	public function toCode (code:ICodeGenerator)
 	{
 		code.construct( this, [ url, asset, _data ] );
+	}
+#end
+
+#if (!neko && debug)
+	public function toString ()
+	{
+		return	if (url != null)		"url( "+url+" )";
+				else					"Bitmap()";
 	}
 #end
 }

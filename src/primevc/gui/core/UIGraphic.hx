@@ -31,7 +31,7 @@ package primevc.gui.core;
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
- import primevc.gui.display.Shape;
+ import primevc.gui.display.VectorShape;
  import primevc.gui.effects.UIElementEffects;
  import primevc.gui.graphics.GraphicProperties;
  import primevc.gui.layout.LayoutClient;
@@ -52,7 +52,7 @@ package primevc.gui.core;
  * @author Ruben Weijers
  * @creation-date Aug 02, 2010
  */
-class UIGraphic extends Shape
+class UIGraphic extends VectorShape
 			,	implements IUIElement
 #if flash9	,	implements IDrawable	#end
 {

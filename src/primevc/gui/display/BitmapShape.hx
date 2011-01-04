@@ -20,47 +20,22 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours;
- import primevc.gui.display.VectorShape;
- import primevc.gui.traits.IDrawable;
+package primevc.gui.display;
 
 
 /**
- * Behavior will draw and update the given shape to fit the given mirror object.
- * It will redraw the shape when the mirror object changes of size or when it's
- * graphicProperties change.
- * 
  * @author Ruben Weijers
- * @creation-date Nov 09, 2010
+ * @creation-date Jan 04, 2011
  */
-class UpdateMaskBehaviour extends RenderGraphicsBehaviour
-{
-	private var mask : VectorShape;
-	
-	
-	public function new (mask:VectorShape, target:IDrawable)
-	{
-		super(target);
-		this.mask = mask;
-	}
-	
-	
-	override private function reset ()
-	{
-		mask = null;
-		super.reset();
-	}
-	
-	
-	override public function validateGraphics ()
-	{
-		mask.graphics.clear();
-		target.graphicData.draw( mask, false );
-	}
-}
+typedef BitmapShape = 
+	#if		flash9	primevc.avm2.display.BitmapShape;
+	#elseif	flash8	primevc.avm1.display.BitmapShape;
+	#elseif	js		primevc.js  .display.BitmapShape;
+	#else			Error	#end
+

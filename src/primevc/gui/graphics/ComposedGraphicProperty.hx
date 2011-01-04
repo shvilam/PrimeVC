@@ -33,6 +33,7 @@ package primevc.gui.graphics;
  import primevc.core.collections.FastCell;
  import primevc.core.geom.IRectangle;
  import primevc.gui.traits.IGraphicsOwner;
+  using primevc.utils.TypeUtil;
 
 
 
@@ -127,17 +128,25 @@ class ComposedGraphicProperty extends GraphicElement, implements IComposedGraphi
 	
 	public function add (property:IGraphicProperty) : Bool
 	{
-		if (property != null)
+		Assert.that(property != this);
+		
+		if (property == null)
+			return false;
+		
+		if (property.is(IComposedGraphicProperty))
+		{
+			merge(cast property);
+		}
+		else
 		{
 			var cell = new FastCell<IGraphicProperty>(property, lastCell);
 			if (firstCell == null)
 				nextCell = firstCell = cell;
-		
+	
 			lastCell = cell;
 			length++;
-			return true;
 		}
-		return false;
+		return true;
 	}
 	
 	
@@ -171,15 +180,22 @@ class ComposedGraphicProperty extends GraphicElement, implements IComposedGraphi
 	
 	public function merge (other:IComposedGraphicProperty)
 	{
+		Assert.that(other != this);
 		other.rewind();
+		
 		while (other.hasNext())
-			add( other.next() );
+		{
+			var n = other.next();
+			Assert.that(n != this);
+			other.remove( n );
+			add( n );
+		}
 		
 		other.dispose();
 	}
 	
 	
-#if neko	
+#if neko
 	
 	//
 	// CSS / ICODEFORMATTABLE METHODS
@@ -191,6 +207,9 @@ class ComposedGraphicProperty extends GraphicElement, implements IComposedGraphi
 		var cur = firstCell;
 		while (cur != null)
 		{
+			Assert.notThat( cur.data.is(IComposedGraphicProperty) );
+			Assert.notEqual( cur, cur.next );
+			
 			str += cur.data.toCSS(prefix);
 			cur  = cur.next;
 		}

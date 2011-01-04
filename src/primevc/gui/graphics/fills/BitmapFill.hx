@@ -155,7 +155,7 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 	//
 	
 	public inline function begin (target:IGraphicsOwner, bounds:IRectangle)
-	{	
+	{
 		isFinished = true;
 		if (bitmap == null)
 			return;

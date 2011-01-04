@@ -35,7 +35,7 @@ package primevc.gui.components;
  import primevc.gui.components.DragButton;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UIGraphic;
- import primevc.gui.display.Shape;
+ import primevc.gui.display.VectorShape;
  import primevc.gui.events.MouseEvents;
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
@@ -160,12 +160,12 @@ class Slider extends UIDataContainer < DataType >
 	 */
 	private var background	: UIGraphic;
 	private var dragBtn		: DragButton;
-	private var maskShape	: Shape;
+	private var maskShape	: VectorShape;
 	
 	
 	override private function createChildren ()
 	{
-		maskShape	= new Shape();
+		maskShape	= new VectorShape();
 		background	= new UIGraphic();
 		dragBtn		= new DragButton();
 		

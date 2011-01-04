@@ -574,7 +574,7 @@ class CSSParser
 	
 	private inline function getBasePath () : String
 	{
-		return (swfBasePath + "/" + styleSheetBasePath).replace("//", "/");
+		return styleSheetBasePath; //(swfBasePath + "/" + styleSheetBasePath).replace("//", "/");
 	}
 	
 	
@@ -1862,6 +1862,14 @@ class CSSParser
 			//there is no background yet or the current background is of the same type as the new background (=replace it)
 			if ( g.background == null || g.background.is( newFill.getClass() ) )
 				g.background = newFill;
+			
+			else if (!g.background.is( ComposedFill ) && !newFill.is( ComposedFill ))
+			{
+				var bg = new ComposedFill();
+				bg.add( g.background );
+				bg.add( newFill );
+				g.background = bg;
+			}
 		}
 	}
 	
@@ -2908,11 +2916,11 @@ class CSSParser
 		}
 		
 		//match strength
-		if (isInt(v))
+		if (isFloat(v))
 		{
-			f.strength	= parseInt(v);
+			f.strength	= parseFloat(v);
 			isValid		= true;
-			v			= removeInt(v);
+			v			= removeFloat(v);
 		}
 		
 		//match inner bool

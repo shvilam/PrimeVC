@@ -2,7 +2,7 @@
 # script to build and run the css-parser
 
 BUILDSCRIPTDIR="`dirname "$0"`";
-PRIMEVC_ROOT="${BUILDSCRIPTDIR}/.."
+PRIMEVC_ROOT="`cd ${BUILDSCRIPTDIR}/..; pwd`"
 #PRJROOT=${PRIMEVC_ROOT}
 
 MINPARAMS=1
@@ -10,7 +10,7 @@ StyleFolder="$1"
 MainClass="primevc.tools.CSSParserMain"
 ParserClass="primevc.tools.CSSParser"
 SourceFolder="${PRIMEVC_ROOT}/src"
-MainFile="${SourceFolder}/${MainClass//.//}.hx"		#replace all dots with slashes
+MainFile="${SourceFolder}/${MainClass//.//}.hx"			#replace all dots with slashes
 ParserClass="${SourceFolder}/${ParserClass//.//}.hx"	#replace all dots with slashes
 Parser="${PRIMEVC_ROOT}/build/parser.n"
 Force=false
@@ -33,9 +33,9 @@ StyleOutputFile="$StyleFolder/StyleSheet.hx"
 #ManifestFile="${StyleFolder}/manifest.xml"
 
 #echo "MainFile: ${MainFile}"
-echo -e "\tMain: $MainClass" &&
-echo -e "\tStyleInput: $StyleInputFile" &&
-echo -e "\tStyleOutput: $StyleOutputFile" &&
+echo -e "\tMain: $MainClass"
+echo -e "\tStyleInput: $StyleInputFile"
+echo -e "\tStyleOutput: $StyleOutputFile"
 #echo "Manifest: $ManifestFile" &&
 echo -e "\tDebugging? ${Debug:-false}"
 
@@ -43,12 +43,12 @@ CompilerUpdated=false
 
 #create parser if the source files have changed
 if $Force || [[ ! -f "$Parser" ]]  ||  test "$MainFile" -nt "$Parser"  ||  test "$ParserClass" -nt "$Parser"; then  # ||  test ${StyleFile} -nt ${Parser} ; then
-	echo -e "\tCompiling parser"  &&
+	echo -e "\tCompiling parser"
 	haxe build/build-cssparser.hxml \
 		-main $MainClass \
 		-neko "$Parser" \
 		--no-inline $Debug \
-		${Debug:---no-traces} &&
+		${Debug:---no-traces} || exit 1;
 	
 	CompilerUpdated=true
 fi;
@@ -61,13 +61,13 @@ fi;
 #compile css
 if [[ -d "$StyleFolder" ]] && [[ -f "$StyleInputFile" ]] ; then # && [[ -f ${ManifestFile} ]] ; then
 	if "$CompilerUpdated" || [[ ! -f "$StyleOutputFile" ]] || test "$StyleInputFile" -nt "$StyleOutputFile"; then # || test ${ManifestFile} -nt ${StyleOutputFile} ; then
-		echo -e "\tRunning parser on ${StyleInputFile}" &&
-		neko "$Parser" "$StyleFolder" "$PRIMEVC_ROOT"
+		echo -e "\tRunning parser on ${StyleInputFile}"
+		neko "$Parser" "$StyleFolder" "$PRIMEVC_ROOT" || exit 1;
 	else	
 		echo -e "\tStyle is already compiled and up to date.."
 	fi;
 	exit 0
 else
-	echo -e "\tStyle '$StyleInputFile' doesn't exist!" &&
+	echo -e "\tStyle '$StyleInputFile' doesn't exist!"
 	exit 1
 fi;
