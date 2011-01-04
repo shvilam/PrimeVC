@@ -173,14 +173,13 @@ class UIElementStyle implements IUIElementStyle
 		if (layout != null)			layout.dispose();
 		if (states != null)			states.dispose();
 		
-		if (parentStyle != null) {
+		if (parentStyle != null && parentStyle.childrenChanged != null)
 			parentStyle.childrenChanged.unbind( this );
-			parentStyle = null;
-		}
 		
 		childrenChanged.dispose();
 		currentStates.removeAll();
 		
+		parentStyle		= null;
 		currentStates	= null;
 		styles			= null;
 		targetClassName	= null;

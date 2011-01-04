@@ -33,14 +33,19 @@ package primevc.tools.valueobjects;
  import primevc.core.collections.RevertableArrayList;
  import primevc.core.dispatcher.Signal1;
  import primevc.core.RevertableBindable;
+ import primevc.core.RevertableBindableFlags;
  import primevc.utils.FastArray;
+  using primevc.utils.BitUtil;
 #if debug
   using primevc.utils.ChangesUtil;
 #end
   using primevc.utils.IfUtil;
   using primevc.utils.TypeUtil;
 
-typedef PropertyID = Int;
+
+typedef PropertyID	= Int;
+typedef Flags		= RevertableBindableFlags;
+
 
 /**
  * Base class for all generated ValueObjects
@@ -54,10 +59,12 @@ class ValueObjectBase implements IValueObject
 	
 	private var _changedFlags	: Int;
 	private var _propertiesSet	: Int;
+	private var _flags			: Int;
 	
 	private function new ()
 	{
 		change = new Signal1();
+		_flags = 0;
 	}
 	
 	
@@ -70,12 +77,14 @@ class ValueObjectBase implements IValueObject
 		_changedFlags = 0;
 	}
 	
-	public function isEmpty() {
-		return _propertiesSet == 0;
-	}
+	
+	public function isEmpty() : Bool			{ return _propertiesSet == 0; }
+	public inline function isEditable () : Bool { return _flags.has(Flags.IN_EDITMODE); }
+	
 	
 	public function commitEdit()
 	{
+		Assert.that( isEditable() );
 		if (_changedFlags.not0())
 		{
 			var set = ObjectChangeSet.make(this, _changedFlags);
@@ -83,8 +92,11 @@ class ValueObjectBase implements IValueObject
 			this.change.send(set);
 		}
 		commitBindables();
-		_changedFlags = 0;
+		
+		_flags			= _flags.unset( Flags.IN_EDITMODE );
+		_changedFlags	= 0;
 	}
+	
 	
 	public function objectChangedHandler(propertyID : Int) : ObjectChangeSet -> Void
 	{
@@ -107,12 +119,23 @@ class ValueObjectBase implements IValueObject
 		}
 	}
 	
+	
 	private function addChanges(changeSet:ObjectChangeSet); // Creates and adds all PropertyChangeVO and ListChangeVO
 	private function commitBindables();
-	public function beginEdit();
+	
+	
+	public function beginEdit()
+	{
+	//	Assert.that( !isEditable() );
+		_flags = _flags.set( Flags.IN_EDITMODE );
+	}
+	
+	
 	public function cancelEdit()
 	{
-		_changedFlags = 0;
+		Assert.that( isEditable() );
+		_flags			= _flags.unset( Flags.IN_EDITMODE );
+		_changedFlags	= 0;
 	}
 	
 /*
