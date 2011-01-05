@@ -125,15 +125,6 @@ class ValueObjectBase implements IValueObject
 		}
 	}
 */
-	
-	
-	static inline public function bytesUsedInInt(n:Int)
-	{
-		return if (n <= 0x0000FF)	1;
-		  else if (n <= 0x00FFFF)	2;
-		  else if (n <= 0xFFFFFF)	3;
-		  else 						4;
-	}
 }
 
 class PropertyChangeVO extends ChangeVO
