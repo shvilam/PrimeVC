@@ -42,6 +42,7 @@ package primevc.tools;
  import primevc.gui.behaviours.scroll.CornerScrollBehaviour;
  import primevc.gui.behaviours.scroll.DragScrollBehaviour;
  import primevc.gui.behaviours.scroll.MouseMoveScrollBehaviour;
+ import primevc.gui.behaviours.scroll.ShowScrollbarsBehaviour;
  import primevc.gui.effects.AnchorScaleEffect;
  import primevc.gui.effects.CompositeEffect;
  import primevc.gui.effects.Easing;
@@ -3346,7 +3347,7 @@ class CSSParser
 			case "scroll-mouse-move":	MouseMoveScrollBehaviour.getClassName();
 			case "drag-scroll":			DragScrollBehaviour.getClassName();
 			case "corner-scroll":		CornerScrollBehaviour.getClassName();
-			case "scrollbars":			null;
+			case "scrollbars":			ShowScrollbarsBehaviour.getClassName();
 			/*case "visible":*/
 			default:					UnclippedLayoutBehaviour.getClassName();
 		};

@@ -32,7 +32,8 @@ package primevc.avm2.events;
  import primevc.core.dispatcher.Wire;
  import primevc.core.dispatcher.Signal1;
  import primevc.core.dispatcher.IWireWatcher;
- import flash.display.InteractiveObject;
+// import flash.display.InteractiveObject;
+ import flash.events.IEventDispatcher;
  import flash.events.KeyboardEvent;
   using primevc.core.ListNode;
 
@@ -44,10 +45,10 @@ package primevc.avm2.events;
  */
 class KeyboardSignal extends Signal1<KeyboardState>, implements IWireWatcher<KeyboardHandler>
 {
-	private var eventDispatcher:InteractiveObject;
+	private var eventDispatcher:IEventDispatcher;
 	private var event:String;
 	
-	public function new (d:InteractiveObject, e:String)
+	public function new (d:IEventDispatcher, e:String)
 	{
 		super();
 		this.eventDispatcher = d;

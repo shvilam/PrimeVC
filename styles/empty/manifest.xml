@@ -16,7 +16,9 @@
 	<component id="InputField"			superClass="Label"				fullname="primevc.gui.components.InputField" />
 	<component id="Label"				superClass="UIDataComponent"	fullname="primevc.gui.components.Label" />
 	<component id="ListView"			superClass="UIDataContainer"	fullname="primevc.gui.components.ListView" />
-	<component id="Slider"				superClass="UIDataContainer"	fullname="primevc.gui.components.Slider" />
+	<component id="ScrollBar"			superClass="SliderBase"			fullname="primevc.gui.components.ScrollBar" />
+	<component id="SliderBase"			superClass="UIDataContainer"	fullname="primevc.gui.components.SliderBase" />
+	<component id="Slider"				superClass="SliderBase"			fullname="primevc.gui.components.Slider" />
 	<component id="TextArea"			superClass="UIDataContainer"	fullname="primevc.gui.components.TextArea" />
 	
 <!--<component id=""	superClass=""	fullname="" />-->

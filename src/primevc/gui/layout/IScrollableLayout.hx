@@ -52,20 +52,31 @@ interface IScrollableLayout implements ILayoutContainer, implements IAdvancedLay
 	 */
 	public var scrollableHeight		(getScrollableHeight, never)	: Int;
 	
+	/**
+	 * The minimum value of the scrollX position (<= 0). This is number is set
+	 * by a layoutalgorithm when there are children with a negative x-position.
+	 */
+	public var minScrollXPos		(default, setMinScrollXPos)		: Int;
+	/**
+	 * The minimum value of the scrollY position (<= 0). This is number is set
+	 * by a layoutalgorithm when there are children with a negative y-position.
+	 */
+	public var minScrollYPos		(default, setMinScrollYPos)		: Int;
+	
 	
 	/**
 	 * Method will return if the container is horizontal scrollable
 	 */
-	public function horScrollable			()				: Bool;
+	public function horScrollable			()						: Bool;
 	/**
 	 * Method will return if the container is vertical scrollable
 	 */
-	public function verScrollable			()				: Bool;
+	public function verScrollable			()						: Bool;
 	
 	/**
 	 * Method will tell if the coordinates of the given point are valid values
 	 * for the scrollposition or not. If the coordinates are invalid it will
 	 * change them to valid positions.
 	 */
-	public function validateScrollPosition	(pos:IntPoint)	: IntPoint;
+	public function validateScrollPosition	(pos:IntPoint)			: IntPoint;
 }

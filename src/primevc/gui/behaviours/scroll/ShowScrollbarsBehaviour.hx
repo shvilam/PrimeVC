@@ -20,86 +20,72 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.components;
+package primevc.gui.behaviours.scroll;
  import primevc.core.geom.space.Direction;
- import primevc.gui.behaviours.UpdateMaskBehaviour;
- import primevc.gui.core.UIGraphic;
- import primevc.gui.display.VectorShape;
-  using Std;
+ import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
+ import primevc.gui.components.ScrollBar;
+ import primevc.gui.core.UIContainer;
+  using primevc.utils.TypeUtil;
+
 
 
 /**
- * Slider component with a filling background to indicate which part of the
- * slider is slided.
+ * Behaviour will add scrollbars to the target if necessary.
  * 
  * @author Ruben Weijers
- * @creation-date Nov 05, 2010
+ * @creation-date Jan 04, 2011
  */
-class Slider extends SliderBase
+class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 {
+	private var scrollbarHor	: ScrollBar;
+	private var scrollbarVer	: ScrollBar;
+	
+	
 	override private function init ()
 	{
 		super.init();
-		behaviours.add( new UpdateMaskBehaviour( maskShape, this ) );
-	}
-	
-	
-	
-	//
-	// CHILDREN
-	//
-	
-	/**
-	 * Shape that is used to fill the part of the slider that is slided
-	 */
-	private var background	: UIGraphic;
-	private var maskShape	: VectorShape;
-	
-	
-	override private function createChildren ()
-	{
-		maskShape	= new VectorShape();
-		background	= new UIGraphic();
 		
-#if debug
-		background.id.value	= id.value + "Background";
-#end
+		scrollbarHor = addScrollBar( Direction.horizontal, scrollbarHor );
+		scrollbarVer = addScrollBar( Direction.vertical, scrollbarVer );
+	}
+	
+	
+	override private function reset ()
+	{
+		if (scrollbarVer != null)	{ removeScrollBar( scrollbarHor ); scrollbarHor.dispose(); }
+		if (scrollbarVer != null)	{ removeScrollBar( scrollbarVer ); scrollbarVer.dispose(); }
 		
-		layoutContainer.children.add( background.layout );
-		children.add( background );
-		children.add( maskShape );
-
-		background.mask = maskShape;
-		super.createChildren();
+		scrollbarHor = scrollbarVer = null;
+		super.reset();
 	}
 	
 	
-	override private function updateChildren ()
+	private function addScrollBar (direction:Direction, scrollBar:ScrollBar = null)
 	{
-		if (direction == horizontal)	background.layout.percentWidth = percentage;
-		else							background.layout.percentHeight = percentage;
-		return super.updateChildren();
+		var children	= target.container.children;
+		var layout		= target.container.as(UIContainer).layoutContainer.children;
+		var depth		= children.indexOf( target ) + 1;
+		var layoutDepth	= layout.indexOf( target.layout ) + 1;
+		
+		if (scrollBar == null)
+			scrollBar = new ScrollBar( null, target, direction );
+		
+		children.add( scrollBar, depth );
+		layout.add( scrollBar.layout, layoutDepth );
+		
+		return scrollBar;
 	}
 	
 	
-	override private function setDirection (v)
+	private function removeScrollBar (scrollBar:ScrollBar)
 	{
-		if (direction != v)
-		{
-			if (direction != null)
-				styleClasses.remove( direction.string()+"Slider" );
-			
-			super.setDirection(v);
-			
-			if (v != null)
-				styleClasses.add( direction.string()+"Slider" );
-		}
-		return v;
+		var layout		= target.container.as(UIContainer).layoutContainer.children.remove( scrollBar.layout );
+		var children	= target.container.children.remove( scrollBar );
 	}
 }

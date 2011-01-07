@@ -89,6 +89,17 @@ class IntRangeValidator implements IValueValidator <Int>
 	}
 	
 	
+	public function setValues (min:Int, max:Int) : Void
+	{
+		var changed = min != this.min || max != this.max;
+		(untyped this).min = min;
+		(untyped this).max = max;
+		
+		if (changed)
+			broadcastChange();
+	}
+	
+	
 	private inline function broadcastChange ()
 	{
 		if (change != null && (min.isSet() || max.isSet()))
@@ -112,7 +123,7 @@ class IntRangeValidator implements IValueValidator <Int>
 #if debug
 	public function toString ()
 	{
-		return "IntRangeValidator ( " + min + ", " + max + " )";
+		return "IntValidator ( " + min + ", " + max + " )";
 	}
 #end
 }

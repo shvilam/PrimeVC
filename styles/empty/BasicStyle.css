@@ -19,26 +19,28 @@ Button			{ /*overflow: hidden;*/ algorithm: float-hor( center, center ); font: V
  * SLIDER
  **************/
 
-.horizontalSlider	{ width: 200px; height: 4px; }
-.verticalSlider		{ height: 200px; width: 4px;}
+SliderBase					{ algorithm: relative; background: #fff; }
 
+.horizontalSlider			{ min-width: 30px; height: 4px; }
+.verticalSlider				{ min-height: 30px; width: 4px; }
 .horizontalSlider UIGraphic	{ width: 0%; height: 100%; }
 .verticalSlider UIGraphic	{ height: 0%; width: 100%; bottom: 0px; }
 
-Slider {
-	algorithm: relative;
-	background: #fff;
-}
-
 .horizontalSlider Button {
-	v-center: 0px;
 	background: #666;
+	v-center: 0px;
 	height: 15px;
 	width: 6px;
 }
 .verticalSlider Button {
-	h-center: 0px;
 	background: #666;
+	h-center: 0px;
 	width: 15px;
 	height: 6px;
 }
+
+ScrollBar 					{ background: #212121; }
+.horizontalScrollBar		{ left: 8px; right: 8px; height: 2px; bottom: 7px; }
+.verticalScrollBar			{ top: 8px; bottom: 8px; width: 2px; right: 7px; }
+.horizontalScrollBar Button	{ background: #212121; height: 9px; width: 6px; v-center: 0px; }
+.verticalScrollBar Button	{ background: #212121; width: 9px; height: 6px; h-center: 0px; }

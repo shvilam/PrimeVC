@@ -31,10 +31,11 @@ package primevc.gui.behaviours.layout;
  import primevc.gui.core.IUIContainer;
 #if !neko
  import primevc.core.geom.Rectangle;
- import primevc.core.geom.RectangleFlags;
- import primevc.core.traits.IInvalidatable;
- import primevc.core.traits.IInvalidateListener;
+// import primevc.core.geom.RectangleFlags;
+// import primevc.core.traits.IInvalidatable;
+// import primevc.core.traits.IInvalidateListener;
  import primevc.gui.layout.IScrollableLayout;
+ import primevc.gui.layout.LayoutFlags;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.TypeUtil;
@@ -51,7 +52,7 @@ package primevc.gui.behaviours.layout;
  * @author			Ruben Weijers
  */
 class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
-#if !neko	,	implements IInvalidateListener #end
+//#if !neko	,	implements IInvalidateListener #end
 {
 #if !neko
 	private var layoutContainer : IScrollableLayout;
@@ -68,8 +69,8 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 		layoutContainer		= target.layoutContainer;
 		target.scrollRect	= new Rectangle();
 		
-	//	updateScrollRect.on( target.layout.events.sizeChanged, this );
-		target.rect.listeners.add( this );
+		updateScrollRect.on( target.layout.changed, this );
+	//	target.rect.listeners.add( this );
 		updateScrollX.on( layoutContainer.scrollPos.xProp.change, this );
 		updateScrollY.on( layoutContainer.scrollPos.yProp.change, this );
 	}
@@ -87,10 +88,13 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 	}
 	
 	
-	private function updateScrollRect ()
+	private function updateScrollRect (changes:Int)
 	{
+		if (changes.hasNone( LayoutFlags.WIDTH | LayoutFlags.HEIGHT ))
+			return;
+		
 		var r		= target.scrollRect;
-		r.x = r.y	= 0;
+	//	r.x = r.y	= 0;
 	//	r.x			= layoutContainer.scrollX;
 	//	r.y			= layoutContainer.scrollY;
 		r.width		= target.rect.width;
@@ -99,13 +103,13 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 		if (target.graphicData.border != null)
 		{
 			var borderSize = target.graphicData.border.weight;
-			r.x			-= borderSize;
-			r.y			-= borderSize;
+			r.x			= layoutContainer.scrollPos.x - borderSize;
+			r.y			= layoutContainer.scrollPos.y - borderSize;
 			r.width		+= borderSize * 2;
 			r.height	+= borderSize * 2;
 		}
 		
-	//	trace(target+".updated scrollRect " + r+" -> "+target.rect);
+	//	trace(target+":\t" + r+"; layout:\t"+target.layout.outerBounds);
 		target.scrollRect = r;
 	}
 
@@ -125,11 +129,11 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 		target.scrollRect = r;
 	}
 	
-	
+	/*
 	public function invalidateCall ( changeFromOther:Int, sender:IInvalidatable )
 	{
 		if ( changeFromOther.has(RectangleFlags.WIDTH | RectangleFlags.HEIGHT) && (target.scrollRect.width != target.rect.width || target.scrollRect.height != target.rect.height) )
 			updateScrollRect();
-	}
+	}*/
 #end
 }

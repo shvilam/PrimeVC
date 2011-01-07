@@ -32,8 +32,6 @@ package primevc.core.geom;
 
 
 /**
- * Description
- * 
  * @creation-date	Jun 29, 2010
  * @author			Ruben Weijers
  */
@@ -61,6 +59,15 @@ class BindablePoint extends IntPoint, implements IDisposable
 	override public function clone () : IntPoint {
 		return new BindablePoint( x, y );
 	}
+	
+	
+#if debug
+	public function toString ()
+	{
+		return "BPoint( " + x + ", " + y + " )";
+	}
+#end
+	
 	
 	
 	override private function getX ()	{ return xProp.value; }

@@ -67,6 +67,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	public var scrollPos			(default, null)					: BindablePoint;
 	public var scrollableWidth		(getScrollableWidth, never)		: Int;
 	public var scrollableHeight		(getScrollableHeight, never)	: Int;
+	public var minScrollXPos		(default, setMinScrollXPos)		: Int;
+	public var minScrollYPos		(default, setMinScrollYPos)		: Int;
 	
 	
 	public function new (newWidth:Int = primevc.types.Number.INT_NOT_SET, newHeight:Int = primevc.types.Number.INT_NOT_SET)
@@ -79,6 +81,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		childWidth			= Number.INT_NOT_SET;
 		childHeight			= Number.INT_NOT_SET;
 		
+		minScrollXPos		= minScrollYPos = 0;
 		changes = changes.unset( Flags.PADDING | Flags.MARGIN | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH );
 		
 		childrenChangeHandler.on( children.change, this );
@@ -110,10 +113,14 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			return;
 		}
 		
-	//	trace(this+".invalidateCall "+Flags.readProperties(childChanges)+"; sender "+sender);
-	//	trace("\t\tisValidating? "+isValidating+"; "+(algorithm != null)+"; algorithm "+algorithm.isInvalid(childChanges));
+		/*if (name == "scrollLayout")
+		{
+			trace(this+".invalidateCall "+Flags.readProperties(childChanges)+"; sender "+sender+"; state "+state.current);
+			trace("\t\tisValidating? "+isValidating+"; "+(algorithm != null)+"; algorithm "+algorithm.isInvalid(childChanges));
+		}*/
 		
-		if (!isValidating && (algorithm == null || algorithm.isInvalid(childChanges)))
+	//	if (!isValidating && (algorithm == null || algorithm.isInvalid(childChanges)))
+		if (algorithm == null || algorithm.isInvalid(childChanges))
 		{
 			var child = sender.as(LayoutClient);
 			invalidate( Flags.CHILDREN_INVALIDATED );
@@ -231,7 +238,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			if (!child.includeInLayout)
 				continue;
 			
-			if (child.percentHeight == Flags.FILL) {
+			if (child.percentHeight == Flags.FILL)
+			{
 			//	if (explicitHeight.isSet())
 				fillingChildren.push( child );
 				child.height.value = Number.INT_NOT_SET;
@@ -377,8 +385,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	// ISCROLLABLE LAYOUT IMPLEMENTATION
 	//
 	
-	public inline function horScrollable ()							{ return explicitWidth.isSet() && measuredWidth > explicitWidth; }
-	public inline function verScrollable ()							{ return explicitHeight.isSet() && measuredHeight > explicitHeight; }
+	public inline function horScrollable ()							{ return explicitWidth.isSet() && measuredWidth.isSet() && measuredWidth > explicitWidth; }
+	public inline function verScrollable ()							{ return explicitHeight.isSet() && measuredHeight.isSet() && measuredHeight > explicitHeight; }
 	public inline function getScrollableWidth ()					{ return measuredWidth - explicitWidth; }
 	public inline function getScrollableHeight ()					{ return measuredHeight - explicitHeight; }
 	public inline function validateScrollPosition (pos:IntPoint)
@@ -389,6 +397,9 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		else					pos.y = 0;
 		return pos;
 	}
+	
+	private inline function setMinScrollXPos (v:Int)				{ return minScrollXPos = v <= 0 ? v : 0; }
+	private inline function setMinScrollYPos (v:Int)				{ return minScrollYPos = v <= 0 ? v : 0; }
 	
 	
 	

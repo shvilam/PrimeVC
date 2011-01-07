@@ -238,11 +238,11 @@ class LayoutClient extends Invalidatable
 			return;
 		}
 		
-	//	if (parent != null)
-	//		trace(this+".invalidate; "+Flags.readProperties(change)); //" parent: "+parent+"; parent changes: "+Flags.readProperties(parent.changes));
-		
 		if (state.is(ValidateStates.validated))
 			state.current = ValidateStates.invalidated;
+		
+	//	if (parent != null)
+	//		trace(this+".invalidate; "+Flags.readProperties(change)); //" parent: "+parent+"; parent changes: "+Flags.readProperties(parent.changes));
 		
 		if (state.is( ValidateStates.invalidated ) && validateOnPropertyChange && (parent == null || !parent.validateOnPropertyChange))
 			validate();
@@ -491,7 +491,8 @@ class LayoutClient extends Invalidatable
 	
 	private function setPadding (v:Box)
 	{
-		if (padding != v) {
+		if (padding != v)
+		{
 			padding = v;
 			invalidate( Flags.HEIGHT | Flags.WIDTH | Flags.PADDING );
 		}
