@@ -65,7 +65,7 @@ class BorderBase <FillType:IGraphicProperty> extends GraphicElement, implements 
 	
 	
 	
-	public function new ( fill:FillType, weight:Float = 1, innerBorder:Bool = false, caps:CapsStyle = null, joint:JointStyle = null, pixelHinting:Bool = false )
+	public function new ( fill:FillType, weight:Float = 1.0, innerBorder:Bool = false, caps:CapsStyle = null, joint:JointStyle = null, pixelHinting:Bool = false )
 	{
 		super();
 #if flash9

@@ -44,22 +44,35 @@ typedef UserEvents =
  * @author Danny Wilson
  * @creation-date jun 15, 2010
  */
-class UserSignals extends Signals, implements haxe.Public
+class UserSignals extends Signals
 {
-	var mouse		(default,null) : MouseEvents;
-	var key			(default,null) : KeyboardEvents;
-	var focus		(default,null) : INotifier<Void->Void>;
-	var blur		(default,null) : INotifier<Void->Void>;
-	var edit		(default,null) : EditEvents;
+	public var mouse	(getMouse,	null)	: MouseEvents;
+	public var key		(getKey,	null)	: KeyboardEvents;
+	public var focus	(getFocus,	null)	: INotifier<Void->Void>;
+	public var blur		(getBlur,	null)	: INotifier<Void->Void>;
+	public var edit		(getEdit,	null)	: EditEvents;
+	
+	private inline function getMouse ()	{ if (mouse == null)	{ createMouse(); }		return mouse; }
+	private inline function getKey ()	{ if (key == null)		{ createKey(); }		return key; }
+	private inline function getFocus ()	{ if (focus == null)	{ createFocus(); }		return focus; }
+	private inline function getBlur ()	{ if (blur == null)		{ createBlur(); }		return blur; }
+	private inline function getEdit ()	{ if (edit == null)		{ createEdit(); }		return edit; }
+	
+	
+	private function createMouse ()		{ Assert.abstract(); }
+	private function createKey ()		{ Assert.abstract(); }
+	private function createFocus ()		{ Assert.abstract(); }
+	private function createBlur ()		{ Assert.abstract(); }
+	private function createEdit ()		{ Assert.abstract(); }
 	
 	
 	override public function dispose ()
 	{
-		mouse	.dispose();
-		key		.dispose();
-		focus	.dispose();
-		blur	.dispose();
-		edit	.dispose();
+		if ((untyped this).mouse != null)	mouse	.dispose();
+		if ((untyped this).key != null)		key		.dispose();
+		if ((untyped this).focus != null)	focus	.dispose();
+		if ((untyped this).blur != null)	blur	.dispose();
+		if ((untyped this).edit != null)	edit	.dispose();
 		
 		edit	= null;
 		mouse	= null;

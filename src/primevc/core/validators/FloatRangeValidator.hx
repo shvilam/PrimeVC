@@ -104,12 +104,23 @@ class FloatRangeValidator implements IValueValidator <Float>
 		else if (max.isSet())				v = v.getSmallest( max );
 		return v;
 	}
+	
+	
+	public function setValues (min:Float, max:Float) : Void
+	{
+		var changed = min != this.min || max != this.max;
+		(untyped this).min = min;
+		(untyped this).max = max;
+		
+		if (changed)
+			broadcastChange();
+	}
 
 
 #if debug
 	public function toString ()
 	{
-		return "FloatConstraint ( " + min + ", " + max + " )";
+		return "FloatValidator ( " + min + ", " + max + " )";
 	}
 #end
 }

@@ -31,11 +31,14 @@ package primevc.gui.layout.algorithms;
  import primevc.core.geom.IRectangle;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
+ import primevc.gui.layout.IScrollableLayout;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.RelativeLayout;
  import primevc.types.Number;
   using primevc.utils.BitUtil;
+  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
+  using primevc.utils.TypeUtil;
 
 
 private typedef Flags = LayoutFlags;
@@ -63,8 +66,10 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 	{
 		if (!validatePrepared)
 		{
-			if (group.hasValidatedWidth && !validatePreparedHor)
+			if (group.hasValidatedWidth && !validatePreparedHor && group.width.value.isSet())
 			{
+				Assert.that( group.width.value.isSet(), "no width defined for "+group );
+				
 				for (child in group.children) {
 					if (child.relative == null || !child.includeInLayout)
 						continue;
@@ -77,8 +82,10 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 			}
 			
 			
-			if (group.hasValidatedHeight && !validatePreparedVer)
+			if (group.hasValidatedHeight && !validatePreparedVer && group.height.value.isSet())
 			{
+				Assert.that( group.height.value.isSet(), "no height defined for "+group );
+				
 				for (child in group.children) {
 					if (child.relative == null || !child.includeInLayout)
 						continue;
@@ -103,8 +110,8 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 	}
 	
 	
-	public inline function validateHorizontal ()	{ /*if (!validatePrepared) { prepareValidate(); } */ }
-	public inline function validateVertical ()		{ /*if (!validatePrepared) { prepareValidate(); } */ }
+	public inline function validateHorizontal ()	{ if (!validatePrepared) { prepareValidate(); } }
+	public inline function validateVertical ()		{ if (!validatePrepared) { prepareValidate(); } }
 	
 	
 	public inline function apply ()
@@ -121,27 +128,30 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 		
 		for (child in group.children)
 		{
-			if (child.relative == null || !child.includeInLayout)
+			if (!child.includeInLayout)
 				continue;
 			
-			childProps	= child.relative;
+			if (child.relative != null)
+			{
+				childProps	= child.relative;
 			
-			//
-			//apply horizontal
-			//
+				//
+				//apply horizontal
+				//
 			
-			if		(childProps.left.isSet())		child.outerBounds.left		= padding.left + childProps.left;
-			else if (childProps.right.isSet())		child.outerBounds.right		= group.innerBounds.width - padding.right - childProps.right;
-			else if (childProps.hCenter.isSet())	child.outerBounds.left		= Std.int( ( group.innerBounds.width - child.outerBounds.width ) * .5 );			
+				if		(childProps.left.isSet())		child.outerBounds.left		= padding.left + childProps.left;
+				else if (childProps.right.isSet())		child.outerBounds.right		= group.innerBounds.width - padding.right - childProps.right;
+				else if (childProps.hCenter.isSet())	child.outerBounds.left		= ( ( group.innerBounds.width - child.outerBounds.width ) * .5 ).roundFloat() + childProps.hCenter;			
 			
 			
-			//
-			//apply vertical
-			//
+				//
+				//apply vertical
+				//
 			
-			if		(childProps.top.isSet())		child.outerBounds.top		= padding.top + childProps.top;
-			else if (childProps.bottom.isSet())		child.outerBounds.bottom	= group.innerBounds.height - padding.bottom - childProps.bottom;
-			else if (childProps.vCenter.isSet())	child.outerBounds.top		= Std.int( ( group.innerBounds.height - child.outerBounds.height ) * .5 );
+				if		(childProps.top.isSet())		child.outerBounds.top		= padding.top + childProps.top;
+				else if (childProps.bottom.isSet())		child.outerBounds.bottom	= group.innerBounds.height - padding.bottom - childProps.bottom;
+				else if (childProps.vCenter.isSet())	child.outerBounds.top		= ( ( group.innerBounds.height - child.outerBounds.height ) * .5 ).roundFloat() + childProps.vCenter;
+			}
 			
 			if (mostLeftVal.notSet() || child.outerBounds.left < mostLeftVal)	mostLeftVal		= child.outerBounds.left;
 			if (mostTopVal.notSet() || child.outerBounds.top < mostTopVal)		mostTopVal		= child.outerBounds.top;
@@ -151,6 +161,13 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 		
 		if (mostRightVal.isSet() && mostLeftVal.isSet())	setGroupWidth( mostRightVal - mostLeftVal );
 		if (mostBottomVal.isSet() && mostTopVal.isSet())	setGroupHeight( mostBottomVal - mostTopVal );
+		
+		if (group.is(IScrollableLayout))
+		{
+			var s = group.as(IScrollableLayout);
+			if (mostLeftVal.isSet())	s.minScrollXPos = mostLeftVal;
+			if (mostTopVal.isSet())		s.minScrollYPos = mostTopVal;
+		}
 		
 		validatePrepared	= false;
 		validatePreparedHor	= false;

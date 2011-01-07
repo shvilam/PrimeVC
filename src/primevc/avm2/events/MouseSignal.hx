@@ -27,7 +27,8 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.avm2.events;
- import flash.display.InteractiveObject;
+// import flash.display.InteractiveObject;
+ import flash.events.IEventDispatcher;
  import flash.events.MouseEvent;
  import primevc.core.dispatcher.IWireWatcher;
  import primevc.core.dispatcher.Signal1;
@@ -45,12 +46,12 @@ package primevc.avm2.events;
  */
 class MouseSignal extends Signal1<MouseState>, implements IWireWatcher<MouseHandler>
 {
-	var eventDispatcher:InteractiveObject;
+	var eventDispatcher:IEventDispatcher;
 	var event:String;
 	var clickCount:Int;
 	
 	
-	public function new (d:InteractiveObject, e:String, cc:Int)
+	public function new (d:IEventDispatcher, e:String, cc:Int)
 	{
 		super();
 		this.eventDispatcher = d;

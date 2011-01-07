@@ -31,6 +31,7 @@ private typedef MouseSignal = primevc.avm2.events.MouseSignal; // override impor
  import primevc.core.geom.Point;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.events.KeyModState;
+ import flash.events.IEventDispatcher;
  import flash.events.MouseEvent;
 
 
@@ -42,17 +43,29 @@ private typedef MouseSignal = primevc.avm2.events.MouseSignal; // override impor
  */
 class MouseEvents extends MouseSignals
 {
-	public function new (eventDispatcher)
+	private var eventDispatcher : IEventDispatcher;
+	
+	public function new (eventDispatcher:IEventDispatcher)
 	{
-		this.down		 = new MouseSignal(eventDispatcher, MouseEvent.MOUSE_DOWN,   1);
-		this.up			 = new MouseSignal(eventDispatcher, MouseEvent.MOUSE_UP,     1);
-		this.move		 = new MouseSignal(eventDispatcher, MouseEvent.MOUSE_MOVE,   0);
-		this.click		 = new MouseSignal(eventDispatcher, MouseEvent.CLICK,        1);
-		this.doubleClick = new MouseSignal(eventDispatcher, MouseEvent.DOUBLE_CLICK, 2);
-		this.overChild	 = new MouseSignal(eventDispatcher, MouseEvent.MOUSE_OVER,   0);
-		this.outOfChild	 = new MouseSignal(eventDispatcher, MouseEvent.MOUSE_OUT,    0);
-		this.rollOver	 = new MouseSignal(eventDispatcher, MouseEvent.ROLL_OVER,    0);
-		this.rollOut	 = new MouseSignal(eventDispatcher, MouseEvent.ROLL_OUT,     0);
-		this.scroll		 = new MouseSignal(eventDispatcher, MouseEvent.MOUSE_WHEEL,  0);
+		this.eventDispatcher = eventDispatcher;
 	}
+	
+	
+	override public function dispose ()
+	{
+		eventDispatcher = null;
+		super.dispose();
+	}
+	
+	
+	override private function createDown ()			{ down			= new MouseSignal( eventDispatcher, MouseEvent.MOUSE_DOWN	, 1); }
+	override private function createUp ()			{ up			= new MouseSignal( eventDispatcher, MouseEvent.MOUSE_UP		, 1); }
+	override private function createMove ()			{ move			= new MouseSignal( eventDispatcher, MouseEvent.MOUSE_MOVE	, 0); }
+	override private function createClick () 		{ click			= new MouseSignal( eventDispatcher, MouseEvent.CLICK		, 1); }
+	override private function createDoubleClick ()	{ doubleClick	= new MouseSignal( eventDispatcher, MouseEvent.DOUBLE_CLICK	, 2); }
+	override private function createOverChild ()	{ overChild		= new MouseSignal( eventDispatcher, MouseEvent.MOUSE_OVER	, 0); }
+	override private function createOutOfChild ()	{ outOfChild	= new MouseSignal( eventDispatcher, MouseEvent.MOUSE_OUT	, 0); }
+	override private function createRollOver ()		{ rollOver		= new MouseSignal( eventDispatcher, MouseEvent.ROLL_OVER	, 0); }
+	override private function createRollOut ()		{ rollOut		= new MouseSignal( eventDispatcher, MouseEvent.ROLL_OUT		, 0); }
+	override private function createScroll ()		{ scroll		= new MouseSignal( eventDispatcher, MouseEvent.MOUSE_WHEEL	, 0); }
 }

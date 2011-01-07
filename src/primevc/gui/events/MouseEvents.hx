@@ -52,29 +52,70 @@ typedef MouseSignal		= primevc.core.dispatcher.INotifier<MouseHandler>;
 class MouseSignals extends Signals
 {
 	/** Fires when the mouse button is pressed */
-	var down		(default,null) : MouseSignal;
+	public var down			(getDown,			null) : MouseSignal;
 	/** Fires when the mouse button is released */
-	var up			(default,null) : MouseSignal;
+	public var up			(getUp,				null) : MouseSignal;
 	/** Fires when the mouse has moved */
-	var move		(default,null) : MouseSignal;
+	public var move			(getMove,			null) : MouseSignal;
 	/** Fires when the a user presses and releases a button of the user's pointing device over the same InteractiveObject. */
-	var click		(default,null) : MouseSignal;
+	public var click		(getClick,			null) : MouseSignal;
 	/** Fires when the a user double-clicks on an InteractiveObject. */
-	var doubleClick	(default,null) : MouseSignal;
+	public var doubleClick	(getDoubleClick,	null) : MouseSignal;
 	/** Fires when a mouse moves over the interactive object, or a child of the object.
 		In Flash 9+ this is a proxy to flash.events.MouseEvent.MOUSE_OVER */
-	var overChild	(default,null) : MouseSignal;
+	public var overChild	(getOverChild,		null) : MouseSignal;
 	/** Fires when a mouse moves out of the interactive object, or a child of the object.
 		In Flash 9+ (default,null) this is a proxy to flash.events.MouseEvent.MOUSE_OUT */
-	var outOfChild	(default,null) : MouseSignal;
+	public var outOfChild	(getOutOfChild,		null) : MouseSignal;
 	/** Fires when a mouse moves over the hitarea of the the interactive object.
 		In Flash 9+ this is a proxy to flash.events.MouseEvent.ROLL_OVER */
-	var rollOver	(default,null) : MouseSignal;
+	public var rollOver		(getRollOver,		null) : MouseSignal;
 	/** Fires when a mouse moves out of the hitarea of the interactive object.
 		In Flash 9+ this is a proxy to flash.events.MouseEvent.ROLL_OUT */
-	var rollOut		(default,null) : MouseSignal;
+	public var rollOut		(getRollOut,		null) : MouseSignal;
 	/** Fires when a mouse scrollwheel is used. */
-	var scroll		(default,null) : MouseSignal;
+	public var scroll		(getScroll,			null) : MouseSignal;
+	
+	
+	private inline function getDown ()			{ if (down == null)			{ createDown(); }			return down; }
+	private inline function getUp ()			{ if (up == null)			{ createUp(); }				return up; }
+	private inline function getMove ()			{ if (move == null)			{ createMove(); }			return move; }
+	private inline function getClick ()			{ if (click == null)		{ createClick(); }			return click; }
+	private inline function getDoubleClick ()	{ if (doubleClick == null)	{ createDoubleClick(); }	return doubleClick; }
+	private inline function getOverChild ()		{ if (overChild == null)	{ createOverChild(); }		return overChild; }
+	private inline function getOutOfChild ()	{ if (outOfChild == null)	{ createOutOfChild(); }		return outOfChild; }
+	private inline function getRollOver ()		{ if (rollOver == null)		{ createRollOver(); }		return rollOver; }
+	private inline function getRollOut ()		{ if (rollOut == null)		{ createRollOut(); }		return rollOut; }
+	private inline function getScroll ()		{ if (scroll == null)		{ createScroll(); }			return scroll; }
+	
+	
+	private function createDown ()			{ Assert.abstract(); }
+	private function createUp ()			{ Assert.abstract(); }
+	private function createMove ()			{ Assert.abstract(); }
+	private function createClick () 		{ Assert.abstract(); }
+	private function createDoubleClick ()	{ Assert.abstract(); }
+	private function createOverChild ()		{ Assert.abstract(); }
+	private function createOutOfChild ()	{ Assert.abstract(); }
+	private function createRollOver ()		{ Assert.abstract(); }
+	private function createRollOut ()		{ Assert.abstract(); }
+	private function createScroll ()		{ Assert.abstract(); }
+	
+	
+	override public function dispose ()
+	{
+		if ( (untyped this).down		!= null )		down.dispose();
+		if ( (untyped this).up			!= null )		up.dispose();
+		if ( (untyped this).move		!= null )		move.dispose();
+		if ( (untyped this).click		!= null )		click.dispose();
+		if ( (untyped this).doubleClick	!= null )		doubleClick.dispose();
+		if ( (untyped this).overChild	!= null )		overChild.dispose();
+		if ( (untyped this).outOfChild	!= null )		outOfChild.dispose();
+		if ( (untyped this).rollOver	!= null )		rollOver.dispose();
+		if ( (untyped this).rollOut		!= null )		rollOut.dispose();
+		if ( (untyped this).scroll		!= null )		scroll.dispose();
+		
+		down = up = move = click = doubleClick = overChild = outOfChild = rollOver = rollOut = scroll = null;
+	}
 }
 
 /**

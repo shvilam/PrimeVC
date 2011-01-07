@@ -193,10 +193,8 @@ class UIComponent extends Sprite, implements IUIComponent
 	}
 	
 	
-	public inline function isDisposed ()
-	{
-		return state == null || state.is(state.disposed);
-	}
+	public inline function isDisposed ()	{ return state == null || state.is(state.disposed); }
+	public inline function isInitialized ()	{ return state != null && state.is(state.initialized); }
 	
 	
 	
