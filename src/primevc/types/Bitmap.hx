@@ -36,7 +36,6 @@ package primevc.types;
  import flash.display.BitmapData;
  import flash.display.DisplayObject;
  import primevc.core.geom.Matrix2D;
- import primevc.gui.display.IDisplayObject;
  import primevc.gui.display.Loader;
  import primevc.utils.TypeUtil;
   using primevc.utils.NumberMath;
@@ -240,7 +239,7 @@ class Bitmap
 	
 #if flash9
 	
-	public inline function loadDisplayObject (v:IDisplayObject, ?transform:Matrix2D)
+	public inline function loadDisplayObject (v:DisplayObject, ?transform:Matrix2D)
 	{
 		var d = new BitmapData( v.width.roundFloat(), v.height.roundFloat(), true, 0 );
 		d.draw( v, transform );
@@ -273,7 +272,7 @@ class Bitmap
 				Assert.notNull( asset );
 				var inst:Dynamic = Type.createInstance(asset, []);
 				Assert.notNull(inst);
-				if		(TypeUtil.is( inst, IDisplayObject))	loadDisplayObject( cast inst );
+				if		(TypeUtil.is( inst, DisplayObject))		loadDisplayObject( cast inst );
 				else if (TypeUtil.is( inst, BitmapData))		loadBitmapData( cast inst );
 				else if (TypeUtil.is( inst, FlashBitmap))		loadFlashBitmap( cast inst );
 				else											throw "unkown asset!";
@@ -348,7 +347,7 @@ class Bitmap
 	
 	
 #if flash9
-	public static inline function fromDisplayObject (v:IDisplayObject, ?transform:Matrix2D) : Bitmap
+	public static inline function fromDisplayObject (v:DisplayObject, ?transform:Matrix2D) : Bitmap
 	{
 		var b = new Bitmap();
 		b.loadDisplayObject(v, transform);

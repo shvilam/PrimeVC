@@ -46,7 +46,7 @@ class StyleStateFlags
 	public static inline var FORM_STATES	= FOCUS | VALID | INVALID | REQUIRED | OPTIONAL | DISABLED | CHECKED | EDITABLE;
 	
 	
-	public static inline var NONE		= 1 << 0;
+	public static inline var NONE		= 0;
 	public static inline var HOVER		= 1 << 1;
 	public static inline var DOWN		= 1 << 2;
 	public static inline var FOCUS		= 1 << 3;
