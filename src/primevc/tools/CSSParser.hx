@@ -630,6 +630,8 @@ class CSSParser
 	{
 		var content = loadFileContent(file);
 		
+		//trace(file);
+		
 		if (content != "")
 		{
 			//find base path of stylesheet
