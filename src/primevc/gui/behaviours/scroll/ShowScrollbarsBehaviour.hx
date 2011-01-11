@@ -27,11 +27,13 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.scroll;
- import primevc.core.geom.space.Direction;
  import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
+#if !neko
+ import primevc.core.geom.space.Direction;
  import primevc.gui.components.ScrollBar;
  import primevc.gui.core.UIContainer;
   using primevc.utils.TypeUtil;
+#end
 
 
 
@@ -43,6 +45,7 @@ package primevc.gui.behaviours.scroll;
  */
 class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 {
+#if !neko
 	private var scrollbarHor	: ScrollBar;
 	private var scrollbarVer	: ScrollBar;
 	
@@ -88,4 +91,5 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 		var layout		= target.container.as(UIContainer).layoutContainer.children.remove( scrollBar.layout );
 		var children	= target.container.children.remove( scrollBar );
 	}
+#end
 }
