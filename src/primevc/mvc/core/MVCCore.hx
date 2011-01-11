@@ -36,7 +36,8 @@ package primevc.mvc.core;
  * @author Ruben Weijers
  * @creation-date Nov 16, 2010
  */
-class MVCCore <FacadeType> implements IDisposable, implements haxe.rtti.Generic
+class MVCCore <FacadeType> implements IDisposable
+    #if !docs, implements haxe.rtti.Generic #end
 {
 	private var facade (default, null)	: FacadeType;
 	

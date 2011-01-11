@@ -34,10 +34,12 @@ package primevc.mvc.core;
  * Abstract Façade class.
  * 
  * The Façade is responsible for initializing in order:
- * 1) Event-Signals
- * 2) Model-Proxies
- * 3) Controller-Commands
- * 4) and View-Mediators.
+ * <ul>
+ * <li> Event-Signals           </li>
+ * <li> Model-Proxies           </li>
+ * <li> Controller-Commands     </li>
+ * <li> and View-Mediators.     </li>
+ * </ul>
  * 
  * 
  * It acts as a hub of either an Application or a sub-system.
@@ -45,7 +47,8 @@ package primevc.mvc.core;
  * @author Danny Wilson
  * @creation-date Jun 22, 2010
  */
-class Facade < EventsType:MVCEvents, ModelType:IModel, ViewType:IView, ControllerType:IController > implements primevc.core.traits.IDisposable, implements haxe.rtti.Generic
+class Facade < EventsType:MVCEvents, ModelType:IModel, ViewType:IView, ControllerType:IController > implements primevc.core.traits.IDisposable
+    #if !docs, implements haxe.rtti.Generic #end
 {
 	public var events		(default, null)	: EventsType;
 	public var model		(default, null)	: ModelType;

@@ -51,7 +51,7 @@ class Window
 		implements IDisplayContainer
 	,	implements IInteractive
 {
-	public static function startup (windowClass:Class<Window>) : Window
+	public static function startup < WindowInstance > (windowClass : Class<WindowInstance>) : WindowInstance
 	{
 		var stage:Stage = null;
 		
