@@ -1,8 +1,8 @@
 #!/bin/bash
 # script to build and run the css-parser
 
-BUILDSCRIPTDIR="`dirname "$0"`";
-PRIMEVC_ROOT="`cd ${BUILDSCRIPTDIR}/..; pwd`"
+BUILDSCRIPTDIR=`dirname "$0"`
+PRIMEVC_ROOT="${BUILDSCRIPTDIR}/.."
 #PRJROOT=${PRIMEVC_ROOT}
 
 MINPARAMS=1
@@ -40,6 +40,8 @@ echo -e "\tStyleOutput: $StyleOutputFile"
 echo -e "\tDebugging? ${Debug:-false}"
 
 CompilerUpdated=false
+
+cd "$PRIMEVC_ROOT"
 
 #create parser if the source files have changed
 if $Force || [[ ! -f "$Parser" ]]  ||  test "$MainFile" -nt "$Parser"  ||  test "$ParserClass" -nt "$Parser"; then  # ||  test ${StyleFile} -nt ${Parser} ; then
