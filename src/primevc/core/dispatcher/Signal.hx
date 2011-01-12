@@ -58,10 +58,7 @@ class Signal <FunctionSignature> extends WireList<FunctionSignature>, implements
 	
 	
 	/**
-	 * Unbind all handlers for the given listener object,
-	 *  or when a handler != null: unbound this specific handler.
-	 *  
-	 *  @return number of handlers unbound
+	 *  @see IUnbindable.unbind
 	 */
 	public function unbind( listener : Dynamic, ?handler : Null<FunctionSignature> ) : Int
 	{

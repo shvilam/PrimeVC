@@ -36,5 +36,13 @@ package primevc.core.dispatcher;
  */
 interface IUnbindable<T>
 {
+	/**
+	 * Unbind all handlers for the given listener object,
+	 *  or when a handler != null: unbound that specific handler.
+	 * 
+	 * @param	listener	Handler owner object
+	 * @param	?handler	Handler method. When handler == null, all methods owned by listener will be unbound.
+	 * @return	number of handlers that were unbound
+	 */
 	public function unbind( listener : Dynamic, ?handler : Null<T> ) : Int;
 }

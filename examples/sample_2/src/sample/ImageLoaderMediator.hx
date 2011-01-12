@@ -8,9 +8,12 @@ import primevc.gui.components.Image;
 using primevc.utils.Bind;
 using primevc.utils.TypeUtil;
 
+
 /**
- * Defines what ui events should be listened to
- * and what functions react to them.
+ * ImageLoaderMediator corresponds to a mediator in the MVC model.
+ * A mediator separates event handling for a specific UI element
+ * from the element itself. It defines what ImageLoader events 
+ * should be listened to and what functions react to them. 
  */
 class ImageLoaderMediator extends Mediator <MainEvents, MainModel, MainView, Image>
 {	

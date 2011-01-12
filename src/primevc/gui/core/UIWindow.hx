@@ -60,7 +60,8 @@ package primevc.gui.core;
 
 
 /**
- * UIWindow implementation including layout
+ * UIWindow acts as a container for display objects and 
+ * determines their layout. 
  * 
  * @author Ruben Weijers
  * @creation-date Aug 04, 2010
@@ -180,7 +181,7 @@ class UIWindow extends Window
 		super.dispose();
 	}
 	
-	
+	// Define how children objects of the window are positioned.
 	private inline function createLayout ()
 	{
 		layout =	#if flash9	new primevc.avm2.layout.StageLayout( target );
