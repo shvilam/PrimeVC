@@ -24,8 +24,9 @@
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Danny Wilson	<ruben @ onlinetouch.nl>
  */
 package primevc.types;
 
+/** Empty class used as reference to distinguish between Integers and RGBA values. */
 class RGBAType {}
