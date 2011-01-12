@@ -146,7 +146,8 @@ class Button extends UIDataContainer <DataType>, implements IIconOwner, implemen
 			if (icon != null)
 			{
 				Assert.null( iconGraphic );
-				iconGraphic = new Image( null, icon );			
+				iconGraphic = new Image( null, icon );
+				iconGraphic.maintainAspectRatio = false;
 #if debug		iconGraphic.id.value = id.value + "Icon";	#end
 				layoutContainer.children.add( iconGraphic.layout, 0 );
 				children.add( iconGraphic, 0 );

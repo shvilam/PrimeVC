@@ -48,13 +48,20 @@ package primevc.gui.components;
  */
 class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 {
-	public var data	(default, setData) : Bitmap;
+	public var data					(default, setData) : Bitmap;
+	
+	/**
+	 * Bool indicating wether the image should maintain it's aspect-ratio
+	 * @default true
+	 */
+	public var maintainAspectRatio	(default, setMaintainAspectRatio)	: Bool;
 	
 	
 	public function new (id:String = null, data:Bitmap = null)
 	{
 		super(id);
 		this.data = data;
+		this.maintainAspectRatio = true;
 	}
 	
 	
@@ -129,6 +136,18 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 	}
 	
 	
+	private inline function setMaintainAspectRatio (v:Bool) : Bool
+	{
+		if (v != maintainAspectRatio)
+		{
+			maintainAspectRatio = v;
+			if (layout != null)
+				layout.maintainAspectRatio = v;
+		}
+		return v;
+	}
+	
+	
 	
 	//
 	// EVENT HANDLERS
@@ -140,7 +159,7 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 		if (data.state.is( BitmapStates.ready ))
 		{
 		//	trace("Image.updateSize; "+data.data.width+", "+data.data.height+"; expl size? "+l.explicitWidth+", "+l.explicitHeight);
-			l.maintainAspectRatio	= true;
+			l.maintainAspectRatio	= maintainAspectRatio;
 			l.measuredResize( data.data.width, data.data.height );
 		}
 		else

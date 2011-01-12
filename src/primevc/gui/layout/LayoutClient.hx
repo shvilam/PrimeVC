@@ -279,6 +279,10 @@ class LayoutClient extends Invalidatable
 		
 		state.current = ValidateStates.validating;
 		
+		//make sure the aspect-ratio is set when maintainAspectRatio is set to true
+		if (maintainAspectRatio && aspectRatio.notSet())
+			calculateAspectRatio(width.value, height.value);
+		
 		//force width validation if there's a validator buth there's no width set yet
 		if (width.value.notSet() && width.validator != null)
 			width.validateValue();
@@ -308,6 +312,10 @@ class LayoutClient extends Invalidatable
 			return;
 		
 		state.current = ValidateStates.validating;
+		
+		//make sure the aspect-ratio is set when maintainAspectRatio is set to true
+		if (maintainAspectRatio && aspectRatio.notSet())
+			calculateAspectRatio(width.value, height.value);
 		
 		//force height validation if there's a validator buth there's no height set yet
 		if (height.value.notSet() && height.validator != null)
@@ -394,18 +402,18 @@ class LayoutClient extends Invalidatable
 			return;
 		
 		var newH = (width.value / aspectRatio).roundFloat();
+	//	trace("newH: "+newH+"; aspect: "+aspectRatio);
 		if (height.validator != null)
 		{
 			//make sure the new height is valid
 			height.value = height.validator.validate(newH);
-			trace("newH: "+newH+"; validatedH: "+height.value);
 			
 			//if the new-height wasn't valid, update the width-value
 			if (height.value != newH)
 				applyHeightAspectRatio();
 		}
 		else
-			trace( height.value = newH );
+			height.value = newH;
 	}
 	
 	
@@ -419,18 +427,18 @@ class LayoutClient extends Invalidatable
 			return;
 		
 		var newW = (height.value * aspectRatio).roundFloat();
+	//	trace("newW: "+newW+"; aspect: "+aspectRatio+"; "+this);
 		if (width.validator != null)
 		{
 			//make sure the new width is valid
 			width.value = width.validator.validate(newW);
-			trace("newW: "+newW+"; validatedW: "+width.value);
 			
 			//if the new-width wasn't valid, update the height-value
 			if (width.value != newW)
 				applyWidthAspectRatio();
 		}
 		else
-			trace( width.value = newW );
+			width.value = newW;
 	}
 	
 	
@@ -669,7 +677,7 @@ class LayoutClient extends Invalidatable
 	{
 		aspectRatio = maintainAspectRatio ? w / h : 0;
 		validateAspectRatio();
-	//	trace("aspect: "+aspectRatio+"; size: "+w+", "+h);
+	//	trace("aspect: "+aspectRatio+"; size: "+w+", "+h+"; "+this);
 	}
 	
 	
