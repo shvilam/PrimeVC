@@ -203,9 +203,9 @@ class Bitmap
 			url		= v;
 #if flash9
 			loader	= new Loader();
-			disposeLoader.onceOn( loader.events.load.error, this );
-			handleLoadError.onceOn( loader.events.load.error, this );
-			setLoadedData.onceOn( loader.events.load.completed, this );
+			disposeLoader	.onceOn( loader.events.load.error, this );
+			handleLoadError	.onceOn( loader.events.load.error, this );
+			setLoadedData	.onceOn( loader.events.load.completed, this );
 #end
 		}
 	}
@@ -227,7 +227,8 @@ class Bitmap
 			state.current = loading;
 			
 		//	if (url.indexOf("class:") != 0)
-				loader.load( new flash.net.URLRequest(url) );
+			var context = new flash.system.LoaderContext(true);
+			loader.load( new flash.net.URLRequest(url), context );
 		//	else {
 		//		var c = Type.resolveClass(url.substr(6));
 		//		loadClass( c );
