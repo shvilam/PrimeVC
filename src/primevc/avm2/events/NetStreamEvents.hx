@@ -20,60 +20,52 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.avm2.events;
- import flash.events.ErrorEvent;
+ import flash.events.AsyncErrorEvent;
  import flash.events.IEventDispatcher;
- import primevc.core.dispatcher.IWireWatcher;
- import primevc.core.dispatcher.Signal1;
- import primevc.core.dispatcher.Wire;
- import primevc.core.Error;
- import primevc.core.ListNode;
-
-
-
-private typedef EventHandler	= Error -> Void;
-//private typedef ErrorHolder		= { var error:Error; };
+ import flash.events.IOErrorEvent;
+ import primevc.core.dispatcher.Signals;
 
 
 /**
- * AVM2 ErrorSignal implementation
+ * Event group for the NetStream object.
  * 
  * @author Ruben Weijers
- * @creation-date Sep 02, 2010
+ * @creation-date Jan 07, 2011
  */
-class ErrorSignal extends Signal1 <Error>, implements IWireWatcher < EventHandler > 
+class NetStreamEvents extends Signals
 {
-	var eventDispatcher:IEventDispatcher;
-	var event:String;
-
-
-	public function new (d:IEventDispatcher, e:String)
+	public var asyncError	(default, null)	: ErrorSignal;
+	public var ioError		(default, null)	: TextSignal;
+	public var netStatus	(default, null)	: NetStatusSignal;
+//	public var cuePoint		(default, null)	: //TODO
+//	public var imageData	(default, null)	: //TODO
+//	public var metaData		(default, null)	: //TODO
+//	public var XMPData		(default, null)	: //TODO
+	
+	
+	public function new (dispatcher:IEventDispatcher)
 	{
-		super();
-		this.eventDispatcher = d;
-		this.event = e;
-	}
-
-	public function wireEnabled (wire:Wire<EventHandler>) : Void {
-		Assert.that(n != null);
-		if (ListUtil.next(n) == null) // First wire connected
-			eventDispatcher.addEventListener(event, dispatch, false, 0, true);
-	}
-
-	public function wireDisabled	(wire:Wire<EventHandler>) : Void {
-		if (n == null) // No more wires connected
-			eventDispatcher.removeEventListener(event, dispatch, false);
+		asyncError	= new ErrorSignal( dispatcher, AsyncErrorEvent.ASYNC_ERROR );
+		ioError		= new TextSignal( dispatcher, IOErrorEvent.IO_ERROR );
+		netStatus	= new NetStatusSignal( dispatcher );
 	}
 	
-	private function dispatch(e:ErrorEvent)
+	
+	override public function dispose ()
 	{
-		if (Reflect.hasField(e, "error"))	send( untyped(e).error );
-		else								send( new Error( e.text ) );
+		asyncError	.dispose();
+		ioError		.dispose();
+		netStatus	.dispose();
+		
+		asyncError	= null;
+		ioError		= null;
+		netStatus	= null;
 	}
 }

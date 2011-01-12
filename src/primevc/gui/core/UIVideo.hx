@@ -20,7 +20,7 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
@@ -28,16 +28,18 @@
  */
 package primevc.gui.core;
 #if flash9
- import flash.text.TextFieldAutoSize;
  import primevc.core.collections.SimpleList;
  import primevc.gui.styling.UIElementStyle;
 #end
+ import primevc.core.net.VideoStream;
+ import primevc.core.states.VideoStates;
  import primevc.core.Bindable;
  import primevc.core.IBindable;
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
- import primevc.gui.display.TextField;
+ import primevc.gui.display.Video;
  import primevc.gui.effects.UIElementEffects;
+ import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.states.ValidateStates;
@@ -53,18 +55,18 @@ package primevc.gui.core;
 
 
 /**
- * TextField with IUIElement implementation.
+ * Videoclass with support for styling and other primevc features
  * 
  * @author Ruben Weijers
- * @creation-date Sep 02, 2010
+ * @creation-date Jan 07, 2011
  */
-class UITextField extends TextField, implements IUIElement
+class UIVideo extends Video, implements IUIElement
 {
 	public var prevValidatable	: IValidatable;
 	public var nextValidatable	: IValidatable;
 	private var changes			: Int;
 	
-	public var id				(default, null)					: Bindable < String >;
+	public var id				(default, null)					: Bindable<String>;
 	public var behaviours		(default, null)					: BehaviourList;
 	public var effects			(default, default)				: UIElementEffects;
 	public var layout			(default, null)					: LayoutClient;
@@ -76,15 +78,18 @@ class UITextField extends TextField, implements IUIElement
 	public var stylingEnabled	(default, setStylingEnabled)	: Bool;
 #end
 	
+	public var stream			(default, null)					: VideoStream;
 	
-	public function new (id:String = null, stylingEnabled:Bool = true, data:IBindable<String> = null)
+	
+	
+	public function new (id:String = null, stylingEnabled:Bool = true)
 	{
 #if debug
 	if (id == null)
 		id = this.getReadableId();
 #end
 		this.id				= new Bindable<String>(id);
-		super(data);
+		super();
 #if flash9
 		styleClasses		= new SimpleList<String>();
 		this.stylingEnabled	= stylingEnabled;
@@ -107,7 +112,7 @@ class UITextField extends TextField, implements IUIElement
 
 	override public function dispose ()
 	{
-		if (state == null)
+		if (isDisposed())
 			return;
 		
 		//Change the state to disposed before the behaviours are removed.
@@ -119,8 +124,8 @@ class UITextField extends TextField, implements IUIElement
 		id.dispose();
 		state.dispose();
 		
-		if (layout != null)
-			layout.dispose();
+		if (stream != null)		stream.dispose();
+		if (layout != null)		layout.dispose();
 		
 #if flash9
 		if (style != null && style.target == this)
@@ -134,13 +139,13 @@ class UITextField extends TextField, implements IUIElement
 		id				= null;
 		state			= null;
 		behaviours		= null;
+		stream			= null;
 		super.dispose();
 	}
 	
 	
 	public inline function isDisposed ()	{ return state == null || state.is(state.disposed); }
 	public inline function isInitialized ()	{ return state != null && state.is(state.initialized); }
-	
 	
 	
 
@@ -153,6 +158,14 @@ class UITextField extends TextField, implements IUIElement
 		visible = true;
 		behaviours.init();
 		
+		stream = new VideoStream();
+#if flash9
+		attachNetStream( stream.source );
+#end
+		handleStreamChange	.on( stream.state.change, this );
+		applyVideoWidth		.on( stream.width.change, this );
+		applyVideoHeight	.on( stream.height.change, this );
+		
 		if (changes > 0)
 			validate();
 		
@@ -162,51 +175,12 @@ class UITextField extends TextField, implements IUIElement
 
 	private function createLayout () : Void
 	{
-		layout = new LayoutClient();
-	}
-	
-	
-	public inline function setHtmlText (v:String) : Void
-	{
-		if (v == null)
-			v = "";
-		
-		htmlText = v;
-		layout.invalidate( LayoutFlags.WIDTH | LayoutFlags.HEIGHT );
-		updateSize.onceOn( layout.state.change, this );
+		layout = new AdvancedLayoutClient();
+		layout.maintainAspectRatio = true;
 	}
 	
 	
 #if flash9
-	override private function setTextStyle (v)
-	{
-	//	Assert.notNull(v);
-		
-		invalidate( UIElementFlags.TEXTSTYLE );
-		textStyle = v;
-		
-		if (v != null)
-			defaultTextFormat = v;
-		
-		if (window == null)
-			return v;
-		
-		//Invalidate layout and apply the textformat when the layout starts validating
-		//This will prevend screen flickering.
-		layout.invalidate( LayoutFlags.WIDTH | LayoutFlags.HEIGHT );
-		applyTextFormat.onceOn( layout.state.change, this );
-		
-		return v; 
-	}
-	
-	
-	override private function applyTextFormat ()
-	{
-		super.applyTextFormat();
-		updateSize();
-	}
-	
-	
 	private function setStylingEnabled (v:Bool)
 	{
 		if (v != stylingEnabled)
@@ -243,9 +217,6 @@ class UITextField extends TextField, implements IUIElement
 	
 	public function validate ()
 	{
-		if (changes.has( UIElementFlags.TEXTSTYLE ))
-			applyTextFormat();
-		
 		changes = 0;
 	}
 	
@@ -275,19 +246,18 @@ class UITextField extends TextField, implements IUIElement
 	// EVENTHANDLERS
 	//
 	
-	private function updateSize ()
+	private function handleStreamChange (newState:VideoStates, oldState:VideoStates)
 	{
-		var w = (layout.percentWidth.isSet() && layout.percentWidth >= 0)	? Number.INT_NOT_SET : realTextWidth.roundFloat();
-		var h = (layout.percentHeight.isSet() && layout.percentHeight >= 0)	? Number.INT_NOT_SET : realTextHeight.roundFloat();
-		
 #if flash9
-		if (autoSize == flash.text.TextFieldAutoSize.NONE)
-			scrollH = 0;
+		if (newState == VideoStates.stopped)
+			clear();
 #end
-	//	trace(this+".updateSize: "+realTextWidth+", "+realTextHeight+" => "+w+", "+h+"; cursize: "+width+", "+height);
-		layout.width.value = w;
-		layout.height.value = h;
 	}
+	
+	
+	private function applyVideoWidth (newV:Int, oldV:Int)	{ layout.as(AdvancedLayoutClient).measuredWidth = newV; }
+	private function applyVideoHeight (newV:Int, oldV:Int)	{ layout.as(AdvancedLayoutClient).measuredHeight = newV; }
+	
 	
 	
 #if debug

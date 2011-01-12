@@ -19,6 +19,7 @@ import primevc.core.Bindable;
 		
         // Assign to the Proxy's public variable vo the value of a Bindable of the type String.
         // In this case the URL of the image to be loaded.
-        vo = new Bindable<String>("http://www.bentours.com.au/images/product/extra_image/st_basils_cathedral_moscow.jpg");
+        vo = new Bindable<String>("http://farm1.static.flickr.com/159/345009210_1f826cd5a1_b.jpg");
     }
+
 }

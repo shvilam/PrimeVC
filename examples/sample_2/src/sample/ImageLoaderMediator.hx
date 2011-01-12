@@ -40,7 +40,7 @@ class ImageLoaderMediator extends Mediator <MainEvents, MainModel, MainView, Ima
 	
 	private function loadImage(url:String) 
 	{
-		viewComponent.layout.maintainAspectRatio = true;
+		//viewComponent.layout.maintainAspectRatio = false;
 		viewComponent.data = Bitmap.fromString(url);
 	}
 }

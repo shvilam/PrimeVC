@@ -56,8 +56,9 @@ class SimpleStateMachine <StateType> implements IDisposable
 	public var change		(default, null)			: Signal2 < StateType, StateType >;
 	
 	
-	public function new(defaultState:StateType) {
+	public function new(defaultState:StateType, currentState:StateType = null) {
 		this.change			= new Signal2();
+		this.current		= currentState;
 		this.defaultState	= defaultState;
 	}
 	

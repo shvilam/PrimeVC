@@ -20,60 +20,55 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.avm2.events;
- import flash.events.ErrorEvent;
  import flash.events.IEventDispatcher;
+ import flash.events.NetStatusEvent;
+ import primevc.avm2.net.stream.NetStreamInfo;
  import primevc.core.dispatcher.IWireWatcher;
  import primevc.core.dispatcher.Signal1;
  import primevc.core.dispatcher.Wire;
- import primevc.core.Error;
  import primevc.core.ListNode;
 
 
-
-private typedef EventHandler	= Error -> Void;
-//private typedef ErrorHolder		= { var error:Error; };
+private typedef Handler = NetStreamInfo -> Void;
 
 
 /**
- * AVM2 ErrorSignal implementation
- * 
  * @author Ruben Weijers
- * @creation-date Sep 02, 2010
+ * @creation-date Jan 07, 2011
  */
-class ErrorSignal extends Signal1 <Error>, implements IWireWatcher < EventHandler > 
+class NetStatusSignal extends Signal1<NetStreamInfo>, implements IWireWatcher <Handler> 
 {
 	var eventDispatcher:IEventDispatcher;
 	var event:String;
 
 
-	public function new (d:IEventDispatcher, e:String)
+	public function new (d:IEventDispatcher)
 	{
 		super();
 		this.eventDispatcher = d;
-		this.event = e;
+		this.event = NetStatusEvent.NET_STATUS;
 	}
 
-	public function wireEnabled (wire:Wire<EventHandler>) : Void {
+	public function wireEnabled (wire:Wire<Handler>) : Void {
 		Assert.that(n != null);
 		if (ListUtil.next(n) == null) // First wire connected
 			eventDispatcher.addEventListener(event, dispatch, false, 0, true);
 	}
 
-	public function wireDisabled	(wire:Wire<EventHandler>) : Void {
+	public function wireDisabled	(wire:Wire<Handler>) : Void {
 		if (n == null) // No more wires connected
 			eventDispatcher.removeEventListener(event, dispatch, false);
 	}
-	
-	private function dispatch(e:ErrorEvent)
+
+	private function dispatch(e:NetStatusEvent)
 	{
-		if (Reflect.hasField(e, "error"))	send( untyped(e).error );
-		else								send( new Error( e.text ) );
+		send(new NetStreamInfo( e.info ));
 	}
 }

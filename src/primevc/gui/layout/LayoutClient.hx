@@ -108,11 +108,8 @@ class LayoutClient extends Invalidatable
 	public var x					(default, setX)						: Int;
 	public var y					(default, setY)						: Int;
 	
-	public var width				(default, null)						: SizeType;
-//		private var _width			(default, null)						: ConstrainedInt;
-	
-	public var height				(default, null)						: SizeType;
-//		private var _height 		(default, null)						: ConstrainedInt;
+	public var width				(default, null)						: SizeType;		// <-- TypeDef from ILayoutClient
+	public var height				(default, null)						: SizeType;		// <-- TypeDef from ILayoutClient
 	
 	public var percentWidth			(default, setPercentWidth)			: Float;
 	public var percentHeight		(default, setPercentHeight)			: Float;
@@ -255,6 +252,11 @@ class LayoutClient extends Invalidatable
 			return;
 		
 		state.current = ValidateStates.validating;
+		
+		if (changes.has( Flags.ASPECT_RATIO ))
+			calculateAspectRatio(width.value, height.value);
+		
+		
 		validateHorizontal();
 		validateVertical();
 		
@@ -285,8 +287,7 @@ class LayoutClient extends Invalidatable
 		
 		if (changes.has(Flags.WIDTH))
 		{
-			if (maintainAspectRatio)
-				height.value = (width.value / aspectRatio).roundFloat();
+			applyWidthAspectRatio();
 			
 			innerBounds.width = width.value.getBiggest( 0 ) + getHorPadding();
 			outerBounds.width = innerBounds.width + getHorMargin();
@@ -315,8 +316,7 @@ class LayoutClient extends Invalidatable
 		innerBounds.invalidatable = outerBounds.invalidatable = false;
 		if (changes.has(Flags.HEIGHT))
 		{
-			if (maintainAspectRatio)
-				width.value = (height.value / aspectRatio).roundFloat();
+			applyHeightAspectRatio();
 			
 			innerBounds.height = height.value.getBiggest( 0 ) + getVerPadding();
 			outerBounds.height = innerBounds.height + getVerMargin();
@@ -366,6 +366,109 @@ class LayoutClient extends Invalidatable
 			pos += parent.getVerPosition();
 		
 		return pos;
+	}
+	
+	
+	
+	/**
+	 * Method will resize the LayoutClient. The aspectratio will be 
+	 * recalculated If maintainAspectRatio is set to true.
+	 */
+	public function resize (newWidth:Int, newHeight:Int)
+	{
+		width.value		= newWidth;
+		height.value	= newHeight;
+		
+		if (maintainAspectRatio)
+			invalidate( Flags.ASPECT_RATIO );
+	}
+	
+	
+	/**
+	 * Method is called when the width is changed and will apply the 
+	 * aspect-ratio on the height.
+	 */
+	private function applyWidthAspectRatio ()
+	{
+		if (!maintainAspectRatio)
+			return;
+		
+		var newH = (width.value / aspectRatio).roundFloat();
+		if (height.validator != null)
+		{
+			//make sure the new height is valid
+			height.value = height.validator.validate(newH);
+			trace("newH: "+newH+"; validatedH: "+height.value);
+			
+			//if the new-height wasn't valid, update the width-value
+			if (height.value != newH)
+				applyHeightAspectRatio();
+		}
+		else
+			trace( height.value = newH );
+	}
+	
+	
+	/**
+	 * Method is called when the height is changed and will apply the 
+	 * aspect-ratio on the width.
+	 */
+	private function applyHeightAspectRatio ()
+	{
+		if (!maintainAspectRatio)
+			return;
+		
+		var newW = (height.value * aspectRatio).roundFloat();
+		if (width.validator != null)
+		{
+			//make sure the new width is valid
+			width.value = width.validator.validate(newW);
+			trace("newW: "+newW+"; validatedW: "+width.value);
+			
+			//if the new-width wasn't valid, update the height-value
+			if (width.value != newW)
+				applyWidthAspectRatio();
+		}
+		else
+			trace( width.value = newW );
+	}
+	
+	
+	/**
+	 * Method will make sure that that if maintain-aspect ratio is set to true,
+	 * the aspect-ratio applyable is.
+	 * F.e if the aspect-ratio is 4:7 and width and height both have a min-value
+	 * of 50 and a max-value of 60, it's impossible to give both values a valid
+	 * value.
+	 * 
+	 * The method will throw an error in debug-mode and in release-mode it will
+	 * turn maintainAspectRatio off.
+	 */
+	private function validateAspectRatio () : Void
+	{
+		if (!maintainAspectRatio || width.validator == null || height.validator == null)
+			return;
+		
+		Assert.that(aspectRatio != 0, "there's no aspect-ratio given.. value is 0");
+		
+		var valid	= true;
+		var newW	= (height.value * aspectRatio).roundFloat();
+		var newW2	= width.validator != null ? width.validator.validate(newW) : newW;
+		
+	//	trace(newW+"; "+newW2+"; "+aspectRatio+"; "+height.value);
+		if (newW != newW2)
+		{
+			var newH	= (newW2 / aspectRatio).roundFloat();
+			valid		= height.validator == null || height.validator.validate(newH) == newH;
+		}
+		
+#if debug
+		if (!valid)
+			throw "Impossible to maintain the aspectratio for "+this+". Aspect-ratio is "+aspectRatio+", width = "+width.value+"; height = "+height.value+"; width-validator: "+width.validator+"; height-validator: "+height.validator;
+#else
+		if (!valid)
+			maintainAspectRatio = false;
+#end
 	}
 	
 	
@@ -540,13 +643,8 @@ class LayoutClient extends Invalidatable
 	{
 		if (v != maintainAspectRatio)
 		{
-			if (maintainAspectRatio)
-				aspectRatio = 0;
-			
 			maintainAspectRatio = v;
-			
-			if (maintainAspectRatio)
-				aspectRatio = width.value / height.value;
+			invalidate( Flags.ASPECT_RATIO | Flags.MAINTAIN_ASPECT );
 		}
 		return v;
 	}
@@ -564,6 +662,14 @@ class LayoutClient extends Invalidatable
 				handleRelativeChange.on( relative.changed, this );
 		}
 		return v;
+	}
+	
+	
+	private inline function calculateAspectRatio (w:Int, h:Int)
+	{
+		aspectRatio = maintainAspectRatio ? w / h : 0;
+		validateAspectRatio();
+	//	trace("aspect: "+aspectRatio+"; size: "+w+", "+h);
 	}
 	
 	

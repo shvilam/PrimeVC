@@ -20,60 +20,49 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.avm2.events;
- import flash.events.ErrorEvent;
- import flash.events.IEventDispatcher;
- import primevc.core.dispatcher.IWireWatcher;
- import primevc.core.dispatcher.Signal1;
- import primevc.core.dispatcher.Wire;
- import primevc.core.Error;
- import primevc.core.ListNode;
-
-
-
-private typedef EventHandler	= Error -> Void;
-//private typedef ErrorHolder		= { var error:Error; };
+package primevc.gui.display;
 
 
 /**
- * AVM2 ErrorSignal implementation
- * 
  * @author Ruben Weijers
- * @creation-date Sep 02, 2010
+ * @creation-date Jan 07, 2011
  */
-class ErrorSignal extends Signal1 <Error>, implements IWireWatcher < EventHandler > 
+interface IVideo implements IDisplayObject
 {
-	var eventDispatcher:IEventDispatcher;
-	var event:String;
-
-
-	public function new (d:IEventDispatcher, e:String)
-	{
-		super();
-		this.eventDispatcher = d;
-		this.event = e;
-	}
-
-	public function wireEnabled (wire:Wire<EventHandler>) : Void {
-		Assert.that(n != null);
-		if (ListUtil.next(n) == null) // First wire connected
-			eventDispatcher.addEventListener(event, dispatch, false, 0, true);
-	}
-
-	public function wireDisabled	(wire:Wire<EventHandler>) : Void {
-		if (n == null) // No more wires connected
-			eventDispatcher.removeEventListener(event, dispatch, false);
-	}
+#if flash9
+	/**
+	* Indicates the type of filter applied to decoded video as part of post-processing.
+	 */
+	public var deblocking	: Int;
+	/**
+	 * Specifies whether the video should be smoothed (interpolated) when it is scaled.
+	 */
+	public var smoothing	: Bool;
+	public var videoHeight	(default, never)	: Int;
+	public var videoWidth	(default, never)	: Int;
 	
-	private function dispatch(e:ErrorEvent)
-	{
-		if (Reflect.hasField(e, "error"))	send( untyped(e).error );
-		else								send( new Error( e.text ) );
-	}
+	/**
+	 * Specifies a video stream from a camera to be displayed within the 
+	 * boundaries of the Video object in the application.
+	 * @param camera Camera
+	 */
+	public function attachCamera (camera:flash.media.Camera) : Void;
+	/**
+	 * Specifies a video stream to be displayed within the boundaries of the 
+	 * Video object in the application.
+	 * @param netStream NetStream
+	 */
+	public function attachNetStream (netStream:flash.net.NetStream) : Void;
+	/**
+	 * Clears the image currently displayed in the Video object (not the video 
+	 * stream).
+	 */
+	public function clear () : Void;
+#end
 }

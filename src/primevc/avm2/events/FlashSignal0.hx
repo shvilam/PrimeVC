@@ -57,12 +57,12 @@ class FlashSignal0 extends Signal0, implements IWireWatcher<Void->Void>
 	public function wireEnabled (wire:Wire<Void -> Void>) : Void {
 		Assert.that(n != null);
 		if (ListUtil.next(n) == null) // First wire connected
-			eventDispatcher.addEventListener(event, dispatch);
+			eventDispatcher.addEventListener(event, dispatch, false, 0, true);
 	}
 	
 	public function wireDisabled	(wire:Wire<Void -> Void>) : Void {
 		if (n == null) // No more wires connected
-			eventDispatcher.removeEventListener(event, dispatch);
+			eventDispatcher.removeEventListener(event, dispatch, false);
 	}
 	
 	private function dispatch(e:Event) {

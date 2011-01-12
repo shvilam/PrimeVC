@@ -76,7 +76,7 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, impleme
 	
 	public function validateGraphics ()
 	{
-	//	trace(target+".render "+target.rect);
+	//	trace(target+".render "+target.rect+"; "+target.graphicData.isEmpty()+"; "+target.graphics);
 		if (target == null || target.graphics == null)
 			return;
 		

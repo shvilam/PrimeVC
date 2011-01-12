@@ -62,6 +62,9 @@ interface IUIElement
 	
 	
 	public function isDisposed ()			: Bool;
+	public function isInitialized ()		: Bool;
+	
+	
 	
 	//
 	// ACTIONS

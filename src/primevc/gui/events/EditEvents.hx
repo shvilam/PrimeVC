@@ -35,7 +35,7 @@ typedef EditEvents =
 	#if		flash9	primevc.avm2.events.EditEvents;
 	#elseif	flash8	primevc.avm1.events.EditEvents;
 	#elseif	js		primevc.js  .events.EditEvents;
-	#else	error	#end
+	#else	#error	#end
 
 
 /**

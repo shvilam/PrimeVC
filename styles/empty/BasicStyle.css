@@ -39,8 +39,25 @@ SliderBase					{ algorithm: relative; background: #fff; }
 	height: 6px;
 }
 
+
+
+/***************
+ * SCROLLBAR
+ **************/
+
 ScrollBar 					{ background: #212121; }
 .horizontalScrollBar		{ left: 8px; right: 8px; height: 2px; bottom: 7px; }
 .verticalScrollBar			{ top: 8px; bottom: 8px; width: 2px; right: 7px; }
 .horizontalScrollBar Button	{ background: #212121; height: 9px; width: 6px; v-center: 0px; }
 .verticalScrollBar Button	{ background: #212121; width: 9px; height: 6px; h-center: 0px; }
+
+
+
+/***************
+ * VideoPlayer
+ **************/
+
+/*VideoPlayer					{ background: #eee; algorithm: float-ver; }
+VideoPlayer UIVideo			{ width: 100%; height: auto; }
+VideoControlBar				{ algorithm: float-hor(center, center); width: 100%; height: 30px; }
+VideoControlBar Button		{ background: #f00; width: 50px; height: 50px; }*/

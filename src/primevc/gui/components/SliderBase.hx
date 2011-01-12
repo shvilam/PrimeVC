@@ -28,6 +28,7 @@
  */
 package primevc.gui.components;
  import primevc.core.dispatcher.Wire;
+ import primevc.core.events.ActionEvent;
  import primevc.core.geom.space.Direction;
  import primevc.core.geom.IntPoint;
  import primevc.core.geom.Point;
@@ -89,6 +90,12 @@ class SliderBase extends UIDataContainer < DataType >
 	public var inverted		(default, setInverted)		: Bool;
 	
 	/**
+	 * Eventgroup with events that are dispatched when the user starts sliding
+	 * the slider.
+	 */
+	public var sliding		(default, null)				: ActionEvent;
+	
+	/**
 	 * Flag indicating if the slider should show increase / decrease buttons.
 	 * @default false
 	 */
@@ -114,6 +121,7 @@ class SliderBase extends UIDataContainer < DataType >
 	//	(untyped this).showButtons	= false;
 		this.direction				= direction == null ? horizontal : direction;
 		validator					= new FloatRangeValidator( minValue, maxValue );
+		sliding						= new ActionEvent();
 	}
 	
 	
@@ -132,7 +140,15 @@ class SliderBase extends UIDataContainer < DataType >
 		if (mouseBtnDownBinding != null)	mouseBtnDownBinding.dispose();
 		
 		updatePercBinding = mouseBgDownBinding = mouseBtnDownBinding = mouseUpBinding = mouseMoveBinding = null;
+		sliding.dispose();
 		
+		if (isInitialized())
+		{
+			dragBtn.dispose();
+			dragBtn = null;
+		}
+		
+		sliding	= null;
 		direction = null;
 		super.dispose();
 	}
@@ -202,7 +218,7 @@ class SliderBase extends UIDataContainer < DataType >
 	// CHILDREN
 	//
 	
-	private var dragBtn		: DragButton;
+	public var dragBtn		(default, null)	: DragButton;
 	
 	
 	override private function createChildren ()
@@ -344,6 +360,7 @@ class SliderBase extends UIDataContainer < DataType >
 	//	calculateValue( mouseObj );
 		dragBtn.mouseEnabled				= false;
 		dragBtn.layout.includeInLayout		= false;
+		sliding.begin.send();
 	}
 	
 	
@@ -360,6 +377,7 @@ class SliderBase extends UIDataContainer < DataType >
 	//	calculateValue( mouseObj );
 		dragBtn.mouseEnabled				= true;
 		dragBtn.layout.includeInLayout		= true;
+		sliding.apply.send();
 	}
 	
 	
@@ -368,7 +386,6 @@ class SliderBase extends UIDataContainer < DataType >
 	//	data.set( validator.validate( data.value ) );
 		var diff	= validator.getDiff();
 		percentage	= diff == 0 ? 0 : (( data.value - validator.min ) / diff).within(0, 1);
-		trace(this+"; d: "+diff+"; "+data.value+"; => p: "+percentage+"; ");
 	}
 	
 	
@@ -451,7 +468,7 @@ class SliderBase extends UIDataContainer < DataType >
 			
 			dragBtn.x			= layout.padding.left + ( percentage * ( layout.width.value - dragBtn.layout.outerBounds.width ) );
 			dragBtn.layout.x	= dragBtn.x.roundFloat();
-			trace(this+"; "+dragBtn.x);
+		//	trace(this+"; "+dragBtn.x);
 		}
 		else
 		{

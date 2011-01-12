@@ -29,7 +29,8 @@
 package primevc.avm2.events;
 #if flash10
  import flash.events.Event;
-#else if flash9
+#elseif flash9
+ import flash.events.IEventDispatcher;
  import flash.events.KeyboardEvent;
  import primevc.core.dispatcher.Signal0;
 #end
@@ -53,19 +54,23 @@ class EditEvents extends EditSignals
 		paste		= new FlashSignal0 (eventDispatcher, Event.PASTE );
 		remove		= new FlashSignal0 (eventDispatcher, Event.CLEAR );
 		selectAll	= new FlashSignal0 (eventDispatcher, Event.SELECT_ALL );
-#else if flash9
+#elseif flash9
 		cut			= new Signal0();
 		copy		= new Signal0();
 		paste		= new Signal0();
 		remove		= new Signal0();
 		selectAll	= new Signal0();
 		
-		eventDispatcher.addEventListener(KeyboardEvent.KEY_DOWN, dispatch);
+		dispatcher	= eventDispatcher;
+		eventDispatcher.addEventListener(KeyboardEvent.KEY_DOWN, dispatch, false, 0, true);
 #end
 	}
 	
 	
 #if (flash9 && !flash10)
+	private var dispatcher : IEventDispatcher;
+	
+	
 	private function dispatch (e:KeyboardEvent) : Void
 	{
 		var key = keyObj.keyCode();
@@ -80,6 +85,15 @@ class EditEvents extends EditSignals
 				case KeyCodes.C:	copy.send();
 				case KeyCodes.V:	paste.send();
 			}
+	}
+	
+	
+	
+	override public function dispose ()
+	{
+		dispatcher.removeEventListener( KeyboardEvent.KEY_DOWN, dispatch, false );
+		dispatcher = null;
+		super.dispose();
 	}
 #end
 }

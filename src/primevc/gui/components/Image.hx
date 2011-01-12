@@ -34,6 +34,7 @@ package primevc.gui.components;
  import primevc.gui.graphics.shapes.RegularRectangle;
  import primevc.gui.graphics.GraphicProperties;
  import primevc.gui.layout.AdvancedLayoutClient;
+ import primevc.gui.layout.LayoutFlags;
  import primevc.types.Bitmap;
  import primevc.types.Number;
   using primevc.utils.Bind;
@@ -138,14 +139,15 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 		var l = layout.as(AdvancedLayoutClient);
 		if (data.state.is( BitmapStates.ready ))
 		{
-	//		trace("Image.updateSize; "+data.data.width+", "+data.data.height+"; expl size? "+l.explicitWidth+", "+l.explicitHeight);
-			l.measuredWidth		= data.data.width;
-			l.measuredHeight	= data.data.height;
+		//	trace("Image.updateSize; "+data.data.width+", "+data.data.height+"; expl size? "+l.explicitWidth+", "+l.explicitHeight);
+			l.maintainAspectRatio	= true;
+			l.measuredResize( data.data.width, data.data.height );
 		}
 		else
-		{
-			l.measuredWidth		= Number.INT_NOT_SET;
-			l.measuredHeight	= Number.INT_NOT_SET;
+		{	
+			l.maintainAspectRatio	= false;
+			l.measuredWidth			= Number.INT_NOT_SET;
+			l.measuredHeight		= Number.INT_NOT_SET;
 		}
 	}
 	

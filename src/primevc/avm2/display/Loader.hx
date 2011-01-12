@@ -29,6 +29,7 @@
 package primevc.avm2.display;
  import flash.display.DisplayObject;
  import flash.net.URLRequest;
+ import flash.system.LoaderContext;
  import flash.utils.ByteArray;
  import primevc.avm2.events.LoaderEvents;
  import primevc.core.traits.IDisposable;
@@ -69,9 +70,9 @@ class Loader implements IDisposable
 	}
 	
 	
-	public inline function load (v:URLRequest)		{ return loader.load(v); }
-	public inline function unload ()				{ return loader.unload(); }
-	public inline function close ()					{ if (!isLoaded) loader.close(); }
+	public inline function load (v:URLRequest, ?c:LoaderContext)	{ return loader.load(v, c); }
+	public inline function unload ()								{ return loader.unload(); }
+	public inline function close ()									{ if (!isLoaded) loader.close(); }
 	
 	
 	
