@@ -63,13 +63,13 @@ class MouseSignal extends Signal1<MouseState>, implements IWireWatcher<MouseHand
 	public function wireEnabled	(wire:Wire<MouseHandler>) : Void {
 		Assert.that(n != null);
 		if ( n.next() == null) // First wire connected
-			eventDispatcher.addEventListener(event, dispatch);
+			eventDispatcher.addEventListener(event, dispatch, false, 0, true);
 	}
 	
 	
 	public function wireDisabled	(wire:Wire<MouseHandler>) : Void {
 		if (n == null) // No more wires connected
-			eventDispatcher.removeEventListener(event, dispatch);
+			eventDispatcher.removeEventListener(event, dispatch, false);
 	}
 	
 	

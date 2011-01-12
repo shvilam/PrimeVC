@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.avm2.events;
-private typedef ErrorSignal		= primevc.avm2.events.ErrorSignal;		// override import
+private typedef ErrorSignal		= primevc.avm2.events.TextSignal;		// override import
 private typedef ProgressSignal	= primevc.avm2.events.ProgressSignal;	// override import
  import flash.events.IEventDispatcher;
  import flash.events.IOErrorEvent;

@@ -59,12 +59,12 @@ class TextSignal extends Signal1 <String>, implements IWireWatcher < TextHandler
 	public function wireEnabled (wire:Wire<TextHandler>) : Void {
 		Assert.that(n != null);
 		if (ListUtil.next(n) == null) // First wire connected
-			eventDispatcher.addEventListener(event, dispatch);
+			eventDispatcher.addEventListener(event, dispatch, false, 0, true);
 	}
 
 	public function wireDisabled	(wire:Wire<TextHandler>) : Void {
 		if (n == null) // No more wires connected
-			eventDispatcher.removeEventListener(event, dispatch);
+			eventDispatcher.removeEventListener(event, dispatch, false);
 	}
 
 	private function dispatch(e:TextEvent) {

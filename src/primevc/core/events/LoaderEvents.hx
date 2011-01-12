@@ -35,7 +35,7 @@ typedef LoaderEvents =
 	#if		flash9	primevc.avm2.events.LoaderEvents;
 	#elseif	flash8	primevc.avm1.events.LoaderEvents;
 	#elseif	js		primevc.js  .events.LoaderEvents;
-	#else	error	#end
+	#else	#error	#end
 
 
 /**
