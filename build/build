@@ -71,7 +71,7 @@ else
 	echo -e "\tProject: $PRJROOT"
 	echo -e "\tOutput: $OUTPUT"
 	echo -e "\tPrimeVC: $PRIMEVC_ROOT"
-	echo -e "\tLocal file access: $LOCALACCESS"
+	echo -e "\tLocal file access: $ACCESS"
 	echo -e "\tExtra: ${EXTRA:-"no extra's"}"
 	
 	echo "1. BUILDING ASSETS"
@@ -92,7 +92,7 @@ else
 		-swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR \
 		${ASSETS:+-swf-lib "'$ASSETS'"} \
 		-swf-lib "'assets/${Debug:+debug-}assets.swf'" \
-		$LOCALACCESS \
+		$ACCESS \
 		| xargs -t haxe \
 		 	|| exit 1;
 	

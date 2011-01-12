@@ -58,19 +58,19 @@ class KeyboardSignal extends Signal1<KeyboardState>, implements IWireWatcher<Key
 	public function wireEnabled	(wire:Wire<KeyboardHandler>) : Void {
 		Assert.that(n != null);
 		if (n.next() == null) // First wire connected
-			eventDispatcher.addEventListener(event, dispatch);
+			eventDispatcher.addEventListener(event, dispatch, false, 0, true);
 	}
 	
 	public function wireDisabled	(wire:Wire<KeyboardHandler>) : Void {
 		if (n == null) // No more wires connected
-			eventDispatcher.removeEventListener(event, dispatch);
+			eventDispatcher.removeEventListener(event, dispatch, false);
 	}
 	
 	private function dispatch(e:KeyboardEvent) {
 		send( stateFromFlashEvent(e) );
 	}
 	
-	static  public function stateFromFlashEvent( e ) : KeyboardState
+	static  public function stateFromFlashEvent( e:KeyboardEvent ) : KeyboardState
 	{
 		/*
 			charCode				keyCode					keyLocation		KeyMod
@@ -85,6 +85,7 @@ class KeyboardSignal extends Signal1<KeyboardState>, implements IWireWatcher<Key
 		flags = (e.altKey?	KeyModState.ALT : 0)
 			| (e.ctrlKey?	KeyModState.CMD | KeyModState.CTRL : 0)
 			| (e.shiftKey?	KeyModState.SHIFT : 0);
+		
 		
 		flags |= cast(e.keyLocation, UInt) << 4;
 		flags |= (e.charCode << 18);

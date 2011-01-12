@@ -34,6 +34,7 @@ package primevc.gui.components;
  import primevc.gui.graphics.shapes.RegularRectangle;
  import primevc.gui.graphics.GraphicProperties;
  import primevc.gui.layout.AdvancedLayoutClient;
+ import primevc.gui.layout.LayoutFlags;
  import primevc.types.Bitmap;
  import primevc.types.Number;
   using primevc.utils.Bind;
@@ -47,13 +48,20 @@ package primevc.gui.components;
  */
 class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 {
-	public var data	(default, setData) : Bitmap;
+	public var data					(default, setData) : Bitmap;
+	
+	/**
+	 * Bool indicating wether the image should maintain it's aspect-ratio
+	 * @default true
+	 */
+	public var maintainAspectRatio	(default, setMaintainAspectRatio)	: Bool;
 	
 	
 	public function new (id:String = null, data:Bitmap = null)
 	{
 		super(id);
 		this.data = data;
+		this.maintainAspectRatio = true;
 	}
 	
 	
@@ -128,6 +136,18 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 	}
 	
 	
+	private inline function setMaintainAspectRatio (v:Bool) : Bool
+	{
+		if (v != maintainAspectRatio)
+		{
+			maintainAspectRatio = v;
+			if (layout != null)
+				layout.maintainAspectRatio = v;
+		}
+		return v;
+	}
+	
+	
 	
 	//
 	// EVENT HANDLERS
@@ -138,14 +158,15 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 		var l = layout.as(AdvancedLayoutClient);
 		if (data.state.is( BitmapStates.ready ))
 		{
-	//		trace("Image.updateSize; "+data.data.width+", "+data.data.height+"; expl size? "+l.explicitWidth+", "+l.explicitHeight);
-			l.measuredWidth		= data.data.width;
-			l.measuredHeight	= data.data.height;
+		//	trace("Image.updateSize; "+data.data.width+", "+data.data.height+"; expl size? "+l.explicitWidth+", "+l.explicitHeight);
+			l.maintainAspectRatio	= maintainAspectRatio;
+			l.measuredResize( data.data.width, data.data.height );
 		}
 		else
-		{
-			l.measuredWidth		= Number.INT_NOT_SET;
-			l.measuredHeight	= Number.INT_NOT_SET;
+		{	
+			l.maintainAspectRatio	= false;
+			l.measuredWidth			= Number.INT_NOT_SET;
+			l.measuredHeight		= Number.INT_NOT_SET;
 		}
 	}
 	

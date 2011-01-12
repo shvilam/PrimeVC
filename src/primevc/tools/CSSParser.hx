@@ -200,10 +200,10 @@ class CSSParser
 	public static inline var R_URI_HOST				: String = "(" + R_URI_DNS + "|" + R_URI_IPV4 + "|" + R_URI_IPV6 + "|localhost)";
 	public static inline var R_URI_PORT				: String = "[0-9]{1,4}|[0-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9{2}|655[0-2][0-9]|6553[0-5]]";	//port range from 0 - 65535
 	public static inline var R_URI_AUTHORITY		: String = "(" + R_URI_USERINFO + "@)?(" + R_URI_HOST + ")(:(" + R_URI_PORT + "))?";
-	public static inline var R_URI_NAME				: String = "[a-z][a-z0-9+%_,-]*";
+	public static inline var R_URI_NAME				: String = "[a-z][a-z0-9+%_, -]*";
 	public static inline var R_URI_FOLDERNAME		: String = "(" + R_URI_NAME + ")|([.]{1,2})";
 	public static inline var R_URI_FILENAME			: String = R_URI_NAME + "[.][a-z0-9]+";
-	public static inline var R_URI_PATH				: String = "((" + R_URI_FOLDERNAME + ")/)*((" + R_URI_FILENAME + ")|(" + R_URI_FOLDERNAME + ")/?)";		//match path with optional filename at the end
+	public static inline var R_URI_PATH				: String = "([a-z]:/)?((" + R_URI_FOLDERNAME + ")/)*((" + R_URI_FILENAME + ")|(" + R_URI_FOLDERNAME + ")/?)";		//match path with optional filename at the end
 	public static inline var R_URI_QUERY_VALUE		: String = "[a-z][a-z0-9+.?/_%-]*";
 	public static inline var R_URI_QUERY_VAR		: String = "((" + R_URI_QUERY_VALUE + "=" + R_URI_QUERY_VALUE + ")|(" + R_URI_QUERY_VALUE + "))";
 	public static inline var R_URI_QUERY			: String = "[?]" + R_URI_QUERY_VAR + "(&" + R_URI_QUERY_VAR + ")*";
@@ -630,6 +630,8 @@ class CSSParser
 	{
 		var content = loadFileContent(file);
 		
+		//trace(file);
+		
 		if (content != "")
 		{
 			//find base path of stylesheet
@@ -697,7 +699,8 @@ class CSSParser
 	
 	
 	private function importStyleSheet (expr:EReg) : String {
-		addStyleSheet( styleSheetBasePath + "/" + expr.matched(2) );
+		var url = expr.matched(3) != null ? expr.matched(2) : styleSheetBasePath + "/" + expr.matched(2);
+		addStyleSheet( url );
 		return "";
 	}
 	

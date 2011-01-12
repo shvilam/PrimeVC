@@ -37,14 +37,13 @@ typedef Sprite =
 	#if		flash9	primevc.avm2.display.Sprite;
 	#elseif	flash8	primevc.avm1.display.Sprite;
 	#elseif	js		primevc.js  .display.Sprite;
-	#else			SpriteImpl;
+	#else			#error;
 
 
  import primevc.gui.events.DisplayEvents;
- import primevc.gui.events.IUserEvents;
+ import primevc.gui.events.UserEvents;
  import primevc.core.geom.Matrix2D;
  import primevc.core.geom.Rectangle;
- import primevc.gui.events.UserEvents;
 
 /**
  * Mock implementation of Sprite

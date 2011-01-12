@@ -63,12 +63,12 @@ class ProgressSignal extends Signal2<UInt, UInt>, implements IWireWatcher < Prog
 	public function wireEnabled (wire:Wire<ProgressHandler>) : Void {
 		Assert.that(n != null);
 		if (ListUtil.next(n) == null) // First wire connected
-			eventDispatcher.addEventListener(event, dispatch);
+			eventDispatcher.addEventListener(event, dispatch, false, 0, true);
 	}
 
 	public function wireDisabled	(wire:Wire<ProgressHandler>) : Void {
 		if (n == null) // No more wires connected
-			eventDispatcher.removeEventListener(event, dispatch);
+			eventDispatcher.removeEventListener(event, dispatch, false);
 	}
 
 	private function dispatch(e:ProgressEvent) {

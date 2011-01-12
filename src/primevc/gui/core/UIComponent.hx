@@ -132,8 +132,8 @@ class UIComponent extends Sprite, implements IUIComponent
 		
 		state.current = state.constructed;
 	}
-
-
+	
+	
 	private function init ()
 	{
 		Assert.notNull(container, "Container can't be null for "+this);
@@ -197,7 +197,6 @@ class UIComponent extends Sprite, implements IUIComponent
 	public inline function isInitialized ()	{ return state != null && state.is(state.initialized); }
 	
 	
-	
 	//
 	// ACTIONS (actual methods performed by UIElementActions util)
 	//
@@ -209,8 +208,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	public inline function rotate (v:Float)				{ this.doRotate(v); }
 	public function scale (sx:Float, sy:Float)			{ this.doScale(sx, sy); }
 	
-
-
+	
 	//
 	// SETTERS / GETTERS
 	//
@@ -267,7 +265,6 @@ class UIComponent extends Sprite, implements IUIComponent
 	}
 	
 	
-	
 	//
 	// IPROPERTY-VALIDATOR METHODS
 	//
@@ -293,7 +290,6 @@ class UIComponent extends Sprite, implements IUIComponent
 	{
 		return window.as(UIWindow).invalidationManager;
 	}
-	
 	
 	
 	//

@@ -38,19 +38,13 @@ package primevc.gui.styling;
  */
 class ApplicationStyle extends UIElementStyle
 {
+#if flash9
 	override private function init ()
 	{
 		var sheet			= new StyleSheet();
 		filledProperties	= filledProperties.set( sheet.allFilledProperties );
 		parentStyle			= this;
-		
 		styles.add( sheet );
-	//	updateStyles();
 	}
-	
-	
-//	override public function updateStyles ()			: Void {}
-//	override private function updateStyleNameStyles ()	: UInt { return 0; }
-//	override private function updateIdStyle ()			: UInt { return 0; }
-//	override private function updateElementStyle ()		: UInt { return 0; }
+#end
 }

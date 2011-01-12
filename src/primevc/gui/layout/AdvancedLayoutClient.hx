@@ -204,4 +204,18 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 		}
 	//	trace(this+".validateVertical 2 "+height.value+"; explicit: "+explicitHeight+"; measured: "+measuredHeight+"; "+Flags.readProperties(changes.filter( Flags.HEIGHT_PROPERTIES )));
 	}
+	
+	
+	
+	/**
+	 * Method will update the measuredWidth and measuredHeight and invalidate
+	 * the aspect-ratio if maintain-aspectratio is set to true.
+	 */
+	public function measuredResize (newW:Int, newH:Int)
+	{
+		measuredWidth	= newW;
+		measuredHeight	= newH;
+		if (maintainAspectRatio)
+			calculateAspectRatio(newW, newH);
+	}
 }

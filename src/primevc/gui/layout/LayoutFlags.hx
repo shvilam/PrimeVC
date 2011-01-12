@@ -101,6 +101,7 @@ class LayoutFlags
 	
 	public static inline var CHILD_WIDTH			= 1 << 25;
 	public static inline var CHILD_HEIGHT			= 1 << 26;
+	public static inline var ASPECT_RATIO			= 1 << 27;
 	
 	
 	/**
@@ -116,6 +117,7 @@ class LayoutFlags
 		var output	= [];
 		
 		if (flags.has( ALGORITHM ))				output.push("algorithm");
+		if (flags.has( ASPECT_RATIO ))			output.push("aspect-ratio");
 	//	if (flags.has( BOUNDARY_HEIGHT ))		output.push("boundary-height");
 	//	if (flags.has( BOUNDARY_WIDTH ))		output.push("boundary-width");
 		if (flags.has( CHILD_HEIGHT ))			output.push("child-height");
