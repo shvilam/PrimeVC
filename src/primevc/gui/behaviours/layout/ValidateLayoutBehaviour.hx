@@ -138,7 +138,7 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 		
 		if (changes.has( LayoutFlags.WIDTH | LayoutFlags.HEIGHT ))
 		{
-			if (target.id.value == "video")
+		//	if (target.id.value == "video")
 				trace("\t"+target+".sizeChanged; outer: "+target.layout.outerBounds); //+"; inner: "+target.layout.innerBounds);
 			if (target.effects == null)
 			{

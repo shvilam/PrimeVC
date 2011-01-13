@@ -127,11 +127,11 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > // extends Validating
 		var targetLayout	= target.layout.as(AdvancedLayoutClient);
 		var fieldLayout		= target.field.layout;
 		
-	//	trace(target+".updateLabelSize "+fieldLayout.width.value+", "+fieldLayout.height.value);
+		trace(target+".updateLabelSize "+fieldLayout.width.value+", "+fieldLayout.height.value+"; "+targetLayout);
 		targetLayout.measuredWidth	= fieldLayout.width.value;
 		targetLayout.measuredHeight	= fieldLayout.height.value;
 	//	targetLayout.invalidate( LayoutFlags.WIDTH | LayoutFlags.HEIGHT );
-	//	trace("\t\ttarget measured-size: "+targetLayout.measuredWidth+", "+targetLayout.measuredHeight);
-	//	trace("\t\ttarget explicit-size: "+targetLayout.explicitWidth+", "+targetLayout.explicitHeight);
+		trace("\t\ttarget measured-size: "+targetLayout.measuredWidth+", "+targetLayout.measuredHeight);
+		trace("\t\ttarget explicit-size: "+targetLayout.explicitWidth+", "+targetLayout.explicitHeight);
 	}
 }

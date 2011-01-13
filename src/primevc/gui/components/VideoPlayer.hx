@@ -31,11 +31,18 @@ package primevc.gui.components;
  import primevc.core.states.VideoStates;
  import primevc.core.Bindable;
  import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
+ import primevc.gui.core.IUIElement;
  import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIDataContainer;
+ import primevc.gui.core.UIGraphic;
  import primevc.gui.core.UIVideo;
+ import primevc.gui.events.MouseEvents;
+ import primevc.gui.layout.LayoutFlags;
  import primevc.types.URI;
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
+  using primevc.utils.TimeUtil;
+  using Std;
 
 
 private typedef VideoData = Bindable<URI>;
@@ -49,18 +56,24 @@ class VideoPlayer extends UIDataContainer < VideoData >
 {
 	private var ctrlBar		: VideoControlBar;
 	private var video		: UIVideo;
+	private var bigPlayBtn	: UIGraphic;
 	public var stream		(default, null)	: VideoStream;
 	
 	
 	override private function createChildren ()
 	{
-		children.add( video		= new UIVideo("video") );
-		children.add( ctrlBar	= new VideoControlBar("ctrlBar") );
+		children.add( video			= new UIVideo("video") );
+		children.add( ctrlBar		= new VideoControlBar("ctrlBar") );
+		children.add( bigPlayBtn	= new UIGraphic("bigPlayBtn") );
 		
 		layoutContainer.children.add( video.layout );
 		layoutContainer.children.add( ctrlBar.layout );
+		layoutContainer.children.add( bigPlayBtn.layout );
 		
 		stream = ctrlBar.stream = video.stream;
+		
+		togglePlayPauze		.on( userEvents.mouse.click, this );
+		showOrHidePlayBtn	.on( stream.state.change, this );
 	}
 	
 	
@@ -84,6 +97,24 @@ class VideoPlayer extends UIDataContainer < VideoData >
 		video	= null;
 		stream	= null;
 		super.dispose();
+	}
+	
+	
+	private function togglePlayPauze (mouseObj:MouseState)
+	{
+		if (mouseObj.target == this)
+			stream.togglePlayPauze();
+	}
+	
+	
+	private function showOrHidePlayBtn (newState:VideoStates, oldState:VideoStates)
+	{
+		var b		= bigPlayBtn;
+		var oldV	= b.visible;
+		b.visible	= b.layout.includeInLayout = newState != VideoStates.playing;
+		
+		if		(b.visible && oldV != b.visible)	children.add( b );
+		else if	(!b.visible && oldV != b.visible)	children.remove( b );
 	}
 }
 
@@ -115,6 +146,8 @@ class VideoControlBar extends UIContainer
 		stream = null;
 		if (isInitialized())
 		{
+			layout.changed.unbind( this );
+			
 			playBtn.dispose();
 			stopBtn.dispose();
 			progressBar.dispose();
@@ -150,6 +183,12 @@ class VideoControlBar extends UIContainer
 		
 		if (stream != null)
 			addStreamListeners();
+		
+		//FIXME RUBEN: create a nice way with macro's to add children conditionally.. like 
+		// children.addIf( child, function() width > 400; );
+		// when( this.width > 400 ).on(updateLayout).addChild(btn); 
+		addOrRemoveChildren.on( layout.changed, this );
+		addOrRemoveChildren( LayoutFlags.WIDTH );
 	}
 
 
@@ -166,12 +205,15 @@ class VideoControlBar extends UIContainer
 		progressBar	.data.bind( stream.currentTime );
 		volumeSlider.data.pair( stream.volume );
 		
-		stream.freeze.on( progressBar.sliding.begin, this );
-		stream.defrost.on( progressBar.sliding.apply, this );
-		startSeeking.on( progressBar.sliding.apply, this );
-		handleStreamChange.on( stream.state.change, this );
+		updateTimeLabel		.on( stream.currentTime.change, this );
+		updateTimeLabel		.on( stream.totalTime.change, this );
+		stream.freeze		.on( progressBar.sliding.begin, this );
+		stream.defrost		.on( progressBar.sliding.apply, this );
+		startSeeking		.on( progressBar.sliding.apply, this );
+		handleStreamChange	.on( stream.state.change, this );
 		
 		handleStreamChange( stream.state.current, null );
+		updateTimeLabel();
 	}
 	
 	
@@ -226,11 +268,11 @@ class VideoControlBar extends UIContainer
 		switch (newState)
 		{
 			case VideoStates.playing:
-				playBtn.id.value = "pauseBtn";
+				playBtn.id.value	= "pauseBtn";
 			
 			
 			case VideoStates.paused:
-				playBtn.id.value = "playBtn";
+				playBtn.id.value	= "playBtn";
 			
 			
 			case VideoStates.stopped:
@@ -239,7 +281,7 @@ class VideoControlBar extends UIContainer
 			
 			
 			case VideoStates.empty:
-				enabled.value = false;
+				enabled.value		= false;
 			
 			
 			case VideoStates.frozen(realState):
@@ -257,8 +299,47 @@ class VideoControlBar extends UIContainer
 	}
 	
 	
+	/**
+	 * Method is called when the currentTime or totalTime changes and will
+	 * update the time-label value.
+	 */
+	private function updateTimeLabel () : Void
+	{
+		var curTime = stream.currentTime.value.int().secondsToTime();
+		var totTime = stream.totalTime.value.int().secondsToTime();
+		timeDisplay.data.value = curTime + " / " + totTime;
+	}
+	
+	
+	/**
+	 * Method is called when the user releases the video-progressbar and will
+	 * seek the the new-position in the video-stream.
+	 */
 	private function startSeeking ()
 	{
 		stream.seek( progressBar.data.value );
+	}
+	
+	
+	/**
+	 * Method is called when the size is changed and with add or remove some 
+	 * of the displayobjects.
+	 */
+	private function addOrRemoveChildren (changes:Int)
+	{
+		if (changes.hasNone( LayoutFlags.WIDTH ))
+			return;
+		
+		var width = layout.innerBounds.width;
+		showOrHide( volumeSlider,	width > 250 );
+		showOrHide( stopBtn,		width > 300 );
+		showOrHide( timeDisplay,	width > 400 );
+	}
+	
+	
+	private inline function showOrHide (child:IUIElement, show:Bool)
+	{
+		if (child.visible != show)
+			child.visible = child.layout.includeInLayout = show;
 	}
 }

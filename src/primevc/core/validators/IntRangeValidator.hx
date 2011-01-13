@@ -115,7 +115,7 @@ class IntRangeValidator implements IValueValidator <Int>
 		if (min.isSet() && max.isSet())		v = v.within( min, max );
 		else if (min.isSet())				v = v.getBiggest( min );
 		else if (max.isSet())				v = v.getSmallest( max );
-	//	trace("validate "+oldV+" => "+v+"; min/max: "+min+", "+max);
+	//	trace("validate "+v+"; min/max: "+min+", "+max);
 		return v;
 	}
 	
