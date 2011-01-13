@@ -82,7 +82,7 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 #end
 		
 		if (textStyle != null)
-			field.textStyle		= textStyle;
+			field.textStyle = textStyle;
 		
 		if (data == null)
 			data = cast field.data;

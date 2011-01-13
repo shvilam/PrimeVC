@@ -284,9 +284,9 @@ class UITextField extends TextField, implements IUIElement
 		if (autoSize == flash.text.TextFieldAutoSize.NONE)
 			scrollH = 0;
 #end
-	//	trace(this+".updateSize: "+realTextWidth+", "+realTextHeight+" => "+w+", "+h+"; cursize: "+width+", "+height);
 		layout.width.value = w;
 		layout.height.value = h;
+	//	trace(this+".updateSize: "+realTextWidth+", "+realTextHeight+" => "+w+", "+h+"; cursize: "+width+", "+height+"; "+data.value+"; "+layout.state.current);
 	}
 	
 	

@@ -104,7 +104,7 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		var target	= elementStyle.target;
 		var empty	= styleObj == null;
 		
-		if ( propsToSet.has( Flags.SKIN ))			target.as(ISkinnable).skin			= empty ? null	: (styleObj.skin != null) ? Type.createInstance( styleObj.skin, null ) : null;
+		if ( propsToSet.has( Flags.SKIN ))			target.as(ISkinnable).skin			= empty ? null	: (styleObj.skin != null) ? Type.createInstance( styleObj.skin, [] ) : null;
 		if ( propsToSet.has( Flags.SHAPE ))			graphicProps.shape					= empty ? null	: styleObj.shape;
 		if ( propsToSet.has( Flags.BACKGROUND ))	graphicProps.fill					= empty ? null	: styleObj.background;
 		if ( propsToSet.has( Flags.BORDER ))		graphicProps.border					= empty ? null	: styleObj.border;

@@ -29,7 +29,6 @@
 package primevc.gui.graphics.shapes;
  import primevc.core.geom.Corners;
  import primevc.core.geom.IRectangle;
- import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.traits.IGraphicsOwner;
 #if neko
  import primevc.tools.generator.ICodeGenerator;

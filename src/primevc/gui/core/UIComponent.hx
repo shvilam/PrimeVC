@@ -218,11 +218,14 @@ class UIComponent extends Sprite, implements IUIComponent
 
 	private function setSkin (newSkin)
 	{
+		if (skin != null)
+			skin.dispose();
+		
 		skin = newSkin;
-
-		if (skin != null && skin.is(Skin))
-			cast(skin, Skin<Dynamic>).owner = this;
-
+		
+		if (skin != null)
+			skin.changeOwner(this);
+		
 		return skin;
 	}
 	

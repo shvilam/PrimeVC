@@ -71,6 +71,7 @@ class LayoutClient extends Invalidatable
 	public var parent				(default, setParent)				: ILayoutContainer;
 //	public var events				(default, null)						: LayoutEvents;
 	public var changed				(default, null)						: Signal1<Int>;
+	public var filledProperties		(default, null)						: Int;
 	
 	
 	/**

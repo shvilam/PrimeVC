@@ -35,7 +35,6 @@ package primevc.gui.layout;
  import primevc.core.validators.ValidatingValue;
  import primevc.core.validators.IntRangeValidator;
  import primevc.core.traits.IDisposable;
-// import primevc.gui.events.LayoutEvents;
  import primevc.gui.states.ValidateStates;
 
 
@@ -68,7 +67,11 @@ interface ILayoutClient
 	/**
 	 * Flags of properties that are changed
 	 */
-	public var changes							: Int;
+	public var changes				(default, null)							: Int;
+	/**
+	 * Flags with all the properties that are set for the layoutclient
+	 */
+	public var filledProperties		(default, null)							: Int;
 	
 	
 	/**
@@ -146,10 +149,6 @@ interface ILayoutClient
 	
 	
 	/**
-	 * rules for the size (min, max)
-	 */
-//	public var sizeConstraint		(default, setSizeConstraint)		: SizeConstraint;
-	/**
 	 * rules for sizing / positioning the layout with relation to the parent
 	 */
 	public var relative				(default, setRelative)				: RelativeLayout;
@@ -165,7 +164,6 @@ interface ILayoutClient
 	// EVENTS
 	//
 	
-//	public var events				(default, null)						: LayoutEvents;
 	public var changed				(default, null)						: Signal1<Int>;
 	
 	public var state				(default, null)						: SimpleStateMachine < ValidateStates >;

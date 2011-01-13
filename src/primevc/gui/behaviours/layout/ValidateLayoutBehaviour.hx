@@ -56,15 +56,17 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 	
 	override private function init ()
 	{
-		isNotPositionedYet = true;
-		Assert.that(target.layout != null, "Layout of "+target+" can't be null for "+this);
+		var layout			= target.layout;
+		isNotPositionedYet	= true;
+		Assert.that(layout != null, "Layout of "+target+" can't be null for "+this);
 		
 #if debug
-		target.layout.name = target.id.value+"Layout";
+		layout.name = target.id.value+"Layout";
 #end
 		
-		layoutStateChangeHandler.on( target.layout.state.change, this );
-		applyChanges.on( target.layout.changed, this );
+		layoutStateChangeHandler.on( layout.state.change, this );
+		applyChanges.on( layout.changed, this );
+		layoutStateChangeHandler( layout.state.current, null );
 	}
 	
 	
@@ -136,7 +138,8 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 		
 		if (changes.has( LayoutFlags.WIDTH | LayoutFlags.HEIGHT ))
 		{
-		//	trace("\t"+target+".sizeChanged; outer: "+target.layout.outerBounds); //+"; inner: "+target.layout.innerBounds);
+			if (target.id.value == "video")
+				trace("\t"+target+".sizeChanged; outer: "+target.layout.outerBounds); //+"; inner: "+target.layout.innerBounds);
 			if (target.effects == null)
 			{
 				var b = target.layout.innerBounds;

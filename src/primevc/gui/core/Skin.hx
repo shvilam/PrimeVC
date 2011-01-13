@@ -29,6 +29,7 @@
 package primevc.gui.core;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.states.SkinStates;
+  using primevc.utils.TypeUtil;
 
 
 /**
@@ -72,16 +73,25 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 	}
 	
 	
+	public function changeOwner (newOwner:IUIComponent)
+	{
+		try {
+			this.owner = cast newOwner;
+		}
+		catch (e:Dynamic) {}
+	}
+	
+	
 	
 	
 	//
 	// GETTERS / SETTERS
 	//
 	
-	private function setOwner (newOwner)
+	private function setOwner (newOwner:OwnerClass)
 	{
 		this.owner = newOwner;
-		if (newOwner != null && skinState.current == skinState.constructed)
+		if (newOwner != null && newOwner.isInitialized())
 			createChildren();
 		return newOwner;
 	}

@@ -62,6 +62,21 @@ package primevc.gui.core;
  */
 class UIVideo extends Video, implements IUIElement
 {
+	/**
+	 * bit-flag indicating that the video-width has changed
+	 **/
+	private static inline var VIDEO_WIDTH	= 1 << 8;
+	/**
+	 * bit-flag indicating that the video-height has changed
+	 **/
+	private static inline var VIDEO_HEIGHT	= 1 << 9;
+	
+	
+	
+	//
+	// PROPERTIES
+	//
+	
 	public var prevValidatable	: IValidatable;
 	public var nextValidatable	: IValidatable;
 	private var changes			: Int;
@@ -162,9 +177,9 @@ class UIVideo extends Video, implements IUIElement
 #if flash9
 		attachNetStream( stream.source );
 #end
-		handleStreamChange	.on( stream.state.change, this );
-		applyVideoWidth		.on( stream.width.change, this );
-		applyVideoHeight	.on( stream.height.change, this );
+		handleStreamChange		.on( stream.state.change, this );
+		invalidateVideoWidth	.on( stream.width.change, this );
+		invalidateVideoHeight	.on( stream.height.change, this );
 		
 		if (changes > 0)
 			validate();
@@ -176,7 +191,6 @@ class UIVideo extends Video, implements IUIElement
 	private function createLayout () : Void
 	{
 		layout = new AdvancedLayoutClient();
-		layout.maintainAspectRatio = true;
 	}
 	
 	
@@ -217,6 +231,15 @@ class UIVideo extends Video, implements IUIElement
 	
 	public function validate ()
 	{
+		if (changes.has( VIDEO_WIDTH | VIDEO_HEIGHT ))
+		{
+			var l = layout.as(AdvancedLayoutClient);
+			l.maintainAspectRatio = stream.width.value != 0;
+			
+			l.measuredResize( stream.width.value, stream.height.value );
+		//	trace(stream.width.value+", "+stream.height.value);
+		}
+		
 		changes = 0;
 	}
 	
@@ -255,8 +278,8 @@ class UIVideo extends Video, implements IUIElement
 	}
 	
 	
-	private function applyVideoWidth (newV:Int, oldV:Int)	{ layout.as(AdvancedLayoutClient).measuredWidth = newV; }
-	private function applyVideoHeight (newV:Int, oldV:Int)	{ layout.as(AdvancedLayoutClient).measuredHeight = newV; }
+	private function invalidateVideoWidth ()	{ invalidate(VIDEO_WIDTH); }
+	private function invalidateVideoHeight ()	{ invalidate(VIDEO_HEIGHT); }
 	
 	
 	

@@ -213,6 +213,7 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	 */
 	public function measuredResize (newW:Int, newH:Int)
 	{
+	//	trace(newW+", "+newH+"; "+maintainAspectRatio);
 		measuredWidth	= newW;
 		measuredHeight	= newH;
 		if (maintainAspectRatio)

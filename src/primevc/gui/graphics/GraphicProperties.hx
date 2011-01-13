@@ -163,7 +163,7 @@ class GraphicProperties implements IGraphicElement
 			return;
 		
 	//	trace(target+".drawing; "+target.rect.width+", "+target.rect.height);
-		var layout:IntRectangle = cast this.layout.clone();
+		var layout:IntRectangle = useCoordinates ? this.layout : cast this.layout.clone();
 		if (!useCoordinates)
 			layout.left = layout.top = 0;
 		

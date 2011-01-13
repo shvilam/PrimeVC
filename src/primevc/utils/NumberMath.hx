@@ -28,6 +28,7 @@
  */
 package primevc.utils;
  import apparat.math.FastMath;
+  using primevc.utils.NumberUtil;
   using Std;
  
 
@@ -59,7 +60,7 @@ class IntMath
 	 */
 	public static inline function min (var1:Int, var2:Int) : Int
 	{
-		return var1 < var2 ? var1 : var2;
+		return var1.isSet() && var1 < var2 ? var1 : var2;
 	}
 	
 	

@@ -52,6 +52,7 @@ interface ISkin
 {
 	public var skinState		(default, null)		: SkinStates;	
 //	public var owner			(default, setOwner) : OwnerClass;
+	public function changeOwner	(o:IUIComponent)	: Void;
 	
 	
 	/**
