@@ -104,8 +104,10 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	{
 		if (measuredWidth != v)
 		{
-			if (explicitWidth.notSet())
-				measuredWidth = width.value = v;
+			if (explicitWidth.notSet()) {
+				measuredWidth		= width.value = v;
+				hasValidatedWidth	= false;
+			}
 			else
 				measuredWidth = v;
 			
@@ -119,8 +121,10 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	{
 		if (measuredHeight != v)
 		{
-			if (explicitHeight.notSet())
-				measuredHeight = height.value = v;
+			if (explicitHeight.notSet()) {
+				measuredHeight		= height.value = v;
+				hasValidatedHeight	= false;
+			}
 			else
 				measuredHeight = v;
 			
@@ -135,7 +139,7 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 		if (hasValidatedWidth)
 			return;
 		
-		/*if (name == "spreadToolBarLayout") {
+	/*	if (name == "timeDisplayLayout") {
 			trace(this+".validateHorizontal 1 "+width.value+"; explicit: "+explicitWidth+"; measured: "+measuredWidth);
 			trace("\t\tchanges: "+Flags.readProperties(changes));
 		}*/
@@ -165,7 +169,8 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 			hasValidatedWidth = false;
 			super.validateHorizontal();
 		}
-	//	trace(this+".validateHorizontal 2 "+width.value+"; explicit: "+explicitWidth+"; measured: "+measuredWidth+"; "+Flags.readProperties(changes.filter( Flags.WIDTH_PROPERTIES )));
+	//	if (name == "timeDisplayLayout")
+	//		trace(this+".validateHorizontal 2 "+width.value+"; explicit: "+explicitWidth+"; measured: "+measuredWidth+"; "+Flags.readProperties(changes.filter( Flags.WIDTH_PROPERTIES )));
 	}
 	
 	

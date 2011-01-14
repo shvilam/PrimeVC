@@ -277,7 +277,7 @@ class LayoutClient extends Invalidatable
 	//	if (parent != null)
 	//		trace(this+".validate; "+readChanges() + "; p: "+parent+"; pchanges: "+Flags.readProperties(parent.changes)+"; parent.isValidating? "+parent.isValidating);
 		
-		if (parent == null || !parent.isValidating)
+		if (validateOnPropertyChange || parent == null || !parent.isValidating)
 			validated();
 	}
 	
@@ -354,6 +354,9 @@ class LayoutClient extends Invalidatable
 	{
 		if (changes > 0)
 		{
+		//	if (!hasValidatedWidth)		validateHorizontal();
+		//	if (!hasValidatedHeight)	validateVertical();
+			
 			if (changes.has( Flags.WIDTH_PROPERTIES | Flags.HEIGHT_PROPERTIES | Flags.X | Flags.Y ))
 				changed.send( changes );
 			
@@ -413,7 +416,6 @@ class LayoutClient extends Invalidatable
 			return;
 		
 		var newH = calcVerAspectRatioFor( width.value );
-	//	trace("for "+width.value+"; newH: "+newH+"; aspect: "+aspectRatio+"; "+this);
 		if (height.validator != null)
 		{
 			//make sure the new height is valid
@@ -422,6 +424,8 @@ class LayoutClient extends Invalidatable
 			//if the new-height wasn't valid, update the width-value
 			if (height.value != newH)
 				applyHeightAspectRatio();
+			
+		//	trace("for "+width.value+"; newH: "+newH+"; aspect: "+aspectRatio+"; "+this+"; "+oldH+" => "+height.value+"; "+height.validator);
 		}
 		else
 			height.value = newH;
@@ -438,7 +442,6 @@ class LayoutClient extends Invalidatable
 			return;
 		
 		var newW = calcHorAspectRatioFor( height.value );
-	//	trace("for "+height.value+"; newW: "+newW+"; aspect: "+aspectRatio+"; "+this);
 		if (width.validator != null)
 		{
 			//make sure the new width is valid
@@ -447,6 +450,8 @@ class LayoutClient extends Invalidatable
 			//if the new-width wasn't valid, update the height-value
 			if (width.value != newW)
 				applyWidthAspectRatio();
+			
+		//	trace("for "+height.value+"; newW: "+newW+"; aspect: "+aspectRatio+"; "+this+"; "+oldW+" => "+width.value+"; "+width.validator);
 		}
 		else
 			width.value = newW;
@@ -670,7 +675,8 @@ class LayoutClient extends Invalidatable
 	{
 		if (includeInLayout != v) {
 			includeInLayout = v;
-			invalidate( Flags.INCLUDE | Flags.PERCENT_HEIGHT | Flags.PERCENT_WIDTH | Flags.RELATIVE );
+			if (v)		invalidate( Flags.INCLUDE | Flags.PERCENT_HEIGHT | Flags.PERCENT_WIDTH | Flags.RELATIVE | changes );
+			else		invalidate( Flags.INCLUDE );
 		}
 		return includeInLayout;
 	}

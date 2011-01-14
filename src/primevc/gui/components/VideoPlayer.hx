@@ -129,6 +129,9 @@ class VideoPlayer extends UIDataContainer < VideoData >
  */
 class VideoControlBar extends UIContainer
 {
+	public static inline var STREAM = 1 << 10;
+	
+	
 	private var playBtn			: Button;
 	private var stopBtn			: Button;
 	private var progressBar		: Slider;
@@ -181,20 +184,21 @@ class VideoControlBar extends UIContainer
 		children.add( volumeSlider	= new Slider("volumeSlider") );
 		children.add( fullScreenBtn	= new Button("fullScreenBtn") );
 		
-		if (stream != null)
-			addStreamListeners();
+		timeDisplay.data.value = "--:-- / --:--";
 		
 		//FIXME RUBEN: create a nice way with macro's to add children conditionally.. like 
 		// children.addIf( child, function() width > 400; );
 		// when( this.width > 400 ).on(updateLayout).addChild(btn); 
 		addOrRemoveChildren.on( layout.changed, this );
 		addOrRemoveChildren( LayoutFlags.WIDTH );
+		
+		if (stream != null)
+			addStreamListeners();
 	}
 
 
 	private function addStreamListeners ()
 	{
-		trace("addStreamListeners");
 		updateSliderValidator	.on( stream.totalTime.change, this );
 		
 		stream.togglePlayPauze	.on( playBtn.userEvents.mouse.click, this );
@@ -233,6 +237,17 @@ class VideoControlBar extends UIContainer
 	}
 	
 	
+	override public function validate ()
+	{
+		if (changes.has(STREAM))
+		{
+			if (stream != null)
+				addStreamListeners();
+		}
+		super.validate();
+	}
+	
+	
 	
 	
 	//
@@ -247,9 +262,7 @@ class VideoControlBar extends UIContainer
 				removeStreamListeners();
 			
 			stream = v;
-			
-			if (v != null && isInitialized())
-				addStreamListeners();
+			invalidate(STREAM);
 		}
 		return v;
 	}

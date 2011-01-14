@@ -214,8 +214,24 @@ class TextField extends flash.text.TextField, implements ITextField
 		if (newText != text)
 			text = newText;
 		
-	//	trace(this+".applyTextFormat "+textStyle);
+	//	trace(this+".applyTextFormat "+textStyle+"; "+width+"; "+height+"; autosize: "+autoSize);
 		setTextFormat( textStyle );
+	}
+	
+	
+	override public function setTextFormat (format:flash.text.TextFormat, beginIndex:Int = -1, endIndex:Int = -1)
+	{	
+		super.setTextFormat(format, beginIndex, endIndex);
+		if (beginIndex == -1 && endIndex == -1 && format.align != null)
+		{
+			var F		= flash.text.TextFormatAlign;
+			var A		= flash.text.TextFieldAutoSize;
+			
+			if		(format.align == F.LEFT)	autoSize = A.LEFT;
+			else if (format.align == F.CENTER)	autoSize = A.CENTER;
+			else if (format.align == F.RIGHT)	autoSize = A.RIGHT;
+			else 								autoSize = A.NONE;
+		}
 	}
 	
 	

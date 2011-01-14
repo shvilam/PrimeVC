@@ -43,6 +43,6 @@ class TimeUtil
 	{
 		var s	= seconds % 60;
 		var m	= ( seconds / 60 ).floorFloat();
-		return ((m < 10) ? "0" + m : m.string()) + ":" + ((s < 10) ? "0" + s : s.string());
+		return m.string() + ":" + ((s < 10) ? "0" + s : s.string());
 	}
 }
