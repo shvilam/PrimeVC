@@ -64,6 +64,7 @@ class Mediator <EventsTypedef, ModelTypedef, ViewTypeDef, ViewComponentType> ext
 	}
 	
 	
+	// Set the UI element that the mediator serves.
 	private function setViewComponent (viewComponent:ViewComponentType)
 	{
 		if (isListening())

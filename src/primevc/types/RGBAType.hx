@@ -24,25 +24,9 @@
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Danny Wilson	<ruben @ onlinetouch.nl>
  */
-package primevc.core.dispatcher;
+package primevc.types;
 
-/**
- * Either a signal, a group of signals, or anything else that can unbind.
- *  
- * @author Danny Wilson
- * @creation-date jun 10, 2010
- */
-interface IUnbindable<T>
-{
-	/**
-	 * Unbind all handlers for the given listener object,
-	 *  or when a handler != null: unbound that specific handler.
-	 * 
-	 * @param	listener	Handler owner object
-	 * @param	?handler	Handler method. When handler == null, all methods owned by listener will be unbound.
-	 * @return	number of handlers that were unbound
-	 */
-	public function unbind( listener : Dynamic, ?handler : Null<T> ) : Int;
-}
+/** Empty class used as reference to distinguish between Integers and RGBA values. */
+class RGBAType {}

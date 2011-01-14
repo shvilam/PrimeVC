@@ -17,6 +17,7 @@
     <class path="..\..\libs\apparat" />
     <class path="..\..\libs\haxe" />
     <class path="src" />
+    <class path="styles\sample" />
   </classpaths>
   <!-- Build options -->
   <build>
@@ -43,7 +44,7 @@
     <!-- example: <hidden path="..." /> -->
   </hiddenPaths>
   <!-- Executed before build -->
-  <preBuildCommand>sh "$(ProjectDir)/../../build/build-styles" -f -s "$(ProjectDir)/src"</preBuildCommand>
+  <preBuildCommand>sh "$(ProjectDir)/../../build/build-styles" -s "$(ProjectDir)/styles/sample"</preBuildCommand>
   <!-- Executed after build -->
   <postBuildCommand alwaysRun="True" />
   <!-- Other project options -->

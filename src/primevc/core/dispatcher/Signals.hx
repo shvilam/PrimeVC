@@ -31,13 +31,28 @@ package primevc.core.dispatcher;
  import primevc.utils.TypeUtil;
 
 /**
- * A group of signal dispatchers.
+ * A group of <i>Signal</i> instances and (when applicable) other signal groups.
+ * 
+ * Signals allows to pool Signal instances in one place.
+ * It implements the haxe.Public interface to make signals public by default. 
+ * 
+ * <h2>Usage example of a group with 1 Signal and another signal group</h2>
+ * <code>
+ * class LoaderSignals extends Signals
+ * {
+ *	var unloaded		(default, null)		: Signal0;
+ *	var load			(default, null)		: CommunicationEvents;
+ * }
+ * </code>
  * 
  * @author Danny Wilson
  * @creation-date jun 10, 2010
  */
 class Signals implements IUnbindable<Dynamic>, implements IDisposable, implements haxe.Public
 {
+	/**
+	 * Uses reflection to find all IDisposable properties of this class and calls dispose() on them.
+	 */
 	public function dispose()
 	{
 		var f, R = Reflect, T = Type;
@@ -50,6 +65,11 @@ class Signals implements IUnbindable<Dynamic>, implements IDisposable, implement
 		}
 	}
 	
+	/**
+	 * Uses reflection to find all IUbindable properties of this class and forwards the arguments to them.
+	 * @see		Signal.unbind
+	 * @return	number of handlers that were unbound.
+	 */
 	public function unbind( listener : Dynamic, ?handler : Dynamic ) : Int
 	{
 		var f, count = 0, R = Reflect, T = Type;

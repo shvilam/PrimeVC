@@ -41,11 +41,14 @@ package primevc.mvc.core;
  * <li> and View-Mediators.     </li>
  * </ul>
  * 
- * 
- * It acts as a hub of either an Application or a sub-system.
+ * Facade initializes the main parts of the application 
+ * (model, view, controller) and provides a main access point for them.
+ * Acting as a binding component it allows to separate the model from
+ * the view, thus separating data from UI elements respectively. 
  * 
  * @author Danny Wilson
  * @creation-date Jun 22, 2010
+ * @type <EventsType> all event groups used in this application/subsystem.
  */
 class Facade < EventsType:MVCEvents, ModelType:IModel, ViewType:IView, ControllerType:IController > implements primevc.core.traits.IDisposable
     #if !docs, implements haxe.rtti.Generic #end

@@ -7,14 +7,20 @@ import primevc.gui.components.Button;
 using primevc.utils.Bind;
 using primevc.utils.TypeUtil;
 
+
+/**
+ * ButtonMediator corresponds to a mediator in the MVC model.
+ * A mediator separates event handling for a specific UI element
+ * from the element itself. It defines what Button events should 
+ * be listened to and what functions react to them. 
+ */
 class ButtonMediator extends Mediator <MainEvents, MainModel, MainView, Button>
 {	
     override public function startListening ()
     {
         if (isListening())
             return;
-
-        //addEventListener("click", clickHandler);
+		
         clickHandler.on(viewComponent.userEvents.mouse.click, this);
         super.startListening();
     }
@@ -24,7 +30,6 @@ class ButtonMediator extends Mediator <MainEvents, MainModel, MainView, Button>
         if (!isListening())
             return;
         
-        //viewComponent.removeEventListener("click", clickHandler);
         viewComponent.userEvents.unbind(this);
         super.stopListening ();
     }

@@ -36,11 +36,12 @@ package primevc.tools.valueobjects;
  import primevc.core.RevertableBindableFlags;
  import primevc.utils.FastArray;
   using primevc.utils.BitUtil;
+  using primevc.utils.IfUtil;
+  using primevc.utils.TypeUtil;
+  using primevc.utils.FastArray;
 #if debug
   using primevc.utils.ChangesUtil;
 #end
-  using primevc.utils.IfUtil;
-  using primevc.utils.TypeUtil;
 
 
 typedef PropertyID	= Int;
@@ -64,7 +65,7 @@ class ValueObjectBase implements IValueObject
 	private function new ()
 	{
 		change = new Signal1();
-		_flags = 0;
+		_changedFlags = _propertiesSet = _flags = 0;
 	}
 	
 	
@@ -148,15 +149,6 @@ class ValueObjectBase implements IValueObject
 		}
 	}
 */
-	
-	
-	static inline public function bytesUsedInInt(n:Int)
-	{
-		return if (n <= 0x0000FF)	1;
-		  else if (n <= 0x00FFFF)	2;
-		  else if (n <= 0xFFFFFF)	3;
-		  else 						4;
-	}
 }
 
 class PropertyChangeVO extends ChangeVO
@@ -218,7 +210,7 @@ class ListChangeVO extends PropertyChangeVO
 	{
 		var l = new ListChangeVO(); // Could come from freelist if profiling tells us to
 		l.propertyID = propertyID;
-		l.changes = changes.concat();
+		l.changes = changes.clone();
 		return l;
 	}
 	

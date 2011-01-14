@@ -108,6 +108,11 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 		return newValue;
 	}
 	
+	public function new (?val : Null<DataType>)
+	{
+		flags = 0;
+		super(val);
+	}	
 	
 	/**
 	 * Puts this in editing-mode and keeps a copy of the current value

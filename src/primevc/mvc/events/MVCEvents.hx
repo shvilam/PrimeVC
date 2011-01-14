@@ -4,7 +4,9 @@ package primevc.mvc.events;
 
 
 /**
- * Basic events for an mvc-application
+ * Basic events for an mvc-application. 
+ * MVCEvents is a base class thats groups together the events used in
+ * an application/subsystem and provides a main access point for them. 
  * 
  * @author Ruben Weijers
  * @creation-date Nov 17, 2010

@@ -181,7 +181,14 @@ class FastArrayUtil
 	public static inline function has<T>( list:FastArray<T>, item:T ) : Bool {
 		return list.indexOf( item ) >= 0;
 	}
-	
+
+#if flash10
+	/** Alias for arr.clone() */
+	public static inline function copy<T> ( arr:FastArray<T> ) : FastArray<T>
+	{
+		return arr.concat();
+	}
+#end	
 	
 	public static inline function clone<T> ( arr:FastArray<T> ) : FastArray<T>
 	{
