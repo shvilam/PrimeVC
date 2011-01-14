@@ -30,7 +30,6 @@ package primevc.gui.styling;
  import primevc.core.validators.IntRangeValidator;
  import primevc.gui.layout.IAdvancedLayoutClient;
  import primevc.gui.layout.ILayoutContainer;
- import primevc.gui.layout.LayoutFlags;
  import primevc.gui.styling.StyleCollectionBase;
  import primevc.gui.traits.ILayoutable;
  import primevc.types.Number;
@@ -39,7 +38,7 @@ package primevc.gui.styling;
   using primevc.utils.TypeUtil;
 
 
-private typedef Flags = LayoutFlags;
+private typedef Flags = LayoutStyleFlags;
 
 
 

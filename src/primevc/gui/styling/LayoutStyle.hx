@@ -33,7 +33,6 @@ package primevc.gui.styling;
  import primevc.core.geom.Box;
  import primevc.core.traits.IInvalidatable;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
- import primevc.gui.layout.LayoutFlags;
  import primevc.gui.layout.RelativeLayout;
  import primevc.types.ClassInstanceFactory;
  import primevc.types.Number;
@@ -42,7 +41,7 @@ package primevc.gui.styling;
   using primevc.utils.NumberUtil;
 
 
-private typedef Flags			= LayoutFlags;
+private typedef Flags			= LayoutStyleFlags;
 private typedef AlgorithmClass	= ClassInstanceFactory < ILayoutAlgorithm >;
 
 

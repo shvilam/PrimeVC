@@ -212,7 +212,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	override public function isInvalid (changes:Int) : Bool
 	{
-		return super.isInvalid(changes) || changes.has( Flags.WIDTH_VALIDATOR | Flags.HEIGHT_VALIDATOR );
+		return super.isInvalid(changes) || changes.has( Flags.WIDTH_CONSTRAINTS | Flags.HEIGHT_CONSTRAINTS );
 	}
 	
 	
@@ -230,10 +230,10 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 				return;
 		
 			// APPLY CHANGES IN SIZE CONSTRAINT ALSO ON THE CHILDREN
-			if (group.changes.has( Flags.WIDTH_VALIDATOR ))
+			if (group.changes.has( Flags.WIDTH_CONSTRAINTS ))
 				tileGroups.width.validator = group.width.validator;
 			
-			if (group.changes.has( Flags.HEIGHT_VALIDATOR ))
+			if (group.changes.has( Flags.HEIGHT_CONSTRAINTS ))
 				tileGroups.height.validator = group.height.validator;
 			
 			//resize all columns / rows
@@ -442,7 +442,7 @@ private class DynamicRowAlgorithm extends HorizontalFloatAlgorithm
 	//	if (children.length < 2)
 	//		return;
 		
-		if ( group.changes.hasNone(Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.WIDTH | Flags.WIDTH_VALIDATOR ) )
+		if ( group.changes.hasNone(Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.WIDTH | Flags.WIDTH_CONSTRAINTS ) )
 			return;
 		
 		var maxWidth		= group.width.validator.as(IntRangeValidator).max;
@@ -508,7 +508,7 @@ private class DynamicColumnAlgorithm extends VerticalFloatAlgorithm
 	//	if (children.length < 2)
 	//		return;
 		
-		if ( !group.changes.has(Flags.LIST) && !group.changes.has(Flags.CHILDREN_INVALIDATED) && !group.changes.has(Flags.HEIGHT) )
+		if ( group.changes.hasNone(Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.HEIGHT | Flags.HEIGHT_CONSTRAINTS ) )
 			return;
 		
 		var maxHeight		= group.height.validator.as(IntRangeValidator).max;

@@ -130,6 +130,8 @@ class LayoutClient extends Invalidatable
 	
 	public function new (newWidth:Int = Number.INT_NOT_SET, newHeight:Int = Number.INT_NOT_SET, validateOnPropertyChange = false)
 	{
+		trace(1 << 30);
+		trace(Flags.PERCENT_MAX_HEIGHT);
 		super();
 #if debug
 		name = "LayoutClient" + counter++;
@@ -567,12 +569,12 @@ class LayoutClient extends Invalidatable
 		else if (sender == width)
 		{
 			if (propChanges.has( ValueFlags.VALUE ))		invalidate( Flags.WIDTH );
-			if (propChanges.has( ValueFlags.VALIDATOR ))	invalidate( Flags.WIDTH_VALIDATOR );
+			if (propChanges.has( ValueFlags.VALIDATOR ))	invalidate( Flags.WIDTH_CONSTRAINTS );
 		}
 		else if (sender == height)
 		{
 			if (propChanges.has( ValueFlags.VALUE ))		invalidate( Flags.HEIGHT );
-			if (propChanges.has( ValueFlags.VALIDATOR ))	invalidate( Flags.HEIGHT_VALIDATOR );
+			if (propChanges.has( ValueFlags.VALIDATOR ))	invalidate( Flags.HEIGHT_CONSTRAINTS );
 		}
 		else
 			super.invalidateCall( propChanges, sender );
@@ -701,12 +703,6 @@ class LayoutClient extends Invalidatable
 			changes = this.changes;
 		
 		return Flags.readProperties(changes);
-	}
-	
-	
-	public inline function readChange (change:Int) : String
-	{
-		return Flags.readProperty(change);
 	}
 	
 	

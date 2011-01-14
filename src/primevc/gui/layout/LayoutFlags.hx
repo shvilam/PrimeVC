@@ -38,9 +38,11 @@ package primevc.gui.layout;
  */
 class LayoutFlags 
 {
-	public static inline var ALL_PROPERTIES			= WIDTH | HEIGHT | INCLUDE | RELATIVE | ALGORITHM | MAX_WIDTH | MAX_HEIGHT | PERCENT_WIDTH | PERCENT_HEIGHT | PADDING | MARGIN | MAINTAIN_ASPECT | ROTATION | CHILD_WIDTH | CHILD_HEIGHT;
+	public static inline var ALL_PROPERTIES			= SIZE | POSITION | INCLUDE | RELATIVE | ALGORITHM | PERCENT_WIDTH | PERCENT_HEIGHT | PADDING | MARGIN | MAINTAIN_ASPECT | ROTATION | CHILD_WIDTH | CHILD_HEIGHT | WIDTH_CONSTRAINTS | HEIGHT_CONSTRAINTS;
+	
 	public static inline var WIDTH_CONSTRAINTS		= MIN_WIDTH | MAX_WIDTH;
 	public static inline var HEIGHT_CONSTRAINTS		= MIN_HEIGHT | MAX_HEIGHT;
+	
 	public static inline var WIDTH_PROPERTIES		= WIDTH | MEASURED_WIDTH | EXPLICIT_WIDTH;
 	public static inline var HEIGHT_PROPERTIES		= HEIGHT | MEASURED_HEIGHT | EXPLICIT_HEIGHT;
 	
@@ -60,48 +62,57 @@ class LayoutFlags
 	 */
 	public static inline var RELATIVE				= 1 << 5;
 	/**
-	 * Flag indicating that when the list with children of a layoutgroup have 
-	 * changed.
-	 */
-	public static inline var LIST					= 1 << 6;
-	/**
-	 * Flag indicating that the children of the layout algorithm have changed.
-	 */
-	public static inline var CHILDREN_INVALIDATED	= 1 << 7;
-	/**
 	 * Flag indicating that a property of the layout algorithm is changed and
 	 * the layout needs to be validated again.
 	 */
-	public static inline var ALGORITHM				= 1 << 8;
+	public static inline var ALGORITHM				= 1 << 6;
+	
+	public static inline var MAX_WIDTH				= 1 << 7;
+	public static inline var MIN_WIDTH				= 1 << 8;
+	public static inline var PERCENT_WIDTH			= 1 << 9;
+	public static inline var MEASURED_WIDTH			= 1 << 10;
+	public static inline var EXPLICIT_WIDTH			= 1 << 11;
+	
+	public static inline var MAX_HEIGHT				= 1 << 12;
+	public static inline var MIN_HEIGHT				= 1 << 13;
+	public static inline var PERCENT_HEIGHT			= 1 << 14;
+	public static inline var MEASURED_HEIGHT		= 1 << 15;
+	public static inline var EXPLICIT_HEIGHT		= 1 << 16;
+	
+	public static inline var MAINTAIN_ASPECT		= 1 << 17;
+	public static inline var ROTATION				= 1 << 18;
+	public static inline var MARGIN					= 1 << 19;
+	public static inline var PADDING				= 1 << 20;
+	
+	public static inline var CHILD_WIDTH			= 1 << 21;
+	public static inline var CHILD_HEIGHT			= 1 << 22;
+	
 	/**
-	 * Flag indicating that the width validator is changed
+	 * Flag indicating the aspect-ratio value has changed
 	 */
-	public static inline var WIDTH_VALIDATOR		= 1 << 9;
+	public static inline var ASPECT_RATIO			= 1 << 23;
+	
 	/**
-	 * Flag indicating that the height validator is changed
+	 * Flag indicating the aspect-ratio should be applied
 	 */
-	public static inline var HEIGHT_VALIDATOR		= 1 << 10;
+//	public static inline var VALIDATE_ASPECT_RATIO	= 1 << 28;
 	
-	public static inline var MAX_WIDTH				= 1 << 11;
-	public static inline var MIN_WIDTH				= 1 << 12;
-	public static inline var PERCENT_WIDTH			= 1 << 13;
-	public static inline var MEASURED_WIDTH			= 1 << 14;
-	public static inline var EXPLICIT_WIDTH			= 1 << 15;
+	public static inline var PERCENT_MIN_WIDTH		= 1 << 24;
+	public static inline var PERCENT_MAX_WIDTH		= 1 << 25;
+	public static inline var PERCENT_MIN_HEIGHT		= 1 << 26;
+	public static inline var PERCENT_MAX_HEIGHT		= 1 << 27;
 	
-	public static inline var MAX_HEIGHT				= 1 << 16;
-	public static inline var MIN_HEIGHT				= 1 << 17;
-	public static inline var PERCENT_HEIGHT			= 1 << 18;
-	public static inline var MEASURED_HEIGHT		= 1 << 19;
-	public static inline var EXPLICIT_HEIGHT		= 1 << 20;
 	
-	public static inline var MARGIN					= 1 << 21;
-	public static inline var PADDING				= 1 << 22;
-	public static inline var MAINTAIN_ASPECT		= 1 << 23;
-	public static inline var ROTATION				= 1 << 24;
+	/**
+	 * Flag indicating that when the list with children of a layoutgroup have 
+	 * changed.
+	 */
+	public static inline var LIST					= 1 << 28;
+	/**
+	 * Flag indicating that the children of the layout algorithm have changed.
+	 */
+	public static inline var CHILDREN_INVALIDATED	= 1 << 29;
 	
-	public static inline var CHILD_WIDTH			= 1 << 25;
-	public static inline var CHILD_HEIGHT			= 1 << 26;
-	public static inline var ASPECT_RATIO			= 1 << 27;
 	
 	
 	/**
@@ -118,8 +129,6 @@ class LayoutFlags
 		
 		if (flags.has( ALGORITHM ))				output.push("algorithm");
 		if (flags.has( ASPECT_RATIO ))			output.push("aspect-ratio");
-	//	if (flags.has( BOUNDARY_HEIGHT ))		output.push("boundary-height");
-	//	if (flags.has( BOUNDARY_WIDTH ))		output.push("boundary-width");
 		if (flags.has( CHILD_HEIGHT ))			output.push("child-height");
 		if (flags.has( CHILD_WIDTH ))			output.push("child-width");
 		if (flags.has( CHILDREN_INVALIDATED ))	output.push("children_invalidated");
@@ -139,34 +148,17 @@ class LayoutFlags
 		if (flags.has( PADDING ))				output.push("padding");
 		if (flags.has( PERCENT_HEIGHT ))		output.push("percent-height");
 		if (flags.has( PERCENT_WIDTH ))			output.push("percent-width");
+		if (flags.has( PERCENT_MAX_HEIGHT ))	output.push("percent-max-height");
+		if (flags.has( PERCENT_MAX_WIDTH ))		output.push("percent-max-width");
+		if (flags.has( PERCENT_MIN_HEIGHT ))	output.push("percent-min-height");
+		if (flags.has( PERCENT_MIN_WIDTH ))		output.push("percent-min-width");
 		if (flags.has( RELATIVE ))				output.push("relative");
 		if (flags.has( ROTATION ))				output.push("rotation");
-		if (flags.has( WIDTH_VALIDATOR ))		output.push("width-validator");
-		if (flags.has( HEIGHT_VALIDATOR ))		output.push("height-validator");
 		if (flags.has( X ))						output.push("x");
 		if (flags.has( Y ))						output.push("y");
 		if (flags.has( WIDTH ))					output.push("width");
 		
 		return "properties: " + output.join(", ")+" ("+flags+")";
-	}
-	
-	
-	public static function readProperty (flag:Int) : String
-	{
-		return switch (flag) {
-			case WIDTH:					"width";
-			case HEIGHT:				"height";
-			case X:						"x";
-			case Y:						"y";
-			case INCLUDE:				"include_in_layout";
-			case RELATIVE:				"relative_properties";
-			case LIST:					"list";
-			case CHILDREN_INVALIDATED:	"children_invalidated";
-			case ALGORITHM:				"algorithm";
-			case WIDTH_VALIDATOR:		"width-validator";
-			case HEIGHT_VALIDATOR:		"height-validator";
-			default:					"unkown(" + flag + ")";
-		}
 	}
 #end
 }
