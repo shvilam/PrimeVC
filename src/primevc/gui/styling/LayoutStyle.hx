@@ -65,11 +65,15 @@ class LayoutStyle extends StyleSubBlock
 	private var _minWidth				: Int;
 	private var _maxWidth				: Int;
 	private var _percentWidth			: Float;
+	private var _percentMinWidth		: Float;
+	private var _percentMaxWidth		: Float;
 	
 	private var _height					: Int;
 	private var _minHeight				: Int;
 	private var _maxHeight				: Int;
 	private var _percentHeight			: Float;
+	private var _percentMinHeight		: Float;
+	private var _percentMaxHeight		: Float;
 	
 	private var _childWidth				: Int;
 	private var _childHeight			: Int;	
@@ -86,11 +90,15 @@ class LayoutStyle extends StyleSubBlock
 	public var width				(getWidth,				setWidth)			: Int;
 	public var maxWidth				(getMaxWidth,			setMaxWidth)		: Int;
 	public var minWidth				(getMinWidth,			setMinWidth)		: Int;
+	public var percentMinWidth		(getPercentMinWidth,	setPercentMinWidth)	: Float;
+	public var percentMaxWidth		(getPercentMaxWidth,	setPercentMaxWidth)	: Float;
 	public var percentWidth			(getPercentWidth,		setPercentWidth)	: Float;
 	
 	public var height				(getHeight,				setHeight)			: Int;
 	public var maxHeight			(getMaxHeight,			setMaxHeight)		: Int;
 	public var minHeight			(getMinHeight,			setMinHeight)		: Int;
+	public var percentMinHeight		(getPercentMinHeight,	setPercentMinHeight): Float;
+	public var percentMaxHeight		(getPercentMaxHeight,	setPercentMaxHeight): Float;
 	public var percentHeight		(getPercentHeight,		setPercentHeight)	: Float;
 	
 	public var childWidth			(getChildWidth,			setChildWidth)		: Int;
@@ -115,7 +123,17 @@ class LayoutStyle extends StyleSubBlock
 		childHeight:Int				= Number.INT_NOT_SET,
 		rotation:Float				= Number.INT_NOT_SET,
 		include:Null<Bool>			= null,
-		maintainAspect:Null<Bool> 	= null
+		maintainAspect:Null<Bool> 	= null,
+		
+		minWidth:Int				= Number.INT_NOT_SET,
+		maxWidth:Int				= Number.INT_NOT_SET,
+		minHeight:Int				= Number.INT_NOT_SET,
+		maxHeight:Int				= Number.INT_NOT_SET,
+		
+		percentMinWidth:Float		= Number.INT_NOT_SET,
+		percentMaxWidth:Float		= Number.INT_NOT_SET,
+		percentMinHeight:Float		= Number.INT_NOT_SET,
+		percentMaxHeight:Float		= Number.INT_NOT_SET
 	)
 	{
 		super();
@@ -126,8 +144,10 @@ class LayoutStyle extends StyleSubBlock
 		
 		this.percentWidth			= percentW == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentW;
 		this.percentHeight			= percentH == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentH;
+		
 		this.width					= width;
 		this.height					= height;
+		
 		this.childWidth				= childWidth;
 		this.childHeight			= childHeight;
 		this.rotation				= rotation == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : rotation;
@@ -135,10 +155,15 @@ class LayoutStyle extends StyleSubBlock
 		this.maintainAspectRatio	= maintainAspect;
 		this.includeInLayout		= include;
 		
-		this.minWidth	= Number.INT_NOT_SET;
-		this.minHeight	= Number.INT_NOT_SET;
-		this.maxWidth	= Number.INT_NOT_SET;
-		this.maxHeight	= Number.INT_NOT_SET;
+		this.minWidth				= minWidth;
+		this.minHeight				= minHeight;
+		this.maxWidth				= maxWidth;
+		this.maxHeight				= maxHeight;
+		
+		this.percentMinWidth		= percentMinWidth == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentMinWidth;
+		this.percentMaxWidth		= percentMaxWidth == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentMaxWidth;
+		this.percentMinHeight		= percentMinHeight == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentMinHeight;
+		this.percentMaxHeight		= percentMaxHeight == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentMaxHeight;
 	}
 	
 	
@@ -165,6 +190,11 @@ class LayoutStyle extends StyleSubBlock
 		_minHeight				= Number.INT_NOT_SET;
 		_maxWidth				= Number.INT_NOT_SET;
 		_maxHeight				= Number.INT_NOT_SET;
+		
+		_percentMinWidth		= Number.FLOAT_NOT_SET;
+		_percentMaxWidth		= Number.FLOAT_NOT_SET;
+		_percentMinHeight		= Number.FLOAT_NOT_SET;
+		_percentMaxHeight		= Number.FLOAT_NOT_SET;
 		
 		super.dispose();
 	}
@@ -415,6 +445,43 @@ class LayoutStyle extends StyleSubBlock
 	}
 	
 	
+	private function getPercentMinWidth ()
+	{
+		var v = _percentMinWidth;
+		if (v.notSet() && extendedStyle != null)	v = extendedStyle.percentMinWidth;
+		if (v.notSet() && superStyle != null)		v = superStyle.percentMinWidth;
+		return v;
+	}
+	
+	
+	private function getPercentMaxWidth ()
+	{
+		var v = _percentMaxWidth;
+		if (v.notSet() && extendedStyle != null)	v = extendedStyle.percentMaxWidth;
+		if (v.notSet() && superStyle != null)		v = superStyle.percentMaxWidth;
+		return v;
+	}
+	
+	
+	private function getPercentMinHeight ()
+	{
+		var v = _percentMinHeight;
+		if (v.notSet() && extendedStyle != null)	v = extendedStyle.percentMinHeight;
+		if (v.notSet() && superStyle != null)		v = superStyle.percentMinHeight;
+		return v;
+	}
+	
+	
+	private function getPercentMaxHeight ()
+	{
+		var v = _percentMaxHeight;
+		if (v.notSet() && extendedStyle != null)	v = extendedStyle.percentMaxHeight;
+		if (v.notSet() && superStyle != null)		v = superStyle.percentMaxHeight;
+		return v;
+	}
+	
+	
+	
 	
 	//
 	// SETTERS
@@ -473,7 +540,7 @@ class LayoutStyle extends StyleSubBlock
 	
 	private function setMaxWidth (v)
 	{
-		if (v != maxWidth) {
+		if (v != _maxWidth) {
 			_maxWidth = v;
 			markProperty( Flags.MAX_WIDTH, v.isSet() );
 		}
@@ -590,6 +657,46 @@ class LayoutStyle extends StyleSubBlock
 	}
 	
 	
+	private function setPercentMaxHeight (v)
+	{
+		if (v != _percentMaxHeight) {
+			_percentMaxHeight = v;
+			markProperty( Flags.PERCENT_MAX_HEIGHT, v.isSet() );
+		}
+		return v;
+	}
+	
+	
+	private function setPercentMinHeight (v)
+	{
+		if (v != _percentMinHeight) {
+			_percentMinHeight = v;
+			markProperty( Flags.PERCENT_MIN_HEIGHT, v.isSet() );
+		}
+		return v;
+	}
+	
+	
+	private function setPercentMaxWidth (v)
+	{
+		if (v != _percentMaxWidth) {
+			_percentMaxWidth = v;
+			markProperty( Flags.PERCENT_MAX_WIDTH, v.isSet() );
+		}
+		return v;
+	}
+	
+	
+	private function setPercentMinWidth (v)
+	{
+		if (v != _percentMinWidth) {
+			_percentMinWidth = v;
+			markProperty( Flags.PERCENT_MIN_WIDTH, v.isSet() );
+		}
+		return v;
+	}
+	
+	
 #if neko
 	override public function toCSS (prefix:String = "") : String
 	{
@@ -608,6 +715,9 @@ class LayoutStyle extends StyleSubBlock
 		if (_minWidth.isSet())					css.push("min-width: " + _minWidth + "px");
 		if (_maxWidth.isSet())					css.push("max-width: " + _maxWidth + "px");
 		
+		if (_percentMinWidth.isSet())			css.push("percent-min-width: " + (_percentMinWidth * 100) + "%");
+		if (_percentMaxWidth.isSet())			css.push("percent-max-width: " + (_percentMaxWidth * 100) + "%");
+		
 		if (_height.isSet())					css.push("height: " + _height + "px");
 		if (_percentHeight.isSet()) {
 			if (_percentHeight == Flags.FILL)	css.push("height: auto");
@@ -615,6 +725,9 @@ class LayoutStyle extends StyleSubBlock
 		}
 		if (_minHeight.isSet())					css.push("min-height: " + _minHeight + "px");
 		if (_maxHeight.isSet())					css.push("max-height: " + _maxHeight + "px");
+		
+		if (_percentMinHeight.isSet())			css.push("percent-min-height: " + (_percentMinHeight * 100) + "%");
+		if (_percentMaxHeight.isSet())			css.push("percent-max-height: " + (_percentMaxHeight * 100) + "%");
 		
 		if (_childWidth.isSet())				css.push("child-width: " + _childWidth + "px");
 		if (_childHeight.isSet())				css.push("child-height: " + _childHeight + "px");
@@ -634,12 +747,20 @@ class LayoutStyle extends StyleSubBlock
 	{
 		if (!isEmpty())
 		{
-			code.construct( this, [ _relative, _padding, _margin, _algorithm, _percentWidth, _percentHeight, _width, _height, _childWidth, _childHeight, _rotation, _includeInLayout, _maintainAspectRatio ] );
+			code.construct( this, [
+				_relative, _padding, _margin, _algorithm,
+				_percentWidth, _percentHeight,
+				_width, _height,
+				_childWidth, _childHeight,
+				_rotation, _includeInLayout, _maintainAspectRatio,
+				_minWidth, _maxWidth, _minHeight, _maxHeight,
+				_percentMinWidth, _percentMaxWidth, _percentMinHeight, _percentMaxHeight
+			] );
 			
-			if (_minWidth.isSet())		code.setProp( this, "minWidth", minWidth );
+		/*	if (_minWidth.isSet())		code.setProp( this, "minWidth", minWidth );
 			if (_minHeight.isSet())		code.setProp( this, "minHeight", minHeight );
 			if (_maxWidth.isSet())		code.setProp( this, "maxWidth", maxWidth );
-			if (_maxHeight.isSet())		code.setProp( this, "maxHeight", maxHeight );
+			if (_maxHeight.isSet())		code.setProp( this, "maxHeight", maxHeight );*/
 		}
 	}
 	

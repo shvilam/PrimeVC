@@ -71,7 +71,7 @@ interface ILayoutClient
 	/**
 	 * Flags with all the properties that are set for the layoutclient
 	 */
-	public var filledProperties		(default, null)							: Int;
+//	public var filledProperties		(default, null)							: Int;
 	
 	
 	/**

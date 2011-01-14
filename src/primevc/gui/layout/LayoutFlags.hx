@@ -96,7 +96,6 @@ class LayoutFlags
 	 * Flag indicating the aspect-ratio should be applied
 	 */
 //	public static inline var VALIDATE_ASPECT_RATIO	= 1 << 28;
-	
 	public static inline var PERCENT_MIN_WIDTH		= 1 << 24;
 	public static inline var PERCENT_MAX_WIDTH		= 1 << 25;
 	public static inline var PERCENT_MIN_HEIGHT		= 1 << 26;

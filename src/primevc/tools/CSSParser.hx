@@ -1196,10 +1196,10 @@ class CSSParser
 			
 			case "width":						parseAndSetWidth( val );
 			case "height":						parseAndSetHeight( val );
-			case "min-width":					if (isUnitInt(val))	{ createLayoutBlock();		currentBlock.layout.minWidth		= parseUnitInt( val ); }
-			case "min-height":					if (isUnitInt(val))	{ createLayoutBlock();		currentBlock.layout.minHeight		= parseUnitInt( val ); }
-			case "max-width":					if (isUnitInt(val))	{ createLayoutBlock();		currentBlock.layout.maxWidth		= parseUnitInt( val ); }
-			case "max-height":					if (isUnitInt(val))	{ createLayoutBlock();		currentBlock.layout.maxHeight		= parseUnitInt( val ); }
+			case "min-width":					createLayoutBlock();	currentBlock.layout.minWidth	= parseUnitInt( val );		currentBlock.layout.percentMinWidth		= parsePercentage( val );
+			case "min-height":					createLayoutBlock();	currentBlock.layout.minHeight	= parseUnitInt( val );		currentBlock.layout.percentMinHeight	= parsePercentage( val );
+			case "max-width":					createLayoutBlock();	currentBlock.layout.maxWidth	= parseUnitInt( val );		currentBlock.layout.percentMaxWidth		= parsePercentage( val );
+			case "max-height":					createLayoutBlock();	currentBlock.layout.maxHeight	= parseUnitInt( val );		currentBlock.layout.percentMaxHeight	= parsePercentage( val );
 			
 			case "child-width":					if (isUnitInt(val))	{ createLayoutBlock();		currentBlock.layout.childWidth		= parseUnitInt( val ); }
 			case "child-height":				if (isUnitInt(val))	{ createLayoutBlock();		currentBlock.layout.childHeight		= parseUnitInt( val ); }

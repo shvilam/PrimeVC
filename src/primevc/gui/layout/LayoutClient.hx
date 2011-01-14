@@ -34,18 +34,18 @@ package primevc.gui.layout;
  import primevc.core.states.SimpleStateMachine;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.traits.Invalidatable;
+ import primevc.core.validators.IntRangeValidator;
  import primevc.core.validators.ValidatingValue;
 #if debug
  import primevc.core.traits.IUIdentifiable;
  import primevc.utils.StringUtil;
 #end
  import primevc.types.Number;
-// import primevc.gui.events.LayoutEvents;
  import primevc.gui.layout.ILayoutClient;
  import primevc.gui.states.ValidateStates;
-// import primevc.utils.NumberMath;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
+  using primevc.utils.IfUtil;
   using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
@@ -65,13 +65,12 @@ class LayoutClient extends Invalidatable
 #if debug	,	implements IUIdentifiable #end
 {
 	public var validateOnPropertyChange									: Bool;
-	public var changes 													: Int;
+	public var changes 				(default, null)						: Int;
+//	public var filledProperties		(default, null)						: Int;
 	public var includeInLayout		(default, setIncludeInLayout)		: Bool;
 	
 	public var parent				(default, setParent)				: ILayoutContainer;
-//	public var events				(default, null)						: LayoutEvents;
 	public var changed				(default, null)						: Signal1<Int>;
-	public var filledProperties		(default, null)						: Int;
 	
 	
 	/**
@@ -130,8 +129,6 @@ class LayoutClient extends Invalidatable
 	
 	public function new (newWidth:Int = Number.INT_NOT_SET, newHeight:Int = Number.INT_NOT_SET, validateOnPropertyChange = false)
 	{
-		trace(1 << 30);
-		trace(Flags.PERCENT_MAX_HEIGHT);
 		super();
 #if debug
 		name = "LayoutClient" + counter++;
@@ -140,7 +137,6 @@ class LayoutClient extends Invalidatable
 		this.validateOnPropertyChange	= validateOnPropertyChange;
 		maintainAspectRatio				= false;
 		
-	//	events		= new LayoutEvents();
 		changed		= new Signal1<Int>();
 		innerBounds	= new IntRectangle( x, y, newWidth.getBiggest( 0 ) + getHorPadding(), newHeight.getBiggest( 0 ) + getVerPadding() );
 		outerBounds	= new IntRectangle( x, y, innerBounds.width + getHorMargin(), innerBounds.height + getVerMargin() );
@@ -178,13 +174,8 @@ class LayoutClient extends Invalidatable
 		innerBounds.dispose();
 		outerBounds.dispose();
 		state.dispose();
-	//	events.dispose();
 		changed.dispose();
 		
-	/*	if (relative != null) {
-			relative.dispose();
-			relative = null;
-		}*/
 		relative		= null;		//do not dispose relative, can be used by other clients as well
 		
 		percentWidth	= percentHeight	= Number.FLOAT_NOT_SET;
@@ -219,6 +210,22 @@ class LayoutClient extends Invalidatable
 	//
 	
 	
+	
+	/**
+	 * Method will set or unset the given propertyflag in the filledProperties
+	 * property. Method will also call invalidate after that.
+	 * 
+	 * FIXME: future thingy
+	 */
+/*	private function markProperty ( propFlag:Int, isSet:Bool ) : Void
+	{
+		if (isSet)	filledProperties = filledProperties.set( propFlag );
+		else		filledProperties = filledProperties.unset( propFlag );
+		invalidate( propFlag );
+	}*/
+	
+	
+	
 	override public function invalidate (change:Int)
 	{
 		var oldChanges = changes;
@@ -230,6 +237,9 @@ class LayoutClient extends Invalidatable
 		if (includeInLayout && parent != null)
 			super.invalidate(change);
 		
+		if (state.is(ValidateStates.validated))
+			state.current = ValidateStates.invalidated;
+		
 		if (isValidating) // && (parent == null || parent.isValidating))
 		{
 		//	trace(this+".NOT invalidating; "+Flags.readProperties(change)+"; "+isValidating+"; "+parent.isValidating);
@@ -237,9 +247,6 @@ class LayoutClient extends Invalidatable
 			if (changes.has(Flags.HEIGHT) && hasValidatedHeight)	hasValidatedHeight	= false;
 			return;
 		}
-		
-		if (state.is(ValidateStates.validated))
-			state.current = ValidateStates.invalidated;
 		
 	//	if (parent != null)
 	//		trace(this+".invalidate; "+Flags.readProperties(change)); //" parent: "+parent+"; parent changes: "+Flags.readProperties(parent.changes));
@@ -282,13 +289,13 @@ class LayoutClient extends Invalidatable
 		
 		state.current = ValidateStates.validating;
 		
+		//force width validation if there's a validator but there's no width set yet
+		if (width.value.notSet() && width.validator != null)
+			width.validateValue();
+		
 		//make sure the aspect-ratio is set when maintainAspectRatio is set to true
 		if (maintainAspectRatio && aspectRatio.notSet())
 			calculateAspectRatio(width.value, height.value);
-		
-		//force width validation if there's a validator buth there's no width set yet
-		if (width.value.notSet() && width.validator != null)
-			width.validateValue();
 		
 		innerBounds.invalidatable = outerBounds.invalidatable = false;
 		
@@ -316,15 +323,16 @@ class LayoutClient extends Invalidatable
 		
 		state.current = ValidateStates.validating;
 		
-		//make sure the aspect-ratio is set when maintainAspectRatio is set to true
-		if (maintainAspectRatio && aspectRatio.notSet())
-			calculateAspectRatio(width.value, height.value);
-		
 		//force height validation if there's a validator buth there's no height set yet
 		if (height.value.notSet() && height.validator != null)
 			height.validateValue();
 		
+		//make sure the aspect-ratio is set when maintainAspectRatio is set to true
+		if (maintainAspectRatio && aspectRatio.notSet())
+			calculateAspectRatio(width.value, height.value);
+		
 		innerBounds.invalidatable = outerBounds.invalidatable = false;
+		
 		if (changes.has(Flags.HEIGHT))
 		{
 			applyHeightAspectRatio();
@@ -404,8 +412,8 @@ class LayoutClient extends Invalidatable
 		if (!maintainAspectRatio)
 			return;
 		
-		var newH = (width.value / aspectRatio).roundFloat();
-	//	trace("newH: "+newH+"; aspect: "+aspectRatio);
+		var newH = calcVerAspectRatioFor( width.value );
+	//	trace("for "+width.value+"; newH: "+newH+"; aspect: "+aspectRatio+"; "+this);
 		if (height.validator != null)
 		{
 			//make sure the new height is valid
@@ -429,8 +437,8 @@ class LayoutClient extends Invalidatable
 		if (!maintainAspectRatio)
 			return;
 		
-		var newW = (height.value * aspectRatio).roundFloat();
-	//	trace("newW: "+newW+"; aspect: "+aspectRatio+"; "+this);
+		var newW = calcHorAspectRatioFor( height.value );
+	//	trace("for "+height.value+"; newW: "+newW+"; aspect: "+aspectRatio+"; "+this);
 		if (width.validator != null)
 		{
 			//make sure the new width is valid
@@ -443,6 +451,24 @@ class LayoutClient extends Invalidatable
 		else
 			width.value = newW;
 	}
+	
+	
+	
+	private inline function calculateAspectRatio (w:Int, h:Int)
+	{
+		if (w.isSet() && h.isSet())
+		{		
+			aspectRatio	= maintainAspectRatio ? w / h : 0;
+			validateAspectRatio();
+			changes		= changes.unset( Flags.MAINTAIN_ASPECT | Flags.ASPECT_RATIO );
+		
+			trace("aspect: "+aspectRatio+"; size: "+w+", "+h+"; "+this);
+		}
+	}
+	
+	private inline function calcHorAspectRatioFor (h:Int) : Int	{ return (h * aspectRatio).roundFloat(); }
+	private inline function calcVerAspectRatioFor (w:Int) : Int	{ return (w / aspectRatio).roundFloat(); }
+	
 	
 	
 	/**
@@ -463,13 +489,13 @@ class LayoutClient extends Invalidatable
 		Assert.that(aspectRatio != 0, "there's no aspect-ratio given.. value is 0");
 		
 		var valid	= true;
-		var newW	= (height.value * aspectRatio).roundFloat();
+		var newW	= calcHorAspectRatioFor( height.value );
 		var newW2	= width.validator != null ? width.validator.validate(newW) : newW;
 		
 	//	trace(newW+"; "+newW2+"; "+aspectRatio+"; "+height.value);
 		if (newW != newW2)
 		{
-			var newH	= (newW2 / aspectRatio).roundFloat();
+			var newH	= calcVerAspectRatioFor( newW2 );
 			valid		= height.validator == null || height.validator.validate(newH) == newH;
 		}
 		
@@ -673,14 +699,6 @@ class LayoutClient extends Invalidatable
 				handleRelativeChange.on( relative.changed, this );
 		}
 		return v;
-	}
-	
-	
-	private inline function calculateAspectRatio (w:Int, h:Int)
-	{
-		aspectRatio = maintainAspectRatio ? w / h : 0;
-		validateAspectRatio();
-	//	trace("aspect: "+aspectRatio+"; size: "+w+", "+h+"; "+this);
 	}
 	
 	

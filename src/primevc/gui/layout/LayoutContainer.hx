@@ -34,6 +34,7 @@ package primevc.gui.layout;
  import primevc.core.geom.Box;
  import primevc.core.geom.IntPoint;
  import primevc.core.traits.IInvalidatable;
+ import primevc.core.validators.PercentIntRangeValidator;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.states.ValidateStates;
  import primevc.types.Number;
@@ -176,6 +177,14 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			if (!child.includeInLayout)
 				continue;
 			
+			if (changes.has(Flags.WIDTH) && child.width.validator != null && child.width.validator.is( PercentIntRangeValidator ) && explicitWidth.isSet())
+			{
+				var validator = child.width.validator.as( PercentIntRangeValidator );
+				if (validator.percentMin.isSet())	validator.min = (validator.percentMin * explicitWidth).roundFloat();
+				if (validator.percentMax.isSet())	validator.max = (validator.percentMax * explicitWidth).roundFloat();
+			}
+				
+			
 			if (child.percentWidth == Flags.FILL)
 			{
 			//	if (explicitWidth.isSet())
@@ -237,6 +246,14 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		{
 			if (!child.includeInLayout)
 				continue;
+			
+			if (changes.has(Flags.HEIGHT) && child.height.validator != null && child.height.validator.is( PercentIntRangeValidator ) && explicitHeight.isSet())
+			{
+				var validator = child.height.validator.as( PercentIntRangeValidator );
+				if (validator.percentMin.isSet())	validator.min = (validator.percentMin * explicitHeight).roundFloat();
+				if (validator.percentMax.isSet())	validator.max = (validator.percentMax * explicitHeight).roundFloat();
+			}
+			
 			
 			if (child.percentHeight == Flags.FILL)
 			{
