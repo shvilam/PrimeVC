@@ -20,43 +20,43 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package ;
- import primevc.gui.styling.LayoutStyleFlags;
- import primevc.gui.styling.StyleChildren;
- import primevc.gui.styling.StyleBlockType;
- import primevc.gui.styling.StyleBlock;
- import primevc.types.Number;
-//imports
+package primevc.gui.managers;
+ import primevc.core.traits.IDisposable;
+ import primevc.gui.core.IUIElement;
+ import primevc.gui.core.UIGraphic;
+ import primevc.gui.core.UIWindow;
 
 
 /**
- * This class is a template for generating UIElementStyle classes
+ * @author Ruben Weijers
+ * @creation-date Jan 17, 2011
  */
-class StyleSheet extends StyleBlock
+interface IPopupManager implements IDisposable
 {
-	public function new ()
-	{
-		super(StyleBlockType.specific);
-		children = new ApplicationStyleChildren();
-	}
-}
-
-
-class ApplicationStyleChildren extends StyleChildren
-{
-	public function new ()
-	{
-		super( new SelectorMapType(), new SelectorMapType(), new SelectorMapType() );
-	}
+	private var window	: UIWindow;
 	
-	override private function fillSelectors () : Void
-	{
-		//selectors
-	}
+	/**
+	 * shape that is put over the rest of the application to make sure the 
+	 * active popup is first closed before anything else is done in the 
+	 * application.
+	 */
+	private var modal	: UIGraphic;
+	
+	
+	/**
+	 * Method will add the given IUIElement as popup to the displayList. Method
+	 * will return the depth of the popup or -1 if the popup couldnt be added,
+	 */
+	public function add (popup:IUIElement, modal:Bool = false)	: Int;
+	
+	/**
+	 * Method will remove the IUIElement as popup.
+	 */
+	public function remove (popup:IUIElement) : Void;
 }

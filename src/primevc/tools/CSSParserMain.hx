@@ -106,14 +106,23 @@ class CSSParserMain
 		}
 		
 		//write to template
-		var name = "//selectors";
-		var pos = template.indexOf( name );
-		if (pos > -1) {
-			pos += name.length;
-			var begin	= template.substr( 0, pos );
-			var end 	= template.substr( pos );
-			template	= begin + generator.flush() + end;
-		}
+		replaceVar( "imports", generator.flushImports() );
+		replaceVar( "selectors", generator.flush() );
+	}
+	
+	
+	private function replaceVar (varName:String, replacement:String) : Void
+	{
+		varName = "//" + varName;
+		var pos = template.indexOf( varName );
+		
+		if (pos == -1)
+			return;
+		
+		var begin	= template.substr( 0, pos );
+		pos += varName.length;
+		var end 	= template.substr( pos );
+		template	= begin + replacement + end;
 	}
 	
 	

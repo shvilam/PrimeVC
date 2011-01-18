@@ -35,6 +35,7 @@ package primevc.gui.core;
  import primevc.gui.effects.UIElementEffects;
  import primevc.gui.graphics.GraphicProperties;
  import primevc.gui.layout.LayoutClient;
+ import primevc.gui.managers.ISystem;
  import primevc.gui.states.UIElementStates;
 #if flash9
  import primevc.core.collections.SimpleList;
@@ -67,6 +68,7 @@ class UIGraphic extends VectorShape
 	public var effects			(default, default)				: UIElementEffects;
 	
 	public var layout			(default, null)					: LayoutClient;
+	public var system			(getSystem, never)				: ISystem;
 	
 #if flash9	
 	public var graphicData		(default, null)					: GraphicProperties;
@@ -181,7 +183,7 @@ class UIGraphic extends VectorShape
 		{
 			changes = changes.set( change );
 			if (window != null && changes == change)
-				getValidationManager().add(this);
+				system.invalidation.add(this);
 		}
 	}
 	
@@ -192,16 +194,16 @@ class UIGraphic extends VectorShape
 	}
 	
 	
-	private function getValidationManager ()
-	{
-		return window.as(UIWindow).invalidationManager;
-	}
-	
-	
 	
 	//
 	// GETTERS / SETTESR
 	//
+	
+	private inline function getSystem () : ISystem
+	{
+		return window.as(ISystem);
+	}
+	
 	
 #if flash9
 	private function setStylingEnabled (v:Bool)

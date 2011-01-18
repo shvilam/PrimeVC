@@ -378,12 +378,12 @@ class UIElementStyle implements IUIElementStyle
 		//	states.change.send( statesChangedProps );
 		}
 		
-		if (changedProperties.has( Flags.STATES ))			states.apply();
-		if (changedProperties.has( Flags.GRAPHICS ))		graphics.apply();
-		if (changedProperties.has( Flags.LAYOUT ))			layout.apply();
-		if (changedProperties.has( Flags.FONT ))			font.apply();
-		if (changedProperties.has( Flags.EFFECTS ))			effects.apply();
-		if (changedProperties.has( Flags.BOX_FILTERS ))		boxFilters.apply();
+		if (changedProperties.has( Flags.STATES ))			states		.apply();
+		if (changedProperties.has( Flags.GRAPHICS ))		graphics	.apply();
+		if (changedProperties.has( Flags.LAYOUT ))			layout		.apply();
+		if (changedProperties.has( Flags.FONT ))			font		.apply();
+		if (changedProperties.has( Flags.EFFECTS ))			effects		.apply();
+		if (changedProperties.has( Flags.BOX_FILTERS ))		boxFilters	.apply();
 		
 		if (changedProperties.has( Flags.CHILDREN ))
 			childrenChanged.send();

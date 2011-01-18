@@ -43,7 +43,11 @@ package primevc.gui.core;
  import primevc.gui.layout.algorithms.RelativeAlgorithm;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.layout.LayoutClient;
+ import primevc.gui.layout.VirtualLayoutContainer;
  import primevc.gui.managers.InvalidationManager;
+ import primevc.gui.managers.IPopupManager;
+ import primevc.gui.managers.ISystem;
+ import primevc.gui.managers.PopupManager;
  import primevc.gui.managers.RenderManager;
  import primevc.gui.styling.ApplicationStyle;
  import primevc.gui.styling.UIElementStyle;
@@ -72,9 +76,26 @@ class UIWindow extends Window
 	,	implements IIdentifiable
 	,	implements ILayoutable
 	,	implements IStylable
+	,	implements ISystem
 {
 	public var layout				(default, null)					: LayoutClient;
+	
+	/**
+	 * variable 'layout' casted as LayoutContainer. The 'layout' is meant for
+	 * the children of window except for popups.
+	 */
 	public var layoutContainer		(getLayoutContainer, never)		: LayoutContainer;
+	
+	/**
+	 * Top layout-container, only containing 'layout' and 'popupLayout'.
+	 */
+	public var topLayout			(default, null)					: LayoutContainer;
+	/**
+	 * Layoutcontainer for popups.
+	 */
+	public var popupLayout			(default, null)					: LayoutContainer;
+	
+	
 	
 	public var behaviours			(default, null)					: BehaviourList;
 	public var id					(default, null)					: Bindable < String >;
@@ -97,8 +118,9 @@ class UIWindow extends Window
 	public var stylingEnabled		(default, setStylingEnabled)	: Bool;
 #end
 	
-	public var renderManager		(default, null)					: RenderManager;
-	public var invalidationManager	(default, null)					: InvalidationManager;
+	public var invalidation			(default, null)					: InvalidationManager;
+	public var rendering			(default, null)					: RenderManager;
+	public var popups				(getPopupManager, null)			: IPopupManager;
 	
 	
 	public function new (target:Stage, id:String = null)
@@ -109,16 +131,16 @@ class UIWindow extends Window
 		if (id == null)
 			id = this.getReadableId();
 #end
-		this.id				= new Bindable<String>( id );
-		renderManager		= new RenderManager(this);
-		invalidationManager	= new InvalidationManager(this);
+		this.id			= new Bindable<String>( id );
+		rendering		= new RenderManager(this);
+		invalidation	= new InvalidationManager(this);
 		
-		behaviours			= new BehaviourList();
-		rect				= new IntRectangle();
+		behaviours		= new BehaviourList();
+		rect			= new IntRectangle();
 		
 #if flash9		
-		graphicData			= new GraphicProperties(rect);
-		styleClasses		= new SimpleList<String>();
+		graphicData		= new GraphicProperties(rect);
+		styleClasses	= new SimpleList<String>();
 #end
 		
 		behaviours.add( new WindowLayoutBehaviour(this) );
@@ -153,39 +175,46 @@ class UIWindow extends Window
 		if (displayEvents == null)
 			return;
 		
-		behaviours			.dispose();
-		layout				.dispose();
-		invalidationManager	.dispose();
-		renderManager		.dispose();
-		rect				.dispose();
+		behaviours		.dispose();
+		layout			.dispose();
+		invalidation	.dispose();
+		rendering		.dispose();
+		rect			.dispose();
 		
 #if flash9
-		bgShape				.dispose();
-		style				.dispose();
-		styleClasses		.dispose();
-		styleClasses		= null;
-		style				= null;
-		bgShape				= null;
+		bgShape			.dispose();
+		style			.dispose();
+		styleClasses	.dispose();
+		styleClasses	= null;
+		style			= null;
+		bgShape			= null;
 #end
 		
-		if (layout != null)			layout		.dispose();
-		if (graphicData != null)	graphicData	.dispose();
+		if (layout != null)					layout		.dispose();
+		if (graphicData != null)			graphicData	.dispose();
+		if ((untyped this).popups != null)	popups		.dispose();
 		
-		behaviours			= null;
-		graphicData			= null;
-		layout				= null;
-		invalidationManager	= null;
-		renderManager		= null;
-		rect				= null;
+		behaviours		= null;
+		graphicData		= null;
+		layout			= null;
+		invalidation	= null;
+		rendering		= null;
+		rect			= null;
 		
 		super.dispose();
 	}
 	
-	// Define how children objects of the window are positioned.
+	
 	private inline function createLayout ()
 	{
-		layout =	#if flash9	new primevc.avm2.layout.StageLayout( target );
-					#else		new LayoutContainer();	#end
+		topLayout	=	#if flash9	new primevc.avm2.layout.StageLayout( target );
+						#else		new LayoutContainer();	#end
+		
+		topLayout.children.add( layout		= new VirtualLayoutContainer() );
+		topLayout.children.add( popupLayout	= new VirtualLayoutContainer() );
+		
+		popupLayout.algorithm	= new RelativeAlgorithm();
+		layout.percentWidth		= layout.percentHeight = popupLayout.percentWidth = popupLayout.percentHeight = 1.0;
 	//	layoutContainer.algorithm = new RelativeAlgorithm();
 	}
 	
@@ -210,6 +239,14 @@ class UIWindow extends Window
 	private inline function getLayoutContainer ()
 	{
 		return layout.as(LayoutContainer);
+	}
+	
+	
+	private inline function getPopupManager ()
+	{
+		if (popups == null)
+			popups = new PopupManager(this);
+		return popups;
 	}
 	
 	

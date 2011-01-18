@@ -110,11 +110,11 @@ class VideoPlayer extends UIDataContainer < VideoData >
 	private function showOrHidePlayBtn (newState:VideoStates, oldState:VideoStates)
 	{
 		var b		= bigPlayBtn;
-		var oldV	= b.visible;
-		b.visible	= b.layout.includeInLayout = newState != VideoStates.playing;
+		var oldV	= b.window != null;
+		b.visible	= newState != VideoStates.playing;
 		
-		if		(b.visible && oldV != b.visible)	children.add( b );
-		else if	(!b.visible && oldV != b.visible)	children.remove( b );
+		if		(!oldV && b.visible)	children.add( b );
+		else if	(oldV && !b.visible)	children.remove( b );
 	}
 }
 

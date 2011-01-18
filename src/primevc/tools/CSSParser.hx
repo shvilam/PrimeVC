@@ -150,7 +150,7 @@ class CSSParser
 	public static inline var R_PROPERTY_NAME		: String = "a-z0-9-";
 	public static inline var R_PROPERTY_VALUE		: String = R_WHITESPACE + "a-z0-9%#.,:)(/\"_'-";
 	
-	public static inline var R_BLOCK_NAME			: String = "(([.#]?)([a-z][a-z0-9_]+)(:([a-z]+))?)";
+	public static inline var R_BLOCK_NAME			: String = "(([.#]?)([a-z][a-z0-9_]+)(:([a-z-]+))?)";
 	public static inline var R_BLOCK_NAMES			: String = "" + R_BLOCK_NAME + "(" + R_SPACE_MUST + R_BLOCK_NAME + ")*";
 	public static inline var R_BLOCK_VALUE			: String = R_PROPERTY_VALUE + ":;";
 	
@@ -1120,7 +1120,7 @@ class CSSParser
 			case "font":						parseAndSetFont(val);																		// [[ <font-style> || <font-weight> || <font-size> ]]? <font-family>
 			case "font-size":					parseAndSetFontSize( val );																	//inherit, font-size
 			case "font-family":					parseAndSetFontFamily( val );																//inherit, font-name
-			case "color":						if (isColor(val)) { createFontBlock(); currentBlock.font.color = parseColor( val ); }		//inherit, color-values
+			case "color":						parseAndSetFontColor( val ); 																//inherit, color-values
 			case "font-weight":					parseAndSetFontWeight( val );																//normal, bold, bolder, lighter
 			case "font-style":					parseAndSetTextStyle( val );																//inherit, normal, italic, oblique
 			case "letter-spacing":				createFontBlock();			currentBlock.font.letterSpacing	= parseUnitFloat( val );		//inherit, normal, [length]
@@ -1644,6 +1644,7 @@ class CSSParser
 		v = parseAndSetFontWeight(v);
 		v = parseAndSetFontSize(v);
 		v = parseAndSetFontFamily(v);
+		v = parseAndSetFontColor(v);
 	}
 	
 	
@@ -1715,6 +1716,18 @@ class CSSParser
 				}
 			
 			v = fontWeightExpr.removeMatch(v);
+		}
+		return v;
+	}
+	
+	
+	private inline function parseAndSetFontColor (v:String) : String
+	{
+		if (isColor(v))
+		{
+			createFontBlock();
+			currentBlock.font.color = parseColor( v );
+			v = removeColor(v);
 		}
 		return v;
 	}

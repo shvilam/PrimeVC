@@ -51,6 +51,7 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, impleme
 		if (target.graphicData != null)
 		{
 			invalidateGraphics.on( target.graphicData.changeEvent, this );
+			invalidateGraphics.on( target.displayEvents.addedToStage, this );
 			invalidateGraphics();
 		}
 	}
@@ -61,6 +62,7 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, impleme
 		if (target.graphicData != null)
 			target.graphicData.changeEvent.unbind( this );
 		
+		target.displayEvents.addedToStage.unbind( this );
 		super.reset();
 	}
 	
@@ -87,6 +89,6 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, impleme
 	
 	override private function getValidationManager ()
 	{
-		return (isOnStage()) ? cast target.window.as(UIWindow).renderManager : null;
+		return (isOnStage()) ? cast target.window.as(UIWindow).rendering : null;
 	}
 }

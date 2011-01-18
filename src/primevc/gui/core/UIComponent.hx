@@ -36,6 +36,7 @@ package primevc.gui.core;
  import primevc.gui.effects.UIElementEffects;
  import primevc.gui.graphics.GraphicProperties;
  import primevc.gui.layout.LayoutClient;
+ import primevc.gui.managers.ISystem;
  import primevc.gui.states.UIElementStates;
 #if flash9
  import primevc.core.collections.SimpleList;
@@ -86,6 +87,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	public var skin				(default, setSkin)				: ISkin;
 	public var layout			(default, null)					: LayoutClient;
+	public var system			(getSystem, never)				: ISystem;
 	
 #if flash9	
 	public var graphicData		(default, null)					: GraphicProperties;
@@ -212,7 +214,10 @@ class UIComponent extends Sprite, implements IUIComponent
 	//
 	// SETTERS / GETTERS
 	//
-
+	
+	
+	private inline function getSystem () : ISystem		{ return window.as(ISystem); }
+	
 
 	private function setSkin (newSkin)
 	{
@@ -291,7 +296,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	private function getValidationManager ()
 	{
-		return window.as(UIWindow).invalidationManager;
+		return window.as(UIWindow).invalidation;
 	}
 	
 	

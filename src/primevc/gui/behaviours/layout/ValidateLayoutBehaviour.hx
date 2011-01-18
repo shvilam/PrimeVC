@@ -31,7 +31,6 @@ package primevc.gui.behaviours.layout;
  import primevc.core.dispatcher.Wire;
  import primevc.gui.behaviours.ValidatingBehaviour;
  import primevc.gui.core.IUIElement;
- import primevc.gui.core.UIWindow;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.traits.IDrawable;
@@ -44,7 +43,8 @@ package primevc.gui.behaviours.layout;
 
 /**
  * Instance will trigger layout.validate on a 'enterFrame event' when the 
- * layout is invalidated.
+ * layout is invalidated or when the target is added to the stage with an 
+ * invalidated layout.
  * 
  * @creation-date	Jun 14, 2010
  * @author			Ruben Weijers
@@ -56,6 +56,8 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 	
 	override private function init ()
 	{
+		Assert.that(target.layout != null);
+		
 		var layout			= target.layout;
 		isNotPositionedYet	= true;
 		Assert.that(layout != null, "Layout of "+target+" can't be null for "+this);
@@ -65,8 +67,11 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 #end
 		
 		layoutStateChangeHandler.on( layout.state.change, this );
-		applyChanges.on( layout.changed, this );
-		layoutStateChangeHandler( layout.state.current, null );
+		applyChanges			.on( layout.changed, this );
+		checkForChanges			.on( target.displayEvents.addedToStage, this );
+		
+		if (target.window != null)
+			checkForChanges();
 	}
 	
 	
@@ -77,8 +82,16 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 		
 		super.reset();
 		
-		target.layout.state.change.unbind( this );
-		target.layout.changed.unbind( this );
+		var l = target.layout;
+		target.displayEvents.addedToStage.unbind( this );
+		l.state.change.unbind( this );
+		l.changed.unbind( this );
+	}
+	
+	
+	private inline function checkForChanges ()
+	{
+		layoutStateChangeHandler( target.layout.state.current, null );
 	}
 	
 	
@@ -96,8 +109,8 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 	
 	
 	public inline function invalidate ()				{ getValidationManager().add( this ); }
-	public inline function validate ()					{ target.layout.validate(); }
-	override private function getValidationManager ()	{ return isOnStage() ? cast target.window.as(UIWindow).invalidationManager : null; }
+	public inline function validate ()					{ if (target != null) target.layout.validate(); }
+	override private function getValidationManager ()	{ return isOnStage() ? cast target.system.invalidation : null; }
 	
 	
 	public function applyChanges (changes:Int)

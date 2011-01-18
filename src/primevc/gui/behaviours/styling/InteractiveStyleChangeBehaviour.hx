@@ -63,6 +63,7 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	private var selectedBinding		: Wire < Dynamic >;
 	private var dragOverBinding		: Wire < Dynamic >;
 	private var dragOutBinding		: Wire < Dynamic >;
+	private var dragDropBinding		: Wire < Dynamic >;
 	
 	private var mouseState			: StyleState;
 	private var disabledState		: StyleState;
@@ -201,12 +202,12 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	
 	
 	private function updateDropTargetStates (changes:Int)	: Void
-	{	
-		var states	= getStates();
-		var target	= target.as(IDropTarget);
-		
+	{
 		if (changes.hasNone( Flags.DRAG_STATES ))
 			return;
+		
+		var states	= getStates();
+		var target	= target.as(IDropTarget);
 		
 		if (changes.has( Flags.DRAG_OVER ))
 			if (!states.has( Flags.DRAG_OVER ))
@@ -217,8 +218,9 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 			else
 			{
 				if (dragState == null)			dragState		= target.style.createState();
-				if (dragOverBinding == null)	dragOverBinding = changeStateToDragOver	.on( target.dragEvents.over, this );
-				if (dragOutBinding == null)		dragOutBinding	= clearDragState		.on( target.dragEvents.out, this );
+				if (dragOverBinding == null)	dragOverBinding = changeStateToDragOver	.on( target.dragEvents.over,	this );
+				if (dragOutBinding == null)		dragOutBinding	= clearDragState		.on( target.dragEvents.out,		this );
+				if (dragDropBinding == null)	dragDropBinding	= clearDragState		.on( target.dragEvents.drop,	this );
 			}
 	}
 	
@@ -280,7 +282,8 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	{
 		if (dragOverBinding != null)	dragOverBinding.dispose();
 		if (dragOutBinding != null)		dragOutBinding.dispose();
-		dragOverBinding = dragOutBinding = null;
+		if (dragDropBinding != null)	dragDropBinding.dispose();
+		dragOverBinding = dragOutBinding = dragDropBinding = null;
 	}
 	
 	

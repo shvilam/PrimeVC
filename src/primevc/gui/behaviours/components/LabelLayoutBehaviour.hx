@@ -29,7 +29,6 @@
 package primevc.gui.behaviours.components;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.components.Label;
- import primevc.gui.core.UIWindow;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.states.ValidateStates;
@@ -74,20 +73,6 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > // extends Validating
 		
 	//	super.reset();
 	}
-	
-	
-	/*override private function getValidationManager ()
-	{
-		return (target.window != null) ? cast target.window.as(UIWindow).invalidationManager : null;
-	}
-	
-	
-	public inline function invalidate ()
-	{
-	//	trace(target+".requestRender");
-		if (target.window != null)
-			getValidationManager().add(this);
-	}*/
 	
 	
 	public function updateFieldSize (changes:Int)

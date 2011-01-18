@@ -46,9 +46,9 @@ class DragButton extends Button, implements IDraggable
 	
 	
 	public function new (id = null, data = null, icon = null)
-	{
-		super(id, data, icon);
+	{	
 		dragEvents = new DragEvents();
+		super(id, data, icon);
 	}
 	
 	

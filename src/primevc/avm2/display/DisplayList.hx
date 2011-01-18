@@ -96,7 +96,7 @@ class DisplayList implements IEditableList <ChildType>
 	}
 	
 	
-	public inline function dispose ()
+	public function dispose ()
 	{
 		removeAll();
 		change.dispose();
@@ -133,6 +133,7 @@ class DisplayList implements IEditableList <ChildType>
 	
 	private inline function setMouseEnabled (v)		{ return mouseEnabled	= target.mouseChildren = v; }
 	private inline function setTabEnabled (v)		{ return tabEnabled		= target.tabChildren = v; }
+	private inline function getLength	()			{ return target.numChildren; }
 	
 	
 	//
@@ -146,10 +147,9 @@ class DisplayList implements IEditableList <ChildType>
 	public inline function getItemAt	(pos:Int)				{ return target.getChildAt( pos ).as( ChildType ); }
 	public inline function has			(item:ChildType)		{ return target.contains( item.as( TargetChildType ) ); } 
 	public inline function indexOf		(item:ChildType)		{ return target.getChildIndex( item.as( TargetChildType ) ); }
-	private inline function getLength	()						{ return target.numChildren; }
 	
 	
-	public inline function add (item:ChildType, pos:Int = -1) : ChildType
+	public function add (item:ChildType, pos:Int = -1) : ChildType
 	{
 		if (pos > length)
 			Assert.that(pos <= length, "Index to add child is to high! "+pos+" instead of max "+length);
@@ -168,7 +168,7 @@ class DisplayList implements IEditableList <ChildType>
 	}
 	
 	
-	public inline function remove (item:ChildType, oldPos:Int = -1) : ChildType
+	public function remove (item:ChildType, oldPos:Int = -1) : ChildType
 	{
 		Assert.that( has(item), "remove: Child "+item+" is not in "+this );
 		
@@ -183,7 +183,7 @@ class DisplayList implements IEditableList <ChildType>
 	}
 	
 	
-	public inline function move (item:ChildType, newPos:Int, curPos:Int = -1) : ChildType
+	public function move (item:ChildType, newPos:Int, curPos:Int = -1) : ChildType
 	{
 		if (curPos == -1 && has(item))
 			curPos = indexOf(item);

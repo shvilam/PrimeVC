@@ -84,6 +84,11 @@ class DragInfo implements IDisposable
 	/**
 	 * The current dropTarget. Property will only be set if it allows the target
 	 * as a IDraggable.
+	 * 
+	 * In flash the dropTarget is defined by the FlashPlayer, which will return
+	 * the first displayObject that's underneath the mouse (without looking at
+	 * the boundaries of the dragged-item or if the displayObject has mouseEnabled
+	 * or mouseChildren enabled).
 	 */
 	public var dropTarget		(default, setDropTarget)	: IDropTarget;
 	
@@ -142,14 +147,14 @@ class DragInfo implements IDisposable
 	//
 	
 	
-	private inline function setDropTarget (v:IDropTarget) {
-		if (dropTarget != null)
-			dropTarget.dragEvents.out.send(this);
-		
-		dropTarget = v;
-		
-		if (dropTarget != null)
-			dropTarget.dragEvents.over.send(this);
+	private inline function setDropTarget (v:IDropTarget)
+	{
+		if (dropTarget != v)
+		{
+			if (dropTarget != null)		dropTarget.dragEvents.out.send(this);
+			dropTarget = v;
+			if (dropTarget != null)		dropTarget.dragEvents.over.send(this);
+		}
 		
 		return v;
 	}

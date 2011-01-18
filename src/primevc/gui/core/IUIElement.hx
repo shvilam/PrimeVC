@@ -31,6 +31,7 @@ package primevc.gui.core;
  import primevc.core.traits.IDisposable;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.effects.UIElementEffects;
+ import primevc.gui.managers.ISystem;
  import primevc.gui.states.UIElementStates;
  import primevc.gui.traits.IBehaving;
  import primevc.gui.traits.ILayoutable;
@@ -59,6 +60,11 @@ interface IUIElement
 	 * set the first time an effect is added to the UIElement.
 	 */
 	public var effects	(default, default)	: UIElementEffects;
+	
+	/**
+	 * Reference to the window manager objects
+	 */
+	public var system	(getSystem, never)	: ISystem;
 	
 	
 	public function isDisposed ()			: Bool;

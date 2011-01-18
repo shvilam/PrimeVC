@@ -40,6 +40,7 @@ package primevc.gui.core;
  import primevc.gui.effects.UIElementEffects;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutFlags;
+ import primevc.gui.managers.ISystem;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.states.UIElementStates;
  import primevc.gui.traits.IValidatable;
@@ -68,6 +69,7 @@ class UITextField extends TextField, implements IUIElement
 	public var behaviours		(default, null)					: BehaviourList;
 	public var effects			(default, default)				: UIElementEffects;
 	public var layout			(default, null)					: LayoutClient;
+	public var system			(getSystem, never)				: ISystem;
 	public var state			(default, null)					: UIElementStates;
 	
 #if flash9
@@ -225,6 +227,12 @@ class UITextField extends TextField, implements IUIElement
 #end
 	
 	
+	private inline function getSystem () : ISystem
+	{
+		return window.as(ISystem);
+	}
+	
+	
 	
 	//
 	// IPROPERTY-VALIDATOR METHODS
@@ -236,7 +244,7 @@ class UITextField extends TextField, implements IUIElement
 		{
 			changes = changes.set( change );
 			if (window != null && changes == change)
-				getValidationManager().add(this);
+				system.invalidation.add(this);
 		}
 	}
 	
@@ -247,12 +255,6 @@ class UITextField extends TextField, implements IUIElement
 			applyTextFormat();
 		
 		changes = 0;
-	}
-	
-	
-	private function getValidationManager ()
-	{
-		return window.as(UIWindow).invalidationManager;
 	}
 	
 	

@@ -34,8 +34,10 @@ package primevc.tools.generator;
  import primevc.types.RGBA;
  import primevc.types.SimpleDictionary;
  import primevc.utils.Color;
+ import primevc.utils.FastArray;
  import primevc.utils.NumberUtil;
   using primevc.types.Reference;
+  using primevc.utils.FastArray;
   using Std;
   using Type;
 
@@ -54,8 +56,22 @@ private typedef VarMapType = SimpleDictionary < String, String >;
 class HaxeCodeGenerator implements ICodeGenerator
 {
 	private var output		: StringBuf;
+	
+	/**
+	 * List with all the variables and there id's
+	 */
 	private var varMap		: VarMapType;
+	/**
+	 * List with all the arrays to generate
+	 */
 	private var arrayMap	: ArrayMapType;
+	
+	/**
+	 * List with all classes that need to be imported.
+	 * Keys are the names of the classes and the values are the full paths to 
+	 * the classes.
+	 */
+	private var importMap	: VarMapType;
 	private var varCounter	: Int;
 	private var linePrefix	: String;
 	
@@ -92,6 +108,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 		output		= new StringBuf();
 		varMap		= new VarMapType();
 		arrayMap	= new ArrayMapType();
+		importMap	= new VarMapType();
 		varCounter	= 0;
 	}
 	
@@ -108,9 +125,18 @@ class HaxeCodeGenerator implements ICodeGenerator
 		if (output == null)
 			return "";
 		
-		var str	= output.toString();
-		output	= null;
-		varMap	= null;
+		var str		= output.toString();
+		output		= null;
+		varMap		= null;
+		return str;
+	}
+	
+	
+	public function flushImports () : String
+	{
+		var str = " import " + importMap.valueList().join(";\n import ") + ";";
+		importMap.dispose();
+		importMap = null;
 		return str;
 	}
 	
@@ -130,7 +156,24 @@ class HaxeCodeGenerator implements ICodeGenerator
 	
 	public function createClassNameConstructor (className:String, ?args:Array<Dynamic>)
 	{
-		return "new " + className + "( " + formatArguments( args, true ) + " )";
+		return "new " + addImportFor(className) + "( " + formatArguments( args, true ) + " )";
+	}
+	
+	
+	public function addImportFor (fullClassName:String) : String
+	{
+		var i = fullClassName.lastIndexOf(".");
+		if (i == -1)
+			return fullClassName;
+		
+		var className	= fullClassName.substr( i + 1 );
+		
+		//check if the class that is registered with the given name is in the same package as the current class
+		if (importMap.exists(className))
+			return importMap.get( className ) == fullClassName ? className : fullClassName;
+		
+		importMap.set( className, fullClassName );
+		return className;
 	}
 	
 	
@@ -175,9 +218,9 @@ class HaxeCodeGenerator implements ICodeGenerator
 		if		(isColor(v))						return Color.string(v);
 		else if (Std.is( v, ICodeFormattable ))		{ var vStr = getVar(v); return vStr == null ? null : "cast " + vStr; }
 		else if (Std.is( v, Reference))				return cast(v, Reference).toCode(this);
-		else if (isUndefinedNumber(v))				return (Std.is( v, Int )) ? "primevc.types.Number.INT_NOT_SET" : "primevc.types.Number.FLOAT_NOT_SET";
-		else if (v == LayoutFlags.FILL)				return "primevc.gui.layout.LayoutFlags.FILL";
-		else if (v == Number.EMPTY)					return "primevc.types.Number.EMPTY";
+		else if (isUndefinedNumber(v))				return (Std.is( v, Int )) ? "Number.INT_NOT_SET" : "Number.FLOAT_NOT_SET";
+		else if (v == LayoutFlags.FILL)				return "LayoutStyleFlags.FILL";
+		else if (v == Number.EMPTY)					return "Number.EMPTY";
 		else if (v == null)							return "null";
 		else if (Std.is( v, String ))				return "'" + v + "'";
 		else if (Std.is( v, Array ))				return getArray( cast v );
@@ -185,7 +228,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 		else if (Std.is( v, Float ))				return Std.string(v);
 		else if (Std.is( v, Bool ))					return v ? "true" : "false";
 		else if (null != Type.getEnum(v))			return getEnumName(v);
-		else if (null != Type.getClassName(v))		return Type.getClassName(cast v);
+		else if (null != Type.getClassName(v))		return addImportFor( Type.getClassName(cast v) );
 		else										throw "unknown value type: " + v;
 		return "";
 	}
@@ -200,7 +243,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 	
 	private inline function getEnumName (obj:Dynamic)			: String
 	{
-		var name	= Type.getEnum( obj ).getEnumName() + "." + Type.enumConstructor( obj );
+		var name	= addImportFor( Type.getEnum( obj ).getEnumName() ) + "." + Type.enumConstructor( obj );
 		var params	= Type.enumParameters( obj );
 		
 		//find and write the parameters of the enum.

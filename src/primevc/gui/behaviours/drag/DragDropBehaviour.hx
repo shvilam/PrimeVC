@@ -89,8 +89,15 @@ class DragDropBehaviour extends DragBehaviourBase
 			cancelDrag(mouseObj);
 			stopDrag(mouseObj);
 		}
+		
+		if (target.window == null)
+			return;
+		
 	//	haxe.Log.clear();
 		dragInfo = target.createDragInfo();
+		if (dragInfo == null)
+			return;
+		
 #if flash9
 		//move item to correct location
 		var pos				= target.container.as(IDisplayObject).localToGlobal( dragInfo.displayCursor.position );
@@ -123,7 +130,13 @@ class DragDropBehaviour extends DragBehaviourBase
 		if (dragInfo.dropTarget != null)
 		{
 #if flash9
-			dragInfo.dropBounds = dragInfo.layout.outerBounds;
+			var b = dragInfo.dropBounds = dragInfo.layout.outerBounds;
+			
+			//adjust dropped x&y to the droptarget
+			var pos	= new Point( item.x, item.y );
+			pos		= dragInfo.dropTarget.container.globalToLocal(pos);
+			b.left	= pos.x.roundFloat();
+			b.top	= pos.y.roundFloat();
 #end
 			//notify the dragged item that the drag-operation is completed
 			target.dragEvents.complete.send(dragInfo);
@@ -150,7 +163,7 @@ class DragDropBehaviour extends DragBehaviourBase
 	
 	override private function cancelDrag (mouseObj:MouseState) : Void
 	{
-		trace(target+".cancelDrag \n");
+	//	trace(target+".cancelDrag \n");
 		dragInfo.dropTarget = null;
 	//	stopDrag(mouseObj);		<-- this is done by the draghelper
 	}
@@ -162,7 +175,9 @@ class DragDropBehaviour extends DragBehaviourBase
 	{
 		var item = dragInfo.dragRenderer;
 		
-		if (item.dropTarget == null || !item.dropTarget.is(IDropTarget)) {
+		if (item.dropTarget == null || !item.dropTarget.is(IDropTarget))
+		{
+			//if the dragged item is not on any dropTarget, stop checking
 			if (dragInfo.dropTarget == null || !item.isObjectOn( dragInfo.dropTarget ))
 				dragInfo.dropTarget = null;
 			return;

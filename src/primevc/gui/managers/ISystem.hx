@@ -20,43 +20,26 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package ;
- import primevc.gui.styling.LayoutStyleFlags;
- import primevc.gui.styling.StyleChildren;
- import primevc.gui.styling.StyleBlockType;
- import primevc.gui.styling.StyleBlock;
- import primevc.types.Number;
-//imports
+package primevc.gui.managers;
 
 
 /**
- * This class is a template for generating UIElementStyle classes
+ * Collection of manager classes.
+ * 
+ * @author Ruben Weijers
+ * @creation-date Jan 17, 2011
  */
-class StyleSheet extends StyleBlock
+interface ISystem
 {
-	public function new ()
-	{
-		super(StyleBlockType.specific);
-		children = new ApplicationStyleChildren();
-	}
-}
-
-
-class ApplicationStyleChildren extends StyleChildren
-{
-	public function new ()
-	{
-		super( new SelectorMapType(), new SelectorMapType(), new SelectorMapType() );
-	}
-	
-	override private function fillSelectors () : Void
-	{
-		//selectors
-	}
+#if !neko
+	public var popups		(getPopupManager, null)	: IPopupManager;
+	public var rendering	(default, null)			: RenderManager;
+	public var invalidation	(default, null)			: InvalidationManager;
+#end
 }

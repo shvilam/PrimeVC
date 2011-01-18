@@ -155,7 +155,8 @@ class TextField extends flash.text.TextField, implements ITextField
 		window			= null;
 		rect			= null;
 		
-		d.dispose();
+		if (d != null)
+			d.dispose();
 	}
 
 
@@ -219,7 +220,7 @@ class TextField extends flash.text.TextField, implements ITextField
 	}
 	
 	
-	override public function setTextFormat (format:flash.text.TextFormat, beginIndex:Int = -1, endIndex:Int = -1)
+/*	override public function setTextFormat (format:flash.text.TextFormat, beginIndex:Int = -1, endIndex:Int = -1)
 	{	
 		super.setTextFormat(format, beginIndex, endIndex);
 		if (beginIndex == -1 && endIndex == -1 && format.align != null)
@@ -232,7 +233,7 @@ class TextField extends flash.text.TextField, implements ITextField
 			else if (format.align == F.RIGHT)	autoSize = A.RIGHT;
 			else 								autoSize = A.NONE;
 		}
-	}
+	}*/
 	
 	
 	

@@ -135,11 +135,31 @@ class MouseState extends KeyModState
 	var local	(default,null)		: Point;
 	var stage	(default,null)		: Point;
 	
-	public function new(f:Int, t:TargetType, l:Point, s:Point)
+#if flash9
+	/**
+	 * A reference to a display list object that is related to the event. For 
+	 * example, when a mouseOut event occurs, relatedObject represents the 
+	 * display list object to which the pointing device now points. This 
+	 * property applies to the mouseOut, mouseOver, rollOut, and rollOver events.
+	 * 
+	 * The value of this property can be null in two circumstances: if there no
+	 * related object, or there is a related object, but it is in a security 
+	 * sandbox to which you don't have access. Use the 
+	 * isRelatedObjectInaccessible() property to determine which of these 
+	 * reasons applies.
+	 */
+	var related	(default,null)		: TargetType;
+#end
+	
+	
+	public function new(f:Int, t:TargetType, l:Point, s:Point #if flash9, related:TargetType #end)
 	{
 		super(f,t);
-		this.local  = l;
-		this.stage  = s;
+		this.local		= l;
+		this.stage		= s;
+#if flash9
+		this.related	= related;
+#end
 	}
 	
 	inline function leftButton()	: Bool	{ return (flags & 0xF00 == 0x100); }

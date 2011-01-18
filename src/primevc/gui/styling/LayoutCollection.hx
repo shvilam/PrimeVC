@@ -105,8 +105,6 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 			}
 		}
 		
-		
-		
 		if (!layout.is(ILayoutContainer))
 			changes = changes.unset( Flags.ALGORITHM | Flags.CHILD_WIDTH | Flags.CHILD_HEIGHT );
 		
@@ -133,7 +131,7 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 		
 		//properties that are changed but are not found in any style-object need to be unset
 		if (changes > 0) {
-			applyStyleObject( changes, null );
+			applyStyleObject( changes, null, widthRange, heightRange );
 			changes = 0;
 		}
 		
@@ -169,11 +167,8 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 		}
 		
 		
-		if (propsToSet.has( Flags.PERCENT_WIDTH ))
-				layout.percentWidth = (notEmpty && styleObj.percentWidth.notEmpty()) ? styleObj.percentWidth : Number.FLOAT_NOT_SET;
-		
-		if (propsToSet.has( Flags.PERCENT_HEIGHT ))
-			layout.percentHeight = (notEmpty && styleObj.percentHeight.notEmpty()) ? styleObj.percentHeight : Number.FLOAT_NOT_SET;
+		if (propsToSet.has( Flags.PERCENT_WIDTH ))		layout.percentWidth = (notEmpty && styleObj.percentWidth.notEmpty()) ? styleObj.percentWidth : Number.FLOAT_NOT_SET;
+		if (propsToSet.has( Flags.PERCENT_HEIGHT ))		layout.percentHeight = (notEmpty && styleObj.percentHeight.notEmpty()) ? styleObj.percentHeight : Number.FLOAT_NOT_SET;
 		
 		var pWidthRange		= propsToSet.has( Flags.PERCENT_WIDTH_CONSTRAINTS ) ? widthRange.as(PValidator) : null;
 		var pHeightRange	= propsToSet.has( Flags.PERCENT_HEIGHT_CONSTRAINTS ) ? heightRange.as(PValidator) : null;
@@ -185,14 +180,14 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 		if (propsToSet.has( Flags.MARGIN ))				layout.margin				= notEmpty ? styleObj.margin				: null;
 		
 		if (propsToSet.has( Flags.PERCENT_MIN_WIDTH ))	pWidthRange.percentMin		= notEmpty ? styleObj.percentMinWidth		: Number.FLOAT_NOT_SET;
+		else if (propsToSet.has( Flags.MIN_WIDTH ))		widthRange.min				= notEmpty ? styleObj.minWidth				: Number.INT_NOT_SET;
 		if (propsToSet.has( Flags.PERCENT_MAX_WIDTH ))	pWidthRange.percentMax		= notEmpty ? styleObj.percentMaxWidth		: Number.FLOAT_NOT_SET;
-		if (propsToSet.has( Flags.MIN_WIDTH ))			widthRange.min				= notEmpty ? styleObj.minWidth				: Number.INT_NOT_SET;
-		if (propsToSet.has( Flags.MAX_WIDTH ))			widthRange.max				= notEmpty ? styleObj.maxWidth				: Number.INT_NOT_SET;
+		else if (propsToSet.has( Flags.MAX_WIDTH ))		widthRange.max				= notEmpty ? styleObj.maxWidth				: Number.INT_NOT_SET;
 		
 		if (propsToSet.has( Flags.PERCENT_MIN_HEIGHT ))	pHeightRange.percentMin		= notEmpty ? styleObj.percentMinHeight		: Number.FLOAT_NOT_SET;
+		else if (propsToSet.has( Flags.MIN_HEIGHT ))	heightRange.min				= notEmpty ? styleObj.minHeight				: Number.INT_NOT_SET;
 		if (propsToSet.has( Flags.PERCENT_MAX_HEIGHT ))	pHeightRange.percentMax		= notEmpty ? styleObj.percentMaxHeight		: Number.FLOAT_NOT_SET;
-		if (propsToSet.has( Flags.MIN_HEIGHT ))			heightRange.min				= notEmpty ? styleObj.minHeight				: Number.INT_NOT_SET;
-		if (propsToSet.has( Flags.MAX_HEIGHT ))			heightRange.max				= notEmpty ? styleObj.maxHeight				: Number.INT_NOT_SET;
+		else if (propsToSet.has( Flags.MAX_HEIGHT ))	heightRange.max				= notEmpty ? styleObj.maxHeight				: Number.INT_NOT_SET;
 		
 		if (propsToSet > 0 && layout.is(ILayoutContainer))
 		{

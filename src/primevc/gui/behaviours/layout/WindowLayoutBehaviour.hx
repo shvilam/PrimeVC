@@ -44,18 +44,18 @@ class WindowLayoutBehaviour extends ValidatingBehaviour < UIWindow >, implements
 {
 	override private function init ()
 	{
-		Assert.that(target.layout != null, "Layout of "+target+" can't be null for "+this);
+		Assert.that(target.topLayout != null, "Layout of "+target+" can't be null for "+this);
 		
 #if debug
-		target.layout.name = target.id.value+"Layout";
+		target.topLayout.name = target.id.value+"Layout";
 #end
 		
-		layoutStateChangeHandler.on( target.layout.state.change, this );
+		layoutStateChangeHandler.on( target.topLayout.state.change, this );
 		//trigger the event handler for the current state as well
-		layoutStateChangeHandler( target.layout.state.current, null );
+		layoutStateChangeHandler( target.topLayout.state.current, null );
 		
 #if flash9
-		updateBgSize.on( target.layout.changed, this );
+		updateBgSize.on( target.topLayout.changed, this );
 	//	updateBgSize();
 #end
 	}
@@ -63,10 +63,10 @@ class WindowLayoutBehaviour extends ValidatingBehaviour < UIWindow >, implements
 
 	override private function reset ()
 	{
-		if (target.layout == null)
+		if (target.topLayout == null)
 			return;
 		
-		target.layout.state.change.unbind( this );
+		target.topLayout.state.change.unbind( this );
 		super.reset();
 	}
 
@@ -78,9 +78,9 @@ class WindowLayoutBehaviour extends ValidatingBehaviour < UIWindow >, implements
 	}
 	
 	
-	public inline function invalidate ()			{ target.invalidationManager.add(this); }
-	public inline function validate ()				{ target.layout.validate(); }
-	override private function getValidationManager ()	{ return cast target.invalidationManager; }
+	public inline function invalidate ()				{ target.invalidation.add(this); }
+	public inline function validate ()					{ target.topLayout.validate(); }
+	override private function getValidationManager ()	{ return cast target.invalidation; }
 	
 	
 #if flash9
@@ -89,7 +89,7 @@ class WindowLayoutBehaviour extends ValidatingBehaviour < UIWindow >, implements
 		if (changes.hasNone( LayoutFlags.WIDTH | LayoutFlags.HEIGHT ))
 			return;
 		
-		var l = target.layout;
+		var l = target.topLayout;
 	//	trace(target+".updateBgSize "+l.outerBounds);
 	/*	if (!target.graphicData.isEmpty())
 		{

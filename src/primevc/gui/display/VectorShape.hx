@@ -59,7 +59,6 @@ class VectorShapeImpl implements IDisplayObject
 	public var visible			(getVisibility, setVisibility)	: Bool;
 	
 	public var alpha			(default, setAlpha)				: Float;
-	public var width			(default, default)				: Float;
 	public var x				(default, default)				: Float;
 	public var y				(default, default)				: Float;
 	public var width			(default, default)				: Float;
@@ -81,7 +80,7 @@ class VectorShapeImpl implements IDisplayObject
 	public function moveScrollRect (?newX:Float = 0, ?newY:Float = 0) {}
 	
 	
-	public inline function dispose() : Void
+	public function dispose() : Void
 	{
 		displayEvents.dispose();
 		displayEvents	= null;

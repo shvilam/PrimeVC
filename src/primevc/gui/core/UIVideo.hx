@@ -42,6 +42,7 @@ package primevc.gui.core;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutFlags;
+ import primevc.gui.managers.ISystem;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.states.UIElementStates;
  import primevc.gui.traits.IValidatable;
@@ -85,6 +86,7 @@ class UIVideo extends Video, implements IUIElement
 	public var behaviours		(default, null)					: BehaviourList;
 	public var effects			(default, default)				: UIElementEffects;
 	public var layout			(default, null)					: LayoutClient;
+	public var system			(getSystem, never)				: ISystem;
 	public var state			(default, null)					: UIElementStates;
 	
 #if flash9
@@ -218,13 +220,20 @@ class UIVideo extends Video, implements IUIElement
 	// IPROPERTY-VALIDATOR METHODS
 	//
 	
+	
+	private inline function getSystem () : ISystem
+	{
+		return window.as(ISystem);
+	}
+	
+	
 	public function invalidate (change:Int)
 	{
 		if (change != 0)
 		{
 			changes = changes.set( change );
 			if (window != null && changes == change)
-				getValidationManager().add(this);
+				system.invalidation.add(this);
 		}
 	}
 	
@@ -243,11 +252,6 @@ class UIVideo extends Video, implements IUIElement
 		changes = 0;
 	}
 	
-	
-	private function getValidationManager ()
-	{
-		return window.as(UIWindow).invalidationManager;
-	}
 	
 	
 	//
