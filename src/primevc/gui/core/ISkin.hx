@@ -70,7 +70,7 @@ interface ISkin
 	 * object. It will add it's children to the child-list of it's owner.
 	 * After this method, the owner will creates it's children.
 	 */
-	private function createChildren ()		: Void;
+	public function createChildren ()		: Void;
 	
 	/**
 	 * This method is called after the owner has created it's children. It can 
@@ -91,4 +91,10 @@ interface ISkin
 	 */
 	private function removeChildren ()		: Void;
 	
+	
+	/**
+	 * Method is called when the owner is validated and allows the skin to
+	 * update itself after some properties have changed.
+	 */
+	public function validate (changes:Int)	: Void;
 }

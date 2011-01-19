@@ -53,7 +53,6 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 		createStates();
 		createBehaviours();
 		createGraphics();
-		createChildren();
 		
 		skinState.current = skinState.constructed;
 	}
@@ -90,7 +89,11 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 	
 	private function setOwner (newOwner:OwnerClass)
 	{
+		if (owner != null && owner.isInitialized())
+			removeChildren();
+		
 		this.owner = newOwner;
+		
 		if (newOwner != null && newOwner.isInitialized())
 			createChildren();
 		return newOwner;
@@ -107,11 +110,12 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 	private function createStates ()			: Void; //	{ Assert.abstract(); }
 	private function createBehaviours ()		: Void; //	{ Assert.abstract(); }
 	private function createGraphics ()			: Void; //	{ Assert.abstract(); }
-	private function createChildren ()			: Void; //	{ Assert.abstract(); }
+	public function createChildren ()			: Void; //	{ Assert.abstract(); }
 	public function childrenCreated ()			: Void;
 	
 	private function removeStates ()			: Void; //	{ Assert.abstract(); }
 	private function removeChildren ()			: Void; //	{ Assert.abstract(); }
+	public function validate (changes:Int)		: Void;
 	
 	private inline function removeBehaviours ()
 	{

@@ -183,8 +183,7 @@ class UIVideo extends Video, implements IUIElement
 		invalidateVideoWidth	.on( stream.width.change, this );
 		invalidateVideoHeight	.on( stream.height.change, this );
 		
-		if (changes > 0)
-			validate();
+		validate();
 		
 		state.current = state.initialized;
 	}
@@ -232,24 +231,28 @@ class UIVideo extends Video, implements IUIElement
 		if (change != 0)
 		{
 			changes = changes.set( change );
-			if (window != null && changes == change)
-				system.invalidation.add(this);
+			if (changes == change && isInitialized())
+				if (system != null)		system.invalidation.add(this);
+				else					validate.onceOn( displayEvents.addedToStage, this );
 		}
 	}
 	
 	
 	public function validate ()
 	{
-		if (changes.has( VIDEO_WIDTH | VIDEO_HEIGHT ))
+		if (changes > 0)
 		{
-			var l = layout.as(AdvancedLayoutClient);
-			l.maintainAspectRatio = stream.width.value != 0;
+			if (changes.has( VIDEO_WIDTH | VIDEO_HEIGHT ))
+			{
+				var l = layout.as(AdvancedLayoutClient);
+				l.maintainAspectRatio = stream.width.value != 0;
 			
-			l.measuredResize( stream.width.value, stream.height.value );
-		//	trace(stream.width.value+", "+stream.height.value);
-		}
+				l.measuredResize( stream.width.value, stream.height.value );
+			//	trace(stream.width.value+", "+stream.height.value);
+			}
 		
-		changes = 0;
+			changes = 0;
+		}
 	}
 	
 	

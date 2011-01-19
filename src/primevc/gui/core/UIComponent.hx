@@ -141,6 +141,9 @@ class UIComponent extends Sprite, implements IUIComponent
 		Assert.notNull(container, "Container can't be null for "+this);
 		behaviours.init();
 		
+		if (skin != null)
+			skin.createChildren();
+		
 		//create the children of this component after the skin has created it's children
 		createChildren();
 		
@@ -148,8 +151,7 @@ class UIComponent extends Sprite, implements IUIComponent
 		if (skin != null)
 			skin.childrenCreated();
 		
-		if (changes > 0)
-			validate();
+		validate();
 		
 		//finish initializing
 		state.current = state.initialized;
@@ -282,15 +284,23 @@ class UIComponent extends Sprite, implements IUIComponent
 		if (change != 0)
 		{
 			changes = changes.set( change );
-			if (window != null && changes == change)
-				getValidationManager().add(this);
+			
+			if (changes == change && isInitialized())
+				if (system != null)		system.invalidation.add(this);
+				else					validate.onceOn( displayEvents.addedToStage, this );
 		}
 	}
 	
 	
 	public function validate ()
 	{
-		changes = 0;
+		if (changes > 0)
+		{
+			if (skin != null)
+				skin.validate(changes);
+			
+			changes = 0;
+		}
 	}
 	
 	

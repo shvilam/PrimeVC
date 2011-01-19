@@ -154,9 +154,7 @@ class UITextField extends TextField, implements IUIElement
 	{
 		visible = true;
 		behaviours.init();
-		
-		if (changes > 0)
-			validate();
+		validate();
 		
 		state.current = state.initialized;
 	}
@@ -243,18 +241,23 @@ class UITextField extends TextField, implements IUIElement
 		if (change != 0)
 		{
 			changes = changes.set( change );
-			if (window != null && changes == change)
-				system.invalidation.add(this);
+			
+			if (changes == change && isInitialized())
+				if (system != null)		system.invalidation.add(this);
+				else					validate.onceOn( displayEvents.addedToStage, this );
 		}
 	}
 	
 	
 	public function validate ()
 	{
-		if (changes.has( UIElementFlags.TEXTSTYLE ))
-			applyTextFormat();
+		if (changes > 0)
+		{
+			if (changes.has( UIElementFlags.TEXTSTYLE ))
+				applyTextFormat();
 		
-		changes = 0;
+			changes = 0;
+		}
 	}
 	
 	

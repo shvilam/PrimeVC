@@ -128,7 +128,6 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 				removeData();
 			
 			data = v;
-		//	trace(this+".invalidateData "+v);
 			invalidate( UIElementFlags.DATA );
 		}
 		
@@ -158,7 +157,7 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 		var l = layout.as(AdvancedLayoutClient);
 		if (data.state.is( BitmapStates.ready ))
 		{
-		//	trace("Image.updateSize; "+data.data.width+", "+data.data.height+"; expl size? "+l.explicitWidth+", "+l.explicitHeight);
+		//	trace(this+"; "+data.data.width+", "+data.data.height+"; expl size? "+l.explicitWidth+", "+l.explicitHeight+"; "+data.state);
 			l.maintainAspectRatio	= maintainAspectRatio;
 			l.measuredResize( data.data.width, data.data.height );
 		}

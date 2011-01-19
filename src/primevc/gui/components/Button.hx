@@ -29,17 +29,14 @@
 package primevc.gui.components;
  import primevc.core.Bindable;
  import primevc.gui.core.UIDataContainer;
- import primevc.gui.core.UITextField;
- import primevc.gui.layout.LayoutFlags;
  import primevc.gui.styling.IIconOwner;
  import primevc.gui.text.TextFormat;
  import primevc.gui.traits.ITextStylable;
  import primevc.types.Bitmap;
-  using primevc.utils.Bind;
-  using primevc.utils.BitUtil;
 
 
-private typedef DataType = Bindable<String>;
+private typedef DataType	= Bindable<String>;
+private typedef Flags		= primevc.gui.core.UIElementFlags;
 
 
 /**
@@ -50,12 +47,7 @@ private typedef DataType = Bindable<String>;
  */
 class Button extends UIDataContainer <DataType>, implements IIconOwner, implements ITextStylable
 {
-	public static inline var ICON : Int = 16384;
-	
 	public var icon			(default, setIcon)		: Bitmap;
-	public var labelField	(default, null)			: UITextField;
-	public var iconGraphic	(default, null)			: Image;
-	
 #if flash9
 	public var textStyle	(default, setTextStyle)	: TextFormat;
 	public var wordWrap		: Bool;
@@ -69,101 +61,11 @@ class Button extends UIDataContainer <DataType>, implements IIconOwner, implemen
 	}
 	
 	
-	override private function createChildren ()
+	private inline function setIcon (v:Bitmap)
 	{
-		labelField = new UITextField( null, true, data);
-#if debug
-		labelField.id.value = id.value + "TextField";
-#end
-#if flash9
-		labelField.autoSize			= flash.text.TextFieldAutoSize.NONE;
-		labelField.selectable		= false;
-		labelField.mouseEnabled		= false;
-		labelField.tabEnabled		= false;
-#end
-		if (textStyle != null)
-			labelField.textStyle	= textStyle;
-		
-	//	if (data == null)
-	//		data = labelField.data;
-		
-		addOrRemoveLabel();
-	}
-	
-	
-	private function addOrRemoveLabel ()
-	{
-		if (data.value == null && labelField.container != null)
-		{
-			layoutContainer.children.remove( labelField.layout );
-			children.remove( labelField );
-		}
-		
-		else if (data.value != null && labelField.container == null)
-		{
-			layoutContainer.children.add( labelField.layout, children.length );
-			children.add( labelField, children.length );
-		}
-	}
-	
-	
-	override private function removeChildren ()
-	{
-		super.removeChildren();
-		layoutContainer.children.remove( labelField.layout );
-		labelField.dispose();
-		labelField	= null;
-		icon		= null;
-	}
-	
-	
-	override private function initData ()
-	{
-		addOrRemoveLabel.on( data.change, this );
-		labelField.data = data;
-	}
-	
-	
-	override private function removeData ()
-	{
-		labelField.data = null;
-		data.change.unbind(this);
-	}
-	
-	
-	override public function validate ()
-	{
-		if (changes.has( ICON ))
-		{
-			if (iconGraphic != null)
-			{
-				children.remove(iconGraphic);
-				layoutContainer.children.remove( iconGraphic.layout );
-				iconGraphic.dispose();
-				iconGraphic = null;
-			}
-			
-			if (icon != null)
-			{
-				Assert.null( iconGraphic );
-				iconGraphic = new Image( null, icon );
-				iconGraphic.maintainAspectRatio = false;
-#if debug		iconGraphic.id.value = id.value + "Icon";	#end
-				layoutContainer.children.add( iconGraphic.layout, 0 );
-				children.add( iconGraphic, 0 );
-			}
-		}
-		
-		super.validate();
-	}
-	
-	
-	private inline function setIcon (v)
-	{
-		if (icon != v)
-		{
+		if (v != icon) {
 			icon = v;
-			invalidate( ICON );
+			invalidate( Flags.ICON );
 		}
 		return v;
 	}
@@ -172,10 +74,11 @@ class Button extends UIDataContainer <DataType>, implements IIconOwner, implemen
 #if flash9
 	private inline function setTextStyle (v:TextFormat)
 	{
-		if (labelField != null)
-			labelField.textStyle = v;
-		
-		return textStyle = v;
+		if (v != textStyle) {
+			textStyle = v;
+			invalidate( Flags.TEXTSTYLE );
+		}
+		return v;
 	}
 #end
 }

@@ -126,7 +126,6 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 				if (child.includeInLayout && child.outerBounds.height > height)
 					height = child.outerBounds.height;
 		}
-
 		setGroupHeight(height);
 	}
 

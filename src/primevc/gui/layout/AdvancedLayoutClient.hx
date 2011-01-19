@@ -139,7 +139,7 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 		if (hasValidatedWidth)
 			return;
 		
-	/*	if (name == "timeDisplayLayout") {
+	/*	if (name == "Image14Layout") {
 			trace(this+".validateHorizontal 1 "+width.value+"; explicit: "+explicitWidth+"; measured: "+measuredWidth);
 			trace("\t\tchanges: "+Flags.readProperties(changes));
 		}*/
@@ -169,7 +169,7 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 			hasValidatedWidth = false;
 			super.validateHorizontal();
 		}
-	//	if (name == "timeDisplayLayout")
+	//	if (name == "Image14Layout")
 	//		trace(this+".validateHorizontal 2 "+width.value+"; explicit: "+explicitWidth+"; measured: "+measuredWidth+"; "+Flags.readProperties(changes.filter( Flags.WIDTH_PROPERTIES )));
 	}
 	
@@ -218,7 +218,8 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	 */
 	public function measuredResize (newW:Int, newH:Int)
 	{
-	//	trace(newW+", "+newH+"; "+maintainAspectRatio);
+	//	if (name == "Image14Layout")
+	//		trace(newW+", "+newH+"; "+maintainAspectRatio+"; "+state.current);
 		measuredWidth	= newW;
 		measuredHeight	= newH;
 		if (maintainAspectRatio)

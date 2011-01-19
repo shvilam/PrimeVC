@@ -20,40 +20,64 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.core;
+package primevc.gui.components.skins;
+ import primevc.gui.components.Button;
+ import primevc.gui.components.Image;
+ import primevc.gui.core.Skin;
+  using primevc.utils.BitUtil;
+
+
+
+private typedef Flags = primevc.gui.core.UIElementFlags;
 
 
 
 /**
- * Flags used in UIElements
+ * Skin for a button with only an icon.
  * 
  * @author Ruben Weijers
- * @creation-date Nov 19, 2010
+ * @creation-date Jan 19, 2011
  */
-class UIElementFlags
+class ButtonIconSkin extends Skin<Button>
 {
-	public static inline var LAYOUT		= 1 << 0;
-	public static inline var GRAPHICS	= 1 << 1;
-	public static inline var STYLE		= 1 << 2;
-	
-	
-	public static inline var DATA		= 1 << 3;
-	
-	//
-	// UITEXTFIELD PROPERTIES
-	//
-	
-	public static inline var TEXTSTYLE	= 1 << 4;
-	
-	
-	//
-	// IICON OWNER PROPERTIES
-	
-	public static inline var ICON		= 1 << 5;
+	private var iconGraphic : Image;
+
+
+	override public function createChildren ()
+	{
+		owner					.children.add(	iconGraphic = new Image() );
+		owner.layoutContainer	.children.add(	iconGraphic.layout );
+		
+	//	iconGraphic.maintainAspectRatio = false;
+#if debug
+		iconGraphic.id.value	= owner.id.value + "Icon";
+#end
+	}
+
+
+	override private function removeChildren ()
+	{
+		if (iconGraphic != null)
+		{
+			if (owner != null) {
+				owner.layoutContainer	.children.remove( iconGraphic.layout );
+				owner					.children.remove( iconGraphic );
+			}
+			iconGraphic.dispose();
+			iconGraphic = null;
+		}
+	}
+
+
+	override public function validate (changes:Int)
+	{
+		if (changes.has( Flags.ICON ))
+			iconGraphic.data = owner.icon;
+	}
 }

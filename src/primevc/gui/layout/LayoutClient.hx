@@ -263,7 +263,7 @@ class LayoutClient extends Invalidatable
 		
 		state.current = ValidateStates.validating;
 		
-		if (changes.has( Flags.ASPECT_RATIO ))
+		if (changes.has( Flags.MAINTAIN_ASPECT ))
 			calculateAspectRatio(width.value, height.value);
 		
 		
@@ -360,8 +360,6 @@ class LayoutClient extends Invalidatable
 			if (changes.has( Flags.WIDTH_PROPERTIES | Flags.HEIGHT_PROPERTIES | Flags.X | Flags.Y ))
 				changed.send( changes );
 			
-		//	if (changes.has(Flags.WIDTH | Flags.HEIGHT))	events.sizeChanged.send();
-		//	if (changes.has(Flags.X | Flags.Y))				events.posChanged.send();
 			changes = 0;
 		}
 		
@@ -402,7 +400,7 @@ class LayoutClient extends Invalidatable
 		height.value	= newHeight;
 		
 		if (maintainAspectRatio)
-			invalidate( Flags.ASPECT_RATIO );
+			invalidate( Flags.MAINTAIN_ASPECT );
 	}
 	
 	
@@ -462,12 +460,16 @@ class LayoutClient extends Invalidatable
 	private inline function calculateAspectRatio (w:Int, h:Int)
 	{
 		if (w.isSet() && h.isSet())
-		{		
-			aspectRatio	= maintainAspectRatio ? w / h : 0;
-			validateAspectRatio();
-			changes		= changes.unset( Flags.MAINTAIN_ASPECT | Flags.ASPECT_RATIO );
+		{
+			if (!maintainAspectRatio)
+				aspectRatio = 0;
+			else if (w > 0 && h > 0)
+			{
+				aspectRatio	= w / h;
+				validateAspectRatio();
+			}
 		
-			trace("aspect: "+aspectRatio+"; size: "+w+", "+h+"; "+this);
+	//		trace("aspect: "+aspectRatio+"; size: "+w+", "+h+"; "+this);
 		}
 	}
 	
@@ -491,7 +493,7 @@ class LayoutClient extends Invalidatable
 		if (!maintainAspectRatio || width.validator == null || height.validator == null)
 			return;
 		
-		Assert.that(aspectRatio != 0, "there's no aspect-ratio given.. value is 0");
+		Assert.that(aspectRatio != 0, "there's no aspect-ratio given.. value is 0; "+this+". w: "+width.value+", h: "+height.value);
 		
 		var valid	= true;
 		var newW	= calcHorAspectRatioFor( height.value );
