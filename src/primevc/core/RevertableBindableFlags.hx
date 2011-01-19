@@ -119,6 +119,7 @@ class RevertableBindableFlags
 		  )) == 1;
 	}
 	
+	public static inline var MAKE_SHADOW_COPY = 32768;	// 0b_1000 0000 0000 0000
 	
 #if debug
 	public static inline function readProperties (flags:Int) : String

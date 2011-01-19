@@ -280,10 +280,10 @@ class ObjectChangeSet extends ChangeVO
 			add(PropertyValueChangeVO.make(id, null, value));
 	}
 	
-	inline public function addBindableChange<T>(id:Int, flagBit:Int, bindable:RevertableBindable<T>)
+	inline public function addBindableChange<T>(id:Int, flagBit:Int, oldValue:Dynamic, value:Dynamic)
 	{
 		if (flagBit.not0())
-			add(PropertyValueChangeVO.make(id, bindable.shadowValue, bindable.value));
+			add(PropertyValueChangeVO.make(id, oldValue, value));
 	}
 	
 	inline public function addListChanges<T>(id:Int, flagBit:Int, list:RevertableArrayList<T>)
