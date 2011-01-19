@@ -150,11 +150,6 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	}
 	
 	
-	private inline function isVisible () {
-		return (explicitWidth.notSet() || explicitWidth > 0) && (explicitHeight.notSet() || explicitHeight > 0);
-	}
-	
-	
 	override public function validateHorizontal ()
 	{
 		if (hasValidatedWidth || changes == 0)
@@ -172,8 +167,9 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (algorithm != null)
 			algorithm.prepareValidate();
 		
-		for (child in children)
+		for (i in 0...children.length)
 		{
+			var child = children.getItemAt(i);
 			if (!child.includeInLayout)
 				continue;
 			
@@ -208,8 +204,10 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (fillingChildren.length > 0)
 		{
 			var sizePerChild = IntMath.max(width.value - childrenWidth, 0).divFloor( fillingChildren.length );
-			for (child in fillingChildren)
+			
+			for (i in 0...fillingChildren.length)
 			{
+				var child = fillingChildren[ i ];
 				child.outerBounds.width = sizePerChild;
 				
 				if (child.changes > 0)
@@ -220,7 +218,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (algorithm != null)
 			algorithm.validateHorizontal();
 		
-		hasValidatedWidth = false;
+	//	hasValidatedWidth = false;
 		super.validateHorizontal();
 	}
 	
@@ -242,8 +240,9 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (algorithm != null)
 			algorithm.prepareValidate();
 		
-		for (child in children)
+		for (i in 0...children.length)
 		{
+			var child = children.getItemAt(i);
 			if (!child.includeInLayout)
 				continue;
 			
@@ -277,8 +276,9 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (fillingChildren.length > 0)
 		{
 			var sizePerChild = (height.value - childrenHeight).divFloor( fillingChildren.length );
-			for (child in fillingChildren)
+			for (i in 0...fillingChildren.length)
 			{
+				var child = fillingChildren[ i ];
 				child.outerBounds.height = sizePerChild;
 				
 				if (child.changes > 0)
@@ -289,7 +289,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (algorithm != null)
 			algorithm.validateVertical();
 		
-		hasValidatedHeight = false;
+	//	hasValidatedHeight = false;
 		super.validateVertical();
 	}
 	
@@ -317,9 +317,12 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (algorithm != null)
 			algorithm.apply();
 		
-		for (child in children)
+		for (i in 0...children.length)
+		{
+			var child = children.getItemAt(i);
 			if (child.includeInLayout)
 				child.validated();
+		}
 		
 		super.validated();
 	}

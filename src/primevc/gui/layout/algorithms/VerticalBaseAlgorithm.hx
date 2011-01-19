@@ -164,7 +164,7 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 		{
 			var start = getLeftStartValue();
 			if (group.childWidth.notSet())
-			{	
+			{
 				for (child in group.children) {
 					if (!child.includeInLayout || child.width.value.notSet())
 						continue;
@@ -187,23 +187,10 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 	{
 		if (group.children.length > 0)
 		{
-			var start = getLeftStartValue();
-			if (group.childWidth.notSet())
-			{	
-				for (child in group.children) {
-					if (!child.includeInLayout || child.width.value.notSet())
-						continue;
-					
-					child.outerBounds.left = start + (group.innerBounds.width - child.outerBounds.width);
-				}
-			}
-			else
-			{
-				var childX = start + (group.innerBounds.width - group.childWidth);
-				for (child in group.children)
-					if (child.includeInLayout)
-						child.outerBounds.left = childX;
-			}
+			var start = getRightStartValue();
+			for (child in group.children)
+				if (child.includeInLayout)
+					child.outerBounds.right = start;
 		}
 	}
 

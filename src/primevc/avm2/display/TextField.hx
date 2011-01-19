@@ -105,8 +105,8 @@ class TextField extends flash.text.TextField, implements ITextField
 	
 	private function setHandlers ()
 	{
-		applyValue	.on( data.change, this );
-		updateValue	.on( textEvents.change, this );
+		applyValue.on( data.change, this );
+		updateValue.on( textEvents.change, this );
 		applyValue();
 	}
 	
@@ -122,9 +122,10 @@ class TextField extends flash.text.TextField, implements ITextField
 			}
 		
 			data = v;
+			
 			if (data != null && window != null)
 				setHandlers();
-			else if (displayEvents != null)
+			else if (data != null && displayEvents != null)
 				setHandlers.onceOn( displayEvents.addedToStage, this );
 		}
 		return v;
@@ -155,8 +156,8 @@ class TextField extends flash.text.TextField, implements ITextField
 		window			= null;
 		rect			= null;
 		
-		if (d != null)
-			d.dispose();
+	//	if (d != null)
+	//		d.dispose();
 	}
 
 

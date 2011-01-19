@@ -73,6 +73,8 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	
 	override private function init ()
 	{
+		removeBindings.onceOn( target.displayEvents.removedFromStage, this );
+		
 		var states = getStates();
 		updateInteractiveStates.on( states.change, this );
 		updateInteractiveStates( states.filledProperties );
@@ -92,6 +94,14 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	
 	override private function reset ()
 	{
+		removeBindings();
+		target.displayEvents.addedToStage.unbind(this);
+		target.displayEvents.removedFromStage.unbind(this);
+	}
+	
+	
+	private function removeBindings ()
+	{
 		removeHoverBindings();
 		removeDownBindings();
 		removeDragOverBindings();
@@ -104,7 +114,9 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 		if (dragState != null)		dragState.dispose();
 		
 		mouseState = disabledState = selectedState = dragState = null;
+		init.onceOn( target.displayEvents.addedToStage, this );
 	}
+	
 	
 	
 	

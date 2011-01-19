@@ -56,6 +56,14 @@ private typedef Flags = StyleFlags;
  * The UIElementStyle of an element has to be rebuild everytime the element is 
  * changing of parent.
  * 
+ * When the target is removed from the stage, it's styles won't be removed
+ * directly. This will only happen when the UIElementStyle is disposed or
+ * when the target is added to the stage again but with a different parent.
+ * 
+ * By not removing the style when the target is removed-from-stage, a lot of
+ * overhead is removed, since most of the time the object will be added to the
+ * same parent.
+ * 
  * @author Ruben Weijers
  * @creation-date Sep 22, 2010
  */
@@ -141,8 +149,8 @@ class UIElementStyle implements IUIElementStyle
 	
 	private function init ()
 	{
-		addedBinding	= updateParentStyle	.on( target.displayEvents.addedToStage, this );
-		removedBinding	= clearStyles		.on( target.displayEvents.removedFromStage, this );
+		addedBinding	= enableStyleListeners	.on( target.displayEvents.addedToStage, this );
+		removedBinding	= disableStyleListeners	.on( target.displayEvents.removedFromStage, this );
 		removedBinding.disable();
 		
 		if (target.window != null)
@@ -221,52 +229,22 @@ class UIElementStyle implements IUIElementStyle
 	
 	
 	/**
-	 * Method will remove all the styles defined for the target and disable
-	 * the style-change-listeners.
+	 * Method will enable the style-listeners (changes). Method is called when
+	 * the target is added to the stage
 	 */
-	private function clearStyles () : Void
+	private function enableStyleListeners ()
 	{
-		if (target == null)
-			return;		//<-- disposed
+		Assert.notNull( target.container );
+		Assert.that( target.container.is( IStylable ) );
+		Assert.notNull( target.container.as( IStylable ).style );
 		
-		styleNamesChangeBinding.disable();
-		idChangeBinding.disable();
-		if (removedBinding != null)		removedBinding.disable();
-		if (addedBinding != null)		addedBinding.enable();
+		if (removedBinding != null)		removedBinding.enable();
+		if (addedBinding != null)		addedBinding.disable();
 		
-		stylesAreSearched	= false;
-		var changed			= filledProperties;
-		
-		//remove styles and their listeners
-		while (styles.length > 0)
-			removeStyleCell( styles.last );
-		
-		updateParentStyle();
-		
-		Assert.equal( styles.length, 0, styles.string() );
-		
-		filledProperties = 0;
-		broadcastChanges( changed );
-	}
-	
-	
-	private function updateParentStyle ()
-	{
-		if (parentStyle != null)
+		//remove styles if the new parent is not the same as the old parent
+		if (target.container != null && target.container.as( IStylable ).style != parentStyle)
 		{
-			if (target.container != null && target.container.as( IStylable ).style == parentStyle)
-				return;
-			
-			parentStyle.childrenChanged.unbind( this );
-			parentStyle = null;
-		}
-		
-		
-		if (target.window != null)
-		{
-			Assert.notNull( target.container );
-			Assert.that( target.container.is( IStylable ) );
-			Assert.notNull( target.container.as( IStylable ).style );
+			clearStyles();
 			
 			parentStyle = target.container.as( IStylable ).style;
 			resetStyles.on( parentStyle.childrenChanged, this );
@@ -275,6 +253,54 @@ class UIElementStyle implements IUIElementStyle
 	}
 	
 	
+	/**
+	 * Method will disable the style-listeners (changes). Method is called when
+	 * the target is removed from the stage
+	 */
+	private function disableStyleListeners ()
+	{
+		if (removedBinding != null)		removedBinding.disable();
+		if (addedBinding != null)		addedBinding.enable();
+		
+		styleNamesChangeBinding.disable();
+		idChangeBinding.disable();
+	}
+	
+	
+	
+	/**
+	 * Method will remove all the styles defined for the target and disable
+	 * the style-change-listeners.
+	 */
+	private inline function clearStyles () : Void
+	{
+		stylesAreSearched	= false;
+		var changed			= filledProperties;
+		
+		//remove styles and their listeners
+		while (styles.length > 0)
+			removeStyleCell( styles.last );
+		
+		if (parentStyle != null)
+		{
+		//	if (target.container != null && target.container.as( IStylable ).style == parentStyle)
+		//		return;
+			parentStyle.childrenChanged.unbind( this );
+			parentStyle = null;
+		}
+		
+		Assert.equal( styles.length, 0, styles.string() );
+		
+		filledProperties = 0;
+		broadcastChanges( changed );
+	}
+	
+	
+	/**
+	 * Method is called when the child-styles of the parentstyle are changed.
+	 * To make sure that the style of the target is still correct, this method
+	 * will update all style-values.
+	 */
 	private function resetStyles ()
 	{
 		if (styles.length > 0)
@@ -292,23 +318,13 @@ class UIElementStyle implements IUIElementStyle
 					if (newCell != null)
 						changes = changes.unset( getUsablePropertiesOf( newCell ) );
 					
-					/*else if (styleCell.data.extendedStyle != null)
-					{
-						newCell = styles.getCellForItem( styleCell.data.extendedStyle );
-						if (newCell != null)
-							changes = changes.unset( getUsablePropertiesOf( newCell, styleCell.data.allFilledProperties ) );
-					}*/
-					
 					styleCell = styleCell.next;
 				}
-				
-			//	trace(target+"...RESET STYLES; "+styles.length+" / "+oldStyles.length+"; changes "+Flags.readProperties(changes));
 			}
 			
 			oldStyles.dispose();
 			stylesAreSearched = true;
 			broadcastChanges( changes );
-		//	trace("\t\tcurProps: "+Flags.readProperties(filledProperties));
 		}
 		else
 			updateStyles();
@@ -321,8 +337,8 @@ class UIElementStyle implements IUIElementStyle
 	 */
 	public function updateStyles (allowBroadcast:Bool = true) : Int
 	{
-		styleNamesChangeBinding.enable();
-		idChangeBinding.enable();
+		styleNamesChangeBinding	.enable();
+		idChangeBinding			.enable();
 		if (removedBinding != null)	removedBinding.enable();
 		if (addedBinding != null)	addedBinding.disable();
 		

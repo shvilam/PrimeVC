@@ -81,7 +81,14 @@ class DragHelper implements IDisposable
 		this.cancelHandler	= cancelHandler;
 		this.delay			= delay;
 		
+		if (target.window != null)
+			init();
 	//	mouseDownBinding	= startTimer	.on( target.userEvents.mouse.down, this );
+	}
+	
+	
+	public inline function init ()
+	{
 		mouseUpBinding		= stopDrag		.on( target.window.mouse.events.up, this );
 		mouseMoveBinding	= stopDrag		.on( target.window.mouse.events.move, this );
 		keyDownBinding		= checkCancel	.on( target.window.userEvents.key.down, this );
@@ -95,9 +102,9 @@ class DragHelper implements IDisposable
 	public function dispose ()
 	{
 	//	mouseDownBinding.dispose();
-		mouseUpBinding	.dispose();
-		mouseMoveBinding.dispose();
-		keyDownBinding	.dispose();
+		if (mouseUpBinding != null)		mouseUpBinding	.dispose();
+		if (mouseMoveBinding != null)	mouseMoveBinding.dispose();
+		if (keyDownBinding != null)		keyDownBinding	.dispose();
 		
 	//	mouseDownBinding	= null;
 		mouseUpBinding		= null;

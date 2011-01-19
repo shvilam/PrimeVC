@@ -54,7 +54,7 @@ class ButtonIconSkin extends Skin<Button>
 		owner					.children.add(	iconGraphic = new Image() );
 		owner.layoutContainer	.children.add(	iconGraphic.layout );
 		
-	//	iconGraphic.maintainAspectRatio = false;
+		iconGraphic.maintainAspectRatio = false;
 #if debug
 		iconGraphic.id.value	= owner.id.value + "Icon";
 #end

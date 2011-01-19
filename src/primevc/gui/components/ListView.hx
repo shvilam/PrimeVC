@@ -29,11 +29,14 @@
 package primevc.gui.components;
  import primevc.core.collections.IReadOnlyList;
  import primevc.core.collections.ListChange;
+ import primevc.core.dispatcher.Signal1;
  import primevc.core.traits.IValueObject;
  import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
  import primevc.gui.core.IUIDataElement;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.display.IDisplayObject;
+ import primevc.gui.events.MouseEvents;
+ import primevc.gui.traits.IInteractive;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
@@ -50,18 +53,33 @@ private typedef ItemRendererType <T:IValueObject>	= Class < ItemRenderer < T > >
  */
 class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDataType > >, implements IListView < ListDataType >
 {
+	/**
+	 * Signal which will dispatch mouse-clicks of interactive item-rendered 
+	 * children.
+	 */
+	public var childClick (default, null)	: Signal1<MouseState>;
+	
+	
 	override private function createBehaviours ()
 	{
+		childClick = new Signal1<MouseState>();
 		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
+	}
+	
+	
+	override public function dispose ()
+	{
+		childClick.dispose();
+		childClick = null;
+		super.dispose();
 	}
 	
 	
 	override private function initData ()
 	{
-		var i = 0;
 		//add itemrenders for new list
-		for (item in data)
-			addItemRenderer( item, i++ );
+		for (i in 0...data.length)
+			addItemRenderer( data.getItemAt(i), i );
 		
 		handleListChange.on( data.change, this );
 	}
@@ -69,8 +87,8 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	
 	override private function removeData ()
 	{
-		for (item in data)
-			removeItemRenderer( item );
+		for (i in 0...data.length)
+			removeItemRenderer( data.getItemAt(i) );
 				
 		data.change.unbind(this);
 	}
@@ -92,14 +110,19 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 		if (newPos == -1)
 			newPos = data.indexOf( item );
 		
-		children.add( createItemRenderer( item, newPos ), newPos );
+		var child = children.add( createItemRenderer( item, newPos ), newPos );
+		
+		if (child.is(IInteractive))
+			childClick.send.on( child.as(IInteractive).userEvents.mouse.click, this );
 	}
 	
 	
 	private function removeItemRenderer( item:ListDataType, oldPos:Int = -1 )
 	{
 		var renderer = getItemRendererFor( item );
-		if (renderer != null) {
+		if (renderer != null)
+		{
+			//removing the click-listener is not nescasary since the item-renderer is getting disposed
 			children.remove( renderer );
 			renderer.dispose();
 		}
@@ -108,10 +131,13 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	
 	public function getItemRendererFor ( item:ListDataType )
 	{
-		for (child in children)
+		for (i in 0...children.length)
+		{
+			var child = children.getItemAt( i );
 			if (child.is( ItemRenderer ))
 				if (item == cast child.as( ItemRenderer ).data )
 					return child;
+		}
 		
 		return null;
 	}

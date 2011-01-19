@@ -63,7 +63,7 @@ class ButtonIconLabelSkin extends Skin<Button>
 		layout.children.add( labelField.layout );
 		
 		//change properties of new UIElements
-	//	iconGraphic.maintainAspectRatio = false;
+		iconGraphic.maintainAspectRatio = false;
 #if debug
 		labelField.id.value		= owner.id.value + "TextField";
 		iconGraphic.id.value	= owner.id.value + "Icon";
@@ -82,16 +82,20 @@ class ButtonIconLabelSkin extends Skin<Button>
 	
 	override private function removeChildren ()
 	{
-		if (owner != null)
+		if (owner != null && !owner.isDisposed())
 		{
 			var children	= owner.children;
 			var layout		= owner.layoutContainer;
-		
-			layout.children.remove( labelField.layout );
-			layout.children.remove( iconGraphic.layout );
-		
-			children.remove( iconGraphic );
-			children.remove( labelField );
+			
+			if (labelField != null) {
+				layout.children.remove( labelField.layout );
+				children.remove( labelField );
+			}
+			
+			if (iconGraphic != null) {
+				layout.children.remove( iconGraphic.layout );
+				children.remove( iconGraphic );
+			}
 		}
 		if (iconGraphic != null) {
 			iconGraphic.dispose();

@@ -155,7 +155,7 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 	private inline function updateSize ()
 	{
 		var l = layout.as(AdvancedLayoutClient);
-		if (data.state.is( BitmapStates.ready ))
+		if (data != null && data.state.is( BitmapStates.ready ))
 		{
 		//	trace(this+"; "+data.data.width+", "+data.data.height+"; expl size? "+l.explicitWidth+", "+l.explicitHeight+"; "+data.state);
 			l.maintainAspectRatio	= maintainAspectRatio;

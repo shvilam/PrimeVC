@@ -164,11 +164,11 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 				width.value = explicitWidth;
 		}
 		
-		if (changes.has( Flags.WIDTH ))
-		{
-			hasValidatedWidth = false;
+	//	if (changes.has( Flags.WIDTH ))
+	//	{
+	//		hasValidatedWidth = false;
 			super.validateHorizontal();
-		}
+	//	}
 	//	if (name == "Image14Layout")
 	//		trace(this+".validateHorizontal 2 "+width.value+"; explicit: "+explicitWidth+"; measured: "+measuredWidth+"; "+Flags.readProperties(changes.filter( Flags.WIDTH_PROPERTIES )));
 	}
@@ -202,12 +202,18 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 				height.value = explicitHeight;
 		}
 		
-		if (changes.has( Flags.HEIGHT ))
-		{
-			hasValidatedHeight = false;
+	//	if (changes.has( Flags.HEIGHT ))
+	//	{
+	//		hasValidatedHeight = false;
 			super.validateVertical();
-		}
+	//	}
 	//	trace(this+".validateVertical 2 "+height.value+"; explicit: "+explicitHeight+"; measured: "+measuredHeight+"; "+Flags.readProperties(changes.filter( Flags.HEIGHT_PROPERTIES )));
+	}
+	
+	
+	public inline function isVisible ()
+	{
+		return (explicitWidth.notSet() || explicitWidth > 0) && (explicitHeight.notSet() || explicitHeight > 0);
 	}
 	
 	

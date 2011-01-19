@@ -187,23 +187,10 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 	{
 		if (group.children.length > 0)
 		{
-			var start = getTopStartValue();
-			if (group.childHeight.notSet())
-			{
-				for (child in group.children) {
-					if (!child.includeInLayout || child.height.value.notSet())
-						continue;
-					
-					child.outerBounds.top = start + (group.innerBounds.height - child.outerBounds.height);
-				}
-			}
-			else
-			{
-				var childY = start + (group.innerBounds.height - group.childHeight);
-				for (child in group.children)
-					if (child.includeInLayout)
-						child.outerBounds.top = childY;
-			}
+			var start = getBottomStartValue();
+			for (child in group.children)
+				if (child.includeInLayout)
+					child.outerBounds.bottom = start;
 		}
 	}
 	

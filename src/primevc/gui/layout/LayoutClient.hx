@@ -243,8 +243,8 @@ class LayoutClient extends Invalidatable
 		if (isValidating) // && (parent == null || parent.isValidating))
 		{
 		//	trace(this+".NOT invalidating; "+Flags.readProperties(change)+"; "+isValidating+"; "+parent.isValidating);
-			if (changes.has(Flags.WIDTH) && hasValidatedWidth)		hasValidatedWidth	= false;
-			if (changes.has(Flags.HEIGHT) && hasValidatedHeight)	hasValidatedHeight	= false;
+		//	if (changes.has(Flags.WIDTH) && hasValidatedWidth)		hasValidatedWidth	= false;
+		//	if (changes.has(Flags.HEIGHT) && hasValidatedHeight)	hasValidatedHeight	= false;
 			return;
 		}
 		
@@ -284,8 +284,10 @@ class LayoutClient extends Invalidatable
 	
 	public function validateHorizontal ()
 	{
-		if (hasValidatedWidth || changes == 0)
+		if (hasValidatedWidth || changes == 0) {
+			hasValidatedWidth = true;
 			return;
+		}
 		
 		state.current = ValidateStates.validating;
 		
@@ -318,8 +320,10 @@ class LayoutClient extends Invalidatable
 	
 	public function validateVertical ()
 	{
-		if (hasValidatedHeight || changes == 0)
+		if (hasValidatedHeight || changes == 0) {
+			hasValidatedHeight = true;
 			return;
+		}
 		
 		state.current = ValidateStates.validating;
 		
