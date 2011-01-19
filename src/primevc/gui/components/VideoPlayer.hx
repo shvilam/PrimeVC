@@ -79,6 +79,9 @@ class VideoPlayer extends UIDataContainer < VideoData >
 	
 	override private function removeChildren ()
 	{
+		userEvents.mouse.click.unbind(this);
+		stream.state.change.unbind(this);
+		
 		children.remove(ctrlBar);
 		children.remove(video);
 		layoutContainer.children.remove(ctrlBar.layout);
@@ -89,6 +92,7 @@ class VideoPlayer extends UIDataContainer < VideoData >
 	
 	override public function dispose ()
 	{
+		super.dispose();
 		ctrlBar	.dispose();
 		video	.dispose();
 		stream	.dispose();
@@ -96,7 +100,6 @@ class VideoPlayer extends UIDataContainer < VideoData >
 		ctrlBar = null;
 		video	= null;
 		stream	= null;
-		super.dispose();
 	}
 	
 	

@@ -105,6 +105,8 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 		removeHoverBindings();
 		removeDownBindings();
 		removeDragOverBindings();
+		removeDisableBinding();
+		removeSelectBinding();
 		
 		getStates().change.unbind( this );
 		
@@ -141,7 +143,7 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 			else
 			{
 				if (disabledState != null)		{ disabledState.dispose();		disabledState = null; }
-				if (disabledBinding != null)	{ disabledBinding.dispose();	disabledBinding = null; }
+				removeDisableBinding();
 			}
 		}
 		
@@ -207,7 +209,7 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 			else
 			{
 				if (selectedState != null)		{ selectedState.dispose();		selectedState = null; }
-				if (selectedBinding != null)	{ selectedBinding.dispose();	selectedBinding = null; }
+				removeSelectBinding();
 			}
 		}
 	}
@@ -254,6 +256,9 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	}
 	
 	
+	
+	
+	
 	private inline function createHoverBindings ()
 	{
 		if (overBinding == null)	overBinding	= changeStateToHover.on( getEvents().rollOver,	this );
@@ -268,6 +273,10 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 		if (outBinding != null)		outBinding.dispose();
 		overBinding = outBinding = null;
 	}
+	
+	
+	
+	
 	
 	
 	private inline function createDownBindings ()
@@ -290,6 +299,10 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	}
 	
 	
+	
+	
+	
+	
 	private inline function removeDragOverBindings ()
 	{
 		if (dragOverBinding != null)	dragOverBinding.dispose();
@@ -297,6 +310,31 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 		if (dragDropBinding != null)	dragDropBinding.dispose();
 		dragOverBinding = dragOutBinding = dragDropBinding = null;
 	}
+	
+	
+	
+	
+	private inline function removeDisableBinding ()
+	{
+		if (disabledBinding != null)
+		{
+			disabledBinding.dispose();
+			disabledBinding = null;
+		}
+	}
+	
+	
+	
+	private inline function removeSelectBinding ()
+	{
+		if (selectedBinding != null)
+		{
+			selectedBinding.dispose();
+			selectedBinding = null;
+		}
+	}
+	
+	
 	
 	
 	

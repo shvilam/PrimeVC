@@ -532,7 +532,7 @@ class LayoutClient extends Invalidatable
 	
 	
 	private inline function getIsValidating () : Bool {
-		return state.is(ValidateStates.validating) || (parent != null && parent.isValidating);
+		return state == null ? false : state.is(ValidateStates.validating) || (parent != null && parent.isValidating);
 	}
 	
 	

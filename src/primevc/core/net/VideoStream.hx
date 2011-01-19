@@ -166,10 +166,13 @@ class VideoStream implements IFreezable, implements IDisposable
 	
 	public function dispose ()
 	{
+		if (source == null)
+			return;					// <-- is already disposed
+		
 		stop();
 		
 #if flash9
-		source.client = null;
+	//	source.client = null;		//gives error "Invalid parameter flash.net::NetStream/set client()"
 		source.dispose();
 		connection.dispose();
 		connection	= null;
@@ -183,7 +186,6 @@ class VideoStream implements IFreezable, implements IDisposable
 		volume		.dispose();
 		state		.dispose();
 		url			.dispose();
-		currentTime	.dispose();
 		totalTime	.dispose();
 		framerate	.dispose();
 		width		.dispose();
@@ -191,8 +193,11 @@ class VideoStream implements IFreezable, implements IDisposable
 		
 		url		= null;
 		state	= null;
-		volume	= currentTime = totalTime = null;
+		volume	= totalTime = null;
 		width	= height = framerate = null;
+		
+		(untyped this).currentTime.dispose();
+		(untyped this).currentTime = null;
 	}
 	
 	
