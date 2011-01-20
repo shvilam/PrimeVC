@@ -89,7 +89,7 @@ class Bitmap
 	 * URL of the loaded bitmap (if it's loaded from an external image).
 	 * Used for internal caching of bitmaps.
 	 */
-	public var url (default, null)		: String;
+	public var url (default, null)		: URI;
 	
 	/**
 	 * Class of the current bitmap (if it's loaded from a class).
@@ -98,13 +98,13 @@ class Bitmap
 	public var asset (default, null)	: AssetClass;
 	
 	
-	public function new (url:String = null, asset:AssetClass = null, data:BitmapDataType = null)
+	public function new (url:URI = null, asset:AssetClass = null, data:BitmapDataType = null)
 	{
 		state	= new SimpleStateMachine < BitmapStates >(empty);
 #if neko
 		uuid	= StringUtil.createUUID();
 #end
-		if (url != null)	setString( url );
+		if (url != null)	setURI( url );
 		if (asset != null)	setClass( asset );
 		if (data != null)	this.data = data;
 	}
@@ -145,7 +145,7 @@ class Bitmap
 	public function load ()
 	{
 		if (state.current == loadable) {
-			if (url != null)			loadString();
+			if (url != null)			loadUrl();
 			else if (asset != null)		loadClass();
 		}
 	}
@@ -182,9 +182,19 @@ class Bitmap
 	// IMAGE LOAD METHODS
 	//
 	
-	public inline function loadUrl (v:URI)
+	public function loadUrl (?v:URI)
 	{
-		loadString( v.toString() );
+		if (v != url || (v == null && url != null))
+		{
+			if (v != null)
+				setURI(v);
+#if flash9
+			state.current = loading;
+			
+			var context = new flash.system.LoaderContext(true);			//add context to check policy file
+			loader.load( url, context );
+#end
+		}
 	}
 	
 	
@@ -193,7 +203,7 @@ class Bitmap
 	 * but holds off with the loading itself. This comes in handy when a bitmap
 	 * should get loaded at the moment that it's used for the first time.
 	 */
-	public inline function setString (v:String)
+	public inline function setURI (v:URI)
 	{
 		if (v != url)
 		{
@@ -212,29 +222,20 @@ class Bitmap
 	
 	
 	/**
-	 * LoadString with call setString with the given url and then try to load
+	 * LoadString with call setURI with the given url and then try to load
 	 * the url.
 	 * If there's no parameter given, it will try to load the current 'url' 
 	 * value.
 	 */
-	public  function loadString (?v:String)
+	public inline function loadString (v:String)
 	{
-		if (v != url || (v == null && url != null))
-		{
-			if (v != null)
-				setString(v);
-#if flash9
-			state.current = loading;
-			
-		//	if (url.indexOf("class:") != 0)
-			var context = new flash.system.LoaderContext(true);
-			loader.load( new flash.net.URLRequest(url), context );
-		//	else {
-		//		var c = Type.resolveClass(url.substr(6));
-		//		loadClass( c );
-		//	}
-#end
-		}
+		loadUrl( new URI(v) );
+	}
+	
+	
+	public inline function setString (v:String)
+	{
+		setURI( new URI(v) );
 	}
 	
 	

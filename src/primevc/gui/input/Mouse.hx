@@ -43,7 +43,7 @@ class Mouse //implements IInputDevice
 	 * Constant value indicating the number of milliseconds to wait before a
 	 * mouse-down event will be labeled as a drag-start event.
 	 */
-	public static inline var DRAG_DELAY	: Int = 100;
+	public static inline var DRAG_DELAY	: Int = 200;
 	
 	
 	public var x		(getX, never)	: Float;
