@@ -167,7 +167,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (algorithm != null)
 			algorithm.prepareValidate();
 		
-		for (i in 0...children.length)
+		for (i in 0...children.length)		// <<-- [FIXME] the length of the children can change during the loop. Maybe better to use while loop
 		{
 			var child = children.getItemAt(i);
 			if (!child.includeInLayout)
@@ -317,11 +317,14 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (algorithm != null)
 			algorithm.apply();
 		
-		for (i in 0...children.length)
+		var i = 0;
+		while (i < children.length)		// use while loop instead of for loop since children can be removed during validation (== errors with a for loop)
 		{
 			var child = children.getItemAt(i);
 			if (child.includeInLayout)
 				child.validated();
+			
+			i++;
 		}
 		
 		super.validated();

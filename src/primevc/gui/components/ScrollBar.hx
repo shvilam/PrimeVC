@@ -116,13 +116,22 @@ class ScrollBar extends SliderBase
 	}
 	
 	
-	
-	private function createTargetBindings ()
+	private function removeTargetBindings ()
 	{
+		if (target == null)
+			return;
+		
 		if (scrollBinding != null)			{ scrollBinding.dispose();			scrollBinding = null; }
 		if (resizeBinding != null)			{ resizeBinding.dispose();			resizeBinding = null; }
 		if (updateTargetBinding != null)	{ updateTargetBinding.dispose();	updateTargetBinding = null; }
-		
+		if (scrollWheelBinding != null)		{ scrollWheelBinding.dispose();		scrollWheelBinding = null; }
+	}
+	
+	
+	
+	private function createTargetBindings ()
+	{
+		removeTargetBindings();
 		Assert.notNull( direction );
 		
 		if (target != null)
@@ -140,7 +149,6 @@ class ScrollBar extends SliderBase
 			
 			//force update on everything
 			resizeBtn( -1 );
-			calculatePercentage();
 			updateChildren();
 		}
 	}
@@ -179,14 +187,16 @@ class ScrollBar extends SliderBase
 		{
 			var l			= target.scrollableLayout;
 			var scrollable	= l.horScrollable();
+			dragBtn.visible	= dragBtn.layout.includeInLayout = scrollable;
 			dragBtn.layout.percentWidth	= scrollable ? FloatMath.min( l.explicitWidth / l.measuredWidth, 1 ) : 0;
 			
-			if (scrollable)
-			{
+		//	trace( l.scrollableWidth );
+			
+			if (scrollable) {
 				validator.setValues( l.minScrollXPos, l.minScrollXPos + l.scrollableWidth );
 				calculatePercentage();
-		//		updateChildren();
 			}
+			
 		}
 	}
 	
@@ -203,10 +213,14 @@ class ScrollBar extends SliderBase
 		{
 			var l			= target.scrollableLayout;
 			var scrollable	= l.verScrollable();
+			dragBtn.visible	= dragBtn.layout.includeInLayout = scrollable;
 			dragBtn.layout.percentHeight = scrollable ? FloatMath.min( l.explicitHeight / l.measuredHeight, 1 ) : 0;
 			
-			if (scrollable)
+		//	trace( l.scrollableHeight );
+			if (scrollable) {
 				validator.setValues( l.minScrollYPos, l.minScrollYPos + l.scrollableHeight );
+				calculatePercentage();
+			}
 		}
 	}
 	
@@ -224,6 +238,7 @@ class ScrollBar extends SliderBase
 	{
 		if (newTarget != target)
 		{
+			removeTargetBindings();
 			target = newTarget;
 			invalidate(TARGET);
 		}

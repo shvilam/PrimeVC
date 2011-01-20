@@ -104,9 +104,12 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	{
 		if (v != width) {
 			Assert.that( v.isSet() );
+			var c = invalidatable;
+			invalidatable = false;
 			width	= v;
 			right	= left + v;
 			invalidate( RectangleFlags.WIDTH );
+			invalidatable = c;
 		}
 		return v;
 	}
@@ -116,9 +119,12 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	{
 		if (v != height) {
 			Assert.that( v.isSet() );
+			var c = invalidatable;
+			invalidatable = false;
 			height	= v;
 			bottom	= top + v;
 			invalidate( RectangleFlags.HEIGHT );
+			invalidatable = c;
 		}
 		return v;
 	}
@@ -128,9 +134,12 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	{
 		if (v != top) {
 			Assert.that( v.isSet() );
+			var c = invalidatable;
+			invalidatable = false;
 			top		= v;
 			bottom	= v + height;
 			invalidate( RectangleFlags.TOP );
+			invalidatable = c;
 		}
 		return v;
 	}
@@ -140,9 +149,12 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	{
 		if (v != bottom) {
 			Assert.that( v.isSet() );
+			var c = invalidatable;
+			invalidatable = false;
 			bottom	= v;
 			top		= v - height;
 			invalidate( RectangleFlags.BOTTOM );
+			invalidatable = c;
 		}
 		
 		return v;
@@ -153,9 +165,12 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	{
 		if (v != left) {
 			Assert.that( v.isSet() );
+			var c = invalidatable;
+			invalidatable = false;
 			left	= v;
 			right	= v + width;
 			invalidate( RectangleFlags.LEFT );
+			invalidatable = c;
 		}
 		return v;
 	}
@@ -165,9 +180,12 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	{
 		if (v != right) {
 			Assert.that( v.isSet() );
+			var c = invalidatable;
+			invalidatable = false;
 			right	= v;
 			left	= v - width;
 			invalidate( RectangleFlags.RIGHT );
+			invalidatable = c;
 		}
 		return v;
 	}

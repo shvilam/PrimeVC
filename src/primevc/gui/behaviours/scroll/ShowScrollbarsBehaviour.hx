@@ -31,7 +31,7 @@ package primevc.gui.behaviours.scroll;
 #if !neko
  import primevc.core.geom.space.Direction;
  import primevc.gui.components.ScrollBar;
- import primevc.gui.core.UIContainer;
+ import primevc.gui.core.IUIContainer;
   using primevc.utils.TypeUtil;
 #end
 
@@ -72,7 +72,7 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 	private function addScrollBar (direction:Direction, scrollBar:ScrollBar = null)
 	{
 		var children	= target.container.children;
-		var layout		= target.container.as(UIContainer).layoutContainer.children;
+		var layout		= target.container.as(IUIContainer).layoutContainer.children;
 		var depth		= children.indexOf( target ) + 1;
 		var layoutDepth	= layout.indexOf( target.layout ) + 1;
 		
@@ -88,7 +88,7 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 	
 	private function removeScrollBar (scrollBar:ScrollBar)
 	{
-		var layout		= target.container.as(UIContainer).layoutContainer.children.remove( scrollBar.layout );
+		var layout		= target.container.as(IUIContainer).layoutContainer.children.remove( scrollBar.layout );
 		var children	= target.container.children.remove( scrollBar );
 	}
 #end

@@ -27,12 +27,14 @@ SliderBase					{ algorithm: relative; background: #fff; }
 .verticalSlider UIGraphic	{ height: 0%; width: 100%; bottom: 0px; }
 
 .horizontalSlider Button {
+	skin: Class( primevc.gui.components.skins.ButtonIconSkin );
 	background: #666;
 	v-center: 0px;
 	height: 15px;
 	width: 6px;
 }
 .verticalSlider Button {
+	skin: Class( primevc.gui.components.skins.ButtonIconSkin );
 	background: #666;
 	h-center: 0px;
 	width: 15px;
@@ -48,8 +50,8 @@ SliderBase					{ algorithm: relative; background: #fff; }
 ScrollBar 					{ background: #212121; }
 .horizontalScrollBar		{ left: 8px; right: 8px; height: 2px; bottom: 7px; }
 .verticalScrollBar			{ top: 8px; bottom: 8px; width: 2px; right: 7px; }
-.horizontalScrollBar Button	{ background: #212121; height: 9px; width: 6px; v-center: 0px; }
-.verticalScrollBar Button	{ background: #212121; width: 9px; height: 6px; h-center: 0px; }
+.horizontalScrollBar Button	{ background: #212121; height: 9px; width: 6px; v-center: 0px; skin: Class( primevc.gui.components.skins.ButtonIconSkin ); }
+.verticalScrollBar Button	{ background: #212121; width: 9px; height: 6px; h-center: 0px; skin: Class( primevc.gui.components.skins.ButtonIconSkin ); }
 
 
 

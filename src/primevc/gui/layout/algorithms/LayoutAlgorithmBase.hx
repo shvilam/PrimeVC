@@ -34,7 +34,7 @@ package primevc.gui.layout.algorithms;
 #end
  import primevc.core.dispatcher.Signal0;
  import primevc.core.traits.IDisposable;
- import primevc.gui.layout.AdvancedLayoutClient;
+ import primevc.gui.layout.IAdvancedLayoutClient;
  import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutClient;
  import primevc.types.Number;
@@ -91,8 +91,8 @@ class LayoutAlgorithmBase
 		if (h <= 0)
 			h = Number.INT_NOT_SET;
 		
-		if (group.is(AdvancedLayoutClient))
-			group.as(AdvancedLayoutClient).measuredHeight = h;
+		if (group.is(IAdvancedLayoutClient))
+			group.as(IAdvancedLayoutClient).measuredHeight = h;
 		else
 			group.height.value = h;
 	}
@@ -103,8 +103,8 @@ class LayoutAlgorithmBase
 		if (w <= 0)
 			w = Number.INT_NOT_SET;
 		
-		if (group.is(AdvancedLayoutClient))
-			group.as(AdvancedLayoutClient).measuredWidth = w;
+		if (group.is(IAdvancedLayoutClient))
+			group.as(IAdvancedLayoutClient).measuredWidth = w;
 		else
 			group.width.value = w;
 	}
