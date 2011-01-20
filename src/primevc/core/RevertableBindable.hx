@@ -57,7 +57,7 @@ private typedef Flags = RevertableBindableFlags;
  * @creation-date	Jun 18, 2010
  * @author			Danny Wilson
  */
-class RevertableBindable <DataType> extends Bindable<DataType>, implements IEditableValueObject //, implements haxe.rtti.Generic //- compiler crash
+class RevertableBindable <DataType> extends Bindable<DataType>, implements IEditableValueObject, implements haxe.rtti.Generic
 {
 	/**
 	 * Keeps track of settings.
@@ -81,8 +81,8 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 		if (f.hasNone(Flags.IN_EDITMODE) || newValue == this.value) return newValue;
 		// ---
 		
-		if (f.has(MAKE_SHADOW_COPY)) {
-			f = f.unset( MAKE_SHADOW_COPY );
+		if (f.has(RevertableBindableFlags.MAKE_SHADOW_COPY)) {
+			f = f.unset( RevertableBindableFlags.MAKE_SHADOW_COPY );
 		//	trace("Saving shadow copy: "+value+", before changing to:"+newValue);
 			shadowValue = value;
 		}
@@ -121,8 +121,8 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 	public inline function beginEdit()
 	{
 		// Only set MAKE_SHADOW_COPY if IN_EDITMODE is not set
-		Assert.that(Flags.IN_EDITMODE << 11 == MAKE_SHADOW_COPY);
-		flags = flags.set( (((flags & Flags.IN_EDITMODE) << 11) ^ MAKE_SHADOW_COPY) | Flags.IN_EDITMODE );
+		Assert.that(Flags.IN_EDITMODE << 11 == RevertableBindableFlags.MAKE_SHADOW_COPY);
+		flags = flags.set( (((flags & Flags.IN_EDITMODE) << 11) ^ RevertableBindableFlags.MAKE_SHADOW_COPY) | Flags.IN_EDITMODE );
 	}
 	
 	/**
@@ -131,7 +131,7 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 	public inline function commitEdit()
 	{
 		// Check if MAKE_SHADOW_COPY is not set (value changed) and any dispatch flag is set.
-		if (flags.hasNone(MAKE_SHADOW_COPY) && flags.has( Flags.DISPATCH_CHANGES_BEFORE_COMMIT | Flags.UPDATE_BINDINGS_BEFORE_COMMIT ))
+		if (flags.hasNone(RevertableBindableFlags.MAKE_SHADOW_COPY) && flags.has( Flags.DISPATCH_CHANGES_BEFORE_COMMIT | Flags.UPDATE_BINDINGS_BEFORE_COMMIT ))
 		{
 			if (flags.hasNone(Flags.DISPATCH_CHANGES_BEFORE_COMMIT))
 				change.send(value, shadowValue);
@@ -139,7 +139,7 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 			if (flags.hasNone(Flags.UPDATE_BINDINGS_BEFORE_COMMIT))
 				BindableTools.dispatchValueToBound(writeTo, value);
 		}
-		flags = flags.unset(Flags.IN_EDITMODE | MAKE_SHADOW_COPY);
+		flags = flags.unset(Flags.IN_EDITMODE | RevertableBindableFlags.MAKE_SHADOW_COPY);
 	}
 	
 	/**
@@ -149,12 +149,10 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 	{
 		if (flags.has(Flags.IN_EDITMODE))
 		{
-			if (flags.hasNone(MAKE_SHADOW_COPY)) // value was changed
+			if (flags.hasNone(RevertableBindableFlags.MAKE_SHADOW_COPY)) // value was changed
 				setValue(shadowValue);
 			
-			flags = flags.unset(Flags.IN_EDITMODE | MAKE_SHADOW_COPY);
+			flags = flags.unset(Flags.IN_EDITMODE | RevertableBindableFlags.MAKE_SHADOW_COPY);
 		}
 	}
-
-	private static inline var MAKE_SHADOW_COPY = 32768;	// 0b_1000 0000 0000 0000
 }

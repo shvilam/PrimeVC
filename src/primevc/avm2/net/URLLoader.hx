@@ -28,6 +28,7 @@
  */
 package primevc.avm2.net;
  import flash.net.URLLoaderDataFormat;
+ import flash.net.URLRequest;
  import primevc.core.events.LoaderEvents;
  import primevc.core.traits.IDisposable;
  import primevc.types.URI;
@@ -69,7 +70,16 @@ class URLLoader implements IDisposable
 		loader	= null;
 	}
 	
-	
+	public function binaryPOST (uri:URI, bytes:haxe.io.Bytes, mimetype:String = "application/octet-stream")
+	{
+		var request = uri.toRequest();
+		request.requestHeaders.push(new flash.net.URLRequestHeader("Content-type", mimetype));
+		request.method = flash.net.URLRequestMethod.POST;
+		request.data   = bytes.getData();
+		
+		loader.dataFormat = flash.net.URLLoaderDataFormat.BINARY;
+		loader.load(request);
+	}
 	
 	public inline function load (v:URI)				{ return loader.load(v.toRequest()); }
 	public inline function close ()					{ return loader.close(); }
