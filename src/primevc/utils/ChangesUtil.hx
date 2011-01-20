@@ -30,7 +30,7 @@ package primevc.utils;
  import primevc.core.collections.IEditableList;
  import primevc.core.collections.ListChange;
  import primevc.core.traits.IEditableValueObject;
- import primevc.core.Bindable;
+ private typedef IBindable = primevc.core.IBindable<Dynamic>;
  import primevc.utils.TypeUtil;
  import primevc.tools.valueobjects.ValueObjectBase;
   using primevc.utils.TypeUtil;
@@ -47,7 +47,7 @@ package primevc.utils;
  */
 class ChangesUtil
 {
-	public static inline function undoListChange<T> (list:IEditableList<T>, change:ListChange<T>) : Void
+	public static function undoListChange<T> (list:IEditableList<T>, change:ListChange<T>) : Void
 	{
 		switch (change)
 		{
@@ -59,7 +59,7 @@ class ChangesUtil
 	}
 	
 	
-	public static inline function redoListChange<T> (list:IEditableList<T>, change:ListChange<T>) : Void
+	public static function redoListChange<T> (list:IEditableList<T>, change:ListChange<T>) : Void
 	{
 		switch (change)
 		{
@@ -73,7 +73,7 @@ class ChangesUtil
 	
 	
 	
-	public static inline function undo (changes:ObjectChangeSet) : Void
+	public static function undo (changes:ObjectChangeSet) : Void
 	{
 	//	trace("undo changes "+Date.fromTime(changes.timestamp));
 		var vo = changes.vo;
@@ -95,7 +95,7 @@ class ChangesUtil
 	}
 	
 	
-	public static inline function redo (changes:ObjectChangeSet) : Void
+	public static function redo (changes:ObjectChangeSet) : Void
 	{
 	//	trace("redo changes "+Date.fromTime(changes.timestamp * 1000));
 		var vo = changes.vo;
@@ -118,7 +118,7 @@ class ChangesUtil
 	
 	
 	
-	private static inline inline function undoListChanges (changesVO:ListChangeVO, owner:ValueObjectBase, property:String) : Void
+	private static inline function undoListChanges (changesVO:ListChangeVO, owner:ValueObjectBase, property:String) : Void
 	{
 	//	trace("for "+property);
 		var list	= TypeUtil.as( getProperty( owner, property ), IEditableList);
@@ -129,7 +129,7 @@ class ChangesUtil
 	}
 	
 	
-	private static inline function redoListChanges (changesVO:ListChangeVO, owner:ValueObjectBase, property:String) : Void
+	private static function redoListChanges (changesVO:ListChangeVO, owner:ValueObjectBase, property:String) : Void
 	{
 	//	trace("for "+property);
 		var list	= TypeUtil.as( getProperty( owner, property ), IEditableList);
@@ -142,14 +142,14 @@ class ChangesUtil
 	
 	
 	
-	private static inline function undoPropertyChange (change:PropertyValueChangeVO, owner:ValueObjectBase, property:String) : Void
+	private static function undoPropertyChange (change:PropertyValueChangeVO, owner:ValueObjectBase, property:String) : Void
 	{
 	//	trace("for "+property+": "+change.newValue+" => "+change.oldValue);
 		setProperty( owner, property, change.oldValue );
 	}
 	
 	
-	private static inline function redoPropertyChange (change:PropertyValueChangeVO, owner:ValueObjectBase, property:String) : Void
+	private static function redoPropertyChange (change:PropertyValueChangeVO, owner:ValueObjectBase, property:String) : Void
 	{
 	//	trace("for "+property+": "+change.oldValue+" => "+change.newValue);
 		setProperty( owner, property, change.newValue );
@@ -164,17 +164,17 @@ class ChangesUtil
 	}
 	
 	
-	private static inline function setProperty( owner:Dynamic, property:String, value:Dynamic ) : Dynamic
+	private static function setProperty( owner:Dynamic, property:String, value:Dynamic ) : Dynamic
 	{	
 		Assert.notNull( owner );
 		Assert.notNull( property );
 		var field:Dynamic = getProperty( owner, property );
-		Assert.notNull( field );
+//		Assert.notNull( field, "owner: "+owner +", property: "+property );
 		
 	//	trace("set "+owner+"."+property+" to "+value);
 		
-		if (TypeUtil.is( field, Bindable))
-			TypeUtil.as( field, Bindable).value = value;
+		if (TypeUtil.is( field, IBindable))
+			TypeUtil.as( field, IBindable).value = value;
 		else
 			Reflect.setField( owner, property, value );
 	}
@@ -190,7 +190,7 @@ class ChangesUtil
 	 * @param propertyId 	id of property
 	 * @return property name
 	 */
-	private static inline function propertyIdToString (owner:ValueObjectBase, propertyId:Int) : String
+	private static function propertyIdToString (owner:ValueObjectBase, propertyId:Int) : String
 	{
 		var propFlags		= owner.getClass();
 		var property:String	= null;
