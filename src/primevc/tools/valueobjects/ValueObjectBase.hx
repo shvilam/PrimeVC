@@ -151,10 +151,18 @@ class ValueObjectBase implements IValueObject
 */
 }
 
+
+
+
+
 class PropertyChangeVO extends ChangeVO
 {
 	public var propertyID	(default, null) : Int;
 }
+
+
+
+
 
 class ChangeVO implements IValueObject
 {
@@ -170,14 +178,13 @@ class ChangeVO implements IValueObject
 	}
 }
 
+
+
+
+
 class PropertyValueChangeVO extends PropertyChangeVO
 {
-	public var oldValue		(default, null) : Dynamic;
-	public var newValue		(default, null) : Dynamic;
-	
-	private function new();
-	
-	static inline public function make(propertyID, oldValue, newValue)
+	public static inline function make(propertyID, oldValue, newValue)
 	{
 		var p = new PropertyValueChangeVO(); // Could come from freelist if profiling tells us to
 		p.propertyID = propertyID;
@@ -186,7 +193,15 @@ class PropertyValueChangeVO extends PropertyChangeVO
 		return p;
 	}
 	
-	override public function dispose() {
+	
+	public var oldValue		(default, null) : Dynamic;
+	public var newValue		(default, null) : Dynamic;
+	
+	private function new();
+	
+	
+	override public function dispose()
+	{
 		propertyID = -1;
 		this.oldValue = this.newValue = null;
 		super.dispose();
@@ -200,19 +215,24 @@ class PropertyValueChangeVO extends PropertyChangeVO
 #end
 }
 
+
+
+
+
 class ListChangeVO extends PropertyChangeVO
 {
-	public var changes : FastArray<ListChange<Dynamic>>;
-	
-	private function new();
-	
-	static inline public function make(propertyID, changes : FastArray<ListChange<Dynamic>>)
+	public static inline function make(propertyID, changes : FastArray<ListChange<Dynamic>>)
 	{
 		var l = new ListChangeVO(); // Could come from freelist if profiling tells us to
 		l.propertyID = propertyID;
 		l.changes = changes.clone();
 		return l;
 	}
+	
+	
+	public var changes : FastArray<ListChange<Dynamic>>;
+	private function new();
+	
 	
 	override public function dispose()
 	{
@@ -222,6 +242,7 @@ class ListChangeVO extends PropertyChangeVO
 		}
 		super.dispose();
 	}
+	
 	
 #if debug
 	public function toString ()
@@ -251,16 +272,11 @@ ObjectChangeVO {
 }
 */
 
+
+
 class ObjectChangeSet extends ChangeVO
 {
-	public var vo					(default, null) : ValueObjectBase;
-	public var parent				(default, null) : ObjectPathVO;
-	public var timestamp			(default, null) : Float;
-	public var propertiesChanged	(default, null) : Int;
-	
-	private function new(); 
-	
-	static inline public function make(vo:ValueObjectBase, changes:Int)
+	public static inline function make (vo:ValueObjectBase, changes:Int)
 	{
 		var s = new ObjectChangeSet(); // Could come from freelist if profiling tells us to
 		s.vo = vo;
@@ -269,24 +285,37 @@ class ObjectChangeSet extends ChangeVO
 		return s;
 	}
 	
-	public function add(change:PropertyChangeVO) {
+	public var vo					(default, null) : ValueObjectBase;
+	public var parent				(default, null) : ObjectPathVO;
+	public var timestamp			(default, null) : Float;
+	public var propertiesChanged	(default, null) : Int;
+	
+	
+	private function new(); 
+	
+	
+	public function add (change:PropertyChangeVO)
+	{
 		untyped change.next = next;
 		next = change;
 	}
 	
-	inline public function addChange(id:Int, flagBit:Int, value:Dynamic)
+	
+	public inline function addChange (id:Int, flagBit:Int, value:Dynamic)
 	{
 		if (flagBit.not0())
 			add(PropertyValueChangeVO.make(id, null, value));
 	}
 	
-	inline public function addBindableChange<T>(id:Int, flagBit:Int, oldValue:Dynamic, value:Dynamic)
+	
+	public inline function addBindableChange<T> (id:Int, flagBit:Int, oldValue:Dynamic, value:Dynamic)
 	{
 		if (flagBit.not0())
 			add(PropertyValueChangeVO.make(id, oldValue, value));
 	}
 	
-	inline public function addListChanges<T>(id:Int, flagBit:Int, list:RevertableArrayList<T>)
+	
+	public inline function addListChanges<T> (id:Int, flagBit:Int, list:RevertableArrayList<T>)
 	{
 		if (flagBit.not0())
 			add(ListChangeVO.make(id, list.changes));
@@ -310,19 +339,25 @@ class ObjectChangeSet extends ChangeVO
 #end
 }
 
+
+
+
 class ObjectPathVO implements IValueObject
 {
 	public var parent		(default, null) : ObjectPathVO;
 	public var object		(default, null) : IValueObject;
 	public var propertyID	(default, null) : Int;
 	
+	
 	private function new(); 
+	
 	
 	public function dispose()
 	{
 		this.parent = null;
 		this.object = null;
 	}
+	
 	
 	static inline public function make(vo:ValueObjectBase, propertyID:Int)
 	{

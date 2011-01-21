@@ -42,16 +42,6 @@ class EditableProxy	< VOType:IEditableValueObject, EditEnabledVOType:IEditEnable
  		extends Proxy <VOType, EventsTypedef>
 	,	implements IEditableProxy < EditEnabledVOType >
 {
-	public function new( events:EventsTypedef, enabled = true )
-	{
-		super(events);
-		if (enabled)
-			enable();
-		else
-			disable();
-	}
-	
-	
 	public function beginEdit() : EditEnabledVOType
 	{
 		if (!isEnabled())

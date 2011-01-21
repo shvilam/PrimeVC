@@ -42,13 +42,13 @@ package primevc.mvc.events;
  */
 class OperationEvents <DataType> extends CommunicationSignals
 {
-	public var start	(default, null)		: Signal1 < DataType >;
-	public var stop		(default, null)		: Signal0;
+//	public var start	(default, null)		: Signal1 < DataType >;
+//	public var stop		(default, null)		: Signal0;
 	
 	public function new ()
 	{
-		start		= new Signal1();
-		stop		= new Signal0();
+	//	start		= new Signal1();
+	//	stop		= new Signal0();
 		started		= new Signal0();
 		progress	= new Signal2();
 		completed	= new Signal0();
@@ -58,14 +58,17 @@ class OperationEvents <DataType> extends CommunicationSignals
 	
 	override public function dispose ()
 	{
-		start.dispose();
-		stop.dispose();
+	//	start.dispose();
+	//	stop.dispose();
 		started.dispose();
 		progress.dispose();
 		completed.dispose();
 		error.dispose();
 		
-		start = null;
-		stop = started = completed = null;
+	//	start = null;
+	//	stop = null;
+		started = completed = null;
+		error = null;
+		progress = null;
 	}
 }

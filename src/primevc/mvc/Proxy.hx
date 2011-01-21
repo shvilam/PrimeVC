@@ -39,11 +39,30 @@ package primevc.mvc;
  * It however does send signals, for example when the value-object changes.
  * 
  * @author Danny Wilson
+ * @author Ruben Weijers
  * @creation-date Jun 22, 2010
  */
 class Proxy < VOType : IValueObject, EventsTypedef > extends Notifier < EventsTypedef >
 {
 	public var vo		(default, null)	: VOType;
+	
+	
+	public function new( events:EventsTypedef, enabled = true )
+	{
+		super(events);
+		if (enabled)
+			enable();
+	//	else			disable();
+	}
+	
+	
+	override public function dispose ()
+	{
+		if (isEnabled())
+			disable();
+		
+		super.dispose();
+	}
 	
 	
 	public inline function isEnabled ()	{ return state.has( MVCState.ENABLED ); }
