@@ -60,6 +60,7 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > // extends Validating
 		updateLabelSize	.on( target.field.layout.changed, this );
 	//	trace("end");
 		updateLabelSize( LayoutFlags.WIDTH_PROPERTIES | LayoutFlags.HEIGHT_PROPERTIES | LayoutFlags.PADDING );
+		updateFieldSize( LayoutFlags.PADDING | LayoutFlags.EXPLICIT_SIZE );
 	}
 	
 	
@@ -96,10 +97,10 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > // extends Validating
 				fieldLayout.x	= fieldLayout.y	= 0;
 			}
 		}
-		else
+	/*	else
 		{
 			fieldLayout.x = fieldLayout.y = 0;
-		}
+		}*/
 		
 		fieldLayout.validate();
 	//	trace("2 "+targetLayout.state.current+"; "+targetLayout.changes+"; "+targetLayout.hasValidatedWidth+", "+targetLayout.hasValidatedHeight+"; "+targetLayout.width.value+", "+targetLayout.height.value);

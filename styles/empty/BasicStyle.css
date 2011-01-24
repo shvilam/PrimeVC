@@ -14,6 +14,8 @@ Label			{ font: Verdana 20px; }
 Image			{ shape: rectangle; }
 Button			{ algorithm: float-hor( center, center ); font: Verdana 20px; background: #ffffff00; color: #000; skin: Class( primevc.gui.components.skins.ButtonIconLabelSkin ); }
 
+#toolTip		{ background: #555; font: Verdana 9px #fff; }
+
 
 /***************
  * SLIDER

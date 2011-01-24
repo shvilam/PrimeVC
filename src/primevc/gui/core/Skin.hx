@@ -29,6 +29,8 @@
 package primevc.gui.core;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.states.SkinStates;
+ import primevc.gui.states.UIElementStates;
+  using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
 
@@ -50,10 +52,6 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 		skinState		= new SkinStates();
 		behaviours		= new BehaviourList();
 		
-		createStates();
-		createBehaviours();
-		createGraphics();
-		
 		skinState.current = skinState.constructed;
 	}
 	
@@ -62,10 +60,6 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 	{
 		if (behaviours == null)
 			return;
-		
-		removeChildren();
-		removeBehaviours();
-		removeStates();
 		
 		owner		= null;
 		skinState	= null;
@@ -89,13 +83,27 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 	
 	private function setOwner (newOwner:OwnerClass)
 	{
-		if (owner != null && owner.isInitialized())
-			removeChildren();
+		if (owner != null)
+		{
+			owner.state.initialized.entering.unbind(this);
+			removeBehaviours();
+			removeStates();
+			if (owner.isInitialized())
+				removeChildren();
+		}
 		
 		this.owner = newOwner;
 		
-		if (newOwner != null && newOwner.isInitialized())
-			createChildren();
+		if (newOwner != null)
+		{
+			createStates();
+			createBehaviours();
+			createGraphics();
+			
+			if (newOwner.isInitialized())	behaviours.init();
+			else							behaviours.init.onceOn( owner.state.initialized.entering, this );
+		}
+		
 		return newOwner;
 	}
 	

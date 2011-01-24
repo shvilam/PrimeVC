@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components.skins;
+ import primevc.gui.behaviours.components.DirectToolTipBehaviour;
  import primevc.gui.components.Button;
  import primevc.gui.components.Image;
  import primevc.gui.core.Skin;
@@ -47,7 +48,13 @@ private typedef Flags = primevc.gui.core.UIElementFlags;
 class ButtonIconSkin extends Skin<Button>
 {
 	private var iconGraphic : Image;
-
+	
+	
+	override private function createBehaviours ()
+	{
+		behaviours.add( new DirectToolTipBehaviour( owner, owner.data ) );
+	}
+	
 
 	override public function createChildren ()
 	{

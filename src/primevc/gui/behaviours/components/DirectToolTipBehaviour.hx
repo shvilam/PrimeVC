@@ -26,42 +26,59 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.managers;
+package primevc.gui.behaviours.components;
+ import primevc.core.dispatcher.Wire;
+ import primevc.core.Bindable;
+ import primevc.gui.behaviours.BehaviourBase;
+ import primevc.gui.core.UIComponent;
+  using primevc.utils.Bind;
 
 
 /**
- * Collection of manager classes.
+ * Behaviour to show a tooltip directly when the user hovers the mouse over
+ * the target.
  * 
  * @author Ruben Weijers
- * @creation-date Jan 17, 2011
+ * @creation-date Jan 24, 2011
  */
-interface ISystem
+class DirectToolTipBehaviour extends BehaviourBase<UIComponent>
 {
-#if !neko
-	
+	private var mouseOver	: Wire<Dynamic>;
+	private var mouseOut	: Wire<Dynamic>;
 	/**
-	 * Popup manager. IUIElements that are added to the popupmanager will
-	 * stay on top of the normal content.
+	 * Label to display on roll-over
 	 */
-	public var popups		(getPopupManager, null)	: IPopupManager;
-	
-	/**
-	 * Tooltip manager
-	 */
-	public var toolTip		(default, null)			: ToolTipManager;
+	private var label		: Bindable<String>;
 	
 	
+	public function new (target:UIComponent, label:Bindable<String>)
+	{
+		super(target);
+		Assert.notNull(label, "Label can't be null for tooltip of "+target);
+		this.label = label;
+	}
 	
-	/**
-	 * Render manager. Invalidated rendering objects will be validated when
-	 * the FlashPlayer fires a RenderEvent.
-	 */
-	public var rendering	(default, null)			: RenderManager;
 	
-	/**
-	 * Invalidation manager. Invalidated objects will be validated on the next
-	 * 'enterFrame' event.
-	 */
-	public var invalidation	(default, null)			: InvalidationManager;
-#end
+	override private function init ()
+	{
+		Assert.notNull( target.window, "Target "+target+" must be on the stage for this behaviour to work." );
+		mouseOver	= showToolTip.on( target.userEvents.mouse.rollOver, this );
+		mouseOut	= hideToolTip.on( target.userEvents.mouse.rollOut, this );
+	}
+	
+	
+	override private function reset ()
+	{
+		if (target.window != null)
+			hideToolTip();
+		
+		mouseOver.dispose();
+		mouseOut .dispose();
+		mouseOver	= mouseOut = null;
+		label		= null;
+	}
+	
+	
+	private function showToolTip ()		{ target.system.toolTip.show( target, label ); }
+	private function hideToolTip ()		{ target.system.toolTip.hide( target ); }
 }

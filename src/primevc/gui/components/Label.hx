@@ -55,18 +55,19 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 	public var textStyle	(default, setTextStyle)	: TextFormat;
 	public var wordWrap		: Bool;
 #end
+
 	
-	
-	override private function createLayout ()
+	public function new (id:String = null, data:DataType = null)
 	{
-		layout = new AdvancedLayoutClient();
+		if (data == null)
+			data = new DataType();
+		
+		super(id, data);
 	}
 	
 	
-	override private function createBehaviours ()
-	{
-		behaviours.add( new LabelLayoutBehaviour(this) );
-	}
+	override private function createLayout ()		{ layout = new AdvancedLayoutClient(); }
+	override private function createBehaviours ()	{ behaviours.add( new LabelLayoutBehaviour(this) ); }
 	
 	
 	override private function createChildren ()
@@ -84,9 +85,6 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 		if (textStyle != null)
 			field.textStyle = textStyle;
 		
-		if (data == null)
-			data = cast field.data;
-		
 		children.add( field );
 	}
 	
@@ -99,16 +97,8 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 	}
 	
 	
-	override private function initData ()
-	{
-		field.data = data;
-	}
-	
-	
-	override private function removeData ()
-	{
-		field.data = null;
-	}
+	override private function initData ()		{ field.data = data; }
+	override private function removeData ()		{ field.data = null; }
 	
 	
 	//

@@ -49,6 +49,7 @@ package primevc.gui.core;
  import primevc.gui.managers.ISystem;
  import primevc.gui.managers.PopupManager;
  import primevc.gui.managers.RenderManager;
+ import primevc.gui.managers.ToolTipManager;
  import primevc.gui.styling.ApplicationStyle;
  import primevc.gui.styling.UIElementStyle;
  import primevc.gui.traits.IBehaving;
@@ -121,6 +122,7 @@ class UIWindow extends Window
 	public var invalidation			(default, null)					: InvalidationManager;
 	public var rendering			(default, null)					: RenderManager;
 	public var popups				(getPopupManager, null)			: IPopupManager;
+	public var toolTip				(default, null)					: ToolTipManager;
 	
 	
 	public function new (target:Stage, id:String = null)
@@ -134,6 +136,7 @@ class UIWindow extends Window
 		this.id			= new Bindable<String>( id );
 		rendering		= new RenderManager(this);
 		invalidation	= new InvalidationManager(this);
+		toolTip			= new ToolTipManager(this);
 		
 		behaviours		= new BehaviourList();
 		rect			= new IntRectangle();
@@ -179,6 +182,7 @@ class UIWindow extends Window
 		layout			.dispose();
 		invalidation	.dispose();
 		rendering		.dispose();
+		toolTip			.dispose();
 		rect			.dispose();
 		
 #if flash9
