@@ -350,12 +350,13 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			}
 			
 			algorithm = v;
-			invalidate( Flags.ALGORITHM );
 			
 			if (algorithm != null) {
 				algorithm.group = this;
 				algorithmChangedHandler.on( algorithm.algorithmChanged, this );
 			}
+			
+			invalidate( Flags.ALGORITHM );
 		}
 		return v;
 	}

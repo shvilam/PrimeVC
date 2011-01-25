@@ -275,5 +275,23 @@ class TextField extends flash.text.TextField, implements ITextField
 	private inline function getValue () : String	{ return data.value; }
 	
 	private inline function getRealTextWidth ()		{ return textWidth + TEXT_WIDTH_PADDING; }
-	private inline function getRealTextHeight ()	{ return textHeight + TEXT_HEIGHT_PADDING; }
+	private inline function getRealTextHeight ()	{ return getNonZeroTextHeight() + TEXT_HEIGHT_PADDING; }
+	
+	
+	/**
+	 * Copied from Flex mx.core.UITextField.
+	 * Method returns the textheight even if there's no text in the field.
+	 */
+	private inline function getNonZeroTextHeight() : Float
+    {
+		var h = textHeight;
+        if (text == "")
+        {
+            text	= "Wj";
+            h		= textHeight;
+            text	= "";
+        }
+        
+        return h;
+    }
 }

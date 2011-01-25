@@ -114,7 +114,9 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 		{
 			if (next == -1)
 				next = getLeftStartValue();
-		
+			
+			Assert.that(next.isSet());
+			
 			//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
 			if (group.childWidth.notSet())
 			{
@@ -195,7 +197,8 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 		if (group.children.length > 0)
 		{
 			var next = getRightStartValue();
-		
+			Assert.that(next.isSet(), "beginvalue can't be unset for "+group+". Make sure the group has a width.");
+			
 			//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
 			if (group.childWidth.notSet())
 			{

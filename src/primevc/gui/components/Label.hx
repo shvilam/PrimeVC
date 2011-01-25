@@ -101,6 +101,25 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 	override private function removeData ()		{ field.data = null; }
 	
 	
+	public inline function makeEditable ()
+	{
+#if flash9
+		field.type			= flash.text.TextFieldType.INPUT;
+		field.selectable	= true;
+#end
+	}
+	
+	
+	public inline function makeStatic ()
+	{
+#if flash9
+		field.type			= flash.text.TextFieldType.DYNAMIC;
+		field.selectable	= false;
+#end
+	}
+	
+	
+	
 	//
 	// GETERS / SETTERS
 	//

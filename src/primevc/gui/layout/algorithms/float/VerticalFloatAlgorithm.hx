@@ -122,6 +122,8 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 			if (next == -1)
 				next = getTopStartValue();
 			
+			Assert.that(next.isSet());
+			
 			//use 2 loops for algorithms with and without a fixed child-height. This is faster than doing the if statement inside the loop!
 			if (group.childHeight.notSet())
 			{
@@ -204,6 +206,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 		if (group.children.length > 0)
 		{
 			var next = getBottomStartValue();
+			Assert.that(next.isSet());
 			
 			//use 2 loops for algorithms with and without a fixed child-height. This is faster than doing the if statement inside the loop!
 			if (group.childHeight.notSet())

@@ -58,7 +58,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 	
 	public inline function isInvalid (changes:Int)
 	{
-		return changes.has( Flags.WIDTH | Flags.HEIGHT | Flags.X | Flags.Y | Flags.RELATIVE );
+		return changes.has( Flags.WIDTH | Flags.HEIGHT | Flags.X | Flags.Y | Flags.RELATIVE | Flags.LIST );
 	}
 	
 	

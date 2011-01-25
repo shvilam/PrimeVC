@@ -90,6 +90,10 @@ class ToolTipManager implements IDisposable
 		Assert.notNull(obj, "Target object can't be null with label "+label);
 		Assert.notNull(label, "Tooltip-label can't be null for object "+obj);
 #end
+		if (label.value == "" || label.value == null) {
+			hide();
+			return;
+		}
 		
 		lastObj		= obj;
 		lastLabel	= label;

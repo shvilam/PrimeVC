@@ -39,9 +39,6 @@ class InputField extends Label
 	override private function createChildren ()
 	{
 		super.createChildren();
-#if flash9
-		field.type			= flash.text.TextFieldType.INPUT;
-		field.selectable	= true;
-#end
+		makeEditable();
 	}
 }
