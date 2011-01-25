@@ -43,8 +43,6 @@ package primevc.gui.behaviours.components;
  */
 class DirectToolTipBehaviour extends BehaviourBase<UIComponent>
 {
-	private var mouseOver	: Wire<Dynamic>;
-	private var mouseOut	: Wire<Dynamic>;
 	/**
 	 * Label to display on roll-over
 	 */
@@ -62,8 +60,8 @@ class DirectToolTipBehaviour extends BehaviourBase<UIComponent>
 	override private function init ()
 	{
 		Assert.notNull( target.window, "Target "+target+" must be on the stage for this behaviour to work." );
-		mouseOver	= showToolTip.on( target.userEvents.mouse.rollOver, this );
-		mouseOut	= hideToolTip.on( target.userEvents.mouse.rollOut, this );
+		showToolTip.on( target.userEvents.mouse.rollOver, this );
+		hideToolTip.on( target.userEvents.mouse.rollOut, this );
 	}
 	
 	
@@ -72,13 +70,12 @@ class DirectToolTipBehaviour extends BehaviourBase<UIComponent>
 		if (target.window != null)
 			hideToolTip();
 		
-		if (mouseOver != null)	mouseOver.dispose();
-		if (mouseOut != null)	mouseOut .dispose();
-		mouseOver	= mouseOut = null;
-		label		= null;
+		target.userEvents.mouse.rollOver.unbind(this);
+		target.userEvents.mouse.rollOut.unbind(this);
+		label = null;
 	}
 	
 	
 	private function showToolTip ()		{ target.system.toolTip.show( target, label ); }
-	private function hideToolTip ()		{ target.system.toolTip.hide( target ); }
+	private function hideToolTip ()		{ if (target.system != null)	target.system.toolTip.hide( target ); }		//btn will fire a roll-out event, even when it's already removed from the stage...
 }

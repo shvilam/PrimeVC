@@ -102,6 +102,7 @@ class ToolTipManager implements IDisposable
 		
 		//give label the correct text
 		toolTip.data.bind( label );
+		targetRemovedHandler.on( obj.displayEvents.removedFromStage, this );
 		
 		if (!isVisible())
 			window.children.add( toolTip );
@@ -131,8 +132,8 @@ class ToolTipManager implements IDisposable
 	
 	private inline function removeListeners ()
 	{
-		if (lastObj != null && lastLabel != null)
-			toolTip.data.unbind( lastLabel );
+		if (lastObj != null)	lastObj.displayEvents.removedFromStage.unbind( this );
+		if (lastLabel != null)	toolTip.data.unbind( lastLabel );
 	}
 	
 	
@@ -143,9 +144,19 @@ class ToolTipManager implements IDisposable
 	}
 	
 	
+	//
+	// EVENTHANDLERS
+	//
+	
 	private function updatePosition ()
 	{
 		toolTip.x = window.mouse.x + 5;
 		toolTip.y = window.mouse.y - toolTip.height - 5;
+	}
+	
+	
+	private function targetRemovedHandler ()
+	{
+		hide(lastObj);
 	}
 }
