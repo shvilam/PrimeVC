@@ -118,11 +118,22 @@ class DisplayList implements IEditableList <ChildType>
 	}
 	
 	
-	public inline function removeAll ()
+	public inline function disposeAll ()
 	{
 		for (child in this)
 			if (child != null)		//<- is needed for children that are not IDisplayable!
 				child.dispose();
+	}
+	
+	
+	public inline function removeAll ()
+	{
+		while (length > 0)
+		{
+			var child = target.getChildAt(0).as(ChildType);
+			target.removeChildAt(0);
+			child.container = null;
+		}
 	}
 	
 	
@@ -158,7 +169,7 @@ class DisplayList implements IEditableList <ChildType>
 		else if (pos < 0)		pos = length; // -pos;
 		
 		//make sure that if the child is in another displaylist, it will fire an remove event when the child is removed.
-		if (item.container != null && item.container != owner) 
+		if (item.container != null && item.container != owner)
 			item.container.children.remove(item);
 		
 		item.container = owner;

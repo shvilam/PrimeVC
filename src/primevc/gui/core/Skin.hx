@@ -85,7 +85,8 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 	{
 		if (owner != null)
 		{
-			owner.state.initialized.entering.unbind(this);
+			if (owner.state != null)
+				owner.state.initialized.entering.unbind(this);
 			removeBehaviours();
 			removeStates();
 			if (owner.isInitialized())

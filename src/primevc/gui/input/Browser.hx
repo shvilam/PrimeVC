@@ -20,30 +20,22 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours.layout;
- import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.core.IUIContainer;
-
+package primevc.gui.input;
 
 
 /**
- * Behaviour to overwrite the ClippedLayoutBehaviour. Behaviour will remove
- * the scrollrect of the target to represent the css property 
- * "overflow = visible;".
+ * Browser defines method to interact with the browser like reading/writing
+ * the url.
  * 
  * @author Ruben Weijers
- * @creation-date Oct 13, 2010
+ * @creation-date Jan 24, 2011
  */
-class UnclippedLayoutBehaviour extends BehaviourBase < IUIContainer >
-{
-#if !neko
-	override private function init ()	{ target.scrollRect = null; }
-	override private function reset ()	{}
-#end
-}
+typedef Browser = 
+	#if flash9	primevc.avm2.input.Browser;
+	#else		error; #end

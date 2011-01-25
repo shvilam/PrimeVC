@@ -112,7 +112,7 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 		
 		var child = children.add( createItemRenderer( item, newPos ), newPos );
 		
-		if (child.is(IInteractive))
+		if (child.is(IInteractive) && child.as(IInteractive).mouseEnabled)
 			childClick.send.on( child.as(IInteractive).userEvents.mouse.click, this );
 	}
 	

@@ -20,30 +20,31 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours.layout;
- import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.core.IUIContainer;
-
+package primevc.avm2.events;
+ import com.asual.swfaddress.SWFAddressEvent;
+ import flash.events.IEventDispatcher;
+ import primevc.gui.events.BrowserEvents;
 
 
 /**
- * Behaviour to overwrite the ClippedLayoutBehaviour. Behaviour will remove
- * the scrollrect of the target to represent the css property 
- * "overflow = visible;".
+ * AVM2 implementation of BrowserSignals
  * 
  * @author Ruben Weijers
- * @creation-date Oct 13, 2010
+ * @creation-date Jan 24, 2011
  */
-class UnclippedLayoutBehaviour extends BehaviourBase < IUIContainer >
+class BrowserEvents extends BrowserSignals
 {
-#if !neko
-	override private function init ()	{ target.scrollRect = null; }
-	override private function reset ()	{}
-#end
+	public function new (target:IEventDispatcher)
+	{
+		init				= new FlashSignal0( target, SWFAddressEvent.INIT );
+		urlInternalChange	= new FlashSignal0( target, SWFAddressEvent.INTERNAL_CHANGE );
+		urlExternalChange	= new FlashSignal0( target, SWFAddressEvent.EXTERNAL_CHANGE );
+		urlChange			= new FlashSignal0( target, SWFAddressEvent.CHANGE );
+	}
 }

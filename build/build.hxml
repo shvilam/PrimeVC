@@ -19,8 +19,9 @@
 -cp libs/apparat
 -cp libs/haxe
 -cp libs/hiresStats
--cp libs/macmousewheel
--cp libs/monsterdebugger
+#-cp libs/macmousewheel
+#-cp libs/monsterdebugger
+#-cp libs/swfaddress
 -cp generated-src
 -cp src
 

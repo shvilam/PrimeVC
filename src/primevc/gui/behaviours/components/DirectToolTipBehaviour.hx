@@ -72,8 +72,8 @@ class DirectToolTipBehaviour extends BehaviourBase<UIComponent>
 		if (target.window != null)
 			hideToolTip();
 		
-		mouseOver.dispose();
-		mouseOut .dispose();
+		if (mouseOver != null)	mouseOver.dispose();
+		if (mouseOut != null)	mouseOut .dispose();
 		mouseOver	= mouseOut = null;
 		label		= null;
 	}

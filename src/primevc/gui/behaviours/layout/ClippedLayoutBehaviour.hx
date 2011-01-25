@@ -69,8 +69,7 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 		layoutContainer		= target.layoutContainer;
 		target.scrollRect	= new Rectangle();
 		
-		updateScrollRect.on( target.layout.changed, this );
-	//	target.rect.listeners.add( this );
+		updateScrollRect.on( layoutContainer.changed, this );
 		updateScrollX.on( layoutContainer.scrollPos.xProp.change, this );
 		updateScrollY.on( layoutContainer.scrollPos.yProp.change, this );
 	}
@@ -78,11 +77,15 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 	
 	override private function reset ()
 	{
-	//	if (target.layout != null)
-	//		target.layout.events.sizeChanged.unbind(this);
+		if (layoutContainer == null)
+			return;
 		
-		layoutContainer.scrollPos.xProp.change.unbind( this );
-		layoutContainer.scrollPos.yProp.change.unbind( this );
+		layoutContainer.changed.unbind(this);
+		
+		if (layoutContainer.scrollPos != null) {
+			layoutContainer.scrollPos.xProp.change.unbind( this );
+			layoutContainer.scrollPos.yProp.change.unbind( this );
+		}
 		target.scrollRect	= null;
 		layoutContainer		= null;
 	}

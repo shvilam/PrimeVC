@@ -42,8 +42,8 @@ class BehaviourBase < TargetType > implements IBehaviour < TargetType >
 	
 	public function new( newTarget:TargetType )			{ initialized = false; target = newTarget; }
 	public function dispose ()							{ reset(); target = null; }
-	private function init()								{ Assert.abstract(); }
-	private function reset()							{ Assert.abstract(); }
+	private function init()								{ Assert.abstract(this+""); }
+	private function reset()							{ Assert.abstract(this+""); }
 	
 	
 	public inline function initialize ()

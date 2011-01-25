@@ -56,21 +56,25 @@ class SimpleStateMachine <StateType> implements IDisposable
 	public var change		(default, null)			: Signal2 < StateType, StateType >;
 	
 	
-	public function new(defaultState:StateType, currentState:StateType = null) {
+	public function new(defaultState:StateType, currentState:StateType = null)
+	{
 		this.change			= new Signal2();
 		this.current		= currentState;
 		this.defaultState	= defaultState;
 	}
 	
 	
-	public function dispose () {
-		defaultState	= null;
-		current			= null;
+	public function dispose ()
+	{
+		(untyped this).defaultState	= null;
+		(untyped this).current		= null;
 		change.dispose();
+		change = null;
 	}
 	
 	
-	private inline function setDefault (v:StateType) {
+	private inline function setDefault (v:StateType)
+	{
 		defaultState = v;
 		if (current == null)
 			current = v;
@@ -79,7 +83,8 @@ class SimpleStateMachine <StateType> implements IDisposable
 	}
 	
 	
-	private inline function setCurrent (v:StateType) {
+	private inline function setCurrent (v:StateType)
+	{
 		if (current != v) {
 			var old	= current;
 			current	= v;
@@ -90,7 +95,8 @@ class SimpleStateMachine <StateType> implements IDisposable
 	
 	
 	
-	public inline function is (state : StateType) : Bool {
+	public inline function is (state : StateType) : Bool
+	{
 		return switch (current) {
 			case state:	true;
 			default:	false;

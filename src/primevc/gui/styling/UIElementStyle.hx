@@ -285,7 +285,8 @@ class UIElementStyle implements IUIElementStyle
 		{
 		//	if (target.container != null && target.container.as( IStylable ).style == parentStyle)
 		//		return;
-			parentStyle.childrenChanged.unbind( this );
+			if (parentStyle.childrenChanged != null)
+				parentStyle.childrenChanged.unbind( this );
 			parentStyle = null;
 		}
 		
