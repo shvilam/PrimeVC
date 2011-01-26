@@ -155,7 +155,7 @@ class DisplayList implements IEditableList <ChildType>
 	public function forwardIterator () : IIterator <ChildType>	{ return new DisplayListForwardIterator(this); }
 	public function reversedIterator () : IIterator <ChildType>	{ return new DisplayListReversedIterator(this); }
 	
-	public inline function getItemAt	(pos:Int)				{ return target.getChildAt( pos ).as( ChildType ); }
+	public inline function getItemAt	(pos:Int)				{ var v = target.getChildAt( pos ); return v.is(ChildType) ? v.as(ChildType) : null; }
 	public inline function has			(item:ChildType)		{ return target.contains( item.as( TargetChildType ) ); } 
 	public inline function indexOf		(item:ChildType)		{ return target.getChildIndex( item.as( TargetChildType ) ); }
 	
@@ -235,7 +235,7 @@ class DisplayListForwardIterator implements IIterator <ChildType>
 	private var list 	: DisplayList;
 	public var current	: Int;
 	
-	public function new (list:DisplayList)	{ this.list = list; rewind(); }
+	public function new (list:DisplayList)			{ this.list = list; rewind(); }
 	public inline function setCurrent (val:Dynamic)	{ current = val; }
 	public inline function rewind ()				{ current = 0; }
 	public inline function hasNext ()				{ return current < list.length; }
@@ -255,7 +255,7 @@ class DisplayListReversedIterator implements IIterator <ChildType>
 	private var list 	: DisplayList;
 	public var current	: Int;
 
-	public function new (list:DisplayList)	{ this.list = list; rewind(); }
+	public function new (list:DisplayList)			{ this.list = list; rewind(); }
 	public inline function setCurrent (val:Dynamic)	{ current = val; }
 	public inline function rewind ()				{ current = list.length; }
 	public inline function hasNext ()				{ return current >= 0; }

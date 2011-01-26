@@ -144,14 +144,17 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	}
 	
 	
-	private  function setWindow (v)
+	private inline function setWindow (v)
 	{
 		if (window != v)
 		{
 			window = v;
-			for (child in children)
+			for (i in 0...children.length)
+			{
+				var child = children.getItemAt(i);
 				if (child != null)
 					child.window = v;
+			}
 		}
 		return v;
 	}
