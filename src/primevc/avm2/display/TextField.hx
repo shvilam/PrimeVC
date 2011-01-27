@@ -167,6 +167,12 @@ class TextField extends flash.text.TextField, implements ITextField
 	}
 	
 	
+	public inline function isEditable () : Bool
+	{
+		return type == flash.text.TextFieldType.INPUT;
+	}
+	
+	
 #if !neko
 	public function getDisplayCursor () : DisplayDataCursor
 	{

@@ -34,7 +34,6 @@ package primevc.gui.display;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEvents;
  import primevc.gui.input.Mouse;
- import primevc.gui.traits.IInteractive;
   using primevc.utils.Bind;
 #end
 
@@ -47,9 +46,7 @@ package primevc.gui.display;
  * @creation-date Jul 13, 2010
  */
 #if (flash8 || flash9 || js)
-class Window
-		implements IDisplayContainer
-	,	implements IInteractive
+class Window implements IDisplayContainer
 {
 	public static function startup < WindowInstance > (windowClass : Class<WindowInstance>) : WindowInstance
 	{

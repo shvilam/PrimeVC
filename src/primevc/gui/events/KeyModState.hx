@@ -29,12 +29,6 @@
 package primevc.gui.events;
  import primevc.gui.display.ISprite;
 
- 
-typedef TargetType		= 
-	#if		flash9	flash.display.DisplayObject;
-	#elseif	flash8	MovieClip;
-	#elseif	js		DomElement;
-	#else	Void;	#end
 
 /**
  * Base class for UI state messages with key-modifiers.
@@ -56,9 +50,11 @@ class KeyModState implements haxe.Public
 	/**
 	 * Target of the event
 	 */  
-	var target	(default,null)		: TargetType;
+	var target	(default,null)		: UserEventTarget;
 	
-	public function new(f:Int, t:TargetType)
+	
+	
+	public function new(f:Int, t:UserEventTarget)
 	{
 		this.flags  = f;
 		this.target = t;

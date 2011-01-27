@@ -20,39 +20,18 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.display;
- import primevc.core.geom.Rectangle;
-#if !flash9
- import primevc.gui.traits.IDisplayable;
-#end
- import primevc.gui.traits.IGraphicsOwner;
+ import primevc.gui.traits.IInteractive;
 
 
 /**
- * Sprite interface for every platform.
- *
- * @creation-date	Jun 11, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Jan 26, 2011
  */
-interface ISprite 
-		implements IDisplayContainer
-	,	implements IInteractiveObject
-	,	implements IGraphicsOwner
-{
-#if flash9
-	public var buttonMode						: Bool;
-	public var useHandCursor					: Bool;
-	public var dropTarget		(default, null) : flash.display.DisplayObject;
-	
-	public function stopDrag()	: Void;
-	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) : Void;
-#else
-	public var dropTarget		(default, null)	: IDisplayable;
-#end
-}
+interface IInteractiveObject implements IDisplayObject,	implements IInteractive {}

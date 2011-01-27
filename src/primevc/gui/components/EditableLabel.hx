@@ -29,54 +29,89 @@
 package primevc.gui.components;
  import primevc.core.dispatcher.Wire;
  import primevc.core.Bindable;
+ import primevc.gui.core.UIComponent;
  import primevc.gui.core.UIDataContainer;
   using primevc.utils.Bind;
+
+
+private typedef DataType = Bindable<String>;
 
 
 /**
  * EditableLabel will add a button to the label to change the textfield to
  * an inputfield and back.
  * 
- * The button will on default have the ButtonIconSkin.
- * When the label changes to an inputfield the button will get the id "editBtn"
- * and the label will get the id "editField".
+ * The button will on default have the id 'editBtn' and the field 'label'.
+ * When the label changes to an inputfield the button will get the id "applyBtn"
+ * and the label will get the id "input".
  * 
  * The container itself will get an extra styleclass in editMode 'editable'
  * 
  * @author Ruben Weijers
  * @creation-date Jan 25, 2011
  */
-class EditableLabel extends UIDataContainer <Bindable<String>>
+class EditableLabel extends UIDataContainer <DataType>
 {
-	private static inline var EDIT_BTN_ID		= "editBtn";
-	private static inline var EDIT_FIELD_ID		= "editField";
+	private static inline var STATIC_BTN_ID		= "editBtn";
+	private static inline var STATIC_FIELD_ID	= "label";
+	private static inline var EDIT_BTN_ID		= "applyBtn";
+	private static inline var EDIT_FIELD_ID		= "input";
 	
-	private var editBtn			: Button;
-	private var field			: Label;
+	private var editBtn				: UIComponent;	//since editbtn is just a normal icon is most cases, an UIComponent will do for the time being
+	private var field				: Label;
 	
-	private var editable		: Bool;
+	private var editable			: Bool;
 	
-	private var fieldBinding	: Wire<Dynamic>;
-	private var btnEditBinding	: Wire<Dynamic>;
-	private var btnApplyBinding	: Wire<Dynamic>;
+	private var fieldBinding		: Wire<Dynamic>;
+	private var btnEditBinding		: Wire<Dynamic>;
+	private var btnApplyBinding		: Wire<Dynamic>;
+	private var windowApplyBinding	: Wire<Dynamic>;
+	
+	
+	
+	public function new (id:String = null, data:DataType = null)
+	{
+		if (data == null)
+			data = new DataType();
+		
+		super(id, data);
+	}
 	
 	
 	override private function createChildren ()
 	{
 		editable = false;
 		
-		children.add( field		= new Label( null, data ) );
-		children.add( editBtn	= new Button() );
+		children.add( editBtn	= new UIComponent( STATIC_BTN_ID ) );
+		children.add( field		= new Label( STATIC_FIELD_ID, data ) );
 		
-		layoutContainer.children.add( field.layout );
 		layoutContainer.children.add( editBtn.layout );
+		layoutContainer.children.add( field.layout );
+		field.makeEditable();
 		
-		fieldBinding	= makeEditable	.on( field.userEvents.mouse.down, this );
-		btnEditBinding	= makeEditable	.on( editBtn.userEvents.mouse.click, this );
-		btnApplyBinding	= makeStatic	.on( editBtn.userEvents.mouse.click, this );
+		fieldBinding		= makeEditable	.on( field.userEvents.mouse.down, this );
+		btnEditBinding		= makeEditable	.on( editBtn.userEvents.mouse.click, this );
+		btnApplyBinding		= makeStatic	.on( editBtn.userEvents.mouse.click, this );
+		windowApplyBinding	= makeStatic	.on( window.userEvents.mouse.down, this );
 		
+		windowApplyBinding.disable();
 		btnApplyBinding.disable();
 	}
+	
+	
+	override public function dispose ()
+	{
+		if (isInitialized()) {
+			fieldBinding		.dispose();
+			btnEditBinding		.dispose();
+			btnApplyBinding		.dispose();
+			windowApplyBinding	.dispose();
+			
+			fieldBinding = btnEditBinding = btnApplyBinding = windowApplyBinding = null;
+		}
+		super.dispose();
+	}
+	
 	
 	
 	
@@ -85,16 +120,18 @@ class EditableLabel extends UIDataContainer <Bindable<String>>
 		if (editable)
 			return;
 		
+		trace("editable");
 		styleClasses.add("editable");
 		
-		field.makeEditable();
+	//	field.makeEditable();
 		field.id.value		= EDIT_FIELD_ID;
 		editBtn.id.value	= EDIT_BTN_ID;
 		editable			= true;
 		
-		fieldBinding	.disable();
-		btnEditBinding	.disable();
-		btnApplyBinding	.enable();
+		fieldBinding		.disable();
+		btnEditBinding		.disable();
+		btnApplyBinding		.enable();
+		windowApplyBinding	.enable();
 	}
 	
 	
@@ -103,15 +140,17 @@ class EditableLabel extends UIDataContainer <Bindable<String>>
 		if (!editable)
 			return;
 		
+		trace("static");
 		styleClasses.remove("editable");
 		
-		field.makeStatic();
-		field.id.value		= null;
-		editBtn.id.value	= null;
+	//	field.makeStatic();
+		field.id.value		= STATIC_FIELD_ID;
+		editBtn.id.value	= STATIC_BTN_ID;
 		editable			= false;
 		
-		fieldBinding	.enable();
-		btnEditBinding	.enable();
-		btnApplyBinding	.disable();
+		fieldBinding		.enable();
+		btnEditBinding		.enable();
+		btnApplyBinding		.disable();
+		windowApplyBinding	.disable();
 	}
 }

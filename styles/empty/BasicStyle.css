@@ -13,11 +13,10 @@ InputField		{ border: 1px solid #000; }
 Label			{ font: Verdana 20px; }
 Image			{ shape: rectangle; }
 Button			{ algorithm: float-hor( center, center ); font: Verdana 20px; background: #ffffff00; color: #000; skin: Class( primevc.gui.components.skins.ButtonIconLabelSkin ); }
-EditableLabel	{ algorithm: float-hor( right, center ); }
+EditableLabel	{ algorithm: float-hor( left, center ); }
 
-EditableLabel Button	{ skin: Class( primevc.gui.components.skins.ButtonIconSkin ); background: #0ff; }
-EditableLabel Label		{ width: auto; }
-EditableLabel #editBtn	{ background: #f0f; }
+EditableLabel UIComponent	{ height: 90%; }
+EditableLabel Label			{ width: auto; }
 
 
 #toolTip		{ background: #555; font: Verdana 9px #fff; }

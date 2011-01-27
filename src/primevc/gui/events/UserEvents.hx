@@ -48,8 +48,8 @@ class UserSignals extends Signals
 {
 	public var mouse	(getMouse,	null)	: MouseEvents;
 	public var key		(getKey,	null)	: KeyboardEvents;
-	public var focus	(getFocus,	null)	: INotifier<Void->Void>;
-	public var blur		(getBlur,	null)	: INotifier<Void->Void>;
+	public var focus	(getFocus,	null)	: INotifier <FocusState -> Void>;
+	public var blur		(getBlur,	null)	: INotifier <FocusState -> Void>;
 	public var edit		(getEdit,	null)	: EditEvents;
 	
 	private inline function getMouse ()	{ if (mouse == null)	{ createMouse(); }		return mouse; }

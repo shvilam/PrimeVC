@@ -20,39 +20,45 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.display;
- import primevc.core.geom.Rectangle;
-#if !flash9
- import primevc.gui.traits.IDisplayable;
-#end
- import primevc.gui.traits.IGraphicsOwner;
+package primevc.gui.events;
+
 
 
 /**
- * Sprite interface for every platform.
- *
- * @creation-date	Jun 11, 2010
- * @author			Ruben Weijers
+ * FocusEvent state information
+ * 
+ * @author Ruben Weijers
+ * @creation-date Jan 26, 2011
  */
-interface ISprite 
-		implements IDisplayContainer
-	,	implements IInteractiveObject
-	,	implements IGraphicsOwner
+class FocusState extends KeyModState
 {
 #if flash9
-	public var buttonMode						: Bool;
-	public var useHandCursor					: Bool;
-	public var dropTarget		(default, null) : flash.display.DisplayObject;
-	
-	public function stopDrag()	: Void;
-	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) : Void;
-#else
-	public var dropTarget		(default, null)	: IDisplayable;
+	/**
+	 * A reference to the complementary InteractiveObject instance that is 
+	 * affected by the change in focus.
+	 */
+	var related (default, null)			: UserEventTarget;
 #end
+	/**
+	 * The key code value of the key pressed to trigger a keyFocusChange event.
+	 * @see KeyboardState
+	 */
+	inline function keyCode ()			: Int	{ return (flags >> 8) & 0x3FF; }
+	
+	
+	
+	
+	public function new(f:Int, t:UserEventTarget #if flash9, related:UserEventTarget #end)
+	{
+		super(f,t);
+#if flash9
+		this.related	= related;
+#end
+	}
 }

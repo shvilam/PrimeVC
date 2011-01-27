@@ -60,7 +60,7 @@ class UserEvents extends primevc.gui.events.UserSignals
 	private static var num : Int = 0;
 	override private function createMouse ()	{ mouse	= new primevc.avm2.events.MouseEvents(eventDispatcher); }
 	override private function createKey ()		{ key	= new primevc.avm2.events.KeyboardEvents(eventDispatcher); }
-	override private function createFocus ()	{ focus	= new FlashSignal0(eventDispatcher, flash.events.FocusEvent.FOCUS_IN); }
-	override private function createBlur ()		{ blur	= new FlashSignal0(eventDispatcher, flash.events.FocusEvent.FOCUS_OUT); }
+	override private function createFocus ()	{ focus	= new FocusSignal(eventDispatcher, flash.events.FocusEvent.FOCUS_IN); }
+	override private function createBlur ()		{ blur	= new FocusSignal(eventDispatcher, flash.events.FocusEvent.FOCUS_OUT); }
 	override private function createEdit ()		{ edit	= new EditEvents(eventDispatcher); }
 }
