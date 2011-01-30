@@ -69,7 +69,7 @@ class StatesCollection extends StyleCollectionBase < StatesStyle >
 	/**
 	 * when the states of any style changes, broadcast the change..
 	 */
-	override public function invalidateCall ( changeFromSender, sender )
+	override public function invalidateCall ( changeFromSender:Int, sender )
 	{
 		changes = changes.set(changeFromSender);
 		apply();
