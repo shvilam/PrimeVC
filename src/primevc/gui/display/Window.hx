@@ -32,6 +32,7 @@ package primevc.gui.display;
 #end
 #if (flash8 || flash9 || js)
  import primevc.gui.events.DisplayEvents;
+ import primevc.gui.events.UserEventTarget;
  import primevc.gui.events.UserEvents;
  import primevc.gui.input.Mouse;
   using primevc.utils.Bind;
@@ -133,7 +134,7 @@ class Window implements IDisplayContainer
 	{
 		target.invalidate();
 		displayEvents.render.send();
-		target.focus = target;
+	//	target.focus = target;
 	}
 	
 	
@@ -151,6 +152,8 @@ class Window implements IDisplayContainer
 	
 	public inline function globalToLocal (point:Point) : Point	{ return target.globalToLocal(point); }
 	public inline function localToGlobal (point:Point) : Point	{ return target.localToGlobal(point); }
+	
+	public function isFocusOwner (target:UserEventTarget)		{ return target == this.target; }
 #end
 	
 	

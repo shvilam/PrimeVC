@@ -55,4 +55,12 @@ class PercentIntRangeValidator extends IntRangeValidator
 		this.percentMin = percentMin == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentMin;
 		this.percentMax = percentMax == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentMax;
 	}
+	
+	
+#if debug
+	override public function toString ()
+	{
+		return "PercentIntRangeValidator ( " + percentMin + " = " + min + ", " + percentMax + " = " + max + " )";
+	}
+#end
 }

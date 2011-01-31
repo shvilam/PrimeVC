@@ -34,6 +34,7 @@ package primevc.gui.core;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
  import primevc.gui.display.Sprite;
  import primevc.gui.effects.UIElementEffects;
+ import primevc.gui.events.UserEventTarget;
  import primevc.gui.graphics.GraphicProperties;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.managers.ISystem;
@@ -261,6 +262,12 @@ class UIComponent extends Sprite, implements IUIComponent
 		return v;
 	}
 #end
+	
+	
+	override public function isFocusOwner (target:UserEventTarget) : Bool
+	{
+		return super.isFocusOwner(target) || (skin != null && skin.isFocusOwner(target));
+	}
 	
 	
 	private function createLayout () : Void

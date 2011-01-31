@@ -20,43 +20,32 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
-#if (flash8 || flash9 || js)
- import primevc.gui.events.UserEvents;
- import primevc.gui.events.UserEventTarget;
-#end
+package primevc.gui.components.skins;
 
 
-interface IInteractive
+
+/**
+ * Skin for a button with an icon and a label where the label is an inputfield
+ * @author Ruben Weijers
+ * @creation-date Jan 27, 2011
+ */
+class InputButtonSkin extends ButtonIconLabelSkin
 {
-#if (flash8 || flash9 || js)
-	var userEvents		(default, null)				: UserEvents;
-#end
-	
-	
+	override public function createChildren ()
+	{
+		super.createChildren();
+		iconGraphic.maintainAspectRatio = true;
 #if flash9
-	/**
-	 * Method returns true if the given target (which has focus) makes the 
-	 * IInteractive object the focus owner.
-	 * This is usefull when a Label with a textfield loses it's focus to the
-	 * textfield, but is still the focus-owner.
-	 */
-	public function isFocusOwner (target:UserEventTarget) : Bool;
-	
-	
-	var doubleClickEnabled							: Bool;
-	var mouseEnabled								: Bool;
-	var tabEnabled									: Bool;
-	var tabIndex									: Int;
-	
-#elseif !neko
-	var mouseEnabled								: Bool;
-//	var mouseEnabled	(default, setEnabled)		: Bool;
+		labelField.makeEditable();
+		labelField.mouseEnabled = labelField.tabEnabled = true;
+		labelField.id.value = "peop";
+		labelField.layout.name = "peopLayout";
 #end
+	}
 }

@@ -34,10 +34,13 @@ package primevc.avm2.display;
  import primevc.gui.display.DisplayDataCursor;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
+ import primevc.gui.display.IInteractiveObject;
  import primevc.gui.display.ITextField;
  import primevc.gui.display.Window;
  import primevc.gui.events.DisplayEvents;
+ import primevc.gui.events.FocusState;
  import primevc.gui.events.TextEvents;
+ import primevc.gui.events.UserEventTarget;
  import primevc.gui.events.UserEvents;
  import primevc.gui.text.TextFormat;
  import primevc.gui.text.TextTransform;
@@ -143,6 +146,8 @@ class TextField extends flash.text.TextField, implements ITextField
 		var d = data;
 		data  = null;
 		
+		stopRespondingToOtherFocus();
+		
 		displayEvents.dispose();
 		textEvents.dispose();
 		userEvents.dispose();
@@ -173,12 +178,34 @@ class TextField extends flash.text.TextField, implements ITextField
 	}
 	
 	
+	public function isFocusOwner (target:UserEventTarget) : Bool
+	{
+		return target == this;
+	}
+	
+	
 #if !neko
 	public function getDisplayCursor () : DisplayDataCursor
 	{
 		return new DisplayDataCursor(this);
 	}
 #end
+	
+	
+	public inline function makeEditable ()
+	{
+		trace(this);
+		type		= flash.text.TextFieldType.INPUT;
+		selectable	= true;
+	}
+	
+	
+	public inline function makeStatic ()
+	{
+		trace(this);
+		type		= flash.text.TextFieldType.DYNAMIC;
+		selectable	= false;
+	}
 	
 	
 	/**
@@ -300,4 +327,84 @@ class TextField extends flash.text.TextField, implements ITextField
         
         return h;
     }
+
+	
+	
+	
+	//
+	// FOCUS METHODS
+	//
+	
+	
+	/**
+	 * Reference to a target with focusevents to which the textfield should
+	 * respond.
+	 */
+	private var focusTarget : IInteractiveObject;
+	
+	
+	/**
+	 * Method will make the textfield respond to focus events of the given
+	 * target.
+	 * 		- When the target receives an focus event, the textfield will set the
+	 * 			focus to itself.
+	 */
+	public function respondToFocusOf (target:IInteractiveObject)
+	{
+		//bind the focus-events of the textfield and the target together
+		redispatchFocusEvent.on( userEvents.focus, this );
+		handleBlur			.on( userEvents.blur, this );
+		giveFocusToMe		.on( target.userEvents.focus, this );
+		
+		focusTarget = target;
+	}
+	
+	
+	public function stopRespondingToOtherFocus ()
+	{
+		if (focusTarget == null)
+			return;
+		
+		userEvents.focus.unbind(this);
+		userEvents.blur.unbind(this);
+		focusTarget.userEvents.focus.unbind(this);
+		
+		focusTarget = null;
+	}
+	
+	
+	
+	/**
+	 * Method is called on a focus event. If the target isn't the textfield, 
+	 * change the focus to the textfield.
+	 */
+	private function giveFocusToMe (event:FocusState)
+	{
+		if (event.target != this)
+			stage.focus = this;
+	}
+	
+	
+	/**
+	 * If the textfield receives an focus-event, it will broadcast this event
+	 * also to it's target
+	 */
+	private function redispatchFocusEvent (event:FocusState)
+	{
+		//send an focus event if the field get's focus from something else then the label
+		if (event.target == this && event.related != cast focusTarget)
+			focusTarget.userEvents.focus.send( event );
+	}
+	
+	
+	private function handleBlur (event:FocusState)
+	{
+		//if the field lost it's focus to the focusTarget, give the focus back to the txtfield
+		if (event.target == this && event.related == cast focusTarget)
+			stage.focus = this;
+		
+		//the field lost it's focus to someone else.. Send an blur event
+		else
+			focusTarget.userEvents.blur.send( event );
+	}
 }

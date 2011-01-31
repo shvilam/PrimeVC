@@ -28,7 +28,7 @@
  */
 package primevc.gui.events;
  import primevc.core.dispatcher.Signals;
- import primevc.core.dispatcher.INotifier;
+ import primevc.core.dispatcher.Signal1;
 
 typedef UserEvents = 
 	#if		flash9	primevc.avm2.events.UserEvents;
@@ -48,8 +48,8 @@ class UserSignals extends Signals
 {
 	public var mouse	(getMouse,	null)	: MouseEvents;
 	public var key		(getKey,	null)	: KeyboardEvents;
-	public var focus	(getFocus,	null)	: INotifier <FocusState -> Void>;
-	public var blur		(getBlur,	null)	: INotifier <FocusState -> Void>;
+	public var focus	(getFocus,	null)	: Signal1<FocusState>;
+	public var blur		(getBlur,	null)	: Signal1<FocusState>;
 	public var edit		(getEdit,	null)	: EditEvents;
 	
 	private inline function getMouse ()	{ if (mouse == null)	{ createMouse(); }		return mouse; }

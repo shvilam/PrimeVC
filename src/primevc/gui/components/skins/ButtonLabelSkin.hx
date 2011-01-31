@@ -30,6 +30,7 @@ package primevc.gui.components.skins;
  import primevc.gui.components.Button;
  import primevc.gui.core.UITextField;
  import primevc.gui.core.Skin;
+ import primevc.gui.events.UserEventTarget;
   using primevc.utils.BitUtil;
 
 
@@ -61,6 +62,7 @@ class ButtonLabelSkin extends Skin<Button>
 		labelField.selectable		= false;
 		labelField.mouseEnabled		= false;
 		labelField.tabEnabled		= false;
+		labelField.respondToFocusOf( owner );
 
 		if (owner.textStyle != null)
 			labelField.textStyle = owner.textStyle;
@@ -87,6 +89,12 @@ class ButtonLabelSkin extends Skin<Button>
 	{
 		if (changes.has( Flags.TEXTSTYLE ))
 			labelField.textStyle = owner.textStyle;
-	}	
+	}
+	
+	
+	override public function isFocusOwner (target:UserEventTarget)
+	{
+		return labelField.isFocusOwner(target);
+	}
 #end
 }
