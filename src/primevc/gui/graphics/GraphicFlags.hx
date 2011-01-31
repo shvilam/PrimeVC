@@ -46,7 +46,7 @@ class GraphicFlags
 	
 	
 #if debug
-	public static function readProperties (flags:UInt) : String
+	public static function readProperties (flags:Int) : String
 	{
 		var output	= [];
 		
