@@ -51,6 +51,9 @@ class ReadOnlyArrayList < DataType >
 	public var length		(getLength, never)	: Int;
 	
 	
+	public var array		(getArray,null)		: FastArray < DataType >;
+		inline function getArray() : FastArray<DataType> return #if flash10 flash.Vector.convert(list) #else list #end
+	
 	public function new( wrapAroundList:FastArray<DataType> = null )
 	{
 		change	= new ListChangeSignal();

@@ -41,6 +41,14 @@ package primevc.utils;
 class IntMath 
 {
 	/**
+	 * Returns the absolute value, always >= 0
+	 */
+	public static inline function abs (x:Int) : Int
+	{
+		return #if neko (x ^ (x >> 30)) - (x >> 30) #else (x ^ (x >> 31)) - (x >> 31) #end;
+	}
+	
+	/**
 	 * Returns the biggest integer of the two given integers
 	 * @param	var1
 	 * @param	var2
