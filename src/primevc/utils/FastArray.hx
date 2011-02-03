@@ -195,6 +195,11 @@ class FastArrayUtil
 		return #if neko arr.copy(); #else arr.concat(); #end
 	}
 	
+	public static inline function asArrayOf<A,B> ( arr:FastArray<A>, type:Class<B> ) : FastArray<B>
+	{
+		return #if flash10 flash.Vector.convert(arr) #else untyped arr #end;
+	}
+	
 	
 #if debug
 	public static inline function asString<T>( list:FastArray<T> )

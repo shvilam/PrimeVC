@@ -42,9 +42,7 @@ package primevc.core.collections;
  * @author Ruben Weijers
  * @creation-date Nov 19, 2010
  */
-class ReadOnlyArrayList < DataType >
-						implements IReadOnlyList < DataType >
-#if GenericArrays	,	implements haxe.rtti.Generic #end
+class ReadOnlyArrayList < DataType > implements IReadOnlyList < DataType >, implements haxe.rtti.Generic
 {
 	public var change		(default, null)		: ListChangeSignal < DataType >;
 	public var list			(default, null)		: FastArray < DataType >;
@@ -81,9 +79,12 @@ class ReadOnlyArrayList < DataType >
 	
 	private inline function getLength ()						{ return list.length; }
 	public inline function iterator () : Iterator <DataType>	{ return cast forwardIterator(); }
-	public function forwardIterator () : IIterator <DataType>	{ return cast new FastArrayForwardIterator<DataType>(list); }
-	public function reversedIterator () : IIterator <DataType>	{ return cast new FastArrayReversedIterator<DataType>(list); }
-	
+	public inline function forwardIterator () : IIterator <DataType>	{ return cast new FastArrayForwardIterator<DataType>(list); }
+	public inline function reversedIterator () : IIterator <DataType>	{ return cast new FastArrayReversedIterator<DataType>(list); }
+	public inline function asIterableOf<B> ( type:Class<B> ) : Iterator<B> {
+		#if debug for (i in 0 ... list.length) Assert.isType(list[i], type); #end
+		return cast forwardIterator();
+	}
 	
 	/**
 	 * Returns the item at the given position. It is allowed to give negative values.

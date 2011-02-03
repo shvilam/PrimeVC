@@ -51,7 +51,8 @@ class Assert
 	{
 		#if debug
 		Assert.notNull( var1 );
-		Assert.that( Std.is(var1, type), "var of type '" + var1.getClass().getClassName() + "' should be of type '" + type.getClassName() + "'" );
+		Assert.notNull( type );
+		Assert.that( Std.is(var1, type), "var of type '" + Type.getClass(var1).getClassName() + "' should be of type '" + type.getClassName() + "'" );
 		#end
 	}
 	

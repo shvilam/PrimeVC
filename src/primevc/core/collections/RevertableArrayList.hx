@@ -45,9 +45,7 @@ class RevertableArrayListFlags
  * @author Ruben Weijers
  * @creation-date Nov 19, 2010
  */
-class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >,
- 	implements IRevertableList < DataType >
-	#if GenericArrays, implements haxe.rtti.Generic #end
+class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >, implements IRevertableList < DataType >, implements haxe.rtti.Generic
 {
 	/**
 	 * Keeps track of settings.
