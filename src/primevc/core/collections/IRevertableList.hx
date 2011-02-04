@@ -28,6 +28,7 @@
  */
 package primevc.core.collections;
  import primevc.core.traits.IEditableValueObject;
+ import primevc.utils.FastArray;
 
 
 /**
@@ -36,5 +37,8 @@ package primevc.core.collections;
  */
 interface IRevertableList < DataType > implements IEditableList < DataType >, implements IEditableValueObject
 {
-	
+	/**
+	 * List with all the changes that are made when the list is in editing mode.
+	 */
+	public var changes (default,null) : FastArray<ListChange<DataType>>;
 }

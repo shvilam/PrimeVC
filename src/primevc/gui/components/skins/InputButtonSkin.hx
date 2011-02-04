@@ -44,8 +44,6 @@ class InputButtonSkin extends ButtonIconLabelSkin
 #if flash9
 		labelField.makeEditable();
 		labelField.mouseEnabled = labelField.tabEnabled = true;
-		labelField.id.value = "peop";
-		labelField.layout.name = "peopLayout";
 #end
 	}
 }

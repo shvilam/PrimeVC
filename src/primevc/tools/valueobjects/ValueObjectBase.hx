@@ -27,6 +27,7 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.tools.valueobjects;
+ import primevc.core.collections.IRevertableList;
  import primevc.core.collections.ListChange;
  import primevc.core.traits.IEditableValueObject;
  import primevc.core.traits.IValueObject;
@@ -315,7 +316,7 @@ class ObjectChangeSet extends ChangeVO
 	}
 	
 	
-	public inline function addListChanges<T> (id:Int, flagBit:Int, list:RevertableArrayList<T>)
+	public inline function addListChanges<T> (id:Int, flagBit:Int, list:IRevertableList<T>)
 	{
 		if (flagBit.not0())
 			add(ListChangeVO.make(id, list.changes));

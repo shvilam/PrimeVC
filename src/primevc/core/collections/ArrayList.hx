@@ -34,7 +34,7 @@ package primevc.core.collections;
  * @creation-date	Jun 29, 2010
  * @author			Ruben Weijers
  */
-class ArrayList <DataType> extends ReadOnlyArrayList <DataType>, implements IEditableList <DataType>
+class ArrayList <DataType> extends ReadOnlyArrayList <DataType>, implements IEditableList <DataType>, implements haxe.rtti.Generic
 {
 	override public function dispose ()
 	{

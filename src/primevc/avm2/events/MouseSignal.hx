@@ -86,11 +86,13 @@ class MouseSignal extends Signal1<MouseState>, implements IWireWatcher<MouseHand
 	
 	static public function stateFromFlashEvent( e:MouseEvent, clickCount:Int ) : MouseState
 	{
+	//	return new FlashMouseState(e, clickCount);
 		var flags;
 		
 		/** scrollDelta				Button				clickCount			KeyModState
 			FF (8-bit) -127-127		FF (8-bit) 0-255	F (4-bit) 0-15		F (4-bit)
 		*/
+		
 #if flash9
 		Assert.that(clickCount >=  0);
 		Assert.that(clickCount <= 15);
@@ -101,6 +103,8 @@ class MouseSignal extends Signal1<MouseState>, implements IWireWatcher<MouseHand
 				| (e.altKey?	KeyModState.ALT : 0)
 				| (e.ctrlKey?	KeyModState.CMD | KeyModState.CTRL : 0)
 				| (e.shiftKey?	KeyModState.SHIFT : 0);
+		
+		//e.stopImmediatePropagation();
 		
 #elseif air?
 		flags = //TODO: Implement AIR support
@@ -118,3 +122,45 @@ class MouseSignal extends Signal1<MouseState>, implements IWireWatcher<MouseHand
 #end
 }
 
+/*
+
+
+class FlashMouseState extends MouseState
+{
+	private var event:MouseEvent;
+	
+	
+	public function new (e:MouseEvent, clickCount:Int)
+	{
+		var flags;
+		
+		/** scrollDelta				Button				clickCount			KeyModState
+			FF (8-bit) -127-127		FF (8-bit) 0-255	F (4-bit) 0-15		F (4-bit)
+		*//*
+#if flash9
+		Assert.that(clickCount >=  0);
+		Assert.that(clickCount <= 15);
+		
+		flags = e.delta << 16
+				| (clickCount & 0xF) << 4
+				| (e.buttonDown? 0x0100 : 0)
+				| (e.altKey?	KeyModState.ALT : 0)
+				| (e.ctrlKey?	KeyModState.CMD | KeyModState.CTRL : 0)
+				| (e.shiftKey?	KeyModState.SHIFT : 0);
+		
+#elseif air?
+		flags = //TODO: Implement AIR support
+#else error
+#end
+	//	trace("stateFromFlashEvent "+e.type+"; "+e.localX+", "+e.localY+"; "+e.stageX+", "+e.stageY);
+		this.event = e;
+		super(flags, e.target, new Point(e.localX, e.localY), new Point(e.stageX, e.stageY), e.relatedObject);
+		cancelBubling();
+	}
+	
+	
+	public function cancelBubling ()
+	{
+		event.stopImmediatePropagation();
+	}
+}*/
