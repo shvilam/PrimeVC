@@ -153,6 +153,7 @@ class UIComponent extends Sprite, implements IUIComponent
 			skin.childrenCreated();
 		
 		validate();
+		removeValidation.on( displayEvents.removedFromStage, this );
 		
 		//finish initializing
 		state.current = state.initialized;
@@ -169,6 +170,7 @@ class UIComponent extends Sprite, implements IUIComponent
 		//state.
 		state.current = state.disposed;
 		
+		removeValidation();
 		removeChildren();
 		removeStates();
 		behaviours	.dispose();
@@ -202,6 +204,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	public inline function isInitialized ()	{ return state != null && state.is(state.initialized); }
 	
 	
+	
 	//
 	// ACTIONS (actual methods performed by UIElementActions util)
 	//
@@ -223,6 +226,9 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	
 	private inline function getSystem () : ISystem		{ return window.as(ISystem); }
+	public inline function isOnStage () : Bool			{ return window != null; }
+	public inline function isQueued () : Bool			{ return nextValidatable != null || prevValidatable != null; }
+	private function removeValidation () : Void			{ if (isQueued()) system.invalidation.remove(this); }
 	
 
 	private function setSkin (newSkin)
@@ -313,11 +319,6 @@ class UIComponent extends Sprite, implements IUIComponent
 		}
 	}
 	
-	
-	private function getValidationManager ()
-	{
-		return window.as(UIWindow).invalidation;
-	}
 	
 	
 	//

@@ -57,14 +57,16 @@ class ButtonIconLabelSkin extends Skin<Button>
 		var layout		= owner.layoutContainer;
 		
 		//create children
-		children.add( iconGraphic	= new Image(null, owner.icon) );
-		children.add( labelField	= new UITextField( null, true, owner.data ) );
+		iconGraphic	= new Image(null, owner.icon);
+		labelField	= new UITextField( null, true, owner.data );
 		
 		layout.children.add( iconGraphic.layout );
 		layout.children.add( labelField.layout );
+		children.add( iconGraphic );
+		children.add( labelField );
 		
 		//change properties of new UIElements
-		iconGraphic.maintainAspectRatio = false;
+		iconGraphic.maintainAspectRatio = true;
 #if debug
 		labelField.id.value		= owner.id.value + "TextField";
 		iconGraphic.id.value	= owner.id.value + "Icon";

@@ -166,10 +166,10 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 			if (group.childWidth.notSet())
 			{
 				for (child in group.children) {
-					if (!child.includeInLayout || child.width.value.notSet())
+					if (!child.includeInLayout)
 						continue;
 					
-					child.outerBounds.left = start + ( (group.width.value - child.outerBounds.width) * .5 ).roundFloat();
+					child.outerBounds.left = start + ( (group.width - child.outerBounds.width) * .5 ).roundFloat();
 				}
 			}
 			else

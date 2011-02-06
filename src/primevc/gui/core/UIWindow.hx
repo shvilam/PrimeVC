@@ -214,8 +214,8 @@ class UIWindow extends Window
 		topLayout	=	#if flash9	new primevc.avm2.layout.StageLayout( target );
 						#else		new LayoutContainer();	#end
 		
-		topLayout.children.add( layout		= new VirtualLayoutContainer() );
-		topLayout.children.add( popupLayout	= new VirtualLayoutContainer() );
+		topLayout.children.add( layout		= new VirtualLayoutContainer( #if debug "contentLayout" #end ) );
+		topLayout.children.add( popupLayout	= new VirtualLayoutContainer( #if debug "popupLayout" #end ) );
 		
 		popupLayout.algorithm	= new RelativeAlgorithm();
 		layout.percentWidth		= layout.percentHeight = popupLayout.percentWidth = popupLayout.percentHeight = 1.0;

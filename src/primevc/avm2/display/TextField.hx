@@ -194,9 +194,8 @@ class TextField extends flash.text.TextField, implements ITextField
 	
 	public inline function makeEditable ()
 	{
-		trace(this);
-		type		= flash.text.TextFieldType.INPUT;
 		selectable	= true;
+		type		= flash.text.TextFieldType.INPUT;
 	}
 	
 	

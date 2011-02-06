@@ -97,9 +97,6 @@ class SimpleStateMachine <StateType> implements IDisposable
 	
 	public inline function is (state : StateType) : Bool
 	{
-		return switch (current) {
-			case state:	true;
-			default:	false;
-		}
+		return current == state;
 	}
 }

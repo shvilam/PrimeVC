@@ -9,4 +9,5 @@ bash ${PRIMEVC_DIR}/build/build \
 	-p "$PRIMEVC_DIR" \
 	-o App.swf \
 	-e "-cp '$PRIMEVC_DIR/tests'" \
+	-s "flair" \
 	$* 

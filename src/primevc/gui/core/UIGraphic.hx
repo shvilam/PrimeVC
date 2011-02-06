@@ -159,6 +159,8 @@ class UIGraphic extends VectorShape
 	{
 		behaviours.init();
 		validate();
+		removeValidation.on( displayEvents.removedFromStage, this );
+		
 		state.current = state.initialized;
 	}
 	
@@ -198,10 +200,10 @@ class UIGraphic extends VectorShape
 	// GETTERS / SETTESR
 	//
 	
-	private inline function getSystem () : ISystem
-	{
-		return window.as(ISystem);
-	}
+	private inline function getSystem () : ISystem		{ return window.as(ISystem); }
+	public inline function isOnStage () : Bool			{ return window != null; }
+	public inline function isQueued () : Bool			{ return nextValidatable != null || prevValidatable != null; }
+	private function removeValidation () : Void			{ if (isQueued()) system.invalidation.remove(this); }
 	
 	
 #if flash9

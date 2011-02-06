@@ -62,62 +62,82 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 	}
 	
 	
+	/**
+	 * Updating the size of the children should be done before the layout can 
+	 * calculate anything else. Therefore this method will try to do that.
+	 */
 	override public function prepareValidate ()
 	{
 		if (!validatePrepared)
 		{
-			if (group.hasValidatedWidth && !validatePreparedHor && group.width.value.isSet())
+		/*	if (group.name == "spreadEditorLayout") {
+				trace("w: "+group.hasValidatedWidth+"; "+validatePreparedHor+"; "+group.width+"; "+group.state.current+" == "+(group.hasValidatedWidth && !validatePreparedHor && group.width.isSet()));
+				trace("h: "+group.hasValidatedHeight+"; "+validatePreparedVer+"; "+group.height+"; "+group.state.current+" == "+(group.hasValidatedHeight && !validatePreparedVer && group.height.isSet()));
+			}*/
+			
+			
+			if (group.hasValidatedWidth && !validatePreparedHor && group.width.isSet())
 			{
-				Assert.that( group.width.value.isSet(), "no width defined for "+group );
-				
-				for (child in group.children) {
+				var children = group.children;
+				for (i in 0...children.length)
+				{
+					var child = children.getItemAt(i);
 					if (child.relative == null || !child.includeInLayout)
 						continue;
 					
 					if (child.relative.left.isSet() && child.relative.right.isSet())
-						child.outerBounds.width	= group.width.value - child.relative.right - child.relative.left;
+						child.outerBounds.width	= group.width - child.relative.right - child.relative.left;
 				}
-				
+
 				validatePreparedHor = true;
 			}
 			
 			
-			if (group.hasValidatedHeight && !validatePreparedVer && group.height.value.isSet())
+			
+			if (group.hasValidatedHeight && !validatePreparedVer && group.height.isSet())
 			{
-				Assert.that( group.height.value.isSet(), "no height defined for "+group );
-				
-				for (child in group.children) {
+				var children = group.children;
+				for (i in 0...children.length)
+				{
+					var child = children.getItemAt(i);
 					if (child.relative == null || !child.includeInLayout)
 						continue;
 					
+					var old = child.outerBounds.height;
 					if (child.relative.top.isSet() && child.relative.bottom.isSet())
-						child.outerBounds.height = group.height.value - child.relative.bottom - child.relative.top;
+						child.outerBounds.height = group.height - child.relative.bottom - child.relative.top;
+					
+				//	if (group.name == "spreadEditorLayout")
+				//		trace("\t\t\tendupdate"+child+"; "+group.height+"; "+old+" => "+child.outerBounds.height+"; "+child.outerBounds.invalidatable);
 				}
-				
+
 				validatePreparedVer = true;
 			}
-			
+
 			if (validatePreparedVer && validatePreparedHor)
 				validatePrepared = true;
 		}
 	}
 	
 	
-	public inline function validate ()
-	{
-		validateHorizontal();
-		validateVertical();
-	}
-	
-	
-	public inline function validateHorizontal ()	{ if (!validatePrepared) { prepareValidate(); } }
-	public inline function validateVertical ()		{ if (!validatePrepared) { prepareValidate(); } }
+	public inline function validate ()				{ if (!validatePrepared) 	prepareValidate(); }
+	public inline function validateHorizontal ()	{  }
+	public inline function validateVertical ()		{  }
 	
 	
 	public inline function apply ()
 	{
-		var childProps : RelativeLayout;
-		var padding = group.padding;
+	//	if (group.name == "spreadEditorLayout")	//ScrollBar30
+	//		trace(group.outerBounds);
+		
+		if (!validatePrepared)
+			validate();
+		
+	//	if (!validatePrepared)
+	//		throw "poep! "+validatePreparedHor+", "+group.hasValidatedWidth+"; "+validatePreparedVer+", "+group.hasValidatedHeight+"; "+group+"; "+group.width+", "+group.height;
+		
+		var padding		= group.padding;
+		var groupBounds	= group.innerBounds;
 		
 		//properties to find the corners of the outer children
 		//this is actually measuring, but can't be done before the position of the children is defined
@@ -126,37 +146,45 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 		var mostTopVal:Int		= Number.INT_NOT_SET;
 		var mostBottomVal:Int	= Number.INT_NOT_SET;
 		
-		for (child in group.children)
+	/*	if (group.name == "spreadEditorLayout") {
+			trace("w: "+group.hasValidatedWidth+"; "+validatePreparedHor+"; "+group.width+"; "+group.state.current);
+			trace("h: "+group.hasValidatedHeight+"; "+validatePreparedVer+"; "+group.height+"; "+group.state.current);
+		}*/
+		
+		var children = group.children;
+		for (i in 0...children.length)
 		{
+			var child = children.getItemAt(i);
 			if (!child.includeInLayout)
 				continue;
 			
-			if (child.relative != null)
+			var childProps	= child.relative;
+			var childBounds	= child.outerBounds;
+			if (childProps != null)
 			{
-				childProps	= child.relative;
-			
 				//
 				//apply horizontal
 				//
-			
-				if		(childProps.left.isSet())		child.outerBounds.left		= padding.left + childProps.left;
-				else if (childProps.right.isSet())		child.outerBounds.right		= group.innerBounds.width - padding.right - childProps.right;
-				else if (childProps.hCenter.isSet())	child.outerBounds.left		= ( ( group.innerBounds.width - child.outerBounds.width ) * .5 ).roundFloat() + childProps.hCenter;			
+				
+				if		(childProps.left.isSet())		childBounds.left		= padding.left + childProps.left;
+				else if (childProps.right.isSet())		childBounds.right		= groupBounds.width - padding.right - childProps.right;
+				else if (childProps.hCenter.isSet())	childBounds.left		= ( ( groupBounds.width - childBounds.width ) * .5 ).roundFloat() + childProps.hCenter;			
 			
 			
 				//
 				//apply vertical
 				//
 			
-				if		(childProps.top.isSet())		child.outerBounds.top		= padding.top + childProps.top;
-				else if (childProps.bottom.isSet())		child.outerBounds.bottom	= group.innerBounds.height - padding.bottom - childProps.bottom;
-				else if (childProps.vCenter.isSet())	child.outerBounds.top		= ( ( group.innerBounds.height - child.outerBounds.height ) * .5 ).roundFloat() + childProps.vCenter;
+				if		(childProps.top.isSet())		childBounds.top		= padding.top + childProps.top;
+				else if (childProps.bottom.isSet())		childBounds.bottom	= groupBounds.height - padding.bottom - childProps.bottom;
+				else if (childProps.vCenter.isSet())	childBounds.top		= ( ( groupBounds.height - childBounds.height ) * .5 ).roundFloat() + childProps.vCenter;
+				
 			}
 			
-			if (mostLeftVal.notSet() || child.outerBounds.left < mostLeftVal)	mostLeftVal		= child.outerBounds.left;
-			if (mostTopVal.notSet() || child.outerBounds.top < mostTopVal)		mostTopVal		= child.outerBounds.top;
-			if (child.outerBounds.right > mostRightVal)							mostRightVal	= child.outerBounds.right;
-			if (child.outerBounds.bottom > mostBottomVal)						mostBottomVal	= child.outerBounds.bottom;
+			if (mostLeftVal.notSet() || childBounds.left < mostLeftVal)		mostLeftVal		= childBounds.left;
+			if (mostTopVal.notSet() || childBounds.top < mostTopVal)		mostTopVal		= childBounds.top;
+			if (childBounds.right > mostRightVal)							mostRightVal	= childBounds.right;
+			if (childBounds.bottom > mostBottomVal)							mostBottomVal	= childBounds.bottom;
 		}
 		
 		if (mostRightVal.isSet() && mostLeftVal.isSet())	setGroupWidth( mostRightVal - mostLeftVal );

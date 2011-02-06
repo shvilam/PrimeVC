@@ -37,6 +37,11 @@
 
 class Assert
 {
+#if debug
+	public static var tracesEnabled = true;
+#end
+	
+	
 	static inline public function abstract(msg:String = "", ?pos:haxe.PosInfos)
 	{
 		#if debug

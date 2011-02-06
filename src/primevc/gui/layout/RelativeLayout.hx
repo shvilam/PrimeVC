@@ -87,7 +87,7 @@ class RelativeLayout
 	 * Signal to notify listeners that a property of the relative layout is 
 	 * changed.
 	 */
-	public var changed				(default, null) : Signal0;
+	public var change				(default, null) : Signal0;
 	
 	
 	//
@@ -162,7 +162,7 @@ class RelativeLayout
 		this.uuid		= StringUtil.createUUID();
 #end
 		this.enabled	= true;
-		this.changed	= new Signal0();
+		this.change		= new Signal0();
 		this.hCenter	= hCenter;
 		this.vCenter	= vCenter;
 		this.top		= top;
@@ -174,11 +174,9 @@ class RelativeLayout
 	
 	public function dispose ()
 	{
-		changed.dispose();
-		changed = null;
-#if neko
-		uuid	= null;
-#end
+			change.dispose();
+			change = null;
+#if neko	uuid = null; #end
 	}
 	
 	
@@ -209,7 +207,7 @@ class RelativeLayout
 		if (v != hCenter) {
 			hCenter = v;
 			if (enabled)
-				changed.send();
+				change.send();
 		}
 		return v;
 	}
@@ -222,7 +220,7 @@ class RelativeLayout
 		if (v != vCenter) {
 			vCenter = v;
 			if (enabled)
-				changed.send();
+				change.send();
 		}
 		return v;
 	}
@@ -236,7 +234,7 @@ class RelativeLayout
 		if (v != left) {
 			left = v;
 			if (enabled)
-				changed.send();
+				change.send();
 		}
 		return v;
 	}
@@ -248,7 +246,7 @@ class RelativeLayout
 		if (v != right) {
 			right = v;
 			if (enabled)
-				changed.send();
+				change.send();
 		}
 		return v;
 	}
@@ -260,7 +258,7 @@ class RelativeLayout
 		if (v != top) {
 			top = v;
 			if (enabled)
-				changed.send();
+				change.send();
 		}
 		return v;
 	}
@@ -272,7 +270,7 @@ class RelativeLayout
 		if (v != bottom) {
 			bottom = v;
 			if (enabled)
-				changed.send();
+				change.send();
 		}
 		return v;
 	}

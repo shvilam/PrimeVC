@@ -224,6 +224,7 @@ class SliderBase extends UIDataContainer < DataType >
 	override private function createChildren ()
 	{
 		dragBtn = new DragButton();
+		dragBtn.layout.includeInLayout = false;
 		dragBtn.id.value = id.value + "Btn";
 		layoutContainer.children.add( dragBtn.layout );
 		children.add( dragBtn );
@@ -335,8 +336,8 @@ class SliderBase extends UIDataContainer < DataType >
 		//jump to position
 		var curMouse		= getLocalMousePos( mouseObj );
 		var newPercentage	= (direction == horizontal)
-								? ((curMouse.x - layout.padding.left) / layout.width.value).within(0, 1)
-								: ((curMouse.y - layout.padding.top) / layout.height.value).within(0, 1);
+								? ((curMouse.x - layout.padding.left) / layout.width).within(0, 1)
+								: ((curMouse.y - layout.padding.top) / layout.height).within(0, 1);
 		var newValue = validator.min + (newPercentage * (validator.max - validator.min));
 		updateValue( newValue, newPercentage );
 		validate();
@@ -384,6 +385,7 @@ class SliderBase extends UIDataContainer < DataType >
 	//	data.set( validator.validate( data.value ) );
 		var diff	= validator.getDiff();
 		percentage	= diff == 0 ? 0 : (( data.value - validator.min ) / diff).within(0, 1);
+	//	trace( this + " - "+percentage );
 	}
 	
 	
@@ -401,7 +403,7 @@ class SliderBase extends UIDataContainer < DataType >
 	{
 		var curMouse	= getLocalMousePos( mouseObj );
 		var min			= layout.padding.left;
-		var maxMouse	= layout.width.value + min;
+		var maxMouse	= layout.width + min;
 		var max			= maxMouse - dragBtn.layout.outerBounds.width;
 		
 		if (!curMouse.x.isWithin( min, maxMouse ))
@@ -419,7 +421,7 @@ class SliderBase extends UIDataContainer < DataType >
 	{
 		var curMouse	= getLocalMousePos( mouseObj );
 		var min			= layout.padding.top;
-		var maxMouse	= layout.height.value + min;
+		var maxMouse	= layout.height + min;
 		var max			= maxMouse - dragBtn.layout.outerBounds.height;
 		
 		if (!curMouse.y.isWithin( min, maxMouse ))
@@ -461,19 +463,19 @@ class SliderBase extends UIDataContainer < DataType >
 	{
 		if (direction == horizontal)
 		{
-			if (layout.width.value.notSet())
+			if (layout.width.notSet())
 				return false;
 			
-			dragBtn.x			= layout.padding.left + ( percentage * ( layout.width.value - dragBtn.layout.outerBounds.width ) );
+			dragBtn.x			= layout.padding.left + ( percentage * ( layout.width - dragBtn.layout.outerBounds.width ) );
 			dragBtn.layout.x	= dragBtn.x.roundFloat();
 		//	trace(this+"; "+dragBtn.x);
 		}
 		else
 		{
-			if (layout.height.value.notSet())
+			if (layout.height.notSet())
 				return false;
 			
-			dragBtn.y			= layout.padding.top + ( percentage * (layout.height.value - dragBtn.layout.outerBounds.height) );
+			dragBtn.y			= layout.padding.top + ( percentage * (layout.height - dragBtn.layout.outerBounds.height) );
 			dragBtn.layout.y	= dragBtn.y.roundFloat();
 		}
 		return true;

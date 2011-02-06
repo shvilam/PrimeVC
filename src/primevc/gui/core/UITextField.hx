@@ -155,6 +155,7 @@ class UITextField extends TextField, implements IUIElement
 		visible = true;
 		behaviours.init();
 		validate();
+		removeValidation.on( displayEvents.removedFromStage, this );
 		
 		state.current = state.initialized;
 	}
@@ -172,8 +173,9 @@ class UITextField extends TextField, implements IUIElement
 			v = "";
 		
 		htmlText = v;
-		layout.invalidate( LayoutFlags.WIDTH | LayoutFlags.HEIGHT );
-		updateSize.onceOn( layout.state.change, this );
+		invalidate( UIElementFlags.TEXT );
+	//	layout.invalidate( LayoutFlags.WIDTH | LayoutFlags.HEIGHT );
+	//	updateSize.onceOn( layout.state.change, this );
 	}
 	
 	
@@ -193,8 +195,7 @@ class UITextField extends TextField, implements IUIElement
 		
 		//Invalidate layout and apply the textformat when the layout starts validating
 		//This will prevend screen flickering.
-		layout.invalidate( LayoutFlags.WIDTH | LayoutFlags.HEIGHT );
-		applyTextFormat.onceOn( layout.state.change, this );
+	//	layout.invalidate( LayoutFlags.WIDTH | LayoutFlags.HEIGHT );
 		
 		return v; 
 	}
@@ -225,16 +226,17 @@ class UITextField extends TextField, implements IUIElement
 #end
 	
 	
-	private inline function getSystem () : ISystem
-	{
-		return window.as(ISystem);
-	}
-	
 	
 	
 	//
 	// IPROPERTY-VALIDATOR METHODS
 	//
+	
+	private inline function getSystem () : ISystem		{ return window.as(ISystem); }
+	public inline function isOnStage () : Bool			{ return window != null; }
+	public inline function isQueued () : Bool			{ return nextValidatable != null || prevValidatable != null; }
+	private function removeValidation () : Void			{ if (isQueued()) { system.invalidation.remove(this); } }
+	
 	
 	public function invalidate (change:Int)
 	{
@@ -251,14 +253,16 @@ class UITextField extends TextField, implements IUIElement
 	
 	public function validate ()
 	{
-		if (changes > 0)
-		{
-			if (changes.has( UIElementFlags.TEXTSTYLE ))
-				applyTextFormat();
+		if (changes.has( UIElementFlags.TEXTSTYLE ))
+			applyTextFormat();
 		
-			changes = 0;
-		}
+		else if (changes.has( UIElementFlags.TEXT ))
+			updateSize();
+		
+		changes = 0;
 	}
+	
+	
 	
 	
 	//
@@ -276,22 +280,21 @@ class UITextField extends TextField, implements IUIElement
 	private function createBehaviours ()	: Void;
 	
 	
+	
 	//
 	// EVENTHANDLERS
 	//
 	
 	private function updateSize ()
 	{
-		var w = (layout.percentWidth.isSet() && layout.percentWidth >= 0)	? Number.INT_NOT_SET : realTextWidth.roundFloat();
-		var h = (layout.percentHeight.isSet() && layout.percentHeight >= 0)	? Number.INT_NOT_SET : realTextHeight.roundFloat();
-		
 #if flash9
 		if (autoSize == flash.text.TextFieldAutoSize.NONE)
 			scrollH = 0;
 #end
-		layout.width.value = w;
-		layout.height.value = h;
-	//	trace(this+".updateSize: "+realTextWidth+", "+realTextHeight+" => "+w+", "+h+"; cursize: "+width+", "+height+"; "+data.value+"; "+layout.state.current);
+		if (layout.percentWidth.notSet())	layout.width	= realTextWidth.roundFloat();
+		if (layout.percentHeight.notSet())	layout.height	= realTextHeight.roundFloat();
+		
+	//	trace(this+" = " +layout.width+", "+layout.height+"; "+data.value);
 	}
 	
 	

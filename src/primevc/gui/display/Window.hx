@@ -28,6 +28,7 @@
  */
 package primevc.gui.display;
 #if flash9
+ import flash.events.Event;
  import primevc.core.geom.Point;
 #end
 #if (flash8 || flash9 || js)
@@ -56,7 +57,7 @@ class Window implements IDisplayContainer
 #if flash9
 		stage = flash.Lib.current.stage;
 		stage.scaleMode	= flash.display.StageScaleMode.NO_SCALE;
-
+	
 	#if (debug && MonsterTrace)	
 		var monster		= new nl.demonsters.debugger.MonsterDebugger(flash.Lib.current);
 		haxe.Log.trace	= primevc.utils.DebugTrace.trace;
@@ -68,10 +69,12 @@ class Window implements IDisplayContainer
 		haxe.Log.clear	= com.hexagonstar.util.debug.Debug.clear;
 		com.hexagonstar.util.debug.Debug.monitor( stage );
 	#end
-		
+#end
+#if debug
 		haxe.Log.clear();
-#end		
+		haxe.Log.setColor(0xc00000);
 		trace("started " + windowClass);
+#end
 		return Type.createInstance( windowClass, [ stage ] );
 	}
 	
@@ -112,6 +115,10 @@ class Window implements IDisplayContainer
 		mouse			= new Mouse( this );
 		
 		target.doubleClickEnabled = true;
+#if (flash9 && debug)
+		target.addEventListener( Event.DEACTIVATE, disableMouse, false, 0, true );
+		target.addEventListener( Event.ACTIVATE,   enableMouse, false, 0, true );
+#end
 	}
 	
 	
@@ -154,6 +161,9 @@ class Window implements IDisplayContainer
 	public inline function localToGlobal (point:Point) : Point	{ return target.localToGlobal(point); }
 	
 	public function isFocusOwner (target:UserEventTarget)		{ return target == this.target; }
+	
+	private function enableMouse (event:Event)					{ mouseEnabled = children.mouseEnabled = true; }
+	private function disableMouse (event:Event)					{ mouseEnabled = children.mouseEnabled = false; }
 #end
 	
 	

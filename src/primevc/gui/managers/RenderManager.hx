@@ -60,18 +60,32 @@ class RenderManager extends QueueManager
 	
 	override private function validateQueue ()
 	{
-		var curCell = first;
+		isValidating = true;
+		disableBinding();
 		
-		while (curCell != null)
+		while (first != null)
 		{
-			var obj	= curCell.as(IGraphicsValidator);
+			var obj	= first.as(IGraphicsValidator);
 			obj.validateGraphics();
 			
-			curCell	= curCell.nextValidatable;
+			// During validation the queue can change (adding/removing items).
+			// The 'first' property will be the correct value if the current 
+			// validating object was removed from the queue during it's own 
+			// validation (that means it's nextValidatable is already 'null').
+			if (obj.nextValidatable != null)
+				first = obj.nextValidatable;
+			
+			// Exit the loop if the current validating item is the last item 
+			// and the nextValidatable is 'null' and the 'first' value isn't 
+			// changed during validation.
+			else if (obj == first)
+			 	first = null;
+			
 			obj.nextValidatable = obj.prevValidatable = null;
 		}
-		first = last = null;
-		disableBinding();
+		
+		last = null;
+		isValidating = false;
 	}
 	
 #if debug

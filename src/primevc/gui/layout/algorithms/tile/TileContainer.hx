@@ -39,6 +39,7 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.types.Number;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
+  using primevc.utils.IfUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
  
@@ -71,8 +72,11 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 		childrenChangeHandler.on( children.change, this );
 		
 		if (children.length > 0)
-			for (child in children)
-				child.listeners.add(this);
+			for (i in 0...children.length) {
+				var child = children.getItemAt(i);
+				if (child.includeInLayout)
+					child.listeners.add(this);
+			}
 		
 		changes = 0;
 	}
@@ -82,8 +86,11 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 	{
 		if (children != null)
 		{
-			for (child in children)
+			while (children.length > 0) {
+				var child = children.getItemAt(0);
 				child.listeners.remove(this);
+				children.remove(child);
+			}
 			
 			if (children.change != null) {
 				children.change.unbind(this);
@@ -109,23 +116,26 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 		
 		Assert.that(algorithm != null);
 		algorithm.group = cast this;
-	//	trace(name+".childInvalidated; "+isValidating+"; "+Flags.readProperties(childChanges)+"; "+algorithm.isInvalid(childChanges)+"; algorithm "+algorithm);
 		
 		var child = sender.as(LayoutClient);
-		if (!isValidating && (childChanges.has(Flags.LIST) || algorithm.isInvalid(childChanges)))
+		if (!isValidating() && (childChanges.has(Flags.LIST | Flags.WIDTH * childWidth.notSet().boolCalc() | Flags.HEIGHT * childHeight.notSet().boolCalc()) || algorithm.isInvalid(childChanges)))
 			invalidate( Flags.CHILDREN_INVALIDATED );
 	}
 	
 	
 	override public function validateHorizontal ()
 	{
-		if (hasValidatedWidth)
+		super.validateHorizontal();
+		if (changes.hasNone( Flags.WIDTH | Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH | Flags.ALGORITHM ))
 			return;
 		
 		Assert.that(algorithm != null);
-		for (child in children)
-			if (child.changes > 0)
+		for (i in 0...children.length)
+		{
+			var child = children.getItemAt(i);
+			if (child.changes > 0 && child.includeInLayout)
 				child.validateHorizontal();
+		}
 		
 		if (changes > 0)
 		{
@@ -138,13 +148,17 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 	
 	override public function validateVertical ()
 	{
-		if (hasValidatedHeight)
+		super.validateVertical();
+		if (changes.hasNone( Flags.HEIGHT | Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH | Flags.ALGORITHM ))
 			return;
 		
 		Assert.that(algorithm != null);
-		for (child in children)
-			if (child.changes > 0)
+		for (i in 0...children.length)
+		{
+			var child = children.getItemAt(i);
+			if (child.changes > 0 && child.includeInLayout)
 				child.validateVertical();
+		}
 
 		if (changes > 0)
 		{
@@ -157,10 +171,10 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 	
 	override public function validated ()
 	{
-		if (!isValidating)
+		if (changes == 0 || !isValidating())
 			return;
 		
-		if (changes > 0)
+		if (algorithm != null)
 		{
 			algorithm.group = cast this;
 			algorithm.apply();
@@ -168,9 +182,6 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 		
 		state.current	= ValidateStates.validated;
 		changes			= 0;
-		
-		hasValidatedWidth	= false;
-		hasValidatedHeight	= false;
 	}
 	
 	
@@ -178,8 +189,12 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 	{
 		if (v != x) {
 			v = super.setX(v);
-			for (child in children)
-				child.outerBounds.left = innerBounds.left;
+			for (i in 0...children.length)
+			{
+				var child = children.getItemAt(i);
+			 	if (child.includeInLayout)
+					child.outerBounds.left = innerBounds.left;
+			}
 		}
 		return v;
 	}
@@ -189,8 +204,12 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 	{
 		if (v != y) {
 			v = super.setY(v);
-			for (child in children)
-				child.outerBounds.top = innerBounds.top;
+			for (i in 0...children.length)
+			{
+				var child = children.getItemAt(i);
+				if (child.includeInLayout)
+					child.outerBounds.top = innerBounds.top;
+			}
 		}
 		return v;
 	}
@@ -258,6 +277,9 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 		switch (change)
 		{
 			case added( child, newPos ):
+				if (!child.includeInLayout)
+					return;
+				
 				child.listeners.add(this);
 				if (innerBounds.left != 0)	child.outerBounds.left	= innerBounds.left;
 				if (innerBounds.top != 0)	child.outerBounds.top	= innerBounds.top;

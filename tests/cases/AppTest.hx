@@ -264,15 +264,15 @@ class SpreadView extends UIComponent
 	
 	private inline function resetLayoutScale ()
 	{
-		layout.width.value	= (layout.width.value / content.scaleX).int();
-		layout.height.value	= (layout.height.value / content.scaleY).int();
+		layout.width	= (layout.width / content.scaleX).int();
+		layout.height	= (layout.height / content.scaleY).int();
 	}
 	
 	
 	private inline function updateLayoutScale ()
 	{
-		layout.width.value	= (layout.width.value * content.scaleX).int();
-		layout.height.value	= (layout.height.value * content.scaleY).int();
+		layout.width	= (layout.width * content.scaleX).int();
+		layout.height	= (layout.height * content.scaleY).int();
 	}
 }
 

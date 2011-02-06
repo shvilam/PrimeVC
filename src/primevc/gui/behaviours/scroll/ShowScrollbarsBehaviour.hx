@@ -31,7 +31,11 @@ package primevc.gui.behaviours.scroll;
 #if !neko
  import primevc.core.geom.space.Direction;
  import primevc.gui.components.ScrollBar;
- import primevc.gui.core.IUIContainer;
+ import primevc.gui.layout.ILayoutContainer;
+ import primevc.gui.layout.LayoutFlags;
+ import primevc.gui.traits.ILayoutable;
+  using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
   using primevc.utils.TypeUtil;
 #end
 
@@ -49,18 +53,26 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 	private var scrollbarHor	: ScrollBar;
 	private var scrollbarVer	: ScrollBar;
 	
+//	private var parentLayout	: ILayoutContainer;
+	
 	
 	override private function init ()
 	{
 		super.init();
 		
-		scrollbarHor = addScrollBar( Direction.horizontal, scrollbarHor );
-		scrollbarVer = addScrollBar( Direction.vertical, scrollbarVer );
+		Assert.that( target.container.is(ILayoutable) );
+		var parent = target.container.as(ILayoutable);
+		Assert.that( parent.layout.is(ILayoutContainer) );
+	//	parentLayout = target.layout.parent; //parent.layout.as(ILayoutContainer);
+		
+		checkIfScrollbarsNeeded.on( layoutContainer.changed, this );
 	}
 	
 	
 	override private function reset ()
 	{
+		layoutContainer.changed.unbind(this);
+		
 		if (scrollbarVer != null)	{ removeScrollBar( scrollbarHor ); scrollbarHor.dispose(); }
 		if (scrollbarVer != null)	{ removeScrollBar( scrollbarVer ); scrollbarVer.dispose(); }
 		
@@ -72,15 +84,17 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 	private function addScrollBar (direction:Direction, scrollBar:ScrollBar = null)
 	{
 		var children	= target.container.children;
-		var layout		= target.container.as(IUIContainer).layoutContainer.children;
 		var depth		= children.indexOf( target ) + 1;
-		var layoutDepth	= layout.indexOf( target.layout ) + 1;
+	//	var layout		= parentLayout.children;
+	//	var layoutDepth	= layout.indexOf( target.layout ) + 1;
 		
 		if (scrollBar == null)
 			scrollBar = new ScrollBar( null, target, direction );
+		else
+			scrollBar.target = target;
 		
 		children.add( scrollBar, depth );
-		layout.add( scrollBar.layout, layoutDepth );
+	//	layout.add( scrollBar.layout, layoutDepth );
 		
 		return scrollBar;
 	}
@@ -88,8 +102,59 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 	
 	private function removeScrollBar (scrollBar:ScrollBar)
 	{
-		var layout		= target.container.as(IUIContainer).layoutContainer.children.remove( scrollBar.layout );
-		var children	= target.container.children.remove( scrollBar );
+	//	parentLayout.children.remove( scrollBar.layout );
+		target.container.children.remove( scrollBar );
+		scrollBar.target = null;
+	}
+	
+	
+	private function checkIfScrollbarsNeeded (changes:Int)
+	{
+	//	trace(target+": "+layoutContainer.measuredWidth+", "+layoutContainer.explicitWidth+"; "+layoutContainer.width+"; "+layoutContainer.measuredHeight+", "+layoutContainer.explicitHeight+"; "+layoutContainer.height);
+		if (changes.hasNone( LayoutFlags.WIDTH_PROPERTIES | LayoutFlags.HEIGHT_PROPERTIES ))
+			return;
+		
+		var hasHorScrollbar		= scrollbarHor != null && scrollbarHor.container == target.container;
+		var needHorScrollbar	= layoutContainer.horScrollable();
+		var hasVerScrollbar		= scrollbarVer != null && scrollbarVer.container == target.container;
+		var needVerScrollbar	= layoutContainer.verScrollable();
+		
+		//check horizontal
+		if		(hasHorScrollbar && !needHorScrollbar)		removeScrollBar( scrollbarHor );
+		else if (!hasHorScrollbar && needHorScrollbar)		scrollbarHor = addScrollBar( Direction.horizontal, scrollbarHor );
+		
+		//check vertically
+		if		(hasVerScrollbar && !needVerScrollbar)		removeScrollBar( scrollbarVer );
+		else if (!hasVerScrollbar && needVerScrollbar)		scrollbarVer = addScrollBar( Direction.vertical, scrollbarVer );
+		
+		
+		//update position and size of the scrollbars
+		if (needHorScrollbar)
+		{
+			var scrollBar	= scrollbarHor.layout.outerBounds;
+			var bounds		= target.layout.outerBounds;
+			
+			scrollBar.invalidatable = false;
+			scrollBar.width		= bounds.width - (needVerScrollbar ? scrollbarVer.layout.outerBounds.width : 0);
+			scrollBar.top		= target.layout.getVerPosition() + bounds.height - scrollBar.height;
+			scrollBar.left		= target.layout.getHorPosition();
+			scrollBar.invalidatable = true;
+		}	
+		
+		if (needVerScrollbar)
+		{
+			var scrollBar	= scrollbarVer.layout.outerBounds;
+			var bounds		= target.layout.outerBounds;
+			
+			//update padding to keep an empty space at the bottom of the bar with the height of the horizontal scrollbar
+			scrollbarVer.layout.padding.bottom = needHorScrollbar ? scrollbarHor.layout.outerBounds.height : 0;
+			
+			scrollBar.invalidatable = false;
+			scrollBar.height	= bounds.height;
+			scrollBar.left		= target.layout.getHorPosition() + bounds.width - scrollBar.width;
+			scrollBar.top		= target.layout.getVerPosition();
+			scrollBar.invalidatable = true;
+		}
 	}
 #end
 }

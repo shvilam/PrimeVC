@@ -184,6 +184,7 @@ class UIVideo extends Video, implements IUIElement
 		invalidateVideoHeight	.on( stream.height.change, this );
 		
 		validate();
+		removeValidation.on( displayEvents.removedFromStage, this );
 		
 		state.current = state.initialized;
 	}
@@ -220,10 +221,10 @@ class UIVideo extends Video, implements IUIElement
 	//
 	
 	
-	private inline function getSystem () : ISystem
-	{
-		return window.as(ISystem);
-	}
+	private inline function getSystem () : ISystem		{ return window.as(ISystem); }
+	public inline function isOnStage () : Bool			{ return window != null; }
+	public inline function isQueued () : Bool			{ return nextValidatable != null || prevValidatable != null; }
+	private function removeValidation () : Void			{ if (isQueued()) system.invalidation.remove(this); }
 	
 	
 	public function invalidate (change:Int)

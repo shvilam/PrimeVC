@@ -31,7 +31,8 @@ package primevc.gui.components;
  import primevc.core.collections.ListChange;
  import primevc.core.dispatcher.Signal1;
  import primevc.core.traits.IValueObject;
- import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
+// import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
+ import primevc.gui.core.IUIElement;
  import primevc.gui.core.IUIDataElement;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.display.IDisplayObject;
@@ -42,7 +43,7 @@ package primevc.gui.components;
 
 
 private typedef ItemRenderer <T:IValueObject>		= IUIDataElement < T >;
-private typedef ItemRendererType <T:IValueObject>	= Class < ItemRenderer < T > >;
+//private typedef ItemRendererType <T:IValueObject>	= Class < ItemRenderer < T > >;
 
 
 /**
@@ -59,11 +60,23 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	 */
 	public var childClick (default, null)	: Signal1<MouseState>;
 	
+	/**
+	 * Number indicating the difference between the number of children the
+	 * target and the childList of the layout on the moment that this behaviour
+	 * is initialized.
+	 * 
+	 * This number makes sure that if a child is added on depth 3 and the 
+	 * countDifference is 2 that the layout of the child will be added on depth
+	 * 2.
+	 * @see AutoChangeLayoutChildlistBehaviour
+	 */
+	private var countDifference : Int;
+	
 	
 	override private function createBehaviours ()
 	{
 		childClick = new Signal1<MouseState>();
-		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
+	//	behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
 	}
 	
 	
@@ -77,6 +90,8 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	
 	override private function initData ()
 	{
+		countDifference	= children.length - layoutContainer.children.length;
+		
 		//add itemrenders for new list
 		for (i in 0...data.length)
 			addItemRenderer( data.getItemAt(i), i );
@@ -94,11 +109,12 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	}
 	
 	
+	
 	//
 	// DATA RENDERER METHODS
 	//
 	
-	private function createItemRenderer ( item:ListDataType, pos:Int ) : IDisplayObject
+	private function createItemRenderer ( item:ListDataType, pos:Int ) : IUIElement
 	{
 		Assert.abstract();
 		return null;
@@ -110,7 +126,10 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 		if (newPos == -1)
 			newPos = data.indexOf( item );
 		
-		var child = children.add( createItemRenderer( item, newPos ), newPos );
+		var child = createItemRenderer( item, newPos );
+		
+		layoutContainer.children.add( child.layout, newPos - countDifference );
+		children.add( child, newPos );
 		
 		if (child.is(IInteractive) && child.as(IInteractive).mouseEnabled)
 			childClick.send.on( child.as(IInteractive).userEvents.mouse.click, this );
@@ -123,20 +142,23 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 		if (renderer != null)
 		{
 			//removing the click-listener is not nescasary since the item-renderer is getting disposed
+			layoutContainer.children.remove( renderer.layout );
 			children.remove( renderer );
 			renderer.dispose();
 		}
 	}
 	
 	
-	public function getItemRendererFor ( item:ListDataType )
+	public function getItemRendererFor ( dataItem:ListDataType ) : IUIElement
 	{
 		for (i in 0...children.length)
 		{
 			var child = children.getItemAt( i );
-			if (child.is( ItemRenderer ))
-				if (item == cast child.as( ItemRenderer ).data )
-					return child;
+			if (child.is( ItemRenderer )) {
+				var r = child.as( ItemRenderer );
+				if (dataItem == cast r.data )
+					return r;
+			}
 		}
 		
 		return null;
@@ -146,8 +168,10 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	private function moveItemRenderer ( item:ListDataType, newPos:Int, oldPos:Int )
 	{
 		var renderer = getItemRendererFor( item );
-		if (renderer != null)
+		if (renderer != null) {
+			layoutContainer.children.move( renderer.layout, (newPos - countDifference), (oldPos - countDifference) );
 			children.move( renderer, newPos, oldPos );
+		}
 #if debug
 		else
 			trace("no itemrenderer found to move for vo-item "+item+"; move: "+oldPos+" => "+newPos);

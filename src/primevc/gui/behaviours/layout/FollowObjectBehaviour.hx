@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.layout;
+ import primevc.core.dispatcher.Wire;
  import primevc.core.geom.Point;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.IUIElement;
@@ -58,6 +59,11 @@ class FollowObjectBehaviour extends BehaviourBase<IUIElement>
 {
 	private var followedElement : IUIElement;
 	
+	private var followedLayoutBinding	: Wire<Dynamic>;
+	private var containerLayoutBinding	: Wire<Dynamic>;
+	private var targetLayoutBinding		: Wire<Dynamic>;
+	
+	
 	public function new (target:IUIElement, followedElement:IUIElement)
 	{
 		super(target);
@@ -68,19 +74,45 @@ class FollowObjectBehaviour extends BehaviourBase<IUIElement>
 	override private function init ()
 	{
 		Assert.notNull(followedElement, "followed-element can't be null for "+target);
-		checkChanges.on( followedElement.layout.changed, this );
-		checkChanges.on( target.container.as(ILayoutable).layout.changed, this );
-		checkTargetChanges.on( target.layout.changed, this );
-		updatePosition();
+		followedLayoutBinding	= checkChanges			.on( followedElement.layout.changed,					this );
+		containerLayoutBinding	= checkChanges			.on( target.container.as(ILayoutable).layout.changed,	this );
+		targetLayoutBinding		= checkTargetChanges	.on( target.layout.changed,								this );
+		
+		updateTarget	.on( target.displayEvents.addedToStage, this );
+		disableWires	.on( target.displayEvents.removedFromStage, this );
+		
+		if (target.window == null)	disableWires();
+		else						updateTarget();
 	}
 	
 	
 	override private function reset ()
 	{
-		followedElement.layout.changed.unbind(this);
-		target.container.as(ILayoutable).layout.changed.unbind(this);
-		target.layout.changed.unbind(this);
+		followedLayoutBinding	.dispose();
+		containerLayoutBinding	.dispose();
+		targetLayoutBinding		.dispose();
+		
+		var e = target.displayEvents;
+		e.addedToStage.unbind( this );
+		e.removedFromStage.unbind( this );
 		followedElement = null;
+	}
+	
+	
+	private function disableWires ()
+	{
+		followedLayoutBinding	.disable();
+		containerLayoutBinding	.disable();
+		targetLayoutBinding		.disable();
+	}
+	
+	
+	private function updateTarget ()
+	{
+		followedLayoutBinding	.enable();
+		containerLayoutBinding	.enable();
+		targetLayoutBinding		.enable();
+		updatePosition();
 	}
 	
 	
@@ -106,8 +138,10 @@ class FollowObjectBehaviour extends BehaviourBase<IUIElement>
 	}
 	
 	
-	private inline function updatePosition ()
+	private function updatePosition ()
 	{
+		Assert.notNull(target.window, target+"");
+		
 		var layout		= target.layout;
 		var bounds		= layout.outerBounds;
 		var follow		= followedElement.layout.innerBounds;

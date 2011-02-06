@@ -58,8 +58,9 @@ class ButtonIconSkin extends Skin<Button>
 
 	override public function createChildren ()
 	{
-		owner					.children.add(	iconGraphic = new Image() );
+		iconGraphic = new Image();
 		owner.layoutContainer	.children.add(	iconGraphic.layout );
+		owner					.children.add(	iconGraphic );
 		
 		iconGraphic.maintainAspectRatio = true;
 #if debug

@@ -94,7 +94,7 @@ class LayoutAlgorithmBase
 		if (group.is(IAdvancedLayoutClient))
 			group.as(IAdvancedLayoutClient).measuredHeight = h;
 		else
-			group.height.value = h;
+			group.height = h;
 	}
 	
 	
@@ -106,7 +106,7 @@ class LayoutAlgorithmBase
 		if (group.is(IAdvancedLayoutClient))
 			group.as(IAdvancedLayoutClient).measuredWidth = w;
 		else
-			group.width.value = w;
+			group.width = w;
 	}
 	
 	
@@ -146,7 +146,7 @@ class LayoutAlgorithmBase
 
 	private inline function getBottomStartValue ()	: Int
 	{
-		var start = group.height.value;
+		var start = group.height;
 		
 		if (group.is(AdvancedLayoutClient))
 			start = IntMath.max(group.as(AdvancedLayoutClient).measuredHeight, start);
@@ -181,7 +181,7 @@ class LayoutAlgorithmBase
 
 	private inline function getRightStartValue ()	: Int
 	{
-		var start = group.width.value;
+		var start = group.width;
 		
 		if (group.is(AdvancedLayoutClient))
 			start = IntMath.max(group.as(AdvancedLayoutClient).measuredWidth, start);

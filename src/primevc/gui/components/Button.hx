@@ -74,10 +74,11 @@ class Button extends UIDataContainer <DataType>, implements IIconOwner, implemen
 #if flash9
 	private inline function setTextStyle (v:TextFormat)
 	{
-		if (v != textStyle) {
+	//	if (v != textStyle) {
+	//		trace(this+": "+textStyle+" ==> "+v);
 			textStyle = v;
 			invalidate( Flags.TEXTSTYLE );
-		}
+	//	}
 		return v;
 	}
 #end

@@ -86,7 +86,7 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 	 */
 	public inline function validateHorizontal ()
 	{
-	//	var width:Int = group.width.value;
+	//	var width:Int = group.width;
 	/*	if (group.childWidth.notSet())
 		{
 			for (child in group.children)
@@ -98,7 +98,7 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 			width = group.childWidth * (group.children.length.divCeil(2) + 1);
 		}
 		*/
-		setGroupWidth(group.width.value);
+		setGroupWidth(group.width);
 	}
 	
 	
@@ -171,7 +171,7 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 
 
 	private inline function getRadius () : Int {
-		return ( isEllipse ? group.width.value * .5 : Formulas.getCircleRadius(group.width.value, group.height.value) ).roundFloat();
+		return ( isEllipse ? group.width * .5 : Formulas.getCircleRadius(group.width, group.height) ).roundFloat();
 	}
 	
 #if (neko || debug)

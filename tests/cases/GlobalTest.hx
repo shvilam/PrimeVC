@@ -13,8 +13,8 @@ package cases;
  import primevc.gui.behaviours.drag.ApplyDropBehaviour;
  import primevc.gui.behaviours.drag.ShowDragGapBehaviour;
  import primevc.gui.behaviours.drag.DragInfo;
- import primevc.gui.components.ApplicationView;
  import primevc.gui.components.ListView;
+ import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UIDataComponent;
  import primevc.gui.core.UIWindow;
@@ -49,47 +49,24 @@ typedef DataVOType = Bindable<String>;
 class GlobalTest extends UIWindow
 {
 	public static function main () { Window.startup( GlobalTest ); }
-	
-	override private function createChildren ()
-	{
-		children.add( new GlobalApp() );
-	}
-}
-
-
-/**
- * @creation-date	Jun 15, 2010
- * @author			Ruben Weijers
- */
-class GlobalApp extends ApplicationView
-{
-	private var testList1 : ArrayList<DataVOType>;
-	
-	
-	public function new ()
-	{
-		super("GlobalApp");
-		
-		testList1 = new ArrayList<DataVOType>();
-		for (i in 0...60)
-			testList1.add(new DataVOType(i+""));
-	}
-	
-	
 	override private function createBehaviours () {}
 	
 	
 	override private function createChildren ()
 	{
-		var frame0				= new TileList( "frame0", testList1 );
-		var frame1				= new TileList( "frame1", testList1 );
-		var frame2				= new TileList( "frame2", testList1 );
-		var frame3				= new TileList( "frame3", testList1 );
-		var frame4				= new TileList( "frame4");
-		var frame5				= new TileList( "frame5");
-		var frame6				= new TileList( "frame6");
-		var frame7				= new TileList( "frame7");
-		var frame8				= new TileList( "frame8", testList1 );
+		var testList1 = new ArrayList<DataVOType>();
+		for (i in 0...100)
+			testList1.add(new DataVOType(i+""));
+		
+		var frame0				= new TileList( "frame0", testList1 );	//vertical list at the left
+		var frame1				= new TileList( "frame1", testList1 );	//horizontal list on the top
+		var frame2				= new TileList( "frame2", testList1 );	//center tile-list
+		var frame3				= new TileList( "frame3", testList1 );	//right-bottom tile-list
+		var frame4				= new TileList( "frame4");				//first colored block at right side
+		var frame5				= new TileList( "frame5");				//second colored block at right side
+		var frame6				= new TileList( "frame6");				//third colored block at right side
+		var frame7				= new TileList( "frame7");				//empty block above the tree blocks
+		var frame8				= new TileList( "frame8", testList1 );	//circle tile list on the right
 		
 		var box0				= new VirtualLayoutContainer();
 		box0.algorithm			= new RelativeAlgorithm();
@@ -114,11 +91,13 @@ class GlobalApp extends ApplicationView
 		box2.name	= "box2";
 #end
 		
+		var box4 = new UIContainer( "frame2container" );
+		
 		layoutContainer.children.add( frame0.layout );
 		layoutContainer.children.add( box0 );
 		
 		box0.children.add( frame1.layout );
-		box0.children.add( frame2.layout );
+		box0.children.add( box4.layout );
 		box0.children.add( box1 );
 		
 		box1.children.add( frame3.layout );
@@ -130,8 +109,11 @@ class GlobalApp extends ApplicationView
 		box2.children.add( frame5.layout );
 		box2.children.add( frame6.layout );
 		
+		box4.layoutContainer.children.add( frame2.layout );
+		box4.children.add( frame2 );
+		
 		children.add(frame0);
-		children.add(frame2);
+		children.add(box4);
 		children.add(frame1);
 		children.add(frame3);
 		children.add(frame4);

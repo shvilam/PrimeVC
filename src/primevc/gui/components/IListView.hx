@@ -30,7 +30,8 @@ package primevc.gui.components;
  import primevc.core.collections.IReadOnlyList;
  import primevc.gui.core.IUIContainer;
  import primevc.gui.core.IUIDataElement;
- import primevc.gui.display.IDisplayObject;
+ import primevc.gui.core.IUIElement;
+// import primevc.gui.display.IDisplayObject;
 
 
 /**
@@ -39,7 +40,7 @@ package primevc.gui.components;
  */
 interface IListView < ListDataType > implements IUIContainer 
 {
-	private function createItemRenderer ( item:ListDataType, pos:Int )				: IDisplayObject;
+	private function createItemRenderer ( item:ListDataType, pos:Int )				: IUIElement;
 	private function addItemRenderer( item:ListDataType, newPos:Int = -1 )			: Void;
 	private function removeItemRenderer( item:ListDataType, oldPos:Int = -1 )		: Void;
 	private function moveItemRenderer ( item:ListDataType, newPos:Int, oldPos:Int )	: Void;

@@ -28,6 +28,7 @@
  */
 package primevc.gui.managers;
  import primevc.gui.traits.IPropertyValidator;
+ import primevc.gui.traits.IValidatable;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
@@ -54,20 +55,35 @@ class InvalidationManager extends QueueManager
 		updateQueueBinding.disable();
 	}
 	
+	
 	override private function validateQueue ()
 	{
-		var curCell = first;
-		while (curCell != null)
+		isValidating = true;
+		disableBinding();
+		
+		while (first != null)
 		{
-			var obj	= curCell.as(IPropertyValidator);
+			var obj	= first.as(IPropertyValidator);
 			obj.validate();
 			
-			curCell	= curCell.nextValidatable;
+			// During validation the queue can change (adding/removing items).
+			// The 'first' property will be the correct value if the current 
+			// validating object was removed from the queue during it's own 
+			// validation (that means it's nextValidatable is already 'null').
+			if (obj.nextValidatable != null)
+				first = obj.nextValidatable;
+			
+			// Exit the loop if the current validating item is the last item 
+			// and the nextValidatable is 'null' and the 'first' value isn't 
+			// changed during validation.
+			else if (obj == first)
+			 	first = null;
+			
 			obj.nextValidatable = obj.prevValidatable = null;
 		}
 		
-		first = last = null;
-		disableBinding();
+		last = null;
+		isValidating = false;
 	}
 	
 	
