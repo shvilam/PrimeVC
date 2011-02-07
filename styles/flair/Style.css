@@ -110,6 +110,7 @@ UIContainer {
 
 #frame3 {
 	algorithm: dynamic-tile;
+	max-width: 80px;
 	width: 100%;
 	height: 40%;
 	overflow: scrollbars;

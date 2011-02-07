@@ -132,7 +132,7 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 		if (needHorScrollbar)
 		{
 			var scrollBar	= scrollbarHor.layout.outerBounds;
-			var bounds		= target.layout.outerBounds;
+			var bounds		= target.layout.innerBounds;
 			
 			scrollBar.invalidatable = false;
 			scrollBar.width		= bounds.width - (needVerScrollbar ? scrollbarVer.layout.outerBounds.width : 0);
@@ -144,7 +144,7 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 		if (needVerScrollbar)
 		{
 			var scrollBar	= scrollbarVer.layout.outerBounds;
-			var bounds		= target.layout.outerBounds;
+			var bounds		= target.layout.innerBounds;
 			
 			//update padding to keep an empty space at the bottom of the bar with the height of the horizontal scrollbar
 			scrollbarVer.layout.padding.bottom = needHorScrollbar ? scrollbarHor.layout.outerBounds.height : 0;

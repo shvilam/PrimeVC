@@ -291,10 +291,13 @@ class UITextField extends TextField, implements IUIElement
 		if (autoSize == flash.text.TextFieldAutoSize.NONE)
 			scrollH = 0;
 #end
+		layout.invalidatable = false;
 		if (layout.percentWidth.notSet())	layout.width	= realTextWidth.roundFloat();
 		if (layout.percentHeight.notSet())	layout.height	= realTextHeight.roundFloat();
+		layout.invalidatable = true;
 		
-	//	trace(this+" = " +layout.width+", "+layout.height+"; "+data.value);
+		if (layout.parent == null && layout.changes > 0)
+			layout.validate();
 	}
 	
 	

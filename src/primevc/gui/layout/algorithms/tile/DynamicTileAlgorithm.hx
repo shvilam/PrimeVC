@@ -220,14 +220,14 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		if (!validatePrepared)
 		{
 			var group = group.as(LayoutContainer);
-		
+			
 			//create a new tile map if it removed
 			if (tileCollection == null)
 				createTileMap();
 		
 			if (group.children.length == 0)
 				return;
-		
+			
 			// APPLY CHANGES IN SIZE CONSTRAINT ALSO ON THE CHILDREN
 			if (group.changes.has( Flags.WIDTH_CONSTRAINTS ) && startDirection == Direction.horizontal)
 				tileGroups.widthValidator = group.widthValidator;
@@ -450,16 +450,19 @@ private class DynamicRowAlgorithm extends HorizontalFloatAlgorithm
 		
 		//TileContainers children are changed.
 		//Check the group to see if the width is bigger then the maxWidth
-		for (i in 0...children.length)
+		var i = 0;
+		while (i < children.length)
 		{
-			var child = children.getItemAt(i);
+			var child = children.getItemAt(i++);
 			//check if the child will still fit in this row
 			if (fullChildNum >= 0 || availableSpace < child.outerBounds.width)
 			{
+				fullChildNum++;
+				
 				//move child to the next list
 				if (children.length > 1) {
-					fullChildNum++;
 					children.moveItemToNextList( child, fullChildNum );
+					i--;
 				}
 			}
 			else
@@ -517,17 +520,20 @@ private class DynamicColumnAlgorithm extends VerticalFloatAlgorithm
 		
 		//TileContainers children are changed.
 		//Check the group to see if the width is bigger then the maxWidth
-		for (i in 0...children.length)
+		var i = 0;
+		while (i < children.length)
 		{
-			var child = children.getItemAt(i);
+			var child = children.getItemAt(i++);
 			//check if the child will still fit in this row
 			if (fullChildNum >= 0 || availableSpace < child.outerBounds.height)
 			{
 				//move child to the next list
 				fullChildNum++;
 				
-				if (children.length > 1)
+				if (children.length > 1) {
 					children.moveItemToNextList( child, fullChildNum );
+					i--;
+				}
 			}
 			else
 			{
