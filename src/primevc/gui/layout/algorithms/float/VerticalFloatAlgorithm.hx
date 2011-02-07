@@ -74,14 +74,14 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	
 	public function validateVertical ()
 	{
-		var height:Int = halfHeight = 0;
+		var height:Int	= halfHeight = 0;
+		var children	= group.children;
 		
 		if (group.childHeight.notSet())
 		{
-			var i:Int = 0;
-			
-			for (child in group.children)
+			for (i in 0...children.length)
 			{
+				var child = children.getItemAt(i);
 				if (!child.includeInLayout)
 					continue;
 				
@@ -90,14 +90,12 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 				//only count even children
 				if (i.isEven())
 					halfHeight += child.outerBounds.height;
-				
-				i++;
 			}
 		}
 		else
 		{
-			height		= group.childHeight * group.children.length;
-			halfHeight	= group.childHeight * group.children.length.divCeil(2);
+			height		= group.childHeight * children.length;
+			halfHeight	= group.childHeight * children.length.divCeil(2);
 		}
 		
 		setGroupHeight(height);
@@ -119,15 +117,19 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	{
 		if (group.children.length > 0)
 		{
+	//		trace(group.name);
 			if (next == -1)
 				next = getTopStartValue();
 			
 			Assert.that(next.isSet());
+			var children = group.children;
 			
 			//use 2 loops for algorithms with and without a fixed child-height. This is faster than doing the if statement inside the loop!
 			if (group.childHeight.notSet())
 			{
-				for (child in group.children) {
+				for (i in 0...children.length)
+				{
+					var child = children.getItemAt(i);
 					if (!child.includeInLayout)
 						continue;
 					
@@ -137,7 +139,9 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 			}
 			else
 			{
-				for (child in group.children) {
+				for (i in 0...children.length)
+				{
+					var child = children.getItemAt(i);
 					if (!child.includeInLayout)
 						continue;
 					
@@ -205,13 +209,16 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	{
 		if (group.children.length > 0)
 		{
-			var next = getBottomStartValue();
+			var next		= getBottomStartValue();
+			var children	= group.children;
 			Assert.that(next.isSet());
 			
 			//use 2 loops for algorithms with and without a fixed child-height. This is faster than doing the if statement inside the loop!
 			if (group.childHeight.notSet())
 			{
-				for (child in group.children) {
+				for (i in 0...children.length)
+				{
+					var child = children.getItemAt(i);
 					if (!child.includeInLayout)
 						continue;
 					
@@ -222,7 +229,9 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 			else
 			{
 				next -= group.childHeight;
-				for (child in group.children) {
+				for (i in 0...children.length)
+				{
+					var child = children.getItemAt(i);
 					if (!child.includeInLayout)
 						continue;
 					
@@ -252,6 +261,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 		var depth:Int	= 0;
 		var posY:Int	= bounds.top;
 		var centerY:Int	= bounds.top + (bounds.height * .5).roundFloat();
+		var children	= group.children;
 		
 		if (group.childHeight.isSet())
 		{
@@ -263,14 +273,16 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 			if (posY > 0)
 			{
 				//check if it's smart to start searching at the end or at the beginning..
-				var groupHeight = group.height.value;
+				var groupHeight = group.height;
 				if (group.is(AdvancedLayoutClient))
 					groupHeight = IntMath.max( 0, group.as(AdvancedLayoutClient).measuredHeight );
 				
 				var halfH = groupHeight * .5;
 				if (posY < halfH) {
 					//start at beginning
-					for (child in group.children) {
+					for (i in 0...children.length)
+					{
+						var child = children.getItemAt(i);
 						if (child.includeInLayout && centerY <= child.outerBounds.bottom && centerY >= child.outerBounds.top)
 							break;
 
@@ -280,8 +292,8 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 				else
 				{
 					//start at end
-					var itr	= group.children.reversedIterator();
-					depth	= group.children.length;
+					var itr	= children.reversedIterator();
+					depth	= children.length;
 					while (itr.hasNext()) {
 						var child = itr.next();
 						if (child.includeInLayout && centerY >= child.outerBounds.bottom)
@@ -303,13 +315,17 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 		var posY:Int	= bounds.top;
 		var centerY:Int	= bounds.top + (bounds.height * .5).roundFloat();
 		
-		var groupHeight	= group.height.value;
+		var groupHeight	= group.height;
+		var children	= group.children;
+		
 		if (group.is(AdvancedLayoutClient))
 			groupHeight	= IntMath.max( 0, group.as(AdvancedLayoutClient).measuredHeight );
 		
 		var halfH = groupHeight * .5;
 		
-		for (child in group.children) {
+		for (i in 0...children.length)
+		{
+			var child = children.getItemAt(i);
 			if (child.includeInLayout 
 				&& (
 						(centerY <= child.outerBounds.bottom && centerY >= halfH)
@@ -330,34 +346,38 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 		var posY:Int	= bounds.top;
 		var centerY:Int	= bounds.top + (bounds.height * .5).roundFloat();
 		
-		var groupHeight = group.height.value;
+		var children	= group.children;
+		var groupHeight = group.height;
 		var emptyHeight	= 0;
+		
 		if (group.is(AdvancedLayoutClient))
 		{
 			groupHeight = IntMath.max( 0, group.as(AdvancedLayoutClient).measuredHeight );
 			//check if there's any width left. This happens when there's an explicitWidth set.
-			emptyHeight	= IntMath.max( 0, group.height.value - groupHeight );
+			emptyHeight	= IntMath.max( 0, group.height - groupHeight );
 		}
 		
 		if (group.childHeight.isSet())
 		{
-			depth = group.children.length - ( posY - emptyHeight ).divRound( group.childHeight );
+			depth = children.length - ( posY - emptyHeight ).divRound( group.childHeight );
 		}
 		else
 		{
 			//if pos <= emptyHeight, the depth will be at the end of the list
 			if (posY <= emptyHeight)
-				depth = group.children.length;
+				depth = children.length;
 			
 			//if bounds.bottom < maximum group height, then the depth is at the beginning of the list
-			else if (bounds.right < IntMath.max(group.height.value, groupHeight))
+			else if (bounds.right < IntMath.max(group.height, groupHeight))
 			{
 				//check if it's smart to start searching at the end or at the beginning..
 				var halfH = groupHeight * .5;
 
 				if (posY > (emptyHeight + halfH)) {
 					//start at beginning
-					for (child in group.children) {
+					for (i in 0...children.length)
+					{
+						var child = children.getItemAt(i);
 						if (child.includeInLayout && centerY >= child.outerBounds.top)
 							break;
 
@@ -367,8 +387,8 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 				else
 				{
 					//start at end
-					var itr	= group.children.reversedIterator();
-					depth	= group.children.length - 1;
+					var itr	= children.reversedIterator();
+					depth	= children.length - 1;
 					while (itr.hasNext()) {
 						var child = itr.next();
 						if (child.includeInLayout && centerY <= child.outerBounds.bottom)

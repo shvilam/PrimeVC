@@ -35,7 +35,7 @@ package primevc.gui.layout;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.traits.Invalidatable;
  import primevc.core.validators.IntRangeValidator;
- import primevc.core.validators.ValidatingValue;
+// import primevc.core.validators.ValidatingValue;
 #if debug
  import primevc.core.traits.IUIdentifiable;
  import primevc.utils.StringUtil;
@@ -64,7 +64,16 @@ class LayoutClient extends Invalidatable
 			,	implements ILayoutClient
 #if debug	,	implements IUIdentifiable #end
 {
-	public var validateOnPropertyChange									: Bool;
+	/**
+	 * Flag indicating if the object should broadcast an invalidate call or do
+	 * nothing with it.
+	 */
+	public var invalidatable		(default, setInvalidatable)			: Bool;
+	
+	/**
+	 * Bitflag with all the changes that are done to the layout until it get's
+	 * validated.
+	 */
 	public var changes 				(default, null)						: Int;
 //	public var filledProperties		(default, null)						: Int;
 	public var includeInLayout		(default, setIncludeInLayout)		: Bool;
@@ -83,22 +92,32 @@ class LayoutClient extends Invalidatable
 	public var outerBounds			(default, null)						: IntRectangle;
 	
 	
-	public var relative				(default, setRelative)				: RelativeLayout;	//rules for sizing / positioning the layout with relation to the parent
-//	public var sizeConstraint		(default, setSizeConstraint)		: SizeConstraint;
+	/**
+	 * rules for sizing / positioning the layout with relation to the parent
+	 */
+	public var relative				(default, setRelative)				: RelativeLayout;
 	
 	/**
 	 * @default	false
 	 */
-	public var maintainAspectRatio	(default, setAspectRatio)			: Bool;
-	private var aspectRatio			(default, default)					: Float;
+	public var maintainAspectRatio	(default, setMaintainAspectRatio)	: Bool;
+		private var aspectRatio		: Float;
 	
 	
 	public var state				(default, null)						: SimpleStateMachine < ValidateStates >;
-	public var hasValidatedWidth	(default, null)						: Bool;
-	public var hasValidatedHeight	(default, null)						: Bool;
 	
-	public var isValidating			(getIsValidating, never)			: Bool;
-	public var isInvalidated		(getIsInvalidated, never)			: Bool;
+	
+	/**
+	 * Flag indicating wether validateHorizontal method is called after the width has been changed
+	 * This flag has nothing to do with the method validateWidth 	//FIXME!
+	 */
+	public var hasValidatedWidth	(default, null)						: Bool;
+	
+	/**
+	 * Flag indicating wether validateVertical method is called after the height has been changed
+	 * This flag has nothing to do with the method validateHeight 	//FIXME!
+	 */
+	public var hasValidatedHeight	(default, null)						: Bool;
 	
 	
 	//
@@ -108,8 +127,13 @@ class LayoutClient extends Invalidatable
 	public var x					(default, setX)						: Int;
 	public var y					(default, setY)						: Int;
 	
-	public var width				(default, null)						: SizeType;		// <-- TypeDef from ILayoutClient
-	public var height				(default, null)						: SizeType;		// <-- TypeDef from ILayoutClient
+	public var width				(getWidth, setWidth)				: Int;
+	public var height				(getHeight, setHeight)				: Int;
+		private var _width			: Int;
+		private var _height			: Int;
+	
+	public var widthValidator		(default, setWidthValidator)		: IntRangeValidator;
+	public var heightValidator		(default, setHeightValidator)		: IntRangeValidator;
 	
 	public var percentWidth			(default, setPercentWidth)			: Float;
 	public var percentHeight		(default, setPercentHeight)			: Float;
@@ -127,39 +151,37 @@ class LayoutClient extends Invalidatable
 	// METHODS
 	//
 	
-	public function new (newWidth:Int = Number.INT_NOT_SET, newHeight:Int = Number.INT_NOT_SET, validateOnPropertyChange = false)
+	public function new (newWidth:Int = Number.INT_NOT_SET, newHeight:Int = Number.INT_NOT_SET)
 	{
 		super();
 #if debug
 		name = "LayoutClient" + counter++;
 		uuid = StringUtil.createUUID();
 #end
-		this.validateOnPropertyChange	= validateOnPropertyChange;
-		maintainAspectRatio				= false;
+		maintainAspectRatio = false;
+		invalidatable		= true;
 		
 		changed		= new Signal1<Int>();
 		innerBounds	= new IntRectangle( x, y, newWidth.getBiggest( 0 ) + getHorPadding(), newHeight.getBiggest( 0 ) + getVerPadding() );
 		outerBounds	= new IntRectangle( x, y, innerBounds.width + getHorMargin(), innerBounds.height + getVerMargin() );
-		width		= new SizeType( newWidth );
-		height		= new SizeType( newHeight );
+		
+		_width		= newWidth;
+		_height		= newHeight;
+		(untyped this).percentWidth		= Number.FLOAT_NOT_SET;
+		(untyped this).percentHeight	= Number.FLOAT_NOT_SET;
 		
 		innerBounds	.listeners.add( this );
 		outerBounds	.listeners.add( this );
-		width		.listeners.add( this );
-		height		.listeners.add( this );
-		
-		percentWidth	= Number.FLOAT_NOT_SET;
-		percentHeight	= Number.FLOAT_NOT_SET;
 		includeInLayout	= true;
 		
 		//remove and set correct flags
-		changes = changes.unset( Flags.PERCENT_WIDTH | Flags.PERCENT_HEIGHT ).set( Flags.X | Flags.Y );
-		if (width.value.isSet())	changes = changes.set( Flags.WIDTH );
-		if (height.value.isSet())	changes = changes.set( Flags.HEIGHT );
+		changes = changes.set( Flags.X | Flags.Y | Flags.WIDTH * newWidth.isSet().boolCalc() | Flags.HEIGHT * newHeight.isSet().boolCalc() );
 		
-		state				= new SimpleStateMachine<ValidateStates>( ValidateStates.validated );
+		state				= new SimpleStateMachine<ValidateStates>( changes == 0 ? ValidateStates.validated : ValidateStates.invalidated );
 		hasValidatedHeight	= false;
 		hasValidatedWidth	= false;
+		
+	//	Assert.that( state.current == ValidateStates.validated && changes == 0, name+"; "+readChanges() );
 	}
 	
 	
@@ -169,23 +191,23 @@ class LayoutClient extends Invalidatable
 		if (parent != null && parent.children != null && parent.children.has(this))
 			parent.children.remove(this);
 		
-		width.dispose();
-		height.dispose();
-		innerBounds.dispose();
-		outerBounds.dispose();
-		state.dispose();
-		changed.dispose();
+		innerBounds	.dispose();
+		outerBounds	.dispose();
+		state		.dispose();
+		changed		.dispose();
 		
-		relative		= null;		//do not dispose relative, can be used by other clients as well
+		//don't trigger the setters for the properties below
+		(untyped this).relative			= null;		//do not dispose relative, can be used by other clients as well
+		(untyped this).widthValidator	= null;		//do not dispose widthValidator, can be used by other clients as well
+		(untyped this).heightValidator	= null;		//do not dispose heightValidator, can be used by other clients as well
+		(untyped this).padding			= (untyped this).margin	= null;
 		
 		percentWidth	= percentHeight	= Number.FLOAT_NOT_SET;
-		width			= height		= null;
 		innerBounds		= outerBounds	= null;
-		padding			= margin		= null;
-		state		= null;
-	//	events		= null;
-		parent		= null;
-		changed		= null;
+		state			= null;
+	//	events			= null;
+		parent			= null;
+		changed			= null;
 		
 		super.dispose();
 	}
@@ -193,23 +215,27 @@ class LayoutClient extends Invalidatable
 	
 	private function resetProperties () : Void
 	{
-		validateOnPropertyChange = false;
 		parent	= null;
 		margin	= null;
 		padding = null;
-		x = y = width.value = height.value = 0;
+		x = y = width = height = 0;
 		validate();
 		changes	= 0;
 	}
 	
+	
+	public inline function resetValidation ()
+	{
+		state.current	= ValidateStates.validated;
+		changes			= 0;
+		invalidatable	= hasValidatedWidth	= hasValidatedHeight = true;
+	}
 	
 	
 	
 	//
 	// LAYOUT METHODS
 	//
-	
-	
 	
 	/**
 	 * Method will set or unset the given propertyflag in the filledProperties
@@ -231,29 +257,25 @@ class LayoutClient extends Invalidatable
 		var oldChanges = changes;
 		changes = changes.set(change);
 		
-		if (changes == 0 || changes == oldChanges || state == null || state.current == null)
+		if (!invalidatable || changes == 0 || changes == oldChanges || state == null || state.current == null)
+			return;
+		
+		invalidateLayout();
+	}
+	
+	
+	private function invalidateLayout ()
+	{
+		if (!invalidatable || changes == 0 || state == null || state.current == null)
 			return;
 		
 		if (includeInLayout && parent != null)
-			super.invalidate(change);
+			super.invalidate(changes);
 		
 		if (state.is(ValidateStates.validated))
-			state.current = ValidateStates.invalidated;
-		
-		if (isValidating) // && (parent == null || parent.isValidating))
-		{
-		//	trace(this+".NOT invalidating; "+Flags.readProperties(change)+"; "+isValidating+"; "+parent.isValidating);
-		//	if (changes.has(Flags.WIDTH) && hasValidatedWidth)		hasValidatedWidth	= false;
-		//	if (changes.has(Flags.HEIGHT) && hasValidatedHeight)	hasValidatedHeight	= false;
-			return;
-		}
-		
-	//	if (parent != null)
-	//		trace(this+".invalidate; "+Flags.readProperties(change)); //" parent: "+parent+"; parent changes: "+Flags.readProperties(parent.changes));
-		
-		if (state.is( ValidateStates.invalidated ) && validateOnPropertyChange && (parent == null || !parent.validateOnPropertyChange))
-			validate();
+			state.current = (parent != null && parent.isInvalidated()) ? ValidateStates.parent_invalidated : ValidateStates.invalidated;
 	}
+	
 	
 	
 	public function validate ()
@@ -262,116 +284,430 @@ class LayoutClient extends Invalidatable
 			return;
 		
 		state.current = ValidateStates.validating;
-		
-		if (changes.has( Flags.MAINTAIN_ASPECT ))
-			calculateAspectRatio(width.value, height.value);
-		
-		
 		validateHorizontal();
 		validateVertical();
 		
-	//	trace("\t outer: "+outerBounds);
-	//	trace("\t inner: "+innerBounds);
-		
-		//auto validate when there is no parent or when the parent isn't invalidated
-	//	if (parent != null)
-	//		trace(this+".validate; "+readChanges() + "; p: "+parent+"; pchanges: "+Flags.readProperties(parent.changes)+"; parent.isValidating? "+parent.isValidating);
-		
-		if (validateOnPropertyChange || parent == null || !parent.isValidating)
+		if (!includeInLayout || parent == null || !parent.isValidating())
 			validated();
 	}
 	
 	
+	
 	public function validateHorizontal ()
 	{
-		if (hasValidatedWidth || changes == 0) {
-			hasValidatedWidth = true;
-			return;
-		}
-		
-		state.current = ValidateStates.validating;
-		
-		//force width validation if there's a validator but there's no width set yet
-		if (width.value.notSet() && width.validator != null)
-			width.validateValue();
-		
-		//make sure the aspect-ratio is set when maintainAspectRatio is set to true
-		if (maintainAspectRatio && aspectRatio.notSet())
-			calculateAspectRatio(width.value, height.value);
-		
-		innerBounds.invalidatable = outerBounds.invalidatable = false;
-		
-		if (changes.has(Flags.WIDTH))
+		if (changes > 0)
 		{
-			applyWidthAspectRatio();
-			
-			innerBounds.width = width.value.getBiggest( 0 ) + getHorPadding();
-			outerBounds.width = innerBounds.width + getHorMargin();
+#if debug	Assert.notEqual( state.current, ValidateStates.validated, name+"; "+readChanges() ); #end
+			state.current = ValidateStates.validating;
+			hasValidatedWidth = true;
 		}
-		
-		if (changes.has(Flags.MARGIN))
-			innerBounds.left = (margin == null) ? outerBounds.left : outerBounds.left + margin.left;
-		
-		innerBounds.resetValidation();
-		outerBounds.resetValidation();
-		hasValidatedWidth = true;
 	}
+	
 	
 	
 	public function validateVertical ()
 	{
-		if (hasValidatedHeight || changes == 0) {
-			hasValidatedHeight = true;
-			return;
-		}
-		
-		state.current = ValidateStates.validating;
-		
-		//force height validation if there's a validator buth there's no height set yet
-		if (height.value.notSet() && height.validator != null)
-			height.validateValue();
-		
-		//make sure the aspect-ratio is set when maintainAspectRatio is set to true
-		if (maintainAspectRatio && aspectRatio.notSet())
-			calculateAspectRatio(width.value, height.value);
-		
-		innerBounds.invalidatable = outerBounds.invalidatable = false;
-		
-		if (changes.has(Flags.HEIGHT))
+		if (changes > 0)
 		{
-			applyHeightAspectRatio();
-			
-			innerBounds.height = height.value.getBiggest( 0 ) + getVerPadding();
-			outerBounds.height = innerBounds.height + getVerMargin();
+#if debug	Assert.notEqual( state.current, ValidateStates.validated, name+"; "+readChanges() ); #end
+			state.current = ValidateStates.validating;
+			hasValidatedHeight = true;
 		}
-		
-		if (changes.has(Flags.MARGIN))
-			innerBounds.top = (margin == null) ? outerBounds.top : outerBounds.top + margin.top;
-		
-		innerBounds.resetValidation();
-		outerBounds.resetValidation();
-		hasValidatedHeight = true;
 	}
+	
 	
 	
 	public function validated ()
 	{
-		if (changes > 0)
-		{
-		//	if (!hasValidatedWidth)		validateHorizontal();
-		//	if (!hasValidatedHeight)	validateVertical();
-			
-			if (changes.has( Flags.WIDTH_PROPERTIES | Flags.HEIGHT_PROPERTIES | Flags.X | Flags.Y ))
-				changed.send( changes );
-			
-			changes = 0;
-		}
+		//make sure the changes property is resetted first. If something responds to a state-change or changed event, the property needs to be empty
+		var lastChanges = changes;
+		changes			= 0;
 		
 		state.current = ValidateStates.validated;
-		hasValidatedWidth	= false;
-		hasValidatedHeight	= false;
+		if (lastChanges.has( Flags.WIDTH_PROPERTIES | Flags.HEIGHT_PROPERTIES | Flags.X | Flags.Y ))
+			changed.send( lastChanges );
 	}
 	
+	
+	
+	
+	
+	//
+	// SIZE METHODS
+	//
+	
+	private inline function getWidth ()		{ return _width; }
+	private inline function getHeight ()	{ return _height; }
+	
+	
+	/**
+	 * Setter for width value.
+	 * It will do the following steps:
+	 * 		1. validate width (aspectratio / min-max-value)
+	 *		2. set width
+	 *		3. update inner/outerbounds
+	 *		4. invalidate object
+	 *		5. apply aspectratio to height
+	 */
+	private  function setWidth (v:Int)
+	{
+		if (_width != v)
+		{
+			//step 1 - 4
+			updateAllWidths( validateWidth( v, Flags.VALIDATE_ALL ) );
+			if (maintainAspectRatio)
+				updateAllHeights( calcHeightForWidth(v) );	//calling this method won't trigger the setHeight method (to prevend infinite loops)
+		}
+		
+		return _width;
+	}
+	
+	
+	/**
+	 * Setter for height value.
+	 * @see setWidth
+	 */
+	private  function setHeight (v:Int)
+	{
+		if (_height != v)
+		{
+			updateAllHeights( validateHeight( v, Flags.VALIDATE_ALL ) );
+			
+			if (maintainAspectRatio)
+				updateAllWidths( calcWidthForHeight(v) );	//calling this method won't trigger the setWidth method (to prevend infinite loops)
+		}
+		
+		return _height;
+	}
+	
+	
+	
+	/**
+	 * Method will validate the given value against the given validate-options.
+	 * The method will try to make the new-width fit in
+	 */
+	private function validateWidth (v:Int, options:Int) : Int
+	{
+		if (v.notSet() || options == 0)
+			return v;
+		
+		// 1. validate value with min/max value (if they are set)
+		if (options.has( Flags.VALIDATE_RANGE ) && widthValidator != null)
+			v = widthValidator.validate(v);
+		
+		
+		if (options.has( Flags.VALIDATE_ASPECT ) && maintainAspectRatio)
+		{
+			// 2. validate the new height
+			var h1 = calcHeightForWidth( v );
+			var h2 = validateHeight( h1, Flags.VALIDATE_RANGE );
+			
+			if (h1 != h2)
+			{
+				// 3. if h1 is different then h2, we need to recalculate the width
+				var w1 = calcWidthForHeight( h2 );
+#if debug		var w2 = validateWidth( w1, Flags.VALIDATE_RANGE );
+				Assert.equal( w1, w2, "It seems as if the width/height combination is impossible with the min-max restrictions.. WidthValidator: "+widthValidator+"; heightValidator: "+heightValidator+"; "+this);
+#end			
+				v = w1;
+			}
+		}
+		
+		// 4. return the validated width
+		return v;
+	}
+	
+	
+	
+	/**
+	 * Method will validate the given value against the given validate-options.
+	 * The method will try to make the new-height fit in
+	 */
+	private function validateHeight (v:Int, options:Int) : Int
+	{
+		if (v.notSet() || options == 0)
+			return v;
+		
+		// 1. validate value with min/max value (if they are set)
+		if (options.has( Flags.VALIDATE_RANGE ) && heightValidator != null)
+			v = heightValidator.validate(v);
+		
+		
+		if (options.has( Flags.VALIDATE_ASPECT ) && maintainAspectRatio)
+		{
+			// 2. validate the new width
+			var w1 = calcWidthForHeight( v );
+			var w2 = validateWidth( w1, Flags.VALIDATE_RANGE );
+			
+			if (w1 != w2)
+			{
+				// 3. if w1 is different then w2, we need to recalculate the height
+				var h1 = calcHeightForWidth( w2 );
+#if debug		var h2 = validateHeight( h1, Flags.VALIDATE_RANGE );
+				Assert.equal( h1, h2, "It seems as if the width/height combination is impossible with the min-max restrictions.. WidthValidator: "+widthValidator+"; heightValidator: "+heightValidator+"; "+this);
+#end			
+				v = h1;
+			}
+		}
+		
+		// 4. return the validated height
+		return v;
+	}
+	
+	
+	
+	
+	/**
+	 * Method will change the value of the width property and the inner- and 
+	 * outerbounds to make sure they all have the same value.
+	 * 
+	 * The given value will not be validated.
+	 * Do not call this method directly! This will be done by setWidth who will
+	 * also validate the value first.
+	 * 
+	 * @param v 		new value for _width property
+	 * @param force		Flag indicating that all properties should get updated, 
+	 * 					even though nothing has changed.
+	 * 
+	 * @return the _width value
+	 */
+	private function updateAllWidths (v:Int, force:Bool = false) : Int
+	{
+		if (!force && _width == v && v.isSet())
+			return v;
+		
+		var outer = outerBounds, inner = innerBounds;
+		outer.invalidatable = inner.invalidatable = false;
+		
+		_width		= v;
+		inner.width = getUsableWidth() + getHorPadding();
+		outer.width = inner.width + getHorMargin();
+		
+		outer.resetValidation();
+		inner.resetValidation();
+		
+		hasValidatedWidth = false;
+		invalidate( Flags.WIDTH );
+		
+		return v;
+	}
+	
+	
+	/**
+	 * Method will change the value of the height property and the inner- and 
+	 * outerbounds to make sure they all have the same value.
+	 * 
+	 * The given value will not be validated.
+	 * Do not call this method directly! This will be done by setHeight who will
+	 * also validate the value first.
+	 * 
+	 * @param v 		new value for _height property
+	 * @param force		Flag indicating that all properties should get updated, 
+	 * 					even though nothing has changed.
+	 * 
+	 * @return the _height value
+	 */
+	private function updateAllHeights (v:Int, force:Bool = false) : Int
+	{
+		if (!force && _height == v && v.isSet())
+			return v;
+		
+		var outer = outerBounds, inner = innerBounds;
+		outer.invalidatable = inner.invalidatable = false;
+		
+		_height			= v;
+		inner.height	= getUsableHeight() + getVerPadding();
+		outer.height	= inner.height + getVerMargin();
+		
+		outer.resetValidation();
+		inner.resetValidation();
+		
+		hasValidatedHeight = false;
+		invalidate( Flags.HEIGHT );
+		
+		return v;
+	}
+	
+	
+	/**
+	 * @return _width if the value is set, otherwise '0' or the minWidth
+	 */
+	private inline function getUsableWidth ()
+	{
+		var v = _width;
+		if (v.notSet())		v = widthValidator != null ? widthValidator.min : 0;
+		if (v.notSet())		v = 0;
+		return v;
+	}
+	
+	
+	/**
+	 * @return _height if the value is set, otherwise '0'
+	 */
+	private inline function getUsableHeight ()
+	{
+		var v = _height;
+		if (v.notSet())		v = heightValidator != null ? heightValidator.min : 0;
+		if (v.notSet())		v = 0;
+		return v;
+	}
+	
+	
+	/**
+	 * Internal method that will update all the values of the innerBounds 
+	 * without sending an change event.
+	 * 
+	 * Method is used when the padding/margin changes.
+	 */
+	private inline function updateInnerBounds ()
+	{
+		var box = innerBounds;
+		box.invalidatable	= false;
+		box.left			= margin == null ? x : x + margin.left;
+		box.top				= margin == null ? y : y + margin.top;
+		box.width			= getUsableWidth() + getHorPadding();
+		box.height			= getUsableHeight() + getVerPadding();
+		box.resetValidation();
+	}
+	
+	
+	/**
+	 * internal method that will update all the values of the outerbounds 
+	 * without sending an change event.
+	 * 
+	 * Method is used when the padding/margin changes.
+	 */
+	private inline function updateOuterBounds ()
+	{
+		var box = outerBounds;
+		box.invalidatable	= false;
+		box.left			= x;
+		box.top				= y;
+		box.width			= getUsableWidth() + getHorPadding() + getHorMargin();
+		box.height			= getUsableHeight() + getVerPadding() + getVerMargin();
+		box.resetValidation();
+	}
+	
+	
+	
+	
+	
+	//
+	// ASPECTRATIO METHODS
+	//
+	
+	
+	private inline function calcWidthForHeight (h:Int) : Int	{ return (h * aspectRatio).roundFloat(); }
+	private inline function calcHeightForWidth (w:Int) : Int	{ return (w / aspectRatio).roundFloat(); }
+	
+	
+	private inline function calculateAspectRatio (w:Int, h:Int)
+	{
+		var aspectRatio = 0.0;
+		if (w.isSet() && h.isSet() && w > 0 && h > 0)
+		{
+			aspectRatio	= w / h;
+			validateAspectRatio(w, h);
+		}
+		return aspectRatio;
+	}
+	
+	
+	/**
+	 * Method will make sure that that if maintain-aspect ratio is set to true,
+	 * the aspect-ratio applyable is.
+	 * F.e if the aspect-ratio is 4:7 and width and height both have a min-value
+	 * of 50 and a max-value of 60, it's impossible to give both values a valid
+	 * value.
+	 * 
+	 * The method will throw an error in debug-mode and in release-mode it will
+	 * turn maintainAspectRatio off.
+	 */
+	private function validateAspectRatio (width:Int, height:Int) : Void
+	{
+		if (!maintainAspectRatio || widthValidator == null || heightValidator == null || aspectRatio <= 0)
+			return;
+		
+		Assert.that(aspectRatio != 0, "there's no aspect-ratio given.. value is 0; "+this+". w: "+width+", h: "+height);
+		
+		var w1	= calcWidthForHeight( height );
+		var w2	= validateWidth( w1, Flags.VALIDATE_RANGE );
+		
+		if (w1 != w2)
+		{
+			var h1	= calcHeightForWidth( w2 );
+			var h2	= validateHeight( h1, Flags.VALIDATE_RANGE );
+			
+#if debug	if (h1 != h2)
+				throw "Impossible to maintain the aspectratio for "+this+". Aspect-ratio is "+aspectRatio+", width = "+width+"; height = "+height+"; width-validator: "+widthValidator+"; height-validator: "+heightValidator;
+#end
+			maintainAspectRatio = h1 != h2;
+		}
+	}
+	
+	
+	
+	
+	
+	//
+	// OTHER METHODS
+	//
+	
+	/**
+	 * Method will resize the LayoutClient. The aspectratio will be 
+	 * recalculated If maintainAspectRatio is set to true.
+	 */
+	public function resize (newWidth:Int, newHeight:Int)
+	{
+		if (maintainAspectRatio)
+			aspectRatio	= calculateAspectRatio( newWidth, newHeight );
+		
+		updateAllWidths(  validateWidth(  newWidth,  Flags.VALIDATE_ALL ) );
+		updateAllHeights( validateHeight( newHeight, Flags.VALIDATE_ALL ) );
+	}
+	
+	
+	
+	
+	
+	override public function invalidateCall (propChanges:Int, sender:IInvalidatable)
+	{
+		if (propChanges == 0)
+			return;
+		
+		if (!sender.is(IntRectangle)) {
+			super.invalidateCall( propChanges, sender );
+			return;
+		}
+		
+		
+		if (propChanges == RectangleFlags.BOTTOM || propChanges == RectangleFlags.RIGHT)
+			return;
+		
+		var box = sender.as(IntRectangle);
+		
+		if (box == outerBounds)
+		{
+			if (propChanges.has( RectangleFlags.LEFT ))		x		= box.left;
+			if (propChanges.has( RectangleFlags.TOP ))		y		= box.top;
+			if (propChanges.has( RectangleFlags.WIDTH ))	width	= box.width - getHorPadding() - getHorMargin();
+			if (propChanges.has( RectangleFlags.HEIGHT ))	height	= box.height - getVerPadding() - getVerMargin();
+		}
+	
+		else if (box == innerBounds)
+		{
+			if (propChanges.has( RectangleFlags.LEFT ))		x		= margin == null ? box.left : box.left - margin.left;
+			if (propChanges.has( RectangleFlags.TOP ))		y		= margin == null ? box.top : box.top - margin.top;
+			if (propChanges.has( RectangleFlags.WIDTH ))	width	= box.width - getHorPadding();
+			if (propChanges.has( RectangleFlags.HEIGHT ))	height	= box.height - getVerPadding();
+		}
+	}
+	
+	
+	
+	//
+	// GETTERS / SETTERS
+	//
 	
 	public inline function getHorPosition ()
 	{
@@ -393,152 +729,22 @@ class LayoutClient extends Invalidatable
 	}
 	
 	
+	public inline function getHorPadding () : Int	{ return padding == null ? 0 : padding.left + padding.right; }
+	public inline function getVerPadding() : Int	{ return padding == null ? 0 : padding.top + padding.bottom; }
+	public inline function getHorMargin () : Int	{ return margin == null ? 0 : margin.left + margin.right; }
+	public inline function getVerMargin() : Int		{ return margin == null ? 0 : margin.top + margin.bottom; }
 	
-	/**
-	 * Method will resize the LayoutClient. The aspectratio will be 
-	 * recalculated If maintainAspectRatio is set to true.
-	 */
-	public function resize (newWidth:Int, newHeight:Int)
-	{
-		width.value		= newWidth;
-		height.value	= newHeight;
-		
-		if (maintainAspectRatio)
-			invalidate( Flags.MAINTAIN_ASPECT );
+	
+	public inline function isValidating () : Bool	{
+		return state == null ? false : state.is(ValidateStates.validating) || (parent != null && parent.isValidating());
 	}
 	
 	
-	/**
-	 * Method is called when the width is changed and will apply the 
-	 * aspect-ratio on the height.
-	 */
-	private function applyWidthAspectRatio ()
-	{
-		if (!maintainAspectRatio)
-			return;
-		
-		var newH = calcVerAspectRatioFor( width.value );
-		if (height.validator != null)
-		{
-			//make sure the new height is valid
-			height.value = height.validator.validate(newH);
-			
-			//if the new-height wasn't valid, update the width-value
-			if (height.value != newH)
-				applyHeightAspectRatio();
-			
-		//	trace("for "+width.value+"; newH: "+newH+"; aspect: "+aspectRatio+"; "+this+"; "+oldH+" => "+height.value+"; "+height.validator);
-		}
-		else
-			height.value = newH;
-	}
-	
-	
-	/**
-	 * Method is called when the height is changed and will apply the 
-	 * aspect-ratio on the width.
-	 */
-	private function applyHeightAspectRatio ()
-	{
-		if (!maintainAspectRatio)
-			return;
-		
-		var newW = calcHorAspectRatioFor( height.value );
-		if (width.validator != null)
-		{
-			//make sure the new width is valid
-			width.value = width.validator.validate(newW);
-			
-			//if the new-width wasn't valid, update the height-value
-			if (width.value != newW)
-				applyWidthAspectRatio();
-			
-		//	trace("for "+height.value+"; newW: "+newW+"; aspect: "+aspectRatio+"; "+this+"; "+oldW+" => "+width.value+"; "+width.validator);
-		}
-		else
-			width.value = newW;
-	}
-	
-	
-	
-	private inline function calculateAspectRatio (w:Int, h:Int)
-	{
-		if (w.isSet() && h.isSet())
-		{
-			if (!maintainAspectRatio)
-				aspectRatio = 0;
-			else if (w > 0 && h > 0)
-			{
-				aspectRatio	= w / h;
-				validateAspectRatio();
-			}
-		
-	//		trace("aspect: "+aspectRatio+"; size: "+w+", "+h+"; "+this);
-		}
-	}
-	
-	private inline function calcHorAspectRatioFor (h:Int) : Int	{ return (h * aspectRatio).roundFloat(); }
-	private inline function calcVerAspectRatioFor (w:Int) : Int	{ return (w / aspectRatio).roundFloat(); }
-	
-	
-	
-	/**
-	 * Method will make sure that that if maintain-aspect ratio is set to true,
-	 * the aspect-ratio applyable is.
-	 * F.e if the aspect-ratio is 4:7 and width and height both have a min-value
-	 * of 50 and a max-value of 60, it's impossible to give both values a valid
-	 * value.
-	 * 
-	 * The method will throw an error in debug-mode and in release-mode it will
-	 * turn maintainAspectRatio off.
-	 */
-	private function validateAspectRatio () : Void
-	{
-		if (!maintainAspectRatio || width.validator == null || height.validator == null)
-			return;
-		
-		Assert.that(aspectRatio != 0, "there's no aspect-ratio given.. value is 0; "+this+". w: "+width.value+", h: "+height.value);
-		
-		var valid	= true;
-		var newW	= calcHorAspectRatioFor( height.value );
-		var newW2	= width.validator != null ? width.validator.validate(newW) : newW;
-		
-	//	trace(newW+"; "+newW2+"; "+aspectRatio+"; "+height.value);
-		if (newW != newW2)
-		{
-			var newH	= calcVerAspectRatioFor( newW2 );
-			valid		= height.validator == null || height.validator.validate(newH) == newH;
-		}
-		
-#if debug
-		if (!valid)
-			throw "Impossible to maintain the aspectratio for "+this+". Aspect-ratio is "+aspectRatio+", width = "+width.value+"; height = "+height.value+"; width-validator: "+width.validator+"; height-validator: "+height.validator;
-#else
-		if (!valid)
-			maintainAspectRatio = false;
-#end
-	}
-	
-	
-	
-	//
-	// GETTERS / SETTERS
-	//
-	
-	private inline function getHorPadding () : Int	{ return padding == null ? 0 : padding.left + padding.right; }
-	private inline function getVerPadding() : Int	{ return padding == null ? 0 : padding.top + padding.bottom; }
-	private inline function getHorMargin () : Int	{ return margin == null ? 0 : margin.left + margin.right; }
-	private inline function getVerMargin() : Int	{ return margin == null ? 0 : margin.top + margin.bottom; }
-	
-	
-	private inline function getIsValidating () : Bool {
-		return state == null ? false : state.is(ValidateStates.validating) || (parent != null && parent.isValidating);
-	}
-	
-	
-	private inline function getIsInvalidated () : Bool {
+	public inline function isInvalidated () : Bool	{
 		return state == null ? false : state.is(ValidateStates.invalidated) || state.is(ValidateStates.parent_invalidated);
 	}
+	
+	
 	
 	
 	//
@@ -550,9 +756,9 @@ class LayoutClient extends Invalidatable
 		if (x != v)
 		{
 			x = v;
-			invalidate( Flags.X );
 			outerBounds.left = v;
-			innerBounds.left = (margin == null) ? outerBounds.left : outerBounds.left + margin.left;
+			innerBounds.left = (margin == null) ? v : v + margin.left;
+			invalidate( Flags.X );
 		}
 		return x;
 	}
@@ -563,58 +769,11 @@ class LayoutClient extends Invalidatable
 		if (y != v)
 		{
 			y = v;
-			invalidate( Flags.Y );
 			outerBounds.top = v;
 			innerBounds.top = (margin == null) ? v : v + margin.top;
+			invalidate( Flags.Y );
 		}
 		return y;
-	}
-	
-	
-	override public function invalidateCall (propChanges:Int, sender:IInvalidatable)
-	{
-		if (propChanges == 0)
-			return;
-		
-		if (sender.is(IntRectangle))
-		{
-			if (/*state.current == ValidateStates.invalidated || */propChanges == RectangleFlags.BOTTOM || propChanges == RectangleFlags.RIGHT)
-				return;
-		
-			var box = sender.as(IntRectangle);
-		
-			if (box == outerBounds)
-			{
-				if (propChanges.has( RectangleFlags.LEFT ))		x = box.left;
-				if (propChanges.has( RectangleFlags.TOP ))		y = box.top;
-				if (propChanges.has( RectangleFlags.WIDTH ))	width.value		= box.width - getHorPadding() - getHorMargin();
-				if (propChanges.has( RectangleFlags.HEIGHT ))	height.value	= box.height - getVerPadding() - getVerMargin();
-			//	trace("\t\t\t"+this+".outerBounds changed "+box+"; "+getVerPadding()+"; "+getVerMargin());
-			//	trace(this+".invalidateCall from outerBounds "+RectangleFlags.readProperties(propChanges) + "; state: "+state.current + "; w: "+width.value+"; h: "+height.value+"; x: "+x+"; y: "+y);
-			}
-		
-			else if (box == innerBounds)
-			{
-				if (propChanges.has( RectangleFlags.LEFT ))		x = margin == null ? box.left : box.left - margin.left;
-				if (propChanges.has( RectangleFlags.TOP ))		y = margin == null ? box.top : box.top - margin.top;
-				if (propChanges.has( RectangleFlags.WIDTH ))	width.value		= box.width - getHorPadding();
-				if (propChanges.has( RectangleFlags.HEIGHT ))	height.value	= box.height - getVerPadding();
-			//	trace(this+".invalidateCall from innerBounds "+RectangleFlags.readProperties(propChanges) + "; state: "+state.current+"; w: "+width.value+"; h: "+height.value+"; x: "+x+"; y: "+y);
-			}
-		}
-		
-		else if (sender == width)
-		{
-			if (propChanges.has( ValueFlags.VALUE ))		invalidate( Flags.WIDTH );
-			if (propChanges.has( ValueFlags.VALIDATOR ))	invalidate( Flags.WIDTH_CONSTRAINTS );
-		}
-		else if (sender == height)
-		{
-			if (propChanges.has( ValueFlags.VALUE ))		invalidate( Flags.HEIGHT );
-			if (propChanges.has( ValueFlags.VALIDATOR ))	invalidate( Flags.HEIGHT_CONSTRAINTS );
-		}
-		else
-			super.invalidateCall( propChanges, sender );
 	}
 	
 	
@@ -645,6 +804,9 @@ class LayoutClient extends Invalidatable
 		if (padding != v)
 		{
 			padding = v;
+			updateInnerBounds();
+			updateOuterBounds();
+			
 			invalidate( Flags.HEIGHT | Flags.WIDTH | Flags.PADDING );
 		}
 		return padding;
@@ -653,8 +815,12 @@ class LayoutClient extends Invalidatable
 	
 	private function setMargin (v:Box)
 	{
-		if (margin != v) {
+		if (margin != v)
+		{
 			margin = v;
+			updateInnerBounds();
+			updateOuterBounds();
+			
 			invalidate( Flags.HEIGHT | Flags.WIDTH | Flags.MARGIN );
 		}
 		return padding;
@@ -663,23 +829,14 @@ class LayoutClient extends Invalidatable
 	
 	private inline function setParent (v)
 	{
-		if (parent != v)
-		{
-		//	if (parent != null && parent.state != null)
-		//		parent.state.change.unbind( this );
-			
-			parent = v;
-		
-		//	if (parent != null)
-		//		handleParentStateChange.on( parent.state.change, this );
-		}
-		return v;
+		return parent = v;
 	}
 	
 	
 	private inline function setIncludeInLayout (v:Bool)
 	{
-		if (includeInLayout != v) {
+		if (includeInLayout != v)
+		{
 			includeInLayout = v;
 			if (v)		invalidate( Flags.INCLUDE | Flags.PERCENT_HEIGHT | Flags.PERCENT_WIDTH | Flags.RELATIVE | changes );
 			else		invalidate( Flags.INCLUDE );
@@ -688,12 +845,13 @@ class LayoutClient extends Invalidatable
 	}
 	
 	
-	private inline function setAspectRatio (v:Bool) : Bool
+	private  function setMaintainAspectRatio (v:Bool) : Bool
 	{
 		if (v != maintainAspectRatio)
 		{
 			maintainAspectRatio = v;
-			invalidate( Flags.ASPECT_RATIO | Flags.MAINTAIN_ASPECT );
+			if (v)
+				resize(width, height);	//resize method will take care of applying and calculating the aspect-ratio
 		}
 		return v;
 	}
@@ -703,15 +861,57 @@ class LayoutClient extends Invalidatable
 	{
 		if (relative != v)
 		{
-			if (relative != null && relative.changed != null)
-				relative.changed.unbind( this );
-		
+			if (relative != null)	relative.change.unbind( this );
+			if (v != null)			handleRelativeChange.on( v.change, this );
+			
 			relative = v;
-			if (relative != null)
-				handleRelativeChange.on( relative.changed, this );
+			handleRelativeChange();
 		}
 		return v;
 	}
+	
+	
+	private inline function setWidthValidator (v:IntRangeValidator)
+	{
+		if (widthValidator != v)
+		{
+			if (widthValidator != null)			widthValidator.change.unbind( this );
+			if (v != null)						handleWidthValidatorChange.on( v.change, this );
+			
+			widthValidator = v;
+			handleWidthValidatorChange();
+		}
+		return v;
+	}
+	
+	
+	private inline function setHeightValidator (v:IntRangeValidator)
+	{
+		if (heightValidator != v)
+		{
+			if (heightValidator != null)		heightValidator.change.unbind( this );
+			if (v != null)						handleHeightValidatorChange.on( v.change, this );
+			
+			heightValidator = v;
+			handleHeightValidatorChange();
+		}
+		return v;
+	}
+	
+	
+	private inline function setInvalidatable (v:Bool)
+	{
+		if (v != invalidatable)
+		{
+			invalidatable = v;
+			
+			//broadcast queued changes?
+			if (v && changes > 0)
+				invalidateLayout();
+		}
+		return v;
+	}
+	
 	
 	
 	
@@ -719,11 +919,11 @@ class LayoutClient extends Invalidatable
 	// EVEMT HANDLERS
 	//
 	
+	private inline function handleRelativeChange ()			{ invalidate(Flags.RELATIVE); }
+	private inline function handleWidthValidatorChange ()	{ updateAllWidths ( validateWidth ( _width, Flags.VALIDATE_ALL ) ); }
+	private inline function handleHeightValidatorChange ()	{ updateAllHeights( validateHeight( _height, Flags.VALIDATE_ALL ) ); }
 	
-	private function handleRelativeChange ()
-	{
-		invalidate(Flags.RELATIVE);
-	}
+	
 	
 	
 #if debug

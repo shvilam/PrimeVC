@@ -53,13 +53,10 @@ class ScrollHelper
 		Assert.notNull( target.container, "target's container can't be null for "+target);
 		Assert.notNull( mouseObj, "MouseObj for "+target+" can't be null" );
 		
-		var mousePos = (mouseObj.target != target.container.as(TargetType))
-							? target.container.as(IDisplayObject).globalToLocal(mouseObj.stage)
-							: mouseObj.local;
-		
-		var scrollLayout = target.scrollableLayout;
-		mousePos.x -= scrollLayout.getHorPosition() + scrollLayout.padding.left;
-		mousePos.y -= scrollLayout.getVerPosition() + scrollLayout.padding.top;
+		var mousePos		 = target.container.globalToLocal(mouseObj.stage);
+		var scrollLayout	 = target.scrollableLayout;
+		mousePos.x			-= scrollLayout.getHorPosition() + scrollLayout.padding.left;
+		mousePos.y			-= scrollLayout.getVerPosition() + scrollLayout.padding.top;
 		return mousePos;
 	}	
 #end

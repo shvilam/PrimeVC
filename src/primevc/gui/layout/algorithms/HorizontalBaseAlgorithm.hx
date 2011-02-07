@@ -36,6 +36,7 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutFlags;
   using primevc.utils.BitUtil;
+  using primevc.utils.IfUtil;
   using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
@@ -111,7 +112,7 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 	 */
 	public inline function isInvalid (changes:Int)	: Bool
 	{
-		return (changes.has( LayoutFlags.WIDTH ) && group.childWidth.notSet()) || ( vertical != null && changes.has( LayoutFlags.HEIGHT ) );
+		return (changes.has( LayoutFlags.WIDTH * group.childWidth.notSet().boolCalc() )) || ( vertical != null && changes.has( LayoutFlags.HEIGHT ) );
 	}
 
 
@@ -166,10 +167,10 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 			if (group.childHeight.notSet())
 			{	
 				for (child in group.children) {
-					if (!child.includeInLayout || child.height.value.notSet())
+					if (!child.includeInLayout)
 						continue;
 					
-					child.outerBounds.top = start + ( (group.height.value - child.outerBounds.height) * .5 ).roundFloat();
+					child.outerBounds.top = start + ( (group.height - child.outerBounds.height) * .5 ).roundFloat();
 				}
 			}
 			else

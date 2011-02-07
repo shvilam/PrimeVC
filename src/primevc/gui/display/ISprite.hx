@@ -32,7 +32,6 @@ package primevc.gui.display;
  import primevc.gui.traits.IDisplayable;
 #end
  import primevc.gui.traits.IGraphicsOwner;
- import primevc.gui.traits.IInteractive;
 
 
 /**
@@ -43,8 +42,7 @@ package primevc.gui.display;
  */
 interface ISprite 
 		implements IDisplayContainer
-	,	implements IInteractive
-	,	implements IDisplayObject
+	,	implements IInteractiveObject
 	,	implements IGraphicsOwner
 {
 #if flash9
@@ -55,6 +53,6 @@ interface ISprite
 	public function stopDrag()	: Void;
 	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) : Void;
 #else
-	public var dropTarget		(default, null)		: IDisplayable;
+	public var dropTarget		(default, null)	: IDisplayable;
 #end
 }

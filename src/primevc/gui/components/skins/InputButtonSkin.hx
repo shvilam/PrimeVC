@@ -20,71 +20,30 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.traits;
-  using primevc.utils.BitUtil;
+package primevc.gui.components.skins;
+
 
 
 /**
- * QueueingInvalidatable allows to disable the broadcasting of an invalidate
- * call. When the broadcasting is disabled, all of the changes will be stored
- * in the "changes" flag.
- * 
- * When the broadcasting is enabled again, the changes will be dispatched.
- * 
+ * Skin for a button with an icon and a label where the label is an inputfield
  * @author Ruben Weijers
- * @creation-date Nov 08, 2010
+ * @creation-date Jan 27, 2011
  */
-class QueueingInvalidatable extends Invalidatable, implements IQueueingInvalidatable
+class InputButtonSkin extends ButtonIconLabelSkin
 {
-	/**
-	 * Flag indicating if the object should broadcast an invalidate call or do
-	 * nothing with it.
-	 */
-	public var invalidatable	(default, setInvalidatable)	: Bool;
-	public var changes			(default, null)				: Int;
-	
-	
-	public function new ()
+	override public function createChildren ()
 	{
-		super();
-		resetValidation();
-	}
-	
-	
-	public inline function resetValidation ()
-	{
-		changes			= 0;
-		invalidatable	= true;
-	}
-	
-	
-	override public function invalidate (change:Int) : Void
-	{
-		if (invalidatable)
-			super.invalidate(change);
-		else
-			changes = changes.set(change);
-	}
-	
-	
-	private inline function setInvalidatable (v:Bool)
-	{
-		if (v != invalidatable)
-		{
-			invalidatable = v;
-			
-			//broadcast queued changes?
-			if (v && changes > 0) {
-				invalidate(changes);
-				changes = 0;
-			}
-		}
-		return v;
+		super.createChildren();
+		iconGraphic.maintainAspectRatio = true;
+#if flash9
+		labelField.makeEditable();
+		labelField.mouseEnabled = labelField.tabEnabled = true;
+#end
 	}
 }

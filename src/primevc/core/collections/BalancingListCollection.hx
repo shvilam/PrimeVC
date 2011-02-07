@@ -256,7 +256,7 @@ class BalancingListCollection <DataType> implements IEditableList <DataType>,
 		
 		var listPos = getListNumForPosition(pos);
 		
-		if (lists.length <= listPos)
+		if (length <= listPos)
 			addList( new BalancingList<DataType>() );
 		
 		//1. find corrent list to add item in
@@ -307,7 +307,7 @@ class BalancingListCollection <DataType> implements IEditableList <DataType>,
 	 * @param	item
 	 * @return	new position for the item
 	 */
-	private inline function moveItem (item:DataType, newPos:Int, curPos:Int = -1) : Int
+	private  function moveItem (item:DataType, newPos:Int, curPos:Int = -1) : Int
 	{
 		if		(curPos == -1)				curPos = indexOf( item );
 		if		(newPos > (length - 1))		newPos = length - 1;
@@ -343,6 +343,7 @@ class BalancingListCollection <DataType> implements IEditableList <DataType>,
 					}
 					
 					var curList = itr.next();
+					Assert.notNull(curList);
 					item		= curList.swapAtDepth( item, curDepth );
 					item		= lastList.swapAtDepth( item, lastDepth );
 					
@@ -372,6 +373,9 @@ class BalancingListCollection <DataType> implements IEditableList <DataType>,
 					}
 					
 					var curList	= itr.next();
+					Assert.notNull(curList);
+					Assert.that(curList.length > curDepth);
+					
 					item		= curList.swapAtDepth( item, curDepth );
 					item		= lastList.swapAtDepth( item, lastDepth );
 					

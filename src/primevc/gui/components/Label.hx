@@ -31,6 +31,8 @@ package primevc.gui.components;
  import primevc.gui.behaviours.components.LabelLayoutBehaviour;
  import primevc.gui.core.UIDataComponent;
  import primevc.gui.core.UITextField;
+ import primevc.gui.events.FocusState;
+ import primevc.gui.events.UserEventTarget;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.text.TextFormat;
  import primevc.gui.traits.ITextStylable;
@@ -49,11 +51,11 @@ private typedef DataType = Bindable<String>;
  */
 class Label extends UIDataComponent <DataType>, implements ITextStylable
 {
-	public var field		(default, null)			: UITextField;
+	public var field				(default, null)			: UITextField;
 	
 #if flash9
-	public var textStyle	(default, setTextStyle)	: TextFormat;
-	public var wordWrap		: Bool;
+	public var textStyle			(default, setTextStyle)	: TextFormat;
+	public var wordWrap				: Bool;
 #end
 
 	
@@ -80,6 +82,7 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 		field.autoSize			= flash.text.TextFieldAutoSize.NONE;
 		field.selectable		= false;
 		field.mouseWheelEnabled	= false;
+		field.respondToFocusOf( this );
 #end
 		
 		if (textStyle != null)
@@ -101,22 +104,12 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 	override private function removeData ()		{ field.data = null; }
 	
 	
-	public inline function makeEditable ()
-	{
 #if flash9
-		field.type			= flash.text.TextFieldType.INPUT;
-		field.selectable	= true;
-#end
-	}
-	
-	
-	public inline function makeStatic ()
+	override public function isFocusOwner (target:UserEventTarget)
 	{
-#if flash9
-		field.type			= flash.text.TextFieldType.DYNAMIC;
-		field.selectable	= false;
-#end
+		return super.isFocusOwner(target) || field.isFocusOwner(target);
 	}
+#end
 	
 	
 	

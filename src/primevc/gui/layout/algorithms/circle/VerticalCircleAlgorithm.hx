@@ -83,7 +83,7 @@ class VerticalCircleAlgorithm extends VerticalBaseAlgorithm, implements IVertica
 	
 	public inline function validateVertical ()
 	{
-	/*	var height:Int = group.height.value;
+	/*	var height:Int = group.height;
 		
 		if (group.childHeight.notSet())
 		{
@@ -96,7 +96,7 @@ class VerticalCircleAlgorithm extends VerticalBaseAlgorithm, implements IVertica
 			height = group.childHeight * (group.children.length.divCeil(2) + 1);
 		}
 		*/
-		setGroupHeight(group.height.value);
+		setGroupHeight(group.height);
 	}
 	
 	
@@ -171,7 +171,7 @@ class VerticalCircleAlgorithm extends VerticalBaseAlgorithm, implements IVertica
 	//
 	
 	private inline function getRadius () : Int {
-		return ( isEllipse ? group.height.value * .5 : Formulas.getCircleRadius(group.width.value, group.height.value) ).roundFloat();
+		return ( isEllipse ? group.height * .5 : Formulas.getCircleRadius(group.width, group.height) ).roundFloat();
 	}
 	
 #if (neko || debug)

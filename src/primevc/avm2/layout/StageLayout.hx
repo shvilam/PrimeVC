@@ -45,9 +45,9 @@ class StageLayout extends LayoutContainer
 	public function new (target:Stage)
 	{
 		stage = target;
-		super(stage.stageWidth, stage.stageHeight);
+		super(target.stageWidth, target.stageHeight);
 		
-		stage.addEventListener( "resize", stageResizeHandler );
+		target.addEventListener( "resize", stageResizeHandler );
 		stageResizeHandler();
 	}
 	
@@ -62,8 +62,9 @@ class StageLayout extends LayoutContainer
 	
 	private function stageResizeHandler (?event)
 	{
-		width.value		= stage.stageWidth;
-		height.value	= stage.stageHeight;
+	//	trace(width+ " => "+stage.stageWidth+"; "+height+ " => "+stage.stageHeight+"; "+state.current);
+		width	= stage.stageWidth;
+		height	= stage.stageHeight;
 	//	events.sizeChanged.send();
 	}
 }

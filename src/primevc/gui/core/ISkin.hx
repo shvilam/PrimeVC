@@ -28,6 +28,7 @@
  */
 package primevc.gui.core;
  import primevc.core.traits.IDisposable;
+ import primevc.gui.events.UserEventTarget;
  import primevc.gui.states.SkinStates;
  import primevc.gui.traits.IBehaving;
 
@@ -97,4 +98,15 @@ interface ISkin
 	 * update itself after some properties have changed.
 	 */
 	public function validate (changes:Int)	: Void;
+	
+	
+	
+	
+	/**
+	 * Abstract method.
+	 * Is called by the owner when an object wants to check if the owner has
+	 * focus. The skin can check if the target is one of it's children and then
+	 * return true or false.
+	 */
+	public function isFocusOwner (target:UserEventTarget) : Bool;
 }

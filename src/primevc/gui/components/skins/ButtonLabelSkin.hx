@@ -30,6 +30,7 @@ package primevc.gui.components.skins;
  import primevc.gui.components.Button;
  import primevc.gui.core.UITextField;
  import primevc.gui.core.Skin;
+ import primevc.gui.events.UserEventTarget;
   using primevc.utils.BitUtil;
 
 
@@ -51,8 +52,10 @@ class ButtonLabelSkin extends Skin<Button>
 
 	override public function createChildren ()
 	{
-		owner					.children.add( labelField = new UITextField( null, true, owner.data ) );
+		labelField = new UITextField( null, true, owner.data )
+		
 		owner.layoutContainer	.children.add( labelField.layout );
+		owner					.children.add( labelField );
 #if debug
 		labelField.id.value		= owner.id.value + "TextField";
 #end
@@ -61,6 +64,7 @@ class ButtonLabelSkin extends Skin<Button>
 		labelField.selectable		= false;
 		labelField.mouseEnabled		= false;
 		labelField.tabEnabled		= false;
+		labelField.respondToFocusOf( owner );
 
 		if (owner.textStyle != null)
 			labelField.textStyle = owner.textStyle;
@@ -87,6 +91,12 @@ class ButtonLabelSkin extends Skin<Button>
 	{
 		if (changes.has( Flags.TEXTSTYLE ))
 			labelField.textStyle = owner.textStyle;
-	}	
+	}
+	
+	
+	override public function isFocusOwner (target:UserEventTarget)
+	{
+		return labelField.isFocusOwner(target);
+	}
 #end
 }

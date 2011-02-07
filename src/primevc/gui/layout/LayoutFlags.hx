@@ -49,6 +49,7 @@ class LayoutFlags
 	public static inline var EXPLICIT_SIZE			= EXPLICIT_WIDTH | EXPLICIT_HEIGHT;
 	public static inline var MEASURED_SIZE			= MEASURED_WIDTH | MEASURED_HEIGHT;
 	public static inline var SIZE					= WIDTH | HEIGHT;
+	public static inline var SIZE_PROPERTIES		= WIDTH_PROPERTIES | HEIGHT_PROPERTIES;
 	public static inline var POSITION				= X | Y;
 	
 	public static inline var WIDTH					= 1 << 0;
@@ -121,7 +122,20 @@ class LayoutFlags
 	 * percentage property is set to fill the left space
 	 */
 	public static inline var FILL					: Int = #if neko -1073741821 #else -2147483644 #end;
-
+	
+	
+	
+	//
+	// VALIDATION FLAGS
+	//
+	
+	public static inline var VALIDATE_ASPECT		= 1 << 0;
+	public static inline var VALIDATE_RANGE			= 1 << 1;
+	public static inline var VALIDATE_ALL			= VALIDATE_RANGE | VALIDATE_ASPECT;
+	
+	
+	
+	
 
 #if debug
 	public static function readProperties (flags:Int) : String

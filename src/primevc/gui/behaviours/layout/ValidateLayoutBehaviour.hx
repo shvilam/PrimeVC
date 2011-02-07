@@ -31,6 +31,7 @@ package primevc.gui.behaviours.layout;
  import primevc.core.dispatcher.Wire;
  import primevc.gui.behaviours.ValidatingBehaviour;
  import primevc.gui.core.IUIElement;
+ import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.traits.IDrawable;
@@ -52,6 +53,8 @@ package primevc.gui.behaviours.layout;
 class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implements IPropertyValidator
 {
 	private var isNotPositionedYet	: Bool;
+	private var stateChangeWire		: Wire<Dynamic>;
+	private var layoutChangeWire	: Wire<Dynamic>;
 	
 	
 	override private function init ()
@@ -66,12 +69,14 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 		layout.name = target.id.value+"Layout";
 #end
 		
-		layoutStateChangeHandler.on( layout.state.change, this );
-		applyChanges			.on( layout.changed, this );
-		checkForChanges			.on( target.displayEvents.addedToStage, this );
+		stateChangeWire		= layoutStateChangeHandler	.on( layout.state.change, this );
+		layoutChangeWire	= applyChanges				.on( layout.changed, this );
 		
-		if (target.window != null)
-			checkForChanges();
+		updateTarget.on( target.displayEvents.addedToStage, this );
+		disableWires.on( target.displayEvents.removedFromStage, this );
+		
+		if (isOnStage())	updateTarget();
+		else				disableWires();
 	}
 	
 	
@@ -80,30 +85,64 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 		if (target.layout == null)
 			return;
 		
-		super.reset();
-		
-		var l = target.layout;
 		target.displayEvents.addedToStage.unbind( this );
-		l.state.change.unbind( this );
-		l.changed.unbind( this );
+		target.displayEvents.removedFromStage.unbind( this );
+		
+		stateChangeWire.dispose();
+		layoutChangeWire.dispose();
+		
+		super.reset();
 	}
 	
 	
-	private inline function checkForChanges ()
+	private function updateTarget ()
 	{
-		layoutStateChangeHandler( target.layout.state.current, null );
+		stateChangeWire.enable();
+		layoutChangeWire.enable();
+		
+		var curState = target.layout.state.current;
+		layoutStateChangeHandler( curState, null );
+		
+		if (curState == ValidateStates.validated)
+			applyChanges( LayoutFlags.POSITION | LayoutFlags.SIZE );
 	}
 	
+	
+	private function disableWires ()
+	{
+		stateChangeWire.disable();
+		layoutChangeWire.disable();
+		
+		if (isQueued())
+			getValidationManager().remove( this );
+		
+		Assert.that(!isQueued());
+	}
+	
+	
+#if debug
+	/**
+	 * method will return the state of all the parents/grandparents of the 
+	 * given layoutclient
+	 */
+	private function getParentsState (layout:LayoutClient, level:Int = 0) : String
+	{
+		var s = "\n\t\t\t\t[ "+level+" ] = "+layout+" => "+layout.state.current; //+"; in queue? "+isQueued();
+		if (layout.parent != null)
+			s += getParentsState( cast layout.parent, level + 1 );
+		
+		return s;
+	}
+#end
 	
 	private function layoutStateChangeHandler (newState:ValidateStates, oldState:ValidateStates)
 	{
-		if (!isOnStage())
-			return;
+		Assert.that(isOnStage(), target+"");
 		
 		if (isQueued() && newState == ValidateStates.parent_invalidated)
 			getValidationManager().remove( this );
 		
-		else if (!isQueued() && newState == ValidateStates.invalidated)
+		else if (newState == ValidateStates.invalidated)
 			invalidate();
 	}
 	
@@ -115,10 +154,14 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 	
 	public function applyChanges (changes:Int)
 	{
-		if (changes.has( LayoutFlags.X | LayoutFlags.Y ))
+		var l = target.layout;
+		
+	//	if (changes.has( LayoutFlags.SIZE | LayoutFlags.POSITION ))
+	//	if (target.id.value == "imageFrameButtonPanel" || target.id.value == "mediaList")
+	//		trace(target+"; pos: "+l.getHorPosition()+", "+l.getVerPosition()+"; size: "+l.outerBounds.width+", "+l.outerBounds.height);
+		
+		if (changes.has( LayoutFlags.POSITION ))
 		{
-			//	trace(target+".applyPosition; " + " - pos: " + target.layout.getHorPosition() + ", " + target.layout.getVerPosition() + " - old pos "+target.x+", "+target.y+"; padding? "+target.layout.padding);
-			
 			if (target.effects == null || isNotPositionedYet)
 			{
 				var l = target.layout;
@@ -149,27 +192,14 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 		
 		
 		
-		if (changes.has( LayoutFlags.WIDTH | LayoutFlags.HEIGHT ))
+		if (changes.has( LayoutFlags.SIZE ))
 		{
-		//	trace("\t"+target+".sizeChanged; outer: "+target.layout.outerBounds); //+"; inner: "+target.layout.innerBounds);
 			if (target.effects == null)
 			{
 				var b = target.layout.innerBounds;
-
 				target.rect.width	= b.width;
 				target.rect.height	= b.height;
-
-				/*if (target.is(IDrawable))
-				{
-					var t = target.as(IDrawable);
-					if (t.graphicData.border != null)
-					{
-						var borderWidth = t.graphicData.border.weight.roundFloat();
-						target.rect.width += borderWidth;
-						target.rect.height += borderWidth;
-					}
-				}*/
-
+				
 				if (!target.is(IDrawable)) {
 					target.width	= target.rect.width;
 					target.height	= target.rect.height;
@@ -177,8 +207,6 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 			}
 			else
 				target.effects.playResize();
-
-		//	trace("\t\tfinal size: "+target.rect.width+", "+target.rect.height+"\n");
 		}
 	}
 }

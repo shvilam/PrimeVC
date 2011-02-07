@@ -28,13 +28,14 @@
  */
 package primevc.gui.display;
 #if flash9
+ import flash.events.Event;
  import primevc.core.geom.Point;
 #end
 #if (flash8 || flash9 || js)
  import primevc.gui.events.DisplayEvents;
+ import primevc.gui.events.UserEventTarget;
  import primevc.gui.events.UserEvents;
  import primevc.gui.input.Mouse;
- import primevc.gui.traits.IInteractive;
   using primevc.utils.Bind;
 #end
 
@@ -47,9 +48,7 @@ package primevc.gui.display;
  * @creation-date Jul 13, 2010
  */
 #if (flash8 || flash9 || js)
-class Window
-		implements IDisplayContainer
-	,	implements IInteractive
+class Window implements IDisplayContainer
 {
 	public static function startup < WindowInstance > (windowClass : Class<WindowInstance>) : WindowInstance
 	{
@@ -58,7 +57,7 @@ class Window
 #if flash9
 		stage = flash.Lib.current.stage;
 		stage.scaleMode	= flash.display.StageScaleMode.NO_SCALE;
-
+	
 	#if (debug && MonsterTrace)	
 		var monster		= new nl.demonsters.debugger.MonsterDebugger(flash.Lib.current);
 		haxe.Log.trace	= primevc.utils.DebugTrace.trace;
@@ -70,10 +69,12 @@ class Window
 		haxe.Log.clear	= com.hexagonstar.util.debug.Debug.clear;
 		com.hexagonstar.util.debug.Debug.monitor( stage );
 	#end
-		
+#end
+#if debug
 		haxe.Log.clear();
-#end		
+		haxe.Log.setColor(0xc00000);
 		trace("started " + windowClass);
+#end
 		return Type.createInstance( windowClass, [ stage ] );
 	}
 	
@@ -114,6 +115,10 @@ class Window
 		mouse			= new Mouse( this );
 		
 		target.doubleClickEnabled = true;
+#if (flash9 && debug)
+		target.addEventListener( Event.DEACTIVATE, disableMouse, false, 0, true );
+		target.addEventListener( Event.ACTIVATE,   enableMouse, false, 0, true );
+#end
 	}
 	
 	
@@ -136,7 +141,7 @@ class Window
 	{
 		target.invalidate();
 		displayEvents.render.send();
-		target.focus = target;
+	//	target.focus = target;
 	}
 	
 	
@@ -154,6 +159,11 @@ class Window
 	
 	public inline function globalToLocal (point:Point) : Point	{ return target.globalToLocal(point); }
 	public inline function localToGlobal (point:Point) : Point	{ return target.localToGlobal(point); }
+	
+	public function isFocusOwner (target:UserEventTarget)		{ return target == this.target; }
+	
+	private function enableMouse (event:Event)					{ mouseEnabled = children.mouseEnabled = true; }
+	private function disableMouse (event:Event)					{ mouseEnabled = children.mouseEnabled = false; }
 #end
 	
 	

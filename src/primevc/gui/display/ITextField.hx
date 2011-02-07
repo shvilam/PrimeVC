@@ -38,7 +38,6 @@ package primevc.gui.display;
 #end
  import primevc.core.IBindable;
  import primevc.gui.events.TextEvents;
- import primevc.gui.traits.IInteractive;
  import primevc.gui.traits.ITextStylable;
 
 
@@ -47,8 +46,7 @@ package primevc.gui.display;
  * @creation-date Sep 02, 2010
  */
 interface ITextField 
-		implements IDisplayObject	
-	,	implements IInteractive 
+		implements IInteractiveObject
 	,	implements ITextStylable
 {
 	
@@ -63,6 +61,13 @@ interface ITextField
 	 */
 	public var data					(default, setData)		: IBindable < String >;
 	public var value				(getValue, setValue)	: String;
+	
+	
+	/**
+	 * Method will return true if the textfield can be editted by the user
+	 * and false when the text is not editable;
+	 */
+	public function isEditable ()	: Bool;
 	
 	
 #if flash9

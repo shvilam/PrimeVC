@@ -28,6 +28,8 @@
  */
 package primevc.core.validators;
  import primevc.types.Number;
+  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
 
 
 /**
@@ -55,4 +57,21 @@ class PercentIntRangeValidator extends IntRangeValidator
 		this.percentMin = percentMin == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentMin;
 		this.percentMax = percentMax == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentMax;
 	}
+	
+	
+	public function calculateValues (targetValue:Int)
+	{
+		var min = percentMin.isSet() ? (percentMin * targetValue).roundFloat() : Number.INT_NOT_SET;
+		var max = percentMax.isSet() ? (percentMax * targetValue).roundFloat() : Number.INT_NOT_SET;
+		setValues( min, max );
+	}
+	
+	
+	
+#if debug
+	override public function toString ()
+	{
+		return "PercentIntRangeValidator ( " + percentMin + " = " + min + ", " + percentMax + " = " + max + " )";
+	}
+#end
 }

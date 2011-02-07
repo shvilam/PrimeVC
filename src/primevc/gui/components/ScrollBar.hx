@@ -96,13 +96,8 @@ class ScrollBar extends SliderBase
 	
 	override public function dispose ()
 	{
-		if (scrollBinding != null)			scrollBinding.dispose();
-		if (resizeBinding != null)			resizeBinding.dispose();
-		if (updateTargetBinding != null)	updateTargetBinding.dispose();
-		
-		scrollBinding	= resizeBinding = updateTargetBinding = null;
-		target			= null;
-		
+		removeTargetBindings();
+		target = null;
 		super.dispose();
 	}
 	
@@ -145,7 +140,7 @@ class ScrollBar extends SliderBase
 			scrollBinding		= handleScrollChange	.on( scrollProp.change, this );
 			resizeBinding		= resizeBtn				.on( l.changed, this );
 			updateTargetBinding	= updateTarget			.on( data.change, this );
-			scrollWheelBinding	= handleScrollWheel		.on( target.userEvents.mouse.scroll, this );
+			scrollWheelBinding	= handleScrollWheel		.on( target.container.userEvents.mouse.scroll, this );
 			
 			//force update on everything
 			resizeBtn( -1 );
@@ -188,9 +183,7 @@ class ScrollBar extends SliderBase
 			var l			= target.scrollableLayout;
 			var scrollable	= l.horScrollable();
 			dragBtn.visible	= dragBtn.layout.includeInLayout = scrollable;
-			dragBtn.layout.percentWidth	= scrollable ? FloatMath.min( l.explicitWidth / l.measuredWidth, 1 ) : 0;
-			
-		//	trace( l.scrollableWidth );
+			dragBtn.layout.percentWidth	= scrollable ? FloatMath.min( l.width / l.measuredWidth, 1 ) : 0;
 			
 			if (scrollable) {
 				validator.setValues( l.minScrollXPos, l.minScrollXPos + l.scrollableWidth );
@@ -214,9 +207,8 @@ class ScrollBar extends SliderBase
 			var l			= target.scrollableLayout;
 			var scrollable	= l.verScrollable();
 			dragBtn.visible	= dragBtn.layout.includeInLayout = scrollable;
-			dragBtn.layout.percentHeight = scrollable ? FloatMath.min( l.explicitHeight / l.measuredHeight, 1 ) : 0;
+			dragBtn.layout.percentHeight = scrollable ? FloatMath.min( l.height / l.measuredHeight, 1 ) : 0;
 			
-		//	trace( l.scrollableHeight );
 			if (scrollable) {
 				validator.setValues( l.minScrollYPos, l.minScrollYPos + l.scrollableHeight );
 				calculatePercentage();

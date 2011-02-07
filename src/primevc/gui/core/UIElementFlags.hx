@@ -50,10 +50,11 @@ class UIElementFlags
 	//
 	
 	public static inline var TEXTSTYLE	= 1 << 4;
+	public static inline var TEXT		= 1 << 5;
 	
 	
 	//
 	// IICON OWNER PROPERTIES
 	
-	public static inline var ICON		= 1 << 5;
+	public static inline var ICON		= 1 << 6;
 }

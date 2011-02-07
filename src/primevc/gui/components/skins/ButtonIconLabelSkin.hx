@@ -31,6 +31,7 @@ package primevc.gui.components.skins;
  import primevc.gui.components.Image;
  import primevc.gui.core.UITextField;
  import primevc.gui.core.Skin;
+ import primevc.gui.events.UserEventTarget;
   using primevc.utils.BitUtil;
 
 
@@ -56,14 +57,16 @@ class ButtonIconLabelSkin extends Skin<Button>
 		var layout		= owner.layoutContainer;
 		
 		//create children
-		children.add( iconGraphic	= new Image(null, owner.icon) );
-		children.add( labelField	= new UITextField( null, true, owner.data ) );
+		iconGraphic	= new Image(null, owner.icon);
+		labelField	= new UITextField( null, true, owner.data );
 		
 		layout.children.add( iconGraphic.layout );
 		layout.children.add( labelField.layout );
+		children.add( iconGraphic );
+		children.add( labelField );
 		
 		//change properties of new UIElements
-		iconGraphic.maintainAspectRatio = false;
+		iconGraphic.maintainAspectRatio = true;
 #if debug
 		labelField.id.value		= owner.id.value + "TextField";
 		iconGraphic.id.value	= owner.id.value + "Icon";
@@ -73,6 +76,7 @@ class ButtonIconLabelSkin extends Skin<Button>
 		labelField.selectable		= false;
 		labelField.mouseEnabled		= false;
 		labelField.tabEnabled		= false;
+		labelField.respondToFocusOf( owner );
 		
 		if (owner.textStyle != null)
 			labelField.textStyle = owner.textStyle;
@@ -119,4 +123,12 @@ class ButtonIconLabelSkin extends Skin<Button>
 			labelField.textStyle = owner.textStyle;
 #end
 	}
+	
+	
+#if flash9
+	override public function isFocusOwner (target:UserEventTarget)
+	{
+		return labelField.isFocusOwner(target);
+	}
+#end
 }

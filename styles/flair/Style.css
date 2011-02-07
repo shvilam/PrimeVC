@@ -5,15 +5,8 @@
 #frame2 .odd { background: #000; width: 100px; shape: rectangle;  }
 
 GlobalTest {
-	algorithm: relative;
-}
-
-GlobalApp {
-	relative: 5px 5px 55px;
-	height: none;
-	width: 60%;
-	padding: 5px;
 	algorithm: float-hor;
+	padding: 5px;
 	border: solid 1px #000 inside;
 }
 
@@ -35,14 +28,21 @@ Tile {
 	opacity: .5;
 }
 
+Tile:hover {
+	min-height: 70px;
+	min-width: 80px;
+}
+
 TileList {
+	min-width: 30px;
+	min-height: 30px;
 	border: solid 3px #fedcbaaa;
 	background: #abcdef44;
 	padding: 10px;
 /*	child-width: 40px;
 	child-height: 40px;*/
-	resize-transition: resize 300ms;
-	move-transition: move 300ms;
+	/*resize-transition: resize 300ms;
+	move-transition: move 300ms;*/
 	overflow: hidden;
 }
 /*
@@ -92,17 +92,28 @@ GlobalApp TileList:hover {
 	overflow: scroll-mouse-move;
 }
 
-#frame2 {
-	algorithm: fixed-tile( vertical, 8, left, top );
+UIContainer {
+	algorithm: relative;
 	top: 90px;
 	bottom: 5px;
 	left: 5px;
-	overflow: drag-scroll;
+	width: 59%;
+	background: #eee;
 }
+
+#frame2 {
+	algorithm: fixed-tile( horizontal, 3 );
+	width: 100%;
+	height: 100%;
+	overflow: scrollbars;
+}
+
 #frame3 {
 	algorithm: dynamic-tile;
+	max-width: 80px;
 	width: 100%;
 	height: 40%;
+	overflow: scrollbars;
 }
 
 #frame4 {
@@ -132,4 +143,48 @@ GlobalApp TileList:hover {
 	width: 100%;
 	height: 40%;
 	algorithm: circle;
+}
+
+
+
+
+/*****************
+ * Scrollbars
+ *****************/
+
+.horizontalScrollBar {	
+	height: 13px;
+	padding: 0px 2px;
+	/*left: 0px;
+	right: 11px;
+	bottom: 0px;
+	padding: 0px 4px;*/
+	
+	background: linear-gradient( 90deg, #151515, #3b3a3a 60% );
+	border: 1px solid #000 outside;
+}
+.verticalScrollBar {
+	width: 13px;
+	padding: 2px 0px;
+	/*top: 0px;
+	bottom: 0px;
+	right: 0px;
+	padding: 2px 0px 13px;*/
+	
+	background: linear-gradient( 0deg, #151515, #3b3a3a 60% );
+	border: 1px solid #000 outside;
+}
+.horizontalScrollBar Button {
+	height: 11px;
+	v-center: 1px;
+	border-radius: 10px;
+	background: linear-gradient( 90deg, #8e8e8e, #5e5e5e );
+	border: 1px solid #222 outside;
+}
+.verticalScrollBar Button {
+	width: 11px;
+	h-center: 1px;
+	border-radius: 10px;
+	background: linear-gradient( 0deg, #8e8e8e, #5e5e5e );
+	border: 1px solid #222 outside;
 }

@@ -39,6 +39,6 @@ class InputField extends Label
 	override private function createChildren ()
 	{
 		super.createChildren();
-		makeEditable();
+		field.makeEditable();
 	}
 }

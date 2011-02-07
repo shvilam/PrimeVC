@@ -59,10 +59,10 @@ package primevc.gui.layout;
 class VirtualLayoutContainer extends LayoutContainer
 {
 #if debug
-	public function new ()
+	public function new (name = "VirtualLayoutContainer")
 	{
 		super();
-		name = "VirtualLayoutContainer";
+		this.name = name;
 	}
 #end
 	
@@ -77,7 +77,7 @@ class VirtualLayoutContainer extends LayoutContainer
 		
 		if (parent != null && state.is(ValidateStates.invalidated)) {
 			parent.invalidate( LayoutFlags.CHILDREN_INVALIDATED );
-			state.current			= ValidateStates.parent_invalidated;
+			state.current = ValidateStates.parent_invalidated;
 		}
 	}
 }

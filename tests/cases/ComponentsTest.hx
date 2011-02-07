@@ -18,7 +18,9 @@ package cases;
  */
 class ComponentsTest extends UIWindow
 {
-	public static function main ()					{ Window.startup( ComponentsTest ); }
+	public static function main () {
+		Window.startup( ComponentsTest );
+	}
 	
 	
 	private var label	: Label;

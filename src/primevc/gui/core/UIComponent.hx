@@ -34,6 +34,7 @@ package primevc.gui.core;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
  import primevc.gui.display.Sprite;
  import primevc.gui.effects.UIElementEffects;
+ import primevc.gui.events.UserEventTarget;
  import primevc.gui.graphics.GraphicProperties;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.managers.ISystem;
@@ -152,6 +153,7 @@ class UIComponent extends Sprite, implements IUIComponent
 			skin.childrenCreated();
 		
 		validate();
+		removeValidation.on( displayEvents.removedFromStage, this );
 		
 		//finish initializing
 		state.current = state.initialized;
@@ -168,6 +170,7 @@ class UIComponent extends Sprite, implements IUIComponent
 		//state.
 		state.current = state.disposed;
 		
+		removeValidation();
 		removeChildren();
 		removeStates();
 		behaviours	.dispose();
@@ -201,6 +204,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	public inline function isInitialized ()	{ return state != null && state.is(state.initialized); }
 	
 	
+	
 	//
 	// ACTIONS (actual methods performed by UIElementActions util)
 	//
@@ -222,6 +226,9 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	
 	private inline function getSystem () : ISystem		{ return window.as(ISystem); }
+	public inline function isOnStage () : Bool			{ return window != null; }
+	public inline function isQueued () : Bool			{ return nextValidatable != null || prevValidatable != null; }
+	private function removeValidation () : Void			{ if (isQueued()) system.invalidation.remove(this); }
 	
 
 	private function setSkin (newSkin)
@@ -261,6 +268,12 @@ class UIComponent extends Sprite, implements IUIComponent
 		return v;
 	}
 #end
+	
+	
+	override public function isFocusOwner (target:UserEventTarget) : Bool
+	{
+		return super.isFocusOwner(target) || (skin != null && skin.isFocusOwner(target));
+	}
 	
 	
 	private function createLayout () : Void
@@ -306,11 +319,6 @@ class UIComponent extends Sprite, implements IUIComponent
 		}
 	}
 	
-	
-	private function getValidationManager ()
-	{
-		return window.as(UIWindow).invalidation;
-	}
 	
 	
 	//

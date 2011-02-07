@@ -20,71 +20,39 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.traits;
-  using primevc.utils.BitUtil;
-
 
 /**
- * QueueingInvalidatable allows to disable the broadcasting of an invalidate
- * call. When the broadcasting is disabled, all of the changes will be stored
- * in the "changes" flag.
- * 
- * When the broadcasting is enabled again, the changes will be dispatched.
- * 
+ * Interface for invalidatable objects which can wait with dispatching their
+ * changes until the flag 'validatable' is set to true
  * @author Ruben Weijers
- * @creation-date Nov 08, 2010
+ * @creation-date Feb 06, 2011
  */
-class QueueingInvalidatable extends Invalidatable, implements IQueueingInvalidatable
+interface IQueueingInvalidatable implements IInvalidatable
 {
 	/**
 	 * Flag indicating if the object should broadcast an invalidate call or do
 	 * nothing with it.
+	 * 
+	 * @default	true
 	 */
 	public var invalidatable	(default, setInvalidatable)	: Bool;
+	
+	/**
+	 * bitflag with all the changes that have happened to the invalidatable
+	 * object.
+	 */
 	public var changes			(default, null)				: Int;
 	
-	
-	public function new ()
-	{
-		super();
-		resetValidation();
-	}
-	
-	
-	public inline function resetValidation ()
-	{
-		changes			= 0;
-		invalidatable	= true;
-	}
-	
-	
-	override public function invalidate (change:Int) : Void
-	{
-		if (invalidatable)
-			super.invalidate(change);
-		else
-			changes = changes.set(change);
-	}
-	
-	
-	private inline function setInvalidatable (v:Bool)
-	{
-		if (v != invalidatable)
-		{
-			invalidatable = v;
-			
-			//broadcast queued changes?
-			if (v && changes > 0) {
-				invalidate(changes);
-				changes = 0;
-			}
-		}
-		return v;
-	}
+	/**
+	 * Method to set the invalidatable flag to true and reset the 'changes'
+	 * flags to '0'.
+	 */
+	public function resetValidation () : Void;
 }

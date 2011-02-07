@@ -28,6 +28,7 @@
  */
 package primevc.gui.core;
  import primevc.gui.behaviours.BehaviourList;
+ import primevc.gui.events.UserEventTarget;
  import primevc.gui.states.SkinStates;
  import primevc.gui.states.UIElementStates;
   using primevc.utils.Bind;
@@ -72,6 +73,18 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 			this.owner = cast newOwner;
 		}
 		catch (e:Dynamic) {}
+	}
+	
+	
+	/**
+	 * Abstract method.
+	 * Is called by the owner when an object wants to check if the owner has
+	 * focus. The skin can check if the target is one of it's children and then
+	 * return true or false.
+	 */
+	public function isFocusOwner (target:UserEventTarget) : Bool
+	{
+		return false;
 	}
 	
 	

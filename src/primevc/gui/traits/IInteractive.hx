@@ -29,6 +29,7 @@
 package primevc.gui.traits;
 #if (flash8 || flash9 || js)
  import primevc.gui.events.UserEvents;
+ import primevc.gui.events.UserEventTarget;
 #end
 
 
@@ -38,7 +39,16 @@ interface IInteractive
 	var userEvents		(default, null)				: UserEvents;
 #end
 	
+	
 #if flash9
+	/**
+	 * Method returns true if the given target (which has focus) makes the 
+	 * IInteractive object the focus owner.
+	 * This is usefull when a Label with a textfield loses it's focus to the
+	 * textfield, but is still the focus-owner.
+	 */
+	public function isFocusOwner (target:UserEventTarget) : Bool;
+	
 	
 	var doubleClickEnabled							: Bool;
 	var mouseEnabled								: Bool;

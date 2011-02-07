@@ -37,6 +37,7 @@ package primevc.avm2.display;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.display.Window;
  import primevc.gui.events.DisplayEvents;
+ import primevc.gui.events.UserEventTarget;
  import primevc.gui.events.UserEvents;
   using primevc.utils.NumberMath;
   using primevc.utils.TypeUtil;
@@ -100,6 +101,12 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	public inline function isObjectOn (otherObj:IDisplayObject) : Bool
 	{
 		return otherObj == null ? false : otherObj.as(DisplayObject).hitTestObject( this.as(DisplayObject) );
+	}
+	
+	
+	public function isFocusOwner (target:UserEventTarget) : Bool
+	{
+		return target == this;
 	}
 	
 	

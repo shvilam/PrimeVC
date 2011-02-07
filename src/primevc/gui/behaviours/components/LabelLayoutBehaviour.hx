@@ -81,9 +81,9 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > // extends Validating
 		var targetLayout	= target.layout.as(AdvancedLayoutClient);
 		var fieldLayout		= target.field.layout;
 		
-	//	trace("\t"+target+" "+targetLayout.explicitWidth+", "+targetLayout.explicitHeight+"; "+targetLayout.measuredWidth+", "+targetLayout.measuredHeight+"; "+targetLayout.state.current+"; "+targetLayout.width.value+", "+targetLayout.height.value);
-		if (changes.has( LayoutFlags.EXPLICIT_WIDTH ) && targetLayout.explicitWidth.isSet())		fieldLayout.width.value		= targetLayout.explicitWidth;
-		if (changes.has( LayoutFlags.EXPLICIT_HEIGHT ) && targetLayout.explicitHeight.isSet())		fieldLayout.height.value	= targetLayout.explicitHeight;
+	//	trace(target+".updateFieldSize; explicit: "+targetLayout.explicitWidth+", "+targetLayout.explicitHeight+"; measured: "+targetLayout.measuredWidth+", "+targetLayout.measuredHeight+"; "+targetLayout.state.current+"; size: "+targetLayout.width+", "+targetLayout.height);
+		if (changes.has( LayoutFlags.WIDTH )  && targetLayout.width.isSet())		fieldLayout.width	= targetLayout.width;
+		if (changes.has( LayoutFlags.HEIGHT ) && targetLayout.height.isSet())		fieldLayout.height	= targetLayout.height;
 		
 		if (changes.has( LayoutFlags.PADDING ))
 		{
@@ -103,7 +103,7 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > // extends Validating
 		}*/
 		
 		fieldLayout.validate();
-	//	trace("2 "+targetLayout.state.current+"; "+targetLayout.changes+"; "+targetLayout.hasValidatedWidth+", "+targetLayout.hasValidatedHeight+"; "+targetLayout.width.value+", "+targetLayout.height.value);
+	//	trace("2 "+targetLayout.state.current+"; "+targetLayout.changes+"; "+targetLayout.hasValidatedWidth+", "+targetLayout.hasValidatedHeight+"; "+targetLayout.width+", "+targetLayout.height);
 	}
 	
 	
@@ -115,14 +115,14 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > // extends Validating
 		var targetLayout	= target.layout.as(AdvancedLayoutClient);
 		var fieldLayout		= target.field.layout;
 		
-	//	trace(target+".updateLabelSize "+fieldLayout.width.value+", "+fieldLayout.height.value+"; "+targetLayout+"; "+targetLayout.state.current+"; "+targetLayout.hasValidatedWidth+", "+targetLayout.hasValidatedHeight);
-		targetLayout.measuredWidth	= fieldLayout.width.value;
-		targetLayout.measuredHeight	= fieldLayout.height.value;
+	//	trace(target+".updateLabelSize; fieldsize: "+fieldLayout.width+", "+fieldLayout.height+"; "+target.mouseEnabled);
+		targetLayout.measuredWidth	= fieldLayout.width;
+		targetLayout.measuredHeight	= fieldLayout.height;
 	//	targetLayout.invalidate( LayoutFlags.WIDTH | LayoutFlags.HEIGHT );
 	//	targetLayout.validate();
 	//	trace("\t\ttarget measured-size: "+targetLayout.measuredWidth+", "+targetLayout.measuredHeight);
 	//	trace("\t\ttarget explicit-size: "+targetLayout.explicitWidth+", "+targetLayout.explicitHeight);
-	//	trace("\t\ttarget size: "+targetLayout.width.value+", "+targetLayout.height.value);
+	//	trace("\t\ttarget size: "+targetLayout.width+", "+targetLayout.height);
 	//	trace("\t\t"+targetLayout.hasValidatedWidth+", "+targetLayout.hasValidatedHeight+"; "+targetLayout.state.current);
 	}
 }

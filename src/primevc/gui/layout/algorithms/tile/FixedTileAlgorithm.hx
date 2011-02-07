@@ -376,7 +376,6 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	override public function validate () : Void
 	{
 		Assert.that( maxTilesInDirection.isSet(), "maxTilesInDirection should have been set" );
-		
 		if (group.children.length == 0)
 			return;
 		
@@ -388,15 +387,14 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 	override public function validateHorizontal ()
 	{
 		var w:Int = 0;
-		
 		if (group.children.length > 0)
 		{
 			if (startDirection == Direction.horizontal) {
 				columns.validateHorizontal();
-				w = rows.width.value = columns.width.value;
+				w = rows.width = columns.width;
 			} else {
 				rows.validateHorizontal();
-				w = columns.width.value = rows.width.value;
+				w = columns.width = rows.width;
 			}
 		}
 		
@@ -411,10 +409,10 @@ class FixedTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorithm
 		{
 			if (startDirection == Direction.horizontal) {
 				rows.validateVertical();
-				h = columns.height.value = rows.height.value;
+				h = columns.height = rows.height;
 			} else {
 				columns.validateVertical();
-				h = rows.height.value = columns.height.value;
+				h = rows.height = columns.height;
 			}
 		}
 		

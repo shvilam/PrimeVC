@@ -45,9 +45,10 @@ class QueueManager implements IDisposable
 	/**
 	 * Reference to the object that owns the object
 	 */
-	private var owner			: Window;
-	private var first			: IValidatable;
-	private var last			: IValidatable;
+	private var owner				: Window;
+	private var first				: IValidatable;
+	private var last				: IValidatable;
+	private var isValidating		: Bool;
 	
 	/**
 	 * Binding reference to the wire that will apply the update to the queue
@@ -58,7 +59,8 @@ class QueueManager implements IDisposable
 	
 	public function new (owner:Window)
 	{
-		this.owner = owner;
+		this.owner		= owner;
+		isValidating	= false;
 	}
 	
 	
@@ -93,16 +95,26 @@ class QueueManager implements IDisposable
 	
 	
 	/**
-	 * Add's an obj to the queue with objects
+	 * Add's an obj to the end of the queue with objects
 	 */
 	public function add ( obj:IValidatable )
 	{
+		//if the invalidated object is the first in the list, it's probably 
+		//invalidated during it's own validation. To make sure the object is valid
+		//it will be removed from the queue and then added at the end of the 
+		//queue.
+		if (isValidating && obj == first && obj != last)
+			remove(obj);
+		
 		//only add the object if it's not in the list yet
-		if (obj.prevValidatable != null || obj.nextValidatable != null)
+		else if (obj.prevValidatable != null || obj.nextValidatable != null)
 			return;
 		
 		if (first == null)
+		{
 			first = obj;
+			enableBinding();
+		}
 		else
 		{
 			last.nextValidatable	= obj;
@@ -110,9 +122,6 @@ class QueueManager implements IDisposable
 		}
 		
 		last = obj;
-		
-		if (first != null)
-			enableBinding();
 	}
 	
 	
@@ -135,6 +144,30 @@ class QueueManager implements IDisposable
 	
 	
 #if debug
+	/**
+	 * flag indicating if the traceQueue method should trace anything.
+	 * @default false
+	 */
+	public var traceQueues : Bool;
+	
+	
+	public function traceQueue ()
+	{
+		if (!traceQueues) return;
+		
+		var curCell = first;
+		var i = 0;
+		var s = "\n\t\t\tlistQueue; isValidating? "+isValidating+"; isListening? "+updateQueueBinding.isEnabled();
+		while (curCell != null)
+		{
+			s += "\n\t\t\t\t\t\t\t[ "+i+" ] = "+curCell;
+			curCell	= curCell.nextValidatable;
+			i++;
+		}
+		trace(s);
+	}
+	
+	
 	public function toString () { return "QueueManager"; }
 #end
 }

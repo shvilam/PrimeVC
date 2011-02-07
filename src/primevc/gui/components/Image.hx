@@ -157,9 +157,10 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 		var l = layout.as(AdvancedLayoutClient);
 		if (data != null && data.state.is( BitmapStates.ready ))
 		{
-		//	trace(this+"; "+data.data.width+", "+data.data.height+"; expl size? "+l.explicitWidth+", "+l.explicitHeight+"; "+data.state);
+	//		trace(this+"; "+data.data.width+", "+data.data.height+"; expl size? "+l.explicitWidth+", "+l.explicitHeight+"; "+l.state.current+"; layout: "+layout);
 			l.maintainAspectRatio	= maintainAspectRatio;
 			l.measuredResize( data.data.width, data.data.height );
+	//		trace("\t\t\t measured: "+l.measuredWidth+", "+l.measuredHeight+"; explicit: "+l.explicitWidth+", "+l.explicitHeight+"; size: "+l.width+", "+l.height+"; state: "+l.state.current);
 		}
 		else
 		{	
@@ -172,7 +173,7 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 	
 	private function bitmapStateChangeHandler (newState:BitmapStates, oldState:BitmapStates)
 	{
-	//	trace(this+".bitmapStateChangeHandler "+data.state.current);
+	//	trace(this+" --> "+oldState +" -> "+ newState + " .... "+data.state.current);
 		switch (newState)
 		{
 			case BitmapStates.ready:	updateSize();

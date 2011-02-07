@@ -148,11 +148,11 @@ class MouseState extends KeyModState
 	 * isRelatedObjectInaccessible() property to determine which of these 
 	 * reasons applies.
 	 */
-	var related	(default,null)		: TargetType;
+	var related	(default,null)		: UserEventTarget;
 #end
 	
 	
-	public function new(f:Int, t:TargetType, l:Point, s:Point #if flash9, related:TargetType #end)
+	public function new(f:Int, t:UserEventTarget, l:Point, s:Point #if flash9, related:UserEventTarget #end)
 	{
 		super(f,t);
 		this.local		= l;

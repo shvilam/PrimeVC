@@ -76,15 +76,15 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 		if (changes.has( Flags.HEIGHT_CONSTRAINTS ))
 		{
 			if (filledProperties.hasNone(Flags.HEIGHT_CONSTRAINTS)) {
-				layout.height.validator = null;
+				layout.heightValidator = null;
 				changes = changes.unset( Flags.HEIGHT_CONSTRAINTS);
 			}
 			else
 			{
-				if (layout.height.validator == null)
+				if (layout.heightValidator == null)
 					heightRange = filledProperties.has(Flags.PERCENT_HEIGHT_CONSTRAINTS) ? new PValidator() : new Validator();
 				else
-					heightRange = cast layout.height.validator;
+					heightRange = cast layout.heightValidator;
 			}
 		}
 		
@@ -93,15 +93,15 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 		if (changes.has( Flags.WIDTH_CONSTRAINTS ))
 		{
 			if (filledProperties.hasNone(Flags.WIDTH_CONSTRAINTS)) {
-				layout.width.validator = null;
+				layout.widthValidator = null;
 				changes = changes.unset( Flags.WIDTH_CONSTRAINTS );
 			}
 			else
 			{
-				if (layout.width.validator == null)
+				if (layout.widthValidator == null)
 					widthRange = filledProperties.has(Flags.PERCENT_WIDTH_CONSTRAINTS) ? new PValidator() : new Validator();
 				else
-					widthRange = cast layout.width.validator;
+					widthRange = cast layout.widthValidator;
 			}
 		}
 		
@@ -138,11 +138,11 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 		
 		
 		//set the validators after they are filled, otherwise the width or height will be updated to soon.
-		if (widthRange != null && layout.width.validator == null)
-			layout.width.validator = widthRange;
+		if (widthRange != null && layout.widthValidator == null)
+			layout.widthValidator = widthRange;
 		
-		if (heightRange != null && layout.height.validator == null)
-			layout.height.validator = heightRange;
+		if (heightRange != null && layout.heightValidator == null)
+			layout.heightValidator = heightRange;
 	}
 	
 	
@@ -162,8 +162,8 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 				if (propsToSet.has( Flags.HEIGHT ))		l.explicitHeight	= notEmpty && styleObj.height.notEmpty()	? styleObj.height	: Number.INT_NOT_SET;
 			}
 			else
-				if (propsToSet.has( Flags.WIDTH ))		layout.width.value	= notEmpty && styleObj.width.notEmpty()		? styleObj.width	: Number.INT_NOT_SET;
-				if (propsToSet.has( Flags.HEIGHT ))		layout.height.value	= notEmpty && styleObj.height.notEmpty()	? styleObj.height	: Number.INT_NOT_SET;
+				if (propsToSet.has( Flags.WIDTH ))		layout.width		= notEmpty && styleObj.width.notEmpty()		? styleObj.width	: Number.INT_NOT_SET;
+				if (propsToSet.has( Flags.HEIGHT ))		layout.height		= notEmpty && styleObj.height.notEmpty()	? styleObj.height	: Number.INT_NOT_SET;
 		}
 		
 		
