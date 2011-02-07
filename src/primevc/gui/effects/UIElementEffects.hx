@@ -196,8 +196,8 @@ class UIElementEffects implements IDisposable
 #if (flash8 || flash9 || js)
 		if (hide != null)
 		{
-			if (hide != null)
-				hide.stop();
+			if (show != null)
+				show.stop();
 		
 			if (show == hide)
 				hide.isReverted = true;
