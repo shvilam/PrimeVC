@@ -29,7 +29,6 @@
 package primevc.avm2.display;
  import flash.display.DisplayObject;
  import primevc.core.geom.IntRectangle;
- import primevc.core.IBindable;
  import primevc.core.Bindable;
  import primevc.gui.display.DisplayDataCursor;
  import primevc.gui.display.IDisplayContainer;
@@ -89,12 +88,12 @@ class TextField extends flash.text.TextField, implements ITextField
 	 */
 	public var realTextHeight	(getRealTextHeight, never)	: Float;
 	
-	public var data				(default, setData)			: IBindable < String >;
+	public var data				(default, setData)			: Bindable < String >;
 	public var value			(getValue, setValue)		: String;
 	public var textStyle		(default, setTextStyle)		: TextFormat;
 	
 	
-	public function new (data:IBindable<String> = null)
+	public function new (data:Bindable<String> = null)
 	{
 		super();
 		displayEvents	= new DisplayEvents( this );
@@ -114,7 +113,7 @@ class TextField extends flash.text.TextField, implements ITextField
 	}
 	
 	
-	private inline function setData (v:IBindable<String>)
+	private inline function setData (v:Bindable<String>)
 	{
 		if (v != data)
 		{

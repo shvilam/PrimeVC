@@ -164,8 +164,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			if (!child.includeInLayout)
 				continue;
 			
-			if (changes.has(Flags.WIDTH) && child.widthValidator != null && child.widthValidator.is( PercentIntRangeValidator ) && explicitWidth.isSet())
-				child.widthValidator.as( PercentIntRangeValidator ).calculateValues( explicitWidth );
+			if (changes.has(Flags.WIDTH) && child.widthValidator != null && child.widthValidator.is( PercentIntRangeValidator ) && width.isSet())
+				child.widthValidator.as( PercentIntRangeValidator ).calculateValues( width );
 			
 			if (child.percentWidth == Flags.FILL)
 			{
@@ -174,8 +174,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			}
 			
 			//measure children with explicitWidth and no percentage size
-			else if (checkIfChildGetsPercentageWidth(child, explicitWidth))
-				child.outerBounds.width = (explicitWidth * child.percentWidth).roundFloat();
+			else if (checkIfChildGetsPercentageWidth(child, width))
+				child.outerBounds.width = (width * child.percentWidth).roundFloat();
 			
 			//measure children
 			if (child.percentWidth != Flags.FILL)
@@ -185,8 +185,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			}
 		}
 		
-		
-		if (fillingChildren.length > 0 && (width - childrenWidth) > 0)
+		if (width.isSet() && fillingChildren.length > 0 && (width - childrenWidth) > 0)
 		{
 			var sizePerChild = ( width - childrenWidth ).divFloor( fillingChildren.length );
 			
@@ -226,8 +225,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			if (!child.includeInLayout)
 				continue;
 			
-			if (changes.has(Flags.HEIGHT) && child.heightValidator != null && child.heightValidator.is( PercentIntRangeValidator ) && explicitHeight.isSet())
-				child.heightValidator.as( PercentIntRangeValidator ).calculateValues( explicitHeight );
+			if (changes.has(Flags.HEIGHT) && child.heightValidator != null && child.heightValidator.is( PercentIntRangeValidator ) && height.isSet())
+				child.heightValidator.as( PercentIntRangeValidator ).calculateValues( height );
 			
 			if (child.percentHeight == Flags.FILL)
 			{
@@ -235,8 +234,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 				child.height = Number.INT_NOT_SET;
 			}
 			
-			else if (checkIfChildGetsPercentageHeight(child, explicitHeight))
-				child.outerBounds.height = (explicitHeight * child.percentHeight).roundFloat();
+			else if (checkIfChildGetsPercentageHeight(child, height))
+				child.outerBounds.height = (height * child.percentHeight).roundFloat();
 			
 			//measure children
 			if (child.percentHeight != Flags.FILL) {
@@ -249,7 +248,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		
 		
 		
-		if (fillingChildren.length > 0 && (height - childrenHeight) > 0)
+		if (height.isSet() && fillingChildren.length > 0 && (height - childrenHeight) > 0)
 		{
 			var sizePerChild = ( height - childrenHeight ).divFloor( fillingChildren.length );
 			for (i in 0...fillingChildren.length)

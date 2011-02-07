@@ -97,7 +97,7 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 		if (v.notSet() && measuredWidth.isSet() && explicitWidth.notSet())
 			v = measuredWidth;
 		
-		var oldW	= _width;
+	//	var oldW	= _width;
 		v			= super.updateAllWidths(v, force);
 		
 		if (measuredWidth.notSet() || explicitWidth.isSet())
@@ -117,7 +117,7 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 		if (v.notSet() && measuredHeight.isSet() && explicitHeight.notSet())
 			v = measuredHeight;
 		
-		var oldH	= _height;
+	//	var oldH	= _height;
 		v			= super.updateAllHeights(v, force);
 		
 		if (measuredHeight.notSet() || explicitHeight.isSet())

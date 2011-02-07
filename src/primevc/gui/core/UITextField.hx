@@ -33,7 +33,6 @@ package primevc.gui.core;
  import primevc.gui.styling.UIElementStyle;
 #end
  import primevc.core.Bindable;
- import primevc.core.IBindable;
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.display.TextField;
@@ -79,7 +78,7 @@ class UITextField extends TextField, implements IUIElement
 #end
 	
 	
-	public function new (id:String = null, stylingEnabled:Bool = true, data:IBindable<String> = null)
+	public function new (id:String = null, stylingEnabled:Bool = true, data:Bindable<String> = null)
 	{
 #if debug
 	if (id == null)

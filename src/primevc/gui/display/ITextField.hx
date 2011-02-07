@@ -36,7 +36,7 @@ package primevc.gui.display;
  import flash.text.TextFormat;
  import flash.text.TextLineMetrics;
 #end
- import primevc.core.IBindable;
+ import primevc.core.Bindable;
  import primevc.gui.events.TextEvents;
  import primevc.gui.traits.ITextStylable;
 
@@ -59,7 +59,7 @@ interface ITextField
 	 * 
 	 * TODO: not implemented for the htmlText property
 	 */
-	public var data					(default, setData)		: IBindable < String >;
+	public var data					(default, setData)		: Bindable < String >;
 	public var value				(getValue, setValue)	: String;
 	
 	
