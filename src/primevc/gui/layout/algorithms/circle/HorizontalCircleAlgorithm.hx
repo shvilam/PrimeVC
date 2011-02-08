@@ -130,7 +130,7 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 				
 				angle	= (childAngle * i) + startRadians;
 				pos		= start + ( radius * FastMath.cos(angle) ).roundFloat();
-				var halfChildWidth	= ( child.outerBounds.width * .5 ).roundFloat();
+				var halfChildWidth	= child.outerBounds.width >> 1; // * .5 ).roundFloat();
 				var doCenter		= pos.isWithin( radius - halfChildWidth, radius + halfChildWidth );
 				
 				if		(doCenter)				child.outerBounds.centerX	= pos;
@@ -171,7 +171,7 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 
 
 	private inline function getRadius () : Int {
-		return ( isEllipse ? group.width * .5 : Formulas.getCircleRadius(group.width, group.height) ).roundFloat();
+		return ( isEllipse ? group.width >> 1 : Formulas.getCircleRadius(group.width, group.height) ).roundFloat();
 	}
 	
 #if (neko || debug)

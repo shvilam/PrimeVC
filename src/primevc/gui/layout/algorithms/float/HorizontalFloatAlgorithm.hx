@@ -248,7 +248,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	{
 		var depth:Int	= 0;
 		var posX:Int	= bounds.left;
-		var centerX:Int	= bounds.left + (bounds.width * .5).roundFloat();
+		var centerX:Int	= bounds.left + (bounds.width >> 1); //* .5).roundFloat();
 		var children	= group.children;
 		
 		if (group.childWidth.isSet())
@@ -265,7 +265,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 				if (group.is(AdvancedLayoutClient))
 					groupWidth = IntMath.max( 0, group.as(AdvancedLayoutClient).measuredWidth );
 				
-				var halfW = groupWidth * .5;
+				var halfW = groupWidth >> 1; //* .5;
 				if (posX < halfW) {
 					//start at beginning
 					for (i in 0...children.length)
@@ -301,15 +301,14 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 		Assert.abstract( "Wrong implementation since the way centered layouts behave is changed");
 		var depth:Int	= 0;
 		var posX:Int	= bounds.left;
-		var centerX:Int	= bounds.left + (bounds.width * .5).roundFloat();
+		var centerX:Int	= bounds.left + (bounds.width >> 1); // * .5).roundFloat();
 		var children	= group.children;
 		
 		var groupWidth	= group.width;
 		if (group.is(AdvancedLayoutClient))
 			groupWidth	= IntMath.max( 0, group.as(AdvancedLayoutClient).measuredWidth );
 
-		var halfW = groupWidth * .5;
-
+		var halfW = groupWidth >> 1; // * .5;
 		for (i in 0...children.length)
 		{
 			var child = children.getItemAt(i);
@@ -331,7 +330,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	{
 		var depth:Int	= 0;
 		var posX:Int	= bounds.left;
-		var centerX:Int	= bounds.left + (bounds.width * .5).roundFloat();
+		var centerX:Int	= bounds.left + (bounds.width >> 1); //* .5).roundFloat();
 		
 		var children	= group.children;
 		var groupWidth	= group.width;
@@ -357,7 +356,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 			else if (bounds.right < IntMath.max(group.width, groupWidth))
 			{
 				//check if it's smart to start searching at the end or at the beginning..
-				var halfW = groupWidth * .5;
+				var halfW = groupWidth >> 1; //* .5;
 
 				if (posX > (emptyWidth + halfW)) {
 					//start at beginning

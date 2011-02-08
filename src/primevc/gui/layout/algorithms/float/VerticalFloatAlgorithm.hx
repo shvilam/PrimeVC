@@ -260,7 +260,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	{
 		var depth:Int	= 0;
 		var posY:Int	= bounds.top;
-		var centerY:Int	= bounds.top + (bounds.height * .5).roundFloat();
+		var centerY:Int	= bounds.top + (bounds.height >> 1); // * .5).roundFloat();
 		var children	= group.children;
 		
 		if (group.childHeight.isSet())
@@ -277,7 +277,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 				if (group.is(AdvancedLayoutClient))
 					groupHeight = IntMath.max( 0, group.as(AdvancedLayoutClient).measuredHeight );
 				
-				var halfH = groupHeight * .5;
+				var halfH = groupHeight >> 1; // * .5;
 				if (posY < halfH) {
 					//start at beginning
 					for (i in 0...children.length)
@@ -313,7 +313,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 		Assert.abstract( "Wrong implementation since the way centered layouts behave is changed");
 		var depth:Int	= 0;
 		var posY:Int	= bounds.top;
-		var centerY:Int	= bounds.top + (bounds.height * .5).roundFloat();
+		var centerY:Int	= bounds.top + (bounds.height >> 1); // * .5).roundFloat();
 		
 		var groupHeight	= group.height;
 		var children	= group.children;
@@ -321,7 +321,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 		if (group.is(AdvancedLayoutClient))
 			groupHeight	= IntMath.max( 0, group.as(AdvancedLayoutClient).measuredHeight );
 		
-		var halfH = groupHeight * .5;
+		var halfH = groupHeight >> 1; // * .5;
 		
 		for (i in 0...children.length)
 		{
@@ -344,7 +344,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	{
 		var depth:Int	= 0;
 		var posY:Int	= bounds.top;
-		var centerY:Int	= bounds.top + (bounds.height * .5).roundFloat();
+		var centerY:Int	= bounds.top + (bounds.height >> 1); // * .5).roundFloat();
 		
 		var children	= group.children;
 		var groupHeight = group.height;
@@ -371,7 +371,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 			else if (bounds.right < IntMath.max(group.height, groupHeight))
 			{
 				//check if it's smart to start searching at the end or at the beginning..
-				var halfH = groupHeight * .5;
+				var halfH = groupHeight >> 1; // * .5;
 
 				if (posY > (emptyHeight + halfH)) {
 					//start at beginning

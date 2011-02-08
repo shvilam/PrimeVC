@@ -194,20 +194,16 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private inline function setCenterX (v:Int)
 	{	
 		Assert.that( v.isSet() );
-		if (v.isSet())
-			left = (v - (width * .5)).roundFloat();
-		
-		return centerX = v;
+		left = v - (width >> 1); //* .5).roundFloat();
+		return v;
 	}
 	
 	
 	private inline function setCenterY (v:Int)
 	{	
 		Assert.that( v.isSet() );
-		if (v.isSet())
-			top = (v - (height * .5)).roundFloat();
-		
-		return centerY = v;
+		top = v - (height >> 1); //* .5)).roundFloat();
+		return v;
 	}
 	
 	
@@ -219,8 +215,8 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private inline function getWidth ()		{ return width; }
 	private inline function getHeight ()	{ return height; }
 	
-	private inline function getCenterX ()	{ return left + (width * .5).roundFloat(); }
-	private inline function getCenterY ()	{ return top + (height * .5).roundFloat(); }
+	private inline function getCenterX ()	{ return left + (width >> 1); } // * .5).roundFloat(); }
+	private inline function getCenterY ()	{ return top + (height >> 1); } // * .5).roundFloat(); }
 	
 	
 	public function isEmpty ()

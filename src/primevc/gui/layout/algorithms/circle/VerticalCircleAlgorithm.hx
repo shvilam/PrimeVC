@@ -130,7 +130,7 @@ class VerticalCircleAlgorithm extends VerticalBaseAlgorithm, implements IVertica
 				angle	= (childAngle * i) + startRadians;
 				pos		= start + ( radius * FastMath.sin(angle) ).roundFloat();
 				
-				var halfChildHeight	= ( child.outerBounds.height * .5 ).roundFloat();
+				var halfChildHeight	= ( child.outerBounds.height >> 1; // * .5 ).roundFloat();
 				var doCenter		= pos.isWithin( radius - halfChildHeight, radius + halfChildHeight );
 				
 				if		(doCenter)				child.outerBounds.centerY	= pos;
@@ -171,7 +171,7 @@ class VerticalCircleAlgorithm extends VerticalBaseAlgorithm, implements IVertica
 	//
 	
 	private inline function getRadius () : Int {
-		return ( isEllipse ? group.height * .5 : Formulas.getCircleRadius(group.width, group.height) ).roundFloat();
+		return ( isEllipse ? group.height >> 1 : Formulas.getCircleRadius(group.width, group.height) ).roundFloat();
 	}
 	
 #if (neko || debug)

@@ -168,7 +168,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 				
 				if		(childProps.left.isSet())		childBounds.left		= padding.left + childProps.left;
 				else if (childProps.right.isSet())		childBounds.right		= groupBounds.width - padding.right - childProps.right;
-				else if (childProps.hCenter.isSet())	childBounds.left		= ( ( groupBounds.width - childBounds.width ) * .5 ).roundFloat() + childProps.hCenter;			
+				else if (childProps.hCenter.isSet())	childBounds.left		= ( ( groupBounds.width - childBounds.width ) >> 1 ) + childProps.hCenter; // ( ( groupBounds.width - childBounds.width ) * .5 ).roundFloat() + childProps.hCenter;
 			
 			
 				//
@@ -177,7 +177,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 			
 				if		(childProps.top.isSet())		childBounds.top		= padding.top + childProps.top;
 				else if (childProps.bottom.isSet())		childBounds.bottom	= groupBounds.height - padding.bottom - childProps.bottom;
-				else if (childProps.vCenter.isSet())	childBounds.top		= ( ( groupBounds.height - childBounds.height ) * .5 ).roundFloat() + childProps.vCenter;
+				else if (childProps.vCenter.isSet())	childBounds.top		= ( ( groupBounds.height - childBounds.height ) >> 1 ) + childProps.vCenter; // ( ( groupBounds.height - childBounds.height ) * .5 ).roundFloat() + childProps.vCenter;
 				
 			}
 			

@@ -93,7 +93,7 @@ class Triangle extends ShapeBase, implements IGraphicShape
 			case TopCenter:
 				a.x = x;
 				a.y = h;
-				b.x = x + (w * .5).roundFloat();
+				b.x = x + (w >> 1); // * .5).roundFloat();
 				b.y = y;
 				c.x = x + w;
 				c.y = y + h;
@@ -108,7 +108,7 @@ class Triangle extends ShapeBase, implements IGraphicShape
 
 			case MiddleLeft:
 				a.x = x;
-				a.y = y + (h * .5).roundFloat();
+				a.y = y + (h >> 1); // * .5).roundFloat();
 				b.x = x + w;
 				b.y = y;
 				c.x = a.x + w;
@@ -127,7 +127,7 @@ class Triangle extends ShapeBase, implements IGraphicShape
 				a.x = x;
 				a.y = y;
 				b.x = x + w;
-				b.y = y + (h * .5).roundFloat();
+				b.y = y + (h >> 1); // * .5).roundFloat();
 				c.x = x;
 				c.y = y + h;
 			
@@ -144,7 +144,7 @@ class Triangle extends ShapeBase, implements IGraphicShape
 				a.y = y;
 				b.x = x + w;
 				b.y = y;
-				c.x = x + (w * .5).roundFloat();
+				c.x = x + (w >> 1); // * .5).roundFloat();
 				c.y = y + h;
 			
 			case BottomRight:

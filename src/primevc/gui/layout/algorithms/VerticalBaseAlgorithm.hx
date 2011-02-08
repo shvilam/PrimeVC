@@ -169,12 +169,12 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 					if (!child.includeInLayout)
 						continue;
 					
-					child.outerBounds.left = start + ( (group.width - child.outerBounds.width) * .5 ).roundFloat();
+					child.outerBounds.left = start + ( (group.width - child.outerBounds.width) >> 1 ); // * .5 ).roundFloat();
 				}
 			}
 			else
 			{
-				var childX = start + ( (group.innerBounds.width - group.childWidth) * .5 ).roundFloat();
+				var childX = start + ( (group.innerBounds.width - group.childWidth) >> 1 ); // * .5 ).roundFloat();
 				for (child in group.children)
 					if (child.includeInLayout)
 						child.outerBounds.left = childX;

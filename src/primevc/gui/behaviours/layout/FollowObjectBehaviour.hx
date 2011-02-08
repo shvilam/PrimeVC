@@ -152,11 +152,11 @@ class FollowObjectBehaviour extends BehaviourBase<IUIElement>
 		{
 			if		(relative.left.isSet())		newPos.x += relative.left;
 			else if (relative.right.isSet())	newPos.x += follow.width - relative.right;
-			else if (relative.hCenter.isSet())	newPos.x += ((follow.width - bounds.width) * .5) + relative.hCenter;
+			else if (relative.hCenter.isSet())	newPos.x += ((follow.width - bounds.width) >> 1) + relative.hCenter;
 			
 			if		(relative.top.isSet())		newPos.y += relative.top;
 			else if (relative.bottom.isSet())	newPos.y += follow.height - relative.bottom;
-			else if (relative.vCenter.isSet())	newPos.y += ((follow.height - bounds.height) * .5) + relative.vCenter;
+			else if (relative.vCenter.isSet())	newPos.y += ((follow.height - bounds.height) >> 1) + relative.vCenter;
 		}
 		
 #if flash9

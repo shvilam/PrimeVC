@@ -96,15 +96,15 @@ class AnchorScaleEffectInstance extends EffectInstance < IDisplayObject, AnchorS
 		{
 			case TopLeft:		p.x = 0;				p.y = 0;
 			case TopRight:		p.x = t.width;			p.y = 0;
-			case TopCenter:		p.x = t.width * .5;		p.y = 0;
+			case TopCenter:		p.x = t.width >> 1;		p.y = 0;
 			
-			case MiddleLeft:	p.x = 0;				p.y = t.height * .5;
-			case MiddleCenter:	p.x = t.width * .5;		p.y = t.height * .5;
-			case MiddleRight:	p.x = t.width;			p.y = t.height * .5;
+			case MiddleLeft:	p.x = 0;				p.y = t.height >> 1; // * .5;
+			case MiddleCenter:	p.x = t.width >> 1;		p.y = t.height >> 1; // * .5;
+			case MiddleRight:	p.x = t.width;			p.y = t.height >> 1; // * .5;
 			
 			case BottomLeft:	p.x = 0;				p.y = t.height;
 			case BottomRight:	p.x = t.width;			p.y = t.height;
-			case BottomCenter:	p.x = t.width * .5;		p.y = t.height;
+			case BottomCenter:	p.x = t.width >> 1;		p.y = t.height;
 			
 			case Custom( cp ):	p.x = cp.x;				p.y = cp.y;
 			default:			p.x = 0;				p.y = 0;

@@ -54,6 +54,12 @@ class FastMathTest extends Benchmark
 		Assert.equal( IntMath.floorFloat(-2) , -2 );
 		Assert.equal( IntMath.floorFloat(-2.1) , -3 );
 		
+		var group = new Comparison( "divide by two", 1000000 );
+		add( group );
+		group.add( new Test( divideByDividing,		"dividing by 2") );
+		group.add( new Test( divideByMultiplying,	"times .5") );
+		group.add( new Test( divideByBitshifting,	"bitshifting") );
+		
 		var group = new Comparison( "compare round", 100000 );
 		add( group );
 		group.add( new Test( roundFlash,		"Flash") );
@@ -102,6 +108,12 @@ class FastMathTest extends Benchmark
 		group.add( new Test( signCustom,		"Custom") );
 		group.add( new Test( signFastMath,		"FastMath") );
 	}
+	
+	
+	public function divideByDividing ()		{ var a = Std.int(12400 / 2); var b = Std.int(45327923 / 2); var c = Std.int(859406 / 2); }
+	public function divideByMultiplying ()	{ var a = Std.int(12400 * .5); var b = Std.int(45327923 * .5); var c = Std.int(859406 *.5); }
+	public function divideByBitshifting ()	{ var a = 12400 >> 1; var b = 45327923 >> 1; var c = 859406 >> 1; }
+	
 	
 	
 	public function roundFlash ()
