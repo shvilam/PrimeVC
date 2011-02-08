@@ -135,7 +135,7 @@ class ValueObjectBase implements IValueObject
 	
 	public function cancelEdit()
 	{
-		Assert.that( isEditable() );
+		Assert.that( isEditable(), this + "; flags: "+_flags );
 		_flags			= _flags.unset( Flags.IN_EDITMODE );
 		_changedFlags	= 0;
 	}

@@ -295,8 +295,11 @@ class UITextField extends TextField, implements IUIElement
 		if (layout.percentHeight.notSet())	layout.height	= realTextHeight.roundFloat();
 		layout.invalidatable = true;
 		
-		if (layout.parent == null && layout.changes > 0)
-			layout.validate();
+		// Disabled since sometimes the validation will happen too soon (E.g. try tooltip).
+		// Although enabling this code can also solve some textfield 
+		// problems like setting the correct size for the titlefield of the mediapopup.
+	//	if (layout.parent == null && layout.changes > 0)
+	//		layout.validate();
 	}
 	
 	

@@ -85,6 +85,8 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > // extends Validating
 		if (changes.has( LayoutFlags.WIDTH )  && targetLayout.width.isSet())		fieldLayout.width	= targetLayout.width;
 		if (changes.has( LayoutFlags.HEIGHT ) && targetLayout.height.isSet())		fieldLayout.height	= targetLayout.height;
 		
+	//	trace("\t\tupdated field: "+fieldLayout.width+", "+fieldLayout.height+"; has scrollrect? "+target.scrollRect+"; fieldstate "+fieldLayout.state.current);
+		
 		if (changes.has( LayoutFlags.PADDING ))
 		{
 			if (targetLayout.padding != null)
