@@ -60,7 +60,8 @@ class UIDataComponent <DataType:IValueObject> extends UIComponent, implements IU
 	public function new (id:String = null, data:DataType = null)
 	{
 		super(id);
-		this.data = data;
+		if (data != null)
+			this.data = data;
 	}
 	
 	

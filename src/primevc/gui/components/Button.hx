@@ -56,7 +56,8 @@ class Button extends UIDataContainer <DataType>, implements IIconOwner, implemen
 	
 	public function new (id:String = null, value:String = null, icon:Bitmap = null)
 	{
-		super(id, new DataType(value));
+		if (data == null)	super(id, new DataType(value));
+		else				super(id);
 		this.icon = icon;
 	}
 	

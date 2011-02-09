@@ -105,7 +105,7 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 		
 		if (boundTo != null) {
 		 	// Dispose of all binding connections
-			while (!boundTo.isEmpty()) boundTo.pop().unbind(this);
+			unbindAll();
 			boundTo = null;
 		}
 		if (writeTo != null) {
@@ -262,6 +262,16 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 			otherBindable.unbind(this);
 		
 		return removed;
+	}
+	
+	
+	/**
+	 * Will remove every binding to bindables which update this object
+	 */
+	public inline function unbindAll ()
+	{
+		while (!boundTo.isEmpty())
+			boundTo.pop().unbind(this);
 	}
 	
 	

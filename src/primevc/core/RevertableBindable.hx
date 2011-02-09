@@ -70,7 +70,11 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 	public var shadowValue (default,null) : DataType;
 	
 	
-	public inline function isEditable () : Bool { return flags.has(Flags.IN_EDITMODE); }
+	public inline function isEditable () : Bool				{ return flags.has(Flags.IN_EDITMODE); }
+	public inline function dispatchBeforeCommit () : Void	{ flags = flags.set(   Flags.DISPATCH_CHANGES_BEFORE_COMMIT );  }
+	public inline function dispatchAfterCommit () : Void	{ flags = flags.unset( Flags.DISPATCH_CHANGES_BEFORE_COMMIT );  }
+	public inline function updateBeforeCommit () : Void		{ flags = flags.set(   Flags.UPDATE_BINDINGS_BEFORE_COMMIT );  }
+	public inline function updateAfterCommit () : Void		{ flags = flags.unset( Flags.UPDATE_BINDINGS_BEFORE_COMMIT );  }
 	
 	
 	override private function setValue (newValue:DataType) : DataType
