@@ -203,7 +203,7 @@ class URI
 	
 	public function parse(str:String) : URI
 	{
-		if (!str.notNull()) return this;
+		if (str.isNull()) return this;
 		
 		// Reset values
 		this.port = -1; this.scheme = null; this.string = this.userinfo = this.host = this.path = this.query = this.fragment = null;

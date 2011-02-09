@@ -1,4 +1,5 @@
 package cases;
+ import primevc.core.RevertableBindableFlags;
  import primevc.core.RevertableBindable;
   using primevc.utils.BitUtil;
 
@@ -64,13 +65,13 @@ class RevertableBindableTests extends haxe.unit.TestCase
 		var s = new RevertableBindable<String>("initial");
 		s.cancelEdit();
 		
-		assertTrue(s.flags.hasNot(IN_EDITMODE));
+		assertTrue(s.flags.hasNone(IN_EDITMODE));
 		assertEquals("initial", s.value);
 		
 		s.beginEdit();
 		assertTrue(s.flags.has(IN_EDITMODE));
 		s.cancelEdit();
-		assertTrue(s.flags.hasNot(IN_EDITMODE));
+		assertTrue(s.flags.hasNone(IN_EDITMODE));
 		assertEquals("initial", s.value);
 		
 		
@@ -91,7 +92,7 @@ class RevertableBindableTests extends haxe.unit.TestCase
 	function test_Begin_keeps_pre_edit_value_intact()
 	{
 		var s = new RevertableBindable<String>("initial");
-		assertTrue(s.flags.hasNot(IN_EDITMODE));
+		assertTrue(s.flags.hasNone(IN_EDITMODE));
 		
 		s.beginEdit();
 		assertTrue(s.flags.has(IN_EDITMODE));

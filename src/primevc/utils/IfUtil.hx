@@ -50,6 +50,20 @@ class IfUtil
 				#end ;
 	}
 	
+	
+	/**
+	 * Helper function to use in expressions, to check in the fastest way possible if an object reference is null.
+	 * 
+	 * @param	value
+	 * @return	true when value != null
+	 */
+	static inline public function isNull (obj:Dynamic) : Bool
+	{
+		return	#if (js || flash9)	!(untyped obj)  // single if true AVM2 instruction
+				#else				obj == null
+				#end ;
+	}
+	
 	/**
 	 * Helper function to use booleans (true == 1, false == 0) in arithmetic expressions, for example true + true == 2
 	 * 
