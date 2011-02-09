@@ -92,13 +92,13 @@ class RevertableBindableFlags
 	public static inline function shouldSignal(f:Int)
 	{
 		return ((
-			 ((f & IN_EDITMODE >> 4) ^ 1)			// if not in editmode: 1
-			| (f & DISPATCH_CHANGES_BEFORE_COMMIT)	// if editmode && dispatchBeforeCommit: 1 else 0
+			 (((f & IN_EDITMODE) >> 4) ^ 1)			// if not in editmode: 1
+			|  (f & DISPATCH_CHANGES_BEFORE_COMMIT)	// if editmode && dispatchBeforeCommit: 1 else 0
 		  )
 		  &
 		  ( // XOR: editmode && dispatchBeforeCommit should be true, or 
-			  (f & IS_VALID) >> 5							// if valid:				1
-		    | (f & INVALID_CHANGES_DISPATCH_SIGNAL) >> 1	// if dispatchOnInvalid:	1
+			  ((f & IS_VALID) >> 5)							// if valid:				1
+		    | ((f & INVALID_CHANGES_DISPATCH_SIGNAL)) >> 1	// if dispatchOnInvalid:	1
 		  )) == 1;
 	}
 	
@@ -108,14 +108,15 @@ class RevertableBindableFlags
 	 */
 	public static inline function shouldUpdateBindings(f:Int)
 	{
+		//return (((f & IS_VALID) >> 5)) | ((f & INVALID_CHANGES_UPDATE_BINDINGS) >> 3) & ((((f & IN_EDITMODE) >> 4) ^ 1) ^ ((f & UPDATE_BINDINGS_BEFORE_COMMIT) >> 2)) != 0;
 		return ((
-			 ((f & IN_EDITMODE >> 4) ^ 1)				// if not in editmode: 1
-			| (f & UPDATE_BINDINGS_BEFORE_COMMIT) >> 2	// if editmode && dispatchBeforeCommit: 1 else 0
+			 (((f & IN_EDITMODE) >> 4) ^ 1)				// if not in editmode: 1
+			|  (f & UPDATE_BINDINGS_BEFORE_COMMIT) >> 2	// if editmode && dispatchBeforeCommit: 1 else 0
 		  )
 		  &
 		  ( // XOR: editmode && dispatchBeforeCommit should be true, or 
-			  (f & IS_VALID) >> 5							// if valid:				1
-		    | (f & INVALID_CHANGES_UPDATE_BINDINGS) >> 3	// if dispatchOnInvalid:	1
+			  ((f & IS_VALID) >> 5)							// if valid:				1
+		    | ((f & INVALID_CHANGES_UPDATE_BINDINGS)) >> 3	// if dispatchOnInvalid:	1
 		  )) == 1;
 	}
 	

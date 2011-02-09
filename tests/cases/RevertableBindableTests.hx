@@ -1,6 +1,7 @@
 package cases;
  import primevc.core.RevertableBindableFlags;
  import primevc.core.RevertableBindable;
+ import primevc.core.RevertableBindableFlags;
   using primevc.utils.BitUtil;
 
 /**
@@ -23,18 +24,21 @@ class RevertableBindableTests extends haxe.unit.TestCase
 		var a = new RevertableBindable<String>("one"),
 			b = new RevertableBindable<String>("two");
 		
+		a.beginEdit(); b.beginEdit();
 		a.pair(b);
 	#if debug
 		assertTrue(a.isBoundTo(b));
 		assertTrue(b.isBoundTo(a));
 	#end
 		b.value = "three";
+		b.commitEdit();
 		
 		assertEquals("three", a.value);
 		assertEquals("three", b.value);
 		
 		b.unbind(a);
 		
+		b.beginEdit();
 		b.value = "four";
 		assertEquals("three", a.value);
 		assertEquals("four",  b.value);
@@ -47,6 +51,7 @@ class RevertableBindableTests extends haxe.unit.TestCase
 		a.bind(b);
 		b.bind(a);
 		a.value = "six";
+		a.commitEdit();
 		assertEquals("six", a.value);
 		assertEquals("six", b.value);
 		
@@ -55,7 +60,9 @@ class RevertableBindableTests extends haxe.unit.TestCase
 		assertEquals("six", a.value);
 		assertEquals("seven", b.value);
 		
+		a.beginEdit();
 		a.value = "eight";
+		a.commitEdit();
 		assertEquals("eight", a.value);
 		assertEquals("seven", b.value);
 	}
@@ -82,7 +89,7 @@ class RevertableBindableTests extends haxe.unit.TestCase
 		s.cancelEdit();
 		assertEquals("initial", s.value);
 		
-		s.value = "new";
+//		s.value = "new";
 		s.beginEdit();
 		s.value = "edited";
 		s.commitEdit();
@@ -117,6 +124,7 @@ class RevertableBindableTests extends haxe.unit.TestCase
 		check(/*not IS_VALID*/ IN_EDITMODE | INVALID_CHANGES_DISPATCH_SIGNAL | DISPATCH_CHANGES_BEFORE_COMMIT, true);
 		
 		check(IN_EDITMODE, false);
+		check(IN_EDITMODE | IS_VALID, false);
 		check(IN_EDITMODE | /*not IS_VALID*/ DISPATCH_CHANGES_BEFORE_COMMIT, false);
 		
 		// No flags
@@ -142,6 +150,7 @@ class RevertableBindableTests extends haxe.unit.TestCase
 		check(/*not IS_VALID*/ IN_EDITMODE | INVALID_CHANGES_UPDATE_BINDINGS | UPDATE_BINDINGS_BEFORE_COMMIT, true);
 		
 		check(IN_EDITMODE, false);
+		check(IN_EDITMODE | IS_VALID, false);
 		check(IN_EDITMODE | /*not IS_VALID*/ UPDATE_BINDINGS_BEFORE_COMMIT, false);
 		
 		// No flags
