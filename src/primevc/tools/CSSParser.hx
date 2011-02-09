@@ -1459,6 +1459,9 @@ class CSSParser
 		var n = Number.INT_NOT_SET;
 		if (v != null && isUnitInt(v))
 			n = getInt( floatUnitValExpr.matched(3) );
+		
+		else if (isNone(v))
+			n = Number.EMPTY;
 		//	trace(floatUnitValExpr.resultToString(7));
 		
 		return n;

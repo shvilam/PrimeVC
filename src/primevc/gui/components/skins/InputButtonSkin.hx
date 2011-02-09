@@ -29,7 +29,6 @@
 package primevc.gui.components.skins;
 
 
-
 /**
  * Skin for a button with an icon and a label where the label is an inputfield
  * @author Ruben Weijers

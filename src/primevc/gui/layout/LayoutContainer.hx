@@ -164,7 +164,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			if (!child.includeInLayout)
 				continue;
 			
-			if (changes.has(Flags.WIDTH) && child.widthValidator != null && child.widthValidator.is( PercentIntRangeValidator ) && width.isSet())
+			if (changes.has(Flags.WIDTH | Flags.LIST) && child.widthValidator != null && child.widthValidator.is( PercentIntRangeValidator ) && width.isSet())
 				child.widthValidator.as( PercentIntRangeValidator ).calculateValues( width );
 			
 			if (child.percentWidth == Flags.FILL)
@@ -225,7 +225,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			if (!child.includeInLayout)
 				continue;
 			
-			if (changes.has(Flags.HEIGHT) && child.heightValidator != null && child.heightValidator.is( PercentIntRangeValidator ) && height.isSet())
+			if (changes.has(Flags.HEIGHT | Flags.LIST) && child.heightValidator != null && child.heightValidator.is( PercentIntRangeValidator ) && height.isSet())
 				child.heightValidator.as( PercentIntRangeValidator ).calculateValues( height );
 			
 			if (child.percentHeight == Flags.FILL)

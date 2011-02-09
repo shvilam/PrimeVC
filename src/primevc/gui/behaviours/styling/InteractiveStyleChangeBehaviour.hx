@@ -180,6 +180,7 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 			if (hasState)
 			{
 				if (focusState == null)			{ focusState		= target.style.createState(); }
+				else							{ clearFocusState( null); /* important to clear the state, otherwise it can stay in focus state after it's added to the stage again */ }
 				if (focusInBinding == null)		{ focusInBinding	= enableFocusState.on( target.userEvents.focus, this ); }
 				if (focusOutBinding == null)	{ focusOutBinding	= clearFocusState.on( target.userEvents.blur, this ); focusOutBinding.disable(); }
 			}
@@ -487,9 +488,9 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	
 	
 	private function clearFocusState (event:FocusState)
-	{	
+	{
 	//	trace(target+" -> "+target.isFocusOwner(event.related));
-		if (target.isFocusOwner(event.related))
+		if (event != null && target.isFocusOwner(event.related))
 			return;
 		
 		focusState.current = Flags.NONE;
