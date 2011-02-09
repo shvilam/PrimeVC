@@ -155,6 +155,7 @@ class UITextField extends TextField, implements IUIElement
 		behaviours.init();
 		validate();
 		removeValidation.on( displayEvents.removedFromStage, this );
+	//	applyTextFormat	.on( displayEvents.addedToStage, this );
 		
 		state.current = state.initialized;
 	}
@@ -304,6 +305,7 @@ class UITextField extends TextField, implements IUIElement
 	
 	
 #if debug
-	override public function toString() { return id.value; }
+	override public function toString()		{ return id.value; }
+	public function readChanges()			{ return UIElementFlags.readProperties(changes); }
 #end
 }

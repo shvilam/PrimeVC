@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
-
+  using primevc.utils.BitUtil;
 
 
 /**
@@ -57,4 +57,22 @@ class UIElementFlags
 	// IICON OWNER PROPERTIES
 	
 	public static inline var ICON		= 1 << 6;
+	
+	
+#if debug
+	static public function readProperties (flags:Int) : String
+	{
+		var output	= [];
+		
+		if (flags.has( LAYOUT ))		output.push("layout");
+		if (flags.has( GRAPHICS ))		output.push("graphics");
+		if (flags.has( STYLE ))			output.push("style");
+		if (flags.has( DATA ))			output.push("data");
+		if (flags.has( TEXTSTYLE ))		output.push("textstyle");
+		if (flags.has( TEXT ))			output.push("text");
+		if (flags.has( ICON ))			output.push("icon");
+		
+		return output.length > 0 ? output.join(", ") : "no-properties";
+	}
+#end
 }

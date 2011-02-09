@@ -342,6 +342,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	
 #if debug
-	override public function toString() { return id.value; }
+	override public function toString()		{ return id.value; }
+	public function readChanges()			{ return UIElementFlags.readProperties(changes); }
 #end
 }

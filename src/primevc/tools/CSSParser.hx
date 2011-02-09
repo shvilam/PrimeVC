@@ -2406,6 +2406,7 @@ class CSSParser
 		
 		if (isNone(v))
 		{
+			createLayoutBlock();
 			currentBlock.layout.width			= Number.EMPTY;
 			currentBlock.layout.percentWidth	= Number.EMPTY;
 		}

@@ -112,7 +112,6 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 #end
 	
 	
-	
 	//
 	// GETERS / SETTERS
 	//
