@@ -135,12 +135,12 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 	public inline function commitEdit()
 	{
 		// Check if MAKE_SHADOW_COPY is not set (value changed) and any dispatch flag is set.
-		if (flags.hasNone(RevertableBindableFlags.MAKE_SHADOW_COPY) && flags.has( Flags.DISPATCH_CHANGES_BEFORE_COMMIT | Flags.UPDATE_BINDINGS_BEFORE_COMMIT ))
+		if (flags.hasNone(RevertableBindableFlags.MAKE_SHADOW_COPY))
 		{
-			if (flags.hasNone(Flags.DISPATCH_CHANGES_BEFORE_COMMIT))
+			if (flags.hasNone(Flags.DISPATCH_CHANGES_BEFORE_COMMIT)) // change has not been dispatched
 				change.send(value, shadowValue);
 			
-			if (flags.hasNone(Flags.UPDATE_BINDINGS_BEFORE_COMMIT))
+			if (flags.hasNone(Flags.UPDATE_BINDINGS_BEFORE_COMMIT))  // bindables are not up to date
 				BindableTools.dispatchValueToBound(writeTo, value);
 		}
 		flags = flags.unset(Flags.IN_EDITMODE | RevertableBindableFlags.MAKE_SHADOW_COPY);
