@@ -490,26 +490,20 @@ class BalancingListCollectionForwardIterator <DataType> implements IIterator <Da
 	
 	public function new (target:BalancingListCollection<DataType>) 
 	{
-		this.target		= target;
+		this.target = target;
 		rewind();
 	}
 	
 	
-	public inline function setCurrent (val:Dynamic)	{
-		current = val;
-	}
+	public inline function setCurrent (val:Dynamic)	{ current = val; }
+	public inline function value ()					{ return target.lists.getItemAt(currentListNum).getItemAt(currentDepth); }
+	public inline function hasNext () : Bool		{ return current < target.length; }
 	
 	
 	public inline function rewind () {
 		currentDepth	= 0;
 		current			= 0;
 		currentListNum	= 0;
-	}
-	
-	
-	public inline function hasNext () : Bool
-	{
-		return current < target.length;
 	}
 	
 	
@@ -526,6 +520,8 @@ class BalancingListCollectionForwardIterator <DataType> implements IIterator <Da
 		
 		return item;
 	}
+	
+	
 }
 
 
@@ -547,26 +543,20 @@ class BalancingListCollectionReversedIterator <DataType> implements IIterator <D
 	
 	public function new (target:BalancingListCollection<DataType>) 
 	{
-		this.target		= target;
+		this.target	= target;
 		rewind();
 	}
 	
 	
-	public inline function setCurrent (val:Dynamic)	{
-		current = val;
-	}
+	public inline function setCurrent (val:Dynamic)	{ current = val; }
+	public inline function value ()					{ return target.lists.getItemAt(currentListNum).getItemAt(currentDepth); }
+	public inline function hasNext () : Bool		{ return current > 0; }
 	
 	
 	public inline function rewind () {
 		currentListNum	= target.maxLists - 1;
 		currentDepth	= target.lists.length - 1;
 		current			= target.length;
-	}
-	
-	
-	public inline function hasNext () : Bool
-	{
-		return current > 0;
 	}
 	
 	

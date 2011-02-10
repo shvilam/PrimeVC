@@ -88,8 +88,8 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 		target.displayEvents.addedToStage.unbind( this );
 		target.displayEvents.removedFromStage.unbind( this );
 		
-		stateChangeWire.dispose();
-		layoutChangeWire.dispose();
+		if (stateChangeWire != null)	stateChangeWire.dispose();
+		if (layoutChangeWire != null)	layoutChangeWire.dispose();
 		
 		super.reset();
 	}

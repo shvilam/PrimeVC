@@ -296,6 +296,9 @@ class StyleCollectionForwardIterator < StyleGroupType > extends StyleCollectionI
 {
 	override public function rewind () : Void	{ setCurrent( elementStyle.styles.first ); }
 	public function next () : StyleGroupType	{ Assert.abstract(); return null; }
+	public function value () : StyleGroupType	{ Assert.abstract(); return null; }
+	
+	
 	override private function setNext ()
 	{
 		var c = currentCell;
@@ -339,6 +342,9 @@ class StyleCollectionReversedIterator < StyleGroupType > extends StyleCollection
 {
 	override public function rewind () : Void	{ setCurrent( elementStyle.styles.last ); }
 	public function next () : StyleGroupType	{ Assert.abstract(); return null; }
+	public function value () : StyleGroupType	{ Assert.abstract(); return null; }
+	
+	
 	override private function setNext ()
 	{
 		var c = currentCell;

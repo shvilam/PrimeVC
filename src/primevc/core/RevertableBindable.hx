@@ -75,8 +75,8 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 	public inline function dispatchAfterCommit () : Void	{ flags = flags.unset( Flags.DISPATCH_CHANGES_BEFORE_COMMIT );  }
 	public inline function updateBeforeCommit () : Void		{ flags = flags.set(   Flags.UPDATE_BINDINGS_BEFORE_COMMIT );  }
 	public inline function updateAfterCommit () : Void		{ flags = flags.unset( Flags.UPDATE_BINDINGS_BEFORE_COMMIT );  }
-	public inline function makeShadowCopy () : Void			{ flags = flags.set(   Flags.MAKE_SHADOW_COPY );  }
-	public inline function dontMakeShadowCopy () : Void		{ flags = flags.unset( Flags.MAKE_SHADOW_COPY );  }
+//	public inline function makeShadowCopy () : Void			{ flags = flags.set(   Flags.MAKE_SHADOW_COPY );  }
+//	public inline function dontMakeShadowCopy () : Void		{ flags = flags.unset( Flags.MAKE_SHADOW_COPY );  }
 	
 	
 	override private function setValue (newValue:DataType) : DataType

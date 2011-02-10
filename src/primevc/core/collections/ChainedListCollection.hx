@@ -420,7 +420,7 @@ class ChainedListCollectionIterator <DataType> implements IIterator <DataType>
 {
 	private var target			(default, null)					: ChainedListCollection<DataType>;
 	private var currentList 	(default, setCurrentList)		: ChainedList<DataType>;
-	private var listIterator	: Iterator<DataType>;
+	private var listIterator	: IIterator<DataType>;
 	private var current			: Int;
 	
 	
@@ -431,20 +431,14 @@ class ChainedListCollectionIterator <DataType> implements IIterator <DataType>
 	}
 	
 	
-	public inline function setCurrent (val:Dynamic) {
-		current = val;
-	}
+	public inline function setCurrent (val:Dynamic)	{ current = val; }
+	public inline function hasNext () : Bool		{ return current < target.length; }
+	public inline function value () : DataType		{ return cast listIterator.value; }
 	
 	
 	public inline function rewind () {
 		current		= 0;
 		currentList	= target.lists.getItemAt(0);
-	}
-	
-	
-	public inline function hasNext () : Bool
-	{
-		return current < target.length;
 	}
 	
 	
@@ -468,7 +462,7 @@ class ChainedListCollectionIterator <DataType> implements IIterator <DataType>
 	
 	private inline function setCurrentList (v) {
 		currentList = v;
-		if (v != null)	listIterator = v.iterator();
+		if (v != null)	listIterator = v.forwardIterator();
 		else			listIterator = null;
 		return v;
 	}
