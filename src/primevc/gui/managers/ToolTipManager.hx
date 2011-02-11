@@ -98,9 +98,6 @@ class ToolTipManager implements IDisposable
 		lastObj		= obj;
 		lastLabel	= label;
 		
-		//move tooltip to right position
-		updatePosition();
-		
 		//enable mouse-follower
 		mouseMove.enable();
 		
@@ -110,6 +107,9 @@ class ToolTipManager implements IDisposable
 		
 		if (!isVisible())
 			window.children.add( toolTip );
+		
+		//move tooltip to right position
+		updatePosition();
 	}
 	
 	
