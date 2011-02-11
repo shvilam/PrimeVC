@@ -281,7 +281,7 @@ class TextStyle extends StyleSubBlock
 			invalidate( changeFromOther );
 		}
 		
-		//if the sender is the super style and the other styles doesn't have the property that is changed, broadcast the change as well
+		//if the sender is the parent style and the other styles doesn't have the property that is changed, broadcast the change as well
 		else if (sender == parentStyle && !propIsInExtended && !propIsInNesting && !propIsInSuper)
 		{
 			if (propIsInParent)		allFilledProperties = allFilledProperties.set( changeFromOther );

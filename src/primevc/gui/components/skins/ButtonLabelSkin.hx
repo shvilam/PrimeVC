@@ -52,7 +52,7 @@ class ButtonLabelSkin extends Skin<Button>
 
 	override public function createChildren ()
 	{
-		labelField = new UITextField( null, true, owner.data )
+		labelField = new UITextField( null, true, owner.data );
 		
 		owner.layoutContainer	.children.add( labelField.layout );
 		owner					.children.add( labelField );

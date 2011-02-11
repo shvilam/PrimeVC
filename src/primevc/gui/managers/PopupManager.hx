@@ -69,8 +69,8 @@ class PopupManager implements IPopupManager
 	
 	public inline function add (popup:IUIElement, modal:Bool = false) : Int
 	{
-		if (modal)
-			createModalFor(popup);
+	//	if (modal)
+	//		createModalFor(popup);
 		
 		window.children.add( popup );
 		window.popupLayout.children.add( popup.layout );
@@ -80,7 +80,8 @@ class PopupManager implements IPopupManager
 	
 	public inline function remove (popup:IUIElement)
 	{
-		removeModalFor(popup);
+	//	removeModalFor( popup );
+		Assert.notNull( popup.window );
 		window.children.remove(popup);
 		window.popupLayout.children.remove( popup.layout );
 	}

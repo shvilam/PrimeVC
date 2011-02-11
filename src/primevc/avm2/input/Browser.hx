@@ -61,7 +61,7 @@ class Browser
 	/**
 	 * property with flashvars as an dynamic object
 	 */
-	public var variables	(getVariables,	never)		: Dynamic;
+	public var variables	(default,		null)		: Dynamic;
 	
 	
 	
@@ -109,11 +109,13 @@ class Browser
 	private inline function setStatus (v)		{ SWFAddress.setStatus(v); return v; }
 	
 	private inline function getAvailable ()		{ return ExternalInterface.available; }
-	private inline function getVariables ()		{ return flash.Lib.current.loaderInfo.parameters; }
 	
 	
 	private function new ()
 	{
 		events = new BrowserEvents( untyped(SWFAddress)._dispatcher);
+		
+		if (available)
+			variables = flash.Lib.current.loaderInfo.parameters;
 	}
 }

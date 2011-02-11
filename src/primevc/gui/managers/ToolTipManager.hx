@@ -162,5 +162,6 @@ class ToolTipManager implements IDisposable
 	private function targetRemovedHandler ()
 	{
 		hide(lastObj);
+		toolTip.x = toolTip.y = -400;
 	}
 }

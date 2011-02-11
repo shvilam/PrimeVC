@@ -121,7 +121,7 @@ class UIComponent extends Sprite, implements IUIComponent
 #if flash9		
 		graphicData		= new GraphicProperties( rect );
 		styleClasses	= new SimpleList<String>();
-		stylingEnabled	= true;
+		stylingEnabled	= true;		// <- will create UIElementStyle instance
 		
 		//add default behaviours
 		behaviours.add( new ValidateLayoutBehaviour(this) );

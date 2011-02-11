@@ -80,8 +80,8 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 		{
 			if (data != null)
 				initData();
-			
-			updateSize();
+			else
+				updateSize();	//data is set to null
 		}
 		
 		super.validate();
@@ -94,7 +94,10 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 	
 	private function initData () : Void
 	{
-		bitmapStateChangeHandler.on( data.state.change, this );
+		if (!data.state.is(BitmapStates.ready))
+			bitmapStateChangeHandler.on( data.state.change, this );
+		else
+			updateSize();
 	//	bitmapStateChangeHandler( data.state.current, null );
 		
 		if (graphicData.fill == null || !graphicData.fill.is(BitmapFill))
@@ -109,7 +112,7 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 	{
 		data.state.change.unbind(this);
 		if (graphicData.fill.is(BitmapFill))
-			graphicData.fill.as(BitmapFill).bitmap = null;
+			graphicData.fill = null; //.as(BitmapFill).bitmap = null;
 	}
 	
 	
@@ -168,6 +171,7 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 			l.measuredWidth			= Number.INT_NOT_SET;
 			l.measuredHeight		= Number.INT_NOT_SET;
 		}
+	//	trace("\t\t\t measured: "+this+"; "+l.measuredWidth+", "+l.measuredHeight);
 	}
 	
 	

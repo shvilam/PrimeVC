@@ -12,4 +12,9 @@ package primevc.gui.traits;
 interface ISelectable implements IUIComponent
 {
 	public var selected	(default, null) : Bindable<Bool>;
+	
+	
+	public function select ()		: Void;
+	public function deselect ()		: Void;
+	public function isSelected ()	: Bool;
 }

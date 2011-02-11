@@ -157,7 +157,7 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 		var l = target.layout;
 		
 	//	if (changes.has( LayoutFlags.SIZE | LayoutFlags.POSITION ))
-	//	if (target.id.value == "imageFrameButtonPanel" || target.id.value == "mediaList")
+	//	if (target.id.value == "linkFramesBarContent" || target.id.value == "internalLinkFrameButton")
 	//		trace(target+"; pos: "+l.getHorPosition()+", "+l.getVerPosition()+"; size: "+l.outerBounds.width+", "+l.outerBounds.height);
 		
 		if (changes.has( LayoutFlags.POSITION ))
@@ -197,8 +197,7 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 			if (target.effects == null)
 			{
 				var b = target.layout.innerBounds;
-				target.rect.width	= b.width;
-				target.rect.height	= b.height;
+				target.rect.resize( b.width, b.height );
 				
 				if (!target.is(IDrawable)) {
 					target.width	= target.rect.width;

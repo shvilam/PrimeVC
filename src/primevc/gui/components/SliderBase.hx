@@ -226,11 +226,9 @@ class SliderBase extends UIDataContainer < DataType >
 		dragBtn = new DragButton();
 		dragBtn.layout.includeInLayout = false;
 		dragBtn.id.value = id.value + "Btn";
+		
 		layoutContainer.children.add( dragBtn.layout );
 		children.add( dragBtn );
-		
-	//	if (showButtons)
-	//		createButtons();
 	}
 	
 	

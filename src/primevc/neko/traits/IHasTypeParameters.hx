@@ -20,28 +20,28 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.components;
- import primevc.core.collections.IReadOnlyList;
- import primevc.gui.core.IUIContainer;
- import primevc.gui.core.IUIElement;
-// import primevc.gui.display.IDisplayObject;
+package primevc.neko.traits;
 
-
+#if neko
 /**
+ * Empty interface to indicate in neko that a class has TypeParameters. This is
+ * needed when generating code and a class with type-parameters is not Generic.
+ * 
+ * There's no other way to find out if a class-instance reference should be 
+ * casted in the generated code.
+ * 
  * @author Ruben Weijers
- * @creation-date Oct 26, 2010
+ * @creation-date Feb 11, 2011
  */
-interface IListView < ListDataType > implements IUIContainer 
+interface IHasTypeParameters implements primevc.tools.generator.ICodeFormattable
 {
-	private function createItemRenderer ( item:ListDataType, pos:Int )				: IUIElement;
-	private function addItemRenderer( item:ListDataType, newPos:Int = -1 )			: Void;
-	private function removeItemRenderer( item:ListDataType, oldPos:Int = -1 )		: Void;
-	private function moveItemRenderer ( item:ListDataType, newPos:Int, oldPos:Int )	: Void;
-	public function getItemRendererFor ( item:ListDataType )						: IUIElement;
+	
 }
+
+#end

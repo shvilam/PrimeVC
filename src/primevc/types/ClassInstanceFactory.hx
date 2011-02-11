@@ -30,6 +30,7 @@ package primevc.types;
  import primevc.core.traits.IDisposable;
 
 #if neko
+ import primevc.neko.traits.IHasTypeParameters;
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICodeGenerator;
  import primevc.tools.generator.ICSSFormattable;
@@ -52,7 +53,8 @@ package primevc.types;
 class ClassInstanceFactory < InstanceType >
 				implements IDisposable		
 #if neko	,	implements ICSSFormattable
-			,	implements ICodeFormattable		#end
+			,	implements ICodeFormattable
+			,	implements IHasTypeParameters		#end
 {
 	public static inline var EMPTY_ARRAY = [];
 	

@@ -151,10 +151,13 @@ class UIElementStyle implements IUIElementStyle
 	{
 		addedBinding	= enableStyleListeners	.on( target.displayEvents.addedToStage, this );
 		removedBinding	= disableStyleListeners	.on( target.displayEvents.removedFromStage, this );
-		removedBinding.disable();
 		
-		if (target.window != null)
+		if (target.window != null) {
 			updateStyles();
+			addedBinding.disable();
+		} else {
+			removedBinding.disable();
+		}
 	}
 	
 	

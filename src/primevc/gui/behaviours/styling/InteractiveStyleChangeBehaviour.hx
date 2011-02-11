@@ -158,7 +158,9 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 			if (hasDisabledState)
 			{
 				if (disabledState == null)		{ disabledState		= target.style.createState(); }
-				if (disabledBinding == null)	{ disabledBinding	= changeEnabledState.on( target.enabled.change, this ); changeEnabledState( target.enabled.value, false ); }
+				if (disabledBinding == null)	{ disabledBinding	= changeEnabledState.on( target.enabled.change, this ); }
+				
+				changeEnabledState( target.enabled.value, false );
 			}
 			else
 			{
@@ -252,7 +254,9 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 			if (getStates().has( Flags.SELECTED ))
 			{
 				if (selectedState == null)		{ selectedState		= target.style.createState(); }
-				if (selectedBinding == null)	{ selectedBinding	= changeSelectedState.on( selectable.selected.change, this ); changeSelectedState( selectable.selected.value, false ); }
+				if (selectedBinding == null)	{ selectedBinding	= changeSelectedState.on( selectable.selected.change, this ); }
+				
+				changeSelectedState( selectable.selected.value, false );
 			}
 			else
 			{
