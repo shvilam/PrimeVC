@@ -80,8 +80,15 @@ class UIDataComponent <DataType:IValueObject> extends UIComponent, implements IU
 	
 	override public function validate ()
 	{
-		if (changes.has( UIElementFlags.DATA ) && data != null)
-			initData();
+		if (changes.has( UIElementFlags.DATA ))
+		{
+			if (data != null) {
+				initData();
+				styleClasses.remove( "empty" );
+			}
+			else
+				styleClasses.add( "empty" );
+		}
 		
 		super.validate();
 	}
@@ -119,7 +126,6 @@ class UIDataComponent <DataType:IValueObject> extends UIComponent, implements IU
 				removeData();
 			
 			data = v;
-		//	trace(this+".invalidateData "+v);
 			invalidate( UIElementFlags.DATA );
 		}
 		

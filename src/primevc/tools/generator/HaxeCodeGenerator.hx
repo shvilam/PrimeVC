@@ -28,6 +28,7 @@
  */
 package primevc.tools.generator;
  import primevc.gui.layout.LayoutFlags;
+ import primevc.neko.traits.IHasTypeParameters;
  import primevc.types.ClassInstanceFactory;
  import primevc.types.Number;
  import primevc.types.Reference;
@@ -84,7 +85,11 @@ class HaxeCodeGenerator implements ICodeGenerator
 	public var instanceIgnoreList	: Hash < Dynamic >;
 	
 	
-	public function new (?tabSize = 0) {
+	public function new (?tabSize = 0)
+	{
+#if !neko
+		Assert.abstract();
+#end
 		this.tabSize		= tabSize;
 		instanceIgnoreList	= new Hash();
 	}
@@ -216,14 +221,14 @@ class HaxeCodeGenerator implements ICodeGenerator
 	{
 		var str = "";
 		if		(isColor(v))						return Color.string(v);
-		else if (Std.is( v, ICodeFormattable ))		{ var vStr = getVar(v); return vStr == null ? null : "cast " + vStr; }
-		else if (Std.is( v, Reference))				return cast(v, Reference).toCode(this);
+		else if (Std.is( v, ICodeFormattable ))		return castString( v, getVar( v ) );
+		else if (Std.is( v, Reference))				return castString( v, cast(v, Reference).toCode(this) );
 		else if (isUndefinedNumber(v))				return (Std.is( v, Int )) ? "Number.INT_NOT_SET" : "Number.FLOAT_NOT_SET";
 		else if (v == LayoutFlags.FILL)				return "LayoutStyleFlags.FILL";
 		else if (v == Number.EMPTY)					return "Number.EMPTY";
 		else if (v == null)							return "null";
 		else if (Std.is( v, String ))				return "'" + v + "'";
-		else if (Std.is( v, Array ))				return getArray( cast v );
+		else if (Std.is( v, Array ))				return castString( v, getArray( cast v ) );
 		else if (Std.is( v, Int ))					return v >= 0 ? Color.uintToString(v) : Std.string(v);
 		else if (Std.is( v, Float ))				return Std.string(v);
 		else if (Std.is( v, Bool ))					return v ? "true" : "false";
@@ -287,6 +292,15 @@ class HaxeCodeGenerator implements ICodeGenerator
 			else if (Std.is(v, Float))	isUndef = FloatUtil.notSet( cast v );
 		}
 		return isUndef;
+	}
+
+	
+	private inline function castString (v:Dynamic, vStr:String) : String
+	{
+		if (vStr != null && ( v.is(haxe.rtti.Generic) || v.is( IHasTypeParameters ) ) )
+			vStr = "cast " + vStr;
+		
+		return vStr;
 	}
 	
 	

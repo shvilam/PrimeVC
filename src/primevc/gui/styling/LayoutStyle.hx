@@ -55,6 +55,7 @@ class LayoutStyle extends StyleSubBlock
 {
 	private var extendedStyle			: LayoutStyle;
 	private var superStyle				: LayoutStyle;
+	private var parentStyle				: LayoutStyle;
 
 	private var _relative				: RelativeLayout;
 	private var _algorithm				: AlgorithmClass;
@@ -232,6 +233,22 @@ class LayoutStyle extends StyleSubBlock
 					superStyle.listeners.add( this );
 			}
 		}
+		
+		
+		if (changedReference.has( StyleFlags.PARENT_STYLE ))
+		{
+			if (parentStyle != null && parentStyle.listeners != null)
+				parentStyle.listeners.remove( this );
+			
+			parentStyle = null;
+			if (owner != null && owner.parentStyle != null)
+			{
+				parentStyle = owner.parentStyle.layout;
+				
+				if (parentStyle != null)
+					parentStyle.listeners.add( this );
+			}
+		}
 	}
 	
 	
@@ -241,6 +258,7 @@ class LayoutStyle extends StyleSubBlock
 		
 		if (allFilledProperties < Flags.ALL_PROPERTIES && extendedStyle != null)	allFilledProperties |= extendedStyle.allFilledProperties;
 		if (allFilledProperties < Flags.ALL_PROPERTIES && superStyle != null)		allFilledProperties |= superStyle.allFilledProperties;
+		if (allFilledProperties < Flags.ALL_PROPERTIES && parentStyle != null)		allFilledProperties |= parentStyle.allFilledProperties;
 	}
 	
 	
@@ -263,6 +281,7 @@ class LayoutStyle extends StyleSubBlock
 		//Check if the change should be broadcasted..
 		var propIsInExtended	= extendedStyle != null	&& extendedStyle.allFilledProperties.has( changeFromOther );
 		var propIsInSuper		= superStyle != null	&& superStyle	.allFilledProperties.has( changeFromOther );
+		var propIsInParent		= parentStyle != null	&& parentStyle	.allFilledProperties.has( changeFromOther );
 		
 		if (sender == extendedStyle)
 		{
@@ -276,6 +295,15 @@ class LayoutStyle extends StyleSubBlock
 		else if (sender == superStyle && !propIsInExtended)
 		{
 			if (propIsInSuper)		allFilledProperties = allFilledProperties.set( changeFromOther );
+			else					allFilledProperties = allFilledProperties.unset( changeFromOther );
+			
+			invalidate( changeFromOther );
+		}
+		
+		//if the sender is the parent style and the other styles doesn't have the property that is changed, broadcast the change as well
+		else if (sender == parentStyle && !propIsInExtended && !propIsInSuper)
+		{
+			if (propIsInParent)		allFilledProperties = allFilledProperties.set( changeFromOther );
 			else					allFilledProperties = allFilledProperties.unset( changeFromOther );
 			
 			invalidate( changeFromOther );
@@ -297,6 +325,7 @@ class LayoutStyle extends StyleSubBlock
 		var v = _relative;
 		if (v == null && extendedStyle != null)		v = extendedStyle.relative;
 		if (v == null && superStyle != null)		v = superStyle.relative;
+		if (v == null && parentStyle != null)		v = parentStyle.relative;
 		return v;
 	}
 	
@@ -306,6 +335,7 @@ class LayoutStyle extends StyleSubBlock
 		var v = _algorithm;
 		if (v == null && extendedStyle != null)		v = extendedStyle.algorithm;
 		if (v == null && superStyle != null)		v = superStyle.algorithm;
+		if (v == null && parentStyle != null)		v = parentStyle.algorithm;
 		return v;
 	}
 	
@@ -315,6 +345,7 @@ class LayoutStyle extends StyleSubBlock
 		var v = _padding;
 		if (v == null && extendedStyle != null)		v = extendedStyle.padding;
 		if (v == null && superStyle != null)		v = superStyle.padding;
+		if (v == null && parentStyle != null)		v = parentStyle.padding;
 		return v;
 	}
 	
@@ -324,6 +355,7 @@ class LayoutStyle extends StyleSubBlock
 		var v = _margin;
 		if (v == null && extendedStyle != null)		v = extendedStyle.margin;
 		if (v == null && superStyle != null)		v = superStyle.margin;
+		if (v == null && parentStyle != null)		v = parentStyle.margin;
 		return v;
 	}
 	
@@ -333,6 +365,7 @@ class LayoutStyle extends StyleSubBlock
 		var v = _width;
 		if (v.notSet() && extendedStyle != null)	v = extendedStyle.width;
 		if (v.notSet() && superStyle != null)		v = superStyle.width;
+		if (v.notSet() && parentStyle != null)		v = parentStyle.width;
 		return v;
 	}
 	
@@ -342,6 +375,7 @@ class LayoutStyle extends StyleSubBlock
 		var v = _maxWidth;
 		if (v.notSet() && extendedStyle != null)	v = extendedStyle.maxWidth;
 		if (v.notSet() && superStyle != null)		v = superStyle.maxWidth;
+		if (v.notSet() && parentStyle != null)		v = parentStyle.maxWidth;
 		return v;
 	}
 	
@@ -351,6 +385,7 @@ class LayoutStyle extends StyleSubBlock
 		var v = _minWidth;
 		if (v.notSet() && extendedStyle != null)	v = extendedStyle.minWidth;
 		if (v.notSet() && superStyle != null)		v = superStyle.minWidth;
+		if (v.notSet() && parentStyle != null)		v = parentStyle.minWidth;
 		return v;
 	}
 	
@@ -360,6 +395,7 @@ class LayoutStyle extends StyleSubBlock
 		var v = _percentWidth;
 		if (v.notSet() && extendedStyle != null)	v = extendedStyle.percentWidth;
 		if (v.notSet() && superStyle != null)		v = superStyle.percentWidth;
+		if (v.notSet() && parentStyle != null)		v = parentStyle.percentWidth;
 		return v;
 	}
 	
@@ -369,6 +405,7 @@ class LayoutStyle extends StyleSubBlock
 		var v = _height;
 		if (v.notSet() && extendedStyle != null)	v = extendedStyle.height;
 		if (v.notSet() && superStyle != null)		v = superStyle.height;
+		if (v.notSet() && superStyle != null)		v = parentStyle.height;
 		return v;
 	}
 	
@@ -378,6 +415,7 @@ class LayoutStyle extends StyleSubBlock
 		var v = _maxHeight;
 		if (v.notSet() && extendedStyle != null)	v = extendedStyle.maxHeight;
 		if (v.notSet() && superStyle != null)		v = superStyle.maxHeight;
+		if (v.notSet() && parentStyle != null)		v = parentStyle.maxHeight;
 		return v;
 	}
 	
@@ -387,6 +425,7 @@ class LayoutStyle extends StyleSubBlock
 		var v = _minHeight;
 		if (v.notSet() && extendedStyle != null)	v = extendedStyle.minHeight;
 		if (v.notSet() && superStyle != null)		v = superStyle.minHeight;
+		if (v.notSet() && parentStyle != null)		v = parentStyle.minHeight;
 		return v;
 	}
 	
@@ -396,6 +435,7 @@ class LayoutStyle extends StyleSubBlock
 		var v = _percentHeight;
 		if (v.notSet() && extendedStyle != null)	v = extendedStyle.percentHeight;
 		if (v.notSet() && superStyle != null)		v = superStyle.percentHeight;
+		if (v.notSet() && parentStyle != null)		v = parentStyle.percentHeight;
 		return v;
 	}
 	
@@ -405,6 +445,7 @@ class LayoutStyle extends StyleSubBlock
 		var v = _childWidth;
 		if (v.notSet() && extendedStyle != null)	v = extendedStyle.childWidth;
 		if (v.notSet() && superStyle != null)		v = superStyle.childWidth;
+		if (v.notSet() && parentStyle != null)		v = parentStyle.childWidth;
 		return v;
 	}
 	
@@ -414,6 +455,7 @@ class LayoutStyle extends StyleSubBlock
 		var v = _childHeight;
 		if (v.notSet() && extendedStyle != null)	v = extendedStyle.childHeight;
 		if (v.notSet() && superStyle != null)		v = superStyle.childHeight;
+		if (v.notSet() && parentStyle != null)		v = parentStyle.childHeight;
 		return v;
 	}
 	
@@ -423,6 +465,7 @@ class LayoutStyle extends StyleSubBlock
 		var v = _rotation;
 		if (v.notSet() && extendedStyle != null)	v = extendedStyle.rotation;
 		if (v.notSet() && superStyle != null)		v = superStyle.rotation;
+		if (v.notSet() && parentStyle != null)		v = parentStyle.rotation;
 		return v;
 	}
 
@@ -432,6 +475,7 @@ class LayoutStyle extends StyleSubBlock
 		var v = _includeInLayout;
 		if (v == null && extendedStyle != null)		v = extendedStyle.includeInLayout;
 		if (v == null && superStyle != null)		v = superStyle.includeInLayout;
+		if (v == null && parentStyle != null)		v = parentStyle.includeInLayout;
 		return v;
 	}
 	
@@ -441,6 +485,7 @@ class LayoutStyle extends StyleSubBlock
 		var v = _maintainAspectRatio;
 		if (v == null && extendedStyle != null)		v = extendedStyle.maintainAspectRatio;
 		if (v == null && superStyle != null)		v = superStyle.maintainAspectRatio;
+		if (v == null && parentStyle != null)		v = parentStyle.maintainAspectRatio;
 		return v;
 	}
 	
@@ -450,6 +495,7 @@ class LayoutStyle extends StyleSubBlock
 		var v = _percentMinWidth;
 		if (v.notSet() && extendedStyle != null)	v = extendedStyle.percentMinWidth;
 		if (v.notSet() && superStyle != null)		v = superStyle.percentMinWidth;
+		if (v.notSet() && parentStyle != null)		v = parentStyle.percentMinWidth;
 		return v;
 	}
 	
@@ -459,6 +505,7 @@ class LayoutStyle extends StyleSubBlock
 		var v = _percentMaxWidth;
 		if (v.notSet() && extendedStyle != null)	v = extendedStyle.percentMaxWidth;
 		if (v.notSet() && superStyle != null)		v = superStyle.percentMaxWidth;
+		if (v.notSet() && parentStyle != null)		v = parentStyle.percentMaxWidth;
 		return v;
 	}
 	
@@ -468,6 +515,7 @@ class LayoutStyle extends StyleSubBlock
 		var v = _percentMinHeight;
 		if (v.notSet() && extendedStyle != null)	v = extendedStyle.percentMinHeight;
 		if (v.notSet() && superStyle != null)		v = superStyle.percentMinHeight;
+		if (v.notSet() && parentStyle != null)		v = parentStyle.percentMinHeight;
 		return v;
 	}
 	
@@ -477,6 +525,7 @@ class LayoutStyle extends StyleSubBlock
 		var v = _percentMaxHeight;
 		if (v.notSet() && extendedStyle != null)	v = extendedStyle.percentMaxHeight;
 		if (v.notSet() && superStyle != null)		v = superStyle.percentMaxHeight;
+		if (v.notSet() && parentStyle != null)		v = parentStyle.percentMaxHeight;
 		return v;
 	}
 	

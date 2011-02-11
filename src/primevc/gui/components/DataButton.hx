@@ -20,89 +20,54 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
- import primevc.core.Bindable;
- import primevc.gui.core.UIDataContainer;
- import primevc.gui.styling.IIconOwner;
- import primevc.gui.text.TextFormat;
- import primevc.gui.traits.ISelectable;
- import primevc.gui.traits.ITextStylable;
  import primevc.types.Bitmap;
 
 
-private typedef DataType	= Bindable<String>;
-private typedef Flags		= primevc.gui.core.UIElementFlags;
-
-
 /**
- * Button component
+ * DataButton is a button that can be used as an ItemRenderer
  * 
  * @author Ruben Weijers
- * @creation-date Oct 29, 2010
+ * @creation-date Feb 11, 2011
  */
-class Button extends UIDataContainer <DataType>, implements IIconOwner, implements ITextStylable, implements ISelectable
+class DataButton <DataType> extends Button, implements IItemRenderer <DataType>
 {
-	public var selected		(default, null)			: Bindable<Bool>;
-	public var icon			(getIcon, setIcon)		: Bitmap;
-#if flash9
-	public var textStyle	(default, setTextStyle)	: TextFormat;
-	public var wordWrap		: Bool;
-#end
+	// IItemRenderer Properties
+	public var vo				(getVO, setVO)	: DataType;
+	public var getLabelForVO					: DataType -> String;
 	
 	
-	public function new (id:String = null, value:String = null, icon:Bitmap = null)
+	public function new (id:String = null, value:String = null, icon:Bitmap = null, vo:DataType = null)
 	{
-		if (data == null)	super(id, new DataType(value));
-		else				super(id);
-		
-		this.icon	= icon;
-		selected	= new Bindable<Bool>(false);
+		super(id, value, icon);
+		this.vo = vo;
 	}
 	
 	
 	override public function dispose ()
 	{
-		if (selected != null) {
-			selected.dispose();
-			selected = null;
-		}
-		icon = null;
+		vo = null;
 		super.dispose();
 	}
 	
 	
-	private inline function setIcon (v:Bitmap)
+	private function setVO (v)
 	{
-		if (v != icon) {
-			icon = v;
-			invalidate( Flags.ICON );
+		if (v != vo) {
+			vo = v;
 		}
+		
 		return v;
 	}
 	
 	
-	private inline function getIcon () {
-		return icon;
+	private inline function getVO () {
+		return vo;
 	}
-	
-	
-#if flash9
-	private inline function setTextStyle (v:TextFormat)
-	{
-		textStyle = v;
-		invalidate( Flags.TEXTSTYLE );
-		return v;
-	}
-#end
-	
-	
-	public function select ()				{ selected.value = true; }
-	public function deselect ()				{ selected.value = false; }
-	public inline function isSelected ()	{ return selected.value; }
 }

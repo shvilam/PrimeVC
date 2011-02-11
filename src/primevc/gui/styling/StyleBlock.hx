@@ -175,27 +175,36 @@ class StyleBlock extends StyleBlockBase
 	
 	
 	public function new (
-		type		: StyleBlockType,
-		graphics	: GraphicsStyle = null,
-		layout		: LayoutStyle = null,
-		font		: TextStyle = null,
-		effects		: EffectsStyle = null,
-		boxFilters	: FiltersStyle = null,
-		bgFilters	: FiltersStyle = null,
-		states		: StatesStyle = null,
-		children	: StyleChildren = null
+		type			: StyleBlockType,
+		graphics		: GraphicsStyle = null,
+		layout			: LayoutStyle = null,
+		font			: TextStyle = null,
+		effects			: EffectsStyle = null,
+		boxFilters		: FiltersStyle = null,
+		bgFilters		: FiltersStyle = null,
+		states			: StatesStyle = null,
+		children		: StyleChildren = null,
+		parentStyle		: StyleBlock = null,
+		superStyle		: StyleBlock = null,
+		nestingStyle	: StyleBlock = null,
+		extendedStyle	: StyleBlock = null
 	)
 	{
 		super();
-		this.type		= type;
-		this.graphics	= graphics;
-		this.layout		= layout;
-		this.font		= font;
-		this.effects	= effects;
-		this.boxFilters	= boxFilters;
-		this.bgFilters	= bgFilters;
-		this.states		= states;
-		this.children	= children;
+		this.type			= type;
+		this.graphics		= graphics;
+		this.layout			= layout;
+		this.font			= font;
+		this.effects		= effects;
+		this.boxFilters		= boxFilters;
+		this.bgFilters		= bgFilters;
+		this.states			= states;
+		this.children		= children;
+		
+		this.parentStyle	= parentStyle;
+		this.superStyle		= superStyle;
+		nestingInherited	= nestingStyle;
+		this.extendedStyle	= extendedStyle;
 	}
 	
 	
@@ -814,17 +823,17 @@ class StyleBlock extends StyleBlockBase
 		if (!isEmpty())
 		{
 			if (filledProperties.has( Flags.ALL_PROPERTIES ))
-				code.construct(this, [ type, _graphics, _layout, _font, _effects, _boxFilters, _bgFilters ]);
+				code.construct(this, [ type, _graphics, _layout, _font, _effects, _boxFilters, _bgFilters, parentStyle, superStyle, nestingInherited, extendedStyle ]);
 			else
 				code.construct(this, [ type ]);
 			
-			if (filledProperties.has( Flags.INHERETING_STYLES ))
+			/*if (filledProperties.has( Flags.INHERETING_STYLES ))
 			{
 				if (nestingInherited != null)			code.setProp( this, "nestingInherited", nestingInherited );
 				if (superStyle != null)					code.setProp( this, "superStyle", superStyle );
 				if (extendedStyle != null)				code.setProp( this, "extendedStyle", extendedStyle );
 				if (parentStyle != null)				code.setProp( this, "parentStyle", parentStyle );
-			}
+			}*/
 			
 			//important to do after the styleblock is constructed. otherwise references to the parentstyle might nog yet exist
 			if (filledProperties.has( Flags.CHILDREN ))	code.setProp(this, "children", _children);

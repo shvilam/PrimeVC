@@ -1,23 +1,24 @@
 @manifest url('manifest.xml');
 
-.debug UIComponent { opacity: .7; border: solid 3px #f0f inset; }
+.debug UIComponent		{ opacity: .7; border: solid 3px #f0f inset; }
 
-IDisplayObject		{ shape: rectangle; visibility: visible; opacity: 1; }
-/*UITextField		{ color: #000; font: 14px Verdana; }*/
-UIWindow			{ overflow: hidden; }
-UIGraphic			{ shape: rectangle; }
-ApplicationView		{ width: 100%; height: 100%; algorithm: float-ver( top, center ); }
+IDisplayObject			{ shape: rectangle; visibility: visible; opacity: 1; }
+/*UITextField			{ color: #000; font: 14px Verdana; }*/
+UIWindow				{ overflow: hidden; }
+UIGraphic				{ shape: rectangle; }
+ApplicationView			{ width: 100%; height: 100%; algorithm: float-ver( top, center ); }
 
-ListView			{ overflow: hidden; }
-InputField			{ border: 1px solid #000; }
-Label				{ font: Verdana 20px; }
-Image				{ shape: rectangle; }
-Button				{ algorithm: float-hor( center, center ); font: Verdana 20px; background: #ffffff00; color: #000; skin: Class( primevc.gui.components.skins.ButtonIconLabelSkin ); }
-Button Image		{ max-width: 100%; max-height: 100%; }
+ListView				{ algorithm: float-ver(top, left); }
+.listContent			{ max-width: 100%; max-height: 100%; }
+InputField				{ border: 1px solid #000; }
+Label					{ font: Verdana 20px; }
+Image					{ shape: rectangle; }
+Button					{ algorithm: float-hor( center, center ); font: Arial 10px #444; background: #ffffff00; skin: Class( primevc.gui.components.skins.ButtonIconLabelSkin ); }
+/*Button Image			{ max-width: 100%; max-height: 100%; }*/
 /*Button UITextField	{ width: auto; }*/
 
 
-#toolTip			{ background: #555; font: Verdana 9px #fff; }
+#toolTip				{ background: #555; font: Verdana 9px #fff; }
 
 
 
@@ -69,3 +70,29 @@ ScrollBar 					{ background: #212121; }
 VideoPlayer UIVideo			{ width: 100%; height: auto; }
 VideoControlBar				{ algorithm: float-hor(center, center); width: 100%; height: 30px; }
 VideoControlBar Button		{ background: #f00; width: 50px; height: 50px; }*/
+
+
+
+/***************
+ * COMBOBOX
+ **************/
+
+ComboBox {
+	skin: Class( primevc.gui.components.skins.ComboBoxBtnSkin );
+	min-width: 40px;
+}
+
+.comboList {
+	min-width: 50px;
+	width: 100%;
+	min-height: 50px;
+	max-height: 300px;
+	overflow: scrollbars;
+	algorithm: float-ver( top, left );
+	
+	padding: 7px 0px;
+	
+	background: #F9F9F9;
+	border-radius: 10px;
+	border: 1px solid #707070;
+}

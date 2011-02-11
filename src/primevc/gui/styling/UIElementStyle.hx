@@ -621,6 +621,10 @@ class UIElementStyle implements IUIElementStyle
 			parentClass	= cast parentClass.getSuperClass();
 		}
 		
+		//use the IDisplayObject style if there isn't a style defined for this element
+		if (style == null)
+			style = parentStyle.findStyle( "primevc.gui.display.IDisplayObject", StyleBlockType.element );
+		
 		if (style != null)
 			changes = changes.set( addStyle( style ));
 		

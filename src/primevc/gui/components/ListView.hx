@@ -32,8 +32,10 @@ package primevc.gui.components;
  import primevc.core.dispatcher.Signal1;
  import primevc.core.traits.IValueObject;
 // import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
- import primevc.gui.core.IUIElement;
+ import primevc.gui.components.IItemRenderer;
  import primevc.gui.core.IUIDataElement;
+ import primevc.gui.core.IUIElement;
+ import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.events.MouseEvents;
@@ -42,7 +44,7 @@ package primevc.gui.components;
   using primevc.utils.TypeUtil;
 
 
-private typedef ItemRenderer <T:IValueObject>		= IUIDataElement < T >;
+//private typedef ItemRenderer <T:IValueObject>		= IUIDataElement < T >;
 //private typedef ItemRendererType <T:IValueObject>	= Class < ItemRenderer < T > >;
 
 
@@ -60,23 +62,38 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	 */
 	public var childClick (default, null)	: Signal1<MouseState>;
 	
+	
 	/**
-	 * Number indicating the difference between the number of children the
-	 * target and the childList of the layout on the moment that this behaviour
-	 * is initialized.
-	 * 
-	 * This number makes sure that if a child is added on depth 3 and the 
-	 * countDifference is 2 that the layout of the child will be added on depth
-	 * 2.
-	 * @see AutoChangeLayoutChildlistBehaviour
+	 * Container in which the itemrenders will be placed.
+	 * Don't add children here manually!
 	 */
-	private var countDifference : Int;
+	public var content			(default, null) : UIContainer;
+	
 	
 	
 	override private function createBehaviours ()
 	{
 		childClick = new Signal1<MouseState>();
 	//	behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
+	}
+	
+	
+	override private function createChildren ()
+	{
+		content = new UIContainer(id+"Content");
+		content.styleClasses.add( "listContent" );
+		layoutContainer.children.add( content.layout );
+		children.add( content );
+	}
+	
+	
+	override private function removeChildren ()
+	{
+		layoutContainer.children.remove( content.layout );
+		children.remove( content );
+		content.dispose();
+		content = null;
+		super.removeChildren();
 	}
 	
 	
@@ -90,8 +107,6 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	
 	override private function initData ()
 	{
-		countDifference	= children.length - layoutContainer.children.length;
-		
 		//add itemrenders for new list
 		for (i in 0...data.length)
 			addItemRenderer( data.getItemAt(i), i );
@@ -128,8 +143,8 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 		
 		var child = createItemRenderer( item, newPos );
 		
-		layoutContainer.children.add( child.layout, newPos - countDifference );
-		children.add( child, newPos );
+		content.layoutContainer.children.add( child.layout, newPos );
+		content.children.add( child, newPos );
 		
 		if (child.is(IInteractive) && child.as(IInteractive).mouseEnabled)
 			childClick.send.on( child.as(IInteractive).userEvents.mouse.click, this );
@@ -142,8 +157,8 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 		if (renderer != null)
 		{
 			//removing the click-listener is not nescasary since the item-renderer is getting disposed
-			layoutContainer.children.remove( renderer.layout );
-			children.remove( renderer );
+			content.layoutContainer.children.remove( renderer.layout );
+			content.children.remove( renderer );
 			renderer.dispose();
 		}
 	}
@@ -151,13 +166,19 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	
 	public function getItemRendererFor ( dataItem:ListDataType ) : IUIElement
 	{
-		for (i in 0...children.length)
+		var renderers = content.children;
+		for (i in 0...renderers.length)
 		{
-			var child = children.getItemAt( i );
-			if (child.is( ItemRenderer )) {
-				var r = child.as( ItemRenderer );
-				if (dataItem == cast r.data )
-					return r;
+			var child = renderers.getItemAt( i );
+			
+			if (child.is( IItemRenderer )) {
+				if (child.as(IItemRenderer).vo == cast dataItem)
+					return cast child.as(IItemRenderer);
+			}
+			
+			else if (child.is( IUIDataElement )) {
+				if (child.as(IUIDataElement).data == cast dataItem)
+					return cast child.as(IUIDataElement);
 			}
 		}
 		
@@ -169,8 +190,8 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	{
 		var renderer = getItemRendererFor( item );
 		if (renderer != null) {
-			layoutContainer.children.move( renderer.layout, (newPos - countDifference), (oldPos - countDifference) );
-			children.move( renderer, newPos, oldPos );
+			content.layoutContainer.children.move( renderer.layout, newPos, oldPos );
+			content.children.move( renderer, newPos, oldPos );
 		}
 #if debug
 		else
