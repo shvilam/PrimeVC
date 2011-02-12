@@ -96,5 +96,5 @@ ComboBox {
 	max-height: 300px;
 	overflow: scrollbars;
 	algorithm: float-ver( top, left );
-	padding-right: 15px;
+	/*padding-right: 15px;*/
 }

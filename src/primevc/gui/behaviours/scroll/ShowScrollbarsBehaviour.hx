@@ -30,6 +30,7 @@ package primevc.gui.behaviours.scroll;
  import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
 #if !neko
  import primevc.core.geom.space.Direction;
+ import primevc.core.geom.Box;
  import primevc.gui.components.ScrollBar;
  import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutFlags;
@@ -50,6 +51,8 @@ package primevc.gui.behaviours.scroll;
 class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 {
 #if !neko
+	private static inline var SIZE = 15;
+	
 	private var scrollbarHor	: ScrollBar;
 	private var scrollbarVer	: ScrollBar;
 	
@@ -93,6 +96,13 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 		else
 			scrollBar.target = target;
 		
+		var l = target.layout;
+		if (l.padding == null)
+			l.padding = new Box();
+		
+		if (direction == horizontal)	l.padding.bottom	+= SIZE;		// use hardcoded width value, because the width of scrollbar is not yet available... FIXME
+		else							l.padding.right		+= SIZE;
+		
 		children.add( scrollBar, depth );
 	//	layout.add( scrollBar.layout, layoutDepth );
 		
@@ -105,6 +115,10 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 	//	parentLayout.children.remove( scrollBar.layout );
 		target.container.children.remove( scrollBar );
 		scrollBar.target = null;
+		
+		var l = target.layout;
+		if (scrollBar.direction == horizontal)	l.padding.bottom	-= SIZE;		// use hardcoded width value, because the width of scrollbar is not yet available... FIXME
+		else									l.padding.right		-= SIZE;
 	}
 	
 	
@@ -128,31 +142,33 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 		else if (!hasVerScrollbar && needVerScrollbar)		scrollbarVer = addScrollBar( Direction.vertical, scrollbarVer );
 		
 		
+		var l = target.layout;
+		
 		//update position and size of the scrollbars
 		if (needHorScrollbar)
 		{
 			var scrollBar	= scrollbarHor.layout.outerBounds;
-			var bounds		= target.layout.innerBounds;
+			var bounds		= l.innerBounds;
 			
 			scrollBar.invalidatable = false;
 			scrollBar.width		= bounds.width - (needVerScrollbar ? scrollbarVer.layout.outerBounds.width : 0);
-			scrollBar.top		= target.layout.getVerPosition() + bounds.height - scrollBar.height;
-			scrollBar.left		= target.layout.getHorPosition();
+			scrollBar.top		= l.getVerPosition() + bounds.height - scrollBar.height;
+			scrollBar.left		= l.getHorPosition();
 			scrollBar.invalidatable = true;
 		}	
 		
 		if (needVerScrollbar)
 		{
 			var scrollBar	= scrollbarVer.layout.outerBounds;
-			var bounds		= target.layout.innerBounds;
+			var bounds		= l.innerBounds;
 			
 			//update padding to keep an empty space at the bottom of the bar with the height of the horizontal scrollbar
 			scrollbarVer.layout.padding.bottom = needHorScrollbar ? scrollbarHor.layout.outerBounds.height : 0;
 			
 			scrollBar.invalidatable = false;
 			scrollBar.height	= bounds.height;
-			scrollBar.left		= target.layout.getHorPosition() + bounds.width - scrollBar.width;
-			scrollBar.top		= target.layout.getVerPosition();
+			scrollBar.left		= l.getHorPosition() + bounds.width - scrollBar.width;
+			scrollBar.top		= l.getVerPosition();
 			scrollBar.invalidatable = true;
 		}
 	}
