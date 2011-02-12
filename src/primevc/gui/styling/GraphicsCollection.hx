@@ -56,11 +56,13 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 	
 	override public function apply ()
 	{
+	//	untyped if (elementStyle.target.id.value == "linkFramesBarContent")
+	//		trace( target+"; "+Flags.readProperties(changes) );
+		
 		if (changes == 0)
 			return;
 		
 		var target = elementStyle.target;
-		
 		if (!target.is(ISkinnable))		changes = changes.unset( Flags.SKIN );
 		if (!target.is(IDrawable))		changes = changes.unset( Flags.DRAWING_PROPERTIES );
 		if (!target.is(IUIContainer))	changes = changes.unset( Flags.OVERFLOW );

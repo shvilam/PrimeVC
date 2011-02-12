@@ -54,7 +54,7 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 	private var oldMouseChildrenValue	: Bool;
 	private var mouseMoveBinding		: Wire < Dynamic >;
 	
-
+	
 	override private function init ()
 	{
 		layoutGroup = target.layoutContainer;
@@ -97,8 +97,9 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 		
 		mouseMoveBinding.disable();
 		layoutGroup.children.remove( source.layout );
-		draggedItem = null;
 		target.children.mouseEnabled = oldMouseChildrenValue;
+		
+		draggedItem = null;
 	}
 	
 	

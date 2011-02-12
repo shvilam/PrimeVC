@@ -213,6 +213,17 @@ class HaxeCodeGenerator implements ICodeGenerator
 		for (arg in args)
 			newArgs.push( formatValue(arg, isConstructor) );
 		
+		//try to remove all the empty parameters at the end of the constructor
+		var i = newArgs.length;
+		while (i > 0)
+		{
+			var val = newArgs[--i];
+			if (val == null || val == "null" || val == "Number.INT_NOT_SET" || val == "Number.FLOAT_NOT_SET")
+				newArgs.pop();
+			else
+				break;
+		}
+		
 		return newArgs.join(", ");
 	}
 	

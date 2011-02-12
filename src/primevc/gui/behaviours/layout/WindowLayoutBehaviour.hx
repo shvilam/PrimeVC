@@ -90,7 +90,7 @@ class WindowLayoutBehaviour extends ValidatingBehaviour < UIWindow >, implements
 			return;
 		
 		var l = target.topLayout;
-	//	trace(l.width+", "+l.height);
+		trace(l.width+", "+l.height);
 		
 	//	trace(target+".updateBgSize "+l.outerBounds);
 	/*	if (!target.graphicData.isEmpty())
@@ -98,8 +98,9 @@ class WindowLayoutBehaviour extends ValidatingBehaviour < UIWindow >, implements
 			target.bgShape.width	= l.width;
 			target.bgShape.height	= l.height;
 		}*/
-		target.rect.width		= l.width;
-		target.rect.height		= l.height;
+	//	target.rect.width		= l.width;
+	//	target.rect.height		= l.height;
+		target.rect.resize( l.width, l.height );
 	}	
 #end
 }

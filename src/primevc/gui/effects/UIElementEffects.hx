@@ -108,15 +108,18 @@ class UIElementEffects implements IDisposable
 	public function playMove ()
 	{
 #if (flash8 || flash9 || js)
+		var newX = target.layout.getHorPosition();
+		var newY = target.layout.getVerPosition();
 		if (move != null)
 		{
-			move.setValues( EffectProperties.position( target.x, target.y, target.layout.getHorPosition(), target.layout.getVerPosition() ) );
+			move.setValues( EffectProperties.position( target.x, target.y, newX, newY ) );
 			move.play();
 		}
 		else
 		{
-			target.x = target.rect.left	= target.layout.getHorPosition();
-			target.y = target.rect.top	= target.layout.getVerPosition();
+			target.x = newX;
+			target.y = newY;
+			target.rect.move( newX, newY );
 		}
 #end
 	}
@@ -133,10 +136,7 @@ class UIElementEffects implements IDisposable
 			resize.play();
 		}
 		else
-		{
-			target.rect.width	= bounds.width;
-			target.rect.height	= bounds.height;
-		}
+			target.rect.resize( bounds.width, bounds.height );
 #end
 	}
 	

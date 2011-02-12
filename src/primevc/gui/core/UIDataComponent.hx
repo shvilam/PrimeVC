@@ -101,10 +101,14 @@ class UIDataComponent <DataType:IValueObject> extends UIComponent, implements IU
 	public function getDataCursor ()
 	{
 		var cursor = new DataCursor < DataType > ( data );
-		if (container == null || !container.is(IUIDataElement))
+		
+		var parent = null;
+		if (container != null && container.is(IUIDataElement))
+			parent = container.as(IUIDataElement);
+		
+		if (parent == null)
 			return cursor;
 		
-		var parent = container.as(IUIDataElement);
 		if (!parent.data.is(IReadOnlyList))
 			return cursor;
 		

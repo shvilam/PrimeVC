@@ -82,7 +82,7 @@ class GraphicProperties implements IGraphicElement
 		uuid = StringUtil.createUUID();
 #end
 		listeners			= new FastList< IInvalidateListener >();
-		this.shape			= shape;
+		this.shape			= shape; // == null ? new RegularRectangle() : shape;
 		this.layout			= layout;
 		this.fill			= fill;
 		this.border			= border;
@@ -242,7 +242,7 @@ class GraphicProperties implements IGraphicElement
 	//
 	
 	
-	private inline function setShape (v:IGraphicShape)
+	private function setShape (v:IGraphicShape)
 	{
 		if (v != shape)
 		{
@@ -259,7 +259,7 @@ class GraphicProperties implements IGraphicElement
 	}
 	
 	
-	private inline function setFill (v:IGraphicProperty)
+	private function setFill (v:IGraphicProperty)
 	{
 		if (v != fill)
 		{
@@ -276,7 +276,7 @@ class GraphicProperties implements IGraphicElement
 	}
 
 
-	private inline function setBorder (v:IBorder)
+	private function setBorder (v:IBorder)
 	{
 		if (v != border)
 		{
@@ -293,7 +293,7 @@ class GraphicProperties implements IGraphicElement
 	}
 
 
-	private inline function setLayout (v)
+	private function setLayout (v)
 	{
 		if (v != layout)
 		{

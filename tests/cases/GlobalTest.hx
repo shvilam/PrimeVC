@@ -91,13 +91,11 @@ class GlobalTest extends UIWindow
 		box2.name	= "box2";
 #end
 		
-		var box4 = new UIContainer( "frame2container" );
-		
 		layoutContainer.children.add( frame0.layout );
 		layoutContainer.children.add( box0 );
 		
 		box0.children.add( frame1.layout );
-		box0.children.add( box4.layout );
+		box0.children.add( frame2.layout );
 		box0.children.add( box1 );
 		
 		box1.children.add( frame3.layout );
@@ -109,11 +107,8 @@ class GlobalTest extends UIWindow
 		box2.children.add( frame5.layout );
 		box2.children.add( frame6.layout );
 		
-		box4.layoutContainer.children.add( frame2.layout );
-		box4.children.add( frame2 );
-		
 		children.add(frame0);
-		children.add(box4);
+		children.add(frame2);
 		children.add(frame1);
 		children.add(frame3);
 		children.add(frame4);
@@ -194,6 +189,7 @@ class TileList extends ListView < DataVOType >, implements IDataDropTarget < Dat
 		doubleClickEnabled	= true;
 		dragEvents			= new DropTargetEvents();
 		super(id, list);
+		createItemRenderer	= createRenderer;
 	}
 	
 	
@@ -205,7 +201,7 @@ class TileList extends ListView < DataVOType >, implements IDataDropTarget < Dat
 	}
 	
 	
-	override private function createItemRenderer (dataItem:DataVOType, pos:Int)
+	private function createRenderer (dataItem, pos:Int)
 	{
 		return cast new Tile(dataItem);
 	}
@@ -227,12 +223,6 @@ class TileList extends ListView < DataVOType >, implements IDataDropTarget < Dat
 	public function isDataDropAllowed (dataCursor:DataCursor < DataVOType > ) : Bool
 	{
 		return dataCursor.list == data;
-	}
-	
-	
-	public inline function getDepthForBounds (bounds:IRectangle) : Int
-	{
-		return layoutContainer.algorithm.getDepthForBounds(bounds);
 	}
 	
 	

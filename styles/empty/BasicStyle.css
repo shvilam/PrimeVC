@@ -3,13 +3,13 @@
 .debug UIComponent		{ opacity: .7; border: solid 3px #f0f inset; }
 
 IDisplayObject			{ shape: rectangle; visibility: visible; opacity: 1; }
-/*UITextField			{ color: #000; font: 14px Verdana; }*/
 UIWindow				{ overflow: hidden; }
 UIGraphic				{ shape: rectangle; }
 ApplicationView			{ width: 100%; height: 100%; algorithm: float-ver( top, center ); }
 
-ListView				{ algorithm: float-ver(top, left); }
-.listContent			{ max-width: 100%; max-height: 100%; }
+ListHolder				{ algorithm: float-ver(top, left); }
+ListHolder ListView		{ width: 100%; height: 100%; }
+/*.listContent			{ max-width: 100%; max-height: 100%; }*/
 InputField				{ border: 1px solid #000; }
 Label					{ font: Verdana 20px; }
 Image					{ shape: rectangle; }
@@ -83,16 +83,18 @@ ComboBox {
 }
 
 .comboList {
+	background: #F9F9F9;
+	border-radius: 10px;
+	border: 1px solid #707070;
+	padding: 7px 0px;
+}
+
+.comboList ListView {
 	min-width: 50px;
 	width: 100%;
 	min-height: 50px;
 	max-height: 300px;
 	overflow: scrollbars;
 	algorithm: float-ver( top, left );
-	
-	padding: 7px 0px;
-	
-	background: #F9F9F9;
-	border-radius: 10px;
-	border: 1px solid #707070;
+	padding-right: 15px;
 }

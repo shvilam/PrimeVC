@@ -734,7 +734,8 @@ class CSSParser
 			createEmptySuperClassesForList( style.children.elementSelectors );
 		//	trace("\t\t\tsearch for super classes");	
 			
-			findSuperClassesInList( style.children.styleNameSelectors );
+	//		findSuperClassesInList( style.children.idSelectors );
+	//		findSuperClassesInList( style.children.styleNameSelectors );
 			findSuperClassesInList( style.children.elementSelectors );
 		}
 	}

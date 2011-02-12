@@ -28,12 +28,14 @@
  */
 package primevc.gui.components;
  import primevc.core.collections.IReadOnlyList;
+ import primevc.core.traits.IValueObject;
  import primevc.core.validators.IntRangeValidator;
  import primevc.core.Bindable;
  import primevc.gui.behaviours.components.ComboBoxBehaviour;
  import primevc.gui.components.DataButton;
- import primevc.gui.components.ListView;
+ import primevc.gui.components.ListHolder;
  import primevc.gui.core.IUIDataElement;
+ import primevc.gui.core.IUIElement;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.traits.ISelectable;
@@ -60,13 +62,13 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Feb 10, 2011
  */
-class ComboBox <DataType> extends DataButton <DataType>
+class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 {
 	/**
 	 * The combobox popup.
 	 * Don't forget to set this property
 	 */
-	public var list			: ListView<DataType>;
+	public var list			(default, null)				: ListHolder<DataType, DataType>;
 	public var listData		(default, setListData)		: IReadOnlyList<DataType>;
 	
 	/**
@@ -75,6 +77,15 @@ class ComboBox <DataType> extends DataButton <DataType>
 	 * (i.e. the selected value label).
 	 */
 	public var getLabelForValue							: DataType -> String;
+	/**
+	 * Injectable method which will create the needed itemrenderer
+	 * @param	item:ListDataType
+	 * @param	pos:Int
+	 * @return 	IUIElement
+	 */
+	public var createItemRenderer						(default, setCreateItemRenderer) : DataType -> Int -> IUIElement;
+	
+	
 	public var defaultLabel	(default, setDefaultLabel)	: String;
 	
 	private var listBehaviour	: ComboBoxBehaviour;
@@ -92,12 +103,16 @@ class ComboBox <DataType> extends DataButton <DataType>
 	{
 		super.createChildren();
 		
-		Assert.notNull( list );
+		if (list == null) {
+			list = new ListHolder( id.value+"List", cast listData, cast listData );
+			list.styleClasses.add( "comboList" );
+			
+			list.createItemRenderer	= createItemRenderer;
+		}
+		
 		Assert.notNull( listData );
 		Assert.notNull( getLabelForValue );
-		
-		list.styleClasses.add( "comboList" );
-		list.data = listData;
+		Assert.notNull( createItemRenderer );
 		
 		//leave the opening and closing of the list to the behaviouruserEvents.
 		behaviours.add( listBehaviour = new ComboBoxBehaviour( this, list, userEvents.mouse.down, userEvents.mouse.down ) );
@@ -122,7 +137,7 @@ class ComboBox <DataType> extends DataButton <DataType>
 	
 	
 	//
-	// GETTERS / SETTERS / EVENTHANDLERS
+	// GETTERS / SETTERS
 	//
 	
 	override private function setVO (v:DataType) : DataType
@@ -135,7 +150,7 @@ class ComboBox <DataType> extends DataButton <DataType>
 				if (vo != null)
 				{
 					//change selected itemrenderer in list
-					var r = list.getItemRendererFor( vo );
+					var r = list.content.getItemRendererFor( vo );
 					trace(this+".deselect "+r);
 					if (r.is(ISelectable))
 						r.as(ISelectable).deselect();
@@ -147,7 +162,7 @@ class ComboBox <DataType> extends DataButton <DataType>
 				if (v != null)
 				{
 					//change selected itemrenderer in list
-					var r = list.getItemRendererFor( vo );
+					var r = list.content.getItemRendererFor( vo );
 					trace(this+".select "+r);
 					if (r.is(ISelectable))
 						r.as(ISelectable).select();
@@ -168,7 +183,7 @@ class ComboBox <DataType> extends DataButton <DataType>
 		if (v != listData)
 		{
 			if (list != null)
-				list.data = v;
+				list.data = cast v;
 			
 			listData = v;
 		}
@@ -188,6 +203,23 @@ class ComboBox <DataType> extends DataButton <DataType>
 		return v;
 	}
 	
+	
+	private inline function setCreateItemRenderer (v)
+	{
+		if (v != createItemRenderer)
+		{
+			createItemRenderer = v;
+			if (list != null)
+				list.createItemRenderer = v;
+		}
+		return v;
+	}
+	
+	
+	
+	//
+	// EVENT HANDLERS
+	//
 	
 	
 	/**

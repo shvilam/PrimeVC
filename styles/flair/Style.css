@@ -14,8 +14,8 @@ GlobalTest {
 Tile {
 	color: #000;
 	move-transition: move 200ms circ-out;
-	min-width: 15px;
-	min-height: 15px;
+	min-width: 50px;
+	min-height: 50px;
 	margin: 3px;
 	background: #ff0000;
 /*	background: radial-gradient( -1, #aaa, #000 40px, 0xadfc67f0 50%, #0f0f0f0f 60%, #222 70.987%, 0xabcdefdd 254.8px, repeat );*/
@@ -38,13 +38,14 @@ TileList {
 	min-height: 30px;
 	border: solid 3px #fedcbaaa;
 	background: #abcdef44;
-	padding: 10px;
 /*	child-width: 40px;
 	child-height: 40px;*/
 	/*resize-transition: resize 300ms;
 	move-transition: move 300ms;*/
+	padding: 10px;
 	overflow: hidden;
 }
+
 /*
 Frame:hover {
 	background: #ff0aa;
@@ -76,22 +77,20 @@ GlobalApp TileList:hover {
 
 
 #frame0 {
-	algorithm: float-ver( bottom, center );
 	height: 100%;
+	algorithm: float-ver( bottom, center );
 	overflow: corner-scroll;
 }
 
 #frame1 {
-	algorithm: float-hor( left );
 	height: 60px;
-	
 	top: 5px;
 	right: 5px;
 	left: 5px;
-	
+	algorithm: float-hor( left, center );
 	overflow: scroll-mouse-move;
 }
-
+/*
 UIContainer {
 	algorithm: relative;
 	top: 90px;
@@ -99,20 +98,22 @@ UIContainer {
 	left: 5px;
 	width: 59%;
 	background: #eee;
-}
+}*/
 
 #frame2 {
+	top: 90px;
+	left: 5px;
+	width: 59%;
+	background: #eee;
 	algorithm: fixed-tile( horizontal, 3 );
-	width: 100%;
-	height: 100%;
 	overflow: scrollbars;
 }
 
 #frame3 {
-	algorithm: dynamic-tile;
-	max-width: 80px;
+	/*max-width: 80px;*/
 	width: 100%;
 	height: 40%;
+	algorithm: dynamic-tile;
 	overflow: scrollbars;
 }
 

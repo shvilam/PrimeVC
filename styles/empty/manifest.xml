@@ -18,6 +18,7 @@
 	<component id="Image"				superClass="UIGraphic"			fullname="primevc.gui.components.Image" />
 	<component id="InputField"			superClass="Label"				fullname="primevc.gui.components.InputField" />
 	<component id="Label"				superClass="UIDataComponent"	fullname="primevc.gui.components.Label" />
+	<component id="ListHolder"			superClass="UIDataContainer"	fullname="primevc.gui.components.ListHolder" />
 	<component id="ListView"			superClass="UIDataContainer"	fullname="primevc.gui.components.ListView" />
 	<component id="ScrollBar"			superClass="SliderBase"			fullname="primevc.gui.components.ScrollBar" />
 	<component id="SliderBase"			superClass="UIDataContainer"	fullname="primevc.gui.components.SliderBase" />

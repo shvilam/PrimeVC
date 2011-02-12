@@ -31,11 +31,12 @@ package primevc.gui.components;
  import primevc.core.collections.ListChange;
  import primevc.core.dispatcher.Signal1;
  import primevc.core.traits.IValueObject;
+ import primevc.core.geom.IRectangle;
 // import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
  import primevc.gui.components.IItemRenderer;
  import primevc.gui.core.IUIDataElement;
  import primevc.gui.core.IUIElement;
- import primevc.gui.core.UIContainer;
+// import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.events.MouseEvents;
@@ -62,25 +63,32 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	 */
 	public var childClick (default, null)	: Signal1<MouseState>;
 	
+	/**
+	 * Injectable method which will create the needed itemrenderer
+	 * @param	item:ListDataType
+	 * @param	pos:Int
+	 * @return 	IUIElement
+	 */
+	public var createItemRenderer			: ListDataType -> Int -> IUIElement;
 	
 	/**
 	 * Container in which the itemrenders will be placed.
 	 * Don't add children here manually!
 	 */
-	public var content			(default, null) : UIContainer;
+//	public var content			(default, null) : UIContainer;
 	
 	
 	
 	override private function createBehaviours ()
 	{
-		childClick = new Signal1<MouseState>();
+	//	content		= new UIContainer(id+"Content");
+		childClick	= new Signal1<MouseState>();
 	//	behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
 	}
 	
 	
-	override private function createChildren ()
+	/*override private function createChildren ()
 	{
-		content = new UIContainer(id+"Content");
 		content.styleClasses.add( "listContent" );
 		layoutContainer.children.add( content.layout );
 		children.add( content );
@@ -94,7 +102,7 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 		content.dispose();
 		content = null;
 		super.removeChildren();
-	}
+	}*/
 	
 	
 	override public function dispose ()
@@ -129,11 +137,11 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	// DATA RENDERER METHODS
 	//
 	
-	private function createItemRenderer ( item:ListDataType, pos:Int ) : IUIElement
+/*	private function createItemRenderer ( item:ListDataType, pos:Int ) : IUIElement
 	{
 		Assert.abstract();
 		return null;
-	}
+	}*/
 	
 	
 	private function addItemRenderer( item:ListDataType, newPos:Int = -1 )
@@ -141,10 +149,11 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 		if (newPos == -1)
 			newPos = data.indexOf( item );
 		
+		Assert.notNull( createItemRenderer );
 		var child = createItemRenderer( item, newPos );
 		
-		content.layoutContainer.children.add( child.layout, newPos );
-		content.children.add( child, newPos );
+		layoutContainer.children.add( child.layout, newPos );
+		children.add( child, newPos );
 		
 		if (child.is(IInteractive) && child.as(IInteractive).mouseEnabled)
 			childClick.send.on( child.as(IInteractive).userEvents.mouse.click, this );
@@ -157,8 +166,8 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 		if (renderer != null)
 		{
 			//removing the click-listener is not nescasary since the item-renderer is getting disposed
-			content.layoutContainer.children.remove( renderer.layout );
-			content.children.remove( renderer );
+			layoutContainer.children.remove( renderer.layout );
+			children.remove( renderer );
 			renderer.dispose();
 		}
 	}
@@ -166,7 +175,7 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	
 	public function getItemRendererFor ( dataItem:ListDataType ) : IUIElement
 	{
-		var renderers = content.children;
+		var renderers = children;
 		for (i in 0...renderers.length)
 		{
 			var child = renderers.getItemAt( i );
@@ -190,13 +199,19 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	{
 		var renderer = getItemRendererFor( item );
 		if (renderer != null) {
-			content.layoutContainer.children.move( renderer.layout, newPos, oldPos );
-			content.children.move( renderer, newPos, oldPos );
+			layoutContainer.children.move( renderer.layout, newPos, oldPos );
+			children.move( renderer, newPos, oldPos );
 		}
 #if debug
 		else
 			trace("no itemrenderer found to move for vo-item "+item+"; move: "+oldPos+" => "+newPos);
 #end
+	}
+	
+	
+	public function getDepthForBounds (bounds:IRectangle) : Int
+	{
+		return layoutContainer.algorithm.getDepthForBounds(bounds);
 	}
 	
 	

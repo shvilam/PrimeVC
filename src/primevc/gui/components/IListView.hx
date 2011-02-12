@@ -39,7 +39,8 @@ package primevc.gui.components;
  */
 interface IListView < ListDataType > implements IUIContainer 
 {
-	private function createItemRenderer ( item:ListDataType, pos:Int )				: IUIElement;
+	public var createItemRenderer													: ListDataType -> Int -> IUIElement;
+//	private function createItemRenderer ( item:ListDataType, pos:Int )				: IUIElement;
 	private function addItemRenderer( item:ListDataType, newPos:Int = -1 )			: Void;
 	private function removeItemRenderer( item:ListDataType, oldPos:Int = -1 )		: Void;
 	private function moveItemRenderer ( item:ListDataType, newPos:Int, oldPos:Int )	: Void;

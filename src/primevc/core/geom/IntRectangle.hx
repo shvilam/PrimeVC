@@ -56,6 +56,9 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	public function new ( x:Int = 0, y:Int = 0, width:Int = 0, height:Int = 0 )
 	{
 		super();
+#if debug
+		id = counter++;
+#end
 		invalidatable = false;
 		this.top	= y;
 		this.left	= x;
@@ -71,27 +74,33 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	}
 	
 	
+#if debug
+	private static var counter : Int = 0;
+	private var id : Int;
 	public function toString ()
 	{
-		return "IntRect (x=" + left + ", y=" + top + ", width=" + width + ", height=" + height + ", r=" + right + ", b=" + bottom+" )";
+		return "IntRect"+id+" (x=" + left + ", y=" + top + ", width=" + width + ", height=" + height + ", r=" + right + ", b=" + bottom+" )";
 	}
+#end
 	
 	
 	public function resize (newWidth:Int, newHeight:Int) : Void
 	{
+		var c	= invalidatable;
 		invalidatable = false;
 		width	= newWidth;
 		height	= newHeight;
-		invalidatable = true;
+		invalidatable = c;
 	}
 	
 	
 	public function move (newX:Int, newY:Int) : Void
 	{
+		var c	= invalidatable;
 		invalidatable = false;
 		top		= newX;
 		left	= newY;
-		invalidatable = true;
+		invalidatable = c;
 	}
 	
 	

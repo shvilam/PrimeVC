@@ -158,7 +158,7 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 		
 	//	if (changes.has( LayoutFlags.SIZE | LayoutFlags.POSITION ))
 	//	if (target.id.value == "linkFramesBarContent" || target.id.value == "internalLinkFrameButton")
-	//		trace(target+"; pos: "+l.getHorPosition()+", "+l.getVerPosition()+"; size: "+l.outerBounds.width+", "+l.outerBounds.height);
+	//		trace(target+"; x="+l.getHorPosition()+", y="+l.getVerPosition()+", width="+l.outerBounds.width+", height="+l.outerBounds.height+"; "+changes.has( LayoutFlags.POSITION )+"; "+changes.has( LayoutFlags.SIZE ));
 		
 		if (changes.has( LayoutFlags.POSITION ))
 		{
@@ -181,9 +181,10 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 						newY -= (borderWidth * target.scaleY).roundFloat();
 					}
 				}
-			
-				target.x	= target.rect.left	= newX;
-				target.y	= target.rect.top	= newY;
+				
+				target.rect.move( newX, newY );
+				target.x = newX;
+				target.y = newY;
 				isNotPositionedYet = false;
 			}
 			else
