@@ -27,11 +27,18 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
+ import primevc.core.Bindable;
  import primevc.types.Bitmap;
+  using primevc.utils.Bind;
 
 
 /**
- * DataButton is a button that can be used as an ItemRenderer
+ * DataButton is a button that can be used as an ItemRenderer. Every time it's
+ * vo property changes, it will try to update the data.value of the button by
+ * calling the method "getLabelForVO".
+ * 
+ * If the 'vo' value is empty, it will set the "defaultValue" string as value
+ * of 'data.value' and add the styleClass 'empty'.
  * 
  * @author Ruben Weijers
  * @creation-date Feb 11, 2011
@@ -39,35 +46,64 @@ package primevc.gui.components;
 class DataButton <DataType> extends Button, implements IItemRenderer <DataType>
 {
 	// IItemRenderer Properties
-	public var vo				(getVO, setVO)	: DataType;
-	public var getLabelForVO					: DataType -> String;
+	public var vo				(default, null)				: Bindable<DataType>;
+	
+	/**
+	 * Method which should be set externally. The given method can return a
+	 * correct string which should be displayed as label in the button
+	 * (i.e. the selected value label).
+	 */
+	public var getLabelForVO								: DataType -> String;
+	public var defaultLabel		(default, setDefaultLabel)	: String;
 	
 	
-	public function new (id:String = null, value:String = null, icon:Bitmap = null, vo:DataType = null)
+	public function new (id:String = null, defaultLabel:String = null, icon:Bitmap = null, vo:DataType = null)
 	{
-		super(id, value, icon);
-		this.vo = vo;
+		super(id, defaultLabel, icon);
+		this.defaultLabel	= defaultLabel;
+		this.vo				= new Bindable<DataType>(vo);
 	}
 	
 	
 	override public function dispose ()
 	{
+		vo.dispose();
 		vo = null;
 		super.dispose();
 	}
 	
 	
-	private function setVO (v)
+	override private function init ()
 	{
-		if (v != vo) {
-			vo = v;
-		}
-		
-		return v;
+		super.init();
+		updateLabel.on( vo.change, this );
+		updateLabel(vo.value, vo.value);
 	}
 	
 	
-	private inline function getVO () {
-		return vo;
+	private function updateLabel (newVal:DataType, oldVal:DataType)
+	{
+		Assert.notNull( getLabelForVO );
+		
+		if (oldVal == null)		styleClasses.remove("empty");
+		if (newVal == null)		styleClasses.add("empty");
+		
+		//don't use data.value ==> if data is a RevertableBindable, updating the label won't cause any errors
+		data.set( newVal != null ? getLabelForVO( newVal ) : defaultLabel );
+		data.change.send( data.value, null );
+		trace( data.value );
+	}
+	
+	
+	private inline function setDefaultLabel (v:String) : String
+	{
+		if (v != defaultLabel)
+		{
+			if (data.value == defaultLabel)
+				data.value = v;
+			
+			defaultLabel = v;
+		}
+		return v;
 	}
 }

@@ -181,7 +181,7 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 			var child = renderers.getItemAt( i );
 			
 			if (child.is( IItemRenderer )) {
-				if (child.as(IItemRenderer).vo == cast dataItem)
+				if (child.as(IItemRenderer).vo.value == cast dataItem)
 					return cast child.as(IItemRenderer);
 			}
 			

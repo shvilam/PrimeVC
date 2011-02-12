@@ -297,6 +297,9 @@ class LayoutClient extends Invalidatable
 	{
 		if (changes > 0)
 		{
+			if (changes.has( Flags.PADDING | Flags.MARGIN ))
+				updateAllWidths(width, true);
+			
 #if debug	Assert.notEqual( state.current, ValidateStates.validated, name+"; "+readChanges() ); #end
 			state.current = ValidateStates.validating;
 			hasValidatedWidth = true;
@@ -309,6 +312,9 @@ class LayoutClient extends Invalidatable
 	{
 		if (changes > 0)
 		{
+			if (changes.has( Flags.PADDING | Flags.MARGIN ))
+				updateAllHeights(height, true);
+			
 #if debug	Assert.notEqual( state.current, ValidateStates.validated, name+"; "+readChanges() ); #end
 			state.current = ValidateStates.validating;
 			hasValidatedHeight = true;
@@ -471,7 +477,7 @@ class LayoutClient extends Invalidatable
 	 * 
 	 * @return the _width value
 	 */
-	private function updateAllWidths (v:Int, force:Bool = false) : Int
+	public function updateAllWidths (v:Int, force:Bool = false) : Int
 	{
 		if (!force && _width == v && v.isSet())
 			return v;
@@ -507,7 +513,7 @@ class LayoutClient extends Invalidatable
 	 * 
 	 * @return the _height value
 	 */
-	private function updateAllHeights (v:Int, force:Bool = false) : Int
+	public function updateAllHeights (v:Int, force:Bool = false) : Int
 	{
 		if (!force && _height == v && v.isSet())
 			return v;

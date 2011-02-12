@@ -38,10 +38,11 @@ package primevc.gui.components;
  */
 interface IItemRenderer <DataType> implements IUIElement
 {
-	public var data		(default, null)		: Bindable<String>;
-	public var icon		(getIcon, setIcon)	: Bitmap;
+	public var data				(default, null)				: Bindable<String>;
+	public var icon				(getIcon, setIcon)			: Bitmap;
 	
-	public var vo		(getVO, setVO)		: DataType;
+	public var vo				(default, null)				: Bindable<DataType>;
+	public var defaultLabel		(default, setDefaultLabel)	: String;
 	
 	
 	/**

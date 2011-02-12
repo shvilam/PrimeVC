@@ -92,13 +92,13 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	/**
 	 * @see super.updateAllWidths
 	 */
-	override private function updateAllWidths (v:Int, force:Bool = false)
+	override public function updateAllWidths (v:Int, force:Bool = false)
 	{
 		if (v.notSet() && measuredWidth.isSet() && explicitWidth.notSet())
 			v = measuredWidth;
 		
 	//	var oldW	= _width;
-		v			= super.updateAllWidths(v, force);
+		v = super.updateAllWidths(v, force);
 		
 		if (measuredWidth.notSet() || explicitWidth.isSet())
 			(untyped this).explicitWidth = _width;
@@ -112,13 +112,13 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	/**
 	 * @see super.updateAllHeights
 	 */
-	override private function updateAllHeights (v:Int, force:Bool = false)
+	override public function updateAllHeights (v:Int, force:Bool = false)
 	{
 		if (v.notSet() && measuredHeight.isSet() && explicitHeight.notSet())
 			v = measuredHeight;
 		
 	//	var oldH	= _height;
-		v			= super.updateAllHeights(v, force);
+		v = super.updateAllHeights(v, force);
 		
 		if (measuredHeight.notSet() || explicitHeight.isSet())
 			(untyped this).explicitHeight = _height;

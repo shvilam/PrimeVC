@@ -68,34 +68,25 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 	 * The combobox popup.
 	 * Don't forget to set this property
 	 */
-	public var list			(default, null)				: ListHolder<DataType, DataType>;
-	public var listData		(default, setListData)		: IReadOnlyList<DataType>;
+	public var list					(default, null)					: ListHolder<DataType, DataType>;
+	public var listData				(default, setListData)			: IReadOnlyList<DataType>;
 	
-	/**
-	 * Method which should be set externally. The given method can return a
-	 * correct string which should be displayed as label in the combobox 
-	 * (i.e. the selected value label).
-	 */
-	public var getLabelForValue							: DataType -> String;
 	/**
 	 * Injectable method which will create the needed itemrenderer
 	 * @param	item:ListDataType
 	 * @param	pos:Int
 	 * @return 	IUIElement
 	 */
-	public var createItemRenderer						(default, setCreateItemRenderer) : DataType -> Int -> IUIElement;
+	public var createItemRenderer	(default, setCreateItemRenderer) : DataType -> Int -> IUIElement;
+	private var listBehaviour		: ComboBoxBehaviour;
 	
 	
-	public var defaultLabel	(default, setDefaultLabel)	: String;
-	
-	private var listBehaviour	: ComboBoxBehaviour;
 	
 	
 	public function new (id:String = null, defaultLabel:String = null, icon:Bitmap = null, selectedItem:DataType = null, listData:IReadOnlyList<DataType> = null)
 	{
-		super(id, null, icon, selectedItem);
-		this.defaultLabel	= defaultLabel;
-		this.listData		= listData;
+		this.listData = listData;
+		super(id, defaultLabel, icon, selectedItem);
 	}
 	
 	
@@ -111,7 +102,7 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 		}
 		
 		Assert.notNull( listData );
-		Assert.notNull( getLabelForValue );
+		Assert.notNull( getLabelForVO );
 		Assert.notNull( createItemRenderer );
 		
 		//leave the opening and closing of the list to the behaviouruserEvents.
@@ -119,7 +110,11 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 		handleItemRendererClick.on( list.childClick, this );
 		
 		//listen to layout changes.. make sure the combox is always at least the size of the combobox button
-		updateListWidth.on( layout.changed, this );
+		updateListWidth	.on( layout.changed, this );
+		selectListItem	.on( vo.change, this );
+		
+		//select the current value in the list when the list item-renderers are created
+		selectCurrentValue	.on( list.state.change, this );
 	}
 	
 	
@@ -129,8 +124,7 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 			list.dispose();
 			list = null;
 		}
-		listData			= null;
-		getLabelForValue	= null;
+		listData = null;
 		super.dispose();
 	}
 	
@@ -140,43 +134,6 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 	// GETTERS / SETTERS
 	//
 	
-	override private function setVO (v:DataType) : DataType
-	{
-		if ( v != vo)
-		{
-			trace( vo + " => "+v+"; selected: "+isSelected());
-			if (isSelected())
-			{
-				if (vo != null)
-				{
-					//change selected itemrenderer in list
-					var r = list.content.getItemRendererFor( vo );
-					trace(this+".deselect "+r);
-					if (r.is(ISelectable))
-						r.as(ISelectable).deselect();
-				}
-				
-				vo = v;
-				updateLabel();
-				
-				if (v != null)
-				{
-					//change selected itemrenderer in list
-					var r = list.content.getItemRendererFor( vo );
-					trace(this+".select "+r);
-					if (r.is(ISelectable))
-						r.as(ISelectable).select();
-				}
-			}
-			else
-			{
-				vo = v;
-				updateLabel();
-			}
-		}
-		return v;
-	}
-	
 	
 	private inline function setListData (v)
 	{
@@ -185,21 +142,10 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 			if (list != null)
 				list.data = cast v;
 			
-			listData = v;
+			listData	= v;
+			vo.value	= null;
 		}
 		
-		return v;
-	}
-	
-	
-	private inline function setDefaultLabel (v:String)
-	{
-		if (v != defaultLabel)
-		{
-			defaultLabel = v;
-			if (vo == null)
-				updateLabel();
-		}
 		return v;
 	}
 	
@@ -223,17 +169,6 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 	
 	
 	/**
-	 * Method will show the correct label for the current 'vo'. If the vo is 
-	 * null, it will display the "defaultLabel" and add the styleClass "empty"
-	 */
-	private function updateLabel ()
-	{
-		if (vo == null)		data.value = defaultLabel;
-		else				data.value = getLabelForValue( vo );
-	}
-	
-	
-	/**
 	 * Method is called when an item-renderer in the list is clicked. The
 	 * method will try to update the value of the combobox.
 	 */
@@ -254,15 +189,70 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 	}
 	
 	
+	/**
+	 * Method will update the min-width of the list to the current-width of
+	 * the button to make sure the list is always at least the same width as
+	 * the button
+	 */
 	private function updateListWidth (changes:Int)
 	{
-		if (changes.has(LayoutFlags.WIDTH)) {
-			var l = list.layout;
+		if (changes.has(LayoutFlags.WIDTH) && list.content != null)
+		{
+			var l = list.content.layout;
 			trace("update list min-width to "+layout.innerBounds.width);
 			if (l.widthValidator == null)
 				l.widthValidator = new IntRangeValidator( layout.innerBounds.width );
 			else
 				l.widthValidator.min = layout.innerBounds.width;
+		}
+	}
+	
+	
+	/**
+	 * Method will try to select the item-renderer of the new value-object in
+	 * the list
+	 */
+	private function selectListItem (newVO:DataType, oldVO:DataType)
+	{
+		trace( oldVO + " => "+newVO+"; selected: "+isSelected());
+		
+#if debug
+		if (newVO != null)
+			Assert.that( listData.has(newVO) );
+#end		
+		
+		if (oldVO != null)
+		{
+			//change selected itemrenderer in list
+			var r = list.content.getItemRendererFor( oldVO );
+			trace(this+".deselect "+r);
+			if (r != null && r.is(ISelectable))
+				r.as(ISelectable).deselect();
+		}
+		
+		
+		if (newVO != null)
+		{
+			//change selected itemrenderer in list
+			var r = list.content.getItemRendererFor( newVO );
+			trace(this+".select "+r);
+			if (r != null && r.is(ISelectable))
+				r.as(ISelectable).select();
+		}
+	}
+	
+	
+	/**
+	 * Method will select the current-value the first-time the list is opened
+	 */
+	private function selectCurrentValue ()
+	{
+		if (list.isInitialized())
+		{
+			if (vo.value != null)
+				selectListItem( vo.value, null );
+			
+			updateListWidth( LayoutFlags.WIDTH );
 		}
 	}
 }
