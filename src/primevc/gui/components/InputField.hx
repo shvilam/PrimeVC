@@ -166,6 +166,8 @@ class InputField <VOType> extends DataButton <VOType>
 		Assert.notNull( vo.value );
 		
 		fieldBinding.disable();
+		trace( data.value );
+		updateVO();
 		getRevertableData().commitEdit();
 		
 		hasFocus = false;
