@@ -45,8 +45,10 @@ private typedef Flags = RevertableBindableFlags;
  * The value change signalling and bindings to other Bindables are
  * configurable through RevertableBindableFlags.
  * 
- * The default behaviour is to only dispatch/propagate _valid_ changes
- * when: _not_ in, or leaving; edit-mode.
+ * The default behaviour is to:
+ *  - dispatch all _valid_ changes through the change signal.
+ *  - only dispatch/propagate _valid_ changes to other Bindables
+ *    when: _not_ in, or leaving; edit-mode.
  * 
  * The value can only change when in edit-mode (by calling beginEdit()),
  * or directly through set(). When setting 'this.value' is tried while not
@@ -116,7 +118,7 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 	
 	public function new (?val : Null<DataType>)
 	{
-		flags = 0;
+		flags = Flags.DISPATCH_CHANGES_BEFORE_COMMIT;
 		super(val);
 	}	
 	
