@@ -28,7 +28,7 @@
  */
 package primevc.core;
   using primevc.utils.BitUtil;
-
+  using primevc.utils.IfUtil;
 
 /**
  * @creation-date	Jun 18, 2010
@@ -102,7 +102,7 @@ class RevertableBindableFlags
 		  ( // XOR: editmode && dispatchBeforeCommit should be true, or 
 			  ((f & IS_VALID) >> 5)							// if valid:				1
 		    | ((f & INVALID_CHANGES_DISPATCH_SIGNAL)) >> 1	// if dispatchOnInvalid:	1
-		  )) == 1;
+		  )).not0();
 	}
 	
 	/**
@@ -120,7 +120,7 @@ class RevertableBindableFlags
 		  ( // XOR: editmode && dispatchBeforeCommit should be true, or 
 			  ((f & IS_VALID) >> 5)							// if valid:				1
 		    | ((f & INVALID_CHANGES_UPDATE_BINDINGS)) >> 3	// if dispatchOnInvalid:	1
-		  )) == 1;
+		  )).not0();
 	}
 	
 	
