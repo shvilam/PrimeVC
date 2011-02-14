@@ -13,13 +13,15 @@
 	<component id="ApplicationView"		superClass="UIContainer"		fullname="primevc.gui.components.ApplicationView" />
 	<component id="Button"				superClass="UIDataContainer"	fullname="primevc.gui.components.Button" />
 	<component id="ComboBox"			superClass="DataButton"			fullname="primevc.gui.components.ComboBox" />
+	<component id="ColorPicker"			superClass="UIDataContainer"	fullname="primevc.gui.components.ColorPicker" />
 	<component id="DataButton"			superClass="Button"				fullname="primevc.gui.components.DataButton" />
 	<component id="DragButton"			superClass="Button"				fullname="primevc.gui.components.DragButton" />
 	<component id="Image"				superClass="UIGraphic"			fullname="primevc.gui.components.Image" />
-	<component id="InputField"			superClass="Label"				fullname="primevc.gui.components.InputField" />
+	<component id="InputField"			superClass="DataButton"			fullname="primevc.gui.components.InputField" />
 	<component id="Label"				superClass="UIDataComponent"	fullname="primevc.gui.components.Label" />
 	<component id="ListHolder"			superClass="UIDataContainer"	fullname="primevc.gui.components.ListHolder" />
 	<component id="ListView"			superClass="UIDataContainer"	fullname="primevc.gui.components.ListView" />
+	<component id="Panel"				superClass="UIComponent"		fullname="primevc.gui.components.Panel" />
 	<component id="ScrollBar"			superClass="SliderBase"			fullname="primevc.gui.components.ScrollBar" />
 	<component id="SliderBase"			superClass="UIDataContainer"	fullname="primevc.gui.components.SliderBase" />
 	<component id="Slider"				superClass="SliderBase"			fullname="primevc.gui.components.Slider" />

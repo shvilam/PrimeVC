@@ -82,6 +82,7 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 		field.autoSize			= flash.text.TextFieldAutoSize.NONE;
 		field.selectable		= false;
 		field.mouseWheelEnabled	= false;
+		
 		field.respondToFocusOf( this );
 #end
 		

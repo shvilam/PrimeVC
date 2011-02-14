@@ -20,63 +20,57 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.core;
+package primevc.gui.components.skins;
+ import primevc.gui.components.InputField;
   using primevc.utils.BitUtil;
+  using primevc.utils.TypeUtil;
+
+
+private typedef Flags = primevc.gui.core.UIElementFlags;
 
 
 /**
- * Flags used in UIElements
+ * Default-Skin for InputField with support for an icon and the textfield
  * 
  * @author Ruben Weijers
- * @creation-date Nov 19, 2010
+ * @creation-date Jan 27, 2011
  */
-class UIElementFlags
+class InputFieldSkin extends ButtonIconLabelSkin
 {
-	public static inline var LAYOUT		= 1 << 0;
-	public static inline var GRAPHICS	= 1 << 1;
-	public static inline var STYLE		= 1 << 2;
-	
-	
-	public static inline var DATA		= 1 << 3;
-	
-	//
-	// UITEXTFIELD PROPERTIES
-	//
-	
-	public static inline var TEXTSTYLE	= 1 << 4;
-	public static inline var TEXT		= 1 << 5;
-	public static inline var RESTRICT	= 1 << 6;
-	public static inline var MAX_CHARS	= 1 << 7;
-	
-	
-	//
-	// IICON OWNER PROPERTIES
-	
-	public static inline var ICON		= 1 << 8;
-	
-	
-#if debug
-	static public function readProperties (flags:Int) : String
+	override public function createChildren ()
 	{
-		var output	= [];
+		super.createChildren();
+		iconGraphic.maintainAspectRatio = true;
+		var owner = getInputField();
+		labelField.restrict				= owner.restrict;
+		labelField.maxChars				= owner.maxChars;
 		
-		if (flags.has( LAYOUT ))		output.push("layout");
-		if (flags.has( GRAPHICS ))		output.push("graphics");
-		if (flags.has( STYLE ))			output.push("style");
-		if (flags.has( DATA ))			output.push("data");
-		if (flags.has( TEXTSTYLE ))		output.push("textstyle");
-		if (flags.has( TEXT ))			output.push("text");
-		if (flags.has( RESTRICT ))		output.push("restrict");
-		if (flags.has( MAX_CHARS ))		output.push("maxChars");
-		if (flags.has( ICON ))			output.push("icon");
-		
-		return output.length > 0 ? output.join(", ") : "no-properties";
-	}
+#if flash9
+		labelField.makeEditable();
+		labelField.mouseEnabled = labelField.tabEnabled = true;
 #end
+	}
+	
+	
+	private inline function getInputField () {
+		return owner.as(InputField);
+	}
+	
+	
+	override public function validate (changes:Int)
+	{
+		super.validate(changes);
+		if (changes.has( Flags.RESTRICT | Flags.MAX_CHARS ))
+		{
+			var owner = getInputField();
+			if (changes.has( Flags.RESTRICT ))		labelField.restrict	= owner.restrict;
+			if (changes.has( Flags.MAX_CHARS ))		labelField.maxChars	= owner.maxChars;
+		}
+	}
 }

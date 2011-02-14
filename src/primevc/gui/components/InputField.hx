@@ -27,6 +27,16 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
+ import primevc.core.Bindable;
+ import primevc.core.RevertableBindable;
+ import primevc.core.dispatcher.Wire;
+  using primevc.utils.Bind;
+  using primevc.utils.TypeUtil;
+
+
+private typedef DataType	= RevertableBindable<String>;
+private typedef Flags		= primevc.gui.core.UIElementFlags;
+
 
 /**
  * InputField component
@@ -34,11 +44,131 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Sep 03, 2010
  */
-class InputField extends Label
+class InputField <VOType> extends DataButton <VOType>
 {
-	override private function createChildren ()
+	public var hasFocus			(default, null)	: Bool;
+	
+	/**
+	 * Method that should be injected into the InputField. The method is
+	 * responsible for validating the value of the inputfield and updating
+	 * the data object.
+	 * 
+	 * The method is called when:
+	 * 		- the inputfield loses focus
+	 * 		- the user presses enter while the inputfield has focus
+	 */
+	public var updateVO			: Void -> Void;
+	private var fieldBinding	: Wire<Dynamic>;
+	
+	/**
+	 * @see flash.text.TextField#maxChars
+	 */
+	public var maxChars				(default, setMaxChars)	: Int;
+	/**
+	 * @see flash.text.TextField#restrict
+	 */
+	public var restrict				(default, setRestrict)	: String;
+	
+	
+	
+	
+	public function new (id:String = null, defaultLabel:String = null, icon = null, vo:VOType = null)
 	{
-		super.createChildren();
-		field.makeEditable();
+		var d = new DataType("");
+		d.dispatchAfterCommit();
+		d.updateAfterCommit();
+		data = d;
+		
+		super(id, defaultLabel, icon, vo);
+	}
+	
+	
+	override private function init ()
+	{
+		handleFocus	.on( userEvents.focus, this );
+		handleBlur	.on( userEvents.blur, this );
+		
+		Assert.notNull( updateVO );
+		fieldBinding = updateVO.on( data.change, this );
+		
+		if (!hasFocus)
+			fieldBinding.disable();
+		
+		super.init();
+	}
+	
+	
+	override public function dispose ()
+	{
+		if (fieldBinding != null) {
+			fieldBinding.dispose();
+			fieldBinding = null;
+		}
+		super.dispose();
+	}
+	
+	
+	private inline function getRevertableData ()	{ return data.as(DataType); }
+	
+	
+	//
+	// SETTERS
+	//
+	
+	
+	private inline function setRestrict (v:String) : String
+	{
+		if (restrict != v) {
+			restrict = v;
+			invalidate( Flags.RESTRICT );
+		}
+		return v;
+	}
+	
+	
+	private inline function setMaxChars (v:Int) : Int
+	{
+		if (maxChars != v) {
+			maxChars = v;
+			invalidate( Flags.MAX_CHARS );
+		}
+		return v;
+	}
+	
+	
+	
+	//
+	// EVENT HANDLERS
+	//
+	
+	
+	private function handleFocus ()
+	{
+		if (hasFocus)
+			return;
+		
+		Assert.notNull( vo.value );
+		trace(data.value);
+		
+		hasFocus = true;
+		updateLabel( vo.value, vo.value );
+		
+		getRevertableData().beginEdit();
+		fieldBinding.enable();
+	}
+	
+	
+	private function handleBlur ()
+	{
+		if (!hasFocus)
+			return;
+		
+		Assert.notNull( vo.value );
+		
+		fieldBinding.disable();
+		getRevertableData().commitEdit();
+		
+		hasFocus = false;
+		updateLabel( vo.value, vo.value );
 	}
 }

@@ -26,23 +26,65 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.components.skins;
+package primevc.gui.components;
+ import primevc.core.dispatcher.Signal0;
+ import primevc.core.Bindable;
+ import primevc.gui.core.UIContainer;
+
 
 
 /**
- * Skin for a button with an icon and a label where the label is an inputfield
+ * Panel component will display a floating window with support for a label and
+ * a close-btn. 
+ * 
+ * Components for label and the closeBtn will be created in the skin. The skin
+ * will also add the behaviour to drag the panel around.
+ * 
  * @author Ruben Weijers
- * @creation-date Jan 27, 2011
+ * @creation-date Feb 14, 2011
  */
-class InputButtonSkin extends ButtonIconLabelSkin
+class Panel extends UIContainer
 {
-	override public function createChildren ()
+	public var label	(default, null) : Bindable<String>;
+	
+	/**
+	 * Container in which the real content for the panel can be placed.
+	 * The instance will be created in the constructor. This way, the children
+	 * of a panel can always be added.
+	 */
+	public var content	(default, null)	: UIContainer;
+	/**
+	 * Signal to send a request to be closed to whoever is listening.
+	 */
+	public var close	(default, null) : Signal0;
+	
+	
+	public function new (id:String = null, label:String = null)
 	{
-		super.createChildren();
-		iconGraphic.maintainAspectRatio = true;
-#if flash9
-		labelField.makeEditable();
-		labelField.mouseEnabled = labelField.tabEnabled = true;
-#end
+		super(id);
+		this.label	= new Bindable<String>(label);
+		content		= new UIContainer();
+		close		= new Signal0();
+	}
+	
+	
+	override public function dispose ()
+	{
+		close.dispose();
+		content.dispose();
+		label.dispose();
+		content	= null;
+		label	= null;
+		close	= null;
+		
+		super.dispose();
+	}
+	
+	
+	override private function createChildren ()
+	{
+		content.styleClasses.add("content");
+		layoutContainer.children.add( content.layout );
+		children.add( content );
 	}
 }

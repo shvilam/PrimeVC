@@ -29,7 +29,6 @@
 package primevc.gui.behaviours.components;
  import primevc.core.dispatcher.Wire;
  import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.behaviours.layout.FollowObjectBehaviour;
  import primevc.gui.components.Button;
  import primevc.gui.core.IUIContainer;
  import primevc.gui.display.IDisplayObject;
@@ -40,96 +39,109 @@ package primevc.gui.behaviours.components;
 
 /**
  * Class will help with opening and closing a popup for combobox components.
+ * The popup will be opened when the component is selected and when the
+ * selected value changes to false, the popup will be removed again.
  * 
  * @author Ruben Weijers
  * @creation-date Feb 10, 2011
  */
-class ComboBoxBehaviour extends BehaviourBase < Button >
+class OpenPopupBehaviour extends BehaviourBase < Button >
 {
-	private var list				: IUIContainer;
-	private var mouseOpenSignal		: MouseSignal;
-	private var mouseCloseSignal	: MouseSignal;
-	private var openBinding			: Wire<Dynamic>;
-	private var closeBinding		: Wire<Dynamic>;
-	private var windowCloseBinding	: Wire<Dynamic>;
+	private var popup					: IUIContainer;
+	private var selectSignal			: MouseSignal;
+	private var deselectSignal			: MouseSignal;
+	private var selectBinding			: Wire<Dynamic>;
+	private var deselectBinding			: Wire<Dynamic>;
+	private var windowDeselectBinding	: Wire<Dynamic>;
 	
 	
-	public function new (target, list:IUIContainer, mouseOpenSignal:MouseSignal, mouseCloseSignal:MouseSignal)
+	public function new (target, popup:IUIContainer, selectSignal:MouseSignal, deselectSignal:MouseSignal)
 	{
 		super(target);
-		this.list				= list;
-		this.mouseOpenSignal	= mouseOpenSignal;
-		this.mouseCloseSignal	= mouseCloseSignal;
+		this.popup			= popup;
+		this.deselectSignal	= deselectSignal;
+		this.selectSignal	= selectSignal;
 	}
 	
 	
 	override public function dispose ()
 	{
-		list = null;
-		mouseOpenSignal = mouseCloseSignal = null;
+		popup = null;
+		selectSignal = deselectSignal = null;
 		super.dispose();
 	}
 	
 	
 	override private function init ()
 	{
-		Assert.notNull( mouseOpenSignal );
-		Assert.notNull( mouseCloseSignal );
+		Assert.notNull( deselectSignal );
+		Assert.notNull( selectSignal );
 		
-		list.layout.includeInLayout = false;
-		list.behaviours.add( new FollowObjectBehaviour( list, target ) );
+		popup.layout.includeInLayout = false;
 		
-		openBinding			= openList.on( mouseOpenSignal, this );
-		closeBinding		= checkToCloseList.on( mouseCloseSignal, this );
-		windowCloseBinding	= checkToCloseList.on( target.window.mouse.events.down, this );
+		selectBinding			= target.select.on( selectSignal, this );
+		deselectBinding			= checkToDeselect.on( deselectSignal, this );
+		windowDeselectBinding	= checkToDeselect.on( target.window.mouse.events.down, this );
 		
-		Assert.notEqual( openBinding, closeBinding );
+		Assert.notEqual( selectBinding, deselectBinding );
+		handleSelectChange.on( target.selected.change, this );
 		
-		closeBinding.disable();
-		windowCloseBinding.disable();
+		deselectBinding.disable();
+		windowDeselectBinding.disable();
+		
+		//check if the popup should already be opened
+		handleSelectChange( target.selected.value, false );
 	}
 	
 	
 	override private function reset ()
 	{
-		windowCloseBinding.dispose();
-		openBinding.dispose();
-		closeBinding.dispose();
+		windowDeselectBinding.dispose();
+		selectBinding.dispose();
+		deselectBinding.dispose();
+	}
+	
+	
+	public function handleSelectChange (newVal:Bool, oldVal:Bool)
+	{
+		if (newVal)		openList();
+		else			closeList();
 	}
 	
 	
 	public function openList ()
 	{
-		if (list.window != null)
+		if (popup.window != null)
 			return;
 		
-		Assert.notNull( list );
-		openBinding.disable();
-		closeBinding.enable();
-		windowCloseBinding.enable();
+		Assert.notNull( popup );
+		selectBinding.disable();
+		deselectBinding.enable();
+		windowDeselectBinding.enable();
 		
-		target.select();
-		target.system.popups.add( list );
+	//	target.select();
+		target.system.popups.add( popup );
 	}
 	
 	
 	public function closeList ()
 	{
-		if (list.window == null)
+		if (popup.window == null)
 			return;
 		
-		openBinding.enable();
-		closeBinding.disable();
-		windowCloseBinding.disable();
+		selectBinding.enable();
+		deselectBinding.disable();
+		windowDeselectBinding.disable();
 		
-		target.deselect();
-		list.system.popups.remove( list );
+	//	target.deselect();
+		popup.system.popups.remove( popup );
 	}
 	
 	
-	public function checkToCloseList (mouseObj:MouseState)
+	public function checkToDeselect (mouseObj:MouseState)
 	{
-		if (list.window == null) // || mouseObj.related == null)
+		trace(popup.window+"; "+target.selected.value);
+		if (popup.window == null) // || mouseObj.related == null)
 			return;
 		
 #if flash9
@@ -137,13 +149,13 @@ class ComboBoxBehaviour extends BehaviourBase < Button >
 		{
 			var newTarget = mouseObj.target.as(IDisplayObject);
 			
-			if (newTarget != list && newTarget != target && !list.children.has( newTarget ))
-				closeList();
+			if (newTarget != popup && newTarget != target && !popup.children.has( newTarget ))
+				target.deselect();
 		}
 		else
-			closeList();
+			target.deselect();
 #else
-		closeList();
+		target.deselect();
 #end
 	}
 }

@@ -31,7 +31,8 @@ package primevc.gui.components;
  import primevc.core.traits.IValueObject;
  import primevc.core.validators.IntRangeValidator;
  import primevc.core.Bindable;
- import primevc.gui.behaviours.components.ComboBoxBehaviour;
+ import primevc.gui.behaviours.components.OpenPopupBehaviour;
+ import primevc.gui.behaviours.layout.FollowObjectBehaviour;
  import primevc.gui.components.DataButton;
  import primevc.gui.components.ListHolder;
  import primevc.gui.core.IUIDataElement;
@@ -78,7 +79,6 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 	 * @return 	IUIElement
 	 */
 	public var createItemRenderer	(default, setCreateItemRenderer) : DataType -> Int -> IUIElement;
-	private var listBehaviour		: ComboBoxBehaviour;
 	
 	
 	
@@ -97,6 +97,7 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 		if (list == null) {
 			list = new ListHolder( id.value+"List", cast listData, cast listData );
 			list.styleClasses.add( "comboList" );
+			list.behaviours.add( new FollowObjectBehaviour( list, this ) );
 			
 			list.createItemRenderer	= createItemRenderer;
 		}
@@ -106,7 +107,7 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 		Assert.notNull( createItemRenderer );
 		
 		//leave the opening and closing of the list to the behaviouruserEvents.
-		behaviours.add( listBehaviour = new ComboBoxBehaviour( this, list, userEvents.mouse.down, userEvents.mouse.down ) );
+		behaviours.add( new OpenPopupBehaviour( this, list, userEvents.mouse.down, userEvents.mouse.down ) );
 		handleItemRendererClick.on( list.childClick, this );
 		
 		//listen to layout changes.. make sure the combox is always at least the size of the combobox button
@@ -178,12 +179,12 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 		{
 			if (mouseEvt.target.is( DataButton )) {
 				vo = cast mouseEvt.target.as( DataButton ).vo;
-				listBehaviour.closeList();
+				deselect();
 			}
 			
 			else if (mouseEvt.target.is( IUIDataElement )) {
 				vo = cast mouseEvt.target.as( IUIDataElement ).data;
-				listBehaviour.closeList();
+				deselect();
 			}
 		}
 	}
