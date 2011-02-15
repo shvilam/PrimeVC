@@ -20,26 +20,25 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.traits;
- import haxe.io.BytesOutput;
+
 
 /**
- * An object serializable to the MessagePack format.
- * 
- * @author Danny Wilson
- * @creation-date Dec 13, 2010
+ * @author Ruben Weijers
+ * @creation-date Feb 15, 2011
  */
-interface IMessagePackable implements IFlagOwner
+interface IFlagOwner
 {
 	/**
-	 * Serialize this object.
-	 * @return Bytes written to Output stream.
+	 * Returns true if the instance has the requested propery-flag
+	 * Default implementation can be found in 
+	 * 		primevc.tools.valueobjects.ValueObjectBase
 	 */
-	public function messagePack(o : BytesOutput)	: Int;
+	public function has (propFlag:Int) : Bool;
 }

@@ -163,4 +163,11 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 			flags = flags.unset(Flags.IN_EDITMODE | RevertableBindableFlags.MAKE_SHADOW_COPY);
 		}
 	}
+	
+	
+#if debug
+	public function readFlags () : String {
+		return Flags.readProperties( flags );
+	}
+#end
 }
