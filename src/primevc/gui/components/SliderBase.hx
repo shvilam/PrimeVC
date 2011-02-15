@@ -35,6 +35,7 @@ package primevc.gui.components;
  import primevc.core.validators.FloatRangeValidator;
  import primevc.core.Bindable;
  import primevc.gui.components.DragButton;
+ import primevc.gui.core.UIElementFlags;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.events.MouseEvents;
   using primevc.gui.utils.UIElementActions;
@@ -56,11 +57,6 @@ private typedef DataType = Bindable<Float>;
  */
 class SliderBase extends UIDataContainer < DataType >
 {
-	public static inline var PERCENTAGE : Int = 1 << 8;
-	public static inline var DIRECTION	: Int = 1 << 9;
-	
-	
-	
 	/**
 	 * Defines if the slider is horizontal or vertical
 	 * @default		horizontal
@@ -187,11 +183,11 @@ class SliderBase extends UIDataContainer < DataType >
 		var changes = changes;
 		super.validate();
 		
-		if (changes.has(PERCENTAGE))
+		if (changes.has(UIElementFlags.PERCENTAGE))
 			if (!updateChildren())
-				invalidate(PERCENTAGE);
+				invalidate(UIElementFlags.PERCENTAGE);
 		
-		if (changes.has(DIRECTION))
+		if (changes.has(UIElementFlags.DIRECTION))
 			createMouseMoveBinding();
 	}
 	
@@ -273,7 +269,7 @@ class SliderBase extends UIDataContainer < DataType >
 		if (direction != v)
 		{
 			direction = v;
-			invalidate(DIRECTION);
+			invalidate(UIElementFlags.DIRECTION);
 		}
 		return v;
 	}
@@ -286,7 +282,7 @@ class SliderBase extends UIDataContainer < DataType >
 			Assert.that( v <= 1, v + " > 1" );
 			Assert.that( v >= 0, v + " < 0" );
 			percentage = v;
-			invalidate(PERCENTAGE);
+			invalidate(UIElementFlags.PERCENTAGE);
 		}
 		return v;
 	}
