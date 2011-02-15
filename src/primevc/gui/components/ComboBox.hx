@@ -178,12 +178,14 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 		if (mouseEvt.target != null)
 		{
 			if (mouseEvt.target.is( DataButton )) {
-				vo = cast mouseEvt.target.as( DataButton ).vo;
+				var dataButton : DataButton<DataType> = cast mouseEvt.target;
+				vo.value = dataButton.vo.value;
 				deselect();
 			}
 			
 			else if (mouseEvt.target.is( IUIDataElement )) {
-				vo = cast mouseEvt.target.as( IUIDataElement ).data;
+				var dataElement : IUIDataElement<DataType> = cast mouseEvt.target;
+				vo.value = dataElement.data;
 				deselect();
 			}
 		}

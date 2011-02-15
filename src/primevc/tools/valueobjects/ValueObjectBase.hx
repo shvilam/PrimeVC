@@ -86,7 +86,8 @@ class ValueObjectBase implements IValueObject
 	
 	public function commitEdit()
 	{
-		Assert.that( isEditable() );
+		if(!isEditable()) return;
+		
 		if (_changedFlags.not0())
 		{
 			var set = ObjectChangeSet.make(this, _changedFlags);
