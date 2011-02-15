@@ -28,7 +28,6 @@
  */
 package primevc.gui.behaviours;
  import primevc.gui.managers.QueueManager;
- import primevc.gui.traits.IDisplayable;
  import primevc.gui.traits.IValidatable;
 
 
@@ -37,7 +36,7 @@ package primevc.gui.behaviours;
  * @author Ruben Weijers
  * @creation-date Nov 09, 2010
  */
-class ValidatingBehaviour < TargetType:IDisplayable > extends BehaviourBase < TargetType >, implements IValidatable
+class ValidatingBehaviour < TargetType:primevc.gui.traits.IDisplayable > extends BehaviourBase < TargetType >, implements IValidatable
 {
 	public var prevValidatable		: IValidatable;
 	public var nextValidatable		: IValidatable;

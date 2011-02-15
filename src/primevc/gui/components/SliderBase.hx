@@ -34,7 +34,7 @@ package primevc.gui.components;
  import primevc.core.geom.Point;
  import primevc.core.validators.FloatRangeValidator;
  import primevc.core.Bindable;
- import primevc.gui.components.DragButton;
+ import primevc.gui.components.Button;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.events.MouseEvents;
   using primevc.gui.utils.UIElementActions;
@@ -218,12 +218,12 @@ class SliderBase extends UIDataContainer < DataType >
 	// CHILDREN
 	//
 	
-	public var dragBtn		(default, null)	: DragButton;
+	public var dragBtn		(default, null)	: Button;
 	
 	
 	override private function createChildren ()
 	{
-		dragBtn = new DragButton();
+		dragBtn = new Button();
 		dragBtn.layout.includeInLayout = false;
 		dragBtn.id.value = id.value + "Btn";
 		

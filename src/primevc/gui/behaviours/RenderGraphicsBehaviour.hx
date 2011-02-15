@@ -44,6 +44,9 @@ package primevc.gui.behaviours;
  */
 class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, implements IGraphicsValidator
 {
+	public function new (target:IDrawable) { super(target); }
+	
+	
 	override private function init ()
 	{
 		Assert.that( target.layout != null );

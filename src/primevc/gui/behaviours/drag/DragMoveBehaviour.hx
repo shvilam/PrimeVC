@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.drag;
+ import primevc.core.geom.IntRectangle;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.traits.ILayoutable;
   using primevc.utils.NumberMath;
@@ -63,6 +64,6 @@ class DragMoveBehaviour extends DragBehaviourBase
 		dragInfo.restore();
 		
 		//notifiy the dragged item that the drag-operation is canceled
-		target.dragEvents.cancel.send( dragInfo );
+		target.userEvents.drag.cancel.send( dragInfo );
 	}
 }

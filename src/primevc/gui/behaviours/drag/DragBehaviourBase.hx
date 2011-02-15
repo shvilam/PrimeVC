@@ -31,9 +31,9 @@ package primevc.gui.behaviours.drag;
  import primevc.core.geom.Rectangle;
  import primevc.core.traits.IDisposable;
  import primevc.gui.behaviours.BehaviourBase;
+ import primevc.gui.display.ISprite;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.input.Mouse;
- import primevc.gui.traits.IDraggable;
  import primevc.gui.traits.ILayoutable;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
@@ -44,25 +44,39 @@ package primevc.gui.behaviours.drag;
  * @author Ruben Weijers
  * @creation-date Jul 29, 2010
  */
-class DragBehaviourBase extends BehaviourBase <IDraggable>
+class DragBehaviourBase extends BehaviourBase <ISprite>
 {
 	private var dragInfo			: DragInfo;
 	private var dragBounds			: IntRectangle;
+	private var mouseTarget			: ISprite;
 	private var mouseEnabledValue	: Bool;
 	
 	public var dragHelper			(default, null) : DragHelper;
 	
 	
-	public function new (target, ?dragBounds:IntRectangle)
+	
+	/**
+	 * @param	dragTarget		the object that will be dragged
+	 * @param	dragBounds		Rectangle in which the target can be dragged. 
+	 * 							If null, there are no limits to where the target can be dragged
+	 * @param	mouseTarget		The object that will trigger the dragging of the target
+	 * 							If null (default), the target will start the drag
+	 */
+	public function new (dragTarget:ISprite, ?dragBounds:IntRectangle, ?mouseTarget:ISprite, delay:Int = -1)
 	{
-		super(target);
-		this.dragBounds = dragBounds;
+		super(dragTarget);
+		this.dragBounds		= dragBounds;
+		this.mouseTarget	= mouseTarget == null ? dragTarget : mouseTarget;
+		
+		if (delay == -1)
+			delay = Mouse.DRAG_DELAY;
+		
+		dragHelper = new DragHelper( mouseTarget, startDrag, stopDrag, cancelDrag, delay );
 	}
 	
 	
 	override private function init () : Void
 	{
-		dragHelper = new DragHelper( target, startDrag, stopDrag, cancelDrag, Mouse.DRAG_DELAY );
 		enable();
 	}
 	
@@ -79,34 +93,35 @@ class DragBehaviourBase extends BehaviourBase <IDraggable>
 	}
 
 
-	public inline function enable ()	{ dragHelper.start.on( target.userEvents.mouse.down, this ); }
-	public inline function disable ()	{ target.userEvents.mouse.down.unbind( this ); }
+	public inline function enable ()	{ dragHelper.start.on( mouseTarget.userEvents.mouse.down, this ); }
+	public inline function disable ()	{ mouseTarget.userEvents.mouse.down.unbind( this ); }
 	
 	
 	private function startDrag (mouseObj:MouseState) : Void
 	{
 		if (dragInfo == null)
 			dragInfo = target.createDragInfo();
+			
+		var dragTarget = dragInfo.dragRenderer;
 		
-		var item = dragInfo.dragRenderer;
 #if flash9
-		mouseEnabledValue	= item.mouseEnabled;
-		item.mouseEnabled	= false;
+		mouseEnabledValue		= dragTarget.mouseEnabled;
+		dragTarget.mouseEnabled	= false;
 #end
 		if (dragBounds == null)
-			item.startDrag();
+			dragTarget.startDrag();
 		else
 		{
 			var bounds		 = dragBounds.toFloatRectangle();
 			bounds.width	-= dragInfo.dragRectangle.width;
 			bounds.height	-= dragInfo.dragRectangle.height;
-			item.startDrag( false, bounds );
+			dragTarget.startDrag( false, bounds );
 		}
 		
-		if (item.is(ILayoutable))
-			item.as(ILayoutable).layout.includeInLayout = false;
+		if (dragTarget.is(ILayoutable))
+			dragTarget.as(ILayoutable).layout.includeInLayout = false;
 		
-		target.dragEvents.start.send(dragInfo);
+		target.userEvents.drag.start.send(dragInfo);
 	}
 	
 	
@@ -118,11 +133,11 @@ class DragBehaviourBase extends BehaviourBase <IDraggable>
 
 	private function stopDrag (mouseObj:MouseState) : Void
 	{
-		if (dragInfo != null)
-		{
+	//	if (dragInfo != null)
+	//	{
 			stopDragging();
-			target.dragEvents.complete.send(dragInfo);
-		}
+			target.userEvents.drag.complete.send(dragInfo);
+	//	}
 	}
 	
 	

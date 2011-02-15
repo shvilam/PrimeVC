@@ -35,7 +35,6 @@ package primevc.gui.behaviours.drag;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.ISprite;
  import primevc.gui.layout.LayoutClient;
- import primevc.gui.traits.IDraggable;
  import primevc.gui.traits.IDropTarget;
  import primevc.gui.traits.ILayoutable;
   using primevc.utils.NumberMath;
@@ -51,7 +50,7 @@ package primevc.gui.behaviours.drag;
  */
 class DragInfo implements IDisposable
 {
-	public var target			(default, null)				: IDraggable;
+	public var target			(default, null)				: ISprite;
 	
 	/**
 	 * Sprite to visualize the dragged-item during a drag operation.
@@ -83,7 +82,7 @@ class DragInfo implements IDisposable
 	
 	/**
 	 * The current dropTarget. Property will only be set if it allows the target
-	 * as a IDraggable.
+	 * as a ISprite.
 	 * 
 	 * In flash the dropTarget is defined by the FlashPlayer, which will return
 	 * the first displayObject that's underneath the mouse (without looking at
@@ -99,7 +98,7 @@ class DragInfo implements IDisposable
 	public var dropBounds									: IRectangle;
 	
 	
-	public function new (target:IDraggable, dataCursor:IDataCursor<Dynamic> = null, dragRenderer:ISprite = null, dragLayout:LayoutClient = null)
+	public function new (target:ISprite, dataCursor:IDataCursor<Dynamic> = null, dragRenderer:ISprite = null, dragLayout:LayoutClient = null)
 	{
 		this.target			= target;
 		this.displayCursor	= target.getDisplayCursor();

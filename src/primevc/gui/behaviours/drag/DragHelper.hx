@@ -34,7 +34,6 @@ package primevc.gui.behaviours.drag;
  import primevc.gui.events.KeyboardEvents;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.input.KeyCodes;
- import primevc.gui.traits.IDraggable;
  import primevc.types.Number;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
@@ -65,7 +64,6 @@ class DragHelper implements IDisposable
 	private var delay				: Int;
 	private var timer				: Timer;
 	public var lastMouseObj			(default, null) : MouseState;
-	private var isDragging			: Bool;
 	
 //	private var mouseDownBinding	: Wire < Dynamic >;
 	public var mouseUpBinding		(default, null)	: Wire < Dynamic >;
@@ -75,6 +73,7 @@ class DragHelper implements IDisposable
 	
 	public function new (target:ISprite, startHandler:MouseState -> Void, stopHandler:MouseState -> Void, cancelHandler:MouseState -> Void, delay:Int = Number.INT_NOT_SET)
 	{
+		Assert.notNull(target);
 		this.target			= target;
 		this.startHandler	= startHandler;
 		this.stopHandler	= stopHandler;
@@ -124,14 +123,17 @@ class DragHelper implements IDisposable
 	public function start (mouseObj:MouseState)
 	{
 	//	trace(mouseObj);
-		lastMouseObj	= mouseObj;
-		var mouseTarget	= mouseObj.target.as(ISprite);
-		if (mouseTarget != null && mouseTarget != target && mouseTarget.is(IDraggable))
+		if (mouseObj.target == null || !mouseObj.target.is(ISprite))
 			return;
+		
+		var mouseTarget	= mouseObj.target.as(ISprite);
+		if (mouseTarget != target)
+			return;
+		
+		lastMouseObj	= mouseObj;
 		
 		if (delay > 0)
 		{
-	//		mouseDownBinding.disable();
 			mouseUpBinding	.enable();
 			mouseMoveBinding.enable();
 	//		keyDownBinding	.enable();
@@ -145,13 +147,9 @@ class DragHelper implements IDisposable
 	
 	private function stopDrag (mouseObj:MouseState)
 	{
-	//	trace(isDragging);
-		if (isDragging) {
-			if (target.is(IDraggable))
-				target.as(IDraggable).isDragging = false;
-			
+		if (target.isDragging) {
+			target.isDragging = false;
 			stopHandler( mouseObj );
-			isDragging = false;
 		}
 		
 		if (timer != null) {
@@ -170,18 +168,9 @@ class DragHelper implements IDisposable
 	
 	public function startDrag ()
 	{
-	//	trace(isDragging);
-#if debug			
-	//	target.window.application.clearTraces();
-#end	
-		isDragging = true;
-		
-		if (target.is(IDraggable))
-			target.as(IDraggable).isDragging = true;
-		
+		target.isDragging = true;
 		startHandler( lastMouseObj );
 		
-	//	mouseDownBinding.disable();
 		mouseMoveBinding.disable();
 		keyDownBinding	.enable();	//enable keydown binding to check for a cancel event
 		mouseUpBinding	.enable();	//enable mouse up binding to check when the dragoperation has stopped
@@ -190,10 +179,8 @@ class DragHelper implements IDisposable
 	
 	public function cancel ()
 	{
-	//	trace(isDragging);
 		cancelHandler( lastMouseObj );
 		stopDrag(null);
-		isDragging = false;
 	}
 	
 	

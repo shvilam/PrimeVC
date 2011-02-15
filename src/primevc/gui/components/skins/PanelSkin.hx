@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components.skins;
+ import primevc.gui.behaviours.drag.DragMoveBehaviour;
  import primevc.gui.components.Button;
  import primevc.gui.core.Skin;
  import primevc.gui.core.UIContainer;
@@ -55,6 +56,7 @@ class PanelSkin extends Skin<Panel>
 		chrome		= new UIContainer();
 		closeBtn	= new Button();
 		title		= new Label();
+		title.mouseEnabled = false;
 		
 		chrome	.layoutContainer.children.add( title.layout );
 		chrome	.layoutContainer.children.add( closeBtn.layout );
@@ -67,6 +69,8 @@ class PanelSkin extends Skin<Panel>
 		chrome	.styleClasses.add("chrome");
 		title	.styleClasses.add("title");
 		closeBtn.styleClasses.add("closeBtn");
+		
+		behaviours.add( new DragMoveBehaviour(owner, null, chrome) );
 		
 		trace("created panel skin");
 		owner.close.send.on( closeBtn.userEvents.mouse.click, this );

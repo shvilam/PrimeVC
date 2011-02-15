@@ -43,7 +43,7 @@ package primevc.gui.traits;
 interface IDisplayable implements IDisposable	
 {
 #if (flash8 || flash9 || js)
-	var displayEvents	(default, null)					: DisplayEvents;
+	var displayEvents			(default, null)				: DisplayEvents;
 	
 	/**
 	 * Reference to the object in which this displayobject is placed. It 

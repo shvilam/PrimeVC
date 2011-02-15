@@ -30,7 +30,6 @@ package cases;
  import primevc.gui.layout.VirtualLayoutContainer;
  import primevc.gui.traits.IDataDropTarget;
  import primevc.gui.traits.IDropTarget;
- import primevc.gui.traits.IDraggable;
  import primevc.types.Number;
  import primevc.utils.Color;
   using primevc.utils.Bind;
@@ -122,11 +121,9 @@ class GlobalTest extends UIWindow
 }
 
 
-class Tile extends UIDataComponent < DataVOType >, implements IDraggable
+class Tile extends UIDataComponent < DataVOType >
 {
 	public static var counter				: Int = 0;
-	public var dragEvents (default, null)	: DragEvents;
-	public var isDragging					: Bool;
 	private var num							: Int;
 
 #if (debug && flash9)
@@ -134,12 +131,13 @@ class Tile extends UIDataComponent < DataVOType >, implements IDraggable
 #end
 	
 	
+#if debug
 	public function new (value:DataVOType = null)
 	{
 		num = counter++;
 		super("Tile" + num, value);
-		dragEvents	= new DragEvents();
 	}
+#end
 	
 	
 	override private function createBehaviours ()
@@ -162,7 +160,7 @@ class Tile extends UIDataComponent < DataVOType >, implements IDraggable
 #end
 	
 	
-	public function createDragInfo () : DragInfo
+	override public function createDragInfo () : DragInfo
 	{
 		return new DragInfo( this, getDataCursor() );//, t ); //getDisplayCursor()/*, new Tile(value), null*/ );
 	}

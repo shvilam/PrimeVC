@@ -31,9 +31,9 @@ package primevc.gui.behaviours.layout;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
+ import primevc.gui.display.ISprite;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.traits.IDisplayable;
- import primevc.gui.traits.IDraggable;
  import primevc.gui.traits.ILayoutable;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
@@ -96,7 +96,7 @@ class AutoChangeLayoutChildlistBehaviour extends BehaviourBase < IDisplayContain
 		switch (change)
 		{
 			case added( child, newPos ):
-				if (child.is(IDraggable) && child.as(IDraggable).isDragging)
+				if (child.is(ISprite) && child.as(ISprite).isDragging)
 					return;
 				
 				if (child.is(ILayoutable))

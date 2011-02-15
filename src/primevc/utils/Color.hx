@@ -75,6 +75,9 @@ class Color
 	public static inline function create (r:UInt = 0, g:UInt = 0, b:UInt = 0, a:UInt = 0xFF) : RGBA {
 		return ( r << 24 | g << 16 | b << 8 | a ).validate();
 	}
+	
+	public static inline function rgbToRgba (rgb:UInt) : RGBA			{ return rgb << 8 | 0xFF; }
+	public static inline function argbToRgba (argb:UInt) : RGBA			{ return argb << 8 | (argb & RGBAUtil.RED_MASK) >>> 24; }
 }
 
 

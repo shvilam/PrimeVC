@@ -102,6 +102,8 @@ class TextField extends flash.text.TextField, implements ITextField
 		rect			= new IntRectangle( x.roundFloat(), y.roundFloat(), width.roundFloat(), height.roundFloat() );
 		this.data		= data == null ? new Bindable<String>(text) : data;
 		textStyle		= new TextFormat();
+		
+		makeStatic();
 	}
 	
 	
@@ -193,16 +195,18 @@ class TextField extends flash.text.TextField, implements ITextField
 	
 	public inline function makeEditable ()
 	{
-		selectable	= true;
-		type		= flash.text.TextFieldType.INPUT;
+		selectable		= true;
+		mouseEnabled	= true;
+		type			= flash.text.TextFieldType.INPUT;
 	}
 	
 	
 	public inline function makeStatic ()
 	{
 		trace(this);
-		type		= flash.text.TextFieldType.DYNAMIC;
-		selectable	= false;
+		type			= flash.text.TextFieldType.DYNAMIC;
+		selectable		= false;
+		mouseEnabled	= false;
 	}
 	
 	

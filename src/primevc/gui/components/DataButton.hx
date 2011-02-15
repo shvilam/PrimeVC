@@ -91,7 +91,7 @@ class DataButton <DataType> extends Button, implements IItemRenderer <DataType>
 		//don't use data.value ==> if data is a RevertableBindable, updating the label won't cause any errors
 		data.set( newVal != null ? getLabelForVO( newVal ) : defaultLabel );
 		data.change.send( data.value, null );
-		trace( data.value );
+	//	trace( data.value );
 	}
 	
 	
