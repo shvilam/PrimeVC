@@ -128,19 +128,23 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	
 	private inline function checkIfChildGetsPercentageWidth (child:LayoutClient, widthToUse:Int) : Bool
 	{
-		return (changes.has( Flags.WIDTH ) || child.changes.has( Flags.PERCENT_WIDTH ))
-					&& child.percentWidth.isSet()
-				/*	&& child.percentWidth != Flags.FILL*/
-					&& widthToUse.isSet();
+		return (
+						changes.has( Flags.WIDTH ) || child.changes.has( Flags.PERCENT_WIDTH )
+					||	( child.is(IAdvancedLayoutClient) && child.as(IAdvancedLayoutClient).explicitWidth.notSet() )
+				)
+				&& child.percentWidth.isSet()
+				&& widthToUse.isSet();
 	}
 	
 	
 	private inline function checkIfChildGetsPercentageHeight (child:LayoutClient, heightToUse:Int) : Bool
 	{
-		return (changes.has( Flags.HEIGHT ) || child.changes.has( Flags.PERCENT_HEIGHT ))
-					&& child.percentHeight.isSet()
-				/*	&& child.percentHeight != Flags.FILL*/
-					&& heightToUse.isSet();
+		return (
+						changes.has( Flags.HEIGHT ) || child.changes.has( Flags.PERCENT_HEIGHT )
+						||	( child.is(IAdvancedLayoutClient) && child.as(IAdvancedLayoutClient).explicitHeight.notSet() )
+				)
+				&& child.percentHeight.isSet()
+				&& heightToUse.isSet();
 	}
 	
 	
@@ -156,7 +160,6 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		
 		if (algorithm != null)
 			algorithm.prepareValidate();
-		
 		
 		for (i in 0...children.length)		// <<-- [FIXME] the length of the children can change during the loop. Maybe better to use while loop
 		{
