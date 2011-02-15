@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
+ import primevc.core.traits.IFlagOwner;
  import primevc.core.traits.IInvalidatable;
 #if neko
  import primevc.tools.generator.ICodeFormattable;
@@ -40,6 +41,7 @@ package primevc.gui.styling;
  */
 interface IStyleBlock
 				implements IInvalidatable
+			,	implements IFlagOwner
 #if neko	,	implements ICSSFormattable
 			,	implements ICodeFormattable		#end
 {

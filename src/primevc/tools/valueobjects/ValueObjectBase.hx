@@ -30,6 +30,7 @@ package primevc.tools.valueobjects;
  import primevc.core.collections.IRevertableList;
  import primevc.core.collections.ListChange;
  import primevc.core.traits.IEditableValueObject;
+ import primevc.core.traits.IFlagOwner;
  import primevc.core.traits.IValueObject;
  import primevc.core.collections.RevertableArrayList;
  import primevc.core.dispatcher.Signal1;
@@ -55,7 +56,7 @@ typedef Flags		= RevertableBindableFlags;
  * @author Danny Wilson
  * @creation-date Dec 03, 2010
  */
-class ValueObjectBase implements IValueObject
+class ValueObjectBase implements IValueObject, implements IFlagOwner
 {
 	public var change (default, null) : Signal1<ObjectChangeSet>;
 	
