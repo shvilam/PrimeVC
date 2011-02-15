@@ -80,9 +80,9 @@ class ValueObjectBase implements IValueObject
 	}
 	
 	
-	public function isEmpty() : Bool			{ return _propertiesSet == 0; }
-	public inline function isEditable () : Bool { return _flags.has(Flags.IN_EDITMODE); }
-	
+	public function isEmpty() : Bool				{ return !_propertiesSet.not0(); }
+	public inline function isEditable() : Bool		{ return _flags.has(Flags.IN_EDITMODE); }
+	public function has (propertyID : Int) : Bool	{ return (_propertiesSet & (1 << ((propertyID & 0xFF) + _fieldOffset(propertyID >>> 8)))).not0(); }
 	
 	public function commitEdit()
 	{
@@ -125,6 +125,7 @@ class ValueObjectBase implements IValueObject
 	
 	private function addChanges(changeSet:ObjectChangeSet); // Creates and adds all PropertyChangeVO and ListChangeVO
 	private function commitBindables();
+	private function _fieldOffset(typeID:Int): Int { Assert.abstract(); return -1; }
 	
 	
 	public function beginEdit()
