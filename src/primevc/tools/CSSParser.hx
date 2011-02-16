@@ -648,7 +648,9 @@ class CSSParser
 			
 			//strip content of bloat
 			content = importStyleSheets( content );
+			content = removeAllWhiteSpace( content );
 			content = removeComments( content );
+			trace(content);
 			item.content = content;
 		}
 	}
@@ -946,6 +948,17 @@ class CSSParser
 	//
 	
 	
+	private function removeAllWhiteSpace (style:String)
+	{
+	//	return ~/[\r\n\t ]*/.removeAll(style);
+		style = style.replace("\r", "");
+	//	style = style.replace("\n\n", "");
+	//	style = style.replace(" ", "");
+		style = style.replace("\t", "");
+		return style;
+	}
+	
+	
 	/**
 	 * Method will replace all comments with empty strings with support for
 	 * literal strings.
@@ -970,6 +983,7 @@ class CSSParser
 			+ ")"			//matches comments opening and closing /* */
 		, "im");
 		return commentExpr.removeAll(style);
+	//	return new EReg("(/[*].*[*]/)", "im").removeAll(style);
 	}
 	
 	

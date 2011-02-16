@@ -252,7 +252,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 	
 	private inline function isColor (v:Dynamic)					: Bool		{ return Reflect.hasField(v, "color") && Reflect.hasField(v, "a"); }
 	private inline function getClassName (obj:ICodeFormattable)	: String	{ return Type.getClass(obj).getClassName(); }
-	private inline function addLine( line:String)				: Void		{ output.add( "\n" + linePrefix + line ); }
+	private inline function addLine( line:String )				: Void		{ var a = output.add; a("\n"); a(linePrefix); a(line); }
 	private inline function getVar (obj:ICodeFormattable)		: String	{ return createObjectVar( obj ); }
 	private inline function getArray( arr:Array<Dynamic> )		: String	{ return createArrayVar( arr ); }
 	
