@@ -53,7 +53,40 @@ class Color
 	/**
 	 * Blends to RGBA colors together.
 	 */
-	public static inline function blend (v:RGBA, v2:RGBA) : RGBA		{ return v | v2; }
+	public static inline function blend (v1:RGBA, v2:RGBA) : RGBA
+	{
+		//add each channel of the colors and divide them by 2
+		var r = (v1.red()	+ v2.red())		>> 1;
+		var g = (v1.green()	+ v2.green())	>> 1;
+		var b = (v1.blue()	+ v2.blue())	>> 1;
+		var a = (v1.alpha()	+ v2.alpha())	>> 1;
+		return Color.create(r, g, b, a);
+	}
+	
+	/**
+	 * Blends two RGBA colors together with the given alpha. The returned RGBA
+	 * value has an alpha of 100%
+	 */
+	public static inline function alphaBlendColors (v1:RGBA, v2:RGBA, alpha:Float) : RGBA
+	{
+		var invAlpha = 1 - alpha;
+		return create(
+			 	(alpha * v1.red()).int()	+ (invAlpha * v2.red()).int(),
+				(alpha * v1.green()).int()	+ (invAlpha * v2.green()).int(),
+				(alpha * v1.blue()).int()	+ (invAlpha * v2.blue()).int()
+		);
+	}
+	
+	
+	/**
+	 * Blends a RGBA color together with the given alpha. The returned RGBA
+	 * value has an alpha of 100%
+	 */
+	public static inline function alphaBlend (v:RGBA, alpha:Float) : RGBA
+	{
+		return v.setAlpha(0xFF).tint( alpha );
+	}
+	
 	
 	/**
 	 * Makes sure that the given color is between BLACK and WHITE
@@ -164,11 +197,12 @@ class RGBAUtil
 	 * @example		0xFF0000FF.tint(.5);	//gives: 0x7F0000FF
 	 */
 	public static inline function tint (v:RGBA, tint:Float) : RGBA {
-		var r = (v.red() * tint).int();
-		var g = (v.green() * tint).int();
-		var b = (v.blue() * tint).int();
-		var a = v.alpha();
-		return Color.create(r, g, b, a);
+		return Color.create(
+			(v.red() * tint).int(),
+			(v.green() * tint).int(),
+			(v.blue() * tint).int(),
+			v.alpha()
+		);
 	}
 }
 

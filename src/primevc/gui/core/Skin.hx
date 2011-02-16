@@ -100,6 +100,7 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 		{
 			if (owner.state != null)
 				owner.state.initialized.entering.unbind(this);
+			
 			removeBehaviours();
 			removeStates();
 			if (owner.isInitialized())
@@ -114,8 +115,13 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 			createBehaviours();
 			createGraphics();
 			
-			if (newOwner.isInitialized())	behaviours.init();
-			else							behaviours.init.onceOn( owner.state.initialized.entering, this );
+			if (newOwner.isInitialized()) {
+				createChildren();
+				childrenCreated();
+				behaviours.init();
+			}
+			else
+				behaviours.init.onceOn( owner.state.initialized.entering, this );
 		}
 		
 		return newOwner;

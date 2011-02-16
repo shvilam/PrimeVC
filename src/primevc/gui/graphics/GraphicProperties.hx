@@ -136,6 +136,7 @@ class GraphicProperties implements IGraphicElement
 					0;
 			default: 0;
 		}
+		
 		invalidate( change );
 	}
 	

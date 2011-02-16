@@ -81,7 +81,7 @@ class DataButton <DataType> extends Button, implements IItemRenderer <DataType>
 	}
 	
 	
-	private function updateLabel (newVal:DataType, oldVal:DataType)
+	public function updateLabel (newVal:DataType, oldVal:DataType)
 	{
 		if (oldVal == null)		styleClasses.remove("empty");
 		if (newVal == null)		styleClasses.add("empty");

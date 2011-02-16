@@ -93,7 +93,9 @@ class OpenPopupBehaviour extends BehaviourBase < Button >
 			windowDeselectBinding.disable();
 		}
 		
-		handleSelectChange.on( target.selected.change, this );
+		
+		target.deselect		.on( target.displayEvents.removedFromStage, this );
+		handleSelectChange	.on( target.selected.change, this );
 		
 		//check if the popup should already be opened
 		handleSelectChange( target.selected.value, false );
@@ -105,6 +107,9 @@ class OpenPopupBehaviour extends BehaviourBase < Button >
 		if (windowDeselectBinding != null)	windowDeselectBinding.dispose();
 		if (selectBinding != null)			selectBinding.dispose();
 		if (deselectBinding != null)		deselectBinding.dispose();
+		
+		target.selected.change.unbind(this);
+		target.displayEvents.removedFromStage.unbind(this);
 		
 		selectBinding = deselectBinding = windowDeselectBinding = null;
 	}
