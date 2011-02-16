@@ -31,6 +31,7 @@ package primevc.gui.components;
  import primevc.core.Bindable;
  import primevc.gui.behaviours.components.DirectToolTipBehaviour;
  import primevc.gui.behaviours.UpdateMaskBehaviour;
+ import primevc.gui.core.UIElementFlags;
  import primevc.gui.core.UIGraphic;
  import primevc.gui.display.VectorShape;
   using primevc.utils.BitUtil;
@@ -135,7 +136,7 @@ class Slider extends SliderBase
 		var changes = changes;
 		super.validate();
 		
-		if (changes.has(SliderBase.PERCENTAGE))
+		if (changes.has(UIElementFlags.PERCENTAGE))
 			label.value = percentage.roundFloat() + "%";
 	}
 }
