@@ -60,6 +60,15 @@ class UIElementFlags
 	
 	public static inline var ICON		= 1 << 8;
 	
+	//
+	// SliderBase
+	public static inline var PERCENTAGE = 1 << 9;
+	public static inline var DIRECTION	= 1 << 10;
+	
+	//
+	// ScrollBar
+	public static inline var TARGET		= 1 << 11;
+
 	
 #if debug
 	static public function readProperties (flags:Int) : String

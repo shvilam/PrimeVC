@@ -30,6 +30,7 @@ package primevc.gui.components;
  import primevc.core.collections.IReadOnlyList;
  import primevc.core.traits.IValueObject;
  import primevc.core.validators.IntRangeValidator;
+ import primevc.core.dispatcher.Wire;
  import primevc.core.Bindable;
  import primevc.gui.behaviours.components.OpenPopupBehaviour;
  import primevc.gui.behaviours.layout.FollowObjectBehaviour;
@@ -80,7 +81,7 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 	 */
 	public var createItemRenderer	(default, setCreateItemRenderer) : DataType -> Int -> IUIElement;
 	
-	
+	private var selectListItemWire : Wire<DataType->DataType->Void>;
 	
 	
 	public function new (id:String = null, defaultLabel:String = null, icon:Bitmap = null, selectedItem:DataType = null, listData:IReadOnlyList<DataType> = null)
@@ -110,12 +111,15 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 		behaviours.add( new OpenPopupBehaviour( this, list, userEvents.mouse.down, userEvents.mouse.down ) );
 		handleItemRendererClick.on( list.childClick, this );
 		
-		//listen to layout changes.. make sure the combox is always at least the size of the combobox button
+		//listen to layout changes.. make sure the combobox is always at least the size of the combobox button
 		updateListWidth	.on( layout.changed, this );
-		selectListItem	.on( vo.change, this );
 		
 		//select the current value in the list when the list item-renderers are created
 		selectCurrentValue	.on( list.state.change, this );
+		
+		//re-select item on vo change, but only when list is initialized (start disabled)
+		selectListItemWire = selectListItem.on( vo.change, this );
+		selectListItemWire.disable();
 	}
 	
 	
@@ -136,10 +140,13 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 	//
 	
 	
-	private inline function setListData (v)
+	private function setListData (v)
 	{
 		if (v != listData)
 		{
+			if (selectListItemWire != null) // FIXME: Unsure if needed
+				selectListItemWire.disable();
+			
 			if (list != null)
 				list.data = cast v;
 			
@@ -224,6 +231,9 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 			Assert.that( listData.has(newVO) );
 #end		
 		
+		Assert.notNull(list);
+		Assert.notNull(list.content);
+		
 		if (oldVO != null)
 		{
 			//change selected itemrenderer in list
@@ -252,9 +262,12 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 	{
 		if (list.isInitialized())
 		{
+			Assert.notThat(selectListItemWire.isEnabled());
+			
 			if (vo.value != null)
 				selectListItem( vo.value, null );
 			
+			selectListItemWire.enable();
 			updateListWidth( LayoutFlags.WIDTH );
 		}
 	}

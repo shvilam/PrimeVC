@@ -29,6 +29,7 @@
 package primevc.gui.components;
  import primevc.core.dispatcher.Wire;
  import primevc.core.geom.space.Direction;
+ import primevc.gui.core.UIElementFlags;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.states.ValidateStates;
@@ -52,8 +53,6 @@ package primevc.gui.components;
  */
 class ScrollBar extends SliderBase
 {
-	public static inline var TARGET			: Int = 1 << 10;
-	
 	/**
 	 * Object on which the scrollbar's apply
 	 */
@@ -106,7 +105,7 @@ class ScrollBar extends SliderBase
 	{
 		var changes = changes;
 		super.validate();
-		if (changes.has( SliderBase.DIRECTION | TARGET ))
+		if (changes.has( UIElementFlags.DIRECTION | UIElementFlags.TARGET ))
 			createTargetBindings();
 	}
 	
@@ -232,7 +231,7 @@ class ScrollBar extends SliderBase
 		{
 			removeTargetBindings();
 			target = newTarget;
-			invalidate(TARGET);
+			invalidate(UIElementFlags.TARGET);
 		}
 		
 		return newTarget;
