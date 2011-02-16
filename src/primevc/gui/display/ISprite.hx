@@ -53,6 +53,7 @@ interface ISprite
 	public var isDragging						: Bool;
 	public var dropTarget		(default, null) : flash.display.DisplayObject;
 	
+	
 	public function stopDrag()												: Void;
 	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle)	: Void;
 	public function createDragInfo ()										: DragInfo;

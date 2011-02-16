@@ -112,6 +112,11 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	}
 	
 	
+	public inline function setFocus ()		{ if (window != null)							{ window.focus = this; } }
+	public inline function removeFocus ()	{ if (window != null && window.focus == this)	{ window.focus = null; } }
+	
+	
+	
 #if !neko
 	public function getDisplayCursor () : DisplayDataCursor
 	{

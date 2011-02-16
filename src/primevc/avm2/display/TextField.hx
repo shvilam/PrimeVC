@@ -338,6 +338,10 @@ class TextField extends flash.text.TextField, implements ITextField
 	//
 	
 	
+	public inline function setFocus ()		{ if (window != null)							{ window.focus = this; } }
+	public inline function removeFocus ()	{ if (window != null && window.focus == this)	{ window.focus = null; } }
+	
+	
 	/**
 	 * Reference to a target with focusevents to which the textfield should
 	 * respond.
@@ -383,7 +387,7 @@ class TextField extends flash.text.TextField, implements ITextField
 	private function giveFocusToMe (event:FocusState)
 	{
 		if (event.target != this)
-			stage.focus = this;
+			setFocus();
 	}
 	
 	
@@ -403,7 +407,7 @@ class TextField extends flash.text.TextField, implements ITextField
 	{
 		//if the field lost it's focus to the focusTarget, give the focus back to the txtfield
 		if (event.target == this && event.related == cast focusTarget)
-			stage.focus = this;
+			setFocus();
 		
 		//the field lost it's focus to someone else.. Send an blur event
 		else

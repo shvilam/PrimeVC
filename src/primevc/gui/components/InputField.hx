@@ -153,7 +153,7 @@ class InputField <VOType> extends DataButton <VOType>
 		if (hasFocus)
 			return;
 		
-		Assert.notNull( vo.value );
+	//	Assert.notNull( vo.value );
 		trace(data.value);
 		
 		hasFocus = true;
@@ -169,7 +169,7 @@ class InputField <VOType> extends DataButton <VOType>
 		if (!hasFocus)
 			return;
 		
-		Assert.notNull( vo.value );
+	//	Assert.notNull( vo.value );
 		
 		fieldBinding.disable();
 		updateVO();

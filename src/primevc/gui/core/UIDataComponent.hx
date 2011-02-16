@@ -90,6 +90,12 @@ class UIDataComponent <DataType:IValueObject> extends UIComponent, implements IU
 	}
 	
 	
+	/**
+	 * Method in which childcomponents can be bound to the data of the component.
+	 * This method can be called on two moments:
+	 * 		- component has created children and the data is already set
+	 * 		- data is set and the component-state is already initialized
+	 */
 	private function initData () : Void		{}
 	private function removeData () : Void	{}
 	

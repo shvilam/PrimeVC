@@ -32,6 +32,7 @@ package primevc.gui.display;
  import primevc.core.geom.Point;
 #end
 #if (flash8 || flash9 || js)
+ import flash.display.InteractiveObject;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEventTarget;
  import primevc.gui.events.UserEvents;
@@ -102,6 +103,10 @@ class Window implements IDisplayContainer
 	public var userEvents		(default, null)			: UserEvents;
 	public var mouse			(default, null)			: Mouse;
 	
+#if flash9
+	public var focus			(getFocus, setFocusOn)	: InteractiveObject;
+#end
+	
 	
 	public function new (target:Stage)
 	{
@@ -164,7 +169,16 @@ class Window implements IDisplayContainer
 	
 	private function enableMouse (event:Event)					{ mouseEnabled = children.mouseEnabled = true; }
 	private function disableMouse (event:Event)					{ mouseEnabled = children.mouseEnabled = false; }
+	
+	
+	private inline function setFocusOn (child:InteractiveObject)	{ return target.focus = child; }
+	private inline function getFocus ()	: InteractiveObject			{ return target.focus; }
 #end
+	
+	// FIXME better naming -> looks alot like setFocusOn (the setter)
+	public inline function setFocus ()		{ window.focus = target; }
+	public inline function removeFocus ()	{ if (focus == target)	{ focus = null; } }
+	
 	
 	
 	
