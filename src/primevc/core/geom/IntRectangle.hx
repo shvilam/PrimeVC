@@ -249,6 +249,25 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	}
 	
 	
+	
+	/**
+	 * Method will make sure that the values of this rectangle stay within
+	 * the boundaries of the given boundaries.
+	 */
+	public function stayWithin (bounds:IntRectangle) : Void
+	{
+		var c = invalidatable;
+		invalidatable = false;
+		
+		if		(left	< bounds.left)		left	= bounds.left;
+		else if (right	> bounds.right)		right	= bounds.right - width;
+		if		(top	< bounds.top)		top		= bounds.top;
+		else if (bottom > bounds.bottom)	bottom	= bounds.bottom - height;
+		
+		invalidatable = c;
+	}
+	
+	
 #if flash9
 	public function toFloatRectangle () : Rectangle
 	{

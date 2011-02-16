@@ -30,6 +30,7 @@ package primevc.gui.components;
  import primevc.core.Bindable;
  import primevc.core.RevertableBindable;
  import primevc.core.dispatcher.Wire;
+ import primevc.gui.core.UITextField;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
@@ -69,6 +70,11 @@ class InputField <VOType> extends DataButton <VOType>
 	 */
 	public var restrict				(default, setRestrict)	: String;
 	
+	/**
+	 * Reference to the textfield.
+	 * Property is set by the InputFieldSkin
+	 */
+	public var field				(default, null)			: UITextField;
 	
 	
 	
@@ -166,11 +172,38 @@ class InputField <VOType> extends DataButton <VOType>
 		Assert.notNull( vo.value );
 		
 		fieldBinding.disable();
-		trace( data.value );
 		updateVO();
 		getRevertableData().commitEdit();
 		
 		hasFocus = false;
+		updateLabel( vo.value, vo.value );
+	}
+	
+	
+	/**
+	 * Method will set the current input as value of the VO without losing
+	 * focus
+	 */
+	public function applyInput ()
+	{
+		if (!hasFocus)
+			return;
+		
+		updateVO();
+		getRevertableData().commitEdit();
+		getRevertableData().beginEdit();
+	}
+	
+	
+	/**
+	 * Method will set the current input to the original value before the user
+	 * typed in stuff.
+	 */
+	public function cancelInput ()
+	{
+		if (!hasFocus)
+			return;
+		
 		updateLabel( vo.value, vo.value );
 	}
 }

@@ -79,15 +79,21 @@ class OpenPopupBehaviour extends BehaviourBase < Button >
 		
 		popup.layout.includeInLayout = false;
 		
-		selectBinding			= target.select.on( selectSignal, this );
-		deselectBinding			= checkToDeselect.on( deselectSignal, this );
-		windowDeselectBinding	= checkToDeselect.on( target.window.mouse.events.down, this );
+		if (deselectSignal == selectSignal)
+		{
+			selectBinding			= toggleSelect	.on( selectSignal, this );
+		}
+		else
+		{
+			selectBinding			= target.select.on( selectSignal, this );
+			deselectBinding			= checkToDeselect.on( deselectSignal, this );
+			windowDeselectBinding	= checkToDeselect.on( target.window.mouse.events.down, this );
+			
+		//	deselectBinding.disable();
+			windowDeselectBinding.disable();
+		}
 		
-		Assert.notEqual( selectBinding, deselectBinding );
 		handleSelectChange.on( target.selected.change, this );
-		
-		deselectBinding.disable();
-		windowDeselectBinding.disable();
 		
 		//check if the popup should already be opened
 		handleSelectChange( target.selected.value, false );
@@ -96,9 +102,11 @@ class OpenPopupBehaviour extends BehaviourBase < Button >
 	
 	override private function reset ()
 	{
-		windowDeselectBinding.dispose();
-		selectBinding.dispose();
-		deselectBinding.dispose();
+		if (windowDeselectBinding != null)	windowDeselectBinding.dispose();
+		if (selectBinding != null)			selectBinding.dispose();
+		if (deselectBinding != null)		deselectBinding.dispose();
+		
+		selectBinding = deselectBinding = windowDeselectBinding = null;
 	}
 	
 	
@@ -109,15 +117,22 @@ class OpenPopupBehaviour extends BehaviourBase < Button >
 	}
 	
 	
+	private function toggleSelect ()
+	{
+		target.selected.value = !target.selected.value;
+	}
+	
+	
 	public function openList ()
 	{
 		if (popup.window != null)
 			return;
 		
 		Assert.notNull( popup );
-		selectBinding.disable();
-		deselectBinding.enable();
-		windowDeselectBinding.enable();
+	//	selectBinding.disable();
+	//	deselectBinding.enable();
+		if (windowDeselectBinding != null)
+			windowDeselectBinding.enable();
 		
 	//	target.select();
 		target.system.popups.add( popup );
@@ -129,9 +144,10 @@ class OpenPopupBehaviour extends BehaviourBase < Button >
 		if (popup.window == null)
 			return;
 		
-		selectBinding.enable();
-		deselectBinding.disable();
-		windowDeselectBinding.disable();
+	//	selectBinding.enable();
+	//	deselectBinding.disable();
+		if (windowDeselectBinding != null)
+			windowDeselectBinding.disable();
 		
 	//	target.deselect();
 		popup.system.popups.remove( popup );
@@ -140,7 +156,7 @@ class OpenPopupBehaviour extends BehaviourBase < Button >
 	
 	public function checkToDeselect (mouseObj:MouseState)
 	{
-		trace(popup.window+"; "+target.selected.value);
+	//	trace(popup.window+"; "+target.selected.value);
 		if (popup.window == null) // || mouseObj.related == null)
 			return;
 		

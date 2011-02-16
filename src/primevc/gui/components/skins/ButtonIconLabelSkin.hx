@@ -115,6 +115,7 @@ class ButtonIconLabelSkin extends Skin<Button>
 	
 	override public function validate (changes:Int)
 	{
+		Assert.notNull(iconGraphic);
 		if (changes.has( Flags.ICON ))
 			iconGraphic.data = owner.icon;
 		

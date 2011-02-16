@@ -20,43 +20,32 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.text;
- import primevc.gui.styling.TextStyleFlags;
-  using primevc.utils.Color;
-
-
-//typedef TextFormat = flash.text.TextFormat;
+package primevc.gui.components.layout;
+ import primevc.core.geom.space.Horizontal;
+ import primevc.core.geom.space.Vertical;
+ import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
+ import primevc.gui.layout.VirtualLayoutContainer;
 
 
 /**
+ * FormRow layout is a virtual layout container which will align it's children
+ * horizontally.
+ * 
  * @author Ruben Weijers
- * @creation-date Oct 26, 2010
+ * @creation-date Feb 16, 2011
  */
-class TextFormat #if flash9 extends flash.text.TextFormat #end
+class FormRowLayout extends VirtualLayoutContainer
 {
-	public var transform (default, default)	: TextTransform;
-	
-	
-#if debug
-	public function toString ()
+	public function new ()
 	{
-		var props = [];
-		
-		props.push( font + size + "px" );
-		props.push( Std.string( align ) );
-		props.push( color.rgbString() );
-		
-		if (underline)	props.push( "underline" );
-		if (bold)		props.push( "bold" );
-		if (italic)		props.push( "italic" );
-		
-		return "TextFormat( " + props.join(", ")  + " )";
+		super();
+		algorithm		= new HorizontalFloatAlgorithm( Horizontal.left, Vertical.center );
+		percentWidth	= 1;
 	}
-#end
 }

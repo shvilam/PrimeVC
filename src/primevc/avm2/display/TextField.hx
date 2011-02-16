@@ -203,7 +203,6 @@ class TextField extends flash.text.TextField, implements ITextField
 	
 	public inline function makeStatic ()
 	{
-		trace(this);
 		type			= flash.text.TextFieldType.DYNAMIC;
 		selectable		= false;
 		mouseEnabled	= false;
@@ -254,6 +253,7 @@ class TextField extends flash.text.TextField, implements ITextField
 	//	trace(this+".applyTextFormat "+textStyle+"; "+width+"; "+height+"; autosize: "+autoSize);
 		setTextFormat( textStyle );
 	}
+	
 	
 	
 /*	override public function setTextFormat (format:flash.text.TextFormat, beginIndex:Int = -1, endIndex:Int = -1)

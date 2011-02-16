@@ -104,5 +104,6 @@ class Button extends UIDataContainer <DataType>, implements IIconOwner, implemen
 	
 	public function select ()				{ selected.value = true; }
 	public function deselect ()				{ selected.value = false; }
+	public function toggleSelect ()			{ selected.value = !selected.value; }
 	public inline function isSelected ()	{ return selected.value; }
 }

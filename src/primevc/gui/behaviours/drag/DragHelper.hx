@@ -127,8 +127,8 @@ class DragHelper implements IDisposable
 			return;
 		
 		var mouseTarget	= mouseObj.target.as(ISprite);
-		if (mouseTarget != target)
-			return;
+	//	if (mouseTarget != target)
+	//		return;
 		
 		lastMouseObj	= mouseObj;
 		

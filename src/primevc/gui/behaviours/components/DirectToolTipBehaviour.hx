@@ -52,16 +52,19 @@ class DirectToolTipBehaviour extends BehaviourBase<UIComponent>
 	public function new (target:UIComponent, label:Bindable<String>)
 	{
 		super(target);
+#if debug
+		Assert.notNull(target, "Target can't be null for tooltipbehaviour");
 		Assert.notNull(label, "Label can't be null for tooltip of "+target);
+#end
 		this.label = label;
 	}
 	
 	
 	override private function init ()
 	{
-		Assert.notNull( target.window, "Target "+target+" must be on the stage for this behaviour to work." );
-		showToolTip.on( target.userEvents.mouse.rollOver, this );
-		hideToolTip.on( target.userEvents.mouse.rollOut, this );
+#if debug	Assert.notNull( target.window, "Target "+target+" must be on the stage for this behaviour to work." );
+			showToolTip.on( target.userEvents.mouse.rollOver, this );
+			hideToolTip.on( target.userEvents.mouse.rollOut, this ); #end
 	}
 	
 	

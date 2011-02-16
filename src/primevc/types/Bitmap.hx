@@ -33,7 +33,6 @@ package primevc.types;
   using primevc.utils.Bind;
 
 #if flash9
- import flash.display.BitmapData;
  import flash.display.DisplayObject;
  import primevc.core.geom.Matrix2D;
  import primevc.gui.display.Loader;
@@ -52,8 +51,8 @@ typedef FlashBitmap = flash.display.Bitmap;
 #end
 
 
-typedef AssetClass		= #if neko		Reference	#else Class<Dynamic>	#end;
-typedef BitmapDataType	= #if flash9	BitmapData	#else Dynamic			#end;
+typedef AssetClass	= #if neko		Reference					#else Class<Dynamic>	#end;
+typedef BitmapData	= #if flash9	flash.display.BitmapData	#else Dynamic			#end;
 
 
 /**
@@ -69,12 +68,12 @@ class Bitmap
 			,	implements IValueObject
 #if neko	,	implements ICodeFormattable		#end
 {
-	private var _data					: BitmapDataType;
+	private var _data					: BitmapData;
 	
 	/**
 	 * Bitmapdata of the given source
 	 */
-	public var data (getData, setData)	: BitmapDataType;
+	public var data (getData, setData)	: BitmapData;
 #if flash9
 	private var loader					: Loader;
 #end
@@ -98,7 +97,7 @@ class Bitmap
 	public var asset (default, null)	: AssetClass;
 	
 	
-	public function new (url:URI = null, asset:AssetClass = null, data:BitmapDataType = null)
+	public function new (url:URI = null, asset:AssetClass = null, data:BitmapData = null)
 	{
 		state	= new SimpleStateMachine < BitmapStates >(empty);
 #if neko
@@ -151,7 +150,7 @@ class Bitmap
 	}
 	
 	
-	private inline function setData (v:BitmapDataType)
+	private inline function setData (v:BitmapData)
 	{
 		if (v != _data)
 		{
@@ -165,7 +164,7 @@ class Bitmap
 	}
 	
 	
-	private inline function getData () : BitmapDataType
+	private inline function getData () : BitmapData
 	{
 #if flash9
 		if (_data == null || state.current != ready)
@@ -241,9 +240,9 @@ class Bitmap
 	
 #if flash9
 	
-	public inline function loadDisplayObject (v:DisplayObject, ?transform:Matrix2D)
+	public inline function loadDisplayObject (v:DisplayObject, transform:Matrix2D = null, transparant:Bool = true, fillColor:UInt = 0xffffffff)
 	{
-		var d = new BitmapData( v.width.roundFloat(), v.height.roundFloat(), true, 0 );
+		var d = new BitmapData( v.width.roundFloat(), v.height.roundFloat(), transparant, fillColor );
 		d.draw( v, transform );
 		data = d;
 	}
@@ -349,7 +348,7 @@ class Bitmap
 	
 	
 #if flash9
-	public static inline function fromDisplayObject (v:DisplayObject, ?transform:Matrix2D) : Bitmap
+	public static inline function fromDisplayObject (v:DisplayObject, ?transform:Matrix2D, transparant:Bool = true, fillColor:UInt = 0xffffffff) : Bitmap
 	{
 		var b = new Bitmap();
 		b.loadDisplayObject(v, transform);
@@ -365,10 +364,18 @@ class Bitmap
 	}
 	
 	
-	public static inline function fromBitmapData (v:BitmapDataType) : Bitmap
+	public static inline function fromBitmapData (v:BitmapData) : Bitmap
 	{
 		var b = new Bitmap();
 		b.loadBitmapData(v);
+		return b;
+	}
+	
+	
+	public static inline function createEmpty (width:Int, height:Int, transparant:Bool = true, fillColor:UInt = 0xffffffff) : Bitmap
+	{
+		var b	= new Bitmap();
+		b.data	= new BitmapData(width, height);
 		return b;
 	}
 	

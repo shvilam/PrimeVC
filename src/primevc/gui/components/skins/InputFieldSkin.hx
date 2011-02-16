@@ -28,7 +28,10 @@
  */
 package primevc.gui.components.skins;
  import primevc.gui.components.InputField;
+ import primevc.gui.events.KeyboardEvents;
+ import primevc.gui.input.KeyCodes;
   using primevc.utils.BitUtil;
+  using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
 
@@ -55,6 +58,8 @@ class InputFieldSkin extends ButtonIconLabelSkin
 		labelField.makeEditable();
 		labelField.mouseEnabled = labelField.tabEnabled = true;
 #end
+		(untyped owner).field	= labelField;
+		checkToUpdateVO.on( labelField.userEvents.key.down, this );
 	}
 	
 	
@@ -72,5 +77,12 @@ class InputFieldSkin extends ButtonIconLabelSkin
 			if (changes.has( Flags.RESTRICT ))		labelField.restrict	= owner.restrict;
 			if (changes.has( Flags.MAX_CHARS ))		labelField.maxChars	= owner.maxChars;
 		}
+	}
+	
+	
+	private function checkToUpdateVO (state:KeyboardState) : Void
+	{
+		if		(KeyCodes.isEnter( state.keyCode() ))	getInputField().applyInput();
+		else if (state.keyCode() == KeyCodes.ESCAPE)	getInputField().cancelInput();
 	}
 }

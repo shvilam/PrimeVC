@@ -129,7 +129,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	private inline function checkIfChildGetsPercentageWidth (child:LayoutClient, widthToUse:Int) : Bool
 	{
 		return (
-						changes.has( Flags.WIDTH ) || child.changes.has( Flags.PERCENT_WIDTH )
+					changes.has( Flags.WIDTH ) || child.changes.has( Flags.PERCENT_WIDTH ) //|| child.width.notSet()
 					||	( child.is(IAdvancedLayoutClient) && child.as(IAdvancedLayoutClient).explicitWidth.notSet() )
 				)
 				&& child.percentWidth.isSet()
@@ -140,7 +140,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	private inline function checkIfChildGetsPercentageHeight (child:LayoutClient, heightToUse:Int) : Bool
 	{
 		return (
-						changes.has( Flags.HEIGHT ) || child.changes.has( Flags.PERCENT_HEIGHT )
+						changes.has( Flags.HEIGHT ) || child.changes.has( Flags.PERCENT_HEIGHT ) //|| child.height.notSet()
 						||	( child.is(IAdvancedLayoutClient) && child.as(IAdvancedLayoutClient).explicitHeight.notSet() )
 				)
 				&& child.percentHeight.isSet()
@@ -179,6 +179,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			//measure children with explicitWidth and no percentage size
 			else if (checkIfChildGetsPercentageWidth(child, width))
 				child.outerBounds.width = (width * child.percentWidth).roundFloat();
+			
 			
 			//measure children
 			if (child.percentWidth != Flags.FILL)
