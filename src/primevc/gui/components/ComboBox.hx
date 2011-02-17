@@ -112,7 +112,7 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 		handleItemRendererClick.on( list.childClick, this );
 		
 		//listen to layout changes.. make sure the combobox is always at least the size of the combobox button
-		updateListWidth	.on( layout.changed, this );
+	//	updateListWidth	.on( layout.changed, this );
 		
 		//select the current value in the list when the list item-renderers are created
 		selectCurrentValue	.on( list.state.change, this );
@@ -204,7 +204,7 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 	 * the button to make sure the list is always at least the same width as
 	 * the button
 	 */
-	private function updateListWidth (changes:Int)
+/*	private function updateListWidth (changes:Int)
 	{
 		if (changes.has(LayoutFlags.WIDTH) && list.content != null)
 		{
@@ -215,7 +215,7 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 			else
 				l.widthValidator.min = layout.innerBounds.width;
 		}
-	}
+	}*/
 	
 	
 	/**
@@ -268,7 +268,7 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 				selectListItem( vo.value, null );
 			
 			selectListItemWire.enable();
-			updateListWidth( LayoutFlags.WIDTH );
+		//	updateListWidth( LayoutFlags.WIDTH );
 		}
 	}
 }

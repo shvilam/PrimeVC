@@ -101,10 +101,15 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 			l.padding = new Box();
 		
 		// use hardcoded width value, because the width of scrollbar is not yet available... FIXME
-		if (direction == horizontal)	l.padding.bottom	+= SIZE;
-		else							l.padding.right		+= SIZE;
+		if (direction == horizontal) {
+			l.padding.bottom += SIZE;
+			l.invalidateVerPaddingMargin();
+		} else {
+			l.padding.right += SIZE;
+			l.invalidateHorPaddingMargin();
+		}
 		
-		l.invalidate( LayoutFlags.PADDING );
+		
 		children.add( scrollBar, depth );
 	//	layout.add( scrollBar.layout, layoutDepth );
 		
@@ -120,10 +125,13 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 		
 		var l = target.layout;
 		// use hardcoded width value, because the width of scrollbar is not yet available... FIXME
-		if (scrollBar.direction == horizontal)	l.padding.bottom	-= SIZE;
-		else									l.padding.right		-= SIZE;
-		
-		l.invalidate( LayoutFlags.PADDING );
+		if (scrollBar.direction == horizontal) {
+			l.padding.bottom -= SIZE;
+			l.invalidateVerPaddingMargin();
+		} else {
+			l.padding.right -= SIZE;
+			l.invalidateHorPaddingMargin();
+		}
 	}
 	
 	

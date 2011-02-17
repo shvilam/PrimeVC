@@ -297,8 +297,8 @@ class LayoutClient extends Invalidatable
 	{
 		if (changes > 0)
 		{
-			if (changes.has( Flags.PADDING | Flags.MARGIN ))
-				updateAllWidths(width, true);
+		//	if (changes.has( Flags.PADDING | Flags.MARGIN ))
+		//		updateAllWidths(width, true);
 			
 #if debug	Assert.notEqual( state.current, ValidateStates.validated, name+"; "+readChanges() ); #end
 			state.current = ValidateStates.validating;
@@ -312,8 +312,8 @@ class LayoutClient extends Invalidatable
 	{
 		if (changes > 0)
 		{
-			if (changes.has( Flags.PADDING | Flags.MARGIN ))
-				updateAllHeights(height, true);
+		//	if (changes.has( Flags.PADDING | Flags.MARGIN ))
+		//		updateAllHeights(height, true);
 			
 #if debug	Assert.notEqual( state.current, ValidateStates.validated, name+"; "+readChanges() ); #end
 			state.current = ValidateStates.validating;
@@ -597,7 +597,6 @@ class LayoutClient extends Invalidatable
 	
 	
 	
-	
 	//
 	// ASPECTRATIO METHODS
 	//
@@ -710,6 +709,38 @@ class LayoutClient extends Invalidatable
 	}
 	
 	
+	/**
+	 * Method needs to get called when the horizontal padding or margin is changed
+	 * This needs to be done manually since padding/margin don't accept change listeners..
+	 * 
+	 * Method will update the width of the client. If the client has a width of 
+	 * 100%, it will lower the value of the 'width' value.. otherwise it will increase
+	 * the width of the outerBounds.
+	 * 
+	 * FIXME
+	 */
+	public function invalidateHorPaddingMargin () //changes:Int)
+	{
+	//	invalidate( changes );	// <-- will destroy the applicition... things start freezing.. weird stuff :-S
+		if (percentWidth.isSet())
+			width = outerBounds.width - getHorPadding() - getHorMargin();
+		else
+			updateAllWidths(width, true);
+	}
+	
+	
+	/**
+	 * @see invalidateHorPaddingMargin
+	 */
+	public function invalidateVerPaddingMargin ()
+	{
+		if (percentHeight.isSet())
+			height = outerBounds.height - getVerPadding() - getVerMargin();
+		else
+			updateAllHeights(height, true);
+	}
+	
+	
 	
 	//
 	// GETTERS / SETTERS
@@ -813,7 +844,7 @@ class LayoutClient extends Invalidatable
 			updateInnerBounds();
 			updateOuterBounds();
 			
-			invalidate( Flags.HEIGHT | Flags.WIDTH | Flags.PADDING );
+			invalidate( Flags.HEIGHT | Flags.WIDTH );
 		}
 		return padding;
 	}
@@ -827,7 +858,7 @@ class LayoutClient extends Invalidatable
 			updateInnerBounds();
 			updateOuterBounds();
 			
-			invalidate( Flags.HEIGHT | Flags.WIDTH | Flags.MARGIN );
+			invalidate( Flags.HEIGHT | Flags.WIDTH );
 		}
 		return padding;
 	}
