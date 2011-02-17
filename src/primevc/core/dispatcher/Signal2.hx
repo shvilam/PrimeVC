@@ -60,10 +60,16 @@ class Signal2 <A,B> extends Signal<A->B->Void>, implements ISender2<A,B>, implem
 				if (w.flags.has(Wire.SEND_ONCE))
 					w.disable();
 				
-				if (w.flags.has(Wire.VOID_HANDLER))
-				 	w.sendVoid();
-				else
-					w.handler(_1,_2);
+				#if (flash9 && debug) try #end {
+					if (w.flags.has(Wire.VOID_HANDLER))
+					 	w.sendVoid();
+					else
+					 	w.handler(_1,_2);
+				}
+				#if (flash9 && debug) catch (e : flash.errors.TypeError) {
+					throw "Wrong argument type(s) ("+ e +") for " + w;
+				}
+				#end
 				
 				if (w.flags.has(Wire.SEND_ONCE))
 				 	w.dispose();

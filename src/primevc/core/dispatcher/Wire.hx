@@ -63,7 +63,7 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 		}
 	} */
 		
-	static public function make<T>( dispatcher:Signal<T>, owner:Dynamic, handlerFn:T, flags:Int ) : Wire<T>
+	static public function make<T>( dispatcher:Signal<T>, owner:Dynamic, handlerFn:T, flags:Int #if debug, ?pos : haxe.PosInfos #end ) : Wire<T>
 	{
 		var w:Wire<Dynamic>,
 			W = Wire;
@@ -82,6 +82,8 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 		w.handler = handlerFn; // Unsets VOID_HANDLER (!!)
 		w.flags	  = flags;
 		w.doEnable();
+		
+		#if debug w.bindPos = pos; #end
 		
 		return untyped w;
 	}
@@ -104,6 +106,26 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 	public var owner	(default, null) : Dynamic;
 	/** Object referencing the parent Link in the Chain **/
 	public var signal	(default, null)	: Signal<FunctionSignature>;
+	
+#if debug
+	public var bindPos	: haxe.PosInfos;
+	
+	public function toString() {
+		return "{Wire bound at: "+ bindPos.fileName + ":" + bindPos.lineNumber + ", flags = 0x"+ StringTools.hex(flags, 2) +", owner = " + owner + "}";
+	}
+	public function pos(?p:haxe.PosInfos) : Wire<FunctionSignature> {
+		#if debug untyped this.bindPos = p; return this; #end
+	}
+	
+#else
+	
+	public inline function pos() : Wire<FunctionSignature> {
+		return this;
+	}
+#end
+	
+	
+	
 	
 	//
 	// INLINE PROPERTIES

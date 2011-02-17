@@ -60,7 +60,13 @@ class Signal0 extends Signal<Void->Void>, implements ISender0, implements INotif
 				if (w.flags.has(Wire.SEND_ONCE))
 					w.disable();
 				
-				w.handler();
+				#if (flash9 && debug) try #end {
+					w.handler();
+				}
+				#if (flash9 && debug) catch (e : flash.errors.TypeError) {
+					throw "Wrong argument type ("+ e +") for " + w;
+				}
+				#end
 				
 				if (w.flags.has(Wire.SEND_ONCE))
 				 	w.dispose();

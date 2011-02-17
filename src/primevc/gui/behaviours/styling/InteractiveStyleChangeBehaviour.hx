@@ -81,20 +81,20 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	override private function init ()
 	{
 		//FIXME - maybe it's more efficient to disable all the bindings when the target is removed from the stage instead of disposing them..
-		removeBindings.onceOn( target.displayEvents.removedFromStage, this );
+		removeBindings.onceOn( target.displayEvents.removedFromStage, this ).pos();
 		
 		var states = getStates();
-		updateInteractiveStates.on( states.change, this );
+		updateInteractiveStates.on( states.change, this ).pos();
 		updateInteractiveStates( states.filledProperties );
 		
 		if (target.is(IDropTarget)) {
-			updateDropTargetStates.on( states.change, this );
+			updateDropTargetStates.on( states.change, this ).pos();
 			updateDropTargetStates( states.filledProperties );
 		}
 		
 		
 		if (target.is(ISelectable)) {
-			updateSelectionStates.on( states.change, this );
+			updateSelectionStates.on( states.change, this ).pos();
 			updateSelectionStates( states.filledProperties );
 		}
 	}
@@ -126,7 +126,7 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 		if (focusState != null)		focusState.dispose();
 		
 		mouseState = disabledState = selectedState = dragState = focusState = null;
-		init.onceOn( target.displayEvents.addedToStage, this );
+		init.onceOn( target.displayEvents.addedToStage, this ).pos();
 	}
 	
 	
@@ -158,7 +158,7 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 			if (hasDisabledState)
 			{
 				if (disabledState == null)		{ disabledState		= target.style.createState(); }
-				if (disabledBinding == null)	{ disabledBinding	= changeEnabledState.on( target.enabled.change, this ); }
+				if (disabledBinding == null)	{ disabledBinding	= changeEnabledState.on( target.enabled.change, this ).pos(); }
 				
 				changeEnabledState( target.enabled.value, false );
 			}
@@ -183,8 +183,8 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 			{
 				if (focusState == null)			{ focusState		= target.style.createState(); }
 				else							{ clearFocusState( null); /* important to clear the state, otherwise it can stay in focus state after it's added to the stage again */ }
-				if (focusInBinding == null)		{ focusInBinding	= enableFocusState.on( target.userEvents.focus, this ); }
-				if (focusOutBinding == null)	{ focusOutBinding	= clearFocusState.on( target.userEvents.blur, this ); focusOutBinding.disable(); }
+				if (focusInBinding == null)		{ focusInBinding	= enableFocusState.on( target.userEvents.focus, this ).pos(); }
+				if (focusOutBinding == null)	{ focusOutBinding	= clearFocusState.on( target.userEvents.blur, this ).pos(); focusOutBinding.disable(); }
 			}
 			else
 			{
@@ -254,7 +254,7 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 			if (getStates().has( Flags.SELECTED ))
 			{
 				if (selectedState == null)		{ selectedState		= target.style.createState(); }
-				if (selectedBinding == null)	{ selectedBinding	= changeSelectedState.on( selectable.selected.change, this ); }
+				if (selectedBinding == null)	{ selectedBinding	= changeSelectedState.on( selectable.selected.change, this ).pos(); }
 				
 				changeSelectedState( selectable.selected.value, false );
 			}
@@ -292,9 +292,9 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 			else
 			{
 				if (dragState == null)			dragState		= target.style.createState();
-				if (dragOverBinding == null)	dragOverBinding = changeStateToDragOver	.on( target.dragEvents.over,	this );
-				if (dragOutBinding == null)		dragOutBinding	= clearDragState		.on( target.dragEvents.out,		this );
-				if (dragDropBinding == null)	dragDropBinding	= clearDragState		.on( target.dragEvents.drop,	this );
+				if (dragOverBinding == null)	dragOverBinding = changeStateToDragOver	.on( target.dragEvents.over,	this ).pos();
+				if (dragOutBinding == null)		dragOutBinding	= clearDragState		.on( target.dragEvents.out,		this ).pos();
+				if (dragDropBinding == null)	dragDropBinding	= clearDragState		.on( target.dragEvents.drop,	this ).pos();
 			}
 	}
 	
@@ -321,14 +321,16 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	
 	private inline function createHoverBindings ()
 	{
-		if (overBinding == null)	overBinding	= changeStateToHover.on( getEvents().rollOver,	this );
-		if (outBinding == null)		outBinding	= clearMouseState	.on( getEvents().rollOut,	this );
+		trace("Instantiate: overBinding = "+ overBinding +", outBinding = "+ outBinding);
+		if (overBinding == null)	overBinding	= changeStateToHover.on( getEvents().rollOver,	this ).pos();
+		if (outBinding == null)		outBinding	= clearMouseState	.on( getEvents().rollOut,	this ).pos();
 		outBinding.disable();
 	}
 	
 	
 	private inline function removeHoverBindings ()
 	{
+		trace("Dispose: overBinding = "+ overBinding +", outBinding = "+ outBinding);
 		if (overBinding != null)	overBinding.dispose();
 		if (outBinding != null)		outBinding.dispose();
 		overBinding = outBinding = null;
@@ -341,9 +343,9 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	
 	private inline function createDownBindings ()
 	{
-		if (downBinding == null)		downBinding		= changeStateToDown	.on( getEvents().down,				this );
-		if (upBinding == null)			upBinding		= changeStateToHover.on( getEvents().up,				this );
-		if (globalUpBinding == null)	globalUpBinding	= clearMouseState	.on( target.window.mouse.events.up,	this );
+		if (downBinding == null)		downBinding		= changeStateToDown	.on( getEvents().down,				this ).pos();
+		if (upBinding == null)			upBinding		= changeStateToHover.on( getEvents().up,				this ).pos();
+		if (globalUpBinding == null)	globalUpBinding	= clearMouseState	.on( target.window.mouse.events.up,	this ).pos();
 		
 		globalUpBinding.disable();
 		upBinding.disable();
