@@ -154,8 +154,17 @@ class ToolTipManager implements IDisposable
 	
 	private function updatePosition ()
 	{
-		toolTip.x = window.mouse.x + 5;
-		toolTip.y = window.mouse.y - 5 + toolTip.height; // - toolTip.height - 5;
+		var newX	= window.mouse.x + 5;
+		var newY	= window.mouse.y - 5 + toolTip.height;
+		var bounds	= window.layout.innerBounds;
+		
+		if		(newX < bounds.left)						newX = 0;
+		else if ((newX + toolTip.width) > bounds.right)		newX = bounds.right - toolTip.width;
+		if		(newY < bounds.top)							newY = 0;
+		else if ((newY + toolTip.height) > bounds.bottom)	newY = bounds.bottom - toolTip.height;
+		
+		toolTip.x = newX;
+		toolTip.y = newY; // - toolTip.height - 5;
 	}
 	
 	
