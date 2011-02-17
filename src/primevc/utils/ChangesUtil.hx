@@ -75,7 +75,7 @@ class ChangesUtil
 	
 	public static function undo (changes:ObjectChangeSet) : Void
 	{
-	//	trace("undo changes "+Date.fromTime(changes.timestamp));
+		trace("undo changes "+Date.fromTime(changes.timestamp) + ", " + changes);
 		var vo = changes.vo;
 		vo.beginEdit();
 		
@@ -97,7 +97,7 @@ class ChangesUtil
 	
 	public static function redo (changes:ObjectChangeSet) : Void
 	{
-	//	trace("redo changes "+Date.fromTime(changes.timestamp * 1000));
+		trace("redo changes "+Date.fromTime(changes.timestamp) + ", " + changes);
 		var vo = changes.vo;
 		vo.beginEdit();
 		
@@ -171,12 +171,19 @@ class ChangesUtil
 		var field:Dynamic = getProperty( owner, property );
 //		Assert.notNull( field, "owner: "+owner +", property: "+property );
 		
-	//	trace("set "+owner+"."+property+" to "+value);
+//		trace("set "+owner+"."+property+" to "+value);
 		
 		if (TypeUtil.is( field, IBindable))
 			TypeUtil.as( field, IBindable).value = value;
-		else
-			Reflect.setField( owner, property, value );
+		else {
+			var setter : Dynamic -> Dynamic = Reflect.field(owner, "set" + property.substr(0,1).toUpperCase() + property.substr(1));
+			if (setter != null) {
+				trace("try setter: "+setter);
+				setter(value);
+			}
+			else
+				Reflect.setField( owner, property, value );
+		}
 	}
 	
 	

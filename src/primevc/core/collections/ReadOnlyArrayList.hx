@@ -44,6 +44,7 @@ package primevc.core.collections;
  */
 class ReadOnlyArrayList < DataType > implements IReadOnlyList < DataType >, implements haxe.rtti.Generic
 {
+	public var beforeChange	(default, null)		: ListChangeSignal < DataType >;
 	public var change		(default, null)		: ListChangeSignal < DataType >;
 	public var list			(default, null)		: FastArray < DataType >;
 	public var length		(getLength, never)	: Int;
@@ -54,7 +55,8 @@ class ReadOnlyArrayList < DataType > implements IReadOnlyList < DataType >, impl
 	
 	public function new( wrapAroundList:FastArray<DataType> = null )
 	{
-		change	= new ListChangeSignal();
+		change = new ListChangeSignal();
+		beforeChange = new ListChangeSignal();
 		
 		if (wrapAroundList == null)
 			list = FastArrayUtil.create();
@@ -65,9 +67,10 @@ class ReadOnlyArrayList < DataType > implements IReadOnlyList < DataType >, impl
 	
 	public function dispose ()
 	{
+		beforeChange.dispose();
 		change.dispose();
 		list	= null;
-		change	= null;
+		change	= beforeChange = null;
 	}
 	
 	
