@@ -183,8 +183,10 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 	}
 	
 	
-	private inline function registerBoundTo(otherBindable)
+	private inline function registerBoundTo(otherBindable:IBindableReadonly<DataType>)
 	{
+		Assert.notNull(otherBindable);
+		
 		var b = this.boundTo;
 		if (!b.notNull())
 			b = this.boundTo = new FastList<IBindableReadonly<DataType>>();
@@ -266,11 +268,13 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 	
 	
 	/**
-	 * Will remove every binding to bindables which update this object
+	 * Will remove every binding to bindables which update this object, or which this object updates.
 	 */
-	public inline function unbindAll ()
+	public function unbindAll ()
 	{
-		while (!boundTo.isEmpty())
+		if (writeTo.notNull()) while (!writeTo.isEmpty())
+		 	writeTo.pop().unbind(this);
+		if (boundTo.notNull()) while (!boundTo.isEmpty())
 			boundTo.pop().unbind(this);
 	}
 	
