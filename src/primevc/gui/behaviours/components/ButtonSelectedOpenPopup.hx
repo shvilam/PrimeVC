@@ -27,14 +27,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.components;
- import primevc.core.dispatcher.Wire;
  import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.components.Button;
  import primevc.gui.core.IUIContainer;
- import primevc.gui.display.IDisplayObject;
- import primevc.gui.events.MouseEvents;
+ import primevc.gui.traits.ISelectable;
   using primevc.utils.Bind;
-  using primevc.utils.TypeUtil;
 
 
 /**
@@ -45,55 +41,28 @@ package primevc.gui.behaviours.components;
  * @author Ruben Weijers
  * @creation-date Feb 10, 2011
  */
-class OpenPopupBehaviour extends BehaviourBase < Button >
+class ButtonSelectedOpenPopup extends BehaviourBase < ISelectable >
 {
-	private var popup					: IUIContainer;
-	private var selectSignal			: MouseSignal;
-	private var deselectSignal			: MouseSignal;
-	private var selectBinding			: Wire<Dynamic>;
-	private var deselectBinding			: Wire<Dynamic>;
-	private var windowDeselectBinding	: Wire<Dynamic>;
+	private var popup : IUIContainer;
 	
 	
-	public function new (target, popup:IUIContainer, selectSignal:MouseSignal, deselectSignal:MouseSignal)
+	public function new (target, popup:IUIContainer)
 	{
 		super(target);
-		this.popup			= popup;
-		this.deselectSignal	= deselectSignal;
-		this.selectSignal	= selectSignal;
+		this.popup = popup;
 	}
 	
 	
 	override public function dispose ()
 	{
 		popup = null;
-		selectSignal = deselectSignal = null;
 		super.dispose();
 	}
 	
 	
 	override private function init ()
 	{
-		Assert.notNull( deselectSignal );
-		Assert.notNull( selectSignal );
-		
 		popup.layout.includeInLayout = false;
-		
-		if (deselectSignal == selectSignal)
-		{
-			selectBinding			= toggleSelect	.on( selectSignal, this );
-		}
-		else
-		{
-			selectBinding			= target.select.on( selectSignal, this );
-			deselectBinding			= checkToDeselect.on( deselectSignal, this );
-			windowDeselectBinding	= checkToDeselect.on( target.window.mouse.events.down, this );
-			
-		//	deselectBinding.disable();
-			windowDeselectBinding.disable();
-		}
-		
-		
 		target.deselect		.on( target.displayEvents.removedFromStage, this );
 		handleSelectChange	.on( target.selected.change, this );
 		
@@ -104,79 +73,33 @@ class OpenPopupBehaviour extends BehaviourBase < Button >
 	
 	override private function reset ()
 	{
-		if (windowDeselectBinding != null)	windowDeselectBinding.dispose();
-		if (selectBinding != null)			selectBinding.dispose();
-		if (deselectBinding != null)		deselectBinding.dispose();
-		
 		target.selected.change.unbind(this);
 		target.displayEvents.removedFromStage.unbind(this);
-		
-		selectBinding = deselectBinding = windowDeselectBinding = null;
 	}
 	
 	
 	public function handleSelectChange (newVal:Bool, oldVal:Bool)
 	{
-		if (newVal)		openList();
-		else			closeList();
+		if (newVal)		openPopup();
+		else			closePopup();
 	}
 	
 	
-	private function toggleSelect ()
-	{
-		target.selected.value = !target.selected.value;
-	}
-	
-	
-	public function openList ()
+	public function openPopup ()
 	{
 		if (popup.window != null)
 			return;
 		
 		Assert.notNull( popup );
-	//	selectBinding.disable();
-	//	deselectBinding.enable();
-		if (windowDeselectBinding != null)
-			windowDeselectBinding.enable();
-		
-	//	target.select();
 		target.system.popups.add( popup );
 	}
 	
 	
-	public function closeList ()
+	public function closePopup ()
 	{
 		if (popup.window == null)
 			return;
 		
-	//	selectBinding.enable();
-	//	deselectBinding.disable();
-		if (windowDeselectBinding != null)
-			windowDeselectBinding.disable();
-		
-	//	target.deselect();
 		popup.system.popups.remove( popup );
-	}
-	
-	
-	public function checkToDeselect (mouseObj:MouseState)
-	{
-	//	trace(popup.window+"; "+target.selected.value);
-		if (popup.window == null) // || mouseObj.related == null)
-			return;
-		
-#if flash9
-		if (mouseObj.target.is(IDisplayObject))
-		{
-			var newTarget = mouseObj.target.as(IDisplayObject);
-			
-			if (newTarget != popup && newTarget != target && !popup.children.has( newTarget ))
-				target.deselect();
-		}
-		else
-			target.deselect();
-#else
-		target.deselect();
-#end
 	}
 }

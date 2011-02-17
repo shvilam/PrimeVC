@@ -32,7 +32,7 @@ package primevc.gui.components;
  import primevc.core.validators.IntRangeValidator;
  import primevc.core.dispatcher.Wire;
  import primevc.core.Bindable;
- import primevc.gui.behaviours.components.OpenPopupBehaviour;
+ import primevc.gui.behaviours.components.ButtonSelectedOpenPopup;
  import primevc.gui.behaviours.layout.FollowObjectBehaviour;
  import primevc.gui.components.DataButton;
  import primevc.gui.components.ListHolder;
@@ -108,7 +108,8 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 		Assert.notNull( createItemRenderer );
 		
 		//leave the opening and closing of the list to the behaviouruserEvents.
-		behaviours.add( new OpenPopupBehaviour( this, list, userEvents.mouse.down, userEvents.mouse.down ) );
+		behaviours.add( new ButtonSelectedOpenPopup( this, list ) );
+		select.on( userEvents.mouse.down, this );
 		handleItemRendererClick.on( list.childClick, this );
 		
 		//listen to layout changes.. make sure the combobox is always at least the size of the combobox button
@@ -224,7 +225,7 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 	 */
 	private function selectListItem (newVO:DataType, oldVO:DataType)
 	{
-		trace( oldVO + " => "+newVO+"; selected: "+isSelected());
+	//	trace( oldVO + " => "+newVO+"; selected: "+isSelected());
 		
 #if debug
 		if (newVO != null)
@@ -238,7 +239,7 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 		{
 			//change selected itemrenderer in list
 			var r = list.content.getItemRendererFor( oldVO );
-			trace(this+".deselect "+r);
+		//	trace(this+".deselect "+r);
 			if (r != null && r.is(ISelectable))
 				r.as(ISelectable).deselect();
 		}
@@ -248,7 +249,7 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 		{
 			//change selected itemrenderer in list
 			var r = list.content.getItemRendererFor( newVO );
-			trace(this+".select "+r);
+		//	trace(this+".select "+r);
 			if (r != null && r.is(ISelectable))
 				r.as(ISelectable).select();
 		}
