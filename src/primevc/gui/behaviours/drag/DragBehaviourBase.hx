@@ -62,16 +62,13 @@ class DragBehaviourBase extends BehaviourBase <ISprite>
 	 * @param	mouseTarget		The object that will trigger the dragging of the target
 	 * 							If null (default), the target will start the drag
 	 */
-	public function new (dragTarget:ISprite, dragBounds:IntRectangle = null, mouseTarget:ISprite = null, delay:Int = -1)
+	public function new (dragTarget:ISprite, dragBounds:IntRectangle = null, mouseTarget:ISprite = null)
 	{
 		super(dragTarget);
 		this.dragBounds		= dragBounds;
 		this.mouseTarget	= mouseTarget == null ? dragTarget : mouseTarget;
 		
-		if (delay == -1)
-			delay = Mouse.DRAG_DELAY;
-		
-		dragHelper = new DragHelper( this.mouseTarget, startDrag, stopDrag, cancelDrag, delay );
+		dragHelper = new DragHelper( this.mouseTarget, startDrag, stopDrag, cancelDrag );
 	}
 	
 	

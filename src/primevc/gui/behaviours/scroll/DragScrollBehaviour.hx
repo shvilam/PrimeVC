@@ -68,7 +68,7 @@ class DragScrollBehaviour extends ClippedLayoutBehaviour
 		scrollLayout	= target.scrollableLayout;
 		checkScrollable.on( scrollLayout.changed, this );
 		
-		dragHelper		= new DragHelper( target, startScrolling, stopScrolling, dragAndScroll, Mouse.DRAG_DELAY );
+		dragHelper		= new DragHelper( target, startScrolling, stopScrolling, dragAndScroll );
 		moveBinding		= dragAndScroll.on( target.window.mouse.events.move, this );
 		moveBinding.disable();
 	}
