@@ -62,9 +62,9 @@ class DirectToolTipBehaviour extends BehaviourBase<UIComponent>
 	
 	override private function init ()
 	{
-#if debug	Assert.notNull( target.window, "Target "+target+" must be on the stage for this behaviour to work." );
+#if debug	Assert.notNull( target.window, "Target "+target+" must be on the stage for this behaviour to work." ); #end
 			showToolTip.on( target.userEvents.mouse.rollOver, this );
-			hideToolTip.on( target.userEvents.mouse.rollOut, this ); #end
+			hideToolTip.on( target.userEvents.mouse.rollOut, this );
 	}
 	
 	

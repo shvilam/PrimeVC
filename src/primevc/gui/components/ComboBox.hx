@@ -81,7 +81,13 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 	 */
 	public var createItemRenderer	(default, setCreateItemRenderer) : DataType -> Int -> IUIElement;
 	
-	private var selectListItemWire : Wire<DataType->DataType->Void>;
+	private var selectListItemWire	: Wire<DataType->DataType->Void>;
+	
+	/**
+	 * Wire for listening to mouse-down events on the stage. Only enabled when
+	 * the combobox is enabled.
+	 */
+	private var windowWire			: Wire<Dynamic>;
 	
 	
 	public function new (id:String = null, defaultLabel:String = null, icon:Bitmap = null, selectedItem:DataType = null, listData:IReadOnlyList<DataType> = null)
@@ -109,7 +115,12 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 		
 		//leave the opening and closing of the list to the behaviouruserEvents.
 		behaviours.add( new ButtonSelectedOpenPopup( this, list ) );
-		select.on( userEvents.mouse.down, this );
+		toggleSelect	.on( userEvents.mouse.down, this );
+		handleSelected	.on( selected.change, this );
+		
+		windowWire = checkToDeselect.on( window.userEvents.mouse.down, this );
+		windowWire.disable();
+		
 		handleItemRendererClick.on( list.childClick, this );
 		
 		//listen to layout changes.. make sure the combobox is always at least the size of the combobox button
@@ -270,6 +281,25 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 			
 			selectListItemWire.enable();
 		//	updateListWidth( LayoutFlags.WIDTH );
+		}
+	}
+	
+	
+	private function handleSelected (newVal:Bool, oldVal:Bool)
+	{
+		if (newVal)		windowWire.enable();
+		else			windowWire.disable();
+	}
+	
+	
+	private function checkToDeselect (mouseObj:MouseState)
+	{
+		if (!mouseObj.target.is(IUIElement))
+			deselect();
+		else {
+			var target = mouseObj.target.as(IUIElement);
+			if (target != this && target != list && !list.content.children.has(target))
+				deselect();
 		}
 	}
 }
