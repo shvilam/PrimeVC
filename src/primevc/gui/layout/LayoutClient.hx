@@ -38,7 +38,7 @@ package primevc.gui.layout;
 // import primevc.core.validators.ValidatingValue;
 #if debug
  import primevc.core.traits.IUIdentifiable;
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
 #end
  import primevc.types.Number;
  import primevc.gui.layout.ILayoutClient;
@@ -142,7 +142,7 @@ class LayoutClient extends Invalidatable
 	public var margin				(default, setMargin)				: Box;
 	
 #if debug
-	public var uuid					(default, null)						: String;
+	public var _oid					(default, null)						: Int;
 #end
 	
 	
@@ -156,7 +156,7 @@ class LayoutClient extends Invalidatable
 		super();
 #if debug
 		name = "LayoutClient" + counter++;
-		uuid = StringUtil.createUUID();
+		_oid = ID.getNext();
 #end
 		maintainAspectRatio = false;
 		invalidatable		= true;
@@ -975,6 +975,6 @@ class LayoutClient extends Invalidatable
 	
 	public static var counter:Int = 0;
 	public var name:String;
-	public function toString() { return name; } //state.current+"_"+name; } // + " - " + uuid; }
+	public function toString() { return name; } //state.current+"_"+name; } // + " - " + _oid; }
 #end
 }

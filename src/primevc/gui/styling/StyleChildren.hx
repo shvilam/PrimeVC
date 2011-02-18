@@ -31,7 +31,7 @@ package primevc.gui.styling;
  import primevc.types.SimpleDictionary;
  import Hash;
 #if (neko || debug)
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
 #end
 #if neko
  import primevc.tools.generator.ICodeFormattable;
@@ -53,7 +53,7 @@ class StyleChildren
 			,	implements ICodeFormattable		#end
 {
 #if (neko || debug)
-	public var uuid					(default, null) : String;
+	public var _oid					(default, null) : Int;
 #end
 	
 	public var elementSelectors		(default, null) : SelectorMapType;
@@ -68,7 +68,7 @@ class StyleChildren
 		)
 	{
 #if (neko || debug)
-		uuid = StringUtil.createUUID();
+		_oid = ID.getNext();
 #end
 		this.elementSelectors	= elementSelectors;
 		this.styleNameSelectors	= styleNameSelectors;

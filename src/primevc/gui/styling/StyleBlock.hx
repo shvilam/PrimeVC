@@ -845,7 +845,7 @@ class StyleBlock extends StyleBlockBase
 #if (debug && !neko)
 	public function toString ()
 	{
-		return uuid+"; "+readProperties();
+		return _oid+"; "+readProperties();
 	}
 #end
 #if debug

@@ -24,54 +24,24 @@
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Danny Wilson	<danny @ onlinetouch.nl>
  */
-package primevc.gui.graphics;
- import primevc.core.traits.Invalidatable;
-#if neko
- import primevc.tools.generator.ICodeGenerator;
-#end
-#if (neko || debug)
- import primevc.utils.ID;
-#end
-
+package primevc.utils;
 
 
 /**
- * Base class for all graphic elements.
+ * Simple Int counter for identifying instances.
  * 
- * @author Ruben Weijers
- * @creation-date Jul 31, 2010
+ * @author Danny Wilson
+ * @creation-date feb 18, 2011
  */
-class GraphicElement extends Invalidatable, implements IGraphicElement 
+class ID
 {
-#if (neko || debug)
-	public var _oid (default, null)	: Int;
+	static var next : Int = 0;
 	
-	
-	public function new ()
+	static inline public function getNext ()
 	{
-		super();
-		_oid = ID.getNext();
+		#if neko if (next == null) next = 0; #end
+		return next++;
 	}
-	
-	
-	override public function dispose ()
-	{
-		_oid = 0;
-		super.dispose();
-	}
-#end
-
-#if neko	
-	public function toCode (code:ICodeGenerator) { Assert.abstract(); }
-#end
-
-
-#if (neko || debug)
-	public function toString () : String				{ return toCSS(); }
-	public function toCSS (prefix:String = "") : String	{ /*Assert.abstract();*/ return "GraphicElement"; }
-	public function isEmpty () : Bool					{ return false; }
-	public function cleanUp () : Void					{}
-#end
 }

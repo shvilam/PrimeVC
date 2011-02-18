@@ -33,7 +33,7 @@ package primevc.gui.styling;
  import primevc.tools.generator.ICodeGenerator;
 #end
 #if (neko || debug)
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
 #end
   using primevc.utils.BitUtil;
 
@@ -47,7 +47,7 @@ package primevc.gui.styling;
 class StyleBlockBase extends Invalidatable, implements IStyleBlock
 {
 #if (debug || neko)
-	public var uuid					(default, null)		: String;
+	public var _oid					(default, null)		: Int;
 #end
 	public var filledProperties		(default, null)		: Int;
 	public var allFilledProperties	(default, null)		: Int;
@@ -57,7 +57,7 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 	{
 		super();
 #if (debug || neko)
-		uuid = StringUtil.createUUID();
+		_oid = ID.getNext();
 #end
 		filledProperties	= 0;
 		allFilledProperties	= 0;
@@ -67,7 +67,7 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 	override public function dispose ()
 	{
 #if (debug || neko)
-		uuid				= null;
+		_oid				= 0;
 #end
 		filledProperties	= 0;
 		allFilledProperties	= 0;

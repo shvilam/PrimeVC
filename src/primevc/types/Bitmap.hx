@@ -46,7 +46,7 @@ typedef FlashBitmap = flash.display.Bitmap;
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICodeGenerator;
  import primevc.types.Reference;
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
   using primevc.types.Reference;
 #end
 
@@ -79,7 +79,7 @@ class Bitmap
 #end
 
 #if (neko || debug)
-	public var uuid (default, null)		: String;
+	public var _oid (default, null)		: Int;
 #end
 	
 	public var state (default, null)	: SimpleStateMachine < BitmapStates >;
@@ -101,7 +101,7 @@ class Bitmap
 	{
 		state	= new SimpleStateMachine < BitmapStates >(empty);
 #if neko
-		uuid	= StringUtil.createUUID();
+		_oid	= ID.getNext();
 #end
 		if (url != null)	setURI( url );
 		if (asset != null)	setClass( asset );
@@ -118,7 +118,7 @@ class Bitmap
 		_data	= null;
 		state	= null;
 #if neko
-		uuid	= null;
+		_oid	= 0;
 #end
 	}
 	

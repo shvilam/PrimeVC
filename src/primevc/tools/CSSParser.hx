@@ -1048,7 +1048,7 @@ class CSSParser
 			currentBlock = styleGroup.children.get(name, type);
 			if (currentBlock == null)
 				currentBlock = addStyleBlock( name, type, styleGroup );
-			//	trace("createStyleBlock for "+name+" = "+type+"; "+currentBlock.uuid);
+			//	trace("createStyleBlock for "+name+" = "+type+"; "+currentBlock._oid);
 			
 			//matched a state
 			if (expr.matched(4) != null)
@@ -1102,7 +1102,7 @@ class CSSParser
 			stateBlock = new StyleBlock( stateType );
 			currentBlock.states.set( stateName, stateBlock );
 			stateBlock.parentStyle = currentBlock;
-		//	trace("create states style block for "+StyleStateFlags.stateToString( stateName )+"; "+stateBlock.uuid);
+		//	trace("create states style block for "+StyleStateFlags.stateToString( stateName )+"; "+stateBlock._oid);
 		}
 		
 		Assert.notNull( stateBlock );

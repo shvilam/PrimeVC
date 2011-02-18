@@ -30,7 +30,7 @@ package primevc.core.geom;
 #if neko
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICodeGenerator;
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
 #end
  import primevc.core.traits.IClonable;
  import primevc.types.Number;
@@ -52,14 +52,14 @@ class Corners	implements IClonable < Corners >
 	public var bottomRight	: Float;
 	
 #if neko
-	public var uuid			(default, null) : String;
+	public var _oid			(default, null) : Int;
 #end
 	
 	
 	public function new ( ?topLeft:Float = 0, ?topRight:Float = Number.INT_NOT_SET, ?bottomRight:Float = Number.INT_NOT_SET, ?bottomLeft:Float = Number.INT_NOT_SET )
 	{
 #if neko
-		this.uuid			= StringUtil.createUUID();
+		this._oid			= ID.getNext();
 #end
 		this.topLeft		= topLeft;
 		this.topRight		= topRight.isSet()		? topRight		: this.topLeft;

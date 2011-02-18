@@ -36,7 +36,7 @@ package primevc.types;
  import primevc.utils.FastArray;
 #if (neko || debug)
  import primevc.tools.generator.ICodeGenerator;
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
  import primevc.utils.TypeUtil;
 #end
   using primevc.utils.FastArray;
@@ -59,14 +59,14 @@ class SimpleDictionary < KType, VType >
 	public var length	(getLength, never)	: Int;
 	
 #if (neko || debug)
-	public var uuid		(default, null)		: String;
+	public var _oid		(default, null)		: Int;
 #end
 	
 	
 	public function new (size:Int = 0, fixed:Bool = false)
 	{
 #if (neko || debug)
-		uuid	= StringUtil.createUUID();
+		_oid	= ID.getNext();
 #end
 		_keys	= FastArrayUtil.create(size, fixed);
 		_values	= FastArrayUtil.create(size, fixed);

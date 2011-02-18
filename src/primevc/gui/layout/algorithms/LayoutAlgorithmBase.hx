@@ -30,7 +30,7 @@ package primevc.gui.layout.algorithms;
 #if neko
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICodeGenerator;
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
 #end
  import primevc.core.dispatcher.Signal0;
  import primevc.core.traits.IDisposable;
@@ -58,7 +58,7 @@ class LayoutAlgorithmBase
 	public var group					(default, setGroup)			: ILayoutContainer;
 	
 #if neko
-	public var uuid						(default, null)				: String;
+	public var _oid						(default, null)				: Int;
 #end
 
 	private var validatePrepared		: Bool;
@@ -67,7 +67,7 @@ class LayoutAlgorithmBase
 	public function new()
 	{
 #if neko
-		uuid				= StringUtil.createUUID();
+		_oid				= ID.getNext();
 #end
 		algorithmChanged	= new Signal0();
 		validatePrepared	= false;
