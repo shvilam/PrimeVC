@@ -180,6 +180,7 @@ class UIComponent extends Sprite, implements IUIComponent
 		if (layout != null)
 			layout.dispose();
 		
+		id.dispose();
 		enabled.dispose();
 		
 #if flash9
@@ -190,6 +191,7 @@ class UIComponent extends Sprite, implements IUIComponent
 #end
 		state			= null;
 		behaviours		= null;
+		id				= null;
 		enabled			= null;
 		graphicData		= null;
 		skin			= null;

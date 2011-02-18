@@ -161,8 +161,11 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (algorithm != null)
 			algorithm.prepareValidate();
 		
-		for (i in 0...children.length)		// <<-- [FIXME] the length of the children can change during the loop. Maybe better to use while loop
+		var childrenLength = children.length;
+		for (i in 0...childrenLength)
 		{
+			Assert.equal(childrenLength, children.length); // Can the length of the children change during the loop?
+			
 			var child = children.getItemAt(i);
 			if (!child.includeInLayout)
 				continue;

@@ -321,7 +321,7 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	
 	private inline function createHoverBindings ()
 	{
-		trace("Instantiate: overBinding = "+ overBinding +", outBinding = "+ outBinding);
+	//	trace("Instantiate: overBinding = "+ overBinding +", outBinding = "+ outBinding);
 		if (overBinding == null)	overBinding	= changeStateToHover.on( getEvents().rollOver,	this ).pos();
 		if (outBinding == null)		outBinding	= clearMouseState	.on( getEvents().rollOut,	this ).pos();
 		outBinding.disable();
@@ -330,7 +330,7 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	
 	private inline function removeHoverBindings ()
 	{
-		trace("Dispose: overBinding = "+ overBinding +", outBinding = "+ outBinding);
+	//	trace("Dispose: overBinding = "+ overBinding +", outBinding = "+ outBinding);
 		if (overBinding != null)	overBinding.dispose();
 		if (outBinding != null)		outBinding.dispose();
 		overBinding = outBinding = null;

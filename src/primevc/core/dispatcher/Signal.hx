@@ -56,6 +56,11 @@ class Signal <FunctionSignature> extends WireList<FunctionSignature>, implements
 		}
 	}
 	
+	public var enabled : Bool;
+	
+	public inline function  enable() enabled = true
+	public inline function disable() enabled = false
+	
 	
 	/**
 	 *  @see IUnbindable.unbind

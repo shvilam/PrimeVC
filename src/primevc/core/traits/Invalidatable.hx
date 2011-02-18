@@ -72,7 +72,7 @@ class Invalidatable implements IInvalidatable
 	
 	public function invalidateCall ( changeFromOther:Int, sender:IInvalidatable ) : Void
 	{
-		Assert.notEqual( sender, this );	// <-- prevend infinite loops
+		Assert.notEqual( sender, this );	// <-- prevent infinite loops
 		invalidate( changeFromOther );
 	}
 }

@@ -176,7 +176,7 @@ class Window implements IDisplayContainer
 #end
 	
 	// FIXME better naming -> looks alot like setFocusOn (the setter)
-	public function setFocus ()		{ window.focus = target; }
+	public inline function setFocus ()		{ window.focus = target; }
 	public inline function removeFocus ()	{ if (focus == target)	{ focus = null; } }
 	
 	

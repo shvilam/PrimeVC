@@ -40,9 +40,9 @@ package primevc.core.dispatcher;
  */
 class Signal1 <A> extends Signal<A->Void>, implements ISender1<A>, implements INotifier<A->Void>
 {
-	public function new();
+	public function new() enabled = true
 	
-	public inline function send(_1:A)
+	public inline function send(_1:A) if (enabled)
 	{
 		//TODO: Run benchmarks and tests if this should really be inlined...
 		
