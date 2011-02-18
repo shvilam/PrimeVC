@@ -70,7 +70,7 @@ class PanelSkin extends Skin<Panel>
 		title	.styleClasses.add("title");
 		closeBtn.styleClasses.add("closeBtn");
 		
-		behaviours.add( new DragMoveBehaviour(owner, null, chrome, 0) );
+		behaviours.add( new DragMoveBehaviour(owner, null, chrome) );
 		
 		trace("created panel skin");
 		owner.close.send.on( closeBtn.userEvents.mouse.click, this );
