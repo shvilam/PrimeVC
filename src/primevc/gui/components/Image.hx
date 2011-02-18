@@ -158,6 +158,7 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 	private inline function updateSize ()
 	{
 		var l = layout.as(AdvancedLayoutClient);
+		
 		if (data != null && data.state.is( BitmapStates.ready ))
 		{
 	//		trace(this+"; "+data.data.width+", "+data.data.height+"; expl size? "+l.explicitWidth+", "+l.explicitHeight+"; "+l.state.current+"; layout: "+layout);
@@ -177,7 +178,6 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 	
 	private function bitmapStateChangeHandler (newState:BitmapStates, oldState:BitmapStates)
 	{
-	//	trace(this+" --> "+oldState +" -> "+ newState + " .... "+data.state.current);
 		switch (newState)
 		{
 			case BitmapStates.ready:	updateSize();
