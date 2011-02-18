@@ -42,7 +42,7 @@ class Signal1 <A> extends Signal<A->Void>, implements ISender1<A>, implements IN
 {
 	public function new() enabled = true
 	
-	public inline function send(_1:A) if (enabled)
+	public #if !debug inline #end function send(_1:A) if (enabled)
 	{
 		//TODO: Run benchmarks and tests if this should really be inlined...
 		
