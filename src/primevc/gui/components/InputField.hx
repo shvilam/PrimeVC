@@ -171,9 +171,11 @@ class InputField <VOType> extends DataButton <VOType>
 		
 	//	Assert.notNull( vo.value );
 		
+		updateLabelBinding.disable();
 		fieldBinding.disable();
 		updateVO();
 		getRevertableData().commitEdit();
+		updateLabelBinding.enable();
 		
 		hasFocus = false;
 		updateLabel( vo.value, vo.value );
@@ -190,9 +192,13 @@ class InputField <VOType> extends DataButton <VOType>
 			return;
 		
 		updateLabelBinding.disable();
+		fieldBinding.disable();
+		
 		updateVO();
 		getRevertableData().commitEdit();
 		getRevertableData().beginEdit();
+		
+		fieldBinding.enable();
 		updateLabelBinding.enable();
 	}
 	
