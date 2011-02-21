@@ -111,9 +111,9 @@ class URI
 	private inline function setFragment(v)	{ string = null; return fragment = v; }
 
 	/** Returns true if this URI has a scheme and thus is a URL **/
-	public function isURL() : Bool {
-		return scheme.notNull();
-	}
+	public inline function isURL() : Bool			{ return scheme.notNull(); }
+	/** Returns true if the host of URI is the URI, so when the port, path, query and fragment are empty **/
+	public inline function hostIsURI () : Bool		{ return port == -1 && path == null && query == null && fragment == null; }
 	
 	/** Returns the string after the last dot in the path.
 	 	Returns an empty string if it has no dots in the path.
@@ -300,6 +300,9 @@ class URI
 		}
 		else
 			path = str.substr(pos);
+		
+		if (path == "")
+			path = null;
 		
 		return this;
 	}

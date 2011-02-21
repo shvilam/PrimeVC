@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
+ import primevc.core.dispatcher.Wire;
  import primevc.core.Bindable;
  import primevc.types.Bitmap;
   using primevc.utils.Bind;
@@ -56,6 +57,8 @@ class DataButton <DataType> extends Button, implements IItemRenderer <DataType>
 	public var getLabelForVO								: DataType -> String;
 	public var defaultLabel		(default, setDefaultLabel)	: String;
 	
+	private var updateLabelBinding							: Wire<Dynamic>;
+	
 	
 	public function new (id:String = null, defaultLabel:String = null, icon:Bitmap = null, vo:DataType = null)
 	{
@@ -67,6 +70,11 @@ class DataButton <DataType> extends Button, implements IItemRenderer <DataType>
 	
 	override public function dispose ()
 	{
+		if (updateLabelBinding != null) {
+			updateLabelBinding.dispose();
+			updateLabelBinding = null;
+		}
+		
 		vo.dispose();
 		vo = null;
 		super.dispose();
@@ -76,7 +84,7 @@ class DataButton <DataType> extends Button, implements IItemRenderer <DataType>
 	override private function init ()
 	{
 		super.init();
-		updateLabel.on( vo.change, this );
+		updateLabelBinding = updateLabel.on( vo.change, this );
 		updateLabel(vo.value, vo.value);
 	}
 	

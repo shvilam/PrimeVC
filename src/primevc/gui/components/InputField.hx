@@ -189,9 +189,11 @@ class InputField <VOType> extends DataButton <VOType>
 		if (!hasFocus)
 			return;
 		
+		updateLabelBinding.disable();
 		updateVO();
 		getRevertableData().commitEdit();
 		getRevertableData().beginEdit();
+		updateLabelBinding.enable();
 	}
 	
 	

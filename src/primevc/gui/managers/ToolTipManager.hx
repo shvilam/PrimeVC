@@ -90,26 +90,30 @@ class ToolTipManager implements IDisposable
 		Assert.notNull(obj, "Target object can't be null with label "+label);
 		Assert.notNull(label, "Tooltip-label can't be null for object "+obj);
 #end
-		if (label.value == "" || label.value == null) {
+		
+		if (isLabelEmpty(label.value))
+		{
 			hide();
-			return;
+			showAfterChange.onceOn( label.change, this );
+		}
+		else
+		{
+			//enable mouse-follower
+			mouseMove.enable();
+		
+			//give label the correct text
+			toolTip.data.bind( label );
+		
+			if (!isVisible())
+				window.children.add( toolTip );
+			
+			//move tooltip to right position
+			updatePosition();
 		}
 		
 		lastObj		= obj;
 		lastLabel	= label;
-		
-		//enable mouse-follower
-		mouseMove.enable();
-		
-		//give label the correct text
-		toolTip.data.bind( label );
 		targetRemovedHandler.on( obj.displayEvents.removedFromStage, this );
-		
-		if (!isVisible())
-			window.children.add( toolTip );
-		
-		//move tooltip to right position
-		updatePosition();
 	}
 	
 	
@@ -134,10 +138,29 @@ class ToolTipManager implements IDisposable
 	}
 	
 	
+	private inline function isLabelEmpty (label:String)
+	{
+		return label == "" || label == null;
+	}
+	
+	
+	/**
+	 * Method is called when the tooltip of the lastObj is changed and the 
+	 * previous value of the tooltip was empty
+	 */
+	private function showAfterChange ()
+	{
+		show(lastObj, lastLabel);
+	}
+	
+	
 	private inline function removeListeners ()
 	{
 		if (lastObj != null)	lastObj.displayEvents.removedFromStage.unbind( this );
-		if (lastLabel != null)	toolTip.data.unbind( lastLabel );
+		if (lastLabel != null) {
+			toolTip.data.unbind( lastLabel );
+			lastLabel.change.unbind(this);
+		}
 	}
 	
 	
@@ -165,6 +188,7 @@ class ToolTipManager implements IDisposable
 		
 		toolTip.x = newX;
 		toolTip.y = newY; // - toolTip.height - 5;
+	//	trace(newX+", "+newY);
 	}
 	
 	
