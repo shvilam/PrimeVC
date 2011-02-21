@@ -65,7 +65,7 @@ class Slider extends SliderBase
 	{
 		super.init();
 		behaviours.add( new UpdateMaskBehaviour( maskShape, this ) );
-		dragBtn.behaviours.add( new DirectToolTipBehaviour( dragBtn, label ) );
+	//	dragBtn.behaviours.add( new DirectToolTipBehaviour( dragBtn, label ) );
 	}
 	
 	

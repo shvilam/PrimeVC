@@ -72,11 +72,8 @@ class PanelSkin extends Skin<Panel>
 		
 		behaviours.add( new DragMoveBehaviour(owner, null, chrome) );
 		
-		trace("created panel skin");
 		owner.close.send.on( closeBtn.userEvents.mouse.click, this );
 		title.data.bind( owner.label );
-		
-		trace(owner.label.value);
 	}
 	
 	

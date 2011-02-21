@@ -220,7 +220,7 @@ class SliderBase extends UIDataContainer < DataType >
 	override private function createChildren ()
 	{
 		dragBtn = new Button();
-		dragBtn.layout.includeInLayout = false;
+	//	dragBtn.layout.includeInLayout = false;
 		dragBtn.id.value = id.value + "Btn";
 		
 		layoutContainer.children.add( dragBtn.layout );
