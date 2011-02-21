@@ -257,9 +257,11 @@ class StringColorUtil
 	/**
 	 * Converts a hexadecimal string to a RGBA value
 	 */
-	public static inline function rgba (v:String) : RGBA {
+	public static inline function rgba (v:String) : RGBA
+	{
 		if (v.length == 3)
-			v += v;
+			v = v.charAt(0) + v.charAt(0) + v.charAt(1) + v.charAt(1) + v.charAt(2) + v.charAt(2);
+		
 		if (v.length == 6)
 			v += "FF";
 		
