@@ -147,6 +147,10 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	{
 		var states = getStates();
 		
+		if (target.is(nl.onlinetouch.view.components.spread.frames.Frame))
+			trace(target+"; changes: "+Flags.readProperties(changes)+"; states: "+Flags.readProperties(states.filledProperties));
+		
+		
 		//
 		// DISABLED STATE
 		//
@@ -205,7 +209,9 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 			var downChanged		= changes.has( Flags.DOWN );
 			var hasHoverState	= states.has( Flags.HOVER );
 			var hasDownState	= states.has( Flags.DOWN );
-		
+			
+			if (target.is(nl.onlinetouch.view.components.spread.frames.Frame))
+				trace(target+"; hoverchanges: "+hoverChanged+"; hasHover: "+hasHoverState+"; mouseState: "+mouseState);
 	
 			// MANAGE STATE OBJECT
 			if (hasHoverState || hasDownState)
@@ -213,6 +219,10 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 					mouseState = target.style.createState();
 			else
 				if (mouseState != null) {
+					if (target.is(nl.onlinetouch.view.components.spread.frames.Frame)) {
+						trace("clear mousestate");
+						Assert.that( false, target+"; hoverchanges: "+hoverChanged+"; hasHover: "+hasHoverState+"; downchanges: "+downChanged+"; hasDown: "+hasDownState+"; mouseState: "+mouseState );
+					}
 					mouseState.dispose();
 					mouseState = null;
 				}
@@ -325,6 +335,8 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 		if (overBinding == null)	overBinding	= changeStateToHover.on( getEvents().rollOver,	this ).pos();
 		if (outBinding == null)		outBinding	= clearMouseState	.on( getEvents().rollOut,	this ).pos();
 		outBinding.disable();
+		if (target.is(nl.onlinetouch.view.components.spread.frames.Frame))
+			trace(target+"; over enabled? "+overBinding.isEnabled()+"; outEnabled: "+outBinding.isEnabled());
 	}
 	
 	
