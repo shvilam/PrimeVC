@@ -28,6 +28,7 @@
  */
 package primevc.avm2.display;
  import flash.display.DisplayObject;
+ import flash.display.LoaderInfo;
  import flash.net.URLRequest;
  import flash.system.LoaderContext;
  import flash.utils.ByteArray;
@@ -51,6 +52,7 @@ class Loader implements IDisposable
 	public var bytesLoaded	(getBytesLoaded, never)		: UInt;
 	public var bytesTotal	(getBytesTotal, never)		: UInt;
 	public var isLoaded		(getIsLoaded, never)		: Bool;
+	public var info			(getInfo, never)			: LoaderInfo;
 	
 	public var content		(getContent, never)			: DisplayObject;
 	private var loader		: FlashLoader;
@@ -59,7 +61,7 @@ class Loader implements IDisposable
 	public function new ()
 	{
 		loader	= new FlashLoader();
-		events	= new LoaderEvents( loader.contentLoaderInfo );
+		events	= new LoaderEvents( info );
 	}
 	
 	
@@ -84,9 +86,10 @@ class Loader implements IDisposable
 	// GETTERS / SETTERS
 	//
 	
-	private inline function getBytes ()				{ return loader.contentLoaderInfo.bytes; }
-	private inline function getBytesLoaded ()		{ return loader.contentLoaderInfo.bytesLoaded; }
-	private inline function getBytesTotal ()		{ return loader.contentLoaderInfo.bytesTotal; }
+	private inline function getInfo ()				{ return loader.contentLoaderInfo; }
+	private inline function getBytes ()				{ return info.bytes; }
+	private inline function getBytesLoaded ()		{ return info.bytesLoaded; }
+	private inline function getBytesTotal ()		{ return info.bytesTotal; }
 	private inline function getContent ()			{ return cast loader; } //.contentLoaderInfo.content; }
 	
 	private inline function getIsLoaded ()			{ return bytesTotal > 0 && bytesLoaded >= bytesTotal; }

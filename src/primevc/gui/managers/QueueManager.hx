@@ -164,6 +164,7 @@ class QueueManager implements IDisposable
 			curCell	= curCell.nextValidatable;
 			i++;
 		}
+		s += "\n\t\t\tqueue length: "+i;
 		trace(s);
 	}
 	

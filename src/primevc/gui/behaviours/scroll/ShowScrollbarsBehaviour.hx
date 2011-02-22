@@ -155,34 +155,41 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 		else if (!hasVerScrollbar && needVerScrollbar)		scrollbarVer = addScrollBar( Direction.vertical, scrollbarVer );
 		
 		
-		var l = target.layout;
-		
-		//update position and size of the scrollbars
-		if (needHorScrollbar)
+		if (needHorScrollbar || needVerScrollbar)
 		{
-			var scrollBar	= scrollbarHor.layout.outerBounds;
+			var l = target.layout;
 			var bounds		= l.innerBounds;
+		//	var maxBounds	= l.parent.innerBounds;
 			
-			scrollBar.invalidatable = false;
-			scrollBar.width		= bounds.width - (needVerScrollbar ? scrollbarVer.layout.outerBounds.width : 0);
-			scrollBar.top		= l.getVerPosition() + bounds.height - scrollBar.height;
-			scrollBar.left		= l.getHorPosition();
-			scrollBar.invalidatable = true;
-		}	
+			var width		= bounds.width; //IntMath.min(bounds.width, maxBounds.width);
+			var height		= bounds.height; //IntMath.min(bounds.height, maxBounds.height);
+			
 		
-		if (needVerScrollbar)
-		{
-			var scrollBar	= scrollbarVer.layout.outerBounds;
-			var bounds		= l.innerBounds;
+			//update position and size of the scrollbars
+			if (needHorScrollbar)
+			{
+				var scrollBar		= scrollbarHor.layout.outerBounds;
+				scrollBar.invalidatable = false;
+				scrollBar.width		= width - (needVerScrollbar ? scrollbarVer.layout.outerBounds.width : 0);
+				scrollBar.top		= l.getVerPosition() + height - scrollBar.height;
+				scrollBar.left		= l.getHorPosition();
+				scrollBar.invalidatable = true;
+			}	
+		
+			if (needVerScrollbar)
+			{
+				var scrollBar	= scrollbarVer.layout.outerBounds;
+				//update padding to keep an empty space at the bottom of the bar with the height of the horizontal scrollbar
+				scrollbarVer.layout.padding.bottom = needHorScrollbar ? scrollbarHor.layout.outerBounds.height : 0;
 			
-			//update padding to keep an empty space at the bottom of the bar with the height of the horizontal scrollbar
-			scrollbarVer.layout.padding.bottom = needHorScrollbar ? scrollbarHor.layout.outerBounds.height : 0;
+				scrollBar.invalidatable = false;
+				scrollBar.height	= height;
+				scrollBar.left		= l.getHorPosition() + width - scrollBar.width;
+				scrollBar.top		= l.getVerPosition();
+				scrollBar.invalidatable = true;
 			
-			scrollBar.invalidatable = false;
-			scrollBar.height	= bounds.height;
-			scrollBar.left		= l.getHorPosition() + bounds.width - scrollBar.width;
-			scrollBar.top		= l.getVerPosition();
-			scrollBar.invalidatable = true;
+			//	trace(scrollBar.left+", "+scrollBar.top+"; "+width+', '+height);
+			}
 		}
 	}
 #end
