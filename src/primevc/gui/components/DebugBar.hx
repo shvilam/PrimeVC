@@ -96,10 +96,12 @@ class DebugBar extends UIContainer
 	 */
 	private function inspectAllLayouts ()
 	{
-		trace("beginInspectingLayout");
+		var s = "\n\tbeginInspectingLayout";
 		try {
-			var counter = inspectIfContainerIsValidated(window.as(UIWindow).layoutContainer);
-			trace("finished InspectingLayout: "+counter+" valid layouts");
+			var result = inspectIfContainerIsValidated(window.as(UIWindow).layoutContainer);
+			s += result.errors;
+			s += "\n\tfinished InspectingLayout: "+result.valid+" valid layouts. "+result.invalid + " invalid layouts";
+			trace(s);
 		} catch (e:Error) {
 			trace("[ERROR INSPECTING LAYOUT] :: "+e.errorID+": "+e.message);
 			trace(e.getStackTrace());
@@ -107,26 +109,31 @@ class DebugBar extends UIContainer
 	}
 	
 	
-	private function inspectIfContainerIsValidated (cont:LayoutContainer, counter:Int = 0)
+	private function inspectIfContainerIsValidated (cont:LayoutContainer, result:Dynamic = null) : Dynamic
 	{
-		inspectIfLayoutIsValidated( cont );
-		counter++;
+		if (result == null)
+			result = {valid: 0, invalid: 0, errors: ""};
+		
+		inspectIfLayoutIsValidated( cont, result );
 		
 		for (child in cont.children)
-			if (Std.is(child, LayoutContainer)) {
-				counter = inspectIfContainerIsValidated(cast child, counter);
-			} else {
-				inspectIfLayoutIsValidated( child );
-				counter++;
-			}
+			if (Std.is(child, LayoutContainer))
+				inspectIfContainerIsValidated(cast child, result);
+			else
+				inspectIfLayoutIsValidated( child, result );
 		
-		return counter;
+		return result;
 	}
 	
 	
-	private inline function inspectIfLayoutIsValidated (layout:LayoutClient)
+	private inline function inspectIfLayoutIsValidated (layout:LayoutClient, result:Dynamic)
 	{
-		Assert.that( layout.state.is( ValidateStates.validated ), "layout of "+layout+" is "+layout.state.current+" instead of validated. Invalidated properties: "+layout.readChanges());
+		if (!layout.state.is( ValidateStates.validated )) {
+			result.errors += "\n\t\t[ "+result.invalid+" ]layout of "+layout+" is "+layout.state.current+" instead of validated. Invalidated properties: "+layout.readChanges();
+			result.invalid++;
+		}
+		else
+			result.valid++;
 	}
 	
 	
