@@ -30,7 +30,6 @@ package primevc.gui.core;
 #if (flash9 && stats)
  import net.hires.debug.Stats;
 #end
- import primevc.core.geom.IntRectangle;
  import primevc.core.traits.IIdentifiable;
  import primevc.core.Bindable;
  import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
@@ -112,7 +111,6 @@ class UIWindow extends Window
 	 * Reference to bgShape.graphics.. Needed for compatibility with IDrawable
 	 */
 	public var graphics				(default, null)					: flash.display.Graphics;
-	public var rect					(default, null)					: IntRectangle;
 	
 	public var style				(default, null)					: UIElementStyle;
 	public var styleClasses			(default, null)					: SimpleList<String>;
@@ -139,7 +137,6 @@ class UIWindow extends Window
 		toolTip			= new ToolTipManager(this);
 		
 		behaviours		= new BehaviourList();
-		rect			= new IntRectangle();
 		
 #if flash9		
 		graphicData		= new GraphicProperties(rect);

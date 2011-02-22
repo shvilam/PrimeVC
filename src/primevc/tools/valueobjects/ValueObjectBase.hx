@@ -119,6 +119,8 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 				while (p.notNull() && p.parent.notNull() && p.parent != pathNode) p = p.parent;
 				untyped p.parent = pathNode;
 			}
+			else untyped change.parent = pathNode;
+			
 			changeSignal.send(change);
 		}
 	}

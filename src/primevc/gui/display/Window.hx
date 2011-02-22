@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.display;
+ import primevc.core.geom.IntRectangle;
 #if flash9
  import flash.events.Event;
  import primevc.core.geom.Point;
@@ -98,6 +99,7 @@ class Window implements IDisplayContainer
 	
 	public var window			(default, setWindow)	: Window;
 	public var container		(default, setContainer)	: IDisplayContainer;
+	public var rect				(default, null)			: IntRectangle;
 	public var displayEvents	(default, null)			: DisplayEvents;
 	
 	public var userEvents		(default, null)			: UserEvents;
@@ -114,6 +116,7 @@ class Window implements IDisplayContainer
 		window			= this;
 		container		= this;
 		
+		rect			= new IntRectangle();
 		children		= new DisplayList( target, this );
 		displayEvents	= new DisplayEvents( target );
 		userEvents		= new UserEvents( target );
