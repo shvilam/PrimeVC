@@ -33,6 +33,8 @@ package primevc.gui.components;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.states.ValidateStates;
+ import primevc.gui.events.KeyboardEvents;
+ import primevc.gui.input.KeyCodes;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
@@ -78,6 +80,8 @@ class DebugBar extends UIContainer
 		
 		system.invalidation.traceQueues = system.rendering.traceQueues = true;
 		
+		handleHotkeys.on ( window.userEvents.key.down, this );
+		
 		inspectAllLayouts	.on( inspectLayoutBtn.userEvents.mouse.click, this );
 		forceAllValidation	.on( validateLayoutBtn.userEvents.mouse.click, this );
 		inspectStage		.on( inspectStageBtn.userEvents.mouse.click, this );
@@ -85,6 +89,14 @@ class DebugBar extends UIContainer
 		system.rendering	.traceQueue	.on( showRenderingBtn.userEvents.mouse.click, this );
 	}
 	
+	
+	function handleHotkeys (k:KeyboardState)
+	{
+		if (k.ctrlKey() && k.shiftKey()) switch (k.keyCode()) {
+			case KeyCodes.V: forceAllValidation();
+			case KeyCodes.I: inspectAllLayouts();
+		}
+	}
 	
 	//
 	// DEBUG METHODS
@@ -98,7 +110,12 @@ class DebugBar extends UIContainer
 	{
 		var s = "\n\tbeginInspectingLayout";
 		try {
-			var result = inspectIfContainerIsValidated(window.as(UIWindow).layoutContainer);
+			var result = inspectIfContainerIsValidated(window.as(UIWindow).popupLayout);
+			s += "\n\t- popupLayout:";
+			s += result.errors;
+			s += "\n\tfinished Inspecting popupsLayout: "+result.valid+" valid layouts. "+result.invalid + " invalid layouts";
+			
+			result = inspectIfContainerIsValidated(window.as(UIWindow).layoutContainer);
 			s += result.errors;
 			s += "\n\tfinished InspectingLayout: "+result.valid+" valid layouts. "+result.invalid + " invalid layouts";
 			trace(s);
@@ -140,7 +157,8 @@ class DebugBar extends UIContainer
 	private function forceAllValidation ()
 	{
 		trace("begin force validation");
-		var counter = forceValidationOnContainer(window.as(UIWindow).layoutContainer);
+		var counter  = forceValidationOnContainer(window.as(UIWindow).layoutContainer);
+			counter += forceValidationOnContainer(window.as(UIWindow).popupLayout);
 		trace("finished forcing validation: revalidated "+counter+" layouts");
 		inspectAllLayouts();
 	}
