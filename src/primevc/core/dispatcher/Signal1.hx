@@ -67,7 +67,7 @@ class Signal1 <A> extends Signal<A->Void>, implements ISender1<A>, implements IN
 					 	w.handler(_1);
 				}
 				#if (flash9 && debug) catch (e : flash.errors.TypeError) {
-					throw "Wrong argument type ("+ e +") for " + w;
+					throw "Wrong argument type ("+ e +") for " + w+";\n\tstacktrace: "+e.getStackTrace()+"\n";
 				}
 				#end
 				

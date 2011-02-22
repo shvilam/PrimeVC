@@ -64,7 +64,7 @@ class Signal0 extends Signal<Void->Void>, implements ISender0, implements INotif
 					w.handler();
 				}
 				#if (flash9 && debug) catch (e : flash.errors.TypeError) {
-					throw "Wrong argument type ("+ e +") for " + w;
+					throw "Wrong argument type ("+ e +") for " + w+";\n\tstacktrace: "+e.getStackTrace()+"\n";
 				}
 				#end
 				

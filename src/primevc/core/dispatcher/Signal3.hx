@@ -67,7 +67,7 @@ class Signal3 <A,B,C> extends Signal<A->B->C->Void>, implements ISender3<A,B,C>,
 					 	w.handler(_1,_2,_3);
 				}
 				#if (flash9 && debug) catch (e : flash.errors.TypeError) {
-					throw "Wrong argument type(s) ("+ e +") for " + w;
+					throw "Wrong argument type(s) ("+ e +") for " + w+";\n\tstacktrace: "+e.getStackTrace()+"\n";
 				}
 				#end
 				
