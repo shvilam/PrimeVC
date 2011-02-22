@@ -85,32 +85,40 @@ class Slider extends SliderBase
 	/**
 	 * Shape that is used to fill the part of the slider that is slided
 	 */
-	private var background	: UIGraphic;
-	private var maskShape	: VectorShape;
+	private var background			: UIGraphic;
+	private var maskedBackground	: UIGraphic;
+	private var maskShape			: VectorShape;
 	
 	
 	override private function createChildren ()
 	{
-		maskShape	= new VectorShape();
-		background	= new UIGraphic();
+		maskShape			= new VectorShape();
+		background			= new UIGraphic();
+		maskedBackground	= new UIGraphic();
+		
+		background.styleClasses.add("background");
+		maskedBackground.styleClasses.add("maskedBackground");
 		
 #if debug
-		background.id.value	= id.value + "Background";
+		background.id.value = id.value + "Background";
+		maskedBackground.id.value = id.value + "MaskedBackground";
 #end
 		
 		layoutContainer.children.add( background.layout );
+		layoutContainer.children.add( maskedBackground.layout );
 		children.add( background );
+		children.add( maskedBackground );
 		children.add( maskShape );
 
-		background.mask = maskShape;
+		maskedBackground.mask = maskShape;
 		super.createChildren();
 	}
 	
 	
 	override private function updateChildren ()
 	{
-		if (direction == horizontal)	background.layout.percentWidth = percentage;
-		else							background.layout.percentHeight = percentage;
+		if (direction == horizontal)	maskedBackground.layout.percentWidth = percentage;
+		else							maskedBackground.layout.percentHeight = percentage;
 		
 		dragBtn.data.value = (data.value * 100).roundFloat() + "%";
 		return super.updateChildren();
