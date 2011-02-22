@@ -294,12 +294,22 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 	
 	private function checkToDeselect (mouseObj:MouseState)
 	{
-		if (!mouseObj.target.is(IUIElement))
+		if (!mouseObj.target.is(IUIElement)) {
 			deselect();
-		else {
+		}
+		else
+		{
 			var target = mouseObj.target.as(IUIElement);
-			if (target != this && target != list && !list.content.children.has(target))
-				deselect();
+			if (target != this && target != list)
+			{
+				var displayTarget = target.container;
+				while (displayTarget != null && displayTarget != list)
+				 	displayTarget = displayTarget.container;
+				
+				if (displayTarget != list)// && !list.content.children.has(target))
+					deselect();
+			//	else: mouse event target is a descendant of list, do nothing
+			}
 		}
 	}
 }
