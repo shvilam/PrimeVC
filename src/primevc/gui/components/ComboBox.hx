@@ -303,10 +303,10 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 			if (target != this && target != list)
 			{
 				var displayTarget = target.container;
-				while (displayTarget != null && displayTarget != list)
+				while (displayTarget != null && displayTarget != displayTarget.window && displayTarget != list)
 				 	displayTarget = displayTarget.container;
 				
-				if (displayTarget != list)// && !list.content.children.has(target))
+				if (displayTarget != list) // && !list.content.children.has(target))
 					deselect();
 			//	else: mouse event target is a descendant of list, do nothing
 			}
