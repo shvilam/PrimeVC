@@ -46,11 +46,12 @@ package primevc.gui.components;
  */
 class DebugBar extends UIContainer
 {
-	private var inspectStageBtn		: Button;
-	private var inspectLayoutBtn	: Button;
-	private var validateLayoutBtn	: Button;
-	private var showInvalidatedBtn	: Button;
-	private var showRenderingBtn	: Button;
+	private var inspectStageBtn			: Button;
+	private var inspectLayoutBtn		: Button;
+	private var validateLayoutBtn		: Button;
+	private var showInvalidatedBtn		: Button;
+	private var showRenderingBtn		: Button;
+	private var toggleTraceLayoutBtn	: Button;
 	
 	
 	override private function createChildren ()
@@ -58,31 +59,34 @@ class DebugBar extends UIContainer
 #if !debug
 		Assert.that(false, "Can't use DebugBar without being in debugmode");
 #end
-		inspectStageBtn		= new Button("inspectStageBtn", "Inspect Stage");
-		inspectLayoutBtn	= new Button("inspectLayoutBtn", "Controleer layout");
-		validateLayoutBtn	= new Button("validateLayoutBtn", "Forceer layout validatie");
-		showInvalidatedBtn	= new Button("showInvalidatedBtn", "Trace invalidated queue");
-		showRenderingBtn	= new Button("showRenderingBtn", "Trace render queue");
+		inspectStageBtn			= new Button("inspectStageBtn", "Inspect Stage");
+		inspectLayoutBtn		= new Button("inspectLayoutBtn", "Controleer layout");
+		validateLayoutBtn		= new Button("validateLayoutBtn", "Forceer layout validatie");
+		showInvalidatedBtn		= new Button("showInvalidatedBtn", "Trace invalidated queue");
+		showRenderingBtn		= new Button("showRenderingBtn", "Trace render queue");
+		toggleTraceLayoutBtn	= new Button("toggleTraceValidationBtn", "Trace layout validation");
 		
 		layoutContainer.children.add( inspectStageBtn.layout );
 		layoutContainer.children.add( inspectLayoutBtn.layout );
 		layoutContainer.children.add( validateLayoutBtn.layout );
 		layoutContainer.children.add( showInvalidatedBtn.layout );
 		layoutContainer.children.add( showRenderingBtn.layout );
+		layoutContainer.children.add( toggleTraceLayoutBtn.layout );
 		
 		children.add( inspectStageBtn );
 		children.add( inspectLayoutBtn );
 		children.add( validateLayoutBtn );
 		children.add( showInvalidatedBtn );
 		children.add( showRenderingBtn );
+		children.add( toggleTraceLayoutBtn );
 		
-		system.invalidation.traceQueues = system.rendering.traceQueues = true;
 		
-		inspectAllLayouts	.on( inspectLayoutBtn.userEvents.mouse.click, this );
-		forceAllValidation	.on( validateLayoutBtn.userEvents.mouse.click, this );
-		inspectStage		.on( inspectStageBtn.userEvents.mouse.click, this );
-		system.invalidation	.traceQueue.on( showInvalidatedBtn.userEvents.mouse.click, this );
-		system.rendering	.traceQueue	.on( showRenderingBtn.userEvents.mouse.click, this );
+		inspectAllLayouts		.on( inspectLayoutBtn.userEvents.mouse.click, this );
+		forceAllValidation		.on( validateLayoutBtn.userEvents.mouse.click, this );
+		inspectStage			.on( inspectStageBtn.userEvents.mouse.click, this );
+		traceInvalidationQueue	.on( showInvalidatedBtn.userEvents.mouse.click, this );
+		traceRenderingQueue		.on( showRenderingBtn.userEvents.mouse.click, this );
+		toggleTraceLayout		.on( toggleTraceLayoutBtn.userEvents.mouse.click, this );
 	}
 	
 	
@@ -183,5 +187,40 @@ class DebugBar extends UIContainer
 #if AlconTrace
 		com.hexagonstar.util.debug.Debug.inspect( window );
 #end
+	}
+	
+	
+	
+	private function traceInvalidationQueue ()
+	{
+		var o = system.invalidation.traceQueues;
+		system.invalidation.traceQueues = true;
+		system.invalidation.traceQueue();
+		system.invalidation.traceQueues = o;
+	}
+	
+	
+	private function traceRenderingQueue ()
+	{
+		var o = system.rendering.traceQueues;
+		system.rendering.traceQueues = true;
+		system.rendering.traceQueue();
+		system.rendering.traceQueues = o;
+	}
+	
+	
+	private function toggleTraceLayout ()
+	{
+		toggleTraceLayoutBtn.toggleSelect();
+		if (toggleTraceLayoutBtn.selected.value)
+		{
+			system.invalidation.traceQueues = true;
+			toggleTraceLayoutBtn.data.value = "Stop Tracing layout validation";
+		}
+		else
+		{
+			system.invalidation.traceQueues = false;
+			toggleTraceLayoutBtn.data.value = "Trace layout validation";
+		}
 	}
 }

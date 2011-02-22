@@ -88,7 +88,7 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 	{
 		var children	= target.container.children;
 		var depth		= children.indexOf( target ) + 1;
-	//	var layout		= parentLayout.children;
+	//	var layout		= target.layout.parent.children;
 	//	var layoutDepth	= layout.indexOf( target.layout ) + 1;
 		
 		if (scrollBar == null)
