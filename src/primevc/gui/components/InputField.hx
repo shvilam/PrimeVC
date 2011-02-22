@@ -191,6 +191,9 @@ class InputField <VOType> extends DataButton <VOType>
 		if (!hasFocus)
 			return;
 		
+		field.removeFocus();
+		return;
+		
 		updateLabelBinding.disable();
 		fieldBinding.disable();
 		

@@ -139,10 +139,10 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 	{
 		Assert.that(isOnStage(), target+"");
 		
-		if (isQueued() && newState == ValidateStates.parent_invalidated)
-			getValidationManager().remove( this );
+	//	if (isQueued() && newState == ValidateStates.parent_invalidated)
+	//		getValidationManager().remove( this );
 		
-		else if (newState == ValidateStates.invalidated)
+		if (newState == ValidateStates.invalidated)
 			invalidate();
 	}
 	
