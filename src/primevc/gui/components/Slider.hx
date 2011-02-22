@@ -82,10 +82,10 @@ class Slider extends SliderBase
 	// CHILDREN
 	//
 	
+	private var background			: UIGraphic;
 	/**
 	 * Shape that is used to fill the part of the slider that is slided
 	 */
-	private var background			: UIGraphic;
 	private var maskedBackground	: UIGraphic;
 	private var maskShape			: VectorShape;
 	
