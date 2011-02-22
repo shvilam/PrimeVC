@@ -352,7 +352,7 @@ class SliderBase extends UIDataContainer < DataType >
 		mouseMoveBinding.enable();
 		
 	//	calculateValue( mouseObj );
-		dragBtn.mouseEnabled				= false;
+	//	dragBtn.mouseEnabled				= false;
 		dragBtn.layout.includeInLayout		= false;
 		sliding.begin.send();
 	}

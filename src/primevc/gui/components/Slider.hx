@@ -65,7 +65,7 @@ class Slider extends SliderBase
 	{
 		super.init();
 		behaviours.add( new UpdateMaskBehaviour( maskShape, this ) );
-	//	dragBtn.behaviours.add( new DirectToolTipBehaviour( dragBtn, label ) );
+		dragBtn.behaviours.add( new DirectToolTipBehaviour( dragBtn, dragBtn.data ) );
 	}
 	
 	
@@ -112,7 +112,7 @@ class Slider extends SliderBase
 		if (direction == horizontal)	background.layout.percentWidth = percentage;
 		else							background.layout.percentHeight = percentage;
 		
-		label.value = percentage.roundFloat() + "%";
+		dragBtn.data.value = (data.value * 100).roundFloat() + "%";
 		return super.updateChildren();
 	}
 	
