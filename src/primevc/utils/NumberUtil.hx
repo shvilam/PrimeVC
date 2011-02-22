@@ -74,11 +74,11 @@ class IntUtil
 	public static inline function notEmpty (value:Int) : Bool	{ return value != Number.EMPTY; }
 	public static inline function isEmpty (value:Int) : Bool	{ return value == Number.EMPTY; }
 #else
-	public static inline function notSet (value:Int) : Bool	{ return value == Number.INT_NOT_SET || value == null; }
-	public static inline function isSet (value:Int) : Bool	{ return value != Number.INT_NOT_SET && value != null; }
+	public static inline function notSet (value:Int) : Bool		{ return value == Number.INT_NOT_SET || value == null; }
+	public static inline function isSet (value:Int) : Bool		{ return value != Number.INT_NOT_SET && value != null; }
 #end
 	
-	public static inline function unset () : Int			{ return Number.INT_NOT_SET; }
+	public static inline function unset () : Int				{ return Number.INT_NOT_SET; }
 	
 	public static inline function getBiggest (var1:Int, var2:Int) : Int		{ return IntMath.max(var1, var2); }
 	public static inline function getSmallest (var1:Int, var2:Int) : Int	{ return IntMath.min(var1, var2); }

@@ -180,11 +180,11 @@ class SliderBase extends UIDataContainer < DataType >
 	
 	override public function validate ()
 	{
-		var changes = changes;
+		var changes = this.changes;
 		super.validate();
 		
 		if (changes.has(UIElementFlags.PERCENTAGE))
-			if (!updateChildren())
+			if (!updateChildren())		//updating children fails if the width or height in layout isn't set yet
 				invalidate(UIElementFlags.PERCENTAGE);
 		
 		if (changes.has(UIElementFlags.DIRECTION))
@@ -283,6 +283,7 @@ class SliderBase extends UIDataContainer < DataType >
 			Assert.that( v >= 0, v + " < 0" );
 			percentage = v;
 			invalidate(UIElementFlags.PERCENTAGE);
+		//	updateChildren();
 		}
 		return v;
 	}
@@ -474,4 +475,9 @@ class SliderBase extends UIDataContainer < DataType >
 		}
 		return true;
 	}
+	
+	
+#if debug
+	override public function toString ()	{ return id.value+"( "+direction+" )"; }
+#end
 }

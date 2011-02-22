@@ -103,7 +103,7 @@ class ScrollBar extends SliderBase
 	
 	override public function validate ()
 	{
-		var changes = changes;
+		var changes = this.changes;
 		super.validate();
 		if (changes.has( UIElementFlags.DIRECTION | UIElementFlags.TARGET ))
 			createTargetBindings();
@@ -112,8 +112,8 @@ class ScrollBar extends SliderBase
 	
 	private function removeTargetBindings ()
 	{
-		if (target == null)
-			return;
+	//	if (target == null)
+	//		return;
 		
 		if (scrollBinding != null)			{ scrollBinding.dispose();			scrollBinding = null; }
 		if (resizeBinding != null)			{ resizeBinding.dispose();			resizeBinding = null; }
@@ -201,6 +201,7 @@ class ScrollBar extends SliderBase
 	 */
 	private function updateBtnHeight (layoutChanges:Int)
 	{
+	//	trace(target.scrollableLayout.verScrollable()+"; "+dragBtn.layout.percentHeight+"; "+layoutChanges.has( LayoutFlags.HEIGHT_PROPERTIES )+"; "+layoutChanges);
 		if (layoutChanges == -1 || layoutChanges.has( LayoutFlags.HEIGHT_PROPERTIES ))
 		{
 			var l			= target.scrollableLayout;
