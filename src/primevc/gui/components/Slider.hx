@@ -111,6 +111,8 @@ class Slider extends SliderBase
 	{
 		if (direction == horizontal)	background.layout.percentWidth = percentage;
 		else							background.layout.percentHeight = percentage;
+		
+		label.value = percentage.roundFloat() + "%";
 		return super.updateChildren();
 	}
 	
@@ -131,12 +133,12 @@ class Slider extends SliderBase
 	}
 	
 	
-	override public function validate ()
+/*	override public function validate ()
 	{
-		var changes = changes;
+		var changes = this.changes;
 		super.validate();
 		
 		if (changes.has(UIElementFlags.PERCENTAGE))
 			label.value = percentage.roundFloat() + "%";
-	}
+	}*/
 }

@@ -112,3 +112,26 @@ Panel {
 Panel .closeBtn {
 	skin: Class( primevc.gui.components.skins.ButtonIconSkin );
 }
+
+
+
+/***************
+ * DEBUGBAR
+ **************/
+
+DebugBar {
+	width: 100%;
+	background: #111;
+	algorithm: float-hor(center, center);
+}
+
+DebugBar Button {
+	background: #ddd;
+	skin: Class( primevc.gui.components.skins.ButtonLabelSkin );
+	color: #333;
+	height: 20px;
+	margin: 5px;
+}
+DebugBar Button:hover {
+	background: #fff;
+}

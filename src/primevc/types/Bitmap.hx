@@ -240,7 +240,7 @@ class Bitmap
 	
 #if flash9
 	
-	public inline function loadDisplayObject (v:DisplayObject, transform:Matrix2D = null, transparant:Bool = true, fillColor:UInt = 0xffffffff)
+	public inline function loadDisplayObject (v:DisplayObject, transform:Matrix2D = null, transparant:Bool = true, fillColor:UInt = 0x00ffffff)
 	{
 		var d = new BitmapData( v.width.roundFloat(), v.height.roundFloat(), transparant, fillColor );
 		d.draw( v, transform );
@@ -249,7 +249,7 @@ class Bitmap
 	
 	
 	public inline function loadFlashBitmap (v:FlashBitmap)
-	{	
+	{
 		data = v.bitmapData;
 	}
 	

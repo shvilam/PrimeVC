@@ -84,6 +84,9 @@ class UIElementFlags
 		if (flags.has( RESTRICT ))		output.push("restrict");
 		if (flags.has( MAX_CHARS ))		output.push("maxChars");
 		if (flags.has( ICON ))			output.push("icon");
+		if (flags.has( PERCENTAGE ))	output.push("percentage");
+		if (flags.has( DIRECTION ))		output.push("direction");
+		if (flags.has( TARGET ))		output.push("target");
 		
 		return output.length > 0 ? output.join(", ") : "no-properties";
 	}

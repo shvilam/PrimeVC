@@ -147,9 +147,6 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	{
 		var states = getStates();
 		
-		if (target.is(nl.onlinetouch.view.components.spread.frames.Frame))
-			trace(target+"; changes: "+Flags.readProperties(changes)+"; states: "+Flags.readProperties(states.filledProperties));
-		
 		
 		//
 		// DISABLED STATE
