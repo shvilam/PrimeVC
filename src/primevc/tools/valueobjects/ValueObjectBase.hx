@@ -306,6 +306,8 @@ class ObjectChangeSet extends ChangeVO
 		next = change;
 	}
 	
+	public function has (propertyID : Int) : Bool	{ return (propertiesChanged & (1 << ((propertyID & 0xFF) + untyped vo._fieldOffset(propertyID >>> 8)))).not0(); }
+	
 	
 	public inline function addChange (id:Int, flagBit:Int, value:Dynamic)
 	{
