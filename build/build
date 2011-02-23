@@ -25,10 +25,7 @@ BGCOLOR=FFFFFF
 ACCESS="-D network-sandbox"
 
 #parse arguments
-
-echo $2
 while [ "${1+isset}" ]; do
-	echo "$1 $2"
 	case "$1" in
 		-m) MainClass=$2		#main class
 			shift 2 ;;
