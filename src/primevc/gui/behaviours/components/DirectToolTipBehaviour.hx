@@ -31,6 +31,7 @@ package primevc.gui.behaviours.components;
  import primevc.core.Bindable;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.UIComponent;
+ import primevc.gui.events.MouseEvents;
   using primevc.utils.Bind;
 
 
@@ -79,6 +80,6 @@ class DirectToolTipBehaviour extends BehaviourBase<UIComponent>
 	}
 	
 	
-	private function showToolTip ()		{ target.system.toolTip.show( target, label ); }
-	private function hideToolTip ()		{ if (target.system != null)	target.system.toolTip.hide( target ); }		//btn will fire a roll-out event, even when it's already removed from the stage...
+	private function showToolTip (mouse:MouseState)		{ if (!mouse.leftButton())		target.system.toolTip.show( target, label ); }
+	private function hideToolTip ()						{ if (target.system != null)	target.system.toolTip.hide( target ); }		//btn will fire a roll-out event, even when it's already removed from the stage...
 }

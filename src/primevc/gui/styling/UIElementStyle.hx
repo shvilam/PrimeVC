@@ -88,17 +88,17 @@ class UIElementStyle implements IUIElementStyle
 	 * Bitflag-collection with all properties that are set in the styles of 
 	 * the target,
 	 */
-	public var filledProperties			(default, null)	: Int;
+	public var filledProperties			(default, null)			: Int;
 	/**
 	 * Signal which is dispatched when one of the style objects is changed. 
 	 * The first parameter of signal will be a bit-flag conttaining all the 
 	 * properties that are changed.
 	 */
-//	public var change					(default, null)	: Signal1 < Int >;
+//	public var change					(default, null)			: Signal1 < Int >;
 	/**
 	 * Current css-states of the object.
 	 */
-	public var currentStates			(default, null)	: FastArray < StyleState >;
+	public var currentStates			(default, null)			: FastArray < StyleState >;
 	
 	/**
 	 * Flag indicating wether the styles of the target are searched or not (by 
@@ -119,9 +119,19 @@ class UIElementStyle implements IUIElementStyle
 	 * Proxy object to loop through all available states in this object.
 	 */
 	public var states					(getStates, null)		: StatesCollection;
-	public var parentStyle				(default, null)			: UIElementStyle;
 	
+	/**
+	 * Reference to the style of whom the current-style got it's properteies
+	 */
+	public var parentStyle				(default, null)			: IUIElementStyle;
+	
+	/**
+	 * Signal is fired when the children-property of the element-style is
+	 * changed
+	 */
 	public var childrenChanged			(default, null)			: Signal0;
+	
+	
 	
 	
 	
