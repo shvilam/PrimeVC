@@ -56,9 +56,6 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 	
 	override public function apply ()
 	{
-	//	untyped if (elementStyle.target.id.value == "linkFramesBarContent")
-	//		trace( target+"; "+Flags.readProperties(changes) );
-		
 		if (changes == 0)
 			return;
 		

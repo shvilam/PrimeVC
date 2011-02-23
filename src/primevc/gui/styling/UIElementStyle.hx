@@ -433,11 +433,8 @@ class UIElementStyle implements IUIElementStyle
 		if (changedProperties.has( Flags.EFFECTS ))			effects		.apply();
 		if (changedProperties.has( Flags.BOX_FILTERS ))		boxFilters	.apply();
 		
-		if (changedProperties.has( Flags.CHILDREN )) {
-			if (target.is(nl.onlinetouch.view.components.spread.FramesView))
-			trace(this+"; childrenchanged");
+		if (changedProperties.has( Flags.CHILDREN ))
 			childrenChanged.send();
-		}
 		
 	//	trace(target+".broadcastChanges "+Flags.readProperties(changedProperties));
 		
