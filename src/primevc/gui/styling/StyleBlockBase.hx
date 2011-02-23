@@ -67,7 +67,7 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 	override public function dispose ()
 	{
 #if (debug || neko)
-		_oid				= 0;
+		_oid				= -1;
 #end
 		filledProperties	= 0;
 		allFilledProperties	= 0;

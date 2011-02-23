@@ -318,7 +318,7 @@ class SimpleList < DataType > implements IEditableList < DataType >
 			items.push( "[ " + i + " ] = " + item ); // Type.getClassName(Type.getClass(item)));
 			i++;
 		}
-		return name + "SimpleList ("+items.length+")\n" + items.join("\n");
+		return "\n\t" + name + "SimpleList ("+items.length+")\n\t\t\t" + items.join("\n\t\t\t");
 	}
 #end
 }

@@ -37,6 +37,9 @@ package primevc.gui.styling;
  import primevc.core.traits.IInvalidatable;
  import primevc.gui.traits.IStylable;
  import primevc.utils.FastArray;
+#if debug
+ import primevc.utils.ID;
+#end
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.FastArray;
@@ -69,6 +72,10 @@ private typedef Flags = StyleFlags;
  */
 class UIElementStyle implements IUIElementStyle
 {
+#if debug
+	public var _oid						(default, null)			: Int;
+#end
+	
 	/**
 	 * object on which the style applies
 	 */
@@ -137,6 +144,9 @@ class UIElementStyle implements IUIElementStyle
 	
 	public function new (target:IStylable)
 	{
+#if debug
+		_oid = ID.getNext();
+#end
 		currentStates		= FastArrayUtil.create();
 		styles				= new PriorityList < StyleBlock > ();
 		
@@ -213,6 +223,9 @@ class UIElementStyle implements IUIElementStyle
 		graphics		= null;
 		layout			= null;
 		states			= null;
+#if debug
+		_oid			= -1;
+#end
 	}
 	
 	
@@ -316,12 +329,17 @@ class UIElementStyle implements IUIElementStyle
 	 * will update all style-values.
 	 */
 	private function resetStyles ()
-	{
-		if (styles.length > 0)
+	{	
+		//FIXME : by Ruben @ 23 feb 2011
+		//		getUsablePropertiesOf is to greedy and will cause some style properties to be unset while they need to be updated
+		//		For example when the target has a styleclass with graphic-property "shape" and the new updated styles have a
+		//			graphic-property "border", getUsablePropertiesOf will tell us that there are no changes in the graphics of the
+		//			new style since they both have a "graphics" object. This is obviously incorrect and should be fixed!
+	/*	if (styles.length > 0)
 		{
 			var oldStyles	= styles.clone();
 			var changes		= updateStyles(false);
-			
+		
 			if (styles.length > 0)
 			{
 				//find removed or added style-blocks
@@ -340,7 +358,7 @@ class UIElementStyle implements IUIElementStyle
 			stylesAreSearched = true;
 			broadcastChanges( changes );
 		}
-		else
+		else*/
 			updateStyles();
 	}
 	
@@ -415,8 +433,11 @@ class UIElementStyle implements IUIElementStyle
 		if (changedProperties.has( Flags.EFFECTS ))			effects		.apply();
 		if (changedProperties.has( Flags.BOX_FILTERS ))		boxFilters	.apply();
 		
-		if (changedProperties.has( Flags.CHILDREN ))
+		if (changedProperties.has( Flags.CHILDREN )) {
+			if (target.is(nl.onlinetouch.view.components.spread.FramesView))
+			trace(this+"; childrenchanged");
 			childrenChanged.send();
+		}
 		
 	//	trace(target+".broadcastChanges "+Flags.readProperties(changedProperties));
 		
@@ -778,6 +799,12 @@ class UIElementStyle implements IUIElementStyle
 			r.push( state );
 		
 		return r.join(", ");
+	}
+	
+	
+	public function toString ()
+	{
+		return target + ".UIElementStyle[ "+_oid+" ]";
 	}
 #end
 }

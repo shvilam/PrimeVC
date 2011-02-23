@@ -54,6 +54,7 @@ class DebugBar extends UIContainer
 	private var showInvalidatedBtn		: Button;
 	private var showRenderingBtn		: Button;
 	private var toggleTraceLayoutBtn	: Button;
+	private var clearTracesBtn			: Button;
 	
 	
 	override private function createChildren ()
@@ -67,7 +68,9 @@ class DebugBar extends UIContainer
 		showInvalidatedBtn		= new Button("showInvalidatedBtn", "Trace invalidated queue");
 		showRenderingBtn		= new Button("showRenderingBtn", "Trace render queue");
 		toggleTraceLayoutBtn	= new Button("toggleTraceValidationBtn", "Trace layout validation");
+		clearTracesBtn			= new Button("clearTracesBtn", "Clear traces");
 		
+		layoutContainer.children.add( clearTracesBtn.layout );
 		layoutContainer.children.add( inspectStageBtn.layout );
 		layoutContainer.children.add( inspectLayoutBtn.layout );
 		layoutContainer.children.add( validateLayoutBtn.layout );
@@ -75,6 +78,7 @@ class DebugBar extends UIContainer
 		layoutContainer.children.add( showRenderingBtn.layout );
 		layoutContainer.children.add( toggleTraceLayoutBtn.layout );
 		
+		children.add( clearTracesBtn );
 		children.add( inspectStageBtn );
 		children.add( inspectLayoutBtn );
 		children.add( validateLayoutBtn );
@@ -82,7 +86,7 @@ class DebugBar extends UIContainer
 		children.add( showRenderingBtn );
 		children.add( toggleTraceLayoutBtn );
 		
-		
+		haxe.Log.clear			.on( clearTracesBtn.userEvents.mouse.click, this );
 		inspectAllLayouts		.on( inspectLayoutBtn.userEvents.mouse.click, this );
 		forceAllValidation		.on( validateLayoutBtn.userEvents.mouse.click, this );
 		inspectStage			.on( inspectStageBtn.userEvents.mouse.click, this );
@@ -97,6 +101,7 @@ class DebugBar extends UIContainer
 	function handleHotkeys (k:KeyboardState)
 	{
 		if (k.ctrlKey() && k.shiftKey()) switch (k.keyCode()) {
+			case KeyCodes.C: haxe.Log.clear();
 			case KeyCodes.V: forceAllValidation();
 			case KeyCodes.I: inspectAllLayouts();
 		}
