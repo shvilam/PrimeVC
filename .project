@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>PrimeVC</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>com.powerflasher.fdt.core.FlashBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>com.powerflasher.fdt.haxe.core.HaxeBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>com.powerflasher.fdt.core.FlashNature</nature>
+		<nature>com.powerflasher.fdt.haxe.core.nature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>feffects</name>
+			<type>2</type>
+			<locationURI>feffects</locationURI>
+		</link>
+		<link>
+			<name>haxeLib</name>
+			<type>2</type>
+			<locationURI>haxeLib</locationURI>
+		</link>
+	</linkedResources>
+</projectDescription>

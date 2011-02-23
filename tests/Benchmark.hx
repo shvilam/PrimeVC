@@ -1,7 +1,7 @@
-import flash.display.DisplayObject;
-import flash.events.Event;
-import flash.system.System;
-import flash.Vector;
+ import flash.display.DisplayObject;
+ import flash.events.Event;
+ import flash.system.System;
+ import primevc.utils.FastArray;
  
 
 
@@ -209,7 +209,7 @@ class MainThread
 		
 		var change = System.totalMemory - lastGcMemory;
 		
-		if (change > 100000) {	//over 100Kb of changes
+		if (change > 10000000) {	//over 1MB of changes
 			pausingFrames = Std.int( flash.Lib.current.stage.frameRate );
 			trace("Waiting " + pausingFrames + " frames to garbage collect. Memory change: "+change);
 			System.gc();
@@ -330,8 +330,8 @@ class Comparison extends Thread, implements ITest
 	{
 		var sum:String				= "";
 		var result:String;
-		var results:Vector<String>	= new Vector<String>();
-		var fastests:Vector<Test>	= new Vector<Test>();		//make a vector with fastests test in case there are more then one tests with the same time
+		var results:FastArray<String>	= FastArrayUtil.create();
+		var fastests:FastArray<Test>	= FastArrayUtil.create();		//make a vector with fastests test in case there are more then one tests with the same time
 		
 		var currentTest				= firstTest;
 		var fastestTime				= StopWatch.MAX_VALUE; //currentTest.timer.fastest;
@@ -342,7 +342,7 @@ class Comparison extends Thread, implements ITest
 		while (currentTest != null) {
 			if (currentTest.timer.fastest < fastestTime) {
 				fastestTime = currentTest.timer.fastest;
-				fastests	= new Vector<Test>();
+				fastests	= FastArrayUtil.create();
 				fastests.push( currentTest );
 			}
 			else if (currentTest.timer.fastest == fastestTime) {
@@ -494,7 +494,7 @@ class StopWatch
 {
 	public static inline var MAX_VALUE:Int			= 2147483647;
 	
-	private var timesList							: Vector < Int >;
+	private var timesList							: FastArray < Int >;
 	public var average		(getAverage, null)		: Float;
 	public var fastest		(getFastest, null)		: Int;
 	public var currentTime	(getCurrentTime, null)	: Int;
@@ -504,7 +504,7 @@ class StopWatch
 	private var runnedTime							: Int;
 	
 	public function new () {
-		timesList = new Vector<Int>();
+		timesList = FastArrayUtil.create();
 		reset();
 	}
 	
@@ -605,13 +605,13 @@ class MemorySampler
 /*
 class MemorySampler
 {
-	public var samples		: Vector < UInt >;
+	public var samples		: FastArray < UInt >;
 	public var current		: MemorySample;
 	public var totalMemory	(getTotalMemory, null)	: Int;
 	
 	
 	public function new () {
-		samples = new Vector < UInt >();
+		samples = FastArrayUtil.create();
 		current = new MemorySample();
 	}
 	

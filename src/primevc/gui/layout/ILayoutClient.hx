@@ -1,11 +1,44 @@
-﻿package primevc.gui.layout;
+﻿/*
+ * Copyright (c) 2010, The PrimeVC Project Contributors
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *   - Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   - Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE PRIMEVC PROJECT CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE PRIMVC PROJECT CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ *
+ *
+ * Authors:
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ */
+package primevc.gui.layout;
+ import primevc.core.dispatcher.Signal1;
  import primevc.core.geom.Box;
- import primevc.core.geom.constraints.ConstrainedRect;
- import primevc.core.geom.constraints.SizeConstraint;
- import primevc.core.IDisposable;
+ import primevc.core.geom.IntRectangle;
  import primevc.core.states.SimpleStateMachine;
- import primevc.gui.events.LayoutEvents;
- import primevc.gui.states.LayoutStates;
+ import primevc.core.traits.IQueueingInvalidatable;
+// import primevc.core.validators.ValidatingValue;
+ import primevc.core.validators.IntRangeValidator;
+ import primevc.core.traits.IDisposable;
+ import primevc.gui.states.ValidateStates;
+
+
+//typedef SizeType = ValidatingValue < Int >;
 
 
 /**
@@ -15,12 +48,10 @@
  * @since	mar 19, 2010
  * @author	Ruben Weijers
  */
-interface ILayoutClient implements IDisposable
+interface ILayoutClient 
+		implements IQueueingInvalidatable
+	,	implements IDisposable
 {
-	/**
-	 * Flags of properties that are changed
-	 */
-	public var changes (default, setChanges)				: Int;
 	/**
 	 * Flag indicating if the layout should be automaticly revalidated when a 
 	 * property, such as height or width, is changed.
@@ -31,21 +62,33 @@ interface ILayoutClient implements IDisposable
 	 * 
 	 * @default false
 	 */
-	public var validateOnPropertyChange						: Bool;
+//	public var validateOnPropertyChange										: Bool;
+	
+	/**
+	 * Flags of properties that are changed
+	 */
+	public var changes						(default, null)					: Int;
+	/**
+	 * Flags with all the properties that are set for the layoutclient
+	 */
+//	public var filledProperties		(default, null)							: Int;
 	
 	
 	/**
 	 * Flag indicating if this client should be included within the layout
 	 * @default	true
 	 */
-	public var includeInLayout(default, setIncludeInLayout)	: Bool;
+	public var includeInLayout				(default, setIncludeInLayout)	: Bool;
 	
 	/**
 	 * Layout-group to which this client belongs. By setting this property,
 	 * the client can let the parent know when it's size or position has
 	 * changed wich could result in revalidating the parents layout.
 	 */
-	public var parent (default, setParent)					: ILayoutGroup<Dynamic>;
+	public var parent						(default, setParent)			: ILayoutContainer;
+	
+	public function isValidating ()			: Bool;
+	public function isInvalidated ()		: Bool;
 	
 	
 	//
@@ -53,26 +96,49 @@ interface ILayoutClient implements IDisposable
 	//
 
 	/**
-	 * Measure is called before validating the layout. In meausure, each 
+	 * Validate is called before the layout is validated. In validate, each 
 	 * layout-object has a change to correct it's bounding-properties
 	 * or measured size.
 	 * 
-	 * Measure is called when a layoutClient is invalidated and the movie
+	 * Validate is called when a layoutClient is invalidated and the movie
 	 * has entered a new frame.
 	 */
-	public function measure ()					: Void;
-	public function measureHorizontal ()		: Void;
-	public function measureVertical ()			: Void;
-	/**
-	 * Method is called when a layout is invalidated and will validate again
-	 * by calculating it's new dimensions or position.
-	 */
 	public function validate ()					: Void;
+	public function validateHorizontal ()		: Void;
+	public function validateVertical ()			: Void;
+	/**
+	 * Method is called when a layout has run validate and is done with changing 
+	 * it's properties.
+	 */
+	public function validated ()				: Void;
 	/**
 	 * This method is called when a property of a layoutclient is changed which
 	 * would cause the layout the validate again.
 	 */
 	public function invalidate ( change:Int )	: Void;
+	
+	/**
+	 * Method will return the x coordinate that a DisplayObject can use
+	 * to positionate itself. The method will check if the clients parent is a
+	 * VirtualLayoutContainer. If that's true, it will at the parent's position
+	 * to the returned x coordinate.
+	 * 
+	 * This method will not affect the x property of the client itself.
+	 * 
+	 * @see primevc.gui.layout.VirtualLayoutContainer
+	 */
+	public function getHorPosition ()			: Int;
+	/**
+	 * Method will return the y coordinate that a DisplayObject can use
+	 * to positionate itself. The method will check if the clients parent is a
+	 * VirtualLayoutContainer. If that's true, it will at the parent's position
+	 * to the returned y coordinates.
+	 * 
+	 * This method will not affect the y property of the client itself.
+	 * 
+	 * @see primevc.gui.layout.VirtualLayoutContainer
+	 */
+	public function getVerPosition ()			: Int;
 	
 	private function resetProperties ()			: Void;
 	
@@ -83,10 +149,6 @@ interface ILayoutClient implements IDisposable
 	
 	
 	/**
-	 * rules for the size (min, max)
-	 */
-	public var sizeConstraint		(default, setSizeConstraint)		: SizeConstraint;
-	/**
 	 * rules for sizing / positioning the layout with relation to the parent
 	 */
 	public var relative				(default, setRelative)				: RelativeLayout;
@@ -94,17 +156,28 @@ interface ILayoutClient implements IDisposable
 	/**
 	 * @default	false
 	 */
-	public var maintainAspectRatio	(default, setAspectRatio)			: Bool;
-	private var aspectRatio			(default, default)					: Float;
+	public var maintainAspectRatio	(default, setMaintainAspectRatio)	: Bool;
+		private var aspectRatio		(default, default)					: Float;
 	
 	
 	//
 	// EVENTS
 	//
 	
-	public var events	(default, null)			: LayoutEvents;
 	
-	public var states	(default, null)			: SimpleStateMachine < LayoutStates >;
+	/**
+	 * Signal that is send when the layout is validated and the changes involve
+	 * the x, y, width or height.
+	 * 
+	 * Be aware that even though a displayobject is off the stage, the layout
+	 * can still be validated by it's layout-container when the containers 
+	 * displayobject is still on the stage.
+	 */
+	public var changed				(default, null)						: Signal1<Int>;
+	
+	public var state				(default, null)						: SimpleStateMachine < ValidateStates >;
+	public var hasValidatedWidth	(default, null)						: Bool;
+	public var hasValidatedHeight	(default, null)						: Bool;
 	
 	
 	
@@ -113,17 +186,40 @@ interface ILayoutClient implements IDisposable
 	//
 	
 	/**
-	 * Propertie will return the explicitWidth when it's set and otherwise the
-	 * measuredWidth.
-	 * Setting this property will set the explicitWidth.
+	 * Width of the LayoutClient. Changing the width will also change the width
+	 * property in 'bounds'.
 	 */
-	public var width (getWidth, setWidth)			: Int;
+	public var width				(getWidth, setWidth)				: Int;
 	/**
-	 * Propertie will return the explicitHeight when it's set and otherwise the
-	 * measuredHeight.
-	 * Setting this property will set the explicitHeight.
+	 * Width of the LayoutClient. Changing the width will also change the height
+	 * property in 'bounds'.
 	 */
-	public var height (getHeight, setHeight)		: Int;
+	public var height				(getHeight, setHeight)				: Int;
+	
+	/**
+	 * If percent width is set, the width of the layoutclient will be 
+	 * calculated by the width of the parent layoutContainer. This property
+	 * also allow an object to fill up the available space by setting the 
+	 * property to LayoutFlags.FILL.
+	 * 
+	 * The width of the percentWidth will be calculated when the layoutclient
+	 * is measured.
+	 * 
+	 * @default		0
+	 */
+	public var percentWidth			(default, setPercentWidth)			: Float;
+	/**
+	 * If percent height is set, the height of the layoutclient will be 
+	 * calculated by the height of the parent layoutContainer. This property
+	 * also allow an object to fill up the available space by setting the 
+	 * property to LayoutFlags.FILL.
+	 * 
+	 * The height of the percentHeight will be calculated when the layoutclient
+	 * is measured.
+	 * 
+	 * @default		0
+	 */
+	public var percentHeight		(default, setPercentHeight)			: Float;
 	
 	/**
 	 * Padding is the distance between the content of the layout and the rest
@@ -132,7 +228,7 @@ interface ILayoutClient implements IDisposable
 	 * The property contains 4 values to define the padding for each side of 
 	 * the layout.
 	 * 
-	 * The x&y properties contain the position of the content, the properties
+	 * The x and y properties contain the position of the content, the properties
 	 * bottom and right contain the position including the padding.
 	 * 
 	 * For example.
@@ -143,13 +239,17 @@ interface ILayoutClient implements IDisposable
 	 * 		- y			60
 	 * 		- padding	{ 10, 10, 10, 10 }
 	 * 
-	 * The left, right, top and bottom properties should then be:
+	 * The left, right, top and bottom properties of the bounds should then be:
 	 * 		- left:		50
 	 * 		- top:		60
 	 * 		- right:	470 (400 + 50 + 20)
 	 * 		- bottom:	380 (300 + 60 + 20)
 	 */
-	public var padding (default, setPadding)	: Box;
+	public var padding	(default, setPadding)	: Box;
+	public var margin	(default, setMargin)	: Box;
+	
+	public var widthValidator		(default, setWidthValidator)		: IntRangeValidator;
+	public var heightValidator		(default, setHeightValidator)		: IntRangeValidator;
 	
 	
 	//
@@ -159,5 +259,17 @@ interface ILayoutClient implements IDisposable
 	public var x		(default, setX)			: Int;
 	public var y		(default, setY)			: Int;
 	
-	public var bounds	(default, null)			: ConstrainedRect;
+	/**
+	 * Size of the layouclient including the padding but without the margin
+	 */
+	public var innerBounds	(default, null)		: IntRectangle;
+	/**
+	 * Size of the layouclient including the padding and margin
+	 */
+	public var outerBounds	(default, null)		: IntRectangle;
+	
+	
+#if debug
+	public var name:String;
+#end
 }

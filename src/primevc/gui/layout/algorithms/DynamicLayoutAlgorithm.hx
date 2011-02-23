@@ -1,9 +1,47 @@
+/*
+ * Copyright (c) 2010, The PrimeVC Project Contributors
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *   - Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   - Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE PRIMEVC PROJECT CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE PRIMVC PROJECT CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ *
+ *
+ * Authors:
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ */
 package primevc.gui.layout.algorithms;
- import primevc.gui.layout.algorithms.directions.Direction;
- import primevc.gui.layout.algorithms.directions.Horizontal;
- import primevc.gui.layout.algorithms.directions.Vertical;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
+ import primevc.core.geom.space.Direction;
+ import primevc.core.geom.space.Horizontal;
+ import primevc.core.geom.space.Vertical;
+ import primevc.core.geom.IRectangle;
+ import primevc.types.ClassInstanceFactory;
+ import primevc.utils.NumberMath;
   using primevc.utils.Bind;
+  using Type;
+
  
+private typedef AlgorithmClass	= ClassInstanceFactory < ILayoutAlgorithm >;
+
 
 /**
  * Dynamic layout algorithm allows to specify different sub-algorithms for
@@ -14,7 +52,6 @@ package primevc.gui.layout.algorithms;
  */
 class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 {
-	
 	/**
 	 * Defines the start position on the horizontal axis.
 	 * @default		Horizontal.left
@@ -31,12 +68,11 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 	public var verAlgorithm				(default, setVerAlgorithm)			: IVerticalAlgorithm;
 	
 	
-	public function new (horAlgorithm:IHorizontalAlgorithm, verAlgorithm:IVerticalAlgorithm) 
+	public function new (?horAlgorithmInfo:AlgorithmClass, ?verAlgorithmInfo:AlgorithmClass) 
 	{
 		super();
-		this.horAlgorithm	= horAlgorithm;
-		this.verAlgorithm	= verAlgorithm;
-		apply = applyBoth;
+		if (horAlgorithmInfo != null)	horAlgorithm	= cast horAlgorithmInfo.create();
+		if (verAlgorithmInfo != null)	verAlgorithm	= cast verAlgorithmInfo.create();
 	}
 	
 	
@@ -56,28 +92,40 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 	//
 	
 	
-	public function measure ()
+	override public function prepareValidate ()
+	{
+		if (!validatePrepared)
+		{
+			horAlgorithm.prepareValidate();
+			verAlgorithm.prepareValidate();
+		}
+		super.prepareValidate();
+	}
+	
+	
+	public function validate ()
 	{
 		if (group.children.length == 0)
 			return;
 		
-		measureHorizontal();
-		measureVertical();
+		validateHorizontal();
+		validateVertical();
 	}
 	
 	
-	public function measureHorizontal ()	{ horAlgorithm.measureHorizontal(); }
-	public function measureVertical ()		{ verAlgorithm.measureVertical(); }
+	public function validateHorizontal ()	{ horAlgorithm.validateHorizontal(); }
+	public function validateVertical ()		{ verAlgorithm.validateVertical(); }
 	
 	
-	public inline function applyBoth ()
+ 	public function apply ()
 	{
 		horAlgorithm.apply();
 		verAlgorithm.apply();
+		validatePrepared = false;
 	}
 	
 	
-	public inline function isInvalid (changes:Int) : Bool
+	public function isInvalid (changes:Int) : Bool
 	{
 		return horAlgorithm.isInvalid(changes) || verAlgorithm.isInvalid(changes);
 	}
@@ -86,6 +134,18 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 	private function invalidate (shouldbeResetted:Bool = true) : Void
 	{
 		algorithmChanged.send();
+	}
+	
+	
+	public function getDepthForBounds (bounds:IRectangle)
+	{
+		var depthHor = horAlgorithm.getDepthForBounds(bounds);
+		var depthVer = verAlgorithm.getDepthForBounds(bounds);
+		var depth = IntMath.max( depthHor, depthVer );
+		
+		if (depthHor < 0)	depth = group.children.length - (depthVer);
+		if (depthVer < 0)	depth = group.children.length - (depthHor);
+		return depth;
 	}
 	
 	
@@ -107,7 +167,7 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 			}
 			
 			v = super.setGroup(v);
-			invalidate(true);
+		//	invalidate(true);
 			
 			if (v != null) {
 				horAlgorithm.group	= v;
@@ -129,10 +189,7 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 		invalidate(false);
 		
 		if (horAlgorithm != null) {
-			horAlgorithm.group			= group;
-			horAlgorithm.childWidth		= childWidth;
-			horAlgorithm.childHeight	= childHeight;
-			
+			horAlgorithm.group = group;
 			algorithmChanged.send.on( horAlgorithm.algorithmChanged, this );
 		}
 		return v;
@@ -150,51 +207,48 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 		invalidate(false);
 		
 		if (verAlgorithm != null) {
-			verAlgorithm.group			= group;
-			verAlgorithm.childWidth		= childWidth;
-			verAlgorithm.childHeight	= childHeight;
-			
+			verAlgorithm.group = group;
 			algorithmChanged.send.on( verAlgorithm.algorithmChanged, this );
 		}
 		return v;
 	}
 	
 	
-	private inline function setHorizontalDirection (v:Horizontal)
+	private function setHorizontalDirection (v:Horizontal)
 	{
 		if (v != horizontalDirection) {
 			horizontalDirection		= v;
 			horAlgorithm.direction	= v;
+			invalidate(false);
 		}
 		return v;
 	}
 	
 	
-	private inline function setVerticalDirection (v:Vertical)
+	private function setVerticalDirection (v:Vertical)
 	{
 		if (v != verticalDirection) {
 			verticalDirection		= v;
 			verAlgorithm.direction	= v;
+			invalidate(false);
 		}
 		return v;
 	}
 	
-	
-	override private function setChildWidth (v)
+
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String
 	{
-		v = super.setChildWidth(v);
-		
-		if (horAlgorithm != null)	horAlgorithm.childWidth = v;
-		if (verAlgorithm != null)	verAlgorithm.childWidth = v;
-		return v;
+		return "dynamic ( " + horAlgorithm + ", " + verAlgorithm + " )";
 	}
-	
-	
-	override private function setChildHeight (v)
+#end
+
+#if neko
+	override public function toCode (code:ICodeGenerator)
 	{
-		v = super.setChildHeight(v);
-		if (horAlgorithm != null)	horAlgorithm.childHeight = v;
-		if (verAlgorithm != null)	verAlgorithm.childHeight = v;
-		return v;
+		var hor = horAlgorithm == null ? null : new ClassInstanceFactory( cast horAlgorithm.getClass(), [ horizontalDirection ] );
+		var ver = verAlgorithm == null ? null : new ClassInstanceFactory( cast verAlgorithm.getClass(), [ verticalDirection ] );
+		code.construct( this, [ hor, ver ] );
 	}
+#end
 }

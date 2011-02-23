@@ -1,3 +1,32 @@
+/*
+ * Copyright (c) 2010, The PrimeVC Project Contributors
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *   - Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   - Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE PRIMEVC PROJECT CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE PRIMVC PROJECT CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ *
+ *
+ * Authors:
+ *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ */
 package primevc.mvc;
 // import primevc.core.dispatcher.Signals;
 
@@ -13,34 +42,42 @@ package primevc.mvc;
  * @author Danny Wilson
  * @creation-date Jun 22, 2010
  */
-class Mediator <EventsTypedef/* : Signals*/, ModelTypedef/* : Model*/> implements IMediator
+class Mediator <EventsTypedef, ModelTypedef, ViewTypeDef, ViewComponentType> extends Listener <EventsTypedef, ModelTypedef, ViewTypeDef>, implements IMediator
 {
-	//TODO: Ask Nicolas why the %$@#! you can't have typedefs as type constraint parameters...
+	public var viewComponent (default, setViewComponent)	: ViewComponentType;
 	
-	var facade	: { var events (default,null):EventsTypedef; var model (default,null):ModelTypedef; };
 	
-	public var events	: EventsTypedef;
-	public var model	: ModelTypedef;
-	
-	public function new (dependencies :{ var events (default,null):EventsTypedef; var model (default,null):ModelTypedef; })
+	public function new (events:EventsTypedef, model:ModelTypedef, view:ViewTypeDef, viewComponent:ViewComponentType = null)
 	{
-		Assert.that(dependencies != null);
-		
-		facade = dependencies;
-		events = dependencies.events;
-		model  = dependencies.model;
-		
-		Assert.that(events != null);
-		Assert.that(model  != null);
+		super(events, model, view);
+		setViewComponent( viewComponent );
 	}
 	
-	public function dispose()
+	
+	override public function dispose ()
 	{
-		if (events == null) return; // already disposed
+		if (isDisposed())
+			return;
 		
-		untyped events.unbind(this);
-		events = null;
-		facade = null;
-		model  = null;
+		viewComponent = null;
+		super.dispose();
+	}
+	
+	
+	// Set the UI element that the mediator serves.
+	private function setViewComponent (viewComponent:ViewComponentType)
+	{
+		if (isListening())
+		{
+			stopListening();
+			this.viewComponent = viewComponent;
+			
+			if (viewComponent != null)
+				startListening();
+		}
+		else
+			this.viewComponent = viewComponent;
+		
+		return viewComponent;
 	}
 }

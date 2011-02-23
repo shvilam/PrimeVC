@@ -1,8 +1,39 @@
+/*
+ * Copyright (c) 2010, The PrimeVC Project Contributors
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *   - Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   - Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE PRIMEVC PROJECT CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE PRIMVC PROJECT CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ *
+ *
+ * Authors:
+ *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ */
 package primevc.core;
- import primevc.core.IDisposable;
- import primevc.core.dispatcher.Signal1;
+ import primevc.core.IBindableReadonly;
+ import primevc.core.dispatcher.Signal2;
+ import primevc.core.traits.IClonable;
  import haxe.FastList;
-  using primevc.utils.Bind;
+  using primevc.utils.IfUtil;
+
 
 /**
  * Class to keep a value automatically updated.
@@ -41,7 +72,7 @@ package primevc.core;
  * @creation-date	Jun 18, 2010
  * @author			Ruben Weijers, Danny Wilson
  */
-class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.Generic, implements primevc.core.IDisposable
+class Bindable <DataType> implements IBindable<DataType>, implements IClonable<Bindable<DataType>>, implements haxe.rtti.Generic
 {
 	public var value	(default, setValue)	: DataType;
 	
@@ -49,22 +80,24 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 	 * Dispatched just before "value" is set to a new value.
 	 * Signal argument: The new value.
 	 */
-	public var change	(default, null)	: Signal1<DataType>;
+	public var change	(default, null)	: Signal2 < DataType, OldValue < DataType > >;
 	
 	/**
 	 * Keeps track of which Bindables update this.value
 	 */
-	private var boundTo : FastList<IBindableReadonly<DataType>>;
+	private var boundTo : FastList < IBindableReadonly < DataType > >;
 	/**
 	 * Keeps track of which Bindables should be updated when this.value changes.
 	 */
-	private var writeTo : FastList<IBindable<DataType>>;
+	private var writeTo : FastList < IBindable < DataType > >;
 	
-	public function new( val:DataType )
+	
+	public function new (?val : Null<DataType>)
 	{
-		change = new Signal1();
-		value  = val;
+		change = new Signal2();
+		set( val );
 	}
+	
 	
 	public function dispose ()
 	{
@@ -72,7 +105,7 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 		
 		if (boundTo != null) {
 		 	// Dispose of all binding connections
-			while (!boundTo.isEmpty()) boundTo.pop().unbind(this);
+			unbindAll();
 			boundTo = null;
 		}
 		if (writeTo != null) {
@@ -87,6 +120,28 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 		(untyped this).value = null; // Int can't be set to null, so we trick it with untyped
 	}
 	
+	
+	public inline function isEmpty () : Bool
+	{
+		return (untyped this).value == null;
+	}
+	
+	
+	public function clone ()
+	{
+		return new Bindable<DataType>(value);
+	}
+	
+	
+	/**
+	 * Sets value directly, without the requirement to be in edit mode, and without dispatching any events.
+	 */
+	public inline function set (val:DataType) : Void
+	{
+		(untyped this).value = val;
+	}
+	
+	
 #if debug
 	public function isBoundTo(otherBindable)
 	{
@@ -100,14 +155,16 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 	{
 		if (value != newValue)
 		{
-			value = newValue;			//first set the value -> will possibly trigger an infinite loop otherwise
-			change.send( newValue );
+			var oldV	= value;
+			value		= newValue;			//first set the value -> will possibly trigger an infinite loop otherwise
+			change.send( newValue, oldV );
 		//	value = newValue;
 			BindableTools.dispatchValueToBound(writeTo, newValue);
 		}
 		
 		return newValue;
 	}
+	
 	
 	/**
 	 * Makes sure this.value is (and remains) equal
@@ -125,13 +182,18 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 		untyped otherBindable.keepUpdated(this);
 	}
 	
-	private inline function registerBoundTo(otherBindable)
+	
+	private inline function registerBoundTo(otherBindable:IBindableReadonly<DataType>)
 	{
-		if (boundTo == null)
-			boundTo = new FastList<IBindableReadonly<DataType>>();
+		Assert.notNull(otherBindable);
 		
-		addToBoundList(boundTo, otherBindable);
+		var b = this.boundTo;
+		if (!b.notNull())
+			b = this.boundTo = new FastList<IBindableReadonly<DataType>>();
+		
+		addToBoundList(b, otherBindable);
 	}
+	
 	
 	private inline function addToBoundList<T>(list:FastList<T>, otherBindable:T)
 	{
@@ -139,13 +201,14 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 		
 		// Only bind if not already bound.
 		var n = list.head;
-		while (n != null)
+		while (n.notNull())
 		 	if (n.elt == otherBindable) { list = null; break; } // already bound, skip add()
 			else n = n.next;
 		
-		if (list != null)
+		if (list.notNull())
 			list.add(otherBindable);
 	}
+	
 	
 	/**
 	 * @see IBindableReadonly
@@ -158,11 +221,13 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 		otherBindable.value = this.value;
 		untyped otherBindable.registerBoundTo(this);
 		
-		if (writeTo == null)
-			writeTo = new FastList<IBindable<DataType>>();
+		var w = this.writeTo;
+		if (!w.notNull())
+			w = this.writeTo = new FastList<IBindable<DataType>>();
 		
-		addToBoundList(writeTo, otherBindable);
+		addToBoundList(w, otherBindable);
 	}
+	
 	
 	/** 
 	 * Makes sure this Bindable and otherBindable always have the same value.
@@ -177,6 +242,7 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 		keepUpdated(otherBindable);
 	}
 	
+	
 	/**
 	 * @see IBindableReadonly
 	 */
@@ -190,16 +256,38 @@ class Bindable <DataType> implements IBindable<DataType>, implements haxe.rtti.G
 	
 		
 		var removed = false;
-		if (boundTo != null)
+		if (boundTo.notNull())
 		 	removed = this.boundTo.remove(otherBindable);
-		if (writeTo != null)
+		if (writeTo.notNull())
 		 	removed = this.writeTo.remove(cast otherBindable) || removed;
 		if (removed)
 			otherBindable.unbind(this);
 		
 		return removed;
 	}
+	
+	
+	/**
+	 * Will remove every binding to bindables which update this object, or which this object updates.
+	 */
+	public function unbindAll ()
+	{
+		if (writeTo.notNull()) while (!writeTo.isEmpty())
+		 	writeTo.pop().unbind(this);
+		if (boundTo.notNull()) while (!boundTo.isEmpty())
+			boundTo.pop().unbind(this);
+	}
+	
+	
+//#if debug
+	public inline function toString () : String {
+		return cast value;
+	}
+//#end
 }
+
+
+
 
 class BindableTools
 {
@@ -211,7 +299,7 @@ class BindableTools
 		if (list != null)
 		{
 			var n = list.head;
-			while (n != null) {
+			while (n.notNull()) {
 				n.elt.value = newValue;
 				n = n.next;
 			}

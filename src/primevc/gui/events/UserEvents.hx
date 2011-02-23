@@ -1,12 +1,42 @@
+/*
+ * Copyright (c) 2010, The PrimeVC Project Contributors
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *   - Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   - Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE PRIMEVC PROJECT CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE PRIMVC PROJECT CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ *
+ *
+ * Authors:
+ *  Danny Wilson	<danny @ onlinetouch.nl>
+ */
 package primevc.gui.events;
  import primevc.core.dispatcher.Signals;
- import primevc.core.dispatcher.INotifier;
+ import primevc.core.dispatcher.Signal1;
 
 typedef UserEvents = 
 	#if		flash9	primevc.avm2.events.UserEvents;
 	#elseif	flash8	primevc.avm1.events.UserEvents;
 	#elseif	js		primevc.js  .events.UserEvents;
-	#else	error	#end
+	#elseif neko	primevc.neko.events.UserEvents;
+	#else	#error	#end
+
 
 /**
  * Cross-platform user-interface events.
@@ -14,10 +44,44 @@ typedef UserEvents =
  * @author Danny Wilson
  * @creation-date jun 15, 2010
  */
-class UserSignals extends Signals, implements haxe.Public
+class UserSignals extends Signals
 {
-	var mouse	(default,null) : MouseEvents;
-	var key		(default,null) : KeyboardEvents;
-	var focus	(default,null) : INotifier<Void->Void>;
-	var blur	(default,null) : INotifier<Void->Void>;
+	public var mouse	(getMouse,	null)	: MouseEvents;
+	public var key		(getKey,	null)	: KeyboardEvents;
+	public var focus	(getFocus,	null)	: Signal1<FocusState>;
+	public var blur		(getBlur,	null)	: Signal1<FocusState>;
+	public var edit		(getEdit,	null)	: EditEvents;
+	public var drag		(getDrag,	null)	: DragEvents;
+	
+	private inline function getMouse ()	{ if (mouse == null)	{ createMouse(); }		return mouse; }
+	private inline function getKey ()	{ if (key == null)		{ createKey(); }		return key; }
+	private inline function getFocus ()	{ if (focus == null)	{ createFocus(); }		return focus; }
+	private inline function getBlur ()	{ if (blur == null)		{ createBlur(); }		return blur; }
+	private inline function getEdit ()	{ if (edit == null)		{ createEdit(); }		return edit; }
+	private inline function getDrag ()	{ if (drag == null)		{ createDrag(); }		return drag; }
+	
+	
+	private function createMouse ()		{ Assert.abstract(); }
+	private function createKey ()		{ Assert.abstract(); }
+	private function createFocus ()		{ Assert.abstract(); }
+	private function createBlur ()		{ Assert.abstract(); }
+	private function createEdit ()		{ Assert.abstract(); }
+	private function createDrag ()		{ drag = new DragEvents(); }
+	
+	
+	override public function dispose ()
+	{
+		if ((untyped this).mouse != null)	mouse	.dispose();
+		if ((untyped this).key != null)		key		.dispose();
+		if ((untyped this).focus != null)	focus	.dispose();
+		if ((untyped this).blur != null)	blur	.dispose();
+		if ((untyped this).edit != null)	edit	.dispose();
+		if ((untyped this).drag != null)	drag	.dispose();
+		
+		edit	= null;
+		mouse	= null;
+		key		= null;
+		drag	= null;
+		blur	= focus = null;
+	}
 }

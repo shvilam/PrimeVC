@@ -1,7 +1,0 @@
-#!/bin/bash
-bash build/build-assets
-haxe build.hxml
-bash build/optimize-build
-
-mv tmp.swf bin-debug/app.swf
-open bin-debug/app.swf

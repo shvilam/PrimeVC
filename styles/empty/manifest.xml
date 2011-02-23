@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<componentPackage>
+	<component id="IDisplayObject"		superClass=""					fullname="primevc.gui.display.IDisplayObject" />
+	<component id="UIComponent"			superClass="IDisplayObject"		fullname="primevc.gui.core.UIComponent" />
+	<component id="UIContainer"			superClass="UIComponent"		fullname="primevc.gui.core.UIContainer" />
+	<component id="UIDataComponent"		superClass="UIComponent"		fullname="primevc.gui.core.UIDataComponent" />
+	<component id="UIDataContainer"		superClass="UIDataComponent"	fullname="primevc.gui.core.UIDataContainer" />
+	<component id="UIGraphic"			superClass="IDisplayObject"		fullname="primevc.gui.core.UIGraphic" />
+	<component id="UITextField"			superClass="IDisplayObject"		fullname="primevc.gui.core.UITextField" />
+	<component id="UIVideo"				superClass="IDisplayObject"		fullname="primevc.gui.core.UIVideo" />
+	<component id="UIWindow"			superClass="IDisplayObject"		fullname="primevc.gui.core.UIWindow" />
+	
+	<component id="ApplicationView"		superClass="UIContainer"		fullname="primevc.gui.components.ApplicationView" />
+	<component id="Button"				superClass="UIDataContainer"	fullname="primevc.gui.components.Button" />
+	<component id="ComboBox"			superClass="DataButton"			fullname="primevc.gui.components.ComboBox" />
+	<component id="ColorPicker"			superClass="UIDataContainer"	fullname="primevc.gui.components.ColorPicker" />
+	<component id="DataButton"			superClass="Button"				fullname="primevc.gui.components.DataButton" />
+	<component id="DebugBar"			superClass="UIContainer"		fullname="primevc.gui.components.DebugBar" />
+	<component id="DragButton"			superClass="Button"				fullname="primevc.gui.components.DragButton" />
+	<component id="Image"				superClass="UIGraphic"			fullname="primevc.gui.components.Image" />
+	<component id="InputField"			superClass="DataButton"			fullname="primevc.gui.components.InputField" />
+	<component id="Label"				superClass="UIDataComponent"	fullname="primevc.gui.components.Label" />
+	<component id="ListHolder"			superClass="UIDataContainer"	fullname="primevc.gui.components.ListHolder" />
+	<component id="ListView"			superClass="UIDataContainer"	fullname="primevc.gui.components.ListView" />
+	<component id="Panel"				superClass="UIComponent"		fullname="primevc.gui.components.Panel" />
+	<component id="ScrollBar"			superClass="SliderBase"			fullname="primevc.gui.components.ScrollBar" />
+	<component id="SliderBase"			superClass="UIDataContainer"	fullname="primevc.gui.components.SliderBase" />
+	<component id="Slider"				superClass="SliderBase"			fullname="primevc.gui.components.Slider" />
+	<component id="TextArea"			superClass="UIDataContainer"	fullname="primevc.gui.components.TextArea" />
+	<component id="VideoControlBar"		superClass="UIContainer"		fullname="primevc.gui.components.VideoControlBar" />
+	<component id="VideoPlayer"			superClass="UIDataContainer"	fullname="primevc.gui.components.VideoPlayer" />
+	
+<!--<component id=""	superClass=""	fullname="" />-->
+</componentPackage>

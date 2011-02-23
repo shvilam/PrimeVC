@@ -1,12 +1,28 @@
 -lib feffects
+
 -D Full
+#-D stats
+#-D network-sandbox
+#-D FlashTrace
 #-D MonsterTrace
--D FlashTrace
+-D AlconTrace
+#-D unitTesting
+#-D DebugEvents
+--flash-strict
+
 -swf-version 10
--swf-header 1000:750:31:FFFFFF
--main primevc.Main
+-swf-header 1000:750:24:FFFFFF
+#-swf bin-debug/app.swf
+
+#-main primevc.Main
+
+-cp libs/apparat
+-cp libs/haxe
+-cp libs/hiresStats
+#-cp libs/macmousewheel
+#-cp libs/monsterdebugger
+#-cp libs/swfaddress
 -cp generated-src
 -cp src
--cp skins/flair
--debug
--swf bin-debug/app.swf
+
+#--dead-code-elimination

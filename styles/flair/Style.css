@@ -1,0 +1,191 @@
+@import url('../empty/BasicStyle.css');
+@manifest url('manifest.xml');
+
+.odd { visibility: visible; width: 60px; }
+#frame2 .odd { background: #000; width: 100px; shape: rectangle;  }
+
+GlobalTest {
+	algorithm: float-hor;
+	padding: 5px;
+	border: solid 1px #000 inside;
+}
+
+
+Tile {
+	color: #000;
+	move-transition: move 200ms circ-out;
+	min-width: 50px;
+	min-height: 50px;
+	margin: 3px;
+	background: #ff0000;
+/*	background: radial-gradient( -1, #aaa, #000 40px, 0xadfc67f0 50%, #0f0f0f0f 60%, #222 70.987%, 0xabcdefdd 254.8px, repeat );*/
+/*	background: linear-gradient( 90deg, #ffffff00, #444, #fff );*/
+	border: 1px solid #000;
+/*	box-shadow: 4px 8px 8px #ff0000aa 180deg;
+	box-bevel: #000fff #00ff00;
+	box-glow: #000fff;
+	box-blur: 10px 10px;*/
+	opacity: .5;
+}
+
+Tile:hover {
+	min-height: 70px;
+	min-width: 80px;
+}
+
+TileList {
+	min-width: 30px;
+	min-height: 30px;
+	border: solid 3px #fedcbaaa;
+	background: #abcdef44;
+/*	child-width: 40px;
+	child-height: 40px;*/
+	/*resize-transition: resize 300ms;
+	move-transition: move 300ms;*/
+	padding: 10px;
+	overflow: hidden;
+}
+
+/*
+Frame:hover {
+	background: #ff0aa;
+}
+
+TileList:hover {
+	background: #f0f;
+}
+
+TileList:hover Tile {
+	background: #000;
+}
+#frame0:hover {
+	background: #000;
+}
+Tile:hover {
+	border: #aaa 4px solid;
+	min-width: 100px;
+}
+
+GlobalApp TileList:hover {
+	background: #f00;
+}
+*/
+#frame0 Tile { background: #0000ff; shape: ellipse; move-transition: move 400ms elastic-out; }
+#frame1 Tile { background: #00ff00; shape: circle;  }
+#frame2 Tile { shape: triangle; min-width: 30px; move-transition: sequence ( parallel ( fade 500ms 40%, move 300ms circ-out ), fade 600ms 100% ) ; }
+#frame8 Tile { move-transition: sequence( parallel ( rotate 500ms 360deg, move 500ms ), rotate 400ms -360deg ); show-transition: fade 0% 100% 350ms; }
+
+
+#frame0 {
+	height: 100%;
+	algorithm: float-ver( bottom, center );
+	overflow: corner-scroll;
+}
+
+#frame1 {
+	height: 60px;
+	top: 5px;
+	right: 5px;
+	left: 5px;
+	algorithm: float-hor( left, center );
+	overflow: scroll-mouse-move;
+}
+/*
+UIContainer {
+	algorithm: relative;
+	top: 90px;
+	bottom: 5px;
+	left: 5px;
+	width: 59%;
+	background: #eee;
+}*/
+
+#frame2 {
+	top: 90px;
+	left: 5px;
+	width: 59%;
+	background: #eee;
+	algorithm: fixed-tile( horizontal, 3 );
+	overflow: scrollbars;
+}
+
+#frame3 {
+	/*max-width: 80px;*/
+	width: 100%;
+	height: 40%;
+	algorithm: dynamic-tile;
+	overflow: scrollbars;
+}
+
+#frame4 {
+	background: #a00;
+	width: auto;
+	height: 100%;
+}
+
+#frame5 {
+	background: #0a0;
+	width: auto;
+	height: 100%;
+}
+
+#frame6 {
+	background: #00a;
+	width: auto;
+	height: 100%;
+}
+
+#frame7 {
+	width: 60%;
+	height: 5%;
+}
+
+#frame8 {
+	width: 100%;
+	height: 40%;
+	algorithm: circle;
+}
+
+
+
+
+/*****************
+ * Scrollbars
+ *****************/
+
+.horizontalScrollBar {	
+	height: 13px;
+	padding: 0px 2px;
+	/*left: 0px;
+	right: 11px;
+	bottom: 0px;
+	padding: 0px 4px;*/
+	
+	background: linear-gradient( 90deg, #151515, #3b3a3a 60% );
+	border: 1px solid #000 outside;
+}
+.verticalScrollBar {
+	width: 13px;
+	padding: 2px 0px;
+	/*top: 0px;
+	bottom: 0px;
+	right: 0px;
+	padding: 2px 0px 13px;*/
+	
+	background: linear-gradient( 0deg, #151515, #3b3a3a 60% );
+	border: 1px solid #000 outside;
+}
+.horizontalScrollBar Button {
+	height: 11px;
+	v-center: 1px;
+	border-radius: 10px;
+	background: linear-gradient( 90deg, #8e8e8e, #5e5e5e );
+	border: 1px solid #222 outside;
+}
+.verticalScrollBar Button {
+	width: 11px;
+	h-center: 1px;
+	border-radius: 10px;
+	background: linear-gradient( 0deg, #8e8e8e, #5e5e5e );
+	border: 1px solid #222 outside;
+}

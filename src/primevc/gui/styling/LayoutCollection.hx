@@ -1,0 +1,212 @@
+/*
+ * Copyright (c) 2010, The PrimeVC Project Contributors
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *   - Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   - Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE PRIMEVC PROJECT CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE PRIMVC PROJECT CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ *
+ *
+ * Authors:
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ */
+package primevc.gui.styling;
+ import primevc.core.validators.IntRangeValidator;
+ import primevc.core.validators.PercentIntRangeValidator;
+ import primevc.gui.layout.IAdvancedLayoutClient;
+ import primevc.gui.layout.ILayoutContainer;
+ import primevc.gui.styling.StyleCollectionBase;
+ import primevc.gui.traits.ILayoutable;
+ import primevc.types.Number;
+  using primevc.utils.BitUtil;
+  using primevc.utils.NumberUtil;
+  using primevc.utils.TypeUtil;
+
+
+private typedef Flags		= LayoutStyleFlags;
+private typedef Validator	= IntRangeValidator;
+private typedef PValidator	= PercentIntRangeValidator;
+
+
+
+/**
+ * @author Ruben Weijers
+ * @creation-date Sep 23, 2010
+ */
+class LayoutCollection extends StyleCollectionBase < LayoutStyle >
+{
+	public function new (elementStyle:IUIElementStyle)			{ super( elementStyle, StyleFlags.LAYOUT ); }
+	override public function forwardIterator ()					{ return cast new LayoutCollectionForwardIterator( elementStyle, propertyTypeFlag); }
+	override public function reversedIterator ()				{ return cast new LayoutCollectionReversedIterator( elementStyle, propertyTypeFlag); }
+
+#if debug
+	override public function readProperties (props:Int = -1)	{ return Flags.readProperties( (props == -1) ? filledProperties : props ); }
+#end
+
+	
+	override public function apply ()
+	{
+		if (changes == 0 || !elementStyle.target.is( ILayoutable ))
+			return;
+		
+		var target	= elementStyle.target.as( ILayoutable );
+		var layout	= target.layout;
+		
+		var widthRange:Validator	= null;
+		var heightRange:Validator	= null;
+	//	untyped(target.layout).filledProperties = filledProperties;
+		
+		//create size constraint for layout client
+		if (changes.has( Flags.HEIGHT_CONSTRAINTS ))
+		{
+			if (filledProperties.hasNone(Flags.HEIGHT_CONSTRAINTS)) {
+				layout.heightValidator = null;
+				changes = changes.unset( Flags.HEIGHT_CONSTRAINTS);
+			}
+			else
+			{
+				if (layout.heightValidator == null)
+					heightRange = filledProperties.has(Flags.PERCENT_HEIGHT_CONSTRAINTS) ? new PValidator() : new Validator();
+				else
+					heightRange = cast layout.heightValidator;
+			}
+		}
+		
+		
+		
+		if (changes.has( Flags.WIDTH_CONSTRAINTS ))
+		{
+			if (filledProperties.hasNone(Flags.WIDTH_CONSTRAINTS)) {
+				layout.widthValidator = null;
+				changes = changes.unset( Flags.WIDTH_CONSTRAINTS );
+			}
+			else
+			{
+				if (layout.widthValidator == null)
+					widthRange = filledProperties.has(Flags.PERCENT_WIDTH_CONSTRAINTS) ? new PValidator() : new Validator();
+				else
+					widthRange = cast layout.widthValidator;
+			}
+		}
+		
+		if (!layout.is(ILayoutContainer))
+			changes = changes.unset( Flags.ALGORITHM | Flags.CHILD_WIDTH | Flags.CHILD_HEIGHT );
+		
+		if (changes == 0)
+			return;
+		
+		
+	//	trace(target + ".applyLayoutStyling1 "+readProperties( changes )+"; changes "+changes);
+		
+		for (styleObj in this)
+		{
+			if (changes == 0)
+				break;
+			
+			if (!styleObj.allFilledProperties.has( changes ))
+				continue;
+			
+			var propsToSet	= styleObj.allFilledProperties.filter( changes );
+			changes			= changes.unset( propsToSet );
+			applyStyleObject( propsToSet, styleObj, widthRange, heightRange );
+		}
+		
+		
+		
+		//properties that are changed but are not found in any style-object need to be unset
+		if (changes > 0) {
+			applyStyleObject( changes, null, widthRange, heightRange );
+			changes = 0;
+		}
+		
+		
+		
+		//set the validators after they are filled, otherwise the width or height will be updated to soon.
+		if (widthRange != null && layout.widthValidator == null)
+			layout.widthValidator = widthRange;
+		
+		if (heightRange != null && layout.heightValidator == null)
+			layout.heightValidator = heightRange;
+	}
+	
+	
+	
+	
+	
+	private function applyStyleObject (propsToSet:Int, styleObj:LayoutStyle, widthRange:Validator = null, heightRange:Validator = null)
+	{
+		var layout		= elementStyle.target.as( ILayoutable ).layout;
+		var notEmpty	= styleObj != null;
+		
+		if (propsToSet.has( Flags.WIDTH | Flags.HEIGHT ))
+		{
+			if (layout.is( IAdvancedLayoutClient )) {
+				var l = layout.as( IAdvancedLayoutClient );
+				if (propsToSet.has( Flags.WIDTH ))		l.explicitWidth		= notEmpty && styleObj.width.notEmpty()		? styleObj.width	: Number.INT_NOT_SET;
+				if (propsToSet.has( Flags.HEIGHT ))		l.explicitHeight	= notEmpty && styleObj.height.notEmpty()	? styleObj.height	: Number.INT_NOT_SET;
+			}
+			else
+				if (propsToSet.has( Flags.WIDTH ))		layout.width		= notEmpty && styleObj.width.notEmpty()		? styleObj.width	: Number.INT_NOT_SET;
+				if (propsToSet.has( Flags.HEIGHT ))		layout.height		= notEmpty && styleObj.height.notEmpty()	? styleObj.height	: Number.INT_NOT_SET;
+		}
+		
+		
+		if (propsToSet.has( Flags.PERCENT_WIDTH ))		layout.percentWidth = (notEmpty && styleObj.percentWidth.notEmpty()) ? styleObj.percentWidth : Number.FLOAT_NOT_SET;
+		if (propsToSet.has( Flags.PERCENT_HEIGHT ))		layout.percentHeight = (notEmpty && styleObj.percentHeight.notEmpty()) ? styleObj.percentHeight : Number.FLOAT_NOT_SET;
+		
+		var pWidthRange		= propsToSet.has( Flags.PERCENT_WIDTH_CONSTRAINTS ) ? widthRange.as(PValidator) : null;
+		var pHeightRange	= propsToSet.has( Flags.PERCENT_HEIGHT_CONSTRAINTS ) ? heightRange.as(PValidator) : null;
+		
+		if (propsToSet.has( Flags.RELATIVE ))			layout.relative				= notEmpty ? styleObj.relative				: null;
+		if (propsToSet.has( Flags.INCLUDE ))			layout.includeInLayout		= notEmpty ? styleObj.includeInLayout		: null;
+		if (propsToSet.has( Flags.MAINTAIN_ASPECT ))	layout.maintainAspectRatio	= notEmpty ? styleObj.maintainAspectRatio	: null;
+		if (propsToSet.has( Flags.PADDING ))			layout.padding				= notEmpty ? styleObj.padding				: null;
+		if (propsToSet.has( Flags.MARGIN ))				layout.margin				= notEmpty ? styleObj.margin				: null;
+		
+		if (propsToSet.has( Flags.PERCENT_MIN_WIDTH ))	pWidthRange.percentMin		= notEmpty ? styleObj.percentMinWidth		: Number.FLOAT_NOT_SET;
+		else if (propsToSet.has( Flags.MIN_WIDTH ))		widthRange.min				= notEmpty ? styleObj.minWidth				: Number.INT_NOT_SET;
+		if (propsToSet.has( Flags.PERCENT_MAX_WIDTH ))	pWidthRange.percentMax		= notEmpty ? styleObj.percentMaxWidth		: Number.FLOAT_NOT_SET;
+		else if (propsToSet.has( Flags.MAX_WIDTH ))		widthRange.max				= notEmpty ? styleObj.maxWidth				: Number.INT_NOT_SET;
+		
+		if (propsToSet.has( Flags.PERCENT_MIN_HEIGHT ))	pHeightRange.percentMin		= notEmpty ? styleObj.percentMinHeight		: Number.FLOAT_NOT_SET;
+		else if (propsToSet.has( Flags.MIN_HEIGHT ))	heightRange.min				= notEmpty ? styleObj.minHeight				: Number.INT_NOT_SET;
+		if (propsToSet.has( Flags.PERCENT_MAX_HEIGHT ))	pHeightRange.percentMax		= notEmpty ? styleObj.percentMaxHeight		: Number.FLOAT_NOT_SET;
+		else if (propsToSet.has( Flags.MAX_HEIGHT ))	heightRange.max				= notEmpty ? styleObj.maxHeight				: Number.INT_NOT_SET;
+		
+		if (propsToSet > 0 && layout.is(ILayoutContainer))
+		{
+			var l = layout.as(ILayoutContainer);
+			if (propsToSet.has( Flags.CHILD_WIDTH ))	l.childWidth				= notEmpty ? styleObj.childWidth			: Number.INT_NOT_SET;
+			if (propsToSet.has( Flags.CHILD_HEIGHT ))	l.childHeight				= notEmpty ? styleObj.childHeight			: Number.INT_NOT_SET;
+			if (propsToSet.has( Flags.ALGORITHM ))		l.algorithm					= notEmpty ? styleObj.algorithm.create()	: null;
+		}
+	}
+}
+
+
+class LayoutCollectionForwardIterator extends StyleCollectionForwardIterator < LayoutStyle >
+{
+	override public function next ()	{ return setNext().data.layout; }
+}
+
+
+class LayoutCollectionReversedIterator extends StyleCollectionReversedIterator < LayoutStyle >
+{
+	override public function next ()	{ return setNext().data.layout; }
+}

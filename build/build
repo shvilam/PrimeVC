@@ -1,0 +1,107 @@
+#!/bin/bash
+
+if test "`which open`" -nt '' ; then
+	# Use open on OS X
+	echo;
+elif test "`which start`" -nt '' ; then
+	# Do nothing on Windows (I can't get start to work :-S)
+	function open () {
+		echo;
+	}
+fi;
+
+BUILDSCRIPTDIR=`dirname "$0"`;
+PRIMEVC_ROOT=`cd "${BUILDSCRIPTDIR}/.."; pwd`
+
+PRJROOT="${PRIMEVC_ROOT}"
+MINPARAMS=1
+STYLE="empty"
+#MainClass="primevc.Main"
+OUTPUT="app.swf"
+WIDTH=1300
+HEIGHT=900
+FPS=24
+BGCOLOR=FFFFFF
+ACCESS="-D network-sandbox"
+
+#parse arguments
+while getopts "m:nc:bs:tw:uh:io:qp:re:zdfl" OptionName
+	do
+		case $OptionName in
+			m ) MainClass=${OPTARG};;	#main class
+			c ) BGCOLOR=${OPTARG};;		#background color
+			s ) STYLE=${OPTARG};;		#style name
+			w ) WIDTH=${OPTARG};;		#width
+			h ) HEIGHT=${OPTARG};;		#height
+			o ) OUTPUT=${OPTARG};;		#output filename
+			p ) PRJROOT=${OPTARG};;		#project root (used for styles)
+			e ) EXTRA=${OPTARG};;		#extra compiler options
+			d ) Debug="-debug";;		#compile cssparser and application in debugmode
+			f ) Force=true;;			#force recompilation of css parser
+			l ) ACCESS="";;				#local file access allowed
+	esac
+done
+
+STYLEDIR="$PRJROOT/styles/$STYLE"
+OUTPUTDIR="$PRJROOT/bin${Debug:--release}"
+OUTPUT="$OUTPUTDIR/$OUTPUT"
+ASSETS=""
+
+if [[ -f "$STYLEDIR/Assets.swf" ]] ; then
+	ASSETS="$STYLEDIR/Assets.swf"
+fi;
+
+if [[ ! -d "$OUTPUTDIR" ]] ; then
+	mkdir -p "$OUTPUTDIR"
+fi;
+
+
+#ls $PRIMEVC_ROOT &&
+cd "$PRIMEVC_ROOT" &&
+
+echo -e "\n\n==================== BUILD${Debug:+ DEBUG} ====================" &&
+
+if [[ ${MainClass} == "" ]] ; then
+	echo "Error: Mainclass is not specified"
+else
+	echo -e "\tMain: $MainClass"
+	echo -e "\tStyle: $STYLEDIR"
+	echo -e "\tDebugging: ${Debug:-false}"
+	echo -e "\tAssets: $ASSETS"
+	echo -e "\tProject: $PRJROOT"
+	echo -e "\tOutput: $OUTPUT"
+	echo -e "\tPrimeVC: $PRIMEVC_ROOT"
+	echo -e "\tLocal file access: $ACCESS"
+	echo -e "\tExtra: ${EXTRA:-"no extra's"}"
+	
+	echo "1. BUILDING ASSETS"
+	bash build/build-assets || exit 1;
+	
+	echo -e "\n2. BUILDING STYLES"
+	bash build/build-styles -s "${STYLEDIR}" ${Debug:+-d} ${Force:+-f} || exit 1;
+	
+	echo -e "\n3. COMPILING SWF"
+#	echo -e "\t\tbuild/build.hxml ${Debug:---no-traces} \n\t\t\t-swf \042$OUTPUT\042 \n\t\t\t-cp \042$PRJROOT/src\042 \n\t\t\t-cp \042$STYLEDIR\042 ${EXTRA:+\n\t\t\t}$EXTRA \n\t\t\t-cp \042$PRJROOT/shared/generated-src/haxe\042 \n\t\t\t-main $MainClass \n\t\t\t-swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR \n\t\t\t${ASSETS:+-swf-lib} $ASSETS \n\t\t\t-swf-lib \042assets/${Debug:+debug-}assets.swf\042" &&
+	echo build/build.hxml \
+		-swf "'$OUTPUT'" \
+		${Debug:---no-traces} \
+		$EXTRA \
+		-cp "'$PRJROOT/src'" \
+		-cp "'$STYLEDIR'" \
+		-main $MainClass \
+		-swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR \
+		${ASSETS:+-swf-lib "'$ASSETS'"} \
+		-swf-lib "'assets/${Debug:+debug-}assets.swf'" \
+		${ACCESS:--D local} \
+		| xargs -t haxe \
+		 	|| exit 1;
+	
+	if (set -u; : $Debug) 2> /dev/null ; then
+		#mv ${PRIMEVC_ROOT}/tmp.swf ${PRIMEVC_ROOT}/bin-debug/app.swf &&
+		open "$OUTPUT"
+	else
+		echo -e "\n4. OPTIMIZING BUILD" &&
+		bash build/optimize-build "$OUTPUT" &&
+		open "$OUTPUT"
+	fi;
+fi;

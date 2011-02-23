@@ -1,9 +1,14 @@
 .DS_Store
 Thumb.db
+*.tmproj
+*.tmbuild
+*.n
+*.swf
 
+/styles/*/StyleSheet.hx
 /build/environment.sh
-/bin-debug
-/bin-release
+*bin-debug/*
+*bin-release/*
 /generated-src
 
 /assets/assets.swf

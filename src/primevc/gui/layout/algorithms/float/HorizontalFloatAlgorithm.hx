@@ -1,13 +1,40 @@
+/*
+ * Copyright (c) 2010, The PrimeVC Project Contributors
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *   - Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   - Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE PRIMEVC PROJECT CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE PRIMVC PROJECT CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ *
+ *
+ * Authors:
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ */
 package primevc.gui.layout.algorithms.float;
- import primevc.gui.layout.algorithms.directions.Horizontal;
+ import primevc.core.geom.space.Horizontal;
+ import primevc.core.geom.IRectangle;
+ import primevc.gui.layout.algorithms.HorizontalBaseAlgorithm;
  import primevc.gui.layout.algorithms.IHorizontalAlgorithm;
- import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
  import primevc.gui.layout.AdvancedLayoutClient;
- import primevc.gui.layout.LayoutFlags;
- import primevc.utils.IntMath;
-  using primevc.utils.BitUtil;
-  using primevc.utils.IntMath;
-  using primevc.utils.IntUtil;
+ import primevc.utils.NumberMath;
+  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
  
 
@@ -17,10 +44,8 @@ package primevc.gui.layout.algorithms.float;
  * @creation-date	Jun 24, 2010
  * @author			Ruben Weijers
  */
-class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizontalAlgorithm
+class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHorizontalAlgorithm
 {
-	public var direction			(default, setDirection)	: Horizontal;
-	
 	/**
 	 * Measured point of the right side of the middlest child (rounded above) 
 	 * when the direction is center.
@@ -28,130 +53,94 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	private var halfWidth			: Int;
 	
 	
-	public function new ( ?direction )
-	{
-		super();
-		this.direction = direction == null ? Horizontal.left : direction;
-	}
-	
-	
-	
-	//
-	// GETTERS / SETTERS
-	//
-	
-	/**
-	 * Setter for direction property. Method will change the apply method based
-	 * on the given direction. After that it will dispatch a 'directionChanged'
-	 * signal.
-	 */
-	private inline function setDirection (v:Horizontal)
-	{
-		if (v != direction) {
-			direction = v;
-			switch (v) {
-				case Horizontal.left:		apply = applyLeftToRight;
-				case Horizontal.center:		apply = applyCentered;
-				case Horizontal.right:		apply = applyRightToLeft;
-			}
-			algorithmChanged.send();
-		}
-		return v;
-	}
-	
-	
-	
-	//
-	// LAYOUT
-	//
-	
-	/**
-	 * Method indicating if the size is invalidated or not.
-	 */
-	public inline function isInvalid (changes:Int)	: Bool
-	{
-		return changes.has( LayoutFlags.WIDTH_CHANGED ) && childWidth.notSet();
-	}
-	
-	
-	public inline function measure ()
+	public inline function validate ()
 	{
 		if (group.children.length == 0)
 			return;
-		
-		measureHorizontal();
-		measureVertical();
-	}
-	
-	
-	public inline function measureVertical ()
-	{
-		var height:Int = childHeight;
-		
-		if (childHeight.notSet())
-		{
-			for (child in group.children)
-				if (child.bounds.height > height)
-					height = child.bounds.height;
-		}
-		
-		setGroupHeight(height);
+
+		validateHorizontal();
+		validateVertical();
 	}
 	
 	
 	/**
 	 * Method will return the total width of all the children.
 	 */
-	public inline function measureHorizontal ()
+	public function validateHorizontal ()
 	{
 		var width:Int	= halfWidth = 0;
+		var children	= group.children;
 		
-		if (childWidth.notSet())
+		if (group.childWidth.notSet())
 		{
-			var i:Int = 0;
-			
-			for (child in group.children) {
-				width += child.bounds.width;
+			for (i in 0...children.length)
+			{
+				var child = children.getItemAt(i);
+				if (!child.includeInLayout)
+					continue;
+				
+				width += child.outerBounds.width;
 				
 				//only count even children
-				if (i % 2 == 0)
-					halfWidth += child.bounds.width;
-				
-				i++;
+				if (i.isEven())
+					halfWidth += child.outerBounds.width;
 			}
 		}
 		else
 		{
-			width		= childWidth * group.children.length;
-			halfWidth	= childWidth * group.children.length.divCeil(2);
+			width		= group.childWidth * children.length;
+			halfWidth	= group.childWidth * children.length.divCeil(2);
 		}
 		
 		setGroupWidth(width);
 	}
-	
-	
-	private inline function applyLeftToRight () : Void
+
+
+	override public function apply ()
 	{
-		if (group.children.length == 0)
-			return;
-		
-		trace("applyLeftToRight for " + group);
-		var next = getLeftStartValue();
-		
-		//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
-		if (childWidth.notSet())
+		switch (direction) {
+			case Horizontal.left:		applyLeftToRight();
+			case Horizontal.center:		applyCentered();
+			case Horizontal.right:		applyRightToLeft();
+		}
+		super.apply();
+	}
+	
+	
+	private inline function applyLeftToRight (next:Int = -1) : Void
+	{
+		if (group.children.length > 0)
 		{
-			for (child in group.children) {
-				trace(child +".left = " + next);
-				child.bounds.left	= next;
-				next				= child.bounds.right;
-			}
-		} 
-		else
-		{
-			for (child in group.children) {
-				child.bounds.left	 = next;
-				next				+= childWidth;
+			if (next == -1)
+				next = getLeftStartValue();
+			
+			var children = group.children;
+			Assert.that(next.isSet());
+			
+			//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
+			if (group.childWidth.notSet())
+			{
+				for (i in 0...children.length)
+				{
+					var child = children.getItemAt(i);
+					if (!child.includeInLayout)
+						continue;
+					
+					child.outerBounds.left	= next;
+					next					= child.outerBounds.right;
+				}
+			} 
+			else
+			{
+				for (i in 0...children.length)
+				{
+					var child = children.getItemAt(i);
+					if (!child.includeInLayout)
+						continue;
+					
+					child.outerBounds.left	 = next;
+					next					+= group.childWidth;
+				}
 			}
 		}
 	}
@@ -159,107 +148,251 @@ class HorizontalFloatAlgorithm extends LayoutAlgorithmBase, implements IHorizont
 	
 	private inline function applyCentered () : Void
 	{
-		if (group.children.length == 0)
-			return;
-		
-		var i:Int = 0;
-		var evenPos:Int, oddPos:Int;
-		evenPos = oddPos = halfWidth + getLeftStartValue();
-		
-		//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
-		if (childWidth.notSet())
+		applyLeftToRight( getHorCenterStartValue() );
+		/*if (group.children.length > 0)
 		{
-			for (child in group.children) {
-				if (i % 2 == 0) {
-					//even
-					child.bounds.right	= evenPos;
-					evenPos				= child.bounds.left;
-				} else {
-					//odd
-					child.bounds.left	= oddPos;
-					oddPos				= child.bounds.right;
+			var i:Int = 0;
+			var evenPos:Int, oddPos:Int;
+			evenPos = oddPos = halfWidth + getLeftStartValue();
+		
+			//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
+			if (group.childWidth.notSet())
+			{
+				for (child in group.children) {
+					if (!child.includeInLayout)
+						continue;
+					
+					if (i.isEven()) {
+						//even
+						child.bounds.right	= evenPos;
+						evenPos				= child.bounds.left;
+					} else {
+						//odd
+						child.bounds.left	= oddPos;
+						oddPos				= child.bounds.right;
+					}
+					i++;
 				}
-				i++;
 			}
-		}
-		else
-		{
-			for (child in group.children) {
-				if (i % 2 == 0) {
-					//even
-					child.bounds.right	 = evenPos;
-					evenPos				-= childWidth;
-				} else {
-					//odd
-					child.bounds.left	 = oddPos;
-					oddPos				+= childWidth;
+			else
+			{
+				for (child in group.children) {
+					if (!child.includeInLayout)
+						continue;
+					
+					if (i.isEven()) {
+						//even
+						child.bounds.right	 = evenPos;
+						evenPos				-= group.childWidth;
+					} else {
+						//odd
+						child.bounds.left	 = oddPos;
+						oddPos				+= group.childWidth;
+					}
+					i++;
 				}
-				i++;
 			}
-		}
+		}*/
 	}
 	
 	
 	private inline function applyRightToLeft () : Void
 	{
-		if (group.children.length == 0)
-			return;
-		
-		var next = getRightStartValue();
-		
-		//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
-		if (childWidth.notSet())
+		if (group.children.length > 0)
 		{
-			for (child in group.children) {
-				child.bounds.right	= next;
-				next				= child.bounds.left;
+			var next		= getRightStartValue();
+			var children	= group.children;
+			Assert.that(next.isSet(), "beginvalue can't be unset for "+group+". Make sure the group has a width.");
+			
+			//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
+			if (group.childWidth.notSet())
+			{
+				for (i in 0...children.length)
+				{
+					var child = children.getItemAt(i);
+					if (!child.includeInLayout)
+						continue;
+					
+					child.outerBounds.right	= next;
+					next					= child.outerBounds.left;
+				}
 			}
+			else
+			{
+				next -= group.childWidth;
+				for (i in 0...children.length)
+				{
+					var child = children.getItemAt(i);
+					if (!child.includeInLayout)
+						continue;
+					
+					child.outerBounds.left	= next;
+					next					= child.outerBounds.left - group.childWidth;
+				}
+			}
+		}
+	}
+
+	
+	public inline function getDepthForBounds (bounds:IRectangle) : Int
+	{
+		return switch (direction) {
+			case Horizontal.left:		getDepthForBoundsLtR(bounds);
+			case Horizontal.center:		getDepthForBoundsC(bounds);
+			case Horizontal.right:		getDepthForBoundsRtL(bounds);
+		}
+	}
+	
+	
+	private inline function getDepthForBoundsLtR (bounds:IRectangle) : Int
+	{
+		var depth:Int	= 0;
+		var posX:Int	= bounds.left;
+		var centerX:Int	= bounds.left + (bounds.width >> 1); //* .5).roundFloat();
+		var children	= group.children;
+		
+		if (group.childWidth.isSet())
+		{
+			depth = posX.divRound(group.childWidth);
 		}
 		else
 		{
-			next -= childWidth;
-			for (child in group.children) {
-				child.bounds.left	= next;
-				next				= child.bounds.left - childWidth;
+			//if pos <= 0, the depth will be 0
+			if (posX > 0)
+			{
+				//check if it's smart to start searching at the end or at the beginning..
+				var groupWidth = group.width;
+				if (group.is(AdvancedLayoutClient))
+					groupWidth = IntMath.max( 0, group.as(AdvancedLayoutClient).measuredWidth );
+				
+				var halfW = groupWidth >> 1; //* .5;
+				if (posX < halfW) {
+					//start at beginning
+					for (i in 0...children.length)
+					{
+						var child = children.getItemAt(i);
+						if (child.includeInLayout && centerX <= child.outerBounds.right && centerX >= child.outerBounds.left)
+							break;
+						
+						depth++;
+					}
+				}
+				else
+				{
+					//start at end
+					var itr	= children.reversedIterator();
+					depth	= children.length;
+					while (itr.hasNext()) {
+						var child = itr.next();
+						if (child.includeInLayout && centerX >= child.outerBounds.right)
+							break;
+						
+						depth--;
+					}
+				}
 			}
 		}
+		return depth;
 	}
 	
 	
-	
-	
-	//
-	// START VALUES
-	//
-	
-	private inline function getLeftStartValue ()	: Int
+	private inline function getDepthForBoundsC (bounds:IRectangle) : Int
 	{
-		var left:Int = 0;
-		if (group.padding != null)
-			left = group.padding.left;
+		Assert.abstract( "Wrong implementation since the way centered layouts behave is changed");
+		var depth:Int	= 0;
+		var posX:Int	= bounds.left;
+		var centerX:Int	= bounds.left + (bounds.width >> 1); // * .5).roundFloat();
+		var children	= group.children;
 		
-		return left;
-	}
-	
-	
-	private inline function getRightStartValue ()	: Int
-	{
-		var w = group.width;
+		var groupWidth	= group.width;
 		if (group.is(AdvancedLayoutClient))
-			w = IntMath.max(group.as(AdvancedLayoutClient).measuredWidth, w);
-		
-		if (group.padding != null)
-			w += group.padding.left; // + group.padding.right;
-		return w;
+			groupWidth	= IntMath.max( 0, group.as(AdvancedLayoutClient).measuredWidth );
+
+		var halfW = groupWidth >> 1; // * .5;
+		for (i in 0...children.length)
+		{
+			var child = children.getItemAt(i);
+			if (child.includeInLayout 
+				&& (
+						(centerX <= child.outerBounds.right && centerX >= halfW)
+					||	(centerX >= child.outerBounds.right && centerX <= halfW)
+				)
+			)
+				break;
+
+			depth++;
+		}
+		return depth;
 	}
 	
 	
-#if debug
-	public function toString ()
+	private inline function getDepthForBoundsRtL (bounds:IRectangle) : Int
 	{
-		var start	= direction == Horizontal.left ? "left" : "right";
-		var end		= direction == Horizontal.left ? "right" : "left";
-		return "float.hor " + start + " -> " + end;
+		var depth:Int	= 0;
+		var posX:Int	= bounds.left;
+		var centerX:Int	= bounds.left + (bounds.width >> 1); //* .5).roundFloat();
+		
+		var children	= group.children;
+		var groupWidth	= group.width;
+		var emptyWidth	= 0;
+		if (group.is(AdvancedLayoutClient))
+		{
+			groupWidth	= IntMath.max( 0, group.as(AdvancedLayoutClient).measuredWidth );
+			//check if there's any width left. This happens when there's an explicitWidth set.
+			emptyWidth	= IntMath.max( 0, group.width - groupWidth );
+		}
+		
+		if (group.childWidth.isSet())
+		{
+			depth = children.length - ( posX - emptyWidth ).divRound( group.childWidth );
+		}
+		else
+		{
+			//if pos <= emptyWidth, the depth will be at the end of the list
+			if (posX <= emptyWidth)
+				depth = children.length;
+			
+			//if bounds.right < maximum group width, then the depth is at the beginning of the list
+			else if (bounds.right < IntMath.max(group.width, groupWidth))
+			{
+				//check if it's smart to start searching at the end or at the beginning..
+				var halfW = groupWidth >> 1; //* .5;
+
+				if (posX > (emptyWidth + halfW)) {
+					//start at beginning
+					for (i in 0...children.length)
+					{
+						var child = children.getItemAt(i);
+						if (child.includeInLayout && centerX >= child.outerBounds.left)
+							break;
+						
+						depth++;
+					}
+				}
+				else
+				{
+					//start at end
+					var itr	= children.reversedIterator();
+					depth	= children.length - 1;
+					while (itr.hasNext()) {
+						var child = itr.next();
+						if (child.includeInLayout && centerX <= child.outerBounds.right)
+							break;
+
+						depth--;
+					}
+				}
+			}
+
+		}
+		return depth;
+	}
+	
+	
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String
+	{
+		return "float-hor (" + direction + ", " + vertical + ")";
 	}
 #end
 }

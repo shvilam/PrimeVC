@@ -1,7 +1,33 @@
+/*
+ * Copyright (c) 2010, The PrimeVC Project Contributors
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *   - Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   - Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE PRIMEVC PROJECT CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE PRIMVC PROJECT CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ *
+ *
+ * Authors:
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ */
 package primevc.core.collections;
  
-
-
 /**
  * A chained list is a ListCollection with a maximum number of elements.
  * 
@@ -14,7 +40,8 @@ package primevc.core.collections;
  * @creation-date	Jun 30, 2010
  * @author			Ruben Weijers
  */
-class ChainedList <DataType> extends SimpleList <DataType> #if (flash9 || cpp) ,implements haxe.rtti.Generic #end
+class ChainedList <DataType> extends SimpleList <DataType> 
+	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	public var nextList							: ChainedList < DataType >;
 	/**
@@ -31,6 +58,13 @@ class ChainedList <DataType> extends SimpleList <DataType> #if (flash9 || cpp) ,
 	}
 	
 	
+	override public function dispose ()
+	{
+		nextList = null;
+		super.dispose();
+	}
+	
+	
 	override public function add (item:DataType, pos:Int = -1) : DataType
 	{
 		if (length < max || max == -1)
@@ -39,21 +73,27 @@ class ChainedList <DataType> extends SimpleList <DataType> #if (flash9 || cpp) ,
 		}
 		else
 		{
-			//create next list if it doesn't exist yet
-			if (nextList == null)
-				nextList = new ChainedList<DataType>(max);
-			
-			nextList.add(last.data, 0);		//1. add our last item to the beginning of the next list
-			super.remove(last.data);		//2. remove the last item
-			super.add(item, pos);			//3. add the new item to this list
+			moveItemToNextList( last.data );
+			super.add(item, pos);			//add the new item to this list
 			return item;
 		}
 	}
 	
 	
-	override public function remove (item:DataType) : DataType
+	public function moveItemToNextList (item:DataType, pos:Int = 0)
+	{	
+		//create next list if it doesn't exist yet
+		if (nextList == null)
+			nextList = new ChainedList<DataType>(max);
+		
+		nextList.add(item, pos);	//1. add our last item to the beginning of the next list
+		super.remove(item);			//2. remove the last item
+	}
+	
+	
+	override public function remove (item:DataType, oldPos:Int = -1) : DataType
 	{
-		super.remove(item);
+		super.remove(item, oldPos);
 		
 		if (nextList != null && nextList.length > 0)
 		{
@@ -107,15 +147,17 @@ class ChainedList <DataType> extends SimpleList <DataType> #if (flash9 || cpp) ,
 	
 	
 #if debug
-	public function toString()
+	override public function toString()
 	{
 		var items = [];
 		var i = 0;
 		for (item in this) {
-			items.push( "[ " + i + " ] = " + item ); // Type.getClassName(Type.getClass(item)));
+			Assert.that(item != null, "item on "+i+" in "+name+" cannot be null!");
+			items.push( "[ " + i + " ] = " + item );
 			i++;
 		}
-		return "ChainedList("+items.length+")\n" + items.join("\n");
+		Assert.equal( items.length, length, "Length of "+name+" is invalid! ");
+		return name + "ChainedList( "+items.length+" / " + length + " )\n" + items.join("\n")+"\n";
 	}
 #end
 }

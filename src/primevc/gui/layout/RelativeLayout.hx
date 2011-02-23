@@ -1,7 +1,43 @@
+/*
+ * Copyright (c) 2010, The PrimeVC Project Contributors
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *   - Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   - Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE PRIMEVC PROJECT CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE PRIMVC PROJECT CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ *
+ *
+ * Authors:
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ */
 package primevc.gui.layout;
+#if neko
+ import primevc.tools.generator.ICodeFormattable;
+ import primevc.tools.generator.ICodeGenerator;
+ import primevc.tools.generator.ICSSFormattable;
+ import primevc.utils.ID;
+#end
  import primevc.core.dispatcher.Signal0;
- import primevc.core.IDisposable;
- import primevc.core.Number;
+ import primevc.core.geom.IBox;
+ import primevc.core.traits.IDisposable;
+ import primevc.types.Number;
+  using primevc.utils.NumberUtil;
 
 
 /**
@@ -26,8 +62,17 @@ package primevc.gui.layout;
  * @creation-date	Jun 22, 2010
  * @author			Ruben Weijers
  */
-class RelativeLayout implements IDisposable
+class RelativeLayout 
+				implements IBox
+			,	implements IDisposable	
+#if neko	,	implements ICSSFormattable
+			,	implements ICodeFormattable		#end
 {
+	
+#if neko
+	public var _oid					(default, null)	: Int;
+#end
+	
 	/**
 	 * Flag indicating if the relative-properties are enabled or disabled.
 	 * When the value is false, it will still be possible to change the
@@ -42,7 +87,7 @@ class RelativeLayout implements IDisposable
 	 * Signal to notify listeners that a property of the relative layout is 
 	 * changed.
 	 */
-	public var changed				(default, null) : Signal0;
+	public var change				(default, null) : Signal0;
 	
 	
 	//
@@ -59,7 +104,7 @@ class RelativeLayout implements IDisposable
 	 * Will make the center of the layout be placed at 10px right from the 
 	 * center of the parent.
 	 * 
-	 * @default		Number.NOT_SET
+	 * @default		Number.INT_NOT_SET
 	 */
 	public var hCenter		(default, setHCenter)	: Int;
 	
@@ -73,7 +118,7 @@ class RelativeLayout implements IDisposable
 	 * Will make the center of the layout be placed at 10px below the 
 	 * center of the parent.
 	 * 
-	 * @default		Number.NOT_SET
+	 * @default		Number.INT_NOT_SET
 	 */
 	public var vCenter		(default, setVCenter)	: Int;
 	
@@ -88,45 +133,56 @@ class RelativeLayout implements IDisposable
 	 * Property defines the relative left position in relation with the parent.
 	 * @example		
 	 * 		client.relative.left = 10;	//left side of client will be 10px from the left side of the parent
-	 * @default		Number.NOT_SET
+	 * @default		Number.INT_NOT_SET
 	 */
-	public var left					(default, setLeft)				: Int;
+	public var left					(getLeft, setLeft)				: Int;
 	/**
 	 * Property defines the relative right position in relation with the parent.
 	 * @see			primevc.gui.layout.RelativeLayout#left
-	 * @default		Number.NOT_SET
+	 * @default		Number.INT_NOT_SET
 	 */
-	public var right				(default, setRight)				: Int;
+	public var right				(getRight, setRight)			: Int;
 	/**
 	 * Property defines the relative top position in relation with the parent.
 	 * @see			primevc.gui.layout.RelativeLayout#left
-	 * @default		Number.NOT_SET
+	 * @default		Number.INT_NOT_SET
 	 */
-	public var top					(default, setTop)				: Int;
+	public var top					(getTop, setTop)				: Int;
 	/**
 	 * Property defines the relative bottom position in relation with the parent.
 	 * @see			primevc.gui.layout.RelativeLayout#left
-	 * @default		Number.NOT_SET
+	 * @default		Number.INT_NOT_SET
 	 */
-	public var bottom				(default, setBottom)			: Int;
+	public var bottom				(getBottom, setBottom)			: Int;
 	
 	
-	public function new () 
+	public function new ( top:Int = Number.INT_NOT_SET, right:Int = Number.INT_NOT_SET, bottom:Int = Number.INT_NOT_SET, left:Int = Number.INT_NOT_SET, hCenter:Int = Number.INT_NOT_SET, vCenter:Int = Number.INT_NOT_SET )
 	{
-		changed	= new Signal0();
-		hCenter	= Number.NOT_SET;
-		vCenter	= Number.NOT_SET;
-		left	= Number.NOT_SET;
-		right	= Number.NOT_SET;
-		bottom	= Number.NOT_SET;
-		top		= Number.NOT_SET;
+#if neko
+		this._oid		= ID.getNext();
+#end
+		this.enabled	= true;
+		this.change		= new Signal0();
+		this.hCenter	= hCenter;
+		this.vCenter	= vCenter;
+		this.top		= top;
+		this.right		= right;
+		this.bottom		= bottom;
+		this.left		= left;
 	}
 	
 	
 	public function dispose ()
 	{
-		changed.dispose();
-		changed = null;
+			change.dispose();
+			change = null;
+#if neko	_oid = 0; #end
+	}
+	
+	
+	public inline function clone () : IBox
+	{
+		return new RelativeLayout( top, right, bottom, left, hCenter, vCenter );
 	}
 	
 	
@@ -135,79 +191,152 @@ class RelativeLayout implements IDisposable
 	// GETTERS / SETTERS
 	//
 	
-	private function setHCenter (v) {
+	
+	private inline function getLeft ()		{ return left; }
+	private inline function getRight ()		{ return right; }
+	private inline function getTop ()		{ return top; }
+	private inline function getBottom ()	{ return bottom; }
+	
+	
+	
+	private function setHCenter (v:Int) {
 		//unset left and right
-		if (v != Number.NOT_SET)
-			left = right = Number.NOT_SET;
+		if (v.isSet())
+			left = right = Number.INT_NOT_SET;
 		
 		if (v != hCenter) {
 			hCenter = v;
 			if (enabled)
-				changed.send();
+				change.send();
 		}
 		return v;
 	}
 	
-	private function setVCenter (v) {
+	private function setVCenter (v:Int) {
 		//unset top and bottom
-		if (v != Number.NOT_SET)
-			top = bottom = Number.NOT_SET;
+		if (v.isSet())
+			top = bottom = Number.INT_NOT_SET;
 		
 		if (v != vCenter) {
 			vCenter = v;
 			if (enabled)
-				changed.send();
+				change.send();
 		}
 		return v;
 	}
 	
 	
 	
-	private inline function setLeft (v) {
-		if (v != Number.NOT_SET)
-			hCenter = Number.NOT_SET;
+	private inline function setLeft (v:Int) {
+		if (v.isSet())
+			hCenter = Number.INT_NOT_SET;
 		
 		if (v != left) {
 			left = v;
 			if (enabled)
-				changed.send();
+				change.send();
 		}
 		return v;
 	}
 	
-	private inline function setRight (v) {
-		if (v != Number.NOT_SET)
-			hCenter = Number.NOT_SET;
+	private inline function setRight (v:Int) {
+		if (v.isSet())
+			hCenter = Number.INT_NOT_SET;
 		
 		if (v != right) {
 			right = v;
 			if (enabled)
-				changed.send();
+				change.send();
 		}
 		return v;
 	}
 	
-	private inline function setTop (v) {
-		if (v != Number.NOT_SET)
-			vCenter = Number.NOT_SET;
+	private inline function setTop (v:Int) {
+		if (v.isSet())
+			vCenter = Number.INT_NOT_SET;
 		
 		if (v != top) {
 			top = v;
 			if (enabled)
-				changed.send();
+				change.send();
 		}
 		return v;
 	}
 	
-	private inline function setBottom (v) {
-		if (v != Number.NOT_SET)
-			vCenter = Number.NOT_SET;
+	private inline function setBottom (v:Int) {
+		if (v.isSet())
+			vCenter = Number.INT_NOT_SET;
 		
 		if (v != bottom) {
 			bottom = v;
 			if (enabled)
-				changed.send();
+				change.send();
 		}
 		return v;
 	}
+	
+	
+#if debug
+	public function toString () {
+		return "RelativeLayout - t: "+top+"; r: "+right+"; b: "+bottom+"; l: "+left+"; hCenter: "+hCenter+"; vCenter: "+vCenter;
+	}
+#end
+	
+
+#if (neko || debug)
+	public function toCSS (prefix:String = "") : String
+	{
+		var css = [];
+		var str = "";
+		
+		if (top.isSet())	css.push( top + "px" );
+		else				css.push( "none" );
+		if (right.isSet())	css.push( right + "px" );
+		else				css.push( "none" );
+		if (bottom.isSet())	css.push( bottom + "px" );
+		else				css.push( "none" );
+		if (left.isSet())	css.push( left + "px" );
+		else				css.push( "none" );
+		
+		str = css.join(" ");
+		css = [];
+		
+		if (hCenter.isSet())	css.push( hCenter + "px")
+		else					css.push( "none");
+		if (vCenter.isSet())	css.push( vCenter + "px")
+		else					css.push( "none");
+		
+		if (str != "")
+			str += ", ";
+		
+		str += css.join(" ");
+		
+		return str;
+	}
+	
+
+	public function isEmpty () : Bool
+	{
+		return	top.notSet()
+			&&	right.notSet()
+			&&	bottom.notSet()
+			&&	left.notSet()
+			&&	hCenter.notSet()
+			&&	vCenter.notSet();
+	}
+#end
+
+#if neko
+	public function cleanUp () : Void {}
+	
+	public function toCode (code:ICodeGenerator)
+	{
+		if (!isEmpty())
+		{
+			code.construct( this, [ top, right, bottom, left, hCenter, vCenter ] );
+			if (!enabled)
+				code.setProp( this, "enabled", enabled );
+		}
+	}
+#end
 }
