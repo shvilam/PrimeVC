@@ -115,6 +115,7 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 			createBehaviours();
 			createGraphics();
 			
+		//	trace(owner+" => "+this+"; "+newOwner.isInitialized());
 			if (newOwner.isInitialized()) {
 				createChildren();
 				childrenCreated();

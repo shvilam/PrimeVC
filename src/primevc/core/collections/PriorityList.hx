@@ -112,6 +112,23 @@ class PriorityList < DataType : IPrioritizable >
 	}
 	
 	
+	public function hasCell (cell:FastDoubleCell<DataType>)
+	{
+		if (first == null && last == null)
+			return false;
+		
+		var cur = first;
+		while (cur != null)
+		{
+			if (cur == cell)
+				return true;
+			
+			cur = cur.next;
+		}
+		return false;
+	}
+	
+	
 	/**
 	 * Method will add the given item on the correct position in the list. 
 	 * The higher the priority, the earlier the position

@@ -40,9 +40,11 @@ package primevc.gui.styling;
 #if debug
  import primevc.utils.ID;
 #end
+  using primevc.gui.styling.StyleFlags;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.FastArray;
+  using primevc.utils.IfUtil;
   using primevc.utils.TypeUtil;
   using Std;
   using Type;
@@ -335,30 +337,54 @@ class UIElementStyle implements IUIElementStyle
 		//		For example when the target has a styleclass with graphic-property "shape" and the new updated styles have a
 		//			graphic-property "border", getUsablePropertiesOf will tell us that there are no changes in the graphics of the
 		//			new style since they both have a "graphics" object. This is obviously incorrect and should be fixed!
-	/*	if (styles.length > 0)
+		if (styles.length > 0)
 		{
-			var oldStyles	= styles.clone();
-			var changes		= updateStyles(false);
-		
+			var oldStyles		= styles.clone();
+			var changes			= updateStyles(false);
+			var childrenChanged	= false;
+			
+			var o = changes;
+			
 			if (styles.length > 0)
 			{
 				//find removed or added style-blocks
-				var styleCell:FastDoubleCell < StyleBlock > = oldStyles.first;
-				while (styleCell != null)
+				var newStyleCell = styles.first;
+				while (newStyleCell != null)
 				{
-					var newCell = styles.getCellForItem( styleCell.data );
-					if (newCell != null)
-						changes = changes.unset( getUsablePropertiesOf( newCell ) );
+					var newStyle = newStyleCell.data;
+					//
+					// Try to find the style-block in the old list.
+					// If the style is in the old-styles list, it means the properties of
+					// that style are already applied on the target-UIElement, and can be
+					// ignored as changed properties.
+					// 
+					// To make sure that the properties can be ignored, the 
+					// "unsetChangesBy" method does a thorough inspection of the content 
+					// of the style-block.
+					//
+					if (oldStyles.has( newStyle ))		changes			= changes.unset( unsetChangesBy( newStyleCell, changes ) );
+					else if (!childrenChanged)			childrenChanged	= newStyle.allFilledProperties.has( Flags.CHILDREN );
 					
-					styleCell = styleCell.next;
+					newStyleCell = newStyleCell.next;
 				}
 			}
 			
+			if (!childrenChanged)
+				changes = changes.unset( Flags.CHILDREN );
+			
+		/*	if (changes.has( Flags.STATES ))		trace("\t\tstateChanges: "+states.readProperties(states.changes));
+			if (changes.has( Flags.GRAPHICS ))		trace("\t\tGraphicChanges: "+graphics.readProperties(graphics.changes));
+			if (changes.has( Flags.LAYOUT ))		trace("\t\tLayoutChanges: "+layout.readProperties(layout.changes));
+			if (changes.has( Flags.FONT ))			trace("\t\tFontChanges: "+font.readProperties(font.changes));
+			if (changes.has( Flags.EFFECTS ))		trace("\t\teffectChanges: "+effects.readProperties(effects.changes));
+			if (changes.has( Flags.BOX_FILTERS ))	trace("\t\tboxFilterChanges: "+boxFilters.readProperties(boxFilters.changes));*/
+			
 			oldStyles.dispose();
 			stylesAreSearched = true;
+	//		trace(this+".end reset; origChanges: "+o.read()+"; realChanges: "+changes.read());
 			broadcastChanges( changes );
 		}
-		else*/
+		else
 			updateStyles();
 	}
 	
@@ -677,21 +703,156 @@ class UIElementStyle implements IUIElementStyle
 	 * 
 	 * Usabable props of elementStyle: font
 	 */ 
-	public function getUsablePropertiesOf ( styleCell:FastDoubleCell < StyleBlock >, properties:Int = -1 ) : Int
+	private function getUsablePropertiesOf ( styleCell:FastDoubleCell < StyleBlock >, properties:Int = -1 ) : Int
 	{
 		Assert.notNull( styleCell );
 		if (properties == -1)
 			properties = styleCell.data.allFilledProperties;
 		
-		properties = properties.unset( Flags.INHERETING_STYLES );
+		var givenData	= styleCell.data;
+		properties		= properties.unset( Flags.INHERETING_STYLES );
 		
 		//loop through all cell's with higher priority
 		while (null != (styleCell = styleCell.prev) && properties > 0) {
 			Assert.notNull( styleCell.data, "found cell without data in "+target );
-			properties = properties.unset( styleCell.data.allFilledProperties );
+			var curData		= styleCell.data;
+			var curProps	= curData.allFilledProperties;
+			
+			//get the properties that the given-style has in common with the higher-style
+			var commonProps = properties.filter( curProps );
+			if (commonProps == 0)
+				continue;
+			
+			//
+			// Compare the content of each styleblock of the higher-style with the given-style.
+			// If the content of the higher-style has all the properties of the given-style,
+			// the content of the given cell will be ignored. 
+			//
+			// E.g. if both styles have a graphics-block with a background, the graphics property
+			// of the given-style won't be usable.
+			// If both styles have a style-block with a background, but the given-style also
+			// has a border, the graphics property of the given-style is also usable.
+			//
+			if (commonProps.has( Flags.STATES )		 && !hasUniqueProperies( givenData.states,		curData.states ))		commonProps.unset( Flags.STATES );		 // trace("\t\t\tstateChanges: "+states.readProperties(states.changes)); }
+			if (commonProps.has( Flags.GRAPHICS )	 && !hasUniqueProperies( givenData.graphics,	curData.graphics ))		commonProps.unset( Flags.GRAPHICS );	 // trace("\t\t\tGraphicChanges: "+graphics.readProperties(graphics.changes)); }
+			if (commonProps.has( Flags.LAYOUT )		 && !hasUniqueProperies( givenData.layout,		curData.layout ))		commonProps.unset( Flags.LAYOUT );		 // trace("\t\t\tLayoutChanges: "+layout.readProperties(layout.changes)); }
+			if (commonProps.has( Flags.FONT )		 && !hasUniqueProperies( givenData.font,		curData.font ))			commonProps.unset( Flags.FONT );		 // trace("\t\t\tFontChanges: "+font.readProperties(font.changes)); }
+			if (commonProps.has( Flags.EFFECTS )	 && !hasUniqueProperies( givenData.effects,		curData.effects ))		commonProps.unset( Flags.EFFECTS );		 // trace("\t\t\teffectChanges: "+effects.readProperties(effects.changes)); }
+			if (commonProps.has( Flags.BOX_FILTERS ) && !hasUniqueProperies( givenData.boxFilters,	curData.boxFilters ))	commonProps.unset( Flags.BOX_FILTERS );	 // trace("\t\t\tboxFilterChanges: "+boxFilters.readProperties(boxFilters.changes)); }
+			
+			// unset all the style properties of the higher-style in the usable properties flag,
+			// except for those they share and are not the same
+			properties = properties.unset( curData.allFilledProperties ).set( commonProps );
 		}
 		
 		return properties;
+	}
+	
+	
+	/**
+	 * Method returns the properties of the given style-cell that will be overwritten
+	 * by style-cells with higher priority,
+	 */
+/*	private inline function getUnusablePropertiesOf (styleCell:FastDoubleCell<StyleBlock>, properties:Int = -1)
+	{
+		if (properties == -1)
+			properties = styleCell.data.allFilledProperties;
+		
+		return properties.unset( Flags.INHERETING_STYLES | getUsablePropertiesOf( styleCell, properties ) );
+	}*/
+	
+	
+	/**
+	 * Method will unset the changes-flags that are caused by the given style-cell.
+	 * This also applies on the style-sub-blocks of this style.
+	 */
+	private function unsetChangesBy (givenCell:FastDoubleCell<StyleBlock>, changes:Int) : Int
+	{
+		var givenData		= givenCell.data;
+		var givenProps		= givenData.allFilledProperties.unset( Flags.INHERETING_STYLES | Flags.CHILDREN );	//<-- children will be checked sepperatly
+		var possibleChanges	= changes.filter( givenProps );
+		var higherCell		= givenCell;
+		
+		var boxFiltersChanges	= possibleChanges.has( Flags.BOX_FILTERS )	? boxFilters.changes.filter( givenData.boxFilters.allFilledProperties ) : 0;
+		var effectsChanges		= possibleChanges.has( Flags.EFFECTS )		? effects	.changes.filter( givenData.effects	 .allFilledProperties ) : 0;
+		var fontChanges			= possibleChanges.has( Flags.FONT )			? font		.changes.filter( givenData.font		 .allFilledProperties ) : 0;
+		var graphicsChanges		= possibleChanges.has( Flags.GRAPHICS )		? graphics	.changes.filter( givenData.graphics	 .allFilledProperties ) : 0;
+		var layoutChanges		= possibleChanges.has( Flags.LAYOUT )		? layout	.changes.filter( givenData.layout	 .allFilledProperties ) : 0;
+		var statesChanges		= possibleChanges.has( Flags.STATES )		? states	.changes.filter( givenData.states	 .allFilledProperties ) : 0;
+	//	var childrenChanged		= possibleChanges.has( Flags.CHILDREN );
+		
+		//loop through all cell's with higher priority
+		while (null != (higherCell = higherCell.prev))
+		{
+			Assert.notNull( higherCell.data, "found cell without data in "+target );
+			var higherData	= higherCell.data;
+			var higherProps	= higherData.allFilledProperties;
+
+			//get the properties that the given-style has in common with the higher-style
+			var commonProps = possibleChanges.filter( higherProps );
+			
+			if (commonProps == 0)
+				continue;
+			
+			//
+			// Compare the content of each styleblock of the higher-style with the given-style.
+			// If the content of the higher-style has all the properties of the given-style,
+			// the content of the given cell will be ignored. 
+			//
+			// E.g. if both styles have a graphics-block with a background, the graphics property
+			// of the given-style won't be usable.
+			// If both styles have a style-block with a background, but the given-style also
+			// has a border, the graphics property of the given-style is also usable.
+			//
+			
+			if (commonProps.has( Flags.BOX_FILTERS ))	boxFiltersChanges	= boxFiltersChanges.unset( higherData.boxFilters.allFilledProperties );
+			if (commonProps.has( Flags.EFFECTS ))		effectsChanges		= effectsChanges.unset( higherData.effects.allFilledProperties );
+			if (commonProps.has( Flags.FONT ))			fontChanges			= fontChanges.unset( higherData.font.allFilledProperties );
+			if (commonProps.has( Flags.GRAPHICS ))		graphicsChanges		= graphicsChanges.unset( higherData.graphics.allFilledProperties );
+			if (commonProps.has( Flags.LAYOUT ))		layoutChanges		= layoutChanges.unset( higherData.layout.allFilledProperties );
+			if (commonProps.has( Flags.STATES ))		statesChanges		= statesChanges.unset( higherData.states.allFilledProperties );
+		}
+		
+		possibleChanges = possibleChanges.unset(
+			  Flags.BOX_FILTERS	* (boxFiltersChanges > 0).boolCalc()
+			| Flags.EFFECTS		* (effectsChanges > 0).boolCalc()
+			| Flags.FONT		* (fontChanges > 0).boolCalc()
+			| Flags.GRAPHICS	* (graphicsChanges > 0).boolCalc()
+			| Flags.LAYOUT		* (layoutChanges > 0).boolCalc()
+			| Flags.STATES		* (statesChanges > 0).boolCalc()
+		);
+		
+		
+		
+		// possible changes are now the changes that are definitly caused by the givenCell..
+		var realChanges = possibleChanges;
+		
+		if (realChanges > 0) {
+			// unset the changes the styleCell caused in the sub blocks
+			if (realChanges.has( Flags.BOX_FILTERS ))	boxFilters.changes	= boxFilters.changes.unset( boxFiltersChanges );
+			if (realChanges.has( Flags.EFFECTS ))		effects.changes		= effects	.changes.unset( effectsChanges );
+			if (realChanges.has( Flags.FONT ))			font.changes		= font		.changes.unset( fontChanges );
+			if (realChanges.has( Flags.GRAPHICS ))		graphics.changes	= graphics	.changes.unset( graphicsChanges );
+			if (realChanges.has( Flags.LAYOUT ))		layout.changes		= layout	.changes.unset( layoutChanges );
+			if (realChanges.has( Flags.STATES ))		states.changes		= states	.changes.unset( statesChanges );
+		}
+		
+	//	trace("\t\t\t\t\tunsetting changes: "+realChanges.read());
+		
+		return realChanges;
+	}
+	
+	
+	
+	/**
+	 * Method will return true if the uniqueStyleBlock (i.e. graphics, fonts, layout etc) has
+	 * unique properties compared with a higher prioritised style-sub-block.
+	 */
+	private inline function hasUniqueProperies (uniqueStyle:StyleSubBlock, higherStyle:StyleSubBlock) : Bool
+	{
+		Assert.notNull(uniqueStyle);
+		Assert.notNull(higherStyle);
+		return uniqueStyle.allFilledProperties.unset( higherStyle.allFilledProperties ) > 0;
 	}
 	
 	
@@ -784,7 +945,7 @@ class UIElementStyle implements IUIElementStyle
 		if (flags == -1)
 			flags = filledProperties;
 		
-		return StyleFlags.readProperties(flags);
+		return flags.read();
 	}
 	
 	
