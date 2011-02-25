@@ -56,6 +56,13 @@ class VideoStream implements IFreezable, implements IDisposable
 #if flash9	
 	private var connection	: NetConnection;
 	public var source		(default, null)			: NetStream;
+	
+	public var onMetaData	(default, null)			: Dynamic -> Void;
+	public var onCuePoint	(default, null)			: Dynamic -> Void;
+	public var onImageData	(default, null)			: Dynamic -> Void;
+	public var onPlayStatus (default, null)			: Dynamic -> Void;
+	public var onTextData	(default, null)			: Dynamic -> Void;
+	public var onXMPData	(default, null)			: Dynamic -> Void;
 #end
 	
 	
@@ -147,7 +154,12 @@ class VideoStream implements IFreezable, implements IDisposable
 		//dirty client to catch flash player exeptions..
 		//@see http://www.actionscript.org/forums/archive/index.php3/t-142040.html
 		source.client	= this;
-		
+		onMetaData		= handleMetaData;
+		onCuePoint		= handleCuePoint;
+		onImageData		= handleImageData;
+		onPlayStatus	= handlePlayStatus;
+		onTextData		= handleTextData;
+		onXMPData		= handleXMPData;
 		handleSecurityError	.on( connection.events.securityError, this );
 		handleASyncError	.on( connection.events.asyncError, this );
 		handleIOError		.on( connection.events.ioError, this );
@@ -479,7 +491,7 @@ class VideoStream implements IFreezable, implements IDisposable
 	 * 
 	 * @param	?metaData
 	 */
-	private function onMetaData ( info:Dynamic )
+	private function handleMetaData ( info:Dynamic ) : Void
 	{
 		Assert.notNull(info);
 	/*	trace( "duration: " + info.duration);
@@ -492,15 +504,38 @@ class VideoStream implements IFreezable, implements IDisposable
 	}
 	
 	
-	private function onCuePoint ( ?metaData )
+	public function handleCuePoint ( metaData:Dynamic ) : Void
 	{
+	//	nl.demonsters.debugger.MonsterDebugger.inspect(metaData);
 		trace( "cuePoint: " + metaData);
 	}
 	
 	
-	private function onXmlData( ?metaData )
+	public function handlePlayStatus ( metaData:Dynamic ) : Void
 	{
-		trace( "onXmlData: " + metaData);
+	//	nl.demonsters.debugger.MonsterDebugger.inspect(metaData);
+		trace( "onPlayStatus: " + metaData);
+	}
+	
+	
+	public function handleXMPData( metaData:Dynamic ) : Void
+	{
+	//	nl.demonsters.debugger.MonsterDebugger.inspect(metaData);
+		trace( "onXMPData: " + metaData);
+	}
+	
+	
+	public function handleImageData( metaData:Dynamic ) : Void
+	{
+	//	nl.demonsters.debugger.MonsterDebugger.inspect(metaData);
+		trace( "onImageData: " + metaData);
+	}
+	
+	
+	public function handleTextData ( metaData:Dynamic ) : Void
+	{
+	//	nl.demonsters.debugger.MonsterDebugger.inspect(metaData);
+		trace( "onTextData: " + metaData);
 	}
 #end
 }
