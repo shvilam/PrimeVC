@@ -216,6 +216,7 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	
 #if debug
 	public function readProperties (props:Int = -1)	: String	{ Assert.abstract(); return null; }
+	public function readChanges (props:Int = -1)	: String	{ return readProperties(changes); }
 	public function toString () : String						{ return this.getClass().getClassName(); }
 #end
 }

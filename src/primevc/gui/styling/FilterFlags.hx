@@ -58,7 +58,7 @@ class FilterFlags
 		if (flags.has( GRADIENT_GLOW ))		output.push("gradient-glow");
 		if (flags.has( SHADOW ))			output.push("shadow");
 		
-		return "properties: " + output.join(", ");
+		return output.length > 0 ? output.join(", ") : "none";
 	}
 #end
 }

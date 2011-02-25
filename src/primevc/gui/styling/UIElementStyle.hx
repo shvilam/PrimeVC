@@ -331,12 +331,7 @@ class UIElementStyle implements IUIElementStyle
 	 * will update all style-values.
 	 */
 	private function resetStyles ()
-	{	
-		//FIXME : by Ruben @ 23 feb 2011
-		//		getUsablePropertiesOf is to greedy and will cause some style properties to be unset while they need to be updated
-		//		For example when the target has a styleclass with graphic-property "shape" and the new updated styles have a
-		//			graphic-property "border", getUsablePropertiesOf will tell us that there are no changes in the graphics of the
-		//			new style since they both have a "graphics" object. This is obviously incorrect and should be fixed!
+	{
 		if (styles.length > 0)
 		{
 			var oldStyles		= styles.clone();
@@ -344,10 +339,23 @@ class UIElementStyle implements IUIElementStyle
 			var childrenChanged	= false;
 			
 			var o = changes;
+			trace(this+".beginReset "+changes.read()+"; styles: "+styles.length);
+			
+			if (changes.has( Flags.STATES ))		trace("\t\tstateChanges1: "+states.readChanges());
+			if (changes.has( Flags.GRAPHICS ))		trace("\t\tGraphicChanges1: "+graphics.readChanges());
+			if (changes.has( Flags.LAYOUT ))		trace("\t\tLayoutChanges1: "+layout.readChanges());
+			if (changes.has( Flags.FONT ))			trace("\t\tFontChanges1: "+font.readChanges());
+			if (changes.has( Flags.EFFECTS ))		trace("\t\teffectChanges1: "+effects.readChanges());
+			if (changes.has( Flags.BOX_FILTERS ))	trace("\t\tboxFilterChanges1: "+boxFilters.readChanges());
 			
 			if (styles.length > 0)
 			{
-				//find removed or added style-blocks
+				//
+				// The goal of this loop is to prevent updates in the target that
+				// aren't nescesary. This is done by comparing the new styles with
+				// the old styles and unsetting changes that are caused by 
+				// style-blocks that are in the old- and newlist.
+				//
 				var newStyleCell = styles.first;
 				while (newStyleCell != null)
 				{
@@ -362,8 +370,68 @@ class UIElementStyle implements IUIElementStyle
 					// "unsetChangesBy" method does a thorough inspection of the content 
 					// of the style-block.
 					//
-					if (oldStyles.has( newStyle ))		changes			= changes.unset( unsetChangesBy( newStyleCell, changes ) );
-					else if (!childrenChanged)			childrenChanged	= newStyle.allFilledProperties.has( Flags.CHILDREN );
+					// FIXME: Ruben @ 25Feb
+					// Often when a newStyle is added, the extendedStyle or super style already
+					// used to be in the styles list. So we try to filter out there changes.
+					// For some reason this doesn't work very well yet.
+					//
+					// For example:
+					// SuperStyle props: graphics( border, visible )
+					// newStyle props: graphics( background )
+					//
+					// If the superStyle was already in the stylelist and the newstyle isn't,
+					// the graphic-changes for border and visible should be unset 
+					// (since the target already has the correct properties).
+					// The problem is, these flags aren't removed yet from the sub-style collections.
+					//
+					
+					var properties = 0;
+					
+					var hasStyle			= oldStyles.has( newStyle );
+					var hasSuperStyle		= !hasStyle && oldStyles.has( newStyle.superStyle );
+					var hasExtendedStyle	= !hasStyle && oldStyles.has( newStyle.extendedStyle );
+					
+					if (hasStyle)
+						properties = newStyle.allFilledProperties;
+					
+					else if (hasSuperStyle || hasExtendedStyle)
+					{
+					//	properties = newStyle.filledProperties;
+						if (hasSuperStyle) {
+							var cell	= styles.addBefore( newStyle.superStyle, newStyleCell );
+							changes		= changes.unset( unsetChangesBy( cell, cell.data, cell.data.allFilledProperties, changes ) );
+						}
+						else if (newStyle.superStyle != null)
+							properties = properties.set( newStyle.superStyle.allFilledProperties );
+						
+						if (hasExtendedStyle) {
+							var cell	= styles.addBefore( newStyle.extendedStyle, newStyleCell );
+							changes		= changes.unset( unsetChangesBy( cell, cell.data, cell.data.allFilledProperties, changes ) );
+						}
+						else if (newStyle.extendedStyle != null)
+							properties = properties.set( newStyle.extendedStyle.allFilledProperties );
+					}
+					
+					trace("\t\t"+this+".was already in oldStyle? "+properties+"; "+oldStyles.has( newStyle )+"; ext: "+oldStyles.has( newStyle.extendedStyle )+"("+newStyle.extendedStyle+"); super: "+oldStyles.has( newStyle.superStyle )+"("+newStyle.superStyle+")");
+					if (properties > 0)
+						changes	= changes.unset( unsetChangesBy( newStyleCell, newStyle, properties, changes ) );
+					
+				/*	if (oldStyles.has( newStyle.superStyle )) {
+					//	addStyle( newStyle.superStyle );
+						var cell	= styles.addBefore( newStyle.superStyle, newStyleCell );
+						changes		= changes.unset( unsetChangesBy( cell, newStyle.superStyle, changes ) );
+					}
+					if (oldStyles.has( newStyle.extendedStyle )) {
+					//	addStyle( newStyle.extendedStyle );
+						var cell	= styles.addBefore( newStyle.extendedStyle, newStyleCell );
+						changes		= changes.unset( unsetChangesBy( cell, newStyle.extendedStyle, changes ) );
+					}
+					
+					if (oldStyles.has( newStyle )) {
+						changes	= changes.unset( unsetChangesBy( newStyleCell, newStyle, changes ) );
+					}*/
+					if (!childrenChanged)
+						childrenChanged	= newStyle.filledProperties.has( Flags.CHILDREN );
 					
 					newStyleCell = newStyleCell.next;
 				}
@@ -372,16 +440,16 @@ class UIElementStyle implements IUIElementStyle
 			if (!childrenChanged)
 				changes = changes.unset( Flags.CHILDREN );
 			
-		/*	if (changes.has( Flags.STATES ))		trace("\t\tstateChanges: "+states.readProperties(states.changes));
-			if (changes.has( Flags.GRAPHICS ))		trace("\t\tGraphicChanges: "+graphics.readProperties(graphics.changes));
-			if (changes.has( Flags.LAYOUT ))		trace("\t\tLayoutChanges: "+layout.readProperties(layout.changes));
-			if (changes.has( Flags.FONT ))			trace("\t\tFontChanges: "+font.readProperties(font.changes));
-			if (changes.has( Flags.EFFECTS ))		trace("\t\teffectChanges: "+effects.readProperties(effects.changes));
-			if (changes.has( Flags.BOX_FILTERS ))	trace("\t\tboxFilterChanges: "+boxFilters.readProperties(boxFilters.changes));*/
+			if (changes.has( Flags.STATES ))		trace("\t\tstateChanges2: "+states.readChanges());
+			if (changes.has( Flags.GRAPHICS ))		trace("\t\tGraphicChanges2: "+graphics.readChanges());
+			if (changes.has( Flags.LAYOUT ))		trace("\t\tLayoutChanges2: "+layout.readChanges());
+			if (changes.has( Flags.FONT ))			trace("\t\tFontChanges2: "+font.readChanges());
+			if (changes.has( Flags.EFFECTS ))		trace("\t\teffectChanges2: "+effects.readChanges());
+			if (changes.has( Flags.BOX_FILTERS ))	trace("\t\tboxFilterChanges2: "+boxFilters.readChanges());
 			
 			oldStyles.dispose();
 			stylesAreSearched = true;
-	//		trace(this+".end reset; origChanges: "+o.read()+"; realChanges: "+changes.read());
+			trace(this+".end reset; realChanges: "+changes.read()+"; childrenChanged? "+childrenChanged+"; styles: "+styles.length);
 			broadcastChanges( changes );
 		}
 		else
@@ -473,7 +541,7 @@ class UIElementStyle implements IUIElementStyle
 #if debug
 		Assert.notNull( styles );
 		Assert.notNull( style );
-		Assert.that( !styles.has(style), "style "+style+" already exists for "+target );
+	//	Assert.that( !styles.has(style), "style "+style+" already exists for "+target );
 #end
 		var styleCell	= styles.add( style );
 		var changes		= 0;
@@ -713,7 +781,8 @@ class UIElementStyle implements IUIElementStyle
 		properties		= properties.unset( Flags.INHERETING_STYLES );
 		
 		//loop through all cell's with higher priority
-		while (null != (styleCell = styleCell.prev) && properties > 0) {
+		while (null != (styleCell = styleCell.prev) && properties > 0)
+		{
 			Assert.notNull( styleCell.data, "found cell without data in "+target );
 			var curData		= styleCell.data;
 			var curProps	= curData.allFilledProperties;
@@ -766,12 +835,23 @@ class UIElementStyle implements IUIElementStyle
 	 * Method will unset the changes-flags that are caused by the given style-cell.
 	 * This also applies on the style-sub-blocks of this style.
 	 */
-	private function unsetChangesBy (givenCell:FastDoubleCell<StyleBlock>, changes:Int) : Int
+	private function unsetChangesBy (givenCell:FastDoubleCell<StyleBlock>, givenData:StyleBlock, givenProps:Int, changes:Int) : Int
 	{
-		var givenData		= givenCell.data;
-		var givenProps		= givenData.allFilledProperties.unset( Flags.INHERETING_STYLES | Flags.CHILDREN );	//<-- children will be checked sepperatly
-		var possibleChanges	= changes.filter( givenProps );
-		var higherCell		= givenCell;
+	//	var givenProps		= givenData.allFilledProperties.unset( Flags.CHILDREN );	//<-- children will be checked sepperatly
+		//	givenData.isElementState()
+		//		? givenData.filledProperties		//ignore properties by superstyle if the givenStyle is a element-state. The style of the element will already be in the style-list
+		//		: givenData.allFilledProperties;
+		
+	//	if (givenCell.data != givenData)
+	//		givenProps			= givenProps.unset( givenCell.data.filledProperties );
+		var possibleChanges		= changes.filter( givenProps.unset( Flags.CHILDREN ) );
+		
+	//	trace("\t\t\tchecking for changes on "+givenData+" for "+possibleChanges.read());
+		
+		if (possibleChanges == 0)
+			return 0;
+		
+		var higherCell			= givenCell; //.prev; //givenCell.data != givenData ? givenCell : givenCell.prev;
 		
 		var boxFiltersChanges	= possibleChanges.has( Flags.BOX_FILTERS )	? boxFilters.changes.filter( givenData.boxFilters.allFilledProperties ) : 0;
 		var effectsChanges		= possibleChanges.has( Flags.EFFECTS )		? effects	.changes.filter( givenData.effects	 .allFilledProperties ) : 0;
@@ -781,10 +861,23 @@ class UIElementStyle implements IUIElementStyle
 		var statesChanges		= possibleChanges.has( Flags.STATES )		? states	.changes.filter( givenData.states	 .allFilledProperties ) : 0;
 	//	var childrenChanged		= possibleChanges.has( Flags.CHILDREN );
 		
+	//	trace("\t\t\t\tboxFilter: "+boxFiltersChanges+"; effects: "+effectsChanges+"; font: "+fontChanges+"; graphics: "+graphicsChanges+"; layout: "+layoutChanges+"; states: "+statesChanges);
+	/*	if (possibleChanges.has( Flags.STATES ))		trace("\t\t\t\tstateChanges1: "		+givenData.states	.readProperties( statesChanges ));
+		if (possibleChanges.has( Flags.GRAPHICS ))		trace("\t\t\t\tGraphicChanges1: "	+givenData.graphics	.readProperties( graphicsChanges ));
+		if (possibleChanges.has( Flags.LAYOUT ))		trace("\t\t\t\tLayoutChanges1: "	+givenData.layout	.readProperties( layoutChanges ));
+		if (possibleChanges.has( Flags.FONT ))			trace("\t\t\t\tFontChanges1: "		+givenData.font		.readProperties( fontChanges ));
+		if (possibleChanges.has( Flags.EFFECTS ))		trace("\t\t\t\teffectChanges1: "	+givenData.effects	.readProperties( effectsChanges ));
+		if (possibleChanges.has( Flags.BOX_FILTERS ))	trace("\t\t\t\tboxFilterChanges1: "	+givenData.boxFilters.readProperties( boxFiltersChanges ));*/
+		
+		
 		//loop through all cell's with higher priority
 		while (null != (higherCell = higherCell.prev))
 		{
+		//	if (higherCell.data == givenData)
+		//		continue;
+			
 			Assert.notNull( higherCell.data, "found cell without data in "+target );
+			Assert.notEqual( higherCell.data, givenData );
 			var higherData	= higherCell.data;
 			var higherProps	= higherData.allFilledProperties;
 
@@ -805,15 +898,24 @@ class UIElementStyle implements IUIElementStyle
 			// has a border, the graphics property of the given-style is also usable.
 			//
 			
+		//	if (commonProps.has( Flags.GRAPHICS ))
+		//		trace("\t\t\t\t\t\t"+higherData+"; "+higherData.graphics.readProperties());
+			
 			if (commonProps.has( Flags.BOX_FILTERS ))	boxFiltersChanges	= boxFiltersChanges.unset( higherData.boxFilters.allFilledProperties );
 			if (commonProps.has( Flags.EFFECTS ))		effectsChanges		= effectsChanges.unset( higherData.effects.allFilledProperties );
 			if (commonProps.has( Flags.FONT ))			fontChanges			= fontChanges.unset( higherData.font.allFilledProperties );
 			if (commonProps.has( Flags.GRAPHICS ))		graphicsChanges		= graphicsChanges.unset( higherData.graphics.allFilledProperties );
 			if (commonProps.has( Flags.LAYOUT ))		layoutChanges		= layoutChanges.unset( higherData.layout.allFilledProperties );
 			if (commonProps.has( Flags.STATES ))		statesChanges		= statesChanges.unset( higherData.states.allFilledProperties );
+			
+		//	higherCell = higherCell.prev;
 		}
 		
-		possibleChanges = possibleChanges.unset(
+	//	if (possibleChanges.has( Flags.GRAPHICS ))		trace("\t\t\t\tGraphicChanges2: "	+givenData.graphics	.readProperties( graphicsChanges ));
+	//	if (possibleChanges.has( Flags.STATES ))		trace("\t\t\t\tStatesChanges2: "	+givenData.states	.readProperties( statesChanges ));
+		
+		// possible changes are now the changes that are definitly caused by the givenCell..
+		var realChanges = possibleChanges.unset(
 			  Flags.BOX_FILTERS	* (boxFiltersChanges > 0).boolCalc()
 			| Flags.EFFECTS		* (effectsChanges > 0).boolCalc()
 			| Flags.FONT		* (fontChanges > 0).boolCalc()
@@ -822,22 +924,18 @@ class UIElementStyle implements IUIElementStyle
 			| Flags.STATES		* (statesChanges > 0).boolCalc()
 		);
 		
-		
-		
-		// possible changes are now the changes that are definitly caused by the givenCell..
-		var realChanges = possibleChanges;
-		
-		if (realChanges > 0) {
+	//	changes = changes.unset( realChanges );
+	//	if (realChanges > 0) {
 			// unset the changes the styleCell caused in the sub blocks
-			if (realChanges.has( Flags.BOX_FILTERS ))	boxFilters.changes	= boxFilters.changes.unset( boxFiltersChanges );
-			if (realChanges.has( Flags.EFFECTS ))		effects.changes		= effects	.changes.unset( effectsChanges );
-			if (realChanges.has( Flags.FONT ))			font.changes		= font		.changes.unset( fontChanges );
-			if (realChanges.has( Flags.GRAPHICS ))		graphics.changes	= graphics	.changes.unset( graphicsChanges );
-			if (realChanges.has( Flags.LAYOUT ))		layout.changes		= layout	.changes.unset( layoutChanges );
-			if (realChanges.has( Flags.STATES ))		states.changes		= states	.changes.unset( statesChanges );
-		}
-		
-	//	trace("\t\t\t\t\tunsetting changes: "+realChanges.read());
+			if (boxFiltersChanges > 0)	boxFilters.changes	= boxFilters.changes.unset( boxFiltersChanges );
+			if (effectsChanges > 0)  	effects.changes		= effects	.changes.unset( effectsChanges );
+			if (fontChanges > 0) 		font.changes		= font		.changes.unset( fontChanges );
+			if (graphicsChanges > 0)	graphics.changes	= graphics	.changes.unset( graphicsChanges );
+			if (layoutChanges > 0) 		layout.changes		= layout	.changes.unset( layoutChanges );
+			if (statesChanges > 0)  	states.changes		= states	.changes.unset( statesChanges );
+	//	}
+		trace("\t\t\t\t\t"+givenData+".unsetting changes: box: "+boxFiltersChanges+", effects: "+effectsChanges+"; font: "+fontChanges+", graphics: "+graphicsChanges+", layout: "+layoutChanges+", state: "+statesChanges);
+		trace("\t\t\t\t\t"+givenData+".unsetting changes: "+realChanges.read());
 		
 		return realChanges;
 	}

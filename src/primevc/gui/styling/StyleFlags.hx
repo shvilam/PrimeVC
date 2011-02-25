@@ -74,7 +74,7 @@ class StyleFlags
 		if (flags.has( STATES ))				output.push("states");
 		if (flags.has( SUPER_STYLE ))			output.push("super-style");
 		
-		return output.join(", ");
+		return output.length > 0 ? output.join(", ") : "none";
 	}
 #end
 }

@@ -42,7 +42,8 @@ package primevc.gui.styling;
 #end
 
 
-private typedef Flags = StyleFlags;
+private typedef Flags	= StyleFlags;
+private typedef SType	= StyleBlockType;
 
 
 /**
@@ -241,10 +242,14 @@ class StyleBlock extends StyleBlockBase
 	//
 	
 	
-	public inline function getPriority () : Int
-	{
-		return type.enumIndex();
-	}
+	public inline function getPriority ()		: Int	{ return type.enumIndex(); }
+	public inline function isState ()			: Bool	{ return type == SType.elementState || type == SType.styleNameState || type == SType.idState; }
+	public inline function isElementState ()	: Bool	{ return type == SType.elementState; }
+	public inline function isStyleNameState ()	: Bool	{ return type == SType.styleNameState; }
+	public inline function isIdState ()			: Bool	{ return type == SType.idState; }
+	public inline function isElement ()			: Bool	{ return type == SType.element; }
+	public inline function isStyleName ()		: Bool	{ return type == SType.styleName; }
+	public inline function isId ()				: Bool	{ return type == SType.id; }
 	
 	
 #if debug
@@ -846,7 +851,8 @@ class StyleBlock extends StyleBlockBase
 #if (debug && !neko)
 	public function toString ()
 	{
-		return _oid+"; "+readProperties();
+		return "StyleBlock[ "+_oid+" ]";
+	//	return _oid+"; "+readProperties();
 	}
 #end
 #if debug

@@ -94,6 +94,9 @@ class PriorityList < DataType : IPrioritizable >
 	
 	public function has (item:DataType)
 	{
+		if (item == null)
+			return false;
+		
 		if (first == null && last == null)
 			return false;
 		
@@ -175,6 +178,22 @@ class PriorityList < DataType : IPrioritizable >
 		
 		length++;
 		return cell;
+	}
+	
+	
+	public inline function addBefore (item:DataType, otherCell:FastDoubleCell<DataType>) : FastDoubleCell<DataType>
+	{
+		var cell = new FastDoubleCell<DataType>(item);
+		length++;
+		return cell.insertBefore( otherCell );
+	}
+	
+	
+	public inline function addAfter (item:DataType, otherCell:FastDoubleCell<DataType>) : FastDoubleCell<DataType>
+	{
+		var cell = new FastDoubleCell<DataType>(item);
+		length++;
+		return cell.insertAfter( otherCell );
 	}
 	
 	

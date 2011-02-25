@@ -51,11 +51,11 @@ class BitUtilTest
 
 
 class Flags {
-	public static inline var FLAG_1 : UInt	= 1;
-	public static inline var FLAG_2 : UInt	= 2;
-	public static inline var FLAG_3 : UInt	= 4;
-	public static inline var FLAG_4 : UInt	= 8;
-	public static inline var FLAG_5 : UInt	= 16;
+	public static inline var FLAG_1 : UInt	= 1 << 0;	//  1
+	public static inline var FLAG_2 : UInt	= 1 << 1;	//  2
+	public static inline var FLAG_3 : UInt	= 1 << 2;	//  4
+	public static inline var FLAG_4 : UInt	= 1 << 3;	//  8
+	public static inline var FLAG_5 : UInt	= 1 << 4;	// 16
 }
 
 
@@ -148,6 +148,17 @@ class UtilFlagAssertTest
 		Assert.that(  flags.has( Flags.FLAG_3 ) );
 		Assert.that(  flags.has( Flags.FLAG_4 ) );
 		Assert.that( !flags.has( Flags.FLAG_5 ) );
+		
+		flags = Flags.FLAG_1 | Flags.FLAG_2 | Flags.FLAG_3 | Flags.FLAG_4;
+		Assert.equal( flags, 15 );
+		flags = flags.unset( Flags.FLAG_1 | Flags.FLAG_2 | Flags.FLAG_3 );
+		Assert.equal( flags, 8);
+		Assert.that( !flags.has( Flags.FLAG_1 ) );
+		Assert.that( !flags.has( Flags.FLAG_2 ) );
+		Assert.that( !flags.has( Flags.FLAG_3 ) );
+		Assert.that(  flags.has( Flags.FLAG_4 ) );
+		Assert.that( !flags.has( Flags.FLAG_5 ) );
+		
 		
 		trace("unset test");
 		flags  = 31;

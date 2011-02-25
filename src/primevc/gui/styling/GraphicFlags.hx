@@ -65,7 +65,7 @@ class GraphicFlags
 		if (flags.has( VISIBLE ))				output.push("visible");
 		if (flags.has( BORDER_RADIUS ))			output.push("border-radius");
 		
-		return "properties: " + output.join(", ");
+		return output.length > 0 ? output.join(", ") : "none";
 	}
 #end
 }
