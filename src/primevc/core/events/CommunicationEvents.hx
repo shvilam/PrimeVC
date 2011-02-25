@@ -60,6 +60,11 @@ class CommunicationSignals extends Signals
 	var started		(default, null) : Signal0;
 	
 	/**
+	 * Dispatched when a communication operation received initial data
+	 */
+	var init		(default, null) : Signal0;
+	
+	/**
 	 * Dispatched when data there is progress receiving or sending data
 	 */
 	var progress	(default, null) : ProgressSignal;

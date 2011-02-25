@@ -46,6 +46,7 @@ class CommunicationEvents extends CommunicationSignals
 	{
 		started		= new FlashSignal0( target, 	Event.OPEN );
 		progress	= new ProgressSignal( target,	ProgressEvent.PROGRESS );
+		init		= new FlashSignal0( target,		Event.INIT );
 		completed	= new FlashSignal0( target,		Event.COMPLETE );
 		error		= new ErrorSignal( target,		IOErrorEvent.IO_ERROR );
 	}
