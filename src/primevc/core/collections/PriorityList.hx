@@ -185,6 +185,10 @@ class PriorityList < DataType : IPrioritizable >
 	{
 		var cell = new FastDoubleCell<DataType>(item);
 		length++;
+		
+		if (otherCell == first)
+			first = cell;
+		
 		return cell.insertBefore( otherCell );
 	}
 	
@@ -193,6 +197,10 @@ class PriorityList < DataType : IPrioritizable >
 	{
 		var cell = new FastDoubleCell<DataType>(item);
 		length++;
+		
+		if (otherCell == last)
+			last = cell;
+		
 		return cell.insertAfter( otherCell );
 	}
 	
