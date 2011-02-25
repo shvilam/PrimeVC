@@ -33,6 +33,7 @@ package primevc.gui.styling;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.traits.IPrioritizable;
  import primevc.gui.styling.StyleChildren;	//needed for SelectorMapType typedef
+  using primevc.gui.styling.StyleFlags;
   using primevc.utils.BitUtil;
   using Type;
 
@@ -854,7 +855,7 @@ class StyleBlock extends StyleBlockBase
 		if (flags == -1)
 			flags = filledProperties;
 		
-		return Flags.readProperties( flags );
+		return flags.read();
 	}
 #end
 }

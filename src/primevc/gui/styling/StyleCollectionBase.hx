@@ -74,7 +74,7 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	 */
 	private var groupIterator		: StyleCollectionForwardIterator < StyleGroupType >;
 	private var groupRevIterator	: StyleCollectionReversedIterator < StyleGroupType >;
-	private var changes				: Int;
+	public var changes				: Int;
 	
 	
 	public function new (elementStyle:IUIElementStyle, propertyTypeFlag:Int)

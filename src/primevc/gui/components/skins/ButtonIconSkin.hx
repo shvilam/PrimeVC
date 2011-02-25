@@ -58,7 +58,7 @@ class ButtonIconSkin extends Skin<Button>
 
 	override public function createChildren ()
 	{
-		iconGraphic = new Image();
+		iconGraphic = new Image(null, owner.icon);
 		owner.layoutContainer	.children.add(	iconGraphic.layout );
 		owner					.children.add(	iconGraphic );
 		

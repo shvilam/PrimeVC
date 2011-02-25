@@ -57,7 +57,7 @@ class StyleFlags
 	
 	
 #if debug
-	static public function readProperties (flags:Int) : String
+	static public function read (flags:Int) : String
 	{
 		var output	= [];
 		
@@ -74,7 +74,7 @@ class StyleFlags
 		if (flags.has( STATES ))				output.push("states");
 		if (flags.has( SUPER_STYLE ))			output.push("super-style");
 		
-		return "properties: " + output.join(", ");
+		return output.join(", ");
 	}
 #end
 }
