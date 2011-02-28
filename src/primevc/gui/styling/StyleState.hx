@@ -137,8 +137,13 @@ class StyleState implements IDisposable
 		
 		var changes = 0;
 		for (stateGroup in getStates())
-			if (stateGroup.has( current ))
-				changes = changes.set( elementStyle.removeStyleCell( elementStyle.styles.getCellForItem( stateGroup.get( current ) ) ) );
+			if (stateGroup.has( current )) {
+				var style = stateGroup.get( current );
+				var cell = elementStyle.styles.getCellForItem( style );
+				
+				if (cell != null)	// <-- sometimes multiple blocks have the same state style.. this means the state-style can already be removed in a previous loop round
+					changes = changes.set( elementStyle.removeStyleCell( cell ) );
+			}
 		
 		return changes;
 	}

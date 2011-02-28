@@ -49,8 +49,20 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 #if (debug || neko)
 	public var _oid					(default, null)		: Int;
 #end
+	
+	/**
+	 * Flag with properties that are set for this style-block.
+	 */
 	public var filledProperties		(default, null)		: Int;
+	/**
+	 * Combination of filledProperties and inheritedProperties
+	 */
 	public var allFilledProperties	(default, null)		: Int;
+	/**
+	 * Flag with the styleproperties that are inherited and not set in this
+	 * style-block
+	 */
+	public var inheritedProperties	(default, null)		: Int;
 	
 	
 	public function new ()
@@ -60,6 +72,7 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 		_oid = ID.getNext();
 #end
 		filledProperties	= 0;
+		inheritedProperties	= 0;
 		allFilledProperties	= 0;
 	}
 	
@@ -70,6 +83,7 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 		_oid				= -1;
 #end
 		filledProperties	= 0;
+		inheritedProperties	= 0;
 		allFilledProperties	= 0;
 		super.dispose();
 	}
@@ -97,10 +111,8 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 	public function isEmpty () : Bool						{ return filledProperties == 0; }
 	
 	
-	public function updateAllFilledPropertiesFlag () : Void
-	{
-		allFilledProperties = filledProperties;
-	}
+	public function updateAllFilledPropertiesFlag () : Void									{ Assert.abstract(); }
+	public function getPropertiesWithout (noExtendedStyle:Bool, noSuperStyle:Bool) : Int	{ Assert.abstract(); return 0; }
 	
 	
 #if debug

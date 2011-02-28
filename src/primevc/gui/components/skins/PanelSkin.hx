@@ -53,9 +53,9 @@ class PanelSkin extends Skin<Panel>
 	
 	override public function createChildren ()
 	{
-		chrome		= new UIContainer();
-		closeBtn	= new Button();
-		title		= new Label();
+		chrome		= new UIContainer("chrome");
+		closeBtn	= new Button("closeBtn");
+		title		= new Label("title");
 		title.mouseEnabled = false;
 		
 		chrome	.layoutContainer.children.add( title.layout );

@@ -181,6 +181,15 @@ class PriorityList < DataType : IPrioritizable >
 	}
 	
 	
+	public function remove (item:DataType)
+	{
+		var cell = getCellForItem(item);
+		if (cell != null)
+			removeCell(cell);
+	}
+	
+	
+	
 	public inline function addBefore (item:DataType, otherCell:FastDoubleCell<DataType>) : FastDoubleCell<DataType>
 	{
 		var cell = new FastDoubleCell<DataType>(item);
@@ -282,7 +291,7 @@ class PriorityList < DataType : IPrioritizable >
 		var items = [];
 		var i = 0;
 		for (item in this) {
-			items.push( "[ " + i + " ] = " + item + " ( " + item.getPriorityName()+ " )" ); // Type.getClassName(Type.getClass(item)));
+			items.push( "[ " + i + " ] = " + item + " (" + item.getPriorityName()+ ")" ); // Type.getClassName(Type.getClass(item)));
 			i++;
 		}
 		return name + "PriorityList ("+items.length+")\n" + items.join("\n");
