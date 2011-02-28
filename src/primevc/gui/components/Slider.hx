@@ -117,9 +117,11 @@ class Slider extends SliderBase
 	
 	override private function updateChildren ()
 	{
+	//	trace(maskedBackground.layout.percentWidth+"; "+layout.readChanges()+"; "+layout.state.current);
 		if (direction == horizontal)	maskedBackground.layout.percentWidth = percentage;
 		else							maskedBackground.layout.percentHeight = percentage;
 		
+	//	trace(maskedBackground.layout.percentWidth+"; "+layout.readChanges()+"; "+layout.state.current);
 		dragBtn.data.value = (data.value * 100).roundFloat() + "%";
 		return super.updateChildren();
 	}
