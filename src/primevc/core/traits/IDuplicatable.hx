@@ -20,7 +20,7 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
@@ -30,16 +30,17 @@ package primevc.core.traits;
 
 
 /**
- * Clonable objects should create a new instance of their class with exact
- * the same properties as the current instance.
+ * Duplicatable objects should create a new instance of their class with exact
+ * the same properties as the current instance, except for properties that 
+ * should be uniqiue (like id's).
  * 
- * The "duplicate" method of IDuplicatable will not copy unique properties of
- * the instance (like id).
- *
+ * The "clone" method of IClonable will also copy the unqiue properties of the
+ * instance.
+ * 
  * @author Ruben Weijers
- * @creation-date Jul 26, 2010
+ * @creation-date Mar 02, 2011
  */
-interface IClonable <ClassType>
+interface IDuplicatable <ClassType>
 {
-	public function clone () : ClassType;
+	public function duplicate () : ClassType;
 }
