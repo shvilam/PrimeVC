@@ -148,6 +148,13 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 		if (boundTo != null) for (b in boundTo) if (b == otherBindable) return true;
 		return false;
 	}
+	
+	
+	public function writesTo(otherBindable)
+	{
+		if (writeTo != null) for (b in writeTo) if (b == otherBindable) return true;
+		return false;
+	}
 #end
 	
 	

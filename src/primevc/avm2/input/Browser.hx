@@ -30,6 +30,7 @@ package primevc.avm2.input;
  import com.asual.swfaddress.SWFAddress;
  import com.asual.swfaddress.SWFAddressEvent;
  import flash.external.ExternalInterface;
+ import flash.net.URLRequest;
  import primevc.gui.events.BrowserEvents;
  import primevc.types.URI;
 
@@ -69,8 +70,23 @@ class Browser
 	// BROWSER METHODS
 	//
 	
-	public inline function openURI (uri:URI, target:String = "_self")					{ SWFAddress.href( uri.toString(), target ); }
-	public inline function openPopup (uri:URI, name:String = "", options:String = "")	{ SWFAddress.popup( uri.toString(), name, options ); }
+	public inline function openURI (uri:URI, target:String = "_self")
+	{
+		openUrl( uri.toString(), target );
+	}
+	
+	
+	public inline function openUrl (url:String, target:String = "_self")
+	{
+		if (!ExternalInterface.available)	flash.Lib.getURL( new URLRequest(url), target);
+		else								SWFAddress.href( url, target );
+	}
+	
+	
+	public inline function openPopup (uri:URI, name:String = "", options:String = "")
+	{
+		SWFAddress.popup( uri.toString(), name, options );
+	}
 	
 	/**
 	 * Loads the previous URL in the history URL
