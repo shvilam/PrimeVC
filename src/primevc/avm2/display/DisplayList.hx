@@ -118,6 +118,12 @@ class DisplayList implements IEditableList <ChildType>
 	}
 	
 	
+	public inline function duplicate () : IReadOnlyList <ChildType>
+	{
+		return new DisplayList( target, owner );
+	}
+	
+	
 	public inline function disposeAll ()
 	{
 		for (child in this)

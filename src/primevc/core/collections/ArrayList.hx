@@ -107,4 +107,10 @@ class ArrayList <DataType> extends ReadOnlyArrayList <DataType>, implements IEdi
 	{
 		return new ArrayList<DataType>( list.clone() );
 	}
+	
+	
+	override public function duplicate () : IReadOnlyList<DataType>
+	{
+		return new ArrayList<DataType>( list.duplicate() );
+	}
 }

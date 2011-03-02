@@ -20,60 +20,31 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.collections;
- import primevc.core.collections.iterators.IIterator;
- import primevc.core.dispatcher.Signal1;
- import primevc.core.traits.IClonable;
+package primevc.utils;
  import primevc.core.traits.IDuplicatable;
- import primevc.core.traits.IValueObject;
- import primevc.core.traits.IDisposable;
+ import primevc.utils.FastArray;
+  using primevc.utils.FastArray;
+  using primevc.utils.TypeUtil;
+
 
 /**
+ * Helper class for duplicating objects
+ * 
  * @author Ruben Weijers
- * @creation-date Nov 16, 2010
+ * @creation-date Mar 02, 2011
  */
-interface IReadOnlyList < DataType >
-		implements IClonable < IReadOnlyList < DataType > >
-	,	implements IDuplicatable < IReadOnlyList < DataType > >
-	,	implements IValueObject
-	,	implements IDisposable
+class DuplicateUtil
 {
-	public var change		(default, null)									: Signal1 < ListChange < DataType > >;
-	public var length		(getLength, never)								: Int;
-	
-	/**
-	 * Method will check if the requested item is in this collection
-	 * @param	item
-	 * @return	true if the item is in the list, otherwise false
-	 */
-	public function has		(item:DataType)										: Bool;
-	
-	/**
-	 * Method will return the index of the requested item or -1 of the item is 
-	 * not in the list.
-	 * @param	item
-	 * @return	position of the requested item
-	 */
-	public function indexOf	(item:DataType)										: Int;
-	
-	
-	//
-	// ITERATION METHODS
-	//
-	
-	public function getItemAt (pos:Int)		: DataType;
-	public function iterator ()				: Iterator <DataType>;
-	public function forwardIterator ()		: IIterator <DataType>;
-	public function reversedIterator ()		: IIterator <DataType>;
-	
-	
-#if debug
-	public var name : String;
-#end
+	public static function duplicateItem<T> (item:T) : T
+	{
+		return	 if	(item.is(IDuplicatable))	cast item.as(IDuplicatable).duplicate();
+			else if (item.is(FastArray))		cast item.as(FastArray).duplicate();
+			else								item;
+	}
 }

@@ -31,6 +31,7 @@ package primevc.core.collections;
  import primevc.core.collections.IEditableList;
  import primevc.core.collections.SimpleList;
  import primevc.core.dispatcher.Signal1;
+ import primevc.utils.DuplicateUtil;
  import primevc.utils.NumberMath;
   using primevc.utils.NumberMath;
   using primevc.utils.TypeUtil; 
@@ -83,10 +84,23 @@ class ChainedListCollection <DataType>
 	
 	public function clone () : IReadOnlyList < DataType >
 	{
-		var l = new ChainedListCollection<DataType>(maxPerList);
-		for (child in this)
-			l.insertAt(child);
-		return l;
+		var inst	= new ChainedListCollection<DataType>(maxPerList);
+		var length	= this.length;
+		for (i in 0...length)
+			inst.insertAt( getItemAt(i), i );
+		
+		return inst;
+	}
+	
+	
+	public function duplicate () : IReadOnlyList < DataType >
+	{
+		var inst	= new ChainedListCollection<DataType>(maxPerList);
+		var length	= this.length;
+		for (i in 0...length)
+			inst.insertAt( DuplicateUtil.duplicateItem( getItemAt(i) ), i );
+		
+		return inst;
 	}
 
 

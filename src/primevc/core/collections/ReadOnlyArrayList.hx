@@ -80,6 +80,12 @@ class ReadOnlyArrayList < DataType > implements IReadOnlyList < DataType >, impl
 	}
 	
 	
+	public function duplicate () : IReadOnlyList < DataType >
+	{
+		return new ReadOnlyArrayList<DataType>( list.duplicate() );
+	}
+	
+	
 	private inline function getLength ()						{ return list.length; }
 	public inline function iterator () : Iterator <DataType>	{ return cast forwardIterator(); }
 	public inline function forwardIterator () : IIterator <DataType>	{ return cast new FastArrayForwardIterator<DataType>(list); }

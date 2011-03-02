@@ -30,6 +30,7 @@ package primevc.core.collections;
  import primevc.core.collections.iterators.IIterator;
  import primevc.core.collections.IEditableList;
  import primevc.core.dispatcher.Signal1;
+ import primevc.utils.DuplicateUtil;
  import primevc.utils.NumberMath;
   using primevc.utils.NumberMath;
   using primevc.utils.TypeUtil;
@@ -126,10 +127,23 @@ class BalancingListCollection <DataType> implements IEditableList <DataType>,
 	
 	public function clone () : IReadOnlyList < DataType >
 	{
-		var l = new BalancingListCollection<DataType>(maxLists);
-		for (child in this)
-			l.insertAt(child);
-		return l;
+		var inst	= new BalancingListCollection<DataType>(maxLists);
+		var length	= this.length;
+		for (i in 0...length)
+			inst.insertAt( getItemAt(i), i );
+		
+		return inst;
+	}
+	
+	
+	public function duplicate () : IReadOnlyList < DataType >
+	{
+		var inst	= new BalancingListCollection<DataType>(maxLists);
+		var length	= this.length;
+		for (i in 0...length)
+			inst.insertAt( DuplicateUtil.duplicateItem( getItemAt(i) ), i );
+		
+		return inst;
 	}
 	
 	
