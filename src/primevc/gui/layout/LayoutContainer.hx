@@ -287,8 +287,10 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (changes.has( Flags.SIZE_PROPERTIES ))
 			validateScrollPosition( scrollPos );
 		
-		if (algorithm != null)
+		if (algorithm != null) {
+			algorithm.prepareValidate();
 			algorithm.apply();
+		}
 		
 		var i = 0;
 		while (i < children.length)		// use while loop instead of for loop since children can be removed during validation (== errors with a for loop)
