@@ -126,5 +126,9 @@ else
 		
 		# Cleanup
 	#	rm -R "$PRIMEVC_ROOT/hxclasses"
+	else
+			echo -e "\t\tall libraries are up-to-date"
 	fi;
 fi;
+echo -e "\t\tfinished creating assets"
+exit 0

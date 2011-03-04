@@ -253,18 +253,22 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	/**
 	 * Method will make sure that the values of this rectangle stay within
 	 * the boundaries of the given boundaries.
+	 * 
+	 * @return returns false if the intrectangle is changed.
 	 */
-	public function stayWithin (bounds:IntRectangle) : Void
+	public function stayWithin (bounds:IntRectangle) : Bool
 	{
 		var c = invalidatable;
-		invalidatable = false;
+		invalidatable	= false;
+		var isChanged	= false;
 		
-		if		(left	< bounds.left)		left	= bounds.left;
-		else if (right	> bounds.right)		right	= bounds.right - width;
-		if		(top	< bounds.top)		top		= bounds.top;
-		else if (bottom > bounds.bottom)	bottom	= bounds.bottom - height;
+		if		(left	< bounds.left)		{ left		= bounds.left;		isChanged = true; }
+		else if (right	> bounds.right)		{ right		= bounds.right;		isChanged = true; }
+		if		(top	< bounds.top)		{ top		= bounds.top;		isChanged = true; }
+		else if (bottom > bounds.bottom)	{ bottom	= bounds.bottom;	isChanged = true; }
 		
 		invalidatable = c;
+		return !isChanged;
 	}
 	
 	

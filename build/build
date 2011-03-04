@@ -41,7 +41,7 @@ while [ "${1+isset}" ]; do
 			shift 2 ;;
 		-p) PRJROOT=$2			#project root (used for styles)
 			shift 2 ;;
-		-e) EXTRA=$2			#extra compiler options
+		-e) EXTRA="$EXTRA $2"	#extra compiler options
 			shift 2 ;;
 		-d) Debug="-debug"		#compile cssparser and application in debugmode
 			shift ;;

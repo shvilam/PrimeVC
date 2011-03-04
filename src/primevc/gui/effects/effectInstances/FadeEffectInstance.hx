@@ -31,6 +31,7 @@ package primevc.gui.effects.effectInstances;
  import primevc.gui.effects.EffectProperties;
  import primevc.gui.effects.FadeEffect;
  import primevc.types.Number;
+  using primevc.utils.Bind;
   using primevc.utils.NumberUtil;
 
 
@@ -56,6 +57,8 @@ class FadeEffectInstance extends EffectInstance < IDisplayObject, FadeEffect >
 		super(newTarget, newEffect);
 		startValue	= Number.FLOAT_NOT_SET;
 		endValue	= Number.FLOAT_NOT_SET;
+		
+		hideTarget.on( ended, this );
 	}
 	
 
@@ -94,5 +97,12 @@ class FadeEffectInstance extends EffectInstance < IDisplayObject, FadeEffect >
 	override private function calculateTweenStartPos () : Float
 	{
 		return (target.alpha - startValue) / (endValue - startValue);
+	}
+	
+	
+	private function hideTarget ()
+	{
+		if (endValue == 0)
+			target.visible = false;
 	}
 }

@@ -148,6 +148,9 @@ class FollowObjectBehaviour extends BehaviourBase<IUIElement>
 		var relative	= layout.relative;
 		var newPos		= new Point( followedElement.x, followedElement.y );
 		
+		if (bounds.width == 0 || bounds.height == 0)
+			return;
+		
 		if (relative != null)
 		{
 			if		(relative.left.isSet())		newPos.x += relative.left;
@@ -159,6 +162,8 @@ class FollowObjectBehaviour extends BehaviourBase<IUIElement>
 			else if (relative.vCenter.isSet())	newPos.y += ((follow.height - bounds.height) >> 1) + relative.vCenter;
 		}
 		
+		followedLayoutBinding.disable();
+		targetLayoutBinding.disable();
 		bounds.invalidatable = false;
 #if flash9
 		newPos 				= followedElement.container.localToGlobal( newPos );
@@ -171,14 +176,14 @@ class FollowObjectBehaviour extends BehaviourBase<IUIElement>
 		newPos.x	= bounds.left;
 		newPos.y	= bounds.top;
 		newPos		= target.container.globalToLocal( newPos );
-		
-		target.y = bounds.top	= newPos.y.roundFloat();
-		target.x = bounds.left	= newPos.x.roundFloat();
-		
 #end
 		target.y = bounds.top	= newPos.y.roundFloat();
 		target.x = bounds.left	= newPos.x.roundFloat();
+		
 		bounds.invalidatable = true;
-		trace(target+"; "+bounds);
+		followedLayoutBinding.enable();
+		targetLayoutBinding.enable();
+		
+	//	trace(target+"; final \t"+bounds);
 	}
 }

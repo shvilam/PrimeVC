@@ -84,12 +84,13 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 	public function isEmpty() : Bool				{ return !_propertiesSet.not0(); }
 	public inline function isEditable() : Bool		{ return _flags.has(Flags.IN_EDITMODE); }
 	public function has (propertyID : Int) : Bool	{ return (_propertiesSet & (1 << ((propertyID & 0xFF) + _fieldOffset(propertyID >>> 8)))).not0(); }
+	public inline function changed () : Bool		{ return _changedFlags.not0(); }
 	
 	public function commitEdit()
 	{
 		if(!isEditable()) return;
 		
-		if (_changedFlags.not0())
+		if (changed())
 		{
 			var set = ObjectChangeSet.make(this, _changedFlags);
 			addChanges(set);

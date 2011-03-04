@@ -137,10 +137,10 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 	
 	private function checkIfScrollbarsNeeded (changes:Int)
 	{
-	//	trace(target+": "+layoutContainer.measuredWidth+", "+layoutContainer.explicitWidth+"; "+layoutContainer.width+"; "+layoutContainer.measuredHeight+", "+layoutContainer.explicitHeight+"; "+layoutContainer.height);
 		if (changes.hasNone( LayoutFlags.WIDTH_PROPERTIES | LayoutFlags.HEIGHT_PROPERTIES ))
 			return;
 		
+	//	trace(target+": "+layoutContainer.measuredWidth+", "+layoutContainer.explicitWidth+"; "+layoutContainer.width+"; "+layoutContainer.measuredHeight+", "+layoutContainer.explicitHeight+"; "+layoutContainer.height);
 		var hasHorScrollbar		= scrollbarHor != null && scrollbarHor.container == target.container;
 		var needHorScrollbar	= layoutContainer.horScrollable();
 		var hasVerScrollbar		= scrollbarVer != null && scrollbarVer.container == target.container;
