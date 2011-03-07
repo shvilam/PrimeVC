@@ -40,7 +40,7 @@ package primevc.gui.core;
  * @author Ruben Weijers
  * @creation-date Aug 02, 2010
  */
-class UIDataContainer <DataType:IValueObject> extends UIDataComponent <DataType>, implements IUIContainer
+class UIDataContainer <DataType> extends UIDataComponent <DataType>, implements IUIContainer
 /*#if flash9	, implements haxe.rtti.Generic #end*/
 {
 	public var layoutContainer	(getLayoutContainer, never)		: LayoutContainer;

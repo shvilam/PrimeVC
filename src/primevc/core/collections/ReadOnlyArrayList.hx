@@ -86,11 +86,13 @@ class ReadOnlyArrayList < DataType > implements IReadOnlyList < DataType >, impl
 	}
 	
 	
-	private inline function getLength ()						{ return list.length; }
-	public inline function iterator () : Iterator <DataType>	{ return cast forwardIterator(); }
+	private inline function getLength ()								{ return list.length; }
+	public inline function iterator () : Iterator <DataType>			{ return cast forwardIterator(); }
 	public inline function forwardIterator () : IIterator <DataType>	{ return cast new FastArrayForwardIterator<DataType>(list); }
 	public inline function reversedIterator () : IIterator <DataType>	{ return cast new FastArrayReversedIterator<DataType>(list); }
-	public inline function asIterableOf<B> ( type:Class<B> ) : Iterator<B> {
+	
+	public inline function asIterableOf<B> ( type:Class<B> ) : Iterator<B>
+	{
 		#if debug for (i in 0 ... list.length) Assert.isType(list[i], type); #end
 		return cast forwardIterator();
 	}

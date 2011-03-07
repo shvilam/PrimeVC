@@ -63,6 +63,7 @@ class DataButton <DataType> extends Button, implements IItemRenderer <DataType>
 	public function new (id:String = null, defaultLabel:String = null, icon:Bitmap = null, vo:DataType = null)
 	{
 		super(id, defaultLabel, icon);
+		Assert.notNull(this.data);
 		this.defaultLabel	= defaultLabel;
 		this.vo				= new Bindable<DataType>(vo);
 	}
@@ -104,7 +105,7 @@ class DataButton <DataType> extends Button, implements IItemRenderer <DataType>
 	}
 	
 	
-	private inline function setDefaultLabel (v:String) : String
+	private function setDefaultLabel (v:String) : String
 	{
 		if (v != defaultLabel)
 		{

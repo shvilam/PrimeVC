@@ -36,8 +36,7 @@ package primevc.gui.components;
  import primevc.types.Bitmap;
 
 
-private typedef DataType	= Bindable<String>;
-private typedef Flags		= primevc.gui.core.UIElementFlags;
+private typedef Flags = primevc.gui.core.UIElementFlags;
 
 
 /**
@@ -46,7 +45,7 @@ private typedef Flags		= primevc.gui.core.UIElementFlags;
  * @author Ruben Weijers
  * @creation-date Oct 29, 2010
  */
-class Button extends UIDataContainer <DataType>, implements IIconOwner, implements ITextStylable, implements ISelectable
+class Button extends UIDataContainer <Bindable<String>>, implements IIconOwner, implements ITextStylable, implements ISelectable
 {
 	public var selected		(default, null)			: Bindable<Bool>;
 	public var icon			(getIcon, setIcon)		: Bitmap;
@@ -58,8 +57,8 @@ class Button extends UIDataContainer <DataType>, implements IIconOwner, implemen
 	
 	public function new (id:String = null, value:String = null, icon:Bitmap = null)
 	{
-		if (data == null)	super(id, new DataType(value));
-		else				super(id);
+		if (data == null)	super(id, new Bindable<String>(value));
+		else				super(id, this.data);
 		
 		this.icon	= icon;
 		selected	= new Bindable<Bool>(false);

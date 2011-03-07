@@ -64,7 +64,7 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Feb 10, 2011
  */
-class ComboBox <DataType:IValueObject> extends DataButton <DataType>
+class ComboBox <DataType> extends DataButton <DataType>
 {
 	/**
 	 * The combobox popup.
@@ -92,8 +92,8 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 	
 	public function new (id:String = null, defaultLabel:String = null, icon:Bitmap = null, selectedItem:DataType = null, listData:IReadOnlyList<DataType> = null)
 	{
-		this.listData = listData;
 		super(id, defaultLabel, icon, selectedItem);
+		this.listData = listData;
 	}
 	
 	

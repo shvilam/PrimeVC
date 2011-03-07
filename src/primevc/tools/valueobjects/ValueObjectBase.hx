@@ -86,6 +86,13 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 	public function has (propertyID : Int) : Bool	{ return (_propertiesSet & (1 << ((propertyID & 0xFF) + _fieldOffset(propertyID >>> 8)))).not0(); }
 	public inline function changed () : Bool		{ return _changedFlags.not0(); }
 	
+	private inline function setPropertyFlag(propertyID : Int) : Void {
+		_propertiesSet = _propertiesSet.set(1 << ((propertyID & 0xFF) + _fieldOffset(propertyID >>> 8)));
+	}
+	private inline function unsetPropertyFlag(propertyID : Int) : Void {
+		_propertiesSet = _propertiesSet.unset(1 << ((propertyID & 0xFF) + _fieldOffset(propertyID >>> 8)));
+	}
+	
 	public function commitEdit()
 	{
 		if(!isEditable()) return;
@@ -105,12 +112,12 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 	
 	public function objectChangedHandler(propertyID : Int) : ObjectChangeSet -> Void
 	{
-		var changeSignal = this.change;
+		var self = this;
 		var pathNode = ObjectPathVO.make(this, propertyID); // Same ObjectPathVO instance reused
 		
 		return function(change:ObjectChangeSet)
 		{
-			Assert.notNull(changeSignal);
+			Assert.notNull(self.change);
 			Assert.notNull(change);
 			
 			var p = change.parent;
@@ -122,7 +129,11 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 			}
 			else untyped change.parent = pathNode;
 			
-			changeSignal.send(change);
+			if (change.vo.isEmpty())
+				self.unsetPropertyFlag(propertyID);
+			else
+				self.setPropertyFlag(propertyID);
+			self.change.send(change);
 		}
 	}
 	

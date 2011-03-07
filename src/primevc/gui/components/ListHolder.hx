@@ -42,10 +42,14 @@ package primevc.gui.components;
  * By extending list, or by setting a skin for list, the chrome around a 
  * listview can be used.
  * 
+ * Class parameters:
+ * 		DataType:		Type of the data property (could be a string for example)
+ * 		ListDataType:	Type of list-data
+ * 
  * @author Ruben Weijers
  * @creation-date Feb 12, 2011
  */
-class ListHolder <DataType:IValueObject, ListDataType:IValueObject> extends UIDataContainer <DataType>
+class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>
 {
 	public var content	(default, default)		: ListView<ListDataType>;
 	public var listData	(default, setListData)	: IReadOnlyList < ListDataType >;
