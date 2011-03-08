@@ -269,7 +269,7 @@ class PriorityList < DataType : IPrioritizable >
 	
 	
 	/**
-	 * returns the cell of the requested item
+	 * returns the first cell with that has the given priority
 	 */
 	public function getCellWithPriority (priority:Int) : FastDoubleCell < DataType >
 	{
@@ -283,6 +283,29 @@ class PriorityList < DataType : IPrioritizable >
 		}
 		return null;
 	}
+	
+	
+	public inline function hasPriority (priority:Int) : Bool
+	{
+		var cur = first;
+		while (cur != null)
+		{
+			var curPrio = cur.data.getPriority();
+			if (curPrio == priority)
+				return true;
+			
+			if (curPrio < priority)
+				return false;
+			
+			cur = cur.next;
+		}
+		return false;
+	}
+	
+	
+	public inline function getHighestPriority () : Int	{ return first != null ? first.data.getPriority() : 0; }
+	public inline function getLowestPriority () : Int	{ return last != null ? last.data.getPriority() : 0; }
+	
 	
 #if debug
 	public var name : String;

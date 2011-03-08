@@ -20,33 +20,27 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package ;
- import primevc.gui.styling.LayoutStyleFlags;
- import primevc.gui.styling.StyleChildren;
- import primevc.gui.styling.StyleBlockType;
- import primevc.gui.styling.StyleBlock;
- import primevc.types.Number;
-//imports
+package primevc.utils;
+
 
 
 /**
- * This class is a template for generating UIElementStyle classes
+ * Util for help working with hashes
+ * @author Ruben Weijers
+ * @creation-date Mar 08, 2011
  */
-class StyleSheet extends StyleBlock
+class HashUtil
 {
-	public function new ()
+	public static inline function dispose<T> (hash:Hash<T>) : Void
 	{
-		super(StyleBlockType.specific);
-		elementChildren		= new ChildrenList();
-		styleNameChildren	= new ChildrenList();
-		idChildren			= new ChildrenList();
-		
-		//selectors
+		var keys = hash.keys();
+		for (key in keys)
+			hash.remove(key);
 	}
 }

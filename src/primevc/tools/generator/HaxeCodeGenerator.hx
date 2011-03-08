@@ -154,14 +154,16 @@ class HaxeCodeGenerator implements ICodeGenerator
 	
 	
 	
-	public function construct (obj:ICodeFormattable, ?args:Array<Dynamic>) : Void
+	public function construct (obj:ICodeFormattable, ?args:Array<Dynamic>, ?alternativeType:Class<Dynamic>) : Void
 	{
-		addLine( "var " + createObjectVar(obj, false) + " = " +createClassConstructor( obj.getClass(), args ) + ";" );
+		var type = alternativeType == null ? obj.getClass() : alternativeType;
+		addLine( "var " + createObjectVar(obj, false) + " = " +createClassConstructor( type, args ) + ";" );
 	}
 	
 	
 	public function createClassConstructor (classRef:Class<Dynamic>, ?args:Array<Dynamic>)
 	{
+		Assert.notNull(classRef);
 		return createClassNameConstructor( classRef.getClassName(), args );
 	}
 	
@@ -169,6 +171,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 	
 	public function createClassNameConstructor (className:String, ?args:Array<Dynamic>)
 	{
+		Assert.notNull( className );
 		return "new " + addImportFor(className) + "( " + formatArguments( args, true ) + " )";
 	}
 	
@@ -260,6 +263,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 		else if (Std.is( v, Int ))					return v >= 0 ? Color.uintToString(v) : Std.string(v);
 		else if (Std.is( v, Float ))				return Std.string(v);
 		else if (Std.is( v, Bool ))					return v ? "true" : "false";
+	//	else if (Std.is( v, Hash ))					return formatHash(v);
 		else if (null != Type.getEnum(v))			return getEnumName(v);
 		else if (null != Type.getClassName(v))		return addImportFor( Type.getClassName(cast v) );
 		else										throw "unknown value type: " + v;

@@ -117,6 +117,7 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 	
 #if debug
 	public function readProperties ( flags:Int = -1 )	: String	{ Assert.abstract(); return null; }
+	public inline function readAll () : String						{ return readProperties( allFilledProperties ); }
 #end
 	
 	

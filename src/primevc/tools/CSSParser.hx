@@ -104,7 +104,7 @@ package primevc.tools;
  import primevc.gui.styling.StatesStyle;
  import primevc.gui.styling.StyleBlock;
  import primevc.gui.styling.StyleBlockType;
- import primevc.gui.styling.StyleChildren;
+// import primevc.gui.styling.StyleChildren;
  import primevc.gui.styling.StyleFlags;
  import primevc.gui.styling.StyleStateFlags;
  import primevc.gui.text.FontStyle;
@@ -726,24 +726,18 @@ class CSSParser
 		style.cleanUp();
 		
 		//search in children
-		if (style.children != null)
+		if (style.has( StyleFlags.ID_CHILDREN ))			findExtendedClassesInList( style.idChildren );
+		if (style.has( StyleFlags.STYLE_NAME_CHILDREN ))	findExtendedClassesInList( style.styleNameChildren );
+		if (style.has( StyleFlags.ELEMENT_CHILDREN ))
 		{
-		//	trace("\t\t\tsearch for extended classes");
-			findExtendedClassesInList( style.children.idSelectors );
-			findExtendedClassesInList( style.children.styleNameSelectors );
-			findExtendedClassesInList( style.children.elementSelectors );
-			
-			createEmptySuperClassesForList( style.children.elementSelectors );
-		//	trace("\t\t\tsearch for super classes");	
-			
-	//		findSuperClassesInList( style.children.idSelectors );
-	//		findSuperClassesInList( style.children.styleNameSelectors );
-			findSuperClassesInList( style.children.elementSelectors );
+			findExtendedClassesInList( style.elementChildren );
+			createEmptySuperClassesForList( style.elementChildren );
+			findSuperClassesInList( style.elementChildren );
 		}
 	}
 	
 	
-	private function findExtendedClassesInList (list:SelectorMapType) : Void
+	private function findExtendedClassesInList (list:ChildrenList) : Void
 	{
 		if (list == null)
 			return;
@@ -766,7 +760,7 @@ class CSSParser
 	}
 	
 	
-	private function findSuperClassesInList (list:SelectorMapType) : Void
+	private function findSuperClassesInList (list:ChildrenList) : Void
 	{
 		if (list == null)
 			return;
@@ -788,7 +782,7 @@ class CSSParser
 	 * Method will create empty elementstyles for every element-style-object 
 	 * that be extended to make sure all references are correct..
 	 */
-	private function createEmptySuperClassesForList (list:SelectorMapType) : Void
+	private function createEmptySuperClassesForList (list:ChildrenList) : Void
 	{
 		if (list == null)
 			return;
@@ -1041,11 +1035,13 @@ class CSSParser
 			}
 			
 			
-			if (!styleGroup.owns( StyleFlags.CHILDREN ))
-				styleGroup.children = new StyleChildren();
+		//	if (!styleGroup.owns( StyleFlags.CHILDREN ))
+		//		styleGroup.children = new StyleChildren();
 			
 			//create a styleobject for this name if it doens't exist
-			currentBlock = styleGroup.children.get(name, type);
+			var children	= styleGroup.getChildrenOfType(type);
+			currentBlock	= children.get(name);
+			
 			if (currentBlock == null)
 				currentBlock = addStyleBlock( name, type, styleGroup );
 			//	trace("createStyleBlock for "+name+" = "+type+"; "+currentBlock._oid);
@@ -1068,10 +1064,11 @@ class CSSParser
 	
 	
 	private function addStyleBlock (childName:String, childType:StyleBlockType, parentStyle:StyleBlock) : StyleBlock
-	{
-		var childBlock = new StyleBlock(childType);
+	{	
+		var children	= parentStyle.getChildrenOfType( childType );
+		var childBlock	= new StyleBlock(childType);
 		childBlock.parentStyle = parentStyle;
-		parentStyle.children.set( childName, childBlock );
+		children.set( childName, childBlock );
 		return childBlock;
 	}
 	

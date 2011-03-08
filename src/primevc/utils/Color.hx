@@ -250,6 +250,7 @@ class StringColorUtil
 			else if (v < L6)	v.hex(6);
 			else if (v < L7)	v.hex(7);
 			else if (v < L8)	v.hex(8);
+			else				v.hex();
 		
 		return "0x"+h;
 	}

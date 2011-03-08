@@ -37,23 +37,28 @@ package primevc.gui.styling;
  */
 class StyleFlags
 {
-	public static inline var ALL_PROPERTIES		= LAYOUT | FONT | GRAPHICS | EFFECTS | BOX_FILTERS | BACKGROUND_FILTERS | STATES;	//but no children
-	public static inline var INHERETING_STYLES	= NESTING_STYLE | SUPER_STYLE | EXTENDED_STYLE | PARENT_STYLE;
+	public static inline var ALL_PROPERTIES			= LAYOUT | FONT | GRAPHICS | EFFECTS | BOX_FILTERS | BACKGROUND_FILTERS | STATES;	//but no children
+	public static inline var INHERETING_STYLES		= NESTING_STYLE | SUPER_STYLE | EXTENDED_STYLE | PARENT_STYLE;
 	                                            
-	public static inline var NESTING_STYLE		= 1 << 0;
-	public static inline var SUPER_STYLE		= 1 << 1;
-	public static inline var EXTENDED_STYLE		= 1 << 2;
-	public static inline var PARENT_STYLE		= 1 << 3;
+	public static inline var NESTING_STYLE			= 1 << 0;
+	public static inline var SUPER_STYLE			= 1 << 1;
+	public static inline var EXTENDED_STYLE			= 1 << 2;
+	public static inline var PARENT_STYLE			= 1 << 3;
 	
-	public static inline var LAYOUT				= 1 << 4;
-	public static inline var FONT				= 1 << 5;
-	public static inline var GRAPHICS			= 1 << 6;
-	public static inline var EFFECTS			= 1 << 7;
-	public static inline var BOX_FILTERS		= 1 << 8;
-	public static inline var BACKGROUND_FILTERS	= 1 << 9;
+	public static inline var LAYOUT					= 1 << 4;
+	public static inline var FONT					= 1 << 5;
+	public static inline var GRAPHICS				= 1 << 6;
+	public static inline var EFFECTS				= 1 << 7;
+	public static inline var BOX_FILTERS			= 1 << 8;
+	public static inline var BACKGROUND_FILTERS		= 1 << 9;
 	
-	public static inline var CHILDREN			= 1 << 10;
-	public static inline var STATES				= 1 << 11;
+	public static inline var STATES					= 1 << 10;
+	
+	public static inline var ELEMENT_CHILDREN		= 1 << 11;
+	public static inline var STYLE_NAME_CHILDREN	= 1 << 12;
+	public static inline var ID_CHILDREN			= 1 << 13;
+	
+	public static inline var CHILDREN				= ELEMENT_CHILDREN | STYLE_NAME_CHILDREN | ID_CHILDREN;
 	
 	
 #if debug
@@ -63,7 +68,10 @@ class StyleFlags
 		
 		if (flags.has( BACKGROUND_FILTERS ))	output.push("background-filters");
 		if (flags.has( BOX_FILTERS ))			output.push("box-filters");
-		if (flags.has( CHILDREN ))				output.push("children");
+	//	if (flags.has( CHILDREN ))				output.push("children");
+		if (flags.has( ELEMENT_CHILDREN ))		output.push("element-children");
+		if (flags.has( STYLE_NAME_CHILDREN ))	output.push("stylename-children");
+		if (flags.has( ID_CHILDREN ))			output.push("id-children");
 		if (flags.has( EFFECTS ))				output.push("effects");
 		if (flags.has( EXTENDED_STYLE ))		output.push("extended-style");
 		if (flags.has( FONT ))					output.push("font");

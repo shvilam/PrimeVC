@@ -81,10 +81,10 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 			}
 			else
 			{
-				if (layout.heightValidator == null)
-					heightRange = filledProperties.has(Flags.PERCENT_HEIGHT_CONSTRAINTS) ? new PValidator() : new Validator();
+				if (filledProperties.has(Flags.PERCENT_HEIGHT_CONSTRAINTS))
+					heightRange = layout.heightValidator.is(PValidator) ? layout.heightValidator : new PValidator();
 				else
-					heightRange = cast layout.heightValidator;
+					heightRange = layout.heightValidator.is(Validator) ? layout.heightValidator : new Validator();
 			}
 		}
 		
@@ -98,12 +98,14 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 			}
 			else
 			{
-				if (layout.widthValidator == null)
-					widthRange = filledProperties.has(Flags.PERCENT_WIDTH_CONSTRAINTS) ? new PValidator() : new Validator();
+				if (filledProperties.has(Flags.PERCENT_WIDTH_CONSTRAINTS))
+					widthRange = layout.widthValidator.is(PValidator) ? layout.widthValidator : new PValidator();
 				else
-					widthRange = cast layout.widthValidator;
+					widthRange = layout.widthValidator.is(Validator) ? layout.widthValidator : new Validator();
 			}
 		}
+		
+		
 		
 		if (!layout.is(ILayoutContainer))
 			changes = changes.unset( Flags.ALGORITHM | Flags.CHILD_WIDTH | Flags.CHILD_HEIGHT );
