@@ -937,6 +937,8 @@ class UIElementStyle implements IUIElementStyle
 			{
 				//Sender must be the parent-style of one of our styles.
 				//Check if the changes include child-changes. If so, reset our styles
+			//	if (changes.has( Flags.CHILDREN ))
+			//		resetStyles();
 				if (changes.hasAll( Flags.CHILDREN ))				resetStyles();
 				else
 				{

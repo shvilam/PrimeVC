@@ -875,8 +875,8 @@ class LayoutClient extends Invalidatable
 		if (includeInLayout != v)
 		{
 			includeInLayout = v;
-			if (v)		invalidate( Flags.PERCENT_HEIGHT | Flags.PERCENT_WIDTH | Flags.RELATIVE );
-	//		else		invalidate( Flags.INCLUDE );
+			if (v)		invalidate( Flags.INCLUDE | Flags.PERCENT_HEIGHT | Flags.PERCENT_WIDTH | Flags.RELATIVE );
+			else		invalidate( Flags.INCLUDE );
 		}
 		return includeInLayout;
 	}

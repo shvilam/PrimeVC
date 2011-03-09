@@ -29,6 +29,7 @@
 package primevc.gui.components;
  import primevc.core.Bindable;
  import primevc.gui.core.IUIElement;
+ import primevc.gui.styling.IIconOwner;
  import primevc.types.Bitmap;
 
 
@@ -36,10 +37,10 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Feb 11, 2011
  */
-interface IItemRenderer <DataType> implements IUIElement
+interface IItemRenderer <DataType> implements IUIElement, implements IIconOwner
 {
 	public var data				(default, null)				: Bindable<String>;
-	public var icon				(getIcon, setIcon)			: Bitmap;
+/*	public var icon				(getIcon, setIcon)			: Bitmap;*/
 	
 	public var vo				(default, null)				: Bindable<DataType>;
 	public var defaultLabel		(default, setDefaultLabel)	: String;

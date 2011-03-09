@@ -11,7 +11,7 @@ class ColorConvertion
 {
 	public static function main ()
 	{
-		var color	= 0xfefefeff;
+		var color	= 0x4D4D4Dff;
 		var base	= 0x000000ff;
 		trace( base.alphaBlendColors(color, 0.22).uintToString() );
 		trace( base.alphaBlendColors(color, 0.36).uintToString() );

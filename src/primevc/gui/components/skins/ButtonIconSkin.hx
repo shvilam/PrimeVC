@@ -87,5 +87,12 @@ class ButtonIconSkin extends Skin<Button>
 	{
 		if (changes.has( Flags.ICON ))
 			iconGraphic.data = owner.icon;
+		
+#if flash9
+		if (changes.has( Flags.ICON_FILL )) {
+			owner.iconFill.alphaMultiplier = iconGraphic.alpha;
+			iconGraphic.transform.colorTransform = owner.iconFill;
+		}
+#end
 	}
 }

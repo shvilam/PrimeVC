@@ -122,6 +122,9 @@ class ButtonIconLabelSkin extends Skin<Button>
 #if flash9
 		if (changes.has( Flags.TEXTSTYLE ))
 			labelField.textStyle = owner.textStyle;
+		
+		if (changes.has( Flags.ICON_FILL ))
+			iconGraphic.transform.colorTransform = owner.iconFill;
 #end
 	}
 	

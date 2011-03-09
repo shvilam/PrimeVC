@@ -1202,6 +1202,7 @@ class CSSParser
 			//
 			
 			case "icon":						parseAndSetIcon( val ); // @see background-image
+			case "icon-fill":					parseAndSetIconFill( val ); // @see background
 			
 			
 			//
@@ -3361,6 +3362,13 @@ class CSSParser
 		var bmp = parseBitmap(v);
 		if (bmp != null)
 			createGraphicsBlock().icon = bmp;
+	}
+	
+	
+	private function parseAndSetIconFill (v:String) : Void
+	{
+		if (isColor(v))
+			createGraphicsBlock().iconFill = new SolidFill(parseColor(v));
 	}
 	
 	

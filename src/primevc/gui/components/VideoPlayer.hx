@@ -34,7 +34,7 @@ package primevc.gui.components;
  import primevc.gui.core.IUIElement;
  import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIDataContainer;
- import primevc.gui.core.UIGraphic;
+// import primevc.gui.core.UIGraphic;
  import primevc.gui.core.UIVideo;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.LayoutFlags;
@@ -56,7 +56,7 @@ class VideoPlayer extends UIDataContainer < VideoData >
 {
 	private var ctrlBar		: VideoControlBar;
 	private var video		: UIVideo;
-	private var bigPlayBtn	: UIGraphic;
+	private var bigPlayBtn	: Button;
 	public var stream		(default, null)	: VideoStream;
 	
 	
@@ -64,7 +64,7 @@ class VideoPlayer extends UIDataContainer < VideoData >
 	{
 		video		= new UIVideo("video");
 		ctrlBar		= new VideoControlBar("ctrlBar");
-		bigPlayBtn	= new UIGraphic("bigPlayBtn");
+		bigPlayBtn	= new Button("bigPlayBtn");
 		
 		layoutContainer.children.add( video.layout );
 		layoutContainer.children.add( ctrlBar.layout );
@@ -73,10 +73,13 @@ class VideoPlayer extends UIDataContainer < VideoData >
 		children.add( ctrlBar );
 		children.add( bigPlayBtn );
 		
+	//	bigPlayBtn.layout.maintainAspectRatio = true;
+	//	bigPlayBtn.disable();
+		
 		stream = ctrlBar.stream = video.stream;
 		
-		togglePlayPauze		.on( userEvents.mouse.click, this );
-		showOrHidePlayBtn	.on( stream.state.change, this );
+		togglePlayPauze			.on( userEvents.mouse.click, this );
+		handleVideoStateChange	.on( stream.state.change, this );
 	}
 	
 	
@@ -113,14 +116,20 @@ class VideoPlayer extends UIDataContainer < VideoData >
 	}
 	
 	
-	private function showOrHidePlayBtn (newState:VideoStates, oldState:VideoStates)
+	private function handleVideoStateChange (newState:VideoStates, oldState:VideoStates)
+	{
+		togglePlayBtn( newState != VideoStates.playing );
+	}
+	
+	
+	public function togglePlayBtn (show:Bool = true)
 	{
 		var b		= bigPlayBtn;
 		var oldV	= b.window != null;
-		b.visible	= newState != VideoStates.playing;
+		b.visible	= show;
 		
-		if		(!oldV && b.visible)	children.add( b );
-		else if	(oldV && !b.visible)	children.remove( b );
+		if		(!oldV && show)	children.add( b );
+		else if	(oldV && !show)	children.remove( b );
 	}
 }
 
@@ -373,8 +382,8 @@ class VideoControlBar extends UIContainer
 	
 	private inline function showOrHide (child:IUIElement, show:Bool)
 	{
-	//	if (child.isOnStage() && !show)		children.remove( child );
-	//	if (!child.isOnStage() && show)		children.add( child );
+		if (child.isOnStage() && !show)		children.remove( child );
+		if (!child.isOnStage() && show)		children.add( child );
 		if (child.visible != show)
 			child.visible = child.layout.includeInLayout = show;
 		

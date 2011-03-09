@@ -27,13 +27,18 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
+#if flash9
+ import flash.geom.ColorTransform;
+#end
  import primevc.gui.core.IUIContainer;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.graphics.GraphicProperties;
+ import primevc.gui.graphics.fills.SolidFill;
  import primevc.gui.styling.StyleCollectionBase;
  import primevc.gui.traits.IDrawable;
  import primevc.gui.traits.ISkinnable;
   using primevc.utils.BitUtil;
+  using primevc.utils.Color;
   using primevc.utils.TypeUtil;
 
 
@@ -64,7 +69,7 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		if (!target.is(IDrawable))		changes = changes.unset( Flags.DRAWING_PROPERTIES );
 		if (!target.is(IUIContainer))	changes = changes.unset( Flags.OVERFLOW );
 		if (!target.is(IDisplayObject))	changes = changes.unset( Flags.OPACITY | Flags.VISIBLE );
-		if (!target.is(IIconOwner))		changes = changes.unset( Flags.ICON );
+		if (!target.is(IIconOwner))		changes = changes.unset( Flags.ICON | Flags.ICON_FILL );
 		
 		if (changes == 0)
 			return;
@@ -119,6 +124,17 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		//	else
 		//		target.behaviours.remove(  )
 		}
+		
+#if flash9
+		if ( propsToSet.has( Flags.ICON_FILL ))
+		{
+			var iconOwner		= target.as(IIconOwner);
+			iconOwner.iconFill	= new ColorTransform();
+			
+			if (!empty)
+				iconOwner.iconFill.color = styleObj.iconFill.as(SolidFill).color.rgb();
+		}
+#end
 	}
 }
 
