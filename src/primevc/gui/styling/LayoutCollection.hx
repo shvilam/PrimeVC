@@ -29,7 +29,7 @@
 package primevc.gui.styling;
  import primevc.core.validators.IntRangeValidator;
  import primevc.core.validators.PercentIntRangeValidator;
- import primevc.gui.layout.IAdvancedLayoutClient;
+// import primevc.gui.layout.IAdvancedLayoutClient;
  import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.styling.StyleCollectionBase;
  import primevc.gui.traits.ILayoutable;
@@ -124,8 +124,21 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 			if (!styleObj.allFilledProperties.has( changes ))
 				continue;
 			
-			var propsToSet	= styleObj.allFilledProperties.filter( changes );
-			changes			= changes.unset( propsToSet );
+			//find the properties that the changeflag and the styleobject have in common
+			var propsToSet	 = styleObj.allFilledProperties.filter( changes );
+			
+			//make sure a style-obj doens't have a percent size value and a size value at the same time <-- assertions are failing since size values can also be Number.EMPTY
+		//	Assert.that( !propsToSet.hasAll( Flags.WIDTH | Flags.PERCENT_WIDTH ), target+"."+styleObj+" can't have and a percent-width and a width value. Width: "+styleObj.width+"; pWidth: "+styleObj.percentWidth+"; props: "+Flags.readProperties(propsToSet) );
+		//	Assert.that( !propsToSet.hasAll( Flags.HEIGHT | Flags.PERCENT_HEIGHT ), target+"."+styleObj+" can't have and a percent-height and a height value. Height: "+styleObj.height+"; pHeight: "+styleObj.percentHeight+"; props: "+Flags.readProperties(propsToSet) );
+			
+			//prevent the width to be set when percent-width is already set, etc.
+			var propsToUnset = 0;
+			if		(propsToSet.has( Flags.WIDTH ) && changes.has( Flags.PERCENT_WIDTH ))	propsToUnset |= Flags.PERCENT_WIDTH;
+			else if (propsToSet.has( Flags.PERCENT_WIDTH ) && changes.has( Flags.WIDTH ))	propsToUnset |= Flags.WIDTH;
+			if		(propsToSet.has( Flags.HEIGHT ) && changes.has( Flags.PERCENT_HEIGHT ))	propsToUnset |= Flags.PERCENT_HEIGHT;
+			else if (propsToSet.has( Flags.PERCENT_HEIGHT ) && changes.has( Flags.HEIGHT ))	propsToUnset |= Flags.HEIGHT;
+			
+			changes  = changes.unset( propsToSet | propsToUnset );
 			applyStyleObject( propsToSet, styleObj, widthRange, heightRange );
 		}
 		
@@ -136,8 +149,6 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 			applyStyleObject( changes, null, widthRange, heightRange );
 			changes = 0;
 		}
-		
-		
 		
 		//set the validators after they are filled, otherwise the width or height will be updated to soon.
 		if (widthRange != null && layout.widthValidator == null)
@@ -156,21 +167,23 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 		var layout		= elementStyle.target.as( ILayoutable ).layout;
 		var notEmpty	= styleObj != null;
 		
-		if (propsToSet.has( Flags.WIDTH | Flags.HEIGHT ))
+		/*if (propsToSet.has( Flags.WIDTH | Flags.HEIGHT ))
 		{
 			if (layout.is( IAdvancedLayoutClient )) {
 				var l = layout.as( IAdvancedLayoutClient );
 				if (propsToSet.has( Flags.WIDTH ))		l.explicitWidth		= notEmpty && styleObj.width.notEmpty()		? styleObj.width	: Number.INT_NOT_SET;
 				if (propsToSet.has( Flags.HEIGHT ))		l.explicitHeight	= notEmpty && styleObj.height.notEmpty()	? styleObj.height	: Number.INT_NOT_SET;
 			}
-			else
+			else {
 				if (propsToSet.has( Flags.WIDTH ))		layout.width		= notEmpty && styleObj.width.notEmpty()		? styleObj.width	: Number.INT_NOT_SET;
 				if (propsToSet.has( Flags.HEIGHT ))		layout.height		= notEmpty && styleObj.height.notEmpty()	? styleObj.height	: Number.INT_NOT_SET;
-		}
+	//		}
+		}*/
 		
-		
-		if (propsToSet.has( Flags.PERCENT_WIDTH ))		layout.percentWidth = (notEmpty && styleObj.percentWidth.notEmpty()) ? styleObj.percentWidth : Number.FLOAT_NOT_SET;
-		if (propsToSet.has( Flags.PERCENT_HEIGHT ))		layout.percentHeight = (notEmpty && styleObj.percentHeight.notEmpty()) ? styleObj.percentHeight : Number.FLOAT_NOT_SET;
+		if		(propsToSet.has( Flags.WIDTH ))				layout.width		 =  notEmpty && styleObj.width.notEmpty()			? styleObj.width		 : Number.INT_NOT_SET;
+		else if (propsToSet.has( Flags.PERCENT_WIDTH ))		layout.percentWidth  = (notEmpty && styleObj.percentWidth.notEmpty())	? styleObj.percentWidth  : Number.FLOAT_NOT_SET;
+		if		(propsToSet.has( Flags.HEIGHT ))			layout.height		 =  notEmpty && styleObj.height.notEmpty()			? styleObj.height		 : Number.INT_NOT_SET;
+		else if (propsToSet.has( Flags.PERCENT_HEIGHT ))	layout.percentHeight = (notEmpty && styleObj.percentHeight.notEmpty())	? styleObj.percentHeight : Number.FLOAT_NOT_SET;
 		
 		var pWidthRange		= propsToSet.has( Flags.PERCENT_WIDTH_CONSTRAINTS ) ? widthRange.as(PValidator) : null;
 		var pHeightRange	= propsToSet.has( Flags.PERCENT_HEIGHT_CONSTRAINTS ) ? heightRange.as(PValidator) : null;

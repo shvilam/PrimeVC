@@ -141,9 +141,12 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 		
 	//	if (isQueued() && newState == ValidateStates.parent_invalidated)
 	//		getValidationManager().remove( this );
-		
+	
 		if (newState == ValidateStates.invalidated)
 			invalidate();
+		
+	//	else if (newState == ValidateStates.validated) // && !target.layout.includeInLayout)		will happen in the queuemanager
+	//		getValidationManager().remove(this);
 	}
 	
 	
@@ -157,8 +160,7 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 		var l = target.layout;
 		
 	//	if (changes.has( LayoutFlags.SIZE | LayoutFlags.POSITION ))
-	//	if (target.id.value == "logo")
-	//		trace(target+"; x="+l.getHorPosition()+", y="+l.getVerPosition()+", width="+l.outerBounds.width+", height="+l.outerBounds.height+"; "+changes.has( LayoutFlags.POSITION )+"; "+changes.has( LayoutFlags.SIZE ));
+	//	trace(target+"; x="+l.getHorPosition()+", y="+l.getVerPosition()+", width="+l.outerBounds.width+", height="+l.outerBounds.height+"; "+changes.has( LayoutFlags.POSITION )+"; "+changes.has( LayoutFlags.SIZE ));
 		
 		if (changes.has( LayoutFlags.POSITION ))
 		{
@@ -209,4 +211,13 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 				target.effects.playResize();
 		}
 	}
+	
+	
+#if debug
+	override public function toString ()
+	{
+		var className = Type.getClassName( Type.getClass( this ) );
+		return className.split(".").pop() + " ( "+target+"."+target.layout.state.current+" )";
+	}
+#end
 }

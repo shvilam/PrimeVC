@@ -29,6 +29,7 @@
 package primevc.utils;
  import primevc.types.Number;
  import primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
  
 
 /**
@@ -128,6 +129,18 @@ class FloatUtil
 		value = value * Math.pow(10, precision);
 		value = Math.round(value) / Math.pow(10, precision);
 		return value;
+	}
+	
+	
+	public static inline function isEqualTo (value1:Float, value2:Float) : Bool
+	{
+		return value1 == value2 || (value1.notSet() && value2.notSet());
+	}
+
+
+	public static inline function notEqualTo (value1:Float, value2:Float) : Bool
+	{
+		return value1 != value2 && (value1.isSet() || value2.isSet());
 	}
 
 

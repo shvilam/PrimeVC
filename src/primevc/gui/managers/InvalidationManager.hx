@@ -71,7 +71,7 @@ class InvalidationManager extends QueueManager
 			obj.validate();
 			
 #if debug	if (traceQueues)
-				s += "\n\t\tvalidated "+first+"; next: "+obj.nextValidatable;
+				s += "\n\t\tvalidated "+obj+"; next: "+obj.nextValidatable;
 #end
 			// During validation the queue can change (adding/removing items).
 			// The 'first' property will be the correct value if the current 

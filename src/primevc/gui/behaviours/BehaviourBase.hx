@@ -69,7 +69,7 @@ class BehaviourBase < TargetType > implements IBehaviour < TargetType >
 		return target;
 	}
 	
-
+	
 #if debug
 	public function toString ()
 	{

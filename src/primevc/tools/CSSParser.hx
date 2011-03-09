@@ -2439,6 +2439,7 @@ class CSSParser
 			if (pw.isSet())
 			{
 				createLayoutBlock();
+				Assert.that( currentBlock.layout.width.notSet() );
 				currentBlock.layout.percentWidth = pw;
 			}
 		}
@@ -2470,6 +2471,7 @@ class CSSParser
 		//	if (ph.isSet())
 		//	{
 			createLayoutBlock();
+			Assert.that( currentBlock.layout.height.notSet() );
 			currentBlock.layout.percentHeight = ph;
 		//	}
 		}

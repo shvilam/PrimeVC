@@ -76,6 +76,7 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		var graphicProps:GraphicProperties = null;
 		if (changes.has( Flags.DRAWING_PROPERTIES ))
 			graphicProps = elementStyle.target.as(IDrawable).graphicData;
+		
 	//	trace(target + ".applyGeneralStyling "+readProperties( changes )+"; "+(graphicProps != null));
 		
 		for (styleObj in this)

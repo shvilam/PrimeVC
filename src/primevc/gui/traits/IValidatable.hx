@@ -44,8 +44,10 @@ package primevc.gui.traits;
  */
 interface IValidatable
 {
-	public var prevValidatable	: IValidatable;
-	public var nextValidatable	: IValidatable;
+	public var prevValidatable		: IValidatable;
+	public var nextValidatable		: IValidatable;
+	public function isOnStage ()	: Bool;
+	public function isQueued ()		: Bool;
 	
 	/**
 	 * Method to update all the properties that have changed.

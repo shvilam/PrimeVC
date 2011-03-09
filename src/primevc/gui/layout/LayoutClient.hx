@@ -273,7 +273,7 @@ class LayoutClient extends Invalidatable
 			super.invalidate(changes);
 		
 		if (state.is(ValidateStates.validated))
-			state.current = (parent != null && parent.isInvalidated()) ? ValidateStates.parent_invalidated : ValidateStates.invalidated;
+			state.current = (includeInLayout && parent != null && parent.isInvalidated()) ? ValidateStates.parent_invalidated : ValidateStates.invalidated;
 	}
 	
 	
@@ -814,9 +814,9 @@ class LayoutClient extends Invalidatable
 	}
 	
 	
-	private inline function setPercentWidth (v)
+	private inline function setPercentWidth (v:Float)
 	{
-		if (v != percentWidth)
+		if (v.notEqualTo( percentWidth ))	//notEqualTo will also compare NaN.. @see NumberUtil
 		{
 			percentWidth = v;
 			invalidate( Flags.WIDTH | Flags.PERCENT_WIDTH );
@@ -827,7 +827,7 @@ class LayoutClient extends Invalidatable
 	
 	private inline function setPercentHeight (v:Float)
 	{
-		if (v != percentHeight)
+		if (v.notEqualTo( percentHeight ))	//notEqualTo will also compare NaN
 		{
 			percentHeight = v;
 			invalidate( Flags.HEIGHT | Flags.PERCENT_HEIGHT );
@@ -875,8 +875,8 @@ class LayoutClient extends Invalidatable
 		if (includeInLayout != v)
 		{
 			includeInLayout = v;
-			if (v)		invalidate( Flags.INCLUDE | Flags.PERCENT_HEIGHT | Flags.PERCENT_WIDTH | Flags.RELATIVE | changes );
-			else		invalidate( Flags.INCLUDE );
+			if (v)		invalidate( Flags.PERCENT_HEIGHT | Flags.PERCENT_WIDTH | Flags.RELATIVE );
+	//		else		invalidate( Flags.INCLUDE );
 		}
 		return includeInLayout;
 	}

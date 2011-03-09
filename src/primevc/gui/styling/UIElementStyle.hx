@@ -356,12 +356,6 @@ class UIElementStyle implements IUIElementStyle
 			resetStyles.on( parentStyle.childrenChanged, this );
 			updateStyles();
 		}
-		
-		if (target.id.value == "ctrlBar" || target.id.value == "videoPlayer") {
-			trace(target);
-			for (style in styles)
-				trace(style+" => "+style.readAll());
-		}
 	}
 	
 	
@@ -943,10 +937,13 @@ class UIElementStyle implements IUIElementStyle
 			{
 				//Sender must be the parent-style of one of our styles.
 				//Check if the changes include child-changes. If so, reset our styles
-			//	if (changes.has( Flags.CHILDREN ))				resetStyles();
-				if (changes.has( Flags.ID_CHILDREN ))			updateIdStyle();
-				if (changes.has( Flags.STYLE_NAME_CHILDREN ))	updateStyleNameStyles(null);
-				if (changes.has( Flags.ELEMENT_CHILDREN ))		updateElementStyle();
+				if (changes.hasAll( Flags.CHILDREN ))				resetStyles();
+				else
+				{
+					if (changes.has( Flags.ID_CHILDREN ))			updateIdStyle();
+					if (changes.has( Flags.STYLE_NAME_CHILDREN ))	updateStyleNameStyles(null);
+					if (changes.has( Flags.ELEMENT_CHILDREN ))		updateElementStyle();
+				}
 			}
 		}
 	}

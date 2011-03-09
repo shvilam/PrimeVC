@@ -30,7 +30,7 @@ package primevc.gui.components;
  import primevc.core.net.VideoStream;
  import primevc.core.states.VideoStates;
  import primevc.core.Bindable;
- import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
+// import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
  import primevc.gui.core.IUIElement;
  import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIDataContainer;
@@ -62,13 +62,16 @@ class VideoPlayer extends UIDataContainer < VideoData >
 	
 	override private function createChildren ()
 	{
-		children.add( video			= new UIVideo("video") );
-		children.add( ctrlBar		= new VideoControlBar("ctrlBar") );
-		children.add( bigPlayBtn	= new UIGraphic("bigPlayBtn") );
+		video		= new UIVideo("video");
+		ctrlBar		= new VideoControlBar("ctrlBar");
+		bigPlayBtn	= new UIGraphic("bigPlayBtn");
 		
 		layoutContainer.children.add( video.layout );
 		layoutContainer.children.add( ctrlBar.layout );
 		layoutContainer.children.add( bigPlayBtn.layout );
+		children.add( video );
+		children.add( ctrlBar );
+		children.add( bigPlayBtn );
 		
 		stream = ctrlBar.stream = video.stream;
 		
@@ -170,22 +173,37 @@ class VideoControlBar extends UIContainer
 	}
 	
 	
-	override private function createBehaviours ()
+	/*override private function createBehaviours ()
 	{
 		super.createBehaviours();
 		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
-	}
+	}*/
 	
 	
 	override private function createChildren ()
 	{
-		children.add( playBtn 		= new Button("playBtn") );
-		children.add( stopBtn		= new Button("stopBtn") );
-		children.add( progressBar	= new Slider("progressSlider") );
-		children.add( timeDisplay	= new Label("timeDisplay") );
-		children.add( muteBtn		= new Button("muteBtn") );
-		children.add( volumeSlider	= new Slider("volumeSlider") );
-		children.add( fullScreenBtn	= new Button("fullScreenBtn") );
+		playBtn 		= new Button("playBtn");
+		stopBtn			= new Button("stopBtn");
+		progressBar		= new Slider("progressSlider");
+		timeDisplay		= new Label("timeDisplay");
+		muteBtn			= new Button("muteBtn");
+		volumeSlider	= new Slider("volumeSlider");
+		fullScreenBtn	= new Button("fullScreenBtn");
+		
+		layoutContainer.children.add( playBtn.layout );
+		layoutContainer.children.add( stopBtn.layout );
+		layoutContainer.children.add( progressBar.layout );
+		layoutContainer.children.add( timeDisplay.layout );
+		layoutContainer.children.add( muteBtn.layout );
+		layoutContainer.children.add( volumeSlider.layout );
+		layoutContainer.children.add( fullScreenBtn.layout );
+		children.add( playBtn );
+		children.add( stopBtn );
+		children.add( progressBar );
+		children.add( timeDisplay );
+		children.add( muteBtn );
+		children.add( volumeSlider );
+		children.add( fullScreenBtn );
 		
 		timeDisplay.data.value = "--:-- / --:--";
 		
@@ -355,7 +373,12 @@ class VideoControlBar extends UIContainer
 	
 	private inline function showOrHide (child:IUIElement, show:Bool)
 	{
+	//	if (child.isOnStage() && !show)		children.remove( child );
+	//	if (!child.isOnStage() && show)		children.add( child );
 		if (child.visible != show)
 			child.visible = child.layout.includeInLayout = show;
+		
+	//	if (!show)		layoutContainer.children.remove( child.layout );
+	//	else			layoutContainer.children.add( child.layout, pos );
 	}
 }

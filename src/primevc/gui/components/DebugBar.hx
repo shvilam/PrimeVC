@@ -155,7 +155,7 @@ class DebugBar extends UIContainer
 	private inline function inspectIfLayoutIsValidated (layout:LayoutClient, result:Dynamic)
 	{
 		if (!layout.state.is( ValidateStates.validated )) {
-			result.errors += "\n\t\t[ "+result.invalid+" ]layout of "+layout+" is "+layout.state.current+" instead of validated. Invalidated properties: "+layout.readChanges();
+			result.errors += "\n\t\t[ "+result.invalid+" ]layout of "+layout+"("+layout.includeInLayout+")"+" is "+layout.state.current+" instead of validated. Invalidated properties: "+layout.readChanges();
 			result.invalid++;
 		}
 		else
