@@ -160,7 +160,7 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 	
 	private function setValue (newValue:DataType) : DataType
 	{
-		if (value != newValue)
+		if (value != newValue)	//FIXME (Ruben @ Mar 11, 2011) Will also evaluate true with NaN == NaN and (Null<Bool> = null) == false 
 		{
 			var oldV	= value;
 			value		= newValue;			//first set the value -> will possibly trigger an infinite loop otherwise

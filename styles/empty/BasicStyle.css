@@ -114,6 +114,60 @@ Panel .closeBtn {
 }
 
 
+/***************
+* SLIDING TOGGLE BUTTON
+**************/
+
+.slideToggleButton {
+	background: #666;
+	skin: Class( primevc.gui.components.skins.SlidingToggleButtonSkin );
+	height: 30px;
+	width: 50px;
+	border-radius: 5px;
+}
+.slideToggleButton #onBg {
+	/*width: 51%; width is calculated in the skin  */	
+	top: 1px;
+	bottom: 1px;
+	background: #f00;
+}
+/*.slideToggleButton #onIcon {
+	shape: rectangle;
+	background: #fff;
+	height: 53%;
+	width: 2px;
+	v-center: 1px;
+	border-radius: 1px;
+}
+.slideToggleButton #offIcon {
+	shape: ellipse;
+	border: 2px solid #000 inner;
+	height: 50%;
+	max-width: 20%;
+	v-center: 2px;
+}*/
+.slideToggleButton UITextField {
+	font: "Lucida Grande" 8px #fff;
+	text-transform: uppercase;
+	v-center: 0px;
+}
+.slideToggleButton #onLabel {
+	color: #fff;
+}
+
+
+.slideToggleButton #slide {
+	move-transition: move 180ms ease-out;
+	shape: rectangle;
+	border-radius: 5px;
+	background: #fff;
+	height: 110%;
+	v-center: 0px;
+	width: 51%;
+}
+
+
+
 
 /***************
  * DEBUGBAR

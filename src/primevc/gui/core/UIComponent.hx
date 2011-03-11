@@ -139,7 +139,10 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	private function init ()
 	{
-		Assert.notNull(container, "Container can't be null for "+this);
+		if (isInitialized())
+			return;
+		
+	//	Assert.notNull(container, "Container can't be null for "+this);
 		behaviours.init();
 		
 		if (skin != null)
@@ -157,6 +160,12 @@ class UIComponent extends Sprite, implements IUIComponent
 		
 		//finish initializing
 		state.current = state.initialized;
+	}
+	
+	
+	public inline function forceInitialization ()
+	{
+		init();
 	}
 	
 	

@@ -64,7 +64,7 @@ interface ISkin
 	/**
 	 * Creates the default graphical data of a UIComponent
 	 */
-	private function createGraphics ()		: Void;
+	public function drawGraphics ()		: Void;
 	
 	/**
 	 * A skin can have children, despite the fact that it isn't a IDisplayable 

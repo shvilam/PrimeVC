@@ -60,11 +60,11 @@ class PanelSkin extends Skin<Panel>
 		
 		chrome	.layoutContainer.children.add( title.layout );
 		chrome	.layoutContainer.children.add( closeBtn.layout );
-		owner	.layoutContainer.children.add( chrome.layout );
+		owner	.layoutContainer.children.add( chrome.layout, 0 );
 		
 		chrome	.children.add( title );
 		chrome	.children.add( closeBtn );
-		owner	.children.add( chrome );
+		owner	.children.add( chrome, 0 );
 		
 		chrome	.styleClasses.add("chrome");
 		title	.styleClasses.add("title");
