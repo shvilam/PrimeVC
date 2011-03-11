@@ -27,13 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
-#if flash9
- import flash.geom.ColorTransform;
-#end
  import primevc.gui.core.IUIContainer;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.graphics.GraphicProperties;
- import primevc.gui.graphics.fills.SolidFill;
  import primevc.gui.styling.StyleCollectionBase;
  import primevc.gui.traits.IDrawable;
  import primevc.gui.traits.ISkinnable;
@@ -115,6 +111,7 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		if ( propsToSet.has( Flags.BORDER ))		graphicProps.border					= empty ? null	: styleObj.border;
 		if ( propsToSet.has( Flags.BORDER_RADIUS ))	graphicProps.borderRadius			= empty ? null	: styleObj.borderRadius;
 		if ( propsToSet.has( Flags.ICON ))			target.as(IIconOwner).icon			= empty ? null	: styleObj.icon;
+		if ( propsToSet.has( Flags.ICON_FILL ))		target.as(IIconOwner).iconFill		= empty ? null	: styleObj.iconFill;
 		if ( propsToSet.has( Flags.OPACITY ))		target.as(IDisplayObject).alpha		= empty ? 1		: styleObj.opacity;
 		if ( propsToSet.has( Flags.VISIBLE ))		target.as(IDisplayObject).visible	= empty ? true	: styleObj.visible;
 		if ( propsToSet.has( Flags.OVERFLOW ))
@@ -124,17 +121,6 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		//	else
 		//		target.behaviours.remove(  )
 		}
-		
-#if flash9
-		if ( propsToSet.has( Flags.ICON_FILL ))
-		{
-			var iconOwner		= target.as(IIconOwner);
-			iconOwner.iconFill	= new ColorTransform();
-			
-			if (!empty)
-				iconOwner.iconFill.color = styleObj.iconFill.as(SolidFill).color.rgb();
-		}
-#end
 	}
 }
 

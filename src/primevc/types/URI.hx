@@ -89,6 +89,11 @@ class URI
 		Assert.that(u.host == "decube.net", u.host);
 		Assert.that(u.port == 80, Std.string(u.port));
 		Assert.that(u.path == "/a", u.path);
+		
+	/*	u.parse("asset:aap");
+		Assert.that(u.string == "asset:aap", u.string);
+	//	Assert.that(u.scheme == URIScheme.Scheme('asset'), Std.string(u.scheme));
+		Assert.that(u.host == "aap", u.host);*/
 	}
 #end
 	

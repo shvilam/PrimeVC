@@ -27,18 +27,24 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
+#if flash9
+ import flash.geom.ColorTransform;
+#end
  import primevc.gui.core.IUIDataElement;
  import primevc.gui.core.UIElementFlags;
  import primevc.gui.core.UIGraphic;
  import primevc.gui.graphics.fills.BitmapFill;
+ import primevc.gui.graphics.fills.SolidFill;
  import primevc.gui.graphics.shapes.RegularRectangle;
  import primevc.gui.graphics.GraphicProperties;
+ import primevc.gui.graphics.IGraphicElement;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutFlags;
  import primevc.types.Bitmap;
  import primevc.types.Number;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
+  using primevc.utils.Color;
   using primevc.utils.TypeUtil;
 
 
@@ -113,6 +119,20 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 		data.state.change.unbind(this);
 		if (graphicData.fill.is(BitmapFill))
 			graphicData.fill = null; //.as(BitmapFill).bitmap = null;
+	}
+	
+	
+	public function colorize (fill:IGraphicElement)
+	{
+#if flash9
+		if (fill == null || !fill.is(SolidFill))
+			return;
+		
+		var a = alpha;
+		var t = new ColorTransform( fill.as(SolidFill).color.rgb() );
+		t.alphaMultiplier			= a;
+		transform.colorTransform	= t;
+#end
 	}
 	
 	

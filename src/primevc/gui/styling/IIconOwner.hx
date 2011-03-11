@@ -27,10 +27,8 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
-#if flash9
- import flash.geom.ColorTransform;
-#end
  import primevc.gui.core.IUIElement;
+ import primevc.gui.graphics.IGraphicProperty;
  import primevc.types.Bitmap;
 
 
@@ -41,7 +39,5 @@ package primevc.gui.styling;
 interface IIconOwner implements IUIElement
 {
 	public var icon			(default, setIcon)		: Bitmap;
-#if flash9
-	public var iconFill		(default, setIconFill)	: ColorTransform;
-#end
+	public var iconFill		(default, setIconFill)	: IGraphicProperty;
 }

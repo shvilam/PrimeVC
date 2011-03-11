@@ -124,7 +124,7 @@ class ButtonIconLabelSkin extends Skin<Button>
 			labelField.textStyle = owner.textStyle;
 		
 		if (changes.has( Flags.ICON_FILL ))
-			iconGraphic.transform.colorTransform = owner.iconFill;
+			iconGraphic.colorize( owner.iconFill );
 #end
 	}
 	

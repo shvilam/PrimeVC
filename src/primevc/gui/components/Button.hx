@@ -27,11 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
-#if flash9
- import flash.geom.ColorTransform;
-#end
  import primevc.core.Bindable;
  import primevc.gui.core.UIDataContainer;
+ import primevc.gui.graphics.IGraphicProperty;
  import primevc.gui.styling.IIconOwner;
  import primevc.gui.text.TextFormat;
  import primevc.gui.traits.ISelectable;
@@ -52,8 +50,8 @@ class Button extends UIDataContainer <Bindable<String>>, implements IIconOwner, 
 {
 	public var selected		(default, null)			: Bindable<Bool>;
 	public var icon			(default, setIcon)		: Bitmap;
+	public var iconFill		(default, setIconFill)	: IGraphicProperty;
 #if flash9
-	public var iconFill		(default, setIconFill)	: ColorTransform;
 	public var textStyle	(default, setTextStyle)	: TextFormat;
 	public var wordWrap		: Bool;
 #end
@@ -90,8 +88,7 @@ class Button extends UIDataContainer <Bindable<String>>, implements IIconOwner, 
 	}
 	
 	
-#if flash9
-	private inline function setIconFill (v:ColorTransform)
+	private inline function setIconFill (v:IGraphicProperty)
 	{
 		if (v != iconFill) {
 			iconFill = v;
@@ -101,6 +98,7 @@ class Button extends UIDataContainer <Bindable<String>>, implements IIconOwner, 
 	}
 	
 	
+#if flash9
 	private inline function setTextStyle (v:TextFormat)
 	{
 		textStyle = v;
