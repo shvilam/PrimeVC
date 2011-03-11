@@ -44,14 +44,14 @@ while [ "${1+isset}" ]; do
 			;;
 		
 		--debug-lib)
-			DEBUG_LIBS="${DEBUG_LIBS} $2"
+			DEBUG_LIBS="${DEBUG_LIBS} '$2'"
 			shift 2
 			;;
 		
 		--release-lib)
 		#	RELEASE_LIBS="${RELEASE_LIBS} \"$2\""
 		#	RELEASE_LIBS="${RELEASE_LIBS} '$2'"
-			RELEASE_LIBS="${RELEASE_LIBS} $2"
+			RELEASE_LIBS="${RELEASE_LIBS} '$2'"
 			shift 2
 			;;
 		
@@ -93,29 +93,32 @@ else
 		if [[ -d "$GENERATED_FOLDER" ]]; then
 			rm -R "$GENERATED_FOLDER"
 		fi;
-		
-		"$MXMLC" \
-			-source-path "$PRIMEVC_ROOT/src" $RELEASE_LIBS \
+		echo stap 1
+		echo \
+			-source-path "'$PRIMEVC_ROOT/src'" $RELEASE_LIBS \
 			-debug=false \
 			-metadata.publisher="PrimeVC" \
 			-verbose-stacktraces=false \
 			-optimize \
 			-strict \
 			-target-player="10.0.0" \
-			-output "$RELEASE_OUTPUT_FILE" \
-			"$RELEASE_INPUT_FILE" \
+			-output "'$RELEASE_OUTPUT_FILE'" \
+			"'$RELEASE_INPUT_FILE'" \
+			| xargs -t "$MXMLC" \
 				|| exit 1
-
-		 "$MXMLC" \
-		 	-source-path "$PRIMEVC_ROOT/src" ${RELEASE_LIBS} ${DEBUG_LIBS} \
+		echo stap 2
+		echo \
+		 	-source-path "'$PRIMEVC_ROOT/src'" ${RELEASE_LIBS} ${DEBUG_LIBS} \
 			-debug=false \
 			-metadata.publisher="PrimeVC" \
 			-verbose-stacktraces=false \
 			-optimize \
 			-strict \
 			-target-player="10.0.0" \
-		 	-output "$DEBUG_OUTPUT_FILE" \
-		 	"$DEBUG_INPUT_FILE"
+		 	-output "'$DEBUG_OUTPUT_FILE'" \
+		 	"'$DEBUG_INPUT_FILE'" \
+			| xargs -t "$MXMLC" \
+				|| exit 1
 		
 	#	echo -e "\t[haXe]   Generating extern classes" &&
 		
