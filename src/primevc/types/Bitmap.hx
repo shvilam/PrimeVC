@@ -68,33 +68,35 @@ class Bitmap
 			,	implements IValueObject
 #if neko	,	implements ICodeFormattable		#end
 {
-	private var _data					: BitmapData;
+	private var _data						: BitmapData;
 	
 	/**
 	 * Bitmapdata of the given source
 	 */
-	public var data (getData, setData)	: BitmapData;
+	public var data		(getData, setData)	: BitmapData;
 #if flash9
-	private var loader					: Loader;
+	private var loader						: Loader;
 #end
 
 #if (neko || debug)
-	public var _oid (default, null)		: Int;
+	public var _oid		(default, null)		: Int;
 #end
 	
-	public var state (default, null)	: SimpleStateMachine < BitmapStates >;
+	public var state	(default, null)		: SimpleStateMachine < BitmapStates >;
 	
 	/**
 	 * URL of the loaded bitmap (if it's loaded from an external image).
 	 * Used for internal caching of bitmaps.
 	 */
-	public var url (default, null)		: URI;
+	public var url		(default, null)		: URI;
 	
 	/**
 	 * Class of the current bitmap (if it's loaded from a class).
 	 * Used for internal caching of bitmaps.
 	 */
-	public var asset (default, null)	: AssetClass;
+	public var asset	(default, null)		: AssetClass;
+	public var matrix	(default, null)		: Matrix2D;
+	
 	
 	
 	public function new (url:URI = null, asset:AssetClass = null, data:BitmapData = null)
@@ -141,8 +143,10 @@ class Bitmap
 	}
 	
 	
-	public function load ()
+	public function load (matrix:Matrix2D = null)
 	{
+		this.matrix = matrix;
+		
 		if (state.current == loadable) {
 			if (url != null)			loadUrl();
 			else if (asset != null)		loadClass();
@@ -240,10 +244,10 @@ class Bitmap
 	
 #if flash9
 	
-	public inline function loadDisplayObject (v:DisplayObject, transform:Matrix2D = null, transparant:Bool = true, fillColor:UInt = 0x00ffffff)
+	public inline function loadDisplayObject (v:DisplayObject, transparant:Bool = true, fillColor:UInt = 0x00ffffff)
 	{
 		var d = new BitmapData( v.width.roundFloat(), v.height.roundFloat(), transparant, fillColor );
-		d.draw( v, transform );
+		d.draw( v, matrix );
 		data = d;
 	}
 	
@@ -309,7 +313,8 @@ class Bitmap
 
 		try {
 			var d = new BitmapData( loader.content.width.roundFloat(), loader.content.height.roundFloat(), true, 0x00000000 );
-			d.draw( loader.content );
+		//	trace(loader.content+": "+loader.content.width+", "+loader.content.height+"; "+matrix);
+			d.draw( loader.content, matrix );
 			data = d;	// <-- setData will change the bitmapState to the correct value
 			disposeLoader();
 		}
@@ -348,10 +353,10 @@ class Bitmap
 	
 	
 #if flash9
-	public static inline function fromDisplayObject (v:DisplayObject, ?transform:Matrix2D, transparant:Bool = true, fillColor:UInt = 0xffffffff) : Bitmap
+	public static inline function fromDisplayObject (v:DisplayObject, transparant:Bool = true, fillColor:UInt = 0xffffffff) : Bitmap
 	{
 		var b = new Bitmap();
-		b.loadDisplayObject(v, transform);
+		b.loadDisplayObject(v, transparant, fillColor);
 		return b;
 	}
 	
@@ -427,4 +432,11 @@ enum BitmapStates {
 	loadable;	//a loader object is created but not loaded yet
 	loading;	//the loader is loading an external resource
 	ready;		//the bitmap is filled with bitmap-data
+}
+
+
+enum BitmapSource {
+	bitmap;
+	displayObject;
+	url;
 }

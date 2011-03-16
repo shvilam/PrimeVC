@@ -28,8 +28,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.utils;
+ import primevc.core.traits.IDisposable;
  import primevc.utils.DuplicateUtil;
   using primevc.utils.FastArray;
+  using primevc.utils.TypeUtil;
   using Std;
 
 typedef FastArray<T> =
@@ -176,6 +178,15 @@ class FastArrayUtil
 	public static inline function removeAll<T> (list:FastArray<T>) : Void {
 		while (list.length > 0)
 			list.pop();
+	}
+	
+	
+	public static inline function dispose<T> (list:FastArray<T>) : Void {
+		while (list.length > 0) {
+			var i = list.pop();
+			if (i.is(IDisposable))
+				i.as(IDisposable).dispose();
+		}
 	}
 	
 	

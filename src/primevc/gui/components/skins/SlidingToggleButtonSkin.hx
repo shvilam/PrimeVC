@@ -225,8 +225,8 @@ class SlidingToggleButtonSkin extends Skin<DataButton<Null<Bool>>>
 	
 	private function getButtonLabel (newVal:Bool)
 	{
-		trace(owner.defaultLabel);
-		trace(newVal);
+	//	trace(owner.defaultLabel);
+	//	trace(newVal);
 		return owner.defaultLabel + ": " + (newVal ? "aan" : "uit");
 	}
 	

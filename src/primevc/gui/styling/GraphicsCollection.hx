@@ -29,6 +29,7 @@
 package primevc.gui.styling;
  import primevc.gui.core.IUIContainer;
  import primevc.gui.display.IDisplayObject;
+ import primevc.gui.graphics.EmptyGraphicProperty;
  import primevc.gui.graphics.GraphicProperties;
  import primevc.gui.styling.StyleCollectionBase;
  import primevc.gui.traits.IDrawable;
@@ -36,6 +37,7 @@ package primevc.gui.styling;
   using primevc.utils.BitUtil;
   using primevc.utils.Color;
   using primevc.utils.TypeUtil;
+  using Type;
 
 
 private typedef Flags = GraphicFlags;
@@ -107,7 +109,6 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		
 		if ( propsToSet.has( Flags.SKIN ))			target.as(ISkinnable).skin			= empty ? null	: (styleObj.skin != null) ? Type.createInstance( styleObj.skin, [] ) : null;
 		if ( propsToSet.has( Flags.SHAPE ))			graphicProps.shape					= empty ? null	: styleObj.shape;
-		if ( propsToSet.has( Flags.BACKGROUND ))	graphicProps.fill					= empty ? null	: styleObj.background;
 		if ( propsToSet.has( Flags.BORDER ))		graphicProps.border					= empty ? null	: styleObj.border;
 		if ( propsToSet.has( Flags.BORDER_RADIUS ))	graphicProps.borderRadius			= empty ? null	: styleObj.borderRadius;
 		if ( propsToSet.has( Flags.ICON ))			target.as(IIconOwner).icon			= empty ? null	: styleObj.icon;
@@ -120,6 +121,10 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 				target.as(IUIContainer).behaviours.add( Type.createInstance( styleObj.overflow, [ target ] ) );
 		//	else
 		//		target.behaviours.remove(  )
+		}
+		
+		if ( propsToSet.has( Flags.BACKGROUND )) {
+			graphicProps.fill = (empty || styleObj.background.is(EmptyGraphicProperty)) ? null : styleObj.background;
 		}
 	}
 }

@@ -113,7 +113,7 @@ class ColorPicker extends UIDataComponent<RevertableBindable<RGBA>>
 			//not sure if this is the best way but using the original bitmapdata from the fill doesnt give correct results since it's unscaled.
 		//	spectrum = Bitmap.createEmpty( layout.width, layout.height, false );
 		//	spectrum.draw(this);
-			spectrum = Bitmap.fromDisplayObject( this, null, false );
+			spectrum = Bitmap.fromDisplayObject( this, false );
 		}
 	//	var l = layout.innerBounds;
 	//	var b = new BitmapDataType( l.width, l.height, false );

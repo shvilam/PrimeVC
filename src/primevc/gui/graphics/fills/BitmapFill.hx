@@ -94,11 +94,12 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 			
 			if (bitmap != null)
 			{
-				if (bitmap.state.is(BitmapStates.ready))
+				if (bitmap.state.is(BitmapStates.ready)) {
 					invalidate( GraphicFlags.FILL );
-				
-				handleBitmapStateChange.on( bitmap.state.change, this );
-				bitmap.load();
+				} else {
+					handleBitmapStateChange.on( bitmap.state.change, this );
+					bitmap.load();
+				}
 			}
 		}
 		return v;
@@ -160,19 +161,22 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 		if (bitmap == null)
 			return;
 		
+		var m:Matrix2D = null;
+		if (repeat == false) {
+			m = matrix == null ? new Matrix2D() : matrix;
+			m.scale( bounds.width / bitmap.data.width, bounds.height / bitmap.data.height );
+		}
+		
 		if (bitmap.state.is(BitmapStates.ready))
 		{
 #if flash9
-			var m:Matrix2D = null;
-			if (repeat == false) {
-				m = new Matrix2D();
-				m.scale( bounds.width / bitmap.data.width, bounds.height / bitmap.data.height );
-			}
 			target.graphics.beginBitmapFill( bitmap.data, m, repeat, smooth );
 #end
 		}
-		else if (bitmap.state.is(BitmapStates.loadable))
-			bitmap.load();
+		else if (bitmap.state.is(BitmapStates.loadable)) {
+		//	trace("load bitmap");
+			bitmap.load(m);
+		}
 	}
 	
 	

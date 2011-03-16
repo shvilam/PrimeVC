@@ -185,4 +185,19 @@ class DragHelper implements IDisposable
 		if (state.keyCode() == KeyCodes.ESCAPE)
 			cancel();
 	}
+	
+	
+	public inline function enable ()
+	{
+		mouseUpBinding	.enable();
+		mouseMoveBinding.enable();
+	}
+	
+	
+	public inline function disable ()
+	{
+		stopDrag(null);
+		mouseUpBinding	.disable();
+		mouseMoveBinding.disable();
+	}
 }

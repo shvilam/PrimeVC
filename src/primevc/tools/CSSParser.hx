@@ -83,6 +83,7 @@ package primevc.tools;
  import primevc.gui.graphics.shapes.Line;
  import primevc.gui.graphics.shapes.RegularRectangle;
  import primevc.gui.graphics.shapes.Triangle;
+ import primevc.gui.graphics.EmptyGraphicProperty;
  import primevc.gui.graphics.IGraphicProperty;
  import primevc.gui.layout.algorithms.circle.HorizontalCircleAlgorithm;
  import primevc.gui.layout.algorithms.circle.VerticalCircleAlgorithm;
@@ -1912,8 +1913,12 @@ class CSSParser
 	private inline function parseAndSetBackground (v:String) : Void
 	{
 		var g = createGraphicsBlock();
-		parseAndSetBackgroundColor( v );
-		parseAndSetBackgroundImage( v );
+		if (isNone(v)) {
+			g.background = new EmptyGraphicProperty();
+		} else {
+			parseAndSetBackgroundColor( v );
+			parseAndSetBackgroundImage( v );
+		}
 	}
 	
 	

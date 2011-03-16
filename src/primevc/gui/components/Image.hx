@@ -129,7 +129,8 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 			return;
 		
 		var a = alpha;
-		var t = new ColorTransform( fill.as(SolidFill).color.rgb() );
+		var t = new ColorTransform();
+		t.color						= fill.as(SolidFill).color.rgb();
 		t.alphaMultiplier			= a;
 		transform.colorTransform	= t;
 #end
@@ -181,10 +182,13 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 		
 		if (data != null && data.state.is( BitmapStates.ready ))
 		{
-	//		trace(this+"; "+data.data.width+", "+data.data.height+"; expl size? "+l.explicitWidth+", "+l.explicitHeight+"; "+l.state.current+"; layout: "+layout);
+		//	if (id.value == "Image70")
+		//		trace(container+"."+this+"; "+data.data.width+", "+data.data.height+"; expl size? "+l.explicitWidth+", "+l.explicitHeight+"; size: "+l.width+", "+l.height+"; padding: "+l.padding+"; margin:"+l.margin);
+		//		trace("\t\t\twidthBounds: "+layout.widthValidator+"; heightBounds: "+layout.heightValidator+"; aspect: "+layout.aspectRatio);
 			l.maintainAspectRatio	= maintainAspectRatio;
 			l.measuredResize( data.data.width, data.data.height );
-	//		trace("\t\t\t measured: "+l.measuredWidth+", "+l.measuredHeight+"; explicit: "+l.explicitWidth+", "+l.explicitHeight+"; size: "+l.width+", "+l.height+"; state: "+l.state.current);
+		//	if (id.value == "Image70")
+		//	trace("\t\t\t measured: "+l.measuredWidth+", "+l.measuredHeight+"; explicit: "+l.explicitWidth+", "+l.explicitHeight+"; size: "+l.width+", "+l.height+"; name: "+l.name);
 		}
 		else
 		{	

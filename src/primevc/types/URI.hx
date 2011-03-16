@@ -90,10 +90,12 @@ class URI
 		Assert.that(u.port == 80, Std.string(u.port));
 		Assert.that(u.path == "/a", u.path);
 		
-	/*	u.parse("asset:aap");
-		Assert.that(u.string == "asset:aap", u.string);
+		u.parse("asset://aap");
+		
+		Assert.equal(u.string, "asset://aap");
+		Assert.that(u.hasScheme( URIScheme.Scheme('asset') ));
 	//	Assert.that(u.scheme == URIScheme.Scheme('asset'), Std.string(u.scheme));
-		Assert.that(u.host == "aap", u.host);*/
+		Assert.equal(u.host, "aap");
 	}
 #end
 	
@@ -119,6 +121,19 @@ class URI
 	public inline function isURL() : Bool			{ return scheme.notNull(); }
 	/** Returns true if the host of URI is the URI, so when the port, path, query and fragment are empty **/
 	public inline function hostIsURI () : Bool		{ return port == -1 && path == null && query == null && fragment == null; }
+	
+	public function hasScheme (searchedScheme:URIScheme) : Bool {
+		return scheme != null && switch (searchedScheme) {
+			case URIScheme.Scheme(schStr1):
+				switch (scheme) {
+					case URIScheme.Scheme(schStr2): schStr1 == schStr2;
+					default:						false;
+				}
+			
+			default:
+				searchedScheme == scheme;
+		}
+	}
 	
 	/** Returns the string after the last dot in the path.
 	 	Returns an empty string if it has no dots in the path.

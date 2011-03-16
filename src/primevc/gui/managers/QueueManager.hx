@@ -107,15 +107,27 @@ class QueueManager implements IDisposable
 			remove(obj);
 		
 		//only add the object if it's not in the list yet
-		else if (obj.isQueued()) {
-#if debug	if (obj.prevValidatable == null)	Assert.equal( obj, first, obj + "" );
-			if (obj.nextValidatable == null)	Assert.equal( obj, last, obj + "" ); #end
+	//	else if (obj.prevValidatable == null && first != null && obj == first)
+	//		return;
+			
+	//	else if (obj.nextValidatable == null && last != null && obj == last)
+	//		return;
+		
+	//	else if (obj.prevValidatable != null && obj.prevValidatable == last)
+	//		return;
+		
+		else if (obj.isQueued())
 			return;
-		}
+			
+//#if debug	if (obj.prevValidatable == null)	Assert.equal( obj, first, obj + "" );
+//			if (obj.nextValidatable == null)	Assert.equal( obj, last, obj + "" ); #end
+//			return;
 		
 		if (first == null)
 		{
 			first = obj;
+			obj.prevValidatable = null;
+			obj.nextValidatable = last;
 			enableBinding();
 		}
 		else

@@ -71,6 +71,11 @@ interface IUIElement
 	public function isInitialized ()		: Bool;
 	
 	
+	/**
+	 * function to tell other objects if the element can be resized
+	 */
+	public function isResizable ()			: Bool;
+	
 	
 	//
 	// ACTIONS

@@ -101,7 +101,7 @@ class LayoutClient extends Invalidatable
 	 * @default	false
 	 */
 	public var maintainAspectRatio	(default, setMaintainAspectRatio)	: Bool;
-		private var aspectRatio		: Float;
+	public var aspectRatio			(default, null)						: Float;
 	
 	
 	public var state				(default, null)						: SimpleStateMachine < ValidateStates >;
@@ -169,10 +169,10 @@ class LayoutClient extends Invalidatable
 		_height		= newHeight;
 		(untyped this).percentWidth		= Number.FLOAT_NOT_SET;
 		(untyped this).percentHeight	= Number.FLOAT_NOT_SET;
+		(untyped this).includeInLayout	= true;
 		
 		innerBounds	.listeners.add( this );
 		outerBounds	.listeners.add( this );
-		includeInLayout	= true;
 		
 		//remove and set correct flags
 		changes = changes.set( Flags.X | Flags.Y | Flags.WIDTH * newWidth.isSet().boolCalc() | Flags.HEIGHT * newHeight.isSet().boolCalc() );
@@ -361,8 +361,15 @@ class LayoutClient extends Invalidatable
 		{
 			//step 1 - 4
 			updateAllWidths( validateWidth( v, Flags.VALIDATE_ALL ) );
+			
 			if (maintainAspectRatio)
-				updateAllHeights( calcHeightForWidth(v) );	//calling this method won't trigger the setHeight method (to prevend infinite loops)
+			{
+				if (aspectRatio.notSet())
+					calculateAspectRatio( width, height );
+				
+				if (aspectRatio.isSet())
+					updateAllHeights( calcHeightForWidth(v) );	//calling this method won't trigger the setHeight method (to prevend infinite loops)
+			}
 		}
 		
 		return _width;
@@ -380,7 +387,13 @@ class LayoutClient extends Invalidatable
 			updateAllHeights( validateHeight( v, Flags.VALIDATE_ALL ) );
 			
 			if (maintainAspectRatio)
-				updateAllWidths( calcWidthForHeight(v) );	//calling this method won't trigger the setWidth method (to prevend infinite loops)
+			{
+				if (aspectRatio.notSet())
+					calculateAspectRatio( width, height );
+				
+				if (aspectRatio.isSet())
+					updateAllWidths( calcWidthForHeight(v) );	//calling this method won't trigger the setWidth method (to prevend infinite loops)
+			}
 		}
 		
 		return _height;
@@ -402,7 +415,7 @@ class LayoutClient extends Invalidatable
 			v = widthValidator.validate(v);
 		
 		
-		if (options.has( Flags.VALIDATE_ASPECT ) && maintainAspectRatio)
+		if (options.has( Flags.VALIDATE_ASPECT ) && maintainAspectRatio && aspectRatio.isSet())
 		{
 			// 2. validate the new height
 			var h1 = calcHeightForWidth( v );
@@ -439,7 +452,7 @@ class LayoutClient extends Invalidatable
 			v = heightValidator.validate(v);
 		
 		
-		if (options.has( Flags.VALIDATE_ASPECT ) && maintainAspectRatio)
+		if (options.has( Flags.VALIDATE_ASPECT ) && maintainAspectRatio && aspectRatio.isSet())
 		{
 			// 2. validate the new width
 			var w1 = calcWidthForHeight( v );
@@ -602,16 +615,17 @@ class LayoutClient extends Invalidatable
 	//
 	
 	
-	private inline function calcWidthForHeight (h:Int) : Int	{ return (h * aspectRatio).roundFloat(); }
-	private inline function calcHeightForWidth (w:Int) : Int	{ return (w / aspectRatio).roundFloat(); }
+	private inline function calcWidthForHeight (h:Int) : Int	{ Assert.notEqual(aspectRatio, 0); Assert.that(aspectRatio.isSet()); return (h * aspectRatio).roundFloat(); }
+	private inline function calcHeightForWidth (w:Int) : Int	{ Assert.notEqual(aspectRatio, 0); Assert.that(aspectRatio.isSet()); return (w / aspectRatio).roundFloat(); }
 	
 	
 	private inline function calculateAspectRatio (w:Int, h:Int)
 	{
-		var aspectRatio = 0.0;
+		aspectRatio = Number.FLOAT_NOT_SET;
 		if (w.isSet() && h.isSet() && w > 0 && h > 0)
 		{
 			aspectRatio	= w / h;
+			Assert.that(aspectRatio.isSet());
 			validateAspectRatio(w, h);
 		}
 		return aspectRatio;
@@ -628,25 +642,31 @@ class LayoutClient extends Invalidatable
 	 * The method will throw an error in debug-mode and in release-mode it will
 	 * turn maintainAspectRatio off.
 	 */
-	private function validateAspectRatio (width:Int, height:Int) : Void
+	private inline function validateAspectRatio (width:Int, height:Int) : Void
 	{
-		if (!maintainAspectRatio || widthValidator == null || heightValidator == null || aspectRatio <= 0)
-			return;
-		
-		Assert.that(aspectRatio != 0, "there's no aspect-ratio given.. value is 0; "+this+". w: "+width+", h: "+height);
-		
-		var w1	= calcWidthForHeight( height );
-		var w2	= validateWidth( w1, Flags.VALIDATE_RANGE );
-		
-		if (w1 != w2)
+		if (maintainAspectRatio && widthValidator != null && heightValidator != null && aspectRatio > 0)
 		{
-			var h1	= calcHeightForWidth( w2 );
-			var h2	= validateHeight( h1, Flags.VALIDATE_RANGE );
+			Assert.that(aspectRatio != 0, "there's no aspect-ratio given.. value is 0; "+this+". w: "+width+", h: "+height);
+		
+			var w1	= calcWidthForHeight( height );
+			var w2	= validateWidth( w1, Flags.VALIDATE_RANGE );
+		
+			if (w1 != w2)
+			{
+				var h1	= calcHeightForWidth( w2 );
+				var h2	= validateHeight( h1, Flags.VALIDATE_RANGE );
 			
-#if debug	if (h1 != h2)
-				throw "Impossible to maintain the aspectratio for "+this+". Aspect-ratio is "+aspectRatio+", width = "+width+"; height = "+height+"; width-validator: "+widthValidator+"; height-validator: "+heightValidator;
-#end
-			maintainAspectRatio = h1 != h2;
+				if (h1 != h2)
+				{
+					var w3 = calcWidthForHeight( h2 );
+					var w4 = validateWidth(w3, Flags.VALIDATE_RANGE );
+					
+					if (w3 != w4) {
+#if debug				throw "Impossible to maintain the aspectratio for "+this+". Aspect-ratio is "+aspectRatio+", w1: "+w1+"; w2: "+w2+", h1: "+h1+"; h2: "+h2+"; width-validator: "+widthValidator+"; height-validator: "+heightValidator;
+#else					maintainAspectRatio = h1 != h2;	#end
+					}
+				}
+			}
 		}
 	}
 	
@@ -665,7 +685,7 @@ class LayoutClient extends Invalidatable
 	public function resize (newWidth:Int, newHeight:Int)
 	{
 		if (maintainAspectRatio)
-			aspectRatio	= calculateAspectRatio( newWidth, newHeight );
+			calculateAspectRatio( newWidth, newHeight );
 		
 		updateAllWidths(  validateWidth(  newWidth,  Flags.VALIDATE_ALL ) );
 		updateAllHeights( validateHeight( newHeight, Flags.VALIDATE_ALL ) );
@@ -887,7 +907,7 @@ class LayoutClient extends Invalidatable
 		if (v != maintainAspectRatio)
 		{
 			maintainAspectRatio = v;
-			if (v)
+			if (v && width.isSet() && height.isSet())
 				resize(width, height);	//resize method will take care of applying and calculating the aspect-ratio
 		}
 		return v;
@@ -956,9 +976,9 @@ class LayoutClient extends Invalidatable
 	// EVEMT HANDLERS
 	//
 	
-	private inline function handleRelativeChange ()			{ invalidate(Flags.RELATIVE); }
-	private inline function handleWidthValidatorChange ()	{ updateAllWidths ( validateWidth ( _width, Flags.VALIDATE_ALL ) ); }
-	private inline function handleHeightValidatorChange ()	{ updateAllHeights( validateHeight( _height, Flags.VALIDATE_ALL ) ); }
+	private inline function handleRelativeChange ()	{ invalidate(Flags.RELATIVE); }
+	private function handleWidthValidatorChange ()	{ updateAllWidths ( validateWidth ( _width, Flags.VALIDATE_ALL ) ); }
+	private function handleHeightValidatorChange ()	{ updateAllHeights( validateHeight( _height, Flags.VALIDATE_ALL ) ); }
 	
 	
 	

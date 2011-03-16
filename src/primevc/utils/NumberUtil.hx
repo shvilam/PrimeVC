@@ -80,6 +80,7 @@ class IntUtil
 #end
 	
 	public static inline function unset () : Int				{ return Number.INT_NOT_SET; }
+	public static inline function getValue (v:Int) : Int		{ return v.isEmpty() ? Number.INT_NOT_SET : v; }
 	
 	public static inline function getBiggest (var1:Int, var2:Int) : Int		{ return IntMath.max(var1, var2); }
 	public static inline function getSmallest (var1:Int, var2:Int) : Int	{ return IntMath.min(var1, var2); }
@@ -150,6 +151,8 @@ class FloatUtil
 	public static inline function isEmpty (value:Float) : Bool	{ return value == Number.EMPTY; }
 	public static inline function unset () : Float				{ return Number.FLOAT_NOT_SET; }
 	
+	
+	public static inline function getValue (v:Float) : Float	{ return v.isEmpty() ? Number.FLOAT_NOT_SET : v; }
 	
 	public static inline function getBiggest (var1:Float, var2:Float) : Float	{ return FloatMath.max(var1, var2); }
 	public static inline function getSmallest (var1:Float, var2:Float) : Float	{ return FloatMath.min(var1, var2); }

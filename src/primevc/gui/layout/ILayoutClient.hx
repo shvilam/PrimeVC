@@ -157,7 +157,7 @@ interface ILayoutClient
 	 * @default	false
 	 */
 	public var maintainAspectRatio	(default, setMaintainAspectRatio)	: Bool;
-		private var aspectRatio		(default, default)					: Float;
+	public var aspectRatio			(default, null)						: Float;
 	
 	
 	//
