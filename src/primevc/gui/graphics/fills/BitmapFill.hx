@@ -53,6 +53,9 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 	public var smooth		(default, setSmooth)	: Bool;
 	public var repeat		(default, setRepeat)	: Bool;
 	public var isFinished	(default, null)			: Bool;
+#if flash9
+	public var data			(default, null)			: flash.display.BitmapData;
+#end
 	
 	
 	public function new (asset:Asset, matrix:Matrix2D = null, repeat:Bool = true, smooth:Bool = false)
@@ -75,6 +78,9 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 		if (matrix != null)
 			untyped matrix = null;
 		
+#if flash9
+		data = null;
+#end
 		super.dispose();
 	}
 	
@@ -94,7 +100,9 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 			
 			if (asset != null)
 			{
-				smooth = asset.source == AssetSource.displayObject;
+				smooth	= asset.type != AssetType.bitmapData;
+#if flash9		data	= asset.getBitmapData(); #end
+				
 				if (asset.state.is(AssetStates.ready)) {
 					invalidate( GraphicFlags.FILL );
 				} else {
@@ -144,8 +152,12 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 	private inline function handleAssetStateChange (newState:AssetStates, oldState:AssetStates)
 	{
 		switch (newState) {
-			case AssetStates.ready:	invalidate( GraphicFlags.FILL );
-			case AssetStates.empty:	invalidate( GraphicFlags.FILL );
+			case AssetStates.ready:
+				invalidate( GraphicFlags.FILL );
+			
+			case AssetStates.empty:
+				invalidate( GraphicFlags.FILL );
+#if flash9		data = null; #end
 			default:
 		}
 	}
@@ -164,17 +176,17 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 			return;
 		
 		var m:Matrix2D = null;
+		
 		if (repeat == false) {
 			m = matrix == null ? new Matrix2D() : matrix;
-			m.scale( bounds.width / asset.data.width, bounds.height / asset.data.height );
+			m.scale( bounds.width / data.width, bounds.height / data.height );
 		}
 		
 		if (asset.state.is(AssetStates.ready))
-			target.graphics.beginBitmapFill( asset.data, m, repeat, smooth );
-		else if (asset.state.is(AssetStates.loadable)) {
-		//	trace("load asset");
-			asset.load(m);
-		}	
+			target.graphics.beginBitmapFill( data, m, repeat, smooth );
+		
+		else if (asset.state.is(AssetStates.loadable))
+			asset.load();
 #end
 	}
 	

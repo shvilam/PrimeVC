@@ -30,13 +30,9 @@ package primevc.gui.components;
 #if flash9
  import flash.geom.ColorTransform;
 #end
- import primevc.gui.core.IUIDataElement;
- import primevc.gui.core.UIElementFlags;
- import primevc.gui.core.UIGraphic;
+ import primevc.gui.core.UIDataComponent;
  import primevc.gui.graphics.fills.BitmapFill;
  import primevc.gui.graphics.fills.SolidFill;
- import primevc.gui.graphics.shapes.RegularRectangle;
- import primevc.gui.graphics.GraphicProperties;
  import primevc.gui.graphics.IGraphicElement;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutFlags;
@@ -45,6 +41,7 @@ package primevc.gui.components;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.Color;
+  using primevc.utils.NumberMath;
   using primevc.utils.TypeUtil;
 
 
@@ -52,74 +49,94 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Oct 31, 2010
  */
-class Image extends UIGraphic, implements IUIDataElement < Asset >
+class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used to be a UIGraphic, but since we want vectors to be children, this is not possible.. Change back when refactoring
 {
-	public var data					(default, setData) : Asset;
-	
 	/**
 	 * Bool indicating wether the image should maintain it's aspect-ratio
 	 * @default true
 	 */
 	public var maintainAspectRatio	(default, setMaintainAspectRatio)	: Bool;
 	
+#if flash9
+	public var assetChild	: flash.display.DisplayObject;
+	public var assetFill	: BitmapFill;
+#end
+	
 	
 	public function new (id:String = null, data:Asset = null)
 	{
-		super(id);
-		this.data = data;
+		super(id, data);
 		this.maintainAspectRatio = true;
-	}
-	
-	
-	override public function dispose ()
-	{
-		if (data != null)
-			data = null;
-
-		super.dispose();
-	}
-	
-	
-	override public function validate ()
-	{
-		if (changes.has( UIElementFlags.DATA ))
-		{
-			if (data != null)
-				initData();
-			else
-				updateSize();	//data is set to null
-		}
-		
-		super.validate();
+		children.mouseEnabled = false;
+		children.tabEnabled = false;
 	}
 	
 	
 	override private function createLayout ()	{ layout = new AdvancedLayoutClient(); }
-	public function getDataCursor ()			{ return null; }
+	override public function getDataCursor ()	{ return null; }
 	
 	
-	private function initData () : Void
+	override private function initData () : Void
 	{
-		if (!data.state.is(AssetStates.ready))
-			assetStateChangeHandler.on( data.state.change, this );
-		else
-			updateSize();
-	//	bitmapStateChangeHandler( data.state.current, null );
+		assetStateChangeHandler.on( data.state.change, this );
 		
-		if (graphicData.fill == null || !graphicData.fill.is(BitmapFill))
-			graphicData.fill = new BitmapFill( data, null, false );
-		
-		else if (graphicData.fill.is(BitmapFill))
-			graphicData.fill.as(BitmapFill).asset = data;	
+		if (data.state.is(AssetStates.loadable))		data.load();
+		else if (data.state.is(AssetStates.ready))		applyAsset();
 	}
 	
 	
-	private function removeData () : Void
+	override private function removeData () : Void
 	{
 		data.state.change.unbind(this);
-		if (graphicData.fill.is(BitmapFill))
-			graphicData.fill = null; //.as(BitmapFill).bitmap = null;
+		unsetAsset();
 	}
+	
+	
+	private function applyAsset ()
+	{
+#if flash9
+		switch (data.type)
+		{
+			case AssetType.vector, AssetType.displayObject:
+				addChild( assetChild = data.getDisplayObject() );
+				updateChildSize.on( layout.changed, this );
+			
+			case AssetType.bitmapData:
+				if (graphicData.fill == null || !graphicData.fill.is(BitmapFill))
+					graphicData.fill = assetFill = new BitmapFill( data, null, false );
+
+				else if (graphicData.fill.is(BitmapFill)) {
+					assetFill		= graphicData.fill.as(BitmapFill);
+					assetFill.asset	= data;
+				}
+		}
+		
+		updateSize();
+#end
+	}
+	
+	
+	private function unsetAsset ()
+	{
+#if flash9
+		switch (data.type)
+		{
+			case AssetType.vector, AssetType.displayObject:
+				if (assetChild != null) {
+					layout.changed.unbind(this);
+					removeChild( assetChild );
+					assetChild = null;
+				}
+
+			case AssetType.bitmapData:
+				if (assetFill != null)
+					graphicData.fill = assetFill = null;
+		}
+
+		updateSize();
+#end
+	}
+	
 	
 	
 	public function colorize (fill:IGraphicElement)
@@ -137,26 +154,24 @@ class Image extends UIGraphic, implements IUIDataElement < Asset >
 	}
 	
 	
+#if flash9
+	private function updateChildSize (changes:Int)
+	{
+		if (changes.hasNone( LayoutFlags.SIZE ))
+			return;
+		
+		Assert.notNull( assetChild );
+		assetChild.width	= layout.innerBounds.width;
+		assetChild.height	= layout.innerBounds.height;
+	}
+#end
+	
 	
 	
 	
 	//
 	// GETTERS / SETTERS
 	//
-	
-	private function setData (v:Asset)
-	{
-		if (v != data)
-		{
-			if (data != null && window != null)
-				removeData();
-			
-			data = v;
-			invalidate( UIElementFlags.DATA );
-		}
-		
-		return v;
-	}
 	
 	
 	private inline function setMaintainAspectRatio (v:Bool) : Bool
@@ -182,13 +197,10 @@ class Image extends UIGraphic, implements IUIDataElement < Asset >
 		
 		if (data != null && data.state.is( AssetStates.ready ))
 		{
-		//	if (id.value == "Image70")
-		//		trace(container+"."+this+"; "+data.data.width+", "+data.data.height+"; expl size? "+l.explicitWidth+", "+l.explicitHeight+"; size: "+l.width+", "+l.height+"; padding: "+l.padding+"; margin:"+l.margin);
-		//		trace("\t\t\twidthBounds: "+layout.widthValidator+"; heightBounds: "+layout.heightValidator+"; aspect: "+layout.aspectRatio);
-			l.maintainAspectRatio	= maintainAspectRatio;
-			l.measuredResize( data.data.width, data.data.height );
-		//	if (id.value == "Image70")
-		//	trace("\t\t\t measured: "+l.measuredWidth+", "+l.measuredHeight+"; explicit: "+l.explicitWidth+", "+l.explicitHeight+"; size: "+l.width+", "+l.height+"; name: "+l.name);
+			l.maintainAspectRatio = maintainAspectRatio;
+			
+			if		(assetChild != null)	{ l.measuredResize( assetChild.width.roundFloat(), assetChild.height.roundFloat() ); updateChildSize(LayoutFlags.SIZE); }
+			else if (assetFill != null)		{ l.measuredResize( assetFill.data.width, assetFill.data.height ); }
 		}
 		else
 		{	
@@ -204,8 +216,8 @@ class Image extends UIGraphic, implements IUIDataElement < Asset >
 	{
 		switch (newState)
 		{
-			case AssetStates.ready:	updateSize();
-			case AssetStates.empty:	updateSize();
+			case AssetStates.ready:	applyAsset();
+			case AssetStates.empty:	unsetAsset();
 			default:
 		}
 	}

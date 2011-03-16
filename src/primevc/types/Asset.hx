@@ -34,13 +34,9 @@ package primevc.types;
   using primevc.utils.Bind;
 
 #if flash9
- import flash.display.DisplayObject;
  import primevc.gui.display.Loader;
  import primevc.utils.TypeUtil;
   using primevc.utils.NumberMath;
-
-
-typedef FlashBitmap = flash.display.Bitmap;
 
 #elseif neko
  import primevc.tools.generator.ICodeFormattable;
@@ -51,8 +47,10 @@ typedef FlashBitmap = flash.display.Bitmap;
 #end
 
 
-typedef AssetClass	= #if neko		Reference					#else Class<Dynamic>	#end;
-typedef BitmapData	= #if flash9	flash.display.BitmapData	#else Dynamic			#end;
+typedef FlashBitmap		= #if flash9	flash.display.Bitmap		#else Dynamic			#end;
+typedef AssetClass		= #if neko		Reference					#else Class<Dynamic>	#end;
+typedef BitmapData		= #if flash9	flash.display.BitmapData	#else Dynamic			#end;
+typedef DisplayObject	= #if flash9	flash.display.DisplayObject	#else Dynamic			#end;
 
 
 /**
@@ -68,15 +66,8 @@ class Asset
 			,	implements IValueObject
 #if neko	,	implements ICodeFormattable		#end
 {
-	private var _data							: BitmapData;
-	
-	/**
-	 * Bitmapdata of the given source
-	 */
-	public var data			(getData, setData)	: BitmapData;
 #if flash9
 	private var loader							: Loader;
-	public var assetInst	(default, null)		: Dynamic;
 #end
 
 #if (neko || debug)
@@ -90,36 +81,36 @@ class Asset
 	 * Used for internal caching of bitmaps.
 	 */
 	public var url			(default, null)		: URI;
+	public var type			(default, null)		: AssetType;
 	
 	/**
-	 * Class of the current bitmap (if it's loaded from a class).
-	 * Used for internal caching of bitmaps.
+	 * cached bitmapdata of the given source
 	 */
-	public var asset		(default, null)		: AssetClass;
-	public var source		(default, null)		: AssetSource;
-	public var matrix		(default, null)		: Matrix2D;
+	private var bitmapData		: BitmapData;
+	private var displaySource	: DisplayObject;
+	private var assetClass		: AssetClass;
 	
 	
 	
-	public function new (url:URI = null, asset:AssetClass = null, data:BitmapData = null)
+	
+	public function new (url:URI = null, asset:AssetClass = null, data:BitmapData = null, bitmap:FlashBitmap = null, displaySource:DisplayObject = null)
 	{
-		state	= new SimpleStateMachine < AssetStates >(empty);
+		state	= new SimpleStateMachine<AssetStates>(empty);
 #if neko
 		_oid	= ID.getNext();
 #end
-		if (url != null)	setURI( url );
-		if (asset != null)	setClass( asset );
-		if (data != null)	this.data = data;
+		if		(url != null)				setURI( url );
+		else if (asset != null)				setClass( asset );
+		else if (data != null)				setBitmapData( data );
+		else if (bitmap != null)			setFlashBitmap( bitmap );
+		else if (displaySource != null)		setDisplayObject( displaySource );
 	}
 	
 	
 	public function dispose ()
 	{
-		disposeLoader();
+		unsetData();
 		state.dispose();
-		asset	= null;
-		url		= null;
-		_data	= null;
 		state	= null;
 #if neko
 		_oid	= 0;
@@ -138,25 +129,23 @@ class Asset
 			loader.dispose();
 			loader = null;
 			
-			if (_data == null)
+			if (bitmapData == null)
 				state.current = empty;
 		}
 #end
 	}
 	
 	
-	public function load (matrix:Matrix2D = null)
+	public function load ()
 	{
-		this.matrix = matrix;
-		
 		if (state.current == loadable) {
-			if (url != null)			loadUrl();
-			else if (asset != null)		loadClass();
+			if (url != null)
+				loadUrl();
 		}
 	}
 	
 	
-	private inline function setData (v:BitmapData)
+/*	private inline function setData (v:BitmapData)
 	{
 		if (v != _data)
 		{
@@ -170,7 +159,7 @@ class Asset
 	}
 	
 	
-	private inline function getData () : BitmapData
+	public function getData () : BitmapData
 	{
 #if flash9
 		if (_data == null || state.current != ready)
@@ -178,6 +167,76 @@ class Asset
 #end
 		
 		return _data;
+	}*/
+	
+	
+	public function getBitmapData (matrix:Matrix2D = null, transparant:Null<Bool> = null, fillColor:Null<UInt> = null) : BitmapData
+	{
+		if (state.current == loadable)
+			load();
+		
+		if (state.current != ready || type == null)
+			return null;
+		
+		if (bitmapData != null && matrix == null && transparant == null && fillColor == null)
+			return bitmapData;
+		
+		if (transparant == null)	transparant = true;
+		if (fillColor == null)		fillColor	= 0x00ffffff;
+		
+#if flash9
+		var source:flash.display.IBitmapDrawable = null;
+		var w:Int = 0;
+		var h:Int = 0;
+		
+		switch (type) {
+			case AssetType.bitmapData:
+				source	= bitmapData;
+				w		= bitmapData.height;
+				h		= bitmapData.width;
+			
+			case AssetType.displayObject:
+				source	= displaySource;
+				w		= displaySource.width.roundFloat();
+				h		= displaySource.height.roundFloat();
+			
+			case AssetType.vector:
+				source	= displaySource = createAssetInstance();
+				w		= displaySource.width.roundFloat();
+				h		= displaySource.height.roundFloat();
+		}
+		
+		bitmapData = new BitmapData( w, h, transparant, fillColor );
+		bitmapData.draw( source, matrix );
+#end
+		return bitmapData;
+	}
+	
+	
+#if flash9
+	public function getDisplayObject () : flash.display.DisplayObject
+	{
+		if (type == null)
+			return null;
+		
+		if (state.current == loadable)
+			load();
+		
+		Assert.notNull(type);
+		return switch (type) {
+			//don't use flashes own bitmap class but use the bitmap of prime instead..
+			case AssetType.bitmapData:		cast new primevc.gui.display.BitmapShape( bitmapData );
+			case AssetType.vector:			cast createAssetInstance();
+			case AssetType.displayObject:	cast displaySource;
+		}
+	}
+#end
+	
+	
+	private inline function createAssetInstance ()
+	{
+		Assert.notNull(assetClass);
+		return #if flash9 Type.createInstance(assetClass, []); #else null; #end
 	}
 	
 	
@@ -187,6 +246,22 @@ class Asset
 	// IMAGE LOAD METHODS
 	//
 	
+	
+	private inline function unsetData ()
+	{
+		if (type != null)
+		{
+			disposeLoader();
+			state.current	= AssetStates.empty;	//important to this first, other objects have a chance to remove their references then...
+			url				= null;
+			assetClass		= null;
+			displaySource	= null;
+			bitmapData		= null;
+			type			= null;
+		}
+	}
+	
+	
 	public function loadUrl (?v:URI)
 	{
 		if (v != url || (v == null && url != null))
@@ -194,8 +269,8 @@ class Asset
 			if (v != null)
 				setURI(v);
 #if flash9
-			source			= AssetSource.url;
-			state.current	= loading;
+			type			= AssetType.displayObject;
+			state.current	= AssetStates.loading;
 			
 			var context = new flash.system.LoaderContext(true);			//add context to check policy file
 			loader.load( url, context );
@@ -213,10 +288,9 @@ class Asset
 	{
 		if (v != url)
 		{
-			disposeLoader();
-			state.current = loadable;
-			asset	= null;
-			url		= v;
+			unsetData();
+			state.current	= loadable;
+			url				= v;
 #if flash9
 			loader	= new Loader();
 			disposeLoader	.onceOn( loader.events.load.error, this );
@@ -245,63 +319,80 @@ class Asset
 	}
 	
 	
-#if flash9
-	
-	public inline function loadDisplayObject (v:DisplayObject, transparant:Bool = true, fillColor:UInt = 0x00ffffff)
+	public inline function setDisplayObject (v:DisplayObject)
 	{
-		var d	= new BitmapData( v.width.roundFloat(), v.height.roundFloat(), transparant, fillColor );
-		source	= AssetSource.displayObject;
-		d.draw( v, matrix );
-		data = d;
-	}
-	
-	
-	public inline function loadFlashBitmap (v:FlashBitmap)
-	{
-		loadBitmapData(v.bitmapData);
-	}
-	
-	
-	public inline function loadBitmapData (v:BitmapData)
-	{
-		source	= AssetSource.bitmap;
-		data = v;
-	}
-#end
-	
-	public function loadClass (?v:AssetClass)
-	{
-		if (v != asset || (v == null && asset != null))
+		if (v != displaySource)
 		{
-			if (v != null)
-				setClass(v);
-			
-#if flash9
-			try
-			{
-				Assert.notNull( asset );
-				var inst:Dynamic = Type.createInstance(asset, []);
-				Assert.notNull(inst);
-				if		(TypeUtil.is( inst, DisplayObject))		{ loadDisplayObject( cast inst ); source = AssetSource.vector; assetInst = inst; }
-				else if (TypeUtil.is( inst, BitmapData))		loadBitmapData( cast inst );
-				else if (TypeUtil.is( inst, FlashBitmap))		loadFlashBitmap( cast inst );
-				else											throw "unkown asset!";
-			}
-			catch (e:Dynamic) {
-#if debug
-				throw "Error creating an instance of " + v+"; Error: "+e;
-#end
-			}
-#end
+			unsetData();
+			displaySource	= v;
+			type			= AssetType.displayObject;
+			state.current	= AssetStates.ready;
 		}
 	}
 	
 	
-	public inline function setClass (v:AssetClass)
+	public inline function setFlashBitmap (v:FlashBitmap)
 	{
-		state.current = loadable;
-		asset	= v;
-		url		= null;
+		setBitmapData(v.bitmapData);
+	}
+	
+	
+	public inline function setBitmapData (v:BitmapData)
+	{
+		if (v != bitmapData)
+		{
+			unsetData();
+			type			= AssetType.bitmapData;
+			bitmapData		= v;
+			state.current	= AssetStates.ready;
+		}
+	}
+	
+	
+	public inline function setVector (v:AssetClass)
+	{
+		if (v != assetClass)
+		{
+			unsetData();
+			type			= AssetType.vector;
+			assetClass		= v;
+			state.current	= AssetStates.ready;
+		}
+	}
+	
+	
+	public function setClass (v:AssetClass)
+	{
+		if (v != assetClass)
+		{
+			unsetData();
+#if flash9
+			if (v == null)
+				return;
+			
+			try
+			{
+				Assert.notNull( v );
+				var asset = v;
+				
+				while (asset != null)
+				{
+					if		(asset == BitmapData)		{ setBitmapData( Type.createInstance(v, []) );	break; }
+					else if (asset == DisplayObject)	{ setVector( v ); break; }
+					else if (asset == FlashBitmap)		{ setFlashBitmap( Type.createInstance(v, []) );	break; }
+					
+					asset = Type.getSuperClass( asset );
+				}
+			}
+			catch (e:Dynamic) {
+	#if debug
+				throw "Error creating an instance of " + v+"; Error: "+e;
+	#end
+			}
+#else
+			assetClass = v;
+#end
+		}
 	}
 
 	
@@ -317,10 +408,7 @@ class Asset
 			return;
 
 		try {
-			var d = new BitmapData( loader.content.width.roundFloat(), loader.content.height.roundFloat(), true, 0x00000000 );
-		//	trace(loader.content+": "+loader.content.width+", "+loader.content.height+"; "+matrix);
-			d.draw( loader.content, matrix );
-			data = d;	// <-- setData will change the bitmapState to the correct value
+			setDisplayObject( loader.content );
 			disposeLoader();
 		}
 		catch (e:flash.errors.Error) {
@@ -358,10 +446,10 @@ class Asset
 	
 	
 #if flash9
-	public static inline function fromDisplayObject (v:DisplayObject, transparant:Bool = true, fillColor:UInt = 0xffffffff) : Asset
+	public static inline function fromDisplayObject (v:DisplayObject) : Asset
 	{
 		var b = new Asset();
-		b.loadDisplayObject(v, transparant, fillColor);
+		b.setDisplayObject(v);
 		return b;
 	}
 	
@@ -369,7 +457,7 @@ class Asset
 	public static inline function fromFlashBitmap (v:FlashBitmap) : Asset
 	{
 		var b = new Asset();
-		b.loadFlashBitmap(v);
+		b.setFlashBitmap(v);
 		return b;
 	}
 	
@@ -377,15 +465,15 @@ class Asset
 	public static inline function fromBitmapData (v:BitmapData) : Asset
 	{
 		var b = new Asset();
-		b.loadBitmapData(v);
+		b.setBitmapData(v);
 		return b;
 	}
 	
 	
-	public static inline function createEmpty (width:Int, height:Int, transparant:Bool = true, fillColor:UInt = 0xffffffff) : Asset
+	public static inline function createEmpty (width:Int, height:Int) : Asset
 	{
-		var b	= new Asset();
-		b.data	= new BitmapData(width, height);
+		var b = new Asset();
+		b.setBitmapData( new BitmapData(width, height) );
 		return b;
 	}
 	
@@ -395,7 +483,7 @@ class Asset
 	public static inline function fromClass (v:AssetClass) : Asset
 	{
 		var b = new Asset();
-		b.loadClass(v);
+		b.setClass(v);
 		return b;
 	}
 
@@ -403,21 +491,20 @@ class Asset
 #if neko
 	public function isEmpty ()
 	{
-		return url == null && asset == null && _data == null;
+		return url == null && assetClass == null && bitmapData == null && displaySource == null;
 	}
 	
 	public function toString ()
 	{
-		return	if (url != null)		"url( "+url+" )";
-				else if (asset != null)	asset.toCSS();
-				else					"Bitmap()";
+		return	if (url != null)				"url( "+url+" )";
+				else							"Bitmap()";
 	}
 	
 	public function cleanUp () : Void {}
 	
 	public function toCode (code:ICodeGenerator)
 	{
-		code.construct( this, [ url, asset, _data ] );
+		code.construct( this, [ url, assetClass, bitmapData, null, this.displaySource ] );
 	}
 #end
 
@@ -440,9 +527,8 @@ enum AssetStates {
 }
 
 
-enum AssetSource {
-	bitmap;
+enum AssetType {
+	bitmapData;
 	displayObject;
-	url;
 	vector;
 }
