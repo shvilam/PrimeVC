@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.types;
+ import primevc.core.geom.Matrix2D;
  import primevc.core.states.SimpleStateMachine;
  import primevc.core.traits.IDisposable;
  import primevc.core.traits.IValueObject;
@@ -34,7 +35,6 @@ package primevc.types;
 
 #if flash9
  import flash.display.DisplayObject;
- import primevc.core.geom.Matrix2D;
  import primevc.gui.display.Loader;
  import primevc.utils.TypeUtil;
   using primevc.utils.NumberMath;
@@ -68,34 +68,36 @@ class Bitmap
 			,	implements IValueObject
 #if neko	,	implements ICodeFormattable		#end
 {
-	private var _data						: BitmapData;
+	private var _data							: BitmapData;
 	
 	/**
 	 * Bitmapdata of the given source
 	 */
-	public var data		(getData, setData)	: BitmapData;
+	public var data			(getData, setData)	: BitmapData;
 #if flash9
-	private var loader						: Loader;
+	private var loader							: Loader;
+	public var assetInst	(default, null)		: Dynamic;
 #end
 
 #if (neko || debug)
-	public var _oid		(default, null)		: Int;
+	public var _oid			(default, null)		: Int;
 #end
 	
-	public var state	(default, null)		: SimpleStateMachine < BitmapStates >;
+	public var state		(default, null)		: SimpleStateMachine < BitmapStates >;
 	
 	/**
 	 * URL of the loaded bitmap (if it's loaded from an external image).
 	 * Used for internal caching of bitmaps.
 	 */
-	public var url		(default, null)		: URI;
+	public var url			(default, null)		: URI;
 	
 	/**
 	 * Class of the current bitmap (if it's loaded from a class).
 	 * Used for internal caching of bitmaps.
 	 */
-	public var asset	(default, null)		: AssetClass;
-	public var matrix	(default, null)		: Matrix2D;
+	public var asset		(default, null)		: AssetClass;
+	public var source		(default, null)		: BitmapSource;
+	public var matrix		(default, null)		: Matrix2D;
 	
 	
 	
@@ -192,7 +194,8 @@ class Bitmap
 			if (v != null)
 				setURI(v);
 #if flash9
-			state.current = loading;
+			source			= BitmapSource.url;
+			state.current	= loading;
 			
 			var context = new flash.system.LoaderContext(true);			//add context to check policy file
 			loader.load( url, context );
@@ -246,7 +249,8 @@ class Bitmap
 	
 	public inline function loadDisplayObject (v:DisplayObject, transparant:Bool = true, fillColor:UInt = 0x00ffffff)
 	{
-		var d = new BitmapData( v.width.roundFloat(), v.height.roundFloat(), transparant, fillColor );
+		var d	= new BitmapData( v.width.roundFloat(), v.height.roundFloat(), transparant, fillColor );
+		source	= BitmapSource.displayObject;
 		d.draw( v, matrix );
 		data = d;
 	}
@@ -254,12 +258,13 @@ class Bitmap
 	
 	public inline function loadFlashBitmap (v:FlashBitmap)
 	{
-		data = v.bitmapData;
+		loadBitmapData(v.bitmapData);
 	}
 	
 	
 	public inline function loadBitmapData (v:BitmapData)
-	{	
+	{
+		source	= BitmapSource.bitmap;
 		data = v;
 	}
 #end
@@ -277,7 +282,7 @@ class Bitmap
 				Assert.notNull( asset );
 				var inst:Dynamic = Type.createInstance(asset, []);
 				Assert.notNull(inst);
-				if		(TypeUtil.is( inst, DisplayObject))		loadDisplayObject( cast inst );
+				if		(TypeUtil.is( inst, DisplayObject))		{ loadDisplayObject( cast inst ); source = BitmapSource.vector; assetInst = inst; }
 				else if (TypeUtil.is( inst, BitmapData))		loadBitmapData( cast inst );
 				else if (TypeUtil.is( inst, FlashBitmap))		loadFlashBitmap( cast inst );
 				else											throw "unkown asset!";
@@ -439,4 +444,5 @@ enum BitmapSource {
 	bitmap;
 	displayObject;
 	url;
+	vector;
 }

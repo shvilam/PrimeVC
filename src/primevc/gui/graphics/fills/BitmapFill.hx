@@ -94,6 +94,7 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 			
 			if (bitmap != null)
 			{
+				smooth = bitmap.source == BitmapSource.displayObject;
 				if (bitmap.state.is(BitmapStates.ready)) {
 					invalidate( GraphicFlags.FILL );
 				} else {
@@ -156,7 +157,8 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 	//
 	
 	public inline function begin (target:IGraphicsOwner, bounds:IRectangle)
-	{
+	{	
+#if flash9
 		isFinished = true;
 		if (bitmap == null)
 			return;
@@ -168,15 +170,12 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 		}
 		
 		if (bitmap.state.is(BitmapStates.ready))
-		{
-#if flash9
 			target.graphics.beginBitmapFill( bitmap.data, m, repeat, smooth );
-#end
-		}
 		else if (bitmap.state.is(BitmapStates.loadable)) {
 		//	trace("load bitmap");
 			bitmap.load(m);
-		}
+		}	
+#end
 	}
 	
 	
