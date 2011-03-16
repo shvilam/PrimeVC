@@ -29,7 +29,7 @@
 package primevc.gui.components;
  import primevc.core.dispatcher.Wire;
  import primevc.core.Bindable;
- import primevc.types.Bitmap;
+ import primevc.types.Asset;
   using primevc.utils.Bind;
 
 
@@ -60,7 +60,7 @@ class DataButton <DataType> extends Button, implements IItemRenderer <DataType>
 	private var updateLabelBinding							: Wire<Dynamic>;
 	
 	
-	public function new (id:String = null, defaultLabel:String = null, icon:Bitmap = null, vo:DataType = null)
+	public function new (id:String = null, defaultLabel:String = null, icon:Asset = null, vo:DataType = null)
 	{
 		super(id, defaultLabel, icon);
 		Assert.notNull(this.data);

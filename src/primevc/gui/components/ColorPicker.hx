@@ -31,7 +31,7 @@ package primevc.gui.components;
  import primevc.core.RevertableBindable;
  import primevc.gui.core.UIDataComponent;
  import primevc.gui.events.MouseEvents;
- import primevc.types.Bitmap;
+ import primevc.types.Asset;
  import primevc.types.RGBA;
   using primevc.utils.Bind;
   using primevc.utils.Color;
@@ -52,7 +52,7 @@ class ColorPicker extends UIDataComponent<RevertableBindable<RGBA>>
 	private var updateBinding	: Wire<Dynamic>;
 	private var stopBinding		: Wire<Dynamic>;
 	
-	private var spectrum		: Bitmap;
+	private var spectrum		: Asset;
 	
 	
 	public function new (id:String = null, data:RevertableBindable<RGBA> = null)
@@ -111,9 +111,9 @@ class ColorPicker extends UIDataComponent<RevertableBindable<RGBA>>
 		if (spectrum == null) {
 		//	trace(layout.width+", "+layout.height);
 			//not sure if this is the best way but using the original bitmapdata from the fill doesnt give correct results since it's unscaled.
-		//	spectrum = Bitmap.createEmpty( layout.width, layout.height, false );
+		//	spectrum = Asset.createEmpty( layout.width, layout.height, false );
 		//	spectrum.draw(this);
-			spectrum = Bitmap.fromDisplayObject( this, false );
+			spectrum = Asset.fromDisplayObject( this, false );
 		}
 	//	var l = layout.innerBounds;
 	//	var b = new BitmapDataType( l.width, l.height, false );

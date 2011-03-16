@@ -63,7 +63,7 @@ typedef BitmapData	= #if flash9	flash.display.BitmapData	#else Dynamic			#end;
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-class Bitmap
+class Asset
 				implements IDisposable
 			,	implements IValueObject
 #if neko	,	implements ICodeFormattable		#end
@@ -83,7 +83,7 @@ class Bitmap
 	public var _oid			(default, null)		: Int;
 #end
 	
-	public var state		(default, null)		: SimpleStateMachine < BitmapStates >;
+	public var state		(default, null)		: SimpleStateMachine < AssetStates >;
 	
 	/**
 	 * URL of the loaded bitmap (if it's loaded from an external image).
@@ -96,14 +96,14 @@ class Bitmap
 	 * Used for internal caching of bitmaps.
 	 */
 	public var asset		(default, null)		: AssetClass;
-	public var source		(default, null)		: BitmapSource;
+	public var source		(default, null)		: AssetSource;
 	public var matrix		(default, null)		: Matrix2D;
 	
 	
 	
 	public function new (url:URI = null, asset:AssetClass = null, data:BitmapData = null)
 	{
-		state	= new SimpleStateMachine < BitmapStates >(empty);
+		state	= new SimpleStateMachine < AssetStates >(empty);
 #if neko
 		_oid	= ID.getNext();
 #end
@@ -194,7 +194,7 @@ class Bitmap
 			if (v != null)
 				setURI(v);
 #if flash9
-			source			= BitmapSource.url;
+			source			= AssetSource.url;
 			state.current	= loading;
 			
 			var context = new flash.system.LoaderContext(true);			//add context to check policy file
@@ -250,7 +250,7 @@ class Bitmap
 	public inline function loadDisplayObject (v:DisplayObject, transparant:Bool = true, fillColor:UInt = 0x00ffffff)
 	{
 		var d	= new BitmapData( v.width.roundFloat(), v.height.roundFloat(), transparant, fillColor );
-		source	= BitmapSource.displayObject;
+		source	= AssetSource.displayObject;
 		d.draw( v, matrix );
 		data = d;
 	}
@@ -264,7 +264,7 @@ class Bitmap
 	
 	public inline function loadBitmapData (v:BitmapData)
 	{
-		source	= BitmapSource.bitmap;
+		source	= AssetSource.bitmap;
 		data = v;
 	}
 #end
@@ -282,7 +282,7 @@ class Bitmap
 				Assert.notNull( asset );
 				var inst:Dynamic = Type.createInstance(asset, []);
 				Assert.notNull(inst);
-				if		(TypeUtil.is( inst, DisplayObject))		{ loadDisplayObject( cast inst ); source = BitmapSource.vector; assetInst = inst; }
+				if		(TypeUtil.is( inst, DisplayObject))		{ loadDisplayObject( cast inst ); source = AssetSource.vector; assetInst = inst; }
 				else if (TypeUtil.is( inst, BitmapData))		loadBitmapData( cast inst );
 				else if (TypeUtil.is( inst, FlashBitmap))		loadFlashBitmap( cast inst );
 				else											throw "unkown asset!";
@@ -341,50 +341,50 @@ class Bitmap
 	// IMAGE CREATE METHODS
 	//
 	
-	public static inline function fromUrl (v:URI) : Bitmap
+	public static inline function fromUrl (v:URI) : Asset
 	{
-		var b = new Bitmap();
+		var b = new Asset();
 		b.loadUrl(v);
 		return b;
 	}
 	
 	
-	public static inline function fromString (v:String) : Bitmap
+	public static inline function fromString (v:String) : Asset
 	{
-		var b = new Bitmap();
+		var b = new Asset();
 		b.loadString(v);
 		return b;
 	}
 	
 	
 #if flash9
-	public static inline function fromDisplayObject (v:DisplayObject, transparant:Bool = true, fillColor:UInt = 0xffffffff) : Bitmap
+	public static inline function fromDisplayObject (v:DisplayObject, transparant:Bool = true, fillColor:UInt = 0xffffffff) : Asset
 	{
-		var b = new Bitmap();
+		var b = new Asset();
 		b.loadDisplayObject(v, transparant, fillColor);
 		return b;
 	}
 	
 	
-	public static inline function fromFlashBitmap (v:FlashBitmap) : Bitmap
+	public static inline function fromFlashBitmap (v:FlashBitmap) : Asset
 	{
-		var b = new Bitmap();
+		var b = new Asset();
 		b.loadFlashBitmap(v);
 		return b;
 	}
 	
 	
-	public static inline function fromBitmapData (v:BitmapData) : Bitmap
+	public static inline function fromBitmapData (v:BitmapData) : Asset
 	{
-		var b = new Bitmap();
+		var b = new Asset();
 		b.loadBitmapData(v);
 		return b;
 	}
 	
 	
-	public static inline function createEmpty (width:Int, height:Int, transparant:Bool = true, fillColor:UInt = 0xffffffff) : Bitmap
+	public static inline function createEmpty (width:Int, height:Int, transparant:Bool = true, fillColor:UInt = 0xffffffff) : Asset
 	{
-		var b	= new Bitmap();
+		var b	= new Asset();
 		b.data	= new BitmapData(width, height);
 		return b;
 	}
@@ -392,9 +392,9 @@ class Bitmap
 #end
 	
 	
-	public static inline function fromClass (v:AssetClass) : Bitmap
+	public static inline function fromClass (v:AssetClass) : Asset
 	{
-		var b = new Bitmap();
+		var b = new Asset();
 		b.loadClass(v);
 		return b;
 	}
@@ -432,7 +432,7 @@ class Bitmap
 
 
 
-enum BitmapStates {
+enum AssetStates {
 	empty;		//there's no data in the Bitmap
 	loadable;	//a loader object is created but not loaded yet
 	loading;	//the loader is loading an external resource
@@ -440,7 +440,7 @@ enum BitmapStates {
 }
 
 
-enum BitmapSource {
+enum AssetSource {
 	bitmap;
 	displayObject;
 	url;

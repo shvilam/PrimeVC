@@ -34,7 +34,7 @@ package primevc.gui.components;
  import primevc.gui.text.TextFormat;
  import primevc.gui.traits.ISelectable;
  import primevc.gui.traits.ITextStylable;
- import primevc.types.Bitmap;
+ import primevc.types.Asset;
 
 
 private typedef Flags = primevc.gui.core.UIElementFlags;
@@ -49,7 +49,7 @@ private typedef Flags = primevc.gui.core.UIElementFlags;
 class Button extends UIDataContainer <Bindable<String>>, implements IIconOwner, implements ITextStylable, implements ISelectable
 {
 	public var selected		(default, null)			: Bindable<Bool>;
-	public var icon			(default, setIcon)		: Bitmap;
+	public var icon			(default, setIcon)		: Asset;
 	public var iconFill		(default, setIconFill)	: IGraphicProperty;
 #if flash9
 	public var textStyle	(default, setTextStyle)	: TextFormat;
@@ -57,7 +57,7 @@ class Button extends UIDataContainer <Bindable<String>>, implements IIconOwner, 
 #end
 	
 	
-	public function new (id:String = null, value:String = null, icon:Bitmap = null)
+	public function new (id:String = null, value:String = null, icon:Asset = null)
 	{
 		if (data == null)	super(id, new Bindable<String>(value));
 		else				super(id, this.data);
@@ -78,7 +78,7 @@ class Button extends UIDataContainer <Bindable<String>>, implements IIconOwner, 
 	}
 	
 	
-	private inline function setIcon (v:Bitmap)
+	private inline function setIcon (v:Asset)
 	{
 		if (v != icon) {
 			icon = v;

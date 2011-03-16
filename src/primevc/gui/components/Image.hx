@@ -40,7 +40,7 @@ package primevc.gui.components;
  import primevc.gui.graphics.IGraphicElement;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutFlags;
- import primevc.types.Bitmap;
+ import primevc.types.Asset;
  import primevc.types.Number;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
@@ -52,9 +52,9 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Oct 31, 2010
  */
-class Image extends UIGraphic, implements IUIDataElement < Bitmap >
+class Image extends UIGraphic, implements IUIDataElement < Asset >
 {
-	public var data					(default, setData) : Bitmap;
+	public var data					(default, setData) : Asset;
 	
 	/**
 	 * Bool indicating wether the image should maintain it's aspect-ratio
@@ -63,7 +63,7 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 	public var maintainAspectRatio	(default, setMaintainAspectRatio)	: Bool;
 	
 	
-	public function new (id:String = null, data:Bitmap = null)
+	public function new (id:String = null, data:Asset = null)
 	{
 		super(id);
 		this.data = data;
@@ -100,8 +100,8 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 	
 	private function initData () : Void
 	{
-		if (!data.state.is(BitmapStates.ready))
-			bitmapStateChangeHandler.on( data.state.change, this );
+		if (!data.state.is(AssetStates.ready))
+			assetStateChangeHandler.on( data.state.change, this );
 		else
 			updateSize();
 	//	bitmapStateChangeHandler( data.state.current, null );
@@ -110,7 +110,7 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 			graphicData.fill = new BitmapFill( data, null, false );
 		
 		else if (graphicData.fill.is(BitmapFill))
-			graphicData.fill.as(BitmapFill).bitmap = data;	
+			graphicData.fill.as(BitmapFill).asset = data;	
 	}
 	
 	
@@ -144,7 +144,7 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 	// GETTERS / SETTERS
 	//
 	
-	private function setData (v:Bitmap)
+	private function setData (v:Asset)
 	{
 		if (v != data)
 		{
@@ -180,7 +180,7 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 	{
 		var l = layout.as(AdvancedLayoutClient);
 		
-		if (data != null && data.state.is( BitmapStates.ready ))
+		if (data != null && data.state.is( AssetStates.ready ))
 		{
 		//	if (id.value == "Image70")
 		//		trace(container+"."+this+"; "+data.data.width+", "+data.data.height+"; expl size? "+l.explicitWidth+", "+l.explicitHeight+"; size: "+l.width+", "+l.height+"; padding: "+l.padding+"; margin:"+l.margin);
@@ -200,12 +200,12 @@ class Image extends UIGraphic, implements IUIDataElement < Bitmap >
 	}
 	
 	
-	private function bitmapStateChangeHandler (newState:BitmapStates, oldState:BitmapStates)
+	private function assetStateChangeHandler (newState:AssetStates, oldState:AssetStates)
 	{
 		switch (newState)
 		{
-			case BitmapStates.ready:	updateSize();
-			case BitmapStates.empty:	updateSize();
+			case AssetStates.ready:	updateSize();
+			case AssetStates.empty:	updateSize();
 			default:
 		}
 	}

@@ -38,7 +38,7 @@ package primevc.gui.styling;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.shapes.IGraphicShape;
  import primevc.gui.graphics.IGraphicProperty;
- import primevc.types.Bitmap;
+ import primevc.types.Asset;
  import primevc.types.Number;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
@@ -69,7 +69,7 @@ class GraphicsStyle extends StyleSubBlock
 #end
 	private var _opacity		: Float;
 	private var _visible		: Null < Bool >;
-	private var _icon			: Bitmap;
+	private var _icon			: Asset;
 	private var _iconFill		: IGraphicProperty;
 	private var _background		: IGraphicProperty;
 	private var _border			: IBorder;
@@ -87,7 +87,7 @@ class GraphicsStyle extends StyleSubBlock
 #end
 	public var opacity		(getOpacity,		setOpacity)			: Float;
 	public var visible		(getVisible,		setVisible)			: Null< Bool >;
-	public var icon			(getIcon,			setIcon)			: Bitmap;
+	public var icon			(getIcon,			setIcon)			: Asset;
 	public var iconFill		(getIconFill,		setIconFill)		: IGraphicProperty;
 	public var background	(getBackground, 	setBackground)		: IGraphicProperty;
 	public var border		(getBorder,			setBorder)			: IBorder;
@@ -109,7 +109,7 @@ class GraphicsStyle extends StyleSubBlock
 #end
 		visible		: Null < Bool > = null,
 		opacity		: Float = Number.INT_NOT_SET,
-		icon		: Bitmap = null,
+		icon		: Asset = null,
 		iconFill	: IGraphicProperty = null,
 		borderRadius: Corners = null)
 	{

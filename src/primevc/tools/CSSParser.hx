@@ -113,7 +113,7 @@ package primevc.tools;
  import primevc.gui.text.TextAlign;
  import primevc.gui.text.TextDecoration;
  import primevc.gui.text.TextTransform;
- import primevc.types.Bitmap;
+ import primevc.types.Asset;
  import primevc.types.ClassInstanceFactory;
  import primevc.types.Reference;
  import primevc.types.Number;
@@ -2057,13 +2057,13 @@ class CSSParser
 	}
 	
 	
-	private function parseBitmap (v:String) : Bitmap
+	private function parseAsset (v:String) : Asset
 	{
-		var bmp:Bitmap	= null;
+		var bmp:Asset	= null;
 		
 		if (imageURIExpr.match(v))
 		{
-			bmp = new Bitmap();
+			bmp = new Asset();
 			bmp.setString( (getBasePath() + "/" + imageURIExpr.matched(2)).replace("//", "/") );
 			lastParsedString = imageURIExpr.removeMatch(v);
 		}
@@ -2071,7 +2071,7 @@ class CSSParser
 		{
 			//Try to create a class instance for the given string. If the class is not yet compiled, this will fail. 
 			//By setting the classname as string, the bitmapObject will try to create a class-reference to the asset.
-			bmp		= new Bitmap();
+			bmp		= new Asset();
 			bmp.setClass( parseClassReference(v) );
 			
 		/*	if (c != null)
@@ -2110,7 +2110,7 @@ class CSSParser
 	private function parseImage (v:String) : IGraphicProperty
 	{
 		var fill:IGraphicProperty = null;
-		var bmp = parseBitmap(v);
+		var bmp = parseAsset(v);
 		
 		if (bmp != null) {
 			v = lastParsedString;	//remove bitmap from string
@@ -3364,7 +3364,7 @@ class CSSParser
 	
 	private function parseAndSetIcon (v:String) : Void
 	{
-		var bmp = parseBitmap(v);
+		var bmp = parseAsset(v);
 		if (bmp != null)
 			createGraphicsBlock().icon = bmp;
 	}

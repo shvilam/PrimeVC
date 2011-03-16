@@ -30,7 +30,7 @@ package primevc.gui.components;
  import primevc.core.Bindable;
  import primevc.gui.core.IUIElement;
  import primevc.gui.styling.IIconOwner;
- import primevc.types.Bitmap;
+ import primevc.types.Asset;
 
 
 /**
