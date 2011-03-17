@@ -67,8 +67,7 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 	{
 		super(id, data);
 		this.maintainAspectRatio = true;
-		children.mouseEnabled = false;
-		children.tabEnabled = false;
+		mouseEnabled = children.mouseEnabled = tabEnabled = false;
 	}
 	
 	

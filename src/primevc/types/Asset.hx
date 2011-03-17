@@ -268,6 +268,7 @@ class Asset
 		{
 			if (v != null)
 				setURI(v);
+			
 #if flash9
 			type			= AssetType.displayObject;
 			state.current	= AssetStates.loading;
@@ -406,7 +407,7 @@ class Asset
 #if flash9
 		if (loader == null || !loader.isLoaded)
 			return;
-
+		
 		try {
 			setDisplayObject( loader.content );
 			disposeLoader();

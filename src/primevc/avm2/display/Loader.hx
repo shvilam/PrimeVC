@@ -90,7 +90,7 @@ class Loader implements IDisposable
 	private inline function getBytes ()				{ return info.bytes; }
 	private inline function getBytesLoaded ()		{ return info.bytesLoaded; }
 	private inline function getBytesTotal ()		{ return info.bytesTotal; }
-	private inline function getContent ()			{ return cast loader; } //.contentLoaderInfo.content; }
+	private inline function getContent ()			{ return cast loader.contentLoaderInfo.content; }
 	
 	private inline function getIsLoaded ()			{ return bytesTotal > 0 && bytesLoaded >= bytesTotal; }
 }
