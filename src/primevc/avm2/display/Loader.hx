@@ -29,6 +29,7 @@
 package primevc.avm2.display;
  import flash.display.DisplayObject;
  import flash.display.LoaderInfo;
+ import flash.display.SWFVersion;
  import flash.net.URLRequest;
  import flash.system.LoaderContext;
  import flash.utils.ByteArray;
@@ -56,6 +57,7 @@ class Loader implements IDisposable
 	
 	public var content		(getContent, never)			: DisplayObject;
 	private var loader		: FlashLoader;
+	private var extension	: String;
 	
 	
 	public function new ()
@@ -71,12 +73,17 @@ class Loader implements IDisposable
 		loader.unloadAndStop();
 #end
 		events.dispose();
-		loader = null;
-		events = null;
+		extension	= null;
+		loader		= null;
+		events		= null;
 	}
 	
 	
-	public inline function load (v:URI, ?c:LoaderContext)	{ return loader.load(new URLRequest(v.toString()), c); }
+	public inline function load (v:URI, ?c:LoaderContext)
+	{
+		extension = v.fileExt;
+		return loader.load(new URLRequest(v.toString()), c);
+	}
 	public inline function unload ()						{ return loader.unload(); }
 	public inline function close ()							{ if (!isLoaded) loader.close(); }
 	
@@ -90,7 +97,33 @@ class Loader implements IDisposable
 	private inline function getBytes ()				{ return info.bytes; }
 	private inline function getBytesLoaded ()		{ return info.bytesLoaded; }
 	private inline function getBytesTotal ()		{ return info.bytesTotal; }
-	private inline function getContent ()			{ return cast loader.contentLoaderInfo.content; }
+	
+	
+	/**
+	 * Method will try to return the content of the flash-loader to allow the
+	 * loader to be disposed without losing the loaded content.
+	 * 
+	 * If the loaded content is an avm1-movie, the loader will be returned 
+	 * since the content can't be seperated from the loader. This also means
+	 * that when a avm1-movie is loaded and used on the stage, it will be unloaded
+	 * when this loader is getting disposed!
+	 * 
+	 * If the loaded content is an avm2-movie, the loader will also be returned
+	 * since some flex-swf's will otherwise throw errors.
+	 */
+	private inline function getContent ()
+	{
+		return extension == "swf" ? cast loader : cast loader.contentLoaderInfo.content;
+		/*try {
+			if (loader.contentLoaderInfo.swfVersion < 9)
+				return loader;
+			else
+				return loader; //cast loader.contentLoaderInfo.content;
+		}
+		catch (e:Dynamic) {
+			return cast loader.contentLoaderInfo.content;
+		}*/
+	}
 	
 	private inline function getIsLoaded ()			{ return bytesTotal > 0 && bytesLoaded >= bytesTotal; }
 }
