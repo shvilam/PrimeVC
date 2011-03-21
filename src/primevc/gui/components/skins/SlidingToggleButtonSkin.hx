@@ -123,8 +123,8 @@ class SlidingToggleButtonSkin extends Skin<DataButton<Null<Bool>>>
 		onLabel		= new UITextField("onLabel");
 		offLabel	= new UITextField("offLabel");
 		
-		onLabel.data.value			= "aan";
-		offLabel.data.value			= "uit";
+		onLabel.data.value			= "Aan";
+		offLabel.data.value			= "Uit";
 		slideBtn.layout.relative	= new RelativeLayout();
 	//	offIcon.layout.maintainAspectRatio	= true;
 	//	offIcon.layout.resize(10,10);
@@ -227,7 +227,7 @@ class SlidingToggleButtonSkin extends Skin<DataButton<Null<Bool>>>
 	{
 	//	trace(owner.defaultLabel);
 	//	trace(newVal);
-		return owner.defaultLabel + ": " + (newVal ? "aan" : "uit");
+		return owner.defaultLabel + ": " + (newVal ? "Aan" : "Uit");
 	}
 	
 	
