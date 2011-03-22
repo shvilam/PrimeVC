@@ -153,17 +153,18 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 	}
 	
 	
-#if flash9
 	private function updateChildSize (changes:Int)
 	{
+#if flash9
 		if (changes.hasNone( LayoutFlags.SIZE ))
 			return;
 		
 		Assert.notNull( assetChild );
+	//	trace(assetChild.width+", "+assetChild.height+"; newsize: "+layout.innerBounds.width+"; "+layout.innerBounds.height);
 		assetChild.width	= layout.innerBounds.width;
 		assetChild.height	= layout.innerBounds.height;
-	}
 #end
+	}
 	
 	
 	
@@ -198,8 +199,8 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 		{
 			l.maintainAspectRatio = maintainAspectRatio;
 			
-			if		(assetChild != null)	{ l.measuredResize( assetChild.width.roundFloat(), assetChild.height.roundFloat() ); updateChildSize(LayoutFlags.SIZE); }
-			else if (assetFill != null)		{ l.measuredResize( assetFill.data.width, assetFill.data.height ); }
+			if		(assetChild != null)	l.measuredResize( assetChild.width.roundFloat(), assetChild.height.roundFloat() );
+			else if (assetFill != null)		l.measuredResize( assetFill.data.width, assetFill.data.height );
 		}
 		else
 		{	

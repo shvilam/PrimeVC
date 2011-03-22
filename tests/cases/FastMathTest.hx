@@ -2,6 +2,7 @@ package cases;
  import apparat.math.FastMath;
  import primevc.utils.NumberMath;
  import Benchmark;
+  using primevc.utils.NumberMath;
 
 
 
@@ -53,6 +54,11 @@ class FastMathTest extends Benchmark
 		Assert.equal( IntMath.floorFloat(-.6) , -1 );
 		Assert.equal( IntMath.floorFloat(-2) , -2 );
 		Assert.equal( IntMath.floorFloat(-2.1) , -3 );
+		
+		var group = new Comparison( "compare abs in if statement", 1000000 );
+		add( group );
+		group.add( new Test( compareTwoNumbers,		"normal") );
+		group.add( new Test( compareOneNumberABS,	"abs") );
 		
 		var group = new Comparison( "divide by two", 1000000 );
 		add( group );
@@ -114,6 +120,21 @@ class FastMathTest extends Benchmark
 	public function divideByMultiplying ()	{ var a = Std.int(12400 * .5); var b = Std.int(45327923 * .5); var c = Std.int(859406 *.5); }
 	public function divideByBitshifting ()	{ var a = 12400 >> 1; var b = 45327923 >> 1; var c = 859406 >> 1; }
 	
+	
+	public function compareTwoNumbers ()
+	{
+		var nr1 = (Math.random() * 1000).roundFloat();
+		var nr2 = nr1 * -1;
+		var b = nr1 > 300 || nr2 < 300;
+	}
+	
+	
+	public function compareOneNumberABS ()
+	{
+		var nr1 = (Math.random() * 1000).roundFloat();
+		var nr2 = nr1 * -1;
+		var b = nr1.abs() > 300;
+	}
 	
 	
 	public function roundFlash ()

@@ -251,7 +251,9 @@ class Asset
 	{
 		if (type != null)
 		{
-			disposeLoader();
+			if (type != AssetType.displayObject || loader == null || !loader.isSwf())
+				disposeLoader();
+			
 			state.current	= AssetStates.empty;	//important to this first, other objects have a chance to remove their references then...
 			url				= null;
 			assetClass		= null;
@@ -410,7 +412,7 @@ class Asset
 		
 		try {
 			setDisplayObject( loader.content );
-			disposeLoader();
+		//	trace(url+"; state: "+state+"; source: "+displaySource);
 		}
 		catch (e:flash.errors.Error) {
 			throw "Loading bitmap error. Check policy settings. "+e.message;

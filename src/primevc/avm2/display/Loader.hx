@@ -85,7 +85,9 @@ class Loader implements IDisposable
 		return loader.load(new URLRequest(v.toString()), c);
 	}
 	public inline function unload ()						{ return loader.unload(); }
-	public inline function close ()							{ if (!isLoaded) loader.close(); }
+	public inline function close () : Void					{ if (!isLoaded) loader.close(); }
+	
+	public inline function isSwf () : Bool					{ return extension == "swf"; }
 	
 	
 	
@@ -113,7 +115,7 @@ class Loader implements IDisposable
 	 */
 	private inline function getContent ()
 	{
-		return extension == "swf" ? cast loader : cast loader.contentLoaderInfo.content;
+		return isSwf() ? cast loader : cast loader.contentLoaderInfo.content;
 		/*try {
 			if (loader.contentLoaderInfo.swfVersion < 9)
 				return loader;
