@@ -251,7 +251,7 @@ class Asset
 	{
 		if (type != null)
 		{
-			if (type != AssetType.displayObject || loader == null || !loader.isSwf())
+			if (type != AssetType.displayObject #if !neko || loader == null || !loader.isSwf() #end)
 				disposeLoader();
 			
 			state.current	= AssetStates.empty;	//important to this first, other objects have a chance to remove their references then...
