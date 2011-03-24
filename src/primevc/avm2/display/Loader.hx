@@ -34,6 +34,7 @@ package primevc.avm2.display;
  import flash.system.LoaderContext;
  import flash.utils.ByteArray;
  import primevc.avm2.events.LoaderEvents;
+ import primevc.core.geom.Rectangle;
  import primevc.core.traits.IDisposable;
  import primevc.types.URI;
 
@@ -56,6 +57,9 @@ class Loader implements IDisposable
 	public var info			(getInfo, never)			: LoaderInfo;
 	
 	public var content		(getContent, never)			: DisplayObject;
+	public var height		(getHeight, never)			: Float;
+	public var width		(getWidth, never)			: Float;
+	
 	private var loader		: FlashLoader;
 	private var extension	: String;
 	
@@ -100,6 +104,9 @@ class Loader implements IDisposable
 	private inline function getBytesLoaded ()		{ return info.bytesLoaded; }
 	private inline function getBytesTotal ()		{ return info.bytesTotal; }
 	
+	private inline function getWidth ()				{ return info.width; }
+	private inline function getHeight ()			{ return info.height; }
+	
 	
 	/**
 	 * Method will try to return the content of the flash-loader to allow the
@@ -115,6 +122,9 @@ class Loader implements IDisposable
 	 */
 	private inline function getContent ()
 	{
+		if (isSwf())
+			loader.scrollRect = new Rectangle(0, 0, width, height);
+		
 		return isSwf() ? cast loader : cast loader.contentLoaderInfo.content;
 		/*try {
 			if (loader.contentLoaderInfo.swfVersion < 9)

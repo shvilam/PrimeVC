@@ -160,7 +160,6 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 			return;
 		
 		Assert.notNull( assetChild );
-	//	trace(assetChild.width+", "+assetChild.height+"; newsize: "+layout.innerBounds.width+"; "+layout.innerBounds.height);
 		assetChild.width	= layout.innerBounds.width;
 		assetChild.height	= layout.innerBounds.height;
 #end
@@ -198,9 +197,7 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 		if (data != null && data.state.is( AssetStates.ready ))
 		{
 			l.maintainAspectRatio = maintainAspectRatio;
-			
-			if		(assetChild != null)	l.measuredResize( assetChild.width.roundFloat(), assetChild.height.roundFloat() );
-			else if (assetFill != null)		l.measuredResize( assetFill.data.width, assetFill.data.height );
+			l.measuredResize( data.width, data.height );
 		}
 		else
 		{	
@@ -208,7 +205,7 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 			l.measuredWidth			= Number.INT_NOT_SET;
 			l.measuredHeight		= Number.INT_NOT_SET;
 		}
-	//	trace("\t\t\t measured: "+this+"; "+l.measuredWidth+", "+l.measuredHeight);
+	//	trace("\t\t\t measured: "+this+"; "+l.measuredWidth+", "+l.measuredHeight+"; datasize: "+data.width+", "+data.height);
 	}
 	
 	

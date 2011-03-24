@@ -31,7 +31,9 @@ package primevc.types;
  import primevc.core.states.SimpleStateMachine;
  import primevc.core.traits.IDisposable;
  import primevc.core.traits.IValueObject;
+ import primevc.types.Number;
   using primevc.utils.Bind;
+  using primevc.utils.NumberUtil;
 
 #if flash9
  import primevc.gui.display.Loader;
@@ -90,12 +92,15 @@ class Asset
 	private var displaySource	: DisplayObject;
 	private var assetClass		: AssetClass;
 	
+	public var width		(default, null)		: Int;
+	public var height		(default, null)		: Int;
 	
 	
 	
 	public function new (url:URI = null, asset:AssetClass = null, data:BitmapData = null, bitmap:FlashBitmap = null, displaySource:DisplayObject = null)
 	{
 		state	= new SimpleStateMachine<AssetStates>(empty);
+		width	= height = Number.INT_NOT_SET;
 #if neko
 		_oid	= ID.getNext();
 #end
@@ -116,6 +121,11 @@ class Asset
 		_oid	= 0;
 #end
 	}
+	
+	
+	public inline function isReady ()		{ return state.current == AssetStates.ready; }
+	public inline function isLoading ()		{ return state.current == AssetStates.loading; }
+	public inline function isLoadable ()	{ return state.current == AssetStates.loadable; }
 	
 	
 	private function disposeLoader ()
@@ -185,28 +195,13 @@ class Asset
 		if (fillColor == null)		fillColor	= 0x00ffffff;
 		
 #if flash9
-		var source:flash.display.IBitmapDrawable = null;
-		var w:Int = 0;
-		var h:Int = 0;
-		
-		switch (type) {
-			case AssetType.bitmapData:
-				source	= bitmapData;
-				w		= bitmapData.height;
-				h		= bitmapData.width;
-			
-			case AssetType.displayObject:
-				source	= displaySource;
-				w		= displaySource.width.roundFloat();
-				h		= displaySource.height.roundFloat();
-			
-			case AssetType.vector:
-				source	= displaySource = createAssetInstance();
-				w		= displaySource.width.roundFloat();
-				h		= displaySource.height.roundFloat();
+		var source:flash.display.IBitmapDrawable = switch (type) {
+			case AssetType.bitmapData:			cast bitmapData;
+			case AssetType.displayObject:		cast displaySource;
+			case AssetType.vector:				cast createAssetInstance();
 		}
 		
-		bitmapData = new BitmapData( w, h, transparant, fillColor );
+		bitmapData = new BitmapData( width, height, transparant, fillColor );
 		bitmapData.draw( source, matrix );
 #end
 		return bitmapData;
@@ -236,7 +231,16 @@ class Asset
 	private inline function createAssetInstance ()
 	{
 		Assert.notNull(assetClass);
-		return #if flash9 Type.createInstance(assetClass, []); #else null; #end
+		
+#if flash9
+		var inst = Type.createInstance(assetClass, []);
+		if (displaySource == null)		displaySource = inst;
+		if (width.notSet())				width	= inst.width.roundFloat();
+		if (height.notSet())			height	= inst.height.roundFloat();
+		return inst;
+#else
+		return null;
+#end
 	}
 	
 	
@@ -260,6 +264,8 @@ class Asset
 			displaySource	= null;
 			bitmapData		= null;
 			type			= null;
+			width			= Number.INT_NOT_SET;
+			height			= Number.INT_NOT_SET;
 		}
 	}
 	
@@ -322,14 +328,19 @@ class Asset
 	}
 	
 	
-	public inline function setDisplayObject (v:DisplayObject)
+	public inline function setDisplayObject (v:DisplayObject, w:Int = Number.INT_NOT_SET, h:Int = Number.INT_NOT_SET)
 	{
 		if (v != displaySource)
 		{
 			unsetData();
-			displaySource	= v;
-			type			= AssetType.displayObject;
-			state.current	= AssetStates.ready;
+			if (v != null)
+			{
+				displaySource	= v;
+				width			= w.isSet() ? w : v.width.roundFloat();
+				height			= h.isSet() ? h : v.height.roundFloat();
+				type			= AssetType.displayObject;
+				state.current	= AssetStates.ready;
+			}
 		}
 	}
 	
@@ -345,9 +356,15 @@ class Asset
 		if (v != bitmapData)
 		{
 			unsetData();
-			type			= AssetType.bitmapData;
-			bitmapData		= v;
-			state.current	= AssetStates.ready;
+			
+			if (v != null)
+			{
+				type			= AssetType.bitmapData;
+				bitmapData		= v;
+				width			= v.width;
+				height			= v.height;
+				state.current	= AssetStates.ready;
+			}
 		}
 	}
 	
@@ -357,9 +374,12 @@ class Asset
 		if (v != assetClass)
 		{
 			unsetData();
-			type			= AssetType.vector;
-			assetClass		= v;
-			state.current	= AssetStates.ready;
+			if (v != null)
+			{
+				type			= AssetType.vector;
+				assetClass		= v;
+				state.current	= AssetStates.ready;
+			}
 		}
 	}
 	
@@ -411,11 +431,12 @@ class Asset
 			return;
 		
 		try {
-			setDisplayObject( loader.content );
+			setDisplayObject( loader.content, loader.width.roundFloat(), loader.height.roundFloat() );
+			
 		//	trace(url+"; state: "+state+"; source: "+displaySource);
 		}
 		catch (e:flash.errors.Error) {
-			throw "Loading bitmap error. Check policy settings. "+e.message;
+			throw "Loading asset error. Check policy settings. "+e.message;
 			disposeLoader();
 		}
 #end
@@ -424,7 +445,7 @@ class Asset
 	
 	private inline function handleLoadError (err:String) : Void
 	{
-		trace("Bitmap load-error: "+err);
+		trace("Asset load-error: "+err+"; "+this);
 	}
 	
 	
