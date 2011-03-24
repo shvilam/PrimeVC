@@ -67,7 +67,7 @@ class GraphicProperties implements IGraphicElement
 	 * Signal to notify other objects than IGraphicElement of changes within
 	 * the shape.
 	 */
-	public var changeEvent	(default, null)				: Signal1 < Int >;
+	public var changeEvent	(default, null)				: Signal1<Int>;
 
 	public var fill			(default, setFill)			: IGraphicProperty;
 	public var border		(default, setBorder)		: IBorder;

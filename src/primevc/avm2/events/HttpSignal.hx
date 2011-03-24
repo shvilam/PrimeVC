@@ -20,32 +20,56 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.events;
- import primevc.core.dispatcher.Signal0;
+package primevc.avm2.events;
+ import flash.events.IEventDispatcher;
+ import flash.events.HTTPStatusEvent;
+ import primevc.core.dispatcher.IWireWatcher;
  import primevc.core.dispatcher.Signal1;
- import primevc.core.dispatcher.Signals;
+ import primevc.core.dispatcher.Wire;
+ import primevc.core.ListNode;
 
 
-typedef LoaderEvents = 
-	#if		flash9	primevc.avm2.events.LoaderEvents;
-	#elseif	flash8	primevc.avm1.events.LoaderEvents;
-	#elseif	js		primevc.js  .events.LoaderEvents;
-	#else	#error	#end
+private typedef Handler = Int -> Void;
 
 
 /**
+ * Signal for listening to HTTP Status events in flash
+ * 
  * @author Ruben Weijers
- * @creation-date Nov 15, 2010
+ * @creation-date Mar 24, 2011
  */
-class LoaderSignals extends Signals
+class HttpSignal extends Signal1<Int>, implements IWireWatcher <Handler> 
 {
-	public var unloaded		(default, null)		: Signal0;
-	public var load			(default, null)		: CommunicationEvents;
-	public var httpStatus	(default, null)		: Signal1<Int>;
+	var eventDispatcher:IEventDispatcher;
+	var event:String;
+
+
+	public function new (d:IEventDispatcher)
+	{
+		super();
+		this.eventDispatcher = d;
+		this.event = HTTPStatusEvent.HTTP_STATUS;
+	}
+
+	public function wireEnabled (wire:Wire<Handler>) : Void {
+		Assert.that(n != null);
+		if (ListUtil.next(n) == null) // First wire connected
+			eventDispatcher.addEventListener(event, dispatch, false, 0, true);
+	}
+
+	public function wireDisabled	(wire:Wire<Handler>) : Void {
+		if (n == null) // No more wires connected
+			eventDispatcher.removeEventListener(event, dispatch, false);
+	}
+
+	private function dispatch(e:HTTPStatusEvent)
+	{
+		send(e.status);
+	}
 }
