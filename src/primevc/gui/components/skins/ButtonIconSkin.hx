@@ -47,7 +47,7 @@ private typedef Flags = primevc.gui.core.UIElementFlags;
  */
 class ButtonIconSkin extends Skin<Button>
 {
-	private var iconGraphic : Image;
+	public var iconGraphic (default, null) : Image;
 	
 	
 	override private function createBehaviours ()

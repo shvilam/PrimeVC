@@ -251,7 +251,8 @@ class Asset
 	{
 		if (type != null)
 		{
-			if (type != AssetType.displayObject || loader == null || !loader.isSwf())
+#if !neko	if (type != AssetType.displayObject || loader == null || !loader.isSwf())
+#else		if (type != AssetType.displayObject) #end
 				disposeLoader();
 			
 			state.current	= AssetStates.empty;	//important to this first, other objects have a chance to remove their references then...
@@ -499,8 +500,11 @@ class Asset
 	
 	public function toString ()
 	{
-		return	if (url != null)				"url( "+url+" )";
-				else							"Bitmap()";
+		return	 if (url != null)				"Asset( "+url+" )";
+			else if (assetClass != null)		"Asset( "+assetClass+" )";
+			else if (bitmapData != null)		"Asset( bitmapData )";
+			else if (displaySource != null)		"Asset( "+displaySource+" )";
+			else								"Asset( "+type+")";
 	}
 	
 	public function cleanUp () : Void {}
@@ -514,8 +518,11 @@ class Asset
 #if (!neko && debug)
 	public function toString ()
 	{
-		return	if (url != null)		"url( "+url+" )";
-				else					"Bitmap()";
+		return	 if (url != null)				"Asset( "+url+" )";
+			else if (assetClass != null)		"Asset( "+assetClass+" )";
+			else if (bitmapData != null)		"Asset( bitmapData )";
+			else if (displaySource != null)		"Asset( "+displaySource+" )";
+			else								"Asset( "+type+")";
 	}
 #end
 }

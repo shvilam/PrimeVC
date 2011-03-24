@@ -58,8 +58,8 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 	public var maintainAspectRatio	(default, setMaintainAspectRatio)	: Bool;
 	
 #if flash9
-	public var assetChild	: flash.display.DisplayObject;
-	public var assetFill	: BitmapFill;
+	public var assetChild			(default, null) 					: flash.display.DisplayObject;
+	public var assetFill			(default, null) 					: BitmapFill;
 #end
 	
 	

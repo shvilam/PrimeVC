@@ -175,9 +175,11 @@ class FastArrayUtil
 	}
 	
 	
-	public static inline function removeAll<T> (list:FastArray<T>) : Void {
+	public static inline function removeAll<T> (list:FastArray<T>) : FastArray<T> {
 		while (list.length > 0)
 			list.pop();
+		
+		return list;
 	}
 	
 	
