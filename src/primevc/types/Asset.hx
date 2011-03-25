@@ -278,21 +278,20 @@ class Asset
 		{
 			if (v != null)
 				setURI(v);
-			
+#if flash9
 			if (url.hasScheme( URIScheme.Scheme('asset')) )
 			{
 				setClass( url.host.resolveClass() );
 			}
 			else
 			{
-#if flash9
 				type			= AssetType.displayObject;
 				state.current	= AssetStates.loading;
 				
 				var context = new flash.system.LoaderContext(true);			//add context to check policy file
 				loader.load( url, context );
+			}	
 #end
-			}
 		}
 	}
 	
