@@ -32,8 +32,10 @@ package primevc.types;
  import primevc.core.traits.IDisposable;
  import primevc.core.traits.IValueObject;
  import primevc.types.Number;
+ import primevc.types.URI;
   using primevc.utils.Bind;
   using primevc.utils.NumberUtil;
+  using Type;
 
 #if flash9
  import primevc.gui.display.Loader;
@@ -150,7 +152,7 @@ class Asset
 	{
 		if (state.current == loadable) {
 			if (url != null)
-				loadUrl();
+				loadURI();
 		}
 	}
 	
@@ -270,20 +272,27 @@ class Asset
 	}
 	
 	
-	public function loadUrl (?v:URI)
+	public function loadURI (?v:URI)
 	{
 		if (v != url || (v == null && url != null))
 		{
 			if (v != null)
 				setURI(v);
 			
+			if (url.hasScheme( URIScheme.Scheme('asset')) )
+			{
+				setClass( url.host.resolveClass() );
+			}
+			else
+			{
 #if flash9
-			type			= AssetType.displayObject;
-			state.current	= AssetStates.loading;
-			
-			var context = new flash.system.LoaderContext(true);			//add context to check policy file
-			loader.load( url, context );
+				type			= AssetType.displayObject;
+				state.current	= AssetStates.loading;
+				
+				var context = new flash.system.LoaderContext(true);			//add context to check policy file
+				loader.load( url, context );
 #end
+			}
 		}
 	}
 	
@@ -318,7 +327,7 @@ class Asset
 	 */
 	public inline function loadString (v:String)
 	{
-		loadUrl( new URI(v) );
+		loadURI( new URI(v) );
 	}
 	
 	
@@ -453,10 +462,10 @@ class Asset
 	// IMAGE CREATE METHODS
 	//
 	
-	public static inline function fromUrl (v:URI) : Asset
+	public static inline function fromURI (v:URI) : Asset
 	{
 		var b = new Asset();
-		b.loadUrl(v);
+		b.loadURI(v);
 		return b;
 	}
 	

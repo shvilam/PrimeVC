@@ -99,7 +99,7 @@ class URI
 	}
 #end
 	
-	public var string (toString, null) : String;
+	public var string (getString, null) : String;
 	
 	public var scheme	(default, setScheme)	: URIScheme;
 	public var userinfo	(default, setUserinfo)	: String;
@@ -170,7 +170,19 @@ class URI
 			parse(str);
 	}
 	
-	public function toString()
+	
+	/**
+	 * toString will call getString to build the current string or return the
+	 * cached version. This method can be extended by super-classes to add
+	 * an extra prefix so no inline!
+	 */
+	public function toString ()
+	{
+		return string;
+	}
+	
+	
+	private function getString()
 	{
 		if (this.string.notNull()) return this.string;
 		
