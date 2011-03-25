@@ -99,6 +99,8 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 			case AssetType.vector, AssetType.displayObject:
 				addChild( assetChild = data.getDisplayObject() );
 				updateChildSize.on( layout.changed, this );
+				updateChildSize(LayoutFlags.SIZE);
+				
 			
 			case AssetType.bitmapData:
 				if (graphicData.fill == null || !graphicData.fill.is(BitmapFill))
@@ -159,9 +161,14 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 		if (changes.hasNone( LayoutFlags.SIZE ))
 			return;
 		
+	//	trace(this+".newsize: "+layout.innerBounds.width+", "+layout.innerBounds.height+"; oldSize: "+assetChild.width+", "+assetChild.height+"; dataWidth "+data.width+", "+data.height+"; state: "+assetChild.scrollRect);
 		Assert.notNull( assetChild );
-		assetChild.width	= layout.innerBounds.width;
-		assetChild.height	= layout.innerBounds.height;
+		// setting the width will go wrong the first time when the asset is an swf
+	//	assetChild.width	= layout.innerBounds.width;
+	//	assetChild.height	= layout.innerBounds.height;
+		assetChild.scaleX	= assetChild.scaleY = layout.innerBounds.width / data.width;
+		
+	//	trace(this+".cursize: "+assetChild.width+", "+assetChild.height+"; scaleXY: "+assetChild.scaleX+", "+assetChild.scaleY);
 #end
 	}
 	
