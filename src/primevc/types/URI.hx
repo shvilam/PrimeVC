@@ -116,7 +116,7 @@ class URI
 	private inline function setPath(v)		{ string = null; return path = v; }
 	private inline function setQuery(v)		{ string = null; return query = v; }
 	private inline function setFragment(v)	{ string = null; return fragment = v; }
-
+	
 	/** Returns true if this URI has a scheme and thus is a URL **/
 	public inline function isURL() : Bool			{ return scheme.notNull(); }
 	/** Returns true if the host of URI is the URI, so when the port, path, query and fragment are empty **/
@@ -171,6 +171,12 @@ class URI
 	}
 	
 	
+	public inline function isEmpty () : Bool
+	{
+		return (scheme == null || host == null) && path == null;
+	}
+	
+	
 	/**
 	 * toString will call getString to build the current string or return the
 	 * cached version. This method can be extended by super-classes to add
@@ -184,8 +190,8 @@ class URI
 	
 	private function getString()
 	{
-		if (this.string.notNull()) return this.string;
-		
+		if (this.string.notNull())	return this.string;
+		if (isEmpty())				return null;
 		var s:StringBuf = new StringBuf();
 		
 		if (scheme.notNull()) switch (scheme)
