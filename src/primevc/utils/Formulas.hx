@@ -28,7 +28,7 @@
  */
 package primevc.utils;
  import apparat.math.FastMath;
- import primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.Formulas;
 
 

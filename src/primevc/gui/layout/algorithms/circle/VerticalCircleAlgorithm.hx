@@ -34,9 +34,8 @@ package primevc.gui.layout.algorithms.circle;
  import primevc.gui.layout.algorithms.IVerticalAlgorithm;
  import primevc.gui.layout.algorithms.VerticalBaseAlgorithm;
  import primevc.utils.Formulas;
- import primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.Formulas;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
  
 

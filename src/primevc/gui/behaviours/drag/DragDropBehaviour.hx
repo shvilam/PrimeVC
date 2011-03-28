@@ -36,7 +36,7 @@ package primevc.gui.behaviours.drag;
  import primevc.gui.traits.IDropTarget;
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
  
 

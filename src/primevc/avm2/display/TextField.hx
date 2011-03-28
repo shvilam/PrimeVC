@@ -44,7 +44,7 @@ package primevc.avm2.display;
  import primevc.gui.text.TextFormat;
  import primevc.gui.text.TextTransform;
   using primevc.utils.Bind;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.StringUtil;
   using primevc.utils.TypeUtil;
 

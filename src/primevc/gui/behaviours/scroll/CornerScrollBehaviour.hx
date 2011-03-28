@@ -32,7 +32,7 @@ package primevc.gui.behaviours.scroll;
  import primevc.core.geom.IntPoint;
  import primevc.gui.events.MouseEvents;
   using primevc.utils.Bind;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 #end
 

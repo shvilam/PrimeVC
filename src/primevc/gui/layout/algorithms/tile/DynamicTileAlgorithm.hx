@@ -44,7 +44,7 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.layout.LayoutFlags;
- import primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;

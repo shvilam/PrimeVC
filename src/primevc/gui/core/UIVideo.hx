@@ -50,7 +50,6 @@ package primevc.gui.core;
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 

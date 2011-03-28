@@ -37,7 +37,7 @@ package primevc.gui.graphics.shapes;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.traits.IGraphicsOwner;
   using primevc.utils.FastArray;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
 
 
 /**

@@ -40,7 +40,6 @@ package primevc.types;
 #if flash9
  import primevc.gui.display.Loader;
  import primevc.utils.TypeUtil;
-  using primevc.utils.NumberMath;
 
 #elseif neko
  import primevc.tools.generator.ICodeFormattable;

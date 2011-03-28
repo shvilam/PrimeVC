@@ -46,7 +46,6 @@ package primevc.gui.layout;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.IfUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 

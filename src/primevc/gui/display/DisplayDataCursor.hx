@@ -30,7 +30,7 @@ package primevc.gui.display;
  import primevc.core.collections.DataCursor;
  import primevc.core.collections.IDataCursor;
  import primevc.core.geom.Point;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
 
 
 /**

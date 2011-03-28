@@ -40,7 +40,7 @@ package primevc.avm2.display;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEventTarget;
  import primevc.gui.events.UserEvents;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
  

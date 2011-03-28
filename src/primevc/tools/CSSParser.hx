@@ -123,7 +123,6 @@ package primevc.tools;
   using primevc.utils.BitUtil;
   using primevc.utils.Color;
   using primevc.utils.ERegUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
   using Std;

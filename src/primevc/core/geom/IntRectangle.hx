@@ -28,8 +28,7 @@
  */
 package primevc.core.geom;
  import primevc.core.traits.QueueingInvalidatable;
- import primevc.utils.NumberMath;
-  using primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.NumberUtil;
 
 

@@ -37,7 +37,6 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.LayoutFlags;
   using primevc.utils.BitUtil;
   using primevc.utils.IfUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 

@@ -5,7 +5,7 @@ package primevc.utils;
  import flash.events.ErrorEvent;
  import flash.events.UncaughtErrorEvent;
 #end
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 

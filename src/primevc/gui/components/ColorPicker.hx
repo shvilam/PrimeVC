@@ -35,7 +35,7 @@ package primevc.gui.components;
  import primevc.types.RGBA;
   using primevc.utils.Bind;
   using primevc.utils.Color;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 

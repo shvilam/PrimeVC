@@ -35,7 +35,7 @@ package primevc.gui.graphics.borders;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
 
 
 /**

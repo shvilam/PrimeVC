@@ -27,9 +27,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.utils;
+ import apparat.math.FastMath;
  import primevc.types.Number;
- import primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
+  using Std;
  
 
 /**
@@ -156,4 +157,151 @@ class FloatUtil
 	
 	public static inline function getBiggest (var1:Float, var2:Float) : Float	{ return FloatMath.max(var1, var2); }
 	public static inline function getSmallest (var1:Float, var2:Float) : Float	{ return FloatMath.min(var1, var2); }
+}
+
+
+
+
+/**
+ * Math class for integers.
+ * 
+ * @creation-date	Jun 25, 2010
+ * @author			Ruben Weijers
+ */
+class IntMath 
+{
+	/**
+	 * Returns the absolute value, always >= 0
+	 */
+	public static inline function abs (x:Int) : Int
+	{
+		return #if neko (x ^ (x >> 30)) - (x >> 30) #else (x ^ (x >> 31)) - (x >> 31) #end;
+	}
+	
+	/**
+	 * Returns the biggest integer of the two given integers
+	 * @param	var1
+	 * @param	var2
+	 * @return	biggest integer
+	 */
+	public static inline function max (var1:Int, var2:Int) : Int 
+	{
+		return var1 > var2 ? var1 : var2;
+	}
+	
+	
+	/**
+	 * Returns the smallest integer of the two given integers
+	 * @param	var1
+	 * @param	var2
+	 * @return	smallest integer
+	 */
+	public static inline function min (var1:Int, var2:Int) : Int
+	{
+		return var1.isSet() && var1 < var2 ? var1 : var2;
+	}
+	
+	
+	/**
+	 * Math function to divide var1 with var2 and returning an floored integer.
+	 * 
+	 * @param	var1	Integer to divide
+	 * @param	var2	Integer to divide with
+	 * @return	result of the floored division
+	 */
+	public static inline function divFloor (var1:Int, var2:Int) : Int
+	{
+		return IntMath.floorFloat( var1 / var2 );
+	//	return (var1 / var2).int();
+	}
+	
+	
+	
+	/**
+	 * Math function to divide var1 with var2 and returning an ceiled integer.
+	 * 
+	 * @param	var1	Integer to divide
+	 * @param	var2	Integer to divide with
+	 * 
+	 * @return	result of the ceiled division
+	 */
+	public static inline function divCeil (var1:Int, var2:Int) : Int
+	{
+		return IntMath.ceilFloat( var1 / var2 );
+		/*var intResult	= IntMath.divFloor(var1, var2);
+		var floatResult	= var1 / var2;
+		return (floatResult - intResult) > 0 ? intResult + 1 : intResult;*/
+	}
+	
+	
+	
+	/**
+	 * Math function to divide var1 with var2 and returning an rounded integer.
+	 * 
+	 * @param	var1	Integer to divide
+	 * @param	var2	Integer to divide with
+	 * @return	result of the rounded division
+	 */
+	public static inline function divRound (var1:Int, var2:Int) : Int
+	{
+		return IntMath.roundFloat( var1 / var2 );
+	/*	var intResult	= IntMath.divFloor(var1, var2);
+		var floatResult	= var1 / var2;
+		return (floatResult - intResult) >= 0.5 ? intResult + 1 : intResult;*/
+	}
+	
+	
+	public static inline function isEven (val:Int) : Bool
+	{
+		return (val & 1) == 0;
+	}
+	
+	
+	
+	public static inline function ceilFloat (var1:Float) : Int
+	{
+		return var1.int() + (var1 % 1 == 1 ? 1 : 0);
+	}
+	
+	
+	public static inline function floorFloat (var1:Float) : Int
+	{
+		return var1 < 0 ? (var1 - .9).int() : var1.int();
+	}
+	
+	
+	public static inline function roundFloat (var1:Float) : Int
+	{
+		return var1 < 0 ? -1 * floorFloat( -1 * var1 + .5) : floorFloat(var1 + .5);
+	}
+}
+
+
+
+
+
+class FloatMath
+{
+	/**
+	 * Returns the biggest float of the two given integers
+	 * @param	var1
+	 * @param	var2
+	 * @return	biggest float
+	 */
+	public static inline function max (var1:Float, var2:Float) : Float
+	{
+		return var1 > var2 ? var1 : var2;
+	}
+	
+	
+	/**
+	 * Returns the smallest integer of the two given integers
+	 * @param	var1
+	 * @param	var2
+	 * @return	smallest integer
+	 */
+	public static inline function min (var1:Float, var2:Float) : Float
+	{
+		return var1 < var2 ? var1 : var2;
+	}
 }

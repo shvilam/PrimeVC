@@ -39,7 +39,7 @@ package primevc.gui.components.skins;
  import primevc.types.Number;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
 
 
 /**

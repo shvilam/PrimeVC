@@ -29,7 +29,7 @@
 package primevc.core.geom;
  import apparat.math.FastMath;
  import primevc.core.traits.IClonable;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
 
 
 /**

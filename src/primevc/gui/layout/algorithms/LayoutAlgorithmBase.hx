@@ -38,8 +38,7 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutClient;
  import primevc.types.Number;
- import primevc.utils.NumberMath;
-  using primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
  

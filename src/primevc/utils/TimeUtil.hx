@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.utils;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using Std;
 
 

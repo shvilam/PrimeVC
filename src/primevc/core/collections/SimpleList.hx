@@ -32,7 +32,7 @@ package primevc.core.collections;
  import primevc.core.collections.iterators.FastDoubleCellReversedIterator;
  import primevc.core.events.ListChangeSignal;
  import primevc.utils.DuplicateUtil;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
  
 
 /**

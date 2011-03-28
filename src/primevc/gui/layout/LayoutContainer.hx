@@ -39,10 +39,9 @@ package primevc.gui.layout;
  import primevc.gui.states.ValidateStates;
  import primevc.types.Number;
  import primevc.utils.FastArray;
- import primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 

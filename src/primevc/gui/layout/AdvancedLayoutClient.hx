@@ -28,7 +28,7 @@
  */
 package primevc.gui.layout;
  import primevc.types.Number;
- import primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.BitUtil;
   using primevc.utils.IfUtil;
   using primevc.utils.NumberUtil;

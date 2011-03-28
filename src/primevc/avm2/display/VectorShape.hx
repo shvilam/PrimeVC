@@ -35,7 +35,7 @@ package primevc.avm2.display;
  import primevc.gui.display.Window;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.traits.IGraphicsOwner;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 
