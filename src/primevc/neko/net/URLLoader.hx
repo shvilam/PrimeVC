@@ -20,17 +20,49 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.net;
+package primevc.neko.net;
+ import primevc.core.events.LoaderEvents;
+ import primevc.gui.traits.ICommunicator;
+ import primevc.types.URI;
 
-typedef URLLoader = 
-	#if		flash9	primevc.avm2.net.URLLoader;
-	#elseif	flash8	primevc.avm1.net.URLLoader;
-	#elseif	js		primevc.js  .net.URLLoader;
-	#elseif	neko	primevc.neko.net.URLLoader;
-	#else			error; #end
+
+/**
+ * Fake Neko URLLoader implementation
+ * 
+ * @author Ruben Weijers
+ * @creation-date Mar 30, 2011
+ */
+class URLLoader implements ICommunicator 
+{
+	public var events		(default, null)					: LoaderEvents;
+	public var bytesLoaded	(getBytesLoaded, never)			: UInt;
+	public var bytesTotal	(getBytesTotal, never)			: UInt;
+	public var isLoaded		(getIsLoaded, never)			: Bool;
+	
+	
+	public function new ();
+	public function dispose ();
+	public function binaryPOST (uri:URI, bytes:haxe.io.Bytes, mimetype:String = "application/octet-stream");
+	
+	public inline function load (v:URI);
+	public inline function close ();
+	
+	
+	
+	//
+	// GETTERS / SETTERS
+	//
+	
+	private inline function getBytesLoaded ()		{ return 0; }
+	private inline function getBytesTotal ()		{ return 0; }
+	
+	private inline function getIsLoaded () {
+		return bytesTotal > 0 && bytesLoaded >= bytesTotal;
+	}
+}

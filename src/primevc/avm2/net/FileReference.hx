@@ -20,7 +20,7 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
@@ -34,35 +34,31 @@ package primevc.avm2.net;
  import primevc.types.URI;
 
 
-private typedef FlashLoader = flash.net.URLLoader;
+
+private typedef FlashFileRef = flash.net.FileReference;
 
 
 /**
- * AVM2 URLLoader implementation
+ * AVM2 FileReference implementation
  * 
  * @author Ruben Weijers
- * @creation-date Sep 04, 2010
+ * @creation-date Mar 29, 2011
  */
-class URLLoader implements ICommunicator
+class FileReference implements ICommunicator
 {
 	public var events		(default, null)					: LoaderEvents;
 	public var bytesLoaded	(getBytesLoaded, never)			: UInt;
 	public var bytesTotal	(getBytesTotal, never)			: UInt;
 	public var isLoaded		(getIsLoaded, never)			: Bool;
 	public var data			(getData, never)				: Dynamic;
-	public var dataFormat	(getDataFormat, setDataFormat)	: URLLoaderDataFormat;
 	
-	private var loader		: FlashLoader;
+	private var loader		: FlashFileRef;
 	
 	
-	public function new (loader:FlashLoader = null)
+	public function new (ref:FlashFileRef = null)
 	{
-		if (loader == null) {
-			this.loader = new FlashLoader();
-			setBinary();
-		} else
-			this.loader	= loader;
-		events			= new LoaderEvents(this.loader);
+		this.ref	= ref != null ? ref : new FlashFileRef();
+		events		= new LoaderEvents(this.ref);
 	}
 	
 	
@@ -74,20 +70,11 @@ class URLLoader implements ICommunicator
 		loader	= null;
 	}
 	
-	public function binaryPOST (uri:URI, bytes:haxe.io.Bytes, mimetype:String = "application/octet-stream")
-	{
-		var request		= uri.toRequest();
-		request.requestHeaders.push(new flash.net.URLRequestHeader("Content-type", mimetype));
-		request.method = flash.net.URLRequestMethod.POST;
-		request.data   = bytes.getData();
-		
-		trace(request);
-		setBinary();
-		loader.load(request);
-	}
 	
-	public inline function load (v:URI)				{ Assert.equal(bytesTotal, 0 ); return loader.load(v.toRequest()); }
-	public inline function close ()					{ return loader.close(); }
+	public inline function load ()					{ Assert.equal(bytesTotal, 0 ); return loader.load(); }
+	public inline function close ()					{ return loader.cancel(); }
+	public inline function browse (?types:Array)	{ return loader.browse(types); }
+	public inline function upload ()
 	
 	
 	
@@ -104,13 +91,4 @@ class URLLoader implements ICommunicator
 	private inline function getIsLoaded () {
 		return bytesTotal > 0 && bytesLoaded >= bytesTotal;
 	}
-	
-	
-	public inline function isBinary ()		: Bool		{ return loader.dataFormat == URLLoaderDataFormat.BINARY; }
-	public inline function isText ()		: Bool		{ return loader.dataFormat == URLLoaderDataFormat.TEXT; }
-	public inline function isVariables ()	: Bool		{ return loader.dataFormat == URLLoaderDataFormat.VARIABLES; }
-	
-	public inline function setBinary ()		: Void		{ loader.dataFormat = URLLoaderDataFormat.BINARY; }
-	public inline function setText ()		: Void		{ loader.dataFormat = URLLoaderDataFormat.TEXT; }
-	public inline function setVariables ()	: Void		{ loader.dataFormat = URLLoaderDataFormat.VARIABLES; }
 }

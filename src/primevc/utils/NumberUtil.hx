@@ -107,8 +107,10 @@ class FloatUtil
 	 * @param	max
 	 */
 	public static inline function within (value:Float, min:Float, max:Float) : Float {
-		if (value < min)		value = min;
-		else if (value > max)	value = max;
+		
+		if		(value.notSet())	value = min;
+		else if (value < min)		value = min;
+		else if (value > max)		value = max;
 		return value;
 	}
 	

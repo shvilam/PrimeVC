@@ -20,7 +20,7 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
@@ -28,9 +28,52 @@
  */
 package primevc.core.net;
 
-typedef URLLoader = 
-	#if		flash9	primevc.avm2.net.URLLoader;
-	#elseif	flash8	primevc.avm1.net.URLLoader;
-	#elseif	js		primevc.js  .net.URLLoader;
-	#elseif	neko	primevc.neko.net.URLLoader;
-	#else			error; #end
+
+
+/**
+ * List of static arrays with file-types that can be used in FileReference.browse
+ * 
+ * @author Ruben Weijers
+ * @creation-date Mar 29, 2011
+ */
+class FileTypes
+{
+	public static inline var image	= [ "png", "gif", "jpeg", "jpg", "svg" ];
+	public static inline var video	= [ "mpeg", "mp4", "avi", "flv" ];
+	public static inline var flash	= [ "swf" ];
+	public static inline var sound	= [ "mp3", "mp2", "wav" ];
+}
+
+
+/**
+ * @author Ruben Weijers
+ * @creation-date Mar 29, 2011
+ */
+class MimeType
+{
+	public static inline var flash	= "application/x-shockwave-flash";
+	public static inline var jpeg	= "image/jpeg";
+	public static inline var gif	= "image/gif";
+	public static inline var png	= "image/png";
+}
+
+
+
+/**
+ * @author Ruben Weijers
+ * @creation-date Mar 29, 2011
+ */
+class FileTypesUtil
+{
+	public static inline function toFileType (mimetype:String) : FileType
+	{
+		return switch (mimetype) {
+			case MimeType.flash:	FileType.SWF;
+			case MimeType.jpeg:		FileType.JPEG;
+			case MimeType.gif:		FileType.GIF;
+			case MimeType.png:		FileType.PNG;
+			default:
+				throw "Unkown mimetype: "+mimetype;
+		}
+	}
+}

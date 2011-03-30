@@ -35,7 +35,8 @@ typedef CommunicationEvents =
 	#if		flash9	primevc.avm2.events.CommunicationEvents;
 	#elseif	flash8	primevc.avm1.events.CommunicationEvents;
 	#elseif	js		primevc.js  .events.CommunicationEvents;
-	#else	#error	#end
+	#elseif	neko	CommunicationSignals;
+	#else	error;	#end
 
 
 

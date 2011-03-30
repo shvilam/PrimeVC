@@ -20,17 +20,28 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.net;
+package primevc.gui.traits;
+ import primevc.core.events.LoaderEvents;
+ import primevc.core.traits.IDisposable;
 
-typedef URLLoader = 
-	#if		flash9	primevc.avm2.net.URLLoader;
-	#elseif	flash8	primevc.avm1.net.URLLoader;
-	#elseif	js		primevc.js  .net.URLLoader;
-	#elseif	neko	primevc.neko.net.URLLoader;
-	#else			error; #end
+
+/**
+ * Interface to describe objects that communicate with another resource and
+ * are able to give status updates about it.
+ * 
+ * @author Ruben Weijers
+ * @creation-date Mar 28, 2011
+ */
+interface ICommunicator implements IDisposable
+{
+	public var events		(default, null)				: LoaderEvents;
+	
+	public var bytesLoaded	(getBytesLoaded, never)		: UInt;
+	public var bytesTotal	(getBytesTotal, never)		: UInt;
+}

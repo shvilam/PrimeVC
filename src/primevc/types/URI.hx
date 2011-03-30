@@ -235,7 +235,7 @@ class URI
 	
 	#if flash9
 	public function toRequest() {
-		return new flash.net.URLRequest(this.string);
+		return new flash.net.URLRequest(this.toString());
 	}
 	#end
 	

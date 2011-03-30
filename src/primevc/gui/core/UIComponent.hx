@@ -141,7 +141,10 @@ class UIComponent extends Sprite, implements IUIComponent
 	{
 		if (isInitialized())
 			return;
-		
+
+#if flash9		
+		Assert.notNull(parent);
+#end
 	//	Assert.notNull(container, "Container can't be null for "+this);
 		behaviours.init();
 		

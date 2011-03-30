@@ -20,7 +20,7 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
@@ -28,9 +28,20 @@
  */
 package primevc.core.net;
 
-typedef URLLoader = 
-	#if		flash9	primevc.avm2.net.URLLoader;
-	#elseif	flash8	primevc.avm1.net.URLLoader;
-	#elseif	js		primevc.js  .net.URLLoader;
-	#elseif	neko	primevc.neko.net.URLLoader;
-	#else			error; #end
+
+
+/**
+ * @author	Ruben Weijers
+ * @since Mar 29, 2011
+ */
+enum FileType
+{
+	MP4;
+	SVG;
+	PNG;
+	FLV;
+	PDF;
+	SWF;
+	JPEG;
+	GIF;
+}

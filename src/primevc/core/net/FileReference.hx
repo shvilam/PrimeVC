@@ -28,9 +28,13 @@
  */
 package primevc.core.net;
 
-typedef URLLoader = 
-	#if		flash9	primevc.avm2.net.URLLoader;
-	#elseif	flash8	primevc.avm1.net.URLLoader;
-	#elseif	js		primevc.js  .net.URLLoader;
-	#elseif	neko	primevc.neko.net.URLLoader;
+
+/**
+ * @author	Ruben Weijers
+ * @since	Mar 29, 2011
+ */
+typedef FileReference = 
+	#if		flash9	primevc.avm2.net.FileReference;
+	#elseif	flash8	primevc.avm1.net.FileReference;
+	#elseif	js		primevc.js  .net.FileReference;
 	#else			error; #end

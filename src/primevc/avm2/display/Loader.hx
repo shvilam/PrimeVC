@@ -31,12 +31,16 @@ package primevc.avm2.display;
  import flash.display.LoaderInfo;
  import flash.display.SWFVersion;
  import flash.net.URLRequest;
+ import flash.system.ApplicationDomain;
  import flash.system.LoaderContext;
  import flash.utils.ByteArray;
+
  import primevc.avm2.events.LoaderEvents;
  import primevc.core.geom.Rectangle;
- import primevc.core.traits.IDisposable;
+ import primevc.core.net.FileType;
+ import primevc.gui.traits.ICommunicator;
  import primevc.types.URI;
+  using primevc.core.net.FileTypes;
 
 
 typedef FlashLoader = flash.display.Loader;
@@ -46,8 +50,11 @@ typedef FlashLoader = flash.display.Loader;
  * @author Ruben Weijers
  * @since sometime in 2010
  */
-class Loader implements IDisposable
+class Loader implements ICommunicator
 {
+	public static var defaultContext = new LoaderContext(false, new ApplicationDomain());
+	
+	
 	public var events		(default, null)				: LoaderEvents;
 	
 	public var bytes		(getBytes, never)			: ByteArray;
@@ -59,15 +66,17 @@ class Loader implements IDisposable
 	public var content		(getContent, never)			: DisplayObject;
 	public var height		(getHeight, never)			: Float;
 	public var width		(getWidth, never)			: Float;
+	public var isAnimated	(default, null)				: Bool;
 	
 	private var loader		: FlashLoader;
-	private var extension	: String;
+	private var type		: FileType;
 	
 	
 	public function new ()
 	{
-		loader	= new FlashLoader();
-		events	= new LoaderEvents( info );
+		loader		= new FlashLoader();
+		events		= new LoaderEvents( info );
+		isAnimated	= false;
 	}
 	
 	
@@ -77,21 +86,32 @@ class Loader implements IDisposable
 		loader.unloadAndStop();
 #end
 		events.dispose();
-		extension	= null;
+		type		= null;
 		loader		= null;
 		events		= null;
 	}
 	
 	
-	public inline function load (v:URI, ?c:LoaderContext)
+	public inline function load (v:URI, ?c:LoaderContext) : Void
 	{
-		extension = v.fileExt;
-		return loader.load(new URLRequest(v.toString()), c);
+	//	extension = v.fileExt;
+		if (c == null)
+			c = defaultContext;
+		
+		loader.load(new URLRequest(v.toString()), c);
 	}
-	public inline function unload ()						{ return loader.unload(); }
+	
+	
+	public inline function loadBytes (v:ByteArray, ?c:LoaderContext) : Void
+	{
+		loader.loadBytes(v, c);
+	}
+	
+	
+	public inline function unload () : Void					{ loader.unload(); type = null; }
 	public inline function close () : Void					{ if (!isLoaded) loader.close(); }
 	
-	public inline function isSwf () : Bool					{ return extension == "swf"; }
+	public inline function isSwf () : Bool					{ return type == FileType.SWF; }
 	
 	
 	
@@ -120,12 +140,26 @@ class Loader implements IDisposable
 	 * If the loaded content is an avm2-movie, the loader will also be returned
 	 * since some flex-swf's will otherwise throw errors.
 	 */
-	private inline function getContent ()
+	private inline function getContent () : DisplayObject
 	{
-		if (isSwf())
-			loader.scrollRect = new Rectangle(0, 0, width, height);
+		var c:DisplayObject = null;
+	//	trace(info.actionScriptVersion+"; "+info.contentType);
+		if (type == null)
+			type = info.contentType.toFileType();
 		
-		return isSwf() ? cast loader : cast loader.contentLoaderInfo.content;
+		if (isSwf()) {
+			loader.scrollRect	= new Rectangle(0, 0, width, height);
+			isAnimated			= info.frameRate > 2;
+			c = loader;
+		} else {
+			c = loader.contentLoaderInfo.content;
+			isAnimated = false;
+		}
+		
+		if (!isAnimated)
+			c.cacheAsBitmap	= true;
+		
+		return c;
 		/*try {
 			if (loader.contentLoaderInfo.swfVersion < 9)
 				return loader;
