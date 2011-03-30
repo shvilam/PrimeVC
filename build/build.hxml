@@ -6,6 +6,7 @@
 #-D FlashTrace
 #-D MonsterTrace
 -D AlconTrace
+#-D Monster3Trace
 #-D unitTesting
 #-D DebugEvents
 --flash-strict
