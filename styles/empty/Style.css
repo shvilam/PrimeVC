@@ -13,3 +13,25 @@ Image			{ max-height: 200px; max-width: 100px; }
 Slider			{ margin: 10px 0px; background: #aaa; }
 .horizontalSlider UIGraphic	{ background: #000; }
 .verticalSlider UIGraphic	{ background: #000; }
+
+
+ProgressBar {
+	height: 25px;
+	width: 100%;
+	margin: 20px;
+	border-radius: 23px;
+	padding: 0px 2px;
+	algorithm: relative;
+	
+	background: linear-gradient( 90deg, #7B7B7B 0%, #969696 33%, #A7A7A7 100% );
+	border: 1px solid #000 outside;
+	skin: Class(primevc.gui.components.skins.LinearProgressSkin);
+}
+
+ProgressBar #indicator {
+	height: 22px;
+	v-center: 1px;
+	border-radius: 20px;
+	background: linear-gradient( 90deg, #5e5e5e, #1e1e1e );
+	border: 1px solid #aaa outside;
+}

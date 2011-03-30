@@ -5,6 +5,7 @@ package cases;
  import primevc.gui.components.Label;
  import primevc.gui.components.Image;
  import primevc.gui.components.InputField;
+ import primevc.gui.components.ProgressBar;
  import primevc.gui.components.Slider;
  import primevc.gui.core.UIWindow;
  import primevc.gui.display.Window;
@@ -23,12 +24,13 @@ class ComponentsTest extends UIWindow
 	}
 	
 	
-	private var label	: Label;
-	private var input	: Label;
-	private var button	: Button;
-	private var image	: Image;
-	private var slider	: Slider;
-	private var slider2	: Slider;
+	private var label		: Label;
+	private var input		: Label; //<String>;
+	private var button		: Button;
+	private var image		: Image;
+	private var slider		: Slider;
+	private var slider2		: Slider;
+	private var progress	: ProgressBar;
 	
 	
 	override private function createChildren ()
@@ -37,12 +39,16 @@ class ComponentsTest extends UIWindow
 	//	children.add( image		= new Image("testImage", Asset.fromString("http://www.google.com/images/logos/ps_logo.png")) );
 		children.add( slider	= new Slider("testSlider", 5, 4, 6) );
 		children.add( slider2	= new Slider("sliderCopy", 5, 4, 6, Direction.vertical) );
-		children.add( input		= new InputField("testInput") );
+		children.add( input		= new Label("testInput") );
 		children.add( label		= new Label("testLabel") );
+		children.add( progress	= new ProgressBar("testProgress", 2000) );
 		
 		label.data.pair( input.data );
 		slider2.data.pair( slider.data );
 		changeLabel.on( button.userEvents.mouse.down, this );
+		
+		loadTimer = new haxe.Timer(10);
+		loadTimer.run = fakeLoadEvent;
 	}
 	
 	
@@ -57,5 +63,16 @@ class ComponentsTest extends UIWindow
 	{
 		haxe.Log.clear.on( mouse.events.doubleClick, this );
 		super.createBehaviours();
+	}
+	
+	
+	private var loadTimer : haxe.Timer;
+	
+	private function fakeLoadEvent ()
+	{
+		progress.data.value += 1;
+		
+		if (progress.data.percentage == 1)
+			loadTimer.stop();
 	}
 }

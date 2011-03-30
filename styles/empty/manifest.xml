@@ -23,6 +23,7 @@
 	<component id="ListHolder"			superClass="UIDataContainer"	fullname="primevc.gui.components.ListHolder" />
 	<component id="ListView"			superClass="UIDataContainer"	fullname="primevc.gui.components.ListView" />
 	<component id="Panel"				superClass="UIComponent"		fullname="primevc.gui.components.Panel" />
+	<component id="ProgressBar"			superClass="UIDataContainer"	fullname="primevc.gui.components.ProgressBar" />
 	<component id="ScrollBar"			superClass="SliderBase"			fullname="primevc.gui.components.ScrollBar" />
 	<component id="SliderBase"			superClass="UIDataContainer"	fullname="primevc.gui.components.SliderBase" />
 	<component id="Slider"				superClass="SliderBase"			fullname="primevc.gui.components.Slider" />

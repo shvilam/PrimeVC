@@ -35,7 +35,7 @@ package primevc.gui.components;
  import primevc.gui.core.UIGraphic;
  import primevc.gui.display.VectorShape;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using Std;
 
 
@@ -118,8 +118,8 @@ class Slider extends SliderBase
 	override private function updateChildren ()
 	{
 	//	trace(maskedBackground.layout.percentWidth+"; "+layout.readChanges()+"; "+layout.state.current);
-		if (direction == horizontal)	maskedBackground.layout.percentWidth = percentage;
-		else							maskedBackground.layout.percentHeight = percentage;
+		if (direction == horizontal)	maskedBackground.layout.percentWidth = data.percentage;
+		else							maskedBackground.layout.percentHeight = data.percentage;
 		
 	//	trace(maskedBackground.layout.percentWidth+"; "+layout.readChanges()+"; "+layout.state.current);
 		dragBtn.data.value = (data.value * 100).roundFloat() + "%";

@@ -34,10 +34,9 @@ package primevc.gui.components;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.traits.IScrollable;
- import primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using Std;
 
@@ -165,7 +164,7 @@ class ScrollBar extends SliderBase
 	private function handleScrollWheel (mouseObj:MouseState)
 	{
 		if (direction == vertical)
-			data.value = validator.validate( data.value - mouseObj.scrollDelta() );
+			data.value = data.validator.validate( data.value - mouseObj.scrollDelta() );
 	}
 	
 	
@@ -185,8 +184,8 @@ class ScrollBar extends SliderBase
 			dragBtn.layout.percentWidth	= scrollable ? FloatMath.min( l.width / l.measuredWidth, 1 ) : 0;
 			
 			if (scrollable) {
-				validator.setValues( l.minScrollXPos, l.minScrollXPos + l.scrollableWidth );
-				calculatePercentage();
+				data.validator.setValues( l.minScrollXPos, l.minScrollXPos + l.scrollableWidth );
+			//	calculatePercentage();
 			}
 			
 		}
@@ -210,8 +209,8 @@ class ScrollBar extends SliderBase
 			dragBtn.layout.percentHeight = scrollable ? FloatMath.min( l.height / l.measuredHeight, 1 ) : 0;
 			
 			if (scrollable) {
-				validator.setValues( l.minScrollYPos, l.minScrollYPos + l.scrollableHeight );
-				calculatePercentage();
+				data.validator.setValues( l.minScrollYPos, l.minScrollYPos + l.scrollableHeight );
+			//	calculatePercentage();
 			}
 		}
 	}

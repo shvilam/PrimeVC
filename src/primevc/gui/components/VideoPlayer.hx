@@ -337,7 +337,7 @@ class VideoControlBar extends UIContainer
 	private function updateSliderValidator (newTime:Float, oldTime:Float)
 	{
 		Assert.notNull( progressBar );
-		progressBar.validator.max = newTime;
+		progressBar.data.validator.max = newTime;
 		trace(oldTime+" => "+newTime);
 	}
 	
