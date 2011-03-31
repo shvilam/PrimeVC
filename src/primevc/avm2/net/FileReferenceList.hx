@@ -20,45 +20,67 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.events;
- import primevc.core.dispatcher.Signal0;
- import primevc.core.dispatcher.Signals; 
+package primevc.avm2.net;
+ import primevc.core.traits.IDisposable;
+ import primevc.gui.events.SelectEvents;
+ import primevc.core.net.FileFilter;
+ import primevc.core.net.FileReference;
 
 
-typedef DisplayEvents = 
-	#if		flash9	primevc.avm2.events.DisplayEvents;
-	#elseif	flash8	primevc.avm1.events.DisplayEvents;
-	#elseif	js		primevc.js  .events.DisplayEvents;
-	#else	DisplaySignals;	#end
+private typedef FlashFileReferenceList = flash.net.FileReferenceList;
 
 
 /**
- * Cross-platform displayobject events
+ * AVM2 file reference list implementation
  * 
- * @creation-date	Jun 14, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Mar 30, 2011
  */
-class DisplaySignals extends Signals
+class FileReferenceList extends SelectEvents, implements IDisposable
 {
-	var addedToStage		(default,null) : Signal0;
-	var removedFromStage	(default,null) : Signal0;
-	var enterFrame			(default,null) : Signal0;
-	var render				(default,null) : Signal0;
+	private var target	: FlashFileReferenceList;
+	public var list		(getList, null)	: Array<FileReference>;
+	
+	
+	public function new (target:FlashFileReferenceList = null)
+	{
+		if (target == null)
+			target = new FlashFileReferenceList();
+		
+		this.target = target;
+		super(target);
+	}
 	
 	
 	override public function dispose ()
 	{
-		addedToStage.dispose();
-		removedFromStage.dispose();
-		enterFrame.dispose();
-		render.dispose();
+		target = null;
+		super.dispose();
+	}
+	
+	
+	public inline function browse (?types:Array<FileFilter>)
+	{
+		return target.browse(types);
+	}
+	
+	
+	private function getList () : Array<FileReference>
+	{
+		if (list != null)
+			return list;
 		
-		addedToStage = removedFromStage = enterFrame = render = null;
+		list		= new Array();
+		var oldList = target.fileList;
+		for (i in 0...oldList.length)
+			list[i] = new FileReference(oldList[i]);
+		
+		return list;
 	}
 }

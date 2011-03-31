@@ -20,45 +20,50 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.events;
- import primevc.core.dispatcher.Signal0;
- import primevc.core.dispatcher.Signals; 
+package primevc.core.net;
 
 
-typedef DisplayEvents = 
-	#if		flash9	primevc.avm2.events.DisplayEvents;
-	#elseif	flash8	primevc.avm1.events.DisplayEvents;
-	#elseif	js		primevc.js  .events.DisplayEvents;
-	#else	DisplaySignals;	#end
+
+typedef FileFilter = #if flash9 flash.net.FileFilter; #else FileFilterInst; #end
 
 
 /**
- * Cross-platform displayobject events
+ * Class usable for defining file-types in an uploadwindow
  * 
- * @creation-date	Jun 14, 2010
- * @author			Ruben Weijers
+ * mac filetypes:
+ * @see http://www.tink.ws/blog/macintosh-file-types/
+ * 
+ * @author Ruben Weijers
+ * @creation-date Mar 30, 2011
  */
-class DisplaySignals extends Signals
+class FileFilters
 {
-	var addedToStage		(default,null) : Signal0;
-	var removedFromStage	(default,null) : Signal0;
-	var enterFrame			(default,null) : Signal0;
-	var render				(default,null) : Signal0;
-	
-	
-	override public function dispose ()
+	public static inline var image	= [ new FileFilter("Images (gif, png, jpg)", "*.png;*.gif;*.jpeg;*.jpg", "JPEG;jp2_;GIFf;PNGf") ];		//FIXME add SVG support
+	public static inline var video	= [ new FileFilter("Videos (mpeg, mp4, avi, flv)", "*.mpeg;*.mp4;*.avi;*.flv", "MPEG;AVI;FLV_") ];
+	public static inline var flash	= [ new FileFilter("Flash", ".*swf", "SWFL") ];
+	public static inline var sound	= [ new FileFilter("Audio (mp3, mp2, wav)", "*.mp3;.*mp2;.*wav", "WAVE;WAV;MP3_;Mp3_;MPG3;MPG2;MP2_;Mp2_") ];
+}
+
+
+#if !flash9
+class FileFilterInst
+{
+	public var description	(default, null) : String;
+	public var extension	(default, null)	: String;
+	public var macType		(default, null)	: String;
+
+
+	public function new (description:String, extension:String, macType:String)
 	{
-		addedToStage.dispose();
-		removedFromStage.dispose();
-		enterFrame.dispose();
-		render.dispose();
-		
-		addedToStage = removedFromStage = enterFrame = render = null;
+		this.description	= description;
+		this.extension		= extension;
+		this.macType		= macType;
 	}
 }
+#end

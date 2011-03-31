@@ -32,6 +32,7 @@ package primevc.avm2.net;
  import primevc.core.events.LoaderEvents;
  import primevc.gui.traits.ICommunicator;
  import primevc.types.URI;
+  using Std;
 
 
 private typedef FlashLoader = flash.net.URLLoader;
@@ -49,7 +50,7 @@ class URLLoader implements ICommunicator
 	public var bytesLoaded	(getBytesLoaded, never)			: UInt;
 	public var bytesTotal	(getBytesTotal, never)			: UInt;
 	public var isLoaded		(getIsLoaded, never)			: Bool;
-	public var data			(getData, never)				: Dynamic;
+	public var data			(getData, setData)				: Dynamic;
 	public var dataFormat	(getDataFormat, setDataFormat)	: URLLoaderDataFormat;
 	
 	private var loader		: FlashLoader;
@@ -72,12 +73,15 @@ class URLLoader implements ICommunicator
 		events.dispose();
 		events	= null;
 		loader	= null;
+		data	= null;
 	}
 	
 	public function binaryPOST (uri:URI, bytes:haxe.io.Bytes, mimetype:String = "application/octet-stream")
 	{
 		var request		= uri.toRequest();
 		request.requestHeaders.push(new flash.net.URLRequestHeader("Content-type", mimetype));
+		request.requestHeaders.push(new flash.net.URLRequestHeader("Content-Length", bytes.length.string()));
+		request.requestHeaders.push(new flash.net.URLRequestHeader("Cache-Control", "no-cache"));
 		request.method = flash.net.URLRequestMethod.POST;
 		request.data   = bytes.getData();
 		
@@ -97,9 +101,10 @@ class URLLoader implements ICommunicator
 	
 	private inline function getBytesLoaded ()		{ return loader.bytesLoaded; }
 	private inline function getBytesTotal ()		{ return loader.bytesTotal; }
-	private inline function getData ()				{ return loader.data; }
+	private inline function getData ()				{ return data == null ? loader.data : data; }
 	private inline function getDataFormat ()		{ return loader.dataFormat; }
 	private inline function setDataFormat (v)		{ return loader.dataFormat  = v; }
+	private inline function setData (v)				{ return data = v; }
 	
 	private inline function getIsLoaded () {
 		return bytesTotal > 0 && bytesLoaded >= bytesTotal;

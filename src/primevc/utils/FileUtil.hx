@@ -26,44 +26,16 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.net;
-
-
-
-/**
- * List of static arrays with file-types that can be used in FileReference.browse
- * 
- * @author Ruben Weijers
- * @creation-date Mar 29, 2011
- */
-class FileTypes
-{
-	public static inline var image	= [ "png", "gif", "jpeg", "jpg", "svg" ];
-	public static inline var video	= [ "mpeg", "mp4", "avi", "flv" ];
-	public static inline var flash	= [ "swf" ];
-	public static inline var sound	= [ "mp3", "mp2", "wav" ];
-}
+package primevc.utils;
+ import primevc.core.net.FileType;
+ import primevc.core.net.MimeType;
 
 
 /**
  * @author Ruben Weijers
  * @creation-date Mar 29, 2011
  */
-class MimeType
-{
-	public static inline var flash	= "application/x-shockwave-flash";
-	public static inline var jpeg	= "image/jpeg";
-	public static inline var gif	= "image/gif";
-	public static inline var png	= "image/png";
-}
-
-
-
-/**
- * @author Ruben Weijers
- * @creation-date Mar 29, 2011
- */
-class FileTypesUtil
+class FileUtil
 {
 	public static inline function toFileType (mimetype:String) : FileType
 	{

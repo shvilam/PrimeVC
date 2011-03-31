@@ -98,10 +98,20 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 		enableDelay = childClick.enable.delay(200);
 	}
 	
+	
 	private function disableChildClick()
 	{
-		if (enableDelay != null) enableDelay.stop();
+		removeEnableTimer();
 		childClick.disable();
+	}
+	
+	
+	private inline function removeEnableTimer ()
+	{
+		if (enableDelay != null) {
+			enableDelay.stop();
+			enableDelay = null;
+		}
 	}
 	
 	/*override private function createChildren ()
@@ -124,6 +134,7 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	
 	override public function dispose ()
 	{
+		removeEnableTimer();
 		childClick.dispose();
 		childClick = null;
 		super.dispose();

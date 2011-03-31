@@ -20,45 +20,28 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.events;
- import primevc.core.dispatcher.Signal0;
- import primevc.core.dispatcher.Signals; 
-
-
-typedef DisplayEvents = 
-	#if		flash9	primevc.avm2.events.DisplayEvents;
-	#elseif	flash8	primevc.avm1.events.DisplayEvents;
-	#elseif	js		primevc.js  .events.DisplayEvents;
-	#else	DisplaySignals;	#end
+package primevc.avm2.events;
+ import flash.events.IEventDispatcher;
+ import flash.events.Event;
+ import primevc.gui.events.SelectEvents;
 
 
 /**
- * Cross-platform displayobject events
- * 
- * @creation-date	Jun 14, 2010
- * @author			Ruben Weijers
+ * AVM2 implementation for Event.SELECT and EVENT.CANCEL
+ * @author Ruben Weijers
+ * @creation-date Mar 30, 2011
  */
-class DisplaySignals extends Signals
+class SelectEvents extends SelectSignals
 {
-	var addedToStage		(default,null) : Signal0;
-	var removedFromStage	(default,null) : Signal0;
-	var enterFrame			(default,null) : Signal0;
-	var render				(default,null) : Signal0;
-	
-	
-	override public function dispose ()
+	public function new (target:IEventDispatcher)
 	{
-		addedToStage.dispose();
-		removedFromStage.dispose();
-		enterFrame.dispose();
-		render.dispose();
-		
-		addedToStage = removedFromStage = enterFrame = render = null;
+		this.select = new FlashSignal0(target, Event.SELECT);
+		this.cancel = new FlashSignal0(target, Event.CANCEL);
 	}
 }

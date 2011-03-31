@@ -20,45 +20,21 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.events;
- import primevc.core.dispatcher.Signal0;
- import primevc.core.dispatcher.Signals; 
-
-
-typedef DisplayEvents = 
-	#if		flash9	primevc.avm2.events.DisplayEvents;
-	#elseif	flash8	primevc.avm1.events.DisplayEvents;
-	#elseif	js		primevc.js  .events.DisplayEvents;
-	#else	DisplaySignals;	#end
+package primevc.core.net;
 
 
 /**
- * Cross-platform displayobject events
- * 
- * @creation-date	Jun 14, 2010
- * @author			Ruben Weijers
+ * @author	Ruben Weijers
+ * @since	Mar 29, 2011
  */
-class DisplaySignals extends Signals
-{
-	var addedToStage		(default,null) : Signal0;
-	var removedFromStage	(default,null) : Signal0;
-	var enterFrame			(default,null) : Signal0;
-	var render				(default,null) : Signal0;
-	
-	
-	override public function dispose ()
-	{
-		addedToStage.dispose();
-		removedFromStage.dispose();
-		enterFrame.dispose();
-		render.dispose();
-		
-		addedToStage = removedFromStage = enterFrame = render = null;
-	}
-}
+typedef FileReferenceList = 
+	#if		flash9	primevc.avm2.net.FileReferenceList;
+	#elseif	flash8	primevc.avm1.net.FileReferenceList;
+	#elseif	js		primevc.js  .net.FileReferenceList;
+	#else			error; #end

@@ -40,7 +40,7 @@ package primevc.avm2.display;
  import primevc.core.net.FileType;
  import primevc.gui.traits.ICommunicator;
  import primevc.types.URI;
-  using primevc.core.net.FileTypes;
+  using primevc.utils.FileUtil;
 
 
 typedef FlashLoader = flash.display.Loader;
