@@ -53,6 +53,9 @@ class FastArrayUtil
 		return untyped __new__(Array, size);
 #elseif neko
 		return untyped Array.new1(neko.NativeArray.alloc(size), size);
+#elseif js
+		var size = size;
+		return untyped __js__("new Array(size)");
 #end
 	}
 	
@@ -192,7 +195,7 @@ class FastArrayUtil
 	
 	public static inline function clone<T> ( arr:FastArray<T> ) : FastArray<T>
 	{
-		return #if neko arr.copy(); #else arr.concat(); #end
+		return #if flash10 arr.concat(); #else arr.copy(); #end
 	}
 	
 	public static inline function asArrayOf<A,B> ( arr:FastArray<A>, type:Class<B> ) : FastArray<B>
