@@ -221,7 +221,7 @@ class FastArrayUtil
 	 * Duplicate will create a new fast-array where the children of the given
 	 * fast-array are also duplicated if possible
 	 */
-	public static inline function duplicate<T> ( arr:FastArray<T> ) : FastArray<T>
+	public static function duplicate<T> ( arr:FastArray<T> ) : FastArray<T>
 	{
 		var n:FastArray<T> = FastArrayUtil.create();
 		var l = arr.length;
