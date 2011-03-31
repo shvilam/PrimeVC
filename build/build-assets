@@ -3,11 +3,85 @@
 BUILDSCRIPTDIR="`dirname "$0"`";
 PRIMEVC_ROOT="$BUILDSCRIPTDIR/.."
 
+RELEASE_INPUT_FILE="Assets.as"
+DEBUG_INPUT_FILE="DebugAssets.as"
+RELEASE_OUTPUT_FILE="assets.swf"
+DEBUG_OUTPUT_FILE="debug-assets.swf"
+
+ASSETS_FOLDER="$PRIMEVC_ROOT/assets"
+RELEASE_LIBS=""
+DEBUG_LIBS=""
+#GENERATED_FOLDER="$PRIMEVC_ROOT/generated-src"
+
+#echo $*
+#parse arguments
+while [ "${1+isset}" ]; do
+	case "$1" in
+		
+		--assets-folder)
+			ASSETS_FOLDER="$2"
+			shift 2
+			;;
+		
+		--release-input)
+			RELEASE_INPUT_FILE="$2"
+			shift 2
+			;;
+		
+		--release-output)
+			RELEASE_OUTPUT_FILE="$2"
+			shift 2
+			;;
+		
+		--debug-input)
+			DEBUG_INPUT_FILE="$2"
+			shift 2
+			;;
+			
+		--debug-output)
+			DEBUG_OUTPUT_FILE="$2"
+			shift 2
+			;;
+		
+		--debug-lib)
+			DEBUG_LIBS="${DEBUG_LIBS} '$2'"
+			shift 2
+			;;
+		
+		--release-lib)
+		#	RELEASE_LIBS="${RELEASE_LIBS} \"$2\""
+		#	RELEASE_LIBS="${RELEASE_LIBS} '$2'"
+			RELEASE_LIBS="${RELEASE_LIBS} '$2'"
+			shift 2
+			;;
+		
+		*)
+		#	echo "Error: unkown option: $1" >&2
+		#	exit 1
+			shift;;
+	esac
+done
+
+
+
+RELEASE_INPUT_FILE="$ASSETS_FOLDER/$RELEASE_INPUT_FILE"
+DEBUG_INPUT_FILE="$ASSETS_FOLDER/$DEBUG_INPUT_FILE"
+RELEASE_OUTPUT_FILE="$ASSETS_FOLDER/$RELEASE_OUTPUT_FILE"
+DEBUG_OUTPUT_FILE="$ASSETS_FOLDER/$DEBUG_OUTPUT_FILE"
+
+echo -e "\n================ BUILDING ASSETS ================"
+echo -e "\tRelease input: $RELEASE_INPUT_FILE"
+echo -e "\tRelease output: $RELEASE_OUTPUT_FILE"
+echo -e "\tDebug input: $DEBUG_INPUT_FILE"
+echo -e "\tDebug output: $DEBUG_OUTPUT_FILE"
+echo -e "\tRelease libraries: $RELEASE_LIBS"
+echo -e "\tDebug libraries: $DEBUG_LIBS"
+
 if [[ ! -f "$PRIMEVC_ROOT/build/environment.sh" ]]; then
 	echo -e "\tThere's no environment file: \"`cd $PRIMEVC_ROOT/build; pwd`/environment.sh\" configured. Copy 'environment.sh.template' to 'environment.sh' and edit it."
 	exit 1
 else
-	if [[ ! -f "$PRIMEVC_ROOT/assets/debug-assets.swf" ]]  ||  test "$PRIMEVC_ROOT/assets/DebugAssets.as" -nt "$PRIMEVC_ROOT/assets/debug-assets.swf"  ||  test "$PRIMEVC_ROOT/assets/Assets.as" -nt "$PRIMEVC_ROOT/assets/assets.swf"; then
+	if [[ ! -f "$DEBUG_OUTPUT_FILE" ]]  ||  test "$DEBUG_INPUT_FILE" -nt "$DEBUG_OUTPUT_FILE"  ||  test "$RELEASE_INPUT_FILE" -nt "$RELEASE_OUTPUT_FILE"; then
 		source "$PRIMEVC_ROOT/build/environment.sh"
 		if [[ ! -f "$MXMLC" ]]; then
 			echo -e "\t[error]  Not found: $MXMLC"
@@ -16,33 +90,48 @@ else
 		
 		echo -e "\t[mxmlc]  Compiling asset SWFs"
 		
-		if [[ -d "$PRIMEVC_ROOT/generated-src" ]]; then
-			rm -R "$PRIMEVC_ROOT/generated-src"
+		if [[ -d "$GENERATED_FOLDER" ]]; then
+			rm -R "$GENERATED_FOLDER"
 		fi;
-		
-		"$MXMLC" \
-			-compiler.source-path "$PRIMEVC_ROOT/src" "$PRIMEVC_ROOT/libs/macmousewheel" "$PRIMEVC_ROOT/libs/as3-flexless" "$PRIMEVC_ROOT/libs/swfaddress" \
-			-compiler.as3 \
+		echo stap 1
+		echo \
+			-source-path "'$PRIMEVC_ROOT/src'" $RELEASE_LIBS \
 			-debug=false \
+			-metadata.publisher="PrimeVC" \
 			-verbose-stacktraces=false \
-			-compiler.optimize \
-			-output "$PRIMEVC_ROOT/assets/assets.swf" \
-			"$PRIMEVC_ROOT/assets/Assets.as" &&
-
-		"$MXMLC" \
-			-compiler.source-path "$PRIMEVC_ROOT/src" "$PRIMEVC_ROOT/libs/macmousewheel" "$PRIMEVC_ROOT/libs/monsterdebugger" "$PRIMEVC_ROOT/libs/as3-flexless" "$PRIMEVC_ROOT/libs/alcon" "$PRIMEVC_ROOT/libs/swfaddress" \
-			-compiler.as3 \
-			-output "$PRIMEVC_ROOT/assets/debug-assets.swf" \
-			"$PRIMEVC_ROOT/assets/DebugAssets.as" &&
+			-optimize \
+			-strict \
+			-target-player="10.0.0" \
+			-output "'$RELEASE_OUTPUT_FILE'" \
+			"'$RELEASE_INPUT_FILE'" \
+			| xargs -t "$MXMLC" \
+				|| exit 1
+		echo stap 2
+		echo \
+		 	-source-path "'$PRIMEVC_ROOT/src'" ${RELEASE_LIBS} ${DEBUG_LIBS} \
+			-debug=false \
+			-metadata.publisher="PrimeVC" \
+			-verbose-stacktraces=false \
+			-optimize \
+			-strict \
+			-target-player="10.0.0" \
+		 	-output "'$DEBUG_OUTPUT_FILE'" \
+		 	"'$DEBUG_INPUT_FILE'" \
+			| xargs -t "$MXMLC" \
+				|| exit 1
 		
-		echo -e "\t[haXe]   Generating extern classes" &&
+	#	echo -e "\t[haXe]   Generating extern classes" &&
 		
-		haxe --gen-hx-classes "$PRIMEVC_ROOT/assets/debug-assets.swf" &&
-		mv hxclasses "$PRIMEVC_ROOT/generated-src"
-		rm "$PRIMEVC_ROOT/generated-src/Assets.hx"
-		rm "$PRIMEVC_ROOT/generated-src/DebugAssets.hx"
+	#	haxe --gen-hx-classes "$DEBUG_OUTPUT_FILE" &&
+	#	mv hxclasses "$GENERATED_FOLDER"
+	#	rm "$GENERATED_FOLDER/$RELEASE_INPUT_FILE_NAME.hx"
+	#	rm "$GENERATED_FOLDER/$DEBUG_INPUT_FILE_NAME.hx"
 		
 		# Cleanup
 	#	rm -R "$PRIMEVC_ROOT/hxclasses"
+	else
+			echo -e "\t\tall libraries are up-to-date"
 	fi;
 fi;
+echo -e "\t\tfinished creating assets"
+exit 0

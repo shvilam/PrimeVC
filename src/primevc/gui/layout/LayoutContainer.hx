@@ -113,7 +113,11 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (!sender.is(LayoutClient))
 			return super.invalidateCall( childChanges, sender );
 		
-		if (algorithm == null || algorithm.isInvalid(childChanges))
+		var isInvalid = false;
+		if (isInvalid = childChanges.has(Flags.INCLUDE))
+			invalidate( Flags.LIST );
+		
+		if (isInvalid || algorithm == null || algorithm.isInvalid(childChanges))
 		{
 			var child = sender.as(LayoutClient);
 			invalidate( Flags.CHILDREN_INVALIDATED );
@@ -129,7 +133,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	private inline function checkIfChildGetsPercentageWidth (child:LayoutClient, widthToUse:Int) : Bool
 	{
 		return (
-						changes.has( Flags.WIDTH ) || child.changes.has( Flags.PERCENT_WIDTH )
+					changes.has( Flags.WIDTH ) || child.changes.has( Flags.PERCENT_WIDTH ) //|| child.width.notSet()
 					||	( child.is(IAdvancedLayoutClient) && child.as(IAdvancedLayoutClient).explicitWidth.notSet() )
 				)
 				&& child.percentWidth.isSet()
@@ -140,7 +144,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	private inline function checkIfChildGetsPercentageHeight (child:LayoutClient, heightToUse:Int) : Bool
 	{
 		return (
-						changes.has( Flags.HEIGHT ) || child.changes.has( Flags.PERCENT_HEIGHT )
+						changes.has( Flags.HEIGHT ) || child.changes.has( Flags.PERCENT_HEIGHT ) //|| child.height.notSet()
 						||	( child.is(IAdvancedLayoutClient) && child.as(IAdvancedLayoutClient).explicitHeight.notSet() )
 				)
 				&& child.percentHeight.isSet()
@@ -161,8 +165,11 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (algorithm != null)
 			algorithm.prepareValidate();
 		
-		for (i in 0...children.length)		// <<-- [FIXME] the length of the children can change during the loop. Maybe better to use while loop
+		var childrenLength = children.length;
+		for (i in 0...childrenLength)
 		{
+			Assert.equal(childrenLength, children.length); // Can the length of the children change during the loop?
+			
 			var child = children.getItemAt(i);
 			if (!child.includeInLayout)
 				continue;
@@ -179,6 +186,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			//measure children with explicitWidth and no percentage size
 			else if (checkIfChildGetsPercentageWidth(child, width))
 				child.outerBounds.width = (width * child.percentWidth).roundFloat();
+			
 			
 			//measure children
 			if (child.percentWidth != Flags.FILL)
@@ -283,8 +291,10 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (changes.has( Flags.SIZE_PROPERTIES ))
 			validateScrollPosition( scrollPos );
 		
-		if (algorithm != null)
+		if (algorithm != null) {
+			algorithm.prepareValidate();
 			algorithm.apply();
+		}
 		
 		var i = 0;
 		while (i < children.length)		// use while loop instead of for loop since children can be removed during validation (== errors with a for loop)

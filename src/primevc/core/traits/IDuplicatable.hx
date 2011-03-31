@@ -20,40 +20,27 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
- import primevc.core.geom.Rectangle;
- import primevc.gui.behaviours.drag.DragInfo;
- import primevc.gui.display.ISprite;
- import primevc.gui.events.DragEvents;
+package primevc.core.traits;
 
 
 /**
- * Interface describing objects that can be dragged around.
+ * Duplicatable objects should create a new instance of their class with exact
+ * the same properties as the current instance, except for properties that 
+ * should be uniqiue (like id's).
+ * 
+ * The "clone" method of IClonable will also copy the unqiue properties of the
+ * instance.
  * 
  * @author Ruben Weijers
- * @creation-date Jul 13, 2010
+ * @creation-date Mar 02, 2011
  */
-interface IDraggable implements ISprite
+interface IDuplicatable <ClassType>
 {
-#if flash9
-	public var dropTarget		(default, null)		: flash.display.DisplayObject;
-#else
-	public var dropTarget		(default, null)		: IDisplayable;
-#end
-
-#if !neko
-	public var dragEvents		(default, null)		: DragEvents;
-	public var isDragging		: Bool;
-	
-	public function createDragInfo ()				: DragInfo;
-	
-	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) 		: Void;
-	public function stopDrag()													: Void;
-#end
+	public function duplicate () : ClassType;
 }

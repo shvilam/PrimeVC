@@ -50,7 +50,7 @@ class TextFormat #if flash9 extends flash.text.TextFormat #end
 		
 		props.push( font + size + "px" );
 		props.push( Std.string( align ) );
-		props.push( color.uintToString() );
+		props.push( color.rgbToString() );
 		
 		if (underline)	props.push( "underline" );
 		if (bold)		props.push( "bold" );

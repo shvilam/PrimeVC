@@ -20,50 +20,40 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.components;
- import primevc.gui.behaviours.drag.DragInfo;
- import primevc.gui.events.DragEvents;
- import primevc.gui.traits.IDraggable;
-
+package primevc.gui.graphics;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
+ import primevc.core.geom.IRectangle;
+ import primevc.gui.traits.IGraphicsOwner;
 
 
 /**
- * Draggable button component
- * 
  * @author Ruben Weijers
- * @creation-date Nov 05, 2010
+ * @creation-date Mar 14, 2011
  */
-class DragButton extends Button, implements IDraggable 
+class EmptyGraphicProperty extends GraphicElement, implements IGraphicProperty
 {
-	public var dragEvents (default, null)	: DragEvents;
-	public var isDragging					: Bool;
-	
-	
-	public function new (id = null, data = null, icon = null)
-	{	
-		dragEvents = new DragEvents();
-		super(id, data, icon);
-	}
-	
-	
-	override public function dispose ()
+	public inline function begin (target:IGraphicsOwner, bounds:IRectangle)
 	{
-		if (dragEvents != null) {
-			dragEvents.dispose();
-			dragEvents = null;
-		}
-		super.dispose();
+		Assert.abstract('this class is supposed to be ignored');
 	}
 	
 	
-	public function createDragInfo () : DragInfo
+	public inline function end (target:IGraphicsOwner, bounds:IRectangle)
 	{
-		return new DragInfo( this );
+		Assert.abstract('this class is supposed to be ignored');
 	}
+	
+	
+#if neko
+	override public function toCSS (prefix:String = "")		{ return "none"; }
+	override public function toCode (code:ICodeGenerator)	{ code.construct( this, [] ); }
+#end
 }

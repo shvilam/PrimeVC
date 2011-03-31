@@ -28,11 +28,10 @@
  */
 package primevc.gui.components;
  import primevc.core.dispatcher.Wire;
- import primevc.core.Bindable;
+ import primevc.core.RevertableBindable;
  import primevc.gui.core.UIDataComponent;
  import primevc.gui.events.MouseEvents;
- import primevc.gui.graphics.fills.BitmapFill;
- import primevc.types.Bitmap;
+ import primevc.types.Asset;
  import primevc.types.RGBA;
   using primevc.utils.Bind;
   using primevc.utils.Color;
@@ -40,22 +39,31 @@ package primevc.gui.components;
   using primevc.utils.TypeUtil;
 
 
+//private typedef DataType = RevertableBindable<RGBA>;
+
+
 /**
  * @author			Ruben Weijers
  * @creation-date	Feb 14, 2011
  */
-class ColorPicker extends UIDataComponent<Bindable<RGBA>>
+class ColorPicker extends UIDataComponent<RevertableBindable<RGBA>>
 {
 	private var beginBinding	: Wire<Dynamic>;
 	private var updateBinding	: Wire<Dynamic>;
 	private var stopBinding		: Wire<Dynamic>;
 	
-	private var spectrum		: Bitmap;
+	private var spectrum		: Asset;
 	
 	
-	public function new (id:String = null)
+	public function new (id:String = null, data:RevertableBindable<RGBA> = null)
 	{
-		super(id, new Bindable<RGBA>(0x00));
+		if (data == null) {
+			data = new RevertableBindable<RGBA>(0x00);
+			data.dispatchAfterCommit();
+			data.updateBeforeCommit();
+			data.beginEdit();		//force the data to be always editable..
+		}
+		super(id, data);
 	}
 	
 	
@@ -65,6 +73,7 @@ class ColorPicker extends UIDataComponent<Bindable<RGBA>>
 			beginBinding.dispose();
 			updateBinding.dispose();
 			stopBinding.dispose();
+			spectrum.dispose();
 			
 			spectrum		= null;
 			beginBinding	= updateBinding = stopBinding = null;
@@ -73,15 +82,14 @@ class ColorPicker extends UIDataComponent<Bindable<RGBA>>
 	}
 	
 	
-	override private function init ()
+/*	override private function init ()
 	{
 		super.init();
 #if debug
 		Assert.notNull( graphicData.fill, "Make sure you set a bitmapfill with a colorspectrum as background" );
 		Assert.that( graphicData.fill.is(BitmapFill), "Make sure you set a bitmapfill with a colorspectrum as background" );
 #end
-		spectrum = graphicData.fill.as(BitmapFill).bitmap;
-	}
+	}*/
 	
 	
 	override private function createBehaviours ()
@@ -100,7 +108,23 @@ class ColorPicker extends UIDataComponent<Bindable<RGBA>>
 	private inline function getColorAt( x:Float, y:Float ) : RGBA 
 	{
 #if flash9
-		return spectrum.data.getPixel( x.roundFloat(), y.roundFloat() );
+		if (spectrum == null) {
+		//	trace(layout.width+", "+layout.height);
+			//not sure if this is the best way but using the original bitmapdata from the fill doesnt give correct results since it's unscaled.
+		//	spectrum = Asset.createEmpty( layout.width, layout.height, false );
+		//	spectrum.draw(this);
+			spectrum = Asset.fromDisplayObject(this);
+			spectrum.getBitmapData(null, false);
+		}
+	//	var l = layout.innerBounds;
+	//	var b = new BitmapDataType( l.width, l.height, false );
+	//	b.draw(this);
+	//	addChild( new flash.display.Bitmap(b));
+	//	trace(l.width+", "+l.height+"; "+b.getPixel( x.roundFloat(), y.roundFloat() ).uintToString() );
+	//	return b.getPixel( x.roundFloat(), y.roundFloat() ).rgbToRgba();
+	//	trace( spectrum.data.)
+		
+		return spectrum.getBitmapData().getPixel( x.roundFloat(), y.roundFloat() ).rgbToRgba();
 #end
 	}
 	
@@ -124,7 +148,7 @@ class ColorPicker extends UIDataComponent<Bindable<RGBA>>
 	private function updateColor (mouse:MouseState) : Void
 	{
 		//get color underneath mouse
-		data.value = getColorAt( mouse.local.x, mouse.local.y );
+		data.value = data.value.setRgb( getColorAt( mouse.local.x, mouse.local.y ) );
 	}
 	
 	
@@ -133,5 +157,8 @@ class ColorPicker extends UIDataComponent<Bindable<RGBA>>
 		beginBinding.enable();
 		updateBinding.disable();
 		stopBinding.disable();
+		
+		data.commitEdit();
+		data.beginEdit();
 	}
 }

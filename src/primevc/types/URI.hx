@@ -89,10 +89,17 @@ class URI
 		Assert.that(u.host == "decube.net", u.host);
 		Assert.that(u.port == 80, Std.string(u.port));
 		Assert.that(u.path == "/a", u.path);
+		
+		u.parse("asset://aap");
+		
+		Assert.equal(u.string, "asset://aap");
+		Assert.that(u.hasScheme( URIScheme.Scheme('asset') ));
+	//	Assert.that(u.scheme == URIScheme.Scheme('asset'), Std.string(u.scheme));
+		Assert.equal(u.host, "aap");
 	}
 #end
 	
-	public var string (toString, null) : String;
+	public var string (getString, null) : String;
 	
 	public var scheme	(default, setScheme)	: URIScheme;
 	public var userinfo	(default, setUserinfo)	: String;
@@ -111,8 +118,21 @@ class URI
 	private inline function setFragment(v)	{ string = null; return fragment = v; }
 
 	/** Returns true if this URI has a scheme and thus is a URL **/
-	public function isURL() : Bool {
-		return scheme.notNull();
+	public inline function isURL() : Bool			{ return scheme.notNull(); }
+	/** Returns true if the host of URI is the URI, so when the port, path, query and fragment are empty **/
+	public inline function hostIsURI () : Bool		{ return port == -1 && path == null && query == null && fragment == null; }
+	
+	public function hasScheme (searchedScheme:URIScheme) : Bool {
+		return scheme != null && switch (searchedScheme) {
+			case URIScheme.Scheme(schStr1):
+				switch (scheme) {
+					case URIScheme.Scheme(schStr2): schStr1 == schStr2;
+					default:						false;
+				}
+			
+			default:
+				searchedScheme == scheme;
+		}
 	}
 	
 	/** Returns the string after the last dot in the path.
@@ -150,7 +170,19 @@ class URI
 			parse(str);
 	}
 	
-	public function toString()
+	
+	/**
+	 * toString will call getString to build the current string or return the
+	 * cached version. This method can be extended by super-classes to add
+	 * an extra prefix so no inline!
+	 */
+	public function toString ()
+	{
+		return string;
+	}
+	
+	
+	private function getString()
 	{
 		if (this.string.notNull()) return this.string;
 		
@@ -300,6 +332,9 @@ class URI
 		}
 		else
 			path = str.substr(pos);
+		
+		if (path == "")
+			path = null;
 		
 		return this;
 	}

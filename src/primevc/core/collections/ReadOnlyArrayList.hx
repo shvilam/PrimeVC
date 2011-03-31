@@ -44,6 +44,7 @@ package primevc.core.collections;
  */
 class ReadOnlyArrayList < DataType > implements IReadOnlyList < DataType >, implements haxe.rtti.Generic
 {
+	public var beforeChange	(default, null)		: ListChangeSignal < DataType >;
 	public var change		(default, null)		: ListChangeSignal < DataType >;
 	public var list			(default, null)		: FastArray < DataType >;
 	public var length		(getLength, never)	: Int;
@@ -54,7 +55,8 @@ class ReadOnlyArrayList < DataType > implements IReadOnlyList < DataType >, impl
 	
 	public function new( wrapAroundList:FastArray<DataType> = null )
 	{
-		change	= new ListChangeSignal();
+		change = new ListChangeSignal();
+		beforeChange = new ListChangeSignal();
 		
 		if (wrapAroundList == null)
 			list = FastArrayUtil.create();
@@ -65,9 +67,10 @@ class ReadOnlyArrayList < DataType > implements IReadOnlyList < DataType >, impl
 	
 	public function dispose ()
 	{
+		beforeChange.dispose();
 		change.dispose();
 		list	= null;
-		change	= null;
+		change	= beforeChange = null;
 	}
 	
 	
@@ -77,11 +80,19 @@ class ReadOnlyArrayList < DataType > implements IReadOnlyList < DataType >, impl
 	}
 	
 	
-	private inline function getLength ()						{ return list.length; }
-	public inline function iterator () : Iterator <DataType>	{ return cast forwardIterator(); }
+	public function duplicate () : IReadOnlyList < DataType >
+	{
+		return new ReadOnlyArrayList<DataType>( list.duplicate() );
+	}
+	
+	
+	private inline function getLength ()								{ return list.length; }
+	public inline function iterator () : Iterator <DataType>			{ return cast forwardIterator(); }
 	public inline function forwardIterator () : IIterator <DataType>	{ return cast new FastArrayForwardIterator<DataType>(list); }
 	public inline function reversedIterator () : IIterator <DataType>	{ return cast new FastArrayReversedIterator<DataType>(list); }
-	public inline function asIterableOf<B> ( type:Class<B> ) : Iterator<B> {
+	
+	public inline function asIterableOf<B> ( type:Class<B> ) : Iterator<B>
+	{
 		#if debug for (i in 0 ... list.length) Assert.isType(list[i], type); #end
 		return cast forwardIterator();
 	}

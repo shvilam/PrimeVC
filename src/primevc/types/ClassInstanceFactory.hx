@@ -36,7 +36,7 @@ package primevc.types;
  import primevc.tools.generator.ICSSFormattable;
 #end
 #if (neko || debug)
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
 #end
   using primevc.utils.TypeUtil;
   using Std;
@@ -59,7 +59,7 @@ class ClassInstanceFactory < InstanceType >
 	public static inline var EMPTY_ARRAY = [];
 	
 #if (debug || neko)
-	public var uuid (default, null)	: String;
+	public var _oid (default, null)	: Int;
 #end
 	public var classRef				: Class < InstanceType >;
 	public var params				: Array < Dynamic >;
@@ -68,7 +68,7 @@ class ClassInstanceFactory < InstanceType >
 	public function new ( classRef:Class<InstanceType> = null, params:Array< Dynamic > = null )
 	{
 #if (debug || neko)
-		uuid = StringUtil.createUUID();
+		_oid = ID.getNext();
 		if (params == null)
 			params = [];
 #end
@@ -80,7 +80,7 @@ class ClassInstanceFactory < InstanceType >
 	public function dispose ()
 	{
 #if (debug || neko)
-		uuid		= null;
+		_oid		= 0;
 #end
 		classRef	= null;
 		params		= null;

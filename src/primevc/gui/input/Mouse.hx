@@ -39,13 +39,6 @@ package primevc.gui.input;
  */
 class Mouse //implements IInputDevice 
 {
-	/**
-	 * Constant value indicating the number of milliseconds to wait before a
-	 * mouse-down event will be labeled as a drag-start event.
-	 */
-	public static inline var DRAG_DELAY	: Int = 200;
-	
-	
 	public var x		(getX, never)	: Float;
 	public var y		(getY, never)	: Float;
 	

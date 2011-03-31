@@ -31,6 +31,7 @@ package primevc.gui.behaviours.components;
  import primevc.core.Bindable;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.UIComponent;
+ import primevc.gui.events.MouseEvents;
   using primevc.utils.Bind;
 
 
@@ -52,16 +53,19 @@ class DirectToolTipBehaviour extends BehaviourBase<UIComponent>
 	public function new (target:UIComponent, label:Bindable<String>)
 	{
 		super(target);
+#if debug
+		Assert.notNull(target, "Target can't be null for tooltipbehaviour");
 		Assert.notNull(label, "Label can't be null for tooltip of "+target);
+#end
 		this.label = label;
 	}
 	
 	
 	override private function init ()
 	{
-		Assert.notNull( target.window, "Target "+target+" must be on the stage for this behaviour to work." );
-		showToolTip.on( target.userEvents.mouse.rollOver, this );
-		hideToolTip.on( target.userEvents.mouse.rollOut, this );
+#if debug	Assert.notNull( target.window, "Target "+target+" must be on the stage for this behaviour to work." ); #end
+			showToolTip.on( target.userEvents.mouse.rollOver, this );
+			hideToolTip.on( target.userEvents.mouse.rollOut, this );
 	}
 	
 	
@@ -76,6 +80,6 @@ class DirectToolTipBehaviour extends BehaviourBase<UIComponent>
 	}
 	
 	
-	private function showToolTip ()		{ target.system.toolTip.show( target, label ); }
-	private function hideToolTip ()		{ if (target.system != null)	target.system.toolTip.hide( target ); }		//btn will fire a roll-out event, even when it's already removed from the stage...
+	private function showToolTip (mouse:MouseState)		{ if (!mouse.leftButton())		target.system.toolTip.show( target, label ); }
+	private function hideToolTip ()						{ if (target.system != null)	target.system.toolTip.hide( target ); }		//btn will fire a roll-out event, even when it's already removed from the stage...
 }

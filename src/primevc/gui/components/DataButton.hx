@@ -27,8 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
+ import primevc.core.dispatcher.Wire;
  import primevc.core.Bindable;
- import primevc.types.Bitmap;
+ import primevc.types.Asset;
   using primevc.utils.Bind;
 
 
@@ -56,10 +57,13 @@ class DataButton <DataType> extends Button, implements IItemRenderer <DataType>
 	public var getLabelForVO								: DataType -> String;
 	public var defaultLabel		(default, setDefaultLabel)	: String;
 	
+	private var updateLabelBinding							: Wire<Dynamic>;
 	
-	public function new (id:String = null, defaultLabel:String = null, icon:Bitmap = null, vo:DataType = null)
+	
+	public function new (id:String = null, defaultLabel:String = null, icon:Asset = null, vo:DataType = null)
 	{
 		super(id, defaultLabel, icon);
+		Assert.notNull(this.data);
 		this.defaultLabel	= defaultLabel;
 		this.vo				= new Bindable<DataType>(vo);
 	}
@@ -67,6 +71,11 @@ class DataButton <DataType> extends Button, implements IItemRenderer <DataType>
 	
 	override public function dispose ()
 	{
+		if (updateLabelBinding != null) {
+			updateLabelBinding.dispose();
+			updateLabelBinding = null;
+		}
+		
 		vo.dispose();
 		vo = null;
 		super.dispose();
@@ -76,26 +85,27 @@ class DataButton <DataType> extends Button, implements IItemRenderer <DataType>
 	override private function init ()
 	{
 		super.init();
-		updateLabel.on( vo.change, this );
+		updateLabelBinding = updateLabel.on( vo.change, this );
 		updateLabel(vo.value, vo.value);
 	}
 	
 	
-	private function updateLabel (newVal:DataType, oldVal:DataType)
+	public function updateLabel (newVal:DataType, oldVal:DataType)
 	{
-		Assert.notNull( getLabelForVO );
-		
 		if (oldVal == null)		styleClasses.remove("empty");
 		if (newVal == null)		styleClasses.add("empty");
 		
 		//don't use data.value ==> if data is a RevertableBindable, updating the label won't cause any errors
-		data.set( newVal != null ? getLabelForVO( newVal ) : defaultLabel );
+		if (newVal != null)
+			data.set( getLabelForVO == null ? ""+newVal : getLabelForVO( newVal ) );
+		else
+			data.set( defaultLabel );
 		data.change.send( data.value, null );
-		trace( data.value );
+	//	trace( data.value );
 	}
 	
 	
-	private inline function setDefaultLabel (v:String) : String
+	private function setDefaultLabel (v:String) : String
 	{
 		if (v != defaultLabel)
 		{

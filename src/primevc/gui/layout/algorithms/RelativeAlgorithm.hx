@@ -127,14 +127,8 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 	
 	public inline function apply ()
 	{
-	//	if (group.name == "spreadEditorLayout")	//ScrollBar30
-	//		trace(group.outerBounds);
-		
 		if (!validatePrepared)
 			validate();
-		
-	//	if (!validatePrepared)
-	//		throw "poep! "+validatePreparedHor+", "+group.hasValidatedWidth+"; "+validatePreparedVer+", "+group.hasValidatedHeight+"; "+group+"; "+group.width+", "+group.height;
 		
 		var padding		= group.padding;
 		var groupBounds	= group.innerBounds;

@@ -15,6 +15,7 @@
 	<component id="ComboBox"			superClass="DataButton"			fullname="primevc.gui.components.ComboBox" />
 	<component id="ColorPicker"			superClass="UIDataContainer"	fullname="primevc.gui.components.ColorPicker" />
 	<component id="DataButton"			superClass="Button"				fullname="primevc.gui.components.DataButton" />
+	<component id="DebugBar"			superClass="UIContainer"		fullname="primevc.gui.components.DebugBar" />
 	<component id="DragButton"			superClass="Button"				fullname="primevc.gui.components.DragButton" />
 	<component id="Image"				superClass="UIGraphic"			fullname="primevc.gui.components.Image" />
 	<component id="InputField"			superClass="DataButton"			fullname="primevc.gui.components.InputField" />

@@ -43,6 +43,7 @@ package primevc.gui.components;
  import primevc.gui.traits.IInteractive;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
+  using haxe.Timer;
 
 
 //private typedef ItemRenderer <T:IValueObject>		= IUIDataElement < T >;
@@ -83,9 +84,25 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	{
 	//	content		= new UIContainer(id+"Content");
 		childClick	= new Signal1<MouseState>();
+		
+		childClick.disable();
+		scheduleEnable    .on( displayEvents.addedToStage, this );
+		disableChildClick .on( displayEvents.removedFromStage, this );
 	//	behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
 	}
 	
+	var enableDelay : haxe.Timer;
+	
+	private function scheduleEnable()
+	{
+		enableDelay = childClick.enable.delay(200);
+	}
+	
+	private function disableChildClick()
+	{
+		if (enableDelay != null) enableDelay.stop();
+		childClick.disable();
+	}
 	
 	/*override private function createChildren ()
 	{
@@ -156,7 +173,7 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 		children.add( child, newPos );
 		
 		if (child.is(IInteractive) && child.as(IInteractive).mouseEnabled)
-			childClick.send.on( child.as(IInteractive).userEvents.mouse.click, this );
+			childClick.send.on( child.as(IInteractive).userEvents.mouse.up, this );
 	}
 	
 	

@@ -29,6 +29,7 @@
 package primevc.utils;
  import primevc.types.Number;
  import primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
  
 
 /**
@@ -74,11 +75,12 @@ class IntUtil
 	public static inline function notEmpty (value:Int) : Bool	{ return value != Number.EMPTY; }
 	public static inline function isEmpty (value:Int) : Bool	{ return value == Number.EMPTY; }
 #else
-	public static inline function notSet (value:Int) : Bool	{ return value == Number.INT_NOT_SET || value == null; }
-	public static inline function isSet (value:Int) : Bool	{ return value != Number.INT_NOT_SET && value != null; }
+	public static inline function notSet (value:Int) : Bool		{ return value == Number.INT_NOT_SET || value == null; }
+	public static inline function isSet (value:Int) : Bool		{ return value != Number.INT_NOT_SET && value != null; }
 #end
 	
-	public static inline function unset () : Int			{ return Number.INT_NOT_SET; }
+	public static inline function unset () : Int				{ return Number.INT_NOT_SET; }
+	public static inline function getValue (v:Int) : Int		{ return v.isEmpty() ? Number.INT_NOT_SET : v; }
 	
 	public static inline function getBiggest (var1:Int, var2:Int) : Int		{ return IntMath.max(var1, var2); }
 	public static inline function getSmallest (var1:Int, var2:Int) : Int	{ return IntMath.min(var1, var2); }
@@ -129,6 +131,18 @@ class FloatUtil
 		value = Math.round(value) / Math.pow(10, precision);
 		return value;
 	}
+	
+	
+	public static inline function isEqualTo (value1:Float, value2:Float) : Bool
+	{
+		return value1 == value2 || (value1.notSet() && value2.notSet());
+	}
+
+
+	public static inline function notEqualTo (value1:Float, value2:Float) : Bool
+	{
+		return value1 != value2 && (value1.isSet() || value2.isSet());
+	}
 
 
 	public static inline function notSet (value:Float) : Bool	{ return !isSet(value); }
@@ -137,6 +151,8 @@ class FloatUtil
 	public static inline function isEmpty (value:Float) : Bool	{ return value == Number.EMPTY; }
 	public static inline function unset () : Float				{ return Number.FLOAT_NOT_SET; }
 	
+	
+	public static inline function getValue (v:Float) : Float	{ return v.isEmpty() ? Number.FLOAT_NOT_SET : v; }
 	
 	public static inline function getBiggest (var1:Float, var2:Float) : Float	{ return FloatMath.max(var1, var2); }
 	public static inline function getSmallest (var1:Float, var2:Float) : Float	{ return FloatMath.min(var1, var2); }

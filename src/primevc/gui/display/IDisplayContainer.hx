@@ -29,17 +29,17 @@
 package primevc.gui.display;
  import primevc.core.geom.Point;
  import primevc.gui.traits.IInteractive;
+ import primevc.gui.traits.IDisplayable;
 
 
 /**
  * @author Ruben Weijers
  * @creation-date Jul 13, 2010
  */
-interface IDisplayContainer implements IInteractive
+interface IDisplayContainer implements IInteractive, implements IDisplayable
 {
 #if !neko
 	var children	(default, null)			: DisplayList;
-	var window		(default, setWindow)	: Window;
 #end
 	
 #if flash9

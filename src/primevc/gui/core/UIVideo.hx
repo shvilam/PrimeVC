@@ -137,6 +137,7 @@ class UIVideo extends Video, implements IUIElement
 		//state.
 		state.current = state.disposed;
 		
+		removeValidation();
 		behaviours.dispose();
 		id.dispose();
 		state.dispose();
@@ -163,7 +164,7 @@ class UIVideo extends Video, implements IUIElement
 	
 	public inline function isDisposed ()	{ return state == null || state.is(state.disposed); }
 	public inline function isInitialized ()	{ return state != null && state.is(state.initialized); }
-	
+	public function isResizable ()			{ return true; }
 	
 
 	//
@@ -224,7 +225,6 @@ class UIVideo extends Video, implements IUIElement
 	private inline function getSystem () : ISystem		{ return window.as(ISystem); }
 	public inline function isOnStage () : Bool			{ return window != null; }
 	public inline function isQueued () : Bool			{ return nextValidatable != null || prevValidatable != null; }
-	private function removeValidation () : Void			{ if (isQueued()) system.invalidation.remove(this); }
 	
 	
 	public function invalidate (change:Int)
@@ -255,6 +255,21 @@ class UIVideo extends Video, implements IUIElement
 			changes = 0;
 		}
 	}
+	
+	
+	/**
+	 * method is called when the object is removed from the stage or disposed
+	 * and will remove the object from the validation queue.
+	 */
+	private function removeValidation () : Void
+	{
+		if (isQueued() &&isOnStage())
+			system.invalidation.remove(this);
+
+		if (!isDisposed() && changes > 0)
+			validate.onceOn( displayEvents.addedToStage, this );
+	}
+	
 	
 	
 	

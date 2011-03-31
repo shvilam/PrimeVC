@@ -47,7 +47,7 @@ package primevc.gui.graphics;
  import primevc.tools.generator.ICodeGenerator;
 #end
 #if (debug || neko)
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
 #end
 
 
@@ -61,13 +61,13 @@ package primevc.gui.graphics;
  */
 class GraphicProperties implements IGraphicElement
 {
-	public var uuid			(default, null)				: String;
+	public var _oid			(default, null)				: Int;
 	public var listeners	(default, null)				: FastList< IInvalidateListener >;
 	/**
 	 * Signal to notify other objects than IGraphicElement of changes within
 	 * the shape.
 	 */
-	public var changeEvent	(default, null)				: Signal1 < Int >;
+	public var changeEvent	(default, null)				: Signal1<Int>;
 
 	public var fill			(default, setFill)			: IGraphicProperty;
 	public var border		(default, setBorder)		: IBorder;
@@ -79,7 +79,7 @@ class GraphicProperties implements IGraphicElement
 	public function new (layout:IntRectangle = null, shape:IGraphicShape = null, fill:IGraphicProperty = null, border:IBorder = null, borderRadius:Corners = null)
 	{
 #if (debug || neko)
-		uuid = StringUtil.createUUID();
+		_oid = ID.getNext();
 #end
 		listeners			= new FastList< IInvalidateListener >();
 		this.shape			= shape; // == null ? new RegularRectangle() : shape;
@@ -104,7 +104,7 @@ class GraphicProperties implements IGraphicElement
 		fill		= null;
 		layout		= null;
 #if (debug || neko)
-		uuid		= null;
+		_oid		= 0;
 #end
 	}
 	
@@ -136,6 +136,7 @@ class GraphicProperties implements IGraphicElement
 					0;
 			default: 0;
 		}
+		
 		invalidate( change );
 	}
 	

@@ -30,6 +30,7 @@ package primevc.gui.components;
  import primevc.core.Bindable;
  import primevc.core.RevertableBindable;
  import primevc.core.dispatcher.Wire;
+ import primevc.gui.core.UITextField;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
@@ -69,6 +70,11 @@ class InputField <VOType> extends DataButton <VOType>
 	 */
 	public var restrict				(default, setRestrict)	: String;
 	
+	/**
+	 * Reference to the textfield.
+	 * Property is set by the InputFieldSkin
+	 */
+	public var field				(default, null)			: UITextField;
 	
 	
 	
@@ -147,7 +153,7 @@ class InputField <VOType> extends DataButton <VOType>
 		if (hasFocus)
 			return;
 		
-		Assert.notNull( vo.value );
+	//	Assert.notNull( vo.value );
 		trace(data.value);
 		
 		hasFocus = true;
@@ -163,14 +169,52 @@ class InputField <VOType> extends DataButton <VOType>
 		if (!hasFocus)
 			return;
 		
-		Assert.notNull( vo.value );
+	//	Assert.notNull( vo.value );
 		
+		updateLabelBinding.disable();
 		fieldBinding.disable();
-		trace( data.value );
 		updateVO();
 		getRevertableData().commitEdit();
+		updateLabelBinding.enable();
 		
 		hasFocus = false;
+		updateLabel( vo.value, vo.value );
+	}
+	
+	
+	/**
+	 * Method will set the current input as value of the VO without losing
+	 * focus
+	 */
+	public function applyInput ()
+	{
+		if (!hasFocus)
+			return;
+		
+		field.removeFocus();
+		return;
+		
+		updateLabelBinding.disable();
+		fieldBinding.disable();
+		
+		updateVO();
+		getRevertableData().commitEdit();
+		getRevertableData().beginEdit();
+		
+		fieldBinding.enable();
+		updateLabelBinding.enable();
+	}
+	
+	
+	/**
+	 * Method will set the current input to the original value before the user
+	 * typed in stuff.
+	 */
+	public function cancelInput ()
+	{
+		if (!hasFocus)
+			return;
+		
 		updateLabel( vo.value, vo.value );
 	}
 }

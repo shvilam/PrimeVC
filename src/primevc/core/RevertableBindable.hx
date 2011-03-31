@@ -84,10 +84,11 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 	override private function setValue (newValue:DataType) : DataType
 	{
 		var f = flags;
-		Assert.that( isEditable() );
 		
 		if (f.hasNone(Flags.IN_EDITMODE) || newValue == this.value) return newValue;
 		// ---
+		
+		Assert.that( isEditable() );
 		
 		if (f.has(RevertableBindableFlags.MAKE_SHADOW_COPY)) {
 			f = f.unset( RevertableBindableFlags.MAKE_SHADOW_COPY );

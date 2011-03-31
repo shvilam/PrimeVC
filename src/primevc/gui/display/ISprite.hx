@@ -27,10 +27,11 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.display;
+#if flash9
  import primevc.core.geom.Rectangle;
-#if !flash9
- import primevc.gui.traits.IDisplayable;
+ import primevc.gui.behaviours.drag.DragInfo;
 #end
+ import primevc.gui.traits.IDisplayable;
  import primevc.gui.traits.IGraphicsOwner;
 
 
@@ -44,14 +45,18 @@ interface ISprite
 		implements IDisplayContainer
 	,	implements IInteractiveObject
 	,	implements IGraphicsOwner
+	,	implements IDisplayable
 {
 #if flash9
 	public var buttonMode						: Bool;
 	public var useHandCursor					: Bool;
+	public var isDragging						: Bool;
 	public var dropTarget		(default, null) : flash.display.DisplayObject;
 	
-	public function stopDrag()	: Void;
-	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle) : Void;
+	
+	public function stopDrag()												: Void;
+	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle)	: Void;
+	public function createDragInfo ()										: DragInfo;
 #else
 	public var dropTarget		(default, null)	: IDisplayable;
 #end

@@ -42,8 +42,8 @@ typedef CommunicationEvents =
 
 typedef ErrorHandler	= String -> Void;
 typedef ProgressHandler	= UInt -> UInt -> Void;
-typedef ErrorSignal		= primevc.core.dispatcher.INotifier< ErrorHandler >;
-typedef ProgressSignal	= primevc.core.dispatcher.INotifier< ProgressHandler >;
+typedef ErrorSignal		= primevc.core.dispatcher.Signal1< String >;
+typedef ProgressSignal	= primevc.core.dispatcher.Signal2<UInt,UInt>;
 
 
 /**
@@ -58,6 +58,11 @@ class CommunicationSignals extends Signals
 	 * Dispatched when a communication operation has started
 	 */
 	var started		(default, null) : Signal0;
+	
+	/**
+	 * Dispatched when a communication operation received initial data
+	 */
+	var init		(default, null) : Signal0;
 	
 	/**
 	 * Dispatched when data there is progress receiving or sending data

@@ -55,6 +55,9 @@ interface IDisplayObject
 	public var alpha		: Float;
 	public var visible		: Bool;
 	
+	public var mouseX		(default, never)		: Float;
+	public var mouseY		(default, never)		: Float;
+	
 	public var filters		: Array < Dynamic >;
 	public var name			: String;
 	public var scrollRect	: flash.geom.Rectangle;

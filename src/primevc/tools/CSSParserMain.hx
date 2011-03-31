@@ -28,6 +28,7 @@
  */
 package primevc.tools;
  import primevc.gui.styling.StyleBlock;
+ import primevc.gui.styling.StyleFlags;
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.HaxeCodeGenerator;
   using primevc.utils.TypeUtil;
@@ -77,7 +78,7 @@ class CSSParserMain
 		manifest	= new Manifest(); // skinFolder + "/manifest.xml" );
 		parser		= new CSSParser( styles, manifest );
 		generator	= new HaxeCodeGenerator( 2 );
-		generator.instanceIgnoreList.set( styles.uuid, styles );
+		generator.instanceIgnoreList.set( styles._oid, styles );
 		
 		var tplName = primevcDir + "/tools/StyleSheet.tpl.hx";
 		if (!neko.FileSystem.exists( tplName ))
@@ -89,24 +90,40 @@ class CSSParserMain
 	
 	public function parse ()
 	{
+		neko.Lib.println(Date.now() +" Parsing: " + skinFolder + "/Style.css");
 		parser.parse( skinFolder + "/Style.css", ".." );
 	}
 	
 	
 	public function generateCode ()
 	{
+		neko.Lib.println(Date.now() + " Generating code");
+		
 		var code:String = "";
 		generator.start();
 		
-		if (styles.children != null)
+		if (styles.has( StyleFlags.ELEMENT_CHILDREN ))
 		{
-			if (styles.children.elementSelectors != null)	code += generateSelectorCode( cast styles.children.elementSelectors, "elementSelectors" );
-			if (styles.children.styleNameSelectors != null)	code += generateSelectorCode( cast styles.children.styleNameSelectors, "styleNameSelectors" );
-			if (styles.children.idSelectors != null)		code += generateSelectorCode( cast styles.children.idSelectors, "idSelectors" );
+			neko.Lib.println(Date.now() +"   - elementSelectors");
+			code += generateSelectorCode( cast styles.elementChildren, "elementChildren" );
+		}
+		
+		if (styles.has( StyleFlags.STYLE_NAME_CHILDREN ))
+		{
+			neko.Lib.println(Date.now() +"   - styleNameSelectors");
+			code += generateSelectorCode( cast styles.styleNameChildren, "styleNameChildren" );
+		}
+		
+		if (styles.has( StyleFlags.ID_CHILDREN ))
+		{
+			neko.Lib.println(Date.now() +"   - idSelectors");
+			code += generateSelectorCode( cast styles.idChildren, "idChildren" );
 		}
 		
 		//write to template
-		replaceVar( "imports", generator.flushImports() );
+		neko.Lib.println(Date.now() +"   - flushImports");
+		replaceVar( "imports",   generator.flushImports() );
+		neko.Lib.println(Date.now() +"   - flush");
 		replaceVar( "selectors", generator.flush() );
 	}
 	
@@ -128,10 +145,14 @@ class CSSParserMain
 	
 	public function flush ()
 	{
+		neko.Lib.println(Date.now() +" Writing code to " + skinFolder + "/StyleSheet.hx");
+		
 		//write haxe code
 		var output = neko.io.File.write( skinFolder + "/StyleSheet.hx", false );
 		output.writeString( template );
 		output.close();
+		
+		neko.Lib.println(Date.now() +" Done");
 	}
 	
 	

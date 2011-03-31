@@ -35,7 +35,7 @@ package primevc.gui.styling;
   using primevc.utils.BitUtil;
 
 
-typedef StatesListType	= SimpleDictionary < Int, StyleBlock >;
+typedef StatesListType	= #if neko SimpleDictionary < Int, StyleBlock > #else IntHash<StyleBlock> #end;
 private typedef Flags	= StyleStateFlags;
 
 
@@ -63,7 +63,7 @@ class StatesStyle extends StyleSubBlock
 	override public function dispose ()
 	{
 		if (states != null) {
-			states.dispose();
+#if neko	states.dispose(); #end
 			states = null;
 		}
 		super.dispose();
@@ -119,10 +119,21 @@ class StatesStyle extends StyleSubBlock
 	
 	override public function updateAllFilledPropertiesFlag ()
 	{
-		super.updateAllFilledPropertiesFlag();
+		inheritedProperties = 0;
+		if (extendedStyle != null)	inheritedProperties  = extendedStyle.allFilledProperties;
+		if (superStyle != null)		inheritedProperties |= superStyle.allFilledProperties;
 		
-		if (allFilledProperties < Flags.ALL_STATES && extendedStyle != null)	allFilledProperties |= extendedStyle.allFilledProperties;
-		if (allFilledProperties < Flags.ALL_STATES && superStyle != null)		allFilledProperties |= superStyle.allFilledProperties;
+		allFilledProperties = filledProperties | inheritedProperties;
+		inheritedProperties	= inheritedProperties.unset( filledProperties );
+	}
+	
+	
+	override public function getPropertiesWithout (noExtendedStyle:Bool, noSuperStyle:Bool)
+	{
+		var props = filledProperties;
+		if (!noExtendedStyle && extendedStyle != null)	props |= extendedStyle.allFilledProperties;
+		if (!noSuperStyle && superStyle != null)		props |= superStyle.allFilledProperties;
+		return props;
 	}
 	
 	
@@ -178,7 +189,7 @@ class StatesStyle extends StyleSubBlock
 			return;
 		
 		if (states == null)		states = new StatesListType();
-		if (state == null)		states.unset( stateName );
+		if (state == null)		#if neko states.unset( stateName ); #else states.remove( stateName ); #end
 		else					states.set( stateName, state );
 		
 		markProperty( stateName, state != null );

@@ -30,6 +30,7 @@ package primevc.utils;
  import primevc.core.collections.IEditableList;
  import primevc.core.collections.ListChange;
  import primevc.core.traits.IEditableValueObject;
+ import primevc.core.traits.IValueObject;
  private typedef IBindable = primevc.core.IBindable<Dynamic>;
  import primevc.utils.TypeUtil;
  import primevc.tools.valueobjects.ValueObjectBase;
@@ -75,7 +76,7 @@ class ChangesUtil
 	
 	public static function undo (changes:ObjectChangeSet) : Void
 	{
-	//	trace("undo changes "+Date.fromTime(changes.timestamp));
+		trace("undo changes "+Date.fromTime(changes.timestamp) + ", " + changes);
 		var vo = changes.vo;
 		vo.beginEdit();
 		
@@ -97,7 +98,7 @@ class ChangesUtil
 	
 	public static function redo (changes:ObjectChangeSet) : Void
 	{
-	//	trace("redo changes "+Date.fromTime(changes.timestamp * 1000));
+		trace("redo changes "+Date.fromTime(changes.timestamp) + ", " + changes);
 		var vo = changes.vo;
 		vo.beginEdit();
 		
@@ -171,12 +172,19 @@ class ChangesUtil
 		var field:Dynamic = getProperty( owner, property );
 //		Assert.notNull( field, "owner: "+owner +", property: "+property );
 		
-	//	trace("set "+owner+"."+property+" to "+value);
+//		trace("set "+owner+"."+property+" to "+value);
 		
 		if (TypeUtil.is( field, IBindable))
 			TypeUtil.as( field, IBindable).value = value;
-		else
-			Reflect.setField( owner, property, value );
+		else {
+			var setter : Dynamic -> Dynamic = Reflect.field(owner, "set" + property.substr(0,1).toUpperCase() + property.substr(1));
+			if (setter != null) {
+				trace("try setter: "+setter);
+				setter(value);
+			}
+			else
+				Reflect.setField( owner, property, value );
+		}
 	}
 	
 	
@@ -209,5 +217,29 @@ class ChangesUtil
 		}
 		
 		return property;
+	}
+	
+	
+	
+	public static inline function findChangedVOOfClass (change:ObjectChangeSet, classType:Class<Dynamic>) : IValueObject
+	{
+		var vo:IValueObject = null;
+		if (change.vo.is(classType))
+		{
+			vo = change.vo;
+		}
+		else
+		{
+			// a property of the shapestylevo is changed or a property of a 
+			// property etc.. In order to find the ShapeStyleVO that is changed,
+			// we walk down all the parents until we find one.
+			var path = change.parent;
+			while (path != null && !path.object.is(classType))
+				path = path.parent;
+		
+			Assert.notNull(path);
+			vo = path.object;
+		}
+		return vo;
 	}
 }

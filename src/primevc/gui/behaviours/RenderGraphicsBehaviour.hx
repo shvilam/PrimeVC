@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours;
+ import primevc.gui.core.IUIComponent;
  import primevc.gui.core.UIWindow;
  import primevc.gui.traits.IDrawable;
  import primevc.gui.traits.IGraphicsValidator;
@@ -44,6 +45,9 @@ package primevc.gui.behaviours;
  */
 class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, implements IGraphicsValidator
 {
+	public function new (target:IDrawable) { super(target); }
+	
+	
 	override private function init ()
 	{
 		Assert.that( target.layout != null );
@@ -86,6 +90,9 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, impleme
 		
 		target.graphics.clear();
 		target.graphicData.draw( target, false );
+		
+		if (target.is(IUIComponent) && target.as(IUIComponent).skin != null)
+			target.as(IUIComponent).skin.drawGraphics(); //.onceOn( target.displayEvents.enterFrame, this );
 	}
 	
 	

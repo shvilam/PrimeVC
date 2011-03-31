@@ -61,11 +61,18 @@ class InvalidationManager extends QueueManager
 		isValidating = true;
 		disableBinding();
 		
+#if debug
+		var s = traceQueues ? "\n\tbegin validating layout; first: "+first+"; last: "+last : null;
+#end
+		
 		while (first != null)
 		{
 			var obj	= first.as(IPropertyValidator);
 			obj.validate();
 			
+#if debug	if (traceQueues)
+				s += "\n\t\tvalidated "+obj+"; next: "+obj.nextValidatable;
+#end
 			// During validation the queue can change (adding/removing items).
 			// The 'first' property will be the correct value if the current 
 			// validating object was removed from the queue during it's own 
@@ -81,6 +88,11 @@ class InvalidationManager extends QueueManager
 			
 			obj.nextValidatable = obj.prevValidatable = null;
 		}
+		
+#if debug
+		if (traceQueues)
+			trace( s += "\n\tfinished validating layout; first: "+first+"; last: "+last );
+#end
 		
 		last = null;
 		isValidating = false;

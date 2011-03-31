@@ -38,7 +38,7 @@ package primevc.gui.core;
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
-interface IUIDataElement < DataType:IValueObject > implements IUIElement
+interface IUIDataElement < DataType > implements IUIElement
 {
 //	public var vo (default, setVO)			: IBindable < DataType >;
 //	public var data (getData, setData)		: DataType;

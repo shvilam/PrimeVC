@@ -119,6 +119,7 @@ class UIGraphic extends VectorShape
 		//state.
 		state.current = state.disposed;
 		
+		removeValidation();
 		behaviours	.dispose();
 		state		.dispose();
 		id			.dispose();
@@ -148,7 +149,7 @@ class UIGraphic extends VectorShape
 
 	public inline function isDisposed ()	{ return state == null || state.is(state.disposed); }
 	public inline function isInitialized ()	{ return state != null && state.is(state.initialized); }
-	
+	public function isResizable ()			{ return true; }
 	
 	
 	//
@@ -195,6 +196,20 @@ class UIGraphic extends VectorShape
 	}
 	
 	
+	/**
+	 * method is called when the object is removed from the stage or disposed
+	 * and will remove the object from the validation queue.
+	 */
+	private function removeValidation () : Void
+	{
+		if (isQueued() &&isOnStage())
+			system.invalidation.remove(this);
+
+		if (!isDisposed() && changes > 0)
+			validate.onceOn( displayEvents.addedToStage, this );
+	}
+	
+	
 	
 	//
 	// GETTERS / SETTESR
@@ -203,7 +218,6 @@ class UIGraphic extends VectorShape
 	private inline function getSystem () : ISystem		{ return window.as(ISystem); }
 	public inline function isOnStage () : Bool			{ return window != null; }
 	public inline function isQueued () : Bool			{ return nextValidatable != null || prevValidatable != null; }
-	private function removeValidation () : Void			{ if (isQueued()) system.invalidation.remove(this); }
 	
 	
 #if flash9

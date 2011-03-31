@@ -40,7 +40,7 @@ package primevc.avm2.events;
 private typedef FocusHandler = FocusState -> Void;
 
 /**
- * Signal<-->flash.MouseEvent Proxy implementation
+ * Signal<-->flash.FocusEvent Proxy implementation
  * 
  * @author Ruben Weijers
  * @creation-date jan 26, 2010
@@ -74,7 +74,7 @@ class FocusSignal extends Signal1<FocusState>, implements IWireWatcher<FocusHand
 	
 	private function dispatch(e:FocusEvent)
 	{
-		send( stateFromFlashEvent(e) );
+		send( FocusSignal.stateFromFlashEvent(e) );
 	}
 	
 	

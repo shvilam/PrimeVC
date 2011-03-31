@@ -139,7 +139,7 @@ class DragDropBehaviour extends DragBehaviourBase
 			b.top	= pos.y.roundFloat();
 #end
 			//notify the dragged item that the drag-operation is completed
-			target.dragEvents.complete.send(dragInfo);
+			target.userEvents.drag.complete.send(dragInfo);
 			
 			//notify the dragInfo that an item is dropped
 			dragInfo.dropTarget.dragEvents.drop.send(dragInfo);
@@ -150,7 +150,7 @@ class DragDropBehaviour extends DragBehaviourBase
 			dragInfo.restore();
 			
 			//notifiy the dragged item that the drag-operation is canceled
-			target.dragEvents.cancel.send( dragInfo );
+			target.userEvents.drag.cancel.send( dragInfo );
 			disposeDragInfo();
 		}
 		

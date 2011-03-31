@@ -8,7 +8,7 @@ package cases;
  import primevc.gui.components.Slider;
  import primevc.gui.core.UIWindow;
  import primevc.gui.display.Window;
- import primevc.types.Bitmap;
+ import primevc.types.Asset;
   using primevc.utils.Bind;
 
 
@@ -33,8 +33,8 @@ class ComponentsTest extends UIWindow
 	
 	override private function createChildren ()
 	{
-		children.add( button	= new Button("testButton", "add some text" ) ); //, Bitmap.fromString("/Users/ruben/Desktop/naamloze map/Arrow-Right.png")) );
-	//	children.add( image		= new Image("testImage", Bitmap.fromString("http://www.google.com/images/logos/ps_logo.png")) );
+		children.add( button	= new Button("testButton", "add some text" ) ); //, Asset.fromString("/Users/ruben/Desktop/naamloze map/Arrow-Right.png")) );
+	//	children.add( image		= new Image("testImage", Asset.fromString("http://www.google.com/images/logos/ps_logo.png")) );
 		children.add( slider	= new Slider("testSlider", 5, 4, 6) );
 		children.add( slider2	= new Slider("sliderCopy", 5, 4, 6, Direction.vertical) );
 		children.add( input		= new InputField("testInput") );

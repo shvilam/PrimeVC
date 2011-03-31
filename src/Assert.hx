@@ -116,7 +116,7 @@ class Assert
 	{
 		#if debug
 		if (var1 != null) {
-			trace(pos.className + "::" + pos.lineNumber+": "+var1+" should not be null");
+			trace(pos.className + "::" + pos.lineNumber+": "+var1+"  != null; msg: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber);
 			throw #if flash9 new Error( #end
 			"Assertion failed: " + var1 + " != null; msg: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber
 			#if flash9 ) #end;
@@ -132,8 +132,10 @@ class Assert
 		#if debug
 		if (var1 == null)
 		{
-			trace(pos.className + "::" + pos.lineNumber+": "+var1+" should not be null");
-			throw "Assertion failed: " + var1 + " should not be null; msg: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber;
+			trace(pos.className + "::" + pos.lineNumber+": "+var1+" should not be null; msg: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber);
+			throw  #if flash9 new Error( #end
+			"Assertion failed: " + var1 + " should not be null; msg: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber
+			#if flash9 ) #end;
 		}
 	//	else
 	//		trace(pos.className + "::" + pos.lineNumber+": "+var1+" != "+var2);

@@ -1,7 +1,12 @@
 package primevc.utils;
-#if (AlconTrace && debug)
-  using primevc.utils.NumberMath;
+#if (debug && flash10_1)
+ import flash.display.DisplayObject;
+ import flash.errors.Error;
+ import flash.events.ErrorEvent;
+ import flash.events.UncaughtErrorEvent;
 #end
+  using primevc.utils.NumberMath;
+  using primevc.utils.TypeUtil;
 
 
 /**
@@ -63,5 +68,33 @@ class DebugTrace
 		}
 		
 	#end
+	
+	
+	#if flash10_1
+		
+		@:require(flash10_1) public static function traceUncaughtErrors (target:DisplayObject)
+		{
+			target.loaderInfo.addEventListener( UncaughtErrorEvent.UNCAUGHT_ERROR, handleUncaughtErrors, false, 0, true );
+		}
+		
+		
+		@:require(flash10_1) public static function handleUncaughtErrors (event:UncaughtErrorEvent) : Void
+		{
+			var error:Dynamic = event.error;
+			
+			if (error.is(ErrorEvent))
+				error = error.error;
+			
+			if (error.is(Error))
+			{
+				var e = event.error.as(Error);
+				trace("[ERROR] :: "+e.errorID+": "+e.message);
+				trace(e.getStackTrace());
+			}
+			else
+				trace("[Unkown ERROR] :: "+event.error);
+		}
+	#end
+	
 #end
 }

@@ -139,7 +139,10 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	private function init ()
 	{
-		Assert.notNull(container, "Container can't be null for "+this);
+		if (isInitialized())
+			return;
+		
+	//	Assert.notNull(container, "Container can't be null for "+this);
 		behaviours.init();
 		
 		if (skin != null)
@@ -157,6 +160,12 @@ class UIComponent extends Sprite, implements IUIComponent
 		
 		//finish initializing
 		state.current = state.initialized;
+	}
+	
+	
+	public inline function forceInitialization ()
+	{
+		init();
 	}
 	
 	
@@ -180,6 +189,7 @@ class UIComponent extends Sprite, implements IUIComponent
 		if (layout != null)
 			layout.dispose();
 		
+		id.dispose();
 		enabled.dispose();
 		
 #if flash9
@@ -190,6 +200,7 @@ class UIComponent extends Sprite, implements IUIComponent
 #end
 		state			= null;
 		behaviours		= null;
+		id				= null;
 		enabled			= null;
 		graphicData		= null;
 		skin			= null;
@@ -202,6 +213,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	public inline function isDisposed ()	{ return state == null || state.is(state.disposed); }
 	public inline function isInitialized ()	{ return state != null && state.is(state.initialized); }
+	public function isResizable ()			{ return true; }
 	
 	
 	
@@ -228,7 +240,6 @@ class UIComponent extends Sprite, implements IUIComponent
 	private inline function getSystem () : ISystem		{ return window.as(ISystem); }
 	public inline function isOnStage () : Bool			{ return window != null; }
 	public inline function isQueued () : Bool			{ return nextValidatable != null || prevValidatable != null; }
-	private function removeValidation () : Void			{ if (isQueued()) system.invalidation.remove(this); }
 	
 
 	private function setSkin (newSkin)
@@ -301,9 +312,10 @@ class UIComponent extends Sprite, implements IUIComponent
 		{
 			changes = changes.set( change );
 			
-			if (changes == change && isInitialized())
+			if (changes == change && isInitialized()) {
 				if (system != null)		system.invalidation.add(this);
 				else					validate.onceOn( displayEvents.addedToStage, this );
+			}
 		}
 	}
 	
@@ -317,6 +329,20 @@ class UIComponent extends Sprite, implements IUIComponent
 			
 			changes = 0;
 		}
+	}
+	
+	
+	/**
+	 * method is called when the object is removed from the stage or disposed
+	 * and will remove the object from the validation queue.
+	 */
+	private function removeValidation () : Void
+	{
+		if (isQueued() &&isOnStage())
+			system.invalidation.remove(this);
+
+		if (!isDisposed() && changes > 0)
+			validate.onceOn( displayEvents.addedToStage, this );
 	}
 	
 	
@@ -342,7 +368,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	
 #if debug
-	override public function toString()		{ return id.value; }
-	public function readChanges()			{ return UIElementFlags.readProperties(changes); }
+	override public function toString ()	{ return id.value; }
+	public function readChanges ()			{ return UIElementFlags.readProperties(changes); }
 #end
 }

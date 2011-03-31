@@ -31,6 +31,7 @@ package primevc.core.collections;
  import primevc.core.collections.iterators.FastDoubleCellForwardIterator;
  import primevc.core.collections.iterators.FastDoubleCellReversedIterator;
  import primevc.core.events.ListChangeSignal;
+ import primevc.utils.DuplicateUtil;
   using primevc.utils.NumberMath;
  
 
@@ -96,12 +97,25 @@ class SimpleList < DataType > implements IEditableList < DataType >
 	}
 	
 	
-	public function clone () : IReadOnlyList<DataType>
+	public function clone () : IReadOnlyList < DataType >
 	{
-		var l = new SimpleList<DataType>();
-		for (child in this)
-			l.insertAt(child);
-		return l;
+		var inst	= new SimpleList<DataType>();
+		var length	= this.length;
+		for (i in 0...length)
+			inst.insertAt( getItemAt(i), i );
+		
+		return inst;
+	}
+	
+	
+	public function duplicate () : IReadOnlyList < DataType >
+	{
+		var inst	= new SimpleList<DataType>();
+		var length	= this.length;
+		for (i in 0...length)
+			inst.insertAt( DuplicateUtil.duplicateItem( getItemAt(i) ), i );
+		
+		return inst;
 	}
 	
 	
@@ -318,7 +332,7 @@ class SimpleList < DataType > implements IEditableList < DataType >
 			items.push( "[ " + i + " ] = " + item ); // Type.getClassName(Type.getClass(item)));
 			i++;
 		}
-		return name + "SimpleList ("+items.length+")\n" + items.join("\n");
+		return "\n\t" + name + "SimpleList ("+items.length+")\n\t\t\t" + items.join("\n\t\t\t");
 	}
 #end
 }

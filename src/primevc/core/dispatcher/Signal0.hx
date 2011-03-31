@@ -40,9 +40,9 @@ package primevc.core.dispatcher;
  */
 class Signal0 extends Signal<Void->Void>, implements ISender0, implements INotifier<Void->Void>
 {
-	public function new();
+	public function new() enabled = true
 	
-	public inline function send()
+	public #if !debug inline #end function send() if (enabled)
 	{
 		//TODO: Run benchmarks and tests if this should really be inlined...
 		
@@ -60,7 +60,13 @@ class Signal0 extends Signal<Void->Void>, implements ISender0, implements INotif
 				if (w.flags.has(Wire.SEND_ONCE))
 					w.disable();
 				
-				w.handler();
+				#if (flash9 && debug) try #end {
+					w.handler();
+				}
+				#if (flash9 && debug) catch (e : flash.errors.TypeError) {
+					throw "Wrong argument type ("+ e +") for " + w+";\n\tstacktrace: "+e.getStackTrace()+"\n";
+				}
+				#end
 				
 				if (w.flags.has(Wire.SEND_ONCE))
 				 	w.dispose();

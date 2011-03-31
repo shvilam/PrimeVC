@@ -28,10 +28,12 @@
  */
 package primevc.gui.styling;
  import primevc.core.collections.PriorityList;
+ import primevc.core.dispatcher.Signal0;
  import primevc.core.traits.IInvalidateListener;
  import primevc.core.traits.IDisposable;
  import primevc.gui.styling.StyleBlock;
  import primevc.gui.traits.IStylable;
+ import primevc.utils.FastArray;
 
 
 /**
@@ -40,6 +42,40 @@ package primevc.gui.styling;
  */
 interface IUIElementStyle implements IInvalidateListener, implements IDisposable
 {
-	public var target		(default, null)			: IStylable;
-	public var styles		(default, null)			: PriorityList < StyleBlock >;
+	public var target					(default, null) : IStylable;
+	public var styles					(default, null) : PriorityList < StyleBlock >;
+	
+	/**
+	 * Bitflag-collection with all properties that are set in the styles of 
+	 * the target,
+	 */
+	public var filledProperties			(default, null)	: Int;
+	/**
+	 * Current css-states of the object.
+	 */
+	public var currentStates			(default, null)	: FastArray < StyleState >;
+	
+	
+	/**
+	 * Reference to the style of whom the current-style got it's properteies
+	 */
+	public var parentStyle				(default, null)	: IUIElementStyle;
+	
+	/**
+	 * Signal is fired when the children-property of the element-style is
+	 * changed
+	 */
+	public var childrenChanged			(default, null)	: Signal0;
+	
+	
+	/**
+	 * Method will try to find the closest matching style for the request 
+	 * style-type.
+	 */
+	public function addChildStyles ( child:IUIElementStyle, name:String, type:StyleBlockType, ?exclude:StyleBlock ) : Int;
+	public function removeChildStyles ( child:IUIElementStyle, name:String, type:StyleBlockType, ?exclude:StyleBlock ) : Int;
+	
+	public function addStyle (style:StyleBlock) : Int;
+	public function removeStyle (style:StyleBlock) : Int;
+//	public function findStyle ( name:String, type:StyleBlockType, ?exclude:StyleBlock ) : StyleBlock;
 }

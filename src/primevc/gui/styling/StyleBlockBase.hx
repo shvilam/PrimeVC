@@ -33,7 +33,7 @@ package primevc.gui.styling;
  import primevc.tools.generator.ICodeGenerator;
 #end
 #if (neko || debug)
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
 #end
   using primevc.utils.BitUtil;
 
@@ -47,19 +47,32 @@ package primevc.gui.styling;
 class StyleBlockBase extends Invalidatable, implements IStyleBlock
 {
 #if (debug || neko)
-	public var uuid					(default, null)		: String;
+	public var _oid					(default, null)		: Int;
 #end
+	
+	/**
+	 * Flag with properties that are set for this style-block.
+	 */
 	public var filledProperties		(default, null)		: Int;
+	/**
+	 * Combination of filledProperties and inheritedProperties
+	 */
 	public var allFilledProperties	(default, null)		: Int;
+	/**
+	 * Flag with the styleproperties that are inherited and not set in this
+	 * style-block
+	 */
+	public var inheritedProperties	(default, null)		: Int;
 	
 	
 	public function new ()
 	{
 		super();
 #if (debug || neko)
-		uuid = StringUtil.createUUID();
+		_oid = ID.getNext();
 #end
 		filledProperties	= 0;
+		inheritedProperties	= 0;
 		allFilledProperties	= 0;
 	}
 	
@@ -67,9 +80,10 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 	override public function dispose ()
 	{
 #if (debug || neko)
-		uuid				= null;
+		_oid				= -1;
 #end
 		filledProperties	= 0;
+		inheritedProperties	= 0;
 		allFilledProperties	= 0;
 		super.dispose();
 	}
@@ -97,14 +111,13 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 	public function isEmpty () : Bool						{ return filledProperties == 0; }
 	
 	
-	public function updateAllFilledPropertiesFlag () : Void
-	{
-		allFilledProperties = filledProperties;
-	}
+	public function updateAllFilledPropertiesFlag () : Void									{ Assert.abstract(); }
+	public function getPropertiesWithout (noExtendedStyle:Bool, noSuperStyle:Bool) : Int	{ Assert.abstract(); return 0; }
 	
 	
 #if debug
 	public function readProperties ( flags:Int = -1 )	: String	{ Assert.abstract(); return null; }
+	public inline function readAll () : String						{ return readProperties( allFilledProperties ); }
 #end
 	
 	

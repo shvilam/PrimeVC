@@ -91,6 +91,7 @@ class KeyCodes
 	public static inline var DOWN				: UInt = 40;
 	public static inline var END				: UInt = 35;
 	public static inline var EQUAL				: UInt = 187;
+	public static inline var ENTER				: UInt = 13;
 	public static inline var ESCAPE				: UInt = 27;
 	public static inline var HOME				: UInt = 36;
 	public static inline var INSERT				: UInt = 45;
@@ -139,4 +140,9 @@ class KeyCodes
 	public static inline var SPACE				: UInt = 32;
 	public static inline var TAB				: UInt = 9;
 	public static inline var UP					: UInt = 38;
+	
+	
+	public static inline function isEnter (v:UInt) {
+		return v == ENTER || v == NUMPAD_ENTER;
+	}
 }

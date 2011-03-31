@@ -69,6 +69,7 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 		layoutGroup = null;
 		target.dragEvents.over.unbind(this);
 		target.dragEvents.out.unbind(this);
+		target.dragEvents.drop.unbind(this);
 		
 		if (mouseMoveBinding != null) {
 			mouseMoveBinding.dispose();

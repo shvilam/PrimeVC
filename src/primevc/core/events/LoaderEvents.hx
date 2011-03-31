@@ -28,6 +28,7 @@
  */
 package primevc.core.events;
  import primevc.core.dispatcher.Signal0;
+ import primevc.core.dispatcher.Signal1;
  import primevc.core.dispatcher.Signals;
 
 
@@ -46,4 +47,5 @@ class LoaderSignals extends Signals
 {
 	public var unloaded		(default, null)		: Signal0;
 	public var load			(default, null)		: CommunicationEvents;
+	public var httpStatus	(default, null)		: Signal1<Int>;
 }

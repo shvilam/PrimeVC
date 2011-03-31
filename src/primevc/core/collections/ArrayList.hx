@@ -47,8 +47,10 @@ class ArrayList <DataType> extends ReadOnlyArrayList <DataType>, implements IEdi
 	{
 		if (length > 0)
 		{
+			var msg = ListChange.reset;
+			beforeChange.send( msg );
 			list.removeAll();
-			change.send( ListChange.reset );
+			change.send( msg );
 		}
 	}
 	
@@ -61,8 +63,10 @@ class ArrayList <DataType> extends ReadOnlyArrayList <DataType>, implements IEdi
 	
 	public function add (item:DataType, pos:Int = -1) : DataType
 	{
+		var msg = ListChange.added( item, pos );
+		beforeChange.send( msg );
 		pos = list.insertAt(item, pos);
-		change.send( ListChange.added( item, pos ) );
+		change.send( msg );
 		return item;
 	}
 	
@@ -72,8 +76,12 @@ class ArrayList <DataType> extends ReadOnlyArrayList <DataType>, implements IEdi
 		if (oldPos == -1)
 			oldPos = list.indexOf(item);
 		
-		if (oldPos > -1 && list.removeItem(item, oldPos))
-			change.send( ListChange.removed( item, oldPos ) );
+		if (oldPos > -1) {
+			var msg = ListChange.removed( item, oldPos );
+			beforeChange.send( msg );
+			if (list.removeItem(item, oldPos))
+				change.send( msg );
+		}
 		return item;
 	}
 	
@@ -84,8 +92,12 @@ class ArrayList <DataType> extends ReadOnlyArrayList <DataType>, implements IEdi
 		if		(newPos > (length - 1))		newPos = length - 1;
 		else if (newPos < 0)				newPos = length - newPos;
 		
-		if (curPos != newPos && list.move(item, newPos, curPos))
-			change.send( ListChange.moved( item, newPos, curPos ) );
+		if (curPos != newPos) {
+			var msg = ListChange.moved( item, newPos, curPos );
+			beforeChange.send( msg );
+			if (list.move(item, newPos, curPos))
+				change.send( msg );
+		}
 		
 		return item;
 	}
@@ -94,5 +106,11 @@ class ArrayList <DataType> extends ReadOnlyArrayList <DataType>, implements IEdi
 	override public function clone () : IReadOnlyList<DataType>
 	{
 		return new ArrayList<DataType>( list.clone() );
+	}
+	
+	
+	override public function duplicate () : IReadOnlyList<DataType>
+	{
+		return new ArrayList<DataType>( list.duplicate() );
 	}
 }

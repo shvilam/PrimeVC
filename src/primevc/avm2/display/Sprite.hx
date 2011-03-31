@@ -30,6 +30,7 @@
 package primevc.avm2.display;
  import flash.display.DisplayObject;
  import primevc.core.geom.IntRectangle;
+ import primevc.gui.behaviours.drag.DragInfo;
  import primevc.gui.display.DisplayDataCursor;
  import primevc.gui.display.ISprite;
  import primevc.gui.display.DisplayList;
@@ -63,6 +64,7 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	public var displayEvents	(default, null)			: DisplayEvents;
 	
 	public var rect				(default, null)			: IntRectangle;
+	public var isDragging		: Bool;
 	
 	
 	
@@ -110,10 +112,21 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	}
 	
 	
+	public inline function setFocus ()		{ if (window != null)							{ window.focus = this; } }
+	public inline function removeFocus ()	{ if (window != null && window.focus == this)	{ window.focus = null; } }
+	
+	
+	
 #if !neko
 	public function getDisplayCursor () : DisplayDataCursor
 	{
 		return new DisplayDataCursor(this);
+	}
+	
+	
+	public function createDragInfo () : DragInfo
+	{
+		return new DragInfo( this );
 	}
 #end
 	
@@ -156,6 +169,8 @@ class Sprite extends flash.display.Sprite, implements ISprite
 		if (window != v)
 		{
 			window = v;
+			
+			Assert.notNull(children);
 			for (i in 0...children.length)
 			{
 				var child = children.getItemAt(i);

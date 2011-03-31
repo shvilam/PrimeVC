@@ -71,6 +71,12 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >, i
 	}
 	
 	
+	override public function duplicate ()
+	{
+		return untyped new RevertableArrayList<DataType>( list.duplicate() );
+	}
+	
+	
 	public inline function rememberChanges (enabled:Bool = true)				{ flags = enabled ? flags.set(RevertableArrayListFlags.REMEMBER_CHANGES) : flags.unset(RevertableArrayListFlags.REMEMBER_CHANGES); }
 	public inline function dispatchChangesBeforeCommit (enabled:Bool = true)	{ flags = enabled ? flags.set(Flags.DISPATCH_CHANGES_BEFORE_COMMIT) : flags.unset(Flags.DISPATCH_CHANGES_BEFORE_COMMIT); }
 	

@@ -40,9 +40,9 @@ package primevc.core.dispatcher;
  */
 class Signal4 <A,B,C,D> extends Signal<A->B->C->D->Void>, implements ISender4<A,B,C,D>, implements INotifier<A->B->C->D->Void>
 {
-	public function new();
+	public function new() enabled = true
 	
-	public inline function send(_1:A, _2:B, _3:C, _4:D)
+	public #if !debug inline #end function send(_1:A, _2:B, _3:C, _4:D) if (enabled)
 	{
 		//TODO: Run benchmarks and tests if this should really be inlined...
 		
@@ -60,10 +60,16 @@ class Signal4 <A,B,C,D> extends Signal<A->B->C->D->Void>, implements ISender4<A,
 				if (w.flags.has(Wire.SEND_ONCE))
 					w.disable();
 				
-				if (w.flags.has(Wire.VOID_HANDLER))
-				 	w.sendVoid();
-				else
-					w.handler(_1,_2,_3,_4);
+				#if (flash9 && debug) try #end {
+					if (w.flags.has(Wire.VOID_HANDLER))
+					 	w.sendVoid();
+					else
+					 	w.handler(_1,_2,_3,_4);
+				}
+				#if (flash9 && debug) catch (e : flash.errors.TypeError) {
+					throw "Wrong argument type(s) ("+ e +") for " + w+";\n\tstacktrace: "+e.getStackTrace()+"\n";
+				}
+				#end
 				
 				if (w.flags.has(Wire.SEND_ONCE))
 				 	w.dispose();

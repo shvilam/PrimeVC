@@ -42,6 +42,9 @@ package primevc.gui.behaviours.layout;
  */
 class WindowLayoutBehaviour extends ValidatingBehaviour < UIWindow >, implements IPropertyValidator
 {
+	public function new (target:UIWindow) { super(target); }
+	
+	
 	override private function init ()
 	{
 		Assert.that(target.topLayout != null, "Layout of "+target+" can't be null for "+this);
@@ -90,7 +93,7 @@ class WindowLayoutBehaviour extends ValidatingBehaviour < UIWindow >, implements
 			return;
 		
 		var l = target.topLayout;
-		trace(l.width+", "+l.height);
+	//	trace(l.width+", "+l.height);
 		
 	//	trace(target+".updateBgSize "+l.outerBounds);
 	/*	if (!target.graphicData.isEmpty())

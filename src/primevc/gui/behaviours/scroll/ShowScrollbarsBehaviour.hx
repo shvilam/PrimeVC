@@ -88,7 +88,7 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 	{
 		var children	= target.container.children;
 		var depth		= children.indexOf( target ) + 1;
-	//	var layout		= parentLayout.children;
+	//	var layout		= target.layout.parent.children;
 	//	var layoutDepth	= layout.indexOf( target.layout ) + 1;
 		
 		if (scrollBar == null)
@@ -101,10 +101,15 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 			l.padding = new Box();
 		
 		// use hardcoded width value, because the width of scrollbar is not yet available... FIXME
-		if (direction == horizontal)	l.padding.bottom	+= SIZE;
-		else							l.padding.right		+= SIZE;
+		if (direction == horizontal) {
+			l.padding.bottom += SIZE;
+			l.invalidateVerPaddingMargin();
+		} else {
+			l.padding.right += SIZE;
+			l.invalidateHorPaddingMargin();
+		}
 		
-		l.invalidate( LayoutFlags.PADDING );
+		
 		children.add( scrollBar, depth );
 	//	layout.add( scrollBar.layout, layoutDepth );
 		
@@ -120,19 +125,22 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 		
 		var l = target.layout;
 		// use hardcoded width value, because the width of scrollbar is not yet available... FIXME
-		if (scrollBar.direction == horizontal)	l.padding.bottom	-= SIZE;
-		else									l.padding.right		-= SIZE;
-		
-		l.invalidate( LayoutFlags.PADDING );
+		if (scrollBar.direction == horizontal) {
+			l.padding.bottom -= SIZE;
+			l.invalidateVerPaddingMargin();
+		} else {
+			l.padding.right -= SIZE;
+			l.invalidateHorPaddingMargin();
+		}
 	}
 	
 	
 	private function checkIfScrollbarsNeeded (changes:Int)
 	{
-	//	trace(target+": "+layoutContainer.measuredWidth+", "+layoutContainer.explicitWidth+"; "+layoutContainer.width+"; "+layoutContainer.measuredHeight+", "+layoutContainer.explicitHeight+"; "+layoutContainer.height);
 		if (changes.hasNone( LayoutFlags.WIDTH_PROPERTIES | LayoutFlags.HEIGHT_PROPERTIES ))
 			return;
 		
+	//	trace(target+": "+layoutContainer.measuredWidth+", "+layoutContainer.explicitWidth+"; "+layoutContainer.width+"; "+layoutContainer.measuredHeight+", "+layoutContainer.explicitHeight+"; "+layoutContainer.height);
 		var hasHorScrollbar		= scrollbarHor != null && scrollbarHor.container == target.container;
 		var needHorScrollbar	= layoutContainer.horScrollable();
 		var hasVerScrollbar		= scrollbarVer != null && scrollbarVer.container == target.container;
@@ -147,34 +155,41 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 		else if (!hasVerScrollbar && needVerScrollbar)		scrollbarVer = addScrollBar( Direction.vertical, scrollbarVer );
 		
 		
-		var l = target.layout;
-		
-		//update position and size of the scrollbars
-		if (needHorScrollbar)
+		if (needHorScrollbar || needVerScrollbar)
 		{
-			var scrollBar	= scrollbarHor.layout.outerBounds;
+			var l = target.layout;
 			var bounds		= l.innerBounds;
+		//	var maxBounds	= l.parent.innerBounds;
 			
-			scrollBar.invalidatable = false;
-			scrollBar.width		= bounds.width - (needVerScrollbar ? scrollbarVer.layout.outerBounds.width : 0);
-			scrollBar.top		= l.getVerPosition() + bounds.height - scrollBar.height;
-			scrollBar.left		= l.getHorPosition();
-			scrollBar.invalidatable = true;
-		}	
+			var width		= bounds.width; //IntMath.min(bounds.width, maxBounds.width);
+			var height		= bounds.height; //IntMath.min(bounds.height, maxBounds.height);
+			
 		
-		if (needVerScrollbar)
-		{
-			var scrollBar	= scrollbarVer.layout.outerBounds;
-			var bounds		= l.innerBounds;
+			//update position and size of the scrollbars
+			if (needHorScrollbar)
+			{
+				var scrollBar		= scrollbarHor.layout.outerBounds;
+				scrollBar.invalidatable = false;
+				scrollBar.width		= width - (needVerScrollbar ? scrollbarVer.layout.outerBounds.width : 0);
+				scrollBar.top		= l.getVerPosition() + height - scrollBar.height;
+				scrollBar.left		= l.getHorPosition();
+				scrollBar.invalidatable = true;
+			}	
+		
+			if (needVerScrollbar)
+			{
+				var scrollBar	= scrollbarVer.layout.outerBounds;
+				//update padding to keep an empty space at the bottom of the bar with the height of the horizontal scrollbar
+				scrollbarVer.layout.padding.bottom = needHorScrollbar ? scrollbarHor.layout.outerBounds.height : 0;
 			
-			//update padding to keep an empty space at the bottom of the bar with the height of the horizontal scrollbar
-			scrollbarVer.layout.padding.bottom = needHorScrollbar ? scrollbarHor.layout.outerBounds.height : 0;
+				scrollBar.invalidatable = false;
+				scrollBar.height	= height;
+				scrollBar.left		= l.getHorPosition() + width - scrollBar.width;
+				scrollBar.top		= l.getVerPosition();
+				scrollBar.invalidatable = true;
 			
-			scrollBar.invalidatable = false;
-			scrollBar.height	= bounds.height;
-			scrollBar.left		= l.getHorPosition() + bounds.width - scrollBar.width;
-			scrollBar.top		= l.getVerPosition();
-			scrollBar.invalidatable = true;
+			//	trace(scrollBar.left+", "+scrollBar.top+"; "+width+', '+height);
+			}
 		}
 	}
 #end

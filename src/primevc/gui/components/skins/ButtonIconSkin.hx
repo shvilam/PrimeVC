@@ -47,7 +47,7 @@ private typedef Flags = primevc.gui.core.UIElementFlags;
  */
 class ButtonIconSkin extends Skin<Button>
 {
-	private var iconGraphic : Image;
+	public var iconGraphic (default, null) : Image;
 	
 	
 	override private function createBehaviours ()
@@ -58,7 +58,7 @@ class ButtonIconSkin extends Skin<Button>
 
 	override public function createChildren ()
 	{
-		iconGraphic = new Image();
+		iconGraphic = new Image(null, owner.icon);
 		owner.layoutContainer	.children.add(	iconGraphic.layout );
 		owner					.children.add(	iconGraphic );
 		
@@ -87,5 +87,8 @@ class ButtonIconSkin extends Skin<Button>
 	{
 		if (changes.has( Flags.ICON ))
 			iconGraphic.data = owner.icon;
+		
+		if (changes.has( Flags.ICON_FILL ))
+			iconGraphic.colorize( owner.iconFill );
 	}
 }

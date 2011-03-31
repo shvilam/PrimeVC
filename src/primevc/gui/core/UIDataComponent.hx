@@ -50,7 +50,7 @@ package primevc.gui.core;
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
-class UIDataComponent <DataType:IValueObject> extends UIComponent, implements IUIDataElement <DataType>
+class UIDataComponent <DataType> extends UIComponent, implements IUIDataElement <DataType>
 {
 //	public var vo (default, setVO)		: IBindable < DataType >;
 //	public var data (getData, setData)	: DataType;
@@ -90,6 +90,12 @@ class UIDataComponent <DataType:IValueObject> extends UIComponent, implements IU
 	}
 	
 	
+	/**
+	 * Method in which childcomponents can be bound to the data of the component.
+	 * This method can be called on two moments:
+	 * 		- component has created children and the data is already set
+	 * 		- data is set and the component-state is already initialized
+	 */
 	private function initData () : Void		{}
 	private function removeData () : Void	{}
 	

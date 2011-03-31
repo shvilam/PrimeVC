@@ -44,7 +44,7 @@ package primevc.tools.generator;
 
 
 private typedef ArrayMapType = SimpleDictionary < Array<Dynamic>, String >;
-private typedef VarMapType = SimpleDictionary < String, String >;
+private typedef VarMapType = IntHash < String >;
 
 
 /**
@@ -72,7 +72,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 	 * Keys are the names of the classes and the values are the full paths to 
 	 * the classes.
 	 */
-	private var importMap	: VarMapType;
+	private var importMap	: Hash<String>;
 	private var varCounter	: Int;
 	private var linePrefix	: String;
 	
@@ -82,7 +82,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 	 * List with instances that should be set to 'null' when an object is 
 	 * refering to them.
 	 */
-	public var instanceIgnoreList	: Hash < Dynamic >;
+	public var instanceIgnoreList	: IntHash < Dynamic >;
 	
 	
 	public function new (?tabSize = 0)
@@ -91,7 +91,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 		Assert.abstract();
 #end
 		this.tabSize		= tabSize;
-		instanceIgnoreList	= new Hash();
+		instanceIgnoreList	= new IntHash();
 	}
 	
 	
@@ -113,7 +113,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 		output		= new StringBuf();
 		varMap		= new VarMapType();
 		arrayMap	= new ArrayMapType();
-		importMap	= new VarMapType();
+		importMap	= new Hash();
 		varCounter	= 0;
 	}
 	
@@ -139,21 +139,31 @@ class HaxeCodeGenerator implements ICodeGenerator
 	
 	public function flushImports () : String
 	{
-		var str = " import " + importMap.valueList().join(";\n import ") + ";";
-		importMap.dispose();
+		var sbuf = new StringBuf();
+		for (i in importMap) {
+			sbuf.add(" import ");
+			sbuf.add(i); sbuf.add(";\n");
+		}
+		
+//		return sbuf.toString();
+//		var str = " import " + importMap.valueList().join(";\n import ") + ";";
+//		importMap.dispose();
 		importMap = null;
-		return str;
+		return sbuf.toString();
 	}
 	
 	
-	public function construct (obj:ICodeFormattable, ?args:Array<Dynamic>) : Void
+	
+	public function construct (obj:ICodeFormattable, ?args:Array<Dynamic>, ?alternativeType:Class<Dynamic>) : Void
 	{
-		addLine( "var " + createObjectVar(obj, false) + " = " +createClassConstructor( obj.getClass(), args ) + ";" );
+		var type = alternativeType == null ? obj.getClass() : alternativeType;
+		addLine( "var " + createObjectVar(obj, false) + " = " +createClassConstructor( type, args ) + ";" );
 	}
 	
 	
 	public function createClassConstructor (classRef:Class<Dynamic>, ?args:Array<Dynamic>)
 	{
+		Assert.notNull(classRef);
 		return createClassNameConstructor( classRef.getClassName(), args );
 	}
 	
@@ -161,6 +171,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 	
 	public function createClassNameConstructor (className:String, ?args:Array<Dynamic>)
 	{
+		Assert.notNull( className );
 		return "new " + addImportFor(className) + "( " + formatArguments( args, true ) + " )";
 	}
 	
@@ -185,19 +196,19 @@ class HaxeCodeGenerator implements ICodeGenerator
 	public function setAction ( obj:ICodeFormattable, name:String, ?args:Array<Dynamic>) : Void
 	{
 		Assert.notNull( obj );
-		Assert.that( varMap.exists( obj.uuid ) );
+		Assert.that( varMap.exists( obj._oid ) );
 		addLine( getVar(obj) + "." + name + "(" + formatArguments(args) +");" );
 	}
 	
 	
 	public function setSelfAction (name:String, ?args:Array<Dynamic>) : Void
 	{
-		addLine( "this." + name + "(" + formatArguments(args) +");" );
+		addLine("this." + name + "(" + formatArguments(args) + ");");
 	}
 	
 	
 	public function setProp ( obj:ICodeFormattable, name:String, value:Dynamic ) : Void {
-		Assert.that( varMap.exists( obj.uuid ) );
+		Assert.that( varMap.exists( obj._oid ) );
 		var valueStr = formatValue(value);
 		if (valueStr != null)
 			addLine( getVar(obj) + "." + name + " = " + valueStr + ";");
@@ -209,22 +220,31 @@ class HaxeCodeGenerator implements ICodeGenerator
 		if (args == null)
 			return "";
 		
-		var newArgs = [];
-		for (arg in args)
-			newArgs.push( formatValue(arg, isConstructor) );
+		var newArgs = neko.NativeArray.alloc(args.length);
+		for (i in 0 ... args.length)
+			newArgs[i] = formatValue(args[i], isConstructor);
 		
 		//try to remove all the empty parameters at the end of the constructor
-		var i = newArgs.length;
-		while (i > 0)
+		var i = args.length;
+		while (i-->0)
 		{
-			var val = newArgs[--i];
+			var val = newArgs[i];
 			if (val == null || val == "null" || val == "Number.INT_NOT_SET" || val == "Number.FLOAT_NOT_SET")
-				newArgs.pop();
+				{}
 			else
 				break;
 		}
 		
-		return newArgs.join(", ");
+		if (i != 0)
+		{
+			var buf = new StringBuf();
+			for (j in 0 ... i+1) {
+				buf.add(newArgs[j]);
+				if (j < i) buf.add(", ");
+			}
+			return buf.toString();
+		}
+		else return newArgs[0];
 	}
 	
 	
@@ -243,6 +263,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 		else if (Std.is( v, Int ))					return v >= 0 ? Color.uintToString(v) : Std.string(v);
 		else if (Std.is( v, Float ))				return Std.string(v);
 		else if (Std.is( v, Bool ))					return v ? "true" : "false";
+	//	else if (Std.is( v, Hash ))					return formatHash(v);
 		else if (null != Type.getEnum(v))			return getEnumName(v);
 		else if (null != Type.getClassName(v))		return addImportFor( Type.getClassName(cast v) );
 		else										throw "unknown value type: " + v;
@@ -252,7 +273,8 @@ class HaxeCodeGenerator implements ICodeGenerator
 	
 	private inline function isColor (v:Dynamic)					: Bool		{ return Reflect.hasField(v, "color") && Reflect.hasField(v, "a"); }
 	private inline function getClassName (obj:ICodeFormattable)	: String	{ return Type.getClass(obj).getClassName(); }
-	private inline function addLine( line:String)				: Void		{ output.add( "\n" + linePrefix + line ); }
+	private inline function a( str:String )						: Void		{ output.add(str); }
+	private inline function addLine( line:String )				: Void		{ a("\n"); a(linePrefix); a(line); }
 	private inline function getVar (obj:ICodeFormattable)		: String	{ return createObjectVar( obj ); }
 	private inline function getArray( arr:Array<Dynamic> )		: String	{ return createArrayVar( arr ); }
 	
@@ -317,21 +339,21 @@ class HaxeCodeGenerator implements ICodeGenerator
 	
 	private function createObjectVar (obj:ICodeFormattable, constructObj:Bool = true) : String
 	{
-		if (varMap.exists(obj.uuid))
-			return varMap.get(obj.uuid);
+		if (varMap.exists(obj._oid))
+			return varMap.get(obj._oid);
 		
 		obj.cleanUp();
 		if (obj.isEmpty())
 			return null;
 		
-		if (instanceIgnoreList.exists(obj.uuid))
+		if (instanceIgnoreList.exists(obj._oid))
 			return null;
 		
 		var name = createVarName( obj.getClass() );
 		Assert.notNull( name );
 		Assert.notThat( name == "" );
 		
-		varMap.set( obj.uuid, name );
+		varMap.set( obj._oid, name );
 		
 		if (constructObj)
 			obj.toCode(this);

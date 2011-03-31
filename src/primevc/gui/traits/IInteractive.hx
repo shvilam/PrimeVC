@@ -39,6 +39,16 @@ interface IInteractive
 	var userEvents		(default, null)				: UserEvents;
 #end
 	
+	/**
+	 * Method will set the focus to the sprite
+	 */
+	public function setFocus ()		: Void;
+	
+	/**
+	 * Method will remove the focus from the sprite
+	 */
+	public function removeFocus ()	: Void;
+	
 	
 #if flash9
 	/**

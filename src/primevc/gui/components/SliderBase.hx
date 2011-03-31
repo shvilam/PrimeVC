@@ -34,7 +34,7 @@ package primevc.gui.components;
  import primevc.core.geom.Point;
  import primevc.core.validators.FloatRangeValidator;
  import primevc.core.Bindable;
- import primevc.gui.components.DragButton;
+ import primevc.gui.components.Button;
  import primevc.gui.core.UIElementFlags;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.events.MouseEvents;
@@ -180,11 +180,11 @@ class SliderBase extends UIDataContainer < DataType >
 	
 	override public function validate ()
 	{
-		var changes = changes;
+		var changes = this.changes;
 		super.validate();
 		
 		if (changes.has(UIElementFlags.PERCENTAGE))
-			if (!updateChildren())
+			if (!updateChildren())		//updating children fails if the width or height in layout isn't set yet
 				invalidate(UIElementFlags.PERCENTAGE);
 		
 		if (changes.has(UIElementFlags.DIRECTION))
@@ -214,13 +214,13 @@ class SliderBase extends UIDataContainer < DataType >
 	// CHILDREN
 	//
 	
-	public var dragBtn		(default, null)	: DragButton;
+	public var dragBtn		(default, null)	: Button;
 	
 	
 	override private function createChildren ()
 	{
-		dragBtn = new DragButton();
-		dragBtn.layout.includeInLayout = false;
+		dragBtn = new Button();
+	//	dragBtn.layout.includeInLayout = false;
 		dragBtn.id.value = id.value + "Btn";
 		
 		layoutContainer.children.add( dragBtn.layout );
@@ -283,6 +283,7 @@ class SliderBase extends UIDataContainer < DataType >
 			Assert.that( v >= 0, v + " < 0" );
 			percentage = v;
 			invalidate(UIElementFlags.PERCENTAGE);
+		//	updateChildren();
 		}
 		return v;
 	}
@@ -351,7 +352,7 @@ class SliderBase extends UIDataContainer < DataType >
 		mouseMoveBinding.enable();
 		
 	//	calculateValue( mouseObj );
-		dragBtn.mouseEnabled				= false;
+	//	dragBtn.mouseEnabled				= false;
 		dragBtn.layout.includeInLayout		= false;
 		sliding.begin.send();
 	}
@@ -474,4 +475,9 @@ class SliderBase extends UIDataContainer < DataType >
 		}
 		return true;
 	}
+	
+	
+#if debug
+	override public function toString ()	{ return id.value+"( "+direction+" )"; }
+#end
 }

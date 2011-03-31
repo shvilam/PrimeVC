@@ -48,40 +48,42 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 	/** Wire.flags bit which tells if the Wire should be disposed() right after Signal.send(...) */
 	static public inline var SEND_ONCE		= 4;
 	
-	static private var free : Wire<Dynamic>;
-	static private var freeCount : Int = 0;
+//	static private var free : Wire<Dynamic>;
+//	static private var freeCount : Int = 0;
 	
-	/* static function __init__()
+/*	static function __init__()
 	{	
 		var W = Wire;
-		// Pre-allocate 9216 bytes of Wires
-		for (i in 0 ... 256) {
+		// Pre-allocate Wires
+		for (i in 0 ... 2048) {
 			var b  = new Wire();
 			b.n	   = W.free;
 			W.free = b;
-			W.freeCount++;
+			++W.freeCount;
 		}
-	} */
-		
-	static public function make<T>( dispatcher:Signal<T>, owner:Dynamic, handlerFn:T, flags:Int ) : Wire<T>
+	}
+*/		
+	static public function make<T>( dispatcher:Signal<T>, owner:Dynamic, handlerFn:T, flags:Int #if debug, ?pos : haxe.PosInfos #end ) : Wire<T>
 	{
 		var w:Wire<Dynamic>,
 			W = Wire;
 		
-		if (W.free == null)
+//		if (W.free == null)
 			w = new Wire<T>();
-		else {
-			--W.freeCount;
+/*		else {
 			W.free = (w = W.free).n; // i know it's unreadable.. but it's faster.
+			--W.freeCount;
 			w.n = null;
 			Assert.that(w.owner == null && w.handler == null && w.signal == null && w.n == null);
 		}
-		
+*/		
 		w.owner   = owner;
 		w.signal  = dispatcher;
 		w.handler = handlerFn; // Unsets VOID_HANDLER (!!)
 		w.flags	  = flags;
 		w.doEnable();
+		
+		#if debug w.bindPos = pos; #end
 		
 		return untyped w;
 	}
@@ -105,12 +107,35 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 	/** Object referencing the parent Link in the Chain **/
 	public var signal	(default, null)	: Signal<FunctionSignature>;
 	
+#if debug
+	static var instanceCount = 0;
+	public var bindPos		: haxe.PosInfos;
+	public var instanceNum	: Int;
+	
+	public function toString() {
+		return "{Wire["+instanceNum+" (instanceCount: "+instanceCount+")] bound at: "+ bindPos.fileName + ":" + bindPos.lineNumber + ", flags = 0x"+ StringTools.hex(flags, 2) +", owner = " + owner + "}";
+	}
+	public function pos(?p:haxe.PosInfos) : Wire<FunctionSignature> {
+		#if debug untyped this.bindPos = p; return this; #end
+	}
+	
+#else
+	
+	public inline function pos() : Wire<FunctionSignature> {
+		return this;
+	}
+#end
+	
+	
+	
+	
 	//
 	// INLINE PROPERTIES
 	//
 	
 	private function new() {
 		flags = 0;
+		#if debug instanceNum = ++instanceCount; #end
 	}
 	
 	public inline function isEnabled()
@@ -191,12 +216,14 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 		handler = owner = signal = null;
 		flags	= 0;
 		
-		var W = Wire;
-		if (W.freeCount != 256) {
+/*		var W = Wire;
+		if (W.freeCount != 2048) {
 			++W.freeCount;
 			this.n = cast W.free;
 			W.free = this;
 		}
+		else
+*/		 	Assert.that(n == null);
 	}
 	
 	

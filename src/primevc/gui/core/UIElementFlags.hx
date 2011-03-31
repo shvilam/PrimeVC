@@ -59,15 +59,16 @@ class UIElementFlags
 	// IICON OWNER PROPERTIES
 	
 	public static inline var ICON		= 1 << 8;
+	public static inline var ICON_FILL	= 1 << 9;
 	
 	//
 	// SliderBase
-	public static inline var PERCENTAGE = 1 << 9;
-	public static inline var DIRECTION	= 1 << 10;
+	public static inline var PERCENTAGE = 1 << 10;
+	public static inline var DIRECTION	= 1 << 11;
 	
 	//
 	// ScrollBar
-	public static inline var TARGET		= 1 << 11;
+	public static inline var TARGET		= 1 << 12;
 
 	
 #if debug
@@ -84,6 +85,10 @@ class UIElementFlags
 		if (flags.has( RESTRICT ))		output.push("restrict");
 		if (flags.has( MAX_CHARS ))		output.push("maxChars");
 		if (flags.has( ICON ))			output.push("icon");
+		if (flags.has( ICON_FILL ))	output.push("iconFill");
+		if (flags.has( PERCENTAGE ))	output.push("percentage");
+		if (flags.has( DIRECTION ))		output.push("direction");
+		if (flags.has( TARGET ))		output.push("target");
 		
 		return output.length > 0 ? output.join(", ") : "no-properties";
 	}

@@ -83,6 +83,7 @@ package primevc.tools;
  import primevc.gui.graphics.shapes.Line;
  import primevc.gui.graphics.shapes.RegularRectangle;
  import primevc.gui.graphics.shapes.Triangle;
+ import primevc.gui.graphics.EmptyGraphicProperty;
  import primevc.gui.graphics.IGraphicProperty;
  import primevc.gui.layout.algorithms.circle.HorizontalCircleAlgorithm;
  import primevc.gui.layout.algorithms.circle.VerticalCircleAlgorithm;
@@ -104,7 +105,7 @@ package primevc.tools;
  import primevc.gui.styling.StatesStyle;
  import primevc.gui.styling.StyleBlock;
  import primevc.gui.styling.StyleBlockType;
- import primevc.gui.styling.StyleChildren;
+// import primevc.gui.styling.StyleChildren;
  import primevc.gui.styling.StyleFlags;
  import primevc.gui.styling.StyleStateFlags;
  import primevc.gui.text.FontStyle;
@@ -112,7 +113,7 @@ package primevc.tools;
  import primevc.gui.text.TextAlign;
  import primevc.gui.text.TextDecoration;
  import primevc.gui.text.TextTransform;
- import primevc.types.Bitmap;
+ import primevc.types.Asset;
  import primevc.types.ClassInstanceFactory;
  import primevc.types.Reference;
  import primevc.types.Number;
@@ -648,7 +649,9 @@ class CSSParser
 			
 			//strip content of bloat
 			content = importStyleSheets( content );
+			content = removeAllWhiteSpace( content );
 			content = removeComments( content );
+			trace(content);
 			item.content = content;
 		}
 	}
@@ -724,24 +727,18 @@ class CSSParser
 		style.cleanUp();
 		
 		//search in children
-		if (style.children != null)
+		if (style.has( StyleFlags.ID_CHILDREN ))			findExtendedClassesInList( style.idChildren );
+		if (style.has( StyleFlags.STYLE_NAME_CHILDREN ))	findExtendedClassesInList( style.styleNameChildren );
+		if (style.has( StyleFlags.ELEMENT_CHILDREN ))
 		{
-		//	trace("\t\t\tsearch for extended classes");
-			findExtendedClassesInList( style.children.idSelectors );
-			findExtendedClassesInList( style.children.styleNameSelectors );
-			findExtendedClassesInList( style.children.elementSelectors );
-			
-			createEmptySuperClassesForList( style.children.elementSelectors );
-		//	trace("\t\t\tsearch for super classes");	
-			
-	//		findSuperClassesInList( style.children.idSelectors );
-	//		findSuperClassesInList( style.children.styleNameSelectors );
-			findSuperClassesInList( style.children.elementSelectors );
+			findExtendedClassesInList( style.elementChildren );
+			createEmptySuperClassesForList( style.elementChildren );
+			findSuperClassesInList( style.elementChildren );
 		}
 	}
 	
 	
-	private function findExtendedClassesInList (list:SelectorMapType) : Void
+	private function findExtendedClassesInList (list:ChildrenList) : Void
 	{
 		if (list == null)
 			return;
@@ -764,7 +761,7 @@ class CSSParser
 	}
 	
 	
-	private function findSuperClassesInList (list:SelectorMapType) : Void
+	private function findSuperClassesInList (list:ChildrenList) : Void
 	{
 		if (list == null)
 			return;
@@ -786,7 +783,7 @@ class CSSParser
 	 * Method will create empty elementstyles for every element-style-object 
 	 * that be extended to make sure all references are correct..
 	 */
-	private function createEmptySuperClassesForList (list:SelectorMapType) : Void
+	private function createEmptySuperClassesForList (list:ChildrenList) : Void
 	{
 		if (list == null)
 			return;
@@ -946,6 +943,17 @@ class CSSParser
 	//
 	
 	
+	private function removeAllWhiteSpace (style:String)
+	{
+	//	return ~/[\r\n\t ]*/.removeAll(style);
+		style = style.replace("\r", "");
+	//	style = style.replace("\n\n", "");
+	//	style = style.replace(" ", "");
+		style = style.replace("\t", "");
+		return style;
+	}
+	
+	
 	/**
 	 * Method will replace all comments with empty strings with support for
 	 * literal strings.
@@ -970,6 +978,7 @@ class CSSParser
 			+ ")"			//matches comments opening and closing /* */
 		, "im");
 		return commentExpr.removeAll(style);
+	//	return new EReg("(/[*].*[*]/)", "im").removeAll(style);
 	}
 	
 	
@@ -1027,14 +1036,16 @@ class CSSParser
 			}
 			
 			
-			if (!styleGroup.owns( StyleFlags.CHILDREN ))
-				styleGroup.children = new StyleChildren();
+		//	if (!styleGroup.owns( StyleFlags.CHILDREN ))
+		//		styleGroup.children = new StyleChildren();
 			
 			//create a styleobject for this name if it doens't exist
-			currentBlock = styleGroup.children.get(name, type);
+			var children	= styleGroup.getChildrenOfType(type);
+			currentBlock	= children.get(name);
+			
 			if (currentBlock == null)
 				currentBlock = addStyleBlock( name, type, styleGroup );
-			//	trace("createStyleBlock for "+name+" = "+type+"; "+currentBlock.uuid);
+			//	trace("createStyleBlock for "+name+" = "+type+"; "+currentBlock._oid);
 			
 			//matched a state
 			if (expr.matched(4) != null)
@@ -1054,10 +1065,11 @@ class CSSParser
 	
 	
 	private function addStyleBlock (childName:String, childType:StyleBlockType, parentStyle:StyleBlock) : StyleBlock
-	{
-		var childBlock = new StyleBlock(childType);
+	{	
+		var children	= parentStyle.getChildrenOfType( childType );
+		var childBlock	= new StyleBlock(childType);
 		childBlock.parentStyle = parentStyle;
-		parentStyle.children.set( childName, childBlock );
+		children.set( childName, childBlock );
 		return childBlock;
 	}
 	
@@ -1088,7 +1100,7 @@ class CSSParser
 			stateBlock = new StyleBlock( stateType );
 			currentBlock.states.set( stateName, stateBlock );
 			stateBlock.parentStyle = currentBlock;
-		//	trace("create states style block for "+StyleStateFlags.stateToString( stateName )+"; "+stateBlock.uuid);
+		//	trace("create states style block for "+StyleStateFlags.stateToString( stateName )+"; "+stateBlock._oid);
 		}
 		
 		Assert.notNull( stateBlock );
@@ -1191,6 +1203,7 @@ class CSSParser
 			//
 			
 			case "icon":						parseAndSetIcon( val ); // @see background-image
+			case "icon-fill":					parseAndSetIconFill( val ); // @see background
 			
 			
 			//
@@ -1900,8 +1913,12 @@ class CSSParser
 	private inline function parseAndSetBackground (v:String) : Void
 	{
 		var g = createGraphicsBlock();
-		parseAndSetBackgroundColor( v );
-		parseAndSetBackgroundImage( v );
+		if (isNone(v)) {
+			g.background = new EmptyGraphicProperty();
+		} else {
+			parseAndSetBackgroundColor( v );
+			parseAndSetBackgroundImage( v );
+		}
 	}
 	
 	
@@ -2040,13 +2057,13 @@ class CSSParser
 	}
 	
 	
-	private function parseBitmap (v:String) : Bitmap
+	private function parseAsset (v:String) : Asset
 	{
-		var bmp:Bitmap	= null;
+		var bmp:Asset	= null;
 		
 		if (imageURIExpr.match(v))
 		{
-			bmp = new Bitmap();
+			bmp = new Asset();
 			bmp.setString( (getBasePath() + "/" + imageURIExpr.matched(2)).replace("//", "/") );
 			lastParsedString = imageURIExpr.removeMatch(v);
 		}
@@ -2054,7 +2071,7 @@ class CSSParser
 		{
 			//Try to create a class instance for the given string. If the class is not yet compiled, this will fail. 
 			//By setting the classname as string, the bitmapObject will try to create a class-reference to the asset.
-			bmp		= new Bitmap();
+			bmp		= new Asset();
 			bmp.setClass( parseClassReference(v) );
 			
 		/*	if (c != null)
@@ -2093,7 +2110,7 @@ class CSSParser
 	private function parseImage (v:String) : IGraphicProperty
 	{
 		var fill:IGraphicProperty = null;
-		var bmp = parseBitmap(v);
+		var bmp = parseAsset(v);
 		
 		if (bmp != null) {
 			v = lastParsedString;	//remove bitmap from string
@@ -2428,6 +2445,7 @@ class CSSParser
 			if (pw.isSet())
 			{
 				createLayoutBlock();
+				Assert.that( currentBlock.layout.width.notSet() );
 				currentBlock.layout.percentWidth = pw;
 			}
 		}
@@ -2459,6 +2477,7 @@ class CSSParser
 		//	if (ph.isSet())
 		//	{
 			createLayoutBlock();
+			Assert.that( currentBlock.layout.height.notSet() );
 			currentBlock.layout.percentHeight = ph;
 		//	}
 		}
@@ -3345,9 +3364,16 @@ class CSSParser
 	
 	private function parseAndSetIcon (v:String) : Void
 	{
-		var bmp = parseBitmap(v);
+		var bmp = parseAsset(v);
 		if (bmp != null)
 			createGraphicsBlock().icon = bmp;
+	}
+	
+	
+	private function parseAndSetIconFill (v:String) : Void
+	{
+		if (isColor(v))
+			createGraphicsBlock().iconFill = new SolidFill(parseColor(v));
 	}
 	
 	

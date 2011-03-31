@@ -117,7 +117,8 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > // extends Validating
 		var targetLayout	= target.layout.as(AdvancedLayoutClient);
 		var fieldLayout		= target.field.layout;
 		
-	//	trace(target+".updateLabelSize; fieldsize: "+fieldLayout.width+", "+fieldLayout.height+"; "+target.mouseEnabled);
+	//	if (target.id.value == "toolTip")
+	//		trace(target+".updateLabelSize; fieldsize: "+fieldLayout.width+", "+fieldLayout.height+"; "+target.mouseEnabled);
 		targetLayout.measuredWidth	= fieldLayout.width;
 		targetLayout.measuredHeight	= fieldLayout.height;
 	//	targetLayout.invalidate( LayoutFlags.WIDTH | LayoutFlags.HEIGHT );

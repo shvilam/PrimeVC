@@ -37,9 +37,14 @@ package primevc.gui.styling;
  import primevc.core.traits.IInvalidatable;
  import primevc.gui.traits.IStylable;
  import primevc.utils.FastArray;
+#if debug
+ import primevc.utils.ID;
+#end
+  using primevc.gui.styling.StyleFlags;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.FastArray;
+  using primevc.utils.IfUtil;
   using primevc.utils.TypeUtil;
   using Std;
   using Type;
@@ -69,6 +74,10 @@ private typedef Flags = StyleFlags;
  */
 class UIElementStyle implements IUIElementStyle
 {
+#if debug
+	public var _oid						(default, null)			: Int;
+#end
+	
 	/**
 	 * object on which the style applies
 	 */
@@ -88,17 +97,17 @@ class UIElementStyle implements IUIElementStyle
 	 * Bitflag-collection with all properties that are set in the styles of 
 	 * the target,
 	 */
-	public var filledProperties			(default, null)	: Int;
+	public var filledProperties			(default, null)			: Int;
 	/**
 	 * Signal which is dispatched when one of the style objects is changed. 
 	 * The first parameter of signal will be a bit-flag conttaining all the 
 	 * properties that are changed.
 	 */
-//	public var change					(default, null)	: Signal1 < Int >;
+//	public var change					(default, null)			: Signal1 < Int >;
 	/**
 	 * Current css-states of the object.
 	 */
-	public var currentStates			(default, null)	: FastArray < StyleState >;
+	public var currentStates			(default, null)			: FastArray < StyleState >;
 	
 	/**
 	 * Flag indicating wether the styles of the target are searched or not (by 
@@ -119,14 +128,27 @@ class UIElementStyle implements IUIElementStyle
 	 * Proxy object to loop through all available states in this object.
 	 */
 	public var states					(getStates, null)		: StatesCollection;
-	public var parentStyle				(default, null)			: UIElementStyle;
 	
+	/**
+	 * Reference to the style of whom the current-style got it's properteies
+	 */
+	public var parentStyle				(default, null)			: IUIElementStyle;
+	
+	/**
+	 * Signal is fired when the children-property of the element-style is
+	 * changed
+	 */
 	public var childrenChanged			(default, null)			: Signal0;
+	
+	
 	
 	
 	
 	public function new (target:IStylable)
 	{
+#if debug
+		_oid = ID.getNext();
+#end
 		currentStates		= FastArrayUtil.create();
 		styles				= new PriorityList < StyleBlock > ();
 		
@@ -203,32 +225,113 @@ class UIElementStyle implements IUIElementStyle
 		graphics		= null;
 		layout			= null;
 		states			= null;
+#if debug
+		_oid			= -1;
+#end
 	}
 	
 	
-	public function findStyle ( name:String, type:StyleBlockType, ?exclude:StyleBlock ) : StyleBlock
+	
+	private inline function styleTypeToFlag (type:StyleBlockType) : Int
 	{
-		var style : StyleBlock = null;
+		return switch (type) {
+			case id:		Flags.ID_CHILDREN;
+			case styleName:	Flags.STYLE_NAME_CHILDREN;
+			case element:	Flags.ELEMENT_CHILDREN;
+			default:		0;
+		}
+	}
+	
+	
+	
+	/**
+	 * Method is called by children of the target to find their style. Finding
+	 * a child's style is done in 3 iterations per style-type.
+	 * 
+	 * First it looks in the parents 'idStyle', then in the 'styleNameStyle' and
+	 * finally in the 'elementStyle'.
+	 * 
+	 * When a child has the following style-selectors, the amount of searches 
+	 * will be:
+	 * 		- idStyle			=> parent.findChildStyle (6 times)
+	 * 		- 2 style-names		=> parent.findChildStyle (12 times)
+	 * 		- elementName		=> parent.findChildStyle (6 times)
+	 */
+	public function addChildStyles ( child:IUIElementStyle, name:String, type:StyleBlockType, ?exclude:StyleBlock ) : Int
+	{
+		var foundStyles = 0;
+		var changes		= 0;
+		var childFlag	= styleTypeToFlag( type );
 		
-	//	trace(target+".findStyle "+name+" of type "+type+"; styles length: "+styles.length+"; "+Flags.readProperties(filledProperties));
-		if (filledProperties.has( Flags.CHILDREN ))
+		
+		if (filledProperties.has( childFlag ))
 		{
-			for (styleObj in styles)
+			var curCell = styles.last;
+			while (curCell != null)
 			{
-				style = styleObj.findChild( name, type, exclude );
-				if (style != null)
-					break;
+				var styleObj	= curCell.data;
+				curCell			= curCell.prev;
+				
+				//try the next cell if the styleObj doesn't have children
+				if (styleObj.doesntHave( childFlag ))
+					continue;
+				
+				var style = styleObj.findChild( name, type, exclude );
+				
+				//if a style is found, add it to the child
+				if (style != null) {
+					changes = changes.set( child.addStyle( style ) );
+					foundStyles++;
+				}
 			}
 		}
 		
-		if (style == null)
-		{
-			//look in parent.. (prevent infinte loops with parentStyle != this)
-			if (parentStyle != this)
-				style = parentStyle.findStyle( name, type, exclude );
-		}
-		return style;
+		// if there's no styleBlock found for the child, try the next parent
+		if (foundStyles == 0 && parentStyle != this)
+			changes = parentStyle.addChildStyles( child, name, type, exclude );
+		
+		return changes;
 	}
+	
+	
+	public function removeChildStyles ( child:IUIElementStyle, name:String, type:StyleBlockType, ?exclude:StyleBlock ) : Int
+	{
+		var foundStyles = 0;
+		var changes		= 0;
+		var childFlag	= styleTypeToFlag( type );
+		
+	//	trace(target+".findStyle "+name+" of type "+type+"; styles length: "+styles.length+"; "+Flags.readProperties(filledProperties));
+		if (filledProperties.has( childFlag ))
+		{
+			var curCell = styles.last;
+			
+			while (curCell != null)
+			{
+				var styleObj	= curCell.data;
+				curCell			= curCell.prev;
+				
+				//try the next cell if the styleObj doesn't have children
+				if (styleObj.doesntHave( childFlag ))
+					continue;
+				
+				var style = styleObj.findChild( name, type, exclude );
+				
+				//if a style is found, add it to the child
+				if (style != null) {
+					changes = changes.set( child.removeStyle( style ) );
+					foundStyles++;
+				}
+			}
+		}
+		
+		// if there's no styleBlock found for the child, try the next parent
+		if (foundStyles == 0 && parentStyle != this)
+			changes = parentStyle.removeChildStyles( child, name, type, exclude );
+		
+		return changes;
+	}
+	
+	
 	
 	
 	/**
@@ -307,23 +410,116 @@ class UIElementStyle implements IUIElementStyle
 	 */
 	private function resetStyles ()
 	{
-		if (styles.length > 0)
+		if (styles.length > 0)			// <-- check if there are any old styles
 		{
-			var oldStyles	= styles.clone();
-			var changes		= updateStyles(false);
+			var oldStyles		= styles.clone();
+			var changes			= updateStyles(false);
+			var childrenChanged	= false;
 			
-			if (styles.length > 0)
+			if (styles.length > 0)		// <-- check if there are any new styles
 			{
-				//find removed or added style-blocks
-				var styleCell:FastDoubleCell < StyleBlock > = oldStyles.first;
-				while (styleCell != null)
+				var realChanges = 0;
+				var boxFiltersChanges	= 0;
+				var effectsChanges		= 0;
+				var fontChanges			= 0;
+				var graphicsChanges		= 0;
+				var layoutChanges		= 0;
+				var statesChanges		= 0;
+				var childrenChanged		= false;
+				
+				
+				//
+				// The goal of this loop is to prevent updates in the target that
+				// aren't nescesary. This is done by comparing the new styles with
+				// the old styles and unsetting changes that are caused by 
+				// style-blocks that are in the old- and newlist.
+				//
+				var newStyleCell:FastDoubleCell<StyleBlock> = styles.last;
+				do
 				{
-					var newCell = styles.getCellForItem( styleCell.data );
-					if (newCell != null)
-						changes = changes.unset( getUsablePropertiesOf( newCell ) );
+					var newStyle	= newStyleCell.data;
+					//
+					// Try to find the style-block in the old list.
+					// If the style is in the old-styles list, it means the properties of
+					// that style are already applied on the target-UIElement, and can be
+					// ignored as changed properties.
+					// 
 					
-					styleCell = styleCell.next;
+					var extendedStyle	= newStyle.extendedStyle;
+					var superStyle		= newStyle.superStyle;
+					var hadStyle		= oldStyles.has( newStyle );
+					var hadSuper		= oldStyles.has( superStyle );
+					var hadExtended		= oldStyles.has( extendedStyle );
+					
+					if (hadStyle) {
+						oldStyles.remove( newStyle );
+						continue;
+					}
+					
+					if (hadSuper)		oldStyles.remove( superStyle );
+					if (hadExtended)	oldStyles.remove( extendedStyle );
+					
+					var props = newStyle.getPropertiesWithout( hadExtended, hadSuper ).unset( Flags.INHERETING_STYLES );
+					if (props > 0)
+					{
+						realChanges |= props;
+						if (props.has( Flags.BOX_FILTERS ))	boxFiltersChanges	|= newStyle.boxFilters	.getPropertiesWithout( hadExtended, hadSuper );
+						if (props.has( Flags.EFFECTS ))		effectsChanges		|= newStyle.effects		.getPropertiesWithout( hadExtended, hadSuper );
+						if (props.has( Flags.FONT ))		fontChanges			|= newStyle.font		.getPropertiesWithout( hadExtended, hadSuper );
+						if (props.has( Flags.GRAPHICS ))	graphicsChanges		|= newStyle.graphics	.getPropertiesWithout( hadExtended, hadSuper );
+						if (props.has( Flags.LAYOUT ))		layoutChanges		|= newStyle.layout		.getPropertiesWithout( hadExtended, hadSuper );
+						if (props.has( Flags.STATES ))		statesChanges		|= newStyle.states		.getPropertiesWithout( hadExtended, hadSuper );
+						if (props.has(Flags.CHILDREN))		childrenChanged	 = true;
+					}
+					
+					if (hadExtended)	styles.addAfter( extendedStyle, newStyleCell );
+					if (hadSuper)		styles.addAfter( superStyle, newStyleCell );
+					
+				} while (null != (newStyleCell = newStyleCell.prev));
+				
+				
+				
+				//
+				// check old styles for the changes that were maybe overseen
+				//
+				
+				if (oldStyles.length > 0)
+				{
+					var oldStyleCell = oldStyles.last;
+					do
+					{
+						var oldStyle	 = oldStyleCell.data;
+						var superStyle	 = oldStyle.superStyle;
+						var extended	 = oldStyle.extendedStyle;
+						
+						var hasSuper	 = styles.has( superStyle );
+						var hasExtended	 = styles.has( extended );
+						var props		 = oldStyle.getPropertiesWithout( hasExtended, hasSuper ).unset( Flags.INHERETING_STYLES );
+						
+						if (props > 0)
+						{
+							realChanges |= props;
+							if ( props.has( Flags.BOX_FILTERS ) )	boxFiltersChanges	|= oldStyle.boxFilters	.getPropertiesWithout( hasExtended, hasSuper );
+							if ( props.has( Flags.EFFECTS ) )		effectsChanges		|= oldStyle.effects		.getPropertiesWithout( hasExtended, hasSuper );
+							if ( props.has( Flags.FONT ) )			fontChanges			|= oldStyle.font		.getPropertiesWithout( hasExtended, hasSuper );
+							if ( props.has( Flags.GRAPHICS ) )		graphicsChanges		|= oldStyle.graphics	.getPropertiesWithout( hasExtended, hasSuper );
+							if ( props.has( Flags.LAYOUT ) )		layoutChanges		|= oldStyle.layout		.getPropertiesWithout( hasExtended, hasSuper );
+							if ( props.has( Flags.STATES ) )		statesChanges		|= oldStyle.states		.getPropertiesWithout( hasExtended, hasSuper );
+							if (props.has(Flags.CHILDREN))			childrenChanged	 = true;
+						}
+						
+					}
+					while (null != (oldStyleCell = oldStyleCell.prev));
 				}
+				
+				
+				changes = realChanges;
+				if (changes.has( Flags.BOX_FILTERS ))	boxFilters.changes	= boxFiltersChanges;
+				if (changes.has( Flags.EFFECTS ))		effects.changes		= effectsChanges;
+				if (changes.has( Flags.FONT ))			font.changes		= fontChanges;
+				if (changes.has( Flags.GRAPHICS ))		graphics.changes	= graphicsChanges;
+				if (changes.has( Flags.LAYOUT ))		layout.changes		= layoutChanges;
+				if (changes.has( Flags.STATES ))		states.changes		= statesChanges;
 			}
 			
 			oldStyles.dispose();
@@ -333,6 +529,7 @@ class UIElementStyle implements IUIElementStyle
 		else
 			updateStyles();
 	}
+	
 	
 	
 	/**
@@ -405,6 +602,7 @@ class UIElementStyle implements IUIElementStyle
 		if (changedProperties.has( Flags.EFFECTS ))			effects		.apply();
 		if (changedProperties.has( Flags.BOX_FILTERS ))		boxFilters	.apply();
 		
+		Assert.notNull(childrenChanged);
 		if (changedProperties.has( Flags.CHILDREN ))
 			childrenChanged.send();
 		
@@ -419,10 +617,15 @@ class UIElementStyle implements IUIElementStyle
 #if debug
 		Assert.notNull( styles );
 		Assert.notNull( style );
-		Assert.that( !styles.has(style), "style "+style+" already exists for "+target );
+	//	Assert.that( !styles.has(style), "style "+style+" already exists for "+target );
 #end
-		var styleCell	= styles.add( style );
+		if (styles.has(style))
+			return 0;
+		
 		var changes		= 0;
+	//	if (style.extendedStyle != null)	changes = changes.set( addStyle( style.extendedStyle ) );
+	//	if (style.superStyle != null)		changes = changes.set( addStyle( style.superStyle ) );
+		var styleCell	= styles.add( style );
 		
 		if (styleCell != null)
 		{
@@ -437,9 +640,6 @@ class UIElementStyle implements IUIElementStyle
 			if (style.has( Flags.GRAPHICS ))		graphics	.add( style.graphics );
 			if (style.has( Flags.LAYOUT ))			layout		.add( style.layout );
 			if (style.has( Flags.STATES ))			states		.add( style.states );
-			
-		//	if (style.parentStyle != null)
-		//		style.parentStyle.listeners.add( this );
 			
 			// FIND CHANGES
 			changes				= getUsablePropertiesOf( styleCell );
@@ -478,9 +678,6 @@ class UIElementStyle implements IUIElementStyle
 		//
 		style.listeners.remove( this );
 		
-	//	if (style.parentStyle != null)
-	//		style.parentStyle.listeners.remove( this );
-		
 		if (style.has( Flags.BOX_FILTERS ))		boxFilters	.remove( style.boxFilters	, isStyleStillInList );
 		if (style.has( Flags.EFFECTS ))			effects		.remove( style.effects		, isStyleStillInList );
 		if (style.has( Flags.FONT ))			font		.remove( style.font			, isStyleStillInList );
@@ -491,7 +688,6 @@ class UIElementStyle implements IUIElementStyle
 		if (isStyleStillInList)
 			styles.removeCell( styleCell );
 		
-	//	trace(target+".removedStyle "+readProperties( changes ));
 		return changes;
 	}
 	
@@ -515,7 +711,7 @@ class UIElementStyle implements IUIElementStyle
 	}
 	
 	
-	private function removeStyle (style:StyleBlock) : Int
+	public function removeStyle (style:StyleBlock) : Int
 	{
 		var cell	= styles.getCellForItem( style );
 		var changes	= 0;
@@ -555,14 +751,12 @@ class UIElementStyle implements IUIElementStyle
 	
 	private function updateIdStyle () : Int
 	{
+		var idStyle:StyleBlock = null;
+		
 		var changes = removeStylesWithPriority( StyleBlockType.id.enumIndex() );
 		
 		if (target.id.value != null && target.id.value != "")
-		{
-			var idStyle = parentStyle.findStyle( target.id.value, StyleBlockType.id );
-			if (idStyle != null)
-				changes = changes.set( addStyle( idStyle ) );
-		}
+			changes = changes.set( parentStyle.addChildStyles( this, target.id.value, StyleBlockType.id ) );
 		
 		return broadcastChanges( changes );
 	}
@@ -577,30 +771,17 @@ class UIElementStyle implements IUIElementStyle
 		
 		switch (change)
 		{
-			case added( styleName, newPos ):
-				var style = parentStyle.findStyle( styleName, StyleBlockType.styleName );
-				if (style != null)
-					changes = changes.set( addStyle( style ) );
+			case added( styleName, newPos ):	changes = changes.set( parentStyle.addChildStyles( this, styleName, StyleBlockType.styleName ) );
+			case moved( item, newPos, oldPos ):	//do nothing
 			
 			
-			case removed( styleName, oldPos ):
-				var style = parentStyle.findStyle( styleName, StyleBlockType.styleName );
-				if (style != null)
-					changes = changes.set( removeStyle( style ) );
-			
-			
-			case reset:
+		//	case ListChange.removed(item, oldPos), ListChange.reset:
+			default:
 				changes = changes.set( removeStylesWithPriority( StyleBlockType.styleName.enumIndex() ) );
 				
-				for ( styleName in target.styleClasses )
-				{
-					var style = parentStyle.findStyle( styleName, StyleBlockType.styleName );
-					if (style != null)
-						changes = changes.set( addStyle( style ) );
-				}
-			
-			
-			default:
+				if (target.styleClasses.length > 0)
+					for ( styleName in target.styleClasses )
+						changes = changes.set( parentStyle.addChildStyles( this, styleName, StyleBlockType.styleName ) );
 		}
 		
 		return broadcastChanges( changes );
@@ -609,27 +790,24 @@ class UIElementStyle implements IUIElementStyle
 	
 	private function updateElementStyle () : Int
 	{
-		var changes = removeStylesWithPriority( StyleBlockType.element.enumIndex() );
-		
-		var style:StyleBlock	= null;
-		var parentClass			= target.getClass();
+		var removeChanges	= removeStylesWithPriority( StyleBlockType.element.enumIndex() );
+		var addChanges		= 0;
+		var parentClass		= target.getClass();
 		
 		//search for the first element style that is defined for this object or one of it's super classes
-		while (parentClass != null && style == null)
+		while (parentClass != null && addChanges == 0)
 		{
-			style		= parentStyle.findStyle( parentClass.getClassName(), StyleBlockType.element );
+			addChanges	= addChanges.set( parentStyle.addChildStyles( this, parentClass.getClassName(), StyleBlockType.element ) );
 			parentClass	= cast parentClass.getSuperClass();
 		}
 		
 		//use the IDisplayObject style if there isn't a style defined for this element
-		if (style == null)
-			style = parentStyle.findStyle( "primevc.gui.display.IDisplayObject", StyleBlockType.element );
+		if (addChanges == 0)
+			addChanges = parentStyle.addChildStyles( this, "primevc.gui.display.IDisplayObject", StyleBlockType.element );
 		
-		if (style != null)
-			changes = changes.set( addStyle( style ));
-		
-		return broadcastChanges( changes );
+		return broadcastChanges( addChanges | removeChanges );
 	}
+	
 	
 	
 	//
@@ -649,21 +827,62 @@ class UIElementStyle implements IUIElementStyle
 	 * 
 	 * Usabable props of elementStyle: font
 	 */ 
-	public function getUsablePropertiesOf ( styleCell:FastDoubleCell < StyleBlock >, properties:Int = -1 ) : Int
+	private function getUsablePropertiesOf ( styleCell:FastDoubleCell < StyleBlock >, properties:Int = -1 ) : Int
 	{
 		Assert.notNull( styleCell );
 		if (properties == -1)
 			properties = styleCell.data.allFilledProperties;
 		
-		properties = properties.unset( Flags.INHERETING_STYLES );
+		var givenData	= styleCell.data;
+		properties		= properties.unset( Flags.INHERETING_STYLES );
 		
 		//loop through all cell's with higher priority
-		while (null != (styleCell = styleCell.prev) && properties > 0) {
+		while (null != (styleCell = styleCell.prev) && properties > 0)
+		{
 			Assert.notNull( styleCell.data, "found cell without data in "+target );
-			properties = properties.unset( styleCell.data.allFilledProperties );
+			var curData		= styleCell.data;
+			var curProps	= curData.allFilledProperties;
+			
+			//get the properties that the given-style has in common with the higher-style
+			var commonProps = properties.filter( curProps );
+			if (commonProps == 0)
+				continue;
+			
+			//
+			// Compare the content of each styleblock of the higher-style with the given-style.
+			// If the content of the higher-style has all the properties of the given-style,
+			// the content of the given cell will be ignored. 
+			//
+			// E.g. if both styles have a graphics-block with a background, the graphics property
+			// of the given-style won't be usable.
+			// If both styles have a style-block with a background, but the given-style also
+			// has a border, the graphics property of the given-style is also usable.
+			//
+			if (commonProps.has( Flags.STATES )		 && !hasUniqueProperies( givenData.states,		curData.states ))		commonProps = commonProps.unset( Flags.STATES );		 // trace("\t\t\tstateChanges: "+states.readProperties(states.changes)); }
+			if (commonProps.has( Flags.GRAPHICS )	 && !hasUniqueProperies( givenData.graphics,	curData.graphics ))		commonProps = commonProps.unset( Flags.GRAPHICS );	 // trace("\t\t\tGraphicChanges: "+graphics.readProperties(graphics.changes)); }
+			if (commonProps.has( Flags.LAYOUT )		 && !hasUniqueProperies( givenData.layout,		curData.layout ))		commonProps = commonProps.unset( Flags.LAYOUT );		 // trace("\t\t\tLayoutChanges: "+layout.readProperties(layout.changes)); }
+			if (commonProps.has( Flags.FONT )		 && !hasUniqueProperies( givenData.font,		curData.font ))			commonProps = commonProps.unset( Flags.FONT );		 // trace("\t\t\tFontChanges: "+font.readProperties(font.changes)); }
+			if (commonProps.has( Flags.EFFECTS )	 && !hasUniqueProperies( givenData.effects,		curData.effects ))		commonProps = commonProps.unset( Flags.EFFECTS );		 // trace("\t\t\teffectChanges: "+effects.readProperties(effects.changes)); }
+			if (commonProps.has( Flags.BOX_FILTERS ) && !hasUniqueProperies( givenData.boxFilters,	curData.boxFilters ))	commonProps = commonProps.unset( Flags.BOX_FILTERS );	 // trace("\t\t\tboxFilterChanges: "+boxFilters.readProperties(boxFilters.changes)); }
+			
+			// unset all the style properties of the higher-style in the usable properties flag,
+			// except for those they share and are not the same
+			properties = properties.unset( curData.allFilledProperties ).set( commonProps );
 		}
 		
 		return properties;
+	}
+	
+	
+	/**
+	 * Method will return true if the uniqueStyleBlock (i.e. graphics, fonts, layout etc) has
+	 * unique properties compared with a higher prioritised style-sub-block.
+	 */
+	private inline function hasUniqueProperies (uniqueStyle:StyleSubBlock, higherStyle:StyleSubBlock) : Bool
+	{
+		Assert.notNull(uniqueStyle);
+		Assert.notNull(higherStyle);
+		return uniqueStyle.allFilledProperties.unset( higherStyle.allFilledProperties ) > 0;
 	}
 	
 	
@@ -692,24 +911,9 @@ class UIElementStyle implements IUIElementStyle
 	
 	public function createState ()
 	{
-		/*var state = new StyleState( this );
-		currentStates.push( state );*/
 		return new StyleState( this );
 	}
 	
-	/*
-	public function removeState (state:StyleState)
-	{
-		currentStates.removeItem( state );
-		state.dispose();
-	}*/
-	
-	
-/*	private inline function setState (v:String) : String
-	{
-	//	trace(target + ".setStyleState "+state+" => "+v);
-		return state = v;
-	}*/
 	
 	
 	//
@@ -733,8 +937,15 @@ class UIElementStyle implements IUIElementStyle
 			{
 				//Sender must be the parent-style of one of our styles.
 				//Check if the changes include child-changes. If so, reset our styles
-				if (changes.has( Flags.CHILDREN ))
-					resetStyles();
+			//	if (changes.has( Flags.CHILDREN ))
+			//		resetStyles();
+				if (changes.hasAll( Flags.CHILDREN ))				resetStyles();
+				else
+				{
+					if (changes.has( Flags.ID_CHILDREN ))			updateIdStyle();
+					if (changes.has( Flags.STYLE_NAME_CHILDREN ))	updateStyleNameStyles(null);
+					if (changes.has( Flags.ELEMENT_CHILDREN ))		updateElementStyle();
+				}
 			}
 		}
 	}
@@ -756,7 +967,7 @@ class UIElementStyle implements IUIElementStyle
 		if (flags == -1)
 			flags = filledProperties;
 		
-		return StyleFlags.readProperties(flags);
+		return flags.read();
 	}
 	
 	
@@ -768,6 +979,12 @@ class UIElementStyle implements IUIElementStyle
 			r.push( state );
 		
 		return r.join(", ");
+	}
+	
+	
+	public function toString ()
+	{
+		return target + ".UIElementStyle[ "+_oid+" ]";
 	}
 #end
 }

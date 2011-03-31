@@ -48,5 +48,6 @@ class LoaderEvents extends LoaderSignals
 	{
 		unloaded	= new FlashSignal0( target, Event.UNLOAD );
 		load		= new CommunicationEvents( target );
+		httpStatus	= new HttpSignal( target );
 	}
 }

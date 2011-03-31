@@ -308,6 +308,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	override public function apply ()
 	{
+		Assert.notNull(tileGroups);
 		for (row in tileGroups)
 			row.validated();
 		
