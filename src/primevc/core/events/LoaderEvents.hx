@@ -46,7 +46,12 @@ typedef LoaderEvents =
  */
 class LoaderSignals extends Signals
 {
-	public var unloaded		(default, null)		: Signal0;
-	public var load			(default, null)		: CommunicationEvents;
-	public var httpStatus	(default, null)		: Signal1<Int>;
+	public var unloaded			(default, null)		: Signal0;
+	public var load				(default, null)		: CommunicationEvents;
+	public var httpStatus		(default, null)		: Signal1<Int>;
+	
+	/**
+	 * some stupid, flash specific extra event with data from server after an upload
+	 */
+	public var uploadComplete	(default, null)		: Signal1<String>;
 }

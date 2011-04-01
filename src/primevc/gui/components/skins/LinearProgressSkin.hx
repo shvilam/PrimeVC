@@ -28,10 +28,12 @@
  */
 package primevc.gui.components.skins;
  import primevc.gui.behaviours.components.DirectToolTipBehaviour;
+ import primevc.gui.behaviours.UpdateMaskBehaviour;
  import primevc.core.Bindable;
  import primevc.gui.components.ProgressBar;
  import primevc.gui.core.UIGraphic;
  import primevc.gui.core.Skin;
+ import primevc.gui.display.VectorShape;
   using primevc.utils.Bind;
 
 
@@ -48,6 +50,7 @@ class LinearProgressSkin extends Skin<ProgressBar>
 {
 	private var label		: Bindable<String>;
 	private var indicator	: UIGraphic;
+	private var maskShape	: VectorShape;
 	
 	
 	override private function createBehaviours ()
@@ -60,9 +63,15 @@ class LinearProgressSkin extends Skin<ProgressBar>
 
 	override public function createChildren ()
 	{
-		indicator = new UIGraphic("indicator");
+		indicator	= new UIGraphic("indicator");
+		maskShape	= new VectorShape();
+		
 		owner.layoutContainer	.children.add( indicator.layout );
 		owner					.children.add( indicator );
+		owner					.children.add( maskShape );
+		
+		indicator.mask = maskShape;
+		behaviours.add( new UpdateMaskBehaviour( maskShape, owner ) );
 	}
 
 

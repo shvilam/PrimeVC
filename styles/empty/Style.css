@@ -20,7 +20,6 @@ ProgressBar {
 	width: 100%;
 	margin: 20px;
 	border-radius: 23px;
-	padding: 0px 2px;
 	algorithm: relative;
 	
 	background: linear-gradient( 90deg, #7B7B7B 0%, #969696 33%, #A7A7A7 100% );
@@ -29,9 +28,9 @@ ProgressBar {
 }
 
 ProgressBar #indicator {
-	height: 22px;
-	v-center: 1px;
+	height: 100%;
+	top: 0px;
 	border-radius: 20px;
 	background: linear-gradient( 90deg, #5e5e5e, #1e1e1e );
-	border: 1px solid #aaa outside;
+	/*border: 1px solid #aaa outside;*/
 }

@@ -26,22 +26,17 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.traits;
- import primevc.core.events.LoaderEvents;
- import primevc.core.traits.IDisposable;
+package primevc.core.net;
+
 
 
 /**
- * Interface to describe objects that communicate with another resource and
- * are able to give status updates about it.
- * 
  * @author Ruben Weijers
- * @creation-date Mar 28, 2011
+ * @creation-date Mar 31, 2011
  */
-interface ICommunicator implements IDisposable
-{
-	public var events		(default, null)				: LoaderEvents;
-	
-	public var bytesLoaded	(getBytesLoaded, never)		: UInt;
-	public var bytesTotal	(getBytesTotal, never)		: UInt;
-}
+typedef URLVariables = 
+	#if		flash9	flash.net.URLVariables;
+	#elseif	flash8	primevc.avm1.net.URLVariables;
+	#elseif	js		primevc.js  .net.URLVariables;
+	#elseif	neko	primevc.neko.net.URLVariables;
+	#else			error; #end

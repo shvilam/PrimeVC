@@ -27,8 +27,9 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.types;
-  using primevc.utils.NumberUtil;
+  using primevc.utils.FileUtil;
   using primevc.utils.IfUtil;
+  using primevc.utils.NumberUtil;
 
 enum URIScheme
 {
@@ -139,23 +140,10 @@ class URI
 	 	Returns an empty string if it has no dots in the path.
 	 	Returns empty string if the first char is a dot and there are no other dots (UNIX hidden file convention).
 	*/
-	public var fileExt	(getFileExt,setFileExt): String;
-		private inline function getFileExt() : String {
-			if (!path.notNull()) return "";
-			else {
-				var idx = path.lastIndexOf('.');
-				return idx <= 1? "" : path.substr(idx+1);
-			}
-		}
-		private inline function setFileExt(v) : String {
-			Assert.that(v != null);
-			
-			var idx = path.lastIndexOf('.');
-			path = idx <= 1
-				? path + '.' + v
-				: path.substr(0, path.lastIndexOf('.')) + '.' + v;
-			return v;
-		}
+	public var fileExt	(getFileExt,setFileExt)	: String;
+		private inline function getFileExt()	: String	{ return path.getExtension(); }
+		private inline function setFileExt(v)	: String	{ path.setExtension(v); return v; }
+	
 	
 	public var isSet		(getIsSet, never) : Bool;
 		private function getIsSet() return

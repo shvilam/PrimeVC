@@ -35,12 +35,13 @@ package primevc.types;
  import primevc.types.URI;
   using primevc.utils.Bind;
   using primevc.utils.NumberUtil;
+  using primevc.utils.TypeUtil;
   using Type;
 
 #if flash9
+ import primevc.core.net.ICommunicator;
  import primevc.core.net.URLLoader;
  import primevc.gui.display.Loader;
- import primevc.utils.TypeUtil;
 
 #elseif neko
  import primevc.tools.generator.ICodeFormattable;
@@ -55,7 +56,7 @@ typedef FlashBitmap		= #if flash9	flash.display.Bitmap		#else Dynamic			#end;
 typedef AssetClass		= #if neko		Reference					#else Class<Dynamic>	#end;
 typedef BitmapData		= #if flash9	flash.display.BitmapData	#else Dynamic			#end;
 typedef DisplayObject	= #if flash9	flash.display.DisplayObject	#else Dynamic			#end;
-typedef Bytes			= haxe.io.Bytes; //#if flash9	flash.utils.ByteArray		#else Dynamic			#end;
+typedef BytesData		= haxe.io.BytesData; //#if flash9	flash.utils.ByteArray		#else Dynamic			#end;
 
 
 /**
@@ -73,7 +74,7 @@ class Asset
 {
 #if flash9
 	private var bytesLoader	: Loader;
-	public var uriLoader	(default, setURILoader)		: URLLoader;
+	public var uriLoader	(default, setUriLoader)		: ICommunicator;
 #end
 
 #if (neko || debug)
@@ -99,7 +100,7 @@ class Asset
 	/**
 	 * source bytes (will be set to null when the bytes are loaded)
 	 */
-	public var bytes		(default, null)				: Bytes;
+	public var bytes		(default, null)				: BytesData;
 	
 	public var width		(default, null)				: Int;
 	public var height		(default, null)				: Int;
@@ -135,7 +136,7 @@ class Asset
 	public inline function isReady ()		{ return state.current == AssetStates.ready; }
 	public inline function isLoading ()		{ return state.current == AssetStates.loading; }
 	public inline function isLoadable ()	{ return state.current == AssetStates.loadable; }
-	
+	public inline function isLoaded ()		{ return /*isReady()*/ #if flash9 (uriLoader != null && uriLoader.isCompleted()) #else true #end; }
 	
 	private function disposeBytesLoader ()
 	{
@@ -193,7 +194,7 @@ class Asset
 	//
 	
 #if flash9
-	private function setURILoader (v:URLLoader)
+	private function setUriLoader (v:ICommunicator)
 	{
 		if (v != uriLoader) {
 			if (uriLoader != null) {
@@ -204,14 +205,16 @@ class Asset
 			uriLoader = v;
 			
 			if (v != null) {
-				Assert.that( v.isBinary(), "URILoader should load binary data!" );
+	//			Assert.that( v.isBinary(), "URILoader should load binary data!" );
 				
-				if (!v.isLoaded) {
+				if (!v.isCompleted()) {
 					handleLoadError	.onceOn( v.events.load.error, this );
 					handleURILoaded	.onceOn( v.events.load.completed, this );
 				}
 				else
-					bytes = Bytes.ofData( v.data );
+					setBytes( v.bytes );
+				
+				state.current = loadable;
 			}
 		}
 		return v;
@@ -223,6 +226,7 @@ class Asset
 	//
 	// GETTERS
 	//
+	
 	
 	
 	public function getBitmapData (matrix:Matrix2D = null, transparant:Null<Bool> = null, fillColor:Null<UInt> = null) : BitmapData
@@ -338,8 +342,9 @@ class Asset
 				type			= AssetType.displayObject;
 				state.current	= AssetStates.loading;
 				
-				trace("load "+uri);
-				uriLoader.load( uri );
+				trace("load "+uri+"; isURILoader: "+uriLoader.is(URLLoader));
+				if (uriLoader.is(URLLoader))
+					uriLoader.as(URLLoader).load( uri );
 			}	
 #end
 		}
@@ -384,7 +389,7 @@ class Asset
 	
 	
 	
-	public inline function setBytes (v:Bytes)
+	public inline function setBytes (v:BytesData)
 	{
 		if (v != bytes)
 		{
@@ -399,7 +404,7 @@ class Asset
 	}
 	
 	
-	public inline function loadBytes (v:Bytes = null)
+	public inline function loadBytes (v:BytesData = null)
 	{
 #if flash9
 		if (v != null)
@@ -409,8 +414,7 @@ class Asset
 		{
 			Assert.notNull(bytesLoader);
 			state.current = AssetStates.loading;
-			trace("loadBytes");
-			bytesLoader.loadBytes(v.getData());
+			bytesLoader.loadBytes(bytes);
 		}
 #end
 	}
@@ -515,13 +519,12 @@ class Asset
 	private function setLoadedData ()
 	{
 #if flash9
-		if (bytesLoader == null || !bytesLoader.isLoaded)
+		if (bytesLoader == null || !bytesLoader.isCompleted())
 			return;
 		
+	//	trace(bytesLoader.content+"; size: "+bytesLoader.width+", "+bytesLoader.height+"; mime: "+bytesLoader.info.contentType);
 		try {
 			setDisplayObject( bytesLoader.content, bytesLoader.width.roundFloat(), bytesLoader.height.roundFloat() );
-			
-			trace(uri+"; state: "+state+"; source: "+displaySource);
 		}
 		catch (e:flash.errors.Error) {
 			throw "Loading asset error. Check policy settings. "+e.message;
@@ -540,7 +543,7 @@ class Asset
 	private inline function handleURILoaded () : Void
 	{
 #if flash9
-		loadBytes( Bytes.ofData( uriLoader.data ) );
+		loadBytes( uriLoader.bytes );
 #end
 	}
 	
@@ -594,7 +597,7 @@ class Asset
 	}
 	
 	
-	public static inline function fromBytes (v:Bytes) : Asset
+	public static inline function fromBytes (v:BytesData) : Asset
 	{
 		var b = new Asset();
 		b.setBytes(v);
@@ -602,7 +605,7 @@ class Asset
 	}
 	
 	
-	public static inline function fromLoader (v:URLLoader) : Asset
+	public static inline function fromLoader (v:ICommunicator) : Asset
 	{
 		var b = new Asset();
 		b.uriLoader = v;

@@ -29,9 +29,18 @@
 package primevc.avm2.net;
  import flash.net.URLLoaderDataFormat;
  import flash.net.URLRequest;
+
+ import haxe.io.BytesData;
+
  import primevc.core.events.LoaderEvents;
- import primevc.gui.traits.ICommunicator;
+
+ import primevc.core.net.CommunicationType;
+ import primevc.core.net.ICommunicator;
+ import primevc.core.net.URLVariables;
+
+ import primevc.types.Number;
  import primevc.types.URI;
+  using primevc.utils.NumberUtil;
   using Std;
 
 
@@ -46,14 +55,16 @@ private typedef FlashLoader = flash.net.URLLoader;
  */
 class URLLoader implements ICommunicator
 {
-	public var events		(default, null)					: LoaderEvents;
-	public var bytesLoaded	(getBytesLoaded, never)			: UInt;
-	public var bytesTotal	(getBytesTotal, never)			: UInt;
-	public var isLoaded		(getIsLoaded, never)			: Bool;
-	public var data			(getData, setData)				: Dynamic;
-	public var dataFormat	(getDataFormat, setDataFormat)	: URLLoaderDataFormat;
+	public var events			(default,			null)			: LoaderEvents;
+	public var bytesProgress	(getBytesProgress,	null)			: Int;
+	public var bytesTotal		(getBytesTotal,		null)			: Int;
+	public var length			(getLength,			never)			: Int;
+	public var type				(default,			null)			: CommunicationType;
 	
-	private var loader		: FlashLoader;
+	public var data				(getData,			setData)		: Dynamic;
+	public var bytes			(getBytes,			setBytes)		: BytesData;
+	public var dataFormat		(getDataFormat,		setDataFormat)	: URLLoaderDataFormat;
+	private var loader			: FlashLoader;
 	
 	
 	public function new (loader:FlashLoader = null)
@@ -61,9 +72,12 @@ class URLLoader implements ICommunicator
 		if (loader == null) {
 			this.loader = new FlashLoader();
 			setBinary();
-		} else
+		} else {
 			this.loader	= loader;
-		events			= new LoaderEvents(this.loader);
+		}
+		
+		bytesProgress = bytesTotal = Number.INT_NOT_SET;
+		events = new LoaderEvents(this.loader);
 	}
 	
 	
@@ -72,26 +86,44 @@ class URLLoader implements ICommunicator
 		close();
 		events.dispose();
 		events	= null;
+		type	= null;
 		loader	= null;
 		data	= null;
 	}
 	
-	public function binaryPOST (uri:URI, bytes:haxe.io.Bytes, mimetype:String = "application/octet-stream")
+	public function binaryPOST (uri:URI, mimetype:String = "application/octet-stream")
 	{
 		var request		= uri.toRequest();
 		request.requestHeaders.push(new flash.net.URLRequestHeader("Content-type", mimetype));
-		request.requestHeaders.push(new flash.net.URLRequestHeader("Content-Length", bytes.length.string()));
+	//	request.requestHeaders.push(new flash.net.URLRequestHeader("Content-Length", bytes.length.string()));	<-- not allowed in as3
 		request.requestHeaders.push(new flash.net.URLRequestHeader("Cache-Control", "no-cache"));
 		request.method = flash.net.URLRequestMethod.POST;
-		request.data   = bytes.getData();
+		request.data   = bytes;
 		
 		trace(request);
+		loader.load(request);
+	}
+	
+	
+	public function formPOST (uri:URI, vars:URLVariables)
+	{
+		var request		= uri.toRequest();
+		request.requestHeaders.push(new flash.net.URLRequestHeader("Content-type", "multipart/form-data"));
+		request.method = flash.net.URLRequestMethod.POST;
+		request.data   = vars;
+		
 		setBinary();
 		loader.load(request);
 	}
 	
+	
 	public inline function load (v:URI)				{ Assert.equal(bytesTotal, 0 ); return loader.load(v.toRequest()); }
 	public inline function close ()					{ return loader.close(); }
+	public inline function isCompleted ()			{ return bytesTotal > 0 && bytesProgress >= bytesTotal; }
+	
+	public inline function isBinary ()		: Bool	{ return loader.dataFormat == URLLoaderDataFormat.BINARY; }
+	public inline function isText ()		: Bool	{ return loader.dataFormat == URLLoaderDataFormat.TEXT; }
+	public inline function isVariables ()	: Bool	{ return loader.dataFormat == URLLoaderDataFormat.VARIABLES; }
 	
 	
 	
@@ -99,21 +131,43 @@ class URLLoader implements ICommunicator
 	// GETTERS / SETTERS
 	//
 	
-	private inline function getBytesLoaded ()		{ return loader.bytesLoaded; }
-	private inline function getBytesTotal ()		{ return loader.bytesTotal; }
-	private inline function getData ()				{ return data == null ? loader.data : data; }
+	private inline function getBytesProgress ()		{ return bytesProgress.isSet()	? bytesProgress	: loader.bytesLoaded; }
+	private inline function getBytesTotal ()		{ return bytesTotal.isSet()  	? bytesTotal	: loader.bytesTotal; }
+	private inline function getData ()				{ return data != null			? data			: loader.data; }
+	private inline function getLength ()			{ return 1; }
+	
 	private inline function getDataFormat ()		{ return loader.dataFormat; }
 	private inline function setDataFormat (v)		{ return loader.dataFormat  = v; }
-	private inline function setData (v)				{ return data = v; }
 	
-	private inline function getIsLoaded () {
-		return bytesTotal > 0 && bytesLoaded >= bytesTotal;
+	
+	private  function setData (v)
+	{
+		if (data != v)
+		{
+			data = v;
+			
+			if (v != null) {
+				if		(Std.is(v, URLVariables))	setVariables();
+				else if (Std.is(v, BytesData))		setBinary();
+				else								setText();
+			}
+			bytesProgress = bytesTotal = Number.INT_NOT_SET;
+		}
+		return v;
 	}
 	
 	
-	public inline function isBinary ()		: Bool		{ return loader.dataFormat == URLLoaderDataFormat.BINARY; }
-	public inline function isText ()		: Bool		{ return loader.dataFormat == URLLoaderDataFormat.TEXT; }
-	public inline function isVariables ()	: Bool		{ return loader.dataFormat == URLLoaderDataFormat.VARIABLES; }
+	private inline function getBytes () : BytesData	{ return isBinary() ? cast(data, BytesData) : null; }
+	private inline function setBytes (v:BytesData)
+	{
+		data = v;
+		
+		if (v != null)
+			bytesProgress = bytesTotal = v.length;
+		
+		return v;
+	}
+	
 	
 	public inline function setBinary ()		: Void		{ loader.dataFormat = URLLoaderDataFormat.BINARY; }
 	public inline function setText ()		: Void		{ loader.dataFormat = URLLoaderDataFormat.TEXT; }

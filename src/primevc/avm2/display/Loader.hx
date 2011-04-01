@@ -33,12 +33,14 @@ package primevc.avm2.display;
  import flash.net.URLRequest;
  import flash.system.ApplicationDomain;
  import flash.system.LoaderContext;
- import flash.utils.ByteArray;
+
+ import haxe.io.BytesData;
 
  import primevc.avm2.events.LoaderEvents;
  import primevc.core.geom.Rectangle;
+ import primevc.core.net.CommunicationType;
  import primevc.core.net.FileType;
- import primevc.gui.traits.ICommunicator;
+ import primevc.core.net.ICommunicator;
  import primevc.types.URI;
   using primevc.utils.FileUtil;
 
@@ -55,21 +57,22 @@ class Loader implements ICommunicator
 	public static var defaultContext = new LoaderContext(false, new ApplicationDomain());
 	
 	
-	public var events		(default, null)				: LoaderEvents;
+	public var events			(default, null)				: LoaderEvents;
 	
-	public var bytes		(getBytes, never)			: ByteArray;
-	public var bytesLoaded	(getBytesLoaded, never)		: UInt;
-	public var bytesTotal	(getBytesTotal, never)		: UInt;
-	public var isLoaded		(getIsLoaded, never)		: Bool;
-	public var info			(getInfo, never)			: LoaderInfo;
+	public var bytes			(getBytes, setBytes)		: BytesData;
+	public var bytesProgress	(getBytesProgress, never)	: Int;
+	public var bytesTotal		(getBytesTotal, never)		: Int;
+	public var type				(default, null)				: CommunicationType;
+	public var length			(getLength, null)			: Int;
 	
-	public var content		(getContent, never)			: DisplayObject;
-	public var height		(getHeight, never)			: Float;
-	public var width		(getWidth, never)			: Float;
-	public var isAnimated	(default, null)				: Bool;
+	public var info				(getInfo, never)			: LoaderInfo;
+	public var content			(getContent, never)			: DisplayObject;
+	public var height			(getHeight, never)			: Float;
+	public var width			(getWidth, never)			: Float;
+	public var isAnimated		(default, null)				: Bool;
 	
-	private var loader		: FlashLoader;
-	private var type		: FileType;
+	private var loader			: FlashLoader;
+	private var fileType		: FileType;
 	
 	
 	public function new ()
@@ -82,11 +85,8 @@ class Loader implements ICommunicator
 	
 	public function dispose ()
 	{
-#if flash10
-		loader.unloadAndStop();
-#end
+		unload();
 		events.dispose();
-		type		= null;
 		loader		= null;
 		events		= null;
 	}
@@ -94,6 +94,7 @@ class Loader implements ICommunicator
 	
 	public inline function load (v:URI, ?c:LoaderContext) : Void
 	{
+		type = CommunicationType.loading;
 	//	extension = v.fileExt;
 		if (c == null)
 			c = defaultContext;
@@ -102,16 +103,25 @@ class Loader implements ICommunicator
 	}
 	
 	
-	public inline function loadBytes (v:ByteArray, ?c:LoaderContext) : Void
+	public inline function loadBytes (v:BytesData, ?c:LoaderContext) : BytesData
 	{
+		type = CommunicationType.loading;
 		loader.loadBytes(v, c);
+		return v;
 	}
 	
 	
-	public inline function unload () : Void					{ loader.unload(); type = null; }
-	public inline function close () : Void					{ if (!isLoaded) loader.close(); }
+	public inline function unload () : Void
+	{
+#if flash10	loader.unloadAndStop();
+#else		loader.unload(); #end
+			fileType	= null;
+			type		= null;
+	}
 	
-	public inline function isSwf () : Bool					{ return type == FileType.SWF; }
+	public inline function close () : Void			{ if (!isCompleted()) loader.close(); }
+	public inline function isSwf () : Bool			{ return fileType == FileType.SWF; }
+	public inline function isCompleted () : Bool	{ return bytesTotal > 0 && bytesProgress >= bytesTotal; }
 	
 	
 	
@@ -119,10 +129,13 @@ class Loader implements ICommunicator
 	// GETTERS / SETTERS
 	//
 	
-	private inline function getInfo ()				{ return loader.contentLoaderInfo; }
 	private inline function getBytes ()				{ return info.bytes; }
-	private inline function getBytesLoaded ()		{ return info.bytesLoaded; }
+	private inline function setBytes (v:BytesData)	{ return loadBytes(v); }
+	
+	private inline function getInfo ()				{ return loader.contentLoaderInfo; }
+	private inline function getBytesProgress ()		{ return info.bytesLoaded; }
 	private inline function getBytesTotal ()		{ return info.bytesTotal; }
+	private inline function getLength ()			{ return 1; }
 	
 	private inline function getWidth ()				{ return info.width; }
 	private inline function getHeight ()			{ return info.height; }
@@ -144,8 +157,8 @@ class Loader implements ICommunicator
 	{
 		var c:DisplayObject = null;
 	//	trace(info.actionScriptVersion+"; "+info.contentType);
-		if (type == null)
-			type = info.contentType.toFileType();
+		if (fileType == null)
+			fileType = info.contentType.toFileType();
 		
 		if (isSwf()) {
 			loader.scrollRect	= new Rectangle(0, 0, width, height);
@@ -170,6 +183,4 @@ class Loader implements ICommunicator
 			return cast loader.contentLoaderInfo.content;
 		}*/
 	}
-	
-	private inline function getIsLoaded ()			{ return bytesTotal > 0 && bytesLoaded >= bytesTotal; }
 }

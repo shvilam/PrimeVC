@@ -26,43 +26,49 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.neko.net;
+package primevc.core.net;
+ import haxe.io.BytesData;
  import primevc.core.events.LoaderEvents;
- import primevc.gui.traits.ICommunicator;
- import primevc.types.URI;
+ import primevc.core.traits.IDisposable;
 
 
 /**
- * Fake Neko URLLoader implementation
+ * Interface to describe objects that communicate with another resource and
+ * are able to give status updates about it.
  * 
  * @author Ruben Weijers
- * @creation-date Mar 30, 2011
+ * @creation-date Mar 28, 2011
  */
-class URLLoader implements ICommunicator 
+interface ICommunicator implements IDisposable
 {
-	public var events		(default, null)					: LoaderEvents;
-	public var bytesLoaded	(getBytesLoaded, never)			: UInt;
-	public var bytesTotal	(getBytesTotal, never)			: UInt;
-	public var isLoaded		(getIsLoaded, never)			: Bool;
+	public var events		(default,				null)		: LoaderEvents;
+	public var bytes		(getBytes,				setBytes)	: BytesData;
+	public var type			(default,				null)		: CommunicationType;
+	
+	/**
+	 * Total bytes loaded/send for all processes together
+	 */
+	public var bytesProgress	(getBytesProgress,	never)		: Int;
+	/**
+	 * Total number of bytes to load/send for all processes together
+	 */
+	public var bytesTotal		(getBytesTotal,		never)		: Int;
+	
+	/**
+	 * Indicates the number of process going on within the communicator
+	 */
+	public var length			(getLength,			null)		: Int;
 	
 	
-	public function new ();
-	public function dispose ();
-	public function binaryPOST (uri:URI, bytes:haxe.io.Bytes, mimetype:String = "application/octet-stream");
 	
-	public inline function load (v:URI);
-	public inline function close ();
-	
+	/**
+	 * Flag indicating wether the process is completed
+	 */
+	public function isCompleted () : Bool;
 	
 	
-	//
-	// GETTERS / SETTERS
-	//
-	
-	private inline function getBytesLoaded ()		{ return 0; }
-	private inline function getBytesTotal ()		{ return 0; }
-	
-	private inline function getIsLoaded () {
-		return bytesTotal > 0 && bytesLoaded >= bytesTotal;
-	}
+	/**
+	 * Method will stop all communications
+	 */
+	public function close () : Void;
 }

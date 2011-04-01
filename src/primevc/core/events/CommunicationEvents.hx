@@ -41,7 +41,7 @@ typedef CommunicationEvents =
 
 
 
-typedef ErrorHandler	= String -> Void;
+typedef TextHandler		= String -> Void;
 typedef ProgressHandler	= UInt -> UInt -> Void;
 typedef ErrorSignal		= primevc.core.dispatcher.Signal1< String >;
 typedef ProgressSignal	= primevc.core.dispatcher.Signal2<UInt,UInt>;

@@ -33,11 +33,14 @@ package primevc.avm2.net;
  import haxe.io.BytesData;
 
  import primevc.core.events.LoaderEvents;
+ import primevc.core.net.CommunicationType;
  import primevc.core.net.FileFilter;
+ import primevc.core.net.ICommunicator;
+ import primevc.core.net.URLVariables;
  import primevc.gui.events.SelectEvents;
- import primevc.gui.traits.ICommunicator;
  import primevc.types.URI;
   using primevc.utils.Bind;
+  using primevc.utils.FileUtil;
   using Std;
 
 
@@ -53,20 +56,21 @@ private typedef FlashFileRef = flash.net.FileReference;
  */
 class FileReference extends SelectEvents, implements ICommunicator
 {
-	public var events			(default,				null)	: LoaderEvents;
+	public var events			(default,				null)		: LoaderEvents;
 	
-	public var bytesLoaded		(getBytesLoaded,		null)	: Int;
-	public var bytesTotal		(getBytesTotal,			never)	: Int;
-	public var isLoaded			(getIsLoaded,			never)	: Bool;
-	public var data				(getData,				never)	: BytesData;
+	public var bytesProgress	(getBytesProgress,		null)		: Int;
+	public var bytesTotal		(getBytesTotal,			null)		: Int;
+	public var bytes			(getBytes,				setBytes)	: BytesData;
+	public var type				(default,				null)		: CommunicationType;
+	public var length			(getLength,				null)		: Int;
 	
 	public var creationDate		(getCreationDate,	 	never)	: Date;
 	public var creator			(getCreator,		 	never)	: String;
 	public var modificationDate	(getModificationDate,	never)	: Date;
 	public var name				(getName,				never)	: String;
-	public var type				(getType,				never)	: String;
+	public var fileType			(getFileType,			never)	: String;
 	
-	private var loader		: FlashFileRef;
+	private var loader			: FlashFileRef;
 	
 	
 	public function new (loader:FlashFileRef = null)
@@ -84,15 +88,29 @@ class FileReference extends SelectEvents, implements ICommunicator
 		close();
 		events.dispose();
 		events	= null;
+		type	= null;
 		loader	= null;
 		super.dispose();
 	}
 	
 	
-	public inline function load ()								{ Assert.equal(bytesTotal, 0 ); return loader.load(); }
+	public inline function load ()								{ type = CommunicationType.loading; return loader.load(); }
 	public inline function close ()								{ return loader.cancel(); }
 	public inline function browse (?types:Array<FileFilter>)	{ return loader.browse(types); }
-//	public inline function upload ()
+	
+	
+	public inline function upload (uri:URI, vars:URLVariables, uploadDataFieldName:String = "file")
+	{
+		type			= CommunicationType.sending;
+		
+		var request		= uri.toRequest();
+		request.method	= flash.net.URLRequestMethod.POST;
+		request.data	= vars;
+		bytesProgress	= 0;
+		
+		trace(uri);
+		loader.upload(request, uploadDataFieldName);
+	}
 	
 	
 	
@@ -100,27 +118,32 @@ class FileReference extends SelectEvents, implements ICommunicator
 	// GETTERS / SETTERS
 	//
 	
-	private inline function getBytesLoaded ()		{ return bytesLoaded; }
+	private inline function getBytesProgress ()		{ return bytesProgress; }
 	private inline function getBytesTotal ()		{ return loader.size.int(); }
-	private inline function getData ()				{ return loader.data; }
+	private inline function getBytes ()				{ return loader.data; }
+	private inline function setBytes (v)			{ Assert.abstract(); return null; }		// impossible to set the bytes of a file-reference!
+	private inline function getLength ()			{ return 1; }
+	
 	private inline function getModificationDate ()	{ return loader.modificationDate; }
 	private inline function getCreationDate ()		{ return loader.creationDate; }
 	private inline function getCreator ()			{ return loader.creator; }
 	private inline function getName ()				{ return loader.name; }
-	private inline function getType ()				{ return loader.type; }
 	
-	private inline function getIsLoaded () {
-		return bytesTotal > 0 && bytesLoaded >= bytesTotal;
-	}
+	/**
+	 * Method will return the FileReference.type variable when it's not null or 
+	 * the extension of the file
+	 */
+	private inline function getFileType ()			{ return loader.type == null ? name.getExtension() : loader.type; }
+	public inline function isCompleted ()			{ return bytesTotal > 0 && bytesProgress >= bytesTotal; }
 	
 	
 	//
 	// EVENTHANDLERS
 	//
 	
-	private function updateProgress (loaded:UInt, total:UInt)
+	private function updateProgress (loaded:Int, total:Int)
 	{
-		this.bytesLoaded	= loaded;
-	//	this.bytesTotal		= total;
+		this.bytesProgress = loaded;
+	//	this.bytesTotal = total;
 	}
 }

@@ -30,40 +30,11 @@ package primevc.core.net;
 
 
 
-typedef FileFilter = #if flash9 flash.net.FileFilter; #else FileFilterInst; #end
-
-
 /**
- * Class usable for defining file-types in an uploadwindow
- * 
- * mac filetypes:
- * @see http://www.tink.ws/blog/macintosh-file-types/
- * 
  * @author Ruben Weijers
- * @creation-date Mar 30, 2011
+ * @creation-date Apr 01, 2011
  */
-class FileFilters
-{
-	public static inline var image	= [ new FileFilter("Images (gif, png, jpg)", "*.png;*.gif;*.jpeg;*.jpg", "JPEG;jp2_;GIFf;PNGf") ];		//FIXME add SVG support
-	public static inline var video	= [ new FileFilter("Videos (mpeg, mp4, avi, flv)", "*.mpeg;*.mp4;*.avi;*.flv", "MPEG;AVI;FLV_") ];
-	public static inline var flash	= [ new FileFilter("Flash", "*.swf", "SWFL") ];
-	public static inline var sound	= [ new FileFilter("Audio (mp3, mp2, wav)", "*.mp3;*.mp2;*.wav", "WAVE;WAV;MP3_;Mp3_;MPG3;MPG2;MP2_;Mp2_") ];
+enum CommunicationType {
+	sending;
+	loading;
 }
-
-
-#if !flash9
-class FileFilterInst
-{
-	public var description	(default, null) : String;
-	public var extension	(default, null)	: String;
-	public var macType		(default, null)	: String;
-
-
-	public function new (description:String, extension:String, macType:String)
-	{
-		this.description	= description;
-		this.extension		= extension;
-		this.macType		= macType;
-	}
-}
-#end

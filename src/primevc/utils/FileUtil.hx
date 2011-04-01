@@ -29,6 +29,7 @@
 package primevc.utils;
  import primevc.core.net.FileType;
  import primevc.core.net.MimeType;
+  using primevc.utils.IfUtil;
 
 
 /**
@@ -47,5 +48,45 @@ class FileUtil
 			default:
 				throw "Unkown mimetype: "+mimetype;
 		}
+	}
+	
+	
+	/**
+	 * Method will return the extension of the given filename or an empty string
+	 * if the file doesn't have an extension.
+	 * 
+	 * 	- Returns the string after the last dot in the path.
+	 * 	- Returns an empty string if it has no dots in the path.
+	 *	- Returns empty string if the first char is a dot and there are no other dots (UNIX hidden file convention).
+	 * 
+	 * @author Danny Wilson
+	 */
+	public static inline function getExtension (fileName:String) : String
+	{
+		if (!fileName.notNull()) return "";
+		else {
+			var idx = fileName.lastIndexOf('.');
+			var ext = idx <= 1 ? "" : fileName.substr(idx+1).toLowerCase();
+			return (ext == "jpg" ? "jpeg" : ext).toUpperCase();
+		}
+	}
+	
+	
+	/**
+	 * Method will change the extension of the given filename and return the
+	 * new filename.
+	 * 
+	 * @author Danny Wilson
+	 */
+	public static inline function setExtension (fileName:String, ext:String) : String
+	{
+		Assert.notNull(ext);
+		Assert.notNull(fileName);
+		
+		var idx		= fileName.lastIndexOf('.');
+		fileName	= idx <= 1
+						? fileName + '.' + ext
+						: fileName.substr(0, fileName.lastIndexOf('.')) + '.' + ext;
+		return fileName;
 	}
 }
