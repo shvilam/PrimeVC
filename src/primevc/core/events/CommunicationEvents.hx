@@ -34,9 +34,14 @@ package primevc.core.events;
 typedef CommunicationEvents = 
 	#if		flash9	primevc.avm2.events.CommunicationEvents;
 	#elseif	flash8	primevc.avm1.events.CommunicationEvents;
+<<<<<<< HEAD
 	#elseif	js		primevc.js  .events.CommunicationEvents;
 	#elseif	neko	CommunicationSignals;
 	#else	error;	#end
+=======
+	#elseif	js		CommunicationSignals; //primevc.js  .events.CommunicationEvents;
+	#else	#error	#end
+>>>>>>> 2e9a7041ebf9b34bea0ed1c6f5e26d30e7b17d4b
 
 
 

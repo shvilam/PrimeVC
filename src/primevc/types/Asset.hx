@@ -304,7 +304,7 @@ class Asset
 	{
 		if (type != null)
 		{
-			if (type != AssetType.displayObject #if !neko || bytesLoader == null || !bytesLoader.isSwf() #end)
+			if (type != AssetType.displayObject #if flash9 || bytesLoader == null || !bytesLoader.isSwf() #end)
 				disposeBytesLoader();
 			
 #if flash9	if (bitmapData != null)		bitmapData.dispose();	#end
