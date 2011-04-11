@@ -4,15 +4,13 @@ import js.Dom;
 
 /**
  * @author	Stanislav Sopov
- * @since	March 2, 2011
+ * @since	April 6, 2011
  */
 
-class FocusSignal extends DOMSignal1<FocusEvent>
+class LoadSignal extends DOMSignal0
 {
 	override private function dispatch(event:Event) 
 	{
-		var focusEvent = new DOMEvent(event);
-		
-		send(focusEvent);
+		send();
 	}
 }

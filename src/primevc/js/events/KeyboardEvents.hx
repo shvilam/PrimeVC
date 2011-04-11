@@ -10,40 +10,36 @@ import js.Dom;
 
 class KeyboardEvents extends Signals
 {
-	var eventDispatcher:HtmlDom;
+	var eventDispatcher:Dynamic;
 	
-	public var keydown	(getKeydown,	null):KeyboardSignal;
-	public var keyup 	(getKeyup,		null):KeyboardSignal;
-	public var keypress (getKeypress,	null):KeyboardSignal;
+	public var keyDown	(getKeyDown,	null):KeyboardSignal;
+	public var keyUp 	(getKeyUp,		null):KeyboardSignal;
+	public var keyPress (getKeyPress,	null):KeyboardSignal;
 	
-	
-	public function new(eventDispatcher:HtmlDom)
+	public function new(eventDispatcher:Dynamic)
 	{
 		this.eventDispatcher = eventDispatcher;
 	}
 	
+	private inline function getKeyDown()	{ if (keyDown	== null) { createKeyDown();		} return keydown; }
+	private inline function getKeyUp()		{ if (keyUp 	== null) { createKeyUp();		} return keyup; }
+	private inline function getKeyPress()	{ if (keyPress 	== null) { createKeyPress();	} return keypress; }
 	
-	private inline function getKeydown()	{ if (keydown	== null) { createKeydown();	} return keydown; }
-	private inline function getKeyup()		{ if (keyup 	== null) { createKeyup();	} return keyup; }
-	private inline function getKeypress()	{ if (keypress 	== null) { createKeypress();} return keypress; }
-	
-	
-	private function createKeydown() 	{ keydown	= new KeyboardSignal(eventDispatcher, "keydown"); }
-	private function createKeyup()		{ keyup		= new KeyboardSignal(eventDispatcher, "keyup"); }
-	private function createKeypress()	{ keypress	= new KeyboardSignal(eventDispatcher, "keypress"); }
-	
+	private function createKeyDown() 	{ keyDown	= new KeyboardSignal(eventDispatcher, "keydown"); }
+	private function createKeyUp()		{ keyUp		= new KeyboardSignal(eventDispatcher, "keyup"); }
+	private function createKeyPress()	{ keyPress	= new KeyboardSignal(eventDispatcher, "keypress"); }
 	
 	override public function dispose ()
 	{
 		eventDispatcher = null;
 		
-		if ( (untyped this).keydown		!= null ) keydown.dispose();
-		if ( (untyped this).keyup		!= null ) keyup.dispose();
-		if ( (untyped this).keypress	!= null ) keypress.dispose();
+		if ( (untyped this).keyDown		!= null ) keyDown.dispose();
+		if ( (untyped this).keyUp		!= null ) keyUp.dispose();
+		if ( (untyped this).keyPress	!= null ) keyPress.dispose();
 		
-		keydown = 
-		keyup = 
-		keypress = 
+		keyDown = 
+		keyUp = 
+		keyPress = 
 		null;
 	}
 }

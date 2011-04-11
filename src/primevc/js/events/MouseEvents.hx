@@ -10,60 +10,66 @@ import js.Dom;
 
 class MouseEvents extends Signals
 {
-	var eventDispatcher:HtmlDom;
+	var eventDispatcher:Dynamic;
 	
-	public var mousemove(getMousemove,	null):MouseSignal;
-	public var mousedown(getMousedown,	null):MouseSignal;
-	public var mouseup	(getMouseup, 	null):MouseSignal;
-	public var mouseover(getMouseover,	null):MouseSignal;
-	public var mouseout	(getMouseout,	null):MouseSignal;
-	public var click	(getClick,		null):MouseSignal;
-	public var dblclick	(getDblclick,	null):MouseSignal;
+	public var mouseMove	(getMouseMove,	null):MouseSignal;
+	public var mouseDown	(getMouseDown,	null):MouseSignal;
+	public var mouseUp		(getMouseUp, 	null):MouseSignal;
+	public var mouseOver	(getMouseOver,	null):MouseSignal;
+	public var mouseOut		(getMouseOut,	null):MouseSignal;
+	public var mouseEnter	(getMouseEnter,	null):MouseSignal;
+	public var mouseLeave	(getMouseLeave,	null):MouseSignal;
+	public var click		(getClick,		null):MouseSignal;
+	public var dblClick		(getDblClick,	null):MouseSignal;
 	
-	
-	public function new(eventDispatcher:HtmlDom)
+	public function new(eventDispatcher:Dynamic)
 	{
 		this.eventDispatcher = eventDispatcher;
 	}
 	
+	private inline function getMouseMove()	{ if (mouseMove 	== null) { createMouseMove();	} return mouseMove; }
+	private inline function getMouseDown()	{ if (mouseDown 	== null) { createMouseDown();	} return mouseDown; }
+	private inline function getMouseUp()	{ if (mouseUp 		== null) { createMouseUp();		} return mouseUp; }
+	private inline function getMouseOver()	{ if (mouseOver		== null) { createMouseOver();	} return mouseOver; }
+	private inline function getMouseOut()	{ if (mouseOut		== null) { createMouseOut();	} return mouseOut; }
+	private inline function getMouseEnter()	{ if (mouseEnter	== null) { createMouseEnter();	} return mouseEnter; }
+	private inline function getMouseLeave()	{ if (mouseLeave	== null) { createMouseLeave();	} return mouseLeave; }
+	private inline function getClick()		{ if (click 		== null) { createClick();		} return click; }
+	private inline function getDblClick()	{ if (dblClick 		== null) { createDblClick();	} return dblClick; }
 	
-	private inline function getMousemove()	{ if (mousemove == null) { createMousemove();	} return mousemove; }
-	private inline function getMousedown()	{ if (mousedown == null) { createMousedown();	} return mousedown; }
-	private inline function getMouseup()	{ if (mouseup 	== null) { createMouseup();		} return mouseup; }
-	private inline function getMouseover()	{ if (mouseover	== null) { createMouseover();	} return mouseover; }
-	private inline function getMouseout()	{ if (mouseout	== null) { createMouseout(); 	} return mouseout; }
-	private inline function getClick()		{ if (click 	== null) { createClick(); 		} return click; }
-	private inline function getDblclick()	{ if (dblclick 	== null) { createDblclick(); 	} return dblclick; }
-	
-	
-	private function createMousemove() 	{ mousemove = new MouseSignal(eventDispatcher, "mousemove"); }
-	private function createMousedown() 	{ mousedown = new MouseSignal(eventDispatcher, "mousedown"); }
-	private function createMouseup() 	{ mouseup 	= new MouseSignal(eventDispatcher, "mouseup"); }
-	private function createMouseover() 	{ mouseover = new MouseSignal(eventDispatcher, "mouseover"); }
-	private function createMouseout() 	{ mouseout 	= new MouseSignal(eventDispatcher, "mouseout"); }
-	private function createClick() 		{ click 	= new MouseSignal(eventDispatcher, "click"); }
-	private function createDblclick() 	{ dblclick 	= new MouseSignal(eventDispatcher, "dblclick"); }
-	
+	private function createMouseMove() 	{ mouseMove		= new MouseSignal(eventDispatcher, "mousemove"); }
+	private function createMouseDown() 	{ mouseDown		= new MouseSignal(eventDispatcher, "mousedown"); }
+	private function createMouseUp() 	{ mouseUp		= new MouseSignal(eventDispatcher, "mouseup"); }
+	private function createMouseOver() 	{ mouseOver		= new MouseSignal(eventDispatcher, "mouseover"); }
+	private function createMouseOut() 	{ mouseOut		= new MouseSignal(eventDispatcher, "mouseout"); }
+	private function createMouseEnter() { mouseEnter	= new MouseSignal(eventDispatcher, "mouseenter"); }
+	private function createMouseLeave() { mouseLeave	= new MouseSignal(eventDispatcher, "mouseleave"); }
+	private function createClick() 		{ click 		= new MouseSignal(eventDispatcher, "click"); }
+	private function createDblClick() 	{ dblClick 		= new MouseSignal(eventDispatcher, "dblclick"); }
 	
 	override public function dispose ()
 	{
 		eventDispatcher = null;
 		
-		if ( (untyped this).mousemove	!= null ) mousemove.dispose();
-		if ( (untyped this).mousedown	!= null ) mousedown.dispose();
-		if ( (untyped this).mouseup		!= null ) mouseup.dispose();
-		if ( (untyped this).mouseover	!= null ) mouseover.dispose();
-		if ( (untyped this).mouseout	!= null ) mouseout.dispose();
+		if ( (untyped this).mouseMove	!= null ) mouseMove.dispose();
+		if ( (untyped this).mouseDown	!= null ) mouseDown.dispose();
+		if ( (untyped this).mouseUp		!= null ) mouseUp.dispose();
+		if ( (untyped this).mouseOver	!= null ) mouseOver.dispose();
+		if ( (untyped this).mouseOut	!= null ) mouseOut.dispose();
+		if ( (untyped this).mouseEnter	!= null ) mouseEnter.dispose();
+		if ( (untyped this).mouseLeave	!= null ) mouseLeave.dispose();
 		if ( (untyped this).click		!= null ) click.dispose();
-		if ( (untyped this).dblclick	!= null ) dblclick.dispose();
+		if ( (untyped this).dblClick	!= null ) dblClick.dispose();
 		
-		mousemove = 
-		mousedown = 
-		mouseup = 
-		mouseover = 
-		mouseout = 
+		mouseMove = 
+		mouseDown = 
+		mouseUp = 
+		mouseOver = 
+		mouseOut = 
+		mouseEnter = 
+		mouseLeave = 
 		click = 
-		dblclick = 
+		dblClick = 
 		null;
 	}
 }

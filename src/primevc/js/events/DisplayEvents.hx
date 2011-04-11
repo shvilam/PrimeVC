@@ -4,41 +4,62 @@ import primevc.core.dispatcher.Signals;
 import js.Dom;
 
 /**
- * @since	march 8, 2011
  * @author	Stanislav Sopov
+ * @since	March 8, 2011
  */
 
 class DisplayEvents extends Signals
 {
-	private var eventDispatcher:HtmlDom;
+	var eventDispatcher:Dynamic;
 	
-	// IMPORTANT
-	// these events are mockups
-	// Safari doesn't (yet) support mutation events
-	// see below link for reference
-	// http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-eventgroupings-mutationevents
+	public var insert			(getInsert,			null):DisplaySignal;
+	public var insertIntoDoc	(getInsertIntoDoc,	null):DisplaySignal;
+	public var remove			(getRemove,			null):DisplaySignal;
+	public var removeFromDoc	(getRemoveFromDoc,	null):DisplaySignal;
+	public var modifyCharData	(getModifyCharData,	null):DisplaySignal;
+	public var modifySubtree	(getModifySubtree,	null):DisplaySignal;
+	public var modifyAttr		(getModifyAttr,		null):DisplaySignal;
 	
-	public var add		(default, null):DisplaySignal;
-	public var remove	(default, null):DisplaySignal;
-	
-	
-	public function new(eventDispatcher)
+	public function new(eventDispatcher:Dynamic)
 	{
 		this.eventDispatcher = eventDispatcher;
-		
-		add		= new DisplaySignal(eventDispatcher, "add");
-		remove	= new DisplaySignal(eventDispatcher, "remove");
 	}
+	
+	private inline function getInsert()			{ if (insert			== null) { createInsert();			} return insert; }
+	private inline function getInsertIntoDoc()	{ if (insertIntoDoc		== null) { createInsertIntoDoc(); 	} return insertIntoDoc; }
+	private inline function getRemove()			{ if (remove			== null) { createRemove(); 			} return remove; }
+	private inline function getRemoveFromDoc()	{ if (removeFromDoc		== null) { createRemoveFromDoc(); 	} return removeFromDoc; }
+	private inline function getModifyCharData()	{ if (modifyCharData	== null) { createModifyCharData(); 	} return modifyCharData; }
+	private inline function getModifySubtree()	{ if (modifySubtree 	== null) { createModifySubtree(); 	} return modifySubtree; }
+	private inline function getModifyAttr()		{ if (modifyAttr 		== null) { createModifyAttr(); 		} return modifyAttr; }
+	
+	private function createInsert()			{ insert			= new DisplaySignal(eventDispatcher, "DOMNodeInserted"); }
+	private function createInsertIntoDoc()	{ insertIntoDoc		= new DisplaySignal(eventDispatcher, "DOMNodeInsertedIntoDocument"); }
+	private function createRemove()			{ remove			= new DisplaySignal(eventDispatcher, "DOMNodeRemoved"); }
+	private function createRemoveFromDoc()	{ removeFromDoc		= new DisplaySignal(eventDispatcher, "DOMNodeRemovedFromDocument"); }
+	private function createModifyCharData()	{ modifyCharData	= new DisplaySignal(eventDispatcher, "DOMCharacterDataModified"); }
+	private function createModifySubtree()	{ modifySubtree		= new DisplaySignal(eventDispatcher, "DOMSubtreeModified"); }
+	private function createModifyAttr()		{ modifyAttr		= new DisplaySignal(eventDispatcher, "DOMAttrModified"); }
 	
 	override public function dispose ()
 	{
 		eventDispatcher = null;
 		
-		if ((untyped this).add != null)		add		.dispose();
-		if ((untyped this).remove != null)	remove	.dispose();
+		if ( (untyped this).insert			!= null ) insert.dispose();
+		if ( (untyped this).insertIntoDoc	!= null ) insertIntoDoc.dispose();
+		if ( (untyped this).remove			!= null ) remove.dispose();
+		if ( (untyped this).removeFromDoc	!= null ) removeFromDoc.dispose();
+		if ( (untyped this).modifyCharData	!= null ) modifyCharData.dispose();
+		if ( (untyped this).modifySubtree	!= null ) modifySubtree.dispose();
+		if ( (untyped this).modifyAttr		!= null ) modifyAttr.dispose();
 		
-		add =
+		insert =
+		insertIntoDoc =
 		remove =
+		removeFromDoc = 
+		modifyCharData = 
+		modifySubtree = 
+		modifyAttr = 
 		null;
 	}
 }

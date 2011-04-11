@@ -1,7 +1,7 @@
 package primevc.js.events;
 
 import primevc.core.dispatcher.Wire;
-import primevc.core.dispatcher.Signal1;
+import primevc.core.dispatcher.Signal0;
 import primevc.core.dispatcher.IWireWatcher;
 import primevc.core.ListNode;
 import js.Dom;
@@ -10,10 +10,10 @@ import js.Lib;
 
 /**
  * @author	Stanislav Sopov
- * @since 	March 2, 2011
+ * @since 	April 6, 2011
  */
 
-class DOMSignal1<Type> extends Signal1<Type>, implements IWireWatcher<Type->Void>
+class DOMSignal0 extends Signal0, implements IWireWatcher<Void->Void>
 {
 	var eventDispatcher:Dynamic;
 	var event:String;
@@ -27,7 +27,7 @@ class DOMSignal1<Type> extends Signal1<Type>, implements IWireWatcher<Type->Void
 	}
 	
 	
-	public function wireEnabled (wire:Wire<Type->Void>):Void
+	public function wireEnabled (wire:Wire<Void->Void>):Void
 	{	
 		Assert.that(n != null);
 		
@@ -48,7 +48,7 @@ class DOMSignal1<Type> extends Signal1<Type>, implements IWireWatcher<Type->Void
 	}
 	
 	
-	public function wireDisabled (wire:Wire<Type->Void>):Void
+	public function wireDisabled (wire:Wire<Void->Void>):Void
 	{	
 		if (n == null) // No more wires connected
 		{
