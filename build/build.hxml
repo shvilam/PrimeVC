@@ -20,6 +20,7 @@
 -cp libs/apparat
 -cp libs/haxe
 -cp libs/hiresStats
+-cp libs/hxmpp
 #-cp libs/macmousewheel
 #-cp libs/monsterdebugger
 #-cp libs/swfaddress
