@@ -116,14 +116,15 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 			createBehaviours();
 			drawGraphics();
 			
-		//	trace(owner+" => "+this+"; "+newOwner.isInitialized());
+	//		trace(owner+" => "+this+"; "+newOwner.isInitialized());
 			if (newOwner.isInitialized()) {
 				createChildren();
 				childrenCreated();
 				behaviours.init();
 			}
 			else
-				behaviours.init.onceOn( owner.displayEvents.addedToStage, this );
+				behaviours.init.onceOn( owner.state.initialized.entering, this );
+			//	behaviours.init.onceOn( owner.displayEvents.addedToStage, this );
 		}
 		
 		return newOwner;

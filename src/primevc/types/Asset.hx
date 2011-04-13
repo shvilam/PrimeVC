@@ -632,36 +632,19 @@ class Asset
 
 
 #if neko
-	public function isEmpty ()
-	{
-		return uri == null && assetClass == null && bitmapData == null && displaySource == null;
-	}
-	
-	public function toString ()
-	{
-		return	 if (uri != null)				"Asset( "+uri+" )";
-			else if (assetClass != null)		"Asset( "+assetClass+" )";
-			else if (bitmapData != null)		"Asset( bitmapData )";
-			else if (displaySource != null)		"Asset( "+displaySource+" )";
-			else								"Asset( "+type+")";
-	}
-	
-	public function cleanUp () : Void {}
-	
-	public function toCode (code:ICodeGenerator)
-	{
-		code.construct( this, [ uri, assetClass, bitmapData, null, this.displaySource ] );
-	}
+	public function isEmpty ()						{ return uri == null && assetClass == null && bitmapData == null && displaySource == null; }
+	public function cleanUp () : Void				{}
+	public function toCode (code:ICodeGenerator)	{ code.construct( this, [ uri, assetClass, bitmapData, null, this.displaySource ] ); }
 #end
 
-#if (!neko && debug)
+#if (neko || debug)
 	public function toString ()
 	{
-		return	 if (uri != null)				"Asset( "+uri+" )";
-			else if (assetClass != null)		"Asset( "+assetClass+" )";
-			else if (bitmapData != null)		"Asset( bitmapData )";
-			else if (displaySource != null)		"Asset( "+displaySource+" )";
-			else								"Asset( "+type+")";
+		return	 if (uri != null)				"Asset( "+uri+" )" + state.current;
+			else if (assetClass != null)		"Asset( "+assetClass+" )" + state.current;
+			else if (bitmapData != null)		"Asset( bitmapData )" + state.current;
+			else if (displaySource != null)		"Asset( "+displaySource+" )" + state.current;
+			else								"Asset( "+type+")" + state.current;
 	}
 #end
 }

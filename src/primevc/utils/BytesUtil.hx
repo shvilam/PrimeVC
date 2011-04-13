@@ -20,55 +20,53 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.collections;
- import primevc.core.traits.IEditEnabledValueObject;
- 
+package primevc.utils;
+ import haxe.io.BytesData;
+  using primevc.utils.NumberUtil;
+  using StringTools;
+
 
 /**
- * @creation-date	Jun 29, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Apr 12, 2011
  */
-interface IEditableList <DataType>
-		implements IReadOnlyList <DataType>	
-	,	implements IEditEnabledValueObject
+class BytesUtil
 {
-	//
-	// LIST MANIPULATION METHODS
-	//
-	
 	/**
-	 * Method will add the item on the given position. It will add the 
-	 * item at the end of the childlist when the value is equal to -1.
+	 * Method will return the data of the byte-array in a hexadecimale 
+	 * representation with 16 bytes on one row.
 	 * 
-	 * @param	item
-	 * @param	pos		default-value: -1
-	 * @return	item
+	 * Note: Use this method only for debugging, it's quite inefficient
 	 */
-	public function add		(item:DataType, pos:Int = -1)						: DataType;
-	/**
-	 * Method will try to remove the given item from the childlist.
-	 * 
-	 * @param	item
-	 * @return	item
-	 */
-	public function remove	(item:DataType, oldPos:Int = -1)					: DataType;
-	/**
-	 * Method will change the depth of the given item.
-	 * 
-	 * @param	item
-	 * @param	newPos
-	 * @param	curPos	Optional parameter that can be used to speed up the 
-	 * 					moving process since the list doesn't have to search 
-	 * 					for the original location of the item.
-	 * @return	item
-	 */
-	public function move	(item:DataType, newPos:Int, curPos:Int = -1)		: DataType;
-	
-	public function removeAll ()												: Void;
+	public static function toHex (data:BytesData) : String
+	{
+		data.position = 0;
+		
+		var l = Std.int(data.length);
+		var s = [];
+		var rows = (l / 16).ceilFloat();
+		
+		for (i in 0...rows) {
+			var r = [];
+			
+			try {
+				for (j in 0...16)
+					r.push( data.readByte().hex(2).substr(-2, 2) );
+				
+				throw 0;
+			}
+			catch(e:Dynamic) {
+				s.push(r.join(" "));
+			}
+		}
+		
+		trace(s.length+" / "+rows+"; "+l);
+		return "\n\t"+s.join("\n\t");
+	}
 }

@@ -75,11 +75,19 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 {
 	/**
 	 * shortcut method to instantiate a progressbar for the given target
+	 * 
+	 * @param	autoDispose		flag indicating if the progressbar should be disposed when loading has completed or failed
 	 */
-	public static inline function createIn (target:IUIContainer, source:ICommunicator = null) : ProgressBar
+	public static inline function createIn (target:IUIContainer, source:ICommunicator = null, autoDispose:Bool = false) : ProgressBar
 	{
 		var b		= new ProgressBar(target.id.value+"Progress");
 		b.source	= source;
+		
+		if (autoDispose) {
+			b.dispose.on( source.events.load.completed, b );
+			b.dispose.on( source.events.load.error, b );
+		}
+		
 		target.layoutContainer.children.add( b.layout );
 		target.children.add( b );
 		return b;
@@ -142,11 +150,11 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 		if (isDisposed())
 			return;
 		
+		source = null;
 		progressStyle		.dispose();
 		determinateStyle	.dispose();
 		
-		progressStyle	= determinateStyle = null;
-		source			= null;
+		progressStyle = determinateStyle = null;
 		
 		super.dispose();
 	}
@@ -164,7 +172,7 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 			mode = v == null ? ProgressBarMode.manual : ProgressBarMode.event;
 			
 			if (source != null)
-				source.events.unbind( this );
+				source.events.load.unbind( this );
 			
 			source = v;
 			
@@ -184,7 +192,7 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 	}
 	
 	
-	private  function setProgressState ( state:ProgressState ) : ProgressState
+	private /*inline*/ function setProgressState ( state:ProgressState ) : ProgressState
 	{
 		if (progressState != state)
 		{
@@ -228,6 +236,7 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 		if (isDeterminate) {
 			data.validator.max	= source.bytesTotal;
 			data.value			= source.bytesProgress;
+	//		trace(source.bytesProgress+" / "+source.bytesTotal+" --- "+source.type+"; "+data.percentage+"%");
 		}
 	}
 }
