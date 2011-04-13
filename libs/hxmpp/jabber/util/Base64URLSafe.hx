@@ -24,14 +24,14 @@ import js.Node;
 #end
 
 /**
- * Base64 url-save encoding/decoding utility.
+ * Base64 url-safe encoding/decoding utility.
  * Based on code from jabber.util.Base64
  * 	
  * @author	Ruben Weijers
  * @since	Apr 13, 2011
  * @see		http://en.wikipedia.org/wiki/Base64#URL_applications
  */
-class Base64URLSave
+class Base64URLSafe
 {
 	/**
 	 * Chars to be used in URLSave encoding
