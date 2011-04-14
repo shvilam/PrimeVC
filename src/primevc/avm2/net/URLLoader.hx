@@ -40,6 +40,10 @@ package primevc.avm2.net;
 
  import primevc.types.Number;
  import primevc.types.URI;
+#if debug
+  using primevc.core.net.HttpStatusCodes;
+  using primevc.utils.Bind;
+#end
   using primevc.utils.NumberUtil;
   using Std;
 
@@ -65,6 +69,7 @@ class URLLoader implements ICommunicator
 	public var bytes			(getBytes,			setBytes)		: BytesData;
 	public var dataFormat		(getDataFormat,		setDataFormat)	: URLLoaderDataFormat;
 	private var loader			: FlashLoader;
+	private var uri				: URI;
 	
 	
 	public function new (loader:FlashLoader = null)
@@ -78,6 +83,9 @@ class URLLoader implements ICommunicator
 		
 		bytesProgress = bytesTotal = Number.INT_NOT_SET;
 		events = new LoaderEvents(this.loader);
+		
+#if debug	trackHttpStatus.on( events.httpStatus, this ); #end		
+//#if debug	trackCompleted.on( events.load.completed, this ); #end
 	}
 	
 	
@@ -89,10 +97,14 @@ class URLLoader implements ICommunicator
 		type	= null;
 		loader	= null;
 		data	= null;
+		uri		= null;
 	}
 	
 	public function binaryPOST (uri:URI, mimetype:String = "application/octet-stream")
 	{
+		this.type		= CommunicationType.sending;
+		this.uri		= uri;
+		
 		var request		= uri.toRequest();
 		request.requestHeaders.push(new flash.net.URLRequestHeader("Content-type", mimetype));
 	//	request.requestHeaders.push(new flash.net.URLRequestHeader("Content-Length", bytes.length.string()));	<-- not allowed in as3
@@ -107,6 +119,9 @@ class URLLoader implements ICommunicator
 	
 	public function formPOST (uri:URI, vars:URLVariables)
 	{
+		this.type		= CommunicationType.sending;
+		this.uri		= uri;
+		
 		var request		= uri.toRequest();
 		request.requestHeaders.push(new flash.net.URLRequestHeader("Content-type", "multipart/form-data"));
 		request.method = flash.net.URLRequestMethod.POST;
@@ -117,7 +132,16 @@ class URLLoader implements ICommunicator
 	}
 	
 	
-	public inline function load (v:URI)				{ Assert.equal(bytesTotal, 0 ); return loader.load(v.toRequest()); }
+	public inline function load (v:URI)
+	{
+		this.type	= CommunicationType.loading;
+		this.uri	= v;
+		
+		Assert.equal(bytesTotal, 0 );
+		return loader.load(v.toRequest());
+	}
+	
+	
 	public inline function close ()					{ return loader.close(); }
 	public inline function isCompleted ()			{ return bytesTotal > 0 && bytesProgress >= bytesTotal; }
 	
@@ -172,4 +196,10 @@ class URLLoader implements ICommunicator
 	public inline function setBinary ()		: Void		{ loader.dataFormat = URLLoaderDataFormat.BINARY; }
 	public inline function setText ()		: Void		{ loader.dataFormat = URLLoaderDataFormat.TEXT; }
 	public inline function setVariables ()	: Void		{ loader.dataFormat = URLLoaderDataFormat.VARIABLES; }
+	
+	
+#if debug
+	private function trackHttpStatus (status:Int)		{ trace(status.read()+" => "+uri+"[ "+bytesProgress+" / "+ bytesTotal+" ]; type: "+type+"; format: "+dataFormat+"; "+loader.data); }
+//	private function trackCompleted ()					{ trace(uri+"[ "+bytesProgress+" / "+ bytesTotal+" ]; type: "+type+"; format: "+dataFormat+"; "+loader.data); }
+#end
 }

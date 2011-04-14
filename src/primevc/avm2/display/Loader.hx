@@ -160,14 +160,18 @@ class Loader implements ICommunicator
 		if (fileType == null)
 			fileType = info.contentType.toFileType();
 		
-		if (isSwf()) {
+		if ( isSwf() )
+		{
 			loader.scrollRect	= new Rectangle(0, 0, width, height);
 			isAnimated			= info.frameRate > 2;
 			c = loader;
-		} else {
+		}
+		else
+		{
 			c = loader.contentLoaderInfo.content;
 			isAnimated = false;
 		}
+		
 		
 		if (!isAnimated)
 			c.cacheAsBitmap	= true;

@@ -121,7 +121,7 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 	private function unsetAsset ()
 	{
 #if flash9
-		Assert.notNull(data.type);
+		Assert.notNull(data.type, "asset: "+data);
 		switch (data.type)
 		{
 			case AssetType.vector, AssetType.displayObject:

@@ -124,9 +124,9 @@ class Asset
 	
 	public function dispose ()
 	{
-		unsetData();
 		state.dispose();
 		state	= null;
+		unsetData();
 #if neko
 		_oid	= 0;
 #end
@@ -138,12 +138,17 @@ class Asset
 	public inline function isLoadable ()	{ return state.current == AssetStates.loadable; }
 	public inline function isLoaded ()		{ return /*isReady()*/ #if flash9 (uriLoader != null && uriLoader.isCompleted()) #else true #end; }
 	
+	public inline function isBitmapData ()		{ return type == AssetType.bitmapData; }
+	public inline function isDisplayObject ()	{ return type == AssetType.displayObject; }
+	public inline function isVector ()			{ return type == AssetType.vector; }
+	
+	
 	private function disposeBytesLoader ()
 	{
 #if flash9
 		if (bytesLoader != null)
 		{
-			if (state.is(loading))
+			if (state == null || state.is(loading))
 				bytesLoader.close();
 			
 			bytesLoader.dispose();
@@ -300,7 +305,7 @@ class Asset
 	//
 	
 	
-	private inline function unsetData ()
+	private /*inline*/ function unsetData ()
 	{
 		if (type != null)
 		{
@@ -308,10 +313,9 @@ class Asset
 				disposeBytesLoader();
 			
 #if flash9	if (bitmapData != null)		bitmapData.dispose();	#end
+			if (state != null)			state.current	= AssetStates.empty;		// important to this first, other objects have a chance to remove their references then...
 			
-			state.current	= AssetStates.empty;		// important to this first, other objects have a chance to remove their references then...
-			
-#if flash9	uriLoader		= null; #end
+#if flash9	uriLoader		= null; #end				// don't dispose the loader, can be cached by value-objects (their responsibility to dispose it)
 			uri				= null;
 			assetClass		= null;
 			displaySource	= null;
@@ -404,7 +408,7 @@ class Asset
 	}
 	
 	
-	public inline function loadBytes (v:BytesData = null)
+	public /*inline*/ function loadBytes (v:BytesData = null)
 	{
 #if flash9
 		if (v != null)
@@ -492,6 +496,7 @@ class Asset
 				
 				while (asset != null)
 				{
+				//	trace("\t\t"+asset+" -> isBitmap: "+(asset == BitmapData)+"; isDisplayObject: "+(asset == DisplayObject)+"; isFlashBitmap? "+(asset == FlashBitmap));
 					if		(asset == BitmapData)		{ setBitmapData( Type.createInstance(v, []) );	break; }
 					else if (asset == DisplayObject)	{ setVector( v ); break; }
 					else if (asset == FlashBitmap)		{ setFlashBitmap( Type.createInstance(v, []) );	break; }
@@ -519,6 +524,7 @@ class Asset
 	private function setLoadedData ()
 	{
 #if flash9
+		trace(this+" - "+uriLoader);
 		if (bytesLoader == null || !bytesLoader.isCompleted())
 			return;
 		
@@ -543,6 +549,7 @@ class Asset
 	private inline function handleURILoaded () : Void
 	{
 #if flash9
+		trace(uri+"; totalBytes: "+uriLoader.bytes.length);
 		loadBytes( uriLoader.bytes );
 #end
 	}
@@ -556,6 +563,7 @@ class Asset
 	
 	public static inline function fromURI (v:URI) : Asset
 	{
+		trace(v);
 		var b = new Asset();
 		b.setURI(v);
 	//	b.loadURI(v);
@@ -565,6 +573,7 @@ class Asset
 	
 	public static inline function fromString (v:String) : Asset
 	{
+		trace(v);
 		var b = new Asset();
 		b.setString(v);
 	//	b.loadString(v);
@@ -575,6 +584,7 @@ class Asset
 #if flash9
 	public static inline function fromDisplayObject (v:DisplayObject) : Asset
 	{
+		trace(v);
 		var b = new Asset();
 		b.setDisplayObject(v);
 		return b;
@@ -583,6 +593,7 @@ class Asset
 	
 	public static inline function fromFlashBitmap (v:FlashBitmap) : Asset
 	{
+		trace(v);
 		var b = new Asset();
 		b.setFlashBitmap(v);
 		return b;
@@ -591,6 +602,7 @@ class Asset
 	
 	public static inline function fromBitmapData (v:BitmapData) : Asset
 	{
+		trace(v);
 		var b = new Asset();
 		b.setBitmapData(v);
 		return b;
@@ -599,6 +611,7 @@ class Asset
 	
 	public static inline function fromBytes (v:BytesData) : Asset
 	{
+		trace(v);
 		var b = new Asset();
 		b.setBytes(v);
 		return b;
@@ -607,6 +620,7 @@ class Asset
 	
 	public static inline function fromLoader (v:ICommunicator) : Asset
 	{
+		trace(v);
 		var b = new Asset();
 		b.uriLoader = v;
 		return b;
@@ -615,6 +629,7 @@ class Asset
 	
 	public static inline function createEmpty (width:Int, height:Int) : Asset
 	{
+		trace(width+", "+height);
 		var b = new Asset();
 		b.setBitmapData( new BitmapData(width, height) );
 		return b;
@@ -625,6 +640,7 @@ class Asset
 	
 	public static inline function fromClass (v:AssetClass) : Asset
 	{
+		trace(v);
 		var b = new Asset();
 		b.setClass(v);
 		return b;
@@ -640,10 +656,11 @@ class Asset
 #if (neko || debug)
 	public function toString ()
 	{
-		return	 if (uri != null)				"Asset( "+uri+" )" + state.current;
-			else if (assetClass != null)		"Asset( "+assetClass+" )" + state.current;
+		return	 if (assetClass != null)		"Asset( "+assetClass+" )" + state.current;
 			else if (bitmapData != null)		"Asset( bitmapData )" + state.current;
 			else if (displaySource != null)		"Asset( "+displaySource+" )" + state.current;
+			else if (bytes != null)				"Asset( bytes("+bytes.length+") )" + state.current;
+			else if (uri != null)				"Asset( "+uri+" )" + state.current;
 			else								"Asset( "+type+")" + state.current;
 	}
 #end

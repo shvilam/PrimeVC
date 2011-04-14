@@ -75,6 +75,7 @@ class StyleState implements IDisposable
 	{
 		if (v != current)
 		{
+		//	trace(elementStyle.target+".setCurrentState "+StyleStateFlags.stateToString( current )+" => "+StyleStateFlags.stateToString( v ));
 			Assert.that( elementStyle != null );
 			var changes = 0;
 			if (current != 0) {

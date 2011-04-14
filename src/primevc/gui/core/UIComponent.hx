@@ -177,14 +177,15 @@ class UIComponent extends Sprite, implements IUIComponent
 		if (isDisposed())
 			return;
 		
+		removeValidation();
+		removeChildren();
+		removeStates();
+		
 		//Change the state to disposed before the behaviours are removed.
 		//This way a behaviour is still able to respond to the disposed
 		//state.
 		state.current = state.disposed;
 		
-		removeValidation();
-		removeChildren();
-		removeStates();
 		behaviours	.dispose();
 		state		.dispose();
 		graphicData	.dispose();

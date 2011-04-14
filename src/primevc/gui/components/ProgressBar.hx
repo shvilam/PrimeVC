@@ -80,6 +80,7 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 	 */
 	public static inline function createIn (target:IUIContainer, source:ICommunicator = null, autoDispose:Bool = false) : ProgressBar
 	{
+		Assert.notNull(source);
 		var b		= new ProgressBar(target.id.value+"Progress");
 		b.source	= source;
 		
@@ -184,7 +185,7 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 				handleCompleted	.on( e.completed, this );
 				handleError		.on( e.error, this );
 				
-				trace(v.bytesProgress+", "+v.bytesTotal);
+		//		trace(v.bytesProgress+", "+v.bytesTotal);
 			}
 		}
 		

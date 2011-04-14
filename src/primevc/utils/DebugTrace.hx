@@ -27,7 +27,7 @@ class DebugTrace
 	}
 	
 	
-	#if Monster2Trace
+	#if (Monster2Trace || Monster3Trace)
 		
 		private static inline function getTraceColor (name:String) : Int
 		{
@@ -43,27 +43,18 @@ class DebugTrace
 			
 			var name	= getClassName( infos );
 			var color	= getTraceColor( name );
+			
+			if (infos.customParams != null)
+				if (infos.customParams.length == 1)		v = infos.customParams[0];
+				else									v = infos.customParams;
+			else
+				v = Std.string(v);
+			
+		#if Monster2Trace
 			nl.demonsters.debugger.MonsterDebugger.trace(name +':' + infos.lineNumber +'\t -> ' + infos.methodName, v, color);
-		}
-	
-
-	#elseif Monster3Trace
-
-		private static inline function getTraceColor (name:String) : Int
-		{
-			var length	= name.length - 5; // remove .hx
-			return name.charCodeAt(0) * name.charCodeAt( length >> 1 ) * name.charCodeAt( length - 1 );
-		}
-
-
-		public static function trace (v : Dynamic, ?infos : haxe.PosInfos)
-		{
-			if (!Assert.tracesEnabled)
-				return;
-
-			var name	= getClassName( infos );
-			var color	= getTraceColor( name );
-			com.demonsters.debugger.MonsterDebugger.trace(name +':' + infos.lineNumber +'\t -> ' + infos.methodName, v, color);
+		#elseif Monster3Trace
+			com.demonsters.debugger.MonsterDebugger.trace(name, v, Std.string(infos.lineNumber), infos.methodName, color, 4);
+		#end
 		}
 		
 	#elseif AlconTrace

@@ -83,13 +83,13 @@ class Sprite extends flash.display.Sprite, implements ISprite
 		if (userEvents == null)
 			return;		// already disposed
 		
+		if (container != null)
+			container.children.remove(this);
+		
 		window = null;
 		children.dispose();
 		userEvents.dispose();
 		displayEvents.dispose();
-		
-		if (container != null)
-			container.children.remove(this);
 		
 		rect.dispose();
 		
