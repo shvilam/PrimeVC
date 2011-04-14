@@ -225,7 +225,7 @@ class FastArrayUtil
 	 * 		the original. Without 'inline', a Vector<String> will be duplicated
 	 * 		to Vector<Object>
 	 */
-	public static inline function duplicate<T> ( arr:FastArray<T> ) : FastArray<T>
+	public static /*#if flash10 inline #end*/ function duplicate<T> ( arr:FastArray<T> ) : FastArray<T>
 	{
 		var n:FastArray<T> = FastArrayUtil.create();
 		var l = arr.length;

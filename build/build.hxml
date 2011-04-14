@@ -4,8 +4,8 @@
 #-D stats
 #-D network-sandbox
 #-D FlashTrace
-#-D MonsterTrace
--D AlconTrace
+#-D Monster2Trace
+#-D AlconTrace
 #-D Monster3Trace
 #-D unitTesting
 #-D DebugEvents

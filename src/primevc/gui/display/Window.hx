@@ -60,15 +60,15 @@ class Window implements IDisplayContainer
 		stage = flash.Lib.current.stage;
 		stage.scaleMode	= flash.display.StageScaleMode.NO_SCALE;
 	
-	#if (debug && MonsterTrace)
+	#if (debug && Monster2Trace)
 		var monster		= new nl.demonsters.debugger.MonsterDebugger(flash.Lib.current);
 		haxe.Log.trace	= primevc.utils.DebugTrace.trace;
 		haxe.Log.clear	= nl.demonsters.debugger.MonsterDebugger.clearTraces;
 	
 	#elseif (debug && Monster3Trace)
-		nl.demonsters.debugger.MonsterDebugger.initialize( flash.Lib.current );
-		haxe.Log.trace	= nl.demonsters.debugger.MonsterDebugger.trace;
-		haxe.Log.clear	= nl.demonsters.debugger.MonsterDebugger.clear;
+		com.demonsters.debugger.MonsterDebugger.initialize( flash.Lib.current );
+		haxe.Log.trace	= primevc.utils.DebugTrace.trace;
+		haxe.Log.clear	= com.demonsters.debugger.MonsterDebugger.clear;
 	
 	#elseif (debug && AlconTrace)
 		haxe.Log.trace	= primevc.utils.DebugTrace.trace;

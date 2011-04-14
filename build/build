@@ -49,9 +49,14 @@ while [ "${1+isset}" ]; do
 			shift ;;
 		-l) ACCESS=""			#local file access allowed
 			shift ;;
-		--mdb3)					#enable monster debugger 3
-			MDB3=true
-			shift ;;
+		--console)				#which debug-console to use
+			case $2 in
+				"monster2" )	CONSOLE="-D Monster2Trace" ;;
+				"monster3" )	CONSOLE="-D Monster3Trace" ;;
+				"alcon" )		CONSOLE="-D AlconTrace" ;;
+				* )				CONSOLE="-D FlashTrace" ;;
+			esac
+			shift 2 ;;
 		*)
 			shift;;
 	esac
@@ -83,6 +88,7 @@ else
 	echo -e "\tMain: $MainClass"
 	echo -e "\tStyle: $STYLEDIR"
 	echo -e "\tDebugging: ${Debug:-false}"
+	echo -e "\tConsole: ${CONSOLE}"
 	echo -e "\tAssets: $ASSETS"
 	echo -e "\tProject: $PRJROOT"
 	echo -e "\tOutput: $OUTPUT"
@@ -93,7 +99,7 @@ else
 	echo "1. BUILDING ASSETS"
 	bash build/build-assets \
 		--release-lib "$PRIMEVC_ROOT/libs/macmousewheel" --release-lib "$PRIMEVC_ROOT/libs/as3-flexless" --release-lib "$PRIMEVC_ROOT/libs/swfaddress" \
-		--debug-lib "$PRIMEVC_ROOT/libs/monsterdebugger" --debug-lib "$PRIMEVC_ROOT/libs/alcon" \
+		--debug-lib "$PRIMEVC_ROOT/libs/monsterdebugger/v3" --debug-lib "$PRIMEVC_ROOT/libs/monsterdebugger/v2" --debug-lib "$PRIMEVC_ROOT/libs/alcon" \
 		 	|| exit 1;
 	
 	echo -e "\n2. BUILDING STYLES"
@@ -112,8 +118,7 @@ else
 		${ASSETS:+-swf-lib "'$ASSETS'"} \
 		-swf-lib "'assets/${Debug:+debug-}assets.swf'" \
 		${ACCESS:--D local} \
-		${MDB3:+-D Monster3Trace} \
-		${MDB3:+-swf-lib "../monsterdebugger/MonsterDebugger3_beta.swf"} \
+		$CONSOLE \
 		| xargs -t haxe \
 		 	|| exit 1;
 	
