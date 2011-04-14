@@ -133,6 +133,17 @@ class URLLoader implements IDisposable
 	}
 	
 	
+	public function binaryGET(uri:URI)
+	{
+		var request = this.request;
+		request.open("GET", uri.toString(), true);
+		
+		// This tells the browser not to parse the data, getting raw unprocessed bytes.
+		request.overrideMimeType('text/plain; charset=x-user-defined');
+		request.send(null);
+	}
+	
+	
 	public function binaryPOST(uri:URI, bytes:haxe.io.Bytes)
 	{
 		request.open("POST", uri.toString(), true);
@@ -145,18 +156,11 @@ class URLLoader implements IDisposable
 	}
 	
 	
-	public inline function load(uri:URI)
+	public function load(uri:URI)
 	{
 		var request = this.request;
 		request.open("GET", uri.toString(), true);
-		request.setRequestHeader("Cache-Control", "no-cache");
-		
-		// This tells the browser not to parse the data, getting raw unprocessed bytes.
-		request.overrideMimeType('text/plain; charset=x-user-defined');
-		
-		untyped __js__("console.log(request)");
 		request.send(null);
-		untyped __js__("console.log(request)");
 	}
 	
 	

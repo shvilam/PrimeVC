@@ -82,6 +82,7 @@ class URLLoader implements IDisposable
 	}
 	
 	public inline function load (v:URI)				{ return loader.load(v.toRequest()); }
+	public inline function binaryGET (v:URI)		{ loader.dataFormat = URLLoaderDataFormat.BINARY; return loader.load(v.toRequest()); }
 	public inline function close ()					{ return loader.close(); }
 	
 	
