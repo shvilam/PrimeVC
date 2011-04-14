@@ -58,6 +58,19 @@ class Signal <FunctionSignature> extends WireList<FunctionSignature>, implements
 	
 	public var enabled : Bool;
 	
+	
+	/**
+	 * Reference is set during the send method of the signal and is a reference 
+	 * to the wire that will be called after the current wire.handler is done.
+	 * 
+	 * Saving a reference in the signal is needed for when an owner with 2 or 
+	 * more handlers for this signal is unbinded in Signal.unbind. Each wire will
+	 * update this reference when it's disabled (or disposed) to prevend the 
+	 * Signal.send method to lose it's reference to next usable wire. 
+	 */
+	public var nextSendable : Wire<FunctionSignature>;
+	
+	
 	public inline function  enable() enabled = true
 	public inline function disable() enabled = false
 	

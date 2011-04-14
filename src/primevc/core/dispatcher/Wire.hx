@@ -187,8 +187,13 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 		Signal.notifyEnabled(signal, this);
 	}
 	
-	/** Disable propagation for the handler this link belongs too. Usefull to quickly (syntax and performance wise) temporarily disable a handler.
-		Adviced to use in classes which "in the usual way" would add and remove listeners alot. **/
+	/**
+	 * Disable propagation for the handler this link belongs too. Usefull to 
+	 * quickly (syntax and performance wise) temporarily disable a handler.
+	 * 
+	 * Adviced to use in classes which "in the usual way" would add and remove 
+	 * listeners alot.
+	 */
 	public /*inline*/ function disable()
 	{
 		if (isEnabled())
@@ -201,6 +206,12 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 			
 			x.n = this.n;
 			this.n = null;
+			
+			// If this wire is disabled during the call to it's handler we need 
+			// to update the reference to the next-sendable in the Signal.send-list.
+			// @see Signal.nextSendable
+			if (signal.nextSendable == this)
+				signal.nextSendable = x.n;
 			
 			Signal.notifyDisabled(signal, this);
 		}
@@ -238,5 +249,11 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 			Reflect.compareMethods(handlerFn, this.handler)
 		  #end
 		));
+	}
+	
+	
+	public inline function isDisposed () : Bool
+	{
+		return signal == null || owner == null || handler == null;
 	}
 }
