@@ -60,11 +60,16 @@ interface ICommunicator implements IDisposable
 	public var length			(getLength,			null)		: Int;
 	
 	
+	/**
+	 * Flag indicating wether the process is started
+	 */
+	public var isStarted		(default, null)					: Bool;
 	
 	/**
-	 * Flag indicating wether the process is completed
+	 * Flag indicating wether the process is completed (true when a COMPLETE 
+	 * event is fired or when the bytesProgress are equal to the bytesTotal)
 	 */
-	public function isCompleted () : Bool;
+	public function isCompleted ()			: Bool;
 	
 	
 	/**

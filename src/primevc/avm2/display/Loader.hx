@@ -42,6 +42,7 @@ package primevc.avm2.display;
  import primevc.core.net.FileType;
  import primevc.core.net.ICommunicator;
  import primevc.types.URI;
+  using primevc.utils.Bind;
   using primevc.utils.FileUtil;
 
 
@@ -57,19 +58,20 @@ class Loader implements ICommunicator
 	public static var defaultContext = new LoaderContext(false, new ApplicationDomain());
 	
 	
-	public var events			(default, null)				: LoaderEvents;
+	public var events			(default,			null)		: LoaderEvents;
 	
-	public var bytes			(getBytes, setBytes)		: BytesData;
-	public var bytesProgress	(getBytesProgress, never)	: Int;
-	public var bytesTotal		(getBytesTotal, never)		: Int;
-	public var type				(default, null)				: CommunicationType;
-	public var length			(getLength, null)			: Int;
+	public var bytes			(getBytes,			setBytes)	: BytesData;
+	public var bytesProgress	(getBytesProgress,	never)		: Int;
+	public var bytesTotal		(getBytesTotal,		never)		: Int;
+	public var type				(default,			null)		: CommunicationType;
+	public var length			(getLength,			null)		: Int;
+	public var isStarted		(default,			null)		: Bool;
 	
-	public var info				(getInfo, never)			: LoaderInfo;
-	public var content			(getContent, never)			: DisplayObject;
-	public var height			(getHeight, never)			: Float;
-	public var width			(getWidth, never)			: Float;
-	public var isAnimated		(default, null)				: Bool;
+	public var info				(getInfo,			never)		: LoaderInfo;
+	public var content			(getContent,		never)		: DisplayObject;
+	public var height			(getHeight,			never)		: Float;
+	public var width			(getWidth,			never)		: Float;
+	public var isAnimated		(default,			null)		: Bool;
 	
 	private var loader			: FlashLoader;
 	private var fileType		: FileType;
@@ -80,6 +82,11 @@ class Loader implements ICommunicator
 		loader		= new FlashLoader();
 		events		= new LoaderEvents( info );
 		isAnimated	= false;
+		
+		setStarted		.on( events.load.started, 	 this );
+		unsetStarted	.on( events.load.completed,  this );
+		unsetStarted	.on( events.load.error, 	 this );
+		unsetStarted	.on( events.unloaded,		 this );
 	}
 	
 	
@@ -94,6 +101,9 @@ class Loader implements ICommunicator
 	
 	public inline function load (v:URI, ?c:LoaderContext) : Void
 	{
+		if (isStarted)
+			close();
+		
 		type = CommunicationType.loading;
 	//	extension = v.fileExt;
 		if (c == null)
@@ -105,6 +115,9 @@ class Loader implements ICommunicator
 	
 	public inline function loadBytes (v:BytesData, ?c:LoaderContext) : BytesData
 	{
+		if (isStarted)
+			close();
+		
 		type = CommunicationType.loading;
 		loader.loadBytes(v, c);
 		return v;
@@ -187,4 +200,13 @@ class Loader implements ICommunicator
 			return cast loader.contentLoaderInfo.content;
 		}*/
 	}
+	
+	
+	
+	//
+	// EVENTHANDLERS
+	//
+	
+	private function setStarted ()		{ isStarted = true; }
+	private function unsetStarted ()	{ isStarted = false; }
 }

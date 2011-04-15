@@ -64,12 +64,13 @@ class URLLoader implements ICommunicator
 	public var bytesTotal		(getBytesTotal,		null)			: Int;
 	public var length			(getLength,			never)			: Int;
 	public var type				(default,			null)			: CommunicationType;
+	public var isStarted		(default,			null)			: Bool;
 	
 	public var data				(getData,			setData)		: Dynamic;
 	public var bytes			(getBytes,			setBytes)		: BytesData;
 	public var dataFormat		(getDataFormat,		setDataFormat)	: URLLoaderDataFormat;
 	private var loader			: FlashLoader;
-	private var uri				: URI;
+//	private var uri				: URI;
 	
 	
 	public function new (loader:FlashLoader = null)
@@ -84,7 +85,13 @@ class URLLoader implements ICommunicator
 		bytesProgress = bytesTotal = Number.INT_NOT_SET;
 		events = new LoaderEvents(this.loader);
 		
-#if debug	trackHttpStatus.on( events.httpStatus, this ); #end		
+		setStarted		.on( events.load.started, 	 this );
+		unsetStarted	.on( events.load.completed,  this );
+		unsetStarted	.on( events.load.error, 	 this );
+		unsetStarted	.on( events.unloaded,		 this );
+		
+		
+//#if debug	trackHttpStatus.on( events.httpStatus, this ); #end		
 //#if debug	trackCompleted.on( events.load.completed, this ); #end
 	}
 	
@@ -97,13 +104,13 @@ class URLLoader implements ICommunicator
 		type	= null;
 		loader	= null;
 		data	= null;
-		uri		= null;
+	//	uri		= null;
 	}
 	
 	public function binaryPOST (uri:URI, mimetype:String = "application/octet-stream")
 	{
 		this.type		= CommunicationType.sending;
-		this.uri		= uri;
+	//	this.uri		= uri;
 		
 		var request		= uri.toRequest();
 		request.requestHeaders.push(new flash.net.URLRequestHeader("Content-type", mimetype));
@@ -112,15 +119,15 @@ class URLLoader implements ICommunicator
 		request.method = flash.net.URLRequestMethod.POST;
 		request.data   = bytes;
 		
-		trace(request);
-		loader.load(request);
+	//	trace(request);
+		loadRequest(request);
 	}
 	
 	
 	public function formPOST (uri:URI, vars:URLVariables)
 	{
 		this.type		= CommunicationType.sending;
-		this.uri		= uri;
+	//	this.uri		= uri;
 		
 		var request		= uri.toRequest();
 		request.requestHeaders.push(new flash.net.URLRequestHeader("Content-type", "multipart/form-data"));
@@ -128,17 +135,26 @@ class URLLoader implements ICommunicator
 		request.data   = vars;
 		
 		setBinary();
-		loader.load(request);
+		loadRequest(request);
 	}
 	
 	
 	public inline function load (v:URI)
 	{
 		this.type	= CommunicationType.loading;
-		this.uri	= v;
+	//	this.uri	= v;
 		
 		Assert.equal(bytesTotal, 0 );
-		return loader.load(v.toRequest());
+		return loadRequest(v.toRequest());
+	}
+	
+	
+	private inline function loadRequest(request:URLRequest)
+	{
+		if (isStarted)
+			close();
+		
+		loader.load(request);
 	}
 	
 	
@@ -198,8 +214,15 @@ class URLLoader implements ICommunicator
 	public inline function setVariables ()	: Void		{ loader.dataFormat = URLLoaderDataFormat.VARIABLES; }
 	
 	
+	//
+	// EVENTHANDLERS
+	//
+	
+	private function setStarted ()		{ isStarted = true; }
+	private function unsetStarted ()	{ isStarted = false; }
+	
 #if debug
-	private function trackHttpStatus (status:Int)		{ trace(status.read()+" => "+uri+"[ "+bytesProgress+" / "+ bytesTotal+" ]; type: "+type+"; format: "+dataFormat+"; "+loader.data); }
+//	private function trackHttpStatus (status:Int)		{ trace(status.read()+" => "+uri+"[ "+bytesProgress+" / "+ bytesTotal+" ]; type: "+type+"; format: "+dataFormat+"; "+loader.data); }
 //	private function trackCompleted ()					{ trace(uri+"[ "+bytesProgress+" / "+ bytesTotal+" ]; type: "+type+"; format: "+dataFormat+"; "+loader.data); }
 #end
 }

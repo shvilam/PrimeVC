@@ -63,12 +63,13 @@ class FileReference extends SelectEvents, implements ICommunicator
 	public var bytes			(getBytes,				setBytes)	: BytesData;
 	public var type				(default,				null)		: CommunicationType;
 	public var length			(getLength,				null)		: Int;
+	public var isStarted		(default,				null)		: Bool;
 	
-	public var creationDate		(getCreationDate,	 	never)	: Date;
-	public var creator			(getCreator,		 	never)	: String;
-	public var modificationDate	(getModificationDate,	never)	: Date;
-	public var name				(getName,				never)	: String;
-	public var fileType			(getFileType,			never)	: String;
+	public var creationDate		(getCreationDate,	 	never)		: Date;
+	public var creator			(getCreator,		 	never)		: String;
+	public var modificationDate	(getModificationDate,	never)		: Date;
+	public var name				(getName,				never)		: String;
+	public var fileType			(getFileType,			never)		: String;
 	
 	private var loader			: FlashFileRef;
 	
@@ -79,7 +80,14 @@ class FileReference extends SelectEvents, implements ICommunicator
 		events		= new LoaderEvents(this.loader);
 		super(this.loader);
 		
-		updateProgress.on( events.load.progress, this );
+		var e = events.load;
+		updateProgress	.on( e.progress,	this );
+		
+		setStarted		.on( e.started, 	this );
+		unsetStarted	.on( e.completed, this );
+		unsetStarted	.on( e.error, 	this );
+		unsetStarted	.on( events.unloaded,		this );
+		unsetStarted	.on( events.uploadComplete,	this );
 	}
 	
 	
@@ -94,13 +102,25 @@ class FileReference extends SelectEvents, implements ICommunicator
 	}
 	
 	
-	public inline function load ()								{ type = CommunicationType.loading; return loader.load(); }
 	public inline function close ()								{ return loader.cancel(); }
 	public inline function browse (?types:Array<FileFilter>)	{ return loader.browse(types); }
 	
 	
-	public inline function upload (uri:URI, vars:URLVariables, uploadDataFieldName:String = "file")
+	public inline function load ()
 	{
+		if (isStarted)
+			close();
+		
+		type = CommunicationType.loading;
+		return loader.load();
+	}
+	
+	
+	public /*inline*/ function upload (uri:URI, vars:URLVariables, uploadDataFieldName:String = "file")
+	{
+		if (isStarted)
+			close();
+		
 		type			= CommunicationType.sending;
 		
 		var request		= uri.toRequest();
@@ -111,6 +131,7 @@ class FileReference extends SelectEvents, implements ICommunicator
 		trace(uri);
 		loader.upload(request, uploadDataFieldName);
 	}
+	
 	
 	
 	
@@ -143,7 +164,19 @@ class FileReference extends SelectEvents, implements ICommunicator
 	
 	private function updateProgress (loaded:Int, total:Int)
 	{
+	//	trace(loaded+"/"+total);
 		this.bytesProgress = loaded;
 	//	this.bytesTotal = total;
 	}
+	
+	private function setStarted ()		{ isStarted = true; }
+	private function unsetStarted ()	{ isStarted = false; }
+	
+	
+#if debug
+	public function toString ()
+	{
+		return "FileReference( "+type+" => "+bytesProgress + " / " + bytesTotal + " - started? "+ isStarted +" )";
+	}
+#end
 }
