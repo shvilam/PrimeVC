@@ -287,7 +287,7 @@ class UIElementStyle implements IUIElementStyle
 		}
 		
 		// if there's no styleBlock found for the child, try the next parent
-		if (foundStyles == 0 && parentStyle != this)
+		if (foundStyles == 0 && parentStyle != this && parentStyle != null)
 			changes = parentStyle.addChildStyles( child, name, type, exclude );
 		
 		return changes;
@@ -410,6 +410,9 @@ class UIElementStyle implements IUIElementStyle
 	 */
 	private function resetStyles ()
 	{
+		if (target.isDisposed())
+			return;
+		
 		if (styles.length > 0)			// <-- check if there are any old styles
 		{
 			var oldStyles		= styles.clone();
@@ -577,6 +580,9 @@ class UIElementStyle implements IUIElementStyle
 	 */
 	public function broadcastChanges (changedProperties:Int = -1) : Int
 	{
+		if (target.isDisposed())
+			return 0;
+		
 		if (!stylesAreSearched)
 			return changedProperties;
 		
@@ -909,9 +915,9 @@ class UIElementStyle implements IUIElementStyle
 	//
 	
 	
-	public function createState ()
+	public function createState (state:Int = 0)
 	{
-		return new StyleState( this );
+		return new StyleState( this, state );
 	}
 	
 	

@@ -76,6 +76,7 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, impleme
 	//	trace(target+" => "+target.graphicData.isEmpty()+"; "+target.graphicData.shape+"; "+target.graphicData.layout);
 		if (isOnStage() && !target.graphicData.isEmpty() && !isQueued())
 			getValidationManager().add( this );
+		
 		else if (target.graphicData.isEmpty())
 			target.graphics.clear();
 	}

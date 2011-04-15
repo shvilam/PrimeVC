@@ -65,10 +65,12 @@ class LinearProgressSkin extends Skin<ProgressBar>
 	{
 		indicator	= new UIGraphic("indicator");
 		maskShape	= new VectorShape();
-		
-		owner.layoutContainer	.children.add( indicator.layout );
-		owner					.children.add( indicator );
-		owner					.children.add( maskShape );
+	
+		var o = owner;
+		var l = o.layoutContainer;
+		l.children.add( indicator.layout );
+		o.children.add( indicator );
+		o.children.add( maskShape );
 		
 		indicator.mask = maskShape;
 		behaviours.add( new UpdateMaskBehaviour( maskShape, owner ) );
@@ -79,12 +81,18 @@ class LinearProgressSkin extends Skin<ProgressBar>
 	{
 		if (indicator != null)
 		{
-			if (owner != null && !owner.isDisposed()) {
-				owner.layoutContainer	.children.remove( indicator.layout );
-				owner					.children.remove( indicator );
+			if (owner != null && !owner.isDisposed())
+			{
+				var o = owner;
+				var l = o.layoutContainer;
+				l.children.remove( indicator.layout );
+				o.children.remove( indicator );
+				o.children.remove( maskShape );
 			}
 			indicator.dispose();
+			maskShape.dispose();
 			indicator = null;
+			maskShape = null;
 		}
 	}
 	
@@ -97,5 +105,6 @@ class LinearProgressSkin extends Skin<ProgressBar>
 	{
 		label.value						= newVal + "%";
 		indicator.layout.percentWidth	= newVal;
+	//	trace(newVal);
 	}
 }

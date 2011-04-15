@@ -74,7 +74,7 @@ class Asset
 {
 #if flash9
 	private var bytesLoader	: Loader;
-	public var uriLoader	(default, setUriLoader)		: ICommunicator;
+	public var loader		(default, setLoader)		: ICommunicator;
 #end
 
 #if (neko || debug)
@@ -136,7 +136,7 @@ class Asset
 	public inline function isReady ()		{ return state.current == AssetStates.ready; }
 	public inline function isLoading ()		{ return state.current == AssetStates.loading; }
 	public inline function isLoadable ()	{ return state.current == AssetStates.loadable; }
-	public inline function isLoaded ()		{ return /*isReady()*/ #if flash9 (uriLoader != null && uriLoader.isCompleted()) #else true #end; }
+	public inline function isLoaded ()		{ return /*isReady()*/ #if flash9 (loader != null && loader.isCompleted()) #else true #end; }
 	
 	public inline function isBitmapData ()		{ return type == AssetType.bitmapData; }
 	public inline function isDisplayObject ()	{ return type == AssetType.displayObject; }
@@ -154,7 +154,7 @@ class Asset
 			bytesLoader.dispose();
 			bytesLoader = null;
 			
-			if (bitmapData == null)
+			if (bitmapData == null && state != null)
 				state.current = empty;
 		}
 #end
@@ -175,7 +175,7 @@ class Asset
 	private inline function createURILoader () : Void
 	{
 #if flash9
-		uriLoader = new URLLoader();
+		loader = new URLLoader();
 #end
 	}
 	
@@ -185,7 +185,7 @@ class Asset
 #if flash9
 		if (state.current == loadable) {
 			if		(bytes != null)			loadBytes();
-	//		else if (uriLoader != null)		uriLoader.load();		don't know the URI here
+	//		else if (loader != null)		loader.load();		don't know the URI here
 			else if (uri != null)			loadURI();
 		}
 #end
@@ -199,15 +199,15 @@ class Asset
 	//
 	
 #if flash9
-	private function setUriLoader (v:ICommunicator)
+	private function setLoader (v:ICommunicator)
 	{
-		if (v != uriLoader) {
-			if (uriLoader != null) {
-				uriLoader.events.load.error.unbind(this);
-				uriLoader.events.load.completed.unbind(this);
+		if (v != loader) {
+			if (loader != null) {
+				loader.events.load.error.unbind(this);
+				loader.events.load.completed.unbind(this);
 			}
 			
-			uriLoader = v;
+			loader = v;
 			
 			if (v != null) {
 	//			Assert.that( v.isBinary(), "URILoader should load binary data!" );
@@ -315,7 +315,7 @@ class Asset
 #if flash9	if (bitmapData != null)		bitmapData.dispose();	#end
 			if (state != null)			state.current	= AssetStates.empty;		// important to this first, other objects have a chance to remove their references then...
 			
-#if flash9	uriLoader		= null; #end				// don't dispose the loader, can be cached by value-objects (their responsibility to dispose it)
+#if flash9	loader			= null; #end				// don't dispose the loader, can be cached by value-objects (their responsibility to dispose it)
 			uri				= null;
 			assetClass		= null;
 			displaySource	= null;
@@ -346,9 +346,9 @@ class Asset
 				type			= AssetType.displayObject;
 				state.current	= AssetStates.loading;
 				
-				trace("load "+uri+"; isURILoader: "+uriLoader.is(URLLoader));
-				if (uriLoader.is(URLLoader))
-					uriLoader.as(URLLoader).load( uri );
+			//	trace("load "+uri+"; isURILoader: "+loader.is(URLLoader));
+				if (loader.is(URLLoader))
+					loader.as(URLLoader).load( uri );
 			}	
 #end
 		}
@@ -393,11 +393,13 @@ class Asset
 	
 	
 	
-	public inline function setBytes (v:BytesData)
+	public inline function setBytes (v:BytesData, shouldUnsetData:Bool = true)
 	{
 		if (v != bytes)
 		{
-			unsetData();
+			if (shouldUnsetData)
+				unsetData();
+			
 			if (v != null) {
 				createBytesLoader();
 				bytes			= v;
@@ -408,11 +410,11 @@ class Asset
 	}
 	
 	
-	public /*inline*/ function loadBytes (v:BytesData = null)
+	public /*inline*/ function loadBytes (v:BytesData = null, shouldUnsetData:Bool = true)
 	{
 #if flash9
 		if (v != null)
-			setBytes(v);
+			setBytes(v, shouldUnsetData);
 		
 		if (bytes != null)
 		{
@@ -524,7 +526,7 @@ class Asset
 	private function setLoadedData ()
 	{
 #if flash9
-		trace(this+" - "+uriLoader);
+	//	trace(this+" - "+loader);
 		if (bytesLoader == null || !bytesLoader.isCompleted())
 			return;
 		
@@ -549,8 +551,8 @@ class Asset
 	private inline function handleURILoaded () : Void
 	{
 #if flash9
-		trace(uri+"; totalBytes: "+uriLoader.bytes.length);
-		loadBytes( uriLoader.bytes );
+	//	trace(uri+"; totalBytes: "+loader.bytes.length);
+		loadBytes( loader.bytes, false );
 #end
 	}
 	
@@ -563,7 +565,7 @@ class Asset
 	
 	public static inline function fromURI (v:URI) : Asset
 	{
-		trace(v);
+	//	trace(v);
 		var b = new Asset();
 		b.setURI(v);
 	//	b.loadURI(v);
@@ -573,7 +575,7 @@ class Asset
 	
 	public static inline function fromString (v:String) : Asset
 	{
-		trace(v);
+	//	trace(v);
 		var b = new Asset();
 		b.setString(v);
 	//	b.loadString(v);
@@ -584,7 +586,7 @@ class Asset
 #if flash9
 	public static inline function fromDisplayObject (v:DisplayObject) : Asset
 	{
-		trace(v);
+	//	trace(v);
 		var b = new Asset();
 		b.setDisplayObject(v);
 		return b;
@@ -593,7 +595,7 @@ class Asset
 	
 	public static inline function fromFlashBitmap (v:FlashBitmap) : Asset
 	{
-		trace(v);
+	//	trace(v);
 		var b = new Asset();
 		b.setFlashBitmap(v);
 		return b;
@@ -602,7 +604,7 @@ class Asset
 	
 	public static inline function fromBitmapData (v:BitmapData) : Asset
 	{
-		trace(v);
+	//	trace(v);
 		var b = new Asset();
 		b.setBitmapData(v);
 		return b;
@@ -611,7 +613,7 @@ class Asset
 	
 	public static inline function fromBytes (v:BytesData) : Asset
 	{
-		trace(v);
+	//	trace(v);
 		var b = new Asset();
 		b.setBytes(v);
 		return b;
@@ -620,16 +622,16 @@ class Asset
 	
 	public static inline function fromLoader (v:ICommunicator) : Asset
 	{
-		trace(v);
+	//	trace(v);
 		var b = new Asset();
-		b.uriLoader = v;
+		b.loader = v;
 		return b;
 	}
 	
 	
 	public static inline function createEmpty (width:Int, height:Int) : Asset
 	{
-		trace(width+", "+height);
+	//	trace(width+", "+height);
 		var b = new Asset();
 		b.setBitmapData( new BitmapData(width, height) );
 		return b;
@@ -640,7 +642,7 @@ class Asset
 	
 	public static inline function fromClass (v:AssetClass) : Asset
 	{
-		trace(v);
+	//	trace(v);
 		var b = new Asset();
 		b.setClass(v);
 		return b;

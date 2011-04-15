@@ -172,7 +172,7 @@ class UIWindow extends Window
 
 	override public function dispose ()
 	{
-		if (displayEvents == null)
+		if (isDisposed())
 			return;
 		
 		behaviours		.dispose();
@@ -237,18 +237,9 @@ class UIWindow extends Window
 	// GETTERS / SETTERS
 	//
 	
-	private inline function getLayoutContainer ()
-	{
-		return layout.as(LayoutContainer);
-	}
-	
-	
-	private inline function getPopupManager ()
-	{
-		if (popups == null)
-			popups = new PopupManager(this);
-		return popups;
-	}
+	public inline function isDisposed ()			{ return displayEvents == null; }
+	private inline function getLayoutContainer ()	{ return layout.as(LayoutContainer); }
+	private inline function getPopupManager ()		{ if (popups == null) { popups = new PopupManager(this); } return popups; }
 	
 	
 #if flash9

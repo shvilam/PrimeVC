@@ -56,5 +56,7 @@ interface IStylable
 	 * @default		true
 	 */
 	public var stylingEnabled	(default, setStylingEnabled)	: Bool;
+	
+	public function isDisposed ()								: Bool;
 #end
 }

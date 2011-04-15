@@ -185,6 +185,7 @@ class UIComponent extends Sprite, implements IUIComponent
 		//This way a behaviour is still able to respond to the disposed
 		//state.
 		state.current = state.disposed;
+		Assert.that(isDisposed());
 		
 		behaviours	.dispose();
 		state		.dispose();

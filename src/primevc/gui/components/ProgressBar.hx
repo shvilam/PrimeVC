@@ -73,28 +73,6 @@ enum ProgressType {
  */
 class ProgressBar extends UIDataContainer<PercentageHelper>
 {
-	/**
-	 * shortcut method to instantiate a progressbar for the given target
-	 * 
-	 * @param	autoDispose		flag indicating if the progressbar should be disposed when loading has completed or failed
-	 */
-	public static inline function createIn (target:IUIContainer, source:ICommunicator = null, autoDispose:Bool = false) : ProgressBar
-	{
-		Assert.notNull(source);
-		var b		= new ProgressBar(target.id.value+"Progress");
-		b.source	= source;
-		
-		if (autoDispose) {
-			b.dispose.on( source.events.load.completed, b );
-			b.dispose.on( source.events.load.error, b );
-		}
-		
-		target.layoutContainer.children.add( b.layout );
-		target.children.add( b );
-		return b;
-	}
-	
-	
 	//
 	// PROPERTIES
 	//
@@ -237,7 +215,7 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 		if (isDeterminate) {
 			data.validator.max	= source.bytesTotal;
 			data.value			= source.bytesProgress;
-	//		trace(source.bytesProgress+" / "+source.bytesTotal+" --- "+source.type+"; "+data.percentage+"%");
+		//	trace(source.bytesProgress+" / "+source.bytesTotal+" --- "+source.type+"; "+data.percentage+"%");
 		}
 	}
 }

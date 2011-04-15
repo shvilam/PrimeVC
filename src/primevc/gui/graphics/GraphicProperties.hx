@@ -153,7 +153,7 @@ class GraphicProperties implements IGraphicElement
 	 * case. If a shape is part of a composition of shapes, then the shape 
 	 * should respect the coordinates of the LayoutClient.
 	 */
-	public function draw (target:IGraphicsOwner, ?useCoordinates:Bool = false) : Void
+	public function draw (target:IGraphicsOwner, ?useCoordinates:Bool = false) : Bool
 	{
 #if debug
 		Assert.notNull(layout, "layout is null for "+target);
@@ -161,7 +161,7 @@ class GraphicProperties implements IGraphicElement
 	//	Assert.notThat(border == null && fill == null, "Graphic property must have a border or a fill when drawing to "+target);
 #end
 		if (layout == null || shape == null || (border == null && fill == null))
-			return;
+			return false;
 		
 	//	trace(target+".drawing; "+target.rect.width+", "+target.rect.height);
 		var layout:IntRectangle = useCoordinates ? this.layout : cast this.layout.clone();
@@ -218,6 +218,8 @@ class GraphicProperties implements IGraphicElement
 					drawBorder( target, border, layout );
 			}
 		}
+		
+		return true;
 	}
 	
 	
