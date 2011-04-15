@@ -42,8 +42,8 @@ package primevc.avm2.net;
  import primevc.types.URI;
 #if debug
   using primevc.core.net.HttpStatusCodes;
-  using primevc.utils.Bind;
 #end
+  using primevc.utils.Bind;
   using primevc.utils.NumberUtil;
   using Std;
 

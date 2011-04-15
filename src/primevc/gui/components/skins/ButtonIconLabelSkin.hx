@@ -32,6 +32,7 @@ package primevc.gui.components.skins;
  import primevc.gui.core.UITextField;
  import primevc.gui.core.Skin;
  import primevc.gui.events.UserEventTarget;
+  using primevc.utils.Bind;
   using primevc.utils.BitUtil;
 
 
@@ -56,9 +57,18 @@ class ButtonIconLabelSkin extends Skin<Button>
 		var children	= owner.children;
 		var layout		= owner.layoutContainer;
 		
+	//	Assert.notNull( owner.icon, ""+owner );
+		
 		//create children
 		iconGraphic	= new Image(null, owner.icon);
 		labelField	= new UITextField( null, true, owner.data );
+		
+		if (owner.icon != null && !owner.icon.isReady()) {
+			trace(owner);
+			iconGraphic.visible = false;
+			iconGraphic.hide.on( owner.icon.loader.events.load.started, this );
+			iconGraphic.show.on( owner.icon.loader.events.load.completed, this );
+		}
 		
 		layout.children.add( iconGraphic.layout );
 		layout.children.add( labelField.layout );

@@ -125,7 +125,7 @@ class ShowProgressBarBehaviour extends BehaviourBase<IUIContainer>
 	{
 		if (target.isInitialized())
 		{
-			target.layoutContainer.children.add( bar.layout );
+			target.layoutContainer.children.add( bar.layout, 0 );
 			target.children.add( bar );
 		}
 		else
@@ -135,6 +135,7 @@ class ShowProgressBarBehaviour extends BehaviourBase<IUIContainer>
 	
 	private function disposeBar ()
 	{
+	//	trace(this);
 		loader.events.load.unbind(this);
 		bar.dispose();
 		Assert.null(bar.window);

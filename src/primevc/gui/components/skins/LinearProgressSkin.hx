@@ -27,13 +27,16 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components.skins;
- import primevc.gui.behaviours.components.DirectToolTipBehaviour;
+ import primevc.core.net.CommunicationType;
+// import primevc.gui.behaviours.components.DirectToolTipBehaviour;
  import primevc.gui.behaviours.UpdateMaskBehaviour;
  import primevc.core.Bindable;
+ import primevc.gui.components.Label;
  import primevc.gui.components.ProgressBar;
  import primevc.gui.core.UIGraphic;
  import primevc.gui.core.Skin;
  import primevc.gui.display.VectorShape;
+  using primevc.utils.NumberUtil;
   using primevc.utils.Bind;
 
 
@@ -51,13 +54,21 @@ class LinearProgressSkin extends Skin<ProgressBar>
 	private var label		: Bindable<String>;
 	private var indicator	: UIGraphic;
 	private var maskShape	: VectorShape;
+	private var labelField	: Label;
+	
+	/**
+	 * String to put before the label ('Laden' or 'Uploaden')
+	 */
+	private var labelPrefix	: String;
 	
 	
 	override private function createBehaviours ()
 	{
-		label = new Bindable<String>();
+		label		= new Bindable<String>();
+		labelPrefix	= owner.source.type == CommunicationType.loading ? 'Laden: ' : 'Uploaden: ';
 		update.on( owner.data.perc.change, this );
-		behaviours.add( new DirectToolTipBehaviour( owner, label ) );
+		
+	//	behaviours.add( new DirectToolTipBehaviour( owner, label ) );
 	}
 	
 
@@ -65,12 +76,16 @@ class LinearProgressSkin extends Skin<ProgressBar>
 	{
 		indicator	= new UIGraphic("indicator");
 		maskShape	= new VectorShape();
-	
+		labelField	= new Label(null, label);
+		
 		var o = owner;
 		var l = o.layoutContainer;
 		l.children.add( indicator.layout );
+		l.children.add( labelField.layout );
+		
 		o.children.add( indicator );
 		o.children.add( maskShape );
+		o.children.add( labelField );
 		
 		indicator.mask = maskShape;
 		behaviours.add( new UpdateMaskBehaviour( maskShape, owner ) );
@@ -85,14 +100,23 @@ class LinearProgressSkin extends Skin<ProgressBar>
 			{
 				var o = owner;
 				var l = o.layoutContainer;
+				l.children.remove( labelField.layout );
 				l.children.remove( indicator.layout );
+				
 				o.children.remove( indicator );
 				o.children.remove( maskShape );
+				o.children.remove( labelField );
 			}
+			
 			indicator.dispose();
 			maskShape.dispose();
-			indicator = null;
-			maskShape = null;
+			labelField.dispose();
+			label.dispose();
+			
+			indicator	= null;
+			maskShape	= null;
+			labelField	= null;
+			label		= null;
 		}
 	}
 	
@@ -103,7 +127,7 @@ class LinearProgressSkin extends Skin<ProgressBar>
 	
 	private function update (newVal:Float, oldVal:Float)
 	{
-		label.value						= newVal + "%";
+		label.value						= labelPrefix + (newVal * 100).roundFloat() + "%";
 		indicator.layout.percentWidth	= newVal;
 	//	trace(newVal);
 	}
