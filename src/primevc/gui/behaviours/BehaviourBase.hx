@@ -38,7 +38,7 @@ package primevc.gui.behaviours;
 class BehaviourBase < TargetType > implements IBehaviour < TargetType >
 {
 	public var target			(default, setTarget)	: TargetType;
-	private var initialized		: Bool;
+	public var initialized		(default, null)			: Bool;
 	
 	public function new( newTarget:TargetType )			{ initialized = false; target = newTarget; }
 	public function dispose ()							{ reset(); target = null; }

@@ -39,7 +39,7 @@ package primevc.gui.behaviours;
  */
 interface IBehaviour < TargetType > implements IDisposable
 {
-	private var initialized			: Bool;
+	public var initialized			(default, null)			: Bool;
 	public var target				(default, setTarget)	: TargetType;
 	
 	public function initialize ()	: Void;
