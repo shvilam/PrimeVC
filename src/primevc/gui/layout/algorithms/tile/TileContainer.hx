@@ -273,7 +273,7 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 	
 	private function childrenChangeHandler ( change:ListChange < LayoutClient > ) : Void
 	{
-	//	trace(this+".childrenChangeHandler "+change);
+	//	trace(this+" => "+change);
 		switch (change)
 		{
 			case added( child, newPos ):
@@ -281,8 +281,8 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 					return;
 				
 				child.listeners.add(this);
-				if (innerBounds.left != 0)	child.outerBounds.left	= innerBounds.left;
-				if (innerBounds.top != 0)	child.outerBounds.top	= innerBounds.top;
+				child.outerBounds.left	= innerBounds.left;
+				child.outerBounds.top	= innerBounds.top;
 			
 			case removed( child, oldPos ):
 				child.listeners.remove(this);

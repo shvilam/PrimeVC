@@ -153,10 +153,13 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 #if debug
 		tileGroup.name				= "row" + tileGroups.children.length;
 #end
-		if (startDirection == Direction.horizontal)
-			tileGroup.widthValidator = childSizeValidator;
-		else
-			tileGroup.heightValidator = childSizeValidator;
+		if (startDirection == Direction.horizontal) {
+			tileGroup.widthValidator	= childSizeValidator;
+		//	tileGroup.percentWidth		= 1;
+		} else {
+			tileGroup.heightValidator	= childSizeValidator;
+		//	tileGroup.percentHeight		= 1;
+		}
 		
 		tileCollection.addList( childList );
 		tileGroups.children.add( tileGroup );	
@@ -236,8 +239,19 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 				tileGroups.heightValidator = group.heightValidator;
 			
 			//resize all columns / rows
-			if (group.changes.has(Flags.EXPLICIT_HEIGHT | Flags.EXPLICIT_WIDTH))
-				childSizeValidator.max = (startDirection == vertical) ? group.explicitHeight : group.explicitWidth;
+			if		(group.changes.has(Flags.HEIGHT) && startDirection == vertical)
+			{
+				childSizeValidator.max = group.explicitHeight;
+				for (i in 0...tileGroups.children.length)
+					tileGroups.children.getItemAt(i).height = group.explicitHeight;
+			}
+			
+			else if (group.changes.has(Flags.WIDTH) && startDirection == horizontal)
+			{
+				childSizeValidator.max = group.explicitWidth;
+				for (i in 0...tileGroups.children.length)
+					tileGroups.children.getItemAt(i).width = group.explicitWidth;
+			}
 		}
 		super.prepareValidate();
 	}
@@ -258,6 +272,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 				continue;
 			
 			var children:ChainedList<LayoutClient> = cast tileGroup.as(TileContainer).children;
+			
 			if (children.length == 0) {
 				removeTileContainer( cast tileGroup );
 				continue;
