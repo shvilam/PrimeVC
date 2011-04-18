@@ -119,6 +119,9 @@ class Loader implements ICommunicator
 			close();
 		
 		type = CommunicationType.loading;
+		if (c == null)
+			c = defaultContext;
+		
 		loader.loadBytes(v, c);
 		return v;
 	}

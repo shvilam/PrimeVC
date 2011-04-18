@@ -332,24 +332,18 @@ class Asset
 	
 	public function loadURI (v:URI = null)
 	{
-		if (v != uri || (v == null && uri != null))
+		if (v != null)
+			setURI(v);
+		
+		if (uri != null)
 		{
-			if (v != null)
-				setURI(v);
 #if flash9
-			if (uri.hasScheme( URIScheme.Scheme('asset')) )
-			{
-				setClass( uri.host.resolveClass() );
-			}
-			else
-			{
-				type			= AssetType.displayObject;
-				state.current	= AssetStates.loading;
-				
-			//	trace("load "+uri+"; isURILoader: "+loader.is(URLLoader));
-				if (loader.is(URLLoader))
-					loader.as(URLLoader).load( uri );
-			}	
+			type			= AssetType.displayObject;
+			state.current	= AssetStates.loading;
+			
+		//	trace("load "+uri+"; isURILoader: "+loader.is(URLLoader));
+			if (loader.is(URLLoader))
+				loader.as(URLLoader).load( uri );
 #end
 		}
 	}
@@ -365,10 +359,20 @@ class Asset
 		if (v != uri)
 		{
 			unsetData();
-			if (v != null) {
-				createURILoader();
-				uri				= v;
-				state.current	= loadable;
+			if (v != null)
+			{
+				if (v.hasScheme( URIScheme.Scheme('asset')) )
+				{
+					trace(v.host);
+					setClass( v.host.resolveClass() );
+				}
+				else
+				{
+					trace(v.scheme+" => "+v);
+					createURILoader();
+					uri				= v;
+					state.current	= loadable;
+				}
 			}
 		}
 	}
