@@ -119,6 +119,7 @@ else
 		-swf-lib "'assets/${Debug:+debug-}assets.swf'" \
 		${ACCESS:--D local} \
 		$CONSOLE \
+		-D dragEnabled \
 		| xargs -t haxe \
 		 	|| exit 1;
 	

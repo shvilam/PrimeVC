@@ -30,7 +30,9 @@
 package primevc.avm2.display;
  import flash.display.DisplayObject;
  import primevc.core.geom.IntRectangle;
+#if dragEnabled
  import primevc.gui.behaviours.drag.DragInfo;
+#end
  import primevc.gui.display.DisplayDataCursor;
  import primevc.gui.display.ISprite;
  import primevc.gui.display.DisplayList;
@@ -64,7 +66,9 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	public var displayEvents	(default, null)			: DisplayEvents;
 	
 	public var rect				(default, null)			: IntRectangle;
+#if dragEnabled
 	public var isDragging		: Bool;
+#end
 	
 	
 	
@@ -123,11 +127,12 @@ class Sprite extends flash.display.Sprite, implements ISprite
 		return new DisplayDataCursor(this);
 	}
 	
-	
+	#if dragEnabled
 	public function createDragInfo () : DragInfo
 	{
 		return new DragInfo( this );
 	}
+	#end
 #end
 	
 	
