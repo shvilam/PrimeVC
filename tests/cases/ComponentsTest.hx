@@ -47,6 +47,7 @@ class ComponentsTest extends UIWindow
 		slider2.data.pair( slider.data );
 		changeLabel.on( button.userEvents.mouse.down, this );
 		
+		progress.start();
 		loadTimer = new haxe.Timer(10);
 		loadTimer.run = fakeLoadEvent;
 	}
@@ -72,7 +73,11 @@ class ComponentsTest extends UIWindow
 	{
 		progress.data.value += 1;
 		
-		if (progress.data.percentage == 1)
+		if (progress.data.percentage == 1) {
+			progress.finish();
 			loadTimer.stop();
+		} else {
+			progress.progress();
+		}
 	}
 }
