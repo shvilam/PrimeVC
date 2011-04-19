@@ -78,6 +78,31 @@ interface IUIElement
 	
 	
 	//
+	// ATTACH METHODS
+	//
+	
+	
+	/**
+	 * Method will attach the layout-client of this UIElement to the given 
+	 * IUIContainer.
+	 * @return own-instance
+	 */
+	public function attachLayoutTo	(target:IUIContainer, pos:Int = -1) : IUIElement;
+	/**
+	 * Method will attach this UIElement to the given IUIComponent.
+	 * @return own-instance
+	 */
+	public function attachDisplayTo	(target:IUIComponent, pos:Int = -1) : IUIElement;
+	/**
+	 * Method will attach this UIElement to the given IUIContainer, including
+	 * it's layout.
+	 * @return own-instance
+	 */
+	public function attachTo		(target:IUIContainer, pos:Int = -1) : IUIElement;
+	
+	
+	
+	//
 	// ACTIONS
 	//
 	
