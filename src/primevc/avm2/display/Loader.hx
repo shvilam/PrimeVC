@@ -36,7 +36,7 @@ package primevc.avm2.display;
 
  import haxe.io.BytesData;
 
- import primevc.avm2.events.LoaderEvents;
+ import primevc.core.events.LoaderEvents;
  import primevc.core.geom.Rectangle;
  import primevc.core.net.CommunicationType;
  import primevc.core.net.FileType;
@@ -58,7 +58,7 @@ class Loader implements ICommunicator
 	public static var defaultContext = new LoaderContext(false, new ApplicationDomain());
 	
 	
-	public var events			(default,			null)		: LoaderEvents;
+	public var events			(default,			null)		: LoaderSignals;
 	
 	public var bytes			(getBytes,			setBytes)	: BytesData;
 	public var bytesProgress	(getBytesProgress,	never)		: Int;
@@ -138,6 +138,7 @@ class Loader implements ICommunicator
 	public inline function close () : Void			{ if (!isCompleted()) loader.close(); }
 	public inline function isSwf () : Bool			{ return fileType == FileType.SWF; }
 	public inline function isCompleted () : Bool	{ return bytesTotal > 0 && bytesProgress >= bytesTotal; }
+	public inline function isInProgress ()			{ return isStarted && !isCompleted(); }
 	
 	
 	

@@ -59,7 +59,7 @@ private typedef FlashLoader = flash.net.URLLoader;
  */
 class URLLoader implements ICommunicator
 {
-	public var events			(default,			null)			: LoaderEvents;
+	public var events			(default,			null)			: LoaderSignals;
 	public var bytesProgress	(getBytesProgress,	null)			: Int;
 	public var bytesTotal		(getBytesTotal,		null)			: Int;
 	public var length			(getLength,			never)			: Int;
@@ -160,6 +160,7 @@ class URLLoader implements ICommunicator
 	
 	public inline function close ()					{ return loader.close(); }
 	public inline function isCompleted ()			{ return bytesTotal > 0 && bytesProgress >= bytesTotal; }
+	public inline function isInProgress ()			{ return isStarted && !isCompleted(); }
 	
 	public inline function isBinary ()		: Bool	{ return loader.dataFormat == URLLoaderDataFormat.BINARY; }
 	public inline function isText ()		: Bool	{ return loader.dataFormat == URLLoaderDataFormat.TEXT; }

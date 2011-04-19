@@ -56,7 +56,7 @@ private typedef FlashFileRef = flash.net.FileReference;
  */
 class FileReference extends SelectEvents, implements ICommunicator
 {
-	public var events			(default,				null)		: LoaderEvents;
+	public var events			(default,				null)		: LoaderSignals;
 	
 	public var bytesProgress	(getBytesProgress,		null)		: Int;
 	public var bytesTotal		(getBytesTotal,			null)		: Int;
@@ -156,6 +156,7 @@ class FileReference extends SelectEvents, implements ICommunicator
 	 */
 	private inline function getFileType ()			{ return loader.type == null ? name.getExtension() : loader.type; }
 	public inline function isCompleted ()			{ return bytesTotal > 0 && bytesProgress >= bytesTotal; }
+	public inline function isInProgress ()			{ return isStarted && !isCompleted(); }
 	
 	
 	//

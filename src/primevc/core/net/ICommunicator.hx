@@ -41,7 +41,7 @@ package primevc.core.net;
  */
 interface ICommunicator implements IDisposable
 {
-	public var events		(default,				null)		: LoaderEvents;
+	public var events		(default,				null)		: LoaderSignals;
 	public var bytes		(getBytes,				setBytes)	: BytesData;
 	public var type			(default,				null)		: CommunicationType;
 	
@@ -70,6 +70,7 @@ interface ICommunicator implements IDisposable
 	 * event is fired or when the bytesProgress are equal to the bytesTotal)
 	 */
 	public function isCompleted ()			: Bool;
+	public function isInProgress ()			: Bool;
 	
 	
 	/**

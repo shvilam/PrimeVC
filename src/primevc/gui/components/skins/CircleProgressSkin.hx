@@ -93,7 +93,9 @@ class CircleProgressSkin extends Skin<ProgressBar>
 		o.children.add( labelField );
 		
 		//override their default shape to a circle
-		indicator.graphicData.shape = owner.graphicData.shape = new Circle();
+		indicator.graphicData.shape			= owner.graphicData.shape = new Circle();
+		indicator.graphicData.percentage	= owner.data.percentage;
+		indicator.layout.percentWidth		= indicator.layout.percentHeight = 1;
 		
 		//put labelfield in the center
 		var r = labelField.layout.relative = new RelativeLayout();

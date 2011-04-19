@@ -62,8 +62,7 @@ class LinearProgressSkin extends Skin<ProgressBar>
 	
 	
 	override private function createBehaviours ()
-	{	
-		trace(this);
+	{
 		label = new Bindable<String>();
 		
 		if (owner.source != null)
