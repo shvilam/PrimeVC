@@ -262,7 +262,7 @@ class IntMath
 	
 	public static inline function ceilFloat (var1:Float) : Int
 	{
-		return var1.int() + (var1 % 1 == 1 ? 1 : 0);
+		return var1.int() + (var1 % 1 > 0 ? 1 : 0);
 	}
 	
 	

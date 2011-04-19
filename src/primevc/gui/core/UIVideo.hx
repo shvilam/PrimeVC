@@ -208,7 +208,7 @@ class UIVideo extends Video, implements IUIElement
 			
 			stylingEnabled = v;
 			if (stylingEnabled)
-				style = new UIElementStyle(this);
+				style = new UIElementStyle(this, this);
 		}
 		return v;
 	}

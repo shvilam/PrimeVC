@@ -254,7 +254,7 @@ class UIWindow extends Window
 			
 			stylingEnabled = v;
 			if (v) {
-				style = new ApplicationStyle(this);
+				style = new ApplicationStyle(this, this);
 				style.updateStyles();
 			}
 		}

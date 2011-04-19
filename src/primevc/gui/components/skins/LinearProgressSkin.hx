@@ -28,7 +28,6 @@
  */
 package primevc.gui.components.skins;
  import primevc.core.net.CommunicationType;
-// import primevc.gui.behaviours.components.DirectToolTipBehaviour;
  import primevc.gui.behaviours.UpdateMaskBehaviour;
  import primevc.core.Bindable;
  import primevc.gui.components.Label;
@@ -63,12 +62,24 @@ class LinearProgressSkin extends Skin<ProgressBar>
 	
 	
 	override private function createBehaviours ()
-	{
-		label		= new Bindable<String>();
-		labelPrefix	= owner.source.type == CommunicationType.loading ? 'Laden: ' : 'Uploaden: ';
-		update.on( owner.data.perc.change, this );
+	{	
+		trace(this);
+		label = new Bindable<String>();
 		
-	//	behaviours.add( new DirectToolTipBehaviour( owner, label ) );
+		if (owner.source != null)
+			labelPrefix	= owner.source.type == CommunicationType.loading ? 'Laden: ' : 'Uploaden: ';
+		
+		update.on( owner.data.perc.change, this );
+	}
+	
+	
+	override private function removeBehaviours ()
+	{
+		label.dispose();
+		label = null;
+		
+		owner.data.perc.change.unbind(this);
+		super.removeBehaviours();
 	}
 	
 
@@ -111,12 +122,10 @@ class LinearProgressSkin extends Skin<ProgressBar>
 			indicator.dispose();
 			maskShape.dispose();
 			labelField.dispose();
-			label.dispose();
 			
 			indicator	= null;
 			maskShape	= null;
 			labelField	= null;
-			label		= null;
 		}
 	}
 	

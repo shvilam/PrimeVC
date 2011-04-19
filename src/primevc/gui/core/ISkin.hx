@@ -99,6 +99,10 @@ interface ISkin
 	 */
 	public function validate (changes:Int)	: Void;
 	
+	/**
+	 * Method indicating wether the skin is disposed or not
+	 */
+	public function isDisposed ()			: Bool;
 	
 	
 	

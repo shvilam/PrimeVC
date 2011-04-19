@@ -35,6 +35,7 @@ package primevc.gui.styling;
  import primevc.core.dispatcher.Signal0;
  import primevc.core.dispatcher.Wire;
  import primevc.core.traits.IInvalidatable;
+ import primevc.gui.traits.IDisplayable;
  import primevc.gui.traits.IStylable;
  import primevc.utils.FastArray;
 #if debug
@@ -82,6 +83,13 @@ class UIElementStyle implements IUIElementStyle
 	 * object on which the style applies
 	 */
 	public var target					(default, null)			: IStylable;
+	/**
+	 * displayobject to which the target belongs (can be the target itself when
+	 * it's also IDisplayable)
+	 */
+	public var owner					(default, null)			: IDisplayable;
+	
+	
 	/**
 	 * cached classname (incl package) of target since target won't change.
 	 */
@@ -144,7 +152,7 @@ class UIElementStyle implements IUIElementStyle
 	
 	
 	
-	public function new (target:IStylable)
+	public function new (target:IStylable, owner:IDisplayable)
 	{
 #if debug
 		_oid = ID.getNext();
@@ -153,6 +161,8 @@ class UIElementStyle implements IUIElementStyle
 		styles				= new PriorityList < StyleBlock > ();
 		
 		this.target			= target;
+		this.owner			= owner;
+		
 		targetClassName		= target.getClass().getClassName();
 		childrenChanged		= new Signal0();
 		
@@ -171,10 +181,10 @@ class UIElementStyle implements IUIElementStyle
 	
 	private function init ()
 	{
-		addedBinding	= enableStyleListeners	.on( target.displayEvents.addedToStage, this );
-		removedBinding	= disableStyleListeners	.on( target.displayEvents.removedFromStage, this );
+		addedBinding	= enableStyleListeners	.on( owner.displayEvents.addedToStage, this );
+		removedBinding	= disableStyleListeners	.on( owner.displayEvents.removedFromStage, this );
 		
-		if (target.window != null) {
+		if (owner.window != null) {
 			updateStyles();
 			addedBinding.disable();
 		} else {
@@ -340,19 +350,19 @@ class UIElementStyle implements IUIElementStyle
 	 */
 	private function enableStyleListeners ()
 	{
-		Assert.notNull( target.container );
-		Assert.that( target.container.is( IStylable ) );
-		Assert.notNull( target.container.as( IStylable ).style );
+		Assert.notNull( owner.container );
+		Assert.that( owner.container.is( IStylable ) );
+		Assert.notNull( owner.container.as( IStylable ).style );
 		
 		if (removedBinding != null)		removedBinding.enable();
 		if (addedBinding != null)		addedBinding.disable();
 		
+		var parent = owner.container != null ? owner.container.as( IStylable ) : null;
 		//remove styles if the new parent is not the same as the old parent
-		if (target.container != null && target.container.as( IStylable ).style != parentStyle)
+		if (parent != null && parent.style != parentStyle)
 		{
 			clearStyles();
-			
-			parentStyle = target.container.as( IStylable ).style;
+			parentStyle = parent.style;
 			resetStyles.on( parentStyle.childrenChanged, this );
 			updateStyles();
 		}

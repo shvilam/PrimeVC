@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 <componentPackage>
+	
+	<!-- Core Elements -->
 	<component id="IDisplayObject"		superClass=""					fullname="primevc.gui.display.IDisplayObject" />
 	<component id="UIComponent"			superClass="IDisplayObject"		fullname="primevc.gui.core.UIComponent" />
 	<component id="UIContainer"			superClass="UIComponent"		fullname="primevc.gui.core.UIContainer" />
@@ -10,6 +12,7 @@
 	<component id="UIVideo"				superClass="IDisplayObject"		fullname="primevc.gui.core.UIVideo" />
 	<component id="UIWindow"			superClass="IDisplayObject"		fullname="primevc.gui.core.UIWindow" />
 	
+	<!-- Default Components -->
 	<component id="ApplicationView"		superClass="UIContainer"		fullname="primevc.gui.components.ApplicationView" />
 	<component id="Button"				superClass="UIDataContainer"	fullname="primevc.gui.components.Button" />
 	<component id="ComboBox"			superClass="DataButton"			fullname="primevc.gui.components.ComboBox" />
@@ -30,6 +33,16 @@
 	<component id="TextArea"			superClass="UIDataContainer"	fullname="primevc.gui.components.TextArea" />
 	<component id="VideoControlBar"		superClass="UIContainer"		fullname="primevc.gui.components.VideoControlBar" />
 	<component id="VideoPlayer"			superClass="UIDataContainer"	fullname="primevc.gui.components.VideoPlayer" />
+	
+	<!-- Skins -->
+	<component id="Skin"					superClass=""				fullname="primevc.gui.core.Skin" />
+	<component id="ButtonIconLabelSkin"		superClass="Skin"			fullname="primevc.gui.components.skins.ButtonIconLabelSkin" />
+	<component id="ButtonIconSkin"			superClass="Skin"			fullname="primevc.gui.components.skins.ButtonIconSkin" />
+	<component id="ButtonLabelSkin"			superClass="Skin"			fullname="primevc.gui.components.skins.ButtonLabelSkin" />
+	<component id="CircleProgressSkin"		superClass="Skin"			fullname="primevc.gui.components.skins.CircleProgressSkin" />
+	<component id="InputFieldSkin"			superClass="Skin"			fullname="primevc.gui.components.skins.InputFieldSkin" />
+	<component id="LinearProgressSkin"		superClass="Skin"			fullname="primevc.gui.components.skins.LinearProgressSkin" />
+	<component id="SlidingToggleButtonSkin"	superClass="Skin"			fullname="primevc.gui.components.skins.SlidingToggleButtonSkin" />
 	
 <!--<component id=""	superClass=""	fullname="" />-->
 </componentPackage>

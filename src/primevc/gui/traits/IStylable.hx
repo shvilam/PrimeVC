@@ -41,7 +41,7 @@ package primevc.gui.traits;
  */
 interface IStylable
 		implements IIdentifiable
-	,	implements IDisplayable
+//	,	implements IDisplayable
 {
 #if flash9
 	public var style			(default, null)					: UIElementStyle;

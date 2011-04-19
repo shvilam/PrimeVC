@@ -279,7 +279,7 @@ class UIComponent extends Sprite, implements IUIComponent
 			
 			stylingEnabled = v;
 			if (v)
-				style = new UIElementStyle(this);
+				style = new UIElementStyle(this, this);
 		}
 		return v;
 	}

@@ -33,11 +33,13 @@ package primevc.gui.components;
 
  import primevc.gui.core.IUIContainer;
  import primevc.gui.core.UIDataContainer;
+ import primevc.gui.core.UIElementFlags;
 
  import primevc.gui.styling.StyleState;
  import primevc.gui.styling.StyleStateFlags;
 
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
   using Type;
 
 
@@ -118,9 +120,10 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 	{
 		super(id, new PercentageHelper(0, min, max));
 		
+		mode				= ProgressBarMode.manual;
 		progressStyle		= style.createState();
-		determinateStyle	= style.createState();
-		isDeterminate		= true;
+		determinateStyle	= style.createState( StyleStateFlags.DETERMINATE );
+		(untyped this).isDeterminate = true;
 	}
 	
 	
@@ -136,6 +139,24 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 		progressStyle = determinateStyle = null;
 		
 		super.dispose();
+	}
+	
+	
+	
+	override public function validate ()
+	{
+		var changes = this.changes;
+		super.validate();
+		
+		if (changes.has(UIElementFlags.TARGET))
+		{
+			Assert.notNull(source);
+			var e = source.events.load;
+			handleBegin		.on( e.started, this );
+			handleProgress	.on( e.progress, this );
+			handleCompleted	.on( e.completed, this );
+			handleError		.on( e.error, this );
+		}
 	}
 	
 	
@@ -156,15 +177,7 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 			source = v;
 			
 			if (v != null)
-			{
-				var e = v.events.load;
-				handleBegin		.on( e.started, this );
-				handleProgress	.on( e.progress, this );
-				handleCompleted	.on( e.completed, this );
-				handleError		.on( e.error, this );
-				
-		//		trace(v.bytesProgress+", "+v.bytesTotal);
-			}
+				invalidate(UIElementFlags.TARGET);
 		}
 		
 		return v;
@@ -177,11 +190,13 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 		{
 			progressState = state;
 			progressStyle.current = switch (state) {
-				case progress:		StyleStateFlags.PROGRESS;
-				case completed:		StyleStateFlags.COMPLETED;
-				case error:			StyleStateFlags.ERROR;
-				default:			StyleStateFlags.NONE;
+				case ProgressState.progress:	StyleStateFlags.PROGRESS;
+				case ProgressState.completed:	StyleStateFlags.COMPLETED;
+				case ProgressState.error:		StyleStateFlags.ERROR;
+				default:						StyleStateFlags.NONE;
 			}
+			
+			invalidate( UIElementFlags.STATE );
 		}
 		return state;
 	}
@@ -197,16 +212,25 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 	}
 	
 	
+	//
+	// STATE SETTERS
+	//
+	
+	public inline function start ()		{ progressState = ProgressState.started; }
+	public inline function finish ()	{ progressState = ProgressState.completed; }
+	public inline function progress ()	{ progressState = ProgressState.progress; }
+	public inline function error ()		{ progressState = ProgressState.error; }
+	
 	
 	
 	//
 	// EVENT HANDLERS
 	//
 	
-	private function handleBegin ()		{ progressState = ProgressState.started; }
-	private function handleCompleted ()	{ updateValues();	progressState = ProgressState.completed; }
-	private function handleProgress ()	{ updateValues();	progressState = ProgressState.progress; }
-	private function handleError ()		{ updateValues();	progressState = ProgressState.error; }
+	private function handleBegin ()		{ start(); }
+	private function handleCompleted ()	{ updateValues();	finish(); }
+	private function handleProgress ()	{ updateValues();	progress(); }
+	private function handleError ()		{ updateValues();	error(); }
 	
 	
 	private inline function updateValues ()

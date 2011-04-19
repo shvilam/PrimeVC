@@ -44,31 +44,32 @@ class UIElementFlags
 	
 	
 	public static inline var DATA		= 1 << 3;
+	public static inline var STATE		= 1 << 4;
 	
 	//
 	// UITEXTFIELD PROPERTIES
 	//
 	
-	public static inline var TEXTSTYLE	= 1 << 4;
 	public static inline var TEXT		= 1 << 5;
 	public static inline var RESTRICT	= 1 << 6;
 	public static inline var MAX_CHARS	= 1 << 7;
+	public static inline var TEXTSTYLE	= 1 << 8;
 	
+	
+	//
+	// ScrollBar and ProgressBar
+	public static inline var TARGET		= 1 << 9;
 	
 	//
 	// IICON OWNER PROPERTIES
-	
-	public static inline var ICON		= 1 << 8;
-	public static inline var ICON_FILL	= 1 << 9;
+	public static inline var ICON		= 1 << 10;
+	public static inline var ICON_FILL	= 1 << 11;
 	
 	//
 	// SliderBase
-	public static inline var PERCENTAGE = 1 << 10;
-	public static inline var DIRECTION	= 1 << 11;
+	public static inline var PERCENTAGE = 1 << 12;
+	public static inline var DIRECTION	= 1 << 13;
 	
-	//
-	// ScrollBar
-	public static inline var TARGET		= 1 << 12;
 
 	
 #if debug
