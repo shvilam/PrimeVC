@@ -74,6 +74,11 @@ class GraphicProperties implements IGraphicElement
 	public var shape		(default, setShape)			: IGraphicShape;
 	public var layout		(default, setLayout)		: IntRectangle;
 	public var borderRadius	(default, setBorderRadius)	: Corners;
+	/**
+	 * Percentage of the graphic-shape to draw (value between 0-1)
+	 * @default 1
+	 */
+	public var percentage	(default, setPercentage)	: Float;
 	
 	
 	public function new (layout:IntRectangle = null, shape:IGraphicShape = null, fill:IGraphicProperty = null, border:IBorder = null, borderRadius:Corners = null)
@@ -88,6 +93,8 @@ class GraphicProperties implements IGraphicElement
 		this.border			= border;
 		this.borderRadius	= borderRadius;
 		changeEvent			= new Signal1();
+		
+		(untyped this).percentage = 1;
 	}
 	
 	
@@ -180,7 +187,7 @@ class GraphicProperties implements IGraphicElement
 			if (border != null)		border.begin( target, layout );
 			if (fill != null)		fill.begin( target, layout );
 			
-			shape.draw( target, layout, borderRadius );
+			drawShape( target, layout );
 			
 			if (border != null)		border.end( target, layout );
 			if (fill != null)		fill.end( target, layout );
@@ -226,7 +233,7 @@ class GraphicProperties implements IGraphicElement
 	private inline function drawFill (target:IGraphicsOwner, fill:IGraphicProperty, layout:IntRectangle)
 	{
 		fill.begin( target, layout );
-		shape.draw( target, layout, borderRadius );
+		drawShape( target, layout );
 		fill.end( target, layout );
 	}
 	
@@ -234,8 +241,15 @@ class GraphicProperties implements IGraphicElement
 	private inline function drawBorder (target:IGraphicsOwner, border:IBorder, layout:IntRectangle)
 	{
 		border.begin( target, layout );
-		shape.draw( target, layout, borderRadius );
+		drawShape( target, layout );
 		border.end( target, layout );
+	}
+	
+	
+	private inline function drawShape (target:IGraphicsOwner, layout:IntRectangle)
+	{
+		if (percentage == 1)	shape.draw( target, layout, borderRadius );
+		else					shape.drawFraction( target, layout, borderRadius, percentage );
 	}
 	
 
@@ -318,6 +332,16 @@ class GraphicProperties implements IGraphicElement
 		if (v != borderRadius) {
 			borderRadius = v;
 			invalidate( GraphicFlags.SHAPE );
+		}
+		return v;
+	}
+	
+	
+	private inline function setPercentage (v:Float)
+	{
+		if (v != percentage) {
+			percentage = v;
+			invalidate( GraphicFlags.PROPERTIES );
 		}
 		return v;
 	}

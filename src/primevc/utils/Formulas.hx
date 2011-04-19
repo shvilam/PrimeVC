@@ -97,4 +97,26 @@ class Formulas
 	public static inline function degreesToRadians (degrees:Float) : Float {
 		return degrees * FastMath.DEGREE_RAD;
 	}
+	
+	
+	public static inline function getCirclePerimeter (radius:Float) : Float {
+		return radius * FastMath.DOUBLE_PI;
+	}
+	
+	
+	/**
+	 * Method will return the radius of a polygon that is needed to cover a circle.
+	 * 
+	 * This is useful if you want to draw a part of a masked polygon to fill a
+	 * piece of circle. Using the radius of the circle would leave a part of the
+	 * circle uncovered.
+	 * 
+	 * @param	radius		radius of the circle to cover
+	 * @param	sides		sides of the polygon
+	 * @return 	radius of the polygon to cover the circle
+	 */
+	public static inline function polygonRadiusForCircle( radius:Float, sides:Int ) : Float
+	{
+		return radius / FastMath.cos( (1 / sides) * FastMath.PI);
+	}
 }

@@ -38,6 +38,7 @@ package primevc.gui.graphics.shapes;
  import primevc.gui.traits.IGraphicsOwner;
   using primevc.utils.FastArray;
   using primevc.utils.NumberUtil;
+  using primevc.utils.TypeUtil;
 
 
 /**
@@ -167,6 +168,15 @@ class Triangle extends ShapeBase, implements IGraphicShape
 		target.graphics.lineTo( a.x, a.y );
 	#end
 #end
+	}
+	
+	
+	public function drawFraction (target:IGraphicsOwner, bounds:IRectangle, borderRadius:Corners, percentage:Float) : Void
+	{
+		var b = bounds.clone().as(IRectangle);
+		b.width  = (b.width  * percentage).roundFloat();
+		b.height = (b.height * percentage).roundFloat();
+		draw( target, b, borderRadius );
 	}
 	
 	

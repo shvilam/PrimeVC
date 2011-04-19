@@ -20,7 +20,7 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
@@ -30,38 +30,52 @@ package primevc.gui.graphics.shapes;
  import primevc.core.geom.Corners;
  import primevc.core.geom.IRectangle;
  import primevc.gui.traits.IGraphicsOwner;
+ import primevc.utils.Formulas;
   using primevc.gui.utils.GraphicsUtil;
 
 
 
 /**
+ * Class to draw a polygon with x-sides (minimal 3)
+ * 
  * @author Ruben Weijers
- * @creation-date Aug 01, 2010
+ * @creation-date Apr 19, 2011
  */
-class Ellipse extends ShapeBase, implements IGraphicShape
+class Polygon extends ShapeBase, implements IGraphicShape
 {
+	private var sides : Int;
+	
+	
+	public function new (sides:Int = 3)
+	{
+		super();
+		Assert.that( sides > 2 );
+		this.sides = sides;
+	}
+	
+	
 	public function draw (target:IGraphicsOwner, bounds:IRectangle, borderRadius:Corners) : Void
 	{
+		var radius = Formulas.getCircleRadius( bounds.width, bounds.height );
 #if flash9
-		target.graphics.drawEllipse( bounds.left, bounds.top, bounds.width, bounds.height );
+		target.drawPolygon( sides, bounds.left + radius, bounds.top + radius, radius );
 #end
 	}
 	
 	
 	public function drawFraction (target:IGraphicsOwner, bounds:IRectangle, borderRadius:Corners, percentage:Float) : Void
 	{
-		var radiusX = bounds.width * .5;
-		var radiusY = bounds.height * .5;
+		var radius = Formulas.getCircleRadius( bounds.width, bounds.height );
 #if flash9
-		target.drawEllipseArc(bounds.left + radiusX, bounds.top + radiusY, radiusX, radiusY, percentage);
+		target.drawPolygonFraction( sides, bounds.left + radius, bounds.top + radius, radius, percentage );
 #end
 	}
 	
-	
+
 #if (neko || debug)
 	override public function toCSS (prefix:String = "") : String
 	{
-		return "ellipse";
+		return "polygon("+sides+")";
 	}
 #end
 }
