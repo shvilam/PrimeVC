@@ -116,7 +116,7 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 	// METHODS
 	//
 	
-	public function new (id:String, max:Float = 1.0, min:Float = 0.0)
+	public function new (?id:String, max:Float = 1.0, min:Float = 0.0)
 	{
 		super(id, new PercentageHelper(0, min, max));
 		
@@ -148,7 +148,7 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 		var changes = this.changes;
 		super.validate();
 		
-		if (changes.has(UIElementFlags.TARGET))
+		if (changes.has(UIElementFlags.SOURCE))
 		{
 			Assert.notNull(source);
 			var e = source.events.load;
@@ -177,7 +177,7 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 			source = v;
 			
 			if (v != null)
-				invalidate(UIElementFlags.TARGET);
+				invalidate(UIElementFlags.SOURCE);
 		}
 		
 		return v;

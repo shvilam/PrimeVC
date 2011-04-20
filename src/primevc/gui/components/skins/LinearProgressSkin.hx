@@ -28,15 +28,21 @@
  */
 package primevc.gui.components.skins;
  import primevc.core.net.CommunicationType;
- import primevc.gui.behaviours.UpdateMaskBehaviour;
  import primevc.core.Bindable;
+
+ import primevc.gui.behaviours.UpdateMaskBehaviour;
+
  import primevc.gui.components.Label;
  import primevc.gui.components.ProgressBar;
- import primevc.gui.core.UIGraphic;
+
  import primevc.gui.core.Skin;
+ import primevc.gui.core.UIElementFlags;
+ import primevc.gui.core.UIGraphic;
+
  import primevc.gui.display.VectorShape;
   using primevc.utils.NumberUtil;
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
 
 
 /**
@@ -64,10 +70,6 @@ class LinearProgressSkin extends Skin<ProgressBar>
 	override private function createBehaviours ()
 	{
 		label = new Bindable<String>();
-		
-		if (owner.source != null)
-			labelPrefix	= owner.source.type == CommunicationType.loading ? 'Laden: ' : 'Uploaden: ';
-		
 		update.on( owner.data.perc.change, this );
 	}
 	
@@ -125,6 +127,23 @@ class LinearProgressSkin extends Skin<ProgressBar>
 			indicator	= null;
 			maskShape	= null;
 			labelField	= null;
+		}
+	}
+	
+	
+	override public function validate (changes:Int)
+	{
+		if (changes.has( UIElementFlags.SOURCE ))
+		{
+			if (owner.source != null) {
+				labelPrefix	= owner.source.type == CommunicationType.loading ? 'Laden: ' : 'Uploaden: ';
+				update( owner.data.percentage, 0 );
+			}
+			else
+			{
+				labelPrefix = "";
+				update( owner.data.percentage, 0 );
+			}
 		}
 	}
 	

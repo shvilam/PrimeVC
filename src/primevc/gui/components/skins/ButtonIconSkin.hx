@@ -85,10 +85,7 @@ class ButtonIconSkin extends Skin<Button>
 
 	override public function validate (changes:Int)
 	{
-		if (changes.has( Flags.ICON ))
-			iconGraphic.data = owner.icon;
-		
-		if (changes.has( Flags.ICON_FILL ))
-			iconGraphic.colorize( owner.iconFill );
+		if (changes.has( Flags.ICON ))			iconGraphic.data = owner.icon;
+		if (changes.has( Flags.ICON_FILL ))		iconGraphic.colorize( owner.iconFill );
 	}
 }

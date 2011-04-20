@@ -37,6 +37,7 @@ package primevc.avm2.net;
  import primevc.core.net.CommunicationType;
  import primevc.core.net.ICommunicator;
  import primevc.core.net.URLVariables;
+ import primevc.core.Bindable;
 
  import primevc.types.Number;
  import primevc.types.URI;
@@ -62,7 +63,7 @@ class URLLoader implements ICommunicator
 	public var events			(default,			null)			: LoaderSignals;
 	public var bytesProgress	(getBytesProgress,	null)			: Int;
 	public var bytesTotal		(getBytesTotal,		null)			: Int;
-	public var length			(getLength,			never)			: Int;
+	public var length			(default,			never)			: Bindable<Int>;
 	public var type				(default,			null)			: CommunicationType;
 	public var isStarted		(default,			null)			: Bool;
 	
@@ -98,7 +99,9 @@ class URLLoader implements ICommunicator
 	
 	public function dispose ()
 	{
-		close();
+		if (isStarted)
+			close();
+		
 		events.dispose();
 		events	= null;
 		type	= null;
@@ -154,11 +157,12 @@ class URLLoader implements ICommunicator
 		if (isStarted)
 			close();
 		
+		isStarted = true;
 		loader.load(request);
 	}
 	
 	
-	public inline function close ()					{ return loader.close(); }
+	public inline function close ()					{ isStarted = false; loader.close(); }
 	public inline function isCompleted ()			{ return bytesTotal > 0 && bytesProgress >= bytesTotal; }
 	public inline function isInProgress ()			{ return isStarted && !isCompleted(); }
 	
@@ -175,7 +179,7 @@ class URLLoader implements ICommunicator
 	private inline function getBytesProgress ()		{ return bytesProgress.isSet()	? bytesProgress	: loader.bytesLoaded; }
 	private inline function getBytesTotal ()		{ return bytesTotal.isSet()  	? bytesTotal	: loader.bytesTotal; }
 	private inline function getData ()				{ return data != null			? data			: loader.data; }
-	private inline function getLength ()			{ return 1; }
+//	private inline function getLength ()			{ return 1; }
 	
 	private inline function getDataFormat ()		{ return loader.dataFormat; }
 	private inline function setDataFormat (v)		{ return loader.dataFormat  = v; }

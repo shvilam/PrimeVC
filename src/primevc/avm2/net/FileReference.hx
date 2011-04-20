@@ -37,6 +37,8 @@ package primevc.avm2.net;
  import primevc.core.net.FileFilter;
  import primevc.core.net.ICommunicator;
  import primevc.core.net.URLVariables;
+ import primevc.core.Bindable;
+
  import primevc.gui.events.SelectEvents;
  import primevc.types.URI;
   using primevc.utils.Bind;
@@ -62,7 +64,7 @@ class FileReference extends SelectEvents, implements ICommunicator
 	public var bytesTotal		(getBytesTotal,			null)		: Int;
 	public var bytes			(getBytes,				setBytes)	: BytesData;
 	public var type				(default,				null)		: CommunicationType;
-	public var length			(getLength,				null)		: Int;
+	public var length			(default,				null)		: Bindable<Int>;
 	public var isStarted		(default,				null)		: Bool;
 	
 	public var creationDate		(getCreationDate,	 	never)		: Date;
@@ -81,11 +83,11 @@ class FileReference extends SelectEvents, implements ICommunicator
 		super(this.loader);
 		
 		var e = events.load;
-		updateProgress	.on( e.progress,	this );
+		updateProgress	.on( e.progress,			this );
 		
-		setStarted		.on( e.started, 	this );
-		unsetStarted	.on( e.completed, this );
-		unsetStarted	.on( e.error, 	this );
+		setStarted		.on( e.started, 			this );
+		unsetStarted	.on( e.completed, 			this );
+		unsetStarted	.on( e.error, 				this );
 		unsetStarted	.on( events.unloaded,		this );
 		unsetStarted	.on( events.uploadComplete,	this );
 	}
@@ -102,7 +104,7 @@ class FileReference extends SelectEvents, implements ICommunicator
 	}
 	
 	
-	public inline function close ()								{ return loader.cancel(); }
+	public inline function close ()								{ isStarted = false; loader.cancel(); }
 	public inline function browse (?types:Array<FileFilter>)	{ return loader.browse(types); }
 	
 	
@@ -111,7 +113,8 @@ class FileReference extends SelectEvents, implements ICommunicator
 		if (isStarted)
 			close();
 		
-		type = CommunicationType.loading;
+		isStarted 	= true;
+		type		= CommunicationType.loading;
 		return loader.load();
 	}
 	
@@ -121,6 +124,7 @@ class FileReference extends SelectEvents, implements ICommunicator
 		if (isStarted)
 			close();
 		
+		isStarted	 	= true;
 		type			= CommunicationType.sending;
 		
 		var request		= uri.toRequest();
@@ -128,7 +132,6 @@ class FileReference extends SelectEvents, implements ICommunicator
 		request.data	= vars;
 		bytesProgress	= 0;
 		
-		trace(uri);
 		loader.upload(request, uploadDataFieldName);
 	}
 	
@@ -143,7 +146,7 @@ class FileReference extends SelectEvents, implements ICommunicator
 	private inline function getBytesTotal ()		{ return loader.size.int(); }
 	private inline function getBytes ()				{ return loader.data; }
 	private inline function setBytes (v)			{ Assert.abstract(); return null; }		// impossible to set the bytes of a file-reference!
-	private inline function getLength ()			{ return 1; }
+//	private inline function getLength ()			{ return 1; }
 	
 	private inline function getModificationDate ()	{ return loader.modificationDate; }
 	private inline function getCreationDate ()		{ return loader.creationDate; }
@@ -170,6 +173,7 @@ class FileReference extends SelectEvents, implements ICommunicator
 	//	this.bytesTotal = total;
 	}
 	
+	
 	private function setStarted ()		{ isStarted = true; }
 	private function unsetStarted ()	{ isStarted = false; }
 	
@@ -177,7 +181,7 @@ class FileReference extends SelectEvents, implements ICommunicator
 #if debug
 	public function toString ()
 	{
-		return "FileReference( "+type+" => "+bytesProgress + " / " + bytesTotal + " - started? "+ isStarted +" )";
+		return "FileReference( "+type+" => "+bytesProgress + " / " + bytesTotal + " - started? "+ isStarted +"; type: "+type+" )";
 	}
 #end
 }

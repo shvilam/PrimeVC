@@ -41,6 +41,7 @@ package primevc.avm2.display;
  import primevc.core.net.CommunicationType;
  import primevc.core.net.FileType;
  import primevc.core.net.ICommunicator;
+ import primevc.core.Bindable;
  import primevc.types.URI;
   using primevc.utils.Bind;
   using primevc.utils.FileUtil;
@@ -64,7 +65,7 @@ class Loader implements ICommunicator
 	public var bytesProgress	(getBytesProgress,	never)		: Int;
 	public var bytesTotal		(getBytesTotal,		never)		: Int;
 	public var type				(default,			null)		: CommunicationType;
-	public var length			(getLength,			null)		: Int;
+	public var length			(default,			null)		: Bindable<Int>;
 	public var isStarted		(default,			null)		: Bool;
 	
 	public var info				(getInfo,			never)		: LoaderInfo;
@@ -104,7 +105,8 @@ class Loader implements ICommunicator
 		if (isStarted)
 			close();
 		
-		type = CommunicationType.loading;
+		isStarted	= true;
+		type		= CommunicationType.loading;
 	//	extension = v.fileExt;
 		if (c == null)
 			c = defaultContext;
@@ -118,7 +120,9 @@ class Loader implements ICommunicator
 		if (isStarted)
 			close();
 		
-		type = CommunicationType.loading;
+		isStarted	= true;
+		type		= CommunicationType.loading;
+		
 		if (c == null)
 			c = defaultContext;
 		
@@ -152,7 +156,7 @@ class Loader implements ICommunicator
 	private inline function getInfo ()				{ return loader.contentLoaderInfo; }
 	private inline function getBytesProgress ()		{ return info.bytesLoaded; }
 	private inline function getBytesTotal ()		{ return info.bytesTotal; }
-	private inline function getLength ()			{ return 1; }
+//	private inline function getLength ()			{ return 1; }
 	
 	private inline function getWidth ()				{ return info.width; }
 	private inline function getHeight ()			{ return info.height; }

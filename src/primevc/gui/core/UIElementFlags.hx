@@ -57,7 +57,7 @@ class UIElementFlags
 	
 	
 	//
-	// ScrollBar and ProgressBar
+	// ScrollBar
 	public static inline var TARGET		= 1 << 9;
 	
 	//
@@ -70,6 +70,11 @@ class UIElementFlags
 	public static inline var PERCENTAGE = 1 << 12;
 	public static inline var DIRECTION	= 1 << 13;
 	
+	
+	//
+	// ScrollBar and ProgressBar
+	public static inline var SOURCE		= 1 << 14;
+	
 
 	
 #if debug
@@ -81,15 +86,17 @@ class UIElementFlags
 		if (flags.has( GRAPHICS ))		output.push("graphics");
 		if (flags.has( STYLE ))			output.push("style");
 		if (flags.has( DATA ))			output.push("data");
+		if (flags.has( STATE ))			output.push("state");
 		if (flags.has( TEXTSTYLE ))		output.push("textstyle");
 		if (flags.has( TEXT ))			output.push("text");
 		if (flags.has( RESTRICT ))		output.push("restrict");
 		if (flags.has( MAX_CHARS ))		output.push("maxChars");
+		if (flags.has( TARGET ))		output.push("target");
 		if (flags.has( ICON ))			output.push("icon");
-		if (flags.has( ICON_FILL ))	output.push("iconFill");
+		if (flags.has( ICON_FILL ))		output.push("iconFill");
 		if (flags.has( PERCENTAGE ))	output.push("percentage");
 		if (flags.has( DIRECTION ))		output.push("direction");
-		if (flags.has( TARGET ))		output.push("target");
+		if (flags.has( SOURCE ))		output.push("source");
 		
 		return output.length > 0 ? output.join(", ") : "no-properties";
 	}

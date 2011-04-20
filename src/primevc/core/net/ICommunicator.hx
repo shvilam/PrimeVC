@@ -30,6 +30,7 @@ package primevc.core.net;
  import haxe.io.BytesData;
  import primevc.core.events.LoaderEvents;
  import primevc.core.traits.IDisposable;
+ import primevc.core.Bindable;
 
 
 /**
@@ -57,7 +58,7 @@ interface ICommunicator implements IDisposable
 	/**
 	 * Indicates the number of process going on within the communicator
 	 */
-	public var length			(getLength,			null)		: Int;
+	public var length			(default,			null)		: Bindable<Int>;
 	
 	
 	/**

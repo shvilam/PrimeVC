@@ -30,6 +30,7 @@ package primevc.core.net;
  import haxe.io.BytesData;
  import haxe.FastList;
  import primevc.core.events.LoaderEvents;
+ import primevc.core.Bindable;
  import primevc.types.Number;
   using primevc.utils.Bind;
   using primevc.utils.NumberUtil;
@@ -62,7 +63,7 @@ class CommunicatorsGroup implements ICommunicator
 	/**
 	 * Indicates the number of process going on within the communicator
 	 */
-	public var length			(getLength,			null)		: Int;
+	public var length			(default,			null)		: Bindable<Int>;
 	public var isStarted		(default,			null)		: Bool;
 	
 	
@@ -73,6 +74,7 @@ class CommunicatorsGroup implements ICommunicator
 	{
 		events	= new LoaderGroupEvents();
 		list	= new FastList<ICommunicator>();
+		length	= new Bindable<Int>(0);
 		
 		bytesProgress = bytesTotal = Number.INT_NOT_SET;
 	}
@@ -81,8 +83,10 @@ class CommunicatorsGroup implements ICommunicator
 	public function dispose ()
 	{
 		removeAll();
+		length.dispose();
 		events.dispose();
 		events = null;
+		length = null;
 	}
 	
 	
@@ -91,24 +95,23 @@ class CommunicatorsGroup implements ICommunicator
 		while (list.head != null)
 			list.pop().events.load.unbind(this);
 		
-		length = 0;
+		length.value = 0;
 		bytesProgress = bytesTotal = Number.INT_NOT_SET;
 	}
 	
 	
 	public inline function add (communicator:ICommunicator) : Void
 	{
+		list.add( communicator );
+		
+		if (communicator.isInProgress())
+			updateProgress();
+		
 		var evts = communicator.events.load;
 		handleStarted	.on( evts.started,	 this );
 		handleCompleted	.on( evts.completed, this );
 		handleError		.on( evts.error, 	 this );
 		updateProgress	.on( evts.progress,	 this );
-		
-		list.add( communicator );
-		if (communicator.isInProgress()) {
-			updateProgress();
-			length++;
-		}
 	}
 	
 	
@@ -116,10 +119,9 @@ class CommunicatorsGroup implements ICommunicator
 	{
 		communicator.events.load.unbind(this);
 		list.remove( communicator );
-		if (communicator.isInProgress()) {
+		
+		if (communicator.isInProgress())
 			updateProgress();
-			length--;
-		}
 	}
 	
 	
@@ -127,8 +129,8 @@ class CommunicatorsGroup implements ICommunicator
 	 * Flag indicating wether the process is completed (true when a COMPLETE 
 	 * event is fired or when the bytesProgress are equal to the bytesTotal)
 	 */
-	public inline function isCompleted ()	{ return bytesTotal > 0 && length == 0; }
-	public inline function isInProgress ()	{ return length > 0; }
+	public inline function isCompleted ()	{ return bytesTotal > 0 && length.value == 0; }
+	public inline function isInProgress ()	{ return length.value > 0; }
 	
 	
 	/**
@@ -150,7 +152,6 @@ class CommunicatorsGroup implements ICommunicator
 	
 	private inline function getBytesProgress ()		{ return bytesProgress; }
 	private inline function getBytesTotal ()		{ return bytesTotal; }
-	private inline function getLength ()			{ return length; }
 	
 	private inline function getBytes ()				{ Assert.abstract(); return null; }
 	private inline function setBytes (v)			{ Assert.abstract(); return null; }
@@ -163,8 +164,10 @@ class CommunicatorsGroup implements ICommunicator
 	
 	private function handleStarted ()
 	{
-		length++;
-		if (length == 1) {
+		var oldLength = length.value;
+		updateProgress();
+		
+		if (oldLength == 0 && length.value > 0) {
 			isStarted = true;
 			events.load.started.send();
 		}
@@ -173,10 +176,9 @@ class CommunicatorsGroup implements ICommunicator
 	
 	private function handleCompleted ()
 	{
-		length--;
 		updateProgress();
 		
-		if (length == 0) {
+		if (length.value == 0) {
 			isStarted = false;
 			events.load.completed.send();
 		}
@@ -185,7 +187,7 @@ class CommunicatorsGroup implements ICommunicator
 	
 	private function handleError (error:String)
 	{
-		length--;
+		updateProgress();
 		events.load.error.send(error);
 	}
 	
@@ -194,17 +196,21 @@ class CommunicatorsGroup implements ICommunicator
 	{
 		var progress	= 0;
 		var total		= 0;
+		var l			= 0;
 		
 		var n = list.head;
 		while (n != null) {
 			var c = n.elt;
 			if (c.bytesProgress.isSet())	progress += c.bytesProgress;
 			if (c.bytesTotal.isSet())		total	 += c.bytesTotal;
+			if (c.isInProgress())			l++;
+			
 			n = n.next;
 		}
 		
 		bytesProgress	= progress;
 		bytesTotal		= total;
+		length.value	= l;
 		
 		events.load.progress.send( bytesProgress, bytesTotal );
 	}
