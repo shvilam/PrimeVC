@@ -30,19 +30,24 @@ package primevc.avm2.display;
  import flash.display.DisplayObject;
  import primevc.core.geom.IntRectangle;
  import primevc.core.Bindable;
+
  import primevc.gui.display.DisplayDataCursor;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.display.IInteractiveObject;
  import primevc.gui.display.ITextField;
+ import primevc.gui.display.ISprite;
  import primevc.gui.display.Window;
+
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.FocusState;
  import primevc.gui.events.TextEvents;
  import primevc.gui.events.UserEventTarget;
  import primevc.gui.events.UserEvents;
+
  import primevc.gui.text.TextFormat;
  import primevc.gui.text.TextTransform;
+
   using primevc.utils.Bind;
   using primevc.utils.NumberUtil;
   using primevc.utils.StringUtil;
@@ -186,10 +191,8 @@ class TextField extends flash.text.TextField, implements ITextField
 	
 	
 #if !neko
-	public function getDisplayCursor () : DisplayDataCursor
-	{
-		return new DisplayDataCursor(this);
-	}
+	public function getDisplayCursor		() : DisplayDataCursor								{ return new DisplayDataCursor(this); }
+	public inline function attachDisplayTo	(target:ISprite, pos:Int = -1) : IDisplayObject		{ target.children.add( this, pos ); return this; }
 #end
 	
 	

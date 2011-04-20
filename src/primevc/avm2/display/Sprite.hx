@@ -34,10 +34,10 @@ package primevc.avm2.display;
  import primevc.gui.behaviours.drag.DragInfo;
 #end
  import primevc.gui.display.DisplayDataCursor;
- import primevc.gui.display.ISprite;
  import primevc.gui.display.DisplayList;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
+ import primevc.gui.display.ISprite;
  import primevc.gui.display.Window;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEventTarget;
@@ -122,10 +122,8 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	
 	
 #if !neko
-	public function getDisplayCursor () : DisplayDataCursor
-	{
-		return new DisplayDataCursor(this);
-	}
+	public function getDisplayCursor		() : DisplayDataCursor								{ return new DisplayDataCursor(this); }
+	public inline function attachDisplayTo	(target:ISprite, pos:Int = -1) : IDisplayObject		{ target.children.add( this, pos ); return this; }
 	
 	#if dragEnabled
 	public function createDragInfo () : DragInfo

@@ -225,7 +225,6 @@ class UIComponent extends Sprite, implements IUIComponent
 	// ATTACH METHODS
 	//
 	
-	public inline function attachDisplayTo	(target:IUIComponent, pos:Int = -1) : IUIElement	{ target.children.add( this, pos ); return this; }
 	public inline function attachLayoutTo	(target:IUIContainer, pos:Int = -1) : IUIElement	{ target.layoutContainer.children.add( layout, pos ); return this; }
 	public inline function attachTo			(target:IUIContainer, pos:Int = -1) : IUIElement	{ attachLayoutTo(target, pos); attachDisplayTo(target, pos); return this; }
 	
