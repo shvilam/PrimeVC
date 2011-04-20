@@ -364,7 +364,8 @@ class Asset
 				if (v.hasScheme( URIScheme.Scheme('asset')) )
 				{
 					trace(v.host);
-					setClass( v.host.resolveClass() );
+#if neko			uri = v;
+#else				setClass( v.host.resolveClass() );		#end
 				}
 				else
 				{
@@ -665,7 +666,7 @@ class Asset
 		return	 if (assetClass != null)		"Asset( "+assetClass+" )" + state.current;
 			else if (bitmapData != null)		"Asset( bitmapData )" + state.current;
 			else if (displaySource != null)		"Asset( "+displaySource+" )" + state.current;
-			else if (bytes != null)				"Asset( bytes("+bytes.length+") )" + state.current;
+			else if (bytes != null)				"Asset( bytes("+ #if neko "" #else bytes.length #end +") )" + state.current;
 			else if (uri != null)				"Asset( "+uri+" )" + state.current;
 			else								"Asset( "+type+")" + state.current;
 	}

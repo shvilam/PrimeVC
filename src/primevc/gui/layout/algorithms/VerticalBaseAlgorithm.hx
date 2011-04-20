@@ -195,6 +195,9 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 
 	
 	
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String	{ Assert.abstract(); return ""; }
+#end
 #if neko
 	override public function toCode (code:ICodeGenerator)
 	{

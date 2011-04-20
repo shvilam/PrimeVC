@@ -27,6 +27,12 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.types;
+#if neko
+ import primevc.tools.generator.ICodeFormattable;
+ import primevc.tools.generator.ICodeGenerator;
+ import primevc.utils.ID;
+#end
+
   using primevc.utils.FileUtil;
   using primevc.utils.IfUtil;
   using primevc.utils.NumberUtil;
@@ -54,7 +60,7 @@ enum URIScheme
  *  
  *  Ook interessant: http://www.php.net/manual/en/function.parse-url.php#90365
  */
-class URI
+class URI #if neko implements ICodeFormattable #end
 {
 #if debug
 	static function __init__()
@@ -151,7 +157,17 @@ class URI
 		 	(  host.notNull() &&   host.length.not0()) ||
 		 	(  path.notNull() &&   path.length.not0())
 	
-	public function new(str:String = null) {
+	
+#if neko
+	public var _oid (default, null)		: Int;
+#end
+	
+	
+	public function new(str:String = null)
+	{
+#if neko
+		_oid	= ID.getNext();
+#end
 		port = -1;
 		
 		if (str != null)
@@ -332,4 +348,10 @@ class URI
 		
 		return this;
 	}
+
+
+#if neko
+	public function cleanUp () : Void				{}
+	public function toCode (code:ICodeGenerator)	{ code.construct( this, [ getString() ] ); }
+#end
 }
