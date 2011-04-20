@@ -27,71 +27,67 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components.skins;
- import primevc.gui.behaviours.UpdateMaskBehaviour;
- import primevc.gui.components.ProgressBar;
+ import primevc.core.net.CommunicationType;
+ import primevc.core.Bindable;
 
- import primevc.gui.core.Skin;
+ import primevc.gui.components.Label;
+
  import primevc.gui.core.UIElementFlags;
  import primevc.gui.core.UIGraphic;
 
- import primevc.gui.display.VectorShape;
-  using primevc.utils.Bind;
   using primevc.utils.BitUtil;
+  using primevc.utils.NumberUtil;
 
 
 /**
- * Linear loader bar for the ProgressBar component. Use the following style-names
- * to style the different parts of the skin
- * 	- ProgressBar				-> style for the complete bar (i.e. background, border)
- * 	- ProgressBar #indicator	-> style for the block that indicates the progress
+ * Linear loader bar for the ProgressBar component with a label underneath the
+ * progressbar
  * 
  * @author Ruben Weijers
- * @creation-date Mar 28, 2011
+ * @creation-date Apr 20, 2011
  */
-class LinearProgressSkin extends Skin<ProgressBar>
+class LinearProgressLabelSkin extends LinearProgressSkin
 {
-	private var indicator	: UIGraphic;
-	private var maskShape	: VectorShape;
+	private var label		: Bindable<String>;
+	private var labelField	: Label;
+	
+	/**
+	 * String to put before the label ('Laden' or 'Uploaden')
+	 */
+	private var labelPrefix	: String;
 	
 	
 	override private function createBehaviours ()
 	{
-		update.on( owner.data.perc.change, this );
+		label = new Bindable<String>();
+		super.createBehaviours();
 	}
 	
 	
 	override private function removeBehaviours ()
 	{
-		owner.data.perc.change.unbind(this);
+		label.dispose();
+		label = null;
+		
 		super.removeBehaviours();
 	}
 	
 
 	override public function createChildren ()
 	{
-		indicator	= new UIGraphic("indicator");
-		maskShape	= new VectorShape();
-		
-		indicator.attachTo( owner );
-		maskShape.attachDisplayTo( owner );
-		
-		indicator.mask = maskShape;
-		behaviours.add( new UpdateMaskBehaviour( maskShape, owner ) );
+		super.createChildren();
+		labelField	= new Label(null, label);
+		labelField.attachTo( owner );
 	}
 
 
 	override private function removeChildren ()
 	{
-		if (indicator != null)
+		super.removeChildren();
+		if (labelField != null)
 		{
-			indicator.dispose();
-			indicator = null;
-		}
-		
-		if (maskShape != null)
-		{
-			maskShape.dispose();
-			maskShape = null;
+			labelField.dispose();
+			labelField	= null;
 		}
 	}
 	
@@ -99,7 +95,17 @@ class LinearProgressSkin extends Skin<ProgressBar>
 	override public function validate (changes:Int)
 	{
 		if (changes.has( UIElementFlags.SOURCE ))
-			update( owner.data.percentage, 0 );
+		{
+			if (owner.source != null) {
+				labelPrefix	= owner.source.type == CommunicationType.loading ? 'Laden: ' : 'Uploaden: ';
+				update( owner.data.percentage, 0 );
+			}
+			else
+			{
+				labelPrefix = "";
+				update( owner.data.percentage, 0 );
+			}
+		}
 	}
 	
 	
@@ -107,8 +113,9 @@ class LinearProgressSkin extends Skin<ProgressBar>
 	// EVENTHANDLERS
 	//
 	
-	private function update (newVal:Float, oldVal:Float)
+	override private function update (newVal:Float, oldVal:Float)
 	{
-		indicator.layout.percentWidth = newVal;
+		label.value = labelPrefix + (newVal * 100).roundFloat() + "%";
+		super.update(newVal, oldVal);
 	}
 }

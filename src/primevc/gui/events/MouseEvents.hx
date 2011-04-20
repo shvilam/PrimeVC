@@ -183,6 +183,14 @@ class MouseState extends KeyModState
 	}
 	
 	
+#if flash9
+	public inline function isDispatchedBy (obj:UserEventTarget) : Bool
+	{
+		return obj != null && obj == related;
+	}
+#end
+	
+	
 #if debug
 	public var owner : MouseSignal;
 	
