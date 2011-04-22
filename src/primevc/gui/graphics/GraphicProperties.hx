@@ -149,6 +149,15 @@ class GraphicProperties implements IGraphicElement
 	
 	
 	/**
+	 * Cached intrectangle instance that is used for every draw operation when
+	 * the x&y of the current GraphicProperties should be ignored.
+	 * 
+	 * For example when a Sprite is positioned at pos 10,10. The layout x&y will
+	 * then also be 10,10 while the drawRectangle method should use 0,0.
+	 */
+	private static var cachedLayout = new IntRectangle();
+	
+	/**
 	* @param	target
 	* target in which the graphics will be drawn
 	* 
@@ -170,10 +179,36 @@ class GraphicProperties implements IGraphicElement
 		if (layout == null || shape == null || (border == null && fill == null))
 			return false;
 		
-	//	trace(target+".drawing; "+target.rect.width+", "+target.rect.height);
-		var layout:IntRectangle = useCoordinates ? this.layout : cast this.layout.clone();
+		var layout = this.layout;
+		
 		if (!useCoordinates)
-			layout.left = layout.top = 0;
+		{
+			layout = cachedLayout;
+			//find out if we should add the border size to the layout values
+			if (border != null)
+			{
+				var borderW		= (border.weight * target.scaleX).roundFloat();
+				var borderH		= (border.weight * target.scaleY).roundFloat();
+				var inner		= border.innerBorder;
+				
+				layout.move(
+					inner ? 0 : -borderW,
+					inner ? 0 : -borderH
+				);
+				layout.resize(
+					inner ? this.layout.width + borderW		: this.layout.width + (borderW * 2),
+					inner ? this.layout.height + borderW	: this.layout.height + (borderH * 2)
+				);
+				trace(target+" => "+layout+"; inner? "+inner+"; orig: "+this.layout);
+			}
+			else
+			{
+				layout.move( 0, 0 );
+				layout.resize( this.layout.width, this.layout.height );
+			}
+			
+			
+		}
 		
 		Assert.that( layout.width.isSet() );
 		Assert.that( layout.height.isSet() );
@@ -351,10 +386,7 @@ class GraphicProperties implements IGraphicElement
 	}
 	
 	
-	public function isEmpty () : Bool
-	{
-		return (layout == null || layout.isEmpty()) || shape == null;
-	}
+	public inline function isEmpty () : Bool		{ return (layout == null || layout.isEmpty()) || shape == null; }
 	
 	
 #if neko

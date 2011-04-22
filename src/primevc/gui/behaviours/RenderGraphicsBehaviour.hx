@@ -73,12 +73,12 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, impleme
 	
 	public inline function invalidateGraphics ()
 	{
-	//	trace(target+" => "+target.graphicData.isEmpty()+"; "+target.graphicData.shape+"; "+target.graphicData.layout);
-		if (isOnStage() && !target.graphicData.isEmpty() && !isQueued())
-			getValidationManager().add( this );
-		
-		else if (target.graphicData.isEmpty())
+	//	trace(target+" => "+target.graphicData.isEmpty()+"; "+target.graphicData.shape+"; "+target.graphicData.layout+"; queued? "+isQueued());
+		if (target.graphicData.isEmpty())
 			target.graphics.clear();
+		
+		else if (isOnStage() && !isQueued())
+			getValidationManager().add( this );
 	}
 	
 	

@@ -172,16 +172,17 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 			
 				if (isNotPositionedYet || target.x != newX || target.y != newY)
 				{
-					if (target.is(IDrawable))
+					/*if (target.is(IDrawable))
 					{
 						var t = target.as(IDrawable);
 						if (t.graphicData.border != null)
 						{
 							var borderWidth = t.graphicData.border.weight;
+							trace(target+"; "+(borderWidth * target.scaleX)+", "+(borderWidth * target.scaleY));
 							newX -= (borderWidth * target.scaleX).roundFloat();
 							newY -= (borderWidth * target.scaleY).roundFloat();
 						}
-					}
+					}*/
 				
 					target.rect.move( newX, newY );
 					target.x = newX;

@@ -40,7 +40,7 @@ package primevc.gui.managers;
  * @author Ruben Weijers
  * @creation-date Sep 03, 2010
  */
-class QueueManager implements IDisposable
+class QueueManager implements IDisposable, implements IValidatable
 {	
 	/**
 	 * Reference to the object that owns the object
@@ -126,7 +126,7 @@ class QueueManager implements IDisposable
 		if (first == null)
 		{
 			first = obj;
-			obj.prevValidatable = null;
+			obj.prevValidatable = this;
 			obj.nextValidatable = last;
 			enableBinding();
 		}
@@ -145,6 +145,9 @@ class QueueManager implements IDisposable
 	 */
 	public function remove ( obj:IValidatable )
 	{
+		if (obj.prevValidatable == this)
+			obj.prevValidatable = null;
+		
 		if (obj == first)	first = obj.nextValidatable;
 		if (obj == last)	last = obj.prevValidatable;
 		
@@ -156,6 +159,17 @@ class QueueManager implements IDisposable
 		if (first == null)
 			disableBinding();
 	}
+	
+	
+	//
+	// IVALIDATABLE IMPLEMENTATION
+	//
+	
+	//properties are only here to make the manager also an IValidatable
+	public var prevValidatable		: IValidatable;
+	public var nextValidatable		: IValidatable;
+	public inline function isOnStage ()		{ return true; }
+	public inline function isQueued ()		{ return true; }
 	
 	
 #if debug

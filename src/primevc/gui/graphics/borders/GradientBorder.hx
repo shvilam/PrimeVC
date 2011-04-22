@@ -52,6 +52,9 @@ class GradientBorder extends BorderBase <GradientFill>
 	{
 		super.begin(target, bounds);
 #if flash9
+		if (weight <= 0)
+			return;
+		
 		if (lastMatrix == null || bounds != lastBounds || !bounds.isEqualTo(lastBounds))
 			lastMatrix = fill.createMatrix(bounds);
 		
