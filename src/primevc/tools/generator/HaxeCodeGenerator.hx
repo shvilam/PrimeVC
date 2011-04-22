@@ -260,7 +260,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 		else if (v == null)							return "null";
 		else if (Std.is( v, String ))				return "'" + v + "'";
 		else if (Std.is( v, Array ))				return castString( v, getArray( cast v ) );
-		else if (Std.is( v, Int ))					return v >= 0 ? Color.uintToString(v) : Std.string(v);
+		else if (Std.is( v, Int ))					return v > 255 ? Color.uintToString(v) : Std.string(v);
 		else if (Std.is( v, Float ))				return Std.string(v);
 		else if (Std.is( v, Bool ))					return v ? "true" : "false";
 	//	else if (Std.is( v, Hash ))					return formatHash(v);

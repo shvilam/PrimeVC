@@ -55,4 +55,9 @@ class LoaderSignals extends Signals
 	 * some stupid, flash specific extra event with data from server after an upload
 	 */
 	public var uploadComplete	(default, null)		: Signal1<String>;
+	
+	/**
+	 * signal that is dispatched when the upload is canceled by the user
+	 */
+	public var uploadCanceled	(default, null)		: Signal0;
 }

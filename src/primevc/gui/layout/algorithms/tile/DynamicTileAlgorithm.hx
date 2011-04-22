@@ -239,14 +239,14 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 				tileGroups.heightValidator = group.heightValidator;
 			
 			//resize all columns / rows
-			if (group.changes.has(Flags.HEIGHT) && startDirection == vertical)
+			if (group.changes.has(Flags.HEIGHT) && startDirection == vertical && group.explicitHeight != childSizeValidator.max)
 			{
 				childSizeValidator.max = group.explicitHeight;
 				for (i in 0...tileGroups.children.length)
 					tileGroups.children.getItemAt(i).height = group.explicitHeight;
 			}
 			
-			else if (group.changes.has(Flags.WIDTH) && startDirection == horizontal)
+			else if (group.changes.has(Flags.WIDTH) && startDirection == horizontal && group.explicitWidth != childSizeValidator.max)
 			{
 				childSizeValidator.max = group.explicitWidth;
 				for (i in 0...tileGroups.children.length)

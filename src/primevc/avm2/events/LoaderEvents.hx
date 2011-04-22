@@ -30,6 +30,7 @@ package primevc.avm2.events;
  import flash.events.DataEvent;
  import flash.events.IEventDispatcher;
  import flash.events.Event;
+ import primevc.core.dispatcher.Signal0;
  import primevc.core.events.CommunicationEvents;
  import primevc.core.events.LoaderEvents;
 
@@ -51,5 +52,6 @@ class LoaderEvents extends LoaderSignals
 		load			= new CommunicationEvents( target );
 		httpStatus		= new HttpSignal( target );
 		uploadComplete	= new DataSignal( target, DataEvent.UPLOAD_COMPLETE_DATA );
+		uploadCanceled	= new Signal0();
 	}
 }

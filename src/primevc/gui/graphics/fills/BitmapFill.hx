@@ -103,13 +103,11 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 				handleAssetStateChange.on( asset.state.change, this );
 				
 				smooth	= asset.type != AssetType.bitmapData;
-#if flash9		data	= asset.getBitmapData(); #end
 				
-				if (asset.state.is(AssetStates.ready)) {
-					invalidate( GraphicFlags.FILL );
-				} else {
+				if (asset.state.is(AssetStates.ready))
+#if flash9			data = asset.getBitmapData(); #end
+				else
 					asset.load();
-				}
 			}
 		}
 		return v;
@@ -146,6 +144,21 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 	}
 	
 	
+#if flash9
+	private inline function setData (v:flash.display.BitmapData)
+	{
+		if (v != data)
+		{
+			data = v;
+			invalidate( GraphicFlags.FILL );
+		}
+		return v;
+	}
+#end
+	
+	
+	
+	
 	//
 	// EVENT HANDLERS
 	//
@@ -154,10 +167,9 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 	{
 		switch (newState) {
 			case AssetStates.ready:
-				invalidate( GraphicFlags.FILL );
+#if flash9		data = asset.getBitmapData(); #end
 			
 			case AssetStates.empty:
-				invalidate( GraphicFlags.FILL );
 #if flash9		data = null; #end
 			default:
 		}

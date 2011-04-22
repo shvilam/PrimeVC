@@ -57,6 +57,7 @@ class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>
 	
 	/**
 	 * Injectable method which will create the needed itemrenderer
+	 * 
 	 * @param	item:ListDataType
 	 * @param	pos:Int
 	 * @return 	IUIElement

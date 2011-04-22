@@ -100,8 +100,9 @@ class CommunicatorsGroup implements ICommunicator
 	}
 	
 	
-	public inline function add (communicator:ICommunicator) : Void
+	public  function add (communicator:ICommunicator) : Void
 	{
+		Assert.notNull(communicator);
 		list.add( communicator );
 		
 		if (communicator.isInProgress())
