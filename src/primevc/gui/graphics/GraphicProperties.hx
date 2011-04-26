@@ -184,30 +184,9 @@ class GraphicProperties implements IGraphicElement
 		if (!useCoordinates)
 		{
 			layout = cachedLayout;
-			//find out if we should add the border size to the layout values
-			if (border != null)
-			{
-				var borderW		= (border.weight * target.scaleX).roundFloat();
-				var borderH		= (border.weight * target.scaleY).roundFloat();
-				var inner		= border.innerBorder;
-				
-				layout.move(
-					inner ? 0 : -borderW,
-					inner ? 0 : -borderH
-				);
-				layout.resize(
-					inner ? this.layout.width + borderW		: this.layout.width + (borderW * 2),
-					inner ? this.layout.height + borderW	: this.layout.height + (borderH * 2)
-				);
-				trace(target+" => "+layout+"; inner? "+inner+"; orig: "+this.layout);
-			}
-			else
-			{
-				layout.move( 0, 0 );
-				layout.resize( this.layout.width, this.layout.height );
-			}
-			
-			
+			//use a temporary layout rectangle without the coordinates of the original-layout object
+			layout.move( 0, 0 );
+			layout.resize( this.layout.width, this.layout.height );
 		}
 		
 		Assert.that( layout.width.isSet() );

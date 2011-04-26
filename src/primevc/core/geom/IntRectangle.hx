@@ -73,16 +73,6 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	}
 	
 	
-#if debug
-	private static var counter : Int = 0;
-	private var id : Int;
-	public function toString ()
-	{
-		return "IntRect"+id+" (x=" + left + ", y=" + top + ", width=" + width + ", height=" + height + ", r=" + right + ", b=" + bottom+" )";
-	}
-#end
-	
-	
 	public function resize (newWidth:Int, newHeight:Int) : Void
 	{
 		var c	= invalidatable;
@@ -275,6 +265,22 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	public function toFloatRectangle () : Rectangle
 	{
 		return new Rectangle (0, 0, width, height);
+	}
+#end
+	
+	
+#if debug
+	private static var counter : Int = 0;
+	private var id : Int;
+	public function toString ()
+	{
+		return "IntRect"+id+" (x=" + left + ", y=" + top + ", width=" + width + ", height=" + height + ", r=" + right + ", b=" + bottom+" )";
+	}
+	
+	
+	public function readChanges ()
+	{
+		return RectangleFlags.readProperties(changes);
 	}
 #end
 }

@@ -49,11 +49,18 @@ interface IDisplayObject
 	public function isObjectOn			(otherObj:IDisplayObject)		: Bool;
 #if !neko
 	public function getDisplayCursor	()								: DisplayDataCursor;
+	
 	/**
 	 * Method will attach this IDisplayObject to the given Sprite.
 	 * @return own-instance
 	 */
 	public function attachDisplayTo		(target:ISprite, pos:Int = -1)	: IDisplayObject;
+	
+	/**
+	 * Method will detach this IDisplayObject from the given Sprite.
+	 * @return own-instance
+	 */
+	public function detachDisplayFrom	(target:ISprite)				: IDisplayObject;
 #end
 	
 #if flash9

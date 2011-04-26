@@ -35,6 +35,7 @@ package primevc.gui.graphics.borders;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
+  using primevc.utils.IfUtil;
   using primevc.utils.NumberUtil;
 
 
@@ -89,13 +90,14 @@ class BorderBase <FillType:IGraphicProperty> extends GraphicElement, implements 
 	
 	public function begin (target:IGraphicsOwner, bounds:IRectangle)
 	{
-		if (innerBorder) {
-			bounds.left		+= weight.ceilFloat();
-			bounds.top		+= weight.ceilFloat();
-			bounds.width	-= (weight * 2).ceilFloat();
-			bounds.height 	-= (weight * 2).ceilFloat();
+		if (!innerBorder && bounds.notNull())
+		{
+			var borderW		= (weight * target.scaleX).roundFloat();
+			var borderH		= (weight * target.scaleY).roundFloat();
+			
+			bounds.move(	bounds.left - borderW,			bounds.top - borderH );
+			bounds.resize(	bounds.width + (borderW * 2),	bounds.height + (borderH * 2) );
 		}
-	//	Assert.abstract();
 	}
 	
 	
