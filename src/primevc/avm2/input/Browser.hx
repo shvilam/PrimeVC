@@ -106,6 +106,35 @@ class Browser
 	
 	
 	//
+	// JAVASCRIPT LISTENERS
+	//
+	
+	
+	/**
+	 * Method will add a listener for javscript-method calls
+	 * @return 		true when the externalinterface is available, else false
+	 */
+	public inline function addJsCallback (jsFunctionName:String, appMethod:Dynamic) : Bool
+	{
+		if (available)
+			ExternalInterface.addCallback( jsFunctionName, appMethod );
+		
+		return available;
+	}
+	
+	
+	/**
+	 * Method allows application to call a javascript method
+	 * @return 	Whatever the method returns
+	 */
+	public inline function callJsMethod (jsFunctionName:String, ?info:haxe.PosInfos)
+	{
+		if (available)
+			Reflect.callMethod( null, ExternalInterface.call, info.customParams );
+	}
+	
+	
+	//
 	// GETTERS / SETTERS
 	//
 	
