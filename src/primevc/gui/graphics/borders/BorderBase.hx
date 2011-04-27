@@ -106,10 +106,14 @@ class BorderBase <FillType:IGraphicProperty> extends GraphicElement, implements 
 #if flash9
 		target.graphics.lineStyle( 0, 0 , 0 );
 #end
-		bounds.left		-= weight.ceilFloat();
-		bounds.top		-= weight.ceilFloat();
-		bounds.width	+= (weight * 2).ceilFloat();
-		bounds.height 	+= (weight * 2).ceilFloat();
+		if (!innerBorder && bounds.notNull())
+		{
+			var borderW		= (weight * target.scaleX).roundFloat();
+			var borderH		= (weight * target.scaleY).roundFloat();
+			
+			bounds.move(	bounds.left + borderW,			bounds.top + borderH );
+			bounds.resize(	bounds.width - (borderW * 2),	bounds.height - (borderH * 2) );
+		}
 	}
 	
 	

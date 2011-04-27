@@ -38,7 +38,6 @@ package primevc.gui.behaviours.layout;
  import primevc.gui.traits.IPropertyValidator;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
  
 
@@ -172,18 +171,6 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 			
 				if (isNotPositionedYet || target.x != newX || target.y != newY)
 				{
-					/*if (target.is(IDrawable))
-					{
-						var t = target.as(IDrawable);
-						if (t.graphicData.border != null)
-						{
-							var borderWidth = t.graphicData.border.weight;
-							trace(target+"; "+(borderWidth * target.scaleX)+", "+(borderWidth * target.scaleY));
-							newX -= (borderWidth * target.scaleX).roundFloat();
-							newY -= (borderWidth * target.scaleY).roundFloat();
-						}
-					}*/
-				
 					target.rect.move( newX, newY );
 					target.x = newX;
 					target.y = newY;

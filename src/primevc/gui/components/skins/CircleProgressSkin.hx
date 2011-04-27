@@ -71,8 +71,10 @@ class CircleProgressSkin extends Skin<ProgressBar>
 	
 	override private function removeBehaviours ()
 	{
-		label.dispose();
-		label = null;
+		if (label != null) {
+			label.dispose();
+			label = null;
+		}
 		
 		owner.data.perc.change.unbind(this);
 		super.removeBehaviours();
