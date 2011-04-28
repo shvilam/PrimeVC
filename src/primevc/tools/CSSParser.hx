@@ -2436,7 +2436,8 @@ class CSSParser
 		if (w.isSet())
 		{
 			createLayoutBlock();
-			currentBlock.layout.width = w;
+			currentBlock.layout.width			= w;
+		//	currentBlock.layout.percentWidth	= Number.EMPTY;
 		}
 		else
 		{
@@ -2444,7 +2445,8 @@ class CSSParser
 			if (pw.isSet())
 			{
 				createLayoutBlock();
-				Assert.that( currentBlock.layout.width.notSet() );
+			//	Assert.that( currentBlock.layout.width.notSet() );
+			//	currentBlock.layout.width		 = Number.EMPTY;
 				currentBlock.layout.percentWidth = pw;
 			}
 		}
@@ -2459,26 +2461,31 @@ class CSSParser
 	 */
 	private function parseAndSetHeight (v:String) : Void
 	{
-		var h:Int = parseUnitInt(v);
 		if (isNone(v))
 		{
-			currentBlock.layout.height			= Number.EMPTY;
-			currentBlock.layout.percentHeight	= Number.EMPTY;
-		}
-		else if (h.isSet())
-		{
-			createLayoutBlock();
-			currentBlock.layout.height = h;
+			currentBlock.layout.height				= Number.EMPTY;
+			currentBlock.layout.percentHeight		= Number.EMPTY;
 		}
 		else
 		{
-			var ph:Float = isAutoSize(v) ? LayoutFlags.FILL : parsePercentage(v);
-		//	if (ph.isSet())
-		//	{
-			createLayoutBlock();
-			Assert.that( currentBlock.layout.height.notSet() );
-			currentBlock.layout.percentHeight = ph;
-		//	}
+			var h:Int = parseUnitInt(v);
+			if (h.isSet())
+			{
+				createLayoutBlock();
+				currentBlock.layout.height			= h;
+			//	currentBlock.layout.percentHeight	= Number.EMPTY;
+			}
+			else
+			{
+				var ph:Float = isAutoSize(v) ? LayoutFlags.FILL : parsePercentage(v);
+			//	if (ph.isSet())
+			//	{
+				createLayoutBlock();
+			//	Assert.that( currentBlock.layout.height.notSet() );
+			//	currentBlock.layout.height			= Number.EMPTY;
+				currentBlock.layout.percentHeight	= ph;
+			//	}
+			}
 		}
 	}
 	

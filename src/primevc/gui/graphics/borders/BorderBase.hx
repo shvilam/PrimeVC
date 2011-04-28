@@ -90,6 +90,7 @@ class BorderBase <FillType:IGraphicProperty> extends GraphicElement, implements 
 	
 	public function begin (target:IGraphicsOwner, bounds:IRectangle)
 	{
+#if flash9
 		if (!innerBorder && bounds.notNull())
 		{
 			var borderW		= (weight * target.scaleX).roundFloat();
@@ -98,6 +99,7 @@ class BorderBase <FillType:IGraphicProperty> extends GraphicElement, implements 
 			bounds.move(	bounds.left - borderW,			bounds.top - borderH );
 			bounds.resize(	bounds.width + (borderW * 2),	bounds.height + (borderH * 2) );
 		}
+#end
 	}
 	
 	
@@ -105,7 +107,6 @@ class BorderBase <FillType:IGraphicProperty> extends GraphicElement, implements 
 	{
 #if flash9
 		target.graphics.lineStyle( 0, 0 , 0 );
-#end
 		if (!innerBorder && bounds.notNull())
 		{
 			var borderW		= (weight * target.scaleX).roundFloat();
@@ -113,7 +114,8 @@ class BorderBase <FillType:IGraphicProperty> extends GraphicElement, implements 
 			
 			bounds.move(	bounds.left + borderW,			bounds.top + borderH );
 			bounds.resize(	bounds.width - (borderW * 2),	bounds.height - (borderH * 2) );
-		}
+		}	
+#end
 	}
 	
 	

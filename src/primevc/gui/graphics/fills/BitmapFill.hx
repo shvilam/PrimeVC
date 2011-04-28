@@ -103,11 +103,12 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 				handleAssetStateChange.on( asset.state.change, this );
 				
 				smooth	= asset.type != AssetType.bitmapData;
-				
-				if (asset.state.is(AssetStates.ready))
-#if flash9			data = asset.getBitmapData(); #end
+
+#if flash9		if (asset.state.is(AssetStates.ready))
+					data = asset.getBitmapData();
 				else
 					asset.load();
+#end
 			}
 		}
 		return v;
