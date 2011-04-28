@@ -32,6 +32,7 @@ package primevc.gui.graphics.shapes;
  import primevc.gui.traits.IGraphicsOwner;
  import primevc.utils.Formulas;
   using primevc.gui.utils.GraphicsUtil;
+  using primevc.utils.Formulas;
 
 
 /**
@@ -55,7 +56,7 @@ class Circle extends ShapeBase, implements IGraphicShape
 	{
 		var radius = Formulas.getCircleRadius( bounds.width, bounds.height );
 #if flash9
-		target.drawArc(bounds.left + radius, bounds.top + radius, radius, percentage);
+		target.drawArc(bounds.left + radius, bounds.top + radius, radius, percentage, -90.0.degreesToRadians());
 #end
 	}
 	

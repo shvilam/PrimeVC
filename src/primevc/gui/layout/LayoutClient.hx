@@ -255,8 +255,7 @@ class LayoutClient extends Invalidatable
 	{
 		var oldChanges = changes;
 		changes = changes.set(change);
-		
-		if (!invalidatable || changes == 0 || changes == oldChanges || state == null || state.current == null)
+		if (changes == oldChanges)
 			return;
 		
 		invalidateLayout();
@@ -324,6 +323,11 @@ class LayoutClient extends Invalidatable
 	
 	public function validated ()
 	{
+		if (state.is(ValidateStates.invalidated))
+			validate();
+#if debug
+		Assert.that(!state.is(ValidateStates.invalidated), this+" ; "+parent+"; "+readChanges());
+#end
 		//make sure the changes property is resetted first. If something responds to a state-change or changed event, the property needs to be empty
 		var lastChanges = changes;
 		changes			= 0;
@@ -994,6 +998,6 @@ class LayoutClient extends Invalidatable
 	
 	public static var counter:Int = 0;
 	public var name:String;
-	public function toString() { return name; } //state.current+"_"+name; } // + " - " + _oid; }
+	public function toString() { return state.current+"_"+name; } // + " - " + _oid; }
 #end
 }

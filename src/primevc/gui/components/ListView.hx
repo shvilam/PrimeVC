@@ -178,10 +178,7 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 			newPos = data.indexOf( item );
 		
 		Assert.notNull( createItemRenderer );
-		var child = createItemRenderer( item, newPos );
-		
-		layoutContainer.children.add( child.layout, newPos );
-		children.add( child, newPos );
+		var child = createItemRenderer( item, newPos ).attachTo(this, newPos);
 		
 		if (child.is(IInteractive) && child.as(IInteractive).mouseEnabled)
 			childClick.send.on( child.as(IInteractive).userEvents.mouse.up, this );
@@ -194,8 +191,7 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 		if (renderer != null)
 		{
 			//removing the click-listener is not nescasary since the item-renderer is getting disposed
-			layoutContainer.children.remove( renderer.layout );
-			children.remove( renderer );
+			renderer.detachFrom( this );
 			renderer.dispose();
 		}
 	}

@@ -3,45 +3,47 @@
 MINPARAMS=1
 
 INPUT="$1"
-#OUTPUT="build/tmp_tdsi.swf"
+# OUTPUT="build/tmp_tdsi.swf"
 APPARAT="build/apparat-1.1.0-RC9"
-#TESTDIR="../../bin-release"
+TESTDIR="../../bin-release"
 
-#echo "input: $INPUT"
-#echo "output: $OUTPUT"
+# echo "input: $INPUT"
+# echo "output: $OUTPUT"
 
+bash $APPARAT/tdsi -i $INPUT -o $INPUT
+bash $APPARAT/stripper -i $INPUT2 -o $INPUT
 bash $APPARAT/reducer -i $INPUT -o $INPUT
 
 
-#if [ -f build/environment.sh ]; then
-#	source build/environment.sh
-	
-#	"$MXMLC_OPTIMIZER" "$INPUT" -output "$INPUT"
-#	java -jar build/tdsi.jar -finalize true -dead-code-elimination true -input "$INPUT" -output "$INPUT"
-#	rm "$OUTPUT"
-#fi;
+# if [ -f build/environment.sh ]; then
+# 	source build/environment.sh
+# 	
+# 	"$MXMLC_OPTIMIZER" "$INPUT" -output "$INPUT"
+# 	java -jar build/tdsi.jar -finalize true -dead-code-elimination true -input "$INPUT" -output "$INPUT"
+# 	rm "$OUTPUT"
+# fi;
 
-#bash $APPARAT/coverage -i $INPUT -o "$TESTDIR/coverage.swf"
-#bash $APPARAT/tdsi -i $INPUT -o "$TESTDIR/new_tdsi.swf"
-#bash $APPARAT/stripper -i $INPUT -o "$TESTDIR/stripper.swf"
-#bash $APPARAT/reducer -i $INPUT -o "$TESTDIR/reducer.swf"
-#bash $APPARAT/asmifier -i $INPUT -o "$TESTDIR/asmifier.swf"
-#bash $APPARAT/concrete -i $INPUT
+# bash $APPARAT/coverage -i $INPUT -o "$TESTDIR/coverage.swf"
+# bash $APPARAT/tdsi -i $INPUT -o "$TESTDIR/new_tdsi.swf"
+# bash $APPARAT/stripper -i $INPUT -o "$TESTDIR/stripper.swf"
+# bash $APPARAT/reducer -i $INPUT -o "$TESTDIR/reducer.swf"
+# bash $APPARAT/asmifier -i $INPUT -o "$TESTDIR/asmifier.swf"
+# bash $APPARAT/concrete -i $INPUT
 
-#INPUT2="$TESTDIR/all_apparat1.swf"
-#bash $APPARAT/coverage -i $INPUT -o $INPUT2
-#bash $APPARAT/tdsi -i $INPUT2 -o $INPUT2
-#bash $APPARAT/stripper -i $INPUT2 -o $INPUT2
-#bash $APPARAT/reducer -i $INPUT2 -o $INPUT2
-
-#INPUT2="$TESTDIR/all_apparat2.swf"
-#bash $APPARAT/reducer -i $INPUT2 -o $INPUT2
-#bash $APPARAT/tdsi -i $INPUT2 -o $INPUT2
-#bash $APPARAT/stripper -i $INPUT2 -o $INPUT2
-#bash $APPARAT/coverage -i $INPUT -o $INPUT2
-
-#INPUT3="$TESTDIR/apparat_flex.swf"
+# INPUT2="$TESTDIR/all_apparat1.swf"
+# bash $APPARAT/coverage -i $INPUT -o $INPUT2
+# bash $APPARAT/tdsi -i $INPUT -o $INPUT2
+# bash $APPARAT/stripper -i $INPUT2 -o $INPUT2
+# bash $APPARAT/reducer -i $INPUT2 -o $INPUT2
+# 
+# INPUT2="$TESTDIR/all_apparat2.swf"
+# bash $APPARAT/tdsi -i $INPUT2 -o $INPUT2
+# bash $APPARAT/stripper -i $INPUT2 -o $INPUT2
+# bash $APPARAT/coverage -i $INPUT -o $INPUT2
+# bash $APPARAT/reducer -i $INPUT2 -o $INPUT2
+# 
+# INPUT3="$TESTDIR/apparat_flex.swf"
 #cp $INPUT2 $INPUT3
 #"$MXMLC_OPTIMIZER" "$INPUT3" -output "$INPUT3"
 
-#ls -al $TESTDIR | grep .swf
+ls -al $TESTDIR | grep .swf

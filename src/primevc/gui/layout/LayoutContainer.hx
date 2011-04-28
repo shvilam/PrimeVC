@@ -287,6 +287,9 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (!isVisible())
 			return super.validated();
 		
+		if (state.is(ValidateStates.invalidated))
+			validate();
+		
 		if (changes.has( Flags.SIZE_PROPERTIES ))
 			validateScrollPosition( scrollPos );
 		
