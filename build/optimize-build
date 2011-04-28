@@ -4,14 +4,17 @@ MINPARAMS=1
 
 INPUT="$1"
 # OUTPUT="build/tmp_tdsi.swf"
-APPARAT="build/apparat-1.1.0-RC9"
-TESTDIR="../../bin-release"
+
+BUILDSCRIPTDIR=`dirname "$0"`;
+PRIMEVC_ROOT=`cd "${BUILDSCRIPTDIR}/.."; pwd`
+APPARAT="$PRIMEVC_ROOT/build/apparat-1.1.0-RC9"
+#TESTDIR="../../bin-release"
 
 # echo "input: $INPUT"
 # echo "output: $OUTPUT"
 
 bash $APPARAT/tdsi -i $INPUT -o $INPUT
-bash $APPARAT/stripper -i $INPUT2 -o $INPUT
+bash $APPARAT/stripper -i $INPUT -o $INPUT
 bash $APPARAT/reducer -i $INPUT -o $INPUT
 
 
@@ -46,4 +49,4 @@ bash $APPARAT/reducer -i $INPUT -o $INPUT
 #cp $INPUT2 $INPUT3
 #"$MXMLC_OPTIMIZER" "$INPUT3" -output "$INPUT3"
 
-ls -al $TESTDIR | grep .swf
+#ls -al $TESTDIR | grep .swf
