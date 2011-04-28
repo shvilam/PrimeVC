@@ -97,9 +97,7 @@ class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>
 			Assert.notNull(createItemRenderer);
 			content = new ListView(id.value+"Content", listData);
 			content.createItemRenderer = createItemRenderer;
-			
-			layoutContainer.children.add( content.layout );
-			children.add( content );
+			content.attachTo(this);
 		}
 		
 		content.styleClasses.add("listContent");
