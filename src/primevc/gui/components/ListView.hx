@@ -180,7 +180,7 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 		Assert.notNull( createItemRenderer );
 		var child = createItemRenderer( item, newPos ).attachTo(this, newPos);
 		
-		if (child.is(IInteractive) && child.as(IInteractive).mouseEnabled)
+		if (child.is(IInteractive)) // && child.as(IInteractive).mouseEnabled)
 			childClick.send.on( child.as(IInteractive).userEvents.mouse.up, this );
 	}
 	

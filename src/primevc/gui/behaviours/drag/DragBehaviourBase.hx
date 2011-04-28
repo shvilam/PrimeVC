@@ -146,7 +146,7 @@ class DragBehaviourBase extends BehaviourBase <ISprite>
 		item.stopDrag();
 		item.mouseEnabled = mouseEnabledValue;
 		
-		if (target.is(ILayoutable))
+		if (target != null && target.is(ILayoutable))
 			target.as(ILayoutable).layout.includeInLayout = true;
 
 	}

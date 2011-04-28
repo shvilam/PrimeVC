@@ -63,15 +63,6 @@ class ButtonIconLabelSkin extends Skin<Button>
 		iconGraphic	= new Image(null, owner.icon);
 		labelField	= new UITextField( null, true, owner.data );
 		
-		if (owner.icon != null && !owner.icon.isReady()) {
-			iconGraphic.visible = false;
-			iconGraphic.hide.on( owner.icon.loader.events.load.started, this );
-			iconGraphic.show.on( owner.icon.loader.events.load.completed, this );
-			
-			if (owner.icon.loader.isInProgress())
-				iconGraphic.hide();
-		}
-		
 		layout.children.add( iconGraphic.layout );
 		layout.children.add( labelField.layout );
 		children.add( iconGraphic );
