@@ -116,7 +116,6 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	{
 		if (group.children.length > 0)
 		{
-	//		trace(group.name);
 			if (next == -1)
 				next = getTopStartValue();
 			

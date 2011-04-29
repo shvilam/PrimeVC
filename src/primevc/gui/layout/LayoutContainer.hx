@@ -155,7 +155,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	override public function validateHorizontal ()
 	{
 		super.validateHorizontal();
-		if (changes.hasNone( Flags.WIDTH | Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH | Flags.ALGORITHM ))
+		if (changes.hasNone( Flags.HORIZONTAL_INVALID ))
 			return;
 		
 		var fillingChildren	= FastArrayUtil.create();
@@ -219,7 +219,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	override public function validateVertical ()
 	{
 		super.validateVertical();
-		if (changes.hasNone( Flags.HEIGHT | Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH | Flags.ALGORITHM ))
+		if (changes.hasNone( Flags.VERTICAL_INVALID ))
 			return;
 		
 		var fillingChildren	= FastArrayUtil.create();
@@ -287,7 +287,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (!isVisible())
 			return super.validated();
 		
-		if (state.is(ValidateStates.invalidated))
+		if (isInvalidated())
 			validate();
 		
 		if (changes.has( Flags.SIZE_PROPERTIES ))

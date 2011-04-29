@@ -323,7 +323,7 @@ class LayoutClient extends Invalidatable
 	
 	public function validated ()
 	{
-		if (state.is(ValidateStates.invalidated))
+		if (isInvalidated())
 			validate();
 #if debug
 		Assert.that(!state.is(ValidateStates.invalidated), this+" ; "+parent+"; "+readChanges());
