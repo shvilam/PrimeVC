@@ -88,7 +88,7 @@ class Sprite extends flash.display.Sprite, implements ISprite
 			return;		// already disposed
 		
 		if (container != null)
-			container.children.remove(this);
+			detachDisplay();
 		
 		window = null;
 		children.dispose();
@@ -122,9 +122,9 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	
 	
 #if !neko
-	public function getDisplayCursor			() : DisplayDataCursor								{ return new DisplayDataCursor(this); }
-	public inline function attachDisplayTo		(target:ISprite, pos:Int = -1)	: IDisplayObject	{ target.children.add( this, pos ); return this; }
-	public inline function detachDisplayFrom	(target:ISprite)				: IDisplayObject	{ target.children.remove( this ); return this; }
+	public function getDisplayCursor			() : DisplayDataCursor											{ return new DisplayDataCursor(this); }
+	public inline function attachDisplayTo		(target:IDisplayContainer, pos:Int = -1)	: IDisplayObject	{ target.children.add( this, pos ); return this; }
+	public inline function detachDisplay		()											: IDisplayObject	{ container.children.remove( this ); return this; }
 	
 	
 	#if dragEnabled

@@ -614,7 +614,7 @@ class CSSParser
 		trace("--- DONE ----");
 		trace("REVERSED CSS:");
 	//	throw 1;
-		trace(styles.toCSS());
+	//	trace(styles.toCSS());
 	}
 	
 	
@@ -730,9 +730,9 @@ class CSSParser
 		if (style.has( StyleFlags.STYLE_NAME_CHILDREN ))	findExtendedClassesInList( style.styleNameChildren );
 		if (style.has( StyleFlags.ELEMENT_CHILDREN ))
 		{
+			findSuperClassesInList( style.elementChildren );
 			findExtendedClassesInList( style.elementChildren );
 			createEmptySuperClassesForList( style.elementChildren );
-			findSuperClassesInList( style.elementChildren );
 		}
 	}
 	
@@ -834,17 +834,16 @@ class CSSParser
 			return;
 		
 	//	trace("\t\tsetSuperStyle for "+name + "( "+style.type+" )"+" = -> parentType: "+style.parentStyle.type);
-		var parentName = manifest.getFullSuperClassName( name );
-		while (parentName != null && parentName != "")
+		var superName = manifest.getFullSuperClassName( name );
+		while (superName != null && superName != "")
 		{
-			style.superStyle = style.parentStyle.findChild( parentName, element, style );
+			style.superStyle = style.parentStyle.findChild( superName, element, style );
 			
 			if (style.superStyle != null)
 				break;
 			
-			parentName = manifest.getFullSuperClassName( parentName );
+			superName = manifest.getFullSuperClassName( superName );
 		}
-		
 	//	trace("\t\t\t\t\t "+(style.superStyle != null));
 	}
 	
@@ -1068,6 +1067,9 @@ class CSSParser
 		var children	= parentStyle.getChildrenOfType( childType );
 		var childBlock	= new StyleBlock(childType);
 		childBlock.parentStyle = parentStyle;
+#if (debug && neko)
+		childBlock.cssName = childName;
+#end
 		children.set( childName, childBlock );
 		return childBlock;
 	}
@@ -2425,17 +2427,16 @@ class CSSParser
 	private function parseAndSetWidth (v:String) : Void
 	{
 		var w:Int = parseUnitInt(v);
+		createLayoutBlock();
 		
 		if (isNone(v))
 		{
-			createLayoutBlock();
 			currentBlock.layout.width			= Number.EMPTY;
 			currentBlock.layout.percentWidth	= Number.EMPTY;
 		}
 		
 		if (w.isSet())
 		{
-			createLayoutBlock();
 			currentBlock.layout.width			= w;
 		//	currentBlock.layout.percentWidth	= Number.EMPTY;
 		}
@@ -2444,7 +2445,6 @@ class CSSParser
 			var pw:Float = isAutoSize(v) ? LayoutFlags.FILL : parsePercentage(v);
 			if (pw.isSet())
 			{
-				createLayoutBlock();
 			//	Assert.that( currentBlock.layout.width.notSet() );
 			//	currentBlock.layout.width		 = Number.EMPTY;
 				currentBlock.layout.percentWidth = pw;
@@ -2461,6 +2461,7 @@ class CSSParser
 	 */
 	private function parseAndSetHeight (v:String) : Void
 	{
+		createLayoutBlock();
 		if (isNone(v))
 		{
 			currentBlock.layout.height				= Number.EMPTY;
@@ -2471,7 +2472,6 @@ class CSSParser
 			var h:Int = parseUnitInt(v);
 			if (h.isSet())
 			{
-				createLayoutBlock();
 				currentBlock.layout.height			= h;
 			//	currentBlock.layout.percentHeight	= Number.EMPTY;
 			}
@@ -2480,7 +2480,6 @@ class CSSParser
 				var ph:Float = isAutoSize(v) ? LayoutFlags.FILL : parsePercentage(v);
 			//	if (ph.isSet())
 			//	{
-				createLayoutBlock();
 			//	Assert.that( currentBlock.layout.height.notSet() );
 			//	currentBlock.layout.height			= Number.EMPTY;
 				currentBlock.layout.percentHeight	= ph;

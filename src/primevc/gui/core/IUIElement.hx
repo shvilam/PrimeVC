@@ -89,11 +89,11 @@ interface IUIElement
 	 */
 	public function attachLayoutTo	(target:IUIContainer, pos:Int = -1)	: IUIElement;
 	/**
-	 * Method will detach the layout-client of this UIElement from the given 
-	 * IUIContainer.
+	 * Method will detach the layout-client of this UIElement from it's 
+	 * layoutcontainer.
 	 * @return own-instance
 	 */
-	public function detachLayoutFrom (target:IUIContainer)				: IUIElement;
+	public function detachLayout	()									: IUIElement;
 	/**
 	 * Method will attach this UIElement to the given IUIContainer, including
 	 * it's layout.
@@ -101,11 +101,10 @@ interface IUIElement
 	 */
 	public function attachTo		(target:IUIContainer, pos:Int = -1)	: IUIElement;
 	/**
-	 * Method will detach this UIElement from the given IUIContainer, including
-	 * it's layout.
+	 * Method will detach this UIElement from it's parent, including it's layout.
 	 * @return own-instance
 	 */
-	public function detachFrom		(target:IUIContainer)				: IUIElement;
+	public function detach			()									: IUIElement;
 	
 	
 	

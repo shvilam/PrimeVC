@@ -191,9 +191,9 @@ class TextField extends flash.text.TextField, implements ITextField
 	
 	
 #if !neko
-	public function getDisplayCursor			() : DisplayDataCursor								{ return new DisplayDataCursor(this); }
-	public inline function attachDisplayTo		(target:ISprite, pos:Int = -1)	: IDisplayObject	{ target.children.add( this, pos ); return this; }
-	public inline function detachDisplayFrom	(target:ISprite)				: IDisplayObject	{ target.children.remove( this ); return this; }
+	public function getDisplayCursor			() : DisplayDataCursor											{ return new DisplayDataCursor(this); }
+	public inline function attachDisplayTo		(target:IDisplayContainer, pos:Int = -1)	: IDisplayObject	{ target.children.add( this, pos ); return this; }
+	public inline function detachDisplay		()											: IDisplayObject	{ container.children.remove( this ); return this; }
 #end
 	
 	

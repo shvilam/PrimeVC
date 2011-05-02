@@ -148,7 +148,7 @@ class StyleBlock extends StyleBlockBase
 	 * This property is needed to find the correct inherited styles.
 	 */
 	public var parentStyle			(default, setParentStyle)		: StyleBlock;
-	
+
 	
 	//
 	// STYLE PROPERTIES
@@ -402,7 +402,7 @@ class StyleBlock extends StyleBlockBase
 		if (style == null && allFilledProperties.has( Flags.ID_CHILDREN ))
 		{
 			if (extendedStyle != null)					style = extendedStyle.findIdStyle( name, exclude );
-			if (style == null && superStyle != null)	style = superStyle.findIdStyle( name, exclude );
+			if (style == null && superStyle != null)	style = superStyle	 .findIdStyle( name, exclude );
 		}
 		
 		if (style == null && parentStyle != null)
@@ -428,7 +428,7 @@ class StyleBlock extends StyleBlockBase
 		if (style == null && allFilledProperties.has( Flags.STYLE_NAME_CHILDREN ))
 		{
 			if (extendedStyle != null)					style = extendedStyle.findStyleNameStyle( name, exclude );
-			if (style == null && superStyle != null)	style = superStyle.findStyleNameStyle( name, exclude );
+			if (style == null && superStyle != null)	style = superStyle	 .findStyleNameStyle( name, exclude );
 		}
 		
 		if (style == null && parentStyle != null)
@@ -454,7 +454,7 @@ class StyleBlock extends StyleBlockBase
 		if (style == null && allFilledProperties.has( Flags.ELEMENT_CHILDREN ))
 		{
 			if (extendedStyle != null)					style = extendedStyle.findElementStyle( name, exclude );
-			if (style == null && superStyle != null)	style = superStyle.findElementStyle( name, exclude );
+			if (style == null && superStyle != null)	style = superStyle	 .findElementStyle( name, exclude );
 		}
 		
 		if (style == null && parentStyle != null)
@@ -1070,6 +1070,12 @@ class StyleBlock extends StyleBlockBase
 	public function toString ()
 	{
 		return "StyleBlock[ "+_oid+" ]";
+	//	return _oid+"; "+readProperties();
+	}
+#elseif (debug && neko)
+	override public function toString ()
+	{
+		return parentStyle != null ? parentStyle + " " + cssName : cssName;
 	//	return _oid+"; "+readProperties();
 	}
 #end

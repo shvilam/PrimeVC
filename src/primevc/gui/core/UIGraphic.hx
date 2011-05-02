@@ -177,9 +177,9 @@ class UIGraphic extends VectorShape
 	//
 	
 	public inline function attachLayoutTo	(target:IUIContainer, pos:Int = -1)	: IUIElement	{ target.layoutContainer.children.add( layout, pos );				return this; }
-	public inline function detachLayoutFrom	(target:IUIContainer)				: IUIElement	{ target.layoutContainer.children.remove( layout );					return this; }
+	public inline function detachLayout		()									: IUIElement	{ layout.parent.children.remove( layout );							return this; }
 	public inline function attachTo			(target:IUIContainer, pos:Int = -1)	: IUIElement	{ attachLayoutTo(target, pos);		attachDisplayTo(target, pos);	return this; }
-	public inline function detachFrom		(target:IUIContainer)				: IUIElement	{ detachDisplayFrom(target);		detachLayoutFrom(target);		return this; }
+	public inline function detach			()									: IUIElement	{ detachDisplay();					detachLayout();					return this; }
 	
 	
 	//

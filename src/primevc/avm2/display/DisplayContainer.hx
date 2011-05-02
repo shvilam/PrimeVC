@@ -54,6 +54,6 @@ class DisplayContainer extends DisplayObjectContainer, implements IDisplayContai
 #if !neko
 	public function getDisplayCursor			() : DisplayDataCursor								{ return new DisplayDataCursor(this); }
 	public inline function attachDisplayTo		(target:ISprite, pos:Int = -1)	: IDisplayObject	{ target.children.add( this, pos ); return this; }
-	public inline function detachDisplayFrom	(target:ISprite)				: IDisplayObject	{ target.children.remove( this ); return this; }
+	public inline function detachDisplay		()								: IDisplayObject	{ container.children.remove( this ); return this; }
 #end
 }
