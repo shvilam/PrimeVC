@@ -188,12 +188,9 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	private function removeItemRenderer( item:ListDataType, oldPos:Int = -1 )
 	{
 		var renderer = getItemRendererFor( item );
+		
 		if (renderer != null)
-		{
-			//removing the click-listener is not nescasary since the item-renderer is getting disposed
-			renderer.detachFrom( this );
-			renderer.dispose();
-		}
+			renderer.dispose();		// removing the click-listener is not nescasary since the item-renderer is getting disposed
 	}
 	
 	

@@ -29,70 +29,35 @@
 package primevc.gui.components.skins;
  import primevc.gui.behaviours.drag.DragMoveBehaviour;
  import primevc.gui.components.Button;
- import primevc.gui.core.Skin;
- import primevc.gui.core.UIContainer;
- import primevc.gui.core.UITextField;
   using primevc.utils.Bind;
 
 
 /**
- * Default panel skin.
- * 
- * Will add a titlefield (.title) and a closebtn (.closeBtn). They both will
- * be placed in a subcontainer (.chrome).
+ * Skin to create a movable panel with a close-btn (#closeBtn).
  * 
  * @author Ruben Weijers
  * @creation-date Feb 14, 2011
  */
-class PanelSkin extends Skin<Panel>
+class MovablePanelSkin extends BasicPanelSkin
 {
-	private var chrome		: UIContainer;
-	private var closeBtn	: Button;
-	private var title		: Label;
+	private var closeBtn : Button;
 	
 	
 	override public function createChildren ()
 	{
-		chrome		= new UIContainer("chrome");
+		super.createChildren();
 		closeBtn	= new Button("closeBtn");
-		title		= new Label("title");
-		title.mouseEnabled = false;
-		
-		chrome	.layoutContainer.children.add( title.layout );
-		chrome	.layoutContainer.children.add( closeBtn.layout );
-		owner	.layoutContainer.children.add( chrome.layout, 0 );
-		
-		chrome	.children.add( title );
-		chrome	.children.add( closeBtn );
-		owner	.children.add( chrome, 0 );
-		
-		chrome	.styleClasses.add("chrome");
-		title	.styleClasses.add("title");
-		closeBtn.styleClasses.add("closeBtn");
-		
-		behaviours.add( new DragMoveBehaviour(owner, null, chrome) );
+		closeBtn.attachTo( chrome );
 		
 		owner.close.send.on( closeBtn.userEvents.mouse.click, this );
-		title.data.bind( owner.label );
 	}
 	
 	
 	override private function removeChildren ()
 	{
-		chrome.children.remove( title );
-		chrome.children.remove( closeBtn );
-		owner.children.remove( chrome );
-		
-		chrome.layoutContainer.children.remove( title.layout );
-		chrome.layoutContainer.children.remove( closeBtn.layout );
-		owner.layoutContainer.children.remove( chrome.layout );
-		
-		chrome.dispose();
 		closeBtn.dispose();
-		title.dispose();
-		
-		chrome = null;
 		closeBtn = null;
-		title = null;
+		
+		super.removeChildren();
 	}
 }

@@ -27,65 +27,24 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
- import primevc.core.dispatcher.Signal0;
- import primevc.core.Bindable;
- import primevc.gui.core.IUIContainer;
- import primevc.gui.core.UIContainer;
+ import primevc.core.collections.IReadOnlyList;
 
 
 
 /**
- * Panel component will display a floating window with support for a label and
- * a close-btn. 
- * 
- * Components for label and the closeBtn will be created in the skin. The skin
- * will also add the behaviour to drag the panel around.
+ * Panel with a ListView as content instead of a UIContainer.
  * 
  * @author Ruben Weijers
- * @creation-date Feb 14, 2011
+ * @creation-date Apr 29, 2011
  */
-class Panel extends UIContainer
+class ListPanel<ListDataType> extends Panel
 {
-	public var label	(default, null) : Bindable<String>;
-	
-	/**
-	 * Container in which the real content for the panel can be placed.
-	 * The instance will be created in the constructor. This way, the children
-	 * of a panel can always be added.
-	 */
-	public var content	(default, null)	: IUIContainer;
-	/**
-	 * Signal to send a request to be closed to whoever is listening.
-	 */
-	public var close	(default, null) : Signal0;
+	public var list (default, null)	: ListView<ListDataType>;
 	
 	
-	public function new (id:String = null, label:String = null)
+	public function new (id:String = null, label:String = null, data:IReadOnlyList<ListDataType>)
 	{
-		super(id);
-		this.label	= new Bindable<String>(label);
-		close		= new Signal0();
-		
-		if (content == null)
-			content	= new UIContainer("panel");
-	}
-	
-	
-	override public function dispose ()
-	{
-		close.dispose();
-		content.dispose();
-		label.dispose();
-		content	= null;
-		label	= null;
-		close	= null;
-		
-		super.dispose();
-	}
-	
-	
-	override private function createChildren ()
-	{
-		content.attachTo( this );
+		content = list = new ListView("content", data);
+		super(id, label);
 	}
 }

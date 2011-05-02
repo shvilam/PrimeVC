@@ -26,66 +26,45 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.components;
- import primevc.core.dispatcher.Signal0;
- import primevc.core.Bindable;
- import primevc.gui.core.IUIContainer;
+package primevc.gui.components.skins;
+ import primevc.gui.components.Label;
+ import primevc.gui.core.Skin;
  import primevc.gui.core.UIContainer;
-
+  using primevc.utils.Bind;
 
 
 /**
- * Panel component will display a floating window with support for a label and
- * a close-btn. 
+ * Default panel skin.
  * 
- * Components for label and the closeBtn will be created in the skin. The skin
- * will also add the behaviour to drag the panel around.
+ * Will add a titlefield (#title). They both will
+ * be placed in a subcontainer (#chrome).
  * 
  * @author Ruben Weijers
- * @creation-date Feb 14, 2011
+ * @creation-date Apr 29, 2011
  */
-class Panel extends UIContainer
+class BasicPanelSkin extends Skin<Panel>
 {
-	public var label	(default, null) : Bindable<String>;
-	
-	/**
-	 * Container in which the real content for the panel can be placed.
-	 * The instance will be created in the constructor. This way, the children
-	 * of a panel can always be added.
-	 */
-	public var content	(default, null)	: IUIContainer;
-	/**
-	 * Signal to send a request to be closed to whoever is listening.
-	 */
-	public var close	(default, null) : Signal0;
+	private var chrome		: UIContainer;
+	private var title		: Label;
 	
 	
-	public function new (id:String = null, label:String = null)
+	override public function createChildren ()
 	{
-		super(id);
-		this.label	= new Bindable<String>(label);
-		close		= new Signal0();
+		chrome		= new UIContainer("chrome");
+		title		= new Label("title", owner.label);
+		title.disable();
 		
-		if (content == null)
-			content	= new UIContainer("panel");
+		title.attachTo(chrome);
+		chrome.attachTo(owner, 0);
 	}
 	
 	
-	override public function dispose ()
+	override private function removeChildren ()
 	{
-		close.dispose();
-		content.dispose();
-		label.dispose();
-		content	= null;
-		label	= null;
-		close	= null;
+		title.dispose();
+		chrome.dispose();
 		
-		super.dispose();
-	}
-	
-	
-	override private function createChildren ()
-	{
-		content.attachTo( this );
+		chrome = null;
+		title = null;
 	}
 }

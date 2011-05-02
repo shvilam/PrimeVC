@@ -67,23 +67,27 @@ class PopupManager implements IPopupManager
 	}
 	
 	
+	
+	/**
+	 * Method will open the given popup on the forground of the window
+	 * @return 	index of the popup in the displaylist
+	 */
 	public inline function add (popup:IUIElement, modal:Bool = false) : Int
 	{
-	//	if (modal)
-	//		createModalFor(popup);
+		if (modal)
+			createModalFor(popup);
 		
-		window.children.add( popup );
 		window.popupLayout.children.add( popup.layout );
+		popup.attachDisplayTo( window );
 		return window.children.length - 1;
 	}
 	
 	
 	public inline function remove (popup:IUIElement)
 	{
-	//	removeModalFor( popup );
+		removeModalFor( popup );
 		Assert.notNull( popup.window );
-		window.children.remove(popup);
-		window.popupLayout.children.remove( popup.layout );
+		popup.detach();
 	}
 	
 	
@@ -96,11 +100,11 @@ class PopupManager implements IPopupManager
 		
 		if (modal.window == null)
 		{
-			window.children.add( modal );
-			window.layoutContainer.children.add( modal.layout );
+			window.popupLayout.children.add( modal.layout );
+			modal.attachDisplayTo( window );
 		}
 		else
-			window.children.move( modal, window.children.length - 1 );
+			moveModalBackground( window.popupLayout.children.length - 1 );
 		
 		modalPopups.push( popup );
 	}
@@ -109,11 +113,20 @@ class PopupManager implements IPopupManager
 	private function removeModalFor (popup:IUIElement)
 	{
 		var index = modalPopups.indexOf(popup);
-		if (index > 0 && modalPopups.length > 1)		//if true, the popup has a modal that should not be removed yet
+		if (index > 0)
 		{
-			//move modal window one level down
-			window.children.move( modal, window.children.indexOf( modalPopups[ index - 1 ] ) - 1 );
+			modalPopups.removeItem(popup);
+			
+			//keep the modalbackground if there are more modal-popups open
+			if (modalPopups.length > 0)		moveModalBackground( window.children.indexOf( modalPopups[ modalPopups.length - 1 ] ) - 1 );
+			else							modal.detach();
 		}
-		modalPopups.removeItem(popup);
+	}
+	
+	
+	private inline function moveModalBackground (newPos:Int)
+	{
+		window.popupLayout.children.move( modal.layout, newPos );
+		window.children.move( modal, newPos );
 	}
 }
