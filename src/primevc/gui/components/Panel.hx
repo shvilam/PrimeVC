@@ -67,7 +67,7 @@ class Panel extends UIContainer
 		close		= new Signal0();
 		
 		if (content == null)
-			content	= new UIContainer("panel");
+			content	= new UIContainer("content");
 	}
 	
 	

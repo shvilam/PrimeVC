@@ -34,6 +34,7 @@ package primevc.gui.core;
  import primevc.gui.display.VectorShape;
  import primevc.gui.effects.UIElementEffects;
  import primevc.gui.graphics.GraphicProperties;
+ import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.managers.ISystem;
  import primevc.gui.states.UIElementStates;
@@ -176,10 +177,10 @@ class UIGraphic extends VectorShape
 	// ATTACH METHODS
 	//
 	
-	public inline function attachLayoutTo	(target:IUIContainer, pos:Int = -1)	: IUIElement	{ target.layoutContainer.children.add( layout, pos );				return this; }
-	public inline function detachLayout		()									: IUIElement	{ layout.parent.children.remove( layout );							return this; }
-	public inline function attachTo			(target:IUIContainer, pos:Int = -1)	: IUIElement	{ attachLayoutTo(target, pos);		attachDisplayTo(target, pos);	return this; }
-	public inline function detach			()									: IUIElement	{ detachDisplay();					detachLayout();					return this; }
+	public inline function attachLayoutTo	(t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ t.children.add( layout, pos );										return this; }
+	public inline function detachLayout		()									: IUIElement	{ layout.parent.children.remove( layout );								return this; }
+	public inline function attachTo			(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachDisplayTo(t, pos);	return this; }
+	public inline function detach			()									: IUIElement	{ detachDisplay();							detachLayout();				return this; }
 	
 	
 	//
