@@ -38,42 +38,44 @@ package primevc.gui.core;
  */
 class UIElementFlags
 {
-	public static inline var LAYOUT		= 1 << 0;
-	public static inline var GRAPHICS	= 1 << 1;
-	public static inline var STYLE		= 1 << 2;
+	public static inline var LAYOUT			= 1 << 0;
+	public static inline var GRAPHICS		= 1 << 1;
+	public static inline var STYLE			= 1 << 2;
 	
 	
-	public static inline var DATA		= 1 << 3;
-	public static inline var STATE		= 1 << 4;
+	public static inline var DATA			= 1 << 3;
+	public static inline var STATE			= 1 << 4;
 	
 	//
 	// UITEXTFIELD PROPERTIES
 	//
 	
-	public static inline var TEXT		= 1 << 5;
-	public static inline var RESTRICT	= 1 << 6;
-	public static inline var MAX_CHARS	= 1 << 7;
-	public static inline var TEXTSTYLE	= 1 << 8;
+	public static inline var TEXT			= 1 << 5;
+	public static inline var RESTRICT		= 1 << 6;
+	public static inline var MAX_CHARS		= 1 << 7;
+	public static inline var TEXTSTYLE		= 1 << 8;
+	public static inline var DISPLAY_HTML	= 1 << 9;
+	public static inline var MULTILINE		= 1 << 10;
 	
 	
 	//
 	// ScrollBar
-	public static inline var TARGET		= 1 << 9;
+	public static inline var TARGET			= 1 << 11;
 	
 	//
 	// IICON OWNER PROPERTIES
-	public static inline var ICON		= 1 << 10;
-	public static inline var ICON_FILL	= 1 << 11;
+	public static inline var ICON			= 1 << 12;
+	public static inline var ICON_FILL		= 1 << 13;
 	
 	//
 	// SliderBase
-	public static inline var PERCENTAGE = 1 << 12;
-	public static inline var DIRECTION	= 1 << 13;
+	public static inline var PERCENTAGE 	= 1 << 14;
+	public static inline var DIRECTION		= 1 << 15;
 	
 	
 	//
 	// ScrollBar and ProgressBar
-	public static inline var SOURCE		= 1 << 14;
+	public static inline var SOURCE			= 1 << 16;
 	
 
 	
@@ -89,6 +91,7 @@ class UIElementFlags
 		if (flags.has( STATE ))			output.push("state");
 		if (flags.has( TEXTSTYLE ))		output.push("textstyle");
 		if (flags.has( TEXT ))			output.push("text");
+		if (flags.has( DISPLAY_HTML ))	output.push("displayHTML");
 		if (flags.has( RESTRICT ))		output.push("restrict");
 		if (flags.has( MAX_CHARS ))		output.push("maxChars");
 		if (flags.has( TARGET ))		output.push("target");

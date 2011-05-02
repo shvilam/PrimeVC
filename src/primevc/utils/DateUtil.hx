@@ -37,12 +37,22 @@ package primevc.utils;
  * @author Ruben Weijers
  * @creation-date Jan 13, 2011
  */
-class TimeUtil
+class DateUtil
 {
 	public static inline function secondsToTime ( seconds:Int ) : String
 	{
 		var s	= seconds % 60;
 		var m	= ( seconds / 60 ).floorFloat();
 		return m.string() + ":" + ((s < 10) ? "0" + s : s.string());
+	}
+	
+	
+	/**
+	 * Method will make a string out of the given date object, formatted as:
+	 * 		YearMonthDayHoursMinutesSeconds
+	 */
+	public static inline function fullDateString (d:Date) : String
+	{
+		return '' + d.getFullYear() + d.getMonth() + d.getDay() + d.getHours() + d.getMinutes() + d.getSeconds();
 	}
 }

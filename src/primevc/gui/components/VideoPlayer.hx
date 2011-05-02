@@ -41,7 +41,7 @@ package primevc.gui.components;
  import primevc.types.URI;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.TimeUtil;
+  using primevc.utils.DateUtil;
   using Std;
 
 

@@ -104,7 +104,7 @@ class FileReference extends SelectEvents, implements ICommunicator
 	}
 	
 	
-	public inline function close ()								{ isStarted = false; trace(this); loader.cancel(); events.uploadCanceled.send(); }
+	public inline function close ()								{ isStarted = false; loader.cancel(); events.uploadCanceled.send(); }
 	public inline function browse (?types:Array<FileFilter>)	{ return loader.browse(types); }
 	
 	
@@ -136,6 +136,39 @@ class FileReference extends SelectEvents, implements ICommunicator
 	}
 	
 	
+	/**
+	 * Method will offer the user a file-window to download the given data. If
+	 * the data is 'null', it will offer the user 'this.bytes'.
+	 * 
+	 * @param	filename	suggested filename for the file
+	 */
+	public inline function save (filename:String, data:BytesData = null)
+	{
+		if (isStarted)
+			close();
+		
+		if (data == null)
+			data = bytes;
+		
+#if flash10			loader.save( data, filename );
+#elseif flash9		Assert.abstract('not possible in flash-9');		#end
+	}
+	
+	
+	/**
+	 * Method offers the option to download a file from the given URI
+	 */
+	public inline function download (uri:URI, filename:String)
+	{
+		if (isStarted)
+			close();
+		
+		bytesProgress = 0;
+		loader.download( uri.toRequest(), filename );
+	}
+	
+	
+	
 	
 	
 	//
@@ -144,8 +177,8 @@ class FileReference extends SelectEvents, implements ICommunicator
 	
 	private inline function getBytesProgress ()		{ return bytesProgress; }
 	private inline function getBytesTotal ()		{ return loader.size.int(); }
-	private inline function getBytes ()				{ return loader.data; }
-	private inline function setBytes (v)			{ Assert.abstract(); return null; }		// impossible to set the bytes of a file-reference!
+	private inline function getBytes ()				{ return bytes != null ? bytes : loader.data; }
+	private inline function setBytes (v)			{ return bytes = v; }
 //	private inline function getLength ()			{ return 1; }
 	
 	private inline function getModificationDate ()	{ return loader.modificationDate; }
