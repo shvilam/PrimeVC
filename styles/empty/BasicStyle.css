@@ -93,7 +93,6 @@ ComboBox {
 
 .comboList ListView {
 	min-width: 50px;
-	width: 100%;
 	min-height: 50px;
 	max-height: 300px;
 	overflow: scrollbars;
@@ -101,7 +100,7 @@ ComboBox {
 	/*padding-right: 15px;*/
 }
 
-.comboList Button {
+.comboList ListView Button {
 	skin: Class( primevc.gui.components.skins.ButtonIconLabelSkin );
 }
 
