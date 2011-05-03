@@ -26,37 +26,17 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.managers;
- import primevc.core.traits.IDisposable;
- import primevc.gui.core.IUIElement;
- import primevc.gui.core.UIComponent;
- import primevc.gui.core.UIWindow;
+package primevc.utils;
 
 
 /**
  * @author Ruben Weijers
- * @creation-date Jan 17, 2011
+ * @creation-date May 03, 2011
  */
-interface IPopupManager implements IDisposable
+class TimerUtil
 {
-	private var window	: UIWindow;
-	
-	/**
-	 * shape that is put over the rest of the application to make sure the 
-	 * active popup is first closed before anything else is done in the 
-	 * application.
-	 */
-	private var modal	: UIComponent;
-	
-	
-	/**
-	 * Method will add the given IUIElement as popup to the displayList. Method
-	 * will return the depth of the popup or -1 if the popup couldnt be added,
-	 */
-	public function add (popup:IUIElement, modal:Bool = false)	: Int;
-	
-	/**
-	 * Method will remove the IUIElement as popup.
-	 */
-	public function remove (popup:IUIElement) : Void;
+	public static inline function after (method:Void -> Void, delay:Int) : Void
+	{
+		haxe.Timer.delay( method, delay );
+	}
 }

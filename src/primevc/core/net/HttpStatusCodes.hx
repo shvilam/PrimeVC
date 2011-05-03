@@ -41,7 +41,7 @@ class HttpStatusCodes
 	public static inline function isServerError (code:Int)		{ return code >= 500 && code < 600; }
 	public static inline function isOk (code:Int)				{ return code == 200; }
 	
-#if debug
+	
 	public static inline function read (code:Int) : String
 	{
 		return "("+code+") => "+switch (code) {
@@ -90,5 +90,4 @@ class HttpStatusCodes
 			default:  "unkown code ";
 		}
 	}
-#end
 }

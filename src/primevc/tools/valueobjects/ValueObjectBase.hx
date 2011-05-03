@@ -41,9 +41,7 @@ package primevc.tools.valueobjects;
   using primevc.utils.IfUtil;
   using primevc.utils.TypeUtil;
   using primevc.utils.FastArray;
-#if debug
   using primevc.utils.ChangesUtil;
-#end
 
 
 typedef PropertyID	= Int;
@@ -297,7 +295,7 @@ class ObjectChangeSet extends ChangeVO
 {
 	public static inline function make (vo:ValueObjectBase, changes:Int)
 	{
-		var s = new ObjectChangeSet(); // Could come from freelist if profiling tells us to
+		var s = new ObjectChangeSet();	// Could come from freelist if profiling tells us to
 		s.vo = vo;
 		s.timestamp = haxe.Timer.stamp();
 		s.propertiesChanged = changes;
@@ -343,7 +341,7 @@ class ObjectChangeSet extends ChangeVO
 	}
 	
 	
-#if debug
+//#if debug
 	public function toString ()
 	{
 		var output = [];
@@ -357,7 +355,7 @@ class ObjectChangeSet extends ChangeVO
 		
 		return "ChangeSet of " + Date.fromTime( timestamp * 1000 ) + " on "+vo+"; changes: \n\t\t\t" + output.join("\n\t\t\t");
 	}
-#end
+//#end
 }
 
 

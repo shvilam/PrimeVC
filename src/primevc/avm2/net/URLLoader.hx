@@ -91,7 +91,7 @@ class URLLoader implements ICommunicator
 		unsetStarted	.on( events.load.error, 	 this );
 		unsetStarted	.on( events.unloaded,		 this );
 		
-		
+//#if debug	trackError.on( events.load.error, this ); #end
 //#if debug	trackHttpStatus.on( events.httpStatus, this ); #end		
 //#if debug	trackCompleted.on( events.load.completed, this ); #end
 	}
@@ -179,6 +179,7 @@ class URLLoader implements ICommunicator
 	private inline function getBytesProgress ()		{ return bytesProgress.isSet()	? bytesProgress	: loader.bytesLoaded; }
 	private inline function getBytesTotal ()		{ return bytesTotal.isSet()  	? bytesTotal	: loader.bytesTotal; }
 	private inline function getData ()				{ return data != null			? data			: loader.data; }
+	public  inline function getRawData ()			{ return loader.data; }
 //	private inline function getLength ()			{ return 1; }
 	
 	private inline function getDataFormat ()		{ return loader.dataFormat; }
@@ -227,6 +228,7 @@ class URLLoader implements ICommunicator
 	private function unsetStarted ()	{ isStarted = false; }
 	
 #if debug
+//	private function trackError ()		{ trace(loader.data); }
 //	private function trackHttpStatus (status:Int)		{ trace(status.read()+" => "+uri+"[ "+bytesProgress+" / "+ bytesTotal+" ]; type: "+type+"; format: "+dataFormat+"; "+loader.data); }
 //	private function trackCompleted ()					{ trace(uri+"[ "+bytesProgress+" / "+ bytesTotal+" ]; type: "+type+"; format: "+dataFormat+"; "+loader.data); }
 #end

@@ -56,7 +56,7 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > // extends Validating
 	
 	private function setEventHandlers ()
 	{
-		updateFieldSize.on( target.layout.changed, this );
+		updateFieldSize	.on( target.layout.changed, this );
 		updateLabelSize	.on( target.field.layout.changed, this );
 	//	trace("end");
 		updateLabelSize( LayoutFlags.WIDTH_PROPERTIES | LayoutFlags.HEIGHT_PROPERTIES | LayoutFlags.PADDING );
@@ -117,8 +117,6 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > // extends Validating
 		var targetLayout	= target.layout.as(AdvancedLayoutClient);
 		var fieldLayout		= target.field.layout;
 		
-	//	if (target.id.value == "toolTip")
-	//		trace(target+".updateLabelSize; fieldsize: "+fieldLayout.width+", "+fieldLayout.height+"; "+target.mouseEnabled);
 		targetLayout.measuredWidth	= fieldLayout.width;
 		targetLayout.measuredHeight	= fieldLayout.height;
 	//	targetLayout.invalidate( LayoutFlags.WIDTH | LayoutFlags.HEIGHT );

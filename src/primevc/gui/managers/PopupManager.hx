@@ -28,7 +28,7 @@
  */
 package primevc.gui.managers;
  import primevc.gui.core.IUIElement;
- import primevc.gui.core.UIGraphic;
+ import primevc.gui.core.UIComponent;
  import primevc.gui.core.UIWindow;
  import primevc.utils.FastArray;
   using primevc.utils.FastArray;
@@ -42,7 +42,7 @@ package primevc.gui.managers;
 class PopupManager implements IPopupManager 
 {
 	private var window	: UIWindow;
-	private var modal	: UIGraphic;
+	private var modal	: UIComponent;	//can't be a UIGraphic since it needs to block mouse clicks
 	
 	/**
 	 * List of all popups who also want a modal. If a new popup is opened above
@@ -95,8 +95,10 @@ class PopupManager implements IPopupManager
 	
 	private function createModalFor (popup:IUIElement)
 	{
-		if (modal == null)
-			modal = new UIGraphic("modal");
+		if (modal == null) {
+			modal = new UIComponent("modal");
+			modal.tabEnabled = false;
+		}
 		
 		if (modal.window == null)
 		{

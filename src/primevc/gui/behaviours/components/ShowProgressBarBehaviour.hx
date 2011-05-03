@@ -108,6 +108,7 @@ class ShowProgressBarBehaviour extends BehaviourBase<IUIContainer>
 		targetStyle	= target.style.createState( StyleStateFlags.PROGRESS );
 		bar			= new ProgressBar(target.id.value+"Progress");
 		bar.source	= loader;
+		bar.disable();
 		
 		var e = loader.events.load;
 		disposeBar.onceOn( e.completed, this );
