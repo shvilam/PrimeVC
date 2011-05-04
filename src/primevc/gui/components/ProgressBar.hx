@@ -137,6 +137,8 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 		determinateStyle	.dispose();
 		
 		progressStyle = determinateStyle = null;
+		(untyped this).progressState	 = null;
+		(untyped this).mode				 = null;
 		
 		super.dispose();
 	}
@@ -148,9 +150,9 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 		var changes = this.changes;
 		super.validate();
 		
-		if (changes.has(UIElementFlags.SOURCE))
+		if (changes.has(UIElementFlags.SOURCE) && source != null)
 		{
-			Assert.notNull(source);
+		//	Assert.notNull(source);
 			var e = source.events.load;
 			handleBegin		.on( e.started, this );
 			handleProgress	.on( e.progress, this );
@@ -188,6 +190,7 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 	{
 		if (progressState != state)
 		{
+			Assert.that(!isDisposed());
 			progressState = state;
 			progressStyle.current = switch (state) {
 				case ProgressState.progress:	StyleStateFlags.PROGRESS;

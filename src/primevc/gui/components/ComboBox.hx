@@ -102,14 +102,14 @@ class ComboBox <DataType> extends DataButton <DataType>
 		super.createChildren();
 		
 		if (list == null) {
-			list = new ListHolder( id.value+"List", cast listData, cast listData );
+			list = new ListHolder( id.value+"List", null, listData );
 			list.styleClasses.add( "comboList" );
 			list.behaviours.add( new FollowObjectBehaviour( list, this ) );
 			
 			list.createItemRenderer	= createItemRenderer;
 		}
 		
-		Assert.notNull( listData );
+	//	Assert.notNull( listData );
 		Assert.notNull( getLabelForVO );
 		Assert.notNull( createItemRenderer );
 		
@@ -160,7 +160,7 @@ class ComboBox <DataType> extends DataButton <DataType>
 				selectListItemWire.disable();
 			
 			if (list != null)
-				list.data = cast v;
+				list.listData = cast v;
 			
 			listData	= v;
 			vo.value	= null;
@@ -292,14 +292,14 @@ class ComboBox <DataType> extends DataButton <DataType>
 	}
 	
 	
-	private function checkToDeselect (mouseObj:MouseState)
+	public function checkToDeselect (m:MouseState)
 	{
-		if (!mouseObj.target.is(IUIElement)) {
+		if (!m.related.is(IUIElement)) {
 			deselect();
 		}
 		else
 		{
-			var target = mouseObj.target.as(IUIElement);
+			var target = m.related.as(IUIElement);
 			if (target != this && target != list)
 			{
 				var displayTarget = target.container;

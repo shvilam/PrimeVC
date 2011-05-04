@@ -67,6 +67,7 @@ package primevc.tools;
  import primevc.gui.filters.IBitmapFilter;
  import primevc.gui.graphics.borders.BitmapBorder;
  import primevc.gui.graphics.borders.ComposedBorder;
+ import primevc.gui.graphics.borders.EmptyBorder;
  import primevc.gui.graphics.borders.GradientBorder;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.borders.SolidBorder;
@@ -2206,49 +2207,54 @@ class CSSParser
 	
 	private inline function parseAndSetBorder (v:String) : Void
 	{
-		var borders = new ComposedBorder();
-		var parsingBorders:Bool = true;
+		var g = createGraphicsBlock();
 		
-	//	trace("\n\nparseAndSetBorder "+v);
-		while ( parsingBorders )
-		{
-			var fill:IGraphicProperty = null;
-			if (fill == null)	fill = parseImage(v);
-			if (fill == null)	fill = parseColorFill(v);
+		if (isNone(v)) {
+			g.border = new EmptyBorder();
+		} else {
+			var borders = new ComposedBorder();
+			var parsingBorders:Bool = true;
+		
+		//	trace("\n\nparseAndSetBorder "+v);
+			while ( parsingBorders )
+			{
+				var fill:IGraphicProperty = null;
+				if (fill == null)	fill = parseImage(v);
+				if (fill == null)	fill = parseColorFill(v);
 			
-			if (fill == null) {
-				parsingBorders = false;
-				break;
+				if (fill == null) {
+					parsingBorders = false;
+					break;
+				}
+			
+				v = lastParsedString;
+			
+				//parse border-weight
+				var weight = parseUnitFloat( v );
+				v = removeUnitFloat( v );
+			
+				//parse border inside
+				var inside = parseBorderInside( v );
+				v = lastParsedString;
+			
+				borders.add( createBorderForFill( fill, weight, inside ) );
+		//		trace("added border "+v);
 			}
-			
-			v = lastParsedString;
-			
-			//parse border-weight
-			var weight = parseUnitFloat( v );
-			v = removeUnitFloat( v );
-			
-			//parse border inside
-			var inside = parseBorderInside( v );
-			v = lastParsedString;
-			
-			borders.add( createBorderForFill( fill, weight, inside ) );
-	//		trace("added border "+v);
-		}
 		
-		var border:IBorder = null;
-		if (borders.length > 1)
-			border = borders;
+			var border:IBorder = null;
+			if (borders.length > 1)
+				border = borders;
 		
-		if (borders.length == 1)
-			border = borders.next().as(IBorder);
+			if (borders.length == 1)
+				border = borders.next().as(IBorder);
 		
-		if (border != null)
-		{
-			var g = createGraphicsBlock();
-			if (g.border != null && g.border.is(ComposedBorder) && border.is(ComposedBorder))
-				g.border.as(ComposedBorder).merge( cast border );
-			else
-				g.border = border;
+			if (border != null)
+			{
+				if (g.border != null && g.border.is(ComposedBorder) && border.is(ComposedBorder))
+					g.border.as(ComposedBorder).merge( cast border );
+				else
+					g.border = border;
+			}
 		}
 	}
 	

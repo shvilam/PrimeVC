@@ -107,8 +107,11 @@ class UITextField extends TextField, implements IUIElement
 
 	override public function dispose ()
 	{
-		if (state == null)
+		if (isDisposed())
 			return;
+		
+		if (container != null)			detachDisplay();
+		if (layout.parent != null)		detachLayout();
 		
 		//Change the state to disposed before the behaviours are removed.
 		//This way a behaviour is still able to respond to the disposed

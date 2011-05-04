@@ -63,6 +63,12 @@ class TypeUtil
 	}
 	
 	
+	static public inline function className (o:Dynamic) : String
+	{
+		return o == null ? null : o.getClass().getClassName();
+	}
+	
+	
 #if debug
 	private static var objCounter : Int = 0;
 	

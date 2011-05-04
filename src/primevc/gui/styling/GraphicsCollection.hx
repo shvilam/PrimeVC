@@ -29,6 +29,7 @@
 package primevc.gui.styling;
  import primevc.gui.core.IUIContainer;
  import primevc.gui.display.IDisplayObject;
+ import primevc.gui.graphics.borders.EmptyBorder;
  import primevc.gui.graphics.EmptyGraphicProperty;
  import primevc.gui.graphics.GraphicProperties;
  import primevc.gui.styling.StyleCollectionBase;
@@ -109,7 +110,6 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		
 		if ( propsToSet.has( Flags.SKIN ))			target.as(ISkinnable).skin			= empty ? null	: (styleObj.skin != null) ? Type.createInstance( styleObj.skin, [] ) : null;
 		if ( propsToSet.has( Flags.SHAPE ))			graphicProps.shape					= empty ? null	: styleObj.shape;
-		if ( propsToSet.has( Flags.BORDER ))		graphicProps.border					= empty ? null	: styleObj.border;
 		if ( propsToSet.has( Flags.BORDER_RADIUS ))	graphicProps.borderRadius			= empty ? null	: styleObj.borderRadius;
 		if ( propsToSet.has( Flags.ICON ))			target.as(IIconOwner).icon			= empty ? null	: styleObj.icon;
 		if ( propsToSet.has( Flags.ICON_FILL ))		target.as(IIconOwner).iconFill		= empty ? null	: styleObj.iconFill;
@@ -125,6 +125,10 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		
 		if ( propsToSet.has( Flags.BACKGROUND )) {
 			graphicProps.fill = (empty || styleObj.background.is(EmptyGraphicProperty)) ? null : styleObj.background;
+		}
+		
+		if ( propsToSet.has( Flags.BORDER )) {
+			graphicProps.border = (empty || styleObj.border.is(EmptyBorder)) ? null : styleObj.border;
 		}
 	}
 }

@@ -921,8 +921,8 @@ class LayoutClient extends Invalidatable
 	{
 		if (relative != v)
 		{
-			if (relative != null)	relative.change.unbind( this );
-			if (v != null)			handleRelativeChange.on( v.change, this );
+			if (relative != null && relative.change != null)	relative.change.unbind( this );
+			if (v != null)										handleRelativeChange.on( v.change, this );
 			
 			relative = v;
 			handleRelativeChange();

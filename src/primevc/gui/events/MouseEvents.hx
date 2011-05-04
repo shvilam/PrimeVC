@@ -158,7 +158,7 @@ class MouseState extends KeyModState
 		this.local		= l;
 		this.stage		= s;
 #if flash9
-		this.related	= related;
+		this.related	= related == null ? t : related;
 #end
 	}
 	

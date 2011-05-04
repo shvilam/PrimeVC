@@ -26,26 +26,46 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.components.layout;
- import primevc.core.geom.space.Horizontal;
- import primevc.core.geom.space.Vertical;
- import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
- import primevc.gui.layout.VirtualLayoutContainer;
+package primevc.gui.graphics.borders;
+#if neko
+ import primevc.tools.generator.ICodeGenerator;
+#end
+ import primevc.core.geom.IRectangle;
+ import primevc.gui.graphics.GraphicElement;
+ import primevc.gui.graphics.IGraphicProperty;
+ import primevc.gui.traits.IGraphicsOwner;
 
 
 /**
- * FormRow layout is a virtual layout container which will align it's children
- * horizontally.
+ * FIXME, find a better solution to do this.
  * 
  * @author Ruben Weijers
- * @creation-date Feb 16, 2011
+ * @creation-date May 4, 2011
  */
-class FormRowLayout extends VirtualLayoutContainer
+class EmptyBorder extends GraphicElement, implements IGraphicProperty, implements IBorder
 {
-	public function new (percentWidth:Float = 1)
+	public var weight		(default, setWeight)		: Float;
+	public var innerBorder	(default, setInnerBorder)	: Bool;
+	
+	
+	public inline function begin (target:IGraphicsOwner, bounds:IRectangle)
 	{
-		super();
-		algorithm			= new HorizontalFloatAlgorithm( Horizontal.left, Vertical.center );
-		this.percentWidth	= percentWidth;
+		Assert.abstract('this class is supposed to be ignored');
 	}
+	
+	
+	public inline function end (target:IGraphicsOwner, bounds:IRectangle)
+	{
+		Assert.abstract('this class is supposed to be ignored');
+	}
+	
+	
+	private inline function setWeight (v:Float)			{ return 0; }
+	private inline function setInnerBorder (v:Bool)		{ return false; }
+	
+	
+#if neko
+	override public function toCSS (prefix:String = "")		{ return "none"; }
+	override public function toCode (code:ICodeGenerator)	{ code.construct( this, [] ); }
+#end
 }

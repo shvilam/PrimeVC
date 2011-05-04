@@ -178,6 +178,9 @@ class UIComponent extends Sprite, implements IUIComponent
 		if (isDisposed())
 			return;
 		
+		if (container != null)			detachDisplay();
+		if (layout.parent != null)		detachLayout();
+		
 		removeValidation();
 		removeChildren();
 		removeStates();

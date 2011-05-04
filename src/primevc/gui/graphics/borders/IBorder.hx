@@ -36,7 +36,7 @@ package primevc.gui.graphics.borders;
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-interface IBorder implements IGraphicProperty 
+interface IBorder implements IGraphicProperty
 {
 	public var weight		(default, setWeight)		: Float;
 //	public var fill			(default, setFill)			: FillType;
