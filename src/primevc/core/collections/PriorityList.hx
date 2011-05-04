@@ -94,6 +94,9 @@ class PriorityList < DataType : IPrioritizable >
 	
 	public function has (item:DataType)
 	{
+		if (item == null)
+			return false;
+		
 		if (first == null && last == null)
 			return false;
 		
@@ -104,6 +107,23 @@ class PriorityList < DataType : IPrioritizable >
 		while (cur != null)
 		{
 			if (cur.data == item)
+				return true;
+			
+			cur = cur.next;
+		}
+		return false;
+	}
+	
+	
+	public function hasCell (cell:FastDoubleCell<DataType>)
+	{
+		if (first == null && last == null)
+			return false;
+		
+		var cur = first;
+		while (cur != null)
+		{
+			if (cur == cell)
 				return true;
 			
 			cur = cur.next;
@@ -158,6 +178,39 @@ class PriorityList < DataType : IPrioritizable >
 		
 		length++;
 		return cell;
+	}
+	
+	
+	public function remove (item:DataType)
+	{
+		var cell = getCellForItem(item);
+		if (cell != null)
+			removeCell(cell);
+	}
+	
+	
+	
+	public inline function addBefore (item:DataType, otherCell:FastDoubleCell<DataType>) : FastDoubleCell<DataType>
+	{
+		var cell = new FastDoubleCell<DataType>(item);
+		length++;
+		
+		if (otherCell == first)
+			first = cell;
+		
+		return cell.insertBefore( otherCell );
+	}
+	
+	
+	public inline function addAfter (item:DataType, otherCell:FastDoubleCell<DataType>) : FastDoubleCell<DataType>
+	{
+		var cell = new FastDoubleCell<DataType>(item);
+		length++;
+		
+		if (otherCell == last)
+			last = cell;
+		
+		return cell.insertAfter( otherCell );
 	}
 	
 	
@@ -216,7 +269,7 @@ class PriorityList < DataType : IPrioritizable >
 	
 	
 	/**
-	 * returns the cell of the requested item
+	 * returns the first cell with that has the given priority
 	 */
 	public function getCellWithPriority (priority:Int) : FastDoubleCell < DataType >
 	{
@@ -231,6 +284,29 @@ class PriorityList < DataType : IPrioritizable >
 		return null;
 	}
 	
+	
+	public inline function hasPriority (priority:Int) : Bool
+	{
+		var cur = first;
+		while (cur != null)
+		{
+			var curPrio = cur.data.getPriority();
+			if (curPrio == priority)
+				return true;
+			
+			if (curPrio < priority)
+				return false;
+			
+			cur = cur.next;
+		}
+		return false;
+	}
+	
+	
+	public inline function getHighestPriority () : Int	{ return first != null ? first.data.getPriority() : 0; }
+	public inline function getLowestPriority () : Int	{ return last != null ? last.data.getPriority() : 0; }
+	
+	
 #if debug
 	public var name : String;
 	public function toString()
@@ -238,7 +314,7 @@ class PriorityList < DataType : IPrioritizable >
 		var items = [];
 		var i = 0;
 		for (item in this) {
-			items.push( "[ " + i + " ] = " + item + " ( " + item.getPriorityName()+ " )" ); // Type.getClassName(Type.getClass(item)));
+			items.push( "[ " + i + " ] = " + item + " (" + item.getPriorityName()+ ")" ); // Type.getClassName(Type.getClass(item)));
 			i++;
 		}
 		return name + "PriorityList ("+items.length+")\n" + items.join("\n");

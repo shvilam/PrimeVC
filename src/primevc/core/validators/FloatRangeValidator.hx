@@ -29,7 +29,7 @@
 package primevc.core.validators;
  import primevc.core.dispatcher.Signal0;
  import primevc.types.Number;
- import primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.NumberUtil;
 
 

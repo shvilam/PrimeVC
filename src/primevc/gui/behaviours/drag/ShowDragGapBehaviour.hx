@@ -34,9 +34,9 @@ package primevc.gui.behaviours.drag;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.traits.IDropTarget;
- import primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.Bind;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 

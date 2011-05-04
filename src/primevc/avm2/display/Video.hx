@@ -32,10 +32,11 @@ package primevc.avm2.display;
  import primevc.gui.display.DisplayDataCursor;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
+ import primevc.gui.display.ISprite;
  import primevc.gui.display.IVideo;
  import primevc.gui.display.Window;
  import primevc.gui.events.DisplayEvents;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 
@@ -86,10 +87,9 @@ class Video extends flash.media.Video, implements IVideo
 	
 	
 #if !neko
-	public function getDisplayCursor () : DisplayDataCursor
-	{
-		return new DisplayDataCursor(this);
-	}
+	public function getDisplayCursor			() : DisplayDataCursor											{ return new DisplayDataCursor(this); }
+	public inline function attachDisplayTo		(target:IDisplayContainer, pos:Int = -1)	: IDisplayObject	{ target.children.add( this, pos ); return this; }
+	public inline function detachDisplay		()											: IDisplayObject	{ container.children.remove( this ); return this; }
 #end
 	
 	

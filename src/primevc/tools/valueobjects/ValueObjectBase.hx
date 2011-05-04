@@ -41,9 +41,7 @@ package primevc.tools.valueobjects;
   using primevc.utils.IfUtil;
   using primevc.utils.TypeUtil;
   using primevc.utils.FastArray;
-#if debug
   using primevc.utils.ChangesUtil;
-#end
 
 
 typedef PropertyID	= Int;
@@ -83,13 +81,22 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 	
 	public function isEmpty() : Bool				{ return !_propertiesSet.not0(); }
 	public inline function isEditable() : Bool		{ return _flags.has(Flags.IN_EDITMODE); }
+	public inline function isDisposed() : Bool		{ return change == null; }
 	public function has (propertyID : Int) : Bool	{ return (_propertiesSet & (1 << ((propertyID & 0xFF) + _fieldOffset(propertyID >>> 8)))).not0(); }
+	public inline function changed () : Bool		{ return _changedFlags.not0(); }
+	
+	private inline function setPropertyFlag(propertyID : Int) : Void {
+		_propertiesSet = _propertiesSet.set(1 << ((propertyID & 0xFF) + _fieldOffset(propertyID >>> 8)));
+	}
+	private inline function unsetPropertyFlag(propertyID : Int) : Void {
+		_propertiesSet = _propertiesSet.unset(1 << ((propertyID & 0xFF) + _fieldOffset(propertyID >>> 8)));
+	}
 	
 	public function commitEdit()
 	{
 		if(!isEditable()) return;
 		
-		if (_changedFlags.not0())
+		if (changed())
 		{
 			var set = ObjectChangeSet.make(this, _changedFlags);
 			addChanges(set);
@@ -104,12 +111,12 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 	
 	public function objectChangedHandler(propertyID : Int) : ObjectChangeSet -> Void
 	{
-		var changeSignal = this.change;
+		var self = this;
 		var pathNode = ObjectPathVO.make(this, propertyID); // Same ObjectPathVO instance reused
 		
 		return function(change:ObjectChangeSet)
 		{
-			Assert.notNull(changeSignal);
+			Assert.notNull(self.change);
 			Assert.notNull(change);
 			
 			var p = change.parent;
@@ -121,7 +128,11 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 			}
 			else untyped change.parent = pathNode;
 			
-			changeSignal.send(change);
+			if (change.vo.isEmpty())
+				self.unsetPropertyFlag(propertyID);
+			else
+				self.setPropertyFlag(propertyID);
+			self.change.send(change);
 		}
 	}
 	
@@ -284,7 +295,7 @@ class ObjectChangeSet extends ChangeVO
 {
 	public static inline function make (vo:ValueObjectBase, changes:Int)
 	{
-		var s = new ObjectChangeSet(); // Could come from freelist if profiling tells us to
+		var s = new ObjectChangeSet();	// Could come from freelist if profiling tells us to
 		s.vo = vo;
 		s.timestamp = haxe.Timer.stamp();
 		s.propertiesChanged = changes;
@@ -330,7 +341,7 @@ class ObjectChangeSet extends ChangeVO
 	}
 	
 	
-#if debug
+//#if debug
 	public function toString ()
 	{
 		var output = [];
@@ -344,7 +355,7 @@ class ObjectChangeSet extends ChangeVO
 		
 		return "ChangeSet of " + Date.fromTime( timestamp * 1000 ) + " on "+vo+"; changes: \n\t\t\t" + output.join("\n\t\t\t");
 	}
-#end
+//#end
 }
 
 

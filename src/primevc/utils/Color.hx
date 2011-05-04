@@ -239,7 +239,7 @@ class StringColorUtil
 	 */
 	public static inline function string (v:RGBA) : String			{ return rgbaToString(v); }
 	public static inline function rgbaToString (v:RGBA) : String	{ return "0x"+v.rgb().hex(6) + v.alpha().hex(2); }
-	public static inline function rgbString (v:RGBA) : String		{ return "0x"+v.rgb().hex(6); }
+	public static inline function rgbToString (v:RGBA) : String		{ return "0x"+v.rgb().hex(6); }
 	public static inline function uintToString (v:Int) : String
 	{
 		var h =  if (v < L1)	v.hex(1);
@@ -250,6 +250,7 @@ class StringColorUtil
 			else if (v < L6)	v.hex(6);
 			else if (v < L7)	v.hex(7);
 			else if (v < L8)	v.hex(8);
+			else				v.hex();
 		
 		return "0x"+h;
 	}

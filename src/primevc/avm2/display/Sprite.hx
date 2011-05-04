@@ -30,17 +30,19 @@
 package primevc.avm2.display;
  import flash.display.DisplayObject;
  import primevc.core.geom.IntRectangle;
+#if dragEnabled
  import primevc.gui.behaviours.drag.DragInfo;
+#end
  import primevc.gui.display.DisplayDataCursor;
- import primevc.gui.display.ISprite;
  import primevc.gui.display.DisplayList;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
+ import primevc.gui.display.ISprite;
  import primevc.gui.display.Window;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEventTarget;
  import primevc.gui.events.UserEvents;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
  
@@ -64,7 +66,9 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	public var displayEvents	(default, null)			: DisplayEvents;
 	
 	public var rect				(default, null)			: IntRectangle;
+#if dragEnabled
 	public var isDragging		: Bool;
+#end
 	
 	
 	
@@ -83,13 +87,13 @@ class Sprite extends flash.display.Sprite, implements ISprite
 		if (userEvents == null)
 			return;		// already disposed
 		
+		if (container != null)
+			detachDisplay();
+		
 		window = null;
 		children.dispose();
 		userEvents.dispose();
 		displayEvents.dispose();
-		
-		if (container != null)
-			container.children.remove(this);
 		
 		rect.dispose();
 		
@@ -118,16 +122,17 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	
 	
 #if !neko
-	public function getDisplayCursor () : DisplayDataCursor
-	{
-		return new DisplayDataCursor(this);
-	}
+	public function getDisplayCursor			() : DisplayDataCursor											{ return new DisplayDataCursor(this); }
+	public inline function attachDisplayTo		(target:IDisplayContainer, pos:Int = -1)	: IDisplayObject	{ target.children.add( this, pos ); return this; }
+	public inline function detachDisplay		()											: IDisplayObject	{ container.children.remove( this ); return this; }
 	
 	
+	#if dragEnabled
 	public function createDragInfo () : DragInfo
 	{
 		return new DragInfo( this );
 	}
+	#end
 #end
 	
 	

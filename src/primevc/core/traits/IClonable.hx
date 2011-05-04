@@ -30,6 +30,12 @@ package primevc.core.traits;
 
 
 /**
+ * Clonable objects should create a new instance of their class with exact
+ * the same properties as the current instance.
+ * 
+ * The "duplicate" method of IDuplicatable will not copy unique properties of
+ * the instance (like id).
+ *
  * @author Ruben Weijers
  * @creation-date Jul 26, 2010
  */

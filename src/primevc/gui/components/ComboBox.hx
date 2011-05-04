@@ -41,7 +41,7 @@ package primevc.gui.components;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.traits.ISelectable;
- import primevc.types.Bitmap;
+ import primevc.types.Asset;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.TypeUtil;
@@ -64,7 +64,7 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Feb 10, 2011
  */
-class ComboBox <DataType:IValueObject> extends DataButton <DataType>
+class ComboBox <DataType> extends DataButton <DataType>
 {
 	/**
 	 * The combobox popup.
@@ -90,10 +90,10 @@ class ComboBox <DataType:IValueObject> extends DataButton <DataType>
 	private var windowWire			: Wire<Dynamic>;
 	
 	
-	public function new (id:String = null, defaultLabel:String = null, icon:Bitmap = null, selectedItem:DataType = null, listData:IReadOnlyList<DataType> = null)
+	public function new (id:String = null, defaultLabel:String = null, icon:Asset = null, selectedItem:DataType = null, listData:IReadOnlyList<DataType> = null)
 	{
-		this.listData = listData;
 		super(id, defaultLabel, icon, selectedItem);
+		this.listData = listData;
 	}
 	
 	

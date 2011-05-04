@@ -28,7 +28,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.utils;
- using  primevc.utils.FastArray;
+ import primevc.core.traits.IDisposable;
+ import primevc.utils.DuplicateUtil;
+  using primevc.utils.FastArray;
+  using primevc.utils.TypeUtil;
   using Std;
 
 typedef FastArray<T> =
@@ -53,6 +56,9 @@ class FastArrayUtil
 		return untyped __new__(Array, size);
 #elseif neko
 		return untyped Array.new1(neko.NativeArray.alloc(size), size);
+#elseif js
+		var size = size;
+		return untyped __js__("new Array(size)");
 #end
 	}
 	
@@ -172,9 +178,20 @@ class FastArrayUtil
 	}
 	
 	
-	public static inline function removeAll<T> (list:FastArray<T>) : Void {
+	public static inline function removeAll<T> (list:FastArray<T>) : FastArray<T> {
 		while (list.length > 0)
 			list.pop();
+		
+		return list;
+	}
+	
+	
+	public static inline function dispose<T> (list:FastArray<T>) : Void {
+		while (list.length > 0) {
+			var i = list.pop();
+			if (i.is(IDisposable))
+				i.as(IDisposable).dispose();
+		}
 	}
 	
 	
@@ -190,10 +207,34 @@ class FastArrayUtil
 	}
 #end	
 	
+	/**
+	 * Clone will generate a new FastArray with the same children as the given
+	 * fast-array
+	 */
 	public static inline function clone<T> ( arr:FastArray<T> ) : FastArray<T>
 	{
-		return #if neko arr.copy(); #else arr.concat(); #end
+		return #if flash10 arr.concat(); #else arr.copy(); #end
 	}
+	
+	
+	/**
+	 * Duplicate will create a new fast-array where the children of the given
+	 * fast-array are also duplicated if possible
+	 * 
+	 * Note: Inline is needed to create a Vector with the same datatype as 
+	 * 		the original. Without 'inline', a Vector<String> will be duplicated
+	 * 		to Vector<Object>
+	 */
+	public static #if flash10 inline #end function duplicate<T> ( arr:FastArray<T> ) : FastArray<T>
+	{
+		var n:FastArray<T> = FastArrayUtil.create();
+		var l = arr.length;
+		for (i in 0...l)
+			n.push( DuplicateUtil.duplicateItem( arr[i] ) );
+		
+		return n;
+	}
+	
 	
 	public static inline function asArrayOf<A,B> ( arr:FastArray<A>, type:Class<B> ) : FastArray<B>
 	{

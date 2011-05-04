@@ -51,11 +51,25 @@ class ValidatingBehaviour < TargetType:primevc.gui.traits.IDisplayable > extends
 	
 	override private function reset ()
 	{
-		if (isOnStage())	getValidationManager().remove( this );
-		else				prevValidatable = nextValidatable = null;
+		removeFromQueue();
 	}
 	
 	
-	private inline function isOnStage ()	{ return target.window != null; }
-	private inline function isQueued ()		{ return nextValidatable != null || prevValidatable != null; }
+	private inline function removeFromQueue ()
+	{
+		if (isOnStage())
+			getValidationManager().remove( this );
+	/*	else		// <-- this can corrupt the first or last value of the queue
+		{
+			if (prevValidatable != null)	prevValidatable.nextValidatable = nextValidatable;
+			if (nextValidatable != null)	nextValidatable.prevValidatable = prevValidatable;
+			
+			prevValidatable = nextValidatable = null;
+		}*/
+	}
+	
+	
+	public inline function isOnStage ()	{ return target.window != null; }
+//	public inline function isQueued ()	{ return (nextValidatable != null && nextValidatable.isOnStage()) || (prevValidatable != null && prevValidatable.isOnStage()); }
+	public inline function isQueued ()	{ return nextValidatable != null || prevValidatable != null; }
 }

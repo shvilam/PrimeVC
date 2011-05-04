@@ -31,8 +31,7 @@ package primevc.gui.effects.effectInstances;
  import primevc.gui.effects.MoveEffect;
  import primevc.gui.traits.IPositionable;
  import primevc.types.Number;
- import primevc.utils.NumberMath;
-  using primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.NumberUtil;
 
 

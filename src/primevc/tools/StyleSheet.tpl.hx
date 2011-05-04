@@ -43,20 +43,10 @@ class StyleSheet extends StyleBlock
 	public function new ()
 	{
 		super(StyleBlockType.specific);
-		children = new ApplicationStyleChildren();
-	}
-}
-
-
-class ApplicationStyleChildren extends StyleChildren
-{
-	public function new ()
-	{
-		super( new SelectorMapType(), new SelectorMapType(), new SelectorMapType() );
-	}
-	
-	override private function fillSelectors () : Void
-	{
+		elementChildren		= new ChildrenList();
+		styleNameChildren	= new ChildrenList();
+		idChildren			= new ChildrenList();
+		
 		//selectors
 	}
 }

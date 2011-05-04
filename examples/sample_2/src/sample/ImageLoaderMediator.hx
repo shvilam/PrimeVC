@@ -3,7 +3,7 @@ package sample;
 import primevc.gui.events.MouseEvents;
 import primevc.mvc.Mediator;
 import primevc.core.dispatcher.Signal1;
-import primevc.types.Bitmap;
+import primevc.types.Asset;
 import primevc.gui.components.Image;
 using primevc.utils.Bind;
 using primevc.utils.TypeUtil;
@@ -41,6 +41,6 @@ class ImageLoaderMediator extends Mediator <MainEvents, MainModel, MainView, Ima
 	private function loadImage(url:String) 
 	{
 		//viewComponent.layout.maintainAspectRatio = false;
-		viewComponent.data = Bitmap.fromString(url);
+		viewComponent.data = Asset.fromString(url);
 	}
 }

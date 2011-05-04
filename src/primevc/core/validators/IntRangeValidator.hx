@@ -29,7 +29,7 @@
 package primevc.core.validators;
  import primevc.core.dispatcher.Signal0;
  import primevc.types.Number;
- import primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.NumberUtil;
 
 
@@ -43,16 +43,17 @@ class IntRangeValidator implements IValueValidator <Int>
 {
 	public var change (default, null)	: Signal0;
 	
-	public var min	(default, setMin)	: Int;
-	public var max	(default, setMax)	: Int;
+	public var min		(default, setMin)	: Int;
+	public var max		(default, setMax)	: Int;
+	public var scale	(default, null)		: Float;
 	
 	
 	public function new( min:Int = Number.INT_NOT_SET, max:Int = Number.INT_NOT_SET )
 	{
-		this.min = min;
-		this.max = max;
-		change = new Signal0();
-		change.send();
+		scale		= 1;
+		this.min	= min;
+		this.max	= max;
+		change		= new Signal0();
 	}
 	
 	
@@ -72,7 +73,7 @@ class IntRangeValidator implements IValueValidator <Int>
 	private inline function setMin (v)
 	{
 		if (v != min) {
-			min = v;
+			min = scale == 1 || v.notSet() ? v : (v * scale).roundFloat();
 			broadcastChange();
 		}
 		return v;
@@ -82,7 +83,7 @@ class IntRangeValidator implements IValueValidator <Int>
 	private inline function setMax (v)
 	{
 		if (v != max) {
-			max = v;
+			max = scale == 1 || v.notSet() ? v : (v * scale).roundFloat();
 			broadcastChange();
 		}
 		return v;
@@ -117,6 +118,18 @@ class IntRangeValidator implements IValueValidator <Int>
 		else if (max.isSet())				v = v.getSmallest( max );
 	//	trace("validate "+v+"; min/max: "+min+", "+max);
 		return v;
+	}
+	
+	
+	public function rescale (newScale:Float) : Void
+	{
+		if (scale != newScale)
+		{
+			if (min.isSet())	(untyped this).min = (min / scale) * newScale;
+			if (max.isSet())	(untyped this).max = (max / scale) * newScale;
+			scale = newScale;
+			broadcastChange();
+		}
 	}
 	
 	

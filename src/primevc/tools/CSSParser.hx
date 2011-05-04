@@ -83,6 +83,7 @@ package primevc.tools;
  import primevc.gui.graphics.shapes.Line;
  import primevc.gui.graphics.shapes.RegularRectangle;
  import primevc.gui.graphics.shapes.Triangle;
+ import primevc.gui.graphics.EmptyGraphicProperty;
  import primevc.gui.graphics.IGraphicProperty;
  import primevc.gui.layout.algorithms.circle.HorizontalCircleAlgorithm;
  import primevc.gui.layout.algorithms.circle.VerticalCircleAlgorithm;
@@ -104,7 +105,7 @@ package primevc.tools;
  import primevc.gui.styling.StatesStyle;
  import primevc.gui.styling.StyleBlock;
  import primevc.gui.styling.StyleBlockType;
- import primevc.gui.styling.StyleChildren;
+// import primevc.gui.styling.StyleChildren;
  import primevc.gui.styling.StyleFlags;
  import primevc.gui.styling.StyleStateFlags;
  import primevc.gui.text.FontStyle;
@@ -112,7 +113,7 @@ package primevc.tools;
  import primevc.gui.text.TextAlign;
  import primevc.gui.text.TextDecoration;
  import primevc.gui.text.TextTransform;
- import primevc.types.Bitmap;
+ import primevc.types.Asset;
  import primevc.types.ClassInstanceFactory;
  import primevc.types.Reference;
  import primevc.types.Number;
@@ -122,7 +123,6 @@ package primevc.tools;
   using primevc.utils.BitUtil;
   using primevc.utils.Color;
   using primevc.utils.ERegUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
   using Std;
@@ -614,7 +614,7 @@ class CSSParser
 		trace("--- DONE ----");
 		trace("REVERSED CSS:");
 	//	throw 1;
-		trace(styles.toCSS());
+	//	trace(styles.toCSS());
 	}
 	
 	
@@ -726,24 +726,18 @@ class CSSParser
 		style.cleanUp();
 		
 		//search in children
-		if (style.children != null)
+		if (style.has( StyleFlags.ID_CHILDREN ))			findExtendedClassesInList( style.idChildren );
+		if (style.has( StyleFlags.STYLE_NAME_CHILDREN ))	findExtendedClassesInList( style.styleNameChildren );
+		if (style.has( StyleFlags.ELEMENT_CHILDREN ))
 		{
-		//	trace("\t\t\tsearch for extended classes");
-			findExtendedClassesInList( style.children.idSelectors );
-			findExtendedClassesInList( style.children.styleNameSelectors );
-			findExtendedClassesInList( style.children.elementSelectors );
-			
-			createEmptySuperClassesForList( style.children.elementSelectors );
-		//	trace("\t\t\tsearch for super classes");	
-			
-	//		findSuperClassesInList( style.children.idSelectors );
-	//		findSuperClassesInList( style.children.styleNameSelectors );
-			findSuperClassesInList( style.children.elementSelectors );
+			findSuperClassesInList( style.elementChildren );
+			findExtendedClassesInList( style.elementChildren );
+			createEmptySuperClassesForList( style.elementChildren );
 		}
 	}
 	
 	
-	private function findExtendedClassesInList (list:SelectorMapType) : Void
+	private function findExtendedClassesInList (list:ChildrenList) : Void
 	{
 		if (list == null)
 			return;
@@ -766,7 +760,7 @@ class CSSParser
 	}
 	
 	
-	private function findSuperClassesInList (list:SelectorMapType) : Void
+	private function findSuperClassesInList (list:ChildrenList) : Void
 	{
 		if (list == null)
 			return;
@@ -788,7 +782,7 @@ class CSSParser
 	 * Method will create empty elementstyles for every element-style-object 
 	 * that be extended to make sure all references are correct..
 	 */
-	private function createEmptySuperClassesForList (list:SelectorMapType) : Void
+	private function createEmptySuperClassesForList (list:ChildrenList) : Void
 	{
 		if (list == null)
 			return;
@@ -840,17 +834,16 @@ class CSSParser
 			return;
 		
 	//	trace("\t\tsetSuperStyle for "+name + "( "+style.type+" )"+" = -> parentType: "+style.parentStyle.type);
-		var parentName = manifest.getFullSuperClassName( name );
-		while (parentName != null && parentName != "")
+		var superName = manifest.getFullSuperClassName( name );
+		while (superName != null && superName != "")
 		{
-			style.superStyle = style.parentStyle.findChild( parentName, element, style );
+			style.superStyle = style.parentStyle.findChild( superName, element, style );
 			
 			if (style.superStyle != null)
 				break;
 			
-			parentName = manifest.getFullSuperClassName( parentName );
+			superName = manifest.getFullSuperClassName( superName );
 		}
-		
 	//	trace("\t\t\t\t\t "+(style.superStyle != null));
 	}
 	
@@ -1041,11 +1034,13 @@ class CSSParser
 			}
 			
 			
-			if (!styleGroup.owns( StyleFlags.CHILDREN ))
-				styleGroup.children = new StyleChildren();
+		//	if (!styleGroup.owns( StyleFlags.CHILDREN ))
+		//		styleGroup.children = new StyleChildren();
 			
 			//create a styleobject for this name if it doens't exist
-			currentBlock = styleGroup.children.get(name, type);
+			var children	= styleGroup.getChildrenOfType(type);
+			currentBlock	= children.get(name);
+			
 			if (currentBlock == null)
 				currentBlock = addStyleBlock( name, type, styleGroup );
 			//	trace("createStyleBlock for "+name+" = "+type+"; "+currentBlock._oid);
@@ -1068,10 +1063,14 @@ class CSSParser
 	
 	
 	private function addStyleBlock (childName:String, childType:StyleBlockType, parentStyle:StyleBlock) : StyleBlock
-	{
-		var childBlock = new StyleBlock(childType);
+	{	
+		var children	= parentStyle.getChildrenOfType( childType );
+		var childBlock	= new StyleBlock(childType);
 		childBlock.parentStyle = parentStyle;
-		parentStyle.children.set( childName, childBlock );
+#if (debug && neko)
+		childBlock.cssName = childName;
+#end
+		children.set( childName, childBlock );
 		return childBlock;
 	}
 	
@@ -1205,6 +1204,7 @@ class CSSParser
 			//
 			
 			case "icon":						parseAndSetIcon( val ); // @see background-image
+			case "icon-fill":					parseAndSetIconFill( val ); // @see background
 			
 			
 			//
@@ -1914,8 +1914,12 @@ class CSSParser
 	private inline function parseAndSetBackground (v:String) : Void
 	{
 		var g = createGraphicsBlock();
-		parseAndSetBackgroundColor( v );
-		parseAndSetBackgroundImage( v );
+		if (isNone(v)) {
+			g.background = new EmptyGraphicProperty();
+		} else {
+			parseAndSetBackgroundColor( v );
+			parseAndSetBackgroundImage( v );
+		}
 	}
 	
 	
@@ -2054,13 +2058,13 @@ class CSSParser
 	}
 	
 	
-	private function parseBitmap (v:String) : Bitmap
+	private function parseAsset (v:String) : Asset
 	{
-		var bmp:Bitmap	= null;
+		var bmp:Asset	= null;
 		
 		if (imageURIExpr.match(v))
 		{
-			bmp = new Bitmap();
+			bmp = new Asset();
 			bmp.setString( (getBasePath() + "/" + imageURIExpr.matched(2)).replace("//", "/") );
 			lastParsedString = imageURIExpr.removeMatch(v);
 		}
@@ -2068,7 +2072,7 @@ class CSSParser
 		{
 			//Try to create a class instance for the given string. If the class is not yet compiled, this will fail. 
 			//By setting the classname as string, the bitmapObject will try to create a class-reference to the asset.
-			bmp		= new Bitmap();
+			bmp		= new Asset();
 			bmp.setClass( parseClassReference(v) );
 			
 		/*	if (c != null)
@@ -2107,7 +2111,7 @@ class CSSParser
 	private function parseImage (v:String) : IGraphicProperty
 	{
 		var fill:IGraphicProperty = null;
-		var bmp = parseBitmap(v);
+		var bmp = parseAsset(v);
 		
 		if (bmp != null) {
 			v = lastParsedString;	//remove bitmap from string
@@ -2423,25 +2427,26 @@ class CSSParser
 	private function parseAndSetWidth (v:String) : Void
 	{
 		var w:Int = parseUnitInt(v);
+		createLayoutBlock();
 		
 		if (isNone(v))
 		{
-			createLayoutBlock();
 			currentBlock.layout.width			= Number.EMPTY;
 			currentBlock.layout.percentWidth	= Number.EMPTY;
 		}
 		
 		if (w.isSet())
 		{
-			createLayoutBlock();
-			currentBlock.layout.width = w;
+			currentBlock.layout.width			= w;
+		//	currentBlock.layout.percentWidth	= Number.EMPTY;
 		}
 		else
 		{
 			var pw:Float = isAutoSize(v) ? LayoutFlags.FILL : parsePercentage(v);
 			if (pw.isSet())
 			{
-				createLayoutBlock();
+			//	Assert.that( currentBlock.layout.width.notSet() );
+			//	currentBlock.layout.width		 = Number.EMPTY;
 				currentBlock.layout.percentWidth = pw;
 			}
 		}
@@ -2456,25 +2461,30 @@ class CSSParser
 	 */
 	private function parseAndSetHeight (v:String) : Void
 	{
-		var h:Int = parseUnitInt(v);
+		createLayoutBlock();
 		if (isNone(v))
 		{
-			currentBlock.layout.height			= Number.EMPTY;
-			currentBlock.layout.percentHeight	= Number.EMPTY;
-		}
-		else if (h.isSet())
-		{
-			createLayoutBlock();
-			currentBlock.layout.height = h;
+			currentBlock.layout.height				= Number.EMPTY;
+			currentBlock.layout.percentHeight		= Number.EMPTY;
 		}
 		else
 		{
-			var ph:Float = isAutoSize(v) ? LayoutFlags.FILL : parsePercentage(v);
-		//	if (ph.isSet())
-		//	{
-			createLayoutBlock();
-			currentBlock.layout.percentHeight = ph;
-		//	}
+			var h:Int = parseUnitInt(v);
+			if (h.isSet())
+			{
+				currentBlock.layout.height			= h;
+			//	currentBlock.layout.percentHeight	= Number.EMPTY;
+			}
+			else
+			{
+				var ph:Float = isAutoSize(v) ? LayoutFlags.FILL : parsePercentage(v);
+			//	if (ph.isSet())
+			//	{
+			//	Assert.that( currentBlock.layout.height.notSet() );
+			//	currentBlock.layout.height			= Number.EMPTY;
+				currentBlock.layout.percentHeight	= ph;
+			//	}
+			}
 		}
 	}
 	
@@ -3359,9 +3369,16 @@ class CSSParser
 	
 	private function parseAndSetIcon (v:String) : Void
 	{
-		var bmp = parseBitmap(v);
+		var bmp = parseAsset(v);
 		if (bmp != null)
 			createGraphicsBlock().icon = bmp;
+	}
+	
+	
+	private function parseAndSetIconFill (v:String) : Void
+	{
+		if (isColor(v))
+			createGraphicsBlock().iconFill = new SolidFill(parseColor(v));
 	}
 	
 	

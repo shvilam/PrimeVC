@@ -93,7 +93,7 @@ class WindowLayoutBehaviour extends ValidatingBehaviour < UIWindow >, implements
 			return;
 		
 		var l = target.topLayout;
-		trace(l.width+", "+l.height);
+	//	trace(l.width+", "+l.height);
 		
 	//	trace(target+".updateBgSize "+l.outerBounds);
 	/*	if (!target.graphicData.isEmpty())

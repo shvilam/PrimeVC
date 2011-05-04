@@ -140,11 +140,13 @@ class DragBehaviourBase extends BehaviourBase <ISprite>
 	
 	private function stopDragging ()
 	{
+		Assert.notNull(dragInfo, "draginfo can't be null for "+target);
+		Assert.notNull(dragInfo.dragRenderer, "dragrenderer can't be null for "+target);
 		var item = dragInfo.dragRenderer;
 		item.stopDrag();
 		item.mouseEnabled = mouseEnabledValue;
 		
-		if (target.is(ILayoutable))
+		if (target != null && target.is(ILayoutable))
 			target.as(ILayoutable).layout.includeInLayout = true;
 
 	}

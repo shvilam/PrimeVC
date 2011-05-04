@@ -78,7 +78,7 @@ class TextStyleFlags
 		if (flags.has( TRANSFORM ))			output.push("transform");
 		if (flags.has( WEIGHT ))			output.push("weight");
 		
-		return "properties: " + output.join(", ");
+		return output.length > 0 ? output.join(", ") : "none";
 	}
 #end
 }

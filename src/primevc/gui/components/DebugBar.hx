@@ -55,6 +55,7 @@ class DebugBar extends UIContainer
 	private var showRenderingBtn		: Button;
 	private var toggleTraceLayoutBtn	: Button;
 	private var clearTracesBtn			: Button;
+	private var garbageCollectBtn		: Button;
 	
 	
 	override private function createChildren ()
@@ -69,6 +70,7 @@ class DebugBar extends UIContainer
 		showRenderingBtn		= new Button("showRenderingBtn", "Trace render queue");
 		toggleTraceLayoutBtn	= new Button("toggleTraceValidationBtn", "Trace layout validation");
 		clearTracesBtn			= new Button("clearTracesBtn", "Clear traces");
+		garbageCollectBtn		= new Button("garbageCollectBtn", "Garbage Collect");
 		
 		layoutContainer.children.add( clearTracesBtn.layout );
 		layoutContainer.children.add( inspectStageBtn.layout );
@@ -77,6 +79,7 @@ class DebugBar extends UIContainer
 		layoutContainer.children.add( showInvalidatedBtn.layout );
 		layoutContainer.children.add( showRenderingBtn.layout );
 		layoutContainer.children.add( toggleTraceLayoutBtn.layout );
+		layoutContainer.children.add( garbageCollectBtn.layout );
 		
 		children.add( clearTracesBtn );
 		children.add( inspectStageBtn );
@@ -85,6 +88,7 @@ class DebugBar extends UIContainer
 		children.add( showInvalidatedBtn );
 		children.add( showRenderingBtn );
 		children.add( toggleTraceLayoutBtn );
+		children.add( garbageCollectBtn );
 		
 		haxe.Log.clear			.on( clearTracesBtn.userEvents.mouse.click, this );
 		inspectAllLayouts		.on( inspectLayoutBtn.userEvents.mouse.click, this );
@@ -93,6 +97,7 @@ class DebugBar extends UIContainer
 		traceInvalidationQueue	.on( showInvalidatedBtn.userEvents.mouse.click, this );
 		traceRenderingQueue		.on( showRenderingBtn.userEvents.mouse.click, this );
 		toggleTraceLayout		.on( toggleTraceLayoutBtn.userEvents.mouse.click, this );
+		flash.system.System.gc	.on( garbageCollectBtn.userEvents.mouse.click, this );
 		
 		handleHotkeys.on ( window.userEvents.key.down, this );
 	}
@@ -155,7 +160,7 @@ class DebugBar extends UIContainer
 	private inline function inspectIfLayoutIsValidated (layout:LayoutClient, result:Dynamic)
 	{
 		if (!layout.state.is( ValidateStates.validated )) {
-			result.errors += "\n\t\t[ "+result.invalid+" ]layout of "+layout+" is "+layout.state.current+" instead of validated. Invalidated properties: "+layout.readChanges();
+			result.errors += "\n\t\t[ "+result.invalid+" ]layout of "+layout+"("+layout.includeInLayout+")"+" is "+layout.state.current+" instead of validated. Invalidated properties: "+layout.readChanges();
 			result.invalid++;
 		}
 		else

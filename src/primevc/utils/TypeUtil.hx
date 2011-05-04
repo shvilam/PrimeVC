@@ -46,7 +46,7 @@ class TypeUtil
 			return untyped __instanceof__(o, t);
 		#elseif js {
 			var __o = o, __t = t;
-			return __js__("__o instanceof __t");
+			return untyped __js__("__o instanceof __t");
 		}
 		#else
 			return Std.is(o, t);

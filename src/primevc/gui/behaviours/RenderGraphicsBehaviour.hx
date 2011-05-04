@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours;
+ import primevc.gui.core.IUIComponent;
  import primevc.gui.core.UIWindow;
  import primevc.gui.traits.IDrawable;
  import primevc.gui.traits.IGraphicsValidator;
@@ -72,11 +73,12 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, impleme
 	
 	public inline function invalidateGraphics ()
 	{
-	//	trace(target+" => "+target.graphicData.isEmpty()+"; "+target.graphicData.shape+"; "+target.graphicData.layout);
-		if (isOnStage() && !target.graphicData.isEmpty() && !isQueued())
-			getValidationManager().add( this );
-		else if (target.graphicData.isEmpty())
+	//	trace(target+" => "+target.graphicData.isEmpty()+"; "+target.graphicData.shape+"; "+target.graphicData.layout+"; queued? "+isQueued());
+		if (target.graphicData.isEmpty())
 			target.graphics.clear();
+		
+		else if (isOnStage() && !isQueued())
+			getValidationManager().add( this );
 	}
 	
 	
@@ -89,6 +91,9 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, impleme
 		
 		target.graphics.clear();
 		target.graphicData.draw( target, false );
+		
+		if (target.is(IUIComponent) && target.as(IUIComponent).skin != null)
+			target.as(IUIComponent).skin.drawGraphics(); //.onceOn( target.displayEvents.enterFrame, this );
 	}
 	
 	

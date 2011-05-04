@@ -28,7 +28,7 @@
  */
 package primevc.gui.layout;
  import primevc.types.Number;
- import primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.BitUtil;
   using primevc.utils.IfUtil;
   using primevc.utils.NumberUtil;
@@ -82,7 +82,14 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 		
 		(untyped this).measuredWidth	= newW;
 		(untyped this).measuredHeight	= newH;
-		resize( newW, newH );
+		
+		if (maintainAspectRatio)
+			calculateAspectRatio( newW, newH );
+		
+		var usedWidth  = explicitWidth .isSet() ? explicitWidth  : newW;
+		var usedHeight = explicitHeight.isSet() ? explicitHeight : newH;
+		updateAllWidths(  validateWidth(  usedWidth,  Flags.VALIDATE_ALL ) );
+		updateAllHeights( validateHeight( usedHeight, Flags.VALIDATE_ALL ) );
 		invalidate( Flags.MEASURED_SIZE );
 		
 		invalidatable = true;
@@ -97,13 +104,9 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 		if (v.notSet() && measuredWidth.isSet() && explicitWidth.notSet())
 			v = measuredWidth;
 		
-	//	var oldW	= _width;
 		v = super.updateAllWidths(v, force);
-		
 		if (measuredWidth.notSet() || explicitWidth.isSet())
 			(untyped this).explicitWidth = _width;
-	//	else
-	//		(untyped this).measuredWidth = _width;
 		
 		return v;
 	}
@@ -117,15 +120,23 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 		if (v.notSet() && measuredHeight.isSet() && explicitHeight.notSet())
 			v = measuredHeight;
 		
-	//	var oldH	= _height;
 		v = super.updateAllHeights(v, force);
-		
 		if (measuredHeight.notSet() || explicitHeight.isSet())
 			(untyped this).explicitHeight = _height;
-	//	else
-	//		(untyped this).measuredHeight = _height;
 		
 		return v;
+	}
+	
+	
+	override private function handleWidthValidatorChange ()
+	{
+		var w = (measuredWidth.isSet() && explicitWidth.notSet()) ? measuredWidth : _width;
+		updateAllWidths( validateWidth( w, Flags.VALIDATE_ALL ));
+	}
+	override private function handleHeightValidatorChange ()
+	{
+		var h = (measuredHeight.isSet() && explicitHeight.notSet()) ? measuredHeight : _height;
+		updateAllHeights( validateHeight( h, Flags.VALIDATE_ALL ));
 	}
 	
 	

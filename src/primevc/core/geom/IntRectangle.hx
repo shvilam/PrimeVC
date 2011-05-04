@@ -28,8 +28,7 @@
  */
 package primevc.core.geom;
  import primevc.core.traits.QueueingInvalidatable;
- import primevc.utils.NumberMath;
-  using primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.NumberUtil;
 
 
@@ -72,16 +71,6 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	{
 		return cast new IntRectangle( left, top, width, height );
 	}
-	
-	
-#if debug
-	private static var counter : Int = 0;
-	private var id : Int;
-	public function toString ()
-	{
-		return "IntRect"+id+" (x=" + left + ", y=" + top + ", width=" + width + ", height=" + height + ", r=" + right + ", b=" + bottom+" )";
-	}
-#end
 	
 	
 	public function resize (newWidth:Int, newHeight:Int) : Void
@@ -253,18 +242,22 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	/**
 	 * Method will make sure that the values of this rectangle stay within
 	 * the boundaries of the given boundaries.
+	 * 
+	 * @return returns false if the intrectangle is changed.
 	 */
-	public function stayWithin (bounds:IntRectangle) : Void
+	public function stayWithin (bounds:IntRectangle) : Bool
 	{
 		var c = invalidatable;
-		invalidatable = false;
+		invalidatable	= false;
+		var isChanged	= false;
 		
-		if		(left	< bounds.left)		left	= bounds.left;
-		else if (right	> bounds.right)		right	= bounds.right - width;
-		if		(top	< bounds.top)		top		= bounds.top;
-		else if (bottom > bounds.bottom)	bottom	= bounds.bottom - height;
+		if		(left	< bounds.left)		{ left		= bounds.left;		isChanged = true; }
+		else if (right	> bounds.right)		{ right		= bounds.right;		isChanged = true; }
+		if		(top	< bounds.top)		{ top		= bounds.top;		isChanged = true; }
+		else if (bottom > bounds.bottom)	{ bottom	= bounds.bottom;	isChanged = true; }
 		
 		invalidatable = c;
+		return !isChanged;
 	}
 	
 	
@@ -272,6 +265,22 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	public function toFloatRectangle () : Rectangle
 	{
 		return new Rectangle (0, 0, width, height);
+	}
+#end
+	
+	
+#if debug
+	private static var counter : Int = 0;
+	private var id : Int;
+	public function toString ()
+	{
+		return "IntRect"+id+" (x=" + left + ", y=" + top + ", width=" + width + ", height=" + height + ", r=" + right + ", b=" + bottom+" )";
+	}
+	
+	
+	public function readChanges ()
+	{
+		return RectangleFlags.readProperties(changes);
 	}
 #end
 }

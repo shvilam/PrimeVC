@@ -74,7 +74,7 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	 */
 	private var groupIterator		: StyleCollectionForwardIterator < StyleGroupType >;
 	private var groupRevIterator	: StyleCollectionReversedIterator < StyleGroupType >;
-	private var changes				: Int;
+	public var changes				: Int;
 	
 	
 	public function new (elementStyle:IUIElementStyle, propertyTypeFlag:Int)
@@ -216,6 +216,7 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	
 #if debug
 	public function readProperties (props:Int = -1)	: String	{ Assert.abstract(); return null; }
+	public function readChanges (props:Int = -1)	: String	{ return readProperties(changes); }
 	public function toString () : String						{ return this.getClass().getClassName(); }
 #end
 }

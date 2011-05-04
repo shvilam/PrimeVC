@@ -30,6 +30,7 @@ package primevc.core.collections;
  import primevc.core.collections.iterators.IIterator;
  import primevc.core.dispatcher.Signal1;
  import primevc.core.traits.IClonable;
+ import primevc.core.traits.IDuplicatable;
  import primevc.core.traits.IValueObject;
  import primevc.core.traits.IDisposable;
 
@@ -39,6 +40,7 @@ package primevc.core.collections;
  */
 interface IReadOnlyList < DataType >
 		implements IClonable < IReadOnlyList < DataType > >
+	,	implements IDuplicatable < IReadOnlyList < DataType > >
 	,	implements IValueObject
 	,	implements IDisposable
 {

@@ -59,10 +59,11 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 	
 	public function dispose ()
 	{
-		if (behaviours == null)
+		if (isDisposed())
 			return;
 		
-		owner		= null;
+		owner		= null;	// <-- should trigger removeBehaviours and removeChildren
+		behaviours	= null;
 		skinState	= null;
 	}
 	
@@ -88,6 +89,12 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 	}
 	
 	
+	public inline function isDisposed ()
+	{
+		return behaviours == null;
+	}
+	
+	
 	
 	
 	//
@@ -101,19 +108,20 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 			if (owner.state != null)
 				owner.state.initialized.entering.unbind(this);
 			
-			removeBehaviours();
-			removeStates();
 			if (owner.isInitialized())
 				removeChildren();
+			
+			removeBehaviours();
+			removeStates();
 		}
 		
-		this.owner = newOwner;
+		(untyped this).owner = newOwner;
 		
 		if (newOwner != null)
 		{
 			createStates();
 			createBehaviours();
-			createGraphics();
+			drawGraphics();
 			
 			if (newOwner.isInitialized()) {
 				createChildren();
@@ -122,6 +130,7 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 			}
 			else
 				behaviours.init.onceOn( owner.state.initialized.entering, this );
+			//	behaviours.init.onceOn( owner.displayEvents.addedToStage, this );
 		}
 		
 		return newOwner;
@@ -137,7 +146,7 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 	//TODO RUBEN - enable Assert.abstract
 	private function createStates ()			: Void; //	{ Assert.abstract(); }
 	private function createBehaviours ()		: Void; //	{ Assert.abstract(); }
-	private function createGraphics ()			: Void; //	{ Assert.abstract(); }
+	public function drawGraphics ()				: Void; //	{ Assert.abstract(); }
 	public function createChildren ()			: Void; //	{ Assert.abstract(); }
 	public function childrenCreated ()			: Void;
 	
@@ -145,9 +154,9 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 	private function removeChildren ()			: Void; //	{ Assert.abstract(); }
 	public function validate (changes:Int)		: Void;
 	
-	private inline function removeBehaviours ()
+	private function removeBehaviours ()
 	{
-		behaviours.dispose();
-		behaviours = null;
+		behaviours.removeAll();
+	//	behaviours = null;
 	}
 }

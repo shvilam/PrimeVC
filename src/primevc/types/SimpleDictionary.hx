@@ -40,6 +40,7 @@ package primevc.types;
  import primevc.utils.TypeUtil;
 #end
   using primevc.utils.FastArray;
+  using Std;
 
 
 /**
@@ -51,8 +52,8 @@ package primevc.types;
 class SimpleDictionary < KType, VType > 
 				implements IDisposable
 			,	implements IClonable<SimpleDictionary<KType, VType>>
-			,	implements haxe.rtti.Generic
-#if neko	,	implements ICodeFormattable		#end
+#if !neko	,	implements haxe.rtti.Generic
+#else		,	implements ICodeFormattable		#end
 {
 	private var _keys	: FastArray < KType >;
 	private var _values	: FastArray < VType >;
@@ -162,6 +163,17 @@ class SimpleDictionary < KType, VType >
 #end
 
 #if neko
+	public function toHash () : Hash<VType>
+	{
+		var hash = new Hash<VType>();
+		
+		for (i in 0...length)
+			hash.set( Std.string( _keys[i] ), _values[i] );
+		
+		return hash;
+	}
+	
+	
 	public function cleanUp ()
 	{
 		var keysToRemove = [];
@@ -189,7 +201,16 @@ class SimpleDictionary < KType, VType >
 	{
 		if (!isEmpty())
 		{
-			code.construct( this, [ _values.length ] );
+			var type:Class<Dynamic> = null;
+			if (length > 0)
+			{
+				var key0 = _keys[0];
+				if		(key0.is(Int))		type = IntHash;
+				else if (key0.is(String))	type = Hash;
+			}
+			
+			if (type == null)	code.construct( this, [ _values.length ] );
+			else				code.construct( this, null, type );
 			
 			for (i in 0...length)
 				code.setAction( this, "set", [ _keys[i], _values[i] ] );

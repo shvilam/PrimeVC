@@ -31,6 +31,7 @@ package primevc.gui.core;
  import primevc.core.traits.IDisposable;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.effects.UIElementEffects;
+ import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.managers.ISystem;
  import primevc.gui.states.UIElementStates;
  import primevc.gui.traits.IBehaving;
@@ -69,6 +70,42 @@ interface IUIElement
 	
 	public function isDisposed ()			: Bool;
 	public function isInitialized ()		: Bool;
+	
+	
+	/**
+	 * function to tell other objects if the element can be resized
+	 */
+	public function isResizable ()			: Bool;
+	
+	
+	//
+	// ATTACH METHODS
+	//
+	
+	
+	/**
+	 * Method will attach the layout-client of this UIElement to the given 
+	 * ILayoutContainer.
+	 * @return own-instance
+	 */
+	public function attachLayoutTo	(target:ILayoutContainer, pos:Int = -1)	: IUIElement;
+	/**
+	 * Method will detach the layout-client of this UIElement from it's 
+	 * layoutcontainer.
+	 * @return own-instance
+	 */
+	public function detachLayout	()										: IUIElement;
+	/**
+	 * Method will attach this UIElement to the given IUIContainer, including
+	 * it's layout.
+	 * @return own-instance
+	 */
+	public function attachTo		(target:IUIContainer, pos:Int = -1)		: IUIElement;
+	/**
+	 * Method will detach this UIElement from it's parent, including it's layout.
+	 * @return own-instance
+	 */
+	public function detach			()										: IUIElement;
 	
 	
 	

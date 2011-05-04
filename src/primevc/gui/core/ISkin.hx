@@ -64,7 +64,7 @@ interface ISkin
 	/**
 	 * Creates the default graphical data of a UIComponent
 	 */
-	private function createGraphics ()		: Void;
+	public function drawGraphics ()		: Void;
 	
 	/**
 	 * A skin can have children, despite the fact that it isn't a IDisplayable 
@@ -99,6 +99,10 @@ interface ISkin
 	 */
 	public function validate (changes:Int)	: Void;
 	
+	/**
+	 * Method indicating wether the skin is disposed or not
+	 */
+	public function isDisposed ()			: Bool;
 	
 	
 	

@@ -29,6 +29,7 @@
 package primevc.avm2.events;
 private typedef ErrorSignal		= primevc.avm2.events.TextSignal;		// override import
 private typedef ProgressSignal	= primevc.avm2.events.ProgressSignal;	// override import
+
  import flash.events.IEventDispatcher;
  import flash.events.IOErrorEvent;
  import flash.events.Event;
@@ -46,6 +47,7 @@ class CommunicationEvents extends CommunicationSignals
 	{
 		started		= new FlashSignal0( target, 	Event.OPEN );
 		progress	= new ProgressSignal( target,	ProgressEvent.PROGRESS );
+		init		= new FlashSignal0( target,		Event.INIT );
 		completed	= new FlashSignal0( target,		Event.COMPLETE );
 		error		= new ErrorSignal( target,		IOErrorEvent.IO_ERROR );
 	}

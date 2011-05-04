@@ -37,6 +37,7 @@ package primevc.gui.core;
  import primevc.gui.events.UserEventTarget;
  import primevc.gui.graphics.GraphicProperties;
  import primevc.gui.layout.LayoutClient;
+ import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.managers.ISystem;
  import primevc.gui.states.UIElementStates;
 #if flash9
@@ -139,7 +140,13 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	private function init ()
 	{
-		Assert.notNull(container, "Container can't be null for "+this);
+		if (isInitialized())
+			return;
+
+#if flash9		
+		Assert.notNull(parent);
+#end
+	//	Assert.notNull(container, "Container can't be null for "+this);
 		behaviours.init();
 		
 		if (skin != null)
@@ -160,19 +167,27 @@ class UIComponent extends Sprite, implements IUIComponent
 	}
 	
 	
+	public inline function forceInitialization ()
+	{
+		init();
+	}
+	
+	
 	override public function dispose ()
 	{
 		if (isDisposed())
 			return;
 		
+		removeValidation();
+		removeChildren();
+		removeStates();
+		
 		//Change the state to disposed before the behaviours are removed.
 		//This way a behaviour is still able to respond to the disposed
 		//state.
 		state.current = state.disposed;
+		Assert.that(isDisposed());
 		
-		removeValidation();
-		removeChildren();
-		removeStates();
 		behaviours	.dispose();
 		state		.dispose();
 		graphicData	.dispose();
@@ -204,6 +219,17 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	public inline function isDisposed ()	{ return state == null || state.is(state.disposed); }
 	public inline function isInitialized ()	{ return state != null && state.is(state.initialized); }
+	public function isResizable ()			{ return true; }
+	
+	
+	//
+	// ATTACH METHODS
+	//
+	
+	public inline function attachLayoutTo	(t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ t.children.add( layout, pos );										return this; }
+	public inline function detachLayout		()									: IUIElement	{ layout.parent.children.remove( layout );								return this; }
+	public inline function attachTo			(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachDisplayTo(t, pos);	return this; }
+	public inline function detach			()									: IUIElement	{ detachDisplay();							detachLayout();				return this; }
 	
 	
 	
@@ -264,7 +290,7 @@ class UIComponent extends Sprite, implements IUIComponent
 			
 			stylingEnabled = v;
 			if (v)
-				style = new UIElementStyle(this);
+				style = new UIElementStyle(this, this);
 		}
 		return v;
 	}
@@ -328,12 +354,11 @@ class UIComponent extends Sprite, implements IUIComponent
 	 */
 	private function removeValidation () : Void
 	{
-		if (isQueued()) {
+		if (isQueued() &&isOnStage())
 			system.invalidation.remove(this);
-			
-			if (!isDisposed() && changes > 0)
-				validate.onceOn( displayEvents.addedToStage, this );
-		}
+
+		if (!isDisposed() && changes > 0)
+			validate.onceOn( displayEvents.addedToStage, this );
 	}
 	
 	

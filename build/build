@@ -25,23 +25,44 @@ BGCOLOR=FFFFFF
 ACCESS="-D network-sandbox"
 
 #parse arguments
-while getopts "m:nc:bs:tw:uh:io:qp:re:zdfl" OptionName
-	do
-		case $OptionName in
-			m ) MainClass=${OPTARG};;	#main class
-			c ) BGCOLOR=${OPTARG};;		#background color
-			s ) STYLE=${OPTARG};;		#style name
-			w ) WIDTH=${OPTARG};;		#width
-			h ) HEIGHT=${OPTARG};;		#height
-			o ) OUTPUT=${OPTARG};;		#output filename
-			p ) PRJROOT=${OPTARG};;		#project root (used for styles)
-			e ) EXTRA=${OPTARG};;		#extra compiler options
-			d ) Debug="-debug";;		#compile cssparser and application in debugmode
-			f ) Force=true;;			#force recompilation of css parser
-			l ) ACCESS="";;				#local file access allowed
+while [ "${1+isset}" ]; do
+	case "$1" in
+		-m) MainClass=$2		#main class
+			shift 2 ;;
+		-c) BGCOLOR=$2			#background color
+			shift 2 ;;
+		-s) STYLE=$2			#style name
+			shift 2 ;;
+		-w) WIDTH=$2			#width
+			shift 2 ;;
+		-h) HEIGHT=$2			#height
+			shift 2 ;;
+		-o) OUTPUT=$2			#output filename
+			shift 2 ;;
+		-p) PRJROOT=$2			#project root (used for styles)
+			shift 2 ;;
+		-e) EXTRA="$EXTRA $2"	#extra compiler options
+			shift 2 ;;
+		-d) Debug="-debug"		#compile cssparser and application in debugmode
+			shift ;;
+		-f) Force=true			#force recompilation of css parser
+			shift ;;
+		-l) ACCESS=""			#local file access allowed
+			shift ;;
+		--console)				#which debug-console to use
+			case $2 in
+				"monster2" )	CONSOLE="-D Monster2Trace" ;;
+				"monster3" )	CONSOLE="-D Monster3Trace" ;;
+				"alcon" )		CONSOLE="-D AlconTrace" ;;
+				* )				CONSOLE="-D FlashTrace" ;;
+			esac
+			shift 2 ;;
+		*)
+			shift;;
 	esac
 done
 
+echo "main: $MainClass"
 STYLEDIR="$PRJROOT/styles/$STYLE"
 OUTPUTDIR="$PRJROOT/bin${Debug:--release}"
 OUTPUT="$OUTPUTDIR/$OUTPUT"
@@ -67,6 +88,7 @@ else
 	echo -e "\tMain: $MainClass"
 	echo -e "\tStyle: $STYLEDIR"
 	echo -e "\tDebugging: ${Debug:-false}"
+	echo -e "\tConsole: ${CONSOLE}"
 	echo -e "\tAssets: $ASSETS"
 	echo -e "\tProject: $PRJROOT"
 	echo -e "\tOutput: $OUTPUT"
@@ -75,7 +97,10 @@ else
 	echo -e "\tExtra: ${EXTRA:-"no extra's"}"
 	
 	echo "1. BUILDING ASSETS"
-	bash build/build-assets || exit 1;
+	bash build/build-assets \
+		--release-lib "$PRIMEVC_ROOT/libs/macmousewheel" --release-lib "$PRIMEVC_ROOT/libs/as3-flexless" --release-lib "$PRIMEVC_ROOT/libs/swfaddress" \
+		--debug-lib "$PRIMEVC_ROOT/libs/monsterdebugger/v3" --debug-lib "$PRIMEVC_ROOT/libs/monsterdebugger/v2" --debug-lib "$PRIMEVC_ROOT/libs/alcon" \
+		 	|| exit 1;
 	
 	echo -e "\n2. BUILDING STYLES"
 	bash build/build-styles -s "${STYLEDIR}" ${Debug:+-d} ${Force:+-f} || exit 1;
@@ -93,6 +118,8 @@ else
 		${ASSETS:+-swf-lib "'$ASSETS'"} \
 		-swf-lib "'assets/${Debug:+debug-}assets.swf'" \
 		${ACCESS:--D local} \
+		$CONSOLE \
+		-D dragEnabled \
 		| xargs -t haxe \
 		 	|| exit 1;
 	

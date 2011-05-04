@@ -28,6 +28,7 @@
  */
 package primevc.tools;
  import primevc.gui.styling.StyleBlock;
+ import primevc.gui.styling.StyleFlags;
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.HaxeCodeGenerator;
   using primevc.utils.TypeUtil;
@@ -101,16 +102,22 @@ class CSSParserMain
 		var code:String = "";
 		generator.start();
 		
-		if (styles.children != null)
+		if (styles.has( StyleFlags.ELEMENT_CHILDREN ))
 		{
 			neko.Lib.println(Date.now() +"   - elementSelectors");
-			if (styles.children.elementSelectors != null)	code += generateSelectorCode( cast styles.children.elementSelectors, "elementSelectors" );
+			code += generateSelectorCode( cast styles.elementChildren, "elementChildren" );
+		}
 		
+		if (styles.has( StyleFlags.STYLE_NAME_CHILDREN ))
+		{
 			neko.Lib.println(Date.now() +"   - styleNameSelectors");
-			if (styles.children.styleNameSelectors != null)	code += generateSelectorCode( cast styles.children.styleNameSelectors, "styleNameSelectors" );
+			code += generateSelectorCode( cast styles.styleNameChildren, "styleNameChildren" );
+		}
 		
+		if (styles.has( StyleFlags.ID_CHILDREN ))
+		{
 			neko.Lib.println(Date.now() +"   - idSelectors");
-			if (styles.children.idSelectors != null)		code += generateSelectorCode( cast styles.children.idSelectors, "idSelectors" );
+			code += generateSelectorCode( cast styles.idChildren, "idChildren" );
 		}
 		
 		//write to template

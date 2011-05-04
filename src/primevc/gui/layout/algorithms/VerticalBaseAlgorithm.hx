@@ -36,7 +36,6 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutFlags;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
@@ -196,6 +195,9 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 
 	
 	
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String	{ Assert.abstract(); return ""; }
+#end
 #if neko
 	override public function toCode (code:ICodeGenerator)
 	{

@@ -29,7 +29,7 @@
 package primevc.gui.managers;
  import primevc.core.traits.IDisposable;
  import primevc.gui.core.IUIElement;
- import primevc.gui.core.UIGraphic;
+ import primevc.gui.core.UIComponent;
  import primevc.gui.core.UIWindow;
 
 
@@ -46,7 +46,7 @@ interface IPopupManager implements IDisposable
 	 * active popup is first closed before anything else is done in the 
 	 * application.
 	 */
-	private var modal	: UIGraphic;
+	private var modal	: UIComponent;
 	
 	
 	/**

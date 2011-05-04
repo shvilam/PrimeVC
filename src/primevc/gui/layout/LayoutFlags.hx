@@ -124,6 +124,15 @@ class LayoutFlags
 	public static inline var FILL					: Int = #if neko -1073741821 #else -2147483644 #end;
 	
 	
+	/**
+	 * Flags that should cause a layoutcontainer to validate horizontally
+	 */
+	public static inline var HORIZONTAL_INVALID		= WIDTH | LIST | CHILDREN_INVALIDATED | CHILD_HEIGHT | CHILD_WIDTH | ALGORITHM;
+	/**
+	 * Flags that should cause a layoutcontainer to validate horizontally
+	 */
+	public static inline var VERTICAL_INVALID		= HEIGHT | LIST | CHILDREN_INVALIDATED | CHILD_HEIGHT | CHILD_WIDTH | ALGORITHM;
+	
 	
 	//
 	// VALIDATION FLAGS

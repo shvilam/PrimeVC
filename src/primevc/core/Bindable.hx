@@ -148,12 +148,19 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 		if (boundTo != null) for (b in boundTo) if (b == otherBindable) return true;
 		return false;
 	}
+	
+	
+	public function writesTo(otherBindable)
+	{
+		if (writeTo != null) for (b in writeTo) if (b == otherBindable) return true;
+		return false;
+	}
 #end
 	
 	
 	private function setValue (newValue:DataType) : DataType
 	{
-		if (value != newValue)
+		if (value != newValue)	//FIXME (Ruben @ Mar 11, 2011) Will also evaluate true with NaN == NaN and (Null<Bool> = null) == false 
 		{
 			var oldV	= value;
 			value		= newValue;			//first set the value -> will possibly trigger an infinite loop otherwise

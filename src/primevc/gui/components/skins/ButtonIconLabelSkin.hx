@@ -32,6 +32,7 @@ package primevc.gui.components.skins;
  import primevc.gui.core.UITextField;
  import primevc.gui.core.Skin;
  import primevc.gui.events.UserEventTarget;
+  using primevc.utils.Bind;
   using primevc.utils.BitUtil;
 
 
@@ -53,17 +54,9 @@ class ButtonIconLabelSkin extends Skin<Button>
 	
 	override public function createChildren ()
 	{
-		var children	= owner.children;
-		var layout		= owner.layoutContainer;
-		
 		//create children
 		iconGraphic	= new Image(null, owner.icon);
 		labelField	= new UITextField( null, true, owner.data );
-		
-		layout.children.add( iconGraphic.layout );
-		layout.children.add( labelField.layout );
-		children.add( iconGraphic );
-		children.add( labelField );
 		
 		//change properties of new UIElements
 		iconGraphic.maintainAspectRatio = true;
@@ -81,6 +74,8 @@ class ButtonIconLabelSkin extends Skin<Button>
 		if (owner.textStyle != null)
 			labelField.textStyle = owner.textStyle;
 #end
+		iconGraphic.attachTo( owner );
+		labelField.attachTo( owner );
 	}
 	
 	
@@ -88,18 +83,8 @@ class ButtonIconLabelSkin extends Skin<Button>
 	{
 		if (owner != null && !owner.isDisposed())
 		{
-			var children	= owner.children;
-			var layout		= owner.layoutContainer;
-			
-			if (labelField != null) {
-				layout.children.remove( labelField.layout );
-				children.remove( labelField );
-			}
-			
-			if (iconGraphic != null) {
-				layout.children.remove( iconGraphic.layout );
-				children.remove( iconGraphic );
-			}
+			if (labelField != null)		labelField.detach();
+			if (iconGraphic != null)	iconGraphic.detach();
 		}
 		if (iconGraphic != null) {
 			iconGraphic.dispose();
@@ -116,12 +101,11 @@ class ButtonIconLabelSkin extends Skin<Button>
 	override public function validate (changes:Int)
 	{
 		Assert.notNull(iconGraphic, owner+"; "+iconGraphic+"; "+labelField+"; "+owner.isDisposed());
-		if (changes.has( Flags.ICON ))
-			iconGraphic.data = owner.icon;
 		
+		if (changes.has( Flags.ICON ))			iconGraphic.data = owner.icon;
 #if flash9
-		if (changes.has( Flags.TEXTSTYLE ))
-			labelField.textStyle = owner.textStyle;
+		if (changes.has( Flags.TEXTSTYLE ))		labelField.textStyle = owner.textStyle;
+		if (changes.has( Flags.ICON_FILL ))		iconGraphic.colorize( owner.iconFill );
 #end
 	}
 	

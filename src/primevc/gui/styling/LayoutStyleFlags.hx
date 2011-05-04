@@ -113,7 +113,7 @@ class LayoutStyleFlags
 		if (flags.has( ROTATION ))				output.push("rotation");
 		if (flags.has( WIDTH ))					output.push("width");
 
-		return output.join(", ")+" ("+flags+")";
+		return output.length > 0 ? output.join(", ") : "none";
 	}
 #end
 }

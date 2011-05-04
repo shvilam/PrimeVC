@@ -27,7 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.events;
+ import primevc.core.events.CommunicationEvents;
  import primevc.core.dispatcher.Signal0;
+ import primevc.core.dispatcher.Signal1;
  import primevc.core.dispatcher.Signals;
 
 
@@ -35,6 +37,7 @@ typedef LoaderEvents =
 	#if		flash9	primevc.avm2.events.LoaderEvents;
 	#elseif	flash8	primevc.avm1.events.LoaderEvents;
 	#elseif	js		primevc.js  .events.LoaderEvents;
+	#elseif neko	LoaderSignals;
 	#else	#error	#end
 
 
@@ -44,6 +47,17 @@ typedef LoaderEvents =
  */
 class LoaderSignals extends Signals
 {
-	public var unloaded		(default, null)		: Signal0;
-	public var load			(default, null)		: CommunicationEvents;
+	public var unloaded			(default, null)		: Signal0;
+	public var load				(default, null)		: CommunicationSignals;
+	public var httpStatus		(default, null)		: Signal1<Int>;
+	
+	/**
+	 * some stupid, flash specific extra event with data from server after an upload
+	 */
+	public var uploadComplete	(default, null)		: Signal1<String>;
+	
+	/**
+	 * signal that is dispatched when the upload is canceled by the user
+	 */
+	public var uploadCanceled	(default, null)		: Signal0;
 }

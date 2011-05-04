@@ -35,7 +35,7 @@ package primevc.gui.effects.effectInstances;
  import primevc.gui.effects.EffectProperties;
  import primevc.gui.effects.IEffect;
  import primevc.gui.states.EffectStates;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 

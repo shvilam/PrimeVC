@@ -98,10 +98,20 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 		enableDelay = childClick.enable.delay(200);
 	}
 	
+	
 	private function disableChildClick()
 	{
-		if (enableDelay != null) enableDelay.stop();
+		removeEnableTimer();
 		childClick.disable();
+	}
+	
+	
+	private inline function removeEnableTimer ()
+	{
+		if (enableDelay != null) {
+			enableDelay.stop();
+			enableDelay = null;
+		}
 	}
 	
 	/*override private function createChildren ()
@@ -124,6 +134,7 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	
 	override public function dispose ()
 	{
+		removeEnableTimer();
 		childClick.dispose();
 		childClick = null;
 		super.dispose();
@@ -167,12 +178,9 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 			newPos = data.indexOf( item );
 		
 		Assert.notNull( createItemRenderer );
-		var child = createItemRenderer( item, newPos );
+		var child = createItemRenderer( item, newPos ).attachTo(this, newPos);
 		
-		layoutContainer.children.add( child.layout, newPos );
-		children.add( child, newPos );
-		
-		if (child.is(IInteractive) && child.as(IInteractive).mouseEnabled)
+		if (child.is(IInteractive)) // && child.as(IInteractive).mouseEnabled)
 			childClick.send.on( child.as(IInteractive).userEvents.mouse.up, this );
 	}
 	
@@ -180,13 +188,9 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	private function removeItemRenderer( item:ListDataType, oldPos:Int = -1 )
 	{
 		var renderer = getItemRendererFor( item );
+		
 		if (renderer != null)
-		{
-			//removing the click-listener is not nescasary since the item-renderer is getting disposed
-			layoutContainer.children.remove( renderer.layout );
-			children.remove( renderer );
-			renderer.dispose();
-		}
+			renderer.dispose();		// removing the click-listener is not nescasary since the item-renderer is getting disposed
 	}
 	
 	

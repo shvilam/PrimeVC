@@ -61,6 +61,7 @@ class Proxy < VOType : IValueObject, EventsTypedef > extends Notifier < EventsTy
 		if (isEnabled())
 			disable();
 		
+		vo = null;
 		super.dispose();
 	}
 	

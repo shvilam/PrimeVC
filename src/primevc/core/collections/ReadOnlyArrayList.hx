@@ -80,11 +80,19 @@ class ReadOnlyArrayList < DataType > implements IReadOnlyList < DataType >, impl
 	}
 	
 	
-	private inline function getLength ()						{ return list.length; }
-	public inline function iterator () : Iterator <DataType>	{ return cast forwardIterator(); }
+	public function duplicate () : IReadOnlyList < DataType >
+	{
+		return new ReadOnlyArrayList<DataType>( list.duplicate() );
+	}
+	
+	
+	private inline function getLength ()								{ return list.length; }
+	public inline function iterator () : Iterator <DataType>			{ return cast forwardIterator(); }
 	public inline function forwardIterator () : IIterator <DataType>	{ return cast new FastArrayForwardIterator<DataType>(list); }
 	public inline function reversedIterator () : IIterator <DataType>	{ return cast new FastArrayReversedIterator<DataType>(list); }
-	public inline function asIterableOf<B> ( type:Class<B> ) : Iterator<B> {
+	
+	public inline function asIterableOf<B> ( type:Class<B> ) : Iterator<B>
+	{
 		#if debug for (i in 0 ... list.length) Assert.isType(list[i], type); #end
 		return cast forwardIterator();
 	}
@@ -103,13 +111,27 @@ class ReadOnlyArrayList < DataType > implements IReadOnlyList < DataType >, impl
 	}
 	
 	
-	public function indexOf (item:DataType) : Int {
+	public function indexOf (item:DataType) : Int
+	{
 		return list.indexOf(item);
 	}
 	
 	
-	public function has (item:DataType) : Bool {
+	public function has (item:DataType) : Bool
+	{
 		return list.indexOf(item) >= 0;
+	}
+	
+	
+	/**
+	 * Method will remove the items from this list and inject the values of 
+	 * the other list into this list. Changes in the otherList after injection
+	 * will not be noticed by this list..
+	 */
+	public function inject (otherList:ReadOnlyArrayList<DataType>)
+	{
+		this.list = otherList.list;
+		change.send( ListChange.reset );
 	}
 	
 	

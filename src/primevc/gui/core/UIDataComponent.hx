@@ -50,7 +50,7 @@ package primevc.gui.core;
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
-class UIDataComponent <DataType:IValueObject> extends UIComponent, implements IUIDataElement <DataType>
+class UIDataComponent <DataType> extends UIComponent, implements IUIDataElement <DataType>
 {
 //	public var vo (default, setVO)		: IBindable < DataType >;
 //	public var data (getData, setData)	: DataType;

@@ -29,12 +29,22 @@
 package primevc.avm2.display;
  import flash.display.DisplayObject;
  import flash.display.LoaderInfo;
+ import flash.display.SWFVersion;
  import flash.net.URLRequest;
+ import flash.system.ApplicationDomain;
  import flash.system.LoaderContext;
- import flash.utils.ByteArray;
- import primevc.avm2.events.LoaderEvents;
- import primevc.core.traits.IDisposable;
+
+ import haxe.io.BytesData;
+
+ import primevc.core.events.LoaderEvents;
+ import primevc.core.geom.Rectangle;
+ import primevc.core.net.CommunicationType;
+ import primevc.core.net.FileType;
+ import primevc.core.net.ICommunicator;
+ import primevc.core.Bindable;
  import primevc.types.URI;
+  using primevc.utils.Bind;
+  using primevc.utils.FileUtil;
 
 
 typedef FlashLoader = flash.display.Loader;
@@ -44,41 +54,95 @@ typedef FlashLoader = flash.display.Loader;
  * @author Ruben Weijers
  * @since sometime in 2010
  */
-class Loader implements IDisposable
+class Loader implements ICommunicator
 {
-	public var events		(default, null)				: LoaderEvents;
+	public static var defaultContext = new LoaderContext(false, new ApplicationDomain());
 	
-	public var bytes		(getBytes, never)			: ByteArray;
-	public var bytesLoaded	(getBytesLoaded, never)		: UInt;
-	public var bytesTotal	(getBytesTotal, never)		: UInt;
-	public var isLoaded		(getIsLoaded, never)		: Bool;
-	public var info			(getInfo, never)			: LoaderInfo;
 	
-	public var content		(getContent, never)			: DisplayObject;
-	private var loader		: FlashLoader;
+	public var events			(default,			null)		: LoaderSignals;
+	
+	public var bytes			(getBytes,			setBytes)	: BytesData;
+	public var bytesProgress	(getBytesProgress,	never)		: Int;
+	public var bytesTotal		(getBytesTotal,		never)		: Int;
+	public var type				(default,			null)		: CommunicationType;
+	public var length			(default,			null)		: Bindable<Int>;
+	public var isStarted		(default,			null)		: Bool;
+	
+	public var info				(getInfo,			never)		: LoaderInfo;
+	public var content			(getContent,		never)		: DisplayObject;
+	public var height			(getHeight,			never)		: Float;
+	public var width			(getWidth,			never)		: Float;
+	public var isAnimated		(default,			null)		: Bool;
+	
+	private var loader			: FlashLoader;
+	private var fileType		: FileType;
 	
 	
 	public function new ()
 	{
-		loader	= new FlashLoader();
-		events	= new LoaderEvents( info );
+		loader		= new FlashLoader();
+		events		= new LoaderEvents( info );
+		isAnimated	= false;
+		
+		setStarted		.on( events.load.started, 	 this );
+		unsetStarted	.on( events.load.completed,  this );
+		unsetStarted	.on( events.load.error, 	 this );
+		unsetStarted	.on( events.unloaded,		 this );
 	}
 	
 	
 	public function dispose ()
 	{
-#if flash10
-		loader.unloadAndStop();
-#end
+		unload();
 		events.dispose();
-		loader = null;
-		events = null;
+		loader		= null;
+		events		= null;
 	}
 	
 	
-	public inline function load (v:URI, ?c:LoaderContext)	{ return loader.load(new URLRequest(v.toString()), c); }
-	public inline function unload ()						{ return loader.unload(); }
-	public inline function close ()							{ if (!isLoaded) loader.close(); }
+	public inline function load (v:URI, ?c:LoaderContext) : Void
+	{
+		if (isStarted)
+			close();
+		
+		isStarted	= true;
+		type		= CommunicationType.loading;
+	//	extension = v.fileExt;
+		if (c == null)
+			c = defaultContext;
+		
+		loader.load(new URLRequest(v.toString()), c);
+	}
+	
+	
+	public inline function loadBytes (v:BytesData, ?c:LoaderContext) : BytesData
+	{
+		if (isStarted)
+			close();
+		
+		isStarted	= true;
+		type		= CommunicationType.loading;
+		
+		if (c == null)
+			c = defaultContext;
+		
+		loader.loadBytes(v, c);
+		return v;
+	}
+	
+	
+	public inline function unload () : Void
+	{
+#if flash10	loader.unloadAndStop();
+#else		loader.unload(); #end
+			fileType	= null;
+			type		= null;
+	}
+	
+	public inline function close () : Void			{ if (!isCompleted()) loader.close(); }
+	public inline function isSwf () : Bool			{ return fileType == FileType.SWF; }
+	public inline function isCompleted () : Bool	{ return bytesTotal > 0 && bytesProgress >= bytesTotal; }
+	public inline function isInProgress ()			{ return isStarted && !isCompleted(); }
 	
 	
 	
@@ -86,11 +150,71 @@ class Loader implements IDisposable
 	// GETTERS / SETTERS
 	//
 	
-	private inline function getInfo ()				{ return loader.contentLoaderInfo; }
 	private inline function getBytes ()				{ return info.bytes; }
-	private inline function getBytesLoaded ()		{ return info.bytesLoaded; }
-	private inline function getBytesTotal ()		{ return info.bytesTotal; }
-	private inline function getContent ()			{ return cast loader; } //.contentLoaderInfo.content; }
+	private inline function setBytes (v:BytesData)	{ return loadBytes(v); }
 	
-	private inline function getIsLoaded ()			{ return bytesTotal > 0 && bytesLoaded >= bytesTotal; }
+	private inline function getInfo ()				{ return loader.contentLoaderInfo; }
+	private inline function getBytesProgress ()		{ return info.bytesLoaded; }
+	private inline function getBytesTotal ()		{ return info.bytesTotal; }
+//	private inline function getLength ()			{ return 1; }
+	
+	private inline function getWidth ()				{ return info.width; }
+	private inline function getHeight ()			{ return info.height; }
+	
+	
+	/**
+	 * Method will try to return the content of the flash-loader to allow the
+	 * loader to be disposed without losing the loaded content.
+	 * 
+	 * If the loaded content is an avm1-movie, the loader will be returned 
+	 * since the content can't be seperated from the loader. This also means
+	 * that when a avm1-movie is loaded and used on the stage, it will be unloaded
+	 * when this loader is getting disposed!
+	 * 
+	 * If the loaded content is an avm2-movie, the loader will also be returned
+	 * since some flex-swf's will otherwise throw errors.
+	 */
+	private inline function getContent () : DisplayObject
+	{
+		var c:DisplayObject = null;
+	//	trace(info.actionScriptVersion+"; "+info.contentType);
+		if (fileType == null)
+			fileType = info.contentType.toFileType();
+		
+		if ( isSwf() )
+		{
+			loader.scrollRect	= new Rectangle(0, 0, width, height);
+			isAnimated			= info.frameRate > 2;
+			c = loader;
+		}
+		else
+		{
+			c = loader.contentLoaderInfo.content;
+			isAnimated = false;
+		}
+		
+		
+		if (!isAnimated)
+			c.cacheAsBitmap	= true;
+		
+		return c;
+		/*try {
+			if (loader.contentLoaderInfo.swfVersion < 9)
+				return loader;
+			else
+				return loader; //cast loader.contentLoaderInfo.content;
+		}
+		catch (e:Dynamic) {
+			return cast loader.contentLoaderInfo.content;
+		}*/
+	}
+	
+	
+	
+	//
+	// EVENTHANDLERS
+	//
+	
+	private function setStarted ()		{ isStarted = true; }
+	private function unsetStarted ()	{ isStarted = false; }
 }

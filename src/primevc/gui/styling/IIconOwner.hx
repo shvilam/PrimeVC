@@ -28,7 +28,8 @@
  */
 package primevc.gui.styling;
  import primevc.gui.core.IUIElement;
- import primevc.types.Bitmap;
+ import primevc.gui.graphics.IGraphicProperty;
+ import primevc.types.Asset;
 
 
 /**
@@ -37,5 +38,6 @@ package primevc.gui.styling;
  */
 interface IIconOwner implements IUIElement
 {
-	public var icon	(getIcon, setIcon)	: Bitmap;
+	public var icon			(default, setIcon)		: Asset;
+	public var iconFill		(default, setIconFill)	: IGraphicProperty;
 }

@@ -30,6 +30,7 @@ package primevc.utils;
  import primevc.core.collections.IEditableList;
  import primevc.core.collections.ListChange;
  import primevc.core.traits.IEditableValueObject;
+ import primevc.core.traits.IValueObject;
  private typedef IBindable = primevc.core.IBindable<Dynamic>;
  import primevc.utils.TypeUtil;
  import primevc.tools.valueobjects.ValueObjectBase;
@@ -216,5 +217,29 @@ class ChangesUtil
 		}
 		
 		return property;
+	}
+	
+	
+	
+	public static inline function findChangedVOOfClass (change:ObjectChangeSet, classType:Class<Dynamic>) : IValueObject
+	{
+		var vo:IValueObject = null;
+		if (change.vo.is(classType))
+		{
+			vo = change.vo;
+		}
+		else
+		{
+			// a property of the shapestylevo is changed or a property of a 
+			// property etc.. In order to find the ShapeStyleVO that is changed,
+			// we walk down all the parents until we find one.
+			var path = change.parent;
+			while (path != null && !path.object.is(classType))
+				path = path.parent;
+		
+			Assert.notNull(path);
+			vo = path.object;
+		}
+		return vo;
 	}
 }

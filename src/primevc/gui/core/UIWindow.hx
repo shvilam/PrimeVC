@@ -102,6 +102,10 @@ class UIWindow extends Window
 	public var graphicData			(default, null)					: GraphicProperties;
 	
 #if flash9
+	public var scaleX				: Float;
+	public var scaleY				: Float;
+	
+	
 	/**
 	 * Shape to draw the background graphics in. Stage doesn't have a Graphics
 	 * property.
@@ -125,6 +129,7 @@ class UIWindow extends Window
 	
 	public function new (target:Stage, id:String = null)
 	{
+		scaleX = scaleY = 1;
 		super(target);
 		
 #if debug
@@ -172,7 +177,7 @@ class UIWindow extends Window
 
 	override public function dispose ()
 	{
-		if (displayEvents == null)
+		if (isDisposed())
 			return;
 		
 		behaviours		.dispose();
@@ -220,6 +225,7 @@ class UIWindow extends Window
 	}
 	
 	
+	
 	//
 	// ABSTRACT METHODS
 	//
@@ -237,18 +243,9 @@ class UIWindow extends Window
 	// GETTERS / SETTERS
 	//
 	
-	private inline function getLayoutContainer ()
-	{
-		return layout.as(LayoutContainer);
-	}
-	
-	
-	private inline function getPopupManager ()
-	{
-		if (popups == null)
-			popups = new PopupManager(this);
-		return popups;
-	}
+	public inline function isDisposed ()			{ return displayEvents == null; }
+	private inline function getLayoutContainer ()	{ return layout.as(LayoutContainer); }
+	private inline function getPopupManager ()		{ if (popups == null) { popups = new PopupManager(this); } return popups; }
 	
 	
 #if flash9
@@ -263,7 +260,7 @@ class UIWindow extends Window
 			
 			stylingEnabled = v;
 			if (v) {
-				style = new ApplicationStyle(this);
+				style = new ApplicationStyle(this, this);
 				style.updateStyles();
 			}
 		}

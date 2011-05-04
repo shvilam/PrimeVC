@@ -27,8 +27,15 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.types;
-  using primevc.utils.NumberUtil;
+#if neko
+ import primevc.tools.generator.ICodeFormattable;
+ import primevc.tools.generator.ICodeGenerator;
+ import primevc.utils.ID;
+#end
+
+  using primevc.utils.FileUtil;
   using primevc.utils.IfUtil;
+  using primevc.utils.NumberUtil;
 
 enum URIScheme
 {
@@ -53,7 +60,7 @@ enum URIScheme
  *  
  *  Ook interessant: http://www.php.net/manual/en/function.parse-url.php#90365
  */
-class URI
+class URI #if neko implements ICodeFormattable #end
 {
 #if debug
 	static function __init__()
@@ -89,10 +96,17 @@ class URI
 		Assert.that(u.host == "decube.net", u.host);
 		Assert.that(u.port == 80, Std.string(u.port));
 		Assert.that(u.path == "/a", u.path);
+		
+		u.parse("asset://aap");
+		
+		Assert.equal(u.string, "asset://aap");
+		Assert.that(u.hasScheme( URIScheme.Scheme('asset') ));
+	//	Assert.that(u.scheme == URIScheme.Scheme('asset'), Std.string(u.scheme));
+		Assert.equal(u.host, "aap");
 	}
 #end
 	
-	public var string (toString, null) : String;
+	public var string (getString, null) : String;
 	
 	public var scheme	(default, setScheme)	: URIScheme;
 	public var userinfo	(default, setUserinfo)	: String;
@@ -109,33 +123,33 @@ class URI
 	private inline function setPath(v)		{ string = null; return path = v; }
 	private inline function setQuery(v)		{ string = null; return query = v; }
 	private inline function setFragment(v)	{ string = null; return fragment = v; }
-
+	
 	/** Returns true if this URI has a scheme and thus is a URL **/
 	public inline function isURL() : Bool			{ return scheme.notNull(); }
 	/** Returns true if the host of URI is the URI, so when the port, path, query and fragment are empty **/
 	public inline function hostIsURI () : Bool		{ return port == -1 && path == null && query == null && fragment == null; }
 	
+	public function hasScheme (searchedScheme:URIScheme) : Bool {
+		return scheme != null && switch (searchedScheme) {
+			case URIScheme.Scheme(schStr1):
+				switch (scheme) {
+					case URIScheme.Scheme(schStr2): schStr1 == schStr2;
+					default:						false;
+				}
+			
+			default:
+				searchedScheme == scheme;
+		}
+	}
+	
 	/** Returns the string after the last dot in the path.
 	 	Returns an empty string if it has no dots in the path.
 	 	Returns empty string if the first char is a dot and there are no other dots (UNIX hidden file convention).
 	*/
-	public var fileExt	(getFileExt,setFileExt): String;
-		private inline function getFileExt() : String {
-			if (!path.notNull()) return "";
-			else {
-				var idx = path.lastIndexOf('.');
-				return idx <= 1? "" : path.substr(idx+1);
-			}
-		}
-		private inline function setFileExt(v) : String {
-			Assert.that(v != null);
-			
-			var idx = path.lastIndexOf('.');
-			path = idx <= 1
-				? path + '.' + v
-				: path.substr(0, path.lastIndexOf('.')) + '.' + v;
-			return v;
-		}
+	public var fileExt	(getFileExt,setFileExt)	: String;
+		private inline function getFileExt()	: String	{ return path.getExtension(); }
+		private inline function setFileExt(v)	: String	{ path.setExtension(v); return v; }
+	
 	
 	public var isSet		(getIsSet, never) : Bool;
 		private function getIsSet() return
@@ -143,17 +157,45 @@ class URI
 		 	(  host.notNull() &&   host.length.not0()) ||
 		 	(  path.notNull() &&   path.length.not0())
 	
-	public function new(str:String = null) {
+	
+#if neko
+	public var _oid (default, null)		: Int;
+#end
+	
+	
+	public function new(str:String = null)
+	{
+#if neko
+		_oid	= ID.getNext();
+#end
 		port = -1;
 		
 		if (str != null)
 			parse(str);
 	}
 	
-	public function toString()
+	
+	public inline function isEmpty () : Bool
 	{
-		if (this.string.notNull()) return this.string;
-		
+		return (scheme == null || host == null) && path == null;
+	}
+	
+	
+	/**
+	 * toString will call getString to build the current string or return the
+	 * cached version. This method can be extended by super-classes to add
+	 * an extra prefix so no inline!
+	 */
+	public function toString ()
+	{
+		return string;
+	}
+	
+	
+	private function getString()
+	{
+		if (this.string.notNull())	return this.string;
+		if (isEmpty())				return null;
 		var s:StringBuf = new StringBuf();
 		
 		if (scheme.notNull()) switch (scheme)
@@ -197,7 +239,7 @@ class URI
 	
 	#if flash9
 	public function toRequest() {
-		return new flash.net.URLRequest(this.string);
+		return new flash.net.URLRequest(this.toString());
 	}
 	#end
 	
@@ -306,4 +348,10 @@ class URI
 		
 		return this;
 	}
+
+
+#if neko
+	public function cleanUp () : Void				{}
+	public function toCode (code:ICodeGenerator)	{ code.construct( this, [ getString() ] ); }
+#end
 }

@@ -37,8 +37,8 @@ package primevc.gui.core;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.display.TextField;
  import primevc.gui.effects.UIElementEffects;
+ import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutClient;
- import primevc.gui.layout.LayoutFlags;
  import primevc.gui.managers.ISystem;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.states.UIElementStates;
@@ -47,7 +47,6 @@ package primevc.gui.core;
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
@@ -142,8 +141,17 @@ class UITextField extends TextField, implements IUIElement
 	
 	public inline function isDisposed ()	{ return state == null || state.is(state.disposed); }
 	public inline function isInitialized ()	{ return state != null && state.is(state.initialized); }
+	public function isResizable ()			{ return true; }
 	
 	
+	//
+	// ATTACH METHODS
+	//
+	
+	public inline function attachLayoutTo	(t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ t.children.add( layout, pos );										return this; }
+	public inline function detachLayout		()									: IUIElement	{ layout.parent.children.remove( layout );								return this; }
+	public inline function attachTo			(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachDisplayTo(t, pos);	return this; }
+	public inline function detach			()									: IUIElement	{ detachDisplay();							detachLayout();				return this; }
 	
 
 	//
@@ -205,7 +213,7 @@ class UITextField extends TextField, implements IUIElement
 	override private function applyTextFormat ()
 	{
 		super.applyTextFormat();
-		updateSize();
+		updateSize.onceOn( displayEvents.enterFrame, this );
 	}
 	
 	
@@ -220,7 +228,7 @@ class UITextField extends TextField, implements IUIElement
 			
 			stylingEnabled = v;
 			if (stylingEnabled)
-				style = new UIElementStyle(this);
+				style = new UIElementStyle(this, this);
 		}
 		return v;
 	}
@@ -269,12 +277,11 @@ class UITextField extends TextField, implements IUIElement
 	 */
 	private function removeValidation () : Void
 	{
-		if (isQueued()) {
+		if (isQueued() &&isOnStage())
 			system.invalidation.remove(this);
 			
-			if (!isDisposed() && changes > 0)
-				validate.onceOn( displayEvents.addedToStage, this );
-		}
+		if (!isDisposed() && changes > 0)
+			validate.onceOn( displayEvents.addedToStage, this );
 	}
 	
 	

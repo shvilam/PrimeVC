@@ -39,10 +39,9 @@ package primevc.gui.layout;
  import primevc.gui.states.ValidateStates;
  import primevc.types.Number;
  import primevc.utils.FastArray;
- import primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
@@ -113,7 +112,11 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (!sender.is(LayoutClient))
 			return super.invalidateCall( childChanges, sender );
 		
-		if (algorithm == null || algorithm.isInvalid(childChanges))
+		var isInvalid = false;
+		if (isInvalid = childChanges.has(Flags.INCLUDE))
+			invalidate( Flags.LIST );
+		
+		if (isInvalid || algorithm == null || algorithm.isInvalid(childChanges))
 		{
 			var child = sender.as(LayoutClient);
 			invalidate( Flags.CHILDREN_INVALIDATED );
@@ -152,7 +155,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	override public function validateHorizontal ()
 	{
 		super.validateHorizontal();
-		if (changes.hasNone( Flags.WIDTH | Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH | Flags.ALGORITHM ))
+		if (changes.hasNone( Flags.HORIZONTAL_INVALID ))
 			return;
 		
 		var fillingChildren	= FastArrayUtil.create();
@@ -216,7 +219,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	override public function validateVertical ()
 	{
 		super.validateVertical();
-		if (changes.hasNone( Flags.HEIGHT | Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH | Flags.ALGORITHM ))
+		if (changes.hasNone( Flags.VERTICAL_INVALID ))
 			return;
 		
 		var fillingChildren	= FastArrayUtil.create();
@@ -284,11 +287,16 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (!isVisible())
 			return super.validated();
 		
+		if (isInvalidated())
+			validate();
+		
 		if (changes.has( Flags.SIZE_PROPERTIES ))
 			validateScrollPosition( scrollPos );
 		
-		if (algorithm != null)
+		if (algorithm != null) {
+			algorithm.prepareValidate();
 			algorithm.apply();
+		}
 		
 		var i = 0;
 		while (i < children.length)		// use while loop instead of for loop since children can be removed during validation (== errors with a for loop)

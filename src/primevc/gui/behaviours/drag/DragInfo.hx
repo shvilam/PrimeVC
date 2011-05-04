@@ -37,7 +37,7 @@ package primevc.gui.behaviours.drag;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.traits.IDropTarget;
  import primevc.gui.traits.ILayoutable;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 

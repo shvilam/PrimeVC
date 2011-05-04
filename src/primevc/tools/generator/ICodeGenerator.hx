@@ -35,12 +35,12 @@ package primevc.tools.generator;
  */
 interface ICodeGenerator
 {
-	public function construct (obj:ICodeFormattable, ?args:Array<Dynamic>)					: Void;
-	public function createClassConstructor (classRef:Class<Dynamic>, ?args:Array<Dynamic>)	: String;
-	public function createClassNameConstructor (name:String, ?args:Array<Dynamic>)			: String;
-	public function setAction (obj:ICodeFormattable, name:String, ?args:Array<Dynamic>)		: Void;
-	public function setProp (obj:ICodeFormattable, name:String, value:Dynamic)				: Void;
+	public function construct (obj:ICodeFormattable, ?args:Array<Dynamic>, ?alternativeType:Class<Dynamic>) : Void;
+	public function createClassConstructor (classRef:Class<Dynamic>, ?args:Array<Dynamic>)					: String;
+	public function createClassNameConstructor (name:String, ?args:Array<Dynamic>)							: String;
+	public function setAction (obj:ICodeFormattable, name:String, ?args:Array<Dynamic>)						: Void;
+	public function setProp (obj:ICodeFormattable, name:String, value:Dynamic)								: Void;
 	
-	private function formatArguments (args:Array<Dynamic>, isConstructor:Bool = false)		: String;
-	private function formatValue (value:Dynamic, isConstructor:Bool = false)				: String;
+	private function formatArguments (args:Array<Dynamic>, isConstructor:Bool = false)						: String;
+	private function formatValue (value:Dynamic, isConstructor:Bool = false)								: String;
 }

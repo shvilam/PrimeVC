@@ -38,7 +38,7 @@ package primevc.gui.styling;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.shapes.IGraphicShape;
  import primevc.gui.graphics.IGraphicProperty;
- import primevc.types.Bitmap;
+ import primevc.types.Asset;
  import primevc.types.Number;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
@@ -69,7 +69,8 @@ class GraphicsStyle extends StyleSubBlock
 #end
 	private var _opacity		: Float;
 	private var _visible		: Null < Bool >;
-	private var _icon			: Bitmap;
+	private var _icon			: Asset;
+	private var _iconFill		: IGraphicProperty;
 	private var _background		: IGraphicProperty;
 	private var _border			: IBorder;
 	private var _borderRadius	: Corners;
@@ -86,7 +87,8 @@ class GraphicsStyle extends StyleSubBlock
 #end
 	public var opacity		(getOpacity,		setOpacity)			: Float;
 	public var visible		(getVisible,		setVisible)			: Null< Bool >;
-	public var icon			(getIcon,			setIcon)			: Bitmap;
+	public var icon			(getIcon,			setIcon)			: Asset;
+	public var iconFill		(getIconFill,		setIconFill)		: IGraphicProperty;
 	public var background	(getBackground, 	setBackground)		: IGraphicProperty;
 	public var border		(getBorder,			setBorder)			: IBorder;
 	public var borderRadius	(getBorderRadius,	setBorderRadius)	: Corners;
@@ -107,7 +109,8 @@ class GraphicsStyle extends StyleSubBlock
 #end
 		visible		: Null < Bool > = null,
 		opacity		: Float = Number.INT_NOT_SET,
-		icon		: Bitmap = null,
+		icon		: Asset = null,
+		iconFill	: IGraphicProperty = null,
 		borderRadius: Corners = null)
 	{
 		super();
@@ -119,6 +122,7 @@ class GraphicsStyle extends StyleSubBlock
 		this.visible		= visible;
 		this.opacity		= opacity != Number.INT_NOT_SET ? opacity : Number.FLOAT_NOT_SET;
 		this.icon			= icon;
+		this.iconFill		= iconFill;
 		this.overflow		= overflow;
 		this.borderRadius	= borderRadius;
 	}
@@ -131,6 +135,7 @@ class GraphicsStyle extends StyleSubBlock
 	//	if (_skin != null)			_skin.dispose();
 		if (_background != null)	_background.dispose();
 		if (_border != null)		_border.dispose();
+		if (_iconFill != null)		_iconFill.dispose();
 #if !neko
 		if (_shape != null)			_shape.dispose();
 		if (_icon != null)			_icon.dispose();
@@ -141,6 +146,7 @@ class GraphicsStyle extends StyleSubBlock
 		_background		= null;
 		_border			= null;
 		_icon			= null;
+		_iconFill		= null;
 		_overflow		= null;
 		_visible		= null;
 		_borderRadius	= null;
@@ -187,10 +193,21 @@ class GraphicsStyle extends StyleSubBlock
 	
 	override public function updateAllFilledPropertiesFlag ()
 	{
-		super.updateAllFilledPropertiesFlag();
+		inheritedProperties = 0;
+		if (extendedStyle != null)	inheritedProperties  = extendedStyle.allFilledProperties;
+		if (superStyle != null)		inheritedProperties |= superStyle.allFilledProperties;
 		
-		if (allFilledProperties < Flags.ALL_PROPERTIES && extendedStyle != null)	allFilledProperties |= extendedStyle.allFilledProperties;
-		if (allFilledProperties < Flags.ALL_PROPERTIES && superStyle != null)		allFilledProperties |= superStyle.allFilledProperties;
+		allFilledProperties = filledProperties | inheritedProperties;
+		inheritedProperties	= inheritedProperties.unset( filledProperties );
+	}
+	
+	
+	override public function getPropertiesWithout (noExtendedStyle:Bool, noSuperStyle:Bool)
+	{
+		var props = filledProperties;
+		if (!noExtendedStyle && extendedStyle != null)	props |= extendedStyle.allFilledProperties;
+		if (!noSuperStyle && superStyle != null)		props |= superStyle.allFilledProperties;
+		return props;
 	}
 	
 	
@@ -304,6 +321,15 @@ class GraphicsStyle extends StyleSubBlock
 	}
 	
 
+	private function getIconFill ()
+	{
+		var v = _iconFill;
+		if (v == null && extendedStyle != null)		v = extendedStyle.iconFill;
+		if (v == null && superStyle != null)		v = superStyle.iconFill;
+		return v;
+	}
+	
+
 	private function getOverflow ()
 	{
 		var v = _overflow;
@@ -398,6 +424,16 @@ class GraphicsStyle extends StyleSubBlock
 	}
 	
 	
+	private function setIconFill (v)
+	{
+		if (v != _iconFill) {
+			_iconFill = v;
+			markProperty( Flags.ICON_FILL, v != null );
+		}
+		return v;
+	}
+	
+	
 	private function setOverflow (v)
 	{
 		if (v != _overflow) {
@@ -431,6 +467,7 @@ class GraphicsStyle extends StyleSubBlock
 		if (_visible != null)		css.push("visability: "+ _visible );
 		if (_opacity.isSet())		css.push("opacity: "+ _opacity );
 		if (_icon != null)			css.push("icon: "+ _icon );
+		if (_iconFill != null)		css.push("icon-fill: "+ _iconFill );
 		if (_overflow != null)		css.push("overflow: "+ _overflow.toCSS() );
 		if (_borderRadius != null)	css.push("border-radius: "+ _borderRadius );
 		
@@ -444,7 +481,7 @@ class GraphicsStyle extends StyleSubBlock
 	override public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())
-			code.construct( this, [ _background, _border, _shape, _skin, _overflow, _visible, _opacity, _icon, _borderRadius ] );
+			code.construct( this, [ _background, _border, _shape, _skin, _overflow, _visible, _opacity, _icon, _iconFill, _borderRadius ] );
 	}
 	
 	
@@ -456,6 +493,15 @@ class GraphicsStyle extends StyleSubBlock
 			if (_background.isEmpty()) {
 				_background.dispose();
 				background = null;
+			}
+		}
+		
+		if (_iconFill != null)
+		{
+			_iconFill.cleanUp();
+			if (_iconFill.isEmpty()) {
+				_iconFill.dispose();
+				iconFill = null;
 			}
 		}
 		

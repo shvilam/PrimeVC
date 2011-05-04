@@ -31,7 +31,8 @@ package primevc.core.collections;
  import primevc.core.collections.iterators.FastDoubleCellForwardIterator;
  import primevc.core.collections.iterators.FastDoubleCellReversedIterator;
  import primevc.core.events.ListChangeSignal;
-  using primevc.utils.NumberMath;
+ import primevc.utils.DuplicateUtil;
+  using primevc.utils.NumberUtil;
  
 
 /**
@@ -96,12 +97,25 @@ class SimpleList < DataType > implements IEditableList < DataType >
 	}
 	
 	
-	public function clone () : IReadOnlyList<DataType>
+	public function clone () : IReadOnlyList < DataType >
 	{
-		var l = new SimpleList<DataType>();
-		for (child in this)
-			l.insertAt(child);
-		return l;
+		var inst	= new SimpleList<DataType>();
+		var length	= this.length;
+		for (i in 0...length)
+			inst.insertAt( getItemAt(i), i );
+		
+		return inst;
+	}
+	
+	
+	public function duplicate () : IReadOnlyList < DataType >
+	{
+		var inst	= new SimpleList<DataType>();
+		var length	= this.length;
+		for (i in 0...length)
+			inst.insertAt( DuplicateUtil.duplicateItem( getItemAt(i) ), i );
+		
+		return inst;
 	}
 	
 	
@@ -150,7 +164,7 @@ class SimpleList < DataType > implements IEditableList < DataType >
 	}
 	
 	
-	public inline function move (item:DataType, newPos:Int, curPos:Int = -1) : DataType
+	public function move (item:DataType, newPos:Int, curPos:Int = -1) : DataType
 	{
 		if		(curPos == -1)		curPos = indexOf( item );
 		if		(newPos > length)	newPos = length;
@@ -205,13 +219,13 @@ class SimpleList < DataType > implements IEditableList < DataType >
 	 */
 	
 
-	public function insertAt (item:DataType, ?pos:Int = -1) : Int
+	public inline function insertAt (item:DataType, ?pos:Int = -1) : Int
 	{
 		return insertCellAt( new FastDoubleCell < DataType >( item, null ), pos );
 	}
 
 
-	private function insertCellAt( cell:FastDoubleCell < DataType >, ?pos:Int = -1) : Int
+	private inline function insertCellAt( cell:FastDoubleCell < DataType >, ?pos:Int = -1) : Int
 	{
 		if (pos < 0 || pos > length)
 			pos = length;

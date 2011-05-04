@@ -32,8 +32,7 @@ package primevc.gui.layout.algorithms.float;
  import primevc.gui.layout.algorithms.HorizontalBaseAlgorithm;
  import primevc.gui.layout.algorithms.IHorizontalAlgorithm;
  import primevc.gui.layout.AdvancedLayoutClient;
- import primevc.utils.NumberMath;
-  using primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
  

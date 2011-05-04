@@ -30,7 +30,6 @@ package primevc.gui.utils;
  import primevc.core.traits.IDisposable;
  import primevc.gui.core.IUIElement;
  import primevc.types.Number;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
 
 

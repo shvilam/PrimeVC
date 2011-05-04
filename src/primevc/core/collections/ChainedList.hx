@@ -27,7 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.collections;
- 
+ import primevc.utils.DuplicateUtil;
+
+
 /**
  * A chained list is a ListCollection with a maximum number of elements.
  * 
@@ -62,6 +64,28 @@ class ChainedList <DataType> extends SimpleList <DataType>
 	{
 		nextList = null;
 		super.dispose();
+	}
+	
+	
+	override public function clone () : IReadOnlyList < DataType >
+	{
+		var inst	= new ChainedList<DataType>();
+		var length	= this.length;
+		for (i in 0...length)
+			inst.insertAt( getItemAt(i), i );
+		
+		return inst;
+	}
+	
+	
+	override public function duplicate () : IReadOnlyList < DataType >
+	{
+		var inst	= new ChainedList<DataType>();
+		var length	= this.length;
+		for (i in 0...length)
+			inst.insertAt( DuplicateUtil.duplicateItem( getItemAt(i) ), i );
+		
+		return inst;
 	}
 	
 	

@@ -35,6 +35,7 @@ package primevc.gui.behaviours.drag;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.input.KeyCodes;
  import primevc.types.Number;
+  using apparat.math.FastMath;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
@@ -126,6 +127,7 @@ class DragHelper implements IDisposable
 	//		return;
 		
 		lastMouseObj	= mouseObj;
+		Assert.notNull(lastMouseObj);
 		
 		preStartDragClickLocalLength = mouseObj.local.length;
 		mouseUpBinding	.enable();
@@ -155,8 +157,7 @@ class DragHelper implements IDisposable
 	private function preStartDrag (mouseObj:MouseState)
 	{
 		var offset = mouseObj.local.length - preStartDragClickLocalLength;
-		
-		if (offset > 3 || offset < -3)
+		if (offset.abs() > 3)
 			startDrag();
 	}
 	
@@ -184,5 +185,26 @@ class DragHelper implements IDisposable
 	{
 		if (state.keyCode() == KeyCodes.ESCAPE)
 			cancel();
+	}
+	
+	
+	public inline function enable ()
+	{
+		if (target.isDragging) {
+			mouseUpBinding	.enable();
+			mouseMoveBinding.disable();
+			keyDownBinding	.enable();
+		}
+	}
+	
+	
+	public inline function disable ()
+	{
+		if (target.isDragging)
+			stopDrag(null);
+		
+		mouseUpBinding	.disable();
+		mouseMoveBinding.disable();
+		keyDownBinding	.disable();
 	}
 }

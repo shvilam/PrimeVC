@@ -36,7 +36,7 @@ package primevc.gui.graphics.fills;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.graphics.IGraphicProperty;
  import primevc.gui.traits.IGraphicsOwner;
- import primevc.types.Bitmap;
+ import primevc.types.Asset;
   using primevc.utils.Bind;
 
 
@@ -48,17 +48,20 @@ package primevc.gui.graphics.fills;
  */
 class BitmapFill extends GraphicElement, implements IGraphicProperty 
 {
-	public var bitmap		(default, setBitmap)	: Bitmap;
+	public var asset		(default, setAsset)		: Asset;
 	public var matrix		(default, setMatrix)	: Matrix2D;
 	public var smooth		(default, setSmooth)	: Bool;
 	public var repeat		(default, setRepeat)	: Bool;
 	public var isFinished	(default, null)			: Bool;
+#if flash9
+	public var data			(default, null)			: flash.display.BitmapData;
+#end
 	
 	
-	public function new (bitmap:Bitmap, matrix:Matrix2D = null, repeat:Bool = true, smooth:Bool = false)
+	public function new (asset:Asset, matrix:Matrix2D = null, repeat:Bool = true, smooth:Bool = false)
 	{
 		super();
-		this.bitmap = bitmap;
+		this.asset	= asset;
 		this.matrix	= matrix; //matrix == null ? new Matrix2D() : matrix;
 		this.repeat = repeat;
 		this.smooth	= smooth;
@@ -68,13 +71,16 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 	
 	override public function dispose ()
 	{
-		if (bitmap != null) {
-			bitmap.dispose();
-		//	untyped bitmap = null;
+		if (asset != null) {
+			asset.dispose();
+		//	untyped asset = null;
 		}
 		if (matrix != null)
 			untyped matrix = null;
 		
+#if flash9
+		data = null;
+#end
 		super.dispose();
 	}
 	
@@ -84,21 +90,25 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 	// GETTERS / SETTERES
 	//
 	
-	private inline function setBitmap (v:Bitmap)
+	private inline function setAsset (v:Asset)
 	{
-		if (v != bitmap) {
-			if (bitmap != null)
-				bitmap.state.change.unbind(this);
+		if (v != asset) {
+			if (asset != null)
+				asset.state.change.unbind(this);
 			
-			bitmap = v;
+			asset = v;
 			
-			if (bitmap != null)
+			if (asset != null)
 			{
-				if (bitmap.state.is(BitmapStates.ready))
-					invalidate( GraphicFlags.FILL );
+				handleAssetStateChange.on( asset.state.change, this );
 				
-				handleBitmapStateChange.on( bitmap.state.change, this );
-				bitmap.load();
+				smooth	= asset.type != AssetType.bitmapData;
+
+#if flash9		if (asset.state.is(AssetStates.ready))
+					data = asset.getBitmapData();
+				else
+					asset.load();
+#end
 			}
 		}
 		return v;
@@ -135,15 +145,33 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 	}
 	
 	
+#if flash9
+	private inline function setData (v:flash.display.BitmapData)
+	{
+		if (v != data)
+		{
+			data = v;
+			invalidate( GraphicFlags.FILL );
+		}
+		return v;
+	}
+#end
+	
+	
+	
+	
 	//
 	// EVENT HANDLERS
 	//
 	
-	private inline function handleBitmapStateChange (newState:BitmapStates, oldState:BitmapStates)
+	private inline function handleAssetStateChange (newState:AssetStates, oldState:AssetStates)
 	{
 		switch (newState) {
-			case BitmapStates.ready:	invalidate( GraphicFlags.FILL );
-			case BitmapStates.empty:	invalidate( GraphicFlags.FILL );
+			case AssetStates.ready:
+#if flash9		data = asset.getBitmapData(); #end
+			
+			case AssetStates.empty:
+#if flash9		data = null; #end
 			default:
 		}
 	}
@@ -155,31 +183,32 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 	//
 	
 	public inline function begin (target:IGraphicsOwner, bounds:IRectangle)
-	{
+	{	
+#if flash9
 		isFinished = true;
-		if (bitmap == null)
+		if (asset == null)
 			return;
 		
-		if (bitmap.state.is(BitmapStates.ready))
-		{
-#if flash9
-			var m:Matrix2D = null;
-			if (repeat == false) {
-				m = new Matrix2D();
-				m.scale( bounds.width / bitmap.data.width, bounds.height / bitmap.data.height );
-			}
-			target.graphics.beginBitmapFill( bitmap.data, m, repeat, smooth );
-#end
+		var m:Matrix2D = null;
+		
+		if (repeat == false) {
+			m = matrix == null ? new Matrix2D() : matrix;
+			m.scale( bounds.width / data.width, bounds.height / data.height );
 		}
-		else if (bitmap.state.is(BitmapStates.loadable))
-			bitmap.load();
+		
+		if (asset.state.is(AssetStates.ready))
+			target.graphics.beginBitmapFill( data, m, repeat, smooth );
+		
+		else if (asset.state.is(AssetStates.loadable))
+			asset.load();
+#end
 	}
 	
 	
 	public inline function end (target:IGraphicsOwner, bounds:IRectangle)
 	{	
 		isFinished = false;
-		if (bitmap != null && bitmap.state.is(BitmapStates.ready))
+		if (asset != null && asset.state.is(AssetStates.ready))
 		{
 #if flash9
 			target.graphics.endFill();
@@ -189,8 +218,8 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 	
 	
 #if neko
-	override public function toString ()					{ return "BitmapFill( " + bitmap + ", " + smooth + ", " + repeat + " )"; }
-	override public function toCSS (prefix:String = "")		{ return bitmap.toString + " " + repeat; }
-	override public function toCode (code:ICodeGenerator)	{ code.construct( this, [ bitmap, matrix, repeat, smooth ] ); }
+	override public function toString ()					{ return "BitmapFill( " + asset + ", " + smooth + ", " + repeat + " )"; }
+	override public function toCSS (prefix:String = "")		{ return asset.toString + " " + repeat; }
+	override public function toCode (code:ICodeGenerator)	{ code.construct( this, [ asset, matrix, repeat, smooth ] ); }
 #end
 }
