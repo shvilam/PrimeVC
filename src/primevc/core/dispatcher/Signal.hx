@@ -42,7 +42,11 @@ class Signal <FunctionSignature> extends WireList<FunctionSignature>, implements
 {
 	static public inline function notifyEnabled<T>(s:Signal<T>, w:Wire<T>) : Void
 	{
+		Assert.that(s != null);
+		Assert.that(w != null);
+		
 		if (s.is(IWireWatcher)) {
+			//trace(Type.getClassName(Type.getClass(s)));
 			var x:IWireWatcher<T> = cast s;
 			x.wireEnabled(w);
 		}

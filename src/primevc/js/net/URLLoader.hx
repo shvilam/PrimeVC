@@ -113,10 +113,10 @@ class URLLoader implements IDisposable
 	
 	private function onReadyStateChange(event:Event)
 	{
-		untyped console.log(event);
+		//untyped console.log(event);
 		if (request.readyState == 4)
 		{
-			trace("Ready state: " + request.readyState + ", status: "+ request.status); // + ", statusText: " + request.statusText);
+			//trace("Ready state: " + request.readyState + ", status: "+ request.status); // + ", statusText: " + request.statusText);
 		
 			events.httpStatus.send(request.status);
 			events.load.completed.send();

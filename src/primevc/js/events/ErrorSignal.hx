@@ -14,22 +14,3 @@ class ErrorSignal extends DOMSignal1<String>
 		send("error");
 	}
 }
-
-class ErrorEvent extends DOMEvent
-{
-	public var filename (default, null):String; 
-	public var lineno	(default, null):Int; 
-	public var message	(default, null):String; 
-	
-	public function new (event:Event)
-	{
-		super(event);
-		
-		untyped
-		{
-			filename	= event.filename;
-			lineno		= event.lineno;
-			message		= event.message;
-		}
-	}
-}

@@ -135,7 +135,6 @@ class MouseState extends KeyModState
 	var local	(default,null)		: Point;
 	var stage	(default,null)		: Point;
 	
-#if flash9
 	/**
 	 * A reference to a display list object that is related to the event. For 
 	 * example, when a mouseOut event occurs, relatedObject represents the 
@@ -149,17 +148,15 @@ class MouseState extends KeyModState
 	 * reasons applies.
 	 */
 	var related	(default,null)		: UserEventTarget;
-#end
+
 	
 	
-	public function new(f:Int, t:UserEventTarget, l:Point, s:Point #if flash9, related:UserEventTarget #end)
+	public function new(f:Int, t:UserEventTarget, l:Point, s:Point, related:UserEventTargets)
 	{
 		super(f,t);
 		this.local		= l;
 		this.stage		= s;
-#if flash9
 		this.related	= related;
-#end
 	}
 	
 	inline function leftButton()	: Bool	{ return (flags & 0xF00 == 0x100); }

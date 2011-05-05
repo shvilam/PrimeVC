@@ -33,17 +33,7 @@ class DOMSignal0 extends Signal0, implements IWireWatcher<Void->Void>
 		
 		if (ListUtil.next(n) == null) // First wire connected
 		{
-			untyped
-			{    
-				if (js.Lib.isIE)
-				{
-					eventDispatcher.attachEvent(event, dispatch, false);
-				}
-				else 
-				{
-					eventDispatcher.addEventListener(event, dispatch, false);
-				}
-			}
+			untyped eventDispatcher.addEventListener(event, dispatch, false);
 		}
 	}
 	
@@ -52,17 +42,7 @@ class DOMSignal0 extends Signal0, implements IWireWatcher<Void->Void>
 	{	
 		if (n == null) // No more wires connected
 		{
-			untyped
-			{    
-				if (js.Lib.isIE)
-				{
-					eventDispatcher.detachEvent(event, dispatch, false);
-				} 
-				else 
-				{
-					eventDispatcher.removeEventListener(event, dispatch, false);
-				}
-			}
+			untyped eventDispatcher.removeEventListener(event, dispatch, false);
 		}
 	}
 	

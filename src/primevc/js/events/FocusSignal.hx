@@ -11,8 +11,6 @@ class FocusSignal extends DOMSignal1<FocusEvent>
 {
 	override private function dispatch(event:Event) 
 	{
-		var focusEvent = new DOMEvent(event);
-		
-		send(focusEvent);
+		send(event);
 	}
 }

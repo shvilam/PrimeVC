@@ -36,6 +36,6 @@ package primevc.gui.events;
 typedef UserEventTarget = 
 	#if		flash9	flash.display.InteractiveObject;
 	#elseif	flash8	MovieClip;
-	#elseif	js		DomElement;
+	#elseif	js		js.HtmlDom;
 	#else	Void;	#end
 

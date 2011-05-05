@@ -7,23 +7,16 @@ import js.Dom;
  * @since	March 2, 2011
  */
 
-class DisplaySignal extends DOMSignal1<DisplayEvent>
+typedef DisplayEvent
 {
-	override private function dispatch(event:Event) 
-	{
-		var displayEvent = new DisplayEvent(event);
-		
-		send(displayEvent);
-	}
-}
-
-class DisplayEvent extends DOMEvent
-{	
+	>Event,
+	
 	/*
 	attrChange constants
-	const unsigned short ADDITION = 2; 
-	const unsigned short MODIFICATION = 1; 
-	const unsigned short REMOVAL = 3; 
+	
+	ADDITION 		= 2; 
+	MODIFICATION 	= 1; 
+	REMOVAL 		= 3; 
 	*/
 	
 	public var attrChange	(default, null):Int; // The type of change which triggered the event.
@@ -31,18 +24,13 @@ class DisplayEvent extends DOMEvent
 	public var newValue		(default, null):String; // The new value of the modified attribute.
 	public var prevValue	(default, null):String; // The previous value of the modified attribute.
 	public var relatedNode	(default, null):Dynamic; // A secondary element related to the event. 
-	
-	public function new (event:Event)
+}
+
+
+class DisplaySignal extends DOMSignal1<DisplayEvent>
+{
+	override private function dispatch(event:DisplayEvent) 
 	{
-		super(event);
-		
-		untyped
-		{
-			attrChange	= event.attrChange;
-			attrName	= event.attrName;
-			newValue	= newValue;
-			prevValue	= prevValue;
-			relatedNode	= relatedNode;
-		}
+		send(event);
 	}
 }

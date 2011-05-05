@@ -39,6 +39,13 @@ package primevc.core.geom;
 
 class Point
 {
+/*	#if js
+		private static function __init__() : Void untyped {
+		if( __js__("WebKitPoint") )
+			primevc.core.geom["Point"] = __js__("WebKitPoint");
+	}
+	#end
+*/
 	
 	public var x (getX, setX)	: Float;
 	public var y (getY, setY)	: Float;
