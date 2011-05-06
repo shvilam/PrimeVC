@@ -103,12 +103,14 @@ class ToolTipManager implements IDisposable
 		
 			//give label the correct text
 			toolTip.data.bind( label );
-		
-			if (!isVisible())
-				window.children.add( toolTip );
 			
 			//move tooltip to right position
 			updatePosition();
+			
+			
+			
+			if (!isVisible())
+				window.children.add( toolTip );
 		}
 		
 		lastObj		= obj;

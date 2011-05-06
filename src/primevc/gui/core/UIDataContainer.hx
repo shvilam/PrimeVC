@@ -50,6 +50,13 @@ class UIDataContainer <DataType> extends UIDataComponent <DataType>, implements 
 	private inline function getScrollableLayout () 	{ return layout.as(IScrollableLayout); }
 	
 	
+	public inline function attach (child:IUIElement) : IUIContainer
+	{
+		child.attachTo(this);
+		return this;
+	}
+	
+	
 	override private function createLayout () : Void
 	{
 		layout = new LayoutContainer();

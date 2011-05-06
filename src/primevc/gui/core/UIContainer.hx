@@ -48,6 +48,13 @@ class UIContainer extends UIComponent, implements IUIContainer
 	private inline function getScrollableLayout () 	{ return layout.as(IScrollableLayout); }
 	
 	
+	public inline function attach (child:IUIElement) : IUIContainer
+	{
+		child.attachTo(this);
+		return this;
+	}
+	
+	
 	override private function createLayout () : Void
 	{
 		layout = new LayoutContainer();

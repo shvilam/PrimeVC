@@ -81,11 +81,9 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > // extends Validating
 		var targetLayout	= target.layout.as(AdvancedLayoutClient);
 		var fieldLayout		= target.field.layout;
 		
-	//	trace(target+"; explicit: "+targetLayout.explicitWidth+", "+targetLayout.explicitHeight+"; measured: "+targetLayout.measuredWidth+", "+targetLayout.measuredHeight+"; "+targetLayout.state.current+"; size: "+targetLayout.width+", "+targetLayout.height+"; ");
-	//	trace(target+"; changes: "+LayoutFlags.readProperties(changes)+"; field: "+fieldLayout.width+", "+fieldLayout.height+"; "+target.field.autoSize);
-		
-		if (changes.has( LayoutFlags.WIDTH )  && targetLayout.width.isSet())		{ fieldLayout.width		= targetLayout.width;	fieldLayout.percentWidth	= 1; }
-		if (changes.has( LayoutFlags.HEIGHT ) && targetLayout.height.isSet())		{ fieldLayout.height	= targetLayout.height;	fieldLayout.percentHeight	= 1; }
+	//	trace(target+"; explicit: "+targetLayout.explicitWidth+", "+targetLayout.explicitHeight+"; measured: "+targetLayout.measuredWidth+", "+targetLayout.measuredHeight+"; "+targetLayout.state.current+"; size: "+targetLayout.width+", "+targetLayout.height+"; field: "+fieldLayout.width+", "+fieldLayout.height+"; "+target.field.autoSize);
+		if (changes.has( LayoutFlags.WIDTH )  && targetLayout.explicitWidth.isSet())		{ fieldLayout.width		= targetLayout.width;	fieldLayout.percentWidth	= 1; }
+		if (changes.has( LayoutFlags.HEIGHT ) && targetLayout.explicitHeight.isSet())		{ fieldLayout.height	= targetLayout.height;	fieldLayout.percentHeight	= 1; }
 		
 	//	trace("\t\tupdated field: "+fieldLayout.width+", "+fieldLayout.height+"; has scrollrect? "+target.scrollRect+"; fieldstate "+fieldLayout.state.current);
 		
@@ -121,6 +119,7 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > // extends Validating
 		
 		targetLayout.measuredWidth	= fieldLayout.width;
 		targetLayout.measuredHeight	= fieldLayout.height;
+		
 	//	targetLayout.invalidate( LayoutFlags.WIDTH | LayoutFlags.HEIGHT );
 	//	targetLayout.validate();
 	//	trace("\t\ttarget measured-size: "+targetLayout.measuredWidth+", "+targetLayout.measuredHeight);

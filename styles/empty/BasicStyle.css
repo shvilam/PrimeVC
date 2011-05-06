@@ -99,8 +99,7 @@ ComboBox {
 	max-height: 500px;
 	overflow: scrollbars;
 	algorithm: float-ver( top, left );
-	padding: 2px;
-	/*padding-right: 15px;*/
+	padding: 0px;
 }
 
 .comboList ListView Button {

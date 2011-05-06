@@ -125,9 +125,13 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 			if (group.childHeight.notSet())
 			{
 				height = 0;
-				for (child in group.children)
-					if (child.includeInLayout && child.hasValidatedHeight && child.outerBounds.height > height)
+				for (child in group.children) {
+					if (!child.hasValidatedHeight)
+						return;
+					
+					if (child.includeInLayout && child.outerBounds.height > height)
 						height = child.outerBounds.height;
+				}
 			}
 			setGroupHeight(height);
 			validatePrepared = height > 0;
@@ -135,8 +139,11 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 	}
 	
 	
-	public inline function validateVertical ()
+	public function validateVertical ()
 	{
+		if (validatePrepared)
+			return;
+		
 		var height:Int = group.childHeight;
 		
 		if (group.childHeight.notSet())

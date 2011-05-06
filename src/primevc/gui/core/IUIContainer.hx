@@ -38,4 +38,5 @@ package primevc.gui.core;
 interface IUIContainer implements IUIComponent, implements IScrollable
 {
 	public var layoutContainer (getLayoutContainer, never) : LayoutContainer;
+	public function attach (child:IUIElement) : IUIContainer;
 }
