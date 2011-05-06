@@ -28,7 +28,7 @@
  */
 package primevc.gui.managers;
  import primevc.core.traits.IDisposable;
- import primevc.gui.core.IUIElement;
+ import primevc.gui.core.IUIComponent;
  import primevc.gui.core.UIComponent;
  import primevc.gui.core.UIWindow;
 
@@ -53,10 +53,10 @@ interface IPopupManager implements IDisposable
 	 * Method will add the given IUIElement as popup to the displayList. Method
 	 * will return the depth of the popup or -1 if the popup couldnt be added,
 	 */
-	public function add (popup:IUIElement, modal:Bool = false)	: Int;
+	public function add (popup:IUIComponent, modal:Bool = false)	: Int;
 	
 	/**
 	 * Method will remove the IUIElement as popup.
 	 */
-	public function remove (popup:IUIElement) : Void;
+	public function remove (popup:IUIComponent) : Void;
 }

@@ -20,51 +20,23 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.display;
-#if flash9
- import primevc.core.geom.Rectangle;
-	#if dragEnabled
- import primevc.gui.behaviours.drag.DragInfo;
-	#end
-#end
- import primevc.gui.traits.IDisplayable;
- import primevc.gui.traits.IGraphicsOwner;
+package primevc.gui.components;
+ import primevc.core.Bindable;
+ import primevc.gui.core.IUIContainer;
 
 
 /**
- * Sprite interface for every platform.
- *
- * @creation-date	Jun 11, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date May 06, 2011
  */
-interface ISprite 
-		implements IDisplayContainer
-	,	implements IInteractiveObject
-	,	implements IGraphicsOwner
-	,	implements IDisplayable
+interface IListHolder <ListDataType> implements IUIContainer
 {
-#if flash9
-		public var buttonMode						: Bool;
-		public var useHandCursor					: Bool;
-
-	#if dragEnabled
-		public var isDragging						: Bool;
-		public var dropTarget		(default, null) : flash.display.DisplayObject;
-	
-		public function stopDrag()												: Void;
-		public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle)	: Void;
-		public function createDragInfo ()										: DragInfo;
-	#end
-#else
-		public var dropTarget		(default, null)	: IDisplayable;
-#end
-	
-	public function setFocus () : Void;
-	public function removeFocus () : Void;
+	public var list				(default, null)	: ListView<ListDataType>;
+	public var selectedIndex	(default, null)	: Bindable<Int>;
 }

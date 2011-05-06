@@ -142,7 +142,7 @@ class KeyCodes
 	public static inline var UP					: UInt = 38;
 	
 	
-	public static inline function isEnter (v:UInt) {
-		return v == ENTER || v == NUMPAD_ENTER;
-	}
+	public static inline function isEnter (v:Int)	{ return v == ENTER || v == NUMPAD_ENTER; }
+	/* left = 37, right = 39, up = 38, down = 40 */
+	public static inline function isArrow (v:Int)	{ return v >= KeyCodes.LEFT && v <= KeyCodes.DOWN; }
 }

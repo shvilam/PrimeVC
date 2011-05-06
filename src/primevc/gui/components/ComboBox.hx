@@ -30,6 +30,7 @@ package primevc.gui.components;
  import primevc.core.collections.IReadOnlyList;
  import primevc.core.dispatcher.Wire;
  import primevc.gui.behaviours.components.ButtonSelectedOpenPopup;
+ import primevc.gui.behaviours.components.ListKeyNavigationBehaviour;
  import primevc.gui.behaviours.layout.FollowObjectBehaviour;
  import primevc.gui.components.DataButton;
  import primevc.gui.components.ListHolder;
@@ -85,6 +86,7 @@ class ComboBox <DataType> extends DataButton <DataType>
 	 * the combobox is enabled.
 	 */
 	private var windowWire			: Wire<Dynamic>;
+	private var indexChangeWire		: Wire<Dynamic>;
 	
 	
 	public function new (id:String = null, defaultLabel:String = null, icon:Asset = null, selectedItem:DataType = null, listData:IReadOnlyList<DataType> = null)
@@ -102,6 +104,7 @@ class ComboBox <DataType> extends DataButton <DataType>
 			list = new ListHolder( id.value+"List", null, listData );
 			list.styleClasses.add( "comboList" );
 			list.behaviours.add( new FollowObjectBehaviour( list, this ) );
+			list.behaviours.add( new ListKeyNavigationBehaviour( list ) );
 			
 			if (createItemRenderer == null)
 				createItemRenderer = createDefaultItemRenderer;
@@ -110,6 +113,8 @@ class ComboBox <DataType> extends DataButton <DataType>
 		}
 		else if (list.createItemRenderer != null)
 			createItemRenderer = list.createItemRenderer;
+		
+		indexChangeWire = updateSelectedItem.on( list.selectedIndex.change, this );
 		
 	//	Assert.notNull( listData );
 		Assert.notNull( getLabelForVO );
@@ -132,13 +137,17 @@ class ComboBox <DataType> extends DataButton <DataType>
 		selectCurrentValue	.on( list.state.change, this );
 		
 		//re-select item on vo change, but only when list is initialized (start disabled)
-		selectListItemWire = selectListItem.on( vo.change, this );
+		selectListItemWire = handleVOChange.on( vo.change, this );
 		selectListItemWire.disable();
 	}
 	
 	
 	override public function dispose ()
 	{
+		if (indexChangeWire != null) {
+			indexChangeWire.dispose();
+			indexChangeWire = null;
+		}
 		if (list != null) {
 			list.dispose();
 			list = null;
@@ -210,13 +219,11 @@ class ComboBox <DataType> extends DataButton <DataType>
 			if (mouseEvt.target.is( DataButton )) {
 				var dataButton : DataButton<DataType> = cast mouseEvt.target;
 				vo.value = dataButton.vo.value;
-				deselect();
 			}
 			
 			else if (mouseEvt.target.is( IUIDataElement )) {
 				var dataElement : IUIDataElement<DataType> = cast mouseEvt.target;
 				vo.value = dataElement.data;
-				deselect();
 			}
 		}
 	}
@@ -229,9 +236,9 @@ class ComboBox <DataType> extends DataButton <DataType>
 	 */
 /*	private function updateListWidth (changes:Int)
 	{
-		if (changes.has(LayoutFlags.WIDTH) && list.content != null)
+		if (changes.has(LayoutFlags.WIDTH) && list.list != null)
 		{
-			var l = list.content.layout;
+			var l = list.list.layout;
 			trace("update list min-width to "+layout.innerBounds.width);
 			if (l.widthValidator == null)
 				l.widthValidator = new IntRangeValidator( layout.innerBounds.width );
@@ -245,7 +252,7 @@ class ComboBox <DataType> extends DataButton <DataType>
 	 * Method will try to select the item-renderer of the new value-object in
 	 * the list
 	 */
-	private function selectListItem (newVO:DataType, oldVO:DataType)
+	private function handleVOChange (newVO:DataType, oldVO:DataType)
 	{
 	//	trace( oldVO + " => "+newVO+"; selected: "+isSelected());
 		
@@ -255,26 +262,53 @@ class ComboBox <DataType> extends DataButton <DataType>
 #end		
 		
 		Assert.notNull(list);
-		Assert.notNull(list.content);
+		Assert.notNull(list.list);
+		if (oldVO != null)	deselectItem(oldVO);
+		if (newVO != null)	selectItem(newVO);
 		
-		if (oldVO != null)
-		{
-			//change selected itemrenderer in list
-			var r = list.content.getItemRendererFor( oldVO );
-		//	trace(this+".deselect "+r);
-			if (r != null && r.is(ISelectable))
-				r.as(ISelectable).deselect();
-		}
+		//close list
+		if (isSelected())
+			deselect();
+	}
+	
+	
+	private inline function deselectItem (vo:DataType)
+	{
+		//change selected itemrenderer in list
+		var view = list.list;
+		var r = view.getRendererFor( vo );
+		if (r != null && r.is(ISelectable))
+			r.as(ISelectable).deselect();
 		
+		indexChangeWire.disable();
+		list.selectedIndex.value = -1;
+		indexChangeWire.enable();
+	}
+	
+	
+	private inline function selectItem (vo:DataType)
+	{
+		//change selected itemrenderer in list
+		var view = list.list;
+		var i	= view.getPositionFor( vo );
+		var r	= view.getRendererAt( i );
 		
-		if (newVO != null)
-		{
-			//change selected itemrenderer in list
-			var r = list.content.getItemRendererFor( newVO );
-		//	trace(this+".select "+r);
-			if (r != null && r.is(ISelectable))
-				r.as(ISelectable).select();
-		}
+	//	trace(this+".select "+r);
+		if (r != null && r.is(ISelectable))
+			r.as(ISelectable).select();
+		
+		indexChangeWire.disable();
+		list.selectedIndex.value = i;
+		indexChangeWire.enable();
+	}
+	
+	
+	/**
+	 * Eventhandler that is called when list.selectedIndex changes
+	 */
+	private function updateSelectedItem (newIndex:Int, oldIndex:Int) : Void
+	{
+		vo.value = listData.getItemAt( newIndex );
 	}
 	
 	
@@ -288,7 +322,7 @@ class ComboBox <DataType> extends DataButton <DataType>
 			Assert.notThat(selectListItemWire.isEnabled());
 			
 			if (vo.value != null)
-				selectListItem( vo.value, null );
+				selectItem( vo.value );
 			
 			selectListItemWire.enable();
 		//	updateListWidth( LayoutFlags.WIDTH );
@@ -317,7 +351,7 @@ class ComboBox <DataType> extends DataButton <DataType>
 				while (displayTarget != null && displayTarget != displayTarget.window && displayTarget != list)
 				 	displayTarget = displayTarget.container;
 				
-				if (displayTarget != list) // && !list.content.children.has(target))
+				if (displayTarget != list) // && !list.list.children.has(target))
 					deselect();
 			//	else: mouse event target is a descendant of list, do nothing
 			}

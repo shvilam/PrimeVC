@@ -100,8 +100,8 @@ class DataButton <DataType> extends Button, implements IItemRenderer <DataType>
 			data.set( getLabelForVO == null ? ""+newVal : getLabelForVO( newVal ) );
 		else
 			data.set( defaultLabel );
+		
 		data.change.send( data.value, null );
-	//	trace( data.value );
 	}
 	
 	

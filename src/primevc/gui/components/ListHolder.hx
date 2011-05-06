@@ -30,6 +30,7 @@ package primevc.gui.components;
  import primevc.core.collections.IReadOnlyList;
  import primevc.core.dispatcher.Signal1;
  import primevc.core.traits.IValueObject;
+ import primevc.core.Bindable;
  import primevc.gui.core.IUIElement;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.events.MouseEvents;
@@ -49,9 +50,9 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Feb 12, 2011
  */
-class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>
+class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>, implements IListHolder<ListDataType>
 {
-	public var content	(default, default)		: ListView<ListDataType>;
+	public var list		(default, default)		: ListView<ListDataType>;
 	public var listData	(default, setListData)	: IReadOnlyList < ListDataType >;
 	public var childClick (default, null)		: Signal1<MouseState>;
 	
@@ -63,21 +64,30 @@ class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>
 	 * @return 	IUIElement
 	 */
 	public var createItemRenderer				(default, setCreateItemRenderer) : ListDataType -> Int -> IUIElement;
+	/**
+	 * If the items in the list are selectable, this bindable holds the position
+	 * of the currently selected index.
+	 */
+	public var selectedIndex					(default, null)	: Bindable<Int>;
 	
 	
 	public function new (id:String, data:DataType, listData:IReadOnlyList<ListDataType>)
 	{
 		super(id, data);
-		this.listData = listData;
+		this.listData	= listData;
+		selectedIndex	= new Bindable<Int>(-1);
 	}
 	
 	
 	override public function dispose ()
 	{
+		super.dispose();
 		childClick.dispose();
+		selectedIndex.dispose();
+		
 		childClick			= null;
 		createItemRenderer	= null;
-		super.dispose();
+		selectedIndex		= null;
 	}
 	
 	
@@ -91,26 +101,25 @@ class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>
 	{
 		super.createChildren();
 		
-		//check to see if content is not created yet by a skin
-		if (content == null)
+		//check to see if list is not created yet by a skin
+		if (list == null)
 		{
 			Assert.notNull(createItemRenderer);
-			content = new ListView(id.value+"Content", listData);
-			content.createItemRenderer = createItemRenderer;
-			content.attachTo(this);
+			list = new ListView(id.value+"Content", listData);
+			list.createItemRenderer = createItemRenderer;
+			list.attachTo(this);
 		}
 		
-		content.styleClasses.add("listContent");
-		childClick.send.on( content.childClick, this );
+		list.styleClasses.add("listContent");
+		childClick.send.on( list.childClick, this );
 	}
 	
 	
 	override private function removeChildren ()
 	{
-		children.remove(content);
-		layoutContainer.children.remove(content.layout);
-		content.dispose();
-		content = null;
+		list.detach();
+		list.dispose();
+		list = null;
 		super.removeChildren();
 	}
 	
@@ -119,8 +128,8 @@ class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>
 	{
 		if (listData != v) {
 			listData = v;
-			if (content != null)
-				content.data = v;
+			if (list != null)
+				list.data = v;
 		}
 		return v;
 	}
@@ -130,8 +139,8 @@ class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>
 	{
 		if (v != createItemRenderer) {
 			createItemRenderer = v;
-			if (content != null)
-				content.createItemRenderer = v;
+			if (list != null)
+				list.createItemRenderer = v;
 		}
 		return v;
 	}

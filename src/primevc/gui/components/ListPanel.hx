@@ -28,6 +28,7 @@
  */
 package primevc.gui.components;
  import primevc.core.collections.IReadOnlyList;
+ import primevc.core.Bindable;
 
 
 
@@ -37,14 +38,32 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Apr 29, 2011
  */
-class ListPanel<ListDataType> extends Panel
+class ListPanel<ListDataType> extends Panel, implements IListHolder<ListDataType>
 {
 	public var list (default, null)	: ListView<ListDataType>;
+	
+	/**
+	 * If the items in the list are selectable, this bindable holds the position
+	 * of the currently selected index.
+	 */
+	public var selectedIndex					(default, null)	: Bindable<Int>;
+	
 	
 	
 	public function new (id:String = null, label:String = null, data:IReadOnlyList<ListDataType>)
 	{
-		content = list = new ListView("content", data);
+		content = list	= new ListView("content", data);
+		selectedIndex	= new Bindable<Int>(-1);
 		super(id, label);
+	}
+	
+	
+	override public function dispose ()
+	{
+		super.dispose();
+		
+		selectedIndex.dispose();
+		selectedIndex	= null;
+		list			= null;
 	}
 }

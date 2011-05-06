@@ -126,6 +126,8 @@ class MouseSignals extends Signals
  */
 class MouseState extends KeyModState
 {
+	public static inline var fake = new MouseState( 0, null, null, null, null );
+	
 	/*  var flags: Range 0 to 0xFFFFFF
 		
 		scrollDelta				Button				clickCount				KeyMod

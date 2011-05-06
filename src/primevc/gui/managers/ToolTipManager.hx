@@ -102,12 +102,12 @@ class ToolTipManager implements IDisposable
 			mouseMove.enable();
 		
 			//give label the correct text
-			toolTip.data.bind( label );
+		//	toolTip.data.bind( label );		//don't bind.. if the change event is dispatched manually (without calling Bindable.setValue), the tooltip won't update	
+			toolTip.data.value = label.value;
+			updateToolTip.on( label.change, this );
 			
 			//move tooltip to right position
 			updatePosition();
-			
-			
 			
 			if (!isVisible())
 				window.children.add( toolTip );
@@ -162,7 +162,7 @@ class ToolTipManager implements IDisposable
 			lastObj.displayEvents.removedFromStage.unbind( this );
 		
 		if (lastLabel != null) {
-			toolTip.data.unbind( lastLabel );
+		//	toolTip.data.unbind( lastLabel );
 			lastLabel.change.unbind(this);
 		}
 	}
@@ -200,5 +200,11 @@ class ToolTipManager implements IDisposable
 	{
 		hide(lastObj);
 		toolTip.x = toolTip.y = -400;
+	}
+	
+	
+	private function updateToolTip (newVal:String, oldVal:String)
+	{
+		toolTip.data.value = newVal;
 	}
 }

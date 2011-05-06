@@ -82,10 +82,10 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	
 	override private function createBehaviours ()
 	{
-	//	content		= new UIContainer(id+"Content");
-		childClick	= new Signal1<MouseState>();
-		
+	//	content			= new UIContainer(id+"Content");
+		childClick		= new Signal1<MouseState>();
 		childClick.disable();
+		
 		scheduleEnable    .on( displayEvents.addedToStage, this );
 		disableChildClick .on( displayEvents.removedFromStage, this );
 	//	behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
@@ -134,10 +134,10 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	
 	override public function dispose ()
 	{
+		super.dispose();
 		removeEnableTimer();
 		childClick.dispose();
 		childClick = null;
-		super.dispose();
 	}
 	
 	
@@ -145,7 +145,7 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	{
 		//add itemrenders for new list
 		for (i in 0...data.length)
-			addItemRenderer( data.getItemAt(i), i );
+			addRenderer( data.getItemAt(i), i );
 		
 		handleListChange.on( data.change, this );
 	}
@@ -154,7 +154,7 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	override private function removeData ()
 	{
 		for (i in 0...data.length)
-			removeItemRenderer( data.getItemAt(i) );
+			removeRenderer( data.getItemAt(i) );
 				
 		data.change.unbind(this);
 	}
@@ -172,7 +172,7 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	}*/
 	
 	
-	private function addItemRenderer( item:ListDataType, newPos:Int = -1 )
+	private function addRenderer( item:ListDataType, newPos:Int = -1 )
 	{
 		if (newPos == -1)
 			newPos = data.indexOf( item );
@@ -185,39 +185,47 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	}
 	
 	
-	private function removeItemRenderer( item:ListDataType, oldPos:Int = -1 )
+	private function removeRenderer( item:ListDataType, oldPos:Int = -1 )
 	{
-		var renderer = getItemRendererFor( item );
+		var renderer = getRendererFor( item );
 		if (renderer != null)
 			renderer.dispose();		// removing the click-listener is not nescasary since the item-renderer is getting disposed
 	}
 	
 	
-	public function getItemRendererFor ( dataItem:ListDataType ) : IUIElement
+	public inline function getRendererFor ( dataItem:ListDataType ) : IUIElement
+	{
+		return getRendererAt( getPositionFor( dataItem ) );
+	}
+	
+	
+	public inline function getRendererAt( pos:Int ) : IUIElement
+	{
+		return pos == -1 ? null : children.getItemAt(pos).as(IUIElement);
+	}
+	
+	
+	public function getPositionFor (dataItem:ListDataType) : Int
 	{
 		var renderers = children;
 		for (i in 0...renderers.length)
 		{
 			var child = renderers.getItemAt( i );
 			
-			if (child.is( IItemRenderer )) {
-				if (child.as(IItemRenderer).vo.value == cast dataItem)
-					return cast child.as(IItemRenderer);
-			}
+			if (child.is( IItemRenderer ) && child.as(IItemRenderer).vo.value == cast dataItem)
+				return i;
 			
-			else if (child.is( IUIDataElement )) {
-				if (child.as(IUIDataElement).data == cast dataItem)
-					return cast child.as(IUIDataElement);
-			}
+			else if (child.is( IUIDataElement ) && child.as(IUIDataElement).data == cast dataItem)
+				return i;
 		}
 		
-		return null;
+		return -1;
 	}
 	
 	
-	private function moveItemRenderer ( item:ListDataType, newPos:Int, oldPos:Int )
+	private function moveRenderer ( item:ListDataType, newPos:Int, oldPos:Int )
 	{
-		var renderer = getItemRendererFor( item );
+		var renderer = getRendererFor( item );
 		if (renderer != null) {
 			layoutContainer.children.move( renderer.layout, newPos, oldPos );
 			children.move( renderer, newPos, oldPos );
@@ -245,9 +253,9 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	{
 		switch (change)
 		{
-			case added( item, newPos):			addItemRenderer( item, newPos );
-			case removed (item, oldPos):		removeItemRenderer( item, oldPos );
-			case moved (item, newPos, oldPos):	moveItemRenderer( item, newPos, oldPos );
+			case added( item, newPos):			addRenderer( item, newPos );
+			case removed (item, oldPos):		removeRenderer( item, oldPos );
+			case moved (item, newPos, oldPos):	moveRenderer( item, newPos, oldPos );
 			default:
 		}
 	}

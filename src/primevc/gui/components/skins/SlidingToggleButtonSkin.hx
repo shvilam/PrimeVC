@@ -123,8 +123,8 @@ class SlidingToggleButtonSkin extends Skin<DataButton<Null<Bool>>>
 		onLabel		= new UITextField("onLabel");
 		offLabel	= new UITextField("offLabel");
 		
-		onLabel.data.value			= "Aan";
-		offLabel.data.value			= "Uit";
+		onLabel.data.value			= "Aan";	//TRANSLATE
+		offLabel.data.value			= "Uit";	//TRANSLATE
 		slideBtn.layout.relative	= new RelativeLayout();
 	//	offIcon.layout.maintainAspectRatio	= true;
 	//	offIcon.layout.resize(10,10);

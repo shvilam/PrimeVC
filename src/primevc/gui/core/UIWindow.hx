@@ -233,6 +233,9 @@ class UIWindow extends Window
 	private function createBehaviours ()	: Void
 	{
 	//	behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
+#if flash9
+		target.stageFocusRect = false;
+#end
 	}
 	
 	
