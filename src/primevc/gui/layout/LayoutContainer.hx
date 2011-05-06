@@ -407,6 +407,29 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	}
 	
 	
+	public function scrollTo (child:ILayoutClient)
+	{
+		var c = child.outerBounds;
+		if (horScrollable())
+		{
+			var left	= scrollPos.x;
+			var right	= left + width;
+			
+			if		(c.left < left)			scrollPos.x = c.left;
+			else if (c.right > right)		scrollPos.x = c.right - width;
+		}
+		if (verScrollable())
+		{
+			var top		= scrollPos.y;
+			var bottom	= top + height;
+			
+			if		(c.top < top)			scrollPos.y = c.top;
+			else if (c.bottom > bottom)		scrollPos.y = c.bottom - height;
+			
+		}
+	}
+	
+	
 	
 	//
 	// EVENT HANDLERS

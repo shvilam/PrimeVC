@@ -32,6 +32,7 @@ package primevc.gui.behaviours.components;
  import primevc.gui.components.IListHolder;
  import primevc.gui.events.KeyboardEvents;
  import primevc.gui.events.MouseEvents;
+ import primevc.gui.events.UserEventTarget;
  import primevc.gui.input.KeyCodes;
  import primevc.gui.traits.IInteractive;
   using primevc.gui.input.KeyCodes;
@@ -47,7 +48,9 @@ package primevc.gui.behaviours.components;
 class ListKeyNavigationBehaviour extends BehaviourBase<IListHolder<Dynamic>>
 {
 	private var keyDownWire		: Wire<KeyboardState -> Void>;
+	private var mouseMoveWire	: Wire<MouseState -> Void>;
 	private var currentFocus	: Int;
+	private var lastHovered		: UserEventTarget;
 	
 	
 	
@@ -56,15 +59,20 @@ class ListKeyNavigationBehaviour extends BehaviourBase<IListHolder<Dynamic>>
 		enableKeyListeners	.on( target.userEvents.focus, this );
 		disableKeyListeners	.on( target.userEvents.blur, this );
 		
-		keyDownWire	= changeSelectedItem.on( target.userEvents.key.down, this );
+		keyDownWire		= changeSelectedItem.on( target.userEvents.key.down, this );
+		mouseMoveWire	= checkHoveredItem.on( target.userEvents.mouse.move, this );
+		mouseMoveWire.disable();
 		keyDownWire.disable();
 	}
 	
 	
 	override private function reset ()
 	{
-		keyDownWire.dispose();
-		keyDownWire = null;
+		mouseMoveWire	.dispose();
+		keyDownWire		.dispose();
+		mouseMoveWire	= null;
+		keyDownWire		= null;
+		lastHovered		= null;
 		target.userEvents.focus.unbind(this);
 		target.userEvents.blur.unbind(this);
 	}
@@ -72,16 +80,17 @@ class ListKeyNavigationBehaviour extends BehaviourBase<IListHolder<Dynamic>>
 	
 	private function enableKeyListeners ()
 	{
-		trace("enable "+target);
 		currentFocus = target.selectedIndex.value;
 		keyDownWire.enable();
+		mouseMoveWire.enable();
 	}
 	
 	
 	private function disableKeyListeners ()
 	{
-		trace("disable "+target);
 		keyDownWire.disable();
+		mouseMoveWire.disable();
+		lastHovered = null;
 	}
 	
 	
@@ -95,23 +104,16 @@ class ListKeyNavigationBehaviour extends BehaviourBase<IListHolder<Dynamic>>
 		{
 			target.selectedIndex.value = index;
 		}
-		else if (k == KeyCodes.ESCAPE)
-		{
-	//		target.deselect();
-		}
 		else
 		{
-			if (k.isArrow())
-				index = switch (k) {
-					case KeyCodes.UP:		index - 1;
-					case KeyCodes.DOWN:		index + 1;
-					default:				index;
-				}
+			if		(k == KeyCodes.UP)		index -= 1;
+			else if (k == KeyCodes.DOWN)	index += 1;
 			else if (k == KeyCodes.PAGE_UP	 || k == KeyCodes.HOME)		index = 0;
 			else if (k == KeyCodes.PAGE_DOWN || k == KeyCodes.END)		index = max;
-				
 			
-			trace(k+": "+index+", "+target.list.data.length);
+			// TODO: check if a-z is pressed to select items that start with that letter
+			
+		//	trace(k+": "+index+", "+target.list.data.length);
 			if (index != currentFocus && index.isWithin(0, max))
 			{
 				if (currentFocus != -1) {
@@ -125,8 +127,22 @@ class ListKeyNavigationBehaviour extends BehaviourBase<IListHolder<Dynamic>>
 					//fake highlight new "hovered" item
 					var item = target.list.getRendererAt( index );
 					item.as(IInteractive).userEvents.mouse.rollOver.send( MouseState.fake );
+					
+					target.list.layoutContainer.scrollTo( item.layout );
 				}
 			}
 		}
+	}
+	
+	
+	private function checkHoveredItem (item:MouseState) : Void
+	{
+		var t = item.target;
+		var l = target.list.children;
+		if (t == lastHovered)
+			return;
+		
+		lastHovered	 = t;
+		currentFocus = !l.has( cast t ) ? -1 : l.indexOf( cast t );
 	}
 }

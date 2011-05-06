@@ -83,6 +83,9 @@ class PopupManager implements IPopupManager
 		popup.attachDisplayTo( window );
 		popup.setFocus();
 		
+		if (window.popupLayout.children.length == 1)
+			window.userEvents.key.disable();
+		
 		return window.children.length - 1;
 	}
 	
@@ -94,6 +97,9 @@ class PopupManager implements IPopupManager
 		Assert.notNull( popup.layout.parent );
 		popup.detach();
 		popup.removeFocus();
+		
+		if (window.popupLayout.children.length == 0)
+			window.userEvents.key.enable();
 	}
 	
 	

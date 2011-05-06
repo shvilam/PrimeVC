@@ -81,4 +81,30 @@ class Signals implements IUnbindable<Dynamic>, implements IDisposable, implement
 		}
 		return count;
 	}
+	
+	
+	public function disable ()
+	{
+		var f, R = Reflect, T = Type;
+		
+		var fields = T.getInstanceFields(T.getClass(this));
+		for(field in fields) {
+			f = R.field(this, field);
+			if (TypeUtil.is(f, Signal))
+				f.disable();
+		}
+	}
+	
+	
+	public function enable ()
+	{
+		var f, R = Reflect, T = Type;
+		
+		var fields = T.getInstanceFields(T.getClass(this));
+		for(field in fields) {
+			f = R.field(this, field);
+			if (TypeUtil.is(f, Signal))
+				f.enable();
+		}
+	}
 }

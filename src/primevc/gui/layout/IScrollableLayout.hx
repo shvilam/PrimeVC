@@ -79,4 +79,9 @@ interface IScrollableLayout implements ILayoutContainer, implements IAdvancedLay
 	 * change them to valid positions.
 	 */
 	public function validateScrollPosition	(pos:IntPoint)			: IntPoint;
+	
+	/**
+	 * Method will change the scrollvalues so that the given child will be visible
+	 */
+	public function scrollTo				(child:ILayoutClient)	: Void;
 }

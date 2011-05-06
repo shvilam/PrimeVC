@@ -297,6 +297,8 @@ class ComboBox <DataType> extends DataButton <DataType>
 		if (r != null && r.is(ISelectable))
 			r.as(ISelectable).select();
 		
+		list.list.layoutContainer.scrollTo( r.layout );
+		
 		indexChangeWire.disable();
 		list.selectedIndex.value = i;
 		indexChangeWire.enable();
