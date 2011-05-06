@@ -66,6 +66,9 @@ class ButtonSelectedOpenPopup extends BehaviourBase < ISelectable >
 		target.deselect		.on( target.displayEvents.removedFromStage, this );
 		handleSelectChange	.on( target.selected.change, this );
 		
+		target.deselect		.on( target.window.deactivated, this );
+		target.deselect		.on( target.enabled.change, this );
+		
 		//check if the popup should already be opened
 		handleSelectChange( target.selected.value, false );
 	}

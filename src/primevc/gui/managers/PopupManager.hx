@@ -77,6 +77,8 @@ class PopupManager implements IPopupManager
 		if (modal)
 			createModalFor(popup);
 		
+		Assert.null( popup.window );
+		Assert.null( popup.layout.parent );
 		window.popupLayout.children.add( popup.layout );
 		popup.attachDisplayTo( window );
 		return window.children.length - 1;
@@ -87,6 +89,7 @@ class PopupManager implements IPopupManager
 	{
 		removeModalFor( popup );
 		Assert.notNull( popup.window );
+		Assert.notNull( popup.layout.parent );
 		popup.detach();
 	}
 	

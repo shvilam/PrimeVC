@@ -27,9 +27,11 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.display;
+ import primevc.core.dispatcher.Signal0;
  import primevc.core.geom.IntRectangle;
 #if flash9
  import flash.events.Event;
+ import primevc.avm2.events.FlashSignal0;
  import primevc.core.geom.Point;
 #end
 #if (flash8 || flash9 || js)
@@ -109,6 +111,16 @@ class Window implements IDisplayContainer
 	public var userEvents		(default, null)			: UserEvents;
 	public var mouse			(default, null)			: Mouse;
 	
+	
+	/**
+	 * Event dispatched when the window loses focus
+	 */
+	public var deactivated		(default, null)			: Signal0;
+	/**
+	 * Event dispatched when the window gets focus
+	 */
+	public var activated		(default, null)			: Signal0;
+	
 #if flash9
 	public var focus			(getFocus, setFocusOn)	: InteractiveObject;
 #end
@@ -127,9 +139,11 @@ class Window implements IDisplayContainer
 		mouse			= new Mouse( this );
 		
 		target.doubleClickEnabled = true;
-#if (flash9 && debug)
-		target.addEventListener( Event.DEACTIVATE, disableMouse, false, 0, true );
-		target.addEventListener( Event.ACTIVATE,   enableMouse, false, 0, true );
+#if flash9 /*&& debug)*/
+		deactivated	= new FlashSignal0( target, Event.DEACTIVATE );
+		activated	= new FlashSignal0( target, Event.ACTIVATE );
+		disable	.on( deactivated, this );
+		enable	.on( activated, this );
 #end
 	}
 	
@@ -169,14 +183,13 @@ class Window implements IDisplayContainer
 	public var tabIndex				: Int;
 	
 	
-	public inline function globalToLocal (point:Point) : Point	{ return target.globalToLocal(point); }
-	public inline function localToGlobal (point:Point) : Point	{ return target.localToGlobal(point); }
+	public inline function globalToLocal (point:Point) : Point		{ return target.globalToLocal(point); }
+	public inline function localToGlobal (point:Point) : Point		{ return target.localToGlobal(point); }
 	
-	public function isFocusOwner (target:UserEventTarget)		{ return target == this.target; }
+	public function isFocusOwner (target:UserEventTarget)			{ return target == this.target; }
 	
-	private function enableMouse (event:Event)					{ mouseEnabled = children.mouseEnabled = true; }
-	private function disableMouse (event:Event)					{ mouseEnabled = children.mouseEnabled = false; }
-	
+	public function enable ()										{ mouseEnabled = tabEnabled = children.mouseEnabled = children.tabEnabled = true; }		//use local mouseEnabled and tabEnabled since Stage doesn't have these properties
+	public function disable ()										{ mouseEnabled = tabEnabled = children.mouseEnabled = children.tabEnabled = false; }	//use local mouseEnabled and tabEnabled since Stage doesn't have these properties
 	
 	private inline function setFocusOn (child:InteractiveObject)	{ return target.focus = child; }
 	private inline function getFocus ()	: InteractiveObject			{ return target.focus; }

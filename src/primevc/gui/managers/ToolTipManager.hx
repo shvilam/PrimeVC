@@ -156,7 +156,9 @@ class ToolTipManager implements IDisposable
 	
 	private inline function removeListeners ()
 	{
-		if (lastObj != null)	lastObj.displayEvents.removedFromStage.unbind( this );
+		if (lastObj != null)
+			lastObj.displayEvents.removedFromStage.unbind( this );
+		
 		if (lastLabel != null) {
 			toolTip.data.unbind( lastLabel );
 			lastLabel.change.unbind(this);

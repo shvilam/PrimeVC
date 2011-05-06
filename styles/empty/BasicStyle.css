@@ -88,15 +88,18 @@ ComboBox {
 	background: #F9F9F9;
 	border-radius: 10px;
 	border: 1px solid #707070;
-	padding: 7px 0px;
+	/*padding: 7px 0px;*/
 }
 
 .comboList ListView {
-	min-width: 50px;
-	min-height: 50px;
-	max-height: 300px;
+	/*min-width: 50px;*/
+	width: none;		/** override 100% width setting **/
+	height: none;		/** override 100% height setting **/
+	min-height: 60px;
+	max-height: 500px;
 	overflow: scrollbars;
 	algorithm: float-ver( top, left );
+	padding: 2px;
 	/*padding-right: 15px;*/
 }
 
@@ -154,6 +157,8 @@ Panel #closeBtn {
 	font: "Lucida Grande" 8px #fff;
 	text-transform: uppercase;
 	v-center: 0px;
+	text-align: center;
+	width: 100%;
 }
 .slideToggleButton #onLabel {
 	color: #fff;

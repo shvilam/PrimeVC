@@ -218,8 +218,8 @@ class FastArrayUtil
 	
 	
 	/**
-	 * Duplicate will create a new fast-array where the children of the given
-	 * fast-array are also duplicated if possible
+	 * Duplicate will create a new FastArray. The content of the given
+	 * FastArray are also duplicated if possible
 	 * 
 	 * Note: Inline is needed to create a Vector with the same datatype as 
 	 * 		the original. Without 'inline', a Vector<String> will be duplicated

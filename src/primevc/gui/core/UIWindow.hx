@@ -232,11 +232,16 @@ class UIWindow extends Window
 	
 	private function createBehaviours ()	: Void
 	{
-		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
+	//	behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
 	}
 	
 	
 	private function createChildren ()		: Void;
+	
+	public inline function attach (child:IUIElement) : Void
+	{
+		child.attachLayoutTo( layoutContainer ).attachDisplayTo( this );
+	}
 	
 	
 	//

@@ -28,10 +28,7 @@
  */
 package primevc.gui.components;
  import primevc.core.collections.IReadOnlyList;
- import primevc.core.traits.IValueObject;
- import primevc.core.validators.IntRangeValidator;
  import primevc.core.dispatcher.Wire;
- import primevc.core.Bindable;
  import primevc.gui.behaviours.components.ButtonSelectedOpenPopup;
  import primevc.gui.behaviours.layout.FollowObjectBehaviour;
  import primevc.gui.components.DataButton;
@@ -92,8 +89,8 @@ class ComboBox <DataType> extends DataButton <DataType>
 	
 	public function new (id:String = null, defaultLabel:String = null, icon:Asset = null, selectedItem:DataType = null, listData:IReadOnlyList<DataType> = null)
 	{
+		(untyped this).listData = listData;
 		super(id, defaultLabel, icon, selectedItem);
-		this.listData = listData;
 	}
 	
 	
@@ -106,12 +103,17 @@ class ComboBox <DataType> extends DataButton <DataType>
 			list.styleClasses.add( "comboList" );
 			list.behaviours.add( new FollowObjectBehaviour( list, this ) );
 			
+			if (createItemRenderer == null)
+				createItemRenderer = createDefaultItemRenderer;
+			
 			list.createItemRenderer	= createItemRenderer;
 		}
+		else if (list.createItemRenderer != null)
+			createItemRenderer = list.createItemRenderer;
 		
 	//	Assert.notNull( listData );
 		Assert.notNull( getLabelForVO );
-		Assert.notNull( createItemRenderer );
+	//	Assert.notNull( createItemRenderer );
 		
 		//leave the opening and closing of the list to the behaviouruserEvents.
 		behaviours.add( new ButtonSelectedOpenPopup( this, list ) );
@@ -179,6 +181,15 @@ class ComboBox <DataType> extends DataButton <DataType>
 				list.createItemRenderer = v;
 		}
 		return v;
+	}
+	
+	
+	private function createDefaultItemRenderer (vo:DataType, pos:Int) : IUIElement
+	{
+		var b = new DataButton<DataType>();
+		b.vo.value = vo;
+		b.getLabelForVO = getLabelForVO;
+		return cast b;
 	}
 	
 	

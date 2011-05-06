@@ -62,6 +62,18 @@ class StringUtil
 	private static inline function randomHexStr (val:Int)		{ return val.random().hex(); }
 	private static inline function randomChar(s:String, l:Int)	{ return s.charAt( Std.random( l ) ); }
 	
+	/**
+	 * Method creates a random string with the given length
+	 */
+	public static inline function randomString(l:Int) : String
+	{
+		Assert.that(l > 0);
+		var s = "";
+		for (i in 0...l)
+			s += (25.random() + 65).fromCharCode();
+		return s;
+	}
+	
 	
 	/**
 	 * Method will change the first character of every word in the given string
