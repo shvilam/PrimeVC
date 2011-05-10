@@ -30,6 +30,7 @@
 package primevc.mvc.core;
  import primevc.mvc.events.MVCEvents;
 
+
 /**
  * Abstract Façade class.
  * 
@@ -37,6 +38,7 @@ package primevc.mvc.core;
  * <ul>
  * <li> Event-Signals           </li>
  * <li> Model-Proxies           </li>
+ * <li> App states collection	</li>
  * <li> Controller-Commands     </li>
  * <li> and View-Mediators.     </li>
  * </ul>
@@ -46,17 +48,21 @@ package primevc.mvc.core;
  * Acting as a binding component it allows to separate the model from
  * the view, thus separating data from UI elements respectively. 
  * 
+ * @modified May 10, 2011, Ruben Weijers
+ * 		Added application-states to the facade.
+ * 
  * @author Danny Wilson
  * @creation-date Jun 22, 2010
  * @type <EventsType> all event groups used in this application/subsystem.
  */
-class Facade < EventsType:MVCEvents, ModelType:IModel, ViewType:IView, ControllerType:IController > implements primevc.core.traits.IDisposable
+class Facade < EventsType:MVCEvents, ModelType:IModel, StatesType:IStates, ViewType:IView, ControllerType:IController > implements primevc.core.traits.IDisposable
     #if !docs, implements haxe.rtti.Generic #end
 {
 	public var events		(default, null)	: EventsType;
 	public var model		(default, null)	: ModelType;
 	public var view			(default, null)	: ViewType;
 	public var controller	(default, null)	: ControllerType;
+	public var states		(default, null) : StatesType;
 	
 	
 	private function new ()
@@ -66,6 +72,9 @@ class Facade < EventsType:MVCEvents, ModelType:IModel, ViewType:IView, Controlle
 		
 		setupModel();
 		Assert.notNull(model, "Proxy-collection can't be empty.");
+		
+		setupStates();
+		Assert.notNull(states, "States-collection can't be empty.");
 		
 		setupView();
 		Assert.notNull(view, "Mediator-collection can't be empty.");
@@ -86,13 +95,15 @@ class Facade < EventsType:MVCEvents, ModelType:IModel, ViewType:IView, Controlle
 		if (events == null)
 			return; // already disposed
 		
-		events.dispose();
-		model.dispose();
-		controller.dispose();
-		view.dispose();
+		controller	.dispose();
+		view		.dispose();
+		states		.dispose();
+		model		.dispose();
+		events		.dispose();
 		
 		controller	= null;
 		view		= null;
+		states		= null;
 		model		= null;
 		events		= null;
 	}
@@ -106,6 +117,11 @@ class Facade < EventsType:MVCEvents, ModelType:IModel, ViewType:IView, Controlle
 	 * Must instantiate the Model for this Facade.
 	 */
 	function setupModel()		{ Assert.abstract(); }
+	
+	/**
+	 * Must instantiate the States for this Facade.
+	 */
+	function setupStates()		{ Assert.abstract(); }
 	
 	/**
 	 * Must map the event handlers, and setup behaviours/commands for this (sub)system.

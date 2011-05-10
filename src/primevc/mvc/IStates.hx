@@ -20,7 +20,7 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.s
+ * DAMAGE.
  *
  *
  * Authors:
@@ -30,10 +30,11 @@ package primevc.mvc;
 
 
 /**
+ * Interface 'tag' to mark a class as a States collection.
+ * 
  * @author Ruben Weijers
- * @creation-date Nov 16, 2010
+ * @creation-date May 10, 2011
  */
-interface ICommand implements primevc.core.traits.IDisposable
+interface IStates implements primevc.core.traits.IDisposable
 {
-	
 }

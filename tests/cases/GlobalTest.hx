@@ -14,6 +14,7 @@ package cases;
  import primevc.gui.behaviours.drag.ShowDragGapBehaviour;
  import primevc.gui.behaviours.drag.DragInfo;
  import primevc.gui.components.ListView;
+ import primevc.gui.components.DataButton;
  import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UIDataComponent;
@@ -121,7 +122,7 @@ class GlobalTest extends UIWindow
 }
 
 
-class Tile extends UIDataComponent < DataVOType >
+class Tile extends DataButton < DataVOType >
 {
 	public static var counter				: Int = 0;
 	private var num							: Int;
@@ -162,7 +163,7 @@ class Tile extends UIDataComponent < DataVOType >
 	
 	override public function createDragInfo () : DragInfo
 	{
-		return new DragInfo( this, getDataCursor() );//, t ); //getDisplayCursor()/*, new Tile(value), null*/ );
+		return new DragInfo( this, null, this ); //getDisplayCursor()/*, new Tile(value), null*/ );
 	}
 	
 	
@@ -199,7 +200,7 @@ class TileList extends ListView < DataVOType >, implements IDataDropTarget < Dat
 	}
 	
 	
-	private function createRenderer (dataItem, pos:Int)
+	private function createRenderer (dataItem:DataVOType, pos:Int)
 	{
 		return cast new Tile(dataItem);
 	}

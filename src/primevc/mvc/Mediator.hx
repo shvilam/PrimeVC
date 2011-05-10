@@ -42,14 +42,14 @@ package primevc.mvc;
  * @author Danny Wilson
  * @creation-date Jun 22, 2010
  */
-class Mediator <EventsTypedef, ModelTypedef, ViewTypeDef, ViewComponentType> extends Listener <EventsTypedef, ModelTypedef, ViewTypeDef>, implements IMediator
+class Mediator <EventsTypeDef, ModelTypeDef, StatesTypeDef, ViewTypeDef, ViewComponentType> extends Listener <EventsTypeDef, ModelTypeDef, StatesTypeDef, ViewTypeDef>, implements IMediator
 {
 	public var viewComponent (default, setViewComponent)	: ViewComponentType;
 	
 	
-	public function new (events:EventsTypedef, model:ModelTypedef, view:ViewTypeDef, viewComponent:ViewComponentType = null)
+	public function new (events:EventsTypeDef, model:ModelTypeDef, states:StatesTypeDef, view:ViewTypeDef, viewComponent:ViewComponentType = null)
 	{
-		super(events, model, view);
+		super(events, model, states, view);
 		setViewComponent( viewComponent );
 	}
 	
