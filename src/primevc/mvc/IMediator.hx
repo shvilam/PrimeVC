@@ -32,6 +32,7 @@ package primevc.mvc;
 /**
  * Interface 'tag' to mark a class as a Mediator.
  */
-interface IMediator implements primevc.core.traits.IDisposable
+interface IMediator <GUIType> implements primevc.core.traits.IDisposable
 {
+	public var gui (default, setGUI)	: GUIType;
 }

@@ -17,7 +17,7 @@ class ImageLoaderMediator extends Mediator <MainEvents, MainModel, MainView, Ima
         if (isListening())
             return;
         // Bind a ui event to a function.
-        events.loadImage.bind(this, viewComponent.loadImage);
+        events.loadImage.bind(this, gui.loadImage);
         super.startListening();
     }
 

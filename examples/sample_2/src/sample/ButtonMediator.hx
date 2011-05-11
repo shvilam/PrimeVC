@@ -21,7 +21,7 @@ class ButtonMediator extends Mediator <MainEvents, MainModel, MainView, Button>
         if (isListening())
             return;
 		
-        clickHandler.on(viewComponent.userEvents.mouse.click, this);
+        clickHandler.on(gui.userEvents.mouse.click, this);
         super.startListening();
     }
 
@@ -30,7 +30,7 @@ class ButtonMediator extends Mediator <MainEvents, MainModel, MainView, Button>
         if (!isListening())
             return;
         
-        viewComponent.userEvents.unbind(this);
+        gui.userEvents.unbind(this);
         super.stopListening ();
     }
 	

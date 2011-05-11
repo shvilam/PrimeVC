@@ -42,15 +42,15 @@ package primevc.mvc;
  * @author Danny Wilson
  * @creation-date Jun 22, 2010
  */
-class Mediator <EventsTypeDef, ModelTypeDef, StatesTypeDef, ViewTypeDef, ViewComponentType> extends Listener <EventsTypeDef, ModelTypeDef, StatesTypeDef, ViewTypeDef>, implements IMediator
+class Mediator <EventsTypeDef, ModelTypeDef, StatesTypeDef, ViewTypeDef, GUIType> extends Listener <EventsTypeDef, ModelTypeDef, StatesTypeDef, ViewTypeDef>, implements IMediator <GUIType>
 {
-	public var viewComponent (default, setViewComponent)	: ViewComponentType;
+	public var gui (default, setGUI)	: GUIType;
 	
 	
-	public function new (events:EventsTypeDef, model:ModelTypeDef, states:StatesTypeDef, view:ViewTypeDef, viewComponent:ViewComponentType = null)
+	public function new (events:EventsTypeDef, model:ModelTypeDef, states:StatesTypeDef, view:ViewTypeDef, gui:GUIType = null)
 	{
 		super(events, model, states, view);
-		setViewComponent( viewComponent );
+		this.gui = gui;
 	}
 	
 	
@@ -59,25 +59,25 @@ class Mediator <EventsTypeDef, ModelTypeDef, StatesTypeDef, ViewTypeDef, ViewCom
 		if (isDisposed())
 			return;
 		
-		viewComponent = null;
+		gui = null;
 		super.dispose();
 	}
 	
 	
 	// Set the UI element that the mediator serves.
-	private function setViewComponent (viewComponent:ViewComponentType)
+	private function setGUI (gui:GUIType)
 	{
 		if (isListening())
 		{
 			stopListening();
-			this.viewComponent = viewComponent;
+			this.gui = gui;
 			
-			if (viewComponent != null)
+			if (gui != null)
 				startListening();
 		}
 		else
-			this.viewComponent = viewComponent;
+			this.gui = gui;
 		
-		return viewComponent;
+		return gui;
 	}
 }
