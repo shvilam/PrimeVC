@@ -32,14 +32,12 @@ package primevc.core.states;
 
 
 /**
- * Description
- *
  * @creation-date	Jun 9, 2010
  * @author			Ruben Weijers
  */
 interface IState implements IDisposable
 {
-	var id			(getId, null)		: Int;
-	var entering	(default, null)		: Signal0;
-	var exiting		(default, null)		: Signal0;
+	public var id		(default, null)		: Int;
+	public var entering	(default, null)		: Signal0;
+	public var exiting	(default, null)		: Signal0;
 }

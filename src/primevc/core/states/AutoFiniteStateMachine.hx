@@ -34,6 +34,8 @@ package primevc.core.states;
  * Finite State Machine that will automaticy instatiate all states.
  * So new State is not needed anymore :-)
  * 
+ * TODO: add MACRO for defining default-state
+ * 
  * @creation-date	Jun 10, 2010
  * @author			Ruben Weijers
  */

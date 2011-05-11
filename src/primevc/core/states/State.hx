@@ -36,9 +36,7 @@ package primevc.core.states;
  */
 class State implements IState
 {
-	public var id (getId, null)			: Int;
-		private inline function getId()	: Int { return id; }
-	
+	public var id		(default, null)	: Int;			//FIXME: check if looking up if a state is a property of an FSM is more efficient with reflection
 	public var entering	(default, null)	: Signal0;
 	public var exiting	(default, null)	: Signal0;
 	

@@ -72,23 +72,8 @@ class DebugBar extends UIContainer
 		clearTracesBtn			= new Button("clearTracesBtn", "Clear traces");
 		garbageCollectBtn		= new Button("garbageCollectBtn", "Garbage Collect");
 		
-		layoutContainer.children.add( clearTracesBtn.layout );
-		layoutContainer.children.add( inspectStageBtn.layout );
-		layoutContainer.children.add( inspectLayoutBtn.layout );
-		layoutContainer.children.add( validateLayoutBtn.layout );
-		layoutContainer.children.add( showInvalidatedBtn.layout );
-		layoutContainer.children.add( showRenderingBtn.layout );
-		layoutContainer.children.add( toggleTraceLayoutBtn.layout );
-		layoutContainer.children.add( garbageCollectBtn.layout );
-		
-		children.add( clearTracesBtn );
-		children.add( inspectStageBtn );
-		children.add( inspectLayoutBtn );
-		children.add( validateLayoutBtn );
-		children.add( showInvalidatedBtn );
-		children.add( showRenderingBtn );
-		children.add( toggleTraceLayoutBtn );
-		children.add( garbageCollectBtn );
+		attach( clearTracesBtn )	.attach( inspectStageBtn )	.attach( inspectLayoutBtn )			.attach( validateLayoutBtn );
+		attach( showInvalidatedBtn ).attach( showRenderingBtn )	.attach( toggleTraceLayoutBtn )	.attach( garbageCollectBtn );
 		
 		haxe.Log.clear			.on( clearTracesBtn.userEvents.mouse.click, this );
 		inspectAllLayouts		.on( inspectLayoutBtn.userEvents.mouse.click, this );

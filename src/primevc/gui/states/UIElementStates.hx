@@ -42,23 +42,23 @@ class UIElementStates extends AutoFiniteStateMachine
 	/**
 	 * Default state when the component hasn't done anything.
 	 */
-	public var empty		: IState;
+	public var empty		(default, null) : IState;
 	/**
 	 * Component is constructed when:
 	 *  - states are created
 	 *  - behaviours are created
 	 */
-	public var constructed	: IState;
+	public var constructed	(default, null) : IState;
 	/**
 	 * Component is initialized when:
 	 *  - skin is created
 	 *  - children are created
 	 */
-	public var initialized	: IState;
+	public var initialized	(default, null) : IState;
 	/**
 	 * State is set when the component is disposed.
 	 */
-	public var disposed		: IState;
+	public var disposed		(default, null) : IState;
 	
 	
 	public function new ()

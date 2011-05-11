@@ -447,7 +447,7 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	
 	private function changeStateToHover (mouseObj:MouseState)
 	{
-		if (mouseObj.mouseButton() != MouseButton.None && downBinding != null)
+		if (mouseObj.mouseButton() != MouseButton.None) // && downBinding != null)
 			return;
 		
 		//check if there's a hover state, otherwise change state to none

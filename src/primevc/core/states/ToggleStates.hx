@@ -26,19 +26,24 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.states;
- import primevc.core.states.AutoFiniteStateMachine;
- import primevc.core.states.IState;
+package primevc.core.states;
  
 
 /**
- * ToggleState
+ * ToggleStates
  * 
  * @creation-date	Jun 14, 2010
  * @author			Ruben Weijers
  */
-class ToggleState extends AutoFiniteStateMachine
+class ToggleStates extends AutoFiniteStateMachine
 {
-	public var on	: IState;
-	public var off	: IState;
+	public var off	(default, null)	: IState;
+	public var on	(default, null)	: IState;
+	
+	
+	public function new ()
+	{
+		super();
+		defaultState = off;
+	}
 }
