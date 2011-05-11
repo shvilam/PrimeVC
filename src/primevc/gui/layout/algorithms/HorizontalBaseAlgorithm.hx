@@ -191,6 +191,9 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 		if (group.children.length > 0)
 		{
 			var start = getTopStartValue();
+#if debug	Assert.that(start > -1000); 
+			Assert.that(group.height.isSet() && group.height > -1 && group.height < 10000, "uhuh: "+group.height+" - "+group.height.isSet()+" - "+(group.height > -1)+" - "+(group.height < 10000));
+#end
 			if (group.childHeight.notSet())
 			{	
 				for (child in group.children) {

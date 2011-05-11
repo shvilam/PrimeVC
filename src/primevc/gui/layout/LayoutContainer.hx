@@ -295,7 +295,9 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		
 		if (algorithm != null) {
 			algorithm.prepareValidate();
-			algorithm.apply();
+			
+			if (height.isSet() && width.isSet())
+				algorithm.apply();
 		}
 		
 		var i = 0;

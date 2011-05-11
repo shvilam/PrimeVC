@@ -362,6 +362,9 @@ class LayoutClient extends Invalidatable
 	{
 		if (_width != v)
 		{
+#if debug	Assert.that( v.notSet() || v > -2147483643, this+" width = "+v );
+			Assert.that( v < 10000, this+" width = "+v ); #end
+			
 			//step 1 - 4
 			updateAllWidths( validateWidth( v, Flags.VALIDATE_ALL ) );
 			
@@ -387,6 +390,9 @@ class LayoutClient extends Invalidatable
 	{
 		if (_height != v)
 		{
+#if debug	Assert.that( v.notSet() || v > -2147483643, this+" width = "+v );
+			Assert.that( v < 10000, this+" width = "+v ); #end
+			
 			updateAllHeights( validateHeight( v, Flags.VALIDATE_ALL ) );
 			
 			if (maintainAspectRatio)
@@ -815,6 +821,7 @@ class LayoutClient extends Invalidatable
 	{
 		if (x != v)
 		{
+#if debug	Assert.that( v.notSet() || (v > -1000 && v < 10000), this+".invalidX: "+v ); #end
 			x = v;
 			outerBounds.left = v;
 			innerBounds.left = (margin == null) ? v : v + margin.left;
@@ -828,6 +835,7 @@ class LayoutClient extends Invalidatable
 	{
 		if (y != v)
 		{
+#if debug	Assert.that( v.notSet() || (v > -1000 && v < 10000), this+".invalidY: "+v ); #end
 			y = v;
 			outerBounds.top = v;
 			innerBounds.top = (margin == null) ? v : v + margin.top;

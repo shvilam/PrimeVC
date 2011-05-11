@@ -168,7 +168,10 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 				var l = target.layout;
 				var newX = l.getHorPosition();
 				var newY = l.getVerPosition();
-			
+				
+#if debug		Assert.that( newX > -1000 && newX < 10000, target+".invalidX: "+newX );
+				Assert.that( newY > -1000 && newY < 10000, target+".invalidY: "+newY ); #end
+				
 				if (isNotPositionedYet || target.x != newX || target.y != newY)
 				{
 					target.rect.move( newX, newY );
@@ -188,6 +191,8 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 			if (target.effects == null)
 			{
 				var b = target.layout.innerBounds;
+#if debug		Assert.that(b.width < 10000 && b.width > -1, target+".invalidWidth: "+b);
+				Assert.that(b.height < 10000 && b.height > -1, target+".invalidHeight: "+b); #end
 				target.rect.resize( b.width, b.height );
 				
 				if (!target.is(IDrawable)) {

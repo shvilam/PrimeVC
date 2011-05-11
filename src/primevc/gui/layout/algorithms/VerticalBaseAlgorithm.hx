@@ -184,7 +184,7 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 	}
 	
 	
-	private  function applyHorizontalCenter ()
+	private inline function applyHorizontalCenter ()
 	{
 		if (group.children.length > 0)
 		{
