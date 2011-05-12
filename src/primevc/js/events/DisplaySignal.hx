@@ -1,5 +1,6 @@
 package primevc.js.events;
 
+import primevc.js.events.DOMSignal1;
 import js.Dom;
 
 /**
@@ -7,10 +8,9 @@ import js.Dom;
  * @since	March 2, 2011
  */
 
-typedef DisplayEvent
+typedef DisplayEvent =
 {
-	>Event,
-	
+	>DOMEvent,
 	/*
 	attrChange constants
 	
@@ -29,8 +29,8 @@ typedef DisplayEvent
 
 class DisplaySignal extends DOMSignal1<DisplayEvent>
 {
-	override private function dispatch(event:DisplayEvent) 
+	override private function dispatch(event:Event) 
 	{
-		send(event);
+		send(cast event);
 	}
 }

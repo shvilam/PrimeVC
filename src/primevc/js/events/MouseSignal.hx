@@ -23,7 +23,6 @@ typedef MouseEvent =
     public var screenX			(default, null):Int; // Relative to the screen.
 	public var screenY			(default, null):Int; // Relative to the screen.
 	public var shiftKey 		(default, null):Bool; // Indicates whether or not the SHIFT key was pressed when the event was triggered.
-	public var fromElement 		(default, null):Dynamic; // The element the mouse goes to. This is interesting to know in case of mouseout.
 	public var x				(default, null):Int;
 	public var y				(default, null):Int;
 }
@@ -37,17 +36,18 @@ class MouseSignal extends DOMSignal1<MouseState>
 {
 	var clickCount:Int;
 	
-	public function new (d:Dynamic, e:String, cc:Int)
+	public function new (d:Dynamic, e:String, ?cc:Int)
 	{
 		super(d, e);
 		
-		this.clickCount = cc;
+		this.clickCount = cc == null ? 0 : cc;
 	}
 	
 	
-	override private function dispatch(e:MouseEvent) 
+	override private function dispatch(e:Event) 
 	{
-		send( stateFromEvent(e, clickCount) );
+		untyped e.preventDefault();
+		send( stateFromEvent(cast e, clickCount) );
 	}
 	
 	

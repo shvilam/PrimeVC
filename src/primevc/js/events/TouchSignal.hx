@@ -1,6 +1,5 @@
 package primevc.js.events;
 
-import primevc.core.geom.Point;
 import primevc.js.events.DOMSignal1;
 import js.Dom;
 

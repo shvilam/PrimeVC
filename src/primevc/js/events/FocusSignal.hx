@@ -1,6 +1,13 @@
 package primevc.js.events;
 
+import primevc.js.events.DOMSignal1;
 import js.Dom;
+
+typedef FocusEvent = 
+{
+	>DOMEvent,
+	public var relatedTarget	(default, null):Dynamic; // A secondary event target related to the event.
+}
 
 /**
  * @author	Stanislav Sopov
@@ -11,6 +18,6 @@ class FocusSignal extends DOMSignal1<FocusEvent>
 {
 	override private function dispatch(event:Event) 
 	{
-		send(event);
+		send(cast event);
 	}
 }

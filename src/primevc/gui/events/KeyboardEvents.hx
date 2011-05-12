@@ -28,7 +28,7 @@
  */
 package primevc.gui.events;
  import primevc.core.dispatcher.Signals;
- import primevc.gui.display.ISprite;
+// import primevc.gui.display.ISprite;
 
 typedef KeyboardEvents = 
 	#if		flash9	primevc.avm2.events.KeyboardEvents;

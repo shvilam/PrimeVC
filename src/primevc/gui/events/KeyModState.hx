@@ -27,7 +27,7 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.gui.events;
- import primevc.gui.display.ISprite;
+// import primevc.gui.display.ISprite;
 
 
 /**

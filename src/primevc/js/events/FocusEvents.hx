@@ -24,19 +24,19 @@ class FocusEvents extends Signals
 		this.eventDispatcher = eventDispatcher;
 	}
 	
-	private inline function getFocus()		{ if (focus			== null) { createFocus();		} return focus; }
-	private inline function getFocusIn()	{ if (focusIn 		== null) { createFocusIn();		} return focusIn; }
-	private inline function getDOMFocusIn()	{ if (DOMFocusIn	== null) { createDOMFocusIn();	} return DOMFocusIn; }
-	private inline function getBlur()		{ if (blur 			== null) { createBlur();		} return blur; }
-	private inline function getFocusOut()	{ if (focusOut 		== null) { createFocusOut();	} return focusOut; }
-	private inline function getDOMFocusOut(){ if (DOMFocusOut	== null) { createDOMFocusOut();	} return DOMFocusOut; }
+	private inline function getFocus		() { if (focus			== null) { createFocus();		} return focus; }
+	private inline function getFocusIn		() { if (focusIn 		== null) { createFocusIn();		} return focusIn; }
+	private inline function getDOMFocusIn	() { if (DOMFocusIn		== null) { createDOMFocusIn();	} return DOMFocusIn; }
+	private inline function getBlur			() { if (blur 			== null) { createBlur();		} return blur; }
+	private inline function getFocusOut		() { if (focusOut 		== null) { createFocusOut();	} return focusOut; }
+	private inline function getDOMFocusOut	() { if (DOMFocusOut	== null) { createDOMFocusOut();	} return DOMFocusOut; }
 	
-	private function createFocus()		{ focus			= new FocusSignal(eventDispatcher, "focus"); }
-	private function createFocusIn()	{ focusIn		= new FocusSignal(eventDispatcher, "focusin"); }
-	private function createDOMFocusIn()	{ DOMFocusIn	= new FocusSignal(eventDispatcher, "DOMFocusIn"); }
-	private function createBlur()		{ blur			= new FocusSignal(eventDispatcher, "blur"); }
-	private function createFocusOut()	{ focusOut		= new FocusSignal(eventDispatcher, "focusout"); }
-	private function createDOMFocusOut(){ DOMFocusOut	= new FocusSignal(eventDispatcher, "DOMFocusOut"); }
+	private function createFocus		() { focus			= new FocusSignal(eventDispatcher, "focus"); }
+	private function createFocusIn		() { focusIn		= new FocusSignal(eventDispatcher, "focusin"); }
+	private function createDOMFocusIn	() { DOMFocusIn		= new FocusSignal(eventDispatcher, "DOMFocusIn"); }
+	private function createBlur			() { blur			= new FocusSignal(eventDispatcher, "blur"); }
+	private function createFocusOut		() { focusOut		= new FocusSignal(eventDispatcher, "focusout"); }
+	private function createDOMFocusOut	() { DOMFocusOut	= new FocusSignal(eventDispatcher, "DOMFocusOut"); }
 	
 	override public function dispose ()
 	{

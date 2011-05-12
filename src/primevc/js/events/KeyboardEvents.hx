@@ -21,9 +21,9 @@ class KeyboardEvents extends Signals
 		this.eventDispatcher = eventDispatcher;
 	}
 	
-	private inline function getKeyDown()	{ if (keyDown	== null) { createKeyDown();		} return keydown; }
-	private inline function getKeyUp()		{ if (keyUp 	== null) { createKeyUp();		} return keyup; }
-	private inline function getKeyPress()	{ if (keyPress 	== null) { createKeyPress();	} return keypress; }
+	private inline function getKeyDown()	{ if (keyDown	== null) { createKeyDown();		} return keyDown; }
+	private inline function getKeyUp()		{ if (keyUp 	== null) { createKeyUp();		} return keyUp; }
+	private inline function getKeyPress()	{ if (keyPress 	== null) { createKeyPress();	} return keyPress; }
 	
 	private function createKeyDown() 	{ keyDown	= new KeyboardSignal(eventDispatcher, "keydown"); }
 	private function createKeyUp()		{ keyUp		= new KeyboardSignal(eventDispatcher, "keyup"); }

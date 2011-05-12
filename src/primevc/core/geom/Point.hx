@@ -63,10 +63,10 @@ class Point
 	}
 	
 	
-	private function getX()		{ return x; }
-	private function setX(v)	{ return x = v; }
-	private function getY()		{ return y; }
-	private function setY(v)	{ return y = v; }
+	private inline function getX()	{ return x; }
+	private inline function setX(v)	{ return x = v; }
+	private inline function getY()	{ return y; }
+	private inline function setY(v)	{ return y = v; }
 	
 	
 	public inline function subtract (v:Point) {

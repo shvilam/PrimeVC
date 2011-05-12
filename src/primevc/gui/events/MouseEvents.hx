@@ -29,7 +29,7 @@
 package primevc.gui.events;
  import primevc.core.dispatcher.Signals;
  import primevc.core.geom.Point;
- import primevc.gui.display.ISprite;
+// import primevc.gui.display.ISprite;
  import primevc.gui.events.KeyModState;
 
 typedef MouseEvents = 
@@ -151,7 +151,7 @@ class MouseState extends KeyModState
 
 	
 	
-	public function new(f:Int, t:UserEventTarget, l:Point, s:Point, related:UserEventTargets)
+	public function new(f:Int, t:UserEventTarget, l:Point, s:Point, related:UserEventTarget)
 	{
 		super(f,t);
 		this.local		= l;

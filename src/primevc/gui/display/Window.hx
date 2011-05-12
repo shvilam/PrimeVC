@@ -33,12 +33,14 @@ package primevc.gui.display;
  import primevc.core.geom.Point;
 #end
 #if (flash8 || flash9 || js)
- import flash.display.InteractiveObject;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEventTarget;
  import primevc.gui.events.UserEvents;
  import primevc.gui.input.Mouse;
   using primevc.utils.Bind;
+#end
+#if flash 
+ import flash.display.InteractiveObject; 
 #end
 
 

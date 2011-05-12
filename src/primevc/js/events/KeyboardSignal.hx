@@ -9,6 +9,7 @@ import js.Lib;
 
 typedef KeyboardEvent = 
 {
+	>DOMEvent,
 	/*
 	keyLocation constants
 	KEY_LOCATION_LEFT 		= 0x01; 
@@ -16,7 +17,6 @@ typedef KeyboardEvent =
 	KEY_LOCATION_RIGHT 		= 0x02; 
 	KEY_LOCATION_STANDARD 	= 0x00; 
 	*/
-	
 	public var altGraphKey	(default, null):Bool;
 	public var altKey 		(default, null):Bool; // Indicates whether or not the ALT key was pressed when the event was triggered. 
 	public var charCode		(default, null):Int; // Works for keypress event. Sometimes browser-specific. 
@@ -36,9 +36,9 @@ typedef KeyboardEvent =
 
 class KeyboardSignal extends DOMSignal1<KeyboardState>
 {	
-	override private function dispatch(e:KeyboardEvent)
+	override private function dispatch(e:Event)
 	{
-		send( stateFromEvent(e) );
+		send( stateFromEvent(cast e) );
 	}
 	
 	
