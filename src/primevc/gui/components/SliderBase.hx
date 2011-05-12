@@ -45,8 +45,6 @@ package primevc.gui.components;
   using Std;
 
 
-private typedef DataType = PercentageHelper; //Bindable<Float>;
-
 
 /**
  * Slider component
@@ -54,7 +52,7 @@ private typedef DataType = PercentageHelper; //Bindable<Float>;
  * @author Ruben Weijers
  * @creation-date Nov 05, 2010
  */
-class SliderBase extends UIDataContainer < DataType >
+class SliderBase extends UIDataContainer <PercentageHelper>
 {
 	/**
 	 * Defines if the slider is horizontal or vertical
@@ -69,18 +67,18 @@ class SliderBase extends UIDataContainer < DataType >
 	public var sliding		(default, null)				: ActionEvent;
 	
 	
-	private var mouseMoveBinding		: Wire < Dynamic >;
-	private var mouseBgDownBinding		: Wire < Dynamic >;
-	private var mouseBtnDownBinding		: Wire < Dynamic >;
-	private var mouseUpBinding			: Wire < Dynamic >;
-//	private var updatePercBinding		: Wire < Dynamic >;
+	private var mouseMoveBinding		: Wire < MouseState -> Void >;
+	private var mouseBgDownBinding		: Wire < MouseState -> Void >;
+	private var mouseBtnDownBinding		: Wire < MouseState -> Void >;
+	private var mouseUpBinding			: Wire < MouseState -> Void >;
+//	private var updatePercBinding		: Wire < MouseState -> Void >;
 	
 	
 	
 	
 	public function new (id:String = null, value:Float = 0.0, minValue:Float = 0.0, maxValue:Float = 1.0, direction:Direction = null)
 	{
-		super(id, new DataType(value, minValue, maxValue));
+		super(id, new PercentageHelper(value, minValue, maxValue));
 		(untyped this).inverted		= false;
 	//	(untyped this).showButtons	= false;
 		this.direction				= direction == null ? horizontal : direction;
@@ -248,6 +246,8 @@ class SliderBase extends UIDataContainer < DataType >
 								: ((curMouse.y - layout.padding.top) / layout.height).within(0, 1);
 		
 		validate();
+		
+		//enable dragging as long as the mouse is down
 		enableMoveWires(mouseObj);
 	}
 	
@@ -335,7 +335,6 @@ class SliderBase extends UIDataContainer < DataType >
 			
 			dragBtn.x			= layout.padding.left + ( data.percentage * ( layout.width - dragBtn.layout.outerBounds.width ) );
 			dragBtn.layout.x	= dragBtn.x.roundFloat();
-		//	trace(this+"; "+dragBtn.x);
 		}
 		else
 		{

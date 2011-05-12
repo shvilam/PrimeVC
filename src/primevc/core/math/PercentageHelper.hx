@@ -82,6 +82,9 @@ class PercentageHelper extends Bindable<Float>, implements IDisposable
 	 */
 	public var inverted		(default, setInverted)			: Bool;
 	
+	public var min			(getMin, setMin)				: Float;
+	public var max			(getMax, setMax)				: Float;
+	
 	
 	//
 	// PRIVATE VARS
@@ -141,13 +144,14 @@ class PercentageHelper extends Bindable<Float>, implements IDisposable
 	}
 	
 	
-	private inline function calculatePercentage () : Void
-	{
-		updateValueBinding.disable();
-		var diff	= validator.getDiff();
-		percentage	= diff == 0 ? 0 : (( value - validator.min ) / diff).within(0, 1);
-		updateValueBinding.enable();
-	}
+		private inline function calculatePercentage () : Void
+		{
+			updateValueBinding.disable();
+			var diff	= validator.getDiff();
+			percentage	= diff == 0 ? 0 : (( value - validator.min ) / diff); //.within(0, 1);
+#if debug	Assert.that( percentage >= 0 && percentage <= 1 ); #end
+			updateValueBinding.enable();
+		}
 	
 	
 	/**
@@ -202,8 +206,6 @@ class PercentageHelper extends Bindable<Float>, implements IDisposable
 	//
 	
 	
-//	private inline function getValue ()				{ return data.value; }
-//	private inline function setValue (v:Float)		{ return data.value = v; }
 	private inline function getPercentage ()		{ return perc.value; }
 	private inline function setPercentage (v:Float)	{ Assert.that( v <= 1, v + " > 1" ); Assert.that( v >= 0, v + " < 0" ); return perc.value = v; }
 	
@@ -218,4 +220,10 @@ class PercentageHelper extends Bindable<Float>, implements IDisposable
 		
 		return v;
 	}
+	
+	
+	private inline function getMin ()			{ return validator.min; }
+	private inline function getMax ()			{ return validator.max; }
+	private inline function setMin (v:Float)	{ return validator.min = v; }
+	private inline function setMax (v:Float)	{ return validator.max = v; }
 }

@@ -338,6 +338,9 @@ class LayoutClient extends Invalidatable
 	}
 	
 	
+	public inline function isValidated ()	{ return state.is(ValidateStates.validated); }
+	public inline function isValidating ()	{ return state == null ? false : state.is(ValidateStates.validating) || (parent != null && parent.isValidating()); }
+	public inline function isInvalidated ()	{ return state == null ? false : state.is(ValidateStates.invalidated) || state.is(ValidateStates.parent_invalidated); }
 	
 	
 	
@@ -362,9 +365,6 @@ class LayoutClient extends Invalidatable
 	{
 		if (_width != v)
 		{
-#if debug	Assert.that( v.notSet() || v > -2147483643, this+" width = "+v );
-			Assert.that( v < 10000, this+" width = "+v ); #end
-			
 			//step 1 - 4
 			updateAllWidths( validateWidth( v, Flags.VALIDATE_ALL ) );
 			
@@ -390,9 +390,6 @@ class LayoutClient extends Invalidatable
 	{
 		if (_height != v)
 		{
-#if debug	Assert.that( v.notSet() || v > -2147483643, this+" width = "+v );
-			Assert.that( v < 10000, this+" width = "+v ); #end
-			
 			updateAllHeights( validateHeight( v, Flags.VALIDATE_ALL ) );
 			
 			if (maintainAspectRatio)
@@ -504,6 +501,9 @@ class LayoutClient extends Invalidatable
 		if (!force && _width == v && v.isSet())
 			return v;
 		
+#if debug	Assert.that( v.notSet() || v > -1, this+" width = "+v );
+			Assert.that( v < 10000, this+" width = "+v ); #end
+		
 		var outer = outerBounds, inner = innerBounds;
 		outer.invalidatable = inner.invalidatable = false;
 		
@@ -539,6 +539,9 @@ class LayoutClient extends Invalidatable
 	{
 		if (!force && _height == v && v.isSet())
 			return v;
+		
+#if debug	Assert.that( v.notSet() || v > -1, this+" height = "+v );
+			Assert.that( v < 10000, this+" height = "+v ); #end
 		
 		var outer = outerBounds, inner = innerBounds;
 		outer.invalidatable = inner.invalidatable = false;
@@ -799,16 +802,6 @@ class LayoutClient extends Invalidatable
 	public inline function getVerPadding() : Int	{ return padding == null ? 0 : padding.top + padding.bottom; }
 	public inline function getHorMargin () : Int	{ return margin == null ? 0 : margin.left + margin.right; }
 	public inline function getVerMargin() : Int		{ return margin == null ? 0 : margin.top + margin.bottom; }
-	
-	
-	public inline function isValidating () : Bool	{
-		return state == null ? false : state.is(ValidateStates.validating) || (parent != null && parent.isValidating());
-	}
-	
-	
-	public inline function isInvalidated () : Bool	{
-		return state == null ? false : state.is(ValidateStates.invalidated) || state.is(ValidateStates.parent_invalidated);
-	}
 	
 	
 	

@@ -77,6 +77,9 @@ class UIElementFlags
 	// ScrollBar and ProgressBar
 	public static inline var SOURCE			= 1 << 16;
 	
+	
+	public static inline var SCALE			= 1 << 17;
+	
 
 	
 #if debug
@@ -100,6 +103,7 @@ class UIElementFlags
 		if (flags.has( PERCENTAGE ))	output.push("percentage");
 		if (flags.has( DIRECTION ))		output.push("direction");
 		if (flags.has( SOURCE ))		output.push("source");
+		if (flags.has( SCALE ))			output.push("scale");
 		
 		return output.length > 0 ? output.join(", ") : "no-properties";
 	}

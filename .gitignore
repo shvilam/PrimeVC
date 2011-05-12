@@ -6,6 +6,7 @@ Thumb.db
 *.swf
 
 /styles/*/StyleSheet.hx
+/styles/*/images
 /build/environment.sh
 *bin-debug/*
 *bin-release/*

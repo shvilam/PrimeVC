@@ -136,7 +136,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 					||	( child.is(IAdvancedLayoutClient) && child.as(IAdvancedLayoutClient).explicitWidth.notSet() )
 				)
 				&& child.percentWidth.isSet()
-				&& widthToUse.isSet();
+				&& child.percentWidth > 0
+				&& widthToUse > 0;
 	}
 	
 	
@@ -147,7 +148,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 						||	( child.is(IAdvancedLayoutClient) && child.as(IAdvancedLayoutClient).explicitHeight.notSet() )
 				)
 				&& child.percentHeight.isSet()
-				&& heightToUse.isSet();
+				&& child.percentHeight > 0
+				&& heightToUse > 0;
 	}
 	
 	
@@ -183,8 +185,10 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			}
 			
 			//measure children with explicitWidth and no percentage size
-			else if (checkIfChildGetsPercentageWidth(child, width))
+			else if (checkIfChildGetsPercentageWidth(child, width)) {
 				child.outerBounds.width = (width * child.percentWidth).roundFloat();
+#if debug		Assert.that( (width * child.percentWidth) > 0, "invalid width: "+(width * child.percentWidth)+"; groupWidth: "+width+"; child.percentWidth: "+child.percentWidth ); #end
+			}
 			
 			
 			//measure children
@@ -244,8 +248,10 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 				child.height = Number.INT_NOT_SET;
 			}
 			
-			else if (checkIfChildGetsPercentageHeight(child, height))
+			else if (checkIfChildGetsPercentageHeight(child, height)) {
 				child.outerBounds.height = (height * child.percentHeight).roundFloat();
+#if debug		Assert.that( child.outerBounds.height > 0, "invalid height: "+child.outerBounds.height+"; groupHeight: "+height+"; child.percentHeight: "+child.percentHeight ); #end
+			}
 			
 			//measure children
 			if (child.percentHeight != Flags.FILL) {
