@@ -29,8 +29,9 @@
 package primevc.gui.events;
  import primevc.core.dispatcher.Signals;
  import primevc.core.geom.Point;
- import primevc.gui.display.ISprite;
+ import primevc.core.traits.IClonable;
  import primevc.gui.events.KeyModState;
+
 
 typedef MouseEvents = 
 	#if		flash9	primevc.avm2.events.MouseEvents;
@@ -47,6 +48,7 @@ typedef MouseSignal		= primevc.core.dispatcher.Signal1<MouseState>;
  * Cross-platform mouse events.
  * 
  * @author Danny Wilson
+ * @author Ruben Weijers
  * @creation-date jun 14, 2010
  */
 class MouseSignals extends Signals
@@ -124,7 +126,7 @@ class MouseSignals extends Signals
  * @author Danny Wilson
  * @creation-date jun 14, 2010
  */
-class MouseState extends KeyModState
+class MouseState extends KeyModState, implements IClonable<MouseState>
 {
 	public static inline var fake = new MouseState( 0, null, null, null, null );
 	
@@ -191,6 +193,12 @@ class MouseState extends KeyModState
 		return obj != null && obj == related;
 	}
 #end
+	
+	
+	public inline function clone () : MouseState
+	{
+		return new MouseState( flags, target, local, stage #if flash9, related #end);
+	}
 	
 	
 #if debug

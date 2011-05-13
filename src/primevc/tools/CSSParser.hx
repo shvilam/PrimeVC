@@ -1188,7 +1188,7 @@ class CSSParser
 			case "opacity":						parseAndSetOpacity( val );		// alpha value of entire element
 		//	case "resize":			// horizontal / vertical / both / none;	/* makes a textfield resizable in the right bottom corner */	
 			
-		//	case "clip":		// auto, rect([t],[r],[b],[l])	--> specifies the area of an absolutly positioned box that should be visible == scrollrect size?
+		//	case "clip":			// auto, rect([t],[r],[b],[l])	--> specifies the area of an absolutly positioned box that should be visible == scrollrect size?
 			case "overflow":					parseAndSetOverflow( val ); // visible, hidden, scroll-mouse-move, drag-scroll, corner-scroll, scrollbars
 		
 		

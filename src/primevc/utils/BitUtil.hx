@@ -98,6 +98,8 @@ class BitUtil
 	
 	/**
 	 * method will return bits with the flags in bitsToFlip flipped
+	 * If one the bits is set it will be unset, if one of the bits isn't set
+	 * it will be set.
 	 */
 	public static inline function flip (bits:UInt, bitsToFlip:UInt) : UInt
 	{

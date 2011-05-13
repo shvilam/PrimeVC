@@ -85,8 +85,8 @@ class DragHelper implements IDisposable
 	
 	public inline function init ()
 	{
-		mouseUpBinding		= stopDrag		.on( target.window.mouse.events.up, this );
-		mouseMoveBinding	= preStartDrag	.on( target.window.mouse.events.move, this );
+		mouseUpBinding		= stopDrag		.on( target.window.userEvents.mouse.up, this );
+		mouseMoveBinding	= preStartDrag	.on( target.window.userEvents.mouse.move, this );
 		keyDownBinding		= checkCancel	.on( target.window.userEvents.key.down, this );
 		
 		mouseUpBinding	.disable();

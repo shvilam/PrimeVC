@@ -4,7 +4,7 @@
 
 	* benchmarken van compilen van grote stylesheets
 	* testen met c++ parser ipv neko parser
-	* nicolas' css-parser gebruiken en uitbreiden
+	* nicolas' css-parser gebruiken en uitbreiden (HSS, http://ncannasse.fr/blog/)
 		* dit vereist een tussen parser output waarna een 2e parser dit kan 
 			omzetten naar code voor PrimeVC maar ook eventueel naar een ander
 			framework.

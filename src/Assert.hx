@@ -64,7 +64,8 @@ class Assert
 	static inline private function sendError (error:String, msg:String, pos:haxe.PosInfos)
 	{
 #if debug
-		msg = pos.className + "::" + pos.lineNumber + ": "+error + "; msg: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber;
+		var className = pos.className.split(".").pop();
+		msg = className + "." + pos.methodName + "()::" + pos.lineNumber + ": "+error + "; msg: " + msg;
 		trace(msg);
 	#if flash9
 		throw new Error( msg );
