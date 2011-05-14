@@ -28,7 +28,6 @@
  */
 package primevc.core.states;
  import primevc.core.traits.IDisposable;
- import primevc.core.dispatcher.INotifier;
  import primevc.core.dispatcher.Signal2;
  import primevc.utils.FastArray;
 
@@ -97,8 +96,7 @@ interface IFiniteStateMachine implements haxe.rtti.Infos, implements IDisposable
 	public function disable ()									: Void;
 	
 	/**
-	 * Method to change the state of the FSM to the given state when the
-	 * signal is firing
+	 * Returns a function to change the state of the FSM to the given state
 	 */
-	public function changeOn (trigger:INotifier<Dynamic>, toState:IState)	: Void;
+	public function changeTo (toState:IState)					: Void -> Void;
 }

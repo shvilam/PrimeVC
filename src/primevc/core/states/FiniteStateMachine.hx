@@ -28,9 +28,7 @@
  */
 package primevc.core.states;
  import primevc.core.dispatcher.Signal2;
- import primevc.core.dispatcher.INotifier;
  import primevc.utils.FastArray;
-  using primevc.utils.Bind;
 
 
 /**
@@ -154,10 +152,10 @@ class FiniteStateMachine implements IFiniteStateMachine
 	public inline function disable ()						{ if (enabled) { current = defaultState; enabled = false; } }
 	
 	
-	public inline function changeOn (event:INotifier<Dynamic>, toState:IState)
+	public function changeTo (toState:IState) : Void -> Void
 	{
 		var t = this;
 		Assert.that( has(toState) );
-		event.observe( this, function () { t.setCurrent( toState ); } );
+		return function () { t.setCurrent( toState ); };
 	}
 }

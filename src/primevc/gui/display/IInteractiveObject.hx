@@ -34,4 +34,9 @@ package primevc.gui.display;
  * @author Ruben Weijers
  * @creation-date Jan 26, 2011
  */
-interface IInteractiveObject implements IDisplayObject,	implements IInteractive {}
+interface IInteractiveObject implements IDisplayObject,	implements IInteractive
+{
+#if flash9
+	public var contextMenu : flash.ui.ContextMenu;
+#end
+}
