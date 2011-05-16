@@ -24,20 +24,17 @@
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc;
- import primevc.core.traits.IEditEnabledValueObject;
+package primevc.mvc.core;
 
 
 /**
+ * Interface 'tag' to mark a class as a States collection.
+ * 
  * @author Ruben Weijers
- * @creation-date Dec 14, 2010
+ * @creation-date May 10, 2011
  */
-interface IEditableProxy < EditableVOType:IEditEnabledValueObject > 
+interface IStates implements primevc.core.traits.IDisposable
 {
-	public function beginEdit ()	: EditableVOType;
-	public function commitEdit ()	: Void;
-	public function cancelEdit ()	: Void;
-	public function isEditing ()	: Bool;
 }

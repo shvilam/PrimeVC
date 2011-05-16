@@ -20,20 +20,53 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.s
+ * DAMAGE.
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ rubenw.nl>
+ *  Danny Wilson	<danny @ onlinetouch.nl>
  */
-package primevc.mvc;
+package primevc.mvc.actors;
+ import primevc.core.traits.IValueObject;
+  using primevc.utils.BitUtil;
 
 
 /**
+ * A Proxy manages a portion of the Model. Usually it manages a single value-object.
+ * It exposes methods and properties to allow other MVC-actors to manipulate it.
+ * 
+ * A Proxy does not know anything outside of it's own world, and does not respond to signals.
+ * It however does send signals, for example when the value-object changes.
+ * 
+ * @author Danny Wilson
  * @author Ruben Weijers
- * @creation-date Nov 16, 2010
+ * @creation-date Jun 22, 2010
  */
-interface ICommand implements primevc.core.traits.IDisposable
+class Proxy<VOType:IValueObject, EventsTypedef> extends Notifier<EventsTypedef>
 {
+	public var vo		(default, null)	: VOType;
 	
+	
+	public function new( events:EventsTypedef, enabled = true )
+	{
+		super(events);
+		if (enabled)
+			enable();
+	//	else			disable();
+	}
+	
+	
+	override public function dispose ()
+	{
+		if (isEnabled())
+			disable();
+		
+		vo = null;
+		super.dispose();
+	}
+	
+	
+	public inline function isEnabled ()	{ return state.has( ActorState.ENABLED ); }
+	public function enable ()			{ state = state.set( ActorState.ENABLED ); }
+	public function disable ()			{ state = state.unset( ActorState.ENABLED ); }
 }

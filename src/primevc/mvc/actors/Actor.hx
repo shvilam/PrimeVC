@@ -20,59 +20,51 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc;
- import primevc.core.traits.IEditableValueObject;
- import primevc.core.traits.IEditEnabledValueObject;
+package primevc.mvc.actors;
+ import primevc.core.traits.IDisposable;
   using primevc.utils.BitUtil;
 
 
+
 /**
- * A proxy that allows mediators to edit the VO managed by the proxy.
+ * Class is the base class for mediator and controllers
  * 
- * @author Danny Wilson
- * @creation-date Jul 09, 2010
+ * @author Ruben Weijers
+ * @creation-date Nov 16, 2010
  */
-class EditableProxy	< VOType:IEditableValueObject, EditEnabledVOType:IEditEnabledValueObject, EventsTypedef >
- 		extends Proxy <VOType, EventsTypedef>
-	,	implements IEditableProxy < EditEnabledVOType >
+class Actor <FacadeDef> implements IDisposable
 {
-	public function beginEdit() : EditEnabledVOType
+	public var state	(default, null)	: Int;
+	//TODO: Ask Nicolas why the %$@#! you can't have typedefs as type constraint parameters...
+	public var f		(default, null) : FacadeDef;
+	
+	
+	public function new (facade:FacadeDef)
 	{
-		if (!isEnabled())
-			return null;
+		state	= 0;
+		this.f	= facade;
+	}
+	
+	
+	public function dispose ()
+	{
+		if (isDisposed())
+			return;
 		
-		state = state.set( MVCState.EDITING );
-		vo.beginEdit();
-		return cast vo;
+		stopListening();
+		state	= state.set( ActorState.DISPOSED );
+		f		= null;
 	}
 	
 	
-	public function commitEdit() : Void
-	{
-		if (isEditing())
-		{
-			vo.commitEdit();
-			state = state.unset( MVCState.EDITING );
-		}
-	}
-	
-	
-	public function cancelEdit() : Void
-	{
-		if (isEditing())
-		{
-			vo.cancelEdit();
-			state = state.unset( MVCState.EDITING );
-		}
-	}
-	
-	
-	public inline function isEditing ()	{ return state.has( MVCState.EDITING ); }
-	override public function disable ()	{ cancelEdit(); super.disable(); }
+	public function startListening () : Void		{ if (!isListening())	state = state.set( ActorState.LISTENING ); }
+	public function stopListening () : Void			{ if (isListening())	state = state.unset( ActorState.LISTENING ); }
+	private inline function isListening () : Bool	{ return state.has( ActorState.LISTENING ); }
+	private inline function isDisposed () : Bool	{ return state.has( ActorState.DISPOSED ); }
 }

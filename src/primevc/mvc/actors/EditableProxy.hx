@@ -20,49 +20,59 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.s
+ * DAMAGE.
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ rubenw.nl>
+ *  Danny Wilson	<danny @ onlinetouch.nl>
  */
-package primevc.mvc;
- import primevc.core.traits.IDisposable;
+package primevc.mvc.actors;
+ import primevc.core.traits.IEditableValueObject;
+ import primevc.core.traits.IEditEnabledValueObject;
   using primevc.utils.BitUtil;
 
 
 /**
- * Base class for controllers, mediators and proxy's. It defines that the objects
- * can send events.
+ * A proxy that allows mediators to edit the VO managed by the proxy.
  * 
- * @author Ruben Weijers
- * @creation-date Nov 16, 2010
+ * @author Danny Wilson
+ * @creation-date Jul 09, 2010
  */
-class Notifier < EventsTypeDef > implements IDisposable
+class EditableProxy	< VOType:IEditableValueObject, EditEnabledVOType:IEditEnabledValueObject, EventsTypedef >
+ 		extends Proxy <VOType, EventsTypedef>
+	,	implements IEditableProxy < EditEnabledVOType >
 {
-	public var state	(default, null)	: Int;
-	public var events	(default, null)	: EventsTypeDef;
-	
-	
-	public function new( events:EventsTypeDef )
+	public function beginEdit() : EditEnabledVOType
 	{
-		Assert.notNull(events, "Events cannot be null");
-		state		= 0;
-		this.events	= events;
-	}
-	
-	
-	public function dispose ()
-	{
-		if (isDisposed())
-			return;
+		if (!isEnabled())
+			return null;
 		
-		events	= null;
+		state = state.set( ActorState.EDITING );
+		vo.beginEdit();
+		return cast vo;
 	}
 	
 	
-	private inline function isDisposed ()
+	public function commitEdit() : Void
 	{
-		return state.has( MVCState.DISPOSED );
+		if (isEditing())
+		{
+			vo.commitEdit();
+			state = state.unset( ActorState.EDITING );
+		}
 	}
+	
+	
+	public function cancelEdit() : Void
+	{
+		if (isEditing())
+		{
+			vo.cancelEdit();
+			state = state.unset( ActorState.EDITING );
+		}
+	}
+	
+	
+	public inline function isEditing ()	{ return state.has( ActorState.EDITING ); }
+	override public function disable ()	{ cancelEdit(); super.disable(); }
 }

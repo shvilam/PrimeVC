@@ -1,7 +1,7 @@
 package sample;
 
 import primevc.gui.events.MouseEvents;
-import primevc.mvc.Mediator;
+import primevc.mvc.actors.Mediator;
 import primevc.core.dispatcher.Signal1;
 using primevc.utils.Bind;
 using primevc.utils.TypeUtil;
@@ -10,14 +10,14 @@ using primevc.utils.TypeUtil;
  * Defines what ui events should be listened to
  * and what functions react to them.
  */
-class ImageLoaderMediator extends Mediator <MainEvents, MainModel, MainView, ImageLoader>
+class ImageLoaderMediator extends Mediator <MainFacade, ImageLoader>
 {	
     override public function startListening ()
     {
         if (isListening())
             return;
         // Bind a ui event to a function.
-        events.loadImage.bind(this, gui.loadImage);
+        f.events.loadImage.bind(this, gui.loadImage);
         super.startListening();
     }
 
@@ -27,7 +27,7 @@ class ImageLoaderMediator extends Mediator <MainEvents, MainModel, MainView, Ima
         if (!isListening())
             return;
         // Unbind action from a ui event.
-        events.loadImage.unbind(this);
+        f.events.loadImage.unbind(this);
         super.stopListening ();
     }
 }

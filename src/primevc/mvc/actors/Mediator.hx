@@ -24,17 +24,62 @@
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ rubenw.nl>
+ *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.mvc;
-
+package primevc.mvc.actors;
+// import primevc.core.dispatcher.Signals;
 
 /**
- * Interface 'tag' to mark a class as a States collection.
+ * Abstract Mediator class.
  * 
- * @author Ruben Weijers
- * @creation-date May 10, 2011
+ * The Mediator translates requests between components.
+ * Usually it acts as a layer between application-requests and the View.
+ * 
+ * A Mediator is not allowed to change Value-objects.
+ * It can however request changes from a Proxy (defined within Model).
+ * 
+ * @author Danny Wilson
+ * @creation-date Jun 22, 2010
  */
-interface IStates implements primevc.core.traits.IDisposable
+class Mediator <FacadeDef, GUIType> extends Actor <FacadeDef>, implements IMediator <GUIType>
 {
+	public var gui (default, setGUI)	: GUIType;
+	
+	
+	public function new (facade:FacadeDef, gui:GUIType = null)
+	{
+		super(facade);
+		this.gui = gui;
+	}
+	
+	
+	override public function dispose ()
+	{
+		if (isDisposed())
+			return;
+		
+		gui = null;
+		super.dispose();
+	}
+	
+	
+	/**
+	 * Set the UI element that the mediator serves.
+	 */
+	private function setGUI (gui:GUIType)
+	{
+		if (isListening())
+		{
+			stopListening();
+			this.gui = gui;
+			
+			if (gui != null)
+				startListening();
+		}
+		else
+			this.gui = gui;
+		
+		return gui;
+	}
 }

@@ -7,9 +7,9 @@ import primevc.core.dispatcher.Signals;
 
 import primevc.mvc.Facade;
 import primevc.mvc.Model;
-import primevc.mvc.Mediator;
+import primevc.mvc.actors.Mediator;
 import primevc.mvc.View;
-import primevc.mvc.Proxy;
+import primevc.mvc.actors.Proxy;
 import primevc.mvc.EditProxy;
 
 import primevc.mvc.traits.IValueObject;
@@ -50,7 +50,7 @@ class UserProxy extends EditProxy<IUserVO, UserVO, IUserEVO, UserProxyEvents>
 {
 	
 	public function login(name:String, pass:String) {
-		events.loggedIn.send( null );
+		f.events.loggedIn.send( null );
 	}
 }
 

@@ -1,12 +1,12 @@
 package sample;
 
 import primevc.gui.events.MouseEvents;
-import primevc.mvc.Mediator;
+import primevc.mvc.actors.Mediator;
 import primevc.core.dispatcher.Signal1;
 using primevc.utils.Bind;
 using primevc.utils.TypeUtil;
 
-class ButtonMediator extends Mediator <MainEvents, MainModel, MainView, Button>
+class ButtonMediator extends Mediator <MainFacade, Button>
 {	
     override public function startListening ()
     {
@@ -28,6 +28,6 @@ class ButtonMediator extends Mediator <MainEvents, MainModel, MainView, Button>
 
     private function clickHandler(e)
     {
-        events.loadImage.send(model.mainProxy.vo.value);
+        f.events.loadImage.send(f.model.mainProxy.vo.value);
     }
 }

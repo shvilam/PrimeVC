@@ -28,7 +28,7 @@
  */
 package primevc.gui.core;
  import primevc.core.Bindable;
- import primevc.gui.display.ISprite;
+ import primevc.gui.display.IDisplayContainer;
  import primevc.gui.traits.ISkinnable;
 #if flash9
  import primevc.gui.traits.IDrawable;
@@ -42,7 +42,7 @@ package primevc.gui.core;
  * @author			Ruben Weijers
  */
 interface IUIComponent
-				implements ISprite
+				implements IDisplayContainer
 			,	implements IUIElement
 			,	implements ISkinnable
 #if flash9	,	implements IDrawable	#end

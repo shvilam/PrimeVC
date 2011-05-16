@@ -20,19 +20,50 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc;
+package primevc.mvc.actors;
+ import primevc.core.traits.IDisposable;
+  using primevc.utils.BitUtil;
 
 
 /**
- * Interface 'tag' to mark a class as a Mediator.
+ * Base class for controllers, mediators and proxy's. It defines that the objects
+ * can send events.
+ * 
+ * @author Ruben Weijers
+ * @creation-date Nov 16, 2010
  */
-interface IMediator <GUIType> implements primevc.core.traits.IDisposable
+class Notifier < EventsTypeDef > implements IDisposable
 {
-	public var gui (default, setGUI)	: GUIType;
+	public var state	(default, null)	: Int;
+	public var events	(default, null)	: EventsTypeDef;
+	
+	
+	public function new( events:EventsTypeDef )
+	{
+		Assert.notNull(events, "Events cannot be null");
+		state		= 0;
+		this.events	= events;
+	}
+	
+	
+	public function dispose ()
+	{
+		if (isDisposed())
+			return;
+		
+		state	= state.set( ActorState.DISPOSED );
+		events	= null;
+	}
+	
+	
+	private inline function isDisposed ()
+	{
+		return state.has( ActorState.DISPOSED );
+	}
 }

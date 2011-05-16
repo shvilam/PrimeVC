@@ -20,41 +20,19 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.s
+ * DAMAGE.
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ rubenw.nl>
+ *  Danny Wilson	<danny @ onlinetouch.nl>
  */
-package primevc.mvc;
-#if debug
-  using primevc.utils.BitUtil;
-#end
+package primevc.mvc.actors;
 
 
 /**
- * @author Ruben Weijers
- * @creation-date Dec 14, 2010
+ * Interface 'tag' to mark a class as a Mediator.
  */
-class MVCState
+interface IMediator <GUIType> implements primevc.core.traits.IDisposable
 {
-	public static inline var LISTENING	: Int = 1;
-	public static inline var DISPOSED	: Int = 2;
-	
-	public static inline var ENABLED	: Int = 4;
-	public static inline var EDITING	: Int = 8;
-	
-	
-#if debug
-	public static inline function readState (state:Int)
-	{
-		var str = [];
-		if (state.has(LISTENING))	str.push( "listening" );
-		if (state.has(DISPOSED))	str.push( "disposed" );
-		if (state.has(EDITING))		str.push( "editing" );
-		if (state.has(ENABLED))		str.push( "enabled" );
-		
-		return str.join(", ");
-	}
-#end
+	public var gui (default, setGUI)	: GUIType;
 }
