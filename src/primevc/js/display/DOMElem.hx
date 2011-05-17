@@ -1,6 +1,7 @@
 package primevc.js.display;
 
 import nl.onlinetouch.viewer.view.managers.js.WebkitTransform;
+import nl.onlinetouch.viewer.view.managers.js.TransitionManager;
 import primevc.js.display.DisplayList;
 
 import js.Dom;
@@ -13,19 +14,20 @@ import js.Lib;
  
 class DOMElem
 {
-	public var type		(default, null):String;
-	public var elem		(default, null):Dynamic;
-	public var width	(default, setWidth):Float;
-	public var height	(default, setHeight):Float;
-	public var x		(default, setX):Float;
-	public var y		(default, setY):Float;
-	public var scale	(default, setScale):Float;
-	public var id		(default, setId):String;
-	public var style	(getStyle, null):Style;
-	public var className(default, setClassName):String;
-	public var matrix	(default, null):WebKitCSSMatrix;
-	public var children	(default, null):DisplayList;
-	public var parent	:Dynamic;
+	public var type			(default, null):String;
+	public var elem			(default, null):Dynamic;
+	public var width		(default, setWidth):Float;
+	public var height		(default, setHeight):Float;
+	public var x			(default, setX):Float;
+	public var y			(default, setY):Float;
+	public var scale		(default, setScale):Float;
+	public var id			(default, setId):String;
+	public var style		(getStyle, null):Style;
+	public var className	(default, setClassName):String;
+	public var matrix		(default, null):WebKitCSSMatrix;
+	public var children		(default, null):DisplayList;
+	public var transition 	(default, setTransition):String;
+	public var parent		:DOMElem;
 	
 	public function new(type:String)
 	{
@@ -33,13 +35,12 @@ class DOMElem
 		
 		children = new DisplayList(this);
 		
-		matrix = WebkitTransform.getMatrix(elem);
+		matrix = WebkitTransform.getMatrix(this);
 		
 		(untyped this).x = 0;
 		(untyped this).y = 0;
 		(untyped this).scale = 1;
 	}
-	
 	
 	private function setWidth(value:Float):Float
 	{
@@ -48,14 +49,12 @@ class DOMElem
 		return width;
 	}
 	
-	
 	private function setHeight(value:Float):Float
 	{
 		height = value;
 		elem.style.height = height + "px";
 		return height;
 	}
-	
 	
 	private function setX(value:Float):Float
 	{
@@ -65,7 +64,6 @@ class DOMElem
 		return x;
 	}
 	
-	
 	private function setY(value:Float):Float
 	{
 		y = value;
@@ -74,7 +72,6 @@ class DOMElem
 		return y;
 	}
 	
-	
 	public function moveTo(x:Float, y:Float)
 	{
 		(untyped this).x = x;
@@ -82,14 +79,12 @@ class DOMElem
 		WebkitTransform.translate(this, x, y);
 	}
 	
-	
 	private function setScale(value:Float):Float
 	{
 		scale = value;
 		WebkitTransform.scale(this, scale);
 		return scale;
 	}
-	
 	
 	private function setId(value:String):String
 	{
@@ -110,5 +105,21 @@ class DOMElem
 		className = value;
 		elem.className = className;
 		return className;
+	}
+	
+	private function setTransition(value:String):String
+	{
+		transition = value;
+		
+		if (transition != TransitionManager.NONE)
+		{
+			elem.className = className + " " + transition;
+		}
+		else
+		{
+			elem.className = className;
+		}
+		
+		return transition;
 	}
 }

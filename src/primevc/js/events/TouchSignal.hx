@@ -38,7 +38,6 @@ typedef Touch =
  * @author	Stanislav Sopov
  * @since	March 2, 2011
  */
-
 class TouchSignal extends DOMSignal1<TouchEvent>
 {
 	override private function dispatch(event:Event)

@@ -1,7 +1,6 @@
 package primevc.js.events;
 
 import primevc.core.dispatcher.Signals;
-import js.Dom;
 
 /**	
  * @author Stanislav Sopov

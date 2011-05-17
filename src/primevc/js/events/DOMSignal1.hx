@@ -5,19 +5,15 @@ import primevc.core.dispatcher.Signal1;
 import primevc.core.dispatcher.IWireWatcher;
 import primevc.core.ListNode;
 import js.Dom;
-import js.Lib;
-
 
 typedef DOMEvent =
 {
 	/*
 	eventPhase constants
-	
 	CAPTURING_PHASE	= 1;
 	AT_TARGET		= 2;
 	BUBBLING_PHASE	= 3;
 	*/
-	
 	public var type				(default, null):String; // The type of the event.
 	public var bubbles			(default, null):Bool; // Indicates whether the event can bubble.
 	public var canBubble		(default, null):Bool; // Indicates whether the event can bubble.
@@ -36,17 +32,14 @@ typedef DOMEvent =
 	public function stopPropagation():Void; // Prevents the event from any further propagation.
 }
 
-
 /**
  * @author	Stanislav Sopov
  * @since 	March 2, 2011
  */
-
 class DOMSignal1<Type> extends Signal1<Type>, implements IWireWatcher<Type->Void>
 {
 	var eventDispatcher:Dynamic;
 	var event:String;
-	
 	
 	public function new (eventDispatcher:Dynamic, event:String)
 	{
@@ -54,7 +47,6 @@ class DOMSignal1<Type> extends Signal1<Type>, implements IWireWatcher<Type->Void
 		this.eventDispatcher = eventDispatcher;
 		this.event = event;
 	}
-	
 	
 	public function wireEnabled (wire:Wire<Type->Void>):Void
 	{	
@@ -66,7 +58,6 @@ class DOMSignal1<Type> extends Signal1<Type>, implements IWireWatcher<Type->Void
 		}
 	}
 	
-	
 	public function wireDisabled (wire:Wire<Type->Void>):Void
 	{	
 		if (n == null) // No more wires connected
@@ -74,7 +65,6 @@ class DOMSignal1<Type> extends Signal1<Type>, implements IWireWatcher<Type->Void
 			untyped eventDispatcher.removeEventListener(event, dispatch, false);
 		}
 	}
-	
 	
 	private function dispatch(e:Event) 
 	{

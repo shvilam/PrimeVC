@@ -8,14 +8,12 @@ import primevc.core.events.CommunicationEvents;		// needed for ProgressHandler t
 
 import primevc.js.net.XMLHttpRequest;
 import js.Dom;
-import js.Lib;
 
 /**
  * @author	Stanislav Sopov
  * @since	April 6, 2011
  */
-
-class ProgressSignal extends Signal2<Int, Int>, implements IWireWatcher < ProgressHandler > 
+class ProgressSignal extends Signal2<Int, Int>, implements IWireWatcher <ProgressHandler> 
 {
 	
 	var request:XMLHttpRequest;
@@ -30,7 +28,6 @@ class ProgressSignal extends Signal2<Int, Int>, implements IWireWatcher < Progre
 		this.event = e;
 	}
 	
-	
 	public function wireEnabled(wire:Wire<ProgressHandler>) : Void 
 	{
 		Assert.that(n != null);
@@ -41,7 +38,6 @@ class ProgressSignal extends Signal2<Int, Int>, implements IWireWatcher < Progre
 		}
 	}
 	
-	
 	public function wireDisabled(wire:Wire<ProgressHandler>):Void 
 	{
 		if (n == null) // No more wires connected
@@ -49,7 +45,6 @@ class ProgressSignal extends Signal2<Int, Int>, implements IWireWatcher < Progre
 			request.removeEventListener(event, dispatch, false);
 		}
 	}
-
 	
 	private function dispatch(e:Event)
 	{	

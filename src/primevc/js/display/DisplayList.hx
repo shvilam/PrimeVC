@@ -11,38 +11,28 @@ import js.Lib;
 
 class DisplayList 
 {
-	
 	public var target(default, null):DOMElem;
-	
 	
 	public function new (object:DOMElem)
 	{
 		target = object;
 	}
 	
-	
 	public inline function add(object:DOMElem)
 	{
-		untyped
+		if (object.elem.parentNode != target.elem)
 		{
-			if (object.elem.parentNode != target.elem)
-			{
-				target.elem.appendChild(object.elem);
-				object.parent = target;
-			}
+			target.elem.appendChild(object.elem);
+			object.parent = target;
 		}
 	}
 	
-	
 	public inline function remove(object:DOMElem)
 	{
-		untyped
+		if (object.elem.parentNode == target.elem)
 		{
-			if (object.elem.parentNode == target.elem)
-			{
-				target.elem.removeChild(object.elem);
-				object.parent = null;
-			}
+			target.elem.removeChild(object.elem);
+			object.parent = null;
 		}
 	}
 }

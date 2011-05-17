@@ -4,8 +4,6 @@ import primevc.gui.events.KeyboardEvents;
 import primevc.gui.events.KeyModState;
 import primevc.js.events.DOMSignal1;
 import js.Dom;
-import js.Lib;
-
 
 typedef KeyboardEvent = 
 {
@@ -28,19 +26,16 @@ typedef KeyboardEvent =
 	public var shiftKey 	(default, null):Bool; // Indicates whether or not the SHIFT key was pressed when the event was triggered.
 }
 
-
 /**
  * @author	Stanislav Sopov
  * @since	March 2, 2011
  */
-
 class KeyboardSignal extends DOMSignal1<KeyboardState>
 {	
 	override private function dispatch(e:Event)
 	{
 		send( stateFromEvent(cast e) );
 	}
-	
 	
 	static  public function stateFromEvent( e:KeyboardEvent ) : KeyboardState
 	{	

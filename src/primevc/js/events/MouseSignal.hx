@@ -43,13 +43,11 @@ class MouseSignal extends DOMSignal1<MouseState>
 		this.clickCount = cc == null ? 0 : cc;
 	}
 	
-	
 	override private function dispatch(e:Event) 
 	{
 		untyped e.preventDefault();
 		send( stateFromEvent(cast e, clickCount) );
 	}
-	
 	
 	static public function stateFromEvent( e:MouseEvent, clickCount:Int ) : MouseState
 	{

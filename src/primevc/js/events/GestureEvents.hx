@@ -1,13 +1,11 @@
 package primevc.js.events;
 
 import primevc.core.dispatcher.Signals;
-import js.Dom;
 
 /**	
  * @author Stanislav Sopov
  * @since  May 3, 2011
  */
-
 class GestureEvents extends Signals
 {
 	var eventDispatcher:Dynamic;

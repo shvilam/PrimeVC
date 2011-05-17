@@ -7,7 +7,6 @@ import js.Dom;
  * @author	Stanislav Sopov
  * @since	March 2, 2011
  */
-
 typedef DisplayEvent =
 {
 	>DOMEvent,
@@ -25,7 +24,6 @@ typedef DisplayEvent =
 	public var prevValue	(default, null):String; // The previous value of the modified attribute.
 	public var relatedNode	(default, null):Dynamic; // A secondary element related to the event. 
 }
-
 
 class DisplaySignal extends DOMSignal1<DisplayEvent>
 {

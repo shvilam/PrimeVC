@@ -1,13 +1,11 @@
 package primevc.js.events;
 
 import primevc.core.dispatcher.Signals;
-import js.Dom;
 
 /**	
  * @since march 2, 2011
  * @author Stanislav Sopov
  */
-
 class MouseEvents extends Signals
 {
 	var eventDispatcher:Dynamic;

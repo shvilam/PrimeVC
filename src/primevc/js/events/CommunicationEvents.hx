@@ -4,7 +4,6 @@ import primevc.core.events.CommunicationEvents;
 import primevc.js.net.XMLHttpRequest;
 import primevc.core.dispatcher.Signal0;
 import js.Dom;
-import js.Lib;
 
 /**
  * @author	Danny Wilson

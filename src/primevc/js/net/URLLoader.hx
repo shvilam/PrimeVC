@@ -63,7 +63,6 @@ loadend				Progression has stopped.
 
 class URLLoader implements IDisposable
 {
-	
 	public var state		(getState, null)		:Int;
 	public var isLoaded		(getIsLoaded, null)		:Bool;
 	public var data			(getData, null)			:Dynamic;
@@ -72,7 +71,6 @@ class URLLoader implements IDisposable
 	public var bytesTotal	(default, null)			:Int;
 	public var events		(default, null)			:LoaderEvents;
 	public var request		(default, null) 		:XMLHttpRequest;
-	
 	
 	public function new(?url:URI)
 	{	
@@ -97,7 +95,6 @@ class URLLoader implements IDisposable
 	// TODO: check what exactly this value represents with different data types
 	//private function getBytesTotal():Int { return Std.parseInt(request.getResponseHeader("Content-Length")); } 
 	
-	
 	private function onLoadProgress(event:Event) 
 	{
 		untyped 
@@ -109,7 +106,6 @@ class URLLoader implements IDisposable
 			}
 		}
 	}
-	
 	
 	private function onReadyStateChange(event:Event)
 	{
@@ -123,7 +119,6 @@ class URLLoader implements IDisposable
 		}
 	}
 	
-	
 	public function dispose()
 	{
 		close();
@@ -131,7 +126,6 @@ class URLLoader implements IDisposable
 		events	= null;
 		request	= null;
 	}
-	
 	
 	public function binaryGET(uri:URI)
 	{
@@ -142,7 +136,6 @@ class URLLoader implements IDisposable
 		request.overrideMimeType('text/plain; charset=x-user-defined');
 		request.send(null);
 	}
-	
 	
 	public function binaryPOST(uri:URI, bytes:haxe.io.Bytes)
 	{
@@ -155,14 +148,12 @@ class URLLoader implements IDisposable
 		request.send(bytes.toString());
 	}
 	
-	
 	public function load(uri:URI)
 	{
 		var request = this.request;
 		request.open("GET", uri.toString(), true);
 		request.send(null);
 	}
-	
 	
 	public inline function close() { return request.abort(); }
 }
