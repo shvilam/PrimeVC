@@ -1,0 +1,13 @@
+#!/bin/bash
+
+BUILDSCRIPTDIR=`dirname $0`
+PRJROOT=`cd "${BUILDSCRIPTDIR}/.."; pwd`
+PRIMEVC_DIR="$PRJROOT/../.."
+
+bash "${PRIMEVC_DIR}/build/build" \
+	-m sample.MainFacade \
+	-p "$PRJROOT" \
+	-e "-swf-version 10" \
+	-s sample \
+	-o Sample.swf \
+	$*

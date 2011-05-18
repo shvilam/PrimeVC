@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<componentPackage>
+	<component id="MainWindow"		superClass="UIWindow"			fullname="sample.MainWindow" />
+<!--<component id=""	superClass=""	fullname="cases." />-->
+</componentPackage>

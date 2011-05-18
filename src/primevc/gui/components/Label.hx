@@ -99,7 +99,7 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 	}
 	
 	
-	override private function removeChildren ()
+	override public function removeChildren ()
 	{
 		super.removeChildren();
 		field.dispose();

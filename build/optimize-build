@@ -13,9 +13,9 @@ APPARAT="$PRIMEVC_ROOT/build/apparat-1.1.0-RC9"
 # echo "input: $INPUT"
 # echo "output: $OUTPUT"
 
-bash $APPARAT/tdsi -i $INPUT -o $INPUT
-bash $APPARAT/stripper -i $INPUT -o $INPUT
-bash $APPARAT/reducer -i $INPUT -o $INPUT
+bash "$APPARAT/tdsi" -i "$INPUT" -o "$INPUT"
+bash "$APPARAT/stripper" -i "$INPUT" -o "$INPUT"
+bash "$APPARAT/reducer" -i "$INPUT" -o "$INPUT"
 
 
 # if [ -f build/environment.sh ]; then
