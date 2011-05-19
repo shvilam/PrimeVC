@@ -27,7 +27,8 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.tools;
- import haxe.FastList;
+// import haxe.FastList;
+ import primevc.core.collections.SimpleList;
  import primevc.core.geom.space.Direction;
  import primevc.core.geom.space.Horizontal;
  import primevc.core.geom.space.MoveDirection;
@@ -320,7 +321,7 @@ class CSSParser
 	/**
 	 * List with all styleSheets url's that should be loaded and parsed.
 	 */
-	private var styleSheetQueue			: FastList < StyleQueueItem >;
+	private var styleSheetQueue			: SimpleList < StyleQueueItem >;
 	
 	/**
 	 * block that is currently handled by the parser
@@ -348,7 +349,7 @@ class CSSParser
 	{
 		this.styles		= styles;
 		this.manifest	= manifest;
-		styleSheetQueue = new FastList < StyleQueueItem >();
+		styleSheetQueue = new SimpleList < StyleQueueItem >();
 		init();
 	}
 	
@@ -608,8 +609,10 @@ class CSSParser
 		this.swfBasePath = swfBasePath;
 		addStyleSheet(styleSheet);
 		
-		while (!styleSheetQueue.isEmpty())
-			parseStyleSheet( styleSheetQueue.pop() );
+		while (!styleSheetQueue.isEmpty()) {
+			var s = styleSheetQueue.remove(styleSheetQueue.getItemAt(0), 0);
+			parseStyleSheet( s );
+		}
 		
 		createStyleStructure( styles );
 		trace("--- DONE ----");
@@ -617,7 +620,6 @@ class CSSParser
 	//	throw 1;
 	//	trace(styles.toCSS());
 	}
-	
 	
 	
 	
@@ -631,38 +633,42 @@ class CSSParser
 	{
 		var content = loadFileContent(file);
 		
-		//trace(file);
-		
 		if (content != "")
 		{
+			trace("loaded "+file);
+			var origBase	= styleSheetBasePath;
 			//find base path of stylesheet
 			var pathEndPos	= file.lastIndexOf("/");
 			var path		= "";
 			if (pathEndPos > -1)
 				path = file.substr(0, pathEndPos);
 			
+			var name = file.substr(pathEndPos);
 			styleSheetBasePath = path;
 			
 			//first add stylesheet to the queue with stylesheets that want to get parsed
-			var item = new StyleQueueItem(path);
-			styleSheetQueue.add( item );
+			var item = new StyleQueueItem(path, name);
 			
 			//strip content of bloat
-			content = importStyleSheets( content );
 			content = removeAllWhiteSpace( content );
 			content = removeComments( content );
-			trace(content);
-			item.content = content;
+			content = importStyleSheets( content );
+		//	trace(content);
+			item.content		= content;
+			styleSheetBasePath	= origBase;
+			styleSheetQueue.add( item );
 		}
 	}
 	
 	
-	private function parseStyleSheet (item:StyleQueueItem) : Void
+	private function parseStyleSheet (item:StyleQueueItem) : StyleQueueItem
 	{
+		trace("\n\nBegin parsing "+item.path + item.filename);
 		styleSheetBasePath	= item.path;
 		item.content		= importManifests( item.content );
 		blockExpr.matchAll(item.content, handleMatchedBlock);
-		trace("PARSED: "+item.path);
+		trace("Finish parsing "+item.path + item.filename);
+		return item;
 	}
 	
 	
@@ -988,7 +994,7 @@ class CSSParser
 	private function handleMatchedBlock (expr:EReg) : Void
 	{
 		//find correct block
-		trace("\n\nhandleMatchedBlock "+expr.matched(1));
+	//	trace("\n\nhandleMatchedBlock "+expr.matched(1));
 		setContentBlock( expr.matched(1) );
 		
 		var content = expr.matched(13).trim();
@@ -1127,7 +1133,7 @@ class CSSParser
 	{
 		var name	= expr.matched(1).trim();
 		var val		= expr.matched(2).trim();
-		trace("handleMatchedProperty "+name+" = "+val);
+	//	trace("handleMatchedProperty "+name+" = "+val);
 		switch (name)
 		{
 			//
@@ -2306,7 +2312,7 @@ class CSSParser
 		if (result)
 		{
 			lastParsedString = v.substr(pos + 6);
-			trace("parseBorderInset "+v+" => "+lastParsedString);
+		//	trace("parseBorderInset "+v+" => "+lastParsedString);
 		}
 		else
 		{
@@ -3905,18 +3911,20 @@ class CSSParser
 class StyleQueueItem implements IDisposable
 {
 	public var path		: String;
+	public var filename	: String;
 	public var content	: String;
 	
 	
-	public function new (path:String = "", content:String = "")
+	public function new (path:String = "", filename:String, content:String = "")
 	{
 		this.path		= path;
 		this.content	= content;
+		this.filename	= filename;
 	}
 	
 	
 	public function dispose ()
 	{
-		path = content = null;
+		path = content = filename = null;
 	}
 }
