@@ -24,62 +24,20 @@
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.mvc.actors;
-// import primevc.core.dispatcher.Signals;
+package primevc.mvc;
+ import primevc.core.traits.IEditEnabledValueObject;
+
 
 /**
- * Abstract Mediator class.
- * 
- * The Mediator translates requests between components.
- * Usually it acts as a layer between application-requests and the View.
- * 
- * A Mediator is not allowed to change Value-objects.
- * It can however request changes from a Proxy (defined within Model).
- * 
- * @author Danny Wilson
- * @creation-date Jun 22, 2010
+ * @author Ruben Weijers
+ * @creation-date Dec 14, 2010
  */
-class Mediator <FacadeDef, GUIType> extends Actor <FacadeDef>, implements IMediator <GUIType>
+interface IEditableProxy < EditableVOType:IEditEnabledValueObject > 
 {
-	public var gui (default, setGUI)	: GUIType;
-	
-	
-	public function new (facade:FacadeDef, gui:GUIType = null)
-	{
-		super(facade);
-		this.gui = gui;
-	}
-	
-	
-	override public function dispose ()
-	{
-		if (isDisposed())
-			return;
-		
-		gui = null;
-		super.dispose();
-	}
-	
-	
-	/**
-	 * Set the UI element that the mediator serves.
-	 */
-	private function setGUI (gui:GUIType)
-	{
-		if (isListening())
-		{
-			stopListening();
-			this.gui = gui;
-			
-			if (gui != null)
-				startListening();
-		}
-		else
-			this.gui = gui;
-		
-		return gui;
-	}
+	public function beginEdit ()	: EditableVOType;
+	public function commitEdit ()	: Void;
+	public function cancelEdit ()	: Void;
+	public function isEditing ()	: Bool;
 }

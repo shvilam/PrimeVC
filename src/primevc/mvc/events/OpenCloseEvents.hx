@@ -20,53 +20,32 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc.actors;
- import primevc.core.traits.IValueObject;
-  using primevc.utils.BitUtil;
+package primevc.mvc.events;
+ import primevc.core.dispatcher.Signals;
+ import primevc.core.dispatcher.Signal1;
 
 
 /**
- * A Proxy manages a portion of the Model. Usually it manages a single value-object.
- * It exposes methods and properties to allow other MVC-actors to manipulate it.
- * 
- * A Proxy does not know anything outside of it's own world, and does not respond to signals.
- * It however does send signals, for example when the value-object changes.
- * 
- * @author Danny Wilson
+ * Defines 2 events to open or close something
  * @author Ruben Weijers
- * @creation-date Jun 22, 2010
+ * @creation-date May 17, 2011
  */
-class Proxy<VOType:IValueObject, EventsTypedef> extends Notifier<EventsTypedef>
+class OpenCloseEvents<DataType> extends Signals
 {
-	public var vo		(default, null)	: VOType;
+	public var open		(default, null)	: Signal1<DataType>;
+	public var close	(default, null)	: Signal1<DataType>;
 	
 	
-	public function new( events:EventsTypedef, enabled = true )
+	public function new ()
 	{
-		super(events);
-		if (enabled)
-			enable();
-	//	else			disable();
+		super();
+		open	= new Signal1();
+		close	= new Signal1();
 	}
-	
-	
-	override public function dispose ()
-	{
-		if (isEnabled())
-			disable();
-		
-		vo = null;
-		super.dispose();
-	}
-	
-	
-	public inline function isEnabled ()	{ return state.has( ActorState.ENABLED ); }
-	public function enable ()			{ state = state.set( ActorState.ENABLED ); }
-	public function disable ()			{ state = state.unset( ActorState.ENABLED ); }
 }

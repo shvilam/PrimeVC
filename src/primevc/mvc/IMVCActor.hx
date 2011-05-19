@@ -20,24 +20,36 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc.core;
+package primevc.mvc;
 
 
 /**
+ * The MVCActor is an object that can communicate messages to the MVC-application
+ * but is also able to listen to messages from the application.
+ * 
  * @author Ruben Weijers
- * @creation-date Nov 15, 2010
+ * @creation-date May 17, 2011
  */
-interface IView implements primevc.core.traits.IDisposable
+interface IMVCActor implements IMVCNotifier 
 {
 	/**
-	 * Method in which all the mediators should be created. Constructor is only
-	 * meant to make the object exist
+	 * Method in which the actor can begin to listen to events of the MVC
 	 */
-	public function init () : Void;
+	public function startListening ()	: Void;
+	
+	/**
+	 * Method in which the actor should stop listening to messages of the MVC
+	 */
+	public function stopListening ()	: Void;
+	
+	/**
+	 * Method returning true if the actor is listening
+	 */
+	public function isListening ()		: Bool;
 }

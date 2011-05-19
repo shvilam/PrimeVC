@@ -20,41 +20,47 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.s
+ * DAMAGE.s/
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc.actors;
-#if debug
-  using primevc.utils.BitUtil;
-#end
+package primevc.mvc;
+ import primevc.core.traits.IDisablable;
+ import primevc.core.traits.IDisposable;
 
 
 /**
+ * The MVCNotifier is an object that can send messages to the mvc-application.
+ * 
  * @author Ruben Weijers
- * @creation-date Dec 14, 2010
+ * @creation-date May 17, 2011
  */
-class ActorState
+interface IMVCNotifier implements IDisposable, implements IDisablable
 {
-	public static inline var LISTENING	: Int = 1;
-	public static inline var DISPOSED	: Int = 2;
+	/**
+	 * State holder.. contains the flag of the current state of the notifier
+	 */
+	private var state : Int;
 	
-	public static inline var ENABLED	: Int = 4;
-	public static inline var EDITING	: Int = 8;
+	/**
+	 * Enable sending messages
+	 */
+	public function enable ()	: Void;
 	
+	/**
+	 * Disable sending messages
+	 */
+	public function disable ()	: Void;
 	
-#if debug
-	public static inline function readState (state:Int)
-	{
-		var str = [];
-		if (state.has(LISTENING))	str.push( "listening" );
-		if (state.has(DISPOSED))	str.push( "disposed" );
-		if (state.has(EDITING))		str.push( "editing" );
-		if (state.has(ENABLED))		str.push( "enabled" );
-		
-		return str.join(", ");
-	}
-#end
+	/**
+	 * Method returning true if the notifier is enabled
+	 */
+	public function isEnabled ()	: Bool;
+	
+	/**
+	 * Method returning true if the notifier is disposed
+	 */
+	public function isDisposed ()	: Bool;
 }

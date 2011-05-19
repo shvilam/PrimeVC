@@ -24,37 +24,37 @@
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc.events;
- import primevc.core.dispatcher.Signals;
- import primevc.core.dispatcher.Signal0;
+package primevc.mvc;
+#if debug
+  using primevc.utils.BitUtil;
+#end
 
 
 /**
- * Basic events for an mvc-application. 
- * MVCEvents is a base class thats groups together the events used in
- * an application/subsystem and provides a main access point for them. 
- * 
  * @author Ruben Weijers
- * @creation-date Nov 17, 2010
+ * @creation-date Dec 14, 2010
  */
-class MVCEvents extends Signals
+class MVCFlags
 {
-	public var started (default, null)	: Signal0;
+	public static inline var LISTENING	= 1 << 0;
+	public static inline var DISPOSED	= 1 << 1;
+	
+	public static inline var ENABLED	= 1 << 2;
+	public static inline var EDITING	= 1 << 3;
 	
 	
-	public function new ()
+#if debug
+	public static inline function readState (state:Int)
 	{
-		started = new Signal0();
-	}
-	
-	
-	override public function dispose ()
-	{
-		started.dispose();
-		started = null;
+		var str = [];
+		if (state.has(LISTENING))	str.push( "listening" );
+		if (state.has(DISPOSED))	str.push( "disposed" );
+		if (state.has(EDITING))		str.push( "editing" );
+		if (state.has(ENABLED))		str.push( "enabled" );
 		
-		super.dispose();
+		return str.join(", ");
 	}
+#end
 }

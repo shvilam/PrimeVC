@@ -1,7 +1,7 @@
 package sample;
 
 import primevc.gui.events.MouseEvents;
-import primevc.mvc.actors.Mediator;
+import primevc.mvc.Mediator;
 import primevc.core.dispatcher.Signal1;
 using primevc.utils.Bind;
 using primevc.utils.TypeUtil;

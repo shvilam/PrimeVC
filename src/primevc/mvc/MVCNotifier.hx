@@ -26,45 +26,45 @@
  * Authors:
  *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc.actors;
+package primevc.mvc;
  import primevc.core.traits.IDisposable;
   using primevc.utils.BitUtil;
 
 
-
 /**
- * Class is the base class for mediator and controllers
+ * Base class for controllers, mediators and proxy's. It defines that the objects
+ * can send events.
  * 
  * @author Ruben Weijers
  * @creation-date Nov 16, 2010
  */
-class Actor <FacadeDef> implements IDisposable
+@:autoBuild(primevc.utils.MacroUtils.autoDisable())
+@:autoBuild(primevc.utils.MacroUtils.autoEnable())
+@:autoBuild(primevc.utils.MacroUtils.autoDispose())
+class MVCNotifier implements IMVCNotifier
 {
-	public var state	(default, null)	: Int;
-	//TODO: Ask Nicolas why the %$@#! you can't have typedefs as type constraint parameters...
-	public var f		(default, null) : FacadeDef;
+	private var state : Int;
 	
 	
-	public function new (facade:FacadeDef)
+	public function new (enabled = true)
 	{
-		state	= 0;
-		this.f	= facade;
+		state = 0;
+		if (enabled)
+			enable();
 	}
 	
 	
 	public function dispose ()
 	{
-		if (isDisposed())
-			return;
-		
-		stopListening();
-		state	= state.set( ActorState.DISPOSED );
-		f		= null;
+		if (isDisposed())	return;
+		if (isEnabled())	disable();
+		state = state.set( MVCFlags.DISPOSED );
 	}
 	
 	
-	public function startListening () : Void		{ if (!isListening())	state = state.set( ActorState.LISTENING ); }
-	public function stopListening () : Void			{ if (isListening())	state = state.unset( ActorState.LISTENING ); }
-	private inline function isListening () : Bool	{ return state.has( ActorState.LISTENING ); }
-	private inline function isDisposed () : Bool	{ return state.has( ActorState.DISPOSED ); }
+	
+	public function enable ()				{ state = state.set( MVCFlags.ENABLED ); }
+	public function disable ()				{ state = state.unset( MVCFlags.ENABLED ); }
+	public inline function isDisposed ()	{ return state.has( MVCFlags.DISPOSED ); }
+	public inline function isEnabled ()		{ return state.has( MVCFlags.ENABLED ); }
 }

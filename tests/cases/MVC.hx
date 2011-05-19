@@ -7,9 +7,9 @@ import primevc.core.dispatcher.Signals;
 
 import primevc.mvc.Facade;
 import primevc.mvc.Model;
-import primevc.mvc.actors.Mediator;
+import primevc.mvc.Mediator;
 import primevc.mvc.View;
-import primevc.mvc.actors.Proxy;
+import primevc.mvc.Proxy;
 import primevc.mvc.EditProxy;
 
 import primevc.mvc.traits.IValueObject;

@@ -26,21 +26,53 @@
  * Authors:
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
-package primevc.mvc.core;
+package primevc.mvc;
+ import primevc.core.traits.IEditableValueObject;
+ import primevc.core.traits.IEditEnabledValueObject;
+  using primevc.utils.BitUtil;
 
 
 /**
- * A Model is a group of Proxies which manage the data-model.
- * Extend this abstract class and define proxy properties.
+ * A proxy that allows mediators to edit the VO managed by the proxy.
  * 
  * @author Danny Wilson
- * @creation-date Jun 22, 2010
+ * @creation-date Jul 09, 2010
  */
-interface IModel implements primevc.core.traits.IDisposable
+class EditableProxy	< VOType:IEditableValueObject, EditEnabledVOType:IEditEnabledValueObject, EventsTypedef >
+ 		extends Proxy <VOType, EventsTypedef>
+	,	implements IEditableProxy < EditEnabledVOType >
 {
-	/**
-	 * Method in which all the proxies should be created. Constructor is only
-	 * meant to make the object exist
-	 */
-	public function init () : Void;
+	public function beginEdit() : EditEnabledVOType
+	{
+		if (!isEnabled())
+			return null;
+		
+		state = state.set( ActorState.EDITING );
+		vo.beginEdit();
+		return cast vo;
+	}
+	
+	
+	public function commitEdit() : Void
+	{
+		if (isEditing())
+		{
+			vo.commitEdit();
+			state = state.unset( ActorState.EDITING );
+		}
+	}
+	
+	
+	public function cancelEdit() : Void
+	{
+		if (isEditing())
+		{
+			vo.cancelEdit();
+			state = state.unset( ActorState.EDITING );
+		}
+	}
+	
+	
+	public inline function isEditing ()	{ return state.has( ActorState.EDITING ); }
+	override public function disable ()	{ cancelEdit(); super.disable(); }
 }

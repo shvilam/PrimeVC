@@ -27,8 +27,9 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.mvc.core;
- import primevc.mvc.events.MVCEvents;
+package primevc.mvc;
+ import primevc.core.dispatcher.Signals;
+ import primevc.core.traits.IDisposable;
 
 
 /**
@@ -55,7 +56,7 @@ package primevc.mvc.core;
  * @creation-date Jun 22, 2010
  * @type <EventsType> all event groups used in this application/subsystem.
  */
-class Facade < EventsType:MVCEvents, ModelType:IModel, StatesType:IStates, ViewType:IView, ControllerType:IController > implements primevc.core.traits.IDisposable
+class Facade<EventsType:Signals, ModelType:MVCNotifier, StatesType:IDisposable, ControllerType:IMVCActor, ViewType:IMVCActor> implements IDisposable
     #if !docs, implements haxe.rtti.Generic #end
 {
 	public var events		(default, null)	: EventsType;
@@ -74,19 +75,14 @@ class Facade < EventsType:MVCEvents, ModelType:IModel, StatesType:IStates, ViewT
 		Assert.notNull(model, "Proxy-collection can't be empty.");
 		
 		setupStates();
-		Assert.notNull(states, "States-collection can't be empty.");
-		
 		setupView();
 		Assert.notNull(view, "Mediator-collection can't be empty.");
 		
 		setupController();
-		Assert.notNull(controller, "Controller-collection can't be empty.");
+		if (controller != null)
+			controller.startListening();
 		
-		model.init();
-		controller.init();
-		view.init();
-		
-		events.started.send();
+	//	view,startListening();		method is called by the static main function or the object that created the facade	
 	}
 	
 	
@@ -95,11 +91,11 @@ class Facade < EventsType:MVCEvents, ModelType:IModel, StatesType:IStates, ViewT
 		if (events == null)
 			return; // already disposed
 		
-		controller	.dispose();
-		view		.dispose();
-		states		.dispose();
-		model		.dispose();
-		events		.dispose();
+		view.dispose();
+		if (controller != null)		controller.dispose();
+		if (states != null)			states.dispose();
+		model.dispose();
+		events.dispose();
 		
 		controller	= null;
 		view		= null;
@@ -119,19 +115,23 @@ class Facade < EventsType:MVCEvents, ModelType:IModel, StatesType:IStates, ViewT
 	function setupModel()		{ Assert.abstract(); }
 	
 	/**
-	 * Must instantiate the States for this Facade.
+	 * Instantiate the States for this Facade.
 	 */
-	function setupStates()		{ Assert.abstract(); }
+	function setupStates()		{ /*Assert.abstract();*/ }
 	
 	/**
-	 * Must map the event handlers, and setup behaviours/commands for this (sub)system.
+	 * Should map the event handlers, and setup behaviours/commands for this (sub)system.
 	 */
-	function setupController()	{ Assert.abstract(); }
+	function setupController()	{ /*Assert.abstract();*/ }
 	
 	/**
 	 * Must instantiate the View for this (sub)system.
 	 * - Flash:			Supply a reference to the base DisplayObject to the view.
 	 * - Javascript:	Supply a reference to the base DOM-element to the view.
+	 * 
+	 * This view.startListening method should be callen by the static main 
+	 * function to given the window or it should be called by the object 
+	 * creating the Facade.
 	 */
 	function setupView()		{ Assert.abstract(); }
 }
