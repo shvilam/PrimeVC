@@ -46,18 +46,9 @@ class ActionEvent extends Signals
 	
 	public function new ()
 	{
+		super();
 		begin	= new Signal0();
 		cancel	= new Signal0();
 		apply	= new Signal0();
-	}
-	
-	
-	override public function dispose ()
-	{
-		begin.dispose();
-		cancel.dispose();
-		apply.dispose();
-		
-		begin = cancel = apply = null;
 	}
 }

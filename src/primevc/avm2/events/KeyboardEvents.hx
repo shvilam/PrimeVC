@@ -41,7 +41,8 @@ class KeyboardEvents extends KeyboardSignals
 {
 	public function new (eventDispatcher)
 	{
-		this.down = new KeyboardSignal(eventDispatcher, KeyboardEvent.KEY_DOWN);
-		this.up   = new KeyboardSignal(eventDispatcher, KeyboardEvent.KEY_UP  );
+		super();
+		down = new KeyboardSignal(eventDispatcher, KeyboardEvent.KEY_DOWN);
+		up   = new KeyboardSignal(eventDispatcher, KeyboardEvent.KEY_UP  );
 	}
 }

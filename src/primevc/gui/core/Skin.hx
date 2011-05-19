@@ -144,15 +144,15 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 	//
 	
 	//TODO RUBEN - enable Assert.abstract
-	private function createStates ()			: Void; //	{ Assert.abstract(); }
-	private function createBehaviours ()		: Void; //	{ Assert.abstract(); }
-	public function drawGraphics ()				: Void; //	{ Assert.abstract(); }
-	public function createChildren ()			: Void; //	{ Assert.abstract(); }
-	public function childrenCreated ()			: Void;
+	private function createStates ()			: Void {} //	{ Assert.abstract(); }
+	private function createBehaviours ()		: Void {} //	{ Assert.abstract(); }
+	public function drawGraphics ()				: Void {} //	{ Assert.abstract(); }
+	public function createChildren ()			: Void {} //	{ Assert.abstract(); }
+	public function childrenCreated ()			: Void {}
 	
-	private function removeStates ()			: Void; //	{ Assert.abstract(); }
-	private function removeChildren ()			: Void; //	{ Assert.abstract(); }
-	public function validate (changes:Int)		: Void;
+	private function removeStates ()			: Void {} //	{ Assert.abstract(); }
+	private function removeChildren ()			: Void {} //	{ Assert.abstract(); }
+	public function validate (changes:Int)		: Void {}
 	
 	private function removeBehaviours ()
 	{

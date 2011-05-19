@@ -239,7 +239,7 @@ class UIWindow extends Window
 	}
 	
 	
-	private function createChildren ()		: Void;
+	private function createChildren ()		: Void {}
 	
 	public inline function attach (child:IUIElement) : UIWindow
 	{

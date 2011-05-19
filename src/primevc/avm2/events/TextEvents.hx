@@ -44,6 +44,7 @@ class TextEvents extends TextSignals
 {
 	public function new (eventDispatcher)
 	{
+		super();
 		change		= new FlashSignal0 (eventDispatcher, Event.CHANGE );
 		link		= new TextSignal (	eventDispatcher, TextEvent.LINK );
 		scroll		= new FlashSignal0 (eventDispatcher, Event.SCROLL );

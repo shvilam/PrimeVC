@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.states;
- import primevc.core.states.AutoFiniteStateMachine;
+ import primevc.core.states.FiniteStateMachine;
  import primevc.core.states.IState;
  
 
@@ -37,7 +37,7 @@ package primevc.gui.states;
  * @creation-date	Jun 10, 2010
  * @author			Ruben Weijers
  */
-class ButtonStates extends AutoFiniteStateMachine
+class ButtonStates extends FiniteStateMachine
 {
 	/**
 	 * Button is currently not used

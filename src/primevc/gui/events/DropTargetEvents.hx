@@ -62,6 +62,7 @@ class DropTargetEvents extends Signals
 	
 	public function new ()
 	{
+		super();
 		drop	= new Signal1();
 		over	= new Signal1();
 		out		= new Signal1();

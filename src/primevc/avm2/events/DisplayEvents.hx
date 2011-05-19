@@ -42,6 +42,7 @@ class DisplayEvents extends DisplaySignals
 {
 	public function new (target:DisplayObject)
 	{
+		super();
 		addedToStage		= new FlashSignal0( target, Event.ADDED_TO_STAGE );
 		removedFromStage	= new FlashSignal0( target, Event.REMOVED_FROM_STAGE );
 		enterFrame			= new FlashSignal0( target, Event.ENTER_FRAME );

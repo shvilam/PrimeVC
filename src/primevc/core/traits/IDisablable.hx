@@ -20,47 +20,22 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.avm2.events;
- import flash.events.IEventDispatcher;
- import primevc.core.dispatcher.INotifier;
- import primevc.gui.events.EditEvents;
- import primevc.gui.events.KeyboardEvents;
- import primevc.gui.events.MouseEvents;
- import primevc.gui.events.UserEvents;
+package primevc.core.traits;
 
 
-/**	
- * AVM2 UserEvents implementation
- * 
- * @creation-date	Jun 15, 2010
- * @author			Danny Wilson
- * @author			Ruben Weijers
+/**
+ * @author Ruben Weijers
+ * @creation-date May 17, 2011
  */
-class UserEvents extends primevc.gui.events.UserSignals	
+interface IDisablable
 {
-	private var eventDispatcher : IEventDispatcher;
-	
-	public function new(eventDispatcher)
-	{
-		super();
-		this.eventDispatcher = eventDispatcher;
-	}
-	
-	override public function dispose ()
-	{
-		eventDispatcher = null;
-		super.dispose();
-	}
-	
-	override private function createMouse ()	{ mouse	= new primevc.avm2.events.MouseEvents(eventDispatcher); }
-	override private function createKey ()		{ key	= new primevc.avm2.events.KeyboardEvents(eventDispatcher); }
-	override private function createFocus ()	{ focus	= new FocusSignal(eventDispatcher, flash.events.FocusEvent.FOCUS_IN); }
-	override private function createBlur ()		{ blur	= new FocusSignal(eventDispatcher, flash.events.FocusEvent.FOCUS_OUT); }
-	override private function createEdit ()		{ edit	= new EditEvents(eventDispatcher); }
+	public function disable ()		: Void;
+	public function enable ()		: Void;
+	public function isEnabled ()	: Bool;
 }

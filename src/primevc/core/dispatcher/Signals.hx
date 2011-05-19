@@ -27,8 +27,9 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.core.dispatcher;
+ import primevc.core.traits.IDisablable;
  import primevc.core.traits.IDisposable;
- import primevc.utils.TypeUtil;
+
 
 /**
  * A group of <i>Signal</i> instances and (when applicable) other signal groups.
@@ -46,65 +47,40 @@ package primevc.core.dispatcher;
  * </code>
  * 
  * @author Danny Wilson
+ * @author Ruben Weijers
  * @creation-date jun 10, 2010
  */
-class Signals implements IUnbindable<Dynamic>, implements IDisposable, implements haxe.Public
+@:autoBuild(primevc.utils.MacroUtils.autoEnable())
+@:autoBuild(primevc.utils.MacroUtils.autoDisable())
+@:autoBuild(primevc.utils.MacroUtils.autoUnbind())
+@:autoBuild(primevc.utils.MacroUtils.autoDispose())
+class Signals implements IUnbindable<Dynamic>, implements IDisposable, implements IDisablable, implements haxe.Public
 {
+	private var enabled : Bool;
+	
+	public function new ()		{ enabled = true; }
+	public function disable ()	{ enabled = false; }
+	public function enable ()	{ enabled = true; }
+	public function dispose ()	{}
+	
 	/**
-	 * Uses reflection to find all IDisposable properties of this class and calls dispose() on them.
+	 * @param	listener
+	 * @param	handler
 	 */
-	public function dispose()
-	{
-		var f, R = Reflect, T = Type;
-		
-		var fields = T.getInstanceFields(T.getClass(this));
-		for(field in fields) {
-			f = R.field(this, field);
-			if (TypeUtil.is(f, IDisposable))
-				f.dispose();
-		}
-	}
+	public function unbind (listener:Dynamic, ?handler:Null<Dynamic>) {}
+	
+	public inline function isEnabled ()	{ return enabled; }
+	
+/*	public function dispose()	{ MacroUtils.disposeFields(); }
+	public function enable()	{ MacroUtils.enableFields(); }
+	public function disable()	{ MacroUtils.disableFields(); }
 	
 	/**
 	 * Uses reflection to find all IUbindable properties of this class and forwards the arguments to them.
 	 * @see		Signal.unbind
-	 * @return	number of handlers that were unbound.
 	 */
-	public function unbind( listener : Dynamic, ?handler : Dynamic ) : Int
+/*	public function unbind( listener : Dynamic, ?handler : Dynamic ) : Void
 	{
-		var f, count = 0, R = Reflect, T = Type;
-		
-		for(field in T.getInstanceFields(T.getClass(this))) {
-			f = R.field(this, field);
-			if (TypeUtil.is(f, IUnbindable))
-				count += f.unbind(listener, handler);
-		}
-		return count;
-	}
-	
-	
-	public function disable ()
-	{
-		var f, R = Reflect, T = Type;
-		
-		var fields = T.getInstanceFields(T.getClass(this));
-		for(field in fields) {
-			f = R.field(this, field);
-			if (TypeUtil.is(f, Signal))
-				f.disable();
-		}
-	}
-	
-	
-	public function enable ()
-	{
-		var f, R = Reflect, T = Type;
-		
-		var fields = T.getInstanceFields(T.getClass(this));
-		for(field in fields) {
-			f = R.field(this, field);
-			if (TypeUtil.is(f, Signal))
-				f.enable();
-		}
-	}
+		MacroUtils.unbindFields();
+	}*/
 }

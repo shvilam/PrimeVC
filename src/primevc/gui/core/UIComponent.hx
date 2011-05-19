@@ -249,6 +249,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	public inline function enable ()					{ enabled.value = true; }
 	public inline function disable ()					{ enabled.value = false; }
+	public inline function isEnabled ()					{ return enabled.value; }
 	
 	
 	//
@@ -370,10 +371,10 @@ class UIComponent extends Sprite, implements IUIComponent
 	// ABSTRACT METHODS
 	//
 	
-	private function createStates ()		: Void; //	{ Assert.abstract(); }
-	private function createBehaviours ()	: Void; //	{ Assert.abstract(); }
-	private function createChildren ()		: Void; //	{ Assert.abstract(); }
-	private function removeStates ()		: Void; //	{ Assert.abstract(); }
+	private function createStates ()		: Void {} //	{ Assert.abstract(); }
+	private function createBehaviours ()	: Void {} //	{ Assert.abstract(); }
+	private function createChildren ()		: Void {} //	{ Assert.abstract(); }
+	private function removeStates ()		: Void {} //	{ Assert.abstract(); }
 	
 	
 	//

@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
+ import primevc.core.traits.IDisablable;
  import primevc.core.Bindable;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.traits.ISkinnable;
@@ -44,6 +45,7 @@ package primevc.gui.core;
 interface IUIComponent
 				implements IDisplayContainer
 			,	implements IUIElement
+			,	implements IDisablable
 			,	implements ISkinnable
 #if flash9	,	implements IDrawable	#end
 {

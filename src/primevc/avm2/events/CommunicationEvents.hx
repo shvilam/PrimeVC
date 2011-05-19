@@ -45,6 +45,7 @@ class CommunicationEvents extends CommunicationSignals
 {
 	public function new (target:IEventDispatcher)
 	{
+		super();
 		started		= new FlashSignal0( target, 	Event.OPEN );
 		progress	= new ProgressSignal( target,	ProgressEvent.PROGRESS );
 		init		= new FlashSignal0( target,		Event.INIT );

@@ -41,7 +41,8 @@ class SelectEvents extends SelectSignals
 {
 	public function new (target:IEventDispatcher)
 	{
-		this.select = new FlashSignal0(target, Event.SELECT);
-		this.cancel = new FlashSignal0(target, Event.CANCEL);
+		super();
+		select = new FlashSignal0(target, Event.SELECT);
+		cancel = new FlashSignal0(target, Event.CANCEL);
 	}
 }
