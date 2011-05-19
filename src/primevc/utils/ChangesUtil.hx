@@ -198,7 +198,7 @@ class ChangesUtil
 	 * @param propertyId 	id of property
 	 * @return property name
 	 */
-	private static function propertyIdToString (owner:ValueObjectBase, propertyId:Int) : String
+	public static function propertyIdToString (owner:ValueObjectBase, propertyId:Int) : String
 	{
 		var propFlags		= owner.getClass();
 		var property:String	= null;

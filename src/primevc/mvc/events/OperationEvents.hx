@@ -47,28 +47,12 @@ class OperationEvents <DataType> extends CommunicationSignals
 	
 	public function new ()
 	{
+		super();
 	//	start		= new Signal1();
 	//	stop		= new Signal0();
 		started		= new Signal0();
 		progress	= new Signal2();
 		completed	= new Signal0();
 		error		= new Signal1();
-	}
-	
-	
-	override public function dispose ()
-	{
-	//	start.dispose();
-	//	stop.dispose();
-		started.dispose();
-		progress.dispose();
-		completed.dispose();
-		error.dispose();
-		
-	//	start = null;
-	//	stop = null;
-		started = completed = null;
-		error = null;
-		progress = null;
 	}
 }

@@ -46,7 +46,7 @@ class Mediator <FacadeDef, GUIType> extends MVCActor <FacadeDef>
 	public var gui (default, setGUI) : GUIType;
 	
 	
-	public function new (facade:FacadeDef, gui:GUIType = null, enabled:Bool = true)
+	public function new (facade:FacadeDef, enabled:Bool = true, gui:GUIType = null)
 	{
 		super(facade, enabled);
 		this.gui = gui;

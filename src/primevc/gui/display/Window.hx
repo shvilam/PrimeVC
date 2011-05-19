@@ -55,7 +55,7 @@ package primevc.gui.display;
 #if (flash8 || flash9 || js)
 class Window implements IDisplayContainer, implements IDisablable
 {
-	public static function startup<WindowInstance>(windowClass : Class<WindowInstance>) : WindowInstance
+	public static inline function startup<WindowInstance>(windowClass : Class<WindowInstance>) : WindowInstance
 	{
 		var stage:Stage = null;
 		

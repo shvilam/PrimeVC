@@ -47,7 +47,7 @@ class EditableProxy	< VOType:IEditableValueObject, EditEnabledVOType:IEditEnable
 		if (!isEnabled())
 			return null;
 		
-		state = state.set( ActorState.EDITING );
+		state = state.set( MVCFlags.EDITING );
 		vo.beginEdit();
 		return cast vo;
 	}
@@ -58,7 +58,7 @@ class EditableProxy	< VOType:IEditableValueObject, EditEnabledVOType:IEditEnable
 		if (isEditing())
 		{
 			vo.commitEdit();
-			state = state.unset( ActorState.EDITING );
+			state = state.unset( MVCFlags.EDITING );
 		}
 	}
 	
@@ -68,11 +68,11 @@ class EditableProxy	< VOType:IEditableValueObject, EditEnabledVOType:IEditEnable
 		if (isEditing())
 		{
 			vo.cancelEdit();
-			state = state.unset( ActorState.EDITING );
+			state = state.unset( MVCFlags.EDITING );
 		}
 	}
 	
 	
-	public inline function isEditing ()	{ return state.has( ActorState.EDITING ); }
+	public inline function isEditing ()	{ return state.has( MVCFlags.EDITING ); }
 	override public function disable ()	{ cancelEdit(); super.disable(); }
 }
