@@ -1,0 +1,28 @@
+h1. Macro's we'd like to have
+
+h2. BitUtil
+
+All modifier methods as macro's, so we can write: flags.set(MYFLAG) instead of flags = flags.set(MYFLAG);
+
+h2. Lazily instantiate properties in subclasses of Signals
+
+* Generate getters: function getSignal() return if (signal != null) signal else signal = new Signal0..4()
+* Allow overriding the default generated getter by checking if implementation of getSignal already exists
+
+h2. Remove the need for bash build scripts
+
+* Check at compile time if the referenced CSS file is changed since the last generated Style.hx
+* Run the neko CSS parser (probably faster then implementing everything as macro's?) to regenerate Style.hx
+
+h2. Implement 80% of VOCompiler as macro's
+
+* Annotations + implementation
+** @0-30 property id for the MsgPack serializer
+** @bindable
+** @unique
+** @mongodb(hints)
+* Property change bitflags
+* has(fieldname) macro
+* Change signals
+* enum using/conversion helpers
+* Generate Scala source at compile time
