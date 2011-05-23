@@ -48,7 +48,7 @@ class MacroUtils
 	@:macro public static function startListeningFields ()				: Expr { return startListeningFieldsImpl(); }
 	@:macro public static function stopListeningFields ()				: Expr { return stopListeningFieldsImpl(); }
 	@:macro public static function unbindFields (l:Dynamic, h:Dynamic)	: Expr { return unbindFieldsImpl(l, h); }
-//	@:macro public static function traceFields ()						: Expr { return callFunctionOnFieldsOf([], "trace"); }
+	@:macro public static function traceFields ()						: Expr { return callFunctionOnFieldsOf([], "trace"); }
 	@:macro public static function disposeFields ()						: Expr { return disposeFieldsImpl(); }
 	
 	
@@ -66,61 +66,68 @@ class MacroUtils
 	
 	@:macro public static function autoInstantiate (searchType:String, instType:String, insertBefore:Bool = false) : Array<Field>
 	{
-		var f = Context.getBuildFields();
-		return f.addMethod( "new", "Void", [], instantiateFieldsImpl( f.toClassFields(), searchType, instType ), insertBefore );
+		return Context.getBuildFields().addMethod( "new", "Void", [], createMacroCall("instantiateFieldsOf", [searchType, instType]), insertBefore );
+	//	var f = Context.getBuildFields();
+	//	return f.addMethod( "new", "Void", [], instantiateFieldsImpl( f.toClassFields(), searchType, instType ), insertBefore );
 	}
 	
 	
 	@:macro public static function autoDispose () : Array<Field>
 	{
+		return Context.getBuildFields().addMethod( "dispose", "Void", [], createMacroCall("disposeFields", []) );
 	//	var name	= Context.getLocalClass().get().name;
-		var f = Context.getBuildFields();
-		return f.addMethod( "dispose", "Void", [], disposeFieldsImpl( f.toClassFields() ) );
+	//	var f = Context.getBuildFields();
+	//	return f.addMethod( "dispose", "Void", [], disposeFieldsImpl( f.toClassFields() ) );
 	}
 	
 	
 	@:macro public static function autoStartListening () : Array<Field>
 	{
-		var f = Context.getBuildFields();
-		return f.addMethod( "startListening", "Void", [], startListeningFieldsImpl( f.toClassFields() ) );
+		return Context.getBuildFields().addMethod( "dispose", "Void", [], createMacroCall("startListeningFields", []) );
+	//	var f = Context.getBuildFields();
+	//	return f.addMethod( "startListening", "Void", [], startListeningFieldsImpl( f.toClassFields() ) );
 	}
 	
 	
 	@:macro public static function autoStopListening () : Array<Field>
 	{
-		var f = Context.getBuildFields();
-		return f.addMethod( "stopListeningFieldsImpl", "Void", [], stopListeningFieldsImpl( f.toClassFields() ) );
+		return Context.getBuildFields().addMethod( "stopListeningFieldsImpl", "Void", [], createMacroCall("stopListeningFields", []) );
+	//	var f = Context.getBuildFields();
+	//	return f.addMethod( "stopListeningFieldsImpl", "Void", [], stopListeningFieldsImpl( f.toClassFields() ) );
 	}
 	
 	
 	@:macro public static function autoEnable () : Array<Field>
 	{
-		var f = Context.getBuildFields();
-		return f.addMethod( "enable", "Void", [], enableFieldsImpl( f.toClassFields() ) );
+		return Context.getBuildFields().addMethod( "enable", "Void", [], createMacroCall("enableFields", []) );
+	//	var f = Context.getBuildFields();
+	//	return f.addMethod( "enable", "Void", [], enableFieldsImpl( f.toClassFields() ) );
 	}
 	
 	
 	@:macro public static function autoDisable () : Array<Field>
 	{
-		var f = Context.getBuildFields();
-		return f.addMethod( "disable", "Void", [], disableFieldsImpl( f.toClassFields() ) );
+		return Context.getBuildFields().addMethod( "disable", "Void", [], createMacroCall("disableFields", []) );
+	//	var f = Context.getBuildFields();
+	//	return f.addMethod( "disable", "Void", [], disableFieldsImpl( f.toClassFields() ) );
 	}
 	
 	
 	@:macro public static function autoUnbind () : Array<Field>
 	{
-		var f = Context.getBuildFields();
-		return f.addMethod( "unbind", "Void", ["l:Dynamic", "?h:Dynamic"], unbindFieldsImpl( f.toClassFields() ) );
+		return Context.getBuildFields().addMethod( "unbind", "Void", ["l:Dynamic", "?h:Dynamic"], createMacroCall("unbindFields", ["l", "h"]) );
+	//	var f = Context.getBuildFields();
+	//	return f.addMethod( "unbind", "Void", ["l:Dynamic", "?h:Dynamic"], unbindFieldsImpl( f.toClassFields() ) );
 	}
 	
 	
-/*	@:macro public static function autoTraceFields () : Array<Field>
+	@:macro public static function autoTraceFields () : Array<Field>
 	{
-		return Context.getBuildFields().addMethod( "traceFields", "Void", [], Context.parse("MacroUtils.traceFields()", Context.currentPos()) );
+		return Context.getBuildFields().addMethod( "traceFields", "Void", [], createMacroCall("traceFields", []) );
 	}
 	
 	
-	@:macro public static function autoTraceMe () : Array<Field>
+/*	@:macro public static function autoTraceMe () : Array<Field>
 	{
 		var f = Context.getBuildFields();
 		return f.addMethod( "traceMe", "Void", ["a:String"], autoTraceMeImpl( f.toClassFields(), "a" ) );
@@ -128,6 +135,15 @@ class MacroUtils
 	
 
 #if macro
+	private static inline function createMacroCall( macroName:String, params:Array<String> ) : Expr
+	{
+		for (i in 0...params.length)
+			params[i] = "'" + params[i] + "'";
+	//	trace("MacroUtils."+macroName+"("+params.join(", ")+")");
+		return Context.parse("MacroUtils."+macroName+"("+params.join(", ")+")", Context.currentPos());
+	}
+	
+
 	/**
 	 * Method will create a block that calls the .dispose() method on all the
 	 * fields that implement IDisposable. After disposing, all fields are set
@@ -214,7 +230,7 @@ class MacroUtils
 	{
 		if (fields == null)
 			fields = Context.getLocalClass().get().fields.get();
-		return fields.setValueOf( [], searchType, "new "+instType+"()", true ).toExpr();
+		return fields.instantiate( [], searchType, instType ).toExpr();
 	}
 	
 	
@@ -240,6 +256,30 @@ class MacroUtils
 
 class BlocksUtil
 {
+	public static inline function instantiate (fields:Array<ClassField>, blocks:Array<Expr>, searchType:String, instType:String) : Array<Expr>
+	{
+		var pos = Context.currentPos();
+		
+	//	blocks.push( Context.parse("trace('begin autosetters content "+typeName+"')", pos) );
+		for (field in fields)
+		{
+		//	trace(Context.parse(field.name + " = new Client<String>()", pos));
+			var c = field.getClassType();
+			trace(field.name);
+			if (!field.meta.has("manual") && (c.hasInterface(searchType) || c.isClass(searchType)))
+			{
+#if debug		blocks.push( Context.parse("if ("+field.name+" != null) { throw '"+field.name+" should be null'; }", Context.currentPos()) ); #end
+				
+				var type = c.isInterface ? instType + field.type.string() : field.type.string(1);
+				var expr = field.name + " = new " + type + "()";
+				trace(expr);
+				blocks.push( Context.parse(expr, Context.currentPos()) );						//TODO optimalization: don't use Context.parse but create macro typedefs instead..
+			}
+		}
+		return blocks;
+	}
+	
+	
 	/**
 	 * Macrohelper that will set the given value on each class-field of the given type.
 	 * @param	fields			array with the fields of the class
@@ -261,7 +301,8 @@ class BlocksUtil
 					blocks.push( Context.parse("if ("+field.name+" != null) { throw '"+field.name+" should be null'; }", Context.currentPos()) );
 #end
 	//			blocks.push( Context.parse("trace('===> "+field.name+" = "+value+"')", pos) );
-	//			trace(field.name+" = "+value);
+				trace(field.type);
+				trace(field.name+" = "+value);
 				blocks.push( Context.parse(field.name+" = "+value, Context.currentPos()) );						//TODO optimalization: don't use Context.parse but create macro typedefs instead..
 			}
 		}
@@ -368,8 +409,8 @@ class BlocksUtil
 		var curDef		= userFields.getField( methodName );
 		var hasSuper	= curDef != null ? false : local.hasSuper( methodName );
 		
-	//	trace("============");
-	//	trace(local.name+".addMethod "+methodName+"("+arguments.join(", ")+")" #if debug + " " + counter++ #end );
+		trace("============");
+		trace(local.name+".addMethod "+methodName+"("+arguments.join(", ")+"); curDef: "+(curDef != null)+"; hasSuper: "+hasSuper #if debug + " " + counter++ #end );
 	//	trace("curDef: "+(curDef != null));
 	//	trace("hasSuper: "+hasSuper);
 		
@@ -442,6 +483,39 @@ class BlocksUtil
  */
 class MacroTypeUtil
 {
+	
+	/**
+	 * Returns the type of the given field as string
+	 */
+	public static function string(fieldType:Type, counter:Int = 0) : String
+	{
+		var type:String = "";
+		
+	//	trace(fieldType);
+		switch (fieldType) {
+			default:
+				trace("=== unkown "+fieldType);
+			case Type.TDynamic(t):
+				type = "Dynamic";
+			
+			case Type.TEnum(t, params):
+				type = t.get().name;
+			
+			case Type.TInst(t, params):
+				type = counter == 0 ? "" : t.get().name;
+				
+				if (params.length > 0)
+				{
+					var p = [];
+					counter++;
+					for (param in params)
+						p.push(param.string(counter));
+					type += "<"+p.join(", ") + ">";
+				}
+		}
+		return type;
+	}
+	
 	
 	/**
 	 * Recursive macro-helper to tell if the given ClassType implements the given
@@ -719,7 +793,9 @@ class FieldUtil
 				
 				if (path != null)
 				{
+					trace(field.name+", "+path);
 					var type = Context.getType( path.name );
+					trace(field.name+", "+path.name);
 					switch (type) {
 						default:
 					//		throw "unkown type "+field.name+" => "+type;
@@ -771,14 +847,10 @@ class FieldUtil
 	
 	public static inline function complexTypeToTypePath (t:Null<ComplexType>) : TypePath
 	{
-		var p:TypePath = null;
-		if (t != null)
-			switch (t) {
-				default:
-				case TPath(path):
-					p = path;
+		return (t == null) ? null : switch (t) {
+				default:			null;
+				case TPath(path):	path;
 			}
-		return p;
 	}
 	
 	

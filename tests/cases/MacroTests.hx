@@ -1,4 +1,5 @@
 package cases;
+ import flash.Vector;
  import primevc.utils.MacroUtils;
 
 
@@ -15,7 +16,7 @@ class MacroTests
 		trace("=== traceValues");
 		b.traceFields();
 		trace("=== autoTraceMe");
-		b.traceMe("blaaaaaaaa");
+	//	b.traceMe("blaaaaaaaa");
 		trace("=== dispose");
 		b.dispose();
 		trace("=== traceValues");
@@ -30,18 +31,22 @@ interface IDisposable
 	public function dispose() : Void;
 }
 
-interface IClient implements IDisposable {}
+interface IClient<T> implements IDisposable {
+	public var list : Vector<T>;
+}
 interface IClient2 {}
-class Client implements IClient, implements IClient2
+class Client<T> implements IClient<T>, implements IClient2, implements haxe.rtti.Generic
 {
-	private static var counter = 1;
 	public var val (default, null) : Int;
+	public var list : Vector<T>;
 	
-	public function new ()				{ this.val = counter++; }
+	public function new ()				{ this.val = Test1.counter++; list = new Vector<T>(); }
 	public function dispose ()			{ this.val = -1; }
 	public function toString ()			{ return ""+val; }
 	public function traceMe(v:String)	{ trace(val+" - "+v); }
 }
+
+class A {}
 
 /*@:build(primevc.utils.MacroUtils.autoDispose())
 @:build(primevc.utils.MacroUtils.autoTraceFields())
@@ -57,20 +62,23 @@ class Test0
 }*/
 @:build(primevc.utils.MacroUtils.autoDispose())
 @:build(primevc.utils.MacroUtils.autoTraceFields())
-@:build(primevc.utils.MacroUtils.autoTraceMe())
+//@:build(primevc.utils.MacroUtils.autoTraceMe())
 @:build(primevc.utils.MacroUtils.autoInstantiate("IDisposable", "Client"))
 @:autoBuild(primevc.utils.MacroUtils.autoDispose())
-@:autoBuild(primevc.utils.MacroUtils.autoTraceMe())
+//@:autoBuild(primevc.utils.MacroUtils.autoTraceMe())
 @:autoBuild(primevc.utils.MacroUtils.autoTraceFields())
 @:autoBuild(primevc.utils.MacroUtils.autoInstantiate("IDisposable", "Client"))
 class Test1 //extends Test0
 {
-	@manual public var clientA	: Client;
-	public  var clientB	: Client;
-	public  var clientC	: IClient;
-	private var clientD : IClient;
-	public  var clientE	: IDisposable;
+	public static var counter = 1;
+	
+	@manual public var clientA	: Client<Int>;
+	public  var clientB	: IClient<String>;
+	public  var clientC	: IClient<A>;
+	private var clientD : Client<Bool>;
+	public  var clientE	: IClient<A>;
 	public  var testStr	: String;
+	public function new () {}
 //	public function new () { clientA = new Client(); testStr = "blaat1"; }
 //	public function traceFields() {}
 	
@@ -78,8 +86,8 @@ class Test1 //extends Test0
 
 class Test2 extends Test1
 {
-	public var clientF : Client;
-//	public function new ()	{ super(); }
+	public var clientF : IClient<A>;
+	public function new ()	{ super(); }
 }
 
 
