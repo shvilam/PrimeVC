@@ -43,13 +43,94 @@ package primevc.utils;
  */
 class MacroUtils
 {
-	@:macro public static function enableFields ()						: Expr { return enableFieldsImpl(); }
+/*	@:macro public static function enableFields ()						: Expr { return enableFieldsImpl(); }
 	@:macro public static function disableFields ()						: Expr { return disposeFieldsImpl(); }
 	@:macro public static function startListeningFields ()				: Expr { return startListeningFieldsImpl(); }
 	@:macro public static function stopListeningFields ()				: Expr { return stopListeningFieldsImpl(); }
 	@:macro public static function unbindFields (l:Dynamic, h:Dynamic)	: Expr { return unbindFieldsImpl(l, h); }
+	@:macro public static function disposeFields ()						: Expr { return disposeFieldsImpl(); }*/
+	
 	@:macro public static function traceFields ()						: Expr { return callFunctionOnFieldsOf([], "trace"); }
-	@:macro public static function disposeFields ()						: Expr { return disposeFieldsImpl(); }
+
+	/**
+	 * Method will create a block that calls the .dispose() method on all the
+	 * fields that implement IDisposable. After disposing, all fields are set
+	 * to null.
+	 * 
+	 * To allow calling this method from another macro, the implementation can't
+	 * be a macro. If it would be, we lose information about the class that
+	 * the macro is called from (@see Context.getLocalClass())
+	 */
+	@:macro public static function disposeFields () : Expr
+	{
+		var local	= Context.getLocalClass().get();
+		var	fields	= local.fields.get();
+		var blocks	= fields.generateMethodCalls([], "dispose()", "IDisposable");
+		
+		if (blocks.length > 0)
+			blocks	= fields.setValueOf(blocks, "IDisposable", "null", false );
+		
+		return blocks.length > 0 ? blocks.toExpr() : null;
+	}
+	
+	
+	
+	@:macro public static function startListeningFields () : Expr
+	{
+		var local	= Context.getLocalClass().get();
+		var	fields	= local.fields.get();
+		var blocks	= fields.generateMethodCalls( [], "startListening()", "IMVCActor", true );
+		
+		if (blocks.length > 0)
+			blocks.unshift( Context.parse("if (isListening()) { return; }", Context.currentPos()) );
+		return blocks.length > 0 ? blocks.toExpr() : null;
+	}
+	
+	
+	
+	@:macro public static function stopListeningFields () : Expr
+	{
+		var local	= Context.getLocalClass().get();
+		var	fields	= local.fields.get();
+		var blocks = fields.generateMethodCalls( [], "stopListening()", "IMVCActor", true );
+		
+		if (blocks.length > 0)
+			blocks.unshift( Context.parse("if (!isListening()) { return; }", Context.currentPos()) );
+		return blocks.length > 0 ? blocks.toExpr() : null;
+	}
+	
+	
+	
+	@:macro public static function enableFields () : Expr
+	{
+		var local	= Context.getLocalClass().get();
+		var	fields	= local.fields.get();
+		var blocks	= fields.generateMethodCalls( [], "enable()", "IDisablable", true );
+		
+		if (blocks.length > 0)
+			blocks.unshift( Context.parse("if (isEnabled()) { return; }", Context.currentPos()) );
+		return blocks.length > 0 ? blocks.toExpr() : null;
+	}
+	
+	
+	
+	@:macro public static function disableFields () : Expr
+	{
+		var local	= Context.getLocalClass().get();
+		var fields	= local.fields.get();
+		var blocks	= fields.generateMethodCalls( [], "disable()", "IDisablable", true );
+		
+		if (blocks.length > 0)
+			blocks.unshift( Context.parse("if (!isEnabled()) { return; }", Context.currentPos()) );
+		return blocks.length > 0 ? blocks.toExpr() : null;
+	}
+	
+	
+	
+	@:macro public static function unbindFields (l:String = "l", h:String = "h") : Expr
+	{
+		return callMethodOnFieldsOf([], "unbind("+l+","+h+")",	"IUnbindable",	false, null);
+	}
 	
 	
 	/**
@@ -143,87 +224,6 @@ class MacroUtils
 		return Context.parse("MacroUtils."+macroName+"("+params.join(", ")+")", Context.currentPos());
 	}
 	
-
-	/**
-	 * Method will create a block that calls the .dispose() method on all the
-	 * fields that implement IDisposable. After disposing, all fields are set
-	 * to null.
-	 * 
-	 * To allow calling this method from another macro, the implementation can't
-	 * be a macro. If it would be, we lose information about the class that
-	 * the macro is called from (@see Context.getLocalClass())
-	 */
-	private static inline function disposeFieldsImpl (fields:Array<ClassField> = null) : Expr
-	{
-		var local	= Context.getLocalClass().get();
-		if (fields == null)
-			fields	= local.fields.get();
-		
-		var blocks	= fields.generateMethodCalls([], "dispose()", "IDisposable");
-		if (blocks.length > 0)
-			blocks	= fields.setValueOf(blocks, "IDisposable", "null", false );
-		return blocks.length > 0 ? blocks.toExpr() : null;
-	}
-	
-	
-	
-	private static inline function startListeningFieldsImpl (fields:Array<ClassField> = null) : Expr
-	{
-		var local	= Context.getLocalClass().get();
-		if (fields == null)
-			fields	= local.fields.get();
-		
-		var blocks	= fields.generateMethodCalls( [], "startListening()", "IMVCActor", true );
-		if (blocks.length > 0)
-			blocks.unshift( Context.parse("if (isListening()) { return; }", Context.currentPos()) );
-		return blocks.length > 0 ? blocks.toExpr() : null;
-	}
-	
-	
-	
-	private static inline function stopListeningFieldsImpl (fields:Array<ClassField> = null) : Expr
-	{
-		var local	= Context.getLocalClass().get();
-		if (fields == null)
-			fields	= local.fields.get();
-		
-		var blocks = fields.generateMethodCalls( [], "stopListening()", "IMVCActor", true );
-		if (blocks.length > 0)
-			blocks.unshift( Context.parse("if (!isListening()) { return; }", Context.currentPos()) );
-		return blocks.length > 0 ? blocks.toExpr() : null;
-	}
-	
-	
-	
-	private static inline function enableFieldsImpl (fields:Array<ClassField> = null) : Expr
-	{
-		var local	= Context.getLocalClass().get();
-		if (fields == null)
-			fields	= local.fields.get();
-		
-		var blocks = fields.generateMethodCalls( [], "enable()", "IDisablable", true );
-		if (blocks.length > 0)
-			blocks.unshift( Context.parse("if (isEnabled()) { return; }", Context.currentPos()) );
-		return blocks.length > 0 ? blocks.toExpr() : null;
-	}
-	
-	
-	
-	private static inline function disableFieldsImpl (fields:Array<ClassField> = null) : Expr
-	{
-		var local	= Context.getLocalClass().get();
-		if (fields == null)
-			fields	= local.fields.get();
-		
-		var blocks = fields.generateMethodCalls( [], "disable()", "IDisablable", true );
-		if (blocks.length > 0)
-			blocks.unshift( Context.parse("if (!isEnabled()) { return; }", Context.currentPos()) );
-		return blocks.length > 0 ? blocks.toExpr() : null;
-	}
-	
-	
-	
-	private static inline function unbindFieldsImpl (fields:Array<ClassField> = null, l:String = "l", h:String = "h")	: Expr { return callMethodOnFieldsOf([], "unbind("+l+","+h+")",	"IUnbindable",	false, fields); }
 //	private static inline function autoTraceMeImpl (fields:Array<ClassField> = null, v:String = "v")					: Expr { return callMethodOnFieldsOf([], "traceMe("+v+")",		"Client",		true,  fields); }
 	
 	private static inline function instantiateFieldsImpl (fields:Array<ClassField> = null, searchType:String, instType:String) : Expr
@@ -759,7 +759,7 @@ class MacroExprUtil
 /**
  * Utility to convert haxe.macro.Expr.Field to haxe.maco.Type.ClassField
  */
-class FieldUtil
+/*class FieldUtil
 {
 	public static inline function getClassField (field:Field) : ClassField
 	{
@@ -889,7 +889,7 @@ class FieldUtil
 		}
 		trace("== END TRACE CLASS FIELDS ==");
 	}*/
-}
+//}
 
 
 class TmpMetaAccess
