@@ -37,7 +37,7 @@ package primevc.gui.styling;
  * @author Ruben Weijers
  * @creation-date Oct 20, 2010
  */
-class StyleStateFlags
+extern class StyleStateFlags
 {
 	public static inline var ALL_STATES			= MOUSE_STATES | FORM_STATES | PROGRESS_STATES | SELECTED | DRAG_STATES;
 	public static inline var DRAG_STATES		= DRAG_OVER | DRAG_DROP;
@@ -153,7 +153,7 @@ class StyleStateFlags
 	}
 	
 	
-	public static function readProperties (flags:Int) : String
+	public static inline function readProperties (flags:Int) : String
 	{
 		var output	= [];
 		var result	= "";

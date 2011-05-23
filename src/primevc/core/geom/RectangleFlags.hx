@@ -35,7 +35,7 @@ package primevc.core.geom;
  * @author Ruben Weijers
  * @creation-date Oct 14, 2010
  */
-class RectangleFlags
+extern class RectangleFlags
 {
 	public static inline var WIDTH		= 1 << 0;
 	public static inline var HEIGHT		= 1 << 1;
@@ -55,7 +55,7 @@ class RectangleFlags
 	
 	
 #if debug
-	public static function readProperties (flags:Int) : String
+	public static inline function readProperties (flags:Int) : String
 	{
 		var output	= [];
 		

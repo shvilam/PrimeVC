@@ -38,7 +38,7 @@ package apparat.math;
  * //TODO use apparat's memory class instead of the flash class
  * //TODO write a js implementation for the Memory using methods
  */
-class FastMath
+extern class FastMath
 {
 	public static inline var PI			: Float = 3.14159265;
 	public static inline var HALVE_PI	: Float = 1.57079632;
@@ -53,7 +53,7 @@ class FastMath
 
 	
 #if flash10
-	public static function __init__ () : Void
+	@:keep public static function __init__ () : Void
 	{
 		var byteArray = new flash.utils.ByteArray();
 		byteArray.length = flash.system.ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;

@@ -12,7 +12,7 @@ class MacroTests
 	public static function main ()
 	{
 		trace(" BEGIN  ");
-		var b = new Test2();
+		var b = new Test3();
 		trace("=== traceValues");
 		b.traceFields();
 		trace("=== autoTraceMe");
@@ -90,7 +90,7 @@ class Test2 extends Test1
 	public function new ()	{ super(); }
 }
 
-
+class Test3 extends Test2 {}
 
 
 

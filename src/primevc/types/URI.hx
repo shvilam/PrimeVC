@@ -63,7 +63,7 @@ enum URIScheme
 class URI #if neko implements ICodeFormattable #end
 {
 #if debug
-	static function __init__()
+	@:keep static function __init__()
 	{
 		var u = new URI();
 		var mailURI = "mailto:mediahuis@tntpost.nl?subject=Een onvergetelijke kerst";

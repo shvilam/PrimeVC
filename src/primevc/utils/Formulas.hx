@@ -38,7 +38,7 @@ package primevc.utils;
  * @author Ruben Weijers
  * @creation-date Jul 27, 2010
  */
-class Formulas
+extern class Formulas
 {
 	/**
 	 * Method will return the square of the given number

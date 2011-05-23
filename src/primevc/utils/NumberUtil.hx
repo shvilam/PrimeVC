@@ -39,7 +39,7 @@ package primevc.utils;
  * @creation-date	Jun 21, 2010
  * @author			Ruben Weijers
  */
-class IntUtil
+extern class IntUtil
 {
 	/**
 	 * Helper function which will return the int-value of the first parameter 
@@ -96,7 +96,7 @@ class IntUtil
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
-class FloatUtil
+extern class FloatUtil
 {
 	/**
 	 * Helper function which will return the float-value of the first parameter 
@@ -170,7 +170,7 @@ class FloatUtil
  * @creation-date	Jun 25, 2010
  * @author			Ruben Weijers
  */
-class IntMath 
+extern class IntMath 
 {
 	/**
 	 * Returns the absolute value, always >= 0
@@ -282,7 +282,7 @@ class IntMath
 
 
 
-class FloatMath
+extern class FloatMath
 {
 	/**
 	 * Returns the biggest float of the two given integers

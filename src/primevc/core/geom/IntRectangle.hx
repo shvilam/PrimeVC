@@ -261,14 +261,6 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	}
 	
 	
-#if flash9
-	public function toFloatRectangle () : Rectangle
-	{
-		return new Rectangle (0, 0, width, height);
-	}
-#end
-	
-	
 #if debug
 	private static var counter : Int = 0;
 	private var id : Int;

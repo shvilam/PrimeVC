@@ -36,7 +36,7 @@ package primevc.mvc;
  * @author Ruben Weijers
  * @creation-date Dec 14, 2010
  */
-class MVCFlags
+extern class MVCFlags
 {
 	public static inline var LISTENING	= 1 << 0;
 	public static inline var DISPOSED	= 1 << 1;
@@ -46,7 +46,7 @@ class MVCFlags
 	
 	
 #if debug
-	public static inline function readState (state:Int)
+	public static inline function readState (state:Int) : String
 	{
 		var str = [];
 		if (state.has(LISTENING))	str.push( "listening" );
