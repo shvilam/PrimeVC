@@ -39,98 +39,22 @@ package primevc.utils;
 
 /**
  * @author Ruben Weijers
+ * @author Sjonnie Wilson
  * @creation-date May 17, 2011
  */
 class MacroUtils
 {
-/*	@:macro public static function enableFields ()						: Expr { return enableFieldsImpl(); }
+	@:macro public static function enableFields ()						: Expr { return enableFieldsImpl(); }
 	@:macro public static function disableFields ()						: Expr { return disposeFieldsImpl(); }
 	@:macro public static function startListeningFields ()				: Expr { return startListeningFieldsImpl(); }
 	@:macro public static function stopListeningFields ()				: Expr { return stopListeningFieldsImpl(); }
 	@:macro public static function unbindFields (l:Dynamic, h:Dynamic)	: Expr { return unbindFieldsImpl(l, h); }
-	@:macro public static function disposeFields ()						: Expr { return disposeFieldsImpl(); }*/
-	
-	@:macro public static function traceFields ()						: Expr { return callFunctionOnFieldsOf([], "trace"); }
+	@:macro public static function disposeFields ()						: Expr { return disposeFieldsImpl(); }
 
-	/**
-	 * Method will create a block that calls the .dispose() method on all the
-	 * fields that implement IDisposable. After disposing, all fields are set
-	 * to null.
-	 * 
-	 * To allow calling this method from another macro, the implementation can't
-	 * be a macro. If it would be, we lose information about the class that
-	 * the macro is called from (@see Context.getLocalClass())
-	 */
-	@:macro public static function disposeFields () : Expr
-	{
-		var local	= Context.getLocalClass().get();
-		var	fields	= local.fields.get();
-		var blocks	= fields.generateMethodCalls([], "dispose()", "IDisposable");
-		
-		if (blocks.length > 0)
-			blocks	= fields.setValueOf(blocks, "IDisposable", "null", false );
-		
-		return blocks.length > 0 ? blocks.toExpr() : null;
-	}
-	
-	
-	
-	@:macro public static function startListeningFields () : Expr
-	{
-		var local	= Context.getLocalClass().get();
-		var	fields	= local.fields.get();
-		var blocks	= fields.generateMethodCalls( [], "startListening()", "IMVCActor", true );
-		
-		if (blocks.length > 0)
-			blocks.unshift( Context.parse("if (isListening()) { return; }", Context.currentPos()) );
-		return blocks.length > 0 ? blocks.toExpr() : null;
-	}
-	
-	
-	
-	@:macro public static function stopListeningFields () : Expr
-	{
-		var local	= Context.getLocalClass().get();
-		var	fields	= local.fields.get();
-		var blocks = fields.generateMethodCalls( [], "stopListening()", "IMVCActor", true );
-		
-		if (blocks.length > 0)
-			blocks.unshift( Context.parse("if (!isListening()) { return; }", Context.currentPos()) );
-		return blocks.length > 0 ? blocks.toExpr() : null;
-	}
-	
-	
-	
-	@:macro public static function enableFields () : Expr
-	{
-		var local	= Context.getLocalClass().get();
-		var	fields	= local.fields.get();
-		var blocks	= fields.generateMethodCalls( [], "enable()", "IDisablable", true );
-		
-		if (blocks.length > 0)
-			blocks.unshift( Context.parse("if (isEnabled()) { return; }", Context.currentPos()) );
-		return blocks.length > 0 ? blocks.toExpr() : null;
-	}
-	
-	
-	
-	@:macro public static function disableFields () : Expr
-	{
-		var local	= Context.getLocalClass().get();
-		var fields	= local.fields.get();
-		var blocks	= fields.generateMethodCalls( [], "disable()", "IDisablable", true );
-		
-		if (blocks.length > 0)
-			blocks.unshift( Context.parse("if (!isEnabled()) { return; }", Context.currentPos()) );
-		return blocks.length > 0 ? blocks.toExpr() : null;
-	}
-	
-	
-	
-	@:macro public static function unbindFields (l:String = "l", h:String = "h") : Expr
-	{
-		return callMethodOnFieldsOf([], "unbind("+l+","+h+")",	"IUnbindable",	false, null);
-	}
+#if debug	
+	@:macro public static function traceFields ()						: Expr { return traceFieldsImpl(); }
+#end
+
 	
 	
 	/**
@@ -141,13 +65,54 @@ class MacroUtils
 	 */
 	@:macro public static function instantiateFieldsOf (searchType:String, instType:String) : Expr
 	{
-		return instantiateFieldsImpl(null, searchType, instType);
+		return instantiateFieldsOfImpl(searchType, instType);
 	}
+	
+	
+	/**
+	 * Macro which will execute a stored function reference
+	 */
+	@:macro public static function macroCallback (callbackID:Int) : Expr
+	{
+		return macroCallbacks[callbackID]();
+	}
+	
+	
+	/**
+	 * Macro which will execute a stored function reference. If the output of the 
+	 * reference doesn't contain any expressions, the method with name 'methodName'
+	 * will be removed.
+	 */
+	@:macro public static function removeEmptyMethod (methodName:String, callbackID:Int) : Expr
+	{
+		return macroCallbacks[callbackID]();
+	/*	var expr	= macroCallbacks[callbackID]();
+		var block	= expr.toBlocks();
+		
+	//	if (block.length == 0)
+	//		fields().removeMethod(methodName);
+		
+		return expr;*/
+	}
+	
+/*	@:macro public static function autoEmpty () : Array<Field>
+	{
+		var a = macroCallback(0);
+		return Context.getBuildFields();
+	}*/
+	
+	
+	
+	
+	//
+	// BUILD / AUTOBUILD METHODS
+	//
 	
 	
 	@:macro public static function autoInstantiate (searchType:String, instType:String, insertBefore:Bool = false) : Array<Field>
 	{
-		return Context.getBuildFields().addMethod( "new", "Void", [], createMacroCall("instantiateFieldsOf", [searchType, instType]), insertBefore );
+//		return Context.getBuildFields();
+		return Context.getBuildFields().addMethod( "new", "Void", [], createMacroCall("new", callback(instantiateFieldsOfImpl, searchType, instType)), insertBefore );
 	//	var f = Context.getBuildFields();
 	//	return f.addMethod( "new", "Void", [], instantiateFieldsImpl( f.toClassFields(), searchType, instType ), insertBefore );
 	}
@@ -155,7 +120,10 @@ class MacroUtils
 	
 	@:macro public static function autoDispose () : Array<Field>
 	{
-		return Context.getBuildFields().addMethod( "dispose", "Void", [], createMacroCall("disposeFields", []) );
+	//	trace("========== "+Context.getLocalClass().get().name+" ==========");
+		return Context.getBuildFields().addMethod( "dispose", "Void", [], createMacroCall("dispose", callback(disposeFieldsImpl)) );
+	//	return Context.getBuildFields();
+//		return Context.getBuildFields().addMethod( "dispose", "Void", [], createMacroCall("disposeFields", [], "dispose") );
 	//	var name	= Context.getLocalClass().get().name;
 	//	var f = Context.getBuildFields();
 	//	return f.addMethod( "dispose", "Void", [], disposeFieldsImpl( f.toClassFields() ) );
@@ -164,7 +132,7 @@ class MacroUtils
 	
 	@:macro public static function autoStartListening () : Array<Field>
 	{
-		return Context.getBuildFields().addMethod( "dispose", "Void", [], createMacroCall("startListeningFields", []) );
+		return Context.getBuildFields().addMethod( "startListening", "Void", [], createMacroCall("startListening", callback(startListeningFieldsImpl)) );
 	//	var f = Context.getBuildFields();
 	//	return f.addMethod( "startListening", "Void", [], startListeningFieldsImpl( f.toClassFields() ) );
 	}
@@ -172,7 +140,8 @@ class MacroUtils
 	
 	@:macro public static function autoStopListening () : Array<Field>
 	{
-		return Context.getBuildFields().addMethod( "stopListeningFieldsImpl", "Void", [], createMacroCall("stopListeningFields", []) );
+		return Context.getBuildFields().addMethod( "stopListening", "Void", [], createMacroCall("stopListening", callback(stopListeningFieldsImpl)) );
+//		return Context.getBuildFields().addMethod( "stopListening", "Void", [], createMacroCall("stopListeningFields", [], "stopListening") );
 	//	var f = Context.getBuildFields();
 	//	return f.addMethod( "stopListeningFieldsImpl", "Void", [], stopListeningFieldsImpl( f.toClassFields() ) );
 	}
@@ -180,7 +149,9 @@ class MacroUtils
 	
 	@:macro public static function autoEnable () : Array<Field>
 	{
-		return Context.getBuildFields().addMethod( "enable", "Void", [], createMacroCall("enableFields", []) );
+		return Context.getBuildFields().addMethod( "enable", "Void", [], createMacroCall("enable", callback(enableFieldsImpl)) );
+	//	return Context.getBuildFields();
+//		return Context.getBuildFields().addMethod( "enable", "Void", [], createMacroCall("enableFields", [], "enable") );
 	//	var f = Context.getBuildFields();
 	//	return f.addMethod( "enable", "Void", [], enableFieldsImpl( f.toClassFields() ) );
 	}
@@ -188,7 +159,7 @@ class MacroUtils
 	
 	@:macro public static function autoDisable () : Array<Field>
 	{
-		return Context.getBuildFields().addMethod( "disable", "Void", [], createMacroCall("disableFields", []) );
+		return Context.getBuildFields().addMethod( "disable", "Void", [], createMacroCall("disable", callback(disableFieldsImpl)) );
 	//	var f = Context.getBuildFields();
 	//	return f.addMethod( "disable", "Void", [], disableFieldsImpl( f.toClassFields() ) );
 	}
@@ -196,16 +167,20 @@ class MacroUtils
 	
 	@:macro public static function autoUnbind () : Array<Field>
 	{
-		return Context.getBuildFields().addMethod( "unbind", "Void", ["l:Dynamic", "?h:Dynamic"], createMacroCall("unbindFields", ["l", "h"]) );
+		return Context.getBuildFields().addMethod( "unbind", "Void", ["l:Dynamic", "?h:Dynamic"], createMacroCall("unbind", callback(unbindFieldsImpl, 'l', 'h')) );
+	//	return Context.getBuildFields();
+//		return Context.getBuildFields().addMethod( "unbind", "Void", ["l:Dynamic", "?h:Dynamic"], createMacroCall("unbindFields", ["l", "h"], "unbind") );
 	//	var f = Context.getBuildFields();
 	//	return f.addMethod( "unbind", "Void", ["l:Dynamic", "?h:Dynamic"], unbindFieldsImpl( f.toClassFields() ) );
 	}
 	
-	
+
+#if debug	
 	@:macro public static function autoTraceFields () : Array<Field>
 	{
-		return Context.getBuildFields().addMethod( "traceFields", "Void", [], createMacroCall("traceFields", []) );
+		return Context.getBuildFields().addMethod( "traceFields", "Void", [], createMacroCall("traceFields", callback(traceFieldsImpl)) );
 	}
+#end
 	
 	
 /*	@:macro public static function autoTraceMe () : Array<Field>
@@ -216,37 +191,140 @@ class MacroUtils
 	
 
 #if macro
-	private static inline function createMacroCall( macroName:String, params:Array<String> ) : Expr
+
+	static var macroCallbackID = 1;
+	static var macroCallbacks : Array<Void -> Expr> = [function(){ return [].toExpr(); }];
+
+	public static function createMacroCall( methodName:String, exprGenerator : Void->Expr, autoRemoveMethod:Bool = true ) : Expr
 	{
-		for (i in 0...params.length)
-			params[i] = "'" + params[i] + "'";
-	//	trace("MacroUtils."+macroName+"("+params.join(", ")+")");
-		return Context.parse("MacroUtils."+macroName+"("+params.join(", ")+")", Context.currentPos());
+	//*	
+		var pos = Context.currentPos();
+		var id	= ++macroCallbackID;
+		macroCallbacks[id] = exprGenerator;	
+	//	macroCallback(0);
+			
+		/*	var macroCall = autoRemoveMethod
+				?	"primevc.utils.MacroUtils.removeEmptyMethod('"+methodName+"', "+ id +")"
+				:	"primevc.utils.MacroUtils.macroCallback("+id+")";*/
+			var macroCall = "primevc.utils.MacroUtils.macroCallback("+id+")";
+	//*/
+		return Context.parse(macroCall, pos);
 	}
 	
 //	private static inline function autoTraceMeImpl (fields:Array<ClassField> = null, v:String = "v")					: Expr { return callMethodOnFieldsOf([], "traceMe("+v+")",		"Client",		true,  fields); }
 	
-	private static inline function instantiateFieldsImpl (fields:Array<ClassField> = null, searchType:String, instType:String) : Expr
-	{
-		if (fields == null)
-			fields = Context.getLocalClass().get().fields.get();
-		return fields.instantiate( [], searchType, instType ).toExpr();
-	}
 	
-	
-	private static inline function callMethodOnFieldsOf(blocks:Array<Expr>, methodName:String, typeName:String, nullCheck:Bool = false, fields:Array<ClassField>) : Expr
+	private static inline function callMethodOnFieldsOf(blocks:Array<Expr>, methodName:String, typeName:String, nullCheck:Bool = false) : Expr
 	{
-		if (fields == null)
-			fields = Context.getLocalClass().get().fields.get();
-		return fields.generateMethodCalls( [], methodName, typeName, nullCheck ).toExpr();
+		return fields().generateMethodCalls( [], methodName, typeName, nullCheck ).toExpr();
 	}
 	
 	private static inline function callFunctionOnFieldsOf(blocks:Array<Expr>, functionName:String) : Expr
 	{
-		var fields = Context.getLocalClass().get().fields.get();
-		return fields.callFunctionFor( [], functionName ).toExpr();
+		return fields().callFunctionFor( [], functionName ).toExpr();
 	}
 	
+	
+	
+	//
+	// MACRO IMPLEMENTATIONS
+	//
+	
+
+	/**
+	 * Method will create a block that calls the .dispose() method on all the
+	 * fields that implement IDisposable. After disposing, all fields are set
+	 * to null.
+	 * 
+	 * To allow calling this method from another macro, the implementation can't
+	 * be a macro. If it would be, we lose information about the class that
+	 * the macro is called from (@see Context.getLocalClass())
+	 */
+	private static inline function disposeFieldsImpl () : Expr
+	{
+		var blocks = fields().generateMethodCalls([], "dispose()", "IDisposable");
+		if (blocks.length > 0)
+			blocks = fields().setValueOf(blocks, "IDisposable", "null", false );
+		
+		return blocks.toExpr();
+	}
+	
+	
+	
+	private static inline function startListeningFieldsImpl () : Expr
+	{
+		var blocks	= fields().generateMethodCalls( [], "startListening()", "IMVCActor", true );
+		if (blocks.length > 0)
+			blocks.unshift( Context.parse("if (isListening()) { return; }", Context.currentPos()) );
+		
+		return blocks.toExpr(); //.length > 0 ? blocks.toExpr() : null;
+	}
+	
+	
+	
+	private static inline function stopListeningFieldsImpl () : Expr
+	{
+		var blocks = fields().generateMethodCalls( [], "stopListening()", "IMVCActor", true );
+		if (blocks.length > 0)
+			blocks.unshift( Context.parse("if (!isListening()) { return; }", Context.currentPos()) );
+		
+		return blocks.toExpr(); //.length > 0 ? blocks.toExpr() : null;
+	}
+	
+	
+	
+	private static inline function enableFieldsImpl () : Expr
+	{
+		var blocks = fields().generateMethodCalls( [], "enable()", "IDisablable", true );
+		if (blocks.length > 0)
+			blocks.unshift( Context.parse("if (isEnabled()) { return; }", Context.currentPos()) );
+		
+		return blocks.toExpr(); //blocks.length > 0 ? blocks.toExpr() : null;
+	}
+	
+	
+	
+	private static inline function disableFieldsImpl () : Expr
+	{
+		var blocks = fields().generateMethodCalls( [], "disable()", "IDisablable", true );
+		if (blocks.length > 0)
+			blocks.unshift( Context.parse("if (!isEnabled()) { return; }", Context.currentPos()) );
+		
+		return blocks.toExpr(); //blocks.length > 0 ? blocks.toExpr() : null;
+	}
+	
+	
+	
+	private static inline function unbindFieldsImpl (l:String = "l", h:String = "h") : Expr
+	{
+		return callMethodOnFieldsOf([], "unbind("+l+","+h+")",	"IUnbindable",	false);
+	}
+	
+	
+	/**
+	 * Marco that will instantiate all variables in the class of the given type
+	 * @param	searchType		type that the searched properties should have to auto-instantiate
+	 * @param	instType		typeName of the class that should be instantiated. 
+	 * 			The searchType can also be an interface.
+	 */
+	private static inline function instantiateFieldsOfImpl (searchType:String, instType:String) : Expr
+	{
+		return fields().instantiate( [], searchType, instType ).toExpr();
+	}
+	
+	
+#if debug
+	private static inline function traceFieldsImpl () : Expr
+	{
+		return callFunctionOnFieldsOf([], "trace");
+	}
+#end
+	
+	
+	private static inline function fields () : Array<ClassField>
+	{
+		return Context.getLocalClass().get().fields.get();
+	}
 #end
 }
 
@@ -265,14 +343,13 @@ class BlocksUtil
 		{
 		//	trace(Context.parse(field.name + " = new Client<String>()", pos));
 			var c = field.getClassType();
-			trace(field.name);
 			if (!field.meta.has("manual") && (c.hasInterface(searchType) || c.isClass(searchType)))
 			{
 #if debug		blocks.push( Context.parse("if ("+field.name+" != null) { throw '"+field.name+" should be null'; }", Context.currentPos()) ); #end
 				
 				var type = c.isInterface ? instType + field.type.string() : field.type.string(1);
 				var expr = field.name + " = new " + type + "()";
-				trace(expr);
+//				trace(expr);
 				blocks.push( Context.parse(expr, Context.currentPos()) );						//TODO optimalization: don't use Context.parse but create macro typedefs instead..
 			}
 		}
@@ -301,8 +378,8 @@ class BlocksUtil
 					blocks.push( Context.parse("if ("+field.name+" != null) { throw '"+field.name+" should be null'; }", Context.currentPos()) );
 #end
 	//			blocks.push( Context.parse("trace('===> "+field.name+" = "+value+"')", pos) );
-				trace(field.type);
-				trace(field.name+" = "+value);
+	//			trace(field.type);
+	//			trace(field.name+" = "+value);
 				blocks.push( Context.parse(field.name+" = "+value, Context.currentPos()) );						//TODO optimalization: don't use Context.parse but create macro typedefs instead..
 			}
 		}
@@ -361,6 +438,15 @@ class BlocksUtil
 	}
 	
 	
+	public static inline function toBlocks (expr:Expr) : Array<Expr>
+	{
+		return switch (expr.expr) {
+			default:		null;
+			case EBlock(b):	b;
+		}
+	}
+	
+	
 	public static inline function getFields (userFields:Expr) : Array<Field>
 	{
 		return switch (userFields.expr) {
@@ -375,7 +461,8 @@ class BlocksUtil
 	
 	
 #if debug
-	private static var counter = 0;
+	private static var addCounter = 0;
+	private static var removeCounter = 0;
 #end
 	
 	
@@ -387,14 +474,18 @@ class BlocksUtil
 	 * 	- if the methodname exists in a superclass of the current-class, it will
 	 * 		add an override statement and a call to the super.methodName();
 	 * 
-	 * @param	userFields		fields in the current class
-	 * @param	methodName		name of the method to add
-	 * @param	returnType		return-type as a string.. It will be converted to some Expr value
-	 * @param	methodContent	the expression that should be executed when the method is called
-	 * @param	insertBefore	If the method is overwriting a super-method,
-	 * 							it defines if the methodContent should be placed 
-	 * 							before or after the super-call.
-	 * 							@default is after super-call
+	 * @param	userFields			fields in the current class
+	 * @param	methodName			name of the method to add
+	 * @param	returnType			return-type as a string.. It will be converted to some Expr value
+	 * @param	methodContent		the expression that should be executed when the method is called
+	 * @param	insertBefore		If the method is overwriting a super-method,
+	 * 								it defines if the methodContent should be placed 
+	 * 								before or after the super-call.
+	 * 								@default is after super-call
+	 * @param	validateContent		flag to indicate that the content of the method should be checked before the content of the method is executed.
+	 * 								This comes in handy when the methodContent is another macro-call. By validating the content after the new macro
+	 * 								is executed we can remove the method if the second macro-call didn't output any code.
+	 * 								@default true
 	 * @return 		fields in the current class
 	 */
 	public static /*inline*/ function addMethod (userFields:Array<Field>, methodName:String, returnType:String, arguments:Array<String>, methodContent:Expr, insertBefore:Bool = false) : Array<Field>
@@ -409,11 +500,10 @@ class BlocksUtil
 		var curDef		= userFields.getField( methodName );
 		var hasSuper	= curDef != null ? false : local.hasSuper( methodName );
 		
-		trace("============");
-		trace(local.name+".addMethod "+methodName+"("+arguments.join(", ")+"); curDef: "+(curDef != null)+"; hasSuper: "+hasSuper #if debug + " " + counter++ #end );
-	//	trace("curDef: "+(curDef != null));
-	//	trace("hasSuper: "+hasSuper);
+	//	trace("============");
+	//	trace(local.name+".addMethod "+methodName+"("+arguments.join(", ")+"); curDef: "+(curDef != null)+"; hasSuper: "+hasSuper #if debug + " " + ++addCounter #end );
 		
+	//	var traceExpr = Context.parse("trace('"+local.name+"."+methodName+"')", pos);
 		// if it's already declared in the current class, add method implementation to the existing method
 		if (curDef != null)
 		{
@@ -430,6 +520,7 @@ class BlocksUtil
 			
 			if (insertBefore)	block.unshift( methodContent );
 			else				block.push( methodContent );
+		//	block.unshift(traceExpr);
 		}
 		
 		
@@ -446,6 +537,7 @@ class BlocksUtil
 					access.push(Access.AOverride);
 				
 				var block = new Array<Expr>();
+			//	block.push(traceExpr);
 				if (insertBefore) {
 					block.push( methodContent );
 					block.push( Context.parse(superExpr, pos) );
@@ -453,6 +545,7 @@ class BlocksUtil
 					block.push( Context.parse(superExpr, pos) );
 					block.push( methodContent );
 				}
+				
 				methodContent = block.toExpr();
 			}
 			
@@ -460,7 +553,7 @@ class BlocksUtil
 			userFields.push( {
 				name:		methodName,
 				doc:		null,
-				meta:		[],
+				meta:		[{name:"__auto", params:[], pos: pos}],
 				access:		access,
 				kind:		FFun({
 					expr:	methodContent,
@@ -468,11 +561,37 @@ class BlocksUtil
 					params:	[],
 					ret:	returnType.createTypePath()
 				}),
-				pos:		Context.currentPos()
+				pos:		pos
 			} );
 		}
 	//	trace("");
 		return userFields;
+	}
+	
+	
+	/**
+	 * NOT USED...
+	 * Method will try to remove the given methodname, but splice or Compiler.removeField
+	 * won't remove the actual method.. so removing empty methods will be left
+	 * for dead-code-elimination.
+	 */
+	public static function removeMethod (fields:Array<ClassField>, methodName:String) : Array<ClassField>
+	{
+		var fieldPos = fields.getFieldPos(methodName);
+		if (fieldPos == -1)
+			return fields;
+		
+		var field = fields[fieldPos];
+		if (!field.meta.has("__auto"))
+			return fields;
+		
+		var className = Context.getLocalClass().get().name;
+		haxe.macro.Compiler.removeField(className, methodName);
+		
+		var l = fields.length;
+		fields.splice( fieldPos, 1 );
+//		trace("====> removeMethod "+className+"."+methodName+" ==> "+l+" -> "+fields.length+"; "+Context.getBuildFields().length #if debug + " " + ++removeCounter #end);
+		return fields;
 	}
 }
 
@@ -611,6 +730,19 @@ class MacroTypeUtil
 			}
 		
 		return fl;
+	}
+	
+	
+	public static inline function getFieldPos (fields:Array<ClassField>, fieldName:String) : Int
+	{
+		var depth:Int = -1;
+		for (i in 0...fields.length)
+			if (fields[i].name == fieldName) {
+				depth = i;
+				break;
+			}
+		
+		return depth;
 	}
 	
 	
@@ -889,7 +1021,7 @@ class MacroExprUtil
 		}
 		trace("== END TRACE CLASS FIELDS ==");
 	}*/
-//}
+/*}
 
 
 class TmpMetaAccess
@@ -927,6 +1059,6 @@ class TmpMetaAccess
 		return pos;
 	}
 }
-
+*/
 
 #end
