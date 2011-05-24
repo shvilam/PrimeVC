@@ -80,7 +80,7 @@ extern class StyleStateFlags
 	
 	
 #if (neko || debug)
-	public static function stringToState (v:String) : Int
+	public static inline function stringToState (v:String) : Int
 	{
 		return switch (v.toLowerCase().trim())
 		{
