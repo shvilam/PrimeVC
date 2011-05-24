@@ -71,7 +71,7 @@ extern class TypeUtil
 
 
 #if debug
-@:keep class IDUtil
+class IDUtil
 {
 	private static var objCounter : Int = 0;
 	

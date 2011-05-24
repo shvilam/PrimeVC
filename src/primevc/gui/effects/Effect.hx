@@ -63,7 +63,7 @@ class Effect < TargetType, EffectClass:IEffect > extends Invalidatable, implemen
 	public var autoHideFilters	(default, setAutoHideFilters)	: Bool;
 	
 	
-	@:keep public function new( newDuration:Int = 350, newDelay:Int = 0, newEasing:Easing = null ) 
+	public function new( newDuration:Int = 350, newDelay:Int = 0, newEasing:Easing = null ) 
 	{
 		super();
 #if (debug || neko)

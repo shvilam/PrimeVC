@@ -82,7 +82,7 @@ class ToolTipManager implements IDisposable
 	 * Method will enable the tooltip for the given obj with the given label.
 	 * When the tooltip is enabled, it will also start following the mouse.
 	 */
-	@:keep public function show (obj:UIComponent, label:Bindable<String>)
+	public function show (obj:UIComponent, label:Bindable<String>)
 	{
 		removeListeners();
 

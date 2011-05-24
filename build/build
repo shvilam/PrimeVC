@@ -110,6 +110,7 @@ else
 	echo build/build.hxml \
 		-swf "'$OUTPUT'" \
 		${Debug:---no-traces} \
+		${Debug:---dead-code-elimination} \
 		$EXTRA \
 		-cp "'$PRJROOT/src'" \
 		-cp "'$STYLEDIR'" \

@@ -55,7 +55,7 @@ package primevc.gui.display;
 #if (flash8 || flash9 || js)
 class Window implements IDisplayContainer, implements IDisablable
 {
-	public static inline function startup<WindowInstance>(windowClass : Class<WindowInstance>) : WindowInstance
+	public static inline function startup<WindowInstance>(windowClassFactory : Stage -> WindowInstance) : WindowInstance
 	{
 		var stage:Stage = null;
 		
@@ -82,9 +82,10 @@ class Window implements IDisplayContainer, implements IDisablable
 #if debug
 		haxe.Log.clear();
 		haxe.Log.setColor(0xc00000);
-		trace("started " + windowClass);
+		trace("started " + windowClassFactory);
 #end
-		return Type.createInstance( windowClass, [ stage ] );
+		return windowClassFactory(stage);
+	//	return Type.createInstance( windowClass, [ stage ] );
 	}
 	
 	
