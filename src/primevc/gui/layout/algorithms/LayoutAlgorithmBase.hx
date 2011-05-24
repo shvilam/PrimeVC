@@ -128,7 +128,7 @@ class LayoutAlgorithmBase
 	}
 	
 	
-	private inline function getVerCenterStartValue ()	: Int
+	@:keep private inline function getVerCenterStartValue ()	: Int
 	{
 		var start:Int = 0;
 		

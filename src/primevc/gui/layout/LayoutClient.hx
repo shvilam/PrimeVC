@@ -751,7 +751,7 @@ class LayoutClient extends Invalidatable
 	 * 
 	 * FIXME
 	 */
-	public function invalidateHorPaddingMargin () //changes:Int)
+	@:keep public function invalidateHorPaddingMargin () //changes:Int)
 	{
 	//	invalidate( changes );	// <-- will destroy the applicition... things start freezing.. weird stuff :-S
 		if (percentWidth.isSet())
@@ -764,7 +764,7 @@ class LayoutClient extends Invalidatable
 	/**
 	 * @see invalidateHorPaddingMargin
 	 */
-	public function invalidateVerPaddingMargin ()
+	@:keep public function invalidateVerPaddingMargin ()
 	{
 		if (percentHeight.isSet())
 			height = outerBounds.height - getVerPadding() - getVerMargin();

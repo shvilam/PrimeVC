@@ -20,4 +20,4 @@
 # http://www.joa-ebert.com/
 #
 
-scala -cp `dirname "$0"`/\* apparat.tools.tdsi.TurboDieselSportInjection $*
+echo -cp `dirname "$0"`/\* apparat.tools.tdsi.TurboDieselSportInjection $* |xargs -t scala

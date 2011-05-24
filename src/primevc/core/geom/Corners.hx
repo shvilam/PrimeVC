@@ -70,6 +70,7 @@ class Corners	implements IClonable < Corners >
 	
 	public function clone ()					: Corners	{ return new Corners( topLeft, topRight, bottomRight, bottomLeft ); }
 	
+	@:keep
 	public inline function allCornersEqual ()	: Bool		{ return topLeft == topRight && topLeft == bottomLeft && topLeft == bottomRight; }
 	
 #if neko
