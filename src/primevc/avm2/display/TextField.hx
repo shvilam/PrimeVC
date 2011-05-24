@@ -212,7 +212,7 @@ class TextField extends flash.text.TextField, implements ITextField
 #end
 	
 	
-	@:keep public inline function makeEditable ()
+	public inline function makeEditable ()
 	{
 		selectable		= true;
 		mouseEnabled	= true;
