@@ -1,7 +1,7 @@
 package cases;
 #if debug
  import flash.text.TextFormat;
- import primevc.gui.display.TextField;
+// import primevc.gui.display.TextField;
 #end
  import primevc.core.collections.ArrayList;
  import primevc.core.collections.DataCursor;
@@ -48,7 +48,7 @@ typedef DataVOType = Bindable<String>;
  */
 class GlobalTest extends UIWindow
 {
-	public static function main () { Window.startup( GlobalTest ); }
+	public static function main () { Window.startup( function (s) return new GlobalTest(s) ); }
 	override private function createBehaviours () {}
 	
 	
@@ -127,7 +127,7 @@ class Tile extends DataButton < DataVOType >
 	public static var counter				: Int = 0;
 	private var num							: Int;
 
-#if (debug && flash9)
+#if (debug && flash90)
 	private var textField					: TextField;
 #end
 	
@@ -149,7 +149,7 @@ class Tile extends DataButton < DataVOType >
 	}
 	
 	
-#if (debug && flash9)
+#if (debug && flash90)
 	override private function createChildren ()
 	{
 		textField = new TextField(data);

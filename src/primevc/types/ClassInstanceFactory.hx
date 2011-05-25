@@ -114,7 +114,7 @@ class ClassInstanceFactory < InstanceType >
 	
 	public function toCode (code:ICodeGenerator)
 	{
-		code.construct( this, [ classRef, params ] );
+		code.createFactory( classRef, (params == null ? EMPTY_ARRAY : params) );
 	}
 	
 	

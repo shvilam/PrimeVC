@@ -32,7 +32,6 @@ package primevc.gui.core;
 #end
  import primevc.core.traits.IIdentifiable;
  import primevc.core.Bindable;
- import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
  import primevc.gui.behaviours.layout.WindowLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;

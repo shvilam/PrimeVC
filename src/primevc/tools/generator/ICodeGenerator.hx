@@ -38,6 +38,8 @@ interface ICodeGenerator
 	public function construct (obj:ICodeFormattable, ?args:Array<Dynamic>, ?alternativeType:Class<Dynamic>) : Void;
 	public function createClassConstructor (classRef:Class<Dynamic>, ?args:Array<Dynamic>)					: String;
 	public function createClassNameConstructor (name:String, ?args:Array<Dynamic>)							: String;
+	public function createFactory (targetClass:Class<Dynamic>, params:Array<Dynamic>, ?args:Array<Dynamic>)	: String;
+	
 	public function setAction (obj:ICodeFormattable, name:String, ?args:Array<Dynamic>)						: Void;
 	public function setProp (obj:ICodeFormattable, name:String, value:Dynamic)								: Void;
 	

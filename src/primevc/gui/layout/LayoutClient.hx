@@ -999,6 +999,6 @@ class LayoutClient extends Invalidatable
 	
 	public static var counter:Int = 0;
 	public var name:String;
-	@:keep public function toString() { return state.current+"_"+name; } // + " - " + _oid; }
+	@:keep public function toString() { return name; }//+"_"+state; } //state.current+"_"+name; } // + " - " + _oid; }
 #end
 }

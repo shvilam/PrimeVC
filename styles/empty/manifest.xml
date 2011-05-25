@@ -13,7 +13,6 @@
 	<component id="UIWindow"			superClass="IDisplayObject"		fullname="primevc.gui.core.UIWindow" />
 	
 	<!-- Default Components -->
-	<component id="ApplicationView"		superClass="UIContainer"		fullname="primevc.gui.components.ApplicationView" />
 	<component id="Button"				superClass="UIDataContainer"	fullname="primevc.gui.components.Button" />
 	<component id="ComboBox"			superClass="DataButton"			fullname="primevc.gui.components.ComboBox" />
 	<component id="ColorPicker"			superClass="UIDataContainer"	fullname="primevc.gui.components.ColorPicker" />

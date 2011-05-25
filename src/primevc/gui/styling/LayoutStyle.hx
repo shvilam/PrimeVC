@@ -34,7 +34,7 @@ package primevc.gui.styling;
  import primevc.core.traits.IInvalidatable;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.RelativeLayout;
- import primevc.types.ClassInstanceFactory;
+// import primevc.types.ClassInstanceFactory;
  import primevc.types.Number;
  import primevc.utils.NumberUtil;
   using primevc.utils.BitUtil;
@@ -42,7 +42,9 @@ package primevc.gui.styling;
 
 
 private typedef Flags			= LayoutStyleFlags;
-private typedef AlgorithmClass	= ClassInstanceFactory < ILayoutAlgorithm >;
+private typedef AlgorithmType	= 
+	#if neko	primevc.types.ClassInstanceFactory < ILayoutAlgorithm >;
+	#else		Void -> ILayoutAlgorithm; #end
 
 
 /**
@@ -58,7 +60,7 @@ class LayoutStyle extends StyleSubBlock
 //	private var parentStyle				: LayoutStyle;
 
 	private var _relative				: RelativeLayout;
-	private var _algorithm				: AlgorithmClass;
+	private var _algorithm				: AlgorithmType;
 	private var _padding				: Box;
 	private var _margin					: Box;
 	
@@ -84,7 +86,7 @@ class LayoutStyle extends StyleSubBlock
 	
 	
 	public var relative				(getRelative,			setRelative)		: RelativeLayout;
-	public var algorithm			(getAlgorithm,			setAlgorithm)		: AlgorithmClass;
+	public var algorithm			(getAlgorithm,			setAlgorithm)		: AlgorithmType;
 	public var padding				(getPadding,			setPadding)			: Box;
 	public var margin				(getMargin,				setMargin)			: Box;
 	
@@ -115,7 +117,7 @@ class LayoutStyle extends StyleSubBlock
 		rel:RelativeLayout			= null,
 		padding:Box					= null,
 		margin:Box					= null,
-		alg:AlgorithmClass			= null,
+		alg:AlgorithmType			= null,
 		percentW:Float				= Number.INT_NOT_SET,
 		percentH:Float				= Number.INT_NOT_SET,
 		width:Int					= Number.INT_NOT_SET,

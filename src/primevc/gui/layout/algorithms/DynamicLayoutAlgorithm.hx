@@ -29,18 +29,20 @@
 package primevc.gui.layout.algorithms;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
+ import primevc.types.ClassInstanceFactory;
 #end
  import primevc.core.geom.space.Direction;
  import primevc.core.geom.space.Horizontal;
  import primevc.core.geom.space.Vertical;
  import primevc.core.geom.IRectangle;
- import primevc.types.ClassInstanceFactory;
  import primevc.utils.NumberUtil;
   using primevc.utils.Bind;
   using Type;
 
- 
-private typedef AlgorithmClass	= ClassInstanceFactory < ILayoutAlgorithm >;
+
+private typedef AlgorithmClass	= 
+	#if neko	ClassInstanceFactory<ILayoutAlgorithm>;
+	#else		Void -> ILayoutAlgorithm; #end
 
 
 /**
@@ -71,8 +73,10 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 	public function new (?horAlgorithmInfo:AlgorithmClass, ?verAlgorithmInfo:AlgorithmClass) 
 	{
 		super();
-		if (horAlgorithmInfo != null)	horAlgorithm	= cast horAlgorithmInfo.create();
-		if (verAlgorithmInfo != null)	verAlgorithm	= cast verAlgorithmInfo.create();
+#if !neko
+		if (horAlgorithmInfo != null)	horAlgorithm	= cast horAlgorithmInfo(); //horAlgorithmInfo.create();
+		if (verAlgorithmInfo != null)	verAlgorithm	= cast verAlgorithmInfo(); //verAlgorithmInfo.create();
+#end
 	}
 	
 	
@@ -170,6 +174,8 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 		//	invalidate(true);
 			
 			if (v != null) {
+				Assert.notNull(horAlgorithm);
+				Assert.notNull(verAlgorithm);
 				horAlgorithm.group	= v;
 				verAlgorithm.group	= v;
 			}

@@ -168,9 +168,12 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	private inline function removeTileContainer (tileGroup:TileContainer)
 	{
-		tileCollection.removeList( cast tileGroup.children );
-		tileGroups.children.remove( tileGroup );
-		tileGroup.dispose();
+		if (tileGroups.children.length > 1)
+		{
+			tileCollection.removeList( cast tileGroup.children );
+			tileGroups.children.remove( tileGroup );
+			tileGroup.dispose();
+		}
 	}
 	
 	
@@ -268,7 +271,6 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 		//check each tileGroup for changes in the list or in the width of the children
 		for (tileGroup in groupItr)
 		{
-			trace(tileGroup + "; "+tileGroup.changes);
 			if (tileGroup.changes == 0)
 				continue;
 			
@@ -293,7 +295,6 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	override public function validateHorizontal ()
 	{
-		trace(tileCollection);
 		if (startDirection == horizontal) {
 			validateGroups();
 			tileGroups.validate();
@@ -304,7 +305,6 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	override public function validateVertical ()
 	{
-		trace(tileCollection);
 		if (startDirection == vertical) {
 			validateGroups();
 			tileGroups.validate();
@@ -326,7 +326,6 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	override public function apply ()
 	{
-		trace(tileCollection);
 		Assert.notNull(tileGroups);
 		for (row in tileGroups)
 			row.validated();
@@ -384,8 +383,6 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 				childAlgorithm = new DynamicRowAlgorithm( horizontalDirection );//, verticalDirection );
 			else
 				childAlgorithm = new DynamicColumnAlgorithm( verticalDirection );//, horizontalDirection );
-			
-			trace(childAlgorithm+"; "+horizontalDirection+" - "+verticalDirection);
 			invalidate( true );
 		}
 		return v;
@@ -462,7 +459,6 @@ private class DynamicRowAlgorithm extends HorizontalFloatAlgorithm
 	//	if (children.length < 2)
 	//		return;
 		
-untyped	trace(children.length + "; "+group.readChanges());
 		if ( group.changes.hasNone(Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.WIDTH | Flags.WIDTH_CONSTRAINTS ) )
 			return;
 		
