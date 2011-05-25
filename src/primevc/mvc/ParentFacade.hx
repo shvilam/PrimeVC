@@ -20,67 +20,55 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
 package primevc.mvc;
+ import primevc.core.dispatcher.Signals;
+ import primevc.core.traits.IDisposable;
+
+
 
 /**
- * Abstract Mediator class.
+ * Parent facade is the main-application facade that will be started up as first.
+ * The parent facade is responsible for creating the channels object that will
+ * be distributed to the ChildFacades
  * 
- * The Mediator translates requests between components.
- * Usually it acts as a layer between application-requests and the View.
- * 
- * A Mediator is not allowed to change Value-objects.
- * It can however request changes from a Proxy (defined within Model).
- * 
- * @author Danny Wilson
- * @creation-date Jun 22, 2010
+ * @author Ruben Weijers
+ * @creation-date May 25, 2011
  */
-class Mediator <FacadeDef, GUIType> extends MVCActor <FacadeDef>
+class ParentFacade <
+		EventsType		: Signals,
+		ModelType		: IMVCCore,
+		StatesType		: IDisposable,
+		ControllerType	: IMVCCoreActor,
+		ViewType		: IMVCCoreActor,
+		ChannelsType	: Signals
+	> extends Facade <EventsType, ModelType, StatesType, ControllerType, ViewType>
 {
-	public var gui (default, setGUI) : GUIType;
+	public var channels		(default, null) : ChannelsType;
 	
 	
-	public function new (facade:FacadeDef, enabled:Bool = true, gui:GUIType = null)
+	public function new ()
 	{
-		this.gui = gui;
-		super(facade, enabled);
+		setupChannels();
+		super();
 	}
 	
 	
 	override public function dispose ()
 	{
-		if (isDisposed())
-			return;
-		
-		gui = null;
 		super.dispose();
+		channels.dispose();
+		channels = null;
 	}
 	
 	
 	/**
-	 * Set the UI element that the mediator serves.
+	 * Can instantiate the channels for this Facade.
 	 */
-	private function setGUI (v:GUIType)
-	{
-		if (v != gui)
-		{
-			var wasEnabled = isEnabled();
-			if (wasEnabled && gui != null)
-				disable();
-		
-			if (v == null && isListening())
-				stopListening();
-		
-			gui = v;
-			if (v != null && wasEnabled)
-				enable();
-		}
-		return v;
-	}
+	function setupChannels()	{ Assert.abstract(); }
 }

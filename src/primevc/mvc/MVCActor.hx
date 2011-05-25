@@ -37,9 +37,6 @@ package primevc.mvc;
  * @author Ruben Weijers
  * @creation-date Nov 16, 2010
  */
-@:autoBuild(primevc.utils.MacroUtils.autoStartListening())
-@:autoBuild(primevc.utils.MacroUtils.autoStopListening())
-@:autoBuild(primevc.utils.MacroUtils.autoDispose())
 class MVCActor <FacadeDef> extends MVCNotifier, implements IMVCActor
 {
 	//TODO: Ask Nicolas why you can't have typedefs as type constraint parameters...
@@ -66,7 +63,7 @@ class MVCActor <FacadeDef> extends MVCNotifier, implements IMVCActor
 	}
 	
 	
-	public function startListening () : Void		{ trace(this); state = state.set( MVCFlags.LISTENING ); }
-	public function stopListening () : Void			{ trace(this); state = state.unset( MVCFlags.LISTENING ); }
+	public function startListening () : Void		{ state = state.set( MVCFlags.LISTENING ); }
+	public function stopListening () : Void			{ state = state.unset( MVCFlags.LISTENING ); }
 	public inline function isListening () : Bool	{ return state.has( MVCFlags.LISTENING ); }
 }

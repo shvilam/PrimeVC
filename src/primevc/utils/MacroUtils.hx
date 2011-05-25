@@ -318,6 +318,12 @@ class MacroUtils
 	{
 		return callFunctionOnFieldsOf([], "trace");
 	}
+	
+	
+	private static inline function name () : String
+	{
+		return Context.getLocalClass().get().name;
+	}
 #end
 	
 	
@@ -488,13 +494,16 @@ class BlocksUtil
 	 * 								@default true
 	 * @return 		fields in the current class
 	 */
-	public static /*inline*/ function addMethod (userFields:Array<Field>, methodName:String, returnType:String, arguments:Array<String>, methodContent:Expr, insertBefore:Bool = false) : Array<Field>
+	public static /*inline*/ function addMethod (userFields:Array<Field>, methodName:String, returnType:String, arguments:Array<String>, methodContent:Expr, insertBefore:Bool = true) : Array<Field>
 	{
 		if (methodContent == null)
 			return userFields;
 		
 		var local			= Context.getLocalClass().get();
 		var pos				= Context.currentPos();
+		
+		if (local.isInterface)
+			return userFields;
 		
 		// check if the method is already declared in the current class ore one of the super classes
 		var curDef		= userFields.getField( methodName );
@@ -520,7 +529,7 @@ class BlocksUtil
 			
 			if (insertBefore)	block.unshift( methodContent );
 			else				block.push( methodContent );
-		//	block.unshift(traceExpr);
+	//		block.unshift(traceExpr);
 		}
 		
 		
@@ -537,7 +546,7 @@ class BlocksUtil
 					access.push(Access.AOverride);
 				
 				var block = new Array<Expr>();
-			//	block.push(traceExpr);
+	//			block.push(traceExpr);
 				if (insertBefore) {
 					block.push( methodContent );
 					block.push( Context.parse(superExpr, pos) );

@@ -38,9 +38,6 @@ package primevc.mvc;
  * @author Ruben Weijers
  * @creation-date Nov 16, 2010
  */
-@:autoBuild(primevc.utils.MacroUtils.autoDisable())
-@:autoBuild(primevc.utils.MacroUtils.autoEnable())
-@:autoBuild(primevc.utils.MacroUtils.autoDispose())
 class MVCNotifier implements IMVCNotifier
 {
 	private var state : Int;
@@ -48,7 +45,7 @@ class MVCNotifier implements IMVCNotifier
 	
 	public function new (enabled = true)
 	{
-		state = 0;
+	//	state = 0;	<-- default value..
 		if (enabled)
 			enable();
 	}

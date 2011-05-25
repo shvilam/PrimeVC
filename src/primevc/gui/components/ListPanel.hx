@@ -50,7 +50,7 @@ class ListPanel<ListDataType> extends Panel, implements IListHolder<ListDataType
 	
 	
 	
-	public function new (id:String = null, label:String = null, data:IReadOnlyList<ListDataType>)
+	public function new (id:String = null, label:String = null, data:IReadOnlyList<ListDataType> = null)
 	{
 		content = list	= new ListView("content", data);
 		selectedIndex	= new Bindable<Int>(-1);

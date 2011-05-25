@@ -82,7 +82,7 @@ class Window implements IDisplayContainer, implements IDisablable
 #if debug
 		haxe.Log.clear();
 		haxe.Log.setColor(0xc00000);
-		trace("started " + windowClassFactory);
+		trace("started");
 #end
 		return windowClassFactory(stage);
 	//	return Type.createInstance( windowClass, [ stage ] );

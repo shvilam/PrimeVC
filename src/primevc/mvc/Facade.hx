@@ -28,6 +28,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.mvc;
+ import primevc.core.dispatcher.Signal0;
  import primevc.core.dispatcher.Signals;
  import primevc.core.traits.IDisposable;
 
@@ -56,9 +57,14 @@ package primevc.mvc;
  * @creation-date Jun 22, 2010
  * @type <EventsType> all event groups used in this application/subsystem.
  */
-class Facade<EventsType:Signals, ModelType:MVCNotifier, StatesType:IDisposable, ControllerType:IMVCActor, ViewType:IMVCActor> implements IDisposable
-    #if !docs, implements haxe.rtti.Generic #end
+class Facade<EventsType:Signals, ModelType:IMVCCore, StatesType:IDisposable, ControllerType:IMVCCoreActor, ViewType:IMVCCoreActor> implements IDisposable
+//    #if !docs, implements haxe.rtti.Generic #end
 {
+	/**
+	 * Signal that's dispatched when facade.start is called
+	 */
+	public var started		(default, null)	: Signal0;
+	
 	public var events		(default, null)	: EventsType;
 	public var model		(default, null)	: ModelType;
 	public var view			(default, null)	: ViewType;
@@ -66,8 +72,11 @@ class Facade<EventsType:Signals, ModelType:MVCNotifier, StatesType:IDisposable, 
 	public var states		(default, null) : StatesType;
 	
 	
-	private function new ()
-	{	
+	public function new ()
+	{
+		started = new Signal0();
+		
+		Assert.null(events);
 		setupEvents();
 		Assert.notNull( events, "Events-collection can't be empty.");
 		
@@ -79,10 +88,25 @@ class Facade<EventsType:Signals, ModelType:MVCNotifier, StatesType:IDisposable, 
 		Assert.notNull(view, "Mediator-collection can't be empty.");
 		
 		setupController();
+	}
+	
+	
+	// method is called by the static main function or the object that created the facade
+	public inline function start ()
+	{
 		if (controller != null)
 			controller.startListening();
 		
-	//	view,startListening();		method is called by the static main function or the object that created the facade	
+		view.startListening();
+		started.send();
+	}
+	
+	
+	public inline function stop ()
+	{
+		view.stopListening();
+		if (controller != null)
+			controller.stopListening();
 	}
 	
 	
@@ -104,10 +128,15 @@ class Facade<EventsType:Signals, ModelType:MVCNotifier, StatesType:IDisposable, 
 		events		= null;
 	}
 	
+	
 	/**
 	 * Must instantiate the event-signals for this Facade.
 	 */
 	function setupEvents()		{ Assert.abstract(); }
+	/**
+	 * Can instantiate the states for this Facade.
+	 */
+	function setupStates()	{}
 	
 	/**
 	 * Must instantiate the Model for this Facade.
@@ -115,14 +144,9 @@ class Facade<EventsType:Signals, ModelType:MVCNotifier, StatesType:IDisposable, 
 	function setupModel()		{ Assert.abstract(); }
 	
 	/**
-	 * Instantiate the States for this Facade.
-	 */
-	function setupStates()		{ /*Assert.abstract();*/ }
-	
-	/**
 	 * Should map the event handlers, and setup behaviours/commands for this (sub)system.
 	 */
-	function setupController()	{ /*Assert.abstract();*/ }
+	function setupController()	{}
 	
 	/**
 	 * Must instantiate the View for this (sub)system.
