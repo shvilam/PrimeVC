@@ -369,7 +369,7 @@ class Asset
 				}
 				else
 				{
-					trace(v.scheme+" => "+v);
+	//				trace(v.scheme+" => "+v);
 					createURILoader();
 					uri				= v;
 					state.current	= loadable;

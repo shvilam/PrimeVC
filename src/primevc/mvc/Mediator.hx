@@ -71,7 +71,7 @@ class Mediator <FacadeDef, GUIType> extends MVCActor <FacadeDef>
 		if (v != gui)
 		{
 			var wasEnabled = isEnabled();
-			if (wasEnabled && gui != null)
+			if (wasEnabled) // && gui != null)
 				disable();
 		
 			if (v == null && isListening())
