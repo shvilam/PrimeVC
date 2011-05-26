@@ -45,7 +45,9 @@ class MVCNotifier implements IMVCNotifier
 	
 	public function new (enabled = true)
 	{
-	//	state = 0;	<-- default value..
+#if !flash9
+		state = 0;
+#end
 		if (enabled)
 			enable();
 	}

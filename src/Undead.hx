@@ -13,6 +13,7 @@ class Undead
 	//	keep("haxe.io.BytesInput",  pos);
 		keep("haxe.Public", pos);
 		keep("haxe.rtti.Infos", pos);
+		keep("primevc.types.RGBAType", pos);
 		
         return { expr : EReturn(null), pos : pos };
 	}

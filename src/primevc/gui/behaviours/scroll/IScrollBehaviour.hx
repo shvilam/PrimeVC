@@ -20,33 +20,20 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.tools.generator;
-
+package primevc.gui.behaviours.scroll;
+ import primevc.gui.behaviours.IBehaviour;
 
 /**
  * @author Ruben Weijers
- * @creation-date Sep 13, 2010
+ * @creation-date May 26, 2011
  */
-interface ICodeGenerator
+@:keep interface IScrollBehaviour implements IBehaviour<primevc.gui.core.IUIContainer>
 {
-	public function createFactory (obj:ICodeFormattable, classRef:String, params:Array<Dynamic>, ?args:Array<String>)	: Void;
-	public function construct (obj:ICodeFormattable, ?args:Array<Dynamic>, ?alternativeType:Class<Dynamic>)				: Void;
 	
-	public function createClassConstructor (classRef:Class<Dynamic>, ?args:Array<Dynamic>)					: String;
-	public function createClassNameConstructor (name:String, ?args:Array<Dynamic>)							: String;
-	
-	public function setAction (obj:ICodeFormattable, name:String, ?args:Array<Dynamic>)						: Void;
-	public function setProp (obj:ICodeFormattable, name:String, value:Dynamic)								: Void;
-	
-	private function formatArguments (args:Array<Dynamic>, isConstructor:Bool = false)						: String;
-	private function formatValue (value:Dynamic, isConstructor:Bool = false)								: String;
-	
-	public function hasVar (obj:ICodeFormattable)															: Bool;
-	public function varName (obj:ICodeFormattable)															: String;
 }

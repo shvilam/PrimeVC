@@ -29,22 +29,27 @@
 package primevc.gui.styling;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
- import primevc.types.Reference;
   using primevc.types.Reference;
 #end
  import primevc.core.geom.Corners;
  import primevc.core.traits.IInvalidatable;
+ import primevc.gui.behaviours.scroll.IScrollBehaviour;
  import primevc.gui.core.ISkin;
+ import primevc.gui.core.IUIContainer;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.shapes.IGraphicShape;
  import primevc.gui.graphics.IGraphicProperty;
  import primevc.types.Asset;
+ import primevc.types.Factory;
  import primevc.types.Number;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
 
 
-private typedef Flags = GraphicFlags;
+private typedef Flags		= GraphicFlags;
+private typedef Shape		= #if neko primevc.types.Reference; #else IGraphicShape; #end
+private typedef Skin		= Factory<ISkin>;
+private typedef Overflow	= Factory1<IUIContainer, IScrollBehaviour>;
 
 
 /**
@@ -58,15 +63,9 @@ class GraphicsStyle extends StyleSubBlock
 	private var extendedStyle	: GraphicsStyle;
 	private var superStyle		: GraphicsStyle;
 	
-#if neko	
-	private var _shape			: Reference;
-	private var _skin			: Reference;
-	private var _overflow		: Reference;
-#else	
-	private var _shape			: IGraphicShape;
-	private var _skin			: Class < ISkin >;
-	private var _overflow		: Class < Dynamic >;
-#end
+	private var _shape			: Shape;
+	private var _skin			: Skin;
+	private var _overflow		: Overflow;
 	private var _opacity		: Float;
 	private var _visible		: Null < Bool >;
 	private var _icon			: Asset;
@@ -76,15 +75,9 @@ class GraphicsStyle extends StyleSubBlock
 	private var _borderRadius	: Corners;
 	
 	
-#if neko	
-	public var shape		(getShape,			setShape)			: Reference;
-	public var skin			(getSkin,			setSkin)			: Reference;
-	public var overflow		(getOverflow,		setOverflow)		: Reference;
-#else	
-	public var shape		(getShape,			setShape)			: IGraphicShape;
-	public var skin			(getSkin,			setSkin)			: Class < ISkin >;
-	public var overflow		(getOverflow,		setOverflow)		: Class < Dynamic >;
-#end
+	public var shape		(getShape,			setShape)			: Shape;
+	public var skin			(getSkin,			setSkin)			: Skin;
+	public var overflow		(getOverflow,		setOverflow)		: Overflow;
 	public var opacity		(getOpacity,		setOpacity)			: Float;
 	public var visible		(getVisible,		setVisible)			: Null< Bool >;
 	public var icon			(getIcon,			setIcon)			: Asset;
@@ -98,15 +91,9 @@ class GraphicsStyle extends StyleSubBlock
 	public function new (
 		background	: IGraphicProperty = null,
 		border		: IBorder = null,
-#if neko		
-		shape		: Reference = null,
-		skin		: Reference = null,
-		overflow	: Reference = null,
-#else		
-		shape		: IGraphicShape = null,
-		skin		: Class< ISkin > = null,
-		overflow	: Class < Dynamic > = null,
-#end
+		shape		: Shape = null,
+		skin		: Skin = null,
+		overflow	: Overflow = null,
 		visible		: Null < Bool > = null,
 		opacity		: Float = Number.INT_NOT_SET,
 		icon		: Asset = null,

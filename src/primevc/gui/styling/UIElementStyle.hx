@@ -174,13 +174,13 @@ class UIElementStyle implements IUIElementStyle
 		
 		styleNamesChangeBinding.disable();
 		idChangeBinding.disable();
-	/*	
+		
 		init();
 	}
 	
 	
-	private function init ()
-	{*/
+	private function init ()	//needed for ApplicationStyle
+	{
 		addedBinding	= enableStyleListeners	.on( owner.displayEvents.addedToStage, this );
 		removedBinding	= disableStyleListeners	.on( owner.displayEvents.removedFromStage, this );
 		

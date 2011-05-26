@@ -215,7 +215,7 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 			var l = layout.as(ILayoutContainer);
 			if (propsToSet.has( Flags.CHILD_WIDTH ))	l.childWidth				= notEmpty ? styleObj.childWidth					: Number.INT_NOT_SET;
 			if (propsToSet.has( Flags.CHILD_HEIGHT ))	l.childHeight				= notEmpty ? styleObj.childHeight					: Number.INT_NOT_SET;
-			if (propsToSet.has( Flags.ALGORITHM ))		l.algorithm					= notEmpty ? styleObj.algorithm.create()			: null;
+			if (propsToSet.has( Flags.ALGORITHM ))		l.algorithm					= notEmpty ? styleObj.algorithm()					: null;
 		}
 	}
 }

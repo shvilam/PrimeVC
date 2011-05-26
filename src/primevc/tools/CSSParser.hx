@@ -116,7 +116,7 @@ package primevc.tools;
  import primevc.gui.text.TextDecoration;
  import primevc.gui.text.TextTransform;
  import primevc.types.Asset;
- import primevc.types.ClassInstanceFactory;
+ import primevc.types.Factory;
  import primevc.types.Reference;
  import primevc.types.Number;
  import primevc.types.RGBA;
@@ -1536,12 +1536,9 @@ class CSSParser
 	}
 
 
-	private function parseClassReference (v:String) : Reference
+	private inline function parseClassReference<T> (v:String, ?arguments:Array<String>) : Factory<T>
 	{
-		if (isClassReference(v))
-			return Reference.className( classRefExpr.matched(2), v );
-		else
-			return null;
+		return isClassReference(v) ? new Factory( classRefExpr.matched(2), null, arguments, v ) : null;
 	}
 	
 	
@@ -2177,30 +2174,31 @@ class CSSParser
 	
 	private inline function parseAndSetShape (v:String) : Void
 	{
-		var factory	= new ClassInstanceFactory<IGraphicShape>();
+	//	var factory	= new Factory<IGraphicShape>();
 		
-		var strippedV = strip(v);
-		factory.classRef = switch (strippedV) {
+		var strippedV:String	= strip(v);
+		var p:Array<Dynamic>	= null;
+		var cName:String		= Type.getClassName( switch (strippedV) {
 			case "line":		cast Line;
 			case "circle":		cast Circle;
 			case "ellipse":		cast Ellipse;
 			case "rectangle":	cast RegularRectangle;
 			default:			null;
-		}
+		} );
 		
 		//try matching triangle shape..
-		if (factory.classRef == null && triangleExpr.match(v))
+		if (cName == null && triangleExpr.match(v))
 		{
-			factory.classRef	= Triangle;
-			factory.params		= [ parsePosition( triangleExpr.matched(2) ) ];
+			cName	= Triangle.getClassName();
+			p		= [ parsePosition( triangleExpr.matched(2) ) ];
 		}
-		
-		if (factory != null && !factory.isEmpty())
-			createGraphicsBlock().shape = Reference.objInstance( factory, v );
 		
 		//check if there's a custom shape class defined
 		else if (customShapeExpr.match(v))
-			createGraphicsBlock().shape = cast Reference.classInstance( customShapeExpr.matched(1), v );
+			cName = customShapeExpr.matched(1);
+		
+		if (cName != null)
+			createGraphicsBlock().shape = Reference.classInstance(cName, p, v);
 	}
 	
 	
@@ -2657,10 +2655,10 @@ class CSSParser
 	 */
 	private function parseAndSetLayoutAlgorithm (v:String) : Void
 	{
-		var info:ClassInstanceFactory<ILayoutAlgorithm> = new ClassInstanceFactory();
+		var info:Factory<ILayoutAlgorithm> = new Factory();
 		var v = v.trim().toLowerCase();
 		
-		if		(v == "relative")			info.classRef = RelativeAlgorithm;
+		if		(v == "relative")			info.classRef = RelativeAlgorithm.getClassName();
 		else if	(v == "none")				info.classRef = null;						//FIXME -> none and inherit are the same now. none is not implemented yet..
 		else if	(v == "inherit")			info.classRef = null;
 		
@@ -2669,18 +2667,18 @@ class CSSParser
 		//
 		
 		else if (floatHorExpr.match(v)) {
-			info.classRef	= HorizontalFloatAlgorithm;
+			info.classRef	= HorizontalFloatAlgorithm.getClassName();
 			info.params		= [ parseHorDirection( floatHorExpr.matched(2) ), parseVerDirection( floatHorExpr.matched(4) ) ];
 		}
 		else if (floatVerExpr.match(v)) {
-			info.classRef	= VerticalFloatAlgorithm;
+			info.classRef	= VerticalFloatAlgorithm.getClassName();
 			info.params		= [ parseVerDirection( floatVerExpr.matched(2) ), parseHorDirection( floatVerExpr.matched(4) ) ];
 		}
 		else if (floatExpr.match(v)) {
-			info.classRef	= DynamicLayoutAlgorithm;
+			info.classRef	= DynamicLayoutAlgorithm.getClassName();
 			info.params		= [
-				new ClassInstanceFactory( HorizontalFloatAlgorithm,	[ parseHorDirection( floatExpr.matched(2) ) ] ), 
-				new ClassInstanceFactory( VerticalFloatAlgorithm,	[ parseVerDirection( floatExpr.matched(4) ) ] )
+				new Factory( HorizontalFloatAlgorithm.getClassName(),	[ parseHorDirection( floatExpr.matched(2) ) ] ), 
+				new Factory( VerticalFloatAlgorithm.getClassName(),	[ parseVerDirection( floatExpr.matched(4) ) ] )
 			];
 		}
 		
@@ -2689,18 +2687,18 @@ class CSSParser
 		//
 		
 		else if (horCircleExpr.match(v)) {
-			info.classRef	= HorizontalCircleAlgorithm;
+			info.classRef	= HorizontalCircleAlgorithm.getClassName();
 			info.params		= [ parseHorDirection( horCircleExpr.matched(2) ), parseVerDirection( horCircleExpr.matched(4) ), false ];
 		}
 		else if (verCircleExpr.match(v)) {
-			info.classRef	= VerticalCircleAlgorithm;
+			info.classRef	= VerticalCircleAlgorithm.getClassName();
 			info.params		= [ parseVerDirection( verCircleExpr.matched(2) ), parseHorDirection( verCircleExpr.matched(4) ), false ];
 		}
 		else if (circleExpr.match(v)) {
-			info.classRef	= DynamicLayoutAlgorithm;
+			info.classRef	= DynamicLayoutAlgorithm.getClassName();
 			info.params		= [ 
-				new ClassInstanceFactory( HorizontalCircleAlgorithm,	[ parseHorDirection( circleExpr.matched(2) ), null, false ] ), 
-				new ClassInstanceFactory( VerticalCircleAlgorithm,	[ parseVerDirection( circleExpr.matched(4) ), null, false ] )
+				new Factory( HorizontalCircleAlgorithm.getClassName(),	[ parseHorDirection( circleExpr.matched(2) ), null, false ] ), 
+				new Factory( VerticalCircleAlgorithm.getClassName(),	[ parseVerDirection( circleExpr.matched(4) ), null, false ] )
 			];
 		}
 		
@@ -2709,18 +2707,18 @@ class CSSParser
 		//
 		
 		else if (horEllipseExpr.match(v)) {
-			info.classRef	= HorizontalCircleAlgorithm;
+			info.classRef	= HorizontalCircleAlgorithm.getClassName();
 			info.params		= [ parseHorDirection( horEllipseExpr.matched(2) ), parseVerDirection( horEllipseExpr.matched(4) ) ];
 		}
 		else if (verEllipseExpr.match(v)) {
-			info.classRef	= VerticalCircleAlgorithm;
+			info.classRef	= VerticalCircleAlgorithm.getClassName();
 			info.params		= [ parseVerDirection( verEllipseExpr.matched(2) ), parseHorDirection( verEllipseExpr.matched(4) ) ];
 		}
 		else if (ellipseExpr.match(v)) {
-			info.classRef	= DynamicLayoutAlgorithm;
+			info.classRef	= DynamicLayoutAlgorithm.getClassName();
 			info.params		= [
-				new ClassInstanceFactory( HorizontalCircleAlgorithm,	[ parseHorDirection( horEllipseExpr.matched(2) ) ] ), 
-				new ClassInstanceFactory( VerticalCircleAlgorithm,	[ parseVerDirection( horEllipseExpr.matched(4) ) ] )
+				new Factory( HorizontalCircleAlgorithm.getClassName(),	[ parseHorDirection( horEllipseExpr.matched(2) ) ] ), 
+				new Factory( VerticalCircleAlgorithm.getClassName(),	[ parseVerDirection( horEllipseExpr.matched(4) ) ] )
 			];
 		}
 		
@@ -2736,10 +2734,10 @@ class CSSParser
 		else if (dynamicTileExpr.match(v))
 		{
 			if (dynamicTileExpr.matched(1) == null)
-				info.classRef = DynamicTileAlgorithm;
+				info.classRef = DynamicTileAlgorithm.getClassName();
 			else
 			{
-				info.classRef = DynamicTileAlgorithm;
+				info.classRef = DynamicTileAlgorithm.getClassName();
 				info.params.push( parseDirection( dynamicTileExpr.matched( 3 ) ) );
 				info.params.push( (dynamicTileExpr.matched( 5 ) != null) ? parseHorDirection( dynamicTileExpr.matched( 5 ) ) : null );
 				info.params.push( (dynamicTileExpr.matched( 7 ) != null) ? parseVerDirection( dynamicTileExpr.matched( 7 ) ) : null );
@@ -2748,10 +2746,10 @@ class CSSParser
 		else if (fixedTileExpr.match(v))
 		{
 			if (fixedTileExpr.matched(1) == null)
-				info.classRef = FixedTileAlgorithm;
+				info.classRef = FixedTileAlgorithm.getClassName();
 			else
 			{
-				info.classRef	= FixedTileAlgorithm;
+				info.classRef	= FixedTileAlgorithm.getClassName();
 				info.params.push( parseDirection( fixedTileExpr.matched( 2 ) ) );
 				info.params.push( (fixedTileExpr.matched( 4 ) != null) ? getInt( fixedTileExpr.matched( 4 ) )				: Number.INT_NOT_SET );
 				info.params.push( (fixedTileExpr.matched( 6 ) != null) ? parseHorDirection( fixedTileExpr.matched( 6 ) )	: null );
@@ -3419,7 +3417,7 @@ class CSSParser
 		};
 		
 		if (className != null)
-			createGraphicsBlock().overflow = Reference.className( className, v.trim() );
+			createGraphicsBlock().overflow = new Factory1(className, [], ["a"], v.trim());
 	}
 	
 	

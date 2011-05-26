@@ -52,11 +52,11 @@ package primevc.types;
 #end
 
 
-typedef FlashBitmap		= #if flash9	flash.display.Bitmap		#else Dynamic			#end;
-typedef AssetClass		= #if neko		Reference					#else Class<Dynamic>	#end;
-typedef BitmapData		= #if flash9	flash.display.BitmapData	#else Dynamic			#end;
-typedef DisplayObject	= #if flash9	flash.display.DisplayObject	#else Dynamic			#end;
-typedef BytesData		= haxe.io.BytesData; //#if flash9	flash.utils.ByteArray		#else Dynamic			#end;
+private typedef FlashBitmap		= #if flash9	flash.display.Bitmap		#else Dynamic			#end;
+private typedef AssetClass		= primevc.types.Factory<Dynamic>; //#if neko		Reference					#else Class<Dynamic>	#end;
+private typedef BitmapData		= #if flash9	flash.display.BitmapData	#else Dynamic			#end;
+private typedef DisplayObject	= #if flash9	flash.display.DisplayObject	#else Dynamic			#end;
+private typedef BytesData		= haxe.io.BytesData; //#if flash9	flash.utils.ByteArray		#else Dynamic			#end;
 
 
 /**
@@ -287,7 +287,8 @@ class Asset
 		Assert.notNull(assetClass);
 		
 #if flash9
-		var inst = Type.createInstance(assetClass, []);
+	//	var inst = Type.createInstance(assetClass, []);
+		var inst = assetClass();
 		if (displaySource == null)		displaySource = inst;
 		if (width.notSet())				width	= inst.width.roundFloat();
 		if (height.notSet())			height	= inst.height.roundFloat();
@@ -354,7 +355,7 @@ class Asset
 	 * but holds off with the loading itself. This comes in handy when a bitmap
 	 * should get loaded at the moment that it's used for the first time.
 	 */
-	public inline function setURI (v:URI)
+	public /*inline*/ function setURI (v:URI)
 	{
 		if (v != uri)
 		{
@@ -365,7 +366,7 @@ class Asset
 				{
 					trace(v.host);
 #if neko			uri = v;
-#else				setClass( v.host.resolveClass() );		#end
+#else				setClass( function ():Dynamic { return Type.createInstance(cast v.host.resolveClass, []); } ); #end
 				}
 				else
 				{
@@ -487,21 +488,24 @@ class Asset
 	}
 	
 	
-	public function setClass (v:AssetClass)
+	public function setClass (factory:AssetClass)
 	{
-		if (v != assetClass)
+		if (factory != assetClass)
 		{
 			unsetData();
 #if flash9
-			if (v == null)
+			if (factory == null)
 				return;
 			
 			try
 			{
-				Assert.notNull( v );
-				var asset = v;
+				var asset:Dynamic = factory();
 				
-				while (asset != null)
+				if		(asset.is(BitmapData))		setBitmapData(cast asset);
+				else if (asset.is(FlashBitmap))		setFlashBitmap(cast asset);
+			//	else if (asset.is(DisplayObject))	setVector( v );
+				
+			/*	while (asset != null)
 				{
 				//	trace("\t\t"+asset+" -> isBitmap: "+(asset == BitmapData)+"; isDisplayObject: "+(asset == DisplayObject)+"; isFlashBitmap? "+(asset == FlashBitmap));
 					if		(asset == BitmapData)		{ setBitmapData( Type.createInstance(v, []) );	break; }
@@ -509,15 +513,15 @@ class Asset
 					else if (asset == FlashBitmap)		{ setFlashBitmap( Type.createInstance(v, []) );	break; }
 					
 					asset = Type.getSuperClass( asset );
-				}
+				}*/
 			}
 			catch (e:Dynamic) {
 	#if debug
-				throw "Error creating an instance of " + v+"; Error: "+e;
+				throw "Error creating an instance of " + factory + "; Error: "+e;
 	#end
 			}
 #else
-			assetClass = v;
+			assetClass = factory;
 #end
 		}
 	}

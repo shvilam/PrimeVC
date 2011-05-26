@@ -29,20 +29,19 @@
 package primevc.gui.layout.algorithms;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
- import primevc.types.ClassInstanceFactory;
 #end
  import primevc.core.geom.space.Direction;
  import primevc.core.geom.space.Horizontal;
  import primevc.core.geom.space.Vertical;
  import primevc.core.geom.IRectangle;
+ import primevc.types.Factory;
  import primevc.utils.NumberUtil;
   using primevc.utils.Bind;
+  using primevc.utils.TypeUtil;
   using Type;
 
 
-private typedef AlgorithmClass	= 
-	#if neko	ClassInstanceFactory<ILayoutAlgorithm>;
-	#else		Void -> ILayoutAlgorithm; #end
+private typedef AlgorithmClass = Factory<ILayoutAlgorithm>;
 
 
 /**
@@ -74,8 +73,8 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 	{
 		super();
 #if !neko
-		if (horAlgorithmInfo != null)	horAlgorithm	= cast horAlgorithmInfo(); //horAlgorithmInfo.create();
-		if (verAlgorithmInfo != null)	verAlgorithm	= cast verAlgorithmInfo(); //verAlgorithmInfo.create();
+		if (horAlgorithmInfo != null)	horAlgorithm	= horAlgorithmInfo().as(IHorizontalAlgorithm); //horAlgorithmInfo.create();
+		if (verAlgorithmInfo != null)	verAlgorithm	= verAlgorithmInfo().as(IVerticalAlgorithm); //verAlgorithmInfo.create();
 #end
 	}
 	
@@ -252,8 +251,8 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 #if neko
 	override public function toCode (code:ICodeGenerator)
 	{
-		var hor = horAlgorithm == null ? null : new ClassInstanceFactory( cast horAlgorithm.getClass(), [ horizontalDirection ] );
-		var ver = verAlgorithm == null ? null : new ClassInstanceFactory( cast verAlgorithm.getClass(), [ verticalDirection ] );
+		var hor = horAlgorithm == null ? null : new Factory( cast horAlgorithm.getClass(), [ horizontalDirection ] );
+		var ver = verAlgorithm == null ? null : new Factory( cast verAlgorithm.getClass(), [ verticalDirection ] );
 		code.construct( this, [ hor, ver ] );
 	}
 #end

@@ -34,17 +34,15 @@ package primevc.gui.styling;
  import primevc.core.traits.IInvalidatable;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.RelativeLayout;
-// import primevc.types.ClassInstanceFactory;
+ import primevc.types.Factory;
  import primevc.types.Number;
  import primevc.utils.NumberUtil;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
 
 
-private typedef Flags			= LayoutStyleFlags;
-private typedef AlgorithmType	= 
-	#if neko	primevc.types.ClassInstanceFactory < ILayoutAlgorithm >;
-	#else		Void -> ILayoutAlgorithm; #end
+private typedef Flags		= LayoutStyleFlags;
+private typedef Algorithm	= Factory<ILayoutAlgorithm>;
 
 
 /**
@@ -60,7 +58,7 @@ class LayoutStyle extends StyleSubBlock
 //	private var parentStyle				: LayoutStyle;
 
 	private var _relative				: RelativeLayout;
-	private var _algorithm				: AlgorithmType;
+	private var _algorithm				: Algorithm;
 	private var _padding				: Box;
 	private var _margin					: Box;
 	
@@ -86,7 +84,7 @@ class LayoutStyle extends StyleSubBlock
 	
 	
 	public var relative				(getRelative,			setRelative)		: RelativeLayout;
-	public var algorithm			(getAlgorithm,			setAlgorithm)		: AlgorithmType;
+	public var algorithm			(getAlgorithm,			setAlgorithm)		: Algorithm;
 	public var padding				(getPadding,			setPadding)			: Box;
 	public var margin				(getMargin,				setMargin)			: Box;
 	
@@ -117,7 +115,7 @@ class LayoutStyle extends StyleSubBlock
 		rel:RelativeLayout			= null,
 		padding:Box					= null,
 		margin:Box					= null,
-		alg:AlgorithmType			= null,
+		alg:Algorithm				= null,
 		percentW:Float				= Number.INT_NOT_SET,
 		percentH:Float				= Number.INT_NOT_SET,
 		width:Int					= Number.INT_NOT_SET,
@@ -173,7 +171,7 @@ class LayoutStyle extends StyleSubBlock
 	override public function dispose ()
 	{
 		if (_relative != null)		_relative.dispose();
-		if (_algorithm != null)		_algorithm.dispose();
+	//	if (_algorithm != null)		_algorithm.dispose();
 		
 		_maintainAspectRatio	= null;
 		_includeInLayout		= null;
