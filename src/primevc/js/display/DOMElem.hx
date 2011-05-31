@@ -26,7 +26,6 @@ class DOMElem
 	public var className	(default, setClassName):String;
 	public var matrix		(default, null):WebKitCSSMatrix;
 	public var children		(default, null):DisplayList;
-	public var transition 	(default, setTransition):String;
 	public var parent		:DOMElem;
 	
 	public function new(type:String)
@@ -80,7 +79,8 @@ class DOMElem
 	private function setScale(v:Float):Float
 	{
 		scale = v;
-		WebkitTransform.scale(this, scale);
+		//WebkitTransform.scale(this, scale);
+		applyTransforms();
 		return scale;
 	}
 	
@@ -101,22 +101,6 @@ class DOMElem
 		className = v;
 		elem.className = className;
 		return className;
-	}
-	
-	private function setTransition(v:String):String
-	{
-		transition = v;
-		
-		if (transition != TransitionManager.NONE)
-		{
-			elem.className = className + " " + transition;
-		}
-		else
-		{
-			elem.className = className;
-		}
-		
-		return transition;
 	}
 	
 	private function applyTransforms()

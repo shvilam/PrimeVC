@@ -15,7 +15,7 @@ class Image extends DOMElem
 	public var src 				(default, setSrc):String;
 	public var events			(default, null):DisplayEvents;
 	public var isDisplayed		(default, null):Bool;
-	public var load				(default, null):Signal1<Image>;
+	public var loaded			(default, null):Signal1<Image>;
 	override public var width	(default, setWidth):Int;
 	override public var height	(default, setHeight):Int;
 	
@@ -33,16 +33,15 @@ class Image extends DOMElem
 		events.nodeInsertedIntoDoc.bind(this, onInsertedIntoDoc);
 		events.nodeRemovedFromDoc.bind(this, onRemovedFromDoc);
 		
-		load = new Signal1();
+		loaded = new Signal1();
 		untyped elem.addEventListener("load", onLoad, false);
 	}
 	
 	override private function setWidth(v:Int):Int
 	{
-		throw "doe ik niks mee";
 		width = v;
 		elem.width = width;
-		return v;
+		return width;
 	}
 	
 	override private function setHeight(v:Int):Int
@@ -55,15 +54,14 @@ class Image extends DOMElem
 	private function setSrc(v:String):String
 	{
 		src = v;
-		//if (isDisplayed) { elem.src = src; }
-		elem.src = src;
+		if (isDisplayed) { elem.src = src; }
 		return src;
 	}
 	
 	private function onInsertedIntoDoc(event:DisplayEvent)
 	{
 		isDisplayed= true;
-		//if (src != null && elem.src == "") { elem.src = src; }
+		load();
 	}
 	
 	private function onRemovedFromDoc(event:DisplayEvent)
@@ -73,6 +71,11 @@ class Image extends DOMElem
 	
 	private function onLoad(event:Event)
 	{
-		load.send(this);
+		loaded.send(this);
+	}
+	
+	public function load()
+	{
+		if (src != null && elem.src == "") { elem.src = src; }
 	}
 }
