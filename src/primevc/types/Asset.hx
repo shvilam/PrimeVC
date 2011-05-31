@@ -135,7 +135,7 @@ class Asset
 	
 	public inline function isReady ()		{ return state.current == AssetStates.ready; }
 	public inline function isLoading ()		{ return state.current == AssetStates.loading; }
-	public inline function isLoadable ()	{ return state.current == AssetStates.loadable; }
+	public inline function isLoadable ()	{ return state.current == AssetStates.loadable #if flash9 && loader != null #end; }
 	public inline function isLoaded ()		{ return /*isReady()*/ #if flash9 (loader != null && loader.isCompleted()) #else true #end; }
 	
 	public inline function isBitmapData ()		{ return type == AssetType.bitmapData; }
@@ -188,6 +188,7 @@ class Asset
 			if		(bytes != null)			loadBytes();
 	//		else if (loader != null)		loader.load();		don't know the URI here
 			else if (uri != null)			loadURI();
+			else if (assetClass != null)	loadClass();
 		}
 #end
 	}
@@ -365,11 +366,12 @@ class Asset
 			unsetData();
 			if (v != null)
 			{
+		//		trace(v);
 				if (v.hasScheme( URIScheme.Scheme('asset')) )
 				{
-					trace(v.host);
+			//		trace(v.host + " - "+v.host.resolveClass()+"; ? "+Type.createInstance( v.host.resolveClass(), []));
 #if neko			uri = v;
-#else				setClass( function ():Dynamic { return Type.createInstance(cast v.host.resolveClass, []); } ); #end
+#else				setClass( function ():Dynamic { return Type.createInstance( v.host.resolveClass(), []); } ); #end
 				}
 				else
 				{
@@ -484,6 +486,7 @@ class Asset
 			if (v != null)
 			{
 				type			= AssetType.vector;
+				throw "vector... what should we do with you :)";
 				assetClass		= v;
 				state.current	= AssetStates.ready;
 			}
@@ -491,21 +494,24 @@ class Asset
 	}
 	
 	
-	public function setClass (factory:AssetClass)
+	public function loadClass (?v:AssetClass)
 	{
-		if (factory != assetClass)
+		if (v != null)
+			setClass(v);
+		
+		if (assetClass != null)
 		{
-			unsetData();
 #if flash9
-			if (factory == null)
-				return;
-			
+			state.current = AssetStates.loading;
 			try
 			{
-				var asset:Dynamic = factory();
+				var asset:Dynamic = assetClass();
 				
 				if		(asset.is(BitmapData))		setBitmapData(cast asset);
 				else if (asset.is(FlashBitmap))		setFlashBitmap(cast asset);
+				else if (asset.is(DisplayObject))	setDisplayObject(cast asset);
+				else
+					throw "unkwon type "+asset+"; "+Type.getClass(asset).getSuperClass().getClassName();
 			//	else if (asset.is(DisplayObject))	setVector( v );
 				
 			/*	while (asset != null)
@@ -520,12 +526,21 @@ class Asset
 			}
 			catch (e:Dynamic) {
 	#if debug
-				throw "Error creating an instance of " + factory + "; Error: "+e;
+				throw "Error creating an instance of " + assetClass + "; Error: "+e;
 	#end
 			}
-#else
-			assetClass = factory;
 #end
+		}
+	}
+	
+	
+	public inline function setClass (factory:AssetClass)
+	{
+		if (factory != assetClass)
+		{
+			unsetData();
+			assetClass = factory;
+			state.current = factory == null ? AssetStates.empty : AssetStates.loadable;
 		}
 	}
 

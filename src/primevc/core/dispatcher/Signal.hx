@@ -84,13 +84,13 @@ class Signal <FunctionSignature> extends WireList<FunctionSignature>, implements
 	{
 		Assert.that(listener != null);
 		
-		var b = this.n, count = 0;
+		var b = this.n; //, count = 0;
 		
 		while (b != null) {
 			var x = b.next();
 			if( b.isBoundTo(listener, handler) ) {
 				b.dispose();
-				++count;
+		//		++count;
 			}
 			b = x;
 		}
@@ -100,7 +100,13 @@ class Signal <FunctionSignature> extends WireList<FunctionSignature>, implements
 	/**
 	 *  Unbind all handlers.
 	 */
-	public function dispose()
+	public inline function dispose()
+	{
+		unbindAll();
+	}
+	
+	
+	public function unbindAll ()
 	{
 		var b = this.n;
 		while(b != null) {
@@ -109,6 +115,7 @@ class Signal <FunctionSignature> extends WireList<FunctionSignature>, implements
 			b = x;
 		}
 	}
+	
 	
 	/** Identify where the event is called (nice for debugging) ** /
 	public inline function source(?pos:haxe.PosInfos)
