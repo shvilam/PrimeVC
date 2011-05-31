@@ -175,7 +175,6 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 			mode = v == null ? ProgressBarMode.manual : ProgressBarMode.event;
 			
 			if (source != null) {
-				trace(this);
 				source.events.unloaded.unbind(this);
 				source.events.load.unbind( this );
 			}
@@ -243,6 +242,8 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 	
 	private inline function updateValues ()
 	{
+		Assert.that(!isDisposed(), "already disposed "+this);
+		
 		isDeterminate			= source.bytesTotal > 0;
 		if (isDeterminate) {
 			data.validator.max	= source.bytesTotal;

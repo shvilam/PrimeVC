@@ -297,7 +297,7 @@ class MacroUtils
 	
 	private static inline function unbindFieldsImpl (l:String = "l", h:String = "h") : Expr
 	{
-		return callMethodOnFieldsOf([], "unbind("+l+","+h+")",	"IUnbindable",	false);
+		return callMethodOnFieldsOf([], "unbind("+l+","+h+")",	"IUnbindable", true);
 	}
 	
 	
@@ -403,13 +403,15 @@ class BlocksUtil
 		
 		for (field in fields)
 		{
+			if (!field.isVar())
+				continue;
+			
 			var c = field.getClassType();
-	//		if (field.isVar())
-	//			trace(field.name + ";\t\thasInterface? "+c.hasInterface(typeName)+";\t\tisClass? "+c.isClass(typeName)+"\t\t"+field.kind+" -> looking for "+typeName);
+		//	trace(field.name + ";\t\thasInterface? "+c.hasInterface(typeName)+";\t\tisClass? "+c.isClass(typeName)+"\t\t"+field.kind+" -> looking for "+typeName);
 			if (!field.meta.has("manual") && (c.hasInterface(typeName) || c.isClass(typeName)))
 			{
 				var expr = field.name+"."+method;
-	//			trace(expr);
+		//		trace(expr);
 				if (nullCheck)
 					expr = "if (" + field.name + " != null) { " + expr + "; }";
 
@@ -651,7 +653,6 @@ class MacroTypeUtil
 	 */
 	public static function hasInterface (f:ClassType, type:String) : Bool
 	{
-	//	trace(f);
 		if (f == null)			return false;
 		if (type == "Dynamic")	return true;
 		if (f.name == type)		return true;
@@ -660,8 +661,8 @@ class MacroTypeUtil
 			if (intf.t.get().hasInterface(type))
 				return true;
 		
-		if (f.superClass != null)
-			return hasInterface( f.superClass.t.get(), type );
+		if (f.superClass != null && hasInterface( f.superClass.t.get(), type))
+			return true;
 		
 		return false;
 	}
@@ -712,8 +713,15 @@ class MacroTypeUtil
 	 */
 	public static inline function getClassType (field:ClassField) : ClassType
 	{
-		return !isVar(field) || field.type == null ? null : switch (field.type) {
+		return !isVar(field) || field.type == null ? null : typeToClassType(field.type);
+	}
+	
+	
+	private static function typeToClassType (type:Type) : ClassType
+	{
+		return type == null ? null : switch (type) {
 			case TInst(t, params): t != null ? t.get() : null;
+			case TType(t, params): t != null ? typeToClassType(t.get().type) : null;
 			default: null; //throw "unkown type for "+field.name+" => "+field.type;
 		}
 	}
