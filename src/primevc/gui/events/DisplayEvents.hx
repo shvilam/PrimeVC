@@ -50,15 +50,4 @@ class DisplaySignals extends Signals
 	var removedFromStage	(default,null) : Signal0;
 	var enterFrame			(default,null) : Signal0;
 	var render				(default,null) : Signal0;
-	
-	
-	override public function dispose ()
-	{
-		addedToStage.dispose();
-		removedFromStage.dispose();
-		enterFrame.dispose();
-		render.dispose();
-		
-		addedToStage = removedFromStage = enterFrame = render = null;
-	}
 }

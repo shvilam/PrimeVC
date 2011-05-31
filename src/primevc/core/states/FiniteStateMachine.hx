@@ -57,8 +57,8 @@ class FiniteStateMachine implements IFiniteStateMachine
 	
 	public function dispose ()
 	{
-		defaultState	= null;
-		current			= null;
+		(untyped this).defaultState	= null;
+		(untyped this).current		= null;
 		
 	//	while(states.length > 0)
 	//		states.pop().dispose();

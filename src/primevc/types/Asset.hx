@@ -167,6 +167,7 @@ class Asset
 		bytesLoader	= new Loader();
 		disposeBytesLoader	.onceOn( bytesLoader.events.load.error, this );
 		handleLoadError		.onceOn( bytesLoader.events.load.error, this );
+		handleUnloaded		.onceOn( bytesLoader.events.unloaded, this );
 		setLoadedData		.onceOn( bytesLoader.events.load.completed, this );
 #end
 	}
@@ -203,6 +204,7 @@ class Asset
 	{
 		if (v != loader) {
 			if (loader != null) {
+				loader.events.unloaded.unbind(this);
 				loader.events.load.error.unbind(this);
 				loader.events.load.completed.unbind(this);
 			}
@@ -215,6 +217,7 @@ class Asset
 				if (!v.isCompleted()) {
 					handleLoadError	.onceOn( v.events.load.error, this );
 					handleURILoaded	.onceOn( v.events.load.completed, this );
+					handleUnloaded	.onceOn( v.events.unloaded, this );
 				}
 				else
 					setBytes( v.bytes );
@@ -548,6 +551,12 @@ class Asset
 			disposeBytesLoader();
 		}
 #end
+	}
+	
+	
+	private function handleUnloaded () : Void
+	{
+		state.current = loadable;
 	}
 	
 	

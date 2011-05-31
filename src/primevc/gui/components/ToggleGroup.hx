@@ -26,65 +26,85 @@
  * Authors:
  *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc;
- import primevc.core.dispatcher.Signals;
- import primevc.core.traits.IDisposable;
-
+package primevc.gui.components;
+ import primevc.core.Bindable;
+ import primevc.gui.core.UIContainer;
+ import primevc.gui.events.MouseEvents;
+  using primevc.utils.Bind;
+  using primevc.utils.TypeUtil;
 
 
 /**
- * Child facade is a facade for sub-applications. These applications can't run
- * standalone and need instructions from another facade. This is possible with
- * the channels that are given to the child-facade when it's getting connected.
- * 
- * Only after connecting with channels, the child will start-listening. If the
- * facade is disconnected, the child will stop-listening all it's mediators and
- * controllers.
+ * ToggleGroup contains a group of buttons. Only one button can be active within
+ * this group.
  * 
  * @author Ruben Weijers
- * @creation-date May 25, 2011
+ * @creation-date May 26, 2011
  */
-class ChildFacade <
-		EventsType		: Signals,
-		ModelType		: IMVCCore,
-		StatesType		: IDisposable,
-		ControllerType	: IMVCCoreActor,
-		ViewType		: IMVCCoreActor,
-		ChannelsType
-	>
-	extends Facade <EventsType, ModelType, StatesType, ControllerType, ViewType>
+class ToggleGroup extends UIContainer
 {
-	public var channels		(default, null) : ChannelsType;
+	public var selected (default, null)	: Bindable<Button>;
+	
+	
+	public function new (id:String = null)
+	{
+		super(id);
+		selected = new Bindable<Button>();
+		setStyles.on( selected.change, this );
+	}
 	
 	
 	override public function dispose ()
 	{
-		super.dispose();
-		channels = null;
-	}
-	
-	
-	/**
-	 * Method for connecting a facade with channels of another facade
-	 */
-	public inline function connect (external:ChannelsType) : Void
-	{
-		Assert.null(channels);
-		Assert.notNull(external);
-		channels = external;
-		start();
-	}
-	
-	
-	/**
-	 * Method for disconnecting a facade with channels of another facade
-	 */
-	public inline function disconnect () : Void
-	{
-	//	Assert.notNull(channels);
-		if (channels != null)
-			stop();
+		if (isDisposed())
+			return;
 		
-		channels = null;
+		selected.dispose();
+		selected = null;
+		super.dispose();
+	}
+	
+	
+	public function add (button:Button, depth:Int = -1) : Button
+	{
+		Assert.that( !children.has(button) );
+		setActive.on( button.userEvents.mouse.click, this );
+		
+		button.styleClasses.add( "toggleBtn" );
+		button.attachTo(this, depth);
+		return button;
+	}
+	
+	
+	public function remove (button:Button) : Button
+	{
+		Assert.that( children.has(button) );
+		button.userEvents.mouse.click.unbind(this);
+		button.styleClasses.remove( "toggleBtn" );
+		button.detach();
+		return button;
+	}
+	
+	
+	public inline function select (btn:Button) : Void
+	{
+		selected.value = btn;
+	}
+	
+	
+	//
+	// EVENTHANDLERS
+	//
+	
+	private function setActive (mouseEvt:MouseState) : Void
+	{
+		select(mouseEvt.target.as(Button));
+	}
+	
+	
+	private function setStyles (newVal:Button, oldVal:Button)
+	{
+		if (oldVal != null)		oldVal.styleClasses.remove("active");
+		if (newVal != null)		newVal.styleClasses.add("active");
 	}
 }
