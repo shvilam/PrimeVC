@@ -30,10 +30,26 @@ package primevc.mvc;
 
 
 /**
+ * The MVCActor is an object that can communicate messages to the MVC-application
+ * but is also able to listen to messages from the application.
+ * 
  * @author Ruben Weijers
- * @creation-date Nov 16, 2010
+ * @creation-date May 17, 2011
  */
-interface ICommand implements primevc.core.traits.IDisposable
+interface IMVCActor implements IMVCNotifier 
 {
+	/**
+	 * Method in which the actor can begin to listen to events of the MVC
+	 */
+	public function startListening ()	: Void;
 	
+	/**
+	 * Method in which the actor should stop listening to messages of the MVC
+	 */
+	public function stopListening ()	: Void;
+	
+	/**
+	 * Method returning true if the actor is listening
+	 */
+	public function isListening ()		: Bool;
 }

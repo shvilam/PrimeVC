@@ -20,21 +20,32 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc;
+package primevc.mvc.events;
+ import primevc.core.dispatcher.Signals;
+ import primevc.core.dispatcher.Signal1;
 
 
 /**
- * Interface 'tag' to mark a class as a States collection.
- * 
+ * Defines 2 events to open or close something
  * @author Ruben Weijers
- * @creation-date May 10, 2011
+ * @creation-date May 17, 2011
  */
-interface IStates implements primevc.core.traits.IDisposable
+class OpenCloseEvents<DataType> extends Signals
 {
+	public var open		(default, null)	: Signal1<DataType>;
+	public var close	(default, null)	: Signal1<DataType>;
+	
+	
+	public function new ()
+	{
+		super();
+		open	= new Signal1();
+		close	= new Signal1();
+	}
 }

@@ -25,10 +25,10 @@
  *
  * Authors:
  *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<primevc @ rubenw.nl>
  */
 package primevc.mvc;
  import primevc.core.traits.IValueObject;
-  using primevc.utils.BitUtil;
 
 
 /**
@@ -42,31 +42,24 @@ package primevc.mvc;
  * @author Ruben Weijers
  * @creation-date Jun 22, 2010
  */
-class Proxy < VOType : IValueObject, EventsTypedef > extends Notifier < EventsTypedef >
+class Proxy<VOType:IValueObject, EventsTypedef> extends MVCNotifier
 {
 	public var vo		(default, null)	: VOType;
+	public var events	(default, null)	: EventsTypedef;
 	
 	
 	public function new( events:EventsTypedef, enabled = true )
 	{
-		super(events);
-		if (enabled)
-			enable();
-	//	else			disable();
+		Assert.notNull(events, "Events cannot be null");
+		this.events = events;
+		super();
 	}
 	
 	
 	override public function dispose ()
 	{
-		if (isEnabled())
-			disable();
-		
-		vo = null;
 		super.dispose();
+		events	= null;
+		vo		= null;
 	}
-	
-	
-	public inline function isEnabled ()	{ return state.has( MVCState.ENABLED ); }
-	public function enable ()			{ state = state.set( MVCState.ENABLED ); }
-	public function disable ()			{ state = state.unset( MVCState.ENABLED ); }
 }

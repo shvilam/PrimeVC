@@ -162,7 +162,15 @@ class URLLoader implements ICommunicator
 	}
 	
 	
-	public inline function close ()					{ isStarted = false; loader.close(); }
+	public inline function close ()
+	{
+		isStarted = false;
+		loader.close();
+		bytesTotal = bytesProgress = 0;
+		events.unloaded.send();
+	}
+	
+	
 	public inline function isCompleted ()			{ return bytesTotal > 0 && bytesProgress >= bytesTotal; }
 	public inline function isInProgress ()			{ return isStarted && !isCompleted(); }
 	

@@ -24,37 +24,16 @@
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc.events;
- import primevc.core.dispatcher.Signals;
- import primevc.core.dispatcher.Signal0;
-
+package primevc.gui.behaviours.scroll;
+ import primevc.gui.behaviours.IBehaviour;
 
 /**
- * Basic events for an mvc-application. 
- * MVCEvents is a base class thats groups together the events used in
- * an application/subsystem and provides a main access point for them. 
- * 
  * @author Ruben Weijers
- * @creation-date Nov 17, 2010
+ * @creation-date May 26, 2011
  */
-class MVCEvents extends Signals
+@:keep interface IScrollBehaviour implements IBehaviour<primevc.gui.core.IUIContainer>
 {
-	public var started (default, null)	: Signal0;
 	
-	
-	public function new ()
-	{
-		started = new Signal0();
-	}
-	
-	
-	override public function dispose ()
-	{
-		started.dispose();
-		started = null;
-		
-		super.dispose();
-	}
 }

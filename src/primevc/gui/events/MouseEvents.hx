@@ -171,7 +171,7 @@ class MouseState extends KeyModState, implements IClonable<MouseState>
 	inline function middleButton()	: Bool	{ return (flags & 0xF00 == 0x300); }
 	
 	inline function clickCount()	: Int	{ return (flags >> 4) & 0xF; }
-	inline function scrollDelta()	: Int	{ return (flags >> 16); }
+	@:keep inline function scrollDelta()	: Int	{ return (flags >> 16); }
 	
 	
 	inline function mouseButton()	: MouseButton

@@ -48,6 +48,7 @@ class LoaderEvents extends LoaderSignals
 {
 	public function new (target:IEventDispatcher)
 	{
+		super();
 		unloaded		= new FlashSignal0( target, Event.UNLOAD );
 		load			= new CommunicationEvents( target );
 		httpStatus		= new HttpSignal( target );

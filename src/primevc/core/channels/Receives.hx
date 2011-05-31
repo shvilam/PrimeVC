@@ -20,36 +20,25 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
+ *  Danny Wilson	<danny @ onlinetouch.nl>
  */
-package primevc.mvc.core;
- import primevc.core.traits.IDisposable;
+package primevc.core.channels;
+ import primevc.core.dispatcher.Notifier;
 
 
 /**
- * Base class for Model and View
+ * Typedef for defining the listener part of a channel.
  * 
- * @author Ruben Weijers
- * @creation-date Nov 16, 2010
+ * @author			Danny Wilson
+ * @author			Ruben Weijers
+ * @creation-date	May 24, 2011
  */
-class MVCCore <FacadeType> implements IDisposable
-    #if !docs, implements haxe.rtti.Generic #end
-{
-	private var facade (default, null)	: FacadeType;
-	
-	
-	public function new (facade:FacadeType)
-	{
-		this.facade = facade;
-	}
-	
-	
-	public function dispose ()
-	{
-		facade = null;
-	}
+typedef Receives < Msg, ReplyType > = {
+	>Notifier<Msg -> Void>,
+	public function bindReplyer	(owner:Dynamic, handler:Async<Msg> -> Void) : Wire<Async<Msg, ReplyType> -> Void>;
 }

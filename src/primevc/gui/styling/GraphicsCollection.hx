@@ -108,7 +108,7 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		var target	= elementStyle.target;
 		var empty	= styleObj == null;
 		
-		if ( propsToSet.has( Flags.SKIN ))			target.as(ISkinnable).skin			= empty ? null	: (styleObj.skin != null) ? Type.createInstance( styleObj.skin, [] ) : null;
+		if ( propsToSet.has( Flags.SKIN ))			target.as(ISkinnable).skin			= empty ? null	: (styleObj.skin != null) ? styleObj.skin() : null;
 		if ( propsToSet.has( Flags.SHAPE ))			graphicProps.shape					= empty ? null	: styleObj.shape;
 		if ( propsToSet.has( Flags.BORDER_RADIUS ))	graphicProps.borderRadius			= empty ? null	: styleObj.borderRadius;
 		if ( propsToSet.has( Flags.ICON ))			target.as(IIconOwner).icon			= empty ? null	: styleObj.icon;
@@ -117,8 +117,10 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		if ( propsToSet.has( Flags.VISIBLE ))		target.as(IDisplayObject).visible	= empty ? true	: styleObj.visible;
 		if ( propsToSet.has( Flags.OVERFLOW ))
 		{
-			if (styleObj.overflow != null)
-				target.as(IUIContainer).behaviours.add( Type.createInstance( styleObj.overflow, [ target ] ) );
+			if (styleObj.overflow != null) {
+				var c = target.as(IUIContainer);
+				c.behaviours.add( styleObj.overflow(c) );
+			}
 		//	else
 		//		target.behaviours.remove(  )
 		}

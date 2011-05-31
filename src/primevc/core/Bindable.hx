@@ -288,7 +288,7 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 	
 //#if debug
 	public inline function toString () : String {
-		return cast value;
+		return "Bindable("+value+")";
 	}
 //#end
 }

@@ -71,7 +71,7 @@ class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>, im
 	public var selectedIndex					(default, null)	: Bindable<Int>;
 	
 	
-	public function new (id:String, data:DataType, listData:IReadOnlyList<ListDataType>)
+	public function new (id:String, data:DataType = null, listData:IReadOnlyList<ListDataType> = null)
 	{
 		super(id, data);
 		this.listData	= listData;

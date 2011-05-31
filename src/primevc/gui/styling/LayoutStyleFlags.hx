@@ -35,7 +35,7 @@ package primevc.gui.styling;
  * @author Ruben Weijers
  * @creation-date Jan 14, 2011
  */
-class LayoutStyleFlags
+extern class LayoutStyleFlags
 {
 	public static inline var ALL_PROPERTIES				= SIZE | RELATIVE | ALGORITHM | PERCENT_WIDTH | PERCENT_HEIGHT | PADDING | MARGIN | MAINTAIN_ASPECT | ROTATION | CHILD_WIDTH | CHILD_HEIGHT | WIDTH_CONSTRAINTS | HEIGHT_CONSTRAINTS;
 
@@ -88,7 +88,7 @@ class LayoutStyleFlags
 
 
 #if debug
-	public static function readProperties (flags:Int) : String
+	public static inline function readProperties (flags:Int) : String
 	{
 		var output	= [];
 

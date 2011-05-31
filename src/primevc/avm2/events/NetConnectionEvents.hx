@@ -49,22 +49,10 @@ class NetConnectionEvents extends Signals
 	
 	public function new (dispatcher:IEventDispatcher)
 	{
+		super();
 		asyncError		= new ErrorSignal( dispatcher, AsyncErrorEvent.ASYNC_ERROR );
 		ioError			= new TextSignal( dispatcher, IOErrorEvent.IO_ERROR );
 		netStatus		= new NetStatusSignal( dispatcher );
 		securityError	= new TextSignal( dispatcher, SecurityErrorEvent.SECURITY_ERROR );
-	}
-	
-	
-	override public function dispose ()
-	{
-		asyncError		.dispose();
-		ioError			.dispose();
-		netStatus		.dispose();
-		securityError	.dispose();
-		
-		asyncError	= null;
-		ioError		= securityError = null;
-		netStatus	= null;
 	}
 }

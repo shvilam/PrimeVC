@@ -20,20 +20,47 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.s
+ * DAMAGE.s/
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc.core;
+package primevc.mvc;
+ import primevc.core.traits.IDisablable;
+ import primevc.core.traits.IDisposable;
 
 
 /**
+ * The MVCNotifier is an object that can send messages to the mvc-application.
+ * 
  * @author Ruben Weijers
- * @creation-date Dec 14, 2010
+ * @creation-date May 17, 2011
  */
-interface IController implements primevc.core.traits.IDisposable
+interface IMVCNotifier implements IDisposable, implements IDisablable
 {
-	public function init () : Void;
+	/**
+	 * State holder.. contains the flag of the current state of the notifier
+	 */
+	private var state : Int;
+	
+	/**
+	 * Enable sending messages
+	 */
+	public function enable ()	: Void;
+	
+	/**
+	 * Disable sending messages
+	 */
+	public function disable ()	: Void;
+	
+	/**
+	 * Method returning true if the notifier is enabled
+	 */
+	public function isEnabled ()	: Bool;
+	
+	/**
+	 * Method returning true if the notifier is disposed
+	 */
+	public function isDisposed ()	: Bool;
 }

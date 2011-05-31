@@ -20,27 +20,22 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc.core;
+package primevc.core.traits;
 
 
 /**
- * A Model is a group of Proxies which manage the data-model.
- * Extend this abstract class and define proxy properties.
- * 
- * @author Danny Wilson
- * @creation-date Jun 22, 2010
+ * @author Ruben Weijers
+ * @creation-date May 17, 2011
  */
-interface IModel implements primevc.core.traits.IDisposable
+interface IDisablable
 {
-	/**
-	 * Method in which all the proxies should be created. Constructor is only
-	 * meant to make the object exist
-	 */
-	public function init () : Void;
+	public function disable ()		: Void;
+	public function enable ()		: Void;
+	public function isEnabled ()	: Bool;
 }

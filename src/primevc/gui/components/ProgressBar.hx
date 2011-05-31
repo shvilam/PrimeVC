@@ -156,6 +156,7 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 			var e = source.events.load;
 			handleBegin		.on( e.started, this );
 			handleProgress	.on( e.progress, this );
+			handleCanceled	.on( source.events.unloaded, this );
 			handleCompleted	.on( e.completed, this );
 			handleError		.on( e.error, this );
 		}
@@ -173,8 +174,10 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 		{
 			mode = v == null ? ProgressBarMode.manual : ProgressBarMode.event;
 			
-			if (source != null)
+			if (source != null) {
+				source.events.unloaded.unbind(this);
 				source.events.load.unbind( this );
+			}
 			
 			source = v;
 			
@@ -232,12 +235,15 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 	
 	private function handleBegin ()		{ start(); }
 	private function handleCompleted ()	{ updateValues();	finish(); }
+	private function handleCanceled ()	{ updateValues();	progressState = null; }
 	private function handleProgress ()	{ updateValues();	progress(); }
 	private function handleError ()		{ updateValues();	error(); }
 	
 	
 	private inline function updateValues ()
 	{
+		Assert.that(!isDisposed(), "already disposed "+this);
+		
 		isDeterminate			= source.bytesTotal > 0;
 		if (isDeterminate) {
 			data.validator.max	= source.bytesTotal;

@@ -36,7 +36,7 @@ package primevc.utils;
  * @creation-date	Jun 15, 2010
  * @author			Ruben Weijers
  */
-class BitUtil 
+extern class BitUtil 
 {
 	/**
 	 * Checks if any of the bits in 'flag' are set.

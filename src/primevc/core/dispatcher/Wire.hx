@@ -27,6 +27,7 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.core.dispatcher;
+ import primevc.core.traits.IDisablable;
  import primevc.core.traits.IDisposable;
  import primevc.core.ListNode;
   using primevc.utils.BitUtil;
@@ -39,7 +40,7 @@ package primevc.core.dispatcher;
  * Implementation detail: Wires are added to a bounded freelist (max 256 free objects) to reduce garbage collector pressure.
  * This means you should never reuse a Wire after calling dispose() and/or after unbinding the handler from the signal (which returned this Wire).
  */
-class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements IDisposable
+class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements IDisposable, implements IDisablable
 {
 	/** Wire.flags bit which tells if the Wire is isEnabled(). */
 	static public inline var ENABLED		= 1;
@@ -138,7 +139,7 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 		#if debug instanceNum = ++instanceCount; #end
 	}
 	
-	public inline function isEnabled()
+	public inline function isEnabled() : Bool
 	{
 		#if DebugEvents
 		{

@@ -46,7 +46,7 @@ typedef FastArray<T> =
  * @author			Ruben Weijers
  * @author			Danny Wilson
  */
-class FastArrayUtil
+extern class FastArrayUtil
 {
 	static public inline function create<T>(?size:Int = 0, ?fixed:Bool = false) : FastArray<T>
 	{
@@ -243,7 +243,7 @@ class FastArrayUtil
 	
 	
 #if debug
-	public static inline function asString<T>( list:FastArray<T> )
+	public static inline function asString<T>( list:FastArray<T> ) : String
 	{
 		var items:FastArray<String> = FastArrayUtil.create();
 		var i = 0;

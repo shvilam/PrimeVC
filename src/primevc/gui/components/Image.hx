@@ -79,7 +79,10 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 	{
 		assetStateChangeHandler.on( data.state.change, this );
 		
-		if (data.state.is(AssetStates.loadable))		data.load();
+		if (data.state.is(AssetStates.loadable)) {
+			cancelLoading.onceOn( displayEvents.removedFromStage, data );
+			data.load();
+		}
 		else if (data.state.is(AssetStates.ready))		applyAsset();
 	}
 	
@@ -113,9 +116,11 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 				}
 		}
 		
+		displayEvents.removedFromStage.unbind( data );
 		updateSize();
 #end
 	}
+	
 	
 	
 	private function unsetAsset ()
@@ -124,6 +129,7 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 		if (data.type == null)
 			return;
 		
+		displayEvents.removedFromStage.unbind( data );
 		Assert.notNull(data.type, "asset: "+data);
 		switch (data.type)
 		{
@@ -229,5 +235,13 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 			case AssetStates.empty:	unsetAsset();
 			default:
 		}
+	}
+	
+	
+	private function cancelLoading ()
+	{
+		Assert.notNull(data.loader);
+		data.loader.close();
+		initData.onceOn( displayEvents.addedToStage, this );
 	}
 }

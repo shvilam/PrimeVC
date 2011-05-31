@@ -27,22 +27,26 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.types;
- import primevc.core.traits.IDisposable;
-
 #if neko
+ import primevc.core.traits.IDisposable;
  import primevc.neko.traits.IHasTypeParameters;
+
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICodeGenerator;
  import primevc.tools.generator.ICSSFormattable;
-#end
-#if (neko || debug)
+
  import primevc.utils.ID;
-#end
   using primevc.utils.TypeUtil;
   using Std;
   using Type;
+#end
 
+#if !neko
+typedef Factory<C> = Void -> C;
+typedef Factory1<A, C> = A -> C;
+#else
 
+typedef Factory1<A,C> = Factory<C>;
 
 /**
  * Class holding information about an instance to create.
@@ -50,7 +54,7 @@ package primevc.types;
  * @author Ruben Weijers
  * @creation-date Nov 01, 2010
  */
-class ClassInstanceFactory < InstanceType >
+class Factory <InstanceType >
 				implements IDisposable		
 #if neko	,	implements ICSSFormattable
 			,	implements ICodeFormattable
@@ -61,11 +65,13 @@ class ClassInstanceFactory < InstanceType >
 #if (debug || neko)
 	public var _oid (default, null)	: Int;
 #end
-	public var classRef				: Class < InstanceType >;
-	public var params				: Array < Dynamic >;
+	public var classRef				: String; //Class < InstanceType >;
+	public var params				: Array <Dynamic>;	//properties that will be added to the class when it's instantiated
+	public var arguments			: Array <String>;	//properties that should be given to the classfactory function to instantiate the class
+	public var cssValue				: String;
 	
 	
-	public function new ( classRef:Class<InstanceType> = null, params:Array< Dynamic > = null )
+	public function new ( classRef:String = null, params:Array<Dynamic> = null, args:Array<String> = null, cssValue:String = null )
 	{
 #if (debug || neko)
 		_oid = ID.getNext();
@@ -74,6 +80,8 @@ class ClassInstanceFactory < InstanceType >
 #end
 		this.classRef	= classRef;
 		this.params		= params;
+		this.arguments	= args;
+		this.cssValue	= cssValue;
 	}
 	
 	
@@ -84,27 +92,29 @@ class ClassInstanceFactory < InstanceType >
 #end
 		classRef	= null;
 		params		= null;
+		arguments	= null;
 	}
 	
 	
-	public function create () : InstanceType
+	/*public function create () : InstanceType
 	{
 		Assert.notNull(classRef);
 		if (params == null)
 			return classRef.createInstance( EMPTY_ARRAY );
 		else
 			return classRef.createInstance( params );
-	}
+	}*/
 	
 
 #if neko
 	public function toCSS (prefix:String = "")
 	{
-		var i = create();
+		return cssValue == null ? classRef : cssValue;
+	/*	var i = create();
 		if (i != null && i.is(ICSSFormattable))
 			return i.as(ICSSFormattable).toCSS();
 		else
-			return i.string();
+			return i.string();*/
 	}
 	
 	
@@ -114,7 +124,7 @@ class ClassInstanceFactory < InstanceType >
 	
 	public function toCode (code:ICodeGenerator)
 	{
-		code.construct( this, [ classRef, params ] );
+		code.createFactory( this, classRef, (params == null ? EMPTY_ARRAY : params), arguments );
 	}
 	
 	
@@ -133,3 +143,4 @@ class ClassInstanceFactory < InstanceType >
 	}
 #end
 }
+#end

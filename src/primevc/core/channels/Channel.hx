@@ -25,44 +25,27 @@
  *
  * Authors:
  *  Ruben Weijers	<ruben @ rubenw.nl>
+ *  Danny Wilson	<danny @ onlinetouch.nl>
  */
-package primevc.mvc;
- import primevc.core.traits.IDisposable;
-  using primevc.utils.BitUtil;
+package primevc.core.channels;
+ import primevc.core.dispatcher.Signal1;
 
 
 /**
- * Base class for controllers, mediators and proxy's. It defines that the objects
- * can send events.
+ * A channel allows to send a request and wait for an asynchroneous response from
+ * the receiver/receivers.
  * 
- * @author Ruben Weijers
- * @creation-date Nov 16, 2010
+ * @author			Danny Wilson
+ * @author			Ruben Weijers
+ * @creation-date	May 24, 2011
  */
-class Notifier < EventsTypeDef > implements IDisposable
+class Channel <Msg, ReplyType> extends Signal1<Msg>
 {
-	public var state	(default, null)	: Int;
-	public var events	(default, null)	: EventsTypeDef;
+	public var sendAsync (default,null) : Msg -> Async<Msg, ReplyType>;
 	
 	
-	public function new( events:EventsTypeDef )
+	public function bindReplyer	(owner:Dynamic, handler:Async<Msg> -> Void) : Wire<Async<Msg, ReplyType> -> Void>
 	{
-		Assert.notNull(events, "Events cannot be null");
-		state		= 0;
-		this.events	= events;
-	}
-	
-	
-	public function dispose ()
-	{
-		if (isDisposed())
-			return;
 		
-		events	= null;
-	}
-	
-	
-	private inline function isDisposed ()
-	{
-		return state.has( MVCState.DISPOSED );
 	}
 }

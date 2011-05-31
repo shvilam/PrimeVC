@@ -35,7 +35,7 @@ package primevc.gui.styling;
  * @author Ruben Weijers
  * @creation-date Sep 05, 2010
  */
-class StyleFlags
+extern class StyleFlags
 {
 	public static inline var ALL_PROPERTIES			= LAYOUT | FONT | GRAPHICS | EFFECTS | BOX_FILTERS | BACKGROUND_FILTERS | STATES;	//but no children
 	public static inline var INHERETING_STYLES		= NESTING_STYLE | SUPER_STYLE | EXTENDED_STYLE | PARENT_STYLE;
@@ -62,7 +62,7 @@ class StyleFlags
 	
 	
 #if debug
-	static public function read (flags:Int) : String
+	public static inline function read (flags:Int) : String
 	{
 		var output	= [];
 		

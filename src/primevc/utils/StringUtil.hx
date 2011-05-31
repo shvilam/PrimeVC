@@ -38,7 +38,7 @@ package primevc.utils;
  * @author Ruben Weijers
  * @creation-date Sep 14, 2010
  */
-class StringUtil
+extern class StringUtil
 {
 	/**
 	 * Method generates a UUID string
@@ -59,8 +59,8 @@ class StringUtil
 	}
 	
 	
-	private static inline function randomHexStr (val:Int)		{ return val.random().hex(); }
-	private static inline function randomChar(s:String, l:Int)	{ return s.charAt( Std.random( l ) ); }
+	private static inline function randomHexStr (val:Int) : String		{ return val.random().hex(); }
+	private static inline function randomChar(s:String, l:Int) : String	{ return s.charAt( Std.random( l ) ); }
 	
 	/**
 	 * Method creates a random string with the given length

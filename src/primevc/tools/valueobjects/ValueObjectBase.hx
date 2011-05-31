@@ -137,8 +137,8 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 	}
 	
 	
-	private function addChanges(changeSet:ObjectChangeSet); // Creates and adds all PropertyChangeVO and ListChangeVO
-	private function commitBindables();
+	private function addChanges(changeSet:ObjectChangeSet) {} // Creates and adds all PropertyChangeVO and ListChangeVO
+	private function commitBindables() {}
 	private function _fieldOffset(typeID:Int): Int { Assert.abstract(); return -1; }
 	
 	
@@ -214,7 +214,7 @@ class PropertyValueChangeVO extends PropertyChangeVO
 	public var oldValue		(default, null) : Dynamic;
 	public var newValue		(default, null) : Dynamic;
 	
-	private function new();
+	private function new() {}
 	
 	
 	override public function dispose()
@@ -248,7 +248,7 @@ class ListChangeVO extends PropertyChangeVO
 	
 	
 	public var changes : FastArray<ListChange<Dynamic>>;
-	private function new();
+	private function new() {}
 	
 	
 	override public function dispose()
@@ -308,7 +308,7 @@ class ObjectChangeSet extends ChangeVO
 	public var propertiesChanged	(default, null) : Int;
 	
 	
-	private function new(); 
+	private function new() {}
 	
 	
 	public function add (change:PropertyChangeVO)
@@ -368,13 +368,13 @@ class ObjectPathVO implements IValueObject
 	public var propertyID	(default, null) : Int;
 	
 	
-	private function new(); 
+	private function new() {}
 	
 	
 	public function dispose()
 	{
-		this.parent = null;
-		this.object = null;
+		parent = null;
+		object = null;
 	}
 	
 	

@@ -35,4 +35,4 @@ package primevc.core.traits;
  * @author Danny Wilson
  * @creation-date Jul 06, 2010
  */
-interface IValueObject implements IDisposable {}
+@:keep interface IValueObject implements IDisposable {}

@@ -20,27 +20,50 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.gui.components;
- import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
- import primevc.gui.core.UIContainer;
+package primevc.mvc;
+  using primevc.utils.BitUtil;
+
 
 
 /**
- * Base class for the main-application container.
+ * Base class for mediator and controllers
  * 
  * @author Ruben Weijers
- * @creation-date Oct 29, 2010
+ * @creation-date Nov 16, 2010
  */
-class ApplicationView extends UIContainer
+class MVCActor <FacadeDef> extends MVCNotifier, implements IMVCActor
 {
-	override private function createBehaviours ()
-	{	
-		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
+	//TODO: Ask Nicolas why you can't have typedefs as type constraint parameters...
+	@manual private var f : FacadeDef;
+	
+	
+	public function new (facade:FacadeDef, enabled = true)
+	{
+		this.f = facade;
+		super(enabled);
 	}
+	
+	
+	override public function dispose ()
+	{
+		if (isDisposed())
+			return;
+		
+		if (isListening())
+			stopListening();
+		
+		f = null;
+		super.dispose();
+	}
+	
+	
+	public function startListening () : Void		{ state = state.set( MVCFlags.LISTENING ); }
+	public function stopListening () : Void			{ state = state.unset( MVCFlags.LISTENING ); }
+	public inline function isListening () : Bool	{ return state.has( MVCFlags.LISTENING ); }
 }

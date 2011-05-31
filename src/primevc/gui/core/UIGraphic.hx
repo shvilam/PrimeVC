@@ -269,7 +269,7 @@ class UIGraphic extends VectorShape
 	// ABSTRACT METHODS
 	//
 	
-	private function createBehaviours ()	: Void; //	{ Assert.abstract(); }
+	private function createBehaviours ()	: Void		{} //	{ Assert.abstract(); }
 	
 	
 #if debug

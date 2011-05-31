@@ -35,7 +35,7 @@ package primevc.utils;
  * @author Danny Wilson
  * @creation-date nov 29, 2010
  */
-class IfUtil
+extern class IfUtil
 {
 	/**
 	 * Helper function to use in expressions, to check in the fastest way possible if an object reference is not null.

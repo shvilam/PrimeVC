@@ -34,13 +34,14 @@ package primevc.gui.layout.algorithms;
  import primevc.core.geom.space.Horizontal;
  import primevc.core.geom.space.Vertical;
  import primevc.core.geom.IRectangle;
- import primevc.types.ClassInstanceFactory;
+ import primevc.types.Factory;
  import primevc.utils.NumberUtil;
   using primevc.utils.Bind;
+  using primevc.utils.TypeUtil;
   using Type;
 
- 
-private typedef AlgorithmClass	= ClassInstanceFactory < ILayoutAlgorithm >;
+
+private typedef AlgorithmClass = Factory<ILayoutAlgorithm>;
 
 
 /**
@@ -71,8 +72,10 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 	public function new (?horAlgorithmInfo:AlgorithmClass, ?verAlgorithmInfo:AlgorithmClass) 
 	{
 		super();
-		if (horAlgorithmInfo != null)	horAlgorithm	= cast horAlgorithmInfo.create();
-		if (verAlgorithmInfo != null)	verAlgorithm	= cast verAlgorithmInfo.create();
+#if !neko
+		if (horAlgorithmInfo != null)	horAlgorithm	= horAlgorithmInfo().as(IHorizontalAlgorithm); //horAlgorithmInfo.create();
+		if (verAlgorithmInfo != null)	verAlgorithm	= verAlgorithmInfo().as(IVerticalAlgorithm); //verAlgorithmInfo.create();
+#end
 	}
 	
 	
@@ -170,6 +173,8 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 		//	invalidate(true);
 			
 			if (v != null) {
+				Assert.notNull(horAlgorithm);
+				Assert.notNull(verAlgorithm);
 				horAlgorithm.group	= v;
 				verAlgorithm.group	= v;
 			}
@@ -246,8 +251,8 @@ class DynamicLayoutAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgo
 #if neko
 	override public function toCode (code:ICodeGenerator)
 	{
-		var hor = horAlgorithm == null ? null : new ClassInstanceFactory( cast horAlgorithm.getClass(), [ horizontalDirection ] );
-		var ver = verAlgorithm == null ? null : new ClassInstanceFactory( cast verAlgorithm.getClass(), [ verticalDirection ] );
+		var hor = horAlgorithm == null ? null : new Factory( cast horAlgorithm.getClass(), [ horizontalDirection ] );
+		var ver = verAlgorithm == null ? null : new Factory( cast verAlgorithm.getClass(), [ verticalDirection ] );
 		code.construct( this, [ hor, ver ] );
 	}
 #end

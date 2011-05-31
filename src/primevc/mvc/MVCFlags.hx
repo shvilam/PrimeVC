@@ -20,24 +20,41 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc.core;
+package primevc.mvc;
+#if debug
+  using primevc.utils.BitUtil;
+#end
 
 
 /**
  * @author Ruben Weijers
- * @creation-date Nov 15, 2010
+ * @creation-date Dec 14, 2010
  */
-interface IView implements primevc.core.traits.IDisposable
+extern class MVCFlags
 {
-	/**
-	 * Method in which all the mediators should be created. Constructor is only
-	 * meant to make the object exist
-	 */
-	public function init () : Void;
+	public static inline var LISTENING	= 1 << 0;
+	public static inline var DISPOSED	= 1 << 1;
+	
+	public static inline var ENABLED	= 1 << 2;
+	public static inline var EDITING	= 1 << 3;
+	
+	
+#if debug
+	public static inline function readState (state:Int) : String
+	{
+		var str = [];
+		if (state.has(LISTENING))	str.push( "listening" );
+		if (state.has(DISPOSED))	str.push( "disposed" );
+		if (state.has(EDITING))		str.push( "editing" );
+		if (state.has(ENABLED))		str.push( "enabled" );
+		
+		return str.join(", ");
+	}
+#end
 }

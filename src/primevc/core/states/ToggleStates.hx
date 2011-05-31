@@ -35,7 +35,7 @@ package primevc.core.states;
  * @creation-date	Jun 14, 2010
  * @author			Ruben Weijers
  */
-class ToggleStates extends AutoFiniteStateMachine
+class ToggleStates extends FiniteStateMachine
 {
 	public var off	(default, null)	: IState;
 	public var on	(default, null)	: IState;

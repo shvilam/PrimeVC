@@ -33,7 +33,7 @@ package primevc.utils;
  * @author Ruben Weijers
  * @creation-date May 03, 2011
  */
-class TimerUtil
+extern class TimerUtil
 {
 	public static inline function after (method:Void -> Void, delay:Int) : Void
 	{

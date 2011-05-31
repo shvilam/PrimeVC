@@ -39,7 +39,7 @@ typedef Color = primevc.neko.utils.Color;
   using StringTools;
 
 
-class Color
+extern class Color
 {
 	public static inline var BLACK		= 0x000000;
 	public static inline var WHITE		= 0xFFFFFF;
@@ -124,7 +124,7 @@ class Color
 }
 
 
-class RGBAUtil
+extern class RGBAUtil
 {
 	public static inline var ALPHA_MASK				: RGBA = 0x000000FF;
 	public static inline var COLOR_MASK				: RGBA = 0xFFFFFF00;
@@ -208,7 +208,7 @@ class RGBAUtil
 
 
 
-class FloatColorUtil
+extern class FloatColorUtil
 {
 	/**
 	 * Converts two bytes to a Float. Only one color channel should be given as input.
@@ -223,7 +223,7 @@ class FloatColorUtil
 
 
 
-class StringColorUtil
+extern class StringColorUtil
 {
 	public static inline var L1		= 0xF;
 	public static inline var L2		= 0xFF;

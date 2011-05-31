@@ -29,7 +29,6 @@
 package primevc.tools.generator;
  import primevc.gui.layout.LayoutFlags;
  import primevc.neko.traits.IHasTypeParameters;
- import primevc.types.ClassInstanceFactory;
  import primevc.types.Number;
  import primevc.types.Reference;
  import primevc.types.RGBA;
@@ -154,25 +153,42 @@ class HaxeCodeGenerator implements ICodeGenerator
 	
 	
 	
-	public function construct (obj:ICodeFormattable, ?args:Array<Dynamic>, ?alternativeType:Class<Dynamic>) : Void
+	public function createFactory (obj:ICodeFormattable, classRef:String, params:Array<Dynamic>, arguments:Array<String> = null)
+	{
+		Assert.notNull(params);
+		var a	= "";
+		var p	= formatArguments( params, true );
+		
+		if (arguments != null && arguments.length > 0)
+		{
+			a = arguments.join(", ");
+			if (p != "")	p = a + ", " + p;
+			else			p = a;
+		}
+		
+		addLine( "var " + createObjectVar(obj, false) + " = " +"function("+a+") { return new "+classRef+"("+p+"); }" );
+	}
+	
+	
+	public function construct (obj:ICodeFormattable, ?params:Array<Dynamic>, ?alternativeType:Class<Dynamic>) : Void
 	{
 		var type = alternativeType == null ? obj.getClass() : alternativeType;
-		addLine( "var " + createObjectVar(obj, false) + " = " +createClassConstructor( type, args ) + ";" );
+		addLine( "var " + createObjectVar(obj, false) + " = " +createClassConstructor( type, params ) + ";" );
 	}
 	
 	
-	public function createClassConstructor (classRef:Class<Dynamic>, ?args:Array<Dynamic>)
+	public function createClassConstructor (classRef:Class<Dynamic>, ?params:Array<Dynamic>)
 	{
 		Assert.notNull(classRef);
-		return createClassNameConstructor( classRef.getClassName(), args );
+		return createClassNameConstructor( classRef.getClassName(), params );
 	}
 	
 	
 	
-	public function createClassNameConstructor (className:String, ?args:Array<Dynamic>)
+	public function createClassNameConstructor (className:String, ?params:Array<Dynamic>)
 	{
 		Assert.notNull( className );
-		return "new " + addImportFor(className) + "( " + formatArguments( args, true ) + " )";
+		return "new " + addImportFor(className) + "( " + formatArguments( params, true ) + " )";
 	}
 	
 	
@@ -276,6 +292,8 @@ class HaxeCodeGenerator implements ICodeGenerator
 	private inline function a( str:String )						: Void		{ output.add(str); }
 	private inline function addLine( line:String )				: Void		{ a("\n"); a(linePrefix); a(line); }
 	private inline function getVar (obj:ICodeFormattable)		: String	{ return createObjectVar( obj ); }
+	public  inline function hasVar (obj:ICodeFormattable)		: Bool		{ return varMap.exists(obj._oid); }
+	public  inline function varName (obj:ICodeFormattable)		: String	{ return varMap.get(obj._oid); }
 	private inline function getArray( arr:Array<Dynamic> )		: String	{ return createArrayVar( arr ); }
 	
 	
@@ -339,7 +357,7 @@ class HaxeCodeGenerator implements ICodeGenerator
 	
 	private function createObjectVar (obj:ICodeFormattable, constructObj:Bool = true) : String
 	{
-		if (varMap.exists(obj._oid))
+		if (hasVar(obj))
 			return varMap.get(obj._oid);
 		
 		obj.cleanUp();
