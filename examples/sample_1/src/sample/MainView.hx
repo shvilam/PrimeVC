@@ -55,8 +55,8 @@ class MainView extends MVCActor<MainFacade>
         if (!isListening())
 			return;
         
+		super.stopListening();
         buttonMediator.stopListening();
         imageLoaderMediator.stopListening();
-		super.stopListening();
     }
 }

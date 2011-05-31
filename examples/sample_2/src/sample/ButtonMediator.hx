@@ -30,8 +30,8 @@ class ButtonMediator extends Mediator <MainFacade, Button>
         if (!isListening())
             return;
         
+		super.stopListening();
         gui.userEvents.unbind(this);
-        super.stopListening ();
     }
 	
     private function clickHandler(e)

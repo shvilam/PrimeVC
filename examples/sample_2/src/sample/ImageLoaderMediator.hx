@@ -32,9 +32,10 @@ class ImageLoaderMediator extends Mediator <MainFacade, Image>
     {
         if (!isListening())
             return;
+
+		super.stopListening();
         // Unbind action from a ui event.
         f.events.loadImage.unbind(this);
-        super.stopListening ();
     }
 	
 	

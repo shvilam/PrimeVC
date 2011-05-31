@@ -22,8 +22,8 @@ class ButtonMediator extends Mediator <MainFacade, Button>
         if (!isListening())
             return;
         
+		super.stopListening();
         gui.removeEventListener("click", clickHandler);
-        super.stopListening ();
     }
 
     private function clickHandler(e)
