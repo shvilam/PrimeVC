@@ -307,7 +307,7 @@ class VideoControlBar extends UIContainer
 	
 	private function handleStreamChange (newState:VideoStates, oldState:VideoStates)
 	{
-		trace(oldState+" => "+newState);
+	//	trace(oldState+" => "+newState);
 		switch (newState)
 		{
 			case VideoStates.playing:
