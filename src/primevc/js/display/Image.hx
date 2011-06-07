@@ -60,7 +60,7 @@ class Image extends DOMElem
 	
 	private function onInsertedIntoDoc(event:DisplayEvent)
 	{
-		isDisplayed= true;
+		isDisplayed = true;
 		load();
 	}
 	
