@@ -41,9 +41,7 @@ package primevc.tools.valueobjects;
   using primevc.utils.IfUtil;
   using primevc.utils.TypeUtil;
   using primevc.utils.FastArray;
-#if debug
   using primevc.utils.ChangesUtil;
-#end
 
 
 typedef PropertyID	= Int;
@@ -83,6 +81,7 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 	
 	public function isEmpty() : Bool				{ return !_propertiesSet.not0(); }
 	public inline function isEditable() : Bool		{ return _flags.has(Flags.IN_EDITMODE); }
+	public inline function isDisposed() : Bool		{ return change == null; }
 	public function has (propertyID : Int) : Bool	{ return (_propertiesSet & (1 << ((propertyID & 0xFF) + _fieldOffset(propertyID >>> 8)))).not0(); }
 	public inline function changed () : Bool		{ return _changedFlags.not0(); }
 	
@@ -138,8 +137,8 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 	}
 	
 	
-	private function addChanges(changeSet:ObjectChangeSet); // Creates and adds all PropertyChangeVO and ListChangeVO
-	private function commitBindables();
+	private function addChanges(changeSet:ObjectChangeSet) {} // Creates and adds all PropertyChangeVO and ListChangeVO
+	private function commitBindables() {}
 	private function _fieldOffset(typeID:Int): Int { Assert.abstract(); return -1; }
 	
 	
@@ -215,7 +214,7 @@ class PropertyValueChangeVO extends PropertyChangeVO
 	public var oldValue		(default, null) : Dynamic;
 	public var newValue		(default, null) : Dynamic;
 	
-	private function new();
+	private function new() {}
 	
 	
 	override public function dispose()
@@ -249,7 +248,7 @@ class ListChangeVO extends PropertyChangeVO
 	
 	
 	public var changes : FastArray<ListChange<Dynamic>>;
-	private function new();
+	private function new() {}
 	
 	
 	override public function dispose()
@@ -296,7 +295,7 @@ class ObjectChangeSet extends ChangeVO
 {
 	public static inline function make (vo:ValueObjectBase, changes:Int)
 	{
-		var s = new ObjectChangeSet(); // Could come from freelist if profiling tells us to
+		var s = new ObjectChangeSet();	// Could come from freelist if profiling tells us to
 		s.vo = vo;
 		s.timestamp = haxe.Timer.stamp();
 		s.propertiesChanged = changes;
@@ -309,7 +308,7 @@ class ObjectChangeSet extends ChangeVO
 	public var propertiesChanged	(default, null) : Int;
 	
 	
-	private function new(); 
+	private function new() {}
 	
 	
 	public function add (change:PropertyChangeVO)
@@ -342,7 +341,7 @@ class ObjectChangeSet extends ChangeVO
 	}
 	
 	
-#if debug
+//#if debug
 	public function toString ()
 	{
 		var output = [];
@@ -356,7 +355,7 @@ class ObjectChangeSet extends ChangeVO
 		
 		return "ChangeSet of " + Date.fromTime( timestamp * 1000 ) + " on "+vo+"; changes: \n\t\t\t" + output.join("\n\t\t\t");
 	}
-#end
+//#end
 }
 
 
@@ -369,13 +368,13 @@ class ObjectPathVO implements IValueObject
 	public var propertyID	(default, null) : Int;
 	
 	
-	private function new(); 
+	private function new() {}
 	
 	
 	public function dispose()
 	{
-		this.parent = null;
-		this.object = null;
+		parent = null;
+		object = null;
 	}
 	
 	
