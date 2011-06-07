@@ -69,7 +69,7 @@ class Loader implements ICommunicator
 	public var isStarted		(default,			null)		: Bool;
 	
 	public var info				(getInfo,			never)		: LoaderInfo;
-	public var content			(getContent,		never)		: DisplayObject;
+	public var content			(getContent,		null)		: DisplayObject;
 	public var height			(getHeight,			never)		: Float;
 	public var width			(getWidth,			never)		: Float;
 	public var isAnimated		(default,			null)		: Bool;
@@ -117,6 +117,7 @@ class Loader implements ICommunicator
 	
 	public inline function loadBytes (v:BytesData, ?c:LoaderContext) : BytesData
 	{
+		Assert.notNull(v);
 		if (isStarted)
 			close();
 		
@@ -143,6 +144,7 @@ class Loader implements ICommunicator
 	public inline function isSwf () : Bool			{ return fileType == FileType.SWF; }
 	public inline function isCompleted () : Bool	{ return bytesTotal > 0 && bytesProgress >= bytesTotal; }
 	public inline function isInProgress ()			{ return isStarted && !isCompleted(); }
+//	public inline function isAnimated () : Bool		{ return info.frameRate > 2; }
 	
 	
 	
@@ -174,8 +176,11 @@ class Loader implements ICommunicator
 	 * If the loaded content is an avm2-movie, the loader will also be returned
 	 * since some flex-swf's will otherwise throw errors.
 	 */
-	private inline function getContent () : DisplayObject
+	private function getContent () : DisplayObject
 	{
+		if (content != null)
+			return content;
+		
 		var c:DisplayObject = null;
 	//	trace(info.actionScriptVersion+"; "+info.contentType);
 		if (fileType == null)
@@ -197,7 +202,7 @@ class Loader implements ICommunicator
 		if (!isAnimated)
 			c.cacheAsBitmap	= true;
 		
-		return c;
+		return content = c;
 		/*try {
 			if (loader.contentLoaderInfo.swfVersion < 9)
 				return loader;

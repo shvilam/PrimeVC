@@ -20,67 +20,20 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc;
+package primevc.gui.display;
+
+
 
 /**
- * Abstract Mediator class.
- * 
- * The Mediator translates requests between components.
- * Usually it acts as a layer between application-requests and the View.
- * 
- * A Mediator is not allowed to change Value-objects.
- * It can however request changes from a Proxy (defined within Model).
- * 
- * @author Danny Wilson
- * @creation-date Jun 22, 2010
+ * @author Ruben Weijers
+ * @creation-date Jun 06, 2011
  */
-class Mediator <FacadeDef, GUIType> extends MVCActor <FacadeDef>
-{
-	public var gui (default, setGUI) : GUIType;
-	
-	
-	public function new (facade:FacadeDef, enabled:Bool = true, gui:GUIType = null)
-	{
-		this.gui = gui;
-		super(facade, enabled);
-	}
-	
-	
-	override public function dispose ()
-	{
-		if (isDisposed())
-			return;
-		
-		gui = null;
-		super.dispose();
-	}
-	
-	
-	/**
-	 * Set the UI element that the mediator serves.
-	 */
-	private function setGUI (v:GUIType)
-	{
-		if (v != gui)
-		{
-			var wasEnabled = isEnabled();
-			if (wasEnabled && gui != null)
-				disable();
-		
-			if (v == null && isListening())
-				stopListening();
-		
-			gui = v;
-			if (v != null && wasEnabled)
-				enable();
-		}
-		return v;
-	}
-}
+typedef DisplayObject =	#if flash9	flash.display.DisplayObject;
+					#elseif js		Dynamic;
+					#else			Dynamic; #end

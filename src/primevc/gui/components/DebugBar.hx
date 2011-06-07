@@ -28,6 +28,7 @@
  */
 package primevc.gui.components;
  import flash.errors.Error;
+ import primevc.core.dispatcher.Wire;
  import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIWindow;
  import primevc.gui.layout.LayoutClient;
@@ -56,6 +57,7 @@ class DebugBar extends UIContainer
 	private var toggleTraceLayoutBtn	: Button;
 	private var clearTracesBtn			: Button;
 	private var garbageCollectBtn		: Button;
+	private var wireCountBtn			: Button;
 	
 	
 	override private function createChildren ()
@@ -71,9 +73,10 @@ class DebugBar extends UIContainer
 		toggleTraceLayoutBtn	= new Button("toggleTraceValidationBtn", "Trace layout validation");
 		clearTracesBtn			= new Button("clearTracesBtn", "Clear traces");
 		garbageCollectBtn		= new Button("garbageCollectBtn", "Garbage Collect");
+		wireCountBtn			= new Button("wireCountBtn", "Count wires");
 		
-		attach( clearTracesBtn )	.attach( inspectStageBtn )	.attach( inspectLayoutBtn )			.attach( validateLayoutBtn );
-		attach( showInvalidatedBtn ).attach( showRenderingBtn )	.attach( toggleTraceLayoutBtn )	.attach( garbageCollectBtn );
+		attach( clearTracesBtn )	.attach( inspectStageBtn )	.attach( inspectLayoutBtn )		.attach( validateLayoutBtn );
+		attach( showInvalidatedBtn ).attach( showRenderingBtn )	.attach( toggleTraceLayoutBtn )	.attach( garbageCollectBtn ).attach(wireCountBtn);
 		
 		haxe.Log.clear			.on( clearTracesBtn.userEvents.mouse.click, this );
 		inspectAllLayouts		.on( inspectLayoutBtn.userEvents.mouse.click, this );
@@ -83,6 +86,7 @@ class DebugBar extends UIContainer
 		traceRenderingQueue		.on( showRenderingBtn.userEvents.mouse.click, this );
 		toggleTraceLayout		.on( toggleTraceLayoutBtn.userEvents.mouse.click, this );
 		flash.system.System.gc	.on( garbageCollectBtn.userEvents.mouse.click, this );
+		countWires				.on( wireCountBtn.userEvents.mouse.click, this );
 		
 		handleHotkeys.on ( window.userEvents.key.down, this );
 	}
@@ -235,5 +239,11 @@ class DebugBar extends UIContainer
 			system.invalidation.traceQueues = false;
 			toggleTraceLayoutBtn.data.value = "Trace layout validation";
 		}
+	}
+	
+	
+	private function countWires ()
+	{
+		trace("total: "+Wire.instanceCount+"; disposed: "+Wire.disposeCount);
 	}
 }

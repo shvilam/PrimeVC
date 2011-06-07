@@ -614,6 +614,7 @@ class CSSParser
 			parseStyleSheet( s );
 		}
 		
+		setManifestNames( styles );
 		createStyleStructure( styles );
 		trace("--- DONE ----");
 		trace("REVERSED CSS:");
@@ -721,6 +722,40 @@ class CSSParser
 	//
 	// PARENT SEARCH METHODS
 	//
+	
+	
+	
+	/**
+	 * Method will add recursive the package-name to all the element-styles
+	 */
+	private inline function setManifestNames ( style:StyleBlock )
+	{
+		Assert.notNull(style);
+		setManifestNamesInList( style.idChildren,			false );
+		setManifestNamesInList( style.styleNameChildren,	false );
+		setManifestNamesInList( style.elementChildren,		true );
+	}
+	
+	
+	private function setManifestNamesInList (list:ChildrenList, areElements:Bool = false) : Void
+	{
+		if (list == null)
+			return;
+		
+		var names	= list.keyList();
+		var styles	= list.valueList();
+		
+		for (i in 0...names.length)
+		{
+			var style	= styles[i];
+			if (areElements && style.type == StyleBlockType.element)
+				names[i] = manifest.getFullName( names[i] );
+			
+			setManifestNames( style );
+		}
+	}
+	
+	
 	
 	
 	/**
@@ -1034,11 +1069,11 @@ class CSSParser
 			
 			if (expr.matched(2) == "#")			type	= StyleBlockType.id;
 			else if (expr.matched(2) == ".")	type	= StyleBlockType.styleName;
-			else {
-				//find fullname of element styles
+			else								type	= StyleBlockType.element;		// find the full package of the class at the end when all the manifests are known
+	/*			//find fullname of element styles
 				name	= manifest.getFullName( name );
 				type	= StyleBlockType.element;
-			}
+			}*/
 			
 			
 		//	if (!styleGroup.owns( StyleFlags.CHILDREN ))
@@ -2068,16 +2103,14 @@ class CSSParser
 		
 		if (imageURIExpr.match(v))
 		{
-			bmp = new Asset();
-			bmp.setString( (getBasePath() + "/" + imageURIExpr.matched(2)).replace("//", "/") );
+			bmp = new Asset( (getBasePath() + "/" + imageURIExpr.matched(2)).replace("//", "/") );
 			lastParsedString = imageURIExpr.removeMatch(v);
 		}
 		else if (isClassReference(v))
 		{
 			//Try to create a class instance for the given string. If the class is not yet compiled, this will fail. 
 			//By setting the classname as string, the bitmapObject will try to create a class-reference to the asset.
-			bmp		= new Asset();
-			bmp.setClass( parseClassReference(v) );
+			bmp = new Asset(parseClassReference(v));
 			
 		/*	if (c != null)
 				bmp.setClass( c );

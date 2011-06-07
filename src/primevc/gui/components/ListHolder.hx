@@ -104,7 +104,6 @@ class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>, im
 		//check to see if list is not created yet by a skin
 		if (list == null)
 		{
-			Assert.notNull(createItemRenderer);
 			list = new ListView(id.value+"Content", listData);
 			list.createItemRenderer = createItemRenderer;
 			list.attachTo(this);
@@ -128,8 +127,10 @@ class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>, im
 	{
 		if (listData != v) {
 			listData = v;
-			if (list != null)
+			if (list != null) {
+				Assert.notNull(createItemRenderer);
 				list.data = v;
+			}
 		}
 		return v;
 	}

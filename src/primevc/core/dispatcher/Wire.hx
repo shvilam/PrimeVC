@@ -109,12 +109,13 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 	public var signal	(default, null)	: Signal<FunctionSignature>;
 	
 #if debug
-	static var instanceCount = 0;
+	public static var instanceCount	= 0;
+	public static var disposeCount	= 0;
 	public var bindPos		: haxe.PosInfos;
 	public var instanceNum	: Int;
 	
 	public function toString() {
-		return "{Wire["+instanceNum+" (instanceCount: "+instanceCount+")] bound at: "+ bindPos.fileName + ":" + bindPos.lineNumber + ", flags = 0x"+ StringTools.hex(flags, 2) +", owner = " + owner + "}";
+		return "{Wire["+instanceNum+" (total: "+instanceCount+"/"+disposeCount+")] bound at: "+ bindPos.fileName + ":" + bindPos.lineNumber + ", flags = 0x"+ StringTools.hex(flags, 2) +", owner = " + owner + "}";
 	}
 	public function pos(?p:haxe.PosInfos) : Wire<FunctionSignature> {
 		#if debug untyped this.bindPos = p; return this; #end
@@ -228,6 +229,9 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 		handler = owner = signal = null;
 		flags	= 0;
 		
+#if debug
+		disposeCount++;
+#end
 /*		var W = Wire;
 		if (W.freeCount != 2048) {
 			++W.freeCount;

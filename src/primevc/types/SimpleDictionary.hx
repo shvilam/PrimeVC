@@ -147,7 +147,7 @@ class SimpleDictionary < KType, VType >
 	public inline function exists (key:KType)		: Bool					{ return _keys.indexOf( key ) > -1; }
 	public inline function hasValue (value:VType)	: Bool					{ return _values.indexOf( value ) > -1; }
 	public inline function keys ()					: Iterator < KType >	{ return new FastArrayForwardIterator < KType > ( _keys ); }
-	public inline function keysList ()				: FastArray < KType >	{ return _keys; }
+	public inline function keyList ()				: FastArray < KType >	{ return _keys; }
 	public inline function valueList ()				: FastArray < VType >	{ return _values; }
 
 #if debug
