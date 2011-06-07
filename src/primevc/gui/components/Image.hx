@@ -98,10 +98,12 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 	{
 #if flash9
 		Assert.notNull(data.type);
+		
 		switch (data.type)
 		{
-			case AssetType.vector, AssetType.displayObject:
-				addChild( assetChild = data.getDisplayObject() );
+			case AssetType.displayObject:
+				addChild( assetChild = data.toDisplayObject() );
+				trace(assetChild.parent);
 				updateChildSize.on( layout.changed, this );
 				updateChildSize(LayoutFlags.SIZE);
 				
@@ -133,7 +135,7 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 		Assert.notNull(data.type, "asset: "+data);
 		switch (data.type)
 		{
-			case AssetType.vector, AssetType.displayObject:
+			case AssetType.displayObject:
 				if (assetChild != null) {
 					layout.changed.unbind(this);
 					removeChild( assetChild );
@@ -240,8 +242,7 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 	
 	private function cancelLoading ()
 	{
-		Assert.notNull(data.loader);
-		data.loader.close();
+		data.close();
 		initData.onceOn( displayEvents.addedToStage, this );
 	}
 }

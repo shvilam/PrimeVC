@@ -170,11 +170,21 @@ class HaxeCodeGenerator implements ICodeGenerator
 	}
 	
 	
+	
+	public function constructFromFactory (obj:ICodeFormattable, factoryMethod:String, ?params:Array<Dynamic>) : Void
+	{
+		var type = obj.getClass().getClassName();
+		addLine( "var " + createObjectVar(obj, false) + " = " + type + "." + factoryMethod + "( " + formatArguments( params, true ) + " );" );
+	}
+	
+	
+	
 	public function construct (obj:ICodeFormattable, ?params:Array<Dynamic>, ?alternativeType:Class<Dynamic>) : Void
 	{
 		var type = alternativeType == null ? obj.getClass() : alternativeType;
 		addLine( "var " + createObjectVar(obj, false) + " = " +createClassConstructor( type, params ) + ";" );
 	}
+	
 	
 	
 	public function createClassConstructor (classRef:Class<Dynamic>, ?params:Array<Dynamic>)
