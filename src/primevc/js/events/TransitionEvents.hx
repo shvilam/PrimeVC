@@ -11,23 +11,23 @@ class TransitionEvents extends Signals
 {
 	var eventDispatcher:Dynamic;
 	
-	public var webkitTransitionEnd(getWebkitTransitionEnd, null):TransitionSignal;
+	public var transitionEnd(getTransitionEnd, null):TransitionSignal;
 	
 	public function new(eventDispatcher:Dynamic)
 	{
 		this.eventDispatcher = eventDispatcher;
 	}
 	
-	private inline function getWebkitTransitionEnd() { if (webkitTransitionEnd == null) { createWebkitTransitionEnd(); } return webkitTransitionEnd; }
+	private inline function getTransitionEnd() { if (transitionEnd == null) { createTransitionEnd(); } return transitionEnd; }
 	
-	private function createWebkitTransitionEnd() { webkitTransitionEnd = new TransitionSignal(eventDispatcher, "webkitTransitionEnd"); }
+	private function createTransitionEnd() { transitionEnd = new TransitionSignal(eventDispatcher, "webkitTransitionEnd"); }
 	
 	override public function dispose ()
 	{
 		eventDispatcher = null;
 		
-		if ( (untyped this).webkitTransitionEnd	!= null ) webkitTransitionEnd.dispose();
+		if ( (untyped this).transitionEnd	!= null ) transitionEnd.dispose();
 		
-		webkitTransitionEnd = null;
+		transitionEnd = null;
 	}
 }

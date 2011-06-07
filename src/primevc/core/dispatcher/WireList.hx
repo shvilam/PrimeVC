@@ -34,4 +34,4 @@ package primevc.core.dispatcher;
  * @author Ruben Weijers
  * @creation-date Nov 02, 2010
  */
-class WireList < FunctionSignature > extends ListNode<Wire<FunctionSignature>> {}
+@:keep class WireList < FunctionSignature > extends ListNode<Wire<FunctionSignature>> {}

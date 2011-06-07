@@ -25,7 +25,7 @@ typedef DOMEvent =
 	public var returnValue		(default, null):Bool; 
 	public var srcElement		(default, null):Dynamic; // The Microsoft equivalent of 'target'.
 	public var target			(default, null):Dynamic; // The target of the event.
-	public var timeStamp		(default, null):Bool; // The time at which the event was created in milliseconds relative to 1970-01-01 00:00:00.
+	public var timeStamp		(default, null):Int; // The time at which the event was created in milliseconds relative to 1970-01-01 00:00:00.
 	
 	public function preventDefault():Void; // Prevents the browser from performing the default action for the event.
 	public function stopImmediatePropagation():Void; 

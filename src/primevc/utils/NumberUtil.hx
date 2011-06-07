@@ -146,7 +146,7 @@ class FloatUtil
 
 
 	public static inline function notSet (value:Float) : Bool	{ return !isSet(value); }
-	public static inline function isSet  (value:Float) : Bool	{ return #if !flash9 value != null && #end /*!Math.isNaN(value)*/ (value == value) /* false if NaN )*/; }
+	@:keep  public static inline function isSet  (value:Float) : Bool	{ return #if !flash9 value != null && #end /*!Math.isNaN(value)*/ (value == value) /* false if NaN )*/; }
 	public static inline function notEmpty (value:Float) : Bool	{ return value != Number.EMPTY; }
 	public static inline function isEmpty (value:Float) : Bool	{ return value == Number.EMPTY; }
 	public static inline function unset () : Float				{ return Number.FLOAT_NOT_SET; }

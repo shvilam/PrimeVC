@@ -16,8 +16,8 @@ class DOMElem
 {
 	public var type			(default, null):String;
 	public var elem			(default, null):Dynamic;
-	public var width		(default, setWidth):Float;
-	public var height		(default, setHeight):Float;
+	public var width		(default, setWidth):Int;
+	public var height		(default, setHeight):Int;
 	public var x			(default, setX):Float;
 	public var y			(default, setY):Float;
 	public var scale		(default, setScale):Float;
@@ -26,7 +26,6 @@ class DOMElem
 	public var className	(default, setClassName):String;
 	public var matrix		(default, null):WebKitCSSMatrix;
 	public var children		(default, null):DisplayList;
-	public var transition 	(default, setTransition):String;
 	public var parent		:DOMElem;
 	
 	public function new(type:String)
@@ -42,33 +41,31 @@ class DOMElem
 		(untyped this).scale = 1;
 	}
 	
-	private function setWidth(value:Float):Float
+	private function setWidth(v:Int):Int
 	{
-		width = value;
+		width = v;
 		elem.style.width = width + "px";
 		return width;
 	}
 	
-	private function setHeight(value:Float):Float
+	private function setHeight(v:Int):Int
 	{
-		height = value;
+		height = v;
 		elem.style.height = height + "px";
 		return height;
 	}
 	
-	private function setX(value:Float):Float
+	private function setX(v:Float):Float
 	{
-		x = value;
-		//WebkitTransform.translate(this, x, y);
-		elem.style.left = x + "px";
+		x = v;
+		WebkitTransform.translateX(this, x);
 		return x;
 	}
 	
-	private function setY(value:Float):Float
+	private function setY(v:Float):Float
 	{
-		y = value;
-		//WebkitTransform.translate(this, x, y);
-		elem.style.top = y + "px";
+		y = v;
+		WebkitTransform.translateY(this, y);
 		return y;
 	}
 	
@@ -79,47 +76,35 @@ class DOMElem
 		WebkitTransform.translate(this, x, y);
 	}
 	
-	private function setScale(value:Float):Float
+	private function setScale(v:Float):Float
 	{
-		scale = value;
-		WebkitTransform.scale(this, scale);
+		scale = v;
+		//WebkitTransform.scale(this, scale);
+		applyTransforms();
 		return scale;
 	}
 	
-	private function setId(value:String):String
+	private function setId(v:String):String
 	{
-		id = value;
+		id = v;
 		elem.id = id;
 		return id;
 	}
-	
 	
 	private function getStyle():Style
 	{
 		return elem.style;
 	}
 	
-	
-	private function setClassName(value:String):String
+	private function setClassName(v:String):String
 	{
-		className = value;
+		className = v;
 		elem.className = className;
 		return className;
 	}
 	
-	private function setTransition(value:String):String
+	private function applyTransforms()
 	{
-		transition = value;
-		
-		if (transition != TransitionManager.NONE)
-		{
-			elem.className = className + " " + transition;
-		}
-		else
-		{
-			elem.className = className;
-		}
-		
-		return transition;
+		elem.style.webkitTransform = "translate3d(" + x + "px," + y + "px, 0) scale(" + scale + ")";
 	}
 }
