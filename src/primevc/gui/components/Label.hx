@@ -95,7 +95,7 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 		if (textStyle != null)
 			field.textStyle = textStyle;
 		
-		children.add( field );
+		field.attachDisplayTo( this );
 	}
 	
 	

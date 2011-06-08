@@ -30,11 +30,9 @@ package primevc.gui.components;
  import primevc.core.net.VideoStream;
  import primevc.core.states.VideoStates;
  import primevc.core.Bindable;
-// import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
  import primevc.gui.core.IUIElement;
  import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIDataContainer;
-// import primevc.gui.core.UIGraphic;
  import primevc.gui.core.UIVideo;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.LayoutFlags;
@@ -62,16 +60,9 @@ class VideoPlayer extends UIDataContainer < VideoData >
 	
 	override private function createChildren ()
 	{
-		video		= new UIVideo("video");
-		ctrlBar		= new VideoControlBar("ctrlBar");
-		bigPlayBtn	= new Button("bigPlayBtn");
-		
-		layoutContainer.children.add( video.layout );
-		layoutContainer.children.add( ctrlBar.layout );
-		layoutContainer.children.add( bigPlayBtn.layout );
-		children.add( video );
-		children.add( ctrlBar );
-		children.add( bigPlayBtn );
+		this.attach( video		= new UIVideo("video") )
+			.attach( ctrlBar	= new VideoControlBar("ctrlBar") )
+			.attach( bigPlayBtn	= new Button("bigPlayBtn") );
 		
 	//	bigPlayBtn.layout.maintainAspectRatio = true;
 	//	bigPlayBtn.disable();
@@ -88,10 +79,8 @@ class VideoPlayer extends UIDataContainer < VideoData >
 		userEvents.mouse.click.unbind(this);
 		stream.state.change.unbind(this);
 		
-		children.remove(ctrlBar);
-		children.remove(video);
-		layoutContainer.children.remove(ctrlBar.layout);
-		layoutContainer.children.remove(video.layout);
+		ctrlBar.detach();
+		video.detach();
 		super.removeChildren();
 	}
 	
@@ -191,28 +180,13 @@ class VideoControlBar extends UIContainer
 	
 	override private function createChildren ()
 	{
-		playBtn 		= new Button("playBtn");
-		stopBtn			= new Button("stopBtn");
-		progressBar		= new Slider("progressSlider");
-		timeDisplay		= new Label("timeDisplay");
-		muteBtn			= new Button("muteBtn");
-		volumeSlider	= new Slider("volumeSlider");
-		fullScreenBtn	= new Button("fullScreenBtn");
-		
-		layoutContainer.children.add( playBtn.layout );
-		layoutContainer.children.add( stopBtn.layout );
-		layoutContainer.children.add( progressBar.layout );
-		layoutContainer.children.add( timeDisplay.layout );
-		layoutContainer.children.add( muteBtn.layout );
-		layoutContainer.children.add( volumeSlider.layout );
-		layoutContainer.children.add( fullScreenBtn.layout );
-		children.add( playBtn );
-		children.add( stopBtn );
-		children.add( progressBar );
-		children.add( timeDisplay );
-		children.add( muteBtn );
-		children.add( volumeSlider );
-		children.add( fullScreenBtn );
+		this.attach( playBtn 		= new Button("playBtn") )
+			.attach( stopBtn		= new Button("stopBtn") )
+			.attach( progressBar	= new Slider("progressSlider") )
+			.attach( timeDisplay	= new Label("timeDisplay") )
+			.attach( muteBtn		= new Button("muteBtn") )
+			.attach( volumeSlider	= new Slider("volumeSlider") )
+			.attach( fullScreenBtn	= new Button("fullScreenBtn") );
 		
 		timeDisplay.data.value = "--:-- / --:--";
 		
@@ -220,7 +194,7 @@ class VideoControlBar extends UIContainer
 		// children.addIf( child, function() width > 400; );
 		// when( this.width > 400 ).on(updateLayout).addChild(btn); 
 		addOrRemoveChildren.on( layout.changed, this );
-		addOrRemoveChildren( LayoutFlags.WIDTH );
+	//	addOrRemoveChildren( LayoutFlags.WIDTH );
 		
 		if (stream != null)
 			addStreamListeners();
@@ -241,10 +215,10 @@ class VideoControlBar extends UIContainer
 		
 		updateTimeLabel		.on( stream.currentTime.change, this );
 		updateTimeLabel		.on( stream.totalTime.change, this );
+		handleStreamChange	.on( stream.state.change, this );
 		stream.freeze		.on( progressBar.sliding.begin, this );
 		stream.defrost		.on( progressBar.sliding.apply, this );
 		startSeeking		.on( progressBar.sliding.apply, this );
-		handleStreamChange	.on( stream.state.change, this );
 		
 		handleStreamChange( stream.state.current, null );
 		updateTimeLabel();
@@ -253,27 +227,27 @@ class VideoControlBar extends UIContainer
 	
 	private function removeStreamListeners ()
 	{
-		playBtn			.userEvents.mouse.unbind(this);
-		stopBtn			.userEvents.mouse.unbind(this);
-		fullScreenBtn	.userEvents.mouse.unbind(this);
-		muteBtn			.userEvents.mouse.unbind(this);
+		playBtn			.userEvents.mouse.click.unbind(this);
+		stopBtn			.userEvents.mouse.click.unbind(this);
+		fullScreenBtn	.userEvents.mouse.click.unbind(this);
+		muteBtn			.userEvents.mouse.click.unbind(this);
 		
 		progressBar	.data.unbind( stream.currentTime );
 		volumeSlider.data.unbind( stream.volume );
-		stream.totalTime.change.unbind( this );
-		
 		progressBar.sliding.unbind(this);
-		stream.state.change.unbind( this );
+		
+		stream.currentTime	.change.unbind( this );
+		stream.totalTime	.change.unbind( this );
+		stream.state		.change.unbind( this );
 	}
 	
 	
 	override public function validate ()
 	{
 		if (changes.has(STREAM))
-		{
 			if (stream != null)
 				addStreamListeners();
-		}
+		
 		super.validate();
 	}
 	
@@ -384,8 +358,10 @@ class VideoControlBar extends UIContainer
 	{
 		if (child.isOnStage() && !show)		children.remove( child );
 		if (!child.isOnStage() && show)		children.add( child );
-		if (child.visible != show)
+		if (child.visible != show) {
 			child.visible = child.layout.includeInLayout = show;
+			layout.invalidate( LayoutFlags.LIST );		// force the layout-container to update all children. Otherwise the size of the sliders will be incorrect
+		}
 		
 	//	if (!show)		layoutContainer.children.remove( child.layout );
 	//	else			layoutContainer.children.add( child.layout, pos );

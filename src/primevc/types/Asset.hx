@@ -82,6 +82,7 @@ class Asset		implements IDisposable
 	public static inline function fromLoader		(v:ICommunicator)				: Asset	{ return new ExternalAsset(null, v); }
 	public static inline function fromFactory		(v:Factory)						: Asset	{ return fromUnkown( v(), v ); } //new DisplayFactoryAsset( v ); }
 	public static inline function fromString		(v:String)						: Asset	{ return fromURI(new URI(v)); }
+	public static inline function createEmptyBitmap	(w:Int, h:Int)					: Asset	{ return fromBitmapData( new BitmapData(w, h) ); }
 	
 	
 	public static function		  fromURI			(v:URI)				: Asset
@@ -276,12 +277,10 @@ class BitmapAsset extends Asset
 	public var data	(default, setData) : BitmapData;
 	
 	
-	public function new (source:BitmapData = null, width:Int = Number.INT_NOT_SET, height:Int = Number.INT_NOT_SET)
+	public function new (source:BitmapData = null)
 	{
 		this.type = AssetType.bitmapData;
 		super();
-		this.width	= width;
-		this.height	= height;
 		if (source != null)
 			data	= source;
 	}

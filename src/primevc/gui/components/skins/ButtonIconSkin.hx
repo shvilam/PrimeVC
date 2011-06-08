@@ -70,10 +70,7 @@ class ButtonIconSkin extends Skin<Button>
 	{
 		if (iconGraphic != null)
 		{
-			if (owner != null && !owner.isDisposed()) {
-				owner.layoutContainer	.children.remove( iconGraphic.layout );
-				owner					.children.remove( iconGraphic );
-			}
+			iconGraphic.detach();
 			iconGraphic.dispose();
 			iconGraphic = null;
 		}

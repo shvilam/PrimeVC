@@ -114,23 +114,6 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 		}
 	}
 	
-	/*override private function createChildren ()
-	{
-		content.styleClasses.add( "listContent" );
-		layoutContainer.children.add( content.layout );
-		children.add( content );
-	}
-	
-	
-	override private function removeChildren ()
-	{
-		layoutContainer.children.remove( content.layout );
-		children.remove( content );
-		content.dispose();
-		content = null;
-		super.removeChildren();
-	}*/
-	
 	
 	override public function dispose ()
 	{

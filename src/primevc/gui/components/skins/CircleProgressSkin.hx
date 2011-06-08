@@ -85,14 +85,6 @@ class CircleProgressSkin extends Skin<ProgressBar>
 	{
 		indicator	= new UIGraphic("indicator");
 		labelField	= new Label(null, label);
-
-		var o = owner;
-		var l = o.layoutContainer;
-		l.children.add( indicator.layout );
-		l.children.add( labelField.layout );
-		
-		o.children.add( indicator );
-		o.children.add( labelField );
 		
 		//override their default shape to a circle
 		indicator.graphicData.shape			= owner.graphicData.shape = new Circle();
@@ -102,6 +94,8 @@ class CircleProgressSkin extends Skin<ProgressBar>
 		//put labelfield in the center
 		var r = labelField.layout.relative = new RelativeLayout();
 		r.hCenter = r.vCenter = 0;
+		
+		owner.attach( indicator ).attach( labelField );
 	}
 
 
@@ -109,17 +103,6 @@ class CircleProgressSkin extends Skin<ProgressBar>
 	{
 		if (indicator != null)
 		{
-			if (owner != null && !owner.isDisposed())
-			{
-				var o = owner;
-				var l = o.layoutContainer;
-				l.children.remove( labelField.layout );
-				l.children.remove( indicator.layout );
-
-				o.children.remove( indicator );
-				o.children.remove( labelField );
-			}
-
 			indicator.dispose();
 			labelField.dispose();
 			label.dispose();

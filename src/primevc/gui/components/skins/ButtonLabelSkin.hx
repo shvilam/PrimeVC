@@ -54,8 +54,6 @@ class ButtonLabelSkin extends Skin<Button>
 	{
 		labelField = new UITextField( null, true, owner.data );
 		
-		owner.layoutContainer	.children.add( labelField.layout );
-		owner					.children.add( labelField );
 #if debug
 		labelField.id.value		= owner.id.value + "TextField";
 #end
@@ -69,6 +67,7 @@ class ButtonLabelSkin extends Skin<Button>
 		if (owner.textStyle != null)
 			labelField.textStyle = owner.textStyle;
 #end
+		owner.attach( labelField );
 	}
 
 
@@ -76,10 +75,7 @@ class ButtonLabelSkin extends Skin<Button>
 	{
 		if (labelField != null)
 		{
-			if (owner != null) {
-				owner.layoutContainer	.children.remove( labelField.layout );
-				owner					.children.remove( labelField );
-			}
+			labelField.detach();
 			labelField.dispose();
 			labelField = null;
 		}

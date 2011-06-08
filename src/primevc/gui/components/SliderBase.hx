@@ -194,12 +194,8 @@ class SliderBase extends UIDataContainer <PercentageHelper>
 	
 	override private function createChildren ()
 	{
-		dragBtn = new Button();
+		attach( dragBtn = new Button( id.value + "Btn" ) );
 	//	dragBtn.layout.includeInLayout = false;
-		dragBtn.id.value = id.value + "Btn";
-		
-		layoutContainer.children.add( dragBtn.layout );
-		children.add( dragBtn );
 	}
 	
 	

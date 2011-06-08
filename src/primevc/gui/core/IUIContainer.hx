@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
+ import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.traits.IScrollable;
 
@@ -37,6 +38,7 @@ package primevc.gui.core;
  */
 interface IUIContainer implements IUIComponent, implements IScrollable
 {
-	public var layoutContainer (getLayoutContainer, never) : LayoutContainer;
-	public function attach (child:IUIElement) : IUIContainer;
+	public var layoutContainer		(getLayoutContainer, never) : LayoutContainer;
+	public function attach			(child:IUIElement)			: IUIContainer;
+	public function attachLayout	(layout:LayoutClient)		: IUIContainer;
 }
