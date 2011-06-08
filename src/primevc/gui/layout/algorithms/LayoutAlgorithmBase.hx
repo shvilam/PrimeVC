@@ -53,6 +53,8 @@ class LayoutAlgorithmBase
 				implements IDisposable
 #if neko	,	implements ICodeFormattable		#end
 {
+#if debug public static var created		: Int = 0; #end
+#if debug public static var disposed	: Int = 0; #end
 	public var algorithmChanged 		(default, null)				: Signal0;
 	public var group					(default, setGroup)			: ILayoutContainer;
 	
@@ -65,9 +67,8 @@ class LayoutAlgorithmBase
 	
 	public function new()
 	{
-#if neko
-		_oid				= ID.getNext();
-#end
+#if debug	created++;							#end
+#if neko	_oid			= ID.getNext();		#end
 		algorithmChanged	= new Signal0();
 		validatePrepared	= false;
 	}
@@ -75,6 +76,7 @@ class LayoutAlgorithmBase
 	
 	public function dispose ()
 	{
+#if debug	disposed++;							#end
 		algorithmChanged.dispose();
 		algorithmChanged	= null;
 	}

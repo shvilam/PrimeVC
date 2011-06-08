@@ -103,7 +103,6 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 		{
 			case AssetType.displayObject:
 				addChild( assetChild = data.toDisplayObject() );
-				trace(assetChild.parent);
 				updateChildSize.on( layout.changed, this );
 				updateChildSize(LayoutFlags.SIZE);
 				

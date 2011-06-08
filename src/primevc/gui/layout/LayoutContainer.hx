@@ -92,12 +92,15 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	
 	override public function dispose ()
 	{
+		super.dispose();
+		if (algorithm != null) {
+			algorithm.dispose();
+			(untyped this).algorithm = null;
+		}
 		scrollPos.dispose();
 		children.dispose();
 		children	= null;
-		algorithm	= null;
 		scrollPos	= null;
-		super.dispose();
 	}
 	
 	

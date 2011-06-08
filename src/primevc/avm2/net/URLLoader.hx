@@ -71,20 +71,25 @@ class URLLoader implements ICommunicator
 	public var bytes			(getBytes,			setBytes)		: BytesData;
 	public var dataFormat		(getDataFormat,		setDataFormat)	: URLLoaderDataFormat;
 	private var loader			: FlashLoader;
-//	private var uri				: URI;
+#if debug
+	private var uri				: URI;
+#end
 	
 	
 	public function new (loader:FlashLoader = null)
 	{
-		if (loader == null) {
+		if (loader == null)
+		{
 			this.loader = new FlashLoader();
 			setBinary();
-		} else {
+		}
+		else
+		{
 			this.loader	= loader;
 		}
 		
-		bytesProgress = bytesTotal = Number.INT_NOT_SET;
-		events = new LoaderEvents(this.loader);
+		bytesProgress	= bytesTotal = Number.INT_NOT_SET;
+		events			= new LoaderEvents(this.loader);
 		
 		setStarted		.on( events.load.started, 	 this );
 		unsetStarted	.on( events.load.completed,  this );
@@ -107,13 +112,13 @@ class URLLoader implements ICommunicator
 		type	= null;
 		loader	= null;
 		data	= null;
-	//	uri		= null;
+#if debug	uri	= null; #end
 	}
 	
 	public function binaryPOST (uri:URI, mimetype:String = "application/octet-stream")
 	{
-		this.type		= CommunicationType.sending;
-	//	this.uri		= uri;
+			this.type	= CommunicationType.sending;
+#if debug	this.uri	= uri; #end
 		
 		var request		= uri.toRequest();
 		request.requestHeaders.push(new flash.net.URLRequestHeader("Content-type", mimetype));
@@ -129,8 +134,8 @@ class URLLoader implements ICommunicator
 	
 	public function formPOST (uri:URI, vars:URLVariables)
 	{
-		this.type		= CommunicationType.sending;
-	//	this.uri		= uri;
+			this.type	= CommunicationType.sending;
+#if debug	this.uri	= uri; #end
 		
 		var request		= uri.toRequest();
 		request.requestHeaders.push(new flash.net.URLRequestHeader("Content-type", "multipart/form-data"));
@@ -145,8 +150,7 @@ class URLLoader implements ICommunicator
 	public inline function load (v:URI)
 	{
 		this.type	= CommunicationType.loading;
-	//	this.uri	= v;
-		
+#if debug	 uri	= v;	#end
 		Assert.equal(bytesTotal, 0 );
 		return loadRequest(v.toRequest());
 	}
@@ -164,9 +168,11 @@ class URLLoader implements ICommunicator
 	
 	public inline function close ()
 	{
-		isStarted = false;
 		loader.close();
-		bytesTotal = bytesProgress = 0;
+		isStarted	= false;
+		bytesTotal	= bytesProgress = Number.INT_NOT_SET;
+		type		= null;
+#if debug	uri		= null; #end
 		events.unloaded.send();
 	}
 	
@@ -236,6 +242,11 @@ class URLLoader implements ICommunicator
 	private function unsetStarted ()	{ isStarted = false; }
 	
 #if debug
+	public function toString ()
+	{
+		return "URLLoader("+bytesProgress+" / "+bytesTotal + (isStarted ? " - started" : "") + (isCompleted() ? " - completed" : "") + (isInProgress() ? " - progress" : "") + "; " + loader.dataFormat + "; "+uri+")";
+	}
+	
 //	private function trackError ()		{ trace(loader.data); }
 //	private function trackHttpStatus (status:Int)		{ trace(status.read()+" => "+uri+"[ "+bytesProgress+" / "+ bytesTotal+" ]; type: "+type+"; format: "+dataFormat+"; "+loader.data); }
 //	private function trackCompleted ()					{ trace(uri+"[ "+bytesProgress+" / "+ bytesTotal+" ]; type: "+type+"; format: "+dataFormat+"; "+loader.data); }

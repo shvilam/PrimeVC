@@ -814,7 +814,7 @@ class LayoutClient extends Invalidatable
 	{
 		if (x != v)
 		{
-#if debug	Assert.that( v.notSet() || (v > -1000 && v < 10000), this+".invalidX: "+v ); #end
+#if debug	Assert.that( v.notSet() || (v > -10000 && v < 10000), this+".invalidX: "+v ); #end
 			x = v;
 			outerBounds.left = v;
 			innerBounds.left = (margin == null) ? v : v + margin.left;
@@ -828,7 +828,7 @@ class LayoutClient extends Invalidatable
 	{
 		if (y != v)
 		{
-#if debug	Assert.that( v.notSet() || (v > -1000 && v < 10000), this+".invalidY: "+v ); #end
+#if debug	Assert.that( v.notSet() || (v > -10000 && v < 10000), this+".invalidY: "+v ); #end
 			y = v;
 			outerBounds.top = v;
 			innerBounds.top = (margin == null) ? v : v + margin.top;

@@ -31,6 +31,7 @@ package primevc.gui.components;
  import primevc.core.dispatcher.Wire;
  import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIWindow;
+ import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.states.ValidateStates;
@@ -49,15 +50,7 @@ package primevc.gui.components;
  */
 class DebugBar extends UIContainer
 {
-	private var inspectStageBtn			: Button;
-	private var inspectLayoutBtn		: Button;
-	private var validateLayoutBtn		: Button;
-	private var showInvalidatedBtn		: Button;
-	private var showRenderingBtn		: Button;
-	private var toggleTraceLayoutBtn	: Button;
-	private var clearTracesBtn			: Button;
-	private var garbageCollectBtn		: Button;
-	private var wireCountBtn			: Button;
+	private var toggleTraceBtn : Button;
 	
 	
 	override private function createChildren ()
@@ -65,30 +58,29 @@ class DebugBar extends UIContainer
 #if !debug
 		Assert.that(false, "Can't use DebugBar without being in debugmode");
 #end
-		inspectStageBtn			= new Button("inspectStageBtn", "Inspect Stage");
-		inspectLayoutBtn		= new Button("inspectLayoutBtn", "Controleer layout");
-		validateLayoutBtn		= new Button("validateLayoutBtn", "Forceer layout validatie");
-		showInvalidatedBtn		= new Button("showInvalidatedBtn", "Trace invalidated queue");
-		showRenderingBtn		= new Button("showRenderingBtn", "Trace render queue");
-		toggleTraceLayoutBtn	= new Button("toggleTraceValidationBtn", "Trace layout validation");
-		clearTracesBtn			= new Button("clearTracesBtn", "Clear traces");
-		garbageCollectBtn		= new Button("garbageCollectBtn", "Garbage Collect");
-		wireCountBtn			= new Button("wireCountBtn", "Count wires");
+		addButton( "clearTracesBtn",			"Clear traces",				haxe.Log.clear );
+		addButton( "inspectStageBtn",			"Inspect Stage",			inspectStage );
+		addButton( "inspectLayoutBtn",			"Controleer layout",		inspectAllLayouts );
+		addButton( "validateLayoutBtn",			"Forceer layout validatie",	forceAllValidation );
 		
-		attach( clearTracesBtn )	.attach( inspectStageBtn )	.attach( inspectLayoutBtn )		.attach( validateLayoutBtn );
-		attach( showInvalidatedBtn ).attach( showRenderingBtn )	.attach( toggleTraceLayoutBtn )	.attach( garbageCollectBtn ).attach(wireCountBtn);
+		addButton( "showInvalidatedBtn",		"Trace invalidated queue",	traceInvalidationQueue );
+		addButton( "showRenderingBtn",			"Trace render queue",		traceRenderingQueue );
+		addButton( "garbageCollectBtn",			"Garbage Collect",			flash.system.System.gc );
 		
-		haxe.Log.clear			.on( clearTracesBtn.userEvents.mouse.click, this );
-		inspectAllLayouts		.on( inspectLayoutBtn.userEvents.mouse.click, this );
-		forceAllValidation		.on( validateLayoutBtn.userEvents.mouse.click, this );
-		inspectStage			.on( inspectStageBtn.userEvents.mouse.click, this );
-		traceInvalidationQueue	.on( showInvalidatedBtn.userEvents.mouse.click, this );
-		traceRenderingQueue		.on( showRenderingBtn.userEvents.mouse.click, this );
-		toggleTraceLayout		.on( toggleTraceLayoutBtn.userEvents.mouse.click, this );
-		flash.system.System.gc	.on( garbageCollectBtn.userEvents.mouse.click, this );
-		countWires				.on( wireCountBtn.userEvents.mouse.click, this );
+		addButton( "wireCountBtn",				"Count wires",				countWires );
+		addButton( "algorithmCountBtn",			"Count layout-algorithms",	countAlgorithms );
+		toggleTraceBtn = addButton( "toggleTraceValidationBtn",	"Trace layout validation",	toggleTraceLayout );
 		
 		handleHotkeys.on ( window.userEvents.key.down, this );
+	}
+	
+	
+	private inline function addButton( id:String, label:String, handleClick:Void->Void ) : Button
+	{
+		var btn = new Button( id, label );
+		handleClick.on( btn.userEvents.mouse.click, this );
+		attach( btn );
+		return btn;
 	}
 	
 	
@@ -228,22 +220,20 @@ class DebugBar extends UIContainer
 	
 	private function toggleTraceLayout ()
 	{
-		toggleTraceLayoutBtn.toggleSelect();
-		if (toggleTraceLayoutBtn.selected.value)
+		toggleTraceBtn.toggleSelect();
+		if (toggleTraceBtn.selected.value)
 		{
 			system.invalidation.traceQueues = true;
-			toggleTraceLayoutBtn.data.value = "Stop Tracing layout validation";
+			toggleTraceBtn.data.value = "Stop Tracing layout validation";
 		}
 		else
 		{
 			system.invalidation.traceQueues = false;
-			toggleTraceLayoutBtn.data.value = "Trace layout validation";
+			toggleTraceBtn.data.value = "Trace layout validation";
 		}
 	}
 	
 	
-	private function countWires ()
-	{
-		trace("total: "+Wire.instanceCount+"; disposed: "+Wire.disposeCount);
-	}
+	private function countWires ()		{ trace("Wires [ total: "+Wire.instanceCount+"; disposed: "+Wire.disposeCount + "; active: "+(Wire.instanceCount - Wire.disposeCount)+" ]"); }
+	private function countAlgorithms ()	{ trace("Algorithms [ total: "+LayoutAlgorithmBase.created+"; disposed: "+LayoutAlgorithmBase.disposed + "; active: "+(LayoutAlgorithmBase.created - LayoutAlgorithmBase.disposed)+" ]"); }
 }

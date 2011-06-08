@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
+ import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.IScrollableLayout;
  import primevc.gui.layout.LayoutContainer;
   using primevc.utils.NumberUtil;
@@ -48,11 +49,8 @@ class UIContainer extends UIComponent, implements IUIContainer
 	private inline function getScrollableLayout () 	{ return layout.as(IScrollableLayout); }
 	
 	
-	public inline function attach (child:IUIElement) : IUIContainer
-	{
-		child.attachTo(this);
-		return this;
-	}
+	public inline function attach		(child:IUIElement)		: IUIContainer	{ child.attachTo(this); return this; }
+	public inline function attachLayout (layout:LayoutClient)	: IUIContainer	{ layoutContainer.children.add(layout); return this; }
 	
 	
 	override private function createLayout () : Void
