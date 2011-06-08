@@ -66,7 +66,7 @@ class ButtonIconSkin extends Skin<Button>
 	}
 
 
-	override private function removeChildren ()
+	override public  function removeChildren ()
 	{
 		if (iconGraphic != null)
 		{

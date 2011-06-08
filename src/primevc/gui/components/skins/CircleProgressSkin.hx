@@ -99,7 +99,7 @@ class CircleProgressSkin extends Skin<ProgressBar>
 	}
 
 
-	override private function removeChildren ()
+	override public  function removeChildren ()
 	{
 		if (indicator != null)
 		{

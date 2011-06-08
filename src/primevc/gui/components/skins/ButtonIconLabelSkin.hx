@@ -79,7 +79,7 @@ class ButtonIconLabelSkin extends Skin<Button>
 	}
 	
 	
-	override private function removeChildren ()
+	override public  function removeChildren ()
 	{
 		if (owner != null && !owner.isDisposed())
 		{

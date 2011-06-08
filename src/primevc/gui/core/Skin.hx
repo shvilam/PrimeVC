@@ -151,7 +151,7 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 	public function childrenCreated ()			: Void {}
 	
 	private function removeStates ()			: Void {} //	{ Assert.abstract(); }
-	private function removeChildren ()			: Void {} //	{ Assert.abstract(); }
+	public  function removeChildren ()			: Void {} //	{ Assert.abstract(); }
 	public function validate (changes:Int)		: Void {}
 	
 	private function removeBehaviours ()

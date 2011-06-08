@@ -70,5 +70,5 @@ interface IUIComponent
 	/**
 	 * Implement this method to clean-up the children of the component
 	 */
-	private function removeChildren ()				: Void;
+	public  function removeChildren ()				: Void;
 }

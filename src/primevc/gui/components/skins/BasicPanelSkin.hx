@@ -59,7 +59,7 @@ class BasicPanelSkin extends Skin<Panel>
 	}
 	
 	
-	override private function removeChildren ()
+	override public  function removeChildren ()
 	{
 		title.dispose();
 		chrome.dispose();

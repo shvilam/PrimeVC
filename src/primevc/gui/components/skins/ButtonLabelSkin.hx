@@ -71,7 +71,7 @@ class ButtonLabelSkin extends Skin<Button>
 	}
 
 
-	override private function removeChildren ()
+	override public  function removeChildren ()
 	{
 		if (labelField != null)
 		{

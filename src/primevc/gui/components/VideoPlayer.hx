@@ -74,7 +74,7 @@ class VideoPlayer extends UIDataContainer < VideoData >
 	}
 	
 	
-	override private function removeChildren ()
+	override public  function removeChildren ()
 	{
 		userEvents.mouse.click.unbind(this);
 		stream.state.change.unbind(this);

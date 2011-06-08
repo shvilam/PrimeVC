@@ -317,7 +317,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	}
 	
 	
-	private function removeChildren () : Void
+	#if flash11 override #end public function removeChildren () : Void
 	{
 		children.removeAll();
 	}
