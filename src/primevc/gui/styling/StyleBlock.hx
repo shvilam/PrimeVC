@@ -188,7 +188,7 @@ class StyleBlock extends StyleBlockBase
 	
 	
 	public function new (
-		type				: StyleBlockType,
+		type				: StyleBlockType = null,	//FIXME: parameter should be required but in generated code there's sometimes a style-block without parameters..
 		graphics			: GraphicsStyle = null,
 		layout				: LayoutStyle = null,
 		font				: TextStyle = null,
@@ -1023,7 +1023,7 @@ class StyleBlock extends StyleBlockBase
 	
 	override public function isEmpty ()
 	{
-		return filledProperties.unset( Flags.PARENT_STYLE ) == 0;
+		return type == null || filledProperties.unset( Flags.PARENT_STYLE ) == 0;
 	}
 	
 	
@@ -1050,18 +1050,18 @@ class StyleBlock extends StyleBlockBase
 			
 			if (filledProperties.has( Flags.INHERETING_STYLES ))
 			{
-				if (nestingInherited != null)			code.setProp( this, "nestingInherited", nestingInherited );
-				if (superStyle != null)					code.setProp( this, "superStyle", superStyle );
-				if (extendedStyle != null)				code.setProp( this, "extendedStyle", extendedStyle );
-				if (parentStyle != null)				code.setProp( this, "parentStyle", parentStyle );
+				if (nestingInherited != null)			code.setProp( this, "nestingInherited", nestingInherited, true );
+				if (superStyle != null)					code.setProp( this, "superStyle", superStyle, true );
+				if (extendedStyle != null)				code.setProp( this, "extendedStyle", extendedStyle, true );
+				if (parentStyle != null)				code.setProp( this, "parentStyle", parentStyle, true );
 			}
 			
 			//important to do after the styleblock is constructed. otherwise references to the parentstyle might nog yet exist
-			if (filledProperties.has( Flags.ID_CHILDREN ))				code.setProp(this, "idChildren",		_idChildren);
-			if (filledProperties.has( Flags.STYLE_NAME_CHILDREN ))		code.setProp(this, "styleNameChildren",	_styleNameChildren);
-			if (filledProperties.has( Flags.ELEMENT_CHILDREN ))			code.setProp(this, "elementChildren",	_elementChildren);
+			if (filledProperties.has( Flags.ID_CHILDREN ))				code.setProp(this, "idChildren",		_idChildren, true);
+			if (filledProperties.has( Flags.STYLE_NAME_CHILDREN ))		code.setProp(this, "styleNameChildren",	_styleNameChildren, true);
+			if (filledProperties.has( Flags.ELEMENT_CHILDREN ))			code.setProp(this, "elementChildren",	_elementChildren, true);
 			
-			if (filledProperties.has( Flags.STATES ))					code.setProp(this, "states", _states);
+			if (filledProperties.has( Flags.STATES ))					code.setProp(this, "states", _states, true);
 		}
 	}
 #end

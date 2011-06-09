@@ -29,6 +29,7 @@
 package primevc.types;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
+ import primevc.tools.generator.ValueType;
 #end
  import primevc.types.Factory;
 
@@ -55,13 +56,13 @@ class ReferenceUtil
 	}
 	
 	
-	public static inline function toCode (ref:Reference, code:ICodeGenerator) : String
+	public static inline function toCode (ref:Reference, code:ICodeGenerator) : ValueType
 	{
 		switch (ref) {
-			case className ( name, css ):			return name;
-			case objInstance ( factory ):			code.construct( factory ); return code.varName(factory); //code.createClassConstructor( factory.classRef, factory.params );
+			case className ( name, css ):			return tClass(name);
+			case objInstance ( factory ):			return code.getObject(factory); //code.construct( factory ); return code.varName(factory); //code.createClassConstructor( factory.classRef, factory.params );
 			case classInstance ( name, p, css ):	return code.createClassNameConstructor( name, p );
-			case func ( name, css ):				return name;
+			case func ( name, css ):				return tFunction(name);
 		}
 	}
 }

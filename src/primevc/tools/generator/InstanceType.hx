@@ -20,36 +20,24 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
 package primevc.tools.generator;
 
 
+
 /**
- * @author Ruben Weijers
- * @creation-date Sep 13, 2010
+ * @author	Ruben Weijers
+ * @since	Jun 8, 2011
  */
-interface ICodeGenerator
+enum InstanceType
 {
-	public function createFactory (obj:ICodeFormattable, classRef:String, params:Array<Dynamic>, ?args:Array<String>)	: ValueType;
-	public function construct (obj:ICodeFormattable, ?args:Array<Dynamic>, ?alternativeType:Class<Dynamic>)				: ValueType;
-	public function constructFromFactory (obj:ICodeFormattable, factoryMethod:String, ?args:Array<Dynamic>)				: ValueType;
-	
-	public function setProp (obj:ICodeFormattable, name:String, value:Dynamic, ignoreIfEmpty:Bool = false)				: Void;
-	
-	public function createClassNameConstructor (name:String, ?args:Array<Dynamic>)			: ValueType;
-	
-	public function setAction (obj:ICodeFormattable, name:String, ?args:Array<Dynamic>)		: Void;
-	
-	private function formatParams (args:Array<Dynamic>)										: Array<ValueType>;
-	private function formatValue (value:Dynamic)											: ValueType;
-	
-	public function hasObject (obj:ICodeFormattable)										: Bool;
-	public function getObject (obj:ICodeFormattable)										: ValueType;
-	public function hasArray (arr:Array<Dynamic>)											: Bool;
-	public function getArray (arr:Array<Dynamic>)											: ValueType;
+	object;
+	array;
+	objFactory	(target:Instance, args:Array<String>);
+	arrayFactory(target:Instance, args:Array<String>);
 }

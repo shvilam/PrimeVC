@@ -138,17 +138,11 @@ class Asset		implements IDisposable
 	
 	public function new ( #if neko data:Dynamic #end )
 	{
-#if neko
-		source	= data;
-#end
 		state	= new SimpleStateMachine<AssetStates>(empty);
 		width	= height = Number.INT_NOT_SET;
-#if (neko || debug)
-		_oid	= primevc.utils.ID.getNext();
-#end
-#if flash9
-		Assert.notNull(type);
-#end
+#if neko			source	= data; #end
+#if (neko || debug)	_oid	= primevc.utils.ID.getNext(); #end
+#if flash9			Assert.notNull(type); #end
 	}
 	
 	
@@ -157,9 +151,8 @@ class Asset		implements IDisposable
 		unsetData();
 		state.dispose();
 		state	= null;
-#if (neko || debug)
-		_oid	= 0;
-#end
+#if neko				source	= null; #end
+#if (neko || debug)		_oid	= 0; #end
 	}
 	
 	

@@ -310,6 +310,8 @@ class CSSParser
 	
 	
 	
+	private var timer					: StopWatch;
+	
 	private var manifest				: Manifest;
 	
 	/**
@@ -347,10 +349,19 @@ class CSSParser
 	
 	public function new (styles:StyleBlock, manifest:Manifest = null)
 	{
+		timer			= new StopWatch();
 		this.styles		= styles;
 		this.manifest	= manifest;
 		styleSheetQueue = new SimpleList < StyleQueueItem >();
 		init();
+	}
+	
+	
+	private inline function stopTimer (label:String)
+	{
+		timer.stop();
+		neko.Lib.println("\t" + Date.now() + " - " + timer.currentTime + " ms - " + label);
+		timer.reset();
 	}
 	
 	
@@ -614,10 +625,14 @@ class CSSParser
 			parseStyleSheet( s );
 		}
 		
+		timer.start();
 		setManifestNames( styles );
+		stopTimer("injected packages from manifest");
+		timer.start();
 		createStyleStructure( styles );
-		trace("--- DONE ----");
-		trace("REVERSED CSS:");
+		stopTimer("created inheritance references");
+	//	trace("--- DONE ----");
+	//	trace("REVERSED CSS:");
 	//	throw 1;
 	//	trace(styles.toCSS());
 	}
@@ -636,7 +651,7 @@ class CSSParser
 		
 		if (content != "")
 		{
-			trace("loaded "+file);
+//			trace("loaded "+file);
 			var origBase	= styleSheetBasePath;
 			//find base path of stylesheet
 			var pathEndPos	= file.lastIndexOf("/");
@@ -664,11 +679,11 @@ class CSSParser
 	
 	private function parseStyleSheet (item:StyleQueueItem) : StyleQueueItem
 	{
-		trace("\n\nBegin parsing "+item.path + item.filename);
+		timer.start();
 		styleSheetBasePath	= item.path;
 		item.content		= importManifests( item.content );
 		blockExpr.matchAll(item.content, handleMatchedBlock);
-		trace("Finish parsing "+item.path + item.filename);
+		stopTimer( "parsed " +item.filename);
 		return item;
 	}
 	
@@ -688,7 +703,7 @@ class CSSParser
 	
 	
 	private function importManifest (expr:EReg) : String {
-		trace("addmanifest file "+styleSheetBasePath + "/" + expr.matched(2));
+	//	trace("addmanifest file "+styleSheetBasePath + "/" + expr.matched(2));
 		manifest.addFile( styleSheetBasePath + "/" + expr.matched(2) );
 		return "";
 	}
