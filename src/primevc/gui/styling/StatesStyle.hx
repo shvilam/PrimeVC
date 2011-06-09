@@ -276,7 +276,7 @@ class StatesStyle extends StyleSubBlock
 
 
 #if (debug && flash9)
-	public function toString () 
+	override public function toString () 
 	{
 		var statesToFind	= allFilledProperties;
 		var output			= [];

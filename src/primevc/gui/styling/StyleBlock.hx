@@ -1067,10 +1067,13 @@ class StyleBlock extends StyleBlockBase
 #end
 	
 #if (debug && !neko)
-	public function toString ()
+	override public function toString ()
 	{
-		return "StyleBlock[ "+_oid+" ]";
-	//	return _oid+"; "+readProperties();
+		return super.toString()
+			+ (parentStyle != null ? " - parent: "+parentStyle._oid : "")
+			+ (superStyle != null ? " - super: "+superStyle._oid : "")
+			+ (extendedStyle != null ? " - extended: "+extendedStyle._oid : "")
+			+ (nestingInherited != null ? " - nested: "+nestingInherited._oid : "");
 	}
 #elseif (debug && neko)
 	override public function toString ()

@@ -749,6 +749,13 @@ class CSSParser
 		setManifestNamesInList( style.idChildren,			false );
 		setManifestNamesInList( style.styleNameChildren,	false );
 		setManifestNamesInList( style.elementChildren,		true );
+		
+		if (style.owns( StyleFlags.STATES ))
+		{
+			var states = style.states.states;
+			for (stateStyle in states)
+				setManifestNames(stateStyle);
+		}
 	}
 	
 	

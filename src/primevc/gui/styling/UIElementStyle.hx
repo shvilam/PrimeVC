@@ -431,7 +431,7 @@ class UIElementStyle implements IUIElementStyle
 			
 			if (styles.length > 0)		// <-- check if there are any new styles
 			{
-				var realChanges = 0;
+				var realChanges			= 0;
 				var boxFiltersChanges	= 0;
 				var effectsChanges		= 0;
 				var fontChanges			= 0;
@@ -660,8 +660,6 @@ class UIElementStyle implements IUIElementStyle
 			// FIND CHANGES
 			changes				= getUsablePropertiesOf( styleCell );
 			filledProperties	= filledProperties.set( changes );
-			
-	//		trace(target+".addedStyle " + style.type+"; "+readProperties( changes ));
 		}
 		return changes;
 	}
