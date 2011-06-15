@@ -18,8 +18,8 @@ class DOMElem
 	public var elem			(default, null):Dynamic;
 	public var width		(default, setWidth):Int;
 	public var height		(default, setHeight):Int;
-	public var x			(default, setX):Float;
-	public var y			(default, setY):Float;
+	public var x			(default, setX):Int;
+	public var y			(default, setY):Int;
 	public var scale		(default, setScale):Float;
 	public var id			(default, setId):String;
 	public var style		(getStyle, null):Style;
@@ -41,38 +41,38 @@ class DOMElem
 		(untyped this).scale = 1;
 	}
 	
-	private function setWidth(v:Int):Int
+	private function setWidth(v:Float):Int
 	{
-		width = v;
+		width = cast v;
 		elem.style.width = width + "px";
 		return width;
 	}
 	
-	private function setHeight(v:Int):Int
+	private function setHeight(v:Float):Int
 	{
-		height = v;
+		height = cast v;
 		elem.style.height = height + "px";
 		return height;
 	}
 	
-	private function setX(v:Float):Float
+	private function setX(v:Float):Int
 	{
-		x = v;
+		x = cast v;
 		WebkitTransform.translateX(this, x);
 		return x;
 	}
 	
-	private function setY(v:Float):Float
+	private function setY(v:Float):Int
 	{
-		y = v;
+		y = cast v;
 		WebkitTransform.translateY(this, y);
 		return y;
 	}
 	
 	public function moveTo(x:Float, y:Float)
 	{
-		(untyped this).x = x;
-		(untyped this).y = y;
+		(untyped this).x = cast x;
+		(untyped this).y = cast y;
 		WebkitTransform.translate(this, x, y);
 	}
 	

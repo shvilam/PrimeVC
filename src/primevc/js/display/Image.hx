@@ -37,16 +37,16 @@ class Image extends DOMElem
 		untyped elem.addEventListener("load", onLoad, false);
 	}
 	
-	override private function setWidth(v:Int):Int
+	override private function setWidth(v:Float):Int
 	{
-		width = v;
+		width = cast v;
 		elem.width = width;
 		return width;
 	}
 	
-	override private function setHeight(v:Int):Int
+	override private function setHeight(v:Float):Int
 	{
-		height = v;
+		height = cast v;
 		elem.height = height;
 		return height;
 	}

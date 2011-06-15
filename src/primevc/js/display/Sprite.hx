@@ -10,7 +10,7 @@ import js.Lib;
  
 class Sprite extends DOMElem
 {	
-	private function new()
+	public function new()
 	{
 		super("div");
 	}
