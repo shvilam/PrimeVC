@@ -28,6 +28,7 @@
  */
 package primevc.gui.styling;
  import primevc.gui.core.IUIContainer;
+ import primevc.gui.core.IUIElement;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.graphics.borders.EmptyBorder;
  import primevc.gui.graphics.EmptyGraphicProperty;
@@ -67,7 +68,8 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		if (!target.is(ISkinnable))		changes = changes.unset( Flags.SKIN );
 		if (!target.is(IDrawable))		changes = changes.unset( Flags.DRAWING_PROPERTIES );
 		if (!target.is(IUIContainer))	changes = changes.unset( Flags.OVERFLOW );
-		if (!target.is(IDisplayObject))	changes = changes.unset( Flags.OPACITY | Flags.VISIBLE );
+		if (!target.is(IUIElement))		changes = changes.unset( Flags.VISIBLE );
+		if (!target.is(IDisplayObject))	changes = changes.unset( Flags.OPACITY ); // | Flags.VISIBLE );
 		if (!target.is(IIconOwner))		changes = changes.unset( Flags.ICON | Flags.ICON_FILL );
 		
 		if (changes == 0)
@@ -114,7 +116,11 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		if ( propsToSet.has( Flags.ICON ))			target.as(IIconOwner).icon			= empty ? null	: styleObj.icon;
 		if ( propsToSet.has( Flags.ICON_FILL ))		target.as(IIconOwner).iconFill		= empty ? null	: styleObj.iconFill;
 		if ( propsToSet.has( Flags.OPACITY ))		target.as(IDisplayObject).alpha		= empty ? 1		: styleObj.opacity;
-		if ( propsToSet.has( Flags.VISIBLE ))		target.as(IDisplayObject).visible	= empty ? true	: styleObj.visible;
+		if ( propsToSet.has( Flags.VISIBLE ))
+		{
+			if (empty || styleObj.visible)			target.as(IUIElement).show();
+			else									target.as(IUIElement).hide();
+		}
 		if ( propsToSet.has( Flags.OVERFLOW ))
 		{
 			if (styleObj.overflow != null) {

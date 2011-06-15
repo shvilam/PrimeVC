@@ -92,6 +92,9 @@ class WipeEffectInstance extends EffectInstance < IDisplayObject, WipeEffect >
 				case LeftToRight:	startValue =  t.scrollRect.width;
 				case RightToLeft:	startValue = -t.scrollRect.width;
 			}
+		
+		tweenUpdater(startValue);
+		target.visible	= true;
 	}
 
 

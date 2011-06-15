@@ -231,6 +231,7 @@ class CSSParser
 	public static inline var R_HOR_DIR				: String = "(left|center|right)";
 	public static inline var R_VER_DIR				: String = "(top|center|bottom)";
 	public static inline var R_DIRECTIONS			: String = "(horizontal|vertical)";
+	public static inline var R_MOVE_DIRECTIONS		: String = "(top-to-bottom|bottom-to-top|left-to-right|right-to-left)";
 	public static inline var R_POSITIONS			: String = "(top[-]" + R_HOR_DIR + "|middle[-](left|right)|bottom[-]" + R_HOR_DIR + "|(" + R_POINT_VALUE + "))";
 	
 	public static inline var R_COMMA				: String = R_SPACE + "," + R_SPACE;
@@ -555,7 +556,7 @@ class CSSParser
 		
 		wipeEffExpr = new EReg(
 			  "^wipe"
-			+	"(" + R_SPACE_MUST + R_DIRECTIONS + ")?"		// direction	= 1
+			+	"(" + R_SPACE_MUST + R_MOVE_DIRECTIONS + ")?"	// direction	= 1
 			+	"(" + R_SPACE_MUST + R_FLOAT_UNIT_VALUE + ")?"	// end-scaleX	= 19
 			+	"(" + R_SPACE_MUST + R_FLOAT_UNIT_VALUE + ")?"	// end-scaleY	= 26
 			, "i");
@@ -3772,6 +3773,8 @@ class CSSParser
 		//match wipe effect			(direction, start-value, end-value)
 		else if (wipeEffExpr.match(v))
 		{
+			trace(v);
+			trace(wipeEffExpr.matched(1));
 		//	trace(wipeEffExpr.resultToString(17));
 			var direction	= parseMoveDirection( wipeEffExpr.matched(1) );
 			var start		= wipeEffExpr.matched(10) != null ? parseUnitFloat( wipeEffExpr.matched(4) ) : Number.FLOAT_NOT_SET;

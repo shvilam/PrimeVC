@@ -439,7 +439,7 @@ class UIElementStyle implements IUIElementStyle
 				var layoutChanges		= 0;
 				var statesChanges		= 0;
 				var childrenChanged		= false;
-				
+				var removed				= 0;
 				
 				//
 				// The goal of this loop is to prevent updates in the target that
@@ -465,12 +465,13 @@ class UIElementStyle implements IUIElementStyle
 					var hadExtended		= oldStyles.has( extendedStyle );
 					
 					if (hadStyle) {
-						oldStyles.remove( newStyle );
+						removed++;
+	//					oldStyles.remove( newStyle );
 						continue;
 					}
 					
-					if (hadSuper)		oldStyles.remove( superStyle );
-					if (hadExtended)	oldStyles.remove( extendedStyle );
+					if (hadSuper)		removed++; //oldStyles.remove( superStyle );
+					if (hadExtended)	removed++; //oldStyles.remove( extendedStyle );
 					
 					var props = newStyle.getPropertiesWithout( hadExtended, hadSuper ).unset( Flags.INHERETING_STYLES );
 					if (props > 0)
@@ -490,13 +491,11 @@ class UIElementStyle implements IUIElementStyle
 					
 				} while (null != (newStyleCell = newStyleCell.prev));
 				
-				
-				
 				//
 				// check old styles for the changes that were maybe overseen
 				//
 				
-				if (oldStyles.length > 0)
+				if (oldStyles.length > removed)
 				{
 					var oldStyleCell = oldStyles.last;
 					do

@@ -85,8 +85,10 @@ class Asset		implements IDisposable
 	public static inline function createEmptyBitmap	(w:Int, h:Int)					: Asset	{ return fromBitmapData( new BitmapData(w, h) ); }
 	
 	
-	public static function		  fromURI			(v:URI)				: Asset
+	public static function fromURI (v:URI) : Asset
 	{
+		if (v == null)
+			return null;
 		if (v.hasScheme( URIScheme.Scheme('asset')) )
 			return fromUnkown( Type.createInstance( v.host.resolveClass(), []) );
 		else
@@ -98,12 +100,12 @@ class Asset		implements IDisposable
 	{
 		var asset:Asset = null;
 		
-		if		(v.is(FlashBitmap))		asset = fromFlashBitmap( v.as(FlashBitmap) );
-	//	if		(v.is(Factory))			asset = fromFactory( v.as(Factory) );
-		else if (v.is(BitmapData))		asset = fromBitmapData( v.as(BitmapData) );
-		else if (v.is(DisplayObject))	asset = fromDisplayObject( v.as(DisplayObject), factory );
-		else if (v.is(URI))				asset = fromURI( v.as(URI) );
-		else if (v.is(ICommunicator))	asset = fromLoader( v.as(ICommunicator) );
+		if		(v.is(FlashBitmap))		asset = fromFlashBitmap(	v.as(FlashBitmap) );
+	//	else if	(v.is(Factory))			asset = fromFactory(		v.as(Factory) );
+		else if (v.is(BitmapData))		asset = fromBitmapData(		v.as(BitmapData) );
+		else if (v.is(DisplayObject))	asset = fromDisplayObject(	v.as(DisplayObject), factory );
+		else if (v.is(URI))				asset = fromURI(			v.as(URI) );
+		else if (v.is(ICommunicator))	asset = fromLoader(			v.as(ICommunicator) );
 		return asset;
 	}
 #end

@@ -46,7 +46,7 @@ extern class TimerUtil
 	public static inline function stamp () : Int
 	{
 		#if		flash	return flash.Lib.getTimer();
-		#elseif	neko	return Date.now().getTime().int(); //(neko.Sys.time() * 1000).int();
+		#elseif	neko	return (neko.Sys.cpuTime() * 1000).int(); //Date.now().getTime().int(); //(neko.Sys.time() * 1000).int();
 		#elseif php		return (php.Sys.time()).int();
 		#elseif js		return Date.now().getTime().int();
 		#elseif cpp		return untyped (__global__.__time_stamp() * 1000).int();
