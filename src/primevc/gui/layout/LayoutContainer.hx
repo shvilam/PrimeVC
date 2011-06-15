@@ -104,6 +104,12 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	}
 	
 	
+	public inline function attach (target:LayoutClient, depth:Int = -1) : LayoutContainer
+	{
+		children.add( target, depth );
+		return this;
+	}
+	
 	
 	
 	//

@@ -2,6 +2,7 @@
 #-lib listtools
 #-cp ../libs
 -cp libs/haxe/neko
+#-cp libs/haxe
 -cp libs/apparat
 -cp src
 #-cp ../generated-src

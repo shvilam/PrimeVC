@@ -45,9 +45,10 @@ class UIContainer extends UIComponent, implements IUIContainer
 	public var layoutContainer	(getLayoutContainer, never)		: LayoutContainer;
 	public var scrollableLayout	(getScrollableLayout, never)	: IScrollableLayout;
 	
-	private inline function getLayoutContainer () 								{ return layout.as(LayoutContainer); }
-	private inline function getScrollableLayout () 								{ return layout.as(IScrollableLayout); }
-	public inline function attach		(child:IUIElement)		: IUIContainer	{ child.attachTo(this); return this; }
-	public inline function attachLayout (layout:LayoutClient)	: IUIContainer	{ layoutContainer.children.add(layout); return this; }
-	override private function createLayout ()									{ layout = new LayoutContainer(); }
+	private inline function getLayoutContainer () 									{ return layout.as(LayoutContainer); }
+	private inline function getScrollableLayout () 									{ return layout.as(IScrollableLayout); }
+	public  inline function attach			(child:IUIElement)		: IUIContainer	{ child.attachTo(this); return this; }
+	public  inline function attachDisplay	(child:IUIElement)		: IUIContainer	{ children.add(child);  return this; }
+	public  inline function attachLayout	(layout:LayoutClient)	: IUIContainer	{ layoutContainer.children.add(layout); return this; }
+	override private function createLayout ()										{ layout = new LayoutContainer(); }
 }
