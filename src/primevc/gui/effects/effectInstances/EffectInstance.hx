@@ -160,6 +160,8 @@ class EffectInstance < TargetType, PropertiesType:IEffect >
 	
 	public function playWithEffect ()
 	{
+		stopDelay();
+		
 		//calculate the tweens end and start position
 		initStartValues();
 		var calcStartPos	= calculateTweenStartPos();
@@ -171,8 +173,8 @@ class EffectInstance < TargetType, PropertiesType:IEffect >
 			startPos = calcStartPos;
 		
 		//if the effect is playing for the first time, give the target it's start position
-		if (state == EffectStates.initialized)
-			tweenUpdater( startPos );
+	//	if (state == EffectStates.initialized)
+	//		tweenUpdater( startPos );	<-- done within the effect instance implementation 'initStartValues'
 		
 		state = EffectStates.playing;
 		
@@ -197,6 +199,7 @@ class EffectInstance < TargetType, PropertiesType:IEffect >
 	
 	public function playWithoutEffect ()
 	{
+		stopDelay();
 		state = EffectStates.playing;
 		
 		//call the effect handler once to make sure it's hidden
@@ -243,7 +246,7 @@ class EffectInstance < TargetType, PropertiesType:IEffect >
 	
 	private inline function stopDelay ()
 	{
-		if (delayTimer != null)
+		if (isWaiting())
 		{
 			delayTimer.stop();
 			delayTimer = null;
@@ -267,10 +270,8 @@ class EffectInstance < TargetType, PropertiesType:IEffect >
 	//
 	
 	
-	private inline function isPlaying () : Bool
-	{
-		return state == EffectStates.playing || state == waiting;
-	}
+	public inline function isPlaying () : Bool	{ return state == EffectStates.playing || state == waiting; }
+	public inline function isWaiting () : Bool	{ return delayTimer != null; }
 	
 	
 	private function setIsReverted (v:Bool)

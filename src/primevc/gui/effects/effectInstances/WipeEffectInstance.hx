@@ -79,6 +79,7 @@ class WipeEffectInstance extends EffectInstance < IDisplayObject, WipeEffect >
 		if (t.scrollRect == null)
 			t.scrollRect = new Rectangle( 0, 0, t.width, t.height );
 		
+		var rect	= t.scrollRect;
 		startValue	= effect.startValue;
 		endValue	= effect.endValue;
 		
@@ -87,14 +88,18 @@ class WipeEffectInstance extends EffectInstance < IDisplayObject, WipeEffect >
 		
 		if (startValue.notSet() || startValue == effect.endValue)
 			switch (effect.direction) {
-				case TopToBottom:	startValue =  t.scrollRect.height;
-				case BottomToTop:	startValue = -t.scrollRect.height;
-				case LeftToRight:	startValue =  t.scrollRect.width;
-				case RightToLeft:	startValue = -t.scrollRect.width;
+				case TopToBottom:	rect.y = startValue =  rect.height;
+				case BottomToTop:	rect.y = startValue = -rect.height;
+				case LeftToRight:	rect.x = startValue =  rect.width;
+				case RightToLeft:	rect.x = startValue = -rect.width;
+			}
+		else switch (effect.direction) {
+				case TopToBottom, BottomToTop:	rect.y = startValue;
+				case LeftToRight, RightToLeft:	rect.x = startValue;
 			}
 		
-		tweenUpdater(startValue);
-		target.visible	= true;
+		target.scrollRect	= rect;
+		target.visible		= true;
 	}
 
 
@@ -119,8 +124,23 @@ class WipeEffectInstance extends EffectInstance < IDisplayObject, WipeEffect >
 			case TopToBottom, BottomToTop:	curValue = target.scrollRect.y;
 			case LeftToRight, RightToLeft:	curValue = target.scrollRect.x;
 		}
-
+		
 		return (curValue - startValue) / (endValue - startValue);
-	}	
+	}
+	
+	
+	override private function onTweenReady ( ?tweenPos:Float )
+	{
+		var rect = target.scrollRect;
+		switch (effect.direction) {
+			case TopToBottom:	if (rect.y >=  rect.height)	{ target.visible = false; rect.y = 0; }
+			case BottomToTop:	if (rect.y <= -rect.height)	{ target.visible = false; rect.y = 0; }
+			case LeftToRight:	if (rect.x >=  rect.width)	{ target.visible = false; rect.x = 0; }
+			case RightToLeft:	if (rect.x <= -rect.width)	{ target.visible = false; rect.x = 0; }
+		}
+		
+		target.scrollRect = rect;
+		super.onTweenReady();
+	}
 #end
 }

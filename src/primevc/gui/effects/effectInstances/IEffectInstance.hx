@@ -77,7 +77,7 @@ interface IEffectInstance < TargetType, PropertiesType:IEffect >
 	 * Method to set the explicit start and end values of the effect
 	 * @see	EffectProperties
 	 */
-	public function setValues( v:EffectProperties ) : Void;
+	public  function setValues( v:EffectProperties ) : Void;
 	/**
 	 * Method that is called before the effect is started to choose if the 
 	 * effect should use the target's original value or if it should use the
@@ -102,32 +102,32 @@ interface IEffectInstance < TargetType, PropertiesType:IEffect >
 	/**
 	 * Method will play the effect in oppposite direction
 	 */
-	public function revert ( withEffect:Bool = true, directly:Bool = false ) : Void;
+	public  function revert ( withEffect:Bool = true, directly:Bool = false ) : Void;
 	
 	/**
 	 * Method will play the effect
 	 */
-	public function play ( withEffect:Bool = true, directly:Bool = false ) : Void;
+	public  function play ( withEffect:Bool = true, directly:Bool = false ) : Void;
 	
 	/**
 	 * Method will stop the effect
 	 */
-	public function stop () : Void;
-	public function reset () : Void;
+	public  function stop () : Void;
+	public  function reset () : Void;
 	
 	
 	/**
 	 * Method is called after the hideTimer has finished running. It will apply
 	 * the changed values with an effect.
 	 */
-	public function playWithEffect () : Void;
+	public  function playWithEffect () : Void;
 	
 	
 	/**
 	 * Method is called after the hideTimer has finished running. It will apply
 	 * the changed values without an effect.
 	 */
-	public function playWithoutEffect () : Void;
+	public  function playWithoutEffect () : Void;
 	
 	
 	private function onTweenReady ( ?tweenPos:Float ) : Void;
@@ -138,4 +138,15 @@ interface IEffectInstance < TargetType, PropertiesType:IEffect >
 	
 	private function stopDelay () : Void;
 	private function stopTween () : Void;
+	
+	
+	/**
+	 * Getter indicating wether the effect is playing or not
+	 */
+	public  function isPlaying () : Bool;
+	/**
+	 * Getter indicating wether the effect is waiting on the delay to finish
+	 * before it start's playing
+	 */
+	public  function isWaiting () : Bool;
 }

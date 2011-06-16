@@ -174,14 +174,19 @@ class UIElementEffects implements IDisposable
 	}
 	
 	
-	public inline function playShow ()
+	public function playShow ()
 	{
 #if (flash8 || flash9 || js)
 		if (show != null)
 		{
-			if (hide != null)
-				hide.stop();
-		
+			if (hide != null) {
+				if (hide.isWaiting())	{ hide.stop(); return; }
+				if (hide.isPlaying())	{ hide.stop(); }
+				else					target.visible = false;
+			}
+			else
+				target.visible = false;
+			
 			if (show == hide)
 				show.isReverted = false;
 		
@@ -191,14 +196,16 @@ class UIElementEffects implements IDisposable
 	}
 	
 	
-	public inline function playHide ()
+	public function playHide ()
 	{
 #if (flash8 || flash9 || js)
 		if (hide != null)
 		{
-			if (show != null)
-				show.stop();
-		
+			if (show != null) {
+				if (show.isWaiting())	{ show.stop(); return; }
+				if (show.isPlaying())	{ show.stop(); }
+			}
+			
 			if (show == hide)
 				hide.isReverted = true;
 		
