@@ -141,7 +141,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	private inline function checkIfChildGetsPercentageWidth (child:LayoutClient, widthToUse:Int) : Bool
 	{
 		return (
-					changes.has( Flags.WIDTH ) || child.changes.has( Flags.PERCENT_WIDTH ) //|| child.width.notSet()
+					changes.has( Flags.WIDTH | Flags.LIST ) || child.changes.has( Flags.PERCENT_WIDTH ) //|| child.width.notSet()
 					||	( child.is(IAdvancedLayoutClient) && child.as(IAdvancedLayoutClient).explicitWidth.notSet() )
 				)
 				&& child.percentWidth.isSet()
@@ -153,7 +153,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	private inline function checkIfChildGetsPercentageHeight (child:LayoutClient, heightToUse:Int) : Bool
 	{
 		return (
-						changes.has( Flags.HEIGHT ) || child.changes.has( Flags.PERCENT_HEIGHT ) //|| child.height.notSet()
+						changes.has( Flags.HEIGHT | Flags.LIST ) || child.changes.has( Flags.PERCENT_HEIGHT ) //|| child.height.notSet()
 						||	( child.is(IAdvancedLayoutClient) && child.as(IAdvancedLayoutClient).explicitHeight.notSet() )
 				)
 				&& child.percentHeight.isSet()

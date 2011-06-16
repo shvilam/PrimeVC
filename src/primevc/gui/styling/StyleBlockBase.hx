@@ -120,7 +120,12 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 	public function readProperties ( flags:Int = -1 )	: String	{ Assert.abstract(); return null; }
 	public inline function readAll () : String						{ return readProperties( allFilledProperties ); }
 	#if !neko
-	public function toString () 									{ return _oid + " - "+this.getClass().getClassName() + " - " +readProperties(); }
+	public function toString ()
+	{
+		var name = this.getClass().getClassName();
+		var dot	 = name.lastIndexOf(".");
+		return name.substr(dot)+"( "+_oid + " ) -> " +readProperties();
+	}
 	#end
 #end
 	

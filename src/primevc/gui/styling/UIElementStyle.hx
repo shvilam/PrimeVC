@@ -494,13 +494,15 @@ class UIElementStyle implements IUIElementStyle
 				//
 				// check old styles for the changes that were maybe overseen
 				//
-				
 				if (oldStyles.length > removed)
 				{
 					var oldStyleCell = oldStyles.last;
 					do
 					{
 						var oldStyle	 = oldStyleCell.data;
+						if (styles.has( oldStyle ))
+							continue;
+						
 						var superStyle	 = oldStyle.superStyle;
 						var extended	 = oldStyle.extendedStyle;
 						
