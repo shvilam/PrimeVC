@@ -101,7 +101,7 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private inline function setWidth (v:Int)
 	{
 		if (v != width) {
-			Assert.that( v.isSet() );
+#if debug	Assert.that( v.isSet() ); #end
 			var c = invalidatable;
 			invalidatable = false;
 			width	= v;
@@ -116,7 +116,7 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private inline function setHeight (v:Int)
 	{
 		if (v != height) {
-			Assert.that( v.isSet() );
+#if debug	Assert.that( v.isSet() ); #end
 			var c = invalidatable;
 			invalidatable = false;
 			height	= v;
@@ -131,7 +131,7 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private inline function setTop (v:Int)
 	{
 		if (v != top) {
-			Assert.that( v.isSet() );
+#if debug	Assert.that( v.isSet() ); #end
 			var c = invalidatable;
 			invalidatable = false;
 			top		= v;
@@ -146,7 +146,7 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private function setBottom (v:Int)
 	{
 		if (v != bottom) {
-			Assert.that( v.isSet() );
+#if debug	Assert.that( v.isSet() ); #end
 			var c = invalidatable;
 			invalidatable = false;
 			bottom	= v;
@@ -162,7 +162,7 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private inline function setLeft (v:Int)
 	{
 		if (v != left) {
-			Assert.that( v.isSet() );
+#if debug	Assert.that( v.isSet() ); #end
 			var c = invalidatable;
 			invalidatable = false;
 			left	= v;
@@ -177,7 +177,7 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private function setRight (v:Int)
 	{
 		if (v != right) {
-			Assert.that( v.isSet() );
+#if debug	Assert.that( v.isSet() ); #end
 			var c = invalidatable;
 			invalidatable = false;
 			right	= v;
@@ -191,17 +191,17 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	
 	private inline function setCenterX (v:Int)
 	{	
-		Assert.that( v.isSet() );
-		left = v - (width >> 1); //* .5).roundFloat();
-		return v;
+#if debug	Assert.that( v.isSet() ); #end
+			left = v - (width >> 1); //* .5).roundFloat();
+			return v;
 	}
 	
 	
 	private inline function setCenterY (v:Int)
 	{	
-		Assert.that( v.isSet() );
-		top = v - (height >> 1); //* .5)).roundFloat();
-		return v;
+#if debug	Assert.that( v.isSet() ); #end
+			top = v - (height >> 1); //* .5)).roundFloat();
+			return v;
 	}
 	
 	

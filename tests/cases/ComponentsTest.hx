@@ -22,9 +22,7 @@ package cases;
  */
 class ComponentsTest extends UIWindow
 {
-	public static function main () {
-		Window.startup( ComponentsTest );
-	}
+	public static function main () { Window.startup( function (s) return new ComponentsTest(s) ); }
 	
 	
 	private var label		: Label;
@@ -49,8 +47,8 @@ class ComponentsTest extends UIWindow
 		children.add( slider2	= new Slider("sliderCopy", 5, 4, 6, Direction.vertical) );
 		children.add( input		= new Label("testInput") );
 		children.add( label		= new Label("testLabel") );
-		children.add( progress	= new ProgressBar("testProgress", 2000) );
-	*/	combo						= new ComboBox("testCombo", null, null, listData.getItemAt(1), listData);
+	*/	children.add( progress	= new ProgressBar("testProgress", 2000) );
+		combo						= new ComboBox("testCombo", null, null, listData.getItemAt(1), listData);
 		combo.getLabelForVO			= getTestVOLabel;
 		combo.attachLayoutTo(layoutContainer).attachDisplayTo(this);
 		
@@ -60,11 +58,11 @@ class ComponentsTest extends UIWindow
 	/*	label.data.pair( input.data );
 		slider2.data.pair( slider.data );
 		changeLabel.on( button.userEvents.mouse.down, this );
-		
+	*/	
 		progress.start();
 		loadTimer = new haxe.Timer(10);
 		loadTimer.run = fakeLoadEvent;
-	*/}
+	}
 	
 	
 	private function changeLabel ()

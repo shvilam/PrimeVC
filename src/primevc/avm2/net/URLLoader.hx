@@ -149,9 +149,11 @@ class URLLoader implements ICommunicator
 	
 	public inline function load (v:URI)
 	{
+#if debug
 		Assert.equal(bytesTotal, 0, this.toString() );
+	 	uri	= v;
+#end
 		this.type	= CommunicationType.loading;
-#if debug	 uri	= v;	#end
 		return loadRequest(v.toRequest());
 	}
 	
