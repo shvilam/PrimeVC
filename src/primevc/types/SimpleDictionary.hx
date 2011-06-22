@@ -152,6 +152,7 @@ class SimpleDictionary < KType, VType >
 
 #if debug
 	public function keysToString () : String	{ return "keys: [ " +_keys.join(", ") + " ]"; }
+	#if !neko
 	public function toString ()		: String
 	{
 		var str = [];
@@ -160,6 +161,7 @@ class SimpleDictionary < KType, VType >
 		
 		return "dic: "+(length > 0 ? str.join(", ") : "empty");
 	}
+	#end
 #end
 
 #if neko

@@ -109,7 +109,7 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 			
 			case AssetType.bitmapData:
 				if (graphicData.fill == null || !graphicData.fill.is(BitmapFill))
-					graphicData.fill = assetFill = new BitmapFill( data, null, false );
+					graphicData.fill = assetFill = new BitmapFill( null, data, null, false );
 				
 				else if (graphicData.fill.is(BitmapFill)) {
 					assetFill		= graphicData.fill.as(BitmapFill);

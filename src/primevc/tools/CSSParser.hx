@@ -2120,20 +2120,23 @@ class CSSParser
 	}
 	
 	
-	private function parseAsset (v:String) : Asset
+	private function parseAsset (v:String) : Factory<Dynamic>
 	{
-		var bmp:Asset	= null;
+	//	var bmp:Asset	= null;
+		var factory:Factory<Dynamic> = null;
 		
 		if (imageURIExpr.match(v))
 		{
-			bmp = new Asset( (getBasePath() + "/" + imageURIExpr.matched(2)).replace("//", "/") );
+	//		bmp = new Asset( (getBasePath() + "/" + imageURIExpr.matched(2)).replace("//", "/") );
+			factory = new Factory( "primevc.types.URI", [ (getBasePath() + "/" + imageURIExpr.matched(2)).replace("//", "/") ] );
 			lastParsedString = imageURIExpr.removeMatch(v);
 		}
 		else if (isClassReference(v))
 		{
 			//Try to create a class instance for the given string. If the class is not yet compiled, this will fail. 
 			//By setting the classname as string, the bitmapObject will try to create a class-reference to the asset.
-			bmp = new Asset(parseClassReference(v));
+	//		bmp = new Asset(parseClassReference(v));
+			factory = parseClassReference(v);
 			
 		/*	if (c != null)
 				bmp.setClass( c );
@@ -2143,7 +2146,8 @@ class CSSParser
 			lastParsedString = classRefExpr.removeMatch(v);
 		}
 		
-		return bmp;
+	//	return bmp;
+		return factory;
 	}
 	
 	

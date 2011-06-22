@@ -112,6 +112,7 @@ class LayoutStyle extends StyleSubBlock
 	
 	
 	public function new (
+		filledProps:Int				= 0,
 		rel:RelativeLayout			= null,
 		padding:Box					= null,
 		margin:Box					= null,
@@ -137,34 +138,34 @@ class LayoutStyle extends StyleSubBlock
 		percentMaxHeight:Float		= Number.INT_NOT_SET
 	)
 	{
-		super();
-		this.relative				= rel;
-		this.algorithm				= alg;
-		this.padding				= padding;
-		this.margin					= margin;
-		
-		this.percentWidth			= percentW == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentW;
-		this.percentHeight			= percentH == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentH;
-		
-		this.width					= width;
-		this.height					= height;
-		
-		this.childWidth				= childWidth;
-		this.childHeight			= childHeight;
-		this.rotation				= rotation == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : rotation;
-		
-		this.maintainAspectRatio	= maintainAspect;
-		this.includeInLayout		= include;
-		
-		this.minWidth				= minWidth;
-		this.minHeight				= minHeight;
-		this.maxWidth				= maxWidth;
-		this.maxHeight				= maxHeight;
-		
-		this.percentMinWidth		= percentMinWidth == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentMinWidth;
-		this.percentMaxWidth		= percentMaxWidth == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentMaxWidth;
-		this.percentMinHeight		= percentMinHeight == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentMinHeight;
-		this.percentMaxHeight		= percentMaxHeight == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentMaxHeight;
+		super(filledProps);
+		#if flash9 this._relative				#else this.relative				#end = rel;
+		#if flash9 this._algorithm				#else this.algorithm			#end = alg;
+		#if flash9 this._padding				#else this.padding				#end = padding;
+		#if flash9 this._margin					#else this.margin				#end = margin;
+
+		#if flash9 this._percentWidth			#else this.percentWidth			#end = percentW == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentW;
+		#if flash9 this._percentHeight			#else this.percentHeight		#end = percentH == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentH;
+
+		#if flash9 this._width					#else this.width				#end = width;
+		#if flash9 this._height					#else this.height				#end = height;
+
+		#if flash9 this._childWidth				#else this.childWidth			#end = childWidth;
+		#if flash9 this._childHeight			#else this.childHeight			#end = childHeight;
+		#if flash9 this._rotation				#else this.rotation				#end = rotation == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : rotation;
+
+		#if flash9 this._maintainAspectRatio	#else this.maintainAspectRatio	#end = maintainAspect;
+		#if flash9 this._includeInLayout		#else this.includeInLayout		#end = include;
+
+		#if flash9 this._minWidth				#else this.minWidth				#end = minWidth;
+		#if flash9 this._minHeight				#else this.minHeight			#end = minHeight;
+		#if flash9 this._maxWidth				#else this.maxWidth				#end = maxWidth;
+		#if flash9 this._maxHeight				#else this.maxHeight			#end = maxHeight;
+
+		#if flash9 this._percentMinWidth		#else this.percentMinWidth		#end = percentMinWidth  == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentMinWidth;
+		#if flash9 this._percentMaxWidth		#else this.percentMaxWidth		#end = percentMaxWidth  == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentMaxWidth;
+		#if flash9 this._percentMinHeight		#else this.percentMinHeight		#end = percentMinHeight == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentMinHeight;
+		#if flash9 this._percentMaxHeight		#else this.percentMaxHeight		#end = percentMaxHeight == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : percentMaxHeight;
 	}
 	
 	
@@ -807,6 +808,7 @@ class LayoutStyle extends StyleSubBlock
 		if (!isEmpty())
 		{
 			code.construct( this, [
+				filledProperties, 
 				_relative, _padding, _margin, _algorithm,
 				_percentWidth, _percentHeight,
 				_width, _height,

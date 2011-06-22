@@ -66,15 +66,15 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 	public var inheritedProperties	(default, null)		: Int;
 	
 	
-	public function new ()
+	public function new (filled:Int = 0)
 	{
 		super();
 #if (debug || neko)
 		_oid = ID.getNext();
 #end
-		filledProperties	= 0;
+		filledProperties	= filled;
 		inheritedProperties	= 0;
-		allFilledProperties	= 0;
+		allFilledProperties	= filled;
 	}
 	
 	
@@ -109,6 +109,7 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 	public inline function has (propFlag:Int) : Bool		{ return allFilledProperties.has( propFlag ); }
 	public inline function doesntHave (propFlag:Int) : Bool	{ return allFilledProperties.hasNone( propFlag ); }
 	public inline function owns (propFlag:Int) : Bool		{ return filledProperties.has( propFlag ); }
+	public inline function doesntOwn (propFlag:Int) : Bool	{ return filledProperties.hasNone( propFlag ); }
 	public function isEmpty () : Bool						{ return filledProperties == 0; }
 	
 	

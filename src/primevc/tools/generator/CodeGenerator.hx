@@ -99,6 +99,7 @@ class CodeGenerator implements ICodeGenerator
 	public function generate (startObj:ICodeFormattable) : Void
 	{
 		start();
+		startObj.cleanUp();
 		startObj.toCode(this);
 	}
 
@@ -170,10 +171,12 @@ class CodeGenerator implements ICodeGenerator
 	
 	
 	
-	public function setAction ( obj:ICodeFormattable, name:String, ?params:Array<Dynamic>) : Void
+	public function setAction ( obj:ICodeFormattable, name:String, ?params:Array<Dynamic>, onlyWithParams:Bool = false) : Void
 	{
 		Assert.notNull( obj );
-		values.push( tCallMethod( getObject( obj ), name, formatParams(params) ) );
+		var p = formatParams(params);
+		if (!onlyWithParams || p.length > 0)
+			values.push( tCallMethod( getObject( obj ), name, p ) );
 	}
 	
 	
@@ -277,6 +280,7 @@ class CodeGenerator implements ICodeGenerator
 		if (instanceIgnoreList.exists(obj._oid))
 			return tEmpty(eNull);
 		
+		obj.cleanUp();
 		obj.toCode(this);
 		return objInstances.get( obj._oid );
 	}
