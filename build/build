@@ -57,6 +57,8 @@ while [ "${1+isset}" ]; do
 				* )				CONSOLE="-D FlashTrace" ;;
 			esac
 			shift 2 ;;
+		-z)	PROFILING=true
+			shift ;;
 		*)
 			shift;;
 	esac
@@ -88,6 +90,7 @@ else
 	echo -e "\tMain: $MainClass"
 	echo -e "\tStyle: $STYLEDIR"
 	echo -e "\tDebugging: ${Debug:-false}"
+	echo -e "\Profiling: ${PROFILING:-false}"
 	echo -e "\tConsole: ${CONSOLE}"
 	echo -e "\tAssets: $ASSETS"
 	echo -e "\tProject: $PRJROOT"
@@ -118,6 +121,7 @@ else
 		${ASSETS:+-swf-lib "'$ASSETS'"} \
 		-swf-lib "'assets/${Debug:+debug-}assets.swf'" \
 		${ACCESS:--D local} \
+		${PROFILING:+-swf-lib "'$PRJROOT/bin-debug/swf/FlashPreloadProfiler_RC2.swf'" -D profiling} \
 		$CONSOLE \
 		-D dragEnabled \
 		| xargs -t haxe \

@@ -58,11 +58,10 @@ class Window implements IDisplayContainer, implements IDisablable
 	public static inline function startup<WindowInstance>(windowClassFactory : Stage -> WindowInstance) : WindowInstance
 	{
 		var stage:Stage = null;
-		
 #if flash9
 		stage = flash.Lib.current.stage;
 		stage.scaleMode	= flash.display.StageScaleMode.NO_SCALE;
-	
+		
 	#if (debug && Monster2Trace)
 		var monster		= new nl.demonsters.debugger.MonsterDebugger(flash.Lib.current);
 		haxe.Log.trace	= primevc.utils.DebugTrace.trace;
@@ -84,7 +83,11 @@ class Window implements IDisplayContainer, implements IDisablable
 		haxe.Log.setColor(0xc00000);
 		trace("started");
 #end
-		return windowClassFactory(stage);
+		var inst = windowClassFactory(stage);
+	#if profiling
+		stage.addChild( new net.jpauclair.FlashPreloadProfiler() );
+	#end
+		return inst;
 	//	return Type.createInstance( windowClass, [ stage ] );
 	}
 	

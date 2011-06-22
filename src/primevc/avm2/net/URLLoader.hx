@@ -41,10 +41,12 @@ package primevc.avm2.net;
 
  import primevc.types.Number;
  import primevc.types.URI;
+ import primevc.utils.FastArray;
 #if debug
   using primevc.core.net.HttpStatusCodes;
 #end
   using primevc.utils.Bind;
+  using primevc.utils.FastArray;
   using primevc.utils.NumberUtil;
   using Std;
 
@@ -60,12 +62,52 @@ private typedef FlashLoader = flash.net.URLLoader;
  */
 class URLLoader implements ICommunicator
 {
+	//
+	// URLLOADER QUEUE
+	//
+	
+	/**
+	 * queue with urlloaders that are waiting to load until other URLLoaders
+	 * are finished (FIFO).
+	 */
+	private static var queue:FastArray<URLLoader>	= FastArrayUtil.create();
+	/**
+	 * max URLLoaders loading at the same time. If this number is reached, the
+	 * other URLLoaders will wait in the queue
+	 */
+	private static inline var MAX_CONNECTIONS		= 10;
+	/**
+	 * number of active load processes
+	 */
+	private static		  var CONNECTIONS			= 0;
+	
+	
+	private static inline function loadSlotAvailable () 		: Bool	{ return CONNECTIONS < MAX_CONNECTIONS; }
+	private static inline function queueIsEmpty ()				: Bool	{ return queue.length == 0; }
+	private static inline function openNextConnection ()		: Void	{ if (!queueIsEmpty() && loadSlotAvailable()) { var n = queue.shift(); n.loadRequest(n.lastRequest); } }
+	private static inline function addToQueue (l:URLLoader)		: Void	{ queue.push(l); }
+	private static inline function removeFromQueue (l:URLLoader): Void	{ queue.removeItem(l); }
+	private static inline function addConnection ()				: Void	{ CONNECTIONS++; }
+	private static inline function removeConnection ()			: Void	{ CONNECTIONS--; openNextConnection(); }
+	
+	
+	
+	//
+	// URLLOADER IMPLEMENTATION
+	//
+	
+	public static inline var STARTED	= 1 << 0;
+	public static inline var QUEUED		= 1 << 1;
+	public static inline var LOADING	= 1 << 2;
+	public static inline var COMPLETED	= 1 << 3;
+	
 	public var events			(default,			null)			: LoaderSignals;
 	public var bytesProgress	(getBytesProgress,	null)			: Int;
 	public var bytesTotal		(getBytesTotal,		null)			: Int;
 	public var length			(default,			never)			: Bindable<Int>;
 	public var type				(default,			null)			: CommunicationType;
 	public var isStarted		(default,			null)			: Bool;
+	public var isQueued			(default,			null)			: Bool;
 	
 	public var data				(getData,			setData)		: Dynamic;
 	public var bytes			(getBytes,			setBytes)		: BytesData;
@@ -106,6 +148,9 @@ class URLLoader implements ICommunicator
 	{
 		if (isStarted)
 			close();
+		
+		if (isQueued)
+			removeFromQueue(this);
 		
 		events.dispose();
 		events	= null;
@@ -158,13 +203,32 @@ class URLLoader implements ICommunicator
 	}
 	
 	
+	private var lastRequest : URLRequest;
+	
 	private inline function loadRequest(request:URLRequest)
 	{
 		if (isStarted)
 			close();
 		
-		isStarted = true;
-		loader.load(request);
+		if (isQueued) {
+			removeFromQueue(this);
+			isQueued = false;
+		}
+		
+		if (loadSlotAvailable())
+		{
+			isStarted = true;
+			addConnection();
+			loader.load(request);
+		}
+		else
+		{
+			lastRequest = request;
+			addToQueue(this);
+			isQueued = true;
+		}
+		
+	//	trace(CONNECTIONS + " / "+MAX_CONNECTIONS+"; queue: "+queue.length+"; "+request.url+isQueued);
 	}
 	
 	
@@ -241,7 +305,7 @@ class URLLoader implements ICommunicator
 	//
 	
 	private function setStarted ()		{ isStarted = true; }
-	private function unsetStarted ()	{ isStarted = false; }
+	private function unsetStarted ()	{ isStarted = false; removeConnection(); }
 	
 #if debug
 	public function toString ()
