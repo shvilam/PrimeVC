@@ -98,6 +98,7 @@ class TextStyle extends StyleSubBlock
 	
 	
 	public function new (
+		filledProps	: Int			= 0,
 		size:Int					= Number.INT_NOT_SET,
 		family:String				= null,
 		color:Null<RGBA>			= null,
@@ -114,21 +115,21 @@ class TextStyle extends StyleSubBlock
 		columnWidth:Int				= Number.INT_NOT_SET
 	)
 	{
-		super();
-		this.size			= size;
-		this.family			= family;
-		this.color			= color;
-		this.weight			= weight;
-		this.style			= null;
-		this.letterSpacing	= letterSpacing == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : letterSpacing;
-		this.align			= align;
-		this.decoration		= decoration;
-		this.indent			= indent == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : indent;
-		this.transform		= transform;
-		this.textWrap		= textWrap;
-		this.columnCount	= columnCount;
-		this.columnGap		= columnGap;
-		this.columnWidth	= columnWidth;
+		super(filledProps);
+		#if flash9 this.size			#else this.size			    #end = size;
+		#if flash9 this.family		    #else this.family		    #end = family;
+		#if flash9 this.color			#else this.color			#end = color;
+		#if flash9 this.weight		    #else this.weight		    #end = weight;
+		#if flash9 this.style			#else this.style			#end = null;
+		#if flash9 this.letterSpacing	#else this.letterSpacing	#end = letterSpacing == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : letterSpacing;
+		#if flash9 this.align			#else this.align			#end = align;
+		#if flash9 this.decoration	    #else this.decoration	    #end = decoration;
+		#if flash9 this.indent		    #else this.indent		    #end = indent == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : indent;
+		#if flash9 this.transform		#else this.transform		#end = transform;
+		#if flash9 this.textWrap		#else this.textWrap		    #end = textWrap;
+		#if flash9 this.columnCount	    #else this.columnCount	    #end = columnCount;
+		#if flash9 this.columnGap		#else this.columnGap		#end = columnGap;
+		#if flash9 this.columnWidth	    #else this.columnWidth	    #end = columnWidth;
 	}
 	
 	
@@ -659,7 +660,7 @@ class TextStyle extends StyleSubBlock
 	override public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())
-			code.construct( this, [ _size, _family, _color, _weight, _style, _letterSpacing, _align, _decoration, _indent, _transform, _textWrap, _columnCount, _columnGap, _columnWidth ] );
+			code.construct( this, [ filledProperties, _size, _family, _color, _weight, _style, _letterSpacing, _align, _decoration, _indent, _transform, _textWrap, _columnCount, _columnGap, _columnWidth ] );
 	}
 	
 	override public function cleanUp () {}

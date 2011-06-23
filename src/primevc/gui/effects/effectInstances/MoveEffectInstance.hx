@@ -92,13 +92,15 @@ class MoveEffectInstance extends EffectInstance < IPositionable, MoveEffect >
 	
 	override private function initStartValues ()
 	{
-		if (effect.startX.isSet())	startX	= effect.startX;
+		if (effect.startX.isSet())	startX	= target.x = effect.startX;
 		else						startX	= target.x;
-		if (effect.startY.isSet())	startY	= effect.startY;
+		if (effect.startY.isSet())	startY	= target.y = effect.startY;
 		else						startY	= target.y;
 		
 		if (endX.notSet())			endX	= effect.endX;
 		if (endY.notSet())			endY	= effect.endY;
+		
+		target.visible = true;
 	}
 	
 

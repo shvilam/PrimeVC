@@ -501,8 +501,8 @@ class LayoutClient extends Invalidatable
 		if (!force && _width == v && v.isSet())
 			return v;
 		
-#if debug	Assert.that( v.notSet() || v > -1, this+" width = "+v );
-			Assert.that( v < 10000, this+" width = "+v ); #end
+#if debug	Assert.that( v.notSet() || v > -1, this+" width = "+v ); #end
+//			Assert.that( v < 10000, this+" width = "+v ); #end
 		
 		var outer = outerBounds, inner = innerBounds;
 		outer.invalidatable = inner.invalidatable = false;
@@ -540,8 +540,8 @@ class LayoutClient extends Invalidatable
 		if (!force && _height == v && v.isSet())
 			return v;
 		
-#if debug	Assert.that( v.notSet() || v > -1, this+" height = "+v );
-			Assert.that( v < 10000, this+" height = "+v ); #end
+#if debug	Assert.that( v.notSet() || v > -1, this+" height = "+v ); #end
+//			Assert.that( v < 10000, this+" height = "+v ); #end
 		
 		var outer = outerBounds, inner = innerBounds;
 		outer.invalidatable = inner.invalidatable = false;
@@ -751,7 +751,7 @@ class LayoutClient extends Invalidatable
 	 * 
 	 * FIXME
 	 */
-	public function invalidateHorPaddingMargin () //changes:Int)
+	@:keep public function invalidateHorPaddingMargin () //changes:Int)
 	{
 	//	invalidate( changes );	// <-- will destroy the applicition... things start freezing.. weird stuff :-S
 		if (percentWidth.isSet())
@@ -764,7 +764,7 @@ class LayoutClient extends Invalidatable
 	/**
 	 * @see invalidateHorPaddingMargin
 	 */
-	public function invalidateVerPaddingMargin ()
+	@:keep public function invalidateVerPaddingMargin ()
 	{
 		if (percentHeight.isSet())
 			height = outerBounds.height - getVerPadding() - getVerMargin();
@@ -814,7 +814,7 @@ class LayoutClient extends Invalidatable
 	{
 		if (x != v)
 		{
-#if debug	Assert.that( v.notSet() || (v > -1000 && v < 10000), this+".invalidX: "+v ); #end
+//#if debug	Assert.that( v.notSet() || (v > -10000 && v < 10000), this+".invalidX: "+v ); #end
 			x = v;
 			outerBounds.left = v;
 			innerBounds.left = (margin == null) ? v : v + margin.left;
@@ -828,7 +828,7 @@ class LayoutClient extends Invalidatable
 	{
 		if (y != v)
 		{
-#if debug	Assert.that( v.notSet() || (v > -1000 && v < 10000), this+".invalidY: "+v ); #end
+//#if debug	Assert.that( v.notSet() || (v > -10000 && v < 10000), this+".invalidY: "+v ); #end
 			y = v;
 			outerBounds.top = v;
 			innerBounds.top = (margin == null) ? v : v + margin.top;
@@ -999,6 +999,6 @@ class LayoutClient extends Invalidatable
 	
 	public static var counter:Int = 0;
 	public var name:String;
-	public function toString() { return state.current+"_"+name; } // + " - " + _oid; }
+	@:keep public function toString() { return name; }//+"_"+state; } //state.current+"_"+name; } // + " - " + _oid; }
 #end
 }

@@ -57,6 +57,8 @@ while [ "${1+isset}" ]; do
 				* )				CONSOLE="-D FlashTrace" ;;
 			esac
 			shift 2 ;;
+		-z)	PROFILING=true
+			shift ;;
 		*)
 			shift;;
 	esac
@@ -88,6 +90,7 @@ else
 	echo -e "\tMain: $MainClass"
 	echo -e "\tStyle: $STYLEDIR"
 	echo -e "\tDebugging: ${Debug:-false}"
+	echo -e "\Profiling: ${PROFILING:-false}"
 	echo -e "\tConsole: ${CONSOLE}"
 	echo -e "\tAssets: $ASSETS"
 	echo -e "\tProject: $PRJROOT"
@@ -104,12 +107,12 @@ else
 	
 	echo -e "\n2. BUILDING STYLES"
 	bash build/build-styles -s "${STYLEDIR}" ${Debug:+-d} ${Force:+-f} || exit 1;
-	
+
 	echo -e "\n3. COMPILING SWF"
 #	echo -e "\t\tbuild/build.hxml ${Debug:---no-traces} \n\t\t\t-swf \042$OUTPUT\042 \n\t\t\t-cp \042$PRJROOT/src\042 \n\t\t\t-cp \042$STYLEDIR\042 ${EXTRA:+\n\t\t\t}$EXTRA \n\t\t\t-cp \042$PRJROOT/shared/generated-src/haxe\042 \n\t\t\t-main $MainClass \n\t\t\t-swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR \n\t\t\t${ASSETS:+-swf-lib} $ASSETS \n\t\t\t-swf-lib \042assets/${Debug:+debug-}assets.swf\042" &&
 	echo build/build.hxml \
 		-swf "'$OUTPUT'" \
-		${Debug:---no-traces} \
+		${Debug:---no-traces --dead-code-elimination --macro Undead.keepAlive()} \
 		$EXTRA \
 		-cp "'$PRJROOT/src'" \
 		-cp "'$STYLEDIR'" \
@@ -118,6 +121,7 @@ else
 		${ASSETS:+-swf-lib "'$ASSETS'"} \
 		-swf-lib "'assets/${Debug:+debug-}assets.swf'" \
 		${ACCESS:--D local} \
+		${PROFILING:+-swf-lib "'$PRJROOT/bin-debug/swf/FlashPreloadProfiler_RC2.swf'" -D profiling} \
 		$CONSOLE \
 		-D dragEnabled \
 		| xargs -t haxe \
@@ -131,4 +135,5 @@ else
 		bash build/optimize-build "$OUTPUT" &&
 		open "$OUTPUT"
 	fi;
+
 fi;

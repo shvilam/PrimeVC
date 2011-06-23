@@ -53,6 +53,8 @@ class LayoutAlgorithmBase
 				implements IDisposable
 #if neko	,	implements ICodeFormattable		#end
 {
+#if debug public static var created		: Int = 0; #end
+#if debug public static var disposed	: Int = 0; #end
 	public var algorithmChanged 		(default, null)				: Signal0;
 	public var group					(default, setGroup)			: ILayoutContainer;
 	
@@ -65,9 +67,8 @@ class LayoutAlgorithmBase
 	
 	public function new()
 	{
-#if neko
-		_oid				= ID.getNext();
-#end
+#if debug	created++;							#end
+#if neko	_oid			= ID.getNext();		#end
 		algorithmChanged	= new Signal0();
 		validatePrepared	= false;
 	}
@@ -75,6 +76,7 @@ class LayoutAlgorithmBase
 	
 	public function dispose ()
 	{
+#if debug	disposed++;							#end
 		algorithmChanged.dispose();
 		algorithmChanged	= null;
 	}
@@ -119,7 +121,7 @@ class LayoutAlgorithmBase
 	// START VALUES
 	//
 
-	private inline function getTopStartValue ()		: Int
+	@:keep private inline function getTopStartValue ()		: Int
 	{
 		var top:Int = 0;
 	//	if (group.margin != null)	top += group.margin.top;
@@ -128,7 +130,7 @@ class LayoutAlgorithmBase
 	}
 	
 	
-	private inline function getVerCenterStartValue ()	: Int
+	@:keep private inline function getVerCenterStartValue ()	: Int
 	{
 		var start:Int = 0;
 		
@@ -143,7 +145,7 @@ class LayoutAlgorithmBase
 	}
 
 
-	private inline function getBottomStartValue ()	: Int
+	@:keep private inline function getBottomStartValue ()	: Int
 	{
 		var start = group.height;
 		
@@ -154,7 +156,7 @@ class LayoutAlgorithmBase
 	}
 	
 	
-	private inline function getLeftStartValue ()	: Int
+	@:keep private inline function getLeftStartValue ()	: Int
 	{
 		var start:Int = 0;
 	//	if (group.margin != null)	start += group.margin.left;
@@ -163,7 +165,7 @@ class LayoutAlgorithmBase
 	}
 	
 	
-	private inline function getHorCenterStartValue ()	: Int
+	@:keep private inline function getHorCenterStartValue ()	: Int
 	{
 		var start:Int = 0;
 		
@@ -178,7 +180,7 @@ class LayoutAlgorithmBase
 	}
 
 
-	private inline function getRightStartValue ()	: Int
+	@:keep private inline function getRightStartValue ()	: Int
 	{
 		var start = group.width;
 		

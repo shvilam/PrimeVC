@@ -95,6 +95,10 @@ class ResizeEffectInstance extends EffectInstance < ISizeable, ResizeEffect >
 		else						startW = target.width;
 		if (effect.startH.isSet())	startH = effect.startH;
 		else						startH = target.height;
+		
+		target.rect.width	= startW;
+		target.rect.height	= startH;
+		target.visible		= true;
 	}
 	
 

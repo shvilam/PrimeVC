@@ -36,7 +36,7 @@ package primevc.gui.input;
 /*typedef KeyCodes = 
 	#if flash9	flash.ui.Keyboard;
 	#else		throw 1;	#end*/
-class KeyCodes
+extern class KeyCodes
 {
 	public static inline var A					: UInt = 65;
 	public static inline var B					: UInt = 66;
@@ -142,7 +142,7 @@ class KeyCodes
 	public static inline var UP					: UInt = 38;
 	
 	
-	public static inline function isEnter (v:Int)	{ return v == ENTER || v == NUMPAD_ENTER; }
+	public static inline function isEnter (v:Int) : Bool	{ return v == ENTER || v == NUMPAD_ENTER; }
 	/* left = 37, right = 39, up = 38, down = 40 */
-	public static inline function isArrow (v:Int)	{ return v >= KeyCodes.LEFT && v <= KeyCodes.DOWN; }
+	public static inline function isArrow (v:Int) : Bool	{ return v >= KeyCodes.LEFT && v <= KeyCodes.DOWN; }
 }

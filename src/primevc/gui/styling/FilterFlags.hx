@@ -35,7 +35,7 @@ package primevc.gui.styling;
  * @author Ruben Weijers
  * @creation-date Sep 29, 2010
  */
-class FilterFlags
+extern class FilterFlags
 {
 	public static inline var ALL_PROPERTIES	= SHADOW | BEVEL | BLUR | GLOW | GRADIENT_BEVEL | GRADIENT_GLOW;
 	public static inline var SHADOW			= 1 << 0;
@@ -47,7 +47,7 @@ class FilterFlags
 	
 	
 #if debug
-	public static function readProperties (flags:Int) : String
+	public static inline function readProperties (flags:Int) : String
 	{
 		var output	= [];
 		

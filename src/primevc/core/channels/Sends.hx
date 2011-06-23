@@ -20,27 +20,25 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
-package primevc.mvc.core;
+package primevc.core.channels;
+ import primevc.core.dispatcher.Sender;
 
 
 /**
- * A Model is a group of Proxies which manage the data-model.
- * Extend this abstract class and define proxy properties.
+ * Typedef for defining the sending part of a channel.
  * 
- * @author Danny Wilson
- * @creation-date Jun 22, 2010
+ * @author			Danny Wilson
+ * @author			Ruben Weijers
+ * @creation-date	May 24, 2011
  */
-interface IModel implements primevc.core.traits.IDisposable
-{
-	/**
-	 * Method in which all the proxies should be created. Constructor is only
-	 * meant to make the object exist
-	 */
-	public function init () : Void;
+typedef Sends < Msg, ReplyType > = {
+	>Sender<Msg -> Void>,
+	public var sendAsync (default,null) : Msg -> Async<Msg, ReplyType>;
 }

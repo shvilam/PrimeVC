@@ -27,6 +27,7 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.core.dispatcher;
+ import primevc.core.traits.IDisablable;
  import primevc.core.traits.IDisposable;
  import primevc.core.ListNode;
   using primevc.utils.BitUtil;
@@ -39,7 +40,7 @@ package primevc.core.dispatcher;
  * Implementation detail: Wires are added to a bounded freelist (max 256 free objects) to reduce garbage collector pressure.
  * This means you should never reuse a Wire after calling dispose() and/or after unbinding the handler from the signal (which returned this Wire).
  */
-class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements IDisposable
+class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements IDisposable, implements IDisablable
 {
 	/** Wire.flags bit which tells if the Wire is isEnabled(). */
 	static public inline var ENABLED		= 1;
@@ -108,12 +109,13 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 	public var signal	(default, null)	: Signal<FunctionSignature>;
 	
 #if debug
-	static var instanceCount = 0;
+	public static var instanceCount	= 0;
+	public static var disposeCount	= 0;
 	public var bindPos		: haxe.PosInfos;
 	public var instanceNum	: Int;
 	
 	public function toString() {
-		return "{Wire["+instanceNum+" (instanceCount: "+instanceCount+")] bound at: "+ bindPos.fileName + ":" + bindPos.lineNumber + ", flags = 0x"+ StringTools.hex(flags, 2) +", owner = " + owner + "}";
+		return "{Wire["+instanceNum+" (total: "+instanceCount+"/"+disposeCount+")] bound at: "+ bindPos.fileName + ":" + bindPos.lineNumber + ", flags = 0x"+ StringTools.hex(flags, 2) +", owner = " + owner + "}";
 	}
 	public function pos(?p:haxe.PosInfos) : Wire<FunctionSignature> {
 		#if debug untyped this.bindPos = p; return this; #end
@@ -138,7 +140,7 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 		#if debug instanceNum = ++instanceCount; #end
 	}
 	
-	public inline function isEnabled()
+	public inline function isEnabled() : Bool
 	{
 		#if DebugEvents
 		{
@@ -227,6 +229,9 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 		handler = owner = signal = null;
 		flags	= 0;
 		
+#if debug
+		disposeCount++;
+#end
 /*		var W = Wire;
 		if (W.freeCount != 2048) {
 			++W.freeCount;

@@ -179,10 +179,11 @@ class UIComponent extends Sprite, implements IUIComponent
 			return;
 		
 		if (container != null)			detachDisplay();
-		if (layout.parent != null)		detachLayout();
+	//	if (layout.parent != null)		detachLayout();		//will be done in LayoutClient.dispose or LayoutContainer.dispose
 		
 		removeValidation();
-		removeChildren();
+		if (isInitialized())
+			removeChildren();
 		removeStates();
 		
 		//Change the state to disposed before the behaviours are removed.
@@ -232,7 +233,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	public inline function attachLayoutTo	(t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ t.children.add( layout, pos );										return this; }
 	public inline function detachLayout		()									: IUIElement	{ layout.parent.children.remove( layout );								return this; }
 	public inline function attachTo			(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachDisplayTo(t, pos);	return this; }
-	public inline function detach			()									: IUIElement	{ detachDisplay();							detachLayout();				return this; }
+	public inline function detach			()									: IUIElement	{ if (container != null) { detachDisplay(); detachLayout(); }			return this; }
 	
 	
 	
@@ -249,6 +250,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	public inline function enable ()					{ enabled.value = true; }
 	public inline function disable ()					{ enabled.value = false; }
+	public inline function isEnabled ()					{ return enabled.value; }
 	
 	
 	//
@@ -315,7 +317,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	}
 	
 	
-	private function removeChildren () : Void
+	#if flash11 override #end public function removeChildren () : Void
 	{
 		children.removeAll();
 	}
@@ -370,10 +372,10 @@ class UIComponent extends Sprite, implements IUIComponent
 	// ABSTRACT METHODS
 	//
 	
-	private function createStates ()		: Void; //	{ Assert.abstract(); }
-	private function createBehaviours ()	: Void; //	{ Assert.abstract(); }
-	private function createChildren ()		: Void; //	{ Assert.abstract(); }
-	private function removeStates ()		: Void; //	{ Assert.abstract(); }
+	private function createStates ()		: Void {} //	{ Assert.abstract(); }
+	private function createBehaviours ()	: Void {} //	{ Assert.abstract(); }
+	private function createChildren ()		: Void {} //	{ Assert.abstract(); }
+	private function removeStates ()		: Void {} //	{ Assert.abstract(); }
 	
 	
 	//
@@ -387,7 +389,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	
 #if debug
-	override public function toString ()	{ return id.value; }
+	override public function toString ()	{ return id == null ? Type.getClassName(Type.getClass(this))+"" : id.value; }
 	public function readChanges ()			{ return UIElementFlags.readProperties(changes); }
 #end
 }

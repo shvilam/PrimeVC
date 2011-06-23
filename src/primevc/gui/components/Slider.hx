@@ -93,24 +93,16 @@ class Slider extends SliderBase
 	override private function createChildren ()
 	{
 		maskShape			= new VectorShape();
-		background			= new UIGraphic();
-		maskedBackground	= new UIGraphic();
+		background			= new UIGraphic( #if debug id.value + "Background" #end );
+		maskedBackground	= new UIGraphic( #if debug id.value + "MaskedBackground" #end );
 		
 		background.styleClasses.add("background");
 		maskedBackground.styleClasses.add("maskedBackground");
-		
-#if debug
-		background.id.value = id.value + "Background";
-		maskedBackground.id.value = id.value + "MaskedBackground";
-#end
-		
-		layoutContainer.children.add( background.layout );
-		layoutContainer.children.add( maskedBackground.layout );
-		children.add( background );
-		children.add( maskedBackground );
-		children.add( maskShape );
-
 		maskedBackground.mask = maskShape;
+		
+		attach( background ).attach( maskedBackground );
+		maskShape.attachDisplayTo( this );
+
 		super.createChildren();
 	}
 	

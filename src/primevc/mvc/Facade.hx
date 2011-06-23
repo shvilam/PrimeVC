@@ -27,8 +27,10 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.mvc.core;
- import primevc.mvc.events.MVCEvents;
+package primevc.mvc;
+ import primevc.core.dispatcher.Signal0;
+ import primevc.core.dispatcher.Signals;
+ import primevc.core.traits.IDisposable;
 
 
 /**
@@ -55,9 +57,14 @@ package primevc.mvc.core;
  * @creation-date Jun 22, 2010
  * @type <EventsType> all event groups used in this application/subsystem.
  */
-class Facade < EventsType:MVCEvents, ModelType:IModel, StatesType:IStates, ViewType:IView, ControllerType:IController > implements primevc.core.traits.IDisposable
-    #if !docs, implements haxe.rtti.Generic #end
+class Facade<EventsType:Signals, ModelType:IMVCCore, StatesType:IDisposable, ControllerType:IMVCCoreActor, ViewType:IMVCCoreActor> implements IDisposable
+//    #if !docs, implements haxe.rtti.Generic #end
 {
+	/**
+	 * Signal that's dispatched when facade.start is called
+	 */
+	public var started		(default, null)	: Signal0;
+	
 	public var events		(default, null)	: EventsType;
 	public var model		(default, null)	: ModelType;
 	public var view			(default, null)	: ViewType;
@@ -65,8 +72,11 @@ class Facade < EventsType:MVCEvents, ModelType:IModel, StatesType:IStates, ViewT
 	public var states		(default, null) : StatesType;
 	
 	
-	private function new ()
-	{	
+	public function new ()
+	{
+		started = new Signal0();
+		
+		Assert.null(events);
 		setupEvents();
 		Assert.notNull( events, "Events-collection can't be empty.");
 		
@@ -74,19 +84,29 @@ class Facade < EventsType:MVCEvents, ModelType:IModel, StatesType:IStates, ViewT
 		Assert.notNull(model, "Proxy-collection can't be empty.");
 		
 		setupStates();
-		Assert.notNull(states, "States-collection can't be empty.");
-		
 		setupView();
 		Assert.notNull(view, "Mediator-collection can't be empty.");
 		
 		setupController();
-		Assert.notNull(controller, "Controller-collection can't be empty.");
+	}
+	
+	
+	// method is called by the static main function or the object that created the facade
+	public inline function start ()
+	{
+		if (controller != null)
+			controller.startListening();
 		
-		model.init();
-		controller.init();
-		view.init();
-		
-		events.started.send();
+		view.startListening();
+		started.send();
+	}
+	
+	
+	public inline function stop ()
+	{
+		view.stopListening();
+		if (controller != null)
+			controller.stopListening();
 	}
 	
 	
@@ -95,11 +115,11 @@ class Facade < EventsType:MVCEvents, ModelType:IModel, StatesType:IStates, ViewT
 		if (events == null)
 			return; // already disposed
 		
-		controller	.dispose();
-		view		.dispose();
-		states		.dispose();
-		model		.dispose();
-		events		.dispose();
+		view.dispose();
+		if (controller != null)		controller.dispose();
+		if (states != null)			states.dispose();
+		model.dispose();
+		events.dispose();
 		
 		controller	= null;
 		view		= null;
@@ -108,10 +128,15 @@ class Facade < EventsType:MVCEvents, ModelType:IModel, StatesType:IStates, ViewT
 		events		= null;
 	}
 	
+	
 	/**
 	 * Must instantiate the event-signals for this Facade.
 	 */
 	function setupEvents()		{ Assert.abstract(); }
+	/**
+	 * Can instantiate the states for this Facade.
+	 */
+	function setupStates()	{}
 	
 	/**
 	 * Must instantiate the Model for this Facade.
@@ -119,19 +144,18 @@ class Facade < EventsType:MVCEvents, ModelType:IModel, StatesType:IStates, ViewT
 	function setupModel()		{ Assert.abstract(); }
 	
 	/**
-	 * Must instantiate the States for this Facade.
+	 * Should map the event handlers, and setup behaviours/commands for this (sub)system.
 	 */
-	function setupStates()		{ Assert.abstract(); }
-	
-	/**
-	 * Must map the event handlers, and setup behaviours/commands for this (sub)system.
-	 */
-	function setupController()	{ Assert.abstract(); }
+	function setupController()	{}
 	
 	/**
 	 * Must instantiate the View for this (sub)system.
 	 * - Flash:			Supply a reference to the base DisplayObject to the view.
 	 * - Javascript:	Supply a reference to the base DOM-element to the view.
+	 * 
+	 * This view.startListening method should be callen by the static main 
+	 * function to given the window or it should be called by the object 
+	 * creating the Facade.
 	 */
 	function setupView()		{ Assert.abstract(); }
 }

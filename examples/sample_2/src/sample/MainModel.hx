@@ -1,6 +1,6 @@
 package sample;
 
-import primevc.mvc.core.IModel;
+import primevc.mvc.MVCNotifier;
 import primevc.mvc.core.MVCCore;
 
 

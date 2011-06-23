@@ -36,7 +36,7 @@ package primevc.utils;
  * @author Ruben Weijers
  * @creation-date Mar 29, 2011
  */
-class FileUtil
+extern class FileUtil
 {
 	public static inline function toFileType (mimetype:String) : FileType
 	{

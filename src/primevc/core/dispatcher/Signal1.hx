@@ -100,7 +100,7 @@ class Signal1 <A> extends Signal<A->Void>, implements ISender1<A>, implements IN
 	}
 	
 #if DebugEvents
-	static function __init__()
+	@:keep static function __init__()
 	{
 		// Unit tests
 		var num=0, b1:Wire<String->Void>=null, b2:Wire<String->Void>=null, b3:Wire<String->Void>=null, b4:Wire<String->Void>=null, b5:Wire<String->Void>=null;

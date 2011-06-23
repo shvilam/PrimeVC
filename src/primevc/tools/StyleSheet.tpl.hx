@@ -42,7 +42,7 @@ class StyleSheet extends StyleBlock
 {
 	public function new ()
 	{
-		super(StyleBlockType.specific);
+		super(0, StyleBlockType.specific);
 		elementChildren		= new ChildrenList();
 		styleNameChildren	= new ChildrenList();
 		idChildren			= new ChildrenList();

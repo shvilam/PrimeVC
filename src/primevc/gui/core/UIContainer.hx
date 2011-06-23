@@ -28,6 +28,7 @@
  */
 package primevc.gui.core;
  import primevc.gui.layout.IScrollableLayout;
+ import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutContainer;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
@@ -44,19 +45,10 @@ class UIContainer extends UIComponent, implements IUIContainer
 	public var layoutContainer	(getLayoutContainer, never)		: LayoutContainer;
 	public var scrollableLayout	(getScrollableLayout, never)	: IScrollableLayout;
 	
-	private inline function getLayoutContainer () 	{ return layout.as(LayoutContainer); }
-	private inline function getScrollableLayout () 	{ return layout.as(IScrollableLayout); }
-	
-	
-	public inline function attach (child:IUIElement) : IUIContainer
-	{
-		child.attachTo(this);
-		return this;
-	}
-	
-	
-	override private function createLayout () : Void
-	{
-		layout = new LayoutContainer();
-	}
+	private inline function getLayoutContainer () 									{ return layout.as(LayoutContainer); }
+	private inline function getScrollableLayout () 									{ return layout.as(IScrollableLayout); }
+	public  inline function attach			(child:IUIElement)		: IUIContainer	{ child.attachTo(this); return this; }
+	public  inline function attachDisplay	(child:IUIElement)		: IUIContainer	{ children.add(child);  return this; }
+	public  inline function attachLayout	(layout:LayoutClient)	: IUIContainer	{ layoutContainer.children.add(layout); return this; }
+	override private function createLayout ()										{ layout = new LayoutContainer(); }
 }

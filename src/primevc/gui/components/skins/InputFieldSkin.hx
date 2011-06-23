@@ -44,6 +44,7 @@ private typedef Flags = primevc.gui.core.UIElementFlags;
  * @author Ruben Weijers
  * @creation-date Jan 27, 2011
  */
+@:keep
 class InputFieldSkin extends ButtonIconLabelSkin
 {
 	override public function createChildren ()

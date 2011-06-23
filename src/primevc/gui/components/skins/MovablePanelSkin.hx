@@ -54,7 +54,7 @@ class MovablePanelSkin extends BasicPanelSkin
 	}
 	
 	
-	override private function removeChildren ()
+	override public  function removeChildren ()
 	{
 		closeBtn.dispose();
 		closeBtn = null;

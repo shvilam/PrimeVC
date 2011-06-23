@@ -58,10 +58,7 @@ class ButtonIconSkin extends Skin<Button>
 
 	override public function createChildren ()
 	{
-		iconGraphic = new Image(null, owner.icon);
-		owner.layoutContainer	.children.add(	iconGraphic.layout );
-		owner					.children.add(	iconGraphic );
-		
+		owner.attach( iconGraphic = new Image(null, owner.icon) );
 		iconGraphic.maintainAspectRatio = true;
 #if debug
 		iconGraphic.id.value	= owner.id.value + "Icon";
@@ -69,14 +66,11 @@ class ButtonIconSkin extends Skin<Button>
 	}
 
 
-	override private function removeChildren ()
+	override public  function removeChildren ()
 	{
 		if (iconGraphic != null)
 		{
-			if (owner != null && !owner.isDisposed()) {
-				owner.layoutContainer	.children.remove( iconGraphic.layout );
-				owner					.children.remove( iconGraphic );
-			}
+			iconGraphic.detach();
 			iconGraphic.dispose();
 			iconGraphic = null;
 		}

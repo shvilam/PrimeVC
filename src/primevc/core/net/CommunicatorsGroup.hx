@@ -233,6 +233,7 @@ private class LoaderGroupEvents extends LoaderSignals
 {
 	public function new ()
 	{
+		super();
 		unloaded		= new Signal0();
 		load			= new GroupCommunicationEvents();
 		httpStatus		= new Signal1<Int>();
@@ -250,6 +251,7 @@ private class GroupCommunicationEvents extends CommunicationSignals
 {
 	public function new ()
 	{
+		super();
 		started		= new Signal0();
 		progress	= new Signal2();
 		init		= new Signal0();

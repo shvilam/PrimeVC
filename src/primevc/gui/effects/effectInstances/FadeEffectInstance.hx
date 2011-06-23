@@ -57,8 +57,6 @@ class FadeEffectInstance extends EffectInstance < IDisplayObject, FadeEffect >
 		super(newTarget, newEffect);
 		startValue	= Number.FLOAT_NOT_SET;
 		endValue	= Number.FLOAT_NOT_SET;
-		
-		hideTarget.on( ended, this );
 	}
 	
 
@@ -77,13 +75,12 @@ class FadeEffectInstance extends EffectInstance < IDisplayObject, FadeEffect >
 
 	override private function initStartValues ()
 	{
-		if		(effect.startValue.isSet())	startValue = effect.startValue;
+		if		(effect.startValue.isSet())	startValue = target.alpha = effect.startValue;
 		else								startValue = target.alpha;
 		
 		if		(effect.endValue.isSet())	endValue = effect.endValue;
 		else								endValue = 1;
 		
-		target.alpha	= startValue;
 		target.visible	= true;
 	}
 
@@ -100,9 +97,12 @@ class FadeEffectInstance extends EffectInstance < IDisplayObject, FadeEffect >
 	}
 	
 	
-	private function hideTarget ()
+	override private function onTweenReady ( ?tweenPos:Float )
 	{
-		if (endValue == 0)
-			target.visible = false;
+		if (target.alpha == 0) {
+			target.visible	= false;
+			target.alpha	= 1;
+		}
+		super.onTweenReady();
 	}
 }

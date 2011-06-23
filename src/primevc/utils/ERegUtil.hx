@@ -34,7 +34,7 @@ package primevc.utils;
  * @author Ruben Weijers
  * @creation-date Sep 04, 2010
  */
-class ERegUtil #if flash9 extends EReg #end
+extern class ERegUtil #if flash9 extends EReg #end
 {
 	public static inline function matchAll (expr:EReg, str:String, f:EReg -> Void) : Void
 	{

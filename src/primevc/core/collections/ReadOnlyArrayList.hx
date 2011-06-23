@@ -104,20 +104,20 @@ class ReadOnlyArrayList < DataType > implements IReadOnlyList < DataType >, impl
 	 * @param	pos
 	 * @return
 	 */
-	public function getItemAt (pos:Int) : DataType
+	public inline function getItemAt (pos:Int) : DataType
 	{
 		var i:Int = pos < 0 ? length + pos : pos;
 		return list[i];
 	}
 	
 	
-	public function indexOf (item:DataType) : Int
+	public inline function indexOf (item:DataType) : Int
 	{
 		return list.indexOf(item);
 	}
 	
 	
-	public function has (item:DataType) : Bool
+	public inline function has (item:DataType) : Bool
 	{
 		return list.indexOf(item) >= 0;
 	}
@@ -128,7 +128,7 @@ class ReadOnlyArrayList < DataType > implements IReadOnlyList < DataType >, impl
 	 * the other list into this list. Changes in the otherList after injection
 	 * will not be noticed by this list..
 	 */
-	public function inject (otherList:ReadOnlyArrayList<DataType>)
+	public inline function inject (otherList:ReadOnlyArrayList<DataType>)
 	{
 		this.list = otherList.list;
 		change.send( ListChange.reset );

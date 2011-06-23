@@ -62,7 +62,7 @@ class EffectsCollection extends StyleCollectionBase < EffectsStyle >
 		if (target.effects == null)
 			target.effects = new UIElementEffects(target);
 		
-	//	trace(target + ".applyEffectStyling "+style.readProperties( changes )+"; has "+style.readProperties());
+	//	trace(target + ".applyEffectStyling "+readProperties( changes )+"; has "+readProperties());
 		
 		for (styleObj in this)
 		{

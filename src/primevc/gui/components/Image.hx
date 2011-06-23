@@ -79,7 +79,10 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 	{
 		assetStateChangeHandler.on( data.state.change, this );
 		
-		if (data.state.is(AssetStates.loadable))		data.load();
+		if (data.state.is(AssetStates.loadable)) {
+			cancelLoading.onceOn( displayEvents.removedFromStage, data );
+			data.load();
+		}
 		else if (data.state.is(AssetStates.ready))		applyAsset();
 	}
 	
@@ -95,17 +98,18 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 	{
 #if flash9
 		Assert.notNull(data.type);
+		
 		switch (data.type)
 		{
-			case AssetType.vector, AssetType.displayObject:
-				addChild( assetChild = data.getDisplayObject() );
+			case AssetType.displayObject:
+				addChild( assetChild = data.toDisplayObject() );
 				updateChildSize.on( layout.changed, this );
 				updateChildSize(LayoutFlags.SIZE);
 				
 			
 			case AssetType.bitmapData:
 				if (graphicData.fill == null || !graphicData.fill.is(BitmapFill))
-					graphicData.fill = assetFill = new BitmapFill( data, null, false );
+					graphicData.fill = assetFill = new BitmapFill( null, data, null, false );
 				
 				else if (graphicData.fill.is(BitmapFill)) {
 					assetFill		= graphicData.fill.as(BitmapFill);
@@ -113,9 +117,11 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 				}
 		}
 		
+		displayEvents.removedFromStage.unbind( data );
 		updateSize();
 #end
 	}
+	
 	
 	
 	private function unsetAsset ()
@@ -124,10 +130,11 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 		if (data.type == null)
 			return;
 		
+		displayEvents.removedFromStage.unbind( data );
 		Assert.notNull(data.type, "asset: "+data);
 		switch (data.type)
 		{
-			case AssetType.vector, AssetType.displayObject:
+			case AssetType.displayObject:
 				if (assetChild != null) {
 					layout.changed.unbind(this);
 					removeChild( assetChild );
@@ -229,5 +236,12 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 			case AssetStates.empty:	unsetAsset();
 			default:
 		}
+	}
+	
+	
+	private function cancelLoading ()
+	{
+		data.close();
+		initData.onceOn( displayEvents.addedToStage, this );
 	}
 }

@@ -50,9 +50,9 @@ class StatesStyle extends StyleSubBlock
 	public var states			(default, null) : StatesListType;
 	
 	
-	public function new (states:StatesListType = null)
+	public function new (filledProps:Int = 0, states:StatesListType = null)
 	{
-		super();
+		super(filledProps);
 		this.states = states;
 		
 		updateFilledPropertiesFlag();
@@ -259,7 +259,7 @@ class StatesStyle extends StyleSubBlock
 	override public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())
-			code.construct( this, [ states ] );
+			code.construct( this, [ filledProperties, states ] );
 	}
 #end
 
@@ -276,7 +276,7 @@ class StatesStyle extends StyleSubBlock
 
 
 #if (debug && flash9)
-	public function toString () 
+	override public function toString () 
 	{
 		var statesToFind	= allFilledProperties;
 		var output			= [];

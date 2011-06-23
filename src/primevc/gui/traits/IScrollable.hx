@@ -37,7 +37,7 @@ package primevc.gui.traits;
  */
 interface IScrollable 
 		implements IDisplayable
-	,	implements ISprite
+//	,	implements ISprite
 {
 	public var scrollableLayout (getScrollableLayout, never) : IScrollableLayout;
 }

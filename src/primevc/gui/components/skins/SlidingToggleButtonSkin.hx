@@ -139,7 +139,7 @@ class SlidingToggleButtonSkin extends Skin<DataButton<Null<Bool>>>
 	}
 	
 	
-	override private function removeChildren ()
+	override public  function removeChildren ()
 	{
 		onBg	.detach();
 		offLabel.detach();

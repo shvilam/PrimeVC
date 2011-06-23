@@ -169,8 +169,8 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 				var newX = l.getHorPosition();
 				var newY = l.getVerPosition();
 				
-#if debug		Assert.that( newX > -1000 && newX < 10000, target+".invalidX: "+newX+"; "+target.container );
-				Assert.that( newY > -1000 && newY < 10000, target+".invalidY: "+newY+"; "+target.container ); #end
+#if debug		Assert.that( newX > -10000 && newX < 10000, target+".invalidX: "+newX+"; "+target.container );
+				Assert.that( newY > -10000 && newY < 10000, target+".invalidY: "+newY+"; "+target.container ); #end
 				
 				if (isNotPositionedYet || target.x != newX || target.y != newY)
 				{

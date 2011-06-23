@@ -29,22 +29,28 @@
 package primevc.gui.styling;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
- import primevc.types.Reference;
   using primevc.types.Reference;
 #end
  import primevc.core.geom.Corners;
  import primevc.core.traits.IInvalidatable;
+ import primevc.gui.behaviours.scroll.IScrollBehaviour;
  import primevc.gui.core.ISkin;
+ import primevc.gui.core.IUIContainer;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.shapes.IGraphicShape;
  import primevc.gui.graphics.IGraphicProperty;
  import primevc.types.Asset;
+ import primevc.types.Factory;
  import primevc.types.Number;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
 
 
-private typedef Flags = GraphicFlags;
+private typedef Flags		= GraphicFlags;
+private typedef Shape		= #if neko primevc.types.Reference; #else IGraphicShape; #end
+private typedef Skin		= Factory<ISkin>;
+private typedef Icon		= Factory<Dynamic>;
+private typedef Overflow	= Factory1<IUIContainer, IScrollBehaviour>;
 
 
 /**
@@ -58,36 +64,31 @@ class GraphicsStyle extends StyleSubBlock
 	private var extendedStyle	: GraphicsStyle;
 	private var superStyle		: GraphicsStyle;
 	
-#if neko	
-	private var _shape			: Reference;
-	private var _skin			: Reference;
-	private var _overflow		: Reference;
-#else	
-	private var _shape			: IGraphicShape;
-	private var _skin			: Class < ISkin >;
-	private var _overflow		: Class < Dynamic >;
-#end
+	private var _shape			: Shape;
+	private var _skin			: Skin;
+	private var _overflow		: Overflow;
 	private var _opacity		: Float;
 	private var _visible		: Null < Bool >;
-	private var _icon			: Asset;
+	private var _icon			: Icon;
 	private var _iconFill		: IGraphicProperty;
 	private var _background		: IGraphicProperty;
 	private var _border			: IBorder;
 	private var _borderRadius	: Corners;
 	
 	
-#if neko	
-	public var shape		(getShape,			setShape)			: Reference;
-	public var skin			(getSkin,			setSkin)			: Reference;
-	public var overflow		(getOverflow,		setOverflow)		: Reference;
-#else	
-	public var shape		(getShape,			setShape)			: IGraphicShape;
-	public var skin			(getSkin,			setSkin)			: Class < ISkin >;
-	public var overflow		(getOverflow,		setOverflow)		: Class < Dynamic >;
-#end
+	/**
+	 * Cached asset instance of the Icon factory. Created and available through 
+	 * the use of getIconInstance
+	 */
+	private var iconAsset		: Asset;
+	
+	
+	public var shape		(getShape,			setShape)			: Shape;
+	public var skin			(getSkin,			setSkin)			: Skin;
+	public var overflow		(getOverflow,		setOverflow)		: Overflow;
 	public var opacity		(getOpacity,		setOpacity)			: Float;
 	public var visible		(getVisible,		setVisible)			: Null< Bool >;
-	public var icon			(getIcon,			setIcon)			: Asset;
+	public var icon			(getIcon,			setIcon)			: Icon;
 	public var iconFill		(getIconFill,		setIconFill)		: IGraphicProperty;
 	public var background	(getBackground, 	setBackground)		: IGraphicProperty;
 	public var border		(getBorder,			setBorder)			: IBorder;
@@ -96,35 +97,37 @@ class GraphicsStyle extends StyleSubBlock
 	
 	
 	public function new (
+		filledProps	: Int = 0,
 		background	: IGraphicProperty = null,
 		border		: IBorder = null,
-#if neko		
-		shape		: Reference = null,
-		skin		: Reference = null,
-		overflow	: Reference = null,
-#else		
-		shape		: IGraphicShape = null,
-		skin		: Class< ISkin > = null,
-		overflow	: Class < Dynamic > = null,
-#end
+		shape		: Shape = null,
+		skin		: Skin = null,
+		overflow	: Overflow = null,
 		visible		: Null < Bool > = null,
 		opacity		: Float = Number.INT_NOT_SET,
-		icon		: Asset = null,
+		icon		: Icon = null,
 		iconFill	: IGraphicProperty = null,
 		borderRadius: Corners = null)
 	{
-		super();
+		super(filledProps);
 		
-		this.shape			= shape;
-		this.background		= background;
-		this.border			= border;
-		this.skin			= skin;
-		this.visible		= visible;
-		this.opacity		= opacity != Number.INT_NOT_SET ? opacity : Number.FLOAT_NOT_SET;
-		this.icon			= icon;
-		this.iconFill		= iconFill;
-		this.overflow		= overflow;
-		this.borderRadius	= borderRadius;
+		#if flash9 this._shape			 #else this.shape			#end = shape;
+		#if flash9 this._background		 #else this.background	    #end = background;
+		#if flash9 this._border			 #else this.border		    #end = border;
+		#if flash9 this._skin			 #else this.skin			#end = skin;
+		#if flash9 this._visible		 #else this.visible		 	#end = visible;
+		#if flash9 this._opacity		 #else this.opacity		 	#end = opacity != Number.INT_NOT_SET ? opacity : Number.FLOAT_NOT_SET;
+		#if flash9 this._icon			 #else this.icon			#end = icon;
+		#if flash9 this._iconFill		 #else this.iconFill		#end = iconFill;
+		#if flash9 this._overflow		 #else this.overflow		#end = overflow;
+		#if flash9 this._borderRadius	 #else this.borderRadius	#end = borderRadius;
+		
+#if debug
+		if (shape != null) {
+			Assert.notNull( this.shape );
+			Assert.that( owns(Flags.SHAPE) );
+		}
+#end
 	}
 	
 	
@@ -136,9 +139,10 @@ class GraphicsStyle extends StyleSubBlock
 		if (_background != null)	_background.dispose();
 		if (_border != null)		_border.dispose();
 		if (_iconFill != null)		_iconFill.dispose();
+		if (iconAsset != null)		iconAsset.dispose();
 #if !neko
 		if (_shape != null)			_shape.dispose();
-		if (_icon != null)			_icon.dispose();
+		if (iconAsset != null)		{ iconAsset.dispose(); iconAsset = null; }
 #end
 		
 		_skin			= null;
@@ -348,6 +352,22 @@ class GraphicsStyle extends StyleSubBlock
 	}
 	
 	
+#if flash9
+	public function getIconInstance () : Asset
+	{
+		if (iconAsset != null)	return iconAsset;
+		if (_icon != null)		return iconAsset = Asset.fromFactory( _icon );
+		
+		if (extendedStyle != null && extendedStyle.has(Flags.ICON))
+			return extendedStyle.getIconInstance();
+		
+		if (superStyle != null && superStyle.has(Flags.ICON))
+			return superStyle.getIconInstance();
+		
+		return null;
+	}
+#end
+	
 	
 	
 	//
@@ -481,7 +501,7 @@ class GraphicsStyle extends StyleSubBlock
 	override public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())
-			code.construct( this, [ _background, _border, _shape, _skin, _overflow, _visible, _opacity, _icon, _iconFill, _borderRadius ] );
+			code.construct( this, [ filledProperties, _background, _border, _shape, _skin, _overflow, _visible, _opacity, _icon, _iconFill, _borderRadius ] );
 	}
 	
 	
