@@ -238,6 +238,7 @@ class StringColorUtil
 	 * Converts a RGBA value to a hexadecimal string. 
 	 */
 	public static inline function string (v:RGBA) : String			{ return rgbaToString(v); }
+	public static inline function cssRgba(v:RGBA) : String			{ return "rgba(" + v.red() + "," + v.green() + "," + v.blue() + "," + (v.alpha() / 255) + ")"; }
 	public static inline function rgbaToString (v:RGBA) : String	{ return "0x"+v.rgb().hex(6) + v.alpha().hex(2); }
 	public static inline function rgbToString (v:RGBA) : String		{ return "0x"+v.rgb().hex(6); }
 	public static inline function uintToString (v:Int) : String
