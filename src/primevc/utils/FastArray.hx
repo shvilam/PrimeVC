@@ -57,8 +57,8 @@ extern class FastArrayUtil
 #elseif neko
 		return untyped Array.new1(neko.NativeArray.alloc(size), size);
 #elseif js
-		var size = size;
-		return untyped __js__("new Array(size)");
+		// if size is the constant value 0, only [] will be inlined at the call site.
+		return if (size == 0) [] else (untyped Array)(size);
 #end
 	}
 	
