@@ -46,7 +46,7 @@ typedef FastArray<T> =
  * @author			Ruben Weijers
  * @author			Danny Wilson
  */
-extern class FastArrayUtil
+#if flash10 extern #end class FastArrayUtil
 {
 	static public inline function create<T>(?size:Int = 0, ?fixed:Bool = false) : FastArray<T>
 	{
@@ -72,7 +72,7 @@ extern class FastArrayUtil
 	}
 	
 #if !flash10
-	public static inline function indexOf<T> ( list:FastArray<T>, item:T, ?startPos:Int = 0 ) : Int
+	static public inline function indexOf<T> ( list:FastArray<T>, item:T, ?startPos:Int = 0 ) : Int
 	{
 		var pos:Int = -1;
 		for (i in startPos...list.length) {
@@ -86,7 +86,7 @@ extern class FastArrayUtil
 #end
 	
 	
-	public static inline function insertAt<T>( list:FastArray<T>, item:T, pos:Int ) : Int
+	static public #if flash10 inline #end function insertAt<T>( list:FastArray<T>, item:T, pos:Int ) : Int
 	{
 		var newPos:Int = 0;
 		if (pos < 0 || pos == list.length.int())
@@ -113,7 +113,7 @@ extern class FastArrayUtil
 	}
 	
 	
-	public static inline function move<T>( list:FastArray<T>, item:T, newPos:Int, curPos:Int = -1 ) : Bool
+	static public #if flash10 inline #end function move<T>( list:FastArray<T>, item:T, newPos:Int, curPos:Int = -1 ) : Bool
 	{
 		if (curPos == -1)
 			curPos = list.indexOf(item);
@@ -148,7 +148,7 @@ extern class FastArrayUtil
 	}
 	
 	
-	public static inline function swap<T> (list:FastArray<T>, item1:T, item2:T ) : Void
+	static public inline function swap<T> (list:FastArray<T>, item1:T, item2:T ) : Void
 	{
 		if (!list.has(item1))		throw "item1 is not in list";
 		if (!list.has(item2))		throw "item2 is not in list";
@@ -160,14 +160,14 @@ extern class FastArrayUtil
 	}
 	
 	
-	public static inline function removeItem<T> (list:FastArray<T>, item:T, oldPos:Int = -1) : Bool {
+	static public inline function removeItem<T> (list:FastArray<T>, item:T, oldPos:Int = -1) : Bool {
 		if (oldPos == -1)
 			oldPos = list.indexOf(item);
 		return removeAt(list, oldPos);
 	}
 	
 	
-	public static inline function removeAt<T> (list:FastArray<T>, pos:Int) : Bool {
+	static public inline function removeAt<T> (list:FastArray<T>, pos:Int) : Bool {
 		if (pos >= 0)
 		{
 			if		(pos == 0)						list.shift();
@@ -178,7 +178,7 @@ extern class FastArrayUtil
 	}
 	
 	
-	public static inline function removeAll<T> (list:FastArray<T>) : FastArray<T> {
+	static public inline function removeAll<T> (list:FastArray<T>) : FastArray<T> {
 		while (list.length > 0)
 			list.pop();
 		
@@ -186,7 +186,7 @@ extern class FastArrayUtil
 	}
 	
 	
-	public static inline function dispose<T> (list:FastArray<T>) : Void {
+	static public inline function dispose<T> (list:FastArray<T>) : Void {
 		while (list.length > 0) {
 			var i = list.pop();
 			if (i.is(IDisposable))
@@ -195,13 +195,13 @@ extern class FastArrayUtil
 	}
 	
 	
-	public static inline function has<T>( list:FastArray<T>, item:T ) : Bool {
+	static public inline function has<T>( list:FastArray<T>, item:T ) : Bool {
 		return list.indexOf( item ) >= 0;
 	}
 
 #if flash10
 	/** Alias for arr.clone() */
-	public static inline function copy<T> ( arr:FastArray<T> ) : FastArray<T>
+	static public inline function copy<T> ( arr:FastArray<T> ) : FastArray<T>
 	{
 		return arr.concat();
 	}
@@ -211,7 +211,7 @@ extern class FastArrayUtil
 	 * Clone will generate a new FastArray with the same children as the given
 	 * fast-array
 	 */
-	public static inline function clone<T> ( arr:FastArray<T> ) : FastArray<T>
+	static public inline function clone<T> ( arr:FastArray<T> ) : FastArray<T>
 	{
 		return #if flash10 arr.concat(); #else arr.copy(); #end
 	}
@@ -225,7 +225,7 @@ extern class FastArrayUtil
 	 * 		the original. Without 'inline', a Vector<String> will be duplicated
 	 * 		to Vector<Object>
 	 */
-	public static #if flash10 inline #end function duplicate<T> ( arr:FastArray<T> ) : FastArray<T>
+	static public inline function duplicate<T> ( arr:FastArray<T> ) : FastArray<T>
 	{
 		var n:FastArray<T> = FastArrayUtil.create();
 		var l = arr.length;
@@ -236,14 +236,14 @@ extern class FastArrayUtil
 	}
 	
 	
-	public static inline function asArrayOf<A,B> ( arr:FastArray<A>, type:Class<B> ) : FastArray<B>
+	static public inline function asArrayOf<A,B> ( arr:FastArray<A>, type:Class<B> ) : FastArray<B>
 	{
 		return #if flash10 flash.Vector.convert(arr) #else untyped arr #end;
 	}
 	
 	
 #if debug
-	public static inline function asString<T>( list:FastArray<T> ) : String
+	static public inline function asString<T>( list:FastArray<T> ) : String
 	{
 		var items:FastArray<String> = FastArrayUtil.create();
 		var i = 0;

@@ -128,6 +128,15 @@ extern class RevertableBindableFlags
 #if debug
 	public static inline function readProperties (flags:Int) : String
 	{
+		return RevertableBindableFlagsDebug.readProperties(flags);
+	}
+#end
+}
+
+#if debug
+private class RevertableBindableFlagsDebug {
+	public static function readProperties (flags:Int) : String
+	{
 		var props = [];
 		
 		if (flags.has( IN_EDITMODE ))						props.push( "editmode" );
@@ -138,5 +147,5 @@ extern class RevertableBindableFlags
 		
 		return "properties: "+props.join(", ") + " ("+flags+")";
 	}
-#end
 }
+#end

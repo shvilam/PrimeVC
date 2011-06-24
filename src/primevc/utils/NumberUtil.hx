@@ -108,10 +108,10 @@ extern class FloatUtil
 	 */
 	public static inline function within (value:Float, min:Float, max:Float) : Float {
 		
-		if		(value.notSet())	value = min;
-		else if (value < min)		value = min;
-		else if (value > max)		value = max;
-		return value;
+		return if (value.notSet())	min;
+		  else if (value < min)		min;
+		  else if (value > max)		max;
+		  else value;
 	}
 	
 	
@@ -130,9 +130,8 @@ extern class FloatUtil
 	
 	
 	public static inline function round (value:Float, precision:Int = 0) : Float {
-		value = value * Math.pow(10, precision);
-		value = Math.round(value) / Math.pow(10, precision);
-		return value;
+		#if flash9 var Math = Math; /* cache the class reference */ #end
+		return (Math.round(value * Math.pow(10, precision)) / Math.pow(10, precision));
 	}
 	
 	

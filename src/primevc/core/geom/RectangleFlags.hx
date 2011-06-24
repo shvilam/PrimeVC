@@ -35,7 +35,7 @@ package primevc.core.geom;
  * @author Ruben Weijers
  * @creation-date Oct 14, 2010
  */
-extern class RectangleFlags
+#if !debug extern #end class RectangleFlags
 {
 	public static inline var WIDTH		= 1 << 0;
 	public static inline var HEIGHT		= 1 << 1;

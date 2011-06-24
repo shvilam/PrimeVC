@@ -56,11 +56,12 @@ extern class Color
 	public static inline function blend (v1:RGBA, v2:RGBA) : RGBA
 	{
 		//add each channel of the colors and divide them by 2
-		var r = (v1.red()	+ v2.red())		>> 1;
-		var g = (v1.green()	+ v2.green())	>> 1;
-		var b = (v1.blue()	+ v2.blue())	>> 1;
-		var a = (v1.alpha()	+ v2.alpha())	>> 1;
-		return Color.create(r, g, b, a);
+		return Color.create(
+		/* R */ (v1.red()	+ v2.red())		>> 1,
+		/* G */ (v1.green()	+ v2.green())	>> 1,
+		/* B */ (v1.blue()	+ v2.blue())	>> 1,
+		/* A */ (v1.alpha()	+ v2.alpha())	>> 1
+		);
 	}
 	
 	/**
@@ -69,12 +70,20 @@ extern class Color
 	 */
 	public static inline function alphaBlendColors (v1:RGBA, v2:RGBA, alpha:Float) : RGBA
 	{
+	#if !js
 		var invAlpha = 1 - alpha;
 		return create(
-			 	(alpha * v1.red()).int()	+ (invAlpha * v2.red()).int(),
+				(alpha * v1  .red()).int()	+ (invAlpha * v2  .red()).int(),
 				(alpha * v1.green()).int()	+ (invAlpha * v2.green()).int(),
-				(alpha * v1.blue()).int()	+ (invAlpha * v2.blue()).int()
+				(alpha * v1 .blue()).int()	+ (invAlpha * v2 .blue()).int()
 		);
+	#else
+		return create(
+				(alpha * v1  .red()).int()	+ ((1 - alpha) * v2  .red()).int(),
+				(alpha * v1.green()).int()	+ ((1 - alpha) * v2.green()).int(),
+				(alpha * v1 .blue()).int()	+ ((1 - alpha) * v2 .blue()).int()
+		);
+	#end
 	}
 	
 	
@@ -198,10 +207,10 @@ extern class RGBAUtil
 	 */
 	public static inline function tint (v:RGBA, tint:Float) : RGBA {
 		return Color.create(
-			(v.red() * tint).int(),
+			(v  .red() * tint).int(),
 			(v.green() * tint).int(),
-			(v.blue() * tint).int(),
-			v.alpha()
+			(v .blue() * tint).int(),
+			 v.alpha()
 		);
 	}
 }
@@ -242,17 +251,15 @@ extern class StringColorUtil
 	public static inline function rgbToString (v:RGBA) : String		{ return "0x"+v.rgb().hex(6); }
 	public static inline function uintToString (v:Int) : String
 	{
-		var h =  if (v < L1)	v.hex(1);
-			else if (v < L2)	v.hex(2);
-			else if (v < L3)	v.hex(3);
-			else if (v < L4)	v.hex(4);
-			else if (v < L5)	v.hex(5);
-			else if (v < L6)	v.hex(6);
-			else if (v < L7)	v.hex(7);
-			else if (v < L8)	v.hex(8);
-			else				v.hex();
-		
-		return "0x"+h;
+		return "0x"+ if (v < L1)	v.hex(1);
+				else if (v < L2)	v.hex(2);
+				else if (v < L3)	v.hex(3);
+				else if (v < L4)	v.hex(4);
+				else if (v < L5)	v.hex(5);
+				else if (v < L6)	v.hex(6);
+				else if (v < L7)	v.hex(7);
+				else if (v < L8)	v.hex(8);
+				else				v.hex();
 	}
 	
 	/**
