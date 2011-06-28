@@ -42,6 +42,7 @@ package primevc.gui.components;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.traits.IInteractive;
+ import primevc.gui.traits.ISelectable;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
@@ -140,7 +141,7 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 			checkFirstItemRenderer	.on( layout.scrollPos.yProp.change, this );
 			checkItemRenderers		.on( layout.changed, this );
 			
-			trace(layout.childHeight+" / "+layout.height);
+			trace(this+"; "+layout.childHeight+" / "+layout.height);
 			length = layout.algorithm.getMaxVisibleChildren();
 		}
 		
@@ -164,14 +165,8 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	// DATA RENDERER METHODS
 	//
 	
-/*	private function createItemRenderer ( item:ListDataType, pos:Int ) : IUIDataElement
-	{
-		Assert.abstract();
-		return null;
-	}*/
 	
-	
-	private /*inline*/ function addRenderer( item:ListDataType, newPos:Int = -1 )
+	private inline function addRenderer( item:ListDataType, newPos:Int = -1 )
 	{
 		if (newPos == -1)
 			newPos = data.indexOf( item );
@@ -184,7 +179,7 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	}
 	
 	
-	private /*inline*/ function removeRendererFor( item:ListDataType, oldPos:Int = -1 )
+	private inline function removeRendererFor( item:ListDataType, oldPos:Int = -1 )
 	{
 		var renderer = getRendererFor( item );
 		if (renderer != null)
@@ -192,7 +187,7 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	}
 	
 	
-	private /*inline*/ function removeRenderer (renderer:IUIDataElement<ListDataType>)	{ renderer.dispose(); }
+	private inline function removeRenderer (renderer:IUIDataElement<ListDataType>)	{ renderer.dispose(); }
 	
 	
 	
@@ -204,7 +199,7 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	
 	public inline function getRendererAt( pos:Int ) : IUIDataElement<ListDataType>
 	{
-		return pos == -1 ? null : cast children.getItemAt(pos).as(IUIDataElement);
+		return pos > -1 ? cast children.getItemAt(pos).as(IUIDataElement) : null;
 	}
 	
 	
@@ -219,6 +214,14 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 			pos -= layoutContainer.fixedChildStart;
 		
 		return pos;
+	}
+	
+	
+	public inline function hasRendererFor (dataItem:ListDataType) : Bool
+	{
+	    var l     = layoutContainer;
+	    var depth = data.indexOf(dataItem) - l.fixedChildStart;
+	    return depth >= 0 && depth < l.children.length;
 	}
 	
 	
@@ -246,9 +249,6 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	// ITEM-RENDERER CACHING
 	//
 	
-//	private var free		: FastArray<IUIDataElement>;
-	private var useFreelist	: Bool;
-	
 	
 	private function checkItemRenderers (changes:Int)
 	{
@@ -268,13 +268,13 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	}
 	
 	
-	private /*inline*/ function updateVisibleItemRenderers (startVisible:Int, maxVisible:Int)
+	private inline function updateVisibleItemRenderers (startVisible:Int, maxVisible:Int)
 	{
 		var l = layoutContainer;
 		var curStart = l.fixedChildStart;
 		var curLen	 = l.children.length;
 		
-		trace(startVisible+" / "+maxVisible+"; current: "+curStart+" / "+curLen);
+		trace(this+": "+startVisible+" / "+maxVisible+"; current: "+curStart+" / "+curLen);
 		if ((startVisible + maxVisible) > data.length)
 			startVisible = data.length - maxVisible;
 		
@@ -298,12 +298,16 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	}
 	
 	
-	private /*inline*/ function reuseRenderer( from:Int, to:Int, newDataPos:Int )
+	private inline function reuseRenderer( from:Int, to:Int, newDataPos:Int )
 	{
-		trace("reuse renderer from "+from+" to "+to+" with data "+newDataPos);
+	//	trace("reuse renderer from "+from+" to "+to+" with data "+newDataPos);
 		var d = data.getItemAt(newDataPos);
 		var r = children.getItemAt(from).as(IUIDataElement);
 		r.changeDepth( to );
+		
+		if (r.is(ISelectable))
+		    r.as(ISelectable).deselect();
+		
 		if (r.is(IItemRenderer))	r.as(IItemRenderer).vo.value = cast d;
 	 	else						r.data = cast d;
 	}

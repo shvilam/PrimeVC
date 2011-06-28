@@ -50,6 +50,7 @@ interface ILayoutContainer implements ILayoutClient
 	public var children				(default, null)				: IEditableList<LayoutClient>;
 	public var childrenLength		(default, null)				: Int;
 	public var fixedChildStart		(default, default)			: Int;
+	
 	/**
 	 * The maximum width of each child. Their orignal width will be ignored if
 	 * the child is bigger then this number (it won't get resized).

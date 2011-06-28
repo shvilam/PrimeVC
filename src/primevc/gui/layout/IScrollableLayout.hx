@@ -85,6 +85,12 @@ interface IScrollableLayout implements ILayoutContainer, implements IAdvancedLay
 	 */
 	public function scrollTo				(child:ILayoutClient)	: Void;
 	
+	/**
+	 * Method will try to scroll to the given child-index, even if the child isn't
+	 * rendered.
+	 */
+ 	public function scrollToDepth			(depth:Int)         	: Void;
+	
 	
 	
 	/**

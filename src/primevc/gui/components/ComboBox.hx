@@ -276,32 +276,54 @@ class ComboBox <DataType> extends DataButton <DataType>
 	{
 		//change selected itemrenderer in list
 		var view = list.list;
-		var r = view.getRendererFor( vo );
-		if (r != null && r.is(ISelectable))
-			r.as(ISelectable).deselect();
+		if (view.hasRendererFor(vo))
+		{
+		    var r = view.getRendererFor( vo );
+    		if (r != null && r.is(ISelectable))
+    			r.as(ISelectable).deselect();
 		
-		indexChangeWire.disable();
-		list.selectedIndex.value = -1;
-		indexChangeWire.enable();
+    		indexChangeWire.disable();
+    		list.selectedIndex.value = -1;
+    		indexChangeWire.enable();
+		}
 	}
 	
 	
-	private inline function selectItem (vo:DataType)
+	private /*inline*/ function selectItem (vo:DataType)
 	{
 		//change selected itemrenderer in list
-		var view = list.list;
-		var i	= view.getPositionFor( vo );
-		var r	= view.getRendererAt( i );
+		var view        = list.list;
+		var depth       = listData.indexOf(vo);
+		var viewLayout  = view.layoutContainer;
+		var childStart  = viewLayout.fixedChildStart;
+		var childEnd    = childStart + viewLayout.children.length; 
 		
-	//	trace(this+".select "+r);
-		if (r != null && r.is(ISelectable))
-			r.as(ISelectable).select();
-		
-		list.list.layoutContainer.scrollTo( r.layout );
-		
-		indexChangeWire.disable();
-		list.selectedIndex.value = i;
-		indexChangeWire.enable();
+		if (depth > -1)
+		{
+    		if (view.hasRendererFor(vo))
+    		{
+    			trace(this+".select "+depth+"; start: "+childStart+"; end: "+childEnd);
+    		    var r = view.getRendererAt( depth );
+    		    Assert.notNull(r);
+    		    
+    			trace(this+".select "+r);
+    		    if (r != null && r.is(ISelectable))
+    			    r.as(ISelectable).select();
+		    
+    		    if (view.isScrollable)
+    		        viewLayout.scrollTo( r.layout );
+    		}
+    		else
+    		{
+    		    // renderer isn't visible yet, let's scroll to it
+    		    viewLayout.scrollToDepth(depth);
+    		    
+    //		    trace(view.getRendererAt( depth ));
+    		}
+    		indexChangeWire.disable();
+    		list.selectedIndex.value = depth;
+    		indexChangeWire.enable();
+		}
 	}
 	
 	

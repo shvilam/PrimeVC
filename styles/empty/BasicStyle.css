@@ -115,6 +115,7 @@ ComboBox {
 	overflow: scrollbars;
 	algorithm: float-ver( top, left );
 	padding: 0px;
+	child-height: 20px;
 }
 
 .comboList ListView Button {

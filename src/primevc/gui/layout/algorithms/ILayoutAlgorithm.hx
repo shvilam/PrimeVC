@@ -92,6 +92,12 @@ interface ILayoutAlgorithm
 	 */
 	public function getDepthForBounds (bounds:IRectangle)	: Int;
 	
+	/**
+	 * Method to change to scroll-position of the layoutcontainer to make the
+	 * given child-depth visible
+	 */
+	public function scrollToDepth (depth:Int)               : Void;
+	
 	
 	/**
 	 * Method will return the depth of the first visible child, based on:

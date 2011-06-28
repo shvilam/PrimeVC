@@ -28,8 +28,6 @@
  */
 package primevc.gui.layout.algorithms.tile;
  import primevc.core.geom.space.Direction;
-// import primevc.core.geom.space.Horizontal;
-// import primevc.core.geom.space.Vertical;
  import primevc.core.geom.IRectangle;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
@@ -53,19 +51,14 @@ package primevc.gui.layout.algorithms.tile;
 class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 {
 	public var direction	(default, setDirection)		: Direction;
-//	public var horizontal	(default, setHorizontal)	: Horizontal;
-//	public var vertical		(default, setVertical)		: Vertical;
-	
 	private var columns		: Int;
 	private var rows		: Int;
 	
 	
-	public function new (direction:Direction = null) //, horizontal:Horizontal = leftToRight, vertical:Vertical = topToBottom)
+	public function new (direction:Direction = null)
 	{
 		super();
 		(untyped this).direction	= direction == null ? horizontal : direction;
-	//	(untyped this).horizontal	= horizontal;
-	//	(untyped this).vertical		= vertical;
 		rows = columns = Number.INT_NOT_SET;
 	}
 	
@@ -482,9 +475,76 @@ class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorit
 		
 		trace(direction+"; childSize: "+g.childHeight+", "+g.childWidth+"; size: "+g.width+", "+g.height+"; columns: "+columns+"; rows: "+rows+"; l: "+g.childrenLength);
 		switch (direction) {
-			case horizontal:	return g.childHeight.isSet() && g.height.isSet() ? IntMath.min( ((g.height / g.childHeight).ceilFloat() + 1) * columns, g.childrenLength) : 0;
-			case vertical:		return g.childWidth .isSet() && g.width .isSet() ? IntMath.min( ((g.width  / g.childWidth) .ceilFloat() +1) * rows, g.childrenLength) : 0;
+			case horizontal:
+			    if (g.childHeight.isSet())  return g.height.isSet() ? IntMath.min( ((g.height / g.childHeight).ceilFloat() + 1) * columns, g.childrenLength) : 0;
+			    else                        return g.childrenLength;
+			case vertical:
+			    if (g.childWidth .isSet())  return g.width .isSet() ? IntMath.min( ((g.width  / g.childWidth) .ceilFloat() +1) * rows, g.childrenLength) : 0;
+			    else                        return g.childrenLength;
 		}
+		
+	}
+	
+	
+	override public function scrollToDepth (depth:Int)
+	{
+	    if (!group.is(IScrollableLayout))
+	        return;
+	    
+	    var group       = this.group.as(IScrollableLayout);
+	    var childH      = group.childHeight;
+	    var childW      = group.childWidth;
+	    var children    = group.children;
+	    
+	    switch (direction)
+	    {
+	        case horizontal:
+                //
+                // scroll vertically
+                //
+    	        var scrollY = Number.INT_NOT_SET;
+    	        
+    	        
+	            if (childW.isSet() && childH.isSet())
+	            {
+	                Assert.that(columns.isSet());
+	                var row = (depth / columns).floorFloat();
+	                scrollY = row * childH;
+	            }
+	            else
+	            {
+	                Assert.that( depth < children.length );
+	                scrollY = children.getItemAt(depth).outerBounds.top;
+	            }
+	            
+	            if (scrollY.isSet())
+        		    group.scrollPos.y = scrollY;
+	            
+	        
+	        
+	        case vertical:
+	            //
+	            // scroll horizontally
+	            //
+	            var scrollX = Number.INT_NOT_SET;
+	            
+	            
+	            if (childW.isSet() && childH.isSet())
+	            {
+	                Assert.that(rows.isSet());
+	                var col = (depth / rows).floorFloat();
+	                scrollX = col * childW;
+	            }
+	            else
+	            {
+	                Assert.that( depth < children.length );
+	                scrollX = children.getItemAt(depth).outerBounds.left;
+	            }
+	            
+	            if (scrollX.isSet())
+        		    group.scrollPos.x = scrollX;
+		}
+		
 		
 	}
 }

@@ -207,7 +207,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 		
 		if (group.childHeight.isSet())
 		{
-			depth = posY.divRound(group.childHeight);
+			depth = ((posY - getTopStartValue()) / group.childHeight).roundFloat();
 		}
 		else
 		{
@@ -253,7 +253,8 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	private inline function getDepthForBoundsC (bounds:IRectangle) : Int
 	{
 		Assert.abstract( "Wrong implementation since the way centered layouts behave is changed");
-		var depth:Int	= 0;
+		return 0;
+	/*	var depth:Int	= 0;
 		var posY:Int	= bounds.top;
 		var centerY:Int	= bounds.top + (bounds.height >> 1); // * .5).roundFloat();
 		
@@ -278,7 +279,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 
 			depth++;
 		}
-		return depth;
+		return depth;*/
 	}
 
 
@@ -301,7 +302,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 		
 		if (group.childHeight.isSet())
 		{
-			depth = children.length - ( posY - emptyHeight ).divRound( group.childHeight );
+			depth = children.length - ((posY - getBottomStartValue() - emptyHeight ) / group.childHeight).roundFloat();
 		}
 		else
 		{
@@ -367,7 +368,53 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	override public function getMaxVisibleChildren () : Int
 	{
 		var g = this.group;
-		return g.childHeight.isSet() && g.height.isSet() ? IntMath.min( (g.height / g.childHeight).ceilFloat() + 1, g.childrenLength) : 0;
+		if (g.childHeight.isSet())
+		    return g.height.isSet() ? IntMath.min( (g.height / g.childHeight).ceilFloat() + 1, g.childrenLength) : 0;
+		else
+		    return g.childrenLength;
+	}
+	
+	
+	override public function scrollToDepth (depth:Int)
+	{
+	    if (!group.is(IScrollableLayout))
+	        return;
+	    
+	    var group       = this.group.as(IScrollableLayout);
+	    var childH      = group.childHeight;
+	    var scrollY     = Number.INT_NOT_SET;
+	    var children    = group.children;
+	    
+	    switch (direction)
+	    {
+			case top:
+			    if (childH.isSet()) {
+			        scrollY = getTopStartValue() + (depth * childH);
+		        } else {
+#if debug	        Assert.that( depth >= group.fixedChildStart, depth+" >= "+group.fixedChildStart );
+			        Assert.that( depth <  group.fixedChildStart + children.length, depth+" < "+group.fixedChildStart+" + "+children.length ); #end
+			        
+			        scrollY = children.getItemAt( depth - group.fixedChildStart ).outerBounds.top;
+			    }
+			    
+			
+			case center:
+			    Assert.abstract();
+			
+			
+			case bottom:
+			    if (childH.isSet()) {
+			        scrollY = getBottomStartValue() + ((depth + 1) * childH);
+		        } else {
+#if debug	        Assert.that( depth >= group.fixedChildStart, depth+" >= "+group.fixedChildStart );
+			        Assert.that( depth <  group.fixedChildStart + children.length, depth+" < "+group.fixedChildStart+" + "+children.length ); #end
+			        
+			        scrollY = children.getItemAt( depth - group.fixedChildStart ).outerBounds.top;
+			    }
+		}
+		
+		if (scrollY.isSet())
+		    group.scrollPos.y = scrollY;
 	}
 	
 	

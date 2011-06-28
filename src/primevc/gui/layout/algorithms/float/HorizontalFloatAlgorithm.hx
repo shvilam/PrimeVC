@@ -32,6 +32,7 @@ package primevc.gui.layout.algorithms.float;
  import primevc.gui.layout.algorithms.HorizontalBaseAlgorithm;
  import primevc.gui.layout.algorithms.IHorizontalAlgorithm;
  import primevc.gui.layout.AdvancedLayoutClient;
+ import primevc.types.Number;
  import primevc.utils.NumberUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
@@ -200,7 +201,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 		
 		if (group.childWidth.isSet())
 		{
-			depth = posX.divRound(group.childWidth);
+			depth = ((posX - getLeftStartValue()) / group.childWidth).roundFloat();
 		}
 		else
 		{
@@ -246,8 +247,9 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	private inline function getDepthForBoundsC (bounds:IRectangle) : Int
 	{
 		Assert.abstract( "Wrong implementation since the way centered layouts behave is changed");
-		var depth:Int	= 0;
-		var posX:Int	= bounds.left;
+		return 0;
+	/*	var depth:Int	= 0;
+		var posX:Int	= bounds.left - getHorCenterStartValue();
 		var centerX:Int	= bounds.left + (bounds.width >> 1); // * .5).roundFloat();
 		var children	= group.children;
 		
@@ -269,7 +271,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 
 			depth++;
 		}
-		return depth;
+		return depth;*/
 	}
 	
 	
@@ -277,7 +279,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	{
 		var depth:Int	= 0;
 		var posX:Int	= bounds.left;
-		var centerX:Int	= bounds.left + (bounds.width >> 1); //* .5).roundFloat();
+		var centerX:Int	= posX + (bounds.width >> 1); //* .5).roundFloat();
 		
 		var children	= group.children;
 		var groupWidth	= group.width;
@@ -291,7 +293,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 		
 		if (group.childWidth.isSet())
 		{
-			depth = children.length - ( posX - emptyWidth ).divRound( group.childWidth );
+			depth = children.length - ((posX - getRightStartValue() - emptyWidth) / group.childWidth).roundFloat();
 		}
 		else
 		{
@@ -356,7 +358,53 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	override public function getMaxVisibleChildren () : Int
 	{
 		var g = this.group;
-		return g.childWidth.isSet() && g.width.isSet() ? IntMath.min( (g.width / g.childWidth).ceilFloat() + 1, g.childrenLength) : 0;
+		if (g.childWidth.isSet())
+		    return g.width.isSet() ? IntMath.min( (g.width / g.childWidth).ceilFloat() + 1, g.childrenLength) : 0;
+	    else
+	        return g.childrenLength;
+	}
+	
+	
+	override public function scrollToDepth (depth:Int)
+	{
+	    if (!group.is(IScrollableLayout))
+	        return;
+	    
+	    var group       = this.group.as(IScrollableLayout);
+	    var childW      = group.childWidth;
+	    var scrollX     = Number.INT_NOT_SET;
+	    var children    = group.children;
+	    
+	    switch (direction)
+	    {
+			case Horizontal.left:
+			    if (childW.isSet()) {
+			        scrollX = getLeftStartValue() + (depth * childW);
+		        } else {
+#if debug	        Assert.that( depth >= group.fixedChildStart, depth+" >= "+group.fixedChildStart );
+			        Assert.that( depth <  group.fixedChildStart + children.length, depth+" < "+group.fixedChildStart+" + "+children.length ); #end
+			        
+			        scrollX = children.getItemAt( depth - group.fixedChildStart ).outerBounds.left;
+			    }
+			    
+			
+			case Horizontal.center:
+			    Assert.abstract();
+			
+			
+			case Horizontal.right:
+			    if (childW.isSet()) {
+			        scrollX = getRightStartValue() + ((depth + 1) * childW);
+		        } else {
+#if debug	        Assert.that( depth >= group.fixedChildStart, depth+" >= "+group.fixedChildStart );
+			        Assert.that( depth <  group.fixedChildStart + children.length, depth+" < "+group.fixedChildStart+" + "+children.length ); #end
+			        
+			        scrollX = children.getItemAt( depth - group.fixedChildStart ).outerBounds.left;
+			    }
+		}
+		
+		if (scrollX.isSet())
+		    group.scrollPos.x = scrollX;
 	}
 	
 	

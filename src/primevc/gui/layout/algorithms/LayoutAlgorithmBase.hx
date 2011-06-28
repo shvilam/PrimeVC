@@ -202,6 +202,9 @@ class LayoutAlgorithmBase
 	}
 	
 	
+	public function scrollToDepth (depth:Int) { Assert.abstract(); }
+	
+	
 	
 #if (neko || debug)
 	public function toString () : String				{ return toCSS(); }
