@@ -32,6 +32,8 @@ package primevc.gui.layout.algorithms.float;
  import primevc.gui.layout.algorithms.IVerticalAlgorithm;
  import primevc.gui.layout.algorithms.VerticalBaseAlgorithm;
  import primevc.gui.layout.AdvancedLayoutClient;
+ import primevc.gui.layout.IScrollableLayout;
+ import primevc.types.Number;
  import primevc.utils.NumberUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
@@ -45,19 +47,6 @@ package primevc.gui.layout.algorithms.float;
  */
 class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVerticalAlgorithm
 {
-	/**
-	 * Measured point of the bottom side of the middlest child (rounded above)
-	 * when the direction is center.
-	 */
-	private var halfHeight	: Int;
-	
-	
-	
-	//
-	// LAYOUT
-	//
-	
-	
 	/**
 	 * Method will return the total height of all the children.
 	 */
@@ -73,7 +62,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	
 	public function validateVertical ()
 	{
-		var height:Int	= halfHeight = 0;
+		var height:Int	= 0;
 		var children	= group.children;
 		
 		if (group.childHeight.notSet())
@@ -85,17 +74,10 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 					continue;
 				
 				height += child.outerBounds.height;
-				
-				//only count even children
-				if (i.isEven())
-					halfHeight += child.outerBounds.height;
 			}
 		}
 		else
-		{
-			height		= group.childHeight * children.length;
-			halfHeight	= group.childHeight * children.length.divCeil(2);
-		}
+			height = group.childHeight * group.childrenLength;
 		
 		setGroupHeight(height);
 	}
@@ -114,6 +96,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	
 	private inline function applyTopToBottom (next:Int = -1) : Void
 	{
+		var group = this.group;
 		if (group.children.length > 0)
 		{
 			if (next == -1)
@@ -137,6 +120,9 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 			}
 			else
 			{
+				if (group.fixedChildStart.isSet())
+					next += group.fixedChildStart * group.childHeight;
+				
 				for (i in 0...children.length)
 				{
 					var child = children.getItemAt(i);
@@ -154,57 +140,12 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	private inline function applyCentered () : Void
 	{
 		applyTopToBottom( getVerCenterStartValue() );
-		/*if (group.children.length > 0)
-		{
-			var i:Int = 0;
-			var evenPos:Int, oddPos:Int;
-			evenPos = oddPos = halfHeight + getTopStartValue();
-		
-			//use 2 loops for algorithms with and without a fixed child-height. This is faster than doing the if statement inside the loop!
-			if (group.childHeight.notSet())
-			{
-				for (child in group.children)
-				{
-					if (!child.includeInLayout)
-						continue;
-					
-					if (i.isEven()) {
-						//even
-						child.bounds.bottom	= evenPos;
-						evenPos				= child.bounds.top;
-					} else {
-						//odd
-						child.bounds.top	= oddPos;
-						oddPos				= child.bounds.bottom;
-					}
-					i++;
-				}
-			}
-			else
-			{
-				for (child in group.children)
-				{
-					if (!child.includeInLayout)
-						continue;
-					
-					if (i.isEven()) {
-						//even
-						child.bounds.bottom	 = evenPos;
-						evenPos				-= group.childHeight;
-					} else {
-						//odd
-						child.bounds.top	 = oddPos;
-						oddPos				+= group.childHeight;
-					}
-					i++;
-				}
-			}
-		}*/
 	}
 	
 	
 	private inline function applyBottomToTop () : Void
 	{
+		var group = this.group;
 		if (group.children.length > 0)
 		{
 			var next		= getBottomStartValue();
@@ -227,6 +168,9 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 			else
 			{
 				next -= group.childHeight;
+				if (group.fixedChildStart.isSet())
+					next -= group.fixedChildStart * group.childHeight;
+				
 				for (i in 0...children.length)
 				{
 					var child = children.getItemAt(i);
@@ -399,6 +343,31 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 
 		}
 		return depth;
+	}
+	
+	
+	
+	override public function getDepthOfFirstVisibleChild ()	: Int
+	{
+		if (group.childHeight.notSet())
+			return 0;
+		
+		Assert.that(group.is(IScrollableLayout), group+" should be scrollable");
+		var group	= group.as(IScrollableLayout);
+		var childH	= group.childHeight;
+		
+		return switch (direction) {
+			case Vertical.top:		(group.scrollPos.y / childH).floorFloat();
+			case Vertical.center:	0;
+			case Vertical.bottom:	(group.scrollableHeight / childH).floorFloat();
+		}
+	}
+	
+	
+	override public function getMaxVisibleChildren () : Int
+	{
+		var g = this.group;
+		return g.childHeight.isSet() && g.height.isSet() ? IntMath.min( (g.height / g.childHeight).ceilFloat() + 1, g.childrenLength) : 0;
 	}
 	
 	

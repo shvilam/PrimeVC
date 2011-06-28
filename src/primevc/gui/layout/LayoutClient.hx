@@ -411,7 +411,7 @@ class LayoutClient extends Invalidatable
 	 * Method will validate the given value against the given validate-options.
 	 * The method will try to make the new-width fit in
 	 */
-	private function validateWidth (v:Int, options:Int) : Int
+	public function validateWidth (v:Int, options:Int) : Int
 	{
 		if (v.notSet() || options == 0)
 			return v;
@@ -448,7 +448,7 @@ class LayoutClient extends Invalidatable
 	 * Method will validate the given value against the given validate-options.
 	 * The method will try to make the new-height fit in
 	 */
-	private function validateHeight (v:Int, options:Int) : Int
+	public function validateHeight (v:Int, options:Int) : Int
 	{
 		if (v.notSet() || options == 0)
 			return v;
@@ -798,10 +798,13 @@ class LayoutClient extends Invalidatable
 	}
 	
 	
-	public inline function getHorPadding () : Int	{ return padding == null ? 0 : padding.left + padding.right; }
-	public inline function getVerPadding() : Int	{ return padding == null ? 0 : padding.top + padding.bottom; }
-	public inline function getHorMargin () : Int	{ return margin == null ? 0 : margin.left + margin.right; }
-	public inline function getVerMargin() : Int		{ return margin == null ? 0 : margin.top + margin.bottom; }
+	public inline function getHorPadding () : Int	{ return padding == null ? 0 : padding.left	+ padding.right; }
+	public inline function getVerPadding() : Int	{ return padding == null ? 0 : padding.top	+ padding.bottom; }
+	public inline function getHorMargin () : Int	{ return margin  == null ? 0 : margin.left	+ margin.right; }
+	public inline function getVerMargin() : Int		{ return margin	 == null ? 0 : margin.top	+ margin.bottom; }
+	
+	public inline function hasMaxWidth () : Bool	{ return widthValidator  != null && widthValidator.max.isSet(); }
+	public inline function hasMaxHeight () : Bool	{ return heightValidator != null && heightValidator.max.isSet(); }
 	
 	
 	

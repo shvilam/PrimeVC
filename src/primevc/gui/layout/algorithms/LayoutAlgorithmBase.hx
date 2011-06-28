@@ -191,6 +191,16 @@ class LayoutAlgorithmBase
 	}
 	
 	
+	public function getDepthOfFirstVisibleChild ()	: Int
+	{
+		return 0;
+	}
+	
+	public function getMaxVisibleChildren () : Int
+	{
+		return group.children.length;
+	}
+	
 	
 	
 #if (neko || debug)

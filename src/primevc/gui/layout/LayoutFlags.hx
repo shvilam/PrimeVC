@@ -48,6 +48,7 @@ extern class LayoutFlags
 	
 	public static inline var EXPLICIT_SIZE			= EXPLICIT_WIDTH | EXPLICIT_HEIGHT;
 	public static inline var MEASURED_SIZE			= MEASURED_WIDTH | MEASURED_HEIGHT;
+	public static inline var CHILD_SIZE				= CHILD_WIDTH | CHILD_HEIGHT;
 	public static inline var SIZE					= WIDTH | HEIGHT;
 	public static inline var SIZE_PROPERTIES		= WIDTH_PROPERTIES | HEIGHT_PROPERTIES;
 	public static inline var POSITION				= X | Y;
@@ -114,6 +115,12 @@ extern class LayoutFlags
 	 * Flag indicating that the children of the layout algorithm have changed.
 	 */
 	public static inline var CHILDREN_INVALIDATED	= 1 << 29;
+	
+	/**
+	 * Flag indicating that the child-length property of a LayoutContainer is 
+	 * fixed and should not be updated when the list of children is changed.
+	 */
+//	public static inline var FIXED_CHILD_LENGTH		= 1 << 30;
 	
 	
 	

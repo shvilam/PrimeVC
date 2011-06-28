@@ -93,6 +93,7 @@ package primevc.tools;
  import primevc.gui.layout.algorithms.float.VerticalFloatAlgorithm;
  import primevc.gui.layout.algorithms.tile.DynamicTileAlgorithm;
  import primevc.gui.layout.algorithms.tile.FixedTileAlgorithm;
+ import primevc.gui.layout.algorithms.tile.SimpleTileAlgorithm;
  import primevc.gui.layout.algorithms.DynamicLayoutAlgorithm;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.algorithms.RelativeAlgorithm;
@@ -2721,6 +2722,7 @@ class CSSParser
 		if		(v == "relative")			info.classRef = RelativeAlgorithm.getClassName();
 		else if	(v == "none")				info.classRef = null;						//FIXME -> none and inherit are the same now. none is not implemented yet..
 		else if	(v == "inherit")			info.classRef = null;
+		else if (v == "tile")				info.classRef = SimpleTileAlgorithm.getClassName();
 		
 		//
 		// match floating layout

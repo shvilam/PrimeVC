@@ -240,6 +240,7 @@ extern class StringColorUtil
 	public static inline function string (v:RGBA) : String			{ return rgbaToString(v); }
 	public static inline function rgbaToString (v:RGBA) : String	{ return "0x"+v.rgb().hex(6) + v.alpha().hex(2); }
 	public static inline function rgbToString (v:RGBA) : String		{ return "0x"+v.rgb().hex(6); }
+#if debug
 	public static inline function uintToString (v:Int) : String
 	{
 		var h =  if (v < L1)	v.hex(1);
@@ -254,6 +255,7 @@ extern class StringColorUtil
 		
 		return "0x"+h;
 	}
+#end
 	
 	/**
 	 * Converts a hexadecimal string to a RGBA value

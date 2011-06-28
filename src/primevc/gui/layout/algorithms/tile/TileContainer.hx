@@ -56,8 +56,6 @@ private typedef Flags = LayoutFlags;
 class TileContainer extends LayoutClient, implements ILayoutContainer
 {
 	public var algorithm	(default, setAlgorithm)		: ILayoutAlgorithm;
-	public var children		(default, null)				: IEditableList<LayoutClient>;
-	
 	public var childWidth	(default, setChildWidth)	: Int;
 	public var childHeight	(default, setChildHeight)	: Int;
 	
@@ -271,28 +269,84 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 	
 	private function algorithmChangedHandler () { invalidate( Flags.ALGORITHM ); }
 	
+	//
+	// CHILDREN
+	//
+	
+	public var children			(default, null) : IEditableList<LayoutClient>;
+	
+	/**
+	 * Property with the actual length of the children list. Use this property
+	 * instead of 'children.length' when an algorithm is calculating the 
+	 * measured size, since the property can also be set fixed and thus have a 
+	 * different number then children.length.
+	 * 
+	 * When applying an algorithm you should still use children.length since 
+	 * the algorithm will only be applied on the actual children in the list.
+	 * 
+	 * @see LayoutContainer.setFixedLength
+	 */
+	public var childrenLength	(default, null) : Int;
+	public var fixedChildStart					: Int;
+	
+	/**
+	 * Indicated wether the length of the children is fake d or not.
+	 * 
+	 * Layout-algorithms will only honor this property if the childWidth and 
+	 * childHeight also have been set, otherwise it's impossible to calculate
+	 * what the measured size of the container should be.
+	 */
+	public var fixedLength		(default, null) : Bool;
+	
+	
+	
 	private function childrenChangeHandler ( change:ListChange < LayoutClient > ) : Void
 	{
-	//	trace(this+" => "+change);
 		switch (change)
 		{
 			case added( child, newPos ):
-				if (!child.includeInLayout)
-					return;
-				
-				child.listeners.add(this);
 				child.outerBounds.left	= innerBounds.left;
 				child.outerBounds.top	= innerBounds.top;
+				child.listeners.add(this);
+				
+				if (!fixedLength)			childrenLength++;
+				if (child.includeInLayout)	invalidate( Flags.LIST );
 			
 			case removed( child, oldPos ):
 				child.listeners.remove(this);
+				
+				if (!fixedLength)			childrenLength--;
+				if (child.includeInLayout)	invalidate( Flags.LIST );
 			
-			default:
-		}
 		
-		invalidate( Flags.LIST );
+			case moved(child, newPos, oldPos):
+				if (child.includeInLayout)	
+					invalidate( Flags.LIST );
+			
+			case reset:
+				invalidate( Flags.LIST );
+		}
 	}
 	
+	
+	public inline function setFixedChildLength (length:Int)
+	{
+		fixedLength = true;
+		if (childrenLength != length) {
+			childrenLength = length;
+			invalidate( Flags.LIST );
+		}
+	}
+	
+	
+	public inline function unsetFixedChildLength ()
+	{
+		fixedLength = false;
+		if (childrenLength != children.length) {
+			childrenLength = children.length;
+			invalidate( Flags.LIST );
+		}
+	}
 	
 #if debug
 	override public function toString () { return "LayoutTileContainer( "+super.toString() + " ) - "/*+children*/; }

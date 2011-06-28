@@ -57,9 +57,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 {
 	public static inline var EMPTY_BOX : Box = new Box(0,0);
 	
-	
 	public var algorithm			(default, setAlgorithm)			: ILayoutAlgorithm;
-	public var children				(default, null)					: IEditableList<LayoutClient>;
 	
 	public var childWidth			(default, setChildWidth)		: Int;
 	public var childHeight			(default, setChildHeight)		: Int;
@@ -82,6 +80,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		(untyped this).childWidth	= Number.INT_NOT_SET;
 		(untyped this).childHeight	= Number.INT_NOT_SET;
 		
+		childrenLength	= 0;
 		children		= new ArrayList<LayoutClient>();
 		scrollPos		= new BindablePoint();
 		minScrollXPos	= minScrollYPos = 0;
@@ -196,7 +195,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			//measure children with explicitWidth and no percentage size
 			else if (checkIfChildGetsPercentageWidth(child, width)) {
 				child.outerBounds.width = (width * child.percentWidth).roundFloat();
-#if debug		Assert.that( (width * child.percentWidth) > 0, "invalid width: "+(width * child.percentWidth)+"; groupWidth: "+width+"; child.percentWidth: "+child.percentWidth ); #end
+//T#if debug		Assert.that( (width * child.percentWidth) > 0, "invalid width: "+(width * child.percentWidth)+"; groupWidth: "+width+"; child.percentWidth: "+child.percentWidth ); #end
 			}
 			
 			
@@ -259,7 +258,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			
 			else if (checkIfChildGetsPercentageHeight(child, height)) {
 				child.outerBounds.height = (height * child.percentHeight).roundFloat();
-#if debug		Assert.that( child.outerBounds.height > 0, "invalid height: "+child.outerBounds.height+"; groupHeight: "+height+"; child.percentHeight: "+child.percentHeight ); #end
+//#if debug		Assert.that( child.outerBounds.height > 0, child+"; invalid height: "+child.outerBounds.height+"; groupHeight: "+height+"; child.percentHeight: "+child.percentHeight+"; height bounds: "+child.heightValidator ); #end
 			}
 			
 			//measure children
@@ -452,11 +451,41 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	// EVENT HANDLERS
 	//
 	
+	private function algorithmChangedHandler ()	{ invalidate( Flags.ALGORITHM ); }
+	
+	
+	//
+	// CHILDREN
+	//
+	
+	public var children			(default, null) : IEditableList<LayoutClient>;
+	
+	/**
+	 * Property with the actual length of the children list. Use this property
+	 * instead of 'children.length' when an algorithm is calculating the 
+	 * measured size, since the property can also be set fixed and thus have a 
+	 * different number then children.length.
+	 * 
+	 * When applying an algorithm you should still use children.length since 
+	 * the algorithm will only be applied on the actual children in the list.
+	 * 
+	 * @see LayoutContainer.setFixedLength
+	 */
+	public var childrenLength	(default, null) : Int;
+	public var fixedChildStart					: Int;
+	
+	/**
+	 * Indicated wether the length of the children is fake d or not.
+	 * 
+	 * Layout-algorithms will only honor this property if the childWidth and 
+	 * childHeight also have been set, otherwise it's impossible to calculate
+	 * what the measured size of the container should be.
+	 */
+	public var fixedLength		(default, null) : Bool;
+	
+	
 	private function childrenChangeHandler ( change:ListChange <LayoutClient> ) : Void
 	{
-	//	trace(this+".childrenChangeHandler "+change);
-		var shouldInvalidate = true;
-		
 		switch (change)
 		{
 			case added( child, newPos ):
@@ -465,26 +494,50 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 				if (child.outerBounds.left == 0)	child.outerBounds.left	= padding.left;
 				if (child.outerBounds.top == 0)		child.outerBounds.top	= padding.top;
 				child.listeners.add(this);
-				shouldInvalidate = child.includeInLayout;
+				
+				if (!fixedLength)			childrenLength++;
+				if (child.includeInLayout)	invalidate( Flags.LIST );
 			
 			
 			case removed( child, oldPos ):
 				child.parent = null;
 				child.listeners.remove(this);
-				shouldInvalidate = child.includeInLayout;
 				
 				//reset boundary properties without validating
 				child.outerBounds.left	= 0;
 				child.outerBounds.top	= 0;
 				child.changes			= 0;
+				
+				if (!fixedLength)			childrenLength--;
+				if (child.includeInLayout)	invalidate( Flags.LIST );
 			
-			default:
+			
+			case moved(child, newPos, oldPos):
+				if (child.includeInLayout)	
+					invalidate( Flags.LIST );
+				
+			case reset:
+				invalidate( Flags.LIST );
 		}
-		
-		if (shouldInvalidate)
-			invalidate( Flags.LIST );
 	}
 	
 	
-	private function algorithmChangedHandler ()	{ invalidate( Flags.ALGORITHM ); }
+	public inline function setFixedChildLength (length:Int)
+	{
+		fixedLength = true;
+		if (childrenLength != length) {
+			childrenLength = length;
+			invalidate( Flags.LIST );
+		}
+	}
+	
+	
+	public inline function unsetFixedChildLength ()
+	{
+		fixedLength = false;
+		if (childrenLength != children.length) {
+			childrenLength = children.length;
+			invalidate( Flags.LIST );
+		}
+	}
 }

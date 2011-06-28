@@ -300,7 +300,7 @@ extern class FloatMath
 	 * Returns the smallest integer of the two given integers
 	 * @param	var1
 	 * @param	var2
-	 * @return	smallest integer
+	 * @return	smallest float
 	 */
 	public static inline function min (var1:Float, var2:Float) : Float
 	{
