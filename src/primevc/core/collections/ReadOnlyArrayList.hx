@@ -106,8 +106,9 @@ class ReadOnlyArrayList < DataType > implements IReadOnlyList < DataType >, impl
 	 */
 	public inline function getItemAt (pos:Int) : DataType
 	{
-		var i:Int = pos < 0 ? length + pos : pos;
-		return list[i];
+		Assert.that(pos >= 0, pos+"");
+	//	var i:Int = pos < 0 ? length + pos : pos;
+		return list[pos];
 	}
 	
 	

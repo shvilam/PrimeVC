@@ -31,7 +31,7 @@ package primevc.gui.components;
  import primevc.core.dispatcher.Signal1;
  import primevc.core.traits.IValueObject;
  import primevc.core.Bindable;
- import primevc.gui.core.IUIElement;
+ import primevc.gui.core.IUIDataElement;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.events.MouseEvents;
   using primevc.utils.Bind;
@@ -61,9 +61,9 @@ class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>, im
 	 * 
 	 * @param	item:ListDataType
 	 * @param	pos:Int
-	 * @return 	IUIElement
+	 * @return 	IUIDataElement
 	 */
-	public var createItemRenderer				(default, setCreateItemRenderer) : ListDataType -> Int -> IUIElement;
+	public var createItemRenderer				(default, setCreateItemRenderer) : ListDataType -> Int -> IUIDataElement<ListDataType>;
 	/**
 	 * If the items in the list are selectable, this bindable holds the position
 	 * of the currently selected index.

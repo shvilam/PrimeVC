@@ -75,9 +75,9 @@ class ComboBox <DataType> extends DataButton <DataType>
 	 * Injectable method which will create the needed itemrenderer
 	 * @param	item:ListDataType
 	 * @param	pos:Int
-	 * @return 	IUIElement
+	 * @return 	IUIDataElement
 	 */
-	public var createItemRenderer	(default, setCreateItemRenderer) : DataType -> Int -> IUIElement;
+	public var createItemRenderer	(default, setCreateItemRenderer) : DataType -> Int -> IUIDataElement<DataType>;
 	
 	private var selectListItemWire	: Wire<DataType->DataType->Void>;
 	
@@ -193,7 +193,7 @@ class ComboBox <DataType> extends DataButton <DataType>
 	}
 	
 	
-	private function createDefaultItemRenderer (vo:DataType, pos:Int) : IUIElement
+	private function createDefaultItemRenderer (vo:DataType, pos:Int)
 	{
 		var b = new DataButton<DataType>();
 		b.vo.value = vo;
