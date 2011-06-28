@@ -90,6 +90,7 @@ class Video extends flash.media.Video, implements IVideo
 	public function getDisplayCursor			() : DisplayDataCursor											{ return new DisplayDataCursor(this); }
 	public inline function attachDisplayTo		(target:IDisplayContainer, pos:Int = -1)	: IDisplayObject	{ target.children.add( this, pos ); return this; }
 	public inline function detachDisplay		()											: IDisplayObject	{ container.children.remove( this ); return this; }
+	public inline function changeDisplayDepth	(newPos:Int)								: IDisplayObject	{ container.children.move( this, newPos ); return this; }
 #end
 	
 	

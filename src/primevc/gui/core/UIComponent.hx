@@ -167,10 +167,10 @@ class UIComponent extends Sprite, implements IUIComponent
 	}
 	
 	
-	public inline function forceInitialization ()
+/*	public inline function forceInitialization ()
 	{
 		init();
-	}
+	}*/
 	
 	
 	override public function dispose ()
@@ -230,10 +230,12 @@ class UIComponent extends Sprite, implements IUIComponent
 	// ATTACH METHODS
 	//
 	
-	public inline function attachLayoutTo	(t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ t.children.add( layout, pos );										return this; }
-	public inline function detachLayout		()									: IUIElement	{ layout.parent.children.remove( layout );								return this; }
-	public inline function attachTo			(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachDisplayTo(t, pos);	return this; }
-	public inline function detach			()									: IUIElement	{ if (container != null) { detachDisplay(); detachLayout(); }			return this; }
+	public inline function attachLayoutTo	(t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ t.children.add( layout, pos );											return this; }
+	public inline function detachLayout		()									: IUIElement	{ layout.parent.children.remove( layout );									return this; }
+	public inline function attachTo			(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachDisplayTo(t, pos);		return this; }
+	public inline function detach			()									: IUIElement	{ detachDisplay();							detachLayout();					return this; }
+	public inline function changeLayoutDepth(pos:Int)							: IUIElement	{ layout.parent.children.move( layout, pos );								return this; }
+	public inline function changeDepth		(pos:Int)							: IUIElement	{ changeLayoutDepth(pos);					changeDisplayDepth(pos);		return this; }
 	
 	
 	
@@ -319,7 +321,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	#if flash11 override #end public function removeChildren () : Void
 	{
-		children.removeAll();
+		children.disposeAll();
 	}
 	
 	

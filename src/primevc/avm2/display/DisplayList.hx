@@ -207,7 +207,8 @@ class DisplayList implements IEditableList <ChildType>
 		
 		Assert.that( curPos >= 0, "Child to move is not in this DisplayList: "+item );
 		
-		target.addChildAt( item.as( TargetChildType ), newPos );
+	//	target.addChildAt( item.as( TargetChildType ), newPos );
+		target.setChildIndex( item.as( TargetChildType ), newPos );
 		change.send( ListChange.moved( item, newPos, curPos ) );
 		return item;
 	}

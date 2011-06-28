@@ -46,11 +46,13 @@ class UIDataContainer <DataType> extends UIDataComponent <DataType>, implements 
 {
 	public var layoutContainer	(getLayoutContainer, never)		: LayoutContainer;
 	public var scrollableLayout	(getScrollableLayout, never)	: IScrollableLayout;
+	public var isScrollable										: Bool;
 	
-	private inline function getLayoutContainer () 									{ return layout.as(LayoutContainer); }
-	private inline function getScrollableLayout ()								 	{ return layout.as(IScrollableLayout); }
-	public  inline function attach			(child:IUIElement)		: IUIContainer	{ child.attachTo(this); return this; }
-	public  inline function attachDisplay	(child:IUIElement)		: IUIContainer	{ children.add(child);  return this; }
-	public  inline function attachLayout	(layout:LayoutClient)	: IUIContainer	{ layoutContainer.children.add(layout); return this; }
-	override private function createLayout ()										{ layout = new LayoutContainer(); }
+	private inline function getLayoutContainer () 										{ return layout.as(LayoutContainer); }
+	private inline function getScrollableLayout ()									 	{ return layout.as(IScrollableLayout); }
+	public  inline function attach			(child:IUIElement)			: IUIContainer	{ child.attachTo(this); return this; }
+	public  inline function changeDepthOf	(child:IUIElement, pos:Int)	: IUIContainer	{ child.changeDepth(pos); return this; }
+	public  inline function attachDisplay	(child:IUIElement)			: IUIContainer	{ children.add(child);  return this; }
+	public  inline function attachLayout	(layout:LayoutClient)		: IUIContainer	{ layoutContainer.children.add(layout); return this; }
+	override private function createLayout ()											{ layout = new LayoutContainer(); }
 }

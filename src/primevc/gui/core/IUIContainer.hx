@@ -42,4 +42,5 @@ interface IUIContainer implements IUIComponent, implements IScrollable
 	public function attach			(child:IUIElement)			: IUIContainer;
 	public function attachDisplay	(child:IUIElement)			: IUIContainer;
 	public function attachLayout	(layout:LayoutClient)		: IUIContainer;
+	public function changeDepthOf	(child:IUIElement, pos:Int)	: IUIContainer;
 }
