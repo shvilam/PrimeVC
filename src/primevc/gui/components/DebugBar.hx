@@ -234,6 +234,6 @@ class DebugBar extends UIContainer
 	}
 	
 	
-	private function countWires ()		{ trace("Wires [ total: "+Wire.instanceCount+"; disposed: "+Wire.disposeCount + "; active: "+(Wire.instanceCount - Wire.disposeCount)+" ]"); }
+	private function countWires ()		{ trace("Wires [ total: "+Wire.instanceCount+"; disposed: "+Wire.disposeCount + "; active: "+(Wire.instanceCount - Wire.disposeCount)+"; freelist: "+Wire.freeCount+" ]"); }
 	private function countAlgorithms ()	{ trace("Algorithms [ total: "+LayoutAlgorithmBase.created+"; disposed: "+LayoutAlgorithmBase.disposed + "; active: "+(LayoutAlgorithmBase.created - LayoutAlgorithmBase.disposed)+" ]"); }
 }

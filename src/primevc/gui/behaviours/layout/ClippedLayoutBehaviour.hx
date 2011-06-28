@@ -69,6 +69,7 @@ class ClippedLayoutBehaviour extends BehaviourBase<IUIContainer>, implements ISc
 		Assert.that(target.layoutContainer != null, "Layout of "+target+" can't be null for "+this);
 		layoutContainer		= target.layoutContainer;
 		target.scrollRect	= new Rectangle();
+		target.isScrollable	= true;
 		
 		updateScrollRect.on( layoutContainer.changed, this );
 		updateScrollX.on( layoutContainer.scrollPos.xProp.change, this );
@@ -87,6 +88,7 @@ class ClippedLayoutBehaviour extends BehaviourBase<IUIContainer>, implements ISc
 			layoutContainer.scrollPos.xProp.change.unbind( this );
 			layoutContainer.scrollPos.yProp.change.unbind( this );
 		}
+		target.isScrollable	= false;
 		target.scrollRect	= null;
 		layoutContainer		= null;
 	}

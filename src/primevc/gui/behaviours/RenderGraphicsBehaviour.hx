@@ -96,7 +96,7 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, impleme
 		
 		target.graphics.clear();
 		target.graphicData.draw( target, false );
-#if debug
+/*#if debug
 		Assert.that( target.rect.width < 10000 );
 		Assert.that( target.rect.height < 10000 );
 		if (target.is(primevc.gui.display.IDisplayObject)) {
@@ -104,7 +104,7 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, impleme
 			Assert.that( t.width < 10000 );
 			Assert.that( t.height < 10000 );
 		}
-#end
+#end*/
 		if (target.is(IUIComponent) && target.as(IUIComponent).skin != null)
 			target.as(IUIComponent).skin.drawGraphics(); //.onceOn( target.displayEvents.enterFrame, this );
 	}

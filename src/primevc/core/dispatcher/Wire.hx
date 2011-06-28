@@ -42,6 +42,8 @@ package primevc.core.dispatcher;
  */
 class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements IDisposable, implements IDisablable
 {
+	static private inline var MAX_WIRES		= 8096;
+	
 	/** Wire.flags bit which tells if the Wire is isEnabled(). */
 	static public inline var ENABLED		= 1;
 	/** Wire.flags bit which tells if Wire.handler takes 0 arguments. */
@@ -49,44 +51,44 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 	/** Wire.flags bit which tells if the Wire should be disposed() right after Signal.send(...) */
 	static public inline var SEND_ONCE		= 4;
 	
-//	static private var free : Wire<Dynamic>;
-//	static private var freeCount : Int = 0;
+	static private var free : Wire<Dynamic>;
+	static public  var freeCount : Int = 0;
 	
 /*	static function __init__()
-	{	
-		var W = Wire;
-		// Pre-allocate Wires
-		for (i in 0 ... 2048) {
+	{	X_WIRES) {
 			var b  = new Wire();
 			b.n	   = W.free;
+		var W = Wire;
+		// Pre-allocate Wires
+		for (i in 0 ... MA
 			W.free = b;
 			++W.freeCount;
 		}
-	}
-*/		
+	}*/
+		
 	static public function make<T>( dispatcher:Signal<T>, owner:Dynamic, handlerFn:T, flags:Int #if debug, ?pos : haxe.PosInfos #end ) : Wire<T>
 	{
 		var w:Wire<Dynamic>,
 			W = Wire;
 		
-//		if (W.free == null)
-			w = new Wire<T>();
-/*		else {
+		if (W.free == null)
+			w = new Wire<T>(flags);
+		else {
 			W.free = (w = W.free).n; // i know it's unreadable.. but it's faster.
 			--W.freeCount;
 			w.n = null;
 			Assert.that(w.owner == null && w.handler == null && w.signal == null && w.n == null);
+			w.flags	  = flags;
 		}
-*/		
+		
 		w.owner   = owner;
 		w.signal  = dispatcher;
-		w.handler = handlerFn; // Unsets VOID_HANDLER (!!)
-		w.flags	  = flags;
+		(untyped w).handler = handlerFn; // Unsets VOID_HANDLER (!!)
 		w.doEnable();
 		
 		#if debug w.bindPos = pos; #end
 		
-		return untyped w;
+		return cast w;
 	}
 	
 	static public inline function sendVoid<T>( wire:Wire<Dynamic> ) {
@@ -135,8 +137,8 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 	// INLINE PROPERTIES
 	//
 	
-	private function new() {
-		flags = 0;
+	private function new(f:Int = 0) {
+		flags = f;
 		#if debug instanceNum = ++instanceCount; #end
 	}
 	
@@ -232,14 +234,14 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 #if debug
 		disposeCount++;
 #end
-/*		var W = Wire;
-		if (W.freeCount != 2048) {
+		var W = Wire;
+		if (W.freeCount != MAX_WIRES) {
 			++W.freeCount;
 			this.n = cast W.free;
 			W.free = this;
 		}
 		else
-*/		 	Assert.that(n == null);
+		 	Assert.that(n == null);
 	}
 	
 	
