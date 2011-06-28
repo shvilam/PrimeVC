@@ -139,11 +139,11 @@ private class RevertableBindableFlagsDebug {
 	{
 		var props = [];
 		
-		if (flags.has( IN_EDITMODE ))						props.push( "editmode" );
-		if (flags.has( DISPATCH_CHANGES_BEFORE_COMMIT ))	props.push( "dispatch-changes-before-commit" );
-		if (flags.has( INVALID_CHANGES_DISPATCH_SIGNAL ))	props.push( "invalid-changes-dispatch-signal" );
-		if (flags.has( UPDATE_BINDINGS_BEFORE_COMMIT ))		props.push( "update-bindings-before-commit" );
-		if (flags.has( INVALID_CHANGES_UPDATE_BINDINGS ))	props.push( "invalid-changes-update-bindings" );
+		if (flags.has( RevertableBindableFlags.IN_EDITMODE ))						props.push( "editmode" );
+		if (flags.has( RevertableBindableFlags.DISPATCH_CHANGES_BEFORE_COMMIT ))	props.push( "dispatch-changes-before-commit" );
+		if (flags.has( RevertableBindableFlags.INVALID_CHANGES_DISPATCH_SIGNAL ))	props.push( "invalid-changes-dispatch-signal" );
+		if (flags.has( RevertableBindableFlags.UPDATE_BINDINGS_BEFORE_COMMIT ))		props.push( "update-bindings-before-commit" );
+		if (flags.has( RevertableBindableFlags.INVALID_CHANGES_UPDATE_BINDINGS ))	props.push( "invalid-changes-update-bindings" );
 		
 		return "properties: "+props.join(", ") + " ("+flags+")";
 	}
