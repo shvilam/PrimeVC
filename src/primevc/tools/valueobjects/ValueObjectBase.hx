@@ -79,7 +79,7 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 	}
 	
 	
-	public function isEmpty() : Bool				{ return !_propertiesSet.not0(); }
+	public inline function isEmpty() : Bool			{ return !_propertiesSet.not0(); }
 	public inline function isEditable() : Bool		{ return _flags.has(Flags.IN_EDITMODE); }
 	public inline function isDisposed() : Bool		{ return change == null; }
 	public function has (propertyID : Int) : Bool	{ return (_propertiesSet & (1 << ((propertyID & 0xFF) + _fieldOffset(propertyID >>> 8)))).not0(); }
