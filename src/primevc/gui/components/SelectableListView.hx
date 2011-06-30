@@ -143,7 +143,6 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
                     r.as(ISelectable).deselect();
             }
             
-            trace(previousSelected+" => "+selected.value);
             if (selected.value != null)
             {
                 // Check if there's a renderer for the new selected value.

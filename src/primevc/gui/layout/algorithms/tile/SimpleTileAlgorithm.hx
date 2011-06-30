@@ -473,7 +473,7 @@ class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorit
 		if (columns.notSet() && rows.notSet())
 			return 0;
 		
-		trace(direction+"; childSize: "+g.childHeight+", "+g.childWidth+"; size: "+g.width+", "+g.height+"; columns: "+columns+"; rows: "+rows+"; l: "+g.childrenLength);
+//		trace(direction+"; childSize: "+g.childHeight+", "+g.childWidth+"; size: "+g.width+", "+g.height+"; columns: "+columns+"; rows: "+rows+"; l: "+g.childrenLength);
 		switch (direction) {
 			case horizontal:
 			    if (g.childHeight.isSet())  return g.height.isSet() ? IntMath.min( ((g.height / g.childHeight).ceilFloat() + 1) * columns, g.childrenLength) : 0;
