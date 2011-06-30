@@ -79,7 +79,7 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 	}
 	
 	
-	public function isEmpty() : Bool				{ return !_propertiesSet.not0(); }
+	public inline function isEmpty() : Bool			{ return !_propertiesSet.not0(); }
 	public inline function isEditable() : Bool		{ return _flags.has(Flags.IN_EDITMODE); }
 	public inline function isDisposed() : Bool		{ return change == null; }
 	public function has (propertyID : Int) : Bool	{ return (_propertiesSet & (1 << ((propertyID & 0xFF) + _fieldOffset(propertyID >>> 8)))).not0(); }
@@ -111,29 +111,30 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 	
 	public function objectChangedHandler(propertyID : Int) : ObjectChangeSet -> Void
 	{
-		var self = this;
-		var pathNode = ObjectPathVO.make(this, propertyID); // Same ObjectPathVO instance reused
+		// Same ObjectPathVO instance reused
+		return callback(objectChangedHandlerBody, propertyID, ObjectPathVO.make(this, propertyID));
+	}
+	
+	private function objectChangedHandlerBody(propertyID : Int, pathNode : ObjectPathVO, change : ObjectChangeSet)
+	{
+    	Assert.notNull(this.change);
+		Assert.notNull(change);
 		
-		return function(change:ObjectChangeSet)
-		{
-			Assert.notNull(self.change);
-			Assert.notNull(change);
-			
-			var p = change.parent;
-			
-			if (p.notNull()) {
-				// Find either pathNode, or the last parent
-				while (p.notNull() && p.parent.notNull() && p.parent != pathNode) p = p.parent;
-				untyped p.parent = pathNode;
-			}
-			else untyped change.parent = pathNode;
-			
-			if (change.vo.isEmpty())
-				self.unsetPropertyFlag(propertyID);
-			else
-				self.setPropertyFlag(propertyID);
-			self.change.send(change);
+		var p = change.parent;
+		
+		if (p.notNull()) {
+			// Find either pathNode, or the last parent
+			while (p.notNull() && p.parent.notNull() && p.parent != pathNode) p = p.parent;
+			untyped p.parent = pathNode;
 		}
+		else untyped change.parent = pathNode;
+		
+		if (change.vo.isEmpty())
+			this.unsetPropertyFlag(propertyID);
+		else
+			this.setPropertyFlag(propertyID);
+		
+		this.change.send(change);
 	}
 	
 	
