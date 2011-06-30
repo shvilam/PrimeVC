@@ -105,21 +105,15 @@ class ComboBox <DataType> extends DataButton <DataType>
 		
 		popup.styleClasses.add( "comboList" );
 		popup.behaviours.add( new FollowObjectBehaviour( popup, this ) );
-//		popup.behaviours.add( new ListKeyNavigationBehaviour( popup ) );
 		
 		if (createItemRenderer == null)
 			createItemRenderer = createDefaultItemRenderer;
 		
 		popup.createItemRenderer = createItemRenderer;
 		
-	//	indexChangeWire = updateSelectedItem.on( popup.selectedIndex.change, this );
-	//  selectionChangeWire = updateSelectedItem.on( list.selected.change, this );
 	    deselect.on( vo.change, this );
 	    list.selected.pair( vo );
-		
-	//	Assert.notNull( listData );
 		Assert.notNull( getLabelForVO );
-	//	Assert.notNull( createItemRenderer );
 		
 		//leave the opening and closing of the list to the behaviouruserEvents.
 		behaviours.add( new ButtonSelectedOpenPopup( this, popup ) );
@@ -130,25 +124,15 @@ class ComboBox <DataType> extends DataButton <DataType>
 		windowWire.disable();
 		
 		handleItemRendererClick.on( popup.childClick, this );
-		
-		//listen to layout changes.. make sure the combobox is always at least the size of the combobox button
-	//	updateListWidth	.on( layout.changed, this );
-		
-		//select the current value in the popup when the list item-renderers are created
-	//	selectCurrentValue	.on( popup.state.change, this );
-		
-		//re-select item on vo change, but only when popup is initialized (start disabled)
-	//	selectListItemWire = handleVOChange.on( vo.change, this );
-	//	selectListItemWire.disable();
 	}
 	
 	
 	override public function dispose ()
 	{
-	/*	if (indexChangeWire != null) {
-			indexChangeWire.dispose();
-			indexChangeWire = null;
-		}*/
+		if (windowWire != null) {
+			windowWire.dispose();
+			windowWire = null;
+		}
 		if (list != null) {
 		    list.dispose();
 		    return;
@@ -172,9 +156,6 @@ class ComboBox <DataType> extends DataButton <DataType>
 	{
 		if (v != listData)
 		{
-	//		if (selectListItemWire != null) // FIXME: Unsure if needed
-	//			selectListItemWire.disable();
-			
 			if (popup != null)
 				popup.listData = cast v;
 			
@@ -232,131 +213,6 @@ class ComboBox <DataType> extends DataButton <DataType>
 			}
 		}
 	}
-	
-	
-	/**
-	 * Method will update the min-width of the popup to the current-width of
-	 * the button to make sure the popup is always at least the same width as
-	 * the button
-	 */
-/*	private function updateListWidth (changes:Int)
-	{
-		if (changes.has(LayoutFlags.WIDTH) && popup.list != null)
-		{
-			var l = popup.list.layout;
-			trace("update list min-width to "+layout.innerBounds.width);
-			if (l.widthValidator == null)
-				l.widthValidator = new IntRangeValidator( layout.innerBounds.width );
-			else
-				l.widthValidator.min = layout.innerBounds.width;
-		}
-	}*/
-	
-	
-	/**
-	 * Method will try to select the item-renderer of the new value-object in
-	 * the list
-	 */
-/*	private function handleVOChange (newVO:DataType, oldVO:DataType)
-	{
-	//	trace( oldVO + " => "+newVO+"; selected: "+isSelected());
-		
-#if debug
-		if (newVO != null)
-			Assert.that( listData.has(newVO) );
-#end		
-		
-		Assert.notNull(popup);
-		Assert.notNull(popup.list);
-	//	if (oldVO != null)	deselectItem(oldVO);
-	//	if (newVO != null)	selectItem(newVO);
-	    selectionChangeWire.disable();
-	    list.selected.value = newVO == null ? -1 : listData.indexOf(newVO);
-	    selectionChangeWire.enable();
-		
-		//close list
-		if (isSelected())
-			deselect();
-	}*/
-	
-	
-/*	private inline function deselectItem (vo:DataType)
-	{
-		//change selected itemrenderer in popup
-		var view = popup.list;
-		if (view.hasRendererFor(vo))
-		{
-		    var r = view.getRendererFor( vo );
-    		if (r != null && r.is(ISelectable))
-    			r.as(ISelectable).deselect();
-		
-    		indexChangeWire.disable();
-    		popup.selectedIndex.value = -1;
-    		indexChangeWire.enable();
-		}
-	}
-	
-	
-	private inline function selectItem (vo:DataType)
-	{
-		//change selected itemrenderer in popup
-		var view        = popup.list;
-		var depth       = listData.indexOf(vo);
-		var viewLayout  = view.layoutContainer;
-		var childStart  = viewLayout.fixedChildStart;
-		var childEnd    = childStart + viewLayout.children.length; 
-		
-		if (depth > -1)
-		{
-    		if (view.hasRendererFor(vo))
-    		{
-    			trace(this+".select "+depth+"; start: "+childStart+"; end: "+childEnd);
-    		    var r = view.getRendererAt( depth );
-    		    Assert.notNull(r);
-    		    
-    			trace(this+".select "+r);
-    		    if (r != null && r.is(ISelectable))
-    			    r.as(ISelectable).select();
-		    
-    		    if (view.isScrollable)
-    		        viewLayout.scrollTo( r.layout );
-    		}
-    		else
-    		{
-    		    // renderer isn't visible yet, let's scroll to it
-    		    viewLayout.scrollToDepth(depth);
-    		    
-    //		    trace(view.getRendererAt( depth ));
-    		}
-    		indexChangeWire.disable();
-    		popup.selectedIndex.value = depth;
-    		indexChangeWire.enable();
-		}
-	}*/
-	
-	
-	/**
-	 * Eventhandler that is called when popup.selectedIndex changes
-	 */
-/*	private function updateSelectedItem (newIndex:Int, oldIndex:Int) : Void
-	{
-		vo.value = listData.getItemAt(newIndex);
-	}*/
-	
-	
-	/**
-	 * Method will select the current-value the first-time the popup is opened
-	 */
-/*	private function selectCurrentValue ()
-	{
-		if (popup.isInitialized())
-		{
-			Assert.notThat(selectListItemWire.isEnabled());
-			list.selected = vo.value;
-			selectListItemWire.enable();
-		//	updateListWidth( LayoutFlags.WIDTH );
-		}
-	}*/
 	
 	
 	private function handleSelected (newVal:Bool, oldVal:Bool)
