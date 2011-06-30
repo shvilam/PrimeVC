@@ -31,22 +31,28 @@ package primevc.gui.core;
  import primevc.core.collections.SimpleList;
  import primevc.gui.styling.UIElementStyle;
 #end
+ import primevc.core.dispatcher.Wire;
  import primevc.core.net.VideoStream;
  import primevc.core.states.VideoStates;
  import primevc.core.Bindable;
  import primevc.core.IBindable;
+ 
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
+ 
  import primevc.gui.display.Video;
  import primevc.gui.effects.UIElementEffects;
+ 
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutClient;
+ 
  import primevc.gui.managers.ISystem;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.states.UIElementStates;
  import primevc.gui.traits.IValidatable;
  import primevc.types.Number;
+ 
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
@@ -240,20 +246,26 @@ class UIVideo extends Video, implements IUIElement
 	public inline function isQueued () : Bool			{ return nextValidatable != null || prevValidatable != null; }
 	
 	
+	private var validateWire : Wire<Dynamic>;
+	
 	public function invalidate (change:Int)
 	{
 		if (change != 0)
 		{
 			changes = changes.set( change );
 			if (changes == change && isInitialized())
-				if (system != null)		system.invalidation.add(this);
-				else					validate.onceOn( displayEvents.addedToStage, this );
+				if      (system != null)		system.invalidation.add(this);
+				else if (validateWire != null)	validateWire.enable();
+				else                            validateWire = validate.on( displayEvents.addedToStage, this );
 		}
 	}
 	
 	
 	public function validate ()
 	{
+	    if (validateWire != null)
+	        validateWire.disable();
+        
 		if (changes > 0)
 		{
 			if (changes.has( VIDEO_WIDTH | VIDEO_HEIGHT ))

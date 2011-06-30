@@ -32,7 +32,9 @@ package primevc.gui.core;
  import primevc.core.collections.SimpleList;
  import primevc.gui.styling.UIElementStyle;
 #end
+ import primevc.core.dispatcher.Wire;
  import primevc.core.Bindable;
+ 
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.display.TextField;
@@ -242,14 +244,15 @@ class UITextField extends TextField, implements IUIElement
 	
 	
 	
-	//
-	// IPROPERTY-VALIDATOR METHODS
-	//
-	
 	private inline function getSystem () : ISystem		{ return window.as(ISystem); }
 	public inline function isOnStage () : Bool			{ return window != null; }
 	public inline function isQueued () : Bool			{ return nextValidatable != null || prevValidatable != null; }
 	
+	//
+	// IPROPERTY-VALIDATOR METHODS
+	//
+	
+	private var validateWire : Wire<Dynamic>;
 	
 	public function invalidate (change:Int)
 	{
@@ -258,14 +261,18 @@ class UITextField extends TextField, implements IUIElement
 			changes = changes.set( change );
 			
 			if (changes == change && isInitialized())
-				if (system != null)		system.invalidation.add(this);
-				else					validate.onceOn( displayEvents.addedToStage, this );
+				if      (system != null)		system.invalidation.add(this);
+				else if (validateWire != null)	validateWire.enable();
+				else                            validateWire = validate.on( displayEvents.addedToStage, this );
 		}
 	}
 	
 	
 	public function validate ()
 	{
+	    if (validateWire != null)
+	        validateWire.disable();
+        
 		if (changes.has( UIElementFlags.TEXTSTYLE ))
 			applyTextFormat();
 		

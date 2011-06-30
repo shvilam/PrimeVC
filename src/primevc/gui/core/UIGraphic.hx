@@ -27,7 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
+ import primevc.core.dispatcher.Wire;
  import primevc.core.Bindable;
+ 
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
@@ -192,6 +194,8 @@ class UIGraphic extends VectorShape
 	// IPROPERTY-VALIDATOR METHODS
 	//
 	
+	private var validateWire : Wire<Dynamic>;
+	
 	public function invalidate (change:Int)
 	{
 		if (change != 0)
@@ -199,14 +203,18 @@ class UIGraphic extends VectorShape
 			changes = changes.set( change );
 			
 			if (changes == change && isInitialized())
-				if (system != null)		system.invalidation.add(this);
-				else					validate.onceOn( displayEvents.addedToStage, this );
+				if      (system != null)		system.invalidation.add(this);
+				else if (validateWire != null)	validateWire.enable();
+				else                            validateWire = validate.on( displayEvents.addedToStage, this );
 		}
 	}
 	
 	
 	public function validate ()
 	{
+	    if (validateWire != null)
+	        validateWire.disable();
+        
 		changes = 0;
 	}
 	

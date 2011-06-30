@@ -311,6 +311,7 @@ class BitmapAsset extends Asset
 	
 	override public  function toDisplayObject () : DisplayObject	{ return new primevc.gui.display.BitmapShape( bitmapData ); }
 	override public  function load ()								{}
+	override public  function close ()								{}
 	override public  function isEmpty ()							{ return data == null; }
 #if debug
 	override public  function toString ()							{ return "BitmapAsset("+data+")" + super.toString(); }
@@ -526,8 +527,8 @@ class ExternalAsset extends BytesAssetBase
 	
 	override public  function dispose ()
 	{
-		externalLoader = null;
 		super.dispose();
+		externalLoader = null;
 	}
 	
 	
@@ -551,7 +552,7 @@ class ExternalAsset extends BytesAssetBase
 	
 	override public  function close ()
 	{
-		if (isLoading() && externalLoader.isInProgress())
+		if (externalLoader != null && externalLoader.isInProgress())
 			externalLoader.close();
 		
 		super.close();

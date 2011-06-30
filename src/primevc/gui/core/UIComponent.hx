@@ -27,7 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
+ import primevc.core.dispatcher.Wire;
  import primevc.core.Bindable;
+ 
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.behaviours.styling.InteractiveStyleChangeBehaviour;
  import primevc.gui.behaviours.BehaviourList;
@@ -69,9 +71,6 @@ package primevc.gui.core;
  * 
  * Non of these methods need to call their super methods because they
  * are empty.
- *  
- * When any behaviours outside of "public var behaviours" are defined,
- * the removeBehaviours() method should be overridden.
  * 
  * @author Ruben Weijers
  * @creation-date Jun 07, 2010
@@ -82,7 +81,9 @@ class UIComponent extends Sprite, implements IUIComponent
 	public var nextValidatable	: IValidatable;
 	private var changes			: Int;
 	
-	public var behaviours		(default, null)					: BehaviourList;
+//	private var _behaviours     : BehaviourList;
+//	public var behaviours		(getBehaviours, never)			: BehaviourList;
+    public var behaviours		(default, null)			        : BehaviourList;
 	public var state			(default, null)					: UIElementStates;
 	public var effects			(default, default)				: UIElementEffects;
 	public var id				(default, null)					: Bindable < String >;
@@ -115,8 +116,6 @@ class UIComponent extends Sprite, implements IUIComponent
 		changes			= 0;
 		
 		state			= new UIElementStates();
-		behaviours		= new BehaviourList();
-		
 		handleEnableChange.on( enabled.change, this );
 		init.onceOn( displayEvents.addedToStage, this );
 #if flash9		
@@ -125,6 +124,7 @@ class UIComponent extends Sprite, implements IUIComponent
 		stylingEnabled	= true;		// <- will create UIElementStyle instance
 		
 		//add default behaviours
+		behaviours = new BehaviourList();
 		behaviours.add( new ValidateLayoutBehaviour(this) );
 		behaviours.add( new RenderGraphicsBehaviour(this) );
 		behaviours.add( new InteractiveStyleChangeBehaviour(this) );
@@ -132,8 +132,12 @@ class UIComponent extends Sprite, implements IUIComponent
 		
 		createStates();
 		createBehaviours();
-		createLayout();
 		
+		if (layout == null)
+		    layout = new LayoutClient();
+#if debug
+        layout.name = id+"Layout";
+#end
 		state.current = state.constructed;
 	}
 	
@@ -147,6 +151,8 @@ class UIComponent extends Sprite, implements IUIComponent
 		Assert.notNull(parent);
 #end
 	//	Assert.notNull(container, "Container can't be null for "+this);
+    //  if (_behaviours != null)
+    //      _behaviours.init();
 		behaviours.init();
 		
 		if (skin != null)
@@ -192,12 +198,23 @@ class UIComponent extends Sprite, implements IUIComponent
 		state.current = state.disposed;
 		Assert.that(isDisposed());
 		
-		behaviours	.dispose();
+		if (skin != null) {
+		    skin.dispose();
+		    skin = null;
+		}
+		
+	/*	if (_behaviours != null) {
+		    _behaviours.dispose();
+		    _behaviours = null;
+	    }*/
+	    behaviours  .dispose();
 		state		.dispose();
 		graphicData	.dispose();
 		
-		if (layout != null)
+		if (layout != null) {
 			layout.dispose();
+			layout = null;
+		}
 		
 		id.dispose();
 		enabled.dispose();
@@ -209,13 +226,10 @@ class UIComponent extends Sprite, implements IUIComponent
 		style			= null;
 #end
 		state			= null;
-		behaviours		= null;
 		id				= null;
 		enabled			= null;
 		graphicData		= null;
-		skin			= null;
-		layout			= null;
-		behaviours		= null;
+		behaviours      = null;
 		
 		super.dispose();
 	}
@@ -260,12 +274,23 @@ class UIComponent extends Sprite, implements IUIComponent
 	//
 	
 	
+/*	private inline function getBehaviours ()
+	{
+	    if (_behaviours == null)
+	    {
+	        _behaviours = new BehaviourList();
+	        if (isInitialized())
+	            _behaviours.init();
+	    }
+	    return _behaviours;
+	}*/
+	
 	private inline function getSystem () : ISystem		{ return window.as(ISystem); }
 	public inline function isOnStage () : Bool			{ return window != null; }
 	public inline function isQueued () : Bool			{ return nextValidatable != null || prevValidatable != null; }
 	
 
-	private function setSkin (newSkin)
+	private inline function setSkin (newSkin)
 	{
 		if (skin != null)
 			skin.dispose();
@@ -310,15 +335,6 @@ class UIComponent extends Sprite, implements IUIComponent
 	}
 	
 	
-	private function createLayout () : Void
-	{
-		layout = new LayoutClient();
-#if debug
-		layout.name = id+"Layout";
-#end
-	}
-	
-	
 	#if flash11 override #end public function removeChildren () : Void
 	{
 		children.disposeAll();
@@ -329,15 +345,19 @@ class UIComponent extends Sprite, implements IUIComponent
 	// IPROPERTY-VALIDATOR METHODS
 	//
 	
+	private var validateWire : Wire<Dynamic>;
+	
 	public function invalidate (change:Int)
 	{
 		if (change != 0)
 		{
+		    var old = changes;
 			changes = changes.set( change );
 			
 			if (changes == change && isInitialized()) {
-				if (system != null)		system.invalidation.add(this);
-				else					validate.onceOn( displayEvents.addedToStage, this );
+				if      (system != null)		system.invalidation.add(this);
+				else if (validateWire != null)	validateWire.enable();
+				else                            validateWire = validate.on( displayEvents.addedToStage, this );
 			}
 		}
 	}
@@ -345,6 +365,9 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	public function validate ()
 	{
+	    if (validateWire != null)
+	        validateWire.disable();
+	    
 		if (changes > 0)
 		{
 			if (skin != null)

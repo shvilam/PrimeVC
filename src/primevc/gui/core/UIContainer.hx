@@ -42,6 +42,13 @@ package primevc.gui.core;
  */
 class UIContainer extends UIComponent, implements IUIContainer
 {
+    public function new (id:String = null)
+    {
+        layout = new LayoutContainer();
+        super(id);
+    }
+    
+    
 	public var layoutContainer	(getLayoutContainer, never)		: LayoutContainer;
 	public var scrollableLayout	(getScrollableLayout, never)	: IScrollableLayout;
 	public var isScrollable										: Bool;
@@ -52,5 +59,4 @@ class UIContainer extends UIComponent, implements IUIContainer
 	public  inline function changeDepthOf	(child:IUIElement, pos:Int)	: IUIContainer	{ child.changeDepth(pos); return this; }
 	public  inline function attachDisplay	(child:IUIElement)			: IUIContainer	{ children.add(child);  return this; }
 	public  inline function attachLayout	(layout:LayoutClient)		: IUIContainer	{ layoutContainer.children.add(layout); return this; }
-	override private function createLayout ()											{ layout = new LayoutContainer(); }
 }

@@ -425,7 +425,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	
 	public function scrollTo (child:ILayoutClient)
 	{
-	    trace(child.outerBounds);
+	 // trace(child.outerBounds);
 		var c = child.outerBounds;
 		if (horScrollable())
 		{
@@ -447,12 +447,13 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	}
 	
 	
-	public inline function scrollToDepth( depth:Int )
+	public inline function scrollToDepth( index:Int )
 	{
-	    if (depth >= fixedChildStart && depth < (fixedChildStart + children.length))
-	        scrollTo( children.getItemAt( depth + fixedChildStart ) );
+	//  trace("depth: "+index+"; fixedStart: "+fixedChildStart+"; length: "+children.length);
+	    if (index >= fixedChildStart && index < (fixedChildStart + children.length))
+	        scrollTo( children.getItemAt( index - fixedChildStart ) );
 	    else
-		    algorithm.scrollToDepth(depth);
+		    algorithm.scrollToDepth(index);
 	}
 	
 	

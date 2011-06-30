@@ -160,6 +160,7 @@ class URLLoader implements ICommunicator
 #if debug	uri	= null; #end
 	}
 	
+	
 	public function binaryPOST (uri:URI, mimetype:String = "application/octet-stream")
 	{
 			this.type	= CommunicationType.sending;
@@ -195,7 +196,7 @@ class URLLoader implements ICommunicator
 	public inline function load (v:URI)
 	{
 #if debug
-		Assert.equal(bytesTotal, 0, this.toString() );
+		Assert.that(bytesTotal.notSet() || bytesTotal == 0, this.toString() );
 	 	uri	= v;
 #end
 		this.type	= CommunicationType.loading;

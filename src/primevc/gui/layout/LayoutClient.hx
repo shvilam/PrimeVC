@@ -754,10 +754,10 @@ class LayoutClient extends Invalidatable
 	@:keep public function invalidateHorPaddingMargin () //changes:Int)
 	{
 	//	invalidate( changes );	// <-- will destroy the applicition... things start freezing.. weird stuff :-S
-		if (percentWidth.isSet())
-			width = outerBounds.width - getHorPadding() - getHorMargin();
-		else
-			updateAllWidths(width, true);
+	    if (width.isSet()) {
+		    if (percentWidth.isSet())   width = outerBounds.width - getHorPadding() - getHorMargin();
+		    else            			updateAllWidths(width, true);
+	    }
 	}
 	
 	
@@ -766,10 +766,10 @@ class LayoutClient extends Invalidatable
 	 */
 	@:keep public function invalidateVerPaddingMargin ()
 	{
-		if (percentHeight.isSet())
-			height = outerBounds.height - getVerPadding() - getVerMargin();
-		else
-			updateAllHeights(height, true);
+	    if (height.isSet()) {
+		    if (percentHeight.isSet())		height = outerBounds.height - getVerPadding() - getVerMargin();
+		    else			                updateAllHeights(height, true);
+	    }
 	}
 	
 	
