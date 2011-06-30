@@ -488,7 +488,6 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 		if (!target.isFocusOwner(event.target))
 			return;
 		
-		trace(target);
 		focusState.current = Flags.FOCUS;
 		focusInBinding.disable();
 		focusOutBinding.enable();

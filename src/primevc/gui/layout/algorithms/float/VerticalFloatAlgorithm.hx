@@ -382,21 +382,27 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	    
 	    var group       = this.group.as(IScrollableLayout);
 	    var childH      = group.childHeight;
-	    var scrollY     = Number.INT_NOT_SET;
+	    var scroll      = Number.INT_NOT_SET;
+	    var curScroll   = group.scrollPos.y;
 	    var children    = group.children;
 	    
 	    switch (direction)
 	    {
 			case top:
-			    if (childH.isSet()) {
-			        scrollY = getTopStartValue() + (depth * childH);
-		        } else {
+			    var childPos = 0;
+			    if (childH.isSet()) 
+			    {
+			        childPos    = getTopStartValue() + (depth * childH);
+    		        scroll      = childPos > curScroll ? childPos - group.height + childH : childPos;
+		        }
+		        else
+		        {
 #if debug	        Assert.that( depth >= group.fixedChildStart, depth+" >= "+group.fixedChildStart );
 			        Assert.that( depth <  group.fixedChildStart + children.length, depth+" < "+group.fixedChildStart+" + "+children.length ); #end
-			        
-			        scrollY = children.getItemAt( depth - group.fixedChildStart ).outerBounds.top;
+			        var child   = children.getItemAt( depth - group.fixedChildStart );
+			        childPos    = child.outerBounds.top;
+			        scroll      = childPos > curScroll ? child.outerBounds.bottom - group.height : childPos;
 			    }
-			    
 			
 			case center:
 			    Assert.abstract();
@@ -404,17 +410,17 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 			
 			case bottom:
 			    if (childH.isSet()) {
-			        scrollY = getBottomStartValue() + ((depth + 1) * childH);
+			        scroll = getBottomStartValue() + ((depth + 1) * childH);
 		        } else {
 #if debug	        Assert.that( depth >= group.fixedChildStart, depth+" >= "+group.fixedChildStart );
 			        Assert.that( depth <  group.fixedChildStart + children.length, depth+" < "+group.fixedChildStart+" + "+children.length ); #end
 			        
-			        scrollY = children.getItemAt( depth - group.fixedChildStart ).outerBounds.top;
+			        scroll = children.getItemAt( depth - group.fixedChildStart ).outerBounds.top;
 			    }
 		}
 		
-		if (scrollY.isSet())
-		    group.scrollPos.y = scrollY;
+		if (scroll.isSet())
+		    group.scrollPos.y = scroll;
 	}
 	
 	

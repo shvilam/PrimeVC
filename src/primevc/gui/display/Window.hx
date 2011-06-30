@@ -37,11 +37,13 @@ package primevc.gui.display;
 #end
 #if (flash8 || flash9 || js)
  import flash.display.InteractiveObject;
+ import primevc.gui.display.IInteractiveObject;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEventTarget;
  import primevc.gui.events.UserEvents;
  import primevc.gui.input.Mouse;
   using primevc.utils.Bind;
+  using primevc.utils.TypeUtil;
 #end
 
 
@@ -127,7 +129,7 @@ class Window implements IDisplayContainer, implements IDisablable
 	public var activated		(default, null)			: Signal0;
 	
 #if flash9
-	public var focus			(getFocus, setFocusOn)	: InteractiveObject;
+	public var focus			(getFocus, setFocusOn)	: IInteractiveObject;
 #end
 	
 	
@@ -197,13 +199,13 @@ class Window implements IDisplayContainer, implements IDisablable
 	public function disable ()										{ mouseEnabled = tabEnabled = children.mouseEnabled = children.tabEnabled = false; }	//use local mouseEnabled and tabEnabled since Stage doesn't have these properties
 	public inline function isEnabled ()								{ return mouseEnabled; }
 	
-	private inline function setFocusOn (child:InteractiveObject)	{ return target.focus = child; }
-	private inline function getFocus ()	: InteractiveObject			{ return target.focus; }
+	private inline function setFocusOn (child:IInteractiveObject)	{ target.focus = child.as(InteractiveObject); return child; }
+	private inline function getFocus ()	: IInteractiveObject		{ return target.focus.as(IInteractiveObject); }
 #end
 	
 	// FIXME better naming -> looks alot like setFocusOn (the setter)
-	public inline function setFocus ()		{ window.focus = target; }
-	public inline function removeFocus ()	{ if (focus == target)	{ focus = null; } }
+	public inline function setFocus ()		{ target.focus = target; }
+	public inline function removeFocus ()	{ if (target.focus == target) { target.focus = null; } }
 	
 	
 	

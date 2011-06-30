@@ -110,17 +110,20 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		var target	= elementStyle.target;
 		var empty	= styleObj == null;
 		
-		if ( propsToSet.has( Flags.SKIN ))			target.as(ISkinnable).skin			= empty ? null	: (styleObj.skin != null) ? styleObj.skin() : null;
 		if ( propsToSet.has( Flags.SHAPE ))			graphicProps.shape					= empty ? null	: styleObj.shape;
 		if ( propsToSet.has( Flags.BORDER_RADIUS ))	graphicProps.borderRadius			= empty ? null	: styleObj.borderRadius;
 		if ( propsToSet.has( Flags.ICON ))			target.as(IIconOwner).icon			= empty ? null	: styleObj.getIconInstance();
 		if ( propsToSet.has( Flags.ICON_FILL ))		target.as(IIconOwner).iconFill		= empty ? null	: styleObj.iconFill;
 		if ( propsToSet.has( Flags.OPACITY ))		target.as(IDisplayObject).alpha		= empty ? 1		: styleObj.opacity;
+		
+		
 		if ( propsToSet.has( Flags.VISIBLE ))
 		{
 			if (empty || styleObj.visible)			target.as(IUIElement).show();
 			else									target.as(IUIElement).hide();
 		}
+		
+		
 		if ( propsToSet.has( Flags.OVERFLOW ))
 		{
 			if (styleObj.overflow != null) {
@@ -131,13 +134,23 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		//		target.behaviours.remove(  )
 		}
 		
-		if ( propsToSet.has( Flags.BACKGROUND )) {
-			graphicProps.fill = (empty || styleObj.background.is(EmptyGraphicProperty)) ? null : styleObj.background;
+		
+		if ( propsToSet.has( Flags.SKIN ))
+		{
+		    var target = target.as(ISkinnable);
+		    if (target.skin != null)
+		        target.skin.dispose();
+		    
+		    target.skin = (empty || styleObj.skin == null) ? null : styleObj.skin();
 		}
 		
-		if ( propsToSet.has( Flags.BORDER )) {
+		
+		
+		if ( propsToSet.has( Flags.BACKGROUND ))
+			graphicProps.fill = (empty || styleObj.background.is(EmptyGraphicProperty)) ? null : styleObj.background;
+		
+		if ( propsToSet.has( Flags.BORDER ))
 			graphicProps.border = (empty || styleObj.border.is(EmptyBorder)) ? null : styleObj.border;
-		}
 	}
 }
 

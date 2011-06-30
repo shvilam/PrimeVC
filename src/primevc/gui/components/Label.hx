@@ -68,12 +68,15 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 		if (data == null)
 			data = new DataType();
 		
+		layout = new AdvancedLayoutClient();
 		super(id, data);
 	}
 	
 	
-	override private function createLayout ()		{ layout = new AdvancedLayoutClient(); }
-	override private function createBehaviours ()	{ behaviours.add( new LabelLayoutBehaviour(this) ); }
+	override private function createBehaviours ()
+	{
+	    behaviours.add( new LabelLayoutBehaviour(this) );
+	}
 	
 	
 	override private function createChildren ()
