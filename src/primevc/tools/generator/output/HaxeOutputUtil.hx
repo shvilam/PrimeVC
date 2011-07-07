@@ -62,9 +62,13 @@ class HaxeOutputUtil
 		var a		= output.add;
 		
 	//	var s		= function (a:String, b:String):Int { return a > b ? 1 : (a < b ? -1 : 0); }	//from http://haxe.org/forum/thread/1841
-	//	var list	= list.sort(s);
+		var arr		= new Array<String>();
+		for (importable in list)
+			arr.push(importable);
 		
-		for (file in list)
+		arr.sort(function(a,b) { return Reflect.compare(a.toLowerCase(),b.toLowerCase()); });
+		
+		for (file in arr)
 			a( " import " + file + ";\n" );
 		
 		return output;
