@@ -82,7 +82,7 @@ class EffectInstance < TargetType, PropertiesType:IEffect >
 	
 	public function dispose ()
 	{
-		if (state == null)
+		if (isDisposed())
 			return;
 		
 		stop();
@@ -93,11 +93,12 @@ class EffectInstance < TargetType, PropertiesType:IEffect >
 		ended		= null;
 		delayTimer	= null;
 		prevTween	= null;
-		target		= null;
 		state		= null;
+		target		= null;
 	}
 	
 	
+	public inline function isDisposed ()			: Bool		{ return state == null; }
 	public function setValues( v:EffectProperties ) : Void		{ Assert.abstract(); }
 	private function initStartValues()				: Void		{ Assert.abstract(); }
 	private function tweenUpdater( tweenPos:Float )	: Void		{ Assert.abstract(); }
@@ -114,6 +115,7 @@ class EffectInstance < TargetType, PropertiesType:IEffect >
 	
 	public function play ( withEffect:Bool = true, directly:Bool = false ) : Void
 	{
+		Assert.that(!isDisposed());
 		if (state == EffectStates.waiting && !directly)
 			return;
 		
@@ -137,6 +139,7 @@ class EffectInstance < TargetType, PropertiesType:IEffect >
 	
 	public function stop () : Void
 	{
+		Assert.that(!isDisposed());
 		stopDelay();
 		stopTween();
 		applyFilters();
@@ -148,6 +151,7 @@ class EffectInstance < TargetType, PropertiesType:IEffect >
 	
 	public function reset ()
 	{
+		Assert.that(!isDisposed());
 		stop();
 		tweenUpdater( isReverted ? 1 : 0 );
 	}
@@ -259,6 +263,7 @@ class EffectInstance < TargetType, PropertiesType:IEffect >
 		if (prevTween != null)
 		{
 			prevTween.stop();
+			prevTween.setTweenHandlers(null, null);
 			prevTween = null;
 		}
 	}

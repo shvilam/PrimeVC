@@ -101,17 +101,19 @@ class URLLoader implements ICommunicator
 	public static inline var LOADING	= 1 << 2;
 	public static inline var COMPLETED	= 1 << 3;
 	
-	public var events			(default,			null)			: LoaderSignals;
-	public var bytesProgress	(getBytesProgress,	null)			: Int;
-	public var bytesTotal		(getBytesTotal,		null)			: Int;
-	public var length			(default,			never)			: Bindable<Int>;
-	public var type				(default,			null)			: CommunicationType;
-	public var isStarted		(default,			null)			: Bool;
-	public var isQueued			(default,			null)			: Bool;
+	public  var events			(default,			null)			: LoaderSignals;
+	public  var bytesProgress	(getBytesProgress,	null)			: Int;
+	public  var bytesTotal		(getBytesTotal,		null)			: Int;
+	public  var length			(default,			never)			: Bindable<Int>;
+	public  var type			(default,			null)			: CommunicationType;
+
+	public  var isQueued		(default,			null)			: Bool;
+	public  var isStarted		(default,			null)			: Bool;
+	private var isFinished											: Bool;
 	
-	public var data				(getData,			setData)		: Dynamic;
-	public var bytes			(getBytes,			setBytes)		: BytesData;
-	public var dataFormat		(getDataFormat,		setDataFormat)	: URLLoaderDataFormat;
+	public  var data			(getData,			setData)		: Dynamic;
+	public  var bytes			(getBytes,			setBytes)		: BytesData;
+	public  var dataFormat		(getDataFormat,		setDataFormat)	: URLLoaderDataFormat;
 	private var loader			: FlashLoader;
 #if debug
 	private var uri				: URI;
@@ -134,7 +136,7 @@ class URLLoader implements ICommunicator
 		events			= new LoaderEvents(this.loader);
 		
 		setStarted		.on( events.load.started, 	 this );
-		unsetStarted	.on( events.load.completed,  this );
+		setFinished		.on( events.load.completed,  this );
 		unsetStarted	.on( events.load.error, 	 this );
 		unsetStarted	.on( events.unloaded,		 this );
 		
@@ -156,7 +158,7 @@ class URLLoader implements ICommunicator
 		events	= null;
 		type	= null;
 		loader	= null;
-		data	= null;
+		(untyped this).data	= null;
 #if debug	uri	= null; #end
 	}
 	
@@ -196,7 +198,8 @@ class URLLoader implements ICommunicator
 	public inline function load (v:URI)
 	{
 #if debug
-		Assert.that(bytesTotal.notSet() || bytesTotal == 0, this.toString() );
+		var total:Int = (untyped this).bytesTotal;
+		Assert.that(total.notSet() || total == 0, this.toString()+"; "+v );
 	 	uri	= v;
 #end
 		this.type	= CommunicationType.loading;
@@ -211,6 +214,7 @@ class URLLoader implements ICommunicator
 		if (isStarted)
 			close();
 		
+		isFinished = false;
 		if (isQueued) {
 			removeFromQueue(this);
 			isQueued = false;
@@ -235,7 +239,11 @@ class URLLoader implements ICommunicator
 	
 	public inline function close ()
 	{
-		loader.close();
+		//loader will throw an error if it wasn't loading
+		try {
+			loader.close();
+		} catch(e:Dynamic) {}
+
 		isStarted	= false;
 		bytesTotal	= bytesProgress = Number.INT_NOT_SET;
 		type		= null;
@@ -244,7 +252,7 @@ class URLLoader implements ICommunicator
 	}
 	
 	
-	public inline function isCompleted ()			{ return bytesTotal > 0 && bytesProgress >= bytesTotal; }
+	public inline function isCompleted ()			{ return isFinished; } //bytesTotal > 0 && bytesProgress >= bytesTotal; } <-- unreliabable since loaded bytes can be correct before the completed event is fired
 	public inline function isInProgress ()			{ return isStarted && !isCompleted(); }
 	
 	public inline function isBinary ()		: Bool	{ return loader.dataFormat == URLLoaderDataFormat.BINARY; }
@@ -271,6 +279,9 @@ class URLLoader implements ICommunicator
 	{
 		if (data != v)
 		{
+			if (data != null && isStarted)
+				close();
+			
 			data = v;
 			
 			if (v != null) {
@@ -305,8 +316,9 @@ class URLLoader implements ICommunicator
 	// EVENTHANDLERS
 	//
 	
-	private function setStarted ()		{ isStarted = true; }
-	private function unsetStarted ()	{ isStarted = false; removeConnection(); }
+	private inline function setStarted ()	{ isStarted = true; }
+	private inline function setFinished ()	{ unsetStarted(); isFinished = true; }
+	private inline function unsetStarted ()	{ isStarted = false; removeConnection(); }
 	
 #if debug
 	public function toString ()

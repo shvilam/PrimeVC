@@ -540,7 +540,7 @@ class ExternalAsset extends BytesAssetBase
 {
 	public var externalLoader	(default, setExternalLoader)	: ICommunicator;
 	public var data				(default, setData)				: URI;
-	
+
 	
 	public function new (source:URI, ?loader:ICommunicator)
 	{
@@ -553,13 +553,14 @@ class ExternalAsset extends BytesAssetBase
 	override public  function dispose ()
 	{
 		super.dispose();
-		externalLoader = null;
+		externalLoader		= null;
+		(untyped this).data	= null;
 	}
 	
 	
 	override public  function isEmpty ()					{ return data == null; }
 #if debug
-	override public  function toString ()					{ return "ExternalAsset("+data+")" + super.toString(); }
+	override public  function toString ()					{ return "ExternalAsset("+data + (externalLoader != null ? " ( "+externalLoader.bytesProgress+" / "+externalLoader.bytesTotal+" )" : "")+")" + super.toString(); }
 #end
 	
 	
@@ -577,7 +578,7 @@ class ExternalAsset extends BytesAssetBase
 	
 	override public  function close ()
 	{
-		if (externalLoader != null && externalLoader.isInProgress())
+		if (externalLoader != null) // && externalLoader.isInProgress())
 			externalLoader.close();
 		
 		super.close();
@@ -648,7 +649,7 @@ class ExternalAsset extends BytesAssetBase
 	private function handleURILoaded ()
 	{
 		Assert.notNull( externalLoader );
-		Assert.that( externalLoader.isCompleted(), ""+externalLoader );
+	//	Assert.that( externalLoader.isCompleted(), ""+externalLoader );
 		loadBytes( externalLoader.bytes );
 	}
 }
