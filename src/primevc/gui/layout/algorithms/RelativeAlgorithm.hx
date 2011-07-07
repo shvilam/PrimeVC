@@ -190,9 +190,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 			if (mostTopVal.isSet())		s.minScrollYPos = mostTopVal;
 		}
 		
-		validatePrepared	= false;
-		validatePreparedHor	= false;
-		validatePreparedVer	= false;
+		validatePrepared = validatePreparedHor = validatePreparedVer = false;
 	}
 	
 	

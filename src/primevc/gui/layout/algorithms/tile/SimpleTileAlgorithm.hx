@@ -43,13 +43,24 @@ package primevc.gui.layout.algorithms.tile;
 
 
 /**
- * Class descriptions
+ * Simplified tile-algorithm
+ *	- Supports two directions
+ *		* horizontal = start from left to right until row is full)
+ *		* vertical	 = start from top to bottom until column is full)
+ * 	- supports calculating width/height without having all the needed layoutChildren (if childWidth and childHeight are set)
+ * 
+ * The more complex tile algorithms make rows and columns in which each layoutChild is placed. This way, they can update a row
+ * without having to scan all layout-children. This functionality is not supported by this algorithm.
  * 
  * @author Ruben Weijers
  * @creation-date Jun 25, 2011
  */
 class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 {
+	private var validatePreparedHor : Bool;
+	private var validatePreparedVer : Bool;
+	
+
 	public var direction	(default, setDirection)		: Direction;
 	private var columns		: Int;
 	private var rows		: Int;
@@ -79,8 +90,8 @@ class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorit
 	 */
 	public inline function isInvalid (changes:Int)
 	{
-		return	changes.has( LayoutFlags.WIDTH * group.childWidth.notSet().boolCalc() )
-			&&	changes.has( LayoutFlags.HEIGHT * group.childHeight.notSet().boolCalc() );
+		return	changes.has( LayoutFlags.WIDTH  * group.childWidth.notSet().boolCalc() )
+			||	changes.has( LayoutFlags.HEIGHT * group.childHeight.notSet().boolCalc() );
 	}
 	
 	
@@ -124,7 +135,7 @@ class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorit
 			var childH		= group.childHeight;
 			var measW		= 0;	//measured group width
 			var measH		= 0;	//measured group height
-			
+
 			switch (direction)
 			{
 				case horizontal:
@@ -133,65 +144,78 @@ class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorit
 					if (groupW.notSet())
 						return;
 					
-					//
-					//calculate group width
-					//
-					if (childW.isSet())
+					if (!validatePreparedHor)
 					{
-						columns	= groupW < childW ? 1 : (groupW / childW).floorFloat().getSmallest(explLength);
-						rows	= (explLength / columns).ceilFloat();
-						measW	= columns * childW;
-					}
-					else
-					{
-						columns = Number.INT_NOT_SET;
-						rows	= 0;
-						
-						//calculate total width by finding the widest row
-						var rowW = 0; //current row width
-						for (i in 0...realLength)
+						//
+						//calculate group width
+						//
+						if (childW.isSet())
 						{
-							var child = children.getItemAt(i);
-							if (!child.includeInLayout)
-								continue;
+							columns	= groupW < childW ? 1 : (groupW / childW).floorFloat().getSmallest(explLength);
+							rows	= (explLength / columns).ceilFloat();
+							measW	= columns * childW;
+						}
+						else
+						{
+							columns = Number.INT_NOT_SET;
+							rows	= 0;
 							
-							if ((rowW + child.width) > groupW) {
-								if (rowW > measW)
-									measW = rowW;
-								//start new row
-								rowW = 0;
-								rows++;
+							//calculate total width by finding the widest row
+							var rowW = 0; //current row width
+							for (i in 0...realLength)
+							{
+								var child = children.getItemAt(i);
+								if (!child.includeInLayout)
+									continue;
+								
+								var childSize = child.outerBounds;
+								if ((rowW + childSize.width) > groupW) {
+									if (rowW > measW)
+										measW = rowW;
+									//start new row
+									rowW = 0;
+									rows++;
+								}
+								rowW += childSize.width;
 							}
-							rowW += child.width;
+
+							if (rowW > measW)
+								measW = rowW;
 						}
 					}
 					
-					//
-					//calculate group height
-					//
-					if (childH.isSet() && columns.isSet())
-						measH = rows * childH;
-					else
+
+					if (!validatePreparedVer)
 					{
-						//calculate total height by finding the heighest child in each row
-						var rowH = 0;
-						var rowW = 0;
-						
-						for (i in 0...realLength)
+						//
+						//calculate group height
+						//
+						if (childH.isSet() && columns.isSet())
+							measH = rows * childH;
+						else
 						{
-							var child = children.getItemAt(i);
-							if (!child.includeInLayout)
-								continue;
+							//calculate total height by finding the heighest child in each row
+							var rowH = 0;
+							var rowW = 0;
 							
-							if ((rowW + child.width) > groupW) {
-								//start new row
-								measH  += rowH;
-								rowH	= rowW = 0;
+							for (i in 0...realLength)
+							{
+								var child = children.getItemAt(i);
+								if (!child.includeInLayout)
+									continue;
+								
+								var childSize = child.outerBounds;
+								if ((rowW + childSize.width) > groupW) {
+									//start new row
+									measH  += rowH;
+									rowH	= rowW = 0;
+								}
+								
+								rowW += childSize.width;
+								if (childSize.height > rowH)
+									rowH = childSize.height;
 							}
-							
-							rowW += child.width;
-							if (child.height > rowH)
-								rowH = child.height;
+							measH += rowH;
 						}
 					}
 				
@@ -203,74 +227,93 @@ class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorit
 					if (groupH.notSet())
 						return;
 					
-					//
-					//calculate group height
-					//
-					if (childH.isSet())
+					if (!validatePreparedVer)
 					{
-						rows	= groupH < childH ? 1 : (groupH / childH).floorFloat().getSmallest(explLength);
-						columns	= (explLength / rows).ceilFloat();
-						measH	= rows * childH;
-					}
-					else
-					{
-						rows	= Number.INT_NOT_SET;
-						columns	= 0;
-						
-						//calculate total height by finding the heighest column
-						var colH = 0; //current column height
-						for (i in 0...realLength)
+						//
+						//calculate group height
+						//
+						if (childH.isSet())
 						{
-							var child = children.getItemAt(i);
-							if (!child.includeInLayout)
-								continue;
+							rows	= groupH < childH ? 1 : (groupH / childH).floorFloat().getSmallest(explLength);
+							columns	= (explLength / rows).ceilFloat();
+							measH	= rows * childH;
+						}
+						else
+						{
+							rows	= Number.INT_NOT_SET;
+							columns	= 0;
 							
-							var childH = child.height;
-							if ((colH + childH) > groupH) {
-								if (colH > measH)
-									measH = colH;
-								//start new column
-								colH = 0;
-								columns++;
+							//calculate total height by finding the heighest column
+							var colH = 0; //current column height
+							for (i in 0...realLength)
+							{
+								var child = children.getItemAt(i);
+								if (!child.includeInLayout)
+									continue;
+								
+								var childSize = child.outerBounds;
+								if ((colH + childSize.height) > groupH) {
+									if (colH > measH)
+										measH = colH;
+									//start new column
+									colH = 0;
+									columns++;
+								}
+								colH += childSize.height;
 							}
+
+							if (colH > measH)
+								measH = colH;
 						}
 					}
 					
-					//
-					//calculate group width
-					//
-					if (childW.isSet())
-						measH = columns * childW;
-					else
+
+					if (!validatePreparedHor)
 					{
-						//calculate total width by finding the widest child in each column
-						var colH = 0;
-						var colW = 0;
-						
-						for (i in 0...realLength)
+						//
+						//calculate group width
+						//
+						if (childW.isSet())
+							measH = columns * childW;
+						else
 						{
-							var child = children.getItemAt(i);
-							if (!child.includeInLayout)
-								continue;
+							//calculate total width by finding the widest child in each column
+							var colH = 0;
+							var colW = 0;
 							
-							if ((colH + child.height) > groupH) {
-								//start new row
-								measW	+= colW;
-								colH = colW = 0;
+							for (i in 0...realLength)
+							{
+								var child = children.getItemAt(i);
+								if (!child.includeInLayout)
+									continue;
+								
+								var childSize = child.outerBounds;
+								if ((colH + childSize.height) > groupH) {
+									//start new row
+									measW	+= colW;
+									colH	 = colW = 0;
+								}
+								
+								colH += childSize.height;
+								if (childSize.width > colW)
+									colW = childSize.width;
 							}
-							
-							colH += child.height;
-							if (child.width > colW)
-								colW = child.width;
+
+							measW += colW;
 						}
 					}
 			}
 			
-		//	trace("realLength: "+realLength+"; explicitLength: "+explLength+"; cols: "+columns+"; rows: "+rows+"; childW: "+childW+"; childH: "+childH+"; groupW: "+getMaxWidth()+"; measW: "+measW+"; measH: "+measH);
-			
+			if (measW == 0)		measW = Number.INT_NOT_SET;
+			if (measH == 0)		measH = Number.INT_NOT_SET;
+
 			setGroupWidth( measW );
 			setGroupHeight( measH );
-			validatePrepared = true;
+
+			if (measW.isSet())		validatePreparedHor = true;
+			if (measH.isSet())		validatePreparedVer = true;
+			if (validatePreparedVer && validatePreparedHor)
+				validatePrepared = true;
 		}
 	}
 	
@@ -285,6 +328,7 @@ class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorit
 	 */
 	public function apply ()
 	{
+	//	trace(group+"; hor: "+validatePreparedHor+"; ver: "+validatePreparedVer+"; total: "+validatePrepared);
 		var group	 = this.group;
 		var children = group.children;
 		var length	 = children.length;
@@ -410,7 +454,7 @@ class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorit
 					}
 				}
 		}
-		validatePrepared = false;
+		validatePrepared = validatePreparedHor = validatePreparedVer = false;
 	}
 	
 	
@@ -470,6 +514,10 @@ class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorit
 	override public function getMaxVisibleChildren ()
 	{
 		var g = this.group;
+	//	trace(g+"; columns: "+columns+"; rows: "+rows+"; groupSize: "+g.width+", "+g.height+"; childSize: "+g.childWidth+", "+g.childHeight);
+		if (g.childWidth.notSet() || g.childHeight.notSet())
+			return g.childrenLength;
+		
 		if (columns.notSet() && rows.notSet())
 			return 0;
 		
