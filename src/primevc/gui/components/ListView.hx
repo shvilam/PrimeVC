@@ -55,6 +55,8 @@ package primevc.gui.components;
  */
 class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataType > >//, implements haxe.rtti.Generic //, implements IListView < ListDataType >
 {
+	private static inline var SCROLL_POS = 1 << 30;
+
 	/**
 	 * Signal which will dispatch mouse-clicks of interactive item-rendered 
 	 * children.
@@ -126,9 +128,9 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 		if (layout.algorithm != null && isScrollable) {
 			layout.setFixedChildLength( length );
 			
-			checkFirstItemRenderer	.on( layout.scrollPos.xProp.change, this );
-			checkFirstItemRenderer	.on( layout.scrollPos.yProp.change, this );
-			checkItemRenderers		.on( layout.changed, this );
+			invalidateScrollPos	.on( layout.scrollPos.xProp.change, this );
+			invalidateScrollPos	.on( layout.scrollPos.yProp.change, this );
+			checkItemRenderers	.on( layout.changed, this );
 			
 			length = layout.algorithm.getMaxVisibleChildren();
 		}
@@ -314,10 +316,20 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	}
 	
 	
-	private function checkFirstItemRenderer ()
+	private function invalidateScrollPos ()
 	{
-		var l = layoutContainer;
-		updateVisibleItemRenderers( l.algorithm.getDepthOfFirstVisibleChild(), l.children.length );
+		invalidate(SCROLL_POS);
+	}
+
+
+	override public function validate ()
+	{
+		if (changes.has(SCROLL_POS))
+		{
+			var l = layoutContainer;
+			updateVisibleItemRenderers( l.algorithm.getDepthOfFirstVisibleChild(), l.children.length );
+		}
+		super.validate();
 	}
 	
 	
