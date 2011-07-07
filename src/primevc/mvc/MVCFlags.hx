@@ -43,6 +43,7 @@ extern class MVCFlags
 	
 	public static inline var ENABLED	= 1 << 2;
 	public static inline var EDITING	= 1 << 3;
+	public static inline var HAS_DATA	= 1 << 4;
 	
 	
 #if debug
@@ -53,6 +54,7 @@ extern class MVCFlags
 		if (state.has(DISPOSED))	str.push( "disposed" );
 		if (state.has(EDITING))		str.push( "editing" );
 		if (state.has(ENABLED))		str.push( "enabled" );
+		if (state.has(HAS_DATA))	str.push( "hasData" );
 		
 		return str.join(", ");
 	}

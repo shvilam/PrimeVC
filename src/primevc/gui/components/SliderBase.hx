@@ -102,7 +102,8 @@ class SliderBase extends UIDataContainer <PercentageHelper>
 		if (mouseBgDownBinding != null)		mouseBgDownBinding.dispose();
 		if (mouseBtnDownBinding != null)	mouseBtnDownBinding.dispose();
 		
-		mouseBgDownBinding = mouseBtnDownBinding = mouseUpBinding = mouseMoveBinding = null;
+		mouseBgDownBinding	= mouseBtnDownBinding = mouseUpBinding = mouseMoveBinding = null;
+		(untyped this).data = null;
 		sliding.dispose();
 		
 		if (isInitialized())

@@ -57,6 +57,9 @@ while [ "${1+isset}" ]; do
 				* )				CONSOLE="-D FlashTrace" ;;
 			esac
 			shift 2 ;;
+		--fps)
+			FPS=$2				#frames per second
+			shift 2 ;;
 		-z)	PROFILING=true
 			shift ;;
 		*)

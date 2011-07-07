@@ -119,4 +119,10 @@ extern class Formulas
 	{
 		return radius / FastMath.cos( (1 / sides) * FastMath.PI);
 	}
+
+
+	public static inline function scale (actualW:Float, actualH:Float, allowedW:Float, allowedH:Float) : Float
+	{
+		return Math.min( allowedW / actualW, allowedH / actualH );
+	}
 }

@@ -75,7 +75,7 @@ class URLLoader implements ICommunicator
 	 * max URLLoaders loading at the same time. If this number is reached, the
 	 * other URLLoaders will wait in the queue
 	 */
-	private static inline var MAX_CONNECTIONS		= 10;
+	private static inline var MAX_CONNECTIONS		= 30;
 	/**
 	 * number of active load processes
 	 */

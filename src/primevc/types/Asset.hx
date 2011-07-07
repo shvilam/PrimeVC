@@ -41,6 +41,7 @@ package primevc.types;
   using Type;
 
 #if flash9
+ import flash.display.IBitmapDrawable;
  import primevc.core.net.URLLoader;
  import primevc.gui.display.Loader;
 
@@ -189,12 +190,12 @@ class Asset		implements IDisposable
 		if (fillColor == null)		fillColor	= 0x00ffffff;
 		
 #if flash9
-		var display = toDisplayObject();
-		if (display == null || !display.is(flash.display.IBitmapDrawable))
+		var display = toDrawable();
+		if (display == null)
 			return null;
 		
 		bitmapData = new BitmapData( width, height, transparant, fillColor );
-		bitmapData.draw( display.as(flash.display.IBitmapDrawable), matrix );
+		bitmapData.draw( display, matrix );
 		return bitmapData;
 #else
 		return null;
@@ -211,11 +212,20 @@ class Asset		implements IDisposable
 		if (state != null)
 			setEmpty();		// important to this first, other objects have a chance to remove their references then...
 		
-		bitmapData	= null;
+		removeBitmapData();
 //		source		= null;
 //		type		= null;
 		width		= Number.INT_NOT_SET;
 		height		= Number.INT_NOT_SET;
+	}
+
+
+	private inline function removeBitmapData ()
+	{
+		if (bitmapData != null) {
+			bitmapData.dispose();
+			bitmapData	= null;
+		}
 	}
 	
 	
@@ -224,14 +234,17 @@ class Asset		implements IDisposable
 	// ABSTRACT METHODS
 	//
 	
-//	private function setData (v:SourceType)	: SourceType	{ Assert.abstract(); return v; }
-	public  function toDisplayObject ()		: DisplayObject	{ Assert.abstract(); return null; }
-	public  function load ()				: Void			{ Assert.abstract(); }
-	public  function close ()				: Void			{ Assert.abstract(); }
+//	private function setData (v:SourceType)	: SourceType		{ Assert.abstract(); return v; }
+	public  function toDisplayObject ()		: DisplayObject		{ Assert.abstract(); return null; }
+#if flash9
+	public  function toDrawable ()			: IBitmapDrawable	{ Assert.abstract(); return null; }
+#end
+	public  function load ()				: Void				{ Assert.abstract(); }
+	public  function close ()				: Void				{ Assert.abstract(); }
 #if neko
-	public  function isEmpty ()				: Bool			{ return source == null; }
+	public  function isEmpty ()				: Bool				{ return source == null; }
 #else
-	public  function isEmpty ()				: Bool			{ Assert.abstract(); return false; }
+	public  function isEmpty ()				: Bool				{ Assert.abstract(); return false; }
 #end
 	
 
@@ -297,9 +310,11 @@ class BitmapAsset extends Asset
 			if (data != null && v == null)
 				unsetData();
 			
-			else if (v != null)
+			removeBitmapData();
+			data = v;
+			if (v != null)
 			{
-				data	= bitmapData = v;
+				bitmapData = v;
 				width	= v.width;
 				height	= v.height;
 				setReady();
@@ -310,6 +325,9 @@ class BitmapAsset extends Asset
 	
 	
 	override public  function toDisplayObject () : DisplayObject	{ return new primevc.gui.display.BitmapShape( bitmapData ); }
+#if flash9
+	override public  function toDrawable ()		 : IBitmapDrawable	{ return bitmapData; }
+#end
 	override public  function load ()								{}
 	override public  function close ()								{}
 	override public  function isEmpty ()							{ return data == null; }
@@ -349,10 +367,10 @@ class DisplayAsset extends Asset
 				unsetData();
 			
 			data = v;
-			
+			removeBitmapData();
+
 			if (v != null)
 			{
-				bitmapData	= null;
 				width		= v.width.roundFloat();
 				height		= v.height.roundFloat();
 				setReady();
@@ -369,6 +387,10 @@ class DisplayAsset extends Asset
 		else
 			return data;
 	}
+
+#if flash9
+	override public  function toDrawable ()		 : IBitmapDrawable	{ return data == null ? toDisplayObject() : data; }
+#end
 	override public  function load ()								{}
 	override public  function close ()								{}
 	override public  function isEmpty ()							{ return data == null; }
@@ -392,11 +414,14 @@ class BytesAssetBase extends Asset
 #end
 	
 	
-	public function new ()							{ type = AssetType.displayObject; super(); }
-	override private function unsetData ()			{ disposeLoader(); super.unsetData(); }
-	inline	 public  function isLoaded ()			{ return loader != null && loader.isCompleted(); }
-	override public  function toDisplayObject ()	{ return isLoaded() ? loader.content : null; }
-	override public  function close ()				{ if (loader != null) loader.close(); }
+	public function new ()										{ type = AssetType.displayObject; super(); }
+	override private function unsetData ()						{ disposeLoader(); super.unsetData(); }
+	inline	 public  function isLoaded ()						{ return loader != null && loader.isCompleted(); }
+	override public  function toDisplayObject ()				{ return isLoaded() ? loader.content : null; }
+#if flash9
+	override public  function toDrawable () : IBitmapDrawable	{ return toDisplayObject(); }
+#end
+	override public  function close ()							{ if (loader != null) loader.close(); }
 	
 	
 	private function loadBytes (bytes:BytesData)

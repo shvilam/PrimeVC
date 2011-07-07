@@ -347,6 +347,33 @@ class LayoutClient extends Invalidatable
 	//
 	// SIZE METHODS
 	//
+
+	public  inline function setMaxSize (maxWidth:Int, maxHeight:Int = Number.INT_NOT_SET)
+	{
+		if (maxWidth.isSet()) {
+			if (widthValidator  == null)	widthValidator = new IntRangeValidator(Number.INT_NOT_SET, maxWidth);
+			else							widthValidator.max = maxWidth;
+		}
+		if (maxHeight.isSet()) {
+			if (heightValidator == null)	heightValidator = new IntRangeValidator(Number.INT_NOT_SET, maxHeight);
+			else							heightValidator.max = maxHeight;
+		}
+	}
+
+
+	public  inline function setMinSize (minWidth:Int, minHeight:Int = Number.INT_NOT_SET)
+	{
+		if (minWidth.isSet()) {
+			if (widthValidator  == null)	widthValidator = new IntRangeValidator(minWidth);
+			else							widthValidator.min = minWidth;
+		}
+
+		if (minHeight.isSet()) {
+			if (heightValidator == null)	heightValidator = new IntRangeValidator(minHeight);
+			else							heightValidator.min = minHeight;
+		}
+	}
+
 	
 	private inline function getWidth ()		{ return _width; }
 	private inline function getHeight ()	{ return _height; }
