@@ -152,7 +152,9 @@ class ProgressBar extends UIDataContainer<PercentageHelper>
 		
 		if (changes.has(UIElementFlags.SOURCE) && source != null)
 		{
-		//	Assert.notNull(source);
+			if		(source.isCompleted())	handleCompleted();
+			else if (source.isStarted)		handleBegin();
+
 			var e = source.events.load;
 			handleBegin		.on( e.started, this );
 			handleProgress	.on( e.progress, this );

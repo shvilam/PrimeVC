@@ -61,7 +61,7 @@ class ShowProgressBarBehaviour extends BehaviourBase<IUIContainer>
 	
 	
 	
-	public function new (target:IUIContainer, loader:ICommunicator, autoDispose:Bool = false)
+	public function new (target:IUIContainer, loader:ICommunicator) //, autoDispose:Bool = false)
 	{
 		super(target);
 		Assert.notNull(loader);
