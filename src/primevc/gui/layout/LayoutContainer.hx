@@ -407,10 +407,10 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	// ISCROLLABLE LAYOUT IMPLEMENTATION
 	//
 	
-	public inline function horScrollable ()							{ return width.isSet()  && measuredWidth.isSet()  && measuredWidth  > width; }
-	public inline function verScrollable ()							{ return height.isSet() && measuredHeight.isSet() && measuredHeight > height; }
-	public inline function getScrollableWidth ()					{ return measuredWidth  - width; }
-	public inline function getScrollableHeight ()					{ return measuredHeight - height; }
+	public  inline function horScrollable ()						{ return width.isSet()  && measuredWidth.isSet()  && measuredWidth  > width; }
+	public  inline function verScrollable ()						{ return height.isSet() && measuredHeight.isSet() && measuredHeight > height; }
+	private inline function getScrollableWidth ()					{ return measuredWidth  - width; }
+	private inline function getScrollableHeight ()					{ return measuredHeight - height; }
 	
 	private inline function setMinScrollXPos (v:Int)				{ return minScrollXPos = v <= 0 ? v : 0; }
 	private inline function setMinScrollYPos (v:Int)				{ return minScrollYPos = v <= 0 ? v : 0; }

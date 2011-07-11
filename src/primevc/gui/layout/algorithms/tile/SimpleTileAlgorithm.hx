@@ -94,28 +94,31 @@ class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorit
 			||	changes.has( LayoutFlags.HEIGHT * group.childHeight.notSet().boolCalc() );
 	}
 	
-	
-	private inline function getMaxWidth () : Int
-	{
-		var g = this.group;
-		var groupW = g.hasMaxWidth() ? g.widthValidator.max : g.width;
-		if (g.is(IAdvancedLayoutClient) && g.as(IAdvancedLayoutClient).explicitWidth.isSet())
-			groupW = g.as(IAdvancedLayoutClient).explicitWidth;
-		
-		return groupW;
-	}
-	
-	
-	private inline function getMaxHeight () : Int
-	{
-		var g = this.group;
-		var groupH = g.hasMaxHeight() ? g.heightValidator.max : g.height;
-		if (g.is(IAdvancedLayoutClient) && g.as(IAdvancedLayoutClient).explicitHeight.isSet())
-			groupH = g.as(IAdvancedLayoutClient).explicitHeight;
-		
-		return groupH;
-	}
-	
+    
+    private inline function getMaxWidth () : Int
+    {
+        var g       = this.group;
+        var groupW  = g.width;
+        if (g.is(IAdvancedLayoutClient) && g.as(IAdvancedLayoutClient).explicitWidth.isSet())
+            groupW = g.as(IAdvancedLayoutClient).explicitWidth;
+        else if (g.hasMaxWidth())
+            groupW = g.widthValidator.max;
+        
+        return groupW;
+    }
+    
+    
+    private inline function getMaxHeight () : Int
+    {
+        var g       = this.group;
+        var groupH  = g.height;
+        if (g.is(IAdvancedLayoutClient) && g.as(IAdvancedLayoutClient).explicitHeight.isSet())
+            groupH = g.as(IAdvancedLayoutClient).explicitHeight;
+        else if (g.hasMaxHeight())
+            groupH = g.heightValidator.max;
+        
+        return groupH;
+    }
 	
 	
 	/**
@@ -592,7 +595,14 @@ class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorit
 	            if (scrollX.isSet())
         		    group.scrollPos.x = scrollX;
 		}
-		
-		
 	}
+
+
+	
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String
+	{
+		return "tile (" + direction + ")";
+	}
+#end
 }

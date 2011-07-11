@@ -64,7 +64,7 @@ class Loader implements ICommunicator
 	private static var	 		free		: Loader;
 	private static var			freeCount	: Int = 0;
 
-	public static function get () : Loader
+	@:keep public static function get () : Loader
 	{
 		var r:Loader = null,		//loader to return
 			L		 = Loader;		//Loader class
@@ -161,7 +161,7 @@ class Loader implements ICommunicator
 	}
 	
 	
-	public inline function load (v:URI, ?c:LoaderContext) : Void
+	@:keep public inline function load (v:URI, ?c:LoaderContext) : Void
 	{
 		if (isStarted)
 			close();

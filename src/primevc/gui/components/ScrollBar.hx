@@ -164,7 +164,7 @@ class ScrollBar extends SliderBase
 	private function handleScrollWheel (mouseObj:MouseState)
 	{
 		if (direction == vertical)
-			data.value = data.validator.validate( data.value - mouseObj.scrollDelta() );
+			data.value = data.validator.validate( data.value - mouseObj.scrollDelta() * 2 );
 	}
 	
 	
@@ -216,8 +216,8 @@ class ScrollBar extends SliderBase
 	}
 	
 	
-	private function updateTargetScrollX ()	{ scrollBinding.disable(); target.scrollableLayout.scrollPos.x = data.value.int() * 2; scrollBinding.enable();  }
-	private function updateTargetScrollY ()	{ scrollBinding.disable(); target.scrollableLayout.scrollPos.y = data.value.int() * 2; scrollBinding.enable();  }
+	private function updateTargetScrollX ()	{ scrollBinding.disable(); target.scrollableLayout.scrollPos.x = data.value.int(); scrollBinding.enable();  }
+	private function updateTargetScrollY ()	{ scrollBinding.disable(); target.scrollableLayout.scrollPos.y = data.value.int(); scrollBinding.enable();  }
 	
 	
 	
