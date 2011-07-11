@@ -3,6 +3,7 @@
 	
 	<!-- Core Elements -->
 	<component id="IDisplayObject"		superClass=""					fullname="primevc.gui.display.IDisplayObject" />
+	<component id="UIBitmap"			superClass="IDisplayObject"		fullname="primevc.gui.core.UIBitmap" />
 	<component id="UIComponent"			superClass="IDisplayObject"		fullname="primevc.gui.core.UIComponent" />
 	<component id="UIContainer"			superClass="UIComponent"		fullname="primevc.gui.core.UIContainer" />
 	<component id="UIDataComponent"		superClass="UIComponent"		fullname="primevc.gui.core.UIDataComponent" />

@@ -101,25 +101,33 @@ class Image extends UIDataComponent<Asset>	//FIXME (Ruben @ Mar 16, '11): used t
 		
 		switch (data.type)
 		{
-			case AssetType.displayObject:
-				addChild( assetChild = data.toDisplayObject() );
-				updateChildSize.on( layout.changed, this );
-				updateChildSize(LayoutFlags.SIZE);
-				
-			
-			case AssetType.bitmapData:
-				if (graphicData.fill == null || !graphicData.fill.is(BitmapFill))
-					graphicData.fill = assetFill = new BitmapFill( null, data, null, false );
-				
-				else if (graphicData.fill.is(BitmapFill)) {
-					assetFill		= graphicData.fill.as(BitmapFill);
-					assetFill.asset	= data;
-				}
+			case AssetType.displayObject:	applyDisplayObject();
+			case AssetType.bitmapData:		applyBitmapData();
 		}
 		
 		displayEvents.removedFromStage.unbind( data );
 		updateSize();
 #end
+	}
+
+
+	private inline function applyBitmapData ()
+	{
+		if (graphicData.fill == null || !graphicData.fill.is(BitmapFill))
+			graphicData.fill = assetFill = new BitmapFill( null, data, null, false );
+		
+		else if (graphicData.fill.is(BitmapFill)) {
+			assetFill		= graphicData.fill.as(BitmapFill);
+			assetFill.asset	= data;
+		}
+	}
+
+
+	private inline function applyDisplayObject ()
+	{
+		addChild( assetChild = data.toDisplayObject() );
+		updateChildSize.on( layout.changed, this );
+		updateChildSize(LayoutFlags.SIZE);
 	}
 	
 	

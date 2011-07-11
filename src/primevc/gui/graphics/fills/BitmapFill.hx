@@ -32,6 +32,7 @@ package primevc.gui.graphics.fills;
 #end
  import primevc.core.geom.IRectangle;
  import primevc.core.geom.Matrix2D;
+ import primevc.gui.display.BitmapData;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.graphics.IGraphicProperty;
@@ -55,9 +56,7 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 	public var smooth		(default, setSmooth)		: Bool;
 	public var repeat		(default, setRepeat)		: Bool;
 	public var isFinished	(default, null)				: Bool;
-#if flash9
-	public var data			(default, null)				: flash.display.BitmapData;
-#end
+	public var data			(default, null)				: BitmapData;
 	
 	
 	public function new (assetFactory:Factory<Dynamic>, asset:Asset = null, matrix:Matrix2D = null, repeat:Bool = true, smooth:Bool = false)
@@ -165,7 +164,7 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 	
 	
 #if flash9
-	private inline function setData (v:flash.display.BitmapData)
+	private inline function setData (v:BitmapData)
 	{
 		if (v != data)
 		{

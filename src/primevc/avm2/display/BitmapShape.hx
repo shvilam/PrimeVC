@@ -29,6 +29,7 @@
 package primevc.avm2.display;
  import flash.display.DisplayObject;
  import primevc.core.geom.IntRectangle;
+ import primevc.gui.display.BitmapData;
  import primevc.gui.display.DisplayDataCursor;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
@@ -51,7 +52,7 @@ class BitmapShape extends flash.display.Bitmap, implements IDisplayObject
 	public var rect				(default, null)			: IntRectangle;
 	
 	
-	public function new (?data:flash.display.BitmapData) 
+	public function new (?data:BitmapData) 
 	{
 		super(data);
 		displayEvents	= new DisplayEvents( this );

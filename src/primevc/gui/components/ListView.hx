@@ -55,8 +55,6 @@ package primevc.gui.components;
  */
 class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataType > >//, implements haxe.rtti.Generic //, implements IListView < ListDataType >
 {
-	private static inline var SCROLL_POS = 1 << 30;
-
 	/**
 	 * Signal which will dispatch mouse-clicks of interactive item-rendered 
 	 * children.
@@ -134,7 +132,7 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 			
 			length = layout.algorithm.getMaxVisibleChildren();
 		}
-		
+
 		//add itemrenders for new list
 		for (i in 0...length)
 			addRenderer( data.getItemAt(i), i );
@@ -171,9 +169,26 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	
 	private inline function removeRendererFor( item:ListDataType, oldPos:Int = -1 )
 	{
-		var renderer = getRendererFor( item );
+		var renderer:IDisplayObject = null;
+		var depth = indexToDepth(oldPos);
+		if (depth > -1)
+		{
+			renderer = children.getItemAt(depth);
+		}
+		else
+		{
+		//	var renderer = getRendererFor( item );
+			// can't use getRendererFor here since the data-item is most likely already moved from the
+			// data array. Instead all children will be checked if they have the same data as given.
+			for (i in 0...children.length)
+				if (getRendererData(cast children.getItemAt(i)) == item) {
+					renderer = children.getItemAt(i);
+					break;
+				}
+		}
+
 		if (renderer != null)
-			removeRenderer( renderer );		// removing the click-listener is not nescasary since the item-renderer is getting disposed
+			renderer.dispose();		// removing the click-listener is not nescasary since the item-renderer is getting disposed
 	}
 	
 	
@@ -318,18 +333,8 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	
 	private function invalidateScrollPos ()
 	{
-		invalidate(SCROLL_POS);
-	}
-
-
-	override public function validate ()
-	{
-		if (changes.has(SCROLL_POS))
-		{
-			var l = layoutContainer;
-			updateVisibleItemRenderers( l.algorithm.getDepthOfFirstVisibleChild(), l.children.length );
-		}
-		super.validate();
+		var l = layoutContainer;
+		updateVisibleItemRenderers( l.algorithm.getDepthOfFirstVisibleChild(), l.children.length );
 	}
 	
 	
@@ -371,6 +376,7 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	
 	private function handleListChange ( change:ListChange<ListDataType> ) : Void
 	{
+		var l = children.length;
 		switch (change)
 		{
 			case added( item, newPos):			addRenderer( item, newPos );
@@ -378,5 +384,6 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 			case moved (item, newPos, oldPos):	moveRenderer( item, newPos, oldPos );
 			default:
 		}
+		trace(change+"; "+l+" / "+children.length);
 	}
 }

@@ -32,6 +32,7 @@ package primevc.types;
  import primevc.core.states.SimpleStateMachine;
  import primevc.core.traits.IDisposable;
  import primevc.core.traits.IValueObject;
+ import primevc.gui.display.BitmapData;
  import primevc.gui.display.DisplayObject;
  import primevc.types.Number;
  import primevc.types.URI;
@@ -54,7 +55,6 @@ package primevc.types;
 
 
 private typedef FlashBitmap		= #if flash9	flash.display.Bitmap		#else Dynamic			#end;
-private typedef BitmapData		= #if flash9	flash.display.BitmapData	#else Dynamic			#end;
 private typedef Factory			= primevc.types.Factory<Dynamic>;
 private typedef BytesData		= haxe.io.BytesData;
 
@@ -86,14 +86,15 @@ class Asset		implements IDisposable
 	public static inline function createEmptyBitmap	(w:Int, h:Int)					: Asset	{ return fromBitmapData( new BitmapData(w, h) ); }
 	
 	
-	public static function fromURI (v:URI) : Asset
+	public static function fromURI (v:URI, loader:ICommunicator = null) : Asset
 	{
 		if (v == null)
 			return null;
+		
 		if (v.hasScheme( URIScheme.Scheme('asset')) )
 			return fromUnkown( Type.createInstance( v.host.resolveClass(), []) );
 		else
-			return new ExternalAsset(v);
+			return new ExternalAsset(v, loader);
 	}
 	
 	
@@ -124,7 +125,7 @@ class Asset		implements IDisposable
 	/**
 	 * cached bitmapdata of the given source
 	 */
-	private var bitmapData : BitmapData;
+	public var bitmapData	(default, null)				: BitmapData;
 
 #if neko
 	private var source		: Dynamic;

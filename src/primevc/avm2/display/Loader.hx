@@ -56,8 +56,47 @@ typedef FlashLoader = flash.display.Loader;
  */
 class Loader implements ICommunicator
 {
+	//
+	// LOADER FREELIST IMPLEMENTATION
+	//
+
+	private static inline var	MAX_LOADERS : Int = 10;
+	private static var	 		free		: Loader;
+	private static var			freeCount	: Int = 0;
+
+	public static function get () : Loader
+	{
+		var r:Loader = null,		//loader to return
+			L		 = Loader;		//Loader class
+		
+		if (L.free == null)
+			r = new Loader();
+		else
+		{
+			r			= L.free;
+			L.free		= r.nextFree;
+			r.nextFree	= null;
+			--L.freeCount;
+		}
+		Assert.notNull(r);
+		return r;
+	}
+
+
+	/**
+	 * Reference to the next free loader (if there is any)
+	 */
+	private var nextFree		: Loader;
+
+
+
+
+	//
+	// CLASS IMPLEMENTATION
+	//
+
+
 	public static var defaultContext = new LoaderContext(false, new ApplicationDomain());
-	
 	
 	public var events			(default,			null)		: LoaderSignals;
 	
@@ -91,12 +130,34 @@ class Loader implements ICommunicator
 	}
 	
 	
+	/**
+	 * Method will unload the given Loader and add it to the freelist
+	 * if the MAX_LOADERS isn't reached. Otherwise the loader will be
+	 * disposed.
+	 */
 	public function dispose ()
 	{
+		close();
 		unload();
-		events.dispose();
-		loader		= null;
-		events		= null;
+
+		if (freeCount == MAX_LOADERS)
+		{
+			events.dispose();
+			nextFree	= null;
+			loader		= null;
+			events		= null;
+		}
+		else
+		{
+#if flash9	if (loader.parent != null)
+				loader.parent.removeChild(loader);
+#end
+			Assert.null(nextFree);
+			var L = Loader;
+			nextFree = L.free;
+			L.free	 = this;
+			L.freeCount++;
+		}
 	}
 	
 	
@@ -140,7 +201,7 @@ class Loader implements ICommunicator
 			type		= null;
 	}
 	
-	public inline function close () : Void			{ if (!isCompleted()) loader.close(); }
+	public inline function close () : Void			{ if (isStarted && !isCompleted()) { try { loader.close(); } catch(e:Dynamic) {} } }
 	public inline function isSwf () : Bool			{ return fileType == FileType.SWF; }
 	public inline function isCompleted () : Bool	{ return bytesTotal > 0 && bytesProgress >= bytesTotal; }
 	public inline function isInProgress ()			{ return isStarted && !isCompleted(); }
@@ -222,4 +283,11 @@ class Loader implements ICommunicator
 	
 	private function setStarted ()		{ isStarted = true; }
 	private function unsetStarted ()	{ isStarted = false; }
+
+#if debug
+	public function toString ()
+	{
+		return "Loader("+bytesProgress+" / "+bytesTotal + (isStarted ? " - started" : "") + (isCompleted() ? " - completed" : "") + (isInProgress() ? " - progress" : "") + (content != null ? "; content: " + content+")" : "");
+	}
+#end
 }
