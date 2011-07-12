@@ -1,7 +1,6 @@
 package primevc.js.display;
 
-import nl.onlinetouch.viewer.view.managers.js.WebkitTransform;
-import nl.onlinetouch.viewer.view.managers.js.TransitionManager;
+import nl.onlinetouch.viewer.view.managers.js.Transform;
 import primevc.js.display.DisplayList;
 
 import js.Dom;
@@ -34,76 +33,88 @@ class DOMElem
 		
 		children = new DisplayList(this);
 		
-		matrix = WebkitTransform.getMatrix(this);
-		
 		(untyped this).x = 0;
 		(untyped this).y = 0;
 		(untyped this).scale = 1;
 	}
 	
-	private function setWidth(v:Float):Int
+	private function setWidth(v:Int):Int
 	{
-		width = cast v;
-		elem.style.width = width + "px";
+		if (width != v)
+		{
+			width = v;
+			elem.style.width = v + "px";
+		}
 		return width;
 	}
 	
-	private function setHeight(v:Float):Int
+	private function setHeight(v:Int):Int
 	{
-		height = cast v;
-		elem.style.height = height + "px";
+		if (height != v)
+		{
+			height = v;
+			elem.style.height = v + "px";
+		}
 		return height;
 	}
 	
-	private function setX(v:Float):Int
+	inline private function setX(v:Int):Int
 	{
-		x = cast v;
-		WebkitTransform.translateX(this, x);
+		if (x != v)
+		{
+			x = v;
+			applyTransforms();
+		}
 		return x;
 	}
 	
-	private function setY(v:Float):Int
+	inline private function setY(v:Int):Int
 	{
-		y = cast v;
-		WebkitTransform.translateY(this, y);
+		if (y != v)
+		{
+			y = v;
+			applyTransforms();
+		}
 		return y;
 	}
 	
-	public function moveTo(x:Float, y:Float)
+	inline public function moveTo(x:Int, y:Int)
 	{
-		(untyped this).x = cast x;
-		(untyped this).y = cast y;
-		WebkitTransform.translate(this, x, y);
+		(untyped this).x = x;
+		(untyped this).y = y;
+		applyTransforms();
 	}
 	
-	private function setScale(v:Float):Float
+	inline private function setScale(v:Float):Float
 	{
-		scale = v;
-		//WebkitTransform.scale(this, scale);
-		applyTransforms();
+		if (scale != v)
+		{
+			scale = v;
+			applyTransforms();
+		}
 		return scale;
 	}
 	
-	private function setId(v:String):String
+	inline private function setId(v:String):String
 	{
 		id = v;
-		elem.id = id;
+		elem.id = v;
 		return id;
 	}
 	
-	private function getStyle():Style
+	inline private function getStyle():Style
 	{
 		return elem.style;
 	}
 	
-	private function setClassName(v:String):String
+	inline private function setClassName(v:String):String
 	{
 		className = v;
-		elem.className = className;
+		elem.className = v;
 		return className;
 	}
 	
-	private function applyTransforms()
+	inline private function applyTransforms()
 	{
 		elem.style.webkitTransform = "translate3d(" + x + "px," + y + "px, 0) scale(" + scale + ")";
 	}

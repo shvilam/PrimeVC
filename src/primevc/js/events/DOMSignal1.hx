@@ -14,7 +14,6 @@ typedef DOMEvent =
 	AT_TARGET		= 2;
 	BUBBLING_PHASE	= 3;
 	*/
-	public var type				(default, null):String; // The type of the event.
 	public var bubbles			(default, null):Bool; // Indicates whether the event can bubble.
 	public var canBubble		(default, null):Bool; // Indicates whether the event can bubble.
 	public var cancelable		(default, null):Bool; // Indicates whether the event can have its default action prevented.
@@ -26,6 +25,7 @@ typedef DOMEvent =
 	public var srcElement		(default, null):Dynamic; // The Microsoft equivalent of 'target'.
 	public var target			(default, null):Dynamic; // The target of the event.
 	public var timeStamp		(default, null):Int; // The time at which the event was created in milliseconds relative to 1970-01-01 00:00:00.
+	public var type				(default, null):String; // The type of the event.
 	
 	public function preventDefault():Void; // Prevents the browser from performing the default action for the event.
 	public function stopImmediatePropagation():Void; 

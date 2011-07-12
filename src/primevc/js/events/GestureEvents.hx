@@ -10,34 +10,34 @@ class GestureEvents extends Signals
 {
 	var eventDispatcher:Dynamic;
 	
-	public var gestureStart		(getGestureStart,	null):GestureSignal;
-	public var gestureChange	(getGestureChange,	null):GestureSignal;
-	public var gestureEnd		(getGestureEnd,		null):GestureSignal;
+	public var start	(getStart,	null):GestureSignal;
+	public var change	(getChange,	null):GestureSignal;
+	public var end		(getEnd,	null):GestureSignal;
 	
 	public function new(eventDispatcher:Dynamic)
 	{
 		this.eventDispatcher = eventDispatcher;
 	}
 	
-	private inline function getGestureStart 	() { if (gestureStart	== null) { createGestureStart();	} return gestureStart; }
-	private inline function getGestureChange	() { if (gestureChange	== null) { createGestureChange();	} return gestureChange; }
-	private inline function getGestureEnd		() { if (gestureEnd 	== null) { createGestureEnd();		} return gestureEnd; }
+	private inline function getStart 	() { if (start	== null) { createStart();	} return start; }
+	private inline function getChange	() { if (change	== null) { createChange();	} return change; }
+	private inline function getEnd		() { if (end 	== null) { createEnd();		} return end; }
 	
-	private function createGestureStart		() { gestureStart 	= new GestureSignal(eventDispatcher, "gesturestart"); }
-	private function createGestureChange	() { gestureChange 	= new GestureSignal(eventDispatcher, "gesturechange"); }
-	private function createGestureEnd		() { gestureEnd		= new GestureSignal(eventDispatcher, "gestureend"); }
+	private function createStart	() { start 	= new GestureSignal(eventDispatcher, "gesturestart"); }
+	private function createChange	() { change = new GestureSignal(eventDispatcher, "gesturechange"); }
+	private function createEnd		() { end	= new GestureSignal(eventDispatcher, "gestureend"); }
 	
 	override public function dispose ()
 	{
 		eventDispatcher = null;
 		
-		if ( (untyped this).gestureStart	!= null ) gestureStart.dispose();
-		if ( (untyped this).gestureChange	!= null ) gestureChange.dispose();
-		if ( (untyped this).gestureEnd		!= null ) gestureEnd.dispose();
+		if ( (untyped this).start	!= null ) start.dispose();
+		if ( (untyped this).change	!= null ) change.dispose();
+		if ( (untyped this).end		!= null ) end.dispose();
 		
-		gestureStart =
-		gestureChange =
-		gestureEnd =
+		start =
+		change =
+		end =
 		null;
 	}
 }

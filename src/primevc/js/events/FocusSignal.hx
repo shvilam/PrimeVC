@@ -15,8 +15,8 @@ typedef FocusEvent =
  */
 class FocusSignal extends DOMSignal1<FocusEvent>
 {
-	override private function dispatch(event:Event) 
+	override private function dispatch(e:Event) 
 	{
-		send(cast event);
+		send(cast e);
 	}
 }

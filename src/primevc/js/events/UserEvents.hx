@@ -8,7 +8,7 @@ import primevc.core.dispatcher.Signals;
  */
 class UserEvents extends Signals	
 {
-	private var eventDispatcher:HtmlDom;
+	private var eventDispatcher:Dynamic;
 	public var mouse	(getMouse,		null)	: MouseEvents;
 	public var touch	(getTouch,		null)	: TouchEvents;
 	public var gesture	(getGesture,	null)	: GestureEvents;

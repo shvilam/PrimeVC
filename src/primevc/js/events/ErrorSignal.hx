@@ -8,7 +8,7 @@ import js.Dom;
  */
 class ErrorSignal extends DOMSignal1<String>
 {
-	override private function dispatch(event:Event) 
+	override private function dispatch(e:Event) 
 	{
 		send("error");
 	}
