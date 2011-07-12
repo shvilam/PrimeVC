@@ -347,11 +347,12 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 		var group	= group.as(IScrollableLayout);
 		var childW	= group.childWidth;
 		
-		return switch (direction) {
+		var depth	= switch (direction) {
 			case Horizontal.left:	(group.scrollPos.x / childW).floorFloat();
 			case Horizontal.center:	0;
 			case Horizontal.right:	(group.scrollableWidth / childW).floorFloat();
-		}
+		};
+		return (depth - group.invisibleBefore).within(0, group.childrenLength);
 	}
 	
 	
@@ -359,7 +360,9 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	{
 		var g = this.group;
 		if (g.childWidth.isSet())
-		    return g.width.isSet() ? IntMath.min( (g.width / g.childWidth).ceilFloat() + 1, g.childrenLength) : 0;
+		    return g.width.isSet()
+		    	? IntMath.min( (g.width / g.childWidth).ceilFloat() + group.invisibleBefore + group.invisibleAfter, g.childrenLength)
+		    	: 0;
 	    else
 	        return g.childrenLength;
 	}

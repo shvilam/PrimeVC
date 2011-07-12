@@ -485,6 +485,7 @@ class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorit
 		if (columns.notSet() && rows.notSet())
 			return 0;
 		
+		var invisible = group.invisibleBefore;
 		switch (direction)
 		{
 			case horizontal:
@@ -494,7 +495,7 @@ class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorit
 				Assert.that(group.is(IScrollableLayout), group+" should be scrollable");
 				var group	= group.as(IScrollableLayout);
 				var childH	= group.childHeight;
-				return ((group.scrollPos.y / childH).floorFloat() * columns).within(0, group.childrenLength);
+				return (((group.scrollPos.y / childH).floorFloat() - invisible) * columns).within(0, group.childrenLength);
 			
 			
 			case vertical:
@@ -504,7 +505,7 @@ class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorit
 				Assert.that(group.is(IScrollableLayout), group+" should be scrollable");
 				var group	= group.as(IScrollableLayout);
 				var childW	= group.childWidth;
-				return ((group.scrollPos.x / childW).floorFloat() * rows).within(0, group.childrenLength);
+				return (((group.scrollPos.x / childW).floorFloat() - invisible) * rows).within(0, group.childrenLength);
 		}
 	}
 	
@@ -525,12 +526,13 @@ class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorit
 			return 0;
 		
 //		trace(direction+"; childSize: "+g.childHeight+", "+g.childWidth+"; size: "+g.width+", "+g.height+"; columns: "+columns+"; rows: "+rows+"; l: "+g.childrenLength);
+		var invisible = group.invisibleBefore + group.invisibleAfter;
 		switch (direction) {
 			case horizontal:
-			    if (g.childHeight.isSet())  return g.height.isSet() ? IntMath.min( ((g.height / g.childHeight).ceilFloat() + 2) * columns, g.childrenLength) : 0;
+			    if (g.childHeight.isSet())  return g.height.isSet() ? IntMath.min( ((g.height / g.childHeight).ceilFloat() + invisible) * columns, g.childrenLength) : 0;
 			    else                        return g.childrenLength;
 			case vertical:
-			    if (g.childWidth .isSet())  return g.width .isSet() ? IntMath.min( ((g.width  / g.childWidth) .ceilFloat() + 2) * rows, g.childrenLength) : 0;
+			    if (g.childWidth .isSet())  return g.width .isSet() ? IntMath.min( ((g.width  / g.childWidth) .ceilFloat() + invisible) * rows, g.childrenLength) : 0;
 			    else                        return g.childrenLength;
 		}
 		

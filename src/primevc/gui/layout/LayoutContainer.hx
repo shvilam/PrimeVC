@@ -481,8 +481,10 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	 * 
 	 * @see LayoutContainer.setFixedLength
 	 */
-	public var childrenLength	(default, null) : Int;
-	public var fixedChildStart					: Int;
+	public var childrenLength		(default, null)					: Int;
+	public var fixedChildStart		(default, default)				: Int;
+	public var invisibleBefore		(default, setInvisibleBefore)	: Int;
+	public var invisibleAfter		(default, setInvisibleAfter)	: Int;
 	
 	/**
 	 * Indicated wether the length of the children is fake d or not.
@@ -491,7 +493,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	 * childHeight also have been set, otherwise it's impossible to calculate
 	 * what the measured size of the container should be.
 	 */
-	public var fixedLength		(default, null) : Bool;
+	public var fixedLength			(default, null)					: Bool;
 	
 	
 	private function childrenChangeHandler ( change:ListChange <LayoutClient> ) : Void
@@ -530,6 +532,9 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 				invalidate( Flags.LIST );
 		}
 	}
+
+
+
 	
 	
 	public inline function setFixedChildLength (length:Int)
@@ -549,5 +554,27 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			childrenLength = children.length;
 			invalidate( Flags.LIST );
 		}
+	}
+
+
+	private inline function setInvisibleBefore (v:Int)
+	{
+		if (v != invisibleBefore)
+		{
+			invisibleBefore = v;
+			invalidate(Flags.LIST);
+		}
+		return v;
+	}
+
+
+	private inline function setInvisibleAfter (v:Int)
+	{
+		if (v != invisibleAfter)
+		{
+			invisibleAfter = v;
+			invalidate(Flags.LIST);
+		}
+		return v;
 	}
 }

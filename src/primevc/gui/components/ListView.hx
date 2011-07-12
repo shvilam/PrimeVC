@@ -126,6 +126,8 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 		if (layout.algorithm != null && isScrollable) {
 			layout.setFixedChildLength( length );
 			
+			layout.invisibleBefore = layout.invisibleAfter = 2;
+
 			invalidateScrollPos	.on( layout.scrollPos.xProp.change, this );
 			invalidateScrollPos	.on( layout.scrollPos.yProp.change, this );
 			checkItemRenderers	.on( layout.changed, this );
@@ -384,6 +386,5 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 			case moved (item, newPos, oldPos):	moveRenderer( item, newPos, oldPos );
 			default:
 		}
-		trace(change+"; "+l+" / "+children.length);
 	}
 }

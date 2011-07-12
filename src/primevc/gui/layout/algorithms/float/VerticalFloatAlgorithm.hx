@@ -357,11 +357,12 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 		var group	= group.as(IScrollableLayout);
 		var childH	= group.childHeight;
 		
-		return switch (direction) {
+		var depth	= switch (direction) {
 			case Vertical.top:		(group.scrollPos.y / childH).floorFloat();
 			case Vertical.center:	0;
 			case Vertical.bottom:	(group.scrollableHeight / childH).floorFloat();
-		}
+		};
+		return (depth - group.invisibleBefore).within(0, group.childrenLength);
 	}
 	
 	
@@ -369,7 +370,9 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	{
 		var g = this.group;
 		if (g.childHeight.isSet())
-		    return g.height.isSet() ? IntMath.min( (g.height / g.childHeight).ceilFloat() + 1, g.childrenLength) : 0;
+		    return g.height.isSet()
+		    	? IntMath.min( (g.height / g.childHeight).ceilFloat() + group.invisibleBefore + group.invisibleAfter, g.childrenLength)
+		    	: 0;
 		else
 		    return g.childrenLength;
 	}
