@@ -140,8 +140,8 @@ class ImageUtils
         {
             originalWidth   = (width  / scaleX).roundFloat();
             originalHeight  = (height / scaleY).roundFloat;
-            originalX       = ((originalWidth  - source.width)  * .5).roundFloat();
-            originalY       = ((originalHeight - source.height) * .5).roundFloat();
+            originalX       = (originalWidth  - source.width)  >> 1; //* .5).roundFloat();
+            originalY       = (originalHeight - source.height) >> 1; //* .5).roundFloat();
             finalWidth      = width;
             finalHeight     = height;
     ﻿    }

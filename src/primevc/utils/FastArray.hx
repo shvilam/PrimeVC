@@ -75,7 +75,8 @@ extern class FastArrayUtil
 	public static inline function indexOf<T> ( list:FastArray<T>, item:T, ?startPos:Int = 0 ) : Int
 	{
 		var pos:Int = -1;
-		for (i in startPos...list.length) {
+		var l		= list.length;
+		for (i in startPos...l) {
 			if (list[i] == item) {
 				pos = i;
 				break;
@@ -88,14 +89,14 @@ extern class FastArrayUtil
 	
 	public static inline function insertAt<T>( list:FastArray<T>, item:T, pos:Int ) : Int
 	{
-		var newPos:Int = 0;
-		if (pos < 0 || pos == list.length.int())
+		var newPos:Int	= 0;
+		var len			= list.length.int();
+		if (pos < 0 || pos == len)
 		{
 			newPos = list.push( item ) - 1;
 		}
 		else
 		{
-			var len = list.length.int();
 			if (pos > len)
 				pos = len;
 			
@@ -179,7 +180,8 @@ extern class FastArrayUtil
 	
 	
 	public static inline function removeAll<T> (list:FastArray<T>) : FastArray<T> {
-		while (list.length > 0)
+		var l = list.length;
+		while (l-- > 0)
 			list.pop();
 		
 		return list;
@@ -187,7 +189,8 @@ extern class FastArrayUtil
 	
 	
 	public static inline function dispose<T> (list:FastArray<T>) : Void {
-		while (list.length > 0) {
+		var l = list.length;
+		while (l-- > 0) {
 			var i = list.pop();
 			if (i.is(IDisposable))
 				i.as(IDisposable).dispose();

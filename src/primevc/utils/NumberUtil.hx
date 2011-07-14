@@ -262,7 +262,7 @@ extern class IntMath
 	
 	public static inline function ceilFloat (var1:Float) : Int
 	{
-		return var1.int() + (var1 % 1 > 0 ? 1 : 0);
+		return (var1 % 1 == 0) ? var1.int() : var1.int() + 1; //var1.int() + (var1 > 0 ? 1 : 0);
 	}
 	
 	
@@ -274,7 +274,7 @@ extern class IntMath
 	
 	public static inline function roundFloat (var1:Float) : Int
 	{
-		return var1 < 0 ? -1 * floorFloat( -1 * var1 + .5) : floorFloat(var1 + .5);
+		return ((var1 < 0 ? -.5 : .5) + var1).int();  //-1 * floorFloat( -1 * var1 + .5) : floorFloat(var1 + .5);		//OPTIMIZE!
 	}
 }
 
