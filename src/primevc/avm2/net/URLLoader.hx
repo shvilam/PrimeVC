@@ -202,7 +202,7 @@ class URLLoader implements ICommunicator
 		Assert.that(total.notSet() || total == 0, this.toString()+"; "+v );
 	 	uri	= v;
 #end
-		this.type	= CommunicationType.loading;
+		this.type = CommunicationType.loading;
 		return loadRequest(v.toRequest());
 	}
 	
