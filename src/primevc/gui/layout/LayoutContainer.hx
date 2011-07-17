@@ -213,7 +213,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			
 			for (i in 0...fillingChildren.length)
 			{
-				var child = fillingChildren[ i ];
+				var child = fillingChildren[i];
 				child.outerBounds.width = sizePerChild;
 				child.validateHorizontal();
 			}
@@ -239,7 +239,6 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		
 		if (algorithm != null)
 			algorithm.prepareValidate();
-		
 		
 		for (i in 0...children.length)
 		{
@@ -502,13 +501,16 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		{
 			case added( child, newPos ):
 				child.parent = this;
-				//check first if the bound properties are zero. If they are not, they can have been set by a tile-container
-				if (child.outerBounds.left == 0)	child.outerBounds.left	= padding.left;
-				if (child.outerBounds.top == 0)		child.outerBounds.top	= padding.top;
+				if (child.includeInLayout) {
+					//check first if the bound properties are zero. If they are not, they can have been set by a tile-container
+					if (child.outerBounds.left == 0)	child.outerBounds.left	= padding.left;
+					if (child.outerBounds.top == 0)		child.outerBounds.top	= padding.top;
+					invalidate( Flags.LIST );
+				}
 				child.listeners.add(this);
 				
-				if (!fixedLength)			childrenLength++;
-				if (child.includeInLayout)	invalidate( Flags.LIST );
+				if (!fixedLength)
+					childrenLength++;
 			
 			
 			case removed( child, oldPos ):

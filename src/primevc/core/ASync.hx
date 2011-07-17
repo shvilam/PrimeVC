@@ -83,7 +83,7 @@ class ASync <DataType> implements IDisposable, implements IUnbindable<DataType>
 	}
 	
 	
-	private inline function unbindAll ()
+	public inline function unbindAll ()
 	{
 		response.unbindAll();
 		error.unbindAll();

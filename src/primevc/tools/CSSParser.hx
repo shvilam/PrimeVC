@@ -3493,7 +3493,9 @@ class CSSParser
 	
 	private function isEffect (v:String) : Bool
 	{
-		return anchorScaleEffExpr.match(v)
+		return v == "show"
+			|| v == "hide"
+			|| anchorScaleEffExpr.match(v)
 			|| fadeEffExpr.match(v)
 			|| moveEffExpr.match(v)
 			|| resizeEffExpr.match(v)
@@ -3779,8 +3781,6 @@ class CSSParser
 		//match wipe effect			(direction, start-value, end-value)
 		else if (wipeEffExpr.match(v))
 		{
-			trace(v);
-			trace(wipeEffExpr.matched(1));
 		//	trace(wipeEffExpr.resultToString(17));
 			var direction	= parseMoveDirection( wipeEffExpr.matched(1) );
 			var start		= wipeEffExpr.matched(10) != null ? parseUnitFloat( wipeEffExpr.matched(4) ) : Number.FLOAT_NOT_SET;
@@ -3951,7 +3951,8 @@ class CSSParser
 		if (isEffect(v))
 		{
 			createEffectsBlock();
-			currentBlock.effects.show = parseEffect(v);
+			var eff = currentBlock.effects;
+			currentBlock.effects.show = v == "hide" ? eff.hide : parseEffect(v);
 		}
 	}
 	
@@ -3961,7 +3962,8 @@ class CSSParser
 		if (isEffect(v))
 		{
 			createEffectsBlock();
-			currentBlock.effects.hide = parseEffect(v);
+			var eff = currentBlock.effects;
+			eff.hide = v == "show" ? eff.show : parseEffect(v);
 		}
 	}
 }

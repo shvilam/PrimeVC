@@ -84,7 +84,6 @@ class Loader implements ICommunicator
 	
 	@:keep public static inline function pauseAll ()
 	{
-		trace(queueInfo());
 		isPaused = true;
 	}
 
@@ -92,7 +91,6 @@ class Loader implements ICommunicator
 	@:keep public static inline function resumeAll ()
 	{
 		if (isPaused) {
-			trace(queueInfo());
 			isPaused = false;
 			openNextConnection();
 		}
@@ -100,8 +98,8 @@ class Loader implements ICommunicator
 
 	private static inline function loadSlotAvailable () 		: Bool	{ return !isPaused && CONNECTIONS < MAX_CONNECTIONS; }
 	private static inline function queueIsEmpty ()				: Bool	{ return QUEUE_LENGTH == 0; }
-	private static inline function addConnection (l:Loader)		: Void	{ Assert.that(!isPaused); CONNECTIONS++; /*trace(CONNECTIONS); active.push(l); trace(active);*/ }
-	private static inline function removeConnection (l:Loader)	: Void	{ Assert.that(CONNECTIONS > 0, CONNECTIONS); CONNECTIONS--; /*active.removeItem(l); trace(active); trace(CONNECTIONS);*/ openNextConnection(); }
+	private static inline function addConnection ()				: Void	{ CONNECTIONS++; }
+	private static inline function removeConnection ()			: Void	{ Assert.that(CONNECTIONS > 0, CONNECTIONS); CONNECTIONS--; openNextConnection(); }
 
 
 	private static inline function openNextConnection ()
@@ -117,7 +115,6 @@ class Loader implements ICommunicator
 				c	= l.lastContext;
 			
 			removeFromQueue(l);
-			trace(queueInfo()+"; "+l.id);
 			l.startLoading(uri, c);
 		}
 	}
@@ -133,7 +130,6 @@ class Loader implements ICommunicator
 			lastLoader				= l;
 		}
 		QUEUE_LENGTH++;
-	//	trace(queueInfo()+"; "+l.id);
 	}
 
 
@@ -157,10 +153,7 @@ class Loader implements ICommunicator
 			if (QUEUE_LENGTH > 0)
 				Assert.notNull(firstLoader, queueInfo());
 #end
-						
-		//	trace(queueInfo()+"; "+l.id);
 		}
-	//	trace(l+"; first: "+firstLoader+"; last: "+lastLoader);
 	}
 
 
@@ -205,6 +198,7 @@ class Loader implements ICommunicator
 			L.free		= r.nextFree;
 			r.nextFree	= null;
 			--L.freeCount;
+			r.addListeners();
 		}
 		Assert.notNull(r);
 		return r;
@@ -261,11 +255,7 @@ class Loader implements ICommunicator
 		loader		= new FlashLoader();
 		events		= new LoaderEvents( info );
 		isAnimated	= false;
-		
-		setStarted	.on( events.load.started, 	 this );
-		setFinished	.on( events.load.completed,  this );
-		unsetStarted.on( events.load.error, 	 this );
-	//	unsetStarted.on( events.unloaded,		 this );
+		addListeners();
 	}
 	
 	
@@ -276,9 +266,6 @@ class Loader implements ICommunicator
 	 */
 	public function dispose ()
 	{
-	//	trace(id+"; "+queueInfo()+"; "+isQueued());
-	//	trace("first: "+firstLoader+"; last: "+lastLoader);
-		
 		close();
 		unload();
 
@@ -298,6 +285,8 @@ class Loader implements ICommunicator
 #if flash9	if (loader.parent != null)
 				loader.parent.removeChild(loader);
 #end
+			removeAllListeners();
+
 			Assert.null(nextFree);
 			var L = Loader;
 			nextFree = L.free;
@@ -305,12 +294,31 @@ class Loader implements ICommunicator
 			L.freeCount++;
 		}
 	}
+
+
+	private inline function addListeners ()
+	{
+		setStarted	.on( events.load.started, 	 this );
+		setFinished	.on( events.load.completed,  this );
+		unsetStarted.on( events.load.error, 	 this );
+	//	unsetStarted.on( events.unloaded,		 this );
+	}
+
+
+	private inline function removeAllListeners ()
+	{
+		events.unbindAll();
+	}
+
 	
 	
 	@:keep public  function load (v:URI, ?c:LoaderContext) : Void
 	{
 		if (isStarted)
 			close();
+		
+		if (isFinished)
+			unload();
 		
 		type 		= CommunicationType.loading;
 		isFinished	= false;
@@ -325,12 +333,10 @@ class Loader implements ICommunicator
 			lastContext	= c;
 			addToQueue(this);
 		}
-	//	trace(id+"; "+queueInfo()+"; "+isQueued());
-	//	trace(id+": "+CONNECTIONS + " / "+MAX_CONNECTIONS+"; queue: "+queue.length+"; "+v+"; "+loadQueueIndex);
 	}
 
 
-	private /*inline*/ function startLoading (v:URI, ?c:LoaderContext)
+	private inline function startLoading (v:URI, ?c:LoaderContext)
 	{
 		if (c == null)
 			c = defaultContext;
@@ -339,8 +345,7 @@ class Loader implements ICommunicator
 		Assert.that(!isQueued(), this);
 #end
 		isStarted = true;
-		addConnection(this);
-		trace(id+": "+v);
+		addConnection();
 		loader.load(new URLRequest(v.toString()), c);
 	}
 	
@@ -351,12 +356,17 @@ class Loader implements ICommunicator
 		if (isStarted)
 			close();
 		
+		if (isFinished)
+			unload();
+		
 		isStarted	= true;
+		isFinished	= false;
 		type		= CommunicationType.loading;
 		
 		if (c == null)
 			c = defaultContext;
 		
+		addConnection();
 		loader.loadBytes(v, c);
 		return v;
 	}
@@ -366,6 +376,10 @@ class Loader implements ICommunicator
 	{
 #if flash10	loader.unloadAndStop();
 #else		loader.unload(); #end
+			
+			if ((untyped this).content != null)
+				(untyped this).content = null;
+
 			fileType	= null;
 			type		= null;
 			isFinished	= false;
@@ -379,7 +393,6 @@ class Loader implements ICommunicator
 		}
 		
 		else if (isQueued()) {
-		//	trace(id+"; "+queueInfo()+"; "+isQueued());
 			removeFromQueue(this);
 		}
 		unsetStarted();
@@ -428,7 +441,6 @@ class Loader implements ICommunicator
 			return content;
 		
 		var c:DisplayObject = null;
-	//	trace(info.actionScriptVersion+"; "+info.contentType);
 		if (fileType == null)
 			fileType = info.contentType.toFileType();
 		
@@ -468,7 +480,7 @@ class Loader implements ICommunicator
 	
 	private inline function setStarted ()	{ isStarted = true; }
 	private inline function setFinished ()	{ isFinished = true; unsetStarted(); }
-	private inline function unsetStarted ()	{ if (isStarted) { isStarted = false; removeConnection(this); } }
+	private inline function unsetStarted ()	{ if (isStarted) { isStarted = false; removeConnection(); } }
 
 #if debug
 	public function toString ()

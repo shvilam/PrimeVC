@@ -417,7 +417,7 @@ class BytesAssetBase extends Asset
 	
 	public function new ()										{ type = AssetType.displayObject; super(); }
 	override private function unsetData ()						{ disposeLoader(); super.unsetData(); }
-	inline	 public  function isLoaded ()						{ return loader != null && loader.isCompleted(); }
+	inline	 public  function isLoaded ()						{ return loader != null && loader.isLoaded(); }
 	override public  function toDisplayObject ()				{ return isLoaded() ? loader.content : null; }
 #if flash9
 	override public  function toDrawable () : IBitmapDrawable	{ return toDisplayObject(); }
@@ -431,7 +431,7 @@ class BytesAssetBase extends Asset
 		Assert.notNull(bytes);
 		if (loader == null)
 		{
-			loader = new Loader();
+			loader = Loader.get();
 			var events = loader.events;
 			disposeLoader	.on( events.load.error, this );
 			handleLoadError	.on( events.load.error, this );

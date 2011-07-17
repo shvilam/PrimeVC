@@ -98,8 +98,8 @@ class WipeEffectInstance extends EffectInstance < IDisplayObject, WipeEffect >
 				case LeftToRight, RightToLeft:	rect.x = startValue;
 			}
 		
-		target.scrollRect	= rect;
-		target.visible		= true;
+		t.scrollRect	= rect;
+		t.visible		= true;
 	}
 
 
@@ -112,7 +112,6 @@ class WipeEffectInstance extends EffectInstance < IDisplayObject, WipeEffect >
 			case TopToBottom, BottomToTop:	rect.y = newVal;
 			case LeftToRight, RightToLeft:	rect.x = newVal;
 		}
-
 		target.scrollRect = rect;
 	}
 

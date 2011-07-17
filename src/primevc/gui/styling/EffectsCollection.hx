@@ -94,8 +94,19 @@ class EffectsCollection extends StyleCollectionBase < EffectsStyle >
 		if (propsToSet.has( Flags.RESIZE ))		effects.resize	= styleObj != null ? styleObj.resize.createEffectInstance( target ) : null;
 		if (propsToSet.has( Flags.ROTATE ))		effects.rotate	= styleObj != null ? styleObj.rotate.createEffectInstance( target ) : null;
 		if (propsToSet.has( Flags.SCALE ))		effects.scale	= styleObj != null ? styleObj.scale	.createEffectInstance( target ) : null;
-		if (propsToSet.has( Flags.SHOW ))		effects.show	= styleObj != null ? styleObj.show	.createEffectInstance( target ) : null;
-		if (propsToSet.has( Flags.HIDE ))		effects.hide	= styleObj != null ? styleObj.hide	.createEffectInstance( target ) : null;
+
+		if (styleObj != null && propsToSet.hasAll( Flags.SHOW | Flags.HIDE ))
+		{
+			// check if the show and hide transition are the same
+			if (styleObj.show == styleObj.hide)
+				effects.show = effects.hide = styleObj.show.createEffectInstance( target );
+			else {
+				effects.show = styleObj.show.createEffectInstance( target );
+				effects.hide = styleObj.hide.createEffectInstance( target );
+			}
+		}
+		else if (propsToSet.has( Flags.SHOW ))		effects.show	= styleObj != null ? styleObj.show	.createEffectInstance( target ) : null;
+		else if (propsToSet.has( Flags.HIDE ))		effects.hide	= styleObj != null ? styleObj.hide	.createEffectInstance( target ) : null;
 	}
 }
 

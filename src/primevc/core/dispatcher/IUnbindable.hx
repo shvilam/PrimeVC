@@ -44,4 +44,5 @@ interface IUnbindable<T>
 	 * @param	?handler	Handler method. When handler == null, all methods owned by listener will be unbound.
 	 */
 	public function unbind( listener : Dynamic, ?handler : Null<T> ) : Void;
+    public function unbindAll () : Void;
 }

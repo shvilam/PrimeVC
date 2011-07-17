@@ -277,9 +277,9 @@ class EffectInstance < TargetType, PropertiesType:IEffect >
 	
 	public inline function isPlaying () : Bool	{ return state == EffectStates.playing || state == waiting; }
 	public inline function isWaiting () : Bool	{ return delayTimer != null; }
+
 	
-	
-	private function setIsReverted (v:Bool)
+	private inline function setIsReverted (v:Bool)
 	{
 		return isReverted = v;
 	}

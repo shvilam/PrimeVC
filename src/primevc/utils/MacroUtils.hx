@@ -173,6 +173,13 @@ class MacroUtils
 	//	var f = Context.getBuildFields();
 	//	return f.addMethod( "unbind", "Void", ["l:Dynamic", "?h:Dynamic"], unbindFieldsImpl( f.toClassFields() ) );
 	}
+
+	
+	
+	@:macro public static function autoUnbindAll () : Array<Field>
+	{
+		return Context.getBuildFields().addMethod( "unbindAll", "Void", [], createMacroCall("unbindAll", callback(unbindAllFieldsImpl)) );
+	}
 	
 
 #if debug	
@@ -298,6 +305,12 @@ class MacroUtils
 	private static inline function unbindFieldsImpl (l:String = "l", h:String = "h") : Expr
 	{
 		return callMethodOnFieldsOf([], "unbind("+l+","+h+")",	"IUnbindable", true);
+	}
+
+	
+	private static inline function unbindAllFieldsImpl () : Expr
+	{
+		return callMethodOnFieldsOf([], "unbindAll()",	"IUnbindable", true);
 	}
 	
 	

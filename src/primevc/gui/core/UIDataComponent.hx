@@ -137,6 +137,12 @@ class UIDataComponent <DataType> extends UIComponent, implements IUIDataElement 
 		
 		return v;
 	}
+
+
+	public inline function unsetData ()
+	{
+		data = null;
+	}
 	
 	
 //	private inline function getData () : DataType	{ return vo.value; }

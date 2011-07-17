@@ -347,6 +347,33 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 			invalidate( Flags.LIST );
 		}
 	}
+
+
+	public var invisibleBefore		(default, setInvisibleBefore)	: Int;
+	public var invisibleAfter		(default, setInvisibleAfter)	: Int;
+	
+
+
+	private inline function setInvisibleBefore (v:Int)
+	{
+		if (v != invisibleBefore)
+		{
+			invisibleBefore = v;
+			invalidate(Flags.LIST);
+		}
+		return v;
+	}
+
+
+	private inline function setInvisibleAfter (v:Int)
+	{
+		if (v != invisibleAfter)
+		{
+			invisibleAfter = v;
+			invalidate(Flags.LIST);
+		}
+		return v;
+	}
 	
 #if debug
 	override public function toString () { return "LayoutTileContainer( "+super.toString() + " ) - "/*+children*/; }

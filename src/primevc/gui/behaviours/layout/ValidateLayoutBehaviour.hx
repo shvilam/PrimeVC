@@ -136,7 +136,7 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 	
 	private function layoutStateChangeHandler (newState:ValidateStates, oldState:ValidateStates)
 	{
-		Assert.that(isOnStage(), target+"");
+		Assert.that(isOnStage(), target);
 		
 	//	if (isQueued() && newState == ValidateStates.parent_invalidated)
 	//		getValidationManager().remove( this );

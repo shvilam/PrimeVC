@@ -184,7 +184,9 @@ class UIComponent extends Sprite, implements IUIComponent
 		if (isDisposed())
 			return;
 		
-		if (container != null)			detachDisplay();
+	//	if (container != null)
+		if (parent != null)		// <-- dirty way to see if the component is still on stage.. container and window will be unset after removedFromStage is fired, so if the component get's disposed on removedFromStage, we won't know that it isn't on it.
+			detachDisplay();
 	//	if (layout.parent != null)		detachLayout();		//will be done in LayoutClient.dispose or LayoutContainer.dispose
 		
 		if (effects != null) {
@@ -249,13 +251,41 @@ class UIComponent extends Sprite, implements IUIComponent
 	// ATTACH METHODS
 	//
 	
-	public inline function attachLayoutTo	(t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ t.children.add( layout, pos );											return this; }
-	public inline function detachLayout		()									: IUIElement	{ layout.parent.children.remove( layout );									return this; }
-	public inline function attachTo			(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachDisplayTo(t, pos);		return this; }
-	public inline function detach			()									: IUIElement	{ detachDisplay();							detachLayout();					return this; }
-	public inline function changeLayoutDepth(pos:Int)							: IUIElement	{ layout.parent.children.move( layout, pos );								return this; }
-	public inline function changeDepth		(pos:Int)							: IUIElement	{ changeLayoutDepth(pos);					changeDisplayDepth(pos);		return this; }
+	public  inline function attachLayoutTo	(	t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ t.children.add( layout, pos );											return this; }
+	public  inline function detachLayout		()									: IUIElement	{ layout.parent.children.remove( layout );									return this; }
+	public  inline function changeLayoutDepth	(pos:Int)							: IUIElement	{ layout.parent.children.move( layout, pos );								return this; }
+	public  inline function changeDepth			(pos:Int)							: IUIElement	{ changeLayoutDepth(pos);					changeDisplayDepth(pos);		return this; }
+
+	private inline function applyAttachTo		(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachDisplayTo(t, pos);		return this; }
+	private inline function applyDetach			()									: IUIElement	{ detachDisplay();							detachLayout();					return this; }
 	
+	public  inline function attachTo (t:IUIContainer, pos:Int = -1) : IUIElement
+	{
+		applyAttachTo(t, pos);
+		var hasEffect = visible && effects != null && effects.show != null;
+		if (hasEffect) {
+			visible = false;
+			haxe.Timer.delay( show, 100 ); //.onceOn( displayEvents.enterFrame, this );
+		}
+		
+		return this;
+	}
+
+
+	public  inline function detach () : IUIElement
+	{
+		var hasEffect = effects != null && effects.hide != null;
+		if (hasEffect) {
+			var eff = effects.hide;
+			layout.includeInLayout = false;
+			applyDetach.onceOn( eff.ended, this );
+			hide();
+		}
+		else
+			applyDetach();
+
+		return this;
+	}
 	
 	
 	//

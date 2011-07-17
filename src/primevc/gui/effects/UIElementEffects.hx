@@ -94,7 +94,13 @@ class UIElementEffects implements IDisposable
 	public function dispose ()
 	{
 		target	= null;
-		move	= resize = rotate = scale = show = hide = null;
+
+		if (move != null)	{ move.dispose();	move 	= null; }
+		if (resize != null)	{ resize.dispose(); resize 	= null; }
+		if (rotate != null)	{ rotate.dispose(); rotate 	= null; }
+		if (scale != null)	{ scale.dispose();	scale 	= null; }
+		if (show != null)	{ show.dispose();	show 	= null; }
+		if (hide != null)	{ hide.dispose();	hide 	= null; }
 	}
 	
 	
@@ -189,7 +195,8 @@ class UIElementEffects implements IDisposable
 			
 			if (show == hide)
 				show.isReverted = false;
-		
+			
+		//	trace(target);
 			show.play();
 		}
 #end
@@ -208,7 +215,7 @@ class UIElementEffects implements IDisposable
 			
 			if (show == hide)
 				hide.isReverted = true;
-		
+		//	trace(target);
 			hide.play();
 		}
 #end
@@ -283,6 +290,11 @@ class UIElementEffects implements IDisposable
 	{
 		if (v != show)
 		{
+			/*if (show != null && v == null)
+				target.displayEvents.addedToStage.unbind(this);
+			else
+				playShow.on( target.displayEvents.addedToStage, this );
+			*/
 			if (show != null)
 				show.dispose();
 			
