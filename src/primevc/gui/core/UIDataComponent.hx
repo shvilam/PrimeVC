@@ -128,7 +128,7 @@ class UIDataComponent <DataType> extends UIComponent, implements IUIDataElement 
 	{
 		if (v != data)
 		{
-			if (data != null)// && window != null)
+			if (isInitialized() && data != null)// && window != null)
 				removeData();
 			
 			data = v;

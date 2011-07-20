@@ -80,7 +80,9 @@ class PopupManager implements IPopupManager
 		Assert.null( popup.window );
 		Assert.null( popup.layout.parent );
 		window.popupLayout.children.add( popup.layout );
+		popup.visible = false;
 		popup.attachDisplayTo( window );
+		popup.show();
 		popup.setFocus();
 		
 		if (window.popupLayout.children.length == 1)

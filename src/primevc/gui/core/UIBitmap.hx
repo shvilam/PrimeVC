@@ -182,9 +182,15 @@ class UIBitmap extends BitmapShape, implements IUIElement
         {
             // Adjust the scale of the Bitmap since it's not allowed to change the size of 
             // the bitmapdata.
-            var l = layout.as(AdvancedLayoutClient);
+            var l = advancedLayout();
             scaleX = scaleY = Formulas.scale( l.measuredWidth, l.measuredHeight, l.width, l.height );
         }
+    }
+
+
+    public inline function advancedLayout () : AdvancedLayoutClient
+    {
+        return layout.as(AdvancedLayoutClient);
     }
     
     
@@ -260,7 +266,7 @@ class UIBitmap extends BitmapShape, implements IUIElement
         {
 #if flash9  bitmapData  = v;
 #else       data        = v; #end
-            var l       = layout.as(AdvancedLayoutClient);
+            var l       = advancedLayout();
 
             if (v != null)
             {
