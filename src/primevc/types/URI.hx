@@ -169,9 +169,7 @@ class URI #if neko implements ICodeFormattable #end
 		_oid	= ID.getNext();
 #end
 		port = -1;
-		
-		if (str != null)
-			parse(str);
+		parse(str);
 	}
 	
 	

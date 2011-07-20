@@ -467,7 +467,7 @@ class BytesAssetBase extends Asset
 	}
 	
 	
-	private function handleLoadError (err:String)	{ trace("Asset load-error: "+err+"; "+this); disposeLoader(); }
+	private function handleLoadError (err:String)	{ trace("Asset load-error: "+err+"; "+this); disposeLoader(); setEmpty(); }
 	private function handleUnloaded ()				{ setLoadable(); }
 	
 	
@@ -636,7 +636,8 @@ class ExternalAsset extends BytesAssetBase
 			if (v != null) {
 				data = v;
 				setLoadable();
-			}
+			} else
+				setEmpty();
 		}
 		return v;
 	}
