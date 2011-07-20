@@ -227,7 +227,7 @@ class CSSParser
 	public static inline var R_FONT_STYLE_EXPR		: String = "normal|italic|oblique|inherit";
 	public static inline var R_FONT_WEIGHT_EXPR		: String = "normal|bolder|bold|lighter|inherit";
 	public static inline var R_GENERIC_FONT_FAMILIES: String = "serif|sans[-]serif|monospace|cursive|fantasy";
-	public static inline var R_FONT_FAMILY_EXPR		: String = "("+R_GENERIC_FONT_FAMILIES+")|([a-z]+)|(['\"]([a-z0-9+.,+/\\ _-]+)['\"])";
+	public static inline var R_FONT_FAMILY_EXPR		: String = "("+R_GENERIC_FONT_FAMILIES+")|((embed[(])?(['\"]([a-z0-9+.,+/\\ _-]+)['\"])[)]?)|([a-z]+)";
 	
 	public static inline var R_HOR_DIR				: String = "(left|center|right)";
 	public static inline var R_VER_DIR				: String = "(top|center|bottom)";
@@ -1722,7 +1722,7 @@ class CSSParser
 	
 	
 	private function parseAndSetFont (v:String) : Void
-	{	
+	{
 		v = parseAndSetTextStyle(v);
 		v = parseAndSetFontWeight(v);
 		v = parseAndSetFontSize(v);
@@ -1761,19 +1761,22 @@ class CSSParser
 	 */
 	private inline function parseAndSetFontFamily (val:String) : String
 	{
-		var isFam	= fontFamilyExpr.match(val);
-		var fam		= "";
+		var isFam		= fontFamilyExpr.match(val);
+		var isEmbedded	= true;
+		var family		= "";
 		
 		//make sure the font-family doesn't match font-weight or font-style properties
 		if (isFam) {
-			fam		= fontFamilyExpr.matched(4) != null ? fontFamilyExpr.matched(5) : fontFamilyExpr.matched(1);
-			isFam	= !fontWeightExpr.match(fam) && !fontStyleExpr.match(fam);
+			family		= fontFamilyExpr.matched(6) != null ? fontFamilyExpr.matched(6) : fontFamilyExpr.matched(1);
+			isFam		= !fontWeightExpr.match(family) && !fontStyleExpr.match(family);
+			isEmbedded	= fontFamilyExpr.matched(4) != null;
 		}
 		
 		if (isFam) {
 			createFontBlock();
-			currentBlock.font.family = fam;
-			val = val.replace(fam, "");
+			currentBlock.font.family 		= family;
+			currentBlock.font.embeddedFont	= isEmbedded;
+			val = val.replace(family, "");
 		}
 		return val;
 	}

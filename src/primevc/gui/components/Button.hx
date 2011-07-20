@@ -54,6 +54,7 @@ class Button extends UIDataContainer <Bindable<String>>, implements IIconOwner, 
 #if flash9
 	public var textStyle	(default, setTextStyle)	: TextFormat;
 	public var wordWrap		: Bool;
+	public var embedFonts	: Bool;
 #end
 	
 	
