@@ -106,7 +106,7 @@ class URLLoader implements ICommunicator
 	public  var bytesTotal		(getBytesTotal,		null)			: Int;
 	public  var length			(default,			never)			: Bindable<Int>;
 	public  var type			(default,			null)			: CommunicationType;
-
+	
 	public  var isQueued		(default,			null)			: Bool;
 	public  var isStarted		(default,			null)			: Bool;
 	private var isFinished											: Bool;
