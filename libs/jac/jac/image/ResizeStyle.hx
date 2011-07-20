@@ -23,11 +23,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 package jac.image;
 
+
 class ResizeStyle
 {
-    private static inline var FILLING       = 1 << 0;
-    private static inline var CROPPING      = 1 << 1;
-    private static inline var CONSTRAINING  = 1 << 2;
+    public static inline var FILLING       = 1 << 0;
+    public static inline var CROPPING      = 1 << 1;
+    public static inline var CONSTRAINING  = 1 << 2;
 
     /**
      * Makes the entire image visible at the specified width and height
