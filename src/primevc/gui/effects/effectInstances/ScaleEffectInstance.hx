@@ -98,7 +98,7 @@ class ScaleEffectInstance extends EffectInstance < IScaleable, ScaleEffect >
 		
 		target.scaleX	= startX;
 		target.scaleY	= startY;
-		target.visible	= true;
+		(untyped target).visible = true;
 	}
 	
 	
@@ -130,7 +130,7 @@ class ScaleEffectInstance extends EffectInstance < IScaleable, ScaleEffect >
 	override private function onTweenReady ( ?tweenPos:Float )
 	{
 		if (target.scaleX == 0 || target.scaleY == 0) {
-			target.visible	= false;
+			(untyped target).visible	= false;
 			target.scaleX	= target.scaleY	= 1;
 		}
 		super.onTweenReady();

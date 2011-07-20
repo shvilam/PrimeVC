@@ -103,7 +103,7 @@ class EffectInstance < TargetType, PropertiesType:IEffect >
 	private function initStartValues()				: Void		{ Assert.abstract(); }
 	private function tweenUpdater( tweenPos:Float )	: Void		{ Assert.abstract(); }
 	private function calculateTweenStartPos ()		: Float		{ Assert.abstract(); return 0; }
-	
+
 	
 	
 	public inline function revert ( withEffect:Bool = true, directly:Bool = false ) : Void
@@ -122,8 +122,7 @@ class EffectInstance < TargetType, PropertiesType:IEffect >
 		stopDelay();
 		stopTween();
 		hideFilters();
-		started.send();
-		
+
 		if (directly || effect.delay <= 0)
 		{
 			if (withEffect)		playWithEffect();
@@ -165,6 +164,7 @@ class EffectInstance < TargetType, PropertiesType:IEffect >
 	public function playWithEffect ()
 	{
 		stopDelay();
+		started.send();
 		
 		//calculate the tweens end and start position
 		initStartValues();
@@ -203,6 +203,7 @@ class EffectInstance < TargetType, PropertiesType:IEffect >
 	
 	public function playWithoutEffect ()
 	{
+		started.send();
 		stopDelay();
 		state = EffectStates.playing;
 		

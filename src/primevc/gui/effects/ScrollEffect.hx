@@ -28,8 +28,8 @@
  */
 package primevc.gui.effects;    
 #if (flash8 || flash9 || js)
- import primevc.gui.effects.effectInstances.ScrollEffectInstance;
  import primevc.gui.effects.effectInstances.IEffectInstance;
+ import primevc.gui.effects.effectInstances.ScrollEffectInstance;
 #end
  import primevc.gui.display.IDisplayObject;
 #if neko
