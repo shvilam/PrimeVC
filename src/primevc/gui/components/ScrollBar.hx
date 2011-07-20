@@ -111,9 +111,6 @@ class ScrollBar extends SliderBase
 	
 	private function removeTargetBindings ()
 	{
-	//	if (target == null)
-	//		return;
-		
 		if (scrollBinding != null)			{ scrollBinding.dispose();			scrollBinding = null; }
 		if (resizeBinding != null)			{ resizeBinding.dispose();			resizeBinding = null; }
 		if (updateTargetBinding != null)	{ updateTargetBinding.dispose();	updateTargetBinding = null; }
@@ -183,11 +180,8 @@ class ScrollBar extends SliderBase
 			dragBtn.visible	= dragBtn.layout.includeInLayout = scrollable;
 			dragBtn.layout.percentWidth	= scrollable ? FloatMath.min( l.width / l.measuredWidth, 1 ) : 0;
 			
-			if (scrollable) {
+			if (scrollable)
 				data.validator.setValues( l.minScrollXPos, l.minScrollXPos + l.scrollableWidth );
-			//	calculatePercentage();
-			}
-			
 		}
 	}
 	
@@ -208,10 +202,8 @@ class ScrollBar extends SliderBase
 			dragBtn.visible	= dragBtn.layout.includeInLayout = scrollable;
 			dragBtn.layout.percentHeight = scrollable ? FloatMath.min( l.height / l.measuredHeight, 1 ) : 0;
 			
-			if (scrollable) {
+			if (scrollable)
 				data.validator.setValues( l.minScrollYPos, l.minScrollYPos + l.scrollableHeight );
-			//	calculatePercentage();
-			}
 		}
 	}
 	

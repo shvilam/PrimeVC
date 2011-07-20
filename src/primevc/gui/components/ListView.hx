@@ -120,6 +120,7 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	
 	override private function initData ()
 	{
+		Assert.notNull(window);
 		var length = data.length;
 		
 		var layout = layoutContainer;

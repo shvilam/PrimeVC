@@ -98,10 +98,10 @@ class Slider extends SliderBase
 		
 		background.styleClasses.add("background");
 		maskedBackground.styleClasses.add("maskedBackground");
-		maskedBackground.mask = maskShape;
 		
 		attach( background ).attach( maskedBackground );
 		maskShape.attachDisplayTo( this );
+		maskedBackground.mask = maskShape;
 
 		super.createChildren();
 	}
@@ -109,8 +109,9 @@ class Slider extends SliderBase
 	
 	override private function updateChildren ()
 	{
+		maskedBackground.mask = maskShape;
 	//	trace(maskedBackground.layout.percentWidth+"; "+layout.readChanges()+"; "+layout.state.current);
-		if (direction == horizontal)	maskedBackground.layout.percentWidth = data.percentage;
+		if (direction == horizontal)	maskedBackground.layout.percentWidth  = data.percentage;
 		else							maskedBackground.layout.percentHeight = data.percentage;
 		
 	//	trace(maskedBackground.layout.percentWidth+"; "+layout.readChanges()+"; "+layout.state.current);
