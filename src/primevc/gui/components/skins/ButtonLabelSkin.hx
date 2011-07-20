@@ -62,6 +62,8 @@ class ButtonLabelSkin extends Skin<Button>
 		labelField.selectable		= false;
 		labelField.mouseEnabled		= false;
 		labelField.tabEnabled		= false;
+		labelField.wordWrap			= owner.wordWrap;
+		labelField.embedFonts		= owner.embedFonts;
 		labelField.respondToFocusOf( owner );
 
 		if (owner.textStyle != null)
@@ -85,8 +87,11 @@ class ButtonLabelSkin extends Skin<Button>
 #if flash9
 	override public function validate (changes:Int)
 	{
-		if (changes.has( Flags.TEXTSTYLE ))
-			labelField.textStyle = owner.textStyle;
+		if (changes.has( Flags.TEXTSTYLE )) {
+			labelField.embedFonts	= owner.embedFonts;
+			labelField.wordWrap		= owner.wordWrap;
+			labelField.textStyle 	= owner.textStyle;
+		}
 	}
 	
 	
