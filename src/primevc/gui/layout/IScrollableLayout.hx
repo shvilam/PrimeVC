@@ -84,4 +84,43 @@ interface IScrollableLayout implements ILayoutContainer, implements IAdvancedLay
 	 * Method will change the scrollvalues so that the given child will be visible
 	 */
 	public function scrollTo				(child:ILayoutClient)	: Void;
+	
+	/**
+	 * Method will try to scroll to the given child-index, even if the child isn't
+	 * rendered.
+	 */
+ 	public function scrollToDepth			(depth:Int)         	: Void;
+	
+	
+	
+	/**
+	 * Property with the actual or faked length of the children list. Use this property
+	 * instead of 'children.length' when an algorithm is calculating the 
+	 * measured size, since the property can also be set fixed and thus have a 
+	 * different number then children.length.
+	 * 
+	 * When applying an algorithm you should still use children.length since 
+	 * the algorithm will only be applied on the actual children in the list.
+	 * 
+	 * @see ILayoutContainer.fixedLength
+	 */
+	public var childrenLength		(default, null)					: Int;
+	/**
+	 * Indicated wether the length of the children is faked or not.
+	 * 
+	 * Layout-algorithms will only honor this property if the childWidth and 
+	 * childHeight also have been set, otherwise it's impossible to calculate
+	 * what the measured size of the container should be.
+	 */
+	public var fixedLength			(default, null)					: Bool;
+	
+	/**
+	 * Indicates the faked position of the first child. This property is used
+	 * when fixedLength is set to true
+	 */
+	public var fixedChildStart		(default, default)				: Int;
+	
+	
+	public function setFixedChildLength (length:Int)				: Void;
+	public function unsetFixedChildLength ()						: Void;
 }

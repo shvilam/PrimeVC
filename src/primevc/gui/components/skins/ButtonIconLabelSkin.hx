@@ -69,6 +69,8 @@ class ButtonIconLabelSkin extends Skin<Button>
 		labelField.selectable		= false;
 		labelField.mouseEnabled		= false;
 		labelField.tabEnabled		= false;
+		labelField.wordWrap			= owner.wordWrap;
+		labelField.embedFonts		= owner.embedFonts;
 		labelField.respondToFocusOf( owner );
 		
 		if (owner.textStyle != null)
@@ -79,7 +81,7 @@ class ButtonIconLabelSkin extends Skin<Button>
 	}
 	
 	
-	override private function removeChildren ()
+	override public  function removeChildren ()
 	{
 		if (owner != null && !owner.isDisposed())
 		{
@@ -104,8 +106,13 @@ class ButtonIconLabelSkin extends Skin<Button>
 		
 		if (changes.has( Flags.ICON ))			iconGraphic.data = owner.icon;
 #if flash9
-		if (changes.has( Flags.TEXTSTYLE ))		labelField.textStyle = owner.textStyle;
 		if (changes.has( Flags.ICON_FILL ))		iconGraphic.colorize( owner.iconFill );
+
+		if (changes.has( Flags.TEXTSTYLE )) {
+			labelField.embedFonts	= owner.embedFonts;
+			labelField.wordWrap		= owner.wordWrap;
+			labelField.textStyle 	= owner.textStyle;
+		}
 #end
 	}
 	

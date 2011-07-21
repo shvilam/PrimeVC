@@ -42,7 +42,6 @@ package primevc.gui.components;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
-  using Std;
 
 
 
@@ -71,7 +70,6 @@ class SliderBase extends UIDataContainer <PercentageHelper>
 	private var mouseBgDownBinding		: Wire < MouseState -> Void >;
 	private var mouseBtnDownBinding		: Wire < MouseState -> Void >;
 	private var mouseUpBinding			: Wire < MouseState -> Void >;
-//	private var updatePercBinding		: Wire < MouseState -> Void >;
 	
 	
 	
@@ -82,27 +80,20 @@ class SliderBase extends UIDataContainer <PercentageHelper>
 		(untyped this).inverted		= false;
 	//	(untyped this).showButtons	= false;
 		this.direction				= direction == null ? horizontal : direction;
-	//	validator					= new FloatRangeValidator( minValue, maxValue );
 		sliding						= new ActionEvent();
 	}
 	
 	
 	override public function dispose ()
 	{
-	/*	if (validator != null)
-		{
-			validator.dispose();
-			validator = null;
-		}*/
-		
-	//	if (updatePercBinding != null)		updatePercBinding.dispose();
 		if (data != null)					data.dispose();
 		if (mouseMoveBinding != null)		mouseMoveBinding.dispose();
 		if (mouseUpBinding != null)			mouseUpBinding.dispose();
 		if (mouseBgDownBinding != null)		mouseBgDownBinding.dispose();
 		if (mouseBtnDownBinding != null)	mouseBtnDownBinding.dispose();
 		
-		mouseBgDownBinding = mouseBtnDownBinding = mouseUpBinding = mouseMoveBinding = null;
+		mouseBgDownBinding	= mouseBtnDownBinding = mouseUpBinding = mouseMoveBinding = null;
+		(untyped this).data = null;
 		sliding.dispose();
 		
 		if (isInitialized())
@@ -123,27 +114,25 @@ class SliderBase extends UIDataContainer <PercentageHelper>
 		
 		mouseBgDownBinding	= jumpToPosition	.on( userEvents.mouse.down, this );
 		mouseBtnDownBinding	= enableMoveWires	.on( dragBtn.userEvents.mouse.down, this );
-		mouseUpBinding		= disableMoveWires	.on( window.mouse.events.up, this );
+		mouseUpBinding		= fakeMouseUpEvent	.on( window.mouse.events.up, this );
 		mouseUpBinding.disable();
+
+		disableMoveWires.on( userEvents.mouse.up, this );
+
 		createMouseMoveBinding();
 	}
 	
 	
 	override private function initData ()
 	{
-	//	calculatePercentage();
 		invalidatePercentage.on( data.perc.change, this );
 		updateChildren();
-	//	validateData.on( validator.change, this );
-	//	updatePercBinding = calculatePercentage.on( data.change, this );
 	}
 	
 	
 	override private function removeData ()
 	{
 		data.perc.change.unbind( this );
-	//	if (updatePercBinding != null)
-	//		updatePercBinding.dispose();
 	}
 	
 	
@@ -194,12 +183,8 @@ class SliderBase extends UIDataContainer <PercentageHelper>
 	
 	override private function createChildren ()
 	{
-		dragBtn = new Button();
+		attach( dragBtn = new Button( id.value + "Btn" ) );
 	//	dragBtn.layout.includeInLayout = false;
-		dragBtn.id.value = id.value + "Btn";
-		
-		layoutContainer.children.add( dragBtn.layout );
-		children.add( dragBtn );
 	}
 	
 	
@@ -283,6 +268,15 @@ class SliderBase extends UIDataContainer <PercentageHelper>
 		dragBtn.mouseEnabled				= true;
 		dragBtn.layout.includeInLayout		= true;
 		sliding.apply.send();
+	}
+
+
+	private function fakeMouseUpEvent (mouseObj:MouseState)
+	{
+		if (mouseObj.target != this) {
+			//fake a mouse-up event is the mouse was released outside the slider
+			userEvents.mouse.up.send(mouseObj);
+		}
 	}
 	
 	

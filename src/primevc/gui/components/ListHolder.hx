@@ -30,8 +30,7 @@ package primevc.gui.components;
  import primevc.core.collections.IReadOnlyList;
  import primevc.core.dispatcher.Signal1;
  import primevc.core.traits.IValueObject;
- import primevc.core.Bindable;
- import primevc.gui.core.IUIElement;
+ import primevc.gui.core.IUIDataElement;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.events.MouseEvents;
   using primevc.utils.Bind;
@@ -61,21 +60,15 @@ class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>, im
 	 * 
 	 * @param	item:ListDataType
 	 * @param	pos:Int
-	 * @return 	IUIElement
+	 * @return 	IUIDataElement
 	 */
-	public var createItemRenderer				(default, setCreateItemRenderer) : ListDataType -> Int -> IUIElement;
-	/**
-	 * If the items in the list are selectable, this bindable holds the position
-	 * of the currently selected index.
-	 */
-	public var selectedIndex					(default, null)	: Bindable<Int>;
+	public var createItemRenderer				(default, setCreateItemRenderer) : ListDataType -> Int -> IUIDataElement<ListDataType>;
 	
 	
-	public function new (id:String, data:DataType, listData:IReadOnlyList<ListDataType>)
+	public function new (id:String, data:DataType = null, listData:IReadOnlyList<ListDataType> = null)
 	{
 		super(id, data);
 		this.listData	= listData;
-		selectedIndex	= new Bindable<Int>(-1);
 	}
 	
 	
@@ -83,11 +76,9 @@ class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>, im
 	{
 		super.dispose();
 		childClick.dispose();
-		selectedIndex.dispose();
 		
 		childClick			= null;
 		createItemRenderer	= null;
-		selectedIndex		= null;
 	}
 	
 	
@@ -102,20 +93,18 @@ class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>, im
 		super.createChildren();
 		
 		//check to see if list is not created yet by a skin
-		if (list == null)
-		{
-			Assert.notNull(createItemRenderer);
-			list = new ListView(id.value+"Content", listData);
-			list.createItemRenderer = createItemRenderer;
-			list.attachTo(this);
-		}
+		if (list == null)	list = new ListView(id.value+"Content", listData);
+		else                list.data = listData;
+				    
+		list.createItemRenderer = createItemRenderer;
+		list.attachTo(this);
 		
 		list.styleClasses.add("listContent");
 		childClick.send.on( list.childClick, this );
 	}
 	
 	
-	override private function removeChildren ()
+	override public  function removeChildren ()
 	{
 		list.detach();
 		list.dispose();
@@ -128,8 +117,10 @@ class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>, im
 	{
 		if (listData != v) {
 			listData = v;
-			if (list != null)
+			if (list != null) {
+				Assert.notNull(createItemRenderer);
 				list.data = v;
+			}
 		}
 		return v;
 	}

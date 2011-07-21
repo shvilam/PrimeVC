@@ -27,55 +27,64 @@
  *  Ruben Weijers	<ruben @ rubenw.nl>
  */
 package primevc.mvc;
-  using primevc.utils.BitUtil;
+ import primevc.core.dispatcher.Signals;
+ import primevc.core.traits.IDisposable;
 
 
 
 /**
- * Class is the base class for mediator and commands and defines that the object
- * is able to listen and to send events.
+ * Child facade is a facade for sub-applications. These applications can't run
+ * standalone and need instructions from another facade. This is possible with
+ * the channels that are given to the child-facade when it's getting connected.
+ * 
+ * Only after connecting with channels, the child will start-listening. If the
+ * facade is disconnected, the child will stop-listening all it's mediators and
+ * controllers.
  * 
  * @author Ruben Weijers
- * @creation-date Nov 16, 2010
+ * @creation-date May 25, 2011
  */
-class Listener <EventsTypeDef, ModelTypeDef, StatesTypeDef, ViewTypeDef> extends Notifier <EventsTypeDef>
+class ChildFacade <
+		EventsType		: Signals,
+		ModelType		: IMVCCore,
+		StatesType		: IDisposable,
+		ControllerType	: IMVCCoreActor,
+		ViewType		: IMVCCoreActor,
+		ChannelsType
+	>
+	extends Facade <EventsType, ModelType, StatesType, ControllerType, ViewType>
 {
-	//TODO: Ask Nicolas why the %$@#! you can't have typedefs as type constraint parameters...
-	
-	public var model	(default, null)		: ModelTypeDef;
-	public var states	(default, null)		: StatesTypeDef;
-	public var view		(default, null)		: ViewTypeDef;
+	public var channels		(default, null) : ChannelsType;
 	
 	
-	public function new (events:EventsTypeDef, model:ModelTypeDef, states:StatesTypeDef, view:ViewTypeDef)
+	override public function dispose ()
 	{
-		super( events );
-		
-		this.model	= model;
-		this.states	= states;
-		this.view	= view;
-		
-		Assert.notNull(model,	"Model cannot be null for "+this);
-		Assert.notNull(states,	"States cannot be null for "+this);
-		Assert.notNull(view,	"View cannot be null for "+this);
+		super.dispose();
+		channels = null;
 	}
 	
 	
-	public function startListening () : Void		{ if (!isListening())	state = state.set( MVCState.LISTENING ); }
-	public function stopListening () : Void			{ if (isListening())	state = state.unset( MVCState.LISTENING ); }
-	private inline function isListening () : Bool	{ return state.has( MVCState.LISTENING ); }
-	
-	
-	override public function dispose()
+	/**
+	 * Method for connecting a facade with channels of another facade
+	 */
+	public inline function connect (external:ChannelsType) : Void
 	{
-		if (isDisposed())
-			return;
+		Assert.null(channels);
+		Assert.notNull(external);
+		channels = external;
+		start();
+	}
+	
+	
+	/**
+	 * Method for disconnecting a facade with channels of another facade
+	 */
+	public inline function disconnect () : Void
+	{
+	//	Assert.notNull(channels);
+		if (channels != null)
+			stop();
 		
-		stopListening();
-		
-		model	= null;
-		states	= null;
-		view	= null;
-		super.dispose();
+		channels = null;
 	}
 }

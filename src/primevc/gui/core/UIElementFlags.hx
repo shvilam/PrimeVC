@@ -36,7 +36,7 @@ package primevc.gui.core;
  * @author Ruben Weijers
  * @creation-date Nov 19, 2010
  */
-class UIElementFlags
+extern class UIElementFlags
 {
 	public static inline var LAYOUT			= 1 << 0;
 	public static inline var GRAPHICS		= 1 << 1;
@@ -79,11 +79,12 @@ class UIElementFlags
 	
 	
 	public static inline var SCALE			= 1 << 17;
+	public static inline var SELECTED		= 1 << 18;
 	
 
 	
 #if debug
-	static public function readProperties (flags:Int) : String
+	static inline public function readProperties (flags:Int) : String
 	{
 		var output	= [];
 		
@@ -104,6 +105,7 @@ class UIElementFlags
 		if (flags.has( DIRECTION ))		output.push("direction");
 		if (flags.has( SOURCE ))		output.push("source");
 		if (flags.has( SCALE ))			output.push("scale");
+		if (flags.has( SELECTED ))		output.push("selected");
 		
 		return output.length > 0 ? output.join(", ") : "no-properties";
 	}

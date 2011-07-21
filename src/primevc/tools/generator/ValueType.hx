@@ -20,36 +20,48 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc.core;
- import primevc.core.traits.IDisposable;
+package primevc.tools.generator;
+
 
 
 /**
- * Base class for Model and View
- * 
- * @author Ruben Weijers
- * @creation-date Nov 16, 2010
+ * @author	Ruben Weijers
+ * @since	Jun 8, 2011
  */
-class MVCCore <FacadeType> implements IDisposable
-    #if !docs, implements haxe.rtti.Generic #end
+enum ValueType
 {
-	private var facade (default, null)	: FacadeType;
+	tEmpty		(value:EmptyType);		// value indicated if it's an int, float, string or null value
+	tString		(value:String);
+	tInt		(value:Int);
+	tUInt		(value:UInt);
+	tFloat		(value:Float);
+	tBool		(value:Bool);
+	tEnum		(value:String, params:Array<ValueType>);
+	tClass		(value:String);
+	tObject		(value:Instance);		// array, object, objFactory or arrayFactory
+	tColor		(rgb:Int, alpha:Int);
+	tFunction	(value:String);			// reference to a function
 	
-	
-	public function new (facade:FacadeType)
-	{
-		this.facade = facade;
-	}
-	
-	
-	public function dispose ()
-	{
-		facade = null;
-	}
+	tCallStatic	(className:String, method:String, params:Array<ValueType>);
+	tCallMethod	(on:ValueType, method:String, params:Array<ValueType>);
+	tSetProperty(on:ValueType, prop:String, value:ValueType);
+}
+
+
+/**
+ * @author	Ruben Weijers
+ * @since	Jun 9, 2011
+ */
+enum EmptyType
+{
+	eNull;
+	eString;
+	eInt;
+	eFloat;
 }

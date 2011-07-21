@@ -7,8 +7,10 @@ UIWindow				{ overflow: hidden; }
 UIGraphic				{ shape: rectangle; }
 ApplicationView			{ width: 100%; height: 100%; algorithm: float-ver( top, center ); }
 
-ListHolder				{ algorithm: float-ver(top, left); }
-ListHolder ListView		{ width: 100%; height: 100%; }
+ListHolder				        { algorithm: float-ver(top, left); }
+ListHolder ListView     		{ width: 100%; height: 100%; }
+ListHolder SelectableListView	{ width: 100%; height: 100%; }
+
 /*.listContent			{ max-width: 100%; max-height: 100%; }*/
 InputField				{ border: 1px solid #000; Class( primevc.gui.components.skins.InputFieldSkin ); }
 Label					{ font: Verdana 12px; }
@@ -47,6 +49,7 @@ SliderBase					{ algorithm: relative; background: #fff; }
 	h-center: 0px;
 	width: 15px;
 	height: 6px;
+	min-height: 15px;
 }
 
 
@@ -58,8 +61,22 @@ SliderBase					{ algorithm: relative; background: #fff; }
 ScrollBar 					{ background: #212121; }
 .horizontalScrollBar		{ left: 8px; right: 8px; height: 2px; bottom: 7px; }
 .verticalScrollBar			{ top: 8px; bottom: 8px; width: 2px; right: 7px; }
-.horizontalScrollBar Button	{ background: #212121; height: 9px; width: 6px; v-center: 0px; skin: Class( primevc.gui.components.skins.ButtonIconSkin ); }
-.verticalScrollBar Button	{ background: #212121; width: 9px; height: 6px; h-center: 0px; skin: Class( primevc.gui.components.skins.ButtonIconSkin ); }
+.horizontalScrollBar Button	{
+	background: #212121;
+	height: 9px;
+	width: 6px;
+	min-width: 15px;
+	v-center: 0px;
+	skin: Class( primevc.gui.components.skins.ButtonIconSkin );
+}
+.verticalScrollBar Button	{
+	background: #212121;
+	width: 9px;
+	height: 6px;
+	min-height: 15px;
+	h-center: 0px;
+	skin: Class( primevc.gui.components.skins.ButtonIconSkin );
+}
 
 
 
@@ -91,7 +108,7 @@ ComboBox {
 	/*padding: 7px 0px;*/
 }
 
-.comboList ListView {
+.comboList SelectableListView {
 	/*min-width: 50px;*/
 	width: none;		/** override 100% width setting **/
 	height: none;		/** override 100% height setting **/
@@ -100,9 +117,10 @@ ComboBox {
 	overflow: scrollbars;
 	algorithm: float-ver( top, left );
 	padding: 0px;
+	child-height: 20px;
 }
 
-.comboList ListView Button {
+.comboList SelectableListView Button {
 	skin: Class( primevc.gui.components.skins.ButtonIconLabelSkin );
 }
 

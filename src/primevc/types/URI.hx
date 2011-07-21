@@ -169,9 +169,7 @@ class URI #if neko implements ICodeFormattable #end
 		_oid	= ID.getNext();
 #end
 		port = -1;
-		
-		if (str != null)
-			parse(str);
+		parse(str);
 	}
 	
 	
@@ -179,6 +177,14 @@ class URI #if neko implements ICodeFormattable #end
 	{
 		return (scheme == null || host == null) && path == null;
 	}
+
+
+	private inline function reset ()
+	{
+		(untyped this).port = -1;
+		(untyped this).scheme = null; (untyped this).userinfo = (untyped this).host = (untyped this).path = (untyped this).query = (untyped this).fragment = this.string = null;
+	}
+
 	
 	
 	/**
@@ -247,9 +253,7 @@ class URI #if neko implements ICodeFormattable #end
 	{
 		if (str.isNull()) return this;
 		
-		// Reset values
-		this.port = -1; this.scheme = null; this.string = this.userinfo = this.host = this.path = this.query = this.fragment = null;
-		
+		reset();
 		var pos:Int = 0;
 		
 		var scheme_pos = str.indexOf(':');
@@ -258,11 +262,11 @@ class URI #if neko implements ICodeFormattable #end
 			var has2slashes = str.charCodeAt(scheme_pos + 1) + str.charCodeAt(scheme_pos + 2) == '/'.code << 1;
 			var scheme_str = str.substr(0, scheme_pos);
 			
-			var us = this.scheme = Reflect.field(URIScheme, scheme_str);
+			var us = (untyped this).scheme = Reflect.field(URIScheme, scheme_str);
 			if (us == null)
 			{
 				if (has2slashes) {
-					this.scheme = Scheme(scheme_str);
+					(untyped this).scheme = Scheme(scheme_str);
 					pos = scheme_pos + 3;
 				}
 				else {
@@ -285,7 +289,7 @@ class URI #if neko implements ICodeFormattable #end
 		
 		var user_pos:Int  = str.indexOf('@', pos);
 		if (user_pos != -1) {
-			this.userinfo = str.substr(pos, user_pos - pos);
+			(untyped this).userinfo = str.substr(pos, user_pos - pos);
 			pos = user_pos + 1;
 		}
 		
@@ -306,8 +310,8 @@ class URI #if neko implements ICodeFormattable #end
 				}
 			}
 			
-			this.host = str.substr(pos, port_pos - pos);
-			this.port = Std.parseInt(str.substr(port_pos+1, port_end - port_pos));
+			(untyped this).host = str.substr(pos, port_pos - pos);
+			(untyped this).port = Std.parseInt(str.substr(port_pos+1, port_end - port_pos));
 			pos = port_end;
 		}
 		else if (scheme.notNull())
@@ -322,7 +326,7 @@ class URI #if neko implements ICodeFormattable #end
 				}
 			}
 			
-			this.host = str.substr(pos, host_end - pos);
+			(untyped this).host = str.substr(pos, host_end - pos);
 			pos = host_end;
 		}
 		
@@ -332,20 +336,22 @@ class URI #if neko implements ICodeFormattable #end
 			if (query_end == -1)
 				query_end = str.length;
 			
-			path  = str.substr(pos, query_pos - pos);
-			query = str.substr(query_pos + 1, query_end - pos);
+			(untyped this).path		= str.substr(pos, query_pos - pos);
+			(untyped this).query	= str.substr(query_pos + 1, query_end - pos);
 		}
 		else if (frag_pos != -1)
 		{
-			path = str.substr(pos, frag_pos - pos);
-			fragment = str.substr(frag_pos + 1);
+			(untyped this).path		= str.substr(pos, frag_pos - pos);
+			(untyped this).fragment	= str.substr(frag_pos + 1);
 		}
 		else
-			path = str.substr(pos);
+			(untyped this).path		= str.substr(pos);
 		
 		if (path == "")
-			path = null;
+			(untyped this).path		= null;
 		
+		(untyped this).string		= str;
+
 		return this;
 	}
 

@@ -32,7 +32,6 @@ package primevc.gui.core;
 #end
  import primevc.core.traits.IIdentifiable;
  import primevc.core.Bindable;
- import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
  import primevc.gui.behaviours.layout.WindowLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
@@ -239,7 +238,7 @@ class UIWindow extends Window
 	}
 	
 	
-	private function createChildren ()		: Void;
+	private function createChildren ()		: Void {}
 	
 	public inline function attach (child:IUIElement) : UIWindow
 	{

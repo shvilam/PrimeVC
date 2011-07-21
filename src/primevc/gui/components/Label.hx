@@ -60,6 +60,7 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 #if flash9
 	public var textStyle			(default, setTextStyle)		: TextFormat;
 	public var wordWrap				: Bool;
+	public var embedFonts			: Bool;
 #end
 
 	
@@ -68,12 +69,15 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 		if (data == null)
 			data = new DataType();
 		
+		layout = new AdvancedLayoutClient();
 		super(id, data);
 	}
 	
 	
-	override private function createLayout ()		{ layout = new AdvancedLayoutClient(); }
-	override private function createBehaviours ()	{ behaviours.add( new LabelLayoutBehaviour(this) ); }
+	override private function createBehaviours ()
+	{
+	    behaviours.add( new LabelLayoutBehaviour(this) );
+	}
 	
 	
 	override private function createChildren ()
@@ -88,6 +92,7 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 		field.mouseWheelEnabled	= false;
 		field.displayHTML		= displayHTML;
 		field.wordWrap			= wordWrap;
+		field.embedFonts		= embedFonts;
 		
 		field.respondToFocusOf( this );
 #end
@@ -95,11 +100,11 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 		if (textStyle != null)
 			field.textStyle = textStyle;
 		
-		children.add( field );
+		field.attachDisplayTo( this );
 	}
 	
 	
-	override private function removeChildren ()
+	override public  function removeChildren ()
 	{
 		super.removeChildren();
 		field.dispose();
@@ -135,8 +140,11 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 #if flash9
 	private inline function setTextStyle (v:TextFormat)
 	{
-		if (field != null)
-			field.textStyle = v;
+		if (field != null) {
+			field.wordWrap		= wordWrap;
+			field.embedFonts	= embedFonts;
+			field.textStyle 	= v;
+		}
 		
 		return textStyle = v;
 	}

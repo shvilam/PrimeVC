@@ -76,9 +76,13 @@ class WipeEffectInstance extends EffectInstance < IDisplayObject, WipeEffect >
 	override private function initStartValues ()
 	{
 		var t = target;
-		if (t.scrollRect == null)
-			t.scrollRect = new Rectangle( 0, 0, t.width, t.height );
-		
+		if (t.width == 0 || t.height == 0) {
+			startValue = endValue = 0;
+			return;
+		}
+
+		t.visible	= true;
+		var rect 	= t.scrollRect != null ? t.scrollRect : new Rectangle( 0, 0, t.width, t.height );
 		startValue	= effect.startValue;
 		endValue	= effect.endValue;
 		
@@ -87,11 +91,17 @@ class WipeEffectInstance extends EffectInstance < IDisplayObject, WipeEffect >
 		
 		if (startValue.notSet() || startValue == effect.endValue)
 			switch (effect.direction) {
-				case TopToBottom:	startValue =  t.scrollRect.height;
-				case BottomToTop:	startValue = -t.scrollRect.height;
-				case LeftToRight:	startValue =  t.scrollRect.width;
-				case RightToLeft:	startValue = -t.scrollRect.width;
+				case TopToBottom:	rect.y = startValue =  rect.height;
+				case BottomToTop:	rect.y = startValue = -rect.height;
+				case LeftToRight:	rect.x = startValue =  rect.width;
+				case RightToLeft:	rect.x = startValue = -rect.width;
 			}
+		else switch (effect.direction) {
+				case TopToBottom, BottomToTop:	rect.y = startValue;
+				case LeftToRight, RightToLeft:	rect.x = startValue;
+			}
+		
+		t.scrollRect = rect;
 	}
 
 
@@ -104,20 +114,39 @@ class WipeEffectInstance extends EffectInstance < IDisplayObject, WipeEffect >
 			case TopToBottom, BottomToTop:	rect.y = newVal;
 			case LeftToRight, RightToLeft:	rect.x = newVal;
 		}
-
 		target.scrollRect = rect;
 	}
 
 
 	override private function calculateTweenStartPos () : Float
 	{
+		if (target.scrollRect == null)
+			return isReverted ? 0.0 : 1.0;
+		
 		var curValue:Float = 0;
 		switch (effect.direction) {
 			case TopToBottom, BottomToTop:	curValue = target.scrollRect.y;
 			case LeftToRight, RightToLeft:	curValue = target.scrollRect.x;
 		}
-
+		
 		return (curValue - startValue) / (endValue - startValue);
-	}	
+	}
+	
+	
+	override private function onTweenReady ( ?tweenPos:Float )
+	{
+		var rect = target.scrollRect;
+		if (rect != null) {
+			switch (effect.direction) {
+				case TopToBottom:	if (rect.y >=  rect.height)	{ target.visible = false; rect.y = 0; }
+				case BottomToTop:	if (rect.y <= -rect.height)	{ target.visible = false; rect.y = 0; }
+				case LeftToRight:	if (rect.x >=  rect.width)	{ target.visible = false; rect.x = 0; }
+				case RightToLeft:	if (rect.x <= -rect.width)	{ target.visible = false; rect.x = 0; }
+			}
+			
+			target.scrollRect = rect;
+		}
+		super.onTweenReady();
+	}
 #end
 }

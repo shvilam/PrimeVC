@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.states;
- import primevc.core.states.AutoFiniteStateMachine;
+ import primevc.core.states.FiniteStateMachine;
  import primevc.core.states.IState;
  
 
@@ -37,7 +37,7 @@ package primevc.gui.states;
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
-class SkinStates extends AutoFiniteStateMachine
+class SkinStates extends FiniteStateMachine
 {
 	/**
 	 * Default state when the skin hasn't done anything.
@@ -56,7 +56,7 @@ class SkinStates extends AutoFiniteStateMachine
 	public var disposed				(default, null) : IState;
 	
 	
-	public function new ()
+	@:keep public function new ()
 	{
 		super();
 		defaultState = empty;

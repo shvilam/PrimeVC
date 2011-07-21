@@ -20,19 +20,32 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
-package primevc.mvc;
+package primevc.core.channels;
+ import primevc.core.dispatcher.Signal1;
 
 
 /**
- * Interface 'tag' to mark a class as a Mediator.
+ * A channel allows to send a request and wait for an asynchroneous response from
+ * the receiver/receivers.
+ * 
+ * @author			Danny Wilson
+ * @author			Ruben Weijers
+ * @creation-date	May 24, 2011
  */
-interface IMediator <GUIType> implements primevc.core.traits.IDisposable
+class Channel <Msg, ReplyType> extends Signal1<Msg>
 {
-	public var gui (default, setGUI)	: GUIType;
+	public var sendAsync (default,null) : Msg -> Async<Msg, ReplyType>;
+	
+	
+	public function bindReplyer	(owner:Dynamic, handler:Async<Msg> -> Void) : Wire<Async<Msg, ReplyType> -> Void>
+	{
+		
+	}
 }

@@ -26,14 +26,16 @@
  * Authors:
  *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc.core;
+package primevc.core.traits;
 
 
 /**
  * @author Ruben Weijers
- * @creation-date Dec 14, 2010
+ * @creation-date May 17, 2011
  */
-interface IController implements primevc.core.traits.IDisposable
+interface IDisablable
 {
-	public function init () : Void;
+	public function disable ()		: Void;
+	public function enable ()		: Void;
+	public function isEnabled ()	: Bool;
 }

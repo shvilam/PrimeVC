@@ -20,41 +20,47 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.s
+ * DAMAGE.s/
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc.events;
- import primevc.core.dispatcher.Signals;
- import primevc.core.dispatcher.Signal0;
+package primevc.mvc;
+ import primevc.core.traits.IDisablable;
+ import primevc.core.traits.IDisposable;
 
 
 /**
- * Basic events for an mvc-application. 
- * MVCEvents is a base class thats groups together the events used in
- * an application/subsystem and provides a main access point for them. 
+ * The MVCNotifier is an object that can send messages to the mvc-application.
  * 
  * @author Ruben Weijers
- * @creation-date Nov 17, 2010
+ * @creation-date May 17, 2011
  */
-class MVCEvents extends Signals
+interface IMVCNotifier implements IDisposable, implements IDisablable
 {
-	public var started (default, null)	: Signal0;
+	/**
+	 * State holder.. contains the flag of the current state of the notifier
+	 */
+	private var state : Int;
 	
+	/**
+	 * Enable sending messages
+	 */
+	public function enable ()	: Void;
 	
-	public function new ()
-	{
-		started = new Signal0();
-	}
+	/**
+	 * Disable sending messages
+	 */
+	public function disable ()	: Void;
 	
+	/**
+	 * Method returning true if the notifier is enabled
+	 */
+	public function isEnabled ()	: Bool;
 	
-	override public function dispose ()
-	{
-		started.dispose();
-		started = null;
-		
-		super.dispose();
-	}
+	/**
+	 * Method returning true if the notifier is disposed
+	 */
+	public function isDisposed ()	: Bool;
 }

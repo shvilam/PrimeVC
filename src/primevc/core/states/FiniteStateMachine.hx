@@ -35,23 +35,21 @@ package primevc.core.states;
  * @author Ruben Weijers
  * @creation-date Jun 08, 2010
  */
+@:autoBuild(primevc.utils.MacroUtils.autoInstantiate("IState", "primevc.core.states.State", true))
+@:autoBuild(primevc.utils.MacroUtils.autoDispose())
 class FiniteStateMachine implements IFiniteStateMachine
 {
-	//
-	// PROPERTIES
-	//
+	@manual public var current		(default, setCurrent)		: IState;
+	@manual public var defaultState	(default, setDefaultState)	: IState;
 	
-	public var current		(default, setCurrent)		: IState;
-	public var defaultState	(default, setDefaultState)	: IState;
-	
-	public var states		(default, null)				: FastArray <IState>;
-	public var change		(default, null)				: Signal2 < IState, IState >;
-	public var enabled		(default, null)				: Bool;
+//	public var states		(default, null) : FastArray <IState>;
+	public var change		(default, null)	: Signal2 < IState, IState >;
+	public var enabled		(default, null)	: Bool;
 	
 	
 	public function new ()
 	{
-		states	= FastArrayUtil.create();
+	//	states	= FastArrayUtil.create();
 		enabled	= true;
 		change	= new Signal2();
 	}
@@ -59,15 +57,15 @@ class FiniteStateMachine implements IFiniteStateMachine
 	
 	public function dispose ()
 	{
-		defaultState	= null;
-		current			= null;
+		(untyped this).defaultState	= null;
+		(untyped this).current		= null;
 		
-		while(states.length > 0)
-			states.pop().dispose();
+	//	while(states.length > 0)
+	//		states.pop().dispose();
 		
 		change.dispose();
 		change = null;
-		states = null;
+	//	states = null;
 	}
 	
 	
@@ -94,7 +92,7 @@ class FiniteStateMachine implements IFiniteStateMachine
 		
 		if (!enabled)				return current;	//can't change states when we're not enabled
 		if (current == newState)	return current;	//don't need to change since we're already in this state
-		if (!has(newState))			return current;	//can't go to a state that isn't part of this FSM
+	//	if (!has(newState))			return current;	//can't go to a state that isn't part of this FSM
 		
 		//dispathc exiting event
 		if (current != null)
@@ -141,7 +139,7 @@ class FiniteStateMachine implements IFiniteStateMachine
 	 * Method checks of the given state exists in this FSM instance.
 	 * FIXME: check if looking up if a state is a property of an FSM is more efficient with reflection
 	 */
-	public inline function has (state:IState)				{ return state != null && states[ state.id ] == state; }
+//	public inline function has (state:IState)				{ return state != null && states[ state.id ] == state; }
 	
 	public inline function enable ()						{ enabled = true; }
 	/**
@@ -150,12 +148,13 @@ class FiniteStateMachine implements IFiniteStateMachine
 	 * the default-state.
 	 */
 	public inline function disable ()						{ if (enabled) { current = defaultState; enabled = false; } }
+	public inline function isEnabled ()						{ return enabled; }
 	
 	
 	public function changeTo (toState:IState) : Void -> Void
 	{
 		var t = this;
-		Assert.that( has(toState) );
+	//	Assert.that( has(toState) );
 		return function () { t.setCurrent( toState ); };
 	}
 }

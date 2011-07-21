@@ -29,6 +29,7 @@
 package primevc.gui.display;
  import primevc.core.dispatcher.Signal0;
  import primevc.core.geom.IntRectangle;
+ import primevc.core.traits.IDisablable;
 #if flash9
  import flash.events.Event;
  import primevc.avm2.events.FlashSignal0;
@@ -36,11 +37,13 @@ package primevc.gui.display;
 #end
 #if (flash8 || flash9 || js)
  import flash.display.InteractiveObject;
+ import primevc.gui.display.IInteractiveObject;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEventTarget;
  import primevc.gui.events.UserEvents;
  import primevc.gui.input.Mouse;
   using primevc.utils.Bind;
+  using primevc.utils.TypeUtil;
 #end
 
 
@@ -52,16 +55,15 @@ package primevc.gui.display;
  * @creation-date Jul 13, 2010
  */
 #if (flash8 || flash9 || js)
-class Window implements IDisplayContainer
+class Window implements IDisplayContainer, implements IDisablable
 {
-	public static function startup < WindowInstance > (windowClass : Class<WindowInstance>) : WindowInstance
+	public static inline function startup<WindowInstance>(windowClassFactory : Stage -> WindowInstance) : WindowInstance
 	{
 		var stage:Stage = null;
-		
 #if flash9
 		stage = flash.Lib.current.stage;
 		stage.scaleMode	= flash.display.StageScaleMode.NO_SCALE;
-	
+		
 	#if (debug && Monster2Trace)
 		var monster		= new nl.demonsters.debugger.MonsterDebugger(flash.Lib.current);
 		haxe.Log.trace	= primevc.utils.DebugTrace.trace;
@@ -81,9 +83,14 @@ class Window implements IDisplayContainer
 #if debug
 		haxe.Log.clear();
 		haxe.Log.setColor(0xc00000);
-		trace("started " + windowClass);
+		trace("started");
 #end
-		return Type.createInstance( windowClass, [ stage ] );
+		var inst = windowClassFactory(stage);
+	#if profiling
+		stage.addChild( new net.jpauclair.FlashPreloadProfiler() );
+	#end
+		return inst;
+	//	return Type.createInstance( windowClass, [ stage ] );
 	}
 	
 	
@@ -122,7 +129,7 @@ class Window implements IDisplayContainer
 	public var activated		(default, null)			: Signal0;
 	
 #if flash9
-	public var focus			(getFocus, setFocusOn)	: InteractiveObject;
+	public var focus			(getFocus, setFocusOn)	: IInteractiveObject;
 #end
 	
 	
@@ -190,14 +197,15 @@ class Window implements IDisplayContainer
 	
 	public function enable ()										{ mouseEnabled = tabEnabled = children.mouseEnabled = children.tabEnabled = true; }		//use local mouseEnabled and tabEnabled since Stage doesn't have these properties
 	public function disable ()										{ mouseEnabled = tabEnabled = children.mouseEnabled = children.tabEnabled = false; }	//use local mouseEnabled and tabEnabled since Stage doesn't have these properties
+	public inline function isEnabled ()								{ return mouseEnabled; }
 	
-	private inline function setFocusOn (child:InteractiveObject)	{ return target.focus = child; }
-	private inline function getFocus ()	: InteractiveObject			{ return target.focus; }
+	private inline function setFocusOn (child:IInteractiveObject)	{ target.focus = child.as(InteractiveObject); return child; }
+	private inline function getFocus ()	: IInteractiveObject		{ return target.focus.as(IInteractiveObject); }
 #end
 	
 	// FIXME better naming -> looks alot like setFocusOn (the setter)
-	public inline function setFocus ()		{ window.focus = target; }
-	public inline function removeFocus ()	{ if (focus == target)	{ focus = null; } }
+	public inline function setFocus ()		{ target.focus = target; }
+	public inline function removeFocus ()	{ if (target.focus == target) { target.focus = null; } }
 	
 	
 	

@@ -61,6 +61,8 @@ interface IDisplayObject
 	 * @return own-instance
 	 */
 	public function detachDisplay		()											: IDisplayObject;
+	
+	public function changeDisplayDepth	(newDepth:Int)								: IDisplayObject;
 #end
 	
 #if flash9

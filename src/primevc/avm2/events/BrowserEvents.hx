@@ -42,6 +42,7 @@ class BrowserEvents extends BrowserSignals
 {
 	public function new (target:IEventDispatcher)
 	{
+		super();
 		init				= new FlashSignal0( target, SWFAddressEvent.INIT );
 		urlInternalChange	= new FlashSignal0( target, SWFAddressEvent.INTERNAL_CHANGE );
 		urlExternalChange	= new FlashSignal0( target, SWFAddressEvent.EXTERNAL_CHANGE );

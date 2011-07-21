@@ -26,14 +26,26 @@
  * Authors:
  *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc;
+package primevc.mvc.events;
+ import primevc.core.dispatcher.Signals;
+ import primevc.core.dispatcher.Signal1;
 
 
 /**
+ * Defines 2 events to open or close something
  * @author Ruben Weijers
- * @creation-date Nov 16, 2010
+ * @creation-date May 17, 2011
  */
-interface ICommand implements primevc.core.traits.IDisposable
+class OpenCloseEvents<DataType> extends Signals
 {
+	public var open		(default, null)	: Signal1<DataType>;
+	public var close	(default, null)	: Signal1<DataType>;
 	
+	
+	public function new ()
+	{
+		super();
+		open	= new Signal1();
+		close	= new Signal1();
+	}
 }

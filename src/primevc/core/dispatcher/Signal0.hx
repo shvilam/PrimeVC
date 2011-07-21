@@ -78,23 +78,8 @@ class Signal0 extends Signal<Void->Void>, implements ISender0, implements INotif
 		nextSendable = null;
 	}
 	
-	public inline function bind(owner:Dynamic, handler:Void->Void)
-	{
-		return observe(owner, handler);
-	}
-	
-	public inline function bindOnce(owner:Dynamic, handler:Void->Void)
-	{
-		return observeOnce(owner, handler);
-	}
-	
-	public inline function observe(owner:Dynamic, handler:Void->Void)
-	{
-		return Wire.make( this, owner, handler, Wire.ENABLED | Wire.VOID_HANDLER);
-	}
-	
-	public inline function observeOnce(owner:Dynamic, handler:Void->Void)
-	{
-		return Wire.make( this, owner, handler, Wire.ENABLED | Wire.VOID_HANDLER | Wire.SEND_ONCE);
-	}
+	public inline function bind			(owner:Dynamic, handler:Void->Void)		return observe(owner, handler)
+	public inline function bindOnce		(owner:Dynamic, handler:Void->Void)		return observeOnce(owner, handler)
+	public inline function observe		(owner:Dynamic, handler:Void->Void)		return Wire.make( this, owner, handler, Wire.ENABLED | Wire.VOID_HANDLER)
+	public inline function observeOnce	(owner:Dynamic, handler:Void->Void)		return Wire.make( this, owner, handler, Wire.ENABLED | Wire.VOID_HANDLER | Wire.SEND_ONCE)
 }

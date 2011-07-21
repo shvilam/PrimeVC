@@ -70,7 +70,7 @@ class GraphicElement extends Invalidatable, implements IGraphicElement
 
 #if (neko || debug)
 	public function toString () : String				{ return toCSS(); }
-	public function toCSS (prefix:String = "") : String	{ /*Assert.abstract();*/ return "GraphicElement"; }
+	@:keep public function toCSS (prefix:String = "") : String	{ /*Assert.abstract();*/ return "GraphicElement"; }
 	public function isEmpty () : Bool					{ return false; }
 	public function cleanUp () : Void					{}
 #end

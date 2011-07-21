@@ -38,7 +38,7 @@ package primevc.utils;
  * @author Ruben Weijers
  * @creation-date Jul 27, 2010
  */
-class Formulas
+extern class Formulas
 {
 	/**
 	 * Method will return the square of the given number
@@ -118,5 +118,11 @@ class Formulas
 	public static inline function polygonRadiusForCircle( radius:Float, sides:Int ) : Float
 	{
 		return radius / FastMath.cos( (1 / sides) * FastMath.PI);
+	}
+
+
+	public static inline function scale (actualW:Float, actualH:Float, allowedW:Float, allowedH:Float) : Float
+	{
+		return Math.min( allowedW / actualW, allowedH / actualH );
 	}
 }

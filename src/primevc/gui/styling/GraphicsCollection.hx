@@ -28,6 +28,7 @@
  */
 package primevc.gui.styling;
  import primevc.gui.core.IUIContainer;
+ import primevc.gui.core.IUIElement;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.graphics.borders.EmptyBorder;
  import primevc.gui.graphics.EmptyGraphicProperty;
@@ -67,7 +68,8 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		if (!target.is(ISkinnable))		changes = changes.unset( Flags.SKIN );
 		if (!target.is(IDrawable))		changes = changes.unset( Flags.DRAWING_PROPERTIES );
 		if (!target.is(IUIContainer))	changes = changes.unset( Flags.OVERFLOW );
-		if (!target.is(IDisplayObject))	changes = changes.unset( Flags.OPACITY | Flags.VISIBLE );
+		if (!target.is(IUIElement))		changes = changes.unset( Flags.VISIBLE );
+		if (!target.is(IDisplayObject))	changes = changes.unset( Flags.OPACITY ); // | Flags.VISIBLE );
 		if (!target.is(IIconOwner))		changes = changes.unset( Flags.ICON | Flags.ICON_FILL );
 		
 		if (changes == 0)
@@ -108,28 +110,47 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		var target	= elementStyle.target;
 		var empty	= styleObj == null;
 		
-		if ( propsToSet.has( Flags.SKIN ))			target.as(ISkinnable).skin			= empty ? null	: (styleObj.skin != null) ? Type.createInstance( styleObj.skin, [] ) : null;
 		if ( propsToSet.has( Flags.SHAPE ))			graphicProps.shape					= empty ? null	: styleObj.shape;
 		if ( propsToSet.has( Flags.BORDER_RADIUS ))	graphicProps.borderRadius			= empty ? null	: styleObj.borderRadius;
-		if ( propsToSet.has( Flags.ICON ))			target.as(IIconOwner).icon			= empty ? null	: styleObj.icon;
+		if ( propsToSet.has( Flags.ICON ))			target.as(IIconOwner).icon			= empty ? null	: styleObj.getIconInstance();
 		if ( propsToSet.has( Flags.ICON_FILL ))		target.as(IIconOwner).iconFill		= empty ? null	: styleObj.iconFill;
 		if ( propsToSet.has( Flags.OPACITY ))		target.as(IDisplayObject).alpha		= empty ? 1		: styleObj.opacity;
-		if ( propsToSet.has( Flags.VISIBLE ))		target.as(IDisplayObject).visible	= empty ? true	: styleObj.visible;
+		
+		
+		if ( propsToSet.has( Flags.VISIBLE ))
+		{
+			if (empty || styleObj.visible)			target.as(IUIElement).show();
+			else									target.as(IUIElement).hide();
+		}
+		
+		
 		if ( propsToSet.has( Flags.OVERFLOW ))
 		{
-			if (styleObj.overflow != null)
-				target.as(IUIContainer).behaviours.add( Type.createInstance( styleObj.overflow, [ target ] ) );
+			if (styleObj.overflow != null) {
+				var c = target.as(IUIContainer);
+				c.behaviours.add( styleObj.overflow(c) );
+			}
 		//	else
 		//		target.behaviours.remove(  )
 		}
 		
-		if ( propsToSet.has( Flags.BACKGROUND )) {
-			graphicProps.fill = (empty || styleObj.background.is(EmptyGraphicProperty)) ? null : styleObj.background;
+		
+		if ( propsToSet.has( Flags.SKIN ))
+		{
+		    var target = target.as(ISkinnable);
+		    if (target.skin != null)
+		        target.skin.dispose();
+		    
+		    target.skin = (empty || styleObj.skin == null) ? null : styleObj.skin();
 		}
 		
-		if ( propsToSet.has( Flags.BORDER )) {
+		
+		
+		if ( propsToSet.has( Flags.BACKGROUND ))
+			graphicProps.fill = (empty || styleObj.background.is(EmptyGraphicProperty)) ? null : styleObj.background;
+		
+		if ( propsToSet.has( Flags.BORDER ))
 			graphicProps.border = (empty || styleObj.border.is(EmptyBorder)) ? null : styleObj.border;
-		}
 	}
 }
 

@@ -54,7 +54,7 @@ class FocusState extends KeyModState
 	
 	
 	
-	public function new(f:Int, t:UserEventTarget #if flash9, related:UserEventTarget #end)
+	@:keep public function new(f:Int, t:UserEventTarget #if flash9, related:UserEventTarget #end)
 	{
 		super(f,t);
 #if flash9

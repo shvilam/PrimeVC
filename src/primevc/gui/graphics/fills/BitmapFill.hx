@@ -32,11 +32,13 @@ package primevc.gui.graphics.fills;
 #end
  import primevc.core.geom.IRectangle;
  import primevc.core.geom.Matrix2D;
+ import primevc.gui.display.BitmapData;
  import primevc.gui.graphics.GraphicElement;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.graphics.IGraphicProperty;
  import primevc.gui.traits.IGraphicsOwner;
  import primevc.types.Asset;
+ import primevc.types.Factory;
   using primevc.utils.Bind;
 
 
@@ -48,24 +50,24 @@ package primevc.gui.graphics.fills;
  */
 class BitmapFill extends GraphicElement, implements IGraphicProperty 
 {
-	public var asset		(default, setAsset)		: Asset;
-	public var matrix		(default, setMatrix)	: Matrix2D;
-	public var smooth		(default, setSmooth)	: Bool;
-	public var repeat		(default, setRepeat)	: Bool;
-	public var isFinished	(default, null)			: Bool;
-#if flash9
-	public var data			(default, null)			: flash.display.BitmapData;
-#end
+	public var asset		(default, setAsset)			: Asset;
+	public var assetFactory	(default, setAssetFactory)	: Factory<Dynamic>;
+	public var matrix		(default, setMatrix)		: Matrix2D;
+	public var smooth		(default, setSmooth)		: Bool;
+	public var repeat		(default, setRepeat)		: Bool;
+	public var isFinished	(default, null)				: Bool;
+	public var data			(default, null)				: BitmapData;
 	
 	
-	public function new (asset:Asset, matrix:Matrix2D = null, repeat:Bool = true, smooth:Bool = false)
+	public function new (assetFactory:Factory<Dynamic>, asset:Asset = null, matrix:Matrix2D = null, repeat:Bool = true, smooth:Bool = false)
 	{
 		super();
-		this.asset	= asset;
-		this.matrix	= matrix; //matrix == null ? new Matrix2D() : matrix;
-		this.repeat = repeat;
-		this.smooth	= smooth;
-		isFinished	= false;
+		this.assetFactory	= assetFactory;
+		this.asset			= asset;
+		this.matrix			= matrix; //matrix == null ? new Matrix2D() : matrix;
+		this.repeat			= repeat;
+		this.smooth			= smooth;
+		isFinished			= false;
 	}
 	
 	
@@ -90,26 +92,42 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 	// GETTERS / SETTERES
 	//
 	
-	private inline function setAsset (v:Asset)
+	private inline function setAsset (v)
 	{
-		if (v != asset) {
+		if (v != asset)
+		{
+#if flash9
 			if (asset != null)
 				asset.state.change.unbind(this);
 			
 			asset = v;
 			
-			if (asset != null)
+			if (v != null)
 			{
-				handleAssetStateChange.on( asset.state.change, this );
-				
-				smooth	= asset.type != AssetType.bitmapData;
-
-#if flash9		if (asset.state.is(AssetStates.ready))
-					data = asset.getBitmapData();
-				else
-					asset.load();
-#end
+				handleAssetStateChange.on( v.state.change, this );
+				smooth = v.type != AssetType.bitmapData;
+				if (v.isReady())	data = v.toBitmapData();
+	//			else				v.load();
 			}
+			else
+				data = null;
+#else
+			asset = v;
+#end
+		}
+		return v;
+	}
+	
+	
+	private inline function setAssetFactory (v)
+	{
+		if (v != assetFactory)
+		{
+			if (assetFactory != null)
+				asset = null;
+			
+			assetFactory = v;
+			invalidate( GraphicFlags.FILL );
 		}
 		return v;
 	}
@@ -146,7 +164,7 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 	
 	
 #if flash9
-	private inline function setData (v:flash.display.BitmapData)
+	private inline function setData (v:BitmapData)
 	{
 		if (v != data)
 		{
@@ -168,7 +186,7 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 	{
 		switch (newState) {
 			case AssetStates.ready:
-#if flash9		data = asset.getBitmapData(); #end
+#if flash9		data = asset.toBitmapData(); #end
 			
 			case AssetStates.empty:
 #if flash9		data = null; #end
@@ -182,11 +200,20 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 	// IFILL METHODS
 	//
 	
-	public inline function begin (target:IGraphicsOwner, bounds:IRectangle)
+	public /*inline*/ function begin (target:IGraphicsOwner, bounds:IRectangle)
 	{	
 #if flash9
 		isFinished = true;
+		if (assetFactory == null && asset == null)
+			return;
+		
 		if (asset == null)
+			asset = Asset.fromFactory( assetFactory );
+		
+		if (asset.isLoadable())
+			asset.load();
+		
+		if (!asset.isReady())
 			return;
 		
 		var m:Matrix2D = null;
@@ -196,11 +223,9 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 			m.scale( bounds.width / data.width, bounds.height / data.height );
 		}
 		
-		if (asset.state.is(AssetStates.ready))
+		if (asset.isReady())
 			target.graphics.beginBitmapFill( data, m, repeat, smooth );
 		
-		else if (asset.state.is(AssetStates.loadable))
-			asset.load();
 #end
 	}
 	
@@ -208,18 +233,16 @@ class BitmapFill extends GraphicElement, implements IGraphicProperty
 	public inline function end (target:IGraphicsOwner, bounds:IRectangle)
 	{	
 		isFinished = false;
-		if (asset != null && asset.state.is(AssetStates.ready))
-		{
 #if flash9
+		if (asset != null && asset.isReady())
 			target.graphics.endFill();
 #end
-		}
 	}
 	
 	
 #if neko
 	override public function toString ()					{ return "BitmapFill( " + asset + ", " + smooth + ", " + repeat + " )"; }
-	override public function toCSS (prefix:String = "")		{ return asset.toString + " " + repeat; }
-	override public function toCode (code:ICodeGenerator)	{ code.construct( this, [ asset, matrix, repeat, smooth ] ); }
+	override public function toCSS (prefix:String = "")		{ return asset + " " + repeat; }
+	override public function toCode (code:ICodeGenerator)	{ code.construct( this, [ assetFactory, asset, matrix, repeat, smooth ] ); }
 #end
 }

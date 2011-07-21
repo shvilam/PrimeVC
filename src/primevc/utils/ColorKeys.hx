@@ -32,7 +32,7 @@ package primevc.utils;
  * 
  * @author Degrafa
  */
-class ColorKeys
+extern class ColorKeys
 {
 	public static inline var ALICEBLUE				: UInt = 0xF0F8FF; // 240,248,255
 	public static inline var ANTIQUEWHITE			: UInt = 0xFAEBD7; // 250,235,215

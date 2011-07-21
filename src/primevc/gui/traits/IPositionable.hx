@@ -40,6 +40,7 @@ interface IPositionable implements IDisplayable
 	var x						: Float;
 	var y						: Float;
 	var rotation				: Float;
+	var visible					: Bool;
 	
 	#if flash10
 	var rotationX				: Float;

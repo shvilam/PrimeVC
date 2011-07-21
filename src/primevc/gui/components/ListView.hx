@@ -32,22 +32,19 @@ package primevc.gui.components;
  import primevc.core.dispatcher.Signal1;
  import primevc.core.traits.IValueObject;
  import primevc.core.geom.IRectangle;
-// import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
  import primevc.gui.components.IItemRenderer;
  import primevc.gui.core.IUIDataElement;
- import primevc.gui.core.IUIElement;
-// import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.events.MouseEvents;
+ import primevc.gui.layout.LayoutFlags;
+ import primevc.gui.states.ValidateStates;
  import primevc.gui.traits.IInteractive;
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
   using haxe.Timer;
-
-
-//private typedef ItemRenderer <T:IValueObject>		= IUIDataElement < T >;
-//private typedef ItemRendererType <T:IValueObject>	= Class < ItemRenderer < T > >;
 
 
 /**
@@ -56,7 +53,7 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Oct 26, 2010
  */
-class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDataType > >, implements IListView < ListDataType >
+class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataType > >//, implements haxe.rtti.Generic //, implements IListView < ListDataType >
 {
 	/**
 	 * Signal which will dispatch mouse-clicks of interactive item-rendered 
@@ -68,30 +65,36 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	 * Injectable method which will create the needed itemrenderer
 	 * @param	item:ListDataType
 	 * @param	pos:Int
-	 * @return 	IUIElement
+	 * @return 	IUIDataElement
 	 */
-	public var createItemRenderer			: ListDataType -> Int -> IUIElement;
-	
-	/**
-	 * Container in which the itemrenders will be placed.
-	 * Don't add children here manually!
-	 */
-//	public var content			(default, null) : UIContainer;
+	public var createItemRenderer			: ListDataType -> Int -> IUIDataElement<ListDataType>;
 	
 	
 	
 	override private function createBehaviours ()
 	{
-	//	content			= new UIContainer(id+"Content");
 		childClick		= new Signal1<MouseState>();
 		childClick.disable();
 		
-		scheduleEnable    .on( displayEvents.addedToStage, this );
-		disableChildClick .on( displayEvents.removedFromStage, this );
-	//	behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
+		scheduleEnable		.on( displayEvents.addedToStage, this );
+		disableChildClick	.on( displayEvents.removedFromStage, this );
 	}
 	
-	var enableDelay : haxe.Timer;
+	
+	override public function dispose ()
+	{
+		childClick.dispose();
+		childClick = null;
+		
+		removeEnableTimer();
+		displayEvents.addedToStage.unbind(this);
+		displayEvents.removedFromStage.unbind(this);
+		
+		super.dispose();
+	}
+	
+	
+	private var enableDelay : haxe.Timer;
 	
 	private function scheduleEnable()
 	{
@@ -114,37 +117,27 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 		}
 	}
 	
-	/*override private function createChildren ()
-	{
-		content.styleClasses.add( "listContent" );
-		layoutContainer.children.add( content.layout );
-		children.add( content );
-	}
-	
-	
-	override private function removeChildren ()
-	{
-		layoutContainer.children.remove( content.layout );
-		children.remove( content );
-		content.dispose();
-		content = null;
-		super.removeChildren();
-	}*/
-	
-	
-	override public function dispose ()
-	{
-		super.dispose();
-		removeEnableTimer();
-		childClick.dispose();
-		childClick = null;
-	}
-	
 	
 	override private function initData ()
 	{
+		Assert.notNull(window);
+		var length = data.length;
+		
+		var layout = layoutContainer;
+		if (layout.algorithm != null && isScrollable) {
+			layout.setFixedChildLength( length );
+			
+			layout.invisibleBefore = layout.invisibleAfter = 1;
+
+			invalidateScrollPos	.on( layout.scrollPos.xProp.change, this );
+			invalidateScrollPos	.on( layout.scrollPos.yProp.change, this );
+			checkItemRenderers	.on( layout.changed, this );
+			
+			length = layout.algorithm.getMaxVisibleChildren();
+		}
+
 		//add itemrenders for new list
-		for (i in 0...data.length)
+		for (i in 0...length)
 			addRenderer( data.getItemAt(i), i );
 		
 		handleListChange.on( data.change, this );
@@ -153,9 +146,7 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	
 	override private function removeData ()
 	{
-		for (i in 0...data.length)
-			removeRenderer( data.getItemAt(i) );
-				
+		children.disposeAll();
 		data.change.unbind(this);
 	}
 	
@@ -165,14 +156,8 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	// DATA RENDERER METHODS
 	//
 	
-/*	private function createItemRenderer ( item:ListDataType, pos:Int ) : IUIElement
-	{
-		Assert.abstract();
-		return null;
-	}*/
 	
-	
-	private function addRenderer( item:ListDataType, newPos:Int = -1 )
+	private inline function addRenderer( item:ListDataType, newPos:Int = -1 )
 	{
 		if (newPos == -1)
 			newPos = data.indexOf( item );
@@ -185,45 +170,38 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	}
 	
 	
-	private function removeRenderer( item:ListDataType, oldPos:Int = -1 )
+	private inline function removeRendererFor( item:ListDataType, oldPos:Int = -1 )
 	{
-		var renderer = getRendererFor( item );
+		var renderer:IDisplayObject = null;
+		var depth = indexToDepth(oldPos);
+		if (depth > -1)
+		{
+			renderer = children.getItemAt(depth);
+		}
+		else
+		{
+		//	var renderer = getRendererFor( item );
+			// can't use getRendererFor here since the data-item is most likely already moved from the
+			// data array. Instead all children will be checked if they have the same data as given.
+			for (i in 0...children.length)
+				if (getRendererData(cast children.getItemAt(i)) == item) {
+					renderer = children.getItemAt(i);
+					break;
+				}
+		}
+
 		if (renderer != null)
 			renderer.dispose();		// removing the click-listener is not nescasary since the item-renderer is getting disposed
 	}
 	
 	
-	public inline function getRendererFor ( dataItem:ListDataType ) : IUIElement
+	private inline function removeRenderer (renderer:IUIDataElement<ListDataType>)
 	{
-		return getRendererAt( getPositionFor( dataItem ) );
+	    renderer.dispose();
 	}
 	
 	
-	public inline function getRendererAt( pos:Int ) : IUIElement
-	{
-		return pos == -1 ? null : children.getItemAt(pos).as(IUIElement);
-	}
-	
-	
-	public function getPositionFor (dataItem:ListDataType) : Int
-	{
-		var renderers = children;
-		for (i in 0...renderers.length)
-		{
-			var child = renderers.getItemAt( i );
-			
-			if (child.is( IItemRenderer ) && child.as(IItemRenderer).vo.value == cast dataItem)
-				return i;
-			
-			else if (child.is( IUIDataElement ) && child.as(IUIDataElement).data == cast dataItem)
-				return i;
-		}
-		
-		return -1;
-	}
-	
-	
-	private function moveRenderer ( item:ListDataType, newPos:Int, oldPos:Int )
+	private inline function moveRenderer ( item:ListDataType, newPos:Int, oldPos:Int )
 	{
 		var renderer = getRendererFor( item );
 		if (renderer != null) {
@@ -237,9 +215,160 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	}
 	
 	
+	private inline function reuseRenderer( from:Int, to:Int, newDataPos:Int )
+	{
+		var d = data.getItemAt(newDataPos);
+		var r = children.getItemAt(from).as(IUIDataElement);
+		setRendererData(cast r, cast d);
+		r.changeDepth( to );
+	}
+	
+	
+	private inline function setRendererData (r:IUIDataElement<ListDataType>, v:ListDataType)
+	{
+	    if (r.is(IItemRenderer))	r.as(IItemRenderer).vo.value = cast v;
+	 	else						r.data = cast v;
+	}
+	
+	
+	private inline function getRendererData (r:IUIDataElement<ListDataType>) : ListDataType
+	{
+	    return r.is(IItemRenderer) ? cast r.as(IItemRenderer).vo.value : cast r.data;
+	}
+	
+	
+	
+	
+	
+	/**
+	 * Method returns the item-renderer for the given data item
+	 */
+	public inline function getRendererFor ( dataItem:ListDataType ) : IUIDataElement<ListDataType>
+	{
+		return getRendererAt(getDepthFor(dataItem));
+	}
+	
+	
+	/**
+	 * Method returns the item-renderer at the given depth. If the depth is -1,
+	 * the method will return null.
+	 */
+	public inline function getRendererAt(depth:Int) : IUIDataElement<ListDataType>
+	{
+		return depth > -1 ? cast children.getItemAt(depth).as(IUIDataElement) : null;
+	}
+	
+	
+	/**
+	 * Method returns the position of the item-renderer with the given data-item
+	 */
+	public inline function getDepthFor (dataItem:ListDataType) : Int
+	{
+		return indexToDepth(data.indexOf(dataItem));
+	}
+	
+	
+	/**
+	 * Method converts the given data-index to the depth of the item-renderer
+	 * If there's no item-renderer for the given index, the method will return
+	 * -1.
+	 */
+	public inline function indexToDepth (index:Int) : Int
+	{
+	    var depth = index;
+	    if (depth > -1)                   depth -= layoutContainer.fixedChildStart;
+		if (depth >= children.length)     depth  = -1;
+		return depth;
+	}
+	
+	
+	/**
+	 * Method will return the index of the data-item at the given renderer-depth.
+	 * If the index is -1, the method will return -1.
+	 */
+	public inline function depthToIndex (depth:Int) : Int
+	{
+	    return depth > -1 ? depth + layoutContainer.fixedChildStart : -1;
+	}
+	
+	
+	/**
+	 * returns true if there's an item-renderer for the given data-item.
+	 */
+	public inline function hasRendererFor (dataItem:ListDataType) : Bool
+	{
+	    return getDepthFor(dataItem) > -1;
+	}
+	
+	
+	/**
+	 * returns true if there's an item-renderer for the given data-item.
+	 */
+	public inline function hasRendererAtDepth (depth:Int) : Bool
+	{
+	    return depthToIndex(depth) > -1;
+	}
+	
+	
 	public function getDepthForBounds (bounds:IRectangle) : Int
 	{
 		return layoutContainer.algorithm.getDepthForBounds(bounds);
+	}
+	
+	
+	
+	
+	
+	//
+	// ITEM-RENDERER CACHING
+	//
+	
+	
+	private function checkItemRenderers (changes:Int)
+	{
+		if (changes.has( LayoutFlags.CHILD_SIZE | LayoutFlags.SIZE ))
+		{
+			var a = layoutContainer.algorithm;
+			updateVisibleItemRenderers( a.getDepthOfFirstVisibleChild(), a.getMaxVisibleChildren() );
+		}
+	}
+	
+	
+	private function invalidateScrollPos ()
+	{
+		var l = layoutContainer;
+		updateVisibleItemRenderers( l.algorithm.getDepthOfFirstVisibleChild(), l.children.length );
+	}
+	
+	
+	private inline function updateVisibleItemRenderers (startVisible:Int, maxVisible:Int)
+	{
+		var l = layoutContainer;
+		var curStart = l.fixedChildStart;
+		var curLen	 = l.children.length;
+		
+		if ((startVisible + maxVisible) > data.length)
+			startVisible = data.length - maxVisible;
+		
+		
+		if (curStart != startVisible)
+		{
+			l.fixedChildStart = startVisible;
+			var diff    = (startVisible - curStart).abs().getSmallest(curLen);
+			var max     = curLen - 1;		// max items used in calculations (using 0 - (x - 1) instead of 1 - x)
+			
+			// move children
+			if		(curStart < startVisible)	{ var start = startVisible + curLen - diff;     for (i in 0...diff)	reuseRenderer( 0, max, start + i ); }
+			else if (curStart > startVisible)	{ var start = startVisible + diff - 1;          for (i in 0...diff)	reuseRenderer( max, 0, start - i ); }
+		}
+		
+		
+		if (curLen != maxVisible)
+		{
+			// add or remove children
+			if		(curLen < maxVisible)		for (i in curLen...maxVisible)	addRenderer(    data.getItemAt( i + startVisible ), i );
+			else if (curLen > maxVisible)		for (i in maxVisible...curLen)	removeRenderer( cast children.getItemAt(maxVisible) );
+		}
 	}
 	
 	
@@ -248,13 +377,13 @@ class ListView < ListDataType > extends UIDataContainer < IReadOnlyList < ListDa
 	// EVENT HANDLERS
 	//
 	
-	
 	private function handleListChange ( change:ListChange<ListDataType> ) : Void
 	{
+		var l = children.length;
 		switch (change)
 		{
 			case added( item, newPos):			addRenderer( item, newPos );
-			case removed (item, oldPos):		removeRenderer( item, oldPos );
+			case removed (item, oldPos):		removeRendererFor( item, oldPos );
 			case moved (item, newPos, oldPos):	moveRenderer( item, newPos, oldPos );
 			default:
 		}

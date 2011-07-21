@@ -57,9 +57,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 {
 	public static inline var EMPTY_BOX : Box = new Box(0,0);
 	
-	
 	public var algorithm			(default, setAlgorithm)			: ILayoutAlgorithm;
-	public var children				(default, null)					: IEditableList<LayoutClient>;
 	
 	public var childWidth			(default, setChildWidth)		: Int;
 	public var childHeight			(default, setChildHeight)		: Int;
@@ -82,6 +80,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		(untyped this).childWidth	= Number.INT_NOT_SET;
 		(untyped this).childHeight	= Number.INT_NOT_SET;
 		
+		childrenLength	= 0;
 		children		= new ArrayList<LayoutClient>();
 		scrollPos		= new BindablePoint();
 		minScrollXPos	= minScrollYPos = 0;
@@ -92,14 +91,23 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	
 	override public function dispose ()
 	{
+		super.dispose();
+		if (algorithm != null) {
+			algorithm.dispose();
+			(untyped this).algorithm = null;
+		}
 		scrollPos.dispose();
 		children.dispose();
 		children	= null;
-		algorithm	= null;
 		scrollPos	= null;
-		super.dispose();
 	}
 	
+	
+	@:keep public inline function attach (target:LayoutClient, depth:Int = -1) : LayoutContainer
+	{
+		children.add( target, depth );
+		return this;
+	}
 	
 	
 	
@@ -132,7 +140,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	private inline function checkIfChildGetsPercentageWidth (child:LayoutClient, widthToUse:Int) : Bool
 	{
 		return (
-					changes.has( Flags.WIDTH ) || child.changes.has( Flags.PERCENT_WIDTH ) //|| child.width.notSet()
+					changes.has( Flags.WIDTH | Flags.LIST ) || child.changes.has( Flags.PERCENT_WIDTH ) //|| child.width.notSet()
 					||	( child.is(IAdvancedLayoutClient) && child.as(IAdvancedLayoutClient).explicitWidth.notSet() )
 				)
 				&& child.percentWidth.isSet()
@@ -144,7 +152,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	private inline function checkIfChildGetsPercentageHeight (child:LayoutClient, heightToUse:Int) : Bool
 	{
 		return (
-						changes.has( Flags.HEIGHT ) || child.changes.has( Flags.PERCENT_HEIGHT ) //|| child.height.notSet()
+						changes.has( Flags.HEIGHT | Flags.LIST ) || child.changes.has( Flags.PERCENT_HEIGHT ) //|| child.height.notSet()
 						||	( child.is(IAdvancedLayoutClient) && child.as(IAdvancedLayoutClient).explicitHeight.notSet() )
 				)
 				&& child.percentHeight.isSet()
@@ -187,7 +195,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			//measure children with explicitWidth and no percentage size
 			else if (checkIfChildGetsPercentageWidth(child, width)) {
 				child.outerBounds.width = (width * child.percentWidth).roundFloat();
-#if debug		Assert.that( (width * child.percentWidth) > 0, "invalid width: "+(width * child.percentWidth)+"; groupWidth: "+width+"; child.percentWidth: "+child.percentWidth ); #end
+//T#if debug		Assert.that( (width * child.percentWidth) > 0, "invalid width: "+(width * child.percentWidth)+"; groupWidth: "+width+"; child.percentWidth: "+child.percentWidth ); #end
 			}
 			
 			
@@ -205,7 +213,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			
 			for (i in 0...fillingChildren.length)
 			{
-				var child = fillingChildren[ i ];
+				var child = fillingChildren[i];
 				child.outerBounds.width = sizePerChild;
 				child.validateHorizontal();
 			}
@@ -232,7 +240,6 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (algorithm != null)
 			algorithm.prepareValidate();
 		
-		
 		for (i in 0...children.length)
 		{
 			var child = children.getItemAt(i);
@@ -250,7 +257,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			
 			else if (checkIfChildGetsPercentageHeight(child, height)) {
 				child.outerBounds.height = (height * child.percentHeight).roundFloat();
-#if debug		Assert.that( child.outerBounds.height > 0, "invalid height: "+child.outerBounds.height+"; groupHeight: "+height+"; child.percentHeight: "+child.percentHeight ); #end
+//#if debug		Assert.that( child.outerBounds.height > 0, child+"; invalid height: "+child.outerBounds.height+"; groupHeight: "+height+"; child.percentHeight: "+child.percentHeight+"; height bounds: "+child.heightValidator ); #end
 			}
 			
 			//measure children
@@ -399,10 +406,10 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	// ISCROLLABLE LAYOUT IMPLEMENTATION
 	//
 	
-	public inline function horScrollable ()							{ return width.isSet()  && measuredWidth.isSet()  && measuredWidth  > width; }
-	public inline function verScrollable ()							{ return height.isSet() && measuredHeight.isSet() && measuredHeight > height; }
-	public inline function getScrollableWidth ()					{ return measuredWidth  - width; }
-	public inline function getScrollableHeight ()					{ return measuredHeight - height; }
+	public  inline function horScrollable ()						{ return width.isSet()  && measuredWidth.isSet()  && measuredWidth  > width; }
+	public  inline function verScrollable ()						{ return height.isSet() && measuredHeight.isSet() && measuredHeight > height; }
+	private inline function getScrollableWidth ()					{ return measuredWidth  - width; }
+	private inline function getScrollableHeight ()					{ return measuredHeight - height; }
 	
 	private inline function setMinScrollXPos (v:Int)				{ return minScrollXPos = v <= 0 ? v : 0; }
 	private inline function setMinScrollYPos (v:Int)				{ return minScrollYPos = v <= 0 ? v : 0; }
@@ -417,6 +424,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	
 	public function scrollTo (child:ILayoutClient)
 	{
+	 // trace(child.outerBounds);
 		var c = child.outerBounds;
 		if (horScrollable())
 		{
@@ -438,44 +446,137 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	}
 	
 	
+	public inline function scrollToDepth( index:Int )
+	{
+	//  trace("depth: "+index+"; fixedStart: "+fixedChildStart+"; length: "+children.length);
+	    if (index >= fixedChildStart && index < (fixedChildStart + children.length))
+	        scrollTo( children.getItemAt( index - fixedChildStart ) );
+	    else
+		    algorithm.scrollToDepth(index);
+	}
+	
 	
 	//
 	// EVENT HANDLERS
 	//
 	
+	private function algorithmChangedHandler ()	{ invalidate( Flags.ALGORITHM ); }
+	
+	
+	//
+	// CHILDREN
+	//
+	
+	public var children			(default, null) : IEditableList<LayoutClient>;
+	
+	/**
+	 * Property with the actual length of the children list. Use this property
+	 * instead of 'children.length' when an algorithm is calculating the 
+	 * measured size, since the property can also be set fixed and thus have a 
+	 * different number then children.length.
+	 * 
+	 * When applying an algorithm you should still use children.length since 
+	 * the algorithm will only be applied on the actual children in the list.
+	 * 
+	 * @see LayoutContainer.setFixedLength
+	 */
+	public var childrenLength		(default, null)					: Int;
+	public var fixedChildStart		(default, default)				: Int;
+	public var invisibleBefore		(default, setInvisibleBefore)	: Int;
+	public var invisibleAfter		(default, setInvisibleAfter)	: Int;
+	
+	/**
+	 * Indicated wether the length of the children is fake d or not.
+	 * 
+	 * Layout-algorithms will only honor this property if the childWidth and 
+	 * childHeight also have been set, otherwise it's impossible to calculate
+	 * what the measured size of the container should be.
+	 */
+	public var fixedLength			(default, null)					: Bool;
+	
+	
 	private function childrenChangeHandler ( change:ListChange <LayoutClient> ) : Void
 	{
-	//	trace(this+".childrenChangeHandler "+change);
-		var shouldInvalidate = true;
-		
 		switch (change)
 		{
 			case added( child, newPos ):
 				child.parent = this;
-				//check first if the bound properties are zero. If they are not, they can have been set by a tile-container
-				if (child.outerBounds.left == 0)	child.outerBounds.left	= padding.left;
-				if (child.outerBounds.top == 0)		child.outerBounds.top	= padding.top;
+				if (child.includeInLayout) {
+					//check first if the bound properties are zero. If they are not, they can have been set by a tile-container
+					if (child.outerBounds.left == 0)	child.outerBounds.left	= padding.left;
+					if (child.outerBounds.top == 0)		child.outerBounds.top	= padding.top;
+					invalidate( Flags.LIST );
+				}
 				child.listeners.add(this);
-				shouldInvalidate = child.includeInLayout;
+				
+				if (!fixedLength)
+					childrenLength++;
 			
 			
 			case removed( child, oldPos ):
 				child.parent = null;
 				child.listeners.remove(this);
-				shouldInvalidate = child.includeInLayout;
 				
 				//reset boundary properties without validating
 				child.outerBounds.left	= 0;
 				child.outerBounds.top	= 0;
 				child.changes			= 0;
+				
+				if (!fixedLength)			childrenLength--;
+				if (child.includeInLayout)	invalidate( Flags.LIST );
 			
-			default:
+			
+			case moved(child, newPos, oldPos):
+				if (child.includeInLayout)	
+					invalidate( Flags.LIST );
+				
+			case reset:
+				invalidate( Flags.LIST );
 		}
-		
-		if (shouldInvalidate)
+	}
+
+
+
+	
+	
+	public inline function setFixedChildLength (length:Int)
+	{
+		fixedLength = true;
+		if (childrenLength != length) {
+			childrenLength = length;
 			invalidate( Flags.LIST );
+		}
 	}
 	
 	
-	private function algorithmChangedHandler ()	{ invalidate( Flags.ALGORITHM ); }
+	public inline function unsetFixedChildLength ()
+	{
+		fixedLength = false;
+		if (childrenLength != children.length) {
+			childrenLength = children.length;
+			invalidate( Flags.LIST );
+		}
+	}
+
+
+	private inline function setInvisibleBefore (v:Int)
+	{
+		if (v != invisibleBefore)
+		{
+			invisibleBefore = v;
+			invalidate(Flags.LIST);
+		}
+		return v;
+	}
+
+
+	private inline function setInvisibleAfter (v:Int)
+	{
+		if (v != invisibleAfter)
+		{
+			invisibleAfter = v;
+			invalidate(Flags.LIST);
+		}
+		return v;
+	}
 }

@@ -20,21 +20,20 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ rubenw.nl>
+ *  Ruben Weijers   <ruben @ rubenw.nl>
  */
-package primevc.mvc;
+package primevc.gui.display;
+
 
 
 /**
- * Interface 'tag' to mark a class as a States collection.
- * 
  * @author Ruben Weijers
- * @creation-date May 10, 2011
+ * @creation-date Jun 06, 2011
  */
-interface IStates implements primevc.core.traits.IDisposable
-{
-}
+typedef BitmapData = #if flash9  flash.display.BitmapData;
+                    #elseif js      Dynamic;
+                    #else           Dynamic; #end

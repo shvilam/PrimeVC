@@ -27,6 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.styling;
+#if flash9
+ import flash.text.Font;
+#end
  import primevc.gui.components.ITextArea;
  import primevc.gui.styling.StyleCollectionBase;
  import primevc.gui.text.FontStyle;
@@ -40,6 +43,7 @@ package primevc.gui.styling;
   using primevc.utils.BitUtil;
   using primevc.utils.Color;
   using primevc.utils.TypeUtil;
+  using Type;
 
 
 private typedef Flags = TextStyleFlags;
@@ -50,6 +54,11 @@ private typedef Flags = TextStyleFlags;
  */
 class TextStyleCollection extends StyleCollectionBase < TextStyle >
 {
+#if flash9
+	private static var embeddedFonts = new Hash<Font>();
+#end
+
+
 	public function new (elementStyle:IUIElementStyle)			{ super( elementStyle, StyleFlags.FONT ); }
 	override public function forwardIterator ()					{ return cast new TextStyleCollectionForwardIterator( elementStyle, propertyTypeFlag); }
 	override public function reversedIterator ()				{ return cast new TextStyleCollectionReversedIterator( elementStyle, propertyTypeFlag); }
@@ -106,7 +115,6 @@ class TextStyleCollection extends StyleCollectionBase < TextStyle >
 		if (propsToSet.has( Flags.ALIGN ))			textFormat.align			= empty ? TextAlign.LEFT		: styleObj.align;
 		if (propsToSet.has( Flags.COLOR ))			textFormat.color			= empty ? 0x00					: styleObj.color.rgb();
 		if (propsToSet.has( Flags.DECORATION ))		textFormat.underline		= empty ? false					: styleObj.decoration == TextDecoration.underline;
-		if (propsToSet.has( Flags.FAMILY ))			textFormat.font				= empty ? "Times New Roman"		: styleObj.family;
 		if (propsToSet.has( Flags.INDENT ))			textFormat.indent			= empty ? 0						: styleObj.indent;
 		if (propsToSet.has( Flags.LETTER_SPACING ))	textFormat.letterSpacing	= empty ? 0						: styleObj.letterSpacing;
 		if (propsToSet.has( Flags.SIZE ))			textFormat.size				= empty ? 12					: styleObj.size;
@@ -115,6 +123,14 @@ class TextStyleCollection extends StyleCollectionBase < TextStyle >
 		
 		if (propsToSet.has( Flags.TRANSFORM ))		textFormat.transform		= empty ? TextTransform.none	: styleObj.transform;
 		if (propsToSet.has( Flags.TEXTWRAP ))		target.wordWrap				= empty ? false					: styleObj.textWrap;
+
+		if (propsToSet.hasAll( Flags.FAMILY | Flags.EMBEDDED ) && !empty && styleObj.embeddedFont)
+		{
+			textFormat.font		= getEmbeddedFont(styleObj.family);
+			target.embedFonts 	= true;
+		}
+		else if (propsToSet.has( Flags.FAMILY ))	textFormat.font				= empty ? "Times New Roman"		: styleObj.family;
+		else if (propsToSet.has( Flags.EMBEDDED ))	target.embedFonts			= empty ? false					: styleObj.embeddedFont;
 		
 		if (propsToSet.has( Flags.COLUMN_PROPERTIES ) && elementStyle.target.is(ITextArea))
 		{
@@ -123,6 +139,21 @@ class TextStyleCollection extends StyleCollectionBase < TextStyle >
 			if (propsToSet.has( Flags.COLUMN_GAP ))		textArea.columnGap		= empty ? Number.INT_NOT_SET : styleObj.columnGap;
 			if (propsToSet.has( Flags.COLUMN_WIDTH ))	textArea.columnWidth	= empty ? Number.INT_NOT_SET : styleObj.columnWidth;
 		}
+	}
+
+
+	private inline function getEmbeddedFont(family:String) : String
+	{
+		var font:Font = null;
+		if (embeddedFonts.exists(family))
+			font = embeddedFonts.get(family);
+		else {
+			font = family.resolveClass().createInstance([]);
+			embeddedFonts.set(family, font);
+		}
+
+		return font.fontName;
+			
 	}
 #end
 }

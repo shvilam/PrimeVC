@@ -34,6 +34,7 @@ package primevc.gui.managers;
  import primevc.gui.core.UIComponent;
  import primevc.gui.core.UIWindow;
   using primevc.utils.Bind;
+  using Std;
 
 
 /**
@@ -108,9 +109,11 @@ class ToolTipManager implements IDisposable
 			
 			//move tooltip to right position
 			updatePosition();
+			toolTip.layout.x = toolTip.x.int();
+			toolTip.layout.y = toolTip.y.int(); // - toolTip.height - 5;
 			
 			if (!isVisible())
-				window.children.add( toolTip );
+				toolTip.attachDisplayTo(window);
 		}
 		
 		lastObj		= obj;
@@ -136,7 +139,7 @@ class ToolTipManager implements IDisposable
 		lastLabel	= null;
 		
 		if (isVisible())
-			window.children.remove( toolTip );
+			toolTip.detachDisplay();
 	}
 	
 	
@@ -192,7 +195,6 @@ class ToolTipManager implements IDisposable
 		
 		toolTip.x = newX;
 		toolTip.y = newY; // - toolTip.height - 5;
-	//	trace(newX+", "+newY);
 	}
 	
 	

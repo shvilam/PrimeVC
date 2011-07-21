@@ -53,24 +53,24 @@ class Assert
 	
 	
 	static inline public function abstract	(msg:String = "", ?pos:haxe.PosInfos)								{ #if debug	sendError("Abstract method", msg, pos); #end }
-	static inline public function that		(expr:Bool, msg:String = "", ?pos:haxe.PosInfos)					{ #if debug if (!expr)			sendError(expr+" == false", msg, pos); #end }
-	static inline public function notThat	(expr:Bool, msg:String = "", ?pos:haxe.PosInfos)					{ #if debug if (expr)			sendError(expr+" == true", msg, pos); #end }
-	static inline public function equal		(var1:Dynamic, var2:Dynamic, msg:String = "", ?pos:haxe.PosInfos)	{ #if debug if (var1 != var2)	sendError(var1+" != "+var2, msg, pos); #end }
-	static inline public function notEqual	(var1:Dynamic, var2:Dynamic, msg:String = "", ?pos:haxe.PosInfos) 	{ #if debug	if (var1 == var2)	sendError(var1+" == "+var2, msg, pos); #end }
-	static inline public function null		(var1:Dynamic, msg:String = "", ?pos:haxe.PosInfos)					{ #if debug if (var1 != null)	sendError(var1+" != null", msg, pos); #end }
-	static inline public function notNull	(var1:Dynamic, msg:String = "", ?pos:haxe.PosInfos)					{ #if debug	if (var1 == null)	sendError(var1+" == null", msg, pos); #end }
+	static inline public function that		(expr:Bool, msg:Dynamic = "", ?pos:haxe.PosInfos)					{ #if debug if (!expr)			sendError(expr+" == false", msg, pos); #end }
+	static inline public function notThat	(expr:Bool, msg:Dynamic = "", ?pos:haxe.PosInfos)					{ #if debug if (expr)			sendError(expr+" == true", msg, pos); #end }
+	static inline public function equal		(var1:Dynamic, var2:Dynamic, msg:Dynamic = "", ?pos:haxe.PosInfos)	{ #if debug if (var1 != var2)	sendError(var1+" != "+var2, msg, pos); #end }
+	static inline public function notEqual	(var1:Dynamic, var2:Dynamic, msg:Dynamic = "", ?pos:haxe.PosInfos) 	{ #if debug	if (var1 == var2)	sendError(var1+" == "+var2, msg, pos); #end }
+	static inline public function null		(var1:Dynamic, msg:Dynamic = "", ?pos:haxe.PosInfos)				{ #if debug if (var1 != null)	sendError(var1+" != null", msg, pos); #end }
+	static inline public function notNull	(var1:Dynamic, msg:Dynamic = "", ?pos:haxe.PosInfos)				{ #if debug	if (var1 == null)	sendError(var1+" == null", msg, pos); #end }
 	
 	
-	static inline private function sendError (error:String, msg:String, pos:haxe.PosInfos)
+	static inline private function sendError (error:String, msg:Dynamic, pos:haxe.PosInfos)
 	{
 #if debug
 		var className = pos.className.split(".").pop();
-		msg = className + "." + pos.methodName + "()::" + pos.lineNumber + ": "+error + "; msg: " + msg;
-		trace(msg);
+		var s = className + "." + pos.methodName + "()::" + pos.lineNumber + ": "+error + "; msg: " + Std.string(msg);
+		trace(s);
 	#if flash9
-		throw new Error( msg );
+		throw new Error(s);
 	#else
-		throw msg;
+		throw s;
 	#end
 #end
 	}

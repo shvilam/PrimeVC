@@ -36,6 +36,7 @@ package primevc.gui.behaviours.drag;
  import primevc.gui.input.Mouse;
  import primevc.gui.traits.ILayoutable;
   using primevc.utils.Bind;
+  using primevc.utils.RectangleUtil;
   using primevc.utils.TypeUtil;
 
 /**

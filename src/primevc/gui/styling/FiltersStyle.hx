@@ -67,16 +67,25 @@ class FiltersStyle extends StyleSubBlock
 	
 	
 	
-	public function new (newType:FilterCollectionType, shadow:BitmapFilter = null, bevel:BitmapFilter = null, blur:BitmapFilter = null, glow:BitmapFilter = null, gradientBevel:BitmapFilter = null, gradientGlow:BitmapFilter = null)
+	public function new (
+		filledProps	: Int				= 0,
+		newType:FilterCollectionType	= null, 
+		shadow:BitmapFilter				= null, 
+		bevel:BitmapFilter				= null, 
+		blur:BitmapFilter				= null, 
+		glow:BitmapFilter				= null, 
+		gradientBevel:BitmapFilter		= null, 
+		gradientGlow:BitmapFilter		= null
+	)
 	{
-		super();
-		this.type			= newType;
-		this.shadow 		= shadow;
-		this.bevel			= bevel;
-		this.blur			= blur;
-		this.glow			= glow;
-		this.gradientBevel	= gradientBevel;
-		this.gradientGlow	= gradientGlow;
+		super(filledProps);
+		type = newType;
+		#if flash9 this._shadow		    #else this.shadow 		    #end = shadow;
+		#if flash9 this._bevel			#else this.bevel			#end = bevel;
+		#if flash9 this._blur			#else this.blur			    #end = blur;
+		#if flash9 this._glow			#else this.glow			    #end = glow;
+		#if flash9 this._gradientBevel	#else this.gradientBevel	#end = gradientBevel;
+		#if flash9 this._gradientGlow	#else this.gradientGlow	    #end = gradientGlow;
 	}
 	
 	
@@ -340,7 +349,7 @@ class FiltersStyle extends StyleSubBlock
 	override public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())
-			code.construct( this, [ type, _shadow, _bevel, _blur, _glow, _gradientBevel, _gradientGlow ] );
+			code.construct( this, [ filledProperties, type, _shadow, _bevel, _blur, _glow, _gradientBevel, _gradientGlow ] );
 	}
 	
 	override public function cleanUp () {}

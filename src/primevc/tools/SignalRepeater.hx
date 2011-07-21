@@ -30,6 +30,7 @@ package primevc.tools;
  import primevc.core.dispatcher.Notifier;
  import primevc.core.dispatcher.Observable;
  import primevc.core.dispatcher.Wire;
+ import primevc.core.traits.IDisablable
  import primevc.core.traits.IDisposable;
   using primevc.utils.Bind;
   using Reflect;
@@ -47,7 +48,7 @@ private typedef SignalType <T>	= {
  * @author Ruben Weijers
  * @creation-date Dec 08, 2010
  */
-class SignalRepeater <FunctionSig> implements IDisposable
+class SignalRepeater <FunctionSig> implements IDisposable, implements IDisablable
 {
 	private var timer			: haxe.Timer;
 	private var startBinding	: Wire<Dynamic>;

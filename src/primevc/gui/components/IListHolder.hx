@@ -27,7 +27,6 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
- import primevc.core.Bindable;
  import primevc.gui.core.IUIContainer;
 
 
@@ -38,5 +37,4 @@ package primevc.gui.components;
 interface IListHolder <ListDataType> implements IUIContainer
 {
 	public var list				(default, null)	: ListView<ListDataType>;
-	public var selectedIndex	(default, null)	: Bindable<Int>;
 }

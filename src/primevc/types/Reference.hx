@@ -29,15 +29,16 @@
 package primevc.types;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
+ import primevc.tools.generator.ValueType;
 #end
- import primevc.types.ClassInstanceFactory;
+ import primevc.types.Factory;
 
 
 enum Reference {
-	func			(name:String, cssValue:String);							//function reference
-	objInstance		(obj:ClassInstanceFactory<Dynamic>, cssValue:String);	//reference to a class-object that will be instantiated
-	classInstance	(name:String, cssValue:String);							//reference to a classname that will be instantiated
-	className		(name:String, cssValue:String);							//reference to a class in string form
+	func			(name:String, cssValue:String);						//function reference
+	objInstance		(obj:Factory<Dynamic>);								//reference to a class-object that will be instantiated
+	classInstance	(name:String, p:Array<Dynamic>, cssValue:String);	//reference to a classname that will be instantiated
+	className		(name:String, cssValue:String);						//reference to a class in string form
 }
 
 
@@ -48,20 +49,20 @@ class ReferenceUtil
 	{
 		return switch (ref) {
 			case className (name, css):			css != null ? css : "Class( " + name + " )";
-			case objInstance (factory, css):	css != null ? css : factory.toCSS();
-			case classInstance (name, css):		css != null ? css : name;
+			case objInstance (factory):			factory.toCSS();
+			case classInstance (name, p, css):	css != null ? css : name;
 			case func (name, css):				css != null ? css : "unkown-function";
 		}
 	}
 	
 	
-	public static inline function toCode (ref:Reference, code:ICodeGenerator) : String
+	public static inline function toCode (ref:Reference, code:ICodeGenerator) : ValueType
 	{
-		return switch (ref) {
-			case className ( name, css ):		name;
-			case objInstance ( factory, css ):	code.createClassConstructor( factory.classRef, factory.params );
-			case classInstance ( name, css ):	code.createClassNameConstructor( name, null );
-			case func ( name, css ):			name;
+		switch (ref) {
+			case className ( name, css ):			return tClass(name);
+			case objInstance ( factory ):			return code.getObject(factory); //code.construct( factory ); return code.varName(factory); //code.createClassConstructor( factory.classRef, factory.params );
+			case classInstance ( name, p, css ):	return code.createClassNameConstructor( name, p );
+			case func ( name, css ):				return tFunction(name);
 		}
 	}
 }

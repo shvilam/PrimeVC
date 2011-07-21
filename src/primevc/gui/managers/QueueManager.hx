@@ -149,7 +149,7 @@ class QueueManager implements IDisposable, implements IValidatable
 			obj.prevValidatable = null;
 		
 		if (obj == first)	first = obj.nextValidatable;
-		if (obj == last)	last = obj.prevValidatable;
+		if (obj == last)	last = obj .prevValidatable;
 		
 		if (obj.prevValidatable != null)	obj.prevValidatable.nextValidatable = obj.nextValidatable;
 		if (obj.nextValidatable != null)	obj.nextValidatable.prevValidatable = obj.prevValidatable;
