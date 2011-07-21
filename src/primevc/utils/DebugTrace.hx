@@ -21,7 +21,7 @@ package primevc.utils;
 class DebugTrace
 {
 #if (flash9 && debug)
-	private static inline function getClassName (infos : haxe.PosInfos) : String
+	public static inline function getClassName (infos : haxe.PosInfos) : String
 	{
 		return infos.className.split(".").pop(); //infos.fileName;
 	}

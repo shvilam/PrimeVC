@@ -20,24 +20,20 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers   <ruben @ rubenw.nl>
  */
-package primevc.mvc.core;
+package primevc.gui.display;
+
 
 
 /**
  * @author Ruben Weijers
- * @creation-date Nov 15, 2010
+ * @creation-date Jun 06, 2011
  */
-interface IView implements primevc.core.traits.IDisposable
-{
-	/**
-	 * Method in which all the mediators should be created. Constructor is only
-	 * meant to make the object exist
-	 */
-	public function init () : Void;
-}
+typedef BitmapData = #if flash9  flash.display.BitmapData;
+                    #elseif js      Dynamic;
+                    #else           Dynamic; #end

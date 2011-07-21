@@ -1,7 +1,7 @@
 package sample;
 
 
-import primevc.mvc.core.Facade;
+import primevc.mvc.Facade;
 
 
 /**

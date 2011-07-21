@@ -27,7 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
+ import primevc.core.dispatcher.Wire;
  import primevc.core.Bindable;
+ 
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
@@ -112,8 +114,11 @@ class UIGraphic extends VectorShape
 
 	override public function dispose ()
 	{
-		if (state == null)
+		if (isDisposed())
 			return;
+		
+		if (container != null)			detachDisplay();
+		if (layout.parent != null)		detachLayout();
 		
 		//Change the state to disposed before the behaviours are removed.
 		//This way a behaviour is still able to respond to the disposed
@@ -177,15 +182,19 @@ class UIGraphic extends VectorShape
 	// ATTACH METHODS
 	//
 	
-	public inline function attachLayoutTo	(t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ t.children.add( layout, pos );										return this; }
-	public inline function detachLayout		()									: IUIElement	{ layout.parent.children.remove( layout );								return this; }
-	public inline function attachTo			(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachDisplayTo(t, pos);	return this; }
-	public inline function detach			()									: IUIElement	{ detachDisplay();							detachLayout();				return this; }
+	public inline function attachLayoutTo	(t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ t.children.add( layout, pos );											return this; }
+	public inline function detachLayout		()									: IUIElement	{ layout.parent.children.remove( layout );									return this; }
+	public inline function attachTo			(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachDisplayTo(t, pos);		return this; }
+	public inline function detach			()									: IUIElement	{ detachDisplay();							detachLayout();					return this; }
+	public inline function changeLayoutDepth(pos:Int)							: IUIElement	{ layout.parent.children.move( layout, pos );								return this; }
+	public inline function changeDepth		(pos:Int)							: IUIElement	{ changeLayoutDepth(pos);					changeDisplayDepth(pos);		return this; }
 	
 	
 	//
 	// IPROPERTY-VALIDATOR METHODS
 	//
+	
+	private var validateWire : Wire<Dynamic>;
 	
 	public function invalidate (change:Int)
 	{
@@ -194,14 +203,18 @@ class UIGraphic extends VectorShape
 			changes = changes.set( change );
 			
 			if (changes == change && isInitialized())
-				if (system != null)		system.invalidation.add(this);
-				else					validate.onceOn( displayEvents.addedToStage, this );
+				if      (system != null)		system.invalidation.add(this);
+				else if (validateWire != null)	validateWire.enable();
+				else                            validateWire = validate.on( displayEvents.addedToStage, this );
 		}
 	}
 	
 	
 	public function validate ()
 	{
+	    if (validateWire != null)
+	        validateWire.disable();
+        
 		changes = 0;
 	}
 	
@@ -266,7 +279,7 @@ class UIGraphic extends VectorShape
 	// ABSTRACT METHODS
 	//
 	
-	private function createBehaviours ()	: Void; //	{ Assert.abstract(); }
+	private function createBehaviours ()	: Void		{} //	{ Assert.abstract(); }
 	
 	
 #if debug

@@ -114,11 +114,38 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 		return (changes.has( LayoutFlags.WIDTH * group.childWidth.notSet().boolCalc() )) || ( vertical != null && changes.has( LayoutFlags.HEIGHT ) );
 	}
 
-
-	public inline function validateVertical ()
+	
+	
+	override public function prepareValidate ()
 	{
+		if (!validatePrepared)
+		{
+			var height:Int = group.childHeight;
+		
+			if (group.childHeight.notSet())
+			{
+				height = 0;
+				for (child in group.children) {
+					if (!child.hasValidatedHeight)
+						return;
+					
+					if (child.includeInLayout && child.outerBounds.height > height)
+						height = child.outerBounds.height;
+				}
+			}
+			setGroupHeight(height);
+			validatePrepared = height > 0;
+		}
+	}
+	
+	
+	public function validateVertical ()
+	{
+		if (validatePrepared)
+			return;
+		
 		var height:Int = group.childHeight;
-
+		
 		if (group.childHeight.notSet())
 		{
 			height = 0;
@@ -127,6 +154,7 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 					height = child.outerBounds.height;
 		}
 		setGroupHeight(height);
+		validatePrepared = height > 0;
 	}
 
 
@@ -163,6 +191,9 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 		if (group.children.length > 0)
 		{
 			var start = getTopStartValue();
+#if debug	Assert.that(start > -1000); 
+			Assert.that(group.height.isSet() && group.height > -1 && group.height < 10000, "uhuh: "+group.height+" - "+group.height.isSet()+" - "+(group.height > -1)+" - "+(group.height < 10000));
+#end
 			if (group.childHeight.notSet())
 			{	
 				for (child in group.children) {

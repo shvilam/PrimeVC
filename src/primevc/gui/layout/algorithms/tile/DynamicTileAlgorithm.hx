@@ -168,9 +168,12 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	private inline function removeTileContainer (tileGroup:TileContainer)
 	{
-		tileCollection.removeList( cast tileGroup.children );
-		tileGroups.children.remove( tileGroup );
-		tileGroup.dispose();
+		if (tileGroups.children.length > 1)
+		{
+			tileCollection.removeList( cast tileGroup.children );
+			tileGroups.children.remove( tileGroup );
+			tileGroup.dispose();
+		}
 	}
 	
 	
@@ -380,7 +383,6 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 				childAlgorithm = new DynamicRowAlgorithm( horizontalDirection );//, verticalDirection );
 			else
 				childAlgorithm = new DynamicColumnAlgorithm( verticalDirection );//, horizontalDirection );
-			
 			invalidate( true );
 		}
 		return v;
@@ -527,6 +529,7 @@ private class DynamicColumnAlgorithm extends VerticalFloatAlgorithm
 	//	if (children.length < 2)
 	//		return;
 		
+untyped	trace(children.length + "; "+group.readChanges());
 		if ( group.changes.hasNone(Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.HEIGHT | Flags.HEIGHT_CONSTRAINTS ) )
 			return;
 		

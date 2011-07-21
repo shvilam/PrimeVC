@@ -20,18 +20,50 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
 package primevc.mvc;
+  using primevc.utils.BitUtil;
+
 
 
 /**
- * Interface 'tag' to mark a class as a Mediator.
+ * Base class for mediator and controllers
+ * 
+ * @author Ruben Weijers
+ * @creation-date Nov 16, 2010
  */
-interface IMediator implements primevc.core.traits.IDisposable
+class MVCActor <FacadeDef> extends MVCNotifier, implements IMVCActor
 {
+	//TODO: Ask Nicolas why you can't have typedefs as type constraint parameters...
+	@manual private var f : FacadeDef;
+	
+	
+	public function new (facade:FacadeDef, enabled = true)
+	{
+		this.f = facade;
+		super(enabled);
+	}
+	
+	
+	override public function dispose ()
+	{
+		if (isDisposed())
+			return;
+		
+		if (isListening())
+			stopListening();
+		
+		f = null;
+		super.dispose();
+	}
+	
+	
+	public function startListening () : Void		{ state = state.set( MVCFlags.LISTENING ); }
+	public function stopListening () : Void			{ state = state.unset( MVCFlags.LISTENING ); }
+	public inline function isListening () : Bool	{ return state.has( MVCFlags.LISTENING ); }
 }

@@ -113,9 +113,35 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 		return (changes.has( LayoutFlags.HEIGHT ) && group.childHeight.notSet()) || ( horizontal != null && changes.has( LayoutFlags.WIDTH ) );
 	}
 
-
-	public inline function validateHorizontal ()
+	
+	override public function prepareValidate ()
 	{
+		if (!validatePrepared)
+		{
+			var width:Int = group.childWidth;
+		
+			if (group.childWidth.notSet())
+			{
+				width = 0;
+				for (child in group.children) {
+					if (!child.hasValidatedWidth)
+						return;
+					
+					if (child.includeInLayout && child.outerBounds.width > width)
+						width = child.outerBounds.width;
+				}
+			}
+			setGroupWidth(width);
+			validatePrepared = width > 0;
+		}
+	}
+	
+	
+	public function validateHorizontal ()
+	{
+		if (validatePrepared)
+			return;
+		
 		var width:Int = group.childWidth;
 		
 		if (group.childWidth.notSet())
@@ -126,6 +152,7 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 					width = child.outerBounds.width;
 		}
 		setGroupWidth(width);
+		validatePrepared = width > 0;
 	}
 
 
@@ -157,7 +184,7 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 	}
 	
 	
-	private  function applyHorizontalCenter ()
+	private inline function applyHorizontalCenter ()
 	{
 		if (group.children.length > 0)
 		{

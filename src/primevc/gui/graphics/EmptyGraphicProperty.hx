@@ -35,6 +35,8 @@ package primevc.gui.graphics;
 
 
 /**
+ * FIXME, find a better solution to do this.
+ * 
  * @author Ruben Weijers
  * @creation-date Mar 14, 2011
  */

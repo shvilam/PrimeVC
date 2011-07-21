@@ -35,7 +35,7 @@ package primevc.gui.effects;
  * @author Ruben Weijers
  * @creation-date Oct 04, 2010
  */
-class EffectFlags
+extern class EffectFlags
 {
 	public static inline var ALL_PROPERTIES		= MOVE | RESIZE | ROTATE | SCALE | SHOW | HIDE;
 	                                            
@@ -54,7 +54,7 @@ class EffectFlags
 	
 
 #if debug
-	public static function readProperties (flags:Int) : String
+	public static inline function readProperties (flags:Int) : String
 	{
 		var output	= [];
 		

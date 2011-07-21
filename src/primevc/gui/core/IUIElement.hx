@@ -107,6 +107,9 @@ interface IUIElement
 	 */
 	public function detach			()										: IUIElement;
 	
+	public function changeLayoutDepth(newPos:Int)							: IUIElement;
+	public function changeDepth		(newPos:Int)							: IUIElement;
+	
 	
 	
 	//

@@ -20,27 +20,32 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.gui.components;
- import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
- import primevc.gui.core.UIContainer;
+package primevc.mvc.events;
+ import primevc.core.dispatcher.Signals;
+ import primevc.core.dispatcher.Signal1;
 
 
 /**
- * Base class for the main-application container.
- * 
+ * Defines 2 events to open or close something
  * @author Ruben Weijers
- * @creation-date Oct 29, 2010
+ * @creation-date May 17, 2011
  */
-class ApplicationView extends UIContainer
+class OpenCloseEvents<DataType> extends Signals
 {
-	override private function createBehaviours ()
-	{	
-		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
+	public var open		(default, null)	: Signal1<DataType>;
+	public var close	(default, null)	: Signal1<DataType>;
+	
+	
+	public function new ()
+	{
+		super();
+		open	= new Signal1();
+		close	= new Signal1();
 	}
 }

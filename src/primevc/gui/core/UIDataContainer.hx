@@ -29,6 +29,7 @@
 package primevc.gui.core;
  import primevc.core.traits.IValueObject;
  import primevc.gui.layout.IScrollableLayout;
+ import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutContainer;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
@@ -43,15 +44,21 @@ package primevc.gui.core;
 class UIDataContainer <DataType> extends UIDataComponent <DataType>, implements IUIContainer
 /*#if flash9	, implements haxe.rtti.Generic #end*/
 {
+    public function new (id:String = null, data:DataType = null)
+    {
+        layout = new LayoutContainer();
+        super(id, data);
+    }
+    
+    
 	public var layoutContainer	(getLayoutContainer, never)		: LayoutContainer;
 	public var scrollableLayout	(getScrollableLayout, never)	: IScrollableLayout;
+	public var isScrollable										: Bool;
 	
-	private inline function getLayoutContainer () 	{ return layout.as(LayoutContainer); }
-	private inline function getScrollableLayout () 	{ return layout.as(IScrollableLayout); }
-	
-	
-	override private function createLayout () : Void
-	{
-		layout = new LayoutContainer();
-	}
+	private inline function getLayoutContainer () 										{ return layout.as(LayoutContainer); }
+	private inline function getScrollableLayout ()									 	{ return layout.as(IScrollableLayout); }
+	public  inline function attach			(child:IUIElement)			: IUIContainer	{ child.attachTo(this); return this; }
+	public  inline function changeDepthOf	(child:IUIElement, pos:Int)	: IUIContainer	{ child.changeDepth(pos); return this; }
+	public  inline function attachDisplay	(child:IUIElement)			: IUIContainer	{ children.add(child);  return this; }
+	public  inline function attachLayout	(layout:LayoutClient)		: IUIContainer	{ layoutContainer.children.add(layout); return this; }
 }

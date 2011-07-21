@@ -35,7 +35,7 @@ package primevc.utils;
  * @author Ruben Weijers
  * @creation-date Mar 08, 2011
  */
-class HashUtil
+extern class HashUtil
 {
 	public static inline function dispose<T> (hash:Hash<T>) : Void
 	{

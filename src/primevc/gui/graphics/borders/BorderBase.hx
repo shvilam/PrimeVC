@@ -191,14 +191,14 @@ class BorderBase <FillType:IGraphicProperty> extends GraphicElement, implements 
 		return v;
 	}
 	
-	
-#if neko
+
+#if (neko || debug)
 	override public function toCSS (prefix:String = "")
 	{
 		return fill + " " + weight + "px " + (innerBorder ? "inside" : "outside");
 	}
-	
-	
+#end
+#if neko
 	override public function isEmpty () : Bool
 	{
 		return fill == null;

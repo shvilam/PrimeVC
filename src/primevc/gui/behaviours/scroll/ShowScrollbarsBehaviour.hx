@@ -86,10 +86,7 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 	
 	private function addScrollBar (direction:Direction, scrollBar:ScrollBar = null)
 	{
-		var children	= target.container.children;
-		var depth		= children.indexOf( target ) + 1;
-	//	var layout		= target.layout.parent.children;
-	//	var layoutDepth	= layout.indexOf( target.layout ) + 1;
+		var depth = target.container.children.indexOf( target ) + 1;
 		
 		if (scrollBar == null)
 			scrollBar = new ScrollBar( null, target, direction );
@@ -109,8 +106,7 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 			l.invalidateHorPaddingMargin();
 		}
 		
-		
-		children.add( scrollBar, depth );
+		scrollBar.attachDisplayTo( target.container, depth );
 	//	layout.add( scrollBar.layout, layoutDepth );
 		
 		return scrollBar;
@@ -120,7 +116,8 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 	private function removeScrollBar (scrollBar:ScrollBar)
 	{
 	//	parentLayout.children.remove( scrollBar.layout );
-		target.container.children.remove( scrollBar );
+		scrollBar.detachDisplay();
+	//	target.container.children.remove( scrollBar );
 		scrollBar.target = null;
 		
 		var l = target.layout;

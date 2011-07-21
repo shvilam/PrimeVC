@@ -37,7 +37,7 @@ package primevc.utils;
  * @author Ruben Weijers
  * @creation-date Jan 13, 2011
  */
-class DateUtil
+extern class DateUtil
 {
 	public static inline function secondsToTime ( seconds:Int ) : String
 	{

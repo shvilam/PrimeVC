@@ -46,7 +46,7 @@ typedef FastArray<T> =
  * @author			Ruben Weijers
  * @author			Danny Wilson
  */
-class FastArrayUtil
+extern class FastArrayUtil
 {
 	static public inline function create<T>(?size:Int = 0, ?fixed:Bool = false) : FastArray<T>
 	{
@@ -75,7 +75,8 @@ class FastArrayUtil
 	public static inline function indexOf<T> ( list:FastArray<T>, item:T, ?startPos:Int = 0 ) : Int
 	{
 		var pos:Int = -1;
-		for (i in startPos...list.length) {
+		var l		= list.length;
+		for (i in startPos...l) {
 			if (list[i] == item) {
 				pos = i;
 				break;
@@ -88,14 +89,14 @@ class FastArrayUtil
 	
 	public static inline function insertAt<T>( list:FastArray<T>, item:T, pos:Int ) : Int
 	{
-		var newPos:Int = 0;
-		if (pos < 0 || pos == list.length.int())
+		var newPos:Int	= 0;
+		var len			= list.length.int();
+		if (pos < 0 || pos == len)
 		{
 			newPos = list.push( item ) - 1;
 		}
 		else
 		{
-			var len = list.length.int();
 			if (pos > len)
 				pos = len;
 			
@@ -179,7 +180,8 @@ class FastArrayUtil
 	
 	
 	public static inline function removeAll<T> (list:FastArray<T>) : FastArray<T> {
-		while (list.length > 0)
+		var l = list.length;
+		while (l-- > 0)
 			list.pop();
 		
 		return list;
@@ -187,7 +189,8 @@ class FastArrayUtil
 	
 	
 	public static inline function dispose<T> (list:FastArray<T>) : Void {
-		while (list.length > 0) {
+		var l = list.length;
+		while (l-- > 0) {
 			var i = list.pop();
 			if (i.is(IDisposable))
 				i.as(IDisposable).dispose();
@@ -218,8 +221,8 @@ class FastArrayUtil
 	
 	
 	/**
-	 * Duplicate will create a new fast-array where the children of the given
-	 * fast-array are also duplicated if possible
+	 * Duplicate will create a new FastArray. The content of the given
+	 * FastArray are also duplicated if possible
 	 * 
 	 * Note: Inline is needed to create a Vector with the same datatype as 
 	 * 		the original. Without 'inline', a Vector<String> will be duplicated
@@ -243,7 +246,7 @@ class FastArrayUtil
 	
 	
 #if debug
-	public static inline function asString<T>( list:FastArray<T> )
+	public static inline function asString<T>( list:FastArray<T> ) : String
 	{
 		var items:FastArray<String> = FastArrayUtil.create();
 		var i = 0;

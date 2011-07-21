@@ -32,7 +32,9 @@ package primevc.gui.core;
  import primevc.core.collections.SimpleList;
  import primevc.gui.styling.UIElementStyle;
 #end
+ import primevc.core.dispatcher.Wire;
  import primevc.core.Bindable;
+ 
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.display.TextField;
@@ -107,8 +109,11 @@ class UITextField extends TextField, implements IUIElement
 
 	override public function dispose ()
 	{
-		if (state == null)
+		if (isDisposed())
 			return;
+		
+		if (container != null)			detachDisplay();
+		if (layout.parent != null)		detachLayout();
 		
 		//Change the state to disposed before the behaviours are removed.
 		//This way a behaviour is still able to respond to the disposed
@@ -148,10 +153,12 @@ class UITextField extends TextField, implements IUIElement
 	// ATTACH METHODS
 	//
 	
-	public inline function attachLayoutTo	(t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ t.children.add( layout, pos );										return this; }
-	public inline function detachLayout		()									: IUIElement	{ layout.parent.children.remove( layout );								return this; }
-	public inline function attachTo			(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachDisplayTo(t, pos);	return this; }
-	public inline function detach			()									: IUIElement	{ detachDisplay();							detachLayout();				return this; }
+	public inline function attachLayoutTo	(t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ t.children.add( layout, pos );											return this; }
+	public inline function detachLayout		()									: IUIElement	{ layout.parent.children.remove( layout );									return this; }
+	public inline function attachTo			(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachDisplayTo(t, pos);		return this; }
+	public inline function detach			()									: IUIElement	{ detachDisplay();							detachLayout();					return this; }
+	public inline function changeLayoutDepth(pos:Int)							: IUIElement	{ layout.parent.children.move( layout, pos );								return this; }
+	public inline function changeDepth		(pos:Int)							: IUIElement	{ changeLayoutDepth(pos);					changeDisplayDepth(pos);		return this; }
 	
 
 	//
@@ -237,14 +244,15 @@ class UITextField extends TextField, implements IUIElement
 	
 	
 	
-	//
-	// IPROPERTY-VALIDATOR METHODS
-	//
-	
 	private inline function getSystem () : ISystem		{ return window.as(ISystem); }
 	public inline function isOnStage () : Bool			{ return window != null; }
 	public inline function isQueued () : Bool			{ return nextValidatable != null || prevValidatable != null; }
 	
+	//
+	// IPROPERTY-VALIDATOR METHODS
+	//
+	
+	private var validateWire : Wire<Dynamic>;
 	
 	public function invalidate (change:Int)
 	{
@@ -253,14 +261,18 @@ class UITextField extends TextField, implements IUIElement
 			changes = changes.set( change );
 			
 			if (changes == change && isInitialized())
-				if (system != null)		system.invalidation.add(this);
-				else					validate.onceOn( displayEvents.addedToStage, this );
+				if      (system != null)		system.invalidation.add(this);
+				else if (validateWire != null)	validateWire.enable();
+				else                            validateWire = validate.on( displayEvents.addedToStage, this );
 		}
 	}
 	
 	
 	public function validate ()
 	{
+	    if (validateWire != null)
+	        validateWire.disable();
+        
 		if (changes.has( UIElementFlags.TEXTSTYLE ))
 			applyTextFormat();
 		
@@ -299,7 +311,7 @@ class UITextField extends TextField, implements IUIElement
 	public inline function scale (sx:Float, sy:Float)	{ this.doScale(sx, sy); }
 	
 	
-	private function createBehaviours ()	: Void;
+	private function createBehaviours ()	: Void		{}
 	
 	
 	

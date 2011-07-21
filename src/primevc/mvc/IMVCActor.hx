@@ -20,27 +20,36 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc.core;
+package primevc.mvc;
 
 
 /**
- * A Model is a group of Proxies which manage the data-model.
- * Extend this abstract class and define proxy properties.
+ * The MVCActor is an object that can communicate messages to the MVC-application
+ * but is also able to listen to messages from the application.
  * 
- * @author Danny Wilson
- * @creation-date Jun 22, 2010
+ * @author Ruben Weijers
+ * @creation-date May 17, 2011
  */
-interface IModel implements primevc.core.traits.IDisposable
+interface IMVCActor implements IMVCNotifier 
 {
 	/**
-	 * Method in which all the proxies should be created. Constructor is only
-	 * meant to make the object exist
+	 * Method in which the actor can begin to listen to events of the MVC
 	 */
-	public function init () : Void;
+	public function startListening ()	: Void;
+	
+	/**
+	 * Method in which the actor should stop listening to messages of the MVC
+	 */
+	public function stopListening ()	: Void;
+	
+	/**
+	 * Method returning true if the actor is listening
+	 */
+	public function isListening ()		: Bool;
 }

@@ -34,7 +34,7 @@ package primevc.core;
  * @creation-date	Jun 18, 2010
  * @author			Danny Wilson
  */
-class RevertableBindableFlags
+extern class RevertableBindableFlags
 {
 	/**
 	 * When this flag is set, any (valid) value change will send
@@ -92,7 +92,7 @@ class RevertableBindableFlags
 	 *  
 	 *  otherwise, it returns false.
 	 */
-	public static inline function shouldSignal(f:Int)
+	public static inline function shouldSignal(f:Int) : Bool
 	{
 		return ((
 			 (((f & IN_EDITMODE) >> 4) ^ 1)			// if not in editmode: 1
@@ -109,7 +109,7 @@ class RevertableBindableFlags
 	 * Tests in one go if Bindings should be updated.
 	 * @see shouldSignal
 	 */
-	public static inline function shouldUpdateBindings(f:Int)
+	public static inline function shouldUpdateBindings(f:Int) : Bool
 	{
 		//return (((f & IS_VALID) >> 5)) | ((f & INVALID_CHANGES_UPDATE_BINDINGS) >> 3) & ((((f & IN_EDITMODE) >> 4) ^ 1) ^ ((f & UPDATE_BINDINGS_BEFORE_COMMIT) >> 2)) != 0;
 		return ((

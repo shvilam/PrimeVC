@@ -114,7 +114,7 @@ class ColorPicker extends UIDataComponent<RevertableBindable<RGBA>>
 		//	spectrum = Asset.createEmpty( layout.width, layout.height, false );
 		//	spectrum.draw(this);
 			spectrum = Asset.fromDisplayObject(this);
-			spectrum.getBitmapData(null, false);
+			spectrum.toBitmapData(null, false);
 		}
 	//	var l = layout.innerBounds;
 	//	var b = new BitmapDataType( l.width, l.height, false );
@@ -124,7 +124,7 @@ class ColorPicker extends UIDataComponent<RevertableBindable<RGBA>>
 	//	return b.getPixel( x.roundFloat(), y.roundFloat() ).rgbToRgba();
 	//	trace( spectrum.data.)
 		
-		return spectrum.getBitmapData().getPixel( x.roundFloat(), y.roundFloat() ).rgbToRgba();
+		return spectrum.toBitmapData().getPixel( x.roundFloat(), y.roundFloat() ).rgbToRgba();
 #end
 	}
 	

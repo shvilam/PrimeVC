@@ -36,7 +36,7 @@ package primevc.core.collections;
 
 private typedef Flags = RevertableBindableFlags;
 
-class RevertableArrayListFlags
+extern class RevertableArrayListFlags
 {
 	static public inline var REMEMBER_CHANGES = 32768;	// 0b_1000 0000 0000 0000
 }

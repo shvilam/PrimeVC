@@ -63,6 +63,9 @@ class MoveEffectInstance extends EffectInstance < IPositionable, MoveEffect >
 	 */
 	private var endY	: Float;
 	
+	private var changeX	: Bool;
+	private var changeY : Bool;
+
 	
 	
 	public function new (target:IPositionable, effect:MoveEffect)
@@ -92,29 +95,35 @@ class MoveEffectInstance extends EffectInstance < IPositionable, MoveEffect >
 	
 	override private function initStartValues ()
 	{
-		if (effect.startX.isSet())	startX	= effect.startX;
+		if (effect.startX.isSet())	startX	= target.x = effect.startX;
 		else						startX	= target.x;
-		if (effect.startY.isSet())	startY	= effect.startY;
+		if (effect.startY.isSet())	startY	= target.y = effect.startY;
 		else						startY	= target.y;
 		
 		if (endX.notSet())			endX	= effect.endX;
 		if (endY.notSet())			endY	= effect.endY;
+		
+		changeX = isXChanged();
+		changeY = isYChanged();
+		Assert.that(changeX || changeY);
+
+		target.visible = true;
 	}
 	
 
 	override private function tweenUpdater ( tweenPos:Float )
 	{
-		if (isXChanged())	target.x = target.rect.left	= (( endX * tweenPos ) + ( startX * (1 - tweenPos) )).roundFloat();
-		if (isYChanged())	target.y = target.rect.top	= (( endY * tweenPos ) + ( startY * (1 - tweenPos) )).roundFloat();
+		if (changeX)	target.x = target.rect.left	= (( endX * tweenPos ) + ( startX * (1 - tweenPos) )).roundFloat();
+		if (changeY)	target.y = target.rect.top	= (( endY * tweenPos ) + ( startY * (1 - tweenPos) )).roundFloat();
 	}
 	
 	
 	override private function calculateTweenStartPos () : Float
 	{
-		return if (!isXChanged() && !isYChanged())	1;
-		  else if (!isYChanged())					(target.x - startX) / (endX - startX);
-		  else if (!isXChanged())					(target.y - startY) / (endY - startY);
-		  else										FloatMath.min(
+		return if (!changeX && !changeY)	1;
+		  else if (!changeX)				(target.x - startX) / (endX - startX);
+		  else if (!changeY)				(target.y - startY) / (endY - startY);
+		  else								FloatMath.min(
 				(target.x - startX) / (endX - startX),
 				(target.y - startY) / (endY - startY)
 			);

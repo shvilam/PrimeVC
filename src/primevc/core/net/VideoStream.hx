@@ -146,7 +146,16 @@ class VideoStream implements IFreezable, implements IDisposable
 		cachedVolume	= Number.FLOAT_NOT_SET;
 		var curState	= streamUrl == null ? VideoStates.empty : VideoStates.stopped;
 		state			= new SimpleStateMachine<VideoStates>( VideoStates.empty, curState );
-		
+
+		changeVolume.on( volume.change, this );
+		validateURL	.on( url.change, this );
+	}
+	
+	
+	
+	private function init ()
+	{
+		Assert.that(!isInitialized());
 #if flash9
 		connection		= new NetConnection();
 		source			= new NetStream( connection );
@@ -170,9 +179,6 @@ class VideoStream implements IFreezable, implements IDisposable
 		
 	//	connection.connect( null );
 #end
-		
-		changeVolume		.on( volume.change, this );
-		validateURL			.on( url.change, this );
 	}
 	
 	
@@ -185,10 +191,13 @@ class VideoStream implements IFreezable, implements IDisposable
 		
 #if flash9
 	//	source.client = null;		//gives error "Invalid parameter flash.net::NetStream/set client()"
-		source.dispose();
-		connection.dispose();
-		connection	= null;
-		source		= null;
+		if (isInitialized())
+		{
+			source.dispose();
+			connection.dispose();
+			connection	= null;
+			source		= null;
+		}
 #end
 		if (updateTimer != null) {
 			updateTimer.stop();
@@ -213,6 +222,11 @@ class VideoStream implements IFreezable, implements IDisposable
 	}
 	
 	
+	private inline function isInitialized ()
+	{
+		return #if flash9 source != null #else false #end;
+	}
+
 	
 	
 	//
@@ -227,11 +241,9 @@ class VideoStream implements IFreezable, implements IDisposable
 	 */
 	public function play ( ?newUrl:String )
 	{
-		if (!isStopped())
-			stop();
-		
-		if (newUrl != null)
-			url.value = newUrl;
+		if (!isInitialized()) 	init();
+		if (!isStopped())		stop();
+		if (newUrl != null)		url.value = newUrl;
 		
 		trace(url.value);
 		Assert.notNull( url.value, "There is no video-url to play" );
@@ -379,6 +391,9 @@ class VideoStream implements IFreezable, implements IDisposable
 	
 	private function getCurrentTime ()
 	{
+		if (!isPlaying()) {
+			return currentTime;
+		}
 		if (updateTimer == null) {
 			updateTimer			= new Timer(200);
 			updateTimer.run		= updateTime;

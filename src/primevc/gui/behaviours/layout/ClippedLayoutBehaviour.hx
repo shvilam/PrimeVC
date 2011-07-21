@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.layout;
+ import primevc.gui.behaviours.scroll.IScrollBehaviour;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.IUIContainer;
 #if !neko
@@ -51,7 +52,7 @@ package primevc.gui.behaviours.layout;
  * @creation-date	Jun 25, 2010
  * @author			Ruben Weijers
  */
-class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
+class ClippedLayoutBehaviour extends BehaviourBase<IUIContainer>, implements IScrollBehaviour
 //#if !neko	,	implements IInvalidateListener #end
 {
 #if !neko
@@ -68,6 +69,7 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 		Assert.that(target.layoutContainer != null, "Layout of "+target+" can't be null for "+this);
 		layoutContainer		= target.layoutContainer;
 		target.scrollRect	= new Rectangle();
+		target.isScrollable	= true;
 		
 		updateScrollRect.on( layoutContainer.changed, this );
 		updateScrollX.on( layoutContainer.scrollPos.xProp.change, this );
@@ -86,6 +88,7 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 			layoutContainer.scrollPos.xProp.change.unbind( this );
 			layoutContainer.scrollPos.yProp.change.unbind( this );
 		}
+		target.isScrollable	= false;
 		target.scrollRect	= null;
 		layoutContainer		= null;
 	}

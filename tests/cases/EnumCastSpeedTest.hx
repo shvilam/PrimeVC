@@ -43,7 +43,7 @@ enum TestEnum {
 
 
 
-class TestFlags
+extern class TestFlags
 {
 	public static inline var VALUE1 : UInt = 1;
 	public static inline var VALUE2 : UInt = 2;

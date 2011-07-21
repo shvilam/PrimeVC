@@ -27,16 +27,29 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.utils;
-
+  using Std;
 
 /**
  * @author Ruben Weijers
  * @creation-date May 03, 2011
  */
-class TimerUtil
+extern class TimerUtil
 {
-	public static inline function after (method:Void -> Void, delay:Int) : Void
+#if !neko
+	public static inline function after (method:Void -> Void, delayMs:Int) : Void
 	{
-		haxe.Timer.delay( method, delay );
+		haxe.Timer.delay( method, delayMs );
+	}
+#end
+	
+	
+	public static inline function stamp () : Int
+	{
+		#if		flash	return flash.Lib.getTimer();
+		#elseif	neko	return (neko.Sys.cpuTime() * 1000).int(); //Date.now().getTime().int(); //(neko.Sys.time() * 1000).int();
+		#elseif php		return (php.Sys.time()).int();
+		#elseif js		return Date.now().getTime().int();
+		#elseif cpp		return untyped (__global__.__time_stamp() * 1000).int();
+		#else			return 0; #end
 	}
 }

@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.states;
+ import primevc.core.traits.IDisablable;
  import primevc.core.traits.IDisposable;
  import primevc.core.dispatcher.Signal2;
  import primevc.utils.FastArray;
@@ -42,7 +43,7 @@ private typedef OldState = IState;
  * @creation-date	Jun 9, 2010
  * @author			Ruben Weijers
  */
-interface IFiniteStateMachine implements haxe.rtti.Infos, implements IDisposable
+interface IFiniteStateMachine implements haxe.rtti.Infos, implements IDisposable, implements IDisablable
 {
 	//
 	// PROPERTIES
@@ -51,21 +52,21 @@ interface IFiniteStateMachine implements haxe.rtti.Infos, implements IDisposable
 	/**
 	 * Collection of states that the current statemachine can have.
 	 */
-	var states			(default, null)				: FastArray < IState >;
+//	public var states		(default, null)				: FastArray < IState >;
 	/**
 	 * Current state of the group. State must be in the <code>states</code>
 	 * list.
 	 */
-	var current			(default, setCurrent)		: IState;
+	public var current		(default, setCurrent)		: IState;
 	/**
 	 * State that will be used when there is no state set.
 	 */
-	var defaultState	(default, setDefaultState)	: IState;
+	public var defaultState	(default, setDefaultState)	: IState;
 	/**
 	 * Change dispatcher. First parameter is the new state, the second parameter
 	 * is the old state.
 	 */
-	var change			(default, null)				: Signal2 < NewState, OldState >;
+	public var change		(default, null)				: Signal2 < NewState, OldState >;
 	
 	
 	
@@ -87,29 +88,16 @@ interface IFiniteStateMachine implements haxe.rtti.Infos, implements IDisposable
 	 * Enabel the current state group. The group will be allowed to siwtch from states
 	 * again when it's enabled.
 	 */
-	function enable ()	: Void;
+//	public function enable ()									: Void;
 	
 	/**
 	 * Disable the current state group. It's not posible to switch from states when
 	 * the group is disabled.
 	 */
-	function disable ()	: Void;
+//	public function disable ()									: Void;
 	
 	/**
-	 * Method will enable the stategroup when the given state is entered.
-	 * The StateGroup won't be automaticly disabled when the given state is
-	 * exited.
-	 * 
-	 * @param	trigger
+	 * Returns a function to change the state of the FSM to the given state
 	 */
-	function enableInState (trigger:IState) : Void;
-	
-	/**
-	 * Method will disable the stategroup when the given state is entered.
-	 * The StateGroup won't be automaticly enabled when the given state is
-	 * exited.
-	 * 
-	 * @param	trigger
-	 */
-	function disableInState (trigger:IState) : Void;
+	public function changeTo (toState:IState)					: Void -> Void;
 }

@@ -61,9 +61,10 @@ class ShowProgressBarBehaviour extends BehaviourBase<IUIContainer>
 	
 	
 	
-	public function new (target:IUIContainer, loader:ICommunicator, autoDispose:Bool = false)
+	public function new (target:IUIContainer, loader:ICommunicator) //, autoDispose:Bool = false)
 	{
 		super(target);
+		Assert.notNull(loader);
 		this.loader = loader;
 	}
 	
@@ -73,7 +74,6 @@ class ShowProgressBarBehaviour extends BehaviourBase<IUIContainer>
 		Assert.notNull(loader);
 	//	if (loader.isCompleted())
 	//		return;
-		
 		createBar.on( loader.events.load.started, this );
 		if (loader.isStarted && !loader.isCompleted())
 			createBar();
@@ -83,10 +83,8 @@ class ShowProgressBarBehaviour extends BehaviourBase<IUIContainer>
 	override private function reset ()
 	{
 		Assert.that(initialized);
-		if (loader != null) {
-			loader.events.load.unbind(this);
-			loader = null;
-		}
+		loader.events.load.unbind(this);
+		loader = null;
 		
 		if (targetStyle != null) {
 			targetStyle.dispose();

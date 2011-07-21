@@ -47,11 +47,16 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, impleme
 {
 	public function new (target:IDrawable) { super(target); }
 	
+#if debug
+	private var cachedId : String;
+#end
 	
 	override private function init ()
 	{
-		Assert.that( target.layout != null );
-		
+#if debug
+		Assert.notNull( target.layout );
+		cachedId = untyped target.id.value;
+#end
 		if (target.graphicData != null)
 		{
 			invalidateGraphics.on( target.graphicData.changeEvent, this );
@@ -85,13 +90,21 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, impleme
 	public function validateGraphics ()
 	{
 		if (target == null || target.graphics == null) {
-			trace(target+".validateGraphics ==> empty target or graphics... ");
+	//		trace(target+".validateGraphics ==> empty target or graphics... "+cachedId);
 			return;
 		}
 		
 		target.graphics.clear();
 		target.graphicData.draw( target, false );
-		
+/*#if debug
+		Assert.that( target.rect.width < 10000 );
+		Assert.that( target.rect.height < 10000 );
+		if (target.is(primevc.gui.display.IDisplayObject)) {
+			var t = target.as(primevc.gui.display.IDisplayObject);
+			Assert.that( t.width < 10000 );
+			Assert.that( t.height < 10000 );
+		}
+#end*/
 		if (target.is(IUIComponent) && target.as(IUIComponent).skin != null)
 			target.as(IUIComponent).skin.drawGraphics(); //.onceOn( target.displayEvents.enterFrame, this );
 	}

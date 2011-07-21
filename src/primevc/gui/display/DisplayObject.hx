@@ -20,25 +20,20 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.gui.states;
- import primevc.core.states.AutoFiniteStateMachine;
- import primevc.core.states.IState;
- 
+package primevc.gui.display;
+
+
 
 /**
- * ToggleState
- * 
- * @creation-date	Jun 14, 2010
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Jun 06, 2011
  */
-class ToggleState extends AutoFiniteStateMachine
-{
-	public var on	: IState;
-	public var off	: IState;
-}
+typedef DisplayObject =	#if flash9	flash.display.DisplayObject;
+					#elseif js		Dynamic;
+					#else			Dynamic; #end

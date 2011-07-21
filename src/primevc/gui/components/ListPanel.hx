@@ -37,14 +37,22 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Apr 29, 2011
  */
-class ListPanel<ListDataType> extends Panel
+class ListPanel<ListDataType> extends Panel, implements IListHolder<ListDataType>
 {
 	public var list (default, null)	: ListView<ListDataType>;
 	
 	
-	public function new (id:String = null, label:String = null, data:IReadOnlyList<ListDataType>)
+	
+	public function new (id:String = null, label:String = null, data:IReadOnlyList<ListDataType> = null)
 	{
-		content = list = new ListView("content", data);
+		content = list	= new ListView<ListDataType>("content", data);
 		super(id, label);
+	}
+	
+	
+	override public function dispose ()
+	{
+		super.dispose();
+		list = null;
 	}
 }

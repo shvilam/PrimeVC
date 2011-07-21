@@ -96,6 +96,9 @@ class FiltersCollection extends StyleCollectionBase < FiltersStyle >
 			if (filters == null)			filters			= new Array<Dynamic>();
 			if (filterPositions == null)	filterPositions	= FastArrayUtil.create();
 			
+#if debug	Assert.that( target.width < 10000 );
+			Assert.that( target.height < 10000 ); #end
+			
 			for (styleObj in this)
 			{
 				if (changes == 0)

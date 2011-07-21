@@ -39,7 +39,7 @@ package primevc.utils;
  * @creation-date	Jun 21, 2010
  * @author			Ruben Weijers
  */
-class IntUtil
+extern class IntUtil
 {
 	/**
 	 * Helper function which will return the int-value of the first parameter 
@@ -96,7 +96,7 @@ class IntUtil
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
-class FloatUtil
+extern class FloatUtil
 {
 	/**
 	 * Helper function which will return the float-value of the first parameter 
@@ -170,7 +170,7 @@ class FloatUtil
  * @creation-date	Jun 25, 2010
  * @author			Ruben Weijers
  */
-class IntMath 
+extern class IntMath 
 {
 	/**
 	 * Returns the absolute value, always >= 0
@@ -262,7 +262,7 @@ class IntMath
 	
 	public static inline function ceilFloat (var1:Float) : Int
 	{
-		return var1.int() + (var1 % 1 > 0 ? 1 : 0);
+		return (var1 % 1 == 0) ? var1.int() : var1.int() + 1; //var1.int() + (var1 > 0 ? 1 : 0);
 	}
 	
 	
@@ -274,7 +274,7 @@ class IntMath
 	
 	public static inline function roundFloat (var1:Float) : Int
 	{
-		return var1 < 0 ? -1 * floorFloat( -1 * var1 + .5) : floorFloat(var1 + .5);
+		return ((var1 < 0 ? -.5 : .5) + var1).int();  //-1 * floorFloat( -1 * var1 + .5) : floorFloat(var1 + .5);		//OPTIMIZE!
 	}
 }
 
@@ -282,7 +282,7 @@ class IntMath
 
 
 
-class FloatMath
+extern class FloatMath
 {
 	/**
 	 * Returns the biggest float of the two given integers
@@ -300,7 +300,7 @@ class FloatMath
 	 * Returns the smallest integer of the two given integers
 	 * @param	var1
 	 * @param	var2
-	 * @return	smallest integer
+	 * @return	smallest float
 	 */
 	public static inline function min (var1:Float, var2:Float) : Float
 	{

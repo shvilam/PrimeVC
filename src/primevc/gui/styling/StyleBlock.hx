@@ -5,10 +5,10 @@
  * modification, are permitted provided that the following conditions are met:
  *
  *   - Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
+ *	 notice, this list of conditions and the following disclaimer.
  *   - Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in the
- *     documentation and/or other materials provided with the distribution.
+ *	 notice, this list of conditions and the following disclaimer in the
+ *	 documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE PRIMEVC PROJECT CONTRIBUTORS "AS IS" AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -188,7 +188,8 @@ class StyleBlock extends StyleBlockBase
 	
 	
 	public function new (
-		type				: StyleBlockType,
+		filledProps			: Int = 0,
+		type				: StyleBlockType = null,	//FIXME: parameter should be required but in generated code there's sometimes a style-block without parameters..
 		graphics			: GraphicsStyle = null,
 		layout				: LayoutStyle = null,
 		font				: TextStyle = null,
@@ -206,8 +207,10 @@ class StyleBlock extends StyleBlockBase
 		extendedStyle		: StyleBlock = null
 	)
 	{
-		super();
-		this.type				= type;
+		super(filledProps);
+		this.type = type;
+		
+		//NOTE: can't use this._graphics on each property below (like in the style-sub-blocks) since every style-sub-block requires an owner which is set in the setter
 		this.graphics			= graphics;
 		this.layout				= layout;
 		this.font				= font;
@@ -223,7 +226,7 @@ class StyleBlock extends StyleBlockBase
 		
 		this.parentStyle		= parentStyle;
 		this.superStyle			= superStyle;
-		nestingInherited		= nestingStyle;
+		this.nestingInherited	= nestingStyle;
 		this.extendedStyle		= extendedStyle;
 	}
 	
@@ -876,6 +879,23 @@ class StyleBlock extends StyleBlockBase
 	}
 	
 	
+	public inline function setInheritedStyles( nestedStyle:StyleBlock = null, superStyle:StyleBlock = null, extendedStyle:StyleBlock = null, parentStyle:StyleBlock = null )
+	{
+		if (nestingInherited != null)	this.nestingInherited	= nestedStyle;
+		if (superStyle != null)			this.superStyle			= superStyle;
+		if (extendedStyle != null)		this.extendedStyle		= extendedStyle;
+		if (parentStyle != null)		this.parentStyle		= parentStyle;
+	}
+	
+	
+	public inline function setChildren (idChildren:ChildrenList = null, styleNameChildren:ChildrenList = null, elementChildren:ChildrenList = null)
+	{
+		if (idChildren != null)			this.idChildren			= idChildren;
+		if (styleNameChildren != null)	this.styleNameChildren	= styleNameChildren;
+		if (elementChildren != null)	this.elementChildren	= elementChildren;
+	}
+	
+	
 #if neko
 	override public function toCSS (namePrefix:String = "")
 	{
@@ -926,6 +946,7 @@ class StyleBlock extends StyleBlockBase
 			if (_boxFilters.isEmpty()) {
 				_boxFilters.dispose();
 				boxFilters = null;
+				Assert.that( doesntOwn( Flags.BOX_FILTERS ) );
 			}
 		}
 		
@@ -935,6 +956,7 @@ class StyleBlock extends StyleBlockBase
 			if (_bgFilters.isEmpty()) {
 				_bgFilters.dispose();
 				bgFilters = null;
+				Assert.that( doesntOwn( Flags.BACKGROUND_FILTERS ) );
 			}
 		}
 		
@@ -944,6 +966,7 @@ class StyleBlock extends StyleBlockBase
 			if (_effects.isEmpty()) {
 				_effects.dispose();
 				effects = null;
+				Assert.that( doesntOwn( Flags.EFFECTS ) );
 			}
 		}
 		
@@ -953,6 +976,7 @@ class StyleBlock extends StyleBlockBase
 			if (_font.isEmpty()) {
 				_font.dispose();
 				font = null;
+				Assert.that( doesntOwn( Flags.FONT ) );
 			}
 		}
 		
@@ -962,6 +986,7 @@ class StyleBlock extends StyleBlockBase
 			if (_graphics.isEmpty()) {
 				_graphics.dispose();
 				graphics = null;
+				Assert.that( doesntOwn( Flags.GRAPHICS ) );
 			}
 		}
 		
@@ -971,6 +996,7 @@ class StyleBlock extends StyleBlockBase
 			if (_layout.isEmpty()) {
 				_layout.dispose();
 				layout = null;
+				Assert.that( doesntOwn( Flags.LAYOUT ) );
 			}
 		}
 		
@@ -980,6 +1006,7 @@ class StyleBlock extends StyleBlockBase
 			if (_idChildren.isEmpty()) {
 				_idChildren.dispose();
 				_idChildren = null;
+				Assert.that( doesntOwn( Flags.ID_CHILDREN ) );
 			}
 		}
 		
@@ -989,6 +1016,7 @@ class StyleBlock extends StyleBlockBase
 			if (_styleNameChildren.isEmpty()) {
 				_styleNameChildren.dispose();
 				_styleNameChildren = null;
+				Assert.that( doesntOwn( Flags.STYLE_NAME_CHILDREN ) );
 			}
 		}
 		
@@ -998,6 +1026,7 @@ class StyleBlock extends StyleBlockBase
 			if (_elementChildren.isEmpty()) {
 				_elementChildren.dispose();
 				_elementChildren = null;
+				Assert.that( doesntOwn( Flags.ELEMENT_CHILDREN ) );
 			}
 		}
 		
@@ -1016,6 +1045,7 @@ class StyleBlock extends StyleBlockBase
 			if (_states.isEmpty()) {
 				_states.dispose();
 				states = null;
+				Assert.that( doesntOwn( Flags.STATES ) );
 			}
 		}
 	}
@@ -1023,7 +1053,7 @@ class StyleBlock extends StyleBlockBase
 	
 	override public function isEmpty ()
 	{
-		return filledProperties.unset( Flags.PARENT_STYLE ) == 0;
+		return type == null || filledProperties.unset( Flags.PARENT_STYLE ) == 0;
 	}
 	
 	
@@ -1044,33 +1074,39 @@ class StyleBlock extends StyleBlockBase
 		if (!isEmpty())
 		{
 			if (filledProperties.has( Flags.ALL_PROPERTIES ))
-				code.construct(this, [ type, _graphics, _layout, _font, _effects, _boxFilters, _bgFilters ]); //, parentStyle, superStyle, nestingInherited, extendedStyle ]);
+				code.construct(this, [ filledProperties, type, _graphics, _layout, _font, _effects, _boxFilters, _bgFilters ]); //, parentStyle, superStyle, nestingInherited, extendedStyle ]);
 			else
-				code.construct(this, [ type ]);
+				code.construct(this, [ filledProperties, type ]);
 			
 			if (filledProperties.has( Flags.INHERETING_STYLES ))
-			{
-				if (nestingInherited != null)			code.setProp( this, "nestingInherited", nestingInherited );
-				if (superStyle != null)					code.setProp( this, "superStyle", superStyle );
-				if (extendedStyle != null)				code.setProp( this, "extendedStyle", extendedStyle );
-				if (parentStyle != null)				code.setProp( this, "parentStyle", parentStyle );
-			}
+				code.setAction( this, "setInheritedStyles", [ nestingInherited, superStyle, extendedStyle, parentStyle ], true );
+		/*	{
+				if (nestingInherited != null)			code.setProp( this, "nestingInherited",	nestingInherited,	true );
+				if (superStyle != null)					code.setProp( this, "superStyle",		superStyle,			true );
+				if (extendedStyle != null)				code.setProp( this, "extendedStyle",	extendedStyle,		true );
+				if (parentStyle != null)				code.setProp( this, "parentStyle",		parentStyle,		true );
+			}*/
 			
 			//important to do after the styleblock is constructed. otherwise references to the parentstyle might nog yet exist
-			if (filledProperties.has( Flags.ID_CHILDREN ))				code.setProp(this, "idChildren",		_idChildren);
-			if (filledProperties.has( Flags.STYLE_NAME_CHILDREN ))		code.setProp(this, "styleNameChildren",	_styleNameChildren);
-			if (filledProperties.has( Flags.ELEMENT_CHILDREN ))			code.setProp(this, "elementChildren",	_elementChildren);
+			if (filledProperties.has( Flags.CHILDREN ))
+				code.setAction( this, "setChildren", [ idChildren, styleNameChildren, elementChildren ], true );
+	//		if (filledProperties.has( Flags.ID_CHILDREN ))				code.setProp(this, "idChildren",		_idChildren,		true);
+	//		if (filledProperties.has( Flags.STYLE_NAME_CHILDREN ))		code.setProp(this, "styleNameChildren",	_styleNameChildren,	true);
+	//		if (filledProperties.has( Flags.ELEMENT_CHILDREN ))			code.setProp(this, "elementChildren",	_elementChildren,	true);
 			
-			if (filledProperties.has( Flags.STATES ))					code.setProp(this, "states", _states);
+			if (filledProperties.has( Flags.STATES ))					code.setProp(this, "states",			_states,			true);
 		}
 	}
 #end
 	
 #if (debug && !neko)
-	public function toString ()
+	override public function toString ()
 	{
-		return "StyleBlock[ "+_oid+" ]";
-	//	return _oid+"; "+readProperties();
+		return super.toString()
+			+ (parentStyle != null ? " - parent: "+parentStyle._oid : "")
+			+ (superStyle != null ? " - super: "+superStyle._oid : "")
+			+ (extendedStyle != null ? " - extended: "+extendedStyle._oid : "")
+			+ (nestingInherited != null ? " - nested: "+nestingInherited._oid : "");
 	}
 #elseif (debug && neko)
 	override public function toString ()

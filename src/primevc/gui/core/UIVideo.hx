@@ -31,22 +31,28 @@ package primevc.gui.core;
  import primevc.core.collections.SimpleList;
  import primevc.gui.styling.UIElementStyle;
 #end
+ import primevc.core.dispatcher.Wire;
  import primevc.core.net.VideoStream;
  import primevc.core.states.VideoStates;
  import primevc.core.Bindable;
  import primevc.core.IBindable;
+ 
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
+ 
  import primevc.gui.display.Video;
  import primevc.gui.effects.UIElementEffects;
+ 
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutClient;
+ 
  import primevc.gui.managers.ISystem;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.states.UIElementStates;
  import primevc.gui.traits.IValidatable;
  import primevc.types.Number;
+ 
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
@@ -130,6 +136,9 @@ class UIVideo extends Video, implements IUIElement
 	{
 		if (isDisposed())
 			return;
+		
+		if (container != null)			detachDisplay();
+		if (layout.parent != null)		detachLayout();
 		
 		//Change the state to disposed before the behaviours are removed.
 		//This way a behaviour is still able to respond to the disposed
@@ -219,10 +228,12 @@ class UIVideo extends Video, implements IUIElement
 	// ATTACH METHODS
 	//
 	
-	public inline function attachLayoutTo	(t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ t.children.add( layout, pos );										return this; }
-	public inline function detachLayout		()									: IUIElement	{ layout.parent.children.remove( layout );								return this; }
-	public inline function attachTo			(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachDisplayTo(t, pos);	return this; }
-	public inline function detach			()									: IUIElement	{ detachDisplay();							detachLayout();				return this; }
+	public inline function attachLayoutTo	(t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ t.children.add( layout, pos );											return this; }
+	public inline function detachLayout		()									: IUIElement	{ layout.parent.children.remove( layout );									return this; }
+	public inline function attachTo			(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachDisplayTo(t, pos);		return this; }
+	public inline function detach			()									: IUIElement	{ detachDisplay();							detachLayout();					return this; }
+	public inline function changeLayoutDepth(pos:Int)							: IUIElement	{ layout.parent.children.move( layout, pos );								return this; }
+	public inline function changeDepth		(pos:Int)							: IUIElement	{ changeLayoutDepth(pos);					changeDisplayDepth(pos);		return this; }
 	
 	
 	//
@@ -235,20 +246,26 @@ class UIVideo extends Video, implements IUIElement
 	public inline function isQueued () : Bool			{ return nextValidatable != null || prevValidatable != null; }
 	
 	
+	private var validateWire : Wire<Dynamic>;
+	
 	public function invalidate (change:Int)
 	{
 		if (change != 0)
 		{
 			changes = changes.set( change );
 			if (changes == change && isInitialized())
-				if (system != null)		system.invalidation.add(this);
-				else					validate.onceOn( displayEvents.addedToStage, this );
+				if      (system != null)		system.invalidation.add(this);
+				else if (validateWire != null)	validateWire.enable();
+				else                            validateWire = validate.on( displayEvents.addedToStage, this );
 		}
 	}
 	
 	
 	public function validate ()
 	{
+	    if (validateWire != null)
+	        validateWire.disable();
+        
 		if (changes > 0)
 		{
 			if (changes.has( VIDEO_WIDTH | VIDEO_HEIGHT ))
@@ -293,7 +310,7 @@ class UIVideo extends Video, implements IUIElement
 	public inline function scale (sx:Float, sy:Float)	{ this.doScale(sx, sy); }
 	
 	
-	private function createBehaviours ()	: Void;
+	private function createBehaviours ()	: Void		{}
 	
 	
 	//

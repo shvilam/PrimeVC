@@ -29,6 +29,7 @@
 package primevc.avm2.display;
  import flash.display.DisplayObject;
  import primevc.core.geom.IntRectangle;
+ import primevc.gui.display.BitmapData;
  import primevc.gui.display.DisplayDataCursor;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
@@ -49,9 +50,11 @@ class BitmapShape extends flash.display.Bitmap, implements IDisplayObject
 	public var window			(default, setWindow)	: Window;
 	public var displayEvents	(default, null)			: DisplayEvents;
 	public var rect				(default, null)			: IntRectangle;
+
+	public var data 			(getData, setData)		: BitmapData;
 	
 	
-	public function new (?data:flash.display.BitmapData) 
+	public function new (?data:BitmapData) 
 	{
 		super(data);
 		displayEvents	= new DisplayEvents( this );
@@ -87,6 +90,7 @@ class BitmapShape extends flash.display.Bitmap, implements IDisplayObject
 	public function getDisplayCursor			() : DisplayDataCursor											{ return new DisplayDataCursor(this); }
 	public inline function attachDisplayTo		(target:IDisplayContainer, pos:Int = -1)	: IDisplayObject	{ target.children.add( this, pos ); return this; }
 	public inline function detachDisplay		()											: IDisplayObject	{ container.children.remove( this ); return this; }
+	public inline function changeDisplayDepth	(newPos:Int)								: IDisplayObject	{ container.children.move( this, newPos ); return this; }
 #end
 	
 	
@@ -95,7 +99,8 @@ class BitmapShape extends flash.display.Bitmap, implements IDisplayObject
 	// GETTERS / SETTERS
 	//
 	
-	private inline function setContainer (v) {
+	private inline function setContainer (v)
+	{
 		container	= v;
 		if (v != null)	window = container.window;
 		else			window = null;
@@ -103,7 +108,12 @@ class BitmapShape extends flash.display.Bitmap, implements IDisplayObject
 	}
 	
 	
-	private inline function setWindow (v) {
-		return window = v;
+	private inline function setWindow (v)	{ return window = v; }
+	private inline function getData () 		{ return bitmapData; }
+
+
+	private function setData (v)
+	{
+		return bitmapData = v;
 	}
 }

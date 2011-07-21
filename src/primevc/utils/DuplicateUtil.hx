@@ -44,7 +44,7 @@ class DuplicateUtil
 	public static function duplicateItem<T> (item:T) : T
 	{
 		return	 if	(item.is(IDuplicatable))	cast item.as(IDuplicatable).duplicate();
-			else if (item.is(FastArray))		cast item.as(FastArray).duplicate();
+	//		else if (item.is(FastArray))		cast item.as(FastArray).duplicate();		// FIXME!!
 			else								item;
 	}
 }

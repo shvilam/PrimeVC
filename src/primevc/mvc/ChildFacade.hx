@@ -20,36 +20,71 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc.core;
+package primevc.mvc;
+ import primevc.core.dispatcher.Signals;
  import primevc.core.traits.IDisposable;
 
 
+
 /**
- * Base class for Model and View
+ * Child facade is a facade for sub-applications. These applications can't run
+ * standalone and need instructions from another facade. This is possible with
+ * the channels that are given to the child-facade when it's getting connected.
+ * 
+ * Only after connecting with channels, the child will start-listening. If the
+ * facade is disconnected, the child will stop-listening all it's mediators and
+ * controllers.
  * 
  * @author Ruben Weijers
- * @creation-date Nov 16, 2010
+ * @creation-date May 25, 2011
  */
-class MVCCore <FacadeType> implements IDisposable
-    #if !docs, implements haxe.rtti.Generic #end
+class ChildFacade <
+		EventsType		: Signals,
+		ModelType		: IMVCCore,
+		StatesType		: IDisposable,
+		ControllerType	: IMVCCoreActor,
+		ViewType		: IMVCCoreActor,
+		ChannelsType
+	>
+	extends Facade <EventsType, ModelType, StatesType, ControllerType, ViewType>
 {
-	private var facade (default, null)	: FacadeType;
+	public var channels		(default, null) : ChannelsType;
 	
 	
-	public function new (facade:FacadeType)
+	override public function dispose ()
 	{
-		this.facade = facade;
+		super.dispose();
+		channels = null;
 	}
 	
 	
-	public function dispose ()
+	/**
+	 * Method for connecting a facade with channels of another facade
+	 */
+	public inline function connect (external:ChannelsType) : Void
 	{
-		facade = null;
+		Assert.null(channels);
+		Assert.notNull(external);
+		channels = external;
+		start();
+	}
+	
+	
+	/**
+	 * Method for disconnecting a facade with channels of another facade
+	 */
+	public inline function disconnect () : Void
+	{
+	//	Assert.notNull(channels);
+		if (channels != null)
+			stop();
+		
+		channels = null;
 	}
 }

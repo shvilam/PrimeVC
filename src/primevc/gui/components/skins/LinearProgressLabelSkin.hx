@@ -81,7 +81,7 @@ class LinearProgressLabelSkin extends LinearProgressSkin
 	}
 
 
-	override private function removeChildren ()
+	override public  function removeChildren ()
 	{
 		super.removeChildren();
 		if (labelField != null)
