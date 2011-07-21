@@ -72,7 +72,6 @@ class UIBitmap extends BitmapShape, implements IUIElement
     
     public var layout           (default, null)                 : LayoutClient;
     public var system           (getSystem, never)              : ISystem;
-    public var data             (getData, setData)              : BitmapData;
     
 #if flash9
     public var style            (default, null)                 : UIElementStyle;
@@ -259,7 +258,7 @@ class UIBitmap extends BitmapShape, implements IUIElement
     public inline function isQueued () : Bool           { return nextValidatable != null || prevValidatable != null; }
     
 
-    private inline function setData (v:BitmapData) : BitmapData
+    override private function setData (v:BitmapData) : BitmapData
     {
         var cur = getData();
         if (cur != v)
@@ -277,12 +276,6 @@ class UIBitmap extends BitmapShape, implements IUIElement
                 l.measuredWidth = l.measuredHeight = Number.INT_NOT_SET;
         }
         return v;
-    }
-
-
-    private inline function getData () : BitmapData
-    {
-        return #if flash9 bitmapData; #else data; #end
     }
 
     

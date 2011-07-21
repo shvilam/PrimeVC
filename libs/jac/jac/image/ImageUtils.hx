@@ -89,12 +89,16 @@ class ImageUtils
         Assert.that( (realW * realH) <= MAX_PIXELS, "Maximum number of pixels exeeded: " + (realW * realH)+" instead of the max of "+MAX_PIXELS );
         Assert.that( realW <= MAX_WIDTH,  "Maximum bitmapdata width  exeeded: "+realW+" instead of "+MAX_WIDTH );
         Assert.that( realH <= MAX_HEIGHT, "Maximum bitmapdata height exeeded: "+realH+" instead of "+MAX_HEIGHT );
-
-        var start = haxe.Timer.stamp();
+        var fps     = flash.Lib.current.stage.frameRate;
+        var start   = haxe.Timer.stamp();
 #end
+        var hasToDispose    = isSet && !validSize;
+        var hasToCreate     = hasToDispose || !isSet || !validSize;
+        var hasToScale      = (requiredW.isSet() && requiredW != realW) || (requiredH.isSet() && requiredH != realH);
 
-        if (isSet && !validSize)    bitmapData.dispose();
-        if (!isSet || !validSize)   bitmapData = new BitmapData(realW, realH, true, 0x00);
+        if (hasToDispose)   bitmapData.dispose();
+        if (hasToCreate)    bitmapData = new BitmapData(realW, realH, true, 0x00);
+        bitmapData.lock();
 
         try {
             if (area != null)  bitmapData.draw(source, new Matrix(1, 0, 0, 1, -area.x, -area.y));
@@ -104,7 +108,7 @@ class ImageUtils
             bitmapData.floodFill(0,0,0xffffffff);
         }
         
-        if ((requiredW.isSet() && requiredW != realW) || (requiredH.isSet() && requiredH != realH))
+        if (hasToScale)
         {
             var temp = bitmapData;
             bitmapData = temp.resize(requiredW, requiredH, resizeStyle);
@@ -112,8 +116,13 @@ class ImageUtils
                 temp.dispose();
         }
 
+        bitmapData.unlock();
 #if debug
-        trace("duration: "+(haxe.Timer.stamp() - start));
+        trace("duration: "+(haxe.Timer.stamp() - start).round(7)+" - pixels: "+(bitmapData.width * bitmapData.height)
+            +";\tcreated? "+hasToCreate+";\tdisposed? "+hasToDispose+";\tscale? "+hasToScale
+            +";\tfps: "+fps+" / "+flash.Lib.current.stage.frameRate
+        //  +";\tgpu: "+flash.Lib.current.stage.wmodeGPU
+        );
 #end
         return bitmapData;
     }

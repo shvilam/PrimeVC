@@ -50,6 +50,8 @@ class BitmapShape extends flash.display.Bitmap, implements IDisplayObject
 	public var window			(default, setWindow)	: Window;
 	public var displayEvents	(default, null)			: DisplayEvents;
 	public var rect				(default, null)			: IntRectangle;
+
+	public var data 			(getData, setData)		: BitmapData;
 	
 	
 	public function new (?data:BitmapData) 
@@ -97,7 +99,8 @@ class BitmapShape extends flash.display.Bitmap, implements IDisplayObject
 	// GETTERS / SETTERS
 	//
 	
-	private inline function setContainer (v) {
+	private inline function setContainer (v)
+	{
 		container	= v;
 		if (v != null)	window = container.window;
 		else			window = null;
@@ -105,7 +108,12 @@ class BitmapShape extends flash.display.Bitmap, implements IDisplayObject
 	}
 	
 	
-	private inline function setWindow (v) {
-		return window = v;
+	private inline function setWindow (v)	{ return window = v; }
+	private inline function getData () 		{ return bitmapData; }
+
+
+	private function setData (v)
+	{
+		return bitmapData = v;
 	}
 }

@@ -76,10 +76,13 @@ class WipeEffectInstance extends EffectInstance < IDisplayObject, WipeEffect >
 	override private function initStartValues ()
 	{
 		var t = target;
-		if (t.scrollRect == null)
-			t.scrollRect = new Rectangle( 0, 0, t.width, t.height );
-		
-		var rect	= t.scrollRect;
+		if (t.width == 0 || t.height == 0) {
+			startValue = endValue = 0;
+			return;
+		}
+
+		t.visible	= true;
+		var rect 	= t.scrollRect != null ? t.scrollRect : new Rectangle( 0, 0, t.width, t.height );
 		startValue	= effect.startValue;
 		endValue	= effect.endValue;
 		
@@ -98,8 +101,7 @@ class WipeEffectInstance extends EffectInstance < IDisplayObject, WipeEffect >
 				case LeftToRight, RightToLeft:	rect.x = startValue;
 			}
 		
-		t.scrollRect	= rect;
-		t.visible		= true;
+		t.scrollRect = rect;
 	}
 
 
@@ -118,6 +120,9 @@ class WipeEffectInstance extends EffectInstance < IDisplayObject, WipeEffect >
 
 	override private function calculateTweenStartPos () : Float
 	{
+		if (target.scrollRect == null)
+			return isReverted ? 0.0 : 1.0;
+		
 		var curValue:Float = 0;
 		switch (effect.direction) {
 			case TopToBottom, BottomToTop:	curValue = target.scrollRect.y;
@@ -131,14 +136,16 @@ class WipeEffectInstance extends EffectInstance < IDisplayObject, WipeEffect >
 	override private function onTweenReady ( ?tweenPos:Float )
 	{
 		var rect = target.scrollRect;
-		switch (effect.direction) {
-			case TopToBottom:	if (rect.y >=  rect.height)	{ target.visible = false; rect.y = 0; }
-			case BottomToTop:	if (rect.y <= -rect.height)	{ target.visible = false; rect.y = 0; }
-			case LeftToRight:	if (rect.x >=  rect.width)	{ target.visible = false; rect.x = 0; }
-			case RightToLeft:	if (rect.x <= -rect.width)	{ target.visible = false; rect.x = 0; }
+		if (rect != null) {
+			switch (effect.direction) {
+				case TopToBottom:	if (rect.y >=  rect.height)	{ target.visible = false; rect.y = 0; }
+				case BottomToTop:	if (rect.y <= -rect.height)	{ target.visible = false; rect.y = 0; }
+				case LeftToRight:	if (rect.x >=  rect.width)	{ target.visible = false; rect.x = 0; }
+				case RightToLeft:	if (rect.x <= -rect.width)	{ target.visible = false; rect.x = 0; }
+			}
+			
+			target.scrollRect = rect;
 		}
-		
-		target.scrollRect = rect;
 		super.onTweenReady();
 	}
 #end

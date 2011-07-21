@@ -252,7 +252,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	//
 	
 	public  inline function attachLayoutTo	(	t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ t.children.add( layout, pos );											return this; }
-	public  inline function detachLayout		()									: IUIElement	{ layout.parent.children.remove( layout );									return this; }
+	public  inline function detachLayout		()									: IUIElement	{ if (layout.parent != null) { layout.parent.children.remove( layout ); }	return this; }
 	public  inline function changeLayoutDepth	(pos:Int)							: IUIElement	{ layout.parent.children.move( layout, pos );								return this; }
 	public  inline function changeDepth			(pos:Int)							: IUIElement	{ changeLayoutDepth(pos);					changeDisplayDepth(pos);		return this; }
 

@@ -75,12 +75,14 @@ class FadeEffectInstance extends EffectInstance < IDisplayObject, FadeEffect >
 
 	override private function initStartValues ()
 	{
-		if		(effect.startValue.isSet())	startValue = target.alpha = effect.startValue;
+		if		(effect.startValue.isSet())	startValue = effect.startValue;
 		else								startValue = target.alpha;
 		
 		if		(effect.endValue.isSet())	endValue = effect.endValue;
 		else								endValue = 1;
-		
+
+		if 		(isReverted  && target.alpha == startValue)			target.alpha = endValue;
+		else if (!isReverted && target.alpha == endValue)			target.alpha = startValue;
 		target.visible	= true;
 	}
 
