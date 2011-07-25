@@ -34,12 +34,17 @@ package primevc.gui.core;
  import primevc.gui.behaviours.styling.InteractiveStyleChangeBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
+
+ import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.Sprite;
+
  import primevc.gui.effects.UIElementEffects;
  import primevc.gui.events.UserEventTarget;
  import primevc.gui.graphics.GraphicProperties;
+
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.ILayoutContainer;
+ 
  import primevc.gui.managers.ISystem;
  import primevc.gui.states.UIElementStates;
 #if flash9
@@ -256,16 +261,30 @@ class UIComponent extends Sprite, implements IUIComponent
 	public  inline function changeLayoutDepth	(pos:Int)							: IUIElement	{ layout.parent.children.move( layout, pos );								return this; }
 	public  inline function changeDepth			(pos:Int)							: IUIElement	{ changeLayoutDepth(pos);					changeDisplayDepth(pos);		return this; }
 
-	private inline function applyAttachTo		(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachDisplayTo(t, pos);		return this; }
+	public  inline function attachTo			(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachToDisplayList(t, pos);	return this; }
 	private inline function applyDetach			()									: IUIElement	{ detachDisplay();							detachLayout();					return this; }
 	
-	public  inline function attachTo (t:IUIContainer, pos:Int = -1) : IUIElement
+
+	public  inline function attachToDisplayList (t:IDisplayContainer, pos:Int = -1)	: IUIElement
 	{
-		applyAttachTo(t, pos);
-		var hasEffect = visible && effects != null && effects.show != null;
-		if (hasEffect) {
-			visible = false;
-			haxe.Timer.delay( show, 100 ); //.onceOn( displayEvents.enterFrame, this );
+		if (container != t)
+		{
+			if (effects != null && effects.isPlayingHide())
+				effects.hide.stop();
+			
+			attachDisplayTo(t, pos);
+
+			var hasEffect = visible && effects != null && effects.show != null;
+			var isPlaying = hasEffect && effects.show.isPlaying();
+			
+			if (!isPlaying)
+			{
+				if (hasEffect) {
+					visible = false;
+					show();
+				//	haxe.Timer.delay( show, 100 ); //.onceOn( displayEvents.enterFrame, this );
+				}
+			}
 		}
 		
 		return this;
@@ -274,15 +293,23 @@ class UIComponent extends Sprite, implements IUIComponent
 
 	public  inline function detach () : IUIElement
 	{
+		if (effects != null && effects.isPlayingShow())
+			effects.show.stop();
+		
 		var hasEffect = effects != null && effects.hide != null;
-		if (hasEffect) {
-			var eff = effects.hide;
-			layout.includeInLayout = false;
-			applyDetach.onceOn( eff.ended, this );
-			hide();
+		var isPlaying = hasEffect && effects.hide.isPlaying();
+
+		if (!isPlaying)
+		{
+			if (hasEffect) {
+				var eff = effects.hide;
+				layout.includeInLayout = false;
+				applyDetach.onceOn( eff.ended, this );
+				hide();
+			}
+			else
+				applyDetach();
 		}
-		else
-			applyDetach();
 
 		return this;
 	}

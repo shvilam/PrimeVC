@@ -106,7 +106,7 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 			l.invalidateHorPaddingMargin();
 		}
 		
-		scrollBar.attachDisplayTo( target.container, depth );
+		scrollBar.attachToDisplayList( target.container, depth );
 	//	layout.add( scrollBar.layout, layoutDepth );
 		
 		return scrollBar;

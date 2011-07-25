@@ -81,7 +81,7 @@ class PopupManager implements IPopupManager
 		Assert.null( popup.layout.parent );
 		window.popupLayout.children.add( popup.layout );
 		popup.visible = false;
-		popup.attachDisplayTo( window );
+		popup.attachToDisplayList( window );
 		popup.show();
 		popup.setFocus();
 		
@@ -117,7 +117,7 @@ class PopupManager implements IPopupManager
 		if (modal.window == null)
 		{
 			window.popupLayout.children.add( modal.layout );
-			modal.attachDisplayTo( window );
+			modal.attachToDisplayList( window );
 		}
 		else
 			moveModalBackground( window.popupLayout.children.length - 1 );
