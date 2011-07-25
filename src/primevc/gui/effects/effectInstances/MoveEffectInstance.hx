@@ -105,7 +105,7 @@ class MoveEffectInstance extends EffectInstance < IPositionable, MoveEffect >
 		
 		changeX = isXChanged();
 		changeY = isYChanged();
-		Assert.that(changeX || changeY);
+	//	Assert.that(changeX || changeY);
 
 		target.visible = true;
 	}

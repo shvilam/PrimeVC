@@ -242,7 +242,7 @@ class UIWindow extends Window
 	
 	public inline function attach (child:IUIElement) : UIWindow
 	{
-		child.attachLayoutTo( layoutContainer ).attachDisplayTo( this );
+		child.attachLayoutTo( layoutContainer ).attachToDisplayList( this );
 		return this;
 	}
 	

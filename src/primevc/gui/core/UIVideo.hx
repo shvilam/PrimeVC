@@ -40,6 +40,7 @@ package primevc.gui.core;
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  
+ import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.Video;
  import primevc.gui.effects.UIElementEffects;
  
@@ -228,13 +229,63 @@ class UIVideo extends Video, implements IUIElement
 	// ATTACH METHODS
 	//
 	
-	public inline function attachLayoutTo	(t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ t.children.add( layout, pos );											return this; }
-	public inline function detachLayout		()									: IUIElement	{ layout.parent.children.remove( layout );									return this; }
-	public inline function attachTo			(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachDisplayTo(t, pos);		return this; }
-	public inline function detach			()									: IUIElement	{ detachDisplay();							detachLayout();					return this; }
-	public inline function changeLayoutDepth(pos:Int)							: IUIElement	{ layout.parent.children.move( layout, pos );								return this; }
-	public inline function changeDepth		(pos:Int)							: IUIElement	{ changeLayoutDepth(pos);					changeDisplayDepth(pos);		return this; }
+	public  inline function attachLayoutTo		(t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ t.children.add( layout, pos );											return this; }
+	public  inline function detachLayout		()									: IUIElement	{ if (layout.parent != null) { layout.parent.children.remove( layout ); }	return this; }
+	public  inline function attachTo			(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachToDisplayList(t, pos);	return this; }
+	private inline function applyDetach			()									: IUIElement	{ detachDisplay();							detachLayout();					return this; }
+	public  inline function changeLayoutDepth	(pos:Int)							: IUIElement	{ layout.parent.children.move( layout, pos );								return this; }
+	public  inline function changeDepth			(pos:Int)							: IUIElement	{ changeLayoutDepth(pos);					changeDisplayDepth(pos);		return this; }
 	
+
+	public  inline function attachToDisplayList (t:IDisplayContainer, pos:Int = -1)	: IUIElement
+	{
+		if (container != t)
+		{
+			if (effects != null && effects.isPlayingHide())
+				effects.hide.stop();
+			
+			attachDisplayTo(t, pos);
+
+			var hasEffect = visible && effects != null && effects.show != null;
+			var isPlaying = hasEffect && effects.show.isPlaying();
+			
+			if (!isPlaying)
+			{
+				if (hasEffect) {
+					visible = false;
+					show();
+				//	haxe.Timer.delay( show, 100 ); //.onceOn( displayEvents.enterFrame, this );
+				}
+			}
+		}
+		
+		return this;
+	}
+
+
+	public  inline function detach () : IUIElement
+	{
+		if (effects != null && effects.isPlayingShow())
+			effects.show.stop();
+		
+		var hasEffect = effects != null && effects.hide != null;
+		var isPlaying = hasEffect && effects.hide.isPlaying();
+
+		if (!isPlaying)
+		{
+			if (hasEffect) {
+				var eff = effects.hide;
+				layout.includeInLayout = false;
+				applyDetach.onceOn( eff.ended, this );
+				hide();
+			}
+			else
+				applyDetach();
+		}
+
+		return this;
+	}
+
 	
 	//
 	// IPROPERTY-VALIDATOR METHODS
