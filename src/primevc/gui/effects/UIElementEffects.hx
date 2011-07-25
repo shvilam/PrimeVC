@@ -221,6 +221,9 @@ class UIElementEffects implements IDisposable
 #end
 	}
 	
+
+	public inline function isPlayingHide ()	{ return hide != null && (hide.isPlaying() || hide.isWaiting()) && (show != hide ||  hide.isReverted); }
+	public inline function isPlayingShow ()	{ return show != null && (show.isPlaying() || show.isWaiting()) && (show != hide || !show.isReverted); }
 	
 	
 	
