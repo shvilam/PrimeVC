@@ -26,6 +26,7 @@ class DOMElem
 	public var matrix		(default, null):WebKitCSSMatrix;
 	public var children		(default, null):DisplayList;
 	public var parent		:DOMElem;
+	public var visible		(default, setVisible):Bool;
 	
 	public function new(type:String)
 	{
@@ -114,8 +115,19 @@ class DOMElem
 		return className;
 	}
 	
+	inline private function setVisible(v:Bool):Bool
+	{
+		if (visible != v)
+		{
+			visible = v;
+			elem.style.visibility = v ? "visible" : "hidden";
+		}
+		return visible;
+	}
+	
 	inline private function applyTransforms()
 	{
-		elem.style.webkitTransform = "translate3d(" + x + "px," + y + "px, 0) scale(" + scale + ")";
+		//elem.style.webkitTransform = "translate3d(" + x + "px," + y + "px, 0) scale(" + scale + ")";
+		elem.style.webkitTransform = "translate(" + x + "px," + y + "px) scale(" + scale + ")";
 	}
 }

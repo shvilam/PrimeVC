@@ -14,7 +14,7 @@ class Image extends DOMElem
 {
 	public var src 				(default, setSrc):String;
 	public var events			(default, null):DisplayEvents;
-	public var isDisplayed		(default, null):Bool;
+	public var isAddedToStage	(default, null):Bool;
 	public var loaded			(default, null):Signal1<Image>;
 	override public var width	(default, setWidth):Int;
 	override public var height	(default, setHeight):Int;
@@ -30,8 +30,8 @@ class Image extends DOMElem
 	{
 		events = new DisplayEvents(elem);
 		
-		events.nodeInsertedIntoDoc.bind(this, onInsertedIntoDoc);
-		events.nodeRemovedFromDoc.bind(this, onRemovedFromDoc);
+		//events.nodeInsertedIntoDoc.bind(this, onInsertedIntoDoc);
+		//events.nodeRemovedFromDoc.bind(this, onRemovedFromDoc);
 		
 		loaded = new Signal1();
 		untyped elem.addEventListener("load", onLoad, false);
@@ -39,34 +39,43 @@ class Image extends DOMElem
 	
 	override private function setWidth(v:Int):Int
 	{
-		width = cast v;
-		elem.width = width;
+		if (width != v)
+		{
+			width = v;
+			elem.width = v;
+		}
 		return width;
 	}
 	
 	override private function setHeight(v:Int):Int
 	{
-		height = cast v;
-		elem.height = height;
+		if (height != v)
+		{
+			height = v;
+			elem.height = v;
+		}
 		return height;
 	}
 	
 	private function setSrc(v:String):String
 	{
-		src = v;
-		if (isDisplayed) { elem.src = src; }
+		if (src != v)
+		{
+			src = v;
+			if (isAddedToStage) { load(); }
+		}
 		return src;
 	}
 	
-	private function onInsertedIntoDoc(event:DisplayEvent)
+	inline private function onInsertedIntoDoc(event:DisplayEvent)
 	{
-		isDisplayed = true;
+		isAddedToStage = true;
 		load();
 	}
 	
-	private function onRemovedFromDoc(event:DisplayEvent)
+	inline private function onRemovedFromDoc(event:DisplayEvent)
 	{
-		isDisplayed = false;
+		isAddedToStage = false;
 	}
 	
 	private function onLoad(event:Event)
@@ -74,8 +83,8 @@ class Image extends DOMElem
 		loaded.send(this);
 	}
 	
-	public function load()
+	inline public function load()
 	{
-		if (src != null && elem.src == "") { elem.src = src; }
+		if (src != null && elem.src != src) { elem.src = src; }
 	}
 }

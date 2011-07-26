@@ -41,10 +41,4 @@ class Link extends DOMElem
 	{
 		action();
 	}
-	
-	private function openUrl(e:TouchEvent)
-	{
-		//untyped console.log(href);
-		//Lib.window.location.href = href;
-	}
 }
