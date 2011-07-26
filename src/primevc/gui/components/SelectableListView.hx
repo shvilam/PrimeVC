@@ -265,7 +265,7 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
     private function enableNavigtion ()
     {
 	    if (!mouseMoveWire.isEnabled()) {
-	        changeSelectedItem.on( window.userEvents.key.down, this );
+	        changeSelectedItem.on( userEvents.key.down, this );
 		    mouseMoveWire.enable();
 	    }
     }
@@ -274,7 +274,7 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
     private function disableNavigation ()
     {
         if (mouseMoveWire.isEnabled()) {
-            window.userEvents.key.down.unbind(this);
+            userEvents.key.down.unbind(this);
 		    mouseMoveWire.disable();
 	    }
 	    
@@ -284,6 +284,7 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
     
     private function changeSelectedItem (event:KeyboardState)
 	{
+       trace(event.target);
 		var index	= focusIndex;
 		if (index == -1)
 		    index   = depthToIndex(0);
