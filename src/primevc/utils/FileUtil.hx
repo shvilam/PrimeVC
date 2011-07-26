@@ -36,7 +36,7 @@ package primevc.utils;
  * @author Ruben Weijers
  * @creation-date Mar 29, 2011
  */
-extern class FileUtil
+class FileUtil
 {
 	public static inline function toFileType (mimetype:String) : FileType
 	{
@@ -61,7 +61,7 @@ extern class FileUtil
 	 * 
 	 * @author Danny Wilson
 	 */
-	public static inline function getExtension (fileName:String) : String
+	public static function getExtension (fileName:String) : String
 	{
 		if (!fileName.notNull()) return "";
 		else {
@@ -78,7 +78,7 @@ extern class FileUtil
 	 * 
 	 * @author Danny Wilson
 	 */
-	public static inline function setExtension (fileName:String, ext:String) : String
+	public static function setExtension (fileName:String, ext:String) : String
 	{
 		Assert.notNull(ext);
 		Assert.notNull(fileName);

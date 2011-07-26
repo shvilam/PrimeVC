@@ -253,8 +253,8 @@ class UIVideo extends Video, implements IUIElement
 			{
 				if (hasEffect) {
 					visible = false;
-					show();
-				//	haxe.Timer.delay( show, 100 ); //.onceOn( displayEvents.enterFrame, this );
+					if (!isInitialized()) 	haxe.Timer.delay( show, 100 ); //.onceOn( displayEvents.enterFrame, this );
+					else 					show();
 				}
 			}
 		}

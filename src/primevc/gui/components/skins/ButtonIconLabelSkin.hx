@@ -66,9 +66,7 @@ class ButtonIconLabelSkin extends Skin<Button>
 #end
 #if flash9
 		labelField.autoSize			= flash.text.TextFieldAutoSize.NONE;
-		labelField.selectable		= false;
-		labelField.mouseEnabled		= false;
-		labelField.tabEnabled		= false;
+		labelField.selectable		= labelField.mouseEnabled = labelField.tabEnabled = false;
 		labelField.wordWrap			= owner.wordWrap;
 		labelField.embedFonts		= owner.embedFonts;
 		labelField.respondToFocusOf( owner );

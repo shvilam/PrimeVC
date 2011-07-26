@@ -39,8 +39,7 @@ extern class HashUtil
 {
 	public static inline function dispose<T> (hash:Hash<T>) : Void
 	{
-		var keys = hash.keys();
-		for (key in keys)
+		for (key in hash.keys())
 			hash.remove(key);
 	}
 }

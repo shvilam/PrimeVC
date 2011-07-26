@@ -35,7 +35,7 @@ package primevc.gui.styling;
  * @author Ruben Weijers
  * @creation-date Sep 08, 2010
  */
-extern class TextStyleFlags
+#if !debug extern #end class TextStyleFlags
 {
 	public static inline var ALL_PROPERTIES		= SIZE | FAMILY | COLOR | WEIGHT | STYLE | LETTER_SPACING | ALIGN | DECORATION | INDENT | TRANSFORM | TEXTWRAP | COLUMN_COUNT | COLUMN_GAP | COLUMN_WIDTH | EMBEDDED;
 	public static inline var COLUMN_PROPERTIES	= COLUMN_COUNT | COLUMN_GAP | COLUMN_WIDTH;
@@ -60,7 +60,7 @@ extern class TextStyleFlags
 	
 	
 #if debug
-	public static inline function readProperties (flags:Int) : String
+	public static function readProperties (flags:Int) : String
 	{
 		var output	= [];
 		

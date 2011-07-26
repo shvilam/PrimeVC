@@ -120,13 +120,13 @@ class ValidatingValue < DataType > extends QueueingInvalidatable
 }
 
 
-extern class ValueFlags
+#if !debug extern #end class ValueFlags
 {
 	public static inline var VALUE		= 1;
 	public static inline var VALIDATOR	= 2;
 	
 #if debug
-	public static inline function readProperties (flags:Int) : String
+	public static function readProperties (flags:Int) : String
 	{
 		var output	= [];
 		
