@@ -36,7 +36,7 @@ package primevc.gui.core;
  * @author Ruben Weijers
  * @creation-date Nov 19, 2010
  */
-extern class UIElementFlags
+#if !debug extern #end class UIElementFlags
 {
 	public static inline var LAYOUT			= 1 << 0;
 	public static inline var GRAPHICS		= 1 << 1;
@@ -84,7 +84,7 @@ extern class UIElementFlags
 
 	
 #if debug
-	static inline public function readProperties (flags:Int) : String
+	static public function readProperties (flags:Int) : String
 	{
 		var output	= [];
 		

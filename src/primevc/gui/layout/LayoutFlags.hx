@@ -36,7 +36,7 @@ package primevc.gui.layout;
  * @creation-date	Jun 24, 2010
  * @author			Ruben Weijers
  */
-extern class LayoutFlags 
+#if !debug extern #end class LayoutFlags
 {
 	public static inline var ALL_PROPERTIES			= SIZE | POSITION | INCLUDE | RELATIVE | ALGORITHM | PERCENT_WIDTH | PERCENT_HEIGHT | PADDING | MARGIN | MAINTAIN_ASPECT | ROTATION | CHILD_WIDTH | CHILD_HEIGHT | WIDTH_CONSTRAINTS | HEIGHT_CONSTRAINTS;
 	
@@ -154,7 +154,7 @@ extern class LayoutFlags
 	
 
 #if debug
-	public static inline function readProperties (flags:Int) : String
+	public static function readProperties (flags:Int) : String
 	{
 		var output	= [];
 		

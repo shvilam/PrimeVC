@@ -38,7 +38,7 @@ package primevc.utils;
  * @author Ruben Weijers
  * @creation-date Sep 14, 2010
  */
-extern class StringUtil
+class StringUtil
 {
 	/**
 	 * Method generates a UUID string
@@ -49,7 +49,7 @@ extern class StringUtil
 	 * x = any hexadecimal character
 	 * y = 8,9,a,b
 	 */
-	public static inline function createUUID () : String
+	public static function createUUID () : String
 	{
 		return randomHexStr(0xffff) + randomHexStr(0xffff) 					//first 8 chars	(xxxxxxxx)
 				+ "-" + randomHexStr(0xffff) 								//next 4 chars (xxxx)
@@ -65,7 +65,7 @@ extern class StringUtil
 	/**
 	 * Method creates a random string with the given length
 	 */
-	public static inline function randomString(l:Int) : String
+	public static function randomString(l:Int) : String
 	{
 		Assert.that(l > 0);
 		var s = "";
@@ -79,7 +79,7 @@ extern class StringUtil
 	 * Method will change the first character of every word in the given string
 	 * to uppercase
 	 */
-	public static inline function capitalize (v:String) : String
+	public static function capitalize (v:String) : String
 	{
 		var words	= v.split(" ");
 		var len		= words.length;
