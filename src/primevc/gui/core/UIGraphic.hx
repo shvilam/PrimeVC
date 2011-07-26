@@ -207,8 +207,8 @@ class UIGraphic extends VectorShape
 			{
 				if (hasEffect) {
 					visible = false;
-					show();
-				//	haxe.Timer.delay( show, 100 ); //.onceOn( displayEvents.enterFrame, this );
+					if (!isInitialized()) 	haxe.Timer.delay( show, 100 ); //.onceOn( displayEvents.enterFrame, this );
+					else 					show();
 				}
 			}
 		}
