@@ -100,10 +100,11 @@ class ImageUtils
         if (hasToCreate)    bitmapData = new BitmapData(realW, realH, true, 0x00);
         bitmapData.lock();
 
-        try {
+        try { 
             if (area != null)  bitmapData.draw(source, new Matrix(1, 0, 0, 1, -area.x, -area.y));
             else               bitmapData.draw(source);
-        } catch(e:Dynamic) {
+        }
+        catch(e:Dynamic) {
             trace("error with drawing "+source+"; error: "+e);
             bitmapData.floodFill(0,0,0xffffffff);
         }

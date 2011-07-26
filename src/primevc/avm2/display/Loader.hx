@@ -456,10 +456,7 @@ class Loader implements ICommunicator
 			isAnimated = false;
 		}
 		
-		
-		if (!isAnimated)
-			c.cacheAsBitmap	= true;
-		
+	//	loader.cacheAsBitmap = c.cacheAsBitmap = !isAnimated;
 		return content = c;
 		/*try {
 			if (loader.contentLoaderInfo.swfVersion < 9)
