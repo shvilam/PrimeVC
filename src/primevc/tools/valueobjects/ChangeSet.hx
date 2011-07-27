@@ -27,24 +27,25 @@
  *  Danny Wilson    <danny @ onlinetouch.nl>
  */
 package primevc.tools.valueobjects;
- import primevc.core.traits.IValueObject;
+ import primevc.core.collections.IRevertableList;
+  using primevc.tools.valueobjects.ChangesUtil;
   using primevc.utils.IfUtil;
 
 
 /**
- * @author Danny Wilson
- * @creation-date Dec 03, 2010
+ * Represents a group of changes applied on different value-objects.
+ * The grouped changes can be undone/redone at once.
+ * 
+ * @author Ruben Weijers
+ * @creation-date Jul 27, 2011
  */
-class ChangeVO implements IValueObject
+class ChangeSet extends ChangeVO
 {
-    public var next (default,null) : ChangeVO;
+    public var timestamp    (default, null) : Int;      // in ms
     
     
-    public function dispose()
+    private function new()
     {
-        if (next.notNull()) {
-            next.dispose();
-            next = null;
-        }
+        timestamp = primevc.utils.TimerUtil.stamp();
     }
 }

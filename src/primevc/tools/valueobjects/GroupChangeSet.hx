@@ -30,60 +30,28 @@ package primevc.tools.valueobjects;
  import primevc.core.collections.IRevertableList;
   using primevc.tools.valueobjects.ChangesUtil;
   using primevc.utils.IfUtil;
-  using primevc.utils.TypeUtil;
 
 
 /**
- * Group of changes applied on a value-object in one commit.
+ * Represents a group of changes applied on different value-objects.
+ * The grouped changes can be undone/redone at once.
  * 
- * @author Danny Wilson
- * @creation-date Dec 03, 2010
+ * @author Ruben Weijers
+ * @creation-date Jul 27, 2011
  */
- class ObjectChangeSet extends ChangeSet
+ class GroupChangeSet extends ChangeSet
 {
-    public static inline function make (vo:ValueObjectBase, changes:Int)
-    {
-        var s = new ObjectChangeSet();  // Could come from freelist if profiling tells us to
-        s.vo = vo;
-        s.propertiesChanged = changes;
-        return s;
-    }
-    
-    public var vo                   (default, null) : ValueObjectBase;
-    public var parent               (default, null) : ObjectPathVO;
-    public var propertiesChanged    (default, null) : Int;
+    // Could come from freelist if profiling tells us to
+    public static inline function make ()   { return new GroupChangeSet(); }
     
     
-    public function add (change:PropertyChangeVO)
+    public function add (change:ChangeSet)
     {
         untyped change.next = next;
         next = change;
     }
-    
-    public function has (propertyID : Int) : Bool   { return (propertiesChanged & (1 << ((propertyID & 0xFF) + untyped vo._fieldOffset(propertyID >>> 8)))).not0(); }
-    
-    
-    public inline function addChange (id:Int, flagBit:Int, value:Dynamic)
-    {
-        if (flagBit.not0())
-            add(PropertyValueChangeVO.make(id, null, value));
-    }
-    
-    
-    public inline function addBindableChange<T> (id:Int, flagBit:Int, oldValue:Dynamic, value:Dynamic)
-    {
-        if (flagBit.not0())
-            add(PropertyValueChangeVO.make(id, oldValue, value));
-    }
-    
-    
-    public inline function addListChanges<T> (id:Int, flagBit:Int, list:IRevertableList<T>)
-    {
-        if (flagBit.not0())
-            add(ListChangeVO.make(id, list.changes));
-    }
-    
-    
+
+
 #if debug
     public function toString ()
     {
@@ -92,13 +60,11 @@ package primevc.tools.valueobjects;
         var change = next;
         while(change != null)
         {
-            if (change.is(PropertyChangeVO))    output.push( vo.propertyIdToString( change.as(PropertyChangeVO).propertyID ) + ": " + change );
-            else                                output.push( Std.string(change) );
-            
+            output.push( Std.string(change) );
             change = change.next;
         }
         
-        return "ObjectChangeSet at " + Date.fromTime(timestamp) + " on "+vo+"; changes: \n\t\t\t" + output.join("\n\t\t\t");
+        return "GroupChangeSet at " + Date.fromTime(timestamp)+"; changes: \n\t\t\t" + output.join("\n\t\t\t");
     }
 #end
 }

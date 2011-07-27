@@ -72,66 +72,83 @@ class ChangesUtil
 	
 	
 	
-	public static function undo (changes:ObjectChangeSet) : Void
+	public static function undo (changes:ChangeSet) : Void
 	{
-		trace("undo changes "+Date.fromTime(changes.timestamp / 1000) + ", " + changes);
-		var vo = changes.vo;
-		vo.beginEdit();
-		
-		var change:PropertyChangeVO = changes.next;
-		while( change != null )
+		trace("undo changes "+Date.fromTime(changes.timestamp) + ", " + changes);
+
+		if (changes.is(ObjectChangeSet))
 		{
-			var property = propertyIdToString( vo, change.propertyID );
-			Assert.notNull( property );
+			var vo = changes.as(ObjectChangeSet).vo;
+			vo.beginEdit();
 			
-			if (change.is(ListChangeVO))	undoListChanges( 	change.as(ListChangeVO), 			vo, property);
-			else							undoPropertyChange( change.as(PropertyValueChangeVO), 	vo, property );
+			var change = changes.next;
+			while (change != null)
+			{
+				if (change.is(ListChangeVO))	undoListChanges( 	change.as(ListChangeVO), 			vo);
+				else							undoPropertyChange( change.as(PropertyValueChangeVO), 	vo);
+				
+				change = change.next;
+			}
 			
-			change = change.next;
+			vo.commitEdit();
 		}
-		
-		vo.commitEdit();
+
+		else if (changes.is(GroupChangeSet))
+		{
+			var change = changes.next;
+			while (change != null) {
+				undo(change.as(ChangeSet));
+				change = change.next;
+			}
+		}
 	}
 	
 	
-	public static function redo (changes:ObjectChangeSet) : Void
+	public static function redo (changes:ChangeSet) : Void
 	{
 		trace("redo changes "+Date.fromTime(changes.timestamp) + ", " + changes);
-		var vo = changes.vo;
-		vo.beginEdit();
-		
-		var change:PropertyChangeVO = changes.next;
-		while( change != null )
+		if (changes.is(ObjectChangeSet))
 		{
-			var property = propertyIdToString( vo, change.propertyID );
-			Assert.notNull( property );
+			var vo = changes.as(ObjectChangeSet).vo;
+			vo.beginEdit();
 			
-			if (change.is(ListChangeVO))	redoListChanges( 	change.as(ListChangeVO), 			vo, property);
-			else							redoPropertyChange( change.as(PropertyValueChangeVO), 	vo, property );
-			
-			change = change.next;
+			var change = changes.next;
+			while (change != null)
+			{
+				if (change.is(ListChangeVO))	redoListChanges( 	change.as(ListChangeVO), 			vo);
+				else							redoPropertyChange( change.as(PropertyValueChangeVO), 	vo);
+				
+				change = change.next;
+			}
+			vo.commitEdit();
 		}
-		vo.commitEdit();
+
+		else if (changes.is(GroupChangeSet))
+		{
+			var change = changes.next;
+			while (change != null) {
+				redo(change.as(ChangeSet));
+				change = change.next;
+			}
+		}
 	}
 	
 	
 	
 	
-	private static inline function undoListChanges (changesVO:ListChangeVO, owner:ValueObjectBase, property:String) : Void
+	private static inline function undoListChanges (changesVO:ListChangeVO, owner:ValueObjectBase) : Void
 	{
-	//	trace("for "+property);
-		var list	= getProperty( owner, property ).as(IEditableList);
-		var changes = changesVO.changes;
+		var list		= getPropertyById( owner, changesVO.propertyID ).as(IEditableList);
+		var changes 	= changesVO.changes;
 		
 		for (i in 0...changes.length)
 			undoListChange( list, cast changes[i] );
 	}
 	
 	
-	private static function redoListChanges (changesVO:ListChangeVO, owner:ValueObjectBase, property:String) : Void
+	private static function redoListChanges (changesVO:ListChangeVO, owner:ValueObjectBase) : Void
 	{
-	//	trace("for "+property);
-		var list	= getProperty( owner, property ).as(IEditableList);
+		var list	= getPropertyById( owner, changesVO.propertyID ).as(IEditableList);
 		var changes = changesVO.changes;
 		
 		for (i in 0...changes.length)
@@ -141,17 +158,17 @@ class ChangesUtil
 	
 	
 	
-	private static function undoPropertyChange (change:PropertyValueChangeVO, owner:ValueObjectBase, property:String) : Void
+	private static function undoPropertyChange (change:PropertyValueChangeVO, owner:ValueObjectBase) : Void
 	{
-	//	trace("for "+property+": "+change.newValue+" => "+change.oldValue);
-		setProperty( owner, property, change.oldValue );
+	//	trace("for "+property+": "+change.oldValue+" => "+change.newValue);
+		setProperty( owner, change.propertyID, change.oldValue );
 	}
 	
 	
-	private static function redoPropertyChange (change:PropertyValueChangeVO, owner:ValueObjectBase, property:String) : Void
+	private static function redoPropertyChange (change:PropertyValueChangeVO, owner:ValueObjectBase) : Void
 	{
 	//	trace("for "+property+": "+change.oldValue+" => "+change.newValue);
-		setProperty( owner, property, change.newValue );
+		setProperty( owner, change.propertyID, change.newValue );
 	}
 	
 	
@@ -161,13 +178,20 @@ class ChangesUtil
 	{
 		return Reflect.field( owner, property );
 	}
+
+	
+	private static inline function getPropertyById( owner:Dynamic, propertyID:Int ) : Dynamic
+	{
+		return getProperty( owner, propertyIdToString( owner, propertyID ) );
+	}
 	
 	
-	private static function setProperty( owner:Dynamic, property:String, value:Dynamic ) : Dynamic
-	{	
+	private static function setProperty( owner:Dynamic, propertyID:Int, value:Dynamic ) : Dynamic
+	{
 		Assert.notNull( owner );
-		Assert.notNull( property );
-		var field:Dynamic = getProperty( owner, property );
+
+		var property 		= propertyIdToString(owner, propertyID);
+		var field:Dynamic 	= getProperty( owner, property );
 //		Assert.notNull( field, "owner: "+owner +", property: "+property );
 		
 //		trace("set "+owner+"."+property+" to "+value);
