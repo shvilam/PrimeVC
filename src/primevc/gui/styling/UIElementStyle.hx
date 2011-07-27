@@ -810,11 +810,17 @@ class UIElementStyle implements IUIElementStyle
 		var parentClass		= target.getClass();
 		
 		//search for the first element style that is defined for this object or one of it's super classes
-		while (parentClass != null && addChanges == 0)
+		var i = 0;
+		while (parentClass != null && addChanges == 0 && i++ < 30) 	// FIXME: this loop sometimes will trigger an infinite loop.. hense the i
 		{
 			addChanges	= addChanges.set( parentStyle.addChildStyles( this, parentClass.getClassName(), StyleBlockType.element ) );
 			parentClass	= cast parentClass.getSuperClass();
 		}
+
+#if debug
+		if (i >= 30)
+			trace("possible infinite loop detected for updating style of "+target+"; parentClass: "+parentClass+"; AddChanges: "+Flags.read(addChanges)+"; RemoveChanges: "+Flags.read(removeChanges));
+#end
 		
 		//use the IDisplayObject style if there isn't a style defined for this element
 		if (addChanges == 0)
