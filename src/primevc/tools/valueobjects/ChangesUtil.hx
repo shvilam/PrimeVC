@@ -74,7 +74,7 @@ class ChangesUtil
 	
 	public static function undo (changes:ObjectChangeSet) : Void
 	{
-		trace("undo changes "+Date.fromTime(changes.timestamp) + ", " + changes);
+		trace("undo changes "+Date.fromTime(changes.timestamp / 1000) + ", " + changes);
 		var vo = changes.vo;
 		vo.beginEdit();
 		

@@ -42,7 +42,7 @@ package primevc.tools.valueobjects;
     {
         var s = new ObjectChangeSet();  // Could come from freelist if profiling tells us to
         s.vo = vo;
-        s.timestamp = haxe.Timer.stamp();
+        s.timestamp = primevc.utils.TimerUtil.stamp();
         s.propertiesChanged = changes;
         return s;
     }
