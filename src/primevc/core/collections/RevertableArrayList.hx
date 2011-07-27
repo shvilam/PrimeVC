@@ -30,7 +30,7 @@ package primevc.core.collections;
  import primevc.core.RevertableBindableFlags;
  import primevc.utils.FastArray;
   using primevc.utils.BitUtil;
-  using primevc.utils.ChangesUtil;
+  using primevc.tools.valueobjects.ChangesUtil;
   using primevc.utils.FastArray;
 
 

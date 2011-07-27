@@ -26,14 +26,12 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.utils;
+package primevc.tools.valueobjects;
  import primevc.core.collections.IEditableList;
  import primevc.core.collections.ListChange;
  import primevc.core.traits.IEditableValueObject;
  import primevc.core.traits.IValueObject;
  private typedef IBindable = primevc.core.IBindable<Dynamic>;
- import primevc.utils.TypeUtil;
- import primevc.tools.valueobjects.ValueObjectBase;
   using primevc.utils.TypeUtil;
   using Std;
   using Type;
@@ -86,8 +84,8 @@ class ChangesUtil
 			var property = propertyIdToString( vo, change.propertyID );
 			Assert.notNull( property );
 			
-			if (change.is( ListChangeVO ))	undoListChanges( cast change, vo, property);
-			else							undoPropertyChange( cast change, vo, property );
+			if (change.is(ListChangeVO))	undoListChanges( 	change.as(ListChangeVO), 			vo, property);
+			else							undoPropertyChange( change.as(PropertyValueChangeVO), 	vo, property );
 			
 			change = change.next;
 		}
@@ -108,8 +106,8 @@ class ChangesUtil
 			var property = propertyIdToString( vo, change.propertyID );
 			Assert.notNull( property );
 			
-			if (change.is( ListChangeVO ))	redoListChanges( change.as( ListChangeVO ), vo, property);
-			else							redoPropertyChange( change.as( PropertyValueChangeVO ), vo, property );
+			if (change.is(ListChangeVO))	redoListChanges( 	change.as(ListChangeVO), 			vo, property);
+			else							redoPropertyChange( change.as(PropertyValueChangeVO), 	vo, property );
 			
 			change = change.next;
 		}
@@ -122,7 +120,7 @@ class ChangesUtil
 	private static inline function undoListChanges (changesVO:ListChangeVO, owner:ValueObjectBase, property:String) : Void
 	{
 	//	trace("for "+property);
-		var list	= TypeUtil.as( getProperty( owner, property ), IEditableList);
+		var list	= getProperty( owner, property ).as(IEditableList);
 		var changes = changesVO.changes;
 		
 		for (i in 0...changes.length)
@@ -133,7 +131,7 @@ class ChangesUtil
 	private static function redoListChanges (changesVO:ListChangeVO, owner:ValueObjectBase, property:String) : Void
 	{
 	//	trace("for "+property);
-		var list	= TypeUtil.as( getProperty( owner, property ), IEditableList);
+		var list	= getProperty( owner, property ).as(IEditableList);
 		var changes = changesVO.changes;
 		
 		for (i in 0...changes.length)
@@ -174,8 +172,8 @@ class ChangesUtil
 		
 //		trace("set "+owner+"."+property+" to "+value);
 		
-		if (TypeUtil.is( field, IBindable))
-			TypeUtil.as( field, IBindable).value = value;
+		if (field.is(IBindable))
+			field.as(IBindable).value = value;
 		else {
 			var setter : Dynamic -> Dynamic = Reflect.field(owner, "set" + property.substr(0,1).toUpperCase() + property.substr(1));
 			if (setter != null) {
