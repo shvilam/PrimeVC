@@ -141,6 +141,12 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >, i
 		}
 		flags = flags.unset(Flags.IN_EDITMODE);
 	}
+
+
+	public inline function isEditable ()
+	{
+		return flags.has( Flags.IN_EDITMODE );
+	}
 	
 	
 	
