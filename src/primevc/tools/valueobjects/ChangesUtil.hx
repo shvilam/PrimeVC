@@ -95,10 +95,10 @@ class ChangesUtil
 
 		else if (changes.is(GroupChangeSet))
 		{
-			var change = changes.next;
+			var change = changes.nextSet;
 			while (change != null) {
-				undo(change.as(ChangeSet));
-				change = change.next;
+				undo(change);
+				change = change.nextSet;
 			}
 		}
 	}
@@ -125,10 +125,10 @@ class ChangesUtil
 
 		else if (changes.is(GroupChangeSet))
 		{
-			var change = changes.next;
+			var change = changes.nextSet;
 			while (change != null) {
-				redo(change.as(ChangeSet));
-				change = change.next;
+				redo(change);
+				change = change.nextSet;
 			}
 		}
 	}

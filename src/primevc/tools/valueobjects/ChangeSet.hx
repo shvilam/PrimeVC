@@ -42,7 +42,10 @@ package primevc.tools.valueobjects;
 class ChangeSet extends ChangeVO
 {
     public var timestamp    (default, null) : Int;      // in ms
-    
+    /**
+     * Reference to the next change set. Used for grouping change-sets in a GroupChangeSet
+     */
+    public var nextSet      (default, null) : ChangeSet;
     
     private function new()
     {

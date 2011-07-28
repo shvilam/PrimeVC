@@ -47,8 +47,8 @@ package primevc.tools.valueobjects;
     
     public function add (change:ChangeSet)
     {
-        untyped change.next = next;
-        next = change;
+        untyped change.nextSet = nextSet;
+        nextSet = change;
     }
 
 
@@ -57,11 +57,11 @@ package primevc.tools.valueobjects;
     {
         var output = [];
         
-        var change = next;
+        var change = nextSet;
         while(change != null)
         {
             output.push( Std.string(change) );
-            change = change.next;
+            change = change.nextSet;
         }
         
         return "GroupChangeSet at " + Date.fromTime(timestamp)+"; changes: \n\t\t\t" + output.join("\n\t\t\t");
