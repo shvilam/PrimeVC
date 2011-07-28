@@ -186,7 +186,7 @@ class UIElementEffects implements IDisposable
 		if (show != null)
 		{
 			if (hide != null) {
-				if (hide.isWaiting())	{ hide.stop(); return; }
+				if (hide.isWaiting())	{ hide.stop(); }
 				if (hide.isPlaying())	{ hide.stop(); }
 				else					target.visible = false;
 			}
@@ -196,7 +196,6 @@ class UIElementEffects implements IDisposable
 			if (show == hide)
 				show.isReverted = false;
 			
-		//	trace(target);
 			show.play();
 		}
 #end
@@ -209,13 +208,13 @@ class UIElementEffects implements IDisposable
 		if (hide != null)
 		{
 			if (show != null) {
-				if (show.isWaiting())	{ show.stop(); return; }
+				if (show.isWaiting())	{ show.stop(); }
 				if (show.isPlaying())	{ show.stop(); }
 			}
 			
 			if (show == hide)
 				hide.isReverted = true;
-		//	trace(target);
+			
 			hide.play();
 		}
 #end

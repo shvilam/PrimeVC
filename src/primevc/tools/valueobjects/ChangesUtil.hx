@@ -74,7 +74,7 @@ class ChangesUtil
 	
 	public static function undo (changes:ChangeSet) : Void
 	{
-		trace("undo changes "+Date.fromTime(changes.timestamp) + ", " + changes);
+	//	trace("undo changes "+Date.fromTime(changes.timestamp) + ", " + changes);
 
 		if (changes.is(ObjectChangeSet))
 		{
@@ -106,7 +106,7 @@ class ChangesUtil
 	
 	public static function redo (changes:ChangeSet) : Void
 	{
-		trace("redo changes "+Date.fromTime(changes.timestamp) + ", " + changes);
+	//	trace("redo changes "+Date.fromTime(changes.timestamp) + ", " + changes);
 		if (changes.is(ObjectChangeSet))
 		{
 			var vo = changes.as(ObjectChangeSet).vo;
