@@ -34,6 +34,8 @@ class DOMElem
 		
 		children = new DisplayList(this);
 		
+		matrix = Transform.getMatrix(elem);
+		
 		(untyped this).x = 0;
 		(untyped this).y = 0;
 		(untyped this).scale = 1;
@@ -127,7 +129,13 @@ class DOMElem
 	
 	inline private function applyTransforms()
 	{
-		//elem.style.webkitTransform = "translate3d(" + x + "px," + y + "px, 0) scale(" + scale + ")";
+		//elem.style.webkitTransform = "translate3d(" + x + "px," + y + "px,0) scale3d(" + scale + "," + scale + ",1)";
 		elem.style.webkitTransform = "translate(" + x + "px," + y + "px) scale(" + scale + ")";
+	/*	var m = matrix;
+		m.a = m.d = scale;
+		m.e = x;
+		m.f = y;
+		elem.style.webkitTransform = m;
+	*/
 	}
 }
