@@ -14,7 +14,7 @@ class Image extends DOMElem
 {
 	public var src 				(default, setSrc):String;
 	public var events			(default, null):DisplayEvents;
-	public var isAddedToStage	(default, null):Bool;
+	public var isDisplayed		(default, null):Bool;
 	public var loaded			(default, null):Signal1<Image>;
 	override public var width	(default, setWidth):Int;
 	override public var height	(default, setHeight):Int;
@@ -30,8 +30,8 @@ class Image extends DOMElem
 	{
 		events = new DisplayEvents(elem);
 		
-		//events.nodeInsertedIntoDoc.bind(this, onInsertedIntoDoc);
-		//events.nodeRemovedFromDoc.bind(this, onRemovedFromDoc);
+		events.insertedIntoDoc.bind(this, onInsertedIntoDoc);
+		events.removedFromDoc.bind(this, onRemovedFromDoc);
 		
 		loaded = new Signal1();
 		untyped elem.addEventListener("load", onLoad, false);
@@ -62,20 +62,21 @@ class Image extends DOMElem
 		if (src != v)
 		{
 			src = v;
-			if (isAddedToStage) { load(); }
+			if (isDisplayed) { load(); }
 		}
 		return src;
 	}
 	
-	inline private function onInsertedIntoDoc(event:DisplayEvent)
+	private function onInsertedIntoDoc(event:DisplayEvent)
 	{
-		isAddedToStage = true;
+		isDisplayed = true;
 		load();
 	}
 	
-	inline private function onRemovedFromDoc(event:DisplayEvent)
+	private function onRemovedFromDoc(event:DisplayEvent)
 	{
-		isAddedToStage = false;
+		isDisplayed = false;
+		elem.src = "";
 	}
 	
 	private function onLoad(event:Event)
