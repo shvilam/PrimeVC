@@ -70,11 +70,13 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 	}
 	
 	
-	public inline function isEmpty() : Bool			{ return !_propertiesSet.not0(); }
-	public inline function isEditable() : Bool		{ return _flags.has(Flags.IN_EDITMODE); }
-	public inline function isDisposed() : Bool		{ return change == null; }
-	public function has (propertyID : Int) : Bool	{ return (_propertiesSet & (1 << ((propertyID & 0xFF) + _fieldOffset(propertyID >>> 8)))).not0(); }
-	public inline function changed () : Bool		{ return _changedFlags.not0(); }
+	public inline function isEmpty() : Bool				{ return !_propertiesSet.not0(); }
+	public inline function isEditable() : Bool			{ return _flags.has(Flags.IN_EDITMODE); }
+	public inline function isDisposed() : Bool			{ return change == null; }
+	public inline function changed () : Bool			{ return _changedFlags.not0(); }
+	public function has (propertyID : Int) : Bool		{ return (_propertiesSet & (1 << ((propertyID & 0xFF) + _fieldOffset(propertyID >>> 8)))).not0(); }
+	public function getPropertyById (id:Int) : Dynamic	{ Assert.abstract(); return null; }
+	public function setPropertyById (id:Int, v:Dynamic)	{ Assert.abstract(); }
 	
 	private inline function setPropertyFlag(propertyID : Int) : Void {
 		_propertiesSet = _propertiesSet.set(1 << ((propertyID & 0xFF) + _fieldOffset(propertyID >>> 8)));

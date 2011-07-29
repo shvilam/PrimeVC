@@ -33,6 +33,7 @@ package primevc.tools.valueobjects;
  import primevc.core.traits.IValueObject;
  private typedef IBindable = primevc.core.IBindable<Dynamic>;
   using primevc.utils.TypeUtil;
+  using Reflect;
   using Std;
   using Type;
 
@@ -138,7 +139,7 @@ class ChangesUtil
 	
 	private static inline function undoListChanges (changesVO:ListChangeVO, owner:ValueObjectBase) : Void
 	{
-		var list		= getPropertyById( owner, changesVO.propertyID ).as(IEditableList);
+		var list		= owner.getPropertyById( changesVO.propertyID ).as(IEditableList);
 		var changes 	= changesVO.changes;
 		
 		for (i in 0...changes.length)
@@ -148,7 +149,7 @@ class ChangesUtil
 	
 	private static function redoListChanges (changesVO:ListChangeVO, owner:ValueObjectBase) : Void
 	{
-		var list	= getPropertyById( owner, changesVO.propertyID ).as(IEditableList);
+		var list	= owner.getPropertyById( changesVO.propertyID ).as(IEditableList);
 		var changes = changesVO.changes;
 		
 		for (i in 0...changes.length)
@@ -160,53 +161,13 @@ class ChangesUtil
 	
 	private static function undoPropertyChange (change:PropertyValueChangeVO, owner:ValueObjectBase) : Void
 	{
-	//	trace("for "+property+": "+change.oldValue+" => "+change.newValue);
-		setProperty( owner, change.propertyID, change.oldValue );
+		owner.setPropertyById(change.propertyID, change.oldValue);
 	}
 	
 	
 	private static function redoPropertyChange (change:PropertyValueChangeVO, owner:ValueObjectBase) : Void
 	{
-	//	trace("for "+property+": "+change.oldValue+" => "+change.newValue);
-		setProperty( owner, change.propertyID, change.newValue );
-	}
-	
-	
-	
-	
-	private static inline function getProperty( owner:Dynamic, property:String ) : Dynamic
-	{
-		return Reflect.field( owner, property );
-	}
-
-	
-	private static inline function getPropertyById( owner:Dynamic, propertyID:Int ) : Dynamic
-	{
-		return getProperty( owner, propertyIdToString( owner, propertyID ) );
-	}
-	
-	
-	private static function setProperty( owner:Dynamic, propertyID:Int, value:Dynamic ) : Dynamic
-	{
-		Assert.notNull( owner );
-
-		var property 		= propertyIdToString(owner, propertyID);
-		var field:Dynamic 	= getProperty( owner, property );
-//		Assert.notNull( field, "owner: "+owner +", property: "+property );
-		
-//		trace("set "+owner+"."+property+" to "+value);
-		
-		if (field.is(IBindable))
-			field.as(IBindable).value = value;
-		else {
-			var setter : Dynamic -> Dynamic = Reflect.field(owner, "set" + property.substr(0,1).toUpperCase() + property.substr(1));
-			if (setter != null) {
-				trace("try setter: "+setter);
-				setter(value);
-			}
-			else
-				Reflect.setField( owner, property, value );
-		}
+		owner.setPropertyById(change.propertyID, change.newValue);
 	}
 	
 	
@@ -220,25 +181,10 @@ class ChangesUtil
 	 * @param propertyId 	id of property
 	 * @return property name
 	 */
-	public static function propertyIdToString (owner:ValueObjectBase, propertyId:Int) : String
+	public static inline function propertyIdToString (owner:ValueObjectBase, propertyId:Int) : String
 	{
-		var propFlags		= owner.getClass();
-		var property:String	= null;
-		var fields			= propFlags.getInstanceFields();
-		
-		for (propField in fields)
-		{
-			var val = Reflect.field( propFlags, propField.toUpperCase() );
-			
-		//	trace("searching for "+property+"( "+propertyId+" ) => "+propField+" ( " + val + " )");
-			if (val != null && propertyId == Std.parseInt( val ) )
-			{
-				property = propField;
-				break;
-			}
-		}
-		
-		return property;
+		var propFlags:Dynamic = owner.getClass();
+		return propFlags.hasField('propertyIdToString') ? propFlags.propertyIdToString(propertyId) : null;
 	}
 	
 	
