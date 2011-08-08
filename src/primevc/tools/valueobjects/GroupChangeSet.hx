@@ -20,25 +20,51 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Danny Wilson    <danny @ onlinetouch.nl>
  */
-package primevc.core.traits;
+package primevc.tools.valueobjects;
+ import primevc.core.collections.IRevertableList;
+  using primevc.tools.valueobjects.ChangesUtil;
+  using primevc.utils.IfUtil;
 
 
 /**
- * Implemented by every Editable-Value-Object class.
+ * Represents a group of changes applied on different value-objects.
+ * The grouped changes can be undone/redone at once.
  * 
- * @author Danny Wilson
- * @creation-date Jul 06, 2010
+ * @author Ruben Weijers
+ * @creation-date Jul 27, 2011
  */
-interface IEditableValueObject implements IEditEnabledValueObject 
+ class GroupChangeSet extends ChangeSet
 {
-	public function beginEdit()  : Void;
-	public function commitEdit() : Void;
-	public function cancelEdit() : Void;
-    public function isEditable() : Bool;
+    // Could come from freelist if profiling tells us to
+    public static inline function make ()   { return new GroupChangeSet(); }
+    
+    
+    public function add (change:ChangeSet)
+    {
+        untyped change.nextSet = nextSet;
+        nextSet = change;
+    }
+
+
+#if debug
+    public function toString ()
+    {
+        var output = [];
+        
+        var change = nextSet;
+        while(change != null)
+        {
+            output.push( Std.string(change) );
+            change = change.nextSet;
+        }
+        
+        return "GroupChangeSet at " + Date.fromTime(timestamp)+"; changes: \n\t\t\t" + output.join("\n\t\t\t");
+    }
+#end
 }

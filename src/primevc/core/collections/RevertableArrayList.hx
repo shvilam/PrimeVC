@@ -30,7 +30,7 @@ package primevc.core.collections;
  import primevc.core.RevertableBindableFlags;
  import primevc.utils.FastArray;
   using primevc.utils.BitUtil;
-  using primevc.utils.ChangesUtil;
+  using primevc.tools.valueobjects.ChangesUtil;
   using primevc.utils.FastArray;
 
 
@@ -140,6 +140,12 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >, i
 			changes = null;
 		}
 		flags = flags.unset(Flags.IN_EDITMODE);
+	}
+
+
+	public inline function isEditable ()
+	{
+		return flags.has( Flags.IN_EDITMODE );
 	}
 	
 	

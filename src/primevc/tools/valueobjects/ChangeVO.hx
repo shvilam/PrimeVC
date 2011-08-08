@@ -20,25 +20,31 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Danny Wilson    <danny @ onlinetouch.nl>
  */
-package primevc.core.traits;
+package primevc.tools.valueobjects;
+ import primevc.core.traits.IValueObject;
+  using primevc.utils.IfUtil;
 
 
 /**
- * Implemented by every Editable-Value-Object class.
- * 
  * @author Danny Wilson
- * @creation-date Jul 06, 2010
+ * @creation-date Dec 03, 2010
  */
-interface IEditableValueObject implements IEditEnabledValueObject 
+class ChangeVO implements IValueObject
 {
-	public function beginEdit()  : Void;
-	public function commitEdit() : Void;
-	public function cancelEdit() : Void;
-    public function isEditable() : Bool;
+    public var next (default,null) : ChangeVO;
+    
+    
+    public function dispose()
+    {
+        if (next.notNull()) {
+            next.dispose();
+            next = null;
+        }
+    }
 }

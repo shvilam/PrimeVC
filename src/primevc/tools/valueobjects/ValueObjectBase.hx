@@ -27,25 +27,16 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.tools.valueobjects;
- import primevc.core.collections.IRevertableList;
  import primevc.core.collections.ListChange;
- import primevc.core.traits.IEditableValueObject;
  import primevc.core.traits.IFlagOwner;
  import primevc.core.traits.IValueObject;
- import primevc.core.collections.RevertableArrayList;
  import primevc.core.dispatcher.Signal1;
- import primevc.core.RevertableBindable;
  import primevc.core.RevertableBindableFlags;
- import primevc.utils.FastArray;
   using primevc.utils.BitUtil;
   using primevc.utils.IfUtil;
-  using primevc.utils.TypeUtil;
-  using primevc.utils.FastArray;
-  using primevc.utils.ChangesUtil;
 
 
-typedef PropertyID	= Int;
-typedef Flags		= RevertableBindableFlags;
+private typedef Flags = RevertableBindableFlags;
 
 
 /**
@@ -79,11 +70,13 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 	}
 	
 	
-	public inline function isEmpty() : Bool			{ return !_propertiesSet.not0(); }
-	public inline function isEditable() : Bool		{ return _flags.has(Flags.IN_EDITMODE); }
-	public inline function isDisposed() : Bool		{ return change == null; }
-	public function has (propertyID : Int) : Bool	{ return (_propertiesSet & (1 << ((propertyID & 0xFF) + _fieldOffset(propertyID >>> 8)))).not0(); }
-	public inline function changed () : Bool		{ return _changedFlags.not0(); }
+	public inline function isEmpty() : Bool				{ return !_propertiesSet.not0(); }
+	public inline function isEditable() : Bool			{ return _flags.has(Flags.IN_EDITMODE); }
+	public inline function isDisposed() : Bool			{ return change == null; }
+	public inline function changed () : Bool			{ return _changedFlags.not0(); }
+	public function has (propertyID : Int) : Bool		{ return (_propertiesSet & (1 << ((propertyID & 0xFF) + _fieldOffset(propertyID >>> 8)))).not0(); }
+	public function getPropertyById (id:Int) : Dynamic	{ Assert.abstract(); return null; }
+	public function setPropertyById (id:Int, v:Dynamic)	{ Assert.abstract(); }
 	
 	private inline function setPropertyFlag(propertyID : Int) : Void {
 		_propertiesSet = _propertiesSet.set(1 << ((propertyID & 0xFF) + _fieldOffset(propertyID >>> 8)));
@@ -167,223 +160,4 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 		}
 	}
 */
-}
-
-
-
-
-
-class PropertyChangeVO extends ChangeVO
-{
-	public var propertyID	(default, null) : Int;
-}
-
-
-
-
-
-class ChangeVO implements IValueObject
-{
-	public var next (default,null) : PropertyChangeVO;
-	
-	
-	public function dispose()
-	{
-		if (next.notNull()) {
-			next.dispose();
-			next = null;
-		}
-	}
-}
-
-
-
-
-
-class PropertyValueChangeVO extends PropertyChangeVO
-{
-	public static inline function make(propertyID, oldValue, newValue)
-	{
-		var p = new PropertyValueChangeVO(); // Could come from freelist if profiling tells us to
-		p.propertyID = propertyID;
-		p.oldValue   = oldValue;
-		p.newValue   = newValue;
-		return p;
-	}
-	
-	
-	public var oldValue		(default, null) : Dynamic;
-	public var newValue		(default, null) : Dynamic;
-	
-	private function new() {}
-	
-	
-	override public function dispose()
-	{
-		propertyID = -1;
-		this.oldValue = this.newValue = null;
-		super.dispose();
-	}
-	
-#if debug
-	public function toString ()
-	{
-		return oldValue + " -> " + newValue;
-	}
-#end
-}
-
-
-
-
-
-class ListChangeVO extends PropertyChangeVO
-{
-	public static inline function make(propertyID, changes : FastArray<ListChange<Dynamic>>)
-	{
-		var l = new ListChangeVO(); // Could come from freelist if profiling tells us to
-		l.propertyID = propertyID;
-		l.changes = changes.clone();
-		return l;
-	}
-	
-	
-	public var changes : FastArray<ListChange<Dynamic>>;
-	private function new() {}
-	
-	
-	override public function dispose()
-	{
-		if (this.changes.notNull()) {
-			for (i in 0 ... this.changes.length) changes[i] = null;
-			this.changes = null;
-		}
-		super.dispose();
-	}
-	
-	
-#if debug
-	public function toString ()
-	{
-		var output = [];
-		for (change in changes)
-			output.push( change );
-		
-		return output.length > 0 ? "\n\t\t\t\t" + output.join("\n\t\t\t\t") : "no-changes";
-	}
-#end
-}
-/*
-ObjectChangeVO {
-  vo : instanceof PublicationVO
-  id : "pub1"
-  propertiesChanged: SPREAD
-  
-  next: ObjectChangeVO {
-    vo: instanceof SpreadVO
-    id: "spread1"
-    propertiesChanged: (bits)[ X, Y ]
-    next: PropertyChangeVO { propertyID: X, oldValue: 0, newValue: 100,
-      next: PropertyChangeVO { propertyID: Y, oldValue: 0, newValue: 100 }
-    }
-  }
-}
-*/
-
-
-
-class ObjectChangeSet extends ChangeVO
-{
-	public static inline function make (vo:ValueObjectBase, changes:Int)
-	{
-		var s = new ObjectChangeSet();	// Could come from freelist if profiling tells us to
-		s.vo = vo;
-		s.timestamp = haxe.Timer.stamp();
-		s.propertiesChanged = changes;
-		return s;
-	}
-	
-	public var vo					(default, null) : ValueObjectBase;
-	public var parent				(default, null) : ObjectPathVO;
-	public var timestamp			(default, null) : Float;
-	public var propertiesChanged	(default, null) : Int;
-	
-	
-	private function new() {}
-	
-	
-	public function add (change:PropertyChangeVO)
-	{
-		untyped change.next = next;
-		next = change;
-	}
-	
-	public function has (propertyID : Int) : Bool	{ return (propertiesChanged & (1 << ((propertyID & 0xFF) + untyped vo._fieldOffset(propertyID >>> 8)))).not0(); }
-	
-	
-	public inline function addChange (id:Int, flagBit:Int, value:Dynamic)
-	{
-		if (flagBit.not0())
-			add(PropertyValueChangeVO.make(id, null, value));
-	}
-	
-	
-	public inline function addBindableChange<T> (id:Int, flagBit:Int, oldValue:Dynamic, value:Dynamic)
-	{
-		if (flagBit.not0())
-			add(PropertyValueChangeVO.make(id, oldValue, value));
-	}
-	
-	
-	public inline function addListChanges<T> (id:Int, flagBit:Int, list:IRevertableList<T>)
-	{
-		if (flagBit.not0())
-			add(ListChangeVO.make(id, list.changes));
-	}
-	
-	
-//#if debug
-	public function toString ()
-	{
-		var output = [];
-		
-		var change = next;
-		while(change != null)
-		{
-			output.push( vo.propertyIdToString(change.propertyID) + ": " + change );
-			change = change.next;
-		}
-		
-		return "ChangeSet of " + Date.fromTime( timestamp * 1000 ) + " on "+vo+"; changes: \n\t\t\t" + output.join("\n\t\t\t");
-	}
-//#end
-}
-
-
-
-
-class ObjectPathVO implements IValueObject
-{
-	public var parent		(default, null) : ObjectPathVO;
-	public var object		(default, null) : IValueObject;
-	public var propertyID	(default, null) : Int;
-	
-	
-	private function new() {}
-	
-	
-	public function dispose()
-	{
-		parent = null;
-		object = null;
-	}
-	
-	
-	static inline public function make(vo:ValueObjectBase, propertyID:Int)
-	{
-		var p = new ObjectPathVO();
-		p.object = vo;
-		p.propertyID = propertyID;
-		return p;
-	}
 }

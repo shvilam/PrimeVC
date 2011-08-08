@@ -88,8 +88,6 @@ class SlidingToggleButtonSkin extends Skin<DataButton<Null<Bool>>>
 	//	tooltipLabel = new Bindable<String>(owner.data.value);
 		
 		behaviours.add( new DirectToolTipBehaviour( owner, owner.data ) );
-		trace(owner.data.value);
-		
 		owner.getLabelForVO = getButtonLabel;
 	//	updateToolTip		.on( owner.data.change, this );
 		owner.toggleSelect	.on( owner.userEvents.mouse.click, this );

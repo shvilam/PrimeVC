@@ -20,25 +20,56 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Danny Wilson    <danny @ onlinetouch.nl>
  */
-package primevc.core.traits;
+package primevc.tools.valueobjects;
+ import primevc.core.collections.ListChange;
+ import primevc.utils.FastArray;
+  using primevc.utils.FastArray;
+  using primevc.utils.IfUtil;
 
 
 /**
- * Implemented by every Editable-Value-Object class.
- * 
  * @author Danny Wilson
- * @creation-date Jul 06, 2010
+ * @creation-date Dec 03, 2010
  */
-interface IEditableValueObject implements IEditEnabledValueObject 
+class ListChangeVO extends PropertyChangeVO
 {
-	public function beginEdit()  : Void;
-	public function commitEdit() : Void;
-	public function cancelEdit() : Void;
-    public function isEditable() : Bool;
+    public static inline function make(propertyID, changes : FastArray<ListChange<Dynamic>>)
+    {
+        var l = new ListChangeVO(); // Could come from freelist if profiling tells us to
+        l.propertyID = propertyID;
+        l.changes    = changes.clone();
+        return l;
+    }
+    
+    
+    public var changes : FastArray<ListChange<Dynamic>>;
+    private function new() {}
+    
+    
+    override public function dispose()
+    {
+        if (this.changes.notNull()) {
+            for (i in 0 ... this.changes.length) changes[i] = null;
+            this.changes = null;
+        }
+        super.dispose();
+    }
+    
+    
+#if debug
+    public function toString ()
+    {
+        var output = [];
+        for (change in changes)
+            output.push( change );
+        
+        return output.length > 0 ? "\n\t\t\t\t" + output.join("\n\t\t\t\t") : "no-changes";
+    }
+#end
 }
