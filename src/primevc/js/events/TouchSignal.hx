@@ -40,8 +40,10 @@ typedef Touch =
  */
 class TouchSignal extends DOMSignal1<TouchEvent>
 {
-	override private function dispatch(event:Event)
+	override private function dispatch(e:Event)
 	{
-		send(cast event);
+		//untyped e.preventDefault();
+		
+		send(cast e);
 	}
 }

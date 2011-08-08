@@ -10,39 +10,39 @@ class TouchEvents extends Signals
 {
 	var eventDispatcher:Dynamic;
 	
-	public var touchStart	(getTouchStart, 	null):TouchSignal;
-	public var touchMove	(getTouchMove,		null):TouchSignal;
-	public var touchEnd		(getTouchEnd,		null):TouchSignal;
-	public var touchCancel	(getTouchCancel,	null):TouchSignal;
+	public var start	(getStart, 	null):TouchSignal;
+	public var move		(getMove,	null):TouchSignal;
+	public var end		(getEnd,	null):TouchSignal;
+	public var cancel	(getCancel,	null):TouchSignal;
 	
 	public function new(eventDispatcher:Dynamic)
 	{
 		this.eventDispatcher = eventDispatcher;
 	}
 	
-	private inline function getTouchStart	() { if (touchStart 	== null) { createTouchStart();	} return touchStart; }
-	private inline function getTouchMove	() { if (touchMove 		== null) { createTouchMove();	} return touchMove; }
-	private inline function getTouchEnd		() { if (touchEnd 		== null) { createTouchEnd();	} return touchEnd; }
-	private inline function getTouchCancel	() { if (touchCancel 	== null) { createTouchCancel(); } return touchCancel; }
+	private inline function getStart	() { if (start 	== null) { createStart();	} return start; }
+	private inline function getMove		() { if (move 	== null) { createMove();	} return move; }
+	private inline function getEnd		() { if (end 	== null) { createEnd();		} return end; }
+	private inline function getCancel	() { if (cancel == null) { createCancel(); 	} return cancel; }
 	
-	private function createTouchStart		() { touchStart 		= new TouchSignal(eventDispatcher, "touchstart"); }
-	private function createTouchMove		() { touchMove 			= new TouchSignal(eventDispatcher, "touchmove"); }
-	private function createTouchEnd			() { touchEnd 			= new TouchSignal(eventDispatcher, "touchend"); }
-	private function createTouchCancel		() { touchCancel 		= new TouchSignal(eventDispatcher, "touchcancel"); }
+	private function createStart	() { start 	= new TouchSignal(eventDispatcher, "touchstart"); }
+	private function createMove		() { move 	= new TouchSignal(eventDispatcher, "touchmove"); }
+	private function createEnd		() { end 	= new TouchSignal(eventDispatcher, "touchend"); }
+	private function createCancel	() { cancel = new TouchSignal(eventDispatcher, "touchcancel"); }
 	
 	override public function dispose ()
 	{
 		eventDispatcher = null;
 		
-		if ( (untyped this).touchStart	!= null ) touchStart.dispose();
-		if ( (untyped this).touchMove	!= null ) touchMove.dispose();
-		if ( (untyped this).touchEnd	!= null ) touchEnd.dispose();
-		if ( (untyped this).touchCancel	!= null ) touchCancel.dispose();
+		if ( (untyped this).start	!= null ) start.dispose();
+		if ( (untyped this).move	!= null ) move.dispose();
+		if ( (untyped this).end		!= null ) end.dispose();
+		if ( (untyped this).cancel	!= null ) cancel.dispose();
 		
-		touchStart =
-		touchMove =
-		touchEnd =
-		touchCancel =
+		start =
+		move =
+		end =
+		cancel =
 		null;
 	}
 }

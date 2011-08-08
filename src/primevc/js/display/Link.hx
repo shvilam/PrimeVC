@@ -2,10 +2,8 @@ package primevc.js.display;
 
 import js.Dom;
 import js.Lib;
-import org.valueobjects.types.Color;
-import primevc.js.events.MouseEvents;
-import primevc.gui.events.MouseEvents;
-using primevc.utils.Color;
+import primevc.js.events.TouchEvents;
+import primevc.js.events.TouchSignal;
 
 /**
  * @since	June 15, 2011
@@ -13,23 +11,21 @@ using primevc.utils.Color;
  */
 class Link extends DOMElem
 {	
-	public var action			(default, setAction):Void -> Void;
 	public var href				(default, setHref):String;
-	public var events			(default, null):MouseEvents;
-	public var backgroundColor	(default, default):String;
-	public var borderColor		(default, default):String;
+	public var action			(default, setAction):Void -> Void;
+	public var touches			(default, null):TouchEvents;
 	
 	public function new()
 	{
 		super("a");
 		
-		events = new MouseEvents(elem);
+		touches = new TouchEvents(elem);
 	}
 	
 	private function setAction(v:Void -> Void):Void -> Void
 	{
 		action = v;
-		events.click.bind(this, applyAction);
+		touches.end.bind(this, applyAction);
 		return action;
 	}
 	
@@ -41,7 +37,7 @@ class Link extends DOMElem
 		return href;
 	}
 	
-	private function applyAction(state:MouseState)
+	private function applyAction(e:TouchEvent)
 	{
 		action();
 	}

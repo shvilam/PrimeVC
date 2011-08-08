@@ -17,9 +17,9 @@ typedef TransitionEvent =
  */
 class TransitionSignal extends DOMSignal1<TransitionEvent>
 {
-	override private function dispatch(event:Event) 
+	override private function dispatch(e:Event) 
 	{
-		send(cast event);
+		send(cast e);
 	}
 }
 

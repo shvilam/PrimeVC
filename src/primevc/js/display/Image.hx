@@ -30,31 +30,40 @@ class Image extends DOMElem
 	{
 		events = new DisplayEvents(elem);
 		
-		events.nodeInsertedIntoDoc.bind(this, onInsertedIntoDoc);
-		events.nodeRemovedFromDoc.bind(this, onRemovedFromDoc);
+		events.insertedIntoDoc.bind(this, onInsertedIntoDoc);
+		events.removedFromDoc.bind(this, onRemovedFromDoc);
 		
 		loaded = new Signal1();
 		untyped elem.addEventListener("load", onLoad, false);
 	}
 	
-	override private function setWidth(v:Float):Int
+	override private function setWidth(v:Int):Int
 	{
-		width = cast v;
-		elem.width = width;
+		if (width != v)
+		{
+			width = v;
+			elem.width = v;
+		}
 		return width;
 	}
 	
-	override private function setHeight(v:Float):Int
+	override private function setHeight(v:Int):Int
 	{
-		height = cast v;
-		elem.height = height;
+		if (height != v)
+		{
+			height = v;
+			elem.height = v;
+		}
 		return height;
 	}
 	
 	private function setSrc(v:String):String
 	{
-		src = v;
-		if (isDisplayed) { elem.src = src; }
+		if (src != v)
+		{
+			src = v;
+			if (isDisplayed) { load(); }
+		}
 		return src;
 	}
 	
@@ -67,6 +76,7 @@ class Image extends DOMElem
 	private function onRemovedFromDoc(event:DisplayEvent)
 	{
 		isDisplayed = false;
+		elem.src = "";
 	}
 	
 	private function onLoad(event:Event)
@@ -74,8 +84,8 @@ class Image extends DOMElem
 		loaded.send(this);
 	}
 	
-	public function load()
+	inline public function load()
 	{
-		if (src != null && elem.src == "") { elem.src = src; }
+		if (src != null && elem.src != src) { elem.src = src; }
 	}
 }

@@ -26,8 +26,10 @@ typedef GestureEvent =
 
 class GestureSignal extends DOMSignal1<GestureEvent>
 {
-	override private function dispatch(event:Event)
+	override private function dispatch(e:Event)
 	{
-		send(cast event);
+		untyped e.preventDefault();
+		
+		send(cast e);
 	}
 }
