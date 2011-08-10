@@ -641,8 +641,8 @@ class LayoutClient extends Invalidatable
 		box.invalidatable	= false;
 		box.left			= x;
 		box.top				= y;
-		box.width			= getUsableWidth() + getHorPadding() + getHorMargin();
-		box.height			= getUsableHeight() + getVerPadding() + getVerMargin();
+		box.width			= getUsableWidth() + getHorPadding() + getHorMargin(); //.abs();
+		box.height			= getUsableHeight() + getVerPadding() + getVerMargin(); //.abs();
 		box.resetValidation();
 	}
 	
@@ -754,14 +754,14 @@ class LayoutClient extends Invalidatable
 		{
 			if (propChanges.has( RectangleFlags.LEFT ))		x		= box.left;
 			if (propChanges.has( RectangleFlags.TOP ))		y		= box.top;
-			if (propChanges.has( RectangleFlags.WIDTH ))	width	= box.width - getHorPadding() - getHorMargin();
-			if (propChanges.has( RectangleFlags.HEIGHT ))	height	= box.height - getVerPadding() - getVerMargin();
+			if (propChanges.has( RectangleFlags.WIDTH ))	width	= box.width  - getHorPadding() - getHorMargin().abs();
+			if (propChanges.has( RectangleFlags.HEIGHT ))	height	= box.height - getVerPadding() - getVerMargin().abs();
 		}
 	
 		else if (box == innerBounds)
 		{
-			if (propChanges.has( RectangleFlags.LEFT ))		x		= margin == null ? box.left : box.left - margin.left;
-			if (propChanges.has( RectangleFlags.TOP ))		y		= margin == null ? box.top : box.top - margin.top;
+			if (propChanges.has( RectangleFlags.LEFT ))		x		= margin == null ? box.left : box.left - margin.left; //.abs();
+			if (propChanges.has( RectangleFlags.TOP ))		y		= margin == null ? box.top 	: box.top - margin.top; //.abs();
 			if (propChanges.has( RectangleFlags.WIDTH ))	width	= box.width - getHorPadding();
 			if (propChanges.has( RectangleFlags.HEIGHT ))	height	= box.height - getVerPadding();
 		}
@@ -782,7 +782,7 @@ class LayoutClient extends Invalidatable
 	{
 	//	invalidate( changes );	// <-- will destroy the applicition... things start freezing.. weird stuff :-S
 	    if (width.isSet()) {
-		    if (percentWidth.isSet())   width = outerBounds.width - getHorPadding() - getHorMargin();
+		    if (percentWidth.isSet())   width = outerBounds.width - getHorPadding() - getHorMargin().abs();
 		    else            			updateAllWidths(width, true);
 	    }
 	}
@@ -794,7 +794,7 @@ class LayoutClient extends Invalidatable
 	@:keep public function invalidateVerPaddingMargin ()
 	{
 	    if (height.isSet()) {
-		    if (percentHeight.isSet())		height = outerBounds.height - getVerPadding() - getVerMargin();
+		    if (percentHeight.isSet())		height = outerBounds.height - getVerPadding() - getVerMargin().abs();
 		    else			                updateAllHeights(height, true);
 	    }
 	}
