@@ -94,7 +94,7 @@ class InputField <VOType> extends DataButton <VOType>
 		handleFocus	.on( userEvents.focus, this );
 		handleBlur	.on( userEvents.blur, this );
 		
-		Assert.notNull( updateVO );
+		Assert.notNull( updateVO, "You need to define a method to commit changes of the inputField" );
 		fieldBinding = updateVO.on( data.change, this );
 		
 		if (!hasFocus)
