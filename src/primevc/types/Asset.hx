@@ -91,8 +91,10 @@ class Asset		implements IDisposable
 		if (v == null)
 			return null;
 		
-		if (v.hasScheme( URIScheme.Scheme('asset')) )
-			return fromUnkown( Type.createInstance( v.host.resolveClass(), []) );
+		if (v.hasScheme( URIScheme.Scheme('asset')) ) {
+			var f = function () { return Type.createInstance( v.host.resolveClass(), []); }
+			return fromUnkown( f(), f );
+		}
 		else
 			return new ExternalAsset(v, loader);
 	}
