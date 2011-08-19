@@ -124,7 +124,7 @@ class TextStyle extends StyleSubBlock
 		#if flash9 this._embeddedFont	#else this.embeddedFont	    #end = embeddedFont;
 		#if flash9 this._color			#else this.color			#end = color;
 		#if flash9 this._weight		    #else this.weight		    #end = weight;
-		#if flash9 this._style			#else this.style			#end = null;
+		#if flash9 this._style			#else this.style			#end = style;
 		#if flash9 this._letterSpacing	#else this.letterSpacing	#end = letterSpacing == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : letterSpacing;
 		#if flash9 this._align			#else this.align			#end = align;
 		#if flash9 this._decoration	    #else this.decoration	    #end = decoration;

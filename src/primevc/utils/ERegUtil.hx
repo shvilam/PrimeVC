@@ -79,9 +79,9 @@ class ERegUtil #if flash9 extends EReg #end
 	 */
 	public static inline function removeMatch (expr:EReg, str:String) : String
 	{
-		try if (expr.match(str))
+		try if (expr.match(str)) {
 			str = expr.matchedLeft() + expr.matchedRight();
-		catch (e:Dynamic)
+		} catch (e:Dynamic)
 			trace("ERROR!: "+e);
 		
 		return str;

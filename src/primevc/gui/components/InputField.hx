@@ -153,11 +153,9 @@ class InputField <VOType> extends DataButton <VOType>
 		if (hasFocus)
 			return;
 		
-	//	Assert.notNull( vo.value );
-		trace(data.value);
-		
 		hasFocus = true;
-		updateLabel( vo.value, vo.value );
+		if (data.value == defaultLabel)
+			data.set("");
 		
 		getRevertableData().beginEdit();
 		fieldBinding.enable();
@@ -178,7 +176,7 @@ class InputField <VOType> extends DataButton <VOType>
 		updateLabelBinding.enable();
 		
 		hasFocus = false;
-		updateLabel( vo.value, vo.value );
+		forceUpdateLabel();
 	}
 	
 	
