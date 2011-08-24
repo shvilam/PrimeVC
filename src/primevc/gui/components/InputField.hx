@@ -168,7 +168,6 @@ class InputField <VOType> extends DataButton <VOType>
 			return;
 		
 	//	Assert.notNull( vo.value );
-		
 		updateLabelBinding.disable();
 		fieldBinding.disable();
 		updateVO();
@@ -176,13 +175,14 @@ class InputField <VOType> extends DataButton <VOType>
 		updateLabelBinding.enable();
 		
 		hasFocus = false;
-		forceUpdateLabel();
+		updateLabel();
 	}
 	
 	
 	/**
 	 * Method will set the current input as value of the VO without losing
-	 * focus
+	 * focus.
+	 * Method is called From InputFieldSkin.
 	 */
 	public function applyInput ()
 	{
@@ -192,7 +192,7 @@ class InputField <VOType> extends DataButton <VOType>
 		field.removeFocus();
 		return;
 		
-		updateLabelBinding.disable();
+		/*updateLabelBinding.disable();
 		fieldBinding.disable();
 		
 		updateVO();
@@ -200,19 +200,20 @@ class InputField <VOType> extends DataButton <VOType>
 		getRevertableData().beginEdit();
 		
 		fieldBinding.enable();
-		updateLabelBinding.enable();
+		updateLabelBinding.enable();*/
 	}
 	
 	
 	/**
 	 * Method will set the current input to the original value before the user
 	 * typed in stuff.
+	 * Method is called From InputFieldSkin.
 	 */
 	public function cancelInput ()
 	{
 		if (!hasFocus)
 			return;
 		
-		updateLabel( vo.value, vo.value );
+		updateLabel();
 	}
 }

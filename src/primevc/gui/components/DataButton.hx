@@ -86,26 +86,29 @@ class DataButton <DataType> extends Button, implements IItemRenderer <DataType>
 	{
 		super.init();
 		updateLabelBinding = updateLabel.on( vo.change, this );
-		updateLabel(vo.value, vo.value);
+		updateLabel();
 	}
 	
 	
-	public function updateLabel (newVal:DataType, oldVal:DataType)
+	public inline function updateLabel ()
 	{
-		if (oldVal == null)		styleClasses.remove("empty");
-		if (newVal == null)		styleClasses.add("empty");
-		forceUpdateLabel();
-	}
-
-
-	public inline function forceUpdateLabel ()
-	{
-		var v = vo.value;
+		var v 		= vo.value;
+		var oldVal  = data.value;
 
 		//don't use data.value ==> if data is a RevertableBindable, updating the label won't cause any errors
-		if (v != null)		data.set( getLabelForVO == null ? ""+v : getLabelForVO(v) );
-		else				data.set( defaultLabel );
-		data.change.send( data.value, null );
+		var newVal = v != null ? (getLabelForVO == null ? ""+v : getLabelForVO(v)) : null;
+
+		if (newVal == null)
+			newVal = defaultLabel;
+		data.set(newVal);
+
+		if (oldVal != newVal) {
+			if (oldVal == defaultLabel)		styleClasses.remove("empty");
+			if (newVal == defaultLabel)		styleClasses.add("empty");
+		}
+	//	trace(v+": "+oldVal+" => "+newVal+"; "+styleClasses);
+
+		data.change.send( newVal, null );
 	}
 	
 	

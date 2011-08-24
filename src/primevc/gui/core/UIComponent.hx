@@ -299,16 +299,18 @@ class UIComponent extends Sprite, implements IUIComponent
 		var hasEffect = effects != null && effects.hide != null;
 		var isPlaying = hasEffect && effects.hide.isPlaying();
 
-		if (!isPlaying)
+		if (!hasEffect || !isPlaying)
+			applyDetach();
+		else
 		{
-			if (hasEffect) {
-				var eff = effects.hide;
+			var eff = effects.hide;
+			eff.ended.unbind(this);
+			applyDetach.onceOn( eff.ended, this );
+
+			if (hasEffect && !isPlaying) {
 				layout.includeInLayout = false;
-				applyDetach.onceOn( eff.ended, this );
 				hide();
 			}
-			else
-				applyDetach();
 		}
 
 		return this;
@@ -326,8 +328,8 @@ class UIComponent extends Sprite, implements IUIComponent
 	public inline function rotate (v:Float)				{ this.doRotate(v); }
 	public function scale (sx:Float, sy:Float)			{ this.doScale(sx, sy); }
 	
-	public inline function enable ()					{ enabled.value = true; }
-	public inline function disable ()					{ enabled.value = false; }
+	public inline function enable ()					{ Assert.that(!isDisposed(), this); enabled.value = true; }
+	public inline function disable ()					{ Assert.that(!isDisposed(), this); enabled.value = false; }
 	public inline function isEnabled ()					{ return enabled.value; }
 	
 	

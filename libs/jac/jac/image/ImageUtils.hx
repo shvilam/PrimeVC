@@ -27,6 +27,7 @@ package jac.image;
  import flash.display.DisplayObject;
  import flash.display.IBitmapDrawable;
  import flash.geom.Matrix;
+ import primevc.core.geom.IntRectangle;
  import primevc.core.geom.Point;
  import primevc.core.geom.Rectangle;
  import primevc.types.Number;
@@ -76,8 +77,11 @@ class ImageUtils
      * @param Whether the snapshot should keep proportions when resizing or
      * resize to fit the size exactly.
      */
-    public static function takeSnapshot(source:IBitmapDrawable, bmp:BitmapData, requiredW:Int = Number.INT_NOT_SET, requiredH:Int = Number.INT_NOT_SET, resizeStyle:Int = Flags.CONSTRAIN, area:Rectangle = null):BitmapData
+    public static function takeSnapshot(source:IBitmapDrawable, bmp:BitmapData, requiredW:Int = Number.INT_NOT_SET, requiredH:Int = Number.INT_NOT_SET, resizeStyle:Int = Flags.CONSTRAIN, area:IntRectangle = null):BitmapData
     {
+        if (resizeStyle.notSet())
+            resizeStyle = Flags.CONSTRAIN;
+        
         var bitmapData:BitmapData = bmp;
 
         var realW:Int   = (area != null ? area.width  : source.as(DisplayObject).width) .ceilFloat();
@@ -95,13 +99,13 @@ class ImageUtils
         var hasToDispose    = isSet && !validSize;
         var hasToCreate     = hasToDispose || !isSet || !validSize;
         var hasToScale      = (requiredW.isSet() && requiredW != realW) || (requiredH.isSet() && requiredH != realH);
-
+        
         if (hasToDispose)   bitmapData.dispose();
         if (hasToCreate)    bitmapData = new BitmapData(realW, realH, true, 0x00);
         bitmapData.lock();
 
         try { 
-            if (area != null)  bitmapData.draw(source, new Matrix(1, 0, 0, 1, -area.x, -area.y));
+            if (area != null)  bitmapData.draw(source, new Matrix(1, 0, 0, 1)); //, -area.left, -area.top));
             else               bitmapData.draw(source);
         }
         catch(e:Dynamic) {
@@ -142,7 +146,7 @@ class ImageUtils
      *
      * @return A resized bitmap data object.
      */
-    public static function resize(source:BitmapData, width:Int, height:Int, style:Int = Flags.CONSTRAIN):BitmapData
+    public static function resize(source:BitmapData, width:Int, height:Int, style:Int = Flags.CONSTRAIN, target:BitmapData = null):BitmapData
     {
         // Find the scale to reach the final size
         var scaleX = width  / source.width;
@@ -159,7 +163,7 @@ class ImageUtils
             scaleY    = scaleX;
             height    = (scaleY * source.height).roundFloat();
         }
-    
+        
         if (style.has(Flags.CROPPING))
             if (scaleX < scaleY)  scaleX = scaleY;
             else                  scaleY = scaleX;
@@ -174,7 +178,10 @@ class ImageUtils
         var originalY       = 0;
         var finalWidth      = (source.width  * scaleX).roundFloat();
         var finalHeight     = (source.height * scaleY).roundFloat();
-    
+        
+        if (target != null && (target.width != finalWidth || target.height != finalHeight))
+            style = Flags.CENTER;
+        
         if (style.has(Flags.FILLING))
         {
             originalWidth   = (width  / scaleX).roundFloat();
@@ -188,12 +195,14 @@ class ImageUtils
         //
         // CREATE THE BITMAPDATA TO RETURN
         //
-        var data:BitmapData = null;
-        try {
-            data = new BitmapData(finalWidth, finalHeight, true, 0);
-        } catch (error:Dynamic) {
-            error.message += " Invalid width and height: " + finalWidth + "x" + finalHeight + ".";
-            throw error;
+        var data:BitmapData = target;
+        if (data == null) {
+            try {
+                data = new BitmapData(finalWidth, finalHeight, true, 0);
+            } catch (error:Dynamic) {
+                error.message += " Invalid width and height: " + finalWidth + "x" + finalHeight + ".";
+                throw error;
+            }
         }
 
         if (scaleX >= 1 && scaleY >= 1)

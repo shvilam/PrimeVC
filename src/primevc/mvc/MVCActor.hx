@@ -64,6 +64,6 @@ class MVCActor <FacadeDef> extends MVCNotifier, implements IMVCActor
 	
 	
 	public function startListening () : Void		{ state = state.set( 	MVCFlags.LISTENING ); }
-	public function stopListening () : Void			{ state = state.unset( 	MVCFlags.LISTENING ); }
+	public function stopListening () : Void			{ state = state.unset( 	MVCFlags.LISTENING ); if (isEnabled()) { disable(); } }
 	public inline function isListening () : Bool	{ return state.has( 	MVCFlags.LISTENING ); }
 }
