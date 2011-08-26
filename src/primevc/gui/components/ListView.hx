@@ -32,14 +32,22 @@ package primevc.gui.components;
  import primevc.core.dispatcher.Signal1;
  import primevc.core.traits.IValueObject;
  import primevc.core.geom.IRectangle;
+
  import primevc.gui.components.IItemRenderer;
  import primevc.gui.core.IUIDataElement;
  import primevc.gui.core.UIDataContainer;
+ import primevc.gui.display.DisplayDataCursor;
  import primevc.gui.display.IDisplayObject;
+
+ import primevc.gui.events.DropTargetEvents;
  import primevc.gui.events.MouseEvents;
+
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.states.ValidateStates;
+
+ import primevc.gui.traits.IDropTarget;
  import primevc.gui.traits.IInteractive;
+
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
@@ -53,13 +61,13 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Oct 26, 2010
  */
-class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataType > >//, implements haxe.rtti.Generic //, implements IListView < ListDataType >
+class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataType > >, implements IDropTarget //, implements haxe.rtti.Generic
 {
 	/**
 	 * Signal which will dispatch mouse-clicks of interactive item-rendered 
 	 * children.
 	 */
-	public var childClick (default, null)	: Signal1<MouseState>;
+	public var childClick 			(default, null)	: Signal1<MouseState>;
 	
 	/**
 	 * Injectable method which will create the needed itemrenderer
@@ -67,7 +75,24 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	 * @param	pos:Int
 	 * @return 	IUIDataElement
 	 */
-	public var createItemRenderer			: ListDataType -> Int -> IUIDataElement<ListDataType>;
+	public var createItemRenderer					: ListDataType -> Int -> IUIDataElement<ListDataType>;
+
+
+	
+	//
+	// DROP SUPPORT
+	//
+
+	public var dragEvents			(default, null) : DropTargetEvents;
+	/**
+	 * Injectable method to allow or deny dropped displayobjects.
+	 * On default this method will always return null.
+	 * @param 	cursor:DisplayDataCursor
+	 * @return 	Boolean (default: false)
+	 * @see primevc.gui.traits.IDropTarget
+	 */
+	public var isDisplayDropAllowed 				: DisplayDataCursor -> Bool;
+	private function defaultDisplayDropCheck (cursor:DisplayDataCursor) { return false; }
 	
 	
 	
@@ -78,6 +103,11 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 		
 		scheduleEnable		.on( displayEvents.addedToStage, this );
 		disableChildClick	.on( displayEvents.removedFromStage, this );
+
+		//drop support
+		dragEvents = new DropTargetEvents();
+		if (isDisplayDropAllowed == null)
+			isDisplayDropAllowed = defaultDisplayDropCheck;
 	}
 	
 	
@@ -90,10 +120,19 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 		displayEvents.addedToStage.unbind(this);
 		displayEvents.removedFromStage.unbind(this);
 		
+		//remove drag support
+		isDisplayDropAllowed = null;
+		dragEvents.dispose();
+		dragEvents = null;
+
 		super.dispose();
 	}
 	
 	
+	//
+	// TIMER TO ENABLE THE CHILDCLICK SIGNAL AFTER 200MS WHEN THE COMPONENT IS ADDED TO THE STAGE
+	//
+
 	private var enableDelay : haxe.Timer;
 	
 	private function scheduleEnable()
@@ -116,7 +155,11 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 			enableDelay = null;
 		}
 	}
-	
+
+
+	//
+	// DATA METHODS
+	//
 	
 	override private function initData ()
 	{
