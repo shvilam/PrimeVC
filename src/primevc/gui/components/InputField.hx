@@ -154,6 +154,7 @@ class InputField <VOType> extends DataButton <VOType>
 			return;
 		
 		hasFocus = true;
+		updateLabel();
 		if (data.value == defaultLabel)
 			data.set("");
 		
@@ -171,7 +172,11 @@ class InputField <VOType> extends DataButton <VOType>
 		updateLabelBinding.disable();
 		fieldBinding.disable();
 		updateVO();
-		getRevertableData().commitEdit();
+
+		var d = getRevertableData();
+		if (d.isEditable())	// <-- not the case when cancelInput is called.
+			d.commitEdit();
+		
 		updateLabelBinding.enable();
 		
 		hasFocus = false;
@@ -214,6 +219,7 @@ class InputField <VOType> extends DataButton <VOType>
 		if (!hasFocus)
 			return;
 		
-		updateLabel();
+		getRevertableData().cancelEdit();
+		field.removeFocus();
 	}
 }
