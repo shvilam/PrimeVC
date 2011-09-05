@@ -155,7 +155,7 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 		validatePrepared = width > 0;
 	}
 
-
+	
 	public function apply ()
 	{
 		if (horizontal != null)
@@ -177,7 +177,7 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 			for (child in group.children) {
 				if (!child.includeInLayout)
 					continue;
-
+				
 				child.outerBounds.left = start;
 			}
 		}

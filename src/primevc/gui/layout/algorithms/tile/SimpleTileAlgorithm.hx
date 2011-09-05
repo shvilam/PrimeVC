@@ -82,6 +82,7 @@ class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorit
 		}
 		return v;
 	}
+
 	
 	
 	/**
@@ -97,27 +98,21 @@ class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorit
     
     private inline function getMaxWidth () : Int
     {
-        var g       = this.group;
-        var groupW  = g.width;
-        if (g.is(IAdvancedLayoutClient) && g.as(IAdvancedLayoutClient).explicitWidth.isSet())
-            groupW = g.as(IAdvancedLayoutClient).explicitWidth;
-        else if (g.hasMaxWidth())
-            groupW = g.widthValidator.max;
-        
-        return groupW;
+    	var g = this.group;
+        return 	 if (g.is(IAdvancedLayoutClient) && g.as(IAdvancedLayoutClient).explicitWidth.isSet())
+            		g.as(IAdvancedLayoutClient).explicitWidth;
+		    else if (g.hasMaxWidth()) 	g.widthValidator.max;
+		    else				    	g.width;
     }
     
     
     private inline function getMaxHeight () : Int
     {
-        var g       = this.group;
-        var groupH  = g.height;
-        if (g.is(IAdvancedLayoutClient) && g.as(IAdvancedLayoutClient).explicitHeight.isSet())
-            groupH = g.as(IAdvancedLayoutClient).explicitHeight;
-        else if (g.hasMaxHeight())
-            groupH = g.heightValidator.max;
-        
-        return groupH;
+        var g = this.group;
+		return 	 if (g.is(IAdvancedLayoutClient) && g.as(IAdvancedLayoutClient).explicitHeight.isSet())
+            		g.as(IAdvancedLayoutClient).explicitHeight;
+		    else if (g.hasMaxHeight()) 	g.heightValidator.max;
+		    else				    	g.height;
     }
 	
 	
@@ -364,7 +359,7 @@ class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorit
 						var child = children.getItemAt(i);
 						if (!child.includeInLayout)
 							continue;
-						
+
 						if ((nextX + childW) > groupW) {
 							nextY += childH;
 							nextX  = startX;
@@ -470,7 +465,30 @@ class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorit
 	 */
 	public function getDepthForBounds (bounds:IRectangle)
 	{
-		return 0; //FIXME
+		if (columns.notSet() && rows.notSet())
+			return group.fixedChildStart;
+		
+		var depth 	= 0; //group.fixedChildStart; -> isn't needed since the target is always the ListView and not the ListHolder
+		var posX 	= bounds.left - getLeftStartValue();
+		var posY 	= bounds.top  - getTopStartValue();
+
+		switch (direction)
+		{
+			case horizontal:
+				var column 			= (posX / group.childWidth) .roundFloat().within(0, columns - 1);
+				var row 			= (posY / group.childHeight).roundFloat().within(0, rows 	- 1);
+				var childrenBefore	= IntMath.max(0, row) * columns;
+				depth 			   += column + childrenBefore;
+
+			case vertical:
+				var column 			= (posY / group.childHeight).roundFloat().within(0, columns - 1);
+				var row 			= (posX / group.childWidth) .roundFloat().within(0, rows 	- 1);
+				var childrenBefore	= IntMath.min(0, column) * rows;
+				depth 			   += row + childrenBefore;
+				
+		}
+		
+		return depth.within( 0, group.childrenLength - 1 );
 	}
 	
 	
