@@ -124,14 +124,14 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		}
 		
 		
-		if ( propsToSet.has( Flags.OVERFLOW ))
+		if ( propsToSet.has( Flags.OVERFLOW ) && !empty)
 		{
 			if (styleObj.overflow != null) {
 				var c = target.as(IUIContainer);
 				c.behaviours.add( styleObj.overflow(c) );
 			}
 		//	else
-		//		target.behaviours.remove(  )
+		//		target.behaviours.remove(  )		FIXME -> remove old overflow behaviours..
 		}
 		
 		

@@ -199,9 +199,9 @@ class UIComponent extends Sprite, implements IUIComponent
 			effects = null;
 		}
 
-		removeValidation();
 		if (isInitialized())
 			removeChildren();
+		
 		removeStates();
 		
 		//Change the state to disposed before the behaviours are removed.
@@ -209,6 +209,7 @@ class UIComponent extends Sprite, implements IUIComponent
 		//state.
 		state.current = state.disposed;
 		Assert.that(isDisposed());
+		removeValidation();
 		
 		if (skin != null) {
 		    skin.dispose();
@@ -256,9 +257,9 @@ class UIComponent extends Sprite, implements IUIComponent
 	// ATTACH METHODS
 	//
 	
-	public  inline function attachLayoutTo	(	t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ t.children.add( layout, pos );											return this; }
-	public  inline function detachLayout		()									: IUIElement	{ if (layout.parent != null) { layout.parent.children.remove( layout ); }	return this; }
-	public  inline function changeLayoutDepth	(pos:Int)							: IUIElement	{ layout.parent.children.move( layout, pos );								return this; }
+	public  inline function attachLayoutTo		(t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ layout.attachTo( t, pos );												return this; }
+	public  inline function detachLayout		()									: IUIElement	{ layout.detach();															return this; }
+	public  inline function changeLayoutDepth	(pos:Int)							: IUIElement	{ layout.changeDepth( pos );												return this; }
 	public  inline function changeDepth			(pos:Int)							: IUIElement	{ changeLayoutDepth(pos);					changeDisplayDepth(pos);		return this; }
 
 	public  inline function attachTo			(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachToDisplayList(t, pos);	return this; }
