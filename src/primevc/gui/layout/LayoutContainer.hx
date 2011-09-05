@@ -208,7 +208,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			//measure children with explicitWidth and no percentage size
 			else if (checkIfChildGetsPercentageWidth(child, width)) {
 				child.outerBounds.width = (width * child.percentWidth).roundFloat();
-//T#if debug		Assert.that( (width * child.percentWidth) > 0, "invalid width: "+(width * child.percentWidth)+"; groupWidth: "+width+"; child.percentWidth: "+child.percentWidth ); #end
+//#if debug		Assert.that( (width * child.percentWidth) > 0, "invalid width: "+(width * child.percentWidth)+"; groupWidth: "+width+"; child.percentWidth: "+child.percentWidth ); #end
 			}
 			
 			
@@ -517,7 +517,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	 * When applying an algorithm you should still use children.length since 
 	 * the algorithm will only be applied on the actual children in the list.
 	 * 
-	 * @see LayoutContainer.setFixedLength
+	 * @see LayoutContainer.setFixedChildLength
 	 */
 	public var childrenLength		(default, null)					: Int;
 	public var fixedChildStart		(default, default)				: Int;
@@ -566,7 +566,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			
 			
 			case moved(child, newPos, oldPos):
-				if (child.includeInLayout)	
+				if (child.includeInLayout)
 					invalidate( Flags.LIST );
 				
 			case reset:

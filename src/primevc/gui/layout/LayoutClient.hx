@@ -229,6 +229,11 @@ class LayoutClient extends Invalidatable
 		changes			= 0;
 		invalidatable	= hasValidatedWidth	= hasValidatedHeight = true;
 	}
+
+
+	public inline function attachTo 	(c:ILayoutContainer, d:Int = -1)	{ c.children.add(this, d);		 								return this; }
+	public inline function detach 		()									{ if (parent != null) { parent.children.remove( this ); } 		return this; }
+	public inline function changeDepth	(newPos:Int)						{ if (parent != null) { parent.children.move(this, newPos); } 	return this; }
 	
 	
 	
