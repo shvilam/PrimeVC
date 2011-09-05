@@ -65,7 +65,8 @@ class DisplayList implements IEditableList <ChildType>
 	 */
 	public var owner		(default, null)				: IDisplayContainer;
 	
-	public var change		(default, null)				: ListChangeSignal < ChildType >;
+	public var change		(default, null)				: ListChangeSignal<ChildType>;
+	public var beforeChange	(default, null)				: ListChangeSignal<ChildType>;		// FIXME: not implemented
 	public var length		(getLength, never)			: Int;
 	
 	/**
