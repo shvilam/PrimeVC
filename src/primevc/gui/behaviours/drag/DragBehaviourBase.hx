@@ -68,13 +68,12 @@ class DragBehaviourBase extends BehaviourBase <ISprite>
 		super(dragTarget);
 		this.dragBounds		= dragBounds;
 		this.mouseTarget	= mouseTarget == null ? dragTarget : mouseTarget;
-		
-		dragHelper = new DragHelper( this.mouseTarget, startDrag, stopDrag, cancelDrag );
 	}
 	
 	
 	override private function init () : Void
 	{
+		dragHelper = new DragHelper( this.mouseTarget, startDrag, stopDrag, cancelDrag );
 		enable();
 	}
 	
@@ -149,7 +148,6 @@ class DragBehaviourBase extends BehaviourBase <ISprite>
 		
 		if (target != null && target.is(ILayoutable))
 			target.as(ILayoutable).layout.includeInLayout = true;
-
 	}
 
 

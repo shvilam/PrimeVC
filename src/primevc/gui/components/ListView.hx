@@ -91,9 +91,8 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	 * @return 	Boolean (default: false)
 	 * @see primevc.gui.traits.IDropTarget
 	 */
-	public var isDisplayDropAllowed 				: DisplayDataCursor -> Bool;
-	private function defaultDisplayDropCheck (cursor:DisplayDataCursor) { return false; }
-	
+	public var isDisplayDropAllowed												: DisplayDataCursor -> Bool;
+	private function defaultDisplayDropCheck (cursor:DisplayDataCursor) 		: Bool 	{ return children == cursor.list; }
 	
 	
 	override private function createBehaviours ()
@@ -167,7 +166,8 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 		var length = data.length;
 		
 		var layout = layoutContainer;
-		if (layout.algorithm != null && isScrollable) {
+		if (layout.algorithm != null && isScrollable)
+		{
 			layout.setFixedChildLength( length );
 			
 			layout.invisibleBefore = layout.invisibleAfter = 1;
@@ -200,27 +200,24 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	//
 	
 	
-	private inline function addRenderer( item:ListDataType, newPos:Int = -1 )
+	private inline function addRenderer( item:ListDataType, depth:Int = -1 )
 	{
-		if (newPos == -1)
-			newPos = data.indexOf( item );
+		if (depth == -1)
+			depth = data.indexOf( item );
 		
 		Assert.notNull( createItemRenderer );
-		var child = createItemRenderer( item, newPos ).attachTo(this, newPos);
+		var child = createItemRenderer( item, depth ).attachTo(this, depth);
 		
 		if (child.is(IInteractive)) // && child.as(IInteractive).mouseEnabled)
 			childClick.send.on( child.as(IInteractive).userEvents.mouse.click, this );
 	}
 	
 	
-	private inline function removeRendererFor( item:ListDataType, oldPos:Int = -1 )
+	private inline function removeRendererFor( item:ListDataType, depth:Int = -1 )
 	{
 		var renderer:IDisplayObject = null;
-		var depth = indexToDepth(oldPos);
 		if (depth > -1)
-		{
 			renderer = children.getItemAt(depth);
-		}
 		else
 		{
 		//	var renderer = getRendererFor( item );
@@ -244,26 +241,26 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	}
 	
 	
-	private inline function moveRenderer ( item:ListDataType, newPos:Int, oldPos:Int )
+	private inline function moveRenderer ( item:ListDataType, newDepth:Int, curDepth:Int )
 	{
-		var renderer = getRendererFor( item );
+		var renderer = getRendererAt(curDepth);
 		if (renderer != null) {
-			layoutContainer.children.move( renderer.layout, newPos, oldPos );
-			children.move( renderer, newPos, oldPos );
+			layoutContainer.children.move( renderer.layout, newDepth, curDepth );
+			children.move( renderer, newDepth, curDepth );
 		}
 #if debug
 		else
-			trace("no itemrenderer found to move for vo-item "+item+"; move: "+oldPos+" => "+newPos);
+			trace("no itemrenderer found to move for vo-item "+item+"; move: "+curDepth+" => "+newDepth);
 #end
 	}
 	
 	
-	private inline function reuseRenderer( from:Int, to:Int, newDataPos:Int )
+	private inline function reuseRenderer( fromDepth:Int, toDepth:Int, newDataPos:Int )
 	{
 		var d = data.getItemAt(newDataPos);
-		var r = children.getItemAt(from).as(IUIDataElement);
+		var r = children.getItemAt(fromDepth).as(IUIDataElement);
 		setRendererData(cast r, cast d);
-		r.changeDepth( to );
+		r.changeDepth( toDepth );
 	}
 	
 	
@@ -319,8 +316,8 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	public inline function indexToDepth (index:Int) : Int
 	{
 	    var depth = index;
-	    if (depth > -1)                   depth -= layoutContainer.fixedChildStart;
-		if (depth >= children.length)     depth  = -1;
+	    if (depth > -1)                 depth -= layoutContainer.fixedChildStart;
+		if (depth > children.length)	depth  = -1;		// the depth is allowed to be equal to children.length.. This is the case when a new frame-renderer is added
 		return depth;
 	}
 	
@@ -422,13 +419,53 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	
 	private function handleListChange ( change:ListChange<ListDataType> ) : Void
 	{
-		var l = children.length;
+		var l 		= layoutContainer;
+		var start 	= l.fixedChildStart;
+		var update 	= false;
+
+		trace(change);
 		switch (change)
 		{
-			case added( item, newPos):			addRenderer( item, newPos );
-			case removed (item, oldPos):		removeRendererFor( item, oldPos );
-			case moved (item, newPos, oldPos):	moveRenderer( item, newPos, oldPos );
+			case added( item, newPos):
+				var newDepth = indexToDepth(newPos);
+				
+				// check if an item-renderer should be added
+				if (newDepth > -1) {
+					addRenderer( item, newDepth );
+					update = true;
+				}
+			
+
+			case removed (item, oldPos):
+				var oldDepth = indexToDepth(oldPos);
+
+				if (oldDepth > -1) {
+					removeRendererFor( item, oldDepth );
+					update = true;
+				}
+			
+
+
+			case moved (item, newPos, oldPos):
+				var oldDepth = indexToDepth(oldPos);
+				var newDepth = indexToDepth(newPos);
+
+				trace(oldDepth+"/"+oldPos+" => "+newDepth+"/"+newPos);
+				if (oldDepth == -1 && newDepth == -1)
+					return;
+				
+				if (oldDepth > -1 && newDepth > -1)
+					moveRenderer( item, newDepth, oldDepth );
+				else
+				{
+					if 		(newDepth > -1) 	addRenderer( item, newDepth );
+					else if (oldDepth > -1)		removeRendererFor( item, oldDepth );
+					update = true;
+				}
 			default:
 		}
+
+		if (update)
+			updateVisibleItemRenderers( start, l.algorithm.getMaxVisibleChildren() );
 	}
 }

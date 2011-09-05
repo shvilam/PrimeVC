@@ -49,6 +49,9 @@ class ListPanel<ListDataType> extends Panel, implements IListHolder<ListDataType
 			content = list	= new ListView<ListDataType>("content", data);
 		
 		super(id, label);
+
+	//	mouseEnabled 	= false;
+	//	mouseChildren 	= true;
 	}
 	
 	

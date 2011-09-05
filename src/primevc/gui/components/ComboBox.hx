@@ -78,7 +78,7 @@ class ComboBox <DataType> extends DataButton <DataType>
 	 */
 	public var createItemRenderer	(default, setCreateItemRenderer) : DataType -> Int -> IUIDataElement<DataType>;
 	
-	private var selectListItemWire	: Wire<DataType->DataType->Void>;
+//	private var selectListItemWire	: Wire<DataType->DataType->Void>;
 	
 	/**
 	 * Wire for listening to mouse-down events on the stage. Only enabled when
@@ -111,8 +111,8 @@ class ComboBox <DataType> extends DataButton <DataType>
 		
 		popup.createItemRenderer = createItemRenderer;
 		
-	    deselect.on( vo.change, this );
-	    list.selected.pair( vo );
+	    deselect.on( vo.change, this );		// hides combobox-popup when a new data-item has been selected
+	    list.selected.pair( vo ); 			// make sure the vo.value and selected list-item are always the same
 		Assert.notNull( getLabelForVO );
 		
 		//leave the opening and closing of the list to the behaviouruserEvents.

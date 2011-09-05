@@ -99,6 +99,9 @@ class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>, im
 		list.createItemRenderer = createItemRenderer;
 		list.attachTo(this);
 		
+	//	mouseEnabled 	= false;
+	//	mouseChildren 	= true;
+		
 		list.styleClasses.add("listContent");
 		childClick.send.on( list.childClick, this );
 	}

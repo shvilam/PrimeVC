@@ -122,9 +122,6 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
         
 		mouseMoveWire	= null;
 		invalidateWire  = null;
-        selected        = null;
-		currentFocus	= null;
-        focusIndex      = -1;
         
         super.dispose();
     }
@@ -132,6 +129,10 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
     
     override public function validate ()
     {
+        // first validate the super method to make sure the data is initialized before selecting an item-renderer
+        super.validate();
+
+        // check if there's a change in the selected data.
         if (changes.has(UIElementFlags.SELECTED))
         {
             if (previousSelected != null)
@@ -148,6 +149,12 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
                 // Check if there's a renderer for the new selected value.
                 // If there isn't, the list should scroll to the selected data position
                 // and the selecting part is handled by 'handleChildChange'.
+#if debug
+                var d = getDepthFor(selected.value);
+                if (d > -1)
+                    Assert.that(d < children.length, this+": "+selected.value+" depth is "+d+" but doesn't exist. Children length: "+children.length);
+#end
+                
                 var r = getRendererFor(selected.value);
                 if (r != null && r.is(ISelectable)) {
                     r.as(ISelectable).select();
@@ -166,8 +173,14 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
         
         if (changes.has(CURRENT_FOCUS))
             focusRendererAt(focusIndex);
-        
-        super.validate();
+    }
+
+
+    override private function removeData ()
+    {
+        blurRenderers();
+        deselectRenderers();
+        super.removeData();
     }
     
     
@@ -176,8 +189,10 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
         if (currentFocus != child || focusIndex == -1)
         {
             currentFocus = child;
-            window.focus = child.as(IInteractiveObject);
-            focusIndex   = depthToIndex( children.indexOf(child) );
+
+            if (isOnStage())
+                window.focus = child.as(IInteractiveObject);
+            focusIndex       = depthToIndex( children.indexOf(child) );
         }
     }
     
@@ -207,12 +222,18 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
     
     private inline function blurRenderers ()
     {
-        if (window.focus == currentFocus.as(IInteractiveObject))
-        {
+        if (isOnStage() && window.focus == currentFocus.as(IInteractiveObject))
             window.focus = null;
-            currentFocus = null;
-            focusIndex   = -1;
-        }
+        
+        currentFocus = null;
+        focusIndex   = -1;
+    }
+
+
+    public inline function deselectRenderers ()
+    {
+        previousSelected = null;
+        selected         = null;
     }
     
     

@@ -98,23 +98,25 @@ class DragDropBehaviour extends DragBehaviourBase
 		if (dragInfo == null)
 			return;
 		
+		var pos 		= dragInfo.displayCursor.position;
 #if flash9
-		//move item to correct location
-		var pos				= target.container.as(IDisplayObject).localToGlobal( dragInfo.displayCursor.position );
-		var item			= dragInfo.dragRenderer;
-		item.visible		= false;
+		pos				= target.container.as(IDisplayObject).localToGlobal( pos );
+#end
+		var item		= dragInfo.dragRenderer;
+		item.visible 	= false;
 		target.window.children.add( cast item );
 		
-		if (item.is(IUIElement))
-			item.as(IUIElement).doMove( pos.x.roundFloat(), pos.y.roundFloat() );
+		//start dragging and fire events
+		super.startDrag(mouseObj);
+
+		//move item to mouse location
+		item.x = pos.x;
+		item.y = pos.y;
 		
 		item.x			= pos.x;
 		item.y			= pos.y;
 		item.visible	= true;
-#end
 		
-		//start dragging and fire events
-		super.startDrag(mouseObj);
 		moveBinding.enable();
 	}
 	
@@ -129,7 +131,7 @@ class DragDropBehaviour extends DragBehaviourBase
 		
 		if (dragInfo.dropTarget != null)
 		{
-#if flash9
+/*#if flash9
 			var b = dragInfo.dropBounds = dragInfo.layout.outerBounds;
 			
 			//adjust dropped x&y to the droptarget
@@ -137,7 +139,8 @@ class DragDropBehaviour extends DragBehaviourBase
 			pos		= dragInfo.dropTarget.container.globalToLocal(pos);
 			b.left	= pos.x.roundFloat();
 			b.top	= pos.y.roundFloat();
-#end
+#end*/
+			dragInfo.dropBounds = dragInfo.dragRectangle;
 			//notify the dragged item that the drag-operation is completed
 			target.userEvents.drag.complete.send(dragInfo);
 			
