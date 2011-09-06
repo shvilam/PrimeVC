@@ -329,8 +329,8 @@ class UIComponent extends Sprite, implements IUIComponent
 	public inline function rotate (v:Float)				{ this.doRotate(v); }
 	public function scale (sx:Float, sy:Float)			{ this.doScale(sx, sy); }
 	
-	public inline function enable ()					{ Assert.that(!isDisposed(), this); enabled.value = true; }
-	public inline function disable ()					{ Assert.that(!isDisposed(), this); enabled.value = false; }
+	public inline function enable ()					{ /*Assert.that(!isDisposed(), this);*/ enabled.value = true; }
+	public inline function disable ()					{ /*Assert.that(!isDisposed(), this);*/ enabled.value = false; }
 	public inline function isEnabled ()					{ return enabled.value; }
 	
 	

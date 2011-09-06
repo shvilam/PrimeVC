@@ -93,7 +93,6 @@ class DragDropBehaviour extends DragBehaviourBase
 		if (target.window == null)
 			return;
 		
-	//	haxe.Log.clear();
 		dragInfo = target.createDragInfo();
 		if (dragInfo == null)
 			return;
@@ -113,8 +112,9 @@ class DragDropBehaviour extends DragBehaviourBase
 		item.x = pos.x;
 		item.y = pos.y;
 		
-		item.x			= pos.x;
-		item.y			= pos.y;
+		if (item.is(IUIElement))
+			item.as(IUIElement).doMove(pos.x, pos.y);
+		
 		item.visible	= true;
 		
 		moveBinding.enable();
@@ -131,16 +131,16 @@ class DragDropBehaviour extends DragBehaviourBase
 		
 		if (dragInfo.dropTarget != null)
 		{
-/*#if flash9
-			var b = dragInfo.dropBounds = dragInfo.layout.outerBounds;
+#if flash9
+			var b = dragInfo.dropBounds = dragInfo.dragRectangle;		//dragInfo.layout.outerBounds;
 			
 			//adjust dropped x&y to the droptarget
 			var pos	= new Point( item.x, item.y );
-			pos		= dragInfo.dropTarget.container.globalToLocal(pos);
+			pos		= dragInfo.dropTarget.globalToLocal(pos);
 			b.left	= pos.x.roundFloat();
 			b.top	= pos.y.roundFloat();
-#end*/
-			dragInfo.dropBounds = dragInfo.dragRectangle;
+#end
+		//	dragInfo.dropBounds = dragInfo.dragRectangle;
 			//notify the dragged item that the drag-operation is completed
 			target.userEvents.drag.complete.send(dragInfo);
 			

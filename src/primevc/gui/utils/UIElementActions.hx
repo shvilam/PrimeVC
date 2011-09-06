@@ -70,10 +70,10 @@ class UIElementActions
 	}
 	
 	
-	public static inline function doMove (target:IUIElement, newX:Int = Number.INT_NOT_SET, newY:Int = Number.INT_NOT_SET)
+	public static inline function doMove (target:IUIElement, newX:Float = Number.INT_NOT_SET, newY:Float = Number.INT_NOT_SET) 	// using Number.FLOAT_NOT_SET is not allowed since Float.NaN is not a constant value
 	{
-		if (newX.isSet())	target.layout.x = newX.roundFloat();
-		if (newY.isSet())	target.layout.y = newY.roundFloat();
+		if (newX.isSet() && newX != Number.INT_NOT_SET)	target.layout.x = newX.roundFloat();
+		if (newY.isSet() && newY != Number.INT_NOT_SET)	target.layout.y = newY.roundFloat();
 	}
 	
 	
@@ -86,10 +86,10 @@ class UIElementActions
 	}
 	
 	
-	public static inline function doResize (target:IUIElement, newW:Int = Number.INT_NOT_SET, newH:Int = Number.INT_NOT_SET)
+	public static inline function doResize (target:IUIElement, newW:Float = Number.INT_NOT_SET, newH:Float = Number.INT_NOT_SET)
 	{
-		if (newW.isSet())	target.layout.width		= newW.roundFloat();
-		if (newH.isSet())	target.layout.height	= newH.roundFloat();
+		if (newW.isSet() && newW != Number.INT_NOT_SET)	target.layout.width		= newW.roundFloat();
+		if (newH.isSet() && newH != Number.INT_NOT_SET)	target.layout.height	= newH.roundFloat();
 	}
 	
 	

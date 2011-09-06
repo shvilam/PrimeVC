@@ -422,8 +422,7 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 		var l 		= layoutContainer;
 		var start 	= l.fixedChildStart;
 		var update 	= false;
-
-		trace(change);
+		
 		switch (change)
 		{
 			case added( item, newPos):
@@ -450,7 +449,6 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 				var oldDepth = indexToDepth(oldPos);
 				var newDepth = indexToDepth(newPos);
 
-				trace(oldDepth+"/"+oldPos+" => "+newDepth+"/"+newPos);
 				if (oldDepth == -1 && newDepth == -1)
 					return;
 				
