@@ -394,7 +394,7 @@ class TextField extends flash.text.TextField, implements ITextField
 	{
 		//bind the focus-events of the textfield and the target together
 		redispatchFocusEvent.on( userEvents.focus, this );
-		handleBlur			.on( userEvents.blur, this );
+		handleBlur			.on( userEvents.blur,  this );
 		giveFocusToMe		.on( target.userEvents.focus, this );
 		
 		focusTarget = target;

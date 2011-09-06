@@ -129,6 +129,9 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
     
     override public function validate ()
     {
+        //must cache the value of changes since super.validate will change this value to '0' when it's done
+        var changes = this.changes;
+
         // first validate the super method to make sure the data is initialized before selecting an item-renderer
         super.validate();
 
@@ -149,20 +152,22 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
                 // Check if there's a renderer for the new selected value.
                 // If there isn't, the list should scroll to the selected data position
                 // and the selecting part is handled by 'handleChildChange'.
-#if debug
-                var d = getDepthFor(selected.value);
+#if debug       Assert.notNull(data, "SelectableListView must have data if it needs to select a value"); #end
+        /*      var d = getDepthFor(selected.value);
                 if (d > -1)
-                    Assert.that(d < children.length, this+": "+selected.value+" depth is "+d+" but doesn't exist. Children length: "+children.length);
-#end
-                
+                    Assert.that(d < children.length, this+": "+selected.value+" depth is "+d+" but doesn't exist. Children length: "+children.length+"; changes: "+changes);
+#end*/
                 var r = getRendererFor(selected.value);
-                if (r != null && r.is(ISelectable)) {
-                    r.as(ISelectable).select();
+                if (r != null)
+                {
+                    if (r.is(ISelectable))
+                        r.as(ISelectable).select();
                     focusRenderer(r);
                 }
-                else {
+                else
+                {
                     currentFocus = null;
-                    focusIndex = data.indexOf( selected.value );
+                    focusIndex   = data.indexOf(selected.value);
                     layoutContainer.scrollToDepth( focusIndex );
                 }
             }
@@ -170,8 +175,7 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
             previousSelected = null;
         }
         
-        
-        if (changes.has(CURRENT_FOCUS))
+        if (changes.has(CURRENT_FOCUS) && focusIndex > -1)
             focusRendererAt(focusIndex);
     }
 
@@ -188,10 +192,10 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
     {
         if (currentFocus != child || focusIndex == -1)
         {
-            currentFocus = child;
-
-            if (isOnStage())
+            if (isOnStage() && child.is(IInteractiveObject))
                 window.focus = child.as(IInteractiveObject);
+            
+            currentFocus     = child;
             focusIndex       = depthToIndex( children.indexOf(child) );
         }
     }
@@ -201,18 +205,19 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
     {
         if (focusIndex != index || currentFocus == null)
         {
+            Assert.that(index > -1);
             focusIndex   = index;
-            var depth    = indexToDepth( index );
-            if (depth > -1)
+            currentFocus = getRendererAt( indexToDepth(index) );
+
+            if (currentFocus != null)
             {
-                var child    = children.getItemAt(depth);
-                window.focus = child.as(IInteractiveObject);
-                currentFocus = cast child;
+                if (isOnStage() && currentFocus.is(IInteractiveObject))
+                    window.focus = currentFocus.as(IInteractiveObject);
+                
                 layoutContainer.scrollTo(currentFocus.layout);
             }
             else
             {
-                currentFocus = null;
                 layoutContainer.scrollToDepth(index);
 				invalidate( CURRENT_FOCUS );
             }

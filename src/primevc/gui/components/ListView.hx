@@ -205,7 +205,9 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 		if (depth == -1)
 			depth = data.indexOf( item );
 		
-		Assert.notNull( createItemRenderer );
+#if debug
+		Assert.notNull( createItemRenderer, "You need to define an createItemRenderer function to display each data-item in the given list. See ListView.createItemRenderer." );
+#end
 		var child = createItemRenderer( item, depth ).attachTo(this, depth);
 		
 		if (child.is(IInteractive)) // && child.as(IInteractive).mouseEnabled)
@@ -216,7 +218,7 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	private inline function removeRendererFor( item:ListDataType, depth:Int = -1 )
 	{
 		var renderer:IDisplayObject = null;
-		if (depth > -1)
+		if (hasRendererAtDepth(depth))
 			renderer = children.getItemAt(depth);
 		else
 		{
@@ -295,7 +297,7 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	 */
 	public inline function getRendererAt(depth:Int) : IUIDataElement<ListDataType>
 	{
-		return depth > -1 ? cast children.getItemAt(depth).as(IUIDataElement) : null;
+		return hasRendererAtDepth(depth) ? cast children.getItemAt(depth).as(IUIDataElement) : null;
 	}
 	
 	
@@ -337,7 +339,7 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	 */
 	public inline function hasRendererFor (dataItem:ListDataType) : Bool
 	{
-	    return getDepthFor(dataItem) > -1;
+	    return hasRendererAtDepth(getDepthFor(dataItem)); // > -1;
 	}
 	
 	
@@ -346,7 +348,7 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	 */
 	public inline function hasRendererAtDepth (depth:Int) : Bool
 	{
-	    return depthToIndex(depth) > -1;
+	    return depth < children.length && depth > -1;
 	}
 	
 	
@@ -438,26 +440,28 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 			case removed (item, oldPos):
 				var oldDepth = indexToDepth(oldPos);
 
-				if (oldDepth > -1) {
+				if (hasRendererAtDepth(oldDepth)) {
 					removeRendererFor( item, oldDepth );
 					update = true;
 				}
 			
 
 
-			case moved (item, newPos, oldPos):
-				var oldDepth = indexToDepth(oldPos);
-				var newDepth = indexToDepth(newPos);
+			case moved (item, newPos, curPos):
+				var curDepth 	= indexToDepth(curPos);
+				var newDepth 	= indexToDepth(newPos);
+				var hasCur    	= hasRendererAtDepth(curDepth);
+				var hasNew 		= hasRendererAtDepth(newDepth);
 
-				if (oldDepth == -1 && newDepth == -1)
+				if (!hasCur && !hasNew) 										// the moved data-item isn't renderer and the new location of the data-item isn't visible so don't do anything
 					return;
 				
-				if (oldDepth > -1 && newDepth > -1)
-					moveRenderer( item, newDepth, oldDepth );
+				if (hasCur && hasNew)
+					moveRenderer( item, newDepth, curDepth ); 					// the moved data-item already has an item-renderer. Move it to it's new location (since the new location is also visible).
 				else
 				{
-					if 		(newDepth > -1) 	addRenderer( item, newDepth );
-					else if (oldDepth > -1)		removeRendererFor( item, oldDepth );
+					if 		(hasNew) 	addRenderer( item, newDepth ); 			// the moved data-item wasn't visible yet but should be now, so add an item-renderer to display the moved data.
+					else if (hasCur)	removeRendererFor( item, curDepth );	// the moved data-item was visible on the old depth, but not on the new depth so remove the item-renderer.
 					update = true;
 				}
 			default:
