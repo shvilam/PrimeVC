@@ -69,7 +69,7 @@ class ChildFacade <
 	 */
 	public inline function connect (external:ChannelsType) : Void
 	{
-		Assert.null(channels);
+		Assert.that(!isConnected());
 		Assert.notNull(external);
 		channels = external;
 		start();
@@ -81,10 +81,15 @@ class ChildFacade <
 	 */
 	public inline function disconnect () : Void
 	{
-	//	Assert.notNull(channels);
-		if (channels != null)
+		if (isConnected())
 			stop();
 		
 		channels = null;
+	}
+
+
+	public inline function isConnected () : Bool
+	{
+		return channels != null;
 	}
 }
