@@ -490,7 +490,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	//  trace("depth: "+index+"; fixedStart: "+fixedChildStart+"; length: "+children.length);
 	    if (index >= fixedChildStart && index < (fixedChildStart + children.length))
 	        scrollTo( children.getItemAt( index - fixedChildStart ) );
-	    else
+	    else if (algorithm != null)
 		    algorithm.scrollToDepth(index);
 	}
 	

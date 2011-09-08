@@ -142,6 +142,15 @@ class DisplayList implements IEditableList <ChildType>
 			child.container = null;
 		}
 	}
+
+
+
+	//
+	// ENABLE / DISABLE
+	//
+
+	public  inline function enable () 				{ mouseEnabled = tabEnabled = true; }
+	public  inline function disable () 				{ mouseEnabled = tabEnabled = false; }
 	
 	
 	
