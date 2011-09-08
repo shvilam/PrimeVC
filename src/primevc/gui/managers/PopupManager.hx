@@ -31,6 +31,7 @@ package primevc.gui.managers;
  import primevc.gui.core.UIComponent;
  import primevc.gui.core.UIWindow;
  import primevc.utils.FastArray;
+  using primevc.utils.Bind;
   using primevc.utils.FastArray;
 
 
@@ -81,9 +82,11 @@ class PopupManager implements IPopupManager
 		Assert.null( popup.layout.parent );
 		window.popupLayout.children.add( popup.layout );
 		popup.visible = false;
+
+		popup.setFocus.onceOn( popup.displayEvents.addedToStage, this );	// this way (instead of calling popup.setFocus directly) the popup can override the focus behaviour
 		popup.attachToDisplayList( window );
 		popup.show();
-		popup.setFocus();
+	//	popup.setFocus();
 		
 		if (window.popupLayout.children.length == 1)
 			window.userEvents.key.disable();
