@@ -119,8 +119,9 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		
 		if ( propsToSet.has( Flags.VISIBLE ))
 		{
-			if (empty || styleObj.visible)			target.as(IUIElement).show();
-			else									target.as(IUIElement).hide();
+			var t = target.as(IUIElement);	//save assumption since the 'apply' method otherwise would have filtered the VISIBLE flag
+			if (!empty && !styleObj.visible)	t.hide();
+			else if (!t.visible)				t.show();
 		}
 		
 		
