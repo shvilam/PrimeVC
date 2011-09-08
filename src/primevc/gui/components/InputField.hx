@@ -169,15 +169,15 @@ class InputField <VOType> extends DataButton <VOType>
 			return;
 		
 	//	Assert.notNull( vo.value );
-		updateLabelBinding.disable();
 		fieldBinding.disable();
-		updateVO();
-
 		var d = getRevertableData();
 		if (d.isEditable())	// <-- not the case when cancelInput is called.
+		{
+			updateLabelBinding.disable();
+			updateVO();
 			d.commitEdit();
-		
-		updateLabelBinding.enable();
+			updateLabelBinding.enable();
+		}
 		
 		hasFocus = false;
 		updateLabel();
@@ -189,23 +189,9 @@ class InputField <VOType> extends DataButton <VOType>
 	 * focus.
 	 * Method is called From InputFieldSkin.
 	 */
-	public function applyInput ()
+	public function applyInput () if (hasFocus)
 	{
-		if (!hasFocus)
-			return;
-		
 		field.removeFocus();
-		return;
-		
-		/*updateLabelBinding.disable();
-		fieldBinding.disable();
-		
-		updateVO();
-		getRevertableData().commitEdit();
-		getRevertableData().beginEdit();
-		
-		fieldBinding.enable();
-		updateLabelBinding.enable();*/
 	}
 	
 	
@@ -214,12 +200,10 @@ class InputField <VOType> extends DataButton <VOType>
 	 * typed in stuff.
 	 * Method is called From InputFieldSkin.
 	 */
-	public function cancelInput ()
+	public function cancelInput () if (hasFocus)
 	{
-		if (!hasFocus)
-			return;
-		
 		getRevertableData().cancelEdit();
 		field.removeFocus();
+	}
 	}
 }

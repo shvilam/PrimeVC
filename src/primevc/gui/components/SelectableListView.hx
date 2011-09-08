@@ -28,6 +28,7 @@
  */
 package primevc.gui.components;
  import primevc.core.collections.ListChange;
+ import primevc.core.dispatcher.Signal0;
  import primevc.core.dispatcher.Wire;
  import primevc.core.Bindable;
  
@@ -66,6 +67,17 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
 	 */
     public var selected             (default, null) : Bindable<ListDataType>;
     
+
+    /**
+     * Signal is fired when the user selects an item from the list. This signal is also
+     * fired when the user selects an item that is already selected ('selected.changed' 
+     * won't be fired then).
+     *
+     * This signal is needed when i.e. the ListView is used in a comboBox then needs to
+     * be closed after the user tried to select an item. 
+     */
+    public  var itemSelected        (default, null) : Signal0;
+
     /**
      * Cached value of the last selected list-data. Needed to deselect item-renderers
      * in validate
@@ -92,20 +104,23 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
     
     override private function createBehaviours ()
     {
+        super.createBehaviours();
+
+        itemSelected    = new Signal0();
 		selected        = new Bindable<ListDataType>();
 		focusIndex      = -1;
 		
-        handleChildChange.on( children.change, this );
-        enableNavigtion	 .on( displayEvents.addedToStage, this );
-		disableNavigation.on( displayEvents.removedFromStage, this );
+        handleChildChange     .on( children.change, this );
+        enableNavigtion	      .on( displayEvents.addedToStage, this );
+		disableNavigation     .on( displayEvents.removedFromStage, this );
+        handleRendererClick   .on( childClick, this );
 		
-        //save wire for invalidation.. if the selection is with the mouse/keyboard, there's no need to invalidate the selection
+        // store wire for invalidation.. if the selection is with the mouse/keyboard, there's no need to invalidate the selection
         invalidateWire  = invalidateSelection   .on( selected.change, this );
 		mouseMoveWire	= checkHoveredItem      .on( userEvents.mouse.move, this );
-		updateFocusAfterScroll                  .on( userEvents.mouse.scroll, this );
+		checkHoveredItem                        .on( userEvents.mouse.scroll, this );
+        
 		mouseMoveWire.disable();
-		
-        super.createBehaviours();
     }
     
     
@@ -115,13 +130,15 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
             return;
         
         children.change.unbind(this);
-        
+
+        itemSelected    .dispose();
         invalidateWire  .dispose();
         mouseMoveWire	.dispose();
         selected        .dispose();
         
 		mouseMoveWire	= null;
 		invalidateWire  = null;
+        itemSelected    = null;
         
         super.dispose();
     }
@@ -152,11 +169,6 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
                 // Check if there's a renderer for the new selected value.
                 // If there isn't, the list should scroll to the selected data position
                 // and the selecting part is handled by 'handleChildChange'.
-#if debug       Assert.notNull(data, "SelectableListView must have data if it needs to select a value"); #end
-        /*      var d = getDepthFor(selected.value);
-                if (d > -1)
-                    Assert.that(d < children.length, this+": "+selected.value+" depth is "+d+" but doesn't exist. Children length: "+children.length+"; changes: "+changes);
-#end*/
                 var r = getRendererFor(selected.value);
                 if (r != null)
                 {
@@ -171,7 +183,7 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
                     layoutContainer.scrollToDepth( focusIndex );
                 }
             }
-            
+
             previousSelected = null;
         }
         
@@ -186,6 +198,19 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
         deselectRenderers();
         super.removeData();
     }
+
+
+    public inline function select (item:ListDataType)
+    {
+        selected.value = item;
+        itemSelected.send();
+    }
+
+
+
+    //
+    // RENDERER METHODS
+    //
     
     
     private inline function focusRenderer (child:IUIDataElement<ListDataType>)
@@ -275,6 +300,17 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
             case reset:
         }
     }
+
+
+    /**
+     * Method is called when an item-renderer in the list is clicked. The
+     * method will try to update the value of the combobox.
+     */
+    private function handleRendererClick (mouseEvt:MouseState) : Void
+    {
+        if (mouseEvt.target != null)
+            select( getRendererData( cast mouseEvt.target) );
+    }
     
     
     private function invalidateSelection (newVO:ListDataType, oldVO:ListDataType)
@@ -293,6 +329,9 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
 	    if (!mouseMoveWire.isEnabled()) {
 	        changeSelectedItem.on( userEvents.key.down, this );
 		    mouseMoveWire.enable();
+
+            if (selected.value != null && focusIndex == -1)
+                focusRendererAt(data.indexOf(selected.value));
 	    }
     }
     
@@ -317,14 +356,10 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
 		var k		= event.keyCode();
 		var max		= data.length - 1;
 		
-		if (k.isEnter())
-		{
-		    if (index > -1) {
-		        invalidateWire.disable();
-		        selected.value = data.getItemAt(index);
-		        invalidateWire.enable();
-	        }
-		}
+		if (k.isEnter()) {
+		    if (index > -1)
+                select( data.getItemAt(index) );
+        }
 		else
 		{
 			if		(k == KeyCodes.UP)		index -= 1;
@@ -333,24 +368,17 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
 			else if (k == KeyCodes.PAGE_DOWN || k == KeyCodes.END)		index = max;
 			
 			// TODO: check if a-z is pressed to select items that start with that letter
-			
-			if (index.isWithin(0, max))
+			if (focusIndex != index && index.isWithin(0, max))
 	            focusRendererAt( index );
 		}
 	}
 	
 	
-	private function checkHoveredItem (mouse:MouseState) : Void
-	{
-		var target = mouse.target.as(IUIDataElement);
-		if (target == null || target == cast currentFocus)
-			return;
-		
-	    focusRenderer( cast target );
-	}
-	
-	
-	private function updateFocusAfterScroll (mouse:MouseState)
+	/**
+     * Eventhandler can be called after a mouse-event and give focus to the object 
+     * underneath the mouse-cursor. Used after a scroll-event.
+     */
+	private function checkHoveredItem (mouse:MouseState)
 	{
 	    var target = mouse.target;
 	    if (target != null && target.is(IUIDataElement) && target.is(IInteractiveObject))

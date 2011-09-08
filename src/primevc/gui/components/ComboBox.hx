@@ -111,8 +111,9 @@ class ComboBox <DataType> extends DataButton <DataType>
 		
 		popup.createItemRenderer = createItemRenderer;
 		
-	    deselect.on( vo.change, this );		// hides combobox-popup when a new data-item has been selected
-	    list.selected.pair( vo ); 			// make sure the vo.value and selected list-item are always the same
+	//  deselect.on( vo.change, this );			// hides combobox-popup when a new data-item has been selected
+	    deselect.on( list.itemSelected, this );	// hides combobox-popup when the user has tried to change the selected item
+	    list.selected.pair( vo ); 				// make sure the vo.value and selected list-item are always the same
 		Assert.notNull( getLabelForVO );
 		
 		//leave the opening and closing of the list to the behaviouruserEvents.
@@ -122,8 +123,6 @@ class ComboBox <DataType> extends DataButton <DataType>
 		
 		windowWire = checkToDeselect.on( window.userEvents.mouse.down, this );
 		windowWire.disable();
-		
-		handleItemRendererClick.on( popup.childClick, this );
 	}
 	
 	
@@ -192,27 +191,6 @@ class ComboBox <DataType> extends DataButton <DataType>
 	//
 	// EVENT HANDLERS
 	//
-	
-	
-	/**
-	 * Method is called when an item-renderer in the list is clicked. The
-	 * method will try to update the value of the combobox.
-	 */
-	private function handleItemRendererClick (mouseEvt:MouseState) : Void
-	{
-		if (mouseEvt.target != null)
-		{
-			if (mouseEvt.target.is( DataButton )) {
-				var dataButton : DataButton<DataType> = cast mouseEvt.target;
-				vo.value = dataButton.vo.value;
-			}
-			
-			else if (mouseEvt.target.is( IUIDataElement )) {
-				var dataElement : IUIDataElement<DataType> = cast mouseEvt.target;
-				vo.value = dataElement.data;
-			}
-		}
-	}
 	
 	
 	private function handleSelected (newVal:Bool, oldVal:Bool)
