@@ -115,36 +115,39 @@ class UIBitmap extends BitmapShape, implements IUIElement
         if (isDisposed())
             return;
         
-        if (container != null)          detachDisplay();
-        if (layout.parent != null)      detachLayout();
+        if (parent != null)     // <-- dirty way to see if the component is still on stage.. container and window will be unset after removedFromStage is fired, so if the component get's disposed on removedFromStage, we won't know that it isn't on it.
+            detachDisplay();
         
+        if (effects != null) {
+            effects.dispose();
+            effects = null;
+        }
+
         data = null;
         //Change the state to disposed before the behaviours are removed.
         //This way a behaviour is still able to respond to the disposed
         //state.
         state.current = state.disposed;
-        
         removeValidation();
+        
         behaviours.dispose();
         state     .dispose();
         id        .dispose();
-#if flash9
-        if (style.target == this)
-            style.dispose();
         
+        if (layout != null) {
+            layout.dispose();
+            layout = null;
+        }
+        
+#if flash9
+        style.dispose();
         styleClasses.dispose();
-#end
-
-        if (layout != null)         layout.dispose();
-        
-        id              = null;
-#if flash9
         style           = null;
         styleClasses    = null;
 #end
+        id              = null;
         state           = null;
         behaviours      = null;
-        layout          = null;
 
         super.dispose();
     }

@@ -257,8 +257,9 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	}
 	
 	
-	private inline function reuseRenderer( fromDepth:Int, toDepth:Int, newDataPos:Int )
+	private  function reuseRenderer( fromDepth:Int, toDepth:Int, newDataPos:Int )
 	{
+		trace(fromDepth+" => "+toDepth+"; "+newDataPos);
 		var d = data.getItemAt(newDataPos);
 		var r = children.getItemAt(fromDepth).as(IUIDataElement);
 		setRendererData(cast r, cast d);
@@ -383,14 +384,14 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	}
 	
 	
-	private inline function updateVisibleItemRenderers (startVisible:Int, maxVisible:Int)
+	private function updateVisibleItemRenderers (startVisible:Int, maxVisible:Int)
 	{
 		var l = layoutContainer;
 		var curStart = l.fixedChildStart;
 		var curLen	 = l.children.length;
 		
-		if ((startVisible + maxVisible) > data.length)
-			startVisible = data.length - maxVisible;
+		if (maxVisible > data.length)						maxVisible 		= data.length;		//the algorithm can give a wrong max value when a data-item is just removed
+		if ((startVisible + maxVisible) > data.length)		startVisible 	= data.length - maxVisible;
 		
 		
 		if (curStart != startVisible)

@@ -205,5 +205,4 @@ class InputField <VOType> extends DataButton <VOType>
 		getRevertableData().cancelEdit();
 		field.removeFocus();
 	}
-	}
 }
