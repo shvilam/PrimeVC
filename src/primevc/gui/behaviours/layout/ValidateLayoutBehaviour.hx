@@ -38,6 +38,7 @@ package primevc.gui.behaviours.layout;
  import primevc.gui.traits.IPropertyValidator;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
+  using primevc.utils.IfUtil;
   using primevc.utils.TypeUtil;
  
 
@@ -58,16 +59,12 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 	
 	override private function init ()
 	{
-		Assert.that(target.layout != null);
-		
 		var layout			= target.layout;
 		isNotPositionedYet	= true;
-		Assert.that(layout != null, "Layout of "+target+" can't be null for "+this);
-		
 #if debug
+		Assert.notNull(layout, "Layout of "+target+" can't be null for "+this);
 		layout.name = target.id.value+"Layout";
 #end
-		
 		stateChangeWire		= layoutStateChangeHandler	.on( layout.state.change, this );
 		layoutChangeWire	= applyChanges				.on( layout.changed, this );
 		
@@ -81,14 +78,14 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 	
 	override private function reset ()
 	{
-		if (target.layout == null)
+		if (target.layout.isNull())
 			return;
 		
 		target.displayEvents.addedToStage.unbind( this );
 		target.displayEvents.removedFromStage.unbind( this );
 		
-		if (stateChangeWire != null)	stateChangeWire.dispose();
-		if (layoutChangeWire != null)	layoutChangeWire.dispose();
+		if (stateChangeWire.notNull())		stateChangeWire.dispose();
+		if (layoutChangeWire.notNull())		layoutChangeWire.dispose();
 		
 		super.reset();
 	}
@@ -127,7 +124,7 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 	private function getParentsState (layout:LayoutClient, level:Int = 0) : String
 	{
 		var s = "\n\t\t\t\t[ "+level+" ] = "+layout+" => "+layout.state.current; //+"; in queue? "+isQueued();
-		if (layout.parent != null)
+		if (layout.parent.notNull())
 			s += getParentsState( cast layout.parent, level + 1 );
 		
 		return s;
@@ -149,9 +146,9 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 	}
 	
 	
-	public inline function invalidate ()				{ getValidationManager().add( this ); }
-	public inline function validate ()					{ if (target != null) target.layout.validate(); }
-	override private function getValidationManager ()	{ return isOnStage() ? cast target.system.invalidation : null; }
+	public inline function invalidate ()				getValidationManager().add( this )
+	public inline function validate ()					if (target.notNull()) { target.layout.validate(); }
+	override private function getValidationManager ()	return isOnStage() ? cast target.system.invalidation : null
 	
 	
 	public function applyChanges (changes:Int)
@@ -163,7 +160,7 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 		
 		if (changes.has( LayoutFlags.POSITION ))
 		{
-			if (target.effects == null || isNotPositionedYet)
+			if (isNotPositionedYet || target.effects.isNull())
 			{
 				var l = target.layout;
 				var newX = l.getHorPosition();
@@ -188,7 +185,7 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 		
 		if (changes.has( LayoutFlags.SIZE ))
 		{
-			if (target.effects == null)
+			if (target.effects.isNull())
 			{
 				var b = target.layout.innerBounds;
 //#if debug		Assert.that(b.width < 10000 && b.width > -1, target+".invalidWidth: "+b+"; "+target.container);

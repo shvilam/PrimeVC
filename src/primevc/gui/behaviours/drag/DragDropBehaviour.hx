@@ -76,7 +76,7 @@ class DragDropBehaviour extends DragBehaviourBase
 	override private function reset () : Void
 	{
 		super.reset();
-		if (moveBinding != null)
+		if (moveBinding.notNull())
 		{
 			moveBinding.dispose();
 			moveBinding	= null;
@@ -86,17 +86,17 @@ class DragDropBehaviour extends DragBehaviourBase
 	
 	override private function startDrag (mouseObj:MouseState) : Void
 	{
-		if (dragInfo != null)
+		if (dragInfo.notNull())
 		{
 			cancelDrag(mouseObj);
 			stopDrag(mouseObj);
 		}
 		
-		if (target.window == null)
+		if (target.window.isNull())
 			return;
 		
 		dragInfo = target.createDragInfo();
-		if (dragInfo == null)
+		if (dragInfo.isNull())
 			return;
 		
 		// disable effects
@@ -140,7 +140,7 @@ class DragDropBehaviour extends DragBehaviourBase
 		//remove dragrenderer from displaylist
 		item.container.children.remove(item);
 		
-		if (dragInfo.dropTarget != null)
+		if (dragInfo.dropTarget.notNull())
 		{
 #if flash9
 			var b = dragInfo.dropBounds = dragInfo.dragRectangle;		//dragInfo.layout.outerBounds;
@@ -193,10 +193,10 @@ class DragDropBehaviour extends DragBehaviourBase
 	{
 		var item = dragInfo.dragRenderer;
 		
-		if (item.dropTarget == null || !item.dropTarget.is(IDropTarget))
+		if (item.dropTarget.isNull() || !item.dropTarget.is(IDropTarget))
 		{
 			//if the dragged item is not on any dropTarget, stop checking
-			if (dragInfo.dropTarget == null || !item.isObjectOn( dragInfo.dropTarget ))
+			if (dragInfo.dropTarget.isNull() || !item.isObjectOn( dragInfo.dropTarget ))
 				dragInfo.dropTarget = null;
 			return;
 		}
@@ -204,11 +204,11 @@ class DragDropBehaviour extends DragBehaviourBase
 		var curDropTarget = item.dropTarget.as(IDropTarget);
 		
 		//make sure the new droptarget isn't the same as the previous droptarget
-		if (curDropTarget == dragInfo.dropTarget || curDropTarget == null)
+		if (curDropTarget == dragInfo.dropTarget || curDropTarget.isNull())
 			return;
 		
 		//check if the drag is allowed over the current dropTarget
-		if (curDropTarget.is(IDataDropTarget) && dragInfo.dataCursor != null)
+		if (curDropTarget.is(IDataDropTarget) && dragInfo.dataCursor.notNull())
 		{
 			var dataTarget = curDropTarget.as(IDataDropTarget);
 			if (dataTarget.isDataDropAllowed( cast dragInfo.dataCursor ))

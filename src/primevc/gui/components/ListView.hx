@@ -51,8 +51,8 @@ package primevc.gui.components;
 
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberUtil;
   using primevc.utils.IfUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
   using haxe.Timer;
 
@@ -107,7 +107,7 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 
 		//drop support
 		dragEvents = new DropTargetEvents();
-		if (isDisplayDropAllowed == null)
+		if (isDisplayDropAllowed.isNull())
 			isDisplayDropAllowed = defaultDisplayDropCheck;
 	}
 	
@@ -151,7 +151,7 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	
 	private inline function removeEnableTimer ()
 	{
-		if (enableDelay != null) {
+		if (enableDelay.notNull()) {
 			enableDelay.stop();
 			enableDelay = null;
 		}
@@ -168,7 +168,7 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 		var length = data.length;
 		
 		var layout = layoutContainer;
-		if (layout.algorithm != null && isScrollable)
+		if (layout.algorithm.notNull() && isScrollable)
 		{
 			layout.setFixedChildLength( length );
 			
@@ -234,7 +234,7 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 				}
 		}
 
-		if (renderer != null)
+		if (renderer.notNull())
 			renderer.dispose();		// removing the click-listener is not nescasary since the item-renderer is getting disposed
 	}
 	
@@ -248,7 +248,7 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	private inline function moveRenderer ( item:ListDataType, newDepth:Int, curDepth:Int )
 	{
 		var renderer = getRendererAt(curDepth);
-		if (renderer != null) {
+		if (renderer.notNull()) {
 			layoutContainer.children.move( renderer.layout, newDepth, curDepth );
 			children.move( renderer, newDepth, curDepth );
 		}
@@ -421,16 +421,16 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 			var max     = curLen - 1;		// max items used in calculations (using 0 - (x - 1) instead of 1 - x)
 			
 			// move children
-			if		(curStart < startVisible)	{ var start = startVisible + curLen - diff;     for (i in 0...diff)	reuseRenderer( 0, max, start + i ); }
-			else if (curStart > startVisible)	{ var start = startVisible + diff - 1;          for (i in 0...diff)	reuseRenderer( max, 0, start - i ); }
+			if		(curStart < startVisible)	{ var start = startVisible + curLen - diff;     for (i in 0...diff)		reuseRenderer( 0, max, start + i ); }
+			else if (curStart > startVisible)	{ var start = startVisible + diff - 1;          for (i in 0...diff)		reuseRenderer( max, 0, start - i ); }
 		}
 		
 		
 		if (curLen != maxVisible)
 		{
 			// add or remove children
-			if		(curLen < maxVisible)		for (i in curLen...maxVisible)	addRenderer(    data.getItemAt( i + startVisible ), i );
-			else if (curLen > maxVisible)		for (i in maxVisible...curLen)	removeRenderer( cast children.getItemAt(maxVisible) );
+			if		(curLen < maxVisible)		for (i in curLen...maxVisible)		addRenderer(    data.getItemAt( i + startVisible ), i );
+			else if (curLen > maxVisible)		for (i in maxVisible...curLen)		removeRenderer( cast children.getItemAt(maxVisible) );
 		}
 	}
 	

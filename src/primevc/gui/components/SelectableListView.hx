@@ -46,6 +46,7 @@ package primevc.gui.components;
   using primevc.gui.input.KeyCodes;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
+  using primevc.utils.IfUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
@@ -155,22 +156,22 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
         // check if there's a change in the selected data.
         if (changes.has(UIElementFlags.SELECTED))
         {
-            if (previousSelected != null)
+            if (previousSelected.notNull())
             {
                 // Check if there's a renderer for the previous selected vo.
                 // If there isn't, the deselecting is handled by 'handleChildChange'
                 var r = getRendererFor( previousSelected );
-                if (r != null && r.is(ISelectable))
+                if (r.notNull() && r.is(ISelectable))
                     r.as(ISelectable).deselect();
             }
             
-            if (selected.value != null)
+            if (selected.value.notNull())
             {
                 // Check if there's a renderer for the new selected value.
                 // If there isn't, the list should scroll to the selected data position
                 // and the selecting part is handled by 'handleChildChange'.
                 var r = getRendererFor(selected.value);
-                if (r != null)
+                if (r.notNull())
                 {
                     if (r.is(ISelectable))
                         r.as(ISelectable).select();
@@ -228,13 +229,13 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
     
     private inline function focusRendererAt (index:Int)
     {
-        if (focusIndex != index || currentFocus == null)
+        if (focusIndex != index || currentFocus.isNull())
         {
             Assert.that(index > -1);
             focusIndex   = index;
             currentFocus = getRendererAt( indexToDepth(index) );
 
-            if (currentFocus != null)
+            if (currentFocus.notNull())
             {
                 if (isOnStage() && currentFocus.is(IInteractiveObject))
                     window.focus = currentFocus.as(IInteractiveObject);
@@ -308,7 +309,7 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
      */
     private function handleRendererClick (mouseEvt:MouseState) : Void
     {
-        if (mouseEvt.target != null)
+        if (mouseEvt.target.notNull())
             select( getRendererData( cast mouseEvt.target) );
     }
     
@@ -317,7 +318,7 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
     {
         // If previousSelected isn't null, it means that the value is already 
         // changed but not yet validated. In that case, the previousSelected shouldn't change
-        if (previousSelected == null)
+        if (previousSelected.isNull())
             previousSelected = oldVO;
         
         invalidate(UIElementFlags.SELECTED);
@@ -330,7 +331,7 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
 	        changeSelectedItem.on( userEvents.key.down, this );
 		    mouseMoveWire.enable();
 
-            if (selected.value != null && focusIndex == -1)
+            if (selected.value.notNull() && focusIndex == -1)
                 focusRendererAt(data.indexOf(selected.value));
 	    }
     }
@@ -381,7 +382,7 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
 	private function checkHoveredItem (mouse:MouseState)
 	{
 	    var target = mouse.target;
-	    if (target != null && target.is(IUIDataElement) && target.is(IInteractiveObject))
+	    if (target.notNull() && target.is(IUIDataElement) && target.is(IInteractiveObject))
 	        focusRenderer(cast target);
 	}
 }
