@@ -36,6 +36,7 @@ package primevc.gui.behaviours.drag;
  import primevc.gui.traits.IDropTarget;
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
+  using primevc.utils.IfUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
  
@@ -54,6 +55,7 @@ class DragDropBehaviour extends DragBehaviourBase
 {
 //	private var copyTarget			: Bool;
 	private var moveBinding			: Wire < Dynamic >;
+	private var effectsEnabledValue	: Bool;
 	
 	
 /*	public function new (target, ?dragBounds, ?copyTarget = false)
@@ -97,6 +99,15 @@ class DragDropBehaviour extends DragBehaviourBase
 		if (dragInfo == null)
 			return;
 		
+		// disable effects
+		if (target.is(IUIElement)) {
+			var t = target.as(IUIElement);
+			if (t.effects.notNull()) {
+				effectsEnabledValue = t.effects.enabled;	//store original value to resore after the drop
+				t.effects.enabled 	= false;
+			}
+		}
+
 		var pos 		= dragInfo.displayCursor.position;
 #if flash9
 		pos				= target.container.as(IDisplayObject).localToGlobal( pos );
@@ -156,6 +167,10 @@ class DragDropBehaviour extends DragBehaviourBase
 			target.userEvents.drag.cancel.send( dragInfo );
 			disposeDragInfo();
 		}
+
+		// re-enable effects
+		if (effectsEnabledValue && target.is(IUIElement))
+			target.as(IUIElement).effects.enable.onceOn( target.displayEvents.enterFrame, target );	// re-enable after it's layout is validated
 		
 		moveBinding.disable();
 		dragInfo = null;

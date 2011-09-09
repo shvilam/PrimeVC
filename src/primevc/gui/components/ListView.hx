@@ -38,6 +38,7 @@ package primevc.gui.components;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.display.DisplayDataCursor;
  import primevc.gui.display.IDisplayObject;
+ import primevc.gui.display.ISprite;
 
  import primevc.gui.events.DropTargetEvents;
  import primevc.gui.events.MouseEvents;
@@ -51,6 +52,7 @@ package primevc.gui.components;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
+  using primevc.utils.IfUtil;
   using primevc.utils.TypeUtil;
   using haxe.Timer;
 
@@ -259,11 +261,29 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	
 	private  function reuseRenderer( fromDepth:Int, toDepth:Int, newDataPos:Int )
 	{
-		trace(fromDepth+" => "+toDepth+"; "+newDataPos);
 		var d = data.getItemAt(newDataPos);
 		var r = children.getItemAt(fromDepth).as(IUIDataElement);
+
+		if (r.is(ISprite) && r.as(ISprite).isDragging) {
+			//can't use this renderer.. create a new one
+			addRenderer( d, toDepth );
+			return;
+		}
+
+		if (toDepth >= children.length)		// FIXME -> is only happening during scrolling while dragging an item.. Check if there's a better solution
+			toDepth = children.length - 1;
+
+		r.visible = false;
+		if (r.effects.notNull())
+			r.effects.enabled = false;
+
 		setRendererData(cast r, cast d);
 		r.changeDepth( toDepth );
+
+		if (r.effects.notNull())
+			r.effects.enable.onceOn( r.displayEvents.enterFrame, r );	// re-enable after it's layout is validated
+		
+		r.show();
 	}
 	
 	
