@@ -58,7 +58,7 @@ class UIElementActions
 		// Don't check for target.window.. if the container is added to the stage later and
 		// a hide-effect has hidden the target, making it visible isn't enough, also the result 
 		// of the hide-effect should be reversed (alpha = 0, scrollrect position negative etc.).
-		trace(target+"; playEff? "+(target.container == null || target.effects == null || target.effects.show == null)+"; visible? "+target.visible+"; alpha? "+target.alpha);
+	//	trace(target+"; playEff? "+(target.container == null || target.effects == null || target.effects.show == null)+"; visible? "+target.visible+"; alpha? "+target.alpha);
 		if (shouldPlay(Flags.SHOW, target)) 	target.effects.playShow();
 		else									target.visible = true;
 	}

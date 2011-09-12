@@ -156,14 +156,16 @@ class SimpleList < DataType > implements IEditableList < DataType >
 	}
 	
 	
-	public function remove (item:DataType, oldPos:Int = -1) : DataType
+	public function remove (item:DataType, curPos:Int = -1) : DataType
 	{
 		if (item != null)
 		{
-			beforeChange.send( ListChange.removed( item, oldPos ) );
-			oldPos = removeItem( item, oldPos );
-			if (oldPos > -1)
-				change.send( ListChange.removed( item, oldPos ) );
+			if (curPos == -1)	curPos = indexOf(item);
+			if (curPos == -1)	return item;
+			
+			beforeChange.send( ListChange.removed( item, curPos ) );
+			removeItem( item, curPos );
+			change.send( ListChange.removed( item, curPos ) );
 		}
 		return item;
 	}

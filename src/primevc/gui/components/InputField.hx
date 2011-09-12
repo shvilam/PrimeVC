@@ -155,8 +155,10 @@ class InputField <VOType> extends DataButton <VOType>
 		
 		hasFocus = true;
 		updateLabel();
-		if (data.value == defaultLabel)
+		if (data.value == defaultLabel) {
 			data.set("");
+			styleClasses.remove("empty");
+		}
 		
 		getRevertableData().beginEdit();
 		fieldBinding.enable();
