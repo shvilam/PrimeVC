@@ -904,9 +904,9 @@ class LayoutClient extends Invalidatable
 			updateInnerBounds();
 			updateOuterBounds();
 			
-			invalidate( Flags.HEIGHT | Flags.WIDTH );
+			invalidate( Flags.SIZE | Flags.POSITION );
 		}
-		return padding;
+		return v;
 	}
 	
 	
@@ -918,9 +918,9 @@ class LayoutClient extends Invalidatable
 			updateInnerBounds();
 			updateOuterBounds();
 			
-			invalidate( Flags.HEIGHT | Flags.WIDTH );
+			invalidate( Flags.SIZE | Flags.POSITION );
 		}
-		return padding;
+		return v;
 	}
 	
 	

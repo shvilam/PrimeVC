@@ -435,6 +435,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	public function validate ()
 	{
+		Assert.notNull(validateWire);
 	    validateWire.disable();
 	    
 		if (changes > 0) {
