@@ -3,6 +3,7 @@
 ==================
 
 	* benchmarken van compilen van grote stylesheets
+	* testen met bloomfilter in haXe om stijlblokken een uniek nr te geven en deze als bitflag in de bloomfilter collectie te gebruiken (ask danny)
 	* testen met c++ parser ipv neko parser
 	* nicolas' css-parser gebruiken en uitbreiden (HSS, http://ncannasse.fr/blog/)
 		* dit vereist een tussen parser output waarna een 2e parser dit kan 

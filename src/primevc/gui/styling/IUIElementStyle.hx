@@ -72,8 +72,9 @@ interface IUIElementStyle implements IInvalidateListener, implements IDisposable
 	 * Method will try to find the closest matching style for the request 
 	 * style-type.
 	 */
-	public function addChildStyles ( child:IUIElementStyle, name:String, type:StyleBlockType, ?exclude:StyleBlock ) : Int;
-	public function removeChildStyles ( child:IUIElementStyle, name:String, type:StyleBlockType, ?exclude:StyleBlock ) : Int;
+	public function getChildStyles ( child:IUIElementStyle, name:String, type:StyleBlockType, foundStyles:FastArray<StyleBlock> = null, exclude:StyleBlock = null ) : FastArray<StyleBlock>;
+//	public function addChildStyles ( child:IUIElementStyle, name:String, type:StyleBlockType, ?exclude:StyleBlock ) : Int;
+//	public function removeChildStyles ( child:IUIElementStyle, name:String, type:StyleBlockType, ?exclude:StyleBlock ) : Int;
 	
 	public function addStyle (style:StyleBlock) : Int;
 	public function removeStyle (style:StyleBlock) : Int;
