@@ -170,6 +170,8 @@ class UIComponent extends Sprite, implements IUIComponent
 		if (skin != null)
 			skin.childrenCreated();
 		
+		validateWire = validate.on( displayEvents.addedToStage, this );
+		validateWire.disable();
 		validate();
 		removeValidation.on( displayEvents.removedFromStage, this );
 		
@@ -227,6 +229,11 @@ class UIComponent extends Sprite, implements IUIComponent
 		if (layout != null) {
 			layout.dispose();
 			layout = null;
+		}
+
+		if (validateWire != null) {
+			validateWire.dispose();
+			validateWire = null;
 		}
 		
 		id.dispose();
@@ -419,22 +426,18 @@ class UIComponent extends Sprite, implements IUIComponent
 		    var old = changes;
 			changes = changes.set( change );
 			
-			if (changes == change && isInitialized()) {
-				if      (system != null)		system.invalidation.add(this);
-				else if (validateWire != null)	validateWire.enable();
-				else                            validateWire = validate.on( displayEvents.addedToStage, this );
-			}
+			if (changes == change && isInitialized())
+				if (system != null)		system.invalidation.add(this);
+				else 					validateWire.enable();
 		}
 	}
 	
 	
 	public function validate ()
 	{
-	    if (validateWire != null)
-	        validateWire.disable();
+	    validateWire.disable();
 	    
-		if (changes > 0)
-		{
+		if (changes > 0) {
 			if (skin != null)
 				skin.validate(changes);
 			
@@ -453,7 +456,7 @@ class UIComponent extends Sprite, implements IUIComponent
 			system.invalidation.remove(this);
 
 		if (!isDisposed() && changes > 0)
-			validate.onceOn( displayEvents.addedToStage, this );
+			validateWire.enable();
 	}
 	
 	

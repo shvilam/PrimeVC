@@ -83,6 +83,7 @@ class LayoutClient extends Invalidatable
 	
 	/**
 	 * Size of the layouclient including the padding but without the margin
+	 * @see CSS3 box-sizing: border-box
 	 */
 	public var innerBounds			(default, null)						: IntRectangle;
 	/**

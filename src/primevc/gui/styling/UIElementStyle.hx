@@ -441,6 +441,7 @@ class UIElementStyle implements IUIElementStyle
 	public function addStyle (style:StyleBlock) : Int
 	{
 #if debug 	Assert.that(!styles.has(style), styles+"; adding style "+style); #end
+		
 		var changes		= 0;
 		var styleCell	= styles.add( style );
 		
@@ -570,12 +571,9 @@ class UIElementStyle implements IUIElementStyle
 		
 		switch (change)
 		{
-			case added( styleName, newPos ):
-				changes = replaceStylesOfType( StyleBlockType.styleName, parentStyle.getChildStyles( this, styleName, StyleBlockType.styleName ) );
-			
-
-			case ListChange.removed(styleName, curPos):
-				changes = removeStyles( parentStyle.getChildStyles(this, styleName, StyleBlockType.styleName) );
+			case added( styleName, newPos ):					changes = addStyles( 	parentStyle.getChildStyles(this, styleName, StyleBlockType.styleName) );
+			case ListChange.removed(styleName, curPos):			changes = removeStyles( parentStyle.getChildStyles(this, styleName, StyleBlockType.styleName) );
+			case moved( item, newPos, curPos ):					//do nothing
 			
 			
 			case ListChange.reset:
@@ -589,10 +587,6 @@ class UIElementStyle implements IUIElementStyle
 				}
 				else
 					changes = removeStylesWithPriority( StyleBlockType.styleName.enumIndex() );
-			
-
-			case moved( item, newPos, curPos ):	
-				//do nothing
 		}
 		
 		return broadcastChanges( changes );
@@ -638,7 +632,7 @@ class UIElementStyle implements IUIElementStyle
 			{
 				var style = styleCell.data;
 				var next  = styleCell.next;
-				if (style.getPriority() < priority)
+				if (style.getPriority() != priority)
 					break;
 				
 				if (newStyles.has(style))	newStyles.removeItem(style);						// current-style and new-styles both have this style.. do noting
@@ -650,8 +644,7 @@ class UIElementStyle implements IUIElementStyle
 			//
 			// add new styles to styleslist
 			//
-			for (newStyle in newStyles)
-				changes = changes.set(addStyle(newStyle));
+			changes = changes.set( addStyles(newStyles) );
 		}
 		else
 			changes = removeStylesWithPriority(priority);
@@ -667,7 +660,16 @@ class UIElementStyle implements IUIElementStyle
 		for (style in removableStyles)
 			changes = changes.set(removeStyle(style));
 		
-		return 0;
+		return changes;
+	}
+
+
+	private inline function addStyles (newStyles:FastArray<StyleBlock>) : Int
+	{
+		var changes = 0;
+		for (newStyle in newStyles)
+			changes = changes.set(addStyle(newStyle));
+		return changes;
 	}
 	
 	
