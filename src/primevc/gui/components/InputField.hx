@@ -47,7 +47,7 @@ private typedef Flags		= primevc.gui.core.UIElementFlags;
  */
 class InputField <VOType> extends DataButton <VOType>
 {
-	public var hasFocus			(default, null)	: Bool;
+	public var hasFocus				(default, null)			: Bool;
 	
 	/**
 	 * Method that should be injected into the InputField. The method is
@@ -58,9 +58,7 @@ class InputField <VOType> extends DataButton <VOType>
 	 * 		- the inputfield loses focus
 	 * 		- the user presses enter while the inputfield has focus
 	 */
-	public var updateVO			: Void -> Void;
-	private var fieldBinding	: Wire<Dynamic>;
-	
+	public var updateVO				(default, setUpdateVO)	: Void -> Void;
 	/**
 	 * @see flash.text.TextField#maxChars
 	 */
@@ -75,7 +73,8 @@ class InputField <VOType> extends DataButton <VOType>
 	 * Property is set by the InputFieldSkin
 	 */
 	public var field				(default, null)			: UITextField;
-	
+
+	private var fieldBinding		: Wire<Dynamic>;
 	
 	
 	public function new (id:String = null, defaultLabel:String = null, icon = null, vo:VOType = null)
@@ -83,7 +82,8 @@ class InputField <VOType> extends DataButton <VOType>
 		var d = new DataType("");
 		d.dispatchAfterCommit();
 		d.updateAfterCommit();
-		data = d;
+		data 		= d;
+		updateVO 	= doNothing;
 		
 		super(id, defaultLabel, icon, vo);
 	}
@@ -94,9 +94,7 @@ class InputField <VOType> extends DataButton <VOType>
 		handleFocus	.on( userEvents.focus, this );
 		handleBlur	.on( userEvents.blur, this );
 		
-		Assert.notNull( updateVO, "You need to define a method to commit changes of the inputField" );
 		fieldBinding = updateVO.on( data.change, this );
-		
 		if (!hasFocus)
 			fieldBinding.disable();
 		
@@ -140,6 +138,18 @@ class InputField <VOType> extends DataButton <VOType>
 		}
 		return v;
 	}
+
+
+	private inline function setUpdateVO (v:Void -> Void)
+	{
+		if (v != updateVO)
+		{
+			updateVO = v == null ? doNothing : v;
+			if (fieldBinding != null)
+				fieldBinding.handler = updateVO;
+		}
+		return v;
+	}
 	
 	
 	
@@ -147,6 +157,8 @@ class InputField <VOType> extends DataButton <VOType>
 	// EVENT HANDLERS
 	//
 	
+	private function doNothing () { throw "You need to define a method 'updateVO' to commit changes of the inputField"; }
+
 	
 	private function handleFocus ()
 	{

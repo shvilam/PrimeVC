@@ -384,7 +384,7 @@ class UITextField extends TextField, implements IUIElement
 	{
 		updateSizeWire.disable();
 #if flash9
-		if (autoSize == flash.text.TextFieldAutoSize.NONE)
+		if (autoSize == flash.text.TextFieldAutoSize.NONE) // && window != null && window.focus != this)
 			scrollH = 0;
 #end
 		layout.invalidatable = false;

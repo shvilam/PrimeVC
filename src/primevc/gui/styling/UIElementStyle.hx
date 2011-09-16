@@ -440,7 +440,9 @@ class UIElementStyle implements IUIElementStyle
 	
 	public function addStyle (style:StyleBlock) : Int
 	{
-#if debug 	Assert.that(!styles.has(style), styles+"; adding style "+style); #end
+		if (styles.has(style))
+			return 0;
+//#if debug 	Assert.that(!styles.has(style), styles+"; adding style "+style); #end
 		
 		var changes		= 0;
 		var styleCell	= styles.add( style );
@@ -798,8 +800,6 @@ class UIElementStyle implements IUIElementStyle
 			{
 				//Sender must be the parent-style of one of our styles.
 				//Check if the changes include child-changes. If so, reset our styles
-			//	if (changes.has( Flags.CHILDREN ))
-			//		resetStyles();
 				if (changes.hasAll( Flags.CHILDREN ))				updateStyles();
 				else
 				{
