@@ -79,13 +79,12 @@ class InputField <VOType> extends DataButton <VOType>
 	
 	public function new (id:String = null, defaultLabel:String = null, icon = null, vo:VOType = null)
 	{
+		super(id, defaultLabel, icon, vo);
 		var d = new DataType("");
 		d.dispatchAfterCommit();
 		d.updateAfterCommit();
 		data 		= d;
 		updateVO 	= doNothing;
-		
-		super(id, defaultLabel, icon, vo);
 	}
 	
 	

@@ -284,7 +284,8 @@ class UITextField extends TextField, implements IUIElement
 	override private function applyTextFormat ()
 	{
 		super.applyTextFormat();
-		updateSizeWire.enable();
+		if (updateSizeWire != null)
+			updateSizeWire.enable();
 	}
 	
 	

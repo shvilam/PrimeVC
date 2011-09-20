@@ -293,6 +293,9 @@ class URI #if neko implements ICodeFormattable #end
 		var query_pos:Int = str.indexOf('?', (path_pos  == -1)? pos : path_pos);
 		var frag_pos:Int  = str.indexOf('#', (query_pos == -1)? pos : query_pos);
 		
+		if (port_pos > path_pos)
+			port_pos = -1;
+		
 		if (port_pos != -1)
 		{
 			var port_end = path_pos;

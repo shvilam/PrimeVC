@@ -123,7 +123,7 @@ class UIComponent extends Sprite, implements IUIComponent
 		state			= new UIElementStates();
 		handleEnableChange.on( enabled.change, this );
 		init.onceOn( displayEvents.addedToStage, this );
-#if flash9		
+#if flash9
 		graphicData		= new GraphicProperties( rect );
 		styleClasses	= new SimpleList<String>();
 		stylingEnabled	= true;		// <- will create UIElementStyle instance
@@ -435,9 +435,10 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	public function validate ()
 	{
-		Assert.notNull(validateWire);
+		if (isDisposed())
+			return;
+		
 	    validateWire.disable();
-	    
 		if (changes > 0) {
 			if (skin != null)
 				skin.validate(changes);
