@@ -42,10 +42,12 @@ package primevc.gui.components.layout;
  */
 class FormRowLayout extends VirtualLayoutContainer
 {
-	public function new (percentWidth:Float = 1)
+	public function new (percentWidth:Float = 1, direction:Horizontal = null)
 	{
 		super();
-		algorithm			= new HorizontalFloatAlgorithm( Horizontal.left, Vertical.center );
+        if (direction == null)
+            direction = Horizontal.left;
+		algorithm			= new HorizontalFloatAlgorithm( direction, Vertical.center );
 		this.percentWidth	= percentWidth;
 	}
 }

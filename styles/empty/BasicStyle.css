@@ -188,7 +188,6 @@ Panel #closeBtn {
 	border-radius: 5px;
 	background: #fff;
 	height: 110%;
-	v-center: 0px;
 	width: 51%;
 }
 
@@ -209,8 +208,9 @@ DebugBar Button {
 	background: #ccc;
 	skin: Class( primevc.gui.components.skins.ButtonLabelSkin );
 	color: #333;
-	height: 20px;
+	padding: 4px 6px;
 	margin: 5px;
+	font-size: 10px;
 }
 DebugBar Button:hover		{ background: #fff; }
 DebugBar Button:selected	{ background: #fff; }

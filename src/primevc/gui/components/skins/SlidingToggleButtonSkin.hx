@@ -124,6 +124,7 @@ class SlidingToggleButtonSkin extends Skin<DataButton<Null<Bool>>>
 		onLabel.data.value			= "Aan";	//TRANSLATE
 		offLabel.data.value			= "Uit";	//TRANSLATE
 		slideBtn.layout.relative	= new RelativeLayout();
+		slideBtn.layout.relative.vCenter = 0;
 	//	offIcon.layout.maintainAspectRatio	= true;
 	//	offIcon.layout.resize(10,10);
 		

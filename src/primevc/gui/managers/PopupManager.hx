@@ -132,7 +132,7 @@ class PopupManager implements IPopupManager
 	private function removeModalFor (popup:IUIComponent)
 	{
 		var index = modalPopups.indexOf(popup);
-		if (index > 0)
+		if (index > -1)
 		{
 			modalPopups.removeItem(popup);
 			

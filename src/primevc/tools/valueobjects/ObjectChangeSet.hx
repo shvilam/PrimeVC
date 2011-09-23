@@ -39,7 +39,7 @@ package primevc.tools.valueobjects;
  * @author Danny Wilson
  * @creation-date Dec 03, 2010
  */
- class ObjectChangeSet extends ChangeSet
+class ObjectChangeSet extends ChangeSet
 {
     public static inline function make (vo:ValueObjectBase, changes:Int)
     {
