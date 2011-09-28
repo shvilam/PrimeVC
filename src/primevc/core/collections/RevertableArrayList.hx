@@ -212,7 +212,7 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >, i
 		if (oldPos == -1)
 			oldPos = list.indexOf(item);
 		
-		if (oldPos > -1 && list.removeItem(item, oldPos))
+		if (oldPos > -1 && list.removeAt(oldPos))
 			addChange( ListChange.removed( item, oldPos ) );
 		
 		return item;

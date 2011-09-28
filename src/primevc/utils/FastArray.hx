@@ -158,20 +158,16 @@ typedef FastArray<T> =
 	}
 	
 	
-	static public inline function removeItem<T> (list:FastArray<T>, item:T, oldPos:Int = -1) : Bool {
-		if (oldPos == -1)
-			oldPos = list.indexOf(item);
-		return removeAt(list, oldPos);
+	static public inline function removeItem<T> (list:FastArray<T>, item:T) : Bool {
+		return removeAt(list, list.indexOf(item));
 	}
 	
 	
 	static public inline function removeAt<T> (list:FastArray<T>, pos:Int) : Bool {
-		if (pos >= 0)
-		{
-			if		(pos == 0)						list.shift();
-			else if	(pos == (list.length - 1))		list.pop();
-			else									list.splice(pos, 1);
-		}
+		
+		if		(pos == 0)						list.shift();
+		else if	(pos == (list.length - 1))		list.pop();
+		else if (pos > 0)						list.splice(pos, 1);
 		return pos >= 0;
 	}
 	
