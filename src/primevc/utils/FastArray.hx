@@ -197,9 +197,12 @@ typedef FastArray<T> =
 	}
 	
 	
-	static public inline function has<T>( list:FastArray<T>, item:T ) : Bool {
-		return list.indexOf( item ) >= 0;
-	}
+	static public inline function has<T>( list:FastArray<T>, item:T ) : Bool	{ return list.indexOf( item ) >= 0; }
+
+
+	static public inline function last<T> ( list:FastArray<T> ) : T 			{ return list.length == 0 ? null : list[list.length - 1]; }
+	static public inline function first<T> ( list:FastArray<T> ) : T 			{ return list.length == 0 ? null : list[0]; }
+
 
 #if flash10
 	/** Alias for arr.clone() */

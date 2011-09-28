@@ -90,6 +90,9 @@ class ReadOnlyArrayList < DataType > implements IReadOnlyList < DataType >, impl
 	public inline function iterator () : Iterator <DataType>			{ return cast forwardIterator(); }
 	public inline function forwardIterator () : IIterator <DataType>	{ return cast new FastArrayForwardIterator<DataType>(list); }
 	public inline function reversedIterator () : IIterator <DataType>	{ return cast new FastArrayReversedIterator<DataType>(list); }
+
+	public inline function disableEvents ()								{ beforeChange.disable(); change.disable(); }
+	public inline function enableEvents ()								{ beforeChange.enable();  change.enable(); }
 	
 	public inline function asIterableOf<B> ( type:Class<B> ) : Iterator<B>
 	{
