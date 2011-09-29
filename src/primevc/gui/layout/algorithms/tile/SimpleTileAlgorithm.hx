@@ -29,7 +29,6 @@
 package primevc.gui.layout.algorithms.tile;
  import primevc.core.geom.space.Direction;
  import primevc.core.geom.IRectangle;
- import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.algorithms.LayoutAlgorithmBase;
  import primevc.gui.layout.IAdvancedLayoutClient;
  import primevc.gui.layout.LayoutFlags;
@@ -55,7 +54,7 @@ package primevc.gui.layout.algorithms.tile;
  * @author Ruben Weijers
  * @creation-date Jun 25, 2011
  */
-class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
+class SimpleTileAlgorithm extends LayoutAlgorithmBase, implements ITileAlgorithm
 {
 	private var validatePreparedHor : Bool;
 	private var validatePreparedVer : Bool;

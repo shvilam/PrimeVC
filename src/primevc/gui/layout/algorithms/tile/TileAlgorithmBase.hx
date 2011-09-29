@@ -45,7 +45,7 @@ package primevc.gui.layout.algorithms.tile;
  * @creation-date	Jun 29, 2010
  * @author			Ruben Weijers
  */
-class TileAlgorithmBase extends DynamicLayoutAlgorithm
+class TileAlgorithmBase extends DynamicLayoutAlgorithm, implements ITileAlgorithm
 {
 	/**
 	 * Defines in which direction the layout will start calculating.
