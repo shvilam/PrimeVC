@@ -24,21 +24,28 @@
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers   <ruben @ onlinetouch.nl>
  */
-package primevc.core.states;
+package primevc.avm2.events;
+ import flash.events.Event;
+ import flash.events.IEventDispatcher;
+ import primevc.core.events.CommunicationEvents;
 
 
 /**
- * enum with the states of a videostream
+ * Event group for the Sound-object.
  * 
- * @creation-date	Jan 10, 2011
- * @author			Ruben Weijers
+ * @author Ruben Weijers
+ * @creation-date Sep 28, 2011
  */
-enum VideoStates {
-	playing;
-	paused;
-	stopped;
-	empty;
-	frozen( prevState:VideoStates );
+class SoundEvents extends CommunicationEvents
+{
+    public var id3 (default, null) : Signal0;
+    
+    
+    public function new (dispatcher:IEventDispatcher)
+    {
+        super(dispatcher);
+        id3 = new FlashSignal0(target, Event.ID3);
+    }
 }

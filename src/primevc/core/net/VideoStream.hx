@@ -36,12 +36,11 @@ package primevc.core.net;
  import primevc.avm2.net.NetStream;
 #end
  import primevc.core.states.SimpleStateMachine;
- import primevc.core.states.VideoStates;
- import primevc.core.traits.IDisposable;
- import primevc.core.traits.IFreezable;
+ import primevc.core.states.MediaStates;
  import primevc.core.Bindable;
  import primevc.core.Error;
  import primevc.types.Number;
+ import primevc.types.URI;
   using primevc.utils.Bind;
   using primevc.utils.NumberUtil;
   using Std;
@@ -51,7 +50,7 @@ package primevc.core.net;
  * @author Ruben Weijers
  * @creation-date Jan 10, 2011
  */
-class VideoStream implements IFreezable, implements IDisposable
+class VideoStream extends BaseMediaStream
 {
 #if flash9	
 	private var connection	: NetConnection;
@@ -64,39 +63,6 @@ class VideoStream implements IFreezable, implements IDisposable
 	public var onTextData	(default, null)			: Dynamic -> Void;
 	public var onXMPData	(default, null)			: Dynamic -> Void;
 #end
-	
-	
-	/**
-	 * Variable will cache the volume when the toggleMute method is called.
-	 * @default Number.FLOAT_NOT_SET
-	 */
-	private var cachedVolume : Float;
-	
-	/**
-	 * Timer which will update the currentTime property. The timer is created
-	 * when the first listener starts listening to currentTime changes.
-	 */
-	private var updateTimer	: Timer;
-	
-	
-	/**
-	 * audio-volume of the videostream.
-	 * 0 =< value <= 1
-	 * @default 0.7
-	 */
-	public var volume		(default, null)			: Bindable<Float>;
-	
-	/**
-	 * URL of the video-stream.
-	 */
-	public var url			(default, null)			: Bindable<String>;
-	
-	/**
-	 * Current state of the video-stream. Do not modify the state directly, but 
-	 * use the appropriate methods to change the state of videostream.
-	 */
-	public var state		(default, null)			: SimpleStateMachine<VideoStates>;
-	
 	
 	/**
 	 * Bindable value with the frame-rate of the videostream.
@@ -112,43 +78,15 @@ class VideoStream implements IFreezable, implements IDisposable
 	 * Bindable value with the original height of the videostream
 	 */
 	public var height		(default, null)			: Bindable<Int>;
-	
-	
-	
-	/**
-	 * Bindable value with the total-time of the videostream.
-	 */
-	public var totalTime	(default, null)			: Bindable<Float>;
-	
-	/**
-	 * Number of seconds the video-stream has been playing. This value is automaticly
-	 * updated, as long as the video is playing. The first time the time is
-	 * called, the stream will start a timer to update the value (every 200ms).
-	 * 
-	 * To seek the video, you should not change this property but use the "seek"
-	 * method.
-	 */
-	public var currentTime	(getCurrentTime, null)	: Bindable<Float>;
-	
 			
 	
 
-	public function new (streamUrl:String = null)
+	public function new (streamUrl:URI = null)
 	{
-		url				= new Bindable<String>(streamUrl);
-		volume			= new Bindable<Float>(0.7);
-		currentTime		= new Bindable<Float>(0.0);
-		totalTime		= new Bindable<Float>(0.0);
-		framerate		= new Bindable<Int>(0);
-		width			= new Bindable<Int>(0);
-		height			= new Bindable<Int>(0);
-		
-		cachedVolume	= Number.FLOAT_NOT_SET;
-		var curState	= streamUrl == null ? VideoStates.empty : VideoStates.stopped;
-		state			= new SimpleStateMachine<VideoStates>( VideoStates.empty, curState );
-
-		changeVolume.on( volume.change, this );
-		validateURL	.on( url.change, this );
+		framerate = new Bindable<Int>(0);
+		width	  = new Bindable<Int>(0);
+		height	  = new Bindable<Int>(0);
+		super(streamUrl);
 	}
 	
 	
@@ -169,20 +107,21 @@ class VideoStream implements IFreezable, implements IDisposable
 		onPlayStatus	= handlePlayStatus;
 		onTextData		= handleTextData;
 		onXMPData		= handleXMPData;
-		handleSecurityError	.on( connection.events.securityError, this );
-		handleASyncError	.on( connection.events.asyncError, this );
-		handleIOError		.on( connection.events.ioError, this );
-		handleNetStatus		.on( connection.events.netStatus, this );
-		handleASyncError	.on( source.events.asyncError, this );
-		handleIOError		.on( source.events.ioError, this );
-		handleNetStatus		.on( source.events.netStatus, this );
+		handleSecurityError	.on( connection.events.securityError, 	this );
+		handleASyncError	.on( connection.events.asyncError, 		this );
+		handleIOError		.on( connection.events.ioError, 		this );
+		handleNetStatus		.on( connection.events.netStatus, 		this );
+
+		handleASyncError	.on( source.events.asyncError, 			this );
+		handleIOError		.on( source.events.ioError, 			this );
+		handleNetStatus		.on( source.events.netStatus, 			this );
 		
 	//	connection.connect( null );
 #end
 	}
 	
 	
-	public function dispose ()
+	override public function dispose ()
 	{
 		if (source == null)
 			return;					// <-- is already disposed
@@ -199,26 +138,12 @@ class VideoStream implements IFreezable, implements IDisposable
 			source		= null;
 		}
 #end
-		if (updateTimer != null) {
-			updateTimer.stop();
-			updateTimer = null;
-		}
 		
-		volume		.dispose();
-		state		.dispose();
-		url			.dispose();
-		totalTime	.dispose();
-		framerate	.dispose();
-		width		.dispose();
-		height		.dispose();
-		
-		url		= null;
-		state	= null;
-		volume	= totalTime = null;
-		width	= height = framerate = null;
-		
-		(untyped this).currentTime.dispose();
-		(untyped this).currentTime = null;
+		super.dispose();
+		framerate.dispose();
+		width	 .dispose();
+		height	 .dispose();
+		width = height = framerate = null;
 	}
 	
 	
@@ -234,12 +159,7 @@ class VideoStream implements IFreezable, implements IDisposable
 	//
 	
 	
-	/**
-	 * Method will start playing the given or current video-url. If another
-	 * video is already playing, it will be stopped.
-	 * If the current url-video is already playing, the video will start again.
-	 */
-	public function play ( ?newUrl:String )
+	override public function play ( ?newUrl:URI )
 	{
 		if (!isInitialized()) 	init();
 		if (!isStopped())		stop();
@@ -247,85 +167,55 @@ class VideoStream implements IFreezable, implements IDisposable
 		
 		trace(url.value);
 		Assert.notNull( url.value, "There is no video-url to play" );
-		source.play( url.value );
+		source.play( url.value.toString() );
 	}
 	
-	
-	/**
-	 * Method will pause the video if it was playing
-	 */
-	public function pause ()
+
+	override public function pause ()
 	{
 		source.pause();
 		if (!isEmpty())
-			state.current = VideoStates.paused;
+			state.current = MediaStates.paused;
 	}
 	
 	
-	public function resume ()
+	override public function resume ()
 	{
 		if (!isPaused())
 			return;
 		
 		source.resume();
-		state.current = VideoStates.playing;
+		state.current = MediaStates.playing;
 	}
 	
 	
-	public function stop ()
+	override public function stop ()
 	{
 		if (isEmpty())
 			return;
 		
 		source.close();
-		state.current = VideoStates.stopped;
+		state.current = MediaStates.stopped;
 	}
 	
 	
-	public function seek (newPosition:Float)
+	override public function seek (newPosition:Float)
 	{
 		if (isEmpty())
 			return;
 		
-		var total	= totalTime.value;
-		var cur		= source.time;
-		
-		if		(newPosition > total)	newPosition = total;
-		else if (newPosition < 0)		newPosition	= 0;
-		if		(newPosition == cur)	return;
+		newPosition = validatePosition(newPosition);
+		if (newPosition == source.time)
+			return;
 		
 		source.seek( newPosition );
 	}
 	
 	
-	public function togglePlayPauze ()
-	{
-		if		(isPlaying())	pause();
-		else if (isPaused())	resume();
-		else if (isStopped())	play();
-	}
-	
-	
-	public function toggleFullScreen ()
+	public function toggleFullScreen ()		//FIXME
 	{
 		trace("toggleFullScreen");
 	}
-	
-	
-	public function toggleMute ()
-	{
-		if (isMuted())
-		{
-		 	volume.value	= cachedVolume.isSet() ? cachedVolume : 0.7;
-			cachedVolume	= Number.FLOAT_NOT_SET;
-		}
-		else
-		{	
-			cachedVolume	= volume.value;
-			volume.value	= 0;
-		}
-	}
-	
 	
 	
 	
@@ -339,27 +229,22 @@ class VideoStream implements IFreezable, implements IDisposable
 	 * store the old-state to enable restoring the state after the animation
 	 * is done.
 	 */
-	public function freeze ()
+	override public function freeze ()
 	{
 		if (isFrozen())
 			return;
 		
 		source.pause();
-		state.current = VideoStates.frozen( state.current );
+		freezeState();
 	}
 	
 	
 	/**
 	 * Method will restore the state of the video to before it was frozen.
 	 */
-	public function defrost ()
+	override public function defrost ()
 	{
-		//retrieve old state
-		switch (state.current)
-		{
-			case frozen( prevState ):	state.current = prevState;
-			default:					null;
-		}
+		defrostState();
 		
 		if (state.current == playing)
 			source.resume();
@@ -368,28 +253,10 @@ class VideoStream implements IFreezable, implements IDisposable
 	
 	
 	//
-	// STATE METHODS
-	//
-	
-	public inline function isStopped ()	: Bool	{ return state.current == VideoStates.stopped; }
-	public inline function isPaused ()	: Bool	{ return state.current == VideoStates.paused; }
-	public inline function isPlaying ()	: Bool	{ return state.current == VideoStates.playing; }
-	public inline function isEmpty ()	: Bool	{ return state.current == VideoStates.empty; }
-	public inline function isMuted ()	: Bool	{ return volume.value == 0; }
-	public inline function isFrozen ()	: Bool
-	{
-		return switch (state.current) {
-			case frozen( prevState ):	true;
-			default:					false;
-		}
-	}
-	
-	
-	//
 	// GETTERS / SETTERS
 	//
 	
-	private function getCurrentTime ()
+	override private function getCurrentTime ()
 	{
 		if (!isPlaying()) {
 			return currentTime;
@@ -397,7 +264,7 @@ class VideoStream implements IFreezable, implements IDisposable
 		if (updateTimer == null) {
 			updateTimer			= new Timer(200);
 			updateTimer.run		= updateTime;
-			currentTime.value	= source.time;
+			updateTime();
 		}
 		
 		return currentTime;
@@ -410,7 +277,7 @@ class VideoStream implements IFreezable, implements IDisposable
 	//
 	
 	
-	private function updateTime ()
+	private inline function updateTime ()
 	{
 		currentTime.value = source.time;
 	}
@@ -440,15 +307,6 @@ class VideoStream implements IFreezable, implements IDisposable
 	}
 	
 	
-	private function validateURL (newURL:String, oldURL:String)
-	{
-		if (oldURL != null)
-			stop();
-		
-		state.current = (newURL == null) ? VideoStates.empty : VideoStates.stopped;
-	}
-	
-	
 #if flash9
 	private function handleSecurityError (error:String)
 	{
@@ -462,18 +320,12 @@ class VideoStream implements IFreezable, implements IDisposable
 	}
 	
 	
-	private function handleIOError (error:String)
-	{
-		trace(error);
-	}
-	
-	
 	private function handleNetStatus (event:NetStreamInfo)
 	{
 		switch (event.code)
 		{
 			case NetStreamInfoCode.playStreamNotFound:
-				state.current = VideoStates.stopped;
+				state.current = MediaStates.stopped;
 				trace("invalid video-url "+url.value);
 			
 			
@@ -483,13 +335,13 @@ class VideoStream implements IFreezable, implements IDisposable
 			
 			
 			case NetStreamInfoCode.playStop:
-				state.current = VideoStates.stopped;
+				state.current = MediaStates.stopped;
 				if (updateTimer != null)
 					updateTimer.stop();
 			
 			
 			case NetStreamInfoCode.playStart:
-				state.current = VideoStates.playing;
+				state.current = MediaStates.playing;
 				if (updateTimer != null)
 					updateTimer.run = updateTime;
 			

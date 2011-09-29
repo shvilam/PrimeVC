@@ -166,12 +166,10 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	{
 		Assert.notNull(window);
 		var length = data.length;
-		
 		var layout = layoutContainer;
 		if (layout.algorithm.notNull() && isScrollable)
 		{
 			layout.setFixedChildLength( length );
-			
 			layout.invisibleBefore = layout.invisibleAfter = 1;
 
 			invalidateScrollPos	.on( layout.scrollPos.xProp.change, this );

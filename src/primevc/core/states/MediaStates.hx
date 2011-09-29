@@ -20,36 +20,25 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.avm2.events;
-private typedef ErrorSignal		= primevc.avm2.events.TextSignal;		// override import
-private typedef ProgressSignal	= primevc.avm2.events.ProgressSignal;	// override import
-
- import flash.events.IEventDispatcher;
- import flash.events.IOErrorEvent;
- import flash.events.Event;
- import flash.events.ProgressEvent;
- import primevc.core.events.CommunicationEvents;
+package primevc.core.states;
 
 
 /**
- * @author Ruben Weijers
- * @creation-date Nov 15, 2010
+ * enum with the states of a videostream
+ * 
+ * @creation-date	Jan 10, 2011
+ * @author			Ruben Weijers
  */
-class CommunicationEvents extends CommunicationSignals
-{
-	public function new (target:IEventDispatcher)
-	{
-		super();
-		started		= new FlashSignal0(   target, 	Event.OPEN );
-		progress	= new ProgressSignal( target,	ProgressEvent.PROGRESS );
-		init		= new FlashSignal0(   target,	Event.INIT );
-		completed	= new FlashSignal0(   target,	Event.COMPLETE );
-		error		= new ErrorSignal(   target,	IOErrorEvent.IO_ERROR );
-	}
+enum MediaStates {
+	playing;
+	paused;
+	stopped;
+	empty;
+	frozen( prevState:MediaStates );
 }

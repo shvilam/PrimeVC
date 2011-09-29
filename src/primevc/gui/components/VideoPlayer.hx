@@ -28,7 +28,7 @@
  */
 package primevc.gui.components;
  import primevc.core.net.VideoStream;
- import primevc.core.states.VideoStates;
+ import primevc.core.states.MediaStates;
  import primevc.core.Bindable;
  import primevc.gui.core.IUIElement;
  import primevc.gui.core.UIContainer;
@@ -105,9 +105,9 @@ class VideoPlayer extends UIDataContainer < VideoData >
 	}
 	
 	
-	private function handleVideoStateChange (newState:VideoStates, oldState:VideoStates)
+	private function handleVideoStateChange (newState:MediaStates, oldState:MediaStates)
 	{
-		togglePlayBtn( newState != VideoStates.playing );
+		togglePlayBtn( newState != MediaStates.playing );
 	}
 	
 	
@@ -279,29 +279,29 @@ class VideoControlBar extends UIContainer
 	//
 	
 	
-	private function handleStreamChange (newState:VideoStates, oldState:VideoStates)
+	private function handleStreamChange (newState:MediaStates, oldState:MediaStates)
 	{
 	//	trace(oldState+" => "+newState);
 		switch (newState)
 		{
-			case VideoStates.playing:
+			case MediaStates.playing:
 				playBtn.id.value	= "pauseBtn";
 			
 			
-			case VideoStates.paused:
+			case MediaStates.paused:
 				playBtn.id.value	= "playBtn";
 			
 			
-			case VideoStates.stopped:
+			case MediaStates.stopped:
 				playBtn.id.value	= "playBtn";
 				enabled.value		= true;
 			
 			
-			case VideoStates.empty:
+			case MediaStates.empty:
 				enabled.value		= false;
 			
 			
-			case VideoStates.frozen(realState):
+			case MediaStates.frozen(realState):
 			//	enabled.value = false;
 				
 		}

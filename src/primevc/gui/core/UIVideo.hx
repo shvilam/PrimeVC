@@ -33,7 +33,7 @@ package primevc.gui.core;
 #end
  import primevc.core.dispatcher.Wire;
  import primevc.core.net.VideoStream;
- import primevc.core.states.VideoStates;
+ import primevc.core.states.MediaStates;
  import primevc.core.Bindable;
  import primevc.core.IBindable;
  
@@ -368,10 +368,10 @@ class UIVideo extends Video, implements IUIElement
 	// EVENTHANDLERS
 	//
 	
-	private function handleStreamChange (newState:VideoStates, oldState:VideoStates)
+	private function handleStreamChange (newState:MediaStates, oldState:MediaStates)
 	{
 #if flash9
-		if (newState == VideoStates.stopped)
+		if (newState == MediaStates.stopped)
 			clear();
 #end
 	}
