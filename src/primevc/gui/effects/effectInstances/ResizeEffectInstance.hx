@@ -32,6 +32,7 @@ package primevc.gui.effects.effectInstances;
  import primevc.gui.traits.ISizeable;
  import primevc.types.Number;
   using primevc.utils.NumberUtil;
+  using Std;
 
 
 /**
@@ -91,14 +92,15 @@ class ResizeEffectInstance extends EffectInstance < ISizeable, ResizeEffect >
 	
 	override private function initStartValues ()
 	{
-		if (effect.startW.isSet())	startW = effect.startW;
-		else						startW = target.width;
-		if (effect.startH.isSet())	startH = effect.startH;
-		else						startH = target.height;
+		var e = effect, t = target;
+		if (e.startW.isSet())	startW = e.startW.int();
+		else					startW = t.width;
+		if (e.startH.isSet())	startH = e.startH.int();
+		else					startH = t.height;
 		
-		target.rect.width	= startW;
-		target.rect.height	= startH;
-		target.visible		= true;
+		t.rect.width	= startW.int();
+		t.rect.height	= startH.int();
+	//	t.visible		= true;		no visible property in IDisplayable
 	}
 	
 

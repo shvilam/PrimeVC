@@ -146,7 +146,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 				||	( child.is(IAdvancedLayoutClient) && child.as(IAdvancedLayoutClient).explicitWidth.notSet() )
 				)
 				&& child.percentWidth.isSet()
-				&& child.percentWidth > 0
+				&& child.percentWidth >= 0
 				&& widthToUse > 0;
 	}
 	
@@ -159,7 +159,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 					||	( child.is(IAdvancedLayoutClient) && child.as(IAdvancedLayoutClient).explicitHeight.notSet() )
 				)
 				&& child.percentHeight.isSet()
-				&& child.percentHeight > 0
+				&& child.percentHeight >= 0
 				&& heightToUse > 0;
 	}
 	
