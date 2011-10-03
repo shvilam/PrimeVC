@@ -52,24 +52,7 @@ class ButtonLabelSkin extends Skin<Button>
 
 	override public function createChildren ()
 	{
-		labelField = new UITextField( null, true, owner.data );
-		
-#if debug
-		labelField.id.value		= owner.id.value + "TextField";
-#end
-#if flash9
-		labelField.autoSize			= flash.text.TextFieldAutoSize.NONE;
-		labelField.selectable		= false;
-		labelField.mouseEnabled		= false;
-		labelField.tabEnabled		= false;
-		labelField.wordWrap			= owner.wordWrap;
-		labelField.embedFonts		= owner.embedFonts;
-		labelField.respondToFocusOf( owner );
-
-		if (owner.textStyle != null)
-			labelField.textStyle = owner.textStyle;
-#end
-		owner.attach( labelField );
+		owner.attach( labelField = UITextField.createLabelField(owner.id.value + "TextField", owner.data, owner) );
 	}
 
 

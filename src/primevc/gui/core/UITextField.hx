@@ -38,6 +38,7 @@ package primevc.gui.core;
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.display.IDisplayContainer;
+ import primevc.gui.display.IInteractiveObject;
  import primevc.gui.display.TextField;
  import primevc.gui.effects.UIElementEffects;
  import primevc.gui.layout.ILayoutContainer;
@@ -45,6 +46,7 @@ package primevc.gui.core;
  import primevc.gui.managers.ISystem;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.states.UIElementStates;
+ import primevc.gui.traits.ITextStylable;
  import primevc.gui.traits.IValidatable;
  import primevc.types.Number;
   using primevc.gui.utils.UIElementActions;
@@ -62,6 +64,29 @@ package primevc.gui.core;
  */
 class UITextField extends TextField, implements IUIElement
 {
+	public static inline function createLabelField (id:String = null, data:Bindable<String> = null, owner:ITextStylable = null) : UITextField
+	{
+		var f = new UITextField( #if debug id #else null #end, true, data );	//FIXME: stylingEnabled doesn't always have to be true..
+#if flash9
+		f.autoSize		 = flash.text.TextFieldAutoSize.NONE;
+		f.selectable	 = false;
+		f.mouseEnabled	 = false;
+		f.tabEnabled	 = false;
+
+		if (owner != null) {
+			f.wordWrap	 = owner.wordWrap;
+			f.embedFonts = owner.embedFonts;
+
+			if (owner.textStyle != null)
+				f.textStyle = owner.textStyle;
+			
+			if (owner.is(IInteractiveObject))
+				f.respondToFocusOf( owner.as(IInteractiveObject) );
+		}
+#end	return f;
+	}
+
+
 	public var prevValidatable	: IValidatable;
 	public var nextValidatable	: IValidatable;
 	private var changes			: Int;

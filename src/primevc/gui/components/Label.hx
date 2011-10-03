@@ -82,24 +82,7 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 	
 	override private function createChildren ()
 	{
-		field = new UITextField( null, false, data );
-#if debug
-		field.id.value = id.value + "TextField";
-#end
-#if flash9
-		field.autoSize			= flash.text.TextFieldAutoSize.NONE;
-		field.selectable		= false;
-		field.mouseWheelEnabled	= false;
-		field.displayHTML		= displayHTML;
-		field.wordWrap			= wordWrap;
-		field.embedFonts		= embedFonts;
-		
-		field.respondToFocusOf( this );
-#end
-		
-		if (textStyle != null)
-			field.textStyle = textStyle;
-		
+		field = UITextField.createLabelField(null, data, this );
 		field.attachDisplayTo( this );
 	}
 	
