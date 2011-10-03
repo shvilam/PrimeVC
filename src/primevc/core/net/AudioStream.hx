@@ -29,7 +29,7 @@
 package primevc.core.net;
 #if flash9
  import primevc.avm2.media.Sound;
- import flash.event.Event;
+ import flash.events.Event;
  import flash.media.SoundChannel;
 #end
  import primevc.core.states.SimpleStateMachine;
@@ -41,6 +41,8 @@ package primevc.core.net;
  import primevc.types.URI;
  import primevc.utils.NumberUtil;
   using primevc.utils.Bind;
+  using primevc.utils.IfUtil;
+  using primevc.utils.NumberUtil;
 
 
 
@@ -70,14 +72,21 @@ class AudioStream extends BaseMediaStream
     /**
      * the number of milliseconds a sound has been playing after it's been paused (since a SoundChannel can only stop)
      */
-    private var lastPos     : Int;
+    private var lastPos     : Float;
+
+    /**
+     * Flag indicating wether the Sound.load-method is called on the URI. Flash will give
+     * an error when load is called twice on the same URI.
+     */
+    private var isLoaded    : Bool;
 #end
     
 
     public function new (streamUrl:URI = null)
     {
         super(streamUrl);
-        repeat = repeated = 0;
+        repeat  = repeated = 0;
+        lastPos = 0;
         changeVolume.on( volume.change, this );
     }
     
@@ -88,7 +97,8 @@ class AudioStream extends BaseMediaStream
         Assert.that(!isInitialized());
 #if flash9
         source = new Sound();
-        handleIOError.on( sound.events.error, this );
+        updateTotalTime.on( source.events.completed, this );
+        handleIOError  .on( source.events.error, this );
 #end
     }
     
@@ -108,7 +118,7 @@ class AudioStream extends BaseMediaStream
     
     private inline function isInitialized ()
     {
-        return #if flash9 source != null #else false #end;
+        return #if flash9 source.notNull() #else false #end;
     }
 
     
@@ -121,12 +131,17 @@ class AudioStream extends BaseMediaStream
     override public function play ( ?newUrl:URI )
     {
         if (!isInitialized())                       init();
-        if (!isStopped() || channel != null)        stop();
-        if (newUrl != null)                         url.value = newUrl;
+        if (!isStopped() || channel.notNull())      stop();
+        if (newUrl.notNull())                       url.value = newUrl;
         
-        trace(url.value);
         Assert.notNull( url.value, "There is no sound-url to play" );
-        source.load(url.value.toRequest());
+
+        if (!isLoaded) {
+            source.load(url.value.toRequest());
+            isLoaded = true;
+        }
+        
+        state.current = MediaStates.playing;
         applyResume();
     }
     
@@ -148,8 +163,8 @@ class AudioStream extends BaseMediaStream
         if (!isPaused())
             return;
         
-        applyResume();
         state.current = MediaStates.playing;
+        applyResume();
     }
     
     
@@ -158,9 +173,9 @@ class AudioStream extends BaseMediaStream
         if (isEmpty())
             return;
         
+        state.current   = MediaStates.stopped;
         applyStop();
         repeated        = 0;
-        state.current   = MediaStates.stopped;
     }
     
     
@@ -170,7 +185,7 @@ class AudioStream extends BaseMediaStream
             return;
         
         newPosition = validatePosition(newPosition);
-        if (newPosition == source.time)
+        if (newPosition == lastPos || (channel.notNull() && newPosition == channel.position))
             return;
 #if flash9
         lastPos = newPosition;
@@ -185,7 +200,7 @@ class AudioStream extends BaseMediaStream
     private inline function applyPause ()
     {
 #if flash9
-        if (channel != null) {
+        if (channel.notNull()) {
             lastPos = channel.position;
             applyStop();
         }
@@ -197,30 +212,36 @@ class AudioStream extends BaseMediaStream
     {
 #if flash9
         channel = source.play(lastPos);
-        channel.addEventListener(Event.SOUND_COMPLETE, applyRepeat);
+        channel.addEventListener(Event.SOUND_COMPLETE, untyped applyRepeat);
 #end    lastPos = 0;
         applyVolume();
+        startUpdateTimer();
     }
 
 
     private inline function applyStop ()
     {
 #if flash9
-        if (channel != null) {
+        stopUpdateTimer();
+
+        if (channel.notNull()) {
             channel.stop();
-            channel.removeEventListener(Event.SOUND_COMPLETE, applyRepeat);
+            channel.removeEventListener(Event.SOUND_COMPLETE, untyped applyRepeat);
             channel = null;
+            updateCurrentTime();
         }
 #end
     }
 
 
-    private function applyRepeat ()
+    private function applyRepeat (event:Event)
     {
-        applyStop();
         repeated++;
-        if (shouldLoop())
-            resume
+        if (shouldLoop()) {
+            applyStop();
+            applyResume();
+        } else
+            stop();
     }
 
 
@@ -253,24 +274,39 @@ class AudioStream extends BaseMediaStream
         if (state.current == playing)
             applyResume();
     }
-    
-    
-    //
-    // GETTERS / SETTERS
-    //
-    
-    private function getCurrentTime ()
+
+
+    private inline function startUpdateTimer ()
     {
-        if (!isPlaying()) {
-            return currentTime;
+        if (currentTime.hasListeners() && updateTimer.isNull()) {
+            updateTimer     = new haxe.Timer(200);
+            updateTimer.run = updateCurrentTime;
+            updateCurrentTime();
         }
-        if (updateTimer == null) {
-            updateTimer         = new Timer(200);
-            updateTimer.run     = updateTime;
-            updateTime();
+    }
+
+
+    private inline function stopUpdateTimer ()
+    {
+        if (updateTimer.notNull()) {
+            updateTimer.stop();
+            updateTimer = null;
         }
-        
-        return currentTime;
+    }
+    
+    
+    private inline function updateCurrentTime ()
+    {
+        if (channel != null) {
+            trace(channel.position+" / "+source.length);
+        }
+#if flash9  currentTime.value = channel.notNull() ? channel.position * .001 : .0; #end
+    }
+
+
+    private inline function updateTotalTime ()
+    {
+#if flash9  totalTime.value = source.length * .001; #end
     }
     
     
@@ -278,11 +314,12 @@ class AudioStream extends BaseMediaStream
     //
     // EVENTHANDLERS
     //
-    
-    
-    private inline function updateTime ()
+
+
+    override private function validateURL (newURL:URI, oldURL:URI)
     {
-        currentTime.value = channel != null ? channel.position : 0.0;
+        super.validateURL(newURL, oldURL);
+        isLoaded = false;
     }
     
     
@@ -294,12 +331,12 @@ class AudioStream extends BaseMediaStream
     private function changeVolume (newValue:Float, oldValue:Float)
     {
         newValue = newValue.within( 0, 1 );
-        if (newValue != volume.value) {
+        if (newValue != volume.value || oldValue == newValue) {
             volume.value = newValue;
             return;
         }
         
-        if (channel != null)
+        if (channel.notNull())
             applyVolume();
     }
 
@@ -311,7 +348,7 @@ class AudioStream extends BaseMediaStream
         if (channel.soundTransform.volume != volume.value)
         {
             var sound               = channel.soundTransform;
-            sound.volume            = newValue;
+            sound.volume            = volume.value;
             channel.soundTransform  = sound;
         }
 #end

@@ -79,7 +79,7 @@ class BaseMediaStream implements IMediaStream
     public var state        (default, null)         : SimpleStateMachine<MediaStates>;
 
     /**
-     * Bindable value with the total-time of the stream.
+     * Bindable value with the total-time of the stream (in sec.).
      */
     public var totalTime    (default, null)         : Bindable<Float>;
     
@@ -147,7 +147,7 @@ class BaseMediaStream implements IMediaStream
      * stream is already playing, it will be stopped.
      * If the current url is already playing, the stream will start again.
      */
-    public function play ( ?newUrl:URI )     { Assert.abstract(); }
+    public function play ( ?newUrl:URI )        { Assert.abstract(); }
     
     
     /**
@@ -207,7 +207,7 @@ class BaseMediaStream implements IMediaStream
 
     public  function freeze ()          { Assert.abstract(); }
     public  function defrost ()         { Assert.abstract(); }
-    private function getCurrentTime()   { Assert.abstract(); return null; }
+    private function getCurrentTime()   { return currentTime; }
     
     
     
@@ -242,6 +242,7 @@ class BaseMediaStream implements IMediaStream
     private function handleIOError (error:String)
     {
         trace(error);
+        state.current = MediaStates.error(error);
     }
 #end
 }

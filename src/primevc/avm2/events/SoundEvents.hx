@@ -40,12 +40,12 @@ package primevc.avm2.events;
  */
 class SoundEvents extends CommunicationEvents
 {
-    public var id3 (default, null) : Signal0;
+    public var id3 (default, null) : FlashSignal0;
     
     
     public function new (dispatcher:IEventDispatcher)
     {
         super(dispatcher);
-        id3 = new FlashSignal0(target, Event.ID3);
+        id3 = new FlashSignal0(dispatcher, Event.ID3);
     }
 }

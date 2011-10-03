@@ -290,11 +290,12 @@ class VideoStream extends BaseMediaStream
 	 */
 	private function changeVolume (newValue:Float, oldValue:Float)
 	{
-		volume.value = newValue = newValue.within( 0, 1 );
-		
-		if (oldValue == volume.value)
-			return;
-		
+		newValue = newValue.within( 0, 1 );
+        if (newValue != volume.value || oldValue == newValue) {
+            volume.value = newValue;
+            return;
+        }
+
 #if flash9
 		Assert.notNull(source);
 		if (source.soundTransform != null && source.soundTransform.volume != newValue)

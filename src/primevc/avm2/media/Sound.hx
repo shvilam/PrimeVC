@@ -26,7 +26,7 @@
  * Authors:
  *  Ruben Weijers   <ruben @ rubenw.nl>
  */
-package primevc.avm2.net;
+package primevc.avm2.media;
  import flash.media.SoundLoaderContext;
  import primevc.avm2.events.SoundEvents;
  import primevc.core.traits.IDisposable;
@@ -53,6 +53,7 @@ class Sound extends flash.media.Sound, implements IDisposable
     
     public function dispose ()
     {
+        close();
         events.dispose();
         events = null;
     }
