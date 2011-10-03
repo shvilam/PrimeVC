@@ -103,16 +103,10 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 	{
 		if (change == null) return; // already disposed
 		
-		if (boundTo != null) {
-		 	// Dispose of all binding connections
-			unbindAll();
-			boundTo = null;
-		}
-		if (writeTo != null) {
-		 	// Dispose of all binding connections
-			while (!writeTo.isEmpty()) writeTo.pop().unbind(this);
-			writeTo = null;
-		}
+		// Dispose of all binding connections
+		unbindAll();
+		writeTo = null;
+		boundTo = null;
 		
 		change.dispose();
 		change = null;
@@ -139,6 +133,15 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 	public inline function set (val:DataType) : Void
 	{
 		(untyped this).value = val;
+	}
+
+
+	/**
+	 * Checks if the bindable has listeners
+	 */
+	public inline function hasListeners () : Bool
+	{
+		return (writeTo.notNull() && !writeTo.isEmpty()) || change.hasListeners();
 	}
 	
 	
