@@ -26,7 +26,7 @@
  * Authors:
  *  Ruben Weijers   <ruben @ onlinetouch.nl>
  */
-package primevc.core.net;
+package primevc.core.media;
  import primevc.core.states.SimpleStateMachine;
  import primevc.core.states.MediaStates;
  import primevc.core.traits.IDisposable;

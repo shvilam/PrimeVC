@@ -26,7 +26,7 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.core.net;
+package primevc.core.media;
  import haxe.Timer;
 #if flash9
  import primevc.avm2.net.stream.NetStreamInfo;

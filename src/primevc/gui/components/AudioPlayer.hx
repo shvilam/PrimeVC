@@ -27,7 +27,7 @@
  *  Ruben Weijers   <ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
- import primevc.core.net.AudioStream;
+ import primevc.core.media.AudioStream;
  import primevc.core.Bindable;
  import primevc.gui.core.UIDataContainer;
  import primevc.types.URI;

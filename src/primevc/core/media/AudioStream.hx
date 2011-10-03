@@ -26,7 +26,7 @@
  * Authors:
  *  Ruben Weijers   <ruben @ onlinetouch.nl>
  */
-package primevc.core.net;
+package primevc.core.media;
 #if flash9
  import primevc.avm2.media.Sound;
  import flash.events.Event;

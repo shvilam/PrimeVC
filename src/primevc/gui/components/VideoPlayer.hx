@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
- import primevc.core.net.VideoStream;
+ import primevc.core.media.VideoStream;
  import primevc.core.states.MediaStates;
  import primevc.core.Bindable;
  import primevc.gui.core.IUIElement;
@@ -43,14 +43,11 @@ package primevc.gui.components;
   using Std;
 
 
-private typedef VideoData = Bindable<URI>;
-
-
 /**
  * @author Ruben Weijers
  * @creation-date Jan 07, 2011
  */
-class VideoPlayer extends UIDataContainer < VideoData >
+class VideoPlayer extends UIDataContainer <Bindable<URI>>
 {
 	private var ctrlBar		: VideoControlBar;
 	private var video		: UIVideo;
@@ -279,32 +276,27 @@ class VideoControlBar extends UIContainer
 	//
 	
 	
-	private function handleStreamChange (newState:MediaStates, oldState:MediaStates)
+	private function handleStreamChange (newState:MediaStates, oldState:MediaStates)	switch (newState)
 	{
-	//	trace(oldState+" => "+newState);
-		switch (newState)
-		{
-			case MediaStates.playing:
-				playBtn.id.value	= "pauseBtn";
+		case MediaStates.playing:
+			playBtn.id.value	= "pauseBtn";
+		
+		
+		case MediaStates.paused:
+			playBtn.id.value	= "playBtn";
+		
+		
+		case MediaStates.stopped:
+			playBtn.id.value	= "playBtn";
+			enable();
+		
+		
+		case MediaStates.error(str): 	disable();
+		case MediaStates.empty:			disable();
+		default:
+	//	case MediaStates.frozen(realState):
+		//	enabled.value = false;
 			
-			
-			case MediaStates.paused:
-				playBtn.id.value	= "playBtn";
-			
-			
-			case MediaStates.stopped:
-				playBtn.id.value	= "playBtn";
-				enabled.value		= true;
-			
-			
-			case MediaStates.empty:
-				enabled.value		= false;
-			
-			
-			case MediaStates.frozen(realState):
-			//	enabled.value = false;
-				
-		}
 	}
 	
 	
