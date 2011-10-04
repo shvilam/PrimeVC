@@ -79,7 +79,7 @@ class ArrayList <DataType> extends ReadOnlyArrayList <DataType>, implements IEdi
 		if (oldPos > -1) {
 			var msg = ListChange.removed( item, oldPos );
 			beforeChange.send( msg );
-			if (list.removeItem(item, oldPos))
+			if (list.removeAt(oldPos))
 				change.send( msg );
 		}
 		return item;
