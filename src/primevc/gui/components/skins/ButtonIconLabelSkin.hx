@@ -54,15 +54,13 @@ class ButtonIconLabelSkin extends Skin<Button>
 	
 	override public function createChildren ()
 	{
-			//create children
-			iconGraphic	= new Image(null, owner.icon);
-			labelField	= UITextField.createLabelField(owner.id.value + "TextField", owner.data, owner);
-			
-			//change properties of new UIElements
-			iconGraphic.maintainAspectRatio = true;
-#if debug	iconGraphic.id.value = owner.id.value + "Icon"; #end
-
-			owner.attach(iconGraphic).attach(labelField);
+		//create children
+		iconGraphic	= new Image(#if debug owner.id.value + "Icon" #else null #end, owner.icon);
+		labelField	= UITextField.createLabelField(owner.id.value + "TextField", owner.data, owner);
+		
+		//change properties of new UIElements
+		iconGraphic.maintainAspectRatio = true;
+		owner.attach(iconGraphic).attach(labelField);
 	}
 	
 	

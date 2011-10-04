@@ -40,6 +40,7 @@ package primevc.core.media;
  import primevc.types.Number;
  import primevc.types.URI;
  import primevc.utils.NumberUtil;
+  using haxe.Timer;
   using primevc.utils.Bind;
   using primevc.utils.IfUtil;
   using primevc.utils.NumberUtil;
@@ -85,6 +86,7 @@ class AudioStream extends BaseMediaStream
     public function new (streamUrl:URI = null)
     {
         super(streamUrl);
+        SoundMixer.add(this);
         repeat  = repeated = 0;
         lastPos = 0;
         changeVolume.on( volume.change, this );
@@ -105,6 +107,7 @@ class AudioStream extends BaseMediaStream
     
     override public function dispose ()
     {
+        SoundMixer.remove(this);
         super.dispose();
 #if flash9
         if (isInitialized())
@@ -215,7 +218,7 @@ class AudioStream extends BaseMediaStream
         channel.addEventListener(Event.SOUND_COMPLETE, untyped applyRepeat);
 #end    lastPos = 0;
         applyVolume();
-        startUpdateTimer();
+        startUpdateTimer.delay(150);
     }
 
 

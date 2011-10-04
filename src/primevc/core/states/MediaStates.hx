@@ -41,5 +41,6 @@ enum MediaStates {
 	stopped;
 	empty;
     error( str:String );
+    loading( origState:MediaStates );
 	frozen( prevState:MediaStates );
 }

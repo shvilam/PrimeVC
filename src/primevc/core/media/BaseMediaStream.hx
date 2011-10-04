@@ -32,6 +32,7 @@ package primevc.core.media;
  import primevc.core.traits.IDisposable;
  import primevc.core.traits.IFreezable;
  import primevc.core.Bindable;
+ import primevc.core.ListNode;
  import primevc.types.Number;
  import primevc.types.URI;
   using primevc.utils.Bind;
@@ -43,7 +44,7 @@ package primevc.core.media;
  * @since   Sep 28, 2011
  * @author  Ruben Weijers
  */
-class BaseMediaStream implements IMediaStream
+class BaseMediaStream extends ListNode<BaseMediaStream>, implements IMediaStream
 {
     private static inline var DEFAULT_VOLUME = 0.7;
 
