@@ -385,8 +385,7 @@ class Loader implements ICommunicator
 			isFinished	= false;
 	}
 	
-
-
+	
 	public function close () : Void
 	{
 		if (isStarted && !isLoaded()) {
