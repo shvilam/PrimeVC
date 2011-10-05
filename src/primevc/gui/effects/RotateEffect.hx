@@ -28,9 +28,10 @@
  */
 package primevc.gui.effects;	
 #if (flash8 || flash9 || js)
+ import primevc.gui.effects.effectInstances.IEffectInstance;
  import primevc.gui.effects.effectInstances.RotateEffectInstance;
 #end
- import primevc.gui.traits.IPositionable;
+ import primevc.gui.display.IDisplayObject;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
   using primevc.types.Reference;
@@ -46,7 +47,7 @@ package primevc.gui.effects;
  * @author Ruben Weijers
  * @creation-date Aug 31, 2010
  */
-class RotateEffect extends Effect < IPositionable, RotateEffect >
+class RotateEffect extends Effect < IDisplayObject, RotateEffect >
 {
 	/**
 	 * Explicit start rotation value. If this value is not set, the effect will 
@@ -76,7 +77,7 @@ class RotateEffect extends Effect < IPositionable, RotateEffect >
 
 	
 #if (flash8 || flash9 || js)
-	override public function createEffectInstance (target)
+	override public function createEffectInstance (target:IDisplayObject) : IEffectInstance<IDisplayObject, RotateEffect>
 	{
 		return cast new RotateEffectInstance( target, this );
 	}

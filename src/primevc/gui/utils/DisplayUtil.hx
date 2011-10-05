@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, The PrimeVC Project Contributors
+ * Copyright (c) 2011, The PrimeVC Project Contributors
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -24,34 +24,32 @@
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers   <ruben @ rubenw.nl>
  */
-package primevc.gui.traits;
-
+package primevc.gui.utils;
+ import primevc.gui.display.IDisplayObject;
+  using primevc.utils.MatrixUtil;
+ 
 
 /**
- * @author Ruben Weijers
- * @creation-date Aug 04, 2010
+ * Helper class for working with display-objects
+ * 
+ * @creation-date   Oct 04, 2011
+ * @author          Ruben Weijers
  */
-interface IPositionable implements IDisplayable
+extern class DisplayUtil
 {
-#if flash9
-	
-	var x						: Float;
-	var y						: Float;
-	var rotation				: Float;
-	var visible					: Bool;
-	var transform				: flash.geom.Transform; //Matrix2D;
-	
-	#if flash10
-	var rotationX				: Float;
-	var rotationY				: Float;
-	var rotationZ				: Float;
-	var z						: Float;
-	#end
-#else
-	var x			(getX,		setX) : Float;
-	var y			(getY,		setY) : Float;
-	var transform	(default, 	null) : primevc.core.geom.Matrix2D;
-#end
+    /**
+     * Rotates an DisplayObject object around the given anchor
+     *
+     * @param   target      object to rotate
+     * @param   rotation    rotation in degrees
+     */
+    public static inline function rotateAroundCenter (target:IDisplayObject, rotation:Float) : Void
+    {
+        var m = target.transform.matrix;
+        var r = target.rotation >= 0 ? target.rotation : 360 + target.rotation;
+        m.rotateAroundCenter(rotation - r, target.getBounds(target.parent));
+        target.transform.matrix = m;
+    }
 }

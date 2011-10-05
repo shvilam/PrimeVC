@@ -300,9 +300,6 @@ class AudioStream extends BaseMediaStream
     
     private inline function updateCurrentTime ()
     {
-        if (channel != null) {
-            trace(channel.position+" / "+source.length);
-        }
 #if flash9  currentTime.value = channel.notNull() ? channel.position * .001 : .0; #end
     }
 

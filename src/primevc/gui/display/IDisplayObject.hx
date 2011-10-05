@@ -28,6 +28,7 @@
  */
 package primevc.gui.display;
  import primevc.core.geom.Point;
+ import primevc.core.geom.Rectangle;
  import primevc.gui.traits.IDisplayable;
  import primevc.gui.traits.IPositionable;
  import primevc.gui.traits.IScaleable;
@@ -66,22 +67,24 @@ interface IDisplayObject
 #end
 	
 #if flash9
-	public var alpha		: Float;
-	public var visible		: Bool;
+	public var alpha				: Float;
+	public var visible				: Bool;
 	
-	public var mouseX		(default, never)		: Float;
-	public var mouseY		(default, never)		: Float;
+	public var mouseX				(default, never)		: Float;
+	public var mouseY				(default, never)		: Float;
 	
-	public var filters		: Array < Dynamic >;
-	public var name			: String;
-	public var scrollRect	: flash.geom.Rectangle;
-	public var transform	: flash.geom.Transform; //Matrix2D;
+	public var filters				: Array < Dynamic >;
+	public var name					: String;
+	public var scrollRect			: flash.geom.Rectangle;
+	public var parent 				(default, null) 		: flash.display.DisplayObjectContainer;
 	
-	public function globalToLocal (point : Point) : Point;
-	public function localToGlobal (point : Point) : Point;
+	public function globalToLocal 	(point : Point) 					: Point;
+	public function localToGlobal 	(point : Point) 					: Point;
+	public function getBounds 	  	(other:DisplayObject)				: Rectangle;
 #else
-	public var visible		(getVisibility, setVisibility)		: Bool;
-	public var alpha		(getAlpha,		setAlpha)			: Float;
-	public var transform	(default, null)						: primevc.core.geom.Matrix2D;
+	public var parent 				: IDisplayContainer;
+	public var visible				(getVisibility, setVisibility)		: Bool;
+	public var alpha				(getAlpha,		setAlpha)			: Float;
+	public function getBounds 		(other:IDisplayObject)				: Rectangle;
 #end
 }
