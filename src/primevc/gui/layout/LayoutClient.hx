@@ -399,7 +399,7 @@ class LayoutClient extends Invalidatable
 		if (_width != v)
 		{
 			//step 1 - 4
-			updateAllWidths( validateWidth( v, Flags.VALIDATE_ALL ) );
+			v = updateAllWidths( validateWidth( v, Flags.VALIDATE_ALL ) );
 			
 			if (maintainAspectRatio)
 			{
@@ -423,7 +423,7 @@ class LayoutClient extends Invalidatable
 	{
 		if (_height != v)
 		{
-			updateAllHeights( validateHeight( v, Flags.VALIDATE_ALL ) );
+			v = updateAllHeights( validateHeight( v, Flags.VALIDATE_ALL ) );
 			
 			if (maintainAspectRatio)
 			{
@@ -449,6 +449,9 @@ class LayoutClient extends Invalidatable
 		if (v.notSet() || options == 0)
 			return v;
 		
+		if (v < 0)
+			v = 0;
+
 		// 1. validate value with min/max value (if they are set)
 		if (options.has( Flags.VALIDATE_RANGE ) && widthValidator != null)
 			v = widthValidator.validate(v);
@@ -485,6 +488,9 @@ class LayoutClient extends Invalidatable
 	{
 		if (v.notSet() || options == 0)
 			return v;
+		
+		if (v < 0)
+			v = 0;
 		
 		// 1. validate value with min/max value (if they are set)
 		if (options.has( Flags.VALIDATE_RANGE ) && heightValidator != null)
@@ -534,7 +540,7 @@ class LayoutClient extends Invalidatable
 		if (!force && _width == v && v.isSet())
 			return v;
 		
-#if debug	Assert.that( v.notSet() || v > -1, this+" width = "+v ); #end
+#if debug	Assert.that( v.notSet() || v >= 0, this+" width = "+v+"; margin: "+getHorMargin()+"; padding: "+getHorPadding()+"; aspect? "+aspectRatio ); #end
 //			Assert.that( v < 10000, this+" width = "+v ); #end
 		
 		var outer = outerBounds, inner = innerBounds;
@@ -573,7 +579,7 @@ class LayoutClient extends Invalidatable
 		if (!force && _height == v && v.isSet())
 			return v;
 		
-#if debug	Assert.that( v.notSet() || v > -1, this+" height = "+v ); #end
+#if debug	Assert.that( v.notSet() || v >= 0, this+" height = "+v+"; margin: "+getVerMargin()+"; padding: "+getVerPadding()+"; aspect? "+aspectRatio ); #end
 //			Assert.that( v < 10000, this+" height = "+v ); #end
 		
 		var outer = outerBounds, inner = innerBounds;
