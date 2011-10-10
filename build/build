@@ -49,6 +49,11 @@ while [ "${1+isset}" ]; do
 			shift ;;
 		-l) ACCESS=""			#local file access allowed
 			shift ;;
+		
+		--coverage)
+			COVERAGE=true 		#enable code coverage
+			shift ;;
+		
 		--console)				#which debug-console to use
 			case $2 in
 				"monster2" )	CONSOLE="-D Monster2Trace" ;;
@@ -127,6 +132,7 @@ else
 		${PROFILING:+-swf-lib "'$PRJROOT/bin-debug/swf/FlashPreloadProfiler_RC2.swf'" -D profiling} \
 		$CONSOLE \
 		-D dragEnabled \
+		${CODECOVERAGE:+-D CodeCoverage -cp ../../../../../Libraries/haxe/MassiveCover/src --macro massive.mcover.MCover.include('', [''], null)} \
 		| xargs -t haxe \
 		 	|| exit 1;
 	
