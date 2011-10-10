@@ -45,7 +45,7 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Oct 5, 2011
  */
-class FormUtil
+class Form
 {
     public static function addHorLabelRow (form:IUIContainer, labelStr:String, input:UIComponent, direction:Horizontal = null) : Void
     {
@@ -61,13 +61,17 @@ class FormUtil
 
     private static inline function createLabelRow (form:IUIContainer, labelStr:String, input:UIComponent, row:LayoutContainer)
     {
-        var label       = new Label(input.id.value+"Label", new Bindable<String>(labelStr+":"));
+        var label = new Label(input.id.value+"Label", new Bindable<String>(labelStr+":"));
 
         // bind hover events together
         var inputEvents = input.userEvents.mouse;
         var labelEvents = label.userEvents.mouse;
         labelEvents.rollOver.on( inputEvents.rollOver,  input );
         labelEvents.rollOut .on( inputEvents.rollOut,   input );
+        
+        label.enabled.pair( input.enabled );
+        label.dispose.on( input.state.disposed.entering, label );
+        row  .dispose.on( input.state.disposed.entering, row );
 
         if (input.is(ISelectable))
             inputEvents.click.on( labelEvents.click,    input );
@@ -92,7 +96,7 @@ class FormUtil
     {
         var row          = new VirtualLayoutContainer();
         row.percentWidth = 1;
-        row.algorithm    = new VerticalFloatAlgorithm( direction == null ? Vertical.top : direction, Horizontal.left );
+        row.algorithm    = new VerticalFloatAlgorithm( direction == null ? Vertical.center : direction, Horizontal.left );
         return row;
     }
 }

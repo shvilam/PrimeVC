@@ -79,14 +79,17 @@ class ButtonAudioPlayerSkin extends Skin<AudioPlayer>
             case MediaStates.stopped:
                 playStopBtn.id.value = "playBtn";
                 owner.play.onceOn( mouseClick, this );
+                playStopBtn.enable();
             
             case MediaStates.playing:
                 playStopBtn.id.value = "stopBtn";
                 owner.stop.onceOn( mouseClick, this );
+                playStopBtn.enable();
 
             case MediaStates.paused:
                 playStopBtn.id.value = "playBtn";
                 owner.resume.onceOn( mouseClick, this );
+                playStopBtn.enable();
             
             case MediaStates.error(string):
                 playStopBtn.id.value = "errorBtn";
