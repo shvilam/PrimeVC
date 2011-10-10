@@ -208,7 +208,7 @@ class UIGraphic extends VectorShape
 				if (hasEffect) {
 					visible = false;
 					if (!isInitialized()) 	haxe.Timer.delay( show, 100 ); //.onceOn( displayEvents.enterFrame, this );
-					else 					show();
+					else 					effects.playShow();
 				}
 			}
 		}
@@ -231,7 +231,7 @@ class UIGraphic extends VectorShape
 				var eff = effects.hide;
 				layout.includeInLayout = false;
 				applyDetach.onceOn( eff.ended, this );
-				hide();
+				effects.playHide();
 			}
 			else
 				applyDetach();

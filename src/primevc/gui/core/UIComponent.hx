@@ -192,13 +192,18 @@ class UIComponent extends Sprite, implements IUIComponent
 			return;
 		
 	//	if (container != null)
-		if (parent != null)		// <-- dirty way to see if the component is still on stage.. container and window will be unset after removedFromStage is fired, so if the component get's disposed on removedFromStage, we won't know that it isn't on it.
+		if (isOnStage())
 			detachDisplay();
 	//	if (layout.parent != null)		detachLayout();		//will be done in LayoutClient.dispose or LayoutContainer.dispose
 		
 		if (effects != null) {
 			effects.dispose();
 			effects = null;
+		}
+
+		if (skin != null) {
+		    skin.dispose();
+		    skin = null;
 		}
 
 		if (isInitialized())
@@ -212,11 +217,6 @@ class UIComponent extends Sprite, implements IUIComponent
 		state.current = state.disposed;
 		Assert.that(isDisposed());
 		removeValidation();
-		
-		if (skin != null) {
-		    skin.dispose();
-		    skin = null;
-		}
 		
 	/*	if (_behaviours != null) {
 		    _behaviours.dispose();
@@ -290,7 +290,7 @@ class UIComponent extends Sprite, implements IUIComponent
 				if (hasEffect) {
 					visible = false;
 					if (!isInitialized()) 	haxe.Timer.delay( show, 100 ); //.onceOn( displayEvents.enterFrame, this );
-					else 					show();
+					else 					effects.playShow();
 				}
 			}
 		}
@@ -306,19 +306,16 @@ class UIComponent extends Sprite, implements IUIComponent
 		
 		var hasEffect = effects != null && effects.hide != null;
 		var isPlaying = hasEffect && effects.hide.isPlaying();
-
-		if (!hasEffect || !isPlaying)
-			applyDetach();
-		else
+		if (!isPlaying)
 		{
-			var eff = effects.hide;
-			eff.ended.unbind(this);
-			applyDetach.onceOn( eff.ended, this );
-
-			if (hasEffect && !isPlaying) {
+			if (hasEffect) {
+				var eff = effects.hide;
 				layout.includeInLayout = false;
-				hide();
+				applyDetach.onceOn( eff.ended, this );
+				effects.playHide();
 			}
+			else
+				applyDetach();
 		}
 
 		return this;
@@ -358,7 +355,11 @@ class UIComponent extends Sprite, implements IUIComponent
 	}*/
 	
 	private inline function getSystem () : ISystem		{ return window.as(ISystem); }
+#if flash9
+	public inline function isOnStage () : Bool			{ return stage != null; }			// <-- dirty way to see if the component is still on stage.. container and window will be unset after removedFromStage is fired, so if the component get's disposed on removedFromStage, we won't know that it isn't on it.
+#else
 	public inline function isOnStage () : Bool			{ return window != null; }
+#end
 	public inline function isQueued () : Bool			{ return nextValidatable != null || prevValidatable != null; }
 	
 

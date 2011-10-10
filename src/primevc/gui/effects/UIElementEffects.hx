@@ -221,8 +221,6 @@ class UIElementEffects implements IDisposable
 			else
 				target.visible = false;
 			
-			if (target.id.value == "frameControls")
-				trace(target+": "+target.visible+"; window? "+target.window+"; "+show.isPlaying());
 			if (show == hide)
 				show.isReverted = false;
 			
@@ -326,12 +324,6 @@ class UIElementEffects implements IDisposable
 	{
 		if (v != show)
 		{
-			trace(target+": "+show+" => "+v);
-			/*if (show.notNull() && v == null)
-				target.displayEvents.addedToStage.unbind(this);
-			else
-				playShow.on( target.displayEvents.addedToStage, this );
-			*/
 			if (show.notNull())
 				show.dispose();
 			
