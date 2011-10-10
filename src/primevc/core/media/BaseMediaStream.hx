@@ -32,7 +32,6 @@ package primevc.core.media;
  import primevc.core.traits.IDisposable;
  import primevc.core.traits.IFreezable;
  import primevc.core.Bindable;
- import primevc.core.ListNode;
  import primevc.types.Number;
  import primevc.types.URI;
   using primevc.utils.Bind;
@@ -44,7 +43,7 @@ package primevc.core.media;
  * @since   Sep 28, 2011
  * @author  Ruben Weijers
  */
-class BaseMediaStream extends ListNode<BaseMediaStream>, implements IMediaStream
+class BaseMediaStream implements IMediaStream
 {
     private static inline var DEFAULT_VOLUME = 0.7;
 
@@ -72,6 +71,12 @@ class BaseMediaStream extends ListNode<BaseMediaStream>, implements IMediaStream
      * URL of the video-stream.
      */
     public var url          (default, null)         : Bindable<URI>;
+
+    /**
+     * Property only used by SoundMixer. Identical as ListNode, accept that SoundMixer 
+     * can change the value.
+     */
+    public var next         (default, null)         : BaseMediaStream;
     
     /**
      * Current state of the media-stream. Do not modify the state directly, but 

@@ -77,7 +77,7 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 	 * @param	pos:Int
 	 * @return 	IUIDataElement
 	 */
-	public var createItemRenderer					: ListDataType -> Int -> IUIDataElement<ListDataType>;
+	public var createItemRenderer	: ListDataType -> Int -> IUIDataElement<ListDataType>;
 
 
 	

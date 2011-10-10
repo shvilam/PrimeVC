@@ -32,8 +32,6 @@ package primevc.core.media;
  import flash.media.SoundTransform;
 #end
  import primevc.core.Bindable;
- import primevc.core.ListNode;
-  using primevc.core.ListNode;
   using primevc.utils.IfUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
@@ -102,8 +100,10 @@ class SoundMixer
 /**
  * Singleton implemention
  */
-private class SoundMixerInstance extends ListNode<BaseMediaStream>
+private class SoundMixerInstance
 {
+    private var next        : BaseMediaStream;
+
     /**
      * Overall volume setting
      */
@@ -134,10 +134,10 @@ private class SoundMixerInstance extends ListNode<BaseMediaStream>
 
     public function stopAll ()
     {
-        var c = this.n;
+        var c = next;
         while (c.notNull()) {
             c.stop();
-            c = (untyped c).n;
+            c = c.next;
         }
         numberOfFreezes = 0;
     }
@@ -145,11 +145,11 @@ private class SoundMixerInstance extends ListNode<BaseMediaStream>
 
     public function stopAllExcept (exception:BaseMediaStream = null)
     {
-        var c = this.n;
+        var c = next;
         while (c.notNull()) {
             if (c != exception)
                 c.stop();
-            c = (untyped c).n;
+            c = c.next;
         }
         numberOfFreezes = 0;
     }
@@ -157,10 +157,10 @@ private class SoundMixerInstance extends ListNode<BaseMediaStream>
 
     public function freezeAll ()
     {
-        var c = this.n;
+        var c = next;
         while (c.notNull()) {
             c.freeze();
-            c = (untyped c).n;
+            c = c.next;
         }
         numberOfFreezes++;
     }
@@ -168,11 +168,11 @@ private class SoundMixerInstance extends ListNode<BaseMediaStream>
 
     public function defrostAll ()
     {
-        var c = this.n;
+        var c = next;
         numberOfFreezes--;
         while (c.notNull()) {
             c.defrost();
-            c = (untyped c).n;
+            c = c.next;
         }
     }
 
@@ -184,16 +184,15 @@ private class SoundMixerInstance extends ListNode<BaseMediaStream>
             for (i in 0 ... numberOfFreezes)
                 s.freeze();
         
-        (untyped s).n = n;
-        n = s;
+        (untyped s).next = next;
+        next = s;
     //    ListUtil.addNode(this, s);
     }
 
 
-    public inline function remove (s:BaseMediaStream)
+    public function remove (s:BaseMediaStream)
     {
         Assert.notNull(s);
-        Assert.notNull(n);
 
         //defrost the channel
         if (isFrozen)
@@ -201,14 +200,14 @@ private class SoundMixerInstance extends ListNode<BaseMediaStream>
                 s.defrost();
         
         //remove it
-        var cur = n;
-        while ((untyped cur).n.notNull()) {
-            if ((untyped cur).n == s) {
-                (untyped cur).n = (untyped s).n;
-                (untyped s).n   = null;
+        var cur = next;
+        while (cur.notNull()) {
+            if (cur.next == s) {
+                (untyped cur).next = s.next;
+                (untyped s).next   = null;
                 break;
             }
-            cur = (untyped cur).n;
+            cur = cur.next;
         }
     }
 

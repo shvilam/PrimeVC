@@ -51,6 +51,9 @@ package primevc.gui.components;
 class DebugBar extends UIContainer
 {
 	private var toggleTraceBtn : Button;
+#if CodeCoverage
+	static private var reporter = massive.mcover.MCover.getLogger().createReporter();
+#end
 	
 	
 	override private function createChildren ()
@@ -69,6 +72,9 @@ class DebugBar extends UIContainer
 		
 		addButton( "wireCountBtn",				"Count wires",				countWires );
 		addButton( "algorithmCountBtn",			"Count layout-algorithms",	countAlgorithms );
+#if CodeCoverage
+		addButton( "codeCoverageBtn",			"Code Coverage",			reporter.report );
+#end
 		toggleTraceBtn = addButton( "toggleTraceValidationBtn",	"Trace layout validation",	toggleTraceLayout );
 		
 		handleHotkeys.on ( window.userEvents.key.down, this );

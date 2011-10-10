@@ -53,7 +53,8 @@ class Sound extends flash.media.Sound, implements IDisposable
     
     public function dispose ()
     {
-        close();
+        try { close(); } 
+        catch(e:Dynamic) { trace(this+": loader close error: "+e); }
         events.dispose();
         events = null;
     }
