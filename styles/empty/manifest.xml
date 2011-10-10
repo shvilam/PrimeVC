@@ -19,15 +19,19 @@
 	<component id="ComboBox"				superClass="DataButton"			fullname="primevc.gui.components.ComboBox" />
 	<component id="ColorPicker"				superClass="UIDataContainer"	fullname="primevc.gui.components.ColorPicker" />
 	<component id="DataButton"				superClass="Button"				fullname="primevc.gui.components.DataButton" />
+
+	<component id="AlertPanel"				superClass="Panel"				fullname="primevc.gui.components.AlertPanel" />
+	<component id="ConfirmPanel"			superClass="AlertPanel"			fullname="primevc.gui.components.ConfirmPanel" />
+	<component id="Panel"					superClass="UIContainer"		fullname="primevc.gui.components.Panel" />
+	<component id="UploadPanel"				superClass="ConfirmPanel"		fullname="primevc.gui.components.UploadPanel" />
+
 	<component id="DebugBar"				superClass="UIContainer"		fullname="primevc.gui.components.DebugBar" />
-	<component id="DragButton"				superClass="Button"				fullname="primevc.gui.components.DragButton" />
 	<component id="Image"					superClass="UIGraphic"			fullname="primevc.gui.components.Image" />
 	<component id="InputField"				superClass="DataButton"			fullname="primevc.gui.components.InputField" />
 	<component id="Label"					superClass="UIDataComponent"	fullname="primevc.gui.components.Label" />
 	<component id="ListHolder"				superClass="UIDataContainer"	fullname="primevc.gui.components.ListHolder" />
 	<component id="ListPanel"				superClass="Panel"				fullname="primevc.gui.components.ListPanel" />
 	<component id="ListView"				superClass="UIDataContainer"	fullname="primevc.gui.components.ListView" />
-	<component id="Panel"					superClass="UIContainer"		fullname="primevc.gui.components.Panel" />
 	<component id="ProgressBar"				superClass="UIDataContainer"	fullname="primevc.gui.components.ProgressBar" />
 	<component id="ScrollBar"				superClass="SliderBase"			fullname="primevc.gui.components.ScrollBar" />
 	<component id="SelectableListView"		superClass="ListView"       	fullname="primevc.gui.components.SelectableListView" />
