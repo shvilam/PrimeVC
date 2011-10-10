@@ -29,7 +29,6 @@
 package primevc.gui.components;
  import primevc.core.collections.ListChange;
  import primevc.core.dispatcher.Signal0;
- import primevc.core.dispatcher.Wire;
  import primevc.core.Bindable;
  
  import primevc.gui.core.IUIDataElement;
@@ -37,17 +36,12 @@ package primevc.gui.components;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.display.IInteractiveObject;
  
- import primevc.gui.events.KeyboardEvents;
  import primevc.gui.events.MouseEvents;
- 
- import primevc.gui.input.KeyCodes;
  import primevc.gui.traits.ISelectable;
  
-  using primevc.gui.input.KeyCodes;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.IfUtil;
-  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 
@@ -84,23 +78,12 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
      * in validate
      */
     private var previousSelected    : ListDataType;
-    
-    //
-    // KEYBOARD NAVIGATION SUPPORT
-    //
-    
     /**
-     * wire used to update the current focus reference
+     * property with the data-index of the current item-renderer with focus.
+     * The focus can be changed by using the keyboard or the mouse.
      */
-	private var mouseMoveWire	    : Wire<MouseState -> Void>;
-	private var invalidateWire      : Wire<Dynamic>;
-	
-	/**
-	 * property with the data-index of the current item-renderer with focus.
-	 * The focus can be changed by using the keyboard or the mouse.
-	 */
-	private var focusIndex          : Int;
-	private var currentFocus        : IUIDataElement<ListDataType>;
+    public  var focusIndex          (default, null) : Int;
+    public  var currentFocus        (default, null) : IUIDataElement<ListDataType>;
     
     
     override private function createBehaviours ()
@@ -109,19 +92,15 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
 
         itemSelected    = new Signal0();
 		selected        = new Bindable<ListDataType>();
-		focusIndex      = -1;
 		
-        handleChildChange     .on( children.change, this );
-        enableNavigtion	      .on( displayEvents.addedToStage, this );
-		disableNavigation     .on( displayEvents.removedFromStage, this );
-        handleRendererClick   .on( childClick, this );
+        handleChildChange   .on( children.change, this );
+        handleRendererClick .on( childClick, this );
 		
         // store wire for invalidation.. if the selection is with the mouse/keyboard, there's no need to invalidate the selection
-        invalidateWire  = invalidateSelection   .on( selected.change, this );
-		mouseMoveWire	= checkHoveredItem      .on( userEvents.mouse.move, this );
-		checkHoveredItem                        .on( userEvents.mouse.scroll, this );
-        
-		mouseMoveWire.disable();
+        invalidateSelection.on( selected.change, this );
+
+        if (selected.value.notNull() && focusIndex == -1)
+            focusRendererAt(data.indexOf(selected.value));
     }
     
     
@@ -133,13 +112,9 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
         children.change.unbind(this);
 
         itemSelected    .dispose();
-        invalidateWire  .dispose();
-        mouseMoveWire	.dispose();
         selected        .dispose();
-        
-		mouseMoveWire	= null;
-		invalidateWire  = null;
         itemSelected    = null;
+        selected        = null;
         
         super.dispose();
     }
@@ -170,6 +145,7 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
                 // Check if there's a renderer for the new selected value.
                 // If there isn't, the list should scroll to the selected data position
                 // and the selecting part is handled by 'handleChildChange'.
+                trace(selected.value);
                 var r = getRendererFor(selected.value);
                 if (r.notNull())
                 {
@@ -195,16 +171,10 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
 
     override private function removeData ()
     {
-        blurRenderers();
+        if (currentFocus != null)
+            blurRenderers();
         deselectRenderers();
         super.removeData();
-    }
-
-
-    public inline function select (item:ListDataType)
-    {
-        selected.value = item;
-        itemSelected.send();
     }
 
 
@@ -213,21 +183,46 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
     // RENDERER METHODS
     //
     
+
+    public inline function select (item:ListDataType)
+    {
+        selected.value = item;
+        itemSelected.send();
+    }
+
+
+    public inline function deselectRenderers ()
+    {
+        previousSelected = null;
+        selected         = null;
+    }
+
     
-    private inline function focusRenderer (child:IUIDataElement<ListDataType>)
+    public  function blurRenderers ()
+    {
+        if (isOnStage() && window.focus == currentFocus.as(IInteractiveObject))
+            window.focus = null;
+        
+        currentFocus = null;
+        focusIndex   = -1;
+    }
+
+    
+    public function focusRenderer (child:IUIDataElement<ListDataType>)
     {
         if (currentFocus != child || focusIndex == -1)
         {
             if (isOnStage() && child.is(IInteractiveObject))
                 window.focus = child.as(IInteractiveObject);
             
+#if flash9  Assert.equal(child.parent, this, child+" should be a direct child of "+this); #end
             currentFocus     = child;
             focusIndex       = depthToIndex( children.indexOf(child) );
         }
     }
     
     
-    private inline function focusRendererAt (index:Int)
+    public function focusRendererAt (index:Int)
     {
         if (focusIndex != index || currentFocus.isNull())
         {
@@ -245,26 +240,9 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
             else
             {
                 layoutContainer.scrollToDepth(index);
-				invalidate( CURRENT_FOCUS );
+                invalidate( CURRENT_FOCUS );
             }
         }
-    }
-    
-    
-    private inline function blurRenderers ()
-    {
-        if (isOnStage() && window.focus == currentFocus.as(IInteractiveObject))
-            window.focus = null;
-        
-        currentFocus = null;
-        focusIndex   = -1;
-    }
-
-
-    public inline function deselectRenderers ()
-    {
-        previousSelected = null;
-        selected         = null;
     }
     
     
@@ -278,25 +256,25 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
         switch (change)
         {
             case added(r, newPos):
-                if (r.is(ISelectable)) {
-                    var r = r.as(ISelectable);
-                    if (getRendererData(cast r) == selected.value)  r.select();
-                    if (depthToIndex(newPos) == focusIndex)         focusRenderer(cast r);
-                }
+                if (r.is(ISelectable) && getRendererData(cast r) == selected.value)
+                    r.as(ISelectable).select();
+                
+                if (depthToIndex(newPos) == focusIndex)
+                    focusRenderer(cast r);
             
             case removed(r, oldPos):
                 if (r.is(ISelectable) && getRendererData(cast r) == selected.value)
                     r.as(ISelectable).deselect();
+                
+                if (currentFocus == r)
+                    currentFocus = null;
             
             case moved(r, newPos, oldPos):
                 if (r.is(ISelectable))
-                {
-                    var r = r.as(ISelectable);
-                    r.selected.value = getRendererData(cast r) == selected.value;
-                    
-                    if (depthToIndex(newPos) == focusIndex)
-                        focusRenderer(cast r);
-                }
+                    r.as(ISelectable).selected.value = getRendererData(cast r) == selected.value;
+                
+                if (depthToIndex(newPos) == focusIndex)
+                    focusRenderer(cast r);
             
             case reset:
         }
@@ -323,66 +301,4 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
         
         invalidate(UIElementFlags.SELECTED);
     }
-    
-    
-    private function enableNavigtion ()
-    {
-	    if (!mouseMoveWire.isEnabled()) {
-	        changeSelectedItem.on( userEvents.key.down, this );
-		    mouseMoveWire.enable();
-
-            if (selected.value.notNull() && focusIndex == -1)
-                focusRendererAt(data.indexOf(selected.value));
-	    }
-    }
-    
-    
-    private function disableNavigation ()
-    {
-        if (mouseMoveWire.isEnabled()) {
-            userEvents.key.down.unbind(this);
-		    mouseMoveWire.disable();
-	    }
-	    
-	    blurRenderers();
-    }
-    
-    
-    private function changeSelectedItem (event:KeyboardState)
-	{
-		var index	= focusIndex;
-		if (index == -1)
-		    index   = depthToIndex(0);
-		
-		var k		= event.keyCode();
-		var max		= data.length - 1;
-		
-		if (k.isEnter()) {
-		    if (index > -1)
-                select( data.getItemAt(index) );
-        }
-		else
-		{
-			if		(k == KeyCodes.UP)		index -= 1;
-			else if (k == KeyCodes.DOWN)	index += 1;
-			else if (k == KeyCodes.PAGE_UP	 || k == KeyCodes.HOME)		index = 0;
-			else if (k == KeyCodes.PAGE_DOWN || k == KeyCodes.END)		index = max;
-			
-			// TODO: check if a-z is pressed to select items that start with that letter
-			if (focusIndex != index && index.isWithin(0, max))
-	            focusRendererAt( index );
-		}
-	}
-	
-	
-	/**
-     * Eventhandler can be called after a mouse-event and give focus to the object 
-     * underneath the mouse-cursor. Used after a scroll-event.
-     */
-	private function checkHoveredItem (mouse:MouseState)
-	{
-	    var target = mouse.target;
-	    if (target.notNull() && target.is(IUIDataElement) && target.is(IInteractiveObject))
-	        focusRenderer(cast target);
-	}
 }

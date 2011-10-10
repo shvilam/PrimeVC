@@ -30,6 +30,7 @@ package primevc.gui.components;
  import primevc.core.collections.IReadOnlyList;
  import primevc.core.dispatcher.Wire;
  import primevc.gui.behaviours.components.ButtonSelectedOpenPopup;
+ import primevc.gui.behaviours.components.KeyboardListNavigation;
  import primevc.gui.behaviours.layout.FollowObjectBehaviour;
  import primevc.gui.components.DataButton;
  import primevc.gui.components.ListHolder;
@@ -105,6 +106,7 @@ class ComboBox <DataType> extends DataButton <DataType>
 		
 		popup.styleClasses.add( "comboList" );
 		popup.behaviours.add( new FollowObjectBehaviour( popup, this ) );
+		list .behaviours.add( new KeyboardListNavigation( list ) );
 		
 		if (createItemRenderer == null)
 			createItemRenderer = createDefaultItemRenderer;
