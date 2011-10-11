@@ -50,7 +50,7 @@ interface IReadOnlyList < DataType >
 	 * Maybe combine change and beforeChange to one Signal2 that has an extra parameter
 	 * to indicate if the change is before or after applying the change..
 	 */
-	public var beforeChange	(default, null)									: ListChangeSignal<DataType>;
+//	public var beforeChange	(default, null)									: ListChangeSignal<DataType>;
 	public var length		(getLength, never)								: Int;
 	
 	/**
