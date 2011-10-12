@@ -145,7 +145,6 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
                 // Check if there's a renderer for the new selected value.
                 // If there isn't, the list should scroll to the selected data position
                 // and the selecting part is handled by 'handleChildChange'.
-                trace(selected.value);
                 var r = getRendererFor(selected.value);
                 if (r.notNull())
                 {

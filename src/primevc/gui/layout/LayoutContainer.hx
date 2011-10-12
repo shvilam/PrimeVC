@@ -31,7 +31,6 @@ package primevc.gui.layout;
  import primevc.core.collections.IEditableList;
  import primevc.core.collections.ListChange;
  import primevc.core.geom.BindablePoint;
- import primevc.core.geom.Box;
  import primevc.core.geom.IntPoint;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.validators.PercentIntRangeValidator;
@@ -56,8 +55,6 @@ private typedef Flags = LayoutFlags;
  */
 class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer, implements IScrollableLayout
 {
-	public static inline var EMPTY_BOX : Box = new Box(0,0);
-	
 	public var algorithm			(default, setAlgorithm)			: ILayoutAlgorithm;
 	
 	public var childWidth			(default, setChildWidth)		: Int;
@@ -75,9 +72,6 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	public function new (newWidth = primevc.types.Number.INT_NOT_SET, newHeight = primevc.types.Number.INT_NOT_SET)
 	{
 		super(newWidth, newHeight);
-		
-		(untyped this).padding		= EMPTY_BOX;
-		(untyped this).margin		= EMPTY_BOX;
 		(untyped this).childWidth	= Number.INT_NOT_SET;
 		(untyped this).childHeight	= Number.INT_NOT_SET;
 		
@@ -298,7 +292,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 				
 				//measure children with explicitWidth and no percentage size
 				else if (checkIfChildGetsPercentageWidth(child, width))
-					child.outerBounds.width = (width * child.percentWidth).roundFloat();
+					child.applyPercentWidth( width );
 			}
 			
 			//measure children
@@ -447,24 +441,6 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			invalidate( Flags.CHILD_HEIGHT | Flags.CHILDREN_INVALIDATED );
 		}
 		return v;
-	}
-	
-	
-	override private function setPadding (v:Box)
-	{	
-		if (v == null)
-			v = EMPTY_BOX;
-		
-		return super.setPadding(v);
-	}
-	
-	
-	override private function setMargin (v:Box)
-	{	
-		if (v == null)
-			v = EMPTY_BOX;
-		
-		return super.setMargin(v);
 	}
 	
 	

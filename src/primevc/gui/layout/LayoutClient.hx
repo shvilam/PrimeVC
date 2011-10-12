@@ -63,6 +63,9 @@ class LayoutClient extends Invalidatable
 			,	implements ILayoutClient
 #if debug	,	implements IUIdentifiable #end
 {
+	private static var EMPTY_BOX 	: Box = new Box(0,0,0,0);
+
+
 	/**
 	 * Flag indicating if the object should broadcast an invalidate call or do
 	 * nothing with it.
@@ -162,14 +165,16 @@ class LayoutClient extends Invalidatable
 		invalidatable		= true;
 		
 		changed		= new Signal1<Int>();
-		innerBounds	= new IntRectangle( x, y, newWidth.getBiggest( 0 ) + getHorPadding(), newHeight.getBiggest( 0 ) + getVerPadding() );
-		outerBounds	= new IntRectangle( x, y, innerBounds.width + getHorMargin(), innerBounds.height + getVerMargin() );
+		innerBounds	= new IntRectangle( x, y, newWidth.getBiggest(0), newHeight.getBiggest(0) );
+		outerBounds	= innerBounds.clone().as(IntRectangle);
 		
 		_width		= newWidth;
 		_height		= newHeight;
 		(untyped this).percentWidth		= Number.FLOAT_NOT_SET;
 		(untyped this).percentHeight	= Number.FLOAT_NOT_SET;
 		(untyped this).includeInLayout	= true;
+		(untyped this).margin			= EMPTY_BOX;
+		(untyped this).padding			= EMPTY_BOX;
 		
 		innerBounds	.listeners.add( this );
 		outerBounds	.listeners.add( this );
@@ -216,8 +221,7 @@ class LayoutClient extends Invalidatable
 	private function resetProperties () : Void
 	{
 		parent	= null;
-		margin	= null;
-		padding = null;
+		margin	= padding = EMPTY_BOX;
 		x = y = width = height = 0;
 		validate();
 		changes	= 0;
@@ -437,6 +441,18 @@ class LayoutClient extends Invalidatable
 		
 		return _height;
 	}
+
+
+	public function applyPercentWidth (parentWidth:Int)
+	{
+		return width = (parentWidth * percentWidth).roundFloat() - getHorPadding() - getHorMargin();
+	}
+
+
+	public function applyPercentHeight (parentHeight:Int)
+	{
+		return height = (parentHeight * percentHeight).roundFloat() - getVerPadding() - getVerMargin();
+	}
 	
 	
 	
@@ -633,8 +649,8 @@ class LayoutClient extends Invalidatable
 	{
 		var box = innerBounds;
 		box.invalidatable	= false;
-		box.left			= margin == null ? x : x + margin.left;
-		box.top				= margin == null ? y : y + margin.top;
+		box.left			= /*margin == null ? x : */x + margin.left;
+		box.top				= /*margin == null ? y : */y + margin.top;
 		box.width			= getUsableWidth() + getHorPadding();
 		box.height			= getUsableHeight() + getVerPadding();
 		box.resetValidation();
@@ -772,8 +788,8 @@ class LayoutClient extends Invalidatable
 	
 		else if (box == innerBounds)
 		{
-			if (propChanges.has( RectangleFlags.LEFT ))		x		= margin == null ? box.left : box.left - margin.left; //.abs();
-			if (propChanges.has( RectangleFlags.TOP ))		y		= margin == null ? box.top 	: box.top - margin.top; //.abs();
+			if (propChanges.has( RectangleFlags.LEFT ))		x		= /*margin == null ? box.left : */box.left - margin.left; //.abs();
+			if (propChanges.has( RectangleFlags.TOP ))		y		= /*margin == null ? box.top  : */box.top - margin.top; //.abs();
 			if (propChanges.has( RectangleFlags.WIDTH ))	width	= box.width - getHorPadding();
 			if (propChanges.has( RectangleFlags.HEIGHT ))	height	= box.height - getVerPadding();
 		}
@@ -837,10 +853,10 @@ class LayoutClient extends Invalidatable
 	}
 	
 	
-	public inline function getHorPadding () : Int	{ return padding == null ? 0 : padding.left	+ padding.right; }
-	public inline function getVerPadding() : Int	{ return padding == null ? 0 : padding.top	+ padding.bottom; }
-	public inline function getHorMargin () : Int	{ return margin  == null ? 0 : margin.left	+ margin.right; }
-	public inline function getVerMargin() : Int		{ return margin	 == null ? 0 : margin.top	+ margin.bottom; }
+	public inline function getHorPadding () : Int	{ return /*padding == null ? 0 : */padding.left	+ padding.right; }
+	public inline function getVerPadding() : Int	{ return /*padding == null ? 0 : */padding.top	+ padding.bottom; }
+	public inline function getHorMargin () : Int	{ return /*margin  == null ? 0 : */margin.left	+ margin.right; }
+	public inline function getVerMargin() : Int		{ return /*margin  == null ? 0 : */margin.top	+ margin.bottom; }
 	
 	public inline function hasMaxWidth () : Bool	{ return widthValidator  != null && widthValidator.max.isSet(); }
 	public inline function hasMaxHeight () : Bool	{ return heightValidator != null && heightValidator.max.isSet(); }
@@ -859,7 +875,7 @@ class LayoutClient extends Invalidatable
 //#if debug	Assert.that( v.notSet() || (v > -10000 && v < 10000), this+".invalidX: "+v ); #end
 			x = v;
 			outerBounds.left = v;
-			innerBounds.left = (margin == null) ? v : v + margin.left;
+			innerBounds.left = /*(margin == null) ? v : */v + margin.left;
 			invalidate( Flags.X );
 		}
 		return x;
@@ -873,7 +889,7 @@ class LayoutClient extends Invalidatable
 //#if debug	Assert.that( v.notSet() || (v > -10000 && v < 10000), this+".invalidY: "+v ); #end
 			y = v;
 			outerBounds.top = v;
-			innerBounds.top = (margin == null) ? v : v + margin.top;
+			innerBounds.top = /*(margin == null) ? v : */v + margin.top;
 			invalidate( Flags.Y );
 		}
 		return y;
@@ -904,6 +920,8 @@ class LayoutClient extends Invalidatable
 	
 	private function setPadding (v:Box)
 	{
+		if (v == null)
+			v = EMPTY_BOX;
 		if (padding != v)
 		{
 			padding = v;
@@ -918,6 +936,9 @@ class LayoutClient extends Invalidatable
 	
 	private function setMargin (v:Box)
 	{
+		if (v == null)
+			v = EMPTY_BOX;
+		
 		if (margin != v)
 		{
 			margin = v;
