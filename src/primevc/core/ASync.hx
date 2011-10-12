@@ -143,9 +143,11 @@ class ASync <DataType> implements IDisposable, implements IUnbindable<DataType->
 	public inline function reply (data:DataType) : Void
 	{
 		Assert.that( state.hasNone(DISPOSED) );
-		response.send(data);
+		if (response.hasListeners()) {
+			response.send(data);
+			unbindAll();
+		}
 		_reply = data;
-		unbindAll();
 		state  = REPLIED;
 	}
 	

@@ -51,7 +51,7 @@ while [ "${1+isset}" ]; do
 			shift ;;
 		
 		--coverage)
-			COVERAGE=true 		#enable code coverage
+			CODECOVERAGE=true	#enable code coverage
 			shift ;;
 		
 		--console)				#which debug-console to use
@@ -106,6 +106,7 @@ else
 	echo -e "\tPrimeVC: $PRIMEVC_ROOT"
 	echo -e "\tLocal file access: $ACCESS"
 	echo -e "\tExtra: ${EXTRA:-"no extra's"}"
+	echo -e "\tCode coverage: $CODECOVERAGE"
 	
 	echo "1. BUILDING ASSETS"
 	bash build/build-assets \
@@ -132,7 +133,7 @@ else
 		${PROFILING:+-swf-lib "'$PRJROOT/bin-debug/swf/FlashPreloadProfiler_RC2.swf'" -D profiling} \
 		$CONSOLE \
 		-D dragEnabled \
-		${CODECOVERAGE:+-D CodeCoverage -cp ../../../../../Libraries/haxe/MassiveCover/src --macro massive.mcover.MCover.include('', [''], null)} \
+		${CODECOVERAGE:+-D CodeCoverage -lib mcover --macro massive.mcover.MCover.includeAll()} \
 		| xargs -t haxe \
 		 	|| exit 1;
 	
