@@ -235,7 +235,7 @@ class UIBitmap extends BitmapShape, implements IUIElement
     }
 
 
-    public  inline function detach () : IUIElement
+    public  function detach () : IUIElement
     {
         if (effects != null && effects.isPlayingShow())
             effects.show.stop();
@@ -247,7 +247,7 @@ class UIBitmap extends BitmapShape, implements IUIElement
         {
             if (hasEffect) {
                 var eff = effects.hide;
-                layout.includeInLayout = false;
+            //  layout.includeInLayout = false; @see UIComponent.detach
                 applyDetach.onceOn( eff.ended, this );
                 effects.playHide();
             }

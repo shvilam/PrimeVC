@@ -299,7 +299,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	}
 
 
-	public  inline function detach () : IUIElement
+	public function detach () : IUIElement
 	{
 		if (effects != null && effects.isPlayingShow())
 			effects.show.stop();
@@ -310,7 +310,7 @@ class UIComponent extends Sprite, implements IUIComponent
 		{
 			if (hasEffect) {
 				var eff = effects.hide;
-				layout.includeInLayout = false;
+			//	layout.includeInLayout = false;		causes the layout's container to ignore the removal of the layout ==> wrong..
 				applyDetach.onceOn( eff.ended, this );
 				effects.playHide();
 			}

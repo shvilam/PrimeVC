@@ -219,7 +219,7 @@ class UITextField extends TextField, implements IUIElement
 	}
 
 
-	public  inline function detach () : IUIElement
+	public  function detach () : IUIElement
 	{
 		if (effects != null && effects.isPlayingShow())
 			effects.show.stop();
@@ -231,7 +231,7 @@ class UITextField extends TextField, implements IUIElement
 		{
 			if (hasEffect) {
 				var eff = effects.hide;
-				layout.includeInLayout = false;
+			//	layout.includeInLayout = false;	@see UIComponent.detach
 				applyDetach.onceOn( eff.ended, this );
 				effects.playHide();
 			}
