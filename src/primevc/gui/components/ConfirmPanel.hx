@@ -29,6 +29,8 @@
 package primevc.gui.components;
  import primevc.core.dispatcher.Signal0;
  import primevc.gui.core.IUIElement;
+ import primevc.gui.events.KeyboardEvents;
+ import primevc.gui.input.KeyCodes;
  import primevc.gui.managers.ISystem;
   using primevc.utils.Bind;
 
@@ -55,6 +57,9 @@ class ConfirmPanel extends AlertPanel
         super(id, title, content, system, applyLabel);
         canceled         = new Signal0();
         this.cancelLabel = cancelLabel;
+
+        addKeyListeners     .on( displayEvents.addedToStage, this );
+        removeKeyListeners  .on( displayEvents.removedFromStage, this );
     }
 
 
@@ -124,5 +129,27 @@ class ConfirmPanel extends AlertPanel
     {
         cancelBtn.dispose();
         cancelBtn = null;
+    }
+
+
+    private function addKeyListeners ()
+    {
+        //check if the escape key is pressed, if so, close the popup
+        checkEscapePressed.on( userEvents.key.down, this );
+        checkEscapePressed.on( window.userEvents.key.down, this );
+    }
+
+
+    private function removeKeyListeners ()
+    {
+        window.userEvents.key.down.unbind(this);
+        userEvents.key.down.unbind(this);
+    }
+
+
+    private function checkEscapePressed (event:KeyboardState)
+    {
+        if (event.keyCode() == KeyCodes.ESCAPE)
+            cancel();
     }
 }

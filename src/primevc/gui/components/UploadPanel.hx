@@ -84,11 +84,11 @@ class UploadPanel extends ConfirmPanel
     }
 
     
-    override public function removeChildren ()
+    /*override public function removeChildren ()
     {
         
         super.removeChildren();
-    }
+    }*/
 
 
     private function openFileList ()
