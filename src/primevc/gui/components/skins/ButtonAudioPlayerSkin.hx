@@ -56,8 +56,9 @@ class ButtonAudioPlayerSkin extends Skin<AudioPlayer>
         owner.styleClasses.add("buttonAudioPlayer");
         playStopBtn = new Button();
         playStopBtn.styleClasses.add("normalBtn");
-        handleStreamState.on( owner.stream.state.change, this );
-        handleStreamState( owner.stream.state.current, null );
+
+        handleStreamState.on(   owner.stream.state.change, this );
+        handleStreamState(      owner.stream.state.current, null );
         owner.attach(playStopBtn);
     }
 

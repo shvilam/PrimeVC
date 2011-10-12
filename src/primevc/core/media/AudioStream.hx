@@ -74,12 +74,6 @@ class AudioStream extends BaseMediaStream
      * the number of milliseconds a sound has been playing after it's been paused (since a SoundChannel can only stop)
      */
     private var lastPos     : Float;
-
-    /**
-     * Flag indicating wether the Sound.load-method is called on the URI. Flash will give
-     * an error when load is called twice on the same URI.
-     */
-    private var isLoaded    : Bool;
 #end
     
 
@@ -94,13 +88,26 @@ class AudioStream extends BaseMediaStream
     
     
     
-    private inline function init ()
+    private inline function load ()
     {
-        Assert.that(!isInitialized());
+        Assert.that(!isLoaded());
 #if flash9
         source = new Sound();
         updateTotalTime.on( source.events.completed, this );
         handleIOError  .on( source.events.error, this );
+
+        source.load(url.value.toRequest());
+#end
+    }
+
+
+    private inline function unload ()
+    {
+#if flash9
+        if (isLoaded()) {
+            source.dispose();
+            source = null;
+        }
 #end
     }
     
@@ -109,17 +116,11 @@ class AudioStream extends BaseMediaStream
     {
         SoundMixer.remove(this);
         super.dispose();
-#if flash9
-        if (isInitialized())
-        {
-            source.dispose();
-            source = null;
-        }
-#end
+        unload();
     }
     
     
-    private inline function isInitialized ()
+    private inline function isLoaded ()
     {
         return #if flash9 source.notNull() #else false #end;
     }
@@ -133,16 +134,11 @@ class AudioStream extends BaseMediaStream
     
     override public function play ( ?newUrl:URI )
     {
-        if (!isInitialized())                       init();
+        if (!isLoaded())                            load();
         if (!isStopped() || channel.notNull())      stop();
         if (newUrl.notNull())                       url.value = newUrl;
         
         Assert.notNull( url.value, "There is no sound-url to play" );
-
-        if (!isLoaded) {
-            source.load(url.value.toRequest());
-            isLoaded = true;
-        }
         
         state.current = MediaStates.playing;
         applyResume();
@@ -319,7 +315,7 @@ class AudioStream extends BaseMediaStream
     override private function validateURL (newURL:URI, oldURL:URI)
     {
         super.validateURL(newURL, oldURL);
-        isLoaded = false;
+        unload();
     }
     
     

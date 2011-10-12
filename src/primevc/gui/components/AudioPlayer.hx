@@ -31,6 +31,7 @@ package primevc.gui.components;
  import primevc.core.Bindable;
  import primevc.gui.core.UIDataContainer;
  import primevc.types.URI;
+  using primevc.utils.Bind;
 
 
 /**
@@ -52,4 +53,9 @@ class AudioPlayer extends UIDataContainer <Bindable<URI>>
     public  inline function stop ()                 { stream.stop(); }
     public  inline function resume ()               { stream.resume(); }
     public  inline function pause ()                { stream.pause(); }
+
+    override private function createBehaviours ()
+    {
+        stop.on( displayEvents.removedFromStage, this );
+    }
 }

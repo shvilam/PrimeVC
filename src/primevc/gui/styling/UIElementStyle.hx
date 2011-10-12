@@ -308,6 +308,9 @@ class UIElementStyle implements IUIElementStyle
 		if (removedBinding != null)		removedBinding.enable();
 		if (addedBinding != null)		addedBinding.disable();
 		
+		styleNamesChangeBinding	.enable();
+		idChangeBinding			.enable();
+		
 		var parent = owner.container != null ? owner.container.as( IStylable ) : null;
 		//remove styles if the new parent is not the same as the old parent
 		if (parent != null && parent.style != parentStyle)
@@ -371,12 +374,6 @@ class UIElementStyle implements IUIElementStyle
 	 */
 	public function updateStyles () : Int
 	{
-		styleNamesChangeBinding	.enable();
-		idChangeBinding			.enable();
-
-		if (removedBinding 	!= null)	removedBinding.enable();
-		if (addedBinding 	!= null)	addedBinding.disable();
-
 		//update styles.. start with the lowest priorities
 		stylesAreSearched	= false;
 		var changes			= updateElementStyle() | updateStyleNameStyles(null) | updateIdStyle() | updateStatesStyle();
