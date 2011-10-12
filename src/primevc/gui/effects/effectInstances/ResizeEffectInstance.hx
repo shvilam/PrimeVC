@@ -93,13 +93,18 @@ class ResizeEffectInstance extends EffectInstance < ISizeable, ResizeEffect >
 	override private function initStartValues ()
 	{
 		var e = effect, t = target;
-		if (e.startW.isSet())	startW = e.startW.int();
-		else					startW = t.width;
-		if (e.startH.isSet())	startH = e.startH.int();
-		else					startH = t.height;
+		if (startW.notSet()) {
+			if (e.startW.isSet())	startW = e.startW.int();
+			else					startW = t.width;
+		}
+		if (startH.notSet()) {
+			if (e.startH.isSet())	startH = e.startH.int();
+			else					startH = t.height;
+		}
 		
 		t.rect.width	= startW.int();
 		t.rect.height	= startH.int();
+	//	trace(target+"; "+startW+", "+startH+" => "+endW+", "+endH);
 	//	t.visible		= true;		no visible property in IDisplayable
 	}
 	

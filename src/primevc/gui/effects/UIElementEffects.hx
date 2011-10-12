@@ -166,7 +166,7 @@ class UIElementEffects implements IDisposable
 		
 		if (enabled && resize.notNull())
 		{
-			resize.setValues( EffectProperties.size( target.width, target.height, bounds.width, bounds.height ) );
+			resize.setValues( EffectProperties.size( target.rect.width, target.rect.height, bounds.width, bounds.height ) );
 			resize.play();
 		}
 		else

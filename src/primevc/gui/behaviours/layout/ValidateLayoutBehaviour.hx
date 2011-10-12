@@ -53,6 +53,7 @@ package primevc.gui.behaviours.layout;
 class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implements IPropertyValidator
 {
 	private var isNotPositionedYet	: Bool;
+	private var isNotSizedYet		: Bool;
 	private var stateChangeWire		: Wire<Dynamic>;
 	private var layoutChangeWire	: Wire<Dynamic>;
 	
@@ -61,6 +62,7 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 	{
 		var layout			= target.layout;
 		isNotPositionedYet	= true;
+		isNotSizedYet		= true;
 #if debug
 		Assert.notNull(layout, "Layout of "+target+" can't be null for "+this);
 		layout.name = target.id.value+"Layout";
@@ -185,7 +187,7 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 		
 		if (changes.has( LayoutFlags.SIZE ))
 		{
-			if (target.effects.isNull())
+			if (isNotSizedYet || target.effects.isNull())
 			{
 				var b = target.layout.innerBounds;
 //#if debug		Assert.that(b.width < 10000 && b.width > -1, target+".invalidWidth: "+b+"; "+target.container);
@@ -196,6 +198,7 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 					target.width	= target.rect.width;
 					target.height	= target.rect.height;
 				}
+				isNotSizedYet = false;
 			}
 			else
 				target.effects.playResize();

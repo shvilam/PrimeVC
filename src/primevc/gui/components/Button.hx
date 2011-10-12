@@ -70,12 +70,12 @@ class Button extends UIDataContainer <Bindable<String>>, implements IIconOwner, 
 	
 	override public function dispose ()
 	{
+		super.dispose();
 		if (selected != null) {
 			selected.dispose();
 			selected = null;
 		}
 		icon = null;
-		super.dispose();
 	}
 	
 	
