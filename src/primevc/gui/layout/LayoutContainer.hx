@@ -561,9 +561,9 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 				child.listeners.remove(this);
 				
 				//reset boundary properties without validating
-				child.outerBounds.left	= 0;
+			/*	child.outerBounds.left	= 0;
 				child.outerBounds.top	= 0;
-				child.changes			= 0;
+				child.changes			= 0;*/
 				
 				if (!fixedLength)			childrenLength--;
 				if (child.includeInLayout)	invalidate( Flags.LIST );
