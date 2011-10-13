@@ -30,6 +30,7 @@ package primevc.gui.components.skins;
  import primevc.core.states.MediaStates;
  import primevc.gui.components.AudioPlayer;
  import primevc.gui.components.Button;
+ import primevc.gui.core.UIGraphic;
  import primevc.gui.core.Skin;
   using primevc.utils.Bind;
 
@@ -48,17 +49,23 @@ private typedef Flags = primevc.gui.core.UIElementFlags;
  */
 class ButtonAudioPlayerSkin extends Skin<AudioPlayer>
 {
+    private var progress    : UIGraphic;
     private var playStopBtn : Button;
 
 
     override public function childrenCreated ()
     {
         owner.styleClasses.add("buttonAudioPlayer");
+        progress    = new UIGraphic("progress");
         playStopBtn = new Button();
-        playStopBtn.styleClasses.add("normalBtn");
+    //  playStopBtn.styleClasses.add("normalBtn");
+        
+        handleStreamState.on( owner.stream.state.change, this );
+        updateProgressBar.on( owner.stream.currentTime.change, this);
+        handleStreamState(    owner.stream.state.current, null );
+        updateProgressBar(    owner.stream.currentTime.value, 0);
 
-        handleStreamState.on(   owner.stream.state.change, this );
-        handleStreamState(      owner.stream.state.current, null );
+        owner.attach(progress);
         owner.attach(playStopBtn);
     }
 
@@ -67,8 +74,12 @@ class ButtonAudioPlayerSkin extends Skin<AudioPlayer>
     {
         owner.styleClasses.remove("buttonAudioPlayer");
         owner.stream.state.change.unbind( this );
+        owner.stream.currentTime.change.unbind( this );
+
+        progress.dispose();
         playStopBtn.dispose();
         playStopBtn = null;
+        progress    = null;
     }
 
 
@@ -108,4 +119,11 @@ class ButtonAudioPlayerSkin extends Skin<AudioPlayer>
     private function play ()    { owner.stream.play(); }
     private function stop ()    { owner.stream.stop(); }
     private function resume ()  { owner.stream.resume(); }
+
+
+    private function updateProgressBar (newV:Float, oldV:Float)
+    {
+        var total = owner.stream.totalTime.value;
+        progress.graphicData.percentage = (newV == 0 || total == 0) ? 0 : newV / total;
+    }
 }
