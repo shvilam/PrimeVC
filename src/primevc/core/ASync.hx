@@ -30,6 +30,7 @@ package primevc.core;
  import primevc.core.dispatcher.IUnbindable;
  import primevc.core.dispatcher.Signal1;
  import primevc.core.traits.IDisposable;
+  using primevc.utils.Bind;
   using primevc.utils.BitUtil;
 
 
@@ -38,12 +39,13 @@ package primevc.core;
  * @author Ruben Weijers
  * @creation-date May 16, 2011
  */
-class ASync <DataType> implements IDisposable, implements IUnbindable<DataType>
+class ASync <DataType> implements IDisposable, implements IUnbindable<DataType->Dynamic>
 {
 	private static inline var NONE		= 0;
 	private static inline var CANCELED	= 1 << 0;
 	private static inline var REQUESTED	= 1 << 1;
-	private static inline var DISPOSED	= 1 << 2;
+	private static inline var REPLIED	= 1 << 2;
+	private static inline var DISPOSED	= 1 << 3;
 	
 	
 	private var response		: Signal1<DataType>;
@@ -53,6 +55,7 @@ class ASync <DataType> implements IDisposable, implements IUnbindable<DataType>
 	 * Flag indicating if a request is already send or canceled
 	 */
 	private var state			: Int;
+	private var _reply			: DataType;
 	
 	public var handleRequest	(default, setHandleRequest)	: Void -> Void;
 	public var handleCancel		(default, setHandleCancel)	: Void -> Void;
@@ -60,13 +63,15 @@ class ASync <DataType> implements IDisposable, implements IUnbindable<DataType>
 	
 	
 	
-	public function new ()
+	public function new (requestHandler:Void->Void = null, cancelHandler:Void->Void = null)
 	{
 		response	= new Signal1();
 		error		= new Signal1();
 #if !flash9
 		state		= NONE;
 #end
+		if (requestHandler != null)		handleRequest 	= requestHandler;
+		if (cancelHandler != null)		handleCancel 	= cancelHandler;
 	}
 	
 	
@@ -75,11 +80,13 @@ class ASync <DataType> implements IDisposable, implements IUnbindable<DataType>
 		Assert.that( state.hasNone(DISPOSED) );
 		response.dispose();
 		error.dispose();
+		
 		response	= null;
 		error		= null;
 		state		= DISPOSED;
 		
 		handleRequest = handleCancel = null;
+		(untyped this)._reply = null; // Int can't be set to null, so we trick the compiler with "untyped"
 	}
 	
 	
@@ -90,7 +97,7 @@ class ASync <DataType> implements IDisposable, implements IUnbindable<DataType>
 	}
 	
 	
-	public inline function unbind(owner:Dynamic, ?handler:Null<DataType>) : Void
+	public function unbind(owner:Dynamic, ?handler:Null<DataType->Dynamic>) : Void
 	{
 		Assert.that( state.hasNone(DISPOSED) );
 		response.unbind(owner);
@@ -98,14 +105,24 @@ class ASync <DataType> implements IDisposable, implements IUnbindable<DataType>
 	}
 	
 	
-	public inline function get (owner:Dynamic, responseHandler:DataType -> Void, errorHandler:String->Void = null)
+	public function get<T> (owner:Dynamic, responseHandler:DataType->T, errorHandler:String->Dynamic = null)
 	{
 		Assert.that( state.hasNone(DISPOSED) );
-		state = REQUESTED;
+		if (state.has(REPLIED))
+			responseHandler(_reply);
 		
-		response.bind( owner, responseHandler );
-		if (errorHandler != null)	error.bind( owner, errorHandler );
-		if (handleRequest != null)	handleRequest();
+		else
+		{
+			responseHandler.on( response, owner );
+			if (errorHandler != null)
+				errorHandler.on( error, owner );
+			
+			if (state.hasNone(REQUESTED)) {
+				state = REQUESTED;
+				if (handleRequest != null)		// ASync-object can exist before the handler is created..
+					handleRequest();
+			}
+		}
 	}
 	
 	
@@ -126,9 +143,12 @@ class ASync <DataType> implements IDisposable, implements IUnbindable<DataType>
 	public inline function reply (data:DataType) : Void
 	{
 		Assert.that( state.hasNone(DISPOSED) );
-		response.send(data);
-		state = NONE;
-		unbindAll();
+		if (response.hasListeners()) {
+			response.send(data);
+			unbindAll();
+		}
+		_reply = data;
+		state  = REPLIED;
 	}
 	
 	

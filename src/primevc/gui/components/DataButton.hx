@@ -76,9 +76,10 @@ class DataButton <DataType> extends Button, implements IItemRenderer <DataType>
 			updateLabelBinding = null;
 		}
 		
+		vo.value = null;
+		super.dispose();
 		vo.dispose();
 		vo = null;
-		super.dispose();
 	}
 	
 	

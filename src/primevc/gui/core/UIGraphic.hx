@@ -208,7 +208,7 @@ class UIGraphic extends VectorShape
 				if (hasEffect) {
 					visible = false;
 					if (!isInitialized()) 	haxe.Timer.delay( show, 100 ); //.onceOn( displayEvents.enterFrame, this );
-					else 					show();
+					else 					effects.playShow();
 				}
 			}
 		}
@@ -217,7 +217,7 @@ class UIGraphic extends VectorShape
 	}
 
 
-	public  inline function detach () : IUIElement
+	public  function detach () : IUIElement
 	{
 		if (effects != null && effects.isPlayingShow())
 			effects.show.stop();
@@ -229,9 +229,9 @@ class UIGraphic extends VectorShape
 		{
 			if (hasEffect) {
 				var eff = effects.hide;
-				layout.includeInLayout = false;
+			//	layout.includeInLayout = false;	@see UIComponent.detach
 				applyDetach.onceOn( eff.ended, this );
-				hide();
+				effects.playHide();
 			}
 			else
 				applyDetach();

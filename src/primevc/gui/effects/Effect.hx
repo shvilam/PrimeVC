@@ -71,7 +71,9 @@ class Effect < TargetType, EffectClass:IEffect > extends Invalidatable, implemen
 #end
 		duration		= newDuration.notSet()	? 350 : newDuration;
 		delay			= newDelay <= 0			? Number.INT_NOT_SET : newDelay;
-		easing			= newEasing;
+#if flash9
+		easing			= newEasing == null 	? feffects.easing.Linear.easeNone : newEasing;
+#end
 		autoHideFilters	= false;
 	}
 	

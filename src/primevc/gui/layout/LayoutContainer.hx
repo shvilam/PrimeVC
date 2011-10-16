@@ -31,7 +31,6 @@ package primevc.gui.layout;
  import primevc.core.collections.IEditableList;
  import primevc.core.collections.ListChange;
  import primevc.core.geom.BindablePoint;
- import primevc.core.geom.Box;
  import primevc.core.geom.IntPoint;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.validators.PercentIntRangeValidator;
@@ -56,8 +55,6 @@ private typedef Flags = LayoutFlags;
  */
 class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer, implements IScrollableLayout
 {
-	public static inline var EMPTY_BOX : Box = new Box(0,0);
-	
 	public var algorithm			(default, setAlgorithm)			: ILayoutAlgorithm;
 	
 	public var childWidth			(default, setChildWidth)		: Int;
@@ -75,9 +72,6 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	public function new (newWidth = primevc.types.Number.INT_NOT_SET, newHeight = primevc.types.Number.INT_NOT_SET)
 	{
 		super(newWidth, newHeight);
-		
-		(untyped this).padding		= EMPTY_BOX;
-		(untyped this).margin		= EMPTY_BOX;
 		(untyped this).childWidth	= Number.INT_NOT_SET;
 		(untyped this).childHeight	= Number.INT_NOT_SET;
 		
@@ -146,7 +140,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 				||	( child.is(IAdvancedLayoutClient) && child.as(IAdvancedLayoutClient).explicitWidth.notSet() )
 				)
 				&& child.percentWidth.isSet()
-				&& child.percentWidth > 0
+				&& child.percentWidth >= 0
 				&& widthToUse > 0;
 	}
 	
@@ -159,7 +153,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 					||	( child.is(IAdvancedLayoutClient) && child.as(IAdvancedLayoutClient).explicitHeight.notSet() )
 				)
 				&& child.percentHeight.isSet()
-				&& child.percentHeight > 0
+				&& child.percentHeight >= 0
 				&& heightToUse > 0;
 	}
 	
@@ -167,7 +161,15 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	/**
 	 * Cached instance of the filling children list
 	 */
-	private var fillingChildrenCache : FastArray<LayoutClient>;
+	private var fillingChildrenCache 	: FastArray<LayoutClient>;
+	/**
+	 * temporary count of the number of children with a width-percentage
+	 */
+	private var percentWidthChildren 	: Int;
+	/**
+	 * temporary count of the number of children with a height-percentage
+	 */
+	private var percentHeightChildren 	: Int;
 
 	
 	override public function validateHorizontal ()
@@ -176,41 +178,122 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (changes.hasNone( Flags.HORIZONTAL_INVALID ))
 			return;
 		
-		if (fillingChildrenCache == null)
-			fillingChildrenCache = FastArrayUtil.create();
-		
-		var fillingChildren	= fillingChildrenCache;
-		var childrenWidth	= 0;
-		
-		if (algorithm != null)
+		var hasAlgorithm = algorithm != null;
+		if (hasAlgorithm)
 			algorithm.prepareValidate();
 		
+		var curWidth = width;
+		updateChildWidthPercentages();
+		if (hasAlgorithm)
+			algorithm.validateHorizontal();
+		
+		// if the width is changed and there are children with a percentage width, we need to update their width
+		if (percentWidthChildren > 0 && width != curWidth && width.isSet())
+			updateChildWidthPercentages();
 
+		super.validateHorizontal();
+	}
+	
+	
+	
+	
+	override public function validateVertical ()
+	{
+		super.validateVertical();
+		if (changes.hasNone( Flags.VERTICAL_INVALID ))
+			return;
+		
+		var hasAlgorithm = algorithm != null;
+		if (hasAlgorithm)
+			algorithm.prepareValidate();
+		
+		var curHeight = height;
+		updateChildHeightPercentages();
+		if (hasAlgorithm)
+			algorithm.validateVertical();
+		
+		// if the height is changed and there are children with a percentage height, we need to update their height
+		if (percentHeightChildren > 0 && height != curHeight && height.isSet())
+			updateChildHeightPercentages();
 
-		var childrenLength = children.length;
-		for (i in 0...childrenLength)
-		{
-			Assert.equal(childrenLength, children.length); // Can the length of the children change during the loop?
+		super.validateVertical();
+	}
+	
+	
+	override public function validated ()
+	{
+		if (changes == 0 || !isValidating())
+			return;
+		
+		if (!isVisible())
+			return super.validated();
+		
+		if (!hasValidatedWidth)		validateHorizontal();
+		if (!hasValidatedHeight)	validateVertical();
+
+		if (changes.has( Flags.SIZE_PROPERTIES ))
+			validateScrollPosition( scrollPos );
+		
+		if (algorithm != null) {
+			algorithm.prepareValidate();
 			
+			if (height.isSet() && width.isSet())
+				algorithm.apply();
+		}
+		
+	//	var i = 0;
+	//	while (i < children.length)		// use while loop instead of for loop since children can be removed during validation (== errors with a for loop)
+		for (i in 0...children.length)
+		{
+			var child = children.getItemAt(i);
+			if (child.includeInLayout)
+				child.validated();
+			
+	//		i++;
+		}
+		
+		// It's important that super.validated get's called after the children are validated.
+		// The process of validating children could otherwise invalidate the object again
+		// since the x&y of the children can change when they are validated.
+		return super.validated();
+	}
+	
+	
+
+	
+
+
+	private function updateChildWidthPercentages ()
+	{
+		if (fillingChildrenCache == null)
+			fillingChildrenCache = FastArrayUtil.create();
+
+		var fillingChildren	= fillingChildrenCache;
+		var childrenWidth	= percentWidthChildren = 0;
+		var isWidthChanged 	= changes.has(Flags.WIDTH | Flags.LIST) && width.isSet();
+
+		for (i in 0...children.length)
+		{
 			var child = children.getItemAt(i);
 			if (!child.includeInLayout)
 				continue;
 			
-			if (changes.has(Flags.WIDTH | Flags.LIST) && child.widthValidator != null && child.widthValidator.is( PercentIntRangeValidator ) && width.isSet())
+			if (isWidthChanged && child.widthValidator != null && child.widthValidator.is( PercentIntRangeValidator ))
 				child.widthValidator.as( PercentIntRangeValidator ).calculateValues( width );
 			
-			if (child.percentWidth == Flags.FILL)
+			if (child.percentWidth.isSet())
 			{
-				fillingChildren.push( child );
-				child.width = Number.INT_NOT_SET;
+				percentWidthChildren++;
+				if (child.percentWidth == Flags.FILL)
+				{
+					fillingChildren.push( child );
+					child.width = Number.INT_NOT_SET;
+				}
+				
+				//measure children with explicitWidth and no percentage size
+				else if (checkIfChildGetsPercentageWidth(child, width))
+					child.applyPercentWidth( width );
 			}
-			
-			//measure children with explicitWidth and no percentage size
-			else if (checkIfChildGetsPercentageWidth(child, width)) {
-				child.outerBounds.width = (width * child.percentWidth).roundFloat();
-//T#if debug		Assert.that( (width * child.percentWidth) > 0, "invalid width: "+(width * child.percentWidth)+"; groupWidth: "+width+"; child.percentWidth: "+child.percentWidth ); #end
-			}
-			
 			
 			//measure children
 			if (child.percentWidth != Flags.FILL)
@@ -241,72 +324,58 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			
 			Assert.equal(fillingChildren.length, 0);
 		}
-		
-
-
-		if (algorithm != null)
-			algorithm.validateHorizontal();
-		
-		super.validateHorizontal();
 	}
-	
-	
-	
-	
-	override public function validateVertical ()
+
+
+	private function updateChildHeightPercentages ()
 	{
-		super.validateVertical();
-		if (changes.hasNone( Flags.VERTICAL_INVALID ))
-			return;
-		
 		if (fillingChildrenCache == null)
 			fillingChildrenCache = FastArrayUtil.create();
-		
-		var fillingChildren	= fillingChildrenCache;
-		var childrenHeight	= 0;
-		
-		if (algorithm != null)
-			algorithm.prepareValidate();
-		
 
-		// validate children vertically
-		var childrenLength = children.length;
-		for (i in 0...childrenLength)
+		var fillingChildren	= fillingChildrenCache;
+		var childrenHeight	= percentHeightChildren = 0;
+		var isHeightChanged	= changes.has(Flags.HEIGHT | Flags.LIST) && height.isSet();
+
+		for (i in 0...children.length)
 		{
 			var child = children.getItemAt(i);
-			
 			if (!child.includeInLayout)
 				continue;
 			
-			if (changes.has(Flags.HEIGHT | Flags.LIST) && child.heightValidator != null && child.heightValidator.is( PercentIntRangeValidator ) && height.isSet())
+			if (isHeightChanged && child.heightValidator != null && child.heightValidator.is( PercentIntRangeValidator ))
 				child.heightValidator.as( PercentIntRangeValidator ).calculateValues( height );
 			
-			if (child.percentHeight == Flags.FILL)
+			if (child.percentHeight.isSet())
 			{
-				fillingChildren.push( child );
-				child.height = Number.INT_NOT_SET;
+				percentHeightChildren++;
+				if (child.percentHeight == Flags.FILL)
+				{
+					fillingChildren.push( child );
+					child.height = Number.INT_NOT_SET;
+				}
+				
+				//measure children with explicitHeight and no percentage size
+				else if (checkIfChildGetsPercentageHeight(child, height))
+					child.outerBounds.height = (height * child.percentHeight).roundFloat();
 			}
 			
-			else if (checkIfChildGetsPercentageHeight(child, height))
-				child.outerBounds.height = (height * child.percentHeight).roundFloat();
-			
 			//measure children
-			if (child.percentHeight != Flags.FILL) {
-				if (child.changes > 0)
-					child.validateVertical();
-				
+			if (child.percentHeight != Flags.FILL)
+			{
+				child.validateVertical();
 				childrenHeight += child.outerBounds.height;
 			}
 		}
 		
-		
+
 		// set height of vertically filling children
 		var fillingLength:Int = fillingChildren.length;		//define as int! otherwise it will be treated as UInt -> 0 - 4112123333 something but no negatives..
 		if (fillingLength > 0)
 		{
 			if (height.isSet() && (height - childrenHeight) > 0)
 			{
-				var sizePerChild = (height - childrenHeight).divFloor(fillingLength);
+				var sizePerChild = ( height - childrenHeight ).divFloor(fillingLength);
+				
 				while (fillingLength--> 0)
 				{
 					var child = fillingChildren.pop();
@@ -316,59 +385,12 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			}
 			else
 				fillingChildren.removeAll();
-
+			
 			Assert.equal(fillingChildren.length, 0);
 		}
-		
-
-		// apply layout algorithm		
-		if (algorithm != null)
-			algorithm.validateVertical();
-		
-		super.validateVertical();
 	}
-	
-	
-	
-	
-	override public function validated ()
-	{
-		if (changes == 0 || !isValidating())
-			return;
-		
-		if (!isVisible())
-			return super.validated();
-		
-		if (!hasValidatedWidth)		validateHorizontal();
-		if (!hasValidatedHeight)	validateVertical();
 
-		if (changes.has( Flags.SIZE_PROPERTIES ))
-			validateScrollPosition( scrollPos );
-		
-		if (algorithm != null) {
-			algorithm.prepareValidate();
-			
-			if (height.isSet() && width.isSet())
-				algorithm.apply();
-		}
-		
-		var i = 0;
-		while (i < children.length)		// use while loop instead of for loop since children can be removed during validation (== errors with a for loop)
-		{
-			var child = children.getItemAt(i);
-			if (child.includeInLayout)
-				child.validated();
-			
-			i++;
-		}
-		
-		// It's important that super.validated get's called after the children are validated.
-		// The process of validating children could otherwise invalidate the object again
-		// since the x&y of the children can change when they are validated.
-		return super.validated();
-	}
-	
-	
+
 	
 	
 	//
@@ -422,24 +444,6 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	}
 	
 	
-	override private function setPadding (v:Box)
-	{	
-		if (v == null)
-			v = EMPTY_BOX;
-		
-		return super.setPadding(v);
-	}
-	
-	
-	override private function setMargin (v:Box)
-	{	
-		if (v == null)
-			v = EMPTY_BOX;
-		
-		return super.setMargin(v);
-	}
-	
-	
 	
 	//
 	// ISCROLLABLE LAYOUT IMPLEMENTATION
@@ -490,7 +494,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	//  trace("depth: "+index+"; fixedStart: "+fixedChildStart+"; length: "+children.length);
 	    if (index >= fixedChildStart && index < (fixedChildStart + children.length))
 	        scrollTo( children.getItemAt( index - fixedChildStart ) );
-	    else
+	    else if (algorithm != null)
 		    algorithm.scrollToDepth(index);
 	}
 	
@@ -517,7 +521,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	 * When applying an algorithm you should still use children.length since 
 	 * the algorithm will only be applied on the actual children in the list.
 	 * 
-	 * @see LayoutContainer.setFixedLength
+	 * @see LayoutContainer.setFixedChildLength
 	 */
 	public var childrenLength		(default, null)					: Int;
 	public var fixedChildStart		(default, default)				: Int;
@@ -557,16 +561,16 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 				child.listeners.remove(this);
 				
 				//reset boundary properties without validating
-				child.outerBounds.left	= 0;
+			/*	child.outerBounds.left	= 0;
 				child.outerBounds.top	= 0;
-				child.changes			= 0;
+				child.changes			= 0;*/
 				
 				if (!fixedLength)			childrenLength--;
 				if (child.includeInLayout)	invalidate( Flags.LIST );
 			
 			
 			case moved(child, newPos, oldPos):
-				if (child.includeInLayout)	
+				if (child.includeInLayout)
 					invalidate( Flags.LIST );
 				
 			case reset:

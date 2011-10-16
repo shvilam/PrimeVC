@@ -90,6 +90,9 @@ interface ILayoutClient
 	public function isValidating ()			: Bool;
 	public function isInvalidated ()		: Bool;
 	
+	public function attachTo 	(container:ILayoutContainer, depth:Int = -1) 	: LayoutClient;
+	public function detach 		()												: LayoutClient;
+	public function changeDepth	(newPos:Int)									: LayoutClient;
 	
 	//
 	// LAYOUT METHODS

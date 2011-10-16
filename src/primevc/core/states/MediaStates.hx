@@ -35,10 +35,12 @@ package primevc.core.states;
  * @creation-date	Jan 10, 2011
  * @author			Ruben Weijers
  */
-enum VideoStates {
+enum MediaStates {
 	playing;
 	paused;
 	stopped;
 	empty;
-	frozen( prevState:VideoStates );
+    error( str:String );
+    loading( origState:MediaStates );
+	frozen( prevState:MediaStates );
 }

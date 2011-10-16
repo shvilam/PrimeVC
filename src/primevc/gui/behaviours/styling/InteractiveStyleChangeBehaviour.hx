@@ -119,11 +119,11 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 		
 		getStates().change.unbind( this );
 		
-		if (mouseState != null)		mouseState.dispose();
+		if (mouseState != null)		mouseState 	 .dispose();
 		if (disabledState != null)	disabledState.dispose();
 		if (selectedState != null)	selectedState.dispose();
-		if (dragState != null)		dragState.dispose();
-		if (focusState != null)		focusState.dispose();
+		if (dragState != null)		dragState 	 .dispose();
+		if (focusState != null)		focusState 	 .dispose();
 		
 		mouseState = disabledState = selectedState = dragState = focusState = null;
 		init.onceOn( target.displayEvents.addedToStage, this ).pos();

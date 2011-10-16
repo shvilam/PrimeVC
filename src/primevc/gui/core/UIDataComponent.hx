@@ -124,7 +124,10 @@ class UIDataComponent <DataType> extends UIComponent, implements IUIDataElement 
 	// GETTERS / SETTERS
 	//
 	
-	private function setData (v:DataType)
+	/**
+	 * Public setter so that it can be used as event-handler
+	 */
+	public function setData (v:DataType)
 	{
 		if (v != data)
 		{

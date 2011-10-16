@@ -83,8 +83,6 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		if (changes.has( Flags.DRAWING_PROPERTIES ))
 			graphicProps = elementStyle.target.as(IDrawable).graphicData;
 		
-	//	trace(target + ".applyGeneralStyling "+readProperties( changes )+"; "+(graphicProps != null));
-		
 		for (styleObj in this)
 		{
 			if (changes == 0)
@@ -119,19 +117,20 @@ class GraphicsCollection extends StyleCollectionBase < GraphicsStyle >
 		
 		if ( propsToSet.has( Flags.VISIBLE ))
 		{
-			if (empty || styleObj.visible)			target.as(IUIElement).show();
-			else									target.as(IUIElement).hide();
+			var t = target.as(IUIElement);	//save assumption since the 'apply' method otherwise would have filtered the VISIBLE flag
+			if (!empty && !styleObj.visible)	t.hide();
+			else if (!t.visible)				t.show();
 		}
 		
 		
-		if ( propsToSet.has( Flags.OVERFLOW ))
+		if ( propsToSet.has( Flags.OVERFLOW ) && !empty)
 		{
 			if (styleObj.overflow != null) {
 				var c = target.as(IUIContainer);
 				c.behaviours.add( styleObj.overflow(c) );
 			}
 		//	else
-		//		target.behaviours.remove(  )
+		//		target.behaviours.remove(  )		FIXME -> remove old overflow behaviours..
 		}
 		
 		

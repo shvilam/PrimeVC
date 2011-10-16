@@ -31,6 +31,7 @@ package primevc.gui.managers;
  import primevc.gui.core.UIComponent;
  import primevc.gui.core.UIWindow;
  import primevc.utils.FastArray;
+  using primevc.utils.Bind;
   using primevc.utils.FastArray;
 
 
@@ -74,18 +75,22 @@ class PopupManager implements IPopupManager
 	 */
 	public inline function add (popup:IUIComponent, modal:Bool = false) : Int
 	{
-		if (modal)
-			createModalFor(popup);
-		
+		var isFirst = window.popupLayout.children.length == 0;
 		Assert.null( popup.window );
 		Assert.null( popup.layout.parent );
 		window.popupLayout.children.add( popup.layout );
 		popup.visible = false;
+
+		popup.setFocus.onceOn( popup.displayEvents.addedToStage, this );	// this way (instead of calling popup.setFocus directly) the popup can override the focus behaviour
 		popup.attachToDisplayList( window );
-		popup.show();
-		popup.setFocus();
 		
-		if (window.popupLayout.children.length == 1)
+		if (modal)
+			createModalFor(popup);
+	
+		popup.show();
+	//	popup.setFocus();
+		
+		if (isFirst)
 			window.userEvents.key.disable();
 		
 		return window.children.length - 1;
@@ -94,11 +99,11 @@ class PopupManager implements IPopupManager
 	
 	public inline function remove (popup:IUIComponent)
 	{
-		removeModalFor( popup );
 		Assert.notNull( popup.window );
 		Assert.notNull( popup.layout.parent );
 		popup.detach();
 		popup.removeFocus();
+		removeModalFor( popup );
 		
 		if (window.popupLayout.children.length == 0)
 			window.userEvents.key.enable();
@@ -119,9 +124,8 @@ class PopupManager implements IPopupManager
 			window.popupLayout.children.add( modal.layout );
 			modal.attachToDisplayList( window );
 		}
-		else
-			moveModalBackground( window.popupLayout.children.length - 1 );
-		
+
+		moveModalBgBehind( popup );
 		modalPopups.push( popup );
 	}
 	
@@ -129,20 +133,19 @@ class PopupManager implements IPopupManager
 	private function removeModalFor (popup:IUIComponent)
 	{
 		var index = modalPopups.indexOf(popup);
-		if (index > 0)
+		if (index > -1)
 		{
 			modalPopups.removeItem(popup);
 			
 			//keep the modalbackground if there are more modal-popups open
-			if (modalPopups.length > 0)		moveModalBackground( window.children.indexOf( modalPopups[ modalPopups.length - 1 ] ) - 1 );
+			if (modalPopups.length > 0)		moveModalBgBehind( modalPopups.last() );
 			else							modal.detach();
 		}
 	}
 	
 	
-	private inline function moveModalBackground (newPos:Int)
+	private inline function moveModalBgBehind (popup:IUIComponent)
 	{
-		window.popupLayout.children.move( modal.layout, newPos );
-		window.children.move( modal, newPos );
+		window.children.move( modal, window.children.indexOf(popup) - 1 );
 	}
 }

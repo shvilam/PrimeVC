@@ -32,8 +32,8 @@ package primevc.gui.core;
  import primevc.gui.styling.UIElementStyle;
 #end
  import primevc.core.dispatcher.Wire;
- import primevc.core.net.VideoStream;
- import primevc.core.states.VideoStates;
+ import primevc.core.media.VideoStream;
+ import primevc.core.states.MediaStates;
  import primevc.core.Bindable;
  import primevc.core.IBindable;
  
@@ -254,7 +254,7 @@ class UIVideo extends Video, implements IUIElement
 				if (hasEffect) {
 					visible = false;
 					if (!isInitialized()) 	haxe.Timer.delay( show, 100 ); //.onceOn( displayEvents.enterFrame, this );
-					else 					show();
+					else 					effects.playShow();
 				}
 			}
 		}
@@ -263,7 +263,7 @@ class UIVideo extends Video, implements IUIElement
 	}
 
 
-	public  inline function detach () : IUIElement
+	public  function detach () : IUIElement
 	{
 		if (effects != null && effects.isPlayingShow())
 			effects.show.stop();
@@ -275,9 +275,9 @@ class UIVideo extends Video, implements IUIElement
 		{
 			if (hasEffect) {
 				var eff = effects.hide;
-				layout.includeInLayout = false;
+			//	layout.includeInLayout = false;	@see UIComponent.detach
 				applyDetach.onceOn( eff.ended, this );
-				hide();
+				effects.playHide();
 			}
 			else
 				applyDetach();
@@ -368,10 +368,10 @@ class UIVideo extends Video, implements IUIElement
 	// EVENTHANDLERS
 	//
 	
-	private function handleStreamChange (newState:VideoStates, oldState:VideoStates)
+	private function handleStreamChange (newState:MediaStates, oldState:MediaStates)
 	{
 #if flash9
-		if (newState == VideoStates.stopped)
+		if (newState == MediaStates.stopped)
 			clear();
 #end
 	}

@@ -1,0 +1,84 @@
+new packages
+
+- signals               all signals cp
+- mvc                   mvc
+- layout                cp layout system
+- graphics              cp graphics library
+- css                   css-parser
+- effects               cp display ui effects
+- value-objects         value objects
+- UI                    
+- components            ui components
+- core                  general cp library
+
+
+Folders:                        New Package
+=================================================
+- avm2.display                  UI
+- avm2.events                   signals
+- avm2.input                    ??
+- avm2.layout                   layout
+- avm2.media                    ??
+
+- core.channels                 -
+- core.collections              value-objects  
+- core.dispatcher               signals
+- core.events                   signals
+- core.geom                     core
+- core.math                     core
+- core.media                    ??
+- core.net                      ??
+- core.states                   ??
+- core.traits                   core?
+- core.validators               ??
+- core                          -- multiple --
+                  
+- gui.behaviours                components
+- gui.components                components
+- gui.core                      components
+- gui.display                   display
+- gui.effects                   effects
+- gui.filters                   display
+- gui.graphics                  graphics
+- gui.input                     display
+- gui.layout                    layout
+- gui.managers                  components
+- gui.states                    components
+- gui.styling                   css
+- gui.text                      css
+- gui.traits                    -- multiple --
+- gui.utils                     -- multiple --
+
+- js.display                    display
+- js.events                     signals
+- js                            ?
+
+- mvc.events                    mvc
+- mvc                           mvc
+
+- neko                          multiple
+
+- tools.generator               
+- tools.valueobjects                  
+- tools                  
+
+- types                  
+- utils                  
+
+
+
+TODO Signals
+
+- package code splitten
+- documentatie
+    - structuur
+        - introductie
+        - getting started
+        - API Reference (genereren)
+        - voorbeelden
+- logo
+
+
+
+
+

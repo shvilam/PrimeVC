@@ -40,7 +40,7 @@ package primevc.mvc.events;
  * @author Ruben Weijers
  * @creation-date Nov 16, 2010
  */
-class OperationEvents <DataType> extends CommunicationSignals
+class OperationEvents extends CommunicationSignals
 {
 //	public var start	(default, null)		: Signal1 < DataType >;
 //	public var stop		(default, null)		: Signal0;

@@ -30,7 +30,11 @@ package primevc.gui.utils;
  import primevc.core.traits.IDisposable;
  import primevc.gui.core.IUIElement;
  import primevc.types.Number;
+  using primevc.utils.IfUtil;
   using primevc.utils.NumberUtil;
+
+
+private typedef Flags = primevc.gui.effects.EffectFlags;
 
 
 /**
@@ -54,52 +58,55 @@ class UIElementActions
 		// Don't check for target.window.. if the container is added to the stage later and
 		// a hide-effect has hidden the target, making it visible isn't enough, also the result 
 		// of the hide-effect should be reversed (alpha = 0, scrollrect position negative etc.).
-		if (target.container == null || target.effects == null || target.effects.show == null)
-			target.visible = true;
-		else
-			target.effects.playShow();
+	//	trace(target+"; playEff? "+(target.container == null || target.effects == null || target.effects.show == null)+"; visible? "+target.visible+"; alpha? "+target.alpha);
+		if (shouldPlay(Flags.SHOW, target)) 	target.effects.playShow();
+		else									target.visible = true;
 	}
 	
 	
 	public static inline function doHide (target:IUIElement)
 	{
-		if (target.window == null || target.effects == null || target.effects.hide == null)
-			target.visible = false;
-		else
-			target.effects.playHide();
+		if (shouldPlay(Flags.HIDE, target))		target.effects.playHide();
+		else 									target.visible = false;
 	}
 	
 	
-	public static inline function doMove (target:IUIElement, newX:Int = Number.INT_NOT_SET, newY:Int = Number.INT_NOT_SET)
+	public static inline function doMove (target:IUIElement, newX:Float = Number.INT_NOT_SET, newY:Float = Number.INT_NOT_SET) 	// using Number.FLOAT_NOT_SET is not allowed since Float.NaN is not a constant value
 	{
-		if (newX.isSet())	target.layout.x = newX.roundFloat();
-		if (newY.isSet())	target.layout.y = newY.roundFloat();
+		if (newX.isSet() && newX != Number.INT_NOT_SET)		target.layout.x = newX.roundFloat();
+		if (newY.isSet() && newY != Number.INT_NOT_SET)		target.layout.y = newY.roundFloat();
 	}
 	
 	
 	public static inline function doRotate (target:IUIElement, v:Float)
 	{
-		if (target.window == null || target.effects == null || target.effects.rotate == null)
-			target.rotation = v;
-		else
-			target.effects.playRotate(v);
+		if (shouldPlay(Flags.ROTATE, target)) 	target.effects.playRotate(v);
+		else 									target.rotation = v;
+			
 	}
 	
 	
-	public static inline function doResize (target:IUIElement, newW:Int = Number.INT_NOT_SET, newH:Int = Number.INT_NOT_SET)
+	public static inline function doResize (target:IUIElement, newW:Float = Number.INT_NOT_SET, newH:Float = Number.INT_NOT_SET)
 	{
-		if (newW.isSet())	target.layout.width		= newW.roundFloat();
-		if (newH.isSet())	target.layout.height	= newH.roundFloat();
+		if (newW.isSet() && newW != Number.INT_NOT_SET)		target.layout.width		= newW.roundFloat();
+		if (newH.isSet() && newH != Number.INT_NOT_SET)		target.layout.height	= newH.roundFloat();
 	}
 	
 	
 	public static inline function doScale (target:IUIElement, newScaleX:Float, newScaleY:Float)
 	{
-		if (target.window == null || target.effects == null || target.effects.scale == null) {
+		if (shouldPlay(Flags.SCALE, target)) {
+			target.effects.playScale(newScaleX, newScaleY);
+		} else {
 			target.scaleX = newScaleX;
 			target.scaleY = newScaleY;
-		} else {
-			target.effects.playScale(newScaleX, newScaleY);
 		}
+	}
+
+
+	public static inline function shouldPlay(effect:Int, target:IUIElement) : Bool
+	{
+		var e = target.effects;
+		return target.container.notNull() && e.notNull() && e.has(effect);
 	}
 }

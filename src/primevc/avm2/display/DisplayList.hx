@@ -65,7 +65,8 @@ class DisplayList implements IEditableList <ChildType>
 	 */
 	public var owner		(default, null)				: IDisplayContainer;
 	
-	public var change		(default, null)				: ListChangeSignal < ChildType >;
+	public var change		(default, null)				: ListChangeSignal<ChildType>;
+	public var beforeChange	(default, null)				: ListChangeSignal<ChildType>;		// FIXME: not implemented
 	public var length		(getLength, never)			: Int;
 	
 	/**
@@ -141,6 +142,15 @@ class DisplayList implements IEditableList <ChildType>
 			child.container = null;
 		}
 	}
+
+
+
+	//
+	// ENABLE / DISABLE
+	//
+
+	public  inline function enable () 				{ mouseEnabled = tabEnabled = true; }
+	public  inline function disable () 				{ mouseEnabled = tabEnabled = false; }
 	
 	
 	
@@ -168,15 +178,16 @@ class DisplayList implements IEditableList <ChildType>
 	
 	public function add (item:ChildType, pos:Int = -1) : ChildType
 	{
+#if debug
 		if (pos > length)
 			Assert.that(pos <= length, "Index to add child is to high! "+pos+" instead of max "+length);
-		
-		if		(pos > length)	pos = length;
-		else if (pos < 0)		pos = length; // -pos;
-		
+#end
 		//make sure that if the child is in another displaylist, it will fire an remove event when the child is removed.
 		if (item.container != null && item.container != owner)
 			item.container.children.remove(item);
+		
+		if		(pos > length)	pos = length;
+		else if (pos < 0)		pos = length; // -pos;
 		
 		item.container = owner;
 		target.addChildAt( item.as( TargetChildType ), pos );

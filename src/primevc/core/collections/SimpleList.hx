@@ -46,7 +46,8 @@ package primevc.core.collections;
 class SimpleList < DataType > implements IEditableList < DataType > 
 	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
-	public var change		(default, null)		: ListChangeSignal < DataType >;
+	public var change		(default, null)		: ListChangeSignal<DataType>;
+	public var beforeChange	(default, null)		: ListChangeSignal<DataType>;
 	
 	private var _length		: Int;
 	public var length		(getLength, never)	: Int;
@@ -62,8 +63,9 @@ class SimpleList < DataType > implements IEditableList < DataType >
 	
 	public function new()
 	{
-		_length	= 0;
-		change	= new ListChangeSignal();
+		_length			= 0;
+		change			= new ListChangeSignal();
+		beforeChange	= new ListChangeSignal();
 	}
 	
 	
@@ -71,6 +73,7 @@ class SimpleList < DataType > implements IEditableList < DataType >
 	{
 		if (_length > 0)
 		{
+			beforeChange.send( ListChange.reset );
 			var cur = first;
 			while (cur != null)
 			{
@@ -146,19 +149,23 @@ class SimpleList < DataType > implements IEditableList < DataType >
 	
 	public function add (item:DataType, pos:Int = -1) : DataType
 	{
+		beforeChange.send( ListChange.added( item, pos ) );
 		pos = insertAt( item, pos );
 		change.send( ListChange.added( item, pos ) );
 		return item;
 	}
 	
 	
-	public function remove (item:DataType, oldPos:Int = -1) : DataType
+	public function remove (item:DataType, curPos:Int = -1) : DataType
 	{
 		if (item != null)
 		{
-			oldPos = removeItem( item, oldPos );
-			if (oldPos > -1)
-				change.send( ListChange.removed( item, oldPos ) );
+			if (curPos == -1)	curPos = indexOf(item);
+			if (curPos == -1)	return item;
+			
+			beforeChange.send( ListChange.removed( item, curPos ) );
+			removeItem( item, curPos );
+			change.send( ListChange.removed( item, curPos ) );
 		}
 		return item;
 	}
@@ -172,6 +179,8 @@ class SimpleList < DataType > implements IEditableList < DataType >
 		
 		if (curPos != newPos)
 		{
+			beforeChange.send( ListChange.moved( item, newPos, curPos ) );
+
 			var cell = getCellAt( curPos );
 			removeCell( cell );
 			

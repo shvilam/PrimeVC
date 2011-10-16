@@ -36,6 +36,7 @@ package primevc.gui.behaviours.drag;
  import primevc.gui.traits.IDropTarget;
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
+  using primevc.utils.IfUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
  
@@ -54,6 +55,7 @@ class DragDropBehaviour extends DragBehaviourBase
 {
 //	private var copyTarget			: Bool;
 	private var moveBinding			: Wire < Dynamic >;
+	private var effectsEnabledValue	: Bool;
 	
 	
 /*	public function new (target, ?dragBounds, ?copyTarget = false)
@@ -74,7 +76,7 @@ class DragDropBehaviour extends DragBehaviourBase
 	override private function reset () : Void
 	{
 		super.reset();
-		if (moveBinding != null)
+		if (moveBinding.notNull())
 		{
 			moveBinding.dispose();
 			moveBinding	= null;
@@ -84,37 +86,48 @@ class DragDropBehaviour extends DragBehaviourBase
 	
 	override private function startDrag (mouseObj:MouseState) : Void
 	{
-		if (dragInfo != null)
+		if (dragInfo.notNull())
 		{
 			cancelDrag(mouseObj);
 			stopDrag(mouseObj);
 		}
 		
-		if (target.window == null)
+		if (target.window.isNull())
 			return;
 		
-	//	haxe.Log.clear();
 		dragInfo = target.createDragInfo();
-		if (dragInfo == null)
+		if (dragInfo.isNull())
 			return;
 		
+		// disable effects
+		if (target.is(IUIElement)) {
+			var t = target.as(IUIElement);
+			if (t.effects.notNull()) {
+				effectsEnabledValue = t.effects.enabled;	//store original value to resore after the drop
+				t.effects.enabled 	= false;
+			}
+		}
+
+		var pos 		= dragInfo.displayCursor.position;
 #if flash9
-		//move item to correct location
-		var pos				= target.container.as(IDisplayObject).localToGlobal( dragInfo.displayCursor.position );
-		var item			= dragInfo.dragRenderer;
-		item.visible		= false;
-		target.window.children.add( cast item );
-		
-		if (item.is(IUIElement))
-			item.as(IUIElement).doMove( pos.x.roundFloat(), pos.y.roundFloat() );
-		
-		item.x			= pos.x;
-		item.y			= pos.y;
-		item.visible	= true;
+		pos				= target.container.as(IDisplayObject).localToGlobal( pos );
 #end
+		var item		= dragInfo.dragRenderer;
+		item.visible 	= false;
+		target.window.children.add( cast item );
 		
 		//start dragging and fire events
 		super.startDrag(mouseObj);
+
+		//move item to mouse location
+		item.x = pos.x;
+		item.y = pos.y;
+		
+		if (item.is(IUIElement))
+			item.as(IUIElement).doMove(pos.x, pos.y);
+		
+		item.visible	= true;
+		
 		moveBinding.enable();
 	}
 	
@@ -127,17 +140,18 @@ class DragDropBehaviour extends DragBehaviourBase
 		//remove dragrenderer from displaylist
 		item.container.children.remove(item);
 		
-		if (dragInfo.dropTarget != null)
+		if (dragInfo.dropTarget.notNull())
 		{
 #if flash9
-			var b = dragInfo.dropBounds = dragInfo.layout.outerBounds;
+			var b = dragInfo.dropBounds = dragInfo.dragRectangle;		//dragInfo.layout.outerBounds;
 			
 			//adjust dropped x&y to the droptarget
 			var pos	= new Point( item.x, item.y );
-			pos		= dragInfo.dropTarget.container.globalToLocal(pos);
+			pos		= dragInfo.dropTarget.globalToLocal(pos);
 			b.left	= pos.x.roundFloat();
 			b.top	= pos.y.roundFloat();
 #end
+		//	dragInfo.dropBounds = dragInfo.dragRectangle;
 			//notify the dragged item that the drag-operation is completed
 			target.userEvents.drag.complete.send(dragInfo);
 			
@@ -153,6 +167,10 @@ class DragDropBehaviour extends DragBehaviourBase
 			target.userEvents.drag.cancel.send( dragInfo );
 			disposeDragInfo();
 		}
+
+		// re-enable effects
+		if (effectsEnabledValue && target.is(IUIElement))
+			target.as(IUIElement).effects.enable.onceOn( target.displayEvents.enterFrame, target );	// re-enable after it's layout is validated
 		
 		moveBinding.disable();
 		dragInfo = null;
@@ -175,10 +193,10 @@ class DragDropBehaviour extends DragBehaviourBase
 	{
 		var item = dragInfo.dragRenderer;
 		
-		if (item.dropTarget == null || !item.dropTarget.is(IDropTarget))
+		if (item.dropTarget.isNull() || !item.dropTarget.is(IDropTarget))
 		{
 			//if the dragged item is not on any dropTarget, stop checking
-			if (dragInfo.dropTarget == null || !item.isObjectOn( dragInfo.dropTarget ))
+			if (dragInfo.dropTarget.isNull() || !item.isObjectOn( dragInfo.dropTarget ))
 				dragInfo.dropTarget = null;
 			return;
 		}
@@ -186,11 +204,11 @@ class DragDropBehaviour extends DragBehaviourBase
 		var curDropTarget = item.dropTarget.as(IDropTarget);
 		
 		//make sure the new droptarget isn't the same as the previous droptarget
-		if (curDropTarget == dragInfo.dropTarget || curDropTarget == null)
+		if (curDropTarget == dragInfo.dropTarget || curDropTarget.isNull())
 			return;
 		
 		//check if the drag is allowed over the current dropTarget
-		if (curDropTarget.is(IDataDropTarget) && dragInfo.dataCursor != null)
+		if (curDropTarget.is(IDataDropTarget) && dragInfo.dataCursor.notNull())
 		{
 			var dataTarget = curDropTarget.as(IDataDropTarget);
 			if (dataTarget.isDataDropAllowed( cast dragInfo.dataCursor ))

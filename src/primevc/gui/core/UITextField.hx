@@ -38,6 +38,7 @@ package primevc.gui.core;
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.display.IDisplayContainer;
+ import primevc.gui.display.IInteractiveObject;
  import primevc.gui.display.TextField;
  import primevc.gui.effects.UIElementEffects;
  import primevc.gui.layout.ILayoutContainer;
@@ -45,6 +46,7 @@ package primevc.gui.core;
  import primevc.gui.managers.ISystem;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.states.UIElementStates;
+ import primevc.gui.traits.ITextStylable;
  import primevc.gui.traits.IValidatable;
  import primevc.types.Number;
   using primevc.gui.utils.UIElementActions;
@@ -62,6 +64,29 @@ package primevc.gui.core;
  */
 class UITextField extends TextField, implements IUIElement
 {
+	public static inline function createLabelField (id:String = null, data:Bindable<String> = null, owner:ITextStylable = null) : UITextField
+	{
+		var f = new UITextField( #if debug id #else null #end, true, data );	//FIXME: stylingEnabled doesn't always have to be true..
+#if flash9
+		f.autoSize		 = flash.text.TextFieldAutoSize.NONE;
+		f.selectable	 = false;
+		f.mouseEnabled	 = false;
+		f.tabEnabled	 = false;
+
+		if (owner != null) {
+			f.wordWrap	 = owner.wordWrap;
+			f.embedFonts = owner.embedFonts;
+
+			if (owner.textStyle != null)
+				f.textStyle = owner.textStyle;
+			
+			if (owner.is(IInteractiveObject))
+				f.respondToFocusOf( owner.as(IInteractiveObject) );
+		}
+#end	return f;
+	}
+
+
 	public var prevValidatable	: IValidatable;
 	public var nextValidatable	: IValidatable;
 	private var changes			: Int;
@@ -72,7 +97,10 @@ class UITextField extends TextField, implements IUIElement
 	public var layout			(default, null)					: LayoutClient;
 	public var system			(getSystem, never)				: ISystem;
 	public var state			(default, null)					: UIElementStates;
-	
+
+	private var validateWire	: Wire<Dynamic>;
+	private var updateSizeWire	: Wire<Dynamic>;
+
 #if flash9
 	public var style			(default, null)					: UIElementStyle;
 	public var styleClasses		(default, null)					: SimpleList<String>;
@@ -113,22 +141,25 @@ class UITextField extends TextField, implements IUIElement
 		if (isDisposed())
 			return;
 		
-		if (container != null)			detachDisplay();
-		if (layout.parent != null)		detachLayout();
+		if (updateSizeWire != null) 	{ updateSizeWire.dispose(); updateSizeWire = null; }
+		if (validateWire != null)		{ validateWire.dispose(); 	validateWire = null; }
+		if (container != null)			{ detachDisplay(); }
+		if (layout.parent != null)		{ detachLayout(); }
 		
 		//Change the state to disposed before the behaviours are removed.
 		//This way a behaviour is still able to respond to the disposed
 		//state.
 		state.current = state.disposed;
-		
 		removeValidation();
 		behaviours.dispose();
 		id.dispose();
 		state.dispose();
 		
-		if (layout != null)
+		if (layout != null) {
 			layout.dispose();
-		
+			layout = null;
+		}
+
 #if flash9
 		if (style != null && style.target == this)
 			style.dispose();
@@ -179,7 +210,7 @@ class UITextField extends TextField, implements IUIElement
 				if (hasEffect) {
 					visible = false;
 					if (!isInitialized()) 	haxe.Timer.delay( show, 100 ); //.onceOn( displayEvents.enterFrame, this );
-					else 					show();
+					else 					effects.playShow();
 				}
 			}
 		}
@@ -188,7 +219,7 @@ class UITextField extends TextField, implements IUIElement
 	}
 
 
-	public  inline function detach () : IUIElement
+	public  function detach () : IUIElement
 	{
 		if (effects != null && effects.isPlayingShow())
 			effects.show.stop();
@@ -200,9 +231,9 @@ class UITextField extends TextField, implements IUIElement
 		{
 			if (hasEffect) {
 				var eff = effects.hide;
-				layout.includeInLayout = false;
+			//	layout.includeInLayout = false;	@see UIComponent.detach
 				applyDetach.onceOn( eff.ended, this );
-				hide();
+				effects.playHide();
 			}
 			else
 				applyDetach();
@@ -221,6 +252,12 @@ class UITextField extends TextField, implements IUIElement
 	{
 		visible = true;
 		behaviours.init();
+
+		updateSizeWire	= updateSize.on( displayEvents.enterFrame, this );
+		validateWire 	= validate  .on( displayEvents.addedToStage, this );
+		updateSizeWire.disable();
+		validateWire  .disable();
+
 		validate();
 		removeValidation.on( displayEvents.removedFromStage, this );
 	//	applyTextFormat	.on( displayEvents.addedToStage, this );
@@ -272,7 +309,8 @@ class UITextField extends TextField, implements IUIElement
 	override private function applyTextFormat ()
 	{
 		super.applyTextFormat();
-		updateSize.onceOn( displayEvents.enterFrame, this );
+		if (updateSizeWire != null)
+			updateSizeWire.enable();
 	}
 	
 	
@@ -304,8 +342,6 @@ class UITextField extends TextField, implements IUIElement
 	// IPROPERTY-VALIDATOR METHODS
 	//
 	
-	private var validateWire : Wire<Dynamic>;
-	
 	public function invalidate (change:Int)
 	{
 		if (change != 0)
@@ -313,9 +349,8 @@ class UITextField extends TextField, implements IUIElement
 			changes = changes.set( change );
 			
 			if (changes == change && isInitialized())
-				if      (system != null)		system.invalidation.add(this);
-				else if (validateWire != null)	validateWire.enable();
-				else                            validateWire = validate.on( displayEvents.addedToStage, this );
+				if (system != null)		system.invalidation.add(this);
+				else					validateWire.enable();
 		}
 	}
 	
@@ -328,7 +363,7 @@ class UITextField extends TextField, implements IUIElement
 		if (changes.has( UIElementFlags.TEXTSTYLE ))
 			applyTextFormat();
 		
-		else if (changes.has( UIElementFlags.TEXT ))
+		else if (changes.has( UIElementFlags.TEXT ))	// only update size when the TextStyle hasn't changed, since changing the TextStyle will also cause the textfield to update it's size
 			updateSize();
 		
 		changes = 0;
@@ -373,8 +408,9 @@ class UITextField extends TextField, implements IUIElement
 	
 	private function updateSize ()
 	{
+		updateSizeWire.disable();
 #if flash9
-		if (autoSize == flash.text.TextFieldAutoSize.NONE)
+		if (autoSize == flash.text.TextFieldAutoSize.NONE) // && window != null && window.focus != this)
 			scrollH = 0;
 #end
 		layout.invalidatable = false;

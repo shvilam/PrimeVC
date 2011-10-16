@@ -47,7 +47,7 @@ private typedef Flags		= primevc.gui.core.UIElementFlags;
  */
 class InputField <VOType> extends DataButton <VOType>
 {
-	public var hasFocus			(default, null)	: Bool;
+	public var hasFocus				(default, null)			: Bool;
 	
 	/**
 	 * Method that should be injected into the InputField. The method is
@@ -58,9 +58,7 @@ class InputField <VOType> extends DataButton <VOType>
 	 * 		- the inputfield loses focus
 	 * 		- the user presses enter while the inputfield has focus
 	 */
-	public var updateVO			: Void -> Void;
-	private var fieldBinding	: Wire<Dynamic>;
-	
+	public var updateVO				(default, setUpdateVO)	: Void -> Void;
 	/**
 	 * @see flash.text.TextField#maxChars
 	 */
@@ -75,17 +73,18 @@ class InputField <VOType> extends DataButton <VOType>
 	 * Property is set by the InputFieldSkin
 	 */
 	public var field				(default, null)			: UITextField;
-	
+
+	private var fieldBinding		: Wire<Dynamic>;
 	
 	
 	public function new (id:String = null, defaultLabel:String = null, icon = null, vo:VOType = null)
 	{
+		super(id, defaultLabel, icon, vo);
 		var d = new DataType("");
 		d.dispatchAfterCommit();
 		d.updateAfterCommit();
-		data = d;
-		
-		super(id, defaultLabel, icon, vo);
+		data 		= d;
+		updateVO 	= doNothing;
 	}
 	
 	
@@ -94,9 +93,7 @@ class InputField <VOType> extends DataButton <VOType>
 		handleFocus	.on( userEvents.focus, this );
 		handleBlur	.on( userEvents.blur, this );
 		
-		Assert.notNull( updateVO, "You need to define a method to commit changes of the inputField" );
 		fieldBinding = updateVO.on( data.change, this );
-		
 		if (!hasFocus)
 			fieldBinding.disable();
 		
@@ -140,6 +137,18 @@ class InputField <VOType> extends DataButton <VOType>
 		}
 		return v;
 	}
+
+
+	private inline function setUpdateVO (v:Void -> Void)
+	{
+		if (v != updateVO)
+		{
+			updateVO = v == null ? doNothing : v;
+			if (fieldBinding != null)
+				fieldBinding.handler = updateVO;
+		}
+		return v;
+	}
 	
 	
 	
@@ -147,6 +156,8 @@ class InputField <VOType> extends DataButton <VOType>
 	// EVENT HANDLERS
 	//
 	
+	private function doNothing () { throw "You need to define a method 'updateVO' to commit changes of the inputField"; }
+
 	
 	private function handleFocus ()
 	{
@@ -155,8 +166,10 @@ class InputField <VOType> extends DataButton <VOType>
 		
 		hasFocus = true;
 		updateLabel();
-		if (data.value == defaultLabel)
+		if (data.value == defaultLabel) {
 			data.set("");
+			styleClasses.remove("empty");
+		}
 		
 		getRevertableData().beginEdit();
 		fieldBinding.enable();
@@ -169,15 +182,15 @@ class InputField <VOType> extends DataButton <VOType>
 			return;
 		
 	//	Assert.notNull( vo.value );
-		updateLabelBinding.disable();
 		fieldBinding.disable();
-		updateVO();
-
 		var d = getRevertableData();
 		if (d.isEditable())	// <-- not the case when cancelInput is called.
+		{
+			updateLabelBinding.disable();
+			updateVO();
 			d.commitEdit();
-		
-		updateLabelBinding.enable();
+			updateLabelBinding.enable();
+		}
 		
 		hasFocus = false;
 		updateLabel();
@@ -189,23 +202,9 @@ class InputField <VOType> extends DataButton <VOType>
 	 * focus.
 	 * Method is called From InputFieldSkin.
 	 */
-	public function applyInput ()
+	public function applyInput () if (hasFocus)
 	{
-		if (!hasFocus)
-			return;
-		
 		field.removeFocus();
-		return;
-		
-		/*updateLabelBinding.disable();
-		fieldBinding.disable();
-		
-		updateVO();
-		getRevertableData().commitEdit();
-		getRevertableData().beginEdit();
-		
-		fieldBinding.enable();
-		updateLabelBinding.enable();*/
 	}
 	
 	
@@ -214,11 +213,8 @@ class InputField <VOType> extends DataButton <VOType>
 	 * typed in stuff.
 	 * Method is called From InputFieldSkin.
 	 */
-	public function cancelInput ()
+	public function cancelInput () if (hasFocus)
 	{
-		if (!hasFocus)
-			return;
-		
 		getRevertableData().cancelEdit();
 		field.removeFocus();
 	}

@@ -71,16 +71,17 @@ class ArrayList <DataType> extends ReadOnlyArrayList <DataType>, implements IEdi
 	}
 	
 	
-	public function remove (item:DataType, oldPos:Int = -1) : DataType
+	public function remove (item:DataType, curPos:Int = -1) : DataType
 	{
-		if (oldPos == -1)
-			oldPos = list.indexOf(item);
+		if (curPos == -1)
+			curPos = list.indexOf(item);
 		
-		if (oldPos > -1) {
-			var msg = ListChange.removed( item, oldPos );
+		if (curPos > -1)
+		{
+			var msg = ListChange.removed( item, curPos );
 			beforeChange.send( msg );
-			if (list.removeAt(oldPos))
-				change.send( msg );
+			list.removeAt(curPos);
+			change.send(msg);
 		}
 		return item;
 	}
@@ -91,7 +92,7 @@ class ArrayList <DataType> extends ReadOnlyArrayList <DataType>, implements IEdi
 		if		(curPos == -1)				curPos = list.indexOf(item);
 		if		(newPos > (length - 1))		newPos = length - 1;
 		else if (newPos < 0)				newPos = length - newPos;
-		
+
 		if (curPos != newPos) {
 			var msg = ListChange.moved( item, newPos, curPos );
 			beforeChange.send( msg );

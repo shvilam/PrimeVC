@@ -71,7 +71,7 @@ class StyleState implements IDisposable
 	}
 	
 	
-	private inline function setCurrent (v:Int) : Int
+	private function setCurrent (v:Int) : Int
 	{
 		if (v != current)
 		{
@@ -92,7 +92,7 @@ class StyleState implements IDisposable
 			if (current != 0)
 				changes = changes.set( setStyles() );
 			
-		//	trace("setCurrentState "+v+"; all-states: "+elementStyle.readStates()+"; changedProperties "+elementStyle.readProperties(changes));
+		//	trace(elementStyle.target+"setCurrentState "+v+"; all-states: "+elementStyle.readStates()+"; changedProperties "+elementStyle.readProperties(changes));
 			elementStyle.broadcastChanges( changes );
 		}
 		return v;

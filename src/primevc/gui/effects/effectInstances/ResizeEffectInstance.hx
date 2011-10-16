@@ -32,6 +32,7 @@ package primevc.gui.effects.effectInstances;
  import primevc.gui.traits.ISizeable;
  import primevc.types.Number;
   using primevc.utils.NumberUtil;
+  using Std;
 
 
 /**
@@ -91,19 +92,26 @@ class ResizeEffectInstance extends EffectInstance < ISizeable, ResizeEffect >
 	
 	override private function initStartValues ()
 	{
-		if (effect.startW.isSet())	startW = effect.startW;
-		else						startW = target.width;
-		if (effect.startH.isSet())	startH = effect.startH;
-		else						startH = target.height;
+		var e = effect, t = target;
+		if (startW.notSet()) {
+			if (e.startW.isSet())	startW = e.startW.int();
+			else					startW = t.width;
+		}
+		if (startH.notSet()) {
+			if (e.startH.isSet())	startH = e.startH.int();
+			else					startH = t.height;
+		}
 		
-		target.rect.width	= startW;
-		target.rect.height	= startH;
-		target.visible		= true;
+		t.rect.width	= startW.int();
+		t.rect.height	= startH.int();
+	//	trace(target+"; "+startW+", "+startH+" => "+endW+", "+endH);
+	//	t.visible		= true;		no visible property in IDisplayable
 	}
 	
 
 	override private function tweenUpdater ( tweenPos:Float )
 	{
+	//	Assert.notNull(target.rect+"; "+tweenPos+"; target "+target+"; "+startW+" -> "+endW+"; "+startH+" -> "+endH);
 		if (isWChanged())	target.rect.width	= (( endW * tweenPos ) + ( startW * (1 - tweenPos) )).roundFloat();
 		if (isHChanged())	target.rect.height	= (( endH * tweenPos ) + ( startH * (1 - tweenPos) )).roundFloat();
 	}
