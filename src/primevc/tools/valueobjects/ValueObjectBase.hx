@@ -34,6 +34,7 @@ package primevc.tools.valueobjects;
  import primevc.core.RevertableBindableFlags;
   using primevc.utils.BitUtil;
   using primevc.utils.IfUtil;
+  using primevc.utils.TypeUtil;
 
 
 private typedef Flags = RevertableBindableFlags;
@@ -148,6 +149,23 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 		Assert.that( isEditable(), this + "; flags: "+_flags );
 		_flags			= _flags.unset( Flags.IN_EDITMODE );
 		_changedFlags	= 0;
+	}
+
+
+	//FIXME: Define different ValueObjectBase for the viewer (without ObjectChangeSet's)
+	public static inline function addChangeListener (vo:IValueObject, owner:Dynamic, handler:ObjectChangeSet->Void)
+	{
+		Assert.that(vo.is(ValueObjectBase));
+		vo.as(ValueObjectBase).change.bind(owner, handler);
+	}
+
+
+
+	//FIXME: Define different ValueObjectBase for the viewer
+	public static inline function removeChangeListener (vo:IValueObject, owner:Dynamic)
+	{
+		Assert.that(vo.is(ValueObjectBase));
+		vo.as(ValueObjectBase).change.unbind(owner);
 	}
 	
 /*

@@ -91,7 +91,7 @@ class DataButton <DataType> extends Button, implements IItemRenderer <DataType>
 	}
 	
 	
-	public inline function updateLabel ()
+	public function updateLabel ()
 	{
 		var v 		= vo.value;
 		var oldVal  = data.value;

@@ -35,8 +35,7 @@ package primevc.gui.components;
   using primevc.utils.TypeUtil;
 
 
-private typedef DataType	= RevertableBindable<String>;
-private typedef Flags		= primevc.gui.core.UIElementFlags;
+private typedef Flags = primevc.gui.core.UIElementFlags;
 
 
 /**
@@ -79,11 +78,12 @@ class InputField <VOType> extends DataButton <VOType>
 	
 	public function new (id:String = null, defaultLabel:String = null, icon = null, vo:VOType = null)
 	{
-		super(id, defaultLabel, icon, vo);
-		var d = new DataType("");
+		var d = new RevertableBindable<String>("");
 		d.dispatchAfterCommit();
 		d.updateAfterCommit();
 		data 		= d;
+
+		super(id, defaultLabel, icon, vo);
 		updateVO 	= doNothing;
 	}
 	
@@ -111,8 +111,8 @@ class InputField <VOType> extends DataButton <VOType>
 	}
 	
 	
-	private inline function getRevertableData ()	{ return data.as(DataType); }
-	
+	private inline function getRevertableData ()	return cast( data, RevertableBindable<String>)
+
 	
 	//
 	// SETTERS

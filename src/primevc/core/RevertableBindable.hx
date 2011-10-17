@@ -92,6 +92,7 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 	{
 		var f = flags;
 		
+#if debug Assert.that(f.has(Flags.IN_EDITMODE), this+" should be editable to change "+this.value+" into "+newV); #end
 		if (f.hasNone(Flags.IN_EDITMODE) || newV == this.value) return newV;
 		
 		if (!isChanged()) {
