@@ -96,7 +96,7 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 		if (f.hasNone(Flags.IN_EDITMODE) || newV == this.value) return newV;
 		
 		if (!isChanged()) {
-			markChanged();
+			f = f.unset(  Flags.MAKE_SHADOW_COPY );
 		//	trace("Saving shadow copy: "+value+", before changing to:"+newV);
 			shadowValue = value;
 		}
@@ -134,10 +134,7 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 	public  inline function dispatchAfterCommit () : Void	{ flags = flags.unset( Flags.DISPATCH_CHANGES_BEFORE_COMMIT );  }
 	public  inline function updateBeforeCommit () : Void	{ flags = flags.set(   Flags.UPDATE_BINDINGS_BEFORE_COMMIT );  }
 	public  inline function updateAfterCommit () : Void		{ flags = flags.unset( Flags.UPDATE_BINDINGS_BEFORE_COMMIT );  }
-
-	private inline function markChanged () : Void			{ flags = flags.set(   Flags.MAKE_SHADOW_COPY );  }
-	private inline function markUnchanged () : Void			{ flags = flags.unset( Flags.MAKE_SHADOW_COPY );  }
-	private inline function isChanged () : Bool 			{ return  flags.hasNone(RevertableBindableFlags.MAKE_SHADOW_COPY); }
+	public  inline function isChanged () : Bool 			{ return  flags.hasNone(Flags.MAKE_SHADOW_COPY ); }
 
 
 
@@ -152,15 +149,15 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 	public inline function beginEdit()
 	{
 		// Only set MAKE_SHADOW_COPY if IN_EDITMODE is not set
-		Assert.that(Flags.IN_EDITMODE << 11 == RevertableBindableFlags.MAKE_SHADOW_COPY);
-		flags = flags.set( (((flags & Flags.IN_EDITMODE) << 11) ^ RevertableBindableFlags.MAKE_SHADOW_COPY) | Flags.IN_EDITMODE );
+		Assert.that(Flags.IN_EDITMODE << 11 == Flags.MAKE_SHADOW_COPY);
+		flags = flags.set( (((flags & Flags.IN_EDITMODE) << 11) ^ Flags.MAKE_SHADOW_COPY) | Flags.IN_EDITMODE );
 	}
 	
 
 	/**
 	 * Finishes edit-mode and propagates the new value if needed.
 	 */
-	public inline function commitEdit()
+	public /*inline*/ function commitEdit()
 	{
 		if (isEditable())
 		{
@@ -182,7 +179,7 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 	/**
 	 * Discards the new value and finishes edit-mode.
 	 */
-	public inline function cancelEdit()
+	public /*inline*/ function cancelEdit()
 	{
 		if (isEditable())
 		{
@@ -195,8 +192,8 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 	
 	
 #if debug
-	public function readFlags () : String {
-		return Flags.readProperties( flags );
+	public function readFlags (f:Int = -1) : String {
+		return Flags.readProperties( f == -1 ? flags : f );
 	}
 #end
 }
