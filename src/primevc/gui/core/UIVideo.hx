@@ -35,7 +35,6 @@ package primevc.gui.core;
  import primevc.core.media.VideoStream;
  import primevc.core.states.MediaStates;
  import primevc.core.Bindable;
- import primevc.core.IBindable;
  
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;

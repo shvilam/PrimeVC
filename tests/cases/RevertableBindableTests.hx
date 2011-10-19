@@ -115,7 +115,7 @@ class RevertableBindableTests extends haxe.unit.TestCase
 	
 	function test_SignalDispatchingFlags()
 	{
-		var check = checkFunction(RevertableBindableFlags.shouldSignal);
+		var check = checkFunction(shouldSignal);
 		
 		
 		check(IS_VALID /* && not IN_EDITMODE */, true);
@@ -141,7 +141,7 @@ class RevertableBindableTests extends haxe.unit.TestCase
 	
 	function test_BindingDispatchingFlags()
 	{
-		var check = checkFunction(RevertableBindableFlags.shouldUpdateBindings);
+		var check = checkFunction(shouldUpdateBindings);
 		
 		
 		check(IS_VALID /* && not IN_EDITMODE */, true);
@@ -164,6 +164,9 @@ class RevertableBindableTests extends haxe.unit.TestCase
 		print("\n-- You should recompile in debug mode...\n");
 		#end
 	}
+
+	function shouldSignal 			(flags:Int)		return RevertableBindableFlags.shouldSignal(flags)				// couldn't be called directly since it's inline
+	function shouldUpdateBindings 	(flags:Int)		return RevertableBindableFlags.shouldUpdateBindings(flags)		// couldn't be called directly since it's inline
 	
 	static function checkFunction(fn)
 	 	return function(flags:Int, expected:Bool)
