@@ -273,6 +273,9 @@ interface ILayoutClient
 	
 	public function hasMaxWidth () : Bool;
 	public function hasMaxHeight () : Bool;
+
+	public function invalidateHorPaddingMargin () : Void;
+	public function invalidateVerPaddingMargin () : Void;
 	
 #if debug
 	public var name:String;

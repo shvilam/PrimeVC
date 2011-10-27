@@ -264,24 +264,25 @@ class LayoutClient extends Invalidatable
 	override public function invalidate (change:Int)
 	{
 		var oldChanges = changes;
-		changes = changes.set(change);
+		changes 	   = changes.set(change);
 		if (changes == oldChanges)
 			return;
 		
-		invalidateLayout();
+		if (invalidatable && isChanged())
+			invalidateLayout();
 	}
 	
 	
 	private function invalidateLayout ()
 	{
-		if (!invalidatable || changes == 0 || state == null || state.current == null)
-			return;
-		
-		if (includeInLayout && parent != null)
-			super.invalidate(changes);
-		
-		if (state.is(ValidateStates.validated))
-			state.current = (includeInLayout && parent != null && parent.isInvalidated()) ? ValidateStates.parent_invalidated : ValidateStates.invalidated;
+		if (state != null && state.current != null)
+		{
+			if (includeInLayout && parent != null && !parent.isInvalidated())
+				super.invalidate(changes);
+			
+			if (state.is(ValidateStates.validated))
+				state.current = (includeInLayout && parent != null && parent.isInvalidated()) ? ValidateStates.parent_invalidated : ValidateStates.invalidated;
+		}
 	}
 	
 	
@@ -303,12 +304,12 @@ class LayoutClient extends Invalidatable
 	
 	public function validateHorizontal ()
 	{
-		if (changes > 0)
+		if (isChanged())
 		{
 		//	if (changes.has( Flags.PADDING | Flags.MARGIN ))
 		//		updateAllWidths(width, true);
 			
-#if debug	Assert.notEqual( state.current, ValidateStates.validated, name+"; "+readChanges() ); #end
+#if debug	if (invalidatable) { Assert.notEqual( state.current, ValidateStates.validated, name+"; "+readChanges()+"; invalidatable? "+invalidatable+"; hasValidatedW: "+hasValidatedWidth ); } #end
 			state.current = ValidateStates.validating;
 			hasValidatedWidth = true;
 		}
@@ -318,12 +319,12 @@ class LayoutClient extends Invalidatable
 	
 	public function validateVertical ()
 	{
-		if (changes > 0)
+		if (isChanged())
 		{
 		//	if (changes.has( Flags.PADDING | Flags.MARGIN ))
 		//		updateAllHeights(height, true);
 			
-#if debug	Assert.notEqual( state.current, ValidateStates.validated, name+"; "+readChanges() ); #end
+#if debug	if (invalidatable) { Assert.notEqual( state.current, ValidateStates.validated, name+"; "+readChanges() ); } #end
 			state.current = ValidateStates.validating;
 			hasValidatedHeight = true;
 		}
@@ -347,7 +348,8 @@ class LayoutClient extends Invalidatable
 			changed.send( lastChanges );
 	}
 	
-	
+
+	public inline function isChanged ()		{ return changes > 0; }
 	public inline function isValidated ()	{ return state.is(ValidateStates.validated); }
 	public inline function isValidating ()	{ return state == null ? false : state.is(ValidateStates.validating) || (parent != null && parent.isValidating()); }
 	public inline function isInvalidated ()	{ return state == null ? false : state.is(ValidateStates.invalidated) || state.is(ValidateStates.parent_invalidated); }
@@ -928,7 +930,7 @@ class LayoutClient extends Invalidatable
 			updateInnerBounds();
 			updateOuterBounds();
 			
-			invalidate( Flags.SIZE | Flags.POSITION );
+			invalidate( Flags.SIZE | Flags.POSITION | Flags.PADDING );
 		}
 		return v;
 	}
@@ -1023,15 +1025,23 @@ class LayoutClient extends Invalidatable
 	}
 	
 	
-	private inline function setInvalidatable (v:Bool)
+	/**
+	 * changed flags that where invalidated before the value was set to falsee
+	 */
+	private var oldChanges : Int;
+
+
+	private /*inline*/ function setInvalidatable (v:Bool)
 	{
 		if (v != invalidatable)
 		{
 			invalidatable = v;
 			
 			//broadcast queued changes?
-			if (v && changes > 0)
+			if (v && isChanged() && oldChanges != changes)
 				invalidateLayout();
+			if (!v)
+				oldChanges = changes;
 		}
 		return v;
 	}

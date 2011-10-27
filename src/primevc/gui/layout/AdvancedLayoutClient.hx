@@ -189,7 +189,7 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	}
 	
 	
-	private inline function setMeasuredWidth (v:Int)
+	private function setMeasuredWidth (v:Int)
 	{
 		if (measuredWidth != v)
 		{
@@ -203,7 +203,7 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	}
 	
 	
-	private inline function setMeasuredHeight (v:Int)
+	private function setMeasuredHeight (v:Int)
 	{
 		if (measuredHeight != v)
 		{

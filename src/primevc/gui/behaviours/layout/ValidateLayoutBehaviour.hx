@@ -158,7 +158,8 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 		var l = target.layout;
 		
 	//	if (changes.has( LayoutFlags.SIZE | LayoutFlags.POSITION ))
-	//	trace(target+"; oldPos: "+target.x+", "+target.y+"; newPos: "+l.getHorPosition()+", "+l.getVerPosition()+"; newSize: "+l.innerBounds.width+", "+l.innerBounds.height+"; "+changes.has( LayoutFlags.POSITION )+"; "+changes.has( LayoutFlags.SIZE )+"; margin: "+l.margin+"; padding: "+l.padding+"; measured: "+(untyped l).measuredWidth+", "+(untyped l).measuredHeight+"; explicit: "+(untyped l).explicitWidth+", "+(untyped l).explicitHeight);
+	//	trace(target+"; oldPos: "+target.x+", "+target.y+"; newPos: "+l.getHorPosition()+", "+l.getVerPosition()+"; "+changes.has( LayoutFlags.POSITION )+"; margin: "+l.margin+"; padding: "+l.padding);
+	//	trace(target+"; oldSize: "+target.rect.width+", "+target.rect.height+"; newSize: "+l.innerBounds.width+", "+l.innerBounds.height+"; "+changes.has( LayoutFlags.SIZE )+"; measured: "+(untyped l).measuredWidth+", "+(untyped l).measuredHeight+"; explicit: "+(untyped l).explicitWidth+", "+(untyped l).explicitHeight);
 		
 		if (changes.has( LayoutFlags.POSITION ))
 		{
