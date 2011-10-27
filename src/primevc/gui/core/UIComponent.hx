@@ -158,17 +158,19 @@ class UIComponent extends Sprite, implements IUIComponent
 	//	Assert.notNull(container, "Container can't be null for "+this);
     //  if (_behaviours != null)
     //      _behaviours.init();
-		behaviours.init();
 		
+		layout.invalidatable = false;
 		if (skin != null)
 			skin.createChildren();
 		
 		//create the children of this component after the skin has created it's children
 		createChildren();
+		behaviours.init();
 		
 		//notify the skin that the children of the UIComponent are created
 		if (skin != null)
 			skin.childrenCreated();
+		layout.invalidatable = true;
 		
 		validateWire = validate.on( displayEvents.addedToStage, this );
 		validateWire.disable();

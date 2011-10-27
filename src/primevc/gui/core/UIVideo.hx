@@ -126,7 +126,8 @@ class UIVideo extends Video, implements IUIElement
 		behaviours.add( new ValidateLayoutBehaviour(this) );
 		
 		createBehaviours();
-		createLayout();
+		if (layout == null)
+			layout = new AdvancedLayoutClient();
 		
 		state.current = state.constructed;
 	}
@@ -196,12 +197,6 @@ class UIVideo extends Video, implements IUIElement
 		removeValidation.on( displayEvents.removedFromStage, this );
 		
 		state.current = state.initialized;
-	}
-
-
-	private function createLayout () : Void
-	{
-		layout = new AdvancedLayoutClient();
 	}
 	
 	

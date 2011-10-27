@@ -165,12 +165,14 @@ class UIWindow extends Window
 	
 	private function init ()
 	{
+		layout.invalidatable = false;
 		behaviours.init();
 		createChildren();
 
 #if (flash9 && stats)
 		children.add( new Stats() );
 #end
+		layout.invalidatable = true;
 	}
 
 
@@ -215,11 +217,16 @@ class UIWindow extends Window
 		topLayout	=	#if flash9	new primevc.avm2.layout.StageLayout( target );
 						#else		new LayoutContainer();	#end
 		
-		topLayout.children.add( layout		= new VirtualLayoutContainer( #if debug "contentLayout" #end ) );
-		topLayout.children.add( popupLayout	= new VirtualLayoutContainer( #if debug "popupLayout" #end ) );
+		layout		= new VirtualLayoutContainer( #if debug "contentLayout" #end );
+		popupLayout	= new VirtualLayoutContainer( #if debug "popupLayout" #end );
+		layout.invalidatable 	= popupLayout.invalidatable = false;
 		
 		popupLayout.algorithm	= new RelativeAlgorithm();
 		layout.percentWidth		= layout.percentHeight = popupLayout.percentWidth = popupLayout.percentHeight = 1.0;
+		layout.invalidatable 	= popupLayout.invalidatable = true;
+
+		topLayout.children.add( layout );
+		topLayout.children.add( popupLayout );
 	//	layoutContainer.algorithm = new RelativeAlgorithm();
 	}
 	
@@ -243,6 +250,20 @@ class UIWindow extends Window
 	public inline function attach (child:IUIElement) : UIWindow
 	{
 		child.attachLayoutTo( layoutContainer ).attachToDisplayList( this );
+		return this;
+	}
+
+
+	public inline function attachDisplay (child:IUIElement) : UIWindow
+	{
+		child.attachToDisplayList( this );
+		return this;
+	}
+
+
+	public inline function attachLayout (layout:LayoutClient) : UIWindow
+	{
+		layoutContainer.attach( layout );
 		return this;
 	}
 	
