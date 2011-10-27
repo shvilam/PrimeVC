@@ -264,9 +264,13 @@ class GraphicsStyle extends StyleSubBlock
 	
 	private function getSkin ()
 	{
-		var v = _skin;
-		if (v == null && extendedStyle != null)		v = extendedStyle.skin;
-		if (v == null && superStyle != null)		v = superStyle.skin;
+		//if the skin flag is set, the property is allowed to be null (skin: 'none')
+		var v:Skin = null;
+		if (owns( Flags.SKIN ))							v = _skin
+		 else {
+			if 		(extendedStyle != null)				v = extendedStyle.skin;
+			else if (v == null && superStyle != null)	v = superStyle.skin;
+		}
 		return v;
 	}
 	

@@ -90,7 +90,7 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 	}
 	
 	
-	private function markProperty ( propFlag:Int, isSet:Bool ) : Void
+	public function markProperty ( propFlag:Int, isSet:Bool ) : Void
 	{
 		if (isSet)	filledProperties = filledProperties.set( propFlag );
 		else		filledProperties = filledProperties.unset( propFlag );
@@ -102,7 +102,9 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 		else		updateAllFilledPropertiesFlag();
 		
 	//	trace("markProperty "+readProperties(propFlag)+" = "+isSet);
+#if !neko
 		invalidate( propFlag );
+#end
 	}
 	
 	

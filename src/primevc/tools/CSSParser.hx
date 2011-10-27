@@ -2720,10 +2720,11 @@ class CSSParser
 	private function parseAndSetLayoutAlgorithm (v:String) : Void
 	{
 		var info:Factory<ILayoutAlgorithm> = new Factory();
-		var v = v.trim().toLowerCase();
+		var v 		= v.trim().toLowerCase();
+		var setFlag = false; 	// for parser to set the algorithm flag in layout object
 		
 		if		(v == "relative")			info.classRef = RelativeAlgorithm.getClassName();
-		else if	(v == "none")				info.classRef = null;						//FIXME -> none and inherit are the same now. none is not implemented yet..
+		else if	(v == "none")			{	info.classRef = null; setFlag = true; }						//FIXME -> none and inherit are the same now. none is not implemented yet..
 		else if	(v == "inherit")			info.classRef = null;
 		else if (v == "tile")				info.classRef = SimpleTileAlgorithm.getClassName();
 		
@@ -2822,12 +2823,15 @@ class CSSParser
 			}
 		}
 		
-		
 		//insert the found algorithm in the layout-style-block
 		if (info != null && !info.isEmpty())
 		{
 			createLayoutBlock();
 			currentBlock.layout.algorithm = info;
+		}
+		if (setFlag) {
+			createLayoutBlock();
+			currentBlock.layout.markProperty( primevc.gui.styling.LayoutStyleFlags.ALGORITHM, true );
 		}
 	}
 	
@@ -3422,6 +3426,8 @@ class CSSParser
 	{
 		if (isClassReference(v))
 			createGraphicsBlock().skin = parseClassReference(v);
+		else if (isNone(v))
+			createGraphicsBlock().markProperty( primevc.gui.styling.GraphicFlags.SKIN, true );
 	}
 	
 	

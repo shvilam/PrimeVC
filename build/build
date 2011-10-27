@@ -118,7 +118,6 @@ else
 	bash build/build-styles -s "${STYLEDIR}" ${Debug:+-d} ${Force:+-f} || exit 1;
 
 	echo -e "\n3. COMPILING SWF"
-#	echo -e "\t\tbuild/build.hxml ${Debug:---no-traces} \n\t\t\t-swf \042$OUTPUT\042 \n\t\t\t-cp \042$PRJROOT/src\042 \n\t\t\t-cp \042$STYLEDIR\042 ${EXTRA:+\n\t\t\t}$EXTRA \n\t\t\t-cp \042$PRJROOT/shared/generated-src/haxe\042 \n\t\t\t-main $MainClass \n\t\t\t-swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR \n\t\t\t${ASSETS:+-swf-lib} $ASSETS \n\t\t\t-swf-lib \042assets/${Debug:+debug-}assets.swf\042" &&
 	echo build/build.hxml \
 		-swf "'$OUTPUT'" \
 		${Debug:---no-traces --dead-code-elimination --macro Undead.keepAlive()} \
