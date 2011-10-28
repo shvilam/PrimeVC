@@ -266,8 +266,8 @@ class GraphicsStyle extends StyleSubBlock
 	{
 		//if the skin flag is set, the property is allowed to be null (skin: 'none')
 		var v:Skin = null;
-		if (owns( Flags.SKIN ))							v = _skin
-		 else {
+		if (owns( Flags.SKIN ))							v = _skin;
+		else {
 			if 		(extendedStyle != null)				v = extendedStyle.skin;
 			else if (v == null && superStyle != null)	v = superStyle.skin;
 		}
@@ -340,9 +340,13 @@ class GraphicsStyle extends StyleSubBlock
 
 	private function getOverflow ()
 	{
-		var v = _overflow;
-		if (v == null && extendedStyle != null)		v = extendedStyle.overflow;
-		if (v == null && superStyle != null)		v = superStyle.overflow;
+		//if the overflow flag is set, the property is allowed to be null (overflow: 'visible')
+		var v:Overflow = null;
+		if (owns( Flags.OVERFLOW ))						v = _overflow;
+		else {
+			if 		(extendedStyle != null)				v = extendedStyle.overflow;
+			else if (v == null && superStyle != null)	v = superStyle.overflow;
+		}
 		return v;
 	}
 	

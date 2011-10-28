@@ -1,27 +1,27 @@
 @import url('BasicStyle.css');
 @manifest url('TestManifest.xml');
 
-ComponentsTest	{ algorithm: float-ver(top, center); }
-UIComponent		{ h-center: 0px;}
+ComponentsTest	{ algorithm: float-ver(top, center); overflow: scrollbars; max-height: 100%; }
+/*UIComponent		{ h-center: 0px; }*/
 
-InputField		{ margin: 10px 0px; padding: 5px; min-width: 100px; border: 1px solid #000; background: #00a; color: #fff; font-weight: bold; }
-Label			{ margin: 10px 0px; background: #050; color: #fff; }
-Button			{ margin: 10px 0px; background: #aaa; padding: 5px; skin: Class( primevc.gui.components.skins.ButtonLabelSkin ); }
+InputField		{ margin: 10px; padding: 5px; min-width: 100px; border: 1px solid #000; background: #aaf; color: #000; font-weight: bold; icon: url(images/checkmark8x8.png); }
+Label			{ margin: 10px; background: #fcf; color: #000; padding: 5px; }
+Button			{ margin: 10px; background: #aaa; padding: 5px; skin: Class( primevc.gui.components.skins.ButtonLabelSkin ); }
 /*Button:hover	{ font-weight: bold; font: "Courier New"; }
 Button:down		{ font: "Courier New"; text-decoration: underline; }*/
 Image			{ max-height: 200px; max-width: 100px; }
 Slider			{ margin: 10px 0px; background: #aaa; }
-.horizontalSlider UIGraphic	{ background: #000; }
-.verticalSlider UIGraphic	{ background: #000; }
 
-.comboList			{ top: 30px; }
-.comboList ListView Button {
+
+
+.comboList		{ top: 30px; }
+.comboList SelectableListView {
+	padding: 0px;
+	margin-bottom: 10px;
+}
+.comboList SelectableListView Button {
 	color: #000;
-	/*padding: 4px 4px 4px 20px;*/
 	padding: 4px 4px 4px 0px;
-	margin: 0px;
-	min-width: 100%;
-	width: 100%;
 	background: #00000000;
 }
 
@@ -32,7 +32,7 @@ Slider			{ margin: 10px 0px; background: #aaa; }
 .comboList ListView Button:selected {
 	background: #000;
 	color: #fff;
-	icon: url(checkmark8x8.png);
+	icon: url(images/checkmark8x8.png);
 	icon-fill: #fff;
 }
 .comboList ListView Button Image {
@@ -40,6 +40,15 @@ Slider			{ margin: 10px 0px; background: #aaa; }
 	width: 8px;
 	margin: 3px 6px;
 }
+
+
+
+.horizontalSlider 	{ width: 200px; }
+.verticalSlider 	{ height: 70px; }
+.horizontalSlider UIGraphic	{ background: #900; }
+.verticalSlider UIGraphic	{ background: #090; }
+
+
 
 .verticalScrollBar {
 	width: 13px;
@@ -107,3 +116,19 @@ ProgressBar:error #indicator {
 ProgressBar:completed #indicator {
 	background: linear-gradient( 90deg, #b4e391 0%, #61c419 50%, #b4e391 100% );
 }
+
+.empty {
+	font-style: italic;
+}
+
+#fixedInput 	{ width: 150px; }
+#fixedLabel 	{ width: 150px; }
+#fixedButton 	{ width: 150px; }
+#dynInput 		{ min-width: 50px; }
+#dynLabel 		{ min-width: 50px; }
+/*#dynButton 	{ min-width: 50px; }*/
+
+#fixedTextArea1 { width: 200px; height: 100px; }
+#fixedTextArea2 { height: 100px; max-width: 300px; }
+#fixedTextArea3 { width: 200px; max-height: 150px; }
+#dynTextArea	{ min-width: 100px; min-height: 60px; max-height: 150px; }

@@ -103,6 +103,7 @@ package primevc.tools;
  import primevc.gui.styling.FilterCollectionType;
  import primevc.gui.styling.FiltersStyle;
  import primevc.gui.styling.TextStyle;
+ import primevc.gui.styling.GraphicFlags;
  import primevc.gui.styling.GraphicsStyle;
  import primevc.gui.styling.LayoutStyle;
  import primevc.gui.styling.StatesStyle;
@@ -3427,7 +3428,7 @@ class CSSParser
 		if (isClassReference(v))
 			createGraphicsBlock().skin = parseClassReference(v);
 		else if (isNone(v))
-			createGraphicsBlock().markProperty( primevc.gui.styling.GraphicFlags.SKIN, true );
+			createGraphicsBlock().markProperty( GraphicFlags.SKIN, true );
 	}
 	
 	
@@ -3477,18 +3478,21 @@ class CSSParser
 	 */
 	private function parseAndSetOverflow (v:String) : Void
 	{
-		var className = switch (v.trim().toLowerCase()) {
-			case "hidden":				ClippedLayoutBehaviour.getClassName();
-			case "scroll-mouse-move":	MouseMoveScrollBehaviour.getClassName();
-			case "drag-scroll":			DragScrollBehaviour.getClassName();
-			case "corner-scroll":		CornerScrollBehaviour.getClassName();
-			case "scrollbars":			ShowScrollbarsBehaviour.getClassName();
-			/*case "visible":*/
-			default:					UnclippedLayoutBehaviour.getClassName();
+		var setFlag = false, className = null;
+		switch (v.trim().toLowerCase()) {
+			case "hidden":				className = ClippedLayoutBehaviour.getClassName();
+			case "scroll-mouse-move":	className = MouseMoveScrollBehaviour.getClassName();
+			case "drag-scroll":			className = DragScrollBehaviour.getClassName();
+			case "corner-scroll":		className = CornerScrollBehaviour.getClassName();
+			case "scrollbars":			className = ShowScrollbarsBehaviour.getClassName();
+			case "visible":				setFlag   = true;
+			default:					throw "unkown overflow"; //className = UnclippedLayoutBehaviour.getClassName();
 		};
 		
 		if (className != null)
 			createGraphicsBlock().overflow = new Factory1(className, [], ["a"], v.trim());
+		else if (setFlag)
+			createGraphicsBlock().markProperty( GraphicFlags.OVERFLOW, true );
 	}
 	
 	
