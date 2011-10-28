@@ -99,7 +99,7 @@ class DataButton <DataType> extends Button, implements IItemRenderer <DataType>
 		//don't use data.value ==> if data is a RevertableBindable, updating the label won't cause any errors
 		var newVal = v != null ? (getLabelForVO == null ? ""+v : getLabelForVO(v)) : null;
 
-		if (newVal == null)
+		if (newVal == null || newVal == "")		//FIXME: is "" a correct value to apply the defaultLabel??
 			newVal = defaultLabel;
 		data.set(newVal);
 

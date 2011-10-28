@@ -27,8 +27,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.components;
+ import primevc.core.dispatcher.Wire;
  import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.components.Label;
+ import primevc.gui.core.UIComponent;
+ import primevc.gui.core.UITextField;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.states.ValidateStates;
@@ -43,88 +45,88 @@ package primevc.gui.behaviours.components;
  * @author Ruben Weijers
  * @creation-date Nov 01, 2010
  */
-class LabelLayoutBehaviour extends BehaviourBase < Label > // extends ValidatingBehaviour < Label >, implements IPropertyValidator
+class LabelLayoutBehaviour extends BehaviourBase < UITextField > // extends ValidatingBehaviour < Label >, implements IPropertyValidator
 {
+	/**
+	 * UIComponent that contains the UITextField
+	 */
+	private var owner 			: UIComponent;
+	private var updateOwner 	: Wire<Dynamic>;
+	private var updateField 	: Wire<Dynamic>;
+
+
 	override private function init ()
 	{
-		if ( target.state.current != target.state.initialized )
-			setEventHandlers.onceOn( target.state.initialized.entering, this );
-		else
-			setEventHandlers();
-	}
-	
-	
-	private function setEventHandlers ()
-	{
-		updateFieldSize	.on( target.layout.changed, this );
-		updateLabelSize	.on( target.field.layout.changed, this );
-	//	trace("end");
-		updateLabelSize( LayoutFlags.WIDTH_PROPERTIES | LayoutFlags.HEIGHT_PROPERTIES | LayoutFlags.PADDING );
+		Assert.that( target.container.is(UIComponent));
+		Assert.that( target.container.as(UIComponent).layout.is(AdvancedLayoutClient));
+
+		owner 		= target.container.as(UIComponent);
+		updateField = updateFieldSize	.on( owner .layout.changed, this );
+		updateOwner = updateOwnerSize	.on( target.layout.changed, this );
+
+		updateOwnerSize( LayoutFlags.WIDTH_PROPERTIES | LayoutFlags.HEIGHT_PROPERTIES | LayoutFlags.PADDING );
 		updateFieldSize( LayoutFlags.PADDING | LayoutFlags.EXPLICIT_SIZE );
 	}
 	
 	
 	override private function reset ()
 	{
-		if (target.layout != null)
-			target.layout.changed.unbind(this);
-		
-		if (target.field != null && target.field.layout != null)
-			target.field.layout.changed.unbind( this );
-		
-	//	super.reset();
+		if (owner.layout != null)		owner.layout.changed.unbind(this);
+		if (target.layout != null)		target.layout.changed.unbind( this );
 	}
 	
 	
 	public function updateFieldSize (changes:Int)
 	{
-		var targetLayout	= target.layout.as(AdvancedLayoutClient);
-		var fieldLayout		= target.field.layout;
+		var ownerLayout	= owner.layout.as(AdvancedLayoutClient);
+		var fieldLayout	= target.layout;
 		
 	//	trace(target+"; explicit: "+targetLayout.explicitWidth+", "+targetLayout.explicitHeight+"; measured: "+targetLayout.measuredWidth+", "+targetLayout.measuredHeight+"; "+targetLayout.state.current+"; size: "+targetLayout.width+", "+targetLayout.height+"; field: "+fieldLayout.width+", "+fieldLayout.height+"; "+target.field.autoSize);
-		if (changes.has( LayoutFlags.WIDTH )  && targetLayout.explicitWidth.isSet())		{ fieldLayout.width		= targetLayout.width;	fieldLayout.percentWidth	= 1; }
-		if (changes.has( LayoutFlags.HEIGHT ) && targetLayout.explicitHeight.isSet())		{ fieldLayout.height	= targetLayout.height;	fieldLayout.percentHeight	= 1; }
+		updateOwner.disable();
+		var updateW = (changes.has( LayoutFlags.WIDTH )  && ownerLayout.explicitWidth .isSet()); // || fieldLayout.width .notSet();
+		var updateH = (changes.has( LayoutFlags.HEIGHT ) && ownerLayout.explicitHeight.isSet()); // || fieldLayout.height.notSet();
+		if (updateW) { fieldLayout.width  = ownerLayout.width;	fieldLayout.percentWidth	= LayoutFlags.FILL; }
+		if (updateH) { fieldLayout.height = ownerLayout.height;	fieldLayout.percentHeight	= LayoutFlags.FILL; }
 		
-	//	trace("\t\tupdated field: "+fieldLayout.width+", "+fieldLayout.height+"; has scrollrect? "+target.scrollRect+"; fieldstate "+fieldLayout.state.current);
+		if (ownerLayout.explicitWidth.notSet() || ownerLayout.explicitHeight.notSet())
+			updateOwner.enable();
+		
+		trace("\t\t"+owner+": "+fieldLayout.width+", "+fieldLayout.height+"; fieldstate "+fieldLayout.state.current);
 		
 		if (changes.has( LayoutFlags.PADDING ))
 		{
-			if (targetLayout.padding != null)
+			if (ownerLayout.padding != null)
 			{
-				fieldLayout.x	= targetLayout.padding.left;
-				fieldLayout.y	= targetLayout.padding.top;
+				fieldLayout.x	= ownerLayout.padding.left;
+				fieldLayout.y	= ownerLayout.padding.top;
 			}
 			else
 			{
 				fieldLayout.x	= fieldLayout.y	= 0;
 			}
 		}
-	/*	else
-		{
-			fieldLayout.x = fieldLayout.y = 0;
-		}*/
 		
 		fieldLayout.validate();
 	//	trace("2 "+targetLayout.state.current+"; "+targetLayout.changes+"; "+targetLayout.hasValidatedWidth+", "+targetLayout.hasValidatedHeight+"; "+targetLayout.width+", "+targetLayout.height);
 	}
 	
 	
-	private function updateLabelSize (changes:Int)
+	private function updateOwnerSize (changes:Int)
 	{
 		if (changes.hasNone( LayoutFlags.WIDTH | LayoutFlags.HEIGHT ))
 			return;
 		
-		var targetLayout	= target.layout.as(AdvancedLayoutClient);
-		var fieldLayout		= target.field.layout;
+		var ownerLayout	= owner.layout.as(AdvancedLayoutClient);
+		var fieldLayout	= target.layout;
 		
-		targetLayout.measuredWidth	= fieldLayout.width;
-		targetLayout.measuredHeight	= fieldLayout.height;
+		updateField.disable();
+		ownerLayout.measuredWidth	= fieldLayout.width;
+		ownerLayout.measuredHeight	= fieldLayout.height;
+		updateField.enable();
 		
 	//	targetLayout.invalidate( LayoutFlags.WIDTH | LayoutFlags.HEIGHT );
 	//	targetLayout.validate();
-	//	trace("\t\ttarget measured-size: "+targetLayout.measuredWidth+", "+targetLayout.measuredHeight);
-	//	trace("\t\ttarget explicit-size: "+targetLayout.explicitWidth+", "+targetLayout.explicitHeight);
-	//	trace("\t\ttarget size: "+targetLayout.width+", "+targetLayout.height);
+		trace("\t\t"+owner+": ms: "+ownerLayout.measuredWidth+", "+ownerLayout.measuredHeight+"; es: "+ownerLayout.explicitWidth+", "+ownerLayout.explicitHeight+"; s: "+ownerLayout.width+", "+ownerLayout.height);
 	//	trace("\t\t"+targetLayout.hasValidatedWidth+", "+targetLayout.hasValidatedHeight+"; "+targetLayout.state.current);
 	}
 }

@@ -27,9 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
+ import primevc.core.dispatcher.Wire;
  import primevc.core.Bindable;
  import primevc.core.RevertableBindable;
- import primevc.core.dispatcher.Wire;
  import primevc.gui.core.UITextField;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
@@ -149,6 +149,16 @@ class InputField <VOType> extends DataButton <VOType>
 		}
 		return v;
 	}
+
+
+	/*public inline function pair (data:Bindable<VOType>)
+	{
+		var d = getRevertableData();
+		d.beginEdit();
+		var b = d.pair(data);
+		d.commitEdit();
+		return b;
+	}*/
 	
 	
 	
@@ -156,7 +166,8 @@ class InputField <VOType> extends DataButton <VOType>
 	// EVENT HANDLERS
 	//
 	
-	private function doNothing () { throw "You need to define a method 'updateVO' to commit changes of the inputField"; }
+	private function doNothing ()
+		#if debug throw "You need to define a method 'updateVO' to commit changes of the inputField" #end
 
 	
 	private function handleFocus ()

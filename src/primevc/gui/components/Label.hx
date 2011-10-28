@@ -28,7 +28,7 @@
  */
 package primevc.gui.components;
  import primevc.core.Bindable;
- import primevc.gui.behaviours.components.LabelLayoutBehaviour;
+// import primevc.gui.behaviours.components.LabelLayoutBehaviour;
  import primevc.gui.core.UIDataComponent;
  import primevc.gui.core.UITextField;
  import primevc.gui.events.FocusState;
@@ -74,15 +74,10 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 	}
 	
 	
-	override private function createBehaviours ()
-	{
-	    behaviours.add( new LabelLayoutBehaviour(this) );
-	}
-	
-	
 	override private function createChildren ()
 	{
-		field = UITextField.createLabelField(null, data, this );
+		field = UITextField.createLabelField(id.value+"TextField", data, this, layout.as(AdvancedLayoutClient) );
+	//	behaviours.add( new LabelLayoutBehaviour(field) );
 		field.attachDisplayTo( this );
 	}
 	

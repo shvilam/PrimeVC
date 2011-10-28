@@ -417,8 +417,8 @@ class UITextField extends TextField, implements IUIElement
 	{
 		var l = layout.as(AdvancedLayoutClient);
 
-		if (l.measuredWidth == l.width) 	scrollH = 0;
-		if (l.measuredHeight == l.height) 	scrollV = 0;
+		if (l.measuredWidth  == l.width) 	scrollH = 0;
+		if (l.measuredHeight == l.height) 	scrollV = 1;
 				
 	//	updateSizeWire.disable();
 		l.invalidatable  = false;
