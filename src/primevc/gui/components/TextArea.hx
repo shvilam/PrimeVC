@@ -27,55 +27,154 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
+ import primevc.core.dispatcher.Wire;
  import primevc.core.Bindable;
- import primevc.gui.core.UIDataContainer;
+
  import primevc.gui.core.UITextField;
+ import primevc.gui.core.Skin;
+ import primevc.gui.events.KeyboardEvents;
+ import primevc.gui.events.UserEventTarget;
+ import primevc.gui.input.Keyboard;
+ import primevc.gui.input.KeyCodes;
+
+  using primevc.gui.input.KeyCodes;
+  using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
 
 
-private typedef DataType = Bindable<String>;
+private typedef Flags = primevc.gui.core.UIElementFlags;
+
 
 /**
- * TextArea component displays a multiline textfield and adds the posibility
+ * TODO: TextArea component displays a multiline textfield and adds the posibility
  * to divide the text of the component in multiple columns.
  * 
  * @author Ruben Weijers
- * @creation-date Sep 03, 2010
+ * @creation-date Oct 27, 2011
  */
-class TextArea extends UIDataContainer < DataType >, implements ITextArea
+class TextArea<VOType> extends InputField<VOType>
 {
-	private static inline var MAX_COLUMNS	: Int = 40;
-	
-	/**
-	 * Vector with all column fields
-	 */
-	private var fields : FastArray < UITextField >;
-	
-	/**
-	 * Number of columns in this TextArea
-	 * @default	1
-	 */
-	public var columns	(default, setColumns)	: Int;
-	
-	
-	public function new (id:String = null, data:DataType = null, ?columns:Int = 1)
+	override private function createChildren ()
 	{
-		super(id, data);
-		this.columns = columns;
+		field = UITextField.createLabelField(id.value + "TextField", data, this, layoutContainer);
+#if flash9
+		handleKeyDown.on( field.userEvents.key.down, this );
+        updateScroll .on( layout.changed, true );
+        field.makeEditable();
+        field.mouseEnabled = field.tabEnabled = true;
+        field.multiline    = true;
+#end
+		attachDisplay(field);
+		Assert.null( layoutContainer.algorithm );
+		Assert.null( skin );
 	}
-	
-	
-	//
-	// GETTERS / SETTERS
-	//
-	
-	private inline function setColumns (v:Int)
+
+
+	override public  function removeChildren ()
 	{
-		v = v.within( 1, MAX_COLUMNS );
-		if (v != columns) {
-			columns = v;
-			invalidate( Flags.COLUMNS );
+		field.dispose();
+		field = null;
+	}
+
+
+	override public function validate ()
+	{
+		var c = changes;
+		super.validate();
+		if (c.has( Flags.TEXTSTYLE )) {
+			field.embedFonts	= embedFonts;
+			field.wordWrap		= wordWrap;
+			field.textStyle 	= textStyle;
 		}
-		return v;
+		if (c.has( Flags.RESTRICT ))		field.restrict	= restrict;
+		if (c.has( Flags.MAX_CHARS ))		field.maxChars	= maxChars;
 	}
+	
+
+#if flash9
+	override public function isFocusOwner (target:UserEventTarget)
+	{
+		return field.isFocusOwner(target);
+	}
+
+
+	private function updateScroll ()
+	{
+		updateLayoutScrollY();
+		updateLayoutScrollX();
+	}
+
+
+	private function handleKeyDown (k:KeyboardState)
+	{
+		switch (k.keyCode()) {
+			case KeyCodes.LEFT, KeyCodes.RIGHT:		updateLayoutScrollX();
+			case KeyCodes.UP, 	KeyCodes.DOWN:		updateLayoutScrollY();
+			default:
+		}
+	}
+
+
+
+	//
+	// SCROLLING
+	//
+
+    private var scrollX 	: Wire<Dynamic>;
+    private var scrollY 	: Wire<Dynamic>;
+
+
+	override public function enableClipping ()
+	{
+        var s   = layoutContainer.scrollPos;
+        scrollX = applyLayoutScrollX.on( s.xProp.change, this );
+        scrollY = applyLayoutScrollY.on( s.yProp.change, this );
+	}
+
+
+	override public function disableClipping ()
+	{
+		scrollX.dispose();
+		scrollY.dispose();
+		scrollX = scrollY = null;
+	}
+
+
+    private inline function updateLayoutScrollX ()
+    {
+    	var f = field, l = layoutContainer;			//	a      =        b - 1  		 /    c - 1            * d
+    	if (f.maxScrollH > 1) { scrollX.disable(); l.scrollPos.x = (((f.scrollH - 1) / (f.maxScrollH - 1)) * l.scrollableWidth).floorFloat(); scrollX.enable(); }
+    }
+
+
+    private inline function updateLayoutScrollY ()
+    {
+    	var f = field, l = layoutContainer;			//	a      =        b - 1    	 /    c - 1            * d
+    	if (f.maxScrollV > 1) { scrollY.disable(); l.scrollPos.y = (((f.scrollV - 1) / (f.maxScrollV - 1)) * l.scrollableHeight).floorFloat(); scrollY.enable(); }
+    }
+
+
+    /** @see updateScrollY **/
+    private function applyLayoutScrollX (newV:Int, oldV:Int)
+    {
+        var f = field, l = layoutContainer;
+        f.scrollH = (((l.scrollPos.x / l.scrollableWidth) * (f.maxScrollH - 1)) + 1).floorFloat();
+    }
+    
+    
+    private function applyLayoutScrollY (newV:Int, oldV:Int)
+    {
+        var f = field, l = layoutContainer;
+
+    /*  var a = l.scrollPos.y;
+        var c = f.maxScrollV;
+        var d = l.scrollableHeight;
+    	a =  ((b - 1) / (c - 1)) * d
+        (b - 1) / (c - 1) = (a / d)
+        (b - 1) = (a / d) * (c - 1)
+        b       = ((a / d) * (c - 1)) + 1 */
+        f.scrollV = (((l.scrollPos.y / l.scrollableHeight) * (f.maxScrollV - 1)) + 1).floorFloat();
+    }
+#end
 }

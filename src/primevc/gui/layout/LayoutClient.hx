@@ -349,11 +349,15 @@ class LayoutClient extends Invalidatable
 	}
 	
 
-	public inline function isChanged ()		{ return changes > 0; }
-	public inline function isValidated ()	{ return state.is(ValidateStates.validated); }
-	public inline function isValidating ()	{ return state == null ? false : state.is(ValidateStates.validating) || (parent != null && parent.isValidating()); }
-	public inline function isInvalidated ()	{ return state == null ? false : state.is(ValidateStates.invalidated) || state.is(ValidateStates.parent_invalidated); }
+	public inline function isChanged ()			{ return changes > 0; }
+	public inline function isValidated ()		{ return state.is(ValidateStates.validated); }
+	public inline function isValidating ()		{ return state == null ? false : state.is(ValidateStates.validating) || (parent != null && parent.isValidating()); }
+	public inline function isInvalidated ()		{ return state == null ? false : state.is(ValidateStates.invalidated) || state.is(ValidateStates.parent_invalidated); }
 	
+
+	public inline function hasEmptyPadding ()	{ return padding == EMPTY_BOX; }
+	public inline function hasEmptyMargin ()	{ return margin == EMPTY_BOX; }
+
 	
 	
 	//
@@ -812,6 +816,7 @@ class LayoutClient extends Invalidatable
 	{
 	//	invalidate( changes );	// <-- will destroy the applicition... things start freezing.. weird stuff :-S
 	    if (width.isSet()) {
+	    	invalidate(LayoutFlags.PADDING | LayoutFlags.MARGIN);
 		    if (percentWidth.isSet())   width = outerBounds.width - getHorPadding() - getHorMargin(); //.abs();
 		    else            			updateAllWidths(width, true);
 	    }
@@ -824,6 +829,7 @@ class LayoutClient extends Invalidatable
 	@:keep public function invalidateVerPaddingMargin ()
 	{
 	    if (height.isSet()) {
+	    	invalidate(LayoutFlags.PADDING | LayoutFlags.MARGIN);
 		    if (percentHeight.isSet())		height = outerBounds.height - getVerPadding() - getVerMargin(); //.abs();
 		    else			                updateAllHeights(height, true);
 	    }

@@ -474,7 +474,8 @@ class UIComponent extends Sprite, implements IUIComponent
 	private function createBehaviours ()	: Void {} //	{ Assert.abstract(); }
 	private function createChildren ()		: Void {} //	{ Assert.abstract(); }
 	private function removeStates ()		: Void {} //	{ Assert.abstract(); }
-	
+
+    
 	
 	//
 	// EVENT HANDLERS

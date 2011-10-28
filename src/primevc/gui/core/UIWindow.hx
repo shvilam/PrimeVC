@@ -30,30 +30,41 @@ package primevc.gui.core;
 #if (flash9 && stats)
  import net.hires.debug.Stats;
 #end
+ import primevc.core.geom.Rectangle;
  import primevc.core.traits.IIdentifiable;
  import primevc.core.Bindable;
+
  import primevc.gui.behaviours.layout.WindowLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
+
  import primevc.gui.display.Stage;
  import primevc.gui.display.Window;
  import primevc.gui.graphics.GraphicProperties;
+
  import primevc.gui.layout.algorithms.RelativeAlgorithm;
+ import primevc.gui.layout.IScrollableLayout;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.VirtualLayoutContainer;
+
  import primevc.gui.managers.InvalidationManager;
  import primevc.gui.managers.IPopupManager;
  import primevc.gui.managers.ISystem;
  import primevc.gui.managers.PopupManager;
  import primevc.gui.managers.RenderManager;
  import primevc.gui.managers.ToolTipManager;
+
  import primevc.gui.styling.ApplicationStyle;
  import primevc.gui.styling.UIElementStyle;
+
  import primevc.gui.traits.IBehaving;
  import primevc.gui.traits.IDrawable;
  import primevc.gui.traits.ILayoutable;
  import primevc.gui.traits.IStylable;
+ import primevc.gui.traits.IScrollable;
+  using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
   using primevc.utils.TypeUtil;
 
 #if flash9
@@ -76,6 +87,7 @@ class UIWindow extends Window
 	,	implements ILayoutable
 	,	implements IStylable
 	,	implements ISystem
+	, 	implements IScrollable
 {
 	public var layout				(default, null)					: LayoutClient;
 	
@@ -84,6 +96,8 @@ class UIWindow extends Window
 	 * the children of window except for popups.
 	 */
 	public var layoutContainer		(getLayoutContainer, never)		: LayoutContainer;
+	public var scrollableLayout		(getScrollableLayout, never)	: IScrollableLayout;
+	public var isScrollable											: Bool;
 	
 	/**
 	 * Top layout-container, only containing 'layout' and 'popupLayout'.
@@ -266,6 +280,69 @@ class UIWindow extends Window
 		layoutContainer.attach( layout );
 		return this;
 	}
+
+
+	//
+	// ISCROLLABLE
+	//
+
+	public inline function scrollToX     	(x:Float) : Void	{ var r = target.scrollRect; r.x = x; target.scrollRect = r; }
+	public inline function scrollToY     	(y:Float) : Void	{ var r = target.scrollRect; r.y = y; target.scrollRect = r; }
+    public inline function scrollTo         (x:Float, y:Float)  { var r = target.scrollRect; r.x = x; r.y = y; target.scrollRect = r; }
+
+	public inline function applyScrollX   	() : Void			{ scrollToX( layoutContainer.scrollPos.x ); }
+	public inline function applyScrollY   	() : Void			{ scrollToY( layoutContainer.scrollPos.y ); }
+
+    public inline function setClippingSize	(w:Float, h:Float) 	{ var r = target.scrollRect; r.width = w; r.height = h; target.scrollRect = r; }
+    public inline function createScrollRect (w:Float, h:Float)	{ isScrollable = true;  target.scrollRect	= new Rectangle(0,0, w, h); }
+    public inline function removeScrollRect () 					{ isScrollable = false; target.scrollRect	= null; }
+
+    public inline function getScrollRect    ()                  { return target.scrollRect; }
+    public inline function setScrollRect    (v:Rectangle)       { return target.scrollRect = v; }
+
+
+    public function enableClipping ()
+    {
+        createScrollRect( rect.width, rect.height);
+        
+        var s = layoutContainer.scrollPos;
+        updateScrollRect.on( layoutContainer.changed, this );
+        applyScrollX.on( s.xProp.change, this );
+        applyScrollY.on( s.yProp.change, this );
+    }
+
+
+    public function disableClipping ()
+    {
+        var l = layoutContainer;
+        l.changed.unbind(this);
+        l.scrollPos.xProp.change.unbind( this );
+        l.scrollPos.yProp.change.unbind( this );
+        removeScrollRect();
+    }
+
+
+    private function updateScrollRect (changes:Int)
+    {
+        if (changes.hasNone( primevc.gui.layout.LayoutFlags.SIZE ))
+            return;
+        
+        var r = getScrollRect();
+        r.width  = rect.width;
+        r.height = rect.height;
+        
+        if (graphicData.border != null)
+        {
+            var border = graphicData.border.weight;
+            var layout = layoutContainer;
+            r.x        = layout.scrollPos.x - border;
+            r.y        = layout.scrollPos.y - border;
+            r.width   += border * 2;
+            r.height  += border * 2;
+        }
+        setScrollRect(r);
+    }
+
 	
 	
 	//
@@ -274,6 +351,7 @@ class UIWindow extends Window
 	
 	public inline function isDisposed ()			{ return displayEvents == null; }
 	private inline function getLayoutContainer ()	{ return layout.as(LayoutContainer); }
+	private inline function getScrollableLayout () 	{ return layout.as(IScrollableLayout); }
 	private inline function getPopupManager ()		{ if (popups == null) { popups = new PopupManager(this); } return popups; }
 	
 	

@@ -35,10 +35,10 @@ package primevc.gui.styling;
  import primevc.core.traits.IInvalidatable;
  import primevc.gui.behaviours.scroll.IScrollBehaviour;
  import primevc.gui.core.ISkin;
- import primevc.gui.core.IUIContainer;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.shapes.IGraphicShape;
  import primevc.gui.graphics.IGraphicProperty;
+ import primevc.gui.traits.IScrollable;
  import primevc.types.Asset;
  import primevc.types.Factory;
  import primevc.types.Number;
@@ -50,7 +50,7 @@ private typedef Flags		= GraphicFlags;
 private typedef Shape		= #if neko primevc.types.Reference; #else IGraphicShape; #end
 private typedef Skin		= Factory<ISkin>;
 private typedef Icon		= Factory<Dynamic>;
-private typedef Overflow	= Factory1<IUIContainer, IScrollBehaviour>;
+private typedef Overflow	= Factory1<IScrollable, IScrollBehaviour>;
 
 
 /**
