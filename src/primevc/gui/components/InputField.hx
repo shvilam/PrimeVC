@@ -166,8 +166,9 @@ class InputField <VOType> extends DataButton <VOType>
 	// EVENT HANDLERS
 	//
 	
-	private function doNothing ()
-		#if debug throw "You need to define a method 'updateVO' to commit changes of the inputField" #end
+	private function doNothing () {
+		#if debug throw "You need to define a method 'updateVO' to commit changes of the inputField"; #end
+	}
 
 	
 	private function handleFocus ()

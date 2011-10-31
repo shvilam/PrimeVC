@@ -35,4 +35,5 @@ package primevc.gui.layout.algorithms.tile;
  * @author Ruben Weijers
  * @creation-date Sep 28, 2011
  */
+@:keep
 interface ITileAlgorithm implements ILayoutAlgorithm {}

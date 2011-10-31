@@ -103,6 +103,13 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 	
 	
 	public function iterator () { return children.iterator(); }
+
+
+	@:keep public inline function attach (target:LayoutClient, depth:Int = -1) : ILayoutContainer
+	{
+		children.add( target, depth );
+		return this;
+	}
 	
 	
 	override public function invalidateCall ( childChanges:Int, sender:IInvalidatable ) : Void

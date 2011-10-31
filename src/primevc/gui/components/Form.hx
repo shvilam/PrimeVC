@@ -61,8 +61,20 @@ class Form
 
     private static inline function createLabelRow (form:IUIContainer, labelStr:String, input:UIComponent, row:LayoutContainer)
     {
-        var label = new Label(input.id.value+"Label", new Bindable<String>(labelStr+":"));
+        var label = createLabel(input, labelStr);
+        row.dispose.on( input.state.disposed.entering, row );
 
+        // attach row
+        row .attach(label.layout).attach(input.layout);
+        form.attachLayout( row );
+        form.attachDisplay( label ).attachDisplay( input );
+    }
+
+
+    public static function createLabel(input:UIComponent, labelStr:String) : Label
+    {
+        var label = new Label(input.id.value+"Label", new Bindable<String>(labelStr+":"));
+        
         // bind hover events together
         var inputEvents = input.userEvents.mouse;
         var labelEvents = label.userEvents.mouse;
@@ -71,15 +83,13 @@ class Form
         
         label.enabled.pair( input.enabled );
         label.dispose.on( input.state.disposed.entering, label );
-        row  .dispose.on( input.state.disposed.entering, row );
 
-        if (input.is(ISelectable))
-            inputEvents.click.on( labelEvents.click,    input );
-
-        // attach row
-        row .attach(label.layout).attach(input.layout);
-        form.attachLayout( row );
-        form.attachDisplay( label ).attachDisplay( input );
+        trace(input + " => "+input.is(ISelectable));
+        if (input.is(ISelectable)) {
+            input.setFocus    .on( labelEvents.click,    input );
+            inputEvents.click .on( labelEvents.click,    input );
+        }
+        return label;
     }
 
 

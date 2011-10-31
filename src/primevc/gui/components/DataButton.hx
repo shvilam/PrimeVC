@@ -97,7 +97,7 @@ class DataButton <DataType> extends Button, implements IItemRenderer <DataType>
 		var oldVal  = data.value;
 
 		//don't use data.value ==> if data is a RevertableBindable, updating the label won't cause any errors
-		var newVal = v != null ? (getLabelForVO == null ? ""+v : getLabelForVO(v)) : null;
+		var newVal = v != null ? (getLabelForVO == null ? Std.string(v) : getLabelForVO(v)) : null;
 
 		if (newVal == null || newVal == "")		//FIXME: is "" a correct value to apply the defaultLabel??
 			newVal = defaultLabel;
@@ -106,6 +106,7 @@ class DataButton <DataType> extends Button, implements IItemRenderer <DataType>
 		if (oldVal != newVal) {
 			if (oldVal == defaultLabel)		styleClasses.remove("empty");
 			if (newVal == defaultLabel)		styleClasses.add("empty");
+		//	trace((newVal == defaultLabel)+"; "+(oldVal == defaultLabel)+"; "+oldVal+" ========> "+newVal+"; "+defaultLabel+"; "+styleClasses);
 		}
 	//	trace(v+": "+oldVal+" => "+newVal+"; "+styleClasses);
 

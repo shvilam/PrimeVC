@@ -95,7 +95,7 @@ class TextArea<VOType> extends InputField<VOType>
 #if flash9
 	override public function isFocusOwner (target:UserEventTarget)
 	{
-		return field.isFocusOwner(target);
+		return target == this || field.isFocusOwner(target);
 	}
 
 

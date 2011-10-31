@@ -74,7 +74,7 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 	
 	public  function new (?val : Null<DataType>)
 	{
-		flags = Flags.DISPATCH_CHANGES_BEFORE_COMMIT;
+		flags = Flags.DISPATCH_CHANGES_BEFORE_COMMIT | Flags.UPDATE_BINDINGS_BEFORE_COMMIT;
 		super(val);
 	}
 

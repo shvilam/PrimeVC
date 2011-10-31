@@ -1259,8 +1259,8 @@ class CSSParser
 		
 		
 			// textfield properties
-		//	case "word-wrap":					createFontBlock();				//normal / break-word
-			case "text-wrap":					parseAndSetTextWrap( val ); 	//normal / suppress
+			case "overflow-wrap":				parseAndSetOverflowWrap( val );	//normal / break-word / hyphenate
+		//	case "text-wrap":					parseAndSetTextWrap( val ); 	//normal / none / avoid
 			case "column-count":				parseAndSetColumnCount( val );	//int value
 			case "column-gap":					parseAndSetColumnGap( val );	//unit value
 			case "column-width":				parseAndSetColumnWidth( val );	//unit value
@@ -1881,14 +1881,30 @@ class CSSParser
 	/**
 	 * @see http://www.w3.org/TR/css3-text/#text-wrap
 	 */
-	private inline function parseAndSetTextWrap (v:String) : Void
+	/*private inline function parseAndSetTextWrap (v:String) : Void
 	{
 		createFontBlock();
 		currentBlock.font.textWrap = switch (v.trim().toLowerCase()) {
 			default:			null;
 			case "normal":		false;
-			case "suppress":	true;
-			case "inherit":		null;
+			case "avoid":		true;
+			case "none":		null;
+		}
+	}*/
+
+	
+	
+	/**
+	 * @see http://www.w3.org/TR/css3-text/#overflow-wrap
+	 */
+	private inline function parseAndSetOverflowWrap (v:String) : Void
+	{
+		createFontBlock();
+		currentBlock.font.textWrap = switch (v.trim().toLowerCase()) {
+			default:			null;
+			case "normal":		false;
+			case "break-word":	true;
+			case "hyphenate":	true;
 		}
 	}
 	
