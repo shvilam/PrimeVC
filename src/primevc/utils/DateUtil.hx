@@ -55,4 +55,12 @@ package primevc.utils;
 	{
 		return '' + d.getFullYear() + d.getMonth() + d.getDay() + d.getHours() + d.getMinutes() + d.getSeconds();
 	}
+
+	/**
+	 * Identical as Date.fromTime, except it's providing microseconds for flash9..
+	 */
+	public static inline function toDate (milliseoncds:Int) : Date
+	{
+		return #if flash9 Date.fromTime(milliseoncds / 0.001); #else Date.fromTime(milliseoncds); #end
+	}
 }
