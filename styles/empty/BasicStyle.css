@@ -16,7 +16,7 @@ InputField				{ border: 1px solid #000; skin: Class( primevc.gui.components.skin
 /*InputField UITextField 	{ width: auto; }*/
 Label					{ font: Verdana 12px; }
 Image					{ shape: rectangle; }
-Button					{ algorithm: float-hor( left, center ); font: Arial 10px #444; background: #ffffff00; } /*skin: Class( primevc.gui.components.skins.ButtonIconLabelSkin ); }*/
+Button					{ algorithm: float-hor( center, center ); font: Arial 10px #444; background: #ffffff00; } /*skin: Class( primevc.gui.components.skins.ButtonIconLabelSkin ); }*/
 Button UITextField 		{ width: auto; /* force textfield to be always at least the max size in the button */ }
 /*Button Image			{ max-width: 100%; max-height: 100%; }*/
 
