@@ -64,6 +64,9 @@ package primevc.tools.valueobjects;
     }
 
 
+    /**
+     * Applies the given method on all change-set's until the method returns false.
+     */
     public function forAll( predicate : ChangeSet -> Bool ) : Bool
     {
         var n = nextSet;

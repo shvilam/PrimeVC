@@ -83,8 +83,7 @@ class Form
         
         label.enabled.pair( input.enabled );
         label.dispose.on( input.state.disposed.entering, label );
-
-        trace(input + " => "+input.is(ISelectable));
+        
         if (input.is(ISelectable)) {
             input.setFocus    .on( labelEvents.click,    input );
             inputEvents.click .on( labelEvents.click,    input );

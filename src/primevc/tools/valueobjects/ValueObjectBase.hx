@@ -189,8 +189,8 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 			instance._changedFlags |= propertyBit;
 		}
 	}
-*/
 #if debug
 	public function toString () return "ValueObjectBase"
 #end
+*/
 }

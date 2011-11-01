@@ -74,7 +74,7 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 	
 	public  function new (?val : Null<DataType>)
 	{
-		flags = Flags.DISPATCH_CHANGES_BEFORE_COMMIT | Flags.UPDATE_BINDINGS_BEFORE_COMMIT;
+		flags = Flags.DISPATCH_CHANGES_BEFORE_COMMIT; // | Flags.UPDATE_BINDINGS_BEFORE_COMMIT;
 		super(val);
 	}
 
@@ -92,7 +92,7 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 	{
 		var f = flags;
 		
-#if debug Assert.that(f.has(Flags.IN_EDITMODE), this+" should be editable to change "+this.value+" into "+newV); #end
+#if debug if (newV != this.value) Assert.that(f.has(Flags.IN_EDITMODE), this+" should be editable to change "+this.value+" into "+newV); #end
 		if (f.hasNone(Flags.IN_EDITMODE) || newV == this.value) return newV;
 		
 		if (!isChanged()) {
