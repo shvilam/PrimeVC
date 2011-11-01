@@ -50,7 +50,6 @@ class InputFieldSkin extends ButtonIconLabelSkin
 	override public function createChildren ()
 	{
 		super.createChildren();
-		iconGraphic.maintainAspectRatio = true;
 		var owner = getInputField();
 		labelField.restrict				= owner.restrict;
 		labelField.maxChars				= owner.maxChars;
