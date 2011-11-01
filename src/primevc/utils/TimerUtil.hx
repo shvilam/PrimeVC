@@ -46,9 +46,9 @@ extern class TimerUtil
 	/**
 	 * Method returns a timestamp in ms
 	 */
-	public static inline function stamp () : Int
+	public static inline function stamp () : Float
 	{
-		return (haxe.Timer.stamp() * 1000).int();
+		return (haxe.Timer.stamp() * 1000); //.int();
 		/*#if		flash	return Date.now().getTime().int();
 		#elseif	neko	return (neko.Sys.cpuTime() * 1000).int(); //Date.now().getTime().int(); //(neko.Sys.time() * 1000).int();
 		#elseif php		return (php.Sys.time()).int();

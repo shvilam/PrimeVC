@@ -57,10 +57,10 @@ package primevc.utils;
 	}
 
 	/**
-	 * Identical as Date.fromTime, except it's providing microseconds for flash9..
+	 * Identical as Date.fromTime
 	 */
-	public static inline function toDate (milliseoncds:Int) : Date
+	public static inline function toDate (milliseconds:Float) : Date
 	{
-		return #if flash9 Date.fromTime(milliseoncds / 0.001); #else Date.fromTime(milliseoncds); #end
+		return Date.fromTime(milliseconds);
 	}
 }

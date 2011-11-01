@@ -97,7 +97,7 @@ class Timer {
 	**/
 	public inline static function stamp() : Float {
 		#if flash9
-			return Date.now().getTime() / 1000000;
+			return Date.now().getTime() / 1000;
 		#elseif flash
 			return flash.Lib.getTimer() / 1000;
 		#elseif neko
