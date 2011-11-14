@@ -35,7 +35,7 @@ package primevc.gui.events;
 
 typedef MouseEvents = 
 	#if		flash9	primevc.avm2.events.MouseEvents;
-	#elseif	flash8	primevc.avm1.events.MouseEvents;
+	#elseif	flash	primevc.avm1.events.MouseEvents;
 	#elseif	js		primevc.js  .events.MouseEvents;
 	#elseif	neko	primevc.neko.events.MouseEvents;
 	#else			#error; #end
@@ -103,7 +103,7 @@ class MouseSignals extends Signals
 	private function createScroll ()		{ Assert.abstract(); }
 	
 	
-	override public function dispose ()
+	/*override public function dispose ()
 	{
 		if ( (untyped this).down		!= null )		down.dispose();
 		if ( (untyped this).up			!= null )		up.dispose();
@@ -117,7 +117,7 @@ class MouseSignals extends Signals
 		if ( (untyped this).scroll		!= null )		scroll.dispose();
 		
 		down = up = move = click = doubleClick = overChild = outOfChild = rollOver = rollOut = scroll = null;
-	}
+	}*/
 }
 
 /**
@@ -139,7 +139,6 @@ class MouseState extends KeyModState, implements IClonable<MouseState>
 	var local	(default,null)		: Point;
 	var stage	(default,null)		: Point;
 	
-#if flash9
 	/**
 	 * A reference to a display list object that is related to the event. For 
 	 * example, when a mouseOut event occurs, relatedObject represents the 
@@ -153,17 +152,14 @@ class MouseState extends KeyModState, implements IClonable<MouseState>
 	 * reasons applies.
 	 */
 	var related	(default,null)		: UserEventTarget;
-#end
 	
 	
-	public function new(f:Int, t:UserEventTarget, l:Point, s:Point #if flash9, related:UserEventTarget #end)
+	public function new(f:Int, t:UserEventTarget, l:Point, s:Point, related:UserEventTarget)
 	{
 		super(f,t);
 		this.local		= l;
 		this.stage		= s;
-#if flash9
 		this.related	= related == null ? t : related;
-#end
 	}
 	
 	inline function leftButton()	: Bool	{ return (flags & 0xF00 == 0x100); }
@@ -197,7 +193,7 @@ class MouseState extends KeyModState, implements IClonable<MouseState>
 	
 	public inline function clone () : MouseState
 	{
-		return new MouseState( flags, target, local, stage #if flash9, related #end);
+		return new MouseState( flags, target, local, stage, related);
 	}
 	
 	

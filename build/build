@@ -65,6 +65,11 @@ while [ "${1+isset}" ]; do
 		--fps)
 			FPS=$2				#frames per second
 			shift 2 ;;
+
+		--xml)
+			XML=true;
+			shift ;;
+
 		-z)	PROFILING=true
 			shift ;;
 		*)
@@ -133,6 +138,7 @@ else
 		$CONSOLE \
 		-D dragEnabled \
 		${CODECOVERAGE:+-D CodeCoverage -lib mcover --macro massive.mcover.MCover.includeAll()} \
+		${XML:+-xml $OUTPUTDIR/classes.xml $MainClass} \
 		| xargs -t haxe \
 		 	|| exit 1;
 	

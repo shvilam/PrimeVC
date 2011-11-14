@@ -249,9 +249,9 @@ class MacroUtils
 	 */
 	private static inline function disposeFieldsImpl () : Expr
 	{
-		var blocks = fields().generateMethodCalls([], "dispose()", "IDisposable");
+		var blocks = fields().generateMethodCalls([], "dispose()", "IDisposable", true);
 		if (blocks.length > 0)
-			blocks = fields().setValueOf(blocks, "IDisposable", "null", false );
+			blocks = fields().setValueOf(blocks, "IDisposable", "null" );
 		
 		return blocks.toExpr();
 	}
@@ -399,7 +399,7 @@ class BlocksUtil
 	//			blocks.push( Context.parse("trace('===> "+field.name+" = "+value+"')", pos) );
 	//			trace(field.type);
 	//			trace(field.name+" = "+value);
-				blocks.push( Context.parse(field.name+" = "+value, Context.currentPos()) );						//TODO optimalization: don't use Context.parse but create macro typedefs instead..
+				blocks.push( Context.parse("(untyped this)."+field.name+" = "+value, Context.currentPos()) );						//TODO optimalization: don't use Context.parse but create macro typedefs instead..
 			}
 		}
 		return blocks;
@@ -423,10 +423,10 @@ class BlocksUtil
 		//	trace(field.name + ";\t\thasInterface? "+c.hasInterface(typeName)+";\t\tisClass? "+c.isClass(typeName)+"\t\t"+field.kind+" -> looking for "+typeName);
 			if (!field.meta.has("manual") && (c.hasInterface(typeName) || c.isClass(typeName)))
 			{
-				var expr = field.name+"."+method;
+				var expr = "(untyped this)."+field.name+"."+method;
 		//		trace(expr);
 				if (nullCheck)
-					expr = "if (" + field.name + " != null) { " + expr + "; }";
+					expr = "if ((untyped this)." + field.name + " != null) { " + expr + "; }";
 
 				blocks.push( Context.parse(expr, pos) );																		//TODO optimalization: don't use Context.parse but create macro typedefs instead..
 			}

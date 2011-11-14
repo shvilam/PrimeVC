@@ -1,51 +1,46 @@
 package primevc.js.events;
-
-import js.Dom;
+ import primevc.core.geom.Point;
+ import primevc.gui.events.KeyModState;
+ import primevc.gui.events.MouseEvents;
+ import primevc.gui.events.UserEventTarget;
+ import js.Dom;
 
 /**
  * @author Stanislav Sopov
- * @since march 2, 2010
+ * @author Ruben Weijers
+ * @creation-date march 2, 2010
  */
-
-class MouseSignal extends DOMSignal1<Type>
+class MouseSignal extends DOMSignal1<MouseState>
 {
-	override private function dispatch(event:Event) 
+	var clickCount:Int;
+
+
+	public function new (d:UserEventTarget, e:String, cc:Int)
 	{
-		var mouseEvent = new MouseEvent(event);
+		super(d,e);
+		this.clickCount = cc;
+	}
+
+
+	override private function dispatch(e:Event) 
+	{
+		var flags;
 		
-		send(mouseEvent);
+		/** scrollDelta				Button				clickCount			KeyModState
+			FF (8-bit) -127-127		FF (8-bit) 0-255	F (4-bit) 0-15		F (4-bit)
+		*/
+		
+		Assert.that(clickCount >=  0);
+		Assert.that(clickCount <= 15);
+		
+	//	flags = e.delta << 16
+		flags = 2 << 16			// FIXME: figure out how to use javascript mouse deltaX, deltaY, deltaZ
+				| (clickCount & 0xF) << 4
+				| (e.button > 0? 	0x0100 : 0)
+				| (e.altKey?		KeyModState.ALT : 0)
+				| (e.ctrlKey?		KeyModState.CMD | KeyModState.CTRL : 0)
+				| (e.shiftKey?		KeyModState.SHIFT : 0);
+		
+		send(new MouseState(flags, e.target, new Point(e.clientX, e.clientY), new Point(e.screenX, e.screenY), (untyped e).relatedTarget));
 	}
 }
-
-
-class MouseEvent
-{	
-	public var type			(default, null):String; // The type of event that occurred.
-	public var target 		(default, null):HtmlDom; // Returns the element that triggered the event
-	public var altKey 		(default, null):Bool; // Returns whether or not the "ALT" key was pressed when an event was triggered 	
-	public var button 		(default, null):Int; // Returns which mouse button was clicked when an event was triggered 
-	public var clientX 		(default, null):Int; // Returns the horizontal coordinate of the mouse pointer when an event was triggered 	
-	public var clientY 		(default, null):Int; // Returns the vertical coordinate of the mouse pointer when an event was triggered 	
-	public var ctrlKey 		(default, null):Bool; // Returns whether or not the "CTRL" key was pressed when an event was triggered 	 	
-	public var screenX 		(default, null):Int; // Returns the horizontal coordinate of the mouse pointer when an event was triggered 	
-	public var screenY 		(default, null):Int; // Returns the vertical coordinate of the mouse pointer when an event was triggered 	
-	public var shiftKey 	(default, null):Bool; //Returns whether or not the "SHIFT" key was pressed when an event was triggered
-	
-	public function new (event:Event)
-	{
-		type = event.type;
-		target = event.target;
-		altKey = event.altKey;
-		button = event.button;
-		clientX = event.clientX;	 	
-		clientY = event.clientY;	 
-		ctrlKey = event.ctrlKey; 
-		screenX = event.screenX; 
-		screenY = event.screenY; 
-		shiftKey = event.shiftKey; 
-	}
-}
-
-
-
-

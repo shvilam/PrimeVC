@@ -1,13 +1,33 @@
 package primevc.js.events;
+ import primevc.core.geom.Point;
+ import primevc.gui.events.TouchEvents;
+ import js.Dom;
 
-import js.Dom;
+/**
+ * @author Ruben Weijers
+ * @creation-date Nov 10, 2011
+ */
+class TouchSignal extends DOMSignal1<TouchState>
+{
+	override private function dispatch(e:Event) 
+	{
+		var t:Array<Touch> 	= (untyped e).touches;
+		var local:Point		= t.length > 0 ? new Point(t[0].clientX, t[0].clientY) : null;
+		var stage:Point		= t.length > 0 ? new Point(t[0].screenX, t[0].screenY) : null;
+		send(new TouchState(e.target, local, stage));
+	}
+}
+
+
+
+
+//import js.Dom;
 
 /**
  * @author Stanislav Sopov
- * @since march 2, 2010
+ * @since march 2, 2011
  */
-
-class TouchSignal extends DOMSignal1<Type>
+/*class TouchSignal extends DOMSignal1<Type>
 {
 	override private function dispatch(event:Event) 
 	{
@@ -46,7 +66,7 @@ class TouchEvent
 			changedTouches = event.changedTouches;
 		}
 	}
-}
+}*/
 
 
 typedef Touch = {

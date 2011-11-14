@@ -37,14 +37,14 @@ class KeyboardEvents extends Signals
 	{
 		eventDispatcher = null;
 		
-		if ( (untyped this).keydown		!= null ) keydown.dispose();
+/*		if ( (untyped this).keydown		!= null ) keydown.dispose();
 		if ( (untyped this).keyup		!= null ) keyup.dispose();
 		if ( (untyped this).keypress	!= null ) keypress.dispose();
 		
 		keydown = 
 		keyup = 
 		keypress = 
-		null;
+		null;*/
 	}
 }
 
