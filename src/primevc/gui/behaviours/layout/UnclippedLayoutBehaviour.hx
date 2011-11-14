@@ -29,7 +29,7 @@
 package primevc.gui.behaviours.layout;
  import primevc.gui.behaviours.scroll.IScrollBehaviour;
  import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.core.IUIContainer;
+ import primevc.gui.traits.IScrollable;
 
 
 
@@ -41,10 +41,10 @@ package primevc.gui.behaviours.layout;
  * @author Ruben Weijers
  * @creation-date Oct 13, 2010
  */
-class UnclippedLayoutBehaviour extends BehaviourBase < IUIContainer >, implements IScrollBehaviour
+class UnclippedLayoutBehaviour extends BehaviourBase < IScrollable >, implements IScrollBehaviour
 {
 #if !neko
-	override private function init ()	{ target.scrollRect = null; }
+	override private function init ()	{ target.removeScrollRect(); }
 	override private function reset ()	{}
 #end
 }

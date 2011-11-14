@@ -107,7 +107,8 @@ class UIGraphic extends VectorShape
 		behaviours.add( new ValidateLayoutBehaviour(this) );
 		
 		createBehaviours();
-		createLayout();
+		if (layout == null)
+			layout = new LayoutClient();
 		
 		state.current = state.constructed;
 	}
@@ -170,12 +171,6 @@ class UIGraphic extends VectorShape
 		removeValidation.on( displayEvents.removedFromStage, this );
 		
 		state.current = state.initialized;
-	}
-	
-	
-	private function createLayout () : Void
-	{
-		layout = new LayoutClient();
 	}
 	
 	

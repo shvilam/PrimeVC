@@ -55,4 +55,12 @@ package primevc.utils;
 	{
 		return '' + d.getFullYear() + d.getMonth() + d.getDay() + d.getHours() + d.getMinutes() + d.getSeconds();
 	}
+
+	/**
+	 * Identical as Date.fromTime
+	 */
+	public static inline function toDate (milliseconds:Float) : Date
+	{
+		return Date.fromTime(milliseconds);
+	}
 }

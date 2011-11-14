@@ -1,23 +1,23 @@
 package primevc.js.events;
- 
-import primevc.core.dispatcher.Wire;
-import primevc.core.dispatcher.Signal1;
-import primevc.core.dispatcher.IWireWatcher;
-import primevc.core.ListNode;
-import js.Dom;
+ import primevc.core.dispatcher.Wire;
+ import primevc.core.dispatcher.Signal1;
+ import primevc.core.dispatcher.IWireWatcher;
+ import primevc.core.ListNode;
+ import primevc.gui.events.UserEventTarget;
+ import js.Dom;
 
 
 /**
  * @author Stanislav Sopov
- * @since march 2, 2010
+ * @creation-date march 2, 2010
  */
 class DOMSignal1<Type> extends Signal1<Type>, implements IWireWatcher<Type->Void>
 {
-	var eventDispatcher:HtmlDom;
+	var eventDispatcher:UserEventTarget;
 	var event:String;
 	
 	
-	public function new (eventDispatcher:HtmlDom, event:String)
+	public function new (eventDispatcher:UserEventTarget, event:String)
 	{
 		super();
 		this.eventDispatcher = eventDispatcher;
@@ -25,50 +25,28 @@ class DOMSignal1<Type> extends Signal1<Type>, implements IWireWatcher<Type->Void
 	}
 	
 	
-	public function wireEnabled (wire:Wire<Type -> Void>) : Void {
-		
-		Assert.that(n != null);
+	public function wireEnabled (wire:Wire<Type->Void>) : Void
+	{
+		Assert.notNull(n);
 		
 		if (ListUtil.next(n) == null) // First wire connected
 		{
-			//eventDispatcher.addEventListener(event, dispatch, false, 0, true);
-			untyped
-			{    
-				if (js.Lib.isIE)
-				{
-					eventDispatcher.attachEvent(event, dispatch, false);
-				}
-				else 
-				{
-					eventDispatcher.addEventListener(event, dispatch, false);
-				}
-			}
+		//	trace(eventDispatcher.id+" - "+js.Lib.isIE+" - "+event);
+			if (js.Lib.isIE) 	(untyped eventDispatcher).attachEvent(event, dispatch, false);
+			else				(untyped eventDispatcher).addEventListener(event, dispatch, false);
 		}
 	}
 	
 	
-	public function wireDisabled (wire:Wire<Void -> Void>) : Void {
-		
+	public function wireDisabled (wire:Wire<Type->Void>) : Void
+	{
 		if (n == null) // No more wires connected
 		{
-			//eventDispatcher.removeEventListener(event, dispatch, false);
-			untyped
-			{    
-				if (js.Lib.isIE)
-				{
-					eventDispatcher.detachEvent(event, dispatch);
-				} 
-				else 
-				{
-					eventDispatcher.removeEventListener(event, dispatch);
-				}
-			}
+			if (js.Lib.isIE) 	(untyped eventDispatcher).detachEvent(event, dispatch);
+			else				(untyped eventDispatcher).removeEventListener(event, dispatch);
 		}
 	}
 	
 	
-	private function dispatch(e:Event) 
-	{
-		Assert.abstract();
-	}
+	private function dispatch(e:Event)	Assert.abstract()
 }

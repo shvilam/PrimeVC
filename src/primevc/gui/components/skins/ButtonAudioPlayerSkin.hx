@@ -104,7 +104,7 @@ class ButtonAudioPlayerSkin extends Skin<AudioPlayer>
                 playStopBtn.enable();
             
             case MediaStates.error(string):
-                playStopBtn.id.value = "errorBtn";
+                playStopBtn.id.value = "playBtn";
                 playStopBtn.disable();
             
             case MediaStates.empty:

@@ -64,9 +64,11 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 	{
 		if (changes == 0 || !elementStyle.target.is( ILayoutable ))
 			return;
-		
+			
 		var target	= elementStyle.target.as( ILayoutable );
 		var layout	= target.layout;
+		var wasInvalidatable = layout.invalidatable;
+		layout.invalidatable = false;
 		
 		var widthRange:Validator	= null;
 		var heightRange:Validator	= null;
@@ -110,8 +112,10 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 		if (!layout.is(ILayoutContainer))
 			changes = changes.unset( Flags.ALGORITHM | Flags.CHILD_WIDTH | Flags.CHILD_HEIGHT );
 		
-		if (changes == 0)
+		if (changes == 0) {
+			layout.invalidatable = wasInvalidatable;
 			return;
+		}
 		
 		
 		var maintainAspect = layout.maintainAspectRatio;
@@ -159,7 +163,8 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 		if (heightRange != null && layout.heightValidator == null)
 			layout.heightValidator = heightRange;
 		
-		layout.maintainAspectRatio = maintainAspect;
+		layout.maintainAspectRatio  = maintainAspect;
+		layout.invalidatable 		= wasInvalidatable;
 	}
 	
 	
@@ -218,7 +223,8 @@ class LayoutCollection extends StyleCollectionBase < LayoutStyle >
 			if (propsToSet.has( Flags.ALGORITHM ))
 			{
 				var old		= l.algorithm;
-				l.algorithm	= notEmpty ? styleObj.algorithm() : null;
+				var a 		= notEmpty ? styleObj.algorithm : null;		// algorithm flag can be set in a style-obj but still be 'null' (algorithm: none;)
+				l.algorithm	= a != null ? a() : null;
 				
 				if (old != null)
 					old.dispose();	//dispose after changing the algorithm in layoutcontainer.. otherwise errors in LayoutContainer.setAlgorithm

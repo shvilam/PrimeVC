@@ -35,10 +35,6 @@ package primevc.gui.components.skins;
 
 
 
-private typedef Flags = primevc.gui.core.UIElementFlags;
-
-
-
 /**
  * Skin for a button with only a label.
  * 
@@ -52,15 +48,14 @@ class ButtonLabelSkin extends Skin<Button>
 
 	override public function createChildren ()
 	{
-		owner.attach( labelField = UITextField.createLabelField(owner.id.value + "TextField", owner.data, owner) );
+		owner.attach( labelField = UITextField.createLabelField(owner.id.value + "TextField", owner.data, owner, owner.layoutContainer) );
+		owner.layoutContainer.algorithm = null;
 	}
 
 
 	override public  function removeChildren ()
 	{
-		if (labelField != null)
-		{
-			labelField.detach();
+		if (labelField != null) {
 			labelField.dispose();
 			labelField = null;
 		}
@@ -70,7 +65,7 @@ class ButtonLabelSkin extends Skin<Button>
 #if flash9
 	override public function validate (changes:Int)
 	{
-		if (changes.has( Flags.TEXTSTYLE )) {
+		if (changes.has( primevc.gui.core.UIElementFlags.TEXTSTYLE )) {
 			labelField.embedFonts	= owner.embedFonts;
 			labelField.wordWrap		= owner.wordWrap;
 			labelField.textStyle 	= owner.textStyle;

@@ -27,12 +27,15 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.collections;
+ import haxe.FastList;
  import primevc.core.collections.iterators.FastArrayForwardIterator;
  import primevc.core.collections.iterators.FastArrayReversedIterator;
  import primevc.core.collections.iterators.IIterator;
  import primevc.core.events.ListChangeSignal;
  import primevc.utils.FastArray;
+  using primevc.utils.Bind;
   using primevc.utils.FastArray;
+  using primevc.utils.IfUtil;
 
 
 
@@ -58,7 +61,7 @@ class ReadOnlyArrayList < DataType > implements IReadOnlyList < DataType >, impl
 		change 		 = new ListChangeSignal();
 		beforeChange = new ListChangeSignal();
 		
-		if (wrapAroundList == null)
+		if (wrapAroundList.isNull())
 			list = FastArrayUtil.create();
 		else
 		 	list = wrapAroundList;
@@ -132,11 +135,137 @@ class ReadOnlyArrayList < DataType > implements IReadOnlyList < DataType >, impl
 	 * the other list into this list. Changes in the otherList after injection
 	 * will not be noticed by this list..
 	 */
-	public inline function inject (otherList:ReadOnlyArrayList<DataType>)
+	public function inject (otherList:FastArray<DataType>)
 	{
-		this.list = otherList.list;
+		this.list = otherList;
 		change.send( ListChange.reset );
 	}
+
+
+
+
+	//
+	// PAIRING / BINDING WITH OTHER LISTS
+	//
+
+	/**
+	 * Keeps track of which lists are updating this list
+	 */
+	private var boundTo : FastList < ReadOnlyArrayList < DataType > >;
+	/**
+	 * Keeps track of which lists should be updated when this list changes
+	 */
+	private var writeTo : FastList < ReadOnlyArrayList < DataType > >;
+
+
+
+	/**
+	 * Makes sure this.value is (and remains) equal
+	 * to otherList.
+	 *	
+	 * In other words, update this when otherList changes.
+	 */
+	public inline function bind (other:ReadOnlyArrayList<DataType>)
+	{
+		other.keepUpdated(this);
+	}
+
+	
+	/**
+	 * @see IBindableReadonly
+	 */
+	public function unbind (other:ReadOnlyArrayList<DataType>)
+	{
+		Assert.notNull(other);
+		Assert.notEqual(other, this);
+		
+		var removed = false;
+		if (writeTo.notNull()) 	{ 
+			removed = this.writeTo.remove(cast other);
+			if (removed) {
+				beforeChange.unbind( other );
+				change.unbind( other );
+			}
+		}
+		if (boundTo.notNull()) 	removed = this.boundTo.remove(other) || removed;
+		if (removed)			other.unbind(this);
+		
+		return removed;
+	}
+	
+	
+	/**
+	 * Will remove every binding to lists which update this object, or which this object updates.
+	 */
+	public function unbindAll ()
+	{
+		if (writeTo.notNull()) while (!writeTo.isEmpty())	writeTo.pop().unbind(this);
+		if (boundTo.notNull()) while (!boundTo.isEmpty())	boundTo.pop().unbind(this);
+	}
+
+
+
+	
+	private inline function registerBoundTo(other:ReadOnlyArrayList<DataType>)
+	{
+		Assert.notNull(other);
+		
+		var b = this.boundTo;
+		if (b.isNull())
+			b = this.boundTo = new FastList<ReadOnlyArrayList<DataType>>();
+		
+		addToBoundList(b, other);
+	}
+	
+	
+	private inline function addToBoundList<T>(list:FastList<T>, other:T)
+	{
+		Assert.notNull(list);
+		
+		// Only bind if not already bound.
+		var n = list.head;
+		while (n.notNull())
+		 	if (n.elt == other) { list = null; break; } // already bound, skip add()
+			else n = n.next;
+		
+		if (list.notNull())
+			list.add(other);
+	}
+	
+	
+	/**
+	 * @see IBindableReadonly
+	 */
+	private function keepUpdated (other:ReadOnlyArrayList<DataType>)
+	{
+		Assert.notNull(other);
+		Assert.notEqual(other, this);
+		
+		other.list = list.clone();
+		other.beforeChange.send.on( beforeChange, other );
+		other.applyChanges.on( change, other );
+		(untyped other).registerBoundTo(this);
+		
+		var w = this.writeTo;
+		if (w.isNull())
+			w = this.writeTo = new FastList<ReadOnlyArrayList<DataType>>();
+		
+		addToBoundList(w, other);
+	}
+
+
+	private function applyChanges (c:ListChange<DataType>) : Void
+	{
+		switch (c) {
+			case added(   item, newPos ):			list.insertAt(item, newPos);
+			case removed( item, oldPos ):			list.removeAt(oldPos);
+			case moved(   item, newPos, oldPos ):	list.move(item, newPos, oldPos);
+			case reset:								list.removeAll();	
+		}
+		change.send(c);
+	}
+
+
 	
 	
 #if debug

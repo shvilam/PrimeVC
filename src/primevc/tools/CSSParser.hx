@@ -103,6 +103,7 @@ package primevc.tools;
  import primevc.gui.styling.FilterCollectionType;
  import primevc.gui.styling.FiltersStyle;
  import primevc.gui.styling.TextStyle;
+ import primevc.gui.styling.GraphicFlags;
  import primevc.gui.styling.GraphicsStyle;
  import primevc.gui.styling.LayoutStyle;
  import primevc.gui.styling.StatesStyle;
@@ -1258,8 +1259,8 @@ class CSSParser
 		
 		
 			// textfield properties
-		//	case "word-wrap":					createFontBlock();				//normal / break-word
-			case "text-wrap":					parseAndSetTextWrap( val ); 	//normal / suppress
+			case "overflow-wrap":				parseAndSetOverflowWrap( val );	//normal / break-word / hyphenate
+		//	case "text-wrap":					parseAndSetTextWrap( val ); 	//normal / none / avoid
 			case "column-count":				parseAndSetColumnCount( val );	//int value
 			case "column-gap":					parseAndSetColumnGap( val );	//unit value
 			case "column-width":				parseAndSetColumnWidth( val );	//unit value
@@ -1880,14 +1881,30 @@ class CSSParser
 	/**
 	 * @see http://www.w3.org/TR/css3-text/#text-wrap
 	 */
-	private inline function parseAndSetTextWrap (v:String) : Void
+	/*private inline function parseAndSetTextWrap (v:String) : Void
 	{
 		createFontBlock();
 		currentBlock.font.textWrap = switch (v.trim().toLowerCase()) {
 			default:			null;
 			case "normal":		false;
-			case "suppress":	true;
-			case "inherit":		null;
+			case "avoid":		true;
+			case "none":		null;
+		}
+	}*/
+
+	
+	
+	/**
+	 * @see http://www.w3.org/TR/css3-text/#overflow-wrap
+	 */
+	private inline function parseAndSetOverflowWrap (v:String) : Void
+	{
+		createFontBlock();
+		currentBlock.font.textWrap = switch (v.trim().toLowerCase()) {
+			default:			null;
+			case "normal":		false;
+			case "break-word":	true;
+			case "hyphenate":	true;
 		}
 	}
 	
@@ -2720,10 +2737,11 @@ class CSSParser
 	private function parseAndSetLayoutAlgorithm (v:String) : Void
 	{
 		var info:Factory<ILayoutAlgorithm> = new Factory();
-		var v = v.trim().toLowerCase();
+		var v 		= v.trim().toLowerCase();
+		var setFlag = false; 	// for parser to set the algorithm flag in layout object
 		
 		if		(v == "relative")			info.classRef = RelativeAlgorithm.getClassName();
-		else if	(v == "none")				info.classRef = null;						//FIXME -> none and inherit are the same now. none is not implemented yet..
+		else if	(v == "none")			{	info.classRef = null; setFlag = true; }						//FIXME -> none and inherit are the same now. none is not implemented yet..
 		else if	(v == "inherit")			info.classRef = null;
 		else if (v == "tile")				info.classRef = SimpleTileAlgorithm.getClassName();
 		
@@ -2822,12 +2840,15 @@ class CSSParser
 			}
 		}
 		
-		
 		//insert the found algorithm in the layout-style-block
 		if (info != null && !info.isEmpty())
 		{
 			createLayoutBlock();
 			currentBlock.layout.algorithm = info;
+		}
+		if (setFlag) {
+			createLayoutBlock();
+			currentBlock.layout.markProperty( primevc.gui.styling.LayoutStyleFlags.ALGORITHM, true );
 		}
 	}
 	
@@ -3422,6 +3443,8 @@ class CSSParser
 	{
 		if (isClassReference(v))
 			createGraphicsBlock().skin = parseClassReference(v);
+		else if (isNone(v))
+			createGraphicsBlock().markProperty( GraphicFlags.SKIN, true );
 	}
 	
 	
@@ -3471,18 +3494,21 @@ class CSSParser
 	 */
 	private function parseAndSetOverflow (v:String) : Void
 	{
-		var className = switch (v.trim().toLowerCase()) {
-			case "hidden":				ClippedLayoutBehaviour.getClassName();
-			case "scroll-mouse-move":	MouseMoveScrollBehaviour.getClassName();
-			case "drag-scroll":			DragScrollBehaviour.getClassName();
-			case "corner-scroll":		CornerScrollBehaviour.getClassName();
-			case "scrollbars":			ShowScrollbarsBehaviour.getClassName();
-			/*case "visible":*/
-			default:					UnclippedLayoutBehaviour.getClassName();
+		var setFlag = false, className = null;
+		switch (v.trim().toLowerCase()) {
+			case "hidden":				className = ClippedLayoutBehaviour.getClassName();
+			case "scroll-mouse-move":	className = MouseMoveScrollBehaviour.getClassName();
+			case "drag-scroll":			className = DragScrollBehaviour.getClassName();
+			case "corner-scroll":		className = CornerScrollBehaviour.getClassName();
+			case "scrollbars":			className = ShowScrollbarsBehaviour.getClassName();
+			case "visible":				setFlag   = true;
+			default:					throw "unkown overflow"; //className = UnclippedLayoutBehaviour.getClassName();
 		};
 		
 		if (className != null)
 			createGraphicsBlock().overflow = new Factory1(className, [], ["a"], v.trim());
+		else if (setFlag)
+			createGraphicsBlock().markProperty( GraphicFlags.OVERFLOW, true );
 	}
 	
 	

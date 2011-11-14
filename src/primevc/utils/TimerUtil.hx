@@ -43,13 +43,17 @@ extern class TimerUtil
 #end
 	
 	
-	public static inline function stamp () : Int
+	/**
+	 * Method returns a timestamp in ms
+	 */
+	public static inline function stamp () : Float
 	{
-		#if		flash	return flash.Lib.getTimer();
+		return (haxe.Timer.stamp() * 1000); //.int();
+		/*#if		flash	return Date.now().getTime().int();
 		#elseif	neko	return (neko.Sys.cpuTime() * 1000).int(); //Date.now().getTime().int(); //(neko.Sys.time() * 1000).int();
 		#elseif php		return (php.Sys.time()).int();
 		#elseif js		return Date.now().getTime().int();
 		#elseif cpp		return untyped (__global__.__time_stamp() * 1000).int();
-		#else			return 0; #end
+		#else			return 0; #end*/
 	}
 }

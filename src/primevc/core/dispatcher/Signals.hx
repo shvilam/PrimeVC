@@ -50,11 +50,13 @@ package primevc.core.dispatcher;
  * @author Ruben Weijers
  * @creation-date jun 10, 2010
  */
+#if !macro
 @:autoBuild(primevc.utils.MacroUtils.autoEnable())
 @:autoBuild(primevc.utils.MacroUtils.autoDisable())
 @:autoBuild(primevc.utils.MacroUtils.autoUnbind())
 @:autoBuild(primevc.utils.MacroUtils.autoUnbindAll())
 @:autoBuild(primevc.utils.MacroUtils.autoDispose())
+#end
 class Signals implements IUnbindable<Dynamic>, implements IDisposable, implements IDisablable, implements haxe.Public
 {
 	private var _enabled : Bool;

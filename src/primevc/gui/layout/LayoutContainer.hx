@@ -98,7 +98,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 	}
 	
 	
-	@:keep public inline function attach (target:LayoutClient, depth:Int = -1) : LayoutContainer
+	@:keep public inline function attach (target:LayoutClient, depth:Int = -1) : ILayoutContainer
 	{
 		children.add( target, depth );
 		return this;
@@ -182,13 +182,17 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (hasAlgorithm)
 			algorithm.prepareValidate();
 		
-		var curWidth = width;
-		updateChildWidthPercentages();
+		var curWidth 		 = width;
+		var applyPercentSize = percentWidthChildren == 0 || explicitWidth.isSet();
+
+		if (applyPercentSize)
+			updateChildWidthPercentages();
+		
 		if (hasAlgorithm)
 			algorithm.validateHorizontal();
 		
 		// if the width is changed and there are children with a percentage width, we need to update their width
-		if (percentWidthChildren > 0 && width != curWidth && width.isSet())
+		if (!applyPercentSize || (percentWidthChildren > 0 && width != curWidth && width.isSet()))
 			updateChildWidthPercentages();
 
 		super.validateHorizontal();
@@ -207,13 +211,17 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 		if (hasAlgorithm)
 			algorithm.prepareValidate();
 		
-		var curHeight = height;
-		updateChildHeightPercentages();
+		var curHeight 		 = height;
+		var applyPercentSize = percentHeightChildren == 0 || explicitHeight.isSet();
+
+		if (applyPercentSize)
+			updateChildHeightPercentages();
+		
 		if (hasAlgorithm)
 			algorithm.validateVertical();
 		
 		// if the height is changed and there are children with a percentage height, we need to update their height
-		if (percentHeightChildren > 0 && height != curHeight && height.isSet())
+		if (!applyPercentSize || (percentHeightChildren > 0 && height != curHeight && height.isSet()))
 			updateChildHeightPercentages();
 
 		super.validateVertical();
@@ -278,6 +286,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			if (!child.includeInLayout)
 				continue;
 			
+			var oldI = child.invalidatable;
+			child.invalidatable = false;
 			if (isWidthChanged && child.widthValidator != null && child.widthValidator.is( PercentIntRangeValidator ))
 				child.widthValidator.as( PercentIntRangeValidator ).calculateValues( width );
 			
@@ -301,6 +311,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 				child.validateHorizontal();
 				childrenWidth += child.outerBounds.width;
 			}
+
+			child.invalidatable = oldI;
 		}
 		
 
@@ -342,6 +354,8 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 			if (!child.includeInLayout)
 				continue;
 			
+			var oldI = child.invalidatable;
+			child.invalidatable = false;
 			if (isHeightChanged && child.heightValidator != null && child.heightValidator.is( PercentIntRangeValidator ))
 				child.heightValidator.as( PercentIntRangeValidator ).calculateValues( height );
 			
@@ -365,6 +379,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 				child.validateVertical();
 				childrenHeight += child.outerBounds.height;
 			}
+			child.invalidatable = oldI;
 		}
 		
 

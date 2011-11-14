@@ -34,6 +34,7 @@ package primevc.tools.valueobjects;
  import primevc.core.RevertableBindableFlags;
   using primevc.utils.BitUtil;
   using primevc.utils.IfUtil;
+  using primevc.utils.TypeUtil;
 
 
 private typedef Flags = RevertableBindableFlags;
@@ -53,20 +54,26 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 	private var _propertiesSet	: Int;
 	private var _flags			: Int;
 	
-	private function new ()
+	/**
+	 * method to initialize an value-object. Create bindings to the properties of the vo in this method.
+	 * this is done in a seperate method (instead of just the constructor) so that the method can also be
+	 * callen when empty-VO's are created through deserialization (using Type.createEmptyInstance).
+	 */
+	private function init ()
 	{
 		change = new Signal1();
-		_changedFlags = _propertiesSet = _flags = 0;
+#if js	_changedFlags = _flags = 0; #end
 	}
 	
 	
 	public function dispose()
 	{
-		if (change.notNull()) {
-			change.dispose();
-			change = null;
-		}
-		_changedFlags = 0;
+		Assert.that(!isDisposed(), this+" is already disposed!");
+	//	if (change.notNull()) {
+		change.dispose();
+		change = null;
+	//	}
+		_changedFlags = _propertiesSet = _flags = 0;
 	}
 	
 	
@@ -149,6 +156,29 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 		_flags			= _flags.unset( Flags.IN_EDITMODE );
 		_changedFlags	= 0;
 	}
+
+
+	//FIXME: Define different ValueObjectBase for the viewer (without ObjectChangeSet's)
+	public static inline function addChangeListener (vo:IValueObject, owner:Dynamic, handler:ObjectChangeSet->Void)
+	{
+#if debug
+		Assert.notNull(vo);
+		Assert.that(vo.is(ValueObjectBase));
+#end
+		vo.as(ValueObjectBase).change.bind(owner, handler);
+	}
+
+
+
+	//FIXME: Define different ValueObjectBase for the viewer
+	public static inline function removeChangeListener (vo:IValueObject, owner:Dynamic)
+	{
+#if debug
+		Assert.notNull(vo);
+		Assert.that(vo.is(ValueObjectBase));
+#end
+		vo.as(ValueObjectBase).change.unbind(owner);
+	}
 	
 /*
 	Kijken wat kleinere SWF geeft: calls hiernaar, of methods genereren...
@@ -159,5 +189,8 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 			instance._changedFlags |= propertyBit;
 		}
 	}
+#if debug
+	public function toString () return "ValueObjectBase"
+#end
 */
 }

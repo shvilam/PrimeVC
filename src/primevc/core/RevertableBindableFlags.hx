@@ -144,6 +144,7 @@ private class RevertableBindableFlagsDebug {
 		if (flags.has( RevertableBindableFlags.INVALID_CHANGES_DISPATCH_SIGNAL ))	props.push( "invalid-changes-dispatch-signal" );
 		if (flags.has( RevertableBindableFlags.UPDATE_BINDINGS_BEFORE_COMMIT ))		props.push( "update-bindings-before-commit" );
 		if (flags.has( RevertableBindableFlags.INVALID_CHANGES_UPDATE_BINDINGS ))	props.push( "invalid-changes-update-bindings" );
+		if (flags.has( RevertableBindableFlags.MAKE_SHADOW_COPY ))					props.push( "make-shadow-copy" );
 		
 		return "properties: "+props.join(", ") + " ("+flags+")";
 	}

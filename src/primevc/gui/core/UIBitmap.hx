@@ -104,7 +104,8 @@ class UIBitmap extends BitmapShape, implements IUIElement
         behaviours.add( new ValidateLayoutBehaviour(this) );
         
         createBehaviours();
-        createLayout();
+        if (layout == null)
+            layout = new AdvancedLayoutClient();
         
         state.current = state.constructed;
     }
@@ -170,12 +171,6 @@ class UIBitmap extends BitmapShape, implements IUIElement
         updateScale     .on( layout.changed, this );
         
         state.current = state.initialized;
-    }
-    
-    
-    private function createLayout () : Void
-    {
-        layout = new AdvancedLayoutClient();
     }
 
 

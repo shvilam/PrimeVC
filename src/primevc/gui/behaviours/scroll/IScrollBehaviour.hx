@@ -33,7 +33,7 @@ package primevc.gui.behaviours.scroll;
  * @author Ruben Weijers
  * @creation-date May 26, 2011
  */
-@:keep interface IScrollBehaviour implements IBehaviour<primevc.gui.core.IUIContainer>
+@:keep interface IScrollBehaviour implements IBehaviour<primevc.gui.traits.IScrollable>
 {
 	
 }

@@ -27,16 +27,15 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
+ import primevc.core.dispatcher.Wire;
  import primevc.core.Bindable;
  import primevc.core.RevertableBindable;
- import primevc.core.dispatcher.Wire;
  import primevc.gui.core.UITextField;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
 
-private typedef DataType	= RevertableBindable<String>;
-private typedef Flags		= primevc.gui.core.UIElementFlags;
+private typedef Flags = primevc.gui.core.UIElementFlags;
 
 
 /**
@@ -79,11 +78,12 @@ class InputField <VOType> extends DataButton <VOType>
 	
 	public function new (id:String = null, defaultLabel:String = null, icon = null, vo:VOType = null)
 	{
-		super(id, defaultLabel, icon, vo);
-		var d = new DataType("");
+		var d = new RevertableBindable<String>("");
 		d.dispatchAfterCommit();
 		d.updateAfterCommit();
 		data 		= d;
+
+		super(id, defaultLabel, icon, vo);
 		updateVO 	= doNothing;
 	}
 	
@@ -111,8 +111,8 @@ class InputField <VOType> extends DataButton <VOType>
 	}
 	
 	
-	private inline function getRevertableData ()	{ return data.as(DataType); }
-	
+	private inline function getRevertableData ()	return cast( data, RevertableBindable<String>)
+
 	
 	//
 	// SETTERS
@@ -149,6 +149,16 @@ class InputField <VOType> extends DataButton <VOType>
 		}
 		return v;
 	}
+
+
+	/*public inline function pair (data:Bindable<VOType>)
+	{
+		var d = getRevertableData();
+		d.beginEdit();
+		var b = d.pair(data);
+		d.commitEdit();
+		return b;
+	}*/
 	
 	
 	
@@ -156,7 +166,9 @@ class InputField <VOType> extends DataButton <VOType>
 	// EVENT HANDLERS
 	//
 	
-	private function doNothing () { throw "You need to define a method 'updateVO' to commit changes of the inputField"; }
+	private function doNothing () {
+		#if debug throw "You need to define a method 'updateVO' to commit changes of the inputField"; #end
+	}
 
 	
 	private function handleFocus ()

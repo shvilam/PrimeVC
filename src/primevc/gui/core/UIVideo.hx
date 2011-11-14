@@ -35,7 +35,6 @@ package primevc.gui.core;
  import primevc.core.media.VideoStream;
  import primevc.core.states.MediaStates;
  import primevc.core.Bindable;
- import primevc.core.IBindable;
  
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
@@ -127,7 +126,8 @@ class UIVideo extends Video, implements IUIElement
 		behaviours.add( new ValidateLayoutBehaviour(this) );
 		
 		createBehaviours();
-		createLayout();
+		if (layout == null)
+			layout = new AdvancedLayoutClient();
 		
 		state.current = state.constructed;
 	}
@@ -197,12 +197,6 @@ class UIVideo extends Video, implements IUIElement
 		removeValidation.on( displayEvents.removedFromStage, this );
 		
 		state.current = state.initialized;
-	}
-
-
-	private function createLayout () : Void
-	{
-		layout = new AdvancedLayoutClient();
 	}
 	
 	

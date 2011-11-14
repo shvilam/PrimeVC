@@ -42,7 +42,9 @@ package primevc.gui.core;
  import primevc.gui.display.TextField;
  import primevc.gui.effects.UIElementEffects;
  import primevc.gui.layout.ILayoutContainer;
+ import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutClient;
+ import primevc.gui.layout.LayoutFlags;
  import primevc.gui.managers.ISystem;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.states.UIElementStates;
@@ -64,16 +66,16 @@ package primevc.gui.core;
  */
 class UITextField extends TextField, implements IUIElement
 {
-	public static inline function createLabelField (id:String = null, data:Bindable<String> = null, owner:ITextStylable = null) : UITextField
+	public static inline function createLabelField (id:String = null, data:Bindable<String> = null, owner:ITextStylable = null, injectedLayout:AdvancedLayoutClient = null) : UITextField
 	{
-		var f = new UITextField( #if debug id #else null #end, true, data );	//FIXME: stylingEnabled doesn't always have to be true..
+		var f = new UITextField( #if debug id #else null #end, injectedLayout == null, data, injectedLayout );	//FIXME: stylingEnabled doesn't always have to be true..
 #if flash9
-		f.autoSize		 = flash.text.TextFieldAutoSize.NONE;
 		f.selectable	 = false;
 		f.mouseEnabled	 = false;
 		f.tabEnabled	 = false;
 
-		if (owner != null) {
+		if (owner != null)
+		{
 			f.wordWrap	 = owner.wordWrap;
 			f.embedFonts = owner.embedFonts;
 
@@ -98,8 +100,9 @@ class UITextField extends TextField, implements IUIElement
 	public var system			(getSystem, never)				: ISystem;
 	public var state			(default, null)					: UIElementStates;
 
-	private var validateWire	: Wire<Dynamic>;
-	private var updateSizeWire	: Wire<Dynamic>;
+	private var validateWire		: Wire<Dynamic>;
+//	private var updateSizeWire		: Wire<Dynamic>;
+	private var hasInjectedLayout	: Bool;
 
 #if flash9
 	public var style			(default, null)					: UIElementStyle;
@@ -107,8 +110,11 @@ class UITextField extends TextField, implements IUIElement
 	public var stylingEnabled	(default, setStylingEnabled)	: Bool;
 #end
 	
-	
-	public function new (id:String = null, stylingEnabled:Bool = true, data:Bindable<String> = null)
+	/**
+	 * @param injectedLayout
+	 * 			LayoutClient of a wrapper object to optimize textfield-wrappers that will only contain 1 layout-client.
+	 */
+	public function new (id:String = null, stylingEnabled:Bool = true, data:Bindable<String> = null, injectedLayout:AdvancedLayoutClient = null)
 	{
 #if debug
 	if (id == null)
@@ -127,11 +133,21 @@ class UITextField extends TextField, implements IUIElement
 		
 		//add default behaviour
 		init.onceOn( displayEvents.addedToStage, this );
-		behaviours.add( new ValidateLayoutBehaviour(this) );
+
+		hasInjectedLayout = injectedLayout != null;
+		if (hasInjectedLayout) {
+			layout = injectedLayout;
+			applyInjectedLayout.on(injectedLayout.changed, this);
+		}
+		else
+		{
+			behaviours.add( new ValidateLayoutBehaviour(this) );
+			if (layout == null)
+				layout = new AdvancedLayoutClient();
+		}
+		
 		
 		createBehaviours();
-		createLayout();
-		
 		state.current = state.constructed;
 	}
 
@@ -141,10 +157,10 @@ class UITextField extends TextField, implements IUIElement
 		if (isDisposed())
 			return;
 		
-		if (updateSizeWire != null) 	{ updateSizeWire.dispose(); updateSizeWire = null; }
-		if (validateWire != null)		{ validateWire.dispose(); 	validateWire = null; }
-		if (container != null)			{ detachDisplay(); }
-		if (layout.parent != null)		{ detachLayout(); }
+	//	if (updateSizeWire != null) 						{ updateSizeWire.dispose(); updateSizeWire = null; }
+		if (validateWire != null)							{ validateWire.dispose(); 	validateWire = null; }
+		if (container != null)								{ detachDisplay(); }
+		if (!hasInjectedLayout && layout.parent != null)	{ detachLayout(); }
 		
 		//Change the state to disposed before the behaviours are removed.
 		//This way a behaviour is still able to respond to the disposed
@@ -155,7 +171,7 @@ class UITextField extends TextField, implements IUIElement
 		id.dispose();
 		state.dispose();
 		
-		if (layout != null) {
+		if (!hasInjectedLayout && layout != null) {
 			layout.dispose();
 			layout = null;
 		}
@@ -185,7 +201,7 @@ class UITextField extends TextField, implements IUIElement
 	// ATTACH METHODS
 	//
 	
-	public  inline function attachLayoutTo		(t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ t.children.add( layout, pos );											return this; }
+	public  inline function attachLayoutTo		(t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ if (!hasInjectedLayout) 	 { t.children.add( layout, pos ); }				return this; }
 	public  inline function detachLayout		()									: IUIElement	{ if (layout.parent != null) { layout.parent.children.remove( layout ); }	return this; }
 	public  inline function attachTo			(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachToDisplayList(t, pos);	return this; }
 	private inline function applyDetach			()									: IUIElement	{ detachDisplay();							detachLayout();					return this; }
@@ -253,22 +269,14 @@ class UITextField extends TextField, implements IUIElement
 		visible = true;
 		behaviours.init();
 
-		updateSizeWire	= updateSize.on( displayEvents.enterFrame, this );
-		validateWire 	= validate  .on( displayEvents.addedToStage, this );
-		updateSizeWire.disable();
-		validateWire  .disable();
+	//	updateSizeWire	= displayEvents.enterFrame  .observeDisabled( this, updateSize );
+		validateWire 	= displayEvents.addedToStage.observeDisabled( this, validate );
 
 		validate();
 		removeValidation.on( displayEvents.removedFromStage, this );
 	//	applyTextFormat	.on( displayEvents.addedToStage, this );
 		
 		state.current = state.initialized;
-	}
-
-
-	private function createLayout () : Void
-	{
-		layout = new LayoutClient();
 	}
 	
 	
@@ -309,8 +317,7 @@ class UITextField extends TextField, implements IUIElement
 	override private function applyTextFormat ()
 	{
 		super.applyTextFormat();
-		if (updateSizeWire != null)
-			updateSizeWire.enable();
+		updateSize(); //Wire.enable();
 	}
 	
 	
@@ -408,22 +415,59 @@ class UITextField extends TextField, implements IUIElement
 	
 	private function updateSize ()
 	{
-		updateSizeWire.disable();
+		var l = layout.as(AdvancedLayoutClient);
+
+		if (l.measuredWidth  == l.width) 	scrollH = 0;
+		if (l.measuredHeight == l.height) 	scrollV = 1;
+				
+	//	updateSizeWire.disable();
+		l.invalidatable  = false;
+		l.measuredWidth	 = realTextWidth .roundFloat();
+		l.measuredHeight = realTextHeight.roundFloat();
+		l.invalidatable  = true;
+
 #if flash9
-		if (autoSize == flash.text.TextFieldAutoSize.NONE) // && window != null && window.focus != this)
-			scrollH = 0;
+		if (multiline && l.isChanged())
+			updateWordWrap.onceOn( l.changed, this );
 #end
-		layout.invalidatable = false;
-		if (layout.percentWidth.notSet())	layout.width	= realTextWidth.roundFloat();
-		if (layout.percentHeight.notSet())	layout.height	= realTextHeight.roundFloat();
-		layout.invalidatable = true;
 		
+	//	trace(this+" - "+e+": ps: "+l.percentWidth+", "+l.percentHeight+"; ms: "+l.measuredWidth+", "+l.measuredHeight+"; s: "+l.width+", "+l.height+"; es: "+l.explicitWidth+"; "+l.explicitHeight+"; size: "+autoSize);
+
 		// Disabled since sometimes the validation will happen too soon (E.g. try tooltip).
 		// Although enabling this code can also solve some textfield 
 		// problems like setting the correct size for the titlefield of the mediapopup.
-	//	if (layout.parent == null && layout.changes > 0)
-	//		layout.validate();
+	//	if (l.parent == null && l.changes > 0)
+	//		l.validate();
 	}
+
+
+	private function applyInjectedLayout (changes:Int)
+	{
+		Assert.that(hasInjectedLayout);
+		var layout = layout.as(AdvancedLayoutClient);
+		if (changes.has(LayoutFlags.SIZE))
+		{
+			width  = layout.width;
+			height = layout.height;
+		}
+
+		if (changes.has(LayoutFlags.PADDING))
+		{
+			x = layout.padding.left;
+			y = layout.padding.top;
+		}
+	}
+
+
+#if flash9
+	private function updateWordWrap ()
+	{
+		Assert.that(multiline);
+		wordWrap = layout.as(AdvancedLayoutClient).explicitWidth.isSet();
+	//	autoSize = l.measuredWidth == l.width ? flash.text.TextFieldAutoSize.LEFT : flash.text.TextFieldAutoSize.NONE;	// <-- textfield will also adjust it's height == not desirable
+			
+	}
+#end
 	
 	
 #if debug

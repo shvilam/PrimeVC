@@ -28,9 +28,9 @@
  */
 package primevc.gui.effects.effectInstances;
  import primevc.core.geom.Rectangle;
- import primevc.gui.display.IDisplayObject;
  import primevc.gui.effects.EffectProperties;
  import primevc.gui.effects.ScrollEffect;
+ import primevc.gui.traits.IScrollable;
  import primevc.types.Number;
  import primevc.utils.NumberUtil;
   using primevc.utils.NumberUtil;
@@ -41,7 +41,7 @@ package primevc.gui.effects.effectInstances;
  * @author Ruben Weijers
  * @creation-date Jul 15, 2011
  */
-class ScrollEffectInstance extends EffectInstance < IDisplayObject, ScrollEffect >
+class ScrollEffectInstance extends EffectInstance < IScrollable, ScrollEffect >
 {
     /**
      * Start x value.
@@ -96,13 +96,13 @@ class ScrollEffectInstance extends EffectInstance < IDisplayObject, ScrollEffect
     override private function initStartValues ()
     {
         var t = target;
-        if (t.scrollRect == null)
-            t.scrollRect = new Rectangle( 0, 0, t.width, t.height );
+        if (!t.isScrollable)
+            t.createScrollRect(t.rect.width, t.rect.height);
 
-        var rect  = t.scrollRect;
-        if (effect.startX.isSet())  startX  = rect.x = effect.startX;
+        var rect  = t.getScrollRect();
+        if (effect.startX.isSet())  startX  = effect.startX;
         else                        startX  = rect.x;
-        if (effect.startY.isSet())  startY  = rect.y = effect.startY;
+        if (effect.startY.isSet())  startY  = effect.startY;
         else                        startY  = rect.y;
         
         endX    = effect.endX;
@@ -111,24 +111,26 @@ class ScrollEffectInstance extends EffectInstance < IDisplayObject, ScrollEffect
         changeX = isXChanged();
         changeY = isYChanged();
     //  Assert.that(changeX || changeY);
-
-        t.scrollRect   = rect;
-        t.visible      = true;
+        
+        if (startX != rect.x || startY != rect.y)
+            t.scrollTo(startX, startY);
+      
+    //  t.visible = true;
     }
     
 
     override private function tweenUpdater ( tweenPos:Float )
     {
-        var rect = target.scrollRect;
+        var rect = target.getScrollRect();
         if (changeX)   rect.x = (( endX * tweenPos ) + ( startX * (1 - tweenPos) )).roundFloat();
         if (changeY)   rect.y = (( endY * tweenPos ) + ( startY * (1 - tweenPos) )).roundFloat();
-        target.scrollRect = rect;
+        target.setScrollRect(rect);
     }
     
     
     override private function calculateTweenStartPos () : Float
     {
-        var rect = target.scrollRect;
+        var rect = target.getScrollRect();
         return if (!changeX && !changeY)    1;
           else if (!changeY)                (rect.x - startX) / (endX - startX);
           else if (!changeX)                (rect.y - startY) / (endY - startY);

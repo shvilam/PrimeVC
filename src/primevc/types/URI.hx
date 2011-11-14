@@ -142,7 +142,7 @@ class URI #if neko implements ICodeFormattable #end
 	 	Returns empty string if the first char is a dot and there are no other dots (UNIX hidden file convention).
 	*/
 	public var fileExt	(getFileExt,setFileExt)	: String;
-		private inline function getFileExt()	: String	{ return path.getExtension(); }
+		private inline function getFileExt()	: String	{ return path.getExtension().toLowerCase(); }
 		private inline function setFileExt(v)	: String	{ path.setExtension(v); return v; }
 	
 	

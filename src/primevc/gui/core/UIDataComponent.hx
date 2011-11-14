@@ -30,8 +30,6 @@ package primevc.gui.core;
  import primevc.core.collections.DataCursor;
  import primevc.core.collections.IReadOnlyList;
  import primevc.core.traits.IValueObject;
-// import primevc.core.Bindable;
-// import primevc.core.IBindable;
   using primevc.utils.BitUtil;
   using primevc.utils.TypeUtil;
  
@@ -52,8 +50,6 @@ package primevc.gui.core;
  */
 class UIDataComponent <DataType> extends UIComponent, implements IUIDataElement <DataType>
 {
-//	public var vo (default, setVO)		: IBindable < DataType >;
-//	public var data (getData, setData)	: DataType;
 	public var data (default, setData)	: DataType;
 	
 	

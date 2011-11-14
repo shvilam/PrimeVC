@@ -1,16 +1,31 @@
 package primevc.js.events;
-
-import primevc.core.dispatcher.Signals;
-import js.Dom;
+ private typedef TouchSignal = primevc.js.events.TouchSignal; // override import
+ import primevc.gui.events.TouchEvents;
+ import primevc.gui.events.UserEventTarget;
 
 /**	
  * @since  march 2, 2011
  * @author Stanislav Sopov
+ * @author Ruben Weijers
  */
-
-class TouchEvents extends Signals
+class TouchEvents extends TouchSignals
 {
-	var eventDispatcher:HtmlDom;
+	private var eventDispatcher : UserEventTarget;
+	
+	
+	public function new(eventDispatcher:UserEventTarget)
+	{
+		super();
+		this.eventDispatcher = eventDispatcher;
+	}
+	
+	override private function createStart ()		{ start		= new TouchSignal(eventDispatcher, "touchstart"); }
+	override private function createEnd ()			{ end		= new TouchSignal(eventDispatcher, "touchend"); }
+	override private function createMove ()			{ move		= new TouchSignal(eventDispatcher, "touchmove"); }
+	override private function createCancel () 		{ cancel	= new TouchSignal(eventDispatcher, "touchcancel"); }
+
+
+/*	var eventDispatcher:HtmlDom;
 	
 	public var orientationchange(getOrientationchange,	null):TouchSignal;
 	public var touchstart		(getTouchstart, 		null):TouchSignal;
@@ -70,5 +85,5 @@ class TouchEvents extends Signals
 		gesturechange =
 		gestureend =
 		null;
-	}
+	}*/
 }

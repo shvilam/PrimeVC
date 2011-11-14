@@ -37,7 +37,7 @@
 	<component id="SelectableListView"		superClass="ListView"       	fullname="primevc.gui.components.SelectableListView" />
 	<component id="SliderBase"				superClass="UIDataContainer"	fullname="primevc.gui.components.SliderBase" />
 	<component id="Slider"					superClass="SliderBase"			fullname="primevc.gui.components.Slider" />
-	<component id="TextArea"				superClass="UIDataContainer"	fullname="primevc.gui.components.TextArea" />
+	<component id="TextArea"				superClass="InputField"			fullname="primevc.gui.components.TextArea" />
 	<component id="ToggleGroup"				superClass="UIContainer"		fullname="primevc.gui.components.ToggleGroup" />
 	<component id="VideoControlBar"			superClass="UIContainer"		fullname="primevc.gui.components.VideoControlBar" />
 	<component id="VideoPlayer"				superClass="UIDataContainer"	fullname="primevc.gui.components.VideoPlayer" />

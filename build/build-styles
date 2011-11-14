@@ -42,7 +42,7 @@ echo -e "\tDebugging? ${Debug:-false}"
 
 CompilerUpdated=false
 
-cd "$PRIMEVC_ROOT"
+#cd "$PRIMEVC_ROOT" &&
 
 #create parser if the source files have changed
 if $Force || [[ ! -f "$Parser" ]]  ||  test "$MainFile" -nt "$Parser"  ||  test "$ParserClass" -nt "$Parser"; then  # ||  test ${StyleFile} -nt ${Parser} ; then
@@ -52,7 +52,6 @@ if $Force || [[ ! -f "$Parser" ]]  ||  test "$MainFile" -nt "$Parser"  ||  test 
 		-neko "$Parser" \
 		--no-inline $Debug \
 		${Debug:---no-traces} || exit 1;
-	
 	CompilerUpdated=true
 fi;
 
@@ -63,7 +62,7 @@ fi;
 
 #compile css
 if [[ -d "$StyleFolder" ]] && [[ -f "$StyleInputFile" ]] ; then # && [[ -f ${ManifestFile} ]] ; then
-	if "$CompilerUpdated" || [[ ! -f "$StyleOutputFile" ]] || test "$StyleInputFile" -nt "$StyleOutputFile"; then # || test ${ManifestFile} -nt ${StyleOutputFile} ; then
+	if "$CompilerUpdated" || [[ ! -f "$StyleOutputFile" ]] || test "$StyleInputFile" -nt "$StyleOutputFile" || test "$Parser" -nt "$StyleOutputFile"; then # || test ${ManifestFile} -nt ${StyleOutputFile} ; then
 		echo -e "\tRunning parser on ${StyleInputFile}"
 		neko "$Parser" "$StyleFolder" "$PRIMEVC_ROOT" || exit 1;
 	else	

@@ -25,7 +25,7 @@ class BindableTest
 		Assert.that(b.value == 1000);
 		
 		var changeCount = 0;
-		a.change.bind(BindableTest, function(v){ changeCount++; });
+		a.change.observe(BindableTest, function(){ changeCount++; });
 		
 		a.pair(b);
 		a.pair(b);

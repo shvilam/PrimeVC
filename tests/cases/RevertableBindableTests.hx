@@ -26,15 +26,19 @@ class RevertableBindableTests extends haxe.unit.TestCase
 		
 		a.beginEdit(); b.beginEdit();
 		a.pair(b);
+		assertEquals("two", a.value);
+		assertEquals("two", b.value);
 	#if debug
 		assertTrue(a.isBoundTo(b));
 		assertTrue(b.isBoundTo(a));
 	#end
 		b.value = "three";
+		assertEquals("three", b.value);
+		assertEquals("two", a.value);
 		b.commitEdit();
 		
-		assertEquals("three", a.value);
 		assertEquals("three", b.value);
+		assertEquals("three", a.value);
 		
 		b.unbind(a);
 		
@@ -73,18 +77,24 @@ class RevertableBindableTests extends haxe.unit.TestCase
 		s.cancelEdit();
 		
 		assertTrue(s.flags.hasNone(IN_EDITMODE));
+		assertFalse(s.isEditable());
 		assertEquals("initial", s.value);
 		
 		s.beginEdit();
 		assertTrue(s.flags.has(IN_EDITMODE));
+		assertTrue(s.isEditable());
 		s.cancelEdit();
 		assertTrue(s.flags.hasNone(IN_EDITMODE));
+		assertFalse(s.isEditable());
 		assertEquals("initial", s.value);
 		
 		
 		s.beginEdit();
 		s.value = "nonsense";
+		assertTrue(s.isEditable());
+		assertEquals("initial",  s.shadowValue);
 		assertEquals("nonsense", s.value);
+		assertTrue(s.isChanged());
 		
 		s.cancelEdit();
 		assertEquals("initial", s.value);
@@ -99,13 +109,18 @@ class RevertableBindableTests extends haxe.unit.TestCase
 	function test_Begin_keeps_pre_edit_value_intact()
 	{
 		var s = new RevertableBindable<String>("initial");
-		assertTrue(s.flags.hasNone(IN_EDITMODE));
+		assertFalse(s.isEditable());
 		
 		s.beginEdit();
-		assertTrue(s.flags.has(IN_EDITMODE));
+		assertTrue(s.isEditable());
+		assertFalse(s.isChanged());
+
+		assertEquals("initial", s.value);
+		assertEquals(null, 		s.shadowValue);
 		s.value = "second";
 		
 		s.beginEdit();
+		assertTrue(s.isChanged());
 		assertEquals("second",  s.value);
 		assertEquals("initial", s.shadowValue);
 		
@@ -115,7 +130,7 @@ class RevertableBindableTests extends haxe.unit.TestCase
 	
 	function test_SignalDispatchingFlags()
 	{
-		var check = checkFunction(RevertableBindableFlags.shouldSignal);
+		var check = checkFunction(shouldSignal);
 		
 		
 		check(IS_VALID /* && not IN_EDITMODE */, true);
@@ -141,7 +156,7 @@ class RevertableBindableTests extends haxe.unit.TestCase
 	
 	function test_BindingDispatchingFlags()
 	{
-		var check = checkFunction(RevertableBindableFlags.shouldUpdateBindings);
+		var check = checkFunction(shouldUpdateBindings);
 		
 		
 		check(IS_VALID /* && not IN_EDITMODE */, true);
@@ -164,6 +179,9 @@ class RevertableBindableTests extends haxe.unit.TestCase
 		print("\n-- You should recompile in debug mode...\n");
 		#end
 	}
+
+	function shouldSignal 			(flags:Int)		return RevertableBindableFlags.shouldSignal(flags)				// couldn't be called directly since it's inline
+	function shouldUpdateBindings 	(flags:Int)		return RevertableBindableFlags.shouldUpdateBindings(flags)		// couldn't be called directly since it's inline
 	
 	static function checkFunction(fn)
 	 	return function(flags:Int, expected:Bool)

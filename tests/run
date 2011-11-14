@@ -4,9 +4,9 @@
 MINPARAMS=1
 
 TestClass=${1//\//.}
-FPS=5
-WIDTH=1200
-HEIGHT=900
+FPS=30
+WIDTH=1400
+HEIGHT=1000
 EXTRA=""
 DEBUG=""
 NOTRACES=""
@@ -14,13 +14,13 @@ RESOURCE=""
 STYLEDIR="../styles/empty"
 
 #parse arguments
-while getopts "dte:af:gr:sw:xh:iy:z" OptionName
+while getopts "dte:am:gr:sw:xh:iy:z" OptionName
 	do
 		case $OptionName in
 			d ) DEBUG="-debug";;
 			e ) EXTRA=${OPTARG};;
 			r ) FPS=${OPTARG};;						#frame rate
-			f ) TestClass=${OPTARG//\//.};;			#class
+			m ) TestClass=${OPTARG//\//.};;			#class
 			w ) WIDTH=${OPTARG};;					#width
 			h ) HEIGHT=${OPTARG};;					#height
 			y ) RESOURCE="-resource ${OPTARG}";;	#resource files
@@ -36,5 +36,14 @@ TestClass=${TestClass%.hx}
 bash ../build/build-assets ".." || exit 1;
 bash ../build/build-styles -s "${STYLEDIR}" || exit 1;
 
-haxe build.hxml ${EXTRA} -main $TestClass -swf-header $WIDTH:$HEIGHT:$FPS:FFFFFF ${DEBUG} ${NOTRACES} ${RESOURCE} -cp "'$STYLEDIR'" \ &&
+echo build.hxml \
+	$EXTRA \
+	-main $TestClass \
+	-swf-header $WIDTH:$HEIGHT:$FPS:efefef \
+	${DEBUG} \
+	${NOTRACES} \
+	${RESOURCE} \
+	-cp "'$STYLEDIR'" \
+	${Debug:---no-traces --dead-code-elimination --macro Undead.keepAlive()} \
+		| xargs -t haxe &&
 open test.swf

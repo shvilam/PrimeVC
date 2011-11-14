@@ -27,14 +27,16 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.scroll;
- import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
+ import primevc.gui.behaviours.BehaviourBase;
+ import primevc.gui.traits.IScrollable;
 #if !neko
  import primevc.core.geom.space.Direction;
  import primevc.core.geom.Box;
+ import primevc.gui.display.IDisplayObject;
  import primevc.gui.components.ScrollBar;
- import primevc.gui.layout.ILayoutContainer;
+// import primevc.gui.core.IUIContainer;
+ import primevc.gui.layout.IScrollableLayout;
  import primevc.gui.layout.LayoutFlags;
- import primevc.gui.traits.ILayoutable;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.TypeUtil;
@@ -48,7 +50,7 @@ package primevc.gui.behaviours.scroll;
  * @author Ruben Weijers
  * @creation-date Jan 04, 2011
  */
-class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
+class ShowScrollbarsBehaviour extends BehaviourBase<IScrollable>, implements IScrollBehaviour
 {
 #if !neko
 	private static inline var SIZE = 15;
@@ -56,46 +58,41 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 	private var scrollbarHor	: ScrollBar;
 	private var scrollbarVer	: ScrollBar;
 	
-//	private var parentLayout	: ILayoutContainer;
+	private var layout : IScrollableLayout;
 	
 	
 	override private function init ()
 	{
-		super.init();
-		
-		Assert.that( target.container.is(ILayoutable) );
-		var parent = target.container.as(ILayoutable);
-		Assert.that( parent.layout.is(ILayoutContainer) );
-	//	parentLayout = target.layout.parent; //parent.layout.as(ILayoutContainer);
-		
-		checkIfScrollbarsNeeded.on( layoutContainer.changed, this );
+		layout = target.scrollableLayout;
+		target.enableClipping();
+		checkIfScrollbarsNeeded.on( layout.changed, this );
 	}
 	
 	
 	override private function reset ()
 	{
-		layoutContainer.changed.unbind(this);
+		layout.changed.unbind(this);
 		
 		if (scrollbarVer != null)	{ removeScrollBar( scrollbarHor ); scrollbarHor.dispose(); }
 		if (scrollbarVer != null)	{ removeScrollBar( scrollbarVer ); scrollbarVer.dispose(); }
 		
 		scrollbarHor = scrollbarVer = null;
-		super.reset();
+		target.disableClipping();
 	}
 	
 	
 	private function addScrollBar (direction:Direction, scrollBar:ScrollBar = null)
 	{
-		var depth = target.container.children.indexOf( target ) + 1;
+		var depth = target.is(IDisplayObject) ? target.container.children.indexOf( target.as(IDisplayObject) ) + 1 : target.container.children.length;
 		
 		if (scrollBar == null)
 			scrollBar = new ScrollBar( null, target, direction );
 		else
 			scrollBar.target = target;
 		
-		var l = target.layout;
-		if (l.padding == null)
-			l.padding = new Box();
+		var l = layout;
+		l.invalidatable = false;
+		l.padding 		= l.padding.clone().as(Box);	// make sure the layout has a new padding box.. it could be shared with other components
 		
 		// use hardcoded width value, because the width of scrollbar is not yet available... FIXME
 		if (direction == horizontal) {
@@ -105,6 +102,7 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 			l.padding.right += SIZE;
 			l.invalidateHorPaddingMargin();
 		}
+		l.invalidatable = true;
 		
 		scrollBar.attachToDisplayList( target.container, depth );
 	//	layout.add( scrollBar.layout, layoutDepth );
@@ -120,7 +118,8 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 	//	target.container.children.remove( scrollBar );
 		scrollBar.target = null;
 		
-		var l = target.layout;
+		var l = layout;
+		l.invalidatable = false;
 		// use hardcoded width value, because the width of scrollbar is not yet available... FIXME
 		if (scrollBar.direction == horizontal) {
 			l.padding.bottom -= SIZE;
@@ -129,19 +128,20 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 			l.padding.right -= SIZE;
 			l.invalidateHorPaddingMargin();
 		}
+		l.invalidatable = true;
 	}
 	
 	
 	private function checkIfScrollbarsNeeded (changes:Int)
 	{
-		if (changes.hasNone( LayoutFlags.WIDTH_PROPERTIES | LayoutFlags.HEIGHT_PROPERTIES ))
+		if (changes.hasNone( LayoutFlags.WIDTH_PROPERTIES | LayoutFlags.HEIGHT_PROPERTIES | LayoutFlags.POSITION ))
 			return;
-		
-	//	trace(target+": "+layoutContainer.measuredWidth+", "+layoutContainer.explicitWidth+"; "+layoutContainer.width+"; "+layoutContainer.measuredHeight+", "+layoutContainer.explicitHeight+"; "+layoutContainer.height);
+
+	//	trace(target+": mw: "+layout.measuredWidth+", ew "+layout.explicitWidth+"; w "+layout.width+"; mh "+layout.measuredHeight+", eh "+layout.explicitHeight+"; h "+layout.height);
 		var hasHorScrollbar		= scrollbarHor != null && scrollbarHor.container == target.container;
-		var needHorScrollbar	= layoutContainer.horScrollable();
+		var needHorScrollbar	= layout.horScrollable();
 		var hasVerScrollbar		= scrollbarVer != null && scrollbarVer.container == target.container;
-		var needVerScrollbar	= layoutContainer.verScrollable();
+		var needVerScrollbar	= layout.verScrollable();
 		
 		//check horizontal
 		if		(hasHorScrollbar && !needHorScrollbar)		removeScrollBar( scrollbarHor );
@@ -154,7 +154,8 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 		
 		if (needHorScrollbar || needVerScrollbar)
 		{
-			var l = target.layout;
+			Assert.that(!layout.hasEmptyPadding());
+			var l = layout;
 			var bounds		= l.innerBounds;
 		//	var maxBounds	= l.parent.innerBounds;
 			
@@ -168,7 +169,7 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 				var scrollBar		= scrollbarHor.layout.outerBounds;
 				scrollBar.invalidatable = false;
 				scrollBar.width		= width - (needVerScrollbar ? scrollbarVer.layout.outerBounds.width : 0);
-				scrollBar.top		= l.getVerPosition() + height - scrollBar.height;
+				scrollBar.bottom	= l.getVerPosition() + height; // - scrollBar.height;
 				scrollBar.left		= l.getHorPosition();
 				scrollBar.invalidatable = true;
 			}	
@@ -181,7 +182,7 @@ class ShowScrollbarsBehaviour extends ClippedLayoutBehaviour
 			
 				scrollBar.invalidatable = false;
 				scrollBar.height	= height;
-				scrollBar.left		= l.getHorPosition() + width - scrollBar.width;
+				scrollBar.right		= l.getHorPosition() + width; // - scrollBar.width;
 				scrollBar.top		= l.getVerPosition();
 				scrollBar.invalidatable = true;
 			

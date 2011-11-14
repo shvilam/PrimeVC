@@ -106,4 +106,7 @@ interface ILayoutContainer implements ILayoutClient
 	 * @default		Number.INT_NOT_SET
 	 */
 	public var childHeight			(default, setChildHeight)	: Int;
+
+
+	public function attach (target:LayoutClient, depth:Int = -1) : ILayoutContainer;
 }
