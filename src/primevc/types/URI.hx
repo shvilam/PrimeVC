@@ -37,14 +37,6 @@ package primevc.types;
   using primevc.utils.IfUtil;
   using primevc.utils.NumberUtil;
 
-enum URIScheme
-{
-	http;
-	https;
-	mailto;
-	javascript;
-	Scheme(p:String);
-}
 
 /**
  * A URI is a uniform resource <i>identifier</i> while a URL is a uniform
@@ -59,6 +51,8 @@ enum URIScheme
  *  http://en.wikipedia.org/wiki/URI_scheme
  *  
  *  Ook interessant: http://www.php.net/manual/en/function.parse-url.php#90365
+ *
+ * @author Danny Wilson
  */
 class URI #if neko implements ICodeFormattable #end
 {
@@ -69,14 +63,14 @@ class URI #if neko implements ICodeFormattable #end
 		var mailURI = "mailto:mediahuis@tntpost.nl?subject=Een onvergetelijke kerst";
 		
 		u.parse(mailURI);
-		Assert.that(u.scheme == mailto,  u.string);
+		Assert.that(u.scheme == URIScheme.mailto,  u.string);
 		Assert.that(u.userinfo == "mediahuis",  u.userinfo);
 		Assert.that(u.host == "tntpost.nl",  u.host);
 		Assert.that(u.query == "subject=Een onvergetelijke kerst",  u.query);
 		Assert.that(u.string == mailURI, u.string);
 		
 		u.parse("http://decube.net/a");
-		Assert.that(u.scheme == http, u.string);
+		Assert.that(u.scheme == URIScheme.http, u.string);
 		Assert.that(u.host == "decube.net", u.string);
 		Assert.that(u.path == "/a", u.path);
 		
@@ -105,6 +99,7 @@ class URI #if neko implements ICodeFormattable #end
 		Assert.equal(u.host, "aap");
 	}
 #end
+	
 	
 	public var string (getString, null) : String;
 	
@@ -147,7 +142,7 @@ class URI #if neko implements ICodeFormattable #end
 	 	Returns empty string if the first char is a dot and there are no other dots (UNIX hidden file convention).
 	*/
 	public var fileExt	(getFileExt,setFileExt)	: String;
-		private inline function getFileExt()	: String	{ return path.getExtension(); }
+		private inline function getFileExt()	: String	{ return path.getExtension().toLowerCase(); }
 		private inline function setFileExt(v)	: String	{ path.setExtension(v); return v; }
 	
 	
@@ -266,7 +261,7 @@ class URI #if neko implements ICodeFormattable #end
 			if (us == null)
 			{
 				if (has2slashes) {
-					(untyped this).scheme = Scheme(scheme_str);
+					(untyped this).scheme = URIScheme.Scheme(scheme_str);
 					pos = scheme_pos + 3;
 				}
 				else {
@@ -277,7 +272,7 @@ class URI #if neko implements ICodeFormattable #end
 			}
 			else switch (us)
 			{
-				case javascript:
+				case URIScheme.javascript:
 					this.string = str;
 					return this;
 				
@@ -297,6 +292,9 @@ class URI #if neko implements ICodeFormattable #end
 		var path_pos:Int  = str.indexOf('/', pos);
 		var query_pos:Int = str.indexOf('?', (path_pos  == -1)? pos : path_pos);
 		var frag_pos:Int  = str.indexOf('#', (query_pos == -1)? pos : query_pos);
+		
+		if (port_pos > path_pos)
+			port_pos = -1;
 		
 		if (port_pos != -1)
 		{
@@ -360,4 +358,14 @@ class URI #if neko implements ICodeFormattable #end
 	public function cleanUp () : Void				{}
 	public function toCode (code:ICodeGenerator)	{ code.construct( this, [ getString() ] ); }
 #end
+}
+
+
+/**
+ * @author 	Ruben Weijers
+ * @since 	sep 8, 2011
+ */
+class URIUtil
+{
+	public static inline function hasScheme (str:String)	{ return str.indexOf(':') != -1; }
 }
