@@ -44,6 +44,8 @@ package primevc.mvc;
 	public static inline var ENABLED	= 1 << 2;
 	public static inline var EDITING	= 1 << 3;
 	public static inline var HAS_DATA	= 1 << 4;
+	public static inline var LOADING	= 1 << 5;
+	public static inline var SENDING	= 1 << 6;
 	
 	
 #if debug
@@ -55,6 +57,8 @@ package primevc.mvc;
 		if (state.has(EDITING))		str.push( "editing" );
 		if (state.has(ENABLED))		str.push( "enabled" );
 		if (state.has(HAS_DATA))	str.push( "hasData" );
+		if (state.has(LOADING))		str.push( "loading" );
+		if (state.has(SENDING))		str.push( "sending" );
 		
 		return str.join(", ");
 	}

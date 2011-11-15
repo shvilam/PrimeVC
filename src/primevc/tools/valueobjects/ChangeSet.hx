@@ -41,7 +41,7 @@ package primevc.tools.valueobjects;
  */
 class ChangeSet extends ChangeVO
 {
-    public var timestamp    (default, null) : Int;      // in ms
+    public var timestamp    (default, null) : Float;      // in ms (time in ms won't fit in 32-bit integer)
     /**
      * Reference to the next change set. Used for grouping change-sets in a GroupChangeSet
      */

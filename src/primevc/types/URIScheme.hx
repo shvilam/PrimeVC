@@ -20,40 +20,23 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.s
+ * DAMAGE.
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Danny Wilson    <danny @ onlinetouch.nl>
  */
-package primevc.utils;
-  using Std;
+package primevc.types;
+
 
 /**
- * @author Ruben Weijers
- * @creation-date May 03, 2011
+ * @author  Danny Wilson
  */
-extern class TimerUtil
+enum URIScheme
 {
-#if !neko
-	public static inline function after (method:Void -> Void, delayMs:Int) : Void
-	{
-		haxe.Timer.delay( method, delayMs );
-	}
-#end
-	
-	
-	/**
-	 * Method returns a timestamp in ms
-	 */
-	public static inline function stamp () : Float
-	{
-		return (haxe.Timer.stamp() * 1000); //.int();
-		/*#if		flash	return Date.now().getTime().int();
-		#elseif	neko	return (neko.Sys.cpuTime() * 1000).int(); //Date.now().getTime().int(); //(neko.Sys.time() * 1000).int();
-		#elseif php		return (php.Sys.time()).int();
-		#elseif js		return Date.now().getTime().int();
-		#elseif cpp		return untyped (__global__.__time_stamp() * 1000).int();
-		#else			return 0; #end*/
-	}
+    http;
+    https;
+    mailto;
+    javascript;
+    Scheme(p:String);
 }
