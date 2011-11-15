@@ -30,6 +30,9 @@ package primevc.core.dispatcher;
  import primevc.core.traits.IDisablable;
  import primevc.core.traits.IDisposable;
  import primevc.core.ListNode;
+#if DebugEvents
+  using primevc.core.ListNode;
+#end
   using primevc.utils.BitUtil;
 
 /**
@@ -84,7 +87,8 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 		w.owner   = owner;
 		w.signal  = dispatcher;
 		(untyped w).handler = handlerFn; // Unsets VOID_HANDLER (!!)
-		w.doEnable();
+		if (flags.has(ENABLED))
+			w.doEnable();
 		
 		#if debug w.bindPos = pos; #end
 		
@@ -148,7 +152,7 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 		{
 			var root = signal;
 		
-			var x = ListNode.next(root);
+			var x = root.next();
 			var total = 0;
 			var found = 0;
 			while (x != null) {

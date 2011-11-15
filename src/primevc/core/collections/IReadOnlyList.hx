@@ -28,7 +28,7 @@
  */
 package primevc.core.collections;
  import primevc.core.collections.iterators.IIterator;
- import primevc.core.dispatcher.Signal1;
+ import primevc.core.events.ListChangeSignal;
  import primevc.core.traits.IClonable;
  import primevc.core.traits.IDuplicatable;
  import primevc.core.traits.IValueObject;
@@ -44,7 +44,13 @@ interface IReadOnlyList < DataType >
 	,	implements IValueObject
 	,	implements IDisposable
 {
-	public var change		(default, null)									: Signal1 < ListChange < DataType > >;
+	public var change		(default, null)									: ListChangeSignal<DataType>;
+	/**
+	 * TODO - Ruben sep 5, 2011:
+	 * Maybe combine change and beforeChange to one Signal2 that has an extra parameter
+	 * to indicate if the change is before or after applying the change..
+	 */
+//	public var beforeChange	(default, null)									: ListChangeSignal<DataType>;
 	public var length		(getLength, never)								: Int;
 	
 	/**

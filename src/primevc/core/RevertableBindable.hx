@@ -64,35 +64,40 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 	/**
 	 * Keeps track of settings.
 	 */
-	public var flags : Int;
+	public  var flags 		(default, null) : Int;
 	
 	/**
 	 * The last valid value. Zero/null until this.value is changed while in editing mode.
 	 */
-	public var shadowValue (default,null) : DataType;
+	public  var shadowValue (default,null) : DataType;
 	
 	
-	public inline function isEditable () : Bool				{ return flags.has(Flags.IN_EDITMODE); }
-	public inline function dispatchBeforeCommit () : Void	{ flags = flags.set(   Flags.DISPATCH_CHANGES_BEFORE_COMMIT );  }
-	public inline function dispatchAfterCommit () : Void	{ flags = flags.unset( Flags.DISPATCH_CHANGES_BEFORE_COMMIT );  }
-	public inline function updateBeforeCommit () : Void		{ flags = flags.set(   Flags.UPDATE_BINDINGS_BEFORE_COMMIT );  }
-	public inline function updateAfterCommit () : Void		{ flags = flags.unset( Flags.UPDATE_BINDINGS_BEFORE_COMMIT );  }
-//	public inline function makeShadowCopy () : Void			{ flags = flags.set(   Flags.MAKE_SHADOW_COPY );  }
-//	public inline function dontMakeShadowCopy () : Void		{ flags = flags.unset( Flags.MAKE_SHADOW_COPY );  }
-	
-	
-	override private function setValue (newValue:DataType) : DataType
+	public  function new (?val : Null<DataType>)
+	{
+		flags = Flags.DISPATCH_CHANGES_BEFORE_COMMIT; // | Flags.UPDATE_BINDINGS_BEFORE_COMMIT;
+		super(val);
+	}
+
+
+	override public  function dispose ()
+	{
+		cancelEdit();
+		(untyped this).value = null; // Int can't be set to null, so we trick it with untyped
+		flags = 0;
+		super.dispose();
+	}
+
+
+	override private function setValue (newV:DataType) : DataType
 	{
 		var f = flags;
 		
-		if (f.hasNone(Flags.IN_EDITMODE) || newValue == this.value) return newValue;
-		// ---
+#if debug if (newV != this.value) Assert.that(f.has(Flags.IN_EDITMODE), this+" should be editable to change "+this.value+" into "+newV); #end
+		if (f.hasNone(Flags.IN_EDITMODE) || newV == this.value) return newV;
 		
-		Assert.that( isEditable() );
-		
-		if (f.has(RevertableBindableFlags.MAKE_SHADOW_COPY)) {
-			f = f.unset( RevertableBindableFlags.MAKE_SHADOW_COPY );
-		//	trace("Saving shadow copy: "+value+", before changing to:"+newValue);
+		if (!isChanged()) {
+			f = f.unset(  Flags.MAKE_SHADOW_COPY );
+		//	trace("Saving shadow copy: "+value+", before changing to:"+newV);
 			shadowValue = value;
 		}
 		
@@ -106,23 +111,37 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 		
 		this.flags	= f;
 		var oldV	= this.value;
-		this.value	= newValue;
+		this.value	= newV;
 		
+		Assert.notEqual( newV, oldV );
 		if (Flags.shouldSignal(f))
-			change.send(newValue, oldV);
+			change.send(newV, oldV);
 		
 		if (Flags.shouldUpdateBindings(f))
-			BindableTools.dispatchValueToBound(writeTo, newValue);
+			BindableTools.dispatchValueToBound(writeTo, newV);
 		
-		return newValue;
+		return newV;
 	}
+
+
+
+	//
+	// FLAG METHODS
+	//
 	
-	public function new (?val : Null<DataType>)
-	{
-		flags = Flags.DISPATCH_CHANGES_BEFORE_COMMIT;
-		super(val);
-	}	
-	
+	public  inline function isEditable () : Bool			{ return  flags.has(   Flags.IN_EDITMODE); }
+	public  inline function dispatchBeforeCommit () : Void	{ flags = flags.set(   Flags.DISPATCH_CHANGES_BEFORE_COMMIT );  }
+	public  inline function dispatchAfterCommit () : Void	{ flags = flags.unset( Flags.DISPATCH_CHANGES_BEFORE_COMMIT );  }
+	public  inline function updateBeforeCommit () : Void	{ flags = flags.set(   Flags.UPDATE_BINDINGS_BEFORE_COMMIT );  }
+	public  inline function updateAfterCommit () : Void		{ flags = flags.unset( Flags.UPDATE_BINDINGS_BEFORE_COMMIT );  }
+	public  inline function isChanged () : Bool 			{ return  flags.hasNone(Flags.MAKE_SHADOW_COPY ); }
+
+
+
+	//
+	// IEditableValueObject methods
+	//
+
 	/**
 	 * Puts this in editing-mode and keeps a copy of the current value
 	 * if not already in edit-mode.
@@ -130,35 +149,41 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 	public inline function beginEdit()
 	{
 		// Only set MAKE_SHADOW_COPY if IN_EDITMODE is not set
-		Assert.that(Flags.IN_EDITMODE << 11 == RevertableBindableFlags.MAKE_SHADOW_COPY);
-		flags = flags.set( (((flags & Flags.IN_EDITMODE) << 11) ^ RevertableBindableFlags.MAKE_SHADOW_COPY) | Flags.IN_EDITMODE );
+		Assert.that(Flags.IN_EDITMODE << 11 == Flags.MAKE_SHADOW_COPY);
+		flags = flags.set( (((flags & Flags.IN_EDITMODE) << 11) ^ Flags.MAKE_SHADOW_COPY) | Flags.IN_EDITMODE );
 	}
 	
+
 	/**
 	 * Finishes edit-mode and propagates the new value if needed.
 	 */
-	public inline function commitEdit()
+	public /*inline*/ function commitEdit()
 	{
-		// Check if MAKE_SHADOW_COPY is not set (value changed) and any dispatch flag is set.
-		if (flags.hasNone(RevertableBindableFlags.MAKE_SHADOW_COPY))
+		if (isEditable())
 		{
-			if (flags.hasNone(Flags.DISPATCH_CHANGES_BEFORE_COMMIT)) // change has not been dispatched
-				change.send(value, shadowValue);
-			
-			if (flags.hasNone(Flags.UPDATE_BINDINGS_BEFORE_COMMIT))  // bindables are not up to date
-				BindableTools.dispatchValueToBound(writeTo, value);
+			var f = flags;
+			// Check if MAKE_SHADOW_COPY is not set (value changed) and any dispatch flag is set.
+			if (isChanged() && value != shadowValue)
+			{
+				if (f.hasNone(Flags.DISPATCH_CHANGES_BEFORE_COMMIT)) // change has not been dispatched
+					change.send(value, shadowValue);
+				
+				if (f.hasNone(Flags.UPDATE_BINDINGS_BEFORE_COMMIT))  // bindables are not up to date
+					BindableTools.dispatchValueToBound(writeTo, value);
+			}
+			flags = f.unset(Flags.IN_EDITMODE | RevertableBindableFlags.MAKE_SHADOW_COPY);
 		}
-		flags = flags.unset(Flags.IN_EDITMODE | RevertableBindableFlags.MAKE_SHADOW_COPY);
 	}
 	
+
 	/**
 	 * Discards the new value and finishes edit-mode.
 	 */
-	public inline function cancelEdit()
+	public /*inline*/ function cancelEdit()
 	{
-		if (flags.has(Flags.IN_EDITMODE))
+		if (isEditable())
 		{
-			if (flags.hasNone(RevertableBindableFlags.MAKE_SHADOW_COPY)) // value was changed
+			if (isChanged())
 				setValue(shadowValue);
 			
 			flags = flags.unset(Flags.IN_EDITMODE | RevertableBindableFlags.MAKE_SHADOW_COPY);
@@ -167,8 +192,8 @@ class RevertableBindable <DataType> extends Bindable<DataType>, implements IEdit
 	
 	
 #if debug
-	public function readFlags () : String {
-		return Flags.readProperties( flags );
+	public function readFlags (f:Int = -1) : String {
+		return Flags.readProperties( f == -1 ? flags : f );
 	}
 #end
 }

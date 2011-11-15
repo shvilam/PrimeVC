@@ -51,57 +51,41 @@ class Signal1 <A> extends Signal<A->Void>, implements ISender1<A>, implements IN
 		while (w.notNull())
 		{
 			nextSendable = w.next();
+			Assert.that(w.isEnabled());
+			Assert.that(w != nextSendable);
+			Assert.that(w.flags != 0);
+				
+			if (w.flags.has(Wire.SEND_ONCE))
+				w.disable();
 			
-			if (w.isEnabled())
-			{
-				Assert.that(w != nextSendable);
-				Assert.that(w.flags != 0);
-				
-				if (w.flags.has(Wire.SEND_ONCE))
-					w.disable();
-				
-				#if (flash9 && debug) try #end {
-					if (w.flags.has(Wire.VOID_HANDLER))
-					 	w.sendVoid();
-					else
-					 	w.handler(_1);
-				}
-				#if (flash9 && debug) catch (e : flash.errors.TypeError) {
-					throw "Wrong argument type ("+ e +") for " + w+";\n\tstacktrace: "+e.getStackTrace()+"\n";
-				}
-				#end
-				
-				if (w.flags.has(Wire.SEND_ONCE))
-				 	w.dispose();
-			}
+#if (flash9 && debug) try { #end
+			if (w.flags.has(Wire.VOID_HANDLER))
+			 	w.sendVoid();
+			else
+			 	w.handler(_1);
+#if (flash9 && debug) } catch (e : flash.errors.TypeError) { throw "Wrong argument type ("+ e +") for " + w+";\n\tstacktrace: "+e.getStackTrace()+"\n"; } #end
+			
+			if (w.flags.has(Wire.SEND_ONCE))
+			 	w.dispose();
 			w = nextSendable; // Next node
 		}
 		nextSendable = null;
 	}
 	
-	public inline function bind(owner:Dynamic, handler:A->Void)
-	{
-		return Wire.make( this, owner, handler, Wire.ENABLED );
-	}
-	
-	public inline function bindOnce(owner:Dynamic, handler:A->Void)
-	{
-		return Wire.make( this, owner, handler, Wire.ENABLED | Wire.SEND_ONCE);
-	}
-	
-	public inline function observe(owner:Dynamic, handler:Void->Void)
-	{
-		return Wire.make( this, owner, cast handler, Wire.ENABLED | Wire.VOID_HANDLER);
-	}
-	
-	public inline function observeOnce(owner:Dynamic, handler:Void->Void)
-	{
-		return Wire.make( this, owner, cast handler, Wire.ENABLED | Wire.VOID_HANDLER | Wire.SEND_ONCE);
-	}
+	public inline function bind 			(owner:Dynamic, handler:A->Void) 		return Wire.make( this, owner, handler, Wire.ENABLED )
+	public inline function bindOnce 		(owner:Dynamic, handler:A->Void) 		return Wire.make( this, owner, handler, Wire.ENABLED | Wire.SEND_ONCE)
+	public inline function bindDisabled 	(owner:Dynamic, handler:A->Void)		return Wire.make( this, owner, cast handler, 0)
+	public inline function observe 			(owner:Dynamic, handler:Void->Void)		return Wire.make( this, owner, cast handler, Wire.ENABLED | Wire.VOID_HANDLER)
+	public inline function observeOnce 		(owner:Dynamic, handler:Void->Void)		return Wire.make( this, owner, cast handler, Wire.ENABLED | Wire.VOID_HANDLER | Wire.SEND_ONCE)
+	public inline function observeDisabled	(owner:Dynamic, handler:Void->Void)		return Wire.make( this, owner, cast handler, Wire.VOID_HANDLER)
 	
 #if DebugEvents
 	@:keep static function __init__()
+		test()	//call test.. otherwise compile error: Signal1.hx:105: lines 105-232 : You can't have a local variable referenced from a closure inside __init__ (FP 10.1.53 crash)
+
+	static function test ()
 	{
+		trace("DebugEvents");
 		// Unit tests
 		var num=0, b1:Wire<String->Void>=null, b2:Wire<String->Void>=null, b3:Wire<String->Void>=null, b4:Wire<String->Void>=null, b5:Wire<String->Void>=null;
 
@@ -123,7 +107,7 @@ class Signal1 <A> extends Signal<A->Void>, implements ISender1<A>, implements IN
 			while (l != null) {
 				++count;
 				linked += name(l) + ", ";
-				l = ListNode.next(l);
+				l = l.next();
 			}
 			trace(linked);
 			return count;
@@ -132,11 +116,10 @@ class Signal1 <A> extends Signal<A->Void>, implements ISender1<A>, implements IN
 
 		var o = {};
 
-		b1 = d.bind(o, handler); Assert.that(b1._ == d);
+		b1 = d.bind(o, handler); Assert.equal(b1.signal, d);
 		b1.dispose();
-		b1 = d.bind(o, handler); Assert.that(b1._ == d);
-		
-		b2 = d.bind(o, handler); Assert.that(b2._ == d);
+		b1 = d.bind(o, handler); Assert.equal(b1.signal, d);
+		b2 = d.bind(o, handler); Assert.equal(b2.signal, d);
 		
 		Assert.that(b1.isEnabled());
 		Assert.that(b2.isEnabled());
