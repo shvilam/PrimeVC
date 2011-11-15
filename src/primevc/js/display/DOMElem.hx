@@ -13,20 +13,20 @@ import js.Lib;
  
 class DOMElem
 {
-	public var type			(default, null):String;
+	public var children		(default, null):DisplayList;
+	public var className	(default, setClassName):String;
 	public var elem			(default, null):Dynamic;
-	public var width		(default, setWidth):Int;
 	public var height		(default, setHeight):Int;
+	public var id			(default, setId):String;
+	public var matrix		(default, null):WebKitCSSMatrix;
+	public var parent		:DOMElem;
+	public var scale		(default, setScale):Float;
+	public var style		(getStyle, null):Style;
+	public var type			(default, null):String;
+	public var visible		(default, setVisible):Bool;
+	public var width		(default, setWidth):Int;
 	public var x			(default, setX):Int;
 	public var y			(default, setY):Int;
-	public var scale		(default, setScale):Float;
-	public var id			(default, setId):String;
-	public var style		(getStyle, null):Style;
-	public var className	(default, setClassName):String;
-	public var matrix		(default, null):WebKitCSSMatrix;
-	public var children		(default, null):DisplayList;
-	public var parent		:DOMElem;
-	public var visible		(default, setVisible):Bool;
 	
 	public function new(type:String)
 	{
