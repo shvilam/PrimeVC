@@ -35,7 +35,7 @@ typedef DisplayEvents =
 	#if		flash9	primevc.avm2.events.DisplayEvents;
 	#elseif	flash8	primevc.avm1.events.DisplayEvents;
 	#elseif	js		primevc.js  .events.DisplayEvents;
-	#else	DisplaySignals	#end
+	#else	DisplaySignals;	#end
 
 
 /**
@@ -50,15 +50,4 @@ class DisplaySignals extends Signals
 	var removedFromStage	(default,null) : Signal0;
 	var enterFrame			(default,null) : Signal0;
 	var render				(default,null) : Signal0;
-	
-	
-	override public function dispose ()
-	{
-		addedToStage.dispose();
-		removedFromStage.dispose();
-		enterFrame.dispose();
-		render.dispose();
-		
-		addedToStage = removedFromStage = enterFrame = render = null;
-	}
 }

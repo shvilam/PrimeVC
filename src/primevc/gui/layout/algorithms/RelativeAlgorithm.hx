@@ -36,7 +36,6 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.RelativeLayout;
  import primevc.types.Number;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
@@ -191,9 +190,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 			if (mostTopVal.isSet())		s.minScrollYPos = mostTopVal;
 		}
 		
-		validatePrepared	= false;
-		validatePreparedHor	= false;
-		validatePreparedVer	= false;
+		validatePrepared = validatePreparedHor = validatePreparedVer = false;
 	}
 	
 	

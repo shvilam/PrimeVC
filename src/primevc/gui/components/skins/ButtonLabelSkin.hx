@@ -54,8 +54,6 @@ class ButtonLabelSkin extends Skin<Button>
 	{
 		labelField = new UITextField( null, true, owner.data );
 		
-		owner.layoutContainer	.children.add( labelField.layout );
-		owner					.children.add( labelField );
 #if debug
 		labelField.id.value		= owner.id.value + "TextField";
 #end
@@ -64,22 +62,22 @@ class ButtonLabelSkin extends Skin<Button>
 		labelField.selectable		= false;
 		labelField.mouseEnabled		= false;
 		labelField.tabEnabled		= false;
+		labelField.wordWrap			= owner.wordWrap;
+		labelField.embedFonts		= owner.embedFonts;
 		labelField.respondToFocusOf( owner );
 
 		if (owner.textStyle != null)
 			labelField.textStyle = owner.textStyle;
 #end
+		owner.attach( labelField );
 	}
 
 
-	override private function removeChildren ()
+	override public  function removeChildren ()
 	{
 		if (labelField != null)
 		{
-			if (owner != null) {
-				owner.layoutContainer	.children.remove( labelField.layout );
-				owner					.children.remove( labelField );
-			}
+			labelField.detach();
 			labelField.dispose();
 			labelField = null;
 		}
@@ -89,8 +87,11 @@ class ButtonLabelSkin extends Skin<Button>
 #if flash9
 	override public function validate (changes:Int)
 	{
-		if (changes.has( Flags.TEXTSTYLE ))
-			labelField.textStyle = owner.textStyle;
+		if (changes.has( Flags.TEXTSTYLE )) {
+			labelField.embedFonts	= owner.embedFonts;
+			labelField.wordWrap		= owner.wordWrap;
+			labelField.textStyle 	= owner.textStyle;
+		}
 	}
 	
 	

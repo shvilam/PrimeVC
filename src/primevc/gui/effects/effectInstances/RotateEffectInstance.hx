@@ -78,6 +78,9 @@ class RotateEffectInstance extends EffectInstance < IPositionable, RotateEffect 
 		
 		if (effect.endValue.isSet())	endValue = effect.endValue;
 		else							endValue = 1;
+		
+		target.rotation	= startValue;
+		target.visible	= true;
 	}
 
 

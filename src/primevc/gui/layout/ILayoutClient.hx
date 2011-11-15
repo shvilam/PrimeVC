@@ -268,6 +268,8 @@ interface ILayoutClient
 	 */
 	public var outerBounds	(default, null)		: IntRectangle;
 	
+	public function hasMaxWidth () : Bool;
+	public function hasMaxHeight () : Bool;
 	
 #if debug
 	public var name:String;

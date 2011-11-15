@@ -36,7 +36,7 @@ package primevc.gui.graphics.borders;
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-interface IBorder implements IGraphicProperty 
+interface IBorder implements IGraphicProperty
 {
 	public var weight		(default, setWeight)		: Float;
 //	public var fill			(default, setFill)			: FillType;
@@ -54,7 +54,7 @@ interface IBorder implements IGraphicProperty
 	 * Should this border be drawn on the inside of the parent shape (true) or
 	 * on the outside of the parentshape.
 	 */
-//	public var innerBorder	(default, setInnerBorder)	: Bool;
+	public var innerBorder	(default, setInnerBorder)	: Bool;
 	
 	
 //	public function begin (target:IDrawable, ?bounds:IRectangle) : Void;

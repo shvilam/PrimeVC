@@ -70,5 +70,5 @@ interface IEditableList <DataType>
 	 */
 	public function move	(item:DataType, newPos:Int, curPos:Int = -1)		: DataType;
 	
-	public function removeAll ()	: Void;
+	public function removeAll ()												: Void;
 }

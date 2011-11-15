@@ -44,7 +44,7 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.layout.LayoutFlags;
- import primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
   using primevc.utils.NumberUtil;
@@ -153,10 +153,13 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 #if debug
 		tileGroup.name				= "row" + tileGroups.children.length;
 #end
-		if (startDirection == Direction.horizontal)
-			tileGroup.widthValidator = childSizeValidator;
-		else
-			tileGroup.heightValidator = childSizeValidator;
+		if (startDirection == Direction.horizontal) {
+			tileGroup.widthValidator	= childSizeValidator;
+		//	tileGroup.percentWidth		= 1;
+		} else {
+			tileGroup.heightValidator	= childSizeValidator;
+		//	tileGroup.percentHeight		= 1;
+		}
 		
 		tileCollection.addList( childList );
 		tileGroups.children.add( tileGroup );	
@@ -165,9 +168,12 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 	
 	private inline function removeTileContainer (tileGroup:TileContainer)
 	{
-		tileCollection.removeList( cast tileGroup.children );
-		tileGroups.children.remove( tileGroup );
-		tileGroup.dispose();
+		if (tileGroups.children.length > 1)
+		{
+			tileCollection.removeList( cast tileGroup.children );
+			tileGroups.children.remove( tileGroup );
+			tileGroup.dispose();
+		}
 	}
 	
 	
@@ -236,8 +242,19 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 				tileGroups.heightValidator = group.heightValidator;
 			
 			//resize all columns / rows
-			if (group.changes.has(Flags.EXPLICIT_HEIGHT | Flags.EXPLICIT_WIDTH))
-				childSizeValidator.max = (startDirection == vertical) ? group.explicitHeight : group.explicitWidth;
+			if (group.changes.has(Flags.HEIGHT) && startDirection == vertical && group.explicitHeight != childSizeValidator.max)
+			{
+				childSizeValidator.max = group.explicitHeight;
+				for (i in 0...tileGroups.children.length)
+					tileGroups.children.getItemAt(i).height = group.explicitHeight;
+			}
+			
+			else if (group.changes.has(Flags.WIDTH) && startDirection == horizontal && group.explicitWidth != childSizeValidator.max)
+			{
+				childSizeValidator.max = group.explicitWidth;
+				for (i in 0...tileGroups.children.length)
+					tileGroups.children.getItemAt(i).width = group.explicitWidth;
+			}
 		}
 		super.prepareValidate();
 	}
@@ -258,6 +275,7 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 				continue;
 			
 			var children:ChainedList<LayoutClient> = cast tileGroup.as(TileContainer).children;
+			
 			if (children.length == 0) {
 				removeTileContainer( cast tileGroup );
 				continue;
@@ -365,7 +383,6 @@ class DynamicTileAlgorithm extends TileAlgorithmBase, implements ILayoutAlgorith
 				childAlgorithm = new DynamicRowAlgorithm( horizontalDirection );//, verticalDirection );
 			else
 				childAlgorithm = new DynamicColumnAlgorithm( verticalDirection );//, horizontalDirection );
-			
 			invalidate( true );
 		}
 		return v;
@@ -512,6 +529,7 @@ private class DynamicColumnAlgorithm extends VerticalFloatAlgorithm
 	//	if (children.length < 2)
 	//		return;
 		
+untyped	trace(children.length + "; "+group.readChanges());
 		if ( group.changes.hasNone(Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.HEIGHT | Flags.HEIGHT_CONSTRAINTS ) )
 			return;
 		

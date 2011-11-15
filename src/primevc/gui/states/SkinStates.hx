@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.states;
- import primevc.core.states.AutoFiniteStateMachine;
+ import primevc.core.states.FiniteStateMachine;
  import primevc.core.states.IState;
  
 
@@ -37,32 +37,32 @@ package primevc.gui.states;
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
-class SkinStates extends AutoFiniteStateMachine
+class SkinStates extends FiniteStateMachine
 {
 	/**
 	 * Default state when the skin hasn't done anything.
 	 * To see in which state the constructor is, take a look at 
 	 * SkinConstructingStates.
 	 */
-	public var empty				: IState;
+	public var empty				(default, null) : IState;
 	
 	/**
 	 * State when the constructor is finished
 	 */
-	public var constructed			: IState;
+	public var constructed			(default, null) : IState;
 	/**
 	 * State is set when the component is disposed.
 	 */
-	public var disposed				: IState;
+	public var disposed				(default, null) : IState;
 	
 	
-	public function new ()
+	@:keep public function new ()
 	{
 		super();
 		defaultState = empty;
 		
-		Assert.that( empty != null );
-		Assert.that( constructed != null );
-		Assert.that( disposed != null );
+		Assert.notNull( empty );
+		Assert.notNull( constructed );
+		Assert.notNull( disposed );
 	}
 }

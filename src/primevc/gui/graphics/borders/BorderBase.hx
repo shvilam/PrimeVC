@@ -35,7 +35,8 @@ package primevc.gui.graphics.borders;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
-  using primevc.utils.NumberMath;
+  using primevc.utils.IfUtil;
+  using primevc.utils.NumberUtil;
 
 
 /**
@@ -89,13 +90,16 @@ class BorderBase <FillType:IGraphicProperty> extends GraphicElement, implements 
 	
 	public function begin (target:IGraphicsOwner, bounds:IRectangle)
 	{
-		if (innerBorder) {
-			bounds.left		+= weight.ceilFloat();
-			bounds.top		+= weight.ceilFloat();
-			bounds.width	-= (weight * 2).ceilFloat();
-			bounds.height 	-= (weight * 2).ceilFloat();
+#if flash9
+		if (!innerBorder && bounds.notNull())
+		{
+			var borderW		= (weight * target.scaleX).roundFloat();
+			var borderH		= (weight * target.scaleY).roundFloat();
+			
+			bounds.move(	bounds.left - borderW,			bounds.top - borderH );
+			bounds.resize(	bounds.width + (borderW * 2),	bounds.height + (borderH * 2) );
 		}
-	//	Assert.abstract();
+#end
 	}
 	
 	
@@ -103,11 +107,15 @@ class BorderBase <FillType:IGraphicProperty> extends GraphicElement, implements 
 	{
 #if flash9
 		target.graphics.lineStyle( 0, 0 , 0 );
+		if (!innerBorder && bounds.notNull())
+		{
+			var borderW		= (weight * target.scaleX).roundFloat();
+			var borderH		= (weight * target.scaleY).roundFloat();
+			
+			bounds.move(	bounds.left + borderW,			bounds.top + borderH );
+			bounds.resize(	bounds.width - (borderW * 2),	bounds.height - (borderH * 2) );
+		}	
 #end
-		bounds.left		-= weight.ceilFloat();
-		bounds.top		-= weight.ceilFloat();
-		bounds.width	+= (weight * 2).ceilFloat();
-		bounds.height 	+= (weight * 2).ceilFloat();
 	}
 	
 	
@@ -183,14 +191,14 @@ class BorderBase <FillType:IGraphicProperty> extends GraphicElement, implements 
 		return v;
 	}
 	
-	
-#if neko
+
+#if (neko || debug)
 	override public function toCSS (prefix:String = "")
 	{
 		return fill + " " + weight + "px " + (innerBorder ? "inside" : "outside");
 	}
-	
-	
+#end
+#if neko
 	override public function isEmpty () : Bool
 	{
 		return fill == null;

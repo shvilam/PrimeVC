@@ -99,4 +99,12 @@ class SimpleStateMachine <StateType> implements IDisposable
 	{
 		return current == state;
 	}
+	
+	
+#if debug
+	public function toString ()
+	{
+		return current;
+	}
+#end
 }

@@ -32,7 +32,7 @@ package primevc.core.collections;
  import primevc.core.collections.iterators.FastDoubleCellReversedIterator;
  import primevc.core.events.ListChangeSignal;
  import primevc.utils.DuplicateUtil;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
  
 
 /**
@@ -164,7 +164,7 @@ class SimpleList < DataType > implements IEditableList < DataType >
 	}
 	
 	
-	public inline function move (item:DataType, newPos:Int, curPos:Int = -1) : DataType
+	public function move (item:DataType, newPos:Int, curPos:Int = -1) : DataType
 	{
 		if		(curPos == -1)		curPos = indexOf( item );
 		if		(newPos > length)	newPos = length;
@@ -219,13 +219,13 @@ class SimpleList < DataType > implements IEditableList < DataType >
 	 */
 	
 
-	public function insertAt (item:DataType, ?pos:Int = -1) : Int
+	public inline function insertAt (item:DataType, ?pos:Int = -1) : Int
 	{
 		return insertCellAt( new FastDoubleCell < DataType >( item, null ), pos );
 	}
 
 
-	private function insertCellAt( cell:FastDoubleCell < DataType >, ?pos:Int = -1) : Int
+	private inline function insertCellAt( cell:FastDoubleCell < DataType >, ?pos:Int = -1) : Int
 	{
 		if (pos < 0 || pos > length)
 			pos = length;

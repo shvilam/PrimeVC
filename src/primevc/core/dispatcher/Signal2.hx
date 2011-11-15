@@ -50,11 +50,11 @@ class Signal2 <A,B> extends Signal<A->B->Void>, implements ISender2<A,B>, implem
 		
 		while (w.notNull())
 		{
-			var x = w.next();
+			nextSendable = w.next();
 			
 			if (w.isEnabled())
 			{
-				Assert.that(w != x);
+				Assert.that(w != nextSendable);
 				Assert.that(w.flags != 0);
 				
 				if (w.flags.has(Wire.SEND_ONCE))
@@ -74,8 +74,10 @@ class Signal2 <A,B> extends Signal<A->B->Void>, implements ISender2<A,B>, implem
 				if (w.flags.has(Wire.SEND_ONCE))
 				 	w.dispose();
 			}
-			w = x; // Next node
+			w = nextSendable; // Next node
 		}
+		
+		nextSendable = null;
 	}
 	
 	public inline function bind(owner:Dynamic, handler:A->B->Void)

@@ -34,7 +34,7 @@ package primevc.core;
  * @creation-date	Jun 18, 2010
  * @author			Danny Wilson
  */
-class RevertableBindableFlags
+extern class RevertableBindableFlags
 {
 	/**
 	 * When this flag is set, any (valid) value change will send
@@ -92,7 +92,7 @@ class RevertableBindableFlags
 	 *  
 	 *  otherwise, it returns false.
 	 */
-	public static inline function shouldSignal(f:Int)
+	public static inline function shouldSignal(f:Int) : Bool
 	{
 		return ((
 			 (((f & IN_EDITMODE) >> 4) ^ 1)			// if not in editmode: 1
@@ -109,7 +109,7 @@ class RevertableBindableFlags
 	 * Tests in one go if Bindings should be updated.
 	 * @see shouldSignal
 	 */
-	public static inline function shouldUpdateBindings(f:Int)
+	public static inline function shouldUpdateBindings(f:Int) : Bool
 	{
 		//return (((f & IS_VALID) >> 5)) | ((f & INVALID_CHANGES_UPDATE_BINDINGS) >> 3) & ((((f & IN_EDITMODE) >> 4) ^ 1) ^ ((f & UPDATE_BINDINGS_BEFORE_COMMIT) >> 2)) != 0;
 		return ((
@@ -128,15 +128,24 @@ class RevertableBindableFlags
 #if debug
 	public static inline function readProperties (flags:Int) : String
 	{
-		var props = [];
-		
-		if (flags.has( IN_EDITMODE ))						props.push( "editmode" );
-		if (flags.has( DISPATCH_CHANGES_BEFORE_COMMIT ))	props.push( "dispatch-changes-before-commit" );
-		if (flags.has( INVALID_CHANGES_DISPATCH_SIGNAL ))	props.push( "invalid-changes-dispatch-signal" );
-		if (flags.has( UPDATE_BINDINGS_BEFORE_COMMIT ))		props.push( "update-bindings-before-commit" );
-		if (flags.has( INVALID_CHANGES_UPDATE_BINDINGS ))	props.push( "invalid-changes-update-bindings" );
-		
-		return "properties: "+props.join(", ") + " ("+flags+")";
+		return RevertableBindableFlagsDebug.readProperties(flags);
 	}
 #end
 }
+
+#if debug
+private class RevertableBindableFlagsDebug {
+	public static function readProperties (flags:Int) : String
+	{
+		var props = [];
+		
+		if (flags.has( RevertableBindableFlags.IN_EDITMODE ))						props.push( "editmode" );
+		if (flags.has( RevertableBindableFlags.DISPATCH_CHANGES_BEFORE_COMMIT ))	props.push( "dispatch-changes-before-commit" );
+		if (flags.has( RevertableBindableFlags.INVALID_CHANGES_DISPATCH_SIGNAL ))	props.push( "invalid-changes-dispatch-signal" );
+		if (flags.has( RevertableBindableFlags.UPDATE_BINDINGS_BEFORE_COMMIT ))		props.push( "update-bindings-before-commit" );
+		if (flags.has( RevertableBindableFlags.INVALID_CHANGES_UPDATE_BINDINGS ))	props.push( "invalid-changes-update-bindings" );
+		
+		return "properties: "+props.join(", ") + " ("+flags+")";
+	}
+}
+#end

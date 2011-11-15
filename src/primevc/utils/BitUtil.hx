@@ -36,7 +36,7 @@ package primevc.utils;
  * @creation-date	Jun 15, 2010
  * @author			Ruben Weijers
  */
-class BitUtil 
+extern class BitUtil 
 {
 	/**
 	 * Checks if any of the bits in 'flag' are set.
@@ -98,6 +98,8 @@ class BitUtil
 	
 	/**
 	 * method will return bits with the flags in bitsToFlip flipped
+	 * If one the bits is set it will be unset, if one of the bits isn't set
+	 * it will be set.
 	 */
 	public static inline function flip (bits:UInt, bitsToFlip:UInt) : UInt
 	{

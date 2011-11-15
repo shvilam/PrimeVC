@@ -50,11 +50,11 @@ class Signal4 <A,B,C,D> extends Signal<A->B->C->D->Void>, implements ISender4<A,
 		
 		while (w.notNull())
 		{
-			var x = w.next();
+			nextSendable = w.next();
 			
 			if (w.isEnabled())
 			{
-				Assert.that(w != x);
+				Assert.that(w != nextSendable);
 				Assert.that(w.flags != 0);
 				
 				if (w.flags.has(Wire.SEND_ONCE))
@@ -74,8 +74,9 @@ class Signal4 <A,B,C,D> extends Signal<A->B->C->D->Void>, implements ISender4<A,
 				if (w.flags.has(Wire.SEND_ONCE))
 				 	w.dispose();
 			}
-			w = x; // Next node
+			w = nextSendable; // Next node
 		}
+		nextSendable = null;
 	}
 	
 	public inline function bind(owner:Dynamic, handler:A->B->C->D->Void)

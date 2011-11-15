@@ -120,7 +120,7 @@ class ValidatingValue < DataType > extends QueueingInvalidatable
 }
 
 
-class ValueFlags
+#if !debug extern #end class ValueFlags
 {
 	public static inline var VALUE		= 1;
 	public static inline var VALIDATOR	= 2;

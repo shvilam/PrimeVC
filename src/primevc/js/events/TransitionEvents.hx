@@ -15,6 +15,7 @@ class TransitionEvents extends Signals
 	
 	public function new(eventDispatcher:Dynamic)
 	{
+		super();
 		this.eventDispatcher = eventDispatcher;
 	}
 	

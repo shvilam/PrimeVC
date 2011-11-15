@@ -50,11 +50,11 @@ class Signal1 <A> extends Signal<A->Void>, implements ISender1<A>, implements IN
 		
 		while (w.notNull())
 		{
-			var x = w.next();
+			nextSendable = w.next();
 			
 			if (w.isEnabled())
 			{
-				Assert.that(w != x);
+				Assert.that(w != nextSendable);
 				Assert.that(w.flags != 0);
 				
 				if (w.flags.has(Wire.SEND_ONCE))
@@ -74,8 +74,9 @@ class Signal1 <A> extends Signal<A->Void>, implements ISender1<A>, implements IN
 				if (w.flags.has(Wire.SEND_ONCE))
 				 	w.dispose();
 			}
-			w = x; // Next node
+			w = nextSendable; // Next node
 		}
+		nextSendable = null;
 	}
 	
 	public inline function bind(owner:Dynamic, handler:A->Void)
@@ -99,7 +100,7 @@ class Signal1 <A> extends Signal<A->Void>, implements ISender1<A>, implements IN
 	}
 	
 #if DebugEvents
-	static function __init__()
+	@:keep static function __init__()
 	{
 		// Unit tests
 		var num=0, b1:Wire<String->Void>=null, b2:Wire<String->Void>=null, b3:Wire<String->Void>=null, b4:Wire<String->Void>=null, b5:Wire<String->Void>=null;

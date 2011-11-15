@@ -35,6 +35,12 @@ package primevc.core.geom;
  */
 interface IRectangle implements IBox
 {
-	public var width	(getWidth, setWidth)	: Int;
-	public var height	(getHeight, setHeight)	: Int;
+	public var centerX	(getCenterX, setCenterX)	: Int;
+	public var centerY	(getCenterY, setCenterY)	: Int;
+	
+	public var width	(getWidth, setWidth)		: Int;
+	public var height	(getHeight, setHeight)		: Int;
+	
+	public function resize (width:Int, height:Int)	: Void;
+	public function move (left:Int, top:Int)		: Void;
 }

@@ -37,10 +37,12 @@ package primevc.gui.components;
  import primevc.gui.text.TextFormat;
  import primevc.gui.traits.ITextStylable;
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
   using primevc.utils.TypeUtil;
 
 
-private typedef DataType = Bindable<String>;
+private typedef DataType	= Bindable<String>;
+private typedef Flags		= primevc.gui.core.UIElementFlags;
 
 
 /**
@@ -51,11 +53,14 @@ private typedef DataType = Bindable<String>;
  */
 class Label extends UIDataComponent <DataType>, implements ITextStylable
 {
-	public var field				(default, null)			: UITextField;
+	public var field				(default, null)				: UITextField;
+	public var displayHTML			(default, setDisplayHTML)	: Bool;
+	public var multiline			(default, setMultiline)		: Bool;
 	
 #if flash9
-	public var textStyle			(default, setTextStyle)	: TextFormat;
+	public var textStyle			(default, setTextStyle)		: TextFormat;
 	public var wordWrap				: Bool;
+	public var embedFonts			: Bool;
 #end
 
 	
@@ -64,12 +69,15 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 		if (data == null)
 			data = new DataType();
 		
+		layout = new AdvancedLayoutClient();
 		super(id, data);
 	}
 	
 	
-	override private function createLayout ()		{ layout = new AdvancedLayoutClient(); }
-	override private function createBehaviours ()	{ behaviours.add( new LabelLayoutBehaviour(this) ); }
+	override private function createBehaviours ()
+	{
+	    behaviours.add( new LabelLayoutBehaviour(this) );
+	}
 	
 	
 	override private function createChildren ()
@@ -82,6 +90,9 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 		field.autoSize			= flash.text.TextFieldAutoSize.NONE;
 		field.selectable		= false;
 		field.mouseWheelEnabled	= false;
+		field.displayHTML		= displayHTML;
+		field.wordWrap			= wordWrap;
+		field.embedFonts		= embedFonts;
 		
 		field.respondToFocusOf( this );
 #end
@@ -89,11 +100,11 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 		if (textStyle != null)
 			field.textStyle = textStyle;
 		
-		children.add( field );
+		field.attachDisplayTo( this );
 	}
 	
 	
-	override private function removeChildren ()
+	override public  function removeChildren ()
 	{
 		super.removeChildren();
 		field.dispose();
@@ -111,6 +122,15 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 		return super.isFocusOwner(target) || field.isFocusOwner(target);
 	}
 #end
+
+	override public function validate ()
+	{
+		var changes = this.changes;
+		super.validate();
+		
+		if (changes.has(Flags.DISPLAY_HTML))	field.displayHTML	= displayHTML;
+		if (changes.has(Flags.MULTILINE))		field.multiline		= multiline;
+	}
 	
 	
 	//
@@ -120,10 +140,35 @@ class Label extends UIDataComponent <DataType>, implements ITextStylable
 #if flash9
 	private inline function setTextStyle (v:TextFormat)
 	{
-		if (field != null)
-			field.textStyle = v;
+		if (field != null) {
+			field.wordWrap		= wordWrap;
+			field.embedFonts	= embedFonts;
+			field.textStyle 	= v;
+		}
 		
 		return textStyle = v;
 	}
 #end
+	
+	
+	private inline function setDisplayHTML (v:Bool)
+	{
+		if (displayHTML != v)
+		{
+			displayHTML = v;
+			invalidate( Flags.DISPLAY_HTML );
+		}
+		return v;
+	}
+	
+	
+	private inline function setMultiline (v:Bool)
+	{
+		if (multiline != v)
+		{
+			multiline = v;
+			invalidate( Flags.MULTILINE );
+		}
+		return v;
+	}
 }

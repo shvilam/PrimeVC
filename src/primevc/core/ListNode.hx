@@ -29,14 +29,14 @@
 package primevc.core;
 
 
-class ListNode <T> implements haxe.rtti.Generic
+@:keep class ListNode <T> implements haxe.rtti.Generic	//FIXME - no @:keep
 {
 	/** Pointer to the next ListNode object **/
 	private var n : T;
 }
 
-class ListUtil
+extern class ListUtil
 {
 	/** Access helper for friend classes */
-	static public inline function next<T>(node:ListNode<T>) { untyped return node.n; }
+	static public inline function next<T>(node:ListNode<T>) : T { untyped return node.n; }
 }

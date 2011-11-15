@@ -29,6 +29,7 @@
 package primevc.gui.components;
  import primevc.core.dispatcher.Signal0;
  import primevc.core.Bindable;
+ import primevc.gui.core.IUIContainer;
  import primevc.gui.core.UIContainer;
 
 
@@ -52,7 +53,7 @@ class Panel extends UIContainer
 	 * The instance will be created in the constructor. This way, the children
 	 * of a panel can always be added.
 	 */
-	public var content	(default, null)	: UIContainer;
+	public var content	(default, null)	: IUIContainer;
 	/**
 	 * Signal to send a request to be closed to whoever is listening.
 	 */
@@ -63,8 +64,10 @@ class Panel extends UIContainer
 	{
 		super(id);
 		this.label	= new Bindable<String>(label);
-		content		= new UIContainer();
 		close		= new Signal0();
+		
+		if (content == null)
+			content	= new UIContainer("content");
 	}
 	
 	
@@ -83,8 +86,6 @@ class Panel extends UIContainer
 	
 	override private function createChildren ()
 	{
-		content.styleClasses.add("content");
-		layoutContainer.children.add( content.layout );
-		children.add( content );
+		content.attachTo( this );
 	}
 }

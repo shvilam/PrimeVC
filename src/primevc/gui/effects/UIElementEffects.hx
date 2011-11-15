@@ -94,7 +94,13 @@ class UIElementEffects implements IDisposable
 	public function dispose ()
 	{
 		target	= null;
-		move	= resize = rotate = scale = show = hide = null;
+
+		if (move != null)	{ move.dispose();	move 	= null; }
+		if (resize != null)	{ resize.dispose(); resize 	= null; }
+		if (rotate != null)	{ rotate.dispose(); rotate 	= null; }
+		if (scale != null)	{ scale.dispose();	scale 	= null; }
+		if (show != null)	{ show.dispose();	show 	= null; }
+		if (hide != null)	{ hide.dispose();	hide 	= null; }
 	}
 	
 	
@@ -174,39 +180,49 @@ class UIElementEffects implements IDisposable
 	}
 	
 	
-	public inline function playShow ()
+	public function playShow ()
 	{
 #if (flash8 || flash9 || js)
 		if (show != null)
 		{
-			if (hide != null)
-				hide.stop();
-		
+			if (hide != null) {
+				if (hide.isWaiting())	{ hide.stop(); }
+				if (hide.isPlaying())	{ hide.stop(); }
+				else					target.visible = false;
+			}
+			else
+				target.visible = false;
+			
 			if (show == hide)
 				show.isReverted = false;
-		
+			
 			show.play();
 		}
 #end
 	}
 	
 	
-	public inline function playHide ()
+	public function playHide ()
 	{
 #if (flash8 || flash9 || js)
 		if (hide != null)
 		{
-			if (show != null)
-				show.stop();
-		
+			if (show != null) {
+				if (show.isWaiting())	{ show.stop(); }
+				if (show.isPlaying())	{ show.stop(); }
+			}
+			
 			if (show == hide)
 				hide.isReverted = true;
-		
+			
 			hide.play();
 		}
 #end
 	}
 	
+
+	public inline function isPlayingHide ()	{ return hide != null && (hide.isPlaying() || hide.isWaiting()) && (show != hide ||  hide.isReverted); }
+	public inline function isPlayingShow ()	{ return show != null && (show.isPlaying() || show.isWaiting()) && (show != hide || !show.isReverted); }
 	
 	
 	
@@ -276,6 +292,11 @@ class UIElementEffects implements IDisposable
 	{
 		if (v != show)
 		{
+			/*if (show != null && v == null)
+				target.displayEvents.addedToStage.unbind(this);
+			else
+				playShow.on( target.displayEvents.addedToStage, this );
+			*/
 			if (show != null)
 				show.dispose();
 			

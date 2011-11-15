@@ -37,7 +37,14 @@ package primevc.gui.traits;
  */
 interface IScrollable 
 		implements IDisplayable
-	,	implements ISprite
+//	,	implements ISprite
 {
 	public var scrollableLayout (getScrollableLayout, never) : IScrollableLayout;
+	
+	/**
+	 * Flag indicating wether there's a behaviour for scrolling the container or
+	 * not.
+	 * @default	false
+	 */
+	public var isScrollable		: Bool;
 }

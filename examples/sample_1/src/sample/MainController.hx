@@ -1,18 +1,11 @@
 package sample;
-
-import primevc.mvc.core.IController;
-import primevc.mvc.core.MVCCore;
-using primevc.utils.Bind;
+ import primevc.mvc.MVCActor;
+  using primevc.utils.Bind;
 
 /**
  * Receives and dispatches global events.
  */
-class MainController extends MVCCore<MainFacade>, implements IController
+class MainController extends MVCActor<MainFacade>
 {	
     public function new (facade:MainFacade)		{ super(facade); }
-
-    public function init ()
-    {
-        
-    }	
 }

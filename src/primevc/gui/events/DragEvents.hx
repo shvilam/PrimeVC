@@ -63,6 +63,7 @@ class DragEvents extends Signals
 	
 	public function new ()
 	{
+		super();
 		start		= new Signal1();
 		complete	= new Signal1();
 		cancel		= new Signal1();

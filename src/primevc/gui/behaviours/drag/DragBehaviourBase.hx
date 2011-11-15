@@ -36,6 +36,7 @@ package primevc.gui.behaviours.drag;
  import primevc.gui.input.Mouse;
  import primevc.gui.traits.ILayoutable;
   using primevc.utils.Bind;
+  using primevc.utils.RectangleUtil;
   using primevc.utils.TypeUtil;
 
 /**
@@ -146,7 +147,7 @@ class DragBehaviourBase extends BehaviourBase <ISprite>
 		item.stopDrag();
 		item.mouseEnabled = mouseEnabledValue;
 		
-		if (target.is(ILayoutable))
+		if (target != null && target.is(ILayoutable))
 			target.as(ILayoutable).layout.includeInLayout = true;
 
 	}

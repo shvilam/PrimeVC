@@ -31,6 +31,7 @@ package primevc.avm2.input;
  import com.asual.swfaddress.SWFAddressEvent;
  import flash.external.ExternalInterface;
  import flash.net.URLRequest;
+ import flash.system.Capabilities;
  import primevc.gui.events.BrowserEvents;
  import primevc.types.URI;
 
@@ -65,6 +66,25 @@ class Browser
 	public var variables	(default,		null)		: Dynamic;
 	
 	
+	/**
+	 * Returns the flash-player version
+	 */
+	public var flashVersion	(getFlashVersion,	never)	: String;
+	public var isFlashDebug	(getIsFlashDebug,	never)	: Bool;
+	
+	/**
+	 * Returns the operatingsystem the user has
+	 */
+	public var os			(getOS,				never)	: String;
+	
+	/**
+	 * Returns the name of the browser
+	 */
+	public var name			(getName,			null)	: String;
+	public var screenWidth	(getScreenWidth,	never)	: Float;
+	public var screenHeight	(getScreenHeight,	never)	: Float;
+	
+	
 	
 	//
 	// BROWSER METHODS
@@ -78,8 +98,8 @@ class Browser
 	
 	public inline function openUrl (url:String, target:String = "_self")
 	{
-		if (!ExternalInterface.available)	flash.Lib.getURL( new URLRequest(url), target);
-		else								SWFAddress.href( url, target );
+		if (!available)		flash.Lib.getURL( new URLRequest(url), target);
+		else				SWFAddress.href( url, target );
 	}
 	
 	
@@ -87,6 +107,15 @@ class Browser
 	{
 		SWFAddress.popup( uri.toString(), name, options );
 	}
+	
+	
+	public inline function sendMail (to:String, subject:String, body:String)
+	{
+		openUrl( "mailto:"+to+"?subject="+subject+"&body="+StringTools.urlEncode( body ) );
+	//	if (!available)		openUrl( url );
+	//	else				ExternalInterface.call("function sendMail(link) { var a = window.unload; var b = window.onbeforeunload; window.onunload = window.onbeforeunload = null; window.alert(window.onbeforeunload); window.location = link; window.onbeforeunload = b; window.onunload = a; }", url);
+	}
+	
 	
 	/**
 	 * Loads the previous URL in the history URL
@@ -103,6 +132,35 @@ class Browser
 	 */
 	public inline function goBackTo (pos:Int)	{ SWFAddress.go(pos); }
 	
+	
+	
+	//
+	// JAVASCRIPT LISTENERS
+	//
+	
+	
+	/**
+	 * Method will add a listener for javscript-method calls
+	 * @return 		true when the externalinterface is available, else false
+	 */
+	public inline function addJsCallback (jsFunctionName:String, appMethod:Dynamic) : Bool
+	{
+		if (available)
+			ExternalInterface.addCallback( jsFunctionName, appMethod );
+		
+		return available;
+	}
+	
+	
+	/**
+	 * Method allows application to call a javascript method
+	 * @return 	Whatever the method returns
+	 */
+	public inline function callJsMethod (jsFunctionName:String, ?info:haxe.PosInfos)
+	{
+		if (available)
+			Reflect.callMethod( null, ExternalInterface.call, info.customParams );
+	}
 	
 	
 	//
@@ -125,6 +183,27 @@ class Browser
 	private inline function setStatus (v)		{ SWFAddress.setStatus(v); return v; }
 	
 	private inline function getAvailable ()		{ return ExternalInterface.available; }
+	
+	private inline function getFlashVersion ()	{ return Capabilities.version; }
+	private inline function getIsFlashDebug ()	{ return Capabilities.isDebugger; }
+	private inline function getOS ()			{ return Capabilities.os; }
+	private inline function getScreenWidth ()	{ return Capabilities.screenResolutionX; }
+	private inline function getScreenHeight ()	{ return Capabilities.screenResolutionY; }
+	
+	/**
+	 * Returns the name of the browser
+	 */
+	private function getName ()
+	{
+		if (!available)		return "no browser";
+		if (name != null)	return name;
+		
+		//check the version via external-interface
+		var versionCheck = "function() { return navigator.appVersion; }";
+		return name = ExternalInterface.call(versionCheck);
+	}
+	
+	
 	
 	
 	private function new ()

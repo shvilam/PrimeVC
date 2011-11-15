@@ -35,6 +35,7 @@ package primevc.gui.styling;
  import primevc.core.dispatcher.Signal0;
  import primevc.core.dispatcher.Wire;
  import primevc.core.traits.IInvalidatable;
+ import primevc.gui.traits.IDisplayable;
  import primevc.gui.traits.IStylable;
  import primevc.utils.FastArray;
 #if debug
@@ -82,6 +83,13 @@ class UIElementStyle implements IUIElementStyle
 	 * object on which the style applies
 	 */
 	public var target					(default, null)			: IStylable;
+	/**
+	 * displayobject to which the target belongs (can be the target itself when
+	 * it's also IDisplayable)
+	 */
+	public var owner					(default, null)			: IDisplayable;
+	
+	
 	/**
 	 * cached classname (incl package) of target since target won't change.
 	 */
@@ -144,7 +152,7 @@ class UIElementStyle implements IUIElementStyle
 	
 	
 	
-	public function new (target:IStylable)
+	public function new (target:IStylable, owner:IDisplayable)
 	{
 #if debug
 		_oid = ID.getNext();
@@ -153,6 +161,8 @@ class UIElementStyle implements IUIElementStyle
 		styles				= new PriorityList < StyleBlock > ();
 		
 		this.target			= target;
+		this.owner			= owner;
+		
 		targetClassName		= target.getClass().getClassName();
 		childrenChanged		= new Signal0();
 		
@@ -169,12 +179,12 @@ class UIElementStyle implements IUIElementStyle
 	}
 	
 	
-	private function init ()
+	private function init ()	//needed for ApplicationStyle
 	{
-		addedBinding	= enableStyleListeners	.on( target.displayEvents.addedToStage, this );
-		removedBinding	= disableStyleListeners	.on( target.displayEvents.removedFromStage, this );
+		addedBinding	= enableStyleListeners	.on( owner.displayEvents.addedToStage, this );
+		removedBinding	= disableStyleListeners	.on( owner.displayEvents.removedFromStage, this );
 		
-		if (target.window != null) {
+		if (owner.window != null) {
 			updateStyles();
 			addedBinding.disable();
 		} else {
@@ -287,7 +297,7 @@ class UIElementStyle implements IUIElementStyle
 		}
 		
 		// if there's no styleBlock found for the child, try the next parent
-		if (foundStyles == 0 && parentStyle != this)
+		if (foundStyles == 0 && parentStyle != this && parentStyle != null)
 			changes = parentStyle.addChildStyles( child, name, type, exclude );
 		
 		return changes;
@@ -340,19 +350,19 @@ class UIElementStyle implements IUIElementStyle
 	 */
 	private function enableStyleListeners ()
 	{
-		Assert.notNull( target.container );
-		Assert.that( target.container.is( IStylable ) );
-		Assert.notNull( target.container.as( IStylable ).style );
+		Assert.notNull( owner.container );
+		Assert.that( owner.container.is( IStylable ) );
+		Assert.notNull( owner.container.as( IStylable ).style );
 		
 		if (removedBinding != null)		removedBinding.enable();
 		if (addedBinding != null)		addedBinding.disable();
 		
+		var parent = owner.container != null ? owner.container.as( IStylable ) : null;
 		//remove styles if the new parent is not the same as the old parent
-		if (target.container != null && target.container.as( IStylable ).style != parentStyle)
+		if (parent != null && parent.style != parentStyle)
 		{
 			clearStyles();
-			
-			parentStyle = target.container.as( IStylable ).style;
+			parentStyle = parent.style;
 			resetStyles.on( parentStyle.childrenChanged, this );
 			updateStyles();
 		}
@@ -410,6 +420,9 @@ class UIElementStyle implements IUIElementStyle
 	 */
 	private function resetStyles ()
 	{
+		if (target.isDisposed())
+			return;
+		
 		if (styles.length > 0)			// <-- check if there are any old styles
 		{
 			var oldStyles		= styles.clone();
@@ -418,7 +431,7 @@ class UIElementStyle implements IUIElementStyle
 			
 			if (styles.length > 0)		// <-- check if there are any new styles
 			{
-				var realChanges = 0;
+				var realChanges			= 0;
 				var boxFiltersChanges	= 0;
 				var effectsChanges		= 0;
 				var fontChanges			= 0;
@@ -426,7 +439,7 @@ class UIElementStyle implements IUIElementStyle
 				var layoutChanges		= 0;
 				var statesChanges		= 0;
 				var childrenChanged		= false;
-				
+				var removed				= 0;
 				
 				//
 				// The goal of this loop is to prevent updates in the target that
@@ -452,12 +465,13 @@ class UIElementStyle implements IUIElementStyle
 					var hadExtended		= oldStyles.has( extendedStyle );
 					
 					if (hadStyle) {
-						oldStyles.remove( newStyle );
+						removed++;
+	//					oldStyles.remove( newStyle );
 						continue;
 					}
 					
-					if (hadSuper)		oldStyles.remove( superStyle );
-					if (hadExtended)	oldStyles.remove( extendedStyle );
+					if (hadSuper)		removed++; //oldStyles.remove( superStyle );
+					if (hadExtended)	removed++; //oldStyles.remove( extendedStyle );
 					
 					var props = newStyle.getPropertiesWithout( hadExtended, hadSuper ).unset( Flags.INHERETING_STYLES );
 					if (props > 0)
@@ -477,18 +491,18 @@ class UIElementStyle implements IUIElementStyle
 					
 				} while (null != (newStyleCell = newStyleCell.prev));
 				
-				
-				
 				//
 				// check old styles for the changes that were maybe overseen
 				//
-				
-				if (oldStyles.length > 0)
+				if (oldStyles.length > removed)
 				{
 					var oldStyleCell = oldStyles.last;
 					do
 					{
 						var oldStyle	 = oldStyleCell.data;
+						if (styles.has( oldStyle ))
+							continue;
+						
 						var superStyle	 = oldStyle.superStyle;
 						var extended	 = oldStyle.extendedStyle;
 						
@@ -577,6 +591,9 @@ class UIElementStyle implements IUIElementStyle
 	 */
 	public function broadcastChanges (changedProperties:Int = -1) : Int
 	{
+		if (target.isDisposed())
+			return 0;
+		
 		if (!stylesAreSearched)
 			return changedProperties;
 		
@@ -644,8 +661,6 @@ class UIElementStyle implements IUIElementStyle
 			// FIND CHANGES
 			changes				= getUsablePropertiesOf( styleCell );
 			filledProperties	= filledProperties.set( changes );
-			
-	//		trace(target+".addedStyle " + style.type+"; "+readProperties( changes ));
 		}
 		return changes;
 	}
@@ -795,11 +810,17 @@ class UIElementStyle implements IUIElementStyle
 		var parentClass		= target.getClass();
 		
 		//search for the first element style that is defined for this object or one of it's super classes
-		while (parentClass != null && addChanges == 0)
+		var i = 0;
+		while (parentClass != null && addChanges == 0 && i++ < 30) 	// FIXME: this loop sometimes will trigger an infinite loop.. hense the i
 		{
 			addChanges	= addChanges.set( parentStyle.addChildStyles( this, parentClass.getClassName(), StyleBlockType.element ) );
 			parentClass	= cast parentClass.getSuperClass();
 		}
+
+#if debug
+		if (i >= 30)
+			trace("possible infinite loop detected for updating style of "+target+"; parentClass: "+parentClass+"; AddChanges: "+Flags.read(addChanges)+"; RemoveChanges: "+Flags.read(removeChanges));
+#end
 		
 		//use the IDisplayObject style if there isn't a style defined for this element
 		if (addChanges == 0)
@@ -909,9 +930,9 @@ class UIElementStyle implements IUIElementStyle
 	//
 	
 	
-	public function createState ()
+	public function createState (state:Int = 0)
 	{
-		return new StyleState( this );
+		return new StyleState( this, state );
 	}
 	
 	

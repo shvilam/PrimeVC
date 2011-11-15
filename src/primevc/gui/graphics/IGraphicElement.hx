@@ -39,7 +39,7 @@ package primevc.gui.graphics;
  * @author Ruben Weijers
  * @creation-date Jul 30, 2010
  */
-interface IGraphicElement 
+@:keep interface IGraphicElement 	//FIXME - no @:keep
 				implements IInvalidatable
 			,	implements IDisposable
 #if neko	,	implements ICSSFormattable

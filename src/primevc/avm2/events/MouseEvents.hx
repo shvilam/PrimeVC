@@ -47,6 +47,7 @@ class MouseEvents extends MouseSignals
 	
 	public function new (eventDispatcher:IEventDispatcher)
 	{
+		super();
 		this.eventDispatcher = eventDispatcher;
 	}
 	

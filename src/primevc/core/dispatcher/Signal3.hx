@@ -50,11 +50,11 @@ class Signal3 <A,B,C> extends Signal<A->B->C->Void>, implements ISender3<A,B,C>,
 		
 		while (w.notNull())
 		{
-			var x = w.next();
+			nextSendable = w.next();
 			
 			if (w.isEnabled())
 			{
-				Assert.that(w != x);
+				Assert.that(w != nextSendable);
 				Assert.that(w.flags != 0);
 				
 				if (w.flags.has(Wire.SEND_ONCE))
@@ -74,8 +74,10 @@ class Signal3 <A,B,C> extends Signal<A->B->C->Void>, implements ISender3<A,B,C>,
 				if (w.flags.has(Wire.SEND_ONCE))
 				 	w.dispose();
 			}
-			w = x; // Next node
+			w = nextSendable; // Next node
 		}
+		
+		nextSendable = null;
 	}
 	
 	public inline function bind(owner:Dynamic, handler:A->B->C->Void)

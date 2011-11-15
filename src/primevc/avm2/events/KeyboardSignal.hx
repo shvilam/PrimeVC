@@ -70,7 +70,7 @@ class KeyboardSignal extends Signal1<KeyboardState>, implements IWireWatcher<Key
 		send( stateFromFlashEvent(e) );
 	}
 	
-	static  public function stateFromFlashEvent( e:KeyboardEvent ) : KeyboardState
+	static inline public function stateFromFlashEvent( e:KeyboardEvent ) : KeyboardState
 	{
 		/*
 			charCode				keyCode					keyLocation		KeyMod
@@ -90,8 +90,9 @@ class KeyboardSignal extends Signal1<KeyboardState>, implements IWireWatcher<Key
 		flags |= cast(e.keyLocation, UInt) << 4;
 		flags |= (e.charCode << 18);
 		flags |= (e.keyCode << 8);
-			
-		
+
+		// if someone listens to a keyboard event, it's very unlikely that objects further down the displaylist also want to receive these events. So stop bubling
+		e.stopPropagation();
 #elseif air?
 		flags = //TODO: Implement AIR support
 #else

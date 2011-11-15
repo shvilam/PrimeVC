@@ -33,7 +33,7 @@ package primevc.gui.effects;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
 #end
- import primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.Bind;
 
 

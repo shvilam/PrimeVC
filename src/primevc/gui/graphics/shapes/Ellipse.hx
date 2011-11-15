@@ -30,6 +30,7 @@ package primevc.gui.graphics.shapes;
  import primevc.core.geom.Corners;
  import primevc.core.geom.IRectangle;
  import primevc.gui.traits.IGraphicsOwner;
+  using primevc.gui.utils.GraphicsUtil;
 
 
 
@@ -43,6 +44,16 @@ class Ellipse extends ShapeBase, implements IGraphicShape
 	{
 #if flash9
 		target.graphics.drawEllipse( bounds.left, bounds.top, bounds.width, bounds.height );
+#end
+	}
+	
+	
+	public function drawFraction (target:IGraphicsOwner, bounds:IRectangle, borderRadius:Corners, percentage:Float) : Void
+	{
+		var radiusX = bounds.width * .5;
+		var radiusY = bounds.height * .5;
+#if flash9
+		target.drawEllipseArc(bounds.left + radiusX, bounds.top + radiusY, radiusX, radiusY, percentage);
 #end
 	}
 	

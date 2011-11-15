@@ -90,7 +90,7 @@ interface ISkin
 	 * Dispose all the children of this skin. This can happen when the owner 
 	 * is disposed or when the owner changes it's skin.
 	 */
-	private function removeChildren ()		: Void;
+	public  function removeChildren ()		: Void;
 	
 	
 	/**
@@ -99,6 +99,10 @@ interface ISkin
 	 */
 	public function validate (changes:Int)	: Void;
 	
+	/**
+	 * Method indicating wether the skin is disposed or not
+	 */
+	public function isDisposed ()			: Bool;
 	
 	
 	
