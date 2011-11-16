@@ -32,8 +32,11 @@ class Video extends DOMElem
 	public function new() {
 		super("video");
         elem.controls = "controls";
-        //elem.currentTime = 5;
-        //elem.autoplay = "autoplay";
+        //elem.poster = "black_screen.gif";
+        
+        //untyped {
+        //    elem.addEventListener("emptied", function(e) { console.log("video emptied"); });
+        //}
 	}
     
     override private function setWidth(v:Int):Int {
@@ -67,4 +70,11 @@ class Video extends DOMElem
 		}
 		return preload;
 	}
+    
+    public function reload() {
+        //elem.src = src;
+        //elem.controls = "controls";
+        //elem.load();
+        //elem.play();
+    }
 }
