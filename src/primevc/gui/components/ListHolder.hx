@@ -95,9 +95,14 @@ class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>, im
 		//check to see if list is not created yet by a skin
 		if (list == null)	list = new ListView(id.value+"Content", listData);
 		else                list.data = listData;
-				    
+		
+
+		list.setFocus.on( userEvents.focus, this );
 		list.createItemRenderer = createItemRenderer;
 		list.attachTo(this);
+		
+	//	mouseEnabled 	= false;
+	//	mouseChildren 	= true;
 		
 		list.styleClasses.add("listContent");
 		childClick.send.on( list.childClick, this );
@@ -112,6 +117,10 @@ class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>, im
 		super.removeChildren();
 	}
 	
+
+	//
+	// GETTERS / SETTERS
+	//
 	
 	private inline function setListData (v)
 	{

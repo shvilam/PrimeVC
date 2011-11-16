@@ -132,7 +132,7 @@ class MacroUtils
 	
 	@:macro public static function autoStartListening () : Array<Field>
 	{
-		return Context.getBuildFields().addMethod( "startListening", "Void", [], createMacroCall("startListening", callback(startListeningFieldsImpl)) );
+		return Context.getBuildFields().addMethod( "startListening", "Void", [], createMacroCall("startListening", callback(startListeningFieldsImpl), false) );
 	//	var f = Context.getBuildFields();
 	//	return f.addMethod( "startListening", "Void", [], startListeningFieldsImpl( f.toClassFields() ) );
 	}

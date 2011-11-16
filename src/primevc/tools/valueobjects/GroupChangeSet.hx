@@ -43,12 +43,38 @@ package primevc.tools.valueobjects;
 {
     // Could come from freelist if profiling tells us to
     public static inline function make ()   { return new GroupChangeSet(); }
-    
-    
+    public var length   (getLength, never)  : Int;
+
+
     public function add (change:ChangeSet)
     {
         untyped change.nextSet = nextSet;
         nextSet = change;
+    }
+
+
+    private inline function getLength ()
+    {
+        var l = 0, n = nextSet;
+        while (n != null) {
+            ++l;
+            n = n.nextSet;
+        }
+        return l;
+    }
+
+
+    /**
+     * Applies the given method on all change-set's until the method returns false.
+     */
+    public function forAll( predicate : ChangeSet -> Bool ) : Bool
+    {
+        var n = nextSet;
+        while (n != null) {
+            if (predicate(n))   n = n.nextSet;
+            else return false;
+        }
+        return true;
     }
 
 

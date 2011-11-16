@@ -195,13 +195,13 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	private inline function getDepthForBoundsLtR (bounds:IRectangle) : Int
 	{
 		var depth:Int	= 0;
-		var posX:Int	= bounds.left;
-		var centerX:Int	= bounds.left + (bounds.width >> 1); //* .5).roundFloat();
+		var posX:Int	= bounds.left - getLeftStartValue();
+		var centerX:Int	= bounds.centerX;
 		var children	= group.children;
 		
 		if (group.childWidth.isSet())
 		{
-			depth = ((posX - getLeftStartValue()) / group.childWidth).roundFloat();
+			depth = (posX / group.childWidth).roundFloat();
 		}
 		else
 		{
@@ -278,8 +278,8 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	private inline function getDepthForBoundsRtL (bounds:IRectangle) : Int
 	{
 		var depth:Int	= 0;
-		var posX:Int	= bounds.left;
-		var centerX:Int	= posX + (bounds.width >> 1); //* .5).roundFloat();
+		var posX:Int	= bounds.left - getRightStartValue();
+		var centerX:Int	= bounds.centerX; //* .5).roundFloat();
 		
 		var children	= group.children;
 		var groupWidth	= group.width;
@@ -293,7 +293,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 		
 		if (group.childWidth.isSet())
 		{
-			depth = children.length - ((posX - getRightStartValue() - emptyWidth) / group.childWidth).roundFloat();
+			depth = children.length - ((posX - emptyWidth) / group.childWidth).roundFloat();
 		}
 		else
 		{

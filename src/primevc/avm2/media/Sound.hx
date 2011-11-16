@@ -20,31 +20,42 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers   <ruben @ rubenw.nl>
  */
-package primevc.gui.components;
- import primevc.core.collections.IReadOnlyList;
- import primevc.gui.core.IUIContainer;
- import primevc.gui.core.IUIElement;
-// import primevc.gui.display.IDisplayObject;
+package primevc.avm2.media;
+ import flash.media.SoundLoaderContext;
+ import primevc.avm2.events.SoundEvents;
+ import primevc.core.traits.IDisposable;
+ import primevc.types.URI;
 
 
 /**
+ * AVM2 Sound-object with PrimeVC events
+ * 
  * @author Ruben Weijers
- * @creation-date Oct 26, 2010
+ * @creation-date Sep 28, 2011
  */
-interface IListView < ListDataType > implements IUIContainer 
+class Sound extends flash.media.Sound, implements IDisposable
 {
-	public var createItemRenderer													: ListDataType -> Int -> IUIElement;
-//	private function createItemRenderer ( item:ListDataType, pos:Int )				: IUIElement;
-	private function addRenderer( item:ListDataType, newPos:Int = -1 )			: Void;
-	private function removeRenderer( item:ListDataType, oldPos:Int = -1 )		: Void;
-	private function moveRenderer ( item:ListDataType, newPos:Int, oldPos:Int )	: Void;
-	public function getRendererFor ( item:ListDataType )						: IUIElement;
-	public function getRendererAt ( pos:Int )									: IUIElement;
-	public function getPositionFor ( item:ListDataType )						: Int;
+    public var events (default, null)   : SoundEvents;
+    
+    
+    public function new (stream:URI = null, context:SoundLoaderContext = null)
+    {
+        super( stream == null ? null : stream.toRequest(), context );
+        events = new SoundEvents(this);
+    }
+    
+    
+    public function dispose ()
+    {
+        try { close(); } 
+        catch(e:Dynamic) { trace(this+": loader close error: "+e); }
+        events.dispose();
+        events = null;
+    }
 }

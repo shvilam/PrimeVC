@@ -51,7 +51,7 @@ class BasicPanelSkin extends Skin<Panel>
 	override public function createChildren ()
 	{
 		chrome		= new UIContainer("chrome");
-		title		= new Label("title", owner.label);
+		title		= new Label("title", owner.title);
 		title.disable();
 		
 		title.attachTo(chrome);
@@ -61,10 +61,10 @@ class BasicPanelSkin extends Skin<Panel>
 	
 	override public  function removeChildren ()
 	{
-		title.dispose();
+		title .dispose();
 		chrome.dispose();
 		
 		chrome = null;
-		title = null;
+		title  = null;
 	}
 }

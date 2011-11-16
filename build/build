@@ -49,6 +49,11 @@ while [ "${1+isset}" ]; do
 			shift ;;
 		-l) ACCESS=""			#local file access allowed
 			shift ;;
+		
+		--coverage)
+			CODECOVERAGE=true	#enable code coverage
+			shift ;;
+		
 		--console)				#which debug-console to use
 			case $2 in
 				"monster2" )	CONSOLE="-D Monster2Trace" ;;
@@ -101,6 +106,7 @@ else
 	echo -e "\tPrimeVC: $PRIMEVC_ROOT"
 	echo -e "\tLocal file access: $ACCESS"
 	echo -e "\tExtra: ${EXTRA:-"no extra's"}"
+	echo -e "\tCode coverage: $CODECOVERAGE"
 	
 	echo "1. BUILDING ASSETS"
 	bash build/build-assets \
@@ -112,7 +118,6 @@ else
 	bash build/build-styles -s "${STYLEDIR}" ${Debug:+-d} ${Force:+-f} || exit 1;
 
 	echo -e "\n3. COMPILING SWF"
-#	echo -e "\t\tbuild/build.hxml ${Debug:---no-traces} \n\t\t\t-swf \042$OUTPUT\042 \n\t\t\t-cp \042$PRJROOT/src\042 \n\t\t\t-cp \042$STYLEDIR\042 ${EXTRA:+\n\t\t\t}$EXTRA \n\t\t\t-cp \042$PRJROOT/shared/generated-src/haxe\042 \n\t\t\t-main $MainClass \n\t\t\t-swf-header $WIDTH:$HEIGHT:$FPS:$BGCOLOR \n\t\t\t${ASSETS:+-swf-lib} $ASSETS \n\t\t\t-swf-lib \042assets/${Debug:+debug-}assets.swf\042" &&
 	echo build/build.hxml \
 		-swf "'$OUTPUT'" \
 		${Debug:---no-traces --dead-code-elimination --macro Undead.keepAlive()} \
@@ -127,6 +132,7 @@ else
 		${PROFILING:+-swf-lib "'$PRJROOT/bin-debug/swf/FlashPreloadProfiler_RC2.swf'" -D profiling} \
 		$CONSOLE \
 		-D dragEnabled \
+		${CODECOVERAGE:+-D CodeCoverage -lib mcover --macro massive.mcover.MCover.includeAll()} \
 		| xargs -t haxe \
 		 	|| exit 1;
 	

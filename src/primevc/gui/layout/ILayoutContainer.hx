@@ -48,6 +48,18 @@ interface ILayoutContainer implements ILayoutClient
 	 * List with all the children of the group
 	 */
 	public var children				(default, null)				: IEditableList<LayoutClient>;
+
+	/**
+	 * Property with the actual length of the children list. Use this property
+	 * instead of 'children.length' when an algorithm is calculating the 
+	 * measured size, since the property can also be set fixed and thus have a 
+	 * different number then children.length.
+	 * 
+	 * When applying an algorithm you should still use children.length since 
+	 * the algorithm will only be applied on the actual children in the list.
+	 * 
+	 * @see LayoutContainer.setFixedLength
+	 */
 	public var childrenLength		(default, null)				: Int;
 	/**
 	 * Number that tells the algorithms the fake-index of the first layoutclient.
@@ -94,4 +106,7 @@ interface ILayoutContainer implements ILayoutClient
 	 * @default		Number.INT_NOT_SET
 	 */
 	public var childHeight			(default, setChildHeight)	: Int;
+
+
+	public function attach (target:LayoutClient, depth:Int = -1) : ILayoutContainer;
 }

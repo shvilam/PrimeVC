@@ -83,6 +83,7 @@ class FadeEffectInstance extends EffectInstance < IDisplayObject, FadeEffect >
 
 		if 		(isReverted  && target.alpha == startValue)			target.alpha = endValue;
 		else if (!isReverted && target.alpha == endValue)			target.alpha = startValue;
+		
 		target.visible	= true;
 	}
 

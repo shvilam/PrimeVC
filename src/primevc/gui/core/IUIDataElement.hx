@@ -29,7 +29,6 @@
 package primevc.gui.core;
  import primevc.core.collections.DataCursor;
  import primevc.core.traits.IValueObject;
-// import primevc.core.IBindable;
  
 
 /**
@@ -40,8 +39,6 @@ package primevc.gui.core;
  */
 interface IUIDataElement < DataType > implements IUIElement
 {
-//	public var vo (default, setVO)			: IBindable < DataType >;
-//	public var data (getData, setData)		: DataType;
 	public var data (default, setData)		: DataType;
 	
 	

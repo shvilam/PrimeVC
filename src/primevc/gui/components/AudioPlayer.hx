@@ -24,28 +24,38 @@
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers   <ruben @ onlinetouch.nl>
  */
-package primevc.gui.components.layout;
- import primevc.core.geom.space.Horizontal;
- import primevc.core.geom.space.Vertical;
- import primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm;
- import primevc.gui.layout.VirtualLayoutContainer;
+package primevc.gui.components;
+ import primevc.core.media.AudioStream;
+ import primevc.core.Bindable;
+ import primevc.gui.core.UIDataContainer;
+ import primevc.types.URI;
+  using primevc.utils.Bind;
 
 
 /**
- * FormRow layout is a virtual layout container which will align it's children
- * horizontally.
- * 
  * @author Ruben Weijers
- * @creation-date Feb 16, 2011
+ * @creation-date Sep 28, 2011
  */
-class FormRowLayout extends VirtualLayoutContainer
+class AudioPlayer extends UIDataContainer <Bindable<URI>>
 {
-	public function new (percentWidth:Float = 1)
-	{
-		super();
-		algorithm			= new HorizontalFloatAlgorithm( Horizontal.left, Vertical.center );
-		this.percentWidth	= percentWidth;
-	}
+    public var stream       (default, null)         : AudioStream;
+
+    public function new (id = null, uri:URI = null) { super(id, new Bindable<URI>(uri)); }
+    override private function createChildren ()     { stream = new AudioStream(data.value); }
+    override public  function removeChildren ()     { stream.dispose(); stream = null; super.removeChildren(); }
+
+    override private function initData ()           { stream.url.pair(data); }
+    override private function removeData ()         { stream.url.unbind(data); }
+
+    public  inline function play ()                 { stream.play(); }         // can't call stream.play directly with some signals if they have parameters
+    public  inline function stop ()                 { stream.stop(); }
+    public  inline function resume ()               { stream.resume(); }
+    public  inline function pause ()                { stream.pause(); }
+
+    override private function createBehaviours ()
+    {
+        stop.on( displayEvents.removedFromStage, this );
+    }
 }

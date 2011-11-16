@@ -343,9 +343,16 @@ class LayoutStyle extends StyleSubBlock
 	
 	private function getAlgorithm ()
 	{
-		var v = _algorithm;
-		if (v == null && extendedStyle != null)		v = extendedStyle.algorithm;
-		if (v == null && superStyle != null)		v = superStyle.algorithm;
+		//if the algorithm flag is set, the property is allowed to be null (algorithm: 'none')
+		var v:Algorithm = null;
+		if (owns(Flags.ALGORITHM))
+			v = _algorithm
+		 else {
+			if (extendedStyle != null)
+				v = extendedStyle.algorithm;
+			else if (v == null && superStyle != null)
+				v = superStyle.algorithm;
+		}
 	//	if (v == null && parentStyle != null)		v = parentStyle.algorithm;
 		return v;
 	}

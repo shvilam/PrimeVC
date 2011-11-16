@@ -30,6 +30,7 @@ package primevc.core.dispatcher;
  import primevc.core.traits.IDisablable;
  import primevc.core.traits.IDisposable;
   using primevc.core.ListNode;
+  using primevc.utils.IfUtil;
   using primevc.utils.TypeUtil;
   using primevc.core.dispatcher.Wire;
 
@@ -90,7 +91,7 @@ class Signal <FunctionSignature> extends WireList<FunctionSignature>, implements
 		
 		var b = this.n; //, count = 0;
 		
-		while (b != null) {
+		while (b.notNull()) {
 			var x = b.next();
 			if( b.isBoundTo(listener, handler) ) {
 				b.dispose();
@@ -113,11 +114,17 @@ class Signal <FunctionSignature> extends WireList<FunctionSignature>, implements
 	public function unbindAll ()
 	{
 		var b = this.n;
-		while(b != null) {
+		while(b.notNull()) {
 			var x = b.next();
 			b.dispose();
 			b = x;
 		}
+	}
+
+
+	public inline function hasListeners () : Bool
+	{
+		return n.notNull();
 	}
 	
 	

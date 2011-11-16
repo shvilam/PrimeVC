@@ -71,7 +71,7 @@ class Loader implements ICommunicator
 	 * max Loaders loading at the same time. If this number is reached, the
 	 * other Loaders will wait in the queue
 	 */
-	private static inline var MAX_CONNECTIONS	= 5;
+	private static inline var MAX_CONNECTIONS	= 10;
 	private static 		  var QUEUE_LENGTH		= 0;
 	/**
 	 * number of active load processes
@@ -384,6 +384,7 @@ class Loader implements ICommunicator
 			type		= null;
 			isFinished	= false;
 	}
+	
 	
 	public function close () : Void
 	{

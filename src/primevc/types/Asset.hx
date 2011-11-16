@@ -509,21 +509,63 @@ class Asset
 		return b;
 	}
 	
-#end
 	
 	
 	public static inline function fromClass (v:AssetClass) : Asset
 	{
-		var b = new Asset();
-		b.setClass(v);
-		return b;
+		if (v != externalLoader)
+		{
+			if (externalLoader != null)
+			{
+				var events = externalLoader.events;
+				events.load.error		.unbind(this);
+				events.load.completed	.unbind(this);
+				events.unloaded			.unbind(this);
+		//		externalLoader.dispose();		// don't dispose it, could be used by other assets/value-objects
+			}
+			
+			externalLoader = v;
+			
+			if (v != null)
+			{
+				if (v.is(URLLoader))
+					Assert.that( v.as(URLLoader).isBinary(), "URILoader should load binary data!" );
+				
+				if (!v.isCompleted()) {
+					var events = v.events;
+					handleLoadError	.onceOn( events.load.error,		this );
+					handleURILoaded	.onceOn( events.load.completed,	this );
+					handleUnloaded	.onceOn( events.unloaded,		this );
+				}
+				else
+					setLoadable();
+			}
+			
+		}
+		return v;
 	}
+#end
 
 
 #if neko
 	public function isEmpty ()
 	{
-		return url == null && assetClass == null && bitmapData == null && displaySource == null;
+		if (v != data)
+		{
+			if (data != null)
+				unsetData();
+			
+			if (v != null) {
+				data = v;
+				type = switch (v.fileExt) {
+					case "png", "jpg", "gif":	AssetType.bitmapData;
+					default: 					AssetType.displayObject;
+				}
+				setLoadable();
+			} else
+				setEmpty();
+		}
+		return v;
 	}
 	
 	public function toString ()

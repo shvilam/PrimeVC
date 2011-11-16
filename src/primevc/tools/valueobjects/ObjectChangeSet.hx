@@ -29,6 +29,7 @@
 package primevc.tools.valueobjects;
  import primevc.core.collections.IRevertableList;
   using primevc.tools.valueobjects.ChangesUtil;
+  using primevc.utils.DateUtil;
   using primevc.utils.IfUtil;
   using primevc.utils.TypeUtil;
 
@@ -39,7 +40,7 @@ package primevc.tools.valueobjects;
  * @author Danny Wilson
  * @creation-date Dec 03, 2010
  */
- class ObjectChangeSet extends ChangeSet
+class ObjectChangeSet extends ChangeSet
 {
     public static inline function make (vo:ValueObjectBase, changes:Int)
     {
@@ -97,8 +98,7 @@ package primevc.tools.valueobjects;
             
             change = change.next;
         }
-        
-        return "ObjectChangeSet at " + Date.fromTime(timestamp) + " on "+vo+"; changes: \n\t\t\t" + output.join("\n\t\t\t");
+        return "ObjectChangeSet at " + timestamp.toDate() + " on "+vo+"; changes: \n\t\t\t" + output.join("\n\t\t\t");
     }
 #end
 }

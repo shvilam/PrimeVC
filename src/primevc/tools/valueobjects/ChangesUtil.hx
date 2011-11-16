@@ -31,7 +31,6 @@ package primevc.tools.valueobjects;
  import primevc.core.collections.ListChange;
  import primevc.core.traits.IEditableValueObject;
  import primevc.core.traits.IValueObject;
- private typedef IBindable = primevc.core.IBindable<Dynamic>;
   using primevc.utils.TypeUtil;
   using Reflect;
   using Std;

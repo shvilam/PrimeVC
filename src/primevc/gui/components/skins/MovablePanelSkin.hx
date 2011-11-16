@@ -49,7 +49,7 @@ class MovablePanelSkin extends BasicPanelSkin
 		closeBtn	= new Button("closeBtn");
 		closeBtn.attachTo( chrome );
 		
-		owner.close.send.on( closeBtn.userEvents.mouse.click, this );
+		owner.close.on( closeBtn.userEvents.mouse.click, this );
 		behaviours.add( new DragMoveBehaviour(owner, null, chrome) );
 	}
 	

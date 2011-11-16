@@ -34,7 +34,7 @@ typedef KeyboardEvents =
 	#if		flash9	primevc.avm2.events.KeyboardEvents;
 	#elseif	flash8	primevc.avm1.events.KeyboardEvents;
 	#elseif	js		primevc.js  .events.KeyboardEvents;
-	#else	Void;	#end
+	#else	#error;	#end
 
 typedef KeyboardHandler = KeyboardState -> Void;
 typedef KeyboardSignal  = primevc.core.dispatcher.INotifier<KeyboardHandler>;

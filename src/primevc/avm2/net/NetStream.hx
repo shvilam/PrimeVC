@@ -51,6 +51,7 @@ class NetStream extends flash.net.NetStream, implements IDisposable
 	
 	public function dispose ()
 	{
+		close();
 		events.dispose();
 		events = null;
 	}

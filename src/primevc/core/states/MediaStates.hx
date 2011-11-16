@@ -20,53 +20,27 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.gui.behaviours.components;
- import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.core.ISkin;
- import primevc.gui.states.ButtonStates;
-
-
-typedef ButtonObject = { >ISkin,
-	var buttonStates : ButtonStates;
-}
+package primevc.core.states;
 
 
 /**
- * Behaviour that will bind the states of a button to the default 
- * Mouse-events.
+ * enum with the states of a videostream
  * 
- * @creation-date	Jun 10, 2010
+ * @creation-date	Jan 10, 2011
  * @author			Ruben Weijers
  */
-class ButtonBehaviour extends BehaviourBase < ButtonObject >
-{
-	override private function init ()
-	{
-		var states = target.buttonStates;
-		var events = target.skin.userEvents.mouse;
-		
-		states.changeOn( events.down,		states.down );
-		states.changeOn( events.up,			states.hover );
-		states.changeOn( events.rollOver,	states.hover );
-		states.changeOn( events.rollOut,	states.normal );
-	}
-	
-	
-	override private function reset ()
-	{
-		var states = target.buttonStates;
-		var events = target.skin.userEvents.mouse;
-		
-		//FIXME: Dit ruimt alle handlers op van "states". Als er 2 behaviours gekoppeld zijn aan hetzelfde states object gaat de boel kaput.
-		events.down.unbind( states );
-		events.up.unbind( states );
-		events.rollOver.unbind( states );
-		events.rollOut.unbind( states );
-	}
+enum MediaStates {
+	playing;
+	paused;
+	stopped;
+	empty;
+    error( str:String );
+    loading( origState:MediaStates );
+	frozen( prevState:MediaStates );
 }

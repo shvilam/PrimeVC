@@ -7,6 +7,6 @@
 -cp src
 #-cp ../generated-src
 #-cp ../skins/flair
--cp ./
+#-cp ./
 #-main cases.StyleParserTest
 #-neko CSSParser.n

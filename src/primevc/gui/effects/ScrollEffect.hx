@@ -31,7 +31,7 @@ package primevc.gui.effects;
  import primevc.gui.effects.effectInstances.IEffectInstance;
  import primevc.gui.effects.effectInstances.ScrollEffectInstance;
 #end
- import primevc.gui.display.IDisplayObject;
+ import primevc.gui.traits.IScrollable;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
   using primevc.types.Reference;
@@ -46,7 +46,7 @@ package primevc.gui.effects;
  * @author Ruben Weijers
  * @creation-date Jul 15, 2011
  */
-class ScrollEffect extends Effect < IDisplayObject, ScrollEffect >
+class ScrollEffect extends Effect < IScrollable, ScrollEffect >
 {
     /**
      * Explicit start x value. If this value is not set, the effect will 
@@ -90,7 +90,7 @@ class ScrollEffect extends Effect < IDisplayObject, ScrollEffect >
     
     
 #if (flash8 || flash9 || js)
-    override public function createEffectInstance (target) : IEffectInstance<IDisplayObject, ScrollEffect>
+    override public function createEffectInstance (target) : IEffectInstance<IScrollable, ScrollEffect>
     {
         return cast new ScrollEffectInstance(target, this);
     }

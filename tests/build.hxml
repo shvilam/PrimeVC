@@ -16,10 +16,13 @@
 -cp ./
 -swf-header 600:900:5:FFFFFF
 -debug
--D network-sandbox
+
+ -D dragEnabled
+ -D network-sandbox
 #-D stats
--D unitTesting
+ -D unitTesting
 #-D Monster2Trace
+ -D Monster3Trace
 #-D AlconTrace
 #--no-inline
 #——flash—strict

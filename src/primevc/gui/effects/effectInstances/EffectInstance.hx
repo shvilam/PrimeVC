@@ -280,7 +280,7 @@ class EffectInstance < TargetType, PropertiesType:IEffect >
 	public inline function isWaiting () : Bool	{ return delayTimer != null; }
 
 	
-	private inline function setIsReverted (v:Bool)
+	private function setIsReverted (v:Bool)
 	{
 		return isReverted = v;
 	}

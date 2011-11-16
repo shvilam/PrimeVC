@@ -94,6 +94,18 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 		
 		invalidatable = true;
 	}
+
+
+	override public function applyPercentWidth (parentWidth:Int)
+	{
+		return (untyped this).explicitWidth = super.applyPercentWidth(parentWidth);
+	}
+
+
+	override public function applyPercentHeight (parentHeight:Int)
+	{
+		return (untyped this).explicitHeight = super.applyPercentHeight(parentHeight);
+	}
 	
 	
 	/**
@@ -177,7 +189,7 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	}
 	
 	
-	private inline function setMeasuredWidth (v:Int)
+	private function setMeasuredWidth (v:Int)
 	{
 		if (measuredWidth != v)
 		{
@@ -191,7 +203,7 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 	}
 	
 	
-	private inline function setMeasuredHeight (v:Int)
+	private function setMeasuredHeight (v:Int)
 	{
 		if (measuredHeight != v)
 		{

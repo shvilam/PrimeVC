@@ -55,7 +55,7 @@ class DirectToolTipBehaviour extends BehaviourBase<UIComponent>
 		super(target);
 #if debug
 		Assert.notNull(target, "Target can't be null for tooltipbehaviour");
-		Assert.notNull(label, "Label can't be null for tooltip of "+target);
+		Assert.notNull(label,  "Label can't be null for tooltip of "+target);
 #end
 		this.label = label;
 	}

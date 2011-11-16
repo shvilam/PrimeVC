@@ -41,6 +41,7 @@ interface IPositionable implements IDisplayable
 	var y						: Float;
 	var rotation				: Float;
 	var visible					: Bool;
+	var transform				: flash.geom.Transform; //Matrix2D;
 	
 	#if flash10
 	var rotationX				: Float;
@@ -49,7 +50,8 @@ interface IPositionable implements IDisplayable
 	var z						: Float;
 	#end
 #else
-	var x			(getX,			setX)				: Float;
-	var y			(getY,			setY)				: Float;
+	var x			(getX,		setX) : Float;
+	var y			(getY,		setY) : Float;
+	var transform	(default, 	null) : primevc.core.geom.Matrix2D;
 #end
 }
