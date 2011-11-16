@@ -1,9 +1,12 @@
 package primevc.js.net;
 
 import primevc.core.events.LoaderEvents;
-import primevc.core.traits.IDisposable;
+import primevc.core.net.ICommunicator;
+import primevc.core.net.CommunicationType;
+import primevc.core.Bindable;
 import primevc.js.net.XMLHttpRequest;
 import primevc.types.URI;
+import haxe.io.BytesData;
 import js.Dom;
 import js.Lib;
 
@@ -61,21 +64,24 @@ loadend				Progression has stopped.
  * @since	April 4, 2011
  */
 
-class URLLoader implements IDisposable
+class URLLoader implements ICommunicator
 {
-	public var state		(getState, null)		:Int;
-	public var isLoaded		(getIsLoaded, null)		:Bool;
-	public var data			(getData, null)			:Dynamic;
-	public var dataFormat	(getDataFormat, null)	:String;
-	public var bytesLoaded	(default, null)			:Int;
-	public var bytesTotal	(default, null)			:Int;
-	public var events		(default, null)			:LoaderEvents;
-	public var request		(default, null) 		:XMLHttpRequest;
-	
+	public var state		(getState, null)		: Int;
+	public var data			(getData, null)			: Dynamic;
+	public var dataFormat	(getDataFormat, null)	: String;
+	public var bytes		(getBytes,	setBytes)	: BytesData;
+	public var bytesProgress(default, null)			: Int;
+	public var bytesTotal	(default, null)			: Int;
+	public var events		(default, null)			: LoaderSignals;
+	public var request		(default, null) 		: XMLHttpRequest;
+	public var isStarted	(default, null) 		: Bool;
+	public var type			(default, null)			: CommunicationType;
+	public var length		(default, never)		: Null<Bindable<Int>>;
+
 	public function new(?url:URI)
 	{	
 		request	= new XMLHttpRequest();
-		
+		isStarted = false;
 		untyped request.onreadystatechange = onReadyStateChange;
 		untyped request.onprogress = onLoadProgress;
 		
@@ -89,7 +95,6 @@ class URLLoader implements IDisposable
 	
 	private function getState():Int { return request.readyState; }
 	private function getStatus():Int { return request.status; }
-	private function getIsLoaded():Bool { return request.readyState == 4; }	
 	private function getData():Dynamic { return request.responseText; }
 	private function getDataFormat():String { return request.getResponseHeader("Content-Type"); }
 	// TODO: check what exactly this value represents with different data types
@@ -101,7 +106,7 @@ class URLLoader implements IDisposable
 		{
 			if (event.lengthComputable)
 			{
-				bytesLoaded = event.loaded;
+				bytesProgress = event.loaded;
 				bytesTotal = event.total;
 			}
 		}
@@ -129,31 +134,54 @@ class URLLoader implements IDisposable
 	
 	public function binaryGET(uri:URI)
 	{
+		this.type = CommunicationType.loading;
+
 		var request = this.request;
 		request.open("GET", uri.toString(), true);
 		
 		// This tells the browser not to parse the data, getting raw unprocessed bytes.
 		request.overrideMimeType('text/plain; charset=x-user-defined');
 		request.send(null);
+		this.isStarted = true;
 	}
 	
-	public function binaryPOST(uri:URI, bytes:haxe.io.Bytes)
+	public function binaryPOST(uri:URI, mimetype:String = "application/octet-stream")
 	{
+		this.type = CommunicationType.sending;
+		
 		request.open("POST", uri.toString(), true);
-		
-		//request.setRequestHeader("Content-Type", "text/plain;charset=UTF-8"); // For DOMStrings.
-		//request.setRequestHeader("Content-Type", "application/xml;charset=UTF-8"); // For (parts of) HTML Document.
-		//request.setRequestHeader("Content-Length", bytes.length); // For binary data.
-		
+		request.overrideMimeType(mimetype);
 		request.send(bytes.toString());
+		this.isStarted = true;
 	}
 	
 	public function load(uri:URI)
 	{
+		this.type = CommunicationType.loading;
+
 		var request = this.request;
 		request.open("GET", uri.toString(), true);
 		request.send(null);
+		this.isStarted = true;
 	}
 	
-	public inline function close() { return request.abort(); }
+	public inline function close() { this.isStarted = false; return request.abort(); }
+
+	private var _isBinary : Bool;
+	public inline function isBinary ()		: Bool	{ return true; }
+	public inline function isCompleted()	: Bool	{ return request.readyState == 4; }
+	public inline function isInProgress()	: Bool	{ return isStarted && request.readyState != 4; }
+	
+	private inline function getBytes () : BytesData	{ return data; }
+	public  inline function getRawData ()			{ return data; }
+
+	private inline function setBytes (v:BytesData)
+	{
+		data = v;
+		
+		if (v != null)
+			bytesProgress = bytesTotal = v.length;
+		
+		return v;
+	}
 }

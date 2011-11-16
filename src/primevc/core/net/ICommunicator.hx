@@ -49,16 +49,16 @@ interface ICommunicator implements IDisposable
 	/**
 	 * Total bytes loaded/send for all processes together
 	 */
-	public var bytesProgress	(getBytesProgress,	never)		: Int;
+	public var bytesProgress	(#if js default #else getBytesProgress #end,	never)		: Int;
 	/**
 	 * Total number of bytes to load/send for all processes together
 	 */
-	public var bytesTotal		(getBytesTotal,		never)		: Int;
+	public var bytesTotal		(#if js default #else getBytesTotal #end,		never)		: Int;
 	
 	/**
 	 * Indicates the number of process going on within the communicator
 	 */
-	public var length			(default,			null)		: Bindable<Int>;
+	public var length			(default,			null)		: Null<Bindable<Int>>;
 	
 	
 	/**
