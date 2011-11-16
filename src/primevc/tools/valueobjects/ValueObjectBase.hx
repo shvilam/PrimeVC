@@ -27,7 +27,6 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.tools.valueobjects;
- import primevc.core.collections.ListChange;
  import primevc.core.traits.IFlagOwner;
  import primevc.core.traits.IValueObject;
  import primevc.core.dispatcher.Signal1;
