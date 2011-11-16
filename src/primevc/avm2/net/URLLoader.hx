@@ -162,6 +162,7 @@ class URLLoader implements ICommunicator
 #if debug	uri	= null; #end
 	}
 	
+	public function binaryGET  (uri:URI) { setBinary(); load(uri); }
 	
 	public function binaryPOST (uri:URI, mimetype:String = "application/octet-stream")
 	{
