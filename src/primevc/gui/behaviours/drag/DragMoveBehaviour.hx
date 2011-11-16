@@ -30,7 +30,7 @@ package primevc.gui.behaviours.drag;
  import primevc.core.geom.IntRectangle;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.traits.ILayoutable;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 

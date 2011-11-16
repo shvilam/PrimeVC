@@ -35,7 +35,7 @@ package primevc.gui.effects;
  * @author Ruben Weijers
  * @creation-date Oct 04, 2010
  */
-class EffectFlags
+#if !debug extern #end class EffectFlags
 {
 	public static inline var ALL_PROPERTIES		= MOVE | RESIZE | ROTATE | SCALE | SHOW | HIDE;
 	                                            

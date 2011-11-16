@@ -38,7 +38,6 @@ package primevc.gui.behaviours.layout;
  import primevc.gui.traits.IPropertyValidator;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.TypeUtil;
  
 
@@ -137,7 +136,7 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 	
 	private function layoutStateChangeHandler (newState:ValidateStates, oldState:ValidateStates)
 	{
-		Assert.that(isOnStage(), target+"");
+		Assert.that(isOnStage(), target);
 		
 	//	if (isQueued() && newState == ValidateStates.parent_invalidated)
 	//		getValidationManager().remove( this );
@@ -160,7 +159,7 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 		var l = target.layout;
 		
 	//	if (changes.has( LayoutFlags.SIZE | LayoutFlags.POSITION ))
-	//	trace(target+"; x="+l.getHorPosition()+", y="+l.getVerPosition()+", width="+l.outerBounds.width+", height="+l.outerBounds.height+"; "+changes.has( LayoutFlags.POSITION )+"; "+changes.has( LayoutFlags.SIZE ));
+	//	trace(target+"; oldPos: "+target.x+", "+target.y+"; newPos: "+l.getHorPosition()+", "+l.getVerPosition()+"; newSize: "+l.outerBounds.width+", "+l.outerBounds.height+"; "+changes.has( LayoutFlags.POSITION )+"; "+changes.has( LayoutFlags.SIZE ));
 		
 		if (changes.has( LayoutFlags.POSITION ))
 		{
@@ -169,25 +168,17 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 				var l = target.layout;
 				var newX = l.getHorPosition();
 				var newY = l.getVerPosition();
-			
-				if (!isNotPositionedYet && target.x == newX && target.y == newY)
-					return;
-			
-				if (target.is(IDrawable))
-				{
-					var t = target.as(IDrawable);
-					if (t.graphicData.border != null)
-					{
-						var borderWidth = t.graphicData.border.weight;
-						newX -= (borderWidth * target.scaleX).roundFloat();
-						newY -= (borderWidth * target.scaleY).roundFloat();
-					}
-				}
 				
-				target.rect.move( newX, newY );
-				target.x = newX;
-				target.y = newY;
-				isNotPositionedYet = false;
+//#if debug		Assert.that( newX > -10000 && newX < 10000, target+".invalidX: "+newX+"; "+target.container );
+//				Assert.that( newY > -10000 && newY < 10000, target+".invalidY: "+newY+"; "+target.container ); #end
+				
+				if (isNotPositionedYet || target.x != newX || target.y != newY)
+				{
+					target.rect.move( newX, newY );
+					target.x = newX;
+					target.y = newY;
+					isNotPositionedYet = false;
+				}
 			}
 			else
 				target.effects.playMove();
@@ -200,6 +191,8 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 			if (target.effects == null)
 			{
 				var b = target.layout.innerBounds;
+//#if debug		Assert.that(b.width < 10000 && b.width > -1, target+".invalidWidth: "+b+"; "+target.container);
+//				Assert.that(b.height < 10000 && b.height > -1, target+".invalidHeight: "+b+"; "+target.container); #end
 				target.rect.resize( b.width, b.height );
 				
 				if (!target.is(IDrawable)) {

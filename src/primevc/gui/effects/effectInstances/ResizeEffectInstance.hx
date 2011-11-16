@@ -31,7 +31,6 @@ package primevc.gui.effects.effectInstances;
  import primevc.gui.effects.ResizeEffect;
  import primevc.gui.traits.ISizeable;
  import primevc.types.Number;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
 
 
@@ -96,6 +95,10 @@ class ResizeEffectInstance extends EffectInstance < ISizeable, ResizeEffect >
 		else						startW = target.width;
 		if (effect.startH.isSet())	startH = effect.startH;
 		else						startH = target.height;
+		
+		target.rect.width	= startW;
+		target.rect.height	= startH;
+		target.visible		= true;
 	}
 	
 

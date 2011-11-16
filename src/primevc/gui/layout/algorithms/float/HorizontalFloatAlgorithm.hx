@@ -32,8 +32,8 @@ package primevc.gui.layout.algorithms.float;
  import primevc.gui.layout.algorithms.HorizontalBaseAlgorithm;
  import primevc.gui.layout.algorithms.IHorizontalAlgorithm;
  import primevc.gui.layout.AdvancedLayoutClient;
- import primevc.utils.NumberMath;
-  using primevc.utils.NumberMath;
+ import primevc.types.Number;
+ import primevc.utils.NumberUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
  
@@ -46,13 +46,6 @@ package primevc.gui.layout.algorithms.float;
  */
 class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHorizontalAlgorithm
 {
-	/**
-	 * Measured point of the right side of the middlest child (rounded above) 
-	 * when the direction is center.
-	 */
-	private var halfWidth			: Int;
-	
-	
 	public inline function validate ()
 	{
 		if (group.children.length == 0)
@@ -68,7 +61,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	 */
 	public function validateHorizontal ()
 	{
-		var width:Int	= halfWidth = 0;
+		var width:Int	= 0;
 		var children	= group.children;
 		
 		if (group.childWidth.notSet())
@@ -80,17 +73,10 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 					continue;
 				
 				width += child.outerBounds.width;
-				
-				//only count even children
-				if (i.isEven())
-					halfWidth += child.outerBounds.width;
 			}
 		}
 		else
-		{
-			width		= group.childWidth * children.length;
-			halfWidth	= group.childWidth * children.length.divCeil(2);
-		}
+			width = group.childWidth * group.childrenLength;
 		
 		setGroupWidth(width);
 	}
@@ -132,6 +118,9 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 			} 
 			else
 			{
+				if (group.fixedChildStart.isSet())
+					next += group.fixedChildStart * group.childWidth;
+				
 				for (i in 0...children.length)
 				{
 					var child = children.getItemAt(i);
@@ -149,50 +138,6 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	private inline function applyCentered () : Void
 	{
 		applyLeftToRight( getHorCenterStartValue() );
-		/*if (group.children.length > 0)
-		{
-			var i:Int = 0;
-			var evenPos:Int, oddPos:Int;
-			evenPos = oddPos = halfWidth + getLeftStartValue();
-		
-			//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
-			if (group.childWidth.notSet())
-			{
-				for (child in group.children) {
-					if (!child.includeInLayout)
-						continue;
-					
-					if (i.isEven()) {
-						//even
-						child.bounds.right	= evenPos;
-						evenPos				= child.bounds.left;
-					} else {
-						//odd
-						child.bounds.left	= oddPos;
-						oddPos				= child.bounds.right;
-					}
-					i++;
-				}
-			}
-			else
-			{
-				for (child in group.children) {
-					if (!child.includeInLayout)
-						continue;
-					
-					if (i.isEven()) {
-						//even
-						child.bounds.right	 = evenPos;
-						evenPos				-= group.childWidth;
-					} else {
-						//odd
-						child.bounds.left	 = oddPos;
-						oddPos				+= group.childWidth;
-					}
-					i++;
-				}
-			}
-		}*/
 	}
 	
 	
@@ -220,6 +165,9 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 			else
 			{
 				next -= group.childWidth;
+				if (group.fixedChildStart.isSet())
+					next -= group.fixedChildStart * group.childWidth;
+				
 				for (i in 0...children.length)
 				{
 					var child = children.getItemAt(i);
@@ -253,7 +201,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 		
 		if (group.childWidth.isSet())
 		{
-			depth = posX.divRound(group.childWidth);
+			depth = ((posX - getLeftStartValue()) / group.childWidth).roundFloat();
 		}
 		else
 		{
@@ -299,8 +247,9 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	private inline function getDepthForBoundsC (bounds:IRectangle) : Int
 	{
 		Assert.abstract( "Wrong implementation since the way centered layouts behave is changed");
-		var depth:Int	= 0;
-		var posX:Int	= bounds.left;
+		return 0;
+	/*	var depth:Int	= 0;
+		var posX:Int	= bounds.left - getHorCenterStartValue();
 		var centerX:Int	= bounds.left + (bounds.width >> 1); // * .5).roundFloat();
 		var children	= group.children;
 		
@@ -322,7 +271,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 
 			depth++;
 		}
-		return depth;
+		return depth;*/
 	}
 	
 	
@@ -330,7 +279,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	{
 		var depth:Int	= 0;
 		var posX:Int	= bounds.left;
-		var centerX:Int	= bounds.left + (bounds.width >> 1); //* .5).roundFloat();
+		var centerX:Int	= posX + (bounds.width >> 1); //* .5).roundFloat();
 		
 		var children	= group.children;
 		var groupWidth	= group.width;
@@ -344,7 +293,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 		
 		if (group.childWidth.isSet())
 		{
-			depth = children.length - ( posX - emptyWidth ).divRound( group.childWidth );
+			depth = children.length - ((posX - getRightStartValue() - emptyWidth) / group.childWidth).roundFloat();
 		}
 		else
 		{
@@ -386,6 +335,79 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 
 		}
 		return depth;
+	}
+	
+	
+	override public function getDepthOfFirstVisibleChild ()	: Int
+	{
+		if (group.childWidth.notSet())
+			return 0;
+		
+		Assert.that(group.is(IScrollableLayout), group+" should be scrollable");
+		var group	= group.as(IScrollableLayout);
+		var childW	= group.childWidth;
+		
+		var depth	= switch (direction) {
+			case Horizontal.left:	(group.scrollPos.x / childW).floorFloat();
+			case Horizontal.center:	0;
+			case Horizontal.right:	(group.scrollableWidth / childW).floorFloat();
+		};
+		return (depth - group.invisibleBefore).within(0, group.childrenLength);
+	}
+	
+	
+	override public function getMaxVisibleChildren () : Int
+	{
+		var g = this.group;
+		if (g.childWidth.isSet())
+		    return g.width.isSet()
+		    	? IntMath.min( (g.width / g.childWidth).ceilFloat() + group.invisibleBefore + group.invisibleAfter, g.childrenLength)
+		    	: 0;
+	    else
+	        return g.childrenLength;
+	}
+	
+	
+	override public function scrollToDepth (depth:Int)
+	{
+	    if (!group.is(IScrollableLayout))
+	        return;
+	    
+	    var group       = this.group.as(IScrollableLayout);
+	    var childW      = group.childWidth;
+	    var scrollX     = Number.INT_NOT_SET;
+	    var children    = group.children;
+	    
+	    switch (direction)
+	    {
+			case Horizontal.left:
+			    if (childW.isSet()) {
+			        scrollX = getLeftStartValue() + (depth * childW);
+		        } else {
+#if debug	        Assert.that( depth >= group.fixedChildStart, depth+" >= "+group.fixedChildStart );
+			        Assert.that( depth <  group.fixedChildStart + children.length, depth+" < "+group.fixedChildStart+" + "+children.length ); #end
+			        
+			        scrollX = children.getItemAt( depth - group.fixedChildStart ).outerBounds.left;
+			    }
+			    
+			
+			case Horizontal.center:
+			    Assert.abstract();
+			
+			
+			case Horizontal.right:
+			    if (childW.isSet()) {
+			        scrollX = getRightStartValue() + ((depth + 1) * childW);
+		        } else {
+#if debug	        Assert.that( depth >= group.fixedChildStart, depth+" >= "+group.fixedChildStart );
+			        Assert.that( depth <  group.fixedChildStart + children.length, depth+" < "+group.fixedChildStart+" + "+children.length ); #end
+			        
+			        scrollX = children.getItemAt( depth - group.fixedChildStart ).outerBounds.left;
+			    }
+		}
+		
+		if (scrollX.isSet())
+		    group.scrollPos.x = scrollX;
 	}
 	
 	

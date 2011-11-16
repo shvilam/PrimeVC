@@ -14,14 +14,14 @@ using primevc.utils.TypeUtil;
  * from the element itself. It defines what Button events should 
  * be listened to and what functions react to them. 
  */
-class ButtonMediator extends Mediator <MainEvents, MainModel, MainView, Button>
+class ButtonMediator extends Mediator <MainFacade, Button>
 {	
     override public function startListening ()
     {
         if (isListening())
             return;
 		
-        clickHandler.on(viewComponent.userEvents.mouse.click, this);
+        clickHandler.on(gui.userEvents.mouse.click, this);
         super.startListening();
     }
 
@@ -30,12 +30,12 @@ class ButtonMediator extends Mediator <MainEvents, MainModel, MainView, Button>
         if (!isListening())
             return;
         
-        viewComponent.userEvents.unbind(this);
-        super.stopListening ();
+		super.stopListening();
+        gui.userEvents.unbind(this);
     }
 	
     private function clickHandler(e)
     {
-        events.loadImage.send(model.mainProxy.vo.value);
+        f.events.loadImage.send(f.model.mainProxy.vo.value);
     }
 }

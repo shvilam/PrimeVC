@@ -28,6 +28,7 @@
  */
 package primevc.gui.effects;	
 #if (flash8 || flash9 || js)
+ import primevc.gui.effects.effectInstances.IEffectInstance;
  import primevc.gui.effects.effectInstances.ScaleEffectInstance;
 #end
  import primevc.gui.traits.IScaleable;
@@ -89,7 +90,7 @@ class ScaleEffect extends Effect < IScaleable, ScaleEffect >
 	
 	
 #if (flash8 || flash9 || js)
-	override public function createEffectInstance (target)
+	override public function createEffectInstance (target) : IEffectInstance<IScaleable, ScaleEffect>
 	{
 		return cast new ScaleEffectInstance( target, this );
 	}

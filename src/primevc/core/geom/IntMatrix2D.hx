@@ -29,7 +29,7 @@
 package primevc.core.geom;
  import apparat.math.FastMath;
  import primevc.core.traits.IClonable;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
 
 
 /**
@@ -191,7 +191,7 @@ class IntMatrix2D implements IClonable < IntMatrix2D >
 #if debug
 	public function toString()
 	{
-		return "[Matrix2D a=" + a + ", b=" + b + ", c=" + c + ", d=" + d + ", tx=" + tx + ", ty=" + ty + ", " + tw + ", " + th + "]";
+		return "[Matrix2D a=" + a + ", b=" + b + ", c=" + c + ", d=" + d + ", tx=" + tx + ", ty=" + ty + ", tw=" + tw + ", th=" + th + "]";
 	}
 #end
 }

@@ -31,14 +31,14 @@ package primevc.utils;
   using Type;
 
 
-class TypeUtil
+extern class TypeUtil
 {
 	/**
 	 * Optimized simple instanceof check. Compiles to bytecode or Useful to quickly check if an object implements some interface.
 	 *  
 	 * Warning: Use Std.is() for checking enums and stuff.
 	 */
-	static public inline function is(o:Dynamic, t:Class<Dynamic>)
+	static public inline function is(o:Dynamic, t:Class<Dynamic>) : Bool
 	{
 		#if flash9
 			return untyped __is__(o, t);
@@ -64,22 +64,31 @@ class TypeUtil
 	}
 	
 	
+	static public inline function className (o:Dynamic) : String
+	{
+		return o == null ? null : o.getClass().getClassName();
+	}
+}
+
+
 #if debug
+class IDUtil
+{
 	private static var objCounter : Int = 0;
 	
 	public static inline function getReadableId (obj:Dynamic) : String
 	{
 		return Type.getClass( obj ).getClassName().split(".").pop() + objCounter++;
 	}
+}	
 #end
-}
 
 
 /**
  * @author	Ruben Weijers
  * @since	Dec 15, 2010
  */
-class IntTypeUtil
+extern class IntTypeUtil
 {
 	public static inline function int (v:Bool) : Int
 	{
@@ -93,7 +102,7 @@ class IntTypeUtil
  * @author	Ruben Weijers
  * @since	Dec 15, 2010
  */
-class FloatTypeUtil
+extern class FloatTypeUtil
 {
 	public static inline function float (v:Bool) : Float
 	{

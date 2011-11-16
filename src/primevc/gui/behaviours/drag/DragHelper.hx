@@ -29,6 +29,7 @@
 package primevc.gui.behaviours.drag;
  import haxe.Timer;
  import primevc.core.dispatcher.Wire;
+ import primevc.core.traits.IDisablable;
  import primevc.core.traits.IDisposable;
  import primevc.gui.display.ISprite;
  import primevc.gui.events.KeyboardEvents;
@@ -55,7 +56,7 @@ package primevc.gui.behaviours.drag;
  * @author Ruben Weijers
  * @creation-date Jul 29, 2010
  */
-class DragHelper implements IDisposable
+class DragHelper implements IDisposable, implements IDisablable
 {
 	private var target				: ISprite;
 	private var startHandler		: MouseState -> Void;
@@ -85,8 +86,8 @@ class DragHelper implements IDisposable
 	
 	public inline function init ()
 	{
-		mouseUpBinding		= stopDrag		.on( target.window.mouse.events.up, this );
-		mouseMoveBinding	= preStartDrag	.on( target.window.mouse.events.move, this );
+		mouseUpBinding		= stopDrag		.on( target.window.userEvents.mouse.up, this );
+		mouseMoveBinding	= preStartDrag	.on( target.window.userEvents.mouse.move, this );
 		keyDownBinding		= checkCancel	.on( target.window.userEvents.key.down, this );
 		
 		mouseUpBinding	.disable();
@@ -206,5 +207,11 @@ class DragHelper implements IDisposable
 		mouseUpBinding	.disable();
 		mouseMoveBinding.disable();
 		keyDownBinding	.disable();
+	}
+	
+	
+	public inline function isEnabled ()
+	{
+		return mouseUpBinding.isEnabled();
 	}
 }

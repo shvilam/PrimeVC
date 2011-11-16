@@ -41,8 +41,10 @@ interface IListView < ListDataType > implements IUIContainer
 {
 	public var createItemRenderer													: ListDataType -> Int -> IUIElement;
 //	private function createItemRenderer ( item:ListDataType, pos:Int )				: IUIElement;
-	private function addItemRenderer( item:ListDataType, newPos:Int = -1 )			: Void;
-	private function removeItemRenderer( item:ListDataType, oldPos:Int = -1 )		: Void;
-	private function moveItemRenderer ( item:ListDataType, newPos:Int, oldPos:Int )	: Void;
-	public function getItemRendererFor ( item:ListDataType )						: IUIElement;
+	private function addRenderer( item:ListDataType, newPos:Int = -1 )			: Void;
+	private function removeRenderer( item:ListDataType, oldPos:Int = -1 )		: Void;
+	private function moveRenderer ( item:ListDataType, newPos:Int, oldPos:Int )	: Void;
+	public function getRendererFor ( item:ListDataType )						: IUIElement;
+	public function getRendererAt ( pos:Int )									: IUIElement;
+	public function getPositionFor ( item:ListDataType )						: Int;
 }

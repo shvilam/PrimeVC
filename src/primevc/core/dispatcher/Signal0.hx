@@ -50,11 +50,11 @@ class Signal0 extends Signal<Void->Void>, implements ISender0, implements INotif
 		
 		while (w.notNull())
 		{
-			var x = w.next();
+			nextSendable = w.next();
 			
 			if (w.isEnabled())
 			{
-				Assert.that(w != x);
+				Assert.that(w != nextSendable);
 				Assert.that(w.flags != 0);
 				
 				if (w.flags.has(Wire.SEND_ONCE))
@@ -71,27 +71,15 @@ class Signal0 extends Signal<Void->Void>, implements ISender0, implements INotif
 				if (w.flags.has(Wire.SEND_ONCE))
 				 	w.dispose();
 			}
-			w = x; // Next node
+			
+			w = nextSendable; // Next node
 		}
+		
+		nextSendable = null;
 	}
 	
-	public inline function bind(owner:Dynamic, handler:Void->Void)
-	{
-		return observe(owner, handler);
-	}
-	
-	public inline function bindOnce(owner:Dynamic, handler:Void->Void)
-	{
-		return observeOnce(owner, handler);
-	}
-	
-	public inline function observe(owner:Dynamic, handler:Void->Void)
-	{
-		return Wire.make( this, owner, handler, Wire.ENABLED | Wire.VOID_HANDLER);
-	}
-	
-	public inline function observeOnce(owner:Dynamic, handler:Void->Void)
-	{
-		return Wire.make( this, owner, handler, Wire.ENABLED | Wire.VOID_HANDLER | Wire.SEND_ONCE);
-	}
+	public inline function bind			(owner:Dynamic, handler:Void->Void)		return observe(owner, handler)
+	public inline function bindOnce		(owner:Dynamic, handler:Void->Void)		return observeOnce(owner, handler)
+	public inline function observe		(owner:Dynamic, handler:Void->Void)		return Wire.make( this, owner, handler, Wire.ENABLED | Wire.VOID_HANDLER)
+	public inline function observeOnce	(owner:Dynamic, handler:Void->Void)		return Wire.make( this, owner, handler, Wire.ENABLED | Wire.VOID_HANDLER | Wire.SEND_ONCE)
 }

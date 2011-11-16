@@ -36,7 +36,7 @@ package primevc.gui.graphics;
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-class GraphicFlags
+#if !debug extern #end class GraphicFlags
 {
 	public static inline var FILL		= 1 << 0;
 	public static inline var BORDER		= 1 << 1;

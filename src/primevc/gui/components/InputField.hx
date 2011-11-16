@@ -94,7 +94,7 @@ class InputField <VOType> extends DataButton <VOType>
 		handleFocus	.on( userEvents.focus, this );
 		handleBlur	.on( userEvents.blur, this );
 		
-		Assert.notNull( updateVO );
+		Assert.notNull( updateVO, "You need to define a method to commit changes of the inputField" );
 		fieldBinding = updateVO.on( data.change, this );
 		
 		if (!hasFocus)
@@ -153,11 +153,10 @@ class InputField <VOType> extends DataButton <VOType>
 		if (hasFocus)
 			return;
 		
-	//	Assert.notNull( vo.value );
-		trace(data.value);
-		
 		hasFocus = true;
-		updateLabel( vo.value, vo.value );
+		updateLabel();
+		if (data.value == defaultLabel)
+			data.set("");
 		
 		getRevertableData().beginEdit();
 		fieldBinding.enable();
@@ -170,21 +169,25 @@ class InputField <VOType> extends DataButton <VOType>
 			return;
 		
 	//	Assert.notNull( vo.value );
-		
 		updateLabelBinding.disable();
 		fieldBinding.disable();
 		updateVO();
-		getRevertableData().commitEdit();
+
+		var d = getRevertableData();
+		if (d.isEditable())	// <-- not the case when cancelInput is called.
+			d.commitEdit();
+		
 		updateLabelBinding.enable();
 		
 		hasFocus = false;
-		updateLabel( vo.value, vo.value );
+		updateLabel();
 	}
 	
 	
 	/**
 	 * Method will set the current input as value of the VO without losing
-	 * focus
+	 * focus.
+	 * Method is called From InputFieldSkin.
 	 */
 	public function applyInput ()
 	{
@@ -194,7 +197,7 @@ class InputField <VOType> extends DataButton <VOType>
 		field.removeFocus();
 		return;
 		
-		updateLabelBinding.disable();
+		/*updateLabelBinding.disable();
 		fieldBinding.disable();
 		
 		updateVO();
@@ -202,19 +205,21 @@ class InputField <VOType> extends DataButton <VOType>
 		getRevertableData().beginEdit();
 		
 		fieldBinding.enable();
-		updateLabelBinding.enable();
+		updateLabelBinding.enable();*/
 	}
 	
 	
 	/**
 	 * Method will set the current input to the original value before the user
 	 * typed in stuff.
+	 * Method is called From InputFieldSkin.
 	 */
 	public function cancelInput ()
 	{
 		if (!hasFocus)
 			return;
 		
-		updateLabel( vo.value, vo.value );
+		getRevertableData().cancelEdit();
+		field.removeFocus();
 	}
 }

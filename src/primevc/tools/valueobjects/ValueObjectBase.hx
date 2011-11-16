@@ -27,25 +27,16 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.tools.valueobjects;
- import primevc.core.collections.IRevertableList;
- import primevc.core.collections.ListChange;
- import primevc.core.traits.IEditableValueObject;
  import primevc.core.traits.IFlagOwner;
  import primevc.core.traits.IValueObject;
- import primevc.core.collections.RevertableArrayList;
  import primevc.core.dispatcher.Signal1;
- import primevc.core.RevertableBindable;
  import primevc.core.RevertableBindableFlags;
- import primevc.utils.FastArray;
   using primevc.utils.BitUtil;
   using primevc.utils.IfUtil;
   using primevc.utils.TypeUtil;
-  using primevc.utils.FastArray;
-  using primevc.utils.ChangesUtil;
 
 
-typedef PropertyID	= Int;
-typedef Flags		= RevertableBindableFlags;
+private typedef Flags = RevertableBindableFlags;
 
 
 /**
@@ -62,28 +53,36 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 	private var _propertiesSet	: Int;
 	private var _flags			: Int;
 	
-	private function new ()
+	/**
+	 * method to initialize an value-object. Create bindings to the properties of the vo in this method.
+	 * this is done in a seperate method (instead of just the constructor) so that the method can also be
+	 * callen when empty-VO's are created through deserialization (using Type.createEmptyInstance).
+	 */
+	private function init ()
 	{
 		change = new Signal1();
-		_changedFlags = _propertiesSet = _flags = 0;
+#if js	_changedFlags = _flags = 0; #end
 	}
 	
 	
 	public function dispose()
 	{
-		if (change.notNull()) {
-			change.dispose();
-			change = null;
-		}
-		_changedFlags = 0;
+		Assert.that(!isDisposed(), this+" is already disposed!");
+	//	if (change.notNull()) {
+		change.dispose();
+		change = null;
+	//	}
+		_changedFlags = _propertiesSet = _flags = 0;
 	}
 	
 	
-	public function isEmpty() : Bool				{ return !_propertiesSet.not0(); }
-	public inline function isEditable() : Bool		{ return _flags.has(Flags.IN_EDITMODE); }
-	public inline function isDisposed() : Bool		{ return change == null; }
-	public function has (propertyID : Int) : Bool	{ return (_propertiesSet & (1 << ((propertyID & 0xFF) + _fieldOffset(propertyID >>> 8)))).not0(); }
-	public inline function changed () : Bool		{ return _changedFlags.not0(); }
+	public inline function isEmpty() : Bool				{ return !_propertiesSet.not0(); }
+	public inline function isEditable() : Bool			{ return _flags.has(Flags.IN_EDITMODE); }
+	public inline function isDisposed() : Bool			{ return change == null; }
+	public inline function changed () : Bool			{ return _changedFlags.not0(); }
+	public function has (propertyID : Int) : Bool		{ return (_propertiesSet & (1 << ((propertyID & 0xFF) + _fieldOffset(propertyID >>> 8)))).not0(); }
+	public function getPropertyById (id:Int) : Dynamic	{ Assert.abstract(); return null; }
+	public function setPropertyById (id:Int, v:Dynamic)	{ Assert.abstract(); }
 	
 	private inline function setPropertyFlag(propertyID : Int) : Void {
 		_propertiesSet = _propertiesSet.set(1 << ((propertyID & 0xFF) + _fieldOffset(propertyID >>> 8)));
@@ -111,29 +110,30 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 	
 	public function objectChangedHandler(propertyID : Int) : ObjectChangeSet -> Void
 	{
-		var self = this;
-		var pathNode = ObjectPathVO.make(this, propertyID); // Same ObjectPathVO instance reused
+		// Same ObjectPathVO instance reused
+		return callback(objectChangedHandlerBody, propertyID, ObjectPathVO.make(this, propertyID));
+	}
+	
+	private function objectChangedHandlerBody(propertyID : Int, pathNode : ObjectPathVO, change : ObjectChangeSet)
+	{
+    	Assert.notNull(this.change);
+		Assert.notNull(change);
 		
-		return function(change:ObjectChangeSet)
-		{
-			Assert.notNull(self.change);
-			Assert.notNull(change);
-			
-			var p = change.parent;
-			
-			if (p.notNull()) {
-				// Find either pathNode, or the last parent
-				while (p.notNull() && p.parent.notNull() && p.parent != pathNode) p = p.parent;
-				untyped p.parent = pathNode;
-			}
-			else untyped change.parent = pathNode;
-			
-			if (change.vo.isEmpty())
-				self.unsetPropertyFlag(propertyID);
-			else
-				self.setPropertyFlag(propertyID);
-			self.change.send(change);
+		var p = change.parent;
+		
+		if (p.notNull()) {
+			// Find either pathNode, or the last parent
+			while (p.notNull() && p.parent.notNull() && p.parent != pathNode) p = p.parent;
+			untyped p.parent = pathNode;
 		}
+		else untyped change.parent = pathNode;
+		
+		if (change.vo.isEmpty())
+			this.unsetPropertyFlag(propertyID);
+		else
+			this.setPropertyFlag(propertyID);
+		
+		this.change.send(change);
 	}
 	
 	
@@ -155,6 +155,29 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 		_flags			= _flags.unset( Flags.IN_EDITMODE );
 		_changedFlags	= 0;
 	}
+
+
+	//FIXME: Define different ValueObjectBase for the viewer (without ObjectChangeSet's)
+	public static inline function addChangeListener (vo:IValueObject, owner:Dynamic, handler:ObjectChangeSet->Void)
+	{
+#if debug
+		Assert.notNull(vo);
+		Assert.that(vo.is(ValueObjectBase));
+#end
+		vo.as(ValueObjectBase).change.bind(owner, handler);
+	}
+
+
+
+	//FIXME: Define different ValueObjectBase for the viewer
+	public static inline function removeChangeListener (vo:IValueObject, owner:Dynamic)
+	{
+#if debug
+		Assert.notNull(vo);
+		Assert.that(vo.is(ValueObjectBase));
+#end
+		vo.as(ValueObjectBase).change.unbind(owner);
+	}
 	
 /*
 	Kijken wat kleinere SWF geeft: calls hiernaar, of methods genereren...
@@ -165,224 +188,8 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 			instance._changedFlags |= propertyBit;
 		}
 	}
-*/
-}
-
-
-
-
-
-class PropertyChangeVO extends ChangeVO
-{
-	public var propertyID	(default, null) : Int;
-}
-
-
-
-
-
-class ChangeVO implements IValueObject
-{
-	public var next (default,null) : PropertyChangeVO;
-	
-	
-	public function dispose()
-	{
-		if (next.notNull()) {
-			next.dispose();
-			next = null;
-		}
-	}
-}
-
-
-
-
-
-class PropertyValueChangeVO extends PropertyChangeVO
-{
-	public static inline function make(propertyID, oldValue, newValue)
-	{
-		var p = new PropertyValueChangeVO(); // Could come from freelist if profiling tells us to
-		p.propertyID = propertyID;
-		p.oldValue   = oldValue;
-		p.newValue   = newValue;
-		return p;
-	}
-	
-	
-	public var oldValue		(default, null) : Dynamic;
-	public var newValue		(default, null) : Dynamic;
-	
-	private function new() {}
-	
-	
-	override public function dispose()
-	{
-		propertyID = -1;
-		this.oldValue = this.newValue = null;
-		super.dispose();
-	}
-	
 #if debug
-	public function toString ()
-	{
-		return oldValue + " -> " + newValue;
-	}
+	public function toString () return "ValueObjectBase"
 #end
-}
-
-
-
-
-
-class ListChangeVO extends PropertyChangeVO
-{
-	public static inline function make(propertyID, changes : FastArray<ListChange<Dynamic>>)
-	{
-		var l = new ListChangeVO(); // Could come from freelist if profiling tells us to
-		l.propertyID = propertyID;
-		l.changes = changes.clone();
-		return l;
-	}
-	
-	
-	public var changes : FastArray<ListChange<Dynamic>>;
-	private function new() {}
-	
-	
-	override public function dispose()
-	{
-		if (this.changes.notNull()) {
-			for (i in 0 ... this.changes.length) changes[i] = null;
-			this.changes = null;
-		}
-		super.dispose();
-	}
-	
-	
-#if debug
-	public function toString ()
-	{
-		var output = [];
-		for (change in changes)
-			output.push( change );
-		
-		return output.length > 0 ? "\n\t\t\t\t" + output.join("\n\t\t\t\t") : "no-changes";
-	}
-#end
-}
-/*
-ObjectChangeVO {
-  vo : instanceof PublicationVO
-  id : "pub1"
-  propertiesChanged: SPREAD
-  
-  next: ObjectChangeVO {
-    vo: instanceof SpreadVO
-    id: "spread1"
-    propertiesChanged: (bits)[ X, Y ]
-    next: PropertyChangeVO { propertyID: X, oldValue: 0, newValue: 100,
-      next: PropertyChangeVO { propertyID: Y, oldValue: 0, newValue: 100 }
-    }
-  }
-}
 */
-
-
-
-class ObjectChangeSet extends ChangeVO
-{
-	public static inline function make (vo:ValueObjectBase, changes:Int)
-	{
-		var s = new ObjectChangeSet();	// Could come from freelist if profiling tells us to
-		s.vo = vo;
-		s.timestamp = haxe.Timer.stamp();
-		s.propertiesChanged = changes;
-		return s;
-	}
-	
-	public var vo					(default, null) : ValueObjectBase;
-	public var parent				(default, null) : ObjectPathVO;
-	public var timestamp			(default, null) : Float;
-	public var propertiesChanged	(default, null) : Int;
-	
-	
-	private function new() {}
-	
-	
-	public function add (change:PropertyChangeVO)
-	{
-		untyped change.next = next;
-		next = change;
-	}
-	
-	public function has (propertyID : Int) : Bool	{ return (propertiesChanged & (1 << ((propertyID & 0xFF) + untyped vo._fieldOffset(propertyID >>> 8)))).not0(); }
-	
-	
-	public inline function addChange (id:Int, flagBit:Int, value:Dynamic)
-	{
-		if (flagBit.not0())
-			add(PropertyValueChangeVO.make(id, null, value));
-	}
-	
-	
-	public inline function addBindableChange<T> (id:Int, flagBit:Int, oldValue:Dynamic, value:Dynamic)
-	{
-		if (flagBit.not0())
-			add(PropertyValueChangeVO.make(id, oldValue, value));
-	}
-	
-	
-	public inline function addListChanges<T> (id:Int, flagBit:Int, list:IRevertableList<T>)
-	{
-		if (flagBit.not0())
-			add(ListChangeVO.make(id, list.changes));
-	}
-	
-	
-//#if debug
-	public function toString ()
-	{
-		var output = [];
-		
-		var change = next;
-		while(change != null)
-		{
-			output.push( vo.propertyIdToString(change.propertyID) + ": " + change );
-			change = change.next;
-		}
-		
-		return "ChangeSet of " + Date.fromTime( timestamp * 1000 ) + " on "+vo+"; changes: \n\t\t\t" + output.join("\n\t\t\t");
-	}
-//#end
-}
-
-
-
-
-class ObjectPathVO implements IValueObject
-{
-	public var parent		(default, null) : ObjectPathVO;
-	public var object		(default, null) : IValueObject;
-	public var propertyID	(default, null) : Int;
-	
-	
-	private function new() {}
-	
-	
-	public function dispose()
-	{
-		parent = null;
-		object = null;
-	}
-	
-	
-	static inline public function make(vo:ValueObjectBase, propertyID:Int)
-	{
-		var p = new ObjectPathVO();
-		p.object = vo;
-		p.propertyID = propertyID;
-		return p;
-	}
 }

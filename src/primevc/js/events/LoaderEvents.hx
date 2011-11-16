@@ -22,6 +22,7 @@ class LoaderEvents extends LoaderSignals
 {
 	public function new (request:XMLHttpRequest)
 	{
+		super();
 		unloaded	= new Signal0();
 		load		= new CommunicationEvents(request);
 		httpStatus	= new Signal1<Int>();

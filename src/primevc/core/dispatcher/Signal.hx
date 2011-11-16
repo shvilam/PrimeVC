@@ -27,6 +27,7 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.core.dispatcher;
+ import primevc.core.traits.IDisablable;
  import primevc.core.traits.IDisposable;
   using primevc.core.ListNode;
   using primevc.utils.TypeUtil;
@@ -38,7 +39,7 @@ package primevc.core.dispatcher;
  * @author Danny Wilson
  * @creation-date Jun 09, 2010
  */
-class Signal <FunctionSignature> extends WireList<FunctionSignature>, implements IUnbindable<FunctionSignature>, implements IDisposable
+class Signal <FunctionSignature> extends WireList<FunctionSignature>, implements IUnbindable<FunctionSignature>, implements IDisposable, implements IDisablable
 {
 	static public inline function notifyEnabled<T>(s:Signal<T>, w:Wire<T>) : Void
 	{
@@ -62,34 +63,54 @@ class Signal <FunctionSignature> extends WireList<FunctionSignature>, implements
 	
 	public var enabled : Bool;
 	
-	public inline function  enable() enabled = true
-	public inline function disable() enabled = false
+	
+	/**
+	 * Reference is set during the send method of the signal and is a reference 
+	 * to the wire that will be called after the current wire.handler is done.
+	 * 
+	 * Saving a reference in the signal is needed for when an owner with 2 or 
+	 * more handlers for this signal is unbinded in Signal.unbind. Each wire will
+	 * update this reference when it's disabled (or disposed) to prevend the 
+	 * Signal.send method to lose it's reference to next usable wire. 
+	 */
+	public var nextSendable : Wire<FunctionSignature>;
+	
+	
+	public inline function  enable()	enabled = true
+	public inline function disable()	enabled = false
+	public inline function isEnabled()	return enabled
 	
 	
 	/**
 	 *  @see IUnbindable.unbind
 	 */
-	public function unbind( listener : Dynamic, ?handler : Null<FunctionSignature> ) : Int
+	public function unbind( listener : Dynamic, ?handler : Null<FunctionSignature> ) : Void
 	{
 		Assert.that(listener != null);
 		
-		var b = this.n, count = 0;
+		var b = this.n; //, count = 0;
 		
 		while (b != null) {
 			var x = b.next();
 			if( b.isBoundTo(listener, handler) ) {
 				b.dispose();
-				++count;
+		//		++count;
 			}
 			b = x;
 		}
-		return count;
+	//	return count;
 	}
 	
 	/**
 	 *  Unbind all handlers.
 	 */
-	public function dispose()
+	public inline function dispose()
+	{
+		unbindAll();
+	}
+	
+	
+	public function unbindAll ()
 	{
 		var b = this.n;
 		while(b != null) {
@@ -98,6 +119,7 @@ class Signal <FunctionSignature> extends WireList<FunctionSignature>, implements
 			b = x;
 		}
 	}
+	
 	
 	/** Identify where the event is called (nice for debugging) ** /
 	public inline function source(?pos:haxe.PosInfos)

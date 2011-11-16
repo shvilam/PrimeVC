@@ -34,10 +34,9 @@ package primevc.gui.components;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.traits.IScrollable;
- import primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using Std;
 
@@ -112,9 +111,6 @@ class ScrollBar extends SliderBase
 	
 	private function removeTargetBindings ()
 	{
-	//	if (target == null)
-	//		return;
-		
 		if (scrollBinding != null)			{ scrollBinding.dispose();			scrollBinding = null; }
 		if (resizeBinding != null)			{ resizeBinding.dispose();			resizeBinding = null; }
 		if (updateTargetBinding != null)	{ updateTargetBinding.dispose();	updateTargetBinding = null; }
@@ -165,7 +161,7 @@ class ScrollBar extends SliderBase
 	private function handleScrollWheel (mouseObj:MouseState)
 	{
 		if (direction == vertical)
-			data.value = validator.validate( data.value - mouseObj.scrollDelta() );
+			data.value = data.validator.validate( data.value - mouseObj.scrollDelta() * 3 );
 	}
 	
 	
@@ -184,11 +180,8 @@ class ScrollBar extends SliderBase
 			dragBtn.visible	= dragBtn.layout.includeInLayout = scrollable;
 			dragBtn.layout.percentWidth	= scrollable ? FloatMath.min( l.width / l.measuredWidth, 1 ) : 0;
 			
-			if (scrollable) {
-				validator.setValues( l.minScrollXPos, l.minScrollXPos + l.scrollableWidth );
-				calculatePercentage();
-			}
-			
+			if (scrollable)
+				data.validator.setValues( l.minScrollXPos, l.minScrollXPos + l.scrollableWidth );
 		}
 	}
 	
@@ -209,10 +202,8 @@ class ScrollBar extends SliderBase
 			dragBtn.visible	= dragBtn.layout.includeInLayout = scrollable;
 			dragBtn.layout.percentHeight = scrollable ? FloatMath.min( l.height / l.measuredHeight, 1 ) : 0;
 			
-			if (scrollable) {
-				validator.setValues( l.minScrollYPos, l.minScrollYPos + l.scrollableHeight );
-				calculatePercentage();
-			}
+			if (scrollable)
+				data.validator.setValues( l.minScrollYPos, l.minScrollYPos + l.scrollableHeight );
 		}
 	}
 	

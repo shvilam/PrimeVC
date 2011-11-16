@@ -42,103 +42,36 @@ class Assert
 #end
 	
 	
-	static inline public function abstract(msg:String = "", ?pos:haxe.PosInfos)
-	{
-		#if debug
-		throw #if flash9 new Error( #end
-			"Abstract method: "+ msg + "; "+pos.className + "::" + pos.methodName +"() not overridden"
-			#if flash9 ) #end ;
-		#end
-	}
-	
-	
 	static inline public function isType(var1:Dynamic, type:Class<Dynamic>, ?pos:haxe.PosInfos)
 	{
-		#if debug
-		Assert.notNull( var1 );
-		Assert.notNull( type );
+#if debug
+		Assert.notNull( var1, "To check the type of a variable it can't be null." );
+		Assert.notNull( type, "The type of a variable can't be null." );
 		Assert.that( Std.is(var1, type), "var of type '" + Type.getClass(var1).getClassName() + "' should be of type '" + type.getClassName() + "'" );
-		#end
+#end
 	}
 	
 	
-	static inline public function that(expr:Bool, msg:String = "", ?pos:haxe.PosInfos)
+	static inline public function abstract	(msg:String = "", ?pos:haxe.PosInfos)								{ #if debug	sendError("Abstract method", msg, pos); #end }
+	static inline public function that		(expr:Bool, msg:Dynamic = "", ?pos:haxe.PosInfos)					{ #if debug if (!expr)			sendError(expr+" == false", msg, pos); #end }
+	static inline public function notThat	(expr:Bool, msg:Dynamic = "", ?pos:haxe.PosInfos)					{ #if debug if (expr)			sendError(expr+" == true", msg, pos); #end }
+	static inline public function equal		(var1:Dynamic, var2:Dynamic, msg:Dynamic = "", ?pos:haxe.PosInfos)	{ #if debug if (var1 != var2)	sendError(var1+" != "+var2, msg, pos); #end }
+	static inline public function notEqual	(var1:Dynamic, var2:Dynamic, msg:Dynamic = "", ?pos:haxe.PosInfos) 	{ #if debug	if (var1 == var2)	sendError(var1+" == "+var2, msg, pos); #end }
+	static inline public function null		(var1:Dynamic, msg:Dynamic = "", ?pos:haxe.PosInfos)				{ #if debug if (var1 != null)	sendError(var1+" != null", msg, pos); #end }
+	static inline public function notNull	(var1:Dynamic, msg:Dynamic = "", ?pos:haxe.PosInfos)				{ #if debug	if (var1 == null)	sendError(var1+" == null", msg, pos); #end }
+	
+	
+	static inline private function sendError (error:String, msg:Dynamic, pos:haxe.PosInfos)
 	{
-		#if debug
-		if (!expr) throw #if flash9 new Error( #end
-			"Assertion failed: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber
-			#if flash9 ) #end ;
-		#end
-	}
-	
-	
-	static inline public function notThat(expr:Bool, msg:String = "", ?pos:haxe.PosInfos)
-	{
-		#if debug
-		if (expr) throw #if flash9 new Error( #end
-			"Assertion failed: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber
-			#if flash9 ) #end ;
-		#end
-	}
-	
-	
-	static inline public function equal( var1:Dynamic, var2:Dynamic, msg:String = "", ?pos:haxe.PosInfos)
-	{
-		#if debug
-		if (var1 != var2) {
-			trace(pos.className + "::" + pos.lineNumber+": "+var1+" should be "+var2+"; "+msg);
-			throw #if flash9 new Error( #end
-			"Assertion failed: " + var1 + " != " + var2+"; msg: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber
-			#if flash9 ) #end;
-		}
-	//	else
-	//		trace(pos.className + "::" + pos.lineNumber+": "+var1+" == "+var2);
-		#end
-	}
-	
-	
-	static inline public function notEqual( var1:Dynamic, var2:Dynamic, msg:String = "", ?pos:haxe.PosInfos)
-	{
-		#if debug
-		if (var1 == var2) {
-			trace(pos.className + "::" + pos.lineNumber+": "+var1+" should not be "+var2+"; "+msg);
-			throw #if flash9 new Error( #end
-			"Assertion failed: " + var1 + " == " + var2+"; msg: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber
-			#if flash9 ) #end;
-		}
-	//	else
-	//		trace(pos.className + "::" + pos.lineNumber+": "+var1+" != "+var2);
-		#end
-	}
-	
-
-	static inline public function null( var1:Dynamic, msg:String = "", ?pos:haxe.PosInfos)
-	{
-		#if debug
-		if (var1 != null) {
-			trace(pos.className + "::" + pos.lineNumber+": "+var1+"  != null; msg: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber);
-			throw #if flash9 new Error( #end
-			"Assertion failed: " + var1 + " != null; msg: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber
-			#if flash9 ) #end;
-		}
-	//	else
-	//		trace(pos.className + "::" + pos.lineNumber+": "+var1+" != "+var2);
-		#end
-	}
-	
-
-	static inline public function notNull( var1:Dynamic, msg:String = "", ?pos:haxe.PosInfos)
-	{
-		#if debug
-		if (var1 == null)
-		{
-			trace(pos.className + "::" + pos.lineNumber+": "+var1+" should not be null; msg: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber);
-			throw  #if flash9 new Error( #end
-			"Assertion failed: " + var1 + " should not be null; msg: " + msg + " in " + pos.className + "::" + pos.methodName + " @ " + pos.fileName + ":" + pos.lineNumber
-			#if flash9 ) #end;
-		}
-	//	else
-	//		trace(pos.className + "::" + pos.lineNumber+": "+var1+" != "+var2);
-		#end
+#if debug
+		var className = pos.className.split(".").pop();
+		var s = className + "." + pos.methodName + "()::" + pos.lineNumber + ": "+error + "; msg: " + Std.string(msg);
+		trace(s);
+	#if flash9
+		throw new Error(s);
+	#else
+		throw s;
+	#end
+#end
 	}
 }

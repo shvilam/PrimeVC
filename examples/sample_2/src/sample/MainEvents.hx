@@ -2,7 +2,7 @@ package sample;
 
 
 import primevc.core.dispatcher.Signal1;
-import primevc.mvc.events.MVCEvents;
+import primevc.core.dispatcher.Signals;
 
 /**
  * MainEvents defines and groups together the events used 

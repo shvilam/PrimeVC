@@ -39,7 +39,7 @@ package primevc.gui.behaviours.scroll;
  import primevc.gui.layout.IScrollableLayout;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 #end
 

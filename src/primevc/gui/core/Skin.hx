@@ -59,7 +59,7 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 	
 	public function dispose ()
 	{
-		if (behaviours == null)
+		if (isDisposed())
 			return;
 		
 		owner		= null;	// <-- should trigger removeBehaviours and removeChildren
@@ -89,6 +89,12 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 	}
 	
 	
+	public inline function isDisposed ()
+	{
+		return behaviours == null;
+	}
+	
+	
 	
 	
 	//
@@ -102,13 +108,14 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 			if (owner.state != null)
 				owner.state.initialized.entering.unbind(this);
 			
-			removeBehaviours();
-			removeStates();
 			if (owner.isInitialized())
 				removeChildren();
+			
+			removeBehaviours();
+			removeStates();
 		}
 		
-		this.owner = newOwner;
+		(untyped this).owner = newOwner;
 		
 		if (newOwner != null)
 		{
@@ -116,14 +123,14 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 			createBehaviours();
 			drawGraphics();
 			
-		//	trace(owner+" => "+this+"; "+newOwner.isInitialized());
 			if (newOwner.isInitialized()) {
 				createChildren();
 				childrenCreated();
 				behaviours.init();
 			}
 			else
-				behaviours.init.onceOn( owner.displayEvents.addedToStage, this );
+				behaviours.init.onceOn( owner.state.initialized.entering, this );
+			//	behaviours.init.onceOn( owner.displayEvents.addedToStage, this );
 		}
 		
 		return newOwner;
@@ -137,15 +144,15 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 	//
 	
 	//TODO RUBEN - enable Assert.abstract
-	private function createStates ()			: Void; //	{ Assert.abstract(); }
-	private function createBehaviours ()		: Void; //	{ Assert.abstract(); }
-	public function drawGraphics ()			: Void; //	{ Assert.abstract(); }
-	public function createChildren ()			: Void; //	{ Assert.abstract(); }
-	public function childrenCreated ()			: Void;
+	private function createStates ()			: Void {} //	{ Assert.abstract(); }
+	private function createBehaviours ()		: Void {} //	{ Assert.abstract(); }
+	public function drawGraphics ()				: Void {} //	{ Assert.abstract(); }
+	public function createChildren ()			: Void {} //	{ Assert.abstract(); }
+	public function childrenCreated ()			: Void {}
 	
-	private function removeStates ()			: Void; //	{ Assert.abstract(); }
-	private function removeChildren ()			: Void; //	{ Assert.abstract(); }
-	public function validate (changes:Int)		: Void;
+	private function removeStates ()			: Void {} //	{ Assert.abstract(); }
+	public  function removeChildren ()			: Void {} //	{ Assert.abstract(); }
+	public function validate (changes:Int)		: Void {}
 	
 	private function removeBehaviours ()
 	{

@@ -27,7 +27,8 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.tools;
- import haxe.FastList;
+// import haxe.FastList;
+ import primevc.core.collections.SimpleList;
  import primevc.core.geom.space.Direction;
  import primevc.core.geom.space.Horizontal;
  import primevc.core.geom.space.MoveDirection;
@@ -67,6 +68,7 @@ package primevc.tools;
  import primevc.gui.filters.IBitmapFilter;
  import primevc.gui.graphics.borders.BitmapBorder;
  import primevc.gui.graphics.borders.ComposedBorder;
+ import primevc.gui.graphics.borders.EmptyBorder;
  import primevc.gui.graphics.borders.GradientBorder;
  import primevc.gui.graphics.borders.IBorder;
  import primevc.gui.graphics.borders.SolidBorder;
@@ -91,6 +93,7 @@ package primevc.tools;
  import primevc.gui.layout.algorithms.float.VerticalFloatAlgorithm;
  import primevc.gui.layout.algorithms.tile.DynamicTileAlgorithm;
  import primevc.gui.layout.algorithms.tile.FixedTileAlgorithm;
+ import primevc.gui.layout.algorithms.tile.SimpleTileAlgorithm;
  import primevc.gui.layout.algorithms.DynamicLayoutAlgorithm;
  import primevc.gui.layout.algorithms.ILayoutAlgorithm;
  import primevc.gui.layout.algorithms.RelativeAlgorithm;
@@ -114,7 +117,7 @@ package primevc.tools;
  import primevc.gui.text.TextDecoration;
  import primevc.gui.text.TextTransform;
  import primevc.types.Asset;
- import primevc.types.ClassInstanceFactory;
+ import primevc.types.Factory;
  import primevc.types.Reference;
  import primevc.types.Number;
  import primevc.types.RGBA;
@@ -123,7 +126,6 @@ package primevc.tools;
   using primevc.utils.BitUtil;
   using primevc.utils.Color;
   using primevc.utils.ERegUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
   using Std;
@@ -225,11 +227,12 @@ class CSSParser
 	public static inline var R_FONT_STYLE_EXPR		: String = "normal|italic|oblique|inherit";
 	public static inline var R_FONT_WEIGHT_EXPR		: String = "normal|bolder|bold|lighter|inherit";
 	public static inline var R_GENERIC_FONT_FAMILIES: String = "serif|sans[-]serif|monospace|cursive|fantasy";
-	public static inline var R_FONT_FAMILY_EXPR		: String = "("+R_GENERIC_FONT_FAMILIES+")|([a-z]+)|(['\"]([a-z0-9+.,+/\\ _-]+)['\"])";
+	public static inline var R_FONT_FAMILY_EXPR		: String = "("+R_GENERIC_FONT_FAMILIES+")|((embed[(])?(['\"]([a-z0-9+.,+/\\ _-]+)['\"])[)]?)|([a-z]+)";
 	
 	public static inline var R_HOR_DIR				: String = "(left|center|right)";
 	public static inline var R_VER_DIR				: String = "(top|center|bottom)";
 	public static inline var R_DIRECTIONS			: String = "(horizontal|vertical)";
+	public static inline var R_MOVE_DIRECTIONS		: String = "(top-to-bottom|bottom-to-top|left-to-right|right-to-left)";
 	public static inline var R_POSITIONS			: String = "(top[-]" + R_HOR_DIR + "|middle[-](left|right)|bottom[-]" + R_HOR_DIR + "|(" + R_POINT_VALUE + "))";
 	
 	public static inline var R_COMMA				: String = R_SPACE + "," + R_SPACE;
@@ -309,6 +312,8 @@ class CSSParser
 	
 	
 	
+	private var timer					: StopWatch;
+	
 	private var manifest				: Manifest;
 	
 	/**
@@ -320,7 +325,7 @@ class CSSParser
 	/**
 	 * List with all styleSheets url's that should be loaded and parsed.
 	 */
-	private var styleSheetQueue			: FastList < StyleQueueItem >;
+	private var styleSheetQueue			: SimpleList < StyleQueueItem >;
 	
 	/**
 	 * block that is currently handled by the parser
@@ -346,10 +351,19 @@ class CSSParser
 	
 	public function new (styles:StyleBlock, manifest:Manifest = null)
 	{
+		timer			= new StopWatch();
 		this.styles		= styles;
 		this.manifest	= manifest;
-		styleSheetQueue = new FastList < StyleQueueItem >();
+		styleSheetQueue = new SimpleList < StyleQueueItem >();
 		init();
+	}
+	
+	
+	private inline function stopTimer (label:String)
+	{
+		timer.stop();
+		neko.Lib.println("\t" + Date.now() + " - " + timer.currentTime + " ms - " + label);
+		timer.reset();
 	}
 	
 	
@@ -543,7 +557,7 @@ class CSSParser
 		
 		wipeEffExpr = new EReg(
 			  "^wipe"
-			+	"(" + R_SPACE_MUST + R_DIRECTIONS + ")?"		// direction	= 1
+			+	"(" + R_SPACE_MUST + R_MOVE_DIRECTIONS + ")?"	// direction	= 1
 			+	"(" + R_SPACE_MUST + R_FLOAT_UNIT_VALUE + ")?"	// end-scaleX	= 19
 			+	"(" + R_SPACE_MUST + R_FLOAT_UNIT_VALUE + ")?"	// end-scaleY	= 26
 			, "i");
@@ -608,16 +622,22 @@ class CSSParser
 		this.swfBasePath = swfBasePath;
 		addStyleSheet(styleSheet);
 		
-		while (!styleSheetQueue.isEmpty())
-			parseStyleSheet( styleSheetQueue.pop() );
+		while (!styleSheetQueue.isEmpty()) {
+			var s = styleSheetQueue.remove(styleSheetQueue.getItemAt(0), 0);
+			parseStyleSheet( s );
+		}
 		
+		timer.start();
+		setManifestNames( styles );
+		stopTimer("injected packages from manifest");
+		timer.start();
 		createStyleStructure( styles );
-		trace("--- DONE ----");
-		trace("REVERSED CSS:");
+		stopTimer("created inheritance references");
+	//	trace("--- DONE ----");
+	//	trace("REVERSED CSS:");
 	//	throw 1;
-		trace(styles.toCSS());
+	//	trace(styles.toCSS());
 	}
-	
 	
 	
 	
@@ -631,38 +651,42 @@ class CSSParser
 	{
 		var content = loadFileContent(file);
 		
-		//trace(file);
-		
 		if (content != "")
 		{
+//			trace("loaded "+file);
+			var origBase	= styleSheetBasePath;
 			//find base path of stylesheet
 			var pathEndPos	= file.lastIndexOf("/");
 			var path		= "";
 			if (pathEndPos > -1)
 				path = file.substr(0, pathEndPos);
 			
+			var name = file.substr(pathEndPos);
 			styleSheetBasePath = path;
 			
 			//first add stylesheet to the queue with stylesheets that want to get parsed
-			var item = new StyleQueueItem(path);
-			styleSheetQueue.add( item );
+			var item = new StyleQueueItem(path, name);
 			
 			//strip content of bloat
-			content = importStyleSheets( content );
 			content = removeAllWhiteSpace( content );
 			content = removeComments( content );
-			trace(content);
-			item.content = content;
+			content = importStyleSheets( content );
+		//	trace(content);
+			item.content		= content;
+			styleSheetBasePath	= origBase;
+			styleSheetQueue.add( item );
 		}
 	}
 	
 	
-	private function parseStyleSheet (item:StyleQueueItem) : Void
+	private function parseStyleSheet (item:StyleQueueItem) : StyleQueueItem
 	{
+		timer.start();
 		styleSheetBasePath	= item.path;
 		item.content		= importManifests( item.content );
 		blockExpr.matchAll(item.content, handleMatchedBlock);
-		trace("PARSED: "+item.path);
+		stopTimer( "parsed " +item.filename);
+		return item;
 	}
 	
 	
@@ -681,7 +705,7 @@ class CSSParser
 	
 	
 	private function importManifest (expr:EReg) : String {
-		trace("addmanifest file "+styleSheetBasePath + "/" + expr.matched(2));
+	//	trace("addmanifest file "+styleSheetBasePath + "/" + expr.matched(2));
 		manifest.addFile( styleSheetBasePath + "/" + expr.matched(2) );
 		return "";
 	}
@@ -717,6 +741,47 @@ class CSSParser
 	//
 	
 	
+	
+	/**
+	 * Method will add recursive the package-name to all the element-styles
+	 */
+	private inline function setManifestNames ( style:StyleBlock )
+	{
+		Assert.notNull(style);
+		setManifestNamesInList( style.idChildren,			false );
+		setManifestNamesInList( style.styleNameChildren,	false );
+		setManifestNamesInList( style.elementChildren,		true );
+		
+		if (style.owns( StyleFlags.STATES ))
+		{
+			var states = style.states.states;
+			for (stateStyle in states)
+				setManifestNames(stateStyle);
+		}
+	}
+	
+	
+	private function setManifestNamesInList (list:ChildrenList, areElements:Bool = false) : Void
+	{
+		if (list == null)
+			return;
+		
+		var names	= list.keyList();
+		var styles	= list.valueList();
+		
+		for (i in 0...names.length)
+		{
+			var style	= styles[i];
+			if (areElements && style.type == StyleBlockType.element)
+				names[i] = manifest.getFullName( names[i] );
+			
+			setManifestNames( style );
+		}
+	}
+	
+	
+	
+	
 	/**
 	 * Method will try to find all the "super" and "extended" styles of the 
 	 * style-objects in the given stylegroup (recursivly through all 
@@ -731,9 +796,9 @@ class CSSParser
 		if (style.has( StyleFlags.STYLE_NAME_CHILDREN ))	findExtendedClassesInList( style.styleNameChildren );
 		if (style.has( StyleFlags.ELEMENT_CHILDREN ))
 		{
+			findSuperClassesInList( style.elementChildren );
 			findExtendedClassesInList( style.elementChildren );
 			createEmptySuperClassesForList( style.elementChildren );
-			findSuperClassesInList( style.elementChildren );
 		}
 	}
 	
@@ -835,17 +900,16 @@ class CSSParser
 			return;
 		
 	//	trace("\t\tsetSuperStyle for "+name + "( "+style.type+" )"+" = -> parentType: "+style.parentStyle.type);
-		var parentName = manifest.getFullSuperClassName( name );
-		while (parentName != null && parentName != "")
+		var superName = manifest.getFullSuperClassName( name );
+		while (superName != null && superName != "")
 		{
-			style.superStyle = style.parentStyle.findChild( parentName, element, style );
+			style.superStyle = style.parentStyle.findChild( superName, element, style );
 			
 			if (style.superStyle != null)
 				break;
 			
-			parentName = manifest.getFullSuperClassName( parentName );
+			superName = manifest.getFullSuperClassName( superName );
 		}
-		
 	//	trace("\t\t\t\t\t "+(style.superStyle != null));
 	}
 	
@@ -989,7 +1053,7 @@ class CSSParser
 	private function handleMatchedBlock (expr:EReg) : Void
 	{
 		//find correct block
-		trace("\n\nhandleMatchedBlock "+expr.matched(1));
+	//	trace("\n\nhandleMatchedBlock "+expr.matched(1));
 		setContentBlock( expr.matched(1) );
 		
 		var content = expr.matched(13).trim();
@@ -1029,11 +1093,11 @@ class CSSParser
 			
 			if (expr.matched(2) == "#")			type	= StyleBlockType.id;
 			else if (expr.matched(2) == ".")	type	= StyleBlockType.styleName;
-			else {
-				//find fullname of element styles
+			else								type	= StyleBlockType.element;		// find the full package of the class at the end when all the manifests are known
+	/*			//find fullname of element styles
 				name	= manifest.getFullName( name );
 				type	= StyleBlockType.element;
-			}
+			}*/
 			
 			
 		//	if (!styleGroup.owns( StyleFlags.CHILDREN ))
@@ -1069,6 +1133,9 @@ class CSSParser
 		var children	= parentStyle.getChildrenOfType( childType );
 		var childBlock	= new StyleBlock(childType);
 		childBlock.parentStyle = parentStyle;
+#if (debug && neko)
+		childBlock.cssName = childName;
+#end
 		children.set( childName, childBlock );
 		return childBlock;
 	}
@@ -1125,7 +1192,7 @@ class CSSParser
 	{
 		var name	= expr.matched(1).trim();
 		var val		= expr.matched(2).trim();
-		trace("handleMatchedProperty "+name+" = "+val);
+	//	trace("handleMatchedProperty "+name+" = "+val);
 		switch (name)
 		{
 			//
@@ -1186,7 +1253,7 @@ class CSSParser
 			case "opacity":						parseAndSetOpacity( val );		// alpha value of entire element
 		//	case "resize":			// horizontal / vertical / both / none;	/* makes a textfield resizable in the right bottom corner */	
 			
-		//	case "clip":		// auto, rect([t],[r],[b],[l])	--> specifies the area of an absolutly positioned box that should be visible == scrollrect size?
+		//	case "clip":			// auto, rect([t],[r],[b],[l])	--> specifies the area of an absolutly positioned box that should be visible == scrollrect size?
 			case "overflow":					parseAndSetOverflow( val ); // visible, hidden, scroll-mouse-move, drag-scroll, corner-scroll, scrollbars
 		
 		
@@ -1528,12 +1595,9 @@ class CSSParser
 	}
 
 
-	private function parseClassReference (v:String) : Reference
+	private inline function parseClassReference<T> (v:String, ?arguments:Array<String>) : Factory<T>
 	{
-		if (isClassReference(v))
-			return Reference.className( classRefExpr.matched(2), v );
-		else
-			return null;
+		return isClassReference(v) ? new Factory( classRefExpr.matched(2), null, arguments, v ) : null;
 	}
 	
 	
@@ -1658,7 +1722,7 @@ class CSSParser
 	
 	
 	private function parseAndSetFont (v:String) : Void
-	{	
+	{
 		v = parseAndSetTextStyle(v);
 		v = parseAndSetFontWeight(v);
 		v = parseAndSetFontSize(v);
@@ -1697,19 +1761,22 @@ class CSSParser
 	 */
 	private inline function parseAndSetFontFamily (val:String) : String
 	{
-		var isFam	= fontFamilyExpr.match(val);
-		var fam		= "";
+		var isFam		= fontFamilyExpr.match(val);
+		var isEmbedded	= true;
+		var family		= "";
 		
 		//make sure the font-family doesn't match font-weight or font-style properties
 		if (isFam) {
-			fam		= fontFamilyExpr.matched(4) != null ? fontFamilyExpr.matched(5) : fontFamilyExpr.matched(1);
-			isFam	= !fontWeightExpr.match(fam) && !fontStyleExpr.match(fam);
+			family		= fontFamilyExpr.matched(6) != null ? fontFamilyExpr.matched(6) : fontFamilyExpr.matched(1);
+			isFam		= !fontWeightExpr.match(family) && !fontStyleExpr.match(family);
+			isEmbedded	= fontFamilyExpr.matched(4) != null;
 		}
 		
 		if (isFam) {
 			createFontBlock();
-			currentBlock.font.family = fam;
-			val = val.replace(fam, "");
+			currentBlock.font.family 		= family;
+			currentBlock.font.embeddedFont	= isEmbedded;
+			val = val.replace(family, "");
 		}
 		return val;
 	}
@@ -2057,22 +2124,23 @@ class CSSParser
 	}
 	
 	
-	private function parseAsset (v:String) : Asset
+	private function parseAsset (v:String) : Factory<Dynamic>
 	{
-		var bmp:Asset	= null;
+	//	var bmp:Asset	= null;
+		var factory:Factory<Dynamic> = null;
 		
 		if (imageURIExpr.match(v))
 		{
-			bmp = new Asset();
-			bmp.setString( (getBasePath() + "/" + imageURIExpr.matched(2)).replace("//", "/") );
+	//		bmp = new Asset( (getBasePath() + "/" + imageURIExpr.matched(2)).replace("//", "/") );
+			factory = new Factory( "primevc.types.URI", [ (getBasePath() + "/" + imageURIExpr.matched(2)).replace("//", "/") ] );
 			lastParsedString = imageURIExpr.removeMatch(v);
 		}
 		else if (isClassReference(v))
 		{
 			//Try to create a class instance for the given string. If the class is not yet compiled, this will fail. 
 			//By setting the classname as string, the bitmapObject will try to create a class-reference to the asset.
-			bmp		= new Asset();
-			bmp.setClass( parseClassReference(v) );
+	//		bmp = new Asset(parseClassReference(v));
+			factory = parseClassReference(v);
 			
 		/*	if (c != null)
 				bmp.setClass( c );
@@ -2082,7 +2150,8 @@ class CSSParser
 			lastParsedString = classRefExpr.removeMatch(v);
 		}
 		
-		return bmp;
+	//	return bmp;
+		return factory;
 	}
 	
 	
@@ -2169,30 +2238,31 @@ class CSSParser
 	
 	private inline function parseAndSetShape (v:String) : Void
 	{
-		var factory	= new ClassInstanceFactory<IGraphicShape>();
+	//	var factory	= new Factory<IGraphicShape>();
 		
-		var strippedV = strip(v);
-		factory.classRef = switch (strippedV) {
+		var strippedV:String	= strip(v);
+		var p:Array<Dynamic>	= null;
+		var cName:String		= Type.getClassName( switch (strippedV) {
 			case "line":		cast Line;
 			case "circle":		cast Circle;
 			case "ellipse":		cast Ellipse;
 			case "rectangle":	cast RegularRectangle;
 			default:			null;
-		}
+		} );
 		
 		//try matching triangle shape..
-		if (factory.classRef == null && triangleExpr.match(v))
+		if (cName == null && triangleExpr.match(v))
 		{
-			factory.classRef	= Triangle;
-			factory.params		= [ parsePosition( triangleExpr.matched(2) ) ];
+			cName	= Triangle.getClassName();
+			p		= [ parsePosition( triangleExpr.matched(2) ) ];
 		}
-		
-		if (factory != null && !factory.isEmpty())
-			createGraphicsBlock().shape = Reference.objInstance( factory, v );
 		
 		//check if there's a custom shape class defined
 		else if (customShapeExpr.match(v))
-			createGraphicsBlock().shape = cast Reference.classInstance( customShapeExpr.matched(1), v );
+			cName = customShapeExpr.matched(1);
+		
+		if (cName != null)
+			createGraphicsBlock().shape = Reference.classInstance(cName, p, v);
 	}
 	
 	
@@ -2205,49 +2275,54 @@ class CSSParser
 	
 	private inline function parseAndSetBorder (v:String) : Void
 	{
-		var borders = new ComposedBorder();
-		var parsingBorders:Bool = true;
+		var g = createGraphicsBlock();
 		
-	//	trace("\n\nparseAndSetBorder "+v);
-		while ( parsingBorders )
-		{
-			var fill:IGraphicProperty = null;
-			if (fill == null)	fill = parseImage(v);
-			if (fill == null)	fill = parseColorFill(v);
+		if (isNone(v)) {
+			g.border = new EmptyBorder();
+		} else {
+			var borders = new ComposedBorder();
+			var parsingBorders:Bool = true;
+		
+		//	trace("\n\nparseAndSetBorder "+v);
+			while ( parsingBorders )
+			{
+				var fill:IGraphicProperty = null;
+				if (fill == null)	fill = parseImage(v);
+				if (fill == null)	fill = parseColorFill(v);
 			
-			if (fill == null) {
-				parsingBorders = false;
-				break;
+				if (fill == null) {
+					parsingBorders = false;
+					break;
+				}
+			
+				v = lastParsedString;
+			
+				//parse border-weight
+				var weight = parseUnitFloat( v );
+				v = removeUnitFloat( v );
+			
+				//parse border inside
+				var inside = parseBorderInside( v );
+				v = lastParsedString;
+			
+				borders.add( createBorderForFill( fill, weight, inside ) );
+		//		trace("added border "+v);
 			}
-			
-			v = lastParsedString;
-			
-			//parse border-weight
-			var weight = parseUnitFloat( v );
-			v = removeUnitFloat( v );
-			
-			//parse border inside
-			var inside = parseBorderInside( v );
-			v = lastParsedString;
-			
-			borders.add( createBorderForFill( fill, weight, inside ) );
-	//		trace("added border "+v);
-		}
 		
-		var border:IBorder = null;
-		if (borders.length > 1)
-			border = borders;
+			var border:IBorder = null;
+			if (borders.length > 1)
+				border = borders;
 		
-		if (borders.length == 1)
-			border = borders.next().as(IBorder);
+			if (borders.length == 1)
+				border = borders.next().as(IBorder);
 		
-		if (border != null)
-		{
-			var g = createGraphicsBlock();
-			if (g.border != null && g.border.is(ComposedBorder) && border.is(ComposedBorder))
-				g.border.as(ComposedBorder).merge( cast border );
-			else
-				g.border = border;
+			if (border != null)
+			{
+				if (g.border != null && g.border.is(ComposedBorder) && border.is(ComposedBorder))
+					g.border.as(ComposedBorder).merge( cast border );
+				else
+					g.border = border;
+			}
 		}
 	}
 	
@@ -2299,7 +2374,7 @@ class CSSParser
 		if (result)
 		{
 			lastParsedString = v.substr(pos + 6);
-			trace("parseBorderInset "+v+" => "+lastParsedString);
+		//	trace("parseBorderInset "+v+" => "+lastParsedString);
 		}
 		else
 		{
@@ -2426,26 +2501,26 @@ class CSSParser
 	private function parseAndSetWidth (v:String) : Void
 	{
 		var w:Int = parseUnitInt(v);
+		createLayoutBlock();
 		
 		if (isNone(v))
 		{
-			createLayoutBlock();
 			currentBlock.layout.width			= Number.EMPTY;
 			currentBlock.layout.percentWidth	= Number.EMPTY;
 		}
 		
 		if (w.isSet())
 		{
-			createLayoutBlock();
-			currentBlock.layout.width = w;
+			currentBlock.layout.width			= w;
+		//	currentBlock.layout.percentWidth	= Number.EMPTY;
 		}
 		else
 		{
 			var pw:Float = isAutoSize(v) ? LayoutFlags.FILL : parsePercentage(v);
 			if (pw.isSet())
 			{
-				createLayoutBlock();
-				Assert.that( currentBlock.layout.width.notSet() );
+			//	Assert.that( currentBlock.layout.width.notSet() );
+			//	currentBlock.layout.width		 = Number.EMPTY;
 				currentBlock.layout.percentWidth = pw;
 			}
 		}
@@ -2460,26 +2535,30 @@ class CSSParser
 	 */
 	private function parseAndSetHeight (v:String) : Void
 	{
-		var h:Int = parseUnitInt(v);
+		createLayoutBlock();
 		if (isNone(v))
 		{
-			currentBlock.layout.height			= Number.EMPTY;
-			currentBlock.layout.percentHeight	= Number.EMPTY;
-		}
-		else if (h.isSet())
-		{
-			createLayoutBlock();
-			currentBlock.layout.height = h;
+			currentBlock.layout.height				= Number.EMPTY;
+			currentBlock.layout.percentHeight		= Number.EMPTY;
 		}
 		else
 		{
-			var ph:Float = isAutoSize(v) ? LayoutFlags.FILL : parsePercentage(v);
-		//	if (ph.isSet())
-		//	{
-			createLayoutBlock();
-			Assert.that( currentBlock.layout.height.notSet() );
-			currentBlock.layout.percentHeight = ph;
-		//	}
+			var h:Int = parseUnitInt(v);
+			if (h.isSet())
+			{
+				currentBlock.layout.height			= h;
+			//	currentBlock.layout.percentHeight	= Number.EMPTY;
+			}
+			else
+			{
+				var ph:Float = isAutoSize(v) ? LayoutFlags.FILL : parsePercentage(v);
+			//	if (ph.isSet())
+			//	{
+			//	Assert.that( currentBlock.layout.height.notSet() );
+			//	currentBlock.layout.height			= Number.EMPTY;
+				currentBlock.layout.percentHeight	= ph;
+			//	}
+			}
 		}
 	}
 	
@@ -2640,30 +2719,31 @@ class CSSParser
 	 */
 	private function parseAndSetLayoutAlgorithm (v:String) : Void
 	{
-		var info:ClassInstanceFactory<ILayoutAlgorithm> = new ClassInstanceFactory();
+		var info:Factory<ILayoutAlgorithm> = new Factory();
 		var v = v.trim().toLowerCase();
 		
-		if		(v == "relative")			info.classRef = RelativeAlgorithm;
+		if		(v == "relative")			info.classRef = RelativeAlgorithm.getClassName();
 		else if	(v == "none")				info.classRef = null;						//FIXME -> none and inherit are the same now. none is not implemented yet..
 		else if	(v == "inherit")			info.classRef = null;
+		else if (v == "tile")				info.classRef = SimpleTileAlgorithm.getClassName();
 		
 		//
 		// match floating layout
 		//
 		
 		else if (floatHorExpr.match(v)) {
-			info.classRef	= HorizontalFloatAlgorithm;
+			info.classRef	= HorizontalFloatAlgorithm.getClassName();
 			info.params		= [ parseHorDirection( floatHorExpr.matched(2) ), parseVerDirection( floatHorExpr.matched(4) ) ];
 		}
 		else if (floatVerExpr.match(v)) {
-			info.classRef	= VerticalFloatAlgorithm;
+			info.classRef	= VerticalFloatAlgorithm.getClassName();
 			info.params		= [ parseVerDirection( floatVerExpr.matched(2) ), parseHorDirection( floatVerExpr.matched(4) ) ];
 		}
 		else if (floatExpr.match(v)) {
-			info.classRef	= DynamicLayoutAlgorithm;
+			info.classRef	= DynamicLayoutAlgorithm.getClassName();
 			info.params		= [
-				new ClassInstanceFactory( HorizontalFloatAlgorithm,	[ parseHorDirection( floatExpr.matched(2) ) ] ), 
-				new ClassInstanceFactory( VerticalFloatAlgorithm,	[ parseVerDirection( floatExpr.matched(4) ) ] )
+				new Factory( HorizontalFloatAlgorithm.getClassName(),	[ parseHorDirection( floatExpr.matched(2) ) ] ), 
+				new Factory( VerticalFloatAlgorithm.getClassName(),	[ parseVerDirection( floatExpr.matched(4) ) ] )
 			];
 		}
 		
@@ -2672,18 +2752,18 @@ class CSSParser
 		//
 		
 		else if (horCircleExpr.match(v)) {
-			info.classRef	= HorizontalCircleAlgorithm;
+			info.classRef	= HorizontalCircleAlgorithm.getClassName();
 			info.params		= [ parseHorDirection( horCircleExpr.matched(2) ), parseVerDirection( horCircleExpr.matched(4) ), false ];
 		}
 		else if (verCircleExpr.match(v)) {
-			info.classRef	= VerticalCircleAlgorithm;
+			info.classRef	= VerticalCircleAlgorithm.getClassName();
 			info.params		= [ parseVerDirection( verCircleExpr.matched(2) ), parseHorDirection( verCircleExpr.matched(4) ), false ];
 		}
 		else if (circleExpr.match(v)) {
-			info.classRef	= DynamicLayoutAlgorithm;
+			info.classRef	= DynamicLayoutAlgorithm.getClassName();
 			info.params		= [ 
-				new ClassInstanceFactory( HorizontalCircleAlgorithm,	[ parseHorDirection( circleExpr.matched(2) ), null, false ] ), 
-				new ClassInstanceFactory( VerticalCircleAlgorithm,	[ parseVerDirection( circleExpr.matched(4) ), null, false ] )
+				new Factory( HorizontalCircleAlgorithm.getClassName(),	[ parseHorDirection( circleExpr.matched(2) ), null, false ] ), 
+				new Factory( VerticalCircleAlgorithm.getClassName(),	[ parseVerDirection( circleExpr.matched(4) ), null, false ] )
 			];
 		}
 		
@@ -2692,18 +2772,18 @@ class CSSParser
 		//
 		
 		else if (horEllipseExpr.match(v)) {
-			info.classRef	= HorizontalCircleAlgorithm;
+			info.classRef	= HorizontalCircleAlgorithm.getClassName();
 			info.params		= [ parseHorDirection( horEllipseExpr.matched(2) ), parseVerDirection( horEllipseExpr.matched(4) ) ];
 		}
 		else if (verEllipseExpr.match(v)) {
-			info.classRef	= VerticalCircleAlgorithm;
+			info.classRef	= VerticalCircleAlgorithm.getClassName();
 			info.params		= [ parseVerDirection( verEllipseExpr.matched(2) ), parseHorDirection( verEllipseExpr.matched(4) ) ];
 		}
 		else if (ellipseExpr.match(v)) {
-			info.classRef	= DynamicLayoutAlgorithm;
+			info.classRef	= DynamicLayoutAlgorithm.getClassName();
 			info.params		= [
-				new ClassInstanceFactory( HorizontalCircleAlgorithm,	[ parseHorDirection( horEllipseExpr.matched(2) ) ] ), 
-				new ClassInstanceFactory( VerticalCircleAlgorithm,	[ parseVerDirection( horEllipseExpr.matched(4) ) ] )
+				new Factory( HorizontalCircleAlgorithm.getClassName(),	[ parseHorDirection( horEllipseExpr.matched(2) ) ] ), 
+				new Factory( VerticalCircleAlgorithm.getClassName(),	[ parseVerDirection( horEllipseExpr.matched(4) ) ] )
 			];
 		}
 		
@@ -2719,10 +2799,10 @@ class CSSParser
 		else if (dynamicTileExpr.match(v))
 		{
 			if (dynamicTileExpr.matched(1) == null)
-				info.classRef = DynamicTileAlgorithm;
+				info.classRef = DynamicTileAlgorithm.getClassName();
 			else
 			{
-				info.classRef = DynamicTileAlgorithm;
+				info.classRef = DynamicTileAlgorithm.getClassName();
 				info.params.push( parseDirection( dynamicTileExpr.matched( 3 ) ) );
 				info.params.push( (dynamicTileExpr.matched( 5 ) != null) ? parseHorDirection( dynamicTileExpr.matched( 5 ) ) : null );
 				info.params.push( (dynamicTileExpr.matched( 7 ) != null) ? parseVerDirection( dynamicTileExpr.matched( 7 ) ) : null );
@@ -2731,10 +2811,10 @@ class CSSParser
 		else if (fixedTileExpr.match(v))
 		{
 			if (fixedTileExpr.matched(1) == null)
-				info.classRef = FixedTileAlgorithm;
+				info.classRef = FixedTileAlgorithm.getClassName();
 			else
 			{
-				info.classRef	= FixedTileAlgorithm;
+				info.classRef	= FixedTileAlgorithm.getClassName();
 				info.params.push( parseDirection( fixedTileExpr.matched( 2 ) ) );
 				info.params.push( (fixedTileExpr.matched( 4 ) != null) ? getInt( fixedTileExpr.matched( 4 ) )				: Number.INT_NOT_SET );
 				info.params.push( (fixedTileExpr.matched( 6 ) != null) ? parseHorDirection( fixedTileExpr.matched( 6 ) )	: null );
@@ -3402,7 +3482,7 @@ class CSSParser
 		};
 		
 		if (className != null)
-			createGraphicsBlock().overflow = Reference.className( className, v.trim() );
+			createGraphicsBlock().overflow = new Factory1(className, [], ["a"], v.trim());
 	}
 	
 	
@@ -3416,7 +3496,9 @@ class CSSParser
 	
 	private function isEffect (v:String) : Bool
 	{
-		return anchorScaleEffExpr.match(v)
+		return v == "show"
+			|| v == "hide"
+			|| anchorScaleEffExpr.match(v)
 			|| fadeEffExpr.match(v)
 			|| moveEffExpr.match(v)
 			|| resizeEffExpr.match(v)
@@ -3872,7 +3954,8 @@ class CSSParser
 		if (isEffect(v))
 		{
 			createEffectsBlock();
-			currentBlock.effects.show = parseEffect(v);
+			var eff = currentBlock.effects;
+			currentBlock.effects.show = v == "hide" ? eff.hide : parseEffect(v);
 		}
 	}
 	
@@ -3882,7 +3965,8 @@ class CSSParser
 		if (isEffect(v))
 		{
 			createEffectsBlock();
-			currentBlock.effects.hide = parseEffect(v);
+			var eff = currentBlock.effects;
+			eff.hide = v == "show" ? eff.show : parseEffect(v);
 		}
 	}
 }
@@ -3894,18 +3978,20 @@ class CSSParser
 class StyleQueueItem implements IDisposable
 {
 	public var path		: String;
+	public var filename	: String;
 	public var content	: String;
 	
 	
-	public function new (path:String = "", content:String = "")
+	public function new (path:String = "", filename:String, content:String = "")
 	{
 		this.path		= path;
 		this.content	= content;
+		this.filename	= filename;
 	}
 	
 	
 	public function dispose ()
 	{
-		path = content = null;
+		path = content = filename = null;
 	}
 }

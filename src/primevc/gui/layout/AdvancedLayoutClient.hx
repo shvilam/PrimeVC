@@ -28,7 +28,7 @@
  */
 package primevc.gui.layout;
  import primevc.types.Number;
- import primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.BitUtil;
   using primevc.utils.IfUtil;
   using primevc.utils.NumberUtil;
@@ -52,7 +52,7 @@ class AdvancedLayoutClient extends LayoutClient, implements IAdvancedLayoutClien
 		(untyped this).measuredHeight	= Number.INT_NOT_SET;
 		
 		changes = changes.set(
-				Flags.EXPLICIT_WIDTH * newWidth.isSet().boolCalc()
+				Flags.EXPLICIT_WIDTH  * newWidth.isSet().boolCalc()
 			|	Flags.EXPLICIT_HEIGHT * newHeight.isSet().boolCalc()
 		);
 	}

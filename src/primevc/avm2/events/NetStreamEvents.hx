@@ -52,20 +52,9 @@ class NetStreamEvents extends Signals
 	
 	public function new (dispatcher:IEventDispatcher)
 	{
+		super();
 		asyncError	= new ErrorSignal( dispatcher, AsyncErrorEvent.ASYNC_ERROR );
 		ioError		= new TextSignal( dispatcher, IOErrorEvent.IO_ERROR );
 		netStatus	= new NetStatusSignal( dispatcher );
-	}
-	
-	
-	override public function dispose ()
-	{
-		asyncError	.dispose();
-		ioError		.dispose();
-		netStatus	.dispose();
-		
-		asyncError	= null;
-		ioError		= null;
-		netStatus	= null;
 	}
 }
