@@ -618,8 +618,7 @@ class ExternalAsset extends BytesAssetBase
 					handleURILoaded	.onceOn( events.load.completed,	this );
 					handleUnloaded	.onceOn( events.unloaded,		this );
 				}
-				
-				if (v.isCompleted())
+				else
 					setLoadable();
 			}
 			
@@ -637,6 +636,10 @@ class ExternalAsset extends BytesAssetBase
 			
 			if (v != null) {
 				data = v;
+				type = switch (v.fileExt) {
+					case "png", "jpg", "gif":	AssetType.bitmapData;
+					default: 					AssetType.displayObject;
+				}
 				setLoadable();
 			} else
 				setEmpty();
