@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding ="utf-8"?>
+<swc xmlns="http://www.adobe.com/flash/swccatalog/9">
+  <versions>
+    <swc version="1.2" />
+    <flex version="3.5.0" build="12683" />
+  </versions>
+  <features>
+    <feature-script-deps />
+    <feature-files />
+  </features>
+  <libraries>
+    <library path="library.swf">
+      <script name="com/demonsters/debugger/MonsterDebuggerFlex" mod="1303140562119" signatureChecksum="675988263" >
+        <def id="com.demonsters.debugger:MonsterDebuggerFlex" /> 
+        <dep id="com.demonsters.debugger:MonsterDebugger" type="e" /> 
+        <dep id="mx.logging:ILogger" type="e" /> 
+        <dep id="mx.logging:LogEventLevel" type="e" /> 
+        <dep id="mx.logging:Log" type="e" /> 
+        <dep id="mx.logging:LogEvent" type="s" /> 
+        <dep id="mx.logging:ILogger" type="s" /> 
+        <dep id="flash.display:DisplayObject" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="mx.core:UIComponent" type="i" /> 
+        <dep id="mx.logging:AbstractTarget" type="i" /> 
+      </script>
+      <script name="com/demonsters/debugger/MonsterDebuggerSampler" mod="1303140560037" signatureChecksum="1743176922" >
+        <def id="com.demonsters.debugger:MonsterDebuggerSampler" /> 
+        <dep id="com.demonsters.debugger:MonsterDebugger" type="e" /> 
+        <dep id="com.demonsters.debugger:MonsterDebuggerConnection" type="e" /> 
+        <dep id="flash.sampler:getSampleCount" type="e" /> 
+        <dep id="flash.sampler:DeleteObjectSample" type="e" /> 
+        <dep id="flash.sampler:clearSamples" type="e" /> 
+        <dep id="flash.sampler:StackFrame" type="e" /> 
+        <dep id="flash.sampler:getSamples" type="e" /> 
+        <dep id="flash.sampler:pauseSampling" type="e" /> 
+        <dep id="flash.sampler:startSampling" type="e" /> 
+        <dep id="flash.utils:Timer" type="s" /> 
+        <dep id="flash.events:TimerEvent" type="s" /> 
+        <dep id="flash.sampler:Sample" type="s" /> 
+        <dep id="flash.utils:Dictionary" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="com/demonsters/debugger/MonsterDebuggerUtils" mod="1303140559909" signatureChecksum="2275267906" >
+        <def id="com.demonsters.debugger:MonsterDebuggerUtils" /> 
+        <dep id="flash.system:System" type="e" /> 
+        <dep id="com.demonsters.debugger:MonsterDebuggerDescribeType" type="e" /> 
+        <dep id="flash.display:BitmapData" type="e" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="TypeError" type="e" /> 
+        <dep id="com.demonsters.debugger:MonsterDebuggerConstants" type="e" /> 
+        <dep id="flash.utils:getQualifiedClassName" type="e" /> 
+        <dep id="flash.geom:Matrix" type="e" /> 
+        <dep id="flash.display:DisplayObject" type="e" /> 
+        <dep id="XML" type="e" /> 
+        <dep id="flash.display:Stage" type="e" /> 
+        <dep id="flash.utils:Dictionary" type="e" /> 
+        <dep id="TypeError" type="s" /> 
+        <dep id="flash.display:BitmapData" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="flash.geom:Rectangle" type="s" /> 
+        <dep id="flash.geom:Matrix" type="s" /> 
+        <dep id="flash.display:DisplayObject" type="s" /> 
+        <dep id="XML" type="s" /> 
+        <dep id="XMLList" type="s" /> 
+        <dep id="flash.utils:Dictionary" type="s" /> 
+        <dep id="Error" type="s" /> 
+        <dep id="flash.geom:Point" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="com/demonsters/debugger/IMonsterDebuggerConnection" mod="1303140567018" signatureChecksum="4292644393" >
+        <def id="com.demonsters.debugger:IMonsterDebuggerConnection" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="com/demonsters/debugger/MonsterDebuggerConnectionDefault" mod="1303140610681" signatureChecksum="577116356" >
+        <def id="com.demonsters.debugger:MonsterDebuggerConnectionDefault" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="flash.net:Socket" type="e" /> 
+        <dep id="flash.system:Security" type="e" /> 
+        <dep id="flash.utils:ByteArray" type="e" /> 
+        <dep id="flash.events:IOErrorEvent" type="e" /> 
+        <dep id="flash.events:SecurityErrorEvent" type="e" /> 
+        <dep id="com.demonsters.debugger:MonsterDebuggerData" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="com.demonsters.debugger:MonsterDebugger" type="e" /> 
+        <dep id="com.demonsters.debugger:MonsterDebuggerUtils" type="e" /> 
+        <dep id="flash.events:ProgressEvent" type="e" /> 
+        <dep id="com.demonsters.debugger:MonsterDebuggerCore" type="e" /> 
+        <dep id="flash.utils:Timer" type="e" /> 
+        <dep id="flash.events:TimerEvent" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.events:ProgressEvent" type="s" /> 
+        <dep id="flash.utils:ByteArray" type="s" /> 
+        <dep id="flash.net:Socket" type="s" /> 
+        <dep id="flash.utils:Timer" type="s" /> 
+        <dep id="flash.events:TimerEvent" type="s" /> 
+        <dep id="Error" type="s" /> 
+        <dep id="com.demonsters.debugger:MonsterDebuggerData" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.demonsters.debugger:IMonsterDebuggerConnection" type="i" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="com/demonsters/debugger/MonsterDebuggerConstants" mod="1303140562587" signatureChecksum="202001952" >
+        <def id="com.demonsters.debugger:MonsterDebuggerConstants" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="com/demonsters/debugger/MonsterDebuggerDescribeType" mod="1303140562205" signatureChecksum="4088615382" >
+        <def id="com.demonsters.debugger:MonsterDebuggerDescribeType" /> 
+        <dep id="flash.utils:describeType" type="e" /> 
+        <dep id="flash.utils:getQualifiedClassName" type="e" /> 
+        <dep id="XML" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="com/demonsters/debugger/MonsterDebuggerPlugin" mod="1303140562023" signatureChecksum="1554408720" >
+        <def id="com.demonsters.debugger:MonsterDebuggerPlugin" /> 
+        <dep id="com.demonsters.debugger:MonsterDebugger" type="e" /> 
+        <dep id="com.demonsters.debugger:MonsterDebuggerData" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="com/demonsters/debugger/MonsterDebuggerCore" mod="1303140562507" signatureChecksum="4019326858" >
+        <def id="com.demonsters.debugger:MonsterDebuggerCore" /> 
+        <dep id="com.demonsters.debugger:MonsterDebuggerConnection" type="e" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="com.demonsters.debugger:MonsterDebuggerDescribeType" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="com.demonsters.debugger:MonsterDebuggerUtils" type="e" /> 
+        <dep id="com.demonsters.debugger:MonsterDebuggerPlugin" type="e" /> 
+        <dep id="Date" type="e" /> 
+        <dep id="flash.text:TextFormat" type="e" /> 
+        <dep id="flash.events:TimerEvent" type="e" /> 
+        <dep id="flash.utils:getDefinitionByName" type="e" /> 
+        <dep id="flash.display:Sprite" type="e" /> 
+        <dep id="flash.text:TextFieldAutoSize" type="e" /> 
+        <dep id="flash.geom:Rectangle" type="e" /> 
+        <dep id="flash.geom:Point" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="com.demonsters.debugger:MonsterDebugger" type="e" /> 
+        <dep id="com.demonsters.debugger:MonsterDebuggerConstants" type="e" /> 
+        <dep id="flash.events:MouseEvent" type="e" /> 
+        <dep id="flash.external:ExternalInterface" type="e" /> 
+        <dep id="flash.text:TextField" type="e" /> 
+        <dep id="flash.system:Capabilities" type="e" /> 
+        <dep id="flash.display:DisplayObject" type="e" /> 
+        <dep id="flash.utils:Timer" type="e" /> 
+        <dep id="XML" type="e" /> 
+        <dep id="flash.display:Stage" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.display:BitmapData" type="s" /> 
+        <dep id="flash.utils:ByteArray" type="s" /> 
+        <dep id="flash.geom:Rectangle" type="s" /> 
+        <dep id="com.demonsters.debugger:MonsterDebuggerData" type="s" /> 
+        <dep id="Error" type="s" /> 
+        <dep id="flash.events:MouseEvent" type="s" /> 
+        <dep id="com.demonsters.debugger:MonsterDebuggerPlugin" type="s" /> 
+        <dep id="flash.text:TextFormat" type="s" /> 
+        <dep id="flash.text:TextField" type="s" /> 
+        <dep id="flash.display:DisplayObject" type="s" /> 
+        <dep id="flash.utils:Timer" type="s" /> 
+        <dep id="flash.events:TimerEvent" type="s" /> 
+        <dep id="flash.display:Stage" type="s" /> 
+        <dep id="XML" type="s" /> 
+        <dep id="flash.display:Sprite" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="com/demonsters/debugger/MonsterDebuggerData" mod="1303140562296" signatureChecksum="2962002645" >
+        <def id="com.demonsters.debugger:MonsterDebuggerData" /> 
+        <dep id="flash.utils:ByteArray" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="flash.utils:ByteArray" type="s" /> 
+        <dep id="Error" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="com/demonsters/debugger/MonsterDebugger" mod="1303141692601" signatureChecksum="2380157521" >
+        <def id="com.demonsters.debugger:MonsterDebugger" /> 
+        <dep id="com.demonsters.debugger:MonsterDebuggerConnection" type="e" /> 
+        <dep id="com.demonsters.debugger:MonsterDebuggerUtils" type="e" /> 
+        <dep id="com.demonsters.debugger:MonsterDebuggerCore" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="com.demonsters.debugger:MonsterDebuggerPlugin" type="s" /> 
+        <dep id="flash.display:DisplayObject" type="s" /> 
+        <dep id="Error" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="com/demonsters/debugger/MonsterDebuggerConnection" mod="1303140562960" signatureChecksum="3077090662" >
+        <def id="com.demonsters.debugger:MonsterDebuggerConnection" /> 
+        <dep id="com.demonsters.debugger:MonsterDebuggerConnectionDefault" type="e" /> 
+        <dep id="com.demonsters.debugger:IMonsterDebuggerConnection" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="_06580da90cfd38afc00988d22f648c801a87be8d54f7321ca8048b134ffc0af3_flash_display_Sprite" mod="1303141735112" signatureChecksum="2486737566" >
+        <def id="_06580da90cfd38afc00988d22f648c801a87be8d54f7321ca8048b134ffc0af3_flash_display_Sprite" /> 
+        <dep id="flash.system:Security" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="flash.display:Sprite" type="i" /> 
+      </script>
+      <digests>
+        <digest type="SHA-256" signed="false" value="4bdbf11d4a790df17b4a2e342b315ce1274208171c9411a82c3a102ed3a1fe51"   />
+      </digests>
+    </library>
+  </libraries>
+  <files>
+  </files>
+</swc>
