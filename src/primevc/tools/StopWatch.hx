@@ -78,7 +78,7 @@ class StopWatch
 	private inline function getFastest () : Float
 	{
 		var len:Int	= timesList.length;
-		var fas	= len > 0 ? timesList[0] : -1;
+		var fas		= len > 0 ? timesList[0] : -1.0;
 		
 		for ( i in 1...len )
 			if (timesList[i] < fas)

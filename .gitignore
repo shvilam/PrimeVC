@@ -1,17 +1,31 @@
 .DS_Store
+.settings
+.hxtypes
+.project
 Thumb.db
 *.tmproj
 *.tmbuild
+*.sublime-project
+*.sublime-workspace
 *.n
 *.swf
+Autocomplete_.hx
+
+/docs/output/*
+/docs/diagrams/*
+
+/libs/gaforflash
+
+/assets/test-files
+/assets/assets.swf
+/assets/debug-assets.swf
+/tests/test.swf
 
 /styles/*/StyleSheet.hx
 /styles/*/images
 /build/environment.sh
-*bin-debug/*
-*bin-release/*
+/bin-debug/*.vo
 /generated-src
 
-/assets/assets.swf
-/assets/debug-assets.swf
-/tests/test.swf
+*bin-debug/*
+*bin-release/*
