@@ -41,14 +41,14 @@ class StopWatch
 {
 //	public static inline var MAX_VALUE:Int			= 2147483647;
 	
-	private var timesList							: FastArray < Int >;
+	private var timesList							: FastArray < Float >;
 	public var average		(getAverage, null)		: Float;
-	public var fastest		(getFastest, null)		: Int;
-	public var currentTime	(getCurrentTime, null)	: Int;
+	public var fastest		(getFastest, null)		: Float;
+	public var currentTime	(getCurrentTime, null)	: Float;
 	public var times		(getTimes, null)		: String;
 	
-	private var startTime							: Int;
-	private var runnedTime							: Int;
+	private var startTime							: Float;
+	private var runnedTime							: Float;
 	
 	
 	public  function new ()						{ timesList = FastArrayUtil.create(); reset(); }
@@ -67,7 +67,7 @@ class StopWatch
 	private inline function getAverage () : Float
 	{
 		var len:Int		= timesList.length;
-		var total:Int	= 0;
+		var total:Float	= 0;
 		for ( i in 0...len ) {
 			total += timesList[i];
 		}
@@ -75,10 +75,10 @@ class StopWatch
 	}
 	
 	
-	private inline function getFastest () : Int
+	private inline function getFastest () : Float
 	{
 		var len:Int	= timesList.length;
-		var fas:Int	= len > 0 ? timesList[0] : -1;
+		var fas		= len > 0 ? timesList[0] : -1.0;
 		
 		for ( i in 1...len )
 			if (timesList[i] < fas)
