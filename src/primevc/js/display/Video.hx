@@ -1,7 +1,6 @@
 package primevc.js.display;
 
-import js.Dom;
-import js.Lib;
+ import js.Dom;
 
 /**
  * @since	November 14, 2011
@@ -9,34 +8,14 @@ import js.Lib;
  */
 class Video extends DOMElem
 {	
-    /**
-     * Load the entire video when the page loads.
-     */
-    public static inline var PRELOAD_AUTO = "auto";
-    
-	/**
-	 * Load only metadata when the page loads.
-	 */
-    public static inline var PRELOAD_METADATA = "metadata"; 	
-    
-    /**
-     * Do not load the video when the page loads.
-     */
-    public static inline var PRELOAD_NONE = "none"; 
-    
-	public var src		        (default, setSrc):String;
-    public var preload          (default, setPreload):String;
-	override public var width	(default, setWidth):Int;
 	override public var height	(default, setHeight):Int;
+	override public var width	(default, setWidth):Int;
+	public var src		        (default, setSrc):String;
 	
 	public function new() {
 		super("video");
-        elem.controls = "controls";
-        //elem.poster = "black_screen.gif";
         
-        //untyped {
-        //    elem.addEventListener("emptied", function(e) { console.log("video emptied"); });
-        //}
+        elem.controls = "controls";
 	}
     
     override private function setWidth(v:Int):Int {
@@ -58,23 +37,19 @@ class Video extends DOMElem
 	private function setSrc(v:String):String
 	{
 		if (src != v) {
-			elem.src = v;
+			src = v;
 		}
 		return src;
 	}
     
-    private function setPreload(v:String):String
-	{
-		if (preload != v) {
-			elem.preload = v;
-		}
-		return preload;
+	public function load() {
+		if (src != null && elem.src != src) { 
+            elem.src = src;
+        }
 	}
     
-    public function reload() {
-        //elem.src = src;
-        //elem.controls = "controls";
-        //elem.load();
-        //elem.play();
+    public function unload() {
+        elem.pause();
+        elem.src = "";
     }
 }
