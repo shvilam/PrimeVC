@@ -1,0 +1,116 @@
+= Signals =
+:toc:
+
+== Features
+- crossplatform event-system (cpp, flash, js, neko)
+- lightweight
+- fast
+- easily readable
+- easy in use
+- typed binding
+- typed listening
+
+See https://github.com/robertpenner/as3-signals[as3-signals]
+
+
+== Introduction
+=== Whats wrong with js/flash eventsystem?
+TODO
+
+
+== Classes
+=== Signal
+One of the advantages of prime-signals is having multiple typed event-parameters. To accomplish multiple signal-parameters there are 5 signal-objects:
+
+- +Signal0+
+- +Signal1<Type1>+
+- +Signal2<Type1, Type2>+
+- +Signal3<Type1, Type2, Type3>+
+- +Signal4<Type1, Type2, Type3, Type4>+
+
+~It's possible to add more parameters by creating bigger signals but in our experience we've had enough with 4 paramters.~
+
+
+=== Wire
+The signal will create and return a small wire-object every time an handler is binded to it. This wire is the direct binding between the signal and the handler and can be used to temporary disable/enable the binding or to dispose the binding.
+[source,haxe]
+---------
+var wire = signal.bind( this, handler );
+wire.disable();
+---------
+
+Storing a reference of the wire is only nesasarry in the following cases:
+
+- if you want to be able to enable/disable the wire ** example **
+- when stopping with listening you don't have reference anymore to the signal ** example **
+- if you want to dynamicly change the handler method ** example **
+
+
+=== Signal-groups
+TODO
+
+
+== Usage
+=== Listening
+By binding an handler with a signal, the handler will be called every time the signal is dispatched. The handler must accept all parameters defined for the signal. The bind method of a signal needs two paramters, the object owning the signal and the handler which will be called.
+[source,haxe]
+---------
+var signal : Signal2<Int, String>;                  // signal definition
+function actOnSginal (p1:Int, p2:String) : Void;    // handler definition
+signal.bind( this, actOnSginal );                   // binding them together
+---------
+
+A handler can also listen to one signal dispatch instead of being called every time the signal dispatches.
+[source, haxe]
+signal.bindOnce( this, actOnSignal );
+
+
+=== Observing
+Apart from listening to a signal, a signal can also be observed. This comes in handy when a signal has paramters and the observer just wants to know when it's dispatching, without caring about the parameters.
+
+For example, a button that get's selected on a mouse-click won't care about the exact details of the click. The select method can be general method and doesn't have to except any paramters.
+[source,haxe]
+    mouse.click.observe( btn, btn.select );
+
+Or if the handler want's to observe the signal once:
+[source,haxe]
+    mouse.click.observeOnce( btn, btn.select );
+
+
+=== Stop listening
+There are mulptiple ways to stop listening to a signal:
+
+- using the returned wire-reference and dispose it (+wire.dispose+)
+- calling +signal.unbind( owner, handler );+
++
+This will only unbind this specific handler from the owner
+
+- calling +signal.unbind( owner );+
++
+This will unbind all handlers of owner which are bound to this signal.
+
+- calling +signal.unbindAll();+
++
+This will unbind all handlers of the signal
+
+
+=== Syntax sugar
+By using a small utility 'prime.singals.Bind' it's possible to use a more natural way to bind to signals.
+
+It goes as following:
+[source,haxe]
+-------
+  using prime.signals.Bind;
+
+doSomething.onceOn(textField.change, this);
+function doSomething (with:String) : Void;
+-------
+
+
+=== Conventions
+- define signals as singular, present-tence, nouns
+- define handlers as a verb
+
+
+== Examples
+TODO

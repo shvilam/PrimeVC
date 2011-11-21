@@ -1,0 +1,119 @@
+= TODO =
+Ruben Weijers <ruben@rubenw.nl>
+:toc:
+
+== CSS-Parser
+* benchmarken van compilen van grote stylesheets
+* testen met bloomfilter in haXe om stijlblokken een uniek nr te geven en deze als bitflag in de bloomfilter collectie te gebruiken (ask danny)
+* testen met c++ parser ipv neko parser
+* nicolas' css-parser gebruiken en uitbreiden (http://ncannasse.fr/blog/[HSS])
+	- dit vereist een tussen parser output waarna een 2e parser dit kan 
+		omzetten naar code voor PrimeVC maar ook eventueel naar een ander
+		framework.
+
+* volledige css3 support toevoegen
+	- +border-sides, inner-border, border-image, border-style+
+	- +cursor+
+	- +float+ (per element ander algorithme kunnen gebruiken)
+	- +transform+
+	- +transition+
+	- ...
+
+* css-variables ondersteunen
++
+[source,css]
+------
+	@var $base #585858
+	background: $base;
+------
+
+* multiple block definitions ondersteunen (+Element1, Element2 { ... }+)
+	- Dit vereist het loskoppelen van een styleblock met een style-name..
++
+Op deze manier kan 1 styleblock door meerdere style-names gebruikt worden en kan 1 style-name meerdere styleblocks hebben
+
+* per import een hx-bestand genereren
+* controle of een css-bestand veranderd is doen in *neko* ipv *bash*
+* wanneer een css-import veranderd is, alleen de relaties voor styleblocken	opnieuw genereren en niet de content van alle styleblocken
+* native voorbeeld skins maken voor:
+	- iOS
+	- os X
+	- android
+	- android honeycomb (light, dark)
+
+* ondersteuning voor media-queries voor platform specifieke css
+* ondersteuning voor advanced selecters (+>+, +<+, etc.)
+* ondersteuning voor css voor specifieke afmetingen van elementen
++
+[source,css]
+-----
+VideoPlayer[width<200] #stopBtn { visible: hidden; }
+-----
+
+* mixins (zie google)
++
+[source,css]
+-----
+@trait backgroundLinearGradient($from, $to) {
+	...
+}
+.themeButton {
+	@mixin backgroundLinearGradient( $color1, $color2 );
+}
+-----
+
+* ondersteuning voor property-transitions
+* ondersteuning voor state-transitions
+* ondersteuning voor calculation operators (+100% - 50px+)
+* ondersteuning voor http://labs.adobe.com/technologies/cssregions/[CSS Regions]
+* ondersteuning voor haxe-macro's binnen stylesheets
++
+[source,haxe]
+------
+#if debug
+.testClass { .... }
+#end
+------
+
+
+== UIComponents
+* DisplayObjects loskoppelen van +UIElements+
+	- +UIElement+ (geen target +DisplayObject+)
++
+--
+		* +UIComponent+	-> +Sprite+ of +Skin+
+		* +UIGraphic+	-> +Shape+
+		* +UITextField+	-> +TextField+
+		* +UIVideo+		-> +Video+
+--
+	- Skin kan een +DisplayObject+ extenden
+
+* kijken of het efficienter is om ipv graphic-classes het tekenen overlaten	aan 1 grote functie die alle graphics van een +UIElement+ kan tekenen
+* overal +attach+ / +attachTo+ / +detach+ gebruiken i.p.v. +children.add+ / +children.remove+
+	- hierbij kunnen we het aan het kind dat verwijderd wordt overlaten om effecten voor toevoegen / verwijderen af te spelen
+* +ValidateLayoutBehaviour+ / +RenderGraphicsBehaviour+ / +UIEffects+ implementeren in +UIElement+ ipv losse classes
+* tab / focus support 
+* [line-through]#item-renderers in +ListViews+ hergebruiken#
+
+* css support voor elementen die geen +IUIElement+ zijn zoals +LayoutClient+
++
+[source,haxe]
+-----
+var layout = new StylableLayout();
+layout.getStyleFrom( this );
+-----
+	
+
+== General
+* javascript implementatie met 
+* losse git-repositories maken voor iedere package
+* voorbeelden / documentatie schrijven
+* xml - compiler
+* SWFMill gebruiken om assets swf te genereren
+* manier om eenvoudig preloaders toevoegen
+
+
+Libraries om naar te kijken:
+
+- OpenPyro
+- SASS

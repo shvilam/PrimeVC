@@ -99,6 +99,12 @@ class SimpleStateMachine <StateType> implements IDisposable
 	{
 		return current == state;
 	}
+
+	
+	public inline function changeTo (toState:StateType) : Void -> Void
+	{
+		return function () { this.setCurrent( toState ); };
+	}
 	
 	
 #if debug

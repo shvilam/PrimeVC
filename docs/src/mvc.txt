@@ -1,0 +1,421 @@
+= MVC =
+Ruben Weijers <ruben@rubenw.nl>
+:toc:
+
+== Introduction
+TODO
+
+== Goals
+TODO
+
+== Features
+TODO
+
+== Overview single core
+
+.Facade structure
+["graphviz", "MVC.svg","twopi", "svg"]
+-------
+digraph MVC {
+	width="590px"
+	rankdir="LR"
+	ranksep="1.1"
+	edge [dir="none", len="1.1", weight="0.1"];
+	node [fontname=Verdana,fontsize=8.0]
+	node [shape=Mdiamond];                          	facade;
+	node [shape=diamond];                          		service1;
+	node [shape=circle,fixedsize=true];
+	node [style=filled,color=lightskyblue,width=1];  	model;
+	node [style=filled,color=lightskyblue,width=.5];	proxy1; proxy2; proxy3;
+	node [style=filled,color=palegreen1,width=1];		logic;
+	node [style=filled,color=palegreen1,width=.5];		controller1; controller2;
+	node [style=filled,color=indianred1,width=1]; 		view;
+	node [style=filled,color=indianred1,width=.5]; 		mediator1; mediator2;
+	node [style=filled,color=peachpuff,width=1];		events;
+	node [style=filled,color=peachpuff,width=.5];		signals1; signals2;
+	node [style=filled,color=tan, width=1];				states;
+
+	node [style=filled,color=lavender,shape=box] 		gui1; gui2; gui3; window;
+
+	facade			-> view;
+	facade			-> logic;
+	facade			-> model;
+	facade			-> events;
+	facade			-> states;
+
+	view 			-> mediator1;
+	view 			-> mediator2;
+	view 			-> window;
+	mediator1		-> gui1;
+	mediator2		-> gui2;
+	mediator2		-> gui3;
+
+	logic 			-> controller1;
+	logic 			-> controller2;
+
+	events 			-> signals1;
+	events 			-> signals2;
+
+	model 			-> proxy1;
+	model 			-> proxy2;
+	model 			-> proxy3;
+
+	proxy1 			-> vo1;
+	proxy3			-> vo3;
+	proxy2			-> vo2;
+	proxy1			-> service1;
+
+/*	controller1 -> proxy1			[dir="forward", color="blue", constraint="false"];
+	controller1 -> signals2			[dir="both", 	color="blue", constraint="false"];
+	proxy1 -> signals2				[dir="forward", color="blue", constraint="false"];
+	mediator2 -> signals2			[dir="both", 	color="blue", constraint="false"];*/
+	truecolor=true;
+}
+-------
+
+. *Model* only contains *proxies*
+. *Logic* only contains *controller*
+. *View* only contains *mediators*
+
+.MVC class UML
+["graphviz", "MVC_UML.svg", "dot", "svg"]
+------
+digraph MVC_UML {
+	node [fontname=Verdana,fontsize=8.0]
+	node [shape="box"]; Mediator; Proxy; EditableProxy; MVCActor; MVCNotifier;
+	node [shape="ellipse"]; IMVCCore; IMVCNotifier; IMVCActor; IMVCCoreActor;
+	IMVCNotifier -> IMVCCore	[style="dashed"];
+	IMVCNotifier -> IMVCActor	[style="dashed"];
+	IMVCCore -> IMVCCoreActor	[style="dashed"];
+	IMVCActor -> IMVCCoreActor	[style="dashed"];
+
+	IMVCActor -> MVCActor		[style="dashed"];
+	MVCNotifier -> MVCActor;
+	MVCActor -> Mediator;
+
+	IMVCNotifier -> MVCNotifier	[style="dashed"];
+	MVCNotifier -> Proxy;
+	Proxy -> EditableProxy;
+}
+------
+
+[cols="header,default"]
+|========
+|IMVCNotifier|can send messages to the MVC-application
+|IMVCActor|can send and listen to messages of the MVC-application
+|IMVCCoreActor|main interface for *Logic* and *View*
+|MVCNotifier|
+|MVCActor|
+|Proxy|Exposes non-editable data to other MVC-Actors
+|EditableProxy|Exposes editable data to other MVC-Actors
+|Mediator|Base class for Mediators
+|========
+
+=== Facade
+A *facade* is the main MVC-object that contains references to all tiers of the MVC. It will instantiate all tiers in the correct order and makes sure they start listening when all tiers are created.
+
+
+
+=== Model
+The *model* contains references to *proxies*. It's responsibilities are:
+
+- create all *proxies* with the correct references to the *events* they need
+- dispose all *proxies* when the *model* is disposed
+
+==== Proxy
+A *proxy* encapsulates *domain logic* and manages *value-objects* (usually one). It exposes an API to allow other *MVC-actors* to manipulate/read it's data. A *Proxy* does not know anything of the outside *MVC-application* and can only send *signals*.
+
+- *Proxy* [underline]#can broadcasts# *signals*
+- *Proxy* [underline]#can't listen# to *signals*
+- *Proxy* [underline]#can load# data through a service (but only when a MVC-actor requests it)
+
+==== Service
+A *service* provides an API to communicate with an external dataprovider and translate the external-data (json, XML, etc.) from/to application-data (*value-objects*).
+
+==== Value-Object
+A value-object (VO) is a small object that only contains data and should only contain logic to modify it's data. PrimeVC works with VOs that can also provide an API to begin/commit/cancel a write operation.
+
+.Example
+[source,haxe]
+-----
+class MyVO
+{
+	private var editable 				: Bool;
+	public  var val1 (default, setVal1) : String;
+	public  var val2 (default, setVal2) : Int;
+
+	public function new (val1_, val2_) {
+		(untyped this).val1 = val1_;
+		(untyped this).val2 = val2_;
+	}
+
+	private inline function setVal1 (v)		return (editable && v != val1) ? val1 = v : val1
+	private inline function setVal2 (v)		return (editable && v != val2) ? val2 = v : val2
+
+	public function beginEdit () 			editable = true
+	public function commitEdit () 			editable = false
+}
+-----
+
+
+
+=== View
+The *view* contains references to *mediators*. It's responsibilities are:
+
+- create all *mediators* and provide them with a reference to the *facade* and their *gui*
+- dispose all *mediators* when the *view* is disposed
+- enable/disable all *mediators* when the *view* is enabled/disabled
+- listen/unlisten all *mediators* when the *view* starts/stops listening
+
+==== Mediator
+The *mediator* is the bridge between one or more *GUI*-elements and the MVC-application. It responds to *signals* of the *GUI* and *MVC*.
+
+- *Mediator* [underline]#can talk# to other *mediators* and *controllers*
+- *Mediator* [underline]#can command# a *proxy*
+- *Mediator* [underline]#can change# a *VO* (after calling beginEdit())
+- *Mediator* [underline]#can send# a *signal*
+
+==== GUI
+The *GUI* is the visualation of the application. It does not have any logic of the MVC-application and isn't able to directly communicate with it.
+
+- *GUI-component* [underline]#can listen# to other *GUI-components*
+- *GUI-component* [underline]#can talk# to other *GUI-components*
+
+
+
+=== Logic
+The *logic* contains references to *controllers*. It's responsibilities are:
+
+- create all *controllers* and provide them with a reference to the *facade*
+- dispose all *controllers* when the *logic* is disposed
+- enable/disable all *controllers* when the *logic* is enabled/disabled
+- listen/unlisten all *controllers* when the *logic* starts/stops listening
+- create simple bindings between *signals* and *proxies*
++
+The main class can create bindings between a signal and the API of a proxy when a proxy directly needs to listen to a specific MVC-signal.
++
+[source,haxe]
+------
+class AppControllers
+{
+	override public function startListening ()
+	{
+		facade.model.document.load  .on( facade.events.document.request, 	this );
+		facade.model.document.unload.on( facade.events.document.close, 		this );
+		facade.model.page.load  	.on( facade.events.document.loaded, 	this );
+		facade.model.page.close  	.on( facade.events.document.unloaded, 	this );
+	}
+}
+------
+
+
+==== Controller
+A *controller* encapsulates [underline]#bussiness logic#.
+
+- *Controller* [underline]#can talk# to other *controllers* and *mediators*
+- *Controller* [underline]#can command# a *proxy*
+- *Controller* [underline]#can change# a *VO* (after calling beginEdit())
+- *Controller* [underline]#can send# a *signal*
+
+In PureMVC there are no controllers, only commands. In PrimeVC a controller groups the logic of commands that are performing the same type of actions (like copy/cut/paste).
+
+.Example
+[source,haxe]
+------
+private typedef Facade {
+	var model = { 
+		var clipboard 	(default, null) : ClipboardProxy;
+		var document 	(default, null) : DocumentProxy;
+		var selection 	(default, null) : SelectionProxy;
+	};
+	var events = {
+		var clipboard 	(default, null) : ClipboardEvents;
+	};
+};
+
+class SelectionController extends MVCActor<Facade>
+{
+	override public function startListening ()
+	{
+		copy.on( f.events.clipboard.copy );
+		paste.on( f.events.clipboard.paste );
+	}
+
+	private function copy ()	f.model.clipboard.copy( f.model.selection.data )
+	private function paste ()	f.model.clipboard.pasteInto( f.model.document.data )
+}
+------
+
+=== Events
+The *events* class is the communication-bridge between all MVC-tiers and groups all application link:Signals.html[signals] together. It's responsibilities are:
+
+- create all *signals*
+- dispose all *signals*
+- enable/disable all *signals*
+
+
+=== States
+This optional MVC-tier manages one or more finite-state-machines.
+
+==== Finite State Machine
+[quote,Wikipedia,http://en.wikipedia.org/wiki/Finite-state_machine]
+____
+A finite-state machine (FSM) or finite-state automaton (plural: automata), or simply a state machine, is a mathematical model used to design computer programs and digital logic circuits. 
+
+It is conceived as an abstract machine that can be in one of a finite number of states. The machine is in only one state at a time; the state it is in at any given time is called the current state. It can change from one state to another when initiated by a triggering event or condition, this is called a transition. A particular FSM is defined by a list of the possible states it can transition to from each state, and the triggering condition for each transition.
+____
+
+PrimeVC provides two FSM classes:
+
+. *FiniteStateMachine*
++
+Each state is a small object with two signals: `entering` and `exiting`. The FSM keeps track of the active state and will also trigger the `change`-signal when the current-state changes.
++
+.Example
+[source, haxe]
+-----
+class ApplicationStates extends FiniteStateMachine
+{
+	//instances are created by macro in FiniteStateMachine
+	public var editable (default, null): IState;
+	public var readOnly (default, null): IState;
+	public var empty 	(default, null): IState;
+
+	public function new ()
+	{
+		super();
+		defaultState = empty;
+	}
+}
+
+//usage
+class AppControllers
+{
+	override public function startListening ()
+	{
+		super.startListening();
+		var states = facade.states;
+		facade.model.document.enable .on( states.editable.entering, this );
+		facade.model.document.disable.on( states.readOnly.entering, this );
+
+		states.changeTo( states.readOnly ).onceOn( facade.events.document.loaded, 		this );
+		states.changeTo( states.editable ).onceOn( facade.events.document.beginEdit,	this );
+		states.changeTo( states.readOnly ).onceOn( facade.events.document.commitEdit,	this );
+		states.changeTo( states.empty )   .onceOn( facade.events.document.unloaded,		this );
+	}
+}
+
+class DocumentMediator
+{
+	override public function startListening ()
+	{
+		if (isListening())
+			return;
+		super.startListening();
+
+		gui.showEditButtons.on( f.states.editable.entering, this );
+		if (f.states.is( f.states.editable ))
+			gui.showEditButtons();
+	}
+}
+-----
+. *SimpleStateMachine*
++
+This is a more basic FSM where each state isn't an object but the available states are an enum. It's not possible to listen to listen to specific state events but is [underline]#more light-weight# then a *FiniteStateMachine*.
++
+.Example
+[source, haxe]
+-----
+enum ApplicationState {
+	empty;
+	readOnly;
+	editable;
+}
+
+class ApplicationFacade extends Facade<....>
+{
+	override function setupStates ()	states = new SimpleStateMachine<ApplicationState>( empty );
+}
+
+//usage
+class AppControllers
+{
+	override public function startListening ()
+	{
+		super.startListening();
+		var states = facade.states;
+		handleStateChange.on( states.change, this );
+
+		states.changeTo( readOnly ).onceOn( facade.events.document.loaded, 		this );
+		states.changeTo( editable ).onceOn( facade.events.document.beginEdit,	this );
+		states.changeTo( readOnly ).onceOn( facade.events.document.commitEdit,	this );
+		states.changeTo( empty )   .onceOn( facade.events.document.unloaded,		this );
+	}
+
+	private function handleStateChange (newV:ApplicationState, oldV:ApplicationState) switch (newV)
+	{
+		case editable:	facade.model.document.enable();
+		case readOnly:	facade.model.document.disable();
+		case empty: 	if (facade.model.document.hasData())
+							facade.model.document.unload();
+	}
+}
+
+class DocumentMediator
+{
+	override public function startListening ()
+	{
+		if (isListening())
+			return;
+		super.startListening();
+
+		handleStateChange.on( f.states.change, this );
+		if (f.states.is(editable))
+			gui.showEditButtons();
+	}
+
+	private function handleStateChange (newV, oldV) {...}
+}
+-----
+
+== Multicore Facade
+Multi-core facades allows you to split up the facade in multiple facades which can communicate with eachother through *Channels*. This allows an application to be build as separate applications which can be connected/loaded at run-time.
+
+=== Overview
+
+["graphviz", "MulticoreMVC.svg", "dot", "svg"]
+-----
+digraph Multicore {
+	//ranksep="3.1"
+	rankdir="LR"
+	edge [dir="none",len="2.1"]
+	node [fontname=Verdana,fontsize=8.0]
+	node [shape=box];			ChildFacade1; ChildFacade2; ChildFacade3;
+	node [shape=circle];		Channels;
+	node [shape=Mdiamond];		AppFacade;
+
+	AppFacade 		-> Channels			[dir="forward"];
+	Channels 		-> ChildFacade1 	[color="blue", constraint="true"];
+	Channels 		-> ChildFacade2 	[color="blue", constraint="false"];
+	Channels 		-> ChildFacade3 	[color="blue", constraint="false"];
+
+	AppFacade 		-> ChildFacade1 	[dir="forward"];
+	AppFacade 		-> ChildFacade2 	[dir="forward"];
+	ChildFacade2 	-> ChildFacade3 	[dir="forward"];
+}
+-----
+
+In this diagram:
+
+- *AppFacade* creates *Channels*
+- *AppFacade* creates *ChildFacade1* and *ChildFacade2*
+- *ChildFacade2* creates *ChildFacade3*
+- All *facades* have a reference to *Channels*
+
+
+=== Channels
+*Channels* are equal to the *<<_events,Events>>*-tier except for that:
+
+- *channels* provide system-wide communication
+- *events* provide facade-wide communication
+

@@ -151,10 +151,8 @@ class FiniteStateMachine implements IFiniteStateMachine
 	public inline function isEnabled ()						{ return enabled; }
 	
 	
-	public function changeTo (toState:IState) : Void -> Void
+	public inline function changeTo (toState:IState) : Void -> Void
 	{
-		var t = this;
-	//	Assert.that( has(toState) );
-		return function () { t.setCurrent( toState ); };
+		return function () { this.setCurrent( toState ); };
 	}
 }
