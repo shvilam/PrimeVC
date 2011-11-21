@@ -2,7 +2,8 @@
 INPUT=docs/src
 OUTPUT=docs/output
 
-THEME="flask"
+THEMEDIR="theme"
+THEME="prime"
 INPUT_EXT="txt"
 OUTPUT_EXT="html"
 COUNTER=0
@@ -13,6 +14,8 @@ mkdir -p $OUTPUT
 function generateDocs {
     orig_in=$file_in
     orig_out=$file_out
+    echo "$file_in $2"
+    themes_dir="../$2"
     #cd $1
     for file_in in $1/*
     do
@@ -27,14 +30,14 @@ function generateDocs {
         elif [[ -d $file_in ]]; then 
             if [ $(ls -1A $file_in |wc -l) != 0 ]; then         #skip empty directories
                 mkdir -p $file_out                              #create output-dir if it doesn't exist yet
-                generateDocs $file_in                           #generate docs for files in the directory
+                generateDocs $file_in $themes_dir               #generate docs for files in the directory
                 removeEmptyDir $file_out                        #remove empty output directories
             fi;
         
         #generate docs for .txt files which are newer then there output
         elif [[ $file_in == *.$INPUT_EXT ]] && [[ -f $file_in ]]; then
             if [[ ! -f $file_out ]] || test "$file_in" -nt "$file_out"; then
-                asciidoc -b html5 --theme=$THEME -o $file_out $file_in
+                asciidoc -b html5 --theme=$THEME -a linkcss -a "scriptsdir=$themes_dir" -a "stylesdir=$themes_dir" -o $file_out $file_in &&
                 COUNTER=$((COUNTER+1))
             #    echo "f $file_in => $file_out"
             #else
@@ -52,7 +55,7 @@ function removeEmptyDir {
     fi;
 }
 
-generateDocs $INPUT
+generateDocs $INPUT $THEMEDIR
 echo -e "\tCreated $COUNTER docs"
 
 #asciidoc -b html5 --theme=bare -o docs/output/Test.html docs/src/Test.txt

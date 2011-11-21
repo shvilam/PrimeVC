@@ -2,14 +2,23 @@
 Ruben Weijers <ruben@rubenw.nl>
 :toc:
 
-== Introduction
-TODO
-
-== Goals
-TODO
-
 == Features
-TODO
+
+. lightweight MVC-structure
+. provides loose coupled building-blocks
+. typed MVC-references
+. support for multiple facades
+. reduce boilerplate (through macro's)
+. fast
+
+=== Comparison to other MVC frameworks
+
+[options="header", cols="header,default,default,default"]
+|=========
+||PrimeVC|RobotLegs|PureMVC
+|Communication|Signals|Events|Notifications
+|=========
+
 
 == Overview single core
 
@@ -136,7 +145,7 @@ A *service* provides an API to communicate with an external dataprovider and tra
 A value-object (VO) is a small object that only contains data and should only contain logic to modify it's data. PrimeVC works with VOs that can also provide an API to begin/commit/cancel a write operation.
 
 .Example
-[source,haxe]
+[source,haxe,numbered]
 -----
 class MyVO
 {
@@ -194,7 +203,7 @@ The *logic* contains references to *controllers*. It's responsibilities are:
 +
 The main class can create bindings between a signal and the API of a proxy when a proxy directly needs to listen to a specific MVC-signal.
 +
-[source,haxe]
+[source,haxe,numbered]
 ------
 class AppControllers
 {
@@ -220,7 +229,7 @@ A *controller* encapsulates [underline]#bussiness logic#.
 In PureMVC there are no controllers, only commands. In PrimeVC a controller groups the logic of commands that are performing the same type of actions (like copy/cut/paste).
 
 .Example
-[source,haxe]
+[source,haxe,numbered]
 ------
 private typedef Facade {
 	var model = { 
@@ -272,7 +281,7 @@ PrimeVC provides two FSM classes:
 Each state is a small object with two signals: `entering` and `exiting`. The FSM keeps track of the active state and will also trigger the `change`-signal when the current-state changes.
 +
 .Example
-[source, haxe]
+[source, haxe,numbered]
 -----
 class ApplicationStates extends FiniteStateMachine
 {
@@ -324,7 +333,7 @@ class DocumentMediator
 This is a more basic FSM where each state isn't an object but the available states are an enum. It's not possible to listen to listen to specific state events but is [underline]#more light-weight# then a *FiniteStateMachine*.
 +
 .Example
-[source, haxe]
+[source, haxe,numbered]
 -----
 enum ApplicationState {
 	empty;
@@ -379,7 +388,11 @@ class DocumentMediator
 -----
 
 == Multicore Facade
-Multi-core facades allows you to split up the facade in multiple facades which can communicate with eachother through *Channels*. This allows an application to be build as separate applications which can be connected/loaded at run-time.
+Multi-core facades allows you to split up the facade in multiple facades which can communicate with each other through *Channels*. This allows an application to be build as separate applications which can be connected/loaded at run-time.
+
+In a multi-core facade structure there can only be one `*ParentFacade*`. This `ParentFacade` creates the `Channels` object and instantiates the first `ChildFacade`.
+
+`ChildFacades` are allowed to create `ChildFacades` but will also be responsible for providing them with a reference to the `Channels`.
 
 === Overview
 
@@ -391,13 +404,14 @@ digraph Multicore {
 	edge [dir="none",len="2.1"]
 	node [fontname=Verdana,fontsize=8.0]
 	node [shape=box];			ChildFacade1; ChildFacade2; ChildFacade3;
-	node [shape=circle];		Channels;
 	node [shape=Mdiamond];		AppFacade;
+	node [shape=circle];		Channels;
 
 	AppFacade 		-> Channels			[dir="forward"];
 	Channels 		-> ChildFacade1 	[color="blue", constraint="true"];
 	Channels 		-> ChildFacade2 	[color="blue", constraint="false"];
 	Channels 		-> ChildFacade3 	[color="blue", constraint="false"];
+	Channels 		-> AppFacade 		[color="blue", constraint="false"];
 
 	AppFacade 		-> ChildFacade1 	[dir="forward"];
 	AppFacade 		-> ChildFacade2 	[dir="forward"];
@@ -412,6 +426,19 @@ In this diagram:
 - *ChildFacade2* creates *ChildFacade3*
 - All *facades* have a reference to *Channels*
 
+.UML
+["graphviz", "MVC_UML.svg", "dot", "svg"]
+------
+digraph MVC_UML {
+	node [fontname=Verdana,fontsize=8.0]
+	node [shape="box"];
+
+	Facade -> ParentFacade;
+	Facade -> ChildFacade;
+}
+------
+
+
 
 === Channels
 *Channels* are equal to the *<<_events,Events>>*-tier except for that:
@@ -419,3 +446,38 @@ In this diagram:
 - *channels* provide system-wide communication
 - *events* provide facade-wide communication
 
+In a multi-core `facade` structure there is usually only one `Channels` instance which is injected in the other `facades`. To make sure that the facades are loose coupled, the `ChildFacades` won't type their `Channels` reference to a class but to a typedef, providing them only with the API they need:
+
+.Example
+[source,haxe,numbered]
+-----
+//MainFacade.hx
+class Channels extends Signals
+{
+	public var uploadFile 	(default, null) : Signal1<FileRef>;
+	public var fileList 	(default, null) : ASync<ArrayList<IFileVO>>;
+
+	public function new () {
+		uploadFile 	= new Signal1();
+		fileList 	= new ASync();
+	}
+}
+
+class MainFacade extends ParentFacade <..., Channels>
+{
+	override private function setupChannels () 	channels = new Channels()
+}
+
+
+
+//FirstChildFacade.hx
+typedef AppChannels {
+	public var uploadFile (default, null) : Signal1<FileRef>;
+}
+
+class FirstChildFacade extends ChildFacade <..., AppChannels>
+{
+	
+}
+-----
+`FirstChildFacade` can only use the `uploadFile` channel in this example.

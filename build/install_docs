@@ -65,4 +65,4 @@ requireFilter "codeextractor" "http://download.berlios.de/codeextactor/codeextra
 
 #install 'bare' theme (http://tomayko.com/src/adoc-themes/bare.html)
 #ln -s "$PRJROOT/docs/themes/bare" "$ASCIIDOC_USER/themes/bare"
-ln -s "$PRJROOT/docs/themes/bare" "/usr/local/etc/asciidoc/themes/bare"
+#ln -s "$PRJROOT/docs/themes/prime" "/usr/local/etc/asciidoc/themes/prime"
