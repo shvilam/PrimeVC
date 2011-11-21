@@ -42,17 +42,17 @@ echo -e "\tDebugging? ${Debug:-false}"
 
 CompilerUpdated=false
 
-cd "$PRIMEVC_ROOT"
 
 #create parser if the source files have changed
 if $Force || [[ ! -f "$Parser" ]]  ||  test "$MainFile" -nt "$Parser"  ||  test "$ParserClass" -nt "$Parser"; then  # ||  test ${StyleFile} -nt ${Parser} ; then
 	echo -e "\tCompiling parser"
+    pushd "$PRIMEVC_ROOT"
 	haxe build/build-cssparser.hxml \
 		-main $MainClass \
-		-neko "$Parser" \
+		-neko build/parser.n \
 		--no-inline $Debug \
 		${Debug:---no-traces} || exit 1;
-	
+	popd
 	CompilerUpdated=true
 fi;
 
