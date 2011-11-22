@@ -234,33 +234,25 @@ extern class FloatColorUtil
 
 extern class StringColorUtil
 {
-	public static inline var L1		= 0xF;
-	public static inline var L2		= 0xFF;
-	public static inline var L3		= 0xFFF;
-	public static inline var L4		= 0xFFFF;
-	public static inline var L5		= 0xFFFFF;
-	public static inline var L6		= 0xFFFFFF;
-	public static inline var L7		= 0xFFFFFFF;
-	public static inline var L8		= 0xFFFFFFFF;
-	
 	/**
 	 * Converts a RGBA value to a hexadecimal string. 
 	 */
 	public static inline function string (v:RGBA) : String			{ return rgbaToString(v); }
+	public static inline function cssRgba(v:RGBA) : String			{ return "rgba(" + v.red() + "," + v.green() + "," + v.blue() + "," + (v.alpha() / 255) + ")"; }
 	public static inline function rgbaToString (v:RGBA) : String	{ return "0x"+v.rgb().hex(6) + v.alpha().hex(2); }
 	public static inline function rgbToString (v:RGBA) : String		{ return "0x"+v.rgb().hex(6); }
 #if debug
 	public static inline function uintToString (v:Int) : String
 	{
-		return "0x"+ if (v < L1)	v.hex(1);
-				else if (v < L2)	v.hex(2);
-				else if (v < L3)	v.hex(3);
-				else if (v < L4)	v.hex(4);
-				else if (v < L5)	v.hex(5);
-				else if (v < L6)	v.hex(6);
-				else if (v < L7)	v.hex(7);
-				else if (v < L8)	v.hex(8);
-				else				v.hex();
+		return "0x"+ if (v < 0xF)			v.hex(1);
+				else if (v < 0xFF)			v.hex(2);
+				else if (v < 0xFFF)			v.hex(3);
+				else if (v < 0xFFFF)		v.hex(4);
+				else if (v < 0xFFFFF)		v.hex(5);
+				else if (v < 0xFFFFFF)		v.hex(6);
+				else if (v < 0xFFFFFFF)		v.hex(7);
+				else if (v < 0xFFFFFFFF)	v.hex(8);
+				else						v.hex();
 	}
 #end
 	

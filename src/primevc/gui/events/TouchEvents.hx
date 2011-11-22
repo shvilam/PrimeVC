@@ -43,6 +43,7 @@ typedef TouchEvents =
 typedef TouchHandler    = TouchState -> Void;
 typedef TouchSignal     = primevc.core.dispatcher.Signal1<TouchState>;
 
+
 /**
  * Cross-platform touch events.
  * 

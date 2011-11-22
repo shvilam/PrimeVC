@@ -41,6 +41,14 @@ class Point
 {
 	public var x (default, default)	: Float;
 	public var y (default, default)	: Float;
+/*	#if js
+		private static function __init__() : Void untyped {
+		if( __js__("WebKitPoint") )
+			primevc.core.geom["Point"] = __js__("WebKitPoint");
+	}
+	#end
+*/
+
 	
 	public function new(x:Float = 0, y:Float = 0)
 	{
@@ -52,10 +60,9 @@ class Point
 	public inline function subtract (v:Point)		return new Point( x - v.x, y - v.y )
 	public inline function add (v:Point)			return new Point( x + v.x, y + v.y )
 	public inline function isEqualTo (v:Point) 		return x == v.x && y == v.y
-	public inline function setTo (v:Point) {		x = v.x; y = v.y; }
+	public inline function setTo (v:Point) 		{ 	x = v.x; y = v.y; }
 #if debug
 	public inline function toString ()				return "Point( "+x+", "+y+" )"
 #end
 }
-
 #end

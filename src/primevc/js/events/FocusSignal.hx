@@ -1,38 +1,22 @@
 package primevc.js.events;
 
+import primevc.js.events.DOMSignal1;
 import js.Dom;
 
-/**
- * @author Stanislav Sopov
- * @since march 2, 2010
- */
-
-class FocusSignal extends DOMSignal1<Type>
+typedef FocusEvent = 
 {
-	override private function dispatch(event:Event) 
-	{
-		var focusEvent = new FocusEvent(event);
-		
-		send(focusEvent);
-	}
+	>DOMEvent,
+	public var relatedTarget	(default, null):Dynamic; // A secondary event target related to the event.
 }
 
-
-class FocusEvent
-{	
-	public var type			(default, null):String; // The type of event that occurred.
-	public var target 		(default, null):HtmlDom; // Returns the element that triggered the event
-	public var relatedObject(default, null):HtmlDom; // Returns the element related to the element that triggered the event
-	
-	public function new (event:Event)
+/**
+ * @author	Stanislav Sopov
+ * @since	March 2, 2011
+ */
+class FocusSignal extends DOMSignal1<FocusEvent>
+{
+	override private function dispatch(e:Event) 
 	{
-		type = event.type;
-		target = event.target;
-		
-		untyped 
-		{
-			relatedObject = event.relatedObject;
-		}
+		send(cast e);
 	}
 }
-

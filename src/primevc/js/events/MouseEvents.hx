@@ -19,6 +19,14 @@ class MouseEvents extends MouseSignals
 		super();
 		this.eventDispatcher = eventDispatcher;
 	}
+
+	
+	override public function dispose ()
+	{
+		super.dispose();
+		eventDispatcher = null;
+	}
+
 	
 	override private function createDown ()			{ down			= new MouseSignal(eventDispatcher, "mousedown",	1); }
 	override private function createUp ()			{ up			= new MouseSignal(eventDispatcher, "mouseup", 	1); }

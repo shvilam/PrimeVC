@@ -28,7 +28,6 @@
  */
 package primevc.gui.events;
 
-
 /**
  * @author Danny Wilson
  * @creation-date jun 14, 2010

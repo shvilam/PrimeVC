@@ -1,50 +1,34 @@
 package primevc.js.events;
+ import primevc.gui.events.KeyboardEvents;
+ import primevc.gui.events.UserEventTarget;
 
-import primevc.core.dispatcher.Signals;
-import js.Dom;
 
 /**	
  * @since march 2, 2011
  * @author Stanislav Sopov
+ * @author Ruben Weijers
  */
-
-class KeyboardEvents extends Signals
+class KeyboardEvents extends KeyboardSignals
 {
-	var eventDispatcher:HtmlDom;
+	private var eventDispatcher : UserEventTarget;
 	
-	public var keydown	(getKeydown,	null):KeyboardSignal;
-	public var keyup 	(getKeyup,		null):KeyboardSignal;
-	public var keypress (getKeypress,	null):KeyboardSignal;
-	
-	
-	public function new(eventDispatcher:HtmlDom)
+
+	public function new(eventDispatcher:UserEventTarget)
 	{
+		super();
 		this.eventDispatcher = eventDispatcher;
 	}
 	
-	
-	private inline function getKeydown()	{ if (keydown	== null) { createKeydown();	} return keydown; }
-	private inline function getKeyup()		{ if (keyup 	== null) { createKeyup();	} return keyup; }
-	private inline function getKeypress()	{ if (keypress 	== null) { createKeypress();} return keypress; }
-	
-	
-	private function createKeydown() 	{ keydown	= new KeyboardSignal(eventDispatcher, "keydown"); }
-	private function createKeyup()		{ keyup		= new KeyboardSignal(eventDispatcher, "keyup"); }
-	private function createKeypress()	{ keypress	= new KeyboardSignal(eventDispatcher, "keypress"); }
+
+	override private function createKeyDown() 	{ keyDown	= new KeyboardSignal(eventDispatcher, "keydown"); }
+	override private function createKeyUp()		{ keyUp		= new KeyboardSignal(eventDispatcher, "keyup"); }
+	override private function createKeyPress()	{ keyPress	= new KeyboardSignal(eventDispatcher, "keypress"); }
 	
 	
 	override public function dispose ()
 	{
+		super.dispose();
 		eventDispatcher = null;
-		
-/*		if ( (untyped this).keydown		!= null ) keydown.dispose();
-		if ( (untyped this).keyup		!= null ) keyup.dispose();
-		if ( (untyped this).keypress	!= null ) keypress.dispose();
-		
-		keydown = 
-		keyup = 
-		keypress = 
-		null;*/
 	}
 }
 
