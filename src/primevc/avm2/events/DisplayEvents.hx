@@ -28,8 +28,8 @@
  */
 package primevc.avm2.events;
  import flash.events.Event;
+ import primevc.gui.display.DisplayObject;
  import primevc.gui.events.DisplayEvents;
- import primevc.gui.events.UserEventTarget;
 
 
 /**
@@ -40,7 +40,7 @@ package primevc.avm2.events;
  */
 class DisplayEvents extends DisplaySignals
 {
-	public function new (target:UserEventTarget)
+	public function new (target:DisplayObject)
 	{
 		super();
 		addedToStage		= new FlashSignal0( target, Event.ADDED_TO_STAGE );
