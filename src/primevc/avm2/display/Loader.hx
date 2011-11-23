@@ -218,7 +218,7 @@ class Loader implements ICommunicator
 	//
 
 
-	public static var defaultContext = new LoaderContext(false, new ApplicationDomain());
+	public static var defaultContext = new LoaderContext(false, ApplicationDomain.currentDomain /*, flash.system.SecurityDomain.currentDomain */);
 	
 	public  var events			(default,			null)		: LoaderSignals;
 	
