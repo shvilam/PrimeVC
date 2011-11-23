@@ -24,43 +24,52 @@
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Danny Wilson    <danny @ onlinetouch.nl>
  */
-package primevc.utils;
-  using primevc.utils.NumberUtil;
-  using Std;
+package primevc.tools.valueobjects;
+ import primevc.core.collections.ListChange;
+ import primevc.utils.FastArray;
+  using primevc.utils.FastArray;
+  using primevc.utils.IfUtil;
 
 
 /**
- * Utility with methods to handle time formatting
- * 
- * @author Ruben Weijers
- * @creation-date Jan 13, 2011
+ * @author Danny Wilson
+ * @creation-date Dec 03, 2010
  */
-#if !js extern #end class DateUtil
+class ListChangeVO extends PropertyChangeVO
 {
-	public static inline function secondsToTime ( seconds:Int ) : String
-	{
-		var s	= seconds % 60;
-		var m	= ( seconds / 60 ).floorFloat();
-		return m.string() + ":" + ((s < 10) ? "0" + s : s.string());
-	}
-	
-	
-	/**
-	 * Method will make a string out of the given date object, formatted as:
-	 * 		YearMonthDayHoursMinutesSeconds
-	 */
-	public static inline function fullDateString (d:Date) : String
-	{
-		return '' + d.getFullYear() + d.getMonth() + d.getDay() + d.getHours() + d.getMinutes() + d.getSeconds();
-	}
-
-	/**
-	 * Identical as Date.fromTime
-	 */
-	public static inline function toDate (milliseconds:Float) : Date
-	{
-		return Date.fromTime(milliseconds);
-	}
+    public static inline function make(propertyID, changes : FastArray<ListChange<Dynamic>>)
+    {
+        var l = new ListChangeVO(); // Could come from freelist if profiling tells us to
+        l.propertyID = propertyID;
+        l.changes    = changes.clone();
+        return l;
+    }
+    
+    
+    public var changes : FastArray<ListChange<Dynamic>>;
+    private function new() {}
+    
+    
+    override public function dispose()
+    {
+        if (this.changes.notNull()) {
+            for (i in 0 ... this.changes.length) changes[i] = null;
+            this.changes = null;
+        }
+        super.dispose();
+    }
+    
+    
+#if debug
+    public function toString ()
+    {
+        var output = [];
+        for (change in changes)
+            output.push( change );
+        
+        return output.length > 0 ? "\n\t\t\t\t" + output.join("\n\t\t\t\t") : "no-changes";
+    }
+#end
 }

@@ -26,15 +26,13 @@
  * Authors:
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
-package primevc.utils;
+package primevc.tools.valueobjects;
  import primevc.core.collections.IEditableList;
  import primevc.core.collections.ListChange;
  import primevc.core.traits.IEditableValueObject;
  import primevc.core.traits.IValueObject;
- private typedef IBindable = primevc.core.IBindable<Dynamic>;
- import primevc.utils.TypeUtil;
- import primevc.tools.valueobjects.ValueObjectBase;
   using primevc.utils.TypeUtil;
+  using Reflect;
   using Std;
   using Type;
 
@@ -74,66 +72,83 @@ class ChangesUtil
 	
 	
 	
-	public static function undo (changes:ObjectChangeSet) : Void
+	public static function undo (changes:ChangeSet) : Void
 	{
-		trace("undo changes "+Date.fromTime(changes.timestamp) + ", " + changes);
-		var vo = changes.vo;
-		vo.beginEdit();
-		
-		var change:PropertyChangeVO = changes.next;
-		while( change != null )
+	//	trace("undo changes "+Date.fromTime(changes.timestamp) + ", " + changes);
+
+		if (changes.is(ObjectChangeSet))
 		{
-			var property = propertyIdToString( vo, change.propertyID );
-			Assert.notNull( property );
+			var vo = changes.as(ObjectChangeSet).vo;
+			vo.beginEdit();
 			
-			if (change.is( ListChangeVO ))	undoListChanges( cast change, vo, property);
-			else							undoPropertyChange( cast change, vo, property );
+			var change = changes.next;
+			while (change != null)
+			{
+				if (change.is(ListChangeVO))	undoListChanges( 	change.as(ListChangeVO), 			vo);
+				else							undoPropertyChange( change.as(PropertyValueChangeVO), 	vo);
+				
+				change = change.next;
+			}
 			
-			change = change.next;
+			vo.commitEdit();
 		}
-		
-		vo.commitEdit();
+
+		else if (changes.is(GroupChangeSet))
+		{
+			var change = changes.nextSet;
+			while (change != null) {
+				undo(change);
+				change = change.nextSet;
+			}
+		}
 	}
 	
 	
-	public static function redo (changes:ObjectChangeSet) : Void
+	public static function redo (changes:ChangeSet) : Void
 	{
-		trace("redo changes "+Date.fromTime(changes.timestamp) + ", " + changes);
-		var vo = changes.vo;
-		vo.beginEdit();
-		
-		var change:PropertyChangeVO = changes.next;
-		while( change != null )
+	//	trace("redo changes "+Date.fromTime(changes.timestamp) + ", " + changes);
+		if (changes.is(ObjectChangeSet))
 		{
-			var property = propertyIdToString( vo, change.propertyID );
-			Assert.notNull( property );
+			var vo = changes.as(ObjectChangeSet).vo;
+			vo.beginEdit();
 			
-			if (change.is( ListChangeVO ))	redoListChanges( change.as( ListChangeVO ), vo, property);
-			else							redoPropertyChange( change.as( PropertyValueChangeVO ), vo, property );
-			
-			change = change.next;
+			var change = changes.next;
+			while (change != null)
+			{
+				if (change.is(ListChangeVO))	redoListChanges( 	change.as(ListChangeVO), 			vo);
+				else							redoPropertyChange( change.as(PropertyValueChangeVO), 	vo);
+				
+				change = change.next;
+			}
+			vo.commitEdit();
 		}
-		vo.commitEdit();
+
+		else if (changes.is(GroupChangeSet))
+		{
+			var change = changes.nextSet;
+			while (change != null) {
+				redo(change);
+				change = change.nextSet;
+			}
+		}
 	}
 	
 	
 	
 	
-	private static inline function undoListChanges (changesVO:ListChangeVO, owner:ValueObjectBase, property:String) : Void
+	private static inline function undoListChanges (changesVO:ListChangeVO, owner:ValueObjectBase) : Void
 	{
-	//	trace("for "+property);
-		var list	= TypeUtil.as( getProperty( owner, property ), IEditableList);
-		var changes = changesVO.changes;
+		var list		= owner.getPropertyById( changesVO.propertyID ).as(IEditableList);
+		var changes 	= changesVO.changes;
 		
 		for (i in 0...changes.length)
 			undoListChange( list, cast changes[i] );
 	}
 	
 	
-	private static function redoListChanges (changesVO:ListChangeVO, owner:ValueObjectBase, property:String) : Void
+	private static function redoListChanges (changesVO:ListChangeVO, owner:ValueObjectBase) : Void
 	{
-	//	trace("for "+property);
-		var list	= TypeUtil.as( getProperty( owner, property ), IEditableList);
+		var list	= owner.getPropertyById( changesVO.propertyID ).as(IEditableList);
 		var changes = changesVO.changes;
 		
 		for (i in 0...changes.length)
@@ -143,48 +158,15 @@ class ChangesUtil
 	
 	
 	
-	private static function undoPropertyChange (change:PropertyValueChangeVO, owner:ValueObjectBase, property:String) : Void
+	private static function undoPropertyChange (change:PropertyValueChangeVO, owner:ValueObjectBase) : Void
 	{
-	//	trace("for "+property+": "+change.newValue+" => "+change.oldValue);
-		setProperty( owner, property, change.oldValue );
+		owner.setPropertyById(change.propertyID, change.oldValue);
 	}
 	
 	
-	private static function redoPropertyChange (change:PropertyValueChangeVO, owner:ValueObjectBase, property:String) : Void
+	private static function redoPropertyChange (change:PropertyValueChangeVO, owner:ValueObjectBase) : Void
 	{
-	//	trace("for "+property+": "+change.oldValue+" => "+change.newValue);
-		setProperty( owner, property, change.newValue );
-	}
-	
-	
-	
-	
-	private static inline function getProperty( owner:Dynamic, property:String ) : Dynamic
-	{
-		return Reflect.field( owner, property );
-	}
-	
-	
-	private static function setProperty( owner:Dynamic, property:String, value:Dynamic ) : Dynamic
-	{	
-		Assert.notNull( owner );
-		Assert.notNull( property );
-		var field:Dynamic = getProperty( owner, property );
-//		Assert.notNull( field, "owner: "+owner +", property: "+property );
-		
-//		trace("set "+owner+"."+property+" to "+value);
-		
-		if (TypeUtil.is( field, IBindable))
-			TypeUtil.as( field, IBindable).value = value;
-		else {
-			var setter : Dynamic -> Dynamic = Reflect.field(owner, "set" + property.substr(0,1).toUpperCase() + property.substr(1));
-			if (setter != null) {
-				trace("try setter: "+setter);
-				setter(value);
-			}
-			else
-				Reflect.setField( owner, property, value );
-		}
+		owner.setPropertyById(change.propertyID, change.newValue);
 	}
 	
 	
@@ -198,25 +180,10 @@ class ChangesUtil
 	 * @param propertyId 	id of property
 	 * @return property name
 	 */
-	public static function propertyIdToString (owner:ValueObjectBase, propertyId:Int) : String
+	public static inline function propertyIdToString (owner:ValueObjectBase, propertyId:Int) : String
 	{
-		var propFlags		= owner.getClass();
-		var property:String	= null;
-		var fields			= propFlags.getInstanceFields();
-		
-		for (propField in fields)
-		{
-			var val = Reflect.field( propFlags, propField.toUpperCase() );
-			
-		//	trace("searching for "+property+"( "+propertyId+" ) => "+propField+" ( " + val + " )");
-			if (val != null && propertyId == Std.parseInt( val ) )
-			{
-				property = propField;
-				break;
-			}
-		}
-		
-		return property;
+		var propFlags:Dynamic = owner.getClass();
+		return propFlags.hasField('propertyIdToString') ? propFlags.propertyIdToString(propertyId) : null;
 	}
 	
 	

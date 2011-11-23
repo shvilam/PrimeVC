@@ -121,21 +121,18 @@ typedef FastArray<T> =
 		
 		var len = list.length.int();
 #if debug
-		if ( newPos > len ) throw "Moving from " + curPos + " to position "+newPos+", but it is bigger then the list length ("+list.length+")..";
+		if (newPos > len)	throw "Moving from " + curPos + " to position "+newPos+", but it is bigger then the list length ("+len+")..";
+		if (curPos < 0)		throw "Item is not part of list so cannot be moved";
 #end
 		if (newPos > len)
 			newPos = len;
-
-		if (curPos < 0)				throw "Item is not part of list so cannot be moved";
 		
 		if (curPos != newPos)
 		{
 			if (curPos > newPos) {
 				var i = curPos;
-				while ( i > newPos ) {
-					list[i] = list[i - 1];
-					i--;
-				}
+				while ( i > newPos )
+					list[i] = list[--i];
 				
 				list[newPos] = item;
 			} else {
@@ -151,8 +148,8 @@ typedef FastArray<T> =
 	
 	static public inline function swap<T> (list:FastArray<T>, item1:T, item2:T ) : Void
 	{
-		if (!list.has(item1))		throw "item1 is not in list";
-		if (!list.has(item2))		throw "item2 is not in list";
+		if (!list.has(item1))		throw "item1 "+item1+" is not in list";
+		if (!list.has(item2))		throw "item2 "+item2+" is not in list";
 		
 		var item1Pos:Int = list.indexOf( item1 );
 		var item2Pos:Int = list.indexOf( item2 );
@@ -161,29 +158,31 @@ typedef FastArray<T> =
 	}
 	
 	
-	static public inline function removeItem<T> (list:FastArray<T>, item:T, oldPos:Int = -1) : Bool {
-		if (oldPos == -1)
-			oldPos = list.indexOf(item);
-		return removeAt(list, oldPos);
+	static public inline function removeItem<T> (list:FastArray<T>, item:T) : Bool {
+		return removeAt(list, list.indexOf(item));
 	}
 	
 	
 	static public inline function removeAt<T> (list:FastArray<T>, pos:Int) : Bool {
-		if (pos >= 0)
-		{
-			if		(pos == 0)						list.shift();
-			else if	(pos == (list.length - 1))		list.pop();
-			else									list.splice(pos, 1);
-		}
+		
+		if		(pos == 0)						list.shift();
+		else if	(pos == (list.length - 1))		list.pop();
+		else if (pos > 0)						list.splice(pos, 1);
 		return pos >= 0;
 	}
 	
 	
-	public static inline function removeAll<T> (list:FastArray<T>) : FastArray<T> {
-		var l = list.length;
+	public static inline function removeAll<T> (list:FastArray<T>) : FastArray<T>
+	{
+#if (php || cpp)
+		list.splice(0);
+#else
+		(untyped list).length = 0;
+#end
+		/*var l = list.length;
 		while (l-- > 0)
 			list.pop();
-		
+		*/
 		return list;
 	}
 	
@@ -198,9 +197,12 @@ typedef FastArray<T> =
 	}
 	
 	
-	static public inline function has<T>( list:FastArray<T>, item:T ) : Bool {
-		return list.indexOf( item ) >= 0;
-	}
+	static public inline function has<T>( list:FastArray<T>, item:T ) : Bool	{ return list.indexOf( item ) >= 0; }
+
+
+	static public inline function last<T> ( list:FastArray<T> ) : T 			{ return list.length == 0 ? null : list[list.length - 1]; }
+	static public inline function first<T> ( list:FastArray<T> ) : T 			{ return list.length == 0 ? null : list[0]; }
+
 
 #if flash10
 	/** Alias for arr.clone() */

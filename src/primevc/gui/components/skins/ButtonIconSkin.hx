@@ -64,7 +64,7 @@ class ButtonIconSkin extends Skin<Button>
 		iconGraphic.id.value	= owner.id.value + "Icon";
 #end
 	}
-
+	
 
 	override public  function removeChildren ()
 	{

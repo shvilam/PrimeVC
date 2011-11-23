@@ -29,6 +29,7 @@
  */
 package primevc.mvc;
  import primevc.core.traits.IValueObject;
+  using primevc.utils.BitUtil;
 
 
 /**
@@ -44,8 +45,8 @@ package primevc.mvc;
  */
 class Proxy<VOType:IValueObject, EventsTypedef> extends MVCNotifier
 {
-	public var vo		(default, null)	: VOType;
-	public var events	(default, null)	: EventsTypedef;
+	public var vo		(default, setVO)	: VOType;
+	public var events	(default, null)		: EventsTypedef;
 	
 	
 	public function new( events:EventsTypedef, enabled = true )
@@ -62,4 +63,25 @@ class Proxy<VOType:IValueObject, EventsTypedef> extends MVCNotifier
 		events	= null;
 		vo		= null;
 	}
+
+
+	private inline function setVO (v:VOType)
+	{
+		if (v != vo) {
+			vo 		= v;
+			state 	= v == null ? state.unset(MVCFlags.HAS_DATA) : state.set(MVCFlags.HAS_DATA);
+		}
+		return v;
+	}
+
+
+	public  inline function hasData ()		{ return  state  .has(MVCFlags.HAS_DATA); }
+
+	public  inline function isLoading ()	{ return  state  .has(MVCFlags.LOADING); }
+	private inline function setLoading ()	{ state = state  .set(MVCFlags.LOADING); }
+	private inline function unsetLoading ()	{ state = state.unset(MVCFlags.LOADING); }
+
+	public  inline function isSending ()	{ return state   .has(MVCFlags.SENDING); }
+	private inline function setSending ()	{ state = state  .set(MVCFlags.SENDING); }
+	private inline function unsetSending ()	{ state = state.unset(MVCFlags.SENDING); }
 }

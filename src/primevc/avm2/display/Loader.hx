@@ -218,7 +218,7 @@ class Loader implements ICommunicator
 	//
 
 
-	public static var defaultContext = new LoaderContext(false, new ApplicationDomain());
+	public static var defaultContext = new LoaderContext(false, ApplicationDomain.currentDomain /*, flash.system.SecurityDomain.currentDomain */);
 	
 	public  var events			(default,			null)		: LoaderSignals;
 	
@@ -385,7 +385,7 @@ class Loader implements ICommunicator
 			isFinished	= false;
 	}
 	
-	public inline function close () : Void
+	public function close () : Void
 	{
 		if (isStarted && !isLoaded()) {
 			try { loader.close(); } 
@@ -456,10 +456,7 @@ class Loader implements ICommunicator
 			isAnimated = false;
 		}
 		
-		
-		if (!isAnimated)
-			c.cacheAsBitmap	= true;
-		
+	//	loader.cacheAsBitmap = c.cacheAsBitmap = !isAnimated;
 		return content = c;
 		/*try {
 			if (loader.contentLoaderInfo.swfVersion < 9)

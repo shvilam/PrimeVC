@@ -24,43 +24,16 @@
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Danny Wilson    <danny @ onlinetouch.nl>
  */
-package primevc.utils;
-  using primevc.utils.NumberUtil;
-  using Std;
+package primevc.tools.valueobjects;
 
 
 /**
- * Utility with methods to handle time formatting
- * 
- * @author Ruben Weijers
- * @creation-date Jan 13, 2011
+ * @author Danny Wilson
+ * @creation-date Dec 03, 2010
  */
-#if !js extern #end class DateUtil
+class PropertyChangeVO extends ChangeVO
 {
-	public static inline function secondsToTime ( seconds:Int ) : String
-	{
-		var s	= seconds % 60;
-		var m	= ( seconds / 60 ).floorFloat();
-		return m.string() + ":" + ((s < 10) ? "0" + s : s.string());
-	}
-	
-	
-	/**
-	 * Method will make a string out of the given date object, formatted as:
-	 * 		YearMonthDayHoursMinutesSeconds
-	 */
-	public static inline function fullDateString (d:Date) : String
-	{
-		return '' + d.getFullYear() + d.getMonth() + d.getDay() + d.getHours() + d.getMinutes() + d.getSeconds();
-	}
-
-	/**
-	 * Identical as Date.fromTime
-	 */
-	public static inline function toDate (milliseconds:Float) : Date
-	{
-		return Date.fromTime(milliseconds);
-	}
+    public var propertyID   (default, null) : Int;
 }

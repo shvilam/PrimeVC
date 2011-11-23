@@ -49,7 +49,12 @@ class UIElementActions
 	
 	public static inline function doShow (target:IUIElement)
 	{
-		if (target.effects == null || target.effects.show == null)
+		// Check if the show-effect is defined and should be played.
+		//
+		// Don't check for target.window.. if the container is added to the stage later and
+		// a hide-effect has hidden the target, making it visible isn't enough, also the result 
+		// of the hide-effect should be reversed (alpha = 0, scrollrect position negative etc.).
+		if (target.container == null || target.effects == null || target.effects.show == null)
 			target.visible = true;
 		else
 			target.effects.playShow();
@@ -58,7 +63,7 @@ class UIElementActions
 	
 	public static inline function doHide (target:IUIElement)
 	{
-		if (target.effects == null || target.effects.hide == null)
+		if (target.window == null || target.effects == null || target.effects.hide == null)
 			target.visible = false;
 		else
 			target.effects.playHide();
@@ -74,7 +79,7 @@ class UIElementActions
 	
 	public static inline function doRotate (target:IUIElement, v:Float)
 	{
-		if (target.effects == null || target.effects.rotate == null)
+		if (target.window == null || target.effects == null || target.effects.rotate == null)
 			target.rotation = v;
 		else
 			target.effects.playRotate(v);
@@ -90,7 +95,7 @@ class UIElementActions
 	
 	public static inline function doScale (target:IUIElement, newScaleX:Float, newScaleY:Float)
 	{
-		if (target.effects == null || target.effects.scale == null) {
+		if (target.window == null || target.effects == null || target.effects.scale == null) {
 			target.scaleX = newScaleX;
 			target.scaleY = newScaleY;
 		} else {

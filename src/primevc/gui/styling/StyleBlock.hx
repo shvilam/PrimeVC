@@ -1005,7 +1005,7 @@ class StyleBlock extends StyleBlockBase
 			_idChildren.cleanUp();
 			if (_idChildren.isEmpty()) {
 				_idChildren.dispose();
-				_idChildren = null;
+				idChildren = null;
 				Assert.that( doesntOwn( Flags.ID_CHILDREN ) );
 			}
 		}
@@ -1015,7 +1015,7 @@ class StyleBlock extends StyleBlockBase
 			_styleNameChildren.cleanUp();
 			if (_styleNameChildren.isEmpty()) {
 				_styleNameChildren.dispose();
-				_styleNameChildren = null;
+				styleNameChildren = null;
 				Assert.that( doesntOwn( Flags.STYLE_NAME_CHILDREN ) );
 			}
 		}
@@ -1025,7 +1025,7 @@ class StyleBlock extends StyleBlockBase
 			_elementChildren.cleanUp();
 			if (_elementChildren.isEmpty()) {
 				_elementChildren.dispose();
-				_elementChildren = null;
+				elementChildren = null;
 				Assert.that( doesntOwn( Flags.ELEMENT_CHILDREN ) );
 			}
 		}

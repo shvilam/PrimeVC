@@ -284,7 +284,6 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
     
     private function changeSelectedItem (event:KeyboardState)
 	{
-       trace(event.target);
 		var index	= focusIndex;
 		if (index == -1)
 		    index   = depthToIndex(0);

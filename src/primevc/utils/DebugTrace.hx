@@ -53,7 +53,7 @@ class DebugTrace
 		#if Monster2Trace
 			nl.demonsters.debugger.MonsterDebugger.trace(name +':' + infos.lineNumber +'\t -> ' + infos.methodName, v, color);
 		#elseif Monster3Trace
-			com.demonsters.debugger.MonsterDebugger.trace(name, v, Std.string(infos.lineNumber), infos.methodName, color, 4);
+			com.demonsters.debugger.MonsterDebugger.trace(name, v, Std.string(infos.lineNumber), infos.methodName, color, 7);
 		#end
 		}
 		

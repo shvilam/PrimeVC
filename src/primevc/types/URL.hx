@@ -20,47 +20,34 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.s
+ * DAMAGE.
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Danny Wilson    <danny @ onlinetouch.nl>
+ *  Ruben Weijers   <ruben @ rubenw.nl>
  */
-package primevc.utils;
-  using primevc.utils.NumberUtil;
-  using Std;
+
+package primevc.types;
+  using primevc.types.URI;
+  using primevc.utils.IfUtil;
 
 
 /**
- * Utility with methods to handle time formatting
- * 
+ * URL will force the parsed value to always be an URL (URI can also be a pad or ...)
  * @author Ruben Weijers
- * @creation-date Jan 13, 2011
+ * @since  sep 8, 2011
  */
-#if !js extern #end class DateUtil
+class URL extends URI
 {
-	public static inline function secondsToTime ( seconds:Int ) : String
-	{
-		var s	= seconds % 60;
-		var m	= ( seconds / 60 ).floorFloat();
-		return m.string() + ":" + ((s < 10) ? "0" + s : s.string());
-	}
-	
-	
-	/**
-	 * Method will make a string out of the given date object, formatted as:
-	 * 		YearMonthDayHoursMinutesSeconds
-	 */
-	public static inline function fullDateString (d:Date) : String
-	{
-		return '' + d.getFullYear() + d.getMonth() + d.getDay() + d.getHours() + d.getMinutes() + d.getSeconds();
-	}
+    override public function parse(str:String) : URI
+    {
+        if (str.isNull()) return this;
 
-	/**
-	 * Identical as Date.fromTime
-	 */
-	public static inline function toDate (milliseconds:Float) : Date
-	{
-		return Date.fromTime(milliseconds);
-	}
+        // scheme is required for URL
+        if (!str.hasScheme())
+            str = "http://" + str;
+
+        return super.parse(str);
+    }
 }

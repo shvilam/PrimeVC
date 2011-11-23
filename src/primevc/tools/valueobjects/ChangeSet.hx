@@ -24,43 +24,31 @@
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Danny Wilson    <danny @ onlinetouch.nl>
  */
-package primevc.utils;
-  using primevc.utils.NumberUtil;
-  using Std;
+package primevc.tools.valueobjects;
+ import primevc.core.collections.IRevertableList;
+  using primevc.tools.valueobjects.ChangesUtil;
+  using primevc.utils.IfUtil;
 
 
 /**
- * Utility with methods to handle time formatting
+ * Represents a group of changes applied on different value-objects.
+ * The grouped changes can be undone/redone at once.
  * 
  * @author Ruben Weijers
- * @creation-date Jan 13, 2011
+ * @creation-date Jul 27, 2011
  */
-#if !js extern #end class DateUtil
+class ChangeSet extends ChangeVO
 {
-	public static inline function secondsToTime ( seconds:Int ) : String
-	{
-		var s	= seconds % 60;
-		var m	= ( seconds / 60 ).floorFloat();
-		return m.string() + ":" + ((s < 10) ? "0" + s : s.string());
-	}
-	
-	
-	/**
-	 * Method will make a string out of the given date object, formatted as:
-	 * 		YearMonthDayHoursMinutesSeconds
-	 */
-	public static inline function fullDateString (d:Date) : String
-	{
-		return '' + d.getFullYear() + d.getMonth() + d.getDay() + d.getHours() + d.getMinutes() + d.getSeconds();
-	}
-
-	/**
-	 * Identical as Date.fromTime
-	 */
-	public static inline function toDate (milliseconds:Float) : Date
-	{
-		return Date.fromTime(milliseconds);
-	}
+    public var timestamp    (default, null) : Float;      // in ms (time in ms won't fit in 32-bit integer)
+    /**
+     * Reference to the next change set. Used for grouping change-sets in a GroupChangeSet
+     */
+    public var nextSet      (default, null) : ChangeSet;
+    
+    private function new()
+    {
+        timestamp = primevc.utils.TimerUtil.stamp();
+    }
 }
