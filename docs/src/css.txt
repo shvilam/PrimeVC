@@ -1,0 +1,338 @@
+= CSS =
+Ruben Weijers <ruben@rubenw.nl>
+:toc:
+
+== Introduction
+
+
+
+== Units
+
+More info about these units can be fount at http://www.w3.org/TR/css3-values/[w3c]
+
+:tabletags-red.bodydata: <td style="background-color:red;">|</td> 
+:tabletags-green.bodydata: <td style="background-color:green;">|</td> 
+:tabledef-default.red-style: tags="red" 
+:tabledef-default.green-style: tags="green" 
+|==================================
+|Normal cell      r|sdf s
+|Normal cell      r|sdf s
+|Normal cell      r|sdf s
+|================================== 
+
+
+=== Font
+[options="header", cols="1m,2,4,1,1"]
+|=====
+|Unit|Full name|Relative to|Flash|HTML
+|ex|x-height|x-height of element's font||
+|em||font-size of element||
+|px|Pixels|||
+|in||||
+|cm||||
+|mm||||
+|pt||||
+|pc / %|||
+|=====
+
+=== Distance
+
+=== Other
+
+=== Box
+[int]px \| <top-bottom> <left-right> \| <top> <left-right> <bottom> \| <top> <right> <bottom> <left>
+
+
+== Data formats
+
+=== Color
+#fff, 0xfff, #fffddd, 0xfff000, #ffddeeaa, 0xffddeeaa, rgba(255,255,255,0.9)
+
+gradient:
+( ([color] [0-255]) ([color] <pos [0-255]>).. )
+
+=== Resources
+
+url( www.rubenw.nl/img.jpg ), class( package.of.Asset )
+
+=== Effects
+< effect( <duration>ms/s, <ease>, <delay>ms, reverted	) | other-transition, ... > 
+<name> <type> effect( <duration>ms/s, <ease>, <delay>ms, reverted	) 
+
+=== Bool
+
+
+== Supported properties
+
+=== Text properties
+[cols="header,5m,default", width="100%"]
+|=====
+|font							| <font-style>? <font-weight>? <font-size>? <font-family>?	| w3c-ref
+|font-size						| inherit \| [float][unit]									| w3c-ref
+|font-family					| inherit \| string											| w3c-ref
+|color							| inherit \| [color]										| w3c-ref
+|font-weight					| normal \| bold \| bolder \| lighter						| w3c-ref
+|font-style						| inherit \| normal \| italic \| oblique					| w3c-ref
+|letter-spacing					| inherit \| normal \| [float][unit]						| w3c-ref
+|text-align						| inherit \| left \| center \| right \| justify				| w3c-ref
+|text-decoration				| inherit \| none \| underline								| w3c-ref
+|text-indent					| 															| w3c-ref
+|text-transform					| inherit \| none \| capitalize \| uppercase \| lowercase	| w3c-ref
+|=====
+
+
+=== Textfield Properties
+[cols="header,5m,default", width="100%"]
+|=====
+|overflow-wrap					| normal \| break-word \| hyphenate							| w3c-ref
+|column-count					| [int]														| w3c-ref
+|column-gap						| [int]														| w3c-ref
+|column-width					| [int]														| w3c-ref
+|=====
+
+
+=== Background properties
+[cols="header,5m,default", width="100%"]
+|=====
+|background						| <background-color>? <background-image>?					| w3c-ref
+|background-color				| [color]													| w3c-ref
+|background-image				| [resource] \| <background-repeat>							| w3c-ref
+|shape							| 															|
+|=====
+
+
+=== Border properties
+[cols="header,5m,default", width="100%"]
+|=====
+|border							| <border-color>? <border-width>? <border-image>? <border-style>?	| w3c-ref
+|border-radius					| <top-left> <top-right>? <bottom-right>? <bottom-left>?			| w3c-ref
+|border-top-left-radius			| [float][unit]														| w3c-ref
+|border-top-right-radius	 	| [float][unit]														| w3c-ref
+|border-bottom-left-radius		| [float][unit]														| w3c-ref
+|border-bottom-right-radius		| [float][unit]														| w3c-ref
+|=====
+
+
+=== Component Properties
+[cols="header,5m,default", width="100%"]
+|=====
+|skin							| [class]																				| 
+|visibility						| visible \| hidden																		| w3c-ref
+|opacity						| [float]%																				| w3c-ref
+|overflow						| visible \| hidden \| scroll-mouse-move \| drag-scroll \| corner-scroll \| scrollbars	| 
+|=====
+
+
+=== Icons
+[cols="header,5m,default", width="100%"]
+|=====
+|icon						 	| [resource] 				|
+|icon-fill					 	| [color]					| 
+|=====
+
+
+=== Layout
+
+.Size
+[cols="header,5m,default", width="100%"]
+|=====
+|width						| [int]px \| [float]% 			| w3c-ref
+|height						| [int]px \| [float]% 			| w3c-ref
+|min-width					| [int]px \| [float]% 			| w3c-ref
+|min-height					| [int]px \| [float]% 			| w3c-ref
+|max-width					| [int]px \| [float]% 			| w3c-ref
+|max-height					| [int]px \| [float]% 			| w3c-ref
+|child-width				| [int]px \| [float]% 			| 
+|child-height				| [int]px \| [float]% 			| 
+|=====
+
+.Position
+[cols="header,5m,default", width="100%"]
+|=====
+|relative|					| [box]							| w3c-ref
+|left|						| [int]px						| w3c-ref
+|right|						| [int]px						| w3c-ref
+|top|						| [int]px						| w3c-ref
+|bottom|					| [int]px						| w3c-ref
+|h-center|					| [int]px						| w3c-ref
+|v-center|					| [int]px						| w3c-ref
+|position|					| relative \| absolute			| w3c-ref
+|algorithm|					| [layout-algorithm]			| w3c-ref
+|=====
+
+.Padding
+[cols="header,5m,default", width="100%"]
+|=====
+|padding|					| [box]							| w3c-ref
+|padding-top|				| [int]px						| w3c-ref
+|padding-bottom|			| [int]px						| w3c-ref
+|padding-right|				| [int]px						| w3c-ref
+|padding-left|				| [int]px						| w3c-ref
+|=====
+
+.Margin
+[cols="header,5m,default", width="100%"]
+|=====
+|margin|					| [box]							| w3c-ref
+|margin-top|				| [int]px						| w3c-ref
+|margin-bottom|				| [int]px						| w3c-ref
+|margin-right|				| [int]px						| w3c-ref
+|margin-left|				| [int]px						| w3c-ref
+|====
+
+
+=== Transitions
+[cols="header,5m,default", width="100%"]
+|=====
+|move-transition			| [effect]						| 
+|resize-transition			| [effect]						| 
+|rotate-transition			| [effect]						| 
+|scale-transition			| [effect]						| 
+|show-transition			| [effect]						| 
+|hide-transition			| [effect]						| 
+|=====
+
+
+=== Filters
+[cols="header,5m,default", width="100%"]
+|=====
+|box-bevel					| <distance>? <blurX>? <blurY>? <strength>? <rotation>? <shadow [color]>? <highlight [color]>? <inner\|outer\|full>? | <knockout>? | <quality>?
+|box-shadow					| <distance>? <blurX>? <blurY>? <strength>? <rotation>? [color]? <inner>? hide-object? | knockout? | <quality>?
+|box-blur					| <blurX>? <blurY>? <quality>?
+|box-glow					| <blurX>? <blurY>? <strength>? [color]? | <inner>? | <knockout>? | <quality>?
+|box-gradient-bevel			| <distance>? <blurX>? <blurY>? <strength>? <rotation>? [gradient] <inner>? <knockout>? <quality>?
+|box-gradient-glow			| <distance>? <blurX>? <blurY>? <strength>? <rotation>? [gradient] <inner>? <knockout>? <quality>?
+|background-bevel			| see box-bevel | 
+|background-blur			| see box-blur | 
+|background-shadow			| see box-shadow | 
+|background-glow			| see box-glow | 
+|background-gradient-bevel	| see box-gradient-bevel | 
+|background-gradient-glow	| see box-gradient-glow | 
+|=====
+
+.Filter variables
+[cols="header,5,m"]
+|=====
+|distance 	| distance from target 	| [int]px
+|blurX		| 						| [int]px
+|blurY		| 						| [int]px
+|strength	| 				| 0-255
+|rotation	| 				| [float]deg
+|knockout	| 				| knockout
+|inner		| 				| inner
+|quality	| 				| low \| medium \| high
+|=====
+
+
+
+== Unsupported Properties
+
+=== Text properties
+[cols="header,5m,default", width="100%"]
+|=====
+|font-variant			| inherit \| normal \| small-caps 			| w3c-ref
+|text-shadow			| 											| w3c-ref
+|line-height			| 											| w3c-ref
+|word-spacing			| 											| w3c-ref
+|vertical-align			| 											| w3c-ref
+|white-space 			|											| w3c-ref
+|resize					| horizontal \| vertical \| both \| none 	| w3c-ref
+|clip					| auto \| [box] 							| w3c-ref
+|text-wrap				| normal \| none \| avoid 					| w3c-ref
+|=====
+
+
+=== Border properties
+[cols="header,5m,default", width="100%"]
+|=====
+|border-color				| [color]								| w3c-ref
+|border-image				| [resource] //FIXME?					| w3c-ref
+|border-image-source		| [resource] //FIXME?					| w3c-ref
+|border-style				| none \| solid \| dashed \| dotted 	| w3c-ref
+|border-width				| [int][unit]							| w3c-ref
+|border-top					| <border> 								| w3c-ref
+|border-bottom				| <border>								| w3c-ref
+|border-left				| <border>								| w3c-ref
+|border-right				| <border>								| w3c-ref
+|border-image-slice			| 										| w3c-ref
+|border-image-width			| 										| w3c-ref
+|border-image-outset		| 										| w3c-ref
+|border-image-repeat		| 										| w3c-ref
+|corner-shaping				| 										| w3c-ref
+|corner-clipping			| 										| w3c-ref
+|outline					| 										| w3c-ref
+|outline-style				| 										| w3c-ref
+|outline-color				| 										| w3c-ref
+|outline-width				| 										| w3c-ref
+|=====
+
+
+=== List properites
+[cols="header,5m,default", width="100%"]
+|=====
+|list-style					| |
+|list-style-image 			| |
+|list-style-position 		| |
+|list-style-type 			| |
+|=====
+
+
+=== Background
+[cols="header,5m,default", width="100%"]
+|=====
+|background-clip		| border-box \| padding-box \| content-box 								| w3c-ref
+|background-origin		| border-box \| padding-box \| content-box 								| w3c-ref
+|background-attachment	| scroll \| fixed \| local 												| w3c-ref
+|background-position 	| 																		| w3c-ref
+|background-size		| <length> \| <percentage> \| auto \| {1,2}cover \| contain 			| w3c-ref
+|background-repeat		| repeat-all \|  no-repeat 												| w3c-ref
+|=====
+
+
+=== Animations
+[cols="header,5m,default", width="100%"]
+|=====
+|animation					| <name>? type? effect( <duration>, <ease>, <delay>, reverted ) 	| w3c-ref
+|animation-delay 			| [int][unit] 														| w3c-ref
+|animation-direction 		| ?? 																| w3c-ref
+|animation-duration 		| [int][unit] 														| w3c-ref
+|animation-name 			| [string]															| w3c-ref
+|animation-timing-function 	| ?? 																| w3c-ref
+|transition					| <transition-type*> <animation> ?? 								| w3c-ref
+|=====
+
+~Transition-types: move, resize, rotate, scale, show, hide~
+
+
+=== Transitions
+[cols="header,5m,default", width="100%"]
+|=====
+|transition-property 		|  | 
+|transition-duration 		|  | 
+|transition-timing-function	|  | 
+|transition-delay 			|  | 
+|animation-iteration-count	|  | 
+|animation-play-state 		|  | 
+|=====
+
+
+=== Layout
+[cols="header,5m,default", width="100%"]
+|=====
+|box-sizing					| content-box \| border-box 	| w3c-ref
+|z-index					|  								| w3c-ref
+|float						|  								| w3c-ref
+|clear						|  								| w3c-ref
+|display					|  								| w3c-ref
+|transform					| scale(0.1 - 2) \| rotate([int][unit]) \| translate( [int][unit], [int][unit] ) \| skew( [int][unit], [int][unit] ) 	| w3c-ref
+|rotation 					|  								| w3c-ref
+|rotation-point 			|  								| w3c-ref
+|=====
+
+
+=== Other
+[cols="header,5m,default", width="100%"]
+|=====
+|cursor 					| auto \| move \| help \| pointer \| wait \| text \| n-resize \| ne-resize \| e-resize \| se-resize \| s-resize \| sw-resize \| w-resize \| nw-resize \| url(..) | 
+|=====
+
