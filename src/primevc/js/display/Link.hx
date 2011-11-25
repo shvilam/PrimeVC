@@ -1,40 +1,38 @@
 package primevc.js.display;
-
-import js.Dom;
-import js.Lib;
-import primevc.js.events.TouchEvents;
-import primevc.js.events.TouchSignal;
-
+ import js.Dom;
+ import js.Lib;
+ import nl.onlinetouch.viewer.events.BookletEvents;
+ import nl.onlinetouch.vo.publication.ISpreadVO;
+ 
 /**
  * @since	June 15, 2011
  * @author	Stanislav Sopov 
  */
 class Link extends DOMElem
 {	
+    public var bookletEvents    (default, null):BookletEvents;
 	public var href				(default, setHref):String;
-	public var action			(default, setAction):Void -> Void;
-	public var touches			(default, null):TouchEvents;
-	
+    public var spread           (default, setSpread):ISpreadVO;
+    
 	public function new() {
 		super("a");
-		
-		touches = new TouchEvents(elem);
+        bookletEvents = new BookletEvents();
 	}
 	
-	private function setAction(v:Void -> Void):Void -> Void {
-		action = v;
-		touches.end.bind(this, applyAction);
-		return action;
+	private function setSpread(v:ISpreadVO):ISpreadVO {
+		spread = v; 
+        untyped elem.addEventListener("click", gotoSpread, false);
+		return v;
 	}
 	
 	private function setHref(v:String):String {
 		href = v;
 		elem.href = href;
 		elem.target = "_blank";
-		return href;
+		return v;
 	}
 	
-	private function applyAction(e:TouchEvent) {
-		action();
+	private function gotoSpread(e:Event) {
+		bookletEvents.gotoSpread.send(spread.num);    
 	}
 }
