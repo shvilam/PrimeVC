@@ -185,7 +185,7 @@ class CSSParser
 	public static inline var R_DOMAIN_LABEL			: String = "[a-z]([a-z0-9-]*[a-z0-9])?";
 	public static inline var R_CLASS_EXPR			: String = "(" + R_DOMAIN_LABEL + ")([.]" + R_DOMAIN_LABEL + ")*";
 	
-	public static inline var R_CUSTOM_SHAPE_EXPR	: String = "custom" + R_SPACE + "[(]" + R_SPACE + "(" + R_CLASS_EXPR + ")"+R_SPACE+"[)]";
+	public static inline var R_CUSTOM_SHAPE_EXPR	: String = "class" + R_SPACE + "[(]" + R_SPACE + "(" + R_CLASS_EXPR + ")"+R_SPACE+"[)]";
 	
 	public static inline var R_ROTATION				: String = R_FLOAT_VALUE + "deg";
 	public static inline var R_WORDWRAP				: String = "off|normal|break-word";

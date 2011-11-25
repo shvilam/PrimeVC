@@ -616,12 +616,25 @@ h2 { border-bottom: 2px solid gray; }
 
 #toc {
   position: fixed;
-  margin-left: -400px;
-
+  top: 10px;
+  margin-left: -350px;
+  max-height: 95%;
+  width: 200px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 10px 40px 10px 10px;
 }
+#toctitle {
+  margin:0;
+}
+
 
 img {max-width: 100%;}
 pre {
-  overflow-x: scroll;
+  overflow-x: auto;
   font-size: 14px;
+}
+
+td .monospaced {
+  font-size: .7em;
 }

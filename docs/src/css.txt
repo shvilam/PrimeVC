@@ -2,213 +2,558 @@
 Ruben Weijers <ruben@rubenw.nl>
 :toc:
 
+//////////////////////////////////////////
+Table-cell colors.
+Can be applied by putting the first letter of the color before the '|' of the cell
+Example:
+
+|=====
+|test r| bla|
+|=====
+
+The cell of bla will become red.
+//////////////////////////////////////////
+
+:tabletags-red.bodydata: <td style="background-color:tomato;border:1px solid #E8E8E8;">|</td> 
+:tabletags-green.bodydata: <td style="background-color:yellowgreen;border:1px solid #E8E8E8;">|</td> 
+:tabletags-yellow.bodydata: <td style="background-color:yellow;border:1px solid #E8E8E8;">|</td> 
+:tabletags-pre.bodydata: <td><p style="white-space: pre;" class="monospaced">|</p></td> 
+:tabledef-default.green-style: tags="green" 
+:tabledef-default.yellow-style: tags="yellow" 
+:tabledef-default.red-style: tags="red" 
+:tabledef-default.pre-style: tags="pre" 
+
+
+
 == Introduction
+
+=== Roadmap
+There are still quite a lot of features awaiting to be implemented in the CSS-Parser. See the link:todo.html#_css_parser[TODO-list] for an overview of things to come.
+
+=== About this document
+.Properties
+The proeprties listed in this document also display if the properties are supported for flash and html.
+
+- The properties that are supported by flash are already implemented in the CSS-Parser and the PrimeVC-components
+- The properties that are *not* supported by flash are still waiting for an primevc-implementation
+- The properties that are supported by HTML are equal to the properties specified by W3C-CSS3
+- The properties that are *not supported by HTML are implemented for PrimeVC and are still waiting for a correct implementation in HTML/CSS
+
+
+.Property-values
+This document explains what properties there are and what there allowed values are.
+The values should be read as:
+
+- values between `[]` are references to units or data-formats (explained at the top)
+- values between `<>` are references to other properties. Check those properties for the correct syntax
+- values between `{}` are grouped together for explaining the syntax. They are only used for documentation purposes.
+- `?` after a value means the value is optional
+- `|` between two values means you can choose between the two values (but not both)
+- `&` between two values means you can choose between the two values or use both of them
+- `{1,9}` after a value means the value can be repeated 1 - 9 times
+
+
+TIP: The parser will ignore extra white-space so it's safe to use multiple `spaces` or `tabs`
+TIP: The parser is case-insensitive
+
 
 
 
 == Units
-
 More info about these units can be fount at http://www.w3.org/TR/css3-values/[w3c]
-
-:tabletags-red.bodydata: <td style="background-color:red;">|</td> 
-:tabletags-green.bodydata: <td style="background-color:green;">|</td> 
-:tabledef-default.red-style: tags="red" 
-:tabledef-default.green-style: tags="green" 
-|==================================
-|Normal cell      r|sdf s
-|Normal cell      r|sdf s
-|Normal cell      r|sdf s
-|================================== 
 
 
 === Font
-[options="header", cols="1m,2,4,1,1"]
+[options="header", cols="1m,2,3,1,1"]
 |=====
-|Unit|Full name|Relative to|Flash|HTML
-|ex|x-height|x-height of element's font||
-|em||font-size of element||
-|px|Pixels|||
-|in||||
-|cm||||
-|mm||||
-|pt||||
-|pc / %|||
+|Unit 	| Full name 	| Relative to 					|Flash 	|HTML
+|ex 	| x-height 		| x-height of element's font 	r| 		g|
+|em 	| 				| font-size of parent 			r| 		g|
+|px 	| Pixels 		| Absolute value 				g| 		g|
+|in 	| 				| 								r| 		g| 
+|cm 	| 				| 								r| 		g| 
+|mm 	| 				| 								r| 		g| 
+|pt 	| 				| 								r| 		g| 
+|pc 	| Picas 		| font-size of parent 			r| 		g|
+|% 		| Percentage 	| font-size of parent 			g| 		g|
 |=====
+
+Support for other units then `%` and `px` is not yet implemented for flash. The css-parser will use `px` for all unit's that flash doesn't know.
+
 
 === Distance
+[options="header", cols="1m,2,1,1"]
+|=====
+|Unit 	|Full name 									|Flash	|HTML
+|cm 	| centimeters 								r| 		g| 
+|mm 	| millimeters 								r| 		g| 
+|in 	| inches; 1in is equal to 2.54cm 			r| 		g| 
+|px 	| pixels; 1px is equal to 1/96th of 1in 	g| 		g| 
+|pt 	| points; 1pt is equal to 1/72nd of 1in 	r| 		g| 
+|pc 	| picas; 1pc is equal to 12pt 				r| 		g| 
+|% 		| Percentage of parent 						g| 		g|
+|=====
+~* Explanations shamelessly copied from http://www.w3.org/TR/css3-values/#absolute-lengths[w3c]~
 
-=== Other
+Support for other units then `%` and `px` is not yet implemented for flash. The css-parser will use `px` for all unit's that flash doesn't know.
+
+
+=== Angles
+[options="header", cols="1m,2,1,1"]
+|=====
+|Unit 	|Full name 				|Flash	|HTML
+|deg 	| degrees (`0-360`)		g| 		g| 
+|rad 	| radians (`0-2π`)		r| 		g| 
+|grad 	| gradians (`0-400`)	r| 		g| 
+|turn 	| turns (`0-1`)			r| 		g| 
+|=====
+
+
+=== Times
+[options="header", cols="1m,2,1,1"]
+|=====
+|Unit 	|Full name 			|Flash	|HTML
+|s 		| seconds 			g| 		g| 
+|ms 	| milliseconds 		r| 		g| 
+|=====
+
 
 === Box
-[int]px \| <top-bottom> <left-right> \| <top> <left-right> <bottom> \| <top> <right> <bottom> <left>
+A box allows 1-4 values in the format of `[int][unit]{1,4}` to specify the top, right, bottom and left value.
+
+- If *one* value is provided, this value is applied to all 4 sides of the box
++
+`[int][unit]`
+
+- If *two* values are provided: 1st = top-bottom, 2th = right-left
++
+`[int][unit]` `[int][unit]`
+
+- If *three* values are provided: 1st = top, 2th = right-left, 3th = bottom
++
+`[int][unit]` `[int][unit]` `[int][unit]`
+
+- If *four* values are provided: 1st = top, 2th = right, 3th = bottom, 4th = left
++
+`[int][unit]` `[int][unit]` `[int][unit]` `[int][unit]`
 
 
 == Data formats
+Data-types in this document:
+[cols="1m,2"]
+|=====
+|Int8 	| 8-bit positive integer (`0-255` / `0x00 - 0xFF`)
+|Int16 	| 16-bit positive integer (`0x0000 - 0xFFFF`)
+|Int24 	| 24-bit positive integer (`0x000000 - 0xFFFFFF`)
+|Int 	| 32-bit positive integer (`0x00000000 - 0xFFFFFFFF`)
+|Float 	| 64-bit floating point number
+|bool 	| `true` or `false`
+|perc 	| percentage (`[float 0-100]%`)
+|angle 	| rotation in degrees (`[float]deg`)
+|=====
 
-=== Color
-#fff, 0xfff, #fffddd, 0xfff000, #ffddeeaa, 0xffddeeaa, rgba(255,255,255,0.9)
 
-gradient:
-( ([color] [0-255]) ([color] <pos [0-255]>).. )
+=== Colors
+Prime works with RGBA colors. There are multiple ways to express these color values in css:
+
+[options="header", cols="m,m,m"]
+|=====
+|Value 						| Result 	| RGBA value
+|#a0d						| #aa00ddff	| rgba( 170,   0, 221, 1.0 )
+|0xa0d						| #aa00ddff	| rgba( 170,   0, 221, 1.0 )
+|#fffaaa					| #fffaaaff	| rgba( 255, 250, 170, 1.0 )
+|0xfffaaa					| #fffaaaff	| rgba( 255, 250, 170, 1.0 )
+|#ffddeeaa					| #ffddeeaa	| rgba( 255, 221, 238, .67 )
+|0xffddeeaa					| #ffddeeaa	| rgba( 255, 221, 238, .67 )
+|rgba(255,50,100,0.9)		| #ff3264e6	| rgba( 255,  50, 100, .90 )
+|=====
+
+*Colornames*, *hsl-values*, *cmyk-values* and *system-colors* are not supported yet. See http://www.w3.org/TR/css3-color/[w3c-colornames]
+
+
+=== Gradients
+There are two types of gradients supported, `radial` and `linear`.
+
+- `Radial` gradients are smooth transitions between the specified colors in a *circular* way
+- `Linear` gradients are smooth transitions between the specified colors in a *linear* way
+
+[cols="header, 3m"]
+|=====
+|Gradient-colors 	| ([color] <pos [float][unit]>?){1,*}
+|Linear-gradient 	| linear-gradient( <rotation [int 360]>[unit] <gradient-colors> <spread-method> )
+|Radial-gradient 	| radial-gradient( <radial-point [float -1-1]> <gradient-colors> <spread-method> )
+|=====
+
+.Spread-methods
+[options="header"]
+|=====
+|Pad 	|Reflect 	|Repeat
+|image:../assets/spread_method_pad.jpg[]
+|image:../assets/spread_method_reflect.jpg[]
+|image:../assets/spread_method_repeat.jpg[]
+|=====
+~images-source: http://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/flash/display/SpreadMethod.html[Adobe AS3 ref]~
+
+.Examples:
+[source,css]
+-----
+/* 3-color linear gradient. Color position automaticly calculated: 0% 50% 100% */
+.obj1 	{ background: linear-gradient( 0deg #fff #aaffddaa 0xddd ); }
+
+/* 3-color radial gradient. Color position automaticly calculated: 0% 50% 100% */
+.obj2 	{ background: radial-gradient( -.33 #fff #aaffddaa 0xddd ); }
+
+/* 2-color linear gradient. 0%-30% = #fff; 30%-70% = gradient; 70%-100%=#ddd */
+.obj3 	{ background: linear-gradient( 90deg #fff 30% 0xddd 70% ); }
+
+.obj4 {
+	background:	radial-gradient( 0, #aaa, #000 )
+				radial-gradient( 0, 0xaaa, #fad3aaff, 0x000000)",
+				radial-gradient(-0.13456, #aaa 10px, #fad3aaff 40%, 0x000000, pad)
+				radial-gradient( 0.123456789,#aaa ,#fad ,pad)
+				radial-gradient(1,#aaa,#fad,repeat)
+				radial-gradient ( -1, #fff 50px , #000 )
+				radial-gradient ( .12 , #aaa , #fad , reflect  )
+				radial-gradient(0.078,#aaa,#fad)
+				radial-gradient(-.456, #aaa, #bbbbbb, 0xccc, #ddddeeff, 0xeeeeeef0, #fff,repeat )
+				radial-gradient( 0,	#aaa, rgba(10,20,30,1) 80%);
+}
+
+.obj5 {
+	background:	linear-gradient( 90deg, #aaa, #000 )
+				linear-gradient( -90deg, 0xaaa, #fad3aaff, 0x000000)
+				linear-gradient(0deg, #aaa 10px, #fad3aaff 40%, 0x000000	 ,		pad)
+				linear-gradient(0deg,#aaa ,#fad ,pad)
+				linear-gradient(0deg,#aaa,#fad,repeat)
+				linear-gradient ( 0deg, #fff 50px , #000 )
+				linear-gradient ( 0deg , #aaa , #fad , reflect  )
+				linear-gradient(0deg,#aaa,#fad)
+				linear-gradient(	-4deg, #aaa, #bbbbbb, 0xccc, #ddddeeff, 0xeeeeeef0, #fff,repeat )
+				linear-gradient( 720deg,	#aaa, rgba(10,20,30,1) 80%);
+}
+-----
 
 === Resources
+A resource can be a reference to a `class` or external file.
 
-url( www.rubenw.nl/img.jpg ), class( package.of.Asset )
+[options="header", cols="1,3m,1,1"]
+|=====
+|Type 		|Syntax 					|Flash 	|HTML
+|class 		|class( package.Class ) 	g|		r|
+|file 		|url( path/to/file.ext )	g| 		g|
+|file 		|url( htt://uri/file.ext )	g| 		g|
+|=====
 
-=== Effects
-< effect( <duration>ms/s, <ease>, <delay>ms, reverted	) | other-transition, ... > 
-<name> <type> effect( <duration>ms/s, <ease>, <delay>ms, reverted	) 
+IMPORTANT: Quotes around an url or class is *not* allowed!
 
-=== Bool
+.Example
+[source,css]
+-----
+/*
+image-bitmapdata is already embedded in the application: 
+external Class Test1.png extends flash.display.BitmapData {}
+*/
+.style1 	{ background: class( primevc.examples.Test1.png ); }
+
+/* image will be loaded at runtime */
+.style2 	{ background: url( examples/assets/Test1.png ); }
+
+.style3 	{ shape: class( primevc.exanples.shapes.Star ); }
+-----
+
+NOTE: `class` will maybe be change to `embed` in the future when the parser won't embed external files automaticly yet.
+
+NOTE: classes can be embed in an external library-swf or in the application itself
 
 
-== Supported properties
+
+== Properties
 
 === Text properties
-[cols="header,5m,default", width="100%"]
+[options="header", cols="4header,8m,1,1", width="100%"]
 |=====
-|font							| <font-style>? <font-weight>? <font-size>? <font-family>?	| w3c-ref
-|font-size						| inherit \| [float][unit]									| w3c-ref
-|font-family					| inherit \| string											| w3c-ref
-|color							| inherit \| [color]										| w3c-ref
-|font-weight					| normal \| bold \| bolder \| lighter						| w3c-ref
-|font-style						| inherit \| normal \| italic \| oblique					| w3c-ref
-|letter-spacing					| inherit \| normal \| [float][unit]						| w3c-ref
-|text-align						| inherit \| left \| center \| right \| justify				| w3c-ref
-|text-decoration				| inherit \| none \| underline								| w3c-ref
-|text-indent					| 															| w3c-ref
-|text-transform					| inherit \| none \| capitalize \| uppercase \| lowercase	| w3c-ref
+|Property 						| Syntax 													|Flash	|HTML
+|font							| <font-style>? <font-weight>? <font-size>? <font-family>?	g|	 	g|
+|font-size						| inherit \| [float][unit]									g|	 	g|
+|font-family					| inherit \| string	\| embed([class-resource])				g|	 	y|
+|color							| inherit \| [color]										g|	 	g|
+|font-weight					| normal \| bold \| bolder \| lighter						g|	 	g|
+|font-style						| inherit \| normal \| italic \| oblique					g|	 	g|
+|letter-spacing					| inherit \| normal \| [float][unit]						g|	 	g|
+|text-align						| inherit \| left \| center \| right \| justify				g|	 	g|
+|text-decoration				| inherit \| none \| underline								g|	 	g|
+|text-indent					| 															g|	 	g|
+|text-transform					| inherit \| none \| capitalize \| uppercase \| lowercase	g|	 	g|
+|font-variant					| inherit \| normal \| small-caps 							r| 		g|
+|text-shadow					| 															r| 		g|
+|line-height					| 															r| 		g|
+|word-spacing					| 															r| 		g|
+|vertical-align					| 															r| 		g|
+|white-space 					|															r| 		g|
+|resize							| horizontal \| vertical \| both \| none 					r| 		g|
+|clip							| auto \| [box] 											r| 		g|
+|text-wrap						| normal \| none \| avoid 									r| 		g|
 |=====
 
 
 === Textfield Properties
-[cols="header,5m,default", width="100%"]
+[options="header", cols="4header,8m,1,1", width="100%"]
 |=====
-|overflow-wrap					| normal \| break-word \| hyphenate							| w3c-ref
-|column-count					| [int]														| w3c-ref
-|column-gap						| [int]														| w3c-ref
-|column-width					| [int]														| w3c-ref
+|Property 						| Syntax 													|Flash	|HTML
+|overflow-wrap					| normal \| break-word \| hyphenate							r| 		g|
+|column-count					| [int]														r| 		g|
+|column-gap						| [int]														r| 		g|
+|column-width					| [int]														r| 		g|
 |=====
 
 
 === Background properties
-[cols="header,5m,default", width="100%"]
+[options="header", cols="4header,8m,1,1", width="100%"]
 |=====
-|background						| <background-color>? <background-image>?					| w3c-ref
-|background-color				| [color]													| w3c-ref
-|background-image				| [resource] \| <background-repeat>							| w3c-ref
-|shape							| 															|
+|Property 						| Syntax 														|Flash	|HTML
+|background						| <background-color>{0,*}? <background-image>{0,*}?				g| 		g|
+|background-color				| [color]{1,*}													g| 		g|
+|background-image				| {[resource] <background-repeat>?} {1,*}						g| 		g|
+|shape							| line \| circle \| ellipse \| rectangle \| [class-resource]	g| 		r|
+|background-clip				| border-box \| padding-box \| content-box 						r| 		g|
+|background-origin				| border-box \| padding-box \| content-box 						r| 		g|
+|background-attachment			| scroll \| fixed \| local 										r| 		g|
+|background-position 			| 																r| 		g|
+|background-size				| <length> \| [percentage] \| auto \| {1,2}cover \| contain 	r| 		g|
+|background-repeat				| repeat-all \|  no-repeat 										r| 		g|
 |=====
 
 
 === Border properties
-[cols="header,5m,default", width="100%"]
+[options="header", cols="4header,8m,1,1", width="100%"]
 |=====
-|border							| <border-color>? <border-width>? <border-image>? <border-style>?	| w3c-ref
-|border-radius					| <top-left> <top-right>? <bottom-right>? <bottom-left>?			| w3c-ref
-|border-top-left-radius			| [float][unit]														| w3c-ref
-|border-top-right-radius	 	| [float][unit]														| w3c-ref
-|border-bottom-left-radius		| [float][unit]														| w3c-ref
-|border-bottom-right-radius		| [float][unit]														| w3c-ref
+|Property 						| Syntax 																	|Flash	|HTML
+|border							| {<border-color>? <border-width>? <border-image>? <border-style>?}{1,*}	g| 		g|
+|border-radius					| <top-left> <top-right>? <bottom-right>? <bottom-left>?					g| 		g|
+|border-top-left-radius			| [float][unit]																g| 		g|
+|border-top-right-radius	 	| [float][unit]																g| 		g|
+|border-bottom-left-radius		| [float][unit]																g| 		g|
+|border-bottom-right-radius		| [float][unit]																g| 		g|
+|border-color					| [color]{1,*}																r| 		g|
+|border-image					| [resource]{1,*}															r| 		g|
+|border-image-source			| ??																		r| 		g|
+|border-style					| none \| solid \| dashed \| dotted 										r| 		g|
+|border-width					| [int][unit]																r| 		g|
+|border-top						| <border> 																	r| 		g|
+|border-bottom					| <border>																	r| 		g|
+|border-left					| <border>																	r| 		g|
+|border-right					| <border>																	r| 		g|
+|border-image-slice				| 																			r| 		g|
+|border-image-width				| 																			r| 		g|
+|border-image-outset			| 																			r| 		g|
+|border-image-repeat			| 																			r| 		g|
+|corner-shaping					| 																			r| 		g|
+|corner-clipping				| 																			r| 		g|
+|outline						| 																			r| 		g|
+|outline-style					| 																			r| 		g|
+|outline-color					| 																			r| 		g|
+|outline-width					| 																			r| 		g|
 |=====
 
 
 === Component Properties
-[cols="header,5m,default", width="100%"]
+[options="header", cols="4header,8m,1,1", width="100%"]
 |=====
-|skin							| [class]																				| 
-|visibility						| visible \| hidden																		| w3c-ref
-|opacity						| [float]%																				| w3c-ref
-|overflow						| visible \| hidden \| scroll-mouse-move \| drag-scroll \| corner-scroll \| scrollbars	| 
+|Property 						| Syntax 						|Flash	|HTML
+|skin							| [class]						g| 		g|
+|visibility						| visible \| hidden				g| 		g|
+|opacity						| [float]%						g| 		g|
+|overflow						| visible \| hidden \| scroll-mouse-move \| drag-scroll \| corner-scroll \| scrollbars	g| 		y|
+|cursor | auto \| move \| help \| pointer \| wait \| text \| n-resize \| ne-resize \| e-resize \| se-resize \| s-resize \| sw-resize \| w-resize \| nw-resize \| url(..) 	r| 	g|
+|list-style						| 								r| 		g|
+|list-style-image 				| 								r| 		g|
+|list-style-position 			| 								r| 		g|
+|list-style-type 				| 								r| 		g|
 |=====
+
+.Overflow
+[options="header",cols="1m,3"]
+|=====
+|name 					|Explanation
+|visible				|content of a box can flow over the edges
+|hidden					|Overflowing content is completly hidden
+|scroll-mouse-move		|Overflowing content is hidden. Scroll by moving the mouse over the box.
+|drag-scroll			|Overflowing content is hidden. Scroll by dragging the box.
+|corner-scroll			|Overflowing content is hidden. Scroll when the mouse reaches the edges of the box.
+|scrollbars				|Overflowing content is hidden. Scroll by moving the scrollbars.
+|=====
+
 
 
 === Icons
-[cols="header,5m,default", width="100%"]
+[options="header", cols="4header,8m,1,1", width="100%"]
 |=====
-|icon						 	| [resource] 				|
-|icon-fill					 	| [color]					| 
+|Property 						| Syntax 					|Flash	|HTML
+|icon						 	| [resource] 				g| 		r|
+|icon-fill					 	| [color]					g| 		r|
 |=====
 
 
 === Layout
 
 .Size
-[cols="header,5m,default", width="100%"]
+[options="header", cols="4header,8m,1,1", width="100%"]
 |=====
-|width						| [int]px \| [float]% 			| w3c-ref
-|height						| [int]px \| [float]% 			| w3c-ref
-|min-width					| [int]px \| [float]% 			| w3c-ref
-|min-height					| [int]px \| [float]% 			| w3c-ref
-|max-width					| [int]px \| [float]% 			| w3c-ref
-|max-height					| [int]px \| [float]% 			| w3c-ref
-|child-width				| [int]px \| [float]% 			| 
-|child-height				| [int]px \| [float]% 			| 
+|Property 					| Syntax 						|Flash	|HTML
+|width						| [int]px \| [float]% 			g| 		g|
+|height						| [int]px \| [float]% 			g| 		g|
+|min-width					| [int]px \| [float]% 			g| 		g|
+|min-height					| [int]px \| [float]% 			g| 		g|
+|max-width					| [int]px \| [float]% 			g| 		g|
+|max-height					| [int]px \| [float]% 			g| 		g|
+|child-width				| [int]px \| [float]% 			g| 		g|
+|child-height				| [int]px \| [float]% 			g| 		g|
+|box-sizing					| content-box \| border-box 	r| 		g|
+|z-index					|  								r| 		g|
+|float						|  								r| 		g|
+|clear						|  								r| 		g|
+|display					|  								r| 		g|
+|transform					| scale(0.1 - 2) \| rotate([angle]) \| translate( [int][unit], [int][unit] ) \| skew( [int][unit], [int][unit] ) 	r| 		g|
+|rotation 					|  								r| 		g|
+|rotation-point 			|  								r| 		g|
 |=====
 
 .Position
-[cols="header,5m,default", width="100%"]
+[options="header", cols="4header,8m,1,1", width="100%"]
 |=====
-|relative|					| [box]							| w3c-ref
-|left|						| [int]px						| w3c-ref
-|right|						| [int]px						| w3c-ref
-|top|						| [int]px						| w3c-ref
-|bottom|					| [int]px						| w3c-ref
-|h-center|					| [int]px						| w3c-ref
-|v-center|					| [int]px						| w3c-ref
-|position|					| relative \| absolute			| w3c-ref
-|algorithm|					| [layout-algorithm]			| w3c-ref
+|Property 					| Syntax 						|Flash	|HTML
+|algorithm					| [layout-algorithm]			g| 		r|
+|relative					| [box]							g| 		g|
+|left						| [int]px						g| 		g|
+|right						| [int]px						g| 		g|
+|top						| [int]px						g| 		g|
+|bottom						| [int]px						g| 		g|
+|h-center					| [int]px						g| 		r|
+|v-center					| [int]px						g| 		r|
+|position					| relative \| absolute			g| 		g|
 |=====
 
 .Padding
-[cols="header,5m,default", width="100%"]
+[options="header", cols="4header,8m,1,1", width="100%"]
 |=====
-|padding|					| [box]							| w3c-ref
-|padding-top|				| [int]px						| w3c-ref
-|padding-bottom|			| [int]px						| w3c-ref
-|padding-right|				| [int]px						| w3c-ref
-|padding-left|				| [int]px						| w3c-ref
+|Property 					| Syntax						|Flash	|HTML
+|padding					| [box]							g| 		g|
+|padding-top				| [int]px						g| 		g|
+|padding-bottom				| [int]px						g| 		g|
+|padding-right				| [int]px						g| 		g|
+|padding-left				| [int]px						g| 		g|
 |=====
 
 .Margin
-[cols="header,5m,default", width="100%"]
+[options="header", cols="4header,8m,1,1", width="100%"]
 |=====
-|margin|					| [box]							| w3c-ref
-|margin-top|				| [int]px						| w3c-ref
-|margin-bottom|				| [int]px						| w3c-ref
-|margin-right|				| [int]px						| w3c-ref
-|margin-left|				| [int]px						| w3c-ref
-|====
+|Property					| Syntax 						|Flash	|HTML
+|margin						| [box]							g| 		g|
+|margin-top					| [int]px						g| 		g|
+|margin-bottom				| [int]px						g| 		g|
+|margin-right				| [int]px						g| 		g|
+|margin-left				| [int]px						g| 		g|
+|=====
 
 
 === Transitions
-[cols="header,5m,default", width="100%"]
+[options="header", cols="4header,8m,1,1", width="100%"]
 |=====
-|move-transition			| [effect]						| 
-|resize-transition			| [effect]						| 
-|rotate-transition			| [effect]						| 
-|scale-transition			| [effect]						| 
-|show-transition			| [effect]						| 
-|hide-transition			| [effect]						| 
+|Property					| Syntax															|Flash	|HTML
+|move-transition			| <effect>{1,*} \| <other-transiton>								g| 		g|
+|resize-transition			| <effect>{1,*} \| <other-transiton>								g| 		g|
+|rotate-transition			| <effect>{1,*} \| <other-transiton>								g| 		g|
+|scale-transition			| <effect>{1,*} \| <other-transiton>								g| 		g|
+|show-transition			| <effect>{1,*} \| <other-transiton>								g| 		g|
+|hide-transition			| <effect>{1,*} \| <other-transiton>								g| 		g|
+|animation					| <name>? type? effect( <duration>, <ease>, <delay>, reverted ) 	r| 		g|
+|animation-delay 			| [int][unit] 														r| 		g|
+|animation-direction 		| ?? 																r| 		g|
+|animation-duration 		| [int][unit] 														r| 		g|
+|animation-name 			| [string]															r| 		g|
+|animation-timing-function 	| ?? 																r| 		g|
+|transition					| <transition-type*> <animation> ?? 								r| 		g|
+|transition-property 		| ??																r| 		g|
+|transition-duration 		| ??																r| 		g|
+|transition-timing-function	| ??																r| 		g|
+|transition-delay 			| ??																r| 		g|
+|animation-iteration-count	| ??																r| 		g|
+|animation-play-state 		| ??																r| 		g|
 |=====
+
+IMPORTANT: Transions are automaticly triggered when the specific property of the target changes. The specified effect is not forced to animate the changed property, it's merely a trigger. I.e. a move-transition can fade a object in-and-out.
+
+==== Effects
+Effects are describing an animation with one or more properties. *All effects* are using the syntax below, and will aditionally add some properties.
+[source,css]
+<effect-name>(<duration>ms <ease>? <delay>ms? reverted?)
+
+[options="header", cols="1m,2,3m"]
+|=====
+|name 			| Details 										| Syntax
+|move 			| Move target									| move <effect-properties> )
+|anchor-scale 	| Scale target from specific point				| anchor-scale <effect-properties> <direction {top-left \| top-center \| top-right \| middle-left \| middle-right \| bottom-left \| bottom-center \| bottom-right \| {<x [float][unit]>, <y [float][unit]>}->
+|fade 			| Fade target									| fade <effect-properties> {<start [perc]> <end [perc]>} \| <end [perc]>
+|resize			| Resize target									| resize <effect-properties> 
+|rotate 		| Rotate target									| rotate <effect-properties> {<start [angle]> <end [angle]>} \| <end [angle]>
+|scale 			| Scale target									| scale <effect-properties> {<start [perc]> <end [perc]>} \| <end [perc]>
+|wipe			| Wipe effect									| wipe <effect-properties> {top-to-bottom \| bottom-to-top \| left-to-right \| right-to-left}? <end-scaleX [perc]> <end-scaleY [perc]>
+|set-action 	| set a property of target without animation	p|set-action <effect-properties> { 
+	alpha([perc]) 
+\|	position(<endX [int][unit]>, <endY [int][unit]>) 
+\|	rotation([angle]) 
+\|	size(<w [float][unit]>, <h [float][unit]>) 
+\|	scale(<x [perc]>, <y [scale]>) 
+\|	any(*)
+}
+|parallel 		| multiple effects, executed parallel 			| parallel <effect-properties> <effect>{1,*}
+|sequence 		| multiple effects, executed in sequence 		| sequence <effect-properties> <effect>{1,*}
+|=====
+
+[cols="1header,6m"]
+|=====
+|ease 		| {back \| bounce \| circ \| cubic \| elastic \| expo \| linear \| quad \| quart \| quint \| sine }-{in\|out\|inout}
+|=====
+
+.Examples
+[source,css]
+-----
+.obj1 {
+	move-transition:	move 300ms;
+	resize-transition:	resize 200ms quad-in-out;
+	rotate-transition:	rotate expo-out;
+	scale-transition:	scale 1500ms linear-in 500ms; 	/** 500ms delay **/
+	show-transition:	fade 100ms;
+	hide-transition:	show; 			/** use same transition as 'show', it will automaticly reverse **/
+}
+
+.obj2 {
+	show-transition: 	anchor-scale 
+}
+-----
+
+
 
 
 === Filters
-[cols="header,5m,default", width="100%"]
+[options="header", cols="4header,8m,1,1m", width="100%"]
 |=====
-|box-bevel					| <distance>? <blurX>? <blurY>? <strength>? <rotation>? <shadow [color]>? <highlight [color]>? <inner\|outer\|full>? | <knockout>? | <quality>?
-|box-shadow					| <distance>? <blurX>? <blurY>? <strength>? <rotation>? [color]? <inner>? hide-object? | knockout? | <quality>?
-|box-blur					| <blurX>? <blurY>? <quality>?
-|box-glow					| <blurX>? <blurY>? <strength>? [color]? | <inner>? | <knockout>? | <quality>?
-|box-gradient-bevel			| <distance>? <blurX>? <blurY>? <strength>? <rotation>? [gradient] <inner>? <knockout>? <quality>?
-|box-gradient-glow			| <distance>? <blurX>? <blurY>? <strength>? <rotation>? [gradient] <inner>? <knockout>? <quality>?
-|background-bevel			| see box-bevel | 
-|background-blur			| see box-blur | 
-|background-shadow			| see box-shadow | 
-|background-glow			| see box-glow | 
-|background-gradient-bevel	| see box-gradient-bevel | 
-|background-gradient-glow	| see box-gradient-glow | 
+|Property					| Syntax																																		|Flash	|HTML
+|box-bevel					| <distance>? <blurX>? <blurY>? <strength>? <rotation>? <shadow [color]>? <highlight [color]>? <inner\|outer\|full>? <knockout>? <quality>? 	g| 		g|
+|box-shadow					| <distance>? <blurX>? <blurY>? <strength>? <rotation>? [color]? <inner>? hide-object? knockout? <quality>?										g| 		g|
+|box-blur					| <blurX>? <blurY>? <quality>? 																													g| 		g|
+|box-glow					| <blurX>? <blurY>? <strength>? [color]? <inner>? <knockout>? <quality>? 																		g| 		g|
+|box-gradient-bevel			| <distance>? <blurX>? <blurY>? <strength>? <rotation>? [gradient] <inner>? <knockout>? <quality>? 												g| 		g|
+|box-gradient-glow			| <distance>? <blurX>? <blurY>? <strength>? <rotation>? [gradient] <inner>? <knockout>? <quality>? 												g| 		g|
+|background-bevel			| see box-bevel 				y| 		r|
+|background-blur			| see box-blur 					y| 		r|
+|background-shadow			| see box-shadow 				y| 		r|
+|background-glow			| see box-glow 					y| 		r|
+|background-gradient-bevel	| see box-gradient-bevel 		y| 		r|
+|background-gradient-glow	| see box-gradient-glow 		y| 		r|
 |=====
+
+Background-filters for Flash will get parsed, but are not yet implemented in the graphics-classes.
 
 .Filter variables
 [cols="header,5,m"]
@@ -216,123 +561,44 @@ url( www.rubenw.nl/img.jpg ), class( package.of.Asset )
 |distance 	| distance from target 	| [int]px
 |blurX		| 						| [int]px
 |blurY		| 						| [int]px
-|strength	| 				| 0-255
-|rotation	| 				| [float]deg
-|knockout	| 				| knockout
-|inner		| 				| inner
-|quality	| 				| low \| medium \| high
+|strength	| 						| [int8]
+|rotation	| 						| [angle]
+|knockout	| 						| knockout
+|inner		| 						| inner
+|quality	| 						| low \| medium \| high
 |=====
 
+.Examples
+[source,css]
+-----
+.obj1 {
+	box-bevel: 			5px 10px 12px 3 90deg #ff00aadd #00aadd full knockout high;
+	box-shadow: 		5px 10px 12px 3 90deg #ff00aadd inner hide-object knockout high;
+	box-blur: 			5px 10px high;
+	box-glow: 			10px 12px 3 #ff00aadd inner knockout high;
+	box-gradient-bevel: 5px 10px 12px 3 90deg #ff00aadd, #00aadd inner knockout high;
+	box-gradient-glow: 	outer .789px 3 90deg #ff0000, #abcdef12 60px, #333 medium;
+}
 
+.obj2 {
+	box-bevel: 			.789px 3 90deg #ff0000 medium;
+	box-shadow: 		inner 210 knockout 12.701deg;
+	box-blur: 			medium; 	/* default blur: 4px 4px */
+	box-glow: 			10 #ff0000 medium;
+	box-gradient-bevel: outer .789px 3 90deg #ff0000, #abcdef12 60px, #333 medium;
+	box-gradient-glow: 	5px 10px 12px 3 90deg #ff00aadd, #00aadd inner knockout high;
+}
 
-== Unsupported Properties
+.obj3 {
+	box-bevel: 			60 #abcdef12 #fedcba98 low outer;
+	box-shadow: 		5px 10px 12px;
+	box-blur: 			10px 0px low;
+	box-glow: 			knockout #abcdef12 low;
+}
 
-=== Text properties
-[cols="header,5m,default", width="100%"]
-|=====
-|font-variant			| inherit \| normal \| small-caps 			| w3c-ref
-|text-shadow			| 											| w3c-ref
-|line-height			| 											| w3c-ref
-|word-spacing			| 											| w3c-ref
-|vertical-align			| 											| w3c-ref
-|white-space 			|											| w3c-ref
-|resize					| horizontal \| vertical \| both \| none 	| w3c-ref
-|clip					| auto \| [box] 							| w3c-ref
-|text-wrap				| normal \| none \| avoid 					| w3c-ref
-|=====
-
-
-=== Border properties
-[cols="header,5m,default", width="100%"]
-|=====
-|border-color				| [color]								| w3c-ref
-|border-image				| [resource] //FIXME?					| w3c-ref
-|border-image-source		| [resource] //FIXME?					| w3c-ref
-|border-style				| none \| solid \| dashed \| dotted 	| w3c-ref
-|border-width				| [int][unit]							| w3c-ref
-|border-top					| <border> 								| w3c-ref
-|border-bottom				| <border>								| w3c-ref
-|border-left				| <border>								| w3c-ref
-|border-right				| <border>								| w3c-ref
-|border-image-slice			| 										| w3c-ref
-|border-image-width			| 										| w3c-ref
-|border-image-outset		| 										| w3c-ref
-|border-image-repeat		| 										| w3c-ref
-|corner-shaping				| 										| w3c-ref
-|corner-clipping			| 										| w3c-ref
-|outline					| 										| w3c-ref
-|outline-style				| 										| w3c-ref
-|outline-color				| 										| w3c-ref
-|outline-width				| 										| w3c-ref
-|=====
-
-
-=== List properites
-[cols="header,5m,default", width="100%"]
-|=====
-|list-style					| |
-|list-style-image 			| |
-|list-style-position 		| |
-|list-style-type 			| |
-|=====
-
-
-=== Background
-[cols="header,5m,default", width="100%"]
-|=====
-|background-clip		| border-box \| padding-box \| content-box 								| w3c-ref
-|background-origin		| border-box \| padding-box \| content-box 								| w3c-ref
-|background-attachment	| scroll \| fixed \| local 												| w3c-ref
-|background-position 	| 																		| w3c-ref
-|background-size		| <length> \| <percentage> \| auto \| {1,2}cover \| contain 			| w3c-ref
-|background-repeat		| repeat-all \|  no-repeat 												| w3c-ref
-|=====
-
-
-=== Animations
-[cols="header,5m,default", width="100%"]
-|=====
-|animation					| <name>? type? effect( <duration>, <ease>, <delay>, reverted ) 	| w3c-ref
-|animation-delay 			| [int][unit] 														| w3c-ref
-|animation-direction 		| ?? 																| w3c-ref
-|animation-duration 		| [int][unit] 														| w3c-ref
-|animation-name 			| [string]															| w3c-ref
-|animation-timing-function 	| ?? 																| w3c-ref
-|transition					| <transition-type*> <animation> ?? 								| w3c-ref
-|=====
-
-~Transition-types: move, resize, rotate, scale, show, hide~
-
-
-=== Transitions
-[cols="header,5m,default", width="100%"]
-|=====
-|transition-property 		|  | 
-|transition-duration 		|  | 
-|transition-timing-function	|  | 
-|transition-delay 			|  | 
-|animation-iteration-count	|  | 
-|animation-play-state 		|  | 
-|=====
-
-
-=== Layout
-[cols="header,5m,default", width="100%"]
-|=====
-|box-sizing					| content-box \| border-box 	| w3c-ref
-|z-index					|  								| w3c-ref
-|float						|  								| w3c-ref
-|clear						|  								| w3c-ref
-|display					|  								| w3c-ref
-|transform					| scale(0.1 - 2) \| rotate([int][unit]) \| translate( [int][unit], [int][unit] ) \| skew( [int][unit], [int][unit] ) 	| w3c-ref
-|rotation 					|  								| w3c-ref
-|rotation-point 			|  								| w3c-ref
-|=====
-
-
-=== Other
-[cols="header,5m,default", width="100%"]
-|=====
-|cursor 					| auto \| move \| help \| pointer \| wait \| text \| n-resize \| ne-resize \| e-resize \| se-resize \| s-resize \| sw-resize \| w-resize \| nw-resize \| url(..) | 
-|=====
+.obj4 {
+	box-blur: 			5px 5px; 	/* low quality */
+	box-shadow:			4px 4px 4px #ff0000 180deg;
+}
+-----
 
