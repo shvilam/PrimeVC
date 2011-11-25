@@ -27,8 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
+ import primevc.core.traits.IDisablable;
  import primevc.core.Bindable;
- import primevc.gui.display.ISprite;
+ import primevc.gui.display.IDisplayContainer;
  import primevc.gui.traits.ISkinnable;
 #if flash9
  import primevc.gui.traits.IDrawable;
@@ -42,8 +43,9 @@ package primevc.gui.core;
  * @author			Ruben Weijers
  */
 interface IUIComponent
-				implements ISprite
+				implements IDisplayContainer
 			,	implements IUIElement
+			,	implements IDisablable
 			,	implements ISkinnable
 #if flash9	,	implements IDrawable	#end
 {
@@ -68,5 +70,9 @@ interface IUIComponent
 	/**
 	 * Implement this method to clean-up the children of the component
 	 */
-	private function removeChildren ()				: Void;
+#if flash11
+	public  function removeChildren (beginIndex : Int = 0, endIndex : Int = 2147483647) : Void;
+#else
+	public  function removeChildren () 				: Void;
+#end
 }

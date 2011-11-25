@@ -29,8 +29,9 @@
 package primevc.gui.effects.effectInstances;
  import primevc.gui.effects.EffectProperties;
  import primevc.gui.effects.RotateEffect;
- import primevc.gui.traits.IPositionable;
+ import primevc.gui.display.IDisplayObject;
  import primevc.types.Number;
+  using primevc.gui.utils.DisplayUtil;
   using primevc.utils.NumberUtil;
 
 
@@ -38,7 +39,7 @@ package primevc.gui.effects.effectInstances;
  * @author Ruben Weijers
  * @creation-date Oct 04, 2010
  */
-class RotateEffectInstance extends EffectInstance < IPositionable, RotateEffect >
+class RotateEffectInstance extends EffectInstance < IDisplayObject, RotateEffect >
 {
 	/**
 	 * start rotation value.
@@ -78,12 +79,15 @@ class RotateEffectInstance extends EffectInstance < IPositionable, RotateEffect 
 		
 		if (effect.endValue.isSet())	endValue = effect.endValue;
 		else							endValue = 1;
+		
+		target.rotation	= startValue;
+		target.visible	= true;
 	}
 
 
 	override private function tweenUpdater ( tweenPos:Float )
 	{
-		target.rotation = ( endValue * tweenPos ) + ( startValue * (1 - tweenPos) );
+		target.rotateAroundCenter( (endValue * tweenPos) + (startValue * (1 - tweenPos)) );
 	}
 
 

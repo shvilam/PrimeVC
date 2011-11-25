@@ -50,9 +50,9 @@ class StatesStyle extends StyleSubBlock
 	public var states			(default, null) : StatesListType;
 	
 	
-	public function new (states:StatesListType = null)
+	public function new (filledProps:Int = 0, states:StatesListType = null)
 	{
-		super();
+		super(filledProps);
 		this.states = states;
 		
 		updateFilledPropertiesFlag();
@@ -259,7 +259,7 @@ class StatesStyle extends StyleSubBlock
 	override public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())
-			code.construct( this, [ states ] );
+			code.construct( this, [ filledProperties, states ] );
 	}
 #end
 
@@ -276,25 +276,30 @@ class StatesStyle extends StyleSubBlock
 
 
 #if (debug && flash9)
-	public function toString () 
+	override public function toString () 
 	{
 		var statesToFind	= allFilledProperties;
 		var output			= [];
 		
 		while (statesToFind > 0)
 		{
-			statesToFind = addStateStringToArray( statesToFind, output, Flags.CHECKED );
-			statesToFind = addStateStringToArray( statesToFind, output, Flags.DISABLED );
-			statesToFind = addStateStringToArray( statesToFind, output, Flags.DOWN );
-			statesToFind = addStateStringToArray( statesToFind, output, Flags.ERROR );
-			statesToFind = addStateStringToArray( statesToFind, output, Flags.FOCUS );
 			statesToFind = addStateStringToArray( statesToFind, output, Flags.HOVER );
-			statesToFind = addStateStringToArray( statesToFind, output, Flags.INVALID );
-			statesToFind = addStateStringToArray( statesToFind, output, Flags.LOADED );
-			statesToFind = addStateStringToArray( statesToFind, output, Flags.LOADING );
-			statesToFind = addStateStringToArray( statesToFind, output, Flags.OPTIONAL );
-			statesToFind = addStateStringToArray( statesToFind, output, Flags.REQUIRED );
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.DOWN );
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.FOCUS );
+			
 			statesToFind = addStateStringToArray( statesToFind, output, Flags.VALID );
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.INVALID );
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.REQUIRED );
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.OPTIONAL );
+			
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.DISABLED );
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.CHECKED );
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.EDITABLE );
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.SELECTED );
+			
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.PROGRESS );
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.COMPLETED );
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.ERROR );
 		}
 		
 		return "StatesStyle "+output.join(", ");

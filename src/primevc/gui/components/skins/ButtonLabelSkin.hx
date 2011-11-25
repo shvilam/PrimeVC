@@ -35,10 +35,6 @@ package primevc.gui.components.skins;
 
 
 
-private typedef Flags = primevc.gui.core.UIElementFlags;
-
-
-
 /**
  * Skin for a button with only a label.
  * 
@@ -52,34 +48,14 @@ class ButtonLabelSkin extends Skin<Button>
 
 	override public function createChildren ()
 	{
-		labelField = new UITextField( null, true, owner.data );
-		
-		owner.layoutContainer	.children.add( labelField.layout );
-		owner					.children.add( labelField );
-#if debug
-		labelField.id.value		= owner.id.value + "TextField";
-#end
-#if flash9
-		labelField.autoSize			= flash.text.TextFieldAutoSize.NONE;
-		labelField.selectable		= false;
-		labelField.mouseEnabled		= false;
-		labelField.tabEnabled		= false;
-		labelField.respondToFocusOf( owner );
-
-		if (owner.textStyle != null)
-			labelField.textStyle = owner.textStyle;
-#end
+		owner.attach( labelField = UITextField.createLabelField(owner.id.value + "TextField", owner.data, owner, owner.layoutContainer) );
+		owner.layoutContainer.algorithm = null;
 	}
 
 
-	override private function removeChildren ()
+	override public  function removeChildren ()
 	{
-		if (labelField != null)
-		{
-			if (owner != null) {
-				owner.layoutContainer	.children.remove( labelField.layout );
-				owner					.children.remove( labelField );
-			}
+		if (labelField != null) {
 			labelField.dispose();
 			labelField = null;
 		}
@@ -89,8 +65,11 @@ class ButtonLabelSkin extends Skin<Button>
 #if flash9
 	override public function validate (changes:Int)
 	{
-		if (changes.has( Flags.TEXTSTYLE ))
-			labelField.textStyle = owner.textStyle;
+		if (changes.has( primevc.gui.core.UIElementFlags.TEXTSTYLE )) {
+			labelField.embedFonts	= owner.embedFonts;
+			labelField.wordWrap		= owner.wordWrap;
+			labelField.textStyle 	= owner.textStyle;
+		}
 	}
 	
 	

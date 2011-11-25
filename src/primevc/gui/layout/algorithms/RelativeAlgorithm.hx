@@ -36,7 +36,6 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.RelativeLayout;
  import primevc.types.Number;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
@@ -156,6 +155,9 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 			var childBounds	= child.outerBounds;
 			if (childProps != null)
 			{
+				var oldI = childBounds.invalidatable;
+				childBounds.invalidatable = false;
+
 				//
 				//apply horizontal
 				//
@@ -172,6 +174,8 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 				if		(childProps.top.isSet())		childBounds.top		= padding.top + childProps.top;
 				else if (childProps.bottom.isSet())		childBounds.bottom	= groupBounds.height - padding.bottom - childProps.bottom;
 				else if (childProps.vCenter.isSet())	childBounds.top		= ( ( groupBounds.height - childBounds.height ) >> 1 ) + childProps.vCenter; // ( ( groupBounds.height - childBounds.height ) * .5 ).roundFloat() + childProps.vCenter;
+				
+				childBounds.invalidatable = oldI;
 				
 			}
 			
@@ -191,9 +195,7 @@ class RelativeAlgorithm extends LayoutAlgorithmBase, implements ILayoutAlgorithm
 			if (mostTopVal.isSet())		s.minScrollYPos = mostTopVal;
 		}
 		
-		validatePrepared	= false;
-		validatePreparedHor	= false;
-		validatePreparedVer	= false;
+		validatePrepared = validatePreparedHor = validatePreparedVer = false;
 	}
 	
 	

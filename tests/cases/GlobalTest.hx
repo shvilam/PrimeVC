@@ -1,7 +1,7 @@
 package cases;
 #if debug
  import flash.text.TextFormat;
- import primevc.gui.display.TextField;
+// import primevc.gui.display.TextField;
 #end
  import primevc.core.collections.ArrayList;
  import primevc.core.collections.DataCursor;
@@ -14,6 +14,7 @@ package cases;
  import primevc.gui.behaviours.drag.ShowDragGapBehaviour;
  import primevc.gui.behaviours.drag.DragInfo;
  import primevc.gui.components.ListView;
+ import primevc.gui.components.DataButton;
  import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UIDataComponent;
@@ -47,7 +48,7 @@ typedef DataVOType = Bindable<String>;
  */
 class GlobalTest extends UIWindow
 {
-	public static function main () { Window.startup( GlobalTest ); }
+	public static function main () { Window.startup( function (s) return new GlobalTest(s) ); }
 	override private function createBehaviours () {}
 	
 	
@@ -121,12 +122,12 @@ class GlobalTest extends UIWindow
 }
 
 
-class Tile extends UIDataComponent < DataVOType >
+class Tile extends DataButton < DataVOType >
 {
 	public static var counter				: Int = 0;
 	private var num							: Int;
 
-#if (debug && flash9)
+#if (debug && flash90)
 	private var textField					: TextField;
 #end
 	
@@ -148,7 +149,7 @@ class Tile extends UIDataComponent < DataVOType >
 	}
 	
 	
-#if (debug && flash9)
+#if (debug && flash90)
 	override private function createChildren ()
 	{
 		textField = new TextField(data);
@@ -162,7 +163,7 @@ class Tile extends UIDataComponent < DataVOType >
 	
 	override public function createDragInfo () : DragInfo
 	{
-		return new DragInfo( this, getDataCursor() );//, t ); //getDisplayCursor()/*, new Tile(value), null*/ );
+		return new DragInfo( this, null, this ); //getDisplayCursor()/*, new Tile(value), null*/ );
 	}
 	
 	
@@ -199,7 +200,7 @@ class TileList extends ListView < DataVOType >, implements IDataDropTarget < Dat
 	}
 	
 	
-	private function createRenderer (dataItem, pos:Int)
+	private function createRenderer (dataItem:DataVOType, pos:Int)
 	{
 		return cast new Tile(dataItem);
 	}

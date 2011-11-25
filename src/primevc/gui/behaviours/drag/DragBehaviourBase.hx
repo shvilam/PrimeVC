@@ -36,6 +36,8 @@ package primevc.gui.behaviours.drag;
  import primevc.gui.input.Mouse;
  import primevc.gui.traits.ILayoutable;
   using primevc.utils.Bind;
+  using primevc.utils.IfUtil;
+  using primevc.utils.RectangleUtil;
   using primevc.utils.TypeUtil;
 
 /**
@@ -66,21 +68,20 @@ class DragBehaviourBase extends BehaviourBase <ISprite>
 	{
 		super(dragTarget);
 		this.dragBounds		= dragBounds;
-		this.mouseTarget	= mouseTarget == null ? dragTarget : mouseTarget;
-		
-		dragHelper = new DragHelper( this.mouseTarget, startDrag, stopDrag, cancelDrag );
+		this.mouseTarget	= mouseTarget.isNull() ? dragTarget : mouseTarget;
 	}
 	
 	
 	override private function init () : Void
 	{
+		dragHelper = new DragHelper( this.mouseTarget, startDrag, stopDrag, cancelDrag );
 		enable();
 	}
 	
 	
 	override private function reset () : Void
 	{
-		if (dragHelper != null) {
+		if (dragHelper.notNull()) {
 			dragHelper.dispose();
 			dragHelper = null;
 		}
@@ -96,7 +97,7 @@ class DragBehaviourBase extends BehaviourBase <ISprite>
 	
 	private function startDrag (mouseObj:MouseState) : Void
 	{
-		if (dragInfo == null)
+		if (dragInfo.isNull())
 			dragInfo = target.createDragInfo();
 			
 		var dragTarget = dragInfo.dragRenderer;
@@ -105,7 +106,7 @@ class DragBehaviourBase extends BehaviourBase <ISprite>
 		mouseEnabledValue		= dragTarget.mouseEnabled;
 		dragTarget.mouseEnabled	= false;
 #end
-		if (dragBounds == null)
+		if (dragBounds.isNull())
 			dragTarget.startDrag();
 		else
 		{
@@ -146,15 +147,14 @@ class DragBehaviourBase extends BehaviourBase <ISprite>
 		item.stopDrag();
 		item.mouseEnabled = mouseEnabledValue;
 		
-		if (target.is(ILayoutable))
+		if (target.notNull() && target.is(ILayoutable))
 			target.as(ILayoutable).layout.includeInLayout = true;
-
 	}
 
 
 	private inline function disposeDragInfo ()
 	{
-		if (dragInfo != null) {
+		if (dragInfo.notNull()) {
 			dragInfo.dispose();
 			dragInfo = null;
 		}

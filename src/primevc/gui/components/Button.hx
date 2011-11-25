@@ -54,6 +54,7 @@ class Button extends UIDataContainer <Bindable<String>>, implements IIconOwner, 
 #if flash9
 	public var textStyle	(default, setTextStyle)	: TextFormat;
 	public var wordWrap		: Bool;
+	public var embedFonts	: Bool;
 #end
 	
 	
@@ -69,12 +70,12 @@ class Button extends UIDataContainer <Bindable<String>>, implements IIconOwner, 
 	
 	override public function dispose ()
 	{
+		super.dispose();
 		if (selected != null) {
 			selected.dispose();
 			selected = null;
 		}
 		icon = null;
-		super.dispose();
 	}
 	
 	
@@ -108,8 +109,8 @@ class Button extends UIDataContainer <Bindable<String>>, implements IIconOwner, 
 #end
 	
 	
-	public function select ()				{ selected.value = true; }
-	public function deselect ()				{ selected.value = false; }
-	public function toggleSelect ()			{ selected.value = !selected.value; }
+	public inline function select ()		{ selected.value = true; }
+	public inline function deselect ()		{ selected.value = false; }
+	public inline function toggleSelect ()	{ selected.value = !selected.value; }
 	public inline function isSelected ()	{ return selected.value; }
 }

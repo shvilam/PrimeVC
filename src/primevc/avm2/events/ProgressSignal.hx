@@ -47,7 +47,7 @@ package primevc.avm2.events;
  * @author Ruben Weijers
  * @creation-date Jul 31, 2010
  */
-class ProgressSignal extends Signal2<UInt, UInt>, implements IWireWatcher < ProgressHandler > 
+class ProgressSignal extends Signal2<Int, Int>, implements IWireWatcher < ProgressHandler > 
 {
 	var eventDispatcher:IEventDispatcher;
 	var event:String;

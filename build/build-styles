@@ -63,7 +63,7 @@ fi;
 
 #compile css
 if [[ -d "$StyleFolder" ]] && [[ -f "$StyleInputFile" ]] ; then # && [[ -f ${ManifestFile} ]] ; then
-	if "$CompilerUpdated" || [[ ! -f "$StyleOutputFile" ]] || test "$StyleInputFile" -nt "$StyleOutputFile"; then # || test ${ManifestFile} -nt ${StyleOutputFile} ; then
+	if "$CompilerUpdated" || [[ ! -f "$StyleOutputFile" ]] || test "$StyleInputFile" -nt "$StyleOutputFile" || test "$Parser" -nt "$StyleOutputFile"; then # || test ${ManifestFile} -nt ${StyleOutputFile} ; then
 		echo -e "\tRunning parser on ${StyleInputFile}"
 		neko "$Parser" "$StyleFolder" "$PRIMEVC_ROOT" || exit 1;
 	else	

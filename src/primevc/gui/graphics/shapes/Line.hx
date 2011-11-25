@@ -48,6 +48,15 @@ class Line extends ShapeBase, implements IGraphicShape
 	}
 	
 	
+	public function drawFraction (target:IGraphicsOwner, bounds:IRectangle, borderRadius:Corners, percentage:Float) : Void
+	{
+#if flash9
+		target.graphics.moveTo( bounds.left, bounds.top );
+		target.graphics.lineTo( bounds.right * percentage, bounds.bottom * percentage );
+#end
+	}
+	
+	
 #if (neko || debug)
 	override public function toCSS (prefix:String = "") : String
 	{

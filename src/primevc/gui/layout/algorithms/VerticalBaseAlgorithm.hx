@@ -36,7 +36,6 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutFlags;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
@@ -114,9 +113,35 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 		return (changes.has( LayoutFlags.HEIGHT ) && group.childHeight.notSet()) || ( horizontal != null && changes.has( LayoutFlags.WIDTH ) );
 	}
 
-
-	public inline function validateHorizontal ()
+	
+	override public function prepareValidate ()
 	{
+		if (!validatePrepared)
+		{
+			var width:Int = group.childWidth;
+		
+			if (group.childWidth.notSet())
+			{
+				width = 0;
+				for (child in group.children) {
+					if (!child.hasValidatedWidth)
+						return;
+					
+					if (child.includeInLayout && child.outerBounds.width > width)
+						width = child.outerBounds.width;
+				}
+			}
+			setGroupWidth(width);
+			validatePrepared = width > 0;
+		}
+	}
+	
+	
+	public function validateHorizontal ()
+	{
+		if (validatePrepared)
+			return;
+		
 		var width:Int = group.childWidth;
 		
 		if (group.childWidth.notSet())
@@ -127,9 +152,10 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 					width = child.outerBounds.width;
 		}
 		setGroupWidth(width);
+		validatePrepared = width > 0;
 	}
 
-
+	
 	public function apply ()
 	{
 		if (horizontal != null)
@@ -151,14 +177,14 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 			for (child in group.children) {
 				if (!child.includeInLayout)
 					continue;
-
+				
 				child.outerBounds.left = start;
 			}
 		}
 	}
 	
 	
-	private  function applyHorizontalCenter ()
+	private inline function applyHorizontalCenter ()
 	{
 		if (group.children.length > 0)
 		{
@@ -196,6 +222,9 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 
 	
 	
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String	{ Assert.abstract(); return ""; }
+#end
 #if neko
 	override public function toCode (code:ICodeGenerator)
 	{

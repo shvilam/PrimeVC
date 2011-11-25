@@ -27,20 +27,23 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.display;
+ import primevc.core.dispatcher.Signal0;
  import primevc.core.geom.IntRectangle;
+ import primevc.core.traits.IDisablable;
 #if flash9
  import flash.events.Event;
+ import primevc.avm2.events.FlashSignal0;
  import primevc.core.geom.Point;
 #end
 #if (flash8 || flash9 || js)
+ import flash.display.InteractiveObject;
+ import primevc.gui.display.IInteractiveObject;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEventTarget;
  import primevc.gui.events.UserEvents;
  import primevc.gui.input.Mouse;
   using primevc.utils.Bind;
-#end
-#if flash 
- import flash.display.InteractiveObject; 
+  using primevc.utils.TypeUtil;
 #end
 
 
@@ -52,23 +55,26 @@ package primevc.gui.display;
  * @creation-date Jul 13, 2010
  */
 #if (flash8 || flash9 || js)
-class Window implements IDisplayContainer
+class Window implements IDisplayContainer, implements IDisablable
 {
-	public static function startup < WindowInstance > (windowClass : Class<WindowInstance>) : WindowInstance
+	public static inline function startup<WindowInstance>(windowClassFactory : Stage -> WindowInstance) : WindowInstance
 	{
 		var stage:Stage = null;
-		
 #if flash9
 		stage = flash.Lib.current.stage;
 		stage.scaleMode	= flash.display.StageScaleMode.NO_SCALE;
-	
-	#if (debug && MonsterTrace)	
+		
+	#if (debug && Monster2Trace)
 		var monster		= new nl.demonsters.debugger.MonsterDebugger(flash.Lib.current);
 		haxe.Log.trace	= primevc.utils.DebugTrace.trace;
 		haxe.Log.clear	= nl.demonsters.debugger.MonsterDebugger.clearTraces;
-	#end
 	
-	#if (debug && AlconTrace)
+	#elseif (debug && Monster3Trace)
+		com.demonsters.debugger.MonsterDebugger.initialize( flash.Lib.current );
+		haxe.Log.trace	= primevc.utils.DebugTrace.trace;
+		haxe.Log.clear	= com.demonsters.debugger.MonsterDebugger.clear;
+	
+	#elseif (debug && AlconTrace)
 		haxe.Log.trace	= primevc.utils.DebugTrace.trace;
 		haxe.Log.clear	= com.hexagonstar.util.debug.Debug.clear;
 		com.hexagonstar.util.debug.Debug.monitor( stage );
@@ -77,9 +83,14 @@ class Window implements IDisplayContainer
 #if debug
 		haxe.Log.clear();
 		haxe.Log.setColor(0xc00000);
-		trace("started " + windowClass);
+		trace("started");
 #end
-		return Type.createInstance( windowClass, [ stage ] );
+		var inst = windowClassFactory(stage);
+	#if profiling
+		stage.addChild( new net.jpauclair.FlashPreloadProfiler() );
+	#end
+		return inst;
+	//	return Type.createInstance( windowClass, [ stage ] );
 	}
 	
 	
@@ -107,8 +118,18 @@ class Window implements IDisplayContainer
 	public var userEvents		(default, null)			: UserEvents;
 	public var mouse			(default, null)			: Mouse;
 	
+	
+	/**
+	 * Event dispatched when the window loses focus
+	 */
+	public var deactivated		(default, null)			: Signal0;
+	/**
+	 * Event dispatched when the window gets focus
+	 */
+	public var activated		(default, null)			: Signal0;
+	
 #if flash9
-	public var focus			(getFocus, setFocusOn)	: InteractiveObject;
+	public var focus			(getFocus, setFocusOn)	: IInteractiveObject;
 #end
 	
 	
@@ -121,13 +142,15 @@ class Window implements IDisplayContainer
 		rect			= new IntRectangle();
 		children		= new DisplayList( target, this );
 		displayEvents	= new DisplayEvents( target );
-		userEvents		= new UserEvents( target );
+		userEvents		= new UserEvents( target /*, true*/ );
 		mouse			= new Mouse( this );
 		
 		target.doubleClickEnabled = true;
-#if (flash9 && debug)
-		target.addEventListener( Event.DEACTIVATE, disableMouse, false, 0, true );
-		target.addEventListener( Event.ACTIVATE,   enableMouse, false, 0, true );
+#if flash9 /*&& debug)*/
+		deactivated	= new FlashSignal0( target, Event.DEACTIVATE );
+		activated	= new FlashSignal0( target, Event.ACTIVATE );
+		disable	.on( deactivated, this );
+		enable	.on( activated, this );
 #end
 	}
 	
@@ -167,22 +190,31 @@ class Window implements IDisplayContainer
 	public var tabIndex				: Int;
 	
 	
-	public inline function globalToLocal (point:Point) : Point	{ return target.globalToLocal(point); }
-	public inline function localToGlobal (point:Point) : Point	{ return target.localToGlobal(point); }
+	public inline function globalToLocal (point:Point) : Point		{ return target.globalToLocal(point); }
+	public inline function localToGlobal (point:Point) : Point		{ return target.localToGlobal(point); }
 	
-	public function isFocusOwner (target:UserEventTarget)		{ return target == this.target; }
+	public function isFocusOwner (target:UserEventTarget)			{ return target == this.target; }
 	
-	private function enableMouse (event:Event)					{ mouseEnabled = children.mouseEnabled = true; }
-	private function disableMouse (event:Event)					{ mouseEnabled = children.mouseEnabled = false; }
+	public function enable ()										{ mouseEnabled = tabEnabled = children.mouseEnabled = children.tabEnabled = true; }		//use local mouseEnabled and tabEnabled since Stage doesn't have these properties
+	public function disable ()										{ mouseEnabled = tabEnabled = children.mouseEnabled = children.tabEnabled = false; }	//use local mouseEnabled and tabEnabled since Stage doesn't have these properties
+	public inline function isEnabled ()								{ return mouseEnabled; }
 	
-	
-	private inline function setFocusOn (child:InteractiveObject)	{ return target.focus = child; }
-	private inline function getFocus ()	: InteractiveObject			{ return target.focus; }
+	private inline function setFocusOn (child:IInteractiveObject)	{ target.focus = child.as(InteractiveObject); return child; }
+	private inline function getFocus ()	: IInteractiveObject		{ return target.focus.as(IInteractiveObject); }
+
+//	@:getter(scrollRect)
+	// FIXME => won't be called since scrollRect can't be defined as (getScrollRect, setScrollRect)
+//	private function getScrollRect ()								{ return target.scrollRect; }
+//	@:setter(scrollRect)
+//	private function setScrollRect (v:Rectangle)					{ return target.scrollRect = v; }
 #end
 	
-	// FIXME better naming -> looks alot like setFocusOn (the setter)
-	public inline function setFocus ()		{ window.focus = target; }
-	public inline function removeFocus ()	{ if (focus == target)	{ focus = null; } }
+	/**
+	 * Method will give the acti focus to the stage.
+	 * FIXME better naming -> looks alot like setFocusOn (the setter)
+	 */
+	public inline function setFocus ()		{ target.focus = target; }
+	public inline function removeFocus ()	{ if (target.focus == target) { target.focus = null; } }
 	
 	
 	

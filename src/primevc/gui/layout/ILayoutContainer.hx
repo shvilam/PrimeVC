@@ -38,24 +38,59 @@ package primevc.gui.layout;
 interface ILayoutContainer implements ILayoutClient
 {
 	public var algorithm			(default, setAlgorithm)		: ILayoutAlgorithm;
-	/**
-	 * Method that is called by a child of the layoutgroup to let the group
-	 * know that the child is changed. The layoutgroup can than decide, based 
-	 * on the used algorithm, if the group should be invalidated as well or
-	 * if the change in the child is not important.
-	 * 
-	 * @param	change		integer containing the change flags of the child
-	 * 			that is changed
-	 * @return	true if the change invalidates the parent as well, otherwise 
-	 * 			false
-	 */
-//	public function childInvalidated (childChanges:Int)			: Bool;
+	
+	
+	//
+	// CHILDREN
+	//
 	
 	/**
 	 * List with all the children of the group
 	 */
 	public var children				(default, null)				: IEditableList<LayoutClient>;
-	
+
+	/**
+	 * Property with the actual length of the children list. Use this property
+	 * instead of 'children.length' when an algorithm is calculating the 
+	 * measured size, since the property can also be set fixed and thus have a 
+	 * different number then children.length.
+	 * 
+	 * When applying an algorithm you should still use children.length since 
+	 * the algorithm will only be applied on the actual children in the list.
+	 * 
+	 * @see LayoutContainer.setFixedLength
+	 */
+	public var childrenLength		(default, null)				: Int;
+	/**
+	 * Number that tells the algorithms the fake-index of the first layoutclient.
+	 * If it's bigger then 0 it means that the algorithm should also include the
+	 * size of the children before when measuring the container.
+	 *
+	 * For example:
+	 * 		fixedChildStart = 5
+	 *		childrenLength	= 100
+	 *		children.length	= 10
+	 *
+	 *		in this case, the layoutContainer knows that there should be 100 layout-children,
+	 *		but only 10 are added (for performance sake). So the children that are added
+	 *		are 5 - 15. That means the measuredWidth and height should include the 5 children
+	 *		before and the 85 children after the current added children.
+	 *
+	 *		Off course, this is only possible if the layoutContainer has a childWidth and
+	 *		a childHeight.
+	 *
+	 * @see IScrollableLayout.fixedChildStart
+	 */
+	public var fixedChildStart		(default, default)				: Int;
+	/**
+	 * Number of rows or columns (depending on the algorithm) that should be
+	 * added before the first visible child (in case not all the layoutclients are added).
+	 */
+	public var invisibleBefore		(default, setInvisibleBefore)	: Int;
+	/**
+	 * @see invisibleBefore
+	 */
+	public var invisibleAfter		(default, setInvisibleAfter)	: Int;
 	
 	/**
 	 * The maximum width of each child. Their orignal width will be ignored if
@@ -71,4 +106,7 @@ interface ILayoutContainer implements ILayoutClient
 	 * @default		Number.INT_NOT_SET
 	 */
 	public var childHeight			(default, setChildHeight)	: Int;
+
+
+	public function attach (target:LayoutClient, depth:Int = -1) : ILayoutContainer;
 }

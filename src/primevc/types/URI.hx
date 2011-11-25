@@ -27,17 +27,16 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.types;
-  using primevc.utils.NumberUtil;
-  using primevc.utils.IfUtil;
+#if neko
+ import primevc.tools.generator.ICodeFormattable;
+ import primevc.tools.generator.ICodeGenerator;
+ import primevc.utils.ID;
+#end
 
-enum URIScheme
-{
-	http;
-	https;
-	mailto;
-	javascript;
-	Scheme(p:String);
-}
+  using primevc.utils.FileUtil;
+  using primevc.utils.IfUtil;
+  using primevc.utils.NumberUtil;
+
 
 /**
  * A URI is a uniform resource <i>identifier</i> while a URL is a uniform
@@ -52,8 +51,10 @@ enum URIScheme
  *  http://en.wikipedia.org/wiki/URI_scheme
  *  
  *  Ook interessant: http://www.php.net/manual/en/function.parse-url.php#90365
+ *
+ * @author Danny Wilson
  */
-class URI
+class URI #if neko implements ICodeFormattable #end
 {
 #if debug
 	static function __init__()
@@ -62,14 +63,14 @@ class URI
 		var mailURI = "mailto:mediahuis@tntpost.nl?subject=Een onvergetelijke kerst";
 		
 		u.parse(mailURI);
-		Assert.that(u.scheme == mailto,  u.string);
+		Assert.that(u.scheme == URIScheme.mailto,  u.string);
 		Assert.that(u.userinfo == "mediahuis",  u.userinfo);
 		Assert.that(u.host == "tntpost.nl",  u.host);
 		Assert.that(u.query == "subject=Een onvergetelijke kerst",  u.query);
 		Assert.that(u.string == mailURI, u.string);
 		
 		u.parse("http://decube.net/a");
-		Assert.that(u.scheme == http, u.string);
+		Assert.that(u.scheme == URIScheme.http, u.string);
 		Assert.that(u.host == "decube.net", u.string);
 		Assert.that(u.path == "/a", u.path);
 		
@@ -99,6 +100,7 @@ class URI
 	}
 #end
 	
+	
 	public var string (getString, null) : String;
 	
 	public var scheme	(default, setScheme)	: URIScheme;
@@ -116,7 +118,7 @@ class URI
 	private inline function setPath(v)		{ string = null; return path = v; }
 	private inline function setQuery(v)		{ string = null; return query = v; }
 	private inline function setFragment(v)	{ string = null; return fragment = v; }
-
+	
 	/** Returns true if this URI has a scheme and thus is a URL **/
 	public inline function isURL() : Bool			{ return scheme.notNull(); }
 	/** Returns true if the host of URI is the URI, so when the port, path, query and fragment are empty **/
@@ -139,23 +141,10 @@ class URI
 	 	Returns an empty string if it has no dots in the path.
 	 	Returns empty string if the first char is a dot and there are no other dots (UNIX hidden file convention).
 	*/
-	public var fileExt	(getFileExt,setFileExt): String;
-		private inline function getFileExt() : String {
-			if (!path.notNull()) return "";
-			else {
-				var idx = path.lastIndexOf('.');
-				return idx <= 1? "" : path.substr(idx+1);
-			}
-		}
-		private inline function setFileExt(v) : String {
-			Assert.that(v != null);
-			
-			var idx = path.lastIndexOf('.');
-			path = idx <= 1
-				? path + '.' + v
-				: path.substr(0, path.lastIndexOf('.')) + '.' + v;
-			return v;
-		}
+	public var fileExt	(getFileExt,setFileExt)	: String;
+		private inline function getFileExt()	: String	{ return path.getExtension().toLowerCase(); }
+		private inline function setFileExt(v)	: String	{ path.setExtension(v); return v; }
+	
 	
 	public var isSet		(getIsSet, never) : Bool;
 		private function getIsSet() return
@@ -163,12 +152,34 @@ class URI
 		 	(  host.notNull() &&   host.length.not0()) ||
 		 	(  path.notNull() &&   path.length.not0())
 	
-	public function new(str:String = null) {
+	
+#if neko
+	public var _oid (default, null)		: Int;
+#end
+	
+	
+	public function new(str:String = null)
+	{
+#if neko
+		_oid	= ID.getNext();
+#end
 		port = -1;
-		
-		if (str != null)
-			parse(str);
+		parse(str);
 	}
+	
+	
+	public inline function isEmpty () : Bool
+	{
+		return (scheme == null || host == null) && path == null;
+	}
+
+
+	private inline function reset ()
+	{
+		(untyped this).port = -1;
+		(untyped this).scheme = null; (untyped this).userinfo = (untyped this).host = (untyped this).path = (untyped this).query = (untyped this).fragment = this.string = null;
+	}
+
 	
 	
 	/**
@@ -184,8 +195,8 @@ class URI
 	
 	private function getString()
 	{
-		if (this.string.notNull()) return this.string;
-		
+		if (this.string.notNull())	return this.string;
+		if (isEmpty())				return null;
 		var s:StringBuf = new StringBuf();
 		
 		if (scheme.notNull()) switch (scheme)
@@ -229,7 +240,7 @@ class URI
 	
 	#if flash9
 	public function toRequest() {
-		return new flash.net.URLRequest(this.string);
+		return new flash.net.URLRequest(this.toString());
 	}
 	#end
 	
@@ -237,9 +248,7 @@ class URI
 	{
 		if (str.isNull()) return this;
 		
-		// Reset values
-		this.port = -1; this.scheme = null; this.string = this.userinfo = this.host = this.path = this.query = this.fragment = null;
-		
+		reset();
 		var pos:Int = 0;
 		
 		var scheme_pos = str.indexOf(':');
@@ -248,11 +257,11 @@ class URI
 			var has2slashes = str.charCodeAt(scheme_pos + 1) + str.charCodeAt(scheme_pos + 2) == '/'.code << 1;
 			var scheme_str = str.substr(0, scheme_pos);
 			
-			var us = this.scheme = Reflect.field(URIScheme, scheme_str);
+			var us = (untyped this).scheme = Reflect.field(URIScheme, scheme_str);
 			if (us == null)
 			{
 				if (has2slashes) {
-					this.scheme = Scheme(scheme_str);
+					(untyped this).scheme = URIScheme.Scheme(scheme_str);
 					pos = scheme_pos + 3;
 				}
 				else {
@@ -263,7 +272,7 @@ class URI
 			}
 			else switch (us)
 			{
-				case javascript:
+				case URIScheme.javascript:
 					this.string = str;
 					return this;
 				
@@ -275,7 +284,7 @@ class URI
 		
 		var user_pos:Int  = str.indexOf('@', pos);
 		if (user_pos != -1) {
-			this.userinfo = str.substr(pos, user_pos - pos);
+			(untyped this).userinfo = str.substr(pos, user_pos - pos);
 			pos = user_pos + 1;
 		}
 		
@@ -283,6 +292,9 @@ class URI
 		var path_pos:Int  = str.indexOf('/', pos);
 		var query_pos:Int = str.indexOf('?', (path_pos  == -1)? pos : path_pos);
 		var frag_pos:Int  = str.indexOf('#', (query_pos == -1)? pos : query_pos);
+		
+		if (port_pos > path_pos)
+			port_pos = -1;
 		
 		if (port_pos != -1)
 		{
@@ -296,8 +308,8 @@ class URI
 				}
 			}
 			
-			this.host = str.substr(pos, port_pos - pos);
-			this.port = Std.parseInt(str.substr(port_pos+1, port_end - port_pos));
+			(untyped this).host = str.substr(pos, port_pos - pos);
+			(untyped this).port = Std.parseInt(str.substr(port_pos+1, port_end - port_pos));
 			pos = port_end;
 		}
 		else if (scheme.notNull())
@@ -312,7 +324,7 @@ class URI
 				}
 			}
 			
-			this.host = str.substr(pos, host_end - pos);
+			(untyped this).host = str.substr(pos, host_end - pos);
 			pos = host_end;
 		}
 		
@@ -322,20 +334,38 @@ class URI
 			if (query_end == -1)
 				query_end = str.length;
 			
-			path  = str.substr(pos, query_pos - pos);
-			query = str.substr(query_pos + 1, query_end - pos);
+			(untyped this).path		= str.substr(pos, query_pos - pos);
+			(untyped this).query	= str.substr(query_pos + 1, query_end - pos);
 		}
 		else if (frag_pos != -1)
 		{
-			path = str.substr(pos, frag_pos - pos);
-			fragment = str.substr(frag_pos + 1);
+			(untyped this).path		= str.substr(pos, frag_pos - pos);
+			(untyped this).fragment	= str.substr(frag_pos + 1);
 		}
 		else
-			path = str.substr(pos);
+			(untyped this).path		= str.substr(pos);
 		
 		if (path == "")
-			path = null;
+			(untyped this).path		= null;
 		
+		(untyped this).string		= str;
+
 		return this;
 	}
+
+
+#if neko
+	public function cleanUp () : Void				{}
+	public function toCode (code:ICodeGenerator)	{ code.construct( this, [ getString() ] ); }
+#end
+}
+
+
+/**
+ * @author 	Ruben Weijers
+ * @since 	sep 8, 2011
+ */
+class URIUtil
+{
+	public static inline function hasScheme (str:String)	{ return str.indexOf(':') != -1; }
 }

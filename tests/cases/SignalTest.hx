@@ -24,8 +24,8 @@ class SignalTest implements haxe.Public
 		
 	//	t.testSend();
 		
-		b.add(new Test(t.testCreate,			"Create Signals",		1000000));
-		b.add(new Test(t.testCreateEmptyClass,	"Create Empty class",	1000000));
+		b.add(new Test(t.testCreate,			"Create Signals",		10000));
+		b.add(new Test(t.testCreateEmptyClass,	"Create Empty class",	10000));
 		t.setup();
 		b.add(new Test(t.testSend,				"Send Signals",			100000));
 		t.setup();
@@ -129,6 +129,7 @@ class Pipes extends Signals
 	var fur : Signal4<Pipes,Pipes,String,Pipes>;
 	
 	public function new() {
+		super();
 		on = new Signal0();
 		off = new Signal1();
 		
@@ -141,7 +142,7 @@ class Pipes extends Signals
 
 class EmptyClass
 {
-	public function new ();
+	public function new () {}
 }
 
 /*

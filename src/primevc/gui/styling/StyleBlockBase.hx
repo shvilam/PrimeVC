@@ -34,6 +34,7 @@ package primevc.gui.styling;
 #end
 #if (neko || debug)
  import primevc.utils.ID;
+  using Type;
 #end
   using primevc.utils.BitUtil;
 
@@ -65,15 +66,15 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 	public var inheritedProperties	(default, null)		: Int;
 	
 	
-	public function new ()
+	public function new (filled:Int = 0)
 	{
 		super();
 #if (debug || neko)
 		_oid = ID.getNext();
 #end
-		filledProperties	= 0;
+		filledProperties	= filled;
 		inheritedProperties	= 0;
-		allFilledProperties	= 0;
+		allFilledProperties	= filled;
 	}
 	
 	
@@ -89,7 +90,7 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 	}
 	
 	
-	private function markProperty ( propFlag:Int, isSet:Bool ) : Void
+	public function markProperty ( propFlag:Int, isSet:Bool ) : Void
 	{
 		if (isSet)	filledProperties = filledProperties.set( propFlag );
 		else		filledProperties = filledProperties.unset( propFlag );
@@ -101,13 +102,16 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 		else		updateAllFilledPropertiesFlag();
 		
 	//	trace("markProperty "+readProperties(propFlag)+" = "+isSet);
+#if !neko
 		invalidate( propFlag );
+#end
 	}
 	
 	
 	public inline function has (propFlag:Int) : Bool		{ return allFilledProperties.has( propFlag ); }
 	public inline function doesntHave (propFlag:Int) : Bool	{ return allFilledProperties.hasNone( propFlag ); }
 	public inline function owns (propFlag:Int) : Bool		{ return filledProperties.has( propFlag ); }
+	public inline function doesntOwn (propFlag:Int) : Bool	{ return filledProperties.hasNone( propFlag ); }
 	public function isEmpty () : Bool						{ return filledProperties == 0; }
 	
 	
@@ -118,11 +122,25 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 #if debug
 	public function readProperties ( flags:Int = -1 )	: String	{ Assert.abstract(); return null; }
 	public inline function readAll () : String						{ return readProperties( allFilledProperties ); }
+	#if !neko
+	public function toString ()
+	{
+		var name = this.getClass().getClassName();
+		var dot	 = name.lastIndexOf(".");
+		return name.substr(dot)+"( "+_oid + " ) -> " +readProperties();
+	}
+	#end
 #end
 	
 	
 #if neko
-	public function toString ()						{ return toCSS(); }
+	#if	debug
+		public var cssName : String;
+		public function toString ()						{ return cssName; }
+	#else
+		public function toString ()						{ return toCSS(); }
+	#end
+	
 	public function toCSS (prefix:String = "") 		{ Assert.abstract(); return ""; }
 	public function cleanUp ()						{ Assert.abstract(); }
 	public function toCode (code:ICodeGenerator)	{ Assert.abstract(); }

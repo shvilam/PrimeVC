@@ -28,11 +28,9 @@
  */
 package primevc.gui.components;
  import primevc.core.collections.IReadOnlyList;
- import primevc.core.traits.IValueObject;
- import primevc.core.validators.IntRangeValidator;
  import primevc.core.dispatcher.Wire;
- import primevc.core.Bindable;
  import primevc.gui.behaviours.components.ButtonSelectedOpenPopup;
+ import primevc.gui.behaviours.components.KeyboardListNavigation;
  import primevc.gui.behaviours.layout.FollowObjectBehaviour;
  import primevc.gui.components.DataButton;
  import primevc.gui.components.ListHolder;
@@ -68,20 +66,20 @@ class ComboBox <DataType> extends DataButton <DataType>
 {
 	/**
 	 * The combobox popup.
-	 * Don't forget to set this property
 	 */
-	public var list					(default, null)					: ListHolder<DataType, DataType>;
+	public var popup				(default, null)					: ListHolder<DataType, DataType>;
+	public var list                 (default, null)                 : SelectableListView<DataType>;
 	public var listData				(default, setListData)			: IReadOnlyList<DataType>;
 	
 	/**
 	 * Injectable method which will create the needed itemrenderer
 	 * @param	item:ListDataType
 	 * @param	pos:Int
-	 * @return 	IUIElement
+	 * @return 	IUIDataElement
 	 */
-	public var createItemRenderer	(default, setCreateItemRenderer) : DataType -> Int -> IUIElement;
+	public var createItemRenderer	(default, setCreateItemRenderer) : DataType -> Int -> IUIDataElement<DataType>;
 	
-	private var selectListItemWire	: Wire<DataType->DataType->Void>;
+//	private var selectListItemWire	: Wire<DataType->DataType->Void>;
 	
 	/**
 	 * Wire for listening to mouse-down events on the stage. Only enabled when
@@ -92,8 +90,8 @@ class ComboBox <DataType> extends DataButton <DataType>
 	
 	public function new (id:String = null, defaultLabel:String = null, icon:Asset = null, selectedItem:DataType = null, listData:IReadOnlyList<DataType> = null)
 	{
+		(untyped this).listData = listData;
 		super(id, defaultLabel, icon, selectedItem);
-		this.listData = listData;
 	}
 	
 	
@@ -101,45 +99,48 @@ class ComboBox <DataType> extends DataButton <DataType>
 	{
 		super.createChildren();
 		
-		if (list == null) {
-			list = new ListHolder( id.value+"List", cast listData, cast listData );
-			list.styleClasses.add( "comboList" );
-			list.behaviours.add( new FollowObjectBehaviour( list, this ) );
-			
-			list.createItemRenderer	= createItemRenderer;
-		}
+		Assert.null(popup);
+		popup       = new ListHolder( id.value+"List", null, listData );
+		list        = new SelectableListView( popup.id.value+"Content", listData );
+		popup.list  = list;
 		
-		Assert.notNull( listData );
+		popup.styleClasses.add( "comboList" );
+		popup.behaviours.add( new FollowObjectBehaviour( popup, this ) );
+		list .behaviours.add( new KeyboardListNavigation( list ) );
+		
+		if (createItemRenderer == null)
+			createItemRenderer = createDefaultItemRenderer;
+		
+		popup.createItemRenderer = createItemRenderer;
+		
+	//  deselect.on( vo.change, this );			// hides combobox-popup when a new data-item has been selected
+	    deselect.on( list.itemSelected, this );	// hides combobox-popup when the user has tried to change the selected item
+	    list.selected.pair( vo ); 				// make sure the vo.value and selected list-item are always the same
 		Assert.notNull( getLabelForVO );
-		Assert.notNull( createItemRenderer );
 		
 		//leave the opening and closing of the list to the behaviouruserEvents.
-		behaviours.add( new ButtonSelectedOpenPopup( this, list ) );
+		behaviours.add( new ButtonSelectedOpenPopup( this, popup ) );
 		toggleSelect	.on( userEvents.mouse.down, this );
 		handleSelected	.on( selected.change, this );
 		
 		windowWire = checkToDeselect.on( window.userEvents.mouse.down, this );
 		windowWire.disable();
-		
-		handleItemRendererClick.on( list.childClick, this );
-		
-		//listen to layout changes.. make sure the combobox is always at least the size of the combobox button
-	//	updateListWidth	.on( layout.changed, this );
-		
-		//select the current value in the list when the list item-renderers are created
-		selectCurrentValue	.on( list.state.change, this );
-		
-		//re-select item on vo change, but only when list is initialized (start disabled)
-		selectListItemWire = selectListItem.on( vo.change, this );
-		selectListItemWire.disable();
 	}
 	
 	
 	override public function dispose ()
 	{
+		if (windowWire != null) {
+			windowWire.dispose();
+			windowWire = null;
+		}
 		if (list != null) {
-			list.dispose();
-			list = null;
+		    list.dispose();
+		    return;
+		}
+		if (popup != null) {
+			popup.dispose();
+			popup = null;
 		}
 		listData = null;
 		super.dispose();
@@ -156,11 +157,8 @@ class ComboBox <DataType> extends DataButton <DataType>
 	{
 		if (v != listData)
 		{
-			if (selectListItemWire != null) // FIXME: Unsure if needed
-				selectListItemWire.disable();
-			
-			if (list != null)
-				list.data = cast v;
+			if (popup != null)
+				popup.listData = cast v;
 			
 			listData	= v;
 			vo.value	= null;
@@ -175,10 +173,19 @@ class ComboBox <DataType> extends DataButton <DataType>
 		if (v != createItemRenderer)
 		{
 			createItemRenderer = v;
-			if (list != null)
-				list.createItemRenderer = v;
+			if (popup != null)
+				popup.createItemRenderer = v;
 		}
 		return v;
+	}
+	
+	
+	private function createDefaultItemRenderer (vo:DataType, pos:Int)
+	{
+		var b = new DataButton<DataType>();
+		b.vo.value = vo;
+		b.getLabelForVO = getLabelForVO;
+		return cast b;
 	}
 	
 	
@@ -188,103 +195,6 @@ class ComboBox <DataType> extends DataButton <DataType>
 	//
 	
 	
-	/**
-	 * Method is called when an item-renderer in the list is clicked. The
-	 * method will try to update the value of the combobox.
-	 */
-	private function handleItemRendererClick (mouseEvt:MouseState) : Void
-	{
-		if (mouseEvt.target != null)
-		{
-			if (mouseEvt.target.is( DataButton )) {
-				var dataButton : DataButton<DataType> = cast mouseEvt.target;
-				vo.value = dataButton.vo.value;
-				deselect();
-			}
-			
-			else if (mouseEvt.target.is( IUIDataElement )) {
-				var dataElement : IUIDataElement<DataType> = cast mouseEvt.target;
-				vo.value = dataElement.data;
-				deselect();
-			}
-		}
-	}
-	
-	
-	/**
-	 * Method will update the min-width of the list to the current-width of
-	 * the button to make sure the list is always at least the same width as
-	 * the button
-	 */
-/*	private function updateListWidth (changes:Int)
-	{
-		if (changes.has(LayoutFlags.WIDTH) && list.content != null)
-		{
-			var l = list.content.layout;
-			trace("update list min-width to "+layout.innerBounds.width);
-			if (l.widthValidator == null)
-				l.widthValidator = new IntRangeValidator( layout.innerBounds.width );
-			else
-				l.widthValidator.min = layout.innerBounds.width;
-		}
-	}*/
-	
-	
-	/**
-	 * Method will try to select the item-renderer of the new value-object in
-	 * the list
-	 */
-	private function selectListItem (newVO:DataType, oldVO:DataType)
-	{
-	//	trace( oldVO + " => "+newVO+"; selected: "+isSelected());
-		
-#if debug
-		if (newVO != null)
-			Assert.that( listData.has(newVO) );
-#end		
-		
-		Assert.notNull(list);
-		Assert.notNull(list.content);
-		
-		if (oldVO != null)
-		{
-			//change selected itemrenderer in list
-			var r = list.content.getItemRendererFor( oldVO );
-		//	trace(this+".deselect "+r);
-			if (r != null && r.is(ISelectable))
-				r.as(ISelectable).deselect();
-		}
-		
-		
-		if (newVO != null)
-		{
-			//change selected itemrenderer in list
-			var r = list.content.getItemRendererFor( newVO );
-		//	trace(this+".select "+r);
-			if (r != null && r.is(ISelectable))
-				r.as(ISelectable).select();
-		}
-	}
-	
-	
-	/**
-	 * Method will select the current-value the first-time the list is opened
-	 */
-	private function selectCurrentValue ()
-	{
-		if (list.isInitialized())
-		{
-			Assert.notThat(selectListItemWire.isEnabled());
-			
-			if (vo.value != null)
-				selectListItem( vo.value, null );
-			
-			selectListItemWire.enable();
-		//	updateListWidth( LayoutFlags.WIDTH );
-		}
-	}
-	
-	
 	private function handleSelected (newVal:Bool, oldVal:Bool)
 	{
 		if (newVal)		windowWire.enable();
@@ -292,24 +202,33 @@ class ComboBox <DataType> extends DataButton <DataType>
 	}
 	
 	
-	private function checkToDeselect (mouseObj:MouseState)
+	public function checkToDeselect (m:MouseState)
 	{
-		if (!mouseObj.target.is(IUIElement)) {
-			deselect();
+	    if (shouldDeselectByMouse(m))
+	        deselect();
+	}
+	
+	
+	public inline function shouldDeselectByMouse (m:MouseState) : Bool
+	{
+	    var deselect = false;
+	    if (!m.related.is(IUIElement)) {
+			deselect = true;
 		}
 		else
 		{
-			var target = mouseObj.target.as(IUIElement);
-			if (target != this && target != list)
+			var target = m.related.as(IUIElement);
+			if (target != this && target != popup)
 			{
 				var displayTarget = target.container;
-				while (displayTarget != null && displayTarget != displayTarget.window && displayTarget != list)
+				while (displayTarget != null && displayTarget != displayTarget.window && displayTarget != popup)
 				 	displayTarget = displayTarget.container;
 				
-				if (displayTarget != list) // && !list.content.children.has(target))
-					deselect();
+				if (displayTarget != popup) // && !popup.list.children.has(target))
+					deselect = true;
 			//	else: mouse event target is a descendant of list, do nothing
 			}
 		}
+		return deselect;
 	}
 }

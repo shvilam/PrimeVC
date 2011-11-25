@@ -27,17 +27,24 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.components;
+ import primevc.core.geom.space.Horizontal;
  import primevc.core.dispatcher.Signal0;
  import primevc.core.Bindable;
+
+ import primevc.gui.components.Form;
+ import primevc.gui.core.IUIContainer;
+ import primevc.gui.core.IUIElement;
  import primevc.gui.core.UIContainer;
+ import primevc.gui.layout.LayoutContainer;
+ import primevc.gui.managers.ISystem;
 
 
 
 /**
- * Panel component will display a floating window with support for a label and
+ * Panel component will display a floating window with support for a title and
  * a close-btn. 
  * 
- * Components for label and the closeBtn will be created in the skin. The skin
+ * Components for title and the closeBtn will be created in the skin. The skin
  * will also add the behaviour to drag the panel around.
  * 
  * @author Ruben Weijers
@@ -45,46 +52,90 @@ package primevc.gui.components;
  */
 class Panel extends UIContainer
 {
-	public var label	(default, null) : Bindable<String>;
+	public var title	(default, null) 		: Bindable<String>;
 	
+	/**
+	 * Bottom layoutcontainer which can contain controls of the panel
+	 */
+	public var footer 	(default, null) 		: LayoutContainer;
 	/**
 	 * Container in which the real content for the panel can be placed.
-	 * The instance will be created in the constructor. This way, the children
-	 * of a panel can always be added.
 	 */
-	public var content	(default, null)	: UIContainer;
-	/**
-	 * Signal to send a request to be closed to whoever is listening.
-	 */
-	public var close	(default, null) : Signal0;
+	public var content	(default, setContent)	: IUIElement;
+
+	public var closed 	(default, null) 		: Signal0;
+
+	private var sys 	: ISystem;
 	
 	
-	public function new (id:String = null, label:String = null)
+	public function new (id:String = null, title:String = null, content:IUIElement = null, system:ISystem = null)
 	{
 		super(id);
-		this.label	= new Bindable<String>(label);
-		content		= new UIContainer();
-		close		= new Signal0();
+		this.title		= new Bindable<String>(title);
+		this.content	= content;
+		sys 			= system;
+		closed 			= new Signal0();
 	}
 	
 	
 	override public function dispose ()
 	{
-		close.dispose();
-		content.dispose();
-		label.dispose();
-		content	= null;
-		label	= null;
-		close	= null;
+		if (isDisposed())
+			return;
 		
+		if (footer != null) {
+			footer.dispose();
+			footer = null;
+		}
+
 		super.dispose();
+		
+		closed.dispose();
+		title .dispose();
+		title	= null;
+		sys 	= null;
+		closed 	= null;
 	}
 	
 	
 	override private function createChildren ()
 	{
-		content.styleClasses.add("content");
-		layoutContainer.children.add( content.layout );
-		children.add( content );
+		if (content != null)
+			attach(content);
+	}
+
+
+	public inline function open ()		if (!isOnStage()) { sys.popups.add(this, false); }
+	public inline function openModal()	if (!isOnStage()) { sys.popups.add(this, true); }
+	public inline function close ()		if ( isOnStage()) { sys.popups.remove(this); closed.send(); }
+
+
+	public function addToFooter (b:IUIElement) : Void
+	{
+		if (footer == null) {
+			footer = Form.createHorizontalRow( Horizontal.right );
+			attachLayout( footer );
+		}
+		b.attachLayoutTo( footer ).attachDisplayTo( this );
+	}
+
+
+	private function setContent (v:IUIElement)
+	{
+		if (v != content)
+		{
+			if (v != null)
+				v.id.value = "content";
+			
+			if (isInitialized()) {
+				if (content != null)
+					content.detach();
+				
+				if (v != null)
+					content.attachTo(this);
+			}
+			content = v;
+		}
+		return v;
 	}
 }

@@ -50,7 +50,7 @@ class UserProxy extends EditProxy<IUserVO, UserVO, IUserEVO, UserProxyEvents>
 {
 	
 	public function login(name:String, pass:String) {
-		events.loggedIn.send( null );
+		f.events.loggedIn.send( null );
 	}
 }
 

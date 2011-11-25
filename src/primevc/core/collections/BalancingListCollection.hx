@@ -31,8 +31,8 @@ package primevc.core.collections;
  import primevc.core.collections.IEditableList;
  import primevc.core.dispatcher.Signal1;
  import primevc.utils.DuplicateUtil;
- import primevc.utils.NumberMath;
-  using primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
  
 

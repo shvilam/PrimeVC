@@ -55,7 +55,7 @@ class DirectToolTipBehaviour extends BehaviourBase<UIComponent>
 		super(target);
 #if debug
 		Assert.notNull(target, "Target can't be null for tooltipbehaviour");
-		Assert.notNull(label, "Label can't be null for tooltip of "+target);
+		Assert.notNull(label,  "Label can't be null for tooltip of "+target);
 #end
 		this.label = label;
 	}
@@ -63,7 +63,7 @@ class DirectToolTipBehaviour extends BehaviourBase<UIComponent>
 	
 	override private function init ()
 	{
-#if debug	Assert.notNull( target.window, "Target "+target+" must be on the stage for this behaviour to work." ); #end
+//#if debug	Assert.notNull( target.window, "Target "+target+" must be on the stage for this behaviour to work." ); #end
 			showToolTip.on( target.userEvents.mouse.rollOver, this );
 			hideToolTip.on( target.userEvents.mouse.rollOut, this );
 	}

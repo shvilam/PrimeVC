@@ -90,6 +90,9 @@ interface ILayoutClient
 	public function isValidating ()			: Bool;
 	public function isInvalidated ()		: Bool;
 	
+	public function attachTo 	(container:ILayoutContainer, depth:Int = -1) 	: LayoutClient;
+	public function detach 		()												: LayoutClient;
+	public function changeDepth	(newPos:Int)									: LayoutClient;
 	
 	//
 	// LAYOUT METHODS
@@ -268,6 +271,14 @@ interface ILayoutClient
 	 */
 	public var outerBounds	(default, null)		: IntRectangle;
 	
+	public function hasMaxWidth () : Bool;
+	public function hasMaxHeight () : Bool;
+
+	public function invalidateHorPaddingMargin () : Void;
+	public function invalidateVerPaddingMargin () : Void;
+
+	public function hasEmptyPadding ()	: Bool;
+	public function hasEmptyMargin ()	: Bool;
 	
 #if debug
 	public var name:String;

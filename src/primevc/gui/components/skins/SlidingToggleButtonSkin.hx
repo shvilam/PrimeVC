@@ -39,7 +39,7 @@ package primevc.gui.components.skins;
  import primevc.types.Number;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
 
 
 /**
@@ -88,8 +88,6 @@ class SlidingToggleButtonSkin extends Skin<DataButton<Null<Bool>>>
 	//	tooltipLabel = new Bindable<String>(owner.data.value);
 		
 		behaviours.add( new DirectToolTipBehaviour( owner, owner.data ) );
-		trace(owner.data.value);
-		
 		owner.getLabelForVO = getButtonLabel;
 	//	updateToolTip		.on( owner.data.change, this );
 		owner.toggleSelect	.on( owner.userEvents.mouse.click, this );
@@ -123,28 +121,16 @@ class SlidingToggleButtonSkin extends Skin<DataButton<Null<Bool>>>
 		onLabel		= new UITextField("onLabel");
 		offLabel	= new UITextField("offLabel");
 		
-		onLabel.data.value			= "Aan";
-		offLabel.data.value			= "Uit";
+		onLabel.data.value			= "Ja";	//TRANSLATE
+		offLabel.data.value			= "Nee";	//TRANSLATE
 		slideBtn.layout.relative	= new RelativeLayout();
+		slideBtn.layout.relative.vCenter = 0;
 	//	offIcon.layout.maintainAspectRatio	= true;
 	//	offIcon.layout.resize(10,10);
 		
+		owner.attach( onBg ).attach( offLabel ).attach( onLabel ).attach( slideBtn );
+		
 		var l = owner.layoutContainer;
-		var c = owner;
-		
-		l.children.add( onBg.layout );
-		l.children.add( offLabel.layout );
-		l.children.add( onLabel.layout );
-	//	l.children.add( offIcon.layout );
-	//	l.children.add( onIcon.layout );
-		l.children.add( slideBtn.layout );
-		c.children.add( onBg );
-	//	c.children.add( offIcon );
-	//	c.children.add( onIcon );
-		c.children.add( offLabel );
-		c.children.add( onLabel );
-		c.children.add( slideBtn );
-		
 		l.algorithm = new RelativeAlgorithm();
 		positionIcons.on( l.changed, this );	//update the position of the on/off icons
 		positionIcons(LayoutFlags.SIZE);
@@ -152,23 +138,12 @@ class SlidingToggleButtonSkin extends Skin<DataButton<Null<Bool>>>
 	}
 	
 	
-	override private function removeChildren ()
+	override public  function removeChildren ()
 	{
-		var l = owner.layoutContainer.children;
-		var c = owner.children;
-		
-		c.remove( onBg );
-	//	c.remove( offIcon );
-	//	c.remove( onIcon );
-		c.remove( offLabel );
-		c.remove( onLabel );
-		c.remove( slideBtn );
-	//	l.remove( offIcon.layout );
-	//	l.remove( onIcon.layout );
-		l.remove( offLabel.layout );
-		l.remove( onLabel.layout );
-		l.remove( onBg.layout );
-		l.remove( slideBtn.layout );
+		onBg	.detach();
+		offLabel.detach();
+		onLabel	.detach();
+		slideBtn.detach();
 	}
 	
 	

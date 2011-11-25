@@ -39,7 +39,7 @@ class ID
 {
 	static var next : Int = 0;
 	
-	static inline public function getNext ()
+	static inline public function getNext () : Int
 	{
 		#if neko if (next == null) next = 0; #end
 		return next++;

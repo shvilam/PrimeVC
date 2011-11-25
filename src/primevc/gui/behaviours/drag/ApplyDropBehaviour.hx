@@ -31,7 +31,7 @@ package primevc.gui.behaviours.drag;
  import primevc.gui.traits.IDataDropTarget;
  import primevc.gui.traits.IDropTarget;
  import primevc.gui.traits.ILayoutable;
- import primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
@@ -62,7 +62,8 @@ class ApplyDropBehaviour extends BehaviourBase <IDropTarget>
 	{
 		var newChild	= droppedItem.target;
 		var depth		= IntMath.min( target.children.length, target.getDepthForBounds( droppedItem.dropBounds ) );
-		
+	//	trace(target+"; newChild: "+newChild+"; depth: "+depth+"; "+target.isDisplayDropAllowed( droppedItem.displayCursor ));
+
 		//add itemrenderer to datalist?
 		if (target.isDisplayDropAllowed( droppedItem.displayCursor ))
 		{
@@ -88,7 +89,7 @@ class ApplyDropBehaviour extends BehaviourBase <IDropTarget>
 		{
 			var dataTarget	= target.as(IDataDropTarget);
 			var dataCursor	= droppedItem.dataCursor;
-			
+
 			if (dataTarget.isDataDropAllowed( cast dataCursor ))
 				dataCursor.moveTarget( depth, dataTarget.list );
 			else

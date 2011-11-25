@@ -30,17 +30,20 @@
 package primevc.avm2.display;
  import flash.display.DisplayObject;
  import primevc.core.geom.IntRectangle;
+#if dragEnabled
  import primevc.gui.behaviours.drag.DragInfo;
+#end
  import primevc.gui.display.DisplayDataCursor;
- import primevc.gui.display.ISprite;
  import primevc.gui.display.DisplayList;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
+ import primevc.gui.display.ISprite;
  import primevc.gui.display.Window;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEventTarget;
  import primevc.gui.events.UserEvents;
-  using primevc.utils.NumberMath;
+  using primevc.utils.IfUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
  
@@ -64,7 +67,9 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	public var displayEvents	(default, null)			: DisplayEvents;
 	
 	public var rect				(default, null)			: IntRectangle;
+#if dragEnabled
 	public var isDragging		: Bool;
+#end
 	
 	
 	
@@ -80,18 +85,17 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	
 	public function dispose ()
 	{
-		if (userEvents == null)
+		if (userEvents.isNull())
 			return;		// already disposed
 		
-		window = null;
-		children.dispose();
-		userEvents.dispose();
+		if (container.notNull())
+			detachDisplay();
+		
+		window 			= null;
+		children 	 .dispose();
+		userEvents 	 .dispose();
 		displayEvents.dispose();
-		
-		if (container != null)
-			container.children.remove(this);
-		
-		rect.dispose();
+		rect 		 .dispose();
 		
 		children		= null;
 		userEvents		= null;
@@ -102,7 +106,7 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	
 	public inline function isObjectOn (otherObj:IDisplayObject) : Bool
 	{
-		return otherObj == null ? false : otherObj.as(DisplayObject).hitTestObject( this.as(DisplayObject) );
+		return otherObj.isNull() || otherObj.as(DisplayObject).hitTestObject( this.as(DisplayObject) );
 	}
 	
 	
@@ -112,22 +116,24 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	}
 	
 	
-	public inline function setFocus ()		{ if (window != null)							{ window.focus = this; } }
-	public inline function removeFocus ()	{ if (window != null && window.focus == this)	{ window.focus = null; } }
+	public inline function setFocus ()		{ if (window.notNull())							{ window.focus = this; } }
+	public inline function removeFocus ()	{ if (window.notNull() && window.focus == this)	{ window.focus = null; } }
 	
 	
 	
 #if !neko
-	public function getDisplayCursor () : DisplayDataCursor
-	{
-		return new DisplayDataCursor(this);
-	}
+	public function getDisplayCursor			() : DisplayDataCursor											{ return new DisplayDataCursor(this); }
+	public inline function attachDisplayTo		(target:IDisplayContainer, pos:Int = -1)	: IDisplayObject	{ target.children.add( this, pos ); return this; }
+	public inline function detachDisplay		()											: IDisplayObject	{ container.children.remove( this ); return this; }
+	public inline function changeDisplayDepth	(newPos:Int)								: IDisplayObject	{ container.children.move( this, newPos ); return this; }
 	
 	
+	#if dragEnabled
 	public function createDragInfo () : DragInfo
 	{
 		return new DragInfo( this );
 	}
+	#end
 #end
 	
 	
@@ -144,7 +150,7 @@ class Sprite extends flash.display.Sprite, implements ISprite
 			var oldV	= container;
 			container	= newV;
 			
-			if (container != null) {
+			if (container.notNull()) {
 				//if the container property is set and the sprite is not yet in the container, add the sprite to the container
 			//	if (!container.children.has(this))
 			//		container.children.add(this);
@@ -153,7 +159,7 @@ class Sprite extends flash.display.Sprite, implements ISprite
 			}
 			
 			//if the container prop is set to null, remove the sprite from it's previous container and set the window prop to null.
-			else if (oldV != null) {
+			else if (oldV.notNull()) {
 				if (oldV.children.has(this))
 					oldV.children.remove(this);
 				
@@ -174,7 +180,7 @@ class Sprite extends flash.display.Sprite, implements ISprite
 			for (i in 0...children.length)
 			{
 				var child = children.getItemAt(i);
-				if (child != null)
+				if (child.notNull())
 					child.window = v;
 			}
 		}

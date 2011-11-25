@@ -15,15 +15,15 @@ using primevc.utils.TypeUtil;
  * from the element itself. It defines what ImageLoader events 
  * should be listened to and what functions react to them. 
  */
-class ImageLoaderMediator extends Mediator <MainEvents, MainModel, MainView, Image>
+class ImageLoaderMediator extends Mediator <MainFacade, Image>
 {	
     override public function startListening ()
     {
         if (isListening())
             return;
         // Bind a ui event to a function.
-        //events.loadImage.bind(this, viewComponent.loadImage);
-		loadImage.on(events.loadImage, this);
+        //events.loadImage.bind(this, gui.loadImage);
+		loadImage.on(f.events.loadImage, this);
         super.startListening();
     }
 
@@ -32,15 +32,16 @@ class ImageLoaderMediator extends Mediator <MainEvents, MainModel, MainView, Ima
     {
         if (!isListening())
             return;
+
+		super.stopListening();
         // Unbind action from a ui event.
-        events.loadImage.unbind(this);
-        super.stopListening ();
+        f.events.loadImage.unbind(this);
     }
 	
 	
 	private function loadImage(url:String) 
 	{
-		//viewComponent.layout.maintainAspectRatio = false;
-		viewComponent.data = Asset.fromString(url);
+		//gui.layout.maintainAspectRatio = false;
+		gui.data = Asset.fromString(url);
 	}
 }

@@ -50,51 +50,32 @@ class Signal3 <A,B,C> extends Signal<A->B->C->Void>, implements ISender3<A,B,C>,
 		
 		while (w.notNull())
 		{
-			var x = w.next();
+			nextSendable = w.next();
+			Assert.that(w.isEnabled());
+			Assert.that(w != nextSendable);
+			Assert.that(w.flags != 0);
 			
-			if (w.isEnabled())
-			{
-				Assert.that(w != x);
-				Assert.that(w.flags != 0);
+			if (w.flags.has(Wire.SEND_ONCE))
+				w.disable();
+			
+#if (flash9 && debug) try { #end
+			if (w.flags.has(Wire.VOID_HANDLER))
+			 	w.sendVoid();
+			else
+			 	w.handler(_1,_2,_3);
+#if (flash9 && debug) } catch (e : flash.errors.TypeError) { throw "Wrong argument type ("+ e +") for " + w+";\n\tstacktrace: "+e.getStackTrace()+"\n"; } #end
 				
-				if (w.flags.has(Wire.SEND_ONCE))
-					w.disable();
-				
-				#if (flash9 && debug) try #end {
-					if (w.flags.has(Wire.VOID_HANDLER))
-					 	w.sendVoid();
-					else
-					 	w.handler(_1,_2,_3);
-				}
-				#if (flash9 && debug) catch (e : flash.errors.TypeError) {
-					throw "Wrong argument type(s) ("+ e +") for " + w+";\n\tstacktrace: "+e.getStackTrace()+"\n";
-				}
-				#end
-				
-				if (w.flags.has(Wire.SEND_ONCE))
-				 	w.dispose();
-			}
-			w = x; // Next node
+			if (w.flags.has(Wire.SEND_ONCE))
+			 	w.dispose();
+			w = nextSendable; // Next node
 		}
+		nextSendable = null;
 	}
 	
-	public inline function bind(owner:Dynamic, handler:A->B->C->Void)
-	{
-		return Wire.make( this, owner, handler, Wire.ENABLED );
-	}
-	
-	public inline function bindOnce(owner:Dynamic, handler:A->B->C->Void)
-	{
-		return Wire.make( this, owner, handler, Wire.ENABLED | Wire.SEND_ONCE);
-	}
-	
-	public inline function observe(owner:Dynamic, handler:Void->Void)
-	{
-		return Wire.make( this, owner, cast handler, Wire.ENABLED | Wire.VOID_HANDLER);
-	}
-	
-	public inline function observeOnce(owner:Dynamic, handler:Void->Void)
-	{
-		return Wire.make( this, owner, cast handler, Wire.ENABLED | Wire.VOID_HANDLER | Wire.SEND_ONCE);
-	}
+	public inline function bind 			(owner:Dynamic, handler:A->B->C->Void)		return Wire.make( this, owner, handler, Wire.ENABLED )
+	public inline function bindOnce 		(owner:Dynamic, handler:A->B->C->Void)		return Wire.make( this, owner, handler, Wire.ENABLED | Wire.SEND_ONCE)
+	public inline function bindDisabled 	(owner:Dynamic, handler:A->B->C->Void)		return Wire.make( this, owner, cast handler, 0)
+	public inline function observe 			(owner:Dynamic, handler:Void->Void)			return Wire.make( this, owner, cast handler, Wire.ENABLED | Wire.VOID_HANDLER)
+	public inline function observeOnce		(owner:Dynamic, handler:Void->Void)			return Wire.make( this, owner, cast handler, Wire.ENABLED | Wire.VOID_HANDLER | Wire.SEND_ONCE)
+	public inline function observeDisabled 	(owner:Dynamic, handler:Void->Void)			return Wire.make( this, owner, cast handler, Wire.VOID_HANDLER)
 }

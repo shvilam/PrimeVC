@@ -32,7 +32,7 @@ package primevc.gui.behaviours.scroll;
  import primevc.core.geom.IntPoint;
  import primevc.gui.events.MouseEvents;
   using primevc.utils.Bind;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 #end
 
@@ -60,9 +60,9 @@ class CornerScrollBehaviour extends MouseScrollBehaviourBase
 		scrollSpeed		= null;
 	}
 	
-	override private function createBindings ()
+	override private function init ()
 	{
-		super.createBindings();
+		super.init();
 		scrollBinding = scroll.on( target.displayEvents.enterFrame, this );
 		scrollBinding.disable();
 	}

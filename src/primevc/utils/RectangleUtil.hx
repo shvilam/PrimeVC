@@ -28,6 +28,8 @@
  */
 package primevc.utils;
  import primevc.core.geom.IRectangle;
+ import primevc.core.geom.IntRectangle;
+ import primevc.core.geom.Rectangle;
 
 
 /**
@@ -36,9 +38,16 @@ package primevc.utils;
  * @author Ruben Weijers
  * @creation-date Jul 30, 2010
  */
-class RectangleUtil
+extern class RectangleUtil
 {
 	public static inline function isEqualTo (r1:IRectangle, r2:IRectangle) : Bool {
 		return r1.left != r2.left || r1.top != r2.top || r1.right != r2.right || r1.bottom != r2.bottom;
 	}
+	
+	
+#if flash9
+	public static inline function toFloatRectangle (r:IntRectangle) : Rectangle {
+		return new Rectangle (0, 0, r.width, r.height);
+	}
+#end
 }

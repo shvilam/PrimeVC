@@ -28,15 +28,15 @@
  */
 package primevc.gui.behaviours.drag;
  import primevc.core.dispatcher.Wire;
-// import primevc.core.geom.Point;
+ import primevc.core.geom.Point;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.IUIContainer;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.traits.IDropTarget;
- import primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.Bind;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 
@@ -59,8 +59,6 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 	{
 		layoutGroup = target.layoutContainer;
 		dragOverHandler			.on( target.dragEvents.over, this );
-		removeTmpTileFromLayout	.on( target.dragEvents.out, this );
-		removeTmpTileFromLayout	.on( target.dragEvents.drop, this );
 	}
 	
 	
@@ -68,8 +66,6 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 	{
 		layoutGroup = null;
 		target.dragEvents.over.unbind(this);
-		target.dragEvents.out.unbind(this);
-		target.dragEvents.drop.unbind(this);
 		
 		if (mouseMoveBinding != null) {
 			mouseMoveBinding.dispose();
@@ -88,6 +84,9 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 			mouseMoveBinding = updateTargetAfterMouseMove.on( target.window.mouse.events.move, this );
 		else
 			mouseMoveBinding.enable();
+		
+		removeTmpTileFromLayout	.on( target.dragEvents.out,  this );
+		removeTmpTileFromLayout	.on( target.dragEvents.drop, this );
 	}
 	
 	
@@ -97,26 +96,40 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 		Assert.notNull( mouseMoveBinding );
 		
 		mouseMoveBinding.disable();
-		layoutGroup.children.remove( source.layout );
+		source.layout.detach();
 		target.children.mouseEnabled = oldMouseChildrenValue;
 		
 		draggedItem = null;
+		target.dragEvents.out .unbind(this);
+		target.dragEvents.drop.unbind(this);
 	}
 	
 	
 	private function updateTargetAfterMouseMove (mouseObject:MouseState)
 	{
-		var newDepth	= target.children.length;
-		var dragPos		= mouseObject.local;  //target.globalToLocal( new Point( draggedItem.target.x, draggedItem.target.y ) );
-		var curDepth	= layoutGroup.children.indexOf(draggedItem.layout);
+		var dragPos		= target.globalToLocal( new Point( draggedItem.target.x, draggedItem.target.y ) ); //mouseObject.local;  //target.globalToLocal( new Point( draggedItem.target.x, draggedItem.target.y ) );
+
+		/*if (!mouseObject.target.is(IDropTarget) || target != mouseObject.target.as(IDropTarget)) {
+			dragPos = mouseObject.target.localToGlobal(dragPos);
+			dragPos = target.globalToLocal(dragPos);
+		}*/
+
+		var origIndex	= draggedItem.displayCursor.layoutDepth;
+		var curDepth 	= layoutGroup.children.indexOf(draggedItem.layout);
 		var rect		= draggedItem.dragRectangle;
 		rect.left		= dragPos.x.roundFloat();
 		rect.top		= dragPos.y.roundFloat();
 		
-		if (layoutGroup.algorithm != null)
-			newDepth = IntMath.min( newDepth, layoutGroup.algorithm.getDepthForBounds( rect ) );
-		
-	//	trace("updateTargetAfterMouseMove "+curDepth+" -> "+newDepth);
+		var newIndex 	= target.getDepthForBounds(rect); //layoutGroup.algorithm != null ? layoutGroup.algorithm.getDepthForBounds(rect) - layoutGroup.fixedChildStart : target.children.length;
+		var newDepth 	= newIndex - layoutGroup.fixedChildStart;
+
+		// important: raise the depth with one if the original position of the dragged item is smaller then the new one. 
+		// This is nescary because beginDrag doesn't remove the dragged-layout from the layoutcontainer, but only changes
+		// includeInLayout to 'false'.
+		// So when the new position is 4 and the old is 1, it doesn't take in account the fact that the gap and the original layout, both are in the layoutcontainer
+		if (origIndex >= layoutGroup.fixedChildStart && newIndex > origIndex)
+			newDepth++;
+
 		if (curDepth == -1)
 			layoutGroup.children.add( draggedItem.layout, newDepth );
 		else if (curDepth != newDepth)

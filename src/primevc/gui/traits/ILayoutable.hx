@@ -37,5 +37,5 @@ package primevc.gui.traits;
 interface ILayoutable
 {
 	public var layout (default, null)	: LayoutClient;
-	private function createLayout ()	: Void;
+//	private function createLayout ()	: Void;
 }

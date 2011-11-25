@@ -52,11 +52,10 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.gui.layout.LayoutContainer;
  import primevc.types.Number;
  import primevc.utils.FastArray;
- import primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.BitUtil;
   using primevc.utils.Bind;
   using primevc.utils.NumberUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.TypeUtil;
  
 

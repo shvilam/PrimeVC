@@ -34,7 +34,6 @@ package primevc.core.geom;
  import primevc.tools.generator.ICSSFormattable;
  import primevc.utils.ID;
 #end
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
  
 

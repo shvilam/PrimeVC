@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.input;
+ import primevc.core.geom.Point;
  import primevc.gui.display.Window;
  import primevc.gui.events.MouseEvents;
 
@@ -39,11 +40,12 @@ package primevc.gui.input;
  */
 class Mouse //implements IInputDevice 
 {
-	public var x		(getX, never)	: Float;
-	public var y		(getY, never)	: Float;
+	public var x		(getX, 		never)	: Float;
+	public var y		(getY, 		never)	: Float;
+	public var pos 		(getPos, 	never) 	: Point;
 	
-	private var window	(default, null)	: Window;
-	public var events	(default, null)	: MouseEvents;
+	private var window	(default, 	null)	: Window;
+	public var events	(default, 	null)	: MouseEvents;
 	
 	
 	public function new (window)
@@ -87,5 +89,11 @@ class Mouse //implements IInputDevice
 #if (flash9 || air)
 		return window.target.mouseY;
 #end
+	}
+
+
+	private inline function getPos ()
+	{
+		return new Point(x,y);
 	}
 }

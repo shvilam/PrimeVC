@@ -1,10 +1,12 @@
 -lib feffects
+#-lib listtools
 #-cp ../libs
 -cp libs/haxe/neko
+#-cp libs/haxe
 -cp libs/apparat
 -cp src
 #-cp ../generated-src
 #-cp ../skins/flair
--cp ./
+#-cp ./
 #-main cases.StyleParserTest
 #-neko CSSParser.n

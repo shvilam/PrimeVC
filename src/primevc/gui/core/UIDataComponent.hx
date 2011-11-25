@@ -30,8 +30,6 @@ package primevc.gui.core;
  import primevc.core.collections.DataCursor;
  import primevc.core.collections.IReadOnlyList;
  import primevc.core.traits.IValueObject;
-// import primevc.core.Bindable;
-// import primevc.core.IBindable;
   using primevc.utils.BitUtil;
   using primevc.utils.TypeUtil;
  
@@ -52,8 +50,6 @@ package primevc.gui.core;
  */
 class UIDataComponent <DataType> extends UIComponent, implements IUIDataElement <DataType>
 {
-//	public var vo (default, setVO)		: IBindable < DataType >;
-//	public var data (getData, setData)	: DataType;
 	public var data (default, setData)	: DataType;
 	
 	
@@ -124,11 +120,14 @@ class UIDataComponent <DataType> extends UIComponent, implements IUIDataElement 
 	// GETTERS / SETTERS
 	//
 	
-	private function setData (v:DataType)
+	/**
+	 * Public setter so that it can be used as event-handler
+	 */
+	public function setData (v:DataType)
 	{
 		if (v != data)
 		{
-			if (data != null)// && window != null)
+			if (isInitialized() && data != null)// && window != null)
 				removeData();
 			
 			data = v;
@@ -136,6 +135,12 @@ class UIDataComponent <DataType> extends UIComponent, implements IUIDataElement 
 		}
 		
 		return v;
+	}
+
+
+	public inline function unsetData ()
+	{
+		data = null;
 	}
 	
 	

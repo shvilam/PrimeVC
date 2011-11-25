@@ -29,15 +29,16 @@
 package primevc.gui.events;
  import primevc.core.dispatcher.Signals;
  import primevc.core.geom.Point;
-// import primevc.gui.display.ISprite;
+ import primevc.core.traits.IClonable;
  import primevc.gui.events.KeyModState;
+
 
 typedef MouseEvents = 
 	#if		flash9	primevc.avm2.events.MouseEvents;
 	#elseif	flash8	primevc.avm1.events.MouseEvents;
 	#elseif	js		primevc.js  .events.MouseEvents;
 	#elseif	neko	primevc.neko.events.MouseEvents;
-	#else	#error	#end
+	#else			#error; #end
 
 typedef MouseHandler	= MouseState -> Void;
 typedef MouseSignal		= primevc.core.dispatcher.Signal1<MouseState>;
@@ -47,6 +48,7 @@ typedef MouseSignal		= primevc.core.dispatcher.Signal1<MouseState>;
  * Cross-platform mouse events.
  * 
  * @author Danny Wilson
+ * @author Ruben Weijers
  * @creation-date jun 14, 2010
  */
 class MouseSignals extends Signals
@@ -124,8 +126,10 @@ class MouseSignals extends Signals
  * @author Danny Wilson
  * @creation-date jun 14, 2010
  */
-class MouseState extends KeyModState
+class MouseState extends KeyModState, implements IClonable<MouseState>
 {
+	public static inline var fake = new MouseState( 0, null, null, null, null );
+	
 	/*  var flags: Range 0 to 0xFFFFFF
 		
 		scrollDelta				Button				clickCount				KeyMod
@@ -156,7 +160,7 @@ class MouseState extends KeyModState
 		super(f,t);
 		this.local		= l;
 		this.stage		= s;
-		this.related	= related;
+		this.related	= related == null ? t : related;
 	}
 	
 	inline function leftButton()	: Bool	{ return (flags & 0xF00 == 0x100); }
@@ -164,7 +168,7 @@ class MouseState extends KeyModState
 	inline function middleButton()	: Bool	{ return (flags & 0xF00 == 0x300); }
 	
 	inline function clickCount()	: Int	{ return (flags >> 4) & 0xF; }
-	inline function scrollDelta()	: Int	{ return (flags >> 16); }
+	@:keep inline function scrollDelta()	: Int	{ return (flags >> 16); }
 	
 	
 	inline function mouseButton()	: MouseButton
@@ -177,6 +181,20 @@ class MouseState extends KeyModState
 			case 3:		MouseButton.Middle;
 			default:	MouseButton.Other((flags & 0xFF00) >> 8);
 		}
+	}
+	
+	
+#if flash9
+	public inline function isDispatchedBy (obj:UserEventTarget) : Bool
+	{
+		return obj != null && obj == related;
+	}
+#end
+	
+	
+	public inline function clone () : MouseState
+	{
+		return new MouseState( flags, target, local, stage #if flash9, related #end);
 	}
 	
 	

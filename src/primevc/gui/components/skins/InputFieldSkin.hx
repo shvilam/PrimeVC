@@ -44,12 +44,12 @@ private typedef Flags = primevc.gui.core.UIElementFlags;
  * @author Ruben Weijers
  * @creation-date Jan 27, 2011
  */
+@:keep
 class InputFieldSkin extends ButtonIconLabelSkin
 {
 	override public function createChildren ()
 	{
 		super.createChildren();
-		iconGraphic.maintainAspectRatio = true;
 		var owner = getInputField();
 		labelField.restrict				= owner.restrict;
 		labelField.maxChars				= owner.maxChars;
@@ -60,6 +60,15 @@ class InputFieldSkin extends ButtonIconLabelSkin
 #end
 		(untyped owner).field	= labelField;
 		checkToUpdateVO.on( labelField.userEvents.key.down, this );
+		resetHorScroll .on( owner.userEvents.blur, this );		// make sure the inputfield scrolls back when it loses focus
+	}
+
+
+	override public function removeChildren ()
+	{
+		labelField.userEvents.key.down.unbind(this);
+		owner.userEvents.blur.unbind(this);
+		super.removeChildren();
 	}
 	
 	
@@ -84,5 +93,11 @@ class InputFieldSkin extends ButtonIconLabelSkin
 	{
 		if		(KeyCodes.isEnter( state.keyCode() ))	getInputField().applyInput();
 		else if (state.keyCode() == KeyCodes.ESCAPE)	getInputField().cancelInput();
+	}
+
+
+	private function resetHorScroll ()
+	{
+		labelField.scrollH = 0;
 	}
 }

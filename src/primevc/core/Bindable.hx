@@ -103,16 +103,10 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 	{
 		if (change == null) return; // already disposed
 		
-		if (boundTo != null) {
-		 	// Dispose of all binding connections
-			unbindAll();
-			boundTo = null;
-		}
-		if (writeTo != null) {
-		 	// Dispose of all binding connections
-			while (!writeTo.isEmpty()) writeTo.pop().unbind(this);
-			writeTo = null;
-		}
+		// Dispose of all binding connections
+		unbindAll();
+		writeTo = null;
+		boundTo = null;
 		
 		change.dispose();
 		change = null;
@@ -139,6 +133,15 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 	public inline function set (val:DataType) : Void
 	{
 		(untyped this).value = val;
+	}
+
+
+	/**
+	 * Checks if the bindable has listeners
+	 */
+	public inline function hasListeners () : Bool
+	{
+		return (writeTo.notNull() && !writeTo.isEmpty()) || change.hasListeners();
 	}
 	
 	
@@ -180,13 +183,10 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 	 * In other words: 
 	 * - update this when otherBindable.value changes
 	 */
-	public function bind (otherBindable:IBindableReadonly<DataType>)
+	public inline function bind (otherBindable:IBindableReadonly<DataType>)
 	{
-		Assert.that(otherBindable != null);
-		Assert.that(otherBindable != this);
-		
-		registerBoundTo(otherBindable);
-		untyped otherBindable.keepUpdated(this);
+	//	registerBoundTo(otherBindable);
+		(untyped otherBindable).keepUpdated(this);
 	}
 	
 	
@@ -226,7 +226,7 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 		Assert.that(otherBindable != this);
 		
 		otherBindable.value = this.value;
-		untyped otherBindable.registerBoundTo(this);
+		(untyped otherBindable).registerBoundTo(this);
 		
 		var w = this.writeTo;
 		if (!w.notNull())
@@ -245,7 +245,7 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 	 */
 	public function pair (otherBindable:IBindable<DataType>)
 	{
-		untyped otherBindable.keepUpdated(this);
+		(untyped otherBindable).keepUpdated(this);
 		keepUpdated(otherBindable);
 	}
 	
@@ -286,11 +286,11 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 	}
 	
 	
-//#if debug
+#if debug
 	public inline function toString () : String {
-		return cast value;
+		return "Bindable("+value+")";
 	}
-//#end
+#end
 }
 
 

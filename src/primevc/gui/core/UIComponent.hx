@@ -27,16 +27,24 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
+ import primevc.core.dispatcher.Wire;
  import primevc.core.Bindable;
+ 
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.behaviours.styling.InteractiveStyleChangeBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
+
+ import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.Sprite;
+
  import primevc.gui.effects.UIElementEffects;
  import primevc.gui.events.UserEventTarget;
  import primevc.gui.graphics.GraphicProperties;
+
  import primevc.gui.layout.LayoutClient;
+ import primevc.gui.layout.ILayoutContainer;
+ 
  import primevc.gui.managers.ISystem;
  import primevc.gui.states.UIElementStates;
 #if flash9
@@ -68,9 +76,6 @@ package primevc.gui.core;
  * 
  * Non of these methods need to call their super methods because they
  * are empty.
- *  
- * When any behaviours outside of "public var behaviours" are defined,
- * the removeBehaviours() method should be overridden.
  * 
  * @author Ruben Weijers
  * @creation-date Jun 07, 2010
@@ -81,7 +86,9 @@ class UIComponent extends Sprite, implements IUIComponent
 	public var nextValidatable	: IValidatable;
 	private var changes			: Int;
 	
-	public var behaviours		(default, null)					: BehaviourList;
+//	private var _behaviours     : BehaviourList;
+//	public var behaviours		(getBehaviours, never)			: BehaviourList;
+    public var behaviours		(default, null)			        : BehaviourList;
 	public var state			(default, null)					: UIElementStates;
 	public var effects			(default, default)				: UIElementEffects;
 	public var id				(default, null)					: Bindable < String >;
@@ -114,16 +121,15 @@ class UIComponent extends Sprite, implements IUIComponent
 		changes			= 0;
 		
 		state			= new UIElementStates();
-		behaviours		= new BehaviourList();
-		
 		handleEnableChange.on( enabled.change, this );
 		init.onceOn( displayEvents.addedToStage, this );
-#if flash9		
+#if flash9
 		graphicData		= new GraphicProperties( rect );
 		styleClasses	= new SimpleList<String>();
 		stylingEnabled	= true;		// <- will create UIElementStyle instance
 		
 		//add default behaviours
+		behaviours = new BehaviourList();
 		behaviours.add( new ValidateLayoutBehaviour(this) );
 		behaviours.add( new RenderGraphicsBehaviour(this) );
 		behaviours.add( new InteractiveStyleChangeBehaviour(this) );
@@ -131,8 +137,12 @@ class UIComponent extends Sprite, implements IUIComponent
 		
 		createStates();
 		createBehaviours();
-		createLayout();
 		
+		if (layout == null)
+		    layout = new LayoutClient();
+#if debug
+        layout.name = id+"Layout";
+#end
 		state.current = state.constructed;
 	}
 	
@@ -141,20 +151,29 @@ class UIComponent extends Sprite, implements IUIComponent
 	{
 		if (isInitialized())
 			return;
-		
+
+#if flash9		
+		Assert.notNull(parent);
+#end
 	//	Assert.notNull(container, "Container can't be null for "+this);
-		behaviours.init();
+    //  if (_behaviours != null)
+    //      _behaviours.init();
 		
+		layout.invalidatable = false;
 		if (skin != null)
 			skin.createChildren();
 		
 		//create the children of this component after the skin has created it's children
 		createChildren();
+		behaviours.init();
 		
 		//notify the skin that the children of the UIComponent are created
 		if (skin != null)
 			skin.childrenCreated();
+		layout.invalidatable = true;
 		
+		validateWire = validate.on( displayEvents.addedToStage, this );
+		validateWire.disable();
 		validate();
 		removeValidation.on( displayEvents.removedFromStage, this );
 		
@@ -163,10 +182,10 @@ class UIComponent extends Sprite, implements IUIComponent
 	}
 	
 	
-	public inline function forceInitialization ()
+/*	public inline function forceInitialization ()
 	{
 		init();
-	}
+	}*/
 	
 	
 	override public function dispose ()
@@ -174,20 +193,50 @@ class UIComponent extends Sprite, implements IUIComponent
 		if (isDisposed())
 			return;
 		
+	//	if (container != null)
+		if (isOnStage())
+			detachDisplay();
+	//	if (layout.parent != null)		detachLayout();		//will be done in LayoutClient.dispose or LayoutContainer.dispose
+		
+		if (effects != null) {
+			effects.dispose();
+			effects = null;
+		}
+
+		if (skin != null) {
+		    skin.dispose();
+		    skin = null;
+		}
+
+		if (isInitialized())
+			removeChildren();
+		
+		removeStates();
+		
 		//Change the state to disposed before the behaviours are removed.
 		//This way a behaviour is still able to respond to the disposed
 		//state.
 		state.current = state.disposed;
-		
+		Assert.that(isDisposed());
 		removeValidation();
-		removeChildren();
-		removeStates();
-		behaviours	.dispose();
+		
+	/*	if (_behaviours != null) {
+		    _behaviours.dispose();
+		    _behaviours = null;
+	    }*/
+	    behaviours  .dispose();
 		state		.dispose();
 		graphicData	.dispose();
 		
-		if (layout != null)
+		if (layout != null) {
 			layout.dispose();
+			layout = null;
+		}
+
+		if (validateWire != null) {
+			validateWire.dispose();
+			validateWire = null;
+		}
 		
 		id.dispose();
 		enabled.dispose();
@@ -199,13 +248,10 @@ class UIComponent extends Sprite, implements IUIComponent
 		style			= null;
 #end
 		state			= null;
-		behaviours		= null;
 		id				= null;
 		enabled			= null;
 		graphicData		= null;
-		skin			= null;
-		layout			= null;
-		behaviours		= null;
+		behaviours      = null;
 		
 		super.dispose();
 	}
@@ -215,6 +261,67 @@ class UIComponent extends Sprite, implements IUIComponent
 	public inline function isInitialized ()	{ return state != null && state.is(state.initialized); }
 	public function isResizable ()			{ return true; }
 	
+	
+	//
+	// ATTACH METHODS
+	//
+	
+	public  inline function attachLayoutTo		(t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ layout.attachTo( t, pos );												return this; }
+	public  inline function detachLayout		()									: IUIElement	{ layout.detach();															return this; }
+	public  inline function changeLayoutDepth	(pos:Int)							: IUIElement	{ layout.changeDepth( pos );												return this; }
+	public  inline function changeDepth			(pos:Int)							: IUIElement	{ changeLayoutDepth(pos);					changeDisplayDepth(pos);		return this; }
+
+	public  inline function attachTo			(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachToDisplayList(t, pos);	return this; }
+	private inline function applyDetach			()									: IUIElement	{ detachDisplay();							detachLayout();					return this; }
+	
+
+	public  inline function attachToDisplayList (t:IDisplayContainer, pos:Int = -1)	: IUIElement
+	{
+		if (container != t)
+		{
+			if (effects != null && effects.isPlayingHide())
+				effects.hide.stop();
+			
+			attachDisplayTo(t, pos);
+
+			var hasEffect = visible && effects != null && effects.show != null;
+			var isPlaying = hasEffect && effects.show.isPlaying();
+			
+			if (!isPlaying)
+			{
+				if (hasEffect) {
+					visible = false;
+					if (!isInitialized()) 	haxe.Timer.delay( show, 100 ); //.onceOn( displayEvents.enterFrame, this );
+					else 					effects.playShow();
+				}
+			}
+		}
+		
+		return this;
+	}
+
+
+	public function detach () : IUIElement
+	{
+		if (effects != null && effects.isPlayingShow())
+			effects.show.stop();
+		
+		var hasEffect = effects != null && effects.hide != null;
+		var isPlaying = hasEffect && effects.hide.isPlaying();
+		if (!isPlaying)
+		{
+			if (hasEffect) {
+				var eff = effects.hide;
+			//	layout.includeInLayout = false;		causes the layout's container to ignore the removal of the layout ==> wrong..
+				applyDetach.onceOn( eff.ended, this );
+				effects.playHide();
+			}
+			else
+				applyDetach();
+		}
+
+		return this;
+	}
 	
 	
 	//
@@ -228,8 +335,9 @@ class UIComponent extends Sprite, implements IUIComponent
 	public inline function rotate (v:Float)				{ this.doRotate(v); }
 	public function scale (sx:Float, sy:Float)			{ this.doScale(sx, sy); }
 	
-	public inline function enable ()					{ enabled.value = true; }
-	public inline function disable ()					{ enabled.value = false; }
+	public inline function enable ()					{ /*Assert.that(!isDisposed(), this);*/ enabled.value = true; }
+	public inline function disable ()					{ /*Assert.that(!isDisposed(), this);*/ enabled.value = false; }
+	public inline function isEnabled ()					{ return enabled.value; }
 	
 	
 	//
@@ -237,12 +345,27 @@ class UIComponent extends Sprite, implements IUIComponent
 	//
 	
 	
+/*	private inline function getBehaviours ()
+	{
+	    if (_behaviours == null)
+	    {
+	        _behaviours = new BehaviourList();
+	        if (isInitialized())
+	            _behaviours.init();
+	    }
+	    return _behaviours;
+	}*/
+	
 	private inline function getSystem () : ISystem		{ return window.as(ISystem); }
+#if flash9
+	public inline function isOnStage () : Bool			{ return stage != null; }			// <-- dirty way to see if the component is still on stage.. container and window will be unset after removedFromStage is fired, so if the component get's disposed on removedFromStage, we won't know that it isn't on it.
+#else
 	public inline function isOnStage () : Bool			{ return window != null; }
+#end
 	public inline function isQueued () : Bool			{ return nextValidatable != null || prevValidatable != null; }
 	
 
-	private function setSkin (newSkin)
+	private inline function setSkin (newSkin)
 	{
 		if (skin != null)
 			skin.dispose();
@@ -274,7 +397,7 @@ class UIComponent extends Sprite, implements IUIComponent
 			
 			stylingEnabled = v;
 			if (v)
-				style = new UIElementStyle(this);
+				style = new UIElementStyle(this, this);
 		}
 		return v;
 	}
@@ -287,18 +410,9 @@ class UIComponent extends Sprite, implements IUIComponent
 	}
 	
 	
-	private function createLayout () : Void
+	#if flash11 override #end public function removeChildren () : Void
 	{
-		layout = new LayoutClient();
-#if debug
-		layout.name = id+"Layout";
-#end
-	}
-	
-	
-	private function removeChildren () : Void
-	{
-		children.removeAll();
+		children.disposeAll();
 	}
 	
 	
@@ -306,24 +420,29 @@ class UIComponent extends Sprite, implements IUIComponent
 	// IPROPERTY-VALIDATOR METHODS
 	//
 	
+	private var validateWire : Wire<Dynamic>;
+	
 	public function invalidate (change:Int)
 	{
 		if (change != 0)
 		{
+		    var old = changes;
 			changes = changes.set( change );
 			
-			if (changes == change && isInitialized()) {
+			if (changes == change && isInitialized())
 				if (system != null)		system.invalidation.add(this);
-				else					validate.onceOn( displayEvents.addedToStage, this );
-			}
+				else 					validateWire.enable();
 		}
 	}
 	
 	
 	public function validate ()
 	{
-		if (changes > 0)
-		{
+		if (isDisposed())
+			return;
+		
+	    validateWire.disable();
+		if (changes > 0) {
 			if (skin != null)
 				skin.validate(changes);
 			
@@ -342,7 +461,7 @@ class UIComponent extends Sprite, implements IUIComponent
 			system.invalidation.remove(this);
 
 		if (!isDisposed() && changes > 0)
-			validate.onceOn( displayEvents.addedToStage, this );
+			validateWire.enable();
 	}
 	
 	
@@ -351,11 +470,12 @@ class UIComponent extends Sprite, implements IUIComponent
 	// ABSTRACT METHODS
 	//
 	
-	private function createStates ()		: Void; //	{ Assert.abstract(); }
-	private function createBehaviours ()	: Void; //	{ Assert.abstract(); }
-	private function createChildren ()		: Void; //	{ Assert.abstract(); }
-	private function removeStates ()		: Void; //	{ Assert.abstract(); }
-	
+	private function createStates ()		: Void {} //	{ Assert.abstract(); }
+	private function createBehaviours ()	: Void {} //	{ Assert.abstract(); }
+	private function createChildren ()		: Void {} //	{ Assert.abstract(); }
+	private function removeStates ()		: Void {} //	{ Assert.abstract(); }
+
+    
 	
 	//
 	// EVENT HANDLERS
@@ -368,7 +488,7 @@ class UIComponent extends Sprite, implements IUIComponent
 	
 	
 #if debug
-	override public function toString ()	{ return id.value; }
+	override public function toString ()	{ return id == null ? Type.getClassName(Type.getClass(this))+"" : id.value; }
 	public function readChanges ()			{ return UIElementFlags.readProperties(changes); }
 #end
 }

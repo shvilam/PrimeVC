@@ -30,13 +30,17 @@ package primevc.gui.display;
  import primevc.core.collections.DataCursor;
  import primevc.core.collections.IDataCursor;
  import primevc.core.geom.Point;
-  using primevc.utils.NumberMath;
+ import primevc.gui.traits.ILayoutable;
+  using primevc.utils.NumberUtil;
+  using primevc.utils.TypeUtil;
 
 
 /**
  * Metadata about a displayObject containing the current depth, parent and 
  * coordinates.
  * 
+ * TODO: implement an object.currentState method to get all information about the current state of an object
+ *
  * @author			Ruben Weijers
  * @creation-date	Oct 28, 2010
  */
@@ -46,6 +50,12 @@ class DisplayDataCursor extends DataCursor < IDisplayObject >, implements IDataC
 	 * Current x&y-coordinates of the target
 	 */
 	public var position		(default, null)	: Point;
+	/**
+	 * Original depth of the layout of the target (if it is ILayoutable). This value is absolute, 
+	 * so it will take in account the fixedChildStart of the parent layout-container.
+	 */
+	public var layoutDepth 	(default, null) : Int;
+	
 	
 	
 	public function new (target:IDisplayObject)
@@ -56,12 +66,20 @@ class DisplayDataCursor extends DataCursor < IDisplayObject >, implements IDataC
 			super(target, null);
 		
 		position = new Point( target.x, target.y );
+
+		// save layout state?
+		if (target.is(ILayoutable)) {
+			var l 		= target.as(ILayoutable).layout;
+			layoutDepth = l.parent.children.indexOf(l) + l.parent.fixedChildStart;
+		} else 
+			layoutDepth = -1;
 	}
 	
 	
 	override public function dispose ()
 	{
-		position = null;
+		layoutDepth = -1;
+		position 	= null;
 		super.dispose();
 	}
 	
@@ -71,7 +89,7 @@ class DisplayDataCursor extends DataCursor < IDisplayObject >, implements IDataC
 		target.visible	= false;
 		target.x		= target.rect.left	= position.x.roundFloat();
 		target.y		= target.rect.top	= position.y.roundFloat();
-	//	super.restore();
+		super.restore();
 		target.visible	= true;
 	}
 }

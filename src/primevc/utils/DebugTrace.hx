@@ -5,7 +5,7 @@ package primevc.utils;
  import flash.events.ErrorEvent;
  import flash.events.UncaughtErrorEvent;
 #end
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 
@@ -21,13 +21,13 @@ package primevc.utils;
 class DebugTrace
 {
 #if (flash9 && debug)
-	private static inline function getClassName (infos : haxe.PosInfos) : String
+	public static inline function getClassName (infos : haxe.PosInfos) : String
 	{
 		return infos.className.split(".").pop(); //infos.fileName;
 	}
 	
 	
-	#if MonsterTrace
+	#if (Monster2Trace || Monster3Trace)
 		
 		private static inline function getTraceColor (name:String) : Int
 		{
@@ -43,7 +43,18 @@ class DebugTrace
 			
 			var name	= getClassName( infos );
 			var color	= getTraceColor( name );
+			
+			if (infos.customParams != null)
+				if (infos.customParams.length == 1)		v = infos.customParams[0];
+				else									v = infos.customParams;
+			else
+				v = Std.string(v);
+			
+		#if Monster2Trace
 			nl.demonsters.debugger.MonsterDebugger.trace(name +':' + infos.lineNumber +'\t -> ' + infos.methodName, v, color);
+		#elseif Monster3Trace
+			com.demonsters.debugger.MonsterDebugger.trace(name, v, Std.string(infos.lineNumber), infos.methodName, color, 7);
+		#end
 		}
 		
 	#elseif AlconTrace

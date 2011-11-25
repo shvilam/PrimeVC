@@ -28,23 +28,29 @@
  */
 package primevc.avm2.display;
  import flash.display.DisplayObject;
+ import primevc.core.dispatcher.Wire;
  import primevc.core.geom.IntRectangle;
  import primevc.core.Bindable;
+
  import primevc.gui.display.DisplayDataCursor;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
  import primevc.gui.display.IInteractiveObject;
  import primevc.gui.display.ITextField;
+ import primevc.gui.display.ISprite;
  import primevc.gui.display.Window;
+
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.FocusState;
  import primevc.gui.events.TextEvents;
  import primevc.gui.events.UserEventTarget;
  import primevc.gui.events.UserEvents;
+
  import primevc.gui.text.TextFormat;
  import primevc.gui.text.TextTransform;
+
   using primevc.utils.Bind;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.StringUtil;
   using primevc.utils.TypeUtil;
 
@@ -89,8 +95,23 @@ class TextField extends flash.text.TextField, implements ITextField
 	public var realTextHeight	(getRealTextHeight, never)	: Float;
 	
 	public var data				(default, setData)			: Bindable < String >;
+	
+	/**
+	 * getter / setter to update the text/htmlText property of the textfield,
+	 * depending on wether displayHTML is true or false.
+	 */
+	public var content			(getContent, setContent)	: String;
 	public var value			(getValue, setValue)		: String;
 	public var textStyle		(default, setTextStyle)		: TextFormat;
+	
+	
+	/**
+	 * Flag indicating wether the data of the textfield should be displayed as
+	 * plain-text or as HTML.
+	 * @default	false
+	 */
+	public var displayHTML		(default, setDisplayHTML)	: Bool;
+	
 	
 	
 	public function new (data:Bindable<String> = null)
@@ -115,7 +136,7 @@ class TextField extends flash.text.TextField, implements ITextField
 	}
 	
 	
-	private inline function setData (v:Bindable<String>)
+	private function setData (v:Bindable<String>)
 	{
 		if (v != data)
 		{
@@ -186,14 +207,14 @@ class TextField extends flash.text.TextField, implements ITextField
 	
 	
 #if !neko
-	public function getDisplayCursor () : DisplayDataCursor
-	{
-		return new DisplayDataCursor(this);
-	}
+	public function getDisplayCursor			() : DisplayDataCursor											{ return new DisplayDataCursor(this); }
+	public inline function attachDisplayTo		(target:IDisplayContainer, pos:Int = -1)	: IDisplayObject	{ target.children.add( this, pos ); return this; }
+	public inline function detachDisplay		()											: IDisplayObject	{ container.children.remove( this ); return this; }
+	public inline function changeDisplayDepth	(newPos:Int)								: IDisplayObject	{ container.children.move( this, newPos ); return this; }
 #end
 	
 	
-	public inline function makeEditable ()
+	@:keep public inline function makeEditable ()
 	{
 		selectable		= true;
 		mouseEnabled	= true;
@@ -216,18 +237,18 @@ class TextField extends flash.text.TextField, implements ITextField
 	private function applyValue ()
 	{
 	//	trace(this+".applyValue "+text+" => "+value+"; transform: "+textStyle.transform);
-		if (value != text && value != null)
+		if (value != content && value != null)
 			applyTextFormat();
 		else if (value == null)
-			text = "";
+			text = htmlText = "";
 	}
 	
 	
 	private function updateValue ()
 	{
-		if (value != text)
+		if (value != content)
 		{
-			value = text;
+			value = content;
 			applyTextFormat();
 		}
 	}
@@ -247,8 +268,8 @@ class TextField extends flash.text.TextField, implements ITextField
 				default:			newText;
 			}
 		
-		if (newText != text)
-			text = newText;
+		if (newText != content)
+			content = newText;
 		
 	//	trace(this+".applyTextFormat "+textStyle+"; "+width+"; "+height+"; autosize: "+autoSize);
 		setTextFormat( textStyle );
@@ -320,7 +341,7 @@ class TextField extends flash.text.TextField, implements ITextField
 	private inline function getNonZeroTextHeight() : Float
     {
 		var h = textHeight;
-        if (text == "")
+        if (content == "")
         {
             text	= "Wj";
             h		= textHeight;
@@ -330,6 +351,21 @@ class TextField extends flash.text.TextField, implements ITextField
         return h;
     }
 
+
+	private inline function setDisplayHTML (v:Bool)
+	{
+		if (v != displayHTML)
+		{
+			displayHTML = v;
+			htmlText = text = "";
+			applyTextFormat();
+		}
+		return v;
+	}
+
+	
+	private inline function getContent ()			{ return displayHTML ? htmlText : text; }
+	private inline function setContent (v:String)	{ return displayHTML ? htmlText = v : text = v; }
 	
 	
 	
@@ -347,6 +383,7 @@ class TextField extends flash.text.TextField, implements ITextField
 	 * respond.
 	 */
 	private var focusTarget : IInteractiveObject;
+	private var redispatchBinding : Wire<Dynamic>;
 	
 	
 	/**
@@ -358,11 +395,10 @@ class TextField extends flash.text.TextField, implements ITextField
 	public function respondToFocusOf (target:IInteractiveObject)
 	{
 		//bind the focus-events of the textfield and the target together
-		redispatchFocusEvent.on( userEvents.focus, this );
-		handleBlur			.on( userEvents.blur, this );
+		handleBlur			.on( 		userEvents.blur,  this );
 		giveFocusToMe		.on( target.userEvents.focus, this );
-		
-		focusTarget = target;
+		redispatchBinding 	= redispatchFocusEvent.on( userEvents.focus, this );
+		focusTarget 		= target;
 	}
 	
 	
@@ -370,11 +406,12 @@ class TextField extends flash.text.TextField, implements ITextField
 	{
 		if (focusTarget == null)
 			return;
-		
-		userEvents.focus.unbind(this);
+
 		userEvents.blur.unbind(this);
 		focusTarget.userEvents.focus.unbind(this);
 		
+		redispatchBinding.dispose();
+		redispatchBinding = null;
 		focusTarget = null;
 	}
 	
@@ -386,8 +423,13 @@ class TextField extends flash.text.TextField, implements ITextField
 	 */
 	private function giveFocusToMe (event:FocusState)
 	{
-		if (event.target != this)
+		if (event.target != this) {
+		//	focusTarget.userEvents.focus.disable();
+			redispatchBinding.disable();
 			setFocus();
+			redispatchBinding.enable();
+		//	focusTarget.userEvents.focus.enable();
+		}
 	}
 	
 	

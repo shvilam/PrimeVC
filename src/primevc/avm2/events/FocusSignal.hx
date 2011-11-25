@@ -74,7 +74,8 @@ class FocusSignal extends Signal1<FocusState>, implements IWireWatcher<FocusHand
 	
 	private function dispatch(e:FocusEvent)
 	{
-		send( FocusSignal.stateFromFlashEvent(e) );
+		if (e.target == eventDispatcher)
+			send( FocusSignal.stateFromFlashEvent(e) );
 	}
 	
 	
@@ -93,6 +94,7 @@ class FocusSignal extends Signal1<FocusState>, implements IWireWatcher<FocusHand
 		flags = //TODO: Implement AIR support
 #else error
 #end
+		e.stopPropagation();
 	//	trace("stateFromFlashEvent "+e.type+"; "+e.localX+", "+e.localY+"; "+e.stageX+", "+e.stageY);
 		return new FocusState(flags, e.target, e.relatedObject);
 	}

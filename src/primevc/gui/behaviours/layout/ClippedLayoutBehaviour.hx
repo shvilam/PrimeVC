@@ -27,19 +27,9 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.layout;
+ import primevc.gui.behaviours.scroll.IScrollBehaviour;
  import primevc.gui.behaviours.BehaviourBase;
- import primevc.gui.core.IUIContainer;
-#if !neko
- import primevc.core.geom.Rectangle;
-// import primevc.core.geom.RectangleFlags;
-// import primevc.core.traits.IInvalidatable;
-// import primevc.core.traits.IInvalidateListener;
- import primevc.gui.layout.IScrollableLayout;
- import primevc.gui.layout.LayoutFlags;
-  using primevc.utils.Bind;
-  using primevc.utils.BitUtil;
-  using primevc.utils.TypeUtil;
-#end
+ import primevc.gui.traits.IScrollable;
  
 
 /**
@@ -51,93 +41,8 @@ package primevc.gui.behaviours.layout;
  * @creation-date	Jun 25, 2010
  * @author			Ruben Weijers
  */
-class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
-//#if !neko	,	implements IInvalidateListener #end
+class ClippedLayoutBehaviour extends BehaviourBase<IScrollable>, implements IScrollBehaviour
 {
-#if !neko
-	private var layoutContainer : IScrollableLayout;
-	
-	
-	/**
-	 * Method will add signal-listeners to the layout object of the target to 
-	 * listen for changes in the size of the layout. If the size changes, it 
-	 * will adjust the scrollRect of the target.
-	 */
-	override private function init ()
-	{
-		Assert.that(target.layoutContainer != null, "Layout of "+target+" can't be null for "+this);
-		layoutContainer		= target.layoutContainer;
-		target.scrollRect	= new Rectangle();
-		
-		updateScrollRect.on( layoutContainer.changed, this );
-		updateScrollX.on( layoutContainer.scrollPos.xProp.change, this );
-		updateScrollY.on( layoutContainer.scrollPos.yProp.change, this );
-	}
-	
-	
-	override private function reset ()
-	{
-		if (layoutContainer == null)
-			return;
-		
-		layoutContainer.changed.unbind(this);
-		
-		if (layoutContainer.scrollPos != null) {
-			layoutContainer.scrollPos.xProp.change.unbind( this );
-			layoutContainer.scrollPos.yProp.change.unbind( this );
-		}
-		target.scrollRect	= null;
-		layoutContainer		= null;
-	}
-	
-	
-	private function updateScrollRect (changes:Int)
-	{
-		if (changes.hasNone( LayoutFlags.SIZE ))
-			return;
-		
-		var r		= target.scrollRect;
-	//	r.x = r.y	= 0;
-	//	r.x			= layoutContainer.scrollX;
-	//	r.y			= layoutContainer.scrollY;
-	//	trace(target+": "+target.rect+"; was: "+r.width+", "+r.height);
-		r.width		= target.rect.width;
-		r.height	= target.rect.height;
-		
-		if (target.graphicData.border != null)
-		{
-			var borderSize = target.graphicData.border.weight;
-			r.x			= layoutContainer.scrollPos.x - borderSize;
-			r.y			= layoutContainer.scrollPos.y - borderSize;
-			r.width		+= borderSize * 2;
-			r.height	+= borderSize * 2;
-		}
-		
-	//	trace(target+":\t" + r+"; layout:\t"+target.layout.outerBounds);
-		target.scrollRect = r;
-	}
-
-
-	private function updateScrollX ()
-	{
-		var r	= target.scrollRect;
-		r.x		= layoutContainer.scrollPos.x;
-		target.scrollRect = r;
-	}
-	
-	
-	private function updateScrollY ()
-	{
-		var r	= target.scrollRect;
-		r.y		= layoutContainer.scrollPos.y;
-		target.scrollRect = r;
-	}
-	
-	/*
-	public function invalidateCall ( changeFromOther:Int, sender:IInvalidatable )
-	{
-		if ( changeFromOther.has(RectangleFlags.WIDTH | RectangleFlags.HEIGHT) && (target.scrollRect.width != target.rect.width || target.scrollRect.height != target.rect.height) )
-			updateScrollRect();
-	}*/
-#end
+	override private function init ()		target.enableClipping()
+	override private function reset ()		target.disableClipping()
 }

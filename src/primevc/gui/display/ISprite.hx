@@ -28,8 +28,11 @@
  */
 package primevc.gui.display;
 #if flash9
+ import primevc.core.geom.Point;
  import primevc.core.geom.Rectangle;
+	#if dragEnabled
  import primevc.gui.behaviours.drag.DragInfo;
+	#end
 #end
  import primevc.gui.traits.IDisplayable;
  import primevc.gui.traits.IGraphicsOwner;
@@ -48,16 +51,22 @@ interface ISprite
 	,	implements IDisplayable
 {
 #if flash9
-	public var buttonMode						: Bool;
-	public var useHandCursor					: Bool;
-	public var isDragging						: Bool;
-	public var dropTarget		(default, null) : flash.display.DisplayObject;
+		public var buttonMode						: Bool;
+		public var useHandCursor					: Bool;
+
+	#if dragEnabled
+		public var isDragging						: Bool;
+		public var dropTarget		(default, null) : flash.display.DisplayObject;
 	
-	
-	public function stopDrag()												: Void;
-	public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle)	: Void;
-	public function createDragInfo ()										: DragInfo;
+		public function stopDrag()												: Void;
+		public function startDrag(lockCenter:Bool = false, ?bounds:Rectangle)	: Void;
+		public function createDragInfo ()										: DragInfo;
+        public function getObjectsUnderPoint(point : Point) : Array<flash.display.DisplayObject>;
+	#end
 #else
-	public var dropTarget		(default, null)	: IDisplayable;
+		public var dropTarget		(default, null)	: IDisplayable;
 #end
+	
+	public function setFocus () : Void;
+	public function removeFocus () : Void;
 }

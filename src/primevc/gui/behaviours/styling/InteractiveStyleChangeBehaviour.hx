@@ -119,11 +119,11 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 		
 		getStates().change.unbind( this );
 		
-		if (mouseState != null)		mouseState.dispose();
+		if (mouseState != null)		mouseState 	 .dispose();
 		if (disabledState != null)	disabledState.dispose();
 		if (selectedState != null)	selectedState.dispose();
-		if (dragState != null)		dragState.dispose();
-		if (focusState != null)		focusState.dispose();
+		if (dragState != null)		dragState 	 .dispose();
+		if (focusState != null)		focusState 	 .dispose();
 		
 		mouseState = disabledState = selectedState = dragState = focusState = null;
 		init.onceOn( target.displayEvents.addedToStage, this ).pos();
@@ -184,8 +184,8 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 			{
 				if (focusState == null)			{ focusState		= target.style.createState(); }
 				else							{ clearFocusState( null); /* important to clear the state, otherwise it can stay in focus state after it's added to the stage again */ }
-				if (focusInBinding == null)		{ focusInBinding	= enableFocusState.on( target.userEvents.focus, this ).pos(); }
-				if (focusOutBinding == null)	{ focusOutBinding	= clearFocusState.on( target.userEvents.blur, this ).pos(); focusOutBinding.disable(); }
+				if (focusInBinding == null)		{ focusInBinding	= enableFocusState.on( 	target.userEvents.focus, this ).pos(); }
+				if (focusOutBinding == null)	{ focusOutBinding	= clearFocusState.on( 	target.userEvents.blur,  this ).pos(); focusOutBinding.disable(); }
 			}
 			else
 			{
@@ -447,7 +447,7 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 	
 	private function changeStateToHover (mouseObj:MouseState)
 	{
-		if (mouseObj.mouseButton() != MouseButton.None && downBinding != null)
+		if (mouseObj.mouseButton() != MouseButton.None) // && downBinding != null)
 			return;
 		
 		//check if there's a hover state, otherwise change state to none
@@ -488,7 +488,6 @@ class InteractiveStyleChangeBehaviour extends BehaviourBase < IUIComponent >
 		if (!target.isFocusOwner(event.target))
 			return;
 		
-		trace(target);
 		focusState.current = Flags.FOCUS;
 		focusInBinding.disable();
 		focusOutBinding.enable();

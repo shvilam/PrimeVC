@@ -44,10 +44,15 @@ package primevc.avm2.events;
  */
 class UserEvents extends primevc.gui.events.UserSignals	
 {
+	/**
+	 * source flash-object that is actually dispatching the events
+	 */
 	private var eventDispatcher : IEventDispatcher;
+
 	
 	public function new(eventDispatcher)
 	{
+		super();
 		this.eventDispatcher = eventDispatcher;
 	}
 	
@@ -57,9 +62,8 @@ class UserEvents extends primevc.gui.events.UserSignals
 		super.dispose();
 	}
 	
-	private static var num : Int = 0;
-	override private function createMouse ()	{ mouse	= new primevc.avm2.events.MouseEvents(eventDispatcher); }
-	override private function createKey ()		{ key	= new primevc.avm2.events.KeyboardEvents(eventDispatcher); }
+	override private function createMouse ()	{ mouse	= new MouseEvents(eventDispatcher); }
+	override private function createKey ()		{ key	= new KeyboardEvents(eventDispatcher); }
 	override private function createFocus ()	{ focus	= new FocusSignal(eventDispatcher, flash.events.FocusEvent.FOCUS_IN); }
 	override private function createBlur ()		{ blur	= new FocusSignal(eventDispatcher, flash.events.FocusEvent.FOCUS_OUT); }
 	override private function createEdit ()		{ edit	= new EditEvents(eventDispatcher); }

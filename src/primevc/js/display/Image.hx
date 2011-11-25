@@ -39,7 +39,7 @@ class Image extends DOMElem {
 		return src;
 	}
 	
-	public function load() {
+	inline public function load() {
 		if (src != null && elem.src != src) { 
             elem.src = src;
         }

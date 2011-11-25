@@ -40,7 +40,7 @@ typedef IntType =
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
-class Number
+extern class Number
 {
 	//floats can actually be a lot bigger (64 bit) but this will work for now
 	public static inline var FLOAT_MIN:Float		= -3.40282346638528e+38;

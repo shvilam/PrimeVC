@@ -62,9 +62,9 @@ class Box
 		this._oid	= ID.getNext();
 #end
 		this.top	= top;
-		this.right	= (right.notSet()) ? this.top : right;
-		this.bottom	= (bottom.notSet()) ? this.top : bottom;
-		this.left	= (left.notSet()) ? this.right : left;
+		this.right	= (right.notSet())  ? this.top 	 : right;
+		this.bottom	= (bottom.notSet()) ? this.top 	 : bottom;
+		this.left	= (left.notSet()) 	? this.right : left;
 	}
 	
 	

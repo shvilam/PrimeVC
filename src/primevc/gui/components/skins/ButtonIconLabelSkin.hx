@@ -32,6 +32,7 @@ package primevc.gui.components.skins;
  import primevc.gui.core.UITextField;
  import primevc.gui.core.Skin;
  import primevc.gui.events.UserEventTarget;
+  using primevc.utils.Bind;
   using primevc.utils.BitUtil;
 
 
@@ -53,54 +54,21 @@ class ButtonIconLabelSkin extends Skin<Button>
 	
 	override public function createChildren ()
 	{
-		var children	= owner.children;
-		var layout		= owner.layoutContainer;
-		
 		//create children
-		iconGraphic	= new Image(null, owner.icon);
-		labelField	= new UITextField( null, true, owner.data );
-		
-		layout.children.add( iconGraphic.layout );
-		layout.children.add( labelField.layout );
-		children.add( iconGraphic );
-		children.add( labelField );
+		iconGraphic	= new Image(#if debug owner.id.value + "Icon" #else null #end, owner.icon);
+		labelField	= UITextField.createLabelField(owner.id.value + "TextField", owner.data, owner);
 		
 		//change properties of new UIElements
 		iconGraphic.maintainAspectRatio = true;
-#if debug
-		labelField.id.value		= owner.id.value + "TextField";
-		iconGraphic.id.value	= owner.id.value + "Icon";
-#end
-#if flash9
-		labelField.autoSize			= flash.text.TextFieldAutoSize.NONE;
-		labelField.selectable		= false;
-		labelField.mouseEnabled		= false;
-		labelField.tabEnabled		= false;
-		labelField.respondToFocusOf( owner );
+		if (owner.icon != null)
+			owner.attach(iconGraphic);
 		
-		if (owner.textStyle != null)
-			labelField.textStyle = owner.textStyle;
-#end
+		owner.attach(labelField);
 	}
 	
 	
-	override private function removeChildren ()
+	override public  function removeChildren ()
 	{
-		if (owner != null && !owner.isDisposed())
-		{
-			var children	= owner.children;
-			var layout		= owner.layoutContainer;
-			
-			if (labelField != null) {
-				layout.children.remove( labelField.layout );
-				children.remove( labelField );
-			}
-			
-			if (iconGraphic != null) {
-				layout.children.remove( iconGraphic.layout );
-				children.remove( iconGraphic );
-			}
-		}
 		if (iconGraphic != null) {
 			iconGraphic.dispose();
 			iconGraphic = null;
@@ -116,15 +84,20 @@ class ButtonIconLabelSkin extends Skin<Button>
 	override public function validate (changes:Int)
 	{
 		Assert.notNull(iconGraphic, owner+"; "+iconGraphic+"; "+labelField+"; "+owner.isDisposed());
-		if (changes.has( Flags.ICON ))
+		
+		if (changes.has( Flags.ICON )) {
 			iconGraphic.data = owner.icon;
-		
+			if 		(owner.icon == null)		iconGraphic.detach();
+			else if (!iconGraphic.isOnStage()) 	iconGraphic.attachTo(owner, 0);
+		}
 #if flash9
-		if (changes.has( Flags.TEXTSTYLE ))
-			labelField.textStyle = owner.textStyle;
-		
-		if (changes.has( Flags.ICON_FILL ))
-			iconGraphic.colorize( owner.iconFill );
+		if (changes.has( Flags.ICON_FILL ))		iconGraphic.colorize( owner.iconFill );
+
+		if (changes.has( Flags.TEXTSTYLE )) {
+			labelField.embedFonts	= owner.embedFonts;
+			labelField.wordWrap		= owner.wordWrap;
+			labelField.textStyle 	= owner.textStyle;
+		}
 #end
 	}
 	

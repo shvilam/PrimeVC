@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.scroll;
- import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
+ import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.traits.IScrollable;
 #if !neko
  import primevc.core.dispatcher.Wire;
@@ -44,7 +44,7 @@ package primevc.gui.behaviours.scroll;
  * @author Ruben Weijers
  * @creation-date Jul 29, 2010
  */
-class MouseScrollBehaviourBase extends ClippedLayoutBehaviour
+class MouseScrollBehaviourBase extends BehaviourBase<IScrollable>, implements IScrollBehaviour
 {
 #if !neko
 	private var scrollLayout		: IScrollableLayout;
@@ -55,10 +55,14 @@ class MouseScrollBehaviourBase extends ClippedLayoutBehaviour
 	
 	override private function init ()
 	{
-		Assert.that( target.scrollableLayout != null, "target.layout of "+target+" must be a IScrollableLayout" );
-		super.init();
+		Assert.notNull( target.scrollableLayout, "target.layout of "+target+" must be a IScrollableLayout" );
+		target.enableClipping();
 		scrollLayout = target.scrollableLayout;
-		createBindings();
+		activateBinding		= activateScrolling		.on( target.userEvents.mouse.rollOver, this );
+		deactivateBinding	= deactivateScrolling	.on( target.userEvents.mouse.rollOut, this );
+		calcScrollBinding	= calculateScroll		.on( target.container.userEvents.mouse.move, this );
+		deactivateBinding.disable();
+		calcScrollBinding.disable();
 	}
 	
 	
@@ -71,22 +75,12 @@ class MouseScrollBehaviourBase extends ClippedLayoutBehaviour
 		activateBinding		= null;
 		deactivateBinding	= null;
 		calcScrollBinding	= null;
-		super.reset();
-	}
-	
-	
-	private function createBindings ()
-	{
-		activateBinding		= activateScrolling		.on( target.userEvents.mouse.rollOver, this );
-		deactivateBinding	= deactivateScrolling	.on( target.userEvents.mouse.rollOut, this );
-		calcScrollBinding	= calculateScroll		.on( target.container.userEvents.mouse.move, this );
-		deactivateBinding.disable();
-		calcScrollBinding.disable();
+		target.disableClipping();
 	}
 
 
 	private function activateScrolling (mouseObj:MouseState) {
-		if (target.scrollRect == null)
+		if (!target.isScrollable)
 			return;
 		
 		activateBinding.disable();

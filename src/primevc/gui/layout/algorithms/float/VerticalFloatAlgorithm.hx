@@ -32,8 +32,9 @@ package primevc.gui.layout.algorithms.float;
  import primevc.gui.layout.algorithms.IVerticalAlgorithm;
  import primevc.gui.layout.algorithms.VerticalBaseAlgorithm;
  import primevc.gui.layout.AdvancedLayoutClient;
- import primevc.utils.NumberMath;
-  using primevc.utils.NumberMath;
+ import primevc.gui.layout.IScrollableLayout;
+ import primevc.types.Number;
+ import primevc.utils.NumberUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
@@ -46,19 +47,6 @@ package primevc.gui.layout.algorithms.float;
  */
 class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVerticalAlgorithm
 {
-	/**
-	 * Measured point of the bottom side of the middlest child (rounded above)
-	 * when the direction is center.
-	 */
-	private var halfHeight	: Int;
-	
-	
-	
-	//
-	// LAYOUT
-	//
-	
-	
 	/**
 	 * Method will return the total height of all the children.
 	 */
@@ -74,9 +62,8 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	
 	public function validateVertical ()
 	{
-		var height:Int	= halfHeight = 0;
+		var height:Int	= 0;
 		var children	= group.children;
-		
 		if (group.childHeight.notSet())
 		{
 			for (i in 0...children.length)
@@ -86,17 +73,10 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 					continue;
 				
 				height += child.outerBounds.height;
-				
-				//only count even children
-				if (i.isEven())
-					halfHeight += child.outerBounds.height;
 			}
 		}
 		else
-		{
-			height		= group.childHeight * children.length;
-			halfHeight	= group.childHeight * children.length.divCeil(2);
-		}
+			height = group.childHeight * group.childrenLength;
 		
 		setGroupHeight(height);
 	}
@@ -115,9 +95,9 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	
 	private inline function applyTopToBottom (next:Int = -1) : Void
 	{
+		var group = this.group;
 		if (group.children.length > 0)
 		{
-	//		trace(group.name);
 			if (next == -1)
 				next = getTopStartValue();
 			
@@ -139,12 +119,15 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 			}
 			else
 			{
+				if (group.fixedChildStart.isSet())
+					next += group.fixedChildStart * group.childHeight;
+				
 				for (i in 0...children.length)
 				{
 					var child = children.getItemAt(i);
 					if (!child.includeInLayout)
 						continue;
-					
+
 					child.outerBounds.top	 = next;
 					next					+= group.childHeight;
 				}
@@ -156,57 +139,12 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	private inline function applyCentered () : Void
 	{
 		applyTopToBottom( getVerCenterStartValue() );
-		/*if (group.children.length > 0)
-		{
-			var i:Int = 0;
-			var evenPos:Int, oddPos:Int;
-			evenPos = oddPos = halfHeight + getTopStartValue();
-		
-			//use 2 loops for algorithms with and without a fixed child-height. This is faster than doing the if statement inside the loop!
-			if (group.childHeight.notSet())
-			{
-				for (child in group.children)
-				{
-					if (!child.includeInLayout)
-						continue;
-					
-					if (i.isEven()) {
-						//even
-						child.bounds.bottom	= evenPos;
-						evenPos				= child.bounds.top;
-					} else {
-						//odd
-						child.bounds.top	= oddPos;
-						oddPos				= child.bounds.bottom;
-					}
-					i++;
-				}
-			}
-			else
-			{
-				for (child in group.children)
-				{
-					if (!child.includeInLayout)
-						continue;
-					
-					if (i.isEven()) {
-						//even
-						child.bounds.bottom	 = evenPos;
-						evenPos				-= group.childHeight;
-					} else {
-						//odd
-						child.bounds.top	 = oddPos;
-						oddPos				+= group.childHeight;
-					}
-					i++;
-				}
-			}
-		}*/
 	}
 	
 	
 	private inline function applyBottomToTop () : Void
 	{
+		var group = this.group;
 		if (group.children.length > 0)
 		{
 			var next		= getBottomStartValue();
@@ -229,6 +167,9 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 			else
 			{
 				next -= group.childHeight;
+				if (group.fixedChildStart.isSet())
+					next -= group.fixedChildStart * group.childHeight;
+				
 				for (i in 0...children.length)
 				{
 					var child = children.getItemAt(i);
@@ -259,13 +200,13 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	private inline function getDepthForBoundsTtB (bounds:IRectangle) : Int
 	{
 		var depth:Int	= 0;
-		var posY:Int	= bounds.top;
-		var centerY:Int	= bounds.top + (bounds.height >> 1); // * .5).roundFloat();
+		var posY:Int	= bounds.top - getTopStartValue();
+		var centerY:Int	= bounds.centerY; //top + (bounds.height >> 1); // * .5).roundFloat();
 		var children	= group.children;
-		
+
 		if (group.childHeight.isSet())
 		{
-			depth = posY.divRound(group.childHeight);
+			depth = (posY / group.childHeight).roundFloat();
 		}
 		else
 		{
@@ -304,14 +245,15 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 				}
 			}
 		}
-		return depth;
+		return depth.within( 0, group.childrenLength - 1 );
 	}
 
 
 	private inline function getDepthForBoundsC (bounds:IRectangle) : Int
 	{
 		Assert.abstract( "Wrong implementation since the way centered layouts behave is changed");
-		var depth:Int	= 0;
+		return 0;
+	/*	var depth:Int	= 0;
 		var posY:Int	= bounds.top;
 		var centerY:Int	= bounds.top + (bounds.height >> 1); // * .5).roundFloat();
 		
@@ -336,15 +278,15 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 
 			depth++;
 		}
-		return depth;
+		return depth;*/
 	}
 
 
 	private inline function getDepthForBoundsBtT (bounds:IRectangle) : Int
 	{
 		var depth:Int	= 0;
-		var posY:Int	= bounds.top;
-		var centerY:Int	= bounds.top + (bounds.height >> 1); // * .5).roundFloat();
+		var posY:Int	= bounds.top - getTopStartValue();
+		var centerY:Int	= bounds.centerY; // + (bounds.height >> 1); // * .5).roundFloat();
 		
 		var children	= group.children;
 		var groupHeight = group.height;
@@ -359,7 +301,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 		
 		if (group.childHeight.isSet())
 		{
-			depth = children.length - ( posY - emptyHeight ).divRound( group.childHeight );
+			depth = children.length - ((posY - emptyHeight) / group.childHeight).roundFloat();
 		}
 		else
 		{
@@ -401,6 +343,86 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 
 		}
 		return depth;
+	}
+	
+	
+	
+	override public function getDepthOfFirstVisibleChild ()	: Int
+	{
+		if (group.childHeight.notSet())
+			return 0;
+		
+		Assert.that(group.is(IScrollableLayout), group+" should be scrollable");
+		var group	= group.as(IScrollableLayout);
+		var childH	= group.childHeight;
+		
+		var depth	= switch (direction) {
+			case Vertical.top:		(group.scrollPos.y / childH).floorFloat();
+			case Vertical.center:	0;
+			case Vertical.bottom:	(group.scrollableHeight / childH).floorFloat();
+		};
+		return (depth - group.invisibleBefore).within(0, group.childrenLength);
+	}
+	
+	
+	override public function getMaxVisibleChildren () : Int
+	{
+		var g = this.group;
+		if (g.childHeight.isSet())
+		    return g.height.isSet()
+		    	? IntMath.min( (g.height / g.childHeight).ceilFloat() + group.invisibleBefore + group.invisibleAfter, g.childrenLength)
+		    	: 0;
+		else
+		    return g.childrenLength;
+	}
+	
+	
+	override public function scrollToDepth (depth:Int)
+	{
+	    if (!group.is(IScrollableLayout))
+	        return;
+	    
+	    var group       = this.group.as(IScrollableLayout);
+	    var childH      = group.childHeight;
+	    var scroll      = Number.INT_NOT_SET;
+	    var curScroll   = group.scrollPos.y;
+	    var children    = group.children;
+	    
+	    switch (direction)
+	    {
+			case top:
+			    var childPos = 0;
+			    if (childH.isSet()) 
+			    {
+			        childPos    = getTopStartValue() + (depth * childH);
+    		        scroll      = childPos > curScroll ? childPos - group.height + childH : childPos;
+		        }
+		        else
+		        {
+#if debug	        Assert.that( depth >= group.fixedChildStart, depth+" >= "+group.fixedChildStart );
+			        Assert.that( depth <  group.fixedChildStart + children.length, depth+" < "+group.fixedChildStart+" + "+children.length ); #end
+			        var child   = children.getItemAt( depth - group.fixedChildStart );
+			        childPos    = child.outerBounds.top;
+			        scroll      = childPos > curScroll ? child.outerBounds.bottom - group.height : childPos;
+			    }
+			
+			case center:
+			    Assert.abstract();
+			
+			
+			case bottom:
+			    if (childH.isSet()) {
+			        scroll = getBottomStartValue() + ((depth + 1) * childH);
+		        } else {
+#if debug	        Assert.that( depth >= group.fixedChildStart, depth+" >= "+group.fixedChildStart );
+			        Assert.that( depth <  group.fixedChildStart + children.length, depth+" < "+group.fixedChildStart+" + "+children.length ); #end
+			        
+			        scroll = children.getItemAt( depth - group.fixedChildStart ).outerBounds.top;
+			    }
+		}
+		
+		if (scroll.isSet())
+		    group.scrollPos.y = scroll;
 	}
 	
 	

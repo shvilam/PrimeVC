@@ -30,7 +30,7 @@ package primevc.gui.components;
  import primevc.core.collections.IReadOnlyList;
  import primevc.core.dispatcher.Signal1;
  import primevc.core.traits.IValueObject;
- import primevc.gui.core.IUIElement;
+ import primevc.gui.core.IUIDataElement;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.events.MouseEvents;
   using primevc.utils.Bind;
@@ -49,34 +49,36 @@ package primevc.gui.components;
  * @author Ruben Weijers
  * @creation-date Feb 12, 2011
  */
-class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>
+class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>, implements IListHolder<ListDataType>
 {
-	public var content	(default, default)		: ListView<ListDataType>;
+	public var list		(default, default)		: ListView<ListDataType>;
 	public var listData	(default, setListData)	: IReadOnlyList < ListDataType >;
 	public var childClick (default, null)		: Signal1<MouseState>;
 	
 	/**
 	 * Injectable method which will create the needed itemrenderer
+	 * 
 	 * @param	item:ListDataType
 	 * @param	pos:Int
-	 * @return 	IUIElement
+	 * @return 	IUIDataElement
 	 */
-	public var createItemRenderer				(default, setCreateItemRenderer) : ListDataType -> Int -> IUIElement;
+	public var createItemRenderer				(default, setCreateItemRenderer) : ListDataType -> Int -> IUIDataElement<ListDataType>;
 	
 	
-	public function new (id:String, data:DataType, listData:IReadOnlyList<ListDataType>)
+	public function new (id:String, data:DataType = null, listData:IReadOnlyList<ListDataType> = null)
 	{
 		super(id, data);
-		this.listData = listData;
+		this.listData	= listData;
 	}
 	
 	
 	override public function dispose ()
 	{
+		super.dispose();
 		childClick.dispose();
+		
 		childClick			= null;
 		createItemRenderer	= null;
-		super.dispose();
 	}
 	
 	
@@ -90,38 +92,44 @@ class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>
 	{
 		super.createChildren();
 		
-		//check to see if content is not created yet by a skin
-		if (content == null)
-		{
-			Assert.notNull(createItemRenderer);
-			content = new ListView(id.value+"Content", listData);
-			content.createItemRenderer = createItemRenderer;
-			
-			layoutContainer.children.add( content.layout );
-			children.add( content );
-		}
+		//check to see if list is not created yet by a skin
+		if (list == null)	list = new ListView(id.value+"Content", listData);
+		else                list.data = listData;
 		
-		content.styleClasses.add("listContent");
-		childClick.send.on( content.childClick, this );
+
+		list.setFocus.on( userEvents.focus, this );
+		list.createItemRenderer = createItemRenderer;
+		list.attachTo(this);
+		
+	//	mouseEnabled 	= false;
+	//	mouseChildren 	= true;
+		
+		list.styleClasses.add("listContent");
+		childClick.send.on( list.childClick, this );
 	}
 	
 	
-	override private function removeChildren ()
+	override public  function removeChildren ()
 	{
-		children.remove(content);
-		layoutContainer.children.remove(content.layout);
-		content.dispose();
-		content = null;
+		list.detach();
+		list.dispose();
+		list = null;
 		super.removeChildren();
 	}
 	
+
+	//
+	// GETTERS / SETTERS
+	//
 	
 	private inline function setListData (v)
 	{
 		if (listData != v) {
 			listData = v;
-			if (content != null)
-				content.data = v;
+			if (list != null) {
+				Assert.notNull(createItemRenderer);
+				list.data = v;
+			}
 		}
 		return v;
 	}
@@ -131,8 +139,8 @@ class ListHolder <DataType, ListDataType> extends UIDataContainer <DataType>
 	{
 		if (v != createItemRenderer) {
 			createItemRenderer = v;
-			if (content != null)
-				content.createItemRenderer = v;
+			if (list != null)
+				list.createItemRenderer = v;
 		}
 		return v;
 	}

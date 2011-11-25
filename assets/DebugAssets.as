@@ -8,13 +8,15 @@
 package 
 {
 	import com.hexagonstar.util.debug.Debug;
+	import com.demonsters.debugger.MonsterDebugger;
 	import nl.demonsters.debugger.MonsterDebugger;
 	
 	
 	public class DebugAssets extends Assets
 	{
 		// Force embedding
-		private var monsterDebugger : nl.demonsters.debugger.MonsterDebugger;
-		private var alconDebugger	: com.hexagonstar.util.debug.Debug;
+		private var monsterDebugger2	: nl.demonsters.debugger.MonsterDebugger;
+		private var monsterDebugger3	: com.demonsters.debugger.MonsterDebugger;
+		private var alconDebugger		: com.hexagonstar.util.debug.Debug;
 	}
 }

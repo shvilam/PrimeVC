@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.scroll;
- import primevc.gui.behaviours.layout.ClippedLayoutBehaviour;
+ import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.traits.IScrollable;
 #if !neko
  import primevc.core.dispatcher.Wire;
@@ -39,7 +39,7 @@ package primevc.gui.behaviours.scroll;
  import primevc.gui.layout.IScrollableLayout;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 #end
 
@@ -50,10 +50,10 @@ package primevc.gui.behaviours.scroll;
  * @author Ruben Weijers
  * @creation-date Jul 29, 2010
  */
-class DragScrollBehaviour extends ClippedLayoutBehaviour
+class DragScrollBehaviour extends BehaviourBase<IScrollable>, implements IScrollBehaviour
 {
 #if !neko
-	private var scrollLayout	: IScrollableLayout;
+	private var layout			: IScrollableLayout;
 	private var lastMousePos	: Point;
 	private var dragHelper		: DragHelper;
 	private var moveBinding		: Wire < Dynamic >;
@@ -61,12 +61,12 @@ class DragScrollBehaviour extends ClippedLayoutBehaviour
 	
 	override private function init ()
 	{
-		Assert.that( target.scrollableLayout != null, "target.layout of "+target+" must be a IScrollableLayout" );
-		super.init();
+		Assert.notNull( target.scrollableLayout, "target.layout of "+target+" must be a IScrollableLayout" );
+		target.enableClipping();
 		
 	//	trace(target+".init DragScrollBehaviour "+target.scrollRect);
-		scrollLayout	= target.scrollableLayout;
-		checkScrollable.on( scrollLayout.changed, this );
+		layout = target.scrollableLayout;
+		checkScrollable.on( layout.changed, this );
 		
 		dragHelper		= new DragHelper( target, startScrolling, stopScrolling, dragAndScroll );
 		moveBinding		= dragAndScroll.on( target.window.mouse.events.move, this );
@@ -83,7 +83,7 @@ class DragScrollBehaviour extends ClippedLayoutBehaviour
 		lastMousePos	= null;
 		dragHelper		= null;
 		moveBinding		= null;
-		super.reset();
+		target.disableClipping();
 	}
 	
 	
@@ -92,7 +92,7 @@ class DragScrollBehaviour extends ClippedLayoutBehaviour
 		if (changes.hasNone( LayoutFlags.WIDTH_PROPERTIES | LayoutFlags.HEIGHT_PROPERTIES ))
 			return;
 		
-		if (target.scrollRect == null || (!scrollLayout.horScrollable() && !scrollLayout.verScrollable()))
+		if (!target.isScrollable || (!scrollLayout.horScrollable() && !scrollLayout.verScrollable()))
 			target.userEvents.mouse.down.unbind( this );
 		else
 			dragHelper.start.on( target.userEvents.mouse.down, this );
@@ -118,8 +118,8 @@ class DragScrollBehaviour extends ClippedLayoutBehaviour
 		if (mouseObj == null)
 			return;
 		
-		var scrollHor = scrollLayout.horScrollable();
-		var scrollVer = scrollLayout.verScrollable();
+		var scrollHor = layout.horScrollable();
+		var scrollVer = layout.verScrollable();
 		
 		if (!scrollHor && !scrollVer)
 			return;
@@ -131,13 +131,13 @@ class DragScrollBehaviour extends ClippedLayoutBehaviour
 		
 		var mousePos		= ScrollHelper.getLocalMouse(target, mouseObj);
 		var mouseDiff		= lastMousePos.subtract(mousePos);
-		var newScrollPos	= scrollLayout.scrollPos.clone();
+		var newScrollPos	= layout.scrollPos.clone();
 		
 		if (scrollHor)	newScrollPos.x += mouseDiff.x.roundFloat();
 		if (scrollVer)	newScrollPos.y += mouseDiff.y.roundFloat();
 		
 		lastMousePos = mousePos;
-		newScrollPos = scrollLayout.validateScrollPosition( newScrollPos );
+		newScrollPos = layout.validateScrollPosition( newScrollPos );
 		scrollLayout.scrollPos.setTo( newScrollPos );
 	}
 #end

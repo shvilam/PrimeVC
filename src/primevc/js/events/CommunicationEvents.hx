@@ -14,6 +14,7 @@ class CommunicationEvents extends CommunicationSignals
 {
 	public function new (request:XMLHttpRequest)
 	{
+		super();
 		started		= new Signal0();
 		progress	= new ProgressSignal();
 		init		= new Signal0();

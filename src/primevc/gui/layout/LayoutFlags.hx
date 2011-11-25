@@ -36,7 +36,7 @@ package primevc.gui.layout;
  * @creation-date	Jun 24, 2010
  * @author			Ruben Weijers
  */
-class LayoutFlags 
+#if !debug extern #end class LayoutFlags
 {
 	public static inline var ALL_PROPERTIES			= SIZE | POSITION | INCLUDE | RELATIVE | ALGORITHM | PERCENT_WIDTH | PERCENT_HEIGHT | PADDING | MARGIN | MAINTAIN_ASPECT | ROTATION | CHILD_WIDTH | CHILD_HEIGHT | WIDTH_CONSTRAINTS | HEIGHT_CONSTRAINTS;
 	
@@ -48,6 +48,7 @@ class LayoutFlags
 	
 	public static inline var EXPLICIT_SIZE			= EXPLICIT_WIDTH | EXPLICIT_HEIGHT;
 	public static inline var MEASURED_SIZE			= MEASURED_WIDTH | MEASURED_HEIGHT;
+	public static inline var CHILD_SIZE				= CHILD_WIDTH | CHILD_HEIGHT;
 	public static inline var SIZE					= WIDTH | HEIGHT;
 	public static inline var SIZE_PROPERTIES		= WIDTH_PROPERTIES | HEIGHT_PROPERTIES;
 	public static inline var POSITION				= X | Y;
@@ -115,6 +116,12 @@ class LayoutFlags
 	 */
 	public static inline var CHILDREN_INVALIDATED	= 1 << 29;
 	
+	/**
+	 * Flag indicating that the child-length property of a LayoutContainer is 
+	 * fixed and should not be updated when the list of children is changed.
+	 */
+//	public static inline var FIXED_CHILD_LENGTH		= 1 << 30;
+	
 	
 	
 	/**
@@ -123,6 +130,15 @@ class LayoutFlags
 	 */
 	public static inline var FILL					: Int = #if neko -1073741821 #else -2147483644 #end;
 	
+	
+	/**
+	 * Flags that should cause a layoutcontainer to validate horizontally
+	 */
+	public static inline var HORIZONTAL_INVALID		= WIDTH | LIST | CHILDREN_INVALIDATED | CHILD_HEIGHT | CHILD_WIDTH | ALGORITHM;
+	/**
+	 * Flags that should cause a layoutcontainer to validate horizontally
+	 */
+	public static inline var VERTICAL_INVALID		= HEIGHT | LIST | CHILDREN_INVALIDATED | CHILD_HEIGHT | CHILD_WIDTH | ALGORITHM;
 	
 	
 	//

@@ -30,9 +30,8 @@ package primevc.gui.graphics.shapes;
  import primevc.core.geom.Corners;
  import primevc.core.geom.IRectangle;
  import primevc.gui.traits.IGraphicsOwner;
-#if neko
- import primevc.tools.generator.ICodeGenerator;
-#end
+  using primevc.utils.NumberUtil;
+  using primevc.utils.TypeUtil;
 
 
 /**
@@ -50,17 +49,26 @@ class RegularRectangle extends ShapeBase, implements IGraphicShape
 		
 		else if (borderRadius.allCornersEqual())
 			target.graphics.drawRoundRect(
-				bounds.left - 0.5, bounds.top - 0.5, bounds.width, bounds.height, 
+				bounds.left - 0.5, bounds.top - 0.5, bounds.width + 0.5, bounds.height + 0.5, 
 				borderRadius.topLeft, borderRadius.topRight
 			);
 		
 		
 		else
 			target.graphics.drawRoundRectComplex(
-				bounds.left - 0.5, bounds.top - 0.5, bounds.width, bounds.height, 
+				bounds.left - 0.5, bounds.top - 0.5, bounds.width + 0.5, bounds.height + 0.5, 
 				borderRadius.topLeft, borderRadius.topRight, borderRadius.bottomLeft, borderRadius.bottomRight
 			);
 #end
+	}
+	
+	
+	public function drawFraction (target:IGraphicsOwner, bounds:IRectangle, borderRadius:Corners, percentage:Float) : Void
+	{
+		var b = bounds.clone().as(IRectangle);
+		b.width  = (b.width  * percentage).roundFloat();
+		b.height = (b.height * percentage).roundFloat();
+		draw( target, b, borderRadius );
 	}
 	
 	

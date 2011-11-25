@@ -34,6 +34,7 @@ package primevc.gui.managers;
  import primevc.gui.core.UIComponent;
  import primevc.gui.core.UIWindow;
   using primevc.utils.Bind;
+  using Std;
 
 
 /**
@@ -102,13 +103,17 @@ class ToolTipManager implements IDisposable
 			mouseMove.enable();
 		
 			//give label the correct text
-			toolTip.data.bind( label );
-		
-			if (!isVisible())
-				window.children.add( toolTip );
+		//	toolTip.data.bind( label );		//don't bind.. if the change event is dispatched manually (without calling Bindable.setValue), the tooltip won't update	
+			toolTip.data.value = label.value;
+			updateToolTip.on( label.change, this );
 			
 			//move tooltip to right position
 			updatePosition();
+			toolTip.layout.x = toolTip.x.int();
+			toolTip.layout.y = toolTip.y.int(); // - toolTip.height - 5;
+			
+			if (!isVisible())
+				toolTip.attachDisplayTo(window);
 		}
 		
 		lastObj		= obj;
@@ -134,7 +139,7 @@ class ToolTipManager implements IDisposable
 		lastLabel	= null;
 		
 		if (isVisible())
-			window.children.remove( toolTip );
+			toolTip.detachDisplay();
 	}
 	
 	
@@ -156,9 +161,11 @@ class ToolTipManager implements IDisposable
 	
 	private inline function removeListeners ()
 	{
-		if (lastObj != null)	lastObj.displayEvents.removedFromStage.unbind( this );
+		if (lastObj != null)
+			lastObj.displayEvents.removedFromStage.unbind( this );
+		
 		if (lastLabel != null) {
-			toolTip.data.unbind( lastLabel );
+		//	toolTip.data.unbind( lastLabel );
 			lastLabel.change.unbind(this);
 		}
 	}
@@ -188,7 +195,6 @@ class ToolTipManager implements IDisposable
 		
 		toolTip.x = newX;
 		toolTip.y = newY; // - toolTip.height - 5;
-	//	trace(newX+", "+newY);
 	}
 	
 	
@@ -196,5 +202,11 @@ class ToolTipManager implements IDisposable
 	{
 		hide(lastObj);
 		toolTip.x = toolTip.y = -400;
+	}
+	
+	
+	private function updateToolTip (newVal:String, oldVal:String)
+	{
+		toolTip.data.value = newVal;
 	}
 }

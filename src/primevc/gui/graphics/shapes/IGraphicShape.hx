@@ -40,4 +40,9 @@ package primevc.gui.graphics.shapes;
 interface IGraphicShape implements IGraphicElement
 {
 	public function draw (target:IGraphicsOwner, bounds:IRectangle, borderRadius:Corners) : Void;
+	
+	/**
+	 * Method to draw the shape for the given percentage
+	 */
+	public function drawFraction (target:IGraphicsOwner, bounds:IRectangle, borderRadius:Corners, percentage:Float) : Void;
 }
