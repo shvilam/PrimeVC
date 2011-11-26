@@ -455,6 +455,50 @@ NOTE: classes can be embed in an external library-swf or in the application itse
 |margin-left				| [int]px						g| 		g|
 |=====
 
+==== Layout-algorithms
+
+:alg: link:../algorithms.html
+[options="header",cols="2,1,4m,1"]
+|=====
+|Name 					| Type	| Syntax |
+|Horizontal float 		| hor	| float-hor(<hor-start>?, <ver-start>?)											| {alg}#_Horizontal_float[doc]
+|Vertical float 		| ver	| float-ver(<ver-start>?, <hor-start>?)											| {alg}#_Vertical_float[doc]
+|Diagonal Float 		| hor	| float (<hor-start>?, <ver-start>?)											| {alg}#_Diagonal_Float[doc]
+|Circle 				| both	| circle (<hor-start>?, <ver-start>?)											| {alg}#_Circle[doc]
+|Ellipse 				| both	| ellipse (<hor-start>?, <ver-start>?)											| {alg}#_Ellipse[doc]
+|Horizontal circle 		| hor	| hor-circle (<hor-start>?, <ver-start>?)										| {alg}#_Horizontal_circle[doc]
+|Vertical circle 		| ver	| ver-circle (<ver-start>?, <hor-start>?)										| {alg}#_Vertical_circle[doc]
+|Horizontal ellipse 	| hor	| hor-ellipse (<hor-start>?, <ver-start>?)										| {alg}#_Horizontal_ellipse[doc]
+|Vertical ellipse 		| ver	| ver-ellipse (<ver-start>?, <hor-start>?)										| {alg}#_Vertical_ellipse[doc]
+|Dynamic 				| both	| dynamic(<hor-algorithm>, <ver-algorithm>)										| {alg}#_Dynamic[doc]
+|Relative				| both	| relative																		| {alg}#_Relative[doc]
+|Tile 					| both	| tile																			| {alg}#_Tile[doc]
+|Dynamic-tile 			| both	| dynamic-tile(<start-direction>, <hor-start>?, <ver-start>?)					| {alg}#_Dynamic-tile[doc]
+|Fixed-tile 			| both	| fixed-tile (<start-direction>, <rows/columns>, <hor-start>?, <ver-start>?)	| {alg}#_Fixed-tile[doc]
+|Inherit 				| both	| inherit																		| {alg}#_Inherit[doc]
+|None 					| both	| none																			| {alg}#_None[doc]
+|=====
+
+.Algorithm-variables
+[options="header", cols="2m, 3m, 2m"]
+|=====
+|Name 				| Syntax 					| Default-value
+|hor-start 			| left \| center \| right 	| left
+|ver-start 			| top \| center \| bottom 	| top
+|start-direction	| horizontal \| vertical 	| horizontal
+|rows / columns 	| [int] 					| 0
+|=====
+
+
+.Examples
+[source,css]
+-----
+.obj1 { layout: float; }
+.obj2 { layout: float-ver; }
+.obj3 {	layout: float-hor; }
+-----
+
+
 
 === Transitions
 [options="header", cols="4header,8m,1,1", width="100%"]
@@ -528,7 +572,31 @@ Effects are describing an animation with one or more properties. *All effects* a
 }
 
 .obj2 {
-	show-transition: 	anchor-scale 
+	move-transition:	move 400ms circ-in 20px, 0px;
+	resize-transition:	resize 400ms sine-out 0px,20px;
+	rotate-transition:	wipe 40ms linear-out 0px 400px;
+	scale-transition:	scale 40ms linear-out 0%,20%;
+	show-transition:	anchor-scale bottom-left 400ms 50ms;
+	hide-transition:	anchor-scale 400ms 50ms Bounce-Out middle-right 100% 312.3%;
+}
+
+.obj3 {
+	move-transition:	rotate 400ms expo-out 51deg 315deg;
+	resize-transition:	wipe 400px;
+	/* nested effects */
+	rotate-transition:	sequence (parallel ( fade 500ms 40%, move 300ms elastic-out ), fade 600ms 100% );
+	scale-transition:	parallel 900ms 50ms bounce-out (wipe left-to-right 200ms, fade 15ms elastic-in);
+	show-transition:	anchor-scale; 	/* default duration 350ms */
+	hide-transition:	fade; 		 	/* default duration 350ms */
+}
+
+.obj4 {
+	move-transition:	set-action alpha(80% 40%); 				/* set alpha to 40% (directly) */
+	resize-transition:	set-action position(20px,809047px 4px,6px);
+	rotate-transition:	set-action any(skewX, 10);
+	scale-transition:	sequence 900ms 50ms bounce-out (wipe left-to-right 200ms, fade 15ms);
+	show-transition:	fade 400ms elastic-in-out 0% 50%;
+	hide-transition:	move 20px ,40px 100px,-50.4px; 			/* start-pos, end-pos */
 }
 -----
 
