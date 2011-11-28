@@ -1,0 +1,156 @@
+= Layout =
+Ruben Weijers <ruben@rubenw.nl>
+:toc:
+
+
+== Box Model
+
+PrimeVC implements a layout-model comparibable to the http://www.w3.org/TR/css3-ui/#box-sizing[css3 box-sizing] value `border-box`. The original css-box-model can be quite frustrating when you work with liquid layouts so we tried to fix it by only implementing the `border-box` model.
+
+NOTE: Prime-developers: `border-box` is supported by all modern browsers. PrimeVC should be able to apply some automatic quirkcs for the html-implementation with support for IE6/7.
+
+["ditaa"]
+-----
++--------------------------------------------------------------+
+|                                                              |
+|                            margin                            |
+|                                                              |
+|    +-----------------------=----------------------------+    |
+|    |                                                    |    |
+|    |                       padding                      |    |
+|    |                                                    |    |
+|    |     +----------------------------------------+     |    |
+|    |  ^  |                                        |     |    |
+|    |  |  |                                        |     |    |
+|    |  |  |                                        |     |    |
+|    |  |  |                                        |     |    |<----+ outerbounds
+|    |  +---height           content                |     |    |
+|    |  :  |                                        |     |<---+-----+ innerbounds
+|    |  |  |                                        |     |    |
+|    |  |  |                                        |     |    |
+|    |  v  |                                        |     |    |
+|    |     +----------------------------------------+     |    |
+|    |       <----------=-----width-----=--------->       |    |
+|    |                                                    |    |
+|    +----------------------------------------------------+    |
+|                                                              |
+|                                                              |
++--------------------------------------------------------------+
+-----
+
+
+=== Advanced LayoutClient
+
+["ditaa"]
+-----
+A
+ *----------------------------------------+------------------------+
+ |cFFF                                    | ^                      |^ 
+ |                                        | |                      || 
+ |                                        | :                      || 
+ |             visible area               | +-explicitHeight       |: 
+ |                                        | |                      || 
+ |                                        | |                      || 
+ |                                        | v                      || 
+ +----------------------------------------+                        || 
+ | <---------=--explicitWidth-----=------>                         || 
+ |                                                                 || 
+ |                                                                 |+--measuredHeight
+ |                                                                 || 
+ |                                                                 || 
+ |                                                                 || 
+ |                                                                 || 
+ |cEEE                                                             || 
+ |                                                                 || 
+ |                                                                 || 
+ |                                                                 || 
+ |                                                                 || 
+ |                                                                 |V 
+ +-----------------------------------------------------------------+
+  <-----------------=--------measuredWidth----------=------------>
+-----
+
+
+=== LayoutContainer
+
+
+["ditaa"]
+-----
+A   <-----------------=--------measuredWidth----------=------------>
+ *-----------------------------------------------------------------+
+ |^ cEEE                                                           | ^
+ ||                                                                | |
+ ||                                                                | :
+ |:                          invisible area                        | +-scrollableHeight
+ ||                                                                | |
+ ||                                                                | |
+ ||                                                                | v
+ ||                       *----------------------------------------+  
+ ||                       |B                                       | ^
+ ||                       |cFFF                                    | |
+ |+-measuredHeight        |                                        | |
+ ||                       |                                        | :
+ ||                       |                                        | |
+ ||                       |                                        | |
+ ||                       |             visible area               | +-explicitHeight
+ ||                       |                                        | |
+ ||                       |                                        | |
+ ||                       |                                        | |
+ ||                       |                                        | |
+ ||                       |                                        | |
+ |V                       |                                        | V
+ +------------------------+----------------------------------------+
+  <-=-scrollableWidth-=->   <---------=--explicitWidth-----=------>
+
+  
+ o A -> x,y
+ o B -> scrollPos(x,y)
+  
+-----
+
+
+
+== Algorithms
+
+
+=== Horizontal float
+
+
+=== Vertical float
+
+
+=== Diagonal Float
+
+
+=== Circle
+
+
+=== Ellipse
+
+
+=== Horizontal circle
+
+
+=== Vertical circle
+
+
+=== Horizontal ellipse
+
+
+=== Vertical ellipse
+
+
+=== Dynamic
+
+
+=== Relative
+
+
+=== Tile
+
+
+=== Dynamic-Tile
+
+
+=== Fixed-Tile
+

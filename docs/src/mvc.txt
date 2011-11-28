@@ -173,7 +173,7 @@ The *view* contains references to *mediators*. It's responsibilities are:
 
 - create all *mediators* and provide them with a reference to the *facade* and their *gui*
 - dispose all *mediators* when the *view* is disposed
-- enable/disable all *mediators* when the *view* is enabled/disabled
+- calls `startListening/stopListening` on all *mediators* when the *view* starts/stops listening
 - listen/unlisten all *mediators* when the *view* starts/stops listening
 
 ==== Mediator
@@ -198,7 +198,7 @@ The *logic* contains references to *controllers*. It's responsibilities are:
 - create all *controllers* and provide them with a reference to the *facade*
 - dispose all *controllers* when the *logic* is disposed
 - enable/disable all *controllers* when the *logic* is enabled/disabled
-- listen/unlisten all *controllers* when the *logic* starts/stops listening
+- calls `startListening/stopListening` on all *controllers* when the *logic* starts/stops listening
 - create simple bindings between *signals* and *proxies*
 +
 The main class can create bindings between a signal and the API of a proxy when a proxy directly needs to listen to a specific MVC-signal.
