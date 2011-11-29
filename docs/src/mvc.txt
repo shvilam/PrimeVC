@@ -437,7 +437,7 @@ In this diagram:
 - All *facades* have a reference to *Channels*
 
 .UML
-["graphviz", "MVC_UML.svg", "dot", "svg"]
+["graphviz", "MVC_UML_Multicore.svg", "dot", "svg"]
 ------
 digraph MVC_UML {
 	node [fontname=Verdana,fontsize=8.0]

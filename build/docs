@@ -14,7 +14,7 @@ mkdir -p $OUTPUT
 function generateDocs {
     orig_in=$file_in
     orig_out=$file_out
-    echo "$file_in $2"
+#   echo "$file_in $2"
     themes_dir="../$2"
     #cd $1
     for file_in in $1/*
@@ -37,7 +37,7 @@ function generateDocs {
         #generate docs for .txt files which are newer then there output
         elif [[ $file_in == *.$INPUT_EXT ]] && [[ -f $file_in ]]; then
             if [[ ! -f $file_out ]] || test "$file_in" -nt "$file_out"; then
-                asciidoc -b html5 --theme=$THEME -a linkcss -a "scriptsdir=$themes_dir" -a "stylesdir=$themes_dir" -o $file_out $file_in &&
+                asciidoc -b html5 --theme=$THEME -a linkcss -a "scriptsdir=$themes_dir" -a "stylesdir=$themes_dir" -o $file_out $file_in > /dev/null &&
                 COUNTER=$((COUNTER+1))
             #    echo "f $file_in => $file_out"
             #else

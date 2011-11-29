@@ -23,6 +23,11 @@ The cell of bla will become red.
 :tabledef-default.red-style: tags="red" 
 :tabledef-default.pre-style: tags="pre" 
 
+______
+.TODO:
+- explain selectors (`style, .style, #style, style > style etc.`)
+- explain styleblocks (different chapter?)
+______
 
 
 == Introduction
@@ -77,9 +82,9 @@ More info about these units can be fount at http://www.w3.org/TR/css3-values/[w3
 |pc 	| Picas 		| font-size of parent 			r| 		g|
 |% 		| Percentage 	| font-size of parent 			g| 		g|
 |=====
+:t_fontsize: xref:_font[&#91;unit&#93;]
 
 Support for other units then `%` and `px` is not yet implemented for flash. The css-parser will use `px` for all unit's that flash doesn't know.
-
 
 === Distance
 [options="header", cols="1m,2,1,1"]
@@ -93,6 +98,7 @@ Support for other units then `%` and `px` is not yet implemented for flash. The 
 |pc 	| picas; 1pc is equal to 12pt 				r| 		g| 
 |% 		| Percentage of parent 						g| 		g|
 |=====
+:t_distance: xref:_distance[&#91;unit&#93;]
 ~* Explanations shamelessly copied from http://www.w3.org/TR/css3-values/#absolute-lengths[w3c]~
 
 Support for other units then `%` and `px` is not yet implemented for flash. The css-parser will use `px` for all unit's that flash doesn't know.
@@ -107,6 +113,7 @@ Support for other units then `%` and `px` is not yet implemented for flash. The 
 |grad 	| gradians (`0-400`)	r| 		g| 
 |turn 	| turns (`0-1`)			r| 		g| 
 |=====
+:t_angle: xref:_angle[&#91;unit&#93;]
 
 
 === Times
@@ -116,6 +123,7 @@ Support for other units then `%` and `px` is not yet implemented for flash. The 
 |s 		| seconds 			g| 		g| 
 |ms 	| milliseconds 		r| 		g| 
 |=====
+:t_time: xref:_times[&#91;unit&#93;]
 
 
 === Box
@@ -137,6 +145,8 @@ A box allows 1-4 values in the format of `[int][unit]{1,4}` to specify the top, 
 +
 `[int][unit]` `[int][unit]` `[int][unit]` `[int][unit]`
 
+:t_box: xref:_box[&#91;box&#93;]
+
 
 == Data formats
 Data-types in this document:
@@ -148,9 +158,17 @@ Data-types in this document:
 |Int 	| 32-bit positive integer (`0x00000000 - 0xFFFFFFFF`)
 |Float 	| 64-bit floating point number
 |bool 	| `true` or `false`
+|string | sequence of characters delimited by double quotes or single quotes
 |perc 	| percentage (`[float 0-100]%`)
-|angle 	| rotation in degrees (`[float]deg`)
+|angle 	| rotation in degrees ({t_float}`deg`)
 |=====
+
+:t_int: xref:_data_formats[&#91;int&#93;]
+:t_float: xref:_data_formats[&#91;float&#93;]
+:t_bool: xref:_data_formats[&#91;bool&#93;]
+:t_string: xref:_data_formats[&#91;string&#93;]
+:t_perc: xref:_data_formats[&#91;perc&#93;]
+:t_angle: xref:_data_formats[&#91;angle&#93;]
 
 
 === Colors
@@ -167,6 +185,8 @@ Prime works with RGBA colors. There are multiple ways to express these color val
 |0xffddeeaa					| #ffddeeaa	| rgba( 255, 221, 238, .67 )
 |rgba(255,50,100,0.9)		| #ff3264e6	| rgba( 255,  50, 100, .90 )
 |=====
+:t_color: xref:_colors[&#91;color&#93;]
+
 
 *Colornames*, *hsl-values*, *cmyk-values* and *system-colors* are not supported yet. See http://www.w3.org/TR/css3-color/[w3c-colornames]
 
@@ -179,10 +199,12 @@ There are two types of gradients supported, `radial` and `linear`.
 
 [cols="header, 3m"]
 |=====
-|Gradient-colors 	| ([color] <pos [float][unit]>?){1,*}
-|Linear-gradient 	| linear-gradient( <rotation [int 360]>[unit] <gradient-colors> <spread-method> )
+|Gradient-colors 	| ({t_color} <pos {t_float}{t_distance}>?){1,*}
+|Linear-gradient 	| linear-gradient( <rotation [int 360]>{t_angle} <gradient-colors> <spread-method> )
 |Radial-gradient 	| radial-gradient( <radial-point [float -1-1]> <gradient-colors> <spread-method> )
 |=====
+:t_gradient: xref:_gradients[&#91;gradient&#93;]
+
 
 .Spread-methods
 [options="header"]
@@ -233,6 +255,7 @@ There are two types of gradients supported, `radial` and `linear`.
 }
 -----
 
+
 === Resources
 A resource can be a reference to a `class` or external file.
 
@@ -243,6 +266,10 @@ A resource can be a reference to a `class` or external file.
 |file 		|url( path/to/file.ext )	g| 		g|
 |file 		|url( htt://uri/file.ext )	g| 		g|
 |=====
+
+:t_resource: xref:_resources[&#91;resource&#93;]
+:t_class: xref:_resources[&#91;class&#93;]
+
 
 IMPORTANT: Quotes around an url or class is *not* allowed!
 
@@ -274,12 +301,12 @@ NOTE: classes can be embed in an external library-swf or in the application itse
 |=====
 |Property 						| Syntax 													|Flash	|HTML
 |font							| <font-style>? <font-weight>? <font-size>? <font-family>?	g|	 	g|
-|font-size						| inherit \| [float][unit]									g|	 	g|
-|font-family					| inherit \| string	\| embed([class-resource])				g|	 	y|
-|color							| inherit \| [color]										g|	 	g|
+|font-size						| inherit \| {t_float}{t_fontsize}							g|	 	g|
+|font-family					| inherit \| {t_string} \| embed([class-resource])			g|	 	y|
+|color							| inherit \| {t_color}										g|	 	g|
 |font-weight					| normal \| bold \| bolder \| lighter						g|	 	g|
 |font-style						| inherit \| normal \| italic \| oblique					g|	 	g|
-|letter-spacing					| inherit \| normal \| [float][unit]						g|	 	g|
+|letter-spacing					| inherit \| normal \| {t_float}{t_fontsize}				g|	 	g|
 |text-align						| inherit \| left \| center \| right \| justify				g|	 	g|
 |text-decoration				| inherit \| none \| underline								g|	 	g|
 |text-indent					| 															g|	 	g|
@@ -291,7 +318,7 @@ NOTE: classes can be embed in an external library-swf or in the application itse
 |vertical-align					| 															r| 		g|
 |white-space 					|															r| 		g|
 |resize							| horizontal \| vertical \| both \| none 					r| 		g|
-|clip							| auto \| [box] 											r| 		g|
+|clip							| auto \| {t_box} 											r| 		g|
 |text-wrap						| normal \| none \| avoid 									r| 		g|
 |=====
 
@@ -301,9 +328,9 @@ NOTE: classes can be embed in an external library-swf or in the application itse
 |=====
 |Property 						| Syntax 													|Flash	|HTML
 |overflow-wrap					| normal \| break-word \| hyphenate							r| 		g|
-|column-count					| [int]														r| 		g|
-|column-gap						| [int]														r| 		g|
-|column-width					| [int]														r| 		g|
+|column-count					| {t_int}													r| 		g|
+|column-gap						| {t_int}													r| 		g|
+|column-width					| {t_int}													r| 		g|
 |=====
 
 
@@ -312,14 +339,14 @@ NOTE: classes can be embed in an external library-swf or in the application itse
 |=====
 |Property 						| Syntax 														|Flash	|HTML
 |background						| <background-color>{0,*}? <background-image>{0,*}?				g| 		g|
-|background-color				| [color]{1,*}													g| 		g|
-|background-image				| {[resource] <background-repeat>?} {1,*}						g| 		g|
+|background-color				| {t_color}{1,*}												g| 		g|
+|background-image				| { {t_resource} <background-repeat>?} {1,*}					g| 		g|
 |shape							| line \| circle \| ellipse \| rectangle \| [class-resource]	g| 		r|
 |background-clip				| border-box \| padding-box \| content-box 						r| 		g|
 |background-origin				| border-box \| padding-box \| content-box 						r| 		g|
 |background-attachment			| scroll \| fixed \| local 										r| 		g|
 |background-position 			| 																r| 		g|
-|background-size				| <length> \| [percentage] \| auto \| {1,2}cover \| contain 	r| 		g|
+|background-size				| {<length> \| {t_perc} \| auto \| cover \| contain}{1,2} 		r| 		g|
 |background-repeat				| repeat-all \|  no-repeat 										r| 		g|
 |=====
 
@@ -330,15 +357,15 @@ NOTE: classes can be embed in an external library-swf or in the application itse
 |Property 						| Syntax 																	|Flash	|HTML
 |border							| {<border-color>? <border-width>? <border-image>? <border-style>?}{1,*}	g| 		g|
 |border-radius					| <top-left> <top-right>? <bottom-right>? <bottom-left>?					g| 		g|
-|border-top-left-radius			| [float][unit]																g| 		g|
-|border-top-right-radius	 	| [float][unit]																g| 		g|
-|border-bottom-left-radius		| [float][unit]																g| 		g|
-|border-bottom-right-radius		| [float][unit]																g| 		g|
-|border-color					| [color]{1,*}																r| 		g|
-|border-image					| [resource]{1,*}															r| 		g|
+|border-top-left-radius			| {t_float}px																g| 		g|
+|border-top-right-radius	 	| {t_float}px																g| 		g|
+|border-bottom-left-radius		| {t_float}px																g| 		g|
+|border-bottom-right-radius		| {t_float}px																g| 		g|
+|border-color					| {t_color}{1,*}															r| 		g|
+|border-image					| {t_resource}{1,*}															r| 		g|
 |border-image-source			| ??																		r| 		g|
 |border-style					| none \| solid \| dashed \| dotted 										r| 		g|
-|border-width					| [int][unit]																r| 		g|
+|border-width					| {t_int}{t_distance}														r| 		g|
 |border-top						| <border> 																	r| 		g|
 |border-bottom					| <border>																	r| 		g|
 |border-left					| <border>																	r| 		g|
@@ -360,9 +387,9 @@ NOTE: classes can be embed in an external library-swf or in the application itse
 [options="header", cols="4header,8m,1,1", width="100%"]
 |=====
 |Property 						| Syntax 						|Flash	|HTML
-|skin							| [class]						g| 		g|
+|skin							| {t_class}						g| 		r|
 |visibility						| visible \| hidden				g| 		g|
-|opacity						| [float]%						g| 		g|
+|opacity						| {t_perc}						g| 		g|
 |overflow						| visible \| hidden \| scroll-mouse-move \| drag-scroll \| corner-scroll \| scrollbars	g| 		y|
 |cursor | auto \| move \| help \| pointer \| wait \| text \| n-resize \| ne-resize \| e-resize \| se-resize \| s-resize \| sw-resize \| w-resize \| nw-resize \| url(..) 	r| 	g|
 |list-style						| 								r| 		g|
@@ -389,8 +416,8 @@ NOTE: classes can be embed in an external library-swf or in the application itse
 [options="header", cols="4header,8m,1,1", width="100%"]
 |=====
 |Property 						| Syntax 					|Flash	|HTML
-|icon						 	| [resource] 				g| 		r|
-|icon-fill					 	| [color]					g| 		r|
+|icon						 	| {t_resource} 				g| 		r|
+|icon-fill					 	| {t_color}					g| 		r|
 |=====
 
 
@@ -400,20 +427,20 @@ NOTE: classes can be embed in an external library-swf or in the application itse
 [options="header", cols="4header,8m,1,1", width="100%"]
 |=====
 |Property 					| Syntax 						|Flash	|HTML
-|width						| [int]px \| [float]% 			g| 		g|
-|height						| [int]px \| [float]% 			g| 		g|
-|min-width					| [int]px \| [float]% 			g| 		g|
-|min-height					| [int]px \| [float]% 			g| 		g|
-|max-width					| [int]px \| [float]% 			g| 		g|
-|max-height					| [int]px \| [float]% 			g| 		g|
-|child-width				| [int]px \| [float]% 			g| 		g|
-|child-height				| [int]px \| [float]% 			g| 		g|
+|width						| {t_int}px \| {t_perc} 		g| 		g|
+|height						| {t_int}px \| {t_perc} 		g| 		g|
+|min-width					| {t_int}px \| {t_perc} 		g| 		g|
+|min-height					| {t_int}px \| {t_perc} 		g| 		g|
+|max-width					| {t_int}px \| {t_perc} 		g| 		g|
+|max-height					| {t_int}px \| {t_perc} 		g| 		g|
+|child-width				| {t_int}px \| {t_perc} 		g| 		g|
+|child-height				| {t_int}px \| {t_perc} 		g| 		g|
 |box-sizing					| content-box \| border-box 	r| 		g|
 |z-index					|  								r| 		g|
 |float						|  								r| 		g|
 |clear						|  								r| 		g|
 |display					|  								r| 		g|
-|transform					| scale(0.1 - 2) \| rotate([angle]) \| translate( [int][unit], [int][unit] ) \| skew( [int][unit], [int][unit] ) 	r| 		g|
+|transform					| scale(0.1 - 2) \| rotate({t_angle}) \| translate( {t_int}{t_distance}, {t_int}{t_distance} ) \| skew( {t_int}{t_distance}, {t_int}{t_disance} ) 	r| 		g|
 |rotation 					|  								r| 		g|
 |rotation-point 			|  								r| 		g|
 |=====
@@ -423,13 +450,13 @@ NOTE: classes can be embed in an external library-swf or in the application itse
 |=====
 |Property 					| Syntax 						|Flash	|HTML
 |algorithm					| [layout-algorithm]			g| 		r|
-|relative					| [box]							g| 		g|
-|left						| [int]px						g| 		g|
-|right						| [int]px						g| 		g|
-|top						| [int]px						g| 		g|
-|bottom						| [int]px						g| 		g|
-|h-center					| [int]px						g| 		r|
-|v-center					| [int]px						g| 		r|
+|relative					| {t_box}						g| 		g|
+|left						| {t_int}px						g| 		g|
+|right						| {t_int}px						g| 		g|
+|top						| {t_int}px						g| 		g|
+|bottom						| {t_int}px						g| 		g|
+|h-center					| {t_int}px						g| 		r|
+|v-center					| {t_int}px						g| 		r|
 |position					| relative \| absolute			g| 		g|
 |=====
 
@@ -437,22 +464,22 @@ NOTE: classes can be embed in an external library-swf or in the application itse
 [options="header", cols="4header,8m,1,1", width="100%"]
 |=====
 |Property 					| Syntax						|Flash	|HTML
-|padding					| [box]							g| 		g|
-|padding-top				| [int]px						g| 		g|
-|padding-bottom				| [int]px						g| 		g|
-|padding-right				| [int]px						g| 		g|
-|padding-left				| [int]px						g| 		g|
+|padding					| {t_box}						g| 		g|
+|padding-top				| {t_int}px						g| 		g|
+|padding-bottom				| {t_int}px						g| 		g|
+|padding-right				| {t_int}px						g| 		g|
+|padding-left				| {t_int}px						g| 		g|
 |=====
 
 .Margin
 [options="header", cols="4header,8m,1,1", width="100%"]
 |=====
 |Property					| Syntax 						|Flash	|HTML
-|margin						| [box]							g| 		g|
-|margin-top					| [int]px						g| 		g|
-|margin-bottom				| [int]px						g| 		g|
-|margin-right				| [int]px						g| 		g|
-|margin-left				| [int]px						g| 		g|
+|margin						| {t_box}						g| 		g|
+|margin-top					| {t_int}px						g| 		g|
+|margin-bottom				| {t_int}px						g| 		g|
+|margin-right				| {t_int}px						g| 		g|
+|margin-left				| {t_int}px						g| 		g|
 |=====
 
 ==== Layout-algorithms
@@ -486,7 +513,7 @@ NOTE: classes can be embed in an external library-swf or in the application itse
 |hor-start 			| left \| center \| right 	| left
 |ver-start 			| top \| center \| bottom 	| top
 |start-direction	| horizontal \| vertical 	| horizontal
-|rows / columns 	| [int] 					| 0
+|rows / columns 	| {t_int} 					| 0
 |=====
 
 
@@ -511,10 +538,10 @@ NOTE: classes can be embed in an external library-swf or in the application itse
 |show-transition			| <effect>{1,*} \| <other-transiton>								g| 		g|
 |hide-transition			| <effect>{1,*} \| <other-transiton>								g| 		g|
 |animation					| <name>? type? effect( <duration>, <ease>, <delay>, reverted ) 	r| 		g|
-|animation-delay 			| [int][unit] 														r| 		g|
+|animation-delay 			| {t_int}{t_time}													r| 		g|
 |animation-direction 		| ?? 																r| 		g|
-|animation-duration 		| [int][unit] 														r| 		g|
-|animation-name 			| [string]															r| 		g|
+|animation-duration 		| {t_int}{t_time}													r| 		g|
+|animation-name 			| {t_string}														r| 		g|
 |animation-timing-function 	| ?? 																r| 		g|
 |transition					| <transition-type*> <animation> ?? 								r| 		g|
 |transition-property 		| ??																r| 		g|
@@ -536,22 +563,22 @@ Effects are describing an animation with one or more properties. *All effects* a
 |=====
 |name 			| Details 										| Syntax
 |move 			| Move target									| move <effect-properties> )
-|anchor-scale 	| Scale target from specific point				| anchor-scale <effect-properties> <direction {top-left \| top-center \| top-right \| middle-left \| middle-right \| bottom-left \| bottom-center \| bottom-right \| {<x [float][unit]>, <y [float][unit]>}->
-|fade 			| Fade target									| fade <effect-properties> {<start [perc]> <end [perc]>} \| <end [perc]>
+|anchor-scale 	| Scale target from specific point				| anchor-scale <effect-properties> <direction {top-left \| top-center \| top-right \| middle-left \| middle-right \| bottom-left \| bottom-center \| bottom-right \| {<x {t_float}{t_distance}>, <y {t_float}{t_distance}>}>
+|fade 			| Fade target									| fade <effect-properties> {<start {t_perc}> <end {t_perc}>} \| <end {t_perc}>
 |resize			| Resize target									| resize <effect-properties> 
-|rotate 		| Rotate target									| rotate <effect-properties> {<start [angle]> <end [angle]>} \| <end [angle]>
-|scale 			| Scale target									| scale <effect-properties> {<start [perc]> <end [perc]>} \| <end [perc]>
-|wipe			| Wipe effect									| wipe <effect-properties> {top-to-bottom \| bottom-to-top \| left-to-right \| right-to-left}? <end-scaleX [perc]> <end-scaleY [perc]>
+|rotate 		| Rotate target									| rotate <effect-properties> {<start {t_angle}> <end {t_angle}>} \| <end {t_angle}>
+|scale 			| Scale target									| scale <effect-properties> {<start {t_perc}> <end {t_perc}>} \| <end {t_perc}>
+|wipe			| Wipe effect									| wipe <effect-properties> {top-to-bottom \| bottom-to-top \| left-to-right \| right-to-left}? <end-scaleX {t_perc}> <end-scaleY {t_perc}>
 |set-action 	| set a property of target without animation	p|set-action <effect-properties> { 
-	alpha([perc]) 
-\|	position(<endX [int][unit]>, <endY [int][unit]>) 
-\|	rotation([angle]) 
-\|	size(<w [float][unit]>, <h [float][unit]>) 
-\|	scale(<x [perc]>, <y [scale]>) 
+	alpha({t_perc}) 
+\|	position(<endX {t_int}{t_distance}>, <endY {t_int}{t_distance}>) 
+\|	rotation({t_angle}) 
+\|	size(<w {t_float}{t_distance}>, <h {t_float}{t_distance}>) 
+\|	scale(<x {t_perc}>, <y {t_perc}>) 
 \|	any(*)
 }
-|parallel 		| multiple effects, executed parallel 			| parallel <effect-properties> <effect>{1,*}
-|sequence 		| multiple effects, executed in sequence 		| sequence <effect-properties> <effect>{1,*}
+|parallel 		| multiple effects, executed parallel 			| parallel <effect-properties> (<effect>{1,*})
+|sequence 		| multiple effects, executed in sequence 		| sequence <effect-properties> (<effect>{1,*})
 |=====
 
 [cols="1header,6m"]
@@ -607,12 +634,12 @@ Effects are describing an animation with one or more properties. *All effects* a
 [options="header", cols="4header,8m,1,1m", width="100%"]
 |=====
 |Property					| Syntax																																		|Flash	|HTML
-|box-bevel					| <distance>? <blurX>? <blurY>? <strength>? <rotation>? <shadow [color]>? <highlight [color]>? <inner\|outer\|full>? <knockout>? <quality>? 	g| 		g|
-|box-shadow					| <distance>? <blurX>? <blurY>? <strength>? <rotation>? [color]? <inner>? hide-object? knockout? <quality>?										g| 		g|
+|box-bevel					| <distance>? <blurX>? <blurY>? <strength>? <rotation>? <shadow {t_color}>? <highlight {t_color}>? <inner\|outer\|full>? <knockout>? <quality>? g| 		g|
+|box-shadow					| <distance>? <blurX>? <blurY>? <strength>? <rotation>? {t_color}? <inner>? hide-object? knockout? <quality>?									g| 		g|
 |box-blur					| <blurX>? <blurY>? <quality>? 																													g| 		g|
-|box-glow					| <blurX>? <blurY>? <strength>? [color]? <inner>? <knockout>? <quality>? 																		g| 		g|
-|box-gradient-bevel			| <distance>? <blurX>? <blurY>? <strength>? <rotation>? [gradient] <inner>? <knockout>? <quality>? 												g| 		g|
-|box-gradient-glow			| <distance>? <blurX>? <blurY>? <strength>? <rotation>? [gradient] <inner>? <knockout>? <quality>? 												g| 		g|
+|box-glow					| <blurX>? <blurY>? <strength>? {t_color}? <inner>? <knockout>? <quality>? 																		g| 		g|
+|box-gradient-bevel			| <distance>? <blurX>? <blurY>? <strength>? <rotation>? {t_gradient} <inner>? <knockout>? <quality>? 											g| 		g|
+|box-gradient-glow			| <distance>? <blurX>? <blurY>? <strength>? <rotation>? {t_gradient} <inner>? <knockout>? <quality>?											g| 		g|
 |background-bevel			| see box-bevel 				y| 		r|
 |background-blur			| see box-blur 					y| 		r|
 |background-shadow			| see box-shadow 				y| 		r|
@@ -624,13 +651,13 @@ Effects are describing an animation with one or more properties. *All effects* a
 Background-filters for Flash will get parsed, but are not yet implemented in the graphics-classes.
 
 .Filter variables
-[cols="header,5,m"]
+[cols="header,2,2m"]
 |=====
-|distance 	| distance from target 	| [int]px
-|blurX		| 						| [int]px
-|blurY		| 						| [int]px
+|distance 	| distance from target 	| {t_int}px
+|blurX		| 						| {t_int}px
+|blurY		| 						| {t_int}px
 |strength	| 						| [int8]
-|rotation	| 						| [angle]
+|rotation	| 						| {t_angle}
 |knockout	| 						| knockout
 |inner		| 						| inner
 |quality	| 						| low \| medium \| high
