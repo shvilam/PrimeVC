@@ -100,25 +100,35 @@ digraph MVC {
 ["graphviz", "MVC_UML.svg", "dot", "svg"]
 ------
 digraph MVC_UML {
+	nodesep="1"
+	edge [dir="back", minlen="1.4"]
 	node [fontname=Verdana,fontsize=8.0]
-	node [shape="box"]; Mediator; Proxy; EditableProxy; MVCActor; MVCNotifier;
-	node [shape="ellipse"]; IMVCCore; IMVCNotifier; IMVCActor; IMVCCoreActor;
-	IMVCNotifier -> IMVCCore	[style="dashed"];
-	IMVCNotifier -> IMVCActor	[style="dashed"];
-	IMVCCore -> IMVCCoreActor	[style="dashed"];
-	IMVCActor -> IMVCCoreActor	[style="dashed"];
+	node [shape="box"]; Mediator; Proxy; EditableProxy; MVCActor; MVCNotifier; Signals;
+	node [shape="Mdiamond"]; Facade;
+	node [shape="ellipse",style=filled,color=gray86]; IMVCCore; IMVCNotifier; IMVCActor; IMVCCoreActor; IDisposable; IDisablable;
 
-	IMVCActor -> MVCActor		[style="dashed"];
-	MVCNotifier -> MVCActor;
-	MVCActor -> Mediator;
+	IDisposable 	-> IMVCNotifier		[style="dashed"];
+	IDisablable 	-> IMVCNotifier		[style="dashed"];
+	IMVCNotifier	-> IMVCCore			[style="dashed"];
+	IMVCNotifier	-> IMVCActor		[style="dashed"];
+	IMVCCore 		-> IMVCCoreActor	[style="dashed"];
+	IMVCActor 		-> IMVCCoreActor	[style="dashed"];
 
-	IMVCNotifier -> MVCNotifier	[style="dashed"];
-	MVCNotifier -> Proxy;
+	IDisposable		-> Facade			[style="dashed"];
+	IDisposable		-> Signals			[style="dashed"];
+	IDisablable		-> Signals			[style="dashed"];
+
+	IMVCActor 		-> MVCActor			[style="dashed"];
+	MVCNotifier 	-> MVCActor;
+	MVCActor 		-> Mediator;
+
+	IMVCNotifier 	-> MVCNotifier		[style="dashed"];
+	MVCNotifier 	-> Proxy;
 	Proxy -> EditableProxy;
 }
 ------
 
-[cols="header,default"]
+[cols="2m,4default"]
 |========
 |IMVCNotifier|can send messages to the MVC-application
 |IMVCActor|can send and listen to messages of the MVC-application
@@ -133,6 +143,17 @@ digraph MVC_UML {
 === Facade
 A *facade* is the main MVC-object that contains references to all tiers of the MVC. It will instantiate all tiers in the correct order and makes sure they start listening when all tiers are created.
 
+.Baseclasses of MVC-tiers
+[cols="1m,2m", options="header"]
+|=====
+|Tier 		|Baseclass
+|Facade		|primevc.mvc.Facade
+|Model		|primevc.mvc.IMVCCore
+|View		|primevc.mvc.IMVCCoreActor
+|Logic		|primevc.mvc.IMVCCoreActor
+|Events		|primevc.core.dispatcher.Signals
+|States		|primevc.core.traits.IDisposable
+|=====
 
 
 === Model
@@ -317,10 +338,10 @@ class AppControllers
 		facade.model.document.enable .on( states.editable.entering, this );
 		facade.model.document.disable.on( states.readOnly.entering, this );
 
-		states.changeTo( states.readOnly ).onceOn( facade.events.document.loaded, 		this );
-		states.changeTo( states.editable ).onceOn( facade.events.document.beginEdit,	this );
-		states.changeTo( states.readOnly ).onceOn( facade.events.document.commitEdit,	this );
-		states.changeTo( states.empty )   .onceOn( facade.events.document.unloaded,		this );
+		states.changeTo( states.readOnly ).on( facade.events.document.loaded, 		this );
+		states.changeTo( states.editable ).on( facade.events.document.beginEdit,	this );
+		states.changeTo( states.readOnly ).on( facade.events.document.commitEdit,	this );
+		states.changeTo( states.empty )   .on( facade.events.document.unloaded,		this );
 	}
 }
 
@@ -365,10 +386,10 @@ class AppControllers
 		var states = facade.states;
 		handleStateChange.on( states.change, this );
 
-		states.changeTo( readOnly ).onceOn( facade.events.document.loaded, 		this );
-		states.changeTo( editable ).onceOn( facade.events.document.beginEdit,	this );
-		states.changeTo( readOnly ).onceOn( facade.events.document.commitEdit,	this );
-		states.changeTo( empty )   .onceOn( facade.events.document.unloaded,		this );
+		states.changeTo( readOnly ).on( facade.events.document.loaded, 		this );
+		states.changeTo( editable ).on( facade.events.document.beginEdit,	this );
+		states.changeTo( readOnly ).on( facade.events.document.commitEdit,	this );
+		states.changeTo( empty )   .on( facade.events.document.unloaded,	this );
 	}
 
 	private function handleStateChange (newV:ApplicationState, oldV:ApplicationState) switch (newV)
@@ -443,8 +464,8 @@ digraph MVC_UML {
 	node [fontname=Verdana,fontsize=8.0]
 	node [shape="box"];
 
-	Facade -> ParentFacade;
-	Facade -> ChildFacade;
+	Facade -> ParentFacade 	[dir="back"];
+	Facade -> ChildFacade 	[dir="back"];
 }
 ------
 
@@ -475,7 +496,10 @@ class Channels extends Signals
 
 class MainFacade extends ParentFacade <..., Channels>
 {
-	override private function setupChannels () 	channels = new Channels()
+	override private function setupEvents ()		events		= new Events()
+	override private function setupModel ()			model		= new Model(this)
+	override private function setupView ()			view		= new View(this)
+	override private function setupChannels () 		channels	= new Channels()
 }
 
 
@@ -487,7 +511,9 @@ typedef AppChannels {
 
 class FirstChildFacade extends ChildFacade <..., AppChannels>
 {
-	
+	override private function setupEvents ()	...
+	override private function setupModel ()		...
+	override private function setupView ()		...
 }
 -----
 `FirstChildFacade` can only use the `uploadFile` channel in this example.

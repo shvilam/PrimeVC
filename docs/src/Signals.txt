@@ -111,7 +111,9 @@ This will unbind all handlers of the signal
 
 
 === Syntax sugar
-By using a small utility 'prime.singals.Bind' it's possible to use a more natural way to bind to signals.
+By using a small utility `prime.singals.Bind` it's possible to use a more natural way to bind to signals.
+
+NOTE: rename Bind package! (currently `primevc.utils.Bind`)
 
 It goes as following:
 [source,haxe]
