@@ -1,0 +1,29 @@
+= Layout =
+Ruben Weijers <ruben@rubenw.nl>
+:toc:
+
+
+== Box Model
+
+PrimeVC implements a layout-model comparibable to the http://www.w3.org/TR/css3-ui/#box-sizing[css3 box-sizing] value `border-box`. The original css-box-model can be quite frustrating when you work with liquid layouts so we tried to fix it by only implementing the `border-box` model.
+
+NOTE: Prime-developers: `border-box` is supported by all modern browsers. PrimeVC should be able to apply some automatic quirkcs for the html-implementation with support for IE6/7.
+
+{sys:build/doc-include "diagrams/box-model.ditaa"}
+
+
+
+== LayoutClient
+{sys:build/doc-include "diagrams/LayoutClient.ditaa"}
+
+
+== AdvancedLayoutClient
+{sys:build/doc-include "diagrams/AdvancedLayoutClient.ditaa"}
+
+
+== LayoutContainer
+{sys:build/doc-include "diagrams/LayoutContainer.ditaa"}
+
+[horizontal]
+`A`:: scrollPos(x, y)
+`b-d`:: layoutContainer.children

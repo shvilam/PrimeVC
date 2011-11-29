@@ -484,26 +484,26 @@ NOTE: classes can be embed in an external library-swf or in the application itse
 
 ==== Layout-algorithms
 
-:alg: link:../layout_algorithms.html
+:alg: link:layout_algorithms.html
 [options="header",cols="2,1,4m,1"]
 |=====
 |Name 					| Type	| Syntax |
-|Horizontal float 		| hor	| float-hor(<hor-start>?, <ver-start>?)											| {alg}#_Horizontal_float[doc]
-|Vertical float 		| ver	| float-ver(<ver-start>?, <hor-start>?)											| {alg}#_Vertical_float[doc]
-|Diagonal Float 		| hor	| float (<hor-start>?, <ver-start>?)											| {alg}#_Diagonal_Float[doc]
-|Circle 				| both	| circle (<hor-start>?, <ver-start>?)											| {alg}#_Circle[doc]
-|Ellipse 				| both	| ellipse (<hor-start>?, <ver-start>?)											| {alg}#_Ellipse[doc]
-|Horizontal circle 		| hor	| hor-circle (<hor-start>?, <ver-start>?)										| {alg}#_Horizontal_circle[doc]
-|Vertical circle 		| ver	| ver-circle (<ver-start>?, <hor-start>?)										| {alg}#_Vertical_circle[doc]
-|Horizontal ellipse 	| hor	| hor-ellipse (<hor-start>?, <ver-start>?)										| {alg}#_Horizontal_ellipse[doc]
-|Vertical ellipse 		| ver	| ver-ellipse (<ver-start>?, <hor-start>?)										| {alg}#_Vertical_ellipse[doc]
-|Dynamic 				| both	| dynamic(<hor-algorithm>, <ver-algorithm>)										| {alg}#_Dynamic[doc]
-|Relative				| both	| relative																		| {alg}#_Relative[doc]
-|Tile 					| both	| tile																			| {alg}#_Tile[doc]
-|Dynamic-tile 			| both	| dynamic-tile(<start-direction>, <hor-start>?, <ver-start>?)					| {alg}#_Dynamic-tile[doc]
-|Fixed-tile 			| both	| fixed-tile (<start-direction>, <rows/columns>, <hor-start>?, <ver-start>?)	| {alg}#_Fixed-tile[doc]
-|Inherit 				| both	| inherit																		| {alg}#_Inherit[doc]
-|None 					| both	| none																			| {alg}#_None[doc]
+|Horizontal float 		| hor	| float-hor(<hor-start>?, <ver-start>?)											| {alg}#_horizontal_float[doc]
+|Vertical float 		| ver	| float-ver(<ver-start>?, <hor-start>?)											| {alg}#_vertical_float[doc]
+|Diagonal Float 		| hor	| float (<hor-start>?, <ver-start>?)											| {alg}#_diagonal_float[doc]
+|Circle 				| both	| circle (<hor-start>?, <ver-start>?)											| {alg}#_circle[doc]
+|Ellipse 				| both	| ellipse (<hor-start>?, <ver-start>?)											| {alg}#_ellipse[doc]
+|Horizontal circle 		| hor	| hor-circle (<hor-start>?, <ver-start>?)										| {alg}#_horizontal_circle[doc]
+|Vertical circle 		| ver	| ver-circle (<ver-start>?, <hor-start>?)										| {alg}#_vertical_circle[doc]
+|Horizontal ellipse 	| hor	| hor-ellipse (<hor-start>?, <ver-start>?)										| {alg}#_horizontal_ellipse[doc]
+|Vertical ellipse 		| ver	| ver-ellipse (<ver-start>?, <hor-start>?)										| {alg}#_vertical_ellipse[doc]
+|Dynamic 				| both	| dynamic(<hor-algorithm>, <ver-algorithm>)										| {alg}#_dynamic[doc]
+|Relative				| both	| relative																		| {alg}#_relative[doc]
+|Tile 					| both	| tile																			| {alg}#_tile[doc]
+|Dynamic-tile 			| both	| dynamic-tile(<start-direction>, <hor-start>?, <ver-start>?)					| {alg}#_dynamic_tile[doc]
+|Fixed-tile 			| both	| fixed-tile (<start-direction>, <rows/columns>, <hor-start>?, <ver-start>?)	| {alg}#_fixed_tile[doc]
+|Inherit 				| both	| inherit																		| {alg}#_inherit[doc]
+|None 					| both	| none																			| {alg}#_none[doc]
 |=====
 
 .Algorithm-variables
