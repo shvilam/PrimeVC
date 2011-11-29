@@ -484,7 +484,7 @@ NOTE: classes can be embed in an external library-swf or in the application itse
 
 ==== Layout-algorithms
 
-:alg: link:../algorithms.html
+:alg: link:../layout_algorithms.html
 [options="header",cols="2,1,4m,1"]
 |=====
 |Name 					| Type	| Syntax |
