@@ -2,6 +2,15 @@
 Ruben Weijers <ruben@rubenw.nl>
 :toc:
 
+______
+.TODO:
+- Explain DI (Dependency Injection) through typedefs.
+- Explain PureMVC has no DI, and requires casts everywhere.
+- Discuss macro that checks all typedef properties are satisfied? - full compile time DI checks.
+- Refactor FSM to always use enums, with Util static function onEntering<State>(..) and onExiting.
+______
+
+
 == Features
 
 . lightweight MVC-structure
@@ -15,8 +24,9 @@ Ruben Weijers <ruben@rubenw.nl>
 
 [options="header", cols="header,default,default,default"]
 |=========
-||PrimeVC|RobotLegs|PureMVC
-|Communication|Signals|Events|Notifications
+|                     | PrimeVC                                  | RobotLegs                   | PureMVC
+|Communication        | Signals                                  | Events                      | Notifications
+|Dependency Injection | Compile time checked typedefs (optional) | Runtime checked annotations | None builtin
 |=========
 
 
@@ -173,8 +183,8 @@ The *view* contains references to *mediators*. It's responsibilities are:
 
 - create all *mediators* and provide them with a reference to the *facade* and their *gui*
 - dispose all *mediators* when the *view* is disposed
+- enable/disable all *mediators* when the *view* is enabled/disabled
 - calls `startListening/stopListening` on all *mediators* when the *view* starts/stops listening
-- listen/unlisten all *mediators* when the *view* starts/stops listening
 
 ==== Mediator
 The *mediator* is the bridge between one or more *GUI*-elements and the MVC-application. It responds to *signals* of the *GUI* and *MVC*.
