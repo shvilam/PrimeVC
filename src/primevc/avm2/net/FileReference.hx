@@ -108,14 +108,14 @@ class FileReference extends SelectEvents, implements ICommunicator
 	public inline function browse (?types:Array<FileFilter>)	{ return loader.browse(types); }
 	
 	
-	public inline function load ()
+	public inline function load () : Void
 	{
 		if (isStarted)
 			close();
 		
 		isStarted 	= true;
 		type		= CommunicationType.loading;
-		return loader.load();
+		loader.load();
 	}
 	
 	
