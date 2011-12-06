@@ -32,6 +32,10 @@ package primevc.utils;
   using StringTools;
 
 
+/**
+ * @author Ruben Weijers
+ * @creation-date Dec 6, 2011
+ */
 class Csv
 {
 	private static inline var LINE_SPLITTER		= "\n";
@@ -49,7 +53,7 @@ class Csv
 #if debug var s = TimerUtil.stamp(); #end
 		input 			= input.replace(WIN_LINE, LINE_SPLITTER);
 		var out 		= FastArrayUtil.create();
-		var pos 		= 0, len = input.length, cols = 0;
+		var pos 		= 0, len = input.length, cols:UInt = 0;
 		var inString 	= false, inQuote = false, char:String = null, row:FastArray<String> = null, val:StringBuf = null;
 		var delimiter 	= VAL_SPLITTER;
 
@@ -68,7 +72,7 @@ class Csv
 		//read input
 		while (pos < len)
 		{
-			var r = 0;
+			var r:UInt = 0;
 			row = FastArrayUtil.create(cols, header);
 			val = new StringBuf();
 
@@ -84,11 +88,11 @@ class Csv
 				else if (!inString)
 				{
 					if (char == LINE_SPLITTER) {
-						row[r++] = val.toString();
+						r = addCell( row, header, cols, r, val.toString() );
 						break;
 					}
 					if (char == delimiter) {
-						row[r++] = val.toString();
+						r   = addCell( row, header, cols, r, val.toString() );
 						val = new StringBuf();
 						continue;
 					}
@@ -97,10 +101,43 @@ class Csv
 				val.add(char);
 			}
 			if (pos == len)
-				row[r++] = val.toString();
+				r = addCell( row, header, cols, r, val.toString() );
+			
+			if (header && row.length < cols)
+				throw CsvError.tooLittleCells;
 			out.push(row);
 		}
+
+		if (inString)	throw unclosedString;
+		if (inQuote)	throw unclosedQuote;
+
 #if debug trace("csv-parsed in "+(s - TimerUtil.stamp())+"ms"); #end
 		return out;
 	}
+
+
+	private static inline function addCell (row:FastArray<String>, hasHeader:Bool, headerCols:Int, cellPos:Int, val:String)
+	{
+		if (hasHeader && headerCols == cellPos)
+			throw CsvError.tooManyCells;
+		
+		row[cellPos] = val;
+		return cellPos + 1;
+	}
+}
+
+
+/**
+ * @author Ruben Weijers
+ * @creation-date Dec 6, 2011
+ */
+enum CsvError {
+	/** Error is thrown when the csv-file has a header defined and the parser finds a row that has more columns then the header */
+	tooManyCells;
+	/** Error is thrown when the csv-file has a header defined and the parser finds a row that has less columns then the header */
+	tooLittleCells;
+	/** Error is thrown when a cell has opened a string-quote and there is no closing quote found when the end of the file is reached */
+	unclosedString;
+	/** Error is thrown when a cell has opened a double-quote and there is no closing double-quote found when the end of the file is reached */
+	unclosedQuote;
 }
