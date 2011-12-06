@@ -75,6 +75,21 @@ VideoPlayer[width<200] #stopBtn { visible: hidden; }
 #end
 ------
 
+* automatisch genereren van custom-styleblocken voor specifieke componenten
++
+[source,haxe]
+-----
+class CustomComponent extends UIComponent {}
+
+typedef CustomComponentStyle = {
+	>ComponentStyle;
+	var icon : Resource;
+	var cell-width : Int;
+}
+-----
++
+De css-parser zou hiervoor een aparte style-class moeten maken die de 2 extra properties heeft.
+
 
 == UIComponents
 * DisplayObjects loskoppelen van +UIElements+
