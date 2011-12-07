@@ -385,7 +385,9 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 			case added( item, newPos):			addRenderer( item, newPos );
 			case removed (item, oldPos):		removeRendererFor( item, oldPos );
 			case moved (item, newPos, oldPos):	moveRenderer( item, newPos, oldPos );
-			default:
+			case reset:
+				removeData();
+				initData();
 		}
 	}
 }
