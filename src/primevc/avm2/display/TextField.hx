@@ -135,13 +135,14 @@ class TextField extends flash.text.TextField, implements ITextField
 	}
 	
 	
-	private inline function setData (v:Bindable<String>)
+	private  function setData (v:Bindable<String>)
 	{
 		if (v != data)
 		{
 			if (data != null)
 			{
-				data.change.unbind(this);
+				if (data.change != null)
+					data.change.unbind(this);
 				textEvents.change.unbind(this);
 			}
 		

@@ -41,6 +41,7 @@ package primevc.gui.core;
  import primevc.gui.display.TextField;
  import primevc.gui.effects.UIElementEffects;
  import primevc.gui.layout.ILayoutContainer;
+ import primevc.gui.layout.LayoutContainer;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.managers.ISystem;
  import primevc.gui.states.ValidateStates;
@@ -188,7 +189,7 @@ class UITextField extends TextField, implements IUIElement
 	}
 
 
-	public  inline function detach () : IUIElement
+	public  function detach () : IUIElement
 	{
 		if (effects != null && effects.isPlayingShow())
 			effects.show.stop();
@@ -328,7 +329,7 @@ class UITextField extends TextField, implements IUIElement
 		if (changes.has( UIElementFlags.TEXTSTYLE ))
 			applyTextFormat();
 		
-		else if (changes.has( UIElementFlags.TEXT ))
+		else if (changes.has( UIElementFlags.TEXT ))	// only update size when the TextStyle hasn't changed, since changing the TextStyle will also cause the textfield to update it's size
 			updateSize();
 		
 		changes = 0;
@@ -373,14 +374,17 @@ class UITextField extends TextField, implements IUIElement
 	
 	private function updateSize ()
 	{
+		var l = layout;
 #if flash9
 		if (autoSize == flash.text.TextFieldAutoSize.NONE)
 			scrollH = 0;
+		if (multiline && l.changes > 0)
+			updateWordWrap.onceOn( l.changed, this );
 #end
-		layout.invalidatable = false;
-		if (layout.percentWidth.notSet())	layout.width	= realTextWidth.roundFloat();
-		if (layout.percentHeight.notSet())	layout.height	= realTextHeight.roundFloat();
-		layout.invalidatable = true;
+		l.invalidatable = false;
+		if (l.percentWidth.notSet())	l.width		= realTextWidth.roundFloat();
+		if (l.percentHeight.notSet())	l.height	= realTextHeight.roundFloat();
+		l.invalidatable = true;
 		
 		// Disabled since sometimes the validation will happen too soon (E.g. try tooltip).
 		// Although enabling this code can also solve some textfield 
@@ -388,6 +392,17 @@ class UITextField extends TextField, implements IUIElement
 	//	if (layout.parent == null && layout.changes > 0)
 	//		layout.validate();
 	}
+
+
+#if flash9
+	private function updateWordWrap ()
+	{
+		Assert.that(multiline);
+		wordWrap = layout.parent.as(LayoutContainer).explicitWidth.isSet();
+	//	autoSize = l.measuredWidth == l.width ? flash.text.TextFieldAutoSize.LEFT : flash.text.TextFieldAutoSize.NONE;	// <-- textfield will also adjust it's height == not desirable
+			
+	}
+#end
 	
 	
 #if debug

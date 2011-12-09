@@ -54,7 +54,7 @@ class Csv
 		input 			= input.replace(WIN_LINE, LINE_SPLITTER);
 		var out 		= FastArrayUtil.create();
 		var pos 		= 0, len = input.length, cols:UInt = 0;
-		var inString 	= false, inQuote = false, char:String = null, row:FastArray<String> = null, val:StringBuf = null;
+		var inString 	= false, char:String = null, row:FastArray<String> = null, val:StringBuf = null;
 		var delimiter 	= VAL_SPLITTER;
 
 		if (header)
@@ -82,7 +82,7 @@ class Csv
 				if (char == '"')
 				{
 					var n = input.charAt(pos);
-					if (n == '"') 	{ inQuote = !inQuote; pos++; } 			//beginning or ending of quotes.. skip one quote
+					if (n == '"') 	{ pos++; } 								//beginning or ending of quotes.. skip one quote
 					else 			{ inString = !inString; continue; } 	//begining or ending of string.. skip character
 				}
 				else if (!inString)
@@ -109,7 +109,21 @@ class Csv
 		}
 
 		if (inString)	throw unclosedString;
-		if (inQuote)	throw unclosedQuote;
+	//	if (inQuote)	throw unclosedQuote;
+
+		//remove empty rows
+		var l = out.length;
+		for (i in l...0)
+		{
+			var row = out[i];
+			var empty:UInt = 0;
+			for (cell in row)
+				if (cell == "")
+					empty++;
+			
+			if (row.length == empty)
+				out.removeAt(i);
+		}
 
 #if debug trace("csv-parsed in "+(s - TimerUtil.stamp())+"ms"); #end
 		return out;
