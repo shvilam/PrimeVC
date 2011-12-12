@@ -142,7 +142,8 @@ class TextField extends flash.text.TextField, implements ITextField
 		{
 			if (data != null)
 			{
-				data.change.unbind(this);
+				if (data.change != null)
+					data.change.unbind(this);
 				textEvents.change.unbind(this);
 			}
 		

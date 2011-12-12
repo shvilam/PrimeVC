@@ -20,67 +20,27 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * DAMAGE.s
  *
  *
  * Authors:
- *  Danny Wilson	<danny @ onlinetouch.nl>
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.mvc;
+package primevc.core.net;
+ import primevc.core.dispatcher.IUnbindable;
+ import primevc.core.dispatcher.Signal0;
+ import primevc.core.traits.IDisposable;
+
 
 /**
- * Abstract Mediator class.
- * 
- * The Mediator translates requests between gui-components.
- * Usually it acts as a layer between MVC-requests and the GUI.
- * 
- * A Mediator is not allowed to change Value-objects.
- * It can however request changes from a Proxy (defined within Model).
- * 
- * @author Danny Wilson
- * @creation-date Jun 22, 2010
+ * @author 	Ruben Weijers
+ * @since 	Dec 12, 2011
  */
-class Mediator <FacadeDef, GUIType> extends MVCActor <FacadeDef>
+interface IFileReference implements IDisposable, implements IUnbindable<Dynamic>
 {
-	public var gui (default, setGUI) : GUIType;
+	public var select		(default,null) : Signal0;
+	public var cancel		(default,null) : Signal0;
+
 	
-	
-	public function new (facade:FacadeDef, enabled:Bool = true, gui:GUIType = null)
-	{
-		this.gui = gui;
-		super(facade, enabled);
-	}
-	
-	
-	override public function dispose ()
-	{
-		if (isDisposed())
-			return;
-		
-		gui = null;
-		super.dispose();
-	}
-	
-	
-	/**
-	 * Set the UI element that the mediator serves.
-	 */
-	private function setGUI (v:GUIType)
-	{
-		if (v != gui)
-		{
-			var wasEnabled = isEnabled();
-			if (wasEnabled && gui != null)
-				disable();
-		
-		//	if (v == null && isListening())
-		//		stopListening();
-		
-			gui = v;
-			if (v != null && wasEnabled)
-				enable();
-		}
-		return v;
-	}
+	public function browse (?types:Array<FileFilter>) : Bool;
 }

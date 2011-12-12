@@ -450,6 +450,7 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 		switch (change)
 		{
 			case added( item, newPos):
+				layoutContainer.setFixedChildLength( data.length );
 				var newDepth = indexToDepth(newPos);
 				
 				// check if an item-renderer should be added
@@ -460,6 +461,7 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 			
 
 			case removed (item, oldPos):
+				layoutContainer.setFixedChildLength( data.length );
 				var oldDepth = indexToDepth(oldPos);
 
 				if (hasRendererAtDepth(oldDepth)) {
@@ -486,7 +488,10 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 					else if (hasCur)	removeRendererFor( item, curDepth );	// the moved data-item was visible on the old depth, but not on the new depth so remove the item-renderer.
 					update = true;
 				}
-			default:
+			
+			case reset:
+				removeData();
+				initData();
 		}
 
 		if (update)

@@ -36,6 +36,7 @@ package primevc.avm2.net;
  import primevc.core.net.CommunicationType;
  import primevc.core.net.FileFilter;
  import primevc.core.net.ICommunicator;
+ import primevc.core.net.IFileReference;
  import primevc.core.net.URLVariables;
  import primevc.core.Bindable;
 
@@ -56,7 +57,7 @@ private typedef FlashFileRef = flash.net.FileReference;
  * @author Ruben Weijers
  * @creation-date Mar 29, 2011
  */
-class FileReference extends SelectEvents, implements ICommunicator
+class FileReference extends SelectEvents, implements ICommunicator, implements IFileReference
 {
 	public var events			(default,				null)		: LoaderSignals;
 	
@@ -108,14 +109,14 @@ class FileReference extends SelectEvents, implements ICommunicator
 	public inline function browse (?types:Array<FileFilter>)	{ return loader.browse(types); }
 	
 	
-	public inline function load ()
+	public inline function load () : Void
 	{
 		if (isStarted)
 			close();
 		
 		isStarted 	= true;
 		type		= CommunicationType.loading;
-		return loader.load();
+		loader.load();
 	}
 	
 	

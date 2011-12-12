@@ -97,4 +97,19 @@ class StringUtil
 	{
 		return v.substr(0, 1).toUpperCase() + v.substr(1);
 	}
+
+
+	public static inline function breakAfter (v:String, breakPoint:Int) : String
+	{
+		var loop = (v.length / breakPoint).int();
+		var newV = "";
+		for (i in 0...loop)
+			newV += v.substr(i * breakPoint, breakPoint) + "\n";
+		
+		var last = v.length % breakPoint;
+		newV += v.substr( -last, last );
+
+		trace(v.length % breakPoint);
+		return newV + "\n";
+	}
 }

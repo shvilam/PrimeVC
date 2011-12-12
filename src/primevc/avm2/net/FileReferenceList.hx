@@ -27,10 +27,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.avm2.net;
- import primevc.core.traits.IDisposable;
  import primevc.gui.events.SelectEvents;
  import primevc.core.net.FileFilter;
  import primevc.core.net.FileReference;
+ import primevc.core.net.IFileReference;
 
 
 private typedef FlashFileReferenceList = flash.net.FileReferenceList;
@@ -42,7 +42,7 @@ private typedef FlashFileReferenceList = flash.net.FileReferenceList;
  * @author Ruben Weijers
  * @creation-date Mar 30, 2011
  */
-class FileReferenceList extends SelectEvents, implements IDisposable
+class FileReferenceList extends SelectEvents, implements IFileReference
 {
 	private var target	: FlashFileReferenceList;
 	public var list		(getList, null)	: Array<FileReference>;

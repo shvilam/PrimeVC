@@ -112,6 +112,13 @@ typedef FastArray<T> =
 		}
 		return newPos;
 	}
+
+
+	static public inline function add<T>( list:FastArray<T>, item:T ) : T
+	{
+		list.push(item);
+		return item;
+	}
 	
 	
 	static public #if flash10 inline #end function move<T>( list:FastArray<T>, item:T, newPos:Int, curPos:Int = -1 ) : Bool
@@ -177,6 +184,7 @@ typedef FastArray<T> =
 #if (php || cpp)
 		list.splice(0);
 #else
+	#if flash10	Assert.notThat(list.fixed); #end
 		(untyped list).length = 0;
 #end
 		/*var l = list.length;
