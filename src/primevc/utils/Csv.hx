@@ -42,6 +42,7 @@ class Csv
 	private static inline var VAL_SPLITTER		= ",";
 	private static inline var ALT_VAL_SPLITTER	= ";";
 	private static inline var WIN_LINE 			= "\r\n";
+	private static inline var CARRIAGE_RETURN	= "\r";
 
 
 	/**
@@ -52,6 +53,7 @@ class Csv
 	{
 #if debug var s = TimerUtil.stamp(); #end
 		input 			= input.replace(WIN_LINE, LINE_SPLITTER);
+		input 			= input.replace(CARRIAGE_RETURN, LINE_SPLITTER);
 		var out 		= FastArrayUtil.create();
 		var pos 		= 0, len = input.length, cols:UInt = 0;
 		var inString 	= false, char:String = null, row:FastArray<String> = null, val:StringBuf = null;
@@ -103,8 +105,10 @@ class Csv
 			if (pos == len)
 				r = addCell( row, header, cols, r, val.toString() );
 			
-			if (header && row.length < cols)
+			if (header && r < cols) {
+				trace(out.length+" - "+r+" - "+cols);
 				throw CsvError.tooLittleCells;
+			}
 			out.push(row);
 		}
 
@@ -112,28 +116,31 @@ class Csv
 	//	if (inQuote)	throw unclosedQuote;
 
 		//remove empty rows
-		var l = out.length;
-		for (i in l...0)
+		var l:Int = out.length, i = 0;
+		while (i < l)
 		{
 			var row = out[i];
 			var empty:UInt = 0;
 			for (cell in row)
 				if (cell == "")
 					empty++;
-			
-			if (row.length == empty)
+			if (row.length == empty) {
 				out.removeAt(i);
+				l--;
+			} else
+				i++;
 		}
 
-#if debug trace("csv-parsed in "+(s - TimerUtil.stamp())+"ms"); #end
+#if debug trace("csv-parsed in "+(TimerUtil.stamp() - s)+"ms"); #end
 		return out;
 	}
 
 
 	private static inline function addCell (row:FastArray<String>, hasHeader:Bool, headerCols:Int, cellPos:Int, val:String)
 	{
-		if (hasHeader && headerCols == cellPos)
+		if (hasHeader && headerCols == cellPos) {
 			throw CsvError.tooManyCells;
+		}
 		
 		row[cellPos] = val;
 		return cellPos + 1;

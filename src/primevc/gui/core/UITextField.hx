@@ -398,7 +398,8 @@ class UITextField extends TextField, implements IUIElement
 	private function updateWordWrap ()
 	{
 		Assert.that(multiline);
-		wordWrap = layout.parent.as(LayoutContainer).explicitWidth.isSet();
+		if (layout.parent != null)
+			wordWrap = layout.parent.as(LayoutContainer).explicitWidth.isSet();
 	//	autoSize = l.measuredWidth == l.width ? flash.text.TextFieldAutoSize.LEFT : flash.text.TextFieldAutoSize.NONE;	// <-- textfield will also adjust it's height == not desirable
 			
 	}
