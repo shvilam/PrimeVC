@@ -24,63 +24,23 @@
  *
  *
  * Authors:
- *  Ruben Weijers	<ruben @ onlinetouch.nl>
+ *  Ruben Weijers	<ruben @ rubenw.nl>
  */
-package primevc.avm2.net;
- import primevc.gui.events.SelectEvents;
- import primevc.core.net.FileFilter;
- import primevc.core.net.FileReference;
- import primevc.core.net.IFileReference;
-
-
-private typedef FlashFileReferenceList = flash.net.FileReferenceList;
+package primevc.core.net;
+ import primevc.core.dispatcher.IUnbindable;
+ import primevc.core.dispatcher.Signal0;
+ import primevc.core.traits.IDisposable;
 
 
 /**
- * AVM2 file reference list implementation
- * 
- * @author Ruben Weijers
- * @creation-date Mar 30, 2011
+ * @author 	Ruben Weijers
+ * @since 	Dec 12, 2011
  */
-class FileReferenceList extends SelectEvents, implements IFileReference
+interface IFileReference implements IDisposable, implements IUnbindable<Dynamic>
 {
-	private var target	: FlashFileReferenceList;
-	public var list		(getList, null)	: Array<FileReference>;
+	public var select		(default,null) : Signal0;
+	public var cancel		(default,null) : Signal0;
+
 	
-	
-	public function new (target:FlashFileReferenceList = null)
-	{
-		if (target == null)
-			target = new FlashFileReferenceList();
-		
-		this.target = target;
-		super(target);
-	}
-	
-	
-	override public function dispose ()
-	{
-		target = null;
-		super.dispose();
-	}
-	
-	
-	public inline function browse (?types:Array<FileFilter>)
-	{
-		return target.browse(types);
-	}
-	
-	
-	private function getList () : Array<FileReference>
-	{
-		if (list != null)
-			return list;
-		
-		list		= new Array();
-		var oldList = target.fileList;
-		for (i in 0...oldList.length)
-			list[i] = new FileReference(oldList[i]);
-		
-		return list;
-	}
+	public function browse (?types:Array<FileFilter>) : Bool;
 }

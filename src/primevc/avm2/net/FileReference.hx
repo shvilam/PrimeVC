@@ -36,6 +36,7 @@ package primevc.avm2.net;
  import primevc.core.net.CommunicationType;
  import primevc.core.net.FileFilter;
  import primevc.core.net.ICommunicator;
+ import primevc.core.net.IFileReference;
  import primevc.core.net.URLVariables;
  import primevc.core.Bindable;
 
@@ -56,7 +57,7 @@ private typedef FlashFileRef = flash.net.FileReference;
  * @author Ruben Weijers
  * @creation-date Mar 29, 2011
  */
-class FileReference extends SelectEvents, implements ICommunicator
+class FileReference extends SelectEvents, implements ICommunicator, implements IFileReference
 {
 	public var events			(default,				null)		: LoaderSignals;
 	
