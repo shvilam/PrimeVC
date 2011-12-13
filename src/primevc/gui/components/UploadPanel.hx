@@ -31,6 +31,7 @@ package primevc.gui.components;
  import primevc.core.net.FileReferenceList;
  import primevc.core.net.FileReference;
  import primevc.core.net.FileFilter;
+ import primevc.core.net.IFileFilter;
  import primevc.gui.core.IUIElement;
  import primevc.gui.managers.ISystem;
   using primevc.utils.Bind;
@@ -44,17 +45,22 @@ package primevc.gui.components;
  */
 class UploadPanel extends ConfirmPanel
 {
-    private var fileBrowser : FileReferenceList;
+    private var fileBrowser : IFileReference;
     private var fileTypes   : Array<FileFilter>;
+    /**
+     * Maximum number of files. Default: -1 (unlimited)
+     */
+    private var maxFiles    : Int;
 
     public  var upload      (default, null) : Signal1<Array<FileReference>>;
 
 
-    public function new (id:String = null, title:String = null, content:IUIElement = null, system:ISystem = null, applyLabel:String = "Uploaden", cancelLabel:String = "Annuleren", fileTypes:Array<FileFilter>)     //TRANSLATE
+    public function new (id:String = null, title:String = null, content:IUIElement = null, system:ISystem = null, applyLabel:String = "Uploaden", cancelLabel:String = "Annuleren", fileTypes:Array<FileFilter>, maxFiles:Int = -1)     //TRANSLATE
     {
         super(id, title, content, system, applyLabel, cancelLabel);
         upload          = new Signal1();
         this.fileTypes  = fileTypes;
+        this.maxFiles   = maxFiles;
     }
 
 
@@ -94,7 +100,7 @@ class UploadPanel extends ConfirmPanel
     private function openFileList ()
     {
         Assert.null(fileBrowser);
-        fileBrowser = new FileReferenceList();
+        fileBrowser = maxFiles == 1 ? new FileReference() : new FileReferenceList();
         sendUpload  .onceOn( fileBrowser.select, this );
         unsetBrowser.onceOn( fileBrowser.cancel, this );
         
@@ -111,7 +117,7 @@ class UploadPanel extends ConfirmPanel
 
     private function sendUpload ()
     {
-        upload.send(fileBrowser.list);
+        upload.send(maxFiles == 1 ? [fileBrowser.as(FileReference)] : fileBrowser.as(FileReferenceList).list);
         unsetBrowser();
     }
 

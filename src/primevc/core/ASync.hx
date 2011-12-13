@@ -140,7 +140,7 @@ class ASync <DataType> implements IDisposable, implements IUnbindable<DataType->
 	}
 	
 	
-	public inline function reply (data:DataType) : Void
+	public inline function reply (data:DataType) : ASync<DataType>
 	{
 		Assert.that( state.hasNone(DISPOSED) );
 		if (response.hasListeners()) {
@@ -149,6 +149,7 @@ class ASync <DataType> implements IDisposable, implements IUnbindable<DataType->
 		}
 		_reply = data;
 		state  = REPLIED;
+		return this;
 	}
 	
 	
