@@ -31,10 +31,11 @@ package primevc.gui.components;
  import primevc.core.net.FileReferenceList;
  import primevc.core.net.FileReference;
  import primevc.core.net.FileFilter;
- import primevc.core.net.IFileFilter;
+ import primevc.core.net.IFileReference;
  import primevc.gui.core.IUIElement;
  import primevc.gui.managers.ISystem;
   using primevc.utils.Bind;
+  using primevc.utils.TypeUtil;
 
 
 /**
@@ -100,7 +101,7 @@ class UploadPanel extends ConfirmPanel
     private function openFileList ()
     {
         Assert.null(fileBrowser);
-        fileBrowser = maxFiles == 1 ? new FileReference() : new FileReferenceList();
+        fileBrowser = maxFiles == 1 ? new FileReference() : new FileReferenceList().as(IFileReference);
         sendUpload  .onceOn( fileBrowser.select, this );
         unsetBrowser.onceOn( fileBrowser.cancel, this );
         
