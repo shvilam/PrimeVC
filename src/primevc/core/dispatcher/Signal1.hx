@@ -63,7 +63,7 @@ class Signal1 <A> extends Signal<A->Void>, implements ISender1<A>, implements IN
 			 	w.sendVoid();
 			else
 			 	w.handler(_1);
-#if (flash9 && debug) } catch (e : flash.errors.TypeError) { throw "Wrong argument type ("+ e +") for " + w+";\n\tstacktrace: "+e.getStackTrace()+"\n"; } #end
+#if (flash9 && debug) } catch (e : flash.errors.TypeError) { throw "Wrong argument type ("+ e +") for " + w+" - \nwith handler "+w.handler+"; \nparams:"+_1+";\n\tstacktrace: "+e.getStackTrace()+"\n"; } #end
 			
 			if (w.flags.has(Wire.SEND_ONCE))
 			 	w.dispose();

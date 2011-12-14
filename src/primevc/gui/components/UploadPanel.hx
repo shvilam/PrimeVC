@@ -77,7 +77,7 @@ class UploadPanel extends ConfirmPanel
         if (fileTypes != null)
             fileTypes = null;
         
-        upload.dispose();
+    //  upload.dispose();
         upload = null;
     }
 
@@ -118,8 +118,12 @@ class UploadPanel extends ConfirmPanel
 
     private function sendUpload ()
     {
-        upload.send(maxFiles == 1 ? [fileBrowser.as(FileReference)] : fileBrowser.as(FileReferenceList).list);
-        unsetBrowser();
+        if (maxFiles == 1)
+            upload.send([fileBrowser.as(FileReference)]);
+        else {
+            upload.send(fileBrowser.as(FileReferenceList).list);
+            unsetBrowser();
+        }
     }
 
 
