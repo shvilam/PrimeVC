@@ -415,11 +415,14 @@ class UITextField extends TextField, implements IUIElement
 	
 	private function updateSize ()
 	{
+		if ((multiline || wordWrap) && layout.isInvalidated()) {
+			updateSize.onceOn( displayEvents.enterFrame, this );
+			return;
+		}
 		var l = layout.as(AdvancedLayoutClient);
 
 		if (l.measuredWidth  == l.width) 	scrollH = 0;
 		if (l.measuredHeight == l.height) 	scrollV = 1;
-				
 	//	updateSizeWire.disable();
 		l.invalidatable  = false;
 		l.measuredWidth	 = realTextWidth .roundFloat();
