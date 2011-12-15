@@ -99,6 +99,12 @@ class SimpleStateMachine <StateType> implements IDisposable
 	{
 		return current == state;
 	}
+
+	
+	public inline function changeTo (toState:StateType) : Void -> Void
+	{
+		return function () { this.setCurrent( toState ); };
+	}
 	
 	
 #if debug
@@ -107,4 +113,61 @@ class SimpleStateMachine <StateType> implements IDisposable
 		return current;
 	}
 #end
+}
+
+
+ import primevc.core.dispatcher.Wire;
+
+/**
+ * @author 	Ruben Weijers
+ * @creation-date Dec 16, 2011
+ */
+class StateMachineUtil
+{
+	public static inline function onceOnEntering<StateType>( fn:Void->Void, fsm:SimpleStateMachine<StateType>, searchedState:StateType ):Wire<Dynamic>
+	{
+		var w = fsm.change.bind( fsm, null );
+		var f = function (newState:StateType, oldState:StateType) {
+			if (newState == searchedState) {
+				w.dispose();
+				fn();
+			}
+		}
+		w.handler = f;
+		return w;
+	}
+	
+
+	public static inline function onceOnExiting<StateType>( fn:Void->Void, fsm:SimpleStateMachine<StateType>, searchedState:StateType ):Wire<Dynamic>
+	{
+		var w = fsm.change.bind( fsm, null );
+		var f = function (newState:StateType, oldState:StateType) {
+			if (oldState == searchedState) {
+				w.dispose();
+				fn();
+			}
+		}
+		w.handler = f;
+		return w;
+	}
+
+
+	public static inline function onEntering<StateType>( fn:Void->Void, fsm:SimpleStateMachine<StateType>, searchedState:StateType ):Wire<Dynamic>
+	{
+		var f = function (newState:StateType, oldState:StateType) {
+			if (newState == searchedState)
+				fn();
+		}
+		return fsm.change.bind( fsm, f );
+	}
+	
+
+	public static inline function onExiting<StateType>( fn:Void->Void, fsm:SimpleStateMachine<StateType>, searchedState:StateType ):Wire<Dynamic>
+	{
+		var f = function (newState:StateType, oldState:StateType) {
+			if (oldState == searchedState)
+				fn();
+		}
+		return fsm.change.bind( fsm, f );
+	}
 }

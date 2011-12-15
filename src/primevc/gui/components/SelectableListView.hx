@@ -128,6 +128,14 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
         
         super.dispose();
     }
+
+
+    override private function removeData ()
+    {
+        children.change.unbind(this);
+        super.removeData();
+        handleChildChange.on( children.change, this );
+    }
     
     
     override public function validate ()
