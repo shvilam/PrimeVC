@@ -43,7 +43,7 @@ package primevc.core.states;
  * @author			Ruben Weijers
  */
 class SimpleStateMachine <StateType> implements IDisposable
-	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
+//	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	public var current		(default, setCurrent)	: StateType;
 	public var defaultState	(default, setDefault)	: StateType;
@@ -101,7 +101,7 @@ class SimpleStateMachine <StateType> implements IDisposable
 	}
 
 	
-	public inline function changeTo (toState:StateType) : Void -> Void
+	public function changeTo (toState:StateType) : Void -> Void
 	{
 		return function () { this.setCurrent( toState ); };
 	}
@@ -124,9 +124,9 @@ class SimpleStateMachine <StateType> implements IDisposable
  */
 class StateMachineUtil
 {
-	public static inline function onceOnEntering<StateType>( fn:Void->Void, fsm:SimpleStateMachine<StateType>, searchedState:StateType ):Wire<Dynamic>
+	public static function onceOnEntering<StateType>( fn:Void->Void, fsm:SimpleStateMachine<StateType>, searchedState:StateType, owner:Dynamic ):Wire<Dynamic>
 	{
-		var w = fsm.change.bind( fsm, null );
+		var w = fsm.change.bind( owner, null );
 		var f = function (newState:StateType, oldState:StateType) {
 			if (newState == searchedState) {
 				w.dispose();
@@ -138,9 +138,9 @@ class StateMachineUtil
 	}
 	
 
-	public static inline function onceOnExiting<StateType>( fn:Void->Void, fsm:SimpleStateMachine<StateType>, searchedState:StateType ):Wire<Dynamic>
+	public static function onceOnExiting<StateType>( fn:Void->Void, fsm:SimpleStateMachine<StateType>, searchedState:StateType, owner:Dynamic ):Wire<Dynamic>
 	{
-		var w = fsm.change.bind( fsm, null );
+		var w = fsm.change.bind( owner, null );
 		var f = function (newState:StateType, oldState:StateType) {
 			if (oldState == searchedState) {
 				w.dispose();
@@ -152,22 +152,22 @@ class StateMachineUtil
 	}
 
 
-	public static inline function onEntering<StateType>( fn:Void->Void, fsm:SimpleStateMachine<StateType>, searchedState:StateType ):Wire<Dynamic>
+	public static function onEntering<StateType>( fn:Void->Void, fsm:SimpleStateMachine<StateType>, searchedState:StateType, owner:Dynamic ):Wire<Dynamic>
 	{
 		var f = function (newState:StateType, oldState:StateType) {
 			if (newState == searchedState)
 				fn();
 		}
-		return fsm.change.bind( fsm, f );
+		return fsm.change.bind( owner, f );
 	}
 	
 
-	public static inline function onExiting<StateType>( fn:Void->Void, fsm:SimpleStateMachine<StateType>, searchedState:StateType ):Wire<Dynamic>
+	public static function onExiting<StateType>( fn:Void->Void, fsm:SimpleStateMachine<StateType>, searchedState:StateType, owner:Dynamic ):Wire<Dynamic>
 	{
 		var f = function (newState:StateType, oldState:StateType) {
 			if (oldState == searchedState)
 				fn();
 		}
-		return fsm.change.bind( fsm, f );
+		return fsm.change.bind( owner, f );
 	}
 }
