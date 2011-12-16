@@ -578,7 +578,7 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 
 	public function removeAll ()
 	{
-		measuredWidth = measuredHeight = Number.INT_NOT_SET;
+		measuredHeight = Number.INT_NOT_SET;
 		children.removeAll();
 	}
 
