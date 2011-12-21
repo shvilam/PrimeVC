@@ -159,7 +159,7 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 		var l = target.layout;
 		
 	//	if (changes.has( LayoutFlags.SIZE | LayoutFlags.POSITION ))
-	//	trace(target+"; oldPos: "+target.x+", "+target.y+"; newPos: "+l.getHorPosition()+", "+l.getVerPosition()+"; newSize: "+l.outerBounds.width+", "+l.outerBounds.height+"; "+changes.has( LayoutFlags.POSITION )+"; "+changes.has( LayoutFlags.SIZE ));
+	//		trace(target+"; oldPos: "+target.x+", "+target.y+"; newPos: "+l.getHorPosition()+", "+l.getVerPosition()+"; newSize: "+l.outerBounds.width+", "+l.outerBounds.height+"; "+changes.has( LayoutFlags.POSITION )+"; "+changes.has( LayoutFlags.SIZE ));
 		
 		if (changes.has( LayoutFlags.POSITION ))
 		{

@@ -84,7 +84,7 @@ class MouseSignal extends Signal1<MouseState>, implements IWireWatcher<MouseHand
 	}
 	
 	
-	static public function stateFromFlashEvent( e:MouseEvent, clickCount:Int ) : MouseState
+	static public inline function stateFromFlashEvent( e:MouseEvent, clickCount:Int ) : MouseState
 	{
 	//	return new FlashMouseState(e, clickCount);
 		var flags;
