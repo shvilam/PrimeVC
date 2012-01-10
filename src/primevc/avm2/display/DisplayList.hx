@@ -125,21 +125,27 @@ class DisplayList implements IEditableList <ChildType>
 	}
 	
 	
-	public inline function disposeAll ()
+	public function disposeAll ()
 	{
-		for (child in this)
-			if (child != null)		//<- is needed for children that are not IDisplayable!
-				child.dispose();
+		var l = length;
+		while (l > 0) {
+			var child = target.getChildAt( --l );
+			if (child.is(IDisposable))
+				child.as(IDisposable).dispose();
+			else
+				target.removeChildAt( l );
+		}
 	}
 	
 	
-	public inline function removeAll ()
+	public function removeAll ()
 	{
-		while (length > 0)
-		{
-			var child = target.getChildAt(0).as(ChildType);
-			target.removeChildAt(0);
-			child.container = null;
+		var l = length;
+		while (l > 0) {
+			var child = target.getChildAt( --l );
+			target.removeChildAt( l );
+			if (child.is(ChildType))
+				child.as(ChildType).container = null;
 		}
 	}
 

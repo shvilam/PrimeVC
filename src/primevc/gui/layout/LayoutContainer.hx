@@ -595,7 +595,12 @@ class LayoutContainer extends AdvancedLayoutClient, implements ILayoutContainer,
 
 
 
-	
+	public function removeAll ()
+	{
+		measuredHeight = Number.INT_NOT_SET;
+		children.removeAll();
+	}
+
 	
 	public inline function setFixedChildLength (length:Int)
 	{

@@ -43,7 +43,7 @@ package primevc.core.states;
  * @author			Ruben Weijers
  */
 class SimpleStateMachine <StateType> implements IDisposable
-	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
+//	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	public var current		(default, setCurrent)	: StateType;
 	public var defaultState	(default, setDefault)	: StateType;
@@ -113,4 +113,61 @@ class SimpleStateMachine <StateType> implements IDisposable
 		return current;
 	}
 #end
+}
+
+
+ import primevc.core.dispatcher.Wire;
+
+/**
+ * @author 	Ruben Weijers
+ * @creation-date Dec 16, 2011
+ */
+class StateMachineUtil
+{
+	public static function onceOnEntering<StateType>( fn:Void->Void, fsm:SimpleStateMachine<StateType>, searchedState:StateType, owner:Dynamic ):Wire<Dynamic>
+	{
+		var w = fsm.change.bind( owner, null );
+		var f = function (newState:StateType, oldState:StateType) {
+			if (newState == searchedState) {
+				w.dispose();
+				fn();
+			}
+		}
+		w.handler = f;
+		return w;
+	}
+	
+
+	public static function onceOnExiting<StateType>( fn:Void->Void, fsm:SimpleStateMachine<StateType>, searchedState:StateType, owner:Dynamic ):Wire<Dynamic>
+	{
+		var w = fsm.change.bind( owner, null );
+		var f = function (newState:StateType, oldState:StateType) {
+			if (oldState == searchedState) {
+				w.dispose();
+				fn();
+			}
+		}
+		w.handler = f;
+		return w;
+	}
+
+
+	public static function onEntering<StateType>( fn:Void->Void, fsm:SimpleStateMachine<StateType>, searchedState:StateType, owner:Dynamic ):Wire<Dynamic>
+	{
+		var f = function (newState:StateType, oldState:StateType) {
+			if (newState == searchedState)
+				fn();
+		}
+		return fsm.change.bind( owner, f );
+	}
+	
+
+	public static function onExiting<StateType>( fn:Void->Void, fsm:SimpleStateMachine<StateType>, searchedState:StateType, owner:Dynamic ):Wire<Dynamic>
+	{
+		var f = function (newState:StateType, oldState:StateType) {
+			if (oldState == searchedState)
+				fn();
+		}
+		return fsm.change.bind( owner, f );
+	}
 }
