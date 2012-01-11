@@ -110,7 +110,6 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
             return;
         
         children.change.unbind(this);
-
         itemSelected    .dispose();
         selected        .dispose();
         itemSelected    = null;
@@ -122,7 +121,11 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
 
     override private function removeData ()
     {
+        if (currentFocus != null)
+            blurRenderers();
+        
         children.change.unbind(this);
+        deselectRenderers();
         super.removeData();
         handleChildChange.on( children.change, this );
     }
@@ -173,15 +176,6 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
         
         if (changes.has(CURRENT_FOCUS) && focusIndex > -1)
             focusRendererAt(focusIndex);
-    }
-
-
-    override private function removeData ()
-    {
-        if (currentFocus != null)
-            blurRenderers();
-        deselectRenderers();
-        super.removeData();
     }
 
 
