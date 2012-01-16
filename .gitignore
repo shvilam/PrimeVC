@@ -10,6 +10,7 @@ Thumb.db
 *.n
 *.swf
 Autocomplete_.hx
+*.hx.tmp
 
 /docs/output/*
 /docs/diagrams/*

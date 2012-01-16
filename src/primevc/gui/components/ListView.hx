@@ -492,7 +492,8 @@ class ListView<ListDataType> extends UIDataContainer < IReadOnlyList < ListDataT
 			
 			case reset:
 				removeData();
-				initData();
+				if (isOnStage())
+					initData();
 		}
 
 		if (update)
