@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="generator" content="AsciiDoc 8.6.6">
+<title>TODO</title>
+<link rel="stylesheet" href="../theme/prime.css" type="text/css">
+<script type="text/javascript" src="../theme/asciidoc.js"></script>
+<script type="text/javascript" src="../theme/prime.js"></script>
+<script type="text/javascript">
+/*<![CDATA[*/
+asciidoc.install(2);
+/*]]>*/
+</script>
+</head>
+<body class="article">
+<div id="header">
+<h1>TODO</h1>
+<span id="author">Ruben Weijers</span><br>
+<div id="toc">
+  <div id="toctitle">Table of Contents</div>
+  <noscript><p><b>JavaScript must be enabled in your browser to display the table of contents.</b></p></noscript>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_css_parser">CSS-Parser</h2>
+<div class="sectionbody">
+<div class="ulist"><ul>
+<li>
+<p>
+benchmarken van compilen van grote stylesheets
+</p>
+</li>
+<li>
+<p>
+testen met bloomfilter in haXe om stijlblokken een uniek nr te geven en deze als bitflag in de bloomfilter collectie te gebruiken (ask danny)
+</p>
+</li>
+<li>
+<p>
+testen met c++ parser ipv neko parser
+</p>
+</li>
+<li>
+<p>
+nicolas' css-parser gebruiken en uitbreiden (<a href="http://ncannasse.fr/blog/">HSS</a>)
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+dit vereist een tussen parser output waarna een 2e parser dit kan
+                omzetten naar code voor PrimeVC maar ook eventueel naar een ander
+                framework.
+</p>
+</li>
+</ul></div>
+</li>
+<li>
+<p>
+volledige css3 support toevoegen
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+<span class="monospaced">border-sides, inner-border, border-image, border-style</span>
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">cursor</span>
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">float</span> (per element ander algorithme kunnen gebruiken)
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">transform</span>
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">transition</span>
+</p>
+</li>
+<li>
+<p>
+&#8230;
+</p>
+</li>
+</ul></div>
+</li>
+<li>
+<p>
+css-variables ondersteunen
+</p>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>        @var $base <span style="color: #993399">#585858</span>
+        background<span style="color: #990000">:</span> $base<span style="color: #990000">;</span></tt></pre></div></div>
+</li>
+<li>
+<p>
+multiple block definitions ondersteunen (<span class="monospaced">Element1, Element2 { &#8230; }</span>)
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+Dit vereist het loskoppelen van een styleblock met een style-name..
+</p>
+<div class="paragraph"><p>Op deze manier kan 1 styleblock door meerdere style-names gebruikt worden en kan 1 style-name meerdere styleblocks hebben</p></div>
+</li>
+</ul></div>
+</li>
+<li>
+<p>
+per import een hx-bestand genereren
+</p>
+</li>
+<li>
+<p>
+controle of een css-bestand veranderd is doen in <strong>neko</strong> ipv <strong>bash</strong>
+</p>
+</li>
+<li>
+<p>
+wanneer een css-import veranderd is, alleen de relaties voor styleblocken     opnieuw genereren en niet de content van alle styleblocken
+</p>
+</li>
+<li>
+<p>
+native voorbeeld skins maken voor:
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+iOS
+</p>
+</li>
+<li>
+<p>
+os X
+</p>
+</li>
+<li>
+<p>
+android
+</p>
+</li>
+<li>
+<p>
+android honeycomb (light, dark)
+</p>
+</li>
+</ul></div>
+</li>
+<li>
+<p>
+ondersteuning voor media-queries voor platform specifieke css
+</p>
+</li>
+<li>
+<p>
+ondersteuning voor advanced selecters (<span class="monospaced">&gt;</span>, <span class="monospaced">&lt;</span>, etc.)
+</p>
+</li>
+<li>
+<p>
+ondersteuning voor css voor specifieke afmetingen van elementen
+</p>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>VideoPlayer<span style="color: #990000">[</span>width<span style="color: #990000">&lt;</span>200<span style="color: #990000">]</span> <span style="color: #993399">#stopBtn</span> <span style="color: #FF0000">{</span> <span style="color: #0000FF">visible:</span> <span style="font-style: italic"><span style="color: #009900">hidden</span></span>; <span style="color: #FF0000">}</span></tt></pre></div></div>
+</li>
+<li>
+<p>
+mixins (zie google)
+</p>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>@trait backgroundLinearGradient<span style="color: #990000">(</span>$from<span style="color: #990000">,</span> $to<span style="color: #990000">)</span> <span style="color: #FF0000">{</span>
+        <span style="font-style: italic"><span style="color: #009900">...</span></span>
+<span style="color: #FF0000">}</span>
+<span style="color: #993399">.themeButton</span> <span style="color: #FF0000">{</span>
+        @<span style="font-style: italic"><span style="color: #009900">mixin</span></span> <span style="font-style: italic"><span style="color: #009900">backgroundLinearGradient</span></span>( $<span style="font-style: italic"><span style="color: #009900">color1</span></span>, $<span style="font-style: italic"><span style="color: #009900">color2</span></span> );
+<span style="color: #FF0000">}</span></tt></pre></div></div>
+</li>
+<li>
+<p>
+ondersteuning voor property-transitions
+</p>
+</li>
+<li>
+<p>
+ondersteuning voor state-transitions
+</p>
+</li>
+<li>
+<p>
+ondersteuning voor calculation operators (<span class="monospaced">100% - 50px</span>)
+</p>
+</li>
+<li>
+<p>
+ondersteuning voor <a href="http://labs.adobe.com/technologies/cssregions/">CSS Regions</a>
+</p>
+</li>
+<li>
+<p>
+ondersteuning voor haxe-macro&#8217;s binnen stylesheets
+</p>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-weight: bold"><span style="color: #000080">#if debug</span></span>
+<span style="color: #990000">.</span>testClass <span style="color: #FF0000">{</span> <span style="color: #990000">....</span> <span style="color: #FF0000">}</span>
+<span style="font-weight: bold"><span style="color: #000080">#end</span></span></tt></pre></div></div>
+</li>
+<li>
+<p>
+automatisch genereren van custom-styleblocken voor specifieke componenten
+</p>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #008080">CustomComponent</span> <span style="font-weight: bold"><span style="color: #0000FF">extends</span></span> UIComponent <span style="color: #FF0000">{}</span>
+
+<span style="font-weight: bold"><span style="color: #0000FF">typedef</span></span> CustomComponentStyle <span style="color: #990000">=</span> <span style="color: #FF0000">{</span>
+        <span style="color: #990000">&gt;</span>ComponentStyle<span style="color: #990000">;</span>
+        <span style="font-weight: bold"><span style="color: #0000FF">var</span></span> icon <span style="color: #990000">:</span> Resource<span style="color: #990000">;</span>
+        <span style="font-weight: bold"><span style="color: #0000FF">var</span></span> cell<span style="color: #990000">-</span>width <span style="color: #990000">:</span> <span style="color: #009900">Int</span><span style="color: #990000">;</span>
+<span style="color: #FF0000">}</span></tt></pre></div></div>
+<div class="paragraph"><p>De css-parser zou hiervoor een aparte style-class moeten maken die de 2 extra properties heeft.</p></div>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_uicomponents">UIComponents</h2>
+<div class="sectionbody">
+<div class="ulist"><ul>
+<li>
+<p>
+DisplayObjects loskoppelen van <span class="monospaced">UIElements</span>
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+<span class="monospaced">UIElement</span> (geen target <span class="monospaced">DisplayObject</span>)
+</p>
+<div class="openblock">
+<div class="content">
+<div class="ulist"><ul>
+<li>
+<p>
+<span class="monospaced">UIComponent</span> &#8594; <span class="monospaced">Sprite</span> of <span class="monospaced">Skin</span>
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">UIGraphic</span>   &#8594; <span class="monospaced">Shape</span>
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">UITextField</span> &#8594; <span class="monospaced">TextField</span>
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">UIVideo</span>             &#8594; <span class="monospaced">Video</span>
+</p>
+</li>
+</ul></div>
+</div></div>
+</li>
+<li>
+<p>
+Skin kan een <span class="monospaced">DisplayObject</span> extenden
+</p>
+</li>
+</ul></div>
+</li>
+<li>
+<p>
+kijken of het efficienter is om ipv graphic-classes het tekenen overlaten     aan 1 grote functie die alle graphics van een <span class="monospaced">UIElement</span> kan tekenen
+</p>
+</li>
+<li>
+<p>
+overal <span class="monospaced">attach</span> / <span class="monospaced">attachTo</span> / <span class="monospaced">detach</span> gebruiken i.p.v. <span class="monospaced">children.add</span> / <span class="monospaced">children.remove</span>
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+hierbij kunnen we het aan het kind dat verwijderd wordt overlaten om effecten voor toevoegen / verwijderen af te spelen
+</p>
+</li>
+</ul></div>
+</li>
+<li>
+<p>
+<span class="monospaced">ValidateLayoutBehaviour</span> / <span class="monospaced">RenderGraphicsBehaviour</span> / <span class="monospaced">UIEffects</span> implementeren in <span class="monospaced">UIElement</span> ipv losse classes
+</p>
+</li>
+<li>
+<p>
+tab / focus support
+</p>
+</li>
+<li>
+<p>
+<span class="line-through">item-renderers in <span class="monospaced">ListViews</span> hergebruiken</span>
+</p>
+</li>
+<li>
+<p>
+css support voor elementen die geen <span class="monospaced">IUIElement</span> zijn zoals <span class="monospaced">LayoutClient</span>
+</p>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">var</span></span> layout <span style="color: #990000">=</span> <span style="font-weight: bold"><span style="color: #0000FF">new</span></span> <span style="font-weight: bold"><span style="color: #000000">StylableLayout</span></span><span style="color: #990000">();</span>
+layout<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">getStyleFrom</span></span><span style="color: #990000">(</span> <span style="font-weight: bold"><span style="color: #0000FF">this</span></span> <span style="color: #990000">);</span></tt></pre></div></div>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_general">General</h2>
+<div class="sectionbody">
+<div class="ulist"><ul>
+<li>
+<p>
+javascript implementatie met
+</p>
+</li>
+<li>
+<p>
+losse git-repositories maken voor iedere package
+</p>
+</li>
+<li>
+<p>
+voorbeelden / documentatie schrijven
+</p>
+</li>
+<li>
+<p>
+xml - compiler
+</p>
+</li>
+<li>
+<p>
+SWFMill gebruiken om assets swf te genereren
+</p>
+</li>
+<li>
+<p>
+manier om eenvoudig preloaders toevoegen
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>Libraries om naar te kijken:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+OpenPyro
+</p>
+</li>
+<li>
+<p>
+SASS
+</p>
+</li>
+</ul></div>
+</div>
+</div>
+</div>
+<div id="footnotes"><hr></div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2012-01-18 18:26:28 CET
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="generator" content="AsciiDoc 8.6.6">
+<title>MVC</title>
+<link rel="stylesheet" href="../theme/prime.css" type="text/css">
+<script type="text/javascript" src="../theme/asciidoc.js"></script>
+<script type="text/javascript" src="../theme/prime.js"></script>
+<script type="text/javascript">
+/*<![CDATA[*/
+asciidoc.install(2);
+/*]]>*/
+</script>
+</head>
+<body class="article">
+<div id="header">
+<h1>MVC</h1>
+<span id="author">Ruben Weijers</span><br>
+<div id="toc">
+  <div id="toctitle">Table of Contents</div>
+  <noscript><p><b>JavaScript must be enabled in your browser to display the table of contents.</b></p></noscript>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="quoteblock">
+<div class="content">
+<div class="ulist"><div class="title">TODO:</div><ul>
+<li>
+<p>
+Explain DI (Dependency Injection) through typedefs.
+</p>
+</li>
+<li>
+<p>
+Explain PureMVC has no DI, and requires casts everywhere.
+</p>
+</li>
+<li>
+<p>
+Discuss macro that checks all typedef properties are satisfied? - full compile time DI checks.
+</p>
+</li>
+<li>
+<p>
+Refactor FSM to always use enums, with Util static function onEntering&lt;State&gt;(..) and onExiting.
+</p>
+</li>
+</ul></div>
+</div>
+<div class="attribution">
+</div></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_features">Features</h2>
+<div class="sectionbody">
+<div class="olist arabic"><ol class="arabic">
+<li>
+<p>
+lightweight MVC-structure
+</p>
+</li>
+<li>
+<p>
+provides loose coupled building-blocks
+</p>
+</li>
+<li>
+<p>
+typed MVC-references
+</p>
+</li>
+<li>
+<p>
+support for multiple facades
+</p>
+</li>
+<li>
+<p>
+reduce boilerplate (through macro&#8217;s)
+</p>
+</li>
+<li>
+<p>
+fast
+</p>
+</li>
+</ol></div>
+<div class="sect2">
+<h3 id="_comparison_to_other_mvc_frameworks">Comparison to other MVC frameworks</h3>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<col style="width:25%;">
+<col style="width:25%;">
+<col style="width:25%;">
+<col style="width:25%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >                     </th>
+<th class="tableblock halign-left valign-top" > PrimeVC                                  </th>
+<th class="tableblock halign-left valign-top" > RobotLegs                   </th>
+<th class="tableblock halign-left valign-top" > PureMVC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">Communication</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Signals</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Events</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Notifications</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">Dependency Injection</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Compile time checked typedefs (optional)</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Runtime checked annotations</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">None builtin</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_overview_single_core">Overview single core</h2>
+<div class="sectionbody">
+<div class="imageblock graphviz">
+<div class="content">
+<img src="MVC.svg" alt="MVC.svg">
+</div>
+<div class="title">Figure 1. Facade structure</div>
+</div>
+<div class="olist arabic"><ol class="arabic">
+<li>
+<p>
+<strong>Model</strong> only contains <strong>proxies</strong>
+</p>
+</li>
+<li>
+<p>
+<strong>Logic</strong> only contains <strong>controller</strong>
+</p>
+</li>
+<li>
+<p>
+<strong>View</strong> only contains <strong>mediators</strong>
+</p>
+</li>
+</ol></div>
+<div class="imageblock graphviz">
+<div class="content">
+<img src="MVC_UML.svg" alt="MVC_UML.svg">
+</div>
+<div class="title">Figure 2. MVC class UML</div>
+</div>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<col style="width:33%;">
+<col style="width:66%;">
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">IMVCNotifier</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">can send messages to the MVC-application</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">IMVCActor</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">can send and listen to messages of the MVC-application</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">IMVCCoreActor</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">main interface for <strong>Logic</strong> and <strong>View</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">MVCNotifier</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">MVCActor</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">Proxy</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Exposes non-editable data to other MVC-Actors</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">EditableProxy</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Exposes editable data to other MVC-Actors</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">Mediator</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Base class for Mediators</p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect2">
+<h3 id="_facade">Facade</h3>
+<div class="paragraph"><p>A <strong>facade</strong> is the main MVC-object that contains references to all tiers of the MVC. It will instantiate all tiers in the correct order and makes sure they start listening when all tiers are created.</p></div>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<caption class="title">Table 1. Baseclasses of MVC-tiers</caption>
+<col style="width:33%;">
+<col style="width:66%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Tier           </th>
+<th class="tableblock halign-left valign-top" >Baseclass</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">Facade</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">primevc.mvc.Facade</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">Model</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">primevc.mvc.IMVCCore</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">View</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">primevc.mvc.IMVCCoreActor</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">Logic</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">primevc.mvc.IMVCCoreActor</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">Events</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">primevc.core.dispatcher.Signals</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">States</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">primevc.core.traits.IDisposable</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_model">Model</h3>
+<div class="paragraph"><p>The <strong>model</strong> contains references to <strong>proxies</strong>. It&#8217;s responsibilities are:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+create all <strong>proxies</strong> with the correct references to the <strong>events</strong> they need
+</p>
+</li>
+<li>
+<p>
+dispose all <strong>proxies</strong> when the <strong>model</strong> is disposed
+</p>
+</li>
+</ul></div>
+<div class="sect3">
+<h4 id="_proxy">Proxy</h4>
+<div class="paragraph"><p>A <strong>proxy</strong> encapsulates <strong>domain logic</strong> and manages <strong>value-objects</strong> (usually one). It exposes an API to allow other <strong>MVC-actors</strong> to manipulate/read it&#8217;s data. A <strong>Proxy</strong> does not know anything of the outside <strong>MVC-application</strong> and can only send <strong>signals</strong>.</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<strong>Proxy</strong> <span class="underline">can broadcasts</span> <strong>signals</strong>
+</p>
+</li>
+<li>
+<p>
+<strong>Proxy</strong> <span class="underline">can&#8217;t listen</span> to <strong>signals</strong>
+</p>
+</li>
+<li>
+<p>
+<strong>Proxy</strong> <span class="underline">can load</span> data through a service (but only when a MVC-actor requests it)
+</p>
+</li>
+</ul></div>
+</div>
+<div class="sect3">
+<h4 id="_service">Service</h4>
+<div class="paragraph"><p>A <strong>service</strong> provides an API to communicate with an external dataprovider and translate the external-data (json, XML, etc.) from/to application-data (<strong>value-objects</strong>).</p></div>
+</div>
+<div class="sect3">
+<h4 id="_value_object">Value-Object</h4>
+<div class="paragraph"><p>A value-object (VO) is a small object that only contains data and should only contain logic to modify it&#8217;s data. PrimeVC works with VOs that can also provide an API to begin/commit/cancel a write operation.</p></div>
+<div class="listingblock">
+<div class="title">Example</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="color: #000000">00001:</span> <span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #008080">MyVO</span>
+<span style="color: #000000">00002:</span> <span style="color: #FF0000">{</span>
+<span style="color: #000000">00003:</span>         <span style="font-weight: bold"><span style="color: #0000FF">private</span></span> <span style="font-weight: bold"><span style="color: #0000FF">var</span></span> editable                            <span style="color: #990000">:</span> <span style="color: #009900">Bool</span><span style="color: #990000">;</span>
+<span style="color: #000000">00004:</span>         <span style="font-weight: bold"><span style="color: #0000FF">public</span></span>  <span style="font-weight: bold"><span style="color: #0000FF">var</span></span> <span style="font-weight: bold"><span style="color: #000000">val1</span></span> <span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #0000FF">default</span></span><span style="color: #990000">,</span> setVal1<span style="color: #990000">)</span> <span style="color: #990000">:</span> String<span style="color: #990000">;</span>
+<span style="color: #000000">00005:</span>         <span style="font-weight: bold"><span style="color: #0000FF">public</span></span>  <span style="font-weight: bold"><span style="color: #0000FF">var</span></span> <span style="font-weight: bold"><span style="color: #000000">val2</span></span> <span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #0000FF">default</span></span><span style="color: #990000">,</span> setVal2<span style="color: #990000">)</span> <span style="color: #990000">:</span> <span style="color: #009900">Int</span><span style="color: #990000">;</span>
+<span style="color: #000000">00006:</span>
+<span style="color: #000000">00007:</span>         <span style="font-weight: bold"><span style="color: #0000FF">public</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #0000FF">new</span></span> <span style="color: #990000">(</span>val1_<span style="color: #990000">,</span> val2_<span style="color: #990000">)</span> <span style="color: #FF0000">{</span>
+<span style="color: #000000">00008:</span>                 <span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #0000FF">untyped</span></span> <span style="font-weight: bold"><span style="color: #0000FF">this</span></span><span style="color: #990000">).</span>val1 <span style="color: #990000">=</span> val1_<span style="color: #990000">;</span>
+<span style="color: #000000">00009:</span>                 <span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #0000FF">untyped</span></span> <span style="font-weight: bold"><span style="color: #0000FF">this</span></span><span style="color: #990000">).</span>val2 <span style="color: #990000">=</span> val2_<span style="color: #990000">;</span>
+<span style="color: #000000">00010:</span>         <span style="color: #FF0000">}</span>
+<span style="color: #000000">00011:</span>
+<span style="color: #000000">00012:</span>         <span style="font-weight: bold"><span style="color: #0000FF">private</span></span> <span style="font-weight: bold"><span style="color: #0000FF">inline</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">setVal1</span></span> <span style="color: #990000">(</span>v<span style="color: #990000">)</span>             <span style="font-weight: bold"><span style="color: #0000FF">return</span></span> <span style="color: #990000">(</span>editable <span style="color: #990000">&amp;&amp;</span> v <span style="color: #990000">!=</span> val1<span style="color: #990000">)</span> <span style="color: #990000">?</span> val1 <span style="color: #990000">=</span> v <span style="color: #990000">:</span> val1
+<span style="color: #000000">00013:</span>         <span style="font-weight: bold"><span style="color: #0000FF">private</span></span> <span style="font-weight: bold"><span style="color: #0000FF">inline</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">setVal2</span></span> <span style="color: #990000">(</span>v<span style="color: #990000">)</span>             <span style="font-weight: bold"><span style="color: #0000FF">return</span></span> <span style="color: #990000">(</span>editable <span style="color: #990000">&amp;&amp;</span> v <span style="color: #990000">!=</span> val2<span style="color: #990000">)</span> <span style="color: #990000">?</span> val2 <span style="color: #990000">=</span> v <span style="color: #990000">:</span> val2
+<span style="color: #000000">00014:</span>
+<span style="color: #000000">00015:</span>         <span style="font-weight: bold"><span style="color: #0000FF">public</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">beginEdit</span></span> <span style="color: #990000">()</span>                    editable <span style="color: #990000">=</span> <span style="font-weight: bold"><span style="color: #0000FF">true</span></span>
+<span style="color: #000000">00016:</span>         <span style="font-weight: bold"><span style="color: #0000FF">public</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">commitEdit</span></span> <span style="color: #990000">()</span>                   editable <span style="color: #990000">=</span> <span style="font-weight: bold"><span style="color: #0000FF">false</span></span>
+<span style="color: #000000">00017:</span> <span style="color: #FF0000">}</span></tt></pre></div></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_view">View</h3>
+<div class="paragraph"><p>The <strong>view</strong> contains references to <strong>mediators</strong>. It&#8217;s responsibilities are:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+create all <strong>mediators</strong> and provide them with a reference to the <strong>facade</strong> and their <strong>gui</strong>
+</p>
+</li>
+<li>
+<p>
+dispose all <strong>mediators</strong> when the <strong>view</strong> is disposed
+</p>
+</li>
+<li>
+<p>
+enable/disable all <strong>mediators</strong> when the <strong>view</strong> is enabled/disabled
+</p>
+</li>
+<li>
+<p>
+calls <span class="monospaced">startListening/stopListening</span> on all <strong>mediators</strong> when the <strong>view</strong> starts/stops listening
+</p>
+</li>
+</ul></div>
+<div class="sect3">
+<h4 id="_mediator">Mediator</h4>
+<div class="paragraph"><p>The <strong>mediator</strong> is the bridge between one or more <strong>GUI</strong>-elements and the MVC-application. It responds to <strong>signals</strong> of the <strong>GUI</strong> and <strong>MVC</strong>.</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<strong>Mediator</strong> <span class="underline">can talk</span> to other <strong>mediators</strong> and <strong>controllers</strong>
+</p>
+</li>
+<li>
+<p>
+<strong>Mediator</strong> <span class="underline">can command</span> a <strong>proxy</strong>
+</p>
+</li>
+<li>
+<p>
+<strong>Mediator</strong> <span class="underline">can change</span> a <strong>VO</strong> (after calling beginEdit())
+</p>
+</li>
+<li>
+<p>
+<strong>Mediator</strong> <span class="underline">can send</span> a <strong>signal</strong>
+</p>
+</li>
+</ul></div>
+</div>
+<div class="sect3">
+<h4 id="_gui">GUI</h4>
+<div class="paragraph"><p>The <strong>GUI</strong> is the visualation of the application. It does not have any logic of the MVC-application and isn&#8217;t able to directly communicate with it.</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<strong>GUI-component</strong> <span class="underline">can listen</span> to other <strong>GUI-components</strong>
+</p>
+</li>
+<li>
+<p>
+<strong>GUI-component</strong> <span class="underline">can talk</span> to other <strong>GUI-components</strong>
+</p>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_logic">Logic</h3>
+<div class="paragraph"><p>The <strong>logic</strong> contains references to <strong>controllers</strong>. It&#8217;s responsibilities are:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+create all <strong>controllers</strong> and provide them with a reference to the <strong>facade</strong>
+</p>
+</li>
+<li>
+<p>
+dispose all <strong>controllers</strong> when the <strong>logic</strong> is disposed
+</p>
+</li>
+<li>
+<p>
+enable/disable all <strong>controllers</strong> when the <strong>logic</strong> is enabled/disabled
+</p>
+</li>
+<li>
+<p>
+calls <span class="monospaced">startListening/stopListening</span> on all <strong>controllers</strong> when the <strong>logic</strong> starts/stops listening
+</p>
+</li>
+<li>
+<p>
+create simple bindings between <strong>signals</strong> and <strong>proxies</strong>
+</p>
+<div class="paragraph"><p>The main class can create bindings between a signal and the API of a proxy when a proxy directly needs to listen to a specific MVC-signal.</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="color: #000000">00001:</span> <span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #008080">AppControllers</span>
+<span style="color: #000000">00002:</span> <span style="color: #FF0000">{</span>
+<span style="color: #000000">00003:</span>         <span style="font-weight: bold"><span style="color: #0000FF">override</span></span> <span style="font-weight: bold"><span style="color: #0000FF">public</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">startListening</span></span> <span style="color: #990000">()</span>
+<span style="color: #000000">00004:</span>         <span style="color: #FF0000">{</span>
+<span style="color: #000000">00005:</span>                 facade<span style="color: #990000">.</span>model<span style="color: #990000">.</span>document<span style="color: #990000">.</span>load  <span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">on</span></span><span style="color: #990000">(</span> facade<span style="color: #990000">.</span>events<span style="color: #990000">.</span>document<span style="color: #990000">.</span>request<span style="color: #990000">,</span>        <span style="font-weight: bold"><span style="color: #0000FF">this</span></span> <span style="color: #990000">);</span>
+<span style="color: #000000">00006:</span>                 facade<span style="color: #990000">.</span>model<span style="color: #990000">.</span>document<span style="color: #990000">.</span>unload<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">on</span></span><span style="color: #990000">(</span> facade<span style="color: #990000">.</span>events<span style="color: #990000">.</span>document<span style="color: #990000">.</span>close<span style="color: #990000">,</span>          <span style="font-weight: bold"><span style="color: #0000FF">this</span></span> <span style="color: #990000">);</span>
+<span style="color: #000000">00007:</span>                 facade<span style="color: #990000">.</span>model<span style="color: #990000">.</span>page<span style="color: #990000">.</span>load          <span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">on</span></span><span style="color: #990000">(</span> facade<span style="color: #990000">.</span>events<span style="color: #990000">.</span>document<span style="color: #990000">.</span>loaded<span style="color: #990000">,</span>     <span style="font-weight: bold"><span style="color: #0000FF">this</span></span> <span style="color: #990000">);</span>
+<span style="color: #000000">00008:</span>                 facade<span style="color: #990000">.</span>model<span style="color: #990000">.</span>page<span style="color: #990000">.</span>close         <span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">on</span></span><span style="color: #990000">(</span> facade<span style="color: #990000">.</span>events<span style="color: #990000">.</span>document<span style="color: #990000">.</span>unloaded<span style="color: #990000">,</span>   <span style="font-weight: bold"><span style="color: #0000FF">this</span></span> <span style="color: #990000">);</span>
+<span style="color: #000000">00009:</span>         <span style="color: #FF0000">}</span>
+<span style="color: #000000">00010:</span> <span style="color: #FF0000">}</span></tt></pre></div></div>
+</li>
+</ul></div>
+<div class="sect3">
+<h4 id="_controller">Controller</h4>
+<div class="paragraph"><p>A <strong>controller</strong> encapsulates <span class="underline">bussiness logic</span>.</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<strong>Controller</strong> <span class="underline">can talk</span> to other <strong>controllers</strong> and <strong>mediators</strong>
+</p>
+</li>
+<li>
+<p>
+<strong>Controller</strong> <span class="underline">can command</span> a <strong>proxy</strong>
+</p>
+</li>
+<li>
+<p>
+<strong>Controller</strong> <span class="underline">can change</span> a <strong>VO</strong> (after calling beginEdit())
+</p>
+</li>
+<li>
+<p>
+<strong>Controller</strong> <span class="underline">can send</span> a <strong>signal</strong>
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>In PureMVC there are no controllers, only commands. In PrimeVC a controller groups the logic of commands that are performing the same type of actions (like copy/cut/paste).</p></div>
+<div class="listingblock">
+<div class="title">Example</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="color: #000000">00001:</span> <span style="font-weight: bold"><span style="color: #0000FF">private</span></span> <span style="font-weight: bold"><span style="color: #0000FF">typedef</span></span> Facade <span style="color: #FF0000">{</span>
+<span style="color: #000000">00002:</span>         <span style="font-weight: bold"><span style="color: #0000FF">var</span></span> model <span style="color: #990000">=</span> <span style="color: #FF0000">{</span>
+<span style="color: #000000">00003:</span>                 <span style="font-weight: bold"><span style="color: #0000FF">var</span></span> <span style="font-weight: bold"><span style="color: #000000">clipboard</span></span>   <span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #0000FF">default</span></span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">null</span></span><span style="color: #990000">)</span> <span style="color: #990000">:</span> ClipboardProxy<span style="color: #990000">;</span>
+<span style="color: #000000">00004:</span>                 <span style="font-weight: bold"><span style="color: #0000FF">var</span></span> <span style="font-weight: bold"><span style="color: #000000">document</span></span>    <span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #0000FF">default</span></span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">null</span></span><span style="color: #990000">)</span> <span style="color: #990000">:</span> DocumentProxy<span style="color: #990000">;</span>
+<span style="color: #000000">00005:</span>                 <span style="font-weight: bold"><span style="color: #0000FF">var</span></span> <span style="font-weight: bold"><span style="color: #000000">selection</span></span>   <span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #0000FF">default</span></span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">null</span></span><span style="color: #990000">)</span> <span style="color: #990000">:</span> SelectionProxy<span style="color: #990000">;</span>
+<span style="color: #000000">00006:</span>         <span style="color: #FF0000">}</span><span style="color: #990000">;</span>
+<span style="color: #000000">00007:</span>         <span style="font-weight: bold"><span style="color: #0000FF">var</span></span> events <span style="color: #990000">=</span> <span style="color: #FF0000">{</span>
+<span style="color: #000000">00008:</span>                 <span style="font-weight: bold"><span style="color: #0000FF">var</span></span> <span style="font-weight: bold"><span style="color: #000000">clipboard</span></span>   <span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #0000FF">default</span></span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">null</span></span><span style="color: #990000">)</span> <span style="color: #990000">:</span> ClipboardEvents<span style="color: #990000">;</span>
+<span style="color: #000000">00009:</span>         <span style="color: #FF0000">}</span><span style="color: #990000">;</span>
+<span style="color: #000000">00010:</span> <span style="color: #FF0000">}</span><span style="color: #990000">;</span>
+<span style="color: #000000">00011:</span>
+<span style="color: #000000">00012:</span> <span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #008080">SelectionController</span> <span style="font-weight: bold"><span style="color: #0000FF">extends</span></span> MVCActor<span style="color: #990000">&lt;</span>Facade<span style="color: #990000">&gt;</span>
+<span style="color: #000000">00013:</span> <span style="color: #FF0000">{</span>
+<span style="color: #000000">00014:</span>         <span style="font-weight: bold"><span style="color: #0000FF">override</span></span> <span style="font-weight: bold"><span style="color: #0000FF">public</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">startListening</span></span> <span style="color: #990000">()</span>
+<span style="color: #000000">00015:</span>         <span style="color: #FF0000">{</span>
+<span style="color: #000000">00016:</span>                 copy<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">on</span></span><span style="color: #990000">(</span> f<span style="color: #990000">.</span>events<span style="color: #990000">.</span>clipboard<span style="color: #990000">.</span>copy <span style="color: #990000">);</span>
+<span style="color: #000000">00017:</span>                 paste<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">on</span></span><span style="color: #990000">(</span> f<span style="color: #990000">.</span>events<span style="color: #990000">.</span>clipboard<span style="color: #990000">.</span>paste <span style="color: #990000">);</span>
+<span style="color: #000000">00018:</span>         <span style="color: #FF0000">}</span>
+<span style="color: #000000">00019:</span>
+<span style="color: #000000">00020:</span>         <span style="font-weight: bold"><span style="color: #0000FF">private</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">copy</span></span> <span style="color: #990000">()</span>        f<span style="color: #990000">.</span>model<span style="color: #990000">.</span>clipboard<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">copy</span></span><span style="color: #990000">(</span> f<span style="color: #990000">.</span>model<span style="color: #990000">.</span>selection<span style="color: #990000">.</span>data <span style="color: #990000">)</span>
+<span style="color: #000000">00021:</span>         <span style="font-weight: bold"><span style="color: #0000FF">private</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">paste</span></span> <span style="color: #990000">()</span>       f<span style="color: #990000">.</span>model<span style="color: #990000">.</span>clipboard<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">pasteInto</span></span><span style="color: #990000">(</span> f<span style="color: #990000">.</span>model<span style="color: #990000">.</span>document<span style="color: #990000">.</span>data <span style="color: #990000">)</span>
+<span style="color: #000000">00022:</span> <span style="color: #FF0000">}</span></tt></pre></div></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_events">Events</h3>
+<div class="paragraph"><p>The <strong>events</strong> class is the communication-bridge between all MVC-tiers and groups all application <a href="Signals.html">signals</a> together. It&#8217;s responsibilities are:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+create all <strong>signals</strong>
+</p>
+</li>
+<li>
+<p>
+dispose all <strong>signals</strong>
+</p>
+</li>
+<li>
+<p>
+enable/disable all <strong>signals</strong>
+</p>
+</li>
+</ul></div>
+</div>
+<div class="sect2">
+<h3 id="_states">States</h3>
+<div class="paragraph"><p>This optional MVC-tier manages one or more finite-state-machines.</p></div>
+<div class="sect3">
+<h4 id="_finite_state_machine">Finite State Machine</h4>
+<div class="quoteblock">
+<div class="content">
+<div class="paragraph"><p>A finite-state machine (FSM) or finite-state automaton (plural: automata), or simply a state machine, is a mathematical model used to design computer programs and digital logic circuits.</p></div>
+<div class="paragraph"><p>It is conceived as an abstract machine that can be in one of a finite number of states. The machine is in only one state at a time; the state it is in at any given time is called the current state. It can change from one state to another when initiated by a triggering event or condition, this is called a transition. A particular FSM is defined by a list of the possible states it can transition to from each state, and the triggering condition for each transition.</p></div>
+</div>
+<div class="attribution">
+<em>http://en.wikipedia.org/wiki/Finite-state_machine</em><br>
+&#8212; Wikipedia
+</div></div>
+<div class="paragraph"><p>PrimeVC provides two FSM classes:</p></div>
+<div class="olist arabic"><ol class="arabic">
+<li>
+<p>
+<strong>FiniteStateMachine</strong>
+</p>
+<div class="paragraph"><p>Each state is a small object with two signals: <span class="monospaced">entering</span> and <span class="monospaced">exiting</span>. The FSM keeps track of the active state and will also trigger the <span class="monospaced">change</span>-signal when the current-state changes.</p></div>
+<div class="listingblock">
+<div class="title">Example</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="color: #000000">00001:</span> <span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #008080">ApplicationStates</span> <span style="font-weight: bold"><span style="color: #0000FF">extends</span></span> FiniteStateMachine
+<span style="color: #000000">00002:</span> <span style="color: #FF0000">{</span>
+<span style="color: #000000">00003:</span>         <span style="font-style: italic"><span style="color: #9A1900">//instances are created by macro in FiniteStateMachine</span></span>
+<span style="color: #000000">00004:</span>         <span style="font-weight: bold"><span style="color: #0000FF">public</span></span> <span style="font-weight: bold"><span style="color: #0000FF">var</span></span> <span style="font-weight: bold"><span style="color: #000000">editable</span></span> <span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #0000FF">default</span></span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">null</span></span><span style="color: #990000">):</span> IState<span style="color: #990000">;</span>
+<span style="color: #000000">00005:</span>         <span style="font-weight: bold"><span style="color: #0000FF">public</span></span> <span style="font-weight: bold"><span style="color: #0000FF">var</span></span> <span style="font-weight: bold"><span style="color: #000000">readOnly</span></span> <span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #0000FF">default</span></span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">null</span></span><span style="color: #990000">):</span> IState<span style="color: #990000">;</span>
+<span style="color: #000000">00006:</span>         <span style="font-weight: bold"><span style="color: #0000FF">public</span></span> <span style="font-weight: bold"><span style="color: #0000FF">var</span></span> <span style="font-weight: bold"><span style="color: #000000">empty</span></span>        <span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #0000FF">default</span></span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">null</span></span><span style="color: #990000">):</span> IState<span style="color: #990000">;</span>
+<span style="color: #000000">00007:</span>
+<span style="color: #000000">00008:</span>         <span style="font-weight: bold"><span style="color: #0000FF">public</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #0000FF">new</span></span> <span style="color: #990000">()</span>
+<span style="color: #000000">00009:</span>         <span style="color: #FF0000">{</span>
+<span style="color: #000000">00010:</span>                 <span style="font-weight: bold"><span style="color: #0000FF">super</span></span><span style="color: #990000">();</span>
+<span style="color: #000000">00011:</span>                 defaultState <span style="color: #990000">=</span> empty<span style="color: #990000">;</span>
+<span style="color: #000000">00012:</span>         <span style="color: #FF0000">}</span>
+<span style="color: #000000">00013:</span> <span style="color: #FF0000">}</span>
+<span style="color: #000000">00014:</span>
+<span style="color: #000000">00015:</span> <span style="font-style: italic"><span style="color: #9A1900">//usage</span></span>
+<span style="color: #000000">00016:</span> <span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #008080">AppControllers</span>
+<span style="color: #000000">00017:</span> <span style="color: #FF0000">{</span>
+<span style="color: #000000">00018:</span>         <span style="font-weight: bold"><span style="color: #0000FF">override</span></span> <span style="font-weight: bold"><span style="color: #0000FF">public</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">startListening</span></span> <span style="color: #990000">()</span>
+<span style="color: #000000">00019:</span>         <span style="color: #FF0000">{</span>
+<span style="color: #000000">00020:</span>                 <span style="font-weight: bold"><span style="color: #0000FF">super</span></span><span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">startListening</span></span><span style="color: #990000">();</span>
+<span style="color: #000000">00021:</span>                 <span style="font-weight: bold"><span style="color: #0000FF">var</span></span> states <span style="color: #990000">=</span> facade<span style="color: #990000">.</span>states<span style="color: #990000">;</span>
+<span style="color: #000000">00022:</span>                 facade<span style="color: #990000">.</span>model<span style="color: #990000">.</span>document<span style="color: #990000">.</span>enable <span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">on</span></span><span style="color: #990000">(</span> states<span style="color: #990000">.</span>editable<span style="color: #990000">.</span>entering<span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">this</span></span> <span style="color: #990000">);</span>
+<span style="color: #000000">00023:</span>                 facade<span style="color: #990000">.</span>model<span style="color: #990000">.</span>document<span style="color: #990000">.</span>disable<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">on</span></span><span style="color: #990000">(</span> states<span style="color: #990000">.</span>readOnly<span style="color: #990000">.</span>entering<span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">this</span></span> <span style="color: #990000">);</span>
+<span style="color: #000000">00024:</span>
+<span style="color: #000000">00025:</span>                 states<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">changeTo</span></span><span style="color: #990000">(</span> states<span style="color: #990000">.</span>readOnly <span style="color: #990000">).</span><span style="font-weight: bold"><span style="color: #000000">on</span></span><span style="color: #990000">(</span> facade<span style="color: #990000">.</span>events<span style="color: #990000">.</span>document<span style="color: #990000">.</span>loaded<span style="color: #990000">,</span>           <span style="font-weight: bold"><span style="color: #0000FF">this</span></span> <span style="color: #990000">);</span>
+<span style="color: #000000">00026:</span>                 states<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">changeTo</span></span><span style="color: #990000">(</span> states<span style="color: #990000">.</span>editable <span style="color: #990000">).</span><span style="font-weight: bold"><span style="color: #000000">on</span></span><span style="color: #990000">(</span> facade<span style="color: #990000">.</span>events<span style="color: #990000">.</span>document<span style="color: #990000">.</span>beginEdit<span style="color: #990000">,</span>        <span style="font-weight: bold"><span style="color: #0000FF">this</span></span> <span style="color: #990000">);</span>
+<span style="color: #000000">00027:</span>                 states<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">changeTo</span></span><span style="color: #990000">(</span> states<span style="color: #990000">.</span>readOnly <span style="color: #990000">).</span><span style="font-weight: bold"><span style="color: #000000">on</span></span><span style="color: #990000">(</span> facade<span style="color: #990000">.</span>events<span style="color: #990000">.</span>document<span style="color: #990000">.</span>commitEdit<span style="color: #990000">,</span>       <span style="font-weight: bold"><span style="color: #0000FF">this</span></span> <span style="color: #990000">);</span>
+<span style="color: #000000">00028:</span>                 states<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">changeTo</span></span><span style="color: #990000">(</span> states<span style="color: #990000">.</span>empty <span style="color: #990000">)</span>   <span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">on</span></span><span style="color: #990000">(</span> facade<span style="color: #990000">.</span>events<span style="color: #990000">.</span>document<span style="color: #990000">.</span>unloaded<span style="color: #990000">,</span>         <span style="font-weight: bold"><span style="color: #0000FF">this</span></span> <span style="color: #990000">);</span>
+<span style="color: #000000">00029:</span>         <span style="color: #FF0000">}</span>
+<span style="color: #000000">00030:</span> <span style="color: #FF0000">}</span>
+<span style="color: #000000">00031:</span>
+<span style="color: #000000">00032:</span> <span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #008080">DocumentMediator</span>
+<span style="color: #000000">00033:</span> <span style="color: #FF0000">{</span>
+<span style="color: #000000">00034:</span>         <span style="font-weight: bold"><span style="color: #0000FF">override</span></span> <span style="font-weight: bold"><span style="color: #0000FF">public</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">startListening</span></span> <span style="color: #990000">()</span>
+<span style="color: #000000">00035:</span>         <span style="color: #FF0000">{</span>
+<span style="color: #000000">00036:</span>                 <span style="font-weight: bold"><span style="color: #0000FF">if</span></span> <span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #000000">isListening</span></span><span style="color: #990000">())</span>
+<span style="color: #000000">00037:</span>                         <span style="font-weight: bold"><span style="color: #0000FF">return</span></span><span style="color: #990000">;</span>
+<span style="color: #000000">00038:</span>                 <span style="font-weight: bold"><span style="color: #0000FF">super</span></span><span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">startListening</span></span><span style="color: #990000">();</span>
+<span style="color: #000000">00039:</span>
+<span style="color: #000000">00040:</span>                 gui<span style="color: #990000">.</span>showEditButtons<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">on</span></span><span style="color: #990000">(</span> f<span style="color: #990000">.</span>states<span style="color: #990000">.</span>editable<span style="color: #990000">.</span>entering<span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">this</span></span> <span style="color: #990000">);</span>
+<span style="color: #000000">00041:</span>                 <span style="font-weight: bold"><span style="color: #0000FF">if</span></span> <span style="color: #990000">(</span>f<span style="color: #990000">.</span>states<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">is</span></span><span style="color: #990000">(</span> f<span style="color: #990000">.</span>states<span style="color: #990000">.</span>editable <span style="color: #990000">))</span>
+<span style="color: #000000">00042:</span>                         gui<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">showEditButtons</span></span><span style="color: #990000">();</span>
+<span style="color: #000000">00043:</span>         <span style="color: #FF0000">}</span>
+<span style="color: #000000">00044:</span> <span style="color: #FF0000">}</span></tt></pre></div></div>
+</li>
+<li>
+<p>
+<strong>SimpleStateMachine</strong>
+</p>
+<div class="paragraph"><p>This is a more basic FSM where each state isn&#8217;t an object but the available states are an enum. It&#8217;s not possible to listen to listen to specific state events but is <span class="underline">more light-weight</span> then a <strong>FiniteStateMachine</strong>.</p></div>
+<div class="listingblock">
+<div class="title">Example</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="color: #000000">00001:</span> <span style="font-weight: bold"><span style="color: #0000FF">enum</span></span> ApplicationState <span style="color: #FF0000">{</span>
+<span style="color: #000000">00002:</span>         empty<span style="color: #990000">;</span>
+<span style="color: #000000">00003:</span>         readOnly<span style="color: #990000">;</span>
+<span style="color: #000000">00004:</span>         editable<span style="color: #990000">;</span>
+<span style="color: #000000">00005:</span> <span style="color: #FF0000">}</span>
+<span style="color: #000000">00006:</span>
+<span style="color: #000000">00007:</span> <span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #008080">ApplicationFacade</span> <span style="font-weight: bold"><span style="color: #0000FF">extends</span></span> Facade<span style="color: #990000">&lt;....&gt;</span>
+<span style="color: #000000">00008:</span> <span style="color: #FF0000">{</span>
+<span style="color: #000000">00009:</span>         <span style="font-weight: bold"><span style="color: #0000FF">override</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">setupStates</span></span> <span style="color: #990000">()</span>        states <span style="color: #990000">=</span> <span style="font-weight: bold"><span style="color: #0000FF">new</span></span> SimpleStateMachine<span style="color: #990000">&lt;</span>ApplicationState<span style="color: #990000">&gt;(</span> empty <span style="color: #990000">);</span>
+<span style="color: #000000">00010:</span> <span style="color: #FF0000">}</span>
+<span style="color: #000000">00011:</span>
+<span style="color: #000000">00012:</span> <span style="font-style: italic"><span style="color: #9A1900">//usage</span></span>
+<span style="color: #000000">00013:</span> <span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #008080">AppControllers</span>
+<span style="color: #000000">00014:</span> <span style="color: #FF0000">{</span>
+<span style="color: #000000">00015:</span>         <span style="font-weight: bold"><span style="color: #0000FF">override</span></span> <span style="font-weight: bold"><span style="color: #0000FF">public</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">startListening</span></span> <span style="color: #990000">()</span>
+<span style="color: #000000">00016:</span>         <span style="color: #FF0000">{</span>
+<span style="color: #000000">00017:</span>                 <span style="font-weight: bold"><span style="color: #0000FF">super</span></span><span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">startListening</span></span><span style="color: #990000">();</span>
+<span style="color: #000000">00018:</span>                 <span style="font-weight: bold"><span style="color: #0000FF">var</span></span> states <span style="color: #990000">=</span> facade<span style="color: #990000">.</span>states<span style="color: #990000">;</span>
+<span style="color: #000000">00019:</span>                 handleStateChange<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">on</span></span><span style="color: #990000">(</span> states<span style="color: #990000">.</span>change<span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">this</span></span> <span style="color: #990000">);</span>
+<span style="color: #000000">00020:</span>
+<span style="color: #000000">00021:</span>                 states<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">changeTo</span></span><span style="color: #990000">(</span> readOnly <span style="color: #990000">).</span><span style="font-weight: bold"><span style="color: #000000">on</span></span><span style="color: #990000">(</span> facade<span style="color: #990000">.</span>events<span style="color: #990000">.</span>document<span style="color: #990000">.</span>loaded<span style="color: #990000">,</span>          <span style="font-weight: bold"><span style="color: #0000FF">this</span></span> <span style="color: #990000">);</span>
+<span style="color: #000000">00022:</span>                 states<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">changeTo</span></span><span style="color: #990000">(</span> editable <span style="color: #990000">).</span><span style="font-weight: bold"><span style="color: #000000">on</span></span><span style="color: #990000">(</span> facade<span style="color: #990000">.</span>events<span style="color: #990000">.</span>document<span style="color: #990000">.</span>beginEdit<span style="color: #990000">,</span>       <span style="font-weight: bold"><span style="color: #0000FF">this</span></span> <span style="color: #990000">);</span>
+<span style="color: #000000">00023:</span>                 states<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">changeTo</span></span><span style="color: #990000">(</span> readOnly <span style="color: #990000">).</span><span style="font-weight: bold"><span style="color: #000000">on</span></span><span style="color: #990000">(</span> facade<span style="color: #990000">.</span>events<span style="color: #990000">.</span>document<span style="color: #990000">.</span>commitEdit<span style="color: #990000">,</span>      <span style="font-weight: bold"><span style="color: #0000FF">this</span></span> <span style="color: #990000">);</span>
+<span style="color: #000000">00024:</span>                 states<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">changeTo</span></span><span style="color: #990000">(</span> empty <span style="color: #990000">)</span>   <span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">on</span></span><span style="color: #990000">(</span> facade<span style="color: #990000">.</span>events<span style="color: #990000">.</span>document<span style="color: #990000">.</span>unloaded<span style="color: #990000">,</span>        <span style="font-weight: bold"><span style="color: #0000FF">this</span></span> <span style="color: #990000">);</span>
+<span style="color: #000000">00025:</span>         <span style="color: #FF0000">}</span>
+<span style="color: #000000">00026:</span>
+<span style="color: #000000">00027:</span>         <span style="font-weight: bold"><span style="color: #0000FF">private</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">handleStateChange</span></span> <span style="color: #990000">(</span>newV<span style="color: #990000">:</span>ApplicationState<span style="color: #990000">,</span> oldV<span style="color: #990000">:</span>ApplicationState<span style="color: #990000">)</span> <span style="font-weight: bold"><span style="color: #0000FF">switch</span></span> <span style="color: #990000">(</span>newV<span style="color: #990000">)</span>
+<span style="color: #000000">00028:</span>         <span style="color: #FF0000">{</span>
+<span style="color: #000000">00029:</span>                 <span style="font-weight: bold"><span style="color: #0000FF">case</span></span> editable<span style="color: #990000">:</span>  facade<span style="color: #990000">.</span>model<span style="color: #990000">.</span>document<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">enable</span></span><span style="color: #990000">();</span>
+<span style="color: #000000">00030:</span>                 <span style="font-weight: bold"><span style="color: #0000FF">case</span></span> readOnly<span style="color: #990000">:</span>  facade<span style="color: #990000">.</span>model<span style="color: #990000">.</span>document<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">disable</span></span><span style="color: #990000">();</span>
+<span style="color: #000000">00031:</span>                 <span style="font-weight: bold"><span style="color: #0000FF">case</span></span> empty<span style="color: #990000">:</span>     <span style="font-weight: bold"><span style="color: #0000FF">if</span></span> <span style="color: #990000">(</span>facade<span style="color: #990000">.</span>model<span style="color: #990000">.</span>document<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">hasData</span></span><span style="color: #990000">())</span>
+<span style="color: #000000">00032:</span>                                                         facade<span style="color: #990000">.</span>model<span style="color: #990000">.</span>document<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">unload</span></span><span style="color: #990000">();</span>
+<span style="color: #000000">00033:</span>         <span style="color: #FF0000">}</span>
+<span style="color: #000000">00034:</span> <span style="color: #FF0000">}</span>
+<span style="color: #000000">00035:</span>
+<span style="color: #000000">00036:</span> <span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #008080">DocumentMediator</span>
+<span style="color: #000000">00037:</span> <span style="color: #FF0000">{</span>
+<span style="color: #000000">00038:</span>         <span style="font-weight: bold"><span style="color: #0000FF">override</span></span> <span style="font-weight: bold"><span style="color: #0000FF">public</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">startListening</span></span> <span style="color: #990000">()</span>
+<span style="color: #000000">00039:</span>         <span style="color: #FF0000">{</span>
+<span style="color: #000000">00040:</span>                 <span style="font-weight: bold"><span style="color: #0000FF">if</span></span> <span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #000000">isListening</span></span><span style="color: #990000">())</span>
+<span style="color: #000000">00041:</span>                         <span style="font-weight: bold"><span style="color: #0000FF">return</span></span><span style="color: #990000">;</span>
+<span style="color: #000000">00042:</span>                 <span style="font-weight: bold"><span style="color: #0000FF">super</span></span><span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">startListening</span></span><span style="color: #990000">();</span>
+<span style="color: #000000">00043:</span>
+<span style="color: #000000">00044:</span>                 handleStateChange<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">on</span></span><span style="color: #990000">(</span> f<span style="color: #990000">.</span>states<span style="color: #990000">.</span>change<span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">this</span></span> <span style="color: #990000">);</span>
+<span style="color: #000000">00045:</span>                 <span style="font-weight: bold"><span style="color: #0000FF">if</span></span> <span style="color: #990000">(</span>f<span style="color: #990000">.</span>states<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">is</span></span><span style="color: #990000">(</span>editable<span style="color: #990000">))</span>
+<span style="color: #000000">00046:</span>                         gui<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">showEditButtons</span></span><span style="color: #990000">();</span>
+<span style="color: #000000">00047:</span>         <span style="color: #FF0000">}</span>
+<span style="color: #000000">00048:</span>
+<span style="color: #000000">00049:</span>         <span style="font-weight: bold"><span style="color: #0000FF">private</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">handleStateChange</span></span> <span style="color: #990000">(</span>newV<span style="color: #990000">,</span> oldV<span style="color: #990000">)</span> <span style="color: #FF0000">{</span><span style="color: #990000">...</span><span style="color: #FF0000">}</span>
+<span style="color: #000000">00050:</span> <span style="color: #FF0000">}</span></tt></pre></div></div>
+</li>
+</ol></div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_multicore_facade">Multicore Facade</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Multi-core facades allows you to split up the facade in multiple facades which can communicate with each other through <strong>Channels</strong>. This allows an application to be build as separate applications which can be connected/loaded at run-time.</p></div>
+<div class="paragraph"><p>In a multi-core facade structure there can only be one <span class="monospaced">*ParentFacade*</span>. This <span class="monospaced">ParentFacade</span> creates the <span class="monospaced">Channels</span> object and instantiates the first <span class="monospaced">ChildFacade</span>.</p></div>
+<div class="paragraph"><p><span class="monospaced">ChildFacades</span> are allowed to create <span class="monospaced">ChildFacades</span> but will also be responsible for providing them with a reference to the <span class="monospaced">Channels</span>.</p></div>
+<div class="sect2">
+<h3 id="_overview">Overview</h3>
+<div class="imageblock graphviz">
+<div class="content">
+<img src="MulticoreMVC.svg" alt="MulticoreMVC.svg">
+</div>
+</div>
+<div class="paragraph"><p>In this diagram:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<strong>AppFacade</strong> creates <strong>Channels</strong>
+</p>
+</li>
+<li>
+<p>
+<strong>AppFacade</strong> creates <strong>ChildFacade1</strong> and <strong>ChildFacade2</strong>
+</p>
+</li>
+<li>
+<p>
+<strong>ChildFacade2</strong> creates <strong>ChildFacade3</strong>
+</p>
+</li>
+<li>
+<p>
+All <strong>facades</strong> have a reference to <strong>Channels</strong>
+</p>
+</li>
+</ul></div>
+<div class="imageblock graphviz">
+<div class="content">
+<img src="MVC_UML_Multicore.svg" alt="MVC_UML_Multicore.svg">
+</div>
+<div class="title">Figure 3. UML</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_channels">Channels</h3>
+<div class="paragraph"><p><strong>Channels</strong> are equal to the <strong><a href="#_events">Events</a></strong>-tier except for that:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<strong>channels</strong> provide system-wide communication
+</p>
+</li>
+<li>
+<p>
+<strong>events</strong> provide facade-wide communication
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>In a multi-core <span class="monospaced">facade</span> structure there is usually only one <span class="monospaced">Channels</span> instance which is injected in the other <span class="monospaced">facades</span>. To make sure that the facades are loose coupled, the <span class="monospaced">ChildFacades</span> won&#8217;t type their <span class="monospaced">Channels</span> reference to a class but to a typedef, providing them only with the API they need:</p></div>
+<div class="listingblock">
+<div class="title">Example</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="color: #000000">00001:</span> <span style="font-style: italic"><span style="color: #9A1900">//MainFacade.hx</span></span>
+<span style="color: #000000">00002:</span> <span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #008080">Channels</span> <span style="font-weight: bold"><span style="color: #0000FF">extends</span></span> Signals
+<span style="color: #000000">00003:</span> <span style="color: #FF0000">{</span>
+<span style="color: #000000">00004:</span>         <span style="font-weight: bold"><span style="color: #0000FF">public</span></span> <span style="font-weight: bold"><span style="color: #0000FF">var</span></span> <span style="font-weight: bold"><span style="color: #000000">uploadFile</span></span>   <span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #0000FF">default</span></span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">null</span></span><span style="color: #990000">)</span> <span style="color: #990000">:</span> Signal1<span style="color: #990000">&lt;</span>FileRef<span style="color: #990000">&gt;;</span>
+<span style="color: #000000">00005:</span>         <span style="font-weight: bold"><span style="color: #0000FF">public</span></span> <span style="font-weight: bold"><span style="color: #0000FF">var</span></span> <span style="font-weight: bold"><span style="color: #000000">fileList</span></span>     <span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #0000FF">default</span></span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">null</span></span><span style="color: #990000">)</span> <span style="color: #990000">:</span> ASync<span style="color: #990000">&lt;</span>ArrayList<span style="color: #990000">&lt;</span>IFileVO<span style="color: #990000">&gt;&gt;;</span>
+<span style="color: #000000">00006:</span>
+<span style="color: #000000">00007:</span>         <span style="font-weight: bold"><span style="color: #0000FF">public</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #0000FF">new</span></span> <span style="color: #990000">()</span> <span style="color: #FF0000">{</span>
+<span style="color: #000000">00008:</span>                 uploadFile      <span style="color: #990000">=</span> <span style="font-weight: bold"><span style="color: #0000FF">new</span></span> <span style="font-weight: bold"><span style="color: #000000">Signal1</span></span><span style="color: #990000">();</span>
+<span style="color: #000000">00009:</span>                 fileList        <span style="color: #990000">=</span> <span style="font-weight: bold"><span style="color: #0000FF">new</span></span> <span style="font-weight: bold"><span style="color: #000000">ASync</span></span><span style="color: #990000">();</span>
+<span style="color: #000000">00010:</span>         <span style="color: #FF0000">}</span>
+<span style="color: #000000">00011:</span> <span style="color: #FF0000">}</span>
+<span style="color: #000000">00012:</span>
+<span style="color: #000000">00013:</span> <span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #008080">MainFacade</span> <span style="font-weight: bold"><span style="color: #0000FF">extends</span></span> ParentFacade <span style="color: #990000">&lt;...,</span> Channels<span style="color: #990000">&gt;</span>
+<span style="color: #000000">00014:</span> <span style="color: #FF0000">{</span>
+<span style="color: #000000">00015:</span>         <span style="font-weight: bold"><span style="color: #0000FF">override</span></span> <span style="font-weight: bold"><span style="color: #0000FF">private</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">setupEvents</span></span> <span style="color: #990000">()</span>                events          <span style="color: #990000">=</span> <span style="font-weight: bold"><span style="color: #0000FF">new</span></span> <span style="font-weight: bold"><span style="color: #000000">Events</span></span><span style="color: #990000">()</span>
+<span style="color: #000000">00016:</span>         <span style="font-weight: bold"><span style="color: #0000FF">override</span></span> <span style="font-weight: bold"><span style="color: #0000FF">private</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">setupModel</span></span> <span style="color: #990000">()</span>                 model           <span style="color: #990000">=</span> <span style="font-weight: bold"><span style="color: #0000FF">new</span></span> <span style="font-weight: bold"><span style="color: #000000">Model</span></span><span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #0000FF">this</span></span><span style="color: #990000">)</span>
+<span style="color: #000000">00017:</span>         <span style="font-weight: bold"><span style="color: #0000FF">override</span></span> <span style="font-weight: bold"><span style="color: #0000FF">private</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">setupView</span></span> <span style="color: #990000">()</span>                  view            <span style="color: #990000">=</span> <span style="font-weight: bold"><span style="color: #0000FF">new</span></span> <span style="font-weight: bold"><span style="color: #000000">View</span></span><span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #0000FF">this</span></span><span style="color: #990000">)</span>
+<span style="color: #000000">00018:</span>         <span style="font-weight: bold"><span style="color: #0000FF">override</span></span> <span style="font-weight: bold"><span style="color: #0000FF">private</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">setupChannels</span></span> <span style="color: #990000">()</span>              channels        <span style="color: #990000">=</span> <span style="font-weight: bold"><span style="color: #0000FF">new</span></span> <span style="font-weight: bold"><span style="color: #000000">Channels</span></span><span style="color: #990000">()</span>
+<span style="color: #000000">00019:</span> <span style="color: #FF0000">}</span>
+<span style="color: #000000">00020:</span>
+<span style="color: #000000">00021:</span>
+<span style="color: #000000">00022:</span>
+<span style="color: #000000">00023:</span> <span style="font-style: italic"><span style="color: #9A1900">//FirstChildFacade.hx</span></span>
+<span style="color: #000000">00024:</span> <span style="font-weight: bold"><span style="color: #0000FF">typedef</span></span> AppChannels <span style="color: #FF0000">{</span>
+<span style="color: #000000">00025:</span>         <span style="font-weight: bold"><span style="color: #0000FF">public</span></span> <span style="font-weight: bold"><span style="color: #0000FF">var</span></span> <span style="font-weight: bold"><span style="color: #000000">uploadFile</span></span> <span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #0000FF">default</span></span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">null</span></span><span style="color: #990000">)</span> <span style="color: #990000">:</span> Signal1<span style="color: #990000">&lt;</span>FileRef<span style="color: #990000">&gt;;</span>
+<span style="color: #000000">00026:</span> <span style="color: #FF0000">}</span>
+<span style="color: #000000">00027:</span>
+<span style="color: #000000">00028:</span> <span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #008080">FirstChildFacade</span> <span style="font-weight: bold"><span style="color: #0000FF">extends</span></span> ChildFacade <span style="color: #990000">&lt;...,</span> AppChannels<span style="color: #990000">&gt;</span>
+<span style="color: #000000">00029:</span> <span style="color: #FF0000">{</span>
+<span style="color: #000000">00030:</span>         <span style="font-weight: bold"><span style="color: #0000FF">override</span></span> <span style="font-weight: bold"><span style="color: #0000FF">private</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">setupEvents</span></span> <span style="color: #990000">()</span>        <span style="color: #990000">...</span>
+<span style="color: #000000">00031:</span>         <span style="font-weight: bold"><span style="color: #0000FF">override</span></span> <span style="font-weight: bold"><span style="color: #0000FF">private</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">setupModel</span></span> <span style="color: #990000">()</span>         <span style="color: #990000">...</span>
+<span style="color: #000000">00032:</span>         <span style="font-weight: bold"><span style="color: #0000FF">override</span></span> <span style="font-weight: bold"><span style="color: #0000FF">private</span></span> <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">setupView</span></span> <span style="color: #990000">()</span>          <span style="color: #990000">...</span>
+<span style="color: #000000">00033:</span> <span style="color: #FF0000">}</span></tt></pre></div></div>
+<div class="paragraph"><p><span class="monospaced">FirstChildFacade</span> can only use the <span class="monospaced">uploadFile</span> channel in this example.</p></div>
+</div>
+</div>
+</div>
+</div>
+<div id="footnotes"><hr></div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2012-01-18 18:26:28 CET
+</div>
+</div>
+</body>
+</html>

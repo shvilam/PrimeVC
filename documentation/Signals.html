@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="generator" content="AsciiDoc 8.6.6">
+<title>Signals</title>
+<link rel="stylesheet" href="../theme/prime.css" type="text/css">
+<script type="text/javascript" src="../theme/asciidoc.js"></script>
+<script type="text/javascript" src="../theme/prime.js"></script>
+<script type="text/javascript">
+/*<![CDATA[*/
+asciidoc.install(2);
+/*]]>*/
+</script>
+</head>
+<body class="article">
+<div id="header">
+<h1>Signals</h1>
+<div id="toc">
+  <div id="toctitle">Table of Contents</div>
+  <noscript><p><b>JavaScript must be enabled in your browser to display the table of contents.</b></p></noscript>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_features">Features</h2>
+<div class="sectionbody">
+<div class="ulist"><ul>
+<li>
+<p>
+crossplatform event-system (cpp, flash, js, neko)
+</p>
+</li>
+<li>
+<p>
+lightweight
+</p>
+</li>
+<li>
+<p>
+fast
+</p>
+</li>
+<li>
+<p>
+easily readable
+</p>
+</li>
+<li>
+<p>
+easy in use
+</p>
+</li>
+<li>
+<p>
+typed binding
+</p>
+</li>
+<li>
+<p>
+typed listening
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>See <a href="https://github.com/robertpenner/as3-signals">as3-signals</a></p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_introduction">Introduction</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_what_is_a_signal">What is a Signal?</h3>
+<div class="paragraph"><p>A Signal tells all connected listeners about an event. It is usually only one "story" and listeners know what they can expect.
+It is comparable to an event dispatcher in other systems. Signals are fully typed, supported by autocompletion in IDEs and provides more management features than most other systems. It adds very little overhead compared to regular function calls and is alot faster than <a href="http://stackoverflow.com/questions/2349378/new-programming-jargon-you-coined/2444303#2444303">"stringly-typed"</a> event systems.</p></div>
+<div class="paragraph"><p>TODO: Performance benchmarks.</p></div>
+</div>
+<div class="sect2">
+<h3 id="_what_is_the_difference_between_a_signal_and_an_event">What is the difference between a Signal and an Event?</h3>
+<div class="paragraph"><p>An event as defined in physics is: a single occurrence of a process, e.g., the ionization of one atom.
+In PrimeVC our definition is very similar. An event happens once and only once. The accompanying signal sends the details of this event.</p></div>
+</div>
+<div class="sect2">
+<h3 id="_whats_wrong_with_js_flash_eventsystem">Whats wrong with js/flash eventsystem?</h3>
+<div class="paragraph"><p>TODO: Write a nice story here.</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+Inefficient (code and performance wise) unbinding of multiple events
+</p>
+</li>
+<li>
+<p>
+No autocompletion or typechecking: any object instance could potentionally dispatch any event.
+</p>
+</li>
+<li>
+<p>
+Messages required to be wrapped in Event class instances. Handlers required to accept Event instances. Prevents reuse of generic functions as event handlers.
+</p>
+</li>
+</ul></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_classes">Classes</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_signal">Signal</h3>
+<div class="paragraph"><p>One of the advantages of prime-signals is having multiple typed event-parameters. To accomplish multiple signal-parameters there are 5 signal-objects:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<span class="monospaced">Signal0</span>
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">Signal1&lt;Type1&gt;</span>
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">Signal2&lt;Type1, Type2&gt;</span>
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">Signal3&lt;Type1, Type2, Type3&gt;</span>
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">Signal4&lt;Type1, Type2, Type3, Type4&gt;</span>
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p><sub>It&#8217;s possible to add more parameters by creating bigger signals but in our experience we&#8217;ve had enough with 4 paramters.</sub></p></div>
+</div>
+<div class="sect2">
+<h3 id="_wire">Wire</h3>
+<div class="paragraph"><p>The signal will create and return a small wire-object every time an handler is binded to it. This wire is the direct binding between the signal and the handler and can be used to temporary disable/enable the binding or to dispose the binding.</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">var</span></span> wire <span style="color: #990000">=</span> signal<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">bind</span></span><span style="color: #990000">(</span> <span style="font-weight: bold"><span style="color: #0000FF">this</span></span><span style="color: #990000">,</span> handler <span style="color: #990000">);</span>
+wire<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">disable</span></span><span style="color: #990000">();</span></tt></pre></div></div>
+<div class="paragraph"><p>Storing a reference of the wire is only nesasarry in the following cases:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+if you want to be able to enable/disable the wire <strong> example </strong>
+</p>
+</li>
+<li>
+<p>
+when stopping with listening you don&#8217;t have reference anymore to the signal <strong> example </strong>
+</p>
+</li>
+<li>
+<p>
+if you want to dynamicly change the handler method <strong> example </strong>
+</p>
+</li>
+</ul></div>
+</div>
+<div class="sect2">
+<h3 id="_signal_groups">Signal-groups</h3>
+<div class="paragraph"><p>TODO: Write a nice story here.</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+Provides grouping of related events.
+</p>
+</li>
+</ul></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_usage">Usage</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_listening">Listening</h3>
+<div class="paragraph"><p>By binding an handler with a signal, the handler will be called every time the signal is dispatched. The handler must accept all parameters defined for the signal. The bind method of a signal needs two paramters, the object owning the signal and the handler which will be called.</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">var</span></span> signal <span style="color: #990000">:</span> Signal2<span style="color: #990000">&lt;</span><span style="color: #009900">Int</span><span style="color: #990000">,</span> String<span style="color: #990000">&gt;;</span>                  <span style="font-style: italic"><span style="color: #9A1900">// signal definition</span></span>
+<span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">actOnSginal</span></span> <span style="color: #990000">(</span>p1<span style="color: #990000">:</span><span style="color: #009900">Int</span><span style="color: #990000">,</span> p2<span style="color: #990000">:</span>String<span style="color: #990000">)</span> <span style="color: #990000">:</span> <span style="color: #009900">Void</span><span style="color: #990000">;</span>    <span style="font-style: italic"><span style="color: #9A1900">// handler definition</span></span>
+signal<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">bind</span></span><span style="color: #990000">(</span> <span style="font-weight: bold"><span style="color: #0000FF">this</span></span><span style="color: #990000">,</span> actOnSginal <span style="color: #990000">);</span>                   <span style="font-style: italic"><span style="color: #9A1900">// binding them together</span></span></tt></pre></div></div>
+<div class="paragraph"><p>A handler can also listen to one signal dispatch instead of being called every time the signal dispatches.</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>signal<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">bindOnce</span></span><span style="color: #990000">(</span> <span style="font-weight: bold"><span style="color: #0000FF">this</span></span><span style="color: #990000">,</span> actOnSignal <span style="color: #990000">);</span></tt></pre></div></div>
+</div>
+<div class="sect2">
+<h3 id="_observing">Observing</h3>
+<div class="paragraph"><p>Apart from listening to a signal, a signal can also be observed. This comes in handy when a signal has paramters and the observer just wants to know when it&#8217;s dispatching, without caring about the parameters.</p></div>
+<div class="paragraph"><p>For example, a button that get&#8217;s selected on a mouse-click won&#8217;t care about the exact details of the click. The select method can be general method and doesn&#8217;t have to except any paramters.</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>mouse<span style="color: #990000">.</span>click<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">observe</span></span><span style="color: #990000">(</span> btn<span style="color: #990000">,</span> btn<span style="color: #990000">.</span>select <span style="color: #990000">);</span></tt></pre></div></div>
+<div class="paragraph"><p>Or if the handler want&#8217;s to observe the signal once:</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>mouse<span style="color: #990000">.</span>click<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">observeOnce</span></span><span style="color: #990000">(</span> btn<span style="color: #990000">,</span> btn<span style="color: #990000">.</span>select <span style="color: #990000">);</span></tt></pre></div></div>
+</div>
+<div class="sect2">
+<h3 id="_stop_listening">Stop listening</h3>
+<div class="paragraph"><p>There are mulptiple ways to stop listening to a signal:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+using the returned wire-reference and dispose it (<span class="monospaced">wire.dispose</span>)
+</p>
+</li>
+<li>
+<p>
+calling <span class="monospaced">signal.unbind( owner, handler );</span>
+</p>
+<div class="paragraph"><p>This will only unbind this specific handler from the owner</p></div>
+</li>
+<li>
+<p>
+calling <span class="monospaced">signal.unbind( owner );</span>
+</p>
+<div class="paragraph"><p>This will unbind all handlers of owner which are bound to this signal.</p></div>
+</li>
+<li>
+<p>
+calling <span class="monospaced">signal.unbindAll();</span>
+</p>
+<div class="paragraph"><p>This will unbind all handlers of the signal</p></div>
+</li>
+</ul></div>
+</div>
+<div class="sect2">
+<h3 id="_syntax_sugar">Syntax sugar</h3>
+<div class="paragraph"><p>By using a small utility <span class="monospaced">prime.singals.Bind</span> it&#8217;s possible to use a more natural way to bind to signals.</p></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">rename Bind package! (currently <span class="monospaced">primevc.utils.Bind</span>)</td>
+</tr></table>
+</div>
+<div class="paragraph"><p>It goes as following:</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>  <span style="color: #008080">using</span> prime<span style="color: #990000">.</span>signals<span style="color: #990000">.</span>Bind<span style="color: #990000">;</span>
+
+doSomething<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">onceOn</span></span><span style="color: #990000">(</span>textField<span style="color: #990000">.</span>change<span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">this</span></span><span style="color: #990000">);</span>
+<span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">doSomething</span></span> <span style="color: #990000">(</span>with<span style="color: #990000">:</span>String<span style="color: #990000">)</span> <span style="color: #990000">:</span> <span style="color: #009900">Void</span><span style="color: #990000">;</span></tt></pre></div></div>
+</div>
+<div class="sect2">
+<h3 id="_conventions">Conventions</h3>
+<div class="ulist"><ul>
+<li>
+<p>
+define signals as singular, present-tence, nouns
+</p>
+</li>
+<li>
+<p>
+define handlers as a verb
+</p>
+</li>
+</ul></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_examples">Examples</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>TODO</p></div>
+</div>
+</div>
+</div>
+<div id="footnotes"><hr></div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2012-01-18 18:26:28 CET
+</div>
+</div>
+</body>
+</html>

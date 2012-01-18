@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="generator" content="AsciiDoc 8.6.6">
+<title>Layout</title>
+<link rel="stylesheet" href="../theme/prime.css" type="text/css">
+<script type="text/javascript" src="../theme/asciidoc.js"></script>
+<script type="text/javascript" src="../theme/prime.js"></script>
+<script type="text/javascript">
+/*<![CDATA[*/
+asciidoc.install(2);
+/*]]>*/
+</script>
+</head>
+<body class="article">
+<div id="header">
+<h1>Layout</h1>
+<span id="author">Ruben Weijers</span><br>
+<div id="toc">
+  <div id="toctitle">Table of Contents</div>
+  <noscript><p><b>JavaScript must be enabled in your browser to display the table of contents.</b></p></noscript>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_implementation">Implementation</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Every <span class="monospaced">UIElement</span> has a property <span class="monospaced">layout</span>, typed as <span class="monospaced">LayoutClient</span>. A <span class="monospaced">LayoutClient</span> is the basic layout-class that defines the position, size, margin and padding of it&#8217;s <span class="monospaced">UIElement</span>.</p></div>
+<div class="sect2">
+<h3 id="_layoutclient">LayoutClient</h3>
+<div class="paragraph"><p><span class="image">
+<img src="diagrams/LayoutClient.png" alt="diagrams/LayoutClient.png">
+</span></p></div>
+</div>
+<div class="sect2">
+<h3 id="_advancedlayoutclient">AdvancedLayoutClient</h3>
+<div class="paragraph"><p><span class="image">
+<img src="diagrams/AdvancedLayoutClient.png" alt="diagrams/AdvancedLayoutClient.png">
+</span></p></div>
+</div>
+<div class="sect2">
+<h3 id="_layoutcontainer">LayoutContainer</h3>
+<div class="paragraph"><p><span class="image">
+<img src="diagrams/LayoutContainer.png" alt="diagrams/LayoutContainer.png">
+</span></p></div>
+<div class="hdlist"><table>
+<tr>
+<td class="hdlist1">
+<span class="monospaced">A</span>
+<br>
+</td>
+<td class="hdlist2">
+<p style="margin-top: 0;">
+scrollPos(x, y)
+</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<span class="monospaced">b-d</span>
+<br>
+</td>
+<td class="hdlist2">
+<p style="margin-top: 0;">
+layoutContainer.children
+</p>
+</td>
+</tr>
+</table></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_box_model">Box Model</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>PrimeVC implements a layout-model comparibable to the <a href="http://www.w3.org/TR/css3-ui/#box-sizing">css3 box-sizing</a> value <span class="monospaced">border-box</span>. The original css-box-model can be quite frustrating when you work with liquid layouts so we tried to fix it by only implementing the <span class="monospaced">border-box</span> model.</p></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">Prime-developers: <span class="monospaced">border-box</span> is supported by all modern browsers. PrimeVC should be able to apply some automatic quirkcs for the html-implementation with support for IE6/7.</td>
+</tr></table>
+</div>
+<div class="paragraph"><p><span class="image">
+<img src="diagrams/box-model.png" alt="diagrams/box-model.png">
+</span></p></div>
+</div>
+</div>
+</div>
+<div id="footnotes"><hr></div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2012-01-18 18:26:28 CET
+</div>
+</div>
+</body>
+</html>

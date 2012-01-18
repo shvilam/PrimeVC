@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="generator" content="AsciiDoc 8.6.6">
+<title>Layout Algorithms</title>
+<link rel="stylesheet" href="../theme/prime.css" type="text/css">
+<script type="text/javascript" src="../theme/asciidoc.js"></script>
+<script type="text/javascript" src="../theme/prime.js"></script>
+<script type="text/javascript">
+/*<![CDATA[*/
+asciidoc.install(2);
+/*]]>*/
+</script>
+</head>
+<body class="article">
+<div id="header">
+<h1>Layout Algorithms</h1>
+<span id="author">Ruben Weijers</span><br>
+<div id="toc">
+  <div id="toctitle">Table of Contents</div>
+  <noscript><p><b>JavaScript must be enabled in your browser to display the table of contents.</b></p></noscript>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_horizontal_float">Horizontal float</h2>
+<div class="sectionbody">
+<div class="paragraph"><div class="title">Left-to-right</div><p><span class="image">
+<img src="diagrams/Algorithm_HorFloat_LtR.png" alt="diagrams/Algorithm_HorFloat_LtR.png">
+</span></p></div>
+<div class="hdlist"><table>
+<tr>
+<td class="hdlist1">
+<span class="monospaced">a-d</span>
+<br>
+</td>
+<td class="hdlist2">
+<p style="margin-top: 0;">
+LayoutClient&#8217;s
+</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<span class="monospaced">E</span>
+<br>
+</td>
+<td class="hdlist2">
+<p style="margin-top: 0;">
+LayoutContainer - HorizontalFloat(left-to-right)
+</p>
+</td>
+</tr>
+</table></div>
+<div class="paragraph"><div class="title">Right-to-left</div><p><span class="image">
+<img src="diagrams/Algorithm_HorFloat_RtL.png" alt="diagrams/Algorithm_HorFloat_RtL.png">
+</span></p></div>
+<div class="hdlist"><table>
+<tr>
+<td class="hdlist1">
+<span class="monospaced">a-d</span>
+<br>
+</td>
+<td class="hdlist2">
+<p style="margin-top: 0;">
+LayoutClient&#8217;s
+</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<span class="monospaced">E</span>
+<br>
+</td>
+<td class="hdlist2">
+<p style="margin-top: 0;">
+LayoutContainer - HorizontalFloat(right-to-left)
+</p>
+</td>
+</tr>
+</table></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_vertical_float">Vertical float</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><span class="image">
+<img src="diagrams/Algorithm_VerFloat.png" alt="diagrams/Algorithm_VerFloat.png">
+</span></p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_diagonal_float">Diagonal Float</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><span class="monospaced">Dynamic(horizontal-float, vertical-float)</span>
+<span class="image">
+<img src="diagrams/Algorithm_DiagonalFloat.png" alt="diagrams/Algorithm_DiagonalFloat.png">
+</span></p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_circle">Circle</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><span class="monospaced">Dynamic(horizontal-circle, vertical-circle)</span>
+<span class="image">
+<img src="diagrams/Algorithm_Circle.png" alt="diagrams/Algorithm_Circle.png">
+</span></p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_ellipse">Ellipse</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><span class="monospaced">Dynamic(horizontal-ellipse, vertical-ellipse)</span>
+<span class="image">
+<img src="diagrams/Algorithm_Ellipse.png" alt="diagrams/Algorithm_Ellipse.png">
+</span></p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_horizontal_circle">Horizontal circle</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><span class="image">
+<img src="diagrams/Algorithm_HorCircle.png" alt="diagrams/Algorithm_HorCircle.png">
+</span></p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_vertical_circle">Vertical circle</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><span class="image">
+<img src="diagrams/Algorithm_VerCircle.png" alt="diagrams/Algorithm_VerCircle.png">
+</span></p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_horizontal_ellipse">Horizontal ellipse</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><span class="image">
+<img src="diagrams/Algorithm_HorEllipse.png" alt="diagrams/Algorithm_HorEllipse.png">
+</span></p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_vertical_ellipse">Vertical ellipse</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><span class="image">
+<img src="diagrams/Algorithm_VerEllipse.png" alt="diagrams/Algorithm_VerEllipse.png">
+</span></p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_dynamic">Dynamic</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>TODO</p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_relative">Relative</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><span class="image">
+<img src="diagrams/Algorithm_Relative.png" alt="diagrams/Algorithm_Relative.png">
+</span></p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_tile">Tile</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><span class="image">
+<img src="diagrams/Algorithm_Tile.png" alt="diagrams/Algorithm_Tile.png">
+</span></p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_dynamic_tile">Dynamic-Tile</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><span class="image">
+<img src="diagrams/Algorithm_DynamicTile.png" alt="diagrams/Algorithm_DynamicTile.png">
+</span></p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_fixed_tile">Fixed-Tile</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><span class="image">
+<img src="diagrams/Algorithm_FixedTile.png" alt="diagrams/Algorithm_FixedTile.png">
+</span></p></div>
+</div>
+</div>
+</div>
+<div id="footnotes"><hr></div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2012-01-18 18:26:28 CET
+</div>
+</div>
+</body>
+</html>

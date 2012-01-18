@@ -1,0 +1,2223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="generator" content="AsciiDoc 8.6.6">
+<title>CSS</title>
+<link rel="stylesheet" href="../theme/prime.css" type="text/css">
+<script type="text/javascript" src="../theme/asciidoc.js"></script>
+<script type="text/javascript" src="../theme/prime.js"></script>
+<script type="text/javascript">
+/*<![CDATA[*/
+asciidoc.install(2);
+/*]]>*/
+</script>
+</head>
+<body class="article">
+<div id="header">
+<h1>CSS</h1>
+<span id="author">Ruben Weijers</span><br>
+<div id="toc">
+  <div id="toctitle">Table of Contents</div>
+  <noscript><p><b>JavaScript must be enabled in your browser to display the table of contents.</b></p></noscript>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="quoteblock">
+<div class="content">
+<div class="ulist"><div class="title">TODO:</div><ul>
+<li>
+<p>
+explain selectors (<span class="monospaced">style, .style, #style, style &gt; style etc.</span>)
+</p>
+</li>
+<li>
+<p>
+explain styleblocks (different chapter?)
+</p>
+</li>
+</ul></div>
+</div>
+<div class="attribution">
+</div></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_introduction">Introduction</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_roadmap">Roadmap</h3>
+<div class="paragraph"><p>There are still quite a lot of features awaiting to be implemented in the CSS-Parser. See the <a href="todo.html#_css_parser">TODO-list</a> for an overview of things to come.</p></div>
+</div>
+<div class="sect2">
+<h3 id="_about_this_document">About this document</h3>
+<div class="paragraph"><div class="title">Properties</div><p>The proeprties listed in this document also display if the properties are supported for flash and html.</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+The properties that are supported by flash are already implemented in the CSS-Parser and the PrimeVC-components
+</p>
+</li>
+<li>
+<p>
+The properties that are <strong>not</strong> supported by flash are still waiting for an primevc-implementation
+</p>
+</li>
+<li>
+<p>
+The properties that are supported by HTML are equal to the properties specified by W3C-CSS3
+</p>
+</li>
+<li>
+<p>
+The properties that are *not supported by HTML are implemented for PrimeVC and are still waiting for a correct implementation in HTML/CSS
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><div class="title">Property-values</div><p>This document explains what properties there are and what there allowed values are.
+The values should be read as:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+values between <span class="monospaced">[]</span> are references to units or data-formats (explained at the top)
+</p>
+</li>
+<li>
+<p>
+values between <span class="monospaced">&lt;&gt;</span> are references to other properties. Check those properties for the correct syntax
+</p>
+</li>
+<li>
+<p>
+values between <span class="monospaced">{}</span> are grouped together for explaining the syntax. They are only used for documentation purposes.
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">?</span> after a value means the value is optional
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">|</span> between two values means you can choose between the two values (but not both)
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">&amp;</span> between two values means you can choose between the two values or use both of them
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">{1,9}</span> after a value means the value can be repeated 1 - 9 times
+</p>
+</li>
+</ul></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">The parser will ignore extra white-space so it&#8217;s safe to use multiple <span class="monospaced">spaces</span> or <span class="monospaced">tabs</span>
+TIP: The parser is case-insensitive</td>
+</tr></table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_units">Units</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>More info about these units can be fount at <a href="http://www.w3.org/TR/css3-values/">w3c</a></p></div>
+<div class="sect2">
+<h3 id="_font">Font</h3>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<col style="width:12%;">
+<col style="width:25%;">
+<col style="width:37%;">
+<col style="width:12%;">
+<col style="width:12%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Unit   </th>
+<th class="tableblock halign-left valign-top" > Full name     </th>
+<th class="tableblock halign-left valign-top" > Relative to                                   </th>
+<th class="tableblock halign-left valign-top" >Flash  </th>
+<th class="tableblock halign-left valign-top" >HTML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">ex</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">x-height</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">x-height of element&#8217;s font</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">em</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">font-size of parent</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">px</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Pixels</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Absolute value</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">in</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">cm</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">mm</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">pt</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">pc</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Picas</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">font-size of parent</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">%</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Percentage</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">font-size of parent</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph"><p>Support for other units then <span class="monospaced">%</span> and <span class="monospaced">px</span> is not yet implemented for flash. The css-parser will use <span class="monospaced">px</span> for all unit&#8217;s that flash doesn&#8217;t know.</p></div>
+</div>
+<div class="sect2">
+<h3 id="_distance">Distance</h3>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<col style="width:20%;">
+<col style="width:40%;">
+<col style="width:20%;">
+<col style="width:20%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Unit   </th>
+<th class="tableblock halign-left valign-top" >Full name                                                                      </th>
+<th class="tableblock halign-left valign-top" >Flash  </th>
+<th class="tableblock halign-left valign-top" >HTML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">cm</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">centimeters</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">mm</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">millimeters</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">in</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">inches; 1in is equal to 2.54cm</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">px</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">pixels; 1px is equal to 1/96th of 1in</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">pt</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">points; 1pt is equal to 1/72nd of 1in</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">pc</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">picas; 1pc is equal to 12pt</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">%</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Percentage of parent</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph"><p><sub>* Explanations shamelessly copied from <a href="http://www.w3.org/TR/css3-values/#absolute-lengths">w3c</a></sub></p></div>
+<div class="paragraph"><p>Support for other units then <span class="monospaced">%</span> and <span class="monospaced">px</span> is not yet implemented for flash. The css-parser will use <span class="monospaced">px</span> for all unit&#8217;s that flash doesn&#8217;t know.</p></div>
+</div>
+<div class="sect2">
+<h3 id="_angles">Angles</h3>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<col style="width:20%;">
+<col style="width:40%;">
+<col style="width:20%;">
+<col style="width:20%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Unit   </th>
+<th class="tableblock halign-left valign-top" >Full name                              </th>
+<th class="tableblock halign-left valign-top" >Flash  </th>
+<th class="tableblock halign-left valign-top" >HTML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">deg</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">degrees (<span class="monospaced">0-360</span>)</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">rad</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">radians (<span class="monospaced">0-2π</span>)</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">grad</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">gradians (<span class="monospaced">0-400</span>)</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">turn</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">turns (<span class="monospaced">0-1</span>)</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_times">Times</h3>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<col style="width:20%;">
+<col style="width:40%;">
+<col style="width:20%;">
+<col style="width:20%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Unit   </th>
+<th class="tableblock halign-left valign-top" >Full name                      </th>
+<th class="tableblock halign-left valign-top" >Flash  </th>
+<th class="tableblock halign-left valign-top" >HTML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">s</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">seconds</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">ms</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">milliseconds</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_box">Box</h3>
+<div class="paragraph"><p>A box allows 1-4 values in the format of <span class="monospaced">[int][unit]{1,4}</span> to specify the top, right, bottom and left value.</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+If <strong>one</strong> value is provided, this value is applied to all 4 sides of the box
+</p>
+<div class="paragraph"><p><span class="monospaced">[int][unit]</span></p></div>
+</li>
+<li>
+<p>
+If <strong>two</strong> values are provided: 1st = top-bottom, 2th = right-left
+</p>
+<div class="paragraph"><p><span class="monospaced">[int][unit]</span> <span class="monospaced">[int][unit]</span></p></div>
+</li>
+<li>
+<p>
+If <strong>three</strong> values are provided: 1st = top, 2th = right-left, 3th = bottom
+</p>
+<div class="paragraph"><p><span class="monospaced">[int][unit]</span> <span class="monospaced">[int][unit]</span> <span class="monospaced">[int][unit]</span></p></div>
+</li>
+<li>
+<p>
+If <strong>four</strong> values are provided: 1st = top, 2th = right, 3th = bottom, 4th = left
+</p>
+<div class="paragraph"><p><span class="monospaced">[int][unit]</span> <span class="monospaced">[int][unit]</span> <span class="monospaced">[int][unit]</span> <span class="monospaced">[int][unit]</span></p></div>
+</li>
+</ul></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_data_formats">Data formats</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Data-types in this document:</p></div>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<col style="width:33%;">
+<col style="width:66%;">
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">Int8</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">8-bit positive integer (<span class="monospaced">0-255</span> / <span class="monospaced">0x00 - 0xFF</span>)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">Int16</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">16-bit positive integer (<span class="monospaced">0x0000 - 0xFFFF</span>)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">Int24</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">24-bit positive integer (<span class="monospaced">0x000000 - 0xFFFFFF</span>)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">Int</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">32-bit positive integer (<span class="monospaced">0x00000000 - 0xFFFFFFFF</span>)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">Float</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">64-bit floating point number</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">bool</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="monospaced">true</span> or <span class="monospaced">false</span></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">string</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">sequence of characters delimited by double quotes or single quotes</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">perc</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">percentage (<span class="monospaced">[float 0-100]%</span>)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">angle</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"></p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect2">
+<h3 id="_colors">Colors</h3>
+<div class="paragraph"><p>Prime works with RGBA colors. There are multiple ways to express these color values in css:</p></div>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<col style="width:33%;">
+<col style="width:33%;">
+<col style="width:33%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Value                                          </th>
+<th class="tableblock halign-left valign-top" > Result        </th>
+<th class="tableblock halign-left valign-top" > RGBA value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">#a0d</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">#aa00ddff</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">rgba( 170,   0, 221, 1.0 )</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">0xa0d</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">#aa00ddff</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">rgba( 170,   0, 221, 1.0 )</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">#fffaaa</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">#fffaaaff</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">rgba( 255, 250, 170, 1.0 )</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">0xfffaaa</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">#fffaaaff</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">rgba( 255, 250, 170, 1.0 )</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">#ffddeeaa</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">#ffddeeaa</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">rgba( 255, 221, 238, .67 )</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">0xffddeeaa</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">#ffddeeaa</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">rgba( 255, 221, 238, .67 )</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">rgba(255,50,100,0.9)</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">#ff3264e6</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">rgba( 255,  50, 100, .90 )</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph"><p><strong>Colornames</strong>, <strong>hsl-values</strong>, <strong>cmyk-values</strong> and <strong>system-colors</strong> are not supported yet. See <a href="http://www.w3.org/TR/css3-color/">w3c-colornames</a></p></div>
+</div>
+<div class="sect2">
+<h3 id="_gradients">Gradients</h3>
+<div class="paragraph"><p>There are two types of gradients supported, <span class="monospaced">radial</span> and <span class="monospaced">linear</span>.</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<span class="monospaced">Radial</span> gradients are smooth transitions between the specified colors in a <strong>circular</strong> way
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">Linear</span> gradients are smooth transitions between the specified colors in a <strong>linear</strong> way
+</p>
+</li>
+</ul></div>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<col style="width:25%;">
+<col style="width:75%;">
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">Gradient-colors</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">(<a href="#_colors">&#91;color&#93;</a> &lt;pos <a href="#_data_formats">&#91;float&#93;</a><a href="#_distance">&#91;unit&#93;</a>&gt;?){1,*}</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">Linear-gradient</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">linear-gradient( &lt;rotation [int 360]&gt;<a href="#_data_formats">&#91;angle&#93;</a> &lt;gradient-colors&gt; &lt;spread-method&gt; )</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">Radial-gradient</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">radial-gradient( &lt;radial-point [float -1-1]&gt; &lt;gradient-colors&gt; &lt;spread-method&gt; )</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<caption class="title">Table 1. Spread-methods</caption>
+<col style="width:33%;">
+<col style="width:33%;">
+<col style="width:33%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Pad    </th>
+<th class="tableblock halign-left valign-top" >Reflect        </th>
+<th class="tableblock halign-left valign-top" >Repeat</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+<img src="../assets/spread_method_pad.jpg" alt="../assets/spread_method_pad.jpg">
+</span></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+<img src="../assets/spread_method_reflect.jpg" alt="../assets/spread_method_reflect.jpg">
+</span></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+<img src="../assets/spread_method_repeat.jpg" alt="../assets/spread_method_repeat.jpg">
+</span></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph"><p><sub>images-source: <a href="http://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/flash/display/SpreadMethod.html">Adobe AS3 ref</a></sub></p></div>
+<div class="listingblock">
+<div class="title">Examples:</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-style: italic"><span style="color: #9A1900">/* 3-color linear gradient. Color position automaticly calculated: 0% 50% 100% */</span></span>
+<span style="color: #993399">.obj1</span>   <span style="color: #FF0000">{</span> <span style="color: #0000FF">background:</span> <span style="font-style: italic"><span style="color: #009900">linear-gradient</span></span>( <span style="font-style: italic"><span style="color: #009900">0deg</span></span> <span style="color: #FF0000">#fff</span> <span style="color: #FF0000">#aaffddaa</span> <span style="font-style: italic"><span style="color: #009900">0xddd</span></span> ); <span style="color: #FF0000">}</span>
+
+<span style="font-style: italic"><span style="color: #9A1900">/* 3-color radial gradient. Color position automaticly calculated: 0% 50% 100% */</span></span>
+<span style="color: #993399">.obj2</span>   <span style="color: #FF0000">{</span> <span style="color: #0000FF">background:</span> <span style="font-style: italic"><span style="color: #009900">radial-gradient</span></span>( <span style="font-style: italic"><span style="color: #009900">-.33</span></span> <span style="color: #FF0000">#fff</span> <span style="color: #FF0000">#aaffddaa</span> <span style="font-style: italic"><span style="color: #009900">0xddd</span></span> ); <span style="color: #FF0000">}</span>
+
+<span style="font-style: italic"><span style="color: #9A1900">/* 2-color linear gradient. 0%-30% = #fff; 30%-70% = gradient; 70%-100%=#ddd */</span></span>
+<span style="color: #993399">.obj3</span>   <span style="color: #FF0000">{</span> <span style="color: #0000FF">background:</span> <span style="font-style: italic"><span style="color: #009900">linear-gradient</span></span>( <span style="font-style: italic"><span style="color: #009900">90deg</span></span> <span style="color: #FF0000">#fff</span> <span style="font-style: italic"><span style="color: #009900">30%</span></span> <span style="font-style: italic"><span style="color: #009900">0xddd</span></span> <span style="font-style: italic"><span style="color: #009900">70%</span></span> ); <span style="color: #FF0000">}</span>
+
+<span style="color: #993399">.obj4</span> <span style="color: #FF0000">{</span>
+        <span style="color: #0000FF">background:</span>     <span style="font-style: italic"><span style="color: #009900">radial-gradient</span></span>( <span style="font-style: italic"><span style="color: #009900">0</span></span>, <span style="color: #FF0000">#aaa</span>, <span style="color: #FF0000">#000</span> )
+                                <span style="font-style: italic"><span style="color: #009900">radial-gradient</span></span>( <span style="font-style: italic"><span style="color: #009900">0</span></span>, <span style="font-style: italic"><span style="color: #009900">0xaaa</span></span>, <span style="color: #FF0000">#fad3aaff</span>, <span style="font-style: italic"><span style="color: #009900">0x000000</span></span>)",
+                                <span style="font-style: italic"><span style="color: #009900">radial-gradient</span></span>(<span style="font-style: italic"><span style="color: #009900">-0.13456</span></span>, <span style="color: #FF0000">#aaa</span> <span style="font-style: italic"><span style="color: #009900">10px</span></span>, <span style="color: #FF0000">#fad3aaff</span> <span style="font-style: italic"><span style="color: #009900">40%</span></span>, <span style="font-style: italic"><span style="color: #009900">0x000000</span></span>, <span style="font-style: italic"><span style="color: #009900">pad</span></span>)
+                                <span style="font-style: italic"><span style="color: #009900">radial-gradient</span></span>( <span style="font-style: italic"><span style="color: #009900">0.123456789</span></span>,<span style="color: #FF0000">#aaa</span> ,<span style="color: #FF0000">#fad</span> ,<span style="font-style: italic"><span style="color: #009900">pad</span></span>)
+                                <span style="font-style: italic"><span style="color: #009900">radial-gradient</span></span>(<span style="font-style: italic"><span style="color: #009900">1</span></span>,<span style="color: #FF0000">#aaa</span>,<span style="color: #FF0000">#fad</span>,<span style="font-style: italic"><span style="color: #009900">repeat</span></span>)
+                                <span style="font-style: italic"><span style="color: #009900">radial-gradient</span></span> ( <span style="font-style: italic"><span style="color: #009900">-1</span></span>, <span style="color: #FF0000">#fff</span> <span style="font-style: italic"><span style="color: #009900">50px</span></span> , <span style="color: #FF0000">#000</span> )
+                                <span style="font-style: italic"><span style="color: #009900">radial-gradient</span></span> ( <span style="font-style: italic"><span style="color: #009900">.12</span></span> , <span style="color: #FF0000">#aaa</span> , <span style="color: #FF0000">#fad</span> , <span style="font-style: italic"><span style="color: #009900">reflect</span></span>  )
+                                <span style="font-style: italic"><span style="color: #009900">radial-gradient</span></span>(<span style="font-style: italic"><span style="color: #009900">0.078</span></span>,<span style="color: #FF0000">#aaa</span>,<span style="color: #FF0000">#fad</span>)
+                                <span style="font-style: italic"><span style="color: #009900">radial-gradient</span></span>(<span style="font-style: italic"><span style="color: #009900">-.456</span></span>, <span style="color: #FF0000">#aaa</span>, <span style="color: #FF0000">#bbbbbb</span>, <span style="font-style: italic"><span style="color: #009900">0xccc</span></span>, <span style="color: #FF0000">#ddddeeff</span>, <span style="font-style: italic"><span style="color: #009900">0xeeeeeef0</span></span>, <span style="color: #FF0000">#fff</span>,<span style="font-style: italic"><span style="color: #009900">repeat</span></span> )
+                                <span style="font-style: italic"><span style="color: #009900">radial-gradient</span></span>( <span style="font-style: italic"><span style="color: #009900">0</span></span>,     <span style="color: #FF0000">#aaa</span>, <span style="font-style: italic"><span style="color: #009900">rgba</span></span>(<span style="font-style: italic"><span style="color: #009900">10</span></span>,<span style="font-style: italic"><span style="color: #009900">20</span></span>,<span style="font-style: italic"><span style="color: #009900">30</span></span>,<span style="font-style: italic"><span style="color: #009900">1</span></span>) <span style="font-style: italic"><span style="color: #009900">80%</span></span>);
+<span style="color: #FF0000">}</span>
+
+<span style="color: #993399">.obj5</span> <span style="color: #FF0000">{</span>
+        <span style="color: #0000FF">background:</span>     <span style="font-style: italic"><span style="color: #009900">linear-gradient</span></span>( <span style="font-style: italic"><span style="color: #009900">90deg</span></span>, <span style="color: #FF0000">#aaa</span>, <span style="color: #FF0000">#000</span> )
+                                <span style="font-style: italic"><span style="color: #009900">linear-gradient</span></span>( <span style="font-style: italic"><span style="color: #009900">-90deg</span></span>, <span style="font-style: italic"><span style="color: #009900">0xaaa</span></span>, <span style="color: #FF0000">#fad3aaff</span>, <span style="font-style: italic"><span style="color: #009900">0x000000</span></span>)
+                                <span style="font-style: italic"><span style="color: #009900">linear-gradient</span></span>(<span style="font-style: italic"><span style="color: #009900">0deg</span></span>, <span style="color: #FF0000">#aaa</span> <span style="font-style: italic"><span style="color: #009900">10px</span></span>, <span style="color: #FF0000">#fad3aaff</span> <span style="font-style: italic"><span style="color: #009900">40%</span></span>, <span style="font-style: italic"><span style="color: #009900">0x000000</span></span>         ,              <span style="font-style: italic"><span style="color: #009900">pad</span></span>)
+                                <span style="font-style: italic"><span style="color: #009900">linear-gradient</span></span>(<span style="font-style: italic"><span style="color: #009900">0deg</span></span>,<span style="color: #FF0000">#aaa</span> ,<span style="color: #FF0000">#fad</span> ,<span style="font-style: italic"><span style="color: #009900">pad</span></span>)
+                                <span style="font-style: italic"><span style="color: #009900">linear-gradient</span></span>(<span style="font-style: italic"><span style="color: #009900">0deg</span></span>,<span style="color: #FF0000">#aaa</span>,<span style="color: #FF0000">#fad</span>,<span style="font-style: italic"><span style="color: #009900">repeat</span></span>)
+                                <span style="font-style: italic"><span style="color: #009900">linear-gradient</span></span> ( <span style="font-style: italic"><span style="color: #009900">0deg</span></span>, <span style="color: #FF0000">#fff</span> <span style="font-style: italic"><span style="color: #009900">50px</span></span> , <span style="color: #FF0000">#000</span> )
+                                <span style="font-style: italic"><span style="color: #009900">linear-gradient</span></span> ( <span style="font-style: italic"><span style="color: #009900">0deg</span></span> , <span style="color: #FF0000">#aaa</span> , <span style="color: #FF0000">#fad</span> , <span style="font-style: italic"><span style="color: #009900">reflect</span></span>  )
+                                <span style="font-style: italic"><span style="color: #009900">linear-gradient</span></span>(<span style="font-style: italic"><span style="color: #009900">0deg</span></span>,<span style="color: #FF0000">#aaa</span>,<span style="color: #FF0000">#fad</span>)
+                                <span style="font-style: italic"><span style="color: #009900">linear-gradient</span></span>(        <span style="font-style: italic"><span style="color: #009900">-4deg</span></span>, <span style="color: #FF0000">#aaa</span>, <span style="color: #FF0000">#bbbbbb</span>, <span style="font-style: italic"><span style="color: #009900">0xccc</span></span>, <span style="color: #FF0000">#ddddeeff</span>, <span style="font-style: italic"><span style="color: #009900">0xeeeeeef0</span></span>, <span style="color: #FF0000">#fff</span>,<span style="font-style: italic"><span style="color: #009900">repeat</span></span> )
+                                <span style="font-style: italic"><span style="color: #009900">linear-gradient</span></span>( <span style="font-style: italic"><span style="color: #009900">720deg</span></span>,        <span style="color: #FF0000">#aaa</span>, <span style="font-style: italic"><span style="color: #009900">rgba</span></span>(<span style="font-style: italic"><span style="color: #009900">10</span></span>,<span style="font-style: italic"><span style="color: #009900">20</span></span>,<span style="font-style: italic"><span style="color: #009900">30</span></span>,<span style="font-style: italic"><span style="color: #009900">1</span></span>) <span style="font-style: italic"><span style="color: #009900">80%</span></span>);
+<span style="color: #FF0000">}</span></tt></pre></div></div>
+</div>
+<div class="sect2">
+<h3 id="_resources">Resources</h3>
+<div class="paragraph"><p>A resource can be a reference to a <span class="monospaced">class</span> or external file.</p></div>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<col style="width:16%;">
+<col style="width:50%;">
+<col style="width:16%;">
+<col style="width:16%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Type           </th>
+<th class="tableblock halign-left valign-top" >Syntax                                         </th>
+<th class="tableblock halign-left valign-top" >Flash  </th>
+<th class="tableblock halign-left valign-top" >HTML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">class</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">class( package.Class )</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">file</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">url( path/to/file.ext )</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">file</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">url( htt://uri/file.ext )</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">Quotes around an url or class is <strong>not</strong> allowed!</td>
+</tr></table>
+</div>
+<div class="listingblock">
+<div class="title">Example</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-style: italic"><span style="color: #9A1900">/*</span></span>
+<span style="font-style: italic"><span style="color: #9A1900">image-bitmapdata is already embedded in the application:</span></span>
+<span style="font-style: italic"><span style="color: #9A1900">external Class Test1.png extends flash.display.BitmapData {}</span></span>
+<span style="font-style: italic"><span style="color: #9A1900">*/</span></span>
+<span style="color: #993399">.style1</span>         <span style="color: #FF0000">{</span> <span style="color: #0000FF">background:</span> <span style="font-style: italic"><span style="color: #009900">class</span></span>( <span style="font-style: italic"><span style="color: #009900">primevc.examples.Test1.png</span></span> ); <span style="color: #FF0000">}</span>
+
+<span style="font-style: italic"><span style="color: #9A1900">/* image will be loaded at runtime */</span></span>
+<span style="color: #993399">.style2</span>         <span style="color: #FF0000">{</span> <span style="color: #0000FF">background:</span> <span style="font-style: italic"><span style="color: #009900">url</span></span>( <span style="font-style: italic"><span style="color: #009900">examples</span></span>/<span style="font-style: italic"><span style="color: #009900">assets</span></span>/<span style="font-style: italic"><span style="color: #009900">Test1.png</span></span> ); <span style="color: #FF0000">}</span>
+
+<span style="color: #993399">.style3</span>         <span style="color: #FF0000">{</span> <span style="color: #0000FF">shape:</span> <span style="font-style: italic"><span style="color: #009900">class</span></span>( <span style="font-style: italic"><span style="color: #009900">primevc.exanples.shapes.Star</span></span> ); <span style="color: #FF0000">}</span></tt></pre></div></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content"><span class="monospaced">class</span> will maybe be change to <span class="monospaced">embed</span> in the future when the parser won&#8217;t embed external files automaticly yet.</td>
+</tr></table>
+</div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">classes can be embed in an external library-swf or in the application itself</td>
+</tr></table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_properties">Properties</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_text_properties">Text properties</h3>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<col style="width:28%;">
+<col style="width:57%;">
+<col style="width:7%;">
+<col style="width:7%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Property                                               </th>
+<th class="tableblock halign-left valign-top" > Syntax                                                                                                        </th>
+<th class="tableblock halign-left valign-top" >Flash  </th>
+<th class="tableblock halign-left valign-top" >HTML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">font</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">&lt;font-style&gt;? &lt;font-weight&gt;? &lt;font-size&gt;? &lt;font-family&gt;?</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">font-size</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">inherit | <a href="#_data_formats">&#91;float&#93;</a><a href="#_font">&#91;unit&#93;</a></p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">font-family</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">inherit | <a href="#_data_formats">&#91;string&#93;</a> | embed([class-resource])</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellow;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">color</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">inherit | <a href="#_colors">&#91;color&#93;</a></p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">font-weight</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">normal | bold | bolder | lighter</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">font-style</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">inherit | normal | italic | oblique</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">letter-spacing</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">inherit | normal | <a href="#_data_formats">&#91;float&#93;</a><a href="#_font">&#91;unit&#93;</a></p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">text-align</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">inherit | left | center | right | justify</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">text-decoration</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">inherit | none | underline</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">text-indent</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">text-transform</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">inherit | none | capitalize | uppercase | lowercase</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">font-variant</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">inherit | normal | small-caps</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">text-shadow</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">line-height</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">word-spacing</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">vertical-align</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">white-space</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">resize</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">horizontal | vertical | both | none</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">clip</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">auto | <a href="#_box">&#91;box&#93;</a></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">text-wrap</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">normal | none | avoid</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_textfield_properties">Textfield Properties</h3>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<col style="width:28%;">
+<col style="width:57%;">
+<col style="width:7%;">
+<col style="width:7%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Property                                               </th>
+<th class="tableblock halign-left valign-top" > Syntax                                                                                                        </th>
+<th class="tableblock halign-left valign-top" >Flash  </th>
+<th class="tableblock halign-left valign-top" >HTML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">overflow-wrap</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">normal | break-word | hyphenate</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">column-count</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">column-gap</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">column-width</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_background_properties">Background properties</h3>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<col style="width:28%;">
+<col style="width:57%;">
+<col style="width:7%;">
+<col style="width:7%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Property                                               </th>
+<th class="tableblock halign-left valign-top" > Syntax                                                                                                                </th>
+<th class="tableblock halign-left valign-top" >Flash  </th>
+<th class="tableblock halign-left valign-top" >HTML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">background</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">&lt;background-color&gt;{0,<strong>}? &lt;background-image&gt;{0,</strong>}?</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">background-color</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_colors">&#91;color&#93;</a>{1,*}</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">background-image</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">{ <a href="#_resources">&#91;resource&#93;</a> &lt;background-repeat&gt;?} {1,*}</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">shape</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">line | circle | ellipse | rectangle | [class-resource]</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">background-clip</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">border-box | padding-box | content-box</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">background-origin</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">border-box | padding-box | content-box</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">background-attachment</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">scroll | fixed | local</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">background-position</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">background-size</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">{&lt;length&gt; | <a href="#_data_formats">&#91;perc&#93;</a> | auto | cover | contain}{1,2}</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">background-repeat</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">repeat-all |  no-repeat</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_border_properties">Border properties</h3>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<col style="width:28%;">
+<col style="width:57%;">
+<col style="width:7%;">
+<col style="width:7%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Property                                               </th>
+<th class="tableblock halign-left valign-top" > Syntax                                                                                                                                        </th>
+<th class="tableblock halign-left valign-top" >Flash  </th>
+<th class="tableblock halign-left valign-top" >HTML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">border</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">{&lt;border-color&gt;? &lt;border-width&gt;? &lt;border-image&gt;? &lt;border-style&gt;?}{1,*}</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">border-radius</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">&lt;top-left&gt; &lt;top-right&gt;? &lt;bottom-right&gt;? &lt;bottom-left&gt;?</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">border-top-left-radius</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;float&#93;</a>px</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">border-top-right-radius</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;float&#93;</a>px</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">border-bottom-left-radius</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;float&#93;</a>px</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">border-bottom-right-radius</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;float&#93;</a>px</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">border-color</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_colors">&#91;color&#93;</a>{1,*}</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">border-image</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_resources">&#91;resource&#93;</a>{1,*}</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">border-image-source</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">??</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">border-style</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">none | solid | dashed | dotted</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">border-width</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a><a href="#_distance">&#91;unit&#93;</a></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">border-top</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">&lt;border&gt;</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">border-bottom</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">&lt;border&gt;</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">border-left</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">&lt;border&gt;</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">border-right</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">&lt;border&gt;</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">border-image-slice</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">border-image-width</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">border-image-outset</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">border-image-repeat</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">corner-shaping</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">corner-clipping</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">outline</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">outline-style</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">outline-color</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">outline-width</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_component_properties">Component Properties</h3>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<col style="width:28%;">
+<col style="width:57%;">
+<col style="width:7%;">
+<col style="width:7%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Property                                               </th>
+<th class="tableblock halign-left valign-top" > Syntax                                                </th>
+<th class="tableblock halign-left valign-top" >Flash  </th>
+<th class="tableblock halign-left valign-top" >HTML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">skin</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_resources">&#91;class&#93;</a></p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">visibility</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">visible | hidden</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">opacity</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;perc&#93;</a></p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">overflow</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">visible | hidden | scroll-mouse-move | drag-scroll | corner-scroll | scrollbars</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellow;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">cursor</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">auto | move | help | pointer | wait | text | n-resize | ne-resize | e-resize | se-resize | s-resize | sw-resize | w-resize | nw-resize | url(..)</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">      </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">list-style</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">list-style-image</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">list-style-position</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">list-style-type</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<caption class="title">Table 2. Overflow</caption>
+<col style="width:25%;">
+<col style="width:75%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >name                                   </th>
+<th class="tableblock halign-left valign-top" >Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">visible</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">content of a box can flow over the edges</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">hidden</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Overflowing content is completly hidden</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">scroll-mouse-move</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Overflowing content is hidden. Scroll by moving the mouse over the box.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">drag-scroll</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Overflowing content is hidden. Scroll by dragging the box.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">corner-scroll</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Overflowing content is hidden. Scroll when the mouse reaches the edges of the box.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">scrollbars</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Overflowing content is hidden. Scroll by moving the scrollbars.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_icons">Icons</h3>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<col style="width:28%;">
+<col style="width:57%;">
+<col style="width:7%;">
+<col style="width:7%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Property                                               </th>
+<th class="tableblock halign-left valign-top" > Syntax                                        </th>
+<th class="tableblock halign-left valign-top" >Flash  </th>
+<th class="tableblock halign-left valign-top" >HTML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">icon</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_resources">&#91;resource&#93;</a></p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">icon-fill</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_colors">&#91;color&#93;</a></p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_layout">Layout</h3>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<caption class="title">Table 3. Size</caption>
+<col style="width:28%;">
+<col style="width:57%;">
+<col style="width:7%;">
+<col style="width:7%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Property                                       </th>
+<th class="tableblock halign-left valign-top" > Syntax                                                </th>
+<th class="tableblock halign-left valign-top" >Flash  </th>
+<th class="tableblock halign-left valign-top" >HTML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">width</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px | <a href="#_data_formats">&#91;perc&#93;</a></p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">height</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px | <a href="#_data_formats">&#91;perc&#93;</a></p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">min-width</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px | <a href="#_data_formats">&#91;perc&#93;</a></p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">min-height</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px | <a href="#_data_formats">&#91;perc&#93;</a></p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">max-width</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px | <a href="#_data_formats">&#91;perc&#93;</a></p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">max-height</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px | <a href="#_data_formats">&#91;perc&#93;</a></p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">child-width</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px | <a href="#_data_formats">&#91;perc&#93;</a></p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">child-height</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px | <a href="#_data_formats">&#91;perc&#93;</a></p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">box-sizing</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">content-box | border-box</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">z-index</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">float</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">clear</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">display</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">transform</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">rotation</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">rotation-point</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<caption class="title">Table 4. Position</caption>
+<col style="width:28%;">
+<col style="width:57%;">
+<col style="width:7%;">
+<col style="width:7%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Property                                       </th>
+<th class="tableblock halign-left valign-top" > Syntax                                                </th>
+<th class="tableblock halign-left valign-top" >Flash  </th>
+<th class="tableblock halign-left valign-top" >HTML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">algorithm</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">[layout-algorithm]</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">relative</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_box">&#91;box&#93;</a></p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">left</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">right</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">top</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">bottom</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">h-center</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">v-center</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">position</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">relative | absolute</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<caption class="title">Table 5. Padding</caption>
+<col style="width:28%;">
+<col style="width:57%;">
+<col style="width:7%;">
+<col style="width:7%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Property                                       </th>
+<th class="tableblock halign-left valign-top" > Syntax                                                </th>
+<th class="tableblock halign-left valign-top" >Flash  </th>
+<th class="tableblock halign-left valign-top" >HTML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">padding</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_box">&#91;box&#93;</a></p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">padding-top</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">padding-bottom</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">padding-right</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">padding-left</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<caption class="title">Table 6. Margin</caption>
+<col style="width:28%;">
+<col style="width:57%;">
+<col style="width:7%;">
+<col style="width:7%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Property                                       </th>
+<th class="tableblock halign-left valign-top" > Syntax                                                </th>
+<th class="tableblock halign-left valign-top" >Flash  </th>
+<th class="tableblock halign-left valign-top" >HTML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">margin</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_box">&#91;box&#93;</a></p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">margin-top</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">margin-bottom</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">margin-right</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">margin-left</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+</tbody>
+</table>
+<div class="sect3">
+<h4 id="_layout_algorithms">Layout-algorithms</h4>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<col style="width:25%;">
+<col style="width:12%;">
+<col style="width:50%;">
+<col style="width:12%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Name                                   </th>
+<th class="tableblock halign-left valign-top" > Type  </th>
+<th class="tableblock halign-left valign-top" > Syntax </th>
+<th class="tableblock halign-left valign-top" ></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Horizontal float</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">hor</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">float-hor(&lt;hor-start&gt;?, &lt;ver-start&gt;?)</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><a href="layout_algorithms.html#_horizontal_float">doc</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Vertical float</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">ver</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">float-ver(&lt;ver-start&gt;?, &lt;hor-start&gt;?)</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><a href="layout_algorithms.html#_vertical_float">doc</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Diagonal Float</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">hor</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">float (&lt;hor-start&gt;?, &lt;ver-start&gt;?)</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><a href="layout_algorithms.html#_diagonal_float">doc</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Circle</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">both</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">circle (&lt;hor-start&gt;?, &lt;ver-start&gt;?)</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><a href="layout_algorithms.html#_circle">doc</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Ellipse</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">both</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">ellipse (&lt;hor-start&gt;?, &lt;ver-start&gt;?)</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><a href="layout_algorithms.html#_ellipse">doc</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Horizontal circle</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">hor</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">hor-circle (&lt;hor-start&gt;?, &lt;ver-start&gt;?)</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><a href="layout_algorithms.html#_horizontal_circle">doc</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Vertical circle</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">ver</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">ver-circle (&lt;ver-start&gt;?, &lt;hor-start&gt;?)</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><a href="layout_algorithms.html#_vertical_circle">doc</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Horizontal ellipse</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">hor</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">hor-ellipse (&lt;hor-start&gt;?, &lt;ver-start&gt;?)</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><a href="layout_algorithms.html#_horizontal_ellipse">doc</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Vertical ellipse</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">ver</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">ver-ellipse (&lt;ver-start&gt;?, &lt;hor-start&gt;?)</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><a href="layout_algorithms.html#_vertical_ellipse">doc</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Dynamic</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">both</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">dynamic(&lt;hor-algorithm&gt;, &lt;ver-algorithm&gt;)</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><a href="layout_algorithms.html#_dynamic">doc</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Relative</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">both</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">relative</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><a href="layout_algorithms.html#_relative">doc</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Tile</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">both</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">tile</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><a href="layout_algorithms.html#_tile">doc</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Dynamic-tile</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">both</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">dynamic-tile(&lt;start-direction&gt;, &lt;hor-start&gt;?, &lt;ver-start&gt;?)</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><a href="layout_algorithms.html#_dynamic_tile">doc</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Fixed-tile</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">both</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">fixed-tile (&lt;start-direction&gt;, &lt;rows/columns&gt;, &lt;hor-start&gt;?, &lt;ver-start&gt;?)</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><a href="layout_algorithms.html#_fixed_tile">doc</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Inherit</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">both</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">inherit</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><a href="layout_algorithms.html#_inherit">doc</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">None</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">both</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">none</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><a href="layout_algorithms.html#_none">doc</a></p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<caption class="title">Table 7. Algorithm-variables</caption>
+<col style="width:28%;">
+<col style="width:42%;">
+<col style="width:28%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Name                           </th>
+<th class="tableblock halign-left valign-top" > Syntax                                        </th>
+<th class="tableblock halign-left valign-top" > Default-value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">hor-start</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">left | center | right</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">left</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">ver-start</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">top | center | bottom</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">top</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">start-direction</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">horizontal | vertical</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">horizontal</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">rows / columns</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">0</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="color: #993399">.obj1</span> <span style="color: #FF0000">{</span> <span style="color: #0000FF">layout:</span> <span style="font-style: italic"><span style="color: #009900">float</span></span>; <span style="color: #FF0000">}</span>
+<span style="color: #993399">.obj2</span> <span style="color: #FF0000">{</span> <span style="color: #0000FF">layout:</span> <span style="font-style: italic"><span style="color: #009900">float-ver</span></span>; <span style="color: #FF0000">}</span>
+<span style="color: #993399">.obj3</span> <span style="color: #FF0000">{</span> <span style="color: #0000FF">layout:</span> <span style="font-style: italic"><span style="color: #009900">float-hor</span></span>; <span style="color: #FF0000">}</span></tt></pre></div></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_transitions">Transitions</h3>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<col style="width:28%;">
+<col style="width:57%;">
+<col style="width:7%;">
+<col style="width:7%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Property                                       </th>
+<th class="tableblock halign-left valign-top" > Syntax                                                                                                                        </th>
+<th class="tableblock halign-left valign-top" >Flash  </th>
+<th class="tableblock halign-left valign-top" >HTML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">move-transition</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">&lt;effect&gt;{1,*} | &lt;other-transiton&gt;</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">resize-transition</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">&lt;effect&gt;{1,*} | &lt;other-transiton&gt;</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">rotate-transition</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">&lt;effect&gt;{1,*} | &lt;other-transiton&gt;</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">scale-transition</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">&lt;effect&gt;{1,*} | &lt;other-transiton&gt;</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">show-transition</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">&lt;effect&gt;{1,*} | &lt;other-transiton&gt;</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">hide-transition</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">&lt;effect&gt;{1,*} | &lt;other-transiton&gt;</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">animation</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">&lt;name&gt;? type? effect( &lt;duration&gt;, &lt;ease&gt;, &lt;delay&gt;, reverted )</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">animation-delay</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a><a href="#_times">&#91;unit&#93;</a></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">animation-direction</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">??</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">animation-duration</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a><a href="#_times">&#91;unit&#93;</a></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">animation-name</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;string&#93;</a></p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">animation-timing-function</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">??</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">transition</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">&lt;transition-type*&gt; &lt;animation&gt; ??</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">transition-property</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">??</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">transition-duration</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">??</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">transition-timing-function</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">??</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">transition-delay</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">??</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">animation-iteration-count</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">??</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">animation-play-state</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">??</p></td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">Transions are automaticly triggered when the specific property of the target changes. The specified effect is not forced to animate the changed property, it&#8217;s merely a trigger. I.e. a move-transition can fade a object in-and-out.</td>
+</tr></table>
+</div>
+<div class="sect3">
+<h4 id="_effects">Effects</h4>
+<div class="paragraph"><p>Effects are describing an animation with one or more properties. <strong>All effects</strong> are using the syntax below, and will aditionally add some properties.</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="color: #990000">&lt;</span>effect<span style="color: #990000">-</span>name<span style="color: #990000">&gt;(&lt;</span>duration<span style="color: #990000">&gt;</span>ms <span style="color: #990000">&lt;</span>ease<span style="color: #990000">&gt;?</span> <span style="color: #990000">&lt;</span>delay<span style="color: #990000">&gt;</span>ms<span style="color: #990000">?</span> reverted<span style="color: #990000">?)</span></tt></pre></div></div>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<col style="width:16%;">
+<col style="width:33%;">
+<col style="width:50%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >name                   </th>
+<th class="tableblock halign-left valign-top" > Details                                                                               </th>
+<th class="tableblock halign-left valign-top" > Syntax</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">move</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Move target</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">move &lt;effect-properties&gt; )</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">anchor-scale</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Scale target from specific point</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">anchor-scale &lt;effect-properties&gt; &lt;direction {top-left | top-center | top-right | middle-left | middle-right | bottom-left | bottom-center | bottom-right | {&lt;x <a href="#_data_formats">&#91;float&#93;</a><a href="#_distance">&#91;unit&#93;</a>&gt;, &lt;y <a href="#_data_formats">&#91;float&#93;</a><a href="#_distance">&#91;unit&#93;</a>&gt;}&gt;</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">fade</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Fade target</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">fade &lt;effect-properties&gt; {&lt;start <a href="#_data_formats">&#91;perc&#93;</a>&gt; &lt;end <a href="#_data_formats">&#91;perc&#93;</a>&gt;} | &lt;end <a href="#_data_formats">&#91;perc&#93;</a>&gt;</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">resize</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Resize target</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">resize &lt;effect-properties&gt;</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">rotate</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Rotate target</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">rotate &lt;effect-properties&gt; {&lt;start <a href="#_data_formats">&#91;angle&#93;</a>&gt; &lt;end <a href="#_data_formats">&#91;angle&#93;</a>&gt;} | &lt;end <a href="#_data_formats">&#91;angle&#93;</a>&gt;</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">scale</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Scale target</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">scale &lt;effect-properties&gt; {&lt;start <a href="#_data_formats">&#91;perc&#93;</a>&gt; &lt;end <a href="#_data_formats">&#91;perc&#93;</a>&gt;} | &lt;end <a href="#_data_formats">&#91;perc&#93;</a>&gt;</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">wipe</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">Wipe effect</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">wipe &lt;effect-properties&gt; {top-to-bottom | bottom-to-top | left-to-right | right-to-left}? &lt;end-scaleX <a href="#_data_formats">&#91;perc&#93;</a>&gt; &lt;end-scaleY <a href="#_data_formats">&#91;perc&#93;</a>&gt;</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">set-action</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">set a property of target without animation</p></td>
+<td><p style="white-space: pre;" class="monospaced">set-action &lt;effect-properties&gt; {
+        alpha(<a href="#_data_formats">&#91;perc&#93;</a>)
+|      position(&lt;endX <a href="#_data_formats">&#91;int&#93;</a><a href="#_distance">&#91;unit&#93;</a>&gt;, &lt;endY <a href="#_data_formats">&#91;int&#93;</a><a href="#_distance">&#91;unit&#93;</a>&gt;)
+|      rotation(<a href="#_data_formats">&#91;angle&#93;</a>)
+|      size(&lt;w <a href="#_data_formats">&#91;float&#93;</a><a href="#_distance">&#91;unit&#93;</a>&gt;, &lt;h <a href="#_data_formats">&#91;float&#93;</a><a href="#_distance">&#91;unit&#93;</a>&gt;)
+|      scale(&lt;x <a href="#_data_formats">&#91;perc&#93;</a>&gt;, &lt;y <a href="#_data_formats">&#91;perc&#93;</a>&gt;)
+|      any(*)
+}</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">parallel</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">multiple effects, executed parallel</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">parallel &lt;effect-properties&gt; (&lt;effect&gt;{1,*})</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">sequence</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">multiple effects, executed in sequence</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">sequence &lt;effect-properties&gt; (&lt;effect&gt;{1,*})</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<col style="width:14%;">
+<col style="width:85%;">
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">ease</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">{back | bounce | circ | cubic | elastic | expo | linear | quad | quart | quint | sine }-{in|out|inout}</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="color: #993399">.obj1</span> <span style="color: #FF0000">{</span>
+        <span style="color: #0000FF">move-transition:</span>        <span style="font-style: italic"><span style="color: #009900">move</span></span> <span style="font-style: italic"><span style="color: #009900">300ms</span></span>;
+        <span style="color: #0000FF">resize-transition:</span>      <span style="font-style: italic"><span style="color: #009900">resize</span></span> <span style="font-style: italic"><span style="color: #009900">200ms</span></span> <span style="font-style: italic"><span style="color: #009900">quad-in-out</span></span>;
+        <span style="color: #0000FF">rotate-transition:</span>      <span style="font-style: italic"><span style="color: #009900">rotate</span></span> <span style="font-style: italic"><span style="color: #009900">expo-out</span></span>;
+        <span style="color: #0000FF">scale-transition:</span>       <span style="font-style: italic"><span style="color: #009900">scale</span></span> <span style="font-style: italic"><span style="color: #009900">1500ms</span></span> <span style="font-style: italic"><span style="color: #009900">linear-in</span></span> <span style="font-style: italic"><span style="color: #009900">500ms</span></span>;   <span style="font-style: italic"><span style="color: #9A1900">/** 500ms delay **/</span></span>
+        <span style="color: #0000FF">show-transition:</span>        <span style="font-style: italic"><span style="color: #009900">fade</span></span> <span style="font-style: italic"><span style="color: #009900">100ms</span></span>;
+        <span style="color: #0000FF">hide-transition:</span>        <span style="font-style: italic"><span style="color: #009900">show</span></span>;                   <span style="font-style: italic"><span style="color: #9A1900">/** use same transition as 'show', it will automaticly reverse **/</span></span>
+<span style="color: #FF0000">}</span>
+
+<span style="color: #993399">.obj2</span> <span style="color: #FF0000">{</span>
+        <span style="color: #0000FF">move-transition:</span>        <span style="font-style: italic"><span style="color: #009900">move</span></span> <span style="font-style: italic"><span style="color: #009900">400ms</span></span> <span style="font-style: italic"><span style="color: #009900">circ-in</span></span> <span style="font-style: italic"><span style="color: #009900">20px</span></span>, <span style="font-style: italic"><span style="color: #009900">0px</span></span>;
+        <span style="color: #0000FF">resize-transition:</span>      <span style="font-style: italic"><span style="color: #009900">resize</span></span> <span style="font-style: italic"><span style="color: #009900">400ms</span></span> <span style="font-style: italic"><span style="color: #009900">sine-out</span></span> <span style="font-style: italic"><span style="color: #009900">0px</span></span>,<span style="font-style: italic"><span style="color: #009900">20px</span></span>;
+        <span style="color: #0000FF">rotate-transition:</span>      <span style="font-style: italic"><span style="color: #009900">wipe</span></span> <span style="font-style: italic"><span style="color: #009900">40ms</span></span> <span style="font-style: italic"><span style="color: #009900">linear-out</span></span> <span style="font-style: italic"><span style="color: #009900">0px</span></span> <span style="font-style: italic"><span style="color: #009900">400px</span></span>;
+        <span style="color: #0000FF">scale-transition:</span>       <span style="font-style: italic"><span style="color: #009900">scale</span></span> <span style="font-style: italic"><span style="color: #009900">40ms</span></span> <span style="font-style: italic"><span style="color: #009900">linear-out</span></span> <span style="font-style: italic"><span style="color: #009900">0%</span></span>,<span style="font-style: italic"><span style="color: #009900">20%</span></span>;
+        <span style="color: #0000FF">show-transition:</span>        <span style="font-style: italic"><span style="color: #009900">anchor-scale</span></span> <span style="font-style: italic"><span style="color: #009900">bottom-left</span></span> <span style="font-style: italic"><span style="color: #009900">400ms</span></span> <span style="font-style: italic"><span style="color: #009900">50ms</span></span>;
+        <span style="color: #0000FF">hide-transition:</span>        <span style="font-style: italic"><span style="color: #009900">anchor-scale</span></span> <span style="font-style: italic"><span style="color: #009900">400ms</span></span> <span style="font-style: italic"><span style="color: #009900">50ms</span></span> <span style="font-style: italic"><span style="color: #009900">Bounce-Out</span></span> <span style="font-style: italic"><span style="color: #009900">middle-right</span></span> <span style="font-style: italic"><span style="color: #009900">100%</span></span> <span style="font-style: italic"><span style="color: #009900">312.3%</span></span>;
+<span style="color: #FF0000">}</span>
+
+<span style="color: #993399">.obj3</span> <span style="color: #FF0000">{</span>
+        <span style="color: #0000FF">move-transition:</span>        <span style="font-style: italic"><span style="color: #009900">rotate</span></span> <span style="font-style: italic"><span style="color: #009900">400ms</span></span> <span style="font-style: italic"><span style="color: #009900">expo-out</span></span> <span style="font-style: italic"><span style="color: #009900">51deg</span></span> <span style="font-style: italic"><span style="color: #009900">315deg</span></span>;
+        <span style="color: #0000FF">resize-transition:</span>      <span style="font-style: italic"><span style="color: #009900">wipe</span></span> <span style="font-style: italic"><span style="color: #009900">400px</span></span>;
+        <span style="font-style: italic"><span style="color: #9A1900">/* nested effects */</span></span>
+        <span style="color: #0000FF">rotate-transition:</span>      <span style="font-style: italic"><span style="color: #009900">sequence</span></span> (<span style="font-style: italic"><span style="color: #009900">parallel</span></span> ( <span style="font-style: italic"><span style="color: #009900">fade</span></span> <span style="font-style: italic"><span style="color: #009900">500ms</span></span> <span style="font-style: italic"><span style="color: #009900">40%</span></span>, <span style="font-style: italic"><span style="color: #009900">move</span></span> <span style="font-style: italic"><span style="color: #009900">300ms</span></span> <span style="font-style: italic"><span style="color: #009900">elastic-out</span></span> ), <span style="font-style: italic"><span style="color: #009900">fade</span></span> <span style="font-style: italic"><span style="color: #009900">600ms</span></span> <span style="font-style: italic"><span style="color: #009900">100%</span></span> );
+        <span style="color: #0000FF">scale-transition:</span>       <span style="font-style: italic"><span style="color: #009900">parallel</span></span> <span style="font-style: italic"><span style="color: #009900">900ms</span></span> <span style="font-style: italic"><span style="color: #009900">50ms</span></span> <span style="font-style: italic"><span style="color: #009900">bounce-out</span></span> (<span style="font-style: italic"><span style="color: #009900">wipe</span></span> <span style="font-style: italic"><span style="color: #009900">left-to-right</span></span> <span style="font-style: italic"><span style="color: #009900">200ms</span></span>, <span style="font-style: italic"><span style="color: #009900">fade</span></span> <span style="font-style: italic"><span style="color: #009900">15ms</span></span> <span style="font-style: italic"><span style="color: #009900">elastic-in</span></span>);
+        <span style="color: #0000FF">show-transition:</span>        <span style="font-style: italic"><span style="color: #009900">anchor-scale</span></span>;   <span style="font-style: italic"><span style="color: #9A1900">/* default duration 350ms */</span></span>
+        <span style="color: #0000FF">hide-transition:</span>        <span style="font-style: italic"><span style="color: #009900">fade</span></span>;                   <span style="font-style: italic"><span style="color: #9A1900">/* default duration 350ms */</span></span>
+<span style="color: #FF0000">}</span>
+
+<span style="color: #993399">.obj4</span> <span style="color: #FF0000">{</span>
+        <span style="color: #0000FF">move-transition:</span>        <span style="font-style: italic"><span style="color: #009900">set-action</span></span> <span style="font-style: italic"><span style="color: #009900">alpha</span></span>(<span style="font-style: italic"><span style="color: #009900">80%</span></span> <span style="font-style: italic"><span style="color: #009900">40%</span></span>);                              <span style="font-style: italic"><span style="color: #9A1900">/* set alpha to 40% (directly) */</span></span>
+        <span style="color: #0000FF">resize-transition:</span>      <span style="font-style: italic"><span style="color: #009900">set-action</span></span> <span style="font-style: italic"><span style="color: #009900">position</span></span>(<span style="font-style: italic"><span style="color: #009900">20px</span></span>,<span style="font-style: italic"><span style="color: #009900">809047px</span></span> <span style="font-style: italic"><span style="color: #009900">4px</span></span>,<span style="font-style: italic"><span style="color: #009900">6px</span></span>);
+        <span style="color: #0000FF">rotate-transition:</span>      <span style="font-style: italic"><span style="color: #009900">set-action</span></span> <span style="font-style: italic"><span style="color: #009900">any</span></span>(<span style="font-style: italic"><span style="color: #009900">skewX</span></span>, <span style="font-style: italic"><span style="color: #009900">10</span></span>);
+        <span style="color: #0000FF">scale-transition:</span>       <span style="font-style: italic"><span style="color: #009900">sequence</span></span> <span style="font-style: italic"><span style="color: #009900">900ms</span></span> <span style="font-style: italic"><span style="color: #009900">50ms</span></span> <span style="font-style: italic"><span style="color: #009900">bounce-out</span></span> (<span style="font-style: italic"><span style="color: #009900">wipe</span></span> <span style="font-style: italic"><span style="color: #009900">left-to-right</span></span> <span style="font-style: italic"><span style="color: #009900">200ms</span></span>, <span style="font-style: italic"><span style="color: #009900">fade</span></span> <span style="font-style: italic"><span style="color: #009900">15ms</span></span>);
+        <span style="color: #0000FF">show-transition:</span>        <span style="font-style: italic"><span style="color: #009900">fade</span></span> <span style="font-style: italic"><span style="color: #009900">400ms</span></span> <span style="font-style: italic"><span style="color: #009900">elastic-in-out</span></span> <span style="font-style: italic"><span style="color: #009900">0%</span></span> <span style="font-style: italic"><span style="color: #009900">50%</span></span>;
+        <span style="color: #0000FF">hide-transition:</span>        <span style="font-style: italic"><span style="color: #009900">move</span></span> <span style="font-style: italic"><span style="color: #009900">20px</span></span> ,<span style="font-style: italic"><span style="color: #009900">40px</span></span> <span style="font-style: italic"><span style="color: #009900">100px</span></span>,<span style="font-style: italic"><span style="color: #009900">-50.4px</span></span>;                  <span style="font-style: italic"><span style="color: #9A1900">/* start-pos, end-pos */</span></span>
+<span style="color: #FF0000">}</span></tt></pre></div></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_filters">Filters</h3>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<col style="width:28%;">
+<col style="width:57%;">
+<col style="width:7%;">
+<col style="width:7%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" >Property                                       </th>
+<th class="tableblock halign-left valign-top" > Syntax                                                                                                                                                                                                                                                                                </th>
+<th class="tableblock halign-left valign-top" >Flash  </th>
+<th class="tableblock halign-left valign-top" >HTML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">box-bevel</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">&lt;distance&gt;? &lt;blurX&gt;? &lt;blurY&gt;? &lt;strength&gt;? &lt;rotation&gt;? &lt;shadow <a href="#_colors">&#91;color&#93;</a>&gt;? &lt;highlight <a href="#_colors">&#91;color&#93;</a>&gt;? &lt;inner|outer|full&gt;? &lt;knockout&gt;? &lt;quality&gt;?</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">box-shadow</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">&lt;distance&gt;? &lt;blurX&gt;? &lt;blurY&gt;? &lt;strength&gt;? &lt;rotation&gt;? <a href="#_colors">&#91;color&#93;</a>? &lt;inner&gt;? hide-object? knockout? &lt;quality&gt;?</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">box-blur</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">&lt;blurX&gt;? &lt;blurY&gt;? &lt;quality&gt;?</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">box-glow</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">&lt;blurX&gt;? &lt;blurY&gt;? &lt;strength&gt;? <a href="#_colors">&#91;color&#93;</a>? &lt;inner&gt;? &lt;knockout&gt;? &lt;quality&gt;?</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">box-gradient-bevel</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">&lt;distance&gt;? &lt;blurX&gt;? &lt;blurY&gt;? &lt;strength&gt;? &lt;rotation&gt;? <a href="#_gradients">&#91;gradient&#93;</a> &lt;inner&gt;? &lt;knockout&gt;? &lt;quality&gt;?</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">box-gradient-glow</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">&lt;distance&gt;? &lt;blurX&gt;? &lt;blurY&gt;? &lt;strength&gt;? &lt;rotation&gt;? <a href="#_gradients">&#91;gradient&#93;</a> &lt;inner&gt;? &lt;knockout&gt;? &lt;quality&gt;?</p></td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:yellowgreen;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">background-bevel</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">see box-bevel</p></td>
+<td style="background-color:yellow;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">background-blur</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">see box-blur</p></td>
+<td style="background-color:yellow;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">background-shadow</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">see box-shadow</p></td>
+<td style="background-color:yellow;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">background-glow</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">see box-glow</p></td>
+<td style="background-color:yellow;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">background-gradient-bevel</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">see box-gradient-bevel</p></td>
+<td style="background-color:yellow;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">background-gradient-glow</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">see box-gradient-glow</p></td>
+<td style="background-color:yellow;border:1px solid #E8E8E8;">              </td>
+<td style="background-color:tomato;border:1px solid #E8E8E8;"></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph"><p>Background-filters for Flash will get parsed, but are not yet implemented in the graphics-classes.</p></div>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<caption class="title">Table 8. Filter variables</caption>
+<col style="width:20%;">
+<col style="width:40%;">
+<col style="width:40%;">
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">distance</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">distance from target</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">blurX</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">blurY</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;int&#93;</a>px</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">strength</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">[int8]</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">rotation</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced"><a href="#_data_formats">&#91;angle&#93;</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">knockout</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">knockout</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">inner</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">inner</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock header">quality</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock monospaced">low | medium | high</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.5
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="color: #993399">.obj1</span> <span style="color: #FF0000">{</span>
+        <span style="color: #0000FF">box-bevel:</span>                      <span style="font-style: italic"><span style="color: #009900">5px</span></span> <span style="font-style: italic"><span style="color: #009900">10px</span></span> <span style="font-style: italic"><span style="color: #009900">12px</span></span> <span style="font-style: italic"><span style="color: #009900">3</span></span> <span style="font-style: italic"><span style="color: #009900">90deg</span></span> <span style="color: #FF0000">#ff00aadd</span> <span style="color: #FF0000">#00aadd</span> <span style="font-style: italic"><span style="color: #009900">full</span></span> <span style="font-style: italic"><span style="color: #009900">knockout</span></span> <span style="font-style: italic"><span style="color: #009900">high</span></span>;
+        <span style="color: #0000FF">box-shadow:</span>             <span style="font-style: italic"><span style="color: #009900">5px</span></span> <span style="font-style: italic"><span style="color: #009900">10px</span></span> <span style="font-style: italic"><span style="color: #009900">12px</span></span> <span style="font-style: italic"><span style="color: #009900">3</span></span> <span style="font-style: italic"><span style="color: #009900">90deg</span></span> <span style="color: #FF0000">#ff00aadd</span> <span style="font-style: italic"><span style="color: #009900">inner</span></span> <span style="font-style: italic"><span style="color: #009900">hide-object</span></span> <span style="font-style: italic"><span style="color: #009900">knockout</span></span> <span style="font-style: italic"><span style="color: #009900">high</span></span>;
+        <span style="color: #0000FF">box-blur:</span>                       <span style="font-style: italic"><span style="color: #009900">5px</span></span> <span style="font-style: italic"><span style="color: #009900">10px</span></span> <span style="font-style: italic"><span style="color: #009900">high</span></span>;
+        <span style="color: #0000FF">box-glow:</span>                       <span style="font-style: italic"><span style="color: #009900">10px</span></span> <span style="font-style: italic"><span style="color: #009900">12px</span></span> <span style="font-style: italic"><span style="color: #009900">3</span></span> <span style="color: #FF0000">#ff00aadd</span> <span style="font-style: italic"><span style="color: #009900">inner</span></span> <span style="font-style: italic"><span style="color: #009900">knockout</span></span> <span style="font-style: italic"><span style="color: #009900">high</span></span>;
+        <span style="color: #0000FF">box-gradient-bevel:</span> <span style="font-style: italic"><span style="color: #009900">5px</span></span> <span style="font-style: italic"><span style="color: #009900">10px</span></span> <span style="font-style: italic"><span style="color: #009900">12px</span></span> <span style="font-style: italic"><span style="color: #009900">3</span></span> <span style="font-style: italic"><span style="color: #009900">90deg</span></span> <span style="color: #FF0000">#ff00aadd</span>, <span style="color: #FF0000">#00aadd</span> <span style="font-style: italic"><span style="color: #009900">inner</span></span> <span style="font-style: italic"><span style="color: #009900">knockout</span></span> <span style="font-style: italic"><span style="color: #009900">high</span></span>;
+        <span style="color: #0000FF">box-gradient-glow:</span>      <span style="font-style: italic"><span style="color: #009900">outer</span></span> <span style="font-style: italic"><span style="color: #009900">.789px</span></span> <span style="font-style: italic"><span style="color: #009900">3</span></span> <span style="font-style: italic"><span style="color: #009900">90deg</span></span> <span style="color: #FF0000">#ff0000</span>, <span style="color: #FF0000">#abcdef12</span> <span style="font-style: italic"><span style="color: #009900">60px</span></span>, <span style="color: #FF0000">#333</span> <span style="font-style: italic"><span style="color: #009900">medium</span></span>;
+<span style="color: #FF0000">}</span>
+
+<span style="color: #993399">.obj2</span> <span style="color: #FF0000">{</span>
+        <span style="color: #0000FF">box-bevel:</span>                      <span style="font-style: italic"><span style="color: #009900">.789px</span></span> <span style="font-style: italic"><span style="color: #009900">3</span></span> <span style="font-style: italic"><span style="color: #009900">90deg</span></span> <span style="color: #FF0000">#ff0000</span> <span style="font-style: italic"><span style="color: #009900">medium</span></span>;
+        <span style="color: #0000FF">box-shadow:</span>             <span style="font-style: italic"><span style="color: #009900">inner</span></span> <span style="font-style: italic"><span style="color: #009900">210</span></span> <span style="font-style: italic"><span style="color: #009900">knockout</span></span> <span style="font-style: italic"><span style="color: #009900">12.701deg</span></span>;
+        <span style="color: #0000FF">box-blur:</span>                       <span style="font-style: italic"><span style="color: #009900">medium</span></span>;         <span style="font-style: italic"><span style="color: #9A1900">/* default blur: 4px 4px */</span></span>
+        <span style="color: #0000FF">box-glow:</span>                       <span style="font-style: italic"><span style="color: #009900">10</span></span> <span style="color: #FF0000">#ff0000</span> <span style="font-style: italic"><span style="color: #009900">medium</span></span>;
+        <span style="color: #0000FF">box-gradient-bevel:</span> <span style="font-style: italic"><span style="color: #009900">outer</span></span> <span style="font-style: italic"><span style="color: #009900">.789px</span></span> <span style="font-style: italic"><span style="color: #009900">3</span></span> <span style="font-style: italic"><span style="color: #009900">90deg</span></span> <span style="color: #FF0000">#ff0000</span>, <span style="color: #FF0000">#abcdef12</span> <span style="font-style: italic"><span style="color: #009900">60px</span></span>, <span style="color: #FF0000">#333</span> <span style="font-style: italic"><span style="color: #009900">medium</span></span>;
+        <span style="color: #0000FF">box-gradient-glow:</span>      <span style="font-style: italic"><span style="color: #009900">5px</span></span> <span style="font-style: italic"><span style="color: #009900">10px</span></span> <span style="font-style: italic"><span style="color: #009900">12px</span></span> <span style="font-style: italic"><span style="color: #009900">3</span></span> <span style="font-style: italic"><span style="color: #009900">90deg</span></span> <span style="color: #FF0000">#ff00aadd</span>, <span style="color: #FF0000">#00aadd</span> <span style="font-style: italic"><span style="color: #009900">inner</span></span> <span style="font-style: italic"><span style="color: #009900">knockout</span></span> <span style="font-style: italic"><span style="color: #009900">high</span></span>;
+<span style="color: #FF0000">}</span>
+
+<span style="color: #993399">.obj3</span> <span style="color: #FF0000">{</span>
+        <span style="color: #0000FF">box-bevel:</span>                      <span style="font-style: italic"><span style="color: #009900">60</span></span> <span style="color: #FF0000">#abcdef12</span> <span style="color: #FF0000">#fedcba98</span> <span style="font-style: italic"><span style="color: #009900">low</span></span> <span style="font-style: italic"><span style="color: #009900">outer</span></span>;
+        <span style="color: #0000FF">box-shadow:</span>             <span style="font-style: italic"><span style="color: #009900">5px</span></span> <span style="font-style: italic"><span style="color: #009900">10px</span></span> <span style="font-style: italic"><span style="color: #009900">12px</span></span>;
+        <span style="color: #0000FF">box-blur:</span>                       <span style="font-style: italic"><span style="color: #009900">10px</span></span> <span style="font-style: italic"><span style="color: #009900">0px</span></span> <span style="font-style: italic"><span style="color: #009900">low</span></span>;
+        <span style="color: #0000FF">box-glow:</span>                       <span style="font-style: italic"><span style="color: #009900">knockout</span></span> <span style="color: #FF0000">#abcdef12</span> <span style="font-style: italic"><span style="color: #009900">low</span></span>;
+<span style="color: #FF0000">}</span>
+
+<span style="color: #993399">.obj4</span> <span style="color: #FF0000">{</span>
+        <span style="color: #0000FF">box-blur:</span>                       <span style="font-style: italic"><span style="color: #009900">5px</span></span> <span style="font-style: italic"><span style="color: #009900">5px</span></span>;        <span style="font-style: italic"><span style="color: #9A1900">/* low quality */</span></span>
+        <span style="color: #0000FF">box-shadow:</span>                     <span style="font-style: italic"><span style="color: #009900">4px</span></span> <span style="font-style: italic"><span style="color: #009900">4px</span></span> <span style="font-style: italic"><span style="color: #009900">4px</span></span> <span style="color: #FF0000">#ff0000</span> <span style="font-style: italic"><span style="color: #009900">180deg</span></span>;
+<span style="color: #FF0000">}</span></tt></pre></div></div>
+</div>
+</div>
+</div>
+</div>
+<div id="footnotes"><hr></div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2012-01-18 18:26:28 CET
+</div>
+</div>
+</body>
+</html>
