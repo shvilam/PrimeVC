@@ -1,5 +1,5 @@
 = MVC =
-Ruben Weijers <ruben@rubenw.nl>
+Ruben Weijers
 :toc:
 
 ______
