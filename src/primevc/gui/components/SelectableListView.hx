@@ -194,8 +194,8 @@ class SelectableListView<ListDataType> extends ListView<ListDataType>
 
     public inline function deselectRenderers ()
     {
+        selected.set(null);
         previousSelected = null;
-        selected         = null;
     }
 
     
