@@ -1,5 +1,5 @@
 = Layout =
-Ruben Weijers <ruben@rubenw.nl>
+Ruben Weijers
 :toc:
 
 
