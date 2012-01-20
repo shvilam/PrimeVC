@@ -39,7 +39,7 @@ class StyleSheet extends StyleBlock
 {
 	public function new ()
 	{
-		super( StyleBlockType.specific );
+		super( 0, StyleBlockType.specific );
 		trace("empty style");
 	}
 }
