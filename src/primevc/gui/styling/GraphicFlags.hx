@@ -34,9 +34,9 @@ package primevc.gui.styling;
  * @author Ruben Weijers
  * @creation-date Oct 25, 2010
  */
-class GraphicFlags
+#if !debug extern #end class GraphicFlags
 {
-	public static inline var ALL_PROPERTIES		= SKIN | BACKGROUND | BORDER | SHAPE | VISIBLE | OPACITY | ICON | OVERFLOW | BORDER_RADIUS;
+	public static inline var ALL_PROPERTIES		= SKIN | BACKGROUND | BORDER | SHAPE | VISIBLE | OPACITY | ICON | OVERFLOW | BORDER_RADIUS | ICON_FILL;
 	public static inline var DRAWING_PROPERTIES	= BACKGROUND | BORDER | SHAPE | BORDER_RADIUS;
 	
 	public static inline var SKIN				= 1 << 0;
@@ -48,10 +48,11 @@ class GraphicFlags
 	public static inline var ICON				= 1 << 6;
 	public static inline var OVERFLOW			= 1 << 7;
 	public static inline var BORDER_RADIUS		= 1 << 8;
+	public static inline var ICON_FILL			= 1 << 9;
 	
 	
 #if debug
-	static public function readProperties (flags:Int) : String
+	public static function readProperties (flags:Int) : String
 	{
 		var output	= [];
 		
@@ -64,8 +65,9 @@ class GraphicFlags
 		if (flags.has( SKIN ))					output.push("skin");
 		if (flags.has( VISIBLE ))				output.push("visible");
 		if (flags.has( BORDER_RADIUS ))			output.push("border-radius");
+		if (flags.has( ICON_FILL ))				output.push("icon-fill");
 		
-		return "properties: " + output.join(", ");
+		return output.length > 0 ? output.join(", ") : "none";
 	}
 #end
 }

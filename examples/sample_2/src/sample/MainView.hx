@@ -1,19 +1,13 @@
 package sample;
-
-
-import primevc.gui.display.Window;
-import primevc.mvc.core.IView;
-import primevc.mvc.core.MVCCore;
+ import primevc.gui.display.Window;
+ import primevc.mvc.MVCActor;
 
 
 /**
- * MainView corresponds to the view of the MVC model. 
- * It defines, groups together and couples mediators 
- * and UI elements. This separates event handling from
- * UI and allows different UI elements to have their 
- * own event handlers. 
+ * Defines and groups together and couples 
+ * mediators and application windows.
  */
-class MainView extends MVCCore<MainFacade>, implements IView
+class MainView extends MVCActor<MainFacade>
 {
     private var window:MainWindow;
     public var buttonMediator(default, null):ButtonMediator;
@@ -22,26 +16,19 @@ class MainView extends MVCCore<MainFacade>, implements IView
     public function new (facade:MainFacade)
     {
         super(facade);
-        window = Window.startup( MainWindow );
-    }
-
-    // Instantiate mediators and start listening to events.
-    public function init ()
-    {
-		// Instantiate mediators for the user interface elements and pass ui instance names as parameters. 
-        buttonMediator = new ButtonMediator(cast facade.events, cast facade.model, cast facade.view, window.button);
-        imageLoaderMediator = new ImageLoaderMediator(cast facade.events, cast facade.model, cast facade.view, window.image);
-        
-        buttonMediator.startListening();
-        imageLoaderMediator.startListening();
+        window				= Window.startup( MainWindow );
+		buttonMediator		= new ButtonMediator(facade, window.loadButton);
+        imageLoaderMediator = new ImageLoaderMediator(facade, window.imageLoader);
     }
 	
-    // Dispose of mediators.
+	
     override public function dispose ()
     {
+		if (isDisposed())
+			return;
+		
         buttonMediator.dispose();
         imageLoaderMediator.dispose();
-        
         window.dispose();
         
         buttonMediator = null;
@@ -49,5 +36,27 @@ class MainView extends MVCCore<MainFacade>, implements IView
         window = null;
         
         super.dispose();
+    }
+	
+	
+    override public function startListening ()
+    {
+        if (isListening())
+			return;
+        
+        buttonMediator.startListening();
+        imageLoaderMediator.startListening();
+		super.startListening();
+    }
+	
+	
+	override public function stopListening ()
+    {
+        if (!isListening())
+			return;
+        
+		super.stopListening();
+        buttonMediator.stopListening();
+        imageLoaderMediator.stopListening();
     }
 }

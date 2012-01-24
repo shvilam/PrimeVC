@@ -28,7 +28,7 @@
  */
 package primevc.gui.effects;
 #if (debug || neko)
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
 #end
 #if neko
  import primevc.tools.generator.ICodeGenerator;
@@ -54,7 +54,7 @@ package primevc.gui.effects;
 class Effect < TargetType, EffectClass:IEffect > extends Invalidatable, implements IEffect
 {
 #if (debug || neko)
-	public var uuid				(default, null)	: String;
+	public var _oid				(default, null)	: Int;
 #end
 	
 	public var easing			(default, setEasing)			: Easing;
@@ -67,7 +67,7 @@ class Effect < TargetType, EffectClass:IEffect > extends Invalidatable, implemen
 	{
 		super();
 #if (debug || neko)
-		uuid			= StringUtil.createUUID();
+		_oid			= ID.getNext();
 #end
 		duration		= newDuration.notSet()	? 350 : newDuration;
 		delay			= newDelay <= 0			? Number.INT_NOT_SET : newDelay;

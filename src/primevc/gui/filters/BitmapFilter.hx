@@ -37,7 +37,7 @@ typedef BitmapFilter =
 	
 
  import primevc.tools.generator.ICodeGenerator;
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
 
 
 /**
@@ -47,12 +47,12 @@ typedef BitmapFilter =
 class BitmapFilterImpl implements IBitmapFilter
 {
 #if (neko || debug)
-	public var uuid			(default, null)	: String;
+	public var _oid			(default, null)	: Int;
 #end
 	
 	public function new ()
 	{
-		uuid = StringUtil.createUUID();
+		_oid = ID.getNext();
 	}
 	
 	

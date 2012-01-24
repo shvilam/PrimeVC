@@ -28,32 +28,28 @@
  */
 package primevc.core.states;
  import primevc.core.dispatcher.Signal2;
- import primevc.core.dispatcher.INotifier;
  import primevc.utils.FastArray;
-  using primevc.utils.Bind;
 
 
 /**
  * @author Ruben Weijers
  * @creation-date Jun 08, 2010
  */
+@:autoBuild(primevc.utils.MacroUtils.autoInstantiate("IState", "primevc.core.states.State", true))
+@:autoBuild(primevc.utils.MacroUtils.autoDispose())
 class FiniteStateMachine implements IFiniteStateMachine
 {
-	//
-	// PROPERTIES
-	//
+	@manual public var current		(default, setCurrent)		: IState;
+	@manual public var defaultState	(default, setDefaultState)	: IState;
 	
-	public var current		(default, setCurrent)		: IState;
-	public var defaultState	(default, setDefaultState)	: IState;
-	
-	public var states		(default, null)				: FastArray <IState>;
-	public var change		(default, null)				: Signal2 < IState, IState >;
-	private var enabled		: Bool;
+//	public var states		(default, null) : FastArray <IState>;
+	public var change		(default, null)	: Signal2 < IState, IState >;
+	public var enabled		(default, null)	: Bool;
 	
 	
 	public function new ()
 	{
-		states	= FastArrayUtil.create();
+	//	states	= FastArrayUtil.create();
 		enabled	= true;
 		change	= new Signal2();
 	}
@@ -61,15 +57,15 @@ class FiniteStateMachine implements IFiniteStateMachine
 	
 	public function dispose ()
 	{
-		defaultState	= null;
-		current			= null;
+		(untyped this).defaultState	= null;
+		(untyped this).current		= null;
 		
-		for (state in states)
-			state.dispose();
+	//	while(states.length > 0)
+	//		states.pop().dispose();
 		
 		change.dispose();
 		change = null;
-		states = null;
+	//	states = null;
 	}
 	
 	
@@ -94,9 +90,9 @@ class FiniteStateMachine implements IFiniteStateMachine
 		if (newState == null)
 			newState = defaultState;
 		
-		if (!enabled)												return current;	//can't change states when we're not enabled
-		if (current == newState)									return current;	//don't need to change since we're already in this state
-		if (newState != null && states[ newState.id ] != newState)	return current;	//can't go to a state that isn't part of this FSM
+		if (!enabled)				return current;	//can't change states when we're not enabled
+		if (current == newState)	return current;	//don't need to change since we're already in this state
+	//	if (!has(newState))			return current;	//can't go to a state that isn't part of this FSM
 		
 		//dispathc exiting event
 		if (current != null)
@@ -120,7 +116,7 @@ class FiniteStateMachine implements IFiniteStateMachine
 	 * it will be set to the default-state.
 	 * @private
 	 */
-	private function setDefaultState (newState:IState) : IState
+	private inline function setDefaultState (newState:IState) : IState
 	{
 		defaultState = newState;
 
@@ -137,18 +133,28 @@ class FiniteStateMachine implements IFiniteStateMachine
 	// METHODS
 	//
 	
-	public function is (otherState:IState)				{ return current == otherState; }
+	public inline function is (otherState:IState)			{ return current == otherState; }
 	
-	public function enable ()							{ enabled = true; }
-	public function disable ()							{ enabled = false; }
+	/**
+	 * Method checks of the given state exists in this FSM instance.
+	 * FIXME: check if looking up if a state is a property of an FSM is more efficient with reflection
+	 */
+//	public inline function has (state:IState)				{ return state != null && states[ state.id ] == state; }
 	
-	public function enableInState (trigger:IState)		{ enable.on( trigger.entering, this ); }
-	public function disableInState (trigger:IState)		{ disable.on( trigger.exiting, this ); }
+	public inline function enable ()						{ enabled = true; }
+	/**
+	 * Disabling the FSM means that the current state can't change until it's
+	 * enabled again. Before the FSM is disabled, the currentState is changed to
+	 * the default-state.
+	 */
+	public inline function disable ()						{ if (enabled) { current = defaultState; enabled = false; } }
+	public inline function isEnabled ()						{ return enabled; }
 	
 	
-	public function changeOn (event:INotifier<Dynamic>, toState:IState)
+	public function changeTo (toState:IState) : Void -> Void
 	{
 		var t = this;
-		event.observe( this, function () { t.setCurrent( toState ); } );
+	//	Assert.that( has(toState) );
+		return function () { t.setCurrent( toState ); };
 	}
 }

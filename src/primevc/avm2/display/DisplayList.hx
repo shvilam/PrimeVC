@@ -96,7 +96,7 @@ class DisplayList implements IEditableList <ChildType>
 	}
 	
 	
-	public inline function dispose ()
+	public function dispose ()
 	{
 		removeAll();
 		change.dispose();
@@ -118,11 +118,34 @@ class DisplayList implements IEditableList <ChildType>
 	}
 	
 	
-	public inline function removeAll ()
+	public inline function duplicate () : IReadOnlyList <ChildType>
 	{
-		for (child in this)
-			if (child != null)		//<- is needed for children that are not IDisplayable!
-				child.dispose();
+		return new DisplayList( target, owner );
+	}
+	
+	
+	public function disposeAll ()
+	{
+		var l = length;
+		while (l > 0) {
+			var child = target.getChildAt( --l );
+			if (child.is(IDisposable))
+				child.as(IDisposable).dispose();
+			else
+				target.removeChildAt( l );
+		}
+	}
+	
+	
+	public function removeAll ()
+	{
+		var l = length;
+		while (l > 0) {
+			var child = target.getChildAt( --l );
+			target.removeChildAt( l );
+			if (child.is(ChildType))
+				child.as(ChildType).container = null;
+		}
 	}
 	
 	
@@ -133,6 +156,7 @@ class DisplayList implements IEditableList <ChildType>
 	
 	private inline function setMouseEnabled (v)		{ return mouseEnabled	= target.mouseChildren = v; }
 	private inline function setTabEnabled (v)		{ return tabEnabled		= target.tabChildren = v; }
+	private inline function getLength	()			{ return target.numChildren; }
 	
 	
 	//
@@ -143,13 +167,12 @@ class DisplayList implements IEditableList <ChildType>
 	public function forwardIterator () : IIterator <ChildType>	{ return new DisplayListForwardIterator(this); }
 	public function reversedIterator () : IIterator <ChildType>	{ return new DisplayListReversedIterator(this); }
 	
-	public inline function getItemAt	(pos:Int)				{ return target.getChildAt( pos ).as( ChildType ); }
+	public inline function getItemAt	(pos:Int)				{ var v = target.getChildAt( pos ); return v.is(ChildType) ? v.as(ChildType) : null; }
 	public inline function has			(item:ChildType)		{ return target.contains( item.as( TargetChildType ) ); } 
 	public inline function indexOf		(item:ChildType)		{ return target.getChildIndex( item.as( TargetChildType ) ); }
-	private inline function getLength	()						{ return target.numChildren; }
 	
 	
-	public inline function add (item:ChildType, pos:Int = -1) : ChildType
+	public function add (item:ChildType, pos:Int = -1) : ChildType
 	{
 		if (pos > length)
 			Assert.that(pos <= length, "Index to add child is to high! "+pos+" instead of max "+length);
@@ -158,7 +181,7 @@ class DisplayList implements IEditableList <ChildType>
 		else if (pos < 0)		pos = length; // -pos;
 		
 		//make sure that if the child is in another displaylist, it will fire an remove event when the child is removed.
-		if (item.container != null && item.container != owner) 
+		if (item.container != null && item.container != owner)
 			item.container.children.remove(item);
 		
 		item.container = owner;
@@ -168,7 +191,7 @@ class DisplayList implements IEditableList <ChildType>
 	}
 	
 	
-	public inline function remove (item:ChildType, oldPos:Int = -1) : ChildType
+	public function remove (item:ChildType, oldPos:Int = -1) : ChildType
 	{
 		Assert.that( has(item), "remove: Child "+item+" is not in "+this );
 		
@@ -183,14 +206,15 @@ class DisplayList implements IEditableList <ChildType>
 	}
 	
 	
-	public inline function move (item:ChildType, newPos:Int, curPos:Int = -1) : ChildType
+	public function move (item:ChildType, newPos:Int, curPos:Int = -1) : ChildType
 	{
 		if (curPos == -1 && has(item))
 			curPos = indexOf(item);
 		
 		Assert.that( curPos >= 0, "Child to move is not in this DisplayList: "+item );
 		
-		target.addChildAt( item.as( TargetChildType ), newPos );
+	//	target.addChildAt( item.as( TargetChildType ), newPos );
+		target.setChildIndex( item.as( TargetChildType ), newPos );
 		change.send( ListChange.moved( item, newPos, curPos ) );
 		return item;
 	}
@@ -224,11 +248,12 @@ class DisplayListForwardIterator implements IIterator <ChildType>
 	private var list 	: DisplayList;
 	public var current	: Int;
 	
-	public function new (list:DisplayList)	{ this.list = list; rewind(); }
+	public function new (list:DisplayList)			{ this.list = list; rewind(); }
 	public inline function setCurrent (val:Dynamic)	{ current = val; }
 	public inline function rewind ()				{ current = 0; }
 	public inline function hasNext ()				{ return current < list.length; }
-	public inline function next ()					{ return list.getItemAt(current++); }
+	public inline function next ()					{ return list.getItemAt( current++ ); }
+	public inline function value ()					{ return list.getItemAt( current ); }
 }
 
 
@@ -244,9 +269,10 @@ class DisplayListReversedIterator implements IIterator <ChildType>
 	private var list 	: DisplayList;
 	public var current	: Int;
 
-	public function new (list:DisplayList)	{ this.list = list; rewind(); }
+	public function new (list:DisplayList)			{ this.list = list; rewind(); }
 	public inline function setCurrent (val:Dynamic)	{ current = val; }
 	public inline function rewind ()				{ current = list.length; }
 	public inline function hasNext ()				{ return current >= 0; }
-	public inline function next ()					{ return list.getItemAt(current--); }
+	public inline function next ()					{ return list.getItemAt( current-- ); }
+	public inline function value ()					{ return list.getItemAt( current ); }
 }

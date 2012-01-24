@@ -31,7 +31,7 @@ package primevc.core.geom;
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICodeGenerator;
  import primevc.tools.generator.ICSSFormattable;
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
 #end
  import primevc.types.Number;
   using primevc.utils.NumberUtil;
@@ -52,19 +52,19 @@ class Box
 	public var bottom	(getBottom, setBottom)	: Int;
 	
 #if neko
-	public var uuid		(default, null)			: String;
+	public var _oid		(default, null)			: Int;
 #end
 	
 	
 	public function new ( top:Int = 0, right:Int = Number.INT_NOT_SET, bottom:Int = Number.INT_NOT_SET, left:Int = Number.INT_NOT_SET )
 	{
 #if neko
-		this.uuid	= StringUtil.createUUID();
+		this._oid	= ID.getNext();
 #end
 		this.top	= top;
-		this.right	= (right.notSet()) ? this.top : right;
-		this.bottom	= (bottom.notSet()) ? this.top : bottom;
-		this.left	= (left.notSet()) ? this.right : left;
+		this.right	= (right.notSet())  ? this.top 	 : right;
+		this.bottom	= (bottom.notSet()) ? this.top 	 : bottom;
+		this.left	= (left.notSet()) 	? this.right : left;
 	}
 	
 	

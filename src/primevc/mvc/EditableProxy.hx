@@ -42,22 +42,12 @@ class EditableProxy	< VOType:IEditableValueObject, EditEnabledVOType:IEditEnable
  		extends Proxy <VOType, EventsTypedef>
 	,	implements IEditableProxy < EditEnabledVOType >
 {
-	public function new( events:EventsTypedef, enabled = true )
-	{
-		super(events);
-		if (enabled)
-			enable();
-		else
-			disable();
-	}
-	
-	
 	public function beginEdit() : EditEnabledVOType
 	{
 		if (!isEnabled())
 			return null;
 		
-		state = state.set( MVCState.EDITING );
+		setEditing();
 		vo.beginEdit();
 		return cast vo;
 	}
@@ -68,7 +58,7 @@ class EditableProxy	< VOType:IEditableValueObject, EditEnabledVOType:IEditEnable
 		if (isEditing())
 		{
 			vo.commitEdit();
-			state = state.unset( MVCState.EDITING );
+			unsetEditing();
 		}
 	}
 	
@@ -78,11 +68,13 @@ class EditableProxy	< VOType:IEditableValueObject, EditEnabledVOType:IEditEnable
 		if (isEditing())
 		{
 			vo.cancelEdit();
-			state = state.unset( MVCState.EDITING );
+			unsetEditing();
 		}
 	}
 	
 	
-	public inline function isEditing ()	{ return state.has( MVCState.EDITING ); }
+	public  inline function isEditing ()	{ return state.has( MVCFlags.EDITING ); }
+	private inline function setEditing ()	{ state = state  .set(MVCFlags.EDITING); }
+	private inline function unsetEditing ()	{ state = state.unset(MVCFlags.EDITING); }
 	override public function disable ()	{ cancelEdit(); super.disable(); }
 }

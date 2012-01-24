@@ -76,11 +76,11 @@ class GradientFill extends GraphicElement, implements IGraphicProperty
 	public function new (type:GradientType = null, spread:SpreadMethod = null, focalPointRatio:Float = 0, rotation:Int = 0)
 	{
 		super();
+		gradientStops			= FastArrayUtil.create();
 		this.type				= type == null ? GradientType.linear : type;
 		this.spread				= spread == null ? SpreadMethod.normal : spread;
 		this.focalPointRatio	= focalPointRatio;
 		this.rotation			= rotation;
-		gradientStops			= FastArrayUtil.create();
 		isFinished				= false;
 	}
 	

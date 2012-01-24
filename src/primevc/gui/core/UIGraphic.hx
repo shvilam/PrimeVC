@@ -27,14 +27,19 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.core;
+ import primevc.core.dispatcher.Wire;
  import primevc.core.Bindable;
+ 
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
+ import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.VectorShape;
  import primevc.gui.effects.UIElementEffects;
  import primevc.gui.graphics.GraphicProperties;
+ import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutClient;
+ import primevc.gui.managers.ISystem;
  import primevc.gui.states.UIElementStates;
 #if flash9
  import primevc.core.collections.SimpleList;
@@ -67,6 +72,7 @@ class UIGraphic extends VectorShape
 	public var effects			(default, default)				: UIElementEffects;
 	
 	public var layout			(default, null)					: LayoutClient;
+	public var system			(getSystem, never)				: ISystem;
 	
 #if flash9	
 	public var graphicData		(default, null)					: GraphicProperties;
@@ -109,14 +115,18 @@ class UIGraphic extends VectorShape
 
 	override public function dispose ()
 	{
-		if (state == null)
+		if (isDisposed())
 			return;
+		
+		if (container != null)			detachDisplay();
+		if (layout.parent != null)		detachLayout();
 		
 		//Change the state to disposed before the behaviours are removed.
 		//This way a behaviour is still able to respond to the disposed
 		//state.
 		state.current = state.disposed;
 		
+		removeValidation();
 		behaviours	.dispose();
 		state		.dispose();
 		id			.dispose();
@@ -146,7 +156,7 @@ class UIGraphic extends VectorShape
 
 	public inline function isDisposed ()	{ return state == null || state.is(state.disposed); }
 	public inline function isInitialized ()	{ return state != null && state.is(state.initialized); }
-	
+	public function isResizable ()			{ return true; }
 	
 	
 	//
@@ -156,9 +166,8 @@ class UIGraphic extends VectorShape
 	private function init ()
 	{
 		behaviours.init();
-		
-		if (changes > 0)
-			validate();
+		validate();
+		removeValidation.on( displayEvents.removedFromStage, this );
 		
 		state.current = state.initialized;
 	}
@@ -170,31 +179,109 @@ class UIGraphic extends VectorShape
 	}
 	
 	
+	//
+	// ATTACH METHODS
+	//
+	
+	public  inline function attachLayoutTo		(t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ t.children.add( layout, pos );											return this; }
+	public  inline function detachLayout		()									: IUIElement	{ if (layout.parent != null) { layout.parent.children.remove( layout ); }	return this; }
+	public  inline function attachTo			(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachToDisplayList(t, pos);	return this; }
+	private inline function applyDetach			()									: IUIElement	{ detachDisplay();							detachLayout();					return this; }
+	public  inline function changeLayoutDepth	(pos:Int)							: IUIElement	{ layout.parent.children.move( layout, pos );								return this; }
+	public  inline function changeDepth			(pos:Int)							: IUIElement	{ changeLayoutDepth(pos);					changeDisplayDepth(pos);		return this; }
+	
+
+	public  inline function attachToDisplayList (t:IDisplayContainer, pos:Int = -1)	: IUIElement
+	{
+		if (container != t)
+		{
+			if (effects != null && effects.isPlayingHide())
+				effects.hide.stop();
+			
+			attachDisplayTo(t, pos);
+
+			var hasEffect = visible && effects != null && effects.show != null;
+			var isPlaying = hasEffect && effects.show.isPlaying();
+			
+			if (!isPlaying)
+			{
+				if (hasEffect) {
+					visible = false;
+					if (!isInitialized()) 	haxe.Timer.delay( show, 100 ); //.onceOn( displayEvents.enterFrame, this );
+					else 					show();
+				}
+			}
+		}
+		
+		return this;
+	}
+
+
+	public  inline function detach () : IUIElement
+	{
+		if (effects != null && effects.isPlayingShow())
+			effects.show.stop();
+		
+		var hasEffect = effects != null && effects.hide != null;
+		var isPlaying = hasEffect && effects.hide.isPlaying();
+
+		if (!isPlaying)
+		{
+			if (hasEffect) {
+				var eff = effects.hide;
+				layout.includeInLayout = false;
+				applyDetach.onceOn( eff.ended, this );
+				hide();
+			}
+			else
+				applyDetach();
+		}
+
+		return this;
+	}
+
+
 	
 	//
 	// IPROPERTY-VALIDATOR METHODS
 	//
+	
+	private var validateWire : Wire<Dynamic>;
 	
 	public function invalidate (change:Int)
 	{
 		if (change != 0)
 		{
 			changes = changes.set( change );
-			if (window != null && changes == change)
-				getValidationManager().add(this);
+			
+			if (changes == change && isInitialized())
+				if      (system != null)		system.invalidation.add(this);
+				else if (validateWire != null)	validateWire.enable();
+				else                            validateWire = validate.on( displayEvents.addedToStage, this );
 		}
 	}
 	
 	
 	public function validate ()
 	{
+	    if (validateWire != null)
+	        validateWire.disable();
+        
 		changes = 0;
 	}
 	
 	
-	private function getValidationManager ()
+	/**
+	 * method is called when the object is removed from the stage or disposed
+	 * and will remove the object from the validation queue.
+	 */
+	private function removeValidation () : Void
 	{
-		return window.as(UIWindow).invalidationManager;
+		if (isQueued() &&isOnStage())
+			system.invalidation.remove(this);
+
+		if (!isDisposed() && changes > 0)
+			validate.onceOn( displayEvents.addedToStage, this );
 	}
 	
 	
@@ -202,6 +289,11 @@ class UIGraphic extends VectorShape
 	//
 	// GETTERS / SETTESR
 	//
+	
+	private inline function getSystem () : ISystem		{ return window.as(ISystem); }
+	public inline function isOnStage () : Bool			{ return window != null; }
+	public inline function isQueued () : Bool			{ return nextValidatable != null || prevValidatable != null; }
+	
 	
 #if flash9
 	private function setStylingEnabled (v:Bool)
@@ -215,7 +307,7 @@ class UIGraphic extends VectorShape
 			
 			stylingEnabled = v;
 			if (v)
-				style = new UIElementStyle(this);
+				style = new UIElementStyle(this, this);
 		}
 		return v;
 	}
@@ -239,7 +331,7 @@ class UIGraphic extends VectorShape
 	// ABSTRACT METHODS
 	//
 	
-	private function createBehaviours ()	: Void; //	{ Assert.abstract(); }
+	private function createBehaviours ()	: Void		{} //	{ Assert.abstract(); }
 	
 	
 #if debug

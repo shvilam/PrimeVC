@@ -46,14 +46,31 @@ interface IDisplayObject
 #if flash9  ,	implements flash.display.IBitmapDrawable #end
 {
 	
-	function isObjectOn (otherObj:IDisplayObject)	: Bool;
+	public function isObjectOn			(otherObj:IDisplayObject)					: Bool;
 #if !neko
-	function getDisplayCursor ()					: DisplayDataCursor;
+	public function getDisplayCursor	()											: DisplayDataCursor;
+	
+	/**
+	 * Method will attach this IDisplayObject to the given Sprite.
+	 * @return own-instance
+	 */
+	public function attachDisplayTo		(target:IDisplayContainer, pos:Int = -1)	: IDisplayObject;
+	
+	/**
+	 * Method will detach this IDisplayObject from it's parent sprite.
+	 * @return own-instance
+	 */
+	public function detachDisplay		()											: IDisplayObject;
+	
+	public function changeDisplayDepth	(newDepth:Int)								: IDisplayObject;
 #end
 	
 #if flash9
 	public var alpha		: Float;
 	public var visible		: Bool;
+	
+	public var mouseX		(default, never)		: Float;
+	public var mouseY		(default, never)		: Float;
 	
 	public var filters		: Array < Dynamic >;
 	public var name			: String;

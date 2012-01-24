@@ -28,9 +28,30 @@
  */
 package primevc.avm2.net;
  import flash.net.URLLoaderDataFormat;
+ import flash.net.URLRequest;
+
+ import haxe.io.BytesData;
+
  import primevc.core.events.LoaderEvents;
- import primevc.core.traits.IDisposable;
+
+ import primevc.core.net.CommunicationType;
+ import primevc.core.net.ICommunicator;
+ import primevc.core.net.URLVariables;
+ import primevc.core.Bindable;
+
+ import primevc.types.Number;
  import primevc.types.URI;
+ import primevc.utils.FastArray;
+#if debug
+  using primevc.core.net.HttpStatusCodes;
+#end
+  using primevc.utils.Bind;
+  using primevc.utils.FastArray;
+  using primevc.utils.NumberUtil;
+  using Std;
+
+
+private typedef FlashLoader = flash.net.URLLoader;
 
 
 /**
@@ -39,40 +60,205 @@ package primevc.avm2.net;
  * @author Ruben Weijers
  * @creation-date Sep 04, 2010
  */
-class URLLoader implements IDisposable
+class URLLoader implements ICommunicator
 {
-	public var events		(default, null)					: LoaderEvents;
-	public var bytesLoaded	(getBytesLoaded, never)			: UInt;
-	public var bytesTotal	(getBytesTotal, never)			: UInt;
-	public var isLoaded		(getIsLoaded, never)			: Bool;
-	public var data			(getData, never)				: Dynamic;
-	public var dataFormat	(getDataFormat, setDataFormat)	: URLLoaderDataFormat;
+	//
+	// URLLOADER QUEUE
+	//
 	
-	private var loader		: flash.net.URLLoader;
+	/**
+	 * queue with urlloaders that are waiting to load until other URLLoaders
+	 * are finished (FIFO).
+	 */
+	private static var queue:FastArray<URLLoader>	= FastArrayUtil.create();
+	/**
+	 * max URLLoaders loading at the same time. If this number is reached, the
+	 * other URLLoaders will wait in the queue
+	 */
+	private static inline var MAX_CONNECTIONS		= 30;
+	/**
+	 * number of active load processes
+	 */
+	private static		  var CONNECTIONS			= 0;
 	
 	
-	public function new (?url:URI)
-	{	
-		loader	= new flash.net.URLLoader();
-		events	= new LoaderEvents(loader);
+	private static inline function loadSlotAvailable () 		: Bool	{ return CONNECTIONS < MAX_CONNECTIONS; }
+	private static inline function queueIsEmpty ()				: Bool	{ return queue.length == 0; }
+	private static inline function openNextConnection ()		: Void	{ if (!queueIsEmpty() && loadSlotAvailable()) { var n = queue.shift(); n.loadRequest(n.lastRequest); } }
+	private static inline function addToQueue (l:URLLoader)		: Void	{ queue.push(l); }
+	private static inline function removeFromQueue (l:URLLoader): Void	{ queue.removeItem(l); }
+	private static inline function addConnection ()				: Void	{ CONNECTIONS++; }
+	private static inline function removeConnection ()			: Void	{ CONNECTIONS--; openNextConnection(); }
+	
+	
+	
+	//
+	// URLLOADER IMPLEMENTATION
+	//
+	
+	public static inline var STARTED	= 1 << 0;
+	public static inline var QUEUED		= 1 << 1;
+	public static inline var LOADING	= 1 << 2;
+	public static inline var COMPLETED	= 1 << 3;
+	
+	public  var events			(default,			null)			: LoaderSignals;
+	public  var bytesProgress	(getBytesProgress,	null)			: Int;
+	public  var bytesTotal		(getBytesTotal,		null)			: Int;
+	public  var length			(default,			never)			: Bindable<Int>;
+	public  var type			(default,			null)			: CommunicationType;
+	
+	public  var isQueued		(default,			null)			: Bool;
+	public  var isStarted		(default,			null)			: Bool;
+	private var isFinished											: Bool;
+	
+	public  var data			(getData,			setData)		: Dynamic;
+	public  var bytes			(getBytes,			setBytes)		: BytesData;
+	public  var dataFormat		(getDataFormat,		setDataFormat)	: URLLoaderDataFormat;
+	private var loader			: FlashLoader;
+#if debug
+	private var uri				: URI;
+#end
+	
+	
+	public function new (loader:FlashLoader = null)
+	{
+		if (loader == null)
+		{
+			this.loader = new FlashLoader();
+			setBinary();
+		}
+		else
+		{
+			this.loader	= loader;
+		}
 		
-		if (url != null)
-			load( url );
+		bytesProgress	= bytesTotal = Number.INT_NOT_SET;
+		events			= new LoaderEvents(this.loader);
+		
+		setStarted		.on( events.load.started, 	 this );
+		setFinished		.on( events.load.completed,  this );
+		unsetStarted	.on( events.load.error, 	 this );
+		unsetStarted	.on( events.unloaded,		 this );
+		
+//#if debug	trackError.on( events.load.error, this ); #end
+//#if debug	trackHttpStatus.on( events.httpStatus, this ); #end		
+//#if debug	trackCompleted.on( events.load.completed, this ); #end
 	}
 	
 	
 	public function dispose ()
 	{
-		close();
+		if (isStarted)
+			close();
+		
+		if (isQueued)
+			removeFromQueue(this);
+		
 		events.dispose();
 		events	= null;
+		type	= null;
 		loader	= null;
+		(untyped this).data	= null;
+#if debug	uri	= null; #end
+	}
+	
+	public function binaryGET  (uri:URI) { setBinary(); load(uri); }
+	
+	public function binaryPOST (uri:URI, mimetype:String = "application/octet-stream")
+	{
+			this.type	= CommunicationType.sending;
+#if debug	this.uri	= uri; #end
+		
+		var request		= uri.toRequest();
+		request.requestHeaders.push(new flash.net.URLRequestHeader("Content-type", mimetype));
+	//	request.requestHeaders.push(new flash.net.URLRequestHeader("Content-Length", bytes.length.string()));	<-- not allowed in as3
+		request.requestHeaders.push(new flash.net.URLRequestHeader("Cache-Control", "no-cache"));
+		request.method = flash.net.URLRequestMethod.POST;
+		request.data   = bytes;
+		
+	//	trace(request);
+		loadRequest(request);
 	}
 	
 	
+	public function formPOST (uri:URI, vars:URLVariables)
+	{
+			this.type	= CommunicationType.sending;
+#if debug	this.uri	= uri; #end
+		
+		var request		= uri.toRequest();
+		request.requestHeaders.push(new flash.net.URLRequestHeader("Content-type", "multipart/form-data"));
+		request.method = flash.net.URLRequestMethod.POST;
+		request.data   = vars;
+		
+		setBinary();
+		loadRequest(request);
+	}
 	
-	public inline function load (v:URI)				{ return loader.load(v.toRequest()); }
-	public inline function close ()					{ return loader.close(); }
+	
+	public inline function load (v:URI)
+	{
+#if debug
+		var total:Int = (untyped this).bytesTotal;
+		Assert.that(total.notSet() || total == 0, this.toString()+"; "+v );
+	 	uri	= v;
+#end
+		this.type = CommunicationType.loading;
+		return loadRequest(v.toRequest());
+	}
+	
+	
+	private var lastRequest : URLRequest;
+	
+	private inline function loadRequest(request:URLRequest)
+	{
+		if (isStarted)
+			close();
+		
+		isFinished = false;
+		if (isQueued) {
+			removeFromQueue(this);
+			isQueued = false;
+		}
+		
+		if (loadSlotAvailable())
+		{
+			isStarted = true;
+			addConnection();
+			loader.load(request);
+		}
+		else
+		{
+			lastRequest = request;
+			addToQueue(this);
+			isQueued = true;
+		}
+		
+	//	trace(CONNECTIONS + " / "+MAX_CONNECTIONS+"; queue: "+queue.length+"; "+request.url+isQueued);
+	}
+	
+	
+	public inline function close ()
+	{
+		//loader will throw an error if it wasn't loading
+		try {
+			loader.close();
+		} catch(e:Dynamic) {}
+
+		isStarted	= false;
+		bytesTotal	= bytesProgress = Number.INT_NOT_SET;
+		type		= null;
+#if debug	uri		= null; #end
+		events.unloaded.send();
+	}
+	
+	
+	public inline function isCompleted ()			{ return isFinished; } //bytesTotal > 0 && bytesProgress >= bytesTotal; } <-- unreliabable since loaded bytes can be correct before the completed event is fired
+	public inline function isInProgress ()			{ return isStarted && !isCompleted(); }
+	
+	public inline function isBinary ()		: Bool	{ return loader.dataFormat == URLLoaderDataFormat.BINARY; }
+	public inline function isText ()		: Bool	{ return loader.dataFormat == URLLoaderDataFormat.TEXT; }
+	public inline function isVariables ()	: Bool	{ return loader.dataFormat == URLLoaderDataFormat.VARIABLES; }
 	
 	
 	
@@ -80,13 +266,69 @@ class URLLoader implements IDisposable
 	// GETTERS / SETTERS
 	//
 	
-	private inline function getBytesLoaded ()		{ return loader.bytesLoaded; }
-	private inline function getBytesTotal ()		{ return loader.bytesTotal; }
-	private inline function getData ()				{ return loader.data; }
+	private inline function getBytesProgress ()		{ return bytesProgress.isSet()	? bytesProgress	: loader.bytesLoaded; }
+	private inline function getBytesTotal ()		{ return bytesTotal.isSet()  	? bytesTotal	: loader.bytesTotal; }
+	private inline function getData ()				{ return data != null			? data			: loader.data; }
+	public  inline function getRawData ()			{ return loader.data; }
+//	private inline function getLength ()			{ return 1; }
+	
 	private inline function getDataFormat ()		{ return loader.dataFormat; }
 	private inline function setDataFormat (v)		{ return loader.dataFormat  = v; }
 	
-	private inline function getIsLoaded () {
-		return bytesTotal > 0 && bytesLoaded >= bytesTotal;
+	
+	private  function setData (v)
+	{
+		if (data != v)
+		{
+			if (data != null && isStarted)
+				close();
+			
+			data = v;
+			
+			if (v != null) {
+				if		(Std.is(v, URLVariables))	setVariables();
+				else if (Std.is(v, BytesData))		setBinary();
+				else								setText();
+			}
+			bytesProgress = bytesTotal = Number.INT_NOT_SET;
+		}
+		return v;
 	}
+	
+	
+	private inline function getBytes () : BytesData	{ return isBinary() ? cast(data, BytesData) : null; }
+	private inline function setBytes (v:BytesData)
+	{
+		data = v;
+		
+		if (v != null)
+			bytesProgress = bytesTotal = v.length;
+		
+		return v;
+	}
+	
+	
+	public inline function setBinary ()		: Void		{ loader.dataFormat = URLLoaderDataFormat.BINARY; }
+	public inline function setText ()		: Void		{ loader.dataFormat = URLLoaderDataFormat.TEXT; }
+	public inline function setVariables ()	: Void		{ loader.dataFormat = URLLoaderDataFormat.VARIABLES; }
+	
+	
+	//
+	// EVENTHANDLERS
+	//
+	
+	private inline function setStarted ()	{ isStarted = true; }
+	private inline function setFinished ()	{ unsetStarted(); isFinished = true; }
+	private inline function unsetStarted ()	{ isStarted = false; removeConnection(); }
+	
+#if debug
+	public function toString ()
+	{
+		return "URLLoader("+bytesProgress+" / "+bytesTotal + (isStarted ? " - started" : "") + (isCompleted() ? " - completed" : "") + (isInProgress() ? " - progress" : "") + "; " + loader.dataFormat + "; "+uri+")";
+	}
+	
+//	private function trackError ()		{ trace(loader.data); }
+//	private function trackHttpStatus (status:Int)		{ trace(status.read()+" => "+uri+"[ "+bytesProgress+" / "+ bytesTotal+" ]; type: "+type+"; format: "+dataFormat+"; "+loader.data); }
+//	private function trackCompleted ()					{ trace(uri+"[ "+bytesProgress+" / "+ bytesTotal+" ]; type: "+type+"; format: "+dataFormat+"; "+loader.data); }
+#end
 }

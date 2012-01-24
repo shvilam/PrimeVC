@@ -1,6 +1,7 @@
  import flash.display.DisplayObject;
  import flash.events.Event;
  import flash.system.System;
+ import primevc.tools.StopWatch;
  import primevc.utils.FastArray;
  
 
@@ -486,76 +487,6 @@ class Test extends Thread, implements ITest
 		return timer.toString();
 	}
 }
-
-
-
-
-class StopWatch
-{
-	public static inline var MAX_VALUE:Int			= 2147483647;
-	
-	private var timesList							: FastArray < Int >;
-	public var average		(getAverage, null)		: Float;
-	public var fastest		(getFastest, null)		: Int;
-	public var currentTime	(getCurrentTime, null)	: Int;
-	public var times		(getTimes, null)		: String;
-	
-	private var startTime							: Int;
-	private var runnedTime							: Int;
-	
-	public function new () {
-		timesList = FastArrayUtil.create();
-		reset();
-	}
-	
-	
-	public inline function reset ()			{ runnedTime	 = 0; }
-	public inline function pause ()			{ runnedTime	+= flash.Lib.getTimer() - startTime; }
-	public inline function resume ()		{ startTime		 = flash.Lib.getTimer(); }
-/*	public inline function start () {
-		reset();
-		resume();
-	}
-*/	public inline function stop () {
-		pause();
-		timesList.push( runnedTime );
-	}
-	
-	
-	private inline function getCurrentTime () : Int {
-		return runnedTime;
-	}
-	
-	private inline function getAverage () : Float
-	{
-		var len:Int		= timesList.length;
-		var total:Int	= 0;
-		for ( i in 0...len ) {
-			total += timesList[i];
-		}
-		return Math.round( (total / len) * 1000 ) / 1000;
-	}
-	
-	private inline function getFastest () : Int {
-		var len:Int	= timesList.length;
-		var fas:Int	= len > 0 ? timesList[0] : -1;
-		
-		for ( i in 1...len ) {
-			if (timesList[i] < fas)
-				fas = timesList[i];
-		}
-		return fas;
-	}
-	
-	
-	public function toString () : String {
-		return fastest + " ms";
-	}
-	public inline function getTimes () : String {
-		return "Times: " + timesList.join(" ms, ") + " ms";
-	}
-}
-
 
 
 

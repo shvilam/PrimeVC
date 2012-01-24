@@ -27,8 +27,12 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.core.dispatcher;
+ import primevc.core.traits.IDisablable;
  import primevc.core.traits.IDisposable;
  import primevc.core.ListNode;
+#if DebugEvents
+  using primevc.core.ListNode;
+#end
   using primevc.utils.BitUtil;
 
 /**
@@ -39,8 +43,10 @@ package primevc.core.dispatcher;
  * Implementation detail: Wires are added to a bounded freelist (max 256 free objects) to reduce garbage collector pressure.
  * This means you should never reuse a Wire after calling dispose() and/or after unbinding the handler from the signal (which returned this Wire).
  */
-class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements IDisposable
+class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements IDisposable, implements IDisablable
 {
+	static private inline var MAX_WIRES		= 8096;
+	
 	/** Wire.flags bit which tells if the Wire is isEnabled(). */
 	static public inline var ENABLED		= 1;
 	/** Wire.flags bit which tells if Wire.handler takes 0 arguments. */
@@ -49,41 +55,44 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 	static public inline var SEND_ONCE		= 4;
 	
 	static private var free : Wire<Dynamic>;
-	static private var freeCount : Int = 0;
+	static public  var freeCount : Int = 0;
 	
-	/* static function __init__()
-	{	
-		var W = Wire;
-		// Pre-allocate 9216 bytes of Wires
-		for (i in 0 ... 256) {
+/*	static function __init__()
+	{	X_WIRES) {
 			var b  = new Wire();
 			b.n	   = W.free;
+		var W = Wire;
+		// Pre-allocate Wires
+		for (i in 0 ... MA
 			W.free = b;
-			W.freeCount++;
+			++W.freeCount;
 		}
-	} */
+	}*/
 		
-	static public function make<T>( dispatcher:Signal<T>, owner:Dynamic, handlerFn:T, flags:Int ) : Wire<T>
+	static public function make<T>( dispatcher:Signal<T>, owner:Dynamic, handlerFn:T, flags:Int #if debug, ?pos : haxe.PosInfos #end ) : Wire<T>
 	{
 		var w:Wire<Dynamic>,
 			W = Wire;
 		
 		if (W.free == null)
-			w = new Wire<T>();
+			w = new Wire<T>(flags);
 		else {
-			--W.freeCount;
 			W.free = (w = W.free).n; // i know it's unreadable.. but it's faster.
+			--W.freeCount;
 			w.n = null;
 			Assert.that(w.owner == null && w.handler == null && w.signal == null && w.n == null);
+			w.flags	  = flags;
 		}
 		
 		w.owner   = owner;
 		w.signal  = dispatcher;
-		w.handler = handlerFn; // Unsets VOID_HANDLER (!!)
-		w.flags	  = flags;
-		w.doEnable();
+		(untyped w).handler = handlerFn; // Unsets VOID_HANDLER (!!)
+		if (flags.has(ENABLED))
+			w.doEnable();
 		
-		return untyped w;
+		#if debug w.bindPos = pos; #end
+		
+		return cast w;
 	}
 	
 	static public inline function sendVoid<T>( wire:Wire<Dynamic> ) {
@@ -105,21 +114,45 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 	/** Object referencing the parent Link in the Chain **/
 	public var signal	(default, null)	: Signal<FunctionSignature>;
 	
+#if debug
+	public static var instanceCount	= 0;
+	public static var disposeCount	= 0;
+	public var bindPos		: haxe.PosInfos;
+	public var instanceNum	: Int;
+	
+	public function toString() {
+		return "{Wire["+instanceNum+" (total: "+instanceCount+"/"+disposeCount+")] bound at: "+ bindPos.fileName + ":" + bindPos.lineNumber + ", flags = 0x"+ StringTools.hex(flags, 2) +", owner = " + owner + "}";
+	}
+	public function pos(?p:haxe.PosInfos) : Wire<FunctionSignature> {
+		#if debug untyped this.bindPos = p; return this; #end
+	}
+	
+#else
+	
+	public inline function pos() : Wire<FunctionSignature> {
+		return this;
+	}
+#end
+	
+	
+	
+	
 	//
 	// INLINE PROPERTIES
 	//
 	
-	private function new() {
-		flags = 0;
+	private function new(f:Int = 0) {
+		flags = f;
+		#if debug instanceNum = ++instanceCount; #end
 	}
 	
-	public inline function isEnabled()
+	public inline function isEnabled() : Bool
 	{
 		#if DebugEvents
 		{
 			var root = signal;
 		
-			var x = ListNode.next(root);
+			var x = root.next();
 			var total = 0;
 			var found = 0;
 			while (x != null) {
@@ -162,8 +195,13 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 		Signal.notifyEnabled(signal, this);
 	}
 	
-	/** Disable propagation for the handler this link belongs too. Usefull to quickly (syntax and performance wise) temporarily disable a handler.
-		Adviced to use in classes which "in the usual way" would add and remove listeners alot. **/
+	/**
+	 * Disable propagation for the handler this link belongs too. Usefull to 
+	 * quickly (syntax and performance wise) temporarily disable a handler.
+	 * 
+	 * Adviced to use in classes which "in the usual way" would add and remove 
+	 * listeners alot.
+	 */
 	public /*inline*/ function disable()
 	{
 		if (isEnabled())
@@ -176,6 +214,12 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 			
 			x.n = this.n;
 			this.n = null;
+			
+			// If this wire is disabled during the call to it's handler we need 
+			// to update the reference to the next-sendable in the Signal.send-list.
+			// @see Signal.nextSendable
+			if (signal.nextSendable == this)
+				signal.nextSendable = x.n;
 			
 			Signal.notifyDisabled(signal, this);
 		}
@@ -191,12 +235,17 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 		handler = owner = signal = null;
 		flags	= 0;
 		
+#if debug
+		disposeCount++;
+#end
 		var W = Wire;
-		if (W.freeCount != 256) {
+		if (W.freeCount != MAX_WIRES) {
 			++W.freeCount;
 			this.n = cast W.free;
 			W.free = this;
 		}
+		else
+		 	Assert.that(n == null);
 	}
 	
 	
@@ -211,5 +260,11 @@ class Wire <FunctionSignature> extends WireList<FunctionSignature>, implements I
 			Reflect.compareMethods(handlerFn, this.handler)
 		  #end
 		));
+	}
+	
+	
+	public inline function isDisposed () : Bool
+	{
+		return signal == null || owner == null || handler == null;
 	}
 }

@@ -31,15 +31,14 @@ package primevc.gui.layout;
  import primevc.core.geom.Box;
  import primevc.core.geom.IntRectangle;
  import primevc.core.states.SimpleStateMachine;
- import primevc.core.traits.IInvalidatable;
- import primevc.core.validators.ValidatingValue;
+ import primevc.core.traits.IQueueingInvalidatable;
+// import primevc.core.validators.ValidatingValue;
  import primevc.core.validators.IntRangeValidator;
  import primevc.core.traits.IDisposable;
-// import primevc.gui.events.LayoutEvents;
  import primevc.gui.states.ValidateStates;
 
 
-typedef SizeType = ValidatingValue < Int >;
+//typedef SizeType = ValidatingValue < Int >;
 
 
 /**
@@ -50,7 +49,7 @@ typedef SizeType = ValidatingValue < Int >;
  * @author	Ruben Weijers
  */
 interface ILayoutClient 
-		implements IInvalidatable
+		implements IQueueingInvalidatable
 	,	implements IDisposable
 {
 	/**
@@ -63,12 +62,16 @@ interface ILayoutClient
 	 * 
 	 * @default false
 	 */
-	public var validateOnPropertyChange										: Bool;
+//	public var validateOnPropertyChange										: Bool;
 	
 	/**
 	 * Flags of properties that are changed
 	 */
-	public var changes							: Int;
+	public var changes						(default, null)					: Int;
+	/**
+	 * Flags with all the properties that are set for the layoutclient
+	 */
+//	public var filledProperties		(default, null)							: Int;
 	
 	
 	/**
@@ -84,8 +87,8 @@ interface ILayoutClient
 	 */
 	public var parent						(default, setParent)			: ILayoutContainer;
 	
-	public var isValidating					(getIsValidating, never)		: Bool;
-	public var isInvalidated				(getIsInvalidated, never)		: Bool;
+	public function isValidating ()			: Bool;
+	public function isInvalidated ()		: Bool;
 	
 	
 	//
@@ -146,10 +149,6 @@ interface ILayoutClient
 	
 	
 	/**
-	 * rules for the size (min, max)
-	 */
-//	public var sizeConstraint		(default, setSizeConstraint)		: SizeConstraint;
-	/**
 	 * rules for sizing / positioning the layout with relation to the parent
 	 */
 	public var relative				(default, setRelative)				: RelativeLayout;
@@ -157,15 +156,23 @@ interface ILayoutClient
 	/**
 	 * @default	false
 	 */
-	public var maintainAspectRatio	(default, setAspectRatio)			: Bool;
-	private var aspectRatio			(default, default)					: Float;
+	public var maintainAspectRatio	(default, setMaintainAspectRatio)	: Bool;
+	public var aspectRatio			(default, null)						: Float;
 	
 	
 	//
 	// EVENTS
 	//
 	
-//	public var events				(default, null)						: LayoutEvents;
+	
+	/**
+	 * Signal that is send when the layout is validated and the changes involve
+	 * the x, y, width or height.
+	 * 
+	 * Be aware that even though a displayobject is off the stage, the layout
+	 * can still be validated by it's layout-container when the containers 
+	 * displayobject is still on the stage.
+	 */
 	public var changed				(default, null)						: Signal1<Int>;
 	
 	public var state				(default, null)						: SimpleStateMachine < ValidateStates >;
@@ -182,12 +189,12 @@ interface ILayoutClient
 	 * Width of the LayoutClient. Changing the width will also change the width
 	 * property in 'bounds'.
 	 */
-	public var width				(default, null)						: SizeType;
+	public var width				(getWidth, setWidth)				: Int;
 	/**
 	 * Width of the LayoutClient. Changing the width will also change the height
 	 * property in 'bounds'.
 	 */
-	public var height				(default, null)						: SizeType;
+	public var height				(getHeight, setHeight)				: Int;
 	
 	/**
 	 * If percent width is set, the width of the layoutclient will be 
@@ -241,6 +248,9 @@ interface ILayoutClient
 	public var padding	(default, setPadding)	: Box;
 	public var margin	(default, setMargin)	: Box;
 	
+	public var widthValidator		(default, setWidthValidator)		: IntRangeValidator;
+	public var heightValidator		(default, setHeightValidator)		: IntRangeValidator;
+	
 	
 	//
 	// POSITION PROPERTIES
@@ -258,6 +268,8 @@ interface ILayoutClient
 	 */
 	public var outerBounds	(default, null)		: IntRectangle;
 	
+	public function hasMaxWidth () : Bool;
+	public function hasMaxHeight () : Bool;
 	
 #if debug
 	public var name:String;

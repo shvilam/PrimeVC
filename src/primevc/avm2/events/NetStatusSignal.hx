@@ -55,18 +55,23 @@ class NetStatusSignal extends Signal1<NetStreamInfo>, implements IWireWatcher <H
 		this.eventDispatcher = d;
 		this.event = NetStatusEvent.NET_STATUS;
 	}
-
-	public function wireEnabled (wire:Wire<Handler>) : Void {
+	
+	
+	public function wireEnabled (wire:Wire<Handler>) : Void
+	{
 		Assert.that(n != null);
 		if (ListUtil.next(n) == null) // First wire connected
 			eventDispatcher.addEventListener(event, dispatch, false, 0, true);
 	}
-
-	public function wireDisabled	(wire:Wire<Handler>) : Void {
+	
+	
+	public function wireDisabled (wire:Wire<Handler>) : Void
+	{
 		if (n == null) // No more wires connected
 			eventDispatcher.removeEventListener(event, dispatch, false);
 	}
-
+	
+	
 	private function dispatch(e:NetStatusEvent)
 	{
 		send(new NetStreamInfo( e.info ));

@@ -34,16 +34,15 @@ package primevc.core.events;
 typedef CommunicationEvents = 
 	#if		flash9	primevc.avm2.events.CommunicationEvents;
 	#elseif	flash8	primevc.avm1.events.CommunicationEvents;
-	#elseif	js		primevc.js  .events.CommunicationEvents;
-	#else	#error	#end
+	#elseif	js		CommunicationSignals; //primevc.js  .events.CommunicationEvents;
+	#elseif	neko	CommunicationSignals;
+	#else	error;	#end
 
 
-
-
-typedef ErrorHandler	= String -> Void;
+typedef TextHandler		= String -> Void;
 typedef ProgressHandler	= UInt -> UInt -> Void;
-typedef ErrorSignal		= primevc.core.dispatcher.INotifier< ErrorHandler >;
-typedef ProgressSignal	= primevc.core.dispatcher.INotifier< ProgressHandler >;
+typedef ErrorSignal		= primevc.core.dispatcher.Signal1< String >;
+typedef ProgressSignal	= primevc.core.dispatcher.Signal2<UInt,UInt>;
 
 
 /**
@@ -58,6 +57,11 @@ class CommunicationSignals extends Signals
 	 * Dispatched when a communication operation has started
 	 */
 	var started		(default, null) : Signal0;
+	
+	/**
+	 * Dispatched when a communication operation received initial data
+	 */
+	var init		(default, null) : Signal0;
 	
 	/**
 	 * Dispatched when data there is progress receiving or sending data

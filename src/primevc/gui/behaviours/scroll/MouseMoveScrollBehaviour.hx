@@ -30,7 +30,7 @@ package primevc.gui.behaviours.scroll;
 #if !neko
  import primevc.core.geom.IntPoint;
  import primevc.gui.events.MouseEvents;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
 #end
 
 

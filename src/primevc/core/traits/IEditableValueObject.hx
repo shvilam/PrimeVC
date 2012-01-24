@@ -40,4 +40,5 @@ interface IEditableValueObject implements IEditEnabledValueObject
 	public function beginEdit()  : Void;
 	public function commitEdit() : Void;
 	public function cancelEdit() : Void;
+    public function isEditable() : Bool;
 }

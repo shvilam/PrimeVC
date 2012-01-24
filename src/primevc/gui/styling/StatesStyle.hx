@@ -35,7 +35,7 @@ package primevc.gui.styling;
   using primevc.utils.BitUtil;
 
 
-typedef StatesListType	= SimpleDictionary < Int, StyleBlock >;
+typedef StatesListType	= #if neko SimpleDictionary < Int, StyleBlock > #else IntHash<StyleBlock> #end;
 private typedef Flags	= StyleStateFlags;
 
 
@@ -50,9 +50,9 @@ class StatesStyle extends StyleSubBlock
 	public var states			(default, null) : StatesListType;
 	
 	
-	public function new (states:StatesListType = null)
+	public function new (filledProps:Int = 0, states:StatesListType = null)
 	{
-		super();
+		super(filledProps);
 		this.states = states;
 		
 		updateFilledPropertiesFlag();
@@ -63,7 +63,7 @@ class StatesStyle extends StyleSubBlock
 	override public function dispose ()
 	{
 		if (states != null) {
-			states.dispose();
+#if neko	states.dispose(); #end
 			states = null;
 		}
 		super.dispose();
@@ -119,10 +119,21 @@ class StatesStyle extends StyleSubBlock
 	
 	override public function updateAllFilledPropertiesFlag ()
 	{
-		super.updateAllFilledPropertiesFlag();
+		inheritedProperties = 0;
+		if (extendedStyle != null)	inheritedProperties  = extendedStyle.allFilledProperties;
+		if (superStyle != null)		inheritedProperties |= superStyle.allFilledProperties;
 		
-		if (allFilledProperties < Flags.ALL_STATES && extendedStyle != null)	allFilledProperties |= extendedStyle.allFilledProperties;
-		if (allFilledProperties < Flags.ALL_STATES && superStyle != null)		allFilledProperties |= superStyle.allFilledProperties;
+		allFilledProperties = filledProperties | inheritedProperties;
+		inheritedProperties	= inheritedProperties.unset( filledProperties );
+	}
+	
+	
+	override public function getPropertiesWithout (noExtendedStyle:Bool, noSuperStyle:Bool)
+	{
+		var props = filledProperties;
+		if (!noExtendedStyle && extendedStyle != null)	props |= extendedStyle.allFilledProperties;
+		if (!noSuperStyle && superStyle != null)		props |= superStyle.allFilledProperties;
+		return props;
 	}
 	
 	
@@ -178,7 +189,7 @@ class StatesStyle extends StyleSubBlock
 			return;
 		
 		if (states == null)		states = new StatesListType();
-		if (state == null)		states.unset( stateName );
+		if (state == null)		#if neko states.unset( stateName ); #else states.remove( stateName ); #end
 		else					states.set( stateName, state );
 		
 		markProperty( stateName, state != null );
@@ -248,7 +259,7 @@ class StatesStyle extends StyleSubBlock
 	override public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())
-			code.construct( this, [ states ] );
+			code.construct( this, [ filledProperties, states ] );
 	}
 #end
 
@@ -265,25 +276,30 @@ class StatesStyle extends StyleSubBlock
 
 
 #if (debug && flash9)
-	public function toString () 
+	override public function toString () 
 	{
 		var statesToFind	= allFilledProperties;
 		var output			= [];
 		
 		while (statesToFind > 0)
 		{
-			statesToFind = addStateStringToArray( statesToFind, output, Flags.CHECKED );
-			statesToFind = addStateStringToArray( statesToFind, output, Flags.DISABLED );
-			statesToFind = addStateStringToArray( statesToFind, output, Flags.DOWN );
-			statesToFind = addStateStringToArray( statesToFind, output, Flags.ERROR );
-			statesToFind = addStateStringToArray( statesToFind, output, Flags.FOCUS );
 			statesToFind = addStateStringToArray( statesToFind, output, Flags.HOVER );
-			statesToFind = addStateStringToArray( statesToFind, output, Flags.INVALID );
-			statesToFind = addStateStringToArray( statesToFind, output, Flags.LOADED );
-			statesToFind = addStateStringToArray( statesToFind, output, Flags.LOADING );
-			statesToFind = addStateStringToArray( statesToFind, output, Flags.OPTIONAL );
-			statesToFind = addStateStringToArray( statesToFind, output, Flags.REQUIRED );
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.DOWN );
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.FOCUS );
+			
 			statesToFind = addStateStringToArray( statesToFind, output, Flags.VALID );
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.INVALID );
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.REQUIRED );
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.OPTIONAL );
+			
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.DISABLED );
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.CHECKED );
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.EDITABLE );
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.SELECTED );
+			
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.PROGRESS );
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.COMPLETED );
+			statesToFind = addStateStringToArray( statesToFind, output, Flags.ERROR );
 		}
 		
 		return "StatesStyle "+output.join(", ");

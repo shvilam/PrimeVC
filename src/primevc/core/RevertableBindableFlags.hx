@@ -28,13 +28,13 @@
  */
 package primevc.core;
   using primevc.utils.BitUtil;
-
+  using primevc.utils.IfUtil;
 
 /**
  * @creation-date	Jun 18, 2010
  * @author			Danny Wilson
  */
-class RevertableBindableFlags
+extern class RevertableBindableFlags
 {
 	/**
 	 * When this flag is set, any (valid) value change will send
@@ -77,6 +77,9 @@ class RevertableBindableFlags
 	 * Whether 'value' is valid according to the configured validator.
 	 */
 	public static inline var IS_VALID							= 1 << 5; // 0b_0010 0000
+
+	public static inline var MAKE_SHADOW_COPY					= 1 << 15; //32768;	// 0b_1000 0000 0000 0000
+	
 	
 	/**
 	 *  Tests in one go if change signal should be dispatched.
@@ -89,49 +92,61 @@ class RevertableBindableFlags
 	 *  
 	 *  otherwise, it returns false.
 	 */
-	public static inline function shouldSignal(f:Int)
+	public static inline function shouldSignal(f:Int) : Bool
 	{
 		return ((
-			 ((f & IN_EDITMODE >> 4) ^ 1)			// if not in editmode: 1
-			| (f & DISPATCH_CHANGES_BEFORE_COMMIT)	// if editmode && dispatchBeforeCommit: 1 else 0
+			 (((f & IN_EDITMODE) >> 4) ^ 1)			// if not in editmode: 1
+			|  (f & DISPATCH_CHANGES_BEFORE_COMMIT)	// if editmode && dispatchBeforeCommit: 1 else 0
 		  )
 		  &
 		  ( // XOR: editmode && dispatchBeforeCommit should be true, or 
-			  (f & IS_VALID) >> 5							// if valid:				1
-		    | (f & INVALID_CHANGES_DISPATCH_SIGNAL) >> 1	// if dispatchOnInvalid:	1
-		  )) == 1;
+			  ((f & IS_VALID) >> 5)							// if valid:				1
+		    | ((f & INVALID_CHANGES_DISPATCH_SIGNAL)) >> 1	// if dispatchOnInvalid:	1
+		  )).not0();
 	}
 	
 	/**
 	 * Tests in one go if Bindings should be updated.
 	 * @see shouldSignal
 	 */
-	public static inline function shouldUpdateBindings(f:Int)
+	public static inline function shouldUpdateBindings(f:Int) : Bool
 	{
+		//return (((f & IS_VALID) >> 5)) | ((f & INVALID_CHANGES_UPDATE_BINDINGS) >> 3) & ((((f & IN_EDITMODE) >> 4) ^ 1) ^ ((f & UPDATE_BINDINGS_BEFORE_COMMIT) >> 2)) != 0;
 		return ((
-			 ((f & IN_EDITMODE >> 4) ^ 1)				// if not in editmode: 1
-			| (f & UPDATE_BINDINGS_BEFORE_COMMIT) >> 2	// if editmode && dispatchBeforeCommit: 1 else 0
+			 (((f & IN_EDITMODE) >> 4) ^ 1)				// if not in editmode: 1
+			|  (f & UPDATE_BINDINGS_BEFORE_COMMIT) >> 2	// if editmode && dispatchBeforeCommit: 1 else 0
 		  )
 		  &
 		  ( // XOR: editmode && dispatchBeforeCommit should be true, or 
-			  (f & IS_VALID) >> 5							// if valid:				1
-		    | (f & INVALID_CHANGES_UPDATE_BINDINGS) >> 3	// if dispatchOnInvalid:	1
-		  )) == 1;
+			  ((f & IS_VALID) >> 5)							// if valid:				1
+		    | ((f & INVALID_CHANGES_UPDATE_BINDINGS)) >> 3	// if dispatchOnInvalid:	1
+		  )).not0();
 	}
+	
 	
 	
 #if debug
 	public static inline function readProperties (flags:Int) : String
 	{
-		var props = [];
-		
-		if (flags.has( IN_EDITMODE ))						props.push( "editmode" );
-		if (flags.has( DISPATCH_CHANGES_BEFORE_COMMIT ))	props.push( "dispatch-changes-before-commit" );
-		if (flags.has( INVALID_CHANGES_DISPATCH_SIGNAL ))	props.push( "invalid-changes-dispatch-signal" );
-		if (flags.has( UPDATE_BINDINGS_BEFORE_COMMIT ))		props.push( "update-bindings-before-commit" );
-		if (flags.has( INVALID_CHANGES_UPDATE_BINDINGS ))	props.push( "invalid-changes-update-bindings" );
-		
-		return "properties: "+props.join(", ") + " ("+flags+")";
+		return RevertableBindableFlagsDebug.readProperties(flags);
 	}
 #end
 }
+
+#if debug
+private class RevertableBindableFlagsDebug {
+	public static function readProperties (flags:Int) : String
+	{
+		var props = [];
+		
+		if (flags.has( RevertableBindableFlags.IN_EDITMODE ))						props.push( "editmode" );
+		if (flags.has( RevertableBindableFlags.DISPATCH_CHANGES_BEFORE_COMMIT ))	props.push( "dispatch-changes-before-commit" );
+		if (flags.has( RevertableBindableFlags.INVALID_CHANGES_DISPATCH_SIGNAL ))	props.push( "invalid-changes-dispatch-signal" );
+		if (flags.has( RevertableBindableFlags.UPDATE_BINDINGS_BEFORE_COMMIT ))		props.push( "update-bindings-before-commit" );
+		if (flags.has( RevertableBindableFlags.INVALID_CHANGES_UPDATE_BINDINGS ))	props.push( "invalid-changes-update-bindings" );
+		if (flags.has( RevertableBindableFlags.MAKE_SHADOW_COPY ))					props.push( "make-shadow-copy" );
+		
+		return "properties: "+props.join(", ") + " ("+flags+")";
+	}
+}
+#end

@@ -32,8 +32,8 @@ package primevc.gui.layout.algorithms.float;
  import primevc.gui.layout.algorithms.HorizontalBaseAlgorithm;
  import primevc.gui.layout.algorithms.IHorizontalAlgorithm;
  import primevc.gui.layout.AdvancedLayoutClient;
- import primevc.utils.NumberMath;
-  using primevc.utils.NumberMath;
+ import primevc.types.Number;
+ import primevc.utils.NumberUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
  
@@ -46,13 +46,6 @@ package primevc.gui.layout.algorithms.float;
  */
 class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHorizontalAlgorithm
 {
-	/**
-	 * Measured point of the right side of the middlest child (rounded above) 
-	 * when the direction is center.
-	 */
-	private var halfWidth			: Int;
-	
-	
 	public inline function validate ()
 	{
 		if (group.children.length == 0)
@@ -68,30 +61,22 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	 */
 	public function validateHorizontal ()
 	{
-		var width:Int = halfWidth = 0;
+		var width:Int	= 0;
+		var children	= group.children;
 		
 		if (group.childWidth.notSet())
 		{
-			var i:Int = 0;
-			for (child in group.children)
+			for (i in 0...children.length)
 			{
+				var child = children.getItemAt(i);
 				if (!child.includeInLayout)
 					continue;
 				
 				width += child.outerBounds.width;
-				
-				//only count even children
-				if (i.isEven())
-					halfWidth += child.outerBounds.width;
-				
-				i++;
 			}
 		}
 		else
-		{
-			width		= group.childWidth * group.children.length;
-			halfWidth	= group.childWidth * group.children.length.divCeil(2);
-		}
+			width = group.childWidth * group.childrenLength;
 		
 		setGroupWidth(width);
 	}
@@ -114,11 +99,16 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 		{
 			if (next == -1)
 				next = getLeftStartValue();
-		
+			
+			var children = group.children;
+			Assert.that(next.isSet());
+			
 			//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
 			if (group.childWidth.notSet())
 			{
-				for (child in group.children) {
+				for (i in 0...children.length)
+				{
+					var child = children.getItemAt(i);
 					if (!child.includeInLayout)
 						continue;
 					
@@ -128,7 +118,12 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 			} 
 			else
 			{
-				for (child in group.children) {
+				if (group.fixedChildStart.isSet())
+					next += group.fixedChildStart * group.childWidth;
+				
+				for (i in 0...children.length)
+				{
+					var child = children.getItemAt(i);
 					if (!child.includeInLayout)
 						continue;
 					
@@ -143,50 +138,6 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	private inline function applyCentered () : Void
 	{
 		applyLeftToRight( getHorCenterStartValue() );
-		/*if (group.children.length > 0)
-		{
-			var i:Int = 0;
-			var evenPos:Int, oddPos:Int;
-			evenPos = oddPos = halfWidth + getLeftStartValue();
-		
-			//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
-			if (group.childWidth.notSet())
-			{
-				for (child in group.children) {
-					if (!child.includeInLayout)
-						continue;
-					
-					if (i.isEven()) {
-						//even
-						child.bounds.right	= evenPos;
-						evenPos				= child.bounds.left;
-					} else {
-						//odd
-						child.bounds.left	= oddPos;
-						oddPos				= child.bounds.right;
-					}
-					i++;
-				}
-			}
-			else
-			{
-				for (child in group.children) {
-					if (!child.includeInLayout)
-						continue;
-					
-					if (i.isEven()) {
-						//even
-						child.bounds.right	 = evenPos;
-						evenPos				-= group.childWidth;
-					} else {
-						//odd
-						child.bounds.left	 = oddPos;
-						oddPos				+= group.childWidth;
-					}
-					i++;
-				}
-			}
-		}*/
 	}
 	
 	
@@ -194,12 +145,16 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	{
 		if (group.children.length > 0)
 		{
-			var next = getRightStartValue();
-		
+			var next		= getRightStartValue();
+			var children	= group.children;
+			Assert.that(next.isSet(), "beginvalue can't be unset for "+group+". Make sure the group has a width.");
+			
 			//use 2 loops for algorithms with and without a fixed child-width. This is faster than doing the if statement inside the loop!
 			if (group.childWidth.notSet())
 			{
-				for (child in group.children) {
+				for (i in 0...children.length)
+				{
+					var child = children.getItemAt(i);
 					if (!child.includeInLayout)
 						continue;
 					
@@ -210,7 +165,12 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 			else
 			{
 				next -= group.childWidth;
-				for (child in group.children) {
+				if (group.fixedChildStart.isSet())
+					next -= group.fixedChildStart * group.childWidth;
+				
+				for (i in 0...children.length)
+				{
+					var child = children.getItemAt(i);
 					if (!child.includeInLayout)
 						continue;
 					
@@ -236,11 +196,12 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	{
 		var depth:Int	= 0;
 		var posX:Int	= bounds.left;
-		var centerX:Int	= bounds.left + (bounds.width * .5).roundFloat();
+		var centerX:Int	= bounds.left + (bounds.width >> 1); //* .5).roundFloat();
+		var children	= group.children;
 		
 		if (group.childWidth.isSet())
 		{
-			depth = posX.divRound(group.childWidth);
+			depth = ((posX - getLeftStartValue()) / group.childWidth).roundFloat();
 		}
 		else
 		{
@@ -248,14 +209,16 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 			if (posX > 0)
 			{
 				//check if it's smart to start searching at the end or at the beginning..
-				var groupWidth = group.width.value;
+				var groupWidth = group.width;
 				if (group.is(AdvancedLayoutClient))
 					groupWidth = IntMath.max( 0, group.as(AdvancedLayoutClient).measuredWidth );
 				
-				var halfW = groupWidth * .5;
+				var halfW = groupWidth >> 1; //* .5;
 				if (posX < halfW) {
 					//start at beginning
-					for (child in group.children) {
+					for (i in 0...children.length)
+					{
+						var child = children.getItemAt(i);
 						if (child.includeInLayout && centerX <= child.outerBounds.right && centerX >= child.outerBounds.left)
 							break;
 						
@@ -265,8 +228,8 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 				else
 				{
 					//start at end
-					var itr	= group.children.reversedIterator();
-					depth	= group.children.length;
+					var itr	= children.reversedIterator();
+					depth	= children.length;
 					while (itr.hasNext()) {
 						var child = itr.next();
 						if (child.includeInLayout && centerX >= child.outerBounds.right)
@@ -284,17 +247,20 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	private inline function getDepthForBoundsC (bounds:IRectangle) : Int
 	{
 		Assert.abstract( "Wrong implementation since the way centered layouts behave is changed");
-		var depth:Int	= 0;
-		var posX:Int	= bounds.left;
-		var centerX:Int	= bounds.left + (bounds.width * .5).roundFloat();
+		return 0;
+	/*	var depth:Int	= 0;
+		var posX:Int	= bounds.left - getHorCenterStartValue();
+		var centerX:Int	= bounds.left + (bounds.width >> 1); // * .5).roundFloat();
+		var children	= group.children;
 		
-		var groupWidth	= group.width.value;
+		var groupWidth	= group.width;
 		if (group.is(AdvancedLayoutClient))
 			groupWidth	= IntMath.max( 0, group.as(AdvancedLayoutClient).measuredWidth );
 
-		var halfW = groupWidth * .5;
-
-		for (child in group.children) {
+		var halfW = groupWidth >> 1; // * .5;
+		for (i in 0...children.length)
+		{
+			var child = children.getItemAt(i);
 			if (child.includeInLayout 
 				&& (
 						(centerX <= child.outerBounds.right && centerX >= halfW)
@@ -305,7 +271,7 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 
 			depth++;
 		}
-		return depth;
+		return depth;*/
 	}
 	
 	
@@ -313,36 +279,39 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 	{
 		var depth:Int	= 0;
 		var posX:Int	= bounds.left;
-		var centerX:Int	= bounds.left + (bounds.width * .5).roundFloat();
+		var centerX:Int	= posX + (bounds.width >> 1); //* .5).roundFloat();
 		
-		var groupWidth = group.width.value;
-		var emptyWidth = 0;
+		var children	= group.children;
+		var groupWidth	= group.width;
+		var emptyWidth	= 0;
 		if (group.is(AdvancedLayoutClient))
 		{
 			groupWidth	= IntMath.max( 0, group.as(AdvancedLayoutClient).measuredWidth );
 			//check if there's any width left. This happens when there's an explicitWidth set.
-			emptyWidth	= IntMath.max( 0, group.width.value - groupWidth );
+			emptyWidth	= IntMath.max( 0, group.width - groupWidth );
 		}
 		
 		if (group.childWidth.isSet())
 		{
-			depth = group.children.length - ( posX - emptyWidth ).divRound( group.childWidth );
+			depth = children.length - ((posX - getRightStartValue() - emptyWidth) / group.childWidth).roundFloat();
 		}
 		else
 		{
 			//if pos <= emptyWidth, the depth will be at the end of the list
 			if (posX <= emptyWidth)
-				depth = group.children.length;
+				depth = children.length;
 			
 			//if bounds.right < maximum group width, then the depth is at the beginning of the list
-			else if (bounds.right < IntMath.max(group.width.value, groupWidth))
+			else if (bounds.right < IntMath.max(group.width, groupWidth))
 			{
 				//check if it's smart to start searching at the end or at the beginning..
-				var halfW = groupWidth * .5;
+				var halfW = groupWidth >> 1; //* .5;
 
 				if (posX > (emptyWidth + halfW)) {
 					//start at beginning
-					for (child in group.children) {
+					for (i in 0...children.length)
+					{
+						var child = children.getItemAt(i);
 						if (child.includeInLayout && centerX >= child.outerBounds.left)
 							break;
 						
@@ -352,8 +321,8 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 				else
 				{
 					//start at end
-					var itr	= group.children.reversedIterator();
-					depth	= group.children.length - 1;
+					var itr	= children.reversedIterator();
+					depth	= children.length - 1;
 					while (itr.hasNext()) {
 						var child = itr.next();
 						if (child.includeInLayout && centerX <= child.outerBounds.right)
@@ -366,6 +335,79 @@ class HorizontalFloatAlgorithm extends HorizontalBaseAlgorithm, implements IHori
 
 		}
 		return depth;
+	}
+	
+	
+	override public function getDepthOfFirstVisibleChild ()	: Int
+	{
+		if (group.childWidth.notSet())
+			return 0;
+		
+		Assert.that(group.is(IScrollableLayout), group+" should be scrollable");
+		var group	= group.as(IScrollableLayout);
+		var childW	= group.childWidth;
+		
+		var depth	= switch (direction) {
+			case Horizontal.left:	(group.scrollPos.x / childW).floorFloat();
+			case Horizontal.center:	0;
+			case Horizontal.right:	(group.scrollableWidth / childW).floorFloat();
+		};
+		return (depth - group.invisibleBefore).within(0, group.childrenLength);
+	}
+	
+	
+	override public function getMaxVisibleChildren () : Int
+	{
+		var g = this.group;
+		if (g.childWidth.isSet())
+		    return g.width.isSet()
+		    	? IntMath.min( (g.width / g.childWidth).ceilFloat() + group.invisibleBefore + group.invisibleAfter, g.childrenLength)
+		    	: 0;
+	    else
+	        return g.childrenLength;
+	}
+	
+	
+	override public function scrollToDepth (depth:Int)
+	{
+	    if (!group.is(IScrollableLayout))
+	        return;
+	    
+	    var group       = this.group.as(IScrollableLayout);
+	    var childW      = group.childWidth;
+	    var scrollX     = Number.INT_NOT_SET;
+	    var children    = group.children;
+	    
+	    switch (direction)
+	    {
+			case Horizontal.left:
+			    if (childW.isSet()) {
+			        scrollX = getLeftStartValue() + (depth * childW);
+		        } else {
+#if debug	        Assert.that( depth >= group.fixedChildStart, depth+" >= "+group.fixedChildStart );
+			        Assert.that( depth <  group.fixedChildStart + children.length, depth+" < "+group.fixedChildStart+" + "+children.length ); #end
+			        
+			        scrollX = children.getItemAt( depth - group.fixedChildStart ).outerBounds.left;
+			    }
+			    
+			
+			case Horizontal.center:
+			    Assert.abstract();
+			
+			
+			case Horizontal.right:
+			    if (childW.isSet()) {
+			        scrollX = getRightStartValue() + ((depth + 1) * childW);
+		        } else {
+#if debug	        Assert.that( depth >= group.fixedChildStart, depth+" >= "+group.fixedChildStart );
+			        Assert.that( depth <  group.fixedChildStart + children.length, depth+" < "+group.fixedChildStart+" + "+children.length ); #end
+			        
+			        scrollX = children.getItemAt( depth - group.fixedChildStart ).outerBounds.left;
+			    }
+		}
+		
+		if (scrollX.isSet())
+		    group.scrollPos.x = scrollX;
 	}
 	
 	

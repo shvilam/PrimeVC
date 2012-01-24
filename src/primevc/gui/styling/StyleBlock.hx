@@ -5,10 +5,10 @@
  * modification, are permitted provided that the following conditions are met:
  *
  *   - Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
+ *	 notice, this list of conditions and the following disclaimer.
  *   - Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in the
- *     documentation and/or other materials provided with the distribution.
+ *	 notice, this list of conditions and the following disclaimer in the
+ *	 documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE PRIMEVC PROJECT CONTRIBUTORS "AS IS" AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -29,11 +29,14 @@
 package primevc.gui.styling;
 #if neko
  import primevc.tools.generator.ICodeGenerator;
+ import primevc.types.SimpleDictionary;
 #end
  import primevc.core.traits.IInvalidatable;
  import primevc.core.traits.IPrioritizable;
  import primevc.gui.styling.StyleChildren;	//needed for SelectorMapType typedef
+  using primevc.gui.styling.StyleFlags;
   using primevc.utils.BitUtil;
+  using primevc.utils.HashUtil;
   using Type;
 
 #if (neko || debug)
@@ -41,7 +44,10 @@ package primevc.gui.styling;
 #end
 
 
-private typedef Flags = StyleFlags;
+private typedef Flags	= StyleFlags;
+private typedef SType	= StyleBlockType;
+
+typedef ChildrenList = #if neko SimpleDictionary<String, StyleBlock> #else Hash<StyleBlock> #end;
 
 
 /**
@@ -142,60 +148,86 @@ class StyleBlock extends StyleBlockBase
 	 * This property is needed to find the correct inherited styles.
 	 */
 	public var parentStyle			(default, setParentStyle)		: StyleBlock;
-	
+
 	
 	//
 	// STYLE PROPERTIES
 	//
 	
-	private var _graphics	: GraphicsStyle;
-	private var _layout		: LayoutStyle;
-	private var _font		: TextStyle;
-	private var _effects	: EffectsStyle;
-	private var _boxFilters	: FiltersStyle;
-	private var _bgFilters	: FiltersStyle;
+	private var _graphics			: GraphicsStyle;
+	private var _layout				: LayoutStyle;
+	private var _font				: TextStyle;
+	private var _effects			: EffectsStyle;
+	private var _boxFilters			: FiltersStyle;
+	private var _bgFilters			: FiltersStyle;
 	
-	private var _children	: StyleChildren;
-	private var _states		: StatesStyle;
+//	private var _children			: StyleChildren;
+	private var _states				: StatesStyle;
+	
+	private var _elementChildren	: ChildrenList;
+	private var _styleNameChildren	: ChildrenList;
+	private var _idChildren			: ChildrenList;
 	
 	
 	
 	
-	public var type			(default,		null)			: StyleBlockType;
+	public var type					(default,				null)					: StyleBlockType;
 	
-	public var graphics		(getGraphics,	setGraphics)	: GraphicsStyle;
-	public var layout		(getLayout,		setLayout)		: LayoutStyle;
-	public var font			(getFont,		setFont)		: TextStyle;
-	public var effects		(getEffects,	setEffects)		: EffectsStyle;
-	public var boxFilters	(getBoxFilters,	setBoxFilters)	: FiltersStyle;
-	public var bgFilters	(getBgFilters,	setBgFilters)	: FiltersStyle;
+	public var graphics				(getGraphics,			setGraphics)			: GraphicsStyle;
+	public var layout				(getLayout,				setLayout)				: LayoutStyle;
+	public var font					(getFont,				setFont)				: TextStyle;
+	public var effects				(getEffects,			setEffects)				: EffectsStyle;
+	public var boxFilters			(getBoxFilters,			setBoxFilters)			: FiltersStyle;
+	public var bgFilters			(getBgFilters,			setBgFilters)			: FiltersStyle;
 	
-	public var states		(getStates,		setStates)		: StatesStyle;
-	public var children		(getChildren,	setChildren)	: StyleChildren;
+	public var states				(getStates,				setStates)				: StatesStyle;
+//	public var children				(getChildren,			setChildren)			: StyleChildren;
+	public var idChildren			(getIdChildren,			setIdChildren)			: ChildrenList;
+	public var styleNameChildren	(getStyleNameChildren,	setStyleNameChildren)	: ChildrenList;
+	public var elementChildren		(getElementChildren,	setElementChildren)		: ChildrenList;
 	
 	
 	public function new (
-		type		: StyleBlockType,
-		graphics	: GraphicsStyle = null,
-		layout		: LayoutStyle = null,
-		font		: TextStyle = null,
-		effects		: EffectsStyle = null,
-		boxFilters	: FiltersStyle = null,
-		bgFilters	: FiltersStyle = null,
-		states		: StatesStyle = null,
-		children	: StyleChildren = null
+		filledProps			: Int = 0,
+		type				: StyleBlockType = null,	//FIXME: parameter should be required but in generated code there's sometimes a style-block without parameters..
+		graphics			: GraphicsStyle = null,
+		layout				: LayoutStyle = null,
+		font				: TextStyle = null,
+		effects				: EffectsStyle = null,
+		boxFilters			: FiltersStyle = null,
+		bgFilters			: FiltersStyle = null,
+		states				: StatesStyle = null,
+//		children			: StyleChildren = null,
+		idChildren			: ChildrenList = null,
+		styleNameChildren	: ChildrenList = null,
+		elementChildren		: ChildrenList = null,
+		parentStyle			: StyleBlock = null,
+		superStyle			: StyleBlock = null,
+		nestingStyle		: StyleBlock = null,
+		extendedStyle		: StyleBlock = null
 	)
 	{
-		super();
-		this.type		= type;
-		this.graphics	= graphics;
-		this.layout		= layout;
-		this.font		= font;
-		this.effects	= effects;
-		this.boxFilters	= boxFilters;
-		this.bgFilters	= bgFilters;
-		this.states		= states;
-		this.children	= children;
+		super(filledProps);
+		this.type = type;
+		
+		//NOTE: can't use this._graphics on each property below (like in the style-sub-blocks) since every style-sub-block requires an owner which is set in the setter
+		this.graphics			= graphics;
+		this.layout				= layout;
+		this.font				= font;
+		this.effects			= effects;
+		this.boxFilters			= boxFilters;
+		this.bgFilters			= bgFilters;
+		this.states				= states;
+		
+	//	this.children			= children;
+		this.elementChildren	= elementChildren;
+		this.styleNameChildren	= styleNameChildren;
+		this.idChildren			= idChildren;
+		
+		this.parentStyle		= parentStyle;
+		this.superStyle			= superStyle;
+		this.nestingInherited	= nestingStyle;
+		this.extendedStyle		= extendedStyle;
 	}
 	
 	
@@ -210,17 +242,26 @@ class StyleBlock extends StyleBlockBase
 		if (_boxFilters != null)	_boxFilters.dispose();
 		if (_bgFilters != null)		_bgFilters.dispose();
 		if (_states != null)		_states.dispose();
-		if (_children != null)		_children.dispose();
+	//	if (_children != null)		_children.dispose();
+		
+		//disposing the has is possible by using hash-util
+		if (_elementChildren != null)	_elementChildren.dispose();
+		if (_styleNameChildren != null)	_styleNameChildren.dispose();
+		if (_idChildren != null)		_idChildren.dispose();
 		
 		type		= null;
 		_graphics	= null;
 		_states		= null;
-		_children	= null;
+	//	_children	= null;
 		_layout		= null;
 		_font		= null;
 		_effects	= null;
 		_boxFilters	= null;
 		_bgFilters	= null;
+		
+		_elementChildren	= null;
+		_styleNameChildren	= null;
+		_idChildren			= null;
 		
 		super.dispose();
 	}
@@ -231,10 +272,14 @@ class StyleBlock extends StyleBlockBase
 	//
 	
 	
-	public inline function getPriority () : Int
-	{
-		return type.enumIndex();
-	}
+	public inline function getPriority ()		: Int	{ return type.enumIndex(); }
+	public inline function isState ()			: Bool	{ return type == SType.elementState || type == SType.styleNameState || type == SType.idState; }
+	public inline function isElementState ()	: Bool	{ return type == SType.elementState; }
+	public inline function isStyleNameState ()	: Bool	{ return type == SType.styleNameState; }
+	public inline function isIdState ()			: Bool	{ return type == SType.idState; }
+	public inline function isElement ()			: Bool	{ return type == SType.element; }
+	public inline function isStyleName ()		: Bool	{ return type == SType.styleName; }
+	public inline function isId ()				: Bool	{ return type == SType.id; }
 	
 	
 #if debug
@@ -268,7 +313,7 @@ class StyleBlock extends StyleBlockBase
 	 * Method will search for the requested child + type in it's children or
 	 * the children of his extended / superStyle.
 	 */
-	public function getChild (name:String, childType:StyleBlockType, ?exclude:StyleBlock ) : StyleBlock
+	/*public function getChild (name:String, childType:StyleBlockType, ?exclude:StyleBlock ) : StyleBlock
 	{
 		var child:StyleBlock = null;
 		
@@ -288,25 +333,10 @@ class StyleBlock extends StyleBlockBase
 		}
 		
 		return child;
-	}
+	}*/
 	
 	
-	/**
-	 * Method searches for the requested child in it's children. When the
-	 * child is not found there, it will ask it's parent to look for the 
-	 * requested child.
-	 */
-	public function findChild ( name:String, childType:StyleBlockType, ?exclude:StyleBlock ) : StyleBlock
-	{
-		var child = getChild( name, childType, exclude );
-		
-		if (child == null && parentStyle != null)
-			child = parentStyle.findChild( name, childType, exclude );
-		
-		return child;
-	}
-	
-	
+#if neko
 	/**
 	 * Method will search for the requested state + type in it's children or
 	 * the children of his extended / superStyle.
@@ -314,7 +344,7 @@ class StyleBlock extends StyleBlockBase
 	public function getState ( stateName:Int, styleName:String, styleType:StyleBlockType, ?exclude:StyleBlock ) : StyleBlock
 	{
 		var stateStyle:StyleBlock = null;
-		var child = getChild( styleName, styleType, exclude );
+		var child = findChild( styleName, styleType, exclude );
 		
 		if (child != null && child.states != null && child.states.has( stateName ))
 			stateStyle = child.states.get( stateName );
@@ -340,17 +370,121 @@ class StyleBlock extends StyleBlockBase
 		
 		return stateStyle;
 	}
+#end
+	
+	
+	public inline function findChild (name:String, childType:StyleBlockType, ?exclude:StyleBlock ) : StyleBlock
+	{
+		return switch (childType) {
+			case id:		findIdStyle(name, exclude);
+			case styleName:	findStyleNameStyle(name, exclude);
+			case element:	findElementStyle(name, exclude);
+			default: throw "not implemented";
+		}
+	}
+	
+	
+	/**
+	 * Method searches for the requested child in it's children. When the
+	 * child is not found there, it will ask it's parent to look for the 
+	 * requested child.
+	 */
+	public function findIdStyle ( name:String, ?exclude:StyleBlock ) : StyleBlock
+	{
+		var style:StyleBlock = null;
+		
+		//first try to find it in the own children
+		if (filledProperties.has( Flags.ID_CHILDREN ))
+		{
+			style = _idChildren.get( name );
+			if (style == exclude)
+				style = null;
+		}
+		
+		//look in extended / super child-list
+		if (style == null && allFilledProperties.has( Flags.ID_CHILDREN ))
+		{
+			if (extendedStyle != null)					style = extendedStyle.findIdStyle( name, exclude );
+			if (style == null && superStyle != null)	style = superStyle	 .findIdStyle( name, exclude );
+		}
+		
+		if (style == null && parentStyle != null)
+			style = parentStyle.findIdStyle( name, exclude );
+		
+		return style;
+	}
+	
+	
+	public function findStyleNameStyle ( name:String, ?exclude:StyleBlock ) : StyleBlock
+	{
+		var style:StyleBlock = null;
+		
+		//first try to find it in the own children
+		if (filledProperties.has( Flags.STYLE_NAME_CHILDREN ))
+		{
+			style = _styleNameChildren.get( name );
+			if (style == exclude)
+				style = null;
+		}
+		
+		//look in extended / super child-list
+		if (style == null && allFilledProperties.has( Flags.STYLE_NAME_CHILDREN ))
+		{
+			if (extendedStyle != null)					style = extendedStyle.findStyleNameStyle( name, exclude );
+			if (style == null && superStyle != null)	style = superStyle	 .findStyleNameStyle( name, exclude );
+		}
+		
+		if (style == null && parentStyle != null)
+			style = parentStyle.findStyleNameStyle( name, exclude );
+		
+		return style;
+	}
+	
+	
+	public function findElementStyle ( name:String, ?exclude:StyleBlock ) : StyleBlock
+	{
+		var style:StyleBlock = null;
+		
+		//first try to find it in the own children
+		if (filledProperties.has( Flags.ELEMENT_CHILDREN ))
+		{
+			style = _elementChildren.get( name );
+			if (style == exclude)
+				style = null;
+		}
+		
+		//look in extended / super child-list
+		if (style == null && allFilledProperties.has( Flags.ELEMENT_CHILDREN ))
+		{
+			if (extendedStyle != null)					style = extendedStyle.findElementStyle( name, exclude );
+			if (style == null && superStyle != null)	style = superStyle	 .findElementStyle( name, exclude );
+		}
+		
+		if (style == null && parentStyle != null)
+			style = parentStyle.findElementStyle( name, exclude );
+		
+		return style;
+	}
 	
 	
 	override public function updateAllFilledPropertiesFlag ()
 	{
-		super.updateAllFilledPropertiesFlag();
+	//	super.updateAllFilledPropertiesFlag();
+		inheritedProperties = 0;
+		if (extendedStyle != null)	inheritedProperties  = extendedStyle.allFilledProperties;
+		if (superStyle != null)		inheritedProperties |= superStyle.allFilledProperties;
 		
-		if (allFilledProperties < Flags.ALL_PROPERTIES && extendedStyle != null)
-			allFilledProperties |= extendedStyle.allFilledProperties;
-		
-		if (allFilledProperties < Flags.ALL_PROPERTIES && superStyle != null)
-			allFilledProperties |= superStyle.allFilledProperties;
+		allFilledProperties = filledProperties | inheritedProperties;
+		inheritedProperties	= inheritedProperties.unset( filledProperties | Flags.INHERETING_STYLES );
+	}
+	
+	
+	override public function getPropertiesWithout (noExtendedStyle:Bool, noSuperStyle:Bool)
+	{
+		var props = filledProperties;
+		if (!noExtendedStyle && extendedStyle != null)	props |= extendedStyle.allFilledProperties;
+		if (!noSuperStyle && superStyle != null)		props |= superStyle.allFilledProperties;
+		return props;
 	}
 	
 	
@@ -467,11 +601,29 @@ class StyleBlock extends StyleBlockBase
 	}
 	
 	
-	private function getChildren ()
+	private function getIdChildren ()
 	{
-		var v = _children;
-		if (v == null && extendedStyle != null)		v = extendedStyle.children;
-		if (v == null && superStyle != null)		v = superStyle.children;
+		var v = _idChildren;
+		if (v == null && extendedStyle != null)		v = extendedStyle.idChildren;
+		if (v == null && superStyle != null)		v = superStyle.idChildren;
+		return v;
+	}
+	
+	
+	private function getElementChildren ()
+	{
+		var v = _elementChildren;
+		if (v == null && extendedStyle != null)		v = extendedStyle.elementChildren;
+		if (v == null && superStyle != null)		v = superStyle.elementChildren;
+		return v;
+	}
+	
+	
+	private function getStyleNameChildren ()
+	{
+		var v = _styleNameChildren;
+		if (v == null && extendedStyle != null)		v = extendedStyle.styleNameChildren;
+		if (v == null && superStyle != null)		v = superStyle.styleNameChildren;
 		return v;
 	}
 	
@@ -676,12 +828,34 @@ class StyleBlock extends StyleBlockBase
 	}
 	
 	
-	private function setChildren (v)
+	private function setIdChildren (v)
 	{
-		if (v != _children)
+		if (v != _idChildren)
 		{
-			_children = v;
-			markProperty( Flags.CHILDREN, v != null );
+			_idChildren = v;
+			markProperty( Flags.ID_CHILDREN, v != null );
+		}
+		return v;
+	}
+	
+	
+	private function setElementChildren (v)
+	{
+		if (v != _elementChildren)
+		{
+			_elementChildren = v;
+			markProperty( Flags.ELEMENT_CHILDREN, v != null );
+		}
+		return v;
+	}
+	
+	
+	private function setStyleNameChildren (v)
+	{
+		if (v != _styleNameChildren)
+		{
+			_styleNameChildren = v;
+			markProperty( Flags.STYLE_NAME_CHILDREN, v != null );
 		}
 		return v;
 	}
@@ -705,6 +879,23 @@ class StyleBlock extends StyleBlockBase
 	}
 	
 	
+	public inline function setInheritedStyles( nestedStyle:StyleBlock = null, superStyle:StyleBlock = null, extendedStyle:StyleBlock = null, parentStyle:StyleBlock = null )
+	{
+		if (nestingInherited != null)	this.nestingInherited	= nestedStyle;
+		if (superStyle != null)			this.superStyle			= superStyle;
+		if (extendedStyle != null)		this.extendedStyle		= extendedStyle;
+		if (parentStyle != null)		this.parentStyle		= parentStyle;
+	}
+	
+	
+	public inline function setChildren (idChildren:ChildrenList = null, styleNameChildren:ChildrenList = null, elementChildren:ChildrenList = null)
+	{
+		if (idChildren != null)			this.idChildren			= idChildren;
+		if (styleNameChildren != null)	this.styleNameChildren	= styleNameChildren;
+		if (elementChildren != null)	this.elementChildren	= elementChildren;
+	}
+	
+	
 #if neko
 	override public function toCSS (namePrefix:String = "")
 	{
@@ -720,9 +911,29 @@ class StyleBlock extends StyleBlockBase
 		if (css.trim() != "")
 			css = namePrefix + " {" + css + "\n}";
 		
-		if (_states != null)		css += "\n" + _states.toCSS ( namePrefix );
-		if (_children != null)		css += "\n" + _children.toCSS ( namePrefix );
+		if (_states != null)			css += "\n" + _states.toCSS ( namePrefix );
+	//	if (_children != null)			css += "\n" + _children.toCSS ( namePrefix );
+		if (_idChildren != null)		css += "\n" + hashToCSSString( namePrefix, _idChildren, "#" );
+		if (_styleNameChildren != null)	css += "\n" + hashToCSSString( namePrefix, _styleNameChildren, "." );
+		if (_elementChildren != null)	css += "\n" + hashToCSSString( namePrefix, _elementChildren, "" );
 		
+		return css;
+	}
+	
+	
+	private  function hashToCSSString (namePrefix:String, hash:ChildrenList, keyPrefix:String = "") : String
+	{
+		var css = "";
+		var keys = hash.keys();
+		while (keys.hasNext())
+		{
+			var key = keys.next();
+			var val = hash.get(key);
+			var name = (namePrefix + " " + keyPrefix + key).trim();
+			
+			if (!val.isEmpty())
+				css += "\n" + val.toCSS( name );
+		}
 		return css;
 	}
 	
@@ -735,6 +946,7 @@ class StyleBlock extends StyleBlockBase
 			if (_boxFilters.isEmpty()) {
 				_boxFilters.dispose();
 				boxFilters = null;
+				Assert.that( doesntOwn( Flags.BOX_FILTERS ) );
 			}
 		}
 		
@@ -744,6 +956,7 @@ class StyleBlock extends StyleBlockBase
 			if (_bgFilters.isEmpty()) {
 				_bgFilters.dispose();
 				bgFilters = null;
+				Assert.that( doesntOwn( Flags.BACKGROUND_FILTERS ) );
 			}
 		}
 		
@@ -753,6 +966,7 @@ class StyleBlock extends StyleBlockBase
 			if (_effects.isEmpty()) {
 				_effects.dispose();
 				effects = null;
+				Assert.that( doesntOwn( Flags.EFFECTS ) );
 			}
 		}
 		
@@ -762,6 +976,7 @@ class StyleBlock extends StyleBlockBase
 			if (_font.isEmpty()) {
 				_font.dispose();
 				font = null;
+				Assert.that( doesntOwn( Flags.FONT ) );
 			}
 		}
 		
@@ -771,6 +986,7 @@ class StyleBlock extends StyleBlockBase
 			if (_graphics.isEmpty()) {
 				_graphics.dispose();
 				graphics = null;
+				Assert.that( doesntOwn( Flags.GRAPHICS ) );
 			}
 		}
 		
@@ -780,17 +996,48 @@ class StyleBlock extends StyleBlockBase
 			if (_layout.isEmpty()) {
 				_layout.dispose();
 				layout = null;
+				Assert.that( doesntOwn( Flags.LAYOUT ) );
 			}
 		}
 		
-		if (_children != null)
+		if (_idChildren != null)
+		{
+			_idChildren.cleanUp();
+			if (_idChildren.isEmpty()) {
+				_idChildren.dispose();
+				idChildren = null;
+				Assert.that( doesntOwn( Flags.ID_CHILDREN ) );
+			}
+		}
+		
+		if (_styleNameChildren != null)
+		{
+			_styleNameChildren.cleanUp();
+			if (_styleNameChildren.isEmpty()) {
+				_styleNameChildren.dispose();
+				styleNameChildren = null;
+				Assert.that( doesntOwn( Flags.STYLE_NAME_CHILDREN ) );
+			}
+		}
+		
+		if (_elementChildren != null)
+		{
+			_elementChildren.cleanUp();
+			if (_elementChildren.isEmpty()) {
+				_elementChildren.dispose();
+				elementChildren = null;
+				Assert.that( doesntOwn( Flags.ELEMENT_CHILDREN ) );
+			}
+		}
+		
+	/*	if (_children != null)
 		{
 			_children.cleanUp();
 			if (_children.isEmpty()) {
 				_children.dispose();
 				children = null;
 			}
-		}
+		}*/
 		
 		if (_states != null)
 		{
@@ -798,6 +1045,7 @@ class StyleBlock extends StyleBlockBase
 			if (_states.isEmpty()) {
 				_states.dispose();
 				states = null;
+				Assert.that( doesntOwn( Flags.STATES ) );
 			}
 		}
 	}
@@ -805,7 +1053,19 @@ class StyleBlock extends StyleBlockBase
 	
 	override public function isEmpty ()
 	{
-		return filledProperties.unset( Flags.PARENT_STYLE ) == 0;
+		return type == null || filledProperties.unset( Flags.PARENT_STYLE ) == 0;
+	}
+	
+	
+	public function getChildrenOfType (type:StyleBlockType) : ChildrenList
+	{
+		Assert.notNull(type);
+		return switch (type) {
+				case id:		_idChildren			== null ? idChildren		= new ChildrenList() : _idChildren;
+				case styleName:	_styleNameChildren	== null ? styleNameChildren	= new ChildrenList() : _styleNameChildren;
+				case element:	_elementChildren	== null ? elementChildren	= new ChildrenList() : _elementChildren;
+				default:		null;
+			}
 	}
 	
 
@@ -814,29 +1074,45 @@ class StyleBlock extends StyleBlockBase
 		if (!isEmpty())
 		{
 			if (filledProperties.has( Flags.ALL_PROPERTIES ))
-				code.construct(this, [ type, _graphics, _layout, _font, _effects, _boxFilters, _bgFilters ]);
+				code.construct(this, [ filledProperties, type, _graphics, _layout, _font, _effects, _boxFilters, _bgFilters ]); //, parentStyle, superStyle, nestingInherited, extendedStyle ]);
 			else
-				code.construct(this, [ type ]);
+				code.construct(this, [ filledProperties, type ]);
 			
 			if (filledProperties.has( Flags.INHERETING_STYLES ))
-			{
-				if (nestingInherited != null)			code.setProp( this, "nestingInherited", nestingInherited );
-				if (superStyle != null)					code.setProp( this, "superStyle", superStyle );
-				if (extendedStyle != null)				code.setProp( this, "extendedStyle", extendedStyle );
-				if (parentStyle != null)				code.setProp( this, "parentStyle", parentStyle );
-			}
+				code.setAction( this, "setInheritedStyles", [ nestingInherited, superStyle, extendedStyle, parentStyle ], true );
+		/*	{
+				if (nestingInherited != null)			code.setProp( this, "nestingInherited",	nestingInherited,	true );
+				if (superStyle != null)					code.setProp( this, "superStyle",		superStyle,			true );
+				if (extendedStyle != null)				code.setProp( this, "extendedStyle",	extendedStyle,		true );
+				if (parentStyle != null)				code.setProp( this, "parentStyle",		parentStyle,		true );
+			}*/
 			
 			//important to do after the styleblock is constructed. otherwise references to the parentstyle might nog yet exist
-			if (filledProperties.has( Flags.CHILDREN ))	code.setProp(this, "children", _children);
-			if (filledProperties.has( Flags.STATES ))	code.setProp(this, "states", _states);
+			if (filledProperties.has( Flags.CHILDREN ))
+				code.setAction( this, "setChildren", [ idChildren, styleNameChildren, elementChildren ], true );
+	//		if (filledProperties.has( Flags.ID_CHILDREN ))				code.setProp(this, "idChildren",		_idChildren,		true);
+	//		if (filledProperties.has( Flags.STYLE_NAME_CHILDREN ))		code.setProp(this, "styleNameChildren",	_styleNameChildren,	true);
+	//		if (filledProperties.has( Flags.ELEMENT_CHILDREN ))			code.setProp(this, "elementChildren",	_elementChildren,	true);
+			
+			if (filledProperties.has( Flags.STATES ))					code.setProp(this, "states",			_states,			true);
 		}
 	}
 #end
 	
 #if (debug && !neko)
-	public function toString ()
+	override public function toString ()
 	{
-		return uuid+"; "+readProperties();
+		return super.toString()
+			+ (parentStyle != null ? " - parent: "+parentStyle._oid : "")
+			+ (superStyle != null ? " - super: "+superStyle._oid : "")
+			+ (extendedStyle != null ? " - extended: "+extendedStyle._oid : "")
+			+ (nestingInherited != null ? " - nested: "+nestingInherited._oid : "");
+	}
+#elseif (debug && neko)
+	override public function toString ()
+	{
+		return parentStyle != null ? parentStyle + " " + cssName : cssName;
+	//	return _oid+"; "+readProperties();
 	}
 #end
 #if debug
@@ -845,7 +1121,7 @@ class StyleBlock extends StyleBlockBase
 		if (flags == -1)
 			flags = filledProperties;
 		
-		return Flags.readProperties( flags );
+		return flags.read();
 	}
 #end
 }

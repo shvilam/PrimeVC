@@ -43,7 +43,7 @@ package primevc.core.states;
  * @author			Ruben Weijers
  */
 class SimpleStateMachine <StateType> implements IDisposable
-	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
+//	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
 	public var current		(default, setCurrent)	: StateType;
 	public var defaultState	(default, setDefault)	: StateType;
@@ -56,21 +56,25 @@ class SimpleStateMachine <StateType> implements IDisposable
 	public var change		(default, null)			: Signal2 < StateType, StateType >;
 	
 	
-	public function new(defaultState:StateType, currentState:StateType = null) {
+	public function new(defaultState:StateType, currentState:StateType = null)
+	{
 		this.change			= new Signal2();
 		this.current		= currentState;
 		this.defaultState	= defaultState;
 	}
 	
 	
-	public function dispose () {
-		defaultState	= null;
-		current			= null;
+	public function dispose ()
+	{
+		(untyped this).defaultState	= null;
+		(untyped this).current		= null;
 		change.dispose();
+		change = null;
 	}
 	
 	
-	private inline function setDefault (v:StateType) {
+	private inline function setDefault (v:StateType)
+	{
 		defaultState = v;
 		if (current == null)
 			current = v;
@@ -79,7 +83,8 @@ class SimpleStateMachine <StateType> implements IDisposable
 	}
 	
 	
-	private inline function setCurrent (v:StateType) {
+	private inline function setCurrent (v:StateType)
+	{
 		if (current != v) {
 			var old	= current;
 			current	= v;
@@ -90,10 +95,79 @@ class SimpleStateMachine <StateType> implements IDisposable
 	
 	
 	
-	public inline function is (state : StateType) : Bool {
-		return switch (current) {
-			case state:	true;
-			default:	false;
+	public inline function is (state : StateType) : Bool
+	{
+		return current == state;
+	}
+
+	
+	public function changeTo (toState:StateType) : Void -> Void
+	{
+		return function () { this.setCurrent( toState ); };
+	}
+	
+	
+#if debug
+	public function toString ()
+	{
+		return current;
+	}
+#end
+}
+
+
+ import primevc.core.dispatcher.Wire;
+
+/**
+ * @author 	Ruben Weijers
+ * @creation-date Dec 16, 2011
+ */
+class StateMachineUtil
+{
+	public static function onceOnEntering<StateType>( fn:Void->Void, fsm:SimpleStateMachine<StateType>, searchedState:StateType, owner:Dynamic ):Wire<Dynamic>
+	{
+		var w = fsm.change.bind( owner, null );
+		var f = function (newState:StateType, oldState:StateType) {
+			if (newState == searchedState) {
+				w.dispose();
+				fn();
+			}
 		}
+		w.handler = f;
+		return w;
+	}
+	
+
+	public static function onceOnExiting<StateType>( fn:Void->Void, fsm:SimpleStateMachine<StateType>, searchedState:StateType, owner:Dynamic ):Wire<Dynamic>
+	{
+		var w = fsm.change.bind( owner, null );
+		var f = function (newState:StateType, oldState:StateType) {
+			if (oldState == searchedState) {
+				w.dispose();
+				fn();
+			}
+		}
+		w.handler = f;
+		return w;
+	}
+
+
+	public static function onEntering<StateType>( fn:Void->Void, fsm:SimpleStateMachine<StateType>, searchedState:StateType, owner:Dynamic ):Wire<Dynamic>
+	{
+		var f = function (newState:StateType, oldState:StateType) {
+			if (newState == searchedState)
+				fn();
+		}
+		return fsm.change.bind( owner, f );
+	}
+	
+
+	public static function onExiting<StateType>( fn:Void->Void, fsm:SimpleStateMachine<StateType>, searchedState:StateType, owner:Dynamic ):Wire<Dynamic>
+	{
+		var f = function (newState:StateType, oldState:StateType) {
+			if (oldState == searchedState)
+				fn();
+		}
+		return fsm.change.bind( owner, f );
 	}
 }

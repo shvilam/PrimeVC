@@ -17,6 +17,17 @@ class RandomTests
 		var bench = new Benchmark();
 		var test = new RandomTests();
 		
+		var group = new Comparison( "function call vs function.apply", 100000 );
+		bench.add( group );
+		group.add( new Test( test.maxFuncByReflect,				"function reflect") );
+		group.add( new Test( test.maxFuncByApply,				"function.apply") );
+		group.add( new Test( test.maxFuncByCall,				"function call") );
+		
+		var group = new Comparison( "Create arrays", 100000 );
+		bench.add( group );
+		group.add( new Test( test.newArrayByValue,				"by value") );
+		group.add( new Test( test.newArrayConstructor,			"constructor") );
+		
 		var group = new Comparison( "Insert item in beginning of list", 10000 );
 		bench.add( group );
 		group.add( new Test( test.testSpliceBeginMethod,		"insert arr",		1, test.initArray) );
@@ -33,7 +44,7 @@ class RandomTests
 		group.add( new Test( test.testAspectRatio2,				"aspectRatio 2") );
 		
 		
-	//	bench.start();
+		bench.start();
 		test.testModulos();
 		test.testBitModulos();
 	}
@@ -68,6 +79,12 @@ class RandomTests
 		var newH:Int = cast ((newW / oldW) * oldH);
 	}
 	
+	
+	public function newArrayConstructor ()	{ var a = new Array(); }
+	public function newArrayByValue ()		{ var a = []; }
+	public function maxFuncByReflect ()		{ var a = Reflect.callMethod( Math, Reflect.field(Math, "max"), [10, 5]); }
+	public function maxFuncByCall ()		{ var a = Math.max(10, 5); }
+	public function maxFuncByApply ()		{ var a = untyped Math.max.apply( null, [10, 5]); }
 	
 	
 	

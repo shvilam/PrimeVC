@@ -27,8 +27,10 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.avm2.events;
+ import flash.events.DataEvent;
  import flash.events.IEventDispatcher;
  import flash.events.Event;
+ import primevc.core.dispatcher.Signal0;
  import primevc.core.events.CommunicationEvents;
  import primevc.core.events.LoaderEvents;
 
@@ -46,7 +48,11 @@ class LoaderEvents extends LoaderSignals
 {
 	public function new (target:IEventDispatcher)
 	{
-		unloaded	= new FlashSignal0( target, Event.UNLOAD );
-		load		= new CommunicationEvents( target );
+		super();
+		unloaded		= new FlashSignal0( target, Event.UNLOAD );
+		load			= new CommunicationEvents( target );
+		httpStatus		= new HttpSignal( target );
+		uploadComplete	= new DataSignal( target, DataEvent.UPLOAD_COMPLETE_DATA );
+		uploadCanceled	= new Signal0();
 	}
 }

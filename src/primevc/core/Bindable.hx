@@ -103,16 +103,10 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 	{
 		if (change == null) return; // already disposed
 		
-		if (boundTo != null) {
-		 	// Dispose of all binding connections
-			while (!boundTo.isEmpty()) boundTo.pop().unbind(this);
-			boundTo = null;
-		}
-		if (writeTo != null) {
-		 	// Dispose of all binding connections
-			while (!writeTo.isEmpty()) writeTo.pop().unbind(this);
-			writeTo = null;
-		}
+		// Dispose of all binding connections
+		unbindAll();
+		writeTo = null;
+		boundTo = null;
 		
 		change.dispose();
 		change = null;
@@ -140,6 +134,15 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 	{
 		(untyped this).value = val;
 	}
+
+
+	/**
+	 * Checks if the bindable has listeners
+	 */
+	public inline function hasListeners () : Bool
+	{
+		return (writeTo.notNull() && !writeTo.isEmpty()) || change.hasListeners();
+	}
 	
 	
 #if debug
@@ -148,12 +151,19 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 		if (boundTo != null) for (b in boundTo) if (b == otherBindable) return true;
 		return false;
 	}
+	
+	
+	public function writesTo(otherBindable)
+	{
+		if (writeTo != null) for (b in writeTo) if (b == otherBindable) return true;
+		return false;
+	}
 #end
 	
 	
 	private function setValue (newValue:DataType) : DataType
 	{
-		if (value != newValue)
+		if (value != newValue)	//FIXME (Ruben @ Mar 11, 2011) Will also evaluate true with NaN == NaN and (Null<Bool> = null) == false 
 		{
 			var oldV	= value;
 			value		= newValue;			//first set the value -> will possibly trigger an infinite loop otherwise
@@ -173,18 +183,17 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 	 * In other words: 
 	 * - update this when otherBindable.value changes
 	 */
-	public function bind (otherBindable:IBindableReadonly<DataType>)
+	public inline function bind (otherBindable:IBindableReadonly<DataType>)
 	{
-		Assert.that(otherBindable != null);
-		Assert.that(otherBindable != this);
-		
-		registerBoundTo(otherBindable);
-		untyped otherBindable.keepUpdated(this);
+	//	registerBoundTo(otherBindable);
+		(untyped otherBindable).keepUpdated(this);
 	}
 	
 	
-	private inline function registerBoundTo(otherBindable)
+	private inline function registerBoundTo(otherBindable:IBindableReadonly<DataType>)
 	{
+		Assert.notNull(otherBindable);
+		
 		var b = this.boundTo;
 		if (!b.notNull())
 			b = this.boundTo = new FastList<IBindableReadonly<DataType>>();
@@ -217,7 +226,7 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 		Assert.that(otherBindable != this);
 		
 		otherBindable.value = this.value;
-		untyped otherBindable.registerBoundTo(this);
+		(untyped otherBindable).registerBoundTo(this);
 		
 		var w = this.writeTo;
 		if (!w.notNull())
@@ -236,7 +245,7 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 	 */
 	public function pair (otherBindable:IBindable<DataType>)
 	{
-		untyped otherBindable.keepUpdated(this);
+		(untyped otherBindable).keepUpdated(this);
 		keepUpdated(otherBindable);
 	}
 	
@@ -265,11 +274,23 @@ class Bindable <DataType> implements IBindable<DataType>, implements IClonable<B
 	}
 	
 	
-//#if debug
-	public inline function toString () : String {
-		return cast value;
+	/**
+	 * Will remove every binding to bindables which update this object, or which this object updates.
+	 */
+	public function unbindAll ()
+	{
+		if (writeTo.notNull()) while (!writeTo.isEmpty())
+		 	writeTo.pop().unbind(this);
+		if (boundTo.notNull()) while (!boundTo.isEmpty())
+			boundTo.pop().unbind(this);
 	}
-//#end
+	
+	
+#if debug
+	public inline function toString () : String {
+		return "Bindable("+value+")";
+	}
+#end
 }
 
 

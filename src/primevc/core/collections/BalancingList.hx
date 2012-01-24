@@ -28,6 +28,7 @@
  */
 package primevc.core.collections;
  import primevc.core.collections.IEditableList;
+ import primevc.utils.DuplicateUtil;
  
 
 /**
@@ -46,6 +47,28 @@ class BalancingList <DataType> extends SimpleList <DataType>
 	{
 		nextList = null;
 		super.dispose();
+	}
+	
+	
+	override public function clone () : IReadOnlyList < DataType >
+	{
+		var inst	= new BalancingList<DataType>();
+		var length	= this.length;
+		for (i in 0...length)
+			inst.insertAt( getItemAt(i), i );
+		
+		return inst;
+	}
+	
+	
+	override public function duplicate () : IReadOnlyList < DataType >
+	{
+		var inst	= new BalancingList<DataType>();
+		var length	= this.length;
+		for (i in 0...length)
+			inst.insertAt( DuplicateUtil.duplicateItem( getItemAt(i) ), i );
+		
+		return inst;
 	}
 	
 	
@@ -106,9 +129,13 @@ class BalancingList <DataType> extends SimpleList <DataType>
 	}
 	
 	
-	public inline function swapAtDepth (newItem:DataType, toDepth:Int)
+	public  function swapAtDepth (newItem:DataType, toDepth:Int)
 	{
 		var curCell		= getCellAt(toDepth);
+#if debug
+		Assert.notNull( curCell, "cell for depth "+toDepth + " in "+this+" is null. length: "+length);
+#end
+		
 		var oldData		= curCell.data;
 		curCell.data	= newItem;
 		

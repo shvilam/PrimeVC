@@ -1,18 +1,28 @@
 @manifest url('manifest.xml');
 
-.debug UIComponent { opacity: .7; border: solid 3px #f0f inset; }
+.debug UIComponent		{ opacity: .7; border: solid 3px #f0f inset; }
 
-IDisplayObject	{ shape: rectangle; visibility: visible; opacity: 1; }
-/*UITextField		{ color: #000; font: 14px Verdana; }*/
-UIWindow		{ overflow: hidden; }
-UIGraphic		{ shape: rectangle; }
-ApplicationView	{ width: 100%; height: 100%; algorithm: float-ver( top, center ); }
+IDisplayObject			{ shape: rectangle; visibility: visible; opacity: 1; }
+UIWindow				{ overflow: hidden; }
+UIGraphic				{ shape: rectangle; }
+ApplicationView			{ width: 100%; height: 100%; algorithm: float-ver( top, center ); }
 
-ListView		{ overflow: hidden; }
-InputField		{ border: 1px solid #000; }
-Label			{ font: Verdana 20px; }
-Image			{ shape: rectangle; }
-Button			{ /*overflow: hidden;*/ algorithm: float-hor( center, center ); font: Verdana 20px; background: #ffffff00; color: #000; }
+ListHolder				        { algorithm: float-ver(top, left); }
+ListHolder ListView     		{ width: 100%; height: 100%; }
+ListHolder SelectableListView	{ width: 100%; height: 100%; }
+
+/*.listContent			{ max-width: 100%; max-height: 100%; }*/
+InputField				{ border: 1px solid #000; Class( primevc.gui.components.skins.InputFieldSkin ); }
+Label					{ font: Verdana 12px; }
+Image					{ shape: rectangle; }
+Button					{ algorithm: float-hor( center, center ); font: Arial 10px #444; background: #ffffff00; } /*skin: Class( primevc.gui.components.skins.ButtonIconLabelSkin ); }*/
+/*Button Image			{ max-width: 100%; max-height: 100%; }*/
+/*Button UITextField	{ width: auto; }*/
+
+
+#modal					{ background: #88888877; width: 100%; height: 100%; }
+#toolTip				{ background: #555; font: Verdana 9px #fff; }
+
 
 
 /***************
@@ -27,16 +37,19 @@ SliderBase					{ algorithm: relative; background: #fff; }
 .verticalSlider UIGraphic	{ height: 0%; width: 100%; bottom: 0px; }
 
 .horizontalSlider Button {
+	skin: Class( primevc.gui.components.skins.ButtonIconSkin );
 	background: #666;
 	v-center: 0px;
 	height: 15px;
 	width: 6px;
 }
 .verticalSlider Button {
+	skin: Class( primevc.gui.components.skins.ButtonIconSkin );
 	background: #666;
 	h-center: 0px;
 	width: 15px;
 	height: 6px;
+	min-height: 15px;
 }
 
 
@@ -48,8 +61,22 @@ SliderBase					{ algorithm: relative; background: #fff; }
 ScrollBar 					{ background: #212121; }
 .horizontalScrollBar		{ left: 8px; right: 8px; height: 2px; bottom: 7px; }
 .verticalScrollBar			{ top: 8px; bottom: 8px; width: 2px; right: 7px; }
-.horizontalScrollBar Button	{ background: #212121; height: 9px; width: 6px; v-center: 0px; }
-.verticalScrollBar Button	{ background: #212121; width: 9px; height: 6px; h-center: 0px; }
+.horizontalScrollBar Button	{
+	background: #212121;
+	height: 9px;
+	width: 6px;
+	min-width: 15px;
+	v-center: 0px;
+	skin: Class( primevc.gui.components.skins.ButtonIconSkin );
+}
+.verticalScrollBar Button	{
+	background: #212121;
+	width: 9px;
+	height: 6px;
+	min-height: 15px;
+	h-center: 0px;
+	skin: Class( primevc.gui.components.skins.ButtonIconSkin );
+}
 
 
 
@@ -61,3 +88,129 @@ ScrollBar 					{ background: #212121; }
 VideoPlayer UIVideo			{ width: 100%; height: auto; }
 VideoControlBar				{ algorithm: float-hor(center, center); width: 100%; height: 30px; }
 VideoControlBar Button		{ background: #f00; width: 50px; height: 50px; }*/
+
+
+
+/***************
+ * COMBOBOX
+ **************/
+
+ComboBox {
+	skin: Class( primevc.gui.components.skins.ButtonIconLabelSkin );
+/*	skin: Class( primevc.gui.components.skins.ComboBoxBtnSkin );*/
+	min-width: 40px;
+}
+
+.comboList {
+	background: #F9F9F9;
+	border-radius: 10px;
+	border: 1px solid #707070;
+	/*padding: 7px 0px;*/
+}
+
+.comboList SelectableListView {
+	/*min-width: 50px;*/
+	width: none;		/** override 100% width setting **/
+	height: none;		/** override 100% height setting **/
+	min-height: 60px;
+	max-height: 500px;
+	overflow: scrollbars;
+	algorithm: float-ver( top, left );
+	padding: 0px;
+	child-height: 20px;
+}
+
+.comboList SelectableListView Button {
+	skin: Class( primevc.gui.components.skins.ButtonIconLabelSkin );
+}
+
+
+
+/***************
+ * PANEL
+ **************/
+
+Panel {	
+	skin: Class( primevc.gui.components.skins.BasicPanelSkin );
+}
+Panel #closeBtn {
+	skin: Class( primevc.gui.components.skins.ButtonIconSkin );
+}
+
+
+/***************
+* SLIDING TOGGLE BUTTON
+**************/
+
+.slideToggleButton {
+	background: #666;
+	skin: Class( primevc.gui.components.skins.SlidingToggleButtonSkin );
+	height: 30px;
+	width: 50px;
+	border-radius: 5px;
+}
+.slideToggleButton #onBg {
+	/*width: 51%; width is calculated in the skin  */	
+	top: 1px;
+	bottom: 1px;
+	background: #f00;
+}
+/*.slideToggleButton #onIcon {
+	shape: rectangle;
+	background: #fff;
+	height: 53%;
+	width: 2px;
+	v-center: 1px;
+	border-radius: 1px;
+}
+.slideToggleButton #offIcon {
+	shape: ellipse;
+	border: 2px solid #000 inner;
+	height: 50%;
+	max-width: 20%;
+	v-center: 2px;
+}*/
+.slideToggleButton UITextField {
+	font: "Lucida Grande" 8px #fff;
+	text-transform: uppercase;
+	v-center: 0px;
+	text-align: center;
+	width: 100%;
+}
+.slideToggleButton #onLabel {
+	color: #fff;
+}
+
+
+.slideToggleButton #slide {
+	move-transition: move 180ms ease-out;
+	shape: rectangle;
+	border-radius: 5px;
+	background: #fff;
+	height: 110%;
+	v-center: 0px;
+	width: 51%;
+}
+
+
+
+
+/***************
+ * DEBUGBAR
+ **************/
+
+DebugBar {
+	width: 100%;
+	background: #111;
+	algorithm: float-hor(center, center);
+}
+
+DebugBar Button {
+	background: #ccc;
+	skin: Class( primevc.gui.components.skins.ButtonLabelSkin );
+	color: #333;
+	height: 20px;
+	margin: 5px;
+}
+DebugBar Button:hover		{ background: #fff; }
+DebugBar Button:selected	{ background: #fff; }

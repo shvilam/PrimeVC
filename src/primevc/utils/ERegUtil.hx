@@ -51,7 +51,7 @@ class ERegUtil #if flash9 extends EReg #end
 	/**
 	 * Method to remove all matched elements
 	 */
-	public static inline function removeAll (expr:EReg, str:String) : String
+	public static function removeAll (expr:EReg, str:String) : String
 	{
 		var buf = new StringBuf();
 		try
@@ -79,11 +79,9 @@ class ERegUtil #if flash9 extends EReg #end
 	 */
 	public static inline function removeMatch (expr:EReg, str:String) : String
 	{
-		try {
-			if (expr.match(str))
-				str = expr.matchedLeft() + expr.matchedRight();
-		}
-		catch (e:Dynamic)
+		try if (expr.match(str)) {
+			str = expr.matchedLeft() + expr.matchedRight();
+		} catch (e:Dynamic)
 			trace("ERROR!: "+e);
 		
 		return str;
@@ -146,7 +144,7 @@ class ERegUtil #if flash9 extends EReg #end
 	
 	
 	#if flash9
-	public static inline function resultToString (expr:EReg) : String
+	public static function resultToString (expr:EReg) : String
 	{
 		var output = "";
 		if (expr.result != null && expr.result.length > 0) {
@@ -161,7 +159,7 @@ class ERegUtil #if flash9 extends EReg #end
 	public static inline function getExpression (expr:EReg, results:Int = 0) { return expr.r; }
 	
 	#elseif neko
-	public static inline function resultToString (expr:EReg, results:Int = 0) : String
+	public static function resultToString (expr:EReg, results:Int = 0) : String
 	{
 		var output = "";
 		for (i in 0...results)

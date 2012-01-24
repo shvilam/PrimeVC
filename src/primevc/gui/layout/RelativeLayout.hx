@@ -31,7 +31,7 @@ package primevc.gui.layout;
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICodeGenerator;
  import primevc.tools.generator.ICSSFormattable;
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
 #end
  import primevc.core.dispatcher.Signal0;
  import primevc.core.geom.IBox;
@@ -70,7 +70,7 @@ class RelativeLayout
 {
 	
 #if neko
-	public var uuid					(default, null)	: String;
+	public var _oid					(default, null)	: Int;
 #end
 	
 	/**
@@ -87,7 +87,7 @@ class RelativeLayout
 	 * Signal to notify listeners that a property of the relative layout is 
 	 * changed.
 	 */
-	public var changed				(default, null) : Signal0;
+	public var change				(default, null) : Signal0;
 	
 	
 	//
@@ -159,10 +159,10 @@ class RelativeLayout
 	public function new ( top:Int = Number.INT_NOT_SET, right:Int = Number.INT_NOT_SET, bottom:Int = Number.INT_NOT_SET, left:Int = Number.INT_NOT_SET, hCenter:Int = Number.INT_NOT_SET, vCenter:Int = Number.INT_NOT_SET )
 	{
 #if neko
-		this.uuid		= StringUtil.createUUID();
+		this._oid		= ID.getNext();
 #end
 		this.enabled	= true;
-		this.changed	= new Signal0();
+		this.change		= new Signal0();
 		this.hCenter	= hCenter;
 		this.vCenter	= vCenter;
 		this.top		= top;
@@ -174,11 +174,9 @@ class RelativeLayout
 	
 	public function dispose ()
 	{
-		changed.dispose();
-		changed = null;
-#if neko
-		uuid	= null;
-#end
+			change.dispose();
+			change = null;
+#if neko	_oid = 0; #end
 	}
 	
 	
@@ -209,7 +207,7 @@ class RelativeLayout
 		if (v != hCenter) {
 			hCenter = v;
 			if (enabled)
-				changed.send();
+				change.send();
 		}
 		return v;
 	}
@@ -222,7 +220,7 @@ class RelativeLayout
 		if (v != vCenter) {
 			vCenter = v;
 			if (enabled)
-				changed.send();
+				change.send();
 		}
 		return v;
 	}
@@ -236,7 +234,7 @@ class RelativeLayout
 		if (v != left) {
 			left = v;
 			if (enabled)
-				changed.send();
+				change.send();
 		}
 		return v;
 	}
@@ -248,7 +246,7 @@ class RelativeLayout
 		if (v != right) {
 			right = v;
 			if (enabled)
-				changed.send();
+				change.send();
 		}
 		return v;
 	}
@@ -260,7 +258,7 @@ class RelativeLayout
 		if (v != top) {
 			top = v;
 			if (enabled)
-				changed.send();
+				change.send();
 		}
 		return v;
 	}
@@ -272,7 +270,7 @@ class RelativeLayout
 		if (v != bottom) {
 			bottom = v;
 			if (enabled)
-				changed.send();
+				change.send();
 		}
 		return v;
 	}

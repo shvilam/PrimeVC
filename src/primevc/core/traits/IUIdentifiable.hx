@@ -30,12 +30,12 @@ package primevc.core.traits;
 
 
 /**
- * Forces implementors to have a UUID.
+ * Forces implementors to have an integer 'Object Instance ID' named: _oid.
  * 
  * @author Ruben Weijers
  * @creation-date Sep 14, 2010
  */
 interface IUIdentifiable
 {
-	public var uuid (default, null)		: String;
+	public var _oid (default, null)		: Int;
 }

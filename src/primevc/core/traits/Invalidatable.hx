@@ -58,9 +58,9 @@ class Invalidatable implements IInvalidatable
 	}
 	
 	
-	public function invalidate (change:UInt) : Void
+	public function invalidate (change:Int) : Void
 	{
-		Assert.notNull(listeners);
+	//	Assert.notNull(listeners, this+" is already disposed.");
 		var current = listeners.head;
 		while (current != null)
 		{
@@ -72,6 +72,7 @@ class Invalidatable implements IInvalidatable
 	
 	public function invalidateCall ( changeFromOther:Int, sender:IInvalidatable ) : Void
 	{
+		Assert.notEqual( sender, this );	// <-- prevent infinite loops
 		invalidate( changeFromOther );
 	}
 }

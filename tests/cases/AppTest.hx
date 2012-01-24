@@ -28,9 +28,7 @@
  */
 package cases;
  import primevc.core.collections.ArrayList;
- import primevc.core.Application;
  import primevc.core.Bindable;
- import primevc.gui.components.ApplicationView;
  import primevc.gui.components.Button;
  import primevc.gui.components.Image;
  import primevc.gui.components.Label;
@@ -40,6 +38,7 @@ package cases;
  import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UIWindow;
+ import primevc.gui.display.Window;
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutContainer;
   using primevc.utils.Bind;
@@ -53,7 +52,7 @@ package cases;
  */
 class AppTest extends UIWindow
 {
-	public static function main () { Application.startup( AppTest ); }
+	public static function main () { Window.startup( AppTest ); }
 	
 	override private function createChildren ()
 	{
@@ -62,7 +61,7 @@ class AppTest extends UIWindow
 }
 
 
-class EditorView extends ApplicationView
+class EditorView extends UIContainer
 {
 	private var applicationBar	: ApplicationMainBar;
 	private var framesToolBar	: FramesToolBar;
@@ -122,10 +121,11 @@ class FramesToolBar extends ListView < FrameTypesSectionVO >
 		list.add( new FrameTypesSectionVO( "mediaFrames", "media", media ) );
 		list.add( new FrameTypesSectionVO( "elementFrames", "elementen", elements ) );
 		super(id, list);
+		
 	}
 	
 	
-	override private function createItemRenderer (dataItem:FrameTypesSectionVO, pos:Int)
+	private function createItemRenderer (dataItem:FrameTypesSectionVO, pos:Int)
 	{
 		return cast new FrameTypesBar( dataItem.name+"Bar", dataItem );
 	}
@@ -264,15 +264,15 @@ class SpreadView extends UIComponent
 	
 	private inline function resetLayoutScale ()
 	{
-		layout.width.value	= (layout.width.value / content.scaleX).int();
-		layout.height.value	= (layout.height.value / content.scaleY).int();
+		layout.width	= (layout.width / content.scaleX).int();
+		layout.height	= (layout.height / content.scaleY).int();
 	}
 	
 	
 	private inline function updateLayoutScale ()
 	{
-		layout.width.value	= (layout.width.value * content.scaleX).int();
-		layout.height.value	= (layout.height.value * content.scaleY).int();
+		layout.width	= (layout.width * content.scaleX).int();
+		layout.height	= (layout.height * content.scaleY).int();
 	}
 }
 

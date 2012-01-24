@@ -29,14 +29,14 @@
 package primevc.gui.components;
  import primevc.core.dispatcher.Wire;
  import primevc.core.geom.space.Direction;
+ import primevc.gui.core.UIElementFlags;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.traits.IScrollable;
- import primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using Std;
 
@@ -52,8 +52,6 @@ package primevc.gui.components;
  */
 class ScrollBar extends SliderBase
 {
-	public static inline var TARGET			: Int = 1 << 10;
-	
 	/**
 	 * Object on which the scrollbar's apply
 	 */
@@ -96,33 +94,34 @@ class ScrollBar extends SliderBase
 	
 	override public function dispose ()
 	{
-		if (scrollBinding != null)			scrollBinding.dispose();
-		if (resizeBinding != null)			resizeBinding.dispose();
-		if (updateTargetBinding != null)	updateTargetBinding.dispose();
-		
-		scrollBinding	= resizeBinding = updateTargetBinding = null;
-		target			= null;
-		
+		removeTargetBindings();
+		target = null;
 		super.dispose();
 	}
 	
 	
 	override public function validate ()
 	{
-		var changes = changes;
+		var changes = this.changes;
 		super.validate();
-		if (changes.has( SliderBase.DIRECTION | TARGET ))
+		if (changes.has( UIElementFlags.DIRECTION | UIElementFlags.TARGET ))
 			createTargetBindings();
+	}
+	
+	
+	private function removeTargetBindings ()
+	{
+		if (scrollBinding != null)			{ scrollBinding.dispose();			scrollBinding = null; }
+		if (resizeBinding != null)			{ resizeBinding.dispose();			resizeBinding = null; }
+		if (updateTargetBinding != null)	{ updateTargetBinding.dispose();	updateTargetBinding = null; }
+		if (scrollWheelBinding != null)		{ scrollWheelBinding.dispose();		scrollWheelBinding = null; }
 	}
 	
 	
 	
 	private function createTargetBindings ()
 	{
-		if (scrollBinding != null)			{ scrollBinding.dispose();			scrollBinding = null; }
-		if (resizeBinding != null)			{ resizeBinding.dispose();			resizeBinding = null; }
-		if (updateTargetBinding != null)	{ updateTargetBinding.dispose();	updateTargetBinding = null; }
-		
+		removeTargetBindings();
 		Assert.notNull( direction );
 		
 		if (target != null)
@@ -136,11 +135,10 @@ class ScrollBar extends SliderBase
 			scrollBinding		= handleScrollChange	.on( scrollProp.change, this );
 			resizeBinding		= resizeBtn				.on( l.changed, this );
 			updateTargetBinding	= updateTarget			.on( data.change, this );
-			scrollWheelBinding	= handleScrollWheel		.on( target.userEvents.mouse.scroll, this );
+			scrollWheelBinding	= handleScrollWheel		.on( target.container.userEvents.mouse.scroll, this );
 			
 			//force update on everything
 			resizeBtn( -1 );
-			calculatePercentage();
 			updateChildren();
 		}
 	}
@@ -163,7 +161,7 @@ class ScrollBar extends SliderBase
 	private function handleScrollWheel (mouseObj:MouseState)
 	{
 		if (direction == vertical)
-			data.value = validator.validate( data.value - mouseObj.scrollDelta() );
+			data.value = data.validator.validate( data.value - mouseObj.scrollDelta() * 3 );
 	}
 	
 	
@@ -179,14 +177,11 @@ class ScrollBar extends SliderBase
 		{
 			var l			= target.scrollableLayout;
 			var scrollable	= l.horScrollable();
-			dragBtn.layout.percentWidth	= scrollable ? FloatMath.min( l.explicitWidth / l.measuredWidth, 1 ) : 0;
+			dragBtn.visible	= dragBtn.layout.includeInLayout = scrollable;
+			dragBtn.layout.percentWidth	= scrollable ? FloatMath.min( l.width / l.measuredWidth, 1 ) : 0;
 			
 			if (scrollable)
-			{
-				validator.setValues( l.minScrollXPos, l.minScrollXPos + l.scrollableWidth );
-				calculatePercentage();
-		//		updateChildren();
-			}
+				data.validator.setValues( l.minScrollXPos, l.minScrollXPos + l.scrollableWidth );
 		}
 	}
 	
@@ -199,14 +194,16 @@ class ScrollBar extends SliderBase
 	 */
 	private function updateBtnHeight (layoutChanges:Int)
 	{
+	//	trace(target.scrollableLayout.verScrollable()+"; "+dragBtn.layout.percentHeight+"; "+layoutChanges.has( LayoutFlags.HEIGHT_PROPERTIES )+"; "+layoutChanges);
 		if (layoutChanges == -1 || layoutChanges.has( LayoutFlags.HEIGHT_PROPERTIES ))
 		{
 			var l			= target.scrollableLayout;
 			var scrollable	= l.verScrollable();
-			dragBtn.layout.percentHeight = scrollable ? FloatMath.min( l.explicitHeight / l.measuredHeight, 1 ) : 0;
+			dragBtn.visible	= dragBtn.layout.includeInLayout = scrollable;
+			dragBtn.layout.percentHeight = scrollable ? FloatMath.min( l.height / l.measuredHeight, 1 ) : 0;
 			
 			if (scrollable)
-				validator.setValues( l.minScrollYPos, l.minScrollYPos + l.scrollableHeight );
+				data.validator.setValues( l.minScrollYPos, l.minScrollYPos + l.scrollableHeight );
 		}
 	}
 	
@@ -224,8 +221,9 @@ class ScrollBar extends SliderBase
 	{
 		if (newTarget != target)
 		{
+			removeTargetBindings();
 			target = newTarget;
-			invalidate(TARGET);
+			invalidate(UIElementFlags.TARGET);
 		}
 		
 		return newTarget;

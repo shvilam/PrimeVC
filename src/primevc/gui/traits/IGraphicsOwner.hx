@@ -37,5 +37,8 @@ interface IGraphicsOwner implements IDisplayable
 {
 #if flash9
 	public var graphics			(default, null)		: flash.display.Graphics;
+	
+	public var scaleX	: Float;
+	public var scaleY	: Float;
 #end
 }

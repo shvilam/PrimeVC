@@ -27,7 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.neko.geom;
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICodeGenerator;
 
@@ -48,12 +48,12 @@ class Matrix implements ICodeFormattable
 	public var tx	: Float;
 	public var ty	: Float;
 	
-	public var uuid	(default, null) : String;
+	public var _oid	(default, null) : Int;
 	
 	
 	public function new (a:Float = 1, b:Float = 0, c:Float = 0, d:Float = 1, tx:Float = 0, ty:Float = 0)
 	{
-		uuid = StringUtil.createUUID();
+		_oid = ID.getNext();
 		this.a = a;
 		this.b = b;
 		this.c = c;

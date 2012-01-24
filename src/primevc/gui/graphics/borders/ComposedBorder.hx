@@ -40,7 +40,8 @@ package primevc.gui.graphics.borders;
  */
 class ComposedBorder extends ComposedGraphicProperty, implements IBorder
 {
-	public var weight		(default, setWeight) : Float;
+	public var weight		(default, setWeight)		: Float;
+	public var innerBorder	(default, setInnerBorder)	: Bool;
 	
 	
 	public function new ()
@@ -84,6 +85,13 @@ class ComposedBorder extends ComposedGraphicProperty, implements IBorder
 			weight = v;
 	//		invalidate( GraphicFlags.BORDER );
 		}
+		return v;
+	}
+	
+	
+	private inline function setInnerBorder (v:Bool)
+	{
+		Assert.abstract();
 		return v;
 	}
 }

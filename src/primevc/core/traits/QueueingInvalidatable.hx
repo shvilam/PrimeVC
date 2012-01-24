@@ -40,14 +40,14 @@ package primevc.core.traits;
  * @author Ruben Weijers
  * @creation-date Nov 08, 2010
  */
-class QueueingInvalidatable extends Invalidatable
+class QueueingInvalidatable extends Invalidatable, implements IQueueingInvalidatable
 {
 	/**
 	 * Flag indicating if the object should broadcast an invalidate call or do
 	 * nothing with it.
 	 */
 	public var invalidatable	(default, setInvalidatable)	: Bool;
-	private var changes			: Int;
+	public var changes			(default, null)				: Int;
 	
 	
 	public function new ()
@@ -59,8 +59,8 @@ class QueueingInvalidatable extends Invalidatable
 	
 	public inline function resetValidation ()
 	{
-		changes			= 0;
-		invalidatable	= true;
+		changes = 0;
+		(untyped this).invalidatable = true;
 	}
 	
 	

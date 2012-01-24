@@ -36,10 +36,11 @@ package primevc.types;
  import primevc.utils.FastArray;
 #if (neko || debug)
  import primevc.tools.generator.ICodeGenerator;
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
  import primevc.utils.TypeUtil;
 #end
   using primevc.utils.FastArray;
+  using Std;
 
 
 /**
@@ -51,22 +52,22 @@ package primevc.types;
 class SimpleDictionary < KType, VType > 
 				implements IDisposable
 			,	implements IClonable<SimpleDictionary<KType, VType>>
-			,	implements haxe.rtti.Generic
-#if neko	,	implements ICodeFormattable		#end
+#if !neko	,	implements haxe.rtti.Generic
+#else		,	implements ICodeFormattable		#end
 {
 	private var _keys	: FastArray < KType >;
 	private var _values	: FastArray < VType >;
 	public var length	(getLength, never)	: Int;
 	
 #if (neko || debug)
-	public var uuid		(default, null)		: String;
+	public var _oid		(default, null)		: Int;
 #end
 	
 	
 	public function new (size:Int = 0, fixed:Bool = false)
 	{
 #if (neko || debug)
-		uuid	= StringUtil.createUUID();
+		_oid	= ID.getNext();
 #end
 		_keys	= FastArrayUtil.create(size, fixed);
 		_values	= FastArrayUtil.create(size, fixed);
@@ -146,11 +147,12 @@ class SimpleDictionary < KType, VType >
 	public inline function exists (key:KType)		: Bool					{ return _keys.indexOf( key ) > -1; }
 	public inline function hasValue (value:VType)	: Bool					{ return _values.indexOf( value ) > -1; }
 	public inline function keys ()					: Iterator < KType >	{ return new FastArrayForwardIterator < KType > ( _keys ); }
-	public inline function keysList ()				: FastArray < KType >	{ return _keys; }
+	public inline function keyList ()				: FastArray < KType >	{ return _keys; }
 	public inline function valueList ()				: FastArray < VType >	{ return _values; }
 
 #if debug
 	public function keysToString () : String	{ return "keys: [ " +_keys.join(", ") + " ]"; }
+	#if !neko
 	public function toString ()		: String
 	{
 		var str = [];
@@ -159,9 +161,21 @@ class SimpleDictionary < KType, VType >
 		
 		return "dic: "+(length > 0 ? str.join(", ") : "empty");
 	}
+	#end
 #end
 
 #if neko
+	public function toHash () : Hash<VType>
+	{
+		var hash = new Hash<VType>();
+		
+		for (i in 0...length)
+			hash.set( Std.string( _keys[i] ), _values[i] );
+		
+		return hash;
+	}
+	
+	
 	public function cleanUp ()
 	{
 		var keysToRemove = [];
@@ -189,7 +203,16 @@ class SimpleDictionary < KType, VType >
 	{
 		if (!isEmpty())
 		{
-			code.construct( this, [ _values.length ] );
+			var type:Class<Dynamic> = null;
+			if (length > 0)
+			{
+				var key0 = _keys[0];
+				if		(key0.is(Int))		type = IntHash;
+				else if (key0.is(String))	type = Hash;
+			}
+			
+			if (type == null)	code.construct( this, [ _values.length ] );
+			else				code.construct( this, null, type );
 			
 			for (i in 0...length)
 				code.setAction( this, "set", [ _keys[i], _values[i] ] );

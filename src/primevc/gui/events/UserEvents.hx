@@ -28,7 +28,7 @@
  */
 package primevc.gui.events;
  import primevc.core.dispatcher.Signals;
- import primevc.core.dispatcher.INotifier;
+ import primevc.core.dispatcher.Signal1;
 
 typedef UserEvents = 
 	#if		flash9	primevc.avm2.events.UserEvents;
@@ -48,15 +48,21 @@ class UserSignals extends Signals
 {
 	public var mouse	(getMouse,	null)	: MouseEvents;
 	public var key		(getKey,	null)	: KeyboardEvents;
-	public var focus	(getFocus,	null)	: INotifier<Void->Void>;
-	public var blur		(getBlur,	null)	: INotifier<Void->Void>;
+	public var focus	(getFocus,	null)	: Signal1<FocusState>;
+	public var blur		(getBlur,	null)	: Signal1<FocusState>;
 	public var edit		(getEdit,	null)	: EditEvents;
+#if dragEnabled
+	public var drag		(getDrag,	null)	: DragEvents;
+#end
 	
 	private inline function getMouse ()	{ if (mouse == null)	{ createMouse(); }		return mouse; }
 	private inline function getKey ()	{ if (key == null)		{ createKey(); }		return key; }
 	private inline function getFocus ()	{ if (focus == null)	{ createFocus(); }		return focus; }
 	private inline function getBlur ()	{ if (blur == null)		{ createBlur(); }		return blur; }
 	private inline function getEdit ()	{ if (edit == null)		{ createEdit(); }		return edit; }
+#if dragEnabled
+	private inline function getDrag ()	{ if (drag == null)		{ createDrag(); }		return drag; }
+#end
 	
 	
 	private function createMouse ()		{ Assert.abstract(); }
@@ -64,7 +70,9 @@ class UserSignals extends Signals
 	private function createFocus ()		{ Assert.abstract(); }
 	private function createBlur ()		{ Assert.abstract(); }
 	private function createEdit ()		{ Assert.abstract(); }
-	
+#if dragEnabled
+	private function createDrag ()		{ drag = new DragEvents(); }
+#end
 	
 	override public function dispose ()
 	{
@@ -73,10 +81,16 @@ class UserSignals extends Signals
 		if ((untyped this).focus != null)	focus	.dispose();
 		if ((untyped this).blur != null)	blur	.dispose();
 		if ((untyped this).edit != null)	edit	.dispose();
+#if dragEnabled
+		if ((untyped this).drag != null)	drag	.dispose();
+#end
 		
 		edit	= null;
 		mouse	= null;
 		key		= null;
+#if dragEnabled
+		drag	= null;
+#end
 		blur	= focus = null;
 	}
 }

@@ -50,7 +50,7 @@ package primevc.gui.core;
  * @creation-date	Jun 17, 2010
  * @author			Ruben Weijers
  */
-class UIDataComponent <DataType:IValueObject> extends UIComponent, implements IUIDataElement <DataType>
+class UIDataComponent <DataType> extends UIComponent, implements IUIDataElement <DataType>
 {
 //	public var vo (default, setVO)		: IBindable < DataType >;
 //	public var data (getData, setData)	: DataType;
@@ -60,7 +60,8 @@ class UIDataComponent <DataType:IValueObject> extends UIComponent, implements IU
 	public function new (id:String = null, data:DataType = null)
 	{
 		super(id);
-		this.data = data;
+		if (data != null)
+			this.data = data;
 	}
 	
 	
@@ -79,13 +80,22 @@ class UIDataComponent <DataType:IValueObject> extends UIComponent, implements IU
 	
 	override public function validate ()
 	{
-		if (changes.has( UIElementFlags.DATA ) && data != null)
-			initData();
+		if (changes.has( UIElementFlags.DATA ))
+		{
+			if (data != null)
+				initData();
+		}
 		
 		super.validate();
 	}
 	
 	
+	/**
+	 * Method in which childcomponents can be bound to the data of the component.
+	 * This method can be called on two moments:
+	 * 		- component has created children and the data is already set
+	 * 		- data is set and the component-state is already initialized
+	 */
 	private function initData () : Void		{}
 	private function removeData () : Void	{}
 	
@@ -93,10 +103,14 @@ class UIDataComponent <DataType:IValueObject> extends UIComponent, implements IU
 	public function getDataCursor ()
 	{
 		var cursor = new DataCursor < DataType > ( data );
-		if (container == null || !container.is(IUIDataElement))
+		
+		var parent = null;
+		if (container != null && container.is(IUIDataElement))
+			parent = container.as(IUIDataElement);
+		
+		if (parent == null)
 			return cursor;
 		
-		var parent = container.as(IUIDataElement);
 		if (!parent.data.is(IReadOnlyList))
 			return cursor;
 		
@@ -114,15 +128,20 @@ class UIDataComponent <DataType:IValueObject> extends UIComponent, implements IU
 	{
 		if (v != data)
 		{
-			if (data != null)// && window != null)
+			if (isInitialized() && data != null)// && window != null)
 				removeData();
 			
 			data = v;
-		//	trace(this+".invalidateData "+v);
 			invalidate( UIElementFlags.DATA );
 		}
 		
 		return v;
+	}
+
+
+	public inline function unsetData ()
+	{
+		data = null;
 	}
 	
 	

@@ -182,7 +182,8 @@ class Color
 		var a = ALPHA_MASK;
 		
 		if (v.length == 3)
-			v += v;
+			v = v.charAt(0) + v.charAt(0) + v.charAt(1) + v.charAt(1) + v.charAt(2) + v.charAt(2);
+		
 		else if (v.length == 8)
 		{
 			a = ("0x" + v.substr(6)).parseInt();

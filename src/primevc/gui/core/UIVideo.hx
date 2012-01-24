@@ -31,25 +31,32 @@ package primevc.gui.core;
  import primevc.core.collections.SimpleList;
  import primevc.gui.styling.UIElementStyle;
 #end
+ import primevc.core.dispatcher.Wire;
  import primevc.core.net.VideoStream;
  import primevc.core.states.VideoStates;
  import primevc.core.Bindable;
  import primevc.core.IBindable;
+ 
  import primevc.gui.behaviours.layout.ValidateLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
+ 
+ import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.Video;
  import primevc.gui.effects.UIElementEffects;
+ 
  import primevc.gui.layout.AdvancedLayoutClient;
+ import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutClient;
- import primevc.gui.layout.LayoutFlags;
+ 
+ import primevc.gui.managers.ISystem;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.states.UIElementStates;
  import primevc.gui.traits.IValidatable;
  import primevc.types.Number;
+ 
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
@@ -62,6 +69,21 @@ package primevc.gui.core;
  */
 class UIVideo extends Video, implements IUIElement
 {
+	/**
+	 * bit-flag indicating that the video-width has changed
+	 **/
+	private static inline var VIDEO_WIDTH	= 1 << 8;
+	/**
+	 * bit-flag indicating that the video-height has changed
+	 **/
+	private static inline var VIDEO_HEIGHT	= 1 << 9;
+	
+	
+	
+	//
+	// PROPERTIES
+	//
+	
 	public var prevValidatable	: IValidatable;
 	public var nextValidatable	: IValidatable;
 	private var changes			: Int;
@@ -70,6 +92,7 @@ class UIVideo extends Video, implements IUIElement
 	public var behaviours		(default, null)					: BehaviourList;
 	public var effects			(default, default)				: UIElementEffects;
 	public var layout			(default, null)					: LayoutClient;
+	public var system			(getSystem, never)				: ISystem;
 	public var state			(default, null)					: UIElementStates;
 	
 #if flash9
@@ -115,11 +138,15 @@ class UIVideo extends Video, implements IUIElement
 		if (isDisposed())
 			return;
 		
+		if (container != null)			detachDisplay();
+		if (layout.parent != null)		detachLayout();
+		
 		//Change the state to disposed before the behaviours are removed.
 		//This way a behaviour is still able to respond to the disposed
 		//state.
 		state.current = state.disposed;
 		
+		removeValidation();
 		behaviours.dispose();
 		id.dispose();
 		state.dispose();
@@ -146,7 +173,7 @@ class UIVideo extends Video, implements IUIElement
 	
 	public inline function isDisposed ()	{ return state == null || state.is(state.disposed); }
 	public inline function isInitialized ()	{ return state != null && state.is(state.initialized); }
-	
+	public function isResizable ()			{ return true; }
 	
 
 	//
@@ -162,12 +189,12 @@ class UIVideo extends Video, implements IUIElement
 #if flash9
 		attachNetStream( stream.source );
 #end
-		handleStreamChange	.on( stream.state.change, this );
-		applyVideoWidth		.on( stream.width.change, this );
-		applyVideoHeight	.on( stream.height.change, this );
+		handleStreamChange		.on( stream.state.change, this );
+		invalidateVideoWidth	.on( stream.width.change, this );
+		invalidateVideoHeight	.on( stream.height.change, this );
 		
-		if (changes > 0)
-			validate();
+		validate();
+		removeValidation.on( displayEvents.removedFromStage, this );
 		
 		state.current = state.initialized;
 	}
@@ -176,7 +203,6 @@ class UIVideo extends Video, implements IUIElement
 	private function createLayout () : Void
 	{
 		layout = new AdvancedLayoutClient();
-		layout.maintainAspectRatio = true;
 	}
 	
 	
@@ -192,39 +218,135 @@ class UIVideo extends Video, implements IUIElement
 			
 			stylingEnabled = v;
 			if (stylingEnabled)
-				style = new UIElementStyle(this);
+				style = new UIElementStyle(this, this);
 		}
 		return v;
 	}
 #end
 	
 	
+	//
+	// ATTACH METHODS
+	//
+	
+	public  inline function attachLayoutTo		(t:ILayoutContainer, pos:Int = -1)	: IUIElement	{ t.children.add( layout, pos );											return this; }
+	public  inline function detachLayout		()									: IUIElement	{ if (layout.parent != null) { layout.parent.children.remove( layout ); }	return this; }
+	public  inline function attachTo			(t:IUIContainer, pos:Int = -1)		: IUIElement	{ attachLayoutTo(t.layoutContainer, pos);	attachToDisplayList(t, pos);	return this; }
+	private inline function applyDetach			()									: IUIElement	{ detachDisplay();							detachLayout();					return this; }
+	public  inline function changeLayoutDepth	(pos:Int)							: IUIElement	{ layout.parent.children.move( layout, pos );								return this; }
+	public  inline function changeDepth			(pos:Int)							: IUIElement	{ changeLayoutDepth(pos);					changeDisplayDepth(pos);		return this; }
+	
+
+	public  inline function attachToDisplayList (t:IDisplayContainer, pos:Int = -1)	: IUIElement
+	{
+		if (container != t)
+		{
+			if (effects != null && effects.isPlayingHide())
+				effects.hide.stop();
+			
+			attachDisplayTo(t, pos);
+
+			var hasEffect = visible && effects != null && effects.show != null;
+			var isPlaying = hasEffect && effects.show.isPlaying();
+			
+			if (!isPlaying)
+			{
+				if (hasEffect) {
+					visible = false;
+					if (!isInitialized()) 	haxe.Timer.delay( show, 100 ); //.onceOn( displayEvents.enterFrame, this );
+					else 					show();
+				}
+			}
+		}
+		
+		return this;
+	}
+
+
+	public  inline function detach () : IUIElement
+	{
+		if (effects != null && effects.isPlayingShow())
+			effects.show.stop();
+		
+		var hasEffect = effects != null && effects.hide != null;
+		var isPlaying = hasEffect && effects.hide.isPlaying();
+
+		if (!isPlaying)
+		{
+			if (hasEffect) {
+				var eff = effects.hide;
+				layout.includeInLayout = false;
+				applyDetach.onceOn( eff.ended, this );
+				hide();
+			}
+			else
+				applyDetach();
+		}
+
+		return this;
+	}
+
 	
 	//
 	// IPROPERTY-VALIDATOR METHODS
 	//
+	
+	
+	private inline function getSystem () : ISystem		{ return window.as(ISystem); }
+	public inline function isOnStage () : Bool			{ return window != null; }
+	public inline function isQueued () : Bool			{ return nextValidatable != null || prevValidatable != null; }
+	
+	
+	private var validateWire : Wire<Dynamic>;
 	
 	public function invalidate (change:Int)
 	{
 		if (change != 0)
 		{
 			changes = changes.set( change );
-			if (window != null && changes == change)
-				getValidationManager().add(this);
+			if (changes == change && isInitialized())
+				if      (system != null)		system.invalidation.add(this);
+				else if (validateWire != null)	validateWire.enable();
+				else                            validateWire = validate.on( displayEvents.addedToStage, this );
 		}
 	}
 	
 	
 	public function validate ()
 	{
-		changes = 0;
+	    if (validateWire != null)
+	        validateWire.disable();
+        
+		if (changes > 0)
+		{
+			if (changes.has( VIDEO_WIDTH | VIDEO_HEIGHT ))
+			{
+				var l = layout.as(AdvancedLayoutClient);
+				l.maintainAspectRatio = stream.width.value != 0;
+			
+				l.measuredResize( stream.width.value, stream.height.value );
+			//	trace(stream.width.value+", "+stream.height.value);
+			}
+		
+			changes = 0;
+		}
 	}
 	
 	
-	private function getValidationManager ()
+	/**
+	 * method is called when the object is removed from the stage or disposed
+	 * and will remove the object from the validation queue.
+	 */
+	private function removeValidation () : Void
 	{
-		return window.as(UIWindow).invalidationManager;
+		if (isQueued() &&isOnStage())
+			system.invalidation.remove(this);
+
+		if (!isDisposed() && changes > 0)
+			validate.onceOn( displayEvents.addedToStage, this );
 	}
+	
+	
 	
 	
 	//
@@ -239,7 +361,7 @@ class UIVideo extends Video, implements IUIElement
 	public inline function scale (sx:Float, sy:Float)	{ this.doScale(sx, sy); }
 	
 	
-	private function createBehaviours ()	: Void;
+	private function createBehaviours ()	: Void		{}
 	
 	
 	//
@@ -255,8 +377,8 @@ class UIVideo extends Video, implements IUIElement
 	}
 	
 	
-	private function applyVideoWidth (newV:Int, oldV:Int)	{ layout.as(AdvancedLayoutClient).measuredWidth = newV; }
-	private function applyVideoHeight (newV:Int, oldV:Int)	{ layout.as(AdvancedLayoutClient).measuredHeight = newV; }
+	private function invalidateVideoWidth ()	{ invalidate(VIDEO_WIDTH); }
+	private function invalidateVideoHeight ()	{ invalidate(VIDEO_HEIGHT); }
 	
 	
 	

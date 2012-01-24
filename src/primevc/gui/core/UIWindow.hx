@@ -30,10 +30,8 @@ package primevc.gui.core;
 #if (flash9 && stats)
  import net.hires.debug.Stats;
 #end
- import primevc.core.geom.IntRectangle;
  import primevc.core.traits.IIdentifiable;
  import primevc.core.Bindable;
- import primevc.gui.behaviours.layout.AutoChangeLayoutChildlistBehaviour;
  import primevc.gui.behaviours.layout.WindowLayoutBehaviour;
  import primevc.gui.behaviours.BehaviourList;
  import primevc.gui.behaviours.RenderGraphicsBehaviour;
@@ -43,8 +41,13 @@ package primevc.gui.core;
  import primevc.gui.layout.algorithms.RelativeAlgorithm;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.layout.LayoutClient;
+ import primevc.gui.layout.VirtualLayoutContainer;
  import primevc.gui.managers.InvalidationManager;
+ import primevc.gui.managers.IPopupManager;
+ import primevc.gui.managers.ISystem;
+ import primevc.gui.managers.PopupManager;
  import primevc.gui.managers.RenderManager;
+ import primevc.gui.managers.ToolTipManager;
  import primevc.gui.styling.ApplicationStyle;
  import primevc.gui.styling.UIElementStyle;
  import primevc.gui.traits.IBehaving;
@@ -72,15 +75,36 @@ class UIWindow extends Window
 	,	implements IIdentifiable
 	,	implements ILayoutable
 	,	implements IStylable
+	,	implements ISystem
 {
 	public var layout				(default, null)					: LayoutClient;
+	
+	/**
+	 * variable 'layout' casted as LayoutContainer. The 'layout' is meant for
+	 * the children of window except for popups.
+	 */
 	public var layoutContainer		(getLayoutContainer, never)		: LayoutContainer;
+	
+	/**
+	 * Top layout-container, only containing 'layout' and 'popupLayout'.
+	 */
+	public var topLayout			(default, null)					: LayoutContainer;
+	/**
+	 * Layoutcontainer for popups.
+	 */
+	public var popupLayout			(default, null)					: LayoutContainer;
+	
+	
 	
 	public var behaviours			(default, null)					: BehaviourList;
 	public var id					(default, null)					: Bindable < String >;
 	public var graphicData			(default, null)					: GraphicProperties;
 	
 #if flash9
+	public var scaleX				: Float;
+	public var scaleY				: Float;
+	
+	
 	/**
 	 * Shape to draw the background graphics in. Stage doesn't have a Graphics
 	 * property.
@@ -90,35 +114,37 @@ class UIWindow extends Window
 	 * Reference to bgShape.graphics.. Needed for compatibility with IDrawable
 	 */
 	public var graphics				(default, null)					: flash.display.Graphics;
-	public var rect					(default, null)					: IntRectangle;
 	
 	public var style				(default, null)					: UIElementStyle;
 	public var styleClasses			(default, null)					: SimpleList<String>;
 	public var stylingEnabled		(default, setStylingEnabled)	: Bool;
 #end
 	
-	public var renderManager		(default, null)					: RenderManager;
-	public var invalidationManager	(default, null)					: InvalidationManager;
+	public var invalidation			(default, null)					: InvalidationManager;
+	public var rendering			(default, null)					: RenderManager;
+	public var popups				(getPopupManager, null)			: IPopupManager;
+	public var toolTip				(default, null)					: ToolTipManager;
 	
 	
 	public function new (target:Stage, id:String = null)
 	{
+		scaleX = scaleY = 1;
 		super(target);
 		
 #if debug
 		if (id == null)
 			id = this.getReadableId();
 #end
-		this.id				= new Bindable<String>( id );
-		renderManager		= new RenderManager(this);
-		invalidationManager	= new InvalidationManager(this);
+		this.id			= new Bindable<String>( id );
+		rendering		= new RenderManager(this);
+		invalidation	= new InvalidationManager(this);
+		toolTip			= new ToolTipManager(this);
 		
-		behaviours			= new BehaviourList();
-		rect				= new IntRectangle();
+		behaviours		= new BehaviourList();
 		
 #if flash9		
-		graphicData			= new GraphicProperties(rect);
-		styleClasses		= new SimpleList<String>();
+		graphicData		= new GraphicProperties(rect);
+		styleClasses	= new SimpleList<String>();
 #end
 		
 		behaviours.add( new WindowLayoutBehaviour(this) );
@@ -150,44 +176,53 @@ class UIWindow extends Window
 
 	override public function dispose ()
 	{
-		if (displayEvents == null)
+		if (isDisposed())
 			return;
 		
-		behaviours			.dispose();
-		layout				.dispose();
-		invalidationManager	.dispose();
-		renderManager		.dispose();
-		rect				.dispose();
+		behaviours		.dispose();
+		layout			.dispose();
+		invalidation	.dispose();
+		rendering		.dispose();
+		toolTip			.dispose();
+		rect			.dispose();
 		
 #if flash9
-		bgShape				.dispose();
-		style				.dispose();
-		styleClasses		.dispose();
-		styleClasses		= null;
-		style				= null;
-		bgShape				= null;
+		bgShape			.dispose();
+		style			.dispose();
+		styleClasses	.dispose();
+		styleClasses	= null;
+		style			= null;
+		bgShape			= null;
 #end
 		
-		if (layout != null)			layout		.dispose();
-		if (graphicData != null)	graphicData	.dispose();
+		if (layout != null)					layout		.dispose();
+		if (graphicData != null)			graphicData	.dispose();
+		if ((untyped this).popups != null)	popups		.dispose();
 		
-		behaviours			= null;
-		graphicData			= null;
-		layout				= null;
-		invalidationManager	= null;
-		renderManager		= null;
-		rect				= null;
+		behaviours		= null;
+		graphicData		= null;
+		layout			= null;
+		invalidation	= null;
+		rendering		= null;
+		rect			= null;
 		
 		super.dispose();
 	}
 	
-	// Define how children objects of the window are positioned.
+	
 	private inline function createLayout ()
 	{
-		layout =	#if flash9	new primevc.avm2.layout.StageLayout( target );
-					#else		new LayoutContainer();	#end
+		topLayout	=	#if flash9	new primevc.avm2.layout.StageLayout( target );
+						#else		new LayoutContainer();	#end
+		
+		topLayout.children.add( layout		= new VirtualLayoutContainer( #if debug "contentLayout" #end ) );
+		topLayout.children.add( popupLayout	= new VirtualLayoutContainer( #if debug "popupLayout" #end ) );
+		
+		popupLayout.algorithm	= new RelativeAlgorithm();
+		layout.percentWidth		= layout.percentHeight = popupLayout.percentWidth = popupLayout.percentHeight = 1.0;
 	//	layoutContainer.algorithm = new RelativeAlgorithm();
 	}
+	
 	
 	
 	//
@@ -196,21 +231,29 @@ class UIWindow extends Window
 	
 	private function createBehaviours ()	: Void
 	{
-		behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
+	//	behaviours.add( new AutoChangeLayoutChildlistBehaviour(this) );
+#if flash9
+		target.stageFocusRect = false;
+#end
 	}
 	
 	
-	private function createChildren ()		: Void;
+	private function createChildren ()		: Void {}
+	
+	public inline function attach (child:IUIElement) : UIWindow
+	{
+		child.attachLayoutTo( layoutContainer ).attachToDisplayList( this );
+		return this;
+	}
 	
 	
 	//
 	// GETTERS / SETTERS
 	//
 	
-	private inline function getLayoutContainer ()
-	{
-		return layout.as(LayoutContainer);
-	}
+	public inline function isDisposed ()			{ return displayEvents == null; }
+	private inline function getLayoutContainer ()	{ return layout.as(LayoutContainer); }
+	private inline function getPopupManager ()		{ if (popups == null) { popups = new PopupManager(this); } return popups; }
 	
 	
 #if flash9
@@ -225,7 +268,7 @@ class UIWindow extends Window
 			
 			stylingEnabled = v;
 			if (v) {
-				style = new ApplicationStyle(this);
+				style = new ApplicationStyle(this, this);
 				style.updateStyles();
 			}
 		}

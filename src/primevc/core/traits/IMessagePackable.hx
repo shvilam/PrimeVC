@@ -35,11 +35,11 @@ package primevc.core.traits;
  * @author Danny Wilson
  * @creation-date Dec 13, 2010
  */
-interface IMessagePackable
+interface IMessagePackable implements IFlagOwner
 {
 	/**
 	 * Serialize this object.
 	 * @return Bytes written to Output stream.
 	 */
-	public function messagePack(o : BytesOutput) : Int;
+	public function messagePack(o : BytesOutput)	: Int;
 }

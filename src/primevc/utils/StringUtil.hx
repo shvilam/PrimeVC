@@ -49,7 +49,7 @@ class StringUtil
 	 * x = any hexadecimal character
 	 * y = 8,9,a,b
 	 */
-	public static inline function createUUID () : String
+	public static function createUUID () : String
 	{
 		return randomHexStr(0xffff) + randomHexStr(0xffff) 					//first 8 chars	(xxxxxxxx)
 				+ "-" + randomHexStr(0xffff) 								//next 4 chars (xxxx)
@@ -59,15 +59,27 @@ class StringUtil
 	}
 	
 	
-	private static inline function randomHexStr (val:Int)		{ return val.random().hex(); }
-	private static inline function randomChar(s:String, l:Int)	{ return s.charAt( Std.random( l ) ); }
+	private static inline function randomHexStr (val:Int) : String		{ return val.random().hex(); }
+	private static inline function randomChar(s:String, l:Int) : String	{ return s.charAt( Std.random( l ) ); }
+	
+	/**
+	 * Method creates a random string with the given length
+	 */
+	public static function randomString(l:Int) : String
+	{
+		Assert.that(l > 0);
+		var s = "";
+		for (i in 0...l)
+			s += (25.random() + 65).fromCharCode();
+		return s;
+	}
 	
 	
 	/**
 	 * Method will change the first character of every word in the given string
 	 * to uppercase
 	 */
-	public static inline function capitalize (v:String) : String
+	public static function capitalize (v:String) : String
 	{
 		var words	= v.split(" ");
 		var len		= words.length;
@@ -84,5 +96,20 @@ class StringUtil
 	public static inline function capitalizeFirstLetter (v:String) : String
 	{
 		return v.substr(0, 1).toUpperCase() + v.substr(1);
+	}
+
+
+	public static inline function breakAfter (v:String, breakPoint:Int) : String
+	{
+		var loop = (v.length / breakPoint).int();
+		var newV = "";
+		for (i in 0...loop)
+			newV += v.substr(i * breakPoint, breakPoint) + "\n";
+		
+		var last = v.length % breakPoint;
+		newV += v.substr( -last, last );
+
+		trace(v.length % breakPoint);
+		return newV + "\n";
 	}
 }

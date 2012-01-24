@@ -63,6 +63,7 @@ class TextStyle extends StyleSubBlock
 	
 	private var _size			: Int;
 	private var _family			: String;
+	private var _embeddedFont	: Bool;
 	private var _color			: Null < RGBA >;
 	private var _weight			: FontWeight;
 	private var _style			: FontStyle;
@@ -79,6 +80,7 @@ class TextStyle extends StyleSubBlock
 	
 	public var size				(getSize,			setSize)			: Int;
 	public var family			(getFamily,			setFamily)			: String;
+	public var embeddedFont		(getEmbeddedFont,	setEmbeddedFont)	: Bool;
 	public var color			(getColor,			setColor)			: Null<RGBA>;
 	public var weight			(getWeight,			setWeight)			: FontWeight;
 	public var style			(getStyle,			setStyle)			: FontStyle;
@@ -98,8 +100,10 @@ class TextStyle extends StyleSubBlock
 	
 	
 	public function new (
+		filledProps	: Int			= 0,
 		size:Int					= Number.INT_NOT_SET,
 		family:String				= null,
+		embeddedFont:Bool			= false,
 		color:Null<RGBA>			= null,
 		weight:FontWeight			= null,
 		style:FontStyle				= null,
@@ -114,21 +118,22 @@ class TextStyle extends StyleSubBlock
 		columnWidth:Int				= Number.INT_NOT_SET
 	)
 	{
-		super();
-		this.size			= size;
-		this.family			= family;
-		this.color			= color;
-		this.weight			= weight;
-		this.style			= null;
-		this.letterSpacing	= letterSpacing == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : letterSpacing;
-		this.align			= align;
-		this.decoration		= decoration;
-		this.indent			= indent == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : indent;
-		this.transform		= transform;
-		this.textWrap		= textWrap;
-		this.columnCount	= columnCount;
-		this.columnGap		= columnGap;
-		this.columnWidth	= columnWidth;
+		super(filledProps);
+		#if flash9 this._size			#else this.size			    #end = size;
+		#if flash9 this._family		    #else this.family		    #end = family;
+		#if flash9 this._embeddedFont	#else this.embeddedFont	    #end = embeddedFont;
+		#if flash9 this._color			#else this.color			#end = color;
+		#if flash9 this._weight		    #else this.weight		    #end = weight;
+		#if flash9 this._style			#else this.style			#end = style;
+		#if flash9 this._letterSpacing	#else this.letterSpacing	#end = letterSpacing == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : letterSpacing;
+		#if flash9 this._align			#else this.align			#end = align;
+		#if flash9 this._decoration	    #else this.decoration	    #end = decoration;
+		#if flash9 this._indent		    #else this.indent		    #end = indent == Number.INT_NOT_SET ? Number.FLOAT_NOT_SET : indent;
+		#if flash9 this._transform		#else this.transform		#end = transform;
+		#if flash9 this._textWrap		#else this.textWrap		    #end = textWrap;
+		#if flash9 this._columnCount	#else this.columnCount	    #end = columnCount;
+		#if flash9 this._columnGap		#else this.columnGap		#end = columnGap;
+		#if flash9 this._columnWidth	#else this.columnWidth	    #end = columnWidth;
 	}
 	
 	
@@ -217,12 +222,23 @@ class TextStyle extends StyleSubBlock
 	
 	override public function updateAllFilledPropertiesFlag ()
 	{
-		super.updateAllFilledPropertiesFlag();
+		inheritedProperties = 0;
+		if (extendedStyle != null)	inheritedProperties  = extendedStyle.allFilledProperties;
+		if (nestingStyle != null)	inheritedProperties |= nestingStyle.allFilledProperties;
+		if (superStyle != null)		inheritedProperties |= superStyle.allFilledProperties;
+		if (parentStyle != null)	inheritedProperties |= parentStyle.allFilledProperties;
 		
-		if (allFilledProperties < Flags.ALL_PROPERTIES && extendedStyle != null)	allFilledProperties |= extendedStyle.allFilledProperties;
-		if (allFilledProperties < Flags.ALL_PROPERTIES && nestingStyle != null)		allFilledProperties |= nestingStyle.allFilledProperties;
-		if (allFilledProperties < Flags.ALL_PROPERTIES && superStyle != null)		allFilledProperties |= superStyle.allFilledProperties;
-		if (allFilledProperties < Flags.ALL_PROPERTIES && parentStyle != null)		allFilledProperties |= parentStyle.allFilledProperties;
+		allFilledProperties = filledProperties | inheritedProperties;
+		inheritedProperties	= inheritedProperties.unset( filledProperties );
+	}
+	
+	
+	override public function getPropertiesWithout (noExtendedStyle:Bool, noSuperStyle:Bool)
+	{
+		var props = filledProperties;
+		if (!noExtendedStyle && extendedStyle != null)	props |= extendedStyle.allFilledProperties;
+		if (!noSuperStyle && superStyle != null)		props |= superStyle.allFilledProperties;
+		return props;
 	}
 	
 	
@@ -281,7 +297,7 @@ class TextStyle extends StyleSubBlock
 			invalidate( changeFromOther );
 		}
 		
-		//if the sender is the super style and the other styles doesn't have the property that is changed, broadcast the change as well
+		//if the sender is the parent style and the other styles doesn't have the property that is changed, broadcast the change as well
 		else if (sender == parentStyle && !propIsInExtended && !propIsInNesting && !propIsInSuper)
 		{
 			if (propIsInParent)		allFilledProperties = allFilledProperties.set( changeFromOther );
@@ -320,6 +336,19 @@ class TextStyle extends StyleSubBlock
 		if (v == null && parentStyle != null)		v = parentStyle.family;
 
 		return v;
+	}
+
+	
+	private function getEmbeddedFont ()
+	{
+		var fam = _family;
+		var val = _embeddedFont;
+		if (fam == null && extendedStyle != null)	{ fam = extendedStyle.family; 	val = extendedStyle.embeddedFont; }
+		if (fam == null && nestingStyle != null)	{ fam = nestingStyle.family;	val = nestingStyle.embeddedFont; }
+		if (fam == null && superStyle != null)		{ fam = superStyle.family;		val = superStyle.embeddedFont; }
+		if (fam == null && parentStyle != null)		{ fam = parentStyle.family;		val = parentStyle.embeddedFont; }
+
+		return val;
 	}
 	
 	
@@ -491,6 +520,16 @@ class TextStyle extends StyleSubBlock
 		}
 		return v;
 	}
+
+	
+	private function setEmbeddedFont (v)
+	{
+		if (v != _embeddedFont) {
+			_embeddedFont = v;
+			markProperty( Flags.EMBEDDED, _family != null );
+		}
+		return v;
+	}
 	
 	
 	private function setColor (v:Null<RGBA>)
@@ -648,7 +687,7 @@ class TextStyle extends StyleSubBlock
 	override public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())
-			code.construct( this, [ _size, _family, _color, _weight, _style, _letterSpacing, _align, _decoration, _indent, _transform, _textWrap, _columnCount, _columnGap, _columnWidth ] );
+			code.construct( this, [ filledProperties, _size, _family, _embeddedFont, _color, _weight, _style, _letterSpacing, _align, _decoration, _indent, _transform, _textWrap, _columnCount, _columnGap, _columnWidth ] );
 	}
 	
 	override public function cleanUp () {}

@@ -35,7 +35,7 @@ package primevc.gui.graphics.fills;
  import primevc.types.RGBA;
 #if (debug || neko)
   using primevc.utils.Color;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
 #end
 
 

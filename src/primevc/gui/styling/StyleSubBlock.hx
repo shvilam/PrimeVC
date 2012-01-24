@@ -79,7 +79,7 @@ class StyleSubBlock extends StyleBlockBase
 	}
 	
 	
-	private function isPropAnStyleReference ( property)
+	private function isPropAnStyleReference ( property:Int )
 	{
 		return property == StyleFlags.EXTENDED_STYLE || property == StyleFlags.SUPER_STYLE;
 	}

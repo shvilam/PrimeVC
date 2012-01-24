@@ -28,9 +28,12 @@
  */
 package primevc.tools;
  import primevc.gui.styling.StyleBlock;
+ import primevc.gui.styling.StyleFlags;
  import primevc.tools.generator.ICodeFormattable;
- import primevc.tools.generator.HaxeCodeGenerator;
+ import primevc.tools.generator.CodeGenerator;
+  using primevc.tools.generator.output.HaxeOutputUtil;
   using primevc.utils.TypeUtil;
+
 
 
 /**
@@ -61,9 +64,10 @@ class CSSParserMain
 	}
 	
 	
+	private var timer		: StopWatch;
 	private var styles		: StyleBlock;
 	private var parser		: CSSParser;
-	private var generator	: HaxeCodeGenerator;
+	private var generator	: CodeGenerator;
 	private var manifest	: Manifest;
 	
 	private var template	: String;
@@ -73,11 +77,12 @@ class CSSParserMain
 	public function new (skin:String, primevcDir:String)
 	{
 		skinFolder	= skin;
+		timer		= new StopWatch();
 		styles		= new StyleBlock(null);
 		manifest	= new Manifest(); // skinFolder + "/manifest.xml" );
 		parser		= new CSSParser( styles, manifest );
-		generator	= new HaxeCodeGenerator( 2 );
-		generator.instanceIgnoreList.set( styles.uuid, styles );
+		generator	= new CodeGenerator();
+		generator.instanceIgnoreList.set( styles._oid, styles );
 		
 		var tplName = primevcDir + "/tools/StyleSheet.tpl.hx";
 		if (!neko.FileSystem.exists( tplName ))
@@ -89,53 +94,85 @@ class CSSParserMain
 	
 	public function parse ()
 	{
+		beginTimer();
 		parser.parse( skinFolder + "/Style.css", ".." );
+		stopTimer("Parsing: " + skinFolder + "/Style.css");
 	}
 	
 	
 	public function generateCode ()
 	{
-		var code:String = "";
-		generator.start();
+	//	neko.Lib.println(Date.now() + " Generating code");
 		
-		if (styles.children != null)
-		{
-			if (styles.children.elementSelectors != null)	code += generateSelectorCode( cast styles.children.elementSelectors, "elementSelectors" );
-			if (styles.children.styleNameSelectors != null)	code += generateSelectorCode( cast styles.children.styleNameSelectors, "styleNameSelectors" );
-			if (styles.children.idSelectors != null)		code += generateSelectorCode( cast styles.children.idSelectors, "idSelectors" );
-		}
+		generator.start();
+		if (styles.has( StyleFlags.ELEMENT_CHILDREN ))			generateSelectorCode( cast styles.elementChildren, "elementChildren" );
+		if (styles.has( StyleFlags.STYLE_NAME_CHILDREN ))		generateSelectorCode( cast styles.styleNameChildren, "styleNameChildren" );
+		if (styles.has( StyleFlags.ID_CHILDREN ))				generateSelectorCode( cast styles.idChildren, "idChildren" );
 		
 		//write to template
-		var name = "//selectors";
-		var pos = template.indexOf( name );
-		if (pos > -1) {
-			pos += name.length;
-			var begin	= template.substr( 0, pos );
-			var end 	= template.substr( pos );
-			template	= begin + generator.flush() + end;
-		}
+		setTemplateVar( "imports",   generator.imports.writeImports() );
+		setTemplateVar( "selectors", generator.values.writeValues() );
+		
+		generator.flush();
+	}
+	
+	
+	private function setTemplateVar (varName:String, replacement:StringBuf) : Void
+	{
+		beginTimer();
+		varName = "//" + varName;
+		var pos = template.indexOf( varName );
+		
+		if (pos == -1)
+			return;
+		
+		var begin	= template.substr( 0, pos );
+		pos += varName.length;
+		var end 	= template.substr( pos );
+		template	= begin + replacement.toString() + end;
+		stopTimer( "write "+varName );
 	}
 	
 	
 	public function flush ()
 	{
+		beginTimer();
 		//write haxe code
 		var output = neko.io.File.write( skinFolder + "/StyleSheet.hx", false );
 		output.writeString( template );
 		output.close();
+		
+		stopTimer(" Writing code to " + skinFolder + "/StyleSheet.hx");
 	}
 	
 	
 	
 	private function generateSelectorCode (selectorHash:Hash<ICodeFormattable>, name:String) : Void
 	{
+		beginTimer();
+		
 		//create selector code
 		var keys = selectorHash.keys();
+		var i	 = 0;
 		for (key in keys)
 		{
 			var val = selectorHash.get(key);
-			if (!val.isEmpty())
+			if (!val.isEmpty()) {
 				generator.setSelfAction( name + ".set", [ key, val ] );
+				i++;
+			}
 		}
+		
+		stopTimer("generate "+name+" ("+i+")");
+	}
+	
+	
+	private inline function beginTimer ()	{ timer.start(); }
+	private inline function stopTimer (name:String)
+	{
+		timer.stop();
+		neko.Lib.println("\t" + Date.now() + " - " + timer.currentTime + " ms - " + name);
+		timer.reset();
+	//	neko.Lib.println(Date.now() +" - "+name);
 	}
 }

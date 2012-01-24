@@ -30,13 +30,13 @@ package primevc.core.collections;
  import primevc.core.RevertableBindableFlags;
  import primevc.utils.FastArray;
   using primevc.utils.BitUtil;
-  using primevc.utils.ChangesUtil;
+  using primevc.tools.valueobjects.ChangesUtil;
   using primevc.utils.FastArray;
 
 
 private typedef Flags = RevertableBindableFlags;
 
-class RevertableArrayListFlags
+extern class RevertableArrayListFlags
 {
 	static public inline var REMEMBER_CHANGES = 32768;	// 0b_1000 0000 0000 0000
 }
@@ -45,9 +45,7 @@ class RevertableArrayListFlags
  * @author Ruben Weijers
  * @creation-date Nov 19, 2010
  */
-class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >,
- 	implements IRevertableList < DataType >
-	#if GenericArrays, implements haxe.rtti.Generic #end
+class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >, implements IRevertableList < DataType > //, implements haxe.rtti.Generic
 {
 	/**
 	 * Keeps track of settings.
@@ -70,6 +68,12 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >,
 	override public function clone ()
 	{
 		return untyped new RevertableArrayList<DataType>( list.clone() );
+	}
+	
+	
+	override public function duplicate ()
+	{
+		return untyped new RevertableArrayList<DataType>( list.duplicate() );
 	}
 	
 	
@@ -137,6 +141,12 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >,
 		}
 		flags = flags.unset(Flags.IN_EDITMODE);
 	}
+
+
+	public inline function isEditable ()
+	{
+		return flags.has( Flags.IN_EDITMODE );
+	}
 	
 	
 	
@@ -202,7 +212,7 @@ class RevertableArrayList < DataType > extends ReadOnlyArrayList < DataType >,
 		if (oldPos == -1)
 			oldPos = list.indexOf(item);
 		
-		if (oldPos > -1 && list.removeItem(item, oldPos))
+		if (oldPos > -1 && list.removeAt(oldPos))
 			addChange( ListChange.removed( item, oldPos ) );
 		
 		return item;

@@ -31,20 +31,20 @@ package primevc.gui.behaviours.layout;
  import primevc.core.dispatcher.Wire;
  import primevc.gui.behaviours.ValidatingBehaviour;
  import primevc.gui.core.IUIElement;
- import primevc.gui.core.UIWindow;
+ import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.states.ValidateStates;
  import primevc.gui.traits.IDrawable;
  import primevc.gui.traits.IPropertyValidator;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.TypeUtil;
  
 
 /**
  * Instance will trigger layout.validate on a 'enterFrame event' when the 
- * layout is invalidated.
+ * layout is invalidated or when the target is added to the stage with an 
+ * invalidated layout.
  * 
  * @creation-date	Jun 14, 2010
  * @author			Ruben Weijers
@@ -52,19 +52,30 @@ package primevc.gui.behaviours.layout;
 class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implements IPropertyValidator
 {
 	private var isNotPositionedYet	: Bool;
+	private var stateChangeWire		: Wire<Dynamic>;
+	private var layoutChangeWire	: Wire<Dynamic>;
 	
 	
 	override private function init ()
 	{
-		isNotPositionedYet = true;
-		Assert.that(target.layout != null, "Layout of "+target+" can't be null for "+this);
+		Assert.that(target.layout != null);
+		
+		var layout			= target.layout;
+		isNotPositionedYet	= true;
+		Assert.that(layout != null, "Layout of "+target+" can't be null for "+this);
 		
 #if debug
-		target.layout.name = target.id.value+"Layout";
+		layout.name = target.id.value+"Layout";
 #end
 		
-		layoutStateChangeHandler.on( target.layout.state.change, this );
-		applyChanges.on( target.layout.changed, this );
+		stateChangeWire		= layoutStateChangeHandler	.on( layout.state.change, this );
+		layoutChangeWire	= applyChanges				.on( layout.changed, this );
+		
+		updateTarget.on( target.displayEvents.addedToStage, this );
+		disableWires.on( target.displayEvents.removedFromStage, this );
+		
+		if (isOnStage())	updateTarget();
+		else				disableWires();
 	}
 	
 	
@@ -73,60 +84,101 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 		if (target.layout == null)
 			return;
 		
-		super.reset();
+		target.displayEvents.addedToStage.unbind( this );
+		target.displayEvents.removedFromStage.unbind( this );
 		
-		target.layout.state.change.unbind( this );
-		target.layout.changed.unbind( this );
+		if (stateChangeWire != null)	stateChangeWire.dispose();
+		if (layoutChangeWire != null)	layoutChangeWire.dispose();
+		
+		super.reset();
 	}
 	
 	
-	private function layoutStateChangeHandler (newState:ValidateStates, oldState:ValidateStates)
+	private function updateTarget ()
 	{
-		if (!isOnStage())
-			return;
+		stateChangeWire.enable();
+		layoutChangeWire.enable();
 		
-		if (isQueued() && newState == ValidateStates.parent_invalidated)
+		var curState = target.layout.state.current;
+		layoutStateChangeHandler( curState, null );
+		
+		if (curState == ValidateStates.validated)
+			applyChanges( LayoutFlags.POSITION | LayoutFlags.SIZE );
+	}
+	
+	
+	private function disableWires ()
+	{
+		stateChangeWire.disable();
+		layoutChangeWire.disable();
+		
+		if (isQueued())
 			getValidationManager().remove( this );
 		
-		else if (!isQueued() && newState == ValidateStates.invalidated)
+		Assert.that(!isQueued());
+	}
+	
+	
+#if debug
+	/**
+	 * method will return the state of all the parents/grandparents of the 
+	 * given layoutclient
+	 */
+	private function getParentsState (layout:LayoutClient, level:Int = 0) : String
+	{
+		var s = "\n\t\t\t\t[ "+level+" ] = "+layout+" => "+layout.state.current; //+"; in queue? "+isQueued();
+		if (layout.parent != null)
+			s += getParentsState( cast layout.parent, level + 1 );
+		
+		return s;
+	}
+#end
+	
+	private function layoutStateChangeHandler (newState:ValidateStates, oldState:ValidateStates)
+	{
+		Assert.that(isOnStage(), target);
+		
+	//	if (isQueued() && newState == ValidateStates.parent_invalidated)
+	//		getValidationManager().remove( this );
+	
+		if (newState == ValidateStates.invalidated)
 			invalidate();
+		
+	//	else if (newState == ValidateStates.validated) // && !target.layout.includeInLayout)		will happen in the queuemanager
+	//		getValidationManager().remove(this);
 	}
 	
 	
 	public inline function invalidate ()				{ getValidationManager().add( this ); }
-	public inline function validate ()					{ target.layout.validate(); }
-	override private function getValidationManager ()	{ return isOnStage() ? cast target.window.as(UIWindow).invalidationManager : null; }
+	public inline function validate ()					{ if (target != null) target.layout.validate(); }
+	override private function getValidationManager ()	{ return isOnStage() ? cast target.system.invalidation : null; }
 	
 	
 	public function applyChanges (changes:Int)
 	{
-		if (changes.has( LayoutFlags.X | LayoutFlags.Y ))
+		var l = target.layout;
+		
+	//	if (changes.has( LayoutFlags.SIZE | LayoutFlags.POSITION ))
+	//		trace(target+"; oldPos: "+target.x+", "+target.y+"; newPos: "+l.getHorPosition()+", "+l.getVerPosition()+"; newSize: "+l.outerBounds.width+", "+l.outerBounds.height+"; "+changes.has( LayoutFlags.POSITION )+"; "+changes.has( LayoutFlags.SIZE ));
+		
+		if (changes.has( LayoutFlags.POSITION ))
 		{
-			//	trace(target+".applyPosition; " + " - pos: " + target.layout.getHorPosition() + ", " + target.layout.getVerPosition() + " - old pos "+target.x+", "+target.y+"; padding? "+target.layout.padding);
-			
 			if (target.effects == null || isNotPositionedYet)
 			{
 				var l = target.layout;
 				var newX = l.getHorPosition();
 				var newY = l.getVerPosition();
-			
-				if (!isNotPositionedYet && target.x == newX && target.y == newY)
-					return;
-			
-				if (target.is(IDrawable))
+				
+//#if debug		Assert.that( newX > -10000 && newX < 10000, target+".invalidX: "+newX+"; "+target.container );
+//				Assert.that( newY > -10000 && newY < 10000, target+".invalidY: "+newY+"; "+target.container ); #end
+				
+				if (isNotPositionedYet || target.x != newX || target.y != newY)
 				{
-					var t = target.as(IDrawable);
-					if (t.graphicData.border != null)
-					{
-						var borderWidth = t.graphicData.border.weight;
-						newX -= (borderWidth * target.scaleX).roundFloat();
-						newY -= (borderWidth * target.scaleY).roundFloat();
-					}
+					target.rect.move( newX, newY );
+					target.x = newX;
+					target.y = newY;
+					isNotPositionedYet = false;
 				}
-			
-				target.x	= target.rect.left	= newX;
-				target.y	= target.rect.top	= newY;
-				isNotPositionedYet = false;
 			}
 			else
 				target.effects.playMove();
@@ -134,27 +186,15 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 		
 		
 		
-		if (changes.has( LayoutFlags.WIDTH | LayoutFlags.HEIGHT ))
+		if (changes.has( LayoutFlags.SIZE ))
 		{
-		//	trace("\t"+target+".sizeChanged; outer: "+target.layout.outerBounds); //+"; inner: "+target.layout.innerBounds);
 			if (target.effects == null)
 			{
 				var b = target.layout.innerBounds;
-
-				target.rect.width	= b.width;
-				target.rect.height	= b.height;
-
-				/*if (target.is(IDrawable))
-				{
-					var t = target.as(IDrawable);
-					if (t.graphicData.border != null)
-					{
-						var borderWidth = t.graphicData.border.weight.roundFloat();
-						target.rect.width += borderWidth;
-						target.rect.height += borderWidth;
-					}
-				}*/
-
+//#if debug		Assert.that(b.width < 10000 && b.width > -1, target+".invalidWidth: "+b+"; "+target.container);
+//				Assert.that(b.height < 10000 && b.height > -1, target+".invalidHeight: "+b+"; "+target.container); #end
+				target.rect.resize( b.width, b.height );
+				
 				if (!target.is(IDrawable)) {
 					target.width	= target.rect.width;
 					target.height	= target.rect.height;
@@ -162,8 +202,15 @@ class ValidateLayoutBehaviour extends ValidatingBehaviour < IUIElement >, implem
 			}
 			else
 				target.effects.playResize();
-
-		//	trace("\t\tfinal size: "+target.rect.width+", "+target.rect.height+"\n");
 		}
 	}
+	
+	
+#if debug
+	override public function toString ()
+	{
+		var className = Type.getClassName( Type.getClass( this ) );
+		return className.split(".").pop() + " ( "+target+"."+target.layout.state.current+" )";
+	}
+#end
 }

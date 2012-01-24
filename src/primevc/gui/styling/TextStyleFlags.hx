@@ -35,9 +35,9 @@ package primevc.gui.styling;
  * @author Ruben Weijers
  * @creation-date Sep 08, 2010
  */
-class TextStyleFlags
+#if !debug extern #end class TextStyleFlags
 {
-	public static inline var ALL_PROPERTIES		= SIZE | FAMILY | COLOR | WEIGHT | STYLE | LETTER_SPACING | ALIGN | DECORATION | INDENT | TRANSFORM | TEXTWRAP | COLUMN_COUNT | COLUMN_GAP | COLUMN_WIDTH;
+	public static inline var ALL_PROPERTIES		= SIZE | FAMILY | COLOR | WEIGHT | STYLE | LETTER_SPACING | ALIGN | DECORATION | INDENT | TRANSFORM | TEXTWRAP | COLUMN_COUNT | COLUMN_GAP | COLUMN_WIDTH | EMBEDDED;
 	public static inline var COLUMN_PROPERTIES	= COLUMN_COUNT | COLUMN_GAP | COLUMN_WIDTH;
 	
 	public static inline var SIZE				= 1 << 0;
@@ -56,6 +56,7 @@ class TextStyleFlags
 	public static inline var COLUMN_COUNT		= 1 << 11;
 	public static inline var COLUMN_GAP			= 1 << 12;
 	public static inline var COLUMN_WIDTH		= 1 << 13;
+	public static inline var EMBEDDED			= 1 << 14;
 	
 	
 #if debug
@@ -78,7 +79,7 @@ class TextStyleFlags
 		if (flags.has( TRANSFORM ))			output.push("transform");
 		if (flags.has( WEIGHT ))			output.push("weight");
 		
-		return "properties: " + output.join(", ");
+		return output.length > 0 ? output.join(", ") : "none";
 	}
 #end
 }

@@ -35,12 +35,21 @@ package primevc.tools.generator;
  */
 interface ICodeGenerator
 {
-	public function construct (obj:ICodeFormattable, ?args:Array<Dynamic>)					: Void;
-	public function createClassConstructor (classRef:Class<Dynamic>, ?args:Array<Dynamic>)	: String;
-	public function createClassNameConstructor (name:String, ?args:Array<Dynamic>)			: String;
-	public function setAction (obj:ICodeFormattable, name:String, ?args:Array<Dynamic>)		: Void;
-	public function setProp (obj:ICodeFormattable, name:String, value:Dynamic)				: Void;
+	public function createFactory (obj:ICodeFormattable, classRef:String, params:Array<Dynamic>, ?args:Array<String>)	: ValueType;
+	public function construct (obj:ICodeFormattable, ?args:Array<Dynamic>, ?alternativeType:Class<Dynamic>)				: ValueType;
+	public function constructFromFactory (obj:ICodeFormattable, factoryMethod:String, ?args:Array<Dynamic>)				: ValueType;
 	
-	private function formatArguments (args:Array<Dynamic>, isConstructor:Bool = false)		: String;
-	private function formatValue (value:Dynamic, isConstructor:Bool = false)				: String;
+	public function setProp (obj:ICodeFormattable, name:String, value:Dynamic, ignoreIfEmpty:Bool = false)				: Void;
+	public function setAction (obj:ICodeFormattable, name:String, ?args:Array<Dynamic>, onlyWithParams:Bool = false)	: Void;
+	
+	public function createClassNameConstructor (name:String, ?args:Array<Dynamic>)			: ValueType;
+	
+	
+	private function formatParams (args:Array<Dynamic>)										: Array<ValueType>;
+	private function formatValue (value:Dynamic)											: ValueType;
+	
+	public function hasObject (obj:ICodeFormattable)										: Bool;
+	public function getObject (obj:ICodeFormattable)										: ValueType;
+	public function hasArray (arr:Array<Dynamic>)											: Bool;
+	public function getArray (arr:Array<Dynamic>)											: ValueType;
 }

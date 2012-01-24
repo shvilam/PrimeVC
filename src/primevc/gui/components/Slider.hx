@@ -28,9 +28,14 @@
  */
 package primevc.gui.components;
  import primevc.core.geom.space.Direction;
+ import primevc.core.Bindable;
+ import primevc.gui.behaviours.components.DirectToolTipBehaviour;
  import primevc.gui.behaviours.UpdateMaskBehaviour;
+ import primevc.gui.core.UIElementFlags;
  import primevc.gui.core.UIGraphic;
  import primevc.gui.display.VectorShape;
+  using primevc.utils.BitUtil;
+  using primevc.utils.NumberUtil;
   using Std;
 
 
@@ -43,10 +48,32 @@ package primevc.gui.components;
  */
 class Slider extends SliderBase
 {
+	/**
+	 * String displaying the value in %
+	 */
+	public var label	(default, null)		: Bindable<String>;
+	
+	
+	public function new (id:String = null, value:Float = 0.0, minValue:Float = 0.0, maxValue:Float = 1.0, direction:Direction = null)
+	{
+		super(id, value, minValue, maxValue, direction);
+		label = new Bindable<String>();
+	}
+	
+	
 	override private function init ()
 	{
 		super.init();
 		behaviours.add( new UpdateMaskBehaviour( maskShape, this ) );
+		dragBtn.behaviours.add( new DirectToolTipBehaviour( dragBtn, dragBtn.data ) );
+	}
+	
+	
+	override public function dispose ()
+	{
+		label.dispose();
+		label = null;
+		super.dispose();
 	}
 	
 	
@@ -55,35 +82,40 @@ class Slider extends SliderBase
 	// CHILDREN
 	//
 	
+	private var background			: UIGraphic;
 	/**
 	 * Shape that is used to fill the part of the slider that is slided
 	 */
-	private var background	: UIGraphic;
-	private var maskShape	: VectorShape;
+	private var maskedBackground	: UIGraphic;
+	private var maskShape			: VectorShape;
 	
 	
 	override private function createChildren ()
 	{
-		maskShape	= new VectorShape();
-		background	= new UIGraphic();
+		maskShape			= new VectorShape();
+		background			= new UIGraphic( #if debug id.value + "Background" #end );
+		maskedBackground	= new UIGraphic( #if debug id.value + "MaskedBackground" #end );
 		
-#if debug
-		background.id.value	= id.value + "Background";
-#end
+		background.styleClasses.add("background");
+		maskedBackground.styleClasses.add("maskedBackground");
 		
-		layoutContainer.children.add( background.layout );
-		children.add( background );
-		children.add( maskShape );
+		attach( background ).attach( maskedBackground );
+		maskShape.attachDisplayTo( this );
+		maskedBackground.mask = maskShape;
 
-		background.mask = maskShape;
 		super.createChildren();
 	}
 	
 	
 	override private function updateChildren ()
 	{
-		if (direction == horizontal)	background.layout.percentWidth = percentage;
-		else							background.layout.percentHeight = percentage;
+		maskedBackground.mask = maskShape;
+	//	trace(maskedBackground.layout.percentWidth+"; "+layout.readChanges()+"; "+layout.state.current);
+		if (direction == horizontal)	maskedBackground.layout.percentWidth  = data.percentage;
+		else							maskedBackground.layout.percentHeight = data.percentage;
+		
+	//	trace(maskedBackground.layout.percentWidth+"; "+layout.readChanges()+"; "+layout.state.current);
+		dragBtn.data.value = (data.value * 100).roundFloat() + "%";
 		return super.updateChildren();
 	}
 	
@@ -102,4 +134,14 @@ class Slider extends SliderBase
 		}
 		return v;
 	}
+	
+	
+/*	override public function validate ()
+	{
+		var changes = this.changes;
+		super.validate();
+		
+		if (changes.has(UIElementFlags.PERCENTAGE))
+			label.value = percentage.roundFloat() + "%";
+	}*/
 }

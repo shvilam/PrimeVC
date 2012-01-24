@@ -36,7 +36,7 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutFlags;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
+  using primevc.utils.IfUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
@@ -111,14 +111,41 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 	 */
 	public inline function isInvalid (changes:Int)	: Bool
 	{
-		return (changes.has( LayoutFlags.WIDTH ) && group.childWidth.notSet()) || ( vertical != null && changes.has( LayoutFlags.HEIGHT ) );
+		return (changes.has( LayoutFlags.WIDTH * group.childWidth.notSet().boolCalc() )) || ( vertical != null && changes.has( LayoutFlags.HEIGHT ) );
 	}
 
-
-	public inline function validateVertical ()
+	
+	
+	override public function prepareValidate ()
 	{
+		if (!validatePrepared)
+		{
+			var height:Int = group.childHeight;
+		
+			if (group.childHeight.notSet())
+			{
+				height = 0;
+				for (child in group.children) {
+					if (!child.hasValidatedHeight)
+						return;
+					
+					if (child.includeInLayout && child.outerBounds.height > height)
+						height = child.outerBounds.height;
+				}
+			}
+			setGroupHeight(height);
+			validatePrepared = height > 0;
+		}
+	}
+	
+	
+	public function validateVertical ()
+	{
+		if (validatePrepared)
+			return;
+		
 		var height:Int = group.childHeight;
-
+		
 		if (group.childHeight.notSet())
 		{
 			height = 0;
@@ -126,8 +153,8 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 				if (child.includeInLayout && child.outerBounds.height > height)
 					height = child.outerBounds.height;
 		}
-
 		setGroupHeight(height);
+		validatePrepared = height > 0;
 	}
 
 
@@ -164,18 +191,21 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 		if (group.children.length > 0)
 		{
 			var start = getTopStartValue();
+#if debug	Assert.that(start > -1000); 
+			Assert.that(group.height.isSet() && group.height > -1 && group.height < 10000, "uhuh: "+group.height+" - "+group.height.isSet()+" - "+(group.height > -1)+" - "+(group.height < 10000));
+#end
 			if (group.childHeight.notSet())
 			{	
 				for (child in group.children) {
-					if (!child.includeInLayout || child.height.value.notSet())
+					if (!child.includeInLayout)
 						continue;
 					
-					child.outerBounds.top = start + ( (group.height.value - child.outerBounds.height) * .5 ).roundFloat();
+					child.outerBounds.top = start + ( (group.height - child.outerBounds.height) >> 1 ); // * .5 ).roundFloat();
 				}
 			}
 			else
 			{
-				var childY = start + ( (group.innerBounds.height - group.childHeight) * .5 ).roundFloat();
+				var childY = start + ( (group.innerBounds.height - group.childHeight) >> 1 ); // * .5 ).roundFloat();
 				for (child in group.children)
 					if (child.includeInLayout)
 						child.outerBounds.top = childY;
@@ -188,26 +218,19 @@ class HorizontalBaseAlgorithm extends LayoutAlgorithmBase
 	{
 		if (group.children.length > 0)
 		{
-			var start = getTopStartValue();
-			if (group.childHeight.notSet())
-			{
-				for (child in group.children) {
-					if (!child.includeInLayout || child.height.value.notSet())
-						continue;
-					
-					child.outerBounds.top = start + (group.innerBounds.height - child.outerBounds.height);
-				}
-			}
-			else
-			{
-				var childY = start + (group.innerBounds.height - group.childHeight);
-				for (child in group.children)
-					if (child.includeInLayout)
-						child.outerBounds.top = childY;
-			}
+			var start = getBottomStartValue();
+			for (child in group.children)
+				if (child.includeInLayout)
+					child.outerBounds.bottom = start;
 		}
 	}
 	
+	
+	
+	
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String	{ Assert.abstract(); return ""; }
+#end
 
 #if neko
 	override public function toCode (code:ICodeGenerator)

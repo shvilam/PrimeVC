@@ -51,8 +51,10 @@ class SetActionInstance extends EffectInstance < IUIElement, SetAction >
 	
 	override private function initStartValues ()
 	{
-		if (effect.prop != null)
+		if (effect.prop != null) {
 			prop = effect.prop;
+			target.visible = true;
+		}
 	}
 	
 	

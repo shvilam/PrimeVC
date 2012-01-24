@@ -40,32 +40,19 @@ package primevc.mvc.events;
  * @author Ruben Weijers
  * @creation-date Nov 16, 2010
  */
-class OperationEvents <DataType> extends CommunicationSignals
+class OperationEvents extends CommunicationSignals
 {
-	public var start	(default, null)		: Signal1 < DataType >;
-	public var stop		(default, null)		: Signal0;
+//	public var start	(default, null)		: Signal1 < DataType >;
+//	public var stop		(default, null)		: Signal0;
 	
 	public function new ()
 	{
-		start		= new Signal1();
-		stop		= new Signal0();
+		super();
+	//	start		= new Signal1();
+	//	stop		= new Signal0();
 		started		= new Signal0();
 		progress	= new Signal2();
 		completed	= new Signal0();
 		error		= new Signal1();
-	}
-	
-	
-	override public function dispose ()
-	{
-		start.dispose();
-		stop.dispose();
-		started.dispose();
-		progress.dispose();
-		completed.dispose();
-		error.dispose();
-		
-		start = null;
-		stop = started = completed = null;
 	}
 }

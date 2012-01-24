@@ -4,13 +4,106 @@
 ComponentsTest	{ algorithm: float-ver(top, center); }
 UIComponent		{ h-center: 0px;}
 
-InputField		{ margin: 10px 0px; padding: 5px; min-width: 100px; border: 1px solid #000; background: #005; color: #fff; font-weight: bold; }
+InputField		{ margin: 10px 0px; padding: 5px; min-width: 100px; border: 1px solid #000; background: #00a; color: #fff; font-weight: bold; }
 Label			{ margin: 10px 0px; background: #050; color: #fff; }
-Button			{ margin: 10px 0px; background: #aaa; padding: 5px;  }
-Button Image	{ width: 150px; }
-Button:hover	{ font-weight: bold; font: "Courier New"; }
-Button:down		{ font: "Courier New"; text-decoration: underline; }
+Button			{ margin: 10px 0px; background: #aaa; padding: 5px; skin: Class( primevc.gui.components.skins.ButtonLabelSkin ); }
+/*Button:hover	{ font-weight: bold; font: "Courier New"; }
+Button:down		{ font: "Courier New"; text-decoration: underline; }*/
 Image			{ max-height: 200px; max-width: 100px; }
 Slider			{ margin: 10px 0px; background: #aaa; }
 .horizontalSlider UIGraphic	{ background: #000; }
 .verticalSlider UIGraphic	{ background: #000; }
+
+.comboList			{ top: 30px; }
+.comboList ListView Button {
+	color: #000;
+	/*padding: 4px 4px 4px 20px;*/
+	padding: 4px 4px 4px 0px;
+	margin: 0px;
+	min-width: 100%;
+	width: 100%;
+	background: #00000000;
+}
+
+.comboList ListView Button:hover {
+	background: linear-gradient( 90deg, #dedede, #aeaeae );
+}
+
+.comboList ListView Button:selected {
+	background: #000;
+	color: #fff;
+	icon: url(checkmark8x8.png);
+	icon-fill: #fff;
+}
+.comboList ListView Button Image {
+	height: 8px;
+	width: 8px;
+	margin: 3px 6px;
+}
+
+.verticalScrollBar {
+	width: 13px;
+	padding: 2px 0px;
+	background: linear-gradient( 0deg, #151515, #3b3a3a 60% );
+}
+.verticalScrollBar Button {
+	width: 11px;
+	h-center: 0px;
+	border-radius: 9px;
+	background: linear-gradient( 0deg, #8e8e8e, #5e5e5e );
+	border: 1px solid #222 inside;
+}
+
+
+ProgressBar {
+	height: 20px;
+	width: 40%;
+	min-width: 100px;
+	margin: 20px;
+	
+	algorithm: relative;
+	v-center: 0px;
+	h-center: 0px;
+}
+
+ProgressBar Label {
+	top: 90px;
+	font-size: 9px;
+	width: 100%;
+	color: #000;
+	text-align: center;
+	background: none;
+}
+
+/** style-class for a progressbar which knows the length of the operation **/
+ProgressBar:determinate {
+	height: 100px;
+	width: 100px;
+	border-radius: 8px;
+	background: linear-gradient( 90deg, #7B7B7B 0%, #969696 33%, #A7A7A7 100% );
+	border: 1px solid #000 outside;
+	skin: Class(primevc.gui.components.skins.CircleProgressSkin);
+}
+
+ProgressBar:determinate #indicator {
+	height: 100%;
+	width: 100%;
+	top: 0px;
+	background: linear-gradient( 90deg, #5e5e5e, #1e1e1e );
+	/*border: 1px solid #aaa outside;*/
+}
+/** style-class for a progressbar with an indeterminate progress **/
+ProgressBar:indeterminate {
+	width: 32px;
+	height: 32px;
+	
+	/*background: url(assets/icons/progressCircle.gif);*/
+}
+
+ProgressBar:error #indicator {
+	background: linear-gradient( 90deg, #a90329 0%, #8f0222 44%, #6d0019 100%);
+}
+
+ProgressBar:completed #indicator {
+	background: linear-gradient( 90deg, #b4e391 0%, #61c419 50%, #b4e391 100% );
+}

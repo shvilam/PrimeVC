@@ -25,6 +25,7 @@
  *
  * Authors:
  *  Danny Wilson	<danny @ onlinetouch.nl>
+ *  Ruben Weijers	<primevc @ rubenw.nl>
  */
 package primevc.mvc;
  import primevc.core.traits.IValueObject;
@@ -39,14 +40,48 @@ package primevc.mvc;
  * It however does send signals, for example when the value-object changes.
  * 
  * @author Danny Wilson
+ * @author Ruben Weijers
  * @creation-date Jun 22, 2010
  */
-class Proxy < VOType : IValueObject, EventsTypedef > extends Notifier < EventsTypedef >
+class Proxy<VOType:IValueObject, EventsTypedef> extends MVCNotifier
 {
-	public var vo		(default, null)	: VOType;
+	public var vo		(default, setVO)	: VOType;
+	public var events	(default, null)		: EventsTypedef;
 	
 	
-	public inline function isEnabled ()	{ return state.has( MVCState.ENABLED ); }
-	public function enable ()			{ state = state.set( MVCState.ENABLED ); }
-	public function disable ()			{ state = state.unset( MVCState.ENABLED ); }
+	public function new( events:EventsTypedef, enabled = true )
+	{
+		Assert.notNull(events, "Events cannot be null");
+		this.events = events;
+		super(enabled);
+	}
+	
+	
+	override public function dispose ()
+	{
+		super.dispose();
+		events	= null;
+		vo		= null;
+	}
+
+
+	private inline function setVO (v:VOType)
+	{
+		if (v != vo) {
+			vo 		= v;
+			state 	= v == null ? state.unset(MVCFlags.HAS_DATA) : state.set(MVCFlags.HAS_DATA);
+		}
+		return v;
+	}
+
+
+	public  inline function hasData ()		{ return  state  .has(MVCFlags.HAS_DATA); }
+
+	public  inline function isLoading ()	{ return  state  .has(MVCFlags.LOADING); }
+	private inline function setLoading ()	{ state = state  .set(MVCFlags.LOADING); }
+	private inline function unsetLoading ()	{ state = state.unset(MVCFlags.LOADING); }
+
+	public  inline function isSending ()	{ return state   .has(MVCFlags.SENDING); }
+	private inline function setSending ()	{ state = state  .set(MVCFlags.SENDING); }
+	private inline function unsetSending ()	{ state = state.unset(MVCFlags.SENDING); }
 }

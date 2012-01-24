@@ -34,7 +34,7 @@ package primevc.core.collections;
  * @creation-date	Jun 29, 2010
  * @author			Ruben Weijers
  */
-class ArrayList <DataType> extends ReadOnlyArrayList <DataType>, implements IEditableList <DataType>
+class ArrayList <DataType> extends ReadOnlyArrayList <DataType>, implements IEditableList <DataType>, implements haxe.rtti.Generic
 {
 	override public function dispose ()
 	{
@@ -47,8 +47,10 @@ class ArrayList <DataType> extends ReadOnlyArrayList <DataType>, implements IEdi
 	{
 		if (length > 0)
 		{
+			var msg = ListChange.reset;
+			beforeChange.send( msg );
 			list.removeAll();
-			change.send( ListChange.reset );
+			change.send( msg );
 		}
 	}
 	
@@ -61,19 +63,26 @@ class ArrayList <DataType> extends ReadOnlyArrayList <DataType>, implements IEdi
 	
 	public function add (item:DataType, pos:Int = -1) : DataType
 	{
+		var msg = ListChange.added( item, pos );
+		beforeChange.send( msg );
 		pos = list.insertAt(item, pos);
-		change.send( ListChange.added( item, pos ) );
+		change.send( msg );
 		return item;
 	}
 	
 	
-	public function remove (item:DataType, oldPos:Int = -1) : DataType
+	public function remove (item:DataType, curPos:Int = -1) : DataType
 	{
-		if (oldPos == -1)
-			oldPos = list.indexOf(item);
+		if (curPos == -1)
+			curPos = list.indexOf(item);
 		
-		if (oldPos > -1 && list.removeItem(item, oldPos))
-			change.send( ListChange.removed( item, oldPos ) );
+		if (curPos > -1)
+		{
+			var msg = ListChange.removed( item, curPos );
+			beforeChange.send( msg );
+			list.removeAt(curPos);
+			change.send(msg);
+		}
 		return item;
 	}
 	
@@ -83,9 +92,13 @@ class ArrayList <DataType> extends ReadOnlyArrayList <DataType>, implements IEdi
 		if		(curPos == -1)				curPos = list.indexOf(item);
 		if		(newPos > (length - 1))		newPos = length - 1;
 		else if (newPos < 0)				newPos = length - newPos;
-		
-		if (curPos != newPos && list.move(item, newPos, curPos))
-			change.send( ListChange.moved( item, newPos, curPos ) );
+
+		if (curPos != newPos) {
+			var msg = ListChange.moved( item, newPos, curPos );
+			beforeChange.send( msg );
+			if (list.move(item, newPos, curPos))
+				change.send( msg );
+		}
 		
 		return item;
 	}
@@ -93,6 +106,12 @@ class ArrayList <DataType> extends ReadOnlyArrayList <DataType>, implements IEdi
 	
 	override public function clone () : IReadOnlyList<DataType>
 	{
-		return untyped new ArrayList<DataType>( list.clone() );
+		return new ArrayList<DataType>( list.clone() );
+	}
+	
+	
+	override public function duplicate () : IReadOnlyList<DataType>
+	{
+		return new ArrayList<DataType>( list.duplicate() );
 	}
 }

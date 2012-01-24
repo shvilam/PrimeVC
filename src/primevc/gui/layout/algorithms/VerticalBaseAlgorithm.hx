@@ -36,7 +36,6 @@ package primevc.gui.layout.algorithms;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutFlags;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
@@ -114,9 +113,35 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 		return (changes.has( LayoutFlags.HEIGHT ) && group.childHeight.notSet()) || ( horizontal != null && changes.has( LayoutFlags.WIDTH ) );
 	}
 
-
-	public inline function validateHorizontal ()
+	
+	override public function prepareValidate ()
 	{
+		if (!validatePrepared)
+		{
+			var width:Int = group.childWidth;
+		
+			if (group.childWidth.notSet())
+			{
+				width = 0;
+				for (child in group.children) {
+					if (!child.hasValidatedWidth)
+						return;
+					
+					if (child.includeInLayout && child.outerBounds.width > width)
+						width = child.outerBounds.width;
+				}
+			}
+			setGroupWidth(width);
+			validatePrepared = width > 0;
+		}
+	}
+	
+	
+	public function validateHorizontal ()
+	{
+		if (validatePrepared)
+			return;
+		
 		var width:Int = group.childWidth;
 		
 		if (group.childWidth.notSet())
@@ -127,6 +152,7 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 					width = child.outerBounds.width;
 		}
 		setGroupWidth(width);
+		validatePrepared = width > 0;
 	}
 
 
@@ -158,23 +184,23 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 	}
 	
 	
-	private  function applyHorizontalCenter ()
+	private inline function applyHorizontalCenter ()
 	{
 		if (group.children.length > 0)
 		{
 			var start = getLeftStartValue();
 			if (group.childWidth.notSet())
-			{	
+			{
 				for (child in group.children) {
-					if (!child.includeInLayout || child.width.value.notSet())
+					if (!child.includeInLayout)
 						continue;
 					
-					child.outerBounds.left = start + ( (group.width.value - child.outerBounds.width) * .5 ).roundFloat();
+					child.outerBounds.left = start + ( (group.width - child.outerBounds.width) >> 1 ); // * .5 ).roundFloat();
 				}
 			}
 			else
 			{
-				var childX = start + ( (group.innerBounds.width - group.childWidth) * .5 ).roundFloat();
+				var childX = start + ( (group.innerBounds.width - group.childWidth) >> 1 ); // * .5 ).roundFloat();
 				for (child in group.children)
 					if (child.includeInLayout)
 						child.outerBounds.left = childX;
@@ -187,28 +213,18 @@ class VerticalBaseAlgorithm extends LayoutAlgorithmBase
 	{
 		if (group.children.length > 0)
 		{
-			var start = getLeftStartValue();
-			if (group.childWidth.notSet())
-			{	
-				for (child in group.children) {
-					if (!child.includeInLayout || child.width.value.notSet())
-						continue;
-					
-					child.outerBounds.left = start + (group.innerBounds.width - child.outerBounds.width);
-				}
-			}
-			else
-			{
-				var childX = start + (group.innerBounds.width - group.childWidth);
-				for (child in group.children)
-					if (child.includeInLayout)
-						child.outerBounds.left = childX;
-			}
+			var start = getRightStartValue();
+			for (child in group.children)
+				if (child.includeInLayout)
+					child.outerBounds.right = start;
 		}
 	}
 
 	
 	
+#if (neko || debug)
+	override public function toCSS (prefix:String = "") : String	{ Assert.abstract(); return ""; }
+#end
 #if neko
 	override public function toCode (code:ICodeGenerator)
 	{

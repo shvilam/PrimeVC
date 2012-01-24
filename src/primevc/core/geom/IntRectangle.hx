@@ -28,8 +28,7 @@
  */
 package primevc.core.geom;
  import primevc.core.traits.QueueingInvalidatable;
- import primevc.utils.NumberMath;
-  using primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.NumberUtil;
 
 
@@ -56,6 +55,9 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	public function new ( x:Int = 0, y:Int = 0, width:Int = 0, height:Int = 0 )
 	{
 		super();
+#if debug
+		id = counter++;
+#end
 		invalidatable = false;
 		this.top	= y;
 		this.left	= x;
@@ -71,27 +73,23 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	}
 	
 	
-	public function toString ()
-	{
-		return "IntRect (x=" + left + ", y=" + top + ", width=" + width + ", height=" + height + ", r=" + right + ", b=" + bottom+" )";
-	}
-	
-	
 	public function resize (newWidth:Int, newHeight:Int) : Void
 	{
+		var c	= invalidatable;
 		invalidatable = false;
 		width	= newWidth;
 		height	= newHeight;
-		invalidatable = true;
+		invalidatable = c;
 	}
 	
 	
 	public function move (newX:Int, newY:Int) : Void
 	{
+		var c	= invalidatable;
 		invalidatable = false;
 		top		= newX;
 		left	= newY;
-		invalidatable = true;
+		invalidatable = c;
 	}
 	
 	
@@ -103,10 +101,13 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private inline function setWidth (v:Int)
 	{
 		if (v != width) {
-			Assert.that( v.isSet() );
+#if debug	Assert.that( v.isSet() ); #end
+			var c = invalidatable;
+			invalidatable = false;
 			width	= v;
 			right	= left + v;
 			invalidate( RectangleFlags.WIDTH );
+			invalidatable = c;
 		}
 		return v;
 	}
@@ -115,10 +116,13 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private inline function setHeight (v:Int)
 	{
 		if (v != height) {
-			Assert.that( v.isSet() );
+#if debug	Assert.that( v.isSet() ); #end
+			var c = invalidatable;
+			invalidatable = false;
 			height	= v;
 			bottom	= top + v;
 			invalidate( RectangleFlags.HEIGHT );
+			invalidatable = c;
 		}
 		return v;
 	}
@@ -127,10 +131,13 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private inline function setTop (v:Int)
 	{
 		if (v != top) {
-			Assert.that( v.isSet() );
+#if debug	Assert.that( v.isSet() ); #end
+			var c = invalidatable;
+			invalidatable = false;
 			top		= v;
 			bottom	= v + height;
 			invalidate( RectangleFlags.TOP );
+			invalidatable = c;
 		}
 		return v;
 	}
@@ -139,10 +146,13 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private function setBottom (v:Int)
 	{
 		if (v != bottom) {
-			Assert.that( v.isSet() );
+#if debug	Assert.that( v.isSet() ); #end
+			var c = invalidatable;
+			invalidatable = false;
 			bottom	= v;
 			top		= v - height;
 			invalidate( RectangleFlags.BOTTOM );
+			invalidatable = c;
 		}
 		
 		return v;
@@ -152,10 +162,13 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private inline function setLeft (v:Int)
 	{
 		if (v != left) {
-			Assert.that( v.isSet() );
+#if debug	Assert.that( v.isSet() ); #end
+			var c = invalidatable;
+			invalidatable = false;
 			left	= v;
 			right	= v + width;
 			invalidate( RectangleFlags.LEFT );
+			invalidatable = c;
 		}
 		return v;
 	}
@@ -164,10 +177,13 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private function setRight (v:Int)
 	{
 		if (v != right) {
-			Assert.that( v.isSet() );
+#if debug	Assert.that( v.isSet() ); #end
+			var c = invalidatable;
+			invalidatable = false;
 			right	= v;
 			left	= v - width;
 			invalidate( RectangleFlags.RIGHT );
+			invalidatable = c;
 		}
 		return v;
 	}
@@ -175,21 +191,17 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	
 	private inline function setCenterX (v:Int)
 	{	
-		Assert.that( v.isSet() );
-		if (v.isSet())
-			left = (v - (width * .5)).roundFloat();
-		
-		return centerX = v;
+#if debug	Assert.that( v.isSet() ); #end
+			left = v - (width >> 1); //* .5).roundFloat();
+			return v;
 	}
 	
 	
 	private inline function setCenterY (v:Int)
 	{	
-		Assert.that( v.isSet() );
-		if (v.isSet())
-			top = (v - (height * .5)).roundFloat();
-		
-		return centerY = v;
+#if debug	Assert.that( v.isSet() ); #end
+			top = v - (height >> 1); //* .5)).roundFloat();
+			return v;
 	}
 	
 	
@@ -201,8 +213,8 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	private inline function getWidth ()		{ return width; }
 	private inline function getHeight ()	{ return height; }
 	
-	private inline function getCenterX ()	{ return left + (width * .5).roundFloat(); }
-	private inline function getCenterY ()	{ return top + (height * .5).roundFloat(); }
+	private inline function getCenterX ()	{ return left + (width >> 1); } // * .5).roundFloat(); }
+	private inline function getCenterY ()	{ return top + (height >> 1); } // * .5).roundFloat(); }
 	
 	
 	public function isEmpty ()
@@ -226,10 +238,41 @@ class IntRectangle extends QueueingInvalidatable, implements IRectangle
 	}
 	
 	
-#if flash9
-	public function toFloatRectangle () : Rectangle
+	
+	/**
+	 * Method will make sure that the values of this rectangle stay within
+	 * the boundaries of the given boundaries.
+	 * 
+	 * @return returns false if the intrectangle is changed.
+	 */
+	public function stayWithin (bounds:IntRectangle) : Bool
 	{
-		return new Rectangle (0, 0, width, height);
+		var c = invalidatable;
+		invalidatable	= false;
+		var isChanged	= false;
+		
+		if		(left	< bounds.left)		{ left		= bounds.left;		isChanged = true; }
+		else if (right	> bounds.right)		{ right		= bounds.right;		isChanged = true; }
+		if		(top	< bounds.top)		{ top		= bounds.top;		isChanged = true; }
+		else if (bottom > bounds.bottom)	{ bottom	= bounds.bottom;	isChanged = true; }
+		
+		invalidatable = c;
+		return !isChanged;
+	}
+	
+	
+#if debug
+	private static var counter : Int = 0;
+	private var id : Int;
+	public function toString ()
+	{
+		return "IntRect"+id+" (x=" + left + ", y=" + top + ", width=" + width + ", height=" + height + ", r=" + right + ", b=" + bottom+" )";
+	}
+	
+	
+	public function readChanges ()
+	{
+		return RectangleFlags.readProperties(changes);
 	}
 #end
 }

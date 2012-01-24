@@ -74,7 +74,7 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	 */
 	private var groupIterator		: StyleCollectionForwardIterator < StyleGroupType >;
 	private var groupRevIterator	: StyleCollectionReversedIterator < StyleGroupType >;
-	private var changes				: Int;
+	public var changes				: Int;
 	
 	
 	public function new (elementStyle:IUIElementStyle, propertyTypeFlag:Int)
@@ -216,6 +216,7 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	
 #if debug
 	public function readProperties (props:Int = -1)	: String	{ Assert.abstract(); return null; }
+	public function readChanges (props:Int = -1)	: String	{ return readProperties(changes); }
 	public function toString () : String						{ return this.getClass().getClassName(); }
 #end
 }
@@ -296,6 +297,9 @@ class StyleCollectionForwardIterator < StyleGroupType > extends StyleCollectionI
 {
 	override public function rewind () : Void	{ setCurrent( elementStyle.styles.first ); }
 	public function next () : StyleGroupType	{ Assert.abstract(); return null; }
+	public function value () : StyleGroupType	{ Assert.abstract(); return null; }
+	
+	
 	override private function setNext ()
 	{
 		var c = currentCell;
@@ -339,6 +343,9 @@ class StyleCollectionReversedIterator < StyleGroupType > extends StyleCollection
 {
 	override public function rewind () : Void	{ setCurrent( elementStyle.styles.last ); }
 	public function next () : StyleGroupType	{ Assert.abstract(); return null; }
+	public function value () : StyleGroupType	{ Assert.abstract(); return null; }
+	
+	
 	override private function setNext ()
 	{
 		var c = currentCell;

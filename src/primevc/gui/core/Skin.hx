@@ -28,7 +28,11 @@
  */
 package primevc.gui.core;
  import primevc.gui.behaviours.BehaviourList;
+ import primevc.gui.events.UserEventTarget;
  import primevc.gui.states.SkinStates;
+ import primevc.gui.states.UIElementStates;
+  using primevc.utils.Bind;
+  using primevc.utils.TypeUtil;
 
 
 /**
@@ -49,26 +53,45 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 		skinState		= new SkinStates();
 		behaviours		= new BehaviourList();
 		
-		createStates();
-		createBehaviours();
-		createGraphics();
-		createChildren();
-		
 		skinState.current = skinState.constructed;
 	}
 	
 	
 	public function dispose ()
 	{
-		if (behaviours == null)
+		if (isDisposed())
 			return;
 		
-		removeChildren();
-		removeBehaviours();
-		removeStates();
-		
-		owner		= null;
+		owner		= null;	// <-- should trigger removeBehaviours and removeChildren
+		behaviours	= null;
 		skinState	= null;
+	}
+	
+	
+	public function changeOwner (newOwner:IUIComponent)
+	{
+		try {
+			this.owner = cast newOwner;
+		}
+		catch (e:Dynamic) {}
+	}
+	
+	
+	/**
+	 * Abstract method.
+	 * Is called by the owner when an object wants to check if the owner has
+	 * focus. The skin can check if the target is one of it's children and then
+	 * return true or false.
+	 */
+	public function isFocusOwner (target:UserEventTarget) : Bool
+	{
+		return false;
+	}
+	
+	
+	public inline function isDisposed ()
+	{
+		return behaviours == null;
 	}
 	
 	
@@ -78,11 +101,38 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 	// GETTERS / SETTERS
 	//
 	
-	private function setOwner (newOwner)
+	private function setOwner (newOwner:OwnerClass)
 	{
-		this.owner = newOwner;
-		if (newOwner != null && skinState.current == skinState.constructed)
-			createChildren();
+		if (owner != null)
+		{
+			if (owner.state != null)
+				owner.state.initialized.entering.unbind(this);
+			
+			if (owner.isInitialized())
+				removeChildren();
+			
+			removeBehaviours();
+			removeStates();
+		}
+		
+		(untyped this).owner = newOwner;
+		
+		if (newOwner != null)
+		{
+			createStates();
+			createBehaviours();
+			drawGraphics();
+			
+			if (newOwner.isInitialized()) {
+				createChildren();
+				childrenCreated();
+				behaviours.init();
+			}
+			else
+				behaviours.init.onceOn( owner.state.initialized.entering, this );
+			//	behaviours.init.onceOn( owner.displayEvents.addedToStage, this );
+		}
+		
 		return newOwner;
 	}
 	
@@ -94,18 +144,19 @@ class Skin <OwnerClass:IUIComponent> implements ISkin
 	//
 	
 	//TODO RUBEN - enable Assert.abstract
-	private function createStates ()			: Void; //	{ Assert.abstract(); }
-	private function createBehaviours ()		: Void; //	{ Assert.abstract(); }
-	private function createGraphics ()			: Void; //	{ Assert.abstract(); }
-	private function createChildren ()			: Void; //	{ Assert.abstract(); }
-	public function childrenCreated ()			: Void;
+	private function createStates ()			: Void {} //	{ Assert.abstract(); }
+	private function createBehaviours ()		: Void {} //	{ Assert.abstract(); }
+	public function drawGraphics ()				: Void {} //	{ Assert.abstract(); }
+	public function createChildren ()			: Void {} //	{ Assert.abstract(); }
+	public function childrenCreated ()			: Void {}
 	
-	private function removeStates ()			: Void; //	{ Assert.abstract(); }
-	private function removeChildren ()			: Void; //	{ Assert.abstract(); }
+	private function removeStates ()			: Void {} //	{ Assert.abstract(); }
+	public  function removeChildren ()			: Void {} //	{ Assert.abstract(); }
+	public function validate (changes:Int)		: Void {}
 	
-	private inline function removeBehaviours ()
+	private function removeBehaviours ()
 	{
-		behaviours.dispose();
-		behaviours = null;
+		behaviours.removeAll();
+	//	behaviours = null;
 	}
 }

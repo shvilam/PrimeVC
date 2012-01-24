@@ -39,7 +39,7 @@ package primevc.gui.behaviours.scroll;
  import primevc.gui.layout.IScrollableLayout;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 #end
 
@@ -68,7 +68,7 @@ class DragScrollBehaviour extends ClippedLayoutBehaviour
 		scrollLayout	= target.scrollableLayout;
 		checkScrollable.on( scrollLayout.changed, this );
 		
-		dragHelper		= new DragHelper( target, startScrolling, stopScrolling, dragAndScroll, Mouse.DRAG_DELAY );
+		dragHelper		= new DragHelper( target, startScrolling, stopScrolling, dragAndScroll );
 		moveBinding		= dragAndScroll.on( target.window.mouse.events.move, this );
 		moveBinding.disable();
 	}

@@ -29,7 +29,6 @@
 package primevc.gui.behaviours.components;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.components.Label;
- import primevc.gui.core.UIWindow;
  import primevc.gui.layout.AdvancedLayoutClient;
  import primevc.gui.layout.LayoutFlags;
  import primevc.gui.states.ValidateStates;
@@ -57,9 +56,11 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > // extends Validating
 	
 	private function setEventHandlers ()
 	{
-		updateFieldSize.on( target.layout.changed, this );
+		updateFieldSize	.on( target.layout.changed, this );
 		updateLabelSize	.on( target.field.layout.changed, this );
+	//	trace("end");
 		updateLabelSize( LayoutFlags.WIDTH_PROPERTIES | LayoutFlags.HEIGHT_PROPERTIES | LayoutFlags.PADDING );
+		updateFieldSize( LayoutFlags.PADDING | LayoutFlags.EXPLICIT_SIZE );
 	}
 	
 	
@@ -75,28 +76,16 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > // extends Validating
 	}
 	
 	
-	/*override private function getValidationManager ()
-	{
-		return (target.window != null) ? cast target.window.as(UIWindow).invalidationManager : null;
-	}
-	
-	
-	public inline function invalidate ()
-	{
-	//	trace(target+".requestRender");
-		if (target.window != null)
-			getValidationManager().add(this);
-	}*/
-	
-	
 	public function updateFieldSize (changes:Int)
 	{
 		var targetLayout	= target.layout.as(AdvancedLayoutClient);
 		var fieldLayout		= target.field.layout;
 		
-	//	trace("\t"+target+".validate "+targetLayout.explicitWidth+", "+targetLayout.explicitHeight+"; "+targetLayout.measuredWidth+", "+targetLayout.measuredHeight);
-		if (changes.has( LayoutFlags.EXPLICIT_WIDTH ) && targetLayout.explicitWidth.isSet())		fieldLayout.width.value		= targetLayout.explicitWidth;
-		if (changes.has( LayoutFlags.EXPLICIT_HEIGHT ) && targetLayout.explicitHeight.isSet())		fieldLayout.height.value	= targetLayout.explicitHeight;
+	//	trace(target+"; explicit: "+targetLayout.explicitWidth+", "+targetLayout.explicitHeight+"; measured: "+targetLayout.measuredWidth+", "+targetLayout.measuredHeight+"; "+targetLayout.state.current+"; size: "+targetLayout.width+", "+targetLayout.height+"; field: "+fieldLayout.width+", "+fieldLayout.height+"; "+target.field.autoSize);
+		if (changes.has( LayoutFlags.WIDTH )  && targetLayout.explicitWidth.isSet())		{ fieldLayout.width		= targetLayout.width;	fieldLayout.percentWidth	= 1; }
+		if (changes.has( LayoutFlags.HEIGHT ) && targetLayout.explicitHeight.isSet())		{ fieldLayout.height	= targetLayout.height;	fieldLayout.percentHeight	= 1; }
+		
+	//	trace("\t\tupdated field: "+fieldLayout.width+", "+fieldLayout.height+"; has scrollrect? "+target.scrollRect+"; fieldstate "+fieldLayout.state.current);
 		
 		if (changes.has( LayoutFlags.PADDING ))
 		{
@@ -110,12 +99,13 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > // extends Validating
 				fieldLayout.x	= fieldLayout.y	= 0;
 			}
 		}
-		else
+	/*	else
 		{
 			fieldLayout.x = fieldLayout.y = 0;
-		}
+		}*/
 		
 		fieldLayout.validate();
+	//	trace("2 "+targetLayout.state.current+"; "+targetLayout.changes+"; "+targetLayout.hasValidatedWidth+", "+targetLayout.hasValidatedHeight+"; "+targetLayout.width+", "+targetLayout.height);
 	}
 	
 	
@@ -127,11 +117,14 @@ class LabelLayoutBehaviour extends BehaviourBase < Label > // extends Validating
 		var targetLayout	= target.layout.as(AdvancedLayoutClient);
 		var fieldLayout		= target.field.layout;
 		
-	//	trace(target+".updateLabelSize "+fieldLayout.width.value+", "+fieldLayout.height.value);
-		targetLayout.measuredWidth	= fieldLayout.width.value;
-		targetLayout.measuredHeight	= fieldLayout.height.value;
+		targetLayout.measuredWidth	= fieldLayout.width;
+		targetLayout.measuredHeight	= fieldLayout.height;
+		
 	//	targetLayout.invalidate( LayoutFlags.WIDTH | LayoutFlags.HEIGHT );
+	//	targetLayout.validate();
 	//	trace("\t\ttarget measured-size: "+targetLayout.measuredWidth+", "+targetLayout.measuredHeight);
 	//	trace("\t\ttarget explicit-size: "+targetLayout.explicitWidth+", "+targetLayout.explicitHeight);
+	//	trace("\t\ttarget size: "+targetLayout.width+", "+targetLayout.height);
+	//	trace("\t\t"+targetLayout.hasValidatedWidth+", "+targetLayout.hasValidatedHeight+"; "+targetLayout.state.current);
 	}
 }

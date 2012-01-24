@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours;
+ import primevc.gui.core.IUIComponent;
  import primevc.gui.core.UIWindow;
  import primevc.gui.traits.IDrawable;
  import primevc.gui.traits.IGraphicsValidator;
@@ -44,13 +45,22 @@ package primevc.gui.behaviours;
  */
 class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, implements IGraphicsValidator
 {
+	public function new (target:IDrawable) { super(target); }
+	
+#if debug
+	private var cachedId : String;
+#end
+	
 	override private function init ()
 	{
-		Assert.that( target.layout != null );
-		
+#if debug
+		Assert.notNull( target.layout );
+		cachedId = untyped target.id.value;
+#end
 		if (target.graphicData != null)
 		{
 			invalidateGraphics.on( target.graphicData.changeEvent, this );
+			invalidateGraphics.on( target.displayEvents.addedToStage, this );
 			invalidateGraphics();
 		}
 	}
@@ -61,32 +71,47 @@ class RenderGraphicsBehaviour extends ValidatingBehaviour < IDrawable >, impleme
 		if (target.graphicData != null)
 			target.graphicData.changeEvent.unbind( this );
 		
+		target.displayEvents.addedToStage.unbind( this );
 		super.reset();
 	}
 	
 	
 	public inline function invalidateGraphics ()
 	{
-		if (isOnStage() && !target.graphicData.isEmpty() && !isQueued())
-			getValidationManager().add( this );
-		else if (target.graphicData.isEmpty())
+	//	trace(target+" => "+target.graphicData.isEmpty()+"; "+target.graphicData.shape+"; "+target.graphicData.layout+"; queued? "+isQueued());
+		if (target.graphicData.isEmpty())
 			target.graphics.clear();
+		
+		else if (isOnStage() && !isQueued())
+			getValidationManager().add( this );
 	}
 	
 	
 	public function validateGraphics ()
 	{
-	//	trace(target+".render "+target.rect+"; "+target.graphicData.isEmpty()+"; "+target.graphics);
-		if (target == null || target.graphics == null)
+		if (target == null || target.graphics == null) {
+	//		trace(target+".validateGraphics ==> empty target or graphics... "+cachedId);
 			return;
+		}
 		
 		target.graphics.clear();
 		target.graphicData.draw( target, false );
+/*#if debug
+		Assert.that( target.rect.width < 10000 );
+		Assert.that( target.rect.height < 10000 );
+		if (target.is(primevc.gui.display.IDisplayObject)) {
+			var t = target.as(primevc.gui.display.IDisplayObject);
+			Assert.that( t.width < 10000 );
+			Assert.that( t.height < 10000 );
+		}
+#end*/
+		if (target.is(IUIComponent) && target.as(IUIComponent).skin != null)
+			target.as(IUIComponent).skin.drawGraphics(); //.onceOn( target.displayEvents.enterFrame, this );
 	}
 	
 	
 	override private function getValidationManager ()
 	{
-		return (isOnStage()) ? cast target.window.as(UIWindow).renderManager : null;
+		return (isOnStage()) ? cast target.window.as(UIWindow).rendering : null;
 	}
 }

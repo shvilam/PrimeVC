@@ -32,9 +32,8 @@ package primevc.core.geom;
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICodeGenerator;
  import primevc.tools.generator.ICSSFormattable;
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
 #end
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
  
 
@@ -55,7 +54,7 @@ class IntPoint	implements IClonable <IntPoint>
 	public var y		(getY, setY)	: Int;
 	
 #if neko
-	public var uuid		(default, null) : String;
+	public var _oid		(default, null) : Int;
 #end
 	
 	
@@ -64,7 +63,7 @@ class IntPoint	implements IClonable <IntPoint>
 	public function new(x = 0, y = 0)
 	{
 #if neko
-		this.uuid	= StringUtil.createUUID();
+		this._oid	= ID.getNext();
 #end
 		this.x		= x;
 		this.y		= y;

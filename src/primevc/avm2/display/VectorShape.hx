@@ -32,10 +32,11 @@ package primevc.avm2.display;
  import primevc.gui.display.DisplayDataCursor;
  import primevc.gui.display.IDisplayContainer;
  import primevc.gui.display.IDisplayObject;
+ import primevc.gui.display.ISprite;
  import primevc.gui.display.Window;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.traits.IGraphicsOwner;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 
@@ -86,10 +87,10 @@ class VectorShape extends flash.display.Shape, implements IDisplayObject, implem
 	
 	
 #if !neko
-	public function getDisplayCursor () : DisplayDataCursor
-	{
-		return new DisplayDataCursor(this);
-	}
+	public function getDisplayCursor			() : DisplayDataCursor											{ return new DisplayDataCursor(this); }
+	public inline function attachDisplayTo		(target:IDisplayContainer, pos:Int = -1)	: IDisplayObject	{ target.children.add( this, pos ); return this; }
+	public inline function detachDisplay		()											: IDisplayObject	{ container.children.remove( this ); return this; }
+	public inline function changeDisplayDepth	(newPos:Int)								: IDisplayObject	{ container.children.move( this, newPos ); return this; }
 #end
 	
 	

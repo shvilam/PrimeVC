@@ -1,7 +1,7 @@
 package cases;
 #if debug
  import flash.text.TextFormat;
- import primevc.gui.display.TextField;
+// import primevc.gui.display.TextField;
 #end
  import primevc.core.collections.ArrayList;
  import primevc.core.collections.DataCursor;
@@ -13,8 +13,9 @@ package cases;
  import primevc.gui.behaviours.drag.ApplyDropBehaviour;
  import primevc.gui.behaviours.drag.ShowDragGapBehaviour;
  import primevc.gui.behaviours.drag.DragInfo;
- import primevc.gui.components.ApplicationView;
  import primevc.gui.components.ListView;
+ import primevc.gui.components.DataButton;
+ import primevc.gui.core.UIContainer;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.core.UIDataComponent;
  import primevc.gui.core.UIWindow;
@@ -30,7 +31,6 @@ package cases;
  import primevc.gui.layout.VirtualLayoutContainer;
  import primevc.gui.traits.IDataDropTarget;
  import primevc.gui.traits.IDropTarget;
- import primevc.gui.traits.IDraggable;
  import primevc.types.Number;
  import primevc.utils.Color;
   using primevc.utils.Bind;
@@ -48,48 +48,25 @@ typedef DataVOType = Bindable<String>;
  */
 class GlobalTest extends UIWindow
 {
-	public static function main () { Window.startup( GlobalTest ); }
-	
-	override private function createChildren ()
-	{
-		children.add( new GlobalApp() );
-	}
-}
-
-
-/**
- * @creation-date	Jun 15, 2010
- * @author			Ruben Weijers
- */
-class GlobalApp extends ApplicationView
-{
-	private var testList1 : ArrayList<DataVOType>;
-	
-	
-	public function new ()
-	{
-		super("GlobalApp");
-		
-		testList1 = new ArrayList<DataVOType>();
-		for (i in 0...60)
-			testList1.add(new DataVOType(i+""));
-	}
-	
-	
+	public static function main () { Window.startup( function (s) return new GlobalTest(s) ); }
 	override private function createBehaviours () {}
 	
 	
 	override private function createChildren ()
 	{
-		var frame0				= new TileList( "frame0", testList1 );
-		var frame1				= new TileList( "frame1", testList1 );
-		var frame2				= new TileList( "frame2", testList1 );
-		var frame3				= new TileList( "frame3", testList1 );
-		var frame4				= new TileList( "frame4");
-		var frame5				= new TileList( "frame5");
-		var frame6				= new TileList( "frame6");
-		var frame7				= new TileList( "frame7");
-		var frame8				= new TileList( "frame8", testList1 );
+		var testList1 = new ArrayList<DataVOType>();
+		for (i in 0...100)
+			testList1.add(new DataVOType(i+""));
+		
+		var frame0				= new TileList( "frame0", testList1 );	//vertical list at the left
+		var frame1				= new TileList( "frame1", testList1 );	//horizontal list on the top
+		var frame2				= new TileList( "frame2", testList1 );	//center tile-list
+		var frame3				= new TileList( "frame3", testList1 );	//right-bottom tile-list
+		var frame4				= new TileList( "frame4");				//first colored block at right side
+		var frame5				= new TileList( "frame5");				//second colored block at right side
+		var frame6				= new TileList( "frame6");				//third colored block at right side
+		var frame7				= new TileList( "frame7");				//empty block above the tree blocks
+		var frame8				= new TileList( "frame8", testList1 );	//circle tile list on the right
 		
 		var box0				= new VirtualLayoutContainer();
 		box0.algorithm			= new RelativeAlgorithm();
@@ -145,24 +122,23 @@ class GlobalApp extends ApplicationView
 }
 
 
-class Tile extends UIDataComponent < DataVOType >, implements IDraggable
+class Tile extends DataButton < DataVOType >
 {
 	public static var counter				: Int = 0;
-	public var dragEvents (default, null)	: DragEvents;
-	public var isDragging					: Bool;
 	private var num							: Int;
 
-#if (debug && flash9)
+#if (debug && flash90)
 	private var textField					: TextField;
 #end
 	
 	
+#if debug
 	public function new (value:DataVOType = null)
 	{
 		num = counter++;
 		super("Tile" + num, value);
-		dragEvents	= new DragEvents();
 	}
+#end
 	
 	
 	override private function createBehaviours ()
@@ -173,7 +149,7 @@ class Tile extends UIDataComponent < DataVOType >, implements IDraggable
 	}
 	
 	
-#if (debug && flash9)
+#if (debug && flash90)
 	override private function createChildren ()
 	{
 		textField = new TextField(data);
@@ -185,9 +161,9 @@ class Tile extends UIDataComponent < DataVOType >, implements IDraggable
 #end
 	
 	
-	public function createDragInfo () : DragInfo
+	override public function createDragInfo () : DragInfo
 	{
-		return new DragInfo( this, getDataCursor() );//, t ); //getDisplayCursor()/*, new Tile(value), null*/ );
+		return new DragInfo( this, null, this ); //getDisplayCursor()/*, new Tile(value), null*/ );
 	}
 	
 	
@@ -212,6 +188,7 @@ class TileList extends ListView < DataVOType >, implements IDataDropTarget < Dat
 		doubleClickEnabled	= true;
 		dragEvents			= new DropTargetEvents();
 		super(id, list);
+		createItemRenderer	= createRenderer;
 	}
 	
 	
@@ -223,7 +200,7 @@ class TileList extends ListView < DataVOType >, implements IDataDropTarget < Dat
 	}
 	
 	
-	override private function createItemRenderer (dataItem:DataVOType, pos:Int)
+	private function createRenderer (dataItem:DataVOType, pos:Int)
 	{
 		return cast new Tile(dataItem);
 	}
@@ -245,12 +222,6 @@ class TileList extends ListView < DataVOType >, implements IDataDropTarget < Dat
 	public function isDataDropAllowed (dataCursor:DataCursor < DataVOType > ) : Bool
 	{
 		return dataCursor.list == data;
-	}
-	
-	
-	public inline function getDepthForBounds (bounds:IRectangle) : Int
-	{
-		return layoutContainer.algorithm.getDepthForBounds(bounds);
 	}
 	
 	

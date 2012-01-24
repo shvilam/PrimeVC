@@ -39,6 +39,7 @@ package primevc.gui.layout.algorithms.tile;
  import primevc.types.Number;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
+  using primevc.utils.IfUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
  
@@ -55,8 +56,6 @@ private typedef Flags = LayoutFlags;
 class TileContainer extends LayoutClient, implements ILayoutContainer
 {
 	public var algorithm	(default, setAlgorithm)		: ILayoutAlgorithm;
-	public var children		(default, null)				: IEditableList<LayoutClient>;
-	
 	public var childWidth	(default, setChildWidth)	: Int;
 	public var childHeight	(default, setChildHeight)	: Int;
 	
@@ -71,8 +70,11 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 		childrenChangeHandler.on( children.change, this );
 		
 		if (children.length > 0)
-			for (child in children)
-				child.listeners.add(this);
+			for (i in 0...children.length) {
+				var child = children.getItemAt(i);
+				if (child.includeInLayout)
+					child.listeners.add(this);
+			}
 		
 		changes = 0;
 	}
@@ -82,8 +84,11 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 	{
 		if (children != null)
 		{
-			for (child in children)
+			while (children.length > 0) {
+				var child = children.getItemAt(0);
 				child.listeners.remove(this);
+				children.remove(child);
+			}
 			
 			if (children.change != null) {
 				children.change.unbind(this);
@@ -109,23 +114,26 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 		
 		Assert.that(algorithm != null);
 		algorithm.group = cast this;
-	//	trace(name+".childInvalidated; "+isValidating+"; "+Flags.readProperties(childChanges)+"; "+algorithm.isInvalid(childChanges)+"; algorithm "+algorithm);
 		
 		var child = sender.as(LayoutClient);
-		if (!isValidating && (childChanges.has(Flags.LIST) || algorithm.isInvalid(childChanges)))
+		if (!isValidating() && (childChanges.has(Flags.LIST | Flags.WIDTH * childWidth.notSet().boolCalc() | Flags.HEIGHT * childHeight.notSet().boolCalc()) || algorithm.isInvalid(childChanges)))
 			invalidate( Flags.CHILDREN_INVALIDATED );
 	}
 	
 	
 	override public function validateHorizontal ()
 	{
-		if (hasValidatedWidth)
+		super.validateHorizontal();
+		if (changes.hasNone( Flags.WIDTH | Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH | Flags.ALGORITHM ))
 			return;
 		
 		Assert.that(algorithm != null);
-		for (child in children)
-			if (child.changes > 0)
+		for (i in 0...children.length)
+		{
+			var child = children.getItemAt(i);
+			if (child.changes > 0 && child.includeInLayout)
 				child.validateHorizontal();
+		}
 		
 		if (changes > 0)
 		{
@@ -138,13 +146,17 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 	
 	override public function validateVertical ()
 	{
-		if (hasValidatedHeight)
+		super.validateVertical();
+		if (changes.hasNone( Flags.HEIGHT | Flags.LIST | Flags.CHILDREN_INVALIDATED | Flags.CHILD_HEIGHT | Flags.CHILD_WIDTH | Flags.ALGORITHM ))
 			return;
 		
 		Assert.that(algorithm != null);
-		for (child in children)
-			if (child.changes > 0)
+		for (i in 0...children.length)
+		{
+			var child = children.getItemAt(i);
+			if (child.changes > 0 && child.includeInLayout)
 				child.validateVertical();
+		}
 
 		if (changes > 0)
 		{
@@ -157,10 +169,10 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 	
 	override public function validated ()
 	{
-		if (!isValidating)
+		if (changes == 0 || !isValidating())
 			return;
 		
-		if (changes > 0)
+		if (algorithm != null)
 		{
 			algorithm.group = cast this;
 			algorithm.apply();
@@ -168,9 +180,6 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 		
 		state.current	= ValidateStates.validated;
 		changes			= 0;
-		
-		hasValidatedWidth	= false;
-		hasValidatedHeight	= false;
 	}
 	
 	
@@ -178,8 +187,12 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 	{
 		if (v != x) {
 			v = super.setX(v);
-			for (child in children)
-				child.outerBounds.left = innerBounds.left;
+			for (i in 0...children.length)
+			{
+				var child = children.getItemAt(i);
+			 	if (child.includeInLayout)
+					child.outerBounds.left = innerBounds.left;
+			}
 		}
 		return v;
 	}
@@ -189,8 +202,12 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 	{
 		if (v != y) {
 			v = super.setY(v);
-			for (child in children)
-				child.outerBounds.top = innerBounds.top;
+			for (i in 0...children.length)
+			{
+				var child = children.getItemAt(i);
+				if (child.includeInLayout)
+					child.outerBounds.top = innerBounds.top;
+			}
 		}
 		return v;
 	}
@@ -252,25 +269,111 @@ class TileContainer extends LayoutClient, implements ILayoutContainer
 	
 	private function algorithmChangedHandler () { invalidate( Flags.ALGORITHM ); }
 	
+	//
+	// CHILDREN
+	//
+	
+	public var children			(default, null) : IEditableList<LayoutClient>;
+	
+	/**
+	 * Property with the actual length of the children list. Use this property
+	 * instead of 'children.length' when an algorithm is calculating the 
+	 * measured size, since the property can also be set fixed and thus have a 
+	 * different number then children.length.
+	 * 
+	 * When applying an algorithm you should still use children.length since 
+	 * the algorithm will only be applied on the actual children in the list.
+	 * 
+	 * @see LayoutContainer.setFixedLength
+	 */
+	public var childrenLength	(default, null) : Int;
+	public var fixedChildStart					: Int;
+	
+	/**
+	 * Indicated wether the length of the children is fake d or not.
+	 * 
+	 * Layout-algorithms will only honor this property if the childWidth and 
+	 * childHeight also have been set, otherwise it's impossible to calculate
+	 * what the measured size of the container should be.
+	 */
+	public var fixedLength		(default, null) : Bool;
+	
+	
+	
 	private function childrenChangeHandler ( change:ListChange < LayoutClient > ) : Void
 	{
-	//	trace(this+".childrenChangeHandler "+change);
 		switch (change)
 		{
 			case added( child, newPos ):
+				child.outerBounds.left	= innerBounds.left;
+				child.outerBounds.top	= innerBounds.top;
 				child.listeners.add(this);
-				if (innerBounds.left != 0)	child.outerBounds.left	= innerBounds.left;
-				if (innerBounds.top != 0)	child.outerBounds.top	= innerBounds.top;
+				
+				if (!fixedLength)			childrenLength++;
+				if (child.includeInLayout)	invalidate( Flags.LIST );
 			
 			case removed( child, oldPos ):
 				child.listeners.remove(this);
+				
+				if (!fixedLength)			childrenLength--;
+				if (child.includeInLayout)	invalidate( Flags.LIST );
 			
-			default:
-		}
 		
-		invalidate( Flags.LIST );
+			case moved(child, newPos, oldPos):
+				if (child.includeInLayout)	
+					invalidate( Flags.LIST );
+			
+			case reset:
+				invalidate( Flags.LIST );
+		}
 	}
 	
+	
+	public inline function setFixedChildLength (length:Int)
+	{
+		fixedLength = true;
+		if (childrenLength != length) {
+			childrenLength = length;
+			invalidate( Flags.LIST );
+		}
+	}
+	
+	
+	public inline function unsetFixedChildLength ()
+	{
+		fixedLength = false;
+		if (childrenLength != children.length) {
+			childrenLength = children.length;
+			invalidate( Flags.LIST );
+		}
+	}
+
+
+	public var invisibleBefore		(default, setInvisibleBefore)	: Int;
+	public var invisibleAfter		(default, setInvisibleAfter)	: Int;
+	
+
+
+	private inline function setInvisibleBefore (v:Int)
+	{
+		if (v != invisibleBefore)
+		{
+			invisibleBefore = v;
+			invalidate(Flags.LIST);
+		}
+		return v;
+	}
+
+
+	private inline function setInvisibleAfter (v:Int)
+	{
+		if (v != invisibleAfter)
+		{
+			invisibleAfter = v;
+			invalidate(Flags.LIST);
+		}
+		return v;
+	}
 	
 #if debug
 	override public function toString () { return "LayoutTileContainer( "+super.toString() + " ) - "/*+children*/; }

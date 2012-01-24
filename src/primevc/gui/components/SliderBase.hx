@@ -32,20 +32,17 @@ package primevc.gui.components;
  import primevc.core.geom.space.Direction;
  import primevc.core.geom.IntPoint;
  import primevc.core.geom.Point;
- import primevc.core.validators.FloatRangeValidator;
+ import primevc.core.math.PercentageHelper;
  import primevc.core.Bindable;
- import primevc.gui.components.DragButton;
+ import primevc.gui.components.Button;
+ import primevc.gui.core.UIElementFlags;
  import primevc.gui.core.UIDataContainer;
  import primevc.gui.events.MouseEvents;
   using primevc.gui.utils.UIElementActions;
   using primevc.utils.Bind;
   using primevc.utils.BitUtil;
-  using primevc.utils.NumberMath;
   using primevc.utils.NumberUtil;
-  using Std;
 
-
-private typedef DataType = Bindable<Float>;
 
 
 /**
@@ -54,13 +51,8 @@ private typedef DataType = Bindable<Float>;
  * @author Ruben Weijers
  * @creation-date Nov 05, 2010
  */
-class SliderBase extends UIDataContainer < DataType >
+class SliderBase extends UIDataContainer <PercentageHelper>
 {
-	public static inline var PERCENTAGE : Int = 1 << 8;
-	public static inline var DIRECTION	: Int = 1 << 9;
-	
-	
-	
 	/**
 	 * Defines if the slider is horizontal or vertical
 	 * @default		horizontal
@@ -68,78 +60,40 @@ class SliderBase extends UIDataContainer < DataType >
 	public var direction	(default, setDirection)		: Direction;
 	
 	/**
-	 * Constraint defining the minimal and maximum value
-	 * @default		0 - 1
-	 */
-	public var validator	(default, null)				: FloatRangeValidator;
-	
-	/**
-	 * Percentage indicating the value on a scale of 0 - 1
-	 */
-	public var percentage	(default, setPercentage)	: Float;
-	
-	/**
-	 * If true, the value of the slider will be inverted.
-	 * For example:
-	 * 		- slider between 4 and 8:
-	 * 			normal value:	4 | 5 | 6 | 7 | 8
-	 * 			inverted value:	8 | 7 | 6 | 5 | 4
-	 * 
-	 * @default false
-	 */
-	public var inverted		(default, setInverted)		: Bool;
-	
-	/**
 	 * Eventgroup with events that are dispatched when the user starts sliding
 	 * the slider.
 	 */
 	public var sliding		(default, null)				: ActionEvent;
 	
-	/**
-	 * Flag indicating if the slider should show increase / decrease buttons.
-	 * @default false
-	 */
-//	public var showButtons	(default, setShowButtons)	: Bool;
 	
-	
-	private var mouseMoveBinding		: Wire < Dynamic >;
-	private var mouseBgDownBinding		: Wire < Dynamic >;
-	private var mouseBtnDownBinding		: Wire < Dynamic >;
-	private var mouseUpBinding			: Wire < Dynamic >;
-	private var updatePercBinding		: Wire < Dynamic >;
-	
-//	private var decreaseBtn				: Button;
-//	private var increaseBtn				: Button;
+	private var mouseMoveBinding		: Wire < MouseState -> Void >;
+	private var mouseBgDownBinding		: Wire < MouseState -> Void >;
+	private var mouseBtnDownBinding		: Wire < MouseState -> Void >;
+	private var mouseUpBinding			: Wire < MouseState -> Void >;
 	
 	
 	
 	
 	public function new (id:String = null, value:Float = 0.0, minValue:Float = 0.0, maxValue:Float = 1.0, direction:Direction = null)
 	{
-		super(id, new DataType(value));
+		super(id, new PercentageHelper(value, minValue, maxValue));
 		(untyped this).inverted		= false;
 	//	(untyped this).showButtons	= false;
 		this.direction				= direction == null ? horizontal : direction;
-		validator					= new FloatRangeValidator( minValue, maxValue );
 		sliding						= new ActionEvent();
 	}
 	
 	
 	override public function dispose ()
 	{
-		if (validator != null)
-		{
-			validator.dispose();
-			validator = null;
-		}
-		
-		if (updatePercBinding != null)		updatePercBinding.dispose();
+		if (data != null)					data.dispose();
 		if (mouseMoveBinding != null)		mouseMoveBinding.dispose();
 		if (mouseUpBinding != null)			mouseUpBinding.dispose();
 		if (mouseBgDownBinding != null)		mouseBgDownBinding.dispose();
 		if (mouseBtnDownBinding != null)	mouseBtnDownBinding.dispose();
 		
-		updatePercBinding = mouseBgDownBinding = mouseBtnDownBinding = mouseUpBinding = mouseMoveBinding = null;
+		mouseBgDownBinding	= mouseBtnDownBinding = mouseUpBinding = mouseMoveBinding = null;
+		(untyped this).data = null;
 		sliding.dispose();
 		
 		if (isInitialized())
@@ -160,38 +114,38 @@ class SliderBase extends UIDataContainer < DataType >
 		
 		mouseBgDownBinding	= jumpToPosition	.on( userEvents.mouse.down, this );
 		mouseBtnDownBinding	= enableMoveWires	.on( dragBtn.userEvents.mouse.down, this );
-		mouseUpBinding		= disableMoveWires	.on( window.mouse.events.up, this );
+		mouseUpBinding		= fakeMouseUpEvent	.on( window.mouse.events.up, this );
 		mouseUpBinding.disable();
+
+		disableMoveWires.on( userEvents.mouse.up, this );
+
 		createMouseMoveBinding();
 	}
 	
 	
 	override private function initData ()
 	{
-		calculatePercentage();
+		invalidatePercentage.on( data.perc.change, this );
 		updateChildren();
-		validateData.on( validator.change, this );
-		updatePercBinding = calculatePercentage.on( data.change, this );
 	}
 	
 	
 	override private function removeData ()
 	{
-		if (updatePercBinding != null)
-			updatePercBinding.dispose();
+		data.perc.change.unbind( this );
 	}
 	
 	
 	override public function validate ()
 	{
-		var changes = changes;
+		var changes = this.changes;
 		super.validate();
 		
-		if (changes.has(PERCENTAGE))
-			if (!updateChildren())
-				invalidate(PERCENTAGE);
+		if (changes.has(UIElementFlags.PERCENTAGE))
+			if (!updateChildren())		//updating children fails if the width or height in layout isn't set yet
+				invalidate(UIElementFlags.PERCENTAGE);
 		
-		if (changes.has(DIRECTION))
+		if (changes.has(UIElementFlags.DIRECTION))
 			createMouseMoveBinding();
 	}
 	
@@ -213,57 +167,25 @@ class SliderBase extends UIDataContainer < DataType >
 	}
 	
 	
+	private function invalidatePercentage ()
+	{
+		invalidate( UIElementFlags.PERCENTAGE );
+	}
+	
+	
 	
 	//
 	// CHILDREN
 	//
 	
-	public var dragBtn		(default, null)	: DragButton;
+	public var dragBtn		(default, null)	: Button;
 	
 	
 	override private function createChildren ()
 	{
-		dragBtn = new DragButton();
-#if debug
-		dragBtn.id.value = id.value + "DragBtn";
-#end
-		layoutContainer.children.add( dragBtn.layout );
-		children.add( dragBtn );
-		
-	//	if (showButtons)
-	//		createButtons();
+		attach( dragBtn = new Button( id.value + "Btn" ) );
+	//	dragBtn.layout.includeInLayout = false;
 	}
-	
-	
-	/**
-	 * Method will create the increase / decrease buttons
-	 */
-	/*private function createButtons ()
-	{
-		Assert.that(showButtons);
-		if (decreaseBtn == null)
-		{
-			decreaseBtn = new Button();
-			decreaseBtn.styleClasses.add( "decreaseBtn" );
-		}
-		
-		if (increaseBtn == null)
-		{
-			increaseBtn = new Button();
-			increaseBtn.styleClasses.add( "increaseBtn" );
-		}
-		
-		children.add( decreaseBtn, 0 );
-		children.add( increaseBtn, 1 );
-		layoutContainer.children.add( decreaseBtn.layout );
-		layoutContainer.children.add( increaseBtn.layout );
-	}
-	
-	
-	private function removeButtons ()
-	{
-		
-	}*/
 	
 	
 	
@@ -276,41 +198,9 @@ class SliderBase extends UIDataContainer < DataType >
 		if (direction != v)
 		{
 			direction = v;
-			invalidate(DIRECTION);
+			invalidate(UIElementFlags.DIRECTION);
 		}
 		return v;
-	}
-	
-	
-	private inline function setPercentage (v:Float)
-	{
-		if (percentage != v)
-		{
-			Assert.that( v <= 1, v + " > 1" );
-			Assert.that( v >= 0, v + " < 0" );
-			percentage = v;
-			invalidate(PERCENTAGE);
-		}
-		return v;
-	}
-	
-	
-	private inline function setInverted (v:Bool)
-	{
-		if (v != inverted)
-		{
-			inverted = v;
-			invert();
-		}
-		
-		return v;
-	}
-	
-	
-	private inline function invert ()
-	{
-		data.value	= validator.max - data.value + validator.min;
-		percentage	= 1 - percentage;
 	}
 	
 	
@@ -336,13 +226,13 @@ class SliderBase extends UIDataContainer < DataType >
 		
 		//jump to position
 		var curMouse		= getLocalMousePos( mouseObj );
-		var newPercentage	= (direction == horizontal)
-								? ((curMouse.x - layout.padding.left) / layout.width.value).within(0, 1)
-								: ((curMouse.y - layout.padding.top) / layout.height.value).within(0, 1);
-		var newValue = validator.min + (newPercentage * (validator.max - validator.min));
-		updateValue( newValue, newPercentage );
+		data.percentage		= (direction == horizontal)
+								? ((curMouse.x - layout.padding.left) / layout.width).within(0, 1)
+								: ((curMouse.y - layout.padding.top) / layout.height).within(0, 1);
+		
 		validate();
 		
+		//enable dragging as long as the mouse is down
 		enableMoveWires(mouseObj);
 	}
 	
@@ -358,7 +248,7 @@ class SliderBase extends UIDataContainer < DataType >
 		mouseMoveBinding.enable();
 		
 	//	calculateValue( mouseObj );
-		dragBtn.mouseEnabled				= false;
+	//	dragBtn.mouseEnabled				= false;
 		dragBtn.layout.includeInLayout		= false;
 		sliding.begin.send();
 	}
@@ -379,13 +269,14 @@ class SliderBase extends UIDataContainer < DataType >
 		dragBtn.layout.includeInLayout		= true;
 		sliding.apply.send();
 	}
-	
-	
-	private function calculatePercentage ()
+
+
+	private function fakeMouseUpEvent (mouseObj:MouseState)
 	{
-	//	data.set( validator.validate( data.value ) );
-		var diff	= validator.getDiff();
-		percentage	= diff == 0 ? 0 : (( data.value - validator.min ) / diff).within(0, 1);
+		if (mouseObj.target != this) {
+			//fake a mouse-up event is the mouse was released outside the slider
+			userEvents.mouse.up.send(mouseObj);
+		}
 	}
 	
 	
@@ -403,17 +294,14 @@ class SliderBase extends UIDataContainer < DataType >
 	{
 		var curMouse	= getLocalMousePos( mouseObj );
 		var min			= layout.padding.left;
-		var maxMouse	= layout.width.value + min;
+		var maxMouse	= layout.width + min;
 		var max			= maxMouse - dragBtn.layout.outerBounds.width;
 		
 		if (!curMouse.x.isWithin( min, maxMouse ))
 			return;
 		
 		var newX		= (originalPos.x + curMouse.x - mouseStartPos.x).within( min, max );
-		var newPerc		= ((newX - min) / (max - min)).within(0, 1);
-		var newValue	= validator.min + (newPerc * (validator.max - validator.min));
-		
-		updateValue( newValue, newPerc );
+		data.percentage	= ((newX - min) / (max - min)).within(0, 1);
 	}
 	
 	
@@ -421,41 +309,14 @@ class SliderBase extends UIDataContainer < DataType >
 	{
 		var curMouse	= getLocalMousePos( mouseObj );
 		var min			= layout.padding.top;
-		var maxMouse	= layout.height.value + min;
+		var maxMouse	= layout.height + min;
 		var max			= maxMouse - dragBtn.layout.outerBounds.height;
 		
 		if (!curMouse.y.isWithin( min, maxMouse ))
 			return;
 		
 		var newY		= (originalPos.y + curMouse.y - mouseStartPos.y).within( min, max );
-		var newPerc		= (newY / max).within(0, 1);
-		var newValue	= validator.min + (newPerc * (validator.max - validator.min));
-		
-		updateValue( newValue, newPerc );
-	}
-	
-	
-	private function updateValue (newValue:Float, newPercentage:Float)
-	{
-		updatePercBinding.disable();
-		data.value	= validator.validate( newValue );
-		percentage	= newPercentage;
-		if (inverted)
-			invert();
-		updatePercBinding.enable();
-	}
-	
-	
-	/**
-	 * Method is called when a property of the constraint changes. This method
-	 * will make sure the current value of the slider is within the boundaries
-	 * of the constraint.
-	 */
-	private inline function validateData ()
-	{
-		Assert.that( validator.min.isSet() );
-		Assert.that( validator.max.isSet() );
-		data.value = validator.validate( data.value );
+		data.percentage	= (newY / max).within(0, 1);
 	}
 	
 	
@@ -463,21 +324,25 @@ class SliderBase extends UIDataContainer < DataType >
 	{
 		if (direction == horizontal)
 		{
-			if (layout.width.value.notSet())
+			if (layout.width.notSet())
 				return false;
 			
-			dragBtn.x			= layout.padding.left + ( percentage * ( layout.width.value - dragBtn.layout.outerBounds.width ) );
+			dragBtn.x			= layout.padding.left + ( data.percentage * ( layout.width - dragBtn.layout.outerBounds.width ) );
 			dragBtn.layout.x	= dragBtn.x.roundFloat();
-		//	trace(this+"; "+dragBtn.x);
 		}
 		else
 		{
-			if (layout.height.value.notSet())
+			if (layout.height.notSet())
 				return false;
 			
-			dragBtn.y			= layout.padding.top + ( percentage * (layout.height.value - dragBtn.layout.outerBounds.height) );
+			dragBtn.y			= layout.padding.top + ( data.percentage * (layout.height - dragBtn.layout.outerBounds.height) );
 			dragBtn.layout.y	= dragBtn.y.roundFloat();
 		}
 		return true;
 	}
+	
+	
+#if debug
+	override public function toString ()	{ return id.value+"( "+direction+" )"; }
+#end
 }

@@ -94,15 +94,15 @@ class EffectsStyle extends StyleSubBlock
 	
 	
 	
-	public function new (move:EffectType = null, resize:EffectType = null, rotate:EffectType = null, scale:EffectType = null, show:EffectType = null, hide:EffectType = null)
+	public function new (filledProps:Int = 0, move:EffectType = null, resize:EffectType = null, rotate:EffectType = null, scale:EffectType = null, show:EffectType = null, hide:EffectType = null)
 	{
-		super();
-		this.move	= move;
-		this.resize	= resize;
-		this.rotate	= rotate;
-		this.scale	= scale;
-		this.show	= show;
-		this.hide	= hide;
+		super(filledProps);
+		#if flash9 this._move		#else this.move		#end = move;
+		#if flash9 this._resize		#else this.resize	#end = resize;
+		#if flash9 this._rotate		#else this.rotate	#end = rotate;
+		#if flash9 this._scale		#else this.scale	#end = scale;
+		#if flash9 this._show		#else this.show		#end = show;
+		#if flash9 this._hide		#else this.hide		#end = hide;
 	}
 	
 	
@@ -151,10 +151,21 @@ class EffectsStyle extends StyleSubBlock
 	
 	override public function updateAllFilledPropertiesFlag ()
 	{
-		super.updateAllFilledPropertiesFlag();
+		inheritedProperties = 0;
+		if (extendedStyle != null)	inheritedProperties  = extendedStyle.allFilledProperties;
+		if (superStyle != null)		inheritedProperties |= superStyle.allFilledProperties;
 		
-		if (allFilledProperties < Flags.ALL_PROPERTIES && extendedStyle != null)	allFilledProperties |= extendedStyle.allFilledProperties;
-		if (allFilledProperties < Flags.ALL_PROPERTIES && superStyle != null)		allFilledProperties |= superStyle.allFilledProperties;
+		allFilledProperties = filledProperties | inheritedProperties;
+		inheritedProperties	= inheritedProperties.unset( filledProperties );
+	}
+	
+	
+	override public function getPropertiesWithout (noExtendedStyle:Bool, noSuperStyle:Bool)
+	{
+		var props = filledProperties;
+		if (!noExtendedStyle && extendedStyle != null)	props |= extendedStyle.allFilledProperties;
+		if (!noSuperStyle && superStyle != null)		props |= superStyle.allFilledProperties;
+		return props;
 	}
 	
 	
@@ -406,7 +417,7 @@ class EffectsStyle extends StyleSubBlock
 	override public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())
-			code.construct( this, [ _move, _resize, _rotate, _scale, _show, _hide ] );
+			code.construct( this, [ filledProperties, _move, _resize, _rotate, _scale, _show, _hide ] );
 	}
 #end
 

@@ -28,7 +28,6 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.mvc;
-// import primevc.core.dispatcher.Signals;
 
 /**
  * Abstract Mediator class.
@@ -42,15 +41,15 @@ package primevc.mvc;
  * @author Danny Wilson
  * @creation-date Jun 22, 2010
  */
-class Mediator <EventsTypedef, ModelTypedef, ViewTypeDef, ViewComponentType> extends Listener <EventsTypedef, ModelTypedef, ViewTypeDef>, implements IMediator
+class Mediator <FacadeDef, GUIType> extends MVCActor <FacadeDef>
 {
-	public var viewComponent (default, setViewComponent)	: ViewComponentType;
+	public var gui (default, setGUI) : GUIType;
 	
 	
-	public function new (events:EventsTypedef, model:ModelTypedef, view:ViewTypeDef, viewComponent:ViewComponentType = null)
+	public function new (facade:FacadeDef, enabled:Bool = true, gui:GUIType = null)
 	{
-		super(events, model, view);
-		setViewComponent( viewComponent );
+		this.gui = gui;
+		super(facade, enabled);
 	}
 	
 	
@@ -59,25 +58,29 @@ class Mediator <EventsTypedef, ModelTypedef, ViewTypeDef, ViewComponentType> ext
 		if (isDisposed())
 			return;
 		
-		viewComponent = null;
+		gui = null;
 		super.dispose();
 	}
 	
 	
-	// Set the UI element that the mediator serves.
-	private function setViewComponent (viewComponent:ViewComponentType)
+	/**
+	 * Set the UI element that the mediator serves.
+	 */
+	private function setGUI (v:GUIType)
 	{
-		if (isListening())
+		if (v != gui)
 		{
-			stopListening();
-			this.viewComponent = viewComponent;
-			
-			if (viewComponent != null)
-				startListening();
-		}
-		else
-			this.viewComponent = viewComponent;
+			var wasEnabled = isEnabled();
+			if (wasEnabled && gui != null)
+				disable();
 		
-		return viewComponent;
+		//	if (v == null && isListening())
+		//		stopListening();
+		
+			gui = v;
+			if (v != null && wasEnabled)
+				enable();
+		}
+		return v;
 	}
 }

@@ -31,7 +31,7 @@ package primevc.core.collections.iterators;
 
 
 /**
- * Description
+ * Reversed iterator for a fast-array
  * 
  * @creation-date	Jul 23, 2010
  * @author			Ruben Weijers
@@ -39,8 +39,8 @@ package primevc.core.collections.iterators;
 class FastArrayReversedIterator <DataType> implements IIterator <DataType>
 	#if (flash9 || cpp) ,implements haxe.rtti.Generic #end
 {
-	private var target (default, null)	: FastArray<DataType>;
-	private var current 				: Int;
+	private var target	(default, null)	: FastArray<DataType>;
+	public var current	(default, null)	: Int;
 	
 	
 	public function new (target:FastArray<DataType>)
@@ -51,5 +51,6 @@ class FastArrayReversedIterator <DataType> implements IIterator <DataType>
 	public inline function setCurrent (val:Dynamic)	{ current = val; }
 	public inline function rewind ()				{ current = target.length - 1; }
 	public inline function hasNext ()				{ return current >= 0; }
-	public inline function next ()					{ return target[current--]; }
+	public inline function next ()					{ return target[ current-- ]; }
+	public inline function value ()					{ return target[ current ]; }
 }

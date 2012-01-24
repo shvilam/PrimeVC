@@ -34,10 +34,9 @@ package primevc.gui.layout.algorithms.circle;
  import primevc.gui.layout.algorithms.HorizontalBaseAlgorithm;
  import primevc.gui.layout.algorithms.IHorizontalAlgorithm;
  import primevc.utils.Formulas;
- import primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.Formulas;
   using primevc.utils.NumberUtil;
-  using primevc.utils.NumberMath;
  
 
 /**
@@ -86,7 +85,7 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 	 */
 	public inline function validateHorizontal ()
 	{
-	//	var width:Int = group.width.value;
+	//	var width:Int = group.width;
 	/*	if (group.childWidth.notSet())
 		{
 			for (child in group.children)
@@ -98,7 +97,7 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 			width = group.childWidth * (group.children.length.divCeil(2) + 1);
 		}
 		*/
-		setGroupWidth(group.width.value);
+		setGroupWidth(group.width);
 	}
 	
 	
@@ -130,7 +129,7 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 				
 				angle	= (childAngle * i) + startRadians;
 				pos		= start + ( radius * FastMath.cos(angle) ).roundFloat();
-				var halfChildWidth	= ( child.outerBounds.width * .5 ).roundFloat();
+				var halfChildWidth	= child.outerBounds.width >> 1; // * .5 ).roundFloat();
 				var doCenter		= pos.isWithin( radius - halfChildWidth, radius + halfChildWidth );
 				
 				if		(doCenter)				child.outerBounds.centerX	= pos;
@@ -171,7 +170,7 @@ class HorizontalCircleAlgorithm extends HorizontalBaseAlgorithm, implements IHor
 
 
 	private inline function getRadius () : Int {
-		return ( isEllipse ? group.width.value * .5 : Formulas.getCircleRadius(group.width.value, group.height.value) ).roundFloat();
+		return ( isEllipse ? group.width >> 1 : Formulas.getCircleRadius(group.width, group.height) ).roundFloat();
 	}
 	
 #if (neko || debug)

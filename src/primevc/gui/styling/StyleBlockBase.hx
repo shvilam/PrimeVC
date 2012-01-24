@@ -33,7 +33,8 @@ package primevc.gui.styling;
  import primevc.tools.generator.ICodeGenerator;
 #end
 #if (neko || debug)
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
+  using Type;
 #end
   using primevc.utils.BitUtil;
 
@@ -47,29 +48,43 @@ package primevc.gui.styling;
 class StyleBlockBase extends Invalidatable, implements IStyleBlock
 {
 #if (debug || neko)
-	public var uuid					(default, null)		: String;
+	public var _oid					(default, null)		: Int;
 #end
+	
+	/**
+	 * Flag with properties that are set for this style-block.
+	 */
 	public var filledProperties		(default, null)		: Int;
+	/**
+	 * Combination of filledProperties and inheritedProperties
+	 */
 	public var allFilledProperties	(default, null)		: Int;
+	/**
+	 * Flag with the styleproperties that are inherited and not set in this
+	 * style-block
+	 */
+	public var inheritedProperties	(default, null)		: Int;
 	
 	
-	public function new ()
+	public function new (filled:Int = 0)
 	{
 		super();
 #if (debug || neko)
-		uuid = StringUtil.createUUID();
+		_oid = ID.getNext();
 #end
-		filledProperties	= 0;
-		allFilledProperties	= 0;
+		filledProperties	= filled;
+		inheritedProperties	= 0;
+		allFilledProperties	= filled;
 	}
 	
 	
 	override public function dispose ()
 	{
 #if (debug || neko)
-		uuid				= null;
+		_oid				= -1;
 #end
 		filledProperties	= 0;
+		inheritedProperties	= 0;
 		allFilledProperties	= 0;
 		super.dispose();
 	}
@@ -94,22 +109,36 @@ class StyleBlockBase extends Invalidatable, implements IStyleBlock
 	public inline function has (propFlag:Int) : Bool		{ return allFilledProperties.has( propFlag ); }
 	public inline function doesntHave (propFlag:Int) : Bool	{ return allFilledProperties.hasNone( propFlag ); }
 	public inline function owns (propFlag:Int) : Bool		{ return filledProperties.has( propFlag ); }
+	public inline function doesntOwn (propFlag:Int) : Bool	{ return filledProperties.hasNone( propFlag ); }
 	public function isEmpty () : Bool						{ return filledProperties == 0; }
 	
 	
-	public function updateAllFilledPropertiesFlag () : Void
-	{
-		allFilledProperties = filledProperties;
-	}
+	public function updateAllFilledPropertiesFlag () : Void									{ Assert.abstract(); }
+	public function getPropertiesWithout (noExtendedStyle:Bool, noSuperStyle:Bool) : Int	{ Assert.abstract(); return 0; }
 	
 	
 #if debug
 	public function readProperties ( flags:Int = -1 )	: String	{ Assert.abstract(); return null; }
+	public inline function readAll () : String						{ return readProperties( allFilledProperties ); }
+	#if !neko
+	public function toString ()
+	{
+		var name = this.getClass().getClassName();
+		var dot	 = name.lastIndexOf(".");
+		return name.substr(dot)+"( "+_oid + " ) -> " +readProperties();
+	}
+	#end
 #end
 	
 	
 #if neko
-	public function toString ()						{ return toCSS(); }
+	#if	debug
+		public var cssName : String;
+		public function toString ()						{ return cssName; }
+	#else
+		public function toString ()						{ return toCSS(); }
+	#end
+	
 	public function toCSS (prefix:String = "") 		{ Assert.abstract(); return ""; }
 	public function cleanUp ()						{ Assert.abstract(); }
 	public function toCode (code:ICodeGenerator)	{ Assert.abstract(); }

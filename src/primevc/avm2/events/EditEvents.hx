@@ -48,6 +48,7 @@ class EditEvents extends EditSignals
 {
 	public function new (eventDispatcher)
 	{
+		super();
 #if flash10
 		cut			= new FlashSignal0 (eventDispatcher, Event.CUT );
 		copy		= new FlashSignal0 (eventDispatcher, Event.COPY );

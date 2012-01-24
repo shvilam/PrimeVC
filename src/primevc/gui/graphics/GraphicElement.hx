@@ -32,7 +32,7 @@ package primevc.gui.graphics;
  import primevc.tools.generator.ICodeGenerator;
 #end
 #if (neko || debug)
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
 #end
 
 
@@ -46,19 +46,19 @@ package primevc.gui.graphics;
 class GraphicElement extends Invalidatable, implements IGraphicElement 
 {
 #if (neko || debug)
-	public var uuid (default, null)	: String;
+	public var _oid (default, null)	: Int;
 	
 	
 	public function new ()
 	{
 		super();
-		uuid = StringUtil.createUUID();
+		_oid = ID.getNext();
 	}
 	
 	
 	override public function dispose ()
 	{
-		uuid = null;
+		_oid = 0;
 		super.dispose();
 	}
 #end
@@ -70,7 +70,7 @@ class GraphicElement extends Invalidatable, implements IGraphicElement
 
 #if (neko || debug)
 	public function toString () : String				{ return toCSS(); }
-	public function toCSS (prefix:String = "") : String	{ /*Assert.abstract();*/ return "GraphicElement"; }
+	@:keep public function toCSS (prefix:String = "") : String	{ /*Assert.abstract();*/ return "GraphicElement"; }
 	public function isEmpty () : Bool					{ return false; }
 	public function cleanUp () : Void					{}
 #end

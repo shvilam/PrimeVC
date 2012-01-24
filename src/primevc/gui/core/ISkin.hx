@@ -28,6 +28,7 @@
  */
 package primevc.gui.core;
  import primevc.core.traits.IDisposable;
+ import primevc.gui.events.UserEventTarget;
  import primevc.gui.states.SkinStates;
  import primevc.gui.traits.IBehaving;
 
@@ -52,6 +53,7 @@ interface ISkin
 {
 	public var skinState		(default, null)		: SkinStates;	
 //	public var owner			(default, setOwner) : OwnerClass;
+	public function changeOwner	(o:IUIComponent)	: Void;
 	
 	
 	/**
@@ -62,14 +64,14 @@ interface ISkin
 	/**
 	 * Creates the default graphical data of a UIComponent
 	 */
-	private function createGraphics ()		: Void;
+	public function drawGraphics ()		: Void;
 	
 	/**
 	 * A skin can have children, despite the fact that it isn't a IDisplayable 
 	 * object. It will add it's children to the child-list of it's owner.
 	 * After this method, the owner will creates it's children.
 	 */
-	private function createChildren ()		: Void;
+	public function createChildren ()		: Void;
 	
 	/**
 	 * This method is called after the owner has created it's children. It can 
@@ -88,6 +90,27 @@ interface ISkin
 	 * Dispose all the children of this skin. This can happen when the owner 
 	 * is disposed or when the owner changes it's skin.
 	 */
-	private function removeChildren ()		: Void;
+	public  function removeChildren ()		: Void;
 	
+	
+	/**
+	 * Method is called when the owner is validated and allows the skin to
+	 * update itself after some properties have changed.
+	 */
+	public function validate (changes:Int)	: Void;
+	
+	/**
+	 * Method indicating wether the skin is disposed or not
+	 */
+	public function isDisposed ()			: Bool;
+	
+	
+	
+	/**
+	 * Abstract method.
+	 * Is called by the owner when an object wants to check if the owner has
+	 * focus. The skin can check if the target is one of it's children and then
+	 * return true or false.
+	 */
+	public function isFocusOwner (target:UserEventTarget) : Bool;
 }

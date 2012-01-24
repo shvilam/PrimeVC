@@ -95,6 +95,10 @@ class ScaleEffectInstance extends EffectInstance < IScaleable, ScaleEffect >
 		startY	= effect.startY.isSet() ? effect.startY : target.scaleY;
 		if (effect.endX.isSet())	endX = effect.endX;
 		if (effect.endY.isSet())	endY = effect.endY;
+		
+		target.scaleX	= startX;
+		target.scaleY	= startY;
+		(untyped target).visible = true;
 	}
 	
 	
@@ -120,5 +124,15 @@ class ScaleEffectInstance extends EffectInstance < IScaleable, ScaleEffect >
 #else
 		return 1;
 #end
+	}
+	
+	
+	override private function onTweenReady ( ?tweenPos:Float )
+	{
+		if (target.scaleX == 0 || target.scaleY == 0) {
+			(untyped target).visible	= false;
+			target.scaleX	= target.scaleY	= 1;
+		}
+		super.onTweenReady();
 	}
 }

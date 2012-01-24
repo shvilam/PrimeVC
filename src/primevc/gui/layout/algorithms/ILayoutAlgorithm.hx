@@ -55,7 +55,8 @@ interface ILayoutAlgorithm
 	
 	
 	/**
-	 * Method indicating if the size is invalidated or not.
+	 * Method indicating if the changes of a layoutcontainer-child should make
+	 * the layoutcontainer revalidate
 	 */
 	public function isInvalid (changes:Int)					: Bool;
 	
@@ -90,4 +91,26 @@ interface ILayoutAlgorithm
 	 * be called to make sure the point is valid within the algorithms.
 	 */
 	public function getDepthForBounds (bounds:IRectangle)	: Int;
+	
+	/**
+	 * Method to change to scroll-position of the layoutcontainer to make the
+	 * given child-depth visible
+	 */
+	public function scrollToDepth (depth:Int)               : Void;
+	
+	
+	/**
+	 * Method will return the depth of the first visible child, based on:
+	 * 	- childWidth / childHeight
+	 * 	- explicitWidth / explicitHeight
+	 * 	- scrollPos.x / scrollPos.y
+	 */
+	public function getDepthOfFirstVisibleChild ()	: Int;
+	
+	/**
+	 * Method will return the maximum visible children based on:
+	 * 	- childWidth / childHeight
+	 * 	- explicitWidth / explicitHeight
+	 */
+	public function getMaxVisibleChildren ()		: Int;
 }

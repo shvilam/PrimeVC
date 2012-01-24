@@ -39,10 +39,10 @@ typedef Color = primevc.neko.utils.Color;
   using StringTools;
 
 
-class Color
+extern class Color
 {
-	public static inline var BLACK		: UInt	= 0x000000;
-	public static inline var WHITE		: UInt	= 0xFFFFFF;
+	public static inline var BLACK		= 0x000000;
+	public static inline var WHITE		= 0xFFFFFF;
 	
 	
 	/**
@@ -53,7 +53,49 @@ class Color
 	/**
 	 * Blends to RGBA colors together.
 	 */
-	public static inline function blend (v:RGBA, v2:RGBA) : RGBA		{ return v | v2; }
+	public static inline function blend (v1:RGBA, v2:RGBA) : RGBA
+	{
+		//add each channel of the colors and divide them by 2
+		return Color.create(
+		/* R */ (v1.red()	+ v2.red())		>> 1,
+		/* G */ (v1.green()	+ v2.green())	>> 1,
+		/* B */ (v1.blue()	+ v2.blue())	>> 1,
+		/* A */ (v1.alpha()	+ v2.alpha())	>> 1
+		);
+	}
+	
+	/**
+	 * Blends two RGBA colors together with the given alpha. The returned RGBA
+	 * value has an alpha of 100%
+	 */
+	public static inline function alphaBlendColors (v1:RGBA, v2:RGBA, alpha:Float) : RGBA
+	{
+	#if !js
+		var invAlpha = 1 - alpha;
+		return create(
+				(alpha * v1  .red()).int()	+ (invAlpha * v2  .red()).int(),
+				(alpha * v1.green()).int()	+ (invAlpha * v2.green()).int(),
+				(alpha * v1 .blue()).int()	+ (invAlpha * v2 .blue()).int()
+		);
+	#else
+		return create(
+				(alpha * v1  .red()).int()	+ ((1 - alpha) * v2  .red()).int(),
+				(alpha * v1.green()).int()	+ ((1 - alpha) * v2.green()).int(),
+				(alpha * v1 .blue()).int()	+ ((1 - alpha) * v2 .blue()).int()
+		);
+	#end
+	}
+	
+	
+	/**
+	 * Blends a RGBA color together with the given alpha. The returned RGBA
+	 * value has an alpha of 100%
+	 */
+	public static inline function alphaBlend (v:RGBA, alpha:Float) : RGBA
+	{
+		return v.setAlpha(0xFF).tint( alpha );
+	}
+	
 	
 	/**
 	 * Makes sure that the given color is between BLACK and WHITE
@@ -75,10 +117,23 @@ class Color
 	public static inline function create (r:UInt = 0, g:UInt = 0, b:UInt = 0, a:UInt = 0xFF) : RGBA {
 		return ( r << 24 | g << 16 | b << 8 | a ).validate();
 	}
+	
+	/**
+	 * Creates a RGBA color from a rgb value
+	 */
+	public static inline function rgbToRgba (rgb:UInt) : RGBA			{ return rgb << 8 | 0xFF; }
+	/**
+	 * Creates a RGBA color from a ARGB value
+	 */
+	public static inline function argbToRgba (argb:UInt) : RGBA			{ return argb << 8 | argb >> 24; }
+	/**
+	 * Creates a ARGB color from a RGBA value
+	 */
+	public static inline function argb (rgba:RGBA) : UInt				{ return (rgba >> 8) | rgba << 24; }
 }
 
 
-class RGBAUtil
+extern class RGBAUtil
 {
 	public static inline var ALPHA_MASK				: RGBA = 0x000000FF;
 	public static inline var COLOR_MASK				: RGBA = 0xFFFFFF00;
@@ -122,7 +177,7 @@ class RGBAUtil
 	/**
 	 * Replaces the RGB properties of a RGBA object.
 	 */
-	public static inline function setRgb (v:RGBA, c:UInt) : RGBA		{ return (v & INVERTED_COLOR_MASK) | (c << 8); }
+	public static inline function setRgb (v:RGBA, c:UInt) : RGBA		{ return (c & COLOR_MASK) | (v & INVERTED_COLOR_MASK); }
 	/**
 	 * Replaces the red value of a RGBA object.
 	 */
@@ -151,17 +206,18 @@ class RGBAUtil
 	 * @example		0xFF0000FF.tint(.5);	//gives: 0x7F0000FF
 	 */
 	public static inline function tint (v:RGBA, tint:Float) : RGBA {
-		var r = (v.red() * tint).int();
-		var g = (v.green() * tint).int();
-		var b = (v.blue() * tint).int();
-		var a = v.alpha();
-		return Color.create(r, g, b, a);
+		return Color.create(
+			(v  .red() * tint).int(),
+			(v.green() * tint).int(),
+			(v .blue() * tint).int(),
+			 v.alpha()
+		);
 	}
 }
 
 
 
-class FloatColorUtil
+extern class FloatColorUtil
 {
 	/**
 	 * Converts two bytes to a Float. Only one color channel should be given as input.
@@ -176,20 +232,46 @@ class FloatColorUtil
 
 
 
-class StringColorUtil
-{	
+extern class StringColorUtil
+{
+	public static inline var L1		= 0xF;
+	public static inline var L2		= 0xFF;
+	public static inline var L3		= 0xFFF;
+	public static inline var L4		= 0xFFFF;
+	public static inline var L5		= 0xFFFFF;
+	public static inline var L6		= 0xFFFFFF;
+	public static inline var L7		= 0xFFFFFFF;
+	public static inline var L8		= 0xFFFFFFFF;
+	
 	/**
 	 * Converts a RGBA value to a hexadecimal string. 
 	 */
 	public static inline function string (v:RGBA) : String			{ return rgbaToString(v); }
 	public static inline function rgbaToString (v:RGBA) : String	{ return "0x"+v.rgb().hex(6) + v.alpha().hex(2); }
-	public static inline function uintToString (v:UInt) : String	{ return "0x"+v.hex(6); }
+	public static inline function rgbToString (v:RGBA) : String		{ return "0x"+v.rgb().hex(6); }
+#if debug
+	public static inline function uintToString (v:Int) : String
+	{
+		return "0x"+ if (v < L1)	v.hex(1);
+				else if (v < L2)	v.hex(2);
+				else if (v < L3)	v.hex(3);
+				else if (v < L4)	v.hex(4);
+				else if (v < L5)	v.hex(5);
+				else if (v < L6)	v.hex(6);
+				else if (v < L7)	v.hex(7);
+				else if (v < L8)	v.hex(8);
+				else				v.hex();
+	}
+#end
+	
 	/**
 	 * Converts a hexadecimal string to a RGBA value
 	 */
-	public static inline function rgba (v:String) : RGBA {
+	public static inline function rgba (v:String) : RGBA
+	{
 		if (v.length == 3)
-			v += v;
+			v = v.charAt(0) + v.charAt(0) + v.charAt(1) + v.charAt(1) + v.charAt(2) + v.charAt(2);
+		
 		if (v.length == 6)
 			v += "FF";
 		

@@ -37,7 +37,8 @@ package primevc.gui.graphics.shapes;
  import primevc.gui.graphics.GraphicFlags;
  import primevc.gui.traits.IGraphicsOwner;
   using primevc.utils.FastArray;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
+  using primevc.utils.TypeUtil;
 
 
 /**
@@ -93,7 +94,7 @@ class Triangle extends ShapeBase, implements IGraphicShape
 			case TopCenter:
 				a.x = x;
 				a.y = h;
-				b.x = x + (w * .5).roundFloat();
+				b.x = x + (w >> 1); // * .5).roundFloat();
 				b.y = y;
 				c.x = x + w;
 				c.y = y + h;
@@ -108,7 +109,7 @@ class Triangle extends ShapeBase, implements IGraphicShape
 
 			case MiddleLeft:
 				a.x = x;
-				a.y = y + (h * .5).roundFloat();
+				a.y = y + (h >> 1); // * .5).roundFloat();
 				b.x = x + w;
 				b.y = y;
 				c.x = a.x + w;
@@ -127,7 +128,7 @@ class Triangle extends ShapeBase, implements IGraphicShape
 				a.x = x;
 				a.y = y;
 				b.x = x + w;
-				b.y = y + (h * .5).roundFloat();
+				b.y = y + (h >> 1); // * .5).roundFloat();
 				c.x = x;
 				c.y = y + h;
 			
@@ -144,7 +145,7 @@ class Triangle extends ShapeBase, implements IGraphicShape
 				a.y = y;
 				b.x = x + w;
 				b.y = y;
-				c.x = x + (w * .5).roundFloat();
+				c.x = x + (w >> 1); // * .5).roundFloat();
 				c.y = y + h;
 			
 			case BottomRight:
@@ -167,6 +168,15 @@ class Triangle extends ShapeBase, implements IGraphicShape
 		target.graphics.lineTo( a.x, a.y );
 	#end
 #end
+	}
+	
+	
+	public function drawFraction (target:IGraphicsOwner, bounds:IRectangle, borderRadius:Corners, percentage:Float) : Void
+	{
+		var b = bounds.clone().as(IRectangle);
+		b.width  = (b.width  * percentage).roundFloat();
+		b.height = (b.height * percentage).roundFloat();
+		draw( target, b, borderRadius );
 	}
 	
 	

@@ -28,6 +28,7 @@
  */
 package primevc.gui.managers;
  import primevc.gui.traits.IPropertyValidator;
+ import primevc.gui.traits.IValidatable;
   using primevc.utils.Bind;
   using primevc.utils.TypeUtil;
 
@@ -54,20 +55,47 @@ class InvalidationManager extends QueueManager
 		updateQueueBinding.disable();
 	}
 	
+	
 	override private function validateQueue ()
 	{
-		var curCell = first;
-		while (curCell != null)
+		isValidating = true;
+		disableBinding();
+		
+#if debug
+		var s = traceQueues ? "\n\tbegin validating layout; first: "+first+"; last: "+last : null;
+#end
+		
+		while (first != null)
 		{
-			var obj	= curCell.as(IPropertyValidator);
+			var obj	= first.as(IPropertyValidator);
 			obj.validate();
 			
-			curCell	= curCell.nextValidatable;
+#if debug	if (traceQueues)
+				s += "\n\t\tvalidated "+obj+"; next: "+obj.nextValidatable;
+#end
+			// During validation the queue can change (adding/removing items).
+			// The 'first' property will be the correct value if the current 
+			// validating object was removed from the queue during it's own 
+			// validation (that means it's nextValidatable is already 'null').
+			if (obj.nextValidatable != null)
+				first = obj.nextValidatable;
+			
+			// Exit the loop if the current validating item is the last item 
+			// and the nextValidatable is 'null' and the 'first' value isn't 
+			// changed during validation.
+			else if (obj == first)
+			 	first = null;
+			
 			obj.nextValidatable = obj.prevValidatable = null;
 		}
 		
-		first = last = null;
-		disableBinding();
+#if debug
+		if (traceQueues)
+			trace( s += "\n\tfinished validating layout; first: "+first+"; last: "+last );
+#end
+		
+		last = null;
+		isValidating = false;
 	}
 	
 	

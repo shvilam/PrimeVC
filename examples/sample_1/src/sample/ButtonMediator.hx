@@ -6,14 +6,14 @@ import primevc.core.dispatcher.Signal1;
 using primevc.utils.Bind;
 using primevc.utils.TypeUtil;
 
-class ButtonMediator extends Mediator <MainEvents, MainModel, MainView, Button>
+class ButtonMediator extends Mediator <MainFacade, Button>
 {	
     override public function startListening ()
     {
         if (isListening())
             return;
 
-        viewComponent.addEventListener("click", clickHandler);
+        gui.addEventListener("click", clickHandler);
         super.startListening();
     }
 
@@ -22,12 +22,12 @@ class ButtonMediator extends Mediator <MainEvents, MainModel, MainView, Button>
         if (!isListening())
             return;
         
-        viewComponent.removeEventListener("click", clickHandler);
-        super.stopListening ();
+		super.stopListening();
+        gui.removeEventListener("click", clickHandler);
     }
 
     private function clickHandler(e)
     {
-        events.loadImage.send(model.mainProxy.vo.value);
+        f.events.loadImage.send(f.model.mainProxy.vo.value);
     }
 }

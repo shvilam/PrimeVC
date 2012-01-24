@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.gui.behaviours.layout;
+ import primevc.gui.behaviours.scroll.IScrollBehaviour;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.IUIContainer;
 #if !neko
@@ -51,7 +52,7 @@ package primevc.gui.behaviours.layout;
  * @creation-date	Jun 25, 2010
  * @author			Ruben Weijers
  */
-class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
+class ClippedLayoutBehaviour extends BehaviourBase<IUIContainer>, implements IScrollBehaviour
 //#if !neko	,	implements IInvalidateListener #end
 {
 #if !neko
@@ -68,9 +69,9 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 		Assert.that(target.layoutContainer != null, "Layout of "+target+" can't be null for "+this);
 		layoutContainer		= target.layoutContainer;
 		target.scrollRect	= new Rectangle();
+		target.isScrollable	= true;
 		
-		updateScrollRect.on( target.layout.changed, this );
-	//	target.rect.listeners.add( this );
+		updateScrollRect.on( layoutContainer.changed, this );
 		updateScrollX.on( layoutContainer.scrollPos.xProp.change, this );
 		updateScrollY.on( layoutContainer.scrollPos.yProp.change, this );
 	}
@@ -78,11 +79,16 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 	
 	override private function reset ()
 	{
-	//	if (target.layout != null)
-	//		target.layout.events.sizeChanged.unbind(this);
+		if (layoutContainer == null)
+			return;
 		
-		layoutContainer.scrollPos.xProp.change.unbind( this );
-		layoutContainer.scrollPos.yProp.change.unbind( this );
+		layoutContainer.changed.unbind(this);
+		
+		if (layoutContainer.scrollPos != null) {
+			layoutContainer.scrollPos.xProp.change.unbind( this );
+			layoutContainer.scrollPos.yProp.change.unbind( this );
+		}
+		target.isScrollable	= false;
 		target.scrollRect	= null;
 		layoutContainer		= null;
 	}
@@ -90,13 +96,14 @@ class ClippedLayoutBehaviour extends BehaviourBase < IUIContainer >
 	
 	private function updateScrollRect (changes:Int)
 	{
-		if (changes.hasNone( LayoutFlags.WIDTH | LayoutFlags.HEIGHT ))
+		if (changes.hasNone( LayoutFlags.SIZE ))
 			return;
 		
 		var r		= target.scrollRect;
 	//	r.x = r.y	= 0;
 	//	r.x			= layoutContainer.scrollX;
 	//	r.y			= layoutContainer.scrollY;
+	//	trace(target+": "+target.rect+"; was: "+r.width+", "+r.height);
 		r.width		= target.rect.width;
 		r.height	= target.rect.height;
 		

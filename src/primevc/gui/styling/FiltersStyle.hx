@@ -67,16 +67,25 @@ class FiltersStyle extends StyleSubBlock
 	
 	
 	
-	public function new (newType:FilterCollectionType, shadow:BitmapFilter = null, bevel:BitmapFilter = null, blur:BitmapFilter = null, glow:BitmapFilter = null, gradientBevel:BitmapFilter = null, gradientGlow:BitmapFilter = null)
+	public function new (
+		filledProps	: Int				= 0,
+		newType:FilterCollectionType	= null, 
+		shadow:BitmapFilter				= null, 
+		bevel:BitmapFilter				= null, 
+		blur:BitmapFilter				= null, 
+		glow:BitmapFilter				= null, 
+		gradientBevel:BitmapFilter		= null, 
+		gradientGlow:BitmapFilter		= null
+	)
 	{
-		super();
-		this.type			= newType;
-		this.shadow 		= shadow;
-		this.bevel			= bevel;
-		this.blur			= blur;
-		this.glow			= glow;
-		this.gradientBevel	= gradientBevel;
-		this.gradientGlow	= gradientGlow;
+		super(filledProps);
+		type = newType;
+		#if flash9 this._shadow		    #else this.shadow 		    #end = shadow;
+		#if flash9 this._bevel			#else this.bevel			#end = bevel;
+		#if flash9 this._blur			#else this.blur			    #end = blur;
+		#if flash9 this._glow			#else this.glow			    #end = glow;
+		#if flash9 this._gradientBevel	#else this.gradientBevel	#end = gradientBevel;
+		#if flash9 this._gradientGlow	#else this.gradientGlow	    #end = gradientGlow;
 	}
 	
 	
@@ -124,10 +133,21 @@ class FiltersStyle extends StyleSubBlock
 	
 	override public function updateAllFilledPropertiesFlag ()
 	{
-		super.updateAllFilledPropertiesFlag();
+		inheritedProperties = 0;
+		if (extendedStyle != null)	inheritedProperties  = extendedStyle.allFilledProperties;
+		if (superStyle != null)		inheritedProperties |= superStyle.allFilledProperties;
 		
-		if (allFilledProperties < Flags.ALL_PROPERTIES && extendedStyle != null)	allFilledProperties |= extendedStyle.allFilledProperties;
-		if (allFilledProperties < Flags.ALL_PROPERTIES && superStyle != null)		allFilledProperties |= superStyle.allFilledProperties;
+		allFilledProperties = filledProperties | inheritedProperties;
+		inheritedProperties	= inheritedProperties.unset( filledProperties );
+	}
+	
+	
+	override public function getPropertiesWithout (noExtendedStyle:Bool, noSuperStyle:Bool)
+	{
+		var props = filledProperties;
+		if (!noExtendedStyle && extendedStyle != null)	props |= extendedStyle.allFilledProperties;
+		if (!noSuperStyle && superStyle != null)		props |= superStyle.allFilledProperties;
+		return props;
 	}
 	
 	
@@ -329,7 +349,7 @@ class FiltersStyle extends StyleSubBlock
 	override public function toCode (code:ICodeGenerator)
 	{
 		if (!isEmpty())
-			code.construct( this, [ type, _shadow, _bevel, _blur, _glow, _gradientBevel, _gradientGlow ] );
+			code.construct( this, [ filledProperties, type, _shadow, _bevel, _blur, _glow, _gradientBevel, _gradientGlow ] );
 	}
 	
 	override public function cleanUp () {}

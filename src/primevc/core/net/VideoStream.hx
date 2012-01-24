@@ -56,6 +56,13 @@ class VideoStream implements IFreezable, implements IDisposable
 #if flash9	
 	private var connection	: NetConnection;
 	public var source		(default, null)			: NetStream;
+	
+	public var onMetaData	(default, null)			: Dynamic -> Void;
+	public var onCuePoint	(default, null)			: Dynamic -> Void;
+	public var onImageData	(default, null)			: Dynamic -> Void;
+	public var onPlayStatus (default, null)			: Dynamic -> Void;
+	public var onTextData	(default, null)			: Dynamic -> Void;
+	public var onXMPData	(default, null)			: Dynamic -> Void;
 #end
 	
 	
@@ -139,7 +146,16 @@ class VideoStream implements IFreezable, implements IDisposable
 		cachedVolume	= Number.FLOAT_NOT_SET;
 		var curState	= streamUrl == null ? VideoStates.empty : VideoStates.stopped;
 		state			= new SimpleStateMachine<VideoStates>( VideoStates.empty, curState );
-		
+
+		changeVolume.on( volume.change, this );
+		validateURL	.on( url.change, this );
+	}
+	
+	
+	
+	private function init ()
+	{
+		Assert.that(!isInitialized());
 #if flash9
 		connection		= new NetConnection();
 		source			= new NetStream( connection );
@@ -147,7 +163,12 @@ class VideoStream implements IFreezable, implements IDisposable
 		//dirty client to catch flash player exeptions..
 		//@see http://www.actionscript.org/forums/archive/index.php3/t-142040.html
 		source.client	= this;
-		
+		onMetaData		= handleMetaData;
+		onCuePoint		= handleCuePoint;
+		onImageData		= handleImageData;
+		onPlayStatus	= handlePlayStatus;
+		onTextData		= handleTextData;
+		onXMPData		= handleXMPData;
 		handleSecurityError	.on( connection.events.securityError, this );
 		handleASyncError	.on( connection.events.asyncError, this );
 		handleIOError		.on( connection.events.ioError, this );
@@ -158,22 +179,25 @@ class VideoStream implements IFreezable, implements IDisposable
 		
 	//	connection.connect( null );
 #end
-		
-		changeVolume		.on( volume.change, this );
-		validateURL			.on( url.change, this );
 	}
 	
 	
 	public function dispose ()
 	{
+		if (source == null)
+			return;					// <-- is already disposed
+		
 		stop();
 		
 #if flash9
-		source.client = null;
-		source.dispose();
-		connection.dispose();
-		connection	= null;
-		source		= null;
+	//	source.client = null;		//gives error "Invalid parameter flash.net::NetStream/set client()"
+		if (isInitialized())
+		{
+			source.dispose();
+			connection.dispose();
+			connection	= null;
+			source		= null;
+		}
 #end
 		if (updateTimer != null) {
 			updateTimer.stop();
@@ -183,7 +207,6 @@ class VideoStream implements IFreezable, implements IDisposable
 		volume		.dispose();
 		state		.dispose();
 		url			.dispose();
-		currentTime	.dispose();
 		totalTime	.dispose();
 		framerate	.dispose();
 		width		.dispose();
@@ -191,11 +214,19 @@ class VideoStream implements IFreezable, implements IDisposable
 		
 		url		= null;
 		state	= null;
-		volume	= currentTime = totalTime = null;
+		volume	= totalTime = null;
 		width	= height = framerate = null;
+		
+		(untyped this).currentTime.dispose();
+		(untyped this).currentTime = null;
 	}
 	
 	
+	private inline function isInitialized ()
+	{
+		return #if flash9 source != null #else false #end;
+	}
+
 	
 	
 	//
@@ -210,11 +241,9 @@ class VideoStream implements IFreezable, implements IDisposable
 	 */
 	public function play ( ?newUrl:String )
 	{
-		if (!isStopped())
-			stop();
-		
-		if (newUrl != null)
-			url.value = newUrl;
+		if (!isInitialized()) 	init();
+		if (!isStopped())		stop();
+		if (newUrl != null)		url.value = newUrl;
 		
 		trace(url.value);
 		Assert.notNull( url.value, "There is no video-url to play" );
@@ -362,6 +391,9 @@ class VideoStream implements IFreezable, implements IDisposable
 	
 	private function getCurrentTime ()
 	{
+		if (!isPlaying()) {
+			return currentTime;
+		}
 		if (updateTimer == null) {
 			updateTimer			= new Timer(200);
 			updateTimer.run		= updateTime;
@@ -474,7 +506,7 @@ class VideoStream implements IFreezable, implements IDisposable
 	 * 
 	 * @param	?metaData
 	 */
-	private function onMetaData ( info:Dynamic )
+	private function handleMetaData ( info:Dynamic ) : Void
 	{
 		Assert.notNull(info);
 	/*	trace( "duration: " + info.duration);
@@ -487,15 +519,38 @@ class VideoStream implements IFreezable, implements IDisposable
 	}
 	
 	
-	private function onCuePoint ( ?metaData )
+	public function handleCuePoint ( metaData:Dynamic ) : Void
 	{
+	//	nl.demonsters.debugger.MonsterDebugger.inspect(metaData);
 		trace( "cuePoint: " + metaData);
 	}
 	
 	
-	private function onXmlData( ?metaData )
+	public function handlePlayStatus ( metaData:Dynamic ) : Void
 	{
-		trace( "onXmlData: " + metaData);
+	//	nl.demonsters.debugger.MonsterDebugger.inspect(metaData);
+		trace( "onPlayStatus: " + metaData);
+	}
+	
+	
+	public function handleXMPData( metaData:Dynamic ) : Void
+	{
+	//	nl.demonsters.debugger.MonsterDebugger.inspect(metaData);
+		trace( "onXMPData: " + metaData);
+	}
+	
+	
+	public function handleImageData( metaData:Dynamic ) : Void
+	{
+	//	nl.demonsters.debugger.MonsterDebugger.inspect(metaData);
+		trace( "onImageData: " + metaData);
+	}
+	
+	
+	public function handleTextData ( metaData:Dynamic ) : Void
+	{
+	//	nl.demonsters.debugger.MonsterDebugger.inspect(metaData);
+		trace( "onTextData: " + metaData);
 	}
 #end
 }

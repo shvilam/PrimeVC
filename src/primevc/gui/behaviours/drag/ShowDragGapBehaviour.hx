@@ -34,9 +34,9 @@ package primevc.gui.behaviours.drag;
  import primevc.gui.events.MouseEvents;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.traits.IDropTarget;
- import primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.Bind;
-  using primevc.utils.NumberMath;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
 
@@ -54,7 +54,7 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 	private var oldMouseChildrenValue	: Bool;
 	private var mouseMoveBinding		: Wire < Dynamic >;
 	
-
+	
 	override private function init ()
 	{
 		layoutGroup = target.layoutContainer;
@@ -69,6 +69,7 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 		layoutGroup = null;
 		target.dragEvents.over.unbind(this);
 		target.dragEvents.out.unbind(this);
+		target.dragEvents.drop.unbind(this);
 		
 		if (mouseMoveBinding != null) {
 			mouseMoveBinding.dispose();
@@ -97,8 +98,9 @@ class ShowDragGapBehaviour extends BehaviourBase <IDropTarget>
 		
 		mouseMoveBinding.disable();
 		layoutGroup.children.remove( source.layout );
-		draggedItem = null;
 		target.children.mouseEnabled = oldMouseChildrenValue;
+		
+		draggedItem = null;
 	}
 	
 	

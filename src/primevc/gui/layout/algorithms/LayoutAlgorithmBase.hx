@@ -30,16 +30,15 @@ package primevc.gui.layout.algorithms;
 #if neko
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICodeGenerator;
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
 #end
  import primevc.core.dispatcher.Signal0;
  import primevc.core.traits.IDisposable;
- import primevc.gui.layout.AdvancedLayoutClient;
+ import primevc.gui.layout.IAdvancedLayoutClient;
  import primevc.gui.layout.ILayoutContainer;
  import primevc.gui.layout.LayoutClient;
  import primevc.types.Number;
- import primevc.utils.NumberMath;
-  using primevc.utils.NumberMath;
+ import primevc.utils.NumberUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
  
@@ -54,11 +53,13 @@ class LayoutAlgorithmBase
 				implements IDisposable
 #if neko	,	implements ICodeFormattable		#end
 {
+#if debug public static var created		: Int = 0; #end
+#if debug public static var disposed	: Int = 0; #end
 	public var algorithmChanged 		(default, null)				: Signal0;
 	public var group					(default, setGroup)			: ILayoutContainer;
 	
 #if neko
-	public var uuid						(default, null)				: String;
+	public var _oid						(default, null)				: Int;
 #end
 
 	private var validatePrepared		: Bool;
@@ -66,9 +67,8 @@ class LayoutAlgorithmBase
 	
 	public function new()
 	{
-#if neko
-		uuid				= StringUtil.createUUID();
-#end
+#if debug	created++;							#end
+#if neko	_oid			= ID.getNext();		#end
 		algorithmChanged	= new Signal0();
 		validatePrepared	= false;
 	}
@@ -76,6 +76,7 @@ class LayoutAlgorithmBase
 	
 	public function dispose ()
 	{
+#if debug	disposed++;							#end
 		algorithmChanged.dispose();
 		algorithmChanged	= null;
 	}
@@ -91,10 +92,10 @@ class LayoutAlgorithmBase
 		if (h <= 0)
 			h = Number.INT_NOT_SET;
 		
-		if (group.is(AdvancedLayoutClient))
-			group.as(AdvancedLayoutClient).measuredHeight = h;
+		if (group.is(IAdvancedLayoutClient))
+			group.as(IAdvancedLayoutClient).measuredHeight = h;
 		else
-			group.height.value = h;
+			group.height = h;
 	}
 	
 	
@@ -103,10 +104,10 @@ class LayoutAlgorithmBase
 		if (w <= 0)
 			w = Number.INT_NOT_SET;
 		
-		if (group.is(AdvancedLayoutClient))
-			group.as(AdvancedLayoutClient).measuredWidth = w;
+		if (group.is(IAdvancedLayoutClient))
+			group.as(IAdvancedLayoutClient).measuredWidth = w;
 		else
-			group.width.value = w;
+			group.width = w;
 	}
 	
 	
@@ -120,7 +121,7 @@ class LayoutAlgorithmBase
 	// START VALUES
 	//
 
-	private inline function getTopStartValue ()		: Int
+	@:keep private inline function getTopStartValue ()		: Int
 	{
 		var top:Int = 0;
 	//	if (group.margin != null)	top += group.margin.top;
@@ -129,7 +130,7 @@ class LayoutAlgorithmBase
 	}
 	
 	
-	private inline function getVerCenterStartValue ()	: Int
+	@:keep private inline function getVerCenterStartValue ()	: Int
 	{
 		var start:Int = 0;
 		
@@ -144,9 +145,9 @@ class LayoutAlgorithmBase
 	}
 
 
-	private inline function getBottomStartValue ()	: Int
+	@:keep private inline function getBottomStartValue ()	: Int
 	{
-		var start = group.height.value;
+		var start = group.height;
 		
 		if (group.is(AdvancedLayoutClient))
 			start = IntMath.max(group.as(AdvancedLayoutClient).measuredHeight, start);
@@ -155,7 +156,7 @@ class LayoutAlgorithmBase
 	}
 	
 	
-	private inline function getLeftStartValue ()	: Int
+	@:keep private inline function getLeftStartValue ()	: Int
 	{
 		var start:Int = 0;
 	//	if (group.margin != null)	start += group.margin.left;
@@ -164,7 +165,7 @@ class LayoutAlgorithmBase
 	}
 	
 	
-	private inline function getHorCenterStartValue ()	: Int
+	@:keep private inline function getHorCenterStartValue ()	: Int
 	{
 		var start:Int = 0;
 		
@@ -179,9 +180,9 @@ class LayoutAlgorithmBase
 	}
 
 
-	private inline function getRightStartValue ()	: Int
+	@:keep private inline function getRightStartValue ()	: Int
 	{
-		var start = group.width.value;
+		var start = group.width;
 		
 		if (group.is(AdvancedLayoutClient))
 			start = IntMath.max(group.as(AdvancedLayoutClient).measuredWidth, start);
@@ -189,6 +190,19 @@ class LayoutAlgorithmBase
 		return start += getLeftStartValue();
 	}
 	
+	
+	public function getDepthOfFirstVisibleChild ()	: Int
+	{
+		return 0;
+	}
+	
+	public function getMaxVisibleChildren () : Int
+	{
+		return group.children.length;
+	}
+	
+	
+	public function scrollToDepth (depth:Int) { Assert.abstract(); }
 	
 	
 	

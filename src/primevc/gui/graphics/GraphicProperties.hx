@@ -47,7 +47,7 @@ package primevc.gui.graphics;
  import primevc.tools.generator.ICodeGenerator;
 #end
 #if (debug || neko)
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
 #end
 
 
@@ -61,33 +61,40 @@ package primevc.gui.graphics;
  */
 class GraphicProperties implements IGraphicElement
 {
-	public var uuid			(default, null)				: String;
+	public var _oid			(default, null)				: Int;
 	public var listeners	(default, null)				: FastList< IInvalidateListener >;
 	/**
 	 * Signal to notify other objects than IGraphicElement of changes within
 	 * the shape.
 	 */
-	public var changeEvent	(default, null)				: Signal1 < Int >;
+	public var changeEvent	(default, null)				: Signal1<Int>;
 
 	public var fill			(default, setFill)			: IGraphicProperty;
 	public var border		(default, setBorder)		: IBorder;
 	public var shape		(default, setShape)			: IGraphicShape;
 	public var layout		(default, setLayout)		: IntRectangle;
 	public var borderRadius	(default, setBorderRadius)	: Corners;
+	/**
+	 * Percentage of the graphic-shape to draw (value between 0-1)
+	 * @default 1
+	 */
+	public var percentage	(default, setPercentage)	: Float;
 	
 	
 	public function new (layout:IntRectangle = null, shape:IGraphicShape = null, fill:IGraphicProperty = null, border:IBorder = null, borderRadius:Corners = null)
 	{
 #if (debug || neko)
-		uuid = StringUtil.createUUID();
+		_oid = ID.getNext();
 #end
 		listeners			= new FastList< IInvalidateListener >();
-		this.shape			= shape;
+		this.shape			= shape; // == null ? new RegularRectangle() : shape;
 		this.layout			= layout;
 		this.fill			= fill;
 		this.border			= border;
 		this.borderRadius	= borderRadius;
 		changeEvent			= new Signal1();
+		
+		(untyped this).percentage = 1;
 	}
 	
 	
@@ -104,7 +111,7 @@ class GraphicProperties implements IGraphicElement
 		fill		= null;
 		layout		= null;
 #if (debug || neko)
-		uuid		= null;
+		_oid		= 0;
 #end
 	}
 	
@@ -136,9 +143,19 @@ class GraphicProperties implements IGraphicElement
 					0;
 			default: 0;
 		}
+		
 		invalidate( change );
 	}
 	
+	
+	/**
+	 * Cached intrectangle instance that is used for every draw operation when
+	 * the x&y of the current GraphicProperties should be ignored.
+	 * 
+	 * For example when a Sprite is positioned at pos 10,10. The layout x&y will
+	 * then also be 10,10 while the drawRectangle method should use 0,0.
+	 */
+	private static var cachedLayout = new IntRectangle();
 	
 	/**
 	* @param	target
@@ -152,7 +169,7 @@ class GraphicProperties implements IGraphicElement
 	 * case. If a shape is part of a composition of shapes, then the shape 
 	 * should respect the coordinates of the LayoutClient.
 	 */
-	public function draw (target:IGraphicsOwner, ?useCoordinates:Bool = false) : Void
+	public function draw (target:IGraphicsOwner, ?useCoordinates:Bool = false) : Bool
 	{
 #if debug
 		Assert.notNull(layout, "layout is null for "+target);
@@ -160,12 +177,17 @@ class GraphicProperties implements IGraphicElement
 	//	Assert.notThat(border == null && fill == null, "Graphic property must have a border or a fill when drawing to "+target);
 #end
 		if (layout == null || shape == null || (border == null && fill == null))
-			return;
+			return false;
 		
-	//	trace(target+".drawing; "+target.rect.width+", "+target.rect.height);
-		var layout:IntRectangle = cast this.layout.clone();
+		var layout = this.layout;
+		
 		if (!useCoordinates)
-			layout.left = layout.top = 0;
+		{
+			layout = cachedLayout;
+			//use a temporary layout rectangle without the coordinates of the original-layout object
+			layout.move( 0, 0 );
+			layout.resize( this.layout.width, this.layout.height );
+		}
 		
 		Assert.that( layout.width.isSet() );
 		Assert.that( layout.height.isSet() );
@@ -179,7 +201,7 @@ class GraphicProperties implements IGraphicElement
 			if (border != null)		border.begin( target, layout );
 			if (fill != null)		fill.begin( target, layout );
 			
-			shape.draw( target, layout, borderRadius );
+			drawShape( target, layout );
 			
 			if (border != null)		border.end( target, layout );
 			if (fill != null)		fill.end( target, layout );
@@ -217,13 +239,15 @@ class GraphicProperties implements IGraphicElement
 					drawBorder( target, border, layout );
 			}
 		}
+		
+		return true;
 	}
 	
 	
 	private inline function drawFill (target:IGraphicsOwner, fill:IGraphicProperty, layout:IntRectangle)
 	{
 		fill.begin( target, layout );
-		shape.draw( target, layout, borderRadius );
+		drawShape( target, layout );
 		fill.end( target, layout );
 	}
 	
@@ -231,8 +255,19 @@ class GraphicProperties implements IGraphicElement
 	private inline function drawBorder (target:IGraphicsOwner, border:IBorder, layout:IntRectangle)
 	{
 		border.begin( target, layout );
-		shape.draw( target, layout, borderRadius );
+		drawShape( target, layout );
 		border.end( target, layout );
+	}
+	
+	
+	private inline function drawShape (target:IGraphicsOwner, layout:IntRectangle)
+	{
+#if debug
+		Assert.that( layout.width < 10000, target+" width is too big: "+layout.width+"; layout: "+layout );
+		Assert.that( layout.height < 10000, target+" height is too big: "+layout.height+"; layout: "+layout );
+#end
+		if (percentage == 1)	shape.draw( target, layout, borderRadius );
+		else					shape.drawFraction( target, layout, borderRadius, percentage );
 	}
 	
 
@@ -242,7 +277,7 @@ class GraphicProperties implements IGraphicElement
 	//
 	
 	
-	private inline function setShape (v:IGraphicShape)
+	private function setShape (v:IGraphicShape)
 	{
 		if (v != shape)
 		{
@@ -259,7 +294,7 @@ class GraphicProperties implements IGraphicElement
 	}
 	
 	
-	private inline function setFill (v:IGraphicProperty)
+	private function setFill (v:IGraphicProperty)
 	{
 		if (v != fill)
 		{
@@ -276,7 +311,7 @@ class GraphicProperties implements IGraphicElement
 	}
 
 
-	private inline function setBorder (v:IBorder)
+	private function setBorder (v:IBorder)
 	{
 		if (v != border)
 		{
@@ -293,7 +328,7 @@ class GraphicProperties implements IGraphicElement
 	}
 
 
-	private inline function setLayout (v)
+	private function setLayout (v)
 	{
 		if (v != layout)
 		{
@@ -320,10 +355,17 @@ class GraphicProperties implements IGraphicElement
 	}
 	
 	
-	public function isEmpty () : Bool
+	private inline function setPercentage (v:Float)
 	{
-		return (layout == null || layout.isEmpty()) || shape == null;
+		if (v != percentage) {
+			percentage = v;
+			invalidate( GraphicFlags.PROPERTIES );
+		}
+		return v;
 	}
+	
+	
+	public inline function isEmpty () : Bool		{ return (layout == null || layout.isEmpty()) || shape == null; }
 	
 	
 #if neko

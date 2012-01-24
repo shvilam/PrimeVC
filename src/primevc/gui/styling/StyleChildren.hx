@@ -28,12 +28,12 @@
  */
 package primevc.gui.styling;
  import primevc.core.traits.IDisposable;
- import primevc.types.SimpleDictionary;
  import Hash;
 #if (neko || debug)
- import primevc.utils.StringUtil;
+ import primevc.utils.ID;
 #end
 #if neko
+ import primevc.types.SimpleDictionary;
  import primevc.tools.generator.ICodeFormattable;
  import primevc.tools.generator.ICodeGenerator;
  import primevc.tools.generator.ICSSFormattable;
@@ -41,7 +41,7 @@ package primevc.gui.styling;
 #end
 
 
-typedef SelectorMapType = SimpleDictionary < String, StyleBlock >;
+typedef SelectorMapType = #if neko SimpleDictionary<String, StyleBlock> #else Hash<StyleBlock> #end;
 
 /**
  * @author Ruben Weijers
@@ -53,7 +53,7 @@ class StyleChildren
 			,	implements ICodeFormattable		#end
 {
 #if (neko || debug)
-	public var uuid					(default, null) : String;
+	public var _oid					(default, null) : Int;
 #end
 	
 	public var elementSelectors		(default, null) : SelectorMapType;
@@ -68,7 +68,7 @@ class StyleChildren
 		)
 	{
 #if (neko || debug)
-		uuid = StringUtil.createUUID();
+		_oid = ID.getNext();
 #end
 		this.elementSelectors	= elementSelectors;
 		this.styleNameSelectors	= styleNameSelectors;
@@ -83,23 +83,15 @@ class StyleChildren
 	
 	public function dispose ()
 	{
-		if (elementSelectors != null)	elementSelectors.dispose();
-		if (styleNameSelectors != null)	styleNameSelectors.dispose();
-		if (idSelectors != null)		idSelectors.dispose();
+	//	if (elementSelectors != null)	elementSelectors.dispose();
+	//	if (styleNameSelectors != null)	styleNameSelectors.dispose();
+	//	if (idSelectors != null)		idSelectors.dispose();
 		
 		elementSelectors = styleNameSelectors = idSelectors = null;
 	}
 	
 	
 	private function fillSelectors () : Void {} // Assert.abstract(); }
-	
-	
-	public function isEmpty ()
-	{
-		return (idSelectors == null || idSelectors.isEmpty())
-			&& (styleNameSelectors == null || styleNameSelectors.isEmpty()) 
-			&& (elementSelectors == null || elementSelectors.isEmpty());
-	}
 	
 	
 	private inline function getListForType (type:StyleBlockType) : SelectorMapType
@@ -161,6 +153,14 @@ class StyleChildren
 #if neko
 	public function toString ()	{ return toCSS(); }
 	
+	
+	public function isEmpty ()
+	{
+	//	return idSelectors == null || styleNameSelectors == null || elementSelectors == null;
+		return (idSelectors == null || idSelectors.isEmpty())
+			&& (styleNameSelectors == null || styleNameSelectors.isEmpty()) 
+			&& (elementSelectors == null || elementSelectors.isEmpty());
+	}
 
 	public function toCSS (namePrefix:String = "")
 	{

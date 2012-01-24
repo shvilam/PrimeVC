@@ -30,8 +30,9 @@ package primevc.core.collections;
  import primevc.core.collections.iterators.IIterator;
  import primevc.core.collections.IEditableList;
  import primevc.core.dispatcher.Signal1;
- import primevc.utils.NumberMath;
-  using primevc.utils.NumberMath;
+ import primevc.utils.DuplicateUtil;
+ import primevc.utils.NumberUtil;
+  using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
  
 
@@ -126,10 +127,23 @@ class BalancingListCollection <DataType> implements IEditableList <DataType>,
 	
 	public function clone () : IReadOnlyList < DataType >
 	{
-		var l = new BalancingListCollection<DataType>(maxLists);
-		for (child in this)
-			l.insertAt(child);
-		return l;
+		var inst	= new BalancingListCollection<DataType>(maxLists);
+		var length	= this.length;
+		for (i in 0...length)
+			inst.insertAt( getItemAt(i), i );
+		
+		return inst;
+	}
+	
+	
+	public function duplicate () : IReadOnlyList < DataType >
+	{
+		var inst	= new BalancingListCollection<DataType>(maxLists);
+		var length	= this.length;
+		for (i in 0...length)
+			inst.insertAt( DuplicateUtil.duplicateItem( getItemAt(i) ), i );
+		
+		return inst;
 	}
 	
 	
@@ -256,7 +270,7 @@ class BalancingListCollection <DataType> implements IEditableList <DataType>,
 		
 		var listPos = getListNumForPosition(pos);
 		
-		if (lists.length <= listPos)
+		if (length <= listPos)
 			addList( new BalancingList<DataType>() );
 		
 		//1. find corrent list to add item in
@@ -307,7 +321,7 @@ class BalancingListCollection <DataType> implements IEditableList <DataType>,
 	 * @param	item
 	 * @return	new position for the item
 	 */
-	private inline function moveItem (item:DataType, newPos:Int, curPos:Int = -1) : Int
+	private  function moveItem (item:DataType, newPos:Int, curPos:Int = -1) : Int
 	{
 		if		(curPos == -1)				curPos = indexOf( item );
 		if		(newPos > (length - 1))		newPos = length - 1;
@@ -343,6 +357,7 @@ class BalancingListCollection <DataType> implements IEditableList <DataType>,
 					}
 					
 					var curList = itr.next();
+					Assert.notNull(curList);
 					item		= curList.swapAtDepth( item, curDepth );
 					item		= lastList.swapAtDepth( item, lastDepth );
 					
@@ -372,6 +387,9 @@ class BalancingListCollection <DataType> implements IEditableList <DataType>,
 					}
 					
 					var curList	= itr.next();
+					Assert.notNull(curList);
+					Assert.that(curList.length > curDepth);
+					
 					item		= curList.swapAtDepth( item, curDepth );
 					item		= lastList.swapAtDepth( item, lastDepth );
 					
@@ -486,26 +504,20 @@ class BalancingListCollectionForwardIterator <DataType> implements IIterator <Da
 	
 	public function new (target:BalancingListCollection<DataType>) 
 	{
-		this.target		= target;
+		this.target = target;
 		rewind();
 	}
 	
 	
-	public inline function setCurrent (val:Dynamic)	{
-		current = val;
-	}
+	public inline function setCurrent (val:Dynamic)	{ current = val; }
+	public inline function value ()					{ return target.lists.getItemAt(currentListNum).getItemAt(currentDepth); }
+	public inline function hasNext () : Bool		{ return current < target.length; }
 	
 	
 	public inline function rewind () {
 		currentDepth	= 0;
 		current			= 0;
 		currentListNum	= 0;
-	}
-	
-	
-	public inline function hasNext () : Bool
-	{
-		return current < target.length;
 	}
 	
 	
@@ -522,6 +534,8 @@ class BalancingListCollectionForwardIterator <DataType> implements IIterator <Da
 		
 		return item;
 	}
+	
+	
 }
 
 
@@ -543,26 +557,20 @@ class BalancingListCollectionReversedIterator <DataType> implements IIterator <D
 	
 	public function new (target:BalancingListCollection<DataType>) 
 	{
-		this.target		= target;
+		this.target	= target;
 		rewind();
 	}
 	
 	
-	public inline function setCurrent (val:Dynamic)	{
-		current = val;
-	}
+	public inline function setCurrent (val:Dynamic)	{ current = val; }
+	public inline function value ()					{ return target.lists.getItemAt(currentListNum).getItemAt(currentDepth); }
+	public inline function hasNext () : Bool		{ return current > 0; }
 	
 	
 	public inline function rewind () {
 		currentListNum	= target.maxLists - 1;
 		currentDepth	= target.lists.length - 1;
 		current			= target.length;
-	}
-	
-	
-	public inline function hasNext () : Bool
-	{
-		return current > 0;
 	}
 	
 	
