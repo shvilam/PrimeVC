@@ -1,7 +1,7 @@
 package sample;
 
 import primevc.mvc.MVCNotifier;
-import primevc.mvc.core.MVCCore;
+import primevc.mvc.IMVCCore;
 
 
 /**
@@ -12,14 +12,14 @@ import primevc.mvc.core.MVCCore;
  * It defines and groups together proxies, provides a main 
  * access point for them and handles data logic.
  */
-class MainModel extends MVCCore<MainFacade>, implements IModel
+class MainModel extends MVCNotifier, implements IMVCCore
 {
 	
     public var mainProxy (default, null):MainProxy;
-    public function new (facade:MainFacade)		{ super(facade); }
+    public function new ()		{ super(); }
 
-    public function init ()
+    public function init (facade:MainFacade)
     {
-        mainProxy = new MainProxy( cast facade.events );
+        mainProxy = new MainProxy( facade.events );
     }
 }

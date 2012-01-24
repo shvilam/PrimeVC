@@ -8,7 +8,7 @@ import primevc.core.dispatcher.Signals;
  * MainEvents defines and groups together the events used 
  * in the application and provides a main access point for them. 
  */
-class MainEvents extends MVCEvents
+class MainEvents extends Signals
 {
     public var loadImage:Signal1 < String >;
 
