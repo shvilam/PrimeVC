@@ -1,13 +1,14 @@
 package sample;
  import primevc.gui.display.Window;
  import primevc.mvc.MVCActor;
+ import primevc.mvc.IMVCCoreActor;
 
 
 /**
  * Defines and groups together and couples 
  * mediators and application windows.
  */
-class MainView extends MVCActor<MainFacade>
+class MainView extends MVCActor<MainFacade>, implements IMVCCoreActor
 {
     private var window:MainWindow;
     public var buttonMediator(default, null):ButtonMediator;
@@ -16,9 +17,9 @@ class MainView extends MVCActor<MainFacade>
     public function new (facade:MainFacade)
     {
         super(facade);
-        window				= Window.startup( MainWindow );
-		buttonMediator		= new ButtonMediator(facade, window.loadButton);
-        imageLoaderMediator = new ImageLoaderMediator(facade, window.imageLoader);
+        window				= Window.startup( function(stage) return new MainWindow(stage) );
+		buttonMediator		= new ButtonMediator(facade, window.button);
+        imageLoaderMediator = new ImageLoaderMediator(facade, window.image);
     }
 	
 	

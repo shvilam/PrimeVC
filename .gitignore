@@ -21,6 +21,7 @@ Autocomplete_.hx
 /assets/assets.swf
 /assets/debug-assets.swf
 /tests/test.swf
+/docs
 
 /styles/*/StyleSheet.hx
 /styles/*/images

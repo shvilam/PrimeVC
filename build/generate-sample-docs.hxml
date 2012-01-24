@@ -1,0 +1,19 @@
+-D docs
+-xml sample-docs.xml
+--no-output
+--no-opt
+--no-inline
+-cp src
+-cp libs\apparat
+-cp haxe
+-cp examples\sample_2\src
+-main sample.MainFacade
+-swf-version 10
+-swf unused.swf
+
+--next
+-cmd cd build
+-cmd chxdoc.exe --title=PrimeVC --subtitle=http://prime.vc --exclude=flash -o ../docs ../sample-docs.xml
+-cmd rm -R tmp
+-cmd cd ..
+-cmd rm sample-docs.xml
