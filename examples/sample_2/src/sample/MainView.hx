@@ -18,8 +18,8 @@ class MainView extends MVCActor<MainFacade>, implements IMVCCoreActor
     {
         super(facade);
         window				= Window.startup( function(stage) return new MainWindow(stage) );
-		buttonMediator		= new ButtonMediator(facade, window.button);
-        imageLoaderMediator = new ImageLoaderMediator(facade, window.image);
+		buttonMediator		= new ButtonMediator(facade, true, window.button);
+        imageLoaderMediator = new ImageLoaderMediator(facade, true, window.image);
     }
 	
 	
