@@ -103,7 +103,8 @@ class SimpleStateMachine <StateType> implements IDisposable
 	
 	public function changeTo (toState:StateType) : Void -> Void
 	{
-		return function () { this.setCurrent( toState ); };
+		var self = this;
+		return function () { self.setCurrent( toState ); };
 	}
 	
 	
