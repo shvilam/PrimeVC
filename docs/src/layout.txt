@@ -5,7 +5,7 @@ Ruben Weijers
 
 == Implementation
 
-Every `UIElement` has a property `layout`, typed as `LayoutClient`. A `LayoutClient` is the basic layout-class that defines the position, size, margin and padding of it's `UIElement`.
+Every `UIElement` has a property `layout`, typed as `LayoutClient`. A `LayoutClient` is the basic layout-class that defines the position, size, margin and padding of its `UIElement`.
 
 === LayoutClient
 {sys:build/doc-include "diagrams/LayoutClient.ditaa"}
@@ -68,6 +68,8 @@ Example3:
 ----
 
 Example4:
+
+The `build/build` script handles building and running of the Prime CSS parser and requires http://www.gnu.org/software/bash/[Bash] to run. Windows users: bash is included with http://code.google.com/p/msysgit/[Git for Windows] - make sure it's added to the PATH.
 [source,bash]
 ----
 > build/build -m examples.layout.LayoutExample4 \
