@@ -25,7 +25,7 @@
   <build>
     <option directives="" />
     <option flashStrict="False" />
-    <option mainClass="sample.MainFacade" />
+    <option mainClass="org.primevc.sample.MainFacade" />
     <option enabledebug="False" />
     <option additional="" />
   </build>
@@ -35,7 +35,7 @@
   </haxelib>
   <!-- Class files to compile (other referenced classes will automatically be included) -->
   <compileTargets>
-    <!-- example: <compile path="..." /> -->
+    <compile path="src\org\primevc\sample\MainFacade.hx" />
   </compileTargets>
   <!-- Assets to embed into the output SWF -->
   <library>
@@ -46,7 +46,7 @@
     <!-- example: <hidden path="..." /> -->
   </hiddenPaths>
   <!-- Executed before build -->
-  <preBuildCommand>sh "$(ProjectDir)\..\..\build\build-styles" -s "$(ProjectDir)\styles\sample"</preBuildCommand>
+  <preBuildCommand />
   <!-- Executed after build -->
   <postBuildCommand alwaysRun="True" />
   <!-- Other project options -->

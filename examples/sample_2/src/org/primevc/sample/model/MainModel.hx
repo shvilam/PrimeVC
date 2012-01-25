@@ -1,7 +1,9 @@
-package sample;
+package org.primevc.sample.model;
 
 import primevc.mvc.MVCNotifier;
 import primevc.mvc.IMVCCore;
+import org.primevc.sample.model.proxy.MainProxy;
+
 
 
 /**

@@ -1,9 +1,10 @@
-package sample;
+package org.primevc.sample.view;
 
 import primevc.gui.events.MouseEvents;
 import primevc.mvc.Mediator;
 import primevc.core.dispatcher.Signal1;
 import primevc.gui.components.Button;
+import org.primevc.sample.MainFacade;
 using primevc.utils.Bind;
 using primevc.utils.TypeUtil;
 

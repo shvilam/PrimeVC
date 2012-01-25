@@ -1,4 +1,4 @@
-package sample;
+package org.primevc.sample.view;
 
 import primevc.gui.events.MouseEvents;
 import primevc.mvc.Mediator;

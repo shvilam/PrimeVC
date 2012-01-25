@@ -1,4 +1,4 @@
-package sample;
+package org.primevc.sample.model.proxy;
 
 
 import primevc.mvc.Proxy;

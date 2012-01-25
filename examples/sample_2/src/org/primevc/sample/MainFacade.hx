@@ -1,8 +1,13 @@
-package sample;
+package org.primevc.sample;
 
 
+import org.primevc.sample.view.MainView;
 import primevc.mvc.Facade;
 import primevc.core.traits.IDisposable;
+import org.primevc.sample.controller.MainController;
+import org.primevc.sample.model.MainModel;
+import org.primevc.sample.events.MainEvents;
+
 
 
 

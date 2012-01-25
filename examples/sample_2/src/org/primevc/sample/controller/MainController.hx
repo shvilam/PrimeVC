@@ -1,4 +1,4 @@
-package sample;
+package org.primevc.sample.controller;
  import primevc.mvc.MVCActor;
  import primevc.mvc.IMVCCoreActor;
   using primevc.utils.Bind;

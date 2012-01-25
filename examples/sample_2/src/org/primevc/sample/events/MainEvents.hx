@@ -1,4 +1,4 @@
-package sample;
+package org.primevc.sample.events;
 
 
 import primevc.core.dispatcher.Signal1;

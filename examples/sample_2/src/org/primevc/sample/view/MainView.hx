@@ -1,4 +1,4 @@
-package sample;
+package org.primevc.sample.view;
  import primevc.gui.display.Window;
  import primevc.mvc.MVCActor;
  import primevc.mvc.IMVCCoreActor;
