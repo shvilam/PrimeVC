@@ -31,3 +31,46 @@ NOTE: Prime-developers: `border-box` is supported by all modern browsers. PrimeV
 
 {sys:build/doc-include "diagrams/box-model.ditaa"}
 
+
+== Examples
+
+=== Build instructions
+Below you find the commands to build the first four layout-tests. Make sure you execute these commands from the PrimeVC-root-folder.
+
+Example1:
+[source,bash]
+----
+> haxe build/build-flash-example.hxml \
+	-main examples.layout.LayoutExample1 \
+	-swf bin-debug/LayoutExample1.swf \
+	--no-traces \
+&& open bin-debug/LayoutExample1.swf
+----
+
+Example2:
+[source,bash]
+----
+> haxe build/build-flash-example.hxml \
+	-main examples.layout.LayoutExample2 \
+	-swf bin-debug/LayoutExample2.swf \
+	--no-traces \
+&& open bin-debug/LayoutExample2.swf
+----
+
+Example3:
+[source,bash]
+----
+> haxe build/build-flash-example.hxml \
+	-main examples.layout.LayoutExample3 \
+	-swf bin-debug/LayoutExample3.swf \
+	--no-traces \
+&& open bin-debug/LayoutExample3.swf
+----
+
+Example4:
+[source,bash]
+----
+> build/build -m examples.layout.LayoutExample4 \
+	-s layoutExample4 \
+	-o LayoutExample4.swf -cp .
+----
