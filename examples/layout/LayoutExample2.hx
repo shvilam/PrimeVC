@@ -27,62 +27,44 @@
  *  Ruben Weijers	<ruben @ rubenw.nl>
  */
 package examples.layout;
- import flash.display.DisplayObject;
- import flash.display.Graphics;
- import flash.display.Shape;
- import flash.display.Sprite;
-
- import primevc.gui.events.DisplayEvents;
- import primevc.gui.events.MouseEvents;
+ import primevc.gui.display.IDisplayObject;
+ import primevc.gui.display.VectorShape;
+ import primevc.gui.display.Sprite;
+ import primevc.gui.display.Window;
 
  import primevc.gui.layout.LayoutClient;
  import primevc.gui.layout.LayoutContainer;
  import primevc.gui.layout.LayoutFlags;
-
- import primevc.utils.FastArray;
+ import primevc.gui.traits.IGraphicsOwner;
 
   using primevc.core.states.SimpleStateMachine;
   using primevc.utils.Bind;			// for writing easy-to-read signal-bindings
   using primevc.utils.BitUtil;		// for writing easy-to-read bit-flag-operations
-  using primevc.utils.FastArray;	// for creating vectors in flash and arrays on other platforms
 
 
 
 /**
- * This example shows how to use LayoutContainer, LayoutClient
- * and some layout-algorithms.
- * In the constructor of LayoutExample1 you will find 4 layout-algorithms which will all
- * influence the position of it's children in different manners.
- *
- * NOTE: Example is currently flash-only!
+ * LayoutExample2 is identical to LayoutExample1, except for that it uses primes display-package instead of the one of flash.
  *
  * @author			Ruben Weijers
- * @creation-date	Jan 24, 2012
+ * @creation-date	Jan 25, 2012
  */
-class LayoutExample1 extends Sprite
+class LayoutExample2 extends Window
 {
-	public static function main () {
-		var stage = flash.Lib.current.stage;
-		stage.scaleMode	= flash.display.StageScaleMode.NO_SCALE;
-		stage.addChild( new LayoutExample1() );
-	}
+	public static function main ()
+		Window.startup(function (stage) { return new LayoutExample2(stage); })
 
 
-	public  var layout			(default, null) : LayoutContainer;
-	private var children		(default, null) : FastArray<Box>;
-	public  var displayEvents	(default, null) : DisplayEvents;
+	public var layout (default, null) : LayoutContainer;
 
 
-	public function new ()
+	public function new (stage)
 	{
-		super();
-
-		displayEvents = new DisplayEvents(this);
-		children = FastArrayUtil.create();
-
+		super(stage);
+		
 		//stage-layout automitcly adjusts it's size to the flash-stage-size
 		layout	 = #if flash9 new primevc.avm2.layout.StageLayout( flash.Lib.current.stage ) #else new LayoutContainer() #end;
-
+		
 		//some examples with layout-algorithms
 	//	layout.algorithm = new primevc.gui.layout.algorithms.tile.SimpleTileAlgorithm(vertical);
 		layout.algorithm = new primevc.gui.layout.algorithms.tile.SimpleTileAlgorithm();
@@ -90,19 +72,19 @@ class LayoutExample1 extends Sprite
 	//	layout.algorithm = new primevc.gui.layout.algorithms.DynamicLayoutAlgorithm( function () { return new primevc.gui.layout.algorithms.float.HorizontalFloatAlgorithm(); }, function () { return new primevc.gui.layout.algorithms.circle.VerticalCircleAlgorithm(); } );
 		
 		// create children
-		for (i in 0...20)	children.push( new Box().attachTo(this) );
-		for (i in 0...20)	children.push( new InteractiveBox().attachTo(this) );
-		for (i in 0...20)	children.push( new Box().attachTo(this) );
+		for (i in 0...20)	new Box().attachTo(this);
+		for (i in 0...20)	new InteractiveBox().attachTo(this);
+		for (i in 0...20)	new Box().attachTo(this);
 		
 
 		// add layout-validation
 		if (layout.state.is(invalidated))
-			invalidate();
-		invalidate.onEntering( layout.state, invalidated, this );
+			invalidateLayout();
+		invalidateLayout.onEntering( layout.state, invalidated, this );
 	}
 
 
-	private function invalidate ()
+	private function invalidateLayout ()
 		layout.validate.onceOn( displayEvents.enterFrame, this )
 }
 
@@ -119,14 +101,14 @@ private class Box
 	private static var counter = 0;
 	private var num			(default, null) : Int;
 #end
-	public  var display		(default, null) : DisplayObject;
+	public  var display		(default, null) : IDisplayObject;
 	public  var layout 		(default, null) : LayoutClient;
 	private var color		: UInt;
 
 	
 	public function new() 
 	{
-		if (display == null)	display = new Shape();
+		if (display == null)	display = new VectorShape();
 		if (color 	== 0)		color 	= 0xffaaaa;
 		
 #if debug num	= counter++; #end
@@ -138,15 +120,15 @@ private class Box
 	}
 
 
-	public inline function attachTo (parent:LayoutExample1) {
-		parent.layout.children.add(this.layout);
-		parent.addChild(display);
+	public inline function attachTo (parent:LayoutExample2) {
+		parent.layout.attach(this.layout);
+		display.attachDisplayTo(parent);
 		return this;
 	}
 
 	
 	private function draw () {
-		var g = cast((untyped display).graphics, Graphics);
+		var g = cast(display, IGraphicsOwner).graphics;
 		g.clear();
 		g.beginFill(color, 1);
 		g.drawRect(0,0,layout.width, layout.height);
@@ -166,22 +148,19 @@ private class Box
 
 /**
  * @author			Ruben Weijers
- * @creation-date	Jan 24, 2012
+ * @creation-date	Jan 25, 2012
  */
 private class InteractiveBox extends Box
 {
-	private var mouse : MouseEvents;
-
-
 	public function new ()
 	{
 		color 	= 0xddccbb;
-		display = new Sprite();
-		mouse 	= new MouseEvents(display);
+		var d	= new Sprite();
+		display = d;
 		super();
 
-		makeBigger.on( mouse.rollOver, this );
-		makeNormal.on( mouse.rollOut, this );
+		makeBigger.on( d.userEvents.mouse.rollOver, this );
+		makeNormal.on( d.userEvents.mouse.rollOut, this );
 	}
 
 
