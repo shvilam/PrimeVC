@@ -60,6 +60,7 @@ package primevc.gui.core;
 	
 	//
 	// ScrollBar
+	@:keep
 	public static inline var TARGET			= 1 << 11;
 	
 	//

@@ -31,9 +31,13 @@ package primevc.gui.effects;
  import primevc.gui.core.IUIElement;
  import primevc.gui.effects.effectInstances.IEffectInstance;
   using primevc.utils.Bind;
+  using primevc.utils.BitUtil;
+  using primevc.utils.IfUtil;
 
 
-typedef EffectInstanceType = IEffectInstance < Dynamic, Dynamic >;
+private typedef EffectInstanceType 	= IEffectInstance < Dynamic, Dynamic >;
+private typedef Flags 				= primevc.gui.effects.EffectFlags;
+
 
 /**
  * Container with empty slots for effects that will be bound to events that
@@ -44,8 +48,17 @@ typedef EffectInstanceType = IEffectInstance < Dynamic, Dynamic >;
  */
 class UIElementEffects implements IDisposable
 {
-	public var target	(default, null)			: IUIElement;
-	
+	public  var target		(default, null)			: IUIElement;
+	/**
+	 * Flags of all effects that are set
+	 */
+	private var props 		: Int;
+	/**
+	 * Enable/disable all effects for the current target
+	 * @default true
+	 */
+	public  var enabled 	: Bool;
+
 	
 	//
 	// SLOTS
@@ -87,21 +100,36 @@ class UIElementEffects implements IDisposable
 	
 	public function new ( target:IUIElement )
 	{
-		this.target 	= target;
+		this.target = target;
+		enabled 	= true;
+		props 		= 0;
 	}
 	
 	
 	public function dispose ()
 	{
 		target	= null;
+		props 	= 0;
 
-		if (move != null)	{ move.dispose();	move 	= null; }
-		if (resize != null)	{ resize.dispose(); resize 	= null; }
-		if (rotate != null)	{ rotate.dispose(); rotate 	= null; }
-		if (scale != null)	{ scale.dispose();	scale 	= null; }
-		if (show != null)	{ show.dispose();	show 	= null; }
-		if (hide != null)	{ hide.dispose();	hide 	= null; }
+		if (move  .notNull())	{ move 	.dispose();	move 	= null; }
+		if (resize.notNull())	{ resize.dispose(); resize 	= null; }
+		if (rotate.notNull())	{ rotate.dispose(); rotate 	= null; }
+		if (scale .notNull())	{ scale .dispose();	scale 	= null; }
+		if (show  .notNull())	{ show  .dispose();	show 	= null; }
+		if (hide  .notNull())	{ hide  .dispose();	hide 	= null; }
 	}
+
+
+	//
+	// FLAG METHODS
+	//
+
+	private inline function mark (prop:Int, isSet:Bool)	: Void	{ props = isSet ? props.set( prop ) : props.unset( prop ); }
+	public  inline function has  (prop:Int)				: Bool	{ return  enabled && props.has(prop); }
+	public  inline function doesntHave (prop:Int)		: Bool	{ return !enabled || props.hasNone( prop ); }
+
+	public  inline function enable () 							{ enabled = true; }
+	public  inline function disable () 							{ enabled = false; }
 	
 	
 	
@@ -116,7 +144,7 @@ class UIElementEffects implements IDisposable
 #if (flash8 || flash9 || js)
 		var newX = target.layout.getHorPosition();
 		var newY = target.layout.getVerPosition();
-		if (move != null)
+		if (enabled && move.notNull())
 		{
 			move.setValues( EffectProperties.position( target.x, target.y, newX, newY ) );
 			move.play();
@@ -136,9 +164,9 @@ class UIElementEffects implements IDisposable
 #if (flash8 || flash9 || js)
 		var bounds = target.layout.innerBounds;
 		
-		if (resize != null)
+		if (enabled && resize.notNull())
 		{
-			resize.setValues( EffectProperties.size( target.width, target.height, bounds.width, bounds.height ) );
+			resize.setValues( EffectProperties.size( target.rect.width, target.rect.height, bounds.width, bounds.height ) );
 			resize.play();
 		}
 		else
@@ -150,7 +178,7 @@ class UIElementEffects implements IDisposable
 	public inline function playRotate ( endV:Float )
 	{
 #if (flash8 || flash9 || js)
-		if (rotate != null)
+		if (enabled && rotate.notNull())
 		{
 			rotate.setValues( EffectProperties.rotation( target.rotation, endV ) );
 			rotate.play();
@@ -166,7 +194,7 @@ class UIElementEffects implements IDisposable
 	public inline function playScale ( endSx:Float, endSy:Float )
 	{
 #if (flash8 || flash9 || js)
-		if (scale != null)
+		if (enabled && scale.notNull())
 		{
 			scale.setValues( EffectProperties.scale( target.scaleX, target.scaleY, endSx, endSy ) );
 			scale.play();
@@ -183,9 +211,9 @@ class UIElementEffects implements IDisposable
 	public function playShow ()
 	{
 #if (flash8 || flash9 || js)
-		if (show != null)
+		if (enabled && show.notNull())
 		{
-			if (hide != null) {
+			if (hide.notNull()) {
 				if (hide.isWaiting())	{ hide.stop(); }
 				if (hide.isPlaying())	{ hide.stop(); }
 				else					target.visible = false;
@@ -205,9 +233,9 @@ class UIElementEffects implements IDisposable
 	public function playHide ()
 	{
 #if (flash8 || flash9 || js)
-		if (hide != null)
+		if (enabled && hide.notNull())
 		{
-			if (show != null) {
+			if (show.notNull()) {
 				if (show.isWaiting())	{ show.stop(); }
 				if (show.isPlaying())	{ show.stop(); }
 			}
@@ -221,8 +249,8 @@ class UIElementEffects implements IDisposable
 	}
 	
 
-	public inline function isPlayingHide ()	{ return hide != null && (hide.isPlaying() || hide.isWaiting()) && (show != hide ||  hide.isReverted); }
-	public inline function isPlayingShow ()	{ return show != null && (show.isPlaying() || show.isWaiting()) && (show != hide || !show.isReverted); }
+	public inline function isPlayingHide ()	{ return hide.notNull() && (hide.isPlaying() || hide.isWaiting()) && (show != hide ||  hide.isReverted); }
+	public inline function isPlayingShow ()	{ return show.notNull() && (show.isPlaying() || show.isWaiting()) && (show != hide || !show.isReverted); }
 	
 	
 	
@@ -235,12 +263,13 @@ class UIElementEffects implements IDisposable
 	{
 		if (v != move)
 		{
-			if (move != null)
+			if (move.notNull())
 				move.dispose();
 			
 			move = v;
+			mark(Flags.MOVE, v.notNull());
 			
-		//	if (move != null)
+		//	if (move.notNull())
 		//		playMove.on( target.layout.events.posChanged, this );
 		}
 		return v;
@@ -251,11 +280,12 @@ class UIElementEffects implements IDisposable
 	{
 		if (v != resize)
 		{
-			if (resize != null)
+			if (resize.notNull())
 				resize.dispose();
 			
 			resize = v;
-		//	if (resize != null)
+			mark(Flags.RESIZE, v.notNull());
+		//	if (resize.notNull())
 		//		playResize.on( target.layout.events.sizeChanged, this );
 		}
 		return v;
@@ -266,10 +296,11 @@ class UIElementEffects implements IDisposable
 	{
 		if (v != rotate)
 		{
-			if (rotate != null)
+			if (rotate.notNull())
 				rotate.dispose();
 			
 			rotate = v;
+			mark(Flags.ROTATE, v.notNull());
 		}
 		return v;
 	}
@@ -279,10 +310,11 @@ class UIElementEffects implements IDisposable
 	{
 		if (v != scale)
 		{
-			if (scale != null)
+			if (scale.notNull())
 				scale.dispose();
 			
 			scale = v;
+			mark(Flags.SCALE, v.notNull());
 		}
 		return v;
 	}
@@ -292,15 +324,11 @@ class UIElementEffects implements IDisposable
 	{
 		if (v != show)
 		{
-			/*if (show != null && v == null)
-				target.displayEvents.addedToStage.unbind(this);
-			else
-				playShow.on( target.displayEvents.addedToStage, this );
-			*/
-			if (show != null)
+			if (show.notNull())
 				show.dispose();
 			
 			show = v;
+			mark(Flags.SHOW, v.notNull());
 		}
 		return v;
 	}
@@ -310,10 +338,11 @@ class UIElementEffects implements IDisposable
 	{
 		if (v != hide)
 		{
-			if (hide != null)
+			if (hide.notNull())
 				hide.dispose();
 			
 			hide = v;
+			mark(Flags.HIDE, v.notNull());
 		}
 		return v;
 	}

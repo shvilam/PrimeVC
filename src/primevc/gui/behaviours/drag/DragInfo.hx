@@ -134,7 +134,7 @@ class DragInfo implements IDisposable
 	}
 	
 	
-	public function restore ()
+	public inline function restore ()
 	{
 		if (displayCursor != null)		displayCursor.restore();
 		if (dataCursor != null)			dataCursor.restore();

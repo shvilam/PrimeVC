@@ -27,6 +27,7 @@
  *  Ruben Weijers	<ruben @ onlinetouch.nl>
  */
 package primevc.core.collections;
+ import primevc.utils.FastArray;
   using primevc.utils.Bind;
   using primevc.utils.FastArray;
 
@@ -36,17 +37,17 @@ package primevc.core.collections;
  * @author Ruben Weijers
  * @creation-date Jan 5, 2012
  */
-class Sort<DataType> extends ReadOnlyArrayList<DataType>
+class Sort<DataType> extends ReadOnlyArrayList<DataType>, implements haxe.rtti.Generic
 {
 	public  var source 	(default, setSource) 	: IReadOnlyList<DataType>;
 	public  var sort 	(default, setSort) 		: DataType -> DataType -> Int;
 
 
-	public function new (source:IReadOnlyList<DataType>, sort:DataType->DataType->Int)
+	public function new (list:FastArray<DataType> = null, sort:DataType->DataType->Int = null)
 	{
-		super();
-		this.source 	= source;
-		this.sort 		= sort;
+		super(list);
+		if (sort != null)
+			this.sort = sort;
 	}
 
 
@@ -69,7 +70,7 @@ class Sort<DataType> extends ReadOnlyArrayList<DataType>
 	}
 
 
-	private function setSource (v:IReadOnlyList<DataType>)
+	public function setSource (v:IReadOnlyList<DataType>)
 	{
 		if (v != source)
 		{
@@ -80,10 +81,13 @@ class Sort<DataType> extends ReadOnlyArrayList<DataType>
 
 			source = v;
 			
-			if (v != null) {
+			if (v != null)
+			{
 				for (i in v)
 					list.push(i);
 				
+				if (sort != null)
+					list.sort(sort);
 				applySourceChange.on( v.change, this );
 			}
 

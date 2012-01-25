@@ -42,6 +42,7 @@ package primevc.avm2.display;
  import primevc.gui.events.DisplayEvents;
  import primevc.gui.events.UserEventTarget;
  import primevc.gui.events.UserEvents;
+  using primevc.utils.IfUtil;
   using primevc.utils.NumberUtil;
   using primevc.utils.TypeUtil;
 
@@ -84,18 +85,17 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	
 	public function dispose ()
 	{
-		if (userEvents == null)
+		if (userEvents.isNull())
 			return;		// already disposed
 		
-		if (container != null)
+		if (container.notNull())
 			detachDisplay();
 		
-		window = null;
-		children.dispose();
-		userEvents.dispose();
+		window 			= null;
+		children 	 .dispose();
+		userEvents 	 .dispose();
 		displayEvents.dispose();
-		
-		rect.dispose();
+		rect 		 .dispose();
 		
 		children		= null;
 		userEvents		= null;
@@ -106,7 +106,7 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	
 	public inline function isObjectOn (otherObj:IDisplayObject) : Bool
 	{
-		return otherObj == null ? false : otherObj.as(DisplayObject).hitTestObject( this.as(DisplayObject) );
+		return otherObj.isNull() || otherObj.as(DisplayObject).hitTestObject( this.as(DisplayObject) );
 	}
 	
 	
@@ -116,8 +116,8 @@ class Sprite extends flash.display.Sprite, implements ISprite
 	}
 	
 	
-	public inline function setFocus ()		{ if (window != null)							{ window.focus = this; } }
-	public inline function removeFocus ()	{ if (window != null && window.focus == this)	{ window.focus = null; } }
+	public inline function setFocus ()		{ if (window.notNull())							{ window.focus = this; } }
+	public inline function removeFocus ()	{ if (window.notNull() && window.focus == this)	{ window.focus = null; } }
 	
 	
 	
@@ -150,7 +150,7 @@ class Sprite extends flash.display.Sprite, implements ISprite
 			var oldV	= container;
 			container	= newV;
 			
-			if (container != null) {
+			if (container.notNull()) {
 				//if the container property is set and the sprite is not yet in the container, add the sprite to the container
 			//	if (!container.children.has(this))
 			//		container.children.add(this);
@@ -159,7 +159,7 @@ class Sprite extends flash.display.Sprite, implements ISprite
 			}
 			
 			//if the container prop is set to null, remove the sprite from it's previous container and set the window prop to null.
-			else if (oldV != null) {
+			else if (oldV.notNull()) {
 				if (oldV.children.has(this))
 					oldV.children.remove(this);
 				
@@ -180,7 +180,7 @@ class Sprite extends flash.display.Sprite, implements ISprite
 			for (i in 0...children.length)
 			{
 				var child = children.getItemAt(i);
-				if (child != null)
+				if (child.notNull())
 					child.window = v;
 			}
 		}

@@ -108,7 +108,7 @@ class MouseSignal extends Signal1<MouseState>, implements IWireWatcher<MouseHand
 		
 #elseif air?
 		flags = //TODO: Implement AIR support
-#else error
+#else #error
 #end
 	//	trace("stateFromFlashEvent "+e.type+"; "+e.localX+", "+e.localY+"; "+e.stageX+", "+e.stageY);
 		return new MouseState(flags, e.target, new Point(e.localX, e.localY), new Point(e.stageX, e.stageY), e.relatedObject);

@@ -34,14 +34,15 @@ package primevc.core.events;
 typedef CommunicationEvents = 
 	#if		flash9	primevc.avm2.events.CommunicationEvents;
 	#elseif	flash8	primevc.avm1.events.CommunicationEvents;
-	#elseif	js		CommunicationSignals; //primevc.js  .events.CommunicationEvents;
-	#elseif	neko	CommunicationSignals;
-	#else	error;	#end
+	#elseif	js		primevc.js  .events.CommunicationEvents;
+	#else	Dynamic	#end 	// #error prevents CSSParser from begin compiled
 
 
-typedef TextHandler		= String -> Void;
+
+
+typedef ErrorHandler	= String -> Void;
 typedef ProgressHandler	= UInt -> UInt -> Void;
-typedef ErrorSignal		= primevc.core.dispatcher.Signal1< String >;
+typedef ErrorSignal		= primevc.core.dispatcher.Signal1<String>;
 typedef ProgressSignal	= primevc.core.dispatcher.Signal2<UInt,UInt>;
 
 

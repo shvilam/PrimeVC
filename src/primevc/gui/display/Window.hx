@@ -142,7 +142,7 @@ class Window implements IDisplayContainer, implements IDisablable
 		rect			= new IntRectangle();
 		children		= new DisplayList( target, this );
 		displayEvents	= new DisplayEvents( target );
-		userEvents		= new UserEvents( target );
+		userEvents		= new UserEvents( target /*, true*/ );
 		mouse			= new Mouse( this );
 		
 		target.doubleClickEnabled = true;
@@ -201,9 +201,18 @@ class Window implements IDisplayContainer, implements IDisablable
 	
 	private inline function setFocusOn (child:IInteractiveObject)	{ target.focus = child.as(InteractiveObject); return child; }
 	private inline function getFocus ()	: IInteractiveObject		{ return target.focus.as(IInteractiveObject); }
+
+//	@:getter(scrollRect)
+	// FIXME => won't be called since scrollRect can't be defined as (getScrollRect, setScrollRect)
+//	private function getScrollRect ()								{ return target.scrollRect; }
+//	@:setter(scrollRect)
+//	private function setScrollRect (v:Rectangle)					{ return target.scrollRect = v; }
 #end
 	
-	// FIXME better naming -> looks alot like setFocusOn (the setter)
+	/**
+	 * Method will give the acti focus to the stage.
+	 * FIXME better naming -> looks alot like setFocusOn (the setter)
+	 */
 	public inline function setFocus ()		{ target.focus = target; }
 	public inline function removeFocus ()	{ if (target.focus == target) { target.focus = null; } }
 	

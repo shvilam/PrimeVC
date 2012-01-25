@@ -1,0 +1,64 @@
+= Layout Algorithms =
+Ruben Weijers
+:toc:
+
+
+
+== Horizontal float
+
+.Left-to-right
+{sys:build/doc-include "diagrams/Algorithm_HorFloat_LtR.ditaa"}
+
+[horizontal]
+`a-d`:: LayoutClient's
+`E`:: LayoutContainer - HorizontalFloat(left-to-right)
+
+.Right-to-left
+{sys:build/doc-include "diagrams/Algorithm_HorFloat_RtL.ditaa"}
+
+[horizontal]
+`a-d`:: LayoutClient's
+`E`:: LayoutContainer - HorizontalFloat(right-to-left)
+
+
+== Vertical float
+{sys:build/doc-include "diagrams/Algorithm_VerFloat.ditaa"}
+
+== Diagonal Float
+`Dynamic(horizontal-float, vertical-float)`
+{sys:build/doc-include "diagrams/Algorithm_DiagonalFloat.ditaa"}
+
+== Circle
+`Dynamic(horizontal-circle, vertical-circle)`
+{sys:build/doc-include "diagrams/Algorithm_Circle.ditaa"}
+
+== Ellipse
+`Dynamic(horizontal-ellipse, vertical-ellipse)`
+{sys:build/doc-include "diagrams/Algorithm_Ellipse.ditaa"}
+
+== Horizontal circle
+{sys:build/doc-include "diagrams/Algorithm_HorCircle.ditaa"}
+
+== Vertical circle
+{sys:build/doc-include "diagrams/Algorithm_VerCircle.ditaa"}
+
+== Horizontal ellipse
+{sys:build/doc-include "diagrams/Algorithm_HorEllipse.ditaa"}
+
+== Vertical ellipse
+{sys:build/doc-include "diagrams/Algorithm_VerEllipse.ditaa"}
+
+== Dynamic
+TODO
+
+== Relative
+{sys:build/doc-include "diagrams/Algorithm_Relative.ditaa"}
+
+== Tile
+{sys:build/doc-include "diagrams/Algorithm_Tile.ditaa"}
+
+== Dynamic-Tile
+{sys:build/doc-include "diagrams/Algorithm_DynamicTile.ditaa"}
+
+== Fixed-Tile
+{sys:build/doc-include "diagrams/Algorithm_FixedTile.ditaa"}

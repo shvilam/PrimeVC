@@ -52,7 +52,7 @@ interface IDropTarget implements IUIContainer
 	 * Method to check if an IDraggable-item is allowed to drop on this
 	 * container.
 	 */
-	public function isDisplayDropAllowed (draggedItem:DisplayDataCursor) : Bool;
+	public var isDisplayDropAllowed 		: DisplayDataCursor -> Bool;
 	
 	
 	/**

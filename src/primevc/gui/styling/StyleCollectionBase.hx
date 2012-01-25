@@ -30,7 +30,6 @@ package primevc.gui.styling;
  import primevc.core.collections.iterators.IIterator;
  import primevc.core.collections.PriorityList;
  import primevc.core.collections.FastDoubleCell;
-// import primevc.core.dispatcher.Signal1;
  import primevc.core.traits.IInvalidatable;
  import primevc.core.traits.IInvalidateListener;
  import primevc.core.traits.IDisposable;
@@ -74,12 +73,11 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	 */
 	private var groupIterator		: StyleCollectionForwardIterator < StyleGroupType >;
 	private var groupRevIterator	: StyleCollectionReversedIterator < StyleGroupType >;
-	public var changes				: Int;
+	public  var changes				: Int;
 	
 	
 	public function new (elementStyle:IUIElementStyle, propertyTypeFlag:Int)
 	{
-	//	change					= new Signal1();
 		changes					= 0;
 		this.elementStyle		= elementStyle;
 		this.propertyTypeFlag	= propertyTypeFlag;
@@ -91,14 +89,12 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 	
 	public function dispose ()
 	{
-	//	change.dispose();
 		groupIterator.dispose();
 		groupRevIterator.dispose();
 		
 		groupRevIterator	= null;
 		groupIterator		= null;
 		elementStyle		= null;
-	//	change				= null;
 	}
 	
 	
@@ -129,31 +125,53 @@ class StyleCollectionBase < StyleGroupType:StyleSubBlock >
 		apply();
 	}
 	
-	
-	public function add ( style:StyleGroupType )
+
+	public function add ( style:StyleGroupType ) : Int
 	{
 		Assert.notNull(style);
+		if (isListeningTo(style))
+			return 0;
+		
 		style.listeners.add( this );
-		changes				= changes.set( getRealChangesOf( style, style.allFilledProperties ) );
-		filledProperties	= filledProperties.set( changes );
+
+		var updatedProps = getRealChangesOf( style, style.allFilledProperties );
+		if (updatedProps > 0) {
+			changes				= changes.set( updatedProps );
+			filledProperties	= filledProperties.set( updatedProps );
+		}
+		return updatedProps;
 	}
 	
 	
-	public function remove ( style:StyleGroupType, isStyleStillInList:Bool = true )
+	public function remove ( style:StyleGroupType, isStyleStillInList:Bool = true ) : Int
 	{
-		style.listeners.remove( this );
+		Assert.notNull(style);
+		if (!style.listeners.remove( this ))
+			return 0;
+		
 		updateFilledPropertiesFlag( style );	//exclude the to be removed style
 		
-		if (isStyleStillInList)
-			changes = changes.set( getRealChangesOf( style, style.allFilledProperties ) );
-		else
-			changes = changes.set( style.allFilledProperties );
+		var updatedProps = isStyleStillInList ? getRealChangesOf( style, style.allFilledProperties ) : style.allFilledProperties;
+		changes = changes.set(updatedProps);
+		return updatedProps;
 	}
 	
 	
 	public function apply ()
 	{
 		Assert.abstract();
+	}
+
+
+	private inline function isListeningTo (style:StyleGroupType) : Bool
+	{
+		var l = false;
+		var c = style.listeners.head;
+		while (c != null && !l) {
+			l = this == c.elt;
+			c = c.next;
+		}
+		return l;
 	}
 	
 	
@@ -279,8 +297,10 @@ class StyleCollectionIteratorBase implements IDisposable
 		var styleCell = cast ( cur, CellType );
 		
 		currentCell = styleCell;
-		if (!styleCell.data.has( flag ) && hasNext())	
+		if (!styleCell.data.has( flag ) && hasNext()) {
+			Assert.notEqual(currentCell.next, currentCell);
 			setNext();
+		}
 	}
 }
 

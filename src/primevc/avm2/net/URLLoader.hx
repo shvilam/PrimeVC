@@ -104,7 +104,7 @@ class URLLoader implements ICommunicator
 	public  var events			(default,			null)			: LoaderSignals;
 	public  var bytesProgress	(getBytesProgress,	null)			: Int;
 	public  var bytesTotal		(getBytesTotal,		null)			: Int;
-	public  var length			(default,			never)			: Bindable<Int>;
+	public  var length			(default,			never)			: Null<Bindable<Int>>;
 	public  var type			(default,			null)			: CommunicationType;
 	
 	public  var isQueued		(default,			null)			: Bool;

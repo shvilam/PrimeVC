@@ -55,37 +55,20 @@ class ButtonIconLabelSkin extends Skin<Button>
 	override public function createChildren ()
 	{
 		//create children
-		iconGraphic	= new Image(null, owner.icon);
-		labelField	= new UITextField( null, true, owner.data );
+		iconGraphic	= new Image(#if debug owner.id.value + "Icon" #else null #end, owner.icon);
+		labelField	= UITextField.createLabelField(owner.id.value + "TextField", owner.data, owner);
 		
 		//change properties of new UIElements
 		iconGraphic.maintainAspectRatio = true;
-#if debug
-		labelField.id.value		= owner.id.value + "TextField";
-		iconGraphic.id.value	= owner.id.value + "Icon";
-#end
-#if flash9
-		labelField.autoSize			= flash.text.TextFieldAutoSize.NONE;
-		labelField.selectable		= labelField.mouseEnabled = labelField.tabEnabled = false;
-		labelField.wordWrap			= owner.wordWrap;
-		labelField.embedFonts		= owner.embedFonts;
-		labelField.respondToFocusOf( owner );
+		if (owner.icon != null)
+			owner.attach(iconGraphic);
 		
-		if (owner.textStyle != null)
-			labelField.textStyle = owner.textStyle;
-#end
-		iconGraphic.attachTo( owner );
-		labelField.attachTo( owner );
+		owner.attach(labelField);
 	}
 	
 	
 	override public  function removeChildren ()
 	{
-		if (owner != null && !owner.isDisposed())
-		{
-			if (labelField != null)		labelField.detach();
-			if (iconGraphic != null)	iconGraphic.detach();
-		}
 		if (iconGraphic != null) {
 			iconGraphic.dispose();
 			iconGraphic = null;
@@ -102,7 +85,11 @@ class ButtonIconLabelSkin extends Skin<Button>
 	{
 		Assert.notNull(iconGraphic, owner+"; "+iconGraphic+"; "+labelField+"; "+owner.isDisposed());
 		
-		if (changes.has( Flags.ICON ))			iconGraphic.data = owner.icon;
+		if (changes.has( Flags.ICON )) {
+			iconGraphic.data = owner.icon;
+			if 		(owner.icon == null)		iconGraphic.detach();
+			else if (!iconGraphic.isOnStage()) 	iconGraphic.attachTo(owner, 0);
+		}
 #if flash9
 		if (changes.has( Flags.ICON_FILL ))		iconGraphic.colorize( owner.iconFill );
 

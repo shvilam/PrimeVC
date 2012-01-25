@@ -64,7 +64,6 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	{
 		var height:Int	= 0;
 		var children	= group.children;
-		
 		if (group.childHeight.notSet())
 		{
 			for (i in 0...children.length)
@@ -128,7 +127,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 					var child = children.getItemAt(i);
 					if (!child.includeInLayout)
 						continue;
-					
+
 					child.outerBounds.top	 = next;
 					next					+= group.childHeight;
 				}
@@ -201,13 +200,13 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	private inline function getDepthForBoundsTtB (bounds:IRectangle) : Int
 	{
 		var depth:Int	= 0;
-		var posY:Int	= bounds.top;
-		var centerY:Int	= bounds.top + (bounds.height >> 1); // * .5).roundFloat();
+		var posY:Int	= bounds.top - getTopStartValue();
+		var centerY:Int	= bounds.centerY; //top + (bounds.height >> 1); // * .5).roundFloat();
 		var children	= group.children;
-		
+
 		if (group.childHeight.isSet())
 		{
-			depth = ((posY - getTopStartValue()) / group.childHeight).roundFloat();
+			depth = (posY / group.childHeight).roundFloat();
 		}
 		else
 		{
@@ -246,7 +245,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 				}
 			}
 		}
-		return depth;
+		return depth.within( 0, group.childrenLength - 1 );
 	}
 
 
@@ -286,8 +285,8 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 	private inline function getDepthForBoundsBtT (bounds:IRectangle) : Int
 	{
 		var depth:Int	= 0;
-		var posY:Int	= bounds.top;
-		var centerY:Int	= bounds.top + (bounds.height >> 1); // * .5).roundFloat();
+		var posY:Int	= bounds.top - getTopStartValue();
+		var centerY:Int	= bounds.centerY; // + (bounds.height >> 1); // * .5).roundFloat();
 		
 		var children	= group.children;
 		var groupHeight = group.height;
@@ -302,7 +301,7 @@ class VerticalFloatAlgorithm extends VerticalBaseAlgorithm, implements IVertical
 		
 		if (group.childHeight.isSet())
 		{
-			depth = children.length - ((posY - getBottomStartValue() - emptyHeight ) / group.childHeight).roundFloat();
+			depth = children.length - ((posY - emptyHeight) / group.childHeight).roundFloat();
 		}
 		else
 		{

@@ -30,8 +30,8 @@ package primevc.gui.behaviours.components;
  import primevc.core.dispatcher.Wire;
  import primevc.gui.behaviours.BehaviourBase;
  import primevc.gui.core.IUIContainer;
- import primevc.gui.events.KeyboardEvents;
- import primevc.gui.input.KeyCodes;
+ //import primevc.gui.events.KeyboardEvents;
+ //import primevc.gui.input.KeyCodes;
  import primevc.gui.traits.ISelectable;
   using primevc.utils.Bind;
 
@@ -47,7 +47,7 @@ package primevc.gui.behaviours.components;
 class ButtonSelectedOpenPopup extends BehaviourBase < ISelectable >
 {
 	private var popup		: IUIContainer;
-	private var keyDownWire	: Wire<Dynamic>;
+//	private var keyDownWire	: Wire<Dynamic>;
 	
 	
 	public function new (target, popup:IUIContainer)
@@ -77,15 +77,15 @@ class ButtonSelectedOpenPopup extends BehaviourBase < ISelectable >
 		handleSelectChange( target.selected.value, false );
 		
 		//check if the escape key is pressed, if so, close the popup
-		keyDownWire = checkEscapePressed.on( popup.userEvents.key.down, this );
-		keyDownWire.disable();
+	//	keyDownWire = checkEscapePressed.on( popup.userEvents.key.down, this );
+	//	keyDownWire.disable();
 	}
 	
 	
 	override private function reset ()
 	{
-		keyDownWire.dispose();
-		keyDownWire = null;
+	//	keyDownWire.dispose();
+	//	keyDownWire = null;
 		
 		target.selected.change.unbind(this);
 		target.displayEvents.removedFromStage.unbind(this);
@@ -106,7 +106,7 @@ class ButtonSelectedOpenPopup extends BehaviourBase < ISelectable >
 		
 		Assert.notNull( popup );
 		target.system.popups.add( popup );
-		keyDownWire.enable();
+	//	keyDownWire.enable();
 	}
 	
 	
@@ -116,13 +116,13 @@ class ButtonSelectedOpenPopup extends BehaviourBase < ISelectable >
 			return;
 		
 		popup.system.popups.remove( popup );
-		keyDownWire.disable();
+	//	keyDownWire.disable();
 	}
 	
 	
-	private function checkEscapePressed (event:KeyboardState)
+	/*private function checkEscapePressed (event:KeyboardState)
 	{
 		if (event.keyCode() == KeyCodes.ESCAPE)
 			target.deselect();
-	}
+	}*/
 }

@@ -70,5 +70,9 @@ interface IUIComponent
 	/**
 	 * Implement this method to clean-up the children of the component
 	 */
-	public  function removeChildren ()				: Void;
+#if flash11
+	public  function removeChildren (beginIndex : Int = 0, endIndex : Int = 2147483647) : Void;
+#else
+	public  function removeChildren () 				: Void;
+#end
 }

@@ -2,6 +2,7 @@
  import flash.events.Event;
  import flash.system.System;
  import primevc.tools.StopWatch;
+ import primevc.types.Number;
  import primevc.utils.FastArray;
  
 
@@ -335,7 +336,7 @@ class Comparison extends Thread, implements ITest
 		var fastests:FastArray<Test>	= FastArrayUtil.create();		//make a vector with fastests test in case there are more then one tests with the same time
 		
 		var currentTest				= firstTest;
-		var fastestTime				= StopWatch.MAX_VALUE; //currentTest.timer.fastest;
+		var fastestTime				= Number.INT_MAX; //StopWatch.MAX_VALUE; //currentTest.timer.fastest;
 		var i:Int					= 0;
 		var tabs:Int;
 		var maxTabs:Int				= 8;

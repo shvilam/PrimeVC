@@ -27,7 +27,6 @@
  *  Danny Wilson	<danny @ onlinetouch.nl>
  */
 package primevc.tools.valueobjects;
- import primevc.core.collections.ListChange;
  import primevc.core.traits.IFlagOwner;
  import primevc.core.traits.IValueObject;
  import primevc.core.dispatcher.Signal1;
@@ -50,9 +49,18 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 {
 	public var change (default, null) : Signal1<ObjectChangeSet>;
 	
-	private var _changedFlags	: Int;
-	private var _propertiesSet	: Int;
-	private var _flags			: Int;
+	private var _changedFlags		: Int;
+	private var _propertiesSet		: Int;
+	/**
+	 * Flags defines the state of the VO
+	 */
+	private var _flags				: Int;
+	/**
+	 * PropertyID of the property that's unique. If the VO doens't have a unique-id it should be '0'.
+	 * The flag is used to check if the VO is empty. If the VO only has a unique-property set, it will
+	 * be considered empty.
+	 */
+	private var _uniquePropertyFlag	: Int;
 	
 	/**
 	 * method to initialize an value-object. Create bindings to the properties of the vo in this method.
@@ -62,7 +70,7 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 	private function init ()
 	{
 		change = new Signal1();
-#if js	_changedFlags = _flags = 0; #end
+#if js _uniquePropertyFlag = _changedFlags = _flags = 0; #end
 	}
 	
 	
@@ -77,7 +85,7 @@ class ValueObjectBase implements IValueObject, implements IFlagOwner
 	}
 	
 	
-	public inline function isEmpty() : Bool				{ return !_propertiesSet.not0(); }
+	public inline function isEmpty() : Bool				{ return !(_propertiesSet & (0x7FFFFFFF ^ this._uniquePropertyFlag)).not0(); }
 	public inline function isEditable() : Bool			{ return _flags.has(Flags.IN_EDITMODE); }
 	public inline function isDisposed() : Bool			{ return change == null; }
 	public inline function changed () : Bool			{ return _changedFlags.not0(); }

@@ -1,0 +1,68 @@
+#!/bin/bash
+
+BUILDSCRIPTDIR=`dirname $0`
+PRJROOT=`cd "${BUILDSCRIPTDIR}/.."; pwd`
+
+#define asciidoc folder with usersettings
+CURPATH=`pwd`
+cd ~
+ASCIIDOC_USER="`pwd`/.asciidoc"
+cd "$CURPATH"
+
+function requireProgram {
+    hash $1 2>&- || { 
+        echo "$1 not installed. Instaling now with $2"
+        sh $2 || exit 1;
+    }
+}
+
+function requireBrew {
+    echo "trying to: brew install $1"
+    if [ ! -d /usr/local/Cellar/$1 ]; then brew install $1 $2 || exit $!; fi
+}
+
+#install asciidoc filters
+function requireFilter {
+    FOLDER="$ASCIIDOC_USER/filters/$1"
+    echo -e "checking $FOLDER"
+    if [ ! -d $FOLDER ]; then
+        echo -e "\tinstalling $1 for asciidoc"
+        FILTER="$1.zip"
+        wget -q -O $FILTER $2 &&
+        asciidoc --filter install $FILTER
+        rm $FILTER
+    else
+        echo -e "\t$1 ascii-doc-filter already installed"
+    fi;
+}
+
+requireProgram "brew" 'ruby -e "$(curl -fsS http://gist.github.com/raw/323731/install_homebrew.rb)"'
+
+requireBrew "python" "--framework"  #install newest python
+requireBrew "brew-pip"              #install brew version for pyhton packagemanager
+requireBrew "asciidoc"
+requireBrew "docbook"
+requireBrew "graphviz"              #required for drawing UML
+requireBrew "mscgen"                #UML http://www.mcternan.me.uk/mscgen/
+requireBrew "ditaa"                 #http://ditaa.sourceforge.net/
+requireBrew "jpeg"
+requireBrew "pil"                   #python bitmap output support
+requireBrew "source-highlight"      #sourcecode highlighting
+
+/usr/local/share/python/easy_install "aafigure"
+#/usr/local/share/python/easy_install "pil"                     #python bitmap output support
+/usr/local/share/python/pip install --upgrade "pil"             #python bitmap output support
+
+requireFilter "ditaa" "http://asciidoc-ditaa-filter.googlecode.com/files/ditaa-filter-1.1.zip"
+requireFilter "aafigure" "http://asciidoc-aafigure-filter.googlecode.com/files/aafigure-filter-1.1.zip"
+requireFilter "mscgen" "http://asciidoc-mscgen-filter.googlecode.com/files/mscgen-filter-1.2.zip"
+requireFilter "codeextractor" "http://download.berlios.de/codeextactor/codeextract_1_0_0b0.zip"
+
+#theme support
+#if [ ! -d "$ASCIIDOC_USER/themes" ]; then
+#    mkdir "$ASCIIDOC_USER/themes"
+#fi;
+
+#install 'bare' theme (http://tomayko.com/src/adoc-themes/bare.html)
+#ln -s "$PRJROOT/docs/themes/bare" "$ASCIIDOC_USER/themes/bare"
+#ln -s "$PRJROOT/docs/themes/prime" "/usr/local/etc/asciidoc/themes/prime"

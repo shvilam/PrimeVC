@@ -58,11 +58,8 @@ class ButtonIconSkin extends Skin<Button>
 
 	override public function createChildren ()
 	{
-		owner.attach( iconGraphic = new Image(null, owner.icon) );
+		owner.attach( iconGraphic = new Image(#if debug owner.id.value + "Icon" #else null #end, owner.icon) );
 		iconGraphic.maintainAspectRatio = true;
-#if debug
-		iconGraphic.id.value	= owner.id.value + "Icon";
-#end
 	}
 	
 

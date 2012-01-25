@@ -1,0 +1,39 @@
+#!/bin/bash
+
+INPUT="docs/src"
+OUTPUT="docs/output"
+
+FILE=$1
+FILE_IN="$INPUT/$FILE"
+ext=${FILE##*.}
+FILE="${FILE%.*}"
+
+if [[ $ext == ditaa ]]; then
+    FILE="$FILE.png"
+else
+    FILE="$FILE.svg"
+fi;
+
+FILE_OUT="$OUTPUT/$FILE"
+
+# create input file if it doesn't exist
+if [[ ! -f $FILE_IN ]]; then
+    cat > $FILE_IN <<EOF
+["$ext","`basename $FILE`"]
+-----
+
+-----
+EOF
+fi;
+
+
+# create ouput image
+if [[ ! -f $FILE_OUT ]] || test "$FILE_IN" -nt "$FILE_OUT"; then
+    mkdir -p `dirname "$FILE_OUT"`
+    asciidoc -o $FILE_OUT $FILE_IN
+fi;
+
+
+#insert output image in document
+echo "image:$FILE[]"
+exit 0;

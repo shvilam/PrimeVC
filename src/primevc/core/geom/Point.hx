@@ -33,16 +33,22 @@ package primevc.core.geom;
  * @author			Ruben Weijers
  */
 #if flash9
-	typedef Point = flash.geom.Point;
+typedef Point = flash.geom.Point;
 #else
 
 
 class Point
 {
-	
-	public var x (getX, setX)	: Float;
-	public var y (getY, setY)	: Float;
-	
+	public var x (default, default)	: Float;
+	public var y (default, default)	: Float;
+/*	#if js
+		private static function __init__() : Void untyped {
+		if( __js__("WebKitPoint") )
+			primevc.core.geom["Point"] = __js__("WebKitPoint");
+	}
+	#end
+*/
+
 	
 	public function new(x:Float = 0, y:Float = 0)
 	{
@@ -50,50 +56,13 @@ class Point
 		this.y = y;
 	}
 	
-	
-	public function clone () {
-		return new Point( x, y );
-	}
-	
-	
-	private function getX()		{ return x; }
-	private function setX(v)	{ return x = v; }
-	private function getY()		{ return y; }
-	private function setY(v)	{ return y = v; }
-	
-	
-	public inline function subtract (v:Point) {
-		return new Point(
-			x - v.x,
-			y - v.y
-		);
-	}
-	
-	
-	public inline function add (v:Point) {
-		return new Point(
-			x + v.x,
-			y + v.y
-		);
-	}
-	
-	
-	public inline function isEqualTo (v:Point) : Bool {
-		return x == v.x && y == v.y;
-	}
-	
-	
-	public inline function setTo (v:Point) : Void {
-		x = v.x;
-		y = v.y;
-	}
-	
-	
-	#if debug
-	public inline function toString () {
-		return "Point( "+x+", "+y+" )";
-	}
-	#end
+	public inline function clone ()					return new Point( x, y )
+	public inline function subtract (v:Point)		return new Point( x - v.x, y - v.y )
+	public inline function add (v:Point)			return new Point( x + v.x, y + v.y )
+	public inline function isEqualTo (v:Point) 		return x == v.x && y == v.y
+	public inline function setTo (v:Point) 		{ 	x = v.x; y = v.y; }
+#if debug
+	public inline function toString ()				return "Point( "+x+", "+y+" )"
+#end
 }
-
 #end

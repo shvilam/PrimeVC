@@ -35,5 +35,5 @@ package primevc.gui.display;
  * @creation-date Jun 06, 2011
  */
 typedef DisplayObject =	#if flash9	flash.display.DisplayObject;
-					#elseif js		Dynamic;
+					#elseif js		js.Dom.HtmlDom;
 					#else			Dynamic; #end

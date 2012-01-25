@@ -103,4 +103,9 @@ class StyleSubBlock extends StyleBlockBase
 	private inline function getNesting ()		{ return owner != null ? owner.nestingInherited : null; }
 	private inline function getSuper ()			{ return owner != null ? owner.superStyle : null; }
 	private inline function getParent ()		{ return owner != null ? owner.parentStyle : null; }
+
+
+#if (debug && !neko)
+	override public function toString ()		{ return super.toString() + "; owner: "+owner; }
+#end
 }

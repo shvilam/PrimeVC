@@ -60,9 +60,9 @@ class CornerScrollBehaviour extends MouseScrollBehaviourBase
 		scrollSpeed		= null;
 	}
 	
-	override private function createBindings ()
+	override private function init ()
 	{
-		super.createBindings();
+		super.init();
 		scrollBinding = scroll.on( target.displayEvents.enterFrame, this );
 		scrollBinding.disable();
 	}

@@ -2,7 +2,6 @@ package;
 #if macro
  import haxe.macro.Context;
  import haxe.macro.Expr;
-#end
 
 class Undead
 {
@@ -19,7 +18,6 @@ class Undead
 	}
 	
 	
-#if macro
 	static function keep (name:String, pos) switch (Context.getType(name)) {
 		case haxe.macro.Type.TInst(cl, _):
 			cl.get().meta.add(":keep", [], pos);

@@ -30,6 +30,7 @@ package primevc.gui.components;
  import primevc.core.collections.IReadOnlyList;
  import primevc.core.dispatcher.Wire;
  import primevc.gui.behaviours.components.ButtonSelectedOpenPopup;
+ import primevc.gui.behaviours.components.KeyboardListNavigation;
  import primevc.gui.behaviours.layout.FollowObjectBehaviour;
  import primevc.gui.components.DataButton;
  import primevc.gui.components.ListHolder;
@@ -78,7 +79,7 @@ class ComboBox <DataType> extends DataButton <DataType>
 	 */
 	public var createItemRenderer	(default, setCreateItemRenderer) : DataType -> Int -> IUIDataElement<DataType>;
 	
-	private var selectListItemWire	: Wire<DataType->DataType->Void>;
+//	private var selectListItemWire	: Wire<DataType->DataType->Void>;
 	
 	/**
 	 * Wire for listening to mouse-down events on the stage. Only enabled when
@@ -105,14 +106,16 @@ class ComboBox <DataType> extends DataButton <DataType>
 		
 		popup.styleClasses.add( "comboList" );
 		popup.behaviours.add( new FollowObjectBehaviour( popup, this ) );
+		list .behaviours.add( new KeyboardListNavigation( list ) );
 		
 		if (createItemRenderer == null)
 			createItemRenderer = createDefaultItemRenderer;
 		
 		popup.createItemRenderer = createItemRenderer;
 		
-	    deselect.on( vo.change, this );
-	    list.selected.pair( vo );
+	//  deselect.on( vo.change, this );			// hides combobox-popup when a new data-item has been selected
+	    deselect.on( list.itemSelected, this );	// hides combobox-popup when the user has tried to change the selected item
+	    list.selected.pair( vo ); 				// make sure the vo.value and selected list-item are always the same
 		Assert.notNull( getLabelForVO );
 		
 		//leave the opening and closing of the list to the behaviouruserEvents.
@@ -122,8 +125,6 @@ class ComboBox <DataType> extends DataButton <DataType>
 		
 		windowWire = checkToDeselect.on( window.userEvents.mouse.down, this );
 		windowWire.disable();
-		
-		handleItemRendererClick.on( popup.childClick, this );
 	}
 	
 	
@@ -192,27 +193,6 @@ class ComboBox <DataType> extends DataButton <DataType>
 	//
 	// EVENT HANDLERS
 	//
-	
-	
-	/**
-	 * Method is called when an item-renderer in the list is clicked. The
-	 * method will try to update the value of the combobox.
-	 */
-	private function handleItemRendererClick (mouseEvt:MouseState) : Void
-	{
-		if (mouseEvt.target != null)
-		{
-			if (mouseEvt.target.is( DataButton )) {
-				var dataButton : DataButton<DataType> = cast mouseEvt.target;
-				vo.value = dataButton.vo.value;
-			}
-			
-			else if (mouseEvt.target.is( IUIDataElement )) {
-				var dataElement : IUIDataElement<DataType> = cast mouseEvt.target;
-				vo.value = dataElement.data;
-			}
-		}
-	}
 	
 	
 	private function handleSelected (newVal:Bool, oldVal:Bool)

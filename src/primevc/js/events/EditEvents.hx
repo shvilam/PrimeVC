@@ -1,8 +1,8 @@
 package primevc.js.events;
 
 /**
- * @since	march 8, 2011
- * @author 	Stanislav Sopov
+ * @author	Stanislav Sopov
+ * @since	March 8, 2011
  */
 
 class EditEvents 

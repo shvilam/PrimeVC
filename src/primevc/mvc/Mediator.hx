@@ -32,8 +32,8 @@ package primevc.mvc;
 /**
  * Abstract Mediator class.
  * 
- * The Mediator translates requests between components.
- * Usually it acts as a layer between application-requests and the View.
+ * The Mediator translates requests between gui-components.
+ * Usually it acts as a layer between MVC-requests and the GUI.
  * 
  * A Mediator is not allowed to change Value-objects.
  * It can however request changes from a Proxy (defined within Model).

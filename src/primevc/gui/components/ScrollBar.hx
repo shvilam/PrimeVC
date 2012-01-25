@@ -179,6 +179,7 @@ class ScrollBar extends SliderBase
 			var scrollable	= l.horScrollable();
 			dragBtn.visible	= dragBtn.layout.includeInLayout = scrollable;
 			dragBtn.layout.percentWidth	= scrollable ? FloatMath.min( l.width / l.measuredWidth, 1 ) : 0;
+			updateChildren();	// forces the button to jump to the right position
 			
 			if (scrollable)
 				data.validator.setValues( l.minScrollXPos, l.minScrollXPos + l.scrollableWidth );
@@ -201,7 +202,8 @@ class ScrollBar extends SliderBase
 			var scrollable	= l.verScrollable();
 			dragBtn.visible	= dragBtn.layout.includeInLayout = scrollable;
 			dragBtn.layout.percentHeight = scrollable ? FloatMath.min( l.height / l.measuredHeight, 1 ) : 0;
-			
+			updateChildren();	// forces the button to jump to the right position
+
 			if (scrollable)
 				data.validator.setValues( l.minScrollYPos, l.minScrollYPos + l.scrollableHeight );
 		}

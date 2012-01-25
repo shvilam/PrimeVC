@@ -28,6 +28,7 @@
  */
 package primevc.avm2.display;
  import flash.display.DisplayObject;
+ import primevc.core.dispatcher.Wire;
  import primevc.core.geom.IntRectangle;
  import primevc.core.Bindable;
 
@@ -135,7 +136,7 @@ class TextField extends flash.text.TextField, implements ITextField
 	}
 	
 	
-	private  function setData (v:Bindable<String>)
+	private function setData (v:Bindable<String>)
 	{
 		if (v != data)
 		{
@@ -383,6 +384,7 @@ class TextField extends flash.text.TextField, implements ITextField
 	 * respond.
 	 */
 	private var focusTarget : IInteractiveObject;
+	private var redispatchBinding : Wire<Dynamic>;
 	
 	
 	/**
@@ -394,11 +396,10 @@ class TextField extends flash.text.TextField, implements ITextField
 	public function respondToFocusOf (target:IInteractiveObject)
 	{
 		//bind the focus-events of the textfield and the target together
-		redispatchFocusEvent.on( userEvents.focus, this );
-		handleBlur			.on( userEvents.blur, this );
+		handleBlur			.on( 		userEvents.blur,  this );
 		giveFocusToMe		.on( target.userEvents.focus, this );
-		
-		focusTarget = target;
+		redispatchBinding 	= redispatchFocusEvent.on( userEvents.focus, this );
+		focusTarget 		= target;
 	}
 	
 	
@@ -406,11 +407,12 @@ class TextField extends flash.text.TextField, implements ITextField
 	{
 		if (focusTarget == null)
 			return;
-		
-		userEvents.focus.unbind(this);
+
 		userEvents.blur.unbind(this);
 		focusTarget.userEvents.focus.unbind(this);
 		
+		redispatchBinding.dispose();
+		redispatchBinding = null;
 		focusTarget = null;
 	}
 	
@@ -422,8 +424,13 @@ class TextField extends flash.text.TextField, implements ITextField
 	 */
 	private function giveFocusToMe (event:FocusState)
 	{
-		if (event.target != this)
+		if (event.target != this) {
+		//	focusTarget.userEvents.focus.disable();
+			redispatchBinding.disable();
 			setFocus();
+			redispatchBinding.enable();
+		//	focusTarget.userEvents.focus.enable();
+		}
 	}
 	
 	

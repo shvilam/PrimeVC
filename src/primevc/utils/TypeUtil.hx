@@ -45,8 +45,9 @@ extern class TypeUtil
 		#elseif flash
 			return untyped __instanceof__(o, t);
 		#elseif js {
-			var __o = o, __t = t;
-			return untyped __js__("__o instanceof __t");
+			return Std.is(o, t);
+		//	var __o = o, __t = t;
+		//	return untyped __js__("__o instanceof __t");
 		}
 		#else
 			return Std.is(o, t);

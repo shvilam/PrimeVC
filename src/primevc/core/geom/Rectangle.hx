@@ -42,4 +42,12 @@ class Rectangle extends flash.geom.Rectangle, implements IDisposable
 {
 	public function dispose () {}
 }*/
+#else
+
+class Rectangle
+{
+    
+}
+
+
 #end

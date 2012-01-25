@@ -1,31 +1,34 @@
 package primevc.js.events;
+ import primevc.js.events.DOMSignal1;
 
-import js.Dom;
 
 /**
- * @author Stanislav Sopov
- * @since march 2, 2010
+ * @author	Stanislav Sopov
+ * @since	March 2, 2011
  */
+typedef DisplayEvent =
+{
+	>js.Dom.DOMEvent,
+	/*
+	attrChange constants
+	
+	ADDITION 		= 2; 
+	MODIFICATION 	= 1; 
+	REMOVAL 		= 3; 
+	*/
+	
+	public var attrChange	(default, null):Int; // The type of change which triggered the event.
+	public var attrName		(default, null):String; // The name of the modified attribute.
+	public var newValue		(default, null):String; // The new value of the modified attribute.
+	public var prevValue	(default, null):String; // The previous value of the modified attribute.
+	public var relatedNode	(default, null):Dynamic; // A secondary element related to the event. 
+}
 
-class DisplaySignal extends DOMSignal1<Type>
+
+class DisplaySignal extends DOMSignal1<DisplayEvent>
 {
 	override private function dispatch(event:Event) 
 	{
-		var displayEvent = new DisplayEvent(event);
-		
-		send(displayEvent);
+		send(cast event);
 	}
 }
-
-class DisplayEvent
-{	
-	public var type			(default, null):String; // The type of event that occurred.
-	public var target 		(default, null):HtmlDom; // Returns the element that triggered the event
-	
-	public function new (event:Event)
-	{
-		type = event.type;
-		target = event.target;
-	}
-}
-
