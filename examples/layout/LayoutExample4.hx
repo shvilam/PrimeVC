@@ -32,6 +32,7 @@ package examples.layout;
 
 /**
  * LayoutExample4 is identical to LayoutExample1-3, but uses css for styling.
+ * The css for this example can be found in PrimeVC/styles/layoutExample4.
  *
  * @author			Ruben Weijers
  * @creation-date	Jan 25, 2012
