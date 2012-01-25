@@ -44,7 +44,7 @@ package examples.layout;
 
 
 /**
- * LayoutExample2 is identical to LayoutExample1, except for that it uses primes display-package instead of the one of flash.
+ * LayoutExample2 is identical to LayoutExample1, except it uses primes display-package instead of flash.display.*
  *
  * @author			Ruben Weijers
  * @creation-date	Jan 25, 2012
@@ -62,10 +62,12 @@ class LayoutExample2 extends Window
 	{
 		super(stage);
 		
-		//stage-layout automitcly adjusts it's size to the flash-stage-size
+		// StageLayout automatically adjusts its size to the flash-stage-size
 		layout	 = #if flash9 new primevc.avm2.layout.StageLayout( flash.Lib.current.stage ) #else new LayoutContainer() #end;
 		
-		//some examples with layout-algorithms
+		// ----
+		// Some example layout-algorithms - uncomment to try em out.
+		// ----
 	//	layout.algorithm = new primevc.gui.layout.algorithms.tile.SimpleTileAlgorithm(vertical);
 		layout.algorithm = new primevc.gui.layout.algorithms.tile.SimpleTileAlgorithm();
 	//	layout.algorithm = new primevc.gui.layout.algorithms.DynamicLayoutAlgorithm( function () { return new primevc.gui.layout.algorithms.circle.HorizontalCircleAlgorithm(); }, function () { return new primevc.gui.layout.algorithms.circle.VerticalCircleAlgorithm(); } );
@@ -92,6 +94,8 @@ class LayoutExample2 extends Window
 
 
 /**
+ * A simple Box which is positioned by the layout code in LayoutExample2
+ *
  * @author			Ruben Weijers
  * @creation-date	Jan 24, 2012
  */
@@ -147,6 +151,8 @@ private class Box
 
 
 /**
+ * A simple Box with mouse hover interactions which is positioned by the layout code in LayoutExample2
+ *
  * @author			Ruben Weijers
  * @creation-date	Jan 25, 2012
  */
