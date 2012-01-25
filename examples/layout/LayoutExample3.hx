@@ -37,7 +37,8 @@ package examples.layout;
 
 
 /**
- * LayoutExample2 is identical to LayoutExample1, except for that it uses primes display-package instead of the one of flash.
+ * LayoutExample3 is identical to LayoutExample2 but uses the primevc.gui.core package instead
+ * of primevc.gui.display.
  *
  * @author			Ruben Weijers
  * @creation-date	Jan 25, 2012

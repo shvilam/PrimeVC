@@ -7,6 +7,5 @@
 -cp libs/hiresStats
 -cp libs/hxmpp
 -cp src
--cp examples
 --dead-code-elimination
 --macro Undead.keepAlive()

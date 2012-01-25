@@ -1,0 +1,23 @@
+@manifest url('Style.xml');
+
+IDisplayObject {
+	shape: rectangle;
+	visibility: visible;
+	opacity: 1;
+}
+LayoutExample4 {
+	overflow: hidden;
+	algorithm: tile;
+/*	algorithm: circle;*/
+}
+LayoutExample4 IDisplayObject {
+	width: 30px;
+	height: 50px;
+	margin: 20px 5px;
+	background: #ffaaaa;
+}
+LayoutExample4 UIComponent:hover {
+	background: #eeaadd;
+	width: 80px;
+	height: 80px;
+}
