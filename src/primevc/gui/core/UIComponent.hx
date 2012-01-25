@@ -132,7 +132,6 @@ class UIComponent extends Sprite, implements IUIComponent
 		behaviours = new BehaviourList();
 		behaviours.add( new ValidateLayoutBehaviour(this) );
 		behaviours.add( new RenderGraphicsBehaviour(this) );
-		behaviours.add( new InteractiveStyleChangeBehaviour(this) );
 #end
 		
 		createStates();
@@ -152,7 +151,9 @@ class UIComponent extends Sprite, implements IUIComponent
 		if (isInitialized())
 			return;
 
-#if flash9		
+#if flash9
+		if (stylingEnabled)
+			behaviours.add( new InteractiveStyleChangeBehaviour(this) );
 		Assert.notNull(parent);
 #end
 	//	Assert.notNull(container, "Container can't be null for "+this);
