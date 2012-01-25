@@ -52,7 +52,9 @@ class LayoutExample3 extends UIWindow
 	override private function createChildren ()
 	{
 		stylingEnabled = false;
-		//some examples with layout-algorithms
+		// ----
+		// Some example layout-algorithms - uncomment to try em out.
+		// ----
 	//	layoutContainer.algorithm = new primevc.gui.layout.algorithms.tile.SimpleTileAlgorithm(vertical);
 		layoutContainer.algorithm = new primevc.gui.layout.algorithms.tile.SimpleTileAlgorithm();
 	//	layoutContainer.algorithm = new primevc.gui.layout.algorithms.DynamicLayoutAlgorithm( function () { return new primevc.gui.layout.algorithms.circle.HorizontalCircleAlgorithm(); }, function () { return new primevc.gui.layout.algorithms.circle.VerticalCircleAlgorithm(); } );
@@ -67,6 +69,8 @@ class LayoutExample3 extends UIWindow
 
 
 /**
+ * A simple Box which is positioned by the layout code in LayoutExample2
+ *
  * @author			Ruben Weijers
  * @creation-date	Jan 25, 2012
  */
@@ -86,6 +90,8 @@ private class Box extends UIGraphic
 
 
 /**
+ * A simple Box with mouse hover interactions which is positioned by the layout code in LayoutExample3
+ *
  * @author			Ruben Weijers
  * @creation-date	Jan 25, 2012
  */

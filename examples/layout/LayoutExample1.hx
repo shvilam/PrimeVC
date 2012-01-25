@@ -52,7 +52,7 @@ package examples.layout;
  * This example shows how to use LayoutContainer, LayoutClient
  * and some layout-algorithms.
  * In the constructor of LayoutExample1 you will find 4 layout-algorithms which will all
- * influence the position of it's children in different manners.
+ * influence the position of its children in different manners.
  *
  * NOTE: Example is currently flash-only!
  *
@@ -80,10 +80,12 @@ class LayoutExample1 extends Sprite
 		displayEvents = new DisplayEvents(this);
 		children = FastArrayUtil.create();
 
-		//stage-layout automitcly adjusts it's size to the flash-stage-size
+		// StageLayout automatically adjusts its size to the flash-stage-size
 		layout	 = #if flash9 new primevc.avm2.layout.StageLayout( flash.Lib.current.stage ) #else new LayoutContainer() #end;
 
-		//some examples with layout-algorithms
+		// ----
+		// Some example layout-algorithms - uncomment to try em out.
+		// ----
 	//	layout.algorithm = new primevc.gui.layout.algorithms.tile.SimpleTileAlgorithm(vertical);
 		layout.algorithm = new primevc.gui.layout.algorithms.tile.SimpleTileAlgorithm();
 	//	layout.algorithm = new primevc.gui.layout.algorithms.DynamicLayoutAlgorithm( function () { return new primevc.gui.layout.algorithms.circle.HorizontalCircleAlgorithm(); }, function () { return new primevc.gui.layout.algorithms.circle.VerticalCircleAlgorithm(); } );
@@ -110,6 +112,8 @@ class LayoutExample1 extends Sprite
 
 
 /**
+ * A simple Box which is positioned by the layout code in LayoutExample1
+ *
  * @author			Ruben Weijers
  * @creation-date	Jan 24, 2012
  */
@@ -165,6 +169,8 @@ private class Box
 
 
 /**
+ * A simple Box with mouse hover interactions which is positioned by the layout code in LayoutExample1
+ *
  * @author			Ruben Weijers
  * @creation-date	Jan 24, 2012
  */
