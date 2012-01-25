@@ -1,0 +1,12 @@
+-lib feffects
+--flash-strict
+-swf-version 10
+-swf-header 1000:750:24:FFFFFF
+-cp libs/apparat
+-cp libs/haxe
+-cp libs/hiresStats
+-cp libs/hxmpp
+-cp src
+-cp examples
+--dead-code-elimination
+--macro Undead.keepAlive()
