@@ -6,7 +6,6 @@ IDisplayObject {
 	opacity: 1;
 }
 LayoutExample4 {
-	overflow: hidden;
 	algorithm: tile;
 /*	algorithm: circle;*/
 }
