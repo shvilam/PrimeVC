@@ -37,7 +37,7 @@ NOTE: Prime-developers: `border-box` is supported by all modern browsers. PrimeV
 === Build instructions
 Below you find the commands to build the first four layout-tests. Make sure you execute these commands from the PrimeVC-root-folder.
 
-Example1:
+https://github.com/touch/PrimeVC/blob/master/examples/layout/LayoutExample1.hx[Example 1] Bare bones layout:
 [source,bash]
 ----
 > haxe build/build-flash-example.hxml \
@@ -47,7 +47,7 @@ Example1:
 && open bin-debug/LayoutExample1.swf
 ----
 
-Example2:
+https://github.com/touch/PrimeVC/blob/master/examples/layout/LayoutExample2.hx[Example 2] Bare bones with the Prime display package:
 [source,bash]
 ----
 > haxe build/build-flash-example.hxml \
@@ -57,7 +57,7 @@ Example2:
 && open bin-debug/LayoutExample2.swf
 ----
 
-Example3:
+https://github.com/touch/PrimeVC/blob/master/examples/layout/LayoutExample3.hx[Example 3] Positioning Prime UIComponents:
 [source,bash]
 ----
 > haxe build/build-flash-example.hxml \
@@ -67,7 +67,7 @@ Example3:
 && open bin-debug/LayoutExample3.swf
 ----
 
-Example4:
+https://github.com/touch/PrimeVC/blob/master/examples/layout/LayoutExample4.hx[Example 4] What you want in practice, using CSS to layout UIComponents:
 
 The `build/build` script handles building and running of the Prime CSS parser and requires http://www.gnu.org/software/bash/[Bash] to run. Windows users: bash is included with http://code.google.com/p/msysgit/[Git for Windows] - make sure it's added to the PATH.
 [source,bash]
