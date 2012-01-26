@@ -46,7 +46,7 @@
     <!-- example: <hidden path="..." /> -->
   </hiddenPaths>
   <!-- Executed before build -->
-  <preBuildCommand />
+  <preBuildCommand>sh "$(ProjectDir)\..\..\build\build-styles" -s "$(ProjectDir)\styles\sample"</preBuildCommand>
   <!-- Executed after build -->
   <postBuildCommand alwaysRun="True" />
   <!-- Other project options -->
